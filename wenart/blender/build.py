@@ -1987,6 +1987,13 @@ FLOOR_DECOR_TYPES = ("plant_large", "plant", "sculpture", "basket")
 # wenart.furniture.decor.MIN_LIGHT_BOTTOM_M (that module imports shapely, which Blender's Python has not; pinned equal
 # in tests/test_m13_p5_fixround.py), checked for every hostless ceiling light under the roof, flush or not.
 MIN_LIGHT_BOTTOM_M = 2.0
+# Fix round after P6a, part I2 (22-23 Oct 2026; D_decor's ask, verify:look:1 step 5): curtains and blinds under the
+# roof stay under the slope. The copies of wenart.furniture.decor.WINDOW_DECOR_TYPES and WINDOW_DECOR_CEILING_CLEAR_M
+# (pinned equal in tests/test_m13_p6a_sky.py) and the decor stage's smallest curtain (decor_ai: a curtain 0.3 m tall
+# or less is left out).
+WINDOW_DECOR_TYPES = ("curtain", "blind")
+WINDOW_DECOR_CEILING_CLEAR_M = 0.02
+WINDOW_DECOR_MIN_H_M = 0.3
 
 
 def camera_building(building: dict, not_built) -> dict:
@@ -2028,7 +2035,16 @@ def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str]
     else the flush height (the ceiling over it minus its height). A light with no height counts as flush (the
     builder hangs it flush), never as 0. Since the fix round after P4a the decor stage hangs its lights flush under
     the slope, so P5's ``dec_L1_011`` (1.155 m above the floor, 1.5 cm under the lens of ``cam_r_L1_banyo_1``),
-    ``dec_L1_009`` (1.716 m) and ``dec_L1_013`` (1.155 m) passed the old "fits" keep and were built."""
+    ``dec_L1_009`` (1.716 m) and ``dec_L1_013`` (1.155 m) passed the old "fits" keep and were built.
+
+    Fix round after P6a, part I2 (22-23 Oct 2026; verify:look:1 step 5): a hostless curtain or blind
+    (``WINDOW_DECOR_TYPES``) with its bottom given (``center[2]``) keeps its top ``WINDOW_DECOR_CEILING_CLEAR_M`` under
+    the sloped ceiling over its footprint: a taller one is made shorter from the top (``size[2]``, its bottom kept;
+    a warning), and one with ``WINDOW_DECOR_MIN_H_M`` or less left is not built (``not_built``, with the reason). The
+    decor stage sizes them under the slope since this round (``wenart.furniture.decor_ai.window_items``); this is the
+    builder's bound for any other source, e.g. an agent roof override applied after the decor stage (the committed
+    real04 building carries a 45 degree one). P6a hung dec_L1_005 / dec_L1_014 (top 2.25 m) under a 1.83 m slope:
+    both showed 0.4 m through the mansard roof."""
     from wenart.blender import furniture as F
     from wenart.blender import parametric as P
 
@@ -2039,6 +2055,16 @@ def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str]
     for item in decor:
         dtype = item.get("type")
         center = list(item.get("center") or [])
+        if item.get("level_id") == level["id"] and item.get("host_id") is None and dtype in WINDOW_DECOR_TYPES \
+                and len(center) > 2 and center[2] is not None:
+            kept, warning, dropped = _window_decor_under_roof(item, level, F, P)
+            if kept is not None:
+                out.append(kept)
+            if warning:
+                warnings.append(warning)
+            if dropped is not None:
+                not_built.append(dropped)
+            continue
         if item.get("level_id") != level["id"] or item.get("host_id") is not None or len(center) < 2 \
                 or dtype not in ("ceiling_light",) + FLOOR_DECOR_TYPES:
             out.append(item)
@@ -2073,6 +2099,29 @@ def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str]
         warnings.append(f"{item.get('id')}: {reason}; not built")
         not_built.append({"id": item.get("id"), "type": dtype, "reason": reason})
     return out, warnings, not_built
+
+
+def _window_decor_under_roof(item: dict, level: dict, F, P) -> tuple[dict | None, str | None, dict | None]:
+    """``(item to build or None, warning or None, not_built record or None)`` of one hostless curtain or blind under
+    the roof (``decor_under_roof``, fix round after P6a part I2; pure): its top at most ``WINDOW_DECOR_CEILING_CLEAR_M``
+    under the lowest ceiling over its footprint (``furniture.ceiling_above``), its bottom (``center[2]``) kept."""
+    dtype = item.get("type")
+    w, d, h = P.decor_size(dtype, item.get("size") or [0.4, 0.4])
+    center = list(item["center"])
+    ceiling, _how = F.ceiling_above(level, center, (w, d), float(item.get("rotation_deg") or 0.0))
+    bottom = float(center[2])
+    room = ceiling - WINDOW_DECOR_CEILING_CLEAR_M - bottom
+    if bottom + h <= ceiling - WINDOW_DECOR_CEILING_CLEAR_M + 1e-6:
+        return item, None, None
+    if room <= WINDOW_DECOR_MIN_H_M + 1e-9:
+        reason = (f"{dtype}: the sloped ceiling over it is {ceiling:.2f} m high; from its bottom at {bottom:.2f} m "
+                  f"only {max(0.0, room):.2f} m are left {WINDOW_DECOR_CEILING_CLEAR_M} m under the slope "
+                  f"(<= {WINDOW_DECOR_MIN_H_M} m)")
+        return None, f"{item.get('id')}: {reason}; not built", {"id": item.get("id"), "type": dtype, "reason": reason}
+    size = list(item.get("size") or [w, d])[:2] + [round(room, 4)]
+    warning = (f"{item.get('id')}: {dtype} top {bottom + h:.2f} m above the floor, the sloped ceiling over it is "
+               f"{ceiling:.2f} m high: made {h - room:.2f} m shorter from the top ({room:.2f} m tall, its bottom kept)")
+    return dict(item, size=size), warning, None
 
 
 def interior_camera_fields(plan: dict, variant: str) -> dict:

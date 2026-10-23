@@ -167,6 +167,14 @@ there), the two L-shaped module sofas and the parametric L-1b sofa carry ``mater
 record, and the rest are models the fit did not recolour (the L1 sofas moved from the recolourable abo_B072555T67 to
 abo_B075X4F5CS). How: on the P5 results (runs/, not committed) fabric colour applied 4 of 26 (recoloured 1, fabric
 slot 3; colour asked but not recolourable 8 pieces of 6 models; no colour asked 14: the armchairs and ottomans).
+
+Fix round after P6a (22-23 Oct 2026; the exterior track's optional ask). What: metric 12 names the rendered exterior
+views the agent placed whose recorded frame (``fits`` / ``sky_share``, recorded by the build on the agent's plans,
+``build.finish_agent_exterior_plans``) holds only part of the building or no sky (``exterior.SKY_MIN_SHARE``):
+"rendered, no sky / partial: <view> (...)" in the text and ``parts.no_sky_or_partial``; they still count as rendered.
+Why: P6a's ext_front_entrance (5 m from real04's entrance facade, 2.34 frame widths, 0 % sky) counted as one more
+rendered view of seven, and the report gave no sign that it shows a blank wall. Scenes built before this fix carry no
+frame on their cameras: nothing is named for them.
 """
 from __future__ import annotations
 
@@ -1116,9 +1124,32 @@ def metric_12(run: Run) -> dict:
         text += "; re-added after the drop: " + ", ".join(
             f"{n} (agent)" if isinstance(cams[n].get("agent"), dict) and cams[n]["agent"] else n for n in re_added)
     text += ")" + (f"; also rendered, not a planned camera: {', '.join(extra)}" if extra else "")
+    # fix round after P6a (module docstring): an agent view whose recorded frame shows part of the building or no sky
+    poor = {n: why for n in shown for why in [poor_frame(cams.get(n))] if why}
+    if poor:
+        text += "; rendered, no sky / partial: " + ", ".join(f"{n} ({why})" for n, why in poor.items())
     return _metric(12, len(shown), text,
                    {"rendered": len(shown), "planned": len(planned), "dropped": len(dropped),
-                    "dropped_cameras": dropped, "re_added": re_added, "not_planned": extra, "cameras": shown}, src)
+                    "dropped_cameras": dropped, "re_added": re_added, "not_planned": extra, "cameras": shown,
+                    "no_sky_or_partial": sorted(poor)}, src)
+
+
+def poor_frame(camera: Optional[dict]) -> Optional[str]:
+    """Fix round after P6a (module docstring): why an exterior camera the agent placed (``policy`` / ``view``
+    ``agent``) frames its building poorly by the frame the build recorded on it: "<fill> frame widths, cut" when
+    ``fits`` is false, "<n> % sky" under ``exterior.SKY_MIN_SHARE``; None for any other camera or without a record."""
+    if not isinstance(camera, dict) or not (camera.get("policy") == "agent" or camera.get("view") == "agent"):
+        return None
+    from wenart.blender.exterior import SKY_MIN_SHARE
+
+    parts = []
+    if camera.get("fits") is False:
+        fill = camera.get("fill")
+        parts.append(f"{float(fill):.2f} frame widths, cut" if isinstance(fill, (int, float)) else "cut")
+    sky = camera.get("sky_share")
+    if isinstance(sky, (int, float)) and not isinstance(sky, bool) and float(sky) < SKY_MIN_SHARE - 1e-9:
+        parts.append(f"{float(sky):.0%} sky")
+    return ", ".join(parts) or None
 
 
 def _bare_wall(run: Run, camera: str) -> Any:

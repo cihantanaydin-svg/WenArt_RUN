@@ -48,7 +48,8 @@ def test_sky_variants_raise_only_the_interior_world_from_production():
     assert L.SKY_VARIANTS == ("sky2", "sky35", "sky52")
     # the lever A/B's names stay P1's (its sheets and defaults pin them); the sky names come on top
     assert L.LIGHT_VARIANTS == ("m11", "base", "sun100", "sun300", "sun1000", "evcap", "rig", "shell", "all")
-    assert L.KNOWN_LIGHT_VARIANTS == L.LIGHT_VARIANTS + L.SKY_VARIANTS
+    # fix round after P6a (pin changed on purpose): the windows-only level skywin35 comes after the sky levels
+    assert L.KNOWN_LIGHT_VARIANTS == L.LIGHT_VARIANTS + L.SKY_VARIANTS + L.SKY_WINDOW_VARIANTS
     prod = L.light_levers(env={})
     for name, stops in L.SKY_VARIANT_STOPS.items():
         lv = L.light_levers(env={L.LIGHT_VARIANT_ENV: name})
@@ -99,7 +100,8 @@ def test_build_lighting_passes_the_gain_to_the_interior_world_only():
     and the exterior sky come from ``sun_strength_wm2``, which never reads ``sky_stops``)."""
     src = inspect.getsource(L.build_lighting)
     assert "world_nodes(scene, world_lighting(lighting, in_building), hdri_path,\n" in src
-    assert "strength_gain=interior_sky_gain(levers))" in src
+    # fix round after P6a (pin changed on purpose): the rays that see the gain go along (all for a sky level)
+    assert "strength_gain=interior_sky_gain(levers), gain_rays=interior_sky_rays(levers))" in src
     assert src.count("strength_gain") == 1 and "exterior_world_nodes(scene, world_lighting(lighting, in_building), " \
         "sun_disc=True,\n" in src and '"levers": lever_record(levers)' in src
     for name in L.SKY_VARIANTS:
@@ -219,7 +221,9 @@ def test_the_sky_views_and_their_resolution():
     assert {"cam_r_L0_yatak_odasi_1", "cam_r_L-1_salon_1", "cam_r_L0_e_yatak_odasi_1",
             "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1"} <= set(SKY_VIEWS)
     assert AB.M13_SKY_AB_VARIANTS == ("base",) + L.SKY_VARIANTS
-    assert AB.AB_VIEW_SETS == {"levers": AB.M13_AB_VIEWS, "sky": AB.M13_SKY_AB_VIEWS}
+    # fix round after P6a (pin changed on purpose): the windows-only A/B's set
+    assert AB.AB_VIEW_SETS == {"levers": AB.M13_AB_VIEWS, "sky": AB.M13_SKY_AB_VIEWS,
+                               "skywin": AB.M13_SKYWIN_AB_VIEWS}
     # the lever A/B is unchanged: no scene, the configured names
     assert AB.ab_views("real02") == AB.m13_views("real02") and AB.ab_views("real04") == []
     assert AB.ab_views("real04", "sky") == SKY_VIEWS and AB.ab_views("real02", "sky") == []
@@ -567,7 +571,10 @@ def test_m13_p6_job_script_contract():
                     'P6_TESTS_RESERVE_S:-900', 'P6_SKY_VARIANT_EST_S:-660', 'P6_SKY_MIN_VARIANTS:-2',
                     'P6_FULL_JOB:-scripts/jobs/full.sh', 'P6_AB_JOB:-scripts/jobs/levers_ab.sh'):
         assert default in text, default
-    for setting in ("AB_VIEW_SET=sky", "AB_SOURCE=run", "AB_NAME=ab_m13/sky", "AB_GPU_TESTS=0"):
+    # fix round after P6a (pin changed on purpose): the view set and the folder come from P6_SKY_VIEW_SET /
+    # P6_SKY_NAME, whose defaults are P6a's (tests/test_m13_p6a_sky.py runs both)
+    for setting in ('AB_VIEW_SET="$SKY_VIEW_SET"', "AB_SOURCE=run", 'AB_NAME="$SKY_NAME"', "AB_GPU_TESTS=0",
+                    'P6_SKY_VIEW_SET:-sky}', 'P6_SKY_NAME:-ab_m13/sky}'):
         assert setting in text, setting
     # review: the A/B has a hard bound at its deadline (a hung Blender never runs into the watchdog)
     assert 'cap=(timeout -k 60 "$(( d - $(now_s) ))")' in text and 'run_step sky-ab "${cap[@]}" env' in text

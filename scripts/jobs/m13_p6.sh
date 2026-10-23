@@ -13,13 +13,15 @@
 #      agent rounds, the final renders, the report and the GPU tests of the full profile (phase 11, which the
 #      orchestrator always runs, also late). full.sh reads its own variables (RENDER_SAMPLES, RUN_POLISH,
 #      CAMERAS_FROM, RUN_FRESH_RECOGNITION, AGENT_ROUNDS, ...) from this job's environment.
-#   2. The interior sky A/B (P6_SKY_AB=1; only for P6_SKY_PROJECT = real04, only when it is in RUN_PROJECTS and this
-#      job's run built it): scripts/jobs/levers_ab.sh with AB_SOURCE=run (this pod's real04 building, style and
-#      cameras), AB_VIEW_SET=sky (the 6 views of wenart.run.ab.M13_SKY_AB_VIEWS), AB_VARIANTS P6_SKY_VARIANTS
+#   2. The interior sky A/B (P6_SKY_AB=1; only for P6_SKY_PROJECT, default real04, only when it is in RUN_PROJECTS and
+#      this job's run built it): scripts/jobs/levers_ab.sh with AB_SOURCE=run (this pod's building, style and
+#      cameras of that project), AB_VIEW_SET P6_SKY_VIEW_SET (sky: the 6 views of wenart.run.ab.M13_SKY_AB_VIEWS),
+#      AB_VARIANTS P6_SKY_VARIANTS
 #      ("base sky2 sky35 sky52": production and the interior world +2 / +3.5 / +5.2 stops, wenart.blender.lighting
-#      SKY_VARIANTS), AB_SAMPLES P6_SKY_SAMPLES (128), AB_NAME ab_m13/sky and no GPU tests of its own. Results in
-#      $WENART_RESULTS/ab_m13/sky/: per variant the render manifest, previews and lighting block, one contact sheet
-#      per view (the run's final render first, then base, sky2, sky35, sky52) and summary.{json,md}. It starts only
+#      SKY_VARIANTS), AB_SAMPLES P6_SKY_SAMPLES (128), AB_NAME P6_SKY_NAME (ab_m13/sky) and no GPU tests of its
+#      own. Results in $WENART_RESULTS/ab_m13/sky/: per variant the render manifest, previews and lighting block, one
+#      contact sheet per view (the run's final render first, then base, sky2, sky35, sky52) and summary.{json,md}.
+#      It starts only
 #      when the time left before WENART_DEADLINE minus the reserve (P6_RESERVE_S for the copy and the collect, plus
 #      P6_TESTS_RESERVE_S when step 3 still has to run the GPU tests) covers P6_SKY_MIN_VARIANTS variants of
 #      P6_SKY_VARIANT_EST_S, and it gets that deadline (levers_ab.sh skips the variants that no longer fit).
@@ -39,7 +41,23 @@
 # command resumes (full.sh's stage fingerprints and render keys, levers_ab.sh's build fingerprints with the variant
 # in them, render keys). Logs in /workspace/logs/.
 #
+# Fix round after P6a (22-23 Oct 2026; the user's decision of 22 Oct 2026, "Windows only +3.5", needs one short A/B on
+# pod P6c, real02, before it becomes the default): the project, the view set and the folder of the A/B come from the
+# environment; every default is P6a's. P6c:
+#
+#   scripts/gpu_run.py run --job scripts/jobs/m13_p6.sh --gpu 'RTX PRO 6000' --disk 150 --max-minutes 240 \
+#     --grace 600 --over-5-ok --env RUN_PROJECTS=real02 \
+#     --env 'CAMERAS_FROM=results/renders/{name}/scene_manifest.json' --env RUN_POLISH=off --env RENDER_SAMPLES=256 \
+#     --env P6_SKY_PROJECT=real02 --env P6_SKY_VIEW_SET=skywin --env 'P6_SKY_VARIANTS=base skywin35 sky35' \
+#     --env P6_SKY_NAME=ab_m13/skywin \
+#     --purpose "M13 P6c: real02 final full run (M11 cameras replayed; polish off; 256 spp; GPU tests) + windows-only
+#                sky A/B (base, skywin35, sky35)"
+#
+# (wenart.run.ab.M13_SKYWIN_AB_VIEWS: five real02 views with windows and one rig-lit hall; skywin35 = the interior world
+# +3.5 stops on the camera's paths only, wenart.blender.lighting.SKY_WINDOW_VARIANTS; sky35 = the whole world, P6a's).
+#
 # Env: RUN_PROJECTS (real04), P6_SKY_AB (1), P6_SKY_PROJECT (real04), P6_SKY_VARIANTS ("base sky2 sky35 sky52"),
+#      P6_SKY_VIEW_SET (sky; skywin for the windows-only A/B), P6_SKY_NAME (ab_m13/sky; a relative folder),
 #      P6_SKY_SAMPLES (128), P6_SKY_VARIANT_EST_S (660: a real04 build of about 460 s plus 6 views), P6_SKY_MIN_VARIANTS
 #      (2), P6_RESERVE_S (600), P6_TESTS_RESERVE_S (900), P6_TESTS_MIN_S (300), P6_SKIP_FULL=1 (the full run is
 #      done: only steps 2 and 3), P6_FULL_JOB / P6_AB_JOB (the sub-job scripts; for the CPU tests), and every
@@ -62,6 +80,8 @@ export RUN_PROJECTS="${RUN_PROJECTS:-real04}"
 SKY_AB="${P6_SKY_AB:-1}"
 SKY_PROJECT="${P6_SKY_PROJECT:-real04}"
 SKY_VARIANTS="${P6_SKY_VARIANTS:-base sky2 sky35 sky52}"
+SKY_VIEW_SET="${P6_SKY_VIEW_SET:-sky}"          # fix round after P6a: skywin = the windows-only A/B's views
+SKY_NAME="${P6_SKY_NAME:-ab_m13/sky}"
 SKY_SAMPLES="${P6_SKY_SAMPLES:-128}"
 EST_S="${P6_SKY_VARIANT_EST_S:-660}"
 MIN_VARIANTS="${P6_SKY_MIN_VARIANTS:-2}"
@@ -81,6 +101,12 @@ for pair in "P6_SKY_VARIANT_EST_S=$EST_S" "P6_SKY_MIN_VARIANTS=$MIN_VARIANTS" "P
             "P6_TESTS_RESERVE_S=$TESTS_RESERVE_S" "P6_TESTS_MIN_S=$TESTS_MIN_S" "P6_SKY_SAMPLES=$SKY_SAMPLES"; do
   if ! [[ "${pair#*=}" =~ ^[0-9]+$ ]]; then log "${pair%%=*} '${pair#*=}' is not a whole number"; exit 2; fi
 done
+case "$SKY_VIEW_SET" in
+  ''|*[!a-z0-9_]*) log "P6_SKY_VIEW_SET '$SKY_VIEW_SET' is no view set name"; exit 2 ;;
+esac
+case "$SKY_NAME" in
+  ''|/*|*..*) log "P6_SKY_NAME '$SKY_NAME' must be a relative folder name"; exit 2 ;;
+esac
 case "${WENART_DEADLINE:-}" in
   '') ;;
   *[!0-9.]*) log "WENART_DEADLINE '${WENART_DEADLINE}' is not epoch seconds: ignored"; unset WENART_DEADLINE ;;
@@ -199,6 +225,7 @@ stamp_start || log "warning: no start stamp $START_STAMP: a junit-full.xml of an
 cd "$REPO"
 mkdir -p "$RESULTS"
 log "job $JOB: projects [$RUN_PROJECTS], sky A/B ${SKY_AB} on $SKY_PROJECT ($SKY_VARIANTS at $SKY_SAMPLES spp," \
+    "views $SKY_VIEW_SET into $SKY_NAME," \
     "about $EST_S s per variant, at least $MIN_VARIANTS), reserve $RESERVE_S s (+$TESTS_RESERVE_S s for missing GPU" \
     "tests), deadline ${FINAL_DEADLINE:-none} ($(seconds_left) s left)"
 
@@ -209,7 +236,7 @@ else
   log "full run skipped (P6_SKIP_FULL=1)"
 fi
 
-# 2. The interior sky A/B on this pod's real04 output, when time is left.
+# 2. The interior sky A/B on this pod's output of P6_SKY_PROJECT, when time is left.
 if [ "$SKY_AB" != "1" ] || ! in_projects "$SKY_PROJECT"; then
   log "sky A/B off (P6_SKY_AB=$SKY_AB, $SKY_PROJECT in [$RUN_PROJECTS]: $(in_projects "$SKY_PROJECT" && echo yes || echo no))"
 else
@@ -238,8 +265,8 @@ else
     fi
     log "sky A/B deadline: ${d:-none} ($left s for the variants)"
     run_step sky-ab "${cap[@]}" env ${d:+WENART_DEADLINE=$d} AB_PROJECTS="$SKY_PROJECT" AB_VARIANTS="$SKY_VARIANTS" \
-      AB_SAMPLES="$SKY_SAMPLES" AB_VIEW_SET=sky AB_SOURCE=run AB_NAME=ab_m13/sky AB_VARIANT_EST_S="$EST_S" \
-      AB_GPU_TESTS=0 JOB_ID="$JOB" bash "$AB_JOB"
+      AB_SAMPLES="$SKY_SAMPLES" AB_VIEW_SET="$SKY_VIEW_SET" AB_SOURCE=run AB_NAME="$SKY_NAME" \
+      AB_VARIANT_EST_S="$EST_S" AB_GPU_TESTS=0 JOB_ID="$JOB" bash "$AB_JOB"
   fi
 fi
 

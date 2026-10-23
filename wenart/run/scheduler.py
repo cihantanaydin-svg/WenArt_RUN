@@ -112,6 +112,13 @@ inside the no-server branch, pipeline_final and fit ran again, and the layout th
 chains, project failed, exit 1); after a phase-2 GLM failure the pass opened on every first-round question and
 started the failed GLM server again (up to 25 min more on a GLM timeout).
 
+Fix round after P6a (22-23 Oct 2026; pod P6a, real04; the agent track's ask). What: the agent stage's note is the
+loop's wording (``wenart.agent.loop.stage_note``) and the final round for critical findings rewrites it with the
+numbers after that round (``final_round``'s ``stage_note``; ``agent_note_after_final``: the record's status, steps
+and seconds are kept), also when the round accepted no edit (its critics measured the final renders). Why: P6a's
+stage table said "3 round(s) ... net 32 ... stop: max rounds reached" while metrics.json and the report said net 34
+after the fourth (final) round.
+
 How: every subprocess goes through ONE injectable function
 ``runner(cmd, env, cwd, timeout, log_path) -> rc`` (cwd = repo root, output
 into ``<out>/run/logs/<stage>.log``); the clock, the server sessions, the
@@ -2197,12 +2204,20 @@ class Orchestrator:
         # critics); the dry re-checks' sum is only a prediction and is named as such.
         # Integration of the fix round after P5: the prediction of the same (measured) rounds, the new findings and
         # the net (gone - new), as the stop note and the final report
-        predicted = summary.get("findings_removed_predicted_same_rounds", summary.get("findings_removed_predicted", 0))
-        self.finish(pr, "agent", "ok", f"{len(summary['rounds'])} round(s), {summary.get('findings_removed', 0)} "
-                                       f"finding(s) removed by {summary['accepted']} accepted edit(s) (measured; "
-                                       f"{predicted} predicted by the dry re-checks), {summary.get('findings_new', 0)} "
-                                       f"new, net {summary.get('findings_net', 0)}, {summary['rejected']} rejected; "
-                                       f"stop: {STOPS.get(stop, stop)}")
+        # Fix round after P6a (module docstring): the loop's wording (the final round rewrites the note with it)
+        from wenart.agent.loop import stage_note
+        self.finish(pr, "agent", "ok", stage_note(summary, STOPS.get(stop, stop)))
+
+    def agent_note_after_final(self, pr: ProjectRun, note: Optional[str]) -> None:
+        """Fix round after P6a (module docstring): the agent stage record of ``pr`` gets ``note`` (the loop's
+        ``stage_note`` after the final round); its status, steps and seconds stay as recorded. Nothing without a
+        note or a record."""
+        rec = pr.records.get("agent") or ST.read_record(pr.out, "agent")
+        if rec is None or not note:
+            return
+        rec = replace(rec, note=self.private_note(pr, note))
+        pr.records["agent"] = rec
+        ST.write_record(pr.out, rec)
 
     def rollback_round(self, pr: ProjectRun, round_no: Optional[int], why: str) -> int:
         """The accepted edits of ``round_no`` (every round when None) are taken back (a refit that refuses them would
@@ -2345,6 +2360,8 @@ class Orchestrator:
             except Exception as exc:  # noqa: BLE001
                 self.out(f"{pr.name} agent final round: {type(exc).__name__}")
                 continue
+            # fix round after P6a: the stage note names the numbers after the final round (accepted edits or not)
+            self.agent_note_after_final(pr, res.get("stage_note"))
             if not res.get("accepted") or not res.get("rerun_from") or res.get("stop") in ("rerun_failed", "deadline"):
                 continue
             if not res.get("views"):

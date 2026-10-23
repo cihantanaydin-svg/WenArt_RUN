@@ -310,7 +310,13 @@ def test_p5s_relayout_that_recreated_the_console_table_is_rejected(tmp_path):
     loop = LP.AgentLoop(out, MM.MockModel(), clock=Clock(), out=lambda s: None)
     ctx = TL.ToolContext(project_out=out, building=before_b)
     measured, note = loop.fitted_after(ctx, after_b)
-    assert note["refit"] == ["f_L1_056"] and _x2_pieces(measured) == ["f_L1_056"]
+    # Changed on purpose in the fix round after P6a (tests/test_m13_p6a_integration.py): the dry fit, as the refit,
+    # keeps a model 0.05 m under the sloped ceiling over the piece (fit.piece_ceiling), so the re-created console
+    # gets a 0.73 m model under the 0.82 m slope and no X2; the acceptance rule below is unchanged
+    assert note["refit"] == ["f_L1_056"] and _x2_pieces(measured) == []
+    from wenart.furniture import fit as F
+    console = next(f for f in measured["furniture"] if f["id"] == "f_L1_056")
+    assert console["asset"]["bbox_m"][2] <= F.piece_ceiling(after_b, console) - F.CEILING_MARGIN_M + 1e-9
     room = table["room_id"]
     before = [_x2("f_L1_049", room=room)]
     after = [_x2("f_L1_056", room=room)]
@@ -678,9 +684,15 @@ def test_a_camera_refused_inside_the_other_building_gets_the_free_stretch():
         failed = X.validate_camera_override(final, entry)["failed"]
         assert any("inside the building b2" in f for f in failed)
         hint = TL.free_strip_hint(ctx, entry, failed)[-1]
-        assert hint.startswith("free on the view line from the target: (8.50, 12.50) to (8.50, 18.20)"), hint
+        # Changed on purpose in the fix round after P6a, part 2 (tests/test_m13_p6a_integration.py): the stretch is
+        # still named, but as no place for an eye-level view: a level 26 mm camera at its far end shows 2.05 frame
+        # widths of facade and no sky (P6a's ext_front_entrance there rendered a blank wall); decision 16 is open
+        assert hint.startswith("no eye-level view fits the free stretch on the view line from the target: (8.50, "
+                               "12.50) to (8.50, 18.20)"), hint
+        assert "0% of its rays look up into the sky" in hint and "about 17.5 m from the target" in hint
+        assert "decision 16" in hint and "add no camera in this stretch" in hint
         # fix round after P5, review: real04 (ratio 1.5-1.7) is no long, low building: no wider or tilted framing
-        assert "wider or tilted when" not in hint and "keeps the 26 mm eye-level lens" in hint
+        assert "wider or tilted when" not in hint
     entry = {"action": "add", "view_id": "ext_9", "kind": "exterior", "position": [8.5, 16.0, 1.6],
              "target": [8.5, 12.5, 1.5]}
     assert TL.free_strip_hint(ctx, entry, ["eye height 2.96 m"]) == ["eye height 2.96 m"]

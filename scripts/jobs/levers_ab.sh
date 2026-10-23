@@ -36,6 +36,10 @@
 #      outputs/{name}, its building_final.json, style.json, scene/scene_manifest.json cameras and renders/ previews,
 #      the "before" column labelled AB_BASELINE_LABEL, default "run final"), AB_NAME (ab_m13: the folder under
 #      outputs/<p>/ for the variant scenes and under $RESULTS for the results, e.g. ab_m13/sky).
+# Fix round after P6a (22-23 Oct 2026): AB_VIEW_SET=skywin (wenart.run.ab.M13_SKYWIN_AB_VIEWS: real02's five window
+#      views and one rig-lit hall, real04's sky views and hall) with AB_PROJECTS=real02 and AB_VARIANTS "base skywin35
+#      sky35" is the windows-only sky A/B of pod P6c (scripts/jobs/m13_p6.sh sets them from P6_SKY_*); nothing else
+#      changed here.
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"

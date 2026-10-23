@@ -81,6 +81,12 @@ stay valid: the render manifest's ``clamp`` (Cycles' per-sample clamps the rende
 exposure's ``wb_day_green_source``, ``wb_day_green_all``, ``wb_day_wall_share`` and ``wb_tint_green_residual`` (where the
 view's daylight green was metered, the all-surface green and the tint rule, ``render.daylight_green``), and the sky pull's ``targets.median_min`` (a free
 object already: ``render.SKY_PULL_MEDIAN_MIN``).
+
+Fix round after P6a, part I2 (22-23 Oct 2026; X_ext's ask): the scene camera's frame keys are typed (``SCENE_CAMERA``):
+``fill`` (a number >= 0: the share of the frame width the building spans, recorded by the exterior planner and, for
+an agent plan, by ``build.finish_agent_exterior_plans``), ``fits`` (boolean), ``sky_share`` (0..1: the share of the
+frame's rays that look up into the sky, ``exterior.sky_share``) and ``frame_target`` (the re-centred target, a point).
+All optional; every recorded manifest of P4a, P4b, P5 and P6a has only ``fill`` as a number on its cameras.
 """
 from __future__ import annotations
 
@@ -478,6 +484,12 @@ SCENE_CAMERA = {
                                              "sides": {"type": "array", "items": {"type": "string"}},
                                              "replayed_from": {"type": "object"}, "replay": {"type": "object"}}},
         "renamed_from": {"type": "string"},
+        # fix round after P6a (part I2, X_ext's ask): the frame of an exterior camera (``exterior.frame_check``; the
+        # planner records ``fill``, build.finish_agent_exterior_plans all four on an agent plan); optional
+        "fill": {"type": "number", "minimum": 0},
+        "fits": {"type": "boolean"},
+        "sky_share": {"type": "number", "minimum": 0, "maximum": 1},
+        "frame_target": _VEC3,
     },
 }
 

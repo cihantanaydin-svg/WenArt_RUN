@@ -129,6 +129,20 @@ Fix round after P5 (22 Oct 2026), review:
   first plan crop kept. An agent's (or the solver's) record stays under ``previous`` as ``edit_ops._label`` keeps it.
   Why: a desk whose short-side AI front ``long_side_fronts`` turned lost that record when ``desk_chairs`` split it, and
   a nightstand retype after a front correction recorded the corrected front as the drawn one.
+
+Fix round after P6a (22-23 Oct 2026; pod P6a, real04; the decor track's ask on the look lens' minor "two drawn floor
+lamps overlap"). What: **duplicate symbols** (``duplicate_symbols``, run in ``infer_types``): two built drawn pieces
+of one free-standing type that never shares its floor (``DUPLICATE_SYMBOL_TYPES``: a floor lamp, a potted plant) in
+one room whose footprints overlap by at least ``DUPLICATE_SYMBOL_SHARE`` of the smaller one are one piece drawn
+twice: the larger stays (the first id on a tie), the other is not built (``build: false``, ``inferred_as: detail``,
+``not_built_reason``) and labelled ``adjusted_by_ai`` by code (``rule`` ``DUPLICATE_SYMBOL_RULE``, ``not_furniture:
+duplicate_symbol``, ``duplicate_of``, ``drawn_*`` kept, the plan crop of its own question as evidence). Seats (two
+chairs at a table's corner overlap by design: real03's 8 %, real04's 18 %), tables, runs and every other type keep
+the old rule. Why: real04's basement salons hold two pairs of overlapping lamp symbols each (f_L-1_059 / 060 and
+f_L-1_063 / 064, mirrored f_L-1_057 / 058 and f_L-1_065 / 066: 17-33 % of the smaller inside the other, two lamp
+blocks of different sizes typed floor_lamp by both AI passes); every render showed two lamps standing in each other
+(four lamps in each salon). The reading types them, so the rule runs where the inference runs (``reading.infer`` and
+``pipeline._infer_types``) and never on an AI piece.
 """
 from __future__ import annotations
 
@@ -176,6 +190,13 @@ CORNER_TABLE_FROM = ("sofa", "armchair", "ottoman", "chaise")
 CORNER_OTTOMAN_FROM = ("group_member", "inferred")   # review: an ottoman only when the passes did not agree on it
 CORNER_IN_BOX = 0.4                # at least this share of the piece inside the corner sofa's box (reading's notch)
 CONF_CORNER_TABLE = 0.7
+
+# Fix round after P6a (module docstring): two overlapping drawn symbols of one free-standing type are one piece.
+DUPLICATE_SYMBOL_METHOD = "duplicate_symbol"     # the proposal's method (the piece keeps its type_method)
+DUPLICATE_SYMBOL_RULE = "furniture.infer.duplicate_symbols"
+DUPLICATE_SYMBOL_TYPES = ("floor_lamp", "potted_plant")
+DUPLICATE_SYMBOL_SHARE = 0.10      # at least this share of the smaller footprint lies in the larger one
+CONF_DUPLICATE = 0.7
 
 OUTLINE_TYPE = "rug"              # what an outline holding other pieces is (a decor type, not a furniture type)
 WALL_SIDE_M = 0.10                # a side this close to the room outline stands on a wall
@@ -922,6 +943,9 @@ def infer_types(building: dict) -> list[dict]:
     out += nightstand_symbols(building)
     # fix round after P5 (user decision of 22 Oct 2026): a seat drawn in a corner sofa's open corner is its table
     out += corner_tables(building)
+    # fix round after P6a: two overlapping drawn lamp (plant) symbols are one lamp (plant) drawn twice
+    done = {p["piece_id"] for p in out}
+    out += [p for p in duplicate_symbols(building) if p["piece_id"] not in done and p["kept_id"] not in done]
     return out
 
 
@@ -1231,6 +1255,74 @@ def _room_ring(room: dict):
     return (poly if poly.is_valid else poly.buffer(0)).exterior
 
 
+def duplicate_symbols(building: dict) -> list[dict]:
+    """Fix round after P6a (module docstring): proposals ``{"piece_id", "type", "type_method":
+    DUPLICATE_SYMBOL_METHOD, "build": False, "reason", "confidence", "evidence", "kept_id", "share", "crop"}`` for the
+    built drawn pieces of a ``DUPLICATE_SYMBOL_TYPES`` type that lie at least ``DUPLICATE_SYMBOL_SHARE`` (of their own
+    footprint, the smaller one) inside a larger built drawn piece of the same type and room (largest first, ties by
+    id; a piece left out keeps no other piece out). Pure; the building is unchanged."""
+    furniture = building.get("furniture") or []
+    groups: dict = {}
+    for f in furniture:
+        if f.get("type") not in DUPLICATE_SYMBOL_TYPES or f.get("source") != "from_documents" \
+                or f.get("build") is False or not f.get("footprint") or not f.get("room_id"):
+            continue
+        try:
+            poly = placer.drawn_piece(f).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+        if poly.area > 0:
+            groups.setdefault((f["room_id"], f["type"]), []).append((f, poly))
+    out: list[dict] = []
+    for (_room, ftype), items in sorted(groups.items()):
+        items.sort(key=lambda fp: (-round(fp[1].area, 6), str(fp[0]["id"])))
+        dropped: set = set()
+        for i, (keep, kp) in enumerate(items):
+            if keep["id"] in dropped:
+                continue
+            for other, op in items[i + 1:]:
+                if other["id"] in dropped:
+                    continue
+                share = op.intersection(kp).area / op.area
+                if share < DUPLICATE_SYMBOL_SHARE - 1e-9:
+                    continue
+                dropped.add(other["id"])
+                crop = _crop_of(other)
+                w, d = (float(v) for v in other["footprint"]["size"])
+                kw, kd = (float(v) for v in keep["footprint"]["size"])
+                text = (f"{ftype} {other['id']} ({w:.2f} x {d:.2f} m) is drawn {share:.0%} inside the larger "
+                        f"{ftype} {keep['id']} ({kw:.2f} x {kd:.2f} m) of its room: one {ftype.replace('_', ' ')} "
+                        f"drawn twice, not two (two {ftype.replace('_', ' ')}s never stand in each other); "
+                        f"{keep['id']} stays, {other['id']} is not built" + (f" (plan crop {crop})" if crop else ""))
+                ev = _evidence_code(other, DUPLICATE_SYMBOL_METHOD, text, CONF_DUPLICATE, kept=keep["id"],
+                                    share=round(share, 3))
+                ev["rule"] = DUPLICATE_SYMBOL_RULE
+                if crop:
+                    ev["crop"] = crop
+                out.append({"piece_id": other["id"], "type": ftype, "type_method": DUPLICATE_SYMBOL_METHOD,
+                            "build": False, "reason": text, "confidence": CONF_DUPLICATE, "evidence": ev,
+                            "kept_id": keep["id"], "share": round(share, 3), "crop": crop})
+    return out
+
+
+def _apply_duplicate(item: dict, prop: dict) -> None:
+    """A duplicate symbol (``duplicate_symbols``): not built, explained (``inferred_as: detail``), labelled
+    ``adjusted_by_ai`` by code with the drawn values kept and the plan crop as evidence (CLAUDE.md: a drawn piece is
+    removed only with its plan crop; every change keeps ``drawn_*`` and names its reason)."""
+    item.setdefault("drawn_type", item.get("type"))
+    item.setdefault("drawn_footprint", copy.deepcopy(item.get("footprint")))
+    item.setdefault("drawn_front_deg", item.get("front_deg"))
+    item.setdefault("drawn_height", item.get("height"))
+    label = {"by": "code", "stage": "reading", "rule": DUPLICATE_SYMBOL_RULE, "reason": prop["reason"],
+             "changed": {"build": True}, "not_furniture": "duplicate_symbol", "duplicate_of": prop["kept_id"]}
+    if prop.get("crop"):
+        label["crop"] = prop["crop"]
+    merge_code_label(item, label)
+    item.update(build=False, inferred=True, inferred_as=DETAIL_TYPE, inferred_reason=prop["reason"],
+                not_built_reason=prop["reason"])
+    item.setdefault("evidence", []).append(dict(prop["evidence"]))
+
+
 def set_front(item: dict, front_deg: float) -> None:
     """Give a piece a front: the footprint turned by whole quarter turns so its local -Y faces ``front_deg``
     (``placer.front_frame``: same rectangle, size swapped on an odd turn)."""
@@ -1257,6 +1349,9 @@ def apply_inferences(building: dict, proposals: list[dict]) -> dict:
         if prop.get("type_method") == CORNER_TABLE_METHOD:        # fix round after P5: a corner sofa's table
             _apply_nightstand(item, prop)
             item["type_method"] = "inferred"                      # a schema value; the label names the rule
+            continue
+        if prop.get("type_method") == DUPLICATE_SYMBOL_METHOD:    # fix round after P6a: one symbol drawn twice
+            _apply_duplicate(item, prop)
             continue
         ev = dict(prop.get("evidence") or _evidence(item, prop["reason"], float(prop.get("confidence", 0.5))))
         item.setdefault("evidence", []).append(ev)

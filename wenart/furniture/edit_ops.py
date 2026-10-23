@@ -166,6 +166,29 @@ Fix round after P5 (22 Oct 2026; pod P5, real04; the P5 verifier's better fix an
   clear bay (``adjusted_by_ai.fix_fixture.bay``); the code's search for a spot could never fit such a tub (P4b real03:
   21 centres in 5 cm steps). The refusal of a centre still in a wall or a door swing now says that without ``center``
   the code searches every spot within 0.50 m and that no centre will do when that search found none.
+
+Fix round after P6a (22-23 Oct 2026; pod P6a, real04; the asks of the agent and decor tracks). What:
+
+- **swap_model refuses a generated model the refit refuses** (``generated_pin_refusal``): a pin to a ``source:
+  generated`` model is fitted at once (``fit.fit_piece`` with the pin, the building's licence mode and style family,
+  the piece's ``fit.piece_ceiling``); a ``pin_refused`` of that pin (a real product of the type fits, or the caps, the
+  height or the sloped ceiling) is the refusal "pin_refused: <piece>: <reason>: the real model stays". Other models
+  keep the old checks (the stage-12 refit and the loop's acceptance, ``agent.loop.refused_pin``, judge them). Why:
+  P6a seq 6069 / 6075 / 6076 pinned gen_fridge / gen_washbasin / gen_toilet models; the refit refused each pin and
+  built the same real models, while the edits were accepted and their vision findings counted as removed;
+- **mark_not_furniture marks an untyped piece only with its own crop**: the crop of its own question
+  (``own_crop_named``) or the recognition crop its review entry records (``recorded_crop``); never ``crop_of``'s first
+  image (a whole sheet ``final/debug/...``, a room's or camera's plan crop, another symbol's crop): else
+  ``no_crop``. Typed pieces keep the old crop rule (and the mark lock). Why: P6a seq 5968 marked the 5.14 x 2.37 m
+  cluster f_L-1b_002 (no question, no crop) with the whole sheet ``final/debug/deneme1_dwg_s1.jpg``; decision 8 keeps
+  such a cluster listed for review;
+- **change_type / retype_piece read the room's types with their aliases** (``room_allowed``: the union of the rows of
+  ``plausibility.room_types``, the alias kind of an ``other`` room included, as F1 and G14 read the room); the
+  fixed-type, ``unknown`` and old-type exclusions stay. Why: P6a seq 6008 / 6014: retype_piece offered console_table /
+  sideboard for f_L1_035 in r_L1_oyun_aktivite_ve_dinlenme_odasi (room type ``other``, alias living;
+  ``group_checks.allowed_types_at``) and change_type refused it "not a piece a other room may hold";
+- **the retype refit keeps headroom** (``_build_retyped``): ``fit.fit_piece`` gets the piece's ``fit.piece_ceiling``
+  under a sloped ceiling, as ``fit.fit_building`` (the decor track's ask, verify:agent:4 part 2).
 """
 from __future__ import annotations
 
@@ -590,8 +613,10 @@ def _change_type(b: dict, args: dict) -> list[str]:
     if new == old:
         raise EditRejected("no_change", f"{item['id']} is already a {new}")
     rtype, sub = room.get("room_type"), room.get("room_subtype")
+    # fix round after P6a (module docstring): the room's types with their aliases (plausibility.room_types)
+    types = room_types_of(b, room)
     if _drawn(item) and old == "unknown":
-        allowed = set(schemas.allowed_types(rtype, sub)) | set(PL.ALWAYS_ALLOWED) - {"unknown"}
+        allowed = room_allowed(b, room) | set(PL.ALWAYS_ALLOWED) - {"unknown"}
     elif _fixed(item) and schemas.misplaced_fixed(old, rtype):
         # real03: fixed equipment in a room that never holds it is a reading error (CLAUDE.md: a clear error).
         allowed = (set(schemas.allowed_types(rtype, sub)) | set(PL.ALWAYS_ALLOWED)) - {"unknown", old}
@@ -600,11 +625,12 @@ def _change_type(b: dict, args: dict) -> list[str]:
     elif _drawn(item):
         if kept_room(b, room):
             raise EditRejected("drawn_lock", f"{item['id']}: the room keeps its drawn pieces' types")
-        allowed = set(schemas.change_types(rtype, sub))
+        allowed = room_allowed(b, room, schemas.change_types)
     else:
-        allowed = set(schemas.allowed_types(rtype, sub)) - set(schemas.FIXED_TYPES)
+        allowed = room_allowed(b, room) - set(schemas.FIXED_TYPES)
     if new not in allowed:
-        raise EditRejected("room_type", f"{new} is not a piece a {rtype} room may hold here")
+        kinds = rtype if types == [rtype] else f"{rtype} ({' / '.join(str(t) for t in types)})"
+        raise EditRejected("room_type", f"{new} is not a piece a {kinds} room may hold here")
     size = item["footprint"]["size"]
     if not PL._fits(new, size):
         raise EditRejected("product_size", f"{item['id']}: {float(size[0]):.2f} x {float(size[1]):.2f} m does not fit "
@@ -626,6 +652,25 @@ def _change_type(b: dict, args: dict) -> list[str]:
     return [item["id"]]
 
 
+def room_types_of(b: dict, room: dict) -> list[str]:
+    """Fix round after P6a (module docstring): the room's types as the checks read them (``plausibility.room_types``:
+    its ``room_type``, the other room names its face holds, the alias kind of an ``other`` / ``unknown`` room)."""
+    try:
+        return [str(t) for t in PL.room_types(b, room) if t]
+    except (KeyError, TypeError, ValueError):
+        return [str(room.get("room_type"))]
+
+
+def room_allowed(b: dict, room: dict, row=schemas.allowed_types) -> set:
+    """Fix round after P6a (module docstring): the union of ``row(room type, room_subtype)`` (``schemas.allowed_types``
+    or ``schemas.change_types``) over the room's types with their aliases (``room_types_of``), as F1 and G14 read the
+    room (``plausibility.allowed_in`` without the stand-alone lamps, plants and side tables)."""
+    out: set = set()
+    for t in room_types_of(b, room):
+        out |= set(row(t, room.get("room_subtype")))
+    return out
+
+
 def _confirm_type(b: dict, item: dict, room: dict, args: dict) -> list[str]:
     """Integration of the fix round after P5 (A_agent's ask): ``retype_piece`` / ``change_type`` with the piece's own
     type confirms an unverified piece (``status`` verified, ``adjusted_by_ai`` with the reason, the AI passes'
@@ -633,8 +678,9 @@ def _confirm_type(b: dict, item: dict, room: dict, args: dict) -> list[str]:
     it. Why: complete_group refuses a group whose anchor is unverified ("retype_piece first") and retype_piece refused
     the anchor's own type as no_change, a deadlock (P5 seq 4730/4732, 5111/5113: the desks f_L0_026 / f_L0_024)."""
     new = item["type"]
-    rtype, sub = room.get("room_type"), room.get("room_subtype")
-    if new in (None, "unknown") or new not in set(schemas.allowed_types(rtype, sub)) | set(PL.ALWAYS_ALLOWED):
+    rtype = room.get("room_type")
+    # fix round after P6a: the room's types with their aliases, as _change_type reads them
+    if new in (None, "unknown") or new not in room_allowed(b, room) | set(PL.ALWAYS_ALLOWED):
         raise EditRejected("room_type", f"{item['id']}: a {rtype} room does not hold a {new}: retype it instead")
     size = item["footprint"]["size"]
     if not PL._fits(new, size):
@@ -681,10 +727,34 @@ def _swap_model(b: dict, args: dict, catalog) -> list[str]:
     current = (item.get("asset") or {}).get("asset_id") if isinstance(item.get("asset"), dict) else None
     if args["asset_id"] in (current, item.get("asset_pin")):
         raise EditRejected("no_change", f"{item['id']} already uses the model {args['asset_id']}")
+    refused = generated_pin_refusal(b, item, args["asset_id"], entry, catalog)
+    if refused is not None:
+        raise EditRejected("pin_refused", f"{item['id']}: {refused}: the real model stays; swap to a real model of "
+                                          f"the type or use another tool")
     before = copy.deepcopy(item)
     item["asset_pin"] = args["asset_id"]
     _label(item, before, args, ["asset_pin"])
     return [item["id"]]
+
+
+def generated_pin_refusal(b: dict, item: dict, asset_id: str, entry: dict, catalog) -> Optional[str]:
+    """Fix round after P6a (module docstring): the fit's ``pin_refused`` reason when ``asset_id`` is a generated model
+    (``entry["source"]`` ``fit.GENERATED``) that the refit refuses for ``item`` (``fit.fit_piece`` with the pin in the
+    building's licence mode and style family and the piece's ``fit.piece_ceiling``: a real product of the type fits,
+    or the pin fails the caps, the height or the sloped ceiling); None for any other model or a pin the fit takes.
+    A fit error is a rejected edit (``refit``)."""
+    from wenart.furniture import fit as F
+
+    if entry.get("source") != F.GENERATED:
+        return None
+    try:
+        asset = F.fit_piece(dict(item, build=True, asset_pin=asset_id), catalog, mode=licence_mode_of(b),
+                            style_family=_style_family_of(b), ceiling=F.piece_ceiling(b, item))
+    except Exception as exc:  # noqa: BLE001 - as _build_retyped: a refit error is a rejected edit, never a crash
+        raise EditRejected("refit", f"{item['id']}: the refit with {asset_id} failed ({type(exc).__name__}: "
+                                    f"{str(exc)[:160]}); the piece stays as it was") from exc
+    why = asset.get("pin_refused")
+    return str(why) if why and str(why).startswith(f"{asset_id}:") else None
 
 
 def _new_piece(b: dict, room: dict, piece: placer.Piece, args: dict, text: str) -> dict:
@@ -1249,7 +1319,8 @@ def _build_retyped(b: dict, item: dict, args: dict, catalog=None) -> dict:
             asset = F.built_in_fit(trial, host, mode, family)
         else:
             target = dict(trial, module_hints={**(trial.get("module_hints") or {}), **hints}) if hints else trial
-            asset = F.fit_piece(target, catalog, mode=mode, style_family=family)
+            # fix round after P6a: the piece's room under a sloped ceiling, as fit_building fits it
+            asset = F.fit_piece(target, catalog, mode=mode, style_family=family, ceiling=F.piece_ceiling(b, item))
             if hints and asset.get("method") == F.MODULE_METHOD:
                 asset["module_hints"] = copy.deepcopy(hints)
     except Exception as exc:  # noqa: BLE001 - review (T4): a refit error is a rejected edit with its reason, never a
@@ -1537,15 +1608,28 @@ def _mark_not_furniture(b: dict, args: dict) -> list[str]:
     if any(s.get("former_piece_id") == item["id"] for s in b.get("symbols") or []):
         raise EditRejected("no_change", f"{item['id']} is marked as not furniture already")
     evidence = str(args["evidence"])
+    untyped = item.get("type") in (None, "unknown")
     # fix rounds after P4a / P4b: a plan crop anywhere, never a top-down render; pass before P5: the piece's own crop
-    # first, when the evidence names it; fix round after P5: else the crop recorded for the piece
-    crop = own_crop_named(b, item, evidence) or crop_of(evidence) or recorded_crop(b, item)
-    if crop is None and item.get("type") in (None, "unknown"):
+    # first, when the evidence names it; fix round after P5: else the crop recorded for the piece; fix round after
+    # P6a: an untyped piece only with its own crop (never crop_of's first image: a whole sheet, a room's or camera's
+    # plan crop, another symbol's crop)
+    if untyped:
+        crop = own_crop_named(b, item, evidence) or recorded_crop(b, item)
+    else:
+        crop = own_crop_named(b, item, evidence) or crop_of(evidence) or recorded_crop(b, item)
+    if crop is None and untyped:
         # Fix round after P5 (module docstring; P5 seq 5388: the 5.14 x 2.37 m cluster f_L-1b_001 marked with "plan
-        # crop of r_L-1b_salon_2" and no image): CLAUDE.md removes a drawn piece only with the plan crop as evidence
-        raise EditRejected("no_crop", f"{item['id']} is an untyped drawn piece with no crop of its own: the evidence "
-                                      f"must name the plan crop image you read (the image path the plan_crop or "
-                                      f"view tool gave); CLAUDE.md removes a drawn piece only with its plan crop")
+        # crop of r_L-1b_salon_2" and no image): CLAUDE.md removes a drawn piece only with the plan crop as evidence.
+        # Fix round after P6a (P6a seq 5968: f_L-1b_002 marked with the whole sheet final/debug/deneme1_dwg_s1.jpg)
+        named = crop_of(evidence)
+        raise EditRejected("no_crop", f"{item['id']} is an untyped drawn piece: it is marked as not furniture only "
+                                      f"with its own recognition crop (the crop of its own question, or the one its "
+                                      f"review entry records)"
+                                      + (f"; {named} is not its crop (a whole sheet, a room's or camera's plan crop "
+                                         f"or another symbol's crop shows no reading of this piece)" if named else "")
+                                      + ("; it has none, so it stays listed for review" if not own_crops(b, item)
+                                         else "")
+                                      + "; CLAUDE.md removes a drawn piece only with its plan crop")
     before = copy.deepcopy(item)
     item["build"] = False
     _label(item, before, args, ["build"])

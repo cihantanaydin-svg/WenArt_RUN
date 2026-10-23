@@ -42,6 +42,12 @@ What:
   (``AB_VIEW_SETS``: ``levers`` = ``M13_AB_VIEWS``, the default, ``sky``) in the CLI (``m13-views``, and the
   ``--view-set`` / ``--scene`` options of ``m13-prepare``, ``m13-sheets``, ``m13-summary``); every default stays the
   lever A/B's.
+- Fix round after P6a (22-23 Oct 2026; the user's decision of 22 Oct 2026, "Windows only +3.5"): the view set
+  ``skywin`` (``M13_SKYWIN_AB_VIEWS``: five real02 views with windows from P4a's run and one rig-lit hall; real04's
+  six sky views and its rig-lit hall) for the A/B of the windows-only sky (``M13_SKYWIN_AB_VARIANTS``: ``base``,
+  ``skywin35``, ``sky35``; pod P6c, ``m13_p6.sh`` with ``P6_SKY_PROJECT=real02 P6_SKY_VIEW_SET=skywin``). The summary
+  rows carry ``sky_rays`` and ``world_strength_camera`` (what the camera sees through the panes at a windows-only
+  level); the sky table shows it beside the room's world strength.
 
 Why: the A/B compares the same camera rendered two ways; a camera that moved
 (or was not rendered) would compare different pictures.
@@ -227,7 +233,38 @@ M13_SKY_AB_VIEWS: dict[str, list[dict]] = {
 # The sky levels of the A/B (lighting.SKY_VARIANTS, pinned equal in tests/test_m13_sky_ab.py): ``base`` = production
 # (the interior world as built), then +2, +3.5 and +5.2 stops.
 M13_SKY_AB_VARIANTS = ("base", "sky2", "sky35", "sky52")
-AB_VIEW_SETS = {"levers": M13_AB_VIEWS, "sky": M13_SKY_AB_VIEWS}
+# Fix round after P6a (22-23 Oct 2026; the user's decision of 22 Oct 2026, "Windows only +3.5", needs one short A/B on
+# pod P6c before it becomes the default): the windows-only sky (lighting.SKY_WINDOW_VARIANTS, ``skywin35``) against
+# production and the whole-world sky35. real02 replays its Milestone 11 cameras, so the names are stable: five interior
+# views with windows from P4a's run (runs/20261017-072801-full/results/renders/real02/: the window pull and the panes
+# before it, render_manifest.json; the windows in view, scene_manifest.json) and one rig-lit hall that sees a glazed
+# door (verify:sky_ab:0: the orange check's margin of the halls; the room light must not move). real04: P6a's six sky
+# views and its rig-lit hall (cam_r_L-1_koridor_2_1, the tightest orange margin of P5), for a later re-check.
+M13_SKYWIN_AB_VIEWS: dict[str, list[dict]] = {
+    "real02": [
+        {"camera": "cam_r_L-1_salon_1", "room_id": "r_L-1_salon", "room_type": "living",
+         "p4a": "win_L-1_001; pull k1, panes p50 0.883 / p90 0.891 before it (241,858 pane px)"},
+        {"camera": "cam_r_L-1_mutfak_1", "room_id": "r_L-1_mutfak", "room_type": "kitchen",
+         "p4a": "win_L-1_003; pull k2, panes 34 % clipped before it (p50 0.850, p90 0.997); rig share 0.79"},
+        {"camera": "cam_r_L0_yatak_odasi_1", "room_id": "r_L0_yatak_odasi", "room_type": "bedroom",
+         "p4a": "win_L0_001; pull k1, panes p50 0.851 / p90 0.893 before it (138,609 pane px)"},
+        {"camera": "cam_r_L0_e_yatak_odasi_3", "room_id": "r_L0_e_yatak_odasi", "room_type": "bedroom",
+         "p4a": "win_L0_002; pull k1, panes p50 0.836 / p90 0.879 before it (167,240 pane px)"},
+        {"camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1", "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+         "room_type": "other",
+         "p4a": "d_L1_001, win_L1_001 under the roof; pull k3 (p50 0.922, p90 0.971); the control"},
+        {"camera": "cam_r_L-1_koridor_2_1", "room_id": "r_L-1_koridor_2", "room_type": "hall",
+         "p4a": "the rig-lit hall (rig share 0.90) seeing the glazed door d_L-1_003 (46,739 pane px); its room light "
+                "must not move"},
+    ],
+    "real04": M13_SKY_AB_VIEWS["real04"] + [
+        {"camera": "cam_r_L-1_koridor_2_1", "room_id": "r_L-1_koridor_2", "room_type": "hall",
+         "p5": "the rig-lit hall with the tightest orange margin (wall R/B 1.634 against 1.665, verify:sky_ab:0)"},
+    ],
+}
+# The levels of the windows-only A/B: production, the windows-only +3.5 stops and the whole-world +3.5 stops.
+M13_SKYWIN_AB_VARIANTS = ("base", "skywin35", "sky35")
+AB_VIEW_SETS = {"levers": M13_AB_VIEWS, "sky": M13_SKY_AB_VIEWS, "skywin": M13_SKYWIN_AB_VIEWS}
 
 
 def m13_views(project: str) -> list[str]:
@@ -526,7 +563,11 @@ def lever_summary(results_dir: Path, projects=("real02", "real03"), variants=M13
                              "pane_p90_after": (r.get("window_pull") or {}).get("pane_p90_after"),
                              "wb_day_green": ex.get("wb_day_green"), "wb_view_tint_gain": ex.get("wb_view_tint_gain"),
                              "wb_project_k": wb_project.get("kelvin"), "world_strength": world.get("strength"),
-                             "sky_stops": world.get("sky_stops", 0.0 if world else None)})
+                             "sky_stops": world.get("sky_stops", 0.0 if world else None),
+                             # fix round after P6a: which rays see the gain (camera_paths: skywin35) and what the
+                             # camera sees through the panes then
+                             "sky_rays": world.get("sky_rays", "all" if world else None),
+                             "world_strength_camera": world.get("strength_camera")})
     summary = {"schema_version": "0.1", "kind": "levers_ab_m13", "variants": list(variants),
                "projects": list(projects),
                "views": {p: list((views or {}).get(p) or []) or m13_views(p) for p in projects}, "rows": rows}
@@ -567,6 +608,8 @@ def _sky_summary_md(summary: dict) -> str:
              "sun, the rig and every other lever as in production. Pull k = the window pull in stops; panes p50 / p90 "
              "after it (display values, 1.0 = white); day green = the view's daylight G/sqrt(RB); tint = the gain on "
              "the white point's G.", "",
+             "A windows-only level (skywin*) raises the world only on the camera's paths (through the panes, in sharp "
+             "reflections): its world strength is the room's, with the strength the camera sees in brackets.", "",
              "| Project | Variant | View | World strength | Stops | EV used | EV metered | Pull k | Panes p50 / p90 | "
              "WB K (view / project) | Day green | Tint | Seconds |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in summary["rows"]:
@@ -574,7 +617,10 @@ def _sky_summary_md(summary: dict) -> str:
             lines.append(f"| {r['project']} | {r['variant']} | {r.get('camera') or '-'} | not rendered "
                          f"| | | | | | | | | |")
             continue
-        lines.append(f"| {r['project']} | {r['variant']} | {r['camera']} | {cell(r.get('world_strength'))} | "
+        world = cell(r.get("world_strength"))
+        if r.get("world_strength_camera") is not None:          # fix round after P6a: a windows-only level
+            world += f" (camera paths {cell(r.get('world_strength_camera'))})"
+        lines.append(f"| {r['project']} | {r['variant']} | {r['camera']} | {world} | "
                      f"{cell(r.get('sky_stops'))} | {cell(r.get('ev'))} | {cell(r.get('ev_raw'))} | "
                      f"{cell(r.get('pull_k'))} | {cell(r.get('pane_median_after'))} / {cell(r.get('pane_p90_after'))} | "
                      f"{cell(r.get('wb_temperature'))} / {cell(r.get('wb_project_k'))} | {cell(r.get('wb_day_green'))} | "

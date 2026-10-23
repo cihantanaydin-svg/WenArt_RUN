@@ -422,6 +422,10 @@ def test_mark_not_furniture_takes_the_piece_off_the_review_list():
     """Fails on the old code: an untyped drawn piece marked as not furniture stayed in ``needs_review``, so the code
     critic's NR finding stayed and the agent's dry re-check refused every such edit (real04: 20 NR findings)."""
     blob = M.fp("u1", "unknown", (2.5, 2.0), (1.2, 0.8), front=None, status="unverified", build=False)
+    # changed on purpose in the fix round after P6a: an untyped piece is marked only with its own crop, so u1 has a
+    # question of its own (recognition:u1) whose crop crops/u1.png the evidence names
+    blob.setdefault("evidence", []).append({"file": "deneme.dwg", "method": "ai", "entity": "recognition:u1",
+                                            "confidence": 0.5, "text": "unknown"})
     b = M.building(furniture=[blob])
     b["needs_review"] = [{"id": "u1", "kind": "untyped_piece", "reason": "no type", "room_id": ROOM,
                           "level_id": "L0"}, {"id": "u2", "kind": "untyped_piece", "reason": "other", "room_id": ROOM,
@@ -468,6 +472,10 @@ def test_mark_not_furniture_refuses_drawn_fixed_equipment():
     an untyped drawn piece may still be marked."""
     toilet = M.fp("t1", "toilet", (4.6, 3.6), (0.4, 0.7), front=270.0)
     blob = M.fp("u1", "unknown", (2.0, 2.0), (0.5, 0.5), front=None, status="unverified")
+    # fix round after P6a (changed on purpose): an untyped piece is marked only with its own crop (crops/u1.png of
+    # its question recognition:u1)
+    blob.setdefault("evidence", []).append({"file": "deneme.dwg", "method": "ai", "entity": "recognition:u1",
+                                            "confidence": 0.5, "text": "unknown"})
     b = M.building(room_type="bathroom", furniture=[toilet, blob])
     for fn in (E.apply_edit, E.dry_run):
         res = fn(b, edit("mark_not_furniture", piece_id="t1", kind="other", evidence="crops/t1.png"))

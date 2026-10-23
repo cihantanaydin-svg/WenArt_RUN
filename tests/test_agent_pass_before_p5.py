@@ -179,6 +179,22 @@ def real04_ctx(tmp_path, cameras):
                                overrides=OV.Overrides(out), apply_edit=FakeEdits())
 
 
+@pytest.fixture
+def pose_rule(monkeypatch):
+    """Fix round after P6a (22-23 Oct 2026; changed on purpose, the exterior track's ask): X6 counts an eye-level
+    ``agent`` view square to the main facade as the frontal view only when it frames the whole building with the sky
+    (``exterior_checks.x6_frontal``, which the camera-role guards read through ``tools.x6_frontal_of``), and the camera
+    validator refuses an eye-level pose without sky (``exterior_checks.eye_level_problems``); both are pinned in
+    tests/test_m13_p6a_exterior.py and tests/test_m13_p6a_integration.py. real04's strip between the entrance (+y)
+    facade (y 12) and the copy b2 (y 18.6) holds no such pose at 24-28 mm (POSE_A: 2.34 frame widths, 0 % sky; POSE_B
+    2 %; R04_ADDED 0.4 %), and decision 16 (real04's frontal view) is open. These tests pin the camera-role guards on
+    the labels the next build gives, so they switch the frame measure off: without an exterior model a pose keeps the
+    pose rule and the validator refuses nothing for the sky (the rule for a plan whose frame cannot be measured)."""
+    from wenart.blender import exterior_checks as X
+
+    monkeypatch.setattr(X, "exterior_model", lambda prep: None)
+
+
 @pytest.mark.skipif(not REAL04.is_file(), reason="results/furniture/real04 not committed")
 def test_real04_eye_height_is_measured_on_the_building_site(tmp_path):
     """Fails on adc3004: camera_eye read the scene manifest's terrain, and real04's tin record has no surface, so no
@@ -204,9 +220,11 @@ def test_real04_eye_height_is_measured_on_the_building_site(tmp_path):
 
 
 @pytest.mark.skipif(not REAL04.is_file(), reason="results/furniture/real04 not committed")
-def test_real04_the_agents_frontal_view_keeps_its_role(tmp_path):
+def test_real04_the_agents_frontal_view_keeps_its_role(tmp_path, pose_rule):
     """Fails on adc3004: real04 has no planner frontal view (P3 dropped ext_6), so the agent's frontal view is
     ``agent``; a set to ext_3's corner pose and a remove were accepted."""
+    # fix round after P6a (changed on purpose): the frame measure is off here (``pose_rule``: real04's strip has no
+    # eye-level pose with sky); the role guards these lines pin are unchanged
     ctx = real04_ctx(tmp_path, [P3_EXT3, P3_EXT4, R04_FRONTAL])
     reg = TL.build_registry()
     corner = reg.call(ctx, "set_camera", cam("ext_8", P3_EXT3["position"], P3_EXT3["target"]))
@@ -359,13 +377,15 @@ def build_label(planned: dict, entries: list) -> dict:
 
 
 @pytest.mark.skipif(not REAL04.is_file(), reason="results/furniture/real04 not committed")
-def test_real04_a_corner_turned_frontal_is_not_set_to_a_pose_the_build_keeps_a_corner(tmp_path):
+def test_real04_a_corner_turned_frontal_is_not_set_to_a_pose_the_build_keeps_a_corner(tmp_path, pose_rule):
     """Fails on ceb3804 (review of the pass before P5, major): the frontal-role guard checked only that the new pose
     faces the main facade (``exterior_checks._faces``). real04's corner ext_4 (left, back; back is the entrance +y
     facade) was set square to it (POSE_A, labelled ``agent``: X6's frontal view), then set to POSE_B, 25.8 degrees off
     the +y normal; the build re-applies both sets to the planner's corner and keeps it the corner of left, back, so
     code X6 "no frontal view of the entrance (+y) facade" came back. The second set is refused now, unless another
     camera stays X6's frontal view."""
+    # fix round after P6a (changed on purpose): the frame measure is off here (``pose_rule``: real04's strip has no
+    # eye-level pose with sky); the role guards these lines pin are unchanged
     ctx = real04_ctx(tmp_path, P3_EXTERIOR)
     reg = TL.build_registry()
     main = CV.main_facade_of(ctx.scene, ctx.building)
@@ -392,11 +412,13 @@ def test_real04_a_corner_turned_frontal_is_not_set_to_a_pose_the_build_keeps_a_c
 
 
 @pytest.mark.skipif(not REAL04.is_file(), reason="results/furniture/real04 not committed")
-def test_real04_the_next_build_label_starts_from_the_planners_view(tmp_path):
+def test_real04_the_next_build_label_starts_from_the_planners_view(tmp_path, pose_rule):
     """Fails on ceb3804 (review of the pass before P5, round 2): after round 1 the scene's ext_4 is ``agent`` with
     ``agent.view_was`` corner and ``sides_was`` left, back; built_view took the scene's ``agent`` as the base while the
     build re-applies the overrides to the planner's corner, so POSE_B counted as frontal, the set was accepted and the
     remove guard let the agent's added frontal ext_8 go: no frontal view was left."""
+    # fix round after P6a (changed on purpose): the frame measure is off here (``pose_rule``: real04's strip has no
+    # eye-level pose with sky); the role guards these lines pin are unchanged
     relabelled = dict(P3_EXT4, view="agent", sides=["back"], position=POSE_A[0], target=POSE_A[1], policy="agent",
                       agent={"action": "set", "view_was": "corner", "sides_was": ["left", "back"]})
     cams = [c for c in P3_EXTERIOR if c["name"] != "ext_4"] + [relabelled, R04_ADDED]
@@ -585,13 +607,15 @@ def test_real04_an_eye_level_pose_looking_down_is_no_aerial_view(tmp_path):
 
 
 @pytest.mark.skipif(not REAL04.is_file(), reason="results/furniture/real04 not committed")
-def test_real04_a_camera_added_in_this_session_keeps_its_frontal_role(tmp_path):
+def test_real04_a_camera_added_in_this_session_keeps_its_frontal_role(tmp_path, pose_rule):
     """Fails on the round-2 tree (review of round 2: a major and a minor finding): role_problem returned None for a
     camera that is not in the scene manifest, so a camera added in this session had no role guard. The frontal set
     exception ("another camera stays X6's frontal view") trusted such a camera: ext_4 set frontal, ext_8 added
     frontal, ext_4 set to a corner pose (allowed: ext_8 is frontal), then ext_8 added again at a corner pose; the
     last add was accepted and the build had no frontal view (code X6 "no frontal view of the entrance (+y)
     facade"). An in-session added exterior camera is now guarded like a scene camera."""
+    # fix round after P6a (changed on purpose): the frame measure is off here (``pose_rule``: real04's strip has no
+    # eye-level pose with sky); the role guards these lines pin are unchanged
     b = json.loads(REAL04.read_text(encoding="utf-8"))
     ctx = real04_ctx(tmp_path, P3_EXTERIOR)
     reg = TL.build_registry()

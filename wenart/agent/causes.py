@@ -147,6 +147,16 @@ Fix round after P6a (22 Oct 2026; pod P6a, real04):
   / P5 round-1 findings it marks the free-standing drawn sofas 1.1-2.5 m off every wall and real03's washbasin
   f_L0_188 (through a wall and in a door, fix_fixture's).
 
+Fix round after P6a, part 2 (23 Oct 2026; the exterior track's ask, verify:look:2 (4)): a vision X3 / X6 claim made
+on the render of an exterior view the agent placed (``agent_view``: ``policy`` or ``view`` ``agent``; the loop names
+the critique's view in ``evidence.view``) about that view or the building as a whole (no element id of the building)
+is about that camera's framing: ``mark_agent_views`` sets its target to the view (the claimed target kept in
+``metrics.claimed_target``) with ``metrics.agent_view``, and its cause is ``exterior_camera`` (set_camera,
+remove_camera). Why: P6a seq 6856 "the entrance facade is a long, blank wall with no visible entrance door" on the
+agent's ext_front_entrance (5 m from the facade, no sky) was dropped "no agent tool for the cause facade", so the
+view that caused it was never moved or removed. A claim on a planner view, or about an element (an opening, a
+wall), keeps the facade cause.
+
 Why: real04 (M12, §1.5) accepted 183 edits of which 20 removed their finding; the tools were mapped by check id
 (``brief.CHECK_TOOLS``), so every room session got every tool for every check whatever the cause.
 
@@ -339,6 +349,10 @@ _MISSING_WORDS = ("missing", " no ", "without", "lacks", "needs a", "has no", " 
 DRAWN_LAYOUT_CHECKS: tuple[str, ...] = ("F3", "F8")
 DRAWN_LAYOUT_FLAG = "drawn_layout"
 DRAWN_TYPE_CHECKS: tuple[str, ...] = ("F1", "G14")
+# Fix round after P6a, part 2 (module docstring): the vision claims about what an exterior view shows that an agent
+# view's framing causes, and the metrics flag ``mark_agent_views`` sets (the view's name).
+AGENT_VIEW_CHECKS: tuple[str, ...] = ("X3", "X6")
+AGENT_VIEW_FLAG = "agent_view"
 
 
 def _text(finding: dict) -> str:
@@ -394,6 +408,8 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
     base = CHECK_CAUSE.get(check, "unknown")
     if check in DRAWN_TYPE_CHECKS and finding.get("source") == "vision" and drawn_type_held(building, target):
         return "drawn_type"                    # fix round after P6a: a vision opinion, the drawing's type stays
+    if check in AGENT_VIEW_CHECKS and finding.get("source") == "vision" and metrics.get(AGENT_VIEW_FLAG):
+        return "exterior_camera"               # fix round after P6a, part 2: the agent's view frames it so
     if check == "F8":
         if metrics.get("cause") == "anchor_not_built" or metrics.get("missing_anchor") or "not built" in text:
             # round 2: an unknown anchor is typed and built by retype_piece; a typed one the fit left unbuilt is
@@ -553,6 +569,56 @@ def mark_replayed(findings: list[dict], cameras) -> list[dict]:
         evidence["metrics"] = dict(_metrics(f), **{REPLAYED_FLAG: True})
         f["evidence"] = evidence
         if f.get("cause") not in (None, "replayed_camera"):
+            f.pop("cause", None)
+    return findings
+
+
+def agent_view(camera: Optional[dict]) -> bool:
+    """Fix round after P6a, part 2 (module docstring): ``camera`` is an exterior view the agent placed (its plan's
+    ``policy`` or its ``view`` is ``agent``; the build's agent plans, ``overrides.fixed_plan``)."""
+    if not isinstance(camera, dict):
+        return False
+    kind = camera.get("kind") or ("exterior" if not camera.get("room_id") else "interior")
+    return kind == "exterior" and (camera.get("policy") == "agent" or camera.get("view") == "agent")
+
+
+def _element_ids(building: Optional[dict]) -> set:
+    if not isinstance(building, dict):
+        return set()
+    out: set = set()
+    for key in ("openings", "walls", "rooms", "furniture", "decor", "levels", "slabs"):
+        out |= {str(e.get("id")) for e in building.get(key) or [] if isinstance(e, dict) and e.get("id")}
+    return out
+
+
+def mark_agent_views(findings: list[dict], cameras, building: Optional[dict] = None) -> list[dict]:
+    """Fix round after P6a, part 2 (module docstring): every vision finding of ``AGENT_VIEW_CHECKS`` made on the render
+    of an exterior view the agent placed (``agent_view``; the view is the finding's ``evidence.view``, the critique's
+    key, else its target when that names a camera) whose target is that view or no element of ``building`` (the
+    building, the facade) gets the view as its target, ``metrics.agent_view`` (and ``metrics.claimed_target`` when the
+    target changes); a ``cause`` it carried is dropped, so the cause is taken again (``exterior_camera``). Changes the
+    findings in place and returns them."""
+    by_name = {str(c.get("name")): c for c in cameras or [] if isinstance(c, dict) and c.get("name")}
+    elements = None
+    for f in findings or []:
+        check = str(f.get("check") or f.get("checklist") or "")
+        if check not in AGENT_VIEW_CHECKS or f.get("source") != "vision":
+            continue
+        evidence = f.get("evidence") if isinstance(f.get("evidence"), dict) else {}
+        target = None if f.get("target") is None else str(f.get("target"))
+        view = evidence.get("view") or (target if target in by_name else None)
+        if not view or not agent_view(by_name.get(str(view))):
+            continue
+        if target != str(view):
+            elements = _element_ids(building) if elements is None else elements
+            if target in elements:
+                continue                         # a claim about an element of the facade keeps its cause
+        metrics = dict(_metrics(f), **{AGENT_VIEW_FLAG: str(view)})
+        if target != str(view):
+            metrics["claimed_target"] = target
+        f["evidence"] = dict(evidence, metrics=metrics)
+        f["target"] = str(view)
+        if f.get("cause") not in (None, "exterior_camera"):
             f.pop("cause", None)
     return findings
 

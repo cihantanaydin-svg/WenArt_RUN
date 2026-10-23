@@ -204,6 +204,10 @@ def test_mark_not_furniture_takes_the_crop_from_anywhere_in_the_evidence():
     """Fails on 03881bc: the crop was taken only when the evidence ended with an image path, so P4a's
     "recognition/crops/sym_L1_003_ctx.png: 1.63 x 1.52 m flat untyped outline" left ``crop: null``."""
     blob = M.fp("u1", "unknown", (2.5, 2.0), (1.63, 1.52), front=None, status="unverified")
+    # changed on purpose in the fix round after P6a: an untyped piece is marked only with its own crop, so u1 is the
+    # piece of the question sym_L1_003 whose crop the evidence names
+    blob.setdefault("evidence", []).append({"file": "deneme.dwg", "method": "ai", "entity": "recognition:sym_L1_003",
+                                            "confidence": 0.5, "text": "unknown"})
     b = M.building(furniture=[blob])
     res = E.apply_edit(b, edit("mark_not_furniture", piece_id="u1", kind="other",
                                evidence="plan crop recognition/crops/sym_L1_003_ctx.png: 1.63 x 1.52 m flat outline"))
@@ -557,11 +561,19 @@ def test_crop_of_never_records_a_top_down_render_as_the_plan_crop():
     # Fix round after P5 (changed on purpose, tests/test_m13_p5_furniture.py): an untyped piece is marked only with
     # a plan crop; a top-down render is none, so the mark is refused instead of recording ``crop: null``
     assert not res["accepted"] and res["failed_checks"][0].startswith("no_crop: u1")
+    # Fix round after P6a (changed on purpose, tests/test_m13_p6a_integration.py): an untyped piece is marked only
+    # with its own crop: a camera's plan crop of the room is refused too; the piece's own question crop is taken and
+    # the top-down render's text stays in the evidence
     res = E.apply_edit(b, edit("mark_not_furniture", piece_id="u1", kind="other",
                                evidence=text + "; plan crop check/cam_r_L-1_salon_2_1_plan.jpg"))
+    assert not res["accepted"] and "check/cam_r_L-1_salon_2_1_plan.jpg is not its crop" in res["failed_checks"][0]
+    b["furniture"][0].setdefault("evidence", []).append({"file": "deneme.dwg", "method": "ai", "confidence": 0.5,
+                                                         "entity": "recognition:sym_L-1_009", "text": "unknown"})
+    res = E.apply_edit(b, edit("mark_not_furniture", piece_id="u1", kind="other",
+                               evidence=text + "; plan crop recognition/crops/sym_L-1_009_ctx.png"))
     assert res["accepted"], res["failed_checks"]
     sym = res["building"]["symbols"][0]
-    assert sym["crop"] == "check/cam_r_L-1_salon_2_1_plan.jpg"
+    assert sym["crop"] == "recognition/crops/sym_L-1_009_ctx.png"
     assert "r1_044_topdown_r_L-1_salon_2.png" in sym["evidence"][0]["text"]
 
 

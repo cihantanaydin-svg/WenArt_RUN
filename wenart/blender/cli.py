@@ -17,7 +17,7 @@ CLI::
         [--cameras all|cam_a,cam_b] [--samples N] [--res WxH] [--force] [--device auto|cpu] \
         [--exposure auto|off|<EV>] [--exposure-target T] [--white-balance auto|off|fixed:r,g,b] \
         [--look-from <render_manifest.json>] [--hide ID[,ID] [--plug]] [--hide-sets 'cam:id;cam:id+plug'] \
-        [--alt-look None] [--max-bounces N] [--no-denoise] [--ev-offset X] [--preview-quality Q]
+        [--alt-look None] [--max-bounces N] [--no-denoise] [--ev-offset X] [--preview-quality Q] [--clamp-indirect C]
 
 ``build --reuse`` (docs/milestone5.md §2.7) skips Blender when
 ``scene.blend`` and ``scene_manifest.json`` exist and the manifest's
@@ -58,6 +58,11 @@ searched set as well) and enters the ``--reuse`` fingerprint; without the flags 
 ``WENART_CAMERAS_FROM`` / ``WENART_CAMERAS_EXTRA`` from its environment (the pod jobs export them), so both ways
 agree. ``render --white-balance project|kelvin:K`` (render.py: one whitepoint per project, or a fixed colour
 temperature) goes through as any other value.
+
+Fix round after P6a (22-23 Oct 2026; R_render's ask for the clamp A/B, verify:sky_ab:1 part b): ``render
+--clamp-indirect C`` (``render(clamp_indirect=)``) goes to render.py, which sets Cycles' indirect sample clamp to C
+(0 = off; ``render.CLAMP_INDIRECT`` 10 when absent) and puts a value other than 10 into the render key. Without the
+flag the command line is the one before.
 """
 from __future__ import annotations
 
@@ -268,7 +273,7 @@ def render(scene: str, out: str, cameras: str = "all", samples: int | None = Non
            exposure: str | float | None = None, white_balance: str | None = None,
            exposure_target: float | None = None, alt_look: str | None = None, max_bounces: int | None = None,
            no_denoise: bool = False, ev_offset: float | None = None, preview_quality: int | None = None,
-           variant: str = BASE_VARIANT) -> Path:
+           variant: str = BASE_VARIANT, clamp_indirect: float | None = None) -> Path:
     """Render cameras of a built scene; returns the path of ``render_manifest.json``
     (with ``hide_sets`` the folder that holds the ``hide_<id>/`` folders).
     ``exposure`` / ``white_balance`` default to render.py's ``auto``;
@@ -281,7 +286,9 @@ def render(scene: str, out: str, cameras: str = "all", samples: int | None = Non
     are the control flags of docs/milestone6.md §6. A render cut by
     ``WENART_DEADLINE`` raises ``BlenderFailed`` with ``returncode`` 3.
     ``variant`` (Milestone 10): accepted for the scheduler's symmetry; the explicit ``scene`` / ``out`` name
-    the variant's files (its scene manifest knows the variant)."""
+    the variant's files (its scene manifest knows the variant). Fix round after P6a: ``clamp_indirect`` (Cycles'
+    indirect sample clamp of a clamp A/B, 0 = off) goes through as ``--clamp-indirect``; None leaves render.py's
+    default."""
     args = ["--out", str(out), "--cameras", cameras, "--device", device]
     if samples is not None:
         args += ["--samples", str(samples)]
@@ -313,6 +320,8 @@ def render(scene: str, out: str, cameras: str = "all", samples: int | None = Non
         args += ["--ev-offset", str(ev_offset)]
     if preview_quality is not None:
         args += ["--preview-quality", str(int(preview_quality))]
+    if clamp_indirect is not None:                   # fix round after P6a: the clamp A/B (render.py checks >= 0)
+        args += ["--clamp-indirect", f"{float(clamp_indirect):g}"]
     run_blender(RENDER_SCRIPT, args, blend=str(scene), log_path=Path(out) / "render.log", timeout=timeout)
     return Path(out) if hide_sets else Path(out) / "render_manifest.json"
 
@@ -389,6 +398,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--no-denoise", action="store_true", help="no denoiser (a control)")
     r.add_argument("--ev-offset", type=float, help="stops added to the auto, fixed or --look-from EV")
     r.add_argument("--preview-quality", type=int, help="fixed JPEG quality of the previews, no size step-down")
+    r.add_argument("--clamp-indirect", type=float, default=None,
+                   help="Cycles' indirect sample clamp (default render.py's 10; 0 = off; another value enters the "
+                        "render key): the clamp A/B")
     e = sub.add_parser("export", help="the 3D files of a built scene: <name>.blend (packed) and <name>.glb")
     e.add_argument("--scene", required=True)
     e.add_argument("--out", required=True)
@@ -416,7 +428,7 @@ def main(argv: list[str] | None = None) -> int:
                           plug=ns.plug, hide_sets=ns.hide_sets, look_from=ns.look_from, exposure=ns.exposure,
                           white_balance=ns.white_balance, exposure_target=ns.exposure_target, alt_look=ns.alt_look,
                           max_bounces=ns.max_bounces, no_denoise=ns.no_denoise, ev_offset=ns.ev_offset,
-                          preview_quality=ns.preview_quality, variant=ns.variant)
+                          preview_quality=ns.preview_quality, variant=ns.variant, clamp_indirect=ns.clamp_indirect)
     except BlenderFailed as exc:
         print(f"error: {exc}", file=sys.stderr)
         # 2 = refused request, 3 = cut by WENART_DEADLINE (the orchestrator reads both).

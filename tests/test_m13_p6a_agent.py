@@ -487,7 +487,10 @@ def test_final_round_returns_the_stage_note_of_the_numbers_after_it(tmp_path):
     res = loop.final_round(2)
     assert res["accepted"] == 1
     assert res["stage_note"].startswith("2 round(s), ") and "1 accepted edit(s)" in res["stage_note"]
-    assert res["stage_note"].endswith("stop: final round for critical findings done")
+    # changed on purpose in the fix round after P6a, part 2 (tests/test_m13_p6a_integration.py): the note keeps why
+    # the rounds stopped before the final round (the scheduler's records of a failed re-run must still say so)
+    assert res["stage_note"].endswith(f"stop: {LP.STOPS[first['stop']['reason']]}; final round for critical findings "
+                                      f"done"), res["stage_note"]
     summary = {"rounds": [{}, {}, {}], "findings_removed": 40, "accepted": 34, "rejected": 150,
                "findings_removed_predicted_same_rounds": 42, "findings_new": 6, "findings_net": 34,
                "stop": {"reason": "max_rounds"}}

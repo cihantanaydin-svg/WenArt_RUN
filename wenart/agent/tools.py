@@ -219,6 +219,21 @@ file name names the room's level (``level_named``), never the first sheet of any
 sheet ``final/debug/deneme1_dwg_s1.jpg``; the agent cited it as the plan crop of the untyped 5.14 x 2.37 m piece
 f_L-1b_002 (a rug outline under the salon seating) and marked it as not furniture (seq 5968), while its twin
 f_L-1b_001 stayed under review.
+
+Fix round after P6a, part 2 (23 Oct 2026; the exterior track's asks, docs/milestone13.md §14.13 decision 16):
+
+- ``free_strip_hint`` names the free stretch of a refused exterior pose as a place to stand only when a level
+  ``exterior.EYE_LENS_MM`` camera at its far end frames the building with the sky (``exterior.frame_check`` on the
+  build's exterior model: ``fits`` and ``sky_share`` >= ``exterior.SKY_MIN_SHARE``) or the building is long and low
+  (the wider or tilted framing); otherwise the hint says that no eye-level view fits there, how far from the target
+  the facade needs a camera (``exterior.fill_distance``) and that the frontal view of that facade is a user decision.
+  Why: P5's hint sent the agent into real04's 5.7 m strip between the entrance facade and b2; P6a's camera there
+  (ext_front_entrance) showed a blank wall with no sky, both doors cut;
+- the camera role guards (``x6_frontal_now``, ``frontal_pose_problem``, ``role_problem``) read X6's frontal view with
+  its frame measured on ``ctx.building`` (``x6_frontal_of``: ``exterior_checks.x6_frontal`` on the build's exterior
+  model, made once per context, ``exterior_of``), so a next-build plan without the build's recorded frame is judged
+  as X6 judges the built camera: a pose square to the main facade that frames only part of the building or shows no
+  sky is no frontal view, so its role no longer protects it.
 """
 from __future__ import annotations
 
@@ -531,6 +546,8 @@ class ToolContext:
     # fix round after P5: the ids the round's accepted edits changed (``apply_verdict``; ``loop.after_findings`` leaves
     # the round's stale scene-manifest boxes of these targets out of every later dry re-check)
     round_changed: set = field(default_factory=set)
+    # fix round after P6a, part 2: the build's plan and exterior model of ``building`` (``exterior_of``), made once
+    _exterior: Any = None
     _default_session: Any = None
     _local: Any = None
     _lock: Any = None
@@ -1682,26 +1699,71 @@ def built_view(ctx: ToolContext, name: str) -> tuple[Optional[str], Optional[dic
     return next_view(ctx, name, pose)
 
 
+def exterior_of(ctx: ToolContext) -> dict:
+    """Fix round after P6a, part 2 (module docstring): ``{"prep", "model", "ridge"}`` of ``ctx.building``: the build's
+    plan (``exterior_checks._prep``), its exterior model (``exterior_checks.exterior_model``, made on first use) and
+    the roof's ridge (``critic_vision.high_view_line``), cached on the context (the building does not change within a
+    context's checks; an accepted edit's building is a new context next round)."""
+    from wenart.agent import critic_vision as CV
+    from wenart.blender import exterior_checks as X
+
+    with ctx.lock:
+        if ctx._exterior is None or ctx._exterior.get("building") is not ctx.building:
+            prep = X._prep(ctx.building) if isinstance(ctx.building, dict) else None
+            line = CV.high_view_line(prep=prep) if isinstance(prep, dict) else None
+            ctx._exterior = {"building": ctx.building, "prep": prep, "ridge": line[0] if line else None,
+                             "model": None, "made": False}
+        return ctx._exterior
+
+
+def exterior_model_of(ctx: ToolContext):
+    """Fix round after P6a, part 2: the build's exterior model of ``ctx.building`` (``exterior_of``), None when it
+    cannot be made."""
+    from wenart.blender import exterior_checks as X
+
+    ext = exterior_of(ctx)
+    with ctx.lock:
+        if not ext["made"]:
+            ext["model"] = X.exterior_model(ext["prep"]) if isinstance(ext["prep"], dict) else None
+            ext["made"] = True
+        return ext["model"]
+
+
+def x6_frontal_of(ctx: ToolContext, camera: Optional[dict], main: Optional[dict]) -> bool:
+    """Fix round after P6a, part 2 (module docstring): ``camera`` (a scene camera or a next-build plan) is X6's frontal
+    view by X6's own rule (``exterior_checks.x6_frontal``, = ``critic_vision.x6_frontal`` with a building): its view
+    is ``frontal``, or an ``elevation`` / ``agent`` view square to the main facade that frames the whole building with
+    the sky, its frame the record's or measured on ``ctx.building``'s exterior model; a frame that cannot be measured
+    keeps the pose rule."""
+    from wenart.blender import exterior_checks as X
+
+    if not isinstance(camera, dict):
+        return False
+    try:
+        return bool(X.x6_frontal(camera, main, model=lambda: exterior_model_of(ctx), ridge=exterior_of(ctx)["ridge"]))
+    except (KeyError, TypeError, ValueError, IndexError):
+        return False
+
+
 def x6_frontal_now(ctx: ToolContext, name: str, main: Optional[dict]) -> bool:
     """Pass before P5: the camera ``name`` is the frontal view X6 asks for at the pose and view the next build gives
-    it (``built_view``, ``critic_vision.x6_frontal``)."""
-    from wenart.agent import critic_vision as CV
-
+    it (``built_view``, ``critic_vision.x6_frontal``). Fix round after P6a, part 2: with its frame measured on
+    ``ctx.building`` (``x6_frontal_of``)."""
     view, pose = built_view(ctx, name)
-    return pose is not None and CV.x6_frontal(dict(pose, view=view), main)
+    return pose is not None and x6_frontal_of(ctx, dict(pose, view=view), main)
 
 
 def frontal_pose_problem(ctx: ToolContext, view_id: str, entry: dict, main: Optional[dict]) -> Optional[str]:
     """Pass before P5, round 2 (module docstring): why the ``set`` / ``add`` pose ``entry`` of X6's frontal view
     ``view_id`` would leave X6 without a frontal view: the next build's label of that pose (``next_view``) is not
     X6's frontal view (``critic_vision.x6_frontal``: a corner the build keeps, or a pose not square to the main
-    facade) and no other camera stays X6's frontal view (``exterior_poses``, ``x6_frontal_now``); None otherwise."""
-    from wenart.agent import critic_vision as CV
+    facade) and no other camera stays X6's frontal view (``exterior_poses``, ``x6_frontal_now``); None otherwise.
+    Fix round after P6a, part 2: X6's frontal view with its frame measured (``x6_frontal_of``)."""
     from wenart.blender import build as B
     from wenart.blender import site as S
 
     view, plan = next_view(ctx, view_id, entry)
-    if CV.x6_frontal(dict(plan, view=view), main):
+    if x6_frontal_of(ctx, dict(plan, view=view), main):         # fix round after P6a, part 2: the frame measured
         return None
     if any(x6_frontal_now(ctx, n, main) for n in exterior_poses(ctx) if n != str(view_id)):
         return None                          # another camera stays X6's frontal view
@@ -1855,7 +1917,7 @@ def role_problem(ctx: ToolContext, action: str, view_id: str, entry: dict) -> Op
     built, plan = built_view(ctx, view_id)
     view = built or cam.get("view")
     main = CV.main_facade_of(ctx.scene, ctx.building)
-    frontal_now = plan is not None and CV.x6_frontal(dict(plan, view=view), main)   # = x6_frontal_now
+    frontal_now = plan is not None and x6_frontal_of(ctx, dict(plan, view=view), main)   # = x6_frontal_now
     aerial = aerial_role(plan if plan is not None else cam, view)
     if view == ENTRANCE_VIEW:
         role = ENTRANCE_VIEW
@@ -1984,14 +2046,55 @@ def free_strip_hint(ctx: ToolContext, entry: dict, failed: list) -> list:
     a, b = spans[0]
     # fix round after P5 (22 Oct 2026), review: the wider or tilted framing is the long, low building's only
     from wenart.blender import exterior as E
+    low = long_low_of(prep)
+    stretch = (f"({tx + ux * a:.2f}, {ty + uy * a:.2f}) to ({tx + ux * b:.2f}, {ty + uy * b:.2f}), {a:.1f}-{b:.1f} m "
+               f"from the target (a building stands beyond it)")
+    # fix round after P6a, part 2 (module docstring): the stretch is named only where an eye-level view fits
+    blocked = None if low else strip_frame_problem(prep, (tx, ty), (ux, uy), b, X.exterior_model)
+    if blocked is not None:
+        return list(failed) + [f"no eye-level view fits the free stretch on the view line from the target: {stretch}: "
+                               f"{blocked}; whether this facade gets a frontal view is a user decision "
+                               f"(docs/milestone13.md §14.13, decision 16): report it, add no camera in this stretch"]
     framing = ("a close view may be framed wider or tilted when the whole facade does not fit (a long, low building)"
-               if long_low_of(prep) else
+               if low else
                f"the view keeps the {E.EYE_LENS_MM:g} mm eye-level lens, level (the wider or tilted framing is for a "
                f"long, low building only)")
-    return list(failed) + [f"free on the view line from the target: ({tx + ux * a:.2f}, {ty + uy * a:.2f}) to "
-                           f"({tx + ux * b:.2f}, {ty + uy * b:.2f}), {a:.1f}-{b:.1f} m from the target (a building "
-                           f"stands beyond it); a camera there stands at eye height over the ground there, and "
-                           f"{framing}"]
+    return list(failed) + [f"free on the view line from the target: {stretch}; a camera there stands at eye height "
+                           f"over the ground there, and {framing}"]
+
+
+def strip_frame_problem(prep: Optional[dict], target, direction, far: float, model_of: Callable) -> Optional[str]:
+    """Fix round after P6a, part 2 (module docstring): why no eye-level view fits a free stretch that ends ``far``
+    metres from ``target`` along ``direction``: a level ``exterior.EYE_LENS_MM`` camera at eye height over the ground
+    at its far end, looking at ``target``, does not frame the whole building or shows less than
+    ``exterior.SKY_MIN_SHARE`` sky (``exterior.frame_check``), with the distance the building needs
+    (``exterior.fill_distance``); None when it fits with the sky, or when the build's exterior model (``model_of(prep)``)
+    cannot be made (the hint then names the stretch as before)."""
+    from wenart.blender import exterior as E
+
+    try:
+        model = model_of(prep) if isinstance(prep, dict) else None
+        if model is None:
+            return None
+        tx, ty = (float(v) for v in target[:2])
+        ux, uy = (float(v) for v in direction[:2])
+        fx, fy = tx + ux * far, ty + uy * far
+        z = E._eye(model, fx, fy)
+        frame = E.frame_check(model, [fx, fy, z], [tx, ty, z], E.EYE_LENS_MM)
+        if frame["fits"] and frame["sky_share"] >= E.SKY_MIN_SHARE - 1e-9:
+            return None
+        need, rec = E.fill_distance(model, (tx, ty), (ux, uy), (tx, ty, z), E.building_points(model), E.EYE_LENS_MM)
+    except (KeyError, TypeError, ValueError, IndexError, ZeroDivisionError, FloatingPointError, AttributeError):
+        return None
+    parts = []
+    if not frame["fits"]:
+        parts.append(f"the building spans {float(frame['fill']):.2f} of the frame width (it does not fit)")
+    if frame["sky_share"] < E.SKY_MIN_SHARE - 1e-9:
+        parts.append(f"{float(frame['sky_share']):.0%} of its rays look up into the sky (at least "
+                     f"{E.SKY_MIN_SHARE:.0%})")
+    reach = (f"about {float(need):.1f} m" if rec and rec.get("fits") else f"more than {float(need):.0f} m")
+    return (f"a level {E.EYE_LENS_MM:g} mm camera at eye height at its far end ({fx:.2f}, {fy:.2f}) frames no view: "
+            f"{' and '.join(parts)}; a level eye-level view of the whole building stands {reach} from the target")
 
 
 def long_low_of(prep: Optional[dict]) -> Optional[dict]:

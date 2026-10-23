@@ -349,10 +349,16 @@ def _close(a, b, m: float = CLOSE_M) -> bool:
 
 def headroom_planes(building: dict, level_id: str) -> list:
     """The level's sloped ceiling planes ``[a, b, c]`` (z = a x + b y + c, world), as the scene builder makes them
-    (``decor.ceiling_planes``), or [] under a flat ceiling."""
-    from wenart.furniture import decor as D           # lazy: decor is not needed for a flat level
+    (the rule of ``decor.ceiling_planes``), or [] under a flat ceiling.
 
-    return D.ceiling_planes(building, level_id)
+    Integration of the fix round after P6a (23 Oct 2026): read through ``fit.ceiling_planes_of`` (the same
+    ``roof.roof_model`` + ``roof.ceiling_planes`` calls; the planes are asserted equal in
+    ``tests/test_m13_p6a_integration.py``), not ``decor``: the stages that reach the solver (sheets, pipeline) list
+    ``fit.py`` in their code (``stages.GROUPS_CODE``) but not ``decor.py``, so a decor import would leave their
+    fingerprints blind to it (``tests/test_run_stages.py::test_code_lists_cover_the_import_closure``)."""
+    from wenart.furniture import fit as F             # lazy: fit reaches the solver through edit_ops
+
+    return F.ceiling_planes_of(building, level_id)
 
 
 def ceiling_over_polygon(planes: list, floor_z: float, poly) -> float:

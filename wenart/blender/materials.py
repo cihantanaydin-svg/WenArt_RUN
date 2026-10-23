@@ -1050,21 +1050,61 @@ MOOD_STRENGTH = {"warm daylight": 1.0, "cool daylight": 1.2, "golden evening": 0
 # soft 1.4, interior evening 0.5; wenart/style/finishes.py LIGHTING).
 
 
-def world_strength_record(strength: float, strength_gain: float = 1.0) -> tuple[float, dict]:
+# Fix round after P6a (22-23 Oct 2026; the user's decision of 22 Oct 2026, "Windows only +3.5"): which rays of the
+# interior world see a sky gain (``lighting.interior_sky_rays``). ``all``: the Background Strength itself (sky2 /
+# sky35 / sky52); ``camera_paths``: only the rays whose Light Path max(Is Camera Ray, Is Singular Ray) is 1, the
+# factor of ``window_glass_material`` (the camera ray, and its ray after a sharp refraction or reflection: the view
+# through a pane).
+SKY_GAIN_RAYS = ("all", "camera_paths")
+SKY_CAMERA_PATHS_FACTOR = "Light Path max(Is Camera Ray, Is Singular Ray)"
+
+
+def world_strength_record(strength: float, strength_gain: float = 1.0, gain_rays: str = "all") -> tuple[float, dict]:
     """``(Background Strength, extra record keys)`` of the interior world (pure; pod P6a, the interior sky A/B):
     ``strength`` times ``strength_gain`` (``lighting.interior_sky_gain``) with ``{"strength_base", "strength_gain",
     "sky_stops"}``; a gain of exactly 1.0 (production) returns ``strength`` untouched and no keys, so the world and
-    its manifest record stay as they were. A gain that is not a positive finite number raises ValueError."""
+    its manifest record stay as they were. A gain that is not a positive finite number raises ValueError.
+
+    Fix round after P6a (22-23 Oct 2026): ``gain_rays`` ``camera_paths`` (``SKY_GAIN_RAYS``) keeps ``strength`` for
+    every ray but the camera's paths: the Strength is ``strength`` (what lights the room), the record adds
+    ``sky_rays: camera_paths``, ``strength_camera`` (``strength`` x gain, what the camera sees through a pane) and
+    ``gain_factor`` (``SKY_CAMERA_PATHS_FACTOR``); ``world_nodes`` wires the factor. An unknown ``gain_rays`` raises."""
+    if gain_rays not in SKY_GAIN_RAYS:
+        raise ValueError(f"interior world gain_rays must be one of {list(SKY_GAIN_RAYS)}, not {gain_rays!r}")
     gain = float(strength_gain)
     if not math.isfinite(gain) or gain <= 0.0:
         raise ValueError(f"interior world strength gain must be a positive number, not {strength_gain!r}")
     if gain == 1.0:
         return strength, {}
-    return strength * gain, {"strength_base": strength, "strength_gain": round(gain, 6),
-                             "sky_stops": round(math.log2(gain), 6)}
+    record = {"strength_base": strength, "strength_gain": round(gain, 6), "sky_stops": round(math.log2(gain), 6)}
+    if gain_rays == "camera_paths":
+        return strength, dict(record, sky_rays="camera_paths", strength_camera=round(strength * gain, 6),
+                              gain_factor=SKY_CAMERA_PATHS_FACTOR)
+    return strength * gain, record
 
 
-def world_nodes(scene, lighting: dict, hdri_path: str | None, strength_gain: float = 1.0) -> dict:
+def camera_path_strength(nodes, links, background, strength: float, gain: float) -> None:
+    """Wire the Background Strength of a windows-only sky (fix round after P6a): ``strength x (1 + (gain - 1) x f)``
+    with f = ``SKY_CAMERA_PATHS_FACTOR`` (Light Path 'Is Camera Ray' and 'Is Singular Ray' -> Math MAXIMUM -> Math
+    MULTIPLY_ADD(f, strength x (gain - 1), strength) -> 'Strength'). Every other ray (diffuse, glossy, shadow, a light
+    sample) reads ``strength``: on the bpy 5.2.2 shim the diffuse light passes of a sunlit room with a window are
+    identical with and without the gain (tests/test_m13_p6a_sky.py). Cycles takes no light sample at a singular
+    bounce, so no multiple-importance weight mixes the two strengths on the view through a pane."""
+    path = nodes.new("ShaderNodeLightPath")
+    rays = nodes.new("ShaderNodeMath")
+    rays.operation = "MAXIMUM"
+    links.new(path.outputs["Is Camera Ray"], rays.inputs[0])
+    links.new(path.outputs["Is Singular Ray"], rays.inputs[1])
+    seen = nodes.new("ShaderNodeMath")
+    seen.operation = "MULTIPLY_ADD"
+    links.new(rays.outputs["Value"], seen.inputs[0])
+    seen.inputs[1].default_value = float(strength) * (float(gain) - 1.0)
+    seen.inputs[2].default_value = float(strength)
+    links.new(seen.outputs["Value"], background.inputs["Strength"])
+
+
+def world_nodes(scene, lighting: dict, hdri_path: str | None, strength_gain: float = 1.0,
+                gain_rays: str = "all") -> dict:
     """World from the style: HDRI when a file is available, else a physical
     sky (sky texture, multiple scattering) at the style's sun position.
     Returns what was used for the manifest.
@@ -1072,6 +1112,12 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None, strength_gain: flo
     Pod P6a (22 Oct 2026): ``strength_gain`` (``lighting.interior_sky_gain``, the ``sky*`` light variants) multiplies
     the Background Strength of this world only (``world_strength_record``); the record then carries
     ``strength_base``, ``strength_gain`` and ``sky_stops``. 1.0 (the default) builds the world as before.
+
+    Fix round after P6a (22-23 Oct 2026): ``gain_rays`` (``lighting.interior_sky_rays``) ``camera_paths`` applies the
+    gain only on the camera's paths (``camera_path_strength``; the ``skywin35`` light variant): the panes and sharp
+    reflections show the brighter sky, the room is lit as without the gain. The record's ``strength`` stays the
+    room's; ``strength_camera`` is what the camera sees. ``all`` (the default) or a gain of 1.0 builds the world and
+    its record exactly as before.
 
     Round 4 check of the interior HDRI against the 1000 W/m² sun lamp (bpy 5.2.2, the measurement of the exterior
     pair): Poly Haven's kloppenheim_06 (1k, the warm-daylight HDRI of real02/03/04) at Strength 1.0 puts 2.54 W/m²
@@ -1096,7 +1142,8 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None, strength_gain: flo
     links.new(bg.outputs["Background"], out.inputs["Surface"])
     mood = str(lighting.get("mood", "")).lower()
     strength, gain_record = world_strength_record(MOOD_STRENGTH.get(mood, _MOOD_HDRI_STRENGTH.get(mood, 1.0)),
-                                                  strength_gain)
+                                                  strength_gain, gain_rays)
+    camera_paths = gain_record.get("sky_rays") == "camera_paths"      # fix round after P6a: windows-only sky
     bg.inputs["Strength"].default_value = strength
     azimuth = float(lighting.get("sun_azimuth_deg", 210.0))
     elevation = float(lighting.get("sun_elevation_deg", 35.0))
@@ -1111,6 +1158,8 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None, strength_gain: flo
         links.new(coord.outputs["Generated"], mapping.inputs["Vector"])
         links.new(mapping.outputs["Vector"], env.inputs["Vector"])
         links.new(env.outputs["Color"], bg.inputs["Color"])
+        if camera_paths:
+            camera_path_strength(nodes, links, bg, strength, float(strength_gain))
         return {"kind": "hdri", "file": hdri_path, "strength": strength, **gain_record}
 
     sky = nodes.new("ShaderNodeTexSky")
@@ -1124,6 +1173,9 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None, strength_gain: flo
     bg.inputs["Strength"].default_value = strength * 0.5
     if gain_record:
         gain_record = dict(gain_record, strength_base=gain_record["strength_base"] * 0.5)
+    if camera_paths:
+        gain_record["strength_camera"] = round(strength * 0.5 * float(strength_gain), 6)
+        camera_path_strength(nodes, links, bg, strength * 0.5, float(strength_gain))
     return {"kind": "sky", "file": None, "strength": strength * 0.5, **gain_record}
 
 

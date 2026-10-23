@@ -41,6 +41,16 @@ deep cut it is; without it a buried sink counted only under "S2 all". The mesh p
 measure here: a member wholly inside a run has its vertices on the run's module faces (a buried sink measured
 3.6 cm).
 
+Fix round after P6a, part I2 (22-23 Oct 2026; D_decor's ask, the look finding "two drawn floor lamps overlap" in
+real04's r_L-1_salon, f_L-1_063 / f_L-1_064 and the mirrored f_L-1_065 / f_L-1_066): two floor lamps
+(``LAMP_SHADE_TYPES``) whose shades overlap are an S2 violation. What: the shade is the part of the lamp in the top
+``LAMP_SHADE_SHARE`` of its height (``shade_disc``: the circle inside the XY box of those vertices); two shades at
+heights that meet overlap by ``r_a + r_b - distance`` (``shade_overlap``), judged with the pair's tolerance. Why: P6a's
+S2 reported none of these pairs (the agent log shows only the plausibility F9 of a tried move) while the renders
+showed two shades through each other; a shade is an open drum or cone (the parametric lamp's fabric drum, most
+library shades) whose vertices the ray-parity test of the pair need not find inside the other. Every other pair keeps
+the mesh test, and a lamp pair whose shades do not overlap still gets it.
+
 Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §13.2; track T3): S2 tolerances by class. 16 of real04's 17 S2
 findings were 1.2-2.5 cm cuts of drawn toilets, armchair / ottoman pairs and wardrobes (noise the agent chased with
 39 edits). ``TOLERANCES["overlap_fixture"]`` (0.03 m) applies to fixed equipment and kitchen appliances
@@ -109,6 +119,33 @@ KITCHEN_RUN_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island", "sink
 KITCHEN_RUN_HOSTS: tuple[str, ...] = ("kitchen_counter", "kitchen_island")
 KITCHEN_RUN_MEMBERS: tuple[str, ...] = ("sink_kitchen", "stove", "fridge", "washing_machine")
 MAX_PAIR_SAMPLES = 200
+# Fix round after P6a, part I2 (module docstring): floor lamps whose shades overlap.
+LAMP_SHADE_TYPES: tuple[str, ...] = ("floor_lamp",)
+LAMP_SHADE_SHARE = 0.35            # the shade: the vertices in the top 35 % of the lamp's height
+
+
+def shade_disc(verts) -> Optional[tuple[float, float, float, float, float]]:
+    """``(cx, cy, r, z0, z1)`` of a floor lamp's shade (pure; fix round after P6a): the vertices in the top
+    ``LAMP_SHADE_SHARE`` of the lamp's height; the centre of their XY box and the radius of the circle inside it (the
+    smaller half side, so a round shade is never made bigger than it is); None without vertices."""
+    pts = [(float(v[0]), float(v[1]), float(v[2])) for v in verts or ()]
+    if not pts:
+        return None
+    zmin, zmax = min(p[2] for p in pts), max(p[2] for p in pts)
+    z0 = zmax - LAMP_SHADE_SHARE * (zmax - zmin)
+    top = [p for p in pts if p[2] >= z0 - 1e-9]
+    xs, ys = [p[0] for p in top], [p[1] for p in top]
+    r = min(max(xs) - min(xs), max(ys) - min(ys)) / 2.0
+    return ((max(xs) + min(xs)) / 2.0, (max(ys) + min(ys)) / 2.0, r, z0, zmax)
+
+
+def shade_overlap(verts_a, verts_b) -> float:
+    """How far the shades of two floor lamps overlap (metres; pure; fix round after P6a): ``r_a + r_b - distance``
+    of their ``shade_disc`` circles when the shades' heights meet, else 0 (never negative)."""
+    a, b = shade_disc(verts_a), shade_disc(verts_b)
+    if a is None or b is None or a[3] > b[4] or b[3] > a[4]:
+        return 0.0
+    return max(0.0, a[2] + b[2] - math.hypot(a[0] - b[0], a[1] - b[1]))
 
 
 def kitchen_host_member(pa: dict, pb: dict) -> tuple[Optional[dict], Optional[dict]]:
@@ -411,6 +448,16 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
             pair_tol = overlap_tolerance(pa["type"], pb["type"])
             if not _boxes_overlap(boxes[a], boxes[b], pair_tol):
                 continue
+            if pa["type"] in LAMP_SHADE_TYPES and pb["type"] in LAMP_SHADE_TYPES:
+                # fix round after P6a: open shades through each other (the mesh test need not find a point inside)
+                shade = shade_overlap(meshes[a]["verts"], meshes[b]["verts"])
+                if shade > pair_tol + 1e-9:
+                    counts["S2"]["checked"] += 1
+                    fail("S2", a, pa.get("room_id"), f"{pa['type']} {a} and {pb['type']} {b}: their shades overlap by "
+                                                     f"{shade:.3f} m (allowed {pair_tol:.3f} m)",
+                         {"depth_m": round(shade, 4), "other": b, "tolerance_m": pair_tol, "shade": True})
+                    measured[a].setdefault("cuts", []).append({"id": b, "depth_m": round(shade, 4), "shade": True})
+                    continue
             depth = float(max(R.penetration(caster(b), R.sample_points(meshes[a]["verts"], MAX_PAIR_SAMPLES)),
                               R.penetration(caster(a), R.sample_points(meshes[b]["verts"], MAX_PAIR_SAMPLES))))
             counts["S2"]["checked"] += 1

@@ -213,9 +213,9 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   over its footprint. ``fit_piece(..., ceiling=)`` / ``_fit_family`` refuse a model whose fitted height is above
   ``ceiling - CEILING_MARGIN_M`` like a model outside the real height range (the next one is tried; with none left
   the ladder builds the module or parametric piece at the piece's height); ``piece_ceiling(building, piece)`` is that
-  ceiling: ``decor.ceiling_over`` with the level's ``decor.ceiling_planes`` (the roof as the scene builder makes it;
-  the layout and fit buildings carry no ``level["ceiling_planes"]``) less a wall cabinet's mount height, None on a
-  flat level. ``fit_building`` passes it per piece; the agent's refits (``edit_ops._build_retyped``, the swap check
+  ceiling: the lowest sloped ceiling over the footprint (``ceiling_planes_of``: the roof as the scene builder makes it,
+  the rule of ``decor.ceiling_planes`` / ``decor.ceiling_over``, which the fit stage does not import; the layout and
+  fit buildings carry no ``level["ceiling_planes"]``) less a wall cabinet's mount height, None on a flat level. ``fit_building`` passes it per piece; the agent's refits (``edit_ops._build_retyped``, the swap check
   and ``agent.loop.dry_fit``) pass the same. Why: the completion put the twin bookshelf f_L1_056 under a 1.44 m
   slope and the fit gave it a 2.02 m HSSD model (critical X2, through the roof, in every P6a round); real02's committed
   f_L1_035 has a 2.02 m model under a 2.07 m slope. On a flat level (no roof over it) nothing changes.
@@ -534,7 +534,8 @@ def ranking_reasons(tried: list[dict], chosen: dict) -> dict:
     if chosen["source"] == GENERATED:
         why.insert(0, "generated: no other library model passed the caps")
     passed_over = [{"id": t["id"], "why": "outside the caps (non-uniform {:.1f} %, mean scale {}{})".format(
-        (t["non_uniform"] - 1) * 100, t["mean_scale"], "" if t.get("height_ok", True) else ", height outside the range")}
+        (t["non_uniform"] - 1) * 100, t["mean_scale"], "" if t.get("height_ok", True) else
+        ", too tall for the sloped ceiling" if t.get("under_ceiling") is False else ", height outside the range")}
         for t in tried[:i]]
     return {"rule": RANKING_RULE, "rank": chosen["rank"], "tried": len(tried), "reasons": why,
             "passed_over": passed_over}
@@ -704,6 +705,9 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
        the parametric family (``method: parametric``); ``method: none`` only for a piece with ``build: false``.
     Every asset carries ``ladder``, ``licence``, ``licence_flag``, ``commercial_safe`` and ``licence_mode``
     (``_finish``); ``used`` (``{"project": Counter, "room": Counter}`` of asset ids) feeds the diversity penalty.
+    Fix round after P6a (module docstring): ``ceiling`` (``piece_ceiling``; None on a flat level) is the height the
+    piece has under a sloped ceiling: a model fitted taller than ``ceiling - CEILING_MARGIN_M`` is refused like one
+    outside the real height range, a pinned one too (``pin_refused`` says so).
     """
     mode = C.check_mode(mode)
     ftype = piece["type"]
@@ -749,8 +753,8 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         asset["pin_refused"] = (f"{pin}: not a {ftype} model of the catalogue" if entry is None
                                 else f"{pin}: {C.unusable_reason(entry, mode)}" if not C.usable(entry, mode)
                                 else f"{pin}: fails the fit rules (caps, height"
-                                     + (f", {ceiling - CEILING_MARGIN_M:.2f} m under the sloped ceiling)"
-                                        if ceiling is not None else ")"))
+                                     + (f", at most {ceiling - CEILING_MARGIN_M:.2f} m high under the sloped "
+                                        f"ceiling)" if ceiling is not None else ")"))
         return asset
     candidates = catalog.candidates(ftype)
     if not candidates:
@@ -821,14 +825,15 @@ def _relaxed_caps(cap: float, uniform_range: tuple[float, float]) -> Optional[tu
 
 def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str], cap: float,
                 uniform_range: tuple[float, float], design: Optional[dict], *, used: Optional[dict] = None,
-                within_table: bool = False) -> dict:
+                within_table: bool = False, ceiling: Optional[float] = None) -> dict:
     """The fit of one style family on the usable candidates: the bed rule, the style filter, the chaise side, the
     design as a preference (Milestone 13: models that cannot show it are listed under ``excluded`` with the reason
     and still tried after the ones that can), the rank order (``rank_key`` with the diversity penalty ``used``) and
     the caps: the uniform scale to the drawn width within ``uniform_range``, the depth mismatch within ``cap``, the
     height within the real range; with ``within_table`` the fitted box must also lie inside the type's documented
     ranges (the relaxed caps of the ladder). Returns the library ``asset`` or a parametric record whose
-    ``fallback_reason`` says why none fitted."""
+    ``fallback_reason`` says why none fitted. Fix round after P6a: with ``ceiling`` the fitted height also stays
+    ``CEILING_MARGIN_M`` under it (``under_ceiling``; the candidate records ``under_ceiling``)."""
     ftype = piece["type"]
     width, depth = piece["footprint"]["size"]
     candidates, excluded, reason = usable_candidates(ftype, candidates, style_family)
@@ -859,7 +864,8 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
         mean_scale = round(sum(scales) / 3.0, 4)
         height = round(float(entry["bbox_m"][2]) * scales[2], 4)
         fdepth = fitted_depth(entry, width)
-        height_ok = height_fits(height, heights) and working_height_ok(ftype, height)
+        roof_ok = under_ceiling(height, ceiling)          # fix round after P6a: under a sloped ceiling
+        height_ok = height_fits(height, heights) and working_height_ok(ftype, height) and roof_ok
         accepted = (depth_ratio <= cap + 1e-9 and uniform_range[0] <= mean_scale <= uniform_range[1] and height_ok)
         if accepted and within_table:
             from wenart.furniture import sizes as SZ
@@ -874,6 +880,8 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
                       "diversity_steps": diversity_steps(entry["id"], used), "design_pref": prefs.get(entry["id"], 0),
                       "quality": quality_of(entry), "vision_quality": vision_quality_of(entry),
                       "faces": faces_of(entry), "height_m": height, "height_ok": height_ok})
+        if ceiling is not None:
+            tried[-1]["under_ceiling"] = roof_ok
         if accepted:
             asset = {
                 "library": entry["source"], "asset_id": entry["id"], "licence": entry["licence"],
@@ -929,6 +937,10 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
                    f"(+-{round(HEIGHT_TOLERANCE * 100)} %, wenart.furniture.sizes)")
         if ftype in WORKING_HEIGHT_TYPES:
             reason += f" or the working height (+-{round(WORKING_HEIGHT_TOL * 100)} % of the product height)"
+    too_high = [t["id"] for t in tried if t.get("under_ceiling") is False]
+    if too_high:
+        reason += (f"; {len(too_high)} taller than the {float(ceiling) - CEILING_MARGIN_M:.2f} m the sloped ceiling "
+                   f"leaves over the piece ({float(ceiling):.2f} m - {CEILING_MARGIN_M:g} m)")
     if within_table:
         reason += "; the relaxed caps hold only inside the documented ranges"
     return parametric_fit(piece, reason, tried, excluded=excluded, style_family=style_family)
@@ -1217,27 +1229,52 @@ def under_ceiling(height: float, ceiling: Optional[float], margin: float = CEILI
     return ceiling is None or float(height) <= float(ceiling) - margin + 1e-9
 
 
+def ceiling_planes_of(building: Optional[dict], level_id: Optional[str]) -> list:
+    """Fix round after P6a (module docstring): the sloped ceiling planes ``[a, b, c]`` (z = a x + b y + c, world) of
+    ``level_id`` under the roof, as the scene builder makes them (``roof.roof_model`` + ``roof.ceiling_planes``, pure
+    Python; the same rule as ``decor.ceiling_planes``, which the fit stage does not import: its fingerprint would then
+    follow every decor change), or [] for a flat ceiling (no roof, a non-convex roof, another level)."""
+    roof = (building or {}).get("roof") if isinstance(building, dict) else None
+    if not isinstance(roof, dict) or not level_id:
+        return []
+    from wenart.blender import roof as R
+
+    try:
+        model = R.roof_model(roof, building)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
+        return []
+    if not model or not model.get("convex") or not model.get("equations") or model.get("over_level_id") != level_id:
+        return []
+    level = next((lv for lv in building.get("levels") or [] if lv.get("id") == level_id), None)
+    if level is None or level.get("ceiling_height") is None:
+        return []
+    return [list(p) for p in R.ceiling_planes(model, level)]
+
+
 def piece_ceiling(building: Optional[dict], piece: dict, planes: Optional[list] = None) -> Optional[float]:
     """Fix round after P6a (module docstring): the height a model of ``piece`` may reach under a sloped ceiling: the
-    ceiling over its footprint (``decor.ceiling_over`` with the level's ``decor.ceiling_planes``, ``planes`` when the
-    caller has them) less its mount height (``proxies.mount_bottom``: a wall cabinet hangs at 1.45 m); None on a flat
-    level (no planes), without a building, a level or a footprint."""
+    lowest ceiling over its footprint's corners and centre above the level's floor (``ceiling_planes_of``, ``planes``
+    when the caller has them; = ``decor.ceiling_over``) less its mount height (``proxies.mount_bottom``: a wall cabinet
+    hangs at 1.45 m); None on a flat level (no planes), without a building, a level or a footprint."""
     level_id = piece.get("level_id")
     fp = piece.get("footprint") if isinstance(piece.get("footprint"), dict) else None
     if not isinstance(building, dict) or not level_id or not fp or not fp.get("center") or not fp.get("size"):
         return None
-    from wenart.furniture import decor as D       # lazy: the slope needs the roof model (blender.roof, pure Python)
-
-    try:
-        planes = D.ceiling_planes(building, level_id) if planes is None else planes
-        if not planes:
-            return None
-        over = D.ceiling_over(building, level_id, fp["center"], fp["size"], float(fp.get("rotation_deg") or 0.0),
-                              planes=planes)
-    except (KeyError, TypeError, ValueError, IndexError, ZeroDivisionError):
-        return None
+    from wenart import geometry as G
+    from wenart.blender import geom2d
     from wenart.blender import proxies as PX
 
+    try:
+        planes = ceiling_planes_of(building, level_id) if planes is None else planes
+        if not planes:
+            return None
+        level = next((lv for lv in building.get("levels") or [] if lv.get("id") == level_id), {})
+        cx, cy = float(fp["center"][0]), float(fp["center"][1])
+        pts = list(G.rotated_rectangle((cx, cy), (float(fp["size"][0]), float(fp["size"][1])),
+                                       float(fp.get("rotation_deg") or 0.0))) + [(cx, cy)]
+        over = round(min(geom2d.surface_z(planes, x, y) for x, y in pts) - float(level.get("elevation") or 0.0), 4)
+    except (KeyError, TypeError, ValueError, IndexError, ZeroDivisionError):
+        return None
     return round(float(over) - PX.mount_bottom(piece)[0], 4)
 
 
@@ -1314,7 +1351,7 @@ def gap_fit(piece: dict, reason: str, candidates: Optional[list] = None, exclude
 
 def _no_model(piece: dict, catalog, reason: str, tried: list, excluded: list, cap: float,
               uniform_range: tuple[float, float], style_family: Optional[str], *, mode: str = "commercial",
-              used: Optional[dict] = None, style: Optional[dict] = None) -> dict:
+              used: Optional[dict] = None, style: Optional[dict] = None, ceiling: Optional[float] = None) -> dict:
     """The fallback ladder (docs/milestone13.md §12 D4, §13.2) when no usable model of the piece's type fits:
     step 1 a model of the nearest related type for a piece its group needs (``RELATED_TYPES``); a piece that is not
     built (``build: false``) stops here with ``method: none``; step 2 a module builder (``module_plan_for``, track
@@ -1326,7 +1363,8 @@ def _no_model(piece: dict, catalog, reason: str, tried: list, excluded: list, ca
         for rt in RELATED_TYPES.get(ftype, ()):
             usable, _refused = split_usable(catalog.candidates(rt), mode)
             for fam in style_chain(style_family):
-                got = _fit_family(dict(piece, type=rt), usable, fam, cap, uniform_range, None, used=used)
+                got = _fit_family(dict(piece, type=rt), usable, fam, cap, uniform_range, None, used=used,
+                                  ceiling=ceiling)
                 if got.get("method") == "library":
                     got["related_type"] = rt
                     got["excluded"] = list(excluded) + got.get("excluded", [])
@@ -1851,7 +1889,8 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     their product range are snapped (``apply_size_snap``; ``snap`` None = by the brief's furnished-room settings,
     ``settings`` a ``complete.Settings`` or the ``brief``'s values; off with keep / keep_size). The use counters of
     the diversity penalty run over the pieces in file order (per room and per project). Nothing else changes
-    (``assert_only_assets_changed``)."""
+    (``assert_only_assets_changed``). Fix round after P6a (module docstring): a piece under a sloped ceiling is fitted
+    with its ``piece_ceiling`` (the level's ``ceiling_planes_of``, made once per level; none on a flat level)."""
     mode, mode_source = resolve_mode(building, brief, mode)
     fitted = copy.deepcopy(building)
     project = fitted.get("project") if isinstance(fitted.get("project"), dict) else None
@@ -1890,6 +1929,13 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     # fix round after P3 (module docstring): the drawn sinks and stoves inside the kitchen runs
     kitchen = kitchen_built_ins(fitted)
     by_id = {p.get("id"): p for p in fitted.get("furniture", [])}
+    planes_of: dict = {}             # fix round after P6a: the sloped ceiling of each level (made once per level)
+
+    def ceiling_of(piece: dict) -> Optional[float]:
+        level_id = piece.get("level_id")
+        if level_id not in planes_of:
+            planes_of[level_id] = ceiling_planes_of(fitted, level_id)
+        return piece_ceiling(fitted, piece, planes_of[level_id]) if planes_of[level_id] else None
 
     def fit_one(piece: dict, built_into: Optional[dict] = None) -> None:
         frozen = {k: copy.deepcopy(piece.get(k)) for k in FROZEN_KEYS}
@@ -1904,7 +1950,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
             # assert_only_assets_changed); the asset keeps them beside the plan (furniture.module_plan_of)
             target = dict(piece, module_hints={**(piece.get("module_hints") or {}), **hints}) if hints else piece
             asset = fit_piece(target, catalog, cap=cap, style_family=style_family, design=design or None, mode=mode,
-                              used=used, style=style)
+                              used=used, style=style, ceiling=ceiling_of(piece))
             if hints and asset.get("method") == MODULE_METHOD:
                 asset["module_hints"] = copy.deepcopy(hints)
             if piece.get("id") in split_first:

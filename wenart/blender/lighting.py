@@ -192,6 +192,23 @@ Why: kloppenheim_06 at 1.0 sits about 5.2 stops under the exterior sky pair (``m
 showed a dark sky over a near-white ground band and the rooms facing the lawn read green. The A/B
 (``scripts/jobs/m13_p6.sh``, ``wenart.run.ab.M13_SKY_AB_VIEWS``) lets the user pick the level; nothing changes in
 production until then.
+
+Fix round after P6a (22-23 Oct 2026; the user's decision of 22 Oct 2026 on the interior-sky A/B, "Windows only
++3.5"): the light variant ``skywin35`` (``SKY_WINDOW_VARIANT_STOPS``) raises the interior world by 2^3.5 only on the
+camera's paths (``sky_rays`` ``camera_paths``, ``interior_sky_rays`` -> ``materials.world_nodes(..., gain_rays=)``):
+the Background Strength is ``base x (1 + (gain - 1) x f)`` with f = Light Path max(Is Camera Ray, Is Singular Ray),
+the factor ``window_glass_material`` already uses. The camera ray through a pane (Glass BSDF on both faces, so a
+singular ray at the far face) and a sharp (singular) reflection see the brighter sky; diffuse, glossy, shadow and
+light-sampling rays keep Strength 1.0, and so do the metering, the white point and the room light (bpy 5.2.2 shim:
+the diffuse light passes of a sunlit room identical with and without the gain). Why: P6a's A/B showed the windows
+right at sky35, but sky35 also cooled the rooms (wall R/B 2.12 -> 1.76, white bedding b* down to -1.7) and put the
+orange-check margin of the rig-lit halls at risk (verify:sky_ab:0); the user wants the window view only, the room
+light and colour as now. It needs one short A/B (pod P6c, real02: ``base skywin35 sky35`` on
+``wenart.run.ab.M13_SKYWIN_AB_VIEWS``) before it becomes the default; production, every lever variant and the sky
+levels sky2 / sky35 / sky52 build their world exactly as before. Limits, measured on the
+bpy 5.2.2 shim (tests/test_m13_p6a_sky.py): a library mirror (``materials.mirror_glass_material``, Roughness 0.03)
+reflects through a GGX lobe Cycles counts as glossy, not singular, so a mirror shows the sky at Strength 1.0; the sky
+through the pane is reached at bounce 2 and capped by Cycles' indirect clamp (``render.CLAMP_INDIRECT``), as in sky35.
 """
 from __future__ import annotations
 
@@ -248,7 +265,13 @@ LEVER_DEFAULTS = {"ev_cap": True, "rig": True, "shell": True}
 # that look. Kept apart from LIGHT_VARIANTS (the lever A/B's names, pinned by P1's sheets and defaults).
 SKY_VARIANT_STOPS = {"sky2": 2.0, "sky35": 3.5, "sky52": 5.2}
 SKY_VARIANTS = tuple(SKY_VARIANT_STOPS)
-KNOWN_LIGHT_VARIANTS = LIGHT_VARIANTS + SKY_VARIANTS
+# Fix round after P6a (22-23 Oct 2026; the user's decision of 22 Oct 2026, "Windows only +3.5"; the module docstring):
+# the same gain only on the camera's paths (through glass and sharp reflections); the room light stays.
+SKY_WINDOW_VARIANT_STOPS = {"skywin35": 3.5}
+SKY_WINDOW_VARIANTS = tuple(SKY_WINDOW_VARIANT_STOPS)
+SKY_RAYS_ALL = "all"                    # sky2 / sky35 / sky52: every ray sees the raised world
+SKY_RAYS_CAMERA = "camera_paths"        # skywin35: Light Path max(Is Camera Ray, Is Singular Ray) only
+KNOWN_LIGHT_VARIANTS = LIGHT_VARIANTS + SKY_VARIANTS + SKY_WINDOW_VARIANTS
 
 
 def parse_light_variant(text) -> list[str]:
@@ -267,7 +290,7 @@ def parse_light_variant(text) -> list[str]:
     suns = [n for n in names if n in SUN_VARIANT_WM2]
     if len(suns) > 1:
         raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: more than one sun strength ({suns})")
-    skies = [n for n in names if n in SKY_VARIANT_STOPS]
+    skies = [n for n in names if n in SKY_VARIANT_STOPS or n in SKY_WINDOW_VARIANT_STOPS]
     if len(skies) > 1:
         raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: more than one interior sky level ({skies})")
     if "m11" in names and "base" in names:
@@ -284,7 +307,11 @@ def light_levers(variant=None, env=None) -> dict:
     ``m11`` = the Milestone 11 look (``M11_LEVERS``, sun ``SUN_STRENGTH_M11_WM2``); every other name starts from
     the Milestone 11 look (from production when ``base`` is among the names, or when every name is ``base`` or an
     interior sky level, ``SKY_VARIANTS``) and turns the named levers on (never off); a sky level sets
-    ``sky_stops`` (``SKY_VARIANT_STOPS``, the interior world's gain is ``interior_sky_gain``)."""
+    ``sky_stops`` (``SKY_VARIANT_STOPS``, the interior world's gain is ``interior_sky_gain``).
+
+    Fix round after P6a (22-23 Oct 2026): ``sky_rays`` says which rays see that gain (``interior_sky_rays``):
+    ``SKY_RAYS_ALL`` for the sky levels and without one, ``SKY_RAYS_CAMERA`` for a windows-only level
+    (``SKY_WINDOW_VARIANTS``: ``skywin35``, which starts from production like the sky levels)."""
     source = "arg"
     if variant is None:
         variant = (os.environ if env is None else env).get(LIGHT_VARIANT_ENV)
@@ -292,26 +319,34 @@ def light_levers(variant=None, env=None) -> dict:
     names = parse_light_variant(variant)
     if not names:
         return {"variant": None, "names": [], "sun_wm2": float(SUN_STRENGTH_WM2), "source": source,
-                **{k: bool(v) for k, v in LEVER_DEFAULTS.items()}, "sky_stops": 0.0}
+                **{k: bool(v) for k, v in LEVER_DEFAULTS.items()}, "sky_stops": 0.0, "sky_rays": SKY_RAYS_ALL}
     on = set(names)
     if "all" in on:
         on |= {ALL_VARIANT_SUN, "evcap", "rig", "shell"}
-    production = "base" in on or on <= set(SKY_VARIANTS)
+    production = "base" in on or on <= set(SKY_VARIANTS + SKY_WINDOW_VARIANTS)
     start = LEVER_DEFAULTS if production else M11_LEVERS
     sun = next((SUN_VARIANT_WM2[n] for n in LIGHT_VARIANTS if n in on and n in SUN_VARIANT_WM2),
                SUN_STRENGTH_WM2 if production else SUN_STRENGTH_M11_WM2)
     sky = next((SKY_VARIANT_STOPS[n] for n in SKY_VARIANTS if n in on), 0.0)
+    rays = SKY_RAYS_ALL
+    window = next((SKY_WINDOW_VARIANT_STOPS[n] for n in SKY_WINDOW_VARIANTS if n in on), None)
+    if window is not None:                  # fix round after P6a: the windows-only level (parse allows one level)
+        sky, rays = window, SKY_RAYS_CAMERA
     return {"variant": ",".join(names), "names": names, "sun_wm2": float(sun),
             "ev_cap": bool(start["ev_cap"]) or "evcap" in on, "rig": bool(start["rig"]) or "rig" in on,
-            "shell": bool(start["shell"]) or "shell" in on, "sky_stops": float(sky), "source": source}
+            "shell": bool(start["shell"]) or "shell" in on, "sky_stops": float(sky), "sky_rays": rays,
+            "source": source}
 
 
 def lever_record(levers: dict) -> dict:
     """The ``levers`` block of the scene manifest's lighting record (pure): sun, EV cap, rig, shell and the source;
-    pod P6a: ``sky_stops`` only for a sky level, so a production manifest keeps exactly its keys."""
+    pod P6a: ``sky_stops`` only for a sky level, so a production manifest keeps exactly its keys; fix round after P6a:
+    ``sky_rays`` only for a windows-only level (``camera_paths``)."""
     record = {k: levers[k] for k in ("sun_wm2", "ev_cap", "rig", "shell", "source")}
     if levers.get("sky_stops"):
         record["sky_stops"] = float(levers["sky_stops"])
+        if interior_sky_rays(levers) == SKY_RAYS_CAMERA:
+            record["sky_rays"] = SKY_RAYS_CAMERA
     return record
 
 
@@ -322,6 +357,17 @@ def interior_sky_gain(levers: dict | None = None) -> float:
     if not math.isfinite(stops) or stops == 0.0:
         return 1.0
     return float(2.0 ** stops)
+
+
+def interior_sky_rays(levers: dict | None = None) -> str:
+    """Which rays see ``interior_sky_gain`` (pure; fix round after P6a, 22-23 Oct 2026): ``SKY_RAYS_CAMERA`` for a
+    windows-only level (``skywin35``: the camera's paths, ``materials.world_nodes(..., gain_rays=)``), else
+    ``SKY_RAYS_ALL`` (the sky levels; without a gain the value changes nothing). A levers dict from before this round
+    (no ``sky_rays``) is ``SKY_RAYS_ALL``; an unknown value raises ValueError."""
+    rays = (levers or {}).get("sky_rays") or SKY_RAYS_ALL
+    if rays not in (SKY_RAYS_ALL, SKY_RAYS_CAMERA):
+        raise ValueError(f"unknown sky_rays {rays!r}; one of {[SKY_RAYS_ALL, SKY_RAYS_CAMERA]}")
+    return rays if interior_sky_gain(levers) != 1.0 else SKY_RAYS_ALL
 
 
 def sun_strength_wm2(lighting: dict, levers: dict | None = None) -> tuple[float, float]:
@@ -1961,9 +2007,10 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     in_building = building_azimuth(azimuth, north_deg or 0.0)
     scene["wenart_light_variant"] = levers["variant"] or ""
 
-    # Pod P6a: a sky level (``SKY_VARIANTS``) raises the interior world only; 1.0 builds it as before
+    # Pod P6a: a sky level (``SKY_VARIANTS``) raises the interior world only; 1.0 builds it as before. Fix round after
+    # P6a: a windows-only level (``SKY_WINDOW_VARIANTS``) raises it on the camera's paths only (``interior_sky_rays``)
     world = world_nodes(scene, world_lighting(lighting, in_building), hdri_path,
-                        strength_gain=interior_sky_gain(levers))
+                        strength_gain=interior_sky_gain(levers), gain_rays=interior_sky_rays(levers))
     world_exterior = None
     if exterior:
         from wenart.blender.materials import exterior_world_nodes

@@ -209,6 +209,24 @@ Fix round after P6a (22 Oct 2026; pod P6a, real04, the review of its agent log):
   record written when the agent stage ended named round 3's numbers (net 32, "max rounds reached") while the report
   and metrics.json said net 34 after round 4 (the scheduler writes the note; its ask).
 
+Fix round after P6a, part 2 (23 Oct 2026; the asks of the exterior and decor tracks):
+
+- an exterior ``set_camera`` / ``add_camera`` has its X6 measured in the dry re-check instead of counted as gone
+  (``NOT_REMEASURED``): ``camera_scene`` makes the round's scene with the exterior views the next build makes (the
+  edited one at its new pose, planned as the build plans it: ``tools.next_view``, ``policy: agent``) and
+  ``remeasure_x6`` runs X6 on it (``check_exterior`` of the tools' validators; its frame and sky measured on the
+  build's exterior model), and those X6 findings replace the round's (``after_findings(x6_after=...)``,
+  ``CAMERA_REMEASURED``). Why: P6a seq 6668 added ext_front_entrance 5 m from the entrance facade (a blank wall, both
+  doors cut, no sky) and "X6:exterior no frontal view" counted as removed; X6 now says the view frames only part of
+  the building, so the add is refused. When X6 cannot be measured (no whole building, an error) the old rule holds;
+- the vision critic names the exterior view a claim was made on (``evidence.view``) and the round routes a vision X3 /
+  X6 claim on a view the agent placed to that camera (``causes.mark_agent_views``: cause ``exterior_camera``);
+- ``dry_fit`` fits a piece under a sloped ceiling with its ``fit.piece_ceiling`` (part of its cache key), as
+  ``fit.fit_building`` does (the decor track's ask: the fit's ceiling cap);
+- the final round's ``stage_note`` keeps why the rounds stopped ("stop: <rounds' stop>; final round for critical
+  findings done", ``final_stop``): the scheduler writes it over the stage record, which must still say that a re-run
+  failed.
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -946,9 +964,80 @@ def scene_after(scene: Optional[dict], tool: str, args: Optional[dict], building
     return out
 
 
+# Fix round after P6a (module docstring): the NOT_REMEASURED checks an exterior camera edit's dry re-check measures on
+# the scene the next build makes (``camera_scene``, ``remeasure_x6``)
+CAMERA_REMEASURED = frozenset({"X6"})
+
+
+def camera_scene(ctx: TL.ToolContext, tool: str, args: Optional[dict]) -> Optional[dict]:
+    """Fix round after P6a (module docstring): the round's scene manifest with the exterior cameras the next build
+    makes after an exterior ``set_camera`` / ``add_camera``: every exterior view at its pose now
+    (``tools.exterior_poses``: the scene's cameras, this session's accepted sets and adds, less the removed ones) and
+    the edited view at the edit's pose, each pose that is not the scene camera's planned as the build plans it
+    (``tools.next_view``: the planner's view and sides, ``build.agent_exterior_view``; ``policy: agent``, the frame
+    measured by X6 on the build's exterior model); the interior cameras as they are. None for any other edit, an
+    interior camera or a pose that cannot be planned."""
+    if tool not in CAMERA_POSE_TOOLS or not isinstance(args, dict):
+        return None
+    name = str(args.get("view_id") or "")
+    cam = ctx.camera(name)
+    kind = args.get("kind") or (cam or {}).get("kind") or \
+        (("exterior" if not cam.get("room_id") else "interior") if isinstance(cam, dict) else None)
+    if not name or kind != "exterior" or not args.get("position") or not args.get("target"):
+        return None
+
+    def ext(c: dict) -> bool:
+        return (c.get("kind") or ("exterior" if not c.get("room_id") else "interior")) == "exterior"
+
+    try:
+        poses = dict(TL.exterior_poses(ctx))
+        poses[name] = dict({k: v for k, v in args.items() if k != "reason"}, view_id=name, kind="exterior")
+        cams = [c for c in ctx.cameras() if not ext(c)]
+        for n, pose in poses.items():
+            have = ctx.camera(n)
+            if have is not None and (pose is have or (n != name and TL.same_pose(pose, have))):
+                cams.append(have)
+                continue
+            view, plan = TL.next_view(ctx, n, pose)
+            cams.append(dict(plan, view=view or "agent", kind="exterior", room_id=None, policy="agent"))
+    except (KeyError, TypeError, ValueError, IndexError):
+        return None
+    return dict(ctx.scene or {}, cameras=cams)
+
+
+def remeasure_x6(ctx: TL.ToolContext, building: Optional[dict], scene: Optional[dict],
+                 render_manifest: Optional[dict] = None) -> Optional[list[dict]]:
+    """Fix round after P6a (module docstring): the code X6 findings of ``building`` on the trial ``scene``
+    (``camera_scene``; ``check_exterior`` of the tools' validators, ``exterior_checks`` in a run), as the round's critic
+    words and marks them (``critic_code.finding``, ``causes.mark_replayed``); the render manifest's exterior cameras that the scene does not hold (a view
+    removed in this session) are left out. None when it cannot be measured (no scene, the check skipped the building
+    or failed): the old rule (X6 counts as gone on a changed target) holds then."""
+    if not isinstance(scene, dict) or not isinstance(building, dict):
+        return None
+    fn = getattr(ctx.checks(), "check_exterior", None)
+    if fn is None:
+        return None
+    names = {c.get("name") for c in scene.get("cameras") or [] if isinstance(c, dict)}
+    manifest = None
+    if isinstance(render_manifest, dict):
+        manifest = dict(render_manifest, cameras=[c for c in render_manifest.get("cameras") or []
+                                                  if isinstance(c, dict) and (c.get("kind") != "exterior"
+                                                                              or c.get("name") in names)])
+    try:
+        got = fn(building, scene, manifest) or {}
+    except Exception:  # noqa: BLE001 - a prediction only: the old rule holds
+        return None
+    if not isinstance(got, dict) or got.get("skipped"):
+        return None
+    found = [CC.finding(dict(v)) for v in got.get("violations") or [] if isinstance(v, dict) and v.get("check") == "X6"]
+    # as the round marks its own: an X6 on a replayed (set 1) camera is report-only (causes.mark_replayed)
+    return CS.mark_replayed(found, scene.get("cameras") or [])
+
+
 def after_findings(code_after: list[dict], before: list[dict], changed: set, building_after: Optional[dict] = None,
                    building_before: Optional[dict] = None, override: Optional[dict] = None,
-                   targets: Optional[list] = None, round_changed: Optional[set] = None) -> list[dict]:
+                   targets: Optional[list] = None, round_changed: Optional[set] = None,
+                   x6_after: Optional[list] = None) -> list[dict]:
     """The finding list after an edit for ``accept_edit`` (module docstring): the code critic's findings on the
     changed building (``code_after``) without the ``NOT_REMEASURED`` ones, plus the ``NOT_REMEASURED`` and vision
     findings of ``before`` whose target the edit did not change (a vision finding on a changed target is re-judged
@@ -977,7 +1066,11 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
     Fix round after P5 (module docstring): a ``manifest_measured`` finding of ``code_after`` is also left out on a
     target an accepted edit of the round changed (``round_changed``, ``ctx.round_changed``), and when its key is not
     among ``before`` while the edit keeps the roof (``roof_kept``): the round's boxes are fixed, so only a roof change
-    can make one new (P5: the box of the removed f_L1_056 came back as a new critical in every later dry re-check)."""
+    can make one new (P5: the box of the removed f_L1_056 came back as a new critical in every later dry re-check).
+
+    Fix round after P6a (module docstring): ``x6_after`` (``remeasure_x6`` of an exterior camera edit, None
+    otherwise) replaces every code X6 finding of ``before``: X6 is measured on the scene the next build makes, so a
+    camera that frames only part of the facade or shows no sky leaves "no frontal view" in place (P6a seq 6668)."""
     target_keys = {CS.finding_key(t) for t in targets or [] if isinstance(t, dict)}
     before_keys = {CS.finding_key(f) for f in before}
     stale = set(changed) | set(round_changed or ())
@@ -1005,6 +1098,8 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
             continue
         if f.get("check") not in NOT_REMEASURED:
             continue
+        if x6_after is not None and f.get("check") in CAMERA_REMEASURED:
+            continue                         # fix round after P6a: measured again on the trial scene (below)
         if f.get("target") in changed:
             kept = None
             if f.get("check") in CS.LIGHTING_CHECKS:
@@ -1014,6 +1109,8 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
             if kept is not None:
                 out.append(dict(kept, cause=kept.get("cause") or CS.cause_of(kept, building_after)))
             continue
+        out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
+    for f in x6_after or []:
         out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
     return out
 
@@ -1366,15 +1463,20 @@ class AgentLoop:
         if refused is not None:
             changed = set(changed) - {args.get("piece_id")}
         # fix round after P4b: the critic reads the sun a set_exterior sets (scene_after)
-        code_after = self.code_findings(measured, ctx, self.render_manifest(ctx.preview_dir),
-                                        scene=scene_after(ctx.scene, tool, args, ctx.building))
+        manifest = self.render_manifest(ctx.preview_dir)
+        code_after = self.code_findings(measured, ctx, manifest, scene=scene_after(ctx.scene, tool, args,
+                                                                                   ctx.building))
+        # fix round after P6a: an exterior camera edit's X6 is measured on the scene the next build makes
+        trial = camera_scene(ctx, tool, args)
+        x6_after = remeasure_x6(ctx, measured, trial, manifest) if trial is not None else None
+        remeasured = CAMERA_REMEASURED if x6_after is not None else frozenset()
         # fix round after P4a: the building before the edit predicts an S2 wall cut of a moved piece (s2_wall_kept);
         # fix round after P4b: a set_exterior keeps the vision findings it does not touch; fix round after P5: the
         # stale boxes of the round's earlier accepted edits (round_changed)
         override = {k: v for k, v in (args or {}).items() if k != "reason"} if tool == "set_exterior" else None
         after = after_findings(code_after, before, changed, measured, building_before=ctx.building,
                                override=override, targets=targets,
-                               round_changed=set(getattr(ctx, "round_changed", None) or ()))
+                               round_changed=set(getattr(ctx, "round_changed", None) or ()), x6_after=x6_after)
         # round 4: the pieces the edit took out of the scene, for the acceptance's room-set rule (a fixture removed);
         # fix round after P4a: the metrics name an S2's cut (``causes.finding_key``); fix round after P5: the pieces it
         # added (a re-created piece keeps its finding); review: the piece types (an S2's partner type)
@@ -1396,15 +1498,20 @@ class AgentLoop:
         def mine(f: dict) -> bool:
             return f.get("room_id") == room or f.get("target") in scope or (room == BUILDING and not f.get("room_id"))
 
+        def unmeasured(f: dict) -> bool:
+            return f.get("check") in NOT_REMEASURED and f.get("check") not in remeasured
+
         carried = sorted({CS._fmt(CS.finding_key(f)) for f in after
-                          if f.get("target") in changed and (f.get("source") == "vision"
-                                                             or f.get("check") in NOT_REMEASURED)})
+                          if f.get("target") in changed and (f.get("source") == "vision" or unmeasured(f))})
         note = None
-        if ok and any(f.get("target") in changed and (f.get("source") == "vision" or f.get("check") in NOT_REMEASURED
+        if ok and any(f.get("target") in changed and (f.get("source") == "vision" or unmeasured(f)
                                                       or manifest_measured(f))
                       for f in before):
             note = "findings the dry re-check cannot measure on the changed target (scene, view, look, vision or " \
                    "the built scene's boxes) count as gone and are re-measured by the next round"
+        if x6_after is not None:
+            note = (note + "; " if note else "") + ("X6 measured on the scene the next build makes (the edited "
+                                                    "camera at its new pose, its frame and sky on the exterior model)")
         if fitted["refit"]:
             # fix round after P5: a piece the refit has not fitted yet was fitted for the dry re-check
             note = (note + "; " if note else "") + (f"fitted for the dry re-check (predicted; the refit may choose "
@@ -1438,8 +1545,17 @@ class AgentLoop:
         ``fitted`` (``building_final.json``: the working building's first fit had no style family, P5: None against
         the refit's "modern"), else of ``building``, as ``edit_ops``' retype refit reads them
         (``licence_mode_of``, ``_style_family_of``); cached per piece state; None when the fit fails or builds
-        nothing."""
-        key = fit_key(piece) + json.dumps([piece.get("room_id"), piece.get("level_id")], default=str)
+        nothing. Fix round after P6a (module docstring): under a sloped ceiling with the piece's
+        ``fit.piece_ceiling`` on ``building``, as ``fit.fit_building`` fits it (part of the cache key)."""
+        ceiling = None
+        if self.fit_fn is None:
+            from wenart.furniture import fit as F
+            try:
+                ceiling = F.piece_ceiling(building, piece)
+            except Exception:  # noqa: BLE001 - a prediction only: no cap
+                ceiling = None
+        key = fit_key(piece) + json.dumps([piece.get("room_id"), piece.get("level_id"),
+                                           None if ceiling is None else round(float(ceiling), 3)], default=str)
         with self._fit_lock:
             if key in self._fit_cache:
                 return copy.deepcopy(self._fit_cache[key])
@@ -1447,11 +1563,10 @@ class AgentLoop:
             asset = self.fit_fn(piece, building)
         else:
             from wenart.furniture import edit_ops as EO
-            from wenart.furniture import fit as F
             source = fitted if isinstance(fitted, dict) else building
             try:
                 asset = F.fit_piece(dict(piece, build=True), ctx.catalog(), mode=EO.licence_mode_of(source),
-                                    style_family=EO._style_family_of(source))
+                                    style_family=EO._style_family_of(source), ceiling=ceiling)
             except Exception:  # noqa: BLE001 - a prediction only: the piece keeps its box
                 asset = None
         asset = asset if _fitted(asset) else None
@@ -1535,6 +1650,8 @@ class AgentLoop:
                            "counts": {"kept": len(res["kept"]), "dropped": len(res["dropped"])}})
             for f in res["kept"] + res["dropped"]:
                 f["evidence"]["images"] = images
+                if kind != "room":
+                    f["evidence"]["view"] = key      # fix round after P6a, part 2: the view the claim was made on
             self.vision_cache[cache_key] = res["kept"]
             kept += res["kept"]
             dropped += res["dropped"]
@@ -1914,6 +2031,8 @@ class AgentLoop:
         # Milestone 13: the vision critic's findings are work only where a tool exists for the cause
         kept = []
         CS.mark_replayed(vision.get("kept") or [], ctx.cameras())
+        # fix round after P6a, part 2: a claim about what the agent's own exterior view shows is that camera's
+        CS.mark_agent_views(vision.get("kept") or [], ctx.cameras(), rendered)
         for f in list(vision.get("kept") or []):
             f["cause"] = CS.cause_of(f, rendered)
             if CS.tools_for_finding(f):
@@ -2113,11 +2232,18 @@ class AgentLoop:
                            note="final round for critical findings not started")
             self.save(final=True)
             return {"round": round_no, "stop": "deadline", "accepted": 0,
-                    "stage_note": stage_note(self.summary(), FINAL_NOT_STARTED)}
+                    "stage_note": stage_note(self.summary(), self.final_stop(FINAL_NOT_STARTED))}
         res = self.round(round_no, critical_only=True, final=True)
         self.log.event("stop", round_no, reason=FINAL_DONE, status=res["stop"] or "done")
         self.save(final=True)
-        return dict(res, stage_note=stage_note(self.summary(), FINAL_DONE))
+        return dict(res, stage_note=stage_note(self.summary(), self.final_stop(FINAL_DONE)))
+
+    def final_stop(self, done: str) -> str:
+        """Fix round after P6a, part 2: the stage note's stop after the final round: why the rounds stopped (``STOPS``
+        of ``self.stop``: "the re-run of the changed stages failed" must stay in the note) and ``done``."""
+        reason = (self.stop or {}).get("reason")
+        rounds = STOPS.get(str(reason), reason) if reason else None
+        return f"{rounds}; {done}" if rounds else done
 
     def summary(self) -> dict:
         """The loop's summary. Fix round after P3: ``findings_removed`` is the measured number (``measured_removed``;
