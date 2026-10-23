@@ -268,7 +268,8 @@ def test_p6b_wall_rig_record_measures_the_rig_light_on_the_walls():
     assert float(lum(rec["rig_rgb"])) == pytest.approx(1.0, abs=1e-5) and rec["rig_kelvin"] is None
     assert rec["rule"] == R.WALL_RIG_RULE and "measured only" in rec["rule"]
     # hand-made light
-    rec = R.wall_rig_record({"wall_illuminant": [3.0, 2.0, 1.2], "wall_frac": 0.4}, {"wall_illuminant": [1.0, 1.0, 1.0]})
+    rec = R.wall_rig_record({"wall_illuminant": [3.0, 2.0, 1.2], "wall_frac": 0.4},
+                            {"wall_illuminant": [1.0, 1.0, 1.0]})
     assert rec["rig_share"] == pytest.approx(1.0 - 1.0 / float(lum([3.0, 2.0, 1.2])), abs=1e-6)
     assert rec["rig_rgb"] == pytest.approx(R.normalise_whitepoint([2.0, 1.0, 0.2]), abs=1e-6) and rec["rig_rb"] == 10.0
     assert rec["lamp_rb"] is None
@@ -307,7 +308,8 @@ def test_p6b_view_white_records_the_walls_and_keeps_the_white_point(tmp_path, mo
     monkeypatch.setattr(R, "meter_camera", lambda *a, **kw: dict(day))
     monkeypatch.setattr(R, "kelvin_whitepoint", lambda scene, k: lamp)
     monkeypatch.setattr(R, "whitepoint_kelvin", lambda scene, wp: kelvin_calls.append(list(wp)) or (3284.1, 3.2))
-    cam = types.SimpleNamespace(name="cam_r_hall_1", get={"wenart_room": "r_hall", "wenart_camera_kind": "interior"}.get)
+    cam = types.SimpleNamespace(name="cam_r_hall_1",
+                                get={"wenart_room": "r_hall", "wenart_camera_kind": "interior"}.get)
 
     def view(all_stats):
         rec = {"whitepoint": list(P5_ANCHOR), "meter_seconds": 1.0}
@@ -357,7 +359,8 @@ def test_p6b_gpu_glazing_check_keeps_its_values(tmp_path, monkeypatch):
         gpu.test_interior_glazing_keeps_one_white_point(project("real03", p6b))
     with pytest.raises(pytest.skip.Exception):
         gpu.test_interior_glazing_keeps_one_white_point(project("real02", {"cam_r_L1_koridor_1": (1.3, 1.31, 1.0)}))
-    data = json.loads((results / "gpu_check_values.json").read_text(encoding="utf-8"))["interior_glazing_keeps_one_white_point"]
+    data = json.loads((results / "gpu_check_values.json").read_text(encoding="utf-8"))
+    data = data["interior_glazing_keeps_one_white_point"]
     real03 = data["real03"]
     assert real03["named"] == list(gpu.INTERIOR_GLAZING_VIEWS["real03"]) and real03["max_delta"] == 0.3
     assert real03["views"]["cam_r_L0_yasama_8_3"]["delta_rb"] == 0.692

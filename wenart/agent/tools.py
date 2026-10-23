@@ -236,8 +236,8 @@ Fix round after P6a, part 2 (23 Oct 2026; the exterior track's asks, docs/milest
   sky is no frontal view, so its role no longer protects it.
 
 Fix round after P6b (23 Oct 2026): an edit's ``acceptance`` record carries the dry re-check's fit record too
-(``fitted``: ``{"overlaid", "refit"}``, at most 8 refit ids), so the log shows whether a piece was fitted for the dry
-re-check (P6b's 219 edit events had no such record; ``loop.ACCEPTANCE_LOG_KEYS``).
+(``acceptance_record``: ``fitted`` ``{"overlaid", "refit"}``, at most 8 refit ids), so the log shows whether a piece
+was fitted for the dry re-check (P6b's 219 edit events had no such record; ``loop.ACCEPTANCE_LOG_KEYS``).
 """
 from __future__ import annotations
 
@@ -1279,6 +1279,16 @@ def refused_unvalidated(result: Optional[dict]) -> bool:
     return isinstance(result, dict) and not result.get("accepted") and any(result.get(k) for k in UNVALIDATED_FLAGS)
 
 
+def acceptance_record(verdict: dict) -> dict:
+    """An edit result's ``acceptance``: the loop's verdict without its finding list, with the dry re-check's fit record
+    compact (fix round after P6b: ``{"overlaid", "refit"}``, at most 8 refit ids; the log keeps it)."""
+    out = {k: v for k, v in verdict.items() if k not in ("after_findings", "fitted")}
+    if isinstance(verdict.get("fitted"), dict):
+        out["fitted"] = {"overlaid": verdict["fitted"].get("overlaid"),
+                         "refit": list(verdict["fitted"].get("refit") or [])[:8]}
+    return out
+
+
 def apply_verdict(ctx: ToolContext, verdict: Optional[dict]) -> None:
     """An accepted edit's acceptance verdict (call under ``ctx.lock``): its finding list becomes the round's
     (``ctx.findings``) and, fix round after P5, the ids it changed join ``ctx.round_changed``."""
@@ -1377,11 +1387,7 @@ def _building_edit(ctx: ToolContext, tool: str, args: dict, edit: dict, run: Cal
                   # the second condition is decided on the unfloored penalty (a score floored at 0 hides gains)
                   penalty_before=res.get("penalty_before"), penalty_after=res.get("penalty_after"))
     if verdict is not None:
-        out["acceptance"] = {k: v for k, v in verdict.items() if k not in ("after_findings", "fitted")}
-        if isinstance(verdict.get("fitted"), dict):
-            # fix round after P6b: the dry fit's record (matched boxes, refit ids) reaches the log, compact
-            out["acceptance"]["fitted"] = {"overlaid": verdict["fitted"].get("overlaid"),
-                                           "refit": list(verdict["fitted"].get("refit") or [])[:8]}
+        out["acceptance"] = acceptance_record(verdict)        # fix round after P6b: with the dry fit's record
     if before_png is not None:
         out["before_image"] = ctx.rel(before_png)
     if room_id:
@@ -1540,7 +1546,7 @@ def _validator_result(ctx: ToolContext, tool: str, args: dict, check: Callable[[
                 apply_verdict(ctx, acc)
             if ok and isinstance(after, dict):
                 ctx.building = dict(ctx.building, agent_overrides=copy.deepcopy(after.get("agent_overrides") or {}))
-        out["acceptance"] = {k: v for k, v in acc.items() if k not in ("after_findings", "fitted")}
+        out["acceptance"] = acceptance_record(acc)
         out["accepted"] = ok
         if not ok:
             out["failed_checks"] = [f"acceptance: {acc.get('reason')}"]

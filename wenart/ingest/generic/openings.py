@@ -119,7 +119,7 @@ AXIS_TOL_DEG = 3.0
 LINING_THINNER_M = 0.05         # ... is at least this much thinner than the run (MIN_WALL_M of walls.py) ...
 LINING_SHARE = 0.5              # ... and its pieces fill at least this share of the gap
 GLASS_INSET_M = 0.01            # glass lies at least this far inside the wall faces ...
-GLASS_MIN_LINES = 1             # ... and a window needs this many distinct glass offsets (see _is_glass)
+GLASS_MIN_LINES = 2             # ... and a window needs this many distinct glass offsets (see _is_glass)
 
 DOOR_HEIGHT_M = 2.10
 WINDOW_SILL_M = 0.90
@@ -626,6 +626,7 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
     band_items = [it for it in zone if _inside_rect_part(it, band)]
     parallel = []
     glass: set = set()
+    faces: dict[int, list] = {}
     for it in band_items:
         for p, q in zip(it.pts, it.pts[1:] + ([it.pts[0]] if it.st.closed and len(it.pts) > 2 else [])):
             if not _parallel(p, q, g.axis):
@@ -639,14 +640,28 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
                 parallel.append((it, round(off, 3)))
                 if _is_glass(off, g.t, lo, hi, g.a, g.b):
                     glass.add(round(off, 3))
+                elif abs(off) >= g.t / 2.0 - GLASS_INSET_M and (lo < g.a - OWN_MARGIN_M or hi > g.b + OWN_MARGIN_M):
+                    faces.setdefault(1 if off > 0 else -1, []).append(it)
     no_glass = None
     if len({off for _, off in parallel}) >= 2:
         if len(glass) >= GLASS_MIN_LINES:
             g.cls = "window"
             g.found = {"lines": list({id(it): it for it, _ in parallel}.values()), "glass": sorted(glass)}
             return
-        no_glass = (f"{len({off for _, off in parallel})} lines along the gap but no glass: they lie on the wall faces "
-                    f"or run on past the gap (outlines, an axis, a beam above), so no window")
+        no_glass = (f"{len({off for _, off in parallel})} lines along the gap, {len(glass)} of them glass (>= "
+                    f"{GLASS_MIN_LINES} needed): the others lie on the wall faces or run on past the gap (outlines, an "
+                    f"axis, a beam above), so no window")
+        if g.kind == "end" and len(faces) == 2 and not any(min(g.b, max(g.along(q) for q in it.pts)) -
+                                                          max(g.a, min(g.along(q) for q in it.pts)) > OWN_MARGIN_M
+                                                          for it, _ in arcs):
+            # Both faces of the free-end wall are drawn on across the gap (the outlines of the rooms on both sides)
+            # and no swing reaches into it: the wall continues (real03's stair-core wall, read as a window before).
+            g.cls = "closed"
+            ids = sorted({it.st.id for side in faces.values() for it in side})
+            g.found = {"faces": ids, "note": f"both faces of the wall are drawn on across the {width:.2f} m gap "
+                                             f"({', '.join(ids[:4])}) and no glass or swing is in it: the wall "
+                                             f"continues ({no_glass})"}
+            return
     # Sliding door (Milestone 10): no swing arc, but one or two leaves (thin closed shapes) parallel to the wall,
     # shorter than the gap, in the band or just beside it.
     leaves = _sliding_leaves(g, zone)
@@ -869,16 +884,6 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                     classify_gap(g, index, trial)
                     _own(g, index, trial)
                 found.append(g)
-            two_walls = q.a - p.b > GAP_MAX_M or _crossed(p, q, ends)
-            if len(subs) > 1 and two_walls and any(g.cls in ("empty", "unclassified") for g in found):
-                # A gap open by itself (> 3 m) or crossed by walls, and a part holds no door or window symbol: two
-                # walls on one line (real02: the bedroom walls of both dwellings, the corridor and a bathroom
-                # between them), never one wall across; free ends cast their own end gaps (b).
-                for g in found:
-                    g.found = {"split_reason": "a split part holds no door or window: the pieces are not one wall"}
-                    g.cls = "open"
-                gaps.extend(found)
-                continue
             lining = _lining(run, p, q, runs, found)
             if lining is not None:
                 # Fix round after P6b: a thinner wall runs along one face through the gap (real03's shear walls on
@@ -887,6 +892,16 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                     g.found = {"lining": lining, "split_reason": lining["note"]}
                     g.cls = "open"
                 lined_after[ri][i] = lining
+                gaps.extend(found)
+                continue
+            two_walls = q.a - p.b > GAP_MAX_M or _crossed(p, q, ends)
+            if len(subs) > 1 and two_walls and any(g.cls in ("empty", "unclassified") for g in found):
+                # A gap open by itself (> 3 m) or crossed by walls, and a part holds no door or window symbol: two
+                # walls on one line (real02: the bedroom walls of both dwellings, the corridor and a bathroom
+                # between them), never one wall across; free ends cast their own end gaps (b).
+                for g in found:
+                    g.found = {"split_reason": "a split part holds no door or window: the pieces are not one wall"}
+                    g.cls = "open"
                 gaps.extend(found)
                 continue
             merge_after[ri].add(i)
@@ -939,6 +954,9 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
         ids = [it.st.id for it in g.found.get("arcs", []) + g.found.get("leaves", []) + g.found.get("lines", [])]
         reason = {"door": "extended to host the drawn door", "window": "extended to host the drawn window",
                   "closed": f"extended over a {g.width:.3f} m gap (< {GAP_MIN_M} m, closed)"}[g.cls]
+        if g.found.get("faces"):
+            reason = f"extended over a {g.width:.3f} m gap: {g.found['note']}"
+            ids = list(g.found["faces"])
         old_ids, old_reason = extended.get(p.k, ([], ""))
         extended[p.k] = (old_ids + ids, (old_reason + "; " if old_reason else "") + reason)
 
@@ -978,7 +996,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
         if g.cls in ("door", "window") or (g.kind != "end" and g.cls in ("empty", "unclassified")):
             openings.append(_opening(g, ctx, exterior))
             entry["opening"] = len(openings) - 1
-        if g.cls == "closed" and g.found.get("inside"):
+        if g.cls == "closed" and g.found.get("note"):
             entry["note"] = g.found["note"]
         elif g.cls == "closed":
             entry["warning"] = f"gap of {g.width:.3f} m < {GAP_MIN_M} m closed"

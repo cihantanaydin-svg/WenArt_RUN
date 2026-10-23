@@ -204,9 +204,7 @@ Fix round after P6b (23 Oct 2026; pod P6b, real03; verify:library:0 and verify:a
   076 / 077 turned 90 degrees for "front faces a wall" (P6b seq 1969 / 1971 / 2637, P4b seq 434 / 437) deepen a cut
   they already had by 0.025 m and stay accepted; on the accepted footprint edits of P4a, P4b, P5 and P6a only P4a's
   coffee table f_L1_024 (0.07 m², 0.059 m through w_L1_006 after its move and resize; the vision critic said "rendered
-  intersecting the wall") would be refused;
-- ``retype_candidates``: the types ``retype_piece`` accepts for a piece (the agent loop reads it: a retype that can
-  only confirm the piece's own type is futile).
+  intersecting the wall") would be refused.
 """
 from __future__ import annotations
 
@@ -1286,24 +1284,15 @@ def _move_group(b: dict, args: dict) -> list[str]:
     return ids + new_ids
 
 
-def retype_candidates(b: dict, item: dict) -> list[str]:
-    """The types ``retype_piece`` accepts for ``item``: the room's / zone's types at its centre
-    (``group_checks.allowed_types_at``) that fit its footprint (size table), not turned 90 degrees against a drawn
-    front. Fix round after P6b: also read by the loop (``loop.futile_step``: a retype that can only confirm the piece's
-    own type changes nothing)."""
+def _retype(b: dict, args: dict, catalog=None) -> list[str]:
+    item = _piece(b, args["piece_id"])
     room = _room(b, item.get("room_id"))
     p = placer.drawn_piece(item)
     allowed = GC.allowed_types_at(b, room, p.center) - {"unknown"}
     size = (float(item["footprint"]["size"][0]), float(item["footprint"]["size"][1]))
     turned = item.get("front_deg") is not None
-    return sorted(t for t in allowed if t in PL._size_table() and PL._fits(t, size) and not (
+    candidates = sorted(t for t in allowed if t in PL._size_table() and PL._fits(t, size) and not (
         turned and PL.oriented_fit(t, p.size)["turned"]))
-
-
-def _retype(b: dict, args: dict, catalog=None) -> list[str]:
-    item = _piece(b, args["piece_id"])
-    p = placer.drawn_piece(item)
-    candidates = retype_candidates(b, item)
     if args["type"] not in candidates:
         raise EditRejected("retype", f"{args['type']} is no candidate for {item['id']} ({p.size[0]:.2f} x "
                                      f"{p.size[1]:.2f} m at [{p.center[0]:.2f}, {p.center[1]:.2f}]): the size table and "

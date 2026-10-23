@@ -773,24 +773,25 @@ RIG_CHECK_SHARE = 0.4
 # 1.46, ruzgarlik_1 1.42, giris_holu_3_1 1.49, yangin_merdiveni_1 1.49, oda_7_1 1.29.
 RIG_ROOM_ABOVE_DAY = 0.15
 # Fix round after P6b (23 Oct 2026; pod P6b, real03, 4000 K hall / stair / bath rig, render code m13.4). The bound
-# above holds the views lit by the rig alone (rig share at least RIG_ALONE_SHARE): their white point is the rig's own
-# colour with the daylight cast and their frame share stands for their walls'. A mixed view (RIG_CHECK_SHARE up to
-# RIG_ALONE_SHARE) sees daylit rooms through its doorways and its frame share does not tell how much of its walls'
-# light is the rig's (the P6b verifier: giris_holu_2 frame share 0.62, block-median share 0.74, walls warmer than the
-# frame mix), so its walls may be as warm as the warmest daylight view of the same paint plus
-# RIG_ROOM_ABOVE_WARMEST_DAY, at most RIG_ROOM_ABOVE_DAY_MAX over the median (one odd daylight view does not lift the
-# bound further; the warmest over the median: P6b 0.277, P5 real04 0.18, the P4a real02 shim 0.19). Measured, wall
-# display R/B (painted; references: the unblocked daylight views):
-#   P6b real03 (m13.4)   daylight 1.183-1.582 (median 1.305; the daylight-only oda_01_1..3 1.53-1.58, rig share
-#                        < 0.02); rig alone (0.956-0.985) 1.363-1.442 <= 1.455; mixed (0.44-0.89) 1.409-1.599 <= 1.632
-#                        (10 of them over the old 1.455)
+# above holds the views lit by the rig alone (rig share at least RIG_ALONE_SHARE): their white point is the rig lamp's
+# colour with the daylight cast. A mixed view (RIG_CHECK_SHARE up to RIG_ALONE_SHARE) may be as warm as the warmest
+# daylight view of the same paint plus RIG_ROOM_ABOVE_WARMEST_DAY, at most RIG_ROOM_ABOVE_DAY_MAX over the median (one
+# odd daylight view does not lift the bound further; the warmest over the median: P6b 0.277, P5 real04 0.18, the P4a
+# real02 shim 0.19). Why: a bpy 5.2.2 shim of P6b's real03.blend (render.py's two metering passes, 240 x 135, 16 spp,
+# render.wall_rig_record) found the walls' rig share within 0.05 of the frame's (giris_holu_2 0.594 / 0.594,
+# yangin_merdiveni_1 0.903 / 0.886) and the warmth in the light itself: on the hall and stair walls the daylight
+# arrives at linear R/B 2.68-3.33 and the rig light at 3,266-3,614 K (R/B 3.35-4.28) against the anchor's daylight
+# (1.98; 1.95 on the walls of its own room) and the 4000 K lamp (2.65), both warmed by the oak floors and treads and
+# the greige paint. The daylight-only oda_01_2 gets the same warm light (R/B 3.35) and reads 1.582; the halls read
+# 1.49-1.60 at a light R/B of 3.35-4.09. Measured, wall display R/B (painted; references: the unblocked daylight views):
+#   P6b real03 (m13.4)   daylight 1.183-1.582 (median 1.305); rig alone (0.956-0.985) 1.363-1.442 <= 1.455; mixed
+#                        (0.44-0.89) 1.409-1.599 <= 1.632 (10 of them over the old 1.455)
 #   P4b real03 (m13.3, 2700 K rig, the same anchor; against P6b's daylight walls): rig alone (0.975-0.995)
 #                        1.562-1.864 > 1.455; mixed (0.83-0.90) 1.648-1.734 > 1.632: all 7 fail as before
 #   P4a real02 (m13.2)   halls 1.639-1.808 (0.90-1.0) against the shim's daylight (median 1.36, warmest 1.55): rig alone
 #                        > 1.51, mixed > 1.60: all fail
 #   P5 real04 (m13.3)    halls 1.306-1.634 (0.71-1.0) against 1.382-1.695 (median 1.515): pass as before
-# The rig share of the walls themselves is recorded since this round (render.wall_rig_record, the exposure record's
-# wb_walls) and kept with the values; it does not decide yet.
+# The walls' own record (the exposure record's wb_walls) is kept with the values; it does not decide.
 RIG_ALONE_SHARE = 0.95
 RIG_ROOM_ABOVE_WARMEST_DAY = 0.05
 RIG_ROOM_ABOVE_DAY_MAX = 0.35
@@ -1007,15 +1008,15 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     median of one daylight view, the blocked cam_r_L1_banyo_1 (one ceiling light over 55.7 % of the frame), so
     mutfak_3 failed at 1.223 against 1.208 with no orange in the image; as painted its bound is the painted daylight
     median 1.515 + 0.15. The kitchens keep the 2700 K rig (lead decision).
-    Fix round after P6b (23 Oct 2026). What: the bound depends on how the view is lit (``_orange_bound``): a view lit
-    by the rig alone (rig share at least ``RIG_ALONE_SHARE``) keeps the daylight median + ``RIG_ROOM_ABOVE_DAY``; a mixed
-    view may reach the warmest daylight view of its kind + ``RIG_ROOM_ABOVE_WARMEST_DAY``, at most
+    Fix round after P6b (23 Oct 2026). What: the bound depends on how the view is lit (``_orange_bound``): a view
+    lit by the rig alone (rig share at least ``RIG_ALONE_SHARE``) keeps the daylight median + ``RIG_ROOM_ABOVE_DAY``;
+    a mixed view may reach the warmest daylight view of its kind + ``RIG_ROOM_ABOVE_WARMEST_DAY``, at most
     ``RIG_ROOM_ABOVE_DAY_MAX`` over the median. The values file also keeps each bound's regime and the walls' own rig
-    record (``wb_walls``; printed, not judged). Why: P6b's 4000 K halls and stairs failed 10 mixed views at 1.486-1.599
-    against 1.455 while the daylight-only oda_01 views of the same paint read 1.53-1.58 and the views lit by the rig
-    alone 1.363-1.442: in a mixed view the frame's share does not say how much of the walls' light is the rig's (the
-    P6b verifier refuted the white-point change). How: P4b's 2700 K views (1.562-1.864) still fail, each one (the
-    numbers at ``RIG_ALONE_SHARE``)."""
+    record (``wb_walls``; printed, not judged). Why: P6b's 4000 K halls and stairs failed 10 mixed views at
+    1.486-1.599 against 1.455 while the daylight-only oda_01 views of the same paint read 1.53-1.58 and the views lit
+    by the rig alone 1.363-1.442; the P6b verifier refuted the white-point change, and a shim of P6b's scene found the
+    warmth in the light both sources bring to those walls after the oak and greige bounce, not in the share. How:
+    P4b's 2700 K views (1.562-1.864) still fail, each one (the numbers at ``RIG_ALONE_SHARE``)."""
     from wenart import views
     from wenart.blender import render as R
 

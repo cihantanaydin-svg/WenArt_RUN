@@ -245,12 +245,14 @@ fixes):
   lamp f_L0_201's G12, the nightstand f_L0_070's G5) and refused the bed's critical F3 removal for the majors named
   beside it; the building session's room tools act on a room of the building (``ROOM_TARGET_TOOLS``: P6b planned
   set_room_type on 11 symbol ids);
-- after an empty plan (a valid plan without steps) the default checklist keeps only the critical findings, and none
-  whose edit the code knows is futile (``futile_step``: the target used its tries, fix_fixture found no valid spot,
-  the memory refused the same edit, a retype could only confirm the piece's own type); the plan event logs the dropped
-  steps with why (``evidence.dropped``). Why: P6b's 25 empty plans ran 48 default edits: 1 real fix (a critical F7),
-  3 phantom confirms the planner had called no-ops, 10 memory refusals; in round 4 the defaults sent the fix_fixture
-  edits the memory had refused since round 1 (seq 2839 / 2840).
+- after an empty plan (a valid plan without steps) the default checklist leaves out the steps whose edit the code
+  knows is futile (``futile_step``: the target used its tries, fix_fixture found no valid spot, the memory refused the
+  same edit); the plan event logs the dropped steps with why (``evidence.dropped``). Why: P6b's 25 empty plans ran 48
+  default edits with 10 memory refusals; in round 4 the defaults sent the fix_fixture edits the memory had refused
+  since round 1 (seq 2839 / 2840). The planner's skip reasons are not trusted (the analyst's "keep only critical
+  findings" is left out): 9 accepted default edits of P5 / P6a / P6b empty plans fixed findings the planner had
+  skipped, the critical F7 of P6b's fridge f_L0_204 (seq 1848) among them, and real moves for majors on real04
+  (P6a seq 5986, 6064, 6358); the 3 phantom confirms are refused by the acceptance now (``render_unchanged``).
 
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
@@ -1324,10 +1326,9 @@ def step_args(step: dict) -> Optional[dict]:
 
 def futile_step(ctx: TL.ToolContext, step: dict, max_tries: int = MAX_TRIES) -> Optional[str]:
     """Fix round after P6b (module docstring): why the code knows a checklist step's edit is futile this round, else
-    None: its target used its tries, ``fix_fixture``'s search found no valid spot for it (``tools.no_spot_of``), the
-    memory refused this exact edit (``tools._repeat_of`` of ``step_args``), or a ``retype_piece`` / ``change_type``
-    could only confirm the piece's own type (``edit_ops.retype_candidates``: a confirm changes nothing in the render).
-    Read only: no try is counted."""
+    None: its target used its tries, ``fix_fixture``'s search found no valid spot for it (``tools.no_spot_of``) or the
+    memory refused this exact edit (``tools._repeat_of`` of ``step_args``). A confirm of a piece's own type needs no
+    rule here: the acceptance refuses it for a vision finding (``render_unchanged``). Read only: no try is counted."""
     tool, target = step.get("tool"), step.get("target")
     if not target:
         return None
@@ -1347,16 +1348,6 @@ def futile_step(ctx: TL.ToolContext, step: dict, max_tries: int = MAX_TRIES) -> 
         if prev is not None:
             return (f"the memory refused {tool} on {target} (round {prev.get('round')}: "
                     f"{'; '.join(prev.get('reasons') or ['rejected'])[:160]})")
-    if tool in CONFIRM_TOOLS:
-        piece = ctx.piece(str(target))
-        if piece is not None and piece.get("type") not in (None, "unknown"):
-            try:
-                from wenart.furniture import edit_ops as EO
-                types = set(EO.retype_candidates(ctx.building, piece))
-            except Exception:  # noqa: BLE001 - the validator decides
-                types = None
-            if types is not None and types <= {piece["type"]}:
-                return f"a retype of {target} could only confirm its own type ({piece['type']}): {CONFIRM_NOTE}"
     return None
 
 
@@ -1989,9 +1980,8 @@ class AgentLoop:
         if not steps:
             steps = default_checklist(brief, wanted, lighting)
             if status == "empty":
-                # fix round after P6b (module docstring): the planner chose no step: its critical findings only, and
-                # none whose edit the code knows is futile
-                steps, dropped = self.empty_plan_steps(ctx, brief, steps, lighting=lighting)
+                # fix round after P6b (module docstring): none whose edit the code knows is futile
+                steps, dropped = self.empty_plan_steps(ctx, steps)
         steps = lighting_first(steps)
         skip, choices = plan_skip(plan), plan_choices(plan)
         self.memory.add_plan(room_id, round_no, plan, plan_ok, problems, status=status)
@@ -2006,21 +1996,15 @@ class AgentLoop:
                        evidence=evidence)
         return steps, problems, plan_ok
 
-    def empty_plan_steps(self, ctx: TL.ToolContext, brief: dict, steps: list[dict], lighting: bool = False
-                         ) -> tuple[list[dict], list[dict]]:
+    def empty_plan_steps(self, ctx: TL.ToolContext, steps: list[dict]) -> tuple[list[dict], list[dict]]:
         """Fix round after P6b (module docstring): ``(steps, dropped)`` of the default checklist after an empty plan
-        (a valid plan without steps): a step stays when one of its findings is critical (or, ``lighting``, a final-round
-        lighting view) and the code does not know its edit to be futile (``futile_step``); ``dropped`` names the
-        others with why (logged on the plan event)."""
-        by_id = {f.get("id"): f for f in (brief.get("findings") or {}).get("fixable") or []}
+        (a valid plan without steps): a step stays unless the code knows its edit is futile (``futile_step``);
+        ``dropped`` names the others with why (logged on the plan event). The planner's own skip reasons are not
+        trusted: 9 default edits of P5 / P6a / P6b empty plans whose findings the planner had skipped were accepted
+        (P6b seq 1848, the fridge's critical F7)."""
         keep, dropped = [], []
         for s in steps:
-            fs = [by_id[i] for i in s.get("finding_ids") or [] if i in by_id]
-            why = None
-            if not any(f.get("severity") == "critical" or (lighting and final_lighting(f)) for f in fs):
-                why = "the planner chose no step and the finding is not critical"
-            else:
-                why = futile_step(ctx, s, self.max_tries)
+            why = futile_step(ctx, s, self.max_tries)
             if why is None:
                 keep.append(s)
             else:
