@@ -1117,8 +1117,9 @@ def wall_rig_record(all_stats: dict | None, day_stats: dict | None, lamp_rgb=Non
     point, it read 1.599) and the walls are what the GPU orange check judges; whether their own share is near 1 or
     their rig light warmer than the lamp (the bounce off the oak floors and the greige paint) decides the next rule
     (the shim of P6b's scene: the latter, module docstring). No white point reads it. None when the all-light pass
-    metered no walls (no ``wall_illuminant``: an exterior view, a meter without ``walls``); no ``rig_share`` without light on the walls or without a wall metering of the daylight
-    pass (a daylight pass whose walls got no light gives 1)."""
+    metered no walls (no ``wall_illuminant``: an exterior view, a meter without ``walls``); no ``rig_share`` without
+    light on the walls or without a wall metering of the daylight pass (a daylight pass whose walls got no light
+    gives 1)."""
     if not all_stats or "wall_illuminant" not in all_stats:
         return None
     day_stats = day_stats or {}

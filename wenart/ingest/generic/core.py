@@ -51,6 +51,11 @@ candidate still ``unknown`` after its answers whose whole part is a coat closet 
 with chairs on a rug outline (``symbols.rug_outline``) is read as such (``symbols.split_table_chairs`` /
 ``table_chair_items``) before the re-read, which cuts the part by block instance and so took real02's hanger inserts
 out of the closet. ``split_override_text`` counts the chairs from the split and names a rug split.
+
+Fix round after P6b (23 Oct 2026; pod P6b, real03). What: a wall that ``openings`` read apart where a thinner wall
+lines its gaps (real03's shear walls on the hall-living partition) carries a ``corrected_by_ai`` label with the wall
+it was before (an attribute of the ``WallItem``, for the wall's dict in the building; the reason is in the wall's
+evidence note too); ``_shift_wall`` moves that ``before`` into the building frame with the wall.
 """
 from __future__ import annotations
 

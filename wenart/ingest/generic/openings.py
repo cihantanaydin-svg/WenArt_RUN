@@ -55,7 +55,18 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
 Everything is in page metres (y up). Walls at other angles than the plan's dominant pair pass through untouched.
 
 Fix round after P6b (23 Oct 2026; pod P6b, real03, checked on the LibreDWG strokes of real02, real03 and real04).
-What: two run gaps are no openings of their run any more.
+What: a window needs glass, and three kinds of gap are no openings of their run any more.
+
+- **Glass** (``_is_glass``): a window, in a gap or across a continuous wall, needs >= ``GLASS_MIN_LINES`` distinct
+  lines parallel to the wall, strictly between its faces (>= ``GLASS_INSET_M`` inside), within the window +-
+  ``OWN_MARGIN_M`` along it and spanning >= ``WINDOW_COVER`` of it: glass, frame and sill lines end at the jambs. Lines
+  on the faces, or running on past the gap (a beam projection, a room or area outline, an axis, wardrobe backs along
+  a partition) are no window. real03 had 43 such 'windows' among 64 (every real one carries its CAM/CAM-PER frame
+  lines: two or three glass offsets), real04 two (wardrobe backs between two bedrooms); real02's 12 windows have two
+  glass lines each. A gap that loses its window this way is an unverified opening ("unclassified gap content", the
+  reason in its note), except an end gap whose two faces are drawn on across it (both lines running past it) with no
+  swing reaching in: there the wall continues (extended, evidence ``derived``, the reason in its note; real03's
+  stair-core wall, whose DUVAR outline is no wall primitive).
 
 - A **lined gap** (``_lining``): a thinner wall (>= ``LINING_THINNER_M`` thinner, its own run) lies along one face of
   the run (flush within ``RUN_OFFSET_M``, inside its band) and its pieces fill >= ``LINING_SHARE`` of the gap. The
