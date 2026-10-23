@@ -152,8 +152,42 @@ def licence_check(item: dict) -> dict:
     return rec("licence", "ok", f"{item.get('licence')}{note}", metrics={"flag": flag})
 
 
+# 23 Oct 2026 (the 3D Warehouse extras: trees, doors, windows, objects): the title flags that say nothing against an
+# extra (a car, a fence or a tree is outdoors, a kitchen set is several objects, an extra may be made for any use)
+EXTRA_IGNORED_FLAGS = ("outdoor", "scene", "other_use")
+
+
+def extra_title_check(item: dict) -> list[dict]:
+    """The title records of an extra (``items.SECTIONS`` extras): the name typing of ``wenart.assets.warehouse``
+    (its ``3dwh`` record) is the title evidence: a type from a word of the name is ``ok`` (verdict match), the
+    folder's default or an untyped object is ``review`` (verdict silent: two vision passes); the hard flags but
+    ``EXTRA_IGNORED_FLAGS`` remove as for furniture."""
+    from wenart.assets import warehouse as WH
+    where = str((item.get("3dwh") or {}).get("where") or "")
+    words = (item.get("3dwh") or {}).get("word")
+    out = []
+    if item["type"] == WH.UNTYPED_OBJECT or not where or where.startswith(("group folder", "no type word")):
+        evidence = where or "no name evidence"
+        out.append(rec("title", "review", f"the name gives no {item['type'].replace('_', ' ')} ({evidence}): the type "
+                       "rests on the vision check (two passes)",
+                       metrics={"verdict": "silent", "families": [], "words": []}))
+    else:
+        out.append(rec("title", "ok", f"the name gives a {item['type'].replace('_', ' ')} ({where}: {words})",
+                       metrics={"verdict": "match", "families": [], "words": [words] if words else []}))
+    for cat, found in K.flags(item.get("title") or "").items():
+        if cat in EXTRA_IGNORED_FLAGS:
+            continue
+        status = "remove" if cat in HARD_FLAGS else "review"
+        out.append(rec("title_flag", status, f"the title says {', '.join(found)}: {FLAG_TEXT.get(cat, cat)}",
+                       metrics={"category": cat, "words": found}))
+    return out
+
+
 def title_check(item: dict, known_types) -> list[dict]:
-    """The title's verdict and flags (records ``title`` and ``title_flag``)."""
+    """The title's verdict and flags (records ``title`` and ``title_flag``); an extra: ``extra_title_check``."""
+    from wenart.assets import warehouse as WH
+    if item.get("kind") in WH.EXTRA_KINDS:
+        return extra_title_check(item)
     chk = K.title_check(item.get("title"), item["type"], item.get("source", ""))
     out = []
     v = chk["verdict"]

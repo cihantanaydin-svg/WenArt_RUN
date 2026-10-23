@@ -62,7 +62,10 @@ FRONT_SIDES = ("front", "back", "left", "right", "none", "unclear")
 
 
 def kind_types(kind: str) -> list[str]:
+    from wenart.assets import warehouse as WH
     from wenart.furniture import catalog as C
+    if kind in WH.EXTRA_KINDS:                        # 23 Oct 2026: trees, doors, windows, objects
+        return list(WH.EXTRA_KINDS[kind])
     if kind == "decor":
         return list(C.DECOR_TYPES)
     return [t for t in C.FURNITURE_TYPES if t not in ("unknown", "stair", "kitchen_counter", "kitchen_island",
@@ -71,6 +74,12 @@ def kind_types(kind: str) -> list[str]:
 
 def type_words(ftype: str, kind: str) -> tuple[str, str]:
     from wenart.assets import objaverse as OV
+    from wenart.assets import warehouse as WH
+    if kind in WH.EXTRA_KINDS:
+        if ftype == WH.UNTYPED_OBJECT:
+            return "object", "an object of no known type"
+        name = ftype.replace("_model", "").replace("_", " ")
+        return name, f"{name} ({kind})"
     if kind == "decor":
         name, what, _ = OV.DECOR_WORDS.get(ftype, (ftype.replace("_", " "), ftype.replace("_", " "), ""))
         return name, what

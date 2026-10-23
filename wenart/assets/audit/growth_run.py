@@ -377,7 +377,7 @@ def ingest_3dwh(args) -> int:
     not_fitting = [r for r in ok if not (r.get("choice") or {}).get("fits")]
     by_group = Counter(r.get("group") or "?" for r in ok)
     by_type = Counter(f"{r.get('kind')}:{r.get('type')}" for r in ok)
-    extras = [r for r in ok if r.get("kind") in ("vegetation", "opening")]
+    extras = [r for r in ok if r.get("kind") in WH.EXTRA_KINDS]
     write_json(rep / "ingest_3dwh.json",
                {"source": WH.SOURCE, "approved_by": ok_doc.get("approved_by"),
                 "approved_utc": ok_doc.get("approved_utc"), "rule": ok_doc.get("rule"), "zip": zip_rec,
@@ -397,8 +397,8 @@ def ingest_3dwh(args) -> int:
                                  "error": (r.get("choice") or {}).get("error")} for r in not_fitting]})
     write_json(rep / "3dwh_extras.json",
                {"kind": "library_3dwh_extras", "written_utc": now_utc(),
-                "note": "trees, doors and windows: fixed GLBs and records for the later hooks (openings scaled to the "
-                        "drawn openings, trees picked by crown size); not catalogued yet",
+                "note": "the extras (trees, doors, windows, objects): catalogued in the extras section and audited; the "
+                        "later hooks scale openings to the drawn openings and pick trees by crown size",
                 "models": [{k: r.get(k) for k in ("id", "rel", "title", "kind", "type", "glb", "box_m", "crown_m",
                                                   "height_m")} | {"fits": (r.get("choice") or {}).get("fits")}
                            for r in extras]})
@@ -855,7 +855,14 @@ def measured(path: Path, key: str, cache_dir: Path, rules: dict) -> dict:
 
 
 def _validate_one(e: dict) -> Optional[str]:
+    from wenart.assets import warehouse as WH
     from wenart.furniture import catalog as C
+    if e.get("kind") in WH.EXTRA_KINDS:              # 23 Oct 2026: the extras section
+        try:
+            WH.validate_extra(e)
+        except C.CatalogError as exc:
+            return str(exc)
+        return None
     doc = {"entries": [], "decor": [e]} if (e.get("kind") == "decor" or str(e["type"]).startswith("decor_")) \
         else {"entries": [e]}
     try:
@@ -996,19 +1003,16 @@ def new_entries(args, stamp: str, only: Optional[set] = None) -> tuple[list, lis
         if e:
             entries.append(e)
             hints[e["id"]] = [s for s in e["styles"] if s != "neutral"]
-    # 3D Warehouse (23 Oct 2026: the user's zip, relaxed licence mode only); trees, doors and windows are previews
+    # 3D Warehouse (23 Oct 2026: the user's zip, relaxed licence mode only); trees, doors, windows and objects are
+    # entries of the extras section, audited like the rest (the user: "keep these ones also")
+    from wenart.assets import warehouse as WH
     wh_records = ((read_json(report_dir(args) / "ingest_3dwh.json") or {}).get("records") or []) \
         if wanted("3dwh") else []
     for r in wh_records:
         if not r.get("ok"):
             drop("3dwh", r["id"], f"{r.get('rel')}: " + str(r.get("dropped") or r.get("error") or "not fixed"))
             continue
-        if r.get("kind") in ("vegetation", "opening"):
-            previews.append({"id": r["id"], "source": "3dwh", "kind": r["kind"], "type": r.get("type"),
-                             "glb": r["glb"], "title": r.get("title"),
-                             "note": "3D Warehouse tree / door / window: no catalogue type yet (later hooks)"})
-            continue
-        if r.get("type") not in known:
+        if r.get("type") not in known and r.get("kind") not in WH.EXTRA_KINDS:
             drop("3dwh", r["id"], f"no catalogue type for {r.get('type')}")
             continue
 
@@ -1515,8 +1519,9 @@ def catalogue_counts(args) -> dict:
         return {}
     items = I.load_items(lib_path, ph_path)
     lib, ph = read_json(lib_path) or {}, read_json(ph_path) or {}
-    entries = [e for doc in (lib, ph) for sec in ("entries", "decor") for e in doc.get(sec) or []
-               if isinstance(e, dict) and not e.get("parametric")]
+    entries = [e for doc in (lib, ph) for sec in I.SECTIONS for e in doc.get(sec) or []
+               if isinstance(e, dict) and not e.get("parametric")]                 # 23 Oct 2026: extras too
+    extras = [e for e in lib.get("extras") or [] if isinstance(e, dict)]
     by_source: dict = {}
     by_flag: dict = {}
     usable = {m: 0 for m in C.LICENCE_MODES}
@@ -1535,7 +1540,9 @@ def catalogue_counts(args) -> dict:
                 usable[m] += 1
     return {"entries": len(entries), "items": len(items), "by_source": by_source, "by_flag": by_flag,
             "usable": usable, "status": dict(Counter((e.get("audit") or {}).get("status") or "unaudited"
-                                                     for e in entries))}
+                                                     for e in entries)),
+            "extras": {"entries": len(extras), "by_kind_status": dict(Counter(
+                f"{e.get('kind')}:{(e.get('audit') or {}).get('status') or 'unaudited'}" for e in extras))}}
 
 
 def cmd_report(args) -> int:

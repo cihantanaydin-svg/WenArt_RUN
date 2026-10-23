@@ -46,7 +46,8 @@ CARRIED = ("reaudit",)
 
 
 def _entries(doc: dict):
-    for section in ("entries", "decor"):
+    from wenart.assets.audit.items import SECTIONS
+    for section in SECTIONS:                          # 23 Oct 2026: the extras section too
         for e in doc.get(section) or []:
             if isinstance(e, dict) and not e.get("parametric") and e.get("id"):
                 yield e

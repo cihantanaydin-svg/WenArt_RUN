@@ -521,7 +521,8 @@ def p4_new():
     nid = p4_doc("new_ids.json")
     lib, ph = p4_doc("catalogue/catalog_library.json"), p4_doc("catalogue/catalog.json")
     ids = set(nid["ids"])
-    entries = [e for doc in (lib, ph) for s in ("entries", "decor") for e in doc.get(s) or []
+    # 23 Oct 2026: the extras section (3D Warehouse trees, doors, windows, objects) holds new ids too
+    entries = [e for doc in (lib, ph) for s in ("entries", "decor", "extras") for e in doc.get(s) or []
                if isinstance(e, dict) and e.get("id") in ids]
     return nid, lib, ph, entries
 
@@ -542,7 +543,8 @@ def test_growth_new_glbs_load_in_blender_at_plausible_size():
         # units, e.g. the 3D Warehouse layer of 23 Oct 2026) changed unit_scale since: the bound is on the size it
         # has now
         scale = float(e.get("unit_scale", 1.0)) / float(before.get("unit_scale", e.get("unit_scale", 1.0)) or 1.0)
-        if (e.get("audit") or {}).get("status") != "removed":   # pod P4: a 10x Poly Haven glTF is removed by the audit
+        extra = e.get("kind") in ("vegetation", "opening", "object")     # a tree, a car, a fence: no 5 m bound
+        if (e.get("audit") or {}).get("status") != "removed" and not extra:   # pod P4: a 10x Poly Haven glTF is removed
             assert 0.01 <= max(m["size"]) * scale <= 5.0, (e["id"], m["size"], scale)    # a real piece, metres
         assert m["faces"] > 0 and e["id"] in mdoc["sheets"], e["id"]
         got = list(m["model_box_min"]) + list(m["model_box_max"])
@@ -735,7 +737,8 @@ def test_growth_3dwh_every_model_is_accounted_for_and_fixed_onto_the_floor_centr
     lib = OV.read_json(p4 / "catalogue" / "catalog_library.json")
     if lib is None:
         pytest.skip("no catalogue copy of the growth job")
-    wh = [e for e in lib.get("entries", []) + lib.get("decor", []) if e.get("source") == "3dwh"]
+    wh = [e for e in lib.get("entries", []) + lib.get("decor", []) + lib.get("extras", [])
+          if e.get("source") == "3dwh"]
     assert wh, "no 3dwh entry in the catalogue copy"
     for e in wh:
         assert e["licence"] == WH.LICENCE and e["licence_flag"] == "non_commercial" and e["commercial_safe"] is False

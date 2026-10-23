@@ -141,8 +141,11 @@ def pending_audit(checked_utc: str) -> dict:
 
 
 def _kind_type(kind: str, ftype: str) -> dict:
+    from wenart.assets import warehouse as WH
     if kind == "decor":
         return {"type": f"decor_{ftype}", "kind": "decor", "decor_type": ftype}
+    if kind in WH.EXTRA_KINDS:                      # 23 Oct 2026: trees, doors, windows, objects (extras section)
+        return {"type": ftype, "kind": kind}
     return {"type": ftype, "kind": "furniture"}
 
 
@@ -432,12 +435,21 @@ def _is_decor(e: dict) -> bool:
     return e.get("kind") == "decor" or str(e.get("type", "")).startswith("decor_")
 
 
+def section_of(e: dict) -> str:
+    """The catalogue section of an entry: ``extras`` (23 Oct 2026: trees, doors, windows, objects), ``decor`` or
+    ``entries``."""
+    from wenart.assets import warehouse as WH
+    if e.get("kind") in WH.EXTRA_KINDS:
+        return WH.EXTRAS_SECTION
+    return "decor" if _is_decor(e) else "entries"
+
+
 def add_entries(doc: dict, entries: list[dict]) -> dict:
-    """``doc`` with ``entries`` added to its ``entries`` / ``decor`` sections (an entry with the same id is replaced
-    in place); returns ``{"added", "replaced"}``."""
+    """``doc`` with ``entries`` added to its ``entries`` / ``decor`` / ``extras`` sections (an entry with the same id
+    is replaced in place); returns ``{"added", "replaced"}``."""
     stats = {"added": 0, "replaced": 0}
     for e in entries:
-        section = "decor" if _is_decor(e) else "entries"
+        section = section_of(e)
         rows = doc.setdefault(section, [])
         for i, old in enumerate(rows):
             if isinstance(old, dict) and old.get("id") == e["id"]:
@@ -492,6 +504,8 @@ def build_copies(library: dict, polyhaven: dict, entries: list[dict]) -> tuple[d
         lib.setdefault("datasets", {})[WH.SOURCE] = dict(WH.DATASET)
         if WAREHOUSE_NOTE not in lib.setdefault("notes", []):
             lib["notes"].append(WAREHOUSE_NOTE)
+        for e in lib.get(WH.EXTRAS_SECTION) or []:
+            WH.validate_extra(e)                    # the extras section: catalog.validate reads entries and decor only
     m13 = any((e.get("growth") or {}).get("milestone") == "m13" for e in entries)
     for doc in (lib, ph):
         notes = doc.setdefault("notes", [])

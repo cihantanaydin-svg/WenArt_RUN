@@ -269,7 +269,7 @@ def test_the_job_header_documents_the_p2b_command():
 # --------------------------------------------------------------------------
 
 WH_STEPS = ("download-3dwh", "ingest-3dwh", "catalogue", "render", "code", "ask", "decide", "write", "vision-fields",
-            "sheets", "gaps", "coverage", "preview", "report", "gpu-tests")
+            "sheets", "gaps", "coverage", "report", "gpu-tests")     # the extras are audited: no preview step
 # a fake curl: logs its call, writes FAKE_CURL_BODY (default: WH_BYTES bytes of zip data) to the -o file
 FAKE_CURL = r'''#!/usr/bin/env bash
 echo "curl $*" >> "$FAKE_CURL_LOG"
@@ -310,10 +310,9 @@ def test_growth_only_3dwh_downloads_fixes_and_audits_the_zip_in_one_pod_and_resu
     assert any(c.startswith(f"-m wenart.assets growth run ingest --source 3dwh --library {ws}/library/3dwh "
                             "--workers 16") for c in calls)
     assert any(c.startswith("-m wenart.assets growth run catalogue --only 3dwh") for c in calls)
-    assert any(c.startswith("-m wenart.assets growth run preview") and "--workers 3" in c for c in calls)
     for never in ("--source hssd", "--source abo", "--source polyhaven", "--source gso", "--source ambientcg",
                   "growth run demands", "growth run speed-probe", "growth run convert", "growth run gso-licence",
-                  "growth run pending", "growth run refetch", "infinigen"):
+                  "growth run pending", "growth run refetch", "growth run preview", "infinigen"):
         assert not any(never in c for c in calls), never
     rc, out, _ = _run(dict(env, FAKE_BIG_JSON="1"), tmp_path)
     assert rc == 0 and "present (64 bytes): kept" in out

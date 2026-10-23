@@ -45,9 +45,10 @@
 #                        curl -C -, the size checked against the Drive file) into $WH_ROOT/zip/, then ingest-3dwh
 #                        (the GLBs extracted safely to $WH_ROOT/glb/<uid>.glb, typed from their folder and file names,
 #                        measured, unit / up axis / origin / double-sided faces / roughness fixed into
-#                        $ASSETS/models/3dwh/), catalogue --only 3dwh (furniture and decor entries; trees, doors and
-#                        windows as previews), render, code, ask (the m13.2 question: the logo and print fields),
-#                        decide, write, vision-fields, sheets, gaps, coverage, preview, report and the GPU tests.
+#                        $ASSETS/models/3dwh/), catalogue --only 3dwh (furniture and decor entries; trees, doors,
+#                        windows and objects as entries of the extras section, the user's request of 23 Oct 2026),
+#                        render, code, ask (the m13.2 question: the logo and print fields), decide, write,
+#                        vision-fields, sheets, gaps, coverage, report and the GPU tests.
 #                        Nothing on the volume is deleted; a second run resumes (zip by size, GLBs by size, fixes by
 #                        source sha256, renders by job_sha, answers by input hash). About 400 models per hour of audit
 #                        on the RTX PRO 6000 (HSSD's rate):
@@ -563,7 +564,7 @@ if [ "$GROWTH_ONLY" = hssd ]; then
 elif [ "$GROWTH_ONLY" = 3dwh ]; then
   # --- GROWTH_ONLY=3dwh (23 Oct 2026): the 3D Warehouse layer alone; every other entry stays as it is ------------
   log "GROWTH_ONLY=3dwh: download-3dwh, ingest-3dwh, catalogue --only 3dwh, render, code, ask, decide, write," \
-      "vision-fields, sheets, gaps, coverage, preview, report, GPU tests; every other catalogue entry stays as it is"
+      "vision-fields, sheets, gaps, coverage, report, GPU tests; every other catalogue entry stays as it is"
   start_setup_check
   run_step download-3dwh download_3dwh
   run_step ingest-3dwh gr ingest --source 3dwh --library "$WH_ROOT" --workers "$WH_WORKERS"
@@ -584,7 +585,6 @@ elif [ "$GROWTH_ONLY" = 3dwh ]; then
   run_step sheets au sheets
   run_step gaps gr gaps
   run_step coverage gr size-grid
-  if need 300 preview; then run_step preview gr preview --blender "$WENART_BLENDER" --workers "$AUDIT_WORKERS"; fi
 else
   # --- Milestone 13: the demands and the coverage before the growth, then the speed probe (foreground, CPU) ----
   run_step demands gr demands

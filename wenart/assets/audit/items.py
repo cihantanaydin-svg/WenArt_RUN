@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Optional
 
 from wenart.assets.audit import REPO
+from wenart.assets import warehouse as WH
 
 LIBRARY_PATH = REPO / "wenart" / "furniture" / "catalog_library.json"
 POLYHAVEN_PATH = REPO / "wenart" / "furniture" / "catalog.json"
@@ -31,7 +32,13 @@ FIELDS = ("bbox_m", "bbox_model_m", "bbox_min_m", "bbox_max_m", "origin_offset",
           "licence_url", "licence_declared_by", "commercial_safe", "attribution", "material_tags", "chaise_side",
           "pbr_maps", "growth", "hssd",
           # fix round after P5 (22 Oct 2026): what a run's render showed on the model (checks.render_print_check)
-          "render_findings")
+          "render_findings",
+          # 23 Oct 2026: the 3D Warehouse record (name evidence, unit, fix-up; checks.title_check reads it for extras)
+          "3dwh")
+# The catalogue sections the audit reads and writes: furniture, decor and (23 Oct 2026, the user's request to keep
+# every 3D Warehouse model) the extras: trees, doors, windows and objects (kinds ``WH.EXTRA_KINDS``), audited like
+# the rest; the furniture fit never reads the extras.
+SECTIONS = ("entries", "decor", WH.EXTRAS_SECTION)
 
 
 def read_json(path) -> Optional[dict]:
@@ -48,13 +55,17 @@ def _front_rules() -> dict:
 def has_front(ftype: str) -> bool:
     """A type with a front (seating, beds, cabinets, appliances, wall art ...); tables, lamps, plants and most decor
     have none. Unknown types: True (checked as if they had one)."""
+    if ftype in WH.FRONTLESS_TYPES:
+        return False                                  # trees, rocks, parasols: no front (23 Oct 2026)
     rule = _front_rules().get(ftype)
     return rule != "none"
 
 
 def type_of(entry: dict) -> tuple[str, str]:
-    """``(kind, type)`` of a catalogue entry: decor by its ``decor_type`` (or a ``decor_<name>`` type), else
-    furniture."""
+    """``(kind, type)`` of a catalogue entry: an extra by its kind (``WH.EXTRA_KINDS``), decor by its
+    ``decor_type`` (or a ``decor_<name>`` type), else furniture."""
+    if entry.get("kind") in WH.EXTRA_KINDS:
+        return str(entry["kind"]), str(entry["type"])
     if entry.get("kind") == "decor" or entry.get("decor_type") or str(entry.get("type", "")).startswith(DECOR_PREFIX):
         name = entry.get("decor_type") or str(entry["type"])[len(DECOR_PREFIX):]
         return "decor", name
@@ -81,7 +92,7 @@ def items_of(library: Optional[dict], polyhaven: Optional[dict]) -> list[dict]:
     for doc, catalog in ((library, "library"), (polyhaven, "polyhaven")):
         if not doc:
             continue
-        for section in ("entries", "decor"):
+        for section in SECTIONS:
             for e in doc.get(section) or []:
                 if isinstance(e, dict) and not e.get("parametric") and e.get("id"):
                     out.append(item_of(e, catalog, section))

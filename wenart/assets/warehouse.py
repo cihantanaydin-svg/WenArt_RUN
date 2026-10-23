@@ -78,7 +78,7 @@ MAX_FILE_BYTES = 400_000_000
 # Groups, extra keywords and size ranges
 # --------------------------------------------------------------------------
 
-GROUPS = ("furniture", "decor", "vegetation", "door", "window")
+GROUPS = ("furniture", "decor", "vegetation", "door", "window", "object")
 # Folder words of the groups (folded tokens; a plural "s" matches). Folders only: a file name never sets the group.
 GROUP_WORDS: dict[str, tuple[str, ...]] = {
     "furniture": ("furniture", "furnishing", "furnishings", "mobilya", "mobel", "moebel", "meubles", "mobili",
@@ -89,6 +89,10 @@ GROUP_WORDS: dict[str, tuple[str, ...]] = {
                    "peyzaj"),
     "door": ("door", "kapi"),
     "window": ("window", "pencere"),
+    # the user's request of 23 Oct 2026 ("keep these ones also: cars, laptops, TVs, fences, whole kitchens"): the
+    # folders of objects outside our furniture types; their models are kept and audited as extras of kind object
+    "object": ("vehicle", "electronic", "electronics", "appliance", "outdoor", "exterior", "site", "garden",
+               "kitchen", "bathroom", "sport", "sports", "fitness", "toy", "people"),
 }
 # The vegetation and opening words (keyword syntax of wenart.assets.audit.keywords: phrases, ~stems).
 EXTRA_KEYWORDS: dict[str, tuple[str, ...]] = {
@@ -104,13 +108,111 @@ EXTRA_KEYWORDS: dict[str, tuple[str, ...]] = {
              "puerta", "deur", "dorr"),
     "window": ("window", "windows", "casement", "sash window", "skylight", "pencere", "fenster", "fenetre",
                "ventana", "finestra", "raam"),
+    # objects (the user's request of 23 Oct 2026: every model of the zip is kept, typed where its name says what it is)
+    "car": ("car", "cars", "automobile", "sedan", "coupe", "suv", "hatchback", "convertible", "sports car",
+            "police car", "taxi", "araba", "otomobil", "~auto", "voiture", "coche", "porsche", "audi", "bmw",
+            "mercedes", "ferrari", "lamborghini", "toyota", "honda", "volkswagen", "ford", "chevrolet", "camaro",
+            "mini cooper", "tesla", "kia", "hyundai", "nissan", "mazda", "volvo", "jaguar", "land rover",
+            "range rover", "fiat", "renault", "peugeot", "citroen", "caterham", "jeep"),
+    "truck": ("truck", "lorry", "delivery van", "camper van", "pickup", "pick up", "bus", "kamyon", "~lkw", "camion"),
+    "motorcycle": ("motorcycle", "motorbike", "scooter", "vespa", "moped", "motosiklet"),
+    "bicycle": ("bicycle", "bike", "bmx", "road bike", "bisiklet", "~fahrrad", "velo", "bicicleta"),
+    "tv": ("tv", "television", "televizyon", "lcd", "led tv", "plasma", "smart tv", "smarttv", "qled", "oled",
+           "~fernseher", "televisor", "flat screen"),
+    "laptop": ("laptop", "notebook", "macbook", "dizustu"),
+    "monitor": ("monitor", "computer display", "display screen", "computer screen", "imac", "ekran"),
+    "monitor_arm": ("monitor arm", "monitor arms", "dual monitor arm"),
+    "computer": ("computer", "desktop computer", "desktop pc", "gaming pc", "workstation computer", "bilgisayar"),
+    "speaker": ("speaker", "speakers", "soundbar", "sound bar", "hifi", "hi fi", "subwoofer", "hoparlor"),
+    "phone": ("phone", "smartphone", "iphone", "telefon"),
+    "dishwasher": ("dishwasher", "bulasik makinesi", "~geschirrspuler", "lave vaisselle", "lavavajillas"),
+    "microwave": ("microwave", "mikrodalga"),
+    "range_hood": ("range hood", "cooker hood", "extractor hood", "hood", "aspirator", "davlumbaz", "~dunstabzug"),
+    "coffee_machine": ("coffee machine", "espresso machine", "coffee maker", "kahve makinesi"),
+    "small_appliance": ("kettle", "toaster", "blender", "mixer machine", "air fryer", "vacuum", "vacuum cleaner",
+                        "clothes iron", "steam iron", "hair dryer"),
+    "faucet": ("faucet", "tap", "taps", "mixer", "spout", "handspray", "hand spray", "pull down spray",
+               "pull out spray", "shower head", "showerhead", "batarya", "musluk", "~armatur", "robinet", "grifo",
+               "rubinetto", "kraan"),
+    "kitchen_set": ("kitchen", "kitchens", "kitchen set", "full kitchen", "kitchen unit", "kitchen units", "cuisine",
+                    "mutfak", "~kuche", "cocina", "cucina", "keuken"),
+    "kitchen_island_model": ("kitchen island", "waterfall island", "mutfak adasi"),
+    "bathroom_set": ("bathroom", "bathroom set", "bathroom kit", "wetroom", "wet room", "salle de bain", "banyo",
+                     "~badezimmer", "bano", "bagno", "badkamer"),
+    "fence": ("fence", "fencing", "picket", "palisade", "cit", "~zaun", "cloture", "valla", "recinzione",
+              "ogrodzenie"),
+    "gate": ("gate", "garden gate", "iron gate", "kapi bahce", "portail", "~tor"),
+    "railing": ("railing", "railings", "balustrade", "handrail", "banister", "korkuluk", "~gelander", "rambarde"),
+    "pergola": ("pergola", "arbor", "arbour", "gazebo", "canopy", "kameriye", "cardak"),
+    "rock": ("boulder", "boulders", "rock", "rocks", "kaya", "~felsen", "rocher", "roca"),
+    "grill": ("bbq", "barbecue", "barbeque", "grill", "mangal", "parrilla"),
+    "parasol": ("parasol", "umbrella", "sun umbrella", "semsiye", "sombrilla"),
+    "play": ("swing", "trampoline", "playground", "slide set", "salincak", "sandbox"),
+    "fitness": ("treadmill", "exercise bike", "exercise equipment", "dumbbell", "dumbbells", "gym", "elliptical",
+                "rowing machine", "kosu bandi"),
+    "piano": ("piano", "grand piano", "upright piano", "keyboard instrument"),
+    "person": ("person", "people", "man", "woman", "human", "figure", "scale figure", "insan"),
+    "boat": ("boat", "yacht", "kayak", "canoe", "tekne"),
+    "planter_box": ("planter box", "raised bed", "flower box", "jardiniere"),
+    "printer": ("printer", "copier", "yazici"),
+    "radiator": ("radiator", "heater", "petek", "kalorifer"),
+    "air_conditioner": ("air conditioner", "air conditioning", "ac unit", "klima"),
+    "fireplace": ("fireplace", "fire place", "wood stove", "somine", "~kamin", "cheminee", "chimenea"),
+    "staircase_model": ("staircase", "stairs", "spiral stair", "merdiven", "~treppe", "escalier", "escalera"),
+    # IKEA product lines (folded: BESTÅ -> besta, POÄNG -> poang): 94 models of the zip are named by them alone
+    "ikea_bookshelf": ("billy", "kallax", "expedit", "ivar", "gersby", "fjalkinge"),
+    "ikea_wardrobe": ("pax", "kleppstad", "songesand", "brimnes wardrobe", "hemnes wardrobe"),
+    "ikea_tv_unit": ("besta", "lack tv", "hemnes tv", "brimnes tv"),
+    "ikea_cabinet": ("eket", "trofast", "havsta", "hemnes cabinet", "brimnes cabinet", "metod cabinet"),
+    "ikea_dresser": ("nordli", "koppang", "tarva", "malm chest", "hemnes chest", "alex drawer", "alex drawers"),
+    "ikea_sofa": ("kivik", "ektorp", "soderhamn", "vimle", "klippan", "landskrona", "finnala", "uppland",
+                  "vallentuna", "glostad", "kramfors"),
+    "ikea_sofa_corner": ("friheten",),                 # "KIVIK corner sofa": the library's "corner sofa" names it
+    "ikea_armchair": ("poang", "strandmon", "ekenaset", "koarp", "vedbo"),
+    "ikea_desk": ("micke", "bekant", "idasen", "trotten", "uppspel", "linnmon", "malm desk", "alex desk",
+                  "hemnes desk"),
+    "ikea_office_chair": ("markus", "jarvfjallet", "flintan", "alefjall", "millberget"),
+    "ikea_chair": ("ingolf", "odger", "adde", "stefan", "teodores", "bernhard", "lerhamn"),
+    "ikea_table_dining": ("lisabo", "ekedalen", "norden", "ingatorp", "melltorp", "morbylanga", "docksta"),
+    "ikea_side_table": ("lack", "gladom", "vittsjo", "listerby"),
+    "ikea_bed": ("malm bed", "hemnes bed", "brimnes bed", "tarva bed", "neiden", "sagstua", "slattum"),
+    "ikea_washbasin": ("godmorgon", "odensvik", "hemnes washstand", "enhet sink"),
+    "ikea_kitchen": ("metod", "faktum", "knoxhult", "enhet kitchen"),
+    "ikea_lamp": ("hektar", "ranarp", "alang", "foto", "lersta", "arstid", "regolit", "jansjo", "tertial", "hemma"),
+    "ikea_mirror": ("hovet", "stave", "lindbyn"),
 }
-EXTRA_FAMILY_TYPES: dict[str, tuple[str, ...]] = {"tree": ("tree",), "shrub": ("shrub",), "hedge": ("hedge",),
-                                                  "palm_tree": ("palm",), "door": ("door",), "window": ("window",),
-                                                  "cooktop": ("stove",)}
 VEGETATION_TYPES = ("tree", "shrub", "hedge", "palm")
 OPENING_TYPES = ("door", "window")
-GROUP_DEFAULT = {"vegetation": "tree", "door": "door", "window": "window"}
+UNTYPED_OBJECT = "untyped_object"
+# the object families' types: the family itself, except where named here
+OBJECT_FAMILY_TYPE = {"kitchen_island_model": "kitchen_island_model", "staircase_model": "staircase_model"}
+OBJECT_FAMILIES = ("car", "truck", "motorcycle", "bicycle", "tv", "laptop", "monitor", "monitor_arm", "computer",
+                   "speaker", "phone", "dishwasher", "microwave", "range_hood", "coffee_machine", "small_appliance",
+                   "faucet", "kitchen_set", "kitchen_island_model", "bathroom_set", "fence", "gate", "railing",
+                   "pergola", "rock", "grill", "parasol", "play", "fitness", "piano", "person", "boat", "planter_box",
+                   "printer", "radiator", "air_conditioner", "fireplace", "staircase_model")
+OBJECT_TYPES = tuple(OBJECT_FAMILY_TYPE.get(f, f) for f in OBJECT_FAMILIES) + (UNTYPED_OBJECT,)
+# IKEA product lines -> our types (several: the size decides, ``choose``)
+IKEA_FAMILY_TYPES: dict[str, tuple[str, ...]] = {
+    "ikea_bookshelf": ("bookshelf",), "ikea_wardrobe": ("wardrobe",), "ikea_tv_unit": ("tv_unit", "sideboard"),
+    "ikea_cabinet": ("tall_cabinet", "sideboard", "display_cabinet", "bookshelf"), "ikea_dresser": ("dresser",),
+    "ikea_sofa": ("sofa", "sofa_corner"), "ikea_sofa_corner": ("sofa_corner",), "ikea_armchair": ("armchair",),
+    "ikea_desk": ("desk",), "ikea_office_chair": ("office_chair",), "ikea_chair": ("chair", "bar_stool"),
+    "ikea_table_dining": ("table_dining",), "ikea_side_table": ("side_table", "table_coffee", "bookshelf"),
+    "ikea_bed": ("bed_double", "bed_single"), "ikea_washbasin": ("washbasin",), "ikea_kitchen": ("kitchen_set",),
+    "ikea_lamp": ("floor_lamp", "table_lamp", "pendant_light", "ceiling_light"), "ikea_mirror": ("mirror",)}
+EXTRA_FAMILY_TYPES: dict[str, tuple[str, ...]] = {"tree": ("tree",), "shrub": ("shrub",), "hedge": ("hedge",),
+                                                  "palm_tree": ("palm",), "door": ("door",), "window": ("window",),
+                                                  "cooktop": ("stove",), **IKEA_FAMILY_TYPES,
+                                                  **{f: (OBJECT_FAMILY_TYPE.get(f, f),) for f in OBJECT_FAMILIES}}
+# The extras (no catalogue furniture or decor type): their kinds and types (the audit's vision question asks among
+# these, ``wenart.assets.audit.ask.kind_types``)
+EXTRA_KINDS: dict[str, tuple[str, ...]] = {"vegetation": VEGETATION_TYPES, "opening": OPENING_TYPES,
+                                           "object": OBJECT_TYPES}
+GROUP_DEFAULT = {"vegetation": "tree", "door": "door", "window": "window", "object": UNTYPED_OBJECT}
+# extras without a front (the audit asks no front side for them, ``wenart.assets.audit.items.has_front``)
+FRONTLESS_TYPES = VEGETATION_TYPES + ("rock", "parasol", "pergola", "planter_box")
+EXTRAS_SECTION = "extras"                         # the catalogue section of the extras (catalog_library.json)
 # Real sizes of the types outside the size table (designer values: interior and front doors 0.6-2.4 m wide with their
 # frame, 1.9-3.0 m high; windows 0.3-6 m; a tree 2-35 m high, a shrub 0.2-3 m, a hedge segment any length): width,
 # depth (either orientation), height.
@@ -121,8 +223,48 @@ EXTRA_RANGES: dict[str, dict] = {
     "palm": {"width": (0.5, 15.0), "depth": (0.5, 15.0), "height": (1.5, 30.0)},
     "shrub": {"width": (0.15, 6.0), "depth": (0.15, 6.0), "height": (0.15, 4.0)},
     "hedge": {"width": (0.2, 30.0), "depth": (0.2, 30.0), "height": (0.2, 4.0)},
+    # objects (designer values of real products; width = the shorter footprint side where the front is unclear)
+    "car": {"width": (1.4, 2.3), "depth": (2.8, 6.5), "height": (0.9, 2.3)},
+    "truck": {"width": (1.6, 2.6), "depth": (4.0, 14.0), "height": (1.6, 4.2)},
+    "motorcycle": {"width": (0.5, 1.2), "depth": (1.4, 2.6), "height": (0.8, 1.6)},
+    "bicycle": {"width": (0.3, 0.9), "depth": (1.0, 2.2), "height": (0.6, 1.4)},
+    "tv": {"width": (0.4, 3.0), "depth": (0.02, 0.6), "height": (0.25, 1.9)},
+    "laptop": {"width": (0.2, 0.5), "depth": (0.15, 0.45), "height": (0.01, 0.4)},
+    "monitor": {"width": (0.3, 1.5), "depth": (0.03, 0.4), "height": (0.2, 0.9)},
+    "monitor_arm": {"width": (0.1, 1.2), "depth": (0.05, 0.8), "height": (0.1, 0.9)},
+    "computer": {"width": (0.08, 0.7), "depth": (0.1, 0.7), "height": (0.05, 0.8)},
+    "speaker": {"width": (0.05, 1.5), "depth": (0.05, 0.7), "height": (0.05, 1.6)},
+    "phone": {"width": (0.05, 0.3), "depth": (0.005, 0.3), "height": (0.005, 0.3)},
+    "dishwasher": {"width": (0.4, 0.95), "depth": (0.45, 0.75), "height": (0.4, 0.95)},
+    "microwave": {"width": (0.35, 0.8), "depth": (0.25, 0.6), "height": (0.2, 0.5)},
+    "range_hood": {"width": (0.4, 1.8), "depth": (0.2, 1.2), "height": (0.05, 1.5)},
+    "coffee_machine": {"width": (0.12, 0.8), "depth": (0.15, 0.7), "height": (0.2, 0.8)},
+    "small_appliance": {"width": (0.05, 0.8), "depth": (0.05, 0.8), "height": (0.05, 1.3)},
+    "faucet": {"width": (0.02, 0.6), "depth": (0.03, 0.6), "height": (0.03, 1.4)},
+    "kitchen_set": {"width": (0.6, 15.0), "depth": (0.5, 8.0), "height": (0.6, 3.2)},
+    "kitchen_island_model": {"width": (0.6, 1.6), "depth": (1.0, 4.5), "height": (0.75, 1.2)},
+    "bathroom_set": {"width": (0.6, 10.0), "depth": (0.5, 10.0), "height": (0.4, 3.5)},
+    "fence": {"width": (0.02, 2.0), "depth": (0.3, 60.0), "height": (0.3, 4.0)},
+    "gate": {"width": (0.02, 1.5), "depth": (0.6, 12.0), "height": (0.6, 4.0)},
+    "railing": {"width": (0.02, 1.0), "depth": (0.3, 60.0), "height": (0.3, 2.0)},
+    "pergola": {"width": (1.5, 12.0), "depth": (1.5, 12.0), "height": (1.8, 5.0)},
+    "rock": {"width": (0.05, 8.0), "depth": (0.05, 8.0), "height": (0.03, 6.0)},
+    "grill": {"width": (0.3, 3.0), "depth": (0.3, 1.5), "height": (0.3, 2.5)},
+    "parasol": {"width": (1.0, 6.0), "depth": (1.0, 6.0), "height": (1.5, 4.0)},
+    "play": {"width": (0.5, 12.0), "depth": (0.5, 12.0), "height": (0.3, 5.0)},
+    "fitness": {"width": (0.2, 3.0), "depth": (0.2, 3.0), "height": (0.05, 2.5)},
+    "piano": {"width": (0.5, 1.8), "depth": (0.3, 3.0), "height": (0.7, 1.6)},
+    "person": {"width": (0.25, 1.0), "depth": (0.1, 1.0), "height": (0.4, 2.2)},
+    "boat": {"width": (0.5, 8.0), "depth": (2.0, 40.0), "height": (0.3, 15.0)},
+    "planter_box": {"width": (0.2, 3.0), "depth": (0.2, 6.0), "height": (0.15, 1.2)},
+    "printer": {"width": (0.25, 1.5), "depth": (0.2, 1.2), "height": (0.1, 1.5)},
+    "radiator": {"width": (0.03, 0.3), "depth": (0.3, 3.0), "height": (0.2, 2.2)},
+    "air_conditioner": {"width": (0.15, 1.5), "depth": (0.15, 1.5), "height": (0.2, 2.0)},
+    "fireplace": {"width": (0.3, 3.5), "depth": (0.2, 2.0), "height": (0.3, 3.0)},
+    "staircase_model": {"width": (0.5, 6.0), "depth": (0.5, 10.0), "height": (0.3, 8.0)},
 }
 GENERIC_MAX_M = (0.02, 4.0)        # a type without a range: the largest side must lie here
+UNTYPED_MAX_M = (0.01, 60.0)       # an untyped object: only a nonsense size (a 400 m model, a 5 mm one) is out
 FIT_TOL = 0.15                     # = wenart.furniture.sizes fits() tolerance (the size table's +15 %)
 # (factor, unit) tried in this order: glTF says metres; SketchUp's own unit is the inch.
 UNIT_FACTORS: tuple[tuple[float, str], ...] = ((1.0, "metres"), (0.0254, "inches"), (0.01, "centimetres"),
@@ -407,13 +549,16 @@ def _group_of_type(ftype: str) -> str:
         return "vegetation"
     if ftype in OPENING_TYPES:
         return ftype
+    if ftype in OBJECT_TYPES:
+        return "object"
     return "decor" if ftype in C.DECOR_TYPES else "furniture"
 
 
 def kind_of(ftype: str) -> str:
-    """``furniture`` | ``decor`` (catalogue kinds) | ``vegetation`` | ``opening`` (the extras: no catalogue entry)."""
+    """``furniture`` | ``decor`` (catalogue kinds) | ``vegetation`` | ``opening`` | ``object`` (the extras: the
+    catalogue's ``extras`` section, audited like the rest, not used by the furniture fit)."""
     group = _group_of_type(ftype)
-    return group if group in ("furniture", "decor", "vegetation") else "opening"
+    return group if group in ("furniture", "decor", "vegetation", "object") else "opening"
 
 
 # Words after which a name describes what the piece has or where it goes ("Sofa with cushions", "Lamp for bedside
@@ -471,9 +616,9 @@ def name_type(rel: str) -> dict:
         return True
 
     file_found = head_ordered(stem)
-    special = group in ("vegetation", "door", "window")
+    special = group in ("vegetation", "door", "window", "object")
     if special:
-        own = VEGETATION_TYPES if group == "vegetation" else (group,)
+        own = {"vegetation": VEGETATION_TYPES, "object": OBJECT_TYPES}.get(group, (group,))
         rest = [f for f in file_found if not (group == "vegetation" and f["family"] in PLANT_FAMILIES)]
         # the head noun decides: "Alfreton 4 Door Cabinet" in Doors is a cabinet, "Oak door" a door
         head_furniture = bool(rest) and rest[0] is file_found[0] and not set(rest[0]["types"]) & set(own)
@@ -494,11 +639,16 @@ def name_type(rel: str) -> dict:
                     continue
                 if take(head_ordered(folder), f"folder {folder}", None, exclude):
                     break
-        if group is None and rec["mapped"] and set(rec["families"]) & set(PLANT_FAMILIES) \
-                and "tree" not in rec["candidates"]:
-            # outside a furniture or decor folder a plant word may name a garden tree ("Outdoor/Olive tree"): the
-            # size decides (choose: a 6 m olive tree fits no potted plant; a 1.6 m one stays a potted plant)
-            rec["candidates"] = rec["candidates"] + ["tree"]
+    if group in (None, "object") and rec["mapped"] and set(rec["families"]) & set(PLANT_FAMILIES) \
+            and "tree" not in rec["candidates"]:
+        # outside a furniture or decor folder a plant word may name a garden tree ("Outdoor/Olive tree"): the size
+        # decides (choose: a 6 m olive tree fits no potted plant; a 1.6 m one stays a potted plant)
+        rec["candidates"] = rec["candidates"] + ["tree"]
+    if not rec["mapped"]:
+        # the user's request of 23 Oct 2026: every model of the zip is kept; one whose names give no type is an
+        # untyped object (never guessed), audited like the rest
+        rec.update(candidates=[UNTYPED_OBJECT], families=[], word=None, mapped=True, untyped=True,
+                   where="no type word in its names: kept as an untyped object")
     if rec["mapped"] and str(rec["where"] or "").startswith("folder "):
         # the file name names no type: the title carries the folder that does (a code-evidence title for the audit)
         rec["title"] = f"{stem} ({rec['where'][len('folder '):]})" if stem else rec["where"][len("folder "):]
@@ -522,15 +672,15 @@ def _axis_error(v: float, lo: float, hi: float) -> float:
 
 def box_error(ftype: str, box) -> float:
     """How far a box (w, d, h) is outside the type's real ranges (``sizes.range_error`` in either orientation;
-    ``EXTRA_RANGES`` for trees, doors and windows; a type without a range: its largest side against
-    ``GENERIC_MAX_M``)."""
+    ``EXTRA_RANGES`` for the extras; an untyped object: its largest side against ``UNTYPED_MAX_M``; another type
+    without a range: against ``GENERIC_MAX_M``)."""
     from wenart.furniture import sizes as SZ
     vals = [float(v) for v in box]
     if SZ.real_range(ftype) is not None:
         return SZ.range_error(ftype, vals, oriented=False)
     r = EXTRA_RANGES.get(ftype)
     if r is None:
-        return _axis_error(max(vals), *GENERIC_MAX_M)
+        return _axis_error(max(vals), *(UNTYPED_MAX_M if ftype == UNTYPED_OBJECT else GENERIC_MAX_M))
 
     def foot(a, b):
         return max(_axis_error(a, *r["width"]), _axis_error(b, *r["depth"]))
@@ -573,7 +723,9 @@ def choose(cands: list[str], extents) -> dict:
              for r in rows if r["type"] == best["type"]]
     return {"type": best["type"], "factor": best["factor"], "unit": best["unit"], "up_fix": best["up_fix"],
             "fits": fits, "error": round(best["error"], 4) if math.isfinite(best["error"]) else None,
-            "units_known": fits, "type_from": "name" if len(cands) == 1 else "name+size", "box_m": best["box_m"],
+            # an untyped object has no real size to confirm its unit: units unknown whatever its box
+            "units_known": fits and best["type"] != UNTYPED_OBJECT,
+            "type_from": "name" if len(cands) == 1 else "name+size", "box_m": best["box_m"],
             "tried": tried[:40]}
 
 
@@ -839,6 +991,34 @@ def process(job: dict) -> dict:
 # --------------------------------------------------------------------------
 # Catalogue fields
 # --------------------------------------------------------------------------
+
+def validate_extra(e: dict) -> None:
+    """An entry of the catalogue's ``extras`` section (``CatalogError`` when malformed): a kind of ``EXTRA_KINDS``
+    with one of its types, the frame fields (three positive box sides, ``bbox_m`` = ``bbox_model_m`` turned by the
+    front axis, up +Z), the library file fields and the licence rule of its source (``catalog._validate_licence``:
+    the licence text, the flag, ``commercial_safe`` and the credit fields)."""
+    from wenart.furniture import catalog as C
+    iid = e.get("id", "?")
+    kind = e.get("kind")
+    if kind not in EXTRA_KINDS or e.get("type") not in EXTRA_KINDS[kind]:
+        raise C.CatalogError(f"{iid}: an extra needs a kind of {tuple(EXTRA_KINDS)} and one of its types, not "
+                             f"{kind!r} / {e.get('type')!r}")
+    if e.get("source") not in C.LIBRARY_SOURCES:
+        raise C.CatalogError(f"{iid}: source {e.get('source')!r} is not a library source")
+    for key in C.OBJAVERSE_FIELDS:
+        if key not in e:
+            raise C.CatalogError(f"{iid}: missing field {key!r}")
+    for key in ("bbox_m", "bbox_model_m"):
+        if len(e[key]) != 3 or not all(isinstance(v, (int, float)) and v > 0 for v in e[key]):
+            raise C.CatalogError(f"{iid}: {key} must be three positive numbers")
+    if e["front_axis"] not in C.AXES or e["up_axis"] != "+Z":
+        raise C.CatalogError(f"{iid}: front_axis {e['front_axis']!r} / up_axis {e['up_axis']!r}")
+    if any(abs(a - b) > 1e-6 for a, b in zip(C.oriented_bbox(e["bbox_model_m"], e["front_axis"]), e["bbox_m"])):
+        raise C.CatalogError(f"{iid}: bbox_m does not match bbox_model_m turned by its front axis")
+    if not (isinstance(e.get("sha256_glb"), str) and len(e["sha256_glb"]) == 64 and str(e["glb"]).endswith(".glb")):
+        raise C.CatalogError(f"{iid}: glb / sha256_glb")
+    C._validate_licence(e, e["source"])
+
 
 def entry_fields() -> dict:
     """The licence fields of every 3D Warehouse catalogue entry (the user's decision of 23 Oct 2026)."""

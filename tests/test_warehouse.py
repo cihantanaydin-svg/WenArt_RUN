@@ -199,11 +199,14 @@ def test_a_cached_fix_is_reused_only_while_the_name_typing_is_the_same(tmp_path,
     assert again["ok"] and not again.get("kept") and again["names"]["candidates"] == ["bench", "sofa"]
 
 
-def test_unmapped_names_go_to_review_and_titles_carry_only_a_type_folder():
+def test_models_whose_names_give_no_type_are_kept_as_untyped_objects_and_titles_carry_only_a_type_folder():
+    """The user (23 Oct 2026): "Keep these ones also: cars, laptops, TVs, fences, whole kitchens ... do everything":
+    a model whose names give no type is kept as an untyped object (never guessed), audited like the rest."""
     for rel in ("3D Warehouse Furniture/Furniture/abc.glb", "3D Warehouse Furniture/Furniture/Coat tree.glb",
-                "Thing 7.glb"):
+                "Thing 7.glb", "3D Warehouse Furniture/IKEA/IKEA - BAGGANÄS - Knob [73f9376a]/model.glb"):
         r = W.name_type(rel)
-        assert not r["mapped"] and r["candidates"] == [], rel
+        assert r["mapped"] and r["candidates"] == [W.UNTYPED_OBJECT] and r["untyped"], rel
+        assert r["group"] == "object" and r["where"].startswith("no type word"), rel
     # the file name names no type: the title carries the folder that does, never the root folder (the root's word
     # "Warehouse" is an other_use flag of the audit's title check)
     r = W.name_type("3D Warehouse Furniture/Furniture/Sofas/Model_123.glb")
@@ -313,11 +316,14 @@ def test_process_turns_a_z_up_export_upright(tmp_path):
     assert math.isclose(m["bbox_min_m"][0], -0.5) and math.isclose(m["bbox_min_m"][1], -0.3)
 
 
-def test_process_lists_unmapped_external_and_broken_files_as_dropped(tmp_path):
+def test_process_keeps_an_untyped_model_and_drops_external_and_broken_files(tmp_path):
     raw, assets = tmp_path / "raw", tmp_path / "assets"
     write_glb(raw / "Furniture/abc.glb", *box_mesh(1, 1, 1))
     r = W.process(job(raw, assets, "Furniture/abc.glb", tmp_path / "c"))
-    assert not r["ok"] and r["mapped"] is False and r["dropped"].startswith("unmapped")
+    assert r["ok"] and r["type"] == W.UNTYPED_OBJECT and r["kind"] == "object"
+    assert not r["choice"]["units_known"]                       # an untyped object has no real size for its unit
+    assert (assets / r["glb"]).is_file()
+    (assets / r["glb"]).unlink()
     write_glb(raw / "Furniture/Chair ext.glb", *chair_mesh(), textured=True)       # names t.png outside the GLB
     r = W.process(job(raw, assets, "Furniture/Chair ext.glb", tmp_path / "c"))
     assert not r["ok"] and "external" in r["dropped"]
@@ -440,13 +446,14 @@ def test_ingest_3dwh_writes_the_records_the_review_list_and_the_extras(tmp_path,
     assert RUN.cmd_ingest(a) == 0
     rep = Path(a.growth) / "report"
     ing = json.loads((rep / "ingest_3dwh.json").read_text())
-    assert ing["listed"] == 6 and ing["ok"] == 5 and ing["unmapped"] == 1 and ing["failed"] == 0
-    assert ing["by_group"] == {"decor": 1, "door": 1, "furniture": 2, "vegetation": 1}
-    assert ing["units"] == {"inches": 1, "metres": 4} and ing["extract"]["glb"] == 6
+    assert ing["listed"] == 6 and ing["ok"] == 6 and ing["unmapped"] == 0 and ing["failed"] == 0
+    assert ing["by_group"] == {"decor": 1, "door": 1, "furniture": 2, "object": 1, "vegetation": 1}
+    assert ing["units"] == {"inches": 1, "metres": 5} and ing["extract"]["glb"] == 6
     review = json.loads((rep / "3dwh_review.json").read_text())
-    assert [r["rel"] for r in review["unmapped"]] == ["3D Warehouse Furniture/Furniture/abc.glb"]
+    assert review["unmapped"] == []
     extras = json.loads((rep / "3dwh_extras.json").read_text())["models"]
-    assert sorted((x["kind"], x["type"]) for x in extras) == [("opening", "door"), ("vegetation", "tree")]
+    assert sorted((x["kind"], x["type"]) for x in extras) == [("object", W.UNTYPED_OBJECT), ("opening", "door"),
+                                                               ("vegetation", "tree")]
     tree = next(x for x in extras if x["type"] == "tree")
     assert tree["crown_m"] == 4.0 and tree["height_m"] == 6.0 and tree["fits"]
     for r in ing["records"]:
@@ -455,16 +462,22 @@ def test_ingest_3dwh_writes_the_records_the_review_list_and_the_extras(tmp_path,
     # the catalogue step: furniture and decor entries, trees and doors as previews, the copies validate
     assert RUN.cmd_catalogue(_args(tmp_path, only="3dwh")) == 0
     nid = json.loads((Path(a.p4) / "audit" / "new_ids.json").read_text())
-    assert len(nid["ids"]) == 3 and nid["by_source"] == {"3dwh": 3} and nid["only"] == ["3dwh"]
-    assert sorted(p["type"] for p in nid["previews"]) == ["door", "tree"]
+    assert len(nid["ids"]) == 6 and nid["by_source"] == {"3dwh": 6} and nid["only"] == ["3dwh"]
+    assert nid["previews"] == []                                  # the extras are catalogue entries now
     lib = json.loads((Path(a.p4) / "audit" / "catalogue" / "catalog_library.json").read_text())
     new = [e for s in ("entries", "decor") for e in lib[s] if e["id"] in nid["ids"]]
     assert sorted(e["type"] for e in new) == ["chair", "decor_vase", "sofa"]
+    extra = sorted((e["kind"], e["type"]) for e in lib["extras"] if e["id"] in nid["ids"])
+    assert extra == [("object", W.UNTYPED_OBJECT), ("opening", "door"), ("vegetation", "tree")]
+    for e in lib["extras"]:
+        W.validate_extra(e)
     C.validate(lib, complete=False)
     cat = json.loads((rep / "catalogue.json").read_text())
-    assert any(d["source"] == "3dwh" and "unmapped" in d["reason"] for d in cat["dropped"])
-    item = RUN.preview_item(nid["previews"][0], Path(a.assets))
-    assert item["source"] == "3dwh" and item["licence"] == W.LICENCE and "3D Warehouse" in item["title"]
+    assert not any(d["source"] == "3dwh" for d in cat["dropped"])
+    items = {i["id"]: i for i in I.load_items(Path(a.p4) / "audit" / "catalogue" / "catalog_library.json",
+                                                Path(a.p4) / "audit" / "catalogue" / "catalog.json")}
+    assert sorted(items[i]["kind"] for i in nid["ids"]) == ["decor", "furniture", "furniture", "object", "opening",
+                                                            "vegetation"]
 
 
 def test_ingest_3dwh_refuses_without_approval_or_with_a_cut_zip(tmp_path, monkeypatch, capsys):
@@ -490,7 +503,7 @@ def test_catalogue_only_keeps_the_earlier_previews_of_other_sources_and_adds_its
     assert RUN.cmd_catalogue(_args(tmp_path, only="3dwh")) == 0
     nid = json.loads((Path(a.p4) / "audit" / "new_ids.json").read_text())
     ids = [p["id"] for p in nid["previews"]]
-    assert "infinigen_1" in ids and "old_3dwh" not in ids and len(ids) == 3 and "abo_x" in nid["kept_ids"]
+    assert ids == ["infinigen_1"] and "abo_x" in nid["kept_ids"]          # the old 3dwh preview gave way
 
 
 # --------------------------------------------------------------------------
@@ -556,3 +569,84 @@ def test_the_source_is_registered_everywhere_the_library_sources_are_listed():
                                                  "pieces": [("f1", "sofa")], "kind": "model", "changes": "x"}],
                                 mode="relaxed")
     assert W.notice() in text and "3D Warehouse (the user's zip)" in text
+
+
+def _wh_answers(items_by_id, logo_ids=()):
+    """A fake vision client for the m13.2 question: every model is its type, quality 4; ``logo_ids`` show a logo."""
+    from types import SimpleNamespace
+
+    class Client:
+        model = A.model_of("agent").id
+
+        def run_schema(self, images, prompt, schema, **kw):
+            it = items_by_id[Path(images[0]).stem]
+            if "is_type" not in schema["properties"]:
+                data = {"type_guess": it["type"]}
+            else:
+                data = {"is_type": True, "type_guess": it["type"], "single_object": True, "real_product": True,
+                        "indoor": "indoor", "upright": True, "size_plausible": True, "parts_open": False,
+                        "styles": ["modern"], "quality": 4,
+                        "front_shown": "front" if A.has_front(it["type"]) else "none", "has_bedding": None,
+                        "has_pillows": None, "has_cushions": None,
+                        "contact": "flat_bottom" if it["kind"] == "decor" else None}
+                if "materials" in schema["properties"]:
+                    data["materials"] = ["wood"]
+                if "brand_logo" in schema["properties"]:
+                    data.update(brand_logo=it["id"] in logo_ids, text_print=False)
+            return SimpleNamespace(data=data, raw_text="{}", error=None, attempts=1, latency_s=0.01)
+    return lambda m, s: Client()
+
+
+def test_the_audit_chain_decides_and_writes_the_3dwh_entries_and_the_extras(tmp_path, monkeypatch):
+    """Code checks, the vision question (m13.2, both passes where the name gives no type), decide and write over the
+    catalogue copy with 3D Warehouse furniture, decor and extras (a tree, a door, an untyped object): every model gets
+    its decision, the extras' title evidence is the name typing, a logo removes, the copy still validates."""
+    from test_library_growth_p4 import fake_render
+    from wenart.assets.audit import cli as CLI
+    from wenart.assets.audit import load_config
+    zpath = _zip(tmp_path)
+    monkeypatch.setattr(W, "ZIP_BYTES", zpath.stat().st_size)
+    a = _args(tmp_path)
+    assert RUN.cmd_ingest(a) == 0 and RUN.cmd_catalogue(_args(tmp_path, only="3dwh")) == 0
+    lib_p, ph_p = RUN.copies(a)
+    audit = Path(a.p4) / "audit"
+    nid = json.loads((audit / "new_ids.json").read_text())
+    items = I.load_items(lib_p, ph_p)
+    by_id = {i["id"]: i for i in items}
+    new = [by_id[i] for i in nid["ids"]]
+    fake_render(audit, new)
+    common = ["--out", str(a.p4), "--catalog", str(lib_p), "--polyhaven", str(ph_p)]
+    ids = ["--ids-file", str(audit / "new_ids.json")]
+    assert CLI.main(["code"] + common + ids) == 0
+    assert (audit / "code.json").is_file()
+    tree = next(i for i in new if i["type"] == "tree")
+    untyped = next(i for i in new if i["type"] == W.UNTYPED_OBJECT)
+    chair = next(i for i in new if i["type"] == "chair")
+    model = A.model_of("agent")
+    cfg_ask = load_config().get("ask") or {}
+    for second in (False, True):
+        only = CLI.second_pass_ids(items, A.load_answers(audit, model)) if second else None
+        A.build_requests(items, json.loads((audit / "measure.json").read_text()), audit, "m12.1", only, second,
+                         cfg_ask=cfg_ask)
+        assert A.ask(audit, model, "http://fake", second=second, workers=1,
+                     client_factory=_wh_answers(by_id, {chair["id"]}), log=lambda *x: None) == 0
+    reqs = json.loads((audit / "ask" / "requests.json").read_text())["items"]
+    assert {r["context"]["version"] for r in reqs if r["context"]["id"] in nid["ids"]} == {"m13.2"}
+    second_ids = {r["context"]["id"] for r in json.loads((audit / "ask" / "requests2.json").read_text())["items"]}
+    door = next(i for i in new if i["type"] == "door")
+    # the untyped object and the tree (typed by its folder's default) need two passes; the door's name gives it
+    assert untyped["id"] in second_ids and tree["id"] in second_ids and door["id"] not in second_ids
+    assert CLI.main(["decide", "--model-key", "agent"] + common + ids) == 0
+    rows = {r["id"]: r for r in json.loads((audit / "audit.json").read_text())["items"]}
+    assert all(rows[i]["status"] in ("keep", "fix", "removed") for i in nid["ids"]), \
+        {i: (rows[i]["status"], rows[i]["pending"]) for i in nid["ids"]}
+    assert rows[chair["id"]]["status"] == "removed" and "logo" in " ".join(rows[chair["id"]]["reasons"])
+    assert rows[tree["id"]]["status"] in ("keep", "fix") and rows[untyped["id"]]["status"] in ("keep", "fix")
+    assert CLI.main(["write"] + common) == 0
+    lib = json.loads(lib_p.read_text())
+    C.validate(lib, complete=False)
+    extras = {e["id"]: e for e in lib["extras"]}
+    assert extras[tree["id"]]["audit"]["status"] == rows[tree["id"]]["status"]
+    assert extras[untyped["id"]]["audit"]["status"] == rows[untyped["id"]]["status"]
+    for e in extras.values():
+        W.validate_extra(e)
