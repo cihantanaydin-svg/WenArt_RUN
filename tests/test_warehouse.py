@@ -158,6 +158,47 @@ def test_a_file_named_model_takes_its_folder_name():
     assert W.clean_title("Sofa_IKEA [2693fa00]") == "Sofa IKEA"
 
 
+def test_second_pod_typing_fixes_of_the_first_pod_findings():
+    """The first full 3dwh pod (23 Oct 2026): the zip's top folder "3D Warehouse Furniture" put every model into the
+    furniture group (a bathroom door became a toilet, trees outside a tree folder were left out), the Doors folder holds
+    cabinets named by their doors, an outdoor olive tree read as a potted plant, cooktops named no type."""
+    r = W.name_type("3D Warehouse Furniture/Bathroom/Bathroom door toilet door [674e476a]/model.glb")
+    assert r["group"] == "door" and r["candidates"][0] == "door"
+    r = W.name_type("3D Warehouse Furniture/Doors/Alfreton 4 Door Cabinet [598acd0a]/model.glb")
+    assert r["group"] == "furniture" and r["candidates"][0] == "wardrobe" and "door" not in r["candidates"]
+    assert W.name_type("3D Warehouse Furniture/Doors/Oak door [11223344]/model.glb")["candidates"] == ["door"]
+    r = W.name_type("3D Warehouse Furniture/Outdoor/Olive tree [aa112233]/model.glb")
+    assert r["candidates"][-1] == "tree" and r["candidates"][0] == "potted_plant"
+    assert W.choose(r["candidates"], (4.0, 4.0, 6.0))["type"] == "tree"
+    assert W.choose(r["candidates"], (0.6, 0.6, 1.6))["type"] == "potted_plant"
+    assert "tree" not in W.name_type("3D Warehouse Furniture/Decor/Olive tree in pot [aa]/model.glb")["candidates"]
+    assert W.name_type("3D Warehouse Furniture/Kitchen/Cooktop Inox Fischer [27d99bbb]/model.glb")["candidates"] == \
+        ["stove"]
+    assert W.folder_group(["3D Warehouse Furniture"]) == ("furniture", "3D Warehouse Furniture")   # why it is cut
+
+
+def test_a_glb_whose_json_does_not_parse_is_dropped_not_failed(tmp_path):
+    raw = tmp_path / "raw"
+    js = b'{"asset": {"version": "2.0"}, "accessors": [{"min": [nan, 0, 0]}]}  '
+    data = struct.pack("<III", 0x46546C67, 2, 12 + 8 + len(js)) + struct.pack("<II", len(js), 0x4E4F534A) + js
+    (raw / "Chairs").mkdir(parents=True)
+    (raw / "Chairs" / "Chair x.glb").write_bytes(data + b" " * 300)
+    r = W.process(job(raw, tmp_path / "assets", "Chairs/Chair x.glb", tmp_path / "c"))
+    assert not r["ok"] and "does not parse" in r["dropped"] and not r.get("error")
+
+
+def test_a_cached_fix_is_reused_only_while_the_name_typing_is_the_same(tmp_path, monkeypatch):
+    raw, assets, cache = tmp_path / "raw", tmp_path / "assets", tmp_path / "cache"
+    rel = "Furniture/Sofas/Big sofa.glb"
+    write_glb(raw / rel, *box_mesh(2.1, 0.9, 0.85))
+    assert W.process(job(raw, assets, rel, cache))["ok"]
+    assert W.process(job(raw, assets, rel, cache)).get("kept")
+    real = W.name_type
+    monkeypatch.setattr(W, "name_type", lambda r: dict(real(r), candidates=["bench", "sofa"]))
+    again = W.process(job(raw, assets, rel, cache))
+    assert again["ok"] and not again.get("kept") and again["names"]["candidates"] == ["bench", "sofa"]
+
+
 def test_unmapped_names_go_to_review_and_titles_carry_only_a_type_folder():
     for rel in ("3D Warehouse Furniture/Furniture/abc.glb", "3D Warehouse Furniture/Furniture/Coat tree.glb",
                 "Thing 7.glb"):

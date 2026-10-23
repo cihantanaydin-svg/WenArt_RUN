@@ -77,6 +77,8 @@ if args[:4] == ["-m", "wenart.assets", "growth", "run"]:
             write(p4 / "audit" / "ask" / "answers_fake.json", "{}")
     elif step == "report":
         write(rep / "growth.md", "# Library growth\n")
+        if os.environ.get("FAKE_BIG_JSON"):                 # over the runner's 20 MB limit: also copied as .json.gz
+            write(rep / "big.json", json.dumps({"x": "y" * 16_000_000}))
     sys.exit(0)
 if args[:3] == ["-m", "wenart.assets", "audit"]:
     step, a = args[3], Path(opt("--out")) / "audit"
@@ -313,9 +315,14 @@ def test_growth_only_3dwh_downloads_fixes_and_audits_the_zip_in_one_pod_and_resu
                   "growth run demands", "growth run speed-probe", "growth run convert", "growth run gso-licence",
                   "growth run pending", "growth run refetch", "infinigen"):
         assert not any(never in c for c in calls), never
-    rc, out, _ = _run(env, tmp_path)
+    rc, out, _ = _run(dict(env, FAKE_BIG_JSON="1"), tmp_path)
     assert rc == 0 and "present (64 bytes): kept" in out
     assert len((tmp_path / "curl.log").read_text().splitlines()) == 1
+    import gzip
+    import json
+    big = tmp_path / "results" / "library" / "growth" / "big.json.gz"
+    assert big.is_file() and big.stat().st_size < 1_000_000
+    assert json.loads(gzip.decompress(big.read_bytes()))["x"] == "y" * 16_000_000
 
 
 @pytest.mark.skipif(not Path("/bin/bash").exists(), reason="bash needed")

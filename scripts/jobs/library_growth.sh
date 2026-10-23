@@ -227,6 +227,13 @@ copy_results() {
       -o -name '*.jpg' \) -print0 | while IFS= read -r -d '' f; do
         mkdir -p "$a/$(dirname "$f")"; cp -f "$f" "$a/$f"; done) || log "copy of $P4A failed"
   fi
+  # a JSON file over the runner's 20 MB download limit (COLLECT_MAX_FILE: the 3D Warehouse ingest records and the
+  # catalogue copy with its 2,592 entries, pod of 23 Oct 2026) also goes as .json.gz (about a tenth of the size)
+  find "$g" "$a" -type f -name '*.json' -size +15M -print0 2>/dev/null | while IFS= read -r -d '' f; do
+    if [ ! -f "$f.gz" ] || [ "$f" -nt "$f.gz" ]; then
+      gzip -c -6 "$f" > "$f.gz.part" && mv -f "$f.gz.part" "$f.gz" || log "gzip of $f failed"
+    fi
+  done
   for f in "$LOGS"/growth-*-"$JOB".log "$GROWTH"/*/work/convert_*.log "$LOGS"/vllm-*.log "$LOGS"/setup-polish-*.log; do
     if [ -f "$f" ] && [ "$f" -nt "$START_STAMP" ]; then
       tail -n 200 "$f" > "$RESULTS/logs/$(basename "$f")" 2>/dev/null || true

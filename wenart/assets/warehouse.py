@@ -58,6 +58,7 @@ UID_PREFIX = "3dwh_"
 UID_HEX = 24                                     # uid = prefix + 24 hex digits of sha256(path in the zip)
 DRIVE_FILE_ID = "1nSHF5dvjLLcpruowus8zZUx8kSiDxkjD"
 ZIP_NAME = "3D Warehouse Furniture.zip"
+ZIP_ROOT = "3D Warehouse Furniture"               # the zip's top folder: no group ("Furniture" named every model)
 ZIP_BYTES = 6_261_344_770                         # the Drive file's size (Drive metadata, read on 23 Oct 2026)
 DOWNLOAD_URL = "https://drive.usercontent.google.com/download?id={id}&export=download&confirm=t"
 DRIVE_PAGE = "https://drive.google.com/file/d/{id}/view"
@@ -97,6 +98,7 @@ EXTRA_KEYWORDS: dict[str, tuple[str, ...]] = {
     "shrub": ("shrub", "bush", "shrubbery", "cali", "~strauch", "~busch", "arbuste", "arbusto", "topiary"),
     "hedge": ("hedge", "hedgerow", "cit", "~hecke", "haie", "seto"),
     "palm_tree": ("palm tree", "palmiye", "~palme", "palmier", "palmera"),
+    "cooktop": ("cooktop", "cook top", "cooktops"),
     "door": ("door", "doors", "doorway", "front door", "entrance door", "interior door", "sliding door",
              "double door", "french door", "barn door", "garage door", "pocket door", "kapi", "~haustur", "porte",
              "puerta", "deur", "dorr"),
@@ -104,7 +106,8 @@ EXTRA_KEYWORDS: dict[str, tuple[str, ...]] = {
                "ventana", "finestra", "raam"),
 }
 EXTRA_FAMILY_TYPES: dict[str, tuple[str, ...]] = {"tree": ("tree",), "shrub": ("shrub",), "hedge": ("hedge",),
-                                                  "palm_tree": ("palm",), "door": ("door",), "window": ("window",)}
+                                                  "palm_tree": ("palm",), "door": ("door",), "window": ("window",),
+                                                  "cooktop": ("stove",)}
 VEGETATION_TYPES = ("tree", "shrub", "hedge", "palm")
 OPENING_TYPES = ("door", "window")
 GROUP_DEFAULT = {"vegetation": "tree", "door": "door", "window": "window"}
@@ -445,6 +448,8 @@ def name_type(rel: str) -> dict:
     head family leads (``head_ordered``). ``mapped`` False: no name gives a type (the review list)."""
     p = PurePosixPath(str(rel))
     folders = list(p.parent.parts)
+    if folders and folders[0] == ZIP_ROOT:
+        folders = folders[1:]                            # the zip's top folder names no group (second pod, 23 Oct)
     stem = clean_title(p.stem)
     if generic_stem(p.stem) and folders:
         stem = clean_title(folders[-1])                  # the model's folder is its name
@@ -470,7 +475,11 @@ def name_type(rel: str) -> dict:
     if special:
         own = VEGETATION_TYPES if group == "vegetation" else (group,)
         rest = [f for f in file_found if not (group == "vegetation" and f["family"] in PLANT_FAMILIES)]
-        if take(file_found, "file", own) or take(rest, "file", None):
+        # the head noun decides: "Alfreton 4 Door Cabinet" in Doors is a cabinet, "Oak door" a door
+        head_furniture = bool(rest) and rest[0] is file_found[0] and not set(rest[0]["types"]) & set(own)
+        if head_furniture and take(rest, "file", None, tuple(own)):
+            pass
+        elif take(file_found, "file", own) or take(rest, "file", None):
             pass
         else:
             rec.update(candidates=[GROUP_DEFAULT[group]], families=[], where=f"group folder {gfolder}",
@@ -485,6 +494,11 @@ def name_type(rel: str) -> dict:
                     continue
                 if take(head_ordered(folder), f"folder {folder}", None, exclude):
                     break
+        if group is None and rec["mapped"] and set(rec["families"]) & set(PLANT_FAMILIES) \
+                and "tree" not in rec["candidates"]:
+            # outside a furniture or decor folder a plant word may name a garden tree ("Outdoor/Olive tree"): the
+            # size decides (choose: a 6 m olive tree fits no potted plant; a 1.6 m one stays a potted plant)
+            rec["candidates"] = rec["candidates"] + ["tree"]
     if rec["mapped"] and str(rec["where"] or "").startswith("folder "):
         # the file name names no type: the title carries the folder that does (a code-evidence title for the audit)
         rec["title"] = f"{stem} ({rec['where'][len('folder '):]})" if stem else rec["where"][len("folder "):]
@@ -788,7 +802,8 @@ def process(job: dict) -> dict:
         rec["src_sha256"] = src_sha
         if cache.is_file() and dest.is_file():
             old = json.loads(cache.read_text(encoding="utf-8"))
-            if old.get("src_sha256") == src_sha and old.get("fix_version") == FIX_VERSION and old.get("ok"):
+            if old.get("src_sha256") == src_sha and old.get("fix_version") == FIX_VERSION and old.get("ok") \
+                    and old.get("names") == names:
                 return dict(old, kept=True)
         doc0, _bin = read_glb(src)
         rec["generator"] = str((doc0.get("asset") or {}).get("generator") or "")
@@ -811,6 +826,8 @@ def process(job: dict) -> dict:
             rec["height_m"] = m1["bbox_model_m"][2]
     except (GM.MeshError, WarehouseError) as exc:
         rec["dropped"] = f"{type(exc).__name__}: {exc}"
+    except json.JSONDecodeError as exc:                   # a GLB whose JSON chunk is no JSON (first pod: 6 models)
+        rec["dropped"] = f"the GLB's JSON chunk does not parse: {exc}"
     except (OSError, ValueError, KeyError, IndexError, TypeError, struct.error) as exc:
         rec["error"] = f"{type(exc).__name__}: {exc}"
     if rec.get("ok"):

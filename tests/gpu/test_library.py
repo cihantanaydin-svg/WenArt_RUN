@@ -537,10 +537,14 @@ def test_growth_new_glbs_load_in_blender_at_plausible_size():
     same = 0
     for e in ok:
         m = measures[e["id"]]
-        if (e.get("audit") or {}).get("status") != "removed":   # pod P4: a 10x Poly Haven glTF is removed by the audit
-            assert 0.01 <= max(m["size"]) <= 5.0, (e["id"], m["size"])       # a real piece, metres
-        assert m["faces"] > 0 and e["id"] in mdoc["sheets"], e["id"]
         before = (e.get("audit") or {}).get("before") or {}
+        # the render measured the model at its catalogue scale before the audit; a rescale fix (a model of unknown
+        # units, e.g. the 3D Warehouse layer of 23 Oct 2026) changed unit_scale since: the bound is on the size it
+        # has now
+        scale = float(e.get("unit_scale", 1.0)) / float(before.get("unit_scale", e.get("unit_scale", 1.0)) or 1.0)
+        if (e.get("audit") or {}).get("status") != "removed":   # pod P4: a 10x Poly Haven glTF is removed by the audit
+            assert 0.01 <= max(m["size"]) * scale <= 5.0, (e["id"], m["size"], scale)    # a real piece, metres
+        assert m["faces"] > 0 and e["id"] in mdoc["sheets"], e["id"]
         got = list(m["model_box_min"]) + list(m["model_box_max"])
         boxes = [list(e["bbox_min_m"]) + list(e["bbox_max_m"]),          # the entry now, or before an audit fix
                  list(before.get("bbox_min_m", e["bbox_min_m"])) + list(before.get("bbox_max_m", e["bbox_max_m"]))]
