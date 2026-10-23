@@ -2822,7 +2822,11 @@ def test_fixround_p5_gpu_orange_check_sorts_walls_by_room_type_and_skips_blocked
     P5's (painted daylight walls 1.38-1.70, median 1.515; kitchens 1.139-1.223 at rig share 0.60-0.68; baths
     1.068-1.103). Fails on 6e899cd (the kitchen, tiled by its wet floor, at 1.22 against 1.21) and with the mutation
     that keeps the blocked bath among the references (case 'bath_blocked_ref': a rig-lit bath at 1.45 against 1.21
-    instead of the fixed 1.5)."""
+    instead of the fixed 1.5). Fix round after P6b (23 Oct 2026), review: the views carry P5's rig temperatures
+    (``wb_rig_kelvin``: the kitchens 2700 K, the baths 4000 K) and the really orange kitchen is back at its own share
+    0.682: a mixed view under the 2700 K rig keeps the painted median + 0.15 (``warm rig``), so 1.70 fails at 1.67 (it
+    passes against the warmest daylight view + 0.05 = 1.75 with the mutation that gives every mixed view the spread
+    bound, the rule of 86cdeff)."""
     gpu = _gpu_render_module(monkeypatch, tmp_path)
     day = {"cam_r_L0_yatak_odasi_1": ("r_L0_yatak_odasi", 1.38, 0.0),
            "cam_r_L0_yatak_odasi_2": ("r_L0_yatak_odasi", 1.515, 0.0),
@@ -2834,20 +2838,27 @@ def test_fixround_p5_gpu_orange_check_sorts_walls_by_room_type_and_skips_blocked
                 "cam_r_L-1_mutfak_3": ("r_L-1_mutfak", 1.223, 0.682)}
     baths = {"cam_r_L0_banyo_1": ("r_L0_banyo", 1.103, 1.0), "cam_r_L-1_banyo_1": ("r_L-1_banyo", 1.068, 1.0)}
 
-    def check(case, views, entry_types=True):
+    # fix round after P6b, review: P5's rig temperatures (render_manifest wb_rig_kelvin; source room)
+    kelvin = {**{c: {"wb_rig_kelvin": 2700.0} for c in kitchens}, **{c: {"wb_rig_kelvin": 4000.0} for c in baths},
+              "cam_r_L0_banyo_2": {"wb_rig_kelvin": 4000.0}}
+
+    def check(case, views, entry_types=True, exposure=kelvin):
         monkeypatch.setattr(gpu, "OUTPUTS", tmp_path / case)
         gpu.test_rig_lit_rooms_have_no_orange_cast(_wall_views(tmp_path / case, views, room_types=types,
-                                                               blocked={"cam_r_L1_banyo_1"}, entry_types=entry_types))
+                                                               blocked={"cam_r_L1_banyo_1"}, entry_types=entry_types,
+                                                               exposure=exposure))
     check("p5", {**day, **kitchens, **baths})
     # the scene manifest's room floors give the type when the entries carry none (a render before m13.2)
     check("p5_manifest_types", {**day, **kitchens, **baths}, entry_types=False)
     # a kitchen really orange still fails, against the painted bound (1.515 + 0.15; 1.52 + 0.15 in 8 bits). Fix round
-    # after P6b (23 Oct 2026): that is the bound of a view lit by the rig alone (gpu.RIG_ALONE_SHARE); a mixed kitchen
-    # (0.682) may reach the warmest daylight view (the salon's 1.70) + 0.05, so it fails over 1.75
-    with pytest.raises(AssertionError, match=r"cam_r_L-1_mutfak_3', 1.7, 'painted', 1.67"):
-        check("kitchen_orange", {**day, **kitchens, "cam_r_L-1_mutfak_3": ("r_L-1_mutfak", 1.70, 0.96)})
-    with pytest.raises(AssertionError, match=r"cam_r_L-1_mutfak_3', 1.8, 'painted', 1.75"):
-        check("kitchen_orange_mixed", {**day, **kitchens, "cam_r_L-1_mutfak_3": ("r_L-1_mutfak", 1.80, 0.682)})
+    # after P6b (23 Oct 2026), review: at its own share 0.682, as a mixed view under the 2700 K rig (``warm rig``; the
+    # spread bound, 1.70 + 0.05, is for a neutral rig only) ...
+    with pytest.raises(AssertionError, match=r"cam_r_L-1_mutfak_3', 1.7, 'painted', 1.67, 0.682, 'warm rig'"):
+        check("kitchen_orange", {**day, **kitchens, "cam_r_L-1_mutfak_3": ("r_L-1_mutfak", 1.70, 0.682)})
+    # ... and with no rig temperature in its record
+    with pytest.raises(AssertionError, match=r"cam_r_L-1_mutfak_3', 1.7, 'painted', 1.67, 0.682, 'warm rig'"):
+        check("kitchen_orange_no_k", {**day, **kitchens, "cam_r_L-1_mutfak_3": ("r_L-1_mutfak", 1.70, 0.682)},
+              exposure={})
     # the blocked bath is no reference: a rig-lit bath at 1.45 meets the fixed 1.5 (1.208 with the blocked reference)
     check("bath_blocked_ref", {**day, **baths, "cam_r_L0_banyo_2": ("r_L0_banyo", 1.45, 1.0)})
     # an unblocked daylight bath still sets the tiled reference

@@ -161,6 +161,9 @@ Fix round after P6b (23 Oct 2026; pod P6b, real03 on 8e8cc97; CPU replays in tes
   over the median): P6b's mixed halls (1.486-1.599) sit inside the daylight views' own spread (1.183-1.582), P4b's
   2700 K views still fail; it keeps the light on the walls of every view it reads (``render.wall_rig_record``, the
   exposure record's ``wb_walls``) with its values, for the next rule (the P6b verifier's step 1: measure first);
+  fix round after P6b (23 Oct 2026), review: the spread bound only for a view whose rig is neutral (``wb_rig_kelvin``
+  at least ``lighting.RIG_NEUTRAL_K``, the only rig P6b measured); a mixed view under a warmer rig or without a rig
+  temperature keeps the median + 0.15 (``warm rig``: P4b's mixed 2700 K halls, real04's 2700 K kitchens);
 - the interior-glazing check keeps its values (``CHECK_VALUES_FILE``); its bound is unchanged.
 """
 import hashlib
@@ -800,6 +803,14 @@ RIG_ROOM_ABOVE_DAY = 0.15
 #   P5 real04 (m13.3)    halls 1.306-1.634 (0.71-1.0) against 1.382-1.695 (median 1.515): pass as before
 # Every bound is at least the one before (the median + 0.15), so no view that passed before fails now (P6a real04
 # passed). The walls' own record (the exposure record's wb_walls) is kept with the values; it does not decide.
+# Fix round after P6b (23 Oct 2026), review: the evidence above is the 4000 K rig only (all 30 rig-lit P6b views:
+# wb_rig_kelvin 4000, source room). The mixed bound is for a view whose wb_rig_kelvin is at least
+# lighting.RIG_NEUTRAL_K; a mixed view under a warmer rig or without a rig temperature keeps the median + 0.15
+# (regime "warm rig"). Without it the 2700 K mixed halls of P4b (kat_holu_1 / _2 / _3 at 0.60-0.66, giris_holu_1 at
+# 0.518, ruzgarlik_1 at 0.488: orange in the P4b image review, about 1.51-1.60 against P6b's daylight walls) and
+# real04's 2700 K kitchens (0.60-0.69: 1.665 -> 1.745) would pass a real cast. P5 real04's kitchens (1.14-1.22), P6a
+# real04 (it passed on the median + 0.15; its 2700 K kitchens at 0.60-0.69 keep that bound) and every 4000 K view keep
+# their verdicts.
 RIG_ALONE_SHARE = 0.95
 RIG_ROOM_ABOVE_WARMEST_DAY = 0.05
 RIG_ROOM_ABOVE_DAY_MAX = 0.35
@@ -1025,7 +1036,11 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     read 1.53-1.58 and the views lit by the rig alone 1.363-1.442; the P6b verifier refuted the white-point change,
     and a shim of P6b's scene found the warmth in the light both sources bring to those walls after the oak and greige
     bounce, not in the share. How: P4b's 2700 K views (1.562-1.864) still fail, each one, and no bound is lower than
-    before (the numbers at ``RIG_ALONE_SHARE``)."""
+    before (the numbers at ``RIG_ALONE_SHARE``).
+    Fix round after P6b (23 Oct 2026), review: the mixed bound needs a neutral rig (the view's ``wb_rig_kelvin`` at
+    least ``lighting.RIG_NEUTRAL_K``, ``_orange_bound``); P6b measured only its 4000 K rig, and P4b's mixed 2700 K
+    halls at 0.49-0.66 (orange in its image review) would have passed against 1.632. The values file keeps each
+    view's rig temperature."""
     from wenart import views
     from wenart.blender import render as R
 
@@ -1063,7 +1078,9 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
         if value is None:
             continue
         share = entries[cam]["exposure"].get("wb_rig_share")
-        bound, regimes[cam] = _orange_bound(share, reference[kind(cam)], warmest[kind(cam)])  # fix round after P6b
+        # fix round after P6b; review: the rig temperature decides whether the mixed bound applies
+        bound, regimes[cam] = _orange_bound(share, reference[kind(cam)], warmest[kind(cam)],
+                                            entries[cam]["exposure"].get("wb_rig_kelvin"))
         per_view[cam] = (value, kind(cam), bound)
         if value > bound:
             warm.append((cam, value, kind(cam), bound, share, regimes[cam]))
@@ -1079,21 +1096,25 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
         "daylight": {c: {"wall_rb": measured.get(c), "kind": kind(c), **walls[c]} for c in daylight},
         "references": reference, "warmest": warmest, "blocked_daylight": blocked, "above_day": RIG_ROOM_ABOVE_DAY,
         "above_warmest_day": RIG_ROOM_ABOVE_WARMEST_DAY, "above_day_max": RIG_ROOM_ABOVE_DAY_MAX,
-        "rig_alone_share": RIG_ALONE_SHARE,
+        "rig_alone_share": RIG_ALONE_SHARE, "neutral_rig_k": _neutral_rig_k(),
         "rig_lit": {c: {"wall_rb": v, "kind": k, "bound": b, "rig_share": entries[c]["exposure"].get("wb_rig_share"),
-                        "regime": regimes[c], **walls[c]}
+                        "rig_kelvin": entries[c]["exposure"].get("wb_rig_kelvin"), "regime": regimes[c], **walls[c]}
                     for c, (v, k, b) in per_view.items()},
         "warm": [c for c, *_rest in warm]})
     assert not warm, f"{name}: rig-lit views still orange (wall R/B over the bound): {warm}"
 
 
-def _orange_bound(share, median, warmest) -> tuple[float, str]:
+def _orange_bound(share, median, warmest, rig_kelvin=None) -> tuple[float, str]:
     """``(bound, regime)`` of the orange check for a rig-lit view of rig share ``share`` whose wall kind has the
     daylight median ``median`` and warmest daylight view ``warmest`` (fix round after P6b, 23 Oct 2026; the numbers
     at ``RIG_ALONE_SHARE``). No daylight view of the kind: the fixed ``RIG_ROOM_MAX_RB`` (``fixed``). Lit by the rig
     alone (``share`` at least ``RIG_ALONE_SHARE``): ``median + RIG_ROOM_ABOVE_DAY`` (``rig alone``, the rule since the
     fix round after P4b). Mixed: the larger of that and ``warmest + RIG_ROOM_ABOVE_WARMEST_DAY``, the latter at most
-    ``median + RIG_ROOM_ABOVE_DAY_MAX`` (``mixed``)."""
+    ``median + RIG_ROOM_ABOVE_DAY_MAX`` (``mixed``).
+    Fix round after P6b (23 Oct 2026), review: the mixed bound only when the view's rig is neutral (``rig_kelvin``,
+    the exposure record's ``wb_rig_kelvin``, at least ``lighting.RIG_NEUTRAL_K``: the 4000 K rig the P6b shim
+    measured); a mixed view under a warmer rig or without a rig temperature keeps ``median + RIG_ROOM_ABOVE_DAY``
+    (``warm rig``: P4b's mixed 2700 K halls, real04's 2700 K kitchens)."""
     if median is None:
         return RIG_ROOM_MAX_RB, "fixed"
     alone = round(float(median) + RIG_ROOM_ABOVE_DAY, 3)
@@ -1103,8 +1124,22 @@ def _orange_bound(share, median, warmest) -> tuple[float, str]:
         s = 0.0
     if s >= RIG_ALONE_SHARE or warmest is None:
         return alone, "rig alone"
+    try:
+        k = float(rig_kelvin)
+    except (TypeError, ValueError):
+        k = math.nan
+    if not (math.isfinite(k) and k >= _neutral_rig_k()):
+        return alone, "warm rig"
     spread = min(float(warmest) + RIG_ROOM_ABOVE_WARMEST_DAY, float(median) + RIG_ROOM_ABOVE_DAY_MAX)
     return round(max(alone, spread), 3), "mixed"
+
+
+def _neutral_rig_k() -> float:
+    """``lighting.RIG_NEUTRAL_K``: the rig temperature from which the orange check's mixed bound applies (fix round
+    after P6b, 23 Oct 2026, review)."""
+    from wenart.blender import lighting
+
+    return float(lighting.RIG_NEUTRAL_K)
 
 
 def _walls_record(exposure: dict) -> dict:

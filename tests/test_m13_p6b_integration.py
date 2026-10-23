@@ -273,12 +273,18 @@ def test_p6a_complete_group_adds_the_coffee_table_of_the_salon_sofas():
 @needs_p4a
 def test_p4a_real02_salon_sofas_are_no_longer_locked_and_the_brief_names_the_solver_s_refusal():
     """P4a's real02 twins (the data P6c replays): the lock is gone, so complete_group reaches the solver; on this
-    building the solver refuses both groups (salon_2: its 1.2 x 0.7 table at the 0.40 m gap cuts the island's walkway,
-    G11; salon: the unbuilt 5.14 x 2.37 m cluster f_L-1b_002 is in front of f_L-1b_042), and the brief reports the F3
-    with that refusal instead of the lock. A 0.8 x 0.5 table at the 0.30 m minimum gap would clear the F3 and the G2 of
-    f_L-1b_041 with no new finding (the solver's size choice: an ask to the solver's owner)."""
+    building the solver refuses salon's group (the unbuilt 5.14 x 2.37 m cluster f_L-1b_002 is in front of
+    f_L-1b_042), and the brief reports the F3 with that refusal instead of the lock. A 0.8 x 0.5 table at the 0.30 m
+    minimum gap would clear the F3 and the G2 of f_L-1b_041 with no new finding. Fix round after P6b, review: the
+    solver now tries the smaller tables and gaps when its first fit (1.2 x 0.7 at 0.40 m, the island's G11) fails, so
+    salon_2's group is completed and the brief offers complete_group for its F3 (tests/test_m13_p6b_review.py)."""
     b = read(P4A)
-    for gid, sid in (("r_L-1b_salon_2.seating", "f_L-1b_041"), ("r_L-1b_salon.seating", "f_L-1b_042")):
+    sofa2 = piece_of(b, "f_L-1b_041")
+    f3 = CS.mark_drawn_layout([{"check": "F3", "severity": "major", "target": "f_L-1b_041", "room_id": sofa2["room_id"],
+                                "message": "wrong", "source": "code", "evidence": {"metrics": {}}}], b)[0]
+    brief = BR.room_brief(b, sofa2["room_id"], findings=[dict(f3, id="c1", cause=CS.cause_of(f3, b))])
+    assert [x["tools"] for x in brief["findings"]["fixable"]] == [["complete_group"]]
+    for gid, sid in (("r_L-1b_salon.seating", "f_L-1b_042"),):
         assert not E.unsure_group_anchor(piece_of(b, sid))
         res = E.apply_edit(b, {"op": "complete_group", "group_id": gid, "reason": "t"})
         assert not res["accepted"] and res["failed_checks"][0].startswith("no_place:"), res["failed_checks"]

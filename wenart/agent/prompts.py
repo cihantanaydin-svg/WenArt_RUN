@@ -39,6 +39,12 @@ the code's own retype of a vision-typed piece (``adjusted_by_ai`` by code, ``dra
 not the agent's to undo. Rule 7: a long, low building's exterior view may be framed wider or tilted, a
 refused exterior camera names the free stretch of its view line, and a ``camera_blocked`` view (the lens touches a
 surface, one element fills the frame) is moved to a free point with headroom.
+
+Fix round after P6b (23 Oct 2026), review (the integration's ask): rule 3 of ``PLANNER_SYSTEM_M12`` says that
+complete_group needs a verified anchor or a drawn one typed by code from the drawing, as the retype_piece tool
+description says (``tools.py``) and ``edit_ops.unsure_group_anchor`` decides since the fix round after P6b. Why: the
+planner was told to confirm every unverified anchor first, which costs a try per code-typed anchor (real02's sofas
+f_L-1b_041 / 042, the code-typed beds f_L0_019-022).
 """
 from __future__ import annotations
 
@@ -398,7 +404,8 @@ PLANNER_SYSTEM_M12 = (
     "a piece, move, snap or turn it. When such a piece's type does not fit its room (F1, G14), retype_piece gives it "
     "a type that fits its footprint and the room; never mark it or remove it for that. A piece the code already "
     "retyped from its size, room and neighbours (adjusted_by_ai by code, drawn_type kept) keeps that type. "
-    "retype_piece with the piece's own type confirms an unverified piece (complete_group needs a verified anchor); "
+    "retype_piece with the piece's own type confirms an unverified piece (complete_group needs a verified anchor or "
+    "a drawn one typed by code from the drawing); "
     "a confirm changes nothing in the render, so it never clears a finding about how a piece looks. "
     "mark_not_furniture on an untyped piece needs the image path of the plan crop you read in its evidence "
     "(check/<view>_plan.jpg, from plan_crop or view); without it the mark is refused (no_crop).\n"

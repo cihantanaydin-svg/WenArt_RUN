@@ -116,6 +116,18 @@ Under a flat ceiling (no roof over the level) nothing changes. The same need is 
 room copies (``complete.copy_added``: ``headroom_short``). Why: the completion put two 1.8 m bookshelves
 (f_L1_048, f_L1_056) and a 0.8 m console table (f_L1_049) where the slope is 0.82 m high; the built models went
 through the roof (critical X2 in every agent round, also in P5) and the agent could fix only one of the twins.
+
+Fix round after P6b (23 Oct 2026), review (the integration's ask). What: a front partner (``place: front``: the
+coffee table) takes the first of its (size, gap) options, sizes first and then the gaps (groups.yaml: 1.2 x 0.7,
+1.0 x 0.6, 0.8 x 0.5 at 0.40, 0.35 and 0.30 m, the ``coffee_gap`` rule), that fits locally, as before. When no
+candidate of the room passes the final check (``verify``'s hard failures, or nothing placed), ``solve_room`` searches
+again with the front partners starting at the option after the one they took (``Space.front_from``,
+``Space.front_chosen``), until a candidate passes or no option is left; a solve with a passing candidate is not
+searched again, so its placements do not change, and when no option passes the first search's candidates are
+returned (with their refusal). The candidates of a repeated search carry ``front_from``. Why: on P4a's real02 (the
+data P6c replays) complete_group of the drawn sofa f_L-1b_041 took a 1.2 x 0.7 table at the 0.40 m gap, which cut
+the kitchen island's walkway (G11), and the group got no candidate; a smaller table at a smaller gap clears its F3
+and G2 with no new finding.
 """
 from __future__ import annotations
 
@@ -445,6 +457,11 @@ class Space:
             self.headroom = np.min([float(p[0]) * X + float(p[1]) * Y + float(p[2]) for p in self.planes],
                                    axis=0) - self.floor_z
         self._drawn_here: dict = {}
+        # Fix round after P6b (23 Oct 2026), review (module docstring): the first (size, gap) option a front partner
+        # (the coffee table) may take this search, and the options the search took (``solve_room`` tries the next
+        # ones when no candidate passes the final check).
+        self.front_from = 0
+        self.front_chosen: list[int] = []
 
     # ----- headroom under a sloped ceiling (fix round after P6a) ----------------------------------------------------
 
@@ -1140,17 +1157,17 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
             gaps = list(dict.fromkeys([round((rec_lo + rule.get("rec_max", rec_lo)) / 2.0, 3), rec_lo, rule["min"]]))
             tv = (by_role.get("tv") or [None])[0]
             limit = GC.tv_geometry(anchor.piece(), tv.piece())["distance_m"] if tv is not None else None
-            for size in sizes:
-                if size[0] > seat_w - 0.3:
+            # fix round after P6b, review: the (size, gap) options in their order (sizes first, then gaps); the first
+            # one that fits from ``space.front_from`` on (0: the first fit, as before) is taken and recorded
+            for i, (size, g) in enumerate((size, g) for size in sizes for g in gaps):
+                if i < space.front_from or size[0] > seat_w - 0.3:
                     continue
-                for g in gaps:
-                    if limit is not None and g + size[1] + 0.40 > limit:
-                        continue
-                    s = _local_spot(anchor, ftype, (seat_x, seat_front - g - size[1] / 2.0), 0.0, size, role)
-                    if _fits(space, s, placed_fps):
-                        found = [s]
-                        break
-                if found:
+                if limit is not None and g + size[1] + 0.40 > limit:
+                    continue
+                s = _local_spot(anchor, ftype, (seat_x, seat_front - g - size[1] / 2.0), 0.0, size, role)
+                if _fits(space, s, placed_fps):
+                    found = [s]
+                    space.front_chosen.append(i)
                     break
         elif place == "flank":
             of = (by_role.get(spec.get("of") or "") or [None])[0]
@@ -2720,14 +2737,6 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
         if g.get("resolve"):
             resolve_ids |= {g["resolve"]["anchor_id"]} | set(g["resolve"].get("members") or [])
     space = Space(building, room, _fixed_items(building, room_id, fixed, exclude=resolve_ids))
-    budget = {"used": 0, "generate": NODE_BUDGET, "nodes": 0, "expand": NODE_BUDGET, "walks": 0}
-    info = _info(space, building, room_id, prog, budget)
-    levels = _levels(space, prog, info)
-    if not levels:
-        return []
-    walk = Walk(space)
-    skip_fps = resolve_skip_fps(space, levels, info)
-    beam = _search(space, levels, walk, budget, skip_fps)
     # The base of the verification: the room without its replaceable added pieces (and without the re-solved drawn
     # pieces, which every candidate brings back at their new places).
     base = copy.deepcopy(building)
@@ -2736,6 +2745,40 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
         f.get("room_id") == room_id and f.get("source") == "added_by_ai" and f["id"] not in fixed
         and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None)]
     start = _next_number(building, room["level_id"])
+    out = _solve_try(space, building, room, prog, k, base, kept, start)
+    # Fix round after P6b (23 Oct 2026), review (module docstring): when no candidate passes the final check, the
+    # front partners (the coffee table) take their next (size, gap) options in order, one search per option, until a
+    # candidate passes; a solve with a passing candidate keeps it (nothing changes there)
+    first = out
+    while not any(_passes(c) for c in out) and space.front_chosen:
+        space.front_from, space.front_chosen = min(space.front_chosen) + 1, []
+        out = _solve_try(space, building, room, prog, k, base, kept, start)
+        for c in out:
+            c["front_from"] = space.front_from
+    if not any(_passes(c) for c in out):
+        out = first
+    return out
+
+
+def _passes(cand: dict) -> bool:
+    """Fix round after P6b, review: a candidate that passes the final check and places something (``edit_ops``'s
+    usable candidate)."""
+    return not cand["hard_failures"] and bool(cand["pieces"])
+
+
+def _solve_try(space: Space, building: dict, room: dict, prog: dict, k: int, base: dict, kept: list,
+               start: int) -> list[dict]:
+    """One search and verification of ``solve_room`` on ``space`` (fix round after P6b, review: ``space.front_from``
+    says from which option the front partners are tried; ``space.front_chosen`` gets the options they took)."""
+    room_id = room["id"]
+    budget = {"used": 0, "generate": NODE_BUDGET, "nodes": 0, "expand": NODE_BUDGET, "walks": 0}
+    info = _info(space, building, room_id, prog, budget)
+    levels = _levels(space, prog, info)
+    if not levels:
+        return []
+    walk = Walk(space)
+    skip_fps = resolve_skip_fps(space, levels, info)
+    beam = _search(space, levels, walk, budget, skip_fps)
     weights = GR.weights()
     finals = []
     for node in beam:

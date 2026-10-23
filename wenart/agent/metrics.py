@@ -28,6 +28,13 @@ their finding. The finding keys are ``causes.finding_key`` (an S2 names its cut;
 matches any cut of the target). ``memory`` adds ``plans_empty``, ``plans_refused`` and ``plans_default`` (the plan
 events' status, ``loop.plan_status``).
 
+Fix round after P6b (23 Oct 2026), review: ``edit_target_keys`` leaves out the targets an accepted edit kept
+(``evidence.acceptance.kept``: ``causes.critical_cleared`` accepts an edit whose critical targets are gone while its
+majors stay no worse), and a target ``S2:<piece>`` without its cut when a cut of it is kept. Why: every edit that rule
+lets through (P6b's fridge fix_fixture, target F7 critical + G8 + G12, G12 kept) counted as not removing its
+finding in metric 7 (``metrics13.metric_7``) and the agent report, although its critical went. A log without
+``kept`` (before the rule) counts as before.
+
 ``write(project_out)`` writes ``orchestrator/metrics.json`` (the loop calls it after every round);
 ``compare_rows`` / ``update_compare(md_path, label, metrics)`` keep ``results/compare/<p>/agent_metrics.md`` (and its
 ``agent_metrics.json`` with every row) across runs; ``python -m wenart.agent metrics`` is the CLI.
@@ -216,11 +223,16 @@ def _finding_keys(findings: list[dict], severities=("critical", "major")) -> set
 
 def edit_target_keys(e: dict) -> list[tuple[str, str]]:
     """Fix round after P4a: the finding keys an accepted edit targeted: its ``evidence.acceptance.target`` (the
-    loop's ``check:target`` strings), else its logged ``(checklist, target)``; [] without either."""
+    loop's ``check:target`` strings), else its logged ``(checklist, target)``; [] without either. Fix round after
+    P6b, review (module docstring): without the targets the edit kept (``evidence.acceptance.kept``, the same
+    ``check:target`` strings; an ``S2:<piece>`` target without its cut goes when a cut of it is kept)."""
     acc = ((e.get("evidence") or {}).get("acceptance") or {}) if isinstance(e.get("evidence"), dict) else {}
+    kept = {CS.parse_key(t) for t in acc.get("kept") or [] if t}
+    kept_bases = {CS.base_key(k) for k in kept}
     keys = [CS.parse_key(t) for t in acc.get("target") or [] if t]
     if keys:
-        return list(dict.fromkeys(keys))
+        left = [k for k in keys if k not in kept and not (k == CS.base_key(k) and k[0] == "S2" and k in kept_bases)]
+        return list(dict.fromkeys(left))
     if e.get("checklist") and e.get("target") is not None:
         return [(str(e.get("checklist")), str(e.get("target")))]
     return []

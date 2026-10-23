@@ -14,7 +14,11 @@ outlines (ALAN-NET) lying on its faces. The rules checked here (``wenart.ingest.
   traced raster lines keep the old rule);
 - a gap whose two faces are drawn on across it on a wall layer, with no glass or swing, is wall (``_wall_faces``:
   closed, a run merges, a free end is extended); room outlines, beam lines and axes across it are not;
-- the page notes list every gap these rules decided and every corrected wall (``core.gap_rule_notes``).
+- the page notes list every gap these rules decided and every corrected wall (``core.gap_rule_notes``);
+- fix round after P6b (23 Oct 2026), review: a gap that lost its window for want of glass is marked (evidence rule
+  ``no_glass``) and is no door of an unlabelled face (``topology.unlabelled_face_type``), so real03's lift shaft stays
+  'unknown' and unfurnished (``tests/fixtures/m13_p6b_real03_lift.json``); the swing guard of the wall-face rule,
+  each condition of a lining and the band test of the window lines are checked on their own.
 
 Review of the fix round (23 Oct 2026, after a container restart cut the first version off): the wall-face rule needs
 wall-layer lines and covers run gaps too (the first version took any two face lines, end gaps only, and left real03's
@@ -33,15 +37,34 @@ import json
 from pathlib import Path
 
 import pytest
+from shapely.geometry import Point
 
 import _real01_page as R
 from wenart import building as B
 from wenart.ingest.generic import core
 from wenart.ingest.generic import openings as O
+from wenart.ingest.generic import topology as TP
 from wenart.ingest.generic.model import Stroke
 from wenart.ingest.model import WallItem
 
 FIXTURE = Path(__file__).parent / "fixtures" / "m13_p6b_real03_hall.json"
+LIFT_FIXTURE = Path(__file__).parent / "fixtures" / "m13_p6b_real03_lift.json"
+
+
+def _inputs(path):
+    """(data, input walls, non-wall strokes) of a real03 fixture."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    walls = []
+    for w in data["walls"]:
+        t = w["thickness"]
+        xs, ys = (w["start"][0], w["end"][0]), (w["start"][1], w["end"][1])
+        walls.append(WallItem(start=tuple(w["start"]), end=tuple(w["end"]), thickness=t,
+                              box=[min(xs) - t / 2, min(ys) - t / 2, max(xs) + t / 2, max(ys) + t / 2],
+                              entity=w["entity"],
+                              evidence=B.evidence("tekkat.dwg", "vector", w["confidence"], entity=w["entity"])))
+    strokes = [Stroke(id=s["id"], kind=s["kind"], pts=[tuple(p) for p in s["pts"]], closed=s.get("closed", False),
+                      layer=s.get("layer"), block=s.get("block"), arc=s.get("arc")) for s in data["strokes"]]
+    return data, walls, strokes
 
 
 def _run(walls, strokes):
@@ -62,17 +85,7 @@ def _vertical(out_walls, x, t):
 
 @pytest.fixture(scope="module")
 def real03_hall():
-    data = json.loads(FIXTURE.read_text(encoding="utf-8"))
-    walls = []
-    for w in data["walls"]:
-        t = w["thickness"]
-        xs, ys = (w["start"][0], w["end"][0]), (w["start"][1], w["end"][1])
-        walls.append(WallItem(start=tuple(w["start"]), end=tuple(w["end"]), thickness=t,
-                              box=[min(xs) - t / 2, min(ys) - t / 2, max(xs) + t / 2, max(ys) + t / 2],
-                              entity=w["entity"],
-                              evidence=B.evidence("tekkat.dwg", "vector", w["confidence"], entity=w["entity"])))
-    strokes = [Stroke(id=s["id"], kind=s["kind"], pts=[tuple(p) for p in s["pts"]], closed=s.get("closed", False),
-                      layer=s.get("layer"), block=s.get("block"), arc=s.get("arc")) for s in data["strokes"]]
+    _, walls, strokes = _inputs(FIXTURE)
     return O.gaps_and_openings(walls, strokes, "tekkat.dwg", None)
 
 
@@ -218,6 +231,49 @@ def test_a_door_in_the_gap_is_never_lined():
     assert not [e for e in log if e.get("lining") and e["p0"][1] < 3.15]
 
 
+def _lined(walls):
+    """(lined entries of the gap log, spans along x of the thick (>= 0.14 m) walls, openings as (kind, x, width))."""
+    out_walls, openings, log, _ = _run(walls, [])
+    thick = sorted((round(min(w.start[0], w.end[0]), 2), round(max(w.start[0], w.end[0]), 2))
+                   for w in out_walls if w.thickness >= 0.14 - 1e-9)
+    return ([e for e in log if e.get("lining")], thick,
+            sorted((o.kind, round(o.center[0], 2), round(o.width, 2)) for o in openings))
+
+
+def test_a_lining_is_flush_with_a_face_fills_half_the_gap_and_is_thinner():
+    """Fix round after P6b (23 Oct 2026), review: each condition of ``_lining`` decides on its own. A 1.8 m gap of a
+    0.30 m run (pieces x 0-1.3 and 3.1-4.4), a 0.10 m wall running on past both jambs; each case beside its twin that
+    differs only in the condition. (1) The thin wall centred in the thick band, flush with neither face: no lining
+    (the flush-face condition); flush with one face: lined. (2) Its pieces filling 30 % of the gap (its own 1.26 m
+    passage in it): no lining (``LINING_SHARE``); 60 %: lined. (3) A 0.14 m run 0.04 m thicker than the 0.10 m wall,
+    flush: no lining (``LINING_THINNER_M``); a 0.15 m run, 0.05 m thicker: lined. Each 'no lining' case fails when its
+    condition is dropped or its constant set to 0."""
+    thick = [R.wall((0, 0), (1.3, 0), 0.3), R.wall((3.1, 0), (4.4, 0), 0.3)]
+    one_wall = [(0.0, 4.4)]
+    split = [(0.0, 1.3), (3.1, 4.4)]
+    # (1) flush with neither face / with one
+    lined, spans, openings = _lined(thick + [R.wall((1.0, 0.0), (5.0, 0.0), 0.1, entity="centred")])
+    assert lined == [] and spans == one_wall and openings == [("opening", 2.2, 1.8)]
+    lined, spans, openings = _lined(thick + [R.wall((1.0, -0.1), (5.0, -0.1), 0.1, entity="flush")])
+    assert [e["lining"]["share"] for e in lined] == [1.0] and spans == split and openings == []
+    # (2) 30 % / 60 % of the gap
+    lined, spans, openings = _lined(thick + [R.wall((1.0, -0.1), (1.5, -0.1), 0.1, entity="a"),
+                                             R.wall((2.76, -0.1), (5.0, -0.1), 0.1, entity="b")])
+    assert lined == [] and spans == one_wall
+    assert openings == [("opening", 2.13, 1.26), ("opening", 2.2, 1.8)]
+    lined, spans, openings = _lined(thick + [R.wall((1.0, -0.1), (2.0, -0.1), 0.1, entity="a"),
+                                             R.wall((2.72, -0.1), (5.0, -0.1), 0.1, entity="b")])
+    assert [e["lining"]["share"] for e in lined] == [0.6] and spans == split
+    assert openings == [("opening", 2.36, 0.72)]                  # the thin wall's own passage stays
+    # (3) 0.04 m / 0.05 m thicker
+    lined, spans, openings = _lined([R.wall((0, 0), (1.3, 0), 0.14), R.wall((3.1, 0), (4.4, 0), 0.14),
+                                     R.wall((1.0, -0.02), (5.0, -0.02), 0.1, entity="l")])
+    assert lined == [] and spans == one_wall and openings == [("opening", 2.2, 1.8)]
+    lined, spans, openings = _lined([R.wall((0, 0), (1.3, 0), 0.15), R.wall((3.1, 0), (4.4, 0), 0.15),
+                                     R.wall((1.0, -0.025), (5.0, -0.025), 0.1, entity="l")])
+    assert [e["lining"]["lining_thickness"] for e in lined] == [0.1] and spans == split and openings == []
+
+
 # --------------------------------------------------------------------------
 # Gaps inside wall material
 # --------------------------------------------------------------------------
@@ -281,6 +337,21 @@ def test_lines_on_the_faces_running_past_the_gap_are_no_window():
     assert [o.kind for o in openings] == ["opening"]
     _, openings, _, _ = _run(walls, [beam, axis] + leaf + [R.stroke([(2.0, 0.0), (3.5, 0.0)])])
     assert [o.kind for o in openings] == ["window"]
+
+
+def test_shapes_standing_out_of_the_band_in_a_gap_are_no_window():
+    """Fix round after P6b (23 Oct 2026), review: two cabinets drawn against a 1.5 m gap of a 0.30 m wall, their near
+    edges inside the band and ending at the jambs, the shapes standing 0.6-0.7 m out of it, are no window (the
+    ``in_band`` test of ``classify_gap``): an unverified opening. The same two lines drawn as lines of their own in the
+    band are a window. Fails when ``in_band`` is dropped from ``classify_gap``."""
+    walls = [R.wall((0, 0), (2, 0), 0.3), R.wall((3.5, 0), (5, 0), 0.3)]
+    cabinets = [R.stroke(R.rect(2.0, -0.05, 3.5, 0.6), closed=True), R.stroke(R.rect(2.0, 0.05, 3.5, 0.7), closed=True)]
+    _, openings, log, _ = _run(walls, cabinets)
+    assert [(o.kind, o.type_raw) for o in openings] == [("opening", "unclassified gap content")]
+    assert [(e["class"], e.get("rule")) for e in log if e["kind"] == "run"] == [("unclassified", "no_glass")]
+    lines = [R.stroke([(2.0, -0.05), (3.5, -0.05)]), R.stroke([(2.0, 0.05), (3.5, 0.05)])]
+    _, openings, _, _ = _run(walls, lines)
+    assert [(o.kind, o.width) for o in openings] == [("window", pytest.approx(1.5))]
 
 
 def test_traced_raster_lines_keep_the_old_window_rule():
@@ -413,6 +484,103 @@ def test_only_wall_geometry_across_a_gap_closes_it():
     # Wall-layer face lines confined to the gap (a threshold drawn on the wall layer) are no wall across it either.
     _, _, log, _ = _run([column, wall], faces(DUVAR, x0=0.15, x1=1.7))
     assert [e["class"] for e in log if e["kind"] == "end"] != ["closed"]
+
+
+def test_a_swing_beside_a_wide_gap_keeps_it_open():
+    """Fix round after P6b (23 Oct 2026), review: the swing guard of the wall-face rule on its own. A 2.45 m run gap
+    (x 0.6-3.05) of a 0.15 m wall whose DUVAR outline runs across both faces, a 0.9 m door hinged at one jamb: the arc
+    is no door of the 2.45 m gap (its radius is neither the gap nor half of it), so ``classify_gap`` reaches the
+    wall-face rule, and the swing reaching 0.9 m into the gap keeps it: an unverified 2.45 m opening, not wall. real03's
+    stair-core walls are this layout (a door block beside the closed gap). Without the swing the gap is wall. Fails
+    when the 'no swing reaches into the gap' guard is dropped (the doorway disappears)."""
+    walls = [R.wall((-1.5, 0), (0.6, 0), 0.15), R.wall((3.05, 0), (4.5, 0), 0.15)]
+    outline = _layered(R.stroke(R.rect(-1.5, -0.075, 4.5, 0.075), closed=True), DUVAR)
+    _, openings, log, _ = _run(walls, [outline, R.arc((0.6, 0.075), 0.9, 0, 90)])
+    assert [(e["class"], e["width"], e.get("rule")) for e in log if e["kind"] == "run"] == [
+        ("unclassified", pytest.approx(2.45), "no_glass")]
+    assert [(o.kind, o.type_raw, round(o.width, 2), round(o.center[0], 3)) for o in openings] == [
+        ("opening", "unclassified gap content", 2.45, 1.825)]
+    out_walls, openings, log, _ = _run(walls, [outline])
+    assert openings == [] and [(w.start, w.end) for w in out_walls] == [((-1.5, 0.0), (4.5, 0.0))]
+    assert [(e["class"], e.get("rule")) for e in log if e["kind"] == "run"] == [("closed", "wall_faces")]
+
+
+# --------------------------------------------------------------------------
+# Faces behind gaps without glass
+# --------------------------------------------------------------------------
+
+def _row(lines):
+    """Three faces in a row (x 0-3, 3-6, 6-9, y 0-4): partitions at x 3 and 6, a 1.0 m gap in each (y 1.5-2.5);
+    with ``lines`` two lines run along both faces of each partition past its gap (an area outline, a beam above): no
+    glass, so each gap is an unverified 'unclassified gap content' opening; without, doorless openings."""
+    walls = [R.wall((0, 0), (9, 0), 0.2), R.wall((9, 0), (9, 4), 0.2), R.wall((9, 4), (0, 4), 0.2),
+             R.wall((0, 4), (0, 0), 0.2)]
+    strokes = []
+    for x in (3.0, 6.0):
+        walls += [R.wall((x, 0), (x, 1.5), 0.15), R.wall((x, 2.5), (x, 4), 0.15)]
+        if lines:
+            strokes += [R.stroke([(x - 0.075, 0.5), (x - 0.075, 3.5)]), R.stroke([(x + 0.075, 0.5), (x + 0.075, 3.5)])]
+    out_walls, openings, _, _ = _run(walls, strokes)
+    return out_walls, openings, TP.faces(out_walls, openings)
+
+
+def test_a_face_behind_gaps_without_glass_is_no_hall():
+    """Fix round after P6b (23 Oct 2026), review: real03's lift shaft (r_L0_oda_19, 10.9 m2, only lift-car lines and
+    a rail beam in it) lies behind two 1.09 m lift-door gaps that were ghost windows before the glass rule. As
+    unverified 'unclassified gap content' openings they made the unlabelled face a hall (>= 2 doors/openings), so
+    a re-run would furnish the shaft (a shoe cabinet or a console table). A gap that lost its window for want of glass
+    is marked (evidence rule ``no_glass``) and is no door of the face, as a window is not (``unlabelled_face_type``):
+    the face stays 'unknown' as before the glass rule. The same face behind two doorless gaps stays a hall. Fails
+    without the mark or the skip."""
+    walls, openings, faces = _row(lines=True)
+    assert [(o.kind, o.type_raw, o.evidence.get("rule")) for o in openings] == [
+        ("opening", "unclassified gap content", "no_glass")] * 2
+    assert all("so no window" in o.evidence["note"] for o in openings)
+    middle = [f for f in faces if f.contains(Point(4.5, 2))]
+    assert len(faces) == 3 and len(middle) == 1
+    assert TP.unlabelled_face_type(middle[0], walls, openings) == (
+        "unknown", "unlabelled face touching 0 door/opening (2 gap(s) without glass not counted as doors)")
+    # One doorless gap beside one without glass: one door, still no hall; the reason names the gap left out.
+    walls, openings, faces = _row(lines=False)
+    openings[0].evidence["rule"] = "no_glass"
+    middle = [f for f in faces if f.contains(Point(4.5, 2))][0]
+    assert TP.unlabelled_face_type(middle, walls, openings) == (
+        "unknown", "unlabelled face touching 1 door/opening (1 gap(s) without glass not counted as doors)")
+    # Doorless gaps (nothing in them) are passages: the middle face is a hall, as before.
+    walls, openings, faces = _row(lines=False)
+    assert [(o.kind, o.evidence.get("rule")) for o in openings] == [("opening", None)] * 2
+    middle = [f for f in faces if f.contains(Point(4.5, 2))][0]
+    assert TP.unlabelled_face_type(middle, walls, openings) == ("hall", "unlabelled face touching 2 doors/openings")
+
+
+def test_real03_lift_shaft_stays_unknown_and_unfurnished():
+    """The real strokes (``tests/fixtures/m13_p6b_real03_lift.json``): the lift shaft's 0.15 m front wall with its two
+    1.09 m lift doors (x 15.01-16.10 and 17.11-18.20 m), the lift-car lines (GOR-ARKA, GOR-INCE) and the beam and
+    axis lines across them. Both gaps are unverified openings without glass (they were ghost windows in P6b); the
+    shaft, r_L0_oda_19 of the real03 ingest replay (14.50-18.70 x 7.70-10.30 m), touches them and nothing else, so it
+    stays 'unknown' and ``layout.empty_rooms`` leaves it out (on 86cdeff it was a 'hall' and the layout furnished it
+    with a shoe cabinet or a console table)."""
+    from wenart.furniture import layout
+
+    data, walls, strokes = _inputs(LIFT_FIXTURE)
+    out_walls, openings, log, _ = O.gaps_and_openings(walls, strokes, "tekkat.dwg", None)
+    lift_doors = [o for o in openings if 7.5 < o.center[1] < 7.75]
+    assert [(o.kind, o.type_raw, round(o.center[0], 2), round(o.width, 2), o.evidence.get("rule"))
+            for o in lift_doors] == [("opening", "unclassified gap content", 15.56, 1.09, "no_glass"),
+                                     ("opening", "unclassified gap content", 17.66, 1.09, "no_glass")]
+    assert all("INSERT:7C9C9/22/81" in o.evidence["note"] and "so no window" in o.evidence["note"]
+               for o in lift_doors)
+    assert [e["rule"] for e in log if e["kind"] == "run" and e.get("rule")] == ["no_glass", "no_glass"]
+    face = data["lift_face"]
+    kind, reason = TP.unlabelled_face_type(face, out_walls, openings)
+    assert (kind, reason) == ("unknown",
+                              "unlabelled face touching 0 door/opening (2 gap(s) without glass not counted as doors)")
+
+    def building(room_type):
+        return {"rooms": [{"id": "r_L0_oda_19", "room_type": room_type, "has_documented_furniture": False}]}
+
+    assert layout.empty_rooms(building(kind)) == []
+    assert [r["id"] for r in layout.empty_rooms(building("hall"))] == ["r_L0_oda_19"]   # what a hall face got
 
 
 # --------------------------------------------------------------------------

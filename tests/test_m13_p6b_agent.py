@@ -102,6 +102,10 @@ def dry_recheck(tool, args, res, building_before, before, targets):
     changed = TL.changed_targets(tool, args, res, targets, findings=before) - set(same)
     code = [f for f in before if f["source"] == "code"]
     after = LP.after_findings(code, before, changed, res["building"], building_before=building_before)
+    # fix round after P6b, review: a set_room_type keeps its room's furnishing claims (the loop's acceptance)
+    have = {CS.finding_key(f) for f in after}
+    after += [f for f in getattr(LP, "room_type_kept", lambda *a: [])(tool, args, before, res["building"])
+              if CS.finding_key(f) not in have]
     edit = {"target_finding": [{"check": t["check"], "target": t["target"], "metrics": CS._metrics(t)}
                                for t in targets]}
     return CS.accept_edit(before, after, edit)
@@ -326,11 +330,12 @@ def test_a_mark_or_a_new_front_aimed_at_a_vision_finding_still_counts_it_gone(tm
 
 
 def test_render_unchanged_names_a_confirm_and_a_room_type():
+    """Fix round after P6b, review: a set_room_type changes its room's render (floor, walls, light); only its
+    furnishing claims stay (``loop.room_type_kept``, tests/test_m13_p6b_review.py)."""
     b = {"furniture": [{"id": "f1", "type": "sofa"}], "rooms": [{"id": "r1", "room_type": "living"}]}
     assert LP.render_unchanged("retype_piece", {"piece_id": "f1", "type": "sofa"}, b, b) == {"f1": LP.CONFIRM_NOTE}
     assert LP.render_unchanged("change_type", {"piece_id": "f1", "type": "sofa"}, b, b) == {"f1": LP.CONFIRM_NOTE}
-    assert LP.render_unchanged("set_room_type", {"room_id": "r1", "room_type": "study"}, b, b) == {
-        "r1": LP.ROOM_TYPE_NOTE}
+    assert LP.render_unchanged("set_room_type", {"room_id": "r1", "room_type": "study"}, b, b) == {}
     assert LP.render_unchanged("swap_model", {"piece_id": "f1", "asset_id": "x"}, b, b) == {}
 
 

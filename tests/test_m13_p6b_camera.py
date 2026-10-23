@@ -11,7 +11,8 @@ search and ``merge_agent_cameras``, ``cameras_from.moved``), the schemas (``repl
 ``cameras_from.moved``), the before | after note (``sheets13.camera_note``) and the GPU test's rule for a moved camera
 (``tests/gpu/test_camera_replay.py::moved_problem``). On the runs' data (``runs/``, not committed; skipped without
 them): P6b's building moves exactly yasama_2_2, 3_2, 5_2 and 6_1 (0.66-0.88 m) and keeps 4_3 (it looks out of the
-fridge it stands in), 4_2 and 6_2 (near and depth rules over the counter); P4b real03, P4a real02 and P4a with this
+fridge it stands in; fix round after P6b, review: with its near clip at 0.128 m, past the fridge box over its whole
+frame), 4_2 and 6_2 (near and depth rules over the counter); P4b real03, P4a real02 and P4a with this
 round's coat closets read as wardrobes (P6c's risk) move nothing. The last test builds the example building in Blender
 twice (WENART_BLENDER): the second build has a fridge on a replayed camera's spot.
 Why: P6b's reading typed the boxes at the end of real03's kitchen runs as 2.02 m fridges (P4b had 0.9 m chairs);
@@ -138,22 +139,70 @@ def test_a_replayed_camera_in_front_of_a_tall_piece_moves_on_the_share_rule():
 
 def test_a_lens_that_looks_out_of_a_piece_stays_and_one_along_its_side_moves():
     """P6b's yasama_4_3 case: the lens inside the fridge's box, 0.07 m behind the side its view leaves through, the
-    box centre behind it: the fridge is left out of the frame (its face is under the near clip) and the view is good,
-    so the camera stays. A lens beside the box's side, looking along it (the front face 0.345 m ahead), moves: the
-    mutation "nearest side instead of the side ahead" keeps it inside the fridge."""
+    box centre behind it: the fridge is left out of the frame and the view is good, so the camera stays. A lens beside
+    the box's side, looking along it (the front face 0.345 m ahead), moves: the mutation "nearest side instead of the
+    side ahead" keeps it inside the fridge.
+    Fix round after P6b (23 Oct 2026), review: the fridge's face is 0.07 m ahead over the whole frame, beyond the
+    default near clip (``cameras.CLIP_START_M``, 0.05 m): on 86cdeff the camera stayed with that clip (its render would
+    be the inside of the fridge door, a black frame). It now stays with ``clip_start`` 0.08 m (the face + 0.01 m), a
+    ``clipped`` record and a warning that names the fridge; the plan validates as a scene camera."""
     building = _building()
     out = _cam("cam_r_1", (0.62, 2.0), 0.0)
     room = building["rooms"][0]
     (piece, ahead), = CS.lens_inside_pieces(room, building, out["position"], 0.0, (1.0, 0.0))
     assert piece["id"] == "fr" and ahead == pytest.approx(0.07)
     assert CS.score_camera(building, out)["shares"]["max_single"] == 1.0           # the model with the fridge
+    dirs, _border = CS._frame_rays(out)
+    assert CS.looks_out_depth(piece, out["position"], dirs, 0.0) == pytest.approx(0.07)
+    assert CA.CLIP_START_M == 0.05
     plan = copy.deepcopy(out)
-    assert CS.move_blocked_replayed([plan], building) == [] and plan == out
+    hits = CS.move_blocked_replayed([plan], building)
+    assert [(h["status"], h["trigger"], h["blocked_by"], h["moved_m"]) for h in hits] == \
+        [("clipped", "looks_out", "fr", 0.0)]
+    assert hits[0]["clip_start"] == plan["clip_start"] == 0.08 and hits[0]["clip_start_old"] == CA.CLIP_START_M
+    assert hits[0]["exit_m"] == pytest.approx(0.07)
+    assert plan["clip_start"] > 0.07 and plan["position"] == out["position"] and plan["target"] == out["target"]
+    assert "replay" not in plan and plan["warning"] == hits[0]["warning"]
+    assert plan["warning"].startswith("replayed camera kept with its near clip at 0.080 m (was 0.050 m)")
+    assert "fridge fr" in plan["warning"] and CS.BLOCKED_WARNING not in plan["warning"]
+    assert {k: v for k, v in plan.items() if k not in ("clip_start", "warning")} == \
+        {k: v for k, v in out.items() if k != "warning"}
+    jsonschema.validate(plan, schemas.SCENE_CAMERA)
+    # a record that brings its own clip past the face keeps it, with no note
+    clipped = dict(copy.deepcopy(out), clip_start=0.09)
+    assert CS.move_blocked_replayed([clipped], building) == [] and clipped == dict(out, clip_start=0.09)
     along = _cam("cam_r_2", (0.345, 2.3), 0.0)
     (_piece, ahead), = CS.lens_inside_pieces(room, building, along["position"], 0.0, (1.0, 0.0))
     assert ahead == pytest.approx(0.345)
     hits = CS.move_blocked_replayed([along], building)
     assert [(h["status"], h["trigger"]) for h in hits] == [("moved", "inside")]
+
+
+def test_a_looks_out_clip_that_would_cut_the_view_moves_the_camera_instead():
+    """Fix round after P6b (23 Oct 2026), review: the same lens 0.07 m behind the fridge's face, with a 0.1 x 0.1 m
+    post 0.08 m ahead at the side of the frame (one-element share 0.36, under the 0.5 rule): the clip that hides the
+    fridge (0.08 m) would cut the post too, so the lens counts as inside the fridge and the camera moves (0.38 m, to the
+    nearest free point); no clip is set. The mutation "keep the clip whatever the rest of the view" keeps it in the
+    fridge. ``looks_out_depth`` widens the box to a model deeper than its footprint and back-aligned
+    (``furniture.fit_vertices(align="back")``): a 0.79 m deep fridge on the 0.69 m footprint reaches 0.17 m ahead of
+    this lens, not the centred box's 0.12 m."""
+    post = ("po", "bookcase", (0.75, 2.10), (0.10, 0.10), 0.0, (0.10, 0.10, 2.0))
+    building = _building(furniture=(FRIDGE, COUNTER, post))
+    plan = _cam("cam_r_1", (0.62, 2.0), 0.0)
+    dirs, border = CS._frame_rays(plan)
+    room = building["rooms"][0]
+    seen = CS.RoomModel(room, dict(building, furniture=[f for f in building["furniture"] if f["id"] != "fr"]))
+    m = CS._measure_at(seen, plan["position"], dirs, border, 18.0)
+    assert m["min_depth"] == pytest.approx(0.08) and m["max_single"] < CS.SCORE["blocked_single"]
+    hits = CS.move_blocked_replayed([plan], building)
+    assert [(h["status"], h["trigger"], h["blocked_by"]) for h in hits] == [("moved", "inside", "fr")]
+    assert plan["position"] == pytest.approx([1.0, 2.0, 1.25]) and "clip_start" not in plan
+    deep = _building(furniture=[("fr", "fridge", (0.345, 2.0), (0.74, 0.69), 90.0, (0.74, 0.79, 2.02))])
+    piece = deep["furniture"][0]
+    assert CS.looks_out_depth(piece, [0.62, 2.0, 1.25], dirs, 0.0) == pytest.approx(0.17)
+    shallow = _building(furniture=[("fr", "fridge", (0.345, 2.0), (0.74, 0.69), 90.0, (0.74, 0.59, 2.02))])
+    assert CS.looks_out_depth(shallow["furniture"][0], [0.62, 2.0, 1.25], dirs, 0.0) == pytest.approx(0.02)
+    assert CS.looks_out_depth(piece, [0.62, 2.0, 1.25], dirs[:0], 0.0) == 0.0
 
 
 def test_low_pieces_clear_views_and_other_cameras_never_move():
@@ -185,6 +234,20 @@ def test_without_an_unblocked_point_in_reach_the_pose_stays_with_the_blocked_war
     plan = _cam("cam_r_1", (0.4, 0.4), 90.0)
     hits = CS.move_blocked_replayed([plan], tiny)
     assert [h["status"] for h in hits] == ["kept"] and CS.BLOCKED_WARNING in plan["warning"]
+
+
+def test_a_kept_camera_that_looks_out_of_a_piece_keeps_the_clip_too(monkeypatch):
+    """Fix round after P6b (23 Oct 2026), review: the lens 0.07 m behind the fridge's face with a wide bookcase 0.5 m
+    ahead filling the frame (single share 1.0) and no free point in reach: the pose stays with ``BLOCKED_WARNING``,
+    and the clip that hides the fridge (0.08 m) goes with it (the kept record carries it)."""
+    monkeypatch.setattr(CS, "REPLAY_MOVE_MAX_M", 0.2)
+    wide = ("wb", "bookcase", (1.3, 2.0), (0.3, 2.5), 0.0, (0.3, 2.5, 2.4))
+    plan = _cam("cam_r_1", (0.62, 2.0), 0.0)
+    hits = CS.move_blocked_replayed([plan], _building(furniture=(FRIDGE, COUNTER, wide)))
+    assert [(h["status"], h["trigger"], h["blocked_by"], h["clip_start"]) for h in hits] == \
+        [("kept", "single_share", "wb", 0.08)]
+    assert plan["clip_start"] == 0.08 and plan["position"] == [0.62, 2.0, 1.25] and "replay" not in plan
+    assert plan["warning"].startswith(CS.BLOCKED_WARNING) and "near clip at 0.080 m" in plan["warning"]
 
 
 def test_a_moved_camera_keeps_distinct_from_the_room_s_other_views():
@@ -327,13 +390,18 @@ def test_p6b_moves_the_four_views_at_the_fridges_and_keeps_the_others():
     yasama_2_2, 3_2, 5_2 and 6_1 move, 0.66-0.88 m, each off its fridge, to an unblocked view (single share 0.11-0.15);
     yasama_4_3 stays (its lens is inside fridge f_L0_194's box but leaves it 0.057 m ahead, looking away), 4_2 and 6_2
     stay although ``is_blocked`` flags them (near share 0.39 / 0.47 and depth 0.094 m over the 1.18 m counter run:
-    the mutation "trigger on is_blocked" moves them); every moved record validates."""
+    the mutation "trigger on is_blocked" moves them); every moved record validates. Fix round after P6b (23 Oct 2026),
+    review: 4_3's frame rays leave the fridge box 0.036-0.117 m ahead (planar), beyond the 0.05 m clip on 62 % of
+    them; it stays with ``clip_start`` 0.128 m (status ``clipped``; the rest of its view is 1.03 m away) and nothing
+    else changes."""
     building = _load(P6B / "furniture" / "real03" / "building_final.json")
     plans = _replayed("real03", building)
     before = {p["name"]: copy.deepcopy(p) for p in plans}
     assert len(plans) == 83
     hits = _move_all(plans, building)
-    assert sorted(h["name"] for h in hits) == sorted(P6B_MOVES) and all(h["status"] == "moved" for h in hits)
+    assert sorted(h["name"] for h in hits if h["status"] == "moved") == sorted(P6B_MOVES)
+    assert [(h["name"], h["status"], h["blocked_by"], h["clip_start"]) for h in hits if h["status"] != "moved"] == \
+        [("cam_r_L0_yasama_4_3", "clipped", "f_L0_194", 0.128)]
     by = {p["name"]: p for p in plans}
     for name, (xy, dist, trigger, piece) in P6B_MOVES.items():
         p = by[name]
@@ -345,13 +413,19 @@ def test_p6b_moves_the_four_views_at_the_fridges_and_keeps_the_others():
         _same_frame(before[name], p)
         jsonschema.validate(p, schemas.SCENE_CAMERA)
     for name, p in by.items():
-        if name not in P6B_MOVES:
+        if name not in P6B_MOVES and name != "cam_r_L0_yasama_4_3":
             assert p == before[name], name
     room4 = next(r for r in building["rooms"] if r["id"] == "r_L0_yasama_4")
     cam43 = by["cam_r_L0_yasama_4_3"]
     (piece, ahead), = CS.lens_inside_pieces(room4, building, cam43["position"], 0.0,
                                            CS._forward_xy(cam43["position"], cam43["target"]))
     assert piece["id"] == "f_L0_194" and ahead <= CS.REPLAY_LOOKS_OUT_M
+    dirs, _border = CS._frame_rays(cam43)
+    exit_m = CS.looks_out_depth(piece, cam43["position"], dirs, 0.0)
+    assert exit_m == pytest.approx(0.1172, abs=1e-4) and cam43["clip_start"] == 0.128 > exit_m
+    assert {k: v for k, v in cam43.items() if k not in ("clip_start", "warning")} == \
+        {k: v for k, v in before["cam_r_L0_yasama_4_3"].items() if k != "warning"}
+    assert "near clip at 0.128 m" in cam43["warning"] and "replay" not in cam43
     for name in ("cam_r_L0_yasama_4_2", "cam_r_L0_yasama_6_2"):
         shares = CS.score_camera(building, by[name])["shares"]
         assert CS.is_blocked(shares) and shares["max_single"] <= CS.SCORE["blocked_single"], name
@@ -366,10 +440,12 @@ def test_p6b_moves_the_four_views_at_the_fridges_and_keeps_the_others():
 def test_p6b_before_the_agent_moves_the_same_four_views():
     """The building before the agent's rounds (building_decor.json: f_L0_204 at its drawn place, 0.13 m from
     yasama_6_1's lens): the same four cameras move to the same points; 6_1 on the share rule (0.81), so the agent's
-    preview builds would have moved it too."""
+    preview builds would have moved it too. Fix round after P6b (23 Oct 2026), review: 4_3 keeps its pose with its
+    near clip at 0.128 m there too."""
     building = _load(P6B / "furniture" / "real03" / "building_decor.json")
     plans = _replayed("real03", building)
     hits = {h["name"]: h for h in _move_all(plans, building)}
+    assert hits.pop("cam_r_L0_yasama_4_3")["clip_start"] == 0.128
     assert sorted(hits) == sorted(P6B_MOVES)
     assert hits["cam_r_L0_yasama_6_1"]["trigger"] == "single_share" and hits["cam_r_L0_yasama_6_1"]["share_old"] > 0.8
     by = {p["name"]: p for p in plans}

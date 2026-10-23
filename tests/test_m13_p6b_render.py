@@ -6,7 +6,9 @@ BASE 620997b or on the mutation its docstring names. No Blender needed.
   from the camera file (P4b and P6b real03 failed on the empty halls r_L0_oda_7 / r_L0_oda_10, one M11 view each).
 - The orange check holds a view lit by the rig alone to the daylight median + 0.15 and a mixed view to the warmest
   daylight view of its kind + 0.05 (at most 0.35 over the median): P6b's mixed halls pass, P4b's 2700 K views, P4a's
-  m13.2 halls and a hall over the cap still fail, P5 real04 passes as before.
+  m13.2 halls and a hall over the cap still fail, P5 real04 passes as before. Fix round after P6b (23 Oct 2026),
+  review: the mixed bound only under a neutral rig (``wb_rig_kelvin`` at least ``lighting.RIG_NEUTRAL_K``): P4b's
+  mixed 2700 K corridors and real04's 2700 K kitchen at 0.682 fail again.
 - ``render.wall_rig_record`` / ``Look._view_white`` record the walls' own rig share and the rig light measured on the
   walls (``wb_walls``, the P6b verifier's step 1: measure first); no white point changes.
 - The interior-glazing check keeps its values; its bound is unchanged.
@@ -140,10 +142,23 @@ P6B_RIG = {"giris_holu_1": (1.492, 0.569178), "giris_holu_2": (1.599, 0.622621),
            "ruzgarlik_1": (1.409, 0.437265), "yangin_merdiveni_1": (1.595, 0.889906),
            "yangin_merdiveni_2": (1.442, 0.955833), "yangin_merdiveni_3": (1.363, 0.979928)}
 P6B_BATHS = {"banyo_2_1": (1.174, 0.776088), "banyo_5_1": (1.123, 1.0), "banyo_6_1": (1.138, 0.528767)}
-# P4b real03 (2700 K rig, m13.2, the same project anchor): the views the old rule checked (share >= 0.8)
+# P4b real03 (2700 K rig, m13.2, the same project anchor): the views the old rule checked (share >= 0.8) ...
 P4B_RIG = {"kat_merdiveni_2": (1.693, 0.856457), "kat_merdiveni_3": (1.734, 0.832486), "oda_10_1": (1.648, 0.895986),
            "oda_7_1": (1.665, 0.986547), "yangin_merdiveni_1": (1.864, 0.974565),
            "yangin_merdiveni_2": (1.756, 0.990217), "yangin_merdiveni_3": (1.562, 0.995399)}
+# ... and its mixed 2700 K halls (fix round after P6b, 23 Oct 2026, review): the P4b check left them out (share under
+# 0.8) and its image review called them orange; their wall R/B was never measured (render code m13.2 kept no values):
+# the review's same-camera preview ratios against P6b's measured walls, which read P4b's seven known views 0.01-0.19
+# low (giris_holu_1: the image review's 1.60). The shares are P4b's render manifest's. Each one is under the spread
+# bound 1.63 and over the median rule 1.455.
+P4B_MIXED = {"kat_holu_1": (1.55, 0.645), "kat_holu_2": (1.51, 0.601), "kat_holu_3": (1.53, 0.655),
+             "giris_holu_1": (1.60, 0.518), "ruzgarlik_1": (1.54, 0.488)}
+NEUTRAL_K, WARM_K = {"wb_rig_kelvin": 4000.0}, {"wb_rig_kelvin": 2700.0}   # the rig temperatures of P6b and P4b
+
+
+def _kelvin(views: dict, record: dict) -> dict:
+    """``exposure`` for ``_wall_views``: every rig-lit view of ``views`` (rig share over 0) with ``record``."""
+    return {cam: dict(record) for cam, (_room, _rb, share) in views.items() if share}
 
 
 def _views(day: dict, rig: dict, baths: dict | None = None) -> dict:
@@ -160,13 +175,19 @@ def test_p6b_gpu_orange_check_judges_mixed_views_against_the_daylight_spread(tmp
     frame's share). A view lit by the rig alone keeps the median + 0.15; a mixed view may reach the warmest daylight
     view + 0.05 (1.63 here, in 8 bits). P6b passes (in 8-bit images: the values to 0.01), P4b's seven 2700 K views each
     fail against P6b's own daylight walls (4 rig alone over 1.455, 3 mixed over 1.63), and the values file keeps each
-    bound's regime and the warmest daylight view. Fails on 620997b (P6b's 10 mixed views over 1.455)."""
+    bound's regime and the warmest daylight view. Fails on 620997b (P6b's 10 mixed views over 1.455).
+    Fix round after P6b (23 Oct 2026), review: the P6b views carry their 4000 K rig (``wb_rig_kelvin``), the P4b views
+    their 2700 K rig. The mixed bound needs a neutral rig, so P4b's three mixed views at 0.83-0.90 fail at 1.455
+    (``warm rig``) and so do its mixed 2700 K corridors (``P4B_MIXED``, 0.49-0.66), which pass against 1.63 on 86cdeff
+    (the rule without the rig temperature); the same corridors under a 4000 K rig get the spread bound, so the
+    temperature is what decides."""
     gpu = _gpu_render_module(monkeypatch, tmp_path)
     wet = tuple(f"r_{c}" for c in P6B_BATHS)
 
-    def check(case, views):
+    def check(case, views, record=NEUTRAL_K):
         monkeypatch.setattr(gpu, "OUTPUTS", tmp_path / case)
-        gpu.test_rig_lit_rooms_have_no_orange_cast(_wall_views(tmp_path / case, views, wet))
+        gpu.test_rig_lit_rooms_have_no_orange_cast(_wall_views(tmp_path / case, views, wet,
+                                                               exposure=_kelvin(views, record)))
         return json.loads((tmp_path / case / "real02" / "renders" / "gpu_check_values.json").read_text(
             encoding="utf-8"))["rig_lit_rooms_have_no_orange_cast"]["real02"]
     kept = check("p6b", _views(P6B_DAY, P6B_RIG, P6B_BATHS))
@@ -177,13 +198,20 @@ def test_p6b_gpu_orange_check_judges_mixed_views_against_the_daylight_spread(tmp
     assert rig["cam_r_L0_yangin_merdiveni_2"]["regime"] == "rig alone"
     assert rig["cam_r_L0_yangin_merdiveni_2"]["bound"] == pytest.approx(1.455)
     assert rig["cam_r_L0_banyo_5_1"]["regime"] == "fixed" and rig["cam_r_L0_banyo_5_1"]["bound"] == 1.5
-    assert kept["warm"] == [] and kept["rig_alone_share"] == 0.95
-    for cam, (rb, share) in P4B_RIG.items():
-        regime, bound = ("rig alone", 1.455) if share >= 0.95 else ("mixed", 1.63)
+    assert kept["warm"] == [] and kept["rig_alone_share"] == 0.95 and kept["neutral_rig_k"] == 4000.0
+    assert rig["cam_r_L0_giris_holu_2"]["rig_kelvin"] == 4000.0
+    # fix round after P6b, review: P4b's views under their 2700 K rig, the mixed ones too, against the median rule
+    for cam, (rb, share) in {**P4B_RIG, **P4B_MIXED}.items():
+        regime = "rig alone" if share >= 0.95 else "warm rig"
         written = int(round(100 * rb)) / 100                                  # the 8-bit value _wall_views writes
-        with pytest.raises(AssertionError, match=rf"cam_r_L0_{cam}', {written}, 'painted', {bound}, "
+        with pytest.raises(AssertionError, match=rf"cam_r_L0_{cam}', {written}, 'painted', 1.455, "
                                                  rf"{share}, '{regime}'"):
-            check(f"p4b_{cam}", _views(P6B_DAY, {cam: (rb, share)}))
+            check(f"p4b_{cam}", _views(P6B_DAY, {cam: (rb, share)}), WARM_K)
+    # the same corridors with no rig temperature recorded fail too; under a 4000 K rig they are mixed (1.63) and pass
+    with pytest.raises(AssertionError, match=r"cam_r_L0_kat_holu_1', 1.55, 'painted', 1.455, 0.645, 'warm rig'"):
+        check("p4b_mixed_no_k", _views(P6B_DAY, P4B_MIXED), {})
+    neutral = check("p4b_mixed_4000", _views(P6B_DAY, P4B_MIXED))["rig_lit"]
+    assert {v["regime"] for v in neutral.values()} == {"mixed"} and {v["bound"] for v in neutral.values()} == {1.63}
 
 
 def test_p6b_gpu_orange_bound_rules(tmp_path, monkeypatch):
@@ -193,38 +221,56 @@ def test_p6b_gpu_orange_bound_rules(tmp_path, monkeypatch):
     with the mutation RIG_ROOM_ABOVE_DAY_MAX = 10). P5 real04's values (its 11 painted daylight views and 15 rig-lit
     views) and P4a real02's m13.2 halls against the shim's daylight walls keep their verdicts: all pass, all fail. No
     bound is lower than the rule before (the median + 0.15, the fixed 1.5 without a daylight view), so no view that
-    passed before (P6a real04) fails now; a share at 0.95 or over keeps it exactly."""
+    passed before (P6a real04) fails now; a share at 0.95 or over keeps it exactly.
+    Fix round after P6b (23 Oct 2026), review: the mixed bound needs the view's rig temperature at least
+    ``lighting.RIG_NEUTRAL_K`` (4000 K); a warmer rig (2700 K, 3999 K, a mired mix of 4000 K and 2700 K lights), no
+    temperature or a value that is no number give the median + 0.15 (``warm rig``). P5 real04's 2700 K kitchens get
+    1.665 (on 86cdeff 1.745), its 4000 K halls the spread bound; P4a real02's halls carry their 2700 K rig."""
     gpu = _gpu_render_module(monkeypatch, tmp_path)
     for share in (None, 0.0, 0.4, 0.62, 0.89, 0.949, 0.95, 0.99, 1.0):
         for median, warmest in ((1.305, 1.582), (1.515, 1.695), (1.36, 1.55), (1.30, 1.31), (1.31, 2.2)):
-            bound, regime = gpu._orange_bound(share, median, warmest)
+            bound, regime = gpu._orange_bound(share, median, warmest, 4000.0)
             assert bound >= round(median + gpu.RIG_ROOM_ABOVE_DAY, 3)
             assert (bound == round(median + 0.15, 3)) if regime == "rig alone" else regime == "mixed"
             assert regime == ("rig alone" if (share or 0.0) >= 0.95 else "mixed")
-        assert gpu._orange_bound(share, None, None) == (gpu.RIG_ROOM_MAX_RB, "fixed")
-    assert gpu._orange_bound(0.95, 1.305, 1.582) == (1.455, "rig alone")
-    assert gpu._orange_bound(0.949, 1.305, 1.582) == (1.632, "mixed")
-    assert gpu._orange_bound(0.6, 1.305, 1.33) == (1.455, "mixed")                 # a narrow spread: the median rule
-    assert gpu._orange_bound(None, 1.305, 1.582) == (1.632, "mixed")
-    assert gpu._orange_bound(0.7, None, None) == (1.5, "fixed")
-    assert gpu._orange_bound(0.7, 1.31, 2.2) == (1.66, "mixed")
+            assert gpu._orange_bound(share, median, warmest, 5000.0) == (bound, regime)
+            for warm in (None, 2700.0, 3999.0, 3350.6, float("nan"), "x"):          # fix round after P6b, review
+                assert gpu._orange_bound(share, median, warmest, warm) == \
+                    (round(median + 0.15, 3), "rig alone" if (share or 0.0) >= 0.95 else "warm rig")
+            assert gpu._orange_bound(share, median, warmest) == gpu._orange_bound(share, median, warmest, None)
+        assert gpu._orange_bound(share, None, None, 4000.0) == (gpu.RIG_ROOM_MAX_RB, "fixed")
+        assert gpu._orange_bound(share, None, None, 2700.0) == (gpu.RIG_ROOM_MAX_RB, "fixed")
+    assert gpu._neutral_rig_k() == 4000.0
+    assert gpu._orange_bound(0.95, 1.305, 1.582, 4000.0) == (1.455, "rig alone")
+    assert gpu._orange_bound(0.949, 1.305, 1.582, 4000.0) == (1.632, "mixed")
+    assert gpu._orange_bound(0.949, 1.305, 1.582, 2700.0) == (1.455, "warm rig")
+    assert gpu._orange_bound(0.6, 1.305, 1.33, 4000.0) == (1.455, "mixed")         # a narrow spread: the median rule
+    assert gpu._orange_bound(None, 1.305, 1.582, 4000.0) == (1.632, "mixed")
+    assert gpu._orange_bound(0.7, None, None, 4000.0) == (1.5, "fixed")
+    assert gpu._orange_bound(0.7, 1.31, 2.2, 4000.0) == (1.66, "mixed")
     monkeypatch.setattr(gpu, "OUTPUTS", tmp_path / "odd")
-    with pytest.raises(AssertionError, match=r"cam_r_hall_1', 1.7, 'painted', 1.66"):
+    with pytest.raises(AssertionError, match=r"cam_r_hall_1', 1.7, 'painted', 1.66, 0.6, 'mixed'"):
         gpu.test_rig_lit_rooms_have_no_orange_cast(_wall_views(tmp_path / "odd", {
             "cam_r_bed_1": ("r_bed", 1.30, 0.0), "cam_r_bed_2": ("r_bed", 1.31, 0.0),
-            "cam_r_bed_3": ("r_bed", 2.20, 0.0), "cam_r_hall_1": ("r_hall", 1.70, 0.6)}))
-    # P5 real04 (runs/20261017-224848-full): painted daylight 1.382-1.695 (median 1.515), the halls and kitchens
+            "cam_r_bed_3": ("r_bed", 2.20, 0.0), "cam_r_hall_1": ("r_hall", 1.70, 0.6)},
+            exposure={"cam_r_hall_1": NEUTRAL_K}))
+    # P5 real04 (runs/20261017-224848-full): painted daylight 1.382-1.695 (median 1.515), the 4000 K halls and the
+    # 2700 K kitchens (render manifest wb_rig_kelvin)
     p5_day = [1.44, 1.695, 1.423, 1.507, 1.613, 1.567, 1.539, 1.382, 1.533, 1.498, 1.515]
-    p5_rig = [(1.634, 0.711), (1.534, 0.844), (1.61, 0.795), (1.415, 0.999), (1.406, 0.996), (1.421, 1.0),
-              (1.306, 1.0), (1.323, 1.0), (1.307, 1.0), (1.37, 1.0), (1.314, 1.0), (1.39, 1.0), (1.139, 0.667),
-              (1.158, 0.601), (1.223, 0.682)]
+    p5_rig = [(1.634, 0.711, 4000.0), (1.534, 0.844, 4000.0), (1.61, 0.795, 4000.0), (1.415, 0.999, 4000.0),
+              (1.406, 0.996, 4000.0), (1.421, 1.0, 4000.0), (1.306, 1.0, 4000.0), (1.323, 1.0, 4000.0),
+              (1.307, 1.0, 4000.0), (1.37, 1.0, 4000.0), (1.314, 1.0, 4000.0), (1.39, 1.0, 4000.0),
+              (1.139, 0.667, 2700.0), (1.158, 0.601, 2700.0), (1.223, 0.682, 2700.0)]
     median = sorted(p5_day)[len(p5_day) // 2]
-    assert all(rb <= gpu._orange_bound(s, median, max(p5_day))[0] for rb, s in p5_rig)
-    # P4a real02 (m13.2, runs/20261017-072801-full): halls 1.639-1.808 at 0.90-1.0; the shim's daylight walls
-    # (the fix round after P4a) median 1.36, warmest 1.55
+    assert all(rb <= gpu._orange_bound(s, median, max(p5_day), k)[0] for rb, s, k in p5_rig)
+    assert {gpu._orange_bound(s, median, max(p5_day), k) for _rb, s, k in p5_rig[-3:]} == {(1.665, "warm rig")}
+    assert gpu._orange_bound(0.711, median, max(p5_day), 4000.0) == (1.745, "mixed")
+    # P4a real02 (m13.2, runs/20261017-072801-full): halls 1.639-1.808 at 0.90-1.0 under the 2700 K rig; the shim's
+    # daylight walls (the fix round after P4a) median 1.36, warmest 1.55
     p4a = [(1.77, 0.9), (1.769, 0.974), (1.654, 0.943), (1.808, 1.0), (1.765, 1.0), (1.755, 1.0), (1.73, 1.0),
            (1.706, 1.0), (1.639, 0.999), (1.657, 0.999), (1.643, 1.0), (1.709, 1.0)]
-    assert all(rb > gpu._orange_bound(s, 1.36, 1.55)[0] for rb, s in p4a)
+    assert all(rb > gpu._orange_bound(s, 1.36, 1.55, 2700.0)[0] for rb, s in p4a)
+    assert all(rb > gpu._orange_bound(s, 1.36, 1.55, 4000.0)[0] for rb, s in p4a)    # a neutral rig: the same
 
 
 def test_p6b_gpu_orange_check_keeps_the_light_on_the_walls(tmp_path, monkeypatch, capsys):
@@ -233,7 +279,9 @@ def test_p6b_gpu_orange_check_keeps_the_light_on_the_walls(tmp_path, monkeypatch
     the walls' rig share, the rig light's R/B and Kelvin measured on the walls, the lamp's R/B), None for a record
     without it (a render before this round); the verdict does not read it (the same views without the records give
     the same bounds). The values are P6b shim records: giris_holu_2 (light R/B 3.68, daylight 3.07, rig 4.17 against
-    the lamp's 2.65) and the daylight-only oda_01_2 (3.35). Fails on 620997b (no wall_light_rb in the values)."""
+    the lamp's 2.65) and the daylight-only oda_01_2 (3.35). Fails on 620997b (no wall_light_rb in the values). Fix
+    round after P6b (23 Oct 2026), review: the halls carry P6b's 4000 K rig (``wb_rig_kelvin``, which the mixed bound
+    needs) in both cases; only the wall records differ."""
     gpu = _gpu_render_module(monkeypatch, tmp_path)
     oda_01_2 = {"share": 0.6367, "rig_share": 0.0, "light_rgb": [1.526784, 0.898405, 0.455212],
                 "day_rgb": [1.522816, 0.899191, 0.459111], "rig_rgb": None, "rig_rb": None, "lamp_rb": 10.0668,
@@ -246,8 +294,8 @@ def test_p6b_gpu_orange_check_keeps_the_light_on_the_walls(tmp_path, monkeypatch
         gpu.test_rig_lit_rooms_have_no_orange_cast(_wall_views(tmp_path / case, views, exposure=exposure))
         return json.loads((tmp_path / case / "real02" / "renders" / "gpu_check_values.json").read_text(
             encoding="utf-8"))["rig_lit_rooms_have_no_orange_cast"]["real02"]
-    kept = check("w", {"cam_r_hall_1": {"wb_walls": dict(GIRIS_HOLU_2, rig_kelvin=3284.1)},
-                       "cam_r_bed_2": {"wb_walls": oda_01_2}})
+    kept = check("w", {"cam_r_hall_1": {"wb_walls": dict(GIRIS_HOLU_2, rig_kelvin=3284.1), **NEUTRAL_K},
+                       "cam_r_hall_2": NEUTRAL_K, "cam_r_bed_2": {"wb_walls": oda_01_2}})
     hall, hall_2 = kept["rig_lit"]["cam_r_hall_1"], kept["rig_lit"]["cam_r_hall_2"]
     bed = kept["daylight"]["cam_r_bed_2"]
     assert hall["wall_light_rb"] == pytest.approx(3.6805, abs=1e-4) and hall["wall_day_rb"] == pytest.approx(3.0699,
@@ -260,7 +308,7 @@ def test_p6b_gpu_orange_check_keeps_the_light_on_the_walls(tmp_path, monkeypatch
                                            "wall_rig_kelvin", "lamp_rb"))
     assert "the light on the walls (render wb_walls" in capsys.readouterr().out
     # the verdict does not read the record: the same views without it give the same bounds
-    plain = check("plain", {})
+    plain = check("plain", {"cam_r_hall_1": NEUTRAL_K, "cam_r_hall_2": NEUTRAL_K})
     assert {c: (v["bound"], v["regime"]) for c, v in plain["rig_lit"].items()} == \
         {c: (v["bound"], v["regime"]) for c, v in kept["rig_lit"].items()}
     assert hall["bound"] == 1.63 and hall["regime"] == "mixed"
@@ -316,6 +364,12 @@ def test_p6b_wall_rig_record_measures_the_rig_light_on_the_walls():
     assert neg["rig_share"] > R.WB_RIG_SHARE_MIN and neg["rig_rgb"] is None and neg["rig_rb"] is None
     dark = R.wall_rig_record({"wall_illuminant": [2.0, 1.0, 0.5]}, {"wall_illuminant": None})
     assert dark["rig_share"] == 1.0 and dark["rig_rgb"] == pytest.approx(R.normalise_whitepoint([2.0, 1.0, 0.5]))
+    # fix round after P6b (23 Oct 2026), review: a rig light whose blue is under 5e-7 of its luminance rounds to 0 in
+    # normalise_whitepoint; no rig colour then (ZeroDivisionError in rig_rb on 86cdeff), the light colours still kept
+    assert R.normalise_whitepoint([2.0, 1.0, 1e-8])[2] == 0.0
+    tiny = R.wall_rig_record({"wall_illuminant": [3.0, 1.5, 2e-8]}, {"wall_illuminant": [1.0, 0.5, 1e-8]})
+    assert tiny["rig_share"] == pytest.approx(2.0 / 3.0, abs=1e-6) and tiny["rig_rgb"] is None
+    assert tiny["rig_rb"] is None and tiny["light_rgb"][2] == 0.0 and tiny["day_rgb"] is not None
 
 
 def test_p6b_view_white_records_the_walls_and_keeps_the_white_point(tmp_path, monkeypatch):

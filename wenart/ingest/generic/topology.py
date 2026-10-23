@@ -557,19 +557,29 @@ def stair_room_label(face, stairs: list = (), turkish: bool = True) -> Optional[
 
 def unlabelled_face_type(face, walls: list, openings: list, stairs: list = ()) -> tuple[str, str]:
     """``("hall", reason)`` when an unlabelled face holds a stair or touches >= 2 doors/openings, else
-    ``("unknown", reason)``. The room stays ``unverified`` either way."""
+    ``("unknown", reason)``. The room stays ``unverified`` either way.
+
+    Fix round after P6b (23 Oct 2026), review: a gap that lost its window for want of glass (an unverified opening,
+    evidence rule ``no_glass``, ``openings._opening``) counts as the window it was read as before, not as a door:
+    real03's lift shaft behind its two 1.09 m lift doors stays 'unknown' (as in P6b), so the layout does not furnish
+    it. The reason names the gaps left out (never silent)."""
     poly = face if isinstance(face, Polygon) else Polygon(face)
     for s in stairs:
         c = s.center if hasattr(s, "center") else s["center"]
         if poly.contains(Point(c)):
             return "hall", "unlabelled face holding the stair"
-    touching = 0
+    touching = glassless = 0
     for o in openings:
         if o.kind == "window":
             continue
         p = opening_polygon(o, walls)
-        if p is not None and p.distance(poly) <= 0.02:
+        if p is None or p.distance(poly) > 0.02:
+            continue
+        if (o.evidence or {}).get("rule") == "no_glass":
+            glassless += 1
+        else:
             touching += 1
+    left_out = f" ({glassless} gap(s) without glass not counted as doors)" if glassless else ""
     if touching >= 2:
-        return "hall", f"unlabelled face touching {touching} doors/openings"
-    return "unknown", f"unlabelled face touching {touching} door/opening"
+        return "hall", f"unlabelled face touching {touching} doors/openings{left_out}"
+    return "unknown", f"unlabelled face touching {touching} door/opening{left_out}"

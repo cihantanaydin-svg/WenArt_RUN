@@ -1155,7 +1155,9 @@ def wall_rig_record(all_stats: dict | None, day_stats: dict | None, lamp_rgb=Non
         return rec
     day = [float(v) for v in day_wall] if day_wall is not None and len(day_wall) == 3 else [0.0, 0.0, 0.0]
     rig = unit([float(a) - d for a, d in zip(all_wall, day)])
-    if rig is not None:
+    # fix round after P6b (23 Oct 2026), review: normalise_whitepoint rounds to 6 places, so a channel under 5e-7 of
+    # the luminance reads 0 (no rig colour then, as for a channel not positive; R/B would divide by 0)
+    if rig is not None and min(rig) > 0.0:
         rec["rig_rgb"], rec["rig_rb"] = rig, round(rig[0] / rig[2], 4)
     return rec
 

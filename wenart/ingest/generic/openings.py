@@ -1588,6 +1588,9 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
     ev["note"] = "unclassified gap content: " + ",".join(ids[:20]) + (" ..." if len(ids) > 20 else "")
     if g.found.get("no_glass"):
         ev["note"] += f" ({g.found['no_glass']})"
+        # Fix round after P6b (23 Oct 2026), review: marked, so the face typing counts it as the window it was read as
+        # before, not as a door (``topology.unlabelled_face_type``; real03's lift shaft behind its two lift doors).
+        ev["rule"] = "no_glass"
     return OpeningItem(kind="opening", width=width, center=_r(center), rotation_deg=round(axis_deg % 180.0, 3),
                        box=box, entity=f"gap:{names}", evidence=ev, status="unverified", height=DOOR_HEIGHT_M,
                        assumed=["height"], type_raw="unclassified gap content")

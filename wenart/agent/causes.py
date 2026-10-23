@@ -185,6 +185,8 @@ fixes):
   ``FIXTURE_LAYOUT_REASON``). On P6b's round-1 findings it marks G12:f_L0_213 (a fridge in door d_L0_014) and
   G8:f_L0_010 (a counter 0.29 m² through its wall); the fridges f_L0_200 / 202 / 206 (a spot 0.15 m away) keep
   fix_fixture; nothing on P4a, P5 or P6a.
+  Review: the search counts only the drawn pieces as obstacles (``drawn_obstacles_only``): a spot that only an
+  added piece covers leaves the finding its tools (the added piece may move); the two P6b marks stay.
 
 Fix round after P6b (23 Oct 2026), the reading track's asks (verify:library:2 better_fix (c), verify:look:2 step 3):
 
@@ -969,7 +971,10 @@ def fixture_layout_blocked(building: dict, piece: dict) -> bool:
     (``edit_ops.fixture_problems``: a place problem), its size is real (no misread size to fix, no bath or shower bay
     to shrink into) and the code's own search within 0.5 m (``edit_ops._nearest_valid``, as ``fix_fixture`` without a
     centre runs it) finds no valid spot. False otherwise, and whenever the geometry cannot be read (the finding keeps
-    its tools). A piece without a place problem is left alone: the brief's lock already says fix_fixture refuses it."""
+    its tools). A piece without a place problem is left alone: the brief's lock already says fix_fixture refuses it.
+    Fix round after P6b (23 Oct 2026), review: the search counts only the drawn pieces as obstacles
+    (``drawn_obstacles_only``): a piece the AI added may be moved or removed, so a spot that only an added piece covers
+    is no drawing fact and the finding keeps its tools."""
     if not isinstance(piece, dict) or not in_scene(piece) or piece.get("type") in (None, "unknown"):
         return False
     try:
@@ -983,9 +988,21 @@ def fixture_layout_blocked(building: dict, piece: dict) -> bool:
             return False
         if EO._bay_fix(building, room, piece) is not None:
             return False
-        return EO._nearest_valid(building, room, piece, placer.drawn_piece(piece)) is None
+        drawn = drawn_obstacles_only(building, room.get("id"))
+        return EO._nearest_valid(drawn, room, piece, placer.drawn_piece(piece)) is None
     except Exception:  # noqa: BLE001 - a geometry that cannot be read keeps the finding's tools
         return False
+
+
+def drawn_obstacles_only(building: dict, room_id: Optional[str]) -> dict:
+    """Fix round after P6b (23 Oct 2026), review: a shallow copy of ``building`` in which the pieces of room ``room_id``
+    that are not from the documents (``added_by_ai``: the agent may move or remove them) are not built (``build``
+    false), so ``edit_ops._nearest_valid`` meets only the drawn pieces. Why: with an added sideboard over the only free
+    spots, a drawn fridge in a door swing was marked the drawn layout (no tool, "no edit clears the finding") although
+    moving the sideboard clears it. The building itself is not changed."""
+    furniture = [dict(f, build=False) if isinstance(f, dict) and f.get("room_id") == room_id
+                 and f.get("source") != "from_documents" else f for f in building.get("furniture") or []]
+    return dict(building, furniture=furniture)
 
 
 def override_slots(override: Optional[dict]) -> set:
@@ -1296,6 +1313,29 @@ def kept_text(kept: list, after_by: dict) -> str:
     return ", ".join(f"{_fmt(t)} ({(after_by.get(t) or {}).get('severity')})" for t in kept)
 
 
+def expand_targets(targets: list, before_by: dict) -> list:
+    """Fix round after P4a: the target keys with an S2 target without its cut (a caller that passes no metrics)
+    standing for every cut of its piece among ``before_by`` (``{finding_key: finding}``), as the old (check, target)
+    key did; duplicates dropped, order kept. Fix round after P6b, review: shared by ``accept_edit`` and
+    ``kept_targets``."""
+    expanded: list = []
+    for t in targets:
+        cuts = [] if t in before_by or t[0] != "S2" or S2_KEY_SEP in t[1] else \
+            [k for k in before_by if k[0] == "S2" and base_key(k) == t]
+        expanded += cuts or [t]
+    return list(dict.fromkeys(expanded))
+
+
+def kept_targets(before: list[dict], after: list[dict], edit: dict) -> list[tuple[str, str]]:
+    """Fix round after P6b (23 Oct 2026), review: the target keys of ``edit`` as ``accept_edit`` reads them
+    (``target_keys``, ``expand_targets``) that are among ``before`` and stay in ``after``: the targets an accepted
+    edit kept (``critical_cleared``; the loop's acceptance record ``kept``, which ``metrics.edit_target_keys``
+    leaves out)."""
+    before_by = {finding_key(f): f for f in before or []}
+    after_keys = {finding_key(f) for f in after or []}
+    return [t for t in expand_targets(target_keys(edit), before_by) if t in before_by and t in after_keys]
+
+
 def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool, str]:
     """``(accepted, reason)`` of one edit from the findings before it and the dry re-check after it (module
     docstring). Pure: nothing is changed."""
@@ -1304,14 +1344,7 @@ def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool
         return False, "no target finding: an edit must name the finding it fixes (check id and target id)"
     before_by = {finding_key(f): f for f in before or []}
     after_by = {finding_key(f): f for f in after or []}
-    # fix round after P4a: an S2 target without its cut (a caller that passes no metrics) stands for every cut of its
-    # piece, as the old (check, target) key did
-    expanded: list = []
-    for t in targets:
-        cuts = [] if t in before_by or t[0] != "S2" or S2_KEY_SEP in t[1] else \
-            [k for k in before_by if k[0] == "S2" and base_key(k) == t]
-        expanded += cuts or [t]
-    targets = list(dict.fromkeys(expanded))
+    targets = expand_targets(targets, before_by)
     present = [t for t in targets if t in before_by]
     if not present:
         return False, (f"target finding {', '.join(_fmt(t) for t in targets)} is not among the findings before the "

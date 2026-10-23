@@ -258,7 +258,10 @@ def test_bed_frames_have_decks(cfg):
 
 def test_attribution_is_complete(cfg):
     """Every model's credit line (and licence flag) is in ATTRIBUTION.md and the report, with the notices of the
-    sources present."""
+    sources present. Fix round after P6b (23 Oct 2026), review: ATTRIBUTION.md writes the credit as plain text
+    (``copy.plain_text``: ``&amp;`` -> ``&``, as the prep pipeline's ABO titles carry them), so it is compared decoded;
+    the report writes the catalogue text as it is. A licence flag is written only when it limits the use (Milestone 13:
+    ``none`` for CC0 / CC BY 4.0 is no flag)."""
     cat = need(OV.CATALOG_NAME)
     path = LIBRARY / CP.ATTRIBUTION
     assert path.is_file(), f"{path} not written"
@@ -267,9 +270,10 @@ def test_attribution_is_complete(cfg):
     for notice in OV.source_notices(cat["sources"], cfg):
         assert notice in text and notice in report
     for e in cat["entries"] + cat.get("decor", []):
-        assert e["attribution"] and e["attribution"] in text and e["attribution"] in report, e["id"]
-        if e.get("licence_flag"):
-            assert f"{e['attribution']} [licence flag: {e['licence_flag']}]" in text, e["id"]
+        credit = CP.plain_text(e["attribution"]) if e["attribution"] else e["attribution"]
+        assert e["attribution"] and credit in text and e["attribution"] in report, e["id"]
+        if e.get("licence_flag") not in (None, "", C.NO_FLAG):
+            assert f"{credit} [licence flag: {e['licence_flag']}]" in text, e["id"]
         if e["source"] in ("objaverse", "abo") and e["licence"] != C.LICENCE:
             assert all(str(e.get(k) or "").strip() for k in C.CC_BY_FIELDS), e["id"]
 

@@ -254,6 +254,18 @@ fixes):
   skipped, the critical F7 of P6b's fridge f_L0_204 (seq 1848) among them, and real moves for majors on real04
   (P6a seq 5986, 6064, 6358); the 3 phantom confirms are refused by the acceptance now (``render_unchanged``).
 
+Fix round after P6b (23 Oct 2026), review:
+
+- a ``set_room_type`` changes its room's render (the floor and wall slots, the light rig and an outdoor room follow
+  the room type), so its room is a changed target again and a vision R1 "typed as a bedroom but has a bathtub" (whose
+  only tool is set_room_type) can be cleared; only the room's furnishing claims stay in the dry re-check
+  (``room_type_kept``, ``ROOM_FURNISHING_CAUSES``: a vision F1 "the room is empty", cause ``empty_room``), so P6b's
+  seq 1905 / 2277 stay refused with ``ROOM_TYPE_NOTE``. Why: the fix round's rule took the room out of the changed
+  targets for every vision finding on it;
+- the acceptance's ``kept`` comes from ``causes.kept_targets`` (``accept_edit``'s own target keys: an S2 target
+  without its cut stands for its cuts), and ``metrics.edit_target_keys`` leaves the kept targets out, so an edit
+  accepted under ``critical_cleared`` counts as removing its finding when its criticals went.
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -753,25 +765,53 @@ def refused_pin(building: Optional[dict], piece_id: Optional[str]) -> Optional[s
 CONFIRM_TOOLS = ("retype_piece", "change_type")
 CONFIRM_NOTE = ("a retype to the piece's own type only confirms it (status unverified -> verified, the same fitted "
                 "model): nothing changes in the render, so its vision findings stay")
-ROOM_TYPE_NOTE = ("set_room_type re-solves no layout (the re-run replays the overrides after the layout and the "
-                  "completion), so nothing changes in the room's render and its vision findings stay; an empty room is "
+ROOM_TYPE_NOTE = ("set_room_type changes the room's floor, walls and light (they follow the room type) but "
+                  "re-solves no layout (the re-run replays the overrides after the layout and the completion), so the "
+                  "room's furnishing does not change and a claim that the room is empty stays; an empty room is "
                   "furnished with place_group or relayout_room")
+# Fix round after P6b (23 Oct 2026), review: the causes of a room's vision findings about its furnishing, which a
+# set_room_type does not change (``room_type_kept``).
+ROOM_FURNISHING_CAUSES: tuple[str, ...] = ("empty_room",)
 
 
 def render_unchanged(tool: str, args: Optional[dict], building_before: Optional[dict],
                      building_after: Optional[dict]) -> dict[str, str]:
     """Fix round after P6b (module docstring): ``{id: why}`` of the targets an edit leaves unchanged in the render, so
     they are no changed targets of the dry re-check (their vision findings stay): a ``retype_piece`` / ``change_type``
-    to the piece's own type (a confirm: the type before, after and asked are the same) and the room of a
-    ``set_room_type``. {} for every other edit (a ``mark_not_furniture``, a ``set_front``: the scene changes)."""
+    to the piece's own type (a confirm: the type before, after and asked are the same). {} for every other edit (a
+    ``mark_not_furniture``, a ``set_front``: the scene changes). Fix round after P6b, review: a ``set_room_type``
+    changes the room's render (``shell.slot_room_type`` picks its floor and wall slots, ``lighting.room_rig`` its
+    light), so its room is a changed target; only its furnishing claims stay (``room_type_kept``)."""
     a = args or {}
     if tool in CONFIRM_TOOLS and a.get("piece_id"):
         p0, p1 = _piece_of(building_before, a["piece_id"]), _piece_of(building_after, a["piece_id"])
         if p0 is not None and p1 is not None and p0.get("type") == p1.get("type") == a.get("type"):
             return {str(a["piece_id"]): CONFIRM_NOTE}
-    if tool == "set_room_type" and a.get("room_id"):
-        return {str(a["room_id"]): ROOM_TYPE_NOTE}
     return {}
+
+
+def room_type_kept(tool: str, args: Optional[dict], before: Optional[list],
+                   building_after: Optional[dict] = None) -> list[dict]:
+    """Fix round after P6b (23 Oct 2026), review: the vision findings of ``before`` on the room of a ``set_room_type``
+    that claim something about its furnishing (``ROOM_FURNISHING_CAUSES``: a vision F1 "the room is empty", cause
+    ``empty_room``, from the finding's own cause or ``causes.cause_of``), each with that cause; [] for every other
+    edit. The dry re-check keeps them (the re-run re-solves no layout after set_room_type, so the room stays as
+    furnished), while the room's other vision findings (a vision R1 "typed as a bedroom but has a bathtub", whose only
+    tool is set_room_type; a material) count as changed. Why: P6b's seq 1905 / 2277 counted the critical "room
+    completely empty" as removed; the fix of that refused every vision finding on the room, a vision R1 too."""
+    a = args or {}
+    if tool != "set_room_type" or not a.get("room_id"):
+        return []
+    room = str(a["room_id"])
+    out = []
+    for f in before or []:
+        if f.get("source") != "vision" or str(f.get("target")) != room:
+            continue
+        cause = f.get("cause") if f.get("cause") in ROOM_FURNISHING_CAUSES else \
+            CS.cause_of(dict(f, cause=None), building_after)
+        if cause in ROOM_FURNISHING_CAUSES:
+            out.append(dict(f, cause=cause))
+    return out
 
 
 def _piece_of(building: Optional[dict], pid) -> Optional[dict]:
@@ -1587,6 +1627,8 @@ class AgentLoop:
         same = render_unchanged(tool, args, ctx.building, building_after)
         if same:
             changed = set(changed) - set(same)
+        # fix round after P6b, review: a set_room_type changes its room's render, but not its furnishing claims
+        furnishing = room_type_kept(tool, args, before, building_after)
         # fix round after P4b: the critic reads the sun a set_exterior sets (scene_after)
         manifest = self.render_manifest(ctx.preview_dir)
         code_after = self.code_findings(measured, ctx, manifest, scene=scene_after(ctx.scene, tool, args,
@@ -1602,6 +1644,9 @@ class AgentLoop:
         after = after_findings(code_after, before, changed, measured, building_before=ctx.building,
                                override=override, targets=targets,
                                round_changed=set(getattr(ctx, "round_changed", None) or ()), x6_after=x6_after)
+        if furnishing:
+            have = {CS.finding_key(f) for f in after}
+            after = after + [f for f in furnishing if CS.finding_key(f) not in have]
         # round 4: the pieces the edit took out of the scene, for the acceptance's room-set rule (a fixture removed);
         # fix round after P4a: the metrics name an S2's cut (``causes.finding_key``); fix round after P5: the pieces it
         # added (a re-created piece keeps its finding); review: the piece types (an S2's partner type)
@@ -1613,8 +1658,11 @@ class AgentLoop:
                 "added": CS.added_pieces(ctx.building, building_after),
                 "types": CS.piece_types(ctx.building, building_after)}
         ok, reason = accept_edit(before, after, edit)
-        if not ok and same:
-            reason = f"{reason}; {'; '.join(sorted(set(same.values())))}"
+        notes = set(same.values())
+        if {CS.finding_key(f) for f in furnishing} & {CS.finding_key(f) for f in targets}:
+            notes.add(ROOM_TYPE_NOTE)            # review: the edit aimed at a furnishing claim of its room
+        if not ok and notes:
+            reason = f"{reason}; {'; '.join(sorted(notes))}"
         if refused is not None:
             ok, reason = False, (f"pin_refused: {args.get('piece_id')}: {refused}: the refit keeps the model it had, "
                                  f"so the swap changes nothing in the scene; swap to a real model of the type, or use "
@@ -1644,10 +1692,8 @@ class AgentLoop:
             note = (note + "; " if note else "") + (f"fitted for the dry re-check (predicted; the refit may choose "
                                                     f"another model): {', '.join(fitted['refit'][:8])}")
         # fix round after P6b: the targets an accepted edit kept (``causes.critical_cleared``: a critical gone, majors
-        # kept, not worse)
-        before_keys, after_keys = {CS.finding_key(f) for f in before}, {CS.finding_key(f) for f in after}
-        kept = [CS._fmt(CS.finding_key(f)) for f in targets
-                if CS.finding_key(f) in before_keys and CS.finding_key(f) in after_keys] if ok else []
+        # kept, not worse); review: accept_edit's own target keys (an S2 target without its cut stands for its cuts)
+        kept = [CS._fmt(t) for t in CS.kept_targets(before, after, edit)] if ok else []
         return {"accepted": ok, "reason": reason, "target": [CS._fmt(CS.finding_key(f)) for f in targets],
                 "target_findings": targets, "before": CS.key_list([f for f in before if mine(f)]),
                 "after": CS.key_list([f for f in after if mine(f)]), "removed": findings_removed(before, after),

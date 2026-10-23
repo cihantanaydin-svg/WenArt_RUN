@@ -2637,6 +2637,53 @@ Reading (only if real03 is re-run):
 Next pod: P6c, real02 with the M11 cameras replayed on this code (blocked replayed cameras now move), then the
 windows-only sky A/B (base, skywin35, sky35; §14.14 I2).
 
+**Review of the fix round after P6b** (23 Oct 2026; 8 findings of the read-only review of 86cdeff, 3 of them major; 3
+fixer agents, which also applied the integration's three open asks). Tests: `tests/test_m13_p6b_review.py` (new, 10)
+and new or changed cases in `test_m13_p6b_reading.py`, `test_m13_p6b_camera.py`, `test_m13_p6b_render.py` and
+`test_m13_light.py`; each fails on 86cdeff or catches a named mutation. Nothing here has run on a GPU yet.
+
+| # | Finding (severity, track) | Fix |
+|---|---|---|
+| 1 | The real03 lift shaft r_L0_oda_19 became "hall" through its two 1.09 m lift-door gaps (unverified openings since the no-glass rule), so a re-run would put a shoe cabinet or a console in it (major, F) | A gap without glass carries the evidence rule `no_glass` (`openings._opening`) and is not counted as a door when an unlabelled face is typed (`topology.unlabelled_face_type`); the reason names the gaps left out. real03 replay: only r_L0_oda_19 changes (hall → unknown, as in P6b; empty rooms 7 → 6); real02 and real04 building.json identical. New fixture `tests/fixtures/m13_p6b_real03_lift.json` (real03 strokes) |
+| 2 | The reading tests missed the swing guard of the wall-face rule and three lining checks (minor, F) | New cases: a 0.9 m swing beside a 2.45 m gap keeps it open; a lining flush vs centred, 30 vs 60 % of the gap, 0.04 vs 0.05 m thinner; shapes standing out of the band are no window. 7 mutations caught |
+| 3 | The mixed-view orange bound let 2700 K mixed halls and kitchens pass again (major, G) | `tests/gpu/test_render._orange_bound` gives the spread bound only when the view's `wb_rig_kelvin` is at least `lighting.RIG_NEUTRAL_K` (4000 K); a warmer, missing or unreadable temperature keeps median + 0.15 ("warm rig"). P6b passes as before (all 30 rig-lit views at 4000 K); P4b's 2700 K mixed halls fail again (estimated values: P4b kept none); P5's 2700 K kitchens pass at 1.665 |
+| 4 | The looks-out exception kept cameras whose 0.05 m near clip does not hide the piece, measured on the central ray only (major, C) | `camsearch.looks_out_depth`: the largest planar exit depth over the frame rays, the box widened for a back-aligned model. The camera stays only when a near clip at exit + 0.01 m leaves the rest of its view clear; it then gets `clip_start` and a warning, else it moves. P6b: the same four moves; yasama_4_3 stays with a 0.128 m clip (exit 0.117 m, the rest of the view 1.03 m away). P4a real02 plans byte-identical, no move on P4b real03 |
+| 5 | `set_room_type` was refused for a vision R1 whose only tool is set_room_type (minor, A) | A room type changes the render again (floor, walls, light); only a vision "empty room" claim stays in the dry re-check (`loop.room_type_kept`); `ROOM_TYPE_NOTE` reworded. P6b seq 1905 and 2277 are still refused |
+| 6 | Edits accepted under `critical_cleared` counted as not removing their finding in metric 7 (minor, A) | `metrics.edit_target_keys` leaves out `acceptance.kept`, now built from `accept_edit`'s own keys (`causes.expand_targets`, `kept_targets`). Metrics of the 7 run logs under runs/ byte-identical |
+| 7 | `fixture_layout_blocked` counted AI-added pieces as fixed obstacles (minor, A) | The search runs on a copy where only the drawn pieces are built (`causes.drawn_obstacles_only`); P6b's two marks stay |
+| 8 | The prep job's GPU test `test_attribution_is_complete` compared raw credits with the decoded ATTRIBUTION.md (minor, D) | It compares `copy.plain_text` credits and asks for a flag line only for a limiting flag (the flag `none` asked for one on 1,530 entries) |
+| - | The integration's three open asks | `PLANNER_SYSTEM_M12`: complete_group takes a drawn anchor typed by code; `wall_rig_record` sets the rig colour only when `min(rig) > 0`; the solver's coffee table tries its next (size, gap) options when no candidate passes the final check (`solver._solve_try`, `Space.front_chosen`): on 7 buildings only P4a real02's salon_2 changes (0.8 x 0.5 m table, its F3 and G2 gone, no new finding) |
+
+Not fixed (other owners): clipped cameras are not listed in `cameras_from` (schemas.py; the scene manifest and the
+render entry carry the clip); `objaverse.catalog_entry` still writes ABO titles with entities (the GPU test fix is
+enough for prep runs).
+
+**CPU suite (review round).** One full run on HEAD 86cdeff plus the three fixers' uncommitted edits (17 files
+changed, 2 new; no file changed during the run; `-m "not gpu"`, 4 shared CPUs, temp folder in /dev/shm; log
+`/dev/shm/full_p6b_rev.log`): **5,853 passed, 0 failed, 222 skipped, 174 deselected (GPU), 4 xfailed in 71:50 min**
+(fix round after P6b: 5,836 passed). No test needed a fix. Pins changed on purpose by the fixers, each with a comment
+naming the review round: `test_m13_light` (the orange kitchen at its own share 0.682 fails as "warm rig"),
+`test_m13_p6b_agent` (`render_unchanged` gives nothing for a set_room_type), `test_m13_p6b_integration` (P4a
+salon_2's F3 offers complete_group), `test_m13_p6b_camera` (yasama_4_3 and the looks-out lens keep their pose with a
+near clip) and `test_m13_p6b_render` (the views carry their rig temperature).
+
+Decisions added (21-25; decisions 1 and 17 above change as noted):
+21. Orange "warm rig" rule: the spread bound needs a rig of at least 4000 K. A room with both 4000 K and 2700 K lights
+    gets a mired mean below 4000 K (warm rig); a room without its own rig takes the scene's first light, which may be
+    4000 K. For P6c: real02's 2700 K kitchens (P4a rig shares 0.70-0.79, walls never measured) are judged against the
+    daylight median + 0.15, stricter than 86cdeff; if they read warm the check fails them, on purpose.
+22. Solver: keep the search for a smaller coffee table (down to 0.8 x 0.5 m at the 0.30 m gap) when the first fit
+    fails the final check, or revert it?
+23. `set_room_type`: only `empty_room` claims stay after a retype. Keep more (the camera and decor findings, which a
+    room type does not change)?
+24. A gap that lost its window for want of glass is no door when a face is typed; if a later rule confirms it as a
+    doorway, its `no_glass` rule must go (no code retypes openings today). Decision 17: the shaft face is "unknown"
+    again, as in P6b.
+25. Decision 1: a replayed camera that looks out of a piece stays only with a near clip that hides the piece
+    (yasama_4_3: 0.128 m); confirm.
+
+The new fixture `tests/fixtures/m13_p6b_real03_lift.json` is untracked: it goes into the next commit.
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang

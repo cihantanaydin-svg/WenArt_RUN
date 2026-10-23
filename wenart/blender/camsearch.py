@@ -177,9 +177,19 @@ or contains. What: a replayed interior plan with a target is moved when, on ``bu
 ``SCORE["blocked_single"]`` or its lens stands inside a built piece's box (``piece_bbox`` on the footprint, a stair
 excepted) at eye height. A piece the lens stands inside but looks out of (the box centre behind the lens and the side
 of the box the view leaves through at most ``REPLAY_LOOKS_OUT_M`` ahead, ``lens_inside_pieces``) is left out of the
-frame first: its face lies inside the fitted box and under the camera's near clip (P6b's yasama_4_3 stands inside
-fridge f_L0_194's box, looks away from it, leaves the box 0.057 m ahead and renders without a fridge pixel; a lens
-deeper inside a piece, or beside a side it looks along, is moved). The near share and the nearest-depth rules of
+frame first: its face lies inside the fitted box, and the camera's near clip must hide it (P6b's yasama_4_3 stands
+inside fridge f_L0_194's box, looks away from it, leaves the box 0.057 m ahead on its central ray and renders without
+a fridge pixel; a lens deeper inside a piece, or beside a side it looks along, is moved). Fix round after P6b (23 Oct
+2026), review: the clip is the one really used. ``looks_out_depth`` is the largest planar depth at which a frame ray
+leaves the piece's box (the fitted box centred or back-aligned, ``furniture.fit_vertices``); when that depth plus
+``REPLAY_CLIP_MARGIN_M`` passes the plan's clip (``cameras.CLIP_START_M``, 0.05 m, without its own) and the camera
+stays, the plan gets ``clip_start`` just past it (``create_cameras`` honours it) and its warning says so; when the rest
+of the view (the model without the piece) comes as near as that clip plus the margin, the clip would cut it too and
+the lens counts as inside the piece (moved). Before, the camera stayed on the 0.05 m clip whatever the depth: the face
+of P6b's fridge box lies 0.036-0.117 m ahead over yasama_4_3's frame (its render was clean only because the fit
+pushed the shallower mesh 0.028 m back), and a lens 0.07 m behind a box face the mesh fills would render the inside of
+the piece. yasama_4_3 now stays with ``clip_start`` 0.128 m (the rest of its view is 1.03 m away). The near share and
+the nearest-depth rules of
 ``is_blocked`` never trigger a move (they flag yasama_4_2 and 6_2 over the 1.18 m counter run, whose renders are
 good). The camera goes to the nearest free point of its room (``candidate_positions``) within
 ``REPLAY_MOVE_MAX_M`` whose view through the same frame (yaw, pitch, height, lens, shift, sensor) is not blocked
@@ -1383,6 +1393,13 @@ def lens_clearance(plans: Sequence[dict], objects: Sequence[dict], min_m: Option
 # Fix round after P6b (23 Oct 2026): a replayed camera a newly built piece blocks or contains (module docstring).
 REPLAY_MOVE_MAX_M = 1.5          # a frozen view moved farther is another view: it keeps its pose with the warning
 REPLAY_LOOKS_OUT_M = 0.10        # a lens this near (along its view) the side of a box it looks out of sees past it
+# fix round after P6b (23 Oct 2026), review: ... when the near clip hides that side over the whole frame: the clip is
+# set this far past the box's exit depth, and the rest of the view must lie this far past the clip
+REPLAY_CLIP_MARGIN_M = 0.01
+REPLAY_CLIP_NOTE = ("replayed camera kept with its near clip at {clip:.3f} m (was {old:.3f} m): the lens stands "
+                    "inside the {kind} {piece} and looks out of it, every frame ray leaves its box within {exit:.3f} m "
+                    "(planar), the rest of the view lies {seen:.2f} m away or farther (docs/milestone13.md §7, fix "
+                    "round after P6b)")
 REPLAY_MOVED_REASON = ("the {kind} {piece} of this build {how} the replayed pose (single share {share:.2f}); moved by "
                        "the free-floor rule to the nearest free point whose view is not blocked, same yaw, pitch, "
                        "height and lens (docs/milestone13.md §7, fix round after P6b)")
@@ -1428,6 +1445,37 @@ def lens_inside_pieces(room: dict, building: dict, position, floor_z: float,
     return out
 
 
+def looks_out_depth(piece: dict, position, dirs: np.ndarray, floor_z: float) -> float:
+    """The largest planar depth at which a ray of ``dirs`` (``_frame_rays``: planar-depth scaled, so the ray parameter
+    is the planar depth) from the lens point ``position`` leaves the box of ``piece`` (pure; fix round after P6b, 23
+    Oct 2026, review). The box is ``lens_inside_pieces``' (``piece_bbox`` on the footprint centre, turned by the
+    footprint rotation, from ``mount_bottom`` over ``floor_z`` to its top), its depth widened to cover the fitted
+    model centred or back-aligned (``furniture.fit_vertices(align="back")``: the back edge on the footprint's, so a
+    model deeper than the footprint reaches further to the front). 0.0 without rays; a ray that starts outside the
+    box counts from 0. The camera's near clip hides the piece over the whole frame when it is beyond this depth."""
+    d = np.asarray(dirs, dtype=np.float64).reshape(-1, 3)
+    if not d.size:
+        return 0.0
+    w, bd, top, _ = piece_bbox(piece)
+    fp = piece["footprint"]
+    d_fp = float(fp["size"][1]) if len(fp.get("size") or []) > 1 else bd
+    y0, y1 = min(-bd / 2.0, d_fp / 2.0 - bd), max(bd / 2.0, d_fp / 2.0)
+    z0 = float(floor_z) + mount_bottom(piece)
+    r = math.radians(float(fp.get("rotation_deg") or 0.0))
+    c, s = math.cos(r), math.sin(r)
+    px, py = float(position[0]) - float(fp["center"][0]), float(position[1]) - float(fp["center"][1])
+    lx, ly, lz = c * px + s * py, -s * px + c * py, float(position[2])
+    ldx, ldy, ldz = c * d[:, 0] + s * d[:, 1], -s * d[:, 0] + c * d[:, 1], d[:, 2]
+
+    def leave(o, k, lo, hi):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.where(k > 1e-12, (hi - o) / k, np.where(k < -1e-12, (lo - o) / k, np.inf))
+    t = np.minimum(np.minimum(leave(lx, ldx, -w / 2.0, w / 2.0), leave(ly, ldy, y0, y1)),
+                   leave(lz, ldz, z0, z0 + top))
+    t = np.where(np.isfinite(t), np.maximum(t, 0.0), 0.0)
+    return float(t.max())
+
+
 def _frame_rays(plan: dict, grid=None) -> tuple[np.ndarray, np.ndarray]:
     """``(directions P x 3, border mask)`` of a plan's frame (its lens, sensor, resolution and shift; any pitch)."""
     grid = grid or SCORE["grid"]
@@ -1447,6 +1495,20 @@ def _top_element(m: dict) -> Optional[str]:
     return max(sorted(elements), key=lambda k: elements[k]) if elements else None
 
 
+def _keep_with_clip(plan: dict, room_id: str, clip: dict, single: float) -> dict:
+    """Give a replayed plan that stays the near clip that hides the piece its lens looks out of (fix round after P6b,
+    23 Oct 2026, review): ``plan["clip_start"]`` and a note in its warning; returns the ``clipped`` record."""
+    piece = clip["piece"]
+    note = REPLAY_CLIP_NOTE.format(clip=clip["clip_start"], old=clip["clip_start_old"], kind=piece.get("type"),
+                                   piece=piece.get("id"), exit=clip["exit_m"], seen=clip["seen_m"])
+    plan["clip_start"] = clip["clip_start"]
+    plan["warning"] = "; ".join(w for w in (plan.get("warning"), note) if w)
+    return {"name": plan.get("name"), "room_id": room_id, "status": "clipped", "trigger": "looks_out",
+            "blocked_by": piece.get("id"), "blocked_by_type": piece.get("type"), "share_old": round(single, 4),
+            "share": round(single, 4), "moved_m": 0.0, "clip_start": clip["clip_start"],
+            "clip_start_old": clip["clip_start_old"], "exit_m": round(clip["exit_m"], 4), "warning": note}
+
+
 def move_blocked_replayed(plans: Sequence[dict], building: dict) -> list[dict]:
     """Move the replayed interior cameras of ``plans`` that a piece of ``building`` blocks or contains (fix round after
     P6b, 23 Oct 2026; docs/milestone13.md §7; the rule is in the module docstring). Pure but for the plans it changes
@@ -1454,7 +1516,11 @@ def move_blocked_replayed(plans: Sequence[dict], building: dict) -> list[dict]:
     record per camera the rule fires on, in plan order: ``{"name", "room_id", "status": "moved" | "kept", "trigger":
     "single_share" | "inside", "blocked_by", "blocked_by_type", "share_old", "share", "moved_m", "warning"}``
     (``status: kept``: no free point within ``REPLAY_MOVE_MAX_M`` gives an unblocked view; the warning carries
-    ``BLOCKED_WARNING``)."""
+    ``BLOCKED_WARNING``). Fix round after P6b (23 Oct 2026), review: a camera that stays while its lens looks out of a
+    piece whose box the default clip does not hide over the frame (``looks_out_depth``) gets ``clip_start`` past it
+    (``status: clipped``, ``trigger: looks_out``, with ``clip_start``, ``clip_start_old`` and ``exit_m``; a kept
+    camera's record carries them too); a camera whose rest of view that clip would cut is moved as one inside the
+    piece."""
     rooms = {r["id"]: r for r in building.get("rooms") or []}
     pieces = {f.get("id"): f for f in building.get("furniture") or []}
     models: dict = {}
@@ -1481,13 +1547,28 @@ def move_blocked_replayed(plans: Sequence[dict], building: dict) -> list[dict]:
             c = f["footprint"]["center"]
             behind = (float(c[0]) - pos[0]) * forward[0] + (float(c[1]) - pos[1]) * forward[1] <= 0.0
             (looks_out if behind and ahead <= REPLAY_LOOKS_OUT_M + 1e-9 else inside).append(f)
+        clip = None
         if looks_out:                                   # the frame without the pieces the lens looks out of
             gone = {f["id"] for f in looks_out}
             seen = RoomModel(room, dict(building, furniture=[f for f in building.get("furniture") or []
                                                              if f.get("id") not in gone]))
+            m = _measure_at(seen, pos, dirs, border, lens)
+            # fix round after P6b (23 Oct 2026), review: the near clip really used must hide those pieces over the
+            # whole frame; a clip past them that would cut the rest of the view too means the lens is inside them
+            old_clip = float(plan.get("clip_start") or cameras.CLIP_START_M)
+            exit_m = max(looks_out_depth(f, pos, dirs, model.floor_z) for f in looks_out)
+            if exit_m + REPLAY_CLIP_MARGIN_M > old_clip:
+                need = math.ceil((exit_m + REPLAY_CLIP_MARGIN_M) * 1000.0 - 1e-6) / 1000.0
+                if float(m["min_depth"]) > need + REPLAY_CLIP_MARGIN_M:
+                    out_of = max(looks_out, key=lambda f: looks_out_depth(f, pos, dirs, model.floor_z))
+                    clip = {"clip_start": need, "clip_start_old": old_clip, "exit_m": exit_m,
+                            "seen_m": float(m["min_depth"]), "piece": out_of}
+                else:
+                    inside, looks_out, seen = inside + looks_out, [], model
+                    m = _measure_at(model, pos, dirs, border, lens)
         else:
             seen = model
-        m = _measure_at(seen, pos, dirs, border, lens)
+            m = _measure_at(seen, pos, dirs, border, lens)
         single = float(m["max_single"])
         shares = m.get("elements") or {}
         if inside:
@@ -1495,6 +1576,8 @@ def move_blocked_replayed(plans: Sequence[dict], building: dict) -> list[dict]:
         elif single > SCORE["blocked_single"]:
             trigger, blocker = "single_share", _top_element(m)
         else:
+            if clip is not None:                        # the pose stays: the clip that hides the piece goes with it
+                out.append(_keep_with_clip(plan, room["id"], clip, single))
             continue
         piece = pieces.get(blocker) or {}
         kind = piece.get("type") or next((e["kind"] for e in seen.elements if e["id"] == blocker), "element")
@@ -1530,7 +1613,11 @@ def move_blocked_replayed(plans: Sequence[dict], building: dict) -> list[dict]:
                    f"{single:.2f}) and no free point within {REPLAY_MOVE_MAX_M:g} m of it gives an unblocked view "
                    f"(docs/milestone13.md §7, fix round after P6b)")
             plan["warning"] = "; ".join(w for w in (plan.get("warning"), why) if w)
-            out.append(dict(rec, status="kept", share=round(single, 4), moved_m=0.0, warning=why))
+            kept = dict(rec, status="kept", share=round(single, 4), moved_m=0.0, warning=why)
+            if clip is not None:                        # fix round after P6b, review: the pose stays, so does the clip
+                kept.update({k: v for k, v in _keep_with_clip(plan, room["id"], clip, single).items()
+                             if k in ("clip_start", "clip_start_old", "exit_m")})
+            out.append(kept)
             continue
         _key, x, y, mm = best
         dx, dy = x - pos[0], y - pos[1]
