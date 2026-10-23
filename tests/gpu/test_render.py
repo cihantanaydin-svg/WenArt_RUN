@@ -165,6 +165,19 @@ Fix round after P6b (23 Oct 2026; pod P6b, real03 on 8e8cc97; CPU replays in tes
   at least ``lighting.RIG_NEUTRAL_K``, the only rig P6b measured); a mixed view under a warmer rig or without a rig
   temperature keeps the median + 0.15 (``warm rig``: P4b's mixed 2700 K halls, real04's 2700 K kitchens);
 - the interior-glazing check keeps its values (``CHECK_VALUES_FILE``); its bound is unchanged.
+
+Milestone 13 final pass (23 Oct 2026; the user's decision after pod P6c: the windows-only interior sky, 3.5 stops on the
+camera's paths, is production; CPU replays in tests/test_m13_p6a_sky.py):
+
+- the pane-saturation floor ``PANE_SAT_MIN`` is re-pinned from P6c's skywin35 numbers (0.08 -> 0.065: the paler sky
+  puts real02's median at an estimated 0.075-0.083) and the cause of P4a's grey cards is checked from the record: an
+  interior view with a window pull rendered with the haze in the camera's view (``haze_hidden`` false) fails;
+- real02's project white point stays at P6c's (``P6C_REAL02_WB_K`` within ``REAL02_WB_TOLERANCE_K``: the
+  windows-only sky moved it 0.1 K, the whole-world sky35 +145 K);
+- ``test_the_interior_world_is_the_sky_of_the_levers``: the scene's interior world record is the one its light levers
+  build (production: ``sky_rays`` camera_paths, 3.5 stops, the room's strength and ``strength_camera`` at 2^3.5; the
+  old world of ``sky0``, the Milestone 11 look and the single levers: no sky keys). P6a / P6b / P6c's finals were
+  built with the old world before this pass and fail it (their records have no ``sky_stops``).
 """
 import hashlib
 import json
@@ -575,10 +588,63 @@ CLOSED_DOOR_MIN_COVERAGE = 0.9999
 
 
 def test_closed_door_views_end_on_the_door(project):
-    name, _scene, render = project
+    """Milestone 13 final pass (23 Oct 2026; verify:look:0, test hygiene): a named view that was not rendered is
+    resolved to its room (``cam_<room id>_<n>``). When the build skipped that room as the second twin of a mirrored
+    pair (``views.views_for``: ``twin of <id>``, ``render.twin_rooms: one``; P6c real02: r_L1_koridor_2, as in the
+    M11 view set), the bounds apply to the first twin's rendered views that see only doors, one of them mirrored into
+    the skipped room (its centre under the room's ``twin_transform`` within 2 cm of a door; P6c: cam_r_L1_koridor_1
+    to 3, d_L1_003 -> d_L1_006). A name the project does not have, or a twin without such a view, is skipped with
+    the reason, never failed (real03 has no such camera)."""
+    name, scene, render = project
     entries = {r["camera"]: r for r in render["renders"] if r["camera"] in CLOSED_DOOR_VIEWS}
+    missing = [c for c in CLOSED_DOOR_VIEWS if c not in entries]
+    reasons = []
+    building = None
+    if missing:
+        try:
+            building = _building(name, scene)
+        except (AssertionError, OSError, ValueError) as exc:
+            reasons.append(f"{', '.join(missing)} not rendered and the building is not readable ({exc})")
+    if building is not None:
+        from wenart.views import views_for
+
+        record = scene.get("variant")
+        variant = (record.get("id") if isinstance(record, dict) else record) or "base"
+        twin_of = {s["room_id"]: str(s["reason"])[len("twin of "):] for s in views_for(building, variant)["skipped"]
+                   if str(s.get("reason") or "").startswith("twin of ")}
+        rooms = {r["id"]: r for r in building.get("rooms") or []}
+        kinds = {o.get("id"): o.get("type") for o in building.get("openings") or []}
+        doors = [o for o in building.get("openings") or [] if o.get("type") == "door" and o.get("center")]
+        rendered = {r["camera"]: r for r in render["renders"]}
+        for cam in missing:
+            room_id = next((rid for rid in sorted(rooms, key=len, reverse=True)
+                            if cam.startswith(f"cam_{rid}_") and cam[len(f"cam_{rid}_"):].isdigit()), None)
+            first = twin_of.get(room_id) if room_id else None
+            t = (rooms.get(room_id) or {}).get("twin_transform")
+            if first is None or not t or len(t) != 6:
+                reasons.append(f"{cam} not rendered" + (f" ({room_id} is not a twin the build skipped)" if room_id
+                                                        else " (no room of the building)"))
+                continue
+            level = rooms[room_id].get("level_id")
+            same = [d for d in doors if d.get("level_id") == level]
+            mirrored = {o["id"] for o in same if any(math.dist(
+                (t[0] * o["center"][0] + t[1] * o["center"][1] + t[2], t[3] * o["center"][0] + t[4] * o["center"][1]
+                 + t[5]), d["center"]) <= 0.02 for d in same)}
+            views = {c["name"]: rendered[c["name"]] for c in scene.get("cameras") or []
+                     if c.get("room_id") == first and c.get("name") in rendered and c.get("visible_openings")
+                     and all(kinds.get(v) == "door" for v in c["visible_openings"])
+                     and set(c["visible_openings"]) & mirrored}
+            if not views:
+                reasons.append(f"{cam}: twin of {first} under render.twin_rooms: one, and no rendered view of {first} "
+                               f"sees only doors with one mirrored into {room_id}")
+                continue
+            print(f"{name}: {cam} not rendered ({room_id} is a twin of {first} under render.twin_rooms: one): "
+                  f"the views of {first} that see its mirrored doors are checked: {sorted(views)}")
+            entries.update(views)
     if not entries:
-        pytest.skip(f"{name}: none of {CLOSED_DOOR_VIEWS} rendered")
+        pytest.skip(f"{name}: none of {CLOSED_DOOR_VIEWS} rendered: {'; '.join(reasons)}")
+    if reasons:
+        print(f"{name}: not checked: {'; '.join(reasons)}")
     for cam, r in entries.items():
         depth = r.get("depth") or {}
         assert depth.get("max") is not None and depth["max"] < MAX_INDOOR_DEPTH_M, (cam, depth)
@@ -818,6 +884,12 @@ NEAR_BLACK = 8                  # display value under which a pixel is black (ev
 OPEN_AIR_MAX_BLACK = 0.02       # black share of an open-air view's sky pixels (P3: 22-31 % of the whole frame)
 P3_REAL04_WB_K = 5635.0         # P3's real04 project white point (cam_r_L1_teras_1, daylight only, interior world)
 P3_WB_TOLERANCE_K = 250.0
+# Milestone 13 final pass (23 Oct 2026): real02's project white point (cam_r_L1_teras_1, daylight only, interior world)
+# in P4a (m13.2) and P6c (m13.5), 5608.6 K both. The windows-only sky leaves it (P6c A/B: 5611.6 -> 5611.7 K at 128 spp)
+# where the whole-world sky35 moved it +145 K (5757.0 K); the tolerance is half of that, so a sky that lights the room
+# fails here.
+P6C_REAL02_WB_K = 5608.6
+REAL02_WB_TOLERANCE_K = 75.0
 PANE_MEDIAN_MAX = 0.85          # pulled panes at or under the AgX shoulder
 PANE_PULLED_SHARE = 0.8         # ... in at least this share of the interior views with a pull
 HALL_DARK_MAX_SHARE = 0.25      # hall / stair views still over the +3 cap (P3: 10 of 13 after the agent's x3)
@@ -825,7 +897,17 @@ HALL_DARK_MAX_SHARE = 0.25      # hall / stair views still over the +3 cap (P3: 
 # re-render of P4a's real02 scene at P4a's EV: the L0 / L1 windows 0.005 with the haze in the camera's view (P4a's grey
 # cards) and 0.14-0.22 without it, the basement windows (light wells, no haze in their view) 0.02-0.17 either way;
 # median 0.06 with the haze in view, 0.14 without (M11: 0.13-0.25).
-PANE_SAT_MIN = 0.08
+# Milestone 13 final pass (23 Oct 2026; pin changed on purpose): 0.08 -> 0.065 for the windows-only sky (skywin35,
+# production since the user's decision after P6c). P6c real02 (runs/20261023-084914-m13_p6, 256 spp): the upper median
+# of its 14 interior pane views is 0.137 under the old world; the A/B (128 spp, results/review/m13_p6c/sky_ab) took the
+# three views that see sky to 0.62 / 0.70 / 0.55 of it after the pull (yatak_odasi_1 0.1353 -> 0.0833,
+# e_yatak_odasi_3 0.1813 -> 0.1262, oyun_1 0.1497 -> 0.0822: the paler sky on the AgX shoulder). With those three as
+# measured and the lowest ratio 0.55 on the other three L0 / L1 sky views the median is 0.0822; with 0.55 on all six it
+# is 0.0752 (yatak_odasi_1 at 0.549 x 0.137; salon_2's unchanged 0.0746 under it): 0.08 sits inside that range. 0.065
+# stays under every estimate (0.010 under the worst) and over P4a's grey cards (median 0.06 with the haze in view);
+# the haze itself is now checked from the record (haze_hidden). real04 (P6a 0.165; sky35 lowered its panes 10-43 %)
+# and real03 (P6b 0.201) stay far above. The CPU replay on P6c's numbers is tests/test_m13_p6a_sky.py.
+PANE_SAT_MIN = 0.065
 # Fix round after P4b (17 Oct 2026; the review of the P4a fix round): the floor holds only under the clear-sky moods
 # (wenart/style/finishes.py LIGHTING); overcast, cloudy soft, blue hour, night and interior evening show a grey or dark
 # sky through the glass by design (the value is printed for them).
@@ -956,6 +1038,10 @@ def test_views_keep_the_project_white_point_or_mix_it_with_the_rig(project):
         kelvin = render["white_balance_project"].get("kelvin")
         assert kelvin is not None and abs(kelvin - P3_REAL04_WB_K) <= P3_WB_TOLERANCE_K, \
             f"real04: the project white point moved from P3's {P3_REAL04_WB_K} K to {kelvin} K"
+    if name == "real02":            # Milestone 13 final pass (23 Oct 2026): the windows-only sky keeps the room light
+        kelvin = render["white_balance_project"].get("kelvin")
+        assert kelvin is not None and abs(kelvin - P6C_REAL02_WB_K) <= REAL02_WB_TOLERANCE_K, \
+            f"real02: the project white point moved from P6c's {P6C_REAL02_WB_K} K to {kelvin} K"
     print(f"{name}: rig shares " + ", ".join(f"{r['camera']}={r['exposure'].get('wb_rig_share')}"
                                              for r in render["renders"]))
 
@@ -1376,6 +1462,35 @@ def test_open_air_views_render_under_the_exterior_sky(project):
     assert not bad, f"{name}: open-air views: {bad}"
 
 
+def test_the_interior_world_is_the_sky_of_the_levers(project):
+    """Milestone 13 final pass (23 Oct 2026; the user's decision after pod P6c): the scene's interior world record is
+    the world its light levers build (``lighting.light_levers`` of the scene's ``light_variant``; None = production).
+    Production (and ``base``, ``skywin35``): the windows-only sky, ``sky_rays`` camera_paths at 3.5 stops, the room's
+    Background Strength unchanged (``strength`` = ``strength_base``) and ``strength_camera`` = ``strength`` x 2^3.5
+    (11.31 x for the HDRI at Strength 1.0). ``sky0``, the Milestone 11 look and the single levers: the old world, no sky
+    keys. P6a / P6b / P6c's finals were built before this pass (no ``sky_stops``) and fail it."""
+    from wenart.blender import lighting as L
+
+    name, scene, _render = project
+    world = (scene.get("lighting") or {}).get("world") or {}
+    levers = L.light_levers(scene.get("light_variant") or "")
+    gain, rays = L.interior_sky_gain(levers), L.interior_sky_rays(levers)
+    print(f"{name}: light variant {scene.get('light_variant')!r}, interior world {world}")
+    assert world, f"{name}: no interior world record"
+    if gain == 1.0:
+        assert "sky_stops" not in world and "sky_rays" not in world, f"{name}: the old world with sky keys: {world}"
+        return
+    assert world.get("sky_stops") == pytest.approx(levers["sky_stops"], abs=1e-6) \
+        and world.get("sky_rays", L.SKY_RAYS_ALL) == rays, \
+        f"{name}: interior world {world} is not the levers' ({levers['sky_stops']} stops on {rays}; built before the " \
+        f"Milestone 13 final pass?)"
+    if rays == L.SKY_RAYS_CAMERA:
+        assert world["strength"] == pytest.approx(world["strength_base"], rel=1e-9), world   # the room's light
+        assert world["strength_camera"] == pytest.approx(world["strength"] * gain, rel=1e-5), world
+    else:
+        assert world["strength"] == pytest.approx(world["strength_base"] * gain, rel=1e-5), world
+
+
 def test_sky_and_window_pulls_reach_their_targets(project):
     """Every view under the exterior sky carries a ``sky_pull`` record, and a chosen sky pull's save reads as sky
     (median under the shoulder, saturation over the floor) and darkens and saturates the blended sky; the pulled
@@ -1465,10 +1580,15 @@ def test_sky_and_window_pulls_reach_their_targets(project):
     # interior views as written (after the pull) is at least PANE_SAT_MIN (P4a 0.00-0.07 with the haze in the camera's
     # view through the glass; M11 0.13-0.25). A view whose record has no pane_saturation was rendered before m13.3.
     panes = []
+    exterior_name = exterior_world.get("name") if isinstance(exterior_world, dict) else None
     for r in render["renders"]:
         wp = r.get("window_pull") or {}
         if r.get("room_id") is None or r.get("open_air") or not wp:
             continue
+        # Milestone 13 final pass (23 Oct 2026): the cause of P4a's grey cards from the record (render.haze_hidden_for:
+        # every view under the interior world hides the haze from the camera's rays; None = a scene without haze)
+        if r.get("haze_hidden") is False and not (exterior_name and r.get("world") == exterior_name):
+            bad.append((r["camera"], "window panes seen through the haze (haze_hidden false): grey cards"))
         if "pane_saturation" not in wp:
             bad.append((r["camera"], "window pull without pane_saturation (rendered before m13.3?)"))
             continue

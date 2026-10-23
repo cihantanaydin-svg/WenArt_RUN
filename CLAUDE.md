@@ -144,8 +144,10 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
 - Everything is logged: every check, finding, edit, rejected edit and reason goes to
   `outputs/<p>/orchestrator/log.json` and `log.md` with before/after images. Nothing changes silently.
 - An agent edit is accepted only when the finding it targets is gone in the dry re-check and no new critical finding
-  appears; "edits accepted" is no success metric, "findings removed" is. Building-wide edits (roof, terrain, site,
-  exterior cameras) come only from the building session (user OK of 12 Oct 2026).
+  appears; "edits accepted" is no success metric, "findings removed" is. Exception `critical_cleared`: when all
+  critical targets of a step are gone (measured by code), its major targets may stay if none gets worse (user OK of
+  23 Oct 2026). Building-wide edits (roof, terrain, site, exterior cameras) come only from the building session (user
+  OK of 12 Oct 2026).
 - AI polish must not change geometry: compare edge and depth maps before/after and reject changed results. A
   final vision check compares every render with the building JSON and the source plan; its findings go back to
   the stage that caused them.
@@ -158,7 +160,8 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   copied into this repository.
 - Cameras keep the Milestone 11 policy (18 mm / 16 mm lenses, 1.25 m) in Milestone 13 (user decision of 12 Oct
   2026); exterior views of long, low buildings may use a wider or tilted framing (user OK of 22 Oct 2026); AI
-  polish stays off in Milestone 13.
+  polish stays off in Milestone 13; the interior sky is windows-only, +3.5 stops, by default (user decision of 23 Oct
+  2026).
 - Verify model IDs, versions and flags against official sources; never invent them.
 - Tests: CPU tests run here (`pytest -m "not gpu"`); GPU tests run on RunPod
   (`pytest -m gpu` via the runner). Run GPU tests before calling a milestone done.

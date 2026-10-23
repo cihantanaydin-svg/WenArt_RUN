@@ -63,6 +63,15 @@ whole-part read is also reached by a candidate the passes typed as a table; it n
 ``ai_overridden`` (a type_disagreement conflict in the report) when the drawing types the piece otherwise (a coat
 closet both passes called a coffee table) and notes ``split_override_text``'s line, not "still unknown after its
 answers" (said only of an ``unknown`` piece).
+
+Milestone 13 final pass (23 Oct 2026; pod P6c, real02, verify:agent:0). What: ``_ask_and_apply`` records the keys of
+its questions without a full pair of answers in ``report["unanswered"]`` (``reading.UNANSWERED_KEY``) in every mode,
+also with ``--no-ai`` where ``pending`` stays []; ``reading.answered_keys`` subtracts them, so "asked and answered in
+this round" needs real answers. Why: P6c's first ``pipeline_final`` ran with ``--answers --no-ai``; with ``pending``
+[] and answers applied, every question of the page counted as answered, the code-typed questions round 1 had withdrawn
+were kept and listed, the late pass answered them from the M11 seeds and the AI types won (the drawn 3-seat sofas
+f_L-1b_041 / 042 built as kitchen islands, about 20 other pieces of P4a's code types). The pipeline's
+``_write_questions`` later rewrites the same key with the same rule, less the withdrawn questions.
 """
 from __future__ import annotations
 
@@ -85,6 +94,7 @@ from wenart.ingest.generic import symbols as SY
 from wenart.ingest.generic import topology as TP
 from wenart.ingest.generic import walls as W
 from wenart.ingest.generic.model import GenericPage, Stroke, TextRun
+from wenart.ingest.generic.reading import UNANSWERED_KEY
 from wenart.ingest.model import DimensionItem, FurnitureItem, LevelExtraction, OpeningItem, TextItem, WallItem
 from wenart.ingest.model import page_class_for, parse_scale_text
 
@@ -468,13 +478,17 @@ def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wa
         ex.warnings.extend(result.get("warnings") or [])
         ex.warnings.extend(assumed)
         decided += 1
+    # Milestone 13 final pass (23 Oct 2026; module docstring): the keys without a full pair of answers, in every mode
+    # (``pending`` is [] under --no-ai: nothing waits for them, but they were not answered).
     if append:
         ex.report["questions"] = list(ex.report.get("questions") or []) + items
         ex.report["pending"] = list(ex.report.get("pending") or []) + ([] if no_ai else pending)
+        ex.report[UNANSWERED_KEY] = list(ex.report.get(UNANSWERED_KEY) or []) + pending
         ex.report["answers_applied"] = int(ex.report.get("answers_applied") or 0) + decided
     else:
         ex.report["questions"] = items
         ex.report["pending"] = [] if no_ai else pending
+        ex.report[UNANSWERED_KEY] = list(pending)
         ex.report["answers_applied"] = decided
     if pending:
         ex.notes.append(f"{len(pending)} of {len(cands)} furniture candidates have no complete pair of answers"

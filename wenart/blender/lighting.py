@@ -56,7 +56,8 @@ ceiling light and was pushed +3..+8 EV):
   definition, kept so the P1 sheets stay comparable); several names joined by ``,`` or ``+`` combine
   (``sun1000,rig``: the Milestone 11 look plus those levers; ``base,sun300``: production with that sun). An
   unknown name raises (a typo must never run the base silently). Unset = production: the constant, the EV cap, the
-  rig and the shell table on (``LEVER_DEFAULTS``, the lead's decisions from P1). The scene manifest's
+  rig and the shell table on (``LEVER_DEFAULTS``, the lead's decisions from P1; since the final pass also the
+  windows-only interior sky, the last paragraph of this docstring). The scene manifest's
   ``lighting`` block records the variant, every lever and the sun (constant, mood factor, applied).
 - The dim-room rule follows the sun (``fill_light_reason(..., sun_wm2=)``): the window / floor ratio is scaled by
   ``sun / SUN_REFERENCE_MOOD_WM2`` before the ``DIM_ROOM_RATIO`` test, so a 300 W/m² sun through a small window
@@ -209,6 +210,24 @@ levels sky2 / sky35 / sky52 build their world exactly as before. Limits, measure
 bpy 5.2.2 shim (tests/test_m13_p6a_sky.py): a library mirror (``materials.mirror_glass_material``, Roughness 0.03)
 reflects through a GGX lobe Cycles counts as glossy, not singular, so a mirror shows the sky at Strength 1.0; the sky
 through the pane is reached at bounce 2 and capped by Cycles' indirect clamp (``render.CLAMP_INDIRECT``), as in sky35.
+
+Milestone 13 final pass (23 Oct 2026; the user's decision of 23 Oct 2026 after pod P6c): the windows-only sky is
+production. What: no variant and ``base`` (and every name list that starts from production) build the interior world
+with ``PRODUCTION_SKY_STOPS`` (3.5) on ``PRODUCTION_SKY_RAYS`` (``camera_paths``); ``skywin35`` stays as an alias of it
+(same stops, same rays); the old world (Strength 1.0 for every ray, production until P6c) is the named variant
+``sky0`` (``SKY_OLD_WORLD_VARIANT``: production with the old world, the "before" of the sky A/Bs and the variant for a
+reproduction of P6a / P6b / P6c's finals); the Milestone 11 look (``m11``) and the single P1 levers (``sun*``,
+``evcap``, ``rig``, ``shell``, ``all``) keep the old world, so a P1 sheet and a later sheet of the same name still
+show the same thing; the whole-world levels sky2 / sky35 / sky52 are unchanged. ``lever_record`` now always writes
+``sky_stops`` and ``sky_rays``, and the world record of a production build carries ``sky_stops`` 3.5, ``sky_rays``
+``camera_paths`` and ``strength_camera`` (``materials.world_strength_record``). Why: P6c's A/B on real02 (results
+review m13_p6c/sky_ab) kept the room as built outside the panes (EV used and metered identical in 6 of 6 views,
+project white point 5611.6 -> 5611.7 K, day green and wall light R/B identical) and closed the dark sky over the pale
+band (band/sky 1.54-1.78 -> 1.00-1.02); the known cost is a paler, flatter sky (pane saturation -30..-45 %: the
+indirect clamp caps both the sky and the lawn seen through the pane). How: the build fingerprint follows the code
+(``build.FINGERPRINT_CODE`` covers this file), so every scene is rebuilt and every view re-rendered; the
+``light_variant`` of a production build stays None. No pod has rendered this default: P6a / P6b / P6c's finals were
+built with the old world (their manifests' world records have no ``sky_stops``).
 """
 from __future__ import annotations
 
@@ -271,15 +290,24 @@ SKY_WINDOW_VARIANT_STOPS = {"skywin35": 3.5}
 SKY_WINDOW_VARIANTS = tuple(SKY_WINDOW_VARIANT_STOPS)
 SKY_RAYS_ALL = "all"                    # sky2 / sky35 / sky52: every ray sees the raised world
 SKY_RAYS_CAMERA = "camera_paths"        # skywin35: Light Path max(Is Camera Ray, Is Singular Ray) only
-KNOWN_LIGHT_VARIANTS = LIGHT_VARIANTS + SKY_VARIANTS + SKY_WINDOW_VARIANTS
+# Milestone 13 final pass (23 Oct 2026; the user's decision of 23 Oct 2026 after pod P6c, the module docstring): the
+# windows-only sky is production. No variant, ``base`` and every name list that starts from production build the
+# interior world at these stops on these rays; ``skywin35`` is the same level under its A/B name (an alias).
+PRODUCTION_SKY_STOPS = SKY_WINDOW_VARIANT_STOPS["skywin35"]
+PRODUCTION_SKY_RAYS = SKY_RAYS_CAMERA
+# The old world (Strength 1.0 for every ray: production until P6c, the world of P6a / P6b / P6c's finals): production
+# with the interior sky as built before the final pass. The "before" of the sky A/Bs (wenart.run.ab) and the variant
+# for a reproduction; the Milestone 11 look and the single P1 levers keep this world without naming it.
+SKY_OLD_WORLD_VARIANT = "sky0"
+KNOWN_LIGHT_VARIANTS = LIGHT_VARIANTS + SKY_VARIANTS + SKY_WINDOW_VARIANTS + (SKY_OLD_WORLD_VARIANT,)
 
 
 def parse_light_variant(text) -> list[str]:
     """The variant names of a ``WENART_LIGHT_VARIANT`` value (pure): ``"sun300"`` -> ``["sun300"]``,
     ``"sun1000,rig"`` / ``"sun1000+rig"`` -> both; empty / None -> ``[]`` (production). An unknown name raises
     ValueError (a typo must never run the base silently); two sun strengths in one value raise too, as do two sky
-    levels (``SKY_VARIANTS``) and ``m11`` with ``base`` (the Milestone 11 look and the production defaults exclude
-    each other)."""
+    levels (``SKY_VARIANTS``, ``SKY_WINDOW_VARIANTS`` and, since the Milestone 13 final pass, ``sky0``) and ``m11``
+    with ``base`` (the Milestone 11 look and the production defaults exclude each other)."""
     if text is None:
         return []
     names = [n.strip().lower() for n in str(text).replace("+", ",").split(",") if n.strip()]
@@ -290,7 +318,8 @@ def parse_light_variant(text) -> list[str]:
     suns = [n for n in names if n in SUN_VARIANT_WM2]
     if len(suns) > 1:
         raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: more than one sun strength ({suns})")
-    skies = [n for n in names if n in SKY_VARIANT_STOPS or n in SKY_WINDOW_VARIANT_STOPS]
+    skies = [n for n in names if n in SKY_VARIANT_STOPS or n in SKY_WINDOW_VARIANT_STOPS
+             or n == SKY_OLD_WORLD_VARIANT]
     if len(skies) > 1:
         raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: more than one interior sky level ({skies})")
     if "m11" in names and "base" in names:
@@ -301,9 +330,10 @@ def parse_light_variant(text) -> list[str]:
 
 def light_levers(variant=None, env=None) -> dict:
     """The levers of a build or render (pure): ``{"variant": str | None, "names": [...], "sun_wm2", "ev_cap",
-    "rig", "shell", "sky_stops", "source"}``. ``variant`` (a value as the environment variable would hold it) wins
-    over ``env[LIGHT_VARIANT_ENV]`` (``os.environ`` when None). No variant = production: ``SUN_STRENGTH_WM2``,
-    ``LEVER_DEFAULTS`` and the interior sky as built (``sky_stops`` 0). ``base`` = production under its name;
+    "rig", "shell", "sky_stops", "sky_rays", "source"}``. ``variant`` (a value as the environment variable would hold
+    it) wins over ``env[LIGHT_VARIANT_ENV]`` (``os.environ`` when None). No variant = production: ``SUN_STRENGTH_WM2``,
+    ``LEVER_DEFAULTS`` and (since the final pass below) the windows-only interior sky; before it, the interior sky as
+    built (``sky_stops`` 0). ``base`` = production under its name;
     ``m11`` = the Milestone 11 look (``M11_LEVERS``, sun ``SUN_STRENGTH_M11_WM2``); every other name starts from
     the Milestone 11 look (from production when ``base`` is among the names, or when every name is ``base`` or an
     interior sky level, ``SKY_VARIANTS``) and turns the named levers on (never off); a sky level sets
@@ -311,27 +341,42 @@ def light_levers(variant=None, env=None) -> dict:
 
     Fix round after P6a (22-23 Oct 2026): ``sky_rays`` says which rays see that gain (``interior_sky_rays``):
     ``SKY_RAYS_ALL`` for the sky levels and without one, ``SKY_RAYS_CAMERA`` for a windows-only level
-    (``SKY_WINDOW_VARIANTS``: ``skywin35``, which starts from production like the sky levels)."""
+    (``SKY_WINDOW_VARIANTS``: ``skywin35``, which starts from production like the sky levels).
+
+    Milestone 13 final pass (23 Oct 2026): production's interior sky is the windows-only level
+    (``PRODUCTION_SKY_STOPS`` on ``PRODUCTION_SKY_RAYS``): no variant, ``base`` and every name list that starts from
+    production get it, so ``skywin35`` gives production's levers; ``sky0`` (``SKY_OLD_WORLD_VARIANT``, which starts
+    from production like the sky levels) sets the old world (0 stops, all rays); the Milestone 11 look and the single
+    levers (a list that starts from the Milestone 11 look) keep the old world; a named sky level replaces the
+    starting sky."""
     source = "arg"
     if variant is None:
         variant = (os.environ if env is None else env).get(LIGHT_VARIANT_ENV)
         source = "env" if variant not in (None, "") else "default"
     names = parse_light_variant(variant)
     if not names:
+        # Milestone 13 final pass: production's interior sky is the windows-only level
         return {"variant": None, "names": [], "sun_wm2": float(SUN_STRENGTH_WM2), "source": source,
-                **{k: bool(v) for k, v in LEVER_DEFAULTS.items()}, "sky_stops": 0.0, "sky_rays": SKY_RAYS_ALL}
+                **{k: bool(v) for k, v in LEVER_DEFAULTS.items()}, "sky_stops": float(PRODUCTION_SKY_STOPS),
+                "sky_rays": PRODUCTION_SKY_RAYS}
     on = set(names)
     if "all" in on:
         on |= {ALL_VARIANT_SUN, "evcap", "rig", "shell"}
-    production = "base" in on or on <= set(SKY_VARIANTS + SKY_WINDOW_VARIANTS)
+    production = "base" in on or on <= set(SKY_VARIANTS + SKY_WINDOW_VARIANTS + (SKY_OLD_WORLD_VARIANT,))
     start = LEVER_DEFAULTS if production else M11_LEVERS
     sun = next((SUN_VARIANT_WM2[n] for n in LIGHT_VARIANTS if n in on and n in SUN_VARIANT_WM2),
                SUN_STRENGTH_WM2 if production else SUN_STRENGTH_M11_WM2)
-    sky = next((SKY_VARIANT_STOPS[n] for n in SKY_VARIANTS if n in on), 0.0)
-    rays = SKY_RAYS_ALL
+    # Milestone 13 final pass: the starting sky (production's windows-only level, else the old world); a named level
+    # replaces it (parse_light_variant allows one level)
+    sky, rays = (float(PRODUCTION_SKY_STOPS), PRODUCTION_SKY_RAYS) if production else (0.0, SKY_RAYS_ALL)
+    level = next((SKY_VARIANT_STOPS[n] for n in SKY_VARIANTS if n in on), None)
+    if level is not None:
+        sky, rays = level, SKY_RAYS_ALL
     window = next((SKY_WINDOW_VARIANT_STOPS[n] for n in SKY_WINDOW_VARIANTS if n in on), None)
     if window is not None:                  # fix round after P6a: the windows-only level (parse allows one level)
         sky, rays = window, SKY_RAYS_CAMERA
+    if SKY_OLD_WORLD_VARIANT in on:         # Milestone 13 final pass: the old world, named
+        sky, rays = 0.0, SKY_RAYS_ALL
     return {"variant": ",".join(names), "names": names, "sun_wm2": float(sun),
             "ev_cap": bool(start["ev_cap"]) or "evcap" in on, "rig": bool(start["rig"]) or "rig" in on,
             "shell": bool(start["shell"]) or "shell" in on, "sky_stops": float(sky), "sky_rays": rays,
@@ -340,19 +385,24 @@ def light_levers(variant=None, env=None) -> dict:
 
 def lever_record(levers: dict) -> dict:
     """The ``levers`` block of the scene manifest's lighting record (pure): sun, EV cap, rig, shell and the source;
-    pod P6a: ``sky_stops`` only for a sky level, so a production manifest keeps exactly its keys; fix round after P6a:
-    ``sky_rays`` only for a windows-only level (``camera_paths``)."""
+    pod P6a: ``sky_stops`` only for a sky level, so a production manifest kept exactly its keys; fix round after P6a:
+    ``sky_rays`` only for a windows-only level (``camera_paths``).
+
+    Milestone 13 final pass (23 Oct 2026): always ``sky_stops`` and ``sky_rays`` (``interior_sky_rays``), since
+    production has a sky level now: a production manifest says 3.5 / ``camera_paths``, ``sky0``, the Milestone 11 look
+    and the single levers 0.0 / ``all``. A manifest without the keys was built before the final pass (the old world
+    for production, P6a / P6b / P6c's finals, and for every lever variant)."""
     record = {k: levers[k] for k in ("sun_wm2", "ev_cap", "rig", "shell", "source")}
-    if levers.get("sky_stops"):
-        record["sky_stops"] = float(levers["sky_stops"])
-        if interior_sky_rays(levers) == SKY_RAYS_CAMERA:
-            record["sky_rays"] = SKY_RAYS_CAMERA
+    record["sky_stops"] = float(levers.get("sky_stops") or 0.0)
+    record["sky_rays"] = interior_sky_rays(levers)
     return record
 
 
 def interior_sky_gain(levers: dict | None = None) -> float:
     """The factor on the interior world's Background Strength (pure): ``2 ** levers["sky_stops"]``, exactly 1.0
-    without a sky level (production, every lever variant, a levers dict from before the sky A/B)."""
+    without a sky level (every lever variant, ``sky0``, a levers dict from before the sky A/B). Milestone 13 final
+    pass (23 Oct 2026): production's levers carry ``PRODUCTION_SKY_STOPS``, so production's gain is 2^3.5 (on the
+    camera's paths only, ``interior_sky_rays``)."""
     stops = float((levers or {}).get("sky_stops") or 0.0)
     if not math.isfinite(stops) or stops == 0.0:
         return 1.0
@@ -363,7 +413,8 @@ def interior_sky_rays(levers: dict | None = None) -> str:
     """Which rays see ``interior_sky_gain`` (pure; fix round after P6a, 22-23 Oct 2026): ``SKY_RAYS_CAMERA`` for a
     windows-only level (``skywin35``: the camera's paths, ``materials.world_nodes(..., gain_rays=)``), else
     ``SKY_RAYS_ALL`` (the sky levels; without a gain the value changes nothing). A levers dict from before this round
-    (no ``sky_rays``) is ``SKY_RAYS_ALL``; an unknown value raises ValueError."""
+    (no ``sky_rays``) is ``SKY_RAYS_ALL``; an unknown value raises ValueError. Milestone 13 final pass (23 Oct 2026):
+    production (no variant, ``base``) is ``SKY_RAYS_CAMERA`` too (``PRODUCTION_SKY_RAYS``)."""
     rays = (levers or {}).get("sky_rays") or SKY_RAYS_ALL
     if rays not in (SKY_RAYS_ALL, SKY_RAYS_CAMERA):
         raise ValueError(f"unknown sky_rays {rays!r}; one of {[SKY_RAYS_ALL, SKY_RAYS_CAMERA]}")
@@ -2008,7 +2059,9 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     scene["wenart_light_variant"] = levers["variant"] or ""
 
     # Pod P6a: a sky level (``SKY_VARIANTS``) raises the interior world only; 1.0 builds it as before. Fix round after
-    # P6a: a windows-only level (``SKY_WINDOW_VARIANTS``) raises it on the camera's paths only (``interior_sky_rays``)
+    # P6a: a windows-only level (``SKY_WINDOW_VARIANTS``) raises it on the camera's paths only (``interior_sky_rays``).
+    # Milestone 13 final pass (23 Oct 2026): production's levers are that windows-only level; ``sky0`` (and the m11
+    # look and the single levers) give 1.0, the old world
     world = world_nodes(scene, world_lighting(lighting, in_building), hdri_path,
                         strength_gain=interior_sky_gain(levers), gain_rays=interior_sky_rays(levers))
     world_exterior = None

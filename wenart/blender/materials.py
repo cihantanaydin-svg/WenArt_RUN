@@ -1054,7 +1054,9 @@ MOOD_STRENGTH = {"warm daylight": 1.0, "cool daylight": 1.2, "golden evening": 0
 # interior world see a sky gain (``lighting.interior_sky_rays``). ``all``: the Background Strength itself (sky2 /
 # sky35 / sky52); ``camera_paths``: only the rays whose Light Path max(Is Camera Ray, Is Singular Ray) is 1, the
 # factor of ``window_glass_material`` (the camera ray, and its ray after a sharp refraction or reflection: the view
-# through a pane).
+# through a pane). Milestone 13 final pass (23 Oct 2026): ``camera_paths`` at 3.5 stops is production's interior sky
+# (``lighting.PRODUCTION_SKY_STOPS`` / ``PRODUCTION_SKY_RAYS``, passed in by ``lighting.build_lighting``, the only
+# caller of ``world_nodes``); the defaults of the functions below stay the old world (gain 1.0, ``all``).
 SKY_GAIN_RAYS = ("all", "camera_paths")
 SKY_CAMERA_PATHS_FACTOR = "Light Path max(Is Camera Ray, Is Singular Ray)"
 
@@ -1068,7 +1070,12 @@ def world_strength_record(strength: float, strength_gain: float = 1.0, gain_rays
     Fix round after P6a (22-23 Oct 2026): ``gain_rays`` ``camera_paths`` (``SKY_GAIN_RAYS``) keeps ``strength`` for
     every ray but the camera's paths: the Strength is ``strength`` (what lights the room), the record adds
     ``sky_rays: camera_paths``, ``strength_camera`` (``strength`` x gain, what the camera sees through a pane) and
-    ``gain_factor`` (``SKY_CAMERA_PATHS_FACTOR``); ``world_nodes`` wires the factor. An unknown ``gain_rays`` raises."""
+    ``gain_factor`` (``SKY_CAMERA_PATHS_FACTOR``); ``world_nodes`` wires the factor. An unknown ``gain_rays`` raises.
+
+    Milestone 13 final pass (23 Oct 2026): no logic change. A production build now passes 2^3.5 on ``camera_paths``
+    (``lighting.light_levers``), so its record carries these keys (``sky_stops`` 3.5, ``strength_camera`` 11.313708 x
+    the base strength); the record without them (gain 1.0) is the old world: the ``sky0`` variant, the Milestone 11
+    look, the single levers and every build before the final pass (P6a / P6b / P6c's finals)."""
     if gain_rays not in SKY_GAIN_RAYS:
         raise ValueError(f"interior world gain_rays must be one of {list(SKY_GAIN_RAYS)}, not {gain_rays!r}")
     gain = float(strength_gain)
@@ -1118,6 +1125,12 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None, strength_gain: flo
     reflections show the brighter sky, the room is lit as without the gain. The record's ``strength`` stays the
     room's; ``strength_camera`` is what the camera sees. ``all`` (the default) or a gain of 1.0 builds the world and
     its record exactly as before.
+
+    Milestone 13 final pass (23 Oct 2026; the user's decision after pod P6c): the windows-only +3.5 stops is the
+    production world. No logic change here: ``lighting.build_lighting`` (the only caller) passes production's gain and
+    rays (``lighting.interior_sky_gain`` / ``interior_sky_rays`` of ``light_levers()``), and this function's defaults
+    keep building the old world (``sky0``). The Round 4 note below records why the old balance was kept until the
+    A/Bs of pods P6a and P6c.
 
     Round 4 check of the interior HDRI against the 1000 W/m² sun lamp (bpy 5.2.2, the measurement of the exterior
     pair): Poly Haven's kloppenheim_06 (1k, the warm-daylight HDRI of real02/03/04) at Strength 1.0 puts 2.54 W/m²

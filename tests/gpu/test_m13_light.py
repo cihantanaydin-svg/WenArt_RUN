@@ -136,6 +136,17 @@ def test_every_variant_builds_and_renders_within_its_limits(building, variant, m
     assert light["levers"]["sun_wm2"] == levers["sun_wm2"] and light["levers"]["ev_cap"] == levers["ev_cap"]
     assert light["sun"]["strength"] == pytest.approx(levers["sun_wm2"] * light["sun"]["mood_factor"])
     assert light["sun"]["strength_wm2_constant"] == L.SUN_STRENGTH_WM2 == 1000.0
+    # Milestone 13 final pass (23 Oct 2026; the user's decision after pod P6c): production (base) builds the windows-only
+    # interior sky (3.5 stops on the camera's paths: the room's strength, the camera's at 2^3.5); the Milestone 11 look
+    # and the single levers keep the old world (no sky keys in the world record). The levers block records both.
+    world = light["world"]
+    assert (light["levers"]["sky_stops"], light["levers"]["sky_rays"]) == (levers["sky_stops"], levers["sky_rays"])
+    if variant == "base":
+        assert (world.get("sky_stops"), world.get("sky_rays")) == (3.5, "camera_paths"), world
+        assert world["strength"] == pytest.approx(world["strength_base"], rel=1e-9), world
+        assert world["strength_camera"] == pytest.approx(world["strength"] * 2.0 ** 3.5, rel=1e-5), world
+    else:
+        assert "sky_stops" not in world and "sky_rays" not in world and levers["sky_stops"] == 0.0, world
     rig_objects = [o for o in manifest["objects"] if o.get("method") == "rig"]
     if levers["rig"]:
         assert light["rig"]["on"] and rig_objects and light["rig"]["lights"], "the rig fixtures are built"

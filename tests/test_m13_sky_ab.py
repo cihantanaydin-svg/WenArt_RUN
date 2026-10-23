@@ -3,7 +3,8 @@
 - the sky light variants (``lighting.SKY_VARIANTS``: ``sky2``, ``sky35``, ``sky52``) raise the interior world's
   Background Strength by 2^stops (``interior_sky_gain`` -> ``materials.world_nodes(..., strength_gain=)``, checked on a
   fake bpy), start from production, keep every other lever, enter the build fingerprint and the manifest's lighting
-  block; the default (no variant) and every lever variant build the world exactly as before;
+  block; the default (no variant) and every lever variant build the world exactly as before (Milestone 13 final pass,
+  23 Oct 2026: the default is the windows-only sky, ``sky0`` the old world; the lever variants keep it);
 - the fixed real04 views (``ab.M13_SKY_AB_VIEWS``), their resolution against the scene manifest the A/B replays
   (``resolve_views``) and ``prepare_m13(..., run_dir=)`` from a pod's own run output;
 - the summary and sheets of the sky set; ``levers_ab.sh`` run end to end with fake Blender and assets in its new
@@ -48,8 +49,9 @@ def test_sky_variants_raise_only_the_interior_world_from_production():
     assert L.SKY_VARIANTS == ("sky2", "sky35", "sky52")
     # the lever A/B's names stay P1's (its sheets and defaults pin them); the sky names come on top
     assert L.LIGHT_VARIANTS == ("m11", "base", "sun100", "sun300", "sun1000", "evcap", "rig", "shell", "all")
-    # fix round after P6a (pin changed on purpose): the windows-only level skywin35 comes after the sky levels
-    assert L.KNOWN_LIGHT_VARIANTS == L.LIGHT_VARIANTS + L.SKY_VARIANTS + L.SKY_WINDOW_VARIANTS
+    # fix round after P6a (pin changed on purpose): the windows-only level skywin35 comes after the sky levels;
+    # Milestone 13 final pass (23 Oct 2026; pin changed on purpose): the old world sky0 comes last
+    assert L.KNOWN_LIGHT_VARIANTS == L.LIGHT_VARIANTS + L.SKY_VARIANTS + L.SKY_WINDOW_VARIANTS + ("sky0",)
     prod = L.light_levers(env={})
     for name, stops in L.SKY_VARIANT_STOPS.items():
         lv = L.light_levers(env={L.LIGHT_VARIANT_ENV: name})
@@ -75,17 +77,52 @@ def test_sky_variants_raise_only_the_interior_world_from_production():
         L.parse_light_variant("sky4")
 
 
-def test_the_default_and_every_lever_variant_keep_the_world_as_built():
+def test_the_default_is_the_windows_only_sky_and_every_lever_variant_keeps_the_world_as_built():
+    """Milestone 13 final pass (23 Oct 2026; pin changed on purpose: the user's decision after pod P6c; this was
+    ``test_the_default_and_every_lever_variant_keep_the_world_as_built``): production (no variant, ``base`` and a list
+    that starts from production) builds the windows-only sky, 3.5 stops on the camera's paths (``skywin35``'s level,
+    an alias); the Milestone 11 look and every single P1 lever keep the old world, and ``sky0`` names the old world
+    under production's levers. Fails on 81d5cad (production at 0 stops on all rays, no ``sky0``)."""
     prod = L.light_levers(env={})
-    assert prod["variant"] is None and prod["sky_stops"] == 0.0 and L.interior_sky_gain(prod) == 1.0
-    for name in L.LIGHT_VARIANTS:
-        assert L.light_levers(name)["sky_stops"] == 0.0 and L.interior_sky_gain(L.light_levers(name)) == 1.0, name
+    assert (L.PRODUCTION_SKY_STOPS, L.PRODUCTION_SKY_RAYS) == (3.5, "camera_paths")
+    assert prod["variant"] is None and (prod["sky_stops"], prod["sky_rays"]) == (3.5, "camera_paths")
+    assert L.interior_sky_gain(prod) == pytest.approx(2.0 ** 3.5, rel=1e-12)
+    assert L.interior_sky_rays(prod) == "camera_paths"
+    keys = ("sun_wm2", "ev_cap", "rig", "shell", "sky_stops", "sky_rays")
+    for name in ("base", "skywin35", "base,skywin35", "base+sun300", "base,rig"):
+        lv = L.light_levers(name)
+        assert (lv["sky_stops"], lv["sky_rays"]) == (3.5, "camera_paths"), name
+    # skywin35 is an alias of production: the same levers, only the variant's name differs
+    assert {k: L.light_levers("skywin35")[k] for k in keys} == {k: prod[k] for k in keys} == \
+        {k: L.light_levers("base")[k] for k in keys}
+    # the old world: the Milestone 11 look and every single lever (their P1 meaning), and sky0
+    for name in [n for n in L.LIGHT_VARIANTS if n != "base"] + ["sky0", "base,sky0", "m11,sky0", "sun1000+rig"]:
+        lv = L.light_levers(name)
+        assert (lv["sky_stops"], lv["sky_rays"]) == (0.0, "all") and L.interior_sky_gain(lv) == 1.0, name
+    old = L.light_levers("sky0")
+    assert L.SKY_OLD_WORLD_VARIANT == "sky0" and old["variant"] == "sky0"
+    assert {k: old[k] for k in keys[:4]} == {k: prod[k] for k in keys[:4]}      # production's sun, cap, rig, shell
+    for both in ("sky0,skywin35", "sky0+sky35"):
+        with pytest.raises(ValueError, match="more than one interior sky level"):
+            L.parse_light_variant(both)
     assert L.interior_sky_gain(None) == 1.0 and L.interior_sky_gain({"sun_wm2": 1000.0}) == 1.0  # an older levers dict
-    # the manifest's levers block: production keeps exactly its keys (P5's lighting.levers); a sky level adds one
-    assert L.lever_record(prod) == {"sun_wm2": 1000.0, "ev_cap": True, "rig": True, "shell": True, "source": "default"}
+    # the manifest's levers block records the sky always (a block without it was built before the final pass)
+    assert L.lever_record(prod) == {"sun_wm2": 1000.0, "ev_cap": True, "rig": True, "shell": True, "source": "default",
+                                    "sky_stops": 3.5, "sky_rays": "camera_paths"}
+    assert L.lever_record(old) == {"sun_wm2": 1000.0, "ev_cap": True, "rig": True, "shell": True, "source": "arg",
+                                   "sky_stops": 0.0, "sky_rays": "all"}
     assert L.lever_record(L.light_levers("sky35")) == {"sun_wm2": 1000.0, "ev_cap": True, "rig": True, "shell": True,
-                                                       "source": "arg", "sky_stops": 3.5}
-    # the world record: gain 1.0 returns the strength untouched and no extra key
+                                                       "source": "arg", "sky_stops": 3.5, "sky_rays": "all"}
+    assert L.lever_record(L.light_levers("m11")) == {"sun_wm2": 3.0, "ev_cap": False, "rig": False, "shell": False,
+                                                     "source": "arg", "sky_stops": 0.0, "sky_rays": "all"}
+    before = {"sun_wm2": 1000.0, "ev_cap": True, "rig": True, "shell": True, "source": "default"}  # P5's levers dict
+    assert L.lever_record(before) == dict(before, sky_stops=0.0, sky_rays="all")
+    # the world record of production: the room's strength, the camera's at 2^3.5
+    strength, extra = M.world_strength_record(1.0, L.interior_sky_gain(prod), L.interior_sky_rays(prod))
+    assert strength == 1.0 and (extra["sky_stops"], extra["sky_rays"]) == (3.5, "camera_paths")
+    assert extra["strength_camera"] == pytest.approx(11.313708, abs=1e-6)
+    # the world record: gain 1.0 (sky0) returns the strength untouched and no extra key
+    assert M.world_strength_record(1.0, L.interior_sky_gain(old), L.interior_sky_rays(old)) == (1.0, {})
     assert M.world_strength_record(1.0) == (1.0, {}) and M.world_strength_record(0.8, 1.0) == (0.8, {})
     strength, extra = M.world_strength_record(1.0, 2.0 ** 3.5)
     assert strength == pytest.approx(11.313708, abs=1e-6)
@@ -197,10 +234,16 @@ def test_the_sky_variant_enters_the_build_fingerprint(tmp_path, monkeypatch):
     named_base = B.fingerprint_args(str(building))
     monkeypatch.setenv(L.LIGHT_VARIANT_ENV, "sky35")
     sky = B.fingerprint_args(str(building))
+    # Milestone 13 final pass (23 Oct 2026): the old world is a named variant, so a sky0 build never reuses a
+    # production build (the windows-only sky) and the reverse
+    monkeypatch.setenv(L.LIGHT_VARIANT_ENV, "sky0")
+    old = B.fingerprint_args(str(building))
     assert base["light_variant"] is None and named_base["light_variant"] == "base" and sky["light_variant"] == "sky35"
+    assert old["light_variant"] == "sky0"
     assert {k: v for k, v in sky.items() if k != "light_variant"} == {k: v for k, v in base.items()
                                                                      if k != "light_variant"}
-    assert len({B.build_fingerprint(base), B.build_fingerprint(named_base), B.build_fingerprint(sky)}) == 3
+    assert len({B.build_fingerprint(base), B.build_fingerprint(named_base), B.build_fingerprint(sky),
+                B.build_fingerprint(old)}) == 4
 
 
 # --------------------------------------------------------------------------
@@ -220,7 +263,8 @@ def test_the_sky_views_and_their_resolution():
     assert {"bedroom", "living"} <= {v["room_type"] for v in views}
     assert {"cam_r_L0_yatak_odasi_1", "cam_r_L-1_salon_1", "cam_r_L0_e_yatak_odasi_1",
             "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1"} <= set(SKY_VIEWS)
-    assert AB.M13_SKY_AB_VARIANTS == ("base",) + L.SKY_VARIANTS
+    # Milestone 13 final pass (23 Oct 2026; pin changed on purpose): the old world is sky0, base is production now
+    assert AB.M13_SKY_AB_VARIANTS == (L.SKY_OLD_WORLD_VARIANT,) + L.SKY_VARIANTS == ("sky0", "sky2", "sky35", "sky52")
     # fix round after P6a (pin changed on purpose): the windows-only A/B's set
     assert AB.AB_VIEW_SETS == {"levers": AB.M13_AB_VIEWS, "sky": AB.M13_SKY_AB_VIEWS,
                                "skywin": AB.M13_SKYWIN_AB_VIEWS}
@@ -365,9 +409,10 @@ def test_sky_summary_and_sheets(tmp_path):
     rows = {(r["variant"], r["camera"]): r for r in summary["rows"]}
     assert rows[("sky35", "cam_r_L0_yatak_odasi_1")]["world_strength"] == pytest.approx(11.313708, abs=1e-6)
     assert rows[("sky35", "cam_r_L0_yatak_odasi_1")]["sky_stops"] == 3.5
-    assert rows[("base", "cam_r_L0_yatak_odasi_1")]["sky_stops"] == 0.0
-    assert rows[("base", "cam_r_L0_yatak_odasi_1")]["pull_k"] == 3 and rows[("sky2", views[1])]["pull_k"] == 1
-    assert rows[("base", views[0])]["wb_project_k"] == 5635.0 and rows[("base", views[0])]["wb_day_green"] == 1.4
+    # Milestone 13 final pass (23 Oct 2026; pin changed on purpose): the old world's row is sky0
+    assert rows[("sky0", "cam_r_L0_yatak_odasi_1")]["sky_stops"] == 0.0
+    assert rows[("sky0", "cam_r_L0_yatak_odasi_1")]["pull_k"] == 3 and rows[("sky2", views[1])]["pull_k"] == 1
+    assert rows[("sky0", views[0])]["wb_project_k"] == 5635.0 and rows[("sky0", views[0])]["wb_day_green"] == 1.4
     assert rows[("sky52", None)]["status"] == "not rendered"
     md = (res / "summary.md").read_text()
     assert md.startswith("# Milestone 13 interior sky A/B, view set 'sky'")
@@ -592,7 +637,8 @@ def test_m13_p6_runs_the_sky_ab_after_the_full_run_with_the_reserve(tmp_path):
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-2000:]
     assert (tmp_path / "fakes" / "full.env").read_text().strip() == "RUN_PROJECTS=real04 RENDER_SAMPLES=256 RUN_POLISH=off"
     ab = _ab_env(tmp_path)
-    assert ab["AB_PROJECTS"] == "real04" and ab["AB_VARIANTS"] == "base sky2 sky35 sky52" and ab["AB_SAMPLES"] == "128"
+    # Milestone 13 final pass (23 Oct 2026; pin changed on purpose): the old world is sky0 (P6a ran it as base)
+    assert ab["AB_PROJECTS"] == "real04" and ab["AB_VARIANTS"] == "sky0 sky2 sky35 sky52" and ab["AB_SAMPLES"] == "128"
     assert (ab["AB_VIEW_SET"], ab["AB_SOURCE"], ab["AB_NAME"], ab["AB_GPU_TESTS"]) == ("sky", "run", "ab_m13/sky", "0")
     assert ab["AB_VARIANT_EST_S"] == "660" and ab["JOB_ID"] == "p6t"
     assert int(ab["WENART_DEADLINE"]) == deadline - 600            # the copy reserve; full.sh's tests ran

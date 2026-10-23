@@ -17,11 +17,11 @@
 #      this job's run built it): scripts/jobs/levers_ab.sh with AB_SOURCE=run (this pod's building, style and
 #      cameras of that project), AB_VIEW_SET P6_SKY_VIEW_SET (sky: the 6 views of wenart.run.ab.M13_SKY_AB_VIEWS),
 #      AB_VARIANTS P6_SKY_VARIANTS
-#      ("base sky2 sky35 sky52": production and the interior world +2 / +3.5 / +5.2 stops, wenart.blender.lighting
-#      SKY_VARIANTS), AB_SAMPLES P6_SKY_SAMPLES (128), AB_NAME P6_SKY_NAME (ab_m13/sky) and no GPU tests of its
-#      own. Results in $WENART_RESULTS/ab_m13/sky/: per variant the render manifest, previews and lighting block, one
-#      contact sheet per view (the run's final render first, then base, sky2, sky35, sky52) and summary.{json,md}.
-#      It starts only
+#      ("sky0 sky2 sky35 sky52": the old interior world and that world +2 / +3.5 / +5.2 stops, wenart.blender.lighting
+#      SKY_VARIANTS; P6a ran "base sky2 sky35 sky52" when base was the old world), AB_SAMPLES P6_SKY_SAMPLES (128),
+#      AB_NAME P6_SKY_NAME (ab_m13/sky) and no GPU tests of its own. Results in $WENART_RESULTS/ab_m13/sky/: per
+#      variant the render manifest, previews and lighting block, one contact sheet per view (the run's final render
+#      first, then sky0, sky2, sky35, sky52) and summary.{json,md}. It starts only
 #      when the time left before WENART_DEADLINE minus the reserve (P6_RESERVE_S for the copy and the collect, plus
 #      P6_TESTS_RESERVE_S when step 3 still has to run the GPU tests) covers P6_SKY_MIN_VARIANTS variants of
 #      P6_SKY_VARIANT_EST_S, and it gets that deadline (levers_ab.sh skips the variants that no longer fit).
@@ -48,15 +48,21 @@
 #   scripts/gpu_run.py run --job scripts/jobs/m13_p6.sh --gpu 'RTX PRO 6000' --disk 150 --max-minutes 240 \
 #     --grace 600 --over-5-ok --env RUN_PROJECTS=real02 \
 #     --env 'CAMERAS_FROM=results/renders/{name}/scene_manifest.json' --env RUN_POLISH=off --env RENDER_SAMPLES=256 \
-#     --env P6_SKY_PROJECT=real02 --env P6_SKY_VIEW_SET=skywin --env 'P6_SKY_VARIANTS=base skywin35 sky35' \
+#     --env P6_SKY_PROJECT=real02 --env P6_SKY_VIEW_SET=skywin --env 'P6_SKY_VARIANTS=sky0 skywin35 sky35' \
 #     --env P6_SKY_NAME=ab_m13/skywin \
 #     --purpose "M13 P6c: real02 final full run (M11 cameras replayed; polish off; 256 spp; GPU tests) + windows-only
-#                sky A/B (base, skywin35, sky35)"
+#                sky A/B (sky0, skywin35, sky35)"
 #
 # (wenart.run.ab.M13_SKYWIN_AB_VIEWS: five real02 views with windows and one rig-lit hall; skywin35 = the interior world
 # +3.5 stops on the camera's paths only, wenart.blender.lighting.SKY_WINDOW_VARIANTS; sky35 = the whole world, P6a's).
 #
-# Env: RUN_PROJECTS (real04), P6_SKY_AB (1), P6_SKY_PROJECT (real04), P6_SKY_VARIANTS ("base sky2 sky35 sky52"),
+# Milestone 13 final pass (23 Oct 2026; the user's decision after pod P6c): skywin35 is production
+# (wenart.blender.lighting.PRODUCTION_SKY_STOPS), so base is no longer the old world; sky0
+# (lighting.SKY_OLD_WORLD_VARIANT) is the A/B's "before" in the defaults and in the P6c command above. P6c itself ran
+# 'P6_SKY_VARIANTS=base skywin35 sky35' (base = the old world then): its results/review/m13_p6c/sky_ab folders are
+# base, skywin35, sky35.
+#
+# Env: RUN_PROJECTS (real04), P6_SKY_AB (1), P6_SKY_PROJECT (real04), P6_SKY_VARIANTS ("sky0 sky2 sky35 sky52"),
 #      P6_SKY_VIEW_SET (sky; skywin for the windows-only A/B), P6_SKY_NAME (ab_m13/sky; a relative folder),
 #      P6_SKY_SAMPLES (128), P6_SKY_VARIANT_EST_S (660: a real04 build of about 460 s plus 6 views), P6_SKY_MIN_VARIANTS
 #      (2), P6_RESERVE_S (600), P6_TESTS_RESERVE_S (900), P6_TESTS_MIN_S (300), P6_SKIP_FULL=1 (the full run is
@@ -79,7 +85,7 @@ export WENART_OUTPUTS="$REPO/outputs"
 export RUN_PROJECTS="${RUN_PROJECTS:-real04}"
 SKY_AB="${P6_SKY_AB:-1}"
 SKY_PROJECT="${P6_SKY_PROJECT:-real04}"
-SKY_VARIANTS="${P6_SKY_VARIANTS:-base sky2 sky35 sky52}"
+SKY_VARIANTS="${P6_SKY_VARIANTS:-sky0 sky2 sky35 sky52}"   # final pass: sky0 = the old world (base until P6c)
 SKY_VIEW_SET="${P6_SKY_VIEW_SET:-sky}"          # fix round after P6a: skywin = the windows-only A/B's views
 SKY_NAME="${P6_SKY_NAME:-ab_m13/sky}"
 SKY_SAMPLES="${P6_SKY_SAMPLES:-128}"

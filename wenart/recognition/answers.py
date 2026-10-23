@@ -67,6 +67,16 @@ crops (a failed record "overwritten: not asked"). Records and items from before 
 the canonical ``input_sha256`` is unchanged, so the committed answers of unchanged crops are reused as before. Why:
 ``input_sha256`` hashes what should be drawn, not the file; P3's crop file of sym_L0_007 showed another symbol (a key
 collision of the secondary page overwrote it), and its answers stayed reusable because the hash did not change.
+
+Milestone 13 final pass (23 Oct 2026; pod P6c, real02, verify:agent:1). What: ``rekey(store, items)`` copies every
+answer an item reads by input hash from another key (``AnswerStore.valid`` -> ``by_input``) under the item's own key,
+in two phases (every record is read before any is written, so the order of the items does not matter); the copy takes
+the item's own crop paths, ``rekeyed_from`` and ``rekeyed_images`` keep the key and the paths it had. ``seed_answers``
+and ``ask`` call it first, so every later write lands on a key no current item reads. Why: P6c's store held P4a's
+bench answers under sym_L1_007 / 008, which this run's sym_L1_005 / 006 read by hash; ``ask`` wrote the new armchair
+answers of sym_L1_007 / 008 over them, and recognition exited 2 with nothing failed and nothing left (the first
+``pipeline_final`` then ran with ``--no-ai``). A one-by-one copy is the same overwrite: keys that shift up or swap
+lose an answer (an extra question with a server, an unanswered item without one).
 """
 from __future__ import annotations
 
@@ -95,6 +105,8 @@ _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 # ``crops.render_pair`` and carried by the item) and the pixels of the files an answer was given for.
 PIXELS_KEY = "crop_sha256"
 SHOWN_KEY = "image_sha256"
+# Milestone 13 final pass (module docstring): the log line of ``rekey``.
+REKEYED_TEXT = "recognition answers: {n} answer(s) found by input hash under another key copied to their item's key"
 
 
 class UsageError(ValueError):
@@ -342,6 +354,24 @@ class AnswerStore:
         write_json(self.path, self.data)
 
 
+def rekey(store: AnswerStore, items: list[dict]) -> int:
+    """Milestone 13 final pass (23 Oct 2026; module docstring): copy every answer an item of ``items`` reads by input
+    hash from another key under the item's own key, all reads first, then all writes (a one-by-one copy overwrites a
+    record another item still reads). The copy takes the item's crop paths; ``rekeyed_from`` and ``rekeyed_images``
+    keep the key and the paths it had. Saves the store when it copied something; returns how many."""
+    found = []
+    for it in items:
+        rec = store.valid(it)
+        if rec is not None and store.get(it["key"]) is not rec:
+            found.append((it, key_by_input(store.calls, it, store.current), rec))
+    for it, src, rec in found:
+        store.put(it["key"], dict(rec, rekeyed_from=src, rekeyed_images=list(rec.get("images") or []),
+                                  images=list(it["images"])), save=False)
+    if found:
+        store.save()
+    return len(found)
+
+
 def item_state(store: AnswerStore, item: dict) -> str:
     """``answered`` | ``stale`` (other input hash or model) | ``failed`` (no schema-valid data) | ``missing``."""
     rec = store.get(item["key"])
@@ -408,7 +438,13 @@ def seed_answers(store: AnswerStore, items: list[dict], seed_dir: Path, log: Cal
 
     Fix round after P4a: the copy's ``images`` are the item's own crop paths (an answer found under another key by
     the input hash kept that key's paths, which in this run's crops show another symbol); ``seeded_key`` and
-    ``seeded_images`` record the key and the crop paths the answer had in the seed file."""
+    ``seeded_images`` record the key and the crop paths the answer had in the seed file.
+
+    Milestone 13 final pass (23 Oct 2026): ``rekey`` runs first, so a seed copied under an item's key never overwrites
+    an answer another item reads by its input hash."""
+    moved = rekey(store, items)
+    if moved:
+        log(REKEYED_TEXT.format(n=moved))
     seed_path = answers_path(seed_dir, store.data["slug"])
     seed = read_json(seed_path)
     if seed is None:
@@ -526,8 +562,14 @@ def ask(items: list[dict], store: AnswerStore, client, rec_dir: Path, *, workers
 
     Only this thread writes the answers file. Returns ``{"asked", "reused", "failed", "left", "incomplete",
     "guarded"}`` (``guarded``: answers whose call needed the whitespace / length guard, Milestone 13 round 4).
+
+    Milestone 13 final pass (23 Oct 2026): ``rekey`` runs first, so an answer written under an asked item's key never
+    overwrites the answer another item reads by its input hash (P6c: sym_L1_005 / 006 lost theirs, exit 2).
     """
     stats = {"asked": 0, "reused": 0, "failed": 0, "left": 0, "incomplete": False, "guarded": 0}
+    moved = rekey(store, items)
+    if moved:
+        log(REKEYED_TEXT.format(n=moved))
     if deadline is not None and hasattr(client, "deadline"):
         client.deadline = float(deadline)          # VLMClient caps each request and retry to it
     model = str(getattr(client, "model", "") or store.data.get("model") or "")

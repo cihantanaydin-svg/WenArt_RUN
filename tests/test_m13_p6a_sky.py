@@ -15,6 +15,10 @@ P6a fix reports addressed to the render, sky and build side.
 - The asks: ``cli render --clamp-indirect`` (R_render), the scene camera's frame keys typed in ``schemas.SCENE_CAMERA``
   (X_ext), curtains and blinds kept under the slope by ``build.decor_under_roof`` (D_decor) and the floor-lamp shades
   in S2 (``scene_checks``, D_decor).
+- Milestone 13 final pass (23 Oct 2026; the user's decision after pod P6c): skywin35 is production. The pins of the
+  levers, the probe (``sky0`` = the old world as the "before", and the default levers) and the A/B levels changed on
+  purpose; the GPU pins of tests/gpu/test_render.py (the pane-saturation floor and the haze check, the interior world
+  record, real02's white point) are replayed on P6c's numbers. Those tests fail on 81d5cad.
 Each test fails on 52d4bb8 (or on a mutation where it guards the default), except the guards that say so.
 """
 from __future__ import annotations
@@ -74,11 +78,19 @@ def test_skywin35_is_a_windows_only_sky_level_from_production():
     for both in ("sky35,skywin35", "skywin35+sky2"):
         with pytest.raises(ValueError, match="more than one interior sky level"):
             L.parse_light_variant(both)
-    # every other levers dict: all rays (production, the lever variants, the sky levels, a dict from before)
-    assert prod["sky_rays"] == "all" and L.interior_sky_rays(prod) == "all" and L.interior_sky_rays(None) == "all"
-    for name in L.LIGHT_VARIANTS + L.SKY_VARIANTS:
+    # Milestone 13 final pass (23 Oct 2026; pin changed on purpose, the user's decision after pod P6c): production is
+    # this level (skywin35 is its alias: the same sky, sun, cap, rig and shell; base too) ...
+    assert L.PRODUCTION_SKY_STOPS == L.SKY_WINDOW_VARIANT_STOPS["skywin35"] and L.PRODUCTION_SKY_RAYS == "camera_paths"
+    keys = ("sun_wm2", "ev_cap", "rig", "shell", "sky_stops", "sky_rays")
+    assert {k: win[k] for k in keys} == {k: prod[k] for k in keys} == {k: L.light_levers("base")[k] for k in keys}
+    assert L.interior_sky_rays(prod) == "camera_paths" and L.lever_record(prod) == dict(L.lever_record(win),
+                                                                                       source="default")
+    # ... and every other levers dict sees the gain on all rays: sky0 and the lever variants (no gain: the old world),
+    # the whole-world sky levels, a dict from before
+    assert L.interior_sky_rays(None) == "all"
+    for name in [n for n in L.LIGHT_VARIANTS if n != "base"] + list(L.SKY_VARIANTS) + ["sky0"]:
         assert L.interior_sky_rays(L.light_levers(name)) == "all", name
-        assert "sky_rays" not in L.lever_record(L.light_levers(name)), name
+        assert L.lever_record(L.light_levers(name))["sky_rays"] == "all", name
     assert L.interior_sky_rays({"sky_stops": 3.5}) == "all"
     assert L.interior_sky_rays({"sky_stops": 0.0, "sky_rays": "camera_paths"}) == "all"     # no gain: nothing to aim
     with pytest.raises(ValueError, match="unknown sky_rays"):
@@ -201,13 +213,14 @@ def test_build_lighting_and_the_fingerprint_carry_the_windows_only_level(tmp_pat
     for var in ("WENART_CAMERAS_FROM", "WENART_CAMERAS_EXTRA", L.LIGHT_VARIANT_ENV):
         monkeypatch.delenv(var, raising=False)
     prints = set()
-    for v in (None, "base", "sky35", "skywin35"):
+    # Milestone 13 final pass (23 Oct 2026): sky0 (the old world) gets its own fingerprint too
+    for v in (None, "base", "sky35", "skywin35", "sky0"):
         if v:
             monkeypatch.setenv(L.LIGHT_VARIANT_ENV, v)
         args = B.fingerprint_args(str(building))
         assert args["light_variant"] == v
         prints.add(B.build_fingerprint(args))
-    assert len(prints) == 4
+    assert len(prints) == 5
 
 
 # --------------------------------------------------------------------------
@@ -324,9 +337,11 @@ PROBE = textwrap.dedent('''
 
 
     result = {}
-    for variant in ("base", "skywin35", "sky35"):
+    # Milestone 13 final pass (23 Oct 2026): sky0 is the old world (P6c's base); default = the production levers of an
+    # unset WENART_LIGHT_VARIANT (the windows-only sky since the final pass)
+    for variant in ("sky0", "skywin35", "sky35", "default"):
         cams = room()
-        levers = L.light_levers(variant)
+        levers = L.light_levers(env={}) if variant == "default" else L.light_levers(variant)
         rec = M.world_nodes(scene, LIGHTING, hdri, strength_gain=L.interior_sky_gain(levers),
                             gain_rays=L.interior_sky_rays(levers))
         w = render(cams["window"], variant + "_window")
@@ -373,7 +388,8 @@ def probe(tmp_path_factory):
 
 @needs_blender
 def test_the_windows_only_sky_keeps_the_room_light_and_brightens_the_panes(probe):
-    base, win, whole = probe["base"], probe["skywin35"], probe["sky35"]
+    # Milestone 13 final pass (23 Oct 2026; pin changed on purpose): the "before" is sky0, the old world
+    base, win, whole = probe["sky0"], probe["skywin35"], probe["sky35"]
     assert win["record"]["sky_rays"] == "camera_paths" and win["record"]["strength"] == base["record"]["strength"]
     # the room light (the diffuse passes: what the metering, the white point and the tint read) stays ...
     for key in ("room_light", "walls_light"):
@@ -386,6 +402,21 @@ def test_the_windows_only_sky_keeps_the_room_light_and_brightens_the_panes(probe
     assert win["mirror_sharp"] > 1.1 * base["mirror_sharp"]
     assert win["mirror_glossy"] == pytest.approx(base["mirror_glossy"], rel=0.02)
     assert whole["mirror_glossy"] > 1.3 * base["mirror_glossy"]
+
+
+@needs_blender
+def test_the_default_levers_build_the_windows_only_world_and_keep_the_room_light(probe):
+    """Milestone 13 final pass (23 Oct 2026; the user's decision after pod P6c): the production levers (no
+    ``WENART_LIGHT_VARIANT``) build skywin35's world, the same record and the same pane, with the room light of the
+    old world (``sky0``) within 1 %. Fails on 81d5cad, where the default built the old world (its record without
+    ``sky_rays``, its pane the old sky's; and no ``sky0``)."""
+    default, win, old = probe["default"], probe["skywin35"], probe["sky0"]
+    assert default["record"] == win["record"] and default["record"]["sky_rays"] == "camera_paths"
+    assert default["record"]["strength"] == old["record"]["strength"] and "sky_rays" not in old["record"]
+    assert default["pane_sky"] == pytest.approx(win["pane_sky"], rel=1e-6)
+    assert default["pane_sky"] > 2.5 * old["pane_sky"]
+    for key in ("room_light", "walls_light"):
+        assert default[key] == pytest.approx(old[key], rel=0.01), (key, old[key], default[key])
 
 
 @needs_blender
@@ -407,7 +438,8 @@ SKYWIN_REAL02 = ["cam_r_L-1_salon_1", "cam_r_L-1_mutfak_1", "cam_r_L0_yatak_odas
 
 
 def test_the_windows_only_ab_views_and_levels():
-    assert AB.M13_SKYWIN_AB_VARIANTS == ("base", "skywin35", "sky35")
+    # Milestone 13 final pass (23 Oct 2026; pin changed on purpose): the old world is sky0 (P6c ran it as base)
+    assert AB.M13_SKYWIN_AB_VARIANTS == ("sky0", "skywin35", "sky35")
     assert all(v in L.KNOWN_LIGHT_VARIANTS for v in AB.M13_SKYWIN_AB_VARIANTS)
     assert AB.AB_VIEW_SETS["skywin"] is AB.M13_SKYWIN_AB_VIEWS and AB.view_set_of("skywin") is AB.M13_SKYWIN_AB_VIEWS
     real02 = AB.M13_SKYWIN_AB_VIEWS["real02"]
@@ -462,7 +494,7 @@ def test_the_summary_shows_what_the_camera_sees_at_a_windows_only_level(tmp_path
     summary = AB.lever_summary(res, ("real02",), AB.M13_SKYWIN_AB_VARIANTS, views={"real02": views},
                                view_set="skywin")
     rows = {(r["variant"], r["camera"]): r for r in summary["rows"]}
-    win, whole, base = (rows[(v, views[0])] for v in ("skywin35", "sky35", "base"))
+    win, whole, base = (rows[(v, views[0])] for v in ("skywin35", "sky35", "sky0"))   # final pass: sky0 = old world
     assert (win["world_strength"], win["sky_stops"], win["sky_rays"]) == (1.0, 3.5, "camera_paths")
     assert win["world_strength_camera"] == pytest.approx(GAIN, abs=1e-6)
     assert whole["sky_rays"] == "all" and whole["world_strength_camera"] is None
@@ -494,7 +526,7 @@ def test_m13_p6_takes_the_view_set_and_the_folder_from_the_environment():
     for part in ("--env RUN_PROJECTS=real02", "'CAMERAS_FROM=results/renders/{name}/scene_manifest.json'",
                  "--env RUN_POLISH=off", "--env RENDER_SAMPLES=256", "--max-minutes 240", "--over-5-ok",
                  "--env P6_SKY_PROJECT=real02", "--env P6_SKY_VIEW_SET=skywin",
-                 "'P6_SKY_VARIANTS=base skywin35 sky35'", "--env P6_SKY_NAME=ab_m13/skywin"):
+                 "'P6_SKY_VARIANTS=sky0 skywin35 sky35'", "--env P6_SKY_NAME=ab_m13/skywin"):   # final pass: sky0
         assert part in text, part
 
 
@@ -506,7 +538,7 @@ def test_m13_p6_runs_the_windows_only_ab_on_real02(tmp_path):
     proc = _run_p6(env, tmp_path / "repo")
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-2000:]
     ab = _ab_env(tmp_path)
-    assert ab["AB_PROJECTS"] == "real02" and ab["AB_VARIANTS"] == "base skywin35 sky35"
+    assert ab["AB_PROJECTS"] == "real02" and ab["AB_VARIANTS"] == "sky0 skywin35 sky35"     # final pass: sky0
     assert (ab["AB_VIEW_SET"], ab["AB_NAME"], ab["AB_SOURCE"], ab["AB_GPU_TESTS"]) == \
         ("skywin", "ab_m13/skywin", "run", "0")
     assert "views skywin into ab_m13/skywin" in proc.stdout
@@ -521,6 +553,123 @@ def test_m13_p6_runs_the_windows_only_ab_on_real02(tmp_path):
         proc = _run_p6(env, tmp_path / f"bad{i}" / "repo")
         assert proc.returncode == 2, (bad, proc.stdout[-2000:])
         assert not (tmp_path / f"bad{i}" / "fakes" / "full.env").exists()
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 final pass (23 Oct 2026): the GPU pins under the windows-only sky, replayed on P6c's numbers
+# --------------------------------------------------------------------------
+
+# P6c real02 (runs/20261023-084914-m13_p6/results/renders/real02/render_manifest.json, 256 spp, the old world): every
+# interior view with a window pull, (pane saturation as written, k): pane_saturation_after for k > 0, else
+# pane_saturation; haze_hidden true in all 14.
+P6C_PANES = {
+    "cam_r_L-1_koridor_2_1": (0.0176, 1), "cam_r_L-1_koridor_2_3": (0.0122, 1), "cam_r_L-1_mutfak_1": (0.2807, 2),
+    "cam_r_L-1_mutfak_2": (0.1613, 1), "cam_r_L-1_mutfak_3": (0.2769, 2), "cam_r_L-1_salon_1": (0.0657, 0),
+    "cam_r_L-1_salon_2": (0.0746, 0), "cam_r_L-1_salon_3": (0.0682, 0), "cam_r_L0_e_yatak_odasi_3": (0.1812, 3),
+    "cam_r_L0_yatak_odasi_1": (0.137, 0), "cam_r_L0_yatak_odasi_3": (0.2033, 0),
+    "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1": (0.1523, 1), "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2": (0.1184, 1),
+    "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3": (0.1156, 1),
+}
+# P6c's windows-only A/B (runs/.../results/ab_m13/skywin/{base,skywin35}/real02, 128 spp; base = the old world): the
+# three views that see sky, (old world, skywin35, skywin35's k). The other three (salon_1, mutfak_1, koridor_2_1) were
+# unchanged (light wells, no sky).
+P6C_SKYWIN = {"cam_r_L0_yatak_odasi_1": (0.1353, 0.0833, 1), "cam_r_L0_e_yatak_odasi_3": (0.1813, 0.1262, 5),
+              "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1": (0.1497, 0.0822, 2)}
+
+
+def _pane_project(panes: dict, haze=True):
+    renders = [{"camera": c, "room_id": c[4:].rsplit("_", 1)[0], "open_air": False, "haze_hidden": haze,
+                "window_pull": {"k": k, "pane_median_after": 0.7, "pane_saturation": s, "pane_saturation_after": s}}
+               for c, (s, k) in panes.items()]
+    return "real02", {"lighting": {}, "wenart_mood": "warm daylight"}, {"renders": renders}
+
+
+def _upper_median(panes: dict) -> float:
+    values = sorted(s for s, _k in panes.values())
+    return values[len(values) // 2]
+
+
+def test_final_pass_the_gpu_pane_floor_holds_under_the_windows_only_sky(tmp_path, monkeypatch):
+    """tests/gpu/test_render.py::test_sky_and_window_pulls_reach_their_targets on real02 under skywin35 (estimated from
+    P6c: the A/B's three sky views as measured, the lowest measured ratio on the other L0 / L1 sky views; worst case:
+    that ratio on all six). The re-pinned floor passes every estimate, the old 0.08 fails the worst one, P4a's grey
+    cards (median 0.06) still fail, and a view rendered with the haze in the camera's view fails from its record. Fails
+    on 81d5cad (floor 0.08, no haze check)."""
+    from test_m13_light import _gpu_render_module
+
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    ratios = {c: after / before for c, (before, after, _k) in P6C_SKYWIN.items()}
+    low = min(ratios.values())
+    assert 0.54 < low < 0.56 and max(ratios.values()) < 0.71
+    sky = [c for c in P6C_PANES if c.startswith(("cam_r_L0_", "cam_r_L1_"))]
+    assert len(sky) == 6 and set(P6C_SKYWIN) <= set(sky)
+
+    def estimate(all_low: bool) -> dict:
+        out = dict(P6C_PANES)
+        for c in sky:
+            s, k = P6C_PANES[c]
+            out[c] = (round(s * low, 4), k) if all_low or c not in P6C_SKYWIN else P6C_SKYWIN[c][1:]
+        return out
+    measured, worst = estimate(False), estimate(True)
+    assert _upper_median(P6C_PANES) == 0.137
+    assert _upper_median(measured) == pytest.approx(0.0822, abs=1e-4)
+    assert _upper_median(worst) == pytest.approx(0.0752, abs=1e-4)
+    # the floor: under every estimate with a margin, over P4a's grey cards (median 0.06 with the haze in view)
+    assert 0.06 < gpu.PANE_SAT_MIN <= _upper_median(worst) - 0.01 + 1e-9
+    for panes in (P6C_PANES, measured, worst):
+        gpu.test_sky_and_window_pulls_reach_their_targets(_pane_project(panes))
+    gpu.test_sky_and_window_pulls_reach_their_targets(_pane_project(worst, haze=None))     # a scene without haze
+    with pytest.raises(AssertionError, match="median pane saturation"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(_pane_project({c: (0.06, 1) for c in P6C_PANES}))
+    hazy = _pane_project(P6C_PANES)
+    hazy[2]["renders"][3]["haze_hidden"] = False
+    with pytest.raises(AssertionError, match="seen through the haze"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(hazy)
+    # the old floor sits inside the estimate: it fails the worst case (why it was re-pinned)
+    monkeypatch.setattr(gpu, "PANE_SAT_MIN", 0.08)
+    with pytest.raises(AssertionError, match="median pane saturation"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(_pane_project(worst))
+
+
+def test_final_pass_the_gpu_world_and_white_point_pins(tmp_path, monkeypatch):
+    """tests/gpu/test_render.py: ``test_the_interior_world_is_the_sky_of_the_levers`` on hand-made scene manifests (a
+    production scene built now passes; P6c's final, built with the old world as production, fails; sky0, a lever
+    variant and sky35 pass with their own worlds), and real02's white-point pin passes P6c's skywin35 (5611.7 K) and
+    fails sky35 (5757.0 K). Fails on 81d5cad (no such test, no real02 pin)."""
+    from test_m13_light import _gpu_render_module
+
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    hdri = "/workspace/assets/hdris/kloppenheim_06_2k.hdr"
+
+    def scene(variant, world):
+        return "real02", {"light_variant": variant, "lighting": {"world": world}}, {"renders": []}
+
+    def built(variant):
+        lv = L.light_levers(variant or "")
+        strength, extra = M.world_strength_record(1.0, L.interior_sky_gain(lv), L.interior_sky_rays(lv))
+        return {"kind": "hdri", "file": hdri, "strength": strength, **extra}
+    monkeypatch.setenv(L.LIGHT_VARIANT_ENV, "sky0")          # the scene's variant decides, never this environment
+    for variant in (None, "base", "skywin35", "sky0", "m11", "rig", "sky35"):
+        gpu.test_the_interior_world_is_the_sky_of_the_levers(scene(variant, built(variant)))
+    assert built(None)["strength_camera"] == pytest.approx(11.313708, abs=1e-6) and built(None)["strength"] == 1.0
+    p6c_final = {"kind": "hdri", "file": hdri, "strength": 1.0}            # P6c's scene_manifest.json lighting.world
+    with pytest.raises(AssertionError, match="built before"):
+        gpu.test_the_interior_world_is_the_sky_of_the_levers(scene(None, p6c_final))
+    with pytest.raises(AssertionError, match="the old world with sky keys"):
+        gpu.test_the_interior_world_is_the_sky_of_the_levers(scene("sky0", built(None)))
+    with pytest.raises(AssertionError):                                     # sky35's world under the production levers
+        gpu.test_the_interior_world_is_the_sky_of_the_levers(scene(None, built("sky35")))
+    # real02's white point: P6c's production and skywin35 pass, sky35's room light fails
+    assert gpu.P6C_REAL02_WB_K == 5608.6
+    assert abs(5611.7 - gpu.P6C_REAL02_WB_K) <= gpu.REAL02_WB_TOLERANCE_K < abs(5757.0 - gpu.P6C_REAL02_WB_K)
+    # Milestone 13 final pass (23 Oct 2026), review: the pin itself runs, so a broken real02 guard is caught here
+
+    def wb(kelvin):
+        return "real02", {"lighting": {}}, {"white_balance_mode": "project", "renders": [],
+                                            "white_balance_project": {"whitepoint": [1.0, 1.0, 1.0], "kelvin": kelvin}}
+    gpu.test_views_keep_the_project_white_point_or_mix_it_with_the_rig(wb(5611.7))      # P6c skywin35
+    with pytest.raises(AssertionError, match="moved from P6c"):
+        gpu.test_views_keep_the_project_white_point_or_mix_it_with_the_rig(wb(5757.0))  # P6c sky35
 
 
 # --------------------------------------------------------------------------

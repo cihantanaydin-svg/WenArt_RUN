@@ -211,6 +211,14 @@ The other drawn-layout F3s of P4a / P4b / P6a / P6b (sofas with a coffee table i
 ``drawn_layout``. On P6a the sofas' anchors are unverified, so the room brief still locks complete_group for them
 ("retype_piece first") and the F3 is reported with that reason.
 
+Milestone 13 final pass (23 Oct 2026; pod P6c, real02, verify:agent:3): a G3 whose angle is within groups.yaml
+``armchair_facing.max_angle`` while its distance is over ``max_distance`` (``armchair_too_far``) has the cause
+``group_layout`` (move_group, relayout_room, move_piece, rotate_piece, set_front), not ``orientation``. Why: P6c's
+armchair f_L1_031 in r_L1_oyun_aktivite_ve_dinlenme_odasi faced its coffee table (12.1°, limit 30°) at 2.734 m (limit
+2.50 m); ``orientation`` offered rotate_piece, set_front and relayout_room only, the plan checker removed the session's
+move_piece ("move_piece does not fix c:G3:f_L1_032"), and the rendered room kept its G3 through three rounds (its
+unrendered twin fixed it with an off-plan move). A G3 whose angle fails keeps ``orientation``.
+
 Why: real04 (M12, §1.5) accepted 183 edits of which 20 removed their finding; the tools were mapped by check id
 (``brief.CHECK_TOOLS``), so every room session got every tool for every check whatever the cause.
 
@@ -583,6 +591,8 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
         return base
     if check == "G5":
         return "off_wall" if (metrics.get("part") == "headboard" or "headboard" in text) else "clearance"
+    if check == "G3" and armchair_too_far(metrics):
+        return "group_layout"                  # final pass: it faces its target but stands too far (move it)
     if check == "F3" and metrics.get(DRAWN_LAYOUT_FLAG) == MISSING_FRONT:
         return "missing_member"                # fix round after P6a, review: the group member it faces is missing
     if check == "F3" and metrics.get(DRAWN_LAYOUT_FLAG):
@@ -621,6 +631,20 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
                 return "missing_anchor"
         return "library_gap"
     return base
+
+
+def armchair_too_far(metrics: dict) -> bool:
+    """Milestone 13 final pass (23 Oct 2026; module docstring): a G3 whose angle (``angle_deg``) is within groups.yaml
+    ``armchair_facing.max_angle`` while its distance (``distance_m``) is over ``max_distance``: the armchair faces its
+    target and only a move fixes it. False when a metric is missing or the angle fails too."""
+    try:
+        angle, distance = float(metrics["angle_deg"]), float(metrics["distance_m"])
+    except (KeyError, TypeError, ValueError):
+        return False
+    from wenart.furniture import groups as GR
+
+    rule = GR.rule("armchair_facing")
+    return angle <= float(rule["max_angle"]) + 1e-9 and distance > float(rule["max_distance"]) + 1e-9
 
 
 def _built(piece: dict) -> bool:

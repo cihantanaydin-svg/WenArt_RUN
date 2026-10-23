@@ -999,6 +999,9 @@ def mark_inferred(b: dict, proposals: list[dict]) -> int:
 
 CODE_TYPED_KEY = "typed_by_code"      # the extraction report's list of question keys withdrawn by the code typing
 CODE_METHODS_KEY = "typed_by_code_methods"   # ... and {key: method} (twin | level | block | group_member | context:<type>)
+# Milestone 13 final pass (23 Oct 2026): the report's question keys without a full pair of answers, in every mode
+# (``core._ask_and_apply``; ``pending`` is [] under --no-ai), subtracted by ``answered_keys``.
+UNANSWERED_KEY = "unanswered"
 
 
 def answer_typed(build, works: dict, items: dict, typed_from: Optional[dict] = None) -> set[str]:
@@ -1071,13 +1074,19 @@ def _reports(build, works: dict) -> list[dict]:
 def answered_keys(build, works: dict) -> set[str]:
     """Build round 3 (K3): the question keys asked and answered in this round: on a page that got answers
     (``answers_applied``), its questions less the ones still without a complete pair (``pending``) and less the
-    ones withdrawn (``typed_by_code``). ``withdraw_questions`` keeps these listed."""
+    ones withdrawn (``typed_by_code``). ``withdraw_questions`` keeps these listed.
+
+    Milestone 13 final pass (23 Oct 2026; pod P6c, verify:agent:0): also less the ones without a full pair of answers
+    (``UNANSWERED_KEY``, which ``core._ask_and_apply`` records in every mode): with ``--answers --no-ai`` ``pending``
+    is [], and every question of a page with answers counted as answered, so the --no-ai run kept the code-typed
+    questions round 1 had withdrawn (real02's sofas f_L-1b_041 / 042 then took the late AI answers: kitchen island)."""
     out: set[str] = set()
     for report in _reports(build, works):
         if not report.get("answers_applied"):
             continue
         keys = {str(q.get("key")) for q in report.get("questions") or [] if q.get("key")}
-        out |= keys - set(report.get("pending") or []) - set(report.get(CODE_TYPED_KEY) or [])
+        out |= keys - set(report.get("pending") or []) - set(report.get(CODE_TYPED_KEY) or []) \
+            - {str(k) for k in report.get(UNANSWERED_KEY) or []}
     return out
 
 

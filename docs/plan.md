@@ -442,8 +442,23 @@ both VLMs run with `--quantization fp8 --max-model-len 8192`.
 Not used because of licence: FLUX.1-dev family, FLUX.2-dev, Qwen-Image-2.1 (non-commercial); Hunyuan3D (EU/UK/KR
 excluded); Llama 3.2/4 Vision (EU); Ultralytics YOLO, MinerU weights, PyMuPDF (AGPL); YOLO-World (GPL);
 ODA File Converter (non-commercial for non-members); 3D-FRONT/FUTURE, HSSD, ShapeNet, CubiCasa5k, FloorPlanCAD
-(non-commercial datasets, evaluation only). Custom-but-commercial licences we accept with a flag: SAM 3 (not needed),
-Gemma 3 (not needed), Stability Community Licence (not needed).
+(non-commercial datasets, evaluation only; HSSD is used in relaxed mode since Milestone 13, below). Custom-but-commercial
+licences we accept with a flag: SAM 3 (not needed), Gemma 3 (not needed), Stability Community Licence (not needed).
+
+**Milestone 13 licence flags** (user decisions of 12 and 16 Oct 2026; `docs/milestone13.md` §6, §12). Every catalogue
+entry carries `licence`, `licence_url`, `licence_declared_by`, `licence_flag` and `commercial_safe`. The code default
+is `library.licence_mode: commercial` (only `commercial_safe: yes` entries). The PoC projects real02, real03 and real04
+set `relaxed` in their `brief.yaml` (env `WENART_LICENCE_MODE` overrides), which also uses flagged assets:
+- **HSSD** (`hssd/hssd-models` on Hugging Face, **CC BY-NC 4.0**, flag `non_commercial`): the user accepted its terms
+  for the account behind the pod's token on 16 Oct 2026; 768 audited models are usable.
+- **TRELLIS.2 models** generated in Milestones 8-9, flag **`tool_nc`**: their textures were baked with nvdiffrast
+  (NVIDIA Source Code License, non-commercial); usable until that export is replaced.
+- Never used: no-derivatives assets, and 3D-FUTURE / 3D-FRONT (research-only, no redistribution). Maxtree and
+  BlenderKit are on hold.
+
+Every render carries `commercial-safe: yes|no` with the flagged asset ids, and every run writes `ATTRIBUTION.md`;
+switching back to `commercial` re-runs the fit and the renders without the flagged assets. Final runs: commercial-safe
+views real02 12 of 41, real03 35 of 89, real04 12 of 49.
 
 GPL tools we call as separate programs (allowed, our code is not derived from them): Blender, LibreDWG, poppler.
 

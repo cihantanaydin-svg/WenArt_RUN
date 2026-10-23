@@ -889,7 +889,7 @@ on one plot ("r14 is gorgeous the ground slope"); the USD limits may be passed f
 GPU cost: $130.44 of $200 in total; 11 Oct: $31.81 of $60. No pod is running.
 
 
-## Milestone 13 – realistic furniture, real vegetation, designer placement (steps 0-1 done, 12 Oct 2026; waiting for your OK)
+## Milestone 13 – realistic furniture, real vegetation, designer placement (done, 23 Oct 2026)
 
 Spec: `docs/milestone13.md` (prompt: `docs/prompts/milestone13_fable.md`). Cloud session, branch `Claude/Fable_01`,
 CPU only, no pod, no change to pipeline code. A 60-agent workflow did the work (3 image reviewers over all 182
@@ -929,7 +929,7 @@ raise to $230); 7 `CLAUDE.md` wording changes; 10 decisions (§10).
 
 GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is running.
 
-### Milestone 13, step 2 (build), in progress (15 Oct 2026)
+### Milestone 13, step 2 (build and pods, 15-23 Oct 2026)
 
 - **Decisions of 12 Oct 2026** (D1-D10, `docs/milestone13.md` §12): relaxed licence mode for the PoC projects, HSSD
   layer (terms accepted by the user), flagged generated models kept (`tool_nc`), fallback ladder with good-looking
@@ -1007,3 +1007,33 @@ GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is runn
   `camsearch.py`) is unchanged.
   Full CPU suite after the part-2 integration: 5191 passed, 214 skipped, 4 xfailed, 0 failed (59 min). GPU spent
   in the fix round: $0.00. Next: P4 (real02 + real03) and P5 (real04 with `--env RUN_FRESH_RECOGNITION=real04`).
+
+### Milestone 13 – done (23 Oct 2026)
+
+After the fix round after P3: pods P4a (real02, $4.29), P4b (real03, $5.75), P5 (real04, $5.98), P6a (real04, $7.34),
+P6b (real03, $6.24 + $0.27 fetch) and P6c (real02, $5.38), each followed by a CPU fix round with tests and reviews
+(`docs/milestone13.md` §14.10-14.17). By your decision of 23 Oct 2026, P6a, P6b and P6c are the final results.
+
+| | real02: M11 → P6c | real03: M11 → P6b | real04: M12 → P6a |
+|---|---|---|---|
+| Views better / same / worse | 32 / 6 / 3 | 41 / 10 / 8 (interior) | 31 / 11 / 5 |
+| GPU tests passed / failed | 47 / 0 | 42 / 6 | 45 / 2 |
+| Drawn anchors built | 29/30 → 40/40 | 15/15 → 27/27 | 12/34 → 36/36 |
+| Agent edits whose finding is gone | 24 % → 73 % | 69 % → 88 % | 13 % → 91 % |
+| Library share of built pieces | 58 % → 80 % | 56 % → 77 % | 67 % → 81 % |
+| Interior views at EV ≥ +5 | 9/35 → 0/35 | 27/83 → 0/83 | 9/44 → 0/43 |
+| Results | [`results/review/m13_p6c/`](../results/review/m13_p6c/) | [`results/review/m13_p6b/`](../results/review/m13_p6b/) | [`results/review/m13_p6a/`](../results/review/m13_p6a/) |
+
+- **Your decisions of 23 Oct 2026**: the windows-only interior sky (+3.5 stops) is the default; no more pods;
+  `render.twin_rooms` stays `one`; the `critical_cleared` acceptance, a sofa facing another group's coffee table when
+  its own gets a new one, and real03's renumbered column ids are approved.
+- **Final pass** (CPU only, §14.16): the sky default with re-pinned GPU checks, the recognition answer-store fix
+  (exit code 2), the fix that keeps real02's L-1b sofas from turning into kitchen islands, more tools for a far
+  armchair, the closed-door GPU test on twin rooms, one review fix. Full CPU suite: 5,865 passed, 0 failed
+  (75 min).
+- **Open for Milestone 14** (§14.17): the final images predate the last fix rounds (real03, real04) and the new sky
+  (all three); one build-and-render pod (about $3-4) would show them. Unfixed P6c findings (see-through hall wardrobe,
+  darker exteriors under the ground cap, paler sky behind the indirect clamp, agent and library items) and the open
+  decisions of §14.13-14.15.
+
+GPU cost of Milestone 13: $51.24 over 14 pods (estimate $46-54). Project total: **$181.78 of $300**. No pod is running.

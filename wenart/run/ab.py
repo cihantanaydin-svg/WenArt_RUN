@@ -33,7 +33,8 @@ What:
   summarises and sheets.
 - Pod P6a (22 Oct 2026, the user's OK; the interior sky A/B, ``scripts/jobs/m13_p6.sh``): ``M13_SKY_AB_VIEWS`` are
   6 fixed real04 interior views with windows that showed P5's dark sky over a near-white ground band and the green
-  daylight, ``M13_SKY_AB_VARIANTS`` the levels (``base`` and ``lighting.SKY_VARIANTS``). real04's cameras are
+  daylight, ``M13_SKY_AB_VARIANTS`` the levels (``base``, ``sky0`` since the final pass below, and
+  ``lighting.SKY_VARIANTS``). real04's cameras are
   searched, so ``resolve_views`` checks the names against the scene manifest the A/B replays (the pod's own run):
   a name it lacks is replaced by the first other camera of the same room, else dropped, each with the reason.
   ``prepare_m13(..., run_dir=)`` prepares from a project's run output (``outputs/<p>``: its
@@ -44,10 +45,18 @@ What:
   lever A/B's.
 - Fix round after P6a (22-23 Oct 2026; the user's decision of 22 Oct 2026, "Windows only +3.5"): the view set
   ``skywin`` (``M13_SKYWIN_AB_VIEWS``: five real02 views with windows from P4a's run and one rig-lit hall; real04's
-  six sky views and its rig-lit hall) for the A/B of the windows-only sky (``M13_SKYWIN_AB_VARIANTS``: ``base``,
-  ``skywin35``, ``sky35``; pod P6c, ``m13_p6.sh`` with ``P6_SKY_PROJECT=real02 P6_SKY_VIEW_SET=skywin``). The summary
-  rows carry ``sky_rays`` and ``world_strength_camera`` (what the camera sees through the panes at a windows-only
-  level); the sky table shows it beside the room's world strength.
+  six sky views and its rig-lit hall) for the A/B of the windows-only sky (``M13_SKYWIN_AB_VARIANTS``: ``base``
+  (``sky0`` since the final pass below), ``skywin35``, ``sky35``; pod P6c, ``m13_p6.sh`` with
+  ``P6_SKY_PROJECT=real02 P6_SKY_VIEW_SET=skywin``). The summary rows carry ``sky_rays`` and
+  ``world_strength_camera`` (what the camera sees through the panes at a windows-only level); the sky table shows it
+  beside the room's world strength.
+- Milestone 13 final pass (23 Oct 2026; the user's decision after pod P6c): the windows-only sky is production
+  (``lighting.PRODUCTION_SKY_STOPS``), so ``base`` (production) is no longer the old world. The "before" of both sky
+  A/Bs is ``sky0`` (``lighting.SKY_OLD_WORLD_VARIANT``: production with the interior world as built until P6c):
+  ``M13_SKY_AB_VARIANTS`` = ``sky0``, sky2, sky35, sky52 and ``M13_SKYWIN_AB_VARIANTS`` = ``sky0``, skywin35, sky35.
+  The P6a and P6c results folders (results/review/m13_p6a/sky_ab, m13_p6c/sky_ab) hold that old world under
+  ``base``: re-summarise them with ``--variants base,...`` (the CLI never picks the sky tuples itself). The lever A/B
+  keeps ``base`` = production (now with the windows-only sky).
 
 Why: the A/B compares the same camera rendered two ways; a camera that moved
 (or was not rendered) would compare different pictures.
@@ -230,9 +239,10 @@ M13_SKY_AB_VIEWS: dict[str, list[dict]] = {
          "room_type": "other", "p5": "pull k1 (median 0.722, p90 0.959); daylight green 1.022 (the control)"},
     ],
 }
-# The sky levels of the A/B (lighting.SKY_VARIANTS, pinned equal in tests/test_m13_sky_ab.py): ``base`` = production
-# (the interior world as built), then +2, +3.5 and +5.2 stops.
-M13_SKY_AB_VARIANTS = ("base", "sky2", "sky35", "sky52")
+# The sky levels of the A/B (lighting.SKY_VARIANTS, pinned equal in tests/test_m13_sky_ab.py): the interior world as
+# built, then +2, +3.5 and +5.2 stops. Milestone 13 final pass (23 Oct 2026): the "before" is ``sky0`` (the old world;
+# P6a ran it as ``base``, which was the old world until the windows-only sky became production).
+M13_SKY_AB_VARIANTS = ("sky0", "sky2", "sky35", "sky52")
 # Fix round after P6a (22-23 Oct 2026; the user's decision of 22 Oct 2026, "Windows only +3.5", needs one short A/B on
 # pod P6c before it becomes the default): the windows-only sky (lighting.SKY_WINDOW_VARIANTS, ``skywin35``) against
 # production and the whole-world sky35. real02 replays its Milestone 11 cameras, so the names are stable: five interior
@@ -240,6 +250,11 @@ M13_SKY_AB_VARIANTS = ("base", "sky2", "sky35", "sky52")
 # before it, render_manifest.json; the windows in view, scene_manifest.json) and one rig-lit hall that sees a glazed
 # door (verify:sky_ab:0: the orange check's margin of the halls; the room light must not move). real04: P6a's six sky
 # views and its rig-lit hall (cam_r_L-1_koridor_2_1, the tightest orange margin of P5), for a later re-check.
+# Milestone 13 final pass (23 Oct 2026; the P6c analysis): real02's cam_r_L-1_koridor_2_1 is no longer rig-lit (P6c
+# wb_rig_share 0.2317 in its base, the old world, and in skywin35, under the GPU check's RIG_CHECK_SHARE 0.4: the P6b
+# fix rounds changed the hall's light mix), so it is a control of the room light, not a probe of the orange margin; and
+# cam_r_L-1_salon_1 / cam_r_L-1_mutfak_1 look into light wells (geometry, no sky), so P6c's A/B judged the sky on three
+# views (yatak_odasi_1, e_yatak_odasi_3, oyun_1) and the other three are pixel-identical controls.
 M13_SKYWIN_AB_VIEWS: dict[str, list[dict]] = {
     "real02": [
         {"camera": "cam_r_L-1_salon_1", "room_id": "r_L-1_salon", "room_type": "living",
@@ -262,8 +277,9 @@ M13_SKYWIN_AB_VIEWS: dict[str, list[dict]] = {
          "p5": "the rig-lit hall with the tightest orange margin (wall R/B 1.634 against 1.665, verify:sky_ab:0)"},
     ],
 }
-# The levels of the windows-only A/B: production, the windows-only +3.5 stops and the whole-world +3.5 stops.
-M13_SKYWIN_AB_VARIANTS = ("base", "skywin35", "sky35")
+# The levels of the windows-only A/B: the old world, the windows-only +3.5 stops (production since the Milestone 13
+# final pass) and the whole-world +3.5 stops. Milestone 13 final pass (23 Oct 2026): ``sky0`` for P6c's ``base``.
+M13_SKYWIN_AB_VARIANTS = ("sky0", "skywin35", "sky35")
 AB_VIEW_SETS = {"levers": M13_AB_VIEWS, "sky": M13_SKY_AB_VIEWS, "skywin": M13_SKYWIN_AB_VIEWS}
 
 

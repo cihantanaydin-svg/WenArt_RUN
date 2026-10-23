@@ -4,7 +4,8 @@
 # WENART_DEADLINE set; /workspace/venv has the CPU deps; Blender at /workspace/tools/blender/blender).
 #
 # What: for every light variant of WENART_LIGHT_VARIANT (wenart/blender/lighting.py: base, sun100, sun300, sun1000,
-# evcap, rig, shell, all) the 8 fixed interior views of real02 and the 8 of real03 (wenart.run.ab.M13_AB_VIEWS) are
+# evcap, rig, shell, all; the sky levels below) the 8 fixed interior views of real02 and the 8 of real03
+# (wenart.run.ab.M13_AB_VIEWS) are
 # built from the committed Milestone 11 baseline (results/furniture/<p>/building_final.json, the style of the
 # baseline's scene manifest, its cameras replayed with WENART_CAMERAS_FROM) and rendered at AB_SAMPLES (128)
 # into outputs/<p>/ab_m13/<variant>/; the render manifest (seconds, EV, lighting_dark, VRAM per view), the previews,
@@ -40,6 +41,11 @@
 #      views and one rig-lit hall, real04's sky views and hall) with AB_PROJECTS=real02 and AB_VARIANTS "base skywin35
 #      sky35" is the windows-only sky A/B of pod P6c (scripts/jobs/m13_p6.sh sets them from P6_SKY_*); nothing else
 #      changed here.
+# Milestone 13 final pass (23 Oct 2026; the user's decision after pod P6c): the windows-only interior sky (skywin35)
+#      is production, so base (and an unset WENART_LIGHT_VARIANT) builds it; m11 and the single levers keep the old
+#      world, and sky0 (wenart.blender.lighting.SKY_OLD_WORLD_VARIANT) is production with the old world: the "before"
+#      of a sky A/B ("sky0 sky2 sky35 sky52", "sky0 skywin35 sky35"; P6a and P6c ran it as base). The lever A/B's
+#      defaults are unchanged; nothing else changed here.
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"

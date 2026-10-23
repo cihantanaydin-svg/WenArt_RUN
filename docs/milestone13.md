@@ -11,7 +11,8 @@ Session: cloud (`CLAUDE_CODE_REMOTE=true`, no GPU), branch `Claude/Fable_01`, 12
 only: no pod, no GPU, no change to pipeline code. This document is the result of step 0 (diagnosis, §1) and step 1
 (research §2, three approaches §3, comparison §4, recommendation §5-§9).
 
-Status: **waiting for the user's OK** (decisions in §10). Nothing of step 2 is built.
+Status (23 Oct 2026): **done**. Step 2 is built and ran on pods P1-P6c; the final results, the user's decisions of 23 Oct
+2026 and the open items for Milestone 14 are in §14.16-14.17 (the step 0-1 text below is kept as written).
 
 How this was made: a 60-agent workflow (3 image reviewers over all 182 committed renders, 6 diagnosis agents on
 the logs and code, 6 research agents against official sources, 45 adversarial verifiers of the licence and count
@@ -2682,7 +2683,175 @@ Decisions added (21-25; decisions 1 and 17 above change as noted):
 25. Decision 1: a replayed camera that looks out of a piece stays only with a near clip that hides the piece
     (yasama_4_3: 0.128 m); confirm.
 
-The new fixture `tests/fixtures/m13_p6b_real03_lift.json` is untracked: it goes into the next commit.
+The new fixture `tests/fixtures/m13_p6b_real03_lift.json` is committed (5e759fe).
+
+### 14.16 P6c results and the final pass
+
+**Pod P6c** (23 Oct 2026, pod 6r3wu5m9ubb0t5, RTX PRO 6000, 130 min, $5.38; code 5e759fe, results 81d5cad): real02
+full run with the M11 cameras replayed (polish off, 256 spp, GPU tests) and the windows-only sky A/B (base, skywin35,
+sky35; 6 views, 128 spp). Run folder `runs/20261023-084914-m13_p6`; sheets, metrics, report, GPU check values and the
+A/B in `results/review/m13_p6c/`. **GPU tests: 47 passed, 0 failed, 8 skipped** (`pytest-full.txt`).
+
+**Views.** 41 (35 interior, 6 exterior; P4a 48). L1 teras_2 and L1 koridor_2 are twins again (the closet fix after
+P6a) and have no views of their own under `render.twin_rooms: one`, as in M11. Compared on the sheets:
+
+| Against | Views | Better | Same | Worse | Worse views |
+|---|---|---|---|---|---|
+| M11 | 41 | 32 | 6 | 3 | L0 koridor_2 (empty hall; M11 had a console and a shoe cabinet), L1 koridor_1 / koridor_2 (the hall wardrobe model renders as a see-through slatted rack, 17.5 / 22.1 % of the frame) |
+| P4a | 41 | 22 | 16 | 3 | ext_1, ext_5 (the ground cap makes the facade about 2 EV darker), L1 oyun_2 (a play-room table fills 16.6 % of the foreground) |
+
+Better than P4a: neutral baths (white R/B 1.07-1.10, P4a 1.20-1.24), halls no longer orange (1.18-1.23, P4a
+1.25-1.30; tightest orange margin 0.172), blue sky in the panes with no clipped pixel, full-height curtains and no
+ceiling light through the slope, no leaf halos (ext_2), coat closets built as wardrobes, the 4 desks with office chairs,
+no readable logo, the red generated fridge gone, the bedroom "floor lamps" now nightstands. Olive: wall green
+0.979-1.028 (bound 1.06).
+
+**The 17 metrics, M11 → P4a → P6c** (real02; `results/review/m13_p6c/metrics13.md`, P4a with the same CLI in
+`metrics13_p4a_same_cli.md`):
+
+| # | Metric | M11 | P4a | P6c | Target |
+|---|---|---|---|---|---|
+| 1 | drawn anchors built | 29/30 (97 %) | 37/38 (97 %) | 40/40 (100 %) | 100 %, met |
+| 2 | drawn pieces built (raw; without explained non-furniture) | 88 %; 93 % | 80 %; 94 % (183/194) | 79 %; 98 % (186/190) | ≥ 90 %, met |
+| 3 | pieces with `asset.method` none | 0 | 21 | 26 (all explained) | 0, not met |
+| 4 | parametric share of built pieces; grey boxes | 42 %; 21 | 13 %, module 22; 0 | 9 % (22/233), module 24; 0 | ≤ 25 %; 0, met |
+| 5 | rooms with a complete group set (bath, bed, kitchen, living) | 10/10, 6/6, 0/4, 2/3 | 10/10, 2/8, 2/2, 0/4 | 10/10, 6/8, 2/2, 0/4 | bed and living not met |
+| 6 | last-round F8 / S2 > 3 cm / G10 / LG | 5 / 0 / 0 / 0 | 9 / 7 / 18 / 14 | 4 / 1 / 18 / 4 | met |
+| 7 | accepted edits whose finding is gone | 24 % (10/41) | 71 % (17/24) | 73 % (11/15) | ≥ 60 %, met |
+| 8 | library: top share; distinct; units unknown; stretch; quality ≤ 3 | 28 %; 30; 51 %; 53 %; 4 % | 6 %; 83; 6 %; 0 %; 66 % | 5 %; 98; 6 %; 0 %; 48 % (32/67) | only quality not met |
+| 9 | interior views at EV ≥ +5; EV gap lit vs daylight | 9/35; 6.92 | 0/41; 2.67 | 0/35; 1.59 | met |
+| 10 | shell slots with PBR maps; fabric colour applied | no data; 0/23 | 18/18; 3/16 | 18/18; 4/20 (20 %) | fabric not met |
+| 11 | trees; hedges; black pixels in the site view | 0/2; 1; 0.0 % | 2/2; 6; 0.0 % | 2/2; 6; 5.6 % (ext_5) | black not met |
+| 12 | exterior views rendered of planned | 6/6 | 6/6 (+ ext_6.001) | 6/6 | met for the 6 planned |
+| 13 | views in halls or ≥ 50 % bare wall | 16/41 | 19/48 | 16/41 | ≤ 4, not met |
+| 14 | `in_json_not_rendered` mismatches | 0 | 3 in 3 views | 0 | met |
+| 15 | reviewer rubric | mean 1.90 | no data | no data | - |
+| 16 | commercial-safe line; flagged assets missing in ATTRIBUTION | 0/41 | 48/48; 20 flagged, 0 missing | 41/41; 19 flagged, 0 missing | met |
+| 17 | minutes and USD per full run (stages, $2.49/h) | 29 min, $1.22 | 80 min, $3.34 | 94 min, $3.91 | met |
+
+Agent (real02): critical / major 2 / 104 in round 1, 1 / 90 at the end (P4a 2 / 143 → 1 / 122); 17 findings removed
+against 17 predicted, 2 new, net 15; 18 edits accepted, 135 rejected (P4a 25 / 109); 269 chat calls (P4a 345); 30.6
+agent minutes. `critical_cleared` and the drawn-layout report-only marks were not needed on real02. Recognition: 70
+items, 22 asked, 48 reused, yet exit code 2 with 0 failed and 0 left (fixed below). Two misreads came back: the L-1b
+2.13 m sofas f_L-1b_041 / 042 became kitchen islands (fixed below), and the L1 2.17 m TV unit became a 1.40 m console.
+
+Library: all 40 drawn anchors built (26 ABO, 10 HSSD, 4 module); 85 HSSD pieces from 50 models, all flagged
+non-commercial (relaxed mode); 46 pieces below library level, 4 of them library gaps (two 3.35 x 1.00 m module dining
+tables, two module L-sofas); 12 of 41 views commercial-safe; ATTRIBUTION.md lists all 162 library assets used, 64 of
+them flagged (metric 16 counts the 19 flagged assets seen in the views); none of the 11 logo models is used. real02
+drops 4 duplicate floor lamps (§14.15 review finding 10 said 2: the rule is right, the count was not).
+
+**Windows-only sky A/B** (real02, 6 views, 128 spp; `results/review/m13_p6c/sky_ab/summary.md` and the analysis):
+
+| Variant | Interior world | EV used | Project white point | Band / sky (display p50) | Pull k | Panes p90 after the pull | Pane saturation after the pull | Outside the panes |
+|---|---|---|---|---|---|---|---|---|
+| base (the old world) | 1.0 for every ray | -0.67 to 3.0 | 5611.6 K | 1.54-1.78 | 0 / 3 / 1 | 0.89-0.92 | 0.135-0.181 | reference |
+| skywin35 | 1.0; camera paths 11.31 | identical in 6 of 6 | 5611.7 K | 1.00-1.02 | 1 / 5 / 2 | 0.80-0.84 | 0.082-0.126 | mean difference 0.16-0.17 / 255 |
+| sky35 | 11.31 for every ray | e_yatak_odasi_3 3.0 → 2.5, oyun_1 0.17 → 0 | 5757.0 K | 1.01-1.02 | 1 / 4 / 2 | 0.81-0.84 | 0.077-0.097 | room light changes (wall R/B 7-35 % lower) |
+
+Band / sky, pull and pane values are for the three views that see sky (L0 yatak_odasi_1, e_yatak_odasi_3, L1
+oyun_1); salon_1 and mutfak_1 look into light wells and koridor_2_1 sees no sky, so they are pixel-identical controls.
+Under skywin35 day green and the tint are identical, nothing clips (0 in 18 renders), render time +0.7 %. Costs: the sky
+is paler and flatter (pane saturation -30 to -45 %, cloud contrast about halved) because Cycles' indirect clamp (10)
+caps the sky seen through the two-face pane (about 1.7 of the 3.5 stops reach the image, so sky35's window looks the
+same), and the lawn seen through the glass is 1-2 stops darker (larger pull). koridor_2_1 is no longer rig-lit (rig
+share 0.2317, P4a 0.90). **User decision of 23 Oct 2026: the windows-only sky +3.5 stops is the production default.**
+
+**Final pass** (23 Oct 2026; no pod; on 81d5cad). Two build agents, two read-only reviews, then this lead step:
+
+| Change | Files | Why |
+|---|---|---|
+| Windows-only sky is the default: production, `base` and no variant give 3.5 stops on camera paths (`PRODUCTION_SKY_STOPS`, `PRODUCTION_SKY_RAYS`); `skywin35` is an alias; new `sky0` is the old world (0 stops, all rays); m11 and the single P1 levers keep the old world; `lever_record` always writes `sky_stops` and `sky_rays` | `lighting.py`; docstrings in `materials.py`; `ab.py` (A/B sets start from `sky0`); `m13_p6.sh` default `sky0 sky2 sky35 sky52` | user decision 1 |
+| GPU pins for the new sky: `PANE_SAT_MIN` 0.08 → 0.065 (P6c estimate under skywin35 0.0822, worst case 0.0752; P4a's haze grey cards 0.06); an interior pane view with haze not hidden fails; real02 white point 5608.6 ± 75 K (skywin35 5611.7 K passes, sky35 5757.0 K fails); new `test_the_interior_world_is_the_sky_of_the_levers`; the light GPU test checks each variant's world | `tests/gpu/test_render.py`, `tests/gpu/test_m13_light.py` | sky analysis findings 1-2 |
+| Recognition: `answers.rekey` copies every record reused by input hash to the item's own key (all reads, then all writes) before any question | `recognition/answers.py` | verify:agent:1 (exit code 2) |
+| `report['unanswered']` lists keys without a full pair of answers in every mode (also `--no-ai`); `reading.answered_keys` subtracts them, so the final `--answers --no-ai` pass withdraws the same code-typed questions as round 1; by the verifier's replay of the code typing f_L-1b_041 / 042 then stay sofas (not re-run on P6c's data) | `ingest/generic/core.py`, `reading.py` | verify:agent:0 (the cause of the island misread) |
+| G3 armchair within 30° but over 2.50 m from its group: cause `group_layout` (move_group, relayout_room, move_piece, rotate_piece, set_front), not `orientation` (P6c f_L1_031: 12.1°, 2.734 m) | `agent/causes.py` | verify:agent:3, part 1 |
+| Closed-door GPU test: a named view of a skipped twin is checked on the rendered twin's door-only views that see a door mirrored into it (P6c: cam_r_L1_koridor_1-3); otherwise it skips with the reason | `tests/gpu/test_render.py` | verify:look:0 (test hygiene) |
+| Review (1 minor finding, the second review none): the real02 white-point pin was only checked as arithmetic; the CPU test now runs the GPU white-point function on a minimal real02 project (a `real2` guard mutation now fails it) | `tests/test_m13_p6a_sky.py` | review |
+
+No pod has rendered the new default. `RENDER_CODE_VERSION` stays m13.5 (the build fingerprint covers `lighting.py`,
+and the new scene hash re-renders every view). To reproduce the P6 finals: `WENART_LIGHT_VARIANT=sky0` (its own
+build fingerprint). The P6a, P6b and P6c scene manifests fail the new world test (built before the default): expected.
+`base,sun300` and other `base` combinations now get the new sky, and the lever A/B's `base` column shows production.
+
+Tests: `tests/test_m13_final_pass.py` (new, 10) and new or rewritten cases in `test_m13_sky_ab.py` and
+`test_m13_p6a_sky.py` (CPU replays on P6c's numbers, embedded as constants because `runs/` is git-ignored). All 14
+changed sky tests fail on 81d5cad and 12 of 12 sky mutations are caught; each bug-fix test fails on the P6c code or
+catches its named mutation. A bpy 5.2.2 shim (no GPU): the default levers build the same world record as skywin35,
+the pane sky 9.17 against sky0's 2.79, room and wall light identical to sky0's; on synthetic-01 EV, project white point
+(within 0.8 K), rig share and day green are unchanged and a bath without panes changes 0 pixels.
+
+**CPU suite** (full run on 81d5cad plus the final pass, uncommitted; `-m "not gpu"`, 4 shared CPUs, temp folder in
+/dev/shm; no code file changed during the run; log `/dev/shm/full_final.log`): **5,865 passed, 0 failed, 223 skipped, 176
+deselected (GPU), 4 xfailed in 75:38 min** (review round after P6b: 5,853 passed). No test needed a fix.
+
+**User decisions of 23 Oct 2026.**
+
+| # | Decision | Closes |
+|---|---|---|
+| 1 | The windows-only interior sky, +3.5 stops, is the production default | §14.13 decision 4, §14.14 decision 10 |
+| 2 | No more pods: P6a (real04), P6b (real03) and P6c (real02) are the final results | the re-render pod of the sky analysis |
+| 3 | `render.twin_rooms` stays `one` (P6c's terrace and L1 hall views equal M11's) | §14.14 decision 12 |
+| 4 | Three rule changes approved: the `critical_cleared` acceptance; a sofa may face another group's coffee table when its own gets a new one (`other_group_front`); real03's column ids renumbered | §14.15 decisions 5, 8, 19 |
+
+### 14.17 Milestone 13 final results
+
+Final runs against the baselines of §12 (real02 and real03: the committed M11 runs, 93aff07; real04: the committed
+M12 run, eddde01). Views compared on the sheets; numbers from each review folder's `metrics13.md`.
+
+| | real02: M11 → P6c | real03: M11 → P6b | real04: M12 → P6a |
+|---|---|---|---|
+| Final pod, cost | 6r3wu5m9ubb0t5, $5.38 (with the sky A/B) | 7iq0rr0yyzssuc + fetch pod, $6.51 | ss8f5dhc9ern1n, $7.34 (with the sky A/B) |
+| Views in the final | 41 (35 interior, 6 exterior) | 89 (83 interior, 6 exterior) | 49 (43 interior, 6 exterior) |
+| Views better / same / worse | 32 / 6 / 3 (41 views) | 41 / 10 / 8 (59 interior views; M11 has no exterior) | 31 / 11 / 5 (47 views) |
+| GPU tests of the final run (passed / failed / skipped) | 47 / 0 / 8 | 42 / 6 / 7 | 45 / 2 / 8 |
+| Drawn anchors built (metric 1) | 29/30 → 40/40 | 15/15 → 27/27 | 12/34 → 36/36 |
+| Accepted edits whose finding is gone (metric 7) | 24 % → 73 % | 69 % → 88 % | 13 % → 91 % |
+| Library share of built pieces (parametric share) | 58 % → 80 % (42 % → 9 %) | 56 % → 77 % (44 % → 8 %) | 67 % → 81 % (33 % → 10 %) |
+| Grey boxes | 21 → 0 | 42 → 0 | no data → 0 |
+| Interior views at EV ≥ +5; EV gap lit vs daylight (metric 9) | 9/35, 6.92 → 0/35, 1.59 | 27/83, 5.17 → 0/83, 0.75 | 9/44, no data → 0/43, 0.67 |
+| Commercial-safe views (relaxed mode) | 12 of 41 | 35 of 89 | 12 of 49 |
+| Code of the final images | 5e759fe, old interior sky | 8e8cc97, old interior sky | 8e8cc97, old interior sky |
+
+Of the 8 GPU failures of P6a and P6b, 5 were fixed on CPU (test rules, camera moves, index-pass slack), the 2 olive
+ones by the m13.5 wall-metered tint (passed on real02 in P6c; real03 and real04 not re-rendered), and P6b's interior
+glazing check stays failing (§14.15 decision 16). P6c passed all 47; its glazing check skipped (no named view
+rendered). No GPU test has run the final-pass code.
+
+**GPU spend.** Milestone 13: 14 pods, 1,333 minutes (22.2 h), $51.24 (§8 estimate: $46-54). Project total
+(`docs/gpu-log.md`): **$181.78 of $300**. No pod is running (checked 23 Oct 2026).
+
+**Open items for Milestone 14.**
+
+- The final images do not show the last fixes. real03 (P6b) and real04 (P6a) were rendered on 8e8cc97, before the
+  fix rounds after P6a and P6b (m13.5 wall-metered tint, moved replayed cameras, outline rule, critical_cleared, the
+  entrance view on its door, …) and before the new sky; real02 (P6c) predates the sky default and this pass's fixes.
+  One build-and-render pod for the three (M11 / M12 cameras replayed, no recognition or agent; about 75-95 min,
+  $3.1-4.0) would show them; the user decided no more pods in Milestone 13.
+- P6c findings not fixed (look): the hall wardrobe hssd_b15e1d3e (audit vision quality 1) renders see-through; L0
+  e_yatak_odasi lost the agent's room light (EV +2.2 / +3.0, an olive-yellow upper wall that the all-walls olive check
+  misses); the exterior ground cap darkens ext_1 / 2 / 5 by about 2 EV; the play-room round table is a square model
+  and the replayed oyun_2 camera looks over it; a near-black runner rug (no albedo floor); stair cores glow near-white
+  (12 W/m² fill in 0.8 m cores); the twin L1 banyo_2 mirror reaches above the slope; L0 koridor_2 is an empty hall.
+- P6c findings not fixed (sky): the paler sky needs the indirect-clamp A/B; no guard yet for an interior view that sees
+  sky without glass (it would get the 11.3x sky unclamped; none today: depth coverage 1.0 in all P6a / P6b / P6c
+  interior views).
+- P6c findings not fixed (agent and reading): a code-checked snap hint for F3 / F8 of drawn pieces (verify:agent:2,
+  narrower fix); mirroring accepted edits to the unrendered twin (verify:agent:3, part 2); a TV unit read as a bench;
+  identical symbols typed differently on two levels; vision findings that come and go counted as removed; room-wide
+  edits that lose their checklist finding; the mirrored shower f_L0_014 facing the wall; the round-table split cutting
+  its chair by 0.341 m; the S5 decor-rest critical; size snaps that grow a group into itself; cumulative "build ok"
+  seconds; the recognize stage keeping its rc-2 warning after a late pass that answered everything.
+- P6c findings not fixed (library): two bathroom fixture models used 10 times each (metric 8 quality 48 %); a king bed
+  0.156 m longer than its footprint; the GPU counter-front test selects only parametric counters, so it never runs in
+  Milestone 13; a purple "Platform" decor tray; kids-titled HSSD models in adult rooms.
+- Metrics not met in the final runs: 3 (method none: real02 26, all explained; real03 2; real04 22), 5 (bed and
+  living sets), 8 (quality ≤ 3: real02 48 %, real04 50 %), 10 (fabric colour), 11 (black pixels in the site view:
+  real02 5.6 %, real04 3.6 %), 13 (halls and bare walls: real02 16, real03 29, real04 21 views), 6 (real03's
+  last-round S2 8, real04's LG 6) and 12 (real04's exterior views, 6 of 8).
+- Open decisions, not taken on 23 Oct 2026: §14.13 decisions 1-3 and 5-16; §14.14 decisions 1-9 and 11; §14.15
+  decisions 1-4, 6, 7, 9-18 and 20-25 (among them the schema gaps that make `validate_scene_manifest` fail on real
+  manifests, decision 2, and the logo audit of the remaining HSSD appliance fronts, decision 13).
 
 ### 14.4 Open items and risks by track
 
