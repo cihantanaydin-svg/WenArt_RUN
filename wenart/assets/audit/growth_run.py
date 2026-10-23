@@ -67,7 +67,8 @@ Milestone 13 round 3 (docs/milestone13.md §14.6, after pod P2):
 
     ingest --source 3dwh                the user's zip (``approved_3dwh.json``: the whole zip, the ingest gate) from
                                         ``--library`` (``zip/``, downloaded by the job): its GLBs extracted safely to
-                                        ``raw/``, every model typed from its names, measured, its unit and up axis
+                                        ``glb/<uid>.glb`` (``members.json``: the member paths), every model typed
+                                        from its names, measured, its unit and up axis
                                         chosen and fixed (``wenart.assets.warehouse.process``, ``--workers``
                                         processes) into ``<assets>/models/3dwh/<uid>.glb``; ``ingest_3dwh.json``
                                         (every record), ``3dwh_review.json`` (unmapped, dropped, failed, not fitting
@@ -345,7 +346,9 @@ def ingest_3dwh(args) -> int:
         write_json(rep / "ingest_3dwh.json", {"source": WH.SOURCE, "refused": str(exc)})
         return EXIT_NOTHING
     root = Path(args.library)
-    zpath, raw = root / "zip" / WH.ZIP_NAME, root / "raw"
+    # glb/ (23 Oct 2026, after the first pod): the models as <uid>.glb with members.json; the raw/ tree that pod
+    # started (member paths on the file system: a name passed 255 bytes) stays on the volume, unused
+    zpath, raw = root / "zip" / WH.ZIP_NAME, root / "glb"
     extract = None
     zip_rec = {"path": str(zpath), "present": zpath.is_file(), "expected_bytes": WH.ZIP_BYTES,
                "bytes": zpath.stat().st_size if zpath.is_file() else None}
@@ -364,8 +367,8 @@ def ingest_3dwh(args) -> int:
         return EXIT_NOTHING
     listing = WH.list_glbs(raw)
     cache = Path(args.growth) / WH.SOURCE / "fix"
-    jobs = [{"id": r["id"], "rel": r["rel"], "raw": str(raw), "assets": str(args.assets), "cache": str(cache)}
-            for r in listing]
+    jobs = [{"id": r["id"], "rel": r["rel"], "file": r["file"], "raw": str(raw), "assets": str(args.assets),
+             "cache": str(cache)} for r in listing]
     records = _process_all(WH.process, jobs, max(1, int(args.workers)))
     ok = [r for r in records if r.get("ok")]
     unmapped = [r for r in records if not r.get("ok") and not r.get("mapped", True)]
@@ -1674,7 +1677,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--source", default=None, choices=["polyhaven", "abo", "gso", "infinigen", "hssd", "ambientcg",
                                                       "3dwh"])
     p.add_argument("--library", default=os.environ.get("WENART_3DWH_ROOT") or "/workspace/library/3dwh",
-                   help="ingest 3dwh: the folder with zip/ (the download) and raw/ (the extracted GLBs)")
+                   help="ingest 3dwh: the folder with zip/ (the download) and glb/ (the extracted GLBs)")
     p.add_argument("--m13", action="store_true", help="ingest: the Milestone 13 list of abo / polyhaven")
     p.add_argument("--token-env", default="HF_TOKEN", help="ingest hssd: the environment variable with the token "
                                                             "(never printed)")

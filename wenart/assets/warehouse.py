@@ -10,7 +10,10 @@ onto the flag.
 - ``download_url`` (``drive.usercontent.google.com``, ``confirm=t``: the large-file form without the virus-scan page;
   the file must be shared as "anyone with the link"), ``approval`` (``results/library/growth/approved_3dwh.json``: the
   user's OK of the whole zip, the ingest gate), ``extract`` (only ``.glb`` members, no absolute path, no ``..``, no
-  link; complete files kept: resume), ``list_glbs``.
+  link; UTF-8 names stored without the zip's UTF-8 flag read as UTF-8; each model written as ``<uid>.glb`` with
+  ``members.json`` mapping it to its member path, so no long or foreign name reaches the file system; complete files
+  kept: resume), ``list_glbs``. The zip holds one folder per model (``Lamps/<model name> [hex id]/model.glb``): a
+  file name that names no model (``GENERIC_STEMS``) takes its folder's name.
 - ``name_type(rel)``: the type of a model from its folder and file name, never guessed silently. The deepest folder
   that names a group (``GROUP_WORDS``: furniture, decor, trees, doors, windows) gives the group; the file name, then
   the folders (deepest first), give the candidate types through ``wenart.assets.audit.keywords`` (the library's title
@@ -58,7 +61,7 @@ ZIP_NAME = "3D Warehouse Furniture.zip"
 ZIP_BYTES = 6_261_344_770                         # the Drive file's size (Drive metadata, read on 23 Oct 2026)
 DOWNLOAD_URL = "https://drive.usercontent.google.com/download?id={id}&export=download&confirm=t"
 DRIVE_PAGE = "https://drive.google.com/file/d/{id}/view"
-LIBRARY_ROOT = "/workspace/library/3dwh"          # zip/, raw/ (the extracted GLBs) on the volume
+LIBRARY_ROOT = "/workspace/library/3dwh"          # zip/ (the download), glb/ (the extracted models) on the volume
 LICENCE = "3DWH-UNREVIEWED"                    # all caps: wenart.blender.furniture compares upper-case
 LICENCE_FLAG = "non_commercial"
 LICENCE_DECLARED_BY = "uploader"
@@ -230,28 +233,53 @@ def _is_link(info: zipfile.ZipInfo) -> bool:
     return (info.external_attr >> 16) & 0o170000 == 0o120000
 
 
+UTF8_FLAG = 0x800                                 # zip general-purpose flag bit 11: the name is UTF-8
+MEMBERS = "members.json"                          # the extraction's map: uid file -> the member's own path
+
+
+def member_name(info: zipfile.ZipInfo) -> str:
+    """A member's name: Python reads a name without the UTF-8 flag as CP437; the user's zip stores UTF-8 names
+    (Cyrillic, Turkish, ...) without the flag (pod of 23 Oct 2026: a Russian lamp name became 3-byte CP437 mojibake
+    and its folder passed the 255-byte name limit), so such a name is read again as UTF-8 when it decodes as UTF-8."""
+    name = info.filename
+    if not info.flag_bits & UTF8_FLAG:
+        try:
+            name = name.encode("cp437").decode("utf-8")
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            pass
+    return name
+
+
 def extract(zip_path, dest, log: Callable = print) -> dict:
-    """The GLB members of the zip into ``dest`` (``safe_member`` paths; a complete file of the same size is kept);
-    returns ``{"glb", "extracted", "kept", "refused": [names], "other": {extension: n}, "bytes"}``."""
+    """The GLB members of the zip into ``dest``, each as ``<uid>.glb`` (``uid_of`` its ``safe_member`` path: a long
+    or foreign name never reaches the file system), and ``dest/members.json`` (``[{"id", "rel", "file", "bytes"}]``:
+    the member's own path for the typing); a complete file of the same size is kept. Returns ``{"glb", "extracted",
+    "kept", "refused": [names], "other": {extension: n}, "bytes", "duplicates": [paths]}``."""
     dest = Path(dest)
-    out: dict = {"glb": 0, "extracted": 0, "kept": 0, "refused": [], "other": {}, "bytes": 0}
+    out: dict = {"glb": 0, "extracted": 0, "kept": 0, "refused": [], "other": {}, "bytes": 0, "duplicates": []}
+    members: dict[str, dict] = {}
     with zipfile.ZipFile(zip_path) as zf:
         for info in zf.infolist():
             if info.is_dir():
                 continue
-            rel = safe_member(info.filename)
+            name = member_name(info)
+            rel = safe_member(name)
             if rel is None:
-                if info.filename.lower().endswith(".glb"):
-                    out["refused"].append(info.filename)
+                if name.lower().endswith(".glb"):
+                    out["refused"].append(name)
                 else:
-                    ext = PurePosixPath(info.filename.replace("\\", "/")).suffix.lower() or "(none)"
+                    ext = PurePosixPath(name.replace("\\", "/")).suffix.lower() or "(none)"
                     out["other"][ext] = out["other"].get(ext, 0) + 1
                 continue
             if _is_link(info):
-                out["refused"].append(info.filename)
+                out["refused"].append(name)
                 continue
+            uid = uid_of(rel)
+            if uid in members:
+                out["duplicates"].append(rel)             # the same path twice in the zip: the later one wins
             out["glb"] += 1
-            target = dest / rel
+            target = dest / f"{uid}.glb"
+            members[uid] = {"id": uid, "rel": rel, "file": target.name, "bytes": info.file_size}
             if target.is_file() and target.stat().st_size == info.file_size:
                 out["kept"] += 1
                 out["bytes"] += info.file_size
@@ -267,6 +295,9 @@ def extract(zip_path, dest, log: Callable = print) -> dict:
             part.replace(target)
             out["extracted"] += 1
             out["bytes"] += info.file_size
+    dest.mkdir(parents=True, exist_ok=True)
+    (dest / MEMBERS).write_text(json.dumps(sorted(members.values(), key=lambda m: m["rel"]), ensure_ascii=False,
+                                           indent=0), encoding="utf-8")
     if out["refused"]:
         log(f"3dwh extract: {len(out['refused'])} member(s) refused (unsafe path or link): {out['refused'][:5]}")
     return out
@@ -277,22 +308,51 @@ def uid_of(rel: str) -> str:
 
 
 def list_glbs(root) -> list[dict]:
-    """``[{"id", "rel", "folders", "stem", "bytes"}]`` of every ``.glb`` under ``root`` (sorted by path)."""
+    """``[{"id", "rel", "file", "folders", "stem", "bytes"}]`` of the models under ``root`` (sorted by ``rel``, the
+    member's own path): from ``members.json`` of ``extract`` (``file`` = ``<uid>.glb``, present files only), else
+    every ``.glb`` below ``root`` (``file`` = ``rel``)."""
     root = Path(root)
     out = []
+    man = root / MEMBERS
+    if man.is_file():
+        for m in json.loads(man.read_text(encoding="utf-8")):
+            p = root / m["file"]
+            if p.is_file():
+                rel = m["rel"]
+                out.append({"id": m["id"], "rel": rel, "file": m["file"],
+                            "folders": list(PurePosixPath(rel).parent.parts), "stem": PurePosixPath(rel).stem,
+                            "bytes": p.stat().st_size})
+        return sorted(out, key=lambda r: r["rel"])
     for p in sorted(root.rglob("*")):
         if not p.is_file() or p.suffix.lower() != ".glb":
             continue
         rel = p.relative_to(root).as_posix()
-        out.append({"id": uid_of(rel), "rel": rel, "folders": list(PurePosixPath(rel).parent.parts),
+        out.append({"id": uid_of(rel), "rel": rel, "file": rel, "folders": list(PurePosixPath(rel).parent.parts),
                     "stem": p.stem, "bytes": p.stat().st_size})
     return out
 
 
+HASH_SUFFIX = re.compile(r"\s*\[[0-9A-Fa-f]{6,}\]\s*$")     # "lamp chandelier [2693fa00]": the zip's model id
+# File names that name no model: the model is its folder ("Lamps/<model name> [2693fa00]/model.glb", pod of 23 Oct)
+GENERIC_STEMS = ("model", "scene", "untitled", "mesh", "object", "export", "default", "file", "asset")
+TITLE_MAX = 120
+
+
 def clean_title(stem: str) -> str:
-    """A file stem as a title: underscores and runs of spaces folded (``Sofa_IKEA__Kivik`` -> ``Sofa IKEA Kivik``)."""
-    text = re.sub(r"[_]+", " ", str(stem or ""))
-    return " ".join(text.split()).strip(" -.")
+    """A file or folder name as a title: underscores and runs of spaces folded, the zip's ``[hex]`` model id cut
+    (``Sofa_IKEA__Kivik [2693fa00]`` -> ``Sofa IKEA Kivik``), at most ``TITLE_MAX`` characters (at a word)."""
+    text = HASH_SUFFIX.sub("", re.sub(r"[_]+", " ", str(stem or "")))
+    text = " ".join(text.split()).strip(" -.")
+    if len(text) > TITLE_MAX:
+        text = text[:TITLE_MAX].rsplit(" ", 1)[0].rstrip(" -.,")
+    return text
+
+
+def generic_stem(stem: str) -> bool:
+    """``model``, ``Scene``: a file name that is one of ``GENERIC_STEMS`` alone (``Model_123`` keeps its own name)."""
+    from wenart.assets.audit import keywords as K
+    toks = K.tokens(stem)
+    return len(toks) == 1 and toks[0] in GENERIC_STEMS
 
 
 # --------------------------------------------------------------------------
@@ -386,6 +446,9 @@ def name_type(rel: str) -> dict:
     p = PurePosixPath(str(rel))
     folders = list(p.parent.parts)
     stem = clean_title(p.stem)
+    if generic_stem(p.stem) and folders:
+        stem = clean_title(folders[-1])                  # the model's folder is its name
+        folders = folders[:-1]
     group, gfolder = folder_group(folders)
     rec: dict = {"group": group, "group_folder": gfolder, "candidates": [], "families": [], "where": None,
                  "word": None, "title": stem, "mapped": False}
@@ -705,7 +768,7 @@ def process(job: dict) -> dict:
     has the same source sha256 and ``FIX_VERSION`` and the fixed file is there."""
     from wenart.assets.audit import glbmesh as GM
     rel, uid = job["rel"], job["id"]
-    src = Path(job["raw"]) / rel
+    src = Path(job["raw"]) / job.get("file", rel)
     assets = Path(job["assets"])
     dest = assets / model_rel(uid)
     cache = Path(job["cache"]) / f"{uid}.json"

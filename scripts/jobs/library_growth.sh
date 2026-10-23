@@ -43,7 +43,7 @@
 #                        downloads the user's Google Drive zip "3D Warehouse Furniture.zip" (6.26 GB; the file must be
 #                        shared as "anyone with the link": drive.usercontent.google.com with confirm=t; resumed with
 #                        curl -C -, the size checked against the Drive file) into $WH_ROOT/zip/, then ingest-3dwh
-#                        (the GLBs extracted safely to $WH_ROOT/raw/, typed from their folder and file names,
+#                        (the GLBs extracted safely to $WH_ROOT/glb/<uid>.glb, typed from their folder and file names,
 #                        measured, unit / up axis / origin / double-sided faces / roughness fixed into
 #                        $ASSETS/models/3dwh/), catalogue --only 3dwh (furniture and decor entries; trees, doors and
 #                        windows as previews), render, code, ask (the m13.2 question: the logo and print fields),

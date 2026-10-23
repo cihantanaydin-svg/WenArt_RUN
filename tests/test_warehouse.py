@@ -75,15 +75,52 @@ def test_extract_takes_only_safe_glb_members_and_resumes(tmp_path):
     assert rec["glb"] == 1 and rec["extracted"] == 1 and rec["other"] == {".txt": 1}
     assert sorted(rec["refused"]) == sorted(["../evil.glb", "/abs/evil.glb", "__MACOSX/Furniture/._Good sofa.glb",
                                              "C:/win/evil.glb", "3D Warehouse Furniture/link.glb"])
-    files = sorted(p.relative_to(raw).as_posix() for p in raw.rglob("*") if p.is_file())
-    assert files == ["3D Warehouse Furniture/Furniture/Sofas/Good sofa.glb"]
+    good = "3D Warehouse Furniture/Furniture/Sofas/Good sofa.glb"
+    files = sorted(p.name for p in raw.rglob("*") if p.is_file())
+    assert files == sorted([f"{W.uid_of(good)}.glb", W.MEMBERS])         # the uid file and the member map only
     assert not (tmp_path / "evil.glb").exists()
     again = W.extract(zpath, raw, log=lambda *a: None)
     assert again["kept"] == 1 and again["extracted"] == 0
     listing = W.list_glbs(raw)
-    assert [r["rel"] for r in listing] == files and listing[0]["stem"] == "Good sofa"
-    assert listing[0]["id"] == W.uid_of(files[0]) and len(listing[0]["id"]) == len("3dwh_") + 24
+    assert [r["rel"] for r in listing] == [good] and listing[0]["stem"] == "Good sofa"
+    assert listing[0]["id"] == W.uid_of(good) and len(listing[0]["id"]) == len("3dwh_") + 24
+    assert listing[0]["file"] == f"{W.uid_of(good)}.glb"
     assert listing[0]["folders"] == ["3D Warehouse Furniture", "Furniture", "Sofas"]
+
+
+def test_utf8_names_without_the_zip_flag_and_names_over_255_bytes_extract(tmp_path):
+    """The first 3dwh pod (23 Oct 2026): the zip stores UTF-8 names without the UTF-8 flag (Python reads them as
+    CP437: a Russian lamp name became mojibake) and one model folder passed the 255-byte name limit."""
+    src = write_glb(tmp_path / "src" / "a.glb", *box_mesh(0.6, 0.6, 0.5))
+    lamp = ("3D Warehouse Furniture/Lamps/lamp chandelier pendant light светильник лампа люстра подвесной свет "
+            "[2693fa00]/model.glb")
+    long_name = "3D Warehouse Furniture/Sofas/" + "очень длинный диван " * 12 + "[abcdef12]/model.glb"
+    assert len(long_name.split("/")[2].encode("utf-8")) > 255
+    zpath = tmp_path / "z.zip"
+    with zipfile.ZipFile(zpath, "w") as zf:
+        for i, name in enumerate((lamp, long_name)):
+            zf.write(src, f"{i}" * len(name.encode("utf-8")))         # an ASCII name of the same byte length
+    data = zpath.read_bytes()
+    for i, name in enumerate((lamp, long_name)):
+        data = data.replace(f"{i}".encode() * len(name.encode("utf-8")), name.encode("utf-8"))
+    zpath.write_bytes(data)                                             # UTF-8 names, flag bit 11 not set
+    with zipfile.ZipFile(zpath) as zf:
+        assert not zf.infolist()[0].flag_bits & W.UTF8_FLAG and zf.infolist()[0].filename != lamp
+        assert W.member_name(zf.infolist()[0]) == lamp
+    raw = tmp_path / "glb"
+    rec = W.extract(zpath, raw, log=lambda *a: None)
+    assert rec["glb"] == 2 and rec["extracted"] == 2 and not rec["refused"]
+    listing = W.list_glbs(raw)
+    assert sorted(r["rel"] for r in listing) == sorted([lamp, long_name])
+    r = W.name_type(lamp)
+    assert r["mapped"] and r["candidates"][0] == "pendant_light" and r["where"] == "file"
+    assert r["title"] == "lamp chandelier pendant light светильник лампа люстра подвесной свет"
+    long_r = W.name_type(long_name)
+    assert long_r["candidates"][0] == "sofa" and len(long_r["title"]) <= W.TITLE_MAX
+    rec = W.process(job(raw, tmp_path / "assets", lamp, tmp_path / "c") | {"file": listing[0]["file"]
+                                                                            if listing[0]["rel"] == lamp
+                                                                            else listing[1]["file"]})
+    assert rec["ok"] and rec["type"] == "pendant_light", rec
 
 
 # --------------------------------------------------------------------------
@@ -108,6 +145,17 @@ def test_extract_takes_only_safe_glb_members_and_resumes(tmp_path):
 def test_types_come_from_the_folder_and_file_names(rel, group, first, where):
     r = W.name_type(rel)
     assert r["mapped"] and r["group"] == group and r["candidates"][0] == first and r["where"] == where, r
+
+
+def test_a_file_named_model_takes_its_folder_name():
+    r = W.name_type("3D Warehouse Furniture/Beds/Queen bed Malm [00aa11bb]/model.glb")
+    assert r["candidates"] == ["bed_double"]                     # "queen bed" names the double bed
+    assert r["where"] == "file" and r["title"] == "Queen bed Malm"
+    r = W.name_type("3D Warehouse Furniture/Chairs/X 12 [00aa11bb]/model.glb")       # the folder above names it
+    assert r["candidates"][0] == "chair" and r["where"] == "folder Chairs" and r["title"] == "X 12 (Chairs)"
+    assert W.generic_stem("Model") and W.generic_stem("scene") and not W.generic_stem("Model chair")
+    assert not W.generic_stem("Model_2")
+    assert W.clean_title("Sofa_IKEA [2693fa00]") == "Sofa IKEA"
 
 
 def test_unmapped_names_go_to_review_and_titles_carry_only_a_type_folder():
