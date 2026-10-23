@@ -351,7 +351,15 @@ sit at 0.57-0.76, the wall R/B does not rise with the frame's rig share (the vie
 measure first): ``Look._view_white`` records ``wb_walls`` (``wall_rig_record``): the walls' own rig share from the two
 metering passes it already runs (both meter the walls since the fix round after P6a), the colour of the rig light
 measured on the walls (all-light minus daylight) with Blender's reading of it, and the lamp's R/B. No white point
-reads it; the GPU orange check keeps it with its values for the decision after P6c.
+reads it; the GPU orange check keeps it with its values for the decision after P6c. The verifier's step 2, a bpy
+5.2.2 shim of P6b's real03.blend (final/real03/3d; the two metering passes at 240 x 135, 16 spp, with this record) on
+11 views: the walls' rig share is within 0.05 of the frame's (giris_holu_2 0.594 / 0.594, yangin_merdiveni_1 0.903 /
+0.886), so the share is not what leaves the halls warm; the light is. The rig light reaches the hall and stair walls at
+3,266-3,614 K (linear R/B 3.35-4.28; the white tiled banyo_5_1 3,854 K) against the 4000 K lamp's 2.65, and their
+daylight at R/B 2.68-3.33 against the anchor's 1.98 (1.95 on the walls of the anchor's own room), both warmed by the
+oak floors and treads and the greige paint; the daylight-only oda_01_2 gets the same warm light (R/B 3.35) and reads
+1.582. A white point from the rig light measured on the walls is the candidate next rule (a look decision: it would
+take the bounce warmth out of the rig-lit rooms only).
 """
 from __future__ import annotations
 
@@ -1106,10 +1114,10 @@ def wall_rig_record(all_stats: dict | None, day_stats: dict | None, lamp_rgb=Non
     ``kelvin_whitepoint``), ``rig_kelvin`` (None here; ``Look._view_white`` sets Blender's reading of ``rig_rgb``) and
     ``rule``. Why: P6b's mid-share halls read warmer than their frame-wide rig share explains (giris_holu_2: frame
     share 0.62, block-median share 0.74; a wall lit by the bare 4000 K lamp alone would read about 1.50 under its white
-    point, it read 1.599) and the walls are what the GPU orange check judges; whether their own share is near 1 and
-    their rig light warmer than the lamp (the bounce off the oak floors and the greige paint) decides the next rule. No
-    white point reads it. None when the all-light pass metered no walls (no ``wall_illuminant``: an exterior view, a
-    meter without ``walls``); no ``rig_share`` without light on the walls or without a wall metering of the daylight
+    point, it read 1.599) and the walls are what the GPU orange check judges; whether their own share is near 1 or
+    their rig light warmer than the lamp (the bounce off the oak floors and the greige paint) decides the next rule
+    (the shim of P6b's scene: the latter, module docstring). No white point reads it. None when the all-light pass
+    metered no walls (no ``wall_illuminant``: an exterior view, a meter without ``walls``); no ``rig_share`` without light on the walls or without a wall metering of the daylight
     pass (a daylight pass whose walls got no light gives 1)."""
     if not all_stats or "wall_illuminant" not in all_stats:
         return None
