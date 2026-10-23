@@ -49,6 +49,13 @@ hall room", with a camera plan crop as evidence; its twin in the other hall stay
 code's own retype of a piece the vision models typed (decision 1 of 22 Oct 2026) happens in the reading, before the
 agent; its pieces arrive ``adjusted_by_ai`` with ``drawn_type`` kept.
 
+Fix round after P6b (23 Oct 2026; the review of the fix round after P6a): complete_group is offered for a group whose
+drawn anchor the reading typed by code (``edit_ops.unsure_group_anchor``, ``completion_lock``), not only for a
+verified one, so the F3 of P6a's drawn sofas (cause missing_member) has its tool; a group the brief does not offer it
+for names why in the finding's reason (``complete_why``: it misses nothing, its anchor waits for retype_piece, or the
+refusal of its dry run, ``complete_dry_run_result``), never the old "misses nothing, or its anchor is unverified" for
+all three.
+
 How: the other tracks' functions are called through their frozen contracts (§13.2) and may be stubs: an empty
 answer (or an exception, noted in ``notes``) leaves that part empty. ``edit_ops.allowed_edits`` (track G) gives
 the lock state; while it answers ``{}`` (its stub) ``allowed_fallback`` applies the M11 rules of CLAUDE.md (fixed

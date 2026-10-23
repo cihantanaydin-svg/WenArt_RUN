@@ -186,6 +186,18 @@ fixes):
   G8:f_L0_010 (a counter 0.29 m² through its wall); the fridges f_L0_200 / 202 / 206 (a spot 0.15 m away) keep
   fix_fixture; nothing on P4a, P5 or P6a.
 
+Fix round after P6b (23 Oct 2026), the reading track's asks (verify:library:2 better_fix (c), verify:look:2 step 3):
+
+- an F7 of drawn fixed equipment at the edge of a doorless opening (``type: opening``) that leaves at least the main
+  walkway clear (groups.yaml ``walkway_main``, 0.80 m; ``passage_clear``) carries ``metrics.drawn_layout``
+  ``"passage_clear"`` with the clear width and is the drawn layout (no tool; ``PASSAGE_CLEAR_REASON``). Why: P6b's
+  kitchen-run fridges f_L0_200 / 202 / 206 reach 0.12 m past the jamb of real03's 1.05 m passages and leave 0.93 m;
+  their critical F7 drew 30 refused fix_fixture calls (one accepted on f_L0_204). A door with a leaf keeps its F7;
+- an S2 wall cut or an F9 outline cut (``fixture_cut``) of drawn fixed equipment that ``fixture_layout_blocked`` holds
+  (no valid spot within 0.5 m) is the drawn layout too (``"fixture"``, no tool), as its F7 / G12 / G8 were; a cut
+  with another piece keeps its tools. On P6b's final building: the counter f_L0_010, the washers f_L0_074-077, the
+  washbasin f_L0_188 and f_L0_001 (F9).
+
 Fix round after P6a (23 Oct 2026), review: the F3 of a drawn piece that may stand free in its group (orientation rule
 ``wall_or_group``: a sofa facing its coffee table or TV unit), that the drawn lock holds off every wall and that has no
 piece it may face within reach (``front_missing``) carries ``metrics.drawn_layout`` ``"missing_front"``

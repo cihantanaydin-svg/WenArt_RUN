@@ -205,6 +205,27 @@ Fix round after P6b (23 Oct 2026; pod P6b, real03; verify:library:0 and verify:a
   they already had by 0.025 m and stay accepted; on the accepted footprint edits of P4a, P4b, P5 and P6a only P4a's
   coffee table f_L1_024 (0.07 m², 0.059 m through w_L1_006 after its move and resize; the vision critic said "rendered
   intersecting the wall") would be refused.
+- **complete_group takes a drawn anchor typed by code** (``unsure_group_anchor``): the "retype_piece first" refusal
+  holds only for an ``unverified`` anchor the reading could not agree on (``program.unsure_anchor``), not for a
+  vector-drawn one the reading typed by code (``infer.CODE_TYPE_METHODS``), which the program, the solver and the decor
+  (``decor.trusted_host``) already complete like a verified one. Why: the review of the fix round after P6a gave the
+  F3 of the drawn basement sofas f_L-1b_041 / 042 (P6a real04, P4a real02; group_member / twin) the cause
+  missing_member, while complete_group refused their groups as unverified and the acceptance refuses a same-type
+  confirm (it changes nothing in the render): a deadlock (place_group has no such lock);
+- **a sofa's front clearance counts its coffee table as the score does** (``room_checks``, ``seat_front_free``): the
+  placer's ``clearance_ok`` (0.6 m in front of a sofa, no exemption for a coffee table) is excused when only
+  ``plausibility.EXTRA_EXEMPT`` partners (coffee table, ottoman) and the placer's own exemptions stand in the zone,
+  the rule of the score's F6. Why: the solver places the coffee table at the designer gap (groups.yaml ``coffee_gap``
+  0.30-0.45 m), and the validator refused every such group edit "<sofa>: clearance_ok" (P6a seq 6308 / 6309 / 6312 /
+  6600 / 6645 / 6649; a completion of f_L-1b_041 / 042); an armchair or chair in the zone still fails (seq 5081);
+- **a group edit's new findings are counted by finding, not by message** (``finding_identity``): an F4 "does not face
+  its group (...)" whose list grew by the new piece is the finding the piece had (P6a's chair f_L-1b_053 with the new
+  coffee table f_L-1b_087); every other message is compared whole, as before;
+- **an F4 of another group's anchor is reported, not held against a group edit** (``other_group_front``): a new F4
+  "does not face its group" on a piece that anchors its own group, naming only pieces this edit added to a group with
+  another anchor, goes into the accepted message ("noted: ... kept for the next round"). Why: the coffee table
+  completing f_L-1b_041 stands 1.7 m from the second drawn sofa f_L-1b_045 (its own seating group), within the
+  score's 4.5 m sofa reach; CLAUDE.md asks fronts to face their group.
 """
 from __future__ import annotations
 

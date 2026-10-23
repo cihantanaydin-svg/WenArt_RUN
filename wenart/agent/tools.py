@@ -117,8 +117,9 @@ Integration of the fix round after P4b (17 Oct 2026; the site track's ask, the P
 
 - the entrance rule is ``exterior_checks.entrance_view_problem`` (one function for X6, the build's view check and
   this tool): the bearing is taken from the door (within 30 degrees of its axis, at most 14 m), and the door must be
-  in the frame; the look-direction rule refused the planner's own entrance pose (real03's ext_7 looks 42 degrees off
-  the axis, turned to the building's middle by ``exterior.frame_fixed``);
+  in the frame; the look-direction rule refused the planner's own entrance pose (real03's ext_7 looked 42 degrees off
+  the axis, turned to the building's middle by ``exterior.frame_fixed``; since the fix round after P6b the planner's
+  entrance view looks straight at its door from 20 degrees off the door's axis, ``exterior.entrance_frame``);
 - an exterior ``set_camera`` / ``add_camera`` whose position lies within ``DUPLICATE_VIEW_M`` of another exterior
   camera (its pose the next build gives it: this session's accepted overrides first) and whose horizontal view
   direction is within ``DUPLICATE_VIEW_DEG`` of that camera's is refused (``duplicate_view_problem``, counted as a
@@ -441,7 +442,8 @@ DESCRIPTIONS = {
                     "mode) and leaves the review list. The answer to a drawn piece typed from the drawing whose type "
                     "does not fit its room (F1, G14). A piece the code retyped from its size, room and neighbours "
                     "(adjusted_by_ai by code) keeps that type. With the piece's own type it confirms an unverified "
-                    "piece (status verified, its model kept): complete_group needs a verified anchor.",
+                    "piece (status verified, its model kept): complete_group needs a verified anchor or a drawn one "
+                    "typed by code from the drawing.",
     "mark_not_furniture": "Record a drawn symbol, mark or line that was read as furniture (not built), with the "
                           "evidence (the piece's own recognition crop for a piece typed from the drawing; for an "
                           "untyped piece the image path of the plan crop you read, check/<view>_plan.jpg, else it is "
@@ -1632,7 +1634,8 @@ def entrance_problem(building: dict, camera: dict, position, target, lens_mm=Non
     the rule is ``exterior_checks.entrance_view_problem`` (the same function as X6 and the build's view check; at
     most ``ENTRANCE_VIEW_MAX_M`` from the door face, within ``ENTRANCE_VIEW_MAX_DEG`` of the door's axis seen from the
     door, the door in the frame of ``lens_mm``): the look-direction rule refused the planner's own entrance pose,
-    which ``exterior.frame_fixed`` turns 42 degrees off the axis on real03."""
+    which ``exterior.frame_fixed`` turned 42 degrees off the axis on real03 (history: since the fix round after P6b
+    the planner's entrance view aims at its door, ``exterior.entrance_frame``)."""
     from wenart.blender import exterior_checks as X
 
     return X.entrance_view_problem(entrance_of(building, camera), position, target,

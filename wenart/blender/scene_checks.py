@@ -51,6 +51,15 @@ showed two shades through each other; a shade is an open drum or cone (the param
 library shades) whose vertices the ray-parity test of the pair need not find inside the other. Every other pair keeps
 the mesh test, and a lamp pair whose shades do not overlap still gets it.
 
+Fix round after P6b (23 Oct 2026; the agent track's ask, verify:agent:0): a piece that passes right through a wall is
+an S2 violation. What: when no sampled vertex lies deeper in a wall box than the piece's tolerance, the wall boxes
+its bounding box meets are tested edge by edge (``through_wall``): an edge with one end at or beyond each long face
+whose crossing of the wall's middle plane lies inside the wall's length and height means the piece runs through the
+whole wall; the violation's depth is the wall's thickness, ``metrics.through`` is true and the message says "passes
+through wall". Why: ``depth_in_wall`` measures vertices (the deepest is half the thickness from a face), and a box
+whose corners stand on both sides of a wall has none inside it: P6b's wardrobe f_L0_098, moved 0.28 m through the
+front outer wall, had no S2 at all (only the plan's F9). A cut from one side keeps the vertex measure.
+
 Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §13.2; track T3): S2 tolerances by class. 16 of real04's 17 S2
 findings were 1.2-2.5 cm cuts of drawn toilets, armchair / ottoman pairs and wardrobes (noise the agent chased with
 39 edits). ``TOLERANCES["overlap_fixture"]`` (0.03 m) applies to fixed equipment and kitchen appliances

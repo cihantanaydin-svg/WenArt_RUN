@@ -88,8 +88,10 @@ def _x6(cams, building=None):
 def test_an_entrance_view_is_judged_by_its_door_not_by_the_whole_building():
     """Fails on the tree before the integration: _x6 applied FILL_RANGE and 'does not fit' to the planner's
     entrance view (real03's ext_7 at 8 m: fill 3415 %, a minor and a major X6 every round), and nothing stopped the
-    agent's far pose (40, -45). The planner's pose turns 42 degrees off the door's axis (frame_fixed aims at the
-    building's middle) and still passes: the bearing is taken from the door."""
+    agent's far pose (40, -45). P4b's planner pose (PLANNED_EXT7, as recorded) turns 42 degrees off the door's axis
+    (frame_fixed aimed it at the building's middle) and still passes: the bearing is taken from the door. Since the
+    fix round after P6b (23 Oct 2026) the planner aims its entrance view at the door (exterior.entrance_frame); the
+    recorded pose keeps this test's case."""
     frontal = {"name": "ext_6", "kind": "exterior", "view": "frontal", "sides": ["front"], "position": [16.6, -32.0, 1.6],
                "target": [16.6, 0.0, 1.6], "lens_mm": 26.0}
     assert _x6([PLANNED_EXT7, frontal]) == []
@@ -112,7 +114,7 @@ def test_one_entrance_rule_for_x6_the_build_and_the_agent():
 
     assert (TL.ENTRANCE_VIEW_MAX_M, TL.ENTRANCE_VIEW_MAX_DEG) == (X.ENTRANCE_VIEW_MAX_M, X.ENTRANCE_VIEW_MAX_DEG)
     assert TL.entrance_problem({"site": {"entrances": [ENTRANCE]}}, PLANNED_EXT7, PLANNED_EXT7["position"],
-                               PLANNED_EXT7["target"]) is None             # the planner's own pose (42 degrees off)
+                               PLANNED_EXT7["target"]) is None             # P4b's planner pose (42 degrees off)
     keep = copy.deepcopy(dict(PLANNED_EXT7, policy="agent"))
     assert BD.agent_exterior_view(keep, (16.6, 7.0), 0.0, False, [ENTRANCE]) is None and keep["view"] == "entrance"
     moved = copy.deepcopy(dict(PLANNED_EXT7, policy="agent", position=[40.0, -45.0, 1.45], target=[16.6, 0.0, 1.45]))
