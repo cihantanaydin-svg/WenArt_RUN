@@ -74,6 +74,7 @@ SEVERITY_WEIGHT = {"critical": 9.0, "major": 3.0, "minor": 1.0}
 SPAN_MIN_M = 0.4                    # shorter free wall pieces are not listed
 SPAN_PIECE_GAP_M = 0.15             # a piece within this of a wall occupies it
 DOOR_CLEAR_M = 0.10                 # beside a door frame
+BRIEF_OPTIONS = 5                   # 23 Oct 2026: options listed per program group (the rest counted)
 BUILT_HEIGHT_DEFAULT = 0.8
 
 # The M12 tool names (§5.3); ``*_TOOLS`` say on what a tool acts.
@@ -750,6 +751,13 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
                                       if v.get("target") in ids]})
     program_groups = [{k2: g.get(k2) for k2 in ("group_id", "group", "anchor_id", "required", "options", "chosen",
                                                  "drawn")} for g in prog.get("groups") or []]
+    # 23 Oct 2026 (group options 10x): a group offers up to 44 options; the brief lists the first BRIEF_OPTIONS (the
+    # core ones come first) and counts the rest, so the room briefs do not fill the agent's context (any option of
+    # the group may still be named: place_group and relayout_room check it)
+    for g in program_groups:
+        opts = list(g.get("options") or [])
+        if len(opts) > BRIEF_OPTIONS:
+            g["options"], g["more_options"] = opts[:BRIEF_OPTIONS], len(opts) - BRIEF_OPTIONS
     present = {g.get("group") for g in members}
     drawn = _call(notes, "drawn groups", lambda: drawn_group_lines(building, room_id), []) or []
     # Without group data (track G's stubs) a group tool is offered and the validator decides.

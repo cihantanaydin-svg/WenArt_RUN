@@ -597,10 +597,11 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
     # 23 Oct 2026 (group options 10x): a room with drawn furniture is completed with what its type misses; the
     # groups that only have extra options (a reading corner, a bedroom chest) are additions, never a completion.
     if any(r["drawn"] for r in rows):
-        for r in list(rows):
-            if not r["drawn"] and not GR.core_options(r["group"]):
-                rows.remove(r)
-                notes.append(f"{r['group']} left out: the room has drawn furniture (completed, not added to)")
+        extra_only = [r for r in rows if not r["drawn"] and not GR.core_options(r["group"])]
+        for r in extra_only:
+            rows.remove(r)
+        if extra_only:
+            notes.append(f"no {', '.join(r['group'] for r in extra_only)} (drawn furniture: completed only)")
     resolving = {r["anchor_id"] for r in rows if r.get("resolve")}
     # A room whose drawn pieces already hold its anchor type never gets a second anchor (a drawn anchor that is
     # re-solved is rebuilt at its place, so it counts too).

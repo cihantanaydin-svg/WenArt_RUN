@@ -138,11 +138,18 @@ def test_the_budget_asks_for_4096_or_the_room_left_never_below_1024():
     assert [m["content"].startswith(LP.STUB_NOTE) for m in big if m["role"] == "tool"] == [True, False, False]
 
 
-def test_a_session_whose_prompt_grows_like_p3_cuts_the_old_tool_results_before_the_server_refuses(tmp_path):
+def test_a_session_whose_prompt_grows_like_p3_cuts_the_old_tool_results_before_the_server_refuses(tmp_path,
+                                                                                                 monkeypatch):
     """Fails on the old code: P3's building session (prompts 6,866 -> 17,606 -> 19,745 -> 22,294 tokens, as the
     server reported them) sent its 5th prompt whole and got the context-full 400. Now the 5th prompt has the results
     of replies 1-2 as stubs, replies 3-4 whole, and asks for the planner's 4,096 tokens (part 2; part 1 asked for a
     fixed 1,536)."""
+    # The token numbers are P3's and the toy room's brief (about 5,000 characters) puts the 3rd prompt within 1 % of
+    # the cut; the extra group options of 23 Oct 2026 (10x) add their names to the brief's program and a third solver
+    # candidate, so they are off here: the brief is the one these numbers were set on
+    from wenart.furniture import groups as GR
+
+    monkeypatch.setattr(GR, "extra_options", lambda *a, **kw: [])
     chat = [reads(4, 6866), reads(4, 17606), reads(4, 19745), reads(4, 22294), FINISH]
     loop, out, model = make(tmp_path, chat, [[F3]], calls_per_room=20)
     assert model.max_model_len == 32768

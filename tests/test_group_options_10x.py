@@ -171,7 +171,7 @@ def test_a_room_with_drawn_furniture_gets_no_extra_only_group():
     prog = PR.room_program(M.building(w=4.5, h=4.5, room_type="bedroom", furniture=[bed]), ROOM)
     names = {g["group"] for g in prog["groups"]}
     assert not ({"reading_corner", "bedroom_chest"} & names)
-    assert "reading_corner left out: the room has drawn furniture" in prog["reason"]
+    assert "no reading_corner, bedroom_chest (drawn furniture: completed only)" in prog["reason"]
 
 
 def test_set_extras_add_sizes_not_members_unless_chosen():
@@ -193,3 +193,20 @@ def test_the_dining_options_leave_budget_for_the_groups_after_them():
     best = SV.solve_room(b, ROOM, program=prog, k=1)[0]
     placed = {g.split(".")[-1] for g in best["placed"]}
     assert {"seating", "dining", "living_storage"} <= placed and not best["hard_failures"]
+
+
+def test_the_agent_brief_lists_some_options_and_the_plan_may_name_the_others():
+    from wenart.agent import brief as BR
+    from wenart.agent import loop as LP
+
+    assert BR.BRIEF_OPTIONS == 5
+    shown = GR.core_options("seating") + GR.extra_options("seating", 30.0)[:1]
+    brief = {"room": {"id": ROOM}, "findings": {}, "pieces": [], "groups": [], "free_wall_spans": [],
+             "program": {"groups": [{"group_id": f"{ROOM}.seating", "group": "seating", "options": shown,
+                                     "more_options": 30}]}}
+    plan = {"room_id": ROOM, "steps": [], "program": {"choices": [
+        {"group_id": f"{ROOM}.seating", "option": "sofa4_2_armchairs"},          # not shown, but of the group
+        {"group_id": f"{ROOM}.seating", "option": "piano"}]}}
+    _steps, problems = LP.check_plan(plan, brief, [])
+    assert not any("sofa4_2_armchairs" in p for p in problems)
+    assert any("'piano' is not one of" in p for p in problems)

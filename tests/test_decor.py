@@ -249,7 +249,8 @@ def test_the_rule_rug_comes_only_where_the_solver_laid_none():
     b = M.building(w=4.5, h=5.0, room_type="bedroom")
     b["project"] = {"id": "t", "name": "t"}
     best = SV.solve_room(b, M.ROOM_ID, k=1)[0]
-    runner = next(r for r in best["rugs"] if r["group"]["group"] == "sleeping_double")
+    runners = [r for r in best["rugs"] if r["group"]["group"] == "sleeping_double"]   # one per free long side
+    runner = runners[0]
     with_runner = SV.apply_candidate(b, M.ROOM_ID, best)
     without = SV.apply_candidate(b, M.ROOM_ID, dict(best, rugs=[]))
     assert D.solver_rugs(with_runner) and not D.solver_rugs(without)
@@ -257,7 +258,8 @@ def test_the_rule_rug_comes_only_where_the_solver_laid_none():
     out_without, rows_without = D.add_decor(without)
     rugs_with = [d for d in out_with["decor"] if d["type"] == "rug"]
     rugs_without = [d for d in out_without["decor"] if d["type"] == "rug"]
-    assert [r["anchor_ids"] for r in rugs_with] == [runner["anchor_ids"]] and rugs_with[0]["group"]["role"] == "rug"
+    assert [r["anchor_ids"] for r in rugs_with] == [r["anchor_ids"] for r in runners] and runner
+    assert all(r["group"]["role"] == "rug" for r in rugs_with)
     assert len(rugs_without) == 1 and "group" not in rugs_without[0]        # the M8 rule rug under the bed
     assert "laid by the group solver (kept)" in next(r for r in rows_with if r["rugs"])["note"]
     assert "kept from the group solver" not in (next(r for r in rows_without if r["rugs"])["note"] or "")

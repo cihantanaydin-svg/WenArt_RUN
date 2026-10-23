@@ -255,11 +255,17 @@ def test_the_vision_quality_tie_break_reads_the_audit_doubt_text(catalog):
     # (Smeg FAB28LV and its same-mesh twin FAB28XS6) were removed for a readable logo (audit check render_print), the
     # other doubt-free Smeg fridges fail the caps (17 % non-uniform), so the "vision quality 2" model wins again: the
     # tie-break still passes over no better-ranked model that fits
+    # Pin changed again on 23 Oct 2026: the 3D Warehouse layer brought a doubt-free fridge of the same size step
+    # (3dwh "Refrigerator", 0.595 x 0.625 x 1.84 m), which now wins the tie over the "vision quality 2" HSSD model
     asset = F.fit_piece(_piece("f_L-1_096", "fridge", (0.6, 0.65), 1.8), catalog, style_family="modern",
                         mode="relaxed")
-    assert asset["method"] == "library" and asset["asset_id"] == "hssd_78a02cbe18b9bac0aedf264e100a73f34fd05023"
-    assert "hssd_404146070e07145" not in str(asset["ranking"]) and asset["ranking"]["passed_over"]
-    assert all(p["why"].startswith("outside the caps") for p in asset["ranking"]["passed_over"])
+    doubtful = "hssd_78a02cbe18b9bac0aedf264e100a73f34fd05023"
+    fridges = {e["id"]: e for e in catalog.candidates("fridge")}
+    assert asset["method"] == "library" and asset["asset_id"] != doubtful
+    chosen = fridges[asset["asset_id"]]
+    assert not (chosen.get("audit") or {}).get("vision_doubt"), chosen["id"]
+    assert F.rank_key(chosen, 0.6, 0.65)[2] == F.rank_key(fridges[doubtful], 0.6, 0.65)[2]
+    assert "hssd_404146070e07145" not in str(asset["ranking"])
 
 
 def test_a_pin_to_a_generated_model_is_refused_while_a_real_product_fits(catalog):

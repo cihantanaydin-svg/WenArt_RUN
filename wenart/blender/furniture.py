@@ -481,12 +481,16 @@ def fit_vertices(verts: Sequence[Sequence[float]], asset: dict, footprint: dict,
 def depth_alignment(piece: dict, asset: dict | None = None) -> str:
     """How a fitted library model sits in its footprint's depth (pure, build round 2 K2): ``back`` for a uniformly
     scaled model (``asset.scaling == "uniform"``) of a wall-backed type (``WALL_BACKED_TYPES``; the piece's own
-    ``against_wall`` true / false wins when it says so), else ``centre`` (a non-uniform fit of an older building was
+    ``against_wall`` true / false, or the solver's ``layout.against_wall``, wins when it says so), else ``centre`` (a non-uniform fit of an older building was
     stretched to the footprint; a free-standing piece keeps its drawn centre)."""
     asset = piece.get("asset") if asset is None else asset
     if not isinstance(asset, dict) or asset.get("scaling") != "uniform":
         return "centre"
     against = piece.get("against_wall")
+    if not isinstance(against, bool):
+        # 23 Oct 2026 (group options 10x): a solver piece says it in ``layout`` (a reading-corner armchair, a hall
+        # bench or plant set on a wall: types that are free-standing elsewhere)
+        against = (piece.get("layout") or {}).get("against_wall") if isinstance(piece.get("layout"), dict) else None
     if isinstance(against, bool):
         return "back" if against else "centre"
     return "back" if piece.get("type") in WALL_BACKED_TYPES else "centre"

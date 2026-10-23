@@ -1270,6 +1270,13 @@ def default_checklist(brief: dict, wanted=("critical", "major"), lighting: bool 
     return lighting_first(steps)
 
 
+def _group_options(group) -> set:
+    """All options of a ``groups.yaml`` group (empty for an unknown group)."""
+    from wenart.furniture import groups as GR
+
+    return set((GR.load_groups().get(group) or {}).get("options") or {})
+
+
 def check_plan(plan: Optional[dict], brief: dict, offered: list[str], wanted: Optional[tuple] = None,
                rooms: Optional[set] = None, lighting: bool = False) -> tuple[list[dict], list[str]]:
     """``(checked steps, problems)``: a step stays when its tool is offered, its findings are fixable, its target is
@@ -1298,7 +1305,9 @@ def check_plan(plan: Optional[dict], brief: dict, offered: list[str], wanted: Op
         g = program.get(ch.get("group_id"))
         if g is None:
             problems.append(f"program choice {ch.get('group_id')}: no such group in the program")
-        elif g.get("options") and ch.get("option") not in g.get("options"):
+        elif g.get("options") and ch.get("option") not in g.get("options") and not (
+                g.get("more_options") and ch.get("option") in _group_options(g.get("group"))):
+            # 23 Oct 2026: a brief lists the first options of a group and counts the rest (``more_options``)
             problems.append(f"program choice {ch.get('group_id')}: {ch.get('option')!r} is not one of {g['options']}")
     steps = []
     for i, s in enumerate(plan.get("steps") or []):

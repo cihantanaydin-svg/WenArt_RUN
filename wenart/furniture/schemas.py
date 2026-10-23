@@ -136,7 +136,9 @@ HEIGHTS: dict[str, float] = {
     "display_cabinet": 1.9, "tall_cabinet": 2.1, "wall_cabinet": 0.7,
 }
 
-# Types only the documents give (docs/milestone7.md §6.5): never proposed by the layout model.
+# Types only the documents give (docs/milestone7.md §6.5): never proposed by the layout model. Since 23 Oct 2026
+# (group options 10x) the deterministic group solver may place side tables, floor lamps and plants as partners of a
+# group (groups.yaml), so they are in the room rows of ALLOWED_TYPES; LAYOUT_TYPES still leaves them out.
 DOCUMENTED_ONLY_TYPES: tuple[str, ...] = ("stair", "side_table", "floor_lamp", "potted_plant")
 # Milestone 10: types no model ever proposes as a new piece.
 RULE_ONLY_TYPES: tuple[str, ...] = ("wall_cabinet",)        # the §4.4 rule along a drawn counter run

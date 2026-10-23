@@ -965,9 +965,15 @@ def test_depth_alignment_by_wall_backed_type_uniform_scaling_and_the_pieces_own_
     # the piece's own against_wall wins over the type (a desk in the room, a table on a wall)
     assert F.depth_alignment({"type": "desk", "against_wall": False, "asset": uniform}) == "centre"
     assert F.depth_alignment({"type": "table_dining", "against_wall": True, "asset": uniform}) == "back"
+    # the solver's layout.against_wall says it for a type that is free-standing elsewhere (23 Oct 2026: a reading
+    # corner's armchair, a hall bench on a wall)
+    assert F.depth_alignment({"type": "armchair", "layout": {"against_wall": True}, "asset": uniform}) == "back"
+    assert F.depth_alignment({"type": "sofa", "layout": {"against_wall": False}, "asset": uniform}) == "centre"
     # the wall-backed types are the schema's WALL_TYPES (repeated: Blender's Python has no jsonschema) and hold
-    # every wall anchor and wall member of groups.yaml
+    # every wall anchor and wall member of groups.yaml, but for the free-standing types whose solver pieces carry
+    # layout.against_wall (the extra groups of 23 Oct 2026)
     assert set(F.WALL_BACKED_TYPES) == set(SC.WALL_TYPES)
+    flagged = {"armchair", "crib", "bench", "potted_plant"}
     wall_types = set()
     for name, tp in GR.load_groups().items():
         anchor = tp.get("anchor") or {}
@@ -976,7 +982,7 @@ def test_depth_alignment_by_wall_backed_type_uniform_scaling_and_the_pieces_own_
         for m in list(tp.get("partners") or []) + list(tp.get("members") or []):
             if isinstance(m, dict) and m.get("place") == "wall" and m.get("type"):
                 wall_types.add(m["type"])
-    assert wall_types and wall_types <= set(F.WALL_BACKED_TYPES), sorted(wall_types - set(F.WALL_BACKED_TYPES))
+    assert wall_types and wall_types - flagged <= set(F.WALL_BACKED_TYPES), sorted(wall_types - set(F.WALL_BACKED_TYPES))
 
 
 def test_fit_mismatch_warnings_follow_the_fits_cap_for_uniform_fits_only():

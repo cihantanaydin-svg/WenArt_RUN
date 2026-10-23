@@ -184,7 +184,8 @@ def test_choice_schema_and_prompt(furnished):
     assert prompt.endswith("Answer only with JSON.") and "Ebeveyn Yatak Odası" in prompt and "Scandinavian" in prompt
     for c in room.candidates:
         assert f"Candidate {c['rank']}: score {c['score']:.1f}" in prompt
-    assert "sleeping_double (bed_nightstands" in prompt and "terms (0-1, higher is better)" in prompt
+    # the candidate's group (option); 23 Oct 2026: the option may be an extra one (bed160_nightstands ...)
+    assert "sleeping_double (bed" in prompt and "terms (0-1, higher is better)" in prompt
     assert "The documents draw some furniture" not in prompt                  # an empty room
     assert client.images[room.room_id] == [f"{room.room_id}_c{k}.png" for k in (1, 2, 3)]
 
@@ -259,7 +260,17 @@ def test_default_sizes_are_the_drawing_block_sizes():
     never = (schemas.DOCUMENTED_ONLY_TYPES + schemas.RULE_ONLY_TYPES + schemas.CHANGE_ONLY_TYPES
              + schemas.ISLAND_ONLY_TYPES)
     assert set(schemas.LAYOUT_TYPES) == schema_types - set(never)
-    assert not set(schemas.DOCUMENTED_ONLY_TYPES) & {t for types in schemas.ALLOWED_TYPES.values() for t in types}
+    # 23 Oct 2026 (group options 10x): a documented-only type is never in LAYOUT_TYPES (the layout model never
+    # proposes one, above); the room rows hold the ones the deterministic group solver places as partners
+    from wenart.furniture import groups as GR
+
+    partners = {p["type"] for g in GR.load_groups().values() for p in list(g.get("partners") or [])
+                + list(g.get("members") or [])}
+    allowed = {t for types in schemas.ALLOWED_TYPES.values() for t in types}
+    assert set(schemas.DOCUMENTED_ONLY_TYPES) & allowed <= partners
+    assert "stair" not in allowed
+    for rtype in schemas.ALLOWED_TYPES:
+        assert not set(schemas.layout_types(rtype)) & set(schemas.DOCUMENTED_ONLY_TYPES), rtype
 
 
 def test_schema_is_strict():

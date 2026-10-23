@@ -328,8 +328,11 @@ EDIT_SCHEMAS: dict[str, dict] = {
                               "choices": {"type": "object", "additionalProperties": {"type": "string"},
                                           "description": "group id -> option of the room's program"}}, ["room_id"]),
     "set_room_type": _schema({"room_id": _ID, "room_type": {"enum": list(ROOM_TYPES)}}, ["room_id", "room_type"]),
+    # 23 Oct 2026 (group options 10x): the option is a name checked by code (``_place_group``: not an option of the
+    # group -> rejected with the group's options), not an enum of all 263 names in every agent prompt
     "place_group": _schema({"room_id": _ID, "group": {"enum": sorted(GR.load_groups())},
-                            "option": {"enum": sorted({o for t in GR.load_groups().values() for o in t["options"]})}},
+                            "option": {"type": "string", "pattern": "^[A-Za-z0-9_]{1,48}$",
+                                       "description": "an option of the group (the room's program lists them)"}},
                            ["room_id", "group"]),
     "complete_group": _schema({"group_id": _ID}, ["group_id"]),
     "move_group": _schema({"group_id": _ID, "span_id": dict(_ID, description="a free wall span (free_spans)"),
@@ -1123,8 +1126,9 @@ def _group_entry(room: dict, g: dict) -> dict:
     from wenart.furniture import program as PR
 
     template = GR.load_groups()[g["group"]]
-    entry = PR._entry(room["id"], g["group"], True, list(template["options"]), anchor_id=g.get("anchor_id"),
-                      drawn=True, members=list(g.get("member_ids") or []), missing=list(g.get("missing") or []))
+    entry = PR._entry(room["id"], g["group"], True, PR.drawn_options(g["group"], list(template["options"])),
+                      anchor_id=g.get("anchor_id"), drawn=True, members=list(g.get("member_ids") or []),
+                      missing=list(g.get("missing") or []))
     entry["group_id"] = g["group_id"]
     return entry
 
