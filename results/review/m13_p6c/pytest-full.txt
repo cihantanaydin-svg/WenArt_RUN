@@ -1,0 +1,77 @@
+[wenart.run] 2026-10-23T10:31:23Z $ /workspace/venv/bin/python -m pytest -m gpu tests/gpu/test_full_run.py tests/gpu/test_render.py tests/gpu/test_camera_replay.py tests/gpu/test_look_m6.py tests/gpu/test_furnish.py tests/gpu/test_check.py tests/gpu/test_m9.py -v -ra --junitxml=/workspace/jobs/20261023-084914-m13_p6/results/junit-full.xml
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /workspace/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /workspace/repo
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.12.2
+collecting ... collected 55 items
+
+tests/gpu/test_full_run.py::test_every_public_project_ended_ok_or_needs_review PASSED [  1%]
+tests/gpu/test_full_run.py::test_run_project_is_ok_with_allowed_stage_states[real02] PASSED [  3%]
+tests/gpu/test_full_run.py::test_pending_pipeline_has_its_final_building[real02] PASSED [  5%]
+tests/gpu/test_full_run.py::test_final_report_has_every_rendered_view[real02] PASSED [  7%]
+tests/gpu/test_full_run.py::test_unvalidated_gate_means_cycles_finals[real02] SKIPPED [  9%]
+tests/gpu/test_full_run.py::test_needs_review_project[NOTSET] SKIPPED    [ 10%]
+tests/gpu/test_full_run.py::test_selftest_files_stay_private SKIPPED     [ 12%]
+tests/gpu/test_render.py::test_gpu_device_and_full_resolution[real02] PASSED [ 14%]
+tests/gpu/test_render.py::test_every_room_has_three_views[real02] PASSED [ 16%]
+tests/gpu/test_render.py::test_no_blocked_searched_view[real02] PASSED   [ 18%]
+tests/gpu/test_render.py::test_view_time_under_four_minutes[real02] PASSED [ 20%]
+tests/gpu/test_render.py::test_cameras_render_with_their_own_lens[real02] PASSED [ 21%]
+tests/gpu/test_render.py::test_render_matches_the_scene_build[real02] PASSED [ 23%]
+tests/gpu/test_render.py::test_passes_exist_and_depth_is_plausible[real02] PASSED [ 25%]
+tests/gpu/test_render.py::test_closed_door_views_end_on_the_door[real02] SKIPPED [ 27%]
+tests/gpu/test_render.py::test_index_pass_contains_every_visible_proxy[real02] PASSED [ 29%]
+tests/gpu/test_render.py::test_entries_are_m5_renders_with_helper_maps[real02] PASSED [ 30%]
+tests/gpu/test_render.py::test_exposure_recorded_and_within_the_clamp[real02] PASSED [ 32%]
+tests/gpu/test_render.py::test_uint16_index_stats_match_the_index_maps[real02] PASSED [ 34%]
+tests/gpu/test_render.py::test_white_plaster_walls_are_neutral[real02] SKIPPED [ 36%]
+tests/gpu/test_render.py::test_views_keep_the_project_white_point_or_mix_it_with_the_rig[real02] PASSED [ 38%]
+tests/gpu/test_render.py::test_rig_lit_rooms_have_no_orange_cast[real02] PASSED [ 40%]
+tests/gpu/test_render.py::test_daylight_walls_are_not_olive[real02] PASSED [ 41%]
+tests/gpu/test_render.py::test_sky_pull_leaves_no_dotted_edges[real02] PASSED [ 43%]
+tests/gpu/test_render.py::test_open_air_views_render_under_the_exterior_sky[real02] PASSED [ 45%]
+tests/gpu/test_render.py::test_sky_and_window_pulls_reach_their_targets[real02] PASSED [ 47%]
+tests/gpu/test_render.py::test_window_pull_takes_an_unclipped_k_when_one_was_tried[real02] PASSED [ 49%]
+tests/gpu/test_render.py::test_window_pull_leaves_panes_that_need_no_pull[real02] PASSED [ 50%]
+tests/gpu/test_render.py::test_interior_glazing_pull_removes_clipping[real02] PASSED [ 52%]
+tests/gpu/test_render.py::test_interior_glazing_keeps_one_white_point[real02] SKIPPED [ 54%]
+tests/gpu/test_render.py::test_exterior_views_cap_the_ground_and_keep_the_lawn_green[real02] PASSED [ 56%]
+tests/gpu/test_render.py::test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit[real02] PASSED [ 58%]
+tests/gpu/test_camera_replay.py::test_one_camera_per_name_and_a_plan_per_render[real02] PASSED [ 60%]
+tests/gpu/test_camera_replay.py::test_replayed_cameras_follow_the_camera_file[real02] PASSED [ 61%]
+tests/gpu/test_camera_replay.py::test_agent_cameras_record_their_pose[real02] SKIPPED [ 63%]
+tests/gpu/test_look_m6.py::test_renders_are_milestone_6_renders[real02] PASSED [ 65%]
+tests/gpu/test_look_m6.py::test_unverified_pieces_cast_no_colour[real02] PASSED [ 67%]
+tests/gpu/test_look_m6.py::test_kitchen_counter_fronts_are_lit[real02] SKIPPED [ 69%]
+tests/gpu/test_look_m6.py::test_window_pull_keeps_the_panes_unclipped[real02] PASSED [ 70%]
+tests/gpu/test_look_m6.py::test_dim_rooms_are_metered_below_six_ev[real02] PASSED [ 72%]
+tests/gpu/test_look_m6.py::test_assumed_entries_of_the_design_details[real02] PASSED [ 74%]
+tests/gpu/test_furnish.py::test_every_empty_room_was_laid_out[real02] PASSED [ 76%]
+tests/gpu/test_furnish.py::test_rooms_got_what_their_type_calls_for[real02] PASSED [ 78%]
+tests/gpu/test_furnish.py::test_added_pieces_pass_every_check[real02] PASSED [ 80%]
+tests/gpu/test_furnish.py::test_real_model_and_latency_logged[real02] PASSED [ 81%]
+tests/gpu/test_furnish.py::test_refit_library_models_fit_the_style[real02] PASSED [ 83%]
+tests/gpu/test_check.py::test_every_model_answered_its_calls[real02] PASSED [ 85%]
+tests/gpu/test_check.py::test_calibration_present[real02] PASSED         [ 87%]
+tests/gpu/test_check.py::test_advisory_set_exactly_when_a_target_is_missed[real02] PASSED [ 89%]
+tests/gpu/test_check.py::test_style_photo_test[real02] PASSED            [ 90%]
+tests/gpu/test_check.py::test_insertion_measured[real02] PASSED          [ 92%]
+tests/gpu/test_m9.py::test_ai_decor_records_every_room_and_both_passes[real02] PASSED [ 94%]
+tests/gpu/test_m9.py::test_ai_decor_is_built[real02] PASSED              [ 96%]
+tests/gpu/test_m9.py::test_surface_decor_rests_on_its_host[real02] PASSED [ 98%]
+tests/gpu/test_m9.py::test_3d_files_are_packed_and_complete[real02] PASSED [100%]
+
+- generated xml file: /workspace/jobs/20261023-084914-m13_p6/results/junit-full.xml -
+=========================== short test summary info ============================
+SKIPPED [1] tests/gpu/test_full_run.py:164: real02: no gate validation (polish off)
+SKIPPED [1] tests/gpu/test_full_run.py:185: got empty parameter set for (project)
+SKIPPED [1] tests/gpu/test_full_run.py:196: no private self-test in this run
+SKIPPED [1] tests/gpu/test_render.py:581: real02: none of ('cam_r_L1_koridor_2_2',) rendered
+SKIPPED [1] tests/gpu/test_render.py:731: the white-wall check is for synthetic-01
+SKIPPED [1] tests/gpu/test_render.py:1619: real02: none of the named interior-glazing views was rendered
+SKIPPED [1] tests/gpu/test_camera_replay.py:167: real02: no agent camera
+SKIPPED [1] tests/gpu/test_look_m6.py:104: real02: no parametric kitchen counter
+======================== 47 passed, 8 skipped in 32.66s ========================
+[wenart.run] 2026-10-23T10:31:59Z rc 0
