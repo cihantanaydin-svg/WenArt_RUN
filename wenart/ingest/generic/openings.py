@@ -1103,6 +1103,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     for o in cont_doors + cont_windows:
         log.append({"kind": "continuous", "class": o.kind, "center": list(o.center), "width": o.width,
                     "entity": o.entity})
+    log.extend(ctx.dropped)
     return out_walls, openings, log, owned
 
 
@@ -1130,6 +1131,8 @@ class _Ctx:
     units_to_m: Optional[float]
     theta: float
     raster: bool
+    # Fix round after P6b, review: the continuous-wall window candidates dropped for want of glass (gap log entries)
+    dropped: list = field(default_factory=list)
 
     def evidence(self, method: str, confidence: float, entity: str, note: Optional[str] = None,
                  box_units: Optional[list] = None) -> dict:
@@ -1787,6 +1790,14 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
             ids = sorted({it.st.id for it in used})
             owned.update(ids)                        # no window without glass, but the lines stay out of furniture
             if not _framed_glass(framed, glass) and not ctx.raster:
+                # Review of the fix round: logged (the core's page notes), never dropped silently.
+                ends = [(u, p.c), (v, p.c)] if p.axis == "h" else [(p.c, u), (p.c, v)]
+                ctx.dropped.append({"kind": "continuous", "class": "none", "rule": "no_glass", "width": round(v - u, 4),
+                                    "p0": _out(ends[0], theta), "p1": _out(ends[1], theta),
+                                    "thickness": round(p.t, 4), "strokes": ids,
+                                    "note": f"{len(framed)} line(s) of their own along the {v - u:.2f} m stretch, "
+                                            f"{len(glass)} glass between the faces (>= {WINDOW_LINES_MIN} and >= "
+                                            f"{GLASS_MIN_LINES} needed): no window"})
                 continue
             corners_f = [(u, p.c - p.t / 2), (v, p.c + p.t / 2)] if p.axis == "h" else \
                 [(p.c - p.t / 2, u), (p.c + p.t / 2, v)]

@@ -8,15 +8,24 @@ outlines (ALAN-NET) lying on its faces. The rules checked here (``wenart.ingest.
 
 - a lined gap (a thinner wall along one face through the gap) is open and the thick pieces stay walls of their own,
   each marked ``corrected_by_ai`` (``_lining``, ``_mark_lined``);
-- a gap inside other wall material is closed, never an opening (``_inside_wall``);
+- a gap inside other wall material is closed, never an opening, unless it holds a door symbol (``_inside_wall``);
 - a window needs lines of its own (``_confined``: ending within the gap +- ``OWN_MARGIN_M``) at >= ``WINDOW_LINES_MIN``
   offsets, >= ``GLASS_MIN_LINES`` of them glass strictly between the faces (gap windows and continuous-wall windows;
   traced raster lines keep the old rule);
-- an end gap whose two faces are drawn on across it, with no glass or swing, extends the wall (no opening).
+- a gap whose two faces are drawn on across it on a wall layer, with no glass or swing, is wall (``_wall_faces``:
+  closed, a run merges, a free end is extended); room outlines, beam lines and axes across it are not;
+- the page notes list every gap these rules decided and every corrected wall (``core.gap_rule_notes``).
+
+Review of the fix round (23 Oct 2026, after a container restart cut the first version off): the wall-face rule needs
+wall-layer lines and covers run gaps too (the first version took any two face lines, end gaps only, and left real03's
+hall-stair wall a 1.55 m unverified opening), a door symbol is never closed as wall material, a lining is one wall
+through the gap (``_chains``), and the notes were added.
 
 ``tests/fixtures/m13_p6b_real03_hall.json`` holds the real input walls and strokes around the partition (the P6b
 building frame); every real window of real02, real03 and real04 carries two or three glass lines and still passes
-(checked on their LibreDWG replays in the session).
+(checked on their LibreDWG replays in the session: real02's 12 windows, 26 doors and 3 openings and every real04
+region but one unchanged; real04's two wardrobe-back 'windows' between bedrooms gone; real03 64 -> 22 windows, every
+one left with its CAM/CAM-PER lines, one real window found that a ghost had hidden, no CAM stroke lost).
 """
 from __future__ import annotations
 
@@ -305,8 +314,14 @@ def test_outlines_inside_a_thick_continuous_wall_are_no_window():
     wardrobes = [R.stroke(R.rect(0.3, 0.06, 2.39, 0.66), closed=True), R.stroke(R.rect(0.3, -0.645, 2.39, -0.06),
                                                                                closed=True),
                  R.stroke([(0.41, -0.039), (2.28, -0.039)])]
-    _, openings, _, _ = _run([part], wardrobes)
+    _, openings, log, _ = _run([part], wardrobes)
     assert openings == []
+    # Review of the fix round: the dropped candidate is in the gap log (and so in the page notes), never silent.
+    dropped = [e for e in log if e["kind"] == "continuous" and e.get("rule") == "no_glass"]
+    assert [(e["class"], e["width"], e["p0"], e["p1"]) for e in dropped] == [("none", pytest.approx(1.87),
+                                                                             [0.41, 0.0], [2.28, 0.0])]
+    assert dropped[0]["note"].startswith("1 line(s) of their own along the 1.87 m stretch, 1 glass")
+    assert any("1.87 m" in n for n in core.gap_rule_notes(log, [], (0.0, 0.0)) if "without glass" in n)
     # The synthetic convention (both faces and one glass line, all ending at the jambs) is a window.
     synthetic = [R.stroke([(0.41, 0.06), (2.28, 0.06)]), R.stroke([(0.41, -0.06), (2.28, -0.06)]),
                  R.stroke([(0.41, 0.0), (2.28, 0.0)])]

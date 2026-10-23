@@ -189,7 +189,8 @@ def _shift_wall(w: WallItem, sh: _Shift) -> None:
 GAP_RULE_TEXT = {"lined_gap": "lined by a thinner wall along one face: open, the thick pieces are walls of their own",
                  "inside_wall": "inside wall material of another piece: closed, no opening",
                  "wall_faces": "both faces drawn on across it on a wall layer: closed, the wall continues",
-                 "no_glass": "no glass between its faces: no window, an unverified opening (run gap) or none (end gap)"}
+                 "no_glass": "without glass between the faces: no window (a run gap stays an unverified opening; "
+                             "an end gap or a stretch of a continuous wall gets none)"}
 
 
 def gap_rule_notes(gap_log: list[dict], walls: list[WallItem], origin: tuple[float, float]) -> list[str]:
