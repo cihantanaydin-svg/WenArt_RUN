@@ -71,8 +71,12 @@ def test_the_scene_camera_schema_documents_the_repitch_record():
     assert "repitched" in schemas.CAMERAS_FROM["properties"]
     cam = dict(plan, index=1, visible_openings=[], visible_furniture=[], warning=None)
     jsonschema.validate(cam, schemas.SCENE_CAMERA)
+    # fix round after P6b (23 Oct 2026): ``moved`` is a status of its own (a replayed interior camera the build moved,
+    # tests/test_m13_p6b_camera.py); a re-pitch record relabelled ``moved`` lacks its fields and is still refused
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(dict(cam, replay=dict(cam["replay"], status="moved")), schemas.SCENE_CAMERA)
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(dict(cam, replay=dict(cam["replay"], status="kept")), schemas.SCENE_CAMERA)
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(dict(cam, pitch_deg="down"), schemas.SCENE_CAMERA)
     summary = BB.cameras_from_summary({"path": "m.json"}, {"plans": [plan], "dropped": []}, [plan], False)

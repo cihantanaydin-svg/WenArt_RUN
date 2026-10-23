@@ -182,6 +182,14 @@ of its axis, the door in the frame; ``site.entrances``), else it becomes ``agent
 door id is kept through ``overrides.CAMERA_KEEP_KEYS``). The sun from the main facade (no north arrow) also applies
 when the agent's sun override gives no ``azimuth_deg`` (``facade_sun_applies``: an elevation-only override skipped it
 and the style's 210 degrees lit real02's back).
+
+Fix round after P6b (23 Oct 2026; pod P6b, real03 with the M11 cameras replayed; docs/milestone13.md §7 "a frozen
+camera that ends up inside a newly built piece is moved by the free-floor rule and marked"): every build moves the
+replayed interior cameras of a level that a piece of this build blocks or contains (``replayed_moves``,
+``camsearch.move_blocked_replayed``, on ``camera_building``) before the search and ``merge_agent_cameras``: same yaw,
+pitch, height, lens, shift and name, ``source: replayed`` (frozen for the agent), ``replay: {"status": "moved", ...}``,
+a warning line and ``cameras_from.moved``. P6b's yasama_2_2, 3_2, 5_2 and 6_1 stood inside or against the 2.02 m
+fridges the reading typed at the end of the kitchen runs; they move 0.66-0.88 m.
 """
 from __future__ import annotations
 
@@ -1183,6 +1191,11 @@ def main(argv: list[str]) -> int:
         replayed = [p for p in replay["plans"] if p["kind"] == "interior" and p.get("level_id") == level["id"]
                     and p.get("room_id") in render_rooms and p.get("room_id") in level_room_ids]
         covered = cams.replayed_rooms(replayed)
+        # fix round after P6b (23 Oct 2026; docs/milestone13.md §7): a replayed camera a piece of this build blocks or
+        # contains moves to the nearest free point with the same frame (camsearch.move_blocked_replayed); every build
+        # (the agent's previews too), so a piece the agent moves onto a frozen camera is caught by the next build
+        for line in replayed_moves(replayed, camera_building(building, fit_not_built)):
+            print(f"camera replay: {line}")
         # fix round after P5 (22 Oct 2026): the search sees the decor that is built (camera_building)
         plans = [p for p in cams.plan_cameras(camera_building(building, fit_not_built), level["id"],
                                               policy=args.camera_policy, lens_mm=args.lens_mm)
@@ -1622,13 +1635,28 @@ def repitch_replayed_aerials(plans: list[dict]) -> list[str]:
     return done
 
 
+def replayed_moves(plans: list[dict], building: dict) -> list[str]:
+    """Fix round after P6b (23 Oct 2026; docs/milestone13.md §7, "a frozen camera that ends up inside a newly built
+    piece is moved by the free-floor rule and marked"): ``camsearch.move_blocked_replayed`` on a level's replayed
+    interior plans against ``building`` (the build passes ``camera_building``: what the search sees), run before the
+    search and ``merge_agent_cameras``. A moved plan keeps ``source: replayed`` (frozen for the agent) with
+    ``replay: {"status": "moved", ...}`` and its warning (the build's warning list takes it from the plan, as every
+    camera warning); a camera with no free point keeps its pose with ``camsearch.BLOCKED_WARNING``. Returns one log
+    line per camera the rule fired on. P6b's real03: yasama_2_2, 3_2, 5_2, 6_1 stood inside or against the 2.02 m
+    fridges the reading typed at the end of the kitchen runs (3 black finals)."""
+    from wenart.blender import camsearch
+
+    return [f"{hit['name']}: {hit['warning']}" for hit in camsearch.move_blocked_replayed(plans, building)]
+
+
 def cameras_from_summary(camera_file: dict | None, replay: dict, camera_plans: list[dict], extra: bool) -> dict | None:
     """The scene manifest's ``cameras_from`` (pure): the file record, the counts of replayed and searched cameras
     of the build, the dropped records and a ``reason`` when the search ran for everything (no file, a missing file,
     a file without camera records, real04's case). Fix round part 2 (17 Oct 2026): ``repitched``, the replayed
     aerials ``repitch_replayed_aerials`` re-pitched (none: an empty list). Fix round after P4a (17 Oct 2026):
     ``agent``, this build's agent cameras (``policy: agent``, source ``searched``: counted in ``searched``), and
-    ``agent_replaced``, those that replace a replayed record (``replaced_replayed``)."""
+    ``agent_replaced``, those that replace a replayed record (``replaced_replayed``). Fix round after P6b (23 Oct
+    2026): ``moved``, the replayed interior cameras the build moved off a piece of this build (``replayed_moves``)."""
     if camera_file is None:
         return None
     replayed = [p["name"] for p in camera_plans if p.get("source") == "replayed"]
@@ -1637,6 +1665,9 @@ def cameras_from_summary(camera_file: dict | None, replay: dict, camera_plans: l
                dropped=list(replay.get("dropped") or []),
                repitched=[p["name"] for p in camera_plans
                           if (p.get("replay") or {}).get("status") == "repitched"],
+               # fix round after P6b (23 Oct 2026): the replayed cameras moved off a piece of this build (§7)
+               moved=[p["name"] for p in camera_plans if p.get("source") == "replayed"
+                      and (p.get("replay") or {}).get("status") == "moved"],
                # fix round after P4a (17 Oct 2026): this build's agent cameras (counted with the searched ones) and
                # those of them that replace a replayed record (``replaced_replayed``: the baseline pose is gone)
                agent=[p["name"] for p in camera_plans if p.get("policy") == "agent" and p.get("source") != "replayed"],

@@ -234,6 +234,10 @@ Fix round after P6a, part 2 (23 Oct 2026; the exterior track's asks, docs/milest
   model, made once per context, ``exterior_of``), so a next-build plan without the build's recorded frame is judged
   as X6 judges the built camera: a pose square to the main facade that frames only part of the building or shows no
   sky is no frontal view, so its role no longer protects it.
+
+Fix round after P6b (23 Oct 2026): an edit's ``acceptance`` record carries the dry re-check's fit record too
+(``fitted``: ``{"overlaid", "refit"}``, at most 8 refit ids), so the log shows whether a piece was fitted for the dry
+re-check (P6b's 219 edit events had no such record; ``loop.ACCEPTANCE_LOG_KEYS``).
 """
 from __future__ import annotations
 
@@ -1374,6 +1378,10 @@ def _building_edit(ctx: ToolContext, tool: str, args: dict, edit: dict, run: Cal
                   penalty_before=res.get("penalty_before"), penalty_after=res.get("penalty_after"))
     if verdict is not None:
         out["acceptance"] = {k: v for k, v in verdict.items() if k not in ("after_findings", "fitted")}
+        if isinstance(verdict.get("fitted"), dict):
+            # fix round after P6b: the dry fit's record (matched boxes, refit ids) reaches the log, compact
+            out["acceptance"]["fitted"] = {"overlaid": verdict["fitted"].get("overlaid"),
+                                           "refit": list(verdict["fitted"].get("refit") or [])[:8]}
     if before_png is not None:
         out["before_image"] = ctx.rel(before_png)
     if room_id:

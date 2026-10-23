@@ -239282,18 +239282,38 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "a maker's logo or brand name on the model: the 'Panasonic' name and the model number on the top left of the control panel, readable in the full 1920 px preview (also on f_L0_076 in cam_r_L0_giris_holu_3_1); seen in P6b real03 cam_r_L0_banyo_4_2; trademarks are not licensed (docs/milestone13.md §2.6)"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-23T02:00:36Z",
+    "decision_sha": "83c389971973bf1b",
     "notes": [
      "3 part(s) stick out of the main body (+z, up to 0.18 m): an open drawer or a separate prop?",
-     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
+     "fix round after P6b (23 Oct 2026): removed by the code audit's check render_print on the P6b render evidence; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "render_findings": [
+    {
+     "finding": "brand_logo",
+     "detail": "the 'Panasonic' name and the model number on the top left of the control panel, readable in the full 1920 px preview (also on f_L0_076 in cam_r_L0_giris_holu_3_1)",
+     "seen_in": {
+      "run": "P6b",
+      "project": "real03",
+      "view": "cam_r_L0_banyo_4_2",
+      "piece": "f_L0_061",
+      "render": "runs/20261022-235127-fetch_results/results/renders/real03/cam_r_L0_banyo_4_2_preview.jpg",
+      "sheet": "results/review/m13_p6b/sheets13/cam_r_L0_banyo_4_2_before_after.jpg"
+     },
+     "sha256_glb": "410d82c6b1842f4b06e5774e30ea2c9815cd52f779b8aad71acdaae14ab49bfa",
+     "why_recorded": "the real03 refit after the P5 removals put this model on f_L0_061 and f_L0_076 (P6b); P4b showed it only on f_L0_075 in cam_r_L0_giris_holu_4_1, with the left end of the panel, where the name is, hidden",
+     "recorded": "fix round after P6b (23 Oct 2026)"
+    }
+   ]
   },
   {
    "id": "hssd_434d62df4ddc67fbd923c529eaf27c9dc08b4abc",
@@ -240161,18 +240181,38 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "a maker's logo or brand name on the model: the LG badge on the top left of the control panel and the 'Direct Drive 9kg' print next to it, readable in the full 1920 px preview; seen in P6b real03 cam_r_L0_giris_holu_1; trademarks are not licensed (docs/milestone13.md §2.6)"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-23T02:00:36Z",
+    "decision_sha": "909268e7ad8d5990",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
+     "fix round after P6b (23 Oct 2026): removed by the code audit's check render_print on the P6b render evidence; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "render_findings": [
+    {
+     "finding": "brand_logo",
+     "detail": "the LG badge on the top left of the control panel and the 'Direct Drive 9kg' print next to it, readable in the full 1920 px preview",
+     "seen_in": {
+      "run": "P6b",
+      "project": "real03",
+      "view": "cam_r_L0_giris_holu_1",
+      "piece": "f_L0_074",
+      "render": "runs/20261022-235127-fetch_results/results/renders/real03/cam_r_L0_giris_holu_1_preview.jpg",
+      "sheet": "results/review/m13_p6b/sheets13/cam_r_L0_giris_holu_1_before_after.jpg"
+     },
+     "sha256_glb": "dc2675d55a830d85f37c817e15979f6482aac4c6130982c2e4681da6e6dbb738",
+     "why_recorded": "the real03 refit after the P5 removals put this model on f_L0_074 and f_L0_077 (P6b); no earlier committed view showed it (P4b fitted it to f_L0_077, whose view cam_r_L0_giris_holu_2_1 showed a generated washer)",
+     "recorded": "fix round after P6b (23 Oct 2026)"
+    }
+   ]
   }
  ],
  "decor": [

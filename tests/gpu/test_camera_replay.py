@@ -10,7 +10,11 @@ tests/gpu/test_render.py reads them. CPU twin: tests/test_m13_camera_replay.py.
 - ``test_replayed_cameras_follow_the_camera_file``: with ``--cameras-from`` (the scene manifest's ``cameras_from``),
   every record of the camera file is a replayed camera of the scene (its pose and lens unchanged, or the build's
   re-pitch with ``replay``), a camera the agent moved (``cameras_from.agent_replaced``) or a dropped record with its
-  reason; ``replayed`` + ``searched`` count the scene's cameras.
+  reason; ``replayed`` + ``searched`` count the scene's cameras. Fix round after P6b (23 Oct 2026; docs/milestone13.md
+  §7): a replayed interior camera the build moved off a piece of its build (``replay.status: moved``,
+  ``camsearch.move_blocked_replayed``) follows the file when its old pose is the record's, it moved at most
+  ``camsearch.REPLAY_MOVE_MAX_M`` in plan with the record's height, yaw, pitch and lens, gives a reason and is
+  listed in ``cameras_from.moved`` (``moved_problem``).
 - ``test_agent_cameras_record_their_pose``: every camera that replaces a replayed record has ``policy: agent``,
   ``source: searched`` and the replaced record (``replaced_replayed``); an agent exterior camera's ``view`` matches
   its own pose (``build.agent_exterior_view`` changes nothing: P4a's corner pose was recorded as the frontal view of
@@ -109,11 +113,48 @@ def test_replayed_cameras_follow_the_camera_file(project):
                 bad.append((n, "moved by the agent without the replayed record of this camera file"))
         elif cam.get("source") != "replayed":
             bad.append((n, f"source {cam.get('source')} for a replayed record"))
+        elif (cam.get("replay") or {}).get("status") == "moved":
+            problem = moved_problem(cam, rec, cf.get("moved") or [])
+            if problem:
+                bad.append((n, problem))
         elif (cam.get("replay") or {}).get("status") != "repitched":
             moved = max(abs(float(a) - float(b)) for a, b in zip(cam["position"], rec["position"]))
             if moved > POSE_TOLERANCE_M or abs(float(cam["lens_mm"]) - rec["lens_mm"]) > 1e-6:
                 bad.append((n, f"pose or lens changed ({moved:.4f} m)"))
     assert not bad, f"{name}: replayed cameras that do not follow the camera file: {bad}"
+
+
+def moved_problem(cam: dict, rec: dict, moved_names) -> str | None:
+    """Why a replayed camera the build moved (``replay.status: moved``) does not follow its record ``rec``
+    (``cameras.replay_cameras`` of the camera file), or None (fix round after P6b, 23 Oct 2026; docs/milestone13.md
+    §7). The old pose is the record's, the move is in plan only and at most ``camsearch.REPLAY_MOVE_MAX_M``
+    (``moved_m`` is that distance), the view vector (yaw, pitch, distance to the target) and the lens are the
+    record's, a reason is given and the camera is in ``cameras_from.moved``."""
+    from wenart.blender import camsearch
+
+    rp = cam.get("replay") or {}
+    pos, old, new_t = cam.get("position"), rp.get("position_old"), cam.get("target")
+    if not (isinstance(pos, list) and isinstance(old, list) and isinstance(new_t, list) and rec.get("target")):
+        return "moved without position, position_old or target"
+    if max(abs(float(a) - float(b)) for a, b in zip(old, rec["position"])) > POSE_TOLERANCE_M:
+        return "position_old is not the camera file's pose"
+    if abs(float(pos[2]) - float(rec["position"][2])) > POSE_TOLERANCE_M:
+        return "height changed"
+    plan = math.hypot(float(pos[0]) - float(old[0]), float(pos[1]) - float(old[1]))
+    if plan > camsearch.REPLAY_MOVE_MAX_M + 1e-6 or abs(plan - float(rp.get("moved_m") or 0.0)) > 1e-3 \
+            or plan <= POSE_TOLERANCE_M:
+        return f"moved {plan:.3f} m (moved_m {rp.get('moved_m')}, at most {camsearch.REPLAY_MOVE_MAX_M} m)"
+    view = [float(t) - float(p) for t, p in zip(new_t, pos)]
+    view_rec = [float(t) - float(p) for t, p in zip(rec["target"], rec["position"])]
+    if max(abs(a - b) for a, b in zip(view, view_rec)) > 1e-3:
+        return "yaw or pitch changed"
+    if abs(float(cam["lens_mm"]) - float(rec["lens_mm"])) > 1e-6:
+        return "lens changed"
+    if not rp.get("reason"):
+        return "moved without a reason"
+    if cam.get("name") not in set(moved_names):
+        return "moved but not in cameras_from.moved"
+    return None
 
 
 def test_agent_cameras_record_their_pose(project):

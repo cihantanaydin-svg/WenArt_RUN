@@ -875,6 +875,18 @@ P5_REMOVED = {
     "hssd_434d62df4ddc67fbd923c529eaf27c9dc08b4abc": ("brand_logo", "Hotpoint"),      # the '...tpoint' mesh family
     "hssd_912447108f21083d877aab6653742fceccc6ce7d": ("brand_logo", "Hotpoint"),      # the '...tpoint' mesh family
 }
+# fix round after P6b (23 Oct 2026; the look and library lenses of the P6b analysis): the two washers the real03 refit
+# picked after the P5 removals showed their maker's logo in P6b; neither has a mesh-family twin in the catalogue
+P6B_REMOVED = {
+    "hssd_eccf8ba37c804b9067e675f09eec2c13e951f61c": ("brand_logo", "LG"),            # P6b cam_r_L0_giris_holu_1
+    "hssd_3c69f2f448fd917843cc2ef9082e80000907ee25": ("brand_logo", "Panasonic"),     # P6b cam_r_L0_banyo_4_2
+}
+RENDER_REMOVED = {**P5_REMOVED, **P6B_REMOVED}
+# the audit note of each round's removals
+REMOVAL_NOTE = {**{aid: "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print)"
+                   for aid in P5_REMOVED},
+                **{aid: "fix round after P6b (23 Oct 2026): removed by the code audit's check render_print on the "
+                        "P6b render evidence" for aid in P6B_REMOVED}}
 # The drawn washers of the two P4b real03 views whose maker's logo was seen (runs/20261017-091212-full, git-ignored:
 # the drawn type is washing_machine, the footprint is kept here): piece -> (view, drawn footprint size, P4b model)
 P4B_LOGO_WASHERS = {
@@ -1000,21 +1012,22 @@ def test_the_committed_catalogue_keeps_the_p5_look_findings_out_of_the_fit():
     ``removed`` with the render_print reason and the decision_sha decide() gives (a later audit write is
     idempotent); none is usable in either licence mode. Every record names its evidence: a committed before | after
     sheet of the view (and, where the run folder is on this machine, the piece built with that model), or the twin
-    model of the same mesh that is itself removed. No kept or fixed entry carries a finding that would remove it."""
+    model of the same mesh that is itself removed. No kept or fixed entry carries a finding that would remove it.
+    Fix round after P6b (23 Oct 2026): the LG F1403FD (P6b cam_r_L0_giris_holu_1) and the Panasonic NA-14VA1WGB
+    (P6b cam_r_L0_banyo_4_2) too (this test fails on that catalogue: both were keep)."""
     from wenart.assets.audit import items as I
 
     cat = C.load()
     doc = json.loads(I.LIBRARY_PATH.read_text(encoding="utf-8"))
     entries = {e["id"]: (e, s) for s in ("entries", "decor") for e in doc[s]}
     known = set(SZ.types()) | set(SZ.decor_types())
-    for aid, (kind, word) in P5_REMOVED.items():
+    for aid, (kind, word) in RENDER_REMOVED.items():
         e, section = entries[aid]
         a = e["audit"]
         assert a["status"] == "removed" and any(word in r and CK.RENDER_FINDINGS[kind] in r for r in a["reasons"]), aid
         assert not C.usable(cat.entry(aid), "relaxed") and not C.usable(cat.entry(aid), "commercial"), aid
         assert C.unusable_reason(cat.entry(aid), "relaxed").startswith("audit: removed"), aid
-        assert any(n.startswith("fix round after P5 (22 Oct 2026): removed by the code audit's new check "
-                                "(render_print)") for n in a["notes"]), aid
+        assert any(n.startswith(REMOVAL_NOTE[aid]) for n in a["notes"]), aid
         item = I.item_of(e, "library", section)
         d = D.decide(item, CK.item_checks(item, CFG, known), None, None, CFG)
         assert d["status"] == "removed" and a["decision_sha"] == W.decision_sha(d) and a["reasons"] == d["reasons"]
@@ -1032,7 +1045,7 @@ def test_the_committed_catalogue_keeps_the_p5_look_findings_out_of_the_fit():
                 assert pieces[seen["piece"]] == aid, (aid, seen)
         else:
             twin = entries[f["same_mesh_as"]["id"]][0]
-            assert twin["id"] in P5_REMOVED and "seen_in" in twin["render_findings"][0]
+            assert twin["id"] in RENDER_REMOVED and "seen_in" in twin["render_findings"][0]
             # the record names the twin's own numbers (the mesh match it rests on)
             assert all(twin[k] == f["same_mesh_as"][k] for k in CK.SAME_MESH_KEYS), aid
             if f["same_mesh_as"].get("match", "exact") == "exact":
@@ -1053,7 +1066,7 @@ def test_the_committed_catalogue_keeps_the_p5_look_findings_out_of_the_fit():
             twins = [s["id"] for s in seen_models if s["type"] == item["type"] and CK.mesh_family(item, s, CFG)]
             assert not twins, (item["id"], twins)
         elif item.get("render_findings"):
-            assert item["id"] in P5_REMOVED, item["id"]
+            assert item["id"] in RENDER_REMOVED, item["id"]
 
 
 def test_the_real03_logo_washers_refit_to_no_twin_of_a_model_whose_render_showed_a_logo():
@@ -1082,3 +1095,102 @@ def test_the_real03_logo_washers_refit_to_no_twin_of_a_model_whose_render_showed
         chosen = cat.entry(asset["asset_id"])
         twins = [s["id"] for s in seen_models if s["type"] == chosen["type"] and CK.mesh_family(chosen, s, CFG)]
         assert not twins, (pid, view, chosen["id"], twins)
+
+
+# The drawn washers of P6b real03 (runs/20261022-235127-fetch_results, git-ignored: the drawn type is
+# washing_machine, the footprint is kept here) that carried the two models whose logo P6b showed:
+# piece -> (a view that shows it, drawn footprint size, P6b model)
+P6B_LOGO_WASHERS = {
+    "f_L0_074": ("cam_r_L0_giris_holu_1", [0.65, 0.6], "hssd_eccf8ba37c804b9067e675f09eec2c13e951f61c"),
+    "f_L0_077": ("cam_r_L0_giris_holu_2_1", [0.65, 0.6], "hssd_eccf8ba37c804b9067e675f09eec2c13e951f61c"),
+    "f_L0_061": ("cam_r_L0_banyo_4_2", [0.6, 0.6], "hssd_3c69f2f448fd917843cc2ef9082e80000907ee25"),
+    "f_L0_076": ("cam_r_L0_giris_holu_3_1", [0.65, 0.6], "hssd_3c69f2f448fd917843cc2ef9082e80000907ee25"),
+}
+P6B_REAL03 = ROOT / "runs" / "20261022-235127-fetch_results" / "results" / "furniture" / "real03"
+
+
+def _seen_or_twin(entry: dict, seen_models: list) -> list:
+    """The ids of the models with a render finding that ``entry`` is, or is a mesh-family twin of."""
+    return [s["id"] for s in seen_models if s["id"] == entry["id"] or (
+        s["type"] == entry["type"] and CK.mesh_family(entry, s, CFG))]
+
+
+def test_the_real03_p6b_logo_washers_refit_to_models_no_render_showed_a_logo_on():
+    """Fix round after P6b (23 Oct 2026; the look and library lenses of the P6b analysis): after the P5 removals the
+    real03 refit put the LG F1403FD (its badge readable in P6b cam_r_L0_giris_holu_1) and the Panasonic NA-14VA1WGB
+    (its name readable in cam_r_L0_banyo_4_2 and cam_r_L0_giris_holu_3_1) on four washers. Refitted now (relaxed,
+    style family modern, as P6b), each piece gets a library model that is no model with a render finding and no
+    mesh-family twin of one, and never its P6b model (this test fails on the catalogue before the fix). Where the P6b
+    run folder is on this machine the whole building is refitted (``fit_building``: the diversity counters of the
+    real run; the replay on the catalogue before the fix gives exactly P6b's eight washer models) and every washer is
+    checked the same way. On that data the picks are the Indesit IWME126 (hssd_4bc6f883..., 5 pieces: P4b showed its
+    control panel in cam_r_L0_giris_holu_3_1 with program labels only, P6b only its side), the Hoover SE147
+    (hssd_31609de5..., 2: P6b cam_r_L0_banyo_6_2 at a grazing angle, nothing readable) and the "Dryer"
+    (hssd_6cd2dc26..., 1: P6b showed its top only)."""
+    from wenart import building as B
+    from wenart.assets.audit import items as I
+
+    cat = C.load()
+    seen_models = [it for it in I.load_items() if any(isinstance(f, dict) and (f.get("seen_in") or f.get(
+        "same_mesh_as")) for f in it.get("render_findings") or [])]
+    built = P6B_REAL03 / "building_final.json"
+    real = {p["id"]: p for p in json.loads(built.read_text(encoding="utf-8"))["furniture"]} if built.is_file() else {}
+    for pid, (view, size, before) in P6B_LOGO_WASHERS.items():
+        piece = {"id": pid, "type": "washing_machine", "footprint": {"size": size}, "build": True}
+        if pid in real:
+            assert real[pid]["type"] == "washing_machine" and real[pid]["footprint"]["size"] == size, pid
+            assert (real[pid].get("asset") or {}).get("asset_id") == before, pid
+            piece = {k: v for k, v in real[pid].items() if k != "asset"}
+        asset = F.fit_piece(piece, cat, style_family="modern", mode="relaxed")
+        assert asset["method"] == "library" and asset["asset_id"] != before, (pid, view, asset.get("asset_id"))
+        assert not _seen_or_twin(cat.entry(asset["asset_id"]), seen_models), (pid, view, asset["asset_id"])
+    assert set(P6B_REMOVED) <= {s["id"] for s in seen_models}
+    if not built.is_file():
+        return
+    profile = json.loads((P6B_REAL03 / "style.json").read_text(encoding="utf-8"))
+    profile = profile[0] if isinstance(profile, list) else profile
+    family, _how = F.style_family_of(profile)
+    assert family == "modern"
+    fitted = F.fit_building(B.load(built), cat, style_family=family, style=profile, mode="relaxed")
+    washers = [p for p in fitted["furniture"] if p["type"] == "washing_machine"]
+    assert len(washers) == 8 and {p["id"] for p in washers} >= set(P6B_LOGO_WASHERS)
+    for p in washers:
+        asset = p.get("asset") or {}
+        assert asset.get("method") == "library", (p["id"], asset.get("method"))
+        assert not _seen_or_twin(cat.entry(asset["asset_id"]), seen_models), (p["id"], asset["asset_id"])
+
+
+def test_new_catalogue_entries_take_titles_without_html_entities():
+    """Fix round after P6b (23 Oct 2026; the library lens of the P6b analysis): 15 committed entries carry "&amp;" in
+    ``name``, ``title`` and ``attribution`` (the HSSD metadata and some ABO listings store HTML-escaped names), and
+    P6b's ATTRIBUTION.md showed three of them. The growth writes a new entry's title, name and credit with the
+    complete entities decoded (``source_text``; this test fails on the code before the fix); a bare "&" stays. The
+    committed entries keep their text (ATTRIBUTION.md decodes their credit where it is written:
+    tests/test_run_copy.py)."""
+    from wenart.assets import abo as AB
+
+    escaped, plain = "Hudson Reed Sublime Vanity Unit &amp; Basin", "Hudson Reed Sublime Vanity Unit & Basin"
+    m = {"bbox_model_m": [0.6, 0.45, 0.85], "bbox_min_m": [-0.3, -0.225, 0.0], "bbox_max_m": [0.3, 0.225, 0.85],
+         "triangles": 4000, "vertices": 3000, "info": {"textured": True, "vertex_colours": False}, "stats": None,
+         "pbr": {"base_colour": True, "metallic_roughness": True, "normal": False, "occlusion": False,
+                 "emissive": False, "materials": 2, "images": 2}}
+    cand = {"id": "hssd_" + "b" * 40, "hssd_id": "b" * 40, "type": "washbasin", "title": escaped,
+            "dims_m": [0.6, 0.45, 0.85], "bin": "0.60x0.45", "projects": ["real03"]}
+    e = GE.hssd_entry(cand, m, "0" * 64, "2026-10-23T00:00:00Z", pbr=m["pbr"])
+    assert e["title"] == e["name"] == plain and e["attribution"].startswith(f'"{plain}" from HSSD')
+    assert "&amp;" not in json.dumps(e)
+    abo = GE.abo_entry({"id": "abo_B07DBFQV23", "item_id": "B07DBFQV23", "type": "table_coffee", "kind": "furniture",
+                        "glb": "x.glb", "title": "Ravenna Home Parker Coffee Table, 47.2&quot;W, Marble &amp; Gold"},
+                       m, "1" * 64, AB.load_config(), "2026-10-23T00:00:00Z")
+    assert abo["title"] == abo["name"] == 'Ravenna Home Parker Coffee Table, 47.2"W, Marble & Gold'
+    assert abo["attribution"].startswith('"Ravenna Home Parker Coffee Table, 47.2"W, Marble & Gold" by Amazon.com')
+    gso = GE.gso_entry({"uid": "gso_Cup", "name": "Cup", "type": "vase", "title": "Cup &amp; Saucer"}, m, "2" * 64,
+                       "2026-10-23T00:00:00Z")
+    assert gso["title"] == gso["name"] == "Cup & Saucer" and gso["attribution"].startswith('"Cup & Saucer" by')
+    ph = GE.polyhaven_entry({"id": "ph_x", "type": "vase", "kind": "decor", "title": "Jug &amp; Bowl",
+                             "styles_hint": []}, m, "models/ph_x/ph_x_1k.gltf", None, "1k", "2026-10-23T00:00:00Z")
+    assert ph["name"] == "Jug & Bowl"
+    # complete entities only: a bare "&" and a legacy name without ";" are text
+    assert GE.source_text(" Vanity Unit &amp; Basin &quot;W&quot; ") == 'Vanity Unit & Basin "W"'
+    assert GE.source_text("Stone & Beam, R&B&copy, &#38;&#x26;") == "Stone & Beam, R&B&copy, &&"
+    assert GE.source_text(None) == ""

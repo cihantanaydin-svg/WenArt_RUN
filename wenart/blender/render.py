@@ -342,6 +342,16 @@ Cycles' indirect clamp never set. How:
   most of the frame (incident p50 167-179, EV -7.5 / -7.67); the black is the window pane seen from the sunlit
   terrace (no sky reflection on the camera ray, ``materials.window_glass_material``) and the terrace floor in the
   shade of the parapet (the sun : sky balance of ``lighting``), not the exposure rule.
+
+Fix round after P6b (23 Oct 2026; pod P6b, real03 on 8e8cc97; ``RENDER_CODE_VERSION`` stays ``m13.5``: no pixel
+changes). What: one record. Why: P6b's halls and stairs failed the GPU orange check at 1.486-1.599 (bound 1.455) and
+the analyst's fix (full adaptation to the rig from a rig share of 0.8) was refuted by its verifier: 9 of the 10 views
+sit at 0.57-0.76, the wall R/B does not rise with the frame's rig share (the views lit by the rig alone read
+1.363-1.442) and the step at 0.8 would undo the P4a daylight cast (lead decision). How (the verifier's step 1,
+measure first): ``Look._view_white`` records ``wb_walls`` (``wall_rig_record``): the walls' own rig share from the two
+metering passes it already runs (both meter the walls since the fix round after P6a), the colour of the rig light
+measured on the walls (all-light minus daylight) with Blender's reading of it, and the lamp's R/B. No white point
+reads it; the GPU orange check keeps it with its values for the decision after P6c.
 """
 from __future__ import annotations
 
@@ -1080,6 +1090,54 @@ def rig_share_p50(all_p50, day_p50) -> float | None:
     if not (math.isfinite(total) and math.isfinite(day)) or total <= 0.0:
         return None
     return round(min(1.0, max(0.0, 1.0 - day / total)), 6)
+
+
+WALL_RIG_RULE = "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+
+
+def wall_rig_record(all_stats: dict | None, day_stats: dict | None, lamp_rgb=None) -> dict | None:
+    """The light on a view's walls in its two metering passes (pure; fix round after P6b, 23 Oct 2026; the P6b
+    verifier's better fix of the orange finding, step 1: measure first). What: ``share`` (the walls' share of the
+    all-light metering frame, ``meter_stats`` ``wall_frac``), ``rig_share`` (``rig_share`` of the walls' light with
+    everything lit and with the rig hidden), ``light_rgb`` / ``day_rgb`` (the colour of the walls' light in each pass,
+    luminance 1), ``rig_rgb`` (the colour of the rig light measured on the walls: all-light minus daylight, luminance 1;
+    None under a walls' rig share of ``WB_RIG_SHARE_MIN`` or with a channel not positive, metering noise), ``rig_rb``
+    (its linear R/B), ``lamp_rb`` (the linear R/B of ``lamp_rgb``, the rig lamp's colour the white point mixes,
+    ``kelvin_whitepoint``), ``rig_kelvin`` (None here; ``Look._view_white`` sets Blender's reading of ``rig_rgb``) and
+    ``rule``. Why: P6b's mid-share halls read warmer than their frame-wide rig share explains (giris_holu_2: frame
+    share 0.62, block-median share 0.74; a wall lit by the bare 4000 K lamp alone would read about 1.50 under its white
+    point, it read 1.599) and the walls are what the GPU orange check judges; whether their own share is near 1 and
+    their rig light warmer than the lamp (the bounce off the oak floors and the greige paint) decides the next rule. No
+    white point reads it. None when the all-light pass metered no walls (no ``wall_illuminant``: an exterior view, a
+    meter without ``walls``); no ``rig_share`` without light on the walls or without a wall metering of the daylight
+    pass (a daylight pass whose walls got no light gives 1)."""
+    if not all_stats or "wall_illuminant" not in all_stats:
+        return None
+    day_stats = day_stats or {}
+    rec = {"share": all_stats.get("wall_frac"), "rig_share": None, "light_rgb": None, "day_rgb": None,
+           "rig_rgb": None, "rig_rb": None, "lamp_rb": None, "rig_kelvin": None, "rule": WALL_RIG_RULE}
+    lamp = [float(v) for v in lamp_rgb] if lamp_rgb is not None and len(lamp_rgb) == 3 else None
+    if lamp and lamp[2] > 0.0 and all(math.isfinite(v) for v in lamp):
+        rec["lamp_rb"] = round(lamp[0] / lamp[2], 4)
+
+    def unit(rgb):
+        vals = [float(v) for v in rgb or ()]
+        if len(vals) != 3 or min(vals) <= 0.0 or not all(math.isfinite(v) for v in vals):
+            return None
+        return normalise_whitepoint(vals)
+    all_wall, day_wall = all_stats.get("wall_illuminant"), day_stats.get("wall_illuminant")
+    if all_wall is None or "wall_illuminant" not in day_stats:      # no wall light, or a daylight pass without walls
+        rec["light_rgb"] = None if all_wall is None else unit(all_wall)
+        return rec
+    rec["rig_share"] = rig_share(all_wall, day_wall)
+    rec["light_rgb"], rec["day_rgb"] = unit(all_wall), unit(day_wall)
+    if rec["rig_share"] is None or rec["rig_share"] < WB_RIG_SHARE_MIN:
+        return rec
+    day = [float(v) for v in day_wall] if day_wall is not None and len(day_wall) == 3 else [0.0, 0.0, 0.0]
+    rig = unit([float(a) - d for a, d in zip(all_wall, day)])
+    if rig is not None:
+        rec["rig_rgb"], rec["rig_rb"] = rig, round(rig[0] / rig[2], 4)
+    return rec
 
 
 def room_rig_kelvin(lights, room_id) -> tuple[float | None, str | None]:
@@ -2984,7 +3042,10 @@ class Look:
         P5 (22 Oct 2026): an interior view's white point then takes the green-magenta tint of its own daylight
         (``_view_tint``: ``view_tint_gain`` by its daylight share, ``tinted_whitepoint``; the light metered with the
         rig hidden, or the metered light of a scene without a rig); every interior view records ``wb_day_green`` and
-        ``wb_view_tint_gain`` (1.0 without a metered daylight), the exterior and open-air views stay at the anchor."""
+        ``wb_view_tint_gain`` (1.0 without a metered daylight), the exterior and open-air views stay at the anchor. Fix
+        round after P6b (23 Oct 2026): a view metered with the rig hidden also records ``wb_walls``
+        (``wall_rig_record`` of the two passes' wall light, with ``rig_kelvin`` Blender's reading of the rig light
+        measured on the walls; None without a wall metering); no white point reads it."""
         anchor = [float(v) for v in rec["whitepoint"]]
         rec.update(wb_project_whitepoint=anchor, wb_rig_share=None, wb_rig_kelvin=None, wb_rig_whitepoint=None)
         if under_exterior_sky({k: self.scene.get(k) for k in WORLD_PROPS}, cam.get("wenart_camera_kind"),
@@ -3022,6 +3083,11 @@ class Look:
                    wb_day_incident_p50=None if day.get("incident_p50") is None else round(day["incident_p50"], 6),
                    # fix round after P4b: the block-median share, for diagnosis only (rig_share_p50)
                    wb_rig_share_p50=rig_share_p50(meter.get("incident_p50"), day.get("incident_p50")))
+        # fix round after P6b: the walls' own rig share and rig light (wall_rig_record), recorded only
+        walls = wall_rig_record(meter, day, rig_rgb)
+        if walls is not None and walls["rig_rgb"] is not None:
+            walls["rig_kelvin"] = whitepoint_kelvin(self.scene, walls["rig_rgb"])[0]
+        rec["wb_walls"] = walls
         if share is None or share < WB_RIG_SHARE_MIN:
             tinted = self._view_tint(rec, anchor, day, residual, 0.0)
             rec["wb_view_rule"] = f"rig share below {WB_RIG_SHARE_MIN:g}: the project white point" + \

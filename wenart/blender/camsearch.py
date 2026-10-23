@@ -169,6 +169,29 @@ Fix round after P5 (22 Oct 2026; pod P5, real04):
   (``box3d`` of the scene manifest: furniture, decor, the rig's fixture meshes), naming the object; no camera is
   moved, replayed cameras are not checked.
 
+Fix round after P6b (23 Oct 2026; pod P6b, real03 with the Milestone 11 cameras replayed; docs/milestone13.md §7: "A
+frozen camera that ends up inside a newly built piece is moved by the free-floor rule and marked"):
+``move_blocked_replayed(plans, building)`` (pure) moves a replayed interior camera that a piece of this build blocks
+or contains. What: a replayed interior plan with a target is moved when, on ``building`` (the build passes
+``build.camera_building``, the building the search sees), the model's one-element share of its frame is over
+``SCORE["blocked_single"]`` or its lens stands inside a built piece's box (``piece_bbox`` on the footprint, a stair
+excepted) at eye height. A piece the lens stands inside but looks out of (the box centre behind the lens and the side
+of the box the view leaves through at most ``REPLAY_LOOKS_OUT_M`` ahead, ``lens_inside_pieces``) is left out of the
+frame first: its face lies inside the fitted box and under the camera's near clip (P6b's yasama_4_3 stands inside
+fridge f_L0_194's box, looks away from it, leaves the box 0.057 m ahead and renders without a fridge pixel; a lens
+deeper inside a piece, or beside a side it looks along, is moved). The near share and the nearest-depth rules of
+``is_blocked`` never trigger a move (they flag yasama_4_2 and 6_2 over the 1.18 m counter run, whose renders are
+good). The camera goes to the nearest free point of its room (``candidate_positions``) within
+``REPLAY_MOVE_MAX_M`` whose view through the same frame (yaw, pitch, height, lens, shift, sensor) is not blocked
+(``is_blocked``), a point distinct from the room's other cameras first (``select_views``: 50 degrees of yaw or 1 m);
+the target moves with it, the name stays, ``source`` stays ``replayed`` (frozen for the agent) and ``replay`` says
+``{"status": "moved", "position_old", "target_old", "moved_m", "trigger", "blocked_by", "blocked_by_type",
+"share_old", "share", "reason"}``; the plan's warning says so. Without such a point the pose stays and the warning
+gets ``BLOCKED_WARNING`` with the reason. Why: P6b typed the boxes at the end of real03's kitchen runs as 2.02 m
+fridges (P4b had 0.9 m chairs there); four replayed views stood inside or against them (single share 0.54-1.0 in the
+index pass, three black finals). On P6b's building yasama_2_2, 3_2, 5_2 and 6_1 move 0.88, 0.72, 0.68 and 0.66 m
+(single share 0.11-0.15 after); nothing moves on P4b real03, P4a real02 or P6a real04 (no replayed camera).
+
 CLI (inspection only; the build calls ``plan_level``): ``python -m
 wenart.blender.camsearch outputs/<p>/building_final.json --out cameras.json
 [--report cameras.md] [--level L0] [--lens-mm 18]``.
@@ -1355,6 +1378,176 @@ def lens_clearance(plans: Sequence[dict], objects: Sequence[dict], min_m: Option
                                 f"than {min_m:g} m, the blocked distance of the camera search): the view may be "
                                 f"blocked (lens clearance, warning only)")})
     return sorted(out, key=lambda h: str(h["camera"]))
+
+
+# Fix round after P6b (23 Oct 2026): a replayed camera a newly built piece blocks or contains (module docstring).
+REPLAY_MOVE_MAX_M = 1.5          # a frozen view moved farther is another view: it keeps its pose with the warning
+REPLAY_LOOKS_OUT_M = 0.10        # a lens this near (along its view) the side of a box it looks out of sees past it
+REPLAY_MOVED_REASON = ("the {kind} {piece} of this build {how} the replayed pose (single share {share:.2f}); moved by "
+                       "the free-floor rule to the nearest free point whose view is not blocked, same yaw, pitch, "
+                       "height and lens (docs/milestone13.md §7, fix round after P6b)")
+
+
+def _forward_xy(position, target) -> Optional[tuple[float, float]]:
+    dx, dy = float(target[0]) - float(position[0]), float(target[1]) - float(position[1])
+    n = math.hypot(dx, dy)
+    return (dx / n, dy / n) if n > 1e-9 else None
+
+
+def lens_inside_pieces(room: dict, building: dict, position, floor_z: float,
+                       forward=None) -> list[tuple[dict, float]]:
+    """The built pieces of ``room`` whose box contains the lens point ``position`` (pure; fix round after P6b): the
+    fitted box (``piece_bbox``) on the footprint centre, turned by the footprint rotation, from the piece's bottom
+    (``mount_bottom`` over ``floor_z``) to its top; a stair (``parametric.SHELL_TYPES``) is its open parts in the model
+    and never counts. ``[(piece, ahead)]`` in building order: ``ahead`` is the plan distance from the lens along
+    ``forward`` (a unit plan direction, the view's) to the side of the box it leaves through (``math.inf`` without
+    ``forward``)."""
+    x, y, z = (float(v) for v in position[:3])
+    out = []
+    for f in shown_pieces(room, building):
+        if f.get("type") in P.SHELL_TYPES:
+            continue
+        w, d, top, _ = piece_bbox(f)
+        bottom = float(floor_z) + mount_bottom(f)
+        if not bottom - 1e-9 <= z <= bottom + top + 1e-9:
+            continue
+        fp = f["footprint"]
+        r = math.radians(float(fp.get("rotation_deg") or 0.0))
+        c, s = math.cos(r), math.sin(r)
+        dx, dy = x - float(fp["center"][0]), y - float(fp["center"][1])
+        lx, ly = c * dx + s * dy, -s * dx + c * dy
+        if abs(lx) > w / 2.0 + 1e-9 or abs(ly) > d / 2.0 + 1e-9:
+            continue
+        ahead = math.inf
+        if forward is not None:
+            fx, fy = c * forward[0] + s * forward[1], -s * forward[0] + c * forward[1]
+            for at, half, k in ((lx, w / 2.0, fx), (ly, d / 2.0, fy)):
+                if abs(k) > 1e-12:
+                    ahead = min(ahead, max(0.0, (half - at) / k if k > 0 else (half + at) / -k))
+        out.append((f, ahead))
+    return out
+
+
+def _frame_rays(plan: dict, grid=None) -> tuple[np.ndarray, np.ndarray]:
+    """``(directions P x 3, border mask)`` of a plan's frame (its lens, sensor, resolution and shift; any pitch)."""
+    grid = grid or SCORE["grid"]
+    lens = float(plan.get("lens_mm") or cameras.M5_LENS_MM)
+    a, b = ray_grid(grid, lens, plan.get("sensor_mm") or SENSOR_MM, plan.get("resolution") or RESOLUTION,
+                    float(plan.get("shift_x") or 0.0), float(plan.get("shift_y") or 0.0))
+    return camera_directions(plan["position"], plan["target"], a, b), border_mask(grid)
+
+
+def _measure_at(model: RoomModel, point, dirs: np.ndarray, border: np.ndarray, lens_mm: float) -> dict:
+    labels, depth = model.cast(point, dirs)
+    return model.measure(labels[None, :], depth[None, :], border, near_distance(lens_mm))[0]
+
+
+def _top_element(m: dict) -> Optional[str]:
+    elements = m.get("elements") or {}
+    return max(sorted(elements), key=lambda k: elements[k]) if elements else None
+
+
+def move_blocked_replayed(plans: Sequence[dict], building: dict) -> list[dict]:
+    """Move the replayed interior cameras of ``plans`` that a piece of ``building`` blocks or contains (fix round after
+    P6b, 23 Oct 2026; docs/milestone13.md §7; the rule is in the module docstring). Pure but for the plans it changes
+    in place (``position``, ``target``, ``replay``, ``warning``), as ``build.repitch_replayed_aerials``. Returns one
+    record per camera the rule fires on, in plan order: ``{"name", "room_id", "status": "moved" | "kept", "trigger":
+    "single_share" | "inside", "blocked_by", "blocked_by_type", "share_old", "share", "moved_m", "warning"}``
+    (``status: kept``: no free point within ``REPLAY_MOVE_MAX_M`` gives an unblocked view; the warning carries
+    ``BLOCKED_WARNING``)."""
+    rooms = {r["id"]: r for r in building.get("rooms") or []}
+    pieces = {f.get("id"): f for f in building.get("furniture") or []}
+    models: dict = {}
+    out: list[dict] = []
+    for plan in plans or ():
+        if plan.get("source") != "replayed" or plan.get("kind") not in (None, "interior") \
+                or plan.get("room_id") not in rooms or plan.get("replay") or plan.get("target") is None \
+                or plan.get("position") is None:
+            continue
+        forward = _forward_xy(plan["position"], plan["target"])
+        if forward is None:
+            continue                                    # a camera looking straight down has no yaw to keep
+        room = rooms[plan["room_id"]]
+        if len(room_polygon(room)) < 3:
+            continue                                    # no room to stand in (plan_room refuses it too)
+        if room["id"] not in models:
+            models[room["id"]] = RoomModel(room, building)
+        model = models[room["id"]]
+        lens = float(plan.get("lens_mm") or cameras.M5_LENS_MM)
+        pos = [float(v) for v in plan["position"][:3]]
+        dirs, border = _frame_rays(plan)
+        inside, looks_out = [], []
+        for f, ahead in lens_inside_pieces(room, building, pos, model.floor_z, forward):
+            c = f["footprint"]["center"]
+            behind = (float(c[0]) - pos[0]) * forward[0] + (float(c[1]) - pos[1]) * forward[1] <= 0.0
+            (looks_out if behind and ahead <= REPLAY_LOOKS_OUT_M + 1e-9 else inside).append(f)
+        if looks_out:                                   # the frame without the pieces the lens looks out of
+            gone = {f["id"] for f in looks_out}
+            seen = RoomModel(room, dict(building, furniture=[f for f in building.get("furniture") or []
+                                                             if f.get("id") not in gone]))
+        else:
+            seen = model
+        m = _measure_at(seen, pos, dirs, border, lens)
+        single = float(m["max_single"])
+        shares = m.get("elements") or {}
+        if inside:
+            trigger, blocker = "inside", max(inside, key=lambda f: shares.get(f["id"], 0.0))["id"]
+        elif single > SCORE["blocked_single"]:
+            trigger, blocker = "single_share", _top_element(m)
+        else:
+            continue
+        piece = pieces.get(blocker) or {}
+        kind = piece.get("type") or next((e["kind"] for e in seen.elements if e["id"] == blocker), "element")
+        yaw = math.degrees(math.atan2(forward[1], forward[0]))
+        others = []                                     # the room's other cameras: (yaw, x, y)
+        for o in plans:
+            fo = None if o is plan or o.get("room_id") != room["id"] or not o.get("position") \
+                or o.get("target") is None else _forward_xy(o["position"], o["target"])
+            if fo is not None:
+                others.append((math.degrees(math.atan2(fo[1], fo[0])), float(o["position"][0]),
+                               float(o["position"][1])))
+        points, fallback = candidate_positions(room, building)
+        best = None
+        if not fallback:
+            for x, y in points:
+                dist = math.hypot(x - pos[0], y - pos[1])
+                if dist > REPLAY_MOVE_MAX_M + 1e-9 or dist < 1e-6:
+                    continue
+                mm = _measure_at(model, (x, y, pos[2]), dirs, border, lens)
+                if is_blocked(mm):
+                    continue
+                distinct = all(yaw_difference(yaw, oy) >= MIN_YAW_DIFF_DEG - 1e-9
+                               or math.hypot(x - ox, y - oyy) >= MIN_DISTANCE_M - 1e-9 for oy, ox, oyy in others)
+                key = (not distinct, round(dist, SCORE_DECIMALS), -round(score_terms(mm)["total"], SCORE_DECIMALS),
+                       x, y)
+                if best is None or key < best[0]:
+                    best = (key, x, y, mm)
+        how = "contains" if trigger == "inside" else "blocks"
+        rec = {"name": plan.get("name"), "room_id": room["id"], "trigger": trigger, "blocked_by": blocker,
+               "blocked_by_type": kind, "share_old": round(single, 4)}
+        if best is None:
+            why = (f"{BLOCKED_WARNING}: the {kind} {blocker} of this build {how} the replayed pose (single share "
+                   f"{single:.2f}) and no free point within {REPLAY_MOVE_MAX_M:g} m of it gives an unblocked view "
+                   f"(docs/milestone13.md §7, fix round after P6b)")
+            plan["warning"] = "; ".join(w for w in (plan.get("warning"), why) if w)
+            out.append(dict(rec, status="kept", share=round(single, 4), moved_m=0.0, warning=why))
+            continue
+        _key, x, y, mm = best
+        dx, dy = x - pos[0], y - pos[1]
+        moved = math.hypot(dx, dy)
+        tgt = [float(v) for v in plan["target"][:3]]
+        new_pos = [_round(x, 6), _round(y, 6), _round(pos[2], 6)]
+        new_tgt = [_round(tgt[0] + dx, 6), _round(tgt[1] + dy, 6), _round(tgt[2], 6)]
+        reason = REPLAY_MOVED_REASON.format(kind=kind, piece=blocker, how=how, share=single)
+        plan["replay"] = {"status": "moved", "position_old": pos, "target_old": tgt, "moved_m": _round(moved),
+                          "trigger": trigger, "blocked_by": blocker, "blocked_by_type": kind,
+                          "share_old": _round(single), "share": _round(mm["max_single"]), "reason": reason}
+        plan["position"], plan["target"] = new_pos, new_tgt
+        note = (f"replayed camera moved {moved:.2f} m from ({pos[0]:.2f}, {pos[1]:.2f}) to ({x:.2f}, {y:.2f}): "
+                f"{reason}")
+        plan["warning"] = "; ".join(w for w in (plan.get("warning"), note) if w)
+        out.append(dict(rec, status="moved", share=_round(mm["max_single"]), moved_m=_round(moved), warning=note))
+    return out
 
 
 def level_search_seconds(plans: Sequence[dict]) -> dict[str, float]:

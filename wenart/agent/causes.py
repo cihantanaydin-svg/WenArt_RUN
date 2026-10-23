@@ -157,6 +157,35 @@ agent's ext_front_entrance (5 m from the facade, no sky) was dropped "no agent t
 view that caused it was never moved or removed. A claim on a planner view, or about an element (an opening, a
 wall), keeps the facade cause.
 
+Fix round after P6b (23 Oct 2026; pod P6b, real03 on 8e8cc97, the review of its agent log and the verifiers' better
+fixes):
+
+- ``accept_edit`` lets a step's majors stay when its criticals are gone (``critical_cleared``): at least one target is
+  critical, every critical target is gone, one of the gone criticals is measured by code (a vision finding on a changed
+  target counts as gone unmeasured) and no kept target became more severe; the other checks (re-created finding, new
+  critical, removed fixture, same-piece swap, penalty) still run with every target, and the accepted reason names the
+  kept targets ("kept: G12:f_L0_200 (major)"). An all-major step keeps the old rule (every target gone). Why: P6b's
+  fix_fixture of the fridges f_L0_200 / 202 / 206 (seq 1844 / 1849 / 1850: the critical F7 door swing and the G8 gone,
+  the window G12 kept) and the bed move f_L0_141 (seq 1886 / 2834: the critical F3 gone, F4 / G5 / G11 kept) were
+  refused "still there" and 4 criticals stayed to the end; a replay of every refusal of the P4a, P4b, P5 and P6a logs
+  changes none of them;
+- a vision F9 on a built piece about the rendered model ("rendered as", "hole", "placeholder", ...) is ``wrong_model``
+  (swap_model, report_library_gap), one about a cut through a wall ("intersect", "clipping") is ``collision``, a
+  placement opinion keeps the old route (``LOOK_WORDS``, ``WALL_CUT_WORDS``, ``PLACEMENT_WORDS``). Why: P6b's look
+  claims (the holes in the coffee and dining tables, the slab fridge, the bunk bed, the small cabinet) got
+  retype_piece only, and five same-type "confirms" were counted as removals (the loop's ``render_unchanged``);
+- a vision F1 on a room that says it is empty (``EMPTY_ROOM_WORDS``) is ``empty_room`` (place_group, relayout_room),
+  never set_room_type: P6b retyped r_L0_oda_19 bedroom -> balcony with an invented railing to clear "the room is
+  completely empty" (the re-run never re-solves a layout after set_room_type);
+- an RC on a symbol (no furniture piece: the reading moved it to ``building.symbols``) is ``resolved_by_code`` (no
+  tool, reported): P6b's building session planned set_room_type on 11 symbol ids in rounds 2 and 3;
+- an F7 / G12 / G8 on drawn fixed equipment that fix_fixture cannot move (``fixture_layout_blocked``: it stands
+  through a wall or in a door, its size is real, and the code's own 0.5 m search finds no valid spot) is the drawn
+  layout (``mark_drawn_layout``: ``metrics.drawn_layout`` ``"fixture"``; no tool, reported with
+  ``FIXTURE_LAYOUT_REASON``). On P6b's round-1 findings it marks G12:f_L0_213 (a fridge in door d_L0_014) and
+  G8:f_L0_010 (a counter 0.29 m² through its wall); the fridges f_L0_200 / 202 / 206 (a spot 0.15 m away) keep
+  fix_fixture; nothing on P4a, P5 or P6a.
+
 Why: real04 (M12, §1.5) accepted 183 edits of which 20 removed their finding; the tools were mapped by check id
 (``brief.CHECK_TOOLS``), so every room session got every tool for every check whatever the cause.
 
@@ -237,6 +266,10 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     # vision opinion on the type of a drawn piece whose type the room's types hold
     "drawn_layout": (),
     "drawn_type": (),
+    # fix round after P6b (module docstring): a room the vision critic calls empty is furnished (set_room_type never
+    # furnishes: the re-run replays the overrides after the layout); a reading conflict on a symbol is resolved
+    "empty_room": ("place_group", "relayout_room"),
+    "resolved_by_code": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -281,8 +314,14 @@ NO_TOOL_REASON: dict[str, str] = {
     "drawn_type": "the piece is drawn and its type is one the room's types hold (the code's room rules, aliases "
                   "included): drawn furniture is kept (CLAUDE.md), and a vision opinion on its type is no reading "
                   "error, so it is reported for review, not retyped",
+    "resolved_by_code": "a reading conflict the code already resolved (the drawing won, the item was moved to the "
+                        "symbols): it names no furniture piece or room, so there is nothing to edit; reported",
     "unknown": "no agent tool fixes this check",
 }
+# Fix round after P6b: why a drawn fixed piece's F7 / G12 / G8 is "not yours" (``FIXTURE_LAYOUT``).
+FIXTURE_LAYOUT_REASON = ("the piece is drawn fixed equipment (treated like walls): only fix_fixture may move it, at "
+                         "most 0.5 m, and the code's search found no valid spot within that reach (inside the room, "
+                         "off the doors and the other pieces), so no edit clears the finding; it is reported for review")
 # Fix round after P3: cause -> the stage a finding no agent tool fixes is reported to (the loop logs it on the
 # finding event as ``report_to``). Fix round after P4a: a light fixture's look goes to the lighting stage.
 REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor", "light_fixture": "lighting",
@@ -349,6 +388,17 @@ _MISSING_WORDS = ("missing", " no ", "without", "lacks", "needs a", "has no", " 
 DRAWN_LAYOUT_CHECKS: tuple[str, ...] = ("F3", "F8")
 DRAWN_LAYOUT_FLAG = "drawn_layout"
 DRAWN_TYPE_CHECKS: tuple[str, ...] = ("F1", "G14")
+# Fix round after P6b (module docstring): the checks of drawn fixed equipment that only fix_fixture may clear, held for
+# good when its 0.5 m search finds no valid spot (``fixture_layout_blocked``), and the flag's value then.
+FIXTURE_LAYOUT_CHECKS: tuple[str, ...] = ("F7", "G12", "G8")
+FIXTURE_LAYOUT = "fixture"
+# Fix round after P6b (module docstring): the words of a vision F1 on a room that says it is empty (cause
+# ``empty_room``), and of a vision F9 on a built piece: a cut through a wall (``collision``), a placement opinion (the
+# old route), a claim about the rendered model (``wrong_model``).
+EMPTY_ROOM_WORDS: tuple[str, ...] = ("empty", "lacking", "lacks", "missing", "no furniture", "unfurnished", " bare ")
+WALL_CUT_WORDS: tuple[str, ...] = ("intersect", "clipping", "passing through", "passes through", "through the wall")
+PLACEMENT_WORDS: tuple[str, ...] = ("placement", "positioned", "placed", "facing")
+LOOK_WORDS: tuple[str, ...] = ("rendered as", "rendered with", "hole", "looks", "model", "placeholder", "geometry")
 # Fix round after P6a, part 2 (module docstring): the vision claims about what an exterior view shows that an agent
 # view's framing causes, and the metrics flag ``mark_agent_views`` sets (the view's name).
 AGENT_VIEW_CHECKS: tuple[str, ...] = ("X3", "X6")
@@ -389,6 +439,15 @@ def _is_piece(target: Optional[str], building: Optional[dict]) -> bool:
     return str(target).startswith(_PIECE_PREFIXES)
 
 
+def _built_piece(building: Optional[dict], target: Optional[str]) -> bool:
+    """Fix round after P6b: ``target`` is a furniture piece of ``building`` that the build makes with a model
+    (``_built``); False without a building."""
+    if not isinstance(building, dict) or not target:
+        return False
+    piece = next((f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("id") == target), None)
+    return piece is not None and _built(piece)
+
+
 def _missing(text: str, metrics: dict) -> bool:
     if metrics.get("missing") or metrics.get("missing_types"):
         return True
@@ -408,6 +467,13 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
     base = CHECK_CAUSE.get(check, "unknown")
     if check in DRAWN_TYPE_CHECKS and finding.get("source") == "vision" and drawn_type_held(building, target):
         return "drawn_type"                    # fix round after P6a: a vision opinion, the drawing's type stays
+    if check == "F1" and finding.get("source") == "vision" and target and not _is_piece(target, building) \
+            and any(w in f" {text} " for w in EMPTY_ROOM_WORDS):
+        return "empty_room"                    # fix round after P6b: furnish the room, never retype it away
+    if check == "RC" and target and not _is_piece(target, building):
+        return "resolved_by_code"              # fix round after P6b: a symbol the reading moved out of the furniture
+    if check in FIXTURE_LAYOUT_CHECKS and metrics.get(DRAWN_LAYOUT_FLAG):
+        return "drawn_layout"                  # fix round after P6b: fix_fixture's search found no valid spot
     if check in AGENT_VIEW_CHECKS and finding.get("source") == "vision" and metrics.get(AGENT_VIEW_FLAG):
         return "exterior_camera"               # fix round after P6a, part 2: the agent's view frames it so
     if check == "F8":
@@ -448,6 +514,12 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
             return "floating"
         if "duplicate" in text:
             return "wrong_type"
+        if finding.get("source") == "vision" and _built_piece(building, target):
+            # fix round after P6b (module docstring): a claim about the rendered model is a model's, not a type's
+            if any(w in text for w in WALL_CUT_WORDS):
+                return "collision"
+            if not any(w in text for w in PLACEMENT_WORDS) and any(w in text for w in LOOK_WORDS):
+                return "wrong_model"
         return "wrong_type"
     if check == "X2":
         if is_decor(target, building):
@@ -531,6 +603,8 @@ def tools_for_finding(finding: dict) -> list[str]:
 def no_tool_reason(finding: dict) -> str:
     """Why a finding without tools is "not yours"."""
     cause = cause_of(finding)
+    if cause == "drawn_layout" and _metrics(finding).get(DRAWN_LAYOUT_FLAG) == FIXTURE_LAYOUT:
+        return FIXTURE_LAYOUT_REASON           # fix round after P6b
     return NO_TOOL_REASON.get(cause, f"no agent tool fixes {finding.get('check') or finding.get('checklist')} "
                                      f"(cause {cause})")
 
@@ -710,18 +784,55 @@ def mark_drawn_layout(findings: list[dict], building: Optional[dict]) -> list[di
     if not isinstance(building, dict):
         return findings
     pieces = {f.get("id"): f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("id")}
+    fixtures: dict = {}                      # fix round after P6b: one spot search per piece
     for f in findings or []:
         check = str(f.get("check") or f.get("checklist") or "")
-        if check not in DRAWN_LAYOUT_CHECKS or f.get("source") == "vision" or _metrics(f).get("missing_anchor"):
+        if f.get("source") == "vision" or _metrics(f).get("missing_anchor"):
             continue
         piece = pieces.get(f.get("target"))
-        if piece is None or not drawn_layout_blocked(building, piece, check):
+        if piece is None:
+            continue
+        if check in DRAWN_LAYOUT_CHECKS and drawn_layout_blocked(building, piece, check):
+            flag = True
+        elif check in FIXTURE_LAYOUT_CHECKS:
+            # fix round after P6b (module docstring): drawn fixed equipment fix_fixture finds no valid spot for
+            if piece.get("id") not in fixtures:
+                fixtures[piece.get("id")] = fixture_layout_blocked(building, piece)
+            if not fixtures[piece.get("id")]:
+                continue
+            flag = FIXTURE_LAYOUT
+        else:
             continue
         evidence = f.get("evidence") if isinstance(f.get("evidence"), dict) else {}
-        evidence["metrics"] = dict(_metrics(f), **{DRAWN_LAYOUT_FLAG: True})
+        evidence["metrics"] = dict(_metrics(f), **{DRAWN_LAYOUT_FLAG: flag})
         f["evidence"] = evidence
         f.pop("cause", None)
     return findings
+
+
+def fixture_layout_blocked(building: dict, piece: dict) -> bool:
+    """Fix round after P6b (module docstring): ``piece`` is drawn fixed equipment (``edit_ops._fixed``) in the scene
+    whose only tool, ``fix_fixture``, cannot move it anywhere: it stands through a wall or in a door
+    (``edit_ops.fixture_problems``: a place problem), its size is real (no misread size to fix, no bath or shower bay
+    to shrink into) and the code's own search within 0.5 m (``edit_ops._nearest_valid``, as ``fix_fixture`` without a
+    centre runs it) finds no valid spot. False otherwise, and whenever the geometry cannot be read (the finding keeps
+    its tools). A piece without a place problem is left alone: the brief's lock already says fix_fixture refuses it."""
+    if not isinstance(piece, dict) or not in_scene(piece) or piece.get("type") in (None, "unknown"):
+        return False
+    try:
+        from wenart.furniture import edit_ops as EO
+        from wenart.furniture import placer
+        room = _room_of_piece(building, piece)
+        if room is None or not EO._fixed(piece):
+            return False
+        probs = EO.fixture_problems(building, piece)
+        if probs.get("size") is not None or probs.get("place") is None:
+            return False
+        if EO._bay_fix(building, room, piece) is not None:
+            return False
+        return EO._nearest_valid(building, room, piece, placer.drawn_piece(piece)) is None
+    except Exception:  # noqa: BLE001 - a geometry that cannot be read keeps the finding's tools
+        return False
 
 
 def override_slots(override: Optional[dict]) -> set:
@@ -1009,6 +1120,29 @@ def same_target_swap(before_by: dict, after_by: dict, present: list) -> Optional
     return (new, gone) if _severe_counts(new) >= _severe_counts(gone) else None
 
 
+def critical_cleared(present: list, kept: list, before_by: dict, after_by: dict) -> Optional[list]:
+    """Fix round after P6b (module docstring): ``kept`` (the targets still in the dry re-check) when the edit may keep
+    them: at least one target is critical, every critical target is gone, at least one of the gone criticals is
+    measured by code (its source is not ``vision``: a vision finding on a changed target counts as gone unmeasured),
+    and no kept target became more severe; else None (the edit is refused "still there", as before). An all-major step
+    keeps the old rule (every target gone; real02 / real04 logs: 14 edits it would let through, overlaps left)."""
+    crit = [t for t in present if (before_by.get(t) or {}).get("severity") == "critical"]
+    if not crit or any(t in after_by for t in crit):
+        return None
+    if not any((before_by.get(t) or {}).get("source") != "vision" for t in crit):
+        return None
+    for t in kept:
+        if SEVERITY_ORDER.get(str(after_by[t].get("severity")), 3) < \
+                SEVERITY_ORDER.get(str((before_by.get(t) or {}).get("severity")), 3):
+            return None
+    return list(kept)
+
+
+def kept_text(kept: list, after_by: dict) -> str:
+    """Fix round after P6b: ``"<check:target> (<severity>), ..."`` of the kept targets of an accepted edit."""
+    return ", ".join(f"{_fmt(t)} ({(after_by.get(t) or {}).get('severity')})" for t in kept)
+
+
 def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool, str]:
     """``(accepted, reason)`` of one edit from the findings before it and the dry re-check after it (module
     docstring). Pure: nothing is changed."""
@@ -1030,7 +1164,8 @@ def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool
         return False, (f"target finding {', '.join(_fmt(t) for t in targets)} is not among the findings before the "
                        f"edit: nothing to fix there")
     kept = [t for t in present if t in after_by]
-    if kept:
+    # fix round after P6b (module docstring): every targeted critical gone, measured by code, lets majors stay
+    if kept and critical_cleared(present, kept, before_by, after_by) is None:
         f = after_by[kept[0]]
         return False, (f"finding {_fmt(kept[0])} is still there after the edit ({str(f.get('message') or f.get('finding') or '')[:160]})"
                        + (f"; {len(kept) - 1} more kept" if len(kept) > 1 else ""))
@@ -1075,12 +1210,14 @@ def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool
                        f"condition)")
     removed = findings_removed(before, after)
     new_count = findings_new(before, after)
+    gone = [t for t in present if t not in kept]
     # fix round after P3: the dry re-check's count is a prediction; the next round's critics measure it; fix round
-    # after P6a: the new critical / major findings and the net are named too
-    return True, (f"finding {', '.join(_fmt(t) for t in present)} gone in the dry re-check; no new critical "
+    # after P6a: the new critical / major findings and the net are named too; fix round after P6b: and the kept targets
+    return True, (f"finding {', '.join(_fmt(t) for t in gone)} gone in the dry re-check; no new critical "
                   f"finding; {removed} critical/major finding(s) removed"
                   + (f", {new_count} new (net {removed - new_count})" if new_count else "")
-                  + " (predicted; the next round measures)")
+                  + " (predicted; the next round measures)"
+                  + (f"; kept: {kept_text(kept, after_by)}" if kept else ""))
 
 
 def key_list(findings: list[dict], severities=("critical", "major"), limit: int = 60) -> list[str]:

@@ -44,6 +44,12 @@ Fix round after P4a (17 Oct 2026, the library lens of the P4a analysis):
 - (5, integration) A camera the agent moved off its replayed pose (the scene record's ``replaced_replayed``,
   ``build.merge_agent_cameras``; P4a's ext_6) gets the note "camera moved by the agent from (x, y, z) to (x, y, z):
   not the baseline pose (<the agent's reason>)" (``camera_note``), so the viewer knows the two frames are two poses.
+
+Fix round after P6b (23 Oct 2026; docs/milestone13.md §7): a replayed interior camera the build moved off a piece of
+its build (the scene record's ``replay`` with ``status: moved``, ``camsearch.move_blocked_replayed``; P6b's
+yasama_3_2 stood inside a 2.02 m fridge) gets the note "replayed camera moved by the build 0.72 m from (x, y) to
+(x, y), same yaw and lens: the fridge f_L0_202 of this build contains the baseline pose (docs/milestone13.md §7)"
+(``camera_note``), so the sheet does not show a moved view as the baseline's frame.
 """
 from __future__ import annotations
 
@@ -205,10 +211,30 @@ def compose(before: Optional[Path], after: Optional[Path], caption: list[tuple[s
     return sheet
 
 
+MOVED_NOTE_FALLBACK = "replayed camera moved by the build off a piece of its build (docs/milestone13.md §7)"
+
+
+def moved_note(rp: dict, position=None) -> str:
+    """Fix round after P6b (module docstring): the note of a replayed camera the build moved (``replay.status ==
+    "moved"``): how far, from where to where, and the piece; the plain fallback when the record lacks a value."""
+    try:
+        old = [float(v) for v in rp["position_old"][:2]]
+        new = [float(v) for v in (position or [])[:2]]
+        dist = float(rp["moved_m"])
+    except (KeyError, TypeError, ValueError, IndexError):
+        return MOVED_NOTE_FALLBACK
+    where = f"from ({old[0]:.2f}, {old[1]:.2f})" + (f" to ({new[0]:.2f}, {new[1]:.2f})" if len(new) == 2 else "")
+    piece = " ".join(str(v) for v in (rp.get("blocked_by_type"), rp.get("blocked_by")) if v)
+    how = "contains" if rp.get("trigger") == "inside" else "blocks"
+    what = f": the {piece} of this build {how} the baseline pose" if piece else ""
+    return f"replayed camera moved by the build {dist:.2f} m {where}, same yaw and lens{what} (docs/milestone13.md §7)"
+
+
 def camera_note(cam: Optional[dict]) -> Optional[str]:
     """Fix round part 2 (module docstring): the note of a replayed camera the build re-pitched, from the scene
     manifest camera record (``replay.status == "repitched"``), else None. Fix round after P4a: a camera the agent
-    moved off its replayed pose (``replaced_replayed``, ``build.merge_agent_cameras``) says so first."""
+    moved off its replayed pose (``replaced_replayed``, ``build.merge_agent_cameras``) says so first. Fix round after
+    P6b: a replayed camera the build moved off a piece (``replay.status == "moved"``) gets ``moved_note``."""
     moved = (cam or {}).get("replaced_replayed")
     if isinstance(moved, dict):
         agent = (cam or {}).get("agent") or {}
@@ -223,6 +249,8 @@ def camera_note(cam: Optional[dict]) -> Optional[str]:
         return f"camera moved by the agent{where}: not the baseline pose" + \
             (f" ({agent['reason']})" if agent.get("reason") else "")
     rp = (cam or {}).get("replay")
+    if isinstance(rp, dict) and rp.get("status") == "moved":
+        return moved_note(rp, (cam or {}).get("position"))
     if not isinstance(rp, dict) or rp.get("status") != "repitched":
         return None
     try:

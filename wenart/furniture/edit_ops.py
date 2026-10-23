@@ -189,6 +189,24 @@ Fix round after P6a (22-23 Oct 2026; pod P6a, real04; the asks of the agent and 
   ``group_checks.allowed_types_at``) and change_type refused it "not a piece a other room may hold";
 - **the retype refit keeps headroom** (``_build_retyped``): ``fit.fit_piece`` gets the piece's ``fit.piece_ceiling``
   under a sloped ceiling, as ``fit.fit_building`` (the decor track's ask, verify:agent:4 part 2).
+
+Fix round after P6b (23 Oct 2026; pod P6b, real03; verify:library:0 and verify:agent:0's better fix). What:
+
+- **a cut through the room outline that is new or grows is refused** (``outline_cuts``, ``outline_growth``): after the
+  placer checks, every op but ``mark_not_furniture`` compares the F9 cuts through the REAL room outline that the
+  room's plausibility score measures (``plausibility._f9``: ``outside_m2``, ``depth_m``) before and after the edit; a
+  piece past ``PL.OUTSIDE_MIN_M2`` (0.05 m²) that was not before, or whose cut grew by more than that area or by more
+  than ``OUTLINE_DEPTH_GROWTH_M`` (0.05 m) in depth, fails "inside_room (outline: ...)", whatever the score nets. Why:
+  P6b seq 2588 moved the drawn wardrobe f_L0_098 0.28 m through the front outer wall (0.168 m² outside; visible on the
+  facade of ext_6 / ext_7, which it made non-commercial): it failed inside_room against the 2 cm shrunk room by 4.5 mm
+  before, so the placer's pass/fail flags saw no new failure, and the score rose 70 -> 80 (G13 and the bed's G5 gone,
+  one F9 major new). Measured against the real outline, not the shrunk room: the corner washing machines f_L0_074 /
+  076 / 077 turned 90 degrees for "front faces a wall" (P6b seq 1969 / 1971 / 2637, P4b seq 434 / 437) deepen a cut
+  they already had by 0.025 m and stay accepted; on the accepted footprint edits of P4a, P4b, P5 and P6a only P4a's
+  coffee table f_L1_024 (0.07 m², 0.059 m through w_L1_006 after its move and resize; the vision critic said "rendered
+  intersecting the wall") would be refused;
+- ``retype_candidates``: the types ``retype_piece`` accepts for a piece (the agent loop reads it: a retype that can
+  only confirm the piece's own type is futile).
 """
 from __future__ import annotations
 
@@ -479,6 +497,41 @@ def _new_failures(before: dict[str, set], after: dict[str, set]) -> list[str]:
         for name in sorted(failed - before.get(pid, set())):
             out.append(f"{pid}: {name}")
     return out
+
+
+# Fix round after P6b (module docstring): how much deeper an outline cut a piece already had may get (a corner washing
+# machine turned 90 degrees to fix "front faces a wall" deepens its cut by 0.025 m).
+OUTLINE_DEPTH_GROWTH_M = 0.05
+
+
+def outline_cuts(score: dict) -> dict[str, tuple[float, float, str]]:
+    """Fix round after P6b: ``{piece id: (outside_m2, depth_m, message)}`` of the F9 cuts through the room outline in a
+    ``plausibility.score_room`` result (``_f9``: more than ``PL.OUTSIDE_MIN_M2`` outside the real room outline, not
+    the placer's 2 cm shrunk room)."""
+    out: dict[str, tuple[float, float, str]] = {}
+    for v in (score or {}).get("violations") or []:
+        m = v.get("metrics") if isinstance(v.get("metrics"), dict) else {}
+        if v.get("check") != "F9" or m.get("outside_m2") is None:
+            continue
+        try:
+            out[str(v.get("target"))] = (float(m["outside_m2"]), float(m.get("depth_m") or 0.0),
+                                         str(v.get("message") or ""))
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def outline_growth(before: dict, after: dict) -> list[str]:
+    """Fix round after P6b (module docstring): the failed checks ``"<id>: inside_room (outline: ...)"`` of the pieces
+    whose cut through the room outline (``outline_cuts``) is new after the edit (none past ``PL.OUTSIDE_MIN_M2``
+    before), or grew by more than ``PL.OUTSIDE_MIN_M2`` in area or ``OUTLINE_DEPTH_GROWTH_M`` in depth; [] otherwise."""
+    bad = []
+    for pid, (area, depth, message) in sorted(after.items()):
+        was = before.get(pid)
+        a0, d0 = (was[0], was[1]) if was is not None else (0.0, 0.0)
+        if was is None or area - a0 > PL.OUTSIDE_MIN_M2 + 1e-9 or depth - d0 > OUTLINE_DEPTH_GROWTH_M + 1e-9:
+            bad.append(f"{pid}: inside_room (outline: {message}; {a0:.2f} m² up to {d0:.3f} m deep before)")
+    return bad
 
 
 # --------------------------------------------------------------------------
@@ -1233,15 +1286,24 @@ def _move_group(b: dict, args: dict) -> list[str]:
     return ids + new_ids
 
 
-def _retype(b: dict, args: dict, catalog=None) -> list[str]:
-    item = _piece(b, args["piece_id"])
+def retype_candidates(b: dict, item: dict) -> list[str]:
+    """The types ``retype_piece`` accepts for ``item``: the room's / zone's types at its centre
+    (``group_checks.allowed_types_at``) that fit its footprint (size table), not turned 90 degrees against a drawn
+    front. Fix round after P6b: also read by the loop (``loop.futile_step``: a retype that can only confirm the piece's
+    own type changes nothing)."""
     room = _room(b, item.get("room_id"))
     p = placer.drawn_piece(item)
     allowed = GC.allowed_types_at(b, room, p.center) - {"unknown"}
     size = (float(item["footprint"]["size"][0]), float(item["footprint"]["size"][1]))
     turned = item.get("front_deg") is not None
-    candidates = sorted(t for t in allowed if t in PL._size_table() and PL._fits(t, size) and not (
+    return sorted(t for t in allowed if t in PL._size_table() and PL._fits(t, size) and not (
         turned and PL.oriented_fit(t, p.size)["turned"]))
+
+
+def _retype(b: dict, args: dict, catalog=None) -> list[str]:
+    item = _piece(b, args["piece_id"])
+    p = placer.drawn_piece(item)
+    candidates = retype_candidates(b, item)
     if args["type"] not in candidates:
         raise EditRejected("retype", f"{args['type']} is no candidate for {item['id']} ({p.size[0]:.2f} x "
                                      f"{p.size[1]:.2f} m at [{p.center[0]:.2f}, {p.center[1]:.2f}]): the size table and "
@@ -1926,6 +1988,10 @@ def apply_edit(building: dict, edit: dict, *, catalog=None) -> dict:
                        rerun, exc.message)
     failed = _new_failures(before_checks, room_checks(b, room_id))
     after_score = PL.score_room(b, room_id)
+    if op not in CORRECTION_OPS:
+        # fix round after P6b (module docstring): a cut through the room outline that is new or grows is refused,
+        # whatever the score nets (P6b seq 2588: the drawn wardrobe 0.28 m through the front outer wall)
+        failed += outline_growth(outline_cuts(before_score), outline_cuts(after_score))
     known = {(w["check"], w["target"], w["message"]) for w in before_score["violations"]}
     new = [v for v in after_score["violations"] if (v["check"], v["target"], v["message"]) not in known]
     notes = ""

@@ -53,6 +53,26 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   itself). A shorter gap split by a wall *ending* in the band (real01's two bedroom doors) splits as before.
 
 Everything is in page metres (y up). Walls at other angles than the plan's dominant pair pass through untouched.
+
+Fix round after P6b (23 Oct 2026; pod P6b, real03, checked on the LibreDWG strokes of real02, real03 and real04).
+What: two run gaps are no openings of their run any more.
+
+- A **lined gap** (``_lining``): a thinner wall (>= ``LINING_THINNER_M`` thinner, its own run) lies along one face of
+  the run (flush within ``RUN_OFFSET_M``, inside its band) and its pieces fill >= ``LINING_SHARE`` of the gap. The
+  gap is ``open``: the thick pieces are columns or shear walls standing on that wall, not one wall with windows
+  between them. real03: the 30 cm shear walls of the hall-living partition (``D BLOK_STA_NK`` B-H/BA, y 0-1.3,
+  5.7-7.7, 12.1-13.4 m) were one 0.30 m wall from end to end, its gaps windows read from the beam projections
+  (IZ-1), the axis line and the net-area outlines lying on its faces; it swallowed the 0.20 m of hall and bedroom
+  beside the drawn 0.10 m partition (``DUVAR``), so the drawn 0.60 m washers stood 0.14-0.19 m in the wall of a
+  0.45 m niche (the plan's 'İŞLİK 0.45 m2' is 0.65 x 0.69 m). The thick pieces stay walls of their own; each wall
+  that a lined gap split is marked ``corrected_by_ai`` (reason, evidence: the lining wall's and the pieces'
+  entities, before: the wall as one run) and the gap's log entry says why. The thin wall keeps its own gaps (the
+  1.05 m hall-living passages). No end gap is cast across a lined gap.
+- A gap **inside wall material** (``_inside_wall``): other pieces on the run's axis (another run, a thicker
+  cross-section) cover its whole band along its whole width. It is ``closed`` (the run merges across it, as a gap <
+  0.25 m does) with a note, never a door, window or opening: real03's shear-wall core (y 5.7-7.7 m), where the
+  0.62 m pieces of the core covered the gaps the mask decomposition left in the 0.10, 0.30, 0.41 and 0.54 m runs
+  through it (two 'openings' and six 'windows' inside concrete).
 """
 from __future__ import annotations
 
@@ -95,6 +115,11 @@ CONTINUOUS_RADIUS_M = (0.6, 1.2)
 CONTINUOUS_WINDOW_M = 0.4
 END_POINT_TOL_M = 0.02
 AXIS_TOL_DEG = 3.0
+# Fix round after P6b (23 Oct 2026): a thinner wall along one face through a run gap (a lined gap) ...
+LINING_THINNER_M = 0.05         # ... is at least this much thinner than the run (MIN_WALL_M of walls.py) ...
+LINING_SHARE = 0.5              # ... and its pieces fill at least this share of the gap
+GLASS_INSET_M = 0.01            # glass lies at least this far inside the wall faces ...
+GLASS_MIN_LINES = 1             # ... and a window needs this many distinct glass offsets (see _is_glass)
 
 DOOR_HEIGHT_M = 2.10
 WINDOW_SILL_M = 0.90
@@ -595,10 +620,12 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": leaves, "leaf": True, "swing": 0.0,
                    "radius": None, "double": False, "sliding": True, "by_name": op}
         return
-    # Window: >= 2 strokes parallel to the wall in the band, each spanning >= 80 % of the gap.
+    # Window: >= 2 strokes parallel to the wall in the band, each spanning >= 80 % of the gap, and glass among them
+    # (fix round after P6b: strictly between the faces and within the gap +- OWN_MARGIN_M, ``GLASS_MIN_LINES``).
     band = g.rect(grow_face=BAND_SLACK_M)
     band_items = [it for it in zone if _inside_rect_part(it, band)]
     parallel = []
+    glass: set = set()
     for it in band_items:
         for p, q in zip(it.pts, it.pts[1:] + ([it.pts[0]] if it.st.closed and len(it.pts) > 2 else [])):
             if not _parallel(p, q, g.axis):
@@ -610,10 +637,16 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
             cover = min(hi, g.b) - max(lo, g.a)
             if cover >= WINDOW_COVER * width:
                 parallel.append((it, round(off, 3)))
+                if _is_glass(off, g.t, lo, hi, g.a, g.b):
+                    glass.add(round(off, 3))
+    no_glass = None
     if len({off for _, off in parallel}) >= 2:
-        g.cls = "window"
-        g.found = {"lines": list({id(it): it for it, _ in parallel}.values())}
-        return
+        if len(glass) >= GLASS_MIN_LINES:
+            g.cls = "window"
+            g.found = {"lines": list({id(it): it for it, _ in parallel}.values()), "glass": sorted(glass)}
+            return
+        no_glass = (f"{len({off for _, off in parallel})} lines along the gap but no glass: they lie on the wall faces "
+                    f"or run on past the gap (outlines, an axis, a beam above), so no window")
     # Sliding door (Milestone 10): no swing arc, but one or two leaves (thin closed shapes) parallel to the wall,
     # shorter than the gap, in the band or just beside it.
     leaves = _sliding_leaves(g, zone)
@@ -637,6 +670,16 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         return
     g.cls = "unclassified"
     g.found = {"content": content + [it for it in swings if it not in content]}
+    if no_glass:
+        g.found["no_glass"] = no_glass
+
+
+def _is_glass(off: float, t: float, lo: float, hi: float, a: float, b: float) -> bool:
+    """Fix round after P6b: a line parallel to the wall at ``off`` from its centre line, running from ``lo`` to ``hi``
+    along it, is glass of an opening from ``a`` to ``b`` in a wall ``t`` thick: strictly between the faces (>=
+    ``GLASS_INSET_M`` inside) and within the opening +- ``OWN_MARGIN_M`` (glass, frame and sill lines end at the jambs;
+    a face line, a room or area outline, an axis or a beam projection runs on past them)."""
+    return abs(off) < t / 2.0 - GLASS_INSET_M and lo >= a - OWN_MARGIN_M and hi <= b + OWN_MARGIN_M
 
 
 def _sliding_leaves(g: Gap, zone: list) -> list:
@@ -791,10 +834,12 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     owned: set[str] = set()
     gaps: list[Gap] = []
     merge_after: dict[int, set[int]] = {}        # run -> positions i where pieces i and i+1 join
+    lined_after: dict[int, dict[int, dict]] = {}  # run -> position i -> the lining of the gap that splits it there
 
     # (a) + (c): run gaps, split at perpendicular walls inside the band.
     for ri, run in enumerate(runs):
         merge_after[ri] = set()
+        lined_after[ri] = {}
         for i in range(len(run) - 1):
             p, q = run[i], run[i + 1]
             if q.a <= p.b + GAP_IGNORE_M:
@@ -810,7 +855,15 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
             found = []
             for a, b in subs:
                 g = Gap("run" if len(subs) == 1 else "split", p.axis, _run_c(run), _run_t(run), a, b, [p, q])
-                if g.width < GAP_MIN_M:
+                cover = _inside_wall(g, pieces, run)
+                if cover is not None:
+                    # Fix round after P6b: wall material of other pieces fills the gap (real03's shear-wall core).
+                    g.cls = "closed"
+                    g.found = {"inside": [w.k for w in cover],
+                               "note": f"a {g.width:.3f} m gap inside wall material ({len(cover)} other piece(s) on "
+                                       f"this axis cover its {g.t:.2f} m band along its whole width): closed, no "
+                                       f"opening"}
+                elif g.width < GAP_MIN_M:
                     g.cls = "closed"
                 else:
                     classify_gap(g, index, trial)
@@ -824,6 +877,16 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                 for g in found:
                     g.found = {"split_reason": "a split part holds no door or window: the pieces are not one wall"}
                     g.cls = "open"
+                gaps.extend(found)
+                continue
+            lining = _lining(run, p, q, runs, found)
+            if lining is not None:
+                # Fix round after P6b: a thinner wall runs along one face through the gap (real03's shear walls on
+                # the hall-living partition): the pieces are not one wall with openings between them.
+                for g in found:
+                    g.found = {"lining": lining, "split_reason": lining["note"]}
+                    g.cls = "open"
+                lined_after[ri][i] = lining
                 gaps.extend(found)
                 continue
             merge_after[ri].add(i)
@@ -847,6 +910,11 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                         and min(g.b, b) - max(g.a, a) >= 0.5 * min(g.width, b - a)), None)
             if dup is not None:
                 end_log.append({"piece": p, "which": which, "gap": dup, "same_as_run_gap": True})
+                continue
+            # Fix round after P6b: never across a lined gap (the thinner wall along its face holds that stretch).
+            if any(g.found.get("lining") and g.axis == p.axis and abs(g.c - p.c) <= RUN_OFFSET_M + 0.01
+                   and min(g.b, b) - max(g.a, a) > GAP_IGNORE_M for g in gaps):
+                end_log.append({"piece": p, "which": which, "gap": None})
                 continue
             g = Gap("end", p.axis, p.c, p.t, a, b, [p, q], free=(p, which), hit=q)
             if g.width < GAP_MIN_M:
@@ -879,6 +947,9 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     piece_out: dict[int, int] = {}
     for ri, run in enumerate(runs):
         seg = [run[0]]
+        # Fix round after P6b: the segments lined gaps split apart (one wall before), and those linings.
+        group: list[tuple[int, list[Piece]]] = []
+        group_linings: list[dict] = []
         for i in range(1, len(run) + 1):
             if i < len(run) and (i - 1) in merge_after[ri]:
                 seg.append(run[i])
@@ -886,6 +957,12 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
             out_walls.append(_merged_wall(seg, ctx, extended, join_notes))
             for q in seg:
                 piece_out[q.k] = len(out_walls) - 1
+            group.append((len(out_walls) - 1, seg))
+            if i < len(run) and (i - 1) in lined_after[ri]:
+                group_linings.append(lined_after[ri][i - 1])
+            else:
+                _mark_lined(out_walls, group, group_linings, ctx)
+                group, group_linings = [], []
             if i < len(run):
                 seg = [run[i]]
     for k in others:
@@ -901,7 +978,9 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
         if g.cls in ("door", "window") or (g.kind != "end" and g.cls in ("empty", "unclassified")):
             openings.append(_opening(g, ctx, exterior))
             entry["opening"] = len(openings) - 1
-        if g.cls == "closed":
+        if g.cls == "closed" and g.found.get("inside"):
+            entry["note"] = g.found["note"]
+        elif g.cls == "closed":
             entry["warning"] = f"gap of {g.width:.3f} m < {GAP_MIN_M} m closed"
         gap_pos[id(g)] = len(log)
         log.append(entry)
@@ -1051,6 +1130,121 @@ def _crossed(p: Piece, q: Piece, pieces: list[Piece]) -> bool:
     return bool(cutting) and all(w.a < lo - p.t and w.b > hi + p.t for w in cutting)
 
 
+def _inside_wall(g: Gap, pieces: list[Piece], run: list[Piece]) -> Optional[list[Piece]]:
+    """Fix round after P6b: the pieces on the gap's axis, outside its run, whose bands cover the gap's band (within
+    ``RUN_OFFSET_M``) and that together cover its whole width (within 2 x ``GAP_IGNORE_M``), or None. Such a gap
+    lies in wall material (real03's shear-wall core: the 0.62 m core pieces over the gaps of the thinner runs)."""
+    lo, hi = g.c - g.t / 2.0, g.c + g.t / 2.0
+    own = {id(q) for q in run}
+    cover = [w for w in pieces if w.axis == g.axis and id(w) not in own and w.b > g.a and w.a < g.b
+             and w.c - w.t / 2.0 <= lo + RUN_OFFSET_M and w.c + w.t / 2.0 >= hi - RUN_OFFSET_M]
+    total, reach = 0.0, g.a
+    for s0, s1 in sorted((max(w.a, g.a), min(w.b, g.b)) for w in cover):
+        if s1 > reach:
+            total += s1 - max(s0, reach)
+            reach = s1
+    return cover if cover and total >= g.width - 2.0 * GAP_IGNORE_M else None
+
+
+def _glazing(g: Gap, lo: float, hi: float) -> list:
+    """Fix round after P6b: the window lines of ``g`` (``found["lines"]``) that are glass of the part of the band
+    between the offsets ``lo`` < ``hi`` (absolute, across the axis): a straight piece parallel to the wall, strictly
+    inside that part (>= ``BAND_SLACK_M`` / 2 from its edges), within the gap +- ``OWN_MARGIN_M`` along it and
+    spanning >= ``WINDOW_COVER`` of it. A face line, an outline, an axis or a beam edge running on past the gap is
+    none (real03's 'windows' between the shear walls)."""
+    tol = BAND_SLACK_M / 2.0
+    out = []
+    for it in g.found.get("lines", []):
+        pts = it.pts + ([it.pts[0]] if it.st.closed and len(it.pts) > 2 else [])
+        for p, q in zip(pts, pts[1:]):
+            if not _parallel(p, q, g.axis):
+                continue
+            off = g.c + g.across(((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0))
+            s0, s1 = sorted((g.along(p), g.along(q)))
+            if lo + tol < off < hi - tol and s0 >= g.a - OWN_MARGIN_M and s1 <= g.b + OWN_MARGIN_M \
+                    and min(s1, g.b) - max(s0, g.a) >= WINDOW_COVER * g.width:
+                out.append(it)
+                break
+    return out
+
+
+def _lining(run: list[Piece], p: Piece, q: Piece, runs: list[list[Piece]], found: list[Gap]) -> Optional[dict]:
+    """Fix round after P6b: the thinner wall lining the run gap between ``p`` and ``q`` (see the module docstring),
+    or None: another run on the axis, >= ``LINING_THINNER_M`` thinner, inside the run's band (+- ``RUN_OFFSET_M``),
+    one face flush with the run's (<= ``RUN_OFFSET_M``), whose pieces fill >= ``LINING_SHARE`` of the gap. Never when
+    a part of the gap holds a door, or a window whose glass (``_glazing``) lies in the open part of the band beside
+    the lining wall (a sill strip drawn on the wall layer in front of a real window), or when every part is closed.
+    Returns ``{"thickness", "lining_thickness", "share", "entity", "note"}``."""
+    if not found or all(g.cls == "closed" for g in found) or any(g.cls == "door" for g in found):
+        return None
+    t, c = _run_t(run), _run_c(run)
+    lo, hi = c - t / 2.0, c + t / 2.0
+    a, b = p.b, q.a
+    best = None
+    for other in runs:
+        if other is run or other[0].axis != p.axis:
+            continue
+        t2, c2 = _run_t(other), _run_c(other)
+        lo2, hi2 = c2 - t2 / 2.0, c2 + t2 / 2.0
+        if t - t2 < LINING_THINNER_M - 1e-9 or lo2 < lo - RUN_OFFSET_M or hi2 > hi + RUN_OFFSET_M or \
+                min(abs(lo2 - lo), abs(hi2 - hi)) > RUN_OFFSET_M:
+            continue
+        share = sum(max(0.0, min(w.b, b) - max(w.a, a)) for w in other) / (b - a)
+        if share >= LINING_SHARE - 1e-9 and (best is None or share > best[0]):
+            best = (share, other, lo2, hi2, t2)
+    if best is None:
+        return None
+    share, other, lo2, hi2, t2 = best
+    open_lo, open_hi = (hi2, hi) if abs(lo2 - lo) <= abs(hi2 - hi) else (lo, lo2)
+    if any(g.cls == "window" and _glazing(g, open_lo, open_hi) for g in found):
+        return None
+    entities = list(dict.fromkeys(e for w in other if min(w.b, b) > max(w.a, a)
+                                  for e in w.wall.entity.split(",") if e))
+    note = (f"a {t2:.2f} m wall ({', '.join(entities[:4])}) runs along one face of this {t:.2f} m run through the "
+            f"{b - a:.2f} m gap ({share:.0%} of it): the {t:.2f} m pieces are columns or shear walls on that wall, "
+            f"not one wall with openings between them")
+    return {"thickness": round(t, 4), "lining_thickness": round(t2, 4), "share": round(share, 3),
+            "entity": ",".join(entities), "note": note}
+
+
+def _mark_lined(walls: list[WallItem], group: list[tuple[int, list[Piece]]], linings: list[dict], ctx: "_Ctx") -> None:
+    """Fix round after P6b: the walls of ``group`` (output index, pieces), which lined gaps split apart, each get
+    ``corrected_by_ai`` (reason, evidence, before: the one wall the run made before, in page metres) and the reason in
+    their evidence note. A group of one segment (no lined gap) is left alone."""
+    if len(group) < 2 or not linings:
+        return
+    pieces = [q for _, seg in group for q in seg]
+    axis = pieces[0].axis
+    a, b = min(q.a for q in pieces), max(q.b for q in pieces)
+    c = sum(q.c * (q.b - q.a) for q in pieces) / max(sum(q.b - q.a for q in pieces), 1e-12)
+    t = _weighted_median([(q.t, q.b - q.a) for q in pieces])
+    s, e = ((a, c), (b, c)) if axis == "h" else ((c, a), (c, b))
+    s, e = _rot(s, ctx.theta), _rot(e, ctx.theta)
+    reason = (f"read as {len(group)} walls, not one {t:.2f} m wall over {b - a:.2f} m: " +
+              "; ".join(dict.fromkeys(ln["note"] for ln in linings)))
+    entity = ",".join(dict.fromkeys(x for ln in linings for x in ln["entity"].split(",") if x))
+    for k, seg in group:
+        w = walls[k]
+        own = ",".join(dict.fromkeys(x for q in seg for x in q.wall.entity.split(",") if x))
+        ev = ctx.evidence("vector", min(q.wall.evidence.get("confidence", 1.0) for q in seg), f"{own},{entity}")
+        ev["rule"] = "lined_gap"
+        ev["note"] = reason
+        old = w.evidence.get("note")
+        new = dataclasses.replace(w, evidence=dict(w.evidence, note=(old + "; " if old else "") + reason))
+        new.corrected_by_ai = {"reason": reason, "evidence": ev, "rule": "lined_gap",
+                               "before": {"start": [round(s[0], 4), round(s[1], 4)],
+                                          "end": [round(e[0], 4), round(e[1], 4)], "thickness": round(t, 4)}}
+        walls[k] = new
+
+
+def _replace_wall(w: WallItem, **changes) -> WallItem:
+    """``dataclasses.replace`` that keeps a ``corrected_by_ai`` label (fix round after P6b)."""
+    new = dataclasses.replace(w, **changes)
+    if getattr(w, "corrected_by_ai", None):
+        new.corrected_by_ai = w.corrected_by_ai
+    return new
+
+
 def _is_free(p: Piece, which: str, pieces: list[Piece]) -> bool:
     face = LineString(p.end_face(which))
     for q in pieces:
@@ -1196,8 +1390,7 @@ def _trim_into_bands(walls: list[WallItem], theta: float) -> None:
             s, e = _rot(s, theta), _rot(e, theta)
             if math.dist(s, w.end) + math.dist(e, w.start) < math.dist(s, w.start) + math.dist(e, w.end):
                 s, e = e, s
-            walls[p.k] = dataclasses.replace(w, start=(round(s[0], 4), round(s[1], 4)),
-                                             end=(round(e[0], 4), round(e[1], 4)))
+            walls[p.k] = _replace_wall(w, start=(round(s[0], 4), round(s[1], 4)), end=(round(e[0], 4), round(e[1], 4)))
 
 
 def _exterior_test(walls: list[WallItem]):
@@ -1275,6 +1468,8 @@ def _opening(g: Gap, ctx: _Ctx, exterior) -> OpeningItem:
     ids = [it.st.id for it in g.found.get("content", [])]
     ev = ctx.evidence("derived", 0.5, f"gap:{names}", box_units=box)
     ev["note"] = "unclassified gap content: " + ",".join(ids[:20]) + (" ..." if len(ids) > 20 else "")
+    if g.found.get("no_glass"):
+        ev["note"] += f" ({g.found['no_glass']})"
     return OpeningItem(kind="opening", width=width, center=_r(center), rotation_deg=round(axis_deg % 180.0, 3),
                        box=box, entity=f"gap:{names}", evidence=ev, status="unverified", height=DOOR_HEIGHT_M,
                        assumed=["height"], type_raw="unclassified gap content")
@@ -1314,6 +1509,8 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
         entry["strokes"] = [it.st.id for it in g.found.get("content", [])]
     if g.found.get("split_reason"):
         entry["note"] = g.found["split_reason"]
+    if g.found.get("lining"):
+        entry["lining"] = {k: v for k, v in g.found["lining"].items() if k != "note"}
     if g.kind == "end":
         p, which = g.free
         entry["free_wall"] = piece_out.get(p.k)
@@ -1431,10 +1628,10 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
                 off = (a[1] + b[1]) / 2 - p.c if p.axis == "h" else (a[0] + b[0]) / 2 - p.c
                 if abs(off) > p.t / 2 + BAND_SLACK_M:
                     continue
-                lo, hi = sorted((a[0], b[0])) if p.axis == "h" else sorted((a[1], b[1]))
-                lo, hi = max(lo, p.a), min(hi, p.b)
+                raw = sorted((a[0], b[0])) if p.axis == "h" else sorted((a[1], b[1]))
+                lo, hi = max(raw[0], p.a), min(raw[1], p.b)
                 if hi - lo > 0.01:
-                    segs.append((lo, hi, round(off, 3), it))
+                    segs.append((lo, hi, round(off, 3), it, raw[0], raw[1]))
         if len(segs) < 2:
             continue
         cuts = sorted({s[0] for s in segs} | {s[1] for s in segs})
@@ -1456,6 +1653,11 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
             mid = (u + v) / 2
             centre_f = (mid, p.c) if p.axis == "h" else (p.c, mid)
             if any(math.dist(centre_f, c) < max(w / 2, 0.2) for c, w in taken):
+                continue
+            # Fix round after P6b: glass among the lines (``_is_glass``), not only outlines inside a thick wall.
+            glass = {s[2] for s in segs if _is_glass(s[2], p.t, s[4], s[5], u, v)
+                     and min(s[1], v) - max(s[0], u) >= WINDOW_COVER * (v - u)}
+            if len(glass) < GLASS_MIN_LINES:
                 continue
             used = [s[3] for s in segs if s[0] < v and s[1] > u and abs(s[2]) < p.t / 2 - BAND_SLACK_M]
             ids = sorted({it.st.id for it in used})

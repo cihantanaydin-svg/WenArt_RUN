@@ -73,6 +73,29 @@ ext_front_entrance ((8.5, 17.5, 1.6) -> (8.5, 12.5, 2.0), 26 mm, 5 m from the 15
 rendered: 0 of 576 rays reach the sky, the facade spans 2.34 frame widths (both doors cut), 37 % of the pixels are
 near black; every other exterior view of real02 / real03 / real04 has 17-44 % sky rays and fits its frame
 (``frame_fixed``: fill 0.31-0.94).
+
+Fix round after P6b (23 Oct 2026; pod P6b, real03; the look lens's ext_7 finding, upheld by its verifier, and the
+agent lens's verifier's better fix). What: an entrance view (``entrance_views``, a ``flat_cut`` building only) is
+framed on its door, not on the whole building: ``entrance_frame`` keeps the camera level and aims it at the door (the
+target is the door's aim point at the camera's height; no yaw re-centring), and takes the lens shift from the building
+points inside its horizontal field of view only (``facade_points``: the corners plus the prism and roof edges sampled
+every ``ENTRANCE_POINT_STEP_M``, so a facade that crosses the frame between two corners outside it still counts)
+together with the door's aim point. ``_try_entrance`` accepts a place only when its door is in ``visible_openings``
+and ``sky_share`` reaches ``SKY_MIN_SHARE`` (``entrance_shot_problem``); else the same place level with no lens shift,
+then the next distance of ``ENTRANCE_VIEW_M``; with no such place the first free one is kept with
+``ENTRANCE_KEPT_WARNING`` (X6 reports its door) and with no free place the view is dropped, as before. The entrance
+plan records ``sky_share`` and no ``fill`` (exterior_checks judges an entrance view by ``entrance_view_problem``, not
+by the whole-building fill). The corner, aerial, elevation and frontal views keep ``_try`` unchanged. Why: P6b's ext_7
+(8 m from the door of real03's 33 m facade) went through ``frame_fixed`` on all 246 building points; the agent's
+round-3 roof edit (overhang 0.5 -> 0.6 m) moved the re-centred yaw so that the wall corner at (30.13, 0.15) lay 0.17 m
+in front of the camera plane, beside the camera: its tangents set the lens shift to -0.72 (clamped to -0.35), the
+frame looked 26 degrees down onto the path and the boundary hedge (the round's site edit; 46 % of the image), with no
+sky and the door out of the frame (X6 major in the final, critical-only round). Overhangs of 0.55-0.8 m all broke the
+same way, 0, 0.3 and 0.5 m did not (the verifiers' replays); on a plain 33 m box the old frame turned so far to the
+building's middle that the door was never in it. Now, on P6b's building_final with overhang 0.5-0.8 m and the fence
+none or hedge, ext_7 aims at (15.603, 0.0003, 1.45) with a shift of +0.004 to +0.009, the door d_L0_019 in the frame,
+18-19 % sky, the building on 57-59 % of the rays and no hedge ray; real02 and real04 (not ``flat_cut``) plan no
+entrance view and keep every plan.
 """
 from __future__ import annotations
 
@@ -118,6 +141,8 @@ CLIP_END = 3000.0                                       # beyond the flat ground
 EYE_LENS_MM = 26.0                                      # 24-28 mm
 EYE_LENS_RANGE_MM = (24.0, 28.0)                        # fix round after P6a: E14's range (outside a long, low one)
 SKY_MIN_SHARE = 0.03                                    # fix round after P6a: rays that look up into the sky
+ENTRANCE_POINT_STEP_M = 0.5                             # fix round after P6b: facade samples of an entrance frame
+ENTRANCE_KEPT_WARNING = "kept: no place shows the door {door} with the sky ({why})"   # fix round after P6b
 CORNER_ANGLE_DEG = 30.0                                 # off the facade a corner view faces (30/60 instead of 45)
 FILL_RANGE = (0.6, 0.8)                                 # the building's share of the frame width
 FILL_TARGET = 0.7
@@ -536,20 +561,47 @@ def _basis(position, target) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     return f, r, np.cross(r, f)
 
 
+def _column(model: ExteriorModel, x: float, y: float, z0: float, planes, z1: float) -> list[tuple]:
+    """The bottom and top point of a prism's facade at ``(x, y)``: the top under the roof planes, the bottom on the
+    lowest ground just outside (a facade open to a lower side shows down to it)."""
+    top = z1 if planes is None else min(z1, R.surface_z(planes, x, y))
+    gz = min(S.ground_z(model.terrain, x + dx, y + dy) for dx in (-0.3, 0.3) for dy in (-0.3, 0.3)) \
+        if model.terrain is not None else z0
+    return [(x, y, max(z0, gz)), (x, y, top)]
+
+
 def building_points(model: ExteriorModel) -> np.ndarray:
     """Corner points of the building (every prism corner at its bottom and top, the roof outline at the
     eaves and the ridge points) for the framing."""
     pts = []
     for outline, z0, planes, z1 in model.prisms:
         for x, y in outline:
-            top = z1 if planes is None else min(z1, R.surface_z(planes, x, y))
-            # The lowest ground just outside the corner: a facade open to a lower side shows down to it.
-            gz = min(S.ground_z(model.terrain, x + dx, y + dy) for dx in (-0.3, 0.3) for dy in (-0.3, 0.3)) \
-                if model.terrain is not None else z0
-            pts += [(x, y, max(z0, gz)), (x, y, top)]
+            pts += _column(model, float(x), float(y), z0, planes, z1)
     if model.roof is not None:
         for plane in model.roof["planes"]:
             pts += [tuple(float(c) for c in p) for p in plane["points"]]
+    return np.asarray(pts, dtype=np.float64)
+
+
+def facade_points(model: ExteriorModel, step: float = ENTRANCE_POINT_STEP_M) -> np.ndarray:
+    """Fix round after P6b (module docstring; pure): ``building_points`` plus points at most ``step`` apart along
+    every prism outline edge (bottom and top, as ``_column``) and every roof plane edge: the facade and the eaves that
+    cross an entrance view's frame between two corners outside it."""
+    pts = [tuple(p) for p in building_points(model)]
+
+    def between(p, q):
+        n = int(math.ceil(math.dist(p, q) / step))
+        return [tuple(p[i] + (q[i] - p[i]) * j / n for i in range(len(p))) for j in range(1, n)]
+
+    for outline, z0, planes, z1 in model.prisms:
+        for p, q in zip(outline, list(outline[1:]) + list(outline[:1])):
+            for x, y in between((float(p[0]), float(p[1])), (float(q[0]), float(q[1]))):
+                pts += _column(model, x, y, z0, planes, z1)
+    if model.roof is not None:
+        for plane in model.roof["planes"]:
+            poly = [tuple(float(c) for c in p) for p in plane["points"]]
+            for p, q in zip(poly, poly[1:] + poly[:1]):
+                pts += between(p, q)
     return np.asarray(pts, dtype=np.float64)
 
 
@@ -645,6 +697,46 @@ def frame_fixed(position, target, points: np.ndarray, lens: float) -> dict:
     fits = bool(ok.all() and fill <= 1.0 and b.max() - centre_b <= tan_v and centre_b - b.min() <= tan_v)
     return {"lens_mm": float(lens), "shift_y": round(float(shift_y), 4), "target": [round(float(c), 4) for c in tgt],
             "fill": round(fill, 4), "fits": fits, "warning": warning}
+
+
+def entrance_frame(position, aim, points: np.ndarray, lens: float) -> dict:
+    """Fix round after P6b (module docstring; pure): the frame of an entrance view: a level camera aimed at the door
+    (the target is ``aim``'s x, y at the camera's height: no yaw re-centring on the building) with the vertical lens
+    shift that centres the building points in its horizontal field of view (``points``, ``facade_points``: depth over
+    0.1 m and within the half width of ``lens``) together with the door's aim point, at most ``MAX_SHIFT_Y``. Returns
+    ``frame_fixed``'s keys; ``fill`` and ``fits`` are None (an entrance view frames its door, not the building:
+    exterior_checks judges it by ``entrance_view_problem``)."""
+    pos = np.asarray(position, dtype=np.float64)
+    tgt = np.array([float(aim[0]), float(aim[1]), pos[2]])
+    f, r, u = _basis(pos, tgt)
+    v = np.asarray(points, dtype=np.float64).reshape(-1, 3) - pos
+    depth = v @ f
+    ok = depth > 0.1
+    safe = np.where(ok, depth, 1.0)
+    a = (v @ r) / safe
+    b = (v @ u) / safe
+    seen = ok & (np.abs(a) <= SENSOR_MM / (2.0 * lens) + 1e-9)
+    d = np.asarray(aim, dtype=np.float64) - pos
+    bs = np.concatenate([b[seen], [float(d @ u) / max(float(d @ f), 1e-6)]])
+    shift_y = (bs.min() + bs.max()) / 2.0 * lens / SENSOR_MM
+    warning = None
+    if abs(shift_y) > MAX_SHIFT_Y:
+        warning = f"lens shift {shift_y:+.2f} limited to {math.copysign(MAX_SHIFT_Y, shift_y):+.2f}"
+        shift_y = math.copysign(MAX_SHIFT_Y, shift_y)
+    return {"lens_mm": float(lens), "shift_y": round(float(shift_y), 4), "target": [round(float(c), 4) for c in tgt],
+            "fill": None, "fits": None, "warning": warning}
+
+
+def entrance_shot_problem(door: Optional[str], visible: Sequence[str], sky: float) -> Optional[str]:
+    """Fix round after P6b (module docstring; pure): why an entrance view's pose is refused: its door is not in
+    ``visible`` (``visible_openings``) or under ``SKY_MIN_SHARE`` of its rays reach the sky (``sky_share``); None
+    when it shows both."""
+    parts = []
+    if door and door not in visible:
+        parts.append(f"the door {door} is not in the frame")
+    if sky < SKY_MIN_SHARE - 1e-9:
+        parts.append(f"{sky:.0%} sky (< {SKY_MIN_SHARE:.0%})")
+    return "; ".join(parts) or None
 
 
 def fill_distance(model: "ExteriorModel", origin, direction, aim, points: np.ndarray, lens: float = EYE_LENS_MM,
@@ -915,6 +1007,58 @@ def _try(model, building, levels, name, view, candidates, aim, level_cam=True, e
             **extra}
 
 
+def _try_entrance(model, building, levels, name, candidates, aim, door: Optional[str], extra=None) -> dict:
+    """Fix round after P6b (module docstring): ``_try`` of an entrance view: every free place (``model.inside``,
+    ``view_check``) in the candidates' order is framed by ``entrance_frame`` at ``EYE_LENS_MM`` and accepted only when
+    its door ``door`` is in ``visible_openings`` and ``sky_share`` reaches ``SKY_MIN_SHARE``
+    (``entrance_shot_problem``); else the same place level with no lens shift (aimed at the door), then the next
+    place. When no place passes, the first free one is kept with ``ENTRANCE_KEPT_WARNING`` (as before: X6 reports a
+    door that is not in its view); with no free place the view is dropped. The plan records ``sky_share``."""
+    extra = dict({"sides": [], "region_id": None, "variant": None}, **(extra or {}))
+    pts = facade_points(model)
+    lens = EYE_LENS_MM
+    reasons, first = [], None
+    for k, (pos, how) in enumerate(candidates):
+        inside = model.inside(pos)
+        if inside:
+            reasons.append(f"{how}: inside the {inside}")
+            continue
+        rec = entrance_frame(pos, aim, pts, lens)
+        target = rec["target"]
+        tries = [(rec["shift_y"], rec["warning"], "")]
+        if abs(rec["shift_y"]) > 1e-4:
+            tries.append((0.0, "level with no lens shift", " (no lens shift)"))
+        for shift_y, note, tag in tries:
+            check = view_check(model, pos, target, lens, shift_y, aim)
+            if not check["ok"]:
+                reasons.append(f"{how}{tag}: {check['why']}")
+                continue
+            sky = sky_share(model, pos, target, lens, shift_y)
+            why = entrance_shot_problem(door, visible_openings(model, building, levels, pos, target, lens, shift_y),
+                                        sky)
+            if why is not None:
+                reasons.append(f"{how}{tag}: {why}")
+                if first is None:
+                    first = (k, pos, how, shift_y, rec["warning"] if not tag else note, target, check, sky, why)
+                continue
+            moved = [f"refused before: {reasons[-1]}"] if reasons else []
+            warning = "; ".join(w for w in [note] + moved if w) or None
+            plan = _plan_of(model, building, levels, name, "entrance", k, pos, how, lens, shift_y, target, warning,
+                            None, check, extra)
+            plan["sky_share"] = sky
+            return plan
+    if first is not None:
+        k, pos, how, shift_y, note, target, check, sky, why = first
+        warning = "; ".join(w for w in (note, ENTRANCE_KEPT_WARNING.format(door=door, why=why)) if w)
+        plan = _plan_of(model, building, levels, name, "entrance", k, pos, how, lens, shift_y, target, warning, None,
+                        check, extra)
+        plan["sky_share"] = sky
+        return plan
+    return {"name": name, "kind": KIND, "view": "entrance", "room_id": None, "level_id": None,
+            "index": int(name.split("_")[1]), "dropped": True, "dropped_reason": "; ".join(reasons) or "no candidate",
+            **extra}
+
+
 def _plan_of(model, building, levels, name, view, k, pos, how, lens, shift_y, target, warning, fill, check,
              extra) -> dict:
     """The camera plan of ``_try``'s candidate ``k`` (pure but for the ray casts of ``visible_openings``)."""
@@ -1121,8 +1265,9 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
         nxt = max([p["index"] for p in plans + dropped if isinstance(p.get("index"), int)] + [5]) + 1
         for k, (pos_cands, aim, ent) in enumerate(entrance_views(building, model)):
             side = S.side_of(ent["outward"], north, north_known)
-            keep(_try(model, building, levels, f"ext_{nxt + k}", "entrance", pos_cands, aim, lens_mm=EYE_LENS_MM,
-                      extra={"side": side, "sides": [side], "variant": variant, "entrance": ent["door_id"]}))
+            # fix round after P6b (module docstring): framed on its door, not on the whole building
+            keep(_try_entrance(model, building, levels, f"ext_{nxt + k}", pos_cands, aim, ent["door_id"],
+                               extra={"side": side, "sides": [side], "variant": variant, "entrance": ent["door_id"]}))
     return plans, dropped
 
 
@@ -1140,7 +1285,9 @@ def flat_cut(building: dict) -> bool:
 def entrance_views(building: dict, model: "ExteriorModel") -> list[tuple[list, tuple, dict]]:
     """Milestone 12 (pure): ``[(candidates, aim, entrance)]`` of the eye-level views framing the entrances of
     ``site.entrances`` (the main one first, at most ``ENTRANCE_VIEWS_MAX``): the camera 20 degrees off the door's
-    axis at ``ENTRANCE_VIEW_M``, aimed at the door's middle 1.2 m above its threshold."""
+    axis at ``ENTRANCE_VIEW_M``, aimed at the door's middle 1.2 m above its threshold. Fix round after P6b (module
+    docstring): ``_try_entrance`` frames them level on that aim (``entrance_frame``; the camera looks 20 degrees off
+    the door's axis, straight at the door) and keeps a place only with its door and the sky in the frame."""
     recs = [r for r in ((building.get("site") or {}).get("entrances") or [])
             if isinstance(r, dict) and r.get("centre") and r.get("outward") and not r.get("into_air")
             and not r.get("below_ground")]

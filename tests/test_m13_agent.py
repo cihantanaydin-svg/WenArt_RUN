@@ -104,9 +104,14 @@ def test_accept_edit_needs_the_target_finding_gone_and_no_new_critical():
     # a new MAJOR finding does not reject (a misread stove removed leaves "kitchen has no stove")
     ok2, _ = LP.accept_edit(before, [finding("G9", "major", "r1", "r1", "kitchen has no stove")], target)
     assert ok2
-    # several targets (a checklist step): every one must be gone
+    # several targets (a checklist step): every one must be gone; fix round after P6b (changed on purpose,
+    # verify:agent:2): a step whose critical is gone (measured by code) may keep a major that got no worse, named
     both = {"target_finding": [{"check": "F3", "target": "f1"}, {"check": "F6", "target": "f2"}]}
-    assert LP.accept_edit(before, [finding("F6", "major", "f2", "r1")], both)[0] is False
+    ok3, why3 = LP.accept_edit(before, [finding("F6", "major", "f2", "r1")], both)
+    assert ok3 and why3.endswith("kept: F6:f2 (major)") and "finding F3:f1 gone" in why3
+    majors = [finding("F4", "major", "f1", "r1"), finding("F6", "major", "f2", "r1")]
+    two = {"target_finding": [{"check": "F4", "target": "f1"}, {"check": "F6", "target": "f2"}]}
+    assert LP.accept_edit(majors, [finding("F6", "major", "f2", "r1")], two)[0] is False     # all-major: as before
     assert LP.accept_edit(before, [], both)[0] is True
     assert LP.accept_edit is CS.accept_edit and LP.tools_for_finding is CS.tools_for_finding
 

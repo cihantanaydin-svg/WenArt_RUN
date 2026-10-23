@@ -160,6 +160,18 @@ Fix round after P4b (17 Oct 2026, the library lens of the P4b analysis): section
   revision 411bb4d77144); the late recognition pass of lead decision 9 uses the same two models, so nothing else
   is added.
 
+Fix round after P6b (23 Oct 2026; the library lens of the P6b analysis): the credit texts are plain text.
+
+- What: ``_credit`` (every model's credit line, of a run and of a library folder) and ``audit_removed`` (the removal
+  reasons) decode complete HTML entities (``plain_text``: ``html.unescape`` of ``HTML_ENTITY``) before the text goes
+  into ``ATTRIBUTION.md``.
+- Why: P6b's real03 ATTRIBUTION.md listed "Sink Console with Haden Faucet Set - Satin Nickel finish Knobs &amp;
+  Faucet", "Hudson Reed Sublime Vanity Unit &amp; Basin" and "Cooke &amp; Lewis Deluvio ..." (P4b had none): the
+  HSSD and ABO listings store HTML-escaped names and the catalogue's ``attribution`` (15 entries) copied them; a
+  credit must name the product as it is called.
+- How: decoded where the file is written; the catalogue keeps its text (``growth_entries.source_text`` decodes the
+  titles of new entries), and a credit without an entity is unchanged.
+
 ``copy_lock(path)``: the job's copy lock (``full.sh`` exports it as
 ``WENART_COPY_LOCK``; the same ``flock`` the background loop takes), so the
 orchestrator's own copy before the GPU tests never interleaves with the loop.
@@ -175,6 +187,7 @@ full-size PNGs, EXR passes and scenes stay on the volume.
 from __future__ import annotations
 
 import fnmatch
+import html
 import json
 import os
 import re
@@ -579,9 +592,24 @@ def _source_of(asset: dict) -> str:
     return str(asset.get("library") or asset.get("source") or "")
 
 
+# fix round after P6b (23 Oct 2026): a complete HTML entity (named with its ";", decimal or hex); a bare "&" ("Stone &
+# Beam", "R&B") or a legacy name without ";" ("&copy") is text and stays
+HTML_ENTITY = re.compile(r"&(?:#[0-9]+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]*);")
+
+
+def plain_text(text) -> str:
+    """Fix round after P6b (module docstring): ``text`` with its complete HTML entities decoded (``HTML_ENTITY``:
+    ``&amp;`` -> ``&``, ``&quot;`` -> ``"``); a text without one is returned as it is."""
+    return HTML_ENTITY.sub(lambda m: html.unescape(m.group(0)), str(text))
+
+
 def _credit(asset: dict) -> str:
     """The credit line of a fitted library asset or catalogue entry (``attribution``; for an Objaverse one without
-    it, the §7.3 line built from its fields)."""
+    it, the §7.3 line built from its fields). Fix round after P6b: as plain text (``plain_text``)."""
+    return plain_text(_credit_raw(asset))
+
+
+def _credit_raw(asset: dict) -> str:
     if asset.get("attribution"):
         return str(asset["attribution"])
     if _source_of(asset) == "polyhaven":          # Milestone 13: CC0 models are listed (section 2), credit optional
@@ -838,7 +866,7 @@ def audit_removed(entry: dict) -> str:
     audit = entry.get("audit") if isinstance(entry, dict) else None
     if not isinstance(audit, dict) or audit.get("status") != "removed":
         return ""
-    reasons = [str(r) for r in audit.get("reasons") or [] if str(r).strip()]
+    reasons = [plain_text(r) for r in audit.get("reasons") or [] if str(r).strip()]     # fix round after P6b
     return "; ".join(reasons) or "no reason recorded"
 
 

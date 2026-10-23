@@ -87,6 +87,11 @@ Fix round after P6a, part I2 (22-23 Oct 2026; X_ext's ask): the scene camera's f
 an agent plan, by ``build.finish_agent_exterior_plans``), ``fits`` (boolean), ``sky_share`` (0..1: the share of the
 frame's rays that look up into the sky, ``exterior.sky_share``) and ``frame_target`` (the re-centred target, a point).
 All optional; every recorded manifest of P4a, P4b, P5 and P6a has only ``fill`` as a number on its cameras.
+
+Fix round after P6b (23 Oct 2026; docs/milestone13.md §7): a scene camera's ``replay`` is the re-pitch record or the
+record of a replayed interior camera the build moved off a piece of this build (``status: moved``, with
+``position_old``, ``target_old``, ``moved_m``, ``trigger``, ``blocked_by`` and the reason; ``camsearch.
+move_blocked_replayed``), and ``cameras_from.moved`` names those cameras. Optional: the recorded manifests stay valid.
 """
 from __future__ import annotations
 
@@ -148,6 +153,8 @@ CAMERAS_FROM = {
                    "reason": {"type": "string"},
                    # fix round part 2 (17 Oct 2026): the replayed aerials the build re-pitched for the horizon
                    "repitched": {"type": "array", "items": {"type": "string"}},
+                   # fix round after P6b (23 Oct 2026): the replayed interior cameras the build moved off a piece (§7)
+                   "moved": {"type": "array", "items": {"type": "string"}},
                    # fix round after P4a (17 Oct 2026, build.cameras_from_summary): this build's agent cameras (also
                    # counted in ``searched``) and those of them that replace a replayed record
                    "agent": {"type": "array", "items": {"type": "string"}},
@@ -416,7 +423,7 @@ _EXTERIOR_NO_ROOM = {"if": {"properties": {"kind": {"const": "exterior"}}, "requ
 # only (``cameras.replay_cameras``, ``create_cameras``) has ``rotation_euler_deg`` and a null or absent ``target``.
 _TARGET_OR_ROTATION = {"anyOf": [{"required": ["target"], "properties": {"target": {"type": "array"}}},
                                  {"required": ["rotation_euler_deg"]}]}
-_CAMERA_REPLAY = {
+_CAMERA_REPLAY_REPITCHED = {
     "type": "object",
     "required": ["status", "pitch_deg_old", "pitch_deg", "lens_mm_old", "lens_mm", "horizon_frac_old", "horizon_frac"],
     "properties": {"status": {"enum": ["repitched"]}, "pitch_deg_old": {"type": "number"},
@@ -426,6 +433,20 @@ _CAMERA_REPLAY = {
                    "position_old": _VEC3, "distance_m": {"type": "number", "exclusiveMinimum": 0},
                    "reason": {"type": "string"}},
 }
+# Fix round after P6b (23 Oct 2026; docs/milestone13.md §7): a replayed interior camera the build moved off a piece of
+# this build that blocks or contains it (``camsearch.move_blocked_replayed``): the old pose, how far, why and by what,
+# the model's one-element share at the old and the new pose. Yaw, pitch, height and lens are the record's.
+_CAMERA_REPLAY_MOVED = {
+    "type": "object",
+    "required": ["status", "position_old", "target_old", "moved_m", "trigger", "blocked_by", "reason"],
+    "properties": {"status": {"enum": ["moved"]}, "position_old": _VEC3, "target_old": _VEC3,
+                   "moved_m": {"type": "number", "exclusiveMinimum": 0},
+                   "trigger": {"enum": ["single_share", "inside"]}, "blocked_by": {"type": ["string", "null"]},
+                   "blocked_by_type": {"type": ["string", "null"]},
+                   "share_old": {"type": "number", "minimum": 0, "maximum": 1},
+                   "share": {"type": "number", "minimum": 0, "maximum": 1}, "reason": {"type": "string"}},
+}
+_CAMERA_REPLAY = {"oneOf": [_CAMERA_REPLAY_REPITCHED, _CAMERA_REPLAY_MOVED]}
 SCENE_CAMERA = {
     "type": "object",
     "required": ["name", "room_id", "level_id", "index", "position", "lens_mm", "sensor_mm",
@@ -468,7 +489,8 @@ SCENE_CAMERA = {
         "extra": {"type": "boolean"},
         # Exterior plans (``exterior.plan_exterior``): the pitch (negative = down) and where the horizon lies in the
         # frame (0 bottom, 1 top). Fix round part 2 (17 Oct 2026): ``replay`` of a replayed aerial the build re-pitched
-        # so the horizon is in its frame (``build.repitch_replayed_aerials``, CLAUDE.md horizon rule); optional.
+        # so the horizon is in its frame (``build.repitch_replayed_aerials``, CLAUDE.md horizon rule); optional. Fix
+        # round after P6b (23 Oct 2026): or of a replayed interior camera the build moved off a piece (status moved).
         "pitch_deg": {"type": "number"},
         "horizon_frac": {"type": "number"},
         "replay": _CAMERA_REPLAY,

@@ -151,6 +151,16 @@ Fix round after P6a (22 Oct 2026; pod P6a, real04; render code m13.5; CPU replay
   render shows the desk and the floor);
 - the orange and olive checks keep their per-view values in ``CHECK_VALUES_FILE`` (``$WENART_RESULTS`` or the
   project's renders folder), passing or not.
+
+Fix round after P6b (23 Oct 2026; pod P6b, real03 on 8e8cc97; CPU replays in tests/test_m13_p6b_render.py):
+
+- a room the area rule leaves without a view whose views are all replayed from the camera file keeps them
+  (``_kept_by_replay``; P4b and P6b real03 failed on the empty halls r_L0_oda_7 and r_L0_oda_10);
+- the orange check holds a view lit by the rig alone (``RIG_ALONE_SHARE``) to the daylight median + 0.15 and a mixed
+  view to the warmest daylight view of its kind + ``RIG_ROOM_ABOVE_WARMEST_DAY`` (at most ``RIG_ROOM_ABOVE_DAY_MAX``
+  over the median): P6b's mixed halls (1.486-1.599) sit inside the daylight views' own spread (1.183-1.582), P4b's
+  2700 K views still fail; it keeps the walls' own rig record (``render.wall_rig_record``) with its values;
+- the interior-glazing check keeps its values (``CHECK_VALUES_FILE``); its bound is unchanged.
 """
 import hashlib
 import json
@@ -269,6 +279,13 @@ def test_every_room_has_three_views(project):
     rooms = {r["id"]: r for r in building["rooms"] if r["level_id"] in levels and r["id"] in shown}
     listed = {r["room_id"]: r for r in scene.get("rooms_without_view") or [] if r["room_id"] in rooms}
     expected = {r["room_id"] for lv in levels for r in camsearch.rooms_without_view(building, lv)} & set(rooms)
+    # fix round after P6b (23 Oct 2026): a room the rule leaves without a view whose views are all replayed from the
+    # camera file is kept (_kept_by_replay; P4b / P6b real03: r_L0_oda_7 and r_L0_oda_10)
+    replay_rooms = _replayed_rooms(name, scene)
+    kept = _kept_by_replay(expected, by_room, replay_rooms)
+    expected -= kept
+    if kept:
+        print(f"{name}: rooms the rule leaves without a view, kept for their replayed views: {sorted(kept)}")
     assert set(listed) == expected, f"{name}: rooms_without_view {sorted(listed)}, the rule gives {sorted(expected)}"
     assert all(r.get("reason") for r in listed.values()), f"{name}: a room without a view has no reason"
     assert set(by_room) == set(rooms) - expected, \
@@ -279,7 +296,6 @@ def test_every_room_has_three_views(project):
     # fix round after P4a (17 Oct 2026): the replayed views of --cameras-from (set 1, docs/milestone13.md §7) keep the
     # baseline's count, bounded by the camera file instead of today's area rule; a hall may count the stair of the
     # next-door stair core it shows (camsearch.STAIR_CORE_REASON: "the hall shows it")
-    replay_rooms = _replayed_rooms(name, scene)
     extra = bool((scene.get("cameras_from") or {}).get("extra"))
     cores = {r["room_id"] for r in listed.values() if r.get("reason") == camsearch.STAIR_CORE_REASON}
     for room_id, cams in by_room.items():
@@ -287,7 +303,7 @@ def test_every_room_has_three_views(project):
                 _view_count_with_stair_cores(rooms[room_id], building, cores))
         # the planned views (searched, or moved by the agent under their name); a view the agent added is extra
         planned_views = [c for c in cams if _policy(c) != "agent" or c["name"].startswith(f"cam_{room_id}_")]
-        replayed = [c for c in planned_views if c.get("source") == "replayed" or c.get("replaced_replayed")]
+        replayed = [c for c in planned_views if _replayed(c)]
         suffix = ""
         if replayed:
             got = sorted(c["name"] for c in replayed)
@@ -305,6 +321,31 @@ def test_every_room_has_three_views(project):
         assert 1 <= len(planned_views) <= n, \
             f"{name}: {room_id} has {len(planned_views)} views, the view rule allows 1..{n}"
         assert names == sorted(f"cam_{room_id}_{i}{suffix}" for i in range(1, len(planned_views) + 1)), names
+
+
+def _replayed(camera: dict) -> bool:
+    """A view replayed from the camera file (``source`` ``replayed``), or the agent's replacement of one
+    (``replaced_replayed``)."""
+    return camera.get("source") == "replayed" or bool(camera.get("replaced_replayed"))
+
+
+def _kept_by_replay(expected: set, by_room: dict, replay_rooms) -> set:
+    """Fix round after P6b (23 Oct 2026): the rooms of ``expected`` (the area rule leaves them without a view,
+    ``camsearch.rooms_without_view``) that have views, all of them replayed (``_replayed``) and named for the room in
+    the camera file (``replay_rooms``, ``_replayed_rooms``; None: no room is kept). Why: the replayed views of
+    --cameras-from keep the baseline's rooms (docs/milestone13.md §7) and the build leaves such a room out of
+    ``rooms_without_view``, but the set equalities used the area rule alone; P4b and P6b real03 failed on the empty
+    1.86 / 1.89 m2 halls r_L0_oda_7 and r_L0_oda_10 (one M11 view each). A searched or agent-added view in such a room
+    still fails."""
+    if replay_rooms is None:
+        return set()
+    kept = set()
+    for room_id in expected:
+        cams = by_room.get(room_id) or []
+        names = {c["name"] for c in cams}
+        if cams and all(_replayed(c) for c in cams) and names <= set(replay_rooms.get(room_id, ())):
+            kept.add(room_id)
+    return kept
 
 
 def _replayed_rooms(name: str, scene: dict):
@@ -731,6 +772,28 @@ RIG_CHECK_SHARE = 0.4
 # 1.42 against 1.44 at real03's greige 1.29). Its prediction for real03 with the fix-round white point: kat_holu_1
 # 1.46, ruzgarlik_1 1.42, giris_holu_3_1 1.49, yangin_merdiveni_1 1.49, oda_7_1 1.29.
 RIG_ROOM_ABOVE_DAY = 0.15
+# Fix round after P6b (23 Oct 2026; pod P6b, real03, 4000 K hall / stair / bath rig, render code m13.4). The bound
+# above holds the views lit by the rig alone (rig share at least RIG_ALONE_SHARE): their white point is the rig's own
+# colour with the daylight cast and their frame share stands for their walls'. A mixed view (RIG_CHECK_SHARE up to
+# RIG_ALONE_SHARE) sees daylit rooms through its doorways and its frame share does not tell how much of its walls'
+# light is the rig's (the P6b verifier: giris_holu_2 frame share 0.62, block-median share 0.74, walls warmer than the
+# frame mix), so its walls may be as warm as the warmest daylight view of the same paint plus
+# RIG_ROOM_ABOVE_WARMEST_DAY, at most RIG_ROOM_ABOVE_DAY_MAX over the median (one odd daylight view does not lift the
+# bound further; the warmest over the median: P6b 0.277, P5 real04 0.18, the P4a real02 shim 0.19). Measured, wall
+# display R/B (painted; references: the unblocked daylight views):
+#   P6b real03 (m13.4)   daylight 1.183-1.582 (median 1.305; the daylight-only oda_01_1..3 1.53-1.58, rig share
+#                        < 0.02); rig alone (0.956-0.985) 1.363-1.442 <= 1.455; mixed (0.44-0.89) 1.409-1.599 <= 1.632
+#                        (10 of them over the old 1.455)
+#   P4b real03 (m13.3, 2700 K rig, the same anchor; against P6b's daylight walls): rig alone (0.975-0.995)
+#                        1.562-1.864 > 1.455; mixed (0.83-0.90) 1.648-1.734 > 1.632: all 7 fail as before
+#   P4a real02 (m13.2)   halls 1.639-1.808 (0.90-1.0) against the shim's daylight (median 1.36, warmest 1.55): rig alone
+#                        > 1.51, mixed > 1.60: all fail
+#   P5 real04 (m13.3)    halls 1.306-1.634 (0.71-1.0) against 1.382-1.695 (median 1.515): pass as before
+# The rig share of the walls themselves is recorded since this round (render.wall_rig_record, the exposure record's
+# wb_walls) and kept with the values; it does not decide yet.
+RIG_ALONE_SHARE = 0.95
+RIG_ROOM_ABOVE_WARMEST_DAY = 0.05
+RIG_ROOM_ABOVE_DAY_MAX = 0.35
 NEAR_BLACK = 8                  # display value under which a pixel is black (every channel)
 OPEN_AIR_MAX_BLACK = 0.02       # black share of an open-air view's sky pixels (P3: 22-31 % of the whole frame)
 P3_REAL04_WB_K = 5635.0         # P3's real04 project white point (cam_r_L1_teras_1, daylight only, interior world)
@@ -943,7 +1006,16 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     called the kitchen tiled by its wet floor (its walls are paint with a splashback) and its tiled reference was the
     median of one daylight view, the blocked cam_r_L1_banyo_1 (one ceiling light over 55.7 % of the frame), so
     mutfak_3 failed at 1.223 against 1.208 with no orange in the image; as painted its bound is the painted daylight
-    median 1.515 + 0.15. The kitchens keep the 2700 K rig (lead decision)."""
+    median 1.515 + 0.15. The kitchens keep the 2700 K rig (lead decision).
+    Fix round after P6b (23 Oct 2026). What: the bound depends on how the view is lit (``_orange_bound``): a view lit
+    by the rig alone (rig share at least ``RIG_ALONE_SHARE``) keeps the daylight median + ``RIG_ROOM_ABOVE_DAY``; a mixed
+    view may reach the warmest daylight view of its kind + ``RIG_ROOM_ABOVE_WARMEST_DAY``, at most
+    ``RIG_ROOM_ABOVE_DAY_MAX`` over the median. The values file also keeps each bound's regime and the walls' own rig
+    record (``wb_walls``; printed, not judged). Why: P6b's 4000 K halls and stairs failed 10 mixed views at 1.486-1.599
+    against 1.455 while the daylight-only oda_01 views of the same paint read 1.53-1.58 and the views lit by the rig
+    alone 1.363-1.442: in a mixed view the frame's share does not say how much of the walls' light is the rig's (the
+    P6b verifier refuted the white-point change). How: P4b's 2700 K views (1.562-1.864) still fail, each one (the
+    numbers at ``RIG_ALONE_SHARE``)."""
     from wenart import views
     from wenart.blender import render as R
 
@@ -970,31 +1042,68 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
 
     def kind(cam):
         return _wall_kind(entries[cam], manifest_types)
-    reference = {}
+    reference, warmest = {}, {}
     for k in ("painted", "tiled"):
         values = sorted(measured[c] for c in daylight if kind(c) == k and measured.get(c) is not None)
         reference[k] = float(np.median(values)) if values else None
-    per_view, warm = {}, []
+        warmest[k] = values[-1] if values else None                 # fix round after P6b
+    per_view, warm, walls = {}, [], {}
     for cam in rig_lit:
         value = measured.get(cam)
         if value is None:
             continue
-        ref = reference[kind(cam)]
-        bound = RIG_ROOM_MAX_RB if ref is None else round(ref + RIG_ROOM_ABOVE_DAY, 3)     # fix round after P4b
+        share = entries[cam]["exposure"].get("wb_rig_share")
+        bound, regime = _orange_bound(share, reference[kind(cam)], warmest[kind(cam)])    # fix round after P6b
         per_view[cam] = (value, kind(cam), bound)
+        walls[cam] = _walls_record(entries[cam]["exposure"])
         if value > bound:
-            warm.append((cam, value, kind(cam), bound, entries[cam]["exposure"].get("wb_rig_share")))
+            warm.append((cam, value, kind(cam), bound, share, regime))
     print(f"{name}: daylight wall R/B {[(c, measured.get(c), kind(c)) for c in daylight]}; references {reference}; "
-          f"blocked daylight views left out {blocked}")
+          f"warmest {warmest}; blocked daylight views left out {blocked}")
     print(f"{name}: wall R/B of the rig-lit views (value, kind, bound) {per_view}")
-    # fix round after P6a: the values of a passing run are kept (CHECK_VALUES_FILE)
+    print(f"{name}: the walls' own rig share and rig light (render wb_walls; recorded, not judged) {walls}")
+    # fix round after P6a: the values of a passing run are kept (CHECK_VALUES_FILE); fix round after P6b: with the
+    # regime of each bound, the warmest daylight view of each kind and the walls' own rig record
     _keep_values("rig_lit_rooms_have_no_orange_cast", name, {
         "daylight": {c: {"wall_rb": measured.get(c), "kind": kind(c)} for c in daylight},
-        "references": reference, "blocked_daylight": blocked, "above_day": RIG_ROOM_ABOVE_DAY,
-        "rig_lit": {c: {"wall_rb": v, "kind": k, "bound": b, "rig_share": entries[c]["exposure"].get("wb_rig_share")}
+        "references": reference, "warmest": warmest, "blocked_daylight": blocked, "above_day": RIG_ROOM_ABOVE_DAY,
+        "above_warmest_day": RIG_ROOM_ABOVE_WARMEST_DAY, "above_day_max": RIG_ROOM_ABOVE_DAY_MAX,
+        "rig_alone_share": RIG_ALONE_SHARE,
+        "rig_lit": {c: {"wall_rb": v, "kind": k, "bound": b, "rig_share": entries[c]["exposure"].get("wb_rig_share"),
+                        "regime": _orange_bound(entries[c]["exposure"].get("wb_rig_share"), reference[k],
+                                                warmest[k])[1], **walls[c]}
                     for c, (v, k, b) in per_view.items()},
         "warm": [c for c, *_rest in warm]})
     assert not warm, f"{name}: rig-lit views still orange (wall R/B over the bound): {warm}"
+
+
+def _orange_bound(share, median, warmest) -> tuple[float, str]:
+    """``(bound, regime)`` of the orange check for a rig-lit view of rig share ``share`` whose wall kind has the
+    daylight median ``median`` and warmest daylight view ``warmest`` (fix round after P6b, 23 Oct 2026; the numbers
+    at ``RIG_ALONE_SHARE``). No daylight view of the kind: the fixed ``RIG_ROOM_MAX_RB`` (``fixed``). Lit by the rig
+    alone (``share`` at least ``RIG_ALONE_SHARE``): ``median + RIG_ROOM_ABOVE_DAY`` (``rig alone``, the rule since the
+    fix round after P4b). Mixed: the larger of that and ``warmest + RIG_ROOM_ABOVE_WARMEST_DAY``, the latter at most
+    ``median + RIG_ROOM_ABOVE_DAY_MAX`` (``mixed``)."""
+    if median is None:
+        return RIG_ROOM_MAX_RB, "fixed"
+    alone = round(float(median) + RIG_ROOM_ABOVE_DAY, 3)
+    try:
+        s = float(share)
+    except (TypeError, ValueError):
+        s = 0.0
+    if s >= RIG_ALONE_SHARE or warmest is None:
+        return alone, "rig alone"
+    spread = min(float(warmest) + RIG_ROOM_ABOVE_WARMEST_DAY, float(median) + RIG_ROOM_ABOVE_DAY_MAX)
+    return round(max(alone, spread), 3), "mixed"
+
+
+def _walls_record(exposure: dict) -> dict:
+    """The walls' own rig record of a view's exposure (``wb_walls``, ``render.wall_rig_record``, fix round after P6b):
+    ``wall_rig_share``, ``wall_rig_rb`` (linear R/B of the rig light measured on the walls), ``wall_rig_kelvin`` and
+    ``lamp_rb`` (the rig lamp's linear R/B); None each in a record without it (render code before this round)."""
+    rec = exposure.get("wb_walls") or {}
+    return {"wall_rig_share": rec.get("rig_share"), "wall_rig_rb": rec.get("rig_rb"),
+            "wall_rig_kelvin": rec.get("rig_kelvin"), "lamp_rb": rec.get("lamp_rb")}
 
 
 # Fix round after P5 (22 Oct 2026): the wall display G/((R+B)/2) a painted daylight view may reach. P5 real04's sunlit
@@ -1431,13 +1540,23 @@ def test_interior_glazing_keeps_one_white_point(project):
     (``interior_glazing``, ``render.interior_glazing_record``). The named real03 views (``INTERIOR_GLAZING_VIEWS``: a
     daylight room looking into a rig-lit stair or vestibule, and the stair looking back; P4b 1.82 / 2.15 against walls
     of 1.26 / 1.29, 1.02 against 2.05) keep the panes within ``INTERIOR_GLAZING_MAX_DELTA`` of the walls in display
-    R/B; every view's values are printed."""
+    R/B; every view's values are printed. Fix round after P6b (23 Oct 2026): the values of every view are kept
+    (``CHECK_VALUES_FILE``), also for a project without named views (skipped) and for a passing run; the bound is
+    unchanged (P6b: yasama_8_3 0.692, ebeveyn_odasi_2_1 0.321, yangin_merdiveni_1 -0.398, smaller than P4b's; the hall
+    and stair rig temperature or the pin is a user decision, and the pane mean also counts the oak treads behind the
+    glass)."""
     name, _scene, render = project
     entries = {r["camera"]: r for r in render["renders"]}
     rows = {c: (g["pane_rb"], g["wall_rb"], g["delta_rb"], g["windows"]) for c, e in entries.items()
             if (g := e.get("interior_glazing"))}
     named = [c for c in INTERIOR_GLAZING_VIEWS.get(name, ()) if c in entries]
     print(f"{name}: interior glazing (pane R/B, wall R/B, delta, windows) {rows}")
+    # fix round after P6b: the values are kept whatever the verdict (CHECK_VALUES_FILE)
+    _keep_values("interior_glazing_keeps_one_white_point", name, {
+        "views": {c: {"pane_rb": p, "wall_rb": w, "delta_rb": d, "windows": ws,
+                      "rig_share": (entries[c].get("exposure") or {}).get("wb_rig_share")}
+                  for c, (p, w, d, ws) in rows.items()},
+        "named": named, "max_delta": INTERIOR_GLAZING_MAX_DELTA})
     if not named:
         pytest.skip(f"{name}: none of the named interior-glazing views was rendered")
     bad = []

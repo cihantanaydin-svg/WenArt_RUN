@@ -2841,9 +2841,13 @@ def test_fixround_p5_gpu_orange_check_sorts_walls_by_room_type_and_skips_blocked
     check("p5", {**day, **kitchens, **baths})
     # the scene manifest's room floors give the type when the entries carry none (a render before m13.2)
     check("p5_manifest_types", {**day, **kitchens, **baths}, entry_types=False)
-    # a kitchen really orange still fails, against the painted bound (1.515 + 0.15; 1.52 + 0.15 in 8 bits)
+    # a kitchen really orange still fails, against the painted bound (1.515 + 0.15; 1.52 + 0.15 in 8 bits). Fix round
+    # after P6b (23 Oct 2026): that is the bound of a view lit by the rig alone (gpu.RIG_ALONE_SHARE); a mixed kitchen
+    # (0.682) may reach the warmest daylight view (the salon's 1.70) + 0.05, so it fails over 1.75
     with pytest.raises(AssertionError, match=r"cam_r_L-1_mutfak_3', 1.7, 'painted', 1.67"):
-        check("kitchen_orange", {**day, **kitchens, "cam_r_L-1_mutfak_3": ("r_L-1_mutfak", 1.70, 0.682)})
+        check("kitchen_orange", {**day, **kitchens, "cam_r_L-1_mutfak_3": ("r_L-1_mutfak", 1.70, 0.96)})
+    with pytest.raises(AssertionError, match=r"cam_r_L-1_mutfak_3', 1.8, 'painted', 1.75"):
+        check("kitchen_orange_mixed", {**day, **kitchens, "cam_r_L-1_mutfak_3": ("r_L-1_mutfak", 1.80, 0.682)})
     # the blocked bath is no reference: a rig-lit bath at 1.45 meets the fixed 1.5 (1.208 with the blocked reference)
     check("bath_blocked_ref", {**day, **baths, "cam_r_L0_banyo_2": ("r_L0_banyo", 1.45, 1.0)})
     # an unblocked daylight bath still sets the tiled reference

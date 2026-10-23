@@ -172,6 +172,10 @@ class _Shift:
 
 def _shift_wall(w: WallItem, sh: _Shift) -> None:
     w.start, w.end = sh.p(w.start), sh.p(w.end)
+    before = (getattr(w, "corrected_by_ai", None) or {}).get("before")
+    if before:
+        # Fix round after P6b (23 Oct 2026): the wall a lined gap split (``openings._mark_lined``) as it was before.
+        before["start"], before["end"] = list(sh.p(before["start"])), list(sh.p(before["end"]))
 
 
 def _shift_opening(o: OpeningItem, sh: _Shift) -> None:

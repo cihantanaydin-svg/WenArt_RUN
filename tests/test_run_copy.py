@@ -864,3 +864,40 @@ def test_attribution_names_ai_retouch_only_when_a_view_of_this_run_was_polished(
     assert CP.run_polish(out) is None
     t = text()
     assert "rendered, AI-retouched (used for f_L0_001 (sofa))" in t and "Changes made for these images" not in t
+
+
+def test_attribution_credits_are_plain_text_without_html_entities(tmp_path):
+    """Fix round after P6b (23 Oct 2026; the library lens of the P6b analysis): P6b's real03 ATTRIBUTION.md listed
+    "Hudson Reed Sublime Vanity Unit &amp; Basin" and two more titles with a raw HTML entity, copied from the
+    catalogue's ``attribution`` (15 entries carry ``&amp;``). The credit lines (of a run and of a library folder) and
+    the audit's removal reasons are written as plain text; a bare "&" and a legacy name without ";" stay (this test
+    fails on the code before the fix: the entity was written as it is)."""
+    results, pub, _priv = refs(tmp_path)
+    out = pub.out_dir
+    hssd = {"library": "hssd", "method": "library", "asset_id": "hssd_6219", "licence": "CC-BY-NC-4.0",
+            "licence_flag": "non_commercial",
+            "attribution": '"Hudson Reed Sublime Vanity Unit &amp; Basin" from HSSD: Habitat Synthetic Scenes Dataset '
+                           "(hssd/hssd-models), CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/)"}
+    abo = abo_asset("abo_B07", "Ravenna Home Parker Coffee Table, 47.2&quot;W, Marble &amp; Gold, Stone & Beam, "
+                               "R&B&copy")
+    put(out / "building_final.json", {"project": {"licence_mode": "relaxed"}, "furniture": [
+        {"id": "f_L0_001", "type": "washbasin", "asset": hssd},
+        {"id": "f_L0_002", "type": "table_coffee", "asset": abo}]})
+    put(out / "renders" / "cam_a_preview.jpg", size=10)
+    credits = {c["asset_id"]: c["credit"] for c in CP.project_credits(out)}
+    assert credits["hssd_6219"].startswith('"Hudson Reed Sublime Vanity Unit & Basin" from HSSD')
+    assert '47.2"W, Marble & Gold, Stone & Beam, R&B&copy"' in credits["abo_B07"]
+    CP.copy_project(pub)
+    text = (results / "renders" / "p" / CP.ATTRIBUTION).read_text(encoding="utf-8")
+    assert "&amp;" not in text and "&quot;" not in text and "Sublime Vanity Unit & Basin" in text
+    assert CP.plain_text("no entity & no change") == "no entity & no change"
+    assert CP.plain_text("&#38; &#x26; &amp; &AMP; &bogus; &copy") == "& & & & &bogus; &copy"
+    # the library folder's file and the removal reasons of the audit, from a catalogue entry
+    lib = tmp_path / "library"
+    entry = dict(hssd, id="hssd_6219", source="hssd", audit={
+        "status": "removed", "reasons": ["the title &quot;Vanity Unit &amp; Basin&quot; names two pieces"]})
+    put(lib / "catalog_library.json", {"kind": "library_catalog", "entries": [entry]})
+    line = next(x for x in CP.library_attribution(lib).read_text(encoding="utf-8").splitlines() if "hssd_6219" in x)
+    assert '"Hudson Reed Sublime Vanity Unit & Basin" from HSSD' in line and "&amp;" not in line
+    assert '[removed by the M12 library audit: the title "Vanity Unit & Basin" names two pieces]' in line
+    assert CP.audit_removed(entry) == 'the title "Vanity Unit & Basin" names two pieces'

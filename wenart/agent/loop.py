@@ -227,6 +227,31 @@ Fix round after P6a, part 2 (23 Oct 2026; the asks of the exterior and decor tra
   findings done", ``final_stop``): the scheduler writes it over the stage record, which must still say that a re-run
   failed.
 
+Fix round after P6b (23 Oct 2026; pod P6b, real03 on 8e8cc97, the review of its agent log and the verifiers' better
+fixes):
+
+- an edit that changes nothing in the render (``render_unchanged``) leaves its target out of ``changed``, so the
+  target's vision findings stay in the dry re-check and the edit is refused "still there" with the reason
+  (``CONFIRM_NOTE``, ``ROOM_TYPE_NOTE``): a ``retype_piece`` / ``change_type`` to the piece's own type (a confirm:
+  status unverified -> verified, the same fitted model; P6b's seq 1914 / 1917 / 1954 / 2252 / 2283 were counted as 5
+  removals of vision findings about the model's look) and the room of a ``set_room_type`` (the re-run replays the
+  overrides after the layout: no layout is re-solved, so P6b's seq 1905 / 2277 "removed" the critical "room completely
+  empty" twice and left the room empty). Code targets are re-measured as before (a confirm still clears RC / NR);
+- the acceptance record names the targets an accepted edit kept (``kept``: ``causes.critical_cleared``) and the edit
+  event logs the new findings, the net, the changed targets and the dry fit too (``ACCEPTANCE_LOG_KEYS``; P6b's 219
+  edit events had 8 of the keys);
+- the final critical-only round's steps name critical findings only (``check_plan(wanted=...)``: a step's other ids
+  are dropped, a step left without one is refused). Why: P6b's round 4 spent 6 of its 17 rejections on majors (the
+  lamp f_L0_201's G12, the nightstand f_L0_070's G5) and refused the bed's critical F3 removal for the majors named
+  beside it; the building session's room tools act on a room of the building (``ROOM_TARGET_TOOLS``: P6b planned
+  set_room_type on 11 symbol ids);
+- after an empty plan (a valid plan without steps) the default checklist keeps only the critical findings, and none
+  whose edit the code knows is futile (``futile_step``: the target used its tries, fix_fixture found no valid spot,
+  the memory refused the same edit, a retype could only confirm the piece's own type); the plan event logs the dropped
+  steps with why (``evidence.dropped``). Why: P6b's 25 empty plans ran 48 default edits: 1 real fix (a critical F7),
+  3 phantom confirms the planner had called no-ops, 10 memory refusals; in round 4 the defaults sent the fix_fixture
+  edits the memory had refused since round 1 (seq 2839 / 2840).
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -308,6 +333,9 @@ REFUSALS_CHECK = "session_refusals"
 
 
 REPEAT_FLAGS = ("refused_by_memory", "max_tries_target")
+# Fix round after P6b (module docstring): the acceptance fields an edit event logs (``evidence.acceptance``).
+ACCEPTANCE_LOG_KEYS = ("accepted", "reason", "target", "before", "after", "removed", "note", "carried", "new", "net",
+                       "changed", "fitted", "kept")
 
 
 def repeat_refusal(result: Optional[dict], target, refused_targets: set) -> bool:
@@ -720,6 +748,30 @@ def refused_pin(building: Optional[dict], piece_id: Optional[str]) -> Optional[s
     return why if why.startswith(f"{pin}:") else None
 
 
+CONFIRM_TOOLS = ("retype_piece", "change_type")
+CONFIRM_NOTE = ("a retype to the piece's own type only confirms it (status unverified -> verified, the same fitted "
+                "model): nothing changes in the render, so its vision findings stay")
+ROOM_TYPE_NOTE = ("set_room_type re-solves no layout (the re-run replays the overrides after the layout and the "
+                  "completion), so nothing changes in the room's render and its vision findings stay; an empty room is "
+                  "furnished with place_group or relayout_room")
+
+
+def render_unchanged(tool: str, args: Optional[dict], building_before: Optional[dict],
+                     building_after: Optional[dict]) -> dict[str, str]:
+    """Fix round after P6b (module docstring): ``{id: why}`` of the targets an edit leaves unchanged in the render, so
+    they are no changed targets of the dry re-check (their vision findings stay): a ``retype_piece`` / ``change_type``
+    to the piece's own type (a confirm: the type before, after and asked are the same) and the room of a
+    ``set_room_type``. {} for every other edit (a ``mark_not_furniture``, a ``set_front``: the scene changes)."""
+    a = args or {}
+    if tool in CONFIRM_TOOLS and a.get("piece_id"):
+        p0, p1 = _piece_of(building_before, a["piece_id"]), _piece_of(building_after, a["piece_id"])
+        if p0 is not None and p1 is not None and p0.get("type") == p1.get("type") == a.get("type"):
+            return {str(a["piece_id"]): CONFIRM_NOTE}
+    if tool == "set_room_type" and a.get("room_id"):
+        return {str(a["room_id"]): ROOM_TYPE_NOTE}
+    return {}
+
+
 def _piece_of(building: Optional[dict], pid) -> Optional[dict]:
     if not isinstance(building, dict) or not pid:
         return None
@@ -1075,8 +1127,10 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
     before_keys = {CS.finding_key(f) for f in before}
     stale = set(changed) | set(round_changed or ())
     same_roof = roof_kept(override, building_before, building_after)
-    # fix round after P6a: the round's drawn-layout findings (``causes.mark_drawn_layout``) stay drawn layout
-    drawn_layout = {CS.finding_key(f) for f in before if CS._metrics(f).get(CS.DRAWN_LAYOUT_FLAG)}
+    # fix round after P6a: the round's drawn-layout findings (``causes.mark_drawn_layout``) stay drawn layout; fix round
+    # after P6b: with the flag's value (a drawn fixed piece's ``fixture``)
+    drawn_layout = {CS.finding_key(f): CS._metrics(f)[CS.DRAWN_LAYOUT_FLAG] for f in before
+                    if CS._metrics(f).get(CS.DRAWN_LAYOUT_FLAG)}
     out = []
     for f in code_after:
         if f.get("check") in NOT_REMEASURED:
@@ -1085,7 +1139,7 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
                                      or (same_roof and CS.finding_key(f) not in before_keys)):
             continue
         if CS.finding_key(f) in drawn_layout and f.get("target") not in changed:
-            f = carry_drawn_layout(f)
+            f = carry_drawn_layout(f, drawn_layout[CS.finding_key(f)])
         out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
     for f in before:
         if f.get("source") == "vision":
@@ -1115,13 +1169,14 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
     return out
 
 
-def carry_drawn_layout(finding: dict) -> dict:
+def carry_drawn_layout(finding: dict, flag=True) -> dict:
     """Fix round after P6a (module docstring): a copy of the dry re-check's ``finding`` with the drawn-layout flag
-    (``causes.DRAWN_LAYOUT_FLAG``) of the round's finding of the same key, its cause taken again."""
+    (``causes.DRAWN_LAYOUT_FLAG``) of the round's finding of the same key (``flag``: its value; fix round after P6b:
+    ``causes.FIXTURE_LAYOUT`` for drawn fixed equipment), its cause taken again."""
     if CS._metrics(finding).get(CS.DRAWN_LAYOUT_FLAG):
         return finding
     evidence = dict(finding.get("evidence")) if isinstance(finding.get("evidence"), dict) else {}
-    evidence["metrics"] = dict(CS._metrics(finding), **{CS.DRAWN_LAYOUT_FLAG: True})
+    evidence["metrics"] = dict(CS._metrics(finding), **{CS.DRAWN_LAYOUT_FLAG: flag or True})
     out = dict(finding, evidence=evidence)
     out.pop("cause", None)
     return out
@@ -1173,11 +1228,17 @@ def default_checklist(brief: dict, wanted=("critical", "major"), lighting: bool 
     return lighting_first(steps)
 
 
-def check_plan(plan: Optional[dict], brief: dict, offered: list[str]) -> tuple[list[dict], list[str]]:
+def check_plan(plan: Optional[dict], brief: dict, offered: list[str], wanted: Optional[tuple] = None,
+               rooms: Optional[set] = None, lighting: bool = False) -> tuple[list[dict], list[str]]:
     """``(checked steps, problems)``: a step stays when its tool is offered, its findings are fixable, its target is
     built and the target allows the tool (``brief.PIECE_TOOLS``: the piece's ``allowed``; group tools: a group or a
     piece of one; room tools: the room) and the tool is one of the tools of its findings. Program choices must name
-    a group of the program and one of its options."""
+    a group of the program and one of its options.
+
+    Fix round after P6b (module docstring): ``wanted`` (the critical-only round's severities; None: no filter) drops
+    the step's finding ids of other severities (``is_wanted``; ``lighting``: the final round's lighting views stay),
+    and a step left without one; ``rooms`` (the building's room ids, for
+    the building session) refuses a room tool (``ROOM_TARGET_TOOLS``) on a target that is no room."""
     room_id = brief["room"]["id"]
     if not isinstance(plan, dict):
         return [], ["no valid plan: the default checklist (each fixable finding with its first tool) is used"]
@@ -1201,6 +1262,19 @@ def check_plan(plan: Optional[dict], brief: dict, offered: list[str]) -> tuple[l
     for i, s in enumerate(plan.get("steps") or []):
         tool, target, ids = s.get("tool"), s.get("target"), list(s.get("finding_ids") or [])
         why = None
+        if wanted is not None:
+            # fix round after P6b: the final round works critical findings only (P6b: 6 of its 17 rejections were
+            # moves for majors, and the bed's critical F3 removal was refused for the majors named beside it)
+            other = [f for f in ids if f in fixable and not is_wanted(fixable[f], wanted, lighting)]
+            if other:
+                ids = [f for f in ids if f not in other]
+                if not ids:
+                    problems.append(f"step {i + 1} ({tool} on {target}): {', '.join(other)} not "
+                                    f"{' / '.join(wanted)}: not this round's work")
+                    continue
+                problems.append(f"step {i + 1} ({tool} on {target}): {', '.join(other)} dropped (not "
+                                f"{' / '.join(wanted)})")
+                s = dict(s, finding_ids=ids)
         bad_ids = [f for f in ids if f not in fixable]
         # round 2: a step may act on an unbuilt piece when one of its findings names it (the untyped piece of an
         # NR finding, the unbuilt anchor of an F8: ``edit_target``); the brief checked the anchor's locks
@@ -1222,6 +1296,9 @@ def check_plan(plan: Optional[dict], brief: dict, offered: list[str]) -> tuple[l
             if target not in groups and not (pieces.get(target) or {}).get("group") and target not in spans \
                     and groups:
                 why = f"{tool} needs a group id of the brief, not {target!r}"
+        elif tool in ROOM_TARGET_TOOLS and room_id == BUILDING and rooms is not None and target not in rooms:
+            # fix round after P6b: P6b's building session planned set_room_type on 11 symbol ids (sy_L0_004 ...)
+            why = f"{tool} needs a room of the building as target, not {target!r}"
         if why is None and ids:
             tools_of = {t for f in ids for t in fixable[f].get("tools") or []}
             if tool not in tools_of and tool not in ("dry_run",):
@@ -1233,7 +1310,59 @@ def check_plan(plan: Optional[dict], brief: dict, offered: list[str]) -> tuple[l
     return steps, problems
 
 
+def step_args(step: dict) -> Optional[dict]:
+    """Fix round after P6b: the bare arguments of a checklist step's edit (its target under the tool's id argument:
+    ``piece_id``, ``group_id``, ``room_id`` or ``view_id``), the memory key of the edit the default checklist asks for;
+    None for a tool without one."""
+    tool, target = step.get("tool"), step.get("target")
+    if not target:
+        return None
+    key = ("piece_id" if tool in BR.PIECE_TOOLS else "group_id" if tool in BR.GROUP_TOOLS else
+           "room_id" if tool in BR.ROOM_TOOLS else "view_id" if tool in BR.VIEW_TOOLS else None)
+    return {key: str(target)} if key else None
+
+
+def futile_step(ctx: TL.ToolContext, step: dict, max_tries: int = MAX_TRIES) -> Optional[str]:
+    """Fix round after P6b (module docstring): why the code knows a checklist step's edit is futile this round, else
+    None: its target used its tries, ``fix_fixture``'s search found no valid spot for it (``tools.no_spot_of``), the
+    memory refused this exact edit (``tools._repeat_of`` of ``step_args``), or a ``retype_piece`` / ``change_type``
+    could only confirm the piece's own type (``edit_ops.retype_candidates``: a confirm changes nothing in the render).
+    Read only: no try is counted."""
+    tool, target = step.get("tool"), step.get("target")
+    if not target:
+        return None
+    used = int((getattr(ctx, "tries", None) or {}).get(str(target), 0))
+    if used >= max_tries:
+        return f"{target} used its {max_tries} tries this round"
+    if tool == "fix_fixture":
+        spot = TL.no_spot_of(ctx, str(target))
+        if spot:
+            return f"the code found no valid spot for {target} within 0.5 m ({spot[:160]})"
+    args = step_args(step)
+    if args is not None and ctx.memory is not None:
+        try:
+            prev = TL._repeat_of(ctx, TL.edit_room(ctx, args), tool, args)     # the room the tools key it by
+        except Exception:  # noqa: BLE001 - a memory that cannot be read refuses nothing
+            prev = None
+        if prev is not None:
+            return (f"the memory refused {tool} on {target} (round {prev.get('round')}: "
+                    f"{'; '.join(prev.get('reasons') or ['rejected'])[:160]})")
+    if tool in CONFIRM_TOOLS:
+        piece = ctx.piece(str(target))
+        if piece is not None and piece.get("type") not in (None, "unknown"):
+            try:
+                from wenart.furniture import edit_ops as EO
+                types = set(EO.retype_candidates(ctx.building, piece))
+            except Exception:  # noqa: BLE001 - the validator decides
+                types = None
+            if types is not None and types <= {piece["type"]}:
+                return f"a retype of {target} could only confirm its own type ({piece['type']}): {CONFIRM_NOTE}"
+    return None
+
+
 PLAN_STATUSES = ("ok", "empty", "refused", "default")
+# Fix round after P6b: the room tools whose target must be a room (``check_plan``; report_library_gap names a piece).
+ROOM_TARGET_TOOLS = ("relayout_room", "place_group", "set_room_type", "set_lighting")
 
 
 def plan_status(plan, checked: list[dict]) -> str:
@@ -1462,6 +1591,11 @@ class AgentLoop:
         refused = refused_pin(measured, args.get("piece_id")) if tool == "swap_model" else None
         if refused is not None:
             changed = set(changed) - {args.get("piece_id")}
+        # fix round after P6b (module docstring): a confirm of a piece's own type and a set_room_type change nothing in
+        # the render: their piece / room is no changed target, so its vision findings stay
+        same = render_unchanged(tool, args, ctx.building, building_after)
+        if same:
+            changed = set(changed) - set(same)
         # fix round after P4b: the critic reads the sun a set_exterior sets (scene_after)
         manifest = self.render_manifest(ctx.preview_dir)
         code_after = self.code_findings(measured, ctx, manifest, scene=scene_after(ctx.scene, tool, args,
@@ -1488,6 +1622,8 @@ class AgentLoop:
                 "added": CS.added_pieces(ctx.building, building_after),
                 "types": CS.piece_types(ctx.building, building_after)}
         ok, reason = accept_edit(before, after, edit)
+        if not ok and same:
+            reason = f"{reason}; {'; '.join(sorted(set(same.values())))}"
         if refused is not None:
             ok, reason = False, (f"pin_refused: {args.get('piece_id')}: {refused}: the refit keeps the model it had, "
                                  f"so the swap changes nothing in the scene; swap to a real model of the type, or use "
@@ -1516,6 +1652,11 @@ class AgentLoop:
             # fix round after P5: a piece the refit has not fitted yet was fitted for the dry re-check
             note = (note + "; " if note else "") + (f"fitted for the dry re-check (predicted; the refit may choose "
                                                     f"another model): {', '.join(fitted['refit'][:8])}")
+        # fix round after P6b: the targets an accepted edit kept (``causes.critical_cleared``: a critical gone, majors
+        # kept, not worse)
+        before_keys, after_keys = {CS.finding_key(f) for f in before}, {CS.finding_key(f) for f in after}
+        kept = [CS._fmt(CS.finding_key(f)) for f in targets
+                if CS.finding_key(f) in before_keys and CS.finding_key(f) in after_keys] if ok else []
         return {"accepted": ok, "reason": reason, "target": [CS._fmt(CS.finding_key(f)) for f in targets],
                 "target_findings": targets, "before": CS.key_list([f for f in before if mine(f)]),
                 "after": CS.key_list([f for f in after if mine(f)]), "removed": findings_removed(before, after),
@@ -1523,7 +1664,7 @@ class AgentLoop:
                 "new": CS.findings_new(before, after),
                 "net": findings_removed(before, after) - CS.findings_new(before, after),
                 "after_findings": after, "note": note, "carried": carried, "changed": sorted(map(str, changed)),
-                "fitted": fitted}
+                "fitted": fitted, "kept": kept}
 
     # ----- the fitted boxes of the dry re-check (fix round after P5) ------------------------------------------
 
@@ -1708,9 +1849,8 @@ class AgentLoop:
         evidence = None
         if verdict is not None:
             # Milestone 13: both finding lists (the room's critical / major keys before and after the dry re-check)
-            evidence = {"acceptance": {k: verdict.get(k) for k in ("accepted", "reason", "target", "before", "after",
-                                                                   "removed", "note", "carried")
-                                       if verdict.get(k) is not None}}
+            # fix round after P6b: the new findings, the net, the changed targets, the dry fit and the kept targets too
+            evidence = {"acceptance": {k: verdict.get(k) for k in ACCEPTANCE_LOG_KEYS if verdict.get(k) is not None}}
         # fix round after P3: the seq the tool reserved for this edit (its ``log_seq`` in overrides.json)
         self.log.event("edit" if accepted else "rejected_edit", round_no, seq=result.get("log_seq") or None,
                        model=self.log.model or "unknown",
@@ -1836,21 +1976,57 @@ class AgentLoop:
                 plan = reply.data
             except ModelError:
                 plan = None
-        steps, problems = check_plan(plan, brief, offered)
+        room_id = brief["room"]["id"]
+        # fix round after P6b: the critical-only round's steps name critical findings only; the building session's
+        # room tools act on rooms of the building
+        rooms = {str(r.get("id")) for r in ctx.building.get("rooms") or [] if isinstance(r, dict)} \
+            if room_id == BUILDING else None
+        steps, problems = check_plan(plan, brief, offered, wanted=wanted if critical_only else None, rooms=rooms,
+                                     lighting=lighting)
         status = plan_status(plan, steps)
         plan_ok = status == "ok"
+        dropped: list[dict] = []
         if not steps:
             steps = default_checklist(brief, wanted, lighting)
+            if status == "empty":
+                # fix round after P6b (module docstring): the planner chose no step: its critical findings only, and
+                # none whose edit the code knows is futile
+                steps, dropped = self.empty_plan_steps(ctx, brief, steps, lighting=lighting)
         steps = lighting_first(steps)
-        room_id = brief["room"]["id"]
         skip, choices = plan_skip(plan), plan_choices(plan)
         self.memory.add_plan(room_id, round_no, plan, plan_ok, problems, status=status)
-        self.log.event("plan", round_no, room_id=room_id, call_id=f"{tag}-plan", status=status,
-                       counts={"steps": len(steps), "problems": len(problems)},
+        evidence = {"steps": [{k: s.get(k) for k in ("tool", "target", "finding_ids")} for s in steps],
+                    "skip": skip, "choices": choices}
+        counts = {"steps": len(steps), "problems": len(problems)}
+        if dropped:
+            evidence["dropped"] = dropped[:20]
+            counts["dropped"] = len(dropped)
+        self.log.event("plan", round_no, room_id=room_id, call_id=f"{tag}-plan", status=status, counts=counts,
                        note="; ".join(problems)[:600] or None, model=self.log.model, revision=self.log.revision,
-                       evidence={"steps": [{k: s.get(k) for k in ("tool", "target", "finding_ids")} for s in steps],
-                                 "skip": skip, "choices": choices})
+                       evidence=evidence)
         return steps, problems, plan_ok
+
+    def empty_plan_steps(self, ctx: TL.ToolContext, brief: dict, steps: list[dict], lighting: bool = False
+                         ) -> tuple[list[dict], list[dict]]:
+        """Fix round after P6b (module docstring): ``(steps, dropped)`` of the default checklist after an empty plan
+        (a valid plan without steps): a step stays when one of its findings is critical (or, ``lighting``, a final-round
+        lighting view) and the code does not know its edit to be futile (``futile_step``); ``dropped`` names the
+        others with why (logged on the plan event)."""
+        by_id = {f.get("id"): f for f in (brief.get("findings") or {}).get("fixable") or []}
+        keep, dropped = [], []
+        for s in steps:
+            fs = [by_id[i] for i in s.get("finding_ids") or [] if i in by_id]
+            why = None
+            if not any(f.get("severity") == "critical" or (lighting and final_lighting(f)) for f in fs):
+                why = "the planner chose no step and the finding is not critical"
+            else:
+                why = futile_step(ctx, s, self.max_tries)
+            if why is None:
+                keep.append(s)
+            else:
+                dropped.append({"tool": s.get("tool"), "target": s.get("target"),
+                                "finding_ids": list(s.get("finding_ids") or []), "why": why})
+        return keep, dropped
 
     def plan_session(self, ctx: TL.ToolContext, round_no: int, item: dict, budget: CallBudget,
                      critical_only: bool = False, session: int = 0, cap_at: Optional[float] = None,

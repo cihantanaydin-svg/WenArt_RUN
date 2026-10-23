@@ -27,10 +27,24 @@ Why: CLAUDE.md library rules (only audited models are used; every model carries 
 evidence rules (every inferred field says how it was found).
 
 How: pure on dicts and measurement records; the CLI (``growth_run.py``) reads and writes the files.
+
+Fix round after P6b (23 Oct 2026; the library lens of the P6b analysis: ATTRIBUTION.md of real03 showed "Hudson Reed
+Sublime Vanity Unit &amp; Basin" and two more such titles, and 15 catalogue entries carry ``&amp;`` in ``name``,
+``title`` and ``attribution``):
+
+- What: ``source_text`` decodes the complete HTML entities of a title as the source lists it (``html.unescape``:
+  ``&amp;`` -> ``&``); ``polyhaven_entry``, ``abo_entry``, ``gso_entry`` and ``hssd_entry`` take their ``name``,
+  ``title`` and the title inside ``attribution`` from it.
+- Why: the HSSD metadata and some ABO listings store HTML-escaped product names; the entry copied them as they are and
+  every text built from the entry (the credit line of ATTRIBUTION.md, the fit report) showed the raw entity.
+- How: only where an entry is written (a new model of a growth run); the committed entries keep their text (their
+  credit is decoded where it is written: ``wenart.run.copy``), so no audit decision changes.
 """
 from __future__ import annotations
 
+import html
 import json
+import re
 from typing import Optional
 
 from wenart.assets.audit import VERSION
@@ -151,6 +165,17 @@ def _bed_fields(ftype: str, kind: str) -> dict:
 # Entries per source
 # --------------------------------------------------------------------------
 
+# fix round after P6b (23 Oct 2026): a complete HTML entity (named with its ";", decimal or hex); a bare "&" ("Stone &
+# Beam", "Solid&Co") or a legacy name without ";" ("&copy") is text and stays
+HTML_ENTITY = re.compile(r"&(?:#[0-9]+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]*);")
+
+
+def source_text(text) -> str:
+    """Fix round after P6b (module docstring): a source's title with its complete HTML entities decoded
+    (``HTML_ENTITY``: ``&amp;`` -> ``&``, ``&quot;`` -> ``"``) and the outer spaces stripped; "" for None."""
+    return HTML_ENTITY.sub(lambda m: html.unescape(m.group(0)), str(text or "")).strip()
+
+
 def polyhaven_entry(cand: dict, m: dict, gltf_rel: str, sha256_gltf: Optional[str], resolution: str,
                     checked_utc: str, rules: Optional[dict] = None) -> dict:
     """A ``catalog.json`` entry (furniture in ``entries``, decor in ``decor`` with the type ``decor_<name>`` and no
@@ -159,7 +184,7 @@ def polyhaven_entry(cand: dict, m: dict, gltf_rel: str, sha256_gltf: Optional[st
     front, conf, note = front_of(ftype, m.get("stats"), rules=rules)
     styles, style_note = _styles([s for s in cand.get("styles_hint") or [] if s], "the title and tags")
     e = {"id": cand["id"], "type": f"decor_{ftype}" if kind == "decor" else ftype, "source": "polyhaven",
-         "licence": "CC0", "licence_url": PH_LICENCE_URL, "name": cand.get("title") or cand["id"],
+         "licence": "CC0", "licence_url": PH_LICENCE_URL, "name": source_text(cand.get("title")) or cand["id"],
          "category": cand.get("category")}
     e.update(frame_fields(m, front, conf, note))
     e.update({"styles": styles, "style_note": style_note, "url": PH_PAGE.format(id=cand["id"]),
@@ -192,7 +217,7 @@ def abo_entry(cand: dict, m: dict, sha: str, cfg: dict, checked_utc: str, footpr
         axis, gnote = OV.geometric_front(m["stats"], rule, OV.load_config().get("front_rules") or {})
         if axis:
             note += f"; geometry: {gnote}"
-    title = cand.get("title") or uid
+    title = source_text(cand.get("title")) or uid                  # fix round after P6b: entities decoded
     hint = ([cand["family"]] if cand.get("family") else []) or styles_hint(cand.get("style") or "")
     styles, style_note = _styles(hint, f"the ABO listing style {cand.get('style')!r}" if cand.get("style")
                                  else "the ABO listing")
@@ -224,7 +249,7 @@ def gso_entry(rec: dict, m: dict, sha: str, checked_utc: str, rules: Optional[di
     confirmed (``rec`` = the record of ``growth_gso.licence_records``)."""
     ftype = rec["type"]
     front, conf, note = front_of(ftype, m.get("stats"), rules=rules)
-    title = rec.get("title") or rec["name"].replace("_", " ")
+    title = source_text(rec.get("title")) or rec["name"].replace("_", " ")     # fix round after P6b
     source_url = rec.get("page") or GSO_DATASET["page"]
     e = {"id": rec["uid"], **_kind_type("decor", ftype), "source": "gso", "licence": CC_BY, "licence_flag": None,
          "licence_url": CC_BY_URL, "name": title}
@@ -300,7 +325,7 @@ def hssd_entry(cand: dict, m: dict, sha: str, checked_utc: str, rules: Optional[
     hid = cand.get("hssd_id") or cand["id"][len(H.UID_PREFIX):]
     uid = H.UID_PREFIX + hid
     front, conf, note = front_of(ftype, m.get("stats"), rules=rules)
-    title = cand.get("title") or f"HSSD object {hid[:8]}"
+    title = source_text(cand.get("title")) or f"HSSD object {hid[:8]}"     # fix round after P6b: entities decoded
     hint = styles_hint(title)
     styles, style_note = _styles(hint, "the product title")
     e = {"id": uid, **_kind_type(kind, ftype), "source": "hssd", **H.entry_fields(), "name": title}
