@@ -159,7 +159,8 @@ Fix round after P6b (23 Oct 2026; pod P6b, real03 on 8e8cc97; CPU replays in tes
 - the orange check holds a view lit by the rig alone (``RIG_ALONE_SHARE``) to the daylight median + 0.15 and a mixed
   view to the warmest daylight view of its kind + ``RIG_ROOM_ABOVE_WARMEST_DAY`` (at most ``RIG_ROOM_ABOVE_DAY_MAX``
   over the median): P6b's mixed halls (1.486-1.599) sit inside the daylight views' own spread (1.183-1.582), P4b's
-  2700 K views still fail; it keeps the walls' own rig record (``render.wall_rig_record``) with its values;
+  2700 K views still fail; it keeps the light on the walls of every view it reads (``render.wall_rig_record``, the
+  exposure record's ``wb_walls``) with its values, for the next rule (the P6b verifier's step 1: measure first);
 - the interior-glazing check keeps its values (``CHECK_VALUES_FILE``); its bound is unchanged.
 """
 import hashlib
@@ -778,20 +779,27 @@ RIG_ROOM_ABOVE_DAY = 0.15
 # daylight view of the same paint plus RIG_ROOM_ABOVE_WARMEST_DAY, at most RIG_ROOM_ABOVE_DAY_MAX over the median (one
 # odd daylight view does not lift the bound further; the warmest over the median: P6b 0.277, P5 real04 0.18, the P4a
 # real02 shim 0.19). Why: a bpy 5.2.2 shim of P6b's real03.blend (render.py's two metering passes, 240 x 135, 16 spp,
-# render.wall_rig_record) found the walls' rig share within 0.05 of the frame's (giris_holu_2 0.594 / 0.594,
-# yangin_merdiveni_1 0.903 / 0.886) and the warmth in the light itself: on the hall and stair walls the daylight
-# arrives at linear R/B 2.68-3.33 and the rig light at 3,266-3,614 K (R/B 3.35-4.28) against the anchor's daylight
-# (1.98; 1.95 on the walls of its own room) and the 4000 K lamp (2.65), both warmed by the oak floors and treads and
-# the greige paint. The daylight-only oda_01_2 gets the same warm light (R/B 3.35) and reads 1.582; the halls read
-# 1.49-1.60 at a light R/B of 3.35-4.09. Measured, wall display R/B (painted; references: the unblocked daylight views):
+# render.wall_rig_record, 11 views) found the walls' rig share within 0.05 of the frame's (giris_holu_2 0.594 / 0.594,
+# giris_holu_1 0.503 / 0.554, yangin_merdiveni_1 0.903 / 0.886) and the warmth in the light itself: on the hall and
+# stair walls the daylight arrives at linear R/B 2.65-3.33 and the rig light at 3,266-3,614 K (R/B 3.35-4.28) against
+# the anchor's metered daylight (1.98; 1.95 on the walls of its own room) and the 4000 K lamp (2.65), both warmed by the
+# oak floors and treads and the greige paint. The daylight-only oda_01_2 gets the same warm light (R/B 3.35) and reads
+# 1.582; the halls read 1.49-1.60 at a light R/B of 3.35-4.09. So a mixed view's walls are as warm as the warmest
+# daylight room's, not warmer: the rig adds no orange of its own. A view lit by the rig alone keeps the bound since the
+# fix round after P4b: P6b's meet it (their white point is the lamp's colour with the daylight cast, and their stair
+# and small-hall walls get the least bounce warmth, R/B 3.35-3.37), and it is where a wrong rig colour shows most
+# (P4b). Measured, wall display R/B (painted; references: the unblocked daylight views):
 #   P6b real03 (m13.4)   daylight 1.183-1.582 (median 1.305); rig alone (0.956-0.985) 1.363-1.442 <= 1.455; mixed
-#                        (0.44-0.89) 1.409-1.599 <= 1.632 (10 of them over the old 1.455)
-#   P4b real03 (m13.3, 2700 K rig, the same anchor; against P6b's daylight walls): rig alone (0.975-0.995)
-#                        1.562-1.864 > 1.455; mixed (0.83-0.90) 1.648-1.734 > 1.632: all 7 fail as before
+#                        (0.44-0.93) 1.409-1.599 <= 1.632 (10 of them over the old 1.455)
+#   P4b real03 (m13.2, 2700 K rig, the same anchor; P4b's daylight walls were not measured, P6b's stand in: the
+#                        preview proxy, the mean R/B of the neutral pixels, gives P4b's daylight views a median of 1.21
+#                        against P6b's 1.19 and a warmest of 1.28 against 1.37): rig alone (0.975-0.995) 1.562-1.864
+#                        > 1.455; mixed (0.83-0.90) 1.648-1.734 > 1.632: all 7 fail as before
 #   P4a real02 (m13.2)   halls 1.639-1.808 (0.90-1.0) against the shim's daylight (median 1.36, warmest 1.55): rig alone
 #                        > 1.51, mixed > 1.60: all fail
 #   P5 real04 (m13.3)    halls 1.306-1.634 (0.71-1.0) against 1.382-1.695 (median 1.515): pass as before
-# The walls' own record (the exposure record's wb_walls) is kept with the values; it does not decide.
+# Every bound is at least the one before (the median + 0.15), so no view that passed before fails now (P6a real04
+# passed). The walls' own record (the exposure record's wb_walls) is kept with the values; it does not decide.
 RIG_ALONE_SHARE = 0.95
 RIG_ROOM_ABOVE_WARMEST_DAY = 0.05
 RIG_ROOM_ABOVE_DAY_MAX = 0.35
@@ -1011,12 +1019,13 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     Fix round after P6b (23 Oct 2026). What: the bound depends on how the view is lit (``_orange_bound``): a view
     lit by the rig alone (rig share at least ``RIG_ALONE_SHARE``) keeps the daylight median + ``RIG_ROOM_ABOVE_DAY``;
     a mixed view may reach the warmest daylight view of its kind + ``RIG_ROOM_ABOVE_WARMEST_DAY``, at most
-    ``RIG_ROOM_ABOVE_DAY_MAX`` over the median. The values file also keeps each bound's regime and the walls' own rig
-    record (``wb_walls``; printed, not judged). Why: P6b's 4000 K halls and stairs failed 10 mixed views at
-    1.486-1.599 against 1.455 while the daylight-only oda_01 views of the same paint read 1.53-1.58 and the views lit
-    by the rig alone 1.363-1.442; the P6b verifier refuted the white-point change, and a shim of P6b's scene found the
-    warmth in the light both sources bring to those walls after the oak and greige bounce, not in the share. How:
-    P4b's 2700 K views (1.562-1.864) still fail, each one (the numbers at ``RIG_ALONE_SHARE``)."""
+    ``RIG_ROOM_ABOVE_DAY_MAX`` over the median. The values file also keeps each bound's regime and the light on the
+    walls of every view it reads (``wb_walls``, ``_walls_record``; printed, not judged). Why: P6b's 4000 K halls and
+    stairs failed 10 mixed views at 1.486-1.599 against 1.455 while the daylight-only oda_01 views of the same paint
+    read 1.53-1.58 and the views lit by the rig alone 1.363-1.442; the P6b verifier refuted the white-point change,
+    and a shim of P6b's scene found the warmth in the light both sources bring to those walls after the oak and greige
+    bounce, not in the share. How: P4b's 2700 K views (1.562-1.864) still fail, each one, and no bound is lower than
+    before (the numbers at ``RIG_ALONE_SHARE``)."""
     from wenart import views
     from wenart.blender import render as R
 
@@ -1048,31 +1057,31 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
         values = sorted(measured[c] for c in daylight if kind(c) == k and measured.get(c) is not None)
         reference[k] = float(np.median(values)) if values else None
         warmest[k] = values[-1] if values else None                 # fix round after P6b
-    per_view, warm, walls = {}, [], {}
+    per_view, regimes, warm = {}, {}, []
     for cam in rig_lit:
         value = measured.get(cam)
         if value is None:
             continue
         share = entries[cam]["exposure"].get("wb_rig_share")
-        bound, regime = _orange_bound(share, reference[kind(cam)], warmest[kind(cam)])    # fix round after P6b
+        bound, regimes[cam] = _orange_bound(share, reference[kind(cam)], warmest[kind(cam)])  # fix round after P6b
         per_view[cam] = (value, kind(cam), bound)
-        walls[cam] = _walls_record(entries[cam]["exposure"])
         if value > bound:
-            warm.append((cam, value, kind(cam), bound, share, regime))
+            warm.append((cam, value, kind(cam), bound, share, regimes[cam]))
+    # fix round after P6b: the light on each view's walls (render wb_walls), the daylight views' too: recorded only
+    walls = {c: _walls_record(entries[c]["exposure"]) for c in [*daylight, *per_view]}
     print(f"{name}: daylight wall R/B {[(c, measured.get(c), kind(c)) for c in daylight]}; references {reference}; "
           f"warmest {warmest}; blocked daylight views left out {blocked}")
     print(f"{name}: wall R/B of the rig-lit views (value, kind, bound) {per_view}")
-    print(f"{name}: the walls' own rig share and rig light (render wb_walls; recorded, not judged) {walls}")
+    print(f"{name}: the light on the walls (render wb_walls; recorded, not judged) {walls}")
     # fix round after P6a: the values of a passing run are kept (CHECK_VALUES_FILE); fix round after P6b: with the
-    # regime of each bound, the warmest daylight view of each kind and the walls' own rig record
+    # regime of each bound, the warmest daylight view of each kind and the light on the walls of every view
     _keep_values("rig_lit_rooms_have_no_orange_cast", name, {
-        "daylight": {c: {"wall_rb": measured.get(c), "kind": kind(c)} for c in daylight},
+        "daylight": {c: {"wall_rb": measured.get(c), "kind": kind(c), **walls[c]} for c in daylight},
         "references": reference, "warmest": warmest, "blocked_daylight": blocked, "above_day": RIG_ROOM_ABOVE_DAY,
         "above_warmest_day": RIG_ROOM_ABOVE_WARMEST_DAY, "above_day_max": RIG_ROOM_ABOVE_DAY_MAX,
         "rig_alone_share": RIG_ALONE_SHARE,
         "rig_lit": {c: {"wall_rb": v, "kind": k, "bound": b, "rig_share": entries[c]["exposure"].get("wb_rig_share"),
-                        "regime": _orange_bound(entries[c]["exposure"].get("wb_rig_share"), reference[k],
-                                                warmest[k])[1], **walls[c]}
+                        "regime": regimes[c], **walls[c]}
                     for c, (v, k, b) in per_view.items()},
         "warm": [c for c, *_rest in warm]})
     assert not warm, f"{name}: rig-lit views still orange (wall R/B over the bound): {warm}"
@@ -1099,11 +1108,18 @@ def _orange_bound(share, median, warmest) -> tuple[float, str]:
 
 
 def _walls_record(exposure: dict) -> dict:
-    """The walls' own rig record of a view's exposure (``wb_walls``, ``render.wall_rig_record``, fix round after P6b):
-    ``wall_rig_share``, ``wall_rig_rb`` (linear R/B of the rig light measured on the walls), ``wall_rig_kelvin`` and
-    ``lamp_rb`` (the rig lamp's linear R/B); None each in a record without it (render code before this round)."""
+    """The light on a view's walls from its exposure record (``wb_walls``, ``render.wall_rig_record``; fix round after
+    P6b, 23 Oct 2026): ``wall_light_rb`` / ``wall_day_rb`` (the linear R/B of the walls' light with everything lit and
+    with the rig hidden), ``wall_rig_share``, ``wall_rig_rb`` (the linear R/B of the rig light measured on the walls),
+    ``wall_rig_kelvin`` and ``lamp_rb`` (the rig lamp's linear R/B, the colour the white point mixes); None each in a
+    record without it (render code before this round, a view without a wall metering). Why: the P6b shim found the
+    halls' warmth in that light (the oak and greige bounce), not in the rig share; the next rule is decided from it."""
     rec = exposure.get("wb_walls") or {}
-    return {"wall_rig_share": rec.get("rig_share"), "wall_rig_rb": rec.get("rig_rb"),
+
+    def rb(rgb):
+        return round(float(rgb[0]) / float(rgb[2]), 4) if rgb and len(rgb) == 3 and float(rgb[2]) > 0 else None
+    return {"wall_light_rb": rb(rec.get("light_rgb")), "wall_day_rb": rb(rec.get("day_rgb")),
+            "wall_rig_share": rec.get("rig_share"), "wall_rig_rb": rec.get("rig_rb"),
             "wall_rig_kelvin": rec.get("rig_kelvin"), "lamp_rb": rec.get("lamp_rb")}
 
 
@@ -1542,20 +1558,26 @@ def test_interior_glazing_keeps_one_white_point(project):
     daylight room looking into a rig-lit stair or vestibule, and the stair looking back; P4b 1.82 / 2.15 against walls
     of 1.26 / 1.29, 1.02 against 2.05) keep the panes within ``INTERIOR_GLAZING_MAX_DELTA`` of the walls in display
     R/B; every view's values are printed. Fix round after P6b (23 Oct 2026): the values of every view are kept
-    (``CHECK_VALUES_FILE``), also for a project without named views (skipped) and for a passing run; the bound is
-    unchanged (P6b: yasama_8_3 0.692, ebeveyn_odasi_2_1 0.321, yangin_merdiveni_1 -0.398, smaller than P4b's; the hall
-    and stair rig temperature or the pin is a user decision, and the pane mean also counts the oak treads behind the
-    glass)."""
+    (``CHECK_VALUES_FILE``) with the light on its own walls (``_walls_record``), also for a project without named views
+    (skipped) and for a passing run; the bound is unchanged (P6b: yasama_8_3 0.692, ebeveyn_odasi_2_1 0.321,
+    yangin_merdiveni_1 -0.398, smaller than P4b's 0.86 / 0.56 / -1.03). Why no rule change: no white point can close it
+    (one white point per frame keeps the pane-to-wall ratio), the P6b shim found the fire stair's walls lit at a linear
+    R/B of 4.09 (rig and daylight both warmed by the oak treads and floors) against 1.76 / 1.95 on the walls of the
+    daylight rooms yasama_8_1 and ebeveyn_odasi_2_1, and the pane mean also counts the oak treads behind the glass
+    (2.28 on yasama_8_3's preview); the hall and stair rig temperature (``lighting.RIG_NEUTRAL_K``) or the pin is a user
+    decision."""
     name, _scene, render = project
     entries = {r["camera"]: r for r in render["renders"]}
     rows = {c: (g["pane_rb"], g["wall_rb"], g["delta_rb"], g["windows"]) for c, e in entries.items()
             if (g := e.get("interior_glazing"))}
     named = [c for c in INTERIOR_GLAZING_VIEWS.get(name, ()) if c in entries]
     print(f"{name}: interior glazing (pane R/B, wall R/B, delta, windows) {rows}")
-    # fix round after P6b: the values are kept whatever the verdict (CHECK_VALUES_FILE)
+    # fix round after P6b: the values are kept whatever the verdict (CHECK_VALUES_FILE), with the light on the view's
+    # own walls (_walls_record: the stair or vestibule behind the glass is the room of its own views)
     _keep_values("interior_glazing_keeps_one_white_point", name, {
         "views": {c: {"pane_rb": p, "wall_rb": w, "delta_rb": d, "windows": ws,
-                      "rig_share": (entries[c].get("exposure") or {}).get("wb_rig_share")}
+                      "rig_share": (entries[c].get("exposure") or {}).get("wb_rig_share"),
+                      **_walls_record(entries[c].get("exposure") or {})}
                   for c, (p, w, d, ws) in rows.items()},
         "named": named, "max_delta": INTERIOR_GLAZING_MAX_DELTA})
     if not named:

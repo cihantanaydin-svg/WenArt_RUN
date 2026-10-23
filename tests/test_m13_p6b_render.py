@@ -77,7 +77,8 @@ def test_p6b_three_views_keep_a_room_whose_views_are_all_replayed(tmp_path, monk
     leaves them out of ``rooms_without_view``, and the set equalities used the rule alone. A room whose views are all
     replayed and named for it in the camera file is now kept. Still failing: the same view searched (not replayed),
     a replayed view the camera file does not name, a camera file whose sha256 is not the build's, and a searched view
-    next to the replayed one. Fails on 620997b (the replayed hall fails "rooms_without_view")."""
+    next to the replayed one, each at the "rooms_without_view" assertion. Fails on 620997b (the replayed hall fails
+    "rooms_without_view") and with the camera file's names left out of ``_kept_by_replay``."""
     building = _with_small_hall(json.loads(EXAMPLE.read_text(encoding="utf-8")))
     outputs = tmp_path / "outputs"
     path = _write_building(outputs, "example", building)
@@ -85,7 +86,7 @@ def test_p6b_three_views_keep_a_room_whose_views_are_all_replayed(tmp_path, monk
     gpu.test_every_room_has_three_views(_replay_project(tmp_path, building, path))
     assert "kept for their replayed views: ['r_L0_oda_7']" in capsys.readouterr().out
     for case in ({"source": "search"}, {"in_file": False}, {"sha_ok": False}, {"searched_too": True}):
-        with pytest.raises(AssertionError):
+        with pytest.raises(AssertionError, match=r"rooms_without_view \[\], the rule gives \['r_L0_oda_7'\]"):
             gpu.test_every_room_has_three_views(_replay_project(tmp_path, building, path, **case))
     # the helper on its own: no camera file read (None) keeps nothing; an agent's replacement of a replayed view counts
     by_room = {"r_a": [{"name": "cam_r_a_1", "source": "replayed"}],
@@ -94,6 +95,7 @@ def test_p6b_three_views_keep_a_room_whose_views_are_all_replayed(tmp_path, monk
     files = {"r_a": {"cam_r_a_1"}, "r_b": {"cam_r_b_1"}, "r_c": {"cam_r_c_1"}}
     assert gpu._kept_by_replay({"r_a", "r_b", "r_c", "r_d"}, by_room, files) == {"r_a", "r_b"}
     assert gpu._kept_by_replay({"r_a"}, by_room, None) == set()
+    assert gpu._kept_by_replay({"r_a"}, by_room, {"r_a": {"cam_r_a_2"}}) == set()       # the file names another view
 
 
 @pytest.mark.skipif(not all((run / "renders" / "real03" / "scene_manifest.json").is_file() for run in (P6B, P4B))
@@ -138,7 +140,7 @@ P6B_RIG = {"giris_holu_1": (1.492, 0.569178), "giris_holu_2": (1.599, 0.622621),
            "ruzgarlik_1": (1.409, 0.437265), "yangin_merdiveni_1": (1.595, 0.889906),
            "yangin_merdiveni_2": (1.442, 0.955833), "yangin_merdiveni_3": (1.363, 0.979928)}
 P6B_BATHS = {"banyo_2_1": (1.174, 0.776088), "banyo_5_1": (1.123, 1.0), "banyo_6_1": (1.138, 0.528767)}
-# P4b real03 (2700 K rig, m13.3, the same project anchor): the views the old rule checked (share >= 0.8)
+# P4b real03 (2700 K rig, m13.2, the same project anchor): the views the old rule checked (share >= 0.8)
 P4B_RIG = {"kat_merdiveni_2": (1.693, 0.856457), "kat_merdiveni_3": (1.734, 0.832486), "oda_10_1": (1.648, 0.895986),
            "oda_7_1": (1.665, 0.986547), "yangin_merdiveni_1": (1.864, 0.974565),
            "yangin_merdiveni_2": (1.756, 0.990217), "yangin_merdiveni_3": (1.562, 0.995399)}
@@ -189,8 +191,17 @@ def test_p6b_gpu_orange_bound_rules(tmp_path, monkeypatch):
     a mixed view the larger of that and the warmest daylight view + 0.05, the latter at most the median + 0.35. One odd
     daylight view (2.20 among 1.30 / 1.31) lets a mixed hall reach 1.66, not 2.25: a hall at 1.70 fails (it passes
     with the mutation RIG_ROOM_ABOVE_DAY_MAX = 10). P5 real04's values (its 11 painted daylight views and 15 rig-lit
-    views) and P4a real02's m13.2 halls against the shim's daylight walls keep their verdicts: all pass, all fail."""
+    views) and P4a real02's m13.2 halls against the shim's daylight walls keep their verdicts: all pass, all fail. No
+    bound is lower than the rule before (the median + 0.15, the fixed 1.5 without a daylight view), so no view that
+    passed before (P6a real04) fails now; a share at 0.95 or over keeps it exactly."""
     gpu = _gpu_render_module(monkeypatch, tmp_path)
+    for share in (None, 0.0, 0.4, 0.62, 0.89, 0.949, 0.95, 0.99, 1.0):
+        for median, warmest in ((1.305, 1.582), (1.515, 1.695), (1.36, 1.55), (1.30, 1.31), (1.31, 2.2)):
+            bound, regime = gpu._orange_bound(share, median, warmest)
+            assert bound >= round(median + gpu.RIG_ROOM_ABOVE_DAY, 3)
+            assert (bound == round(median + 0.15, 3)) if regime == "rig alone" else regime == "mixed"
+            assert regime == ("rig alone" if (share or 0.0) >= 0.95 else "mixed")
+        assert gpu._orange_bound(share, None, None) == (gpu.RIG_ROOM_MAX_RB, "fixed")
     assert gpu._orange_bound(0.95, 1.305, 1.582) == (1.455, "rig alone")
     assert gpu._orange_bound(0.949, 1.305, 1.582) == (1.632, "mixed")
     assert gpu._orange_bound(0.6, 1.305, 1.33) == (1.455, "mixed")                 # a narrow spread: the median rule
@@ -216,23 +227,43 @@ def test_p6b_gpu_orange_bound_rules(tmp_path, monkeypatch):
     assert all(rb > gpu._orange_bound(s, 1.36, 1.55)[0] for rb, s in p4a)
 
 
-def test_p6b_gpu_orange_check_keeps_the_walls_rig_record(tmp_path, monkeypatch, capsys):
-    """The orange check prints and keeps each rig-lit view's ``wb_walls`` (the walls' rig share, the rig light's R/B
-    and Kelvin measured on the walls, the lamp's R/B), and None for a record without it (a render before this round);
-    the verdict does not read it. Fails on 620997b (no wall_rig_share in the values)."""
+def test_p6b_gpu_orange_check_keeps_the_light_on_the_walls(tmp_path, monkeypatch, capsys):
+    """The orange check prints and keeps the light on the walls of every view it reads, rig-lit and daylight
+    (``_walls_record`` of ``wb_walls``: the linear R/B of the walls' light with everything lit and with the rig hidden,
+    the walls' rig share, the rig light's R/B and Kelvin measured on the walls, the lamp's R/B), None for a record
+    without it (a render before this round); the verdict does not read it (the same views without the records give
+    the same bounds). The values are P6b shim records: giris_holu_2 (light R/B 3.68, daylight 3.07, rig 4.17 against
+    the lamp's 2.65) and the daylight-only oda_01_2 (3.35). Fails on 620997b (no wall_light_rb in the values)."""
     gpu = _gpu_render_module(monkeypatch, tmp_path)
-    monkeypatch.setattr(gpu, "OUTPUTS", tmp_path / "w")
-    walls = {"share": 0.5789, "rig_share": 0.593776, "rig_rb": 4.1708, "lamp_rb": 2.6511, "rig_kelvin": 3284.1}
-    project = _wall_views(tmp_path / "w", {"cam_r_bed_1": ("r_bed", 1.30, 0.0), "cam_r_hall_1": ("r_hall", 1.40, 0.62),
-                                           "cam_r_hall_2": ("r_hall", 1.41, 0.7)},
-                          exposure={"cam_r_hall_1": {"wb_walls": walls}})
-    gpu.test_rig_lit_rooms_have_no_orange_cast(project)
-    kept = json.loads((tmp_path / "w" / "real02" / "renders" / "gpu_check_values.json").read_text(encoding="utf-8"))
-    rig = kept["rig_lit_rooms_have_no_orange_cast"]["real02"]["rig_lit"]
-    assert rig["cam_r_hall_1"]["wall_rig_share"] == 0.593776 and rig["cam_r_hall_1"]["wall_rig_kelvin"] == 3284.1
-    assert rig["cam_r_hall_1"]["wall_rig_rb"] == 4.1708 and rig["cam_r_hall_1"]["lamp_rb"] == 2.6511
-    assert rig["cam_r_hall_2"]["wall_rig_share"] is None
-    assert "the walls' own rig share and rig light" in capsys.readouterr().out
+    oda_01_2 = {"share": 0.6367, "rig_share": 0.0, "light_rgb": [1.526784, 0.898405, 0.455212],
+                "day_rgb": [1.522816, 0.899191, 0.459111], "rig_rgb": None, "rig_rb": None, "lamp_rb": 10.0668,
+                "rig_kelvin": None}
+    views = {"cam_r_bed_1": ("r_bed", 1.30, 0.0), "cam_r_bed_2": ("r_bed", 1.58, 0.0),
+             "cam_r_hall_1": ("r_hall", 1.60, 0.62), "cam_r_hall_2": ("r_hall", 1.41, 0.7)}
+
+    def check(case, exposure):
+        monkeypatch.setattr(gpu, "OUTPUTS", tmp_path / case)
+        gpu.test_rig_lit_rooms_have_no_orange_cast(_wall_views(tmp_path / case, views, exposure=exposure))
+        return json.loads((tmp_path / case / "real02" / "renders" / "gpu_check_values.json").read_text(
+            encoding="utf-8"))["rig_lit_rooms_have_no_orange_cast"]["real02"]
+    kept = check("w", {"cam_r_hall_1": {"wb_walls": dict(GIRIS_HOLU_2, rig_kelvin=3284.1)},
+                       "cam_r_bed_2": {"wb_walls": oda_01_2}})
+    hall, hall_2 = kept["rig_lit"]["cam_r_hall_1"], kept["rig_lit"]["cam_r_hall_2"]
+    bed = kept["daylight"]["cam_r_bed_2"]
+    assert hall["wall_light_rb"] == pytest.approx(3.6805, abs=1e-4) and hall["wall_day_rb"] == pytest.approx(3.0699,
+                                                                                                         abs=1e-4)
+    assert hall["wall_rig_share"] == 0.593776 and hall["wall_rig_kelvin"] == 3284.1
+    assert hall["wall_rig_rb"] == 4.1708 and hall["lamp_rb"] == 2.6511
+    assert bed["wall_light_rb"] == pytest.approx(3.354, abs=1e-3) and bed["wall_rig_rb"] is None
+    assert bed["wall_rb"] == 1.58 and kept["daylight"]["cam_r_bed_1"]["wall_light_rb"] is None
+    assert all(hall_2[k] is None for k in ("wall_light_rb", "wall_day_rb", "wall_rig_share", "wall_rig_rb",
+                                           "wall_rig_kelvin", "lamp_rb"))
+    assert "the light on the walls (render wb_walls" in capsys.readouterr().out
+    # the verdict does not read the record: the same views without it give the same bounds
+    plain = check("plain", {})
+    assert {c: (v["bound"], v["regime"]) for c, v in plain["rig_lit"].items()} == \
+        {c: (v["bound"], v["regime"]) for c, v in kept["rig_lit"].items()}
+    assert hall["bound"] == 1.63 and hall["regime"] == "mixed"
 
 
 # --------------------------------------------------------------------------
@@ -338,10 +369,10 @@ def test_p6b_view_white_records_the_walls_and_keeps_the_white_point(tmp_path, mo
 # --------------------------------------------------------------------------
 
 def test_p6b_gpu_glazing_check_keeps_its_values(tmp_path, monkeypatch):
-    """``test_interior_glazing_keeps_one_white_point`` keeps every view's pane and wall R/B (and the view's rig share)
-    in ``gpu_check_values.json`` whatever the verdict: P6b's three named real03 views still fail at the unchanged 0.3
-    (0.692 / 0.321 / -0.398) with their values kept, and a project without named views (real02) is skipped with its
-    values kept. Fails on 620997b (no values file)."""
+    """``test_interior_glazing_keeps_one_white_point`` keeps every view's pane and wall R/B (with the view's rig share
+    and the light on its own walls, ``_walls_record``) in ``gpu_check_values.json`` whatever the verdict: P6b's three
+    named real03 views still fail at the unchanged 0.3 (0.692 / 0.321 / -0.398) with their values kept, and a project
+    without named views (real02) is skipped with its values kept. Fails on 620997b (no values file)."""
     gpu = _gpu_render_module(monkeypatch, tmp_path)
     assert gpu.INTERIOR_GLAZING_MAX_DELTA == 0.3
     results = tmp_path / "results"
@@ -349,8 +380,12 @@ def test_p6b_gpu_glazing_check_keeps_its_values(tmp_path, monkeypatch):
     p6b = {"cam_r_L0_yasama_8_3": (1.901, 1.209, 0.0), "cam_r_L0_ebeveyn_odasi_2_1": (1.616, 1.295, 0.015617),
            "cam_r_L0_yangin_merdiveni_1": (1.197, 1.595, 0.889906), "cam_r_L0_kat_holu_1": (2.164, 1.436, 0.717718)}
 
+    stair = {"light_rgb": [1.649542, 0.867126, 0.403591], "day_rgb": [1.481038, 0.904521, 0.529336],
+             "rig_share": 0.902754, "rig_rb": 4.2756, "rig_kelvin": 3284.7, "lamp_rb": 2.6511}   # the P6b shim's
+
     def project(name, views):
-        renders = [{"camera": c, "room_id": "r", "exposure": {"wb_rig_share": s},
+        renders = [{"camera": c, "room_id": "r", "exposure": {"wb_rig_share": s} | (
+                        {"wb_walls": stair} if c == "cam_r_L0_yangin_merdiveni_1" else {}),
                     "interior_glazing": {"pane_rb": p, "wall_rb": w, "delta_rb": round(p - w, 3),
                                          "windows": ["win_L0_055"], "pane_px": 900, "rule": "r"}}
                    for c, (p, w, s) in views.items()]
@@ -365,4 +400,7 @@ def test_p6b_gpu_glazing_check_keeps_its_values(tmp_path, monkeypatch):
     assert real03["named"] == list(gpu.INTERIOR_GLAZING_VIEWS["real03"]) and real03["max_delta"] == 0.3
     assert real03["views"]["cam_r_L0_yasama_8_3"]["delta_rb"] == 0.692
     assert real03["views"]["cam_r_L0_kat_holu_1"]["rig_share"] == 0.717718
+    assert real03["views"]["cam_r_L0_yangin_merdiveni_1"]["wall_light_rb"] == pytest.approx(4.0871, abs=1e-4)
+    assert real03["views"]["cam_r_L0_yangin_merdiveni_1"]["wall_rig_kelvin"] == 3284.7
+    assert real03["views"]["cam_r_L0_kat_holu_1"]["wall_light_rb"] is None                 # no record: None
     assert data["real02"]["named"] == [] and set(data["real02"]["views"]) == {"cam_r_L1_koridor_1"}

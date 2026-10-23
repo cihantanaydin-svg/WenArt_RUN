@@ -69,13 +69,17 @@ What: a window needs glass, and three kinds of gap are no openings of their run 
   offsets; one more real window, hidden behind a ghost before, is found), real04 two (wardrobe backs between two
   bedrooms, P6a's G12 majors); real02's 12 windows (two glass lines each) do not change. A raster page's traced lines
   keep the old rule (their ends and offsets carry the tracing's error; synthetic-02's scan). A gap that loses its
-  window this way is an unverified opening ("unclassified gap content", the reason in its note), except an end gap
-  whose two faces are drawn on across it (both lines running past it) with no swing reaching in: there the wall
-  continues (extended, evidence ``derived``, the reason in its note; real03's stair-core wall, whose DUVAR outline is
-  no wall primitive).
+  window this way is an unverified opening ("unclassified gap content", the reason in its note), except a gap whose
+  two faces are drawn on across it on a wall layer (``_wall_faces``: lines running past it, covering it from jamb to
+  jamb, layer ``DUVAR``/``WALL``/``... - BA``, ``dxf_generic.is_wall_hint_layer``) with no swing reaching in: there
+  the wall continues (``closed``: a run merges across it, a free-end wall is extended with evidence ``derived``; the
+  reason in the gap's note). real03's two stair-core walls are DUVAR outlines with a door block inside, so no wall
+  primitive: one was a 1.55 m 'window' between the floor hall and the fire stair. Room or area outlines, beam
+  projections and axes across a gap are no wall (a doorless passage whose room outlines close across it keeps it).
 - A **lined gap** (``_lining``): a thinner wall (>= ``LINING_THINNER_M`` thinner, its own run) lies along one face of
   the run (flush within ``RUN_OFFSET_M``, inside its band), its pieces fill >= ``LINING_SHARE`` of the gap and it
-  runs on past both gap ends (> ``LINING_REACH_M``). The gap is ``open``: the thick pieces are columns or shear walls
+  runs on past both gap ends (> ``LINING_REACH_M``) as one wall (``_chains``: its pieces apart by its own gaps <=
+  ``GAP_MAX_M`` only, which it classifies). The gap is ``open``: the thick pieces are columns or shear walls
   standing on that wall, not one wall with windows between them. real03: the 30 cm shear walls of the hall-living
   partition (``D BLOK_STA_NK`` B-H/BA, y 0-1.3, 5.7-7.7, 12.1-13.4 m) were one 0.30 m wall from end to end, its gaps
   windows read from the beam projections (IZ-1), the axis line and the net-area outlines lying on its faces; it
@@ -85,8 +89,9 @@ What: a window needs glass, and three kinds of gap are no openings of their run 
   lining wall's and the pieces' entities, before: the wall as one run) and the gap's log entry says why. The thin
   wall keeps its own gaps (the 1.05 m hall-living passages). No end gap is cast across a lined gap.
 - A gap **inside wall material** (``_inside_wall``): other pieces on the run's axis (another run, a thicker
-  cross-section) cover its whole band along its whole width. It is ``closed`` (the run merges across it, as a gap <
-  0.25 m does) with a note, never a door, window or opening: real03's shear-wall core (y 5.7-7.7 m), where the
+  cross-section) cover its whole band along its whole width, and it holds no door symbol (a drawn swing keeps its
+  door). It is ``closed`` (the run merges across it, as a gap <
+  0.25 m does) with a note, never a window or opening: real03's shear-wall core (y 5.7-7.7 m), where the
   0.62 m pieces of the core covered the gaps the mask decomposition left in the 0.10, 0.30, 0.41 and 0.54 m runs
   through it, and its columns and shear walls in the outer walls: 13 'openings' inside concrete (the core's 12
   'windows' had no glass either).
@@ -139,6 +144,8 @@ LINING_REACH_M = 0.10           # ... and it runs on past both gap ends by more 
 GLASS_INSET_M = 0.01            # glass lies at least this far inside the wall faces ...
 WINDOW_LINES_MIN = 2            # ... a window needs this many distinct offsets of its own lines (``_confined``) ...
 GLASS_MIN_LINES = 1             # ... this many of them glass (the synthetic convention: two faces and one glass)
+# ... and the gap log's ``rule`` of each (``g.found`` key -> rule), in this order
+GAP_RULES = (("lining", "lined_gap"), ("inside", "inside_wall"), ("faces", "wall_faces"), ("no_glass", "no_glass"))
 
 DOOR_HEIGHT_M = 2.10
 WINDOW_SILL_M = 0.90
@@ -667,7 +674,7 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
                     if abs(off) < g.t / 2.0 - GLASS_INSET_M:
                         glass.add(round(off, 3))
                 elif abs(off) >= g.t / 2.0 - GLASS_INSET_M:
-                    faces.setdefault(1 if off > 0 else -1, []).append(it)
+                    faces.setdefault(1 if off > 0 else -1, []).append((it, lo, hi))
     no_glass = None
     if len({off for _, off in parallel}) >= 2:
         # Raster lines (a scan's or photo's double-line walls) are traced, not drawn: their ends and offsets carry
@@ -679,16 +686,17 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         no_glass = (f"{len({off for _, off in parallel})} lines along the gap, {len(framed)} of them ending at its "
                     f"jambs and {len(glass)} glass between the faces (>= {WINDOW_LINES_MIN} and >= {GLASS_MIN_LINES} "
                     f"needed): the others run on past the gap (outlines, an axis, a beam above), so no window")
-        if g.kind == "end" and len(faces) == 2 and not any(min(g.b, max(g.along(q) for q in it.pts)) -
-                                                          max(g.a, min(g.along(q) for q in it.pts)) > OWN_MARGIN_M
-                                                          for it, _ in arcs):
-            # Both faces of the free-end wall are drawn on across the gap (the outlines of the rooms on both sides)
-            # and no swing reaches into it: the wall continues (real03's stair-core wall, read as a window before).
+        walled = _wall_faces(g, faces)
+        if walled and not any(min(g.b, max(g.along(q) for q in it.pts)) - max(g.a, min(g.along(q) for q in it.pts))
+                              > OWN_MARGIN_M for it, _ in arcs):
+            # Both faces of the wall are drawn on across the gap on a wall layer and no swing reaches into it: the
+            # wall continues (real03's stair-core walls, a DUVAR outline under a door block, read as windows before).
             g.cls = "closed"
-            ids = sorted({it.st.id for side in faces.values() for it in side})
-            g.found = {"faces": ids, "note": f"both faces of the wall are drawn on across the {width:.2f} m gap "
-                                             f"({', '.join(ids[:4])}) and no glass or swing is in it: the wall "
-                                             f"continues ({no_glass})"}
+            ids = sorted({it.st.id for it in walled})
+            layers = sorted({it.st.layer for it in walled})
+            g.found = {"faces": ids, "note": f"both faces of the wall are drawn on across the {width:.2f} m gap on the "
+                                             f"wall layer ({', '.join(layers)}: {', '.join(ids[:4])}) and no glass "
+                                             f"or swing is in it: the wall continues ({no_glass})"}
             return
     # Sliding door (Milestone 10): no swing arc, but one or two leaves (thin closed shapes) parallel to the wall,
     # shorter than the gap, in the band or just beside it.
@@ -733,6 +741,30 @@ def _confined(lo: float, hi: float, a: float, b: float) -> bool:
     line, a room or area outline, an axis or a beam projection runs on past them). Glass also lies strictly between
     the faces (>= ``GLASS_INSET_M`` inside)."""
     return lo >= a - OWN_MARGIN_M and hi <= b + OWN_MARGIN_M
+
+
+def _wall_faces(g: Gap, faces: dict) -> list:
+    """Fix round after P6b (23 Oct 2026): the lines on a wall layer (``dxf_generic.is_wall_hint_layer``: DUVAR, WALL,
+    ``... - BA``) that lie on both faces of ``g``, run on past it (``faces``: side -> ``[(item, lo, hi)]``, the face
+    lines not confined to the gap) and cover each face from jamb to jamb (+- ``BAND_SLACK_M``), or []. Wall geometry
+    drawn across the gap is wall (real03: the DUVAR outlines of the stair-core walls, no wall primitive since a door
+    block lies inside them); room or area outlines, beam projections and axes are not, so a doorless passage whose
+    room outlines close across it keeps its gap."""
+    from wenart.ingest.dxf_generic import is_wall_hint_layer
+
+    out: dict[int, _S] = {}
+    for side in (-1, 1):
+        lines = sorted(((it, lo, hi) for it, lo, hi in faces.get(side, []) if is_wall_hint_layer(it.st.layer)),
+                       key=lambda x: x[1])
+        reach = g.a
+        for _, lo, hi in lines:
+            if lo > reach + BAND_SLACK_M:
+                break
+            reach = max(reach, hi)
+        if not lines or reach < g.b - BAND_SLACK_M:
+            return []
+        out.update((id(it), it) for it, _, _ in lines)
+    return list(out.values())
 
 
 def _sliding_leaves(g: Gap, zone: list) -> list:
@@ -908,9 +940,12 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
             found = []
             for a, b in subs:
                 g = Gap("run" if len(subs) == 1 else "split", p.axis, _run_c(run), _run_t(run), a, b, [p, q])
-                cover = _inside_wall(g, pieces, run)
+                if g.width >= GAP_MIN_M:
+                    classify_gap(g, index, trial)
+                # Fix round after P6b: wall material of other pieces fills the gap (real03's shear-wall core); a door
+                # symbol in it keeps the door (review of the fix round: the drawn swing outranks the decomposition).
+                cover = _inside_wall(g, pieces, run) if g.cls != "door" else None
                 if cover is not None:
-                    # Fix round after P6b: wall material of other pieces fills the gap (real03's shear-wall core).
                     g.cls = "closed"
                     g.found = {"inside": [w.k for w in cover],
                                "note": f"a {g.width:.3f} m gap inside wall material ({len(cover)} other piece(s) on "
@@ -920,7 +955,6 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                 elif g.width < GAP_MIN_M:
                     g.cls = "closed"
                 else:
-                    classify_gap(g, index, trial)
                     _own(g, index, trial)
                 found.append(g)
             lining = _lining(run, p, q, runs, found)
@@ -1249,10 +1283,13 @@ def _lining(run: list[Piece], p: Piece, q: Piece, runs: list[list[Piece]], found
         if t - t2 < LINING_THINNER_M - 1e-9 or lo2 < lo - RUN_OFFSET_M or hi2 > hi + RUN_OFFSET_M or \
                 min(abs(lo2 - lo), abs(hi2 - hi)) > RUN_OFFSET_M:
             continue
-        share = sum(max(0.0, min(w.b, b) - max(w.a, a)) for w in other) / (b - a)
-        reach = min(a - min(w.a for w in other), max(w.b for w in other) - b)
-        if share >= LINING_SHARE - 1e-9 and reach > LINING_REACH_M and (best is None or share > best[0]):
-            best = (share, other, lo2, hi2, t2)
+        # Review of the fix round: the lining is one wall through the gap, its pieces apart by its own classified
+        # gaps only (<= GAP_MAX_M: the passages it holds); a piece of the run far along the axis is not.
+        for chain in _chains(other):
+            share = sum(max(0.0, min(w.b, b) - max(w.a, a)) for w in chain) / (b - a)
+            reach = min(a - min(w.a for w in chain), max(w.b for w in chain) - b)
+            if share >= LINING_SHARE - 1e-9 and reach > LINING_REACH_M and (best is None or share > best[0]):
+                best = (share, chain, lo2, hi2, t2)
     if best is None:
         return None
     share, other, lo2, hi2, t2 = best
@@ -1266,6 +1303,18 @@ def _lining(run: list[Piece], p: Piece, q: Piece, runs: list[list[Piece]], found
             f"not one wall with openings between them")
     return {"thickness": round(t, 4), "lining_thickness": round(t2, 4), "share": round(share, 3),
             "entity": ",".join(entities), "note": note}
+
+
+def _chains(run: list[Piece]) -> list[list[Piece]]:
+    """Fix round after P6b, review: the pieces of ``run`` in runs of their own that no gap > ``GAP_MAX_M`` splits
+    (a gap that long is open: no wall across it, ``gaps_and_openings``)."""
+    out: list[list[Piece]] = []
+    for q in sorted(run, key=lambda w: w.a):
+        if out and q.a - max(w.b for w in out[-1]) <= GAP_MAX_M:
+            out[-1].append(q)
+        else:
+            out.append([q])
+    return out
 
 
 def _mark_lined(walls: list[WallItem], group: list[tuple[int, list[Piece]]], linings: list[dict], ctx: "_Ctx") -> None:
@@ -1292,9 +1341,10 @@ def _mark_lined(walls: list[WallItem], group: list[tuple[int, list[Piece]]], lin
         ev["note"] = reason
         old = w.evidence.get("note")
         new = dataclasses.replace(w, evidence=dict(w.evidence, note=(old + "; " if old else "") + reason))
-        new.corrected_by_ai = {"reason": reason, "evidence": ev, "rule": "lined_gap",
-                               "before": {"start": [round(s[0], 4), round(s[1], 4)],
-                                          "end": [round(e[0], 4), round(e[1], 4)], "thickness": round(t, 4)}}
+        new.corrected_by_ai = {"by": "code", "stage": "reading", "rule": "lined_gap", "reason": reason,
+                               "evidence": ev, "before": {"start": [round(s[0], 4), round(s[1], 4)],
+                                                          "end": [round(e[0], 4), round(e[1], 4)],
+                                                          "thickness": round(t, 4)}}
         walls[k] = new
 
 
@@ -1576,6 +1626,13 @@ def _log_entry(g: Gap, theta: float, piece_out: dict) -> dict:
         entry["note"] = g.found["split_reason"]
     if g.found.get("lining"):
         entry["lining"] = {k: v for k, v in g.found["lining"].items() if k != "note"}
+    # Fix round after P6b: the rule that decided a gap the old reading took for a window or an opening (the core lists
+    # them in the page notes, ``core.gap_rule_notes``).
+    rule = next((r for key, r in GAP_RULES if g.found.get(key)), None)
+    if rule is not None:
+        entry["rule"] = rule
+        if rule == "no_glass" and "note" not in entry:
+            entry["note"] = g.found["no_glass"]
     if g.kind == "end":
         p, which = g.free
         entry["free_wall"] = piece_out.get(p.k)

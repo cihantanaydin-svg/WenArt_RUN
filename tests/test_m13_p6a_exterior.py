@@ -32,7 +32,12 @@ from pathlib import Path
 
 import pytest
 
+from test_agent_helpers import FakeEdits, write_json
 from wenart.agent import critic_vision as CV
+from wenart.agent import log as LG
+from wenart.agent import loop as LP
+from wenart.agent import overrides as OV
+from wenart.agent import tools as TL
 from wenart.blender import build as B
 from wenart.blender import exterior as E
 from wenart.blender import exterior_checks as X
@@ -41,6 +46,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REAL04 = ROOT / "results" / "furniture" / "real04" / "building_final.json"
 RUNS = ROOT / "runs"
 P6A = RUNS / "20261022-135644-m13_p6" / "results"
+P6B = RUNS / "20261022-235127-fetch_results" / "results"
 P5 = RUNS / "20261017-224848-full" / "results"
 P4A = RUNS / "20261017-072801-full" / "results"
 P4B = RUNS / "20261017-091212-full" / "results"
@@ -153,6 +159,18 @@ def test_x6_counts_an_agent_view_as_frontal_only_when_it_frames_the_building_wit
     # to a corner (real04's (22, 18.2): 29.8 degrees off square, framed 43.8 degrees off)
     up = dict(blank, sky_share=0.111)
     assert any("no frontal view" in v["message"] for v in _x6([up]))
+    # fix round after P6a (23 Oct 2026), review: a frontal pose that frames the building but shows no sky is no frontal
+    # view either (a mutation of ``frames_building`` that drops the sky condition passed every other case here: each
+    # also has fits False or a corner frame)
+    dark = dict(good, sky_share=0.0)
+    out = _x6([dark])
+    assert any(v["target"] == "exterior" and "no frontal view" in v["message"] for v in out)
+    own = [v for v in out if v["target"] == "ext_front"]
+    assert len(own) == 1 and own[0]["severity"] == "major" and "no sky in the frame (0%" in own[0]["message"]
+    assert "frames only part" not in own[0]["message"]
+    assert not X.frames_building(X.camera_frame(dark)) and not X.x6_frontal(dark, MAIN_Y)
+    assert not CV.x6_frontal(dark, MAIN_Y) and CV.camera_role(dark, MAIN_Y) == "agent"
+    assert X.x6_frontal(dict(dark, sky_share=E.SKY_MIN_SHARE), MAIN_Y)          # at the limit: the frontal view
     corner = dict(AGENT_FRONT, position=[22.0, 18.2, 1.6], target=[15.0, 6.0, 1.6], fill=0.82, fits=True,
                   sky_share=0.28, frame_target=[12.26, 8.06, 1.6])
     assert X._faces(corner, MAIN_Y["direction"])                        # the pose is square enough ...
@@ -178,7 +196,8 @@ def test_x6_eye_level_agent_view_without_sky_gets_a_major_and_its_fill_no_minor(
     planner = {"name": "ext_1", "kind": "exterior", "view": "corner", "sides": ["front", "left"],
                "position": [-5.0, -9.0, 1.6], "target": [5.0, 0.0, 1.6], "fill": 0.94}
     assert [v for v in _x6([planner]) if "frame width" in v["message"]]  # the planner's views keep the rule
-    # a high agent view keeps the pose rule (its level frame says nothing about an aerial)
+    # a high agent view gets no eye-level frame finding of its own (fix round after P6a, review: X6's frontal rule
+    # judges its frame, test_x6_judges_a_high_agent_pose_by_its_frame_too)
     high = dict(AGENT_FRONT, position=[8.5, 40.0, 12.0], fill=3.0, fits=False, sky_share=0.0)
     assert not [v for v in _x6([high]) if v["target"] == "ext_front" and v["severity"] == "major"]
 
@@ -223,6 +242,125 @@ def test_critique_exterior_passes_its_building_to_the_camera_role():
     """Source wiring (fails on BASE): ``critique_exterior`` measures the role's frame on its building and plan."""
     src = inspect.getsource(CV.critique_exterior)
     assert "camera_role(camera, main_facade_of(scene, building, prep), building=building, prep=prep)" in src
+
+
+# --------------------------------------------------------------------------
+# Fix round after P6a (23 Oct 2026), review: a high agent pose and an agent pose labelled frontal are judged by their
+# frame too
+# --------------------------------------------------------------------------
+
+# a 30 x 10 m one-storey box (real03's shape: long and low; ridge 3.1 m, high-view line 4.1 m), its main (-y) facade
+# and the planner's corner and frontal views of it
+LONG_MAIN = {"axis": "-y", "direction": [0.0, -1.0], "source": "assumed"}
+LONG_EXT = [
+    {"name": "ext_1", "kind": "exterior", "room_id": None, "view": "corner", "sides": ["left", "front"],
+     "position": [-10.0, -20.0, 1.6], "target": [15.0, 5.0, 1.6], "lens_mm": 26.0, "source": "searched"},
+    {"name": "ext_6", "kind": "exterior", "room_id": None, "view": "frontal", "sides": ["front"],
+     "position": [15.0, -30.0, 1.6], "target": [15.0, 5.0, 1.6], "lens_mm": 26.0, "source": "searched"},
+]
+LONG_CLOSE = ([15.0, -8.0, 1.6], [15.0, 5.0, 1.6])   # 8 m from the 30 m facade: 2.77 frame widths, 28 % sky
+LONG_HIGH = ([15.0, -8.0, 5.0], [15.0, 5.0, 0.0])    # the same place 1.9 m over the ridge, looking down: no sky
+
+
+def _ctx(out: Path, building: dict, scene: dict):
+    write_json(out / "building_decor.json", building)
+    write_json(out / "scene" / "scene_manifest.json", scene)
+    return TL.ToolContext.load(out, round=1, model_id="mock/agent", log=LG.AgentLog(out, "p", "m", "r"),
+                               overrides=OV.Overrides(out), apply_edit=FakeEdits())
+
+
+def _trial_x6(ctx, tool: str, entry: dict) -> list[dict]:
+    """X6 on the loop's trial scene of the camera edit ``entry`` (``loop.camera_scene``, the dry re-check's)."""
+    trial = LP.camera_scene(ctx, tool, {k: v for k, v in entry.items() if k != "action"})
+    return [v for v in X.check_exterior(ctx.building, trial, None)["violations"] if v["check"] == "X6"]
+
+
+def test_x6_judges_a_high_agent_pose_by_its_frame_too():
+    """Fails on a0a1a2e: ``x6_frontal`` counted an ``agent`` / ``elevation`` pose at least ``HIGH_VIEW_ABOVE_RIDGE_M``
+    over the ridge as the frontal view by its pose alone (and ``_x6`` measured no frame for it). The review's case:
+    P6a's strip pose 1.2 m over real04's ridge, (8.5, 17.5, 7.2) -> (8.5, 6.0, 0.0), passes the validator (no
+    eye-level rule up there) and the build records fill 2.34, fits False, 0 % sky on it, yet "no frontal view" went
+    and the critic was told it is the frontal view."""
+    high = dict(AGENT_FRONT, position=[8.5, 17.5, 7.2], target=[8.5, 6.0, 0.0], fill=2.3449, fits=False,
+                sky_share=0.0, frame_target=[8.36, 12.5, 7.2])
+    assert high["position"][2] >= TOY_PREP["roof"]["ridge_z"] + X.HIGH_VIEW_ABOVE_RIDGE_M
+    out = _x6([high])
+    assert any(v["target"] == "exterior" and "no frontal view" in v["message"] for v in out)
+    assert not [v for v in out if v["target"] == "ext_front" and v["severity"] == "major"]   # no eye-level rule
+    assert not X.x6_frontal(high, MAIN_Y) and CV.camera_role(high, MAIN_Y) == "agent"
+    framed = dict(high, position=[8.5, 40.0, 9.0], target=[8.5, 6.0, 6.0], fill=0.31, fits=True, sky_share=0.39,
+                  frame_target=[8.5, 6.0, 9.0])
+    assert X.x6_frontal(framed, MAIN_Y) and not any("no frontal view" in v["message"] for v in _x6([framed]))
+    bare = {k: v for k, v in high.items() if k not in X.FRAME_KEYS + ("frame_target",)}
+    assert X.x6_frontal(bare, MAIN_Y)                   # no frame, no model (a toy plan): the pose rule, as at eye level
+    # a record without its frame (the loop's trial scene) is measured on the building, with the ridge it knows
+    b = _box(30.0, 10.0, levels=1)
+    prep = X._prep(b)
+    cam = {"name": "ext_9", "kind": "exterior", "view": "agent", "policy": "agent", "position": LONG_HIGH[0],
+           "target": LONG_HIGH[1], "lens_mm": 26.0}
+    assert cam["position"][2] >= float(prep["roof"]["ridge_z"]) + X.HIGH_VIEW_ABOVE_RIDGE_M
+    assert X.validate_camera_override(b, _ext("ext_9", *LONG_HIGH))["ok"]
+    out = []
+    X._x6(b, prep, {"cameras": [cam]}, None, out)
+    assert any(v["target"] == "exterior" and "no frontal view" in v["message"] for v in out)
+    assert not CV.x6_frontal(cam, LONG_MAIN, building=b) and CV.camera_role(cam, LONG_MAIN, prep=prep) == "agent"
+    far = dict(cam, position=[15.0, -40.0, 5.0], target=[15.0, 5.0, 3.0])
+    out = []
+    X._x6(b, prep, {"cameras": [far]}, None, out)
+    assert not any("no frontal view" in v["message"] for v in out)
+    assert CV.camera_role(far, LONG_MAIN, prep=prep) == "frontal"
+
+
+def test_x6_judges_an_agent_pose_labelled_frontal_by_its_frame():
+    """Fails on a0a1a2e: ``x6_frontal`` counted every ``frontal`` view at once and ``_frontal_pose`` took only
+    ``elevation`` / ``agent``, so an agent ``set`` of the planner's frontal view (P6b's real03 ext_6: searched, not
+    frozen) to a square pose 8 m from its 33 m facade, which the build keeps labelled ``frontal``
+    (``build.agent_exterior_view``), cleared "no frontal view" and got no finding of its own (fill 2.95, fits False).
+    Now an agent plan (``policy`` agent) labelled frontal is judged like an ``agent`` one and told to the critic as a
+    view the agent placed; the planner's frontal view keeps the label rule."""
+    close = dict(AGENT_FRONT, view="frontal", position=[8.5, 17.5, 1.6], target=[8.5, 12.5, 1.6], fill=2.954,
+                 fits=False, sky_share=0.17, frame_target=[8.5, 12.5, 1.6])
+    out = _x6([close])
+    assert any(v["target"] == "exterior" and "no frontal view" in v["message"] for v in out)
+    own = [v for v in out if v["target"] == "ext_front"]
+    assert len(own) == 1 and own[0]["severity"] == "major" and "frames only part of the building" in own[0]["message"]
+    assert "no sky" not in own[0]["message"]
+    assert not X.x6_frontal(close, MAIN_Y) and not CV.x6_frontal(close, MAIN_Y)
+    assert CV.camera_role(close, MAIN_Y) == "agent"
+    assert X.x6_frontal(close, None)            # no main facade (X6 asks for no frontal view): the label stands
+    good = dict(close, position=[8.5, 30.0, 1.6], target=[8.5, 6.0, 1.6], fill=0.89, fits=True, sky_share=0.41,
+                frame_target=[8.5, 6.0, 1.6])
+    assert X.x6_frontal(good, MAIN_Y) and CV.camera_role(good, MAIN_Y) == "frontal"
+    assert not [v for v in _x6([good]) if v["severity"] != "minor"]
+    planner = {k: v for k, v in close.items() if k not in ("policy",) + X.FRAME_KEYS + ("frame_target",)}
+    assert X.x6_frontal(planner, MAIN_Y) and CV.camera_role(planner, MAIN_Y) == "frontal"
+    assert not [v for v in _x6([planner]) if v["severity"] != "minor"]
+
+
+def test_the_role_guard_and_the_trial_scene_judge_a_set_of_the_frontal_view_by_its_frame(tmp_path):
+    """Fails on a0a1a2e: the camera tool's role guard (``tools.frontal_pose_problem``) read the next build's plan of a
+    ``set`` of the planner's frontal view as X6's frontal view by its label, and so did X6 on the loop's trial scene
+    (``loop.camera_scene``): a square pose 8 m from the long box's 30 m facade (2.77 frame widths, 28 % sky: the
+    validator takes it) was accepted and cleared "no frontal view". Now the guard refuses it with the frame's reason
+    (not "no longer looks square": it is square) and the trial scene keeps "no frontal view" with a major on the
+    camera; a pose that frames the building stays accepted."""
+    b = _box(30.0, 10.0, levels=1)
+    ctx = _ctx(tmp_path / "long", b, {"cameras": copy.deepcopy(LONG_EXT),
+                                      "whole_building": {"main_facade": LONG_MAIN}})
+    main = CV.main_facade_of(ctx.scene, ctx.building)
+    assert TL.x6_frontal_now(ctx, "ext_6", main)                        # the planner's frontal view
+    close = _ext("ext_6", *LONG_CLOSE, action="set")
+    assert X.validate_camera_override(b, close)["ok"]
+    assert TL.next_view(ctx, "ext_6", close)[0] == "frontal"           # the build keeps the label on a square pose
+    why = TL.role_problem(ctx, "set", "ext_6", close)
+    assert why is not None and why.startswith("role: ext_6 is the frontal view and keeps its role"), why
+    assert "frames only part of the building (it spans 2.77" in why and "no longer looks square" not in why
+    x6 = _trial_x6(ctx, "set_camera", close)
+    assert any(v["target"] == "exterior" and "no frontal view of the entrance (-y) facade" in v["message"] for v in x6)
+    assert any(v["target"] == "ext_6" and v["severity"] == "major" and "frames only part" in v["message"] for v in x6)
+    far = _ext("ext_6", [15.0, -40.0, 1.6], [15.0, 5.0, 1.6], action="set")
+    assert TL.role_problem(ctx, "set", "ext_6", far) is None
+    assert not [v for v in _trial_x6(ctx, "set_camera", far) if v["severity"] != "minor"]
 
 
 # --------------------------------------------------------------------------
@@ -388,3 +526,43 @@ def test_the_accepted_agent_poses_of_p4a_p4b_p5_stay_accepted(results, project, 
         main = CV.main_facade_of(scene, building)
         cams = [c for c in scene["cameras"] if c["name"] == frontal and c.get("kind") == "exterior"]
         assert any(X.x6_frontal(c, main, model=X.exterior_model(X._prep(building))) for c in cams)
+
+
+@pytest.mark.skipif(not all((r / "agent").is_dir() for r in (P6A, P6B)), reason="the P6a / P6b runs are not here")
+def test_p6a_p6b_a_high_strip_pose_and_a_close_set_of_real03s_frontal_view_leave_no_frontal_view(tmp_path):
+    """Fix round after P6a (23 Oct 2026), review, on the real runs (fails on a0a1a2e). real04 (P6a, without
+    ext_front_entrance): the strip pose 1.2 m over the ridge passes the validator, but X6 on the loop's trial scene
+    keeps "no frontal view" and the critic is told a view the agent placed. real03 (P6b): a set of the planner's
+    frontal ext_6 8 m from the facade passes the validator but is refused by the role guard and leaves "no frontal
+    view" with a major on ext_6; P4b's accepted square sets of ext_6 (seq 33, 46) stay accepted and frontal."""
+    building, scene, _ov = _run(P6A, "real04")
+    scene = dict(scene, cameras=[c for c in scene["cameras"] if c["name"] != "ext_front_entrance"])
+    ctx = _ctx(tmp_path / "p6a", building, scene)
+    high = {"action": "add", "view_id": "ext_front_entrance", "kind": "exterior", "position": [8.5, 17.5, 7.2],
+            "target": [8.5, 6.0, 0.0], "lens_mm": 26.0, "reason": "frontal view from above"}
+    assert X.validate_camera_override(building, high)["ok"]
+    x6 = _trial_x6(ctx, "add_camera", high)
+    assert any(v["target"] == "exterior" and "no frontal view of the entrance (+y) facade" in v["message"] for v in x6)
+    trial = LP.camera_scene(ctx, "add_camera", {k: v for k, v in high.items() if k != "action"})
+    cam = next(c for c in trial["cameras"] if c["name"] == "ext_front_entrance")
+    assert CV.camera_role(cam, CV.main_facade_of(trial, building), building=building) == "agent"
+
+    building, scene, overrides = _run(P6B, "real03")
+    ctx = _ctx(tmp_path / "p6b", building, scene)
+    main = CV.main_facade_of(ctx.scene, building)
+    assert TL.x6_frontal_now(ctx, "ext_6", main)
+    close = {"action": "set", "view_id": "ext_6", "kind": "exterior", "position": [16.63, -8.09, 1.45],
+             "target": [16.63, -0.09, 1.45], "lens_mm": 26.0, "reason": "closer"}
+    assert X.validate_camera_override(building, close)["ok"]
+    why = TL.role_problem(ctx, "set", "ext_6", close)
+    assert why is not None and "frames only part of the building (it spans 2.95" in why, why
+    x6 = _trial_x6(ctx, "set_camera", close)
+    assert any(v["target"] == "exterior" and "no frontal view of the entrance (-y) facade" in v["message"] for v in x6)
+    assert any(v["target"] == "ext_6" and v["severity"] == "major" and "frames only part" in v["message"] for v in x6)
+    square = [e for e in _exterior_edits(overrides) if e["view_id"] == "ext_6"
+              and TL.next_view(ctx, "ext_6", e)[0] == "frontal"]
+    assert [e["position"] for e in square] == [[16.6, -30, 1.45], [28, -22, 1.45]]
+    for e in square:
+        assert TL.role_problem(ctx, "set", "ext_6", e) is None, e["position"]
+        assert not any("no frontal view" in v["message"] or v["target"] == "ext_6"
+                       for v in _trial_x6(ctx, "set_camera", e)), e["position"]

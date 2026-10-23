@@ -104,6 +104,10 @@ an ``elevation`` / ``agent`` view square to the main facade is the frontal view 
 with the sky (its recorded or measured ``fill`` / ``fits`` / ``sky_share``). ``critique_exterior`` passes its building
 and plan, so an agent view that shows only part of the facade (P6a's ext_front_entrance: a blank wall, no sky) is told
 as a view the agent placed, not as the frontal view.
+
+Fix round after P6a (23 Oct 2026), review: X6's rule also judges a high agent pose and an agent plan the build keeps
+labelled ``frontal`` (a set of the planner's frontal view to another square pose) by their frame, so ``camera_role``
+tells such a plan that frames only part of the building or no sky as ``agent`` too.
 """
 from __future__ import annotations
 
@@ -569,15 +573,16 @@ def x6_frontal(camera: Optional[dict], main: Optional[dict], *, building: Option
     (``prep``: ``build.prepare``'s plan when the caller has it); a pose whose frame cannot be measured keeps the pose
     rule. Why: P6a's agent camera ext_front_entrance (a blank wall 5 m away, both doors cut, no sky) was told to the
     critic as "the frontal view", so its vision X3 / X6 claims were judged as about a frontal view and the camera
-    tools' role guards protected it."""
+    tools' role guards protected it.
+
+    Fix round after P6a (23 Oct 2026), review: X6's rule judges a high pose and an agent plan labelled ``frontal`` by
+    their frame too (``exterior_checks.x6_frontal``); the ridge is no longer passed."""
     if not isinstance(camera, dict):
         return False
     from wenart.blender import exterior_checks as X
     model = None
-    ridge = None
     if isinstance(prep, dict) or isinstance(building, dict):
         plan = prep if isinstance(prep, dict) else (X._prep(building) or {})
-        ridge = (high_view_line(prep=plan) or (None, None))[0]
         made: list = []
 
         def model():
@@ -585,7 +590,7 @@ def x6_frontal(camera: Optional[dict], main: Optional[dict], *, building: Option
                 made.append(X.exterior_model(plan))
             return made[0]
     try:
-        return bool(X.x6_frontal(camera, main, model=model, ridge=ridge))
+        return bool(X.x6_frontal(camera, main, model=model))
     except (KeyError, TypeError, ValueError, IndexError):
         return False
 
@@ -594,11 +599,19 @@ def camera_role(camera: Optional[dict], main: Optional[dict], *, building: Optio
                 prep: Optional[dict] = None) -> Optional[str]:
     """Pass before P5 (module docstring): the role the critic is told and the claims are judged by: ``frontal`` for
     an ``agent`` view that is X6's frontal view (``x6_frontal``; fix round after P6a: with ``building`` / ``prep`` its
-    frame is measured when the record does not carry it), else the camera's own ``view``."""
+    frame is measured when the record does not carry it), else the camera's own ``view``.
+
+    Fix round after P6a (23 Oct 2026), review: ``agent`` for an agent plan (``exterior_checks._agent_camera``) that
+    the build keeps labelled ``frontal`` but that is not X6's frontal view (it frames only part of the building or no
+    sky), as for P6a's ext_front_entrance: the critic is not told "the one frontal view X6 asks for" about it."""
     if not isinstance(camera, dict):
         return None
     if camera.get("view") == "agent" and x6_frontal(camera, main, building=building, prep=prep):
         return "frontal"
+    from wenart.blender import exterior_checks as X
+    if camera.get("view") == "frontal" and X._agent_camera(camera) \
+            and not x6_frontal(camera, main, building=building, prep=prep):
+        return "agent"
     return camera.get("view")
 
 

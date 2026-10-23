@@ -2025,6 +2025,10 @@ MIN_LIGHT_BOTTOM_M = 2.0
 WINDOW_DECOR_TYPES = ("curtain", "blind")
 WINDOW_DECOR_CEILING_CLEAR_M = 0.02
 WINDOW_DECOR_MIN_H_M = 0.3
+# Fix round after P6a (23 Oct 2026), review: the decor stage's rounding (decor_ai.window_items writes center[2] and
+# size[2] to the millimetre from a ceiling read to 0.1 mm), so a curtain or blind it sized under the slope may stand up
+# to 1 mm over the bound; such an item is kept as placed (P6a's dec_L1_005 / 014: size 1.009 against 1.0086).
+WINDOW_DECOR_ROUND_TOL_M = 1e-3
 
 
 def camera_building(building: dict, not_built) -> dict:
@@ -2135,14 +2139,18 @@ def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str]
 def _window_decor_under_roof(item: dict, level: dict, F, P) -> tuple[dict | None, str | None, dict | None]:
     """``(item to build or None, warning or None, not_built record or None)`` of one hostless curtain or blind under
     the roof (``decor_under_roof``, fix round after P6a part I2; pure): its top at most ``WINDOW_DECOR_CEILING_CLEAR_M``
-    under the lowest ceiling over its footprint (``furniture.ceiling_above``), its bottom (``center[2]``) kept."""
+    under the lowest ceiling over its footprint (``furniture.ceiling_above``), its bottom (``center[2]``) kept. Fix
+    round after P6a (23 Oct 2026), review: an item at most ``WINDOW_DECOR_ROUND_TOL_M`` over that bound (the decor
+    stage's millimetre rounding) is kept as placed, with no warning: with the old 1e-6 every attic curtain the decor
+    stage sized under the slope (real04 P6a dec_L1_005 / 014, real02 P4a dec_L1_005 / 018) was "made 0.00 m shorter",
+    and a roller blind of 0.3 m or less sized right would not have been built."""
     dtype = item.get("type")
     w, d, h = P.decor_size(dtype, item.get("size") or [0.4, 0.4])
     center = list(item["center"])
     ceiling, _how = F.ceiling_above(level, center, (w, d), float(item.get("rotation_deg") or 0.0))
     bottom = float(center[2])
     room = ceiling - WINDOW_DECOR_CEILING_CLEAR_M - bottom
-    if bottom + h <= ceiling - WINDOW_DECOR_CEILING_CLEAR_M + 1e-6:
+    if bottom + h <= ceiling - WINDOW_DECOR_CEILING_CLEAR_M + WINDOW_DECOR_ROUND_TOL_M + 1e-9:
         return item, None, None
     if room <= WINDOW_DECOR_MIN_H_M + 1e-9:
         reason = (f"{dtype}: the sloped ceiling over it is {ceiling:.2f} m high; from its bottom at {bottom:.2f} m "

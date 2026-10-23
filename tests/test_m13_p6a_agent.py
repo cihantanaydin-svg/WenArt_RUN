@@ -394,13 +394,20 @@ def _hall(*pieces_) -> dict:
             "furniture": list(pieces_), "conflicts": [], "unverified": [], "warnings": []}
 
 
+# fix round after P6a (23 Oct 2026), review: a TV unit 3.15 m behind the back of the sofa s1 at (5.0, 4.0) (in reach,
+# not faced), so s1's F3 stays the drawn layout and is not the missing member (``causes.front_missing``)
+BEHIND_TV = piece("t1", "h1", "tv_unit", (5.0, 7.8), (1.8, 0.4), 0.0, 270.0)
+
+
 def test_a_drawn_sofa_far_from_every_wall_is_the_drawn_layout():
     """Fails on BASE (no drawn_layout cause): P6a's sofas f_L-1b_041 / 042, 2 m off every wall, got move_piece in
-    every round and every move was refused by the drawn lock, the wall snap or the memory."""
+    every round and every move was refused by the drawn lock, the wall snap or the memory. Fix round after P6a (23 Oct
+    2026), review: the TV unit behind s1's back is in reach but not faced; without a piece it may face in reach the
+    cause is missing_member (tests/test_m13_p6a_review.py)."""
     far = piece("s1", "h1", "sofa", (5.0, 4.0), (2.0, 0.9), 0.0, 270.0)
     near = piece("s2", "h1", "sofa", (2.0, 1.0), (2.0, 0.9), 0.0, 90.0)          # 0.55 m off the wall w1
     ai = piece("s3", "h1", "sofa", (8.0, 4.0), (2.0, 0.9), 0.0, 270.0, "added_by_ai")
-    b = _hall(far, near, ai)
+    b = _hall(far, near, ai, BEHIND_TV)
     assert CS.drawn_layout_blocked(b, far, "F3") and not CS.drawn_layout_blocked(b, near, "F3")
     assert not CS.drawn_layout_blocked(b, ai, "F3")                               # an AI piece moves freely
     fs = [finding("F3", "major", "s1", room="h1"), finding("F3", "major", "s2", room="h1"),
@@ -440,7 +447,8 @@ def test_a_drawn_plant_alone_is_the_drawn_layout_only_without_a_partner_or_wall_
 
 def test_the_dry_re_check_keeps_the_drawn_layout_of_an_unchanged_piece():
     before = [CS.mark_drawn_layout([finding("F3", "major", "s1", room="h1")],
-                                   _hall(piece("s1", "h1", "sofa", (5.0, 4.0), (2.0, 0.9), 0.0, 270.0)))[0]]
+                                   _hall(piece("s1", "h1", "sofa", (5.0, 4.0), (2.0, 0.9), 0.0, 270.0),
+                                         BEHIND_TV))[0]]
     assert CS._metrics(before[0]).get(CS.DRAWN_LAYOUT_FLAG)
     fresh = finding("F3", "major", "s1", room="h1")
     out = LP.after_findings([fresh], before, changed={"s2"})
@@ -450,7 +458,9 @@ def test_the_dry_re_check_keeps_the_drawn_layout_of_an_unchanged_piece():
 
 
 @needs_p6a
-def test_p6a_salon_sofas_are_the_drawn_layout_and_the_snappable_ones_are_not():
+def test_p6a_salon_sofas_are_the_missing_member_and_the_snappable_ones_are_not():
+    """Fix round after P6a (23 Oct 2026), review: f_L-1b_041 / 042 stand 2 m off every wall with no coffee table or TV
+    unit in their rooms: the missing seating member is the cause (``MISSING_FRONT``), no longer the drawn layout."""
     b = read(P6A_FURNITURE / "building_final.json")
     data = read(P6A_LOG)
     fs = [{"check": e["checklist"], "target": e["target"], "severity": e["severity"], "room_id": e.get("room_id"),
@@ -460,7 +470,9 @@ def test_p6a_salon_sofas_are_the_drawn_layout_and_the_snappable_ones_are_not():
           and e["round"] == 1 and e.get("source") == "code" and e.get("checklist") in ("F3", "F8")]
     CS.mark_drawn_layout(fs, b)
     cause = {f["target"]: CS.cause_of(f, b) for f in fs}
-    assert cause["f_L-1b_041"] == cause["f_L-1b_042"] == "drawn_layout"
+    assert cause["f_L-1b_041"] == cause["f_L-1b_042"] == "missing_member"
+    assert {CS._metrics(f)[CS.DRAWN_LAYOUT_FLAG] for f in fs if f["target"] in ("f_L-1b_041", "f_L-1b_042")} == {
+        CS.MISSING_FRONT}
     # 0.59 m off: a free wall place lies within 1.2 m; the plants have a sofa within a free move
     assert cause["f_L-1b_045"] == cause["f_L-1b_046"] == "off_wall"
     assert cause["f_L-1b_047"] == cause["f_L-1b_049"] == "floating"

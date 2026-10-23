@@ -132,7 +132,7 @@ Fix round after P5 (22 Oct 2026), review:
 
 Fix round after P6a (22-23 Oct 2026; pod P6a, real04; the decor track's ask on the look lens' minor "two drawn floor
 lamps overlap"). What: **duplicate symbols** (``duplicate_symbols``, run in ``infer_types``): two built drawn pieces
-of one free-standing type that never shares its floor (``DUPLICATE_SYMBOL_TYPES``: a floor lamp, a potted plant) in
+of one free-standing type that never shares its floor (``DUPLICATE_SYMBOL_TYPES``: a floor lamp) in
 one room whose footprints overlap by at least ``DUPLICATE_SYMBOL_SHARE`` of the smaller one are one piece drawn
 twice: the larger stays (the first id on a tie), the other is not built (``build: false``, ``inferred_as: detail``,
 ``not_built_reason``) and labelled ``adjusted_by_ai`` by code (``rule`` ``DUPLICATE_SYMBOL_RULE``, ``not_furniture:
@@ -143,6 +143,11 @@ f_L-1_063 / 064, mirrored f_L-1_057 / 058 and f_L-1_065 / 066: 17-33 % of the sm
 blocks of different sizes typed floor_lamp by both AI passes); every render showed two lamps standing in each other
 (four lamps in each salon). The reading types them, so the rule runs where the inference runs (``reading.infer`` and
 ``pipeline._infer_types``) and never on an AI piece.
+
+Fix round after P6a (23 Oct 2026), review: the rule holds the floor lamp only (the measured case; potted plants
+are drawn as overlapping corner groups: 0.60 / 0.45 / 0.40 m canopies 0.45 m apart are three plants, not one), and
+a piece without the plan crop of its own question (``_crop_of``: a block-named symbol had none) is never left out.
+Real04's four duplicate lamps (P6a) and real02's two keep their crops and their verdict.
 """
 from __future__ import annotations
 
@@ -194,7 +199,9 @@ CONF_CORNER_TABLE = 0.7
 # Fix round after P6a (module docstring): two overlapping drawn symbols of one free-standing type are one piece.
 DUPLICATE_SYMBOL_METHOD = "duplicate_symbol"     # the proposal's method (the piece keeps its type_method)
 DUPLICATE_SYMBOL_RULE = "furniture.infer.duplicate_symbols"
-DUPLICATE_SYMBOL_TYPES = ("floor_lamp", "potted_plant")
+# fix round after P6a (23 Oct 2026), review: the floor lamp only, the one measured case (a corner group of drawn
+# plants overlaps by design: 0.60 / 0.45 / 0.40 m canopies 0.45 m apart are three plants)
+DUPLICATE_SYMBOL_TYPES = ("floor_lamp",)
 DUPLICATE_SYMBOL_SHARE = 0.10      # at least this share of the smaller footprint lies in the larger one
 CONF_DUPLICATE = 0.7
 
@@ -1260,7 +1267,9 @@ def duplicate_symbols(building: dict) -> list[dict]:
     DUPLICATE_SYMBOL_METHOD, "build": False, "reason", "confidence", "evidence", "kept_id", "share", "crop"}`` for the
     built drawn pieces of a ``DUPLICATE_SYMBOL_TYPES`` type that lie at least ``DUPLICATE_SYMBOL_SHARE`` (of their own
     footprint, the smaller one) inside a larger built drawn piece of the same type and room (largest first, ties by
-    id; a piece left out keeps no other piece out). Pure; the building is unchanged."""
+    id; a piece left out keeps no other piece out). Pure; the building is unchanged. Fix round after P6a (23 Oct 2026),
+    review: a piece without its plan crop (``_crop_of``: a block-named symbol had no question) is never proposed, so
+    no drawn piece is left out without the crop as evidence (CLAUDE.md)."""
     furniture = building.get("furniture") or []
     groups: dict = {}
     for f in furniture:
@@ -1286,8 +1295,10 @@ def duplicate_symbols(building: dict) -> list[dict]:
                 share = op.intersection(kp).area / op.area
                 if share < DUPLICATE_SYMBOL_SHARE - 1e-9:
                     continue
-                dropped.add(other["id"])
                 crop = _crop_of(other)
+                if not crop:
+                    continue                    # fix round after P6a, review: no removal without the plan crop
+                dropped.add(other["id"])
                 w, d = (float(v) for v in other["footprint"]["size"])
                 kw, kd = (float(v) for v in keep["footprint"]["size"])
                 text = (f"{ftype} {other['id']} ({w:.2f} x {d:.2f} m) is drawn {share:.0%} inside the larger "

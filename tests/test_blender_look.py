@@ -270,8 +270,8 @@ def test_render_key_covers_every_setting():
     # after P4a (17 Oct 2026): the daylight cast in every view, the sky pull's coverage weights and the haze hidden from
     # the interior views' camera rays: m13.3 (P4a's m13.2 renders are not reused). Fix round after P5: m13.4
     # (sky-edge shell hits take the near surface's reference; per-view daylight tint): P5's m13.3 renders are old. Fix
-    # round after P6a (22 Oct 2026): m13.5 (the sky pull's median floor; the tint metered on the walls with no green
-    # left on white): P6a's m13.4 renders are old.
+    # round after P6a (22 Oct 2026): m13.5 (the sky pull's median floor; the tint metered on the walls, m13.4's green
+    # residual kept: render.WB_TINT_KEEP_GREEN_RESIDUAL): P6a's m13.4 renders are old.
     assert settings["code"] == R.RENDER_CODE_VERSION == "m13.5" and settings["passes"] == list(R.PASSES)
     assert settings["exposure"]["limits"] == [-2.0, 3.0]
     assert R.key_settings(**dict(base, limits=R.EXPOSURE_LIMITS_M11))["exposure"]["limits"] == [-2.0, 8.0]

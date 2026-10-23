@@ -186,6 +186,17 @@ fixes):
   G8:f_L0_010 (a counter 0.29 m² through its wall); the fridges f_L0_200 / 202 / 206 (a spot 0.15 m away) keep
   fix_fixture; nothing on P4a, P5 or P6a.
 
+Fix round after P6a (23 Oct 2026), review: the F3 of a drawn piece that may stand free in its group (orientation rule
+``wall_or_group``: a sofa facing its coffee table or TV unit), that the drawn lock holds off every wall and that has no
+piece it may face within reach (``front_missing``) carries ``metrics.drawn_layout`` ``"missing_front"``
+(``MISSING_FRONT``) and has the cause ``missing_member`` (complete_group, place_group, relayout_room), not
+``drawn_layout``. Why: P6a's sofas f_L-1b_041 / 042 (and the same two on P4a's real02 data that P6c replays) have no
+coffee table or TV unit in their rooms; with a coffee table 1 m in front of f_L-1b_041 the code reports no F3, so the
+report blamed the drawing for an incomplete seating group (their G2 "has no coffee table" is minor and never worked).
+The other drawn-layout F3s of P4a / P4b / P6a / P6b (sofas with a coffee table in reach, real03's washbasin) stay
+``drawn_layout``. On P6a the sofas' anchors are unverified, so the room brief still locks complete_group for them
+("retype_piece first") and the F3 is reported with that reason.
+
 Why: real04 (M12, §1.5) accepted 183 edits of which 20 removed their finding; the tools were mapped by check id
 (``brief.CHECK_TOOLS``), so every room session got every tool for every check whatever the cause.
 
@@ -388,6 +399,9 @@ _MISSING_WORDS = ("missing", " no ", "without", "lacks", "needs a", "has no", " 
 DRAWN_LAYOUT_CHECKS: tuple[str, ...] = ("F3", "F8")
 DRAWN_LAYOUT_FLAG = "drawn_layout"
 DRAWN_TYPE_CHECKS: tuple[str, ...] = ("F1", "G14")
+# Fix round after P6a (23 Oct 2026), review (module docstring): the flag's value on the F3 of a drawn piece the drawn
+# lock holds off every wall while no piece it may face stands in reach (``front_missing``): cause ``missing_member``.
+MISSING_FRONT = "missing_front"
 # Fix round after P6b (module docstring): the checks of drawn fixed equipment that only fix_fixture may clear, held for
 # good when its 0.5 m search finds no valid spot (``fixture_layout_blocked``), and the flag's value then.
 FIXTURE_LAYOUT_CHECKS: tuple[str, ...] = ("F7", "G12", "G8")
@@ -539,6 +553,8 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
         return base
     if check == "G5":
         return "off_wall" if (metrics.get("part") == "headboard" or "headboard" in text) else "clearance"
+    if check == "F3" and metrics.get(DRAWN_LAYOUT_FLAG) == MISSING_FRONT:
+        return "missing_member"                # fix round after P6a, review: the group member it faces is missing
     if check == "F3" and metrics.get(DRAWN_LAYOUT_FLAG):
         return "drawn_layout"                  # fix round after P6a: no wall place within the drawn lock
     if check == "G8":
@@ -722,6 +738,26 @@ def drawn_type_held(building: Optional[dict], target: Optional[str]) -> bool:
         return False
 
 
+def front_missing(building: dict, piece: dict) -> bool:
+    """Fix round after P6a (23 Oct 2026), review: ``piece``'s type may stand free in its group (``schemas
+    .orientation_rule``: back ``wall_or_group`` with ``front_to`` types; a sofa facing its coffee table or TV unit) and
+    no built ``front_to`` piece of its room stands within ``reach_m`` of it (edge to edge, as
+    ``plausibility._faced_group`` reads it), so its F3 goes once the group's member is added. False otherwise and
+    whenever the geometry cannot be read."""
+    try:
+        from wenart.furniture import placer, schemas
+        rule = schemas.orientation_rule(str(piece.get("type")))
+        if rule.get("back") != "wall_or_group" or not rule.get("front_to"):
+            return False
+        poly = placer.drawn_piece(piece).polygon()
+        reach = float(rule.get("reach_m") or 0.0) + 1e-9
+        return not any(f.get("type") in rule["front_to"] and placer.drawn_piece(f).polygon().distance(poly) <= reach
+                       for f in building.get("furniture") or [] if isinstance(f, dict)
+                       and f.get("id") != piece.get("id") and f.get("room_id") == piece.get("room_id") and _built(f))
+    except Exception:  # noqa: BLE001 - a geometry that cannot be read keeps the drawn-layout verdict
+        return False
+
+
 def drawn_layout_blocked(building: dict, piece: dict, check: str) -> bool:
     """Fix round after P6a (module docstring): no edit within the drawn lock clears the ``check`` (F3 / F8) of the
     drawn piece ``piece``: the room keeps its drawn pieces (``edit_ops.kept_room``), or no wall place of the room lies
@@ -731,7 +767,18 @@ def drawn_layout_blocked(building: dict, piece: dict, check: str) -> bool:
     partner of its type (``schemas.orientation_rule``) within a free move (``edit_ops.SNAP_MAX_M``, 0.3 m, measured
     from where the piece stands now plus how far it already moved: never less reach than the lock gives). False for a
     piece that is not drawn, not built or untyped, and whenever the geometry cannot be read (the finding keeps its
-    tools)."""
+    tools). Fix round after P6a (23 Oct 2026), review: False also for the F3 of a piece whose group member in front of
+    it is missing (``drawn_layout_state`` ``MISSING_FRONT``): adding that member clears it."""
+    return drawn_layout_state(building, piece, check) is True
+
+
+def drawn_layout_state(building: dict, piece: dict, check: str):
+    """Fix round after P6a (23 Oct 2026), review: the verdict of ``drawn_layout_blocked`` (True / False), or
+    ``MISSING_FRONT`` for an F3 the drawn lock holds off every wall (no wall place within reach) while no piece the
+    piece may face stands in reach (``front_missing``: a drawn sofa without its coffee table or TV unit). Why: P6a's
+    drawn salon sofas f_L-1b_041 / 042 have no coffee table or TV unit in their rooms; with a coffee table 1 m in front
+    of f_L-1b_041 the code reports no F3, so the incomplete seating group is the cause (``missing_member``:
+    complete_group, place_group), not the drawing."""
     if not isinstance(piece, dict) or piece.get("source") != "from_documents" or not in_scene(piece) \
             or piece.get("type") in (None, "unknown"):
         return False
@@ -770,6 +817,8 @@ def drawn_layout_blocked(building: dict, piece: dict, check: str) -> bool:
             limit = float(rule.get("partner_m") or 0.0) + reach + 1e-9
             if any(f.get("type") in partners and o.polygon().distance(poly) <= limit for f, o in zip(floor, others)):
                 return False
+        if check == "F3" and front_missing(building, piece):
+            return MISSING_FRONT             # fix round after P6a, review: its group member, not the drawing
         return True
     except Exception:  # noqa: BLE001 - a geometry that cannot be read keeps the finding's tools
         return False
@@ -780,7 +829,9 @@ def mark_drawn_layout(findings: list[dict], building: Optional[dict]) -> list[di
     ``drawn_layout_blocked`` holds gets ``metrics.drawn_layout`` (in its ``evidence.metrics``, where ``cause_of``
     reads it) and a ``cause`` it carried before is dropped, so the cause is taken again. An F8 around an unbuilt
     anchor (``metrics.missing_anchor``) is left alone: building the anchor is its fix. Changes the findings in place
-    and returns them."""
+    and returns them. Fix round after P6a (23 Oct 2026), review: an F3 whose missing group member is the fix
+    (``drawn_layout_state``) gets the flag's value ``MISSING_FRONT`` (cause ``missing_member``; the dry re-check
+    carries the value like the others)."""
     if not isinstance(building, dict):
         return findings
     pieces = {f.get("id"): f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("id")}
@@ -792,8 +843,9 @@ def mark_drawn_layout(findings: list[dict], building: Optional[dict]) -> list[di
         piece = pieces.get(f.get("target"))
         if piece is None:
             continue
-        if check in DRAWN_LAYOUT_CHECKS and drawn_layout_blocked(building, piece, check):
-            flag = True
+        state = drawn_layout_state(building, piece, check) if check in DRAWN_LAYOUT_CHECKS else False
+        if state:
+            flag = state
         elif check in FIXTURE_LAYOUT_CHECKS:
             # fix round after P6b (module docstring): drawn fixed equipment fix_fixture finds no valid spot for
             if piece.get("id") not in fixtures:

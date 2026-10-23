@@ -352,14 +352,19 @@ measure first): ``Look._view_white`` records ``wb_walls`` (``wall_rig_record``):
 metering passes it already runs (both meter the walls since the fix round after P6a), the colour of the rig light
 measured on the walls (all-light minus daylight) with Blender's reading of it, and the lamp's R/B. No white point
 reads it; the GPU orange check keeps it with its values for the decision after P6c. The verifier's step 2, a bpy
-5.2.2 shim of P6b's real03.blend (final/real03/3d; the two metering passes at 240 x 135, 16 spp, with this record) on
-11 views: the walls' rig share is within 0.05 of the frame's (giris_holu_2 0.594 / 0.594, yangin_merdiveni_1 0.903 /
-0.886), so the share is not what leaves the halls warm; the light is. The rig light reaches the hall and stair walls at
-3,266-3,614 K (linear R/B 3.35-4.28; the white tiled banyo_5_1 3,854 K) against the 4000 K lamp's 2.65, and their
-daylight at R/B 2.68-3.33 against the anchor's 1.98 (1.95 on the walls of the anchor's own room), both warmed by the
-oak floors and treads and the greige paint; the daylight-only oda_01_2 gets the same warm light (R/B 3.35) and reads
-1.582. A white point from the rig light measured on the walls is the candidate next rule (a look decision: it would
-take the bounce warmth out of the rig-lit rooms only).
+5.2.2 shim of P6b's real03.blend (final/real03/3d; the two metering passes at 240 x 135, 16 spp, CPU, with this
+record) on 11 views answers its test case. (a) The walls' rig share is not near 1 in the halls: it differs from the
+frame's by 0.05 at most (giris_holu_2 0.594 / 0.594, giris_holu_1 0.503 / 0.554, kat_merdiveni_3 0.799 / 0.766,
+yangin_merdiveni_1 0.903 / 0.886), so the share is not what leaves the halls warm. (b) The light is: the rig light
+reaches every hall and stair wall warmer than the 4000 K lamp (linear R/B 2.65), the entrance halls most (giris_holu_1,
+2, 4_2: 3,266-3,284 K, R/B 4.17-4.22; yangin_merdiveni_1 4.28) and the stair and the small hall the rig alone lights
+least (yangin_merdiveni_3, oda_7_1: 3,589-3,614 K, R/B 3.35-3.37; kat_merdiveni_3 3.54; the white tiled banyo_5_1
+3,854 K, 2.91). Their daylight is warmed as much: R/B 2.65-3.33 on those walls against the anchor's metered 1.98 (1.95
+on the walls of the anchor's own room), both by the oak floors and treads and the greige paint. The daylight-only
+oda_01_2 gets the same warm light (R/B 3.35) and reads 1.582, the halls 1.49-1.60 at a light R/B of 3.35-4.09
+(tests/test_m13_p6b_render.py keeps giris_holu_2's record). A white point from the rig light measured on the walls
+is the candidate next rule (a look decision: it would take the bounce warmth out of the rig-lit rooms only, so the
+halls would read cooler than the daylight bedrooms of the same paint).
 """
 from __future__ import annotations
 
@@ -409,7 +414,8 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # m13.5 (fix round after P6a, 22 Oct 2026; P6a rendered m13.4): a pulled sky never goes under SKY_PULL_MEDIAN_MIN
 # (P6a's ext_5 went to k 6, median 0.109: a near-black band) and an interior view's tint follows the green of the
 # daylight on its walls (daylight_green). Without the bump a re-run on an unchanged scene would reuse P6a's ext_5 and
-# its olive bedrooms.
+# its olive bedrooms. The fix round after P6b (23 Oct 2026; P6b rendered m13.4) keeps m13.5: it adds a record only
+# (the exposure record's wb_walls, wall_rig_record) and no pod has rendered m13.5.
 RENDER_CODE_VERSION = "m13.5"
 PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"

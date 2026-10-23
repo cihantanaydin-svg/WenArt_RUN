@@ -55,7 +55,10 @@ out of the closet. ``split_override_text`` counts the chairs from the split and 
 Fix round after P6b (23 Oct 2026; pod P6b, real03). What: a wall that ``openings`` read apart where a thinner wall
 lines its gaps (real03's shear walls on the hall-living partition) carries a ``corrected_by_ai`` label with the wall
 it was before (an attribute of the ``WallItem``, for the wall's dict in the building; the reason is in the wall's
-evidence note too); ``_shift_wall`` moves that ``before`` into the building frame with the wall.
+evidence note too); ``_shift_wall`` moves that ``before`` into the building frame with the wall. ``gap_rule_notes``
+lists in the page notes (the ingest report's Notes) every gap the fix round's openings rules decided (lined gaps, gaps
+inside wall material, walls drawn across a gap on a wall layer, gaps without glass), in building metres, and every
+wall marked ``corrected_by_ai`` with its reason.
 """
 from __future__ import annotations
 
@@ -181,6 +184,36 @@ def _shift_wall(w: WallItem, sh: _Shift) -> None:
     if before:
         # Fix round after P6b (23 Oct 2026): the wall a lined gap split (``openings._mark_lined``) as it was before.
         before["start"], before["end"] = list(sh.p(before["start"])), list(sh.p(before["end"]))
+
+
+GAP_RULE_TEXT = {"lined_gap": "lined by a thinner wall along one face: open, the thick pieces are walls of their own",
+                 "inside_wall": "inside wall material of another piece: closed, no opening",
+                 "wall_faces": "both faces drawn on across it on a wall layer: closed, the wall continues",
+                 "no_glass": "no glass between its faces: no window, an unverified opening (run gap) or none (end gap)"}
+
+
+def gap_rule_notes(gap_log: list[dict], walls: list[WallItem], origin: tuple[float, float]) -> list[str]:
+    """Fix round after P6b (23 Oct 2026): one page note per openings rule of the fix round (``openings.GAP_RULES``,
+    the gap log's ``rule``) with the gaps it decided (building metres: the gap log is in page metres, ``origin`` is
+    the frame origin), and one per wall a lined gap split (``corrected_by_ai``, its reason). CLAUDE.md: nothing
+    changes silently; the ingest report lists the page notes."""
+    ox, oy = origin
+
+    def pt(p) -> str:
+        return f"({p[0] - ox:.2f}, {p[1] - oy:.2f})"
+
+    by_rule: dict[str, list[str]] = {}
+    for e in gap_log:
+        if e.get("rule") and e.get("p0") and e.get("p1"):
+            by_rule.setdefault(e["rule"], []).append(f"{pt(e['p0'])}-{pt(e['p1'])} {e['width']:.2f} m")
+    notes = [f"{len(spans)} gap(s) {GAP_RULE_TEXT.get(rule, rule)} (fix round after P6b): " + "; ".join(spans)
+             for rule, spans in by_rule.items()]
+    for w in walls:
+        label = getattr(w, "corrected_by_ai", None)
+        if label:
+            notes.append(f"wall ({w.start[0]:.2f}, {w.start[1]:.2f})-({w.end[0]:.2f}, {w.end[1]:.2f}) "
+                         f"{w.thickness:.2f} m corrected_by_ai ({label.get('rule')}): {label.get('reason')}")
+    return notes
 
 
 def _shift_opening(o: OpeningItem, sh: _Shift) -> None:
@@ -1305,6 +1338,8 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     ex.transform_to_building = [s, 0.0, -ox, 0.0, s, -oy]
     for w in bwalls:
         _shift_wall(w, sh)
+    # Fix round after P6b: the walls and gaps the openings rules corrected, in the building frame (never silent).
+    ex.notes.extend(f"{where}: {n}" for n in gap_rule_notes(gap_log, bwalls, (ox, oy)))
     for o in b_openings + seps:
         _shift_opening(o, sh)
     furniture = list(pieces)

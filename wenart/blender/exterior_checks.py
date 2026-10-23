@@ -86,6 +86,19 @@ Fix round after P6a (22 Oct 2026; pod P6a, real04; docs/milestone13.md §14.13 d
   22 Oct 2026: "exterior views of long, low buildings may use a wider or tilted framing"). Measured: P6a's
   ext_front_entrance 0 % sky (refused); every accepted agent pose of P4a real02, P4b real03 and P6a real04 and every
   planner view 17-44 % (all pass).
+
+Fix round after P6a (23 Oct 2026), review: ``x6_frontal`` judges two more agent poses by their frame. (1) A pose at
+least ``HIGH_VIEW_ABOVE_RIDGE_M`` over the ridge kept the pose rule, and ``_x6`` measured no frame for it: P6a's strip
+pose 1.2 m over real04's ridge, (8.5, 17.5, 7.2) -> (8.5, 6.0, 0.0), passes the validator (no eye-level rule up there)
+and the build records fill 2.34, fits False, 0 % sky on it, yet "no frontal view" went and the critic was told it is
+the frontal view. Now its frame is read or measured (``_x6`` passes its model) like an eye-level pose's; it still gets
+no eye-level finding of its own (``frame_problem``). (2) An agent ``set`` of the planner's ``frontal`` view keeps that
+label on any square pose (``build.agent_exterior_view``), and a ``frontal`` view counted at once: P6b's real03 ext_6
+(searched, not frozen) set 8 m from its 33 m facade (fill 2.95, fits False) would have cleared "no frontal view" and
+had no finding. Now only the planner's ``frontal`` view counts by its label; an agent plan (``_agent_camera``)
+labelled ``frontal`` is a frontal pose (``_frontal_pose``) judged by its frame, with ``frame_problem``'s major on the
+camera. Measured on P4a, P4b, P5, P6a and P6b: X6 unchanged (no high ``agent`` / ``elevation`` view there; the
+``frontal`` views of real02 (P4a, replayed) and real03 (P6b) are the planner's).
 """
 from __future__ import annotations
 
@@ -604,7 +617,8 @@ def _x6(building: dict, prep: dict, scene_manifest, render_manifest, out: list) 
         if why is not None:
             out.append(_v("X6", "major", name, f"{name}: {why}", fill=frame["fill"], fits=frame["fits"],
                           sky_share=frame["sky_share"]))
-        if x6_frontal(c, main, frame=frame, ridge=ridge):
+        # fix round after P6a (23 Oct 2026), review: a high pose's frame is measured too (``x6_frontal``)
+        if x6_frontal(c, main, frame=frame, model=model):
             frontal = True
     if main and not frontal:
         out.append(_v("X6", "major", "exterior", f"no frontal view of the entrance ({main.get('axis')}) facade",
@@ -646,10 +660,13 @@ def _agent_camera(cam: dict) -> bool:
 
 
 def _frontal_pose(cam: dict, main: Optional[dict]) -> bool:
-    """An ``elevation`` / ``agent`` view whose pose looks square (``_faces``) at the main facade ``main``."""
+    """An ``elevation`` / ``agent`` view whose pose looks square (``_faces``) at the main facade ``main``. Fix round
+    after P6a (23 Oct 2026), review: and an agent plan (``_agent_camera``) labelled ``frontal``, the label the build
+    keeps on the agent's square pose of the planner's frontal view (``x6_frontal``)."""
     try:
-        return cam.get("view") in FRONTAL_POSE_VIEWS and bool(cam.get("position")) \
-            and bool((main or {}).get("direction")) and _faces(cam, main["direction"])
+        view = cam.get("view")
+        return (view in FRONTAL_POSE_VIEWS or (view == "frontal" and _agent_camera(cam))) \
+            and bool(cam.get("position")) and bool((main or {}).get("direction")) and _faces(cam, main["direction"])
     except (KeyError, TypeError, ValueError, IndexError):
         return False
 
@@ -720,28 +737,28 @@ def frame_problem(camera: dict, frame: Optional[dict], frontal_pose: bool) -> Op
     return "; ".join(parts) or None
 
 
-def x6_frontal(camera: Optional[dict], main: Optional[dict], frame: Optional[dict] = None, model=None,
-               ridge: Optional[float] = None) -> bool:
-    """X6's frontal view (one rule for ``_x6`` and ``wenart.agent.critic_vision.x6_frontal``): a ``frontal`` view, or
-    an ``elevation`` / ``agent`` view whose pose looks square at the main facade ``main`` (``_faces``, within 30
-    degrees) and, fix round after P6a (module docstring), frames the whole building with the sky (``frames_building``
-    of ``frame``, else of ``camera_frame(camera, model)``), the frame that holds the building (its ``frame_target``,
-    the yaw re-centred) still looking square at that facade: from real04's strip a pose 29.8 degrees off square at
-    (22, 18.2) fits the building only when turned 43.8 degrees off square, a corner view. A high view (``aerial``, or
-    at least ``HIGH_VIEW_ABOVE_RIDGE_M`` over ``ridge``) and a pose whose frame cannot be measured keep the pose
-    rule."""
+def x6_frontal(camera: Optional[dict], main: Optional[dict], frame: Optional[dict] = None, model=None) -> bool:
+    """X6's frontal view (one rule for ``_x6`` and ``wenart.agent.critic_vision.x6_frontal``): the planner's
+    ``frontal`` view, or an ``elevation`` / ``agent`` view (or an agent plan labelled ``frontal``, ``_frontal_pose``)
+    whose pose looks square at the main facade ``main`` (``_faces``, within 30 degrees) and, fix round after P6a
+    (module docstring), frames the whole building with the sky (``frames_building`` of ``frame``, else of
+    ``camera_frame(camera, model)``), the frame that holds the building (its ``frame_target``, the yaw re-centred)
+    still looking square at that facade: from real04's strip a pose 29.8 degrees off square at (22, 18.2) fits the
+    building only when turned 43.8 degrees off square, a corner view. A pose whose frame cannot be measured keeps the
+    pose rule.
+
+    Fix round after P6a (23 Oct 2026), review: a high pose (at least ``HIGH_VIEW_ABOVE_RIDGE_M`` over the ridge) is
+    judged by its frame like an eye-level one (it kept the pose rule: P6a's strip pose 1.2 m over real04's ridge,
+    fill 2.34, fits False, 0 % sky, cleared "no frontal view"), and only the planner's ``frontal`` view counts by its
+    label: an agent plan keeps the label ``frontal`` on any square pose (``build.agent_exterior_view``), so a set of
+    real03's ext_6 8 m from its 33 m facade (fill 2.95, fits False) counted as the frontal view. Without a main facade
+    (``main`` has no direction: X6 asks for no frontal view then) an agent plan's ``frontal`` label stands as before."""
     if not isinstance(camera, dict):
         return False
-    if camera.get("view") == "frontal":
+    if camera.get("view") == "frontal" and (not _agent_camera(camera) or not (main or {}).get("direction")):
         return True
     if not _frontal_pose(camera, main):
         return False
-    try:
-        z = float(camera["position"][2])
-    except (KeyError, TypeError, ValueError, IndexError):
-        return True
-    if camera.get("view") == "aerial" or (ridge is not None and z >= float(ridge) + HIGH_VIEW_ABOVE_RIDGE_M):
-        return True
     got = frame if frame is not None else camera_frame(camera, model)
     if got is None:
         return True

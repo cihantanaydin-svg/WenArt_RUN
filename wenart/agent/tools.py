@@ -235,6 +235,13 @@ Fix round after P6a, part 2 (23 Oct 2026; the exterior track's asks, docs/milest
   as X6 judges the built camera: a pose square to the main facade that frames only part of the building or shows no
   sky is no frontal view, so its role no longer protects it.
 
+Fix round after P6a (23 Oct 2026), review: the role guards read the next build's plan of a camera as the build makes
+it, with ``policy: agent`` (``x6_record``; ``overrides.fixed_plan``), so X6's rule judges a ``frontal`` label the build
+keeps on the agent's square pose of the planner's frontal view by its frame (``exterior_checks.x6_frontal``), and
+``frontal_pose_problem`` names the frame's fault for a square pose (it said "no longer looks square"). Why: on P6b's
+real03 a set of the planner's frontal ext_6 8 m from its 33 m facade (fill 2.95, fits False, 17 % sky: the validator
+takes it) kept the label and the frontal role, and the guard accepted it.
+
 Fix round after P6b (23 Oct 2026): an edit's ``acceptance`` record carries the dry re-check's fit record too
 (``acceptance_record``: ``fitted`` ``{"overlaid", "refit"}``, at most 8 refit ids), so the log shows whether a piece
 was fitted for the dry re-check (P6b's 219 edit events had no such record; ``loop.ACCEPTANCE_LOG_KEYS``).
@@ -1754,17 +1761,28 @@ def x6_frontal_of(ctx: ToolContext, camera: Optional[dict], main: Optional[dict]
     if not isinstance(camera, dict):
         return False
     try:
-        return bool(X.x6_frontal(camera, main, model=lambda: exterior_model_of(ctx), ridge=exterior_of(ctx)["ridge"]))
+        return bool(X.x6_frontal(camera, main, model=lambda: exterior_model_of(ctx)))
     except (KeyError, TypeError, ValueError, IndexError):
         return False
+
+
+def x6_record(ctx: ToolContext, name: str, view: Optional[str], plan: dict) -> dict:
+    """Fix round after P6a (23 Oct 2026), review (module docstring): the record X6 judges for the camera ``name`` at
+    ``plan`` with the view ``view`` (``built_view`` / ``next_view``): the scene camera as it is; a next-build plan with
+    ``policy: agent``, as ``overrides.fixed_plan`` makes every agent plan, so a ``frontal`` label the build keeps on
+    the agent's square pose is judged by its frame (``exterior_checks.x6_frontal``)."""
+    rec = dict(plan, view=view)
+    if plan is not ctx.camera(name):
+        rec["policy"] = "agent"
+    return rec
 
 
 def x6_frontal_now(ctx: ToolContext, name: str, main: Optional[dict]) -> bool:
     """Pass before P5: the camera ``name`` is the frontal view X6 asks for at the pose and view the next build gives
     it (``built_view``, ``critic_vision.x6_frontal``). Fix round after P6a, part 2: with its frame measured on
-    ``ctx.building`` (``x6_frontal_of``)."""
+    ``ctx.building`` (``x6_frontal_of``); review of 23 Oct 2026: a next-build plan as an agent plan (``x6_record``)."""
     view, pose = built_view(ctx, name)
-    return pose is not None and x6_frontal_of(ctx, dict(pose, view=view), main)
+    return pose is not None and x6_frontal_of(ctx, x6_record(ctx, name, view, pose), main)
 
 
 def frontal_pose_problem(ctx: ToolContext, view_id: str, entry: dict, main: Optional[dict]) -> Optional[str]:
@@ -1772,12 +1790,16 @@ def frontal_pose_problem(ctx: ToolContext, view_id: str, entry: dict, main: Opti
     ``view_id`` would leave X6 without a frontal view: the next build's label of that pose (``next_view``) is not
     X6's frontal view (``critic_vision.x6_frontal``: a corner the build keeps, or a pose not square to the main
     facade) and no other camera stays X6's frontal view (``exterior_poses``, ``x6_frontal_now``); None otherwise.
-    Fix round after P6a, part 2: X6's frontal view with its frame measured (``x6_frontal_of``)."""
+    Fix round after P6a, part 2: X6's frontal view with its frame measured (``x6_frontal_of``). Review of 23 Oct
+    2026: the plan as an agent plan (``x6_record``: a ``frontal`` label is judged by its frame), and a pose square to
+    the main facade is told the frame's fault (``exterior_checks.frame_problem``), not "no longer looks square"."""
     from wenart.blender import build as B
+    from wenart.blender import exterior_checks as X
     from wenart.blender import site as S
 
     view, plan = next_view(ctx, view_id, entry)
-    if x6_frontal_of(ctx, dict(plan, view=view), main):         # fix round after P6a, part 2: the frame measured
+    rec = x6_record(ctx, view_id, view, plan)
+    if x6_frontal_of(ctx, rec, main):         # fix round after P6a, part 2: the frame measured
         return None
     if any(x6_frontal_now(ctx, n, main) for n in exterior_poses(ctx) if n != str(view_id)):
         return None                          # another camera stays X6's frontal view
@@ -1799,6 +1821,13 @@ def frontal_pose_problem(ctx: ToolContext, view_id: str, entry: dict, main: Opti
                               entry["position"], entry["target"])
         if why is not None:
             return why
+    if X._frontal_pose(rec, main):           # review of 23 Oct 2026: square, but its frame is no frontal view
+        frame = X.camera_frame(rec, lambda: exterior_model_of(ctx))
+        why = X.frame_problem(rec, frame, True) if frame else None
+        return (f"the pose looks square at the main ({axis}) entrance facade, but X6 counts it as the frontal view "
+                f"only when it frames the whole building with the sky: "
+                + (why or f"the frame that holds the whole building looks at it more than "
+                           f"{B.AGENT_FRONTAL_MAX_DEG:g} degrees off square, from a corner"))
     return (f"the pose no longer looks square (within {B.AGENT_FRONTAL_MAX_DEG:g} degrees) at the main ({axis}) "
             f"entrance facade, the frontal view X6 asks for")
 
@@ -1931,7 +1960,7 @@ def role_problem(ctx: ToolContext, action: str, view_id: str, entry: dict) -> Op
     built, plan = built_view(ctx, view_id)
     view = built or cam.get("view")
     main = CV.main_facade_of(ctx.scene, ctx.building)
-    frontal_now = plan is not None and x6_frontal_of(ctx, dict(plan, view=view), main)   # = x6_frontal_now
+    frontal_now = plan is not None and x6_frontal_of(ctx, x6_record(ctx, view_id, view, plan), main)  # = x6_frontal_now
     aerial = aerial_role(plan if plan is not None else cam, view)
     if view == ENTRANCE_VIEW:
         role = ENTRANCE_VIEW
