@@ -1,0 +1,364 @@
+[wenart.run] 2026-10-22T19:08:56Z $ /workspace/venv/bin/python -m pytest -m gpu tests/gpu/test_full_run.py tests/gpu/test_render.py tests/gpu/test_camera_replay.py tests/gpu/test_look_m6.py tests/gpu/test_furnish.py tests/gpu/test_check.py tests/gpu/test_m9.py -v -ra --junitxml=/workspace/jobs/20261022-165510-full/results/junit-full.xml
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /workspace/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /workspace/repo
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.12.2
+collecting ... collected 55 items
+
+tests/gpu/test_full_run.py::test_every_public_project_ended_ok_or_needs_review PASSED [  1%]
+tests/gpu/test_full_run.py::test_run_project_is_ok_with_allowed_stage_states[real03] PASSED [  3%]
+tests/gpu/test_full_run.py::test_pending_pipeline_has_its_final_building[real03] PASSED [  5%]
+tests/gpu/test_full_run.py::test_final_report_has_every_rendered_view[real03] PASSED [  7%]
+tests/gpu/test_full_run.py::test_unvalidated_gate_means_cycles_finals[real03] SKIPPED [  9%]
+tests/gpu/test_full_run.py::test_needs_review_project[NOTSET] SKIPPED    [ 10%]
+tests/gpu/test_full_run.py::test_selftest_files_stay_private SKIPPED     [ 12%]
+tests/gpu/test_render.py::test_gpu_device_and_full_resolution[real03] PASSED [ 14%]
+tests/gpu/test_render.py::test_every_room_has_three_views[real03] FAILED [ 16%]
+tests/gpu/test_render.py::test_no_blocked_searched_view[real03] FAILED   [ 18%]
+tests/gpu/test_render.py::test_view_time_under_four_minutes[real03] PASSED [ 20%]
+tests/gpu/test_render.py::test_cameras_render_with_their_own_lens[real03] PASSED [ 21%]
+tests/gpu/test_render.py::test_render_matches_the_scene_build[real03] PASSED [ 23%]
+tests/gpu/test_render.py::test_passes_exist_and_depth_is_plausible[real03] PASSED [ 25%]
+tests/gpu/test_render.py::test_closed_door_views_end_on_the_door[real03] SKIPPED [ 27%]
+tests/gpu/test_render.py::test_index_pass_contains_every_visible_proxy[real03] PASSED [ 29%]
+tests/gpu/test_render.py::test_entries_are_m5_renders_with_helper_maps[real03] PASSED [ 30%]
+tests/gpu/test_render.py::test_exposure_recorded_and_within_the_clamp[real03] FAILED [ 32%]
+tests/gpu/test_render.py::test_uint16_index_stats_match_the_index_maps[real03] PASSED [ 34%]
+tests/gpu/test_render.py::test_white_plaster_walls_are_neutral[real03] SKIPPED [ 36%]
+tests/gpu/test_render.py::test_views_keep_the_project_white_point_or_mix_it_with_the_rig[real03] PASSED [ 38%]
+tests/gpu/test_render.py::test_rig_lit_rooms_have_no_orange_cast[real03] FAILED [ 40%]
+tests/gpu/test_render.py::test_daylight_walls_are_not_olive[real03] FAILED [ 41%]
+tests/gpu/test_render.py::test_sky_pull_leaves_no_dotted_edges[real03] PASSED [ 43%]
+tests/gpu/test_render.py::test_open_air_views_render_under_the_exterior_sky[real03] PASSED [ 45%]
+tests/gpu/test_render.py::test_sky_and_window_pulls_reach_their_targets[real03] PASSED [ 47%]
+tests/gpu/test_render.py::test_window_pull_takes_an_unclipped_k_when_one_was_tried[real03] PASSED [ 49%]
+tests/gpu/test_render.py::test_window_pull_leaves_panes_that_need_no_pull[real03] PASSED [ 50%]
+tests/gpu/test_render.py::test_interior_glazing_pull_removes_clipping[real03] PASSED [ 52%]
+tests/gpu/test_render.py::test_interior_glazing_keeps_one_white_point[real03] FAILED [ 54%]
+tests/gpu/test_render.py::test_exterior_views_cap_the_ground_and_keep_the_lawn_green[real03] PASSED [ 56%]
+tests/gpu/test_render.py::test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit[real03] PASSED [ 58%]
+tests/gpu/test_camera_replay.py::test_one_camera_per_name_and_a_plan_per_render[real03] PASSED [ 60%]
+tests/gpu/test_camera_replay.py::test_replayed_cameras_follow_the_camera_file[real03] PASSED [ 61%]
+tests/gpu/test_camera_replay.py::test_agent_cameras_record_their_pose[real03] SKIPPED [ 63%]
+tests/gpu/test_look_m6.py::test_renders_are_milestone_6_renders[real03] PASSED [ 65%]
+tests/gpu/test_look_m6.py::test_unverified_pieces_cast_no_colour[real03] PASSED [ 67%]
+tests/gpu/test_look_m6.py::test_kitchen_counter_fronts_are_lit[real03] SKIPPED [ 69%]
+tests/gpu/test_look_m6.py::test_window_pull_keeps_the_panes_unclipped[real03] PASSED [ 70%]
+tests/gpu/test_look_m6.py::test_dim_rooms_are_metered_below_six_ev[real03] PASSED [ 72%]
+tests/gpu/test_look_m6.py::test_assumed_entries_of_the_design_details[real03] PASSED [ 74%]
+tests/gpu/test_furnish.py::test_every_empty_room_was_laid_out[real03] PASSED [ 76%]
+tests/gpu/test_furnish.py::test_rooms_got_what_their_type_calls_for[real03] PASSED [ 78%]
+tests/gpu/test_furnish.py::test_added_pieces_pass_every_check[real03] PASSED [ 80%]
+tests/gpu/test_furnish.py::test_real_model_and_latency_logged[real03] PASSED [ 81%]
+tests/gpu/test_furnish.py::test_refit_library_models_fit_the_style[real03] PASSED [ 83%]
+tests/gpu/test_check.py::test_every_model_answered_its_calls[real03] PASSED [ 85%]
+tests/gpu/test_check.py::test_calibration_present[real03] PASSED         [ 87%]
+tests/gpu/test_check.py::test_advisory_set_exactly_when_a_target_is_missed[real03] PASSED [ 89%]
+tests/gpu/test_check.py::test_style_photo_test[real03] PASSED            [ 90%]
+tests/gpu/test_check.py::test_insertion_measured[real03] PASSED          [ 92%]
+tests/gpu/test_m9.py::test_ai_decor_records_every_room_and_both_passes[real03] PASSED [ 94%]
+tests/gpu/test_m9.py::test_ai_decor_is_built[real03] PASSED              [ 96%]
+tests/gpu/test_m9.py::test_surface_decor_rests_on_its_host[real03] PASSED [ 98%]
+tests/gpu/test_m9.py::test_3d_files_are_packed_and_complete[real03] PASSED [100%]
+
+=================================== FAILURES ===================================
+___________________ test_every_room_has_three_views[real03] ____________________
+
+project = ('real03', {'schema_version': '0.1', 'project': 'real03', 'building': 'outputs/real03/building_final.json', 'style': '...ne.blend', 'scene_sha256': '46363838683178251d9dfec1fab1b50e74e2adf6a538eed9852f54e018515306', 'device': 'OPTIX', ...})
+
+    def test_every_room_has_three_views(project):
+        """By camera policy (docs/milestone6.md §4.2; the M5 name is kept, tests/test_blender_render.py calls it):
+        ``m5`` three views per room, ``search`` 1-3 views per room by the area rule, every room at least one,
+        except (Milestone 7, docs/milestone7.md §6.2) rooms with nothing to show: at most one view, none below
+        2.5 m2, and those are listed in the scene manifest's ``rooms_without_view`` with the reason."""
+        from wenart.blender import camsearch
+    
+        name, scene, render = project
+        rendered = {r["camera"] for r in render["renders"]}
+        planned = {c["name"] for c in scene["cameras"]}
+        assert planned <= rendered, f"{name}: missing renders {sorted(planned - rendered)}"
+        by_room: dict = {}
+        interior = [c for c in scene["cameras"] if c.get("kind", "interior") != "exterior"]   # M10: no ext_* view
+        for c in interior:
+            by_room.setdefault(c["room_id"], []).append(c)
+        # Milestone 11/12: a camera the agent moved or added (set_camera / add_camera) carries the policy "agent"; the
+        # scene's own policy is that of the others (pod P5: real03 had 76 searched views and one moved by the agent)
+        policies = {_policy(c) for c in interior if _policy(c) != "agent"} or {"search"}
+        assert len(policies) == 1, f"{name}: cameras of two policies in one scene: {sorted(policies)}"
+        if policies == {"m5"}:
+            for room in by_room:
+                assert {f"cam_{room}_{i}" for i in (1, 2, 3)} <= rendered
+            return
+        building = _building(name, scene)
+        levels = {lv["id"] for lv in scene["levels"]}
+        # Milestone 10 (§1.6b row 10): the rooms this variant renders (no second twin, an alternative's changed rooms).
+        # The scene manifest's ``variant`` is the build's variant record (build.variant_summary: id, levels, views, ...);
+        # a manifest from before Milestone 10 has none (the base).
+        from wenart.views import views_for
+        record = scene.get("variant")
+        variant = (record.get("id") if isinstance(record, dict) else record) or "base"
+        shown = set(views_for(building, variant)["rooms"])
+        if isinstance(record, dict) and isinstance(record.get("views"), dict):
+            stored = sorted(record["views"].get("rooms") or [])
+            assert stored == sorted(shown), \
+                f"{name}: the scene's variant {variant} renders the rooms {stored}, views_for gives {sorted(shown)}"
+        rooms = {r["id"]: r for r in building["rooms"] if r["level_id"] in levels and r["id"] in shown}
+        listed = {r["room_id"]: r for r in scene.get("rooms_without_view") or [] if r["room_id"] in rooms}
+        expected = {r["room_id"] for lv in levels for r in camsearch.rooms_without_view(building, lv)} & set(rooms)
+>       assert set(listed) == expected, f"{name}: rooms_without_view {sorted(listed)}, the rule gives {sorted(expected)}"
+E       AssertionError: real03: rooms_without_view ['r_L0_hava_bacasi', 'r_L0_oda', 'r_L0_oda_11', 'r_L0_oda_12', 'r_L0_oda_13', 'r_L0_oda_14', 'r_L0_oda_15', 'r_L0_oda_16', 'r_L0_oda_17', 'r_L0_oda_18', 'r_L0_oda_2', 'r_L0_oda_20', 'r_L0_oda_21', 'r_L0_oda_3', 'r_L0_oda_4', 'r_L0_oda_5', 'r_L0_oda_6', 'r_L0_oda_8', 'r_L0_oda_9'], the rule gives ['r_L0_hava_bacasi', 'r_L0_oda', 'r_L0_oda_10', 'r_L0_oda_11', 'r_L0_oda_12', 'r_L0_oda_13', 'r_L0_oda_14', 'r_L0_oda_15', 'r_L0_oda_16', 'r_L0_oda_17', 'r_L0_oda_18', 'r_L0_oda_2', 'r_L0_oda_20', 'r_L0_oda_21', 'r_L0_oda_3', 'r_L0_oda_4', 'r_L0_oda_5', 'r_L0_oda_6', 'r_L0_oda_7', 'r_L0_oda_8', 'r_L0_oda_9']
+E       assert {'r_L0_hava_b..._oda_14', ...} == {'r_L0_hava_b..._oda_13', ...}
+E         
+E         Extra items in the right set:
+E         'r_L0_oda_10'
+E         'r_L0_oda_7'
+E         
+E         Full diff:
+E           {...
+E         
+E         ...Full output truncated (22 lines hidden), use '-vv' to show
+
+tests/gpu/test_render.py:245: AssertionError
+____________________ test_no_blocked_searched_view[real03] _____________________
+
+project = ('real03', {'schema_version': '0.1', 'project': 'real03', 'building': 'outputs/real03/building_final.json', 'style': '...ne.blend', 'scene_sha256': '46363838683178251d9dfec1fab1b50e74e2adf6a538eed9852f54e018515306', 'device': 'OPTIX', ...})
+
+    def test_no_blocked_searched_view(project):
+        from wenart.blender import camsearch
+    
+        name, scene, render = project
+        plans = {c["name"]: c for c in scene["cameras"]}
+        out = OUTPUTS / name / "renders"
+        blocked, allowed, low, measured = [], [], [], []
+        for r in render["renders"]:
+            plan = plans.get(r["camera"])
+            if plan is None or plan.get("kind") == "exterior":      # M10: a facade fills an exterior view by design
+                continue
+            m = _blocked(r, out, plan.get("lens_mm") or 24.0)
+            measured.append((r["camera"], m, plan))
+            if m["objects"] < LOW_OBJECT_SHARE:
+                low.append(r["camera"])
+            if not m["blocked"]:
+                continue
+            item = (r["camera"], round(m["single"], 3), round(m["near"], 3))
+            if _policy(plan) == "m5":
+                allowed.append(item + ("m5 policy",))
+            elif camsearch.BLOCKED_WARNING in (plan.get("warning") or ""):
+                allowed.append(item + (camsearch.BLOCKED_WARNING,))
+            else:
+                blocked.append(item)
+        searched = [(cam, m, p) for cam, m, p in measured if _policy(p) == "search"]
+        if searched:
+            building = _building(name, scene)
+            model = np.array([sum(camsearch.model_shares(building, p).values()) for _, _, p in searched])
+            real = np.array([m["objects"] for _, m, _ in searched])
+            r_text = f"{np.corrcoef(model, real)[0, 1]:.3f}" if len(searched) > 2 and real.std() > 0 and model.std() > 0 \
+                else "n/a"
+            print(f"{name}: ray-cast model vs index pass, object share r = {r_text} over {len(searched)} views")
+        print(f"{name}: {len(low)}/{len(measured)} views with < {LOW_OBJECT_SHARE:.0%} object pixels {low}; "
+              f"blocked but allowed: {allowed}")
+>       assert not blocked, f"{name}: searched views blocked without the '{camsearch.BLOCKED_WARNING}' warning " \
+                            f"(camera, largest element share, near share): {blocked}"
+E       AssertionError: real03: searched views blocked without the 'blocked unavoidable' warning (camera, largest element share, near share): [('cam_r_L0_yasama_2_2', 0.54, 0.54), ('cam_r_L0_yasama_3_2', 1.0, 1.0), ('cam_r_L0_yasama_5_2', 1.0, 1.0), ('cam_r_L0_yasama_6_1', 1.0, 0.965)]
+E       assert not [('cam_r_L0_yasama_2_2', 0.54, 0.54), ('cam_r_L0_yasama_3_2', 1.0, 1.0), ('cam_r_L0_yasama_5_2', 1.0, 1.0), ('cam_r_L0_yasama_6_1', 1.0, 0.965)]
+
+tests/gpu/test_render.py:379: AssertionError
+----------------------------- Captured stdout call -----------------------------
+real03: ray-cast model vs index pass, object share r = 0.913 over 83 views
+real03: 5/83 views with < 10% object pixels ['cam_r_L0_banyo_1', 'cam_r_L0_banyo_2_1', 'cam_r_L0_banyo_7_1', 'cam_r_L0_oda_10_1', 'cam_r_L0_oda_7_1']; blocked but allowed: []
+_____________ test_exposure_recorded_and_within_the_clamp[real03] ______________
+
+project = ('real03', {'schema_version': '0.1', 'project': 'real03', 'building': 'outputs/real03/building_final.json', 'style': '...ne.blend', 'scene_sha256': '46363838683178251d9dfec1fab1b50e74e2adf6a538eed9852f54e018515306', 'device': 'OPTIX', ...})
+
+    def test_exposure_recorded_and_within_the_clamp(project):
+        name, _scene, render = project
+        bad = []
+        for r in render["renders"]:
+            x = r["exposure"]
+            lo, hi = x.get("limits") or (-2.0, 8.0)
+            ok = (x["mode"] == "auto" and isinstance(x["ev"], (int, float)) and math.isfinite(x["ev"])
+                  and lo <= x["ev"] <= hi and abs(x["ev"] * 6 - round(x["ev"] * 6)) < 1e-4
+                  and x["incident_p50"] is not None and x["incident_p50"] > 0
+                  and x["at_limit"] == (x["ev_raw"] < lo or x["ev_raw"] > hi))
+            wp = x["whitepoint"]
+            ok = ok and wp is not None and len(wp) == 3 and min(wp) > 0 and \
+                abs(0.2126 * wp[0] + 0.7152 * wp[1] + 0.0722 * wp[2] - 1.0) < 1e-3
+            if not ok:
+                bad.append((r["camera"], x))
+>       assert not bad, f"{name}: exposure records out of contract: {bad}"
+E       AssertionError: real03: exposure records out of contract: [('cam_r_L0_yasama_3_2', {'mode': 'auto', 'ev': 0.0, 'ev_raw': None, 'at_limit': False, 'target': 0.9, 'limits': [-10.3808, 3.0], 'incident_p50': None, 'whitepoint': [1.115155, 0.994669, 0.713725], 'wb_mode': 'project', 'wb_temperature': 5152.7, 'wb_tint': 19.53, 'residual': 0.35, 'window_clip_frac': None, 'meter_seconds': 1.919, 'meter': {'resolution': [240, 135], 'samples': 16, 'blocks': 880, 'blocks_used': 0, 'block_px': 6, 'interior_frac': 0.0}, 'mood': 'warm daylight', 'source': None, 'notes': ['no interior block to meter: EV 0 used'], 'lighting_dark': None, 'floor_shift_stops': 8.3808, 'wb_source': 'previous manifest (previous manifest (metered on cam_r_L0_ebeveyn_odasi_2_1 (daylight only: 96 rig objects hidden; the most incident light of 3 candidates)))', 'wb_from_camera': 'cam_r_L0_ebeveyn_odasi_2_1', 'wb_project_whitepoint': [1.115155, 0.994669, 0.713725], 'wb_rig_share': None, 'wb_rig_kelvin': None, 'wb_rig_whitepoint': None, 'wb_day_green': None, 'wb_view_tint_gain': 1.0, 'wb_view_rule': 'no metering pass with light: the project white point', 'ev_offset': 0.0, 'wb_view_shift_mired': 0.0}), ('cam_r_L0_yasama_5_2', {'mode': 'auto', 'ev': 0.0, 'ev_raw': None, 'at_limit': False, 'target': 0.9, 'limits': [-10.3808, 3.0], 'incident_p50': None, 'whitepoint': [1.115155, 0.994669, 0.713725], 'wb_mode': 'project', 'wb_temperature': 5152.7, 'wb_tint': 19.53, 'residual': 0.35, 'window_clip_frac': None, 'meter_seconds': 2.088, 'meter': {'resolution': [240, 135], 'samples': 16, 'blocks': 880, 'blocks_used': 0, 'block_px': 6, 'interior_frac': 0.0}, 'mood': 'warm daylight', 'source': None, 'notes': ['no interior block to meter: EV 0 used'], 'lighting_dark': None, 'floor_shift_stops': 8.3808, 'wb_source': 'previous manifest (previous manifest (metered on cam_r_L0_ebeveyn_odasi_2_1 (daylight only: 96 rig objects hidden; the most incident light of 3 candidates)))', 'wb_from_camera': 'cam_r_L0_ebeveyn_odasi_2_1', 'wb_project_whitepoint': [1.115155, 0.994669, 0.713725], 'wb_rig_share': None, 'wb_rig_kelvin': None, 'wb_rig_whitepoint': None, 'wb_day_green': None, 'wb_view_tint_gain': 1.0, 'wb_view_rule': 'no metering pass with light: the project white point', 'ev_offset': 0.0, 'wb_view_shift_mired': 0.0}), ('cam_r_L0_yasama_6_1', {'mode': 'auto', 'ev': 0.0, 'ev_raw': None, 'at_limit': False, 'target': 0.9, 'limits': [-10.3808, 3.0], 'incident_p50': None, 'whitepoint': [1.115155, 0.994669, 0.713725], 'wb_mode': 'project', 'wb_temperature': 5152.7, 'wb_tint': 19.53, 'residual': 0.35, 'window_clip_frac': None, 'meter_seconds': 2.165, 'meter': {'resolution': [240, 135], 'samples': 16, 'blocks': 880, 'blocks_used': 0, 'block_px': 6, 'interior_frac': 0.0}, 'mood': 'warm daylight', 'source': None, 'notes': ['no interior block to meter: EV 0 used'], 'lighting_dark': None, 'floor_shift_stops': 8.3808, 'wb_source': 'previous manifest (previous manifest (metered on cam_r_L0_ebeveyn_odasi_2_1 (daylight only: 96 rig objects hidden; the most incident light of 3 candidates)))', 'wb_from_camera': 'cam_r_L0_ebeveyn_odasi_2_1', 'wb_project_whitepoint': [1.115155, 0.994669, 0.713725], 'wb_rig_share': None, 'wb_rig_kelvin': None, 'wb_rig_whitepoint': None, 'wb_day_green': None, 'wb_view_tint_gain': 1.0, 'wb_view_rule': 'no metering pass with light: the project white point', 'ev_offset': 0.0, 'wb_view_shift_mired': 0.0})]
+E       assert not [('cam_r_L0_yasama_3_2', {'mode': 'auto', 'ev': 0.0, 'ev_raw': None, 'at_limit': False, ...}), ('cam_r_L0_yasama_5_2', {'mode': 'auto', 'ev': 0.0, 'ev_raw': None, 'at_limit': False, ...}), ('cam_r_L0_yasama_6_1', {'mode': 'auto', 'ev': 0.0, 'ev_raw': None, 'at_limit': False, ...})]
+
+tests/gpu/test_render.py:622: AssertionError
+________________ test_rig_lit_rooms_have_no_orange_cast[real03] ________________
+
+project = ('real03', {'schema_version': '0.1', 'project': 'real03', 'building': 'outputs/real03/building_final.json', 'style': '...ne.blend', 'scene_sha256': '46363838683178251d9dfec1fab1b50e74e2adf6a538eed9852f54e018515306', 'device': 'OPTIX', ...})
+
+    def test_rig_lit_rooms_have_no_orange_cast(project):
+        """The walls of a view lit mostly by the rig (``wb_rig_share`` >= 0.8) and metered within the cap have a display
+        R/B of at most 1.5 (``views.regions`` walls, as ``test_white_plaster_walls_are_neutral``; P3: 1.86-4.2). Fix round
+        after P4a (17 Oct 2026): the fixed 1.5 ignored the wall paint (real02's warm greige, linear R/B 1.34): the walls
+        of a rig-lit view are compared with the walls of the same project's daylight views (rig share under
+        ``render.WB_RIG_SHARE_MIN``, under the interior world, within the cap) of the same kind, painted or tiled: at most
+        ``RIG_ROOM_REL_MAX`` times their median; the fixed ``RIG_ROOM_MAX_RB`` only where the project has no daylight view
+        of that kind. Every view's value is printed.
+        Fix round after P4b (17 Oct 2026; the verifier's better fix of the P4b orange finding): the views from a rig share
+        of ``RIG_CHECK_SHARE`` (0.4) are checked, at most ``RIG_ROOM_ABOVE_DAY`` over the daylight median of their kind
+        (P4b's mixed views at 0.44-0.65 were left out at 0.8).
+        Fix round after P5 (18 Oct 2026). What: the kind is the wall finish of the room type (``_wall_kind``: bathroom and
+        wc tiled, every other room painted, a kitchen too), and the daylight references come only from views that are not
+        blocked (``_blocked``); a kind with no unblocked daylight view takes the fixed ``RIG_ROOM_MAX_RB``. Why: P5 real04
+        called the kitchen tiled by its wet floor (its walls are paint with a splashback) and its tiled reference was the
+        median of one daylight view, the blocked cam_r_L1_banyo_1 (one ceiling light over 55.7 % of the frame), so
+        mutfak_3 failed at 1.223 against 1.208 with no orange in the image; as painted its bound is the painted daylight
+        median 1.515 + 0.15. The kitchens keep the 2700 K rig (lead decision)."""
+        from wenart import views
+        from wenart.blender import render as R
+    
+        name, scene, render = project
+        if not _project_wb(render):
+            pytest.skip(f"{name}: not rendered with --white-balance project")
+        exterior_world = (((scene.get("lighting") or {}).get("world_exterior") or {}).get("name"))
+        manifest_types = R.room_types_from_manifest(scene)
+        entries = {r["camera"]: r for r in render["renders"]}
+        indoor = {c: r for c, r in entries.items() if r.get("room_id") is not None and not _dark(r)
+                  and not (exterior_world and r.get("world") == exterior_world)}
+        rig_lit = [c for c, r in indoor.items() if (r["exposure"].get("wb_rig_share") or 0.0) >= RIG_CHECK_SHARE]
+        daylight = [c for c, r in indoor.items() if (r["exposure"].get("wb_rig_share") or 0.0) < R.WB_RIG_SHARE_MIN]
+        if not rig_lit:
+            pytest.skip(f"{name}: no view with a rig share of {RIG_CHECK_SHARE} or more within the cap")
+        out = OUTPUTS / name / "renders"
+        # fix round after P5: a blocked daylight view (one element over the frame, or the lens on a surface) shows no wall
+        # colour to compare with; it is printed and left out of the references
+        blocked = [c for c in daylight if _blocked(entries[c], out, entries[c].get("lens_mm") or 24.0)["blocked"]]
+        daylight = [c for c in daylight if c not in blocked]
+        table = views.index_table(scene)
+        loaded = views.load_views(out, cameras=rig_lit + daylight)
+        measured = {cam: _wall_rb(v, table) for cam, v in loaded.items()}
+    
+        def kind(cam):
+            return _wall_kind(entries[cam], manifest_types)
+        reference = {}
+        for k in ("painted", "tiled"):
+            values = sorted(measured[c] for c in daylight if kind(c) == k and measured.get(c) is not None)
+            reference[k] = float(np.median(values)) if values else None
+        per_view, warm = {}, []
+        for cam in rig_lit:
+            value = measured.get(cam)
+            if value is None:
+                continue
+            ref = reference[kind(cam)]
+            bound = RIG_ROOM_MAX_RB if ref is None else round(ref + RIG_ROOM_ABOVE_DAY, 3)     # fix round after P4b
+            per_view[cam] = (value, kind(cam), bound)
+            if value > bound:
+                warm.append((cam, value, kind(cam), bound, entries[cam]["exposure"].get("wb_rig_share")))
+        print(f"{name}: daylight wall R/B {[(c, measured.get(c), kind(c)) for c in daylight]}; references {reference}; "
+              f"blocked daylight views left out {blocked}")
+        print(f"{name}: wall R/B of the rig-lit views (value, kind, bound) {per_view}")
+>       assert not warm, f"{name}: rig-lit views still orange (wall R/B over the bound): {warm}"
+E       AssertionError: real03: rig-lit views still orange (wall R/B over the bound): [('cam_r_L0_giris_holu_1', 1.492, 'painted', 1.455, 0.569178), ('cam_r_L0_giris_holu_2', 1.599, 'painted', 1.455, 0.622621), ('cam_r_L0_giris_holu_2_1', 1.52, 'painted', 1.455, 0.683587), ('cam_r_L0_giris_holu_2_2', 1.515, 'painted', 1.455, 0.652607), ('cam_r_L0_giris_holu_3_1', 1.535, 'painted', 1.455, 0.75514), ('cam_r_L0_giris_holu_4_1', 1.486, 'painted', 1.455, 0.626547), ('cam_r_L0_giris_holu_4_2', 1.583, 'painted', 1.455, 0.705595), ('cam_r_L0_kat_merdiveni_1', 1.492, 'painted', 1.455, 0.723808), ('cam_r_L0_kat_merdiveni_3', 1.49, 'painted', 1.455, 0.761103), ('cam_r_L0_yangin_merdiveni_1', 1.595, 'painted', 1.455, 0.889906)]
+E       assert not [('cam_r_L0_giris_holu_1', 1.492, 'painted', 1.455, 0.569178), ('cam_r_L0_giris_holu_2', 1.599, 'painted', 1.455, 0.622621), ('cam_r_L0_giris_holu_2_1', 1.52, 'painted', 1.455, 0.683587), ('cam_r_L0_giris_holu_2_2', 1.515, 'painted', 1.455, 0.652607), ('cam_r_L0_giris_holu_3_1', 1.535, 'painted', 1.455, 0.75514), ('cam_r_L0_giris_holu_4_1', 1.486, 'painted', 1.455, 0.626547), ...]
+
+tests/gpu/test_render.py:918: AssertionError
+----------------------------- Captured stdout call -----------------------------
+real03: daylight wall R/B [('cam_r_L0_ebeveyn_odasi_1', 1.256, 'painted'), ('cam_r_L0_ebeveyn_odasi_2', 1.3, 'painted'), ('cam_r_L0_ebeveyn_odasi_2_1', 1.295, 'painted'), ('cam_r_L0_ebeveyn_odasi_2_2', 1.288, 'painted'), ('cam_r_L0_ebeveyn_odasi_2_3', 1.236, 'painted'), ('cam_r_L0_ebeveyn_odasi_3_1', 1.485, 'painted'), ('cam_r_L0_ebeveyn_odasi_3_2', 1.446, 'painted'), ('cam_r_L0_ebeveyn_odasi_4_1', 1.289, 'painted'), ('cam_r_L0_ebeveyn_odasi_4_2', 1.311, 'painted'), ('cam_r_L0_ebeveyn_odasi_4_3', 1.303, 'painted'), ('cam_r_L0_ebeveyn_odasi_5_3', 1.406, 'painted'), ('cam_r_L0_ebeveyn_odasi_6_1', 1.54, 'painted'), ('cam_r_L0_ebeveyn_odasi_6_2', 1.506, 'painted'), ('cam_r_L0_ebeveyn_odasi_m_k_a_2_1', 1.425, 'painted'), ('cam_r_L0_ebeveyn_odasi_m_k_a_2_3', 1.356, 'painted'), ('cam_r_L0_oda_01_1', 1.54, 'painted'), ('cam_r_L0_oda_01_2', 1.582, 'painted'), ('cam_r_L0_oda_01_3', 1.533, 'painted'), ('cam_r_L0_yasama_3_1', 1.43, 'painted'), ('cam_r_L0_yasama_3_3', 1.307, 'painted'), ('cam_r_L0_yasama_4_2', 1.241, 'painted'), ('cam_r_L0_yasama_4_3', 1.211, 'painted'), ('cam_r_L0_yasama_5_1', 1.388, 'painted'), ('cam_r_L0_yasama_5_3', 1.294, 'painted'), ('cam_r_L0_yasama_7_1', 1.188, 'painted'), ('cam_r_L0_yasama_7_2', 1.361, 'painted'), ('cam_r_L0_yasama_7_3', 1.238, 'painted'), ('cam_r_L0_yasama_8_1', 1.183, 'painted'), ('cam_r_L0_yasama_8_2', 1.21, 'painted'), ('cam_r_L0_yasama_8_3', 1.209, 'painted')]; references {'painted': 1.305, 'tiled': None}; blocked daylight views left out ['cam_r_L0_yasama_3_2', 'cam_r_L0_yasama_5_2', 'cam_r_L0_yasama_6_1']
+real03: wall R/B of the rig-lit views (value, kind, bound) {'cam_r_L0_banyo_1': (1.139, 'tiled', 1.5), 'cam_r_L0_banyo_2_1': (1.174, 'tiled', 1.5), 'cam_r_L0_banyo_3_1': (1.138, 'tiled', 1.5), 'cam_r_L0_banyo_4_1': (1.096, 'tiled', 1.5), 'cam_r_L0_banyo_4_2': (1.105, 'tiled', 1.5), 'cam_r_L0_banyo_5_1': (1.123, 'tiled', 1.5), 'cam_r_L0_banyo_5_2': (1.1, 'tiled', 1.5), 'cam_r_L0_banyo_6_1': (1.138, 'tiled', 1.5), 'cam_r_L0_banyo_6_2': (1.11, 'tiled', 1.5), 'cam_r_L0_banyo_7_1': (1.086, 'tiled', 1.5), 'cam_r_L0_banyo_8_1': (1.129, 'tiled', 1.5), 'cam_r_L0_giris_holu_1': (1.492, 'painted', 1.455), 'cam_r_L0_giris_holu_2': (1.599, 'painted', 1.455), 'cam_r_L0_giris_holu_2_1': (1.52, 'painted', 1.455), 'cam_r_L0_giris_holu_2_2': (1.515, 'painted', 1.455), 'cam_r_L0_giris_holu_3_1': (1.535, 'painted', 1.455), 'cam_r_L0_giris_holu_4_1': (1.486, 'painted', 1.455), 'cam_r_L0_giris_holu_4_2': (1.583, 'painted', 1.455), 'cam_r_L0_kat_holu_1': (1.436, 'painted', 1.455), 'cam_r_L0_kat_holu_2': (1.423, 'painted', 1.455), 'cam_r_L0_kat_holu_3': (1.451, 'painted', 1.455), 'cam_r_L0_kat_merdiveni_1': (1.492, 'painted', 1.455), 'cam_r_L0_kat_merdiveni_2': (1.446, 'painted', 1.455), 'cam_r_L0_kat_merdiveni_3': (1.49, 'painted', 1.455), 'cam_r_L0_oda_10_1': (1.425, 'painted', 1.455), 'cam_r_L0_oda_7_1': (1.423, 'painted', 1.455), 'cam_r_L0_ruzgarlik_1': (1.409, 'painted', 1.455), 'cam_r_L0_yangin_merdiveni_1': (1.595, 'painted', 1.455), 'cam_r_L0_yangin_merdiveni_2': (1.442, 'painted', 1.455), 'cam_r_L0_yangin_merdiveni_3': (1.363, 'painted', 1.455)}
+__________________ test_daylight_walls_are_not_olive[real03] ___________________
+
+project = ('real03', {'schema_version': '0.1', 'project': 'real03', 'building': 'outputs/real03/building_final.json', 'style': '...ne.blend', 'scene_sha256': '46363838683178251d9dfec1fab1b50e74e2adf6a538eed9852f54e018515306', 'device': 'OPTIX', ...})
+
+    def test_daylight_walls_are_not_olive(project):
+        """Fix round after P5 (22 Oct 2026). What: the painted walls of every view lit mostly by daylight (rig share under
+        ``RIG_CHECK_SHARE``, the orange check's floor; under the interior world, within the cap, not blocked; the rig's
+        warm light only lowers the ratio) have a display G/((R+B)/2) of at most ``DAYLIGHT_WALL_GREEN_MAX``; every value
+        is printed with the view's ``wb_day_green`` and ``wb_view_tint_gain``. Why: P5 real04's six sunlit L0 bedroom views read olive under the project anchor (metered
+        on the terrace): their daylight is mostly sunlight bounced off the green ground outside. The pin reads the
+        pixels, not the white point rule (``test_views_keep_the_project_white_point_or_mix_it_with_the_rig`` checks the
+        rule against the record)."""
+        from wenart import views
+        from wenart.blender import render as R
+    
+        name, scene, render = project
+        if not _project_wb(render):
+            pytest.skip(f"{name}: not rendered with --white-balance project")
+        exterior_world = (((scene.get("lighting") or {}).get("world_exterior") or {}).get("name"))
+        manifest_types = R.room_types_from_manifest(scene)
+        entries = {r["camera"]: r for r in render["renders"]}
+        out = OUTPUTS / name / "renders"
+        daylight = [c for c, r in entries.items() if r.get("room_id") is not None and not _dark(r)
+                    and not (exterior_world and r.get("world") == exterior_world)
+                    and (r["exposure"].get("wb_rig_share") or 0.0) < RIG_CHECK_SHARE
+                    and _wall_kind(r, manifest_types) == "painted"]
+        daylight = [c for c in daylight if not _blocked(entries[c], out, entries[c].get("lens_mm") or 24.0)["blocked"]]
+        if not daylight:
+            pytest.skip(f"{name}: no painted daylight view")
+        table = views.index_table(scene)
+        loaded = views.load_views(out, cameras=daylight)
+        values = {cam: (_wall_green(v, table), entries[cam]["exposure"].get("wb_day_green"),
+                        entries[cam]["exposure"].get("wb_view_tint_gain")) for cam, v in loaded.items()}
+        olive = [(cam, v) for cam, v in values.items() if v[0] is not None and v[0] > DAYLIGHT_WALL_GREEN_MAX]
+        print(f"{name}: daylight wall G/((R+B)/2), daylight green ratio, tint gain {values}")
+>       assert not olive, f"{name}: olive daylight walls (over {DAYLIGHT_WALL_GREEN_MAX}): {olive}"
+E       AssertionError: real03: olive daylight walls (over 1.06): [('cam_r_L0_ebeveyn_odasi_m_k_a_2_3', (1.068, 1.146091, 0.980047))]
+E       assert not [('cam_r_L0_ebeveyn_odasi_m_k_a_2_3', (1.068, 1.146091, 0.980047))]
+
+tests/gpu/test_render.py:978: AssertionError
+----------------------------- Captured stdout call -----------------------------
+real03: daylight wall G/((R+B)/2), daylight green ratio, tint gain {'cam_r_L0_ebeveyn_odasi_1': (1.018, 1.082108, 0.944127), 'cam_r_L0_ebeveyn_odasi_2': (1.01, 1.082974, 0.944618), 'cam_r_L0_ebeveyn_odasi_2_1': (1.05, 0.99243, 0.892502), 'cam_r_L0_ebeveyn_odasi_2_2': (1.024, 1.08413, 0.945273), 'cam_r_L0_ebeveyn_odasi_2_3': (1.029, 0.996063, 0.894625), 'cam_r_L0_ebeveyn_odasi_3_1': (1.016, 1.015748, 0.906078), 'cam_r_L0_ebeveyn_odasi_3_2': (1.004, 0.989934, 0.891043), 'cam_r_L0_ebeveyn_odasi_4_1': (1.028, 1.011586, 0.903663), 'cam_r_L0_ebeveyn_odasi_4_2': (1.038, 1.02245, 0.909959), 'cam_r_L0_ebeveyn_odasi_4_3': (1.042, 1.0035, 0.898961), 'cam_r_L0_ebeveyn_odasi_5_1': (1.045, 1.14857, 0.982068), 'cam_r_L0_ebeveyn_odasi_5_2': (1.045, 1.150478, 0.983385), 'cam_r_L0_ebeveyn_odasi_5_3': (1.026, 1.102202, 0.955486), 'cam_r_L0_ebeveyn_odasi_6_1': (1.052, 1.157962, 0.986633), 'cam_r_L0_ebeveyn_odasi_6_2': (1.021, 1.255261, 1.039756), 'cam_r_L0_ebeveyn_odasi_m_k_a_1': (1.045, 1.113232, 0.963405), 'cam_r_L0_ebeveyn_odasi_m_k_a_2': (1.039, 1.110567, 0.961597), 'cam_r_L0_ebeveyn_odasi_m_k_a_2_1': (1.05, 1.12774, 0.969818), 'cam_r_L0_ebeveyn_odasi_m_k_a_2_2': (1.049, 1.119996, 0.966859), 'cam_r_L0_ebeveyn_odasi_m_k_a_2_3': (1.068, 1.146091, 0.980047), 'cam_r_L0_ebeveyn_odasi_m_k_a_3': (1.04, 1.161186, 0.989086), 'cam_r_L0_oda_01_1': (0.997, 1.055353, 0.928887), 'cam_r_L0_oda_01_2': (0.993, 1.057383, 0.930048), 'cam_r_L0_oda_01_3': (0.985, 1.066666, 0.935347), 'cam_r_L0_ruzgarlik_2': (1.004, 1.059066, 0.957994), 'cam_r_L0_ruzgarlik_3': (1.014, 1.054043, 0.943886), 'cam_r_L0_yasama_1': (1.014, 1.074359, 0.944001), 'cam_r_L0_yasama_2': (1.015, 1.07607, 0.9454), 'cam_r_L0_yasama_2_1': (1.041, 1.163909, 0.991575), 'cam_r_L0_yasama_2_3': (1.034, 1.176844, 0.997329), 'cam_r_L0_yasama_3': (1.016, 1.08362, 0.952378), 'cam_r_L0_yasama_3_1': (1.023, 0.996576, 0.894924), 'cam_r_L0_yasama_3_3': (1.027, 1.001589, 0.897848), 'cam_r_L0_yasama_4_1': (1.021, 1.11293, 0.969575), 'cam_r_L0_yasama_4_2': (1.019, 1.029355, 0.913949), 'cam_r_L0_yasama_4_3': (1.024, 1.012987, 0.904476), 'cam_r_L0_yasama_5_1': (1.056, 1.007923, 0.901534), 'cam_r_L0_yasama_5_3': (1.038, 1.004193, 0.899364), 'cam_r_L0_yasama_6_2': (1.03, 1.17871, 0.998454), 'cam_r_L0_yasama_6_3': (1.042, 1.125991, 0.974199), 'cam_r_L0_yasama_7_1': (1.013, 0.998183, 0.895862), 'cam_r_L0_yasama_7_2': (1.015, 0.994413, 0.893661), 'cam_r_L0_yasama_7_3': (1.018, 0.99839, 0.895983), 'cam_r_L0_yasama_8_1': (1.014, 1.000026, 0.896937), 'cam_r_L0_yasama_8_2': (1.012, 0.99764, 0.895545), 'cam_r_L0_yasama_8_3': (1.012, 0.994186, 0.893529)}
+_____________ test_interior_glazing_keeps_one_white_point[real03] ______________
+
+project = ('real03', {'schema_version': '0.1', 'project': 'real03', 'building': 'outputs/real03/building_final.json', 'style': '...ne.blend', 'scene_sha256': '46363838683178251d9dfec1fab1b50e74e2adf6a538eed9852f54e018515306', 'device': 'OPTIX', ...})
+
+    def test_interior_glazing_keeps_one_white_point(project):
+        """Fix round after P4b (17 Oct 2026; the verifier's better fix of the P4b interior-glazing finding): a window
+        between two indoor rooms is never pulled and its panes are recorded against the camera room's walls
+        (``interior_glazing``, ``render.interior_glazing_record``). The named real03 views (``INTERIOR_GLAZING_VIEWS``: a
+        daylight room looking into a rig-lit stair or vestibule, and the stair looking back; P4b 1.82 / 2.15 against walls
+        of 1.26 / 1.29, 1.02 against 2.05) keep the panes within ``INTERIOR_GLAZING_MAX_DELTA`` of the walls in display
+        R/B; every view's values are printed."""
+        name, _scene, render = project
+        entries = {r["camera"]: r for r in render["renders"]}
+        rows = {c: (g["pane_rb"], g["wall_rb"], g["delta_rb"], g["windows"]) for c, e in entries.items()
+                if (g := e.get("interior_glazing"))}
+        named = [c for c in INTERIOR_GLAZING_VIEWS.get(name, ()) if c in entries]
+        print(f"{name}: interior glazing (pane R/B, wall R/B, delta, windows) {rows}")
+        if not named:
+            pytest.skip(f"{name}: none of the named interior-glazing views was rendered")
+        bad = []
+        for cam in named:
+            e = entries[cam]
+            if "interior_glazing" not in e:
+                bad.append((cam, "no interior_glazing record (rendered before the fix round after P4b?)"))
+            elif not e["interior_glazing"]:
+                bad.append((cam, "no interior glazing in view (the window's room_ids no longer name two rooms?)"))
+            elif e["interior_glazing"]["delta_rb"] is None:
+                bad.append((cam, "no wall R/B to compare with", e["interior_glazing"]))
+            elif abs(e["interior_glazing"]["delta_rb"]) > INTERIOR_GLAZING_MAX_DELTA:
+                bad.append((cam, f"pane R/B {e['interior_glazing']['pane_rb']} against the walls' "
+                                 f"{e['interior_glazing']['wall_rb']}: two white points in one frame"))
+>       assert not bad, f"{name}: interior glazing: {bad}"
+E       AssertionError: real03: interior glazing: [('cam_r_L0_yasama_8_3', "pane R/B 1.901 against the walls' 1.209: two white points in one frame"), ('cam_r_L0_ebeveyn_odasi_2_1', "pane R/B 1.616 against the walls' 1.295: two white points in one frame"), ('cam_r_L0_yangin_merdiveni_1', "pane R/B 1.197 against the walls' 1.595: two white points in one frame")]
+E       assert not [('cam_r_L0_yasama_8_3', "pane R/B 1.901 against the walls' 1.209: two white points in one frame"), ('cam_r_L0_ebeveyn_odasi_2_1', "pane R/B 1.616 against the walls' 1.295: two white points in one frame"), ('cam_r_L0_yangin_merdiveni_1', "pane R/B 1.197 against the walls' 1.595: two white points in one frame")]
+
+tests/gpu/test_render.py:1331: AssertionError
+----------------------------- Captured stdout call -----------------------------
+real03: interior glazing (pane R/B, wall R/B, delta, windows) {'cam_r_L0_banyo_3_1': (1.137, 1.138, -0.001, ['win_L0_056']), 'cam_r_L0_ebeveyn_odasi_2': (1.197, 1.3, -0.103, ['win_L0_007']), 'cam_r_L0_ebeveyn_odasi_2_1': (1.616, 1.295, 0.321, ['win_L0_056']), 'cam_r_L0_ebeveyn_odasi_2_2': (1.58, 1.288, 0.292, ['win_L0_056']), 'cam_r_L0_ebeveyn_odasi_2_3': (1.503, 1.236, 0.267, ['win_L0_056']), 'cam_r_L0_ebeveyn_odasi_3_2': (1.478, 1.446, 0.032, ['win_L0_024']), 'cam_r_L0_ebeveyn_odasi_5_3': (1.337, 1.406, -0.069, ['win_L0_029']), 'cam_r_L0_ebeveyn_odasi_6_2': (1.178, 1.506, -0.328, ['win_L0_012']), 'cam_r_L0_giris_holu_1': (1.147, 1.492, -0.345, ['win_L0_008']), 'cam_r_L0_giris_holu_2': (1.186, 1.599, -0.413, ['win_L0_008']), 'cam_r_L0_giris_holu_2_1': (1.248, 1.52, -0.272, ['win_L0_025']), 'cam_r_L0_giris_holu_3_1': (1.289, 1.535, -0.246, ['win_L0_028']), 'cam_r_L0_giris_holu_4_1': (1.164, 1.486, -0.322, ['win_L0_011']), 'cam_r_L0_giris_holu_4_2': (1.165, 1.583, -0.418, ['win_L0_011']), 'cam_r_L0_kat_holu_1': (2.164, 1.436, 0.728, ['win_L0_003']), 'cam_r_L0_kat_holu_2': (2.047, 1.423, 0.624, ['win_L0_004']), 'cam_r_L0_kat_holu_3': (1.855, 1.451, 0.404, ['win_L0_004']), 'cam_r_L0_kat_merdiveni_1': (1.153, 1.492, -0.339, ['win_L0_059']), 'cam_r_L0_kat_merdiveni_2': (1.106, 1.446, -0.34, ['win_L0_059']), 'cam_r_L0_kat_merdiveni_3': (1.074, 1.49, -0.416, ['win_L0_059']), 'cam_r_L0_oda_01_2': (1.298, 1.582, -0.284, ['win_L0_058']), 'cam_r_L0_oda_01_3': (1.224, 1.533, -0.309, ['win_L0_058']), 'cam_r_L0_oda_10_1': (1.17, 1.425, -0.255, ['win_L0_003', 'win_L0_059']), 'cam_r_L0_oda_7_1': (1.463, 1.423, 0.04, ['win_L0_004']), 'cam_r_L0_ruzgarlik_1': (1.1, 1.409, -0.309, ['win_L0_056']), 'cam_r_L0_ruzgarlik_2': (1.233, 1.413, -0.18, ['win_L0_056']), 'cam_r_L0_yangin_merdiveni_1': (1.197, 1.595, -0.398, ['win_L0_055']), 'cam_r_L0_yangin_merdiveni_2': (1.455, 1.442, 0.013, ['win_L0_055']), 'cam_r_L0_yasama_2_1': (1.275, 1.348, -0.073, ['win_L0_025', 'win_L0_040']), 'cam_r_L0_yasama_2_3': (1.404, 1.331, 0.073, ['win_L0_024', 'win_L0_025']), 'cam_r_L0_yasama_3_1': (1.225, 1.43, -0.205, ['win_L0_008', 'win_L0_039']), 'cam_r_L0_yasama_3_3': (1.366, 1.307, 0.059, ['win_L0_007', 'win_L0_008']), 'cam_r_L0_yasama_5_1': (1.57, 1.388, 0.182, ['win_L0_011', 'win_L0_012', 'win_L0_039']), 'cam_r_L0_yasama_5_3': (1.416, 1.294, 0.122, ['win_L0_011', 'win_L0_012']), 'cam_r_L0_yasama_6_2': (1.345, 1.251, 0.094, ['win_L0_028', 'win_L0_029']), 'cam_r_L0_yasama_6_3': (1.224, 1.335, -0.111, ['win_L0_028', 'win_L0_040']), 'cam_r_L0_yasama_7_1': (1.893, 1.188, 0.705, ['win_L0_059']), 'cam_r_L0_yasama_7_2': (2.191, 1.361, 0.83, ['win_L0_059']), 'cam_r_L0_yasama_7_3': (3.378, 1.238, 2.14, ['win_L0_059']), 'cam_r_L0_yasama_8_1': (1.888, 1.183, 0.705, ['win_L0_055']), 'cam_r_L0_yasama_8_3': (1.901, 1.209, 0.692, ['win_L0_055'])}
+- generated xml file: /workspace/jobs/20261022-165510-full/results/junit-full.xml -
+=========================== short test summary info ============================
+SKIPPED [1] tests/gpu/test_full_run.py:164: real03: no gate validation (polish off)
+SKIPPED [1] tests/gpu/test_full_run.py:185: got empty parameter set for (project)
+SKIPPED [1] tests/gpu/test_full_run.py:196: no private self-test in this run
+SKIPPED [1] tests/gpu/test_render.py:509: real03: none of ('cam_r_L1_koridor_2_2',) rendered
+SKIPPED [1] tests/gpu/test_render.py:650: the white-wall check is for synthetic-01
+SKIPPED [1] tests/gpu/test_camera_replay.py:126: real03: no agent camera
+SKIPPED [1] tests/gpu/test_look_m6.py:104: real03: no parametric kitchen counter
+FAILED tests/gpu/test_render.py::test_every_room_has_three_views[real03] - As...
+FAILED tests/gpu/test_render.py::test_no_blocked_searched_view[real03] - Asse...
+FAILED tests/gpu/test_render.py::test_exposure_recorded_and_within_the_clamp[real03]
+FAILED tests/gpu/test_render.py::test_rig_lit_rooms_have_no_orange_cast[real03]
+FAILED tests/gpu/test_render.py::test_daylight_walls_are_not_olive[real03] - ...
+FAILED tests/gpu/test_render.py::test_interior_glazing_keeps_one_white_point[real03]
+============= 6 failed, 42 passed, 7 skipped in 149.40s (0:02:29) ==============
+[wenart.run] 2026-10-22T19:11:29Z rc 1
