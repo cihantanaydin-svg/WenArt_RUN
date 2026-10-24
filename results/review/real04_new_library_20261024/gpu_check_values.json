@@ -1,0 +1,534 @@
+{
+ "daylight_walls_are_not_olive": {
+  "real04": {
+   "bound": 1.06,
+   "lower_bound": 0.95,
+   "olive": [],
+   "pink": [],
+   "views": {
+    "cam_r_L-1_salon_1": {
+     "lower_wall_green": 0.979,
+     "wall_green": 1.004,
+     "wb_day_green": 1.166874,
+     "wb_day_green_all": 1.062629,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 1.103221
+    },
+    "cam_r_L-1_salon_2": {
+     "lower_wall_green": 0.967,
+     "wall_green": 1.027,
+     "wb_day_green": 1.2788,
+     "wb_day_green_all": 1.076855,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 1.170897
+    },
+    "cam_r_L-1_salon_3": {
+     "lower_wall_green": 0.983,
+     "wall_green": 1.009,
+     "wb_day_green": 1.207717,
+     "wb_day_green_all": 1.103713,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 1.128169
+    },
+    "cam_r_L0_e_yatak_odasi_1": {
+     "lower_wall_green": 0.98,
+     "wall_green": 1.028,
+     "wb_day_green": 1.356766,
+     "wb_day_green_all": 1.191842,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 1.216817
+    },
+    "cam_r_L0_e_yatak_odasi_2": {
+     "lower_wall_green": 0.966,
+     "wall_green": 1.027,
+     "wb_day_green": 1.4232,
+     "wb_day_green_all": 1.205879,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 1.25522
+    },
+    "cam_r_L0_e_yatak_odasi_3": {
+     "lower_wall_green": 0.971,
+     "wall_green": 1.035,
+     "wb_day_green": 1.431657,
+     "wb_day_green_all": 1.209032,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 1.260063
+    },
+    "cam_r_L0_koridor_1": {
+     "lower_wall_green": 0.994,
+     "wall_green": 0.996,
+     "wb_day_green": 0.978303,
+     "wb_day_green_all": 0.975437,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 0.987398
+    },
+    "cam_r_L0_koridor_2": {
+     "lower_wall_green": 0.988,
+     "wall_green": 0.991,
+     "wb_day_green": 0.985183,
+     "wb_day_green_all": 0.984965,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 0.99223
+    },
+    "cam_r_L0_koridor_3": {
+     "lower_wall_green": 0.98,
+     "wall_green": 0.988,
+     "wb_day_green": 0.969737,
+     "wb_day_green_all": 0.969914,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 0.98314
+    },
+    "cam_r_L0_yatak_odasi_1": {
+     "lower_wall_green": 0.999,
+     "wall_green": 1.025,
+     "wb_day_green": 1.339446,
+     "wb_day_green_all": 1.242286,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 1.195758
+    },
+    "cam_r_L0_yatak_odasi_2": {
+     "lower_wall_green": 1.005,
+     "wall_green": 1.023,
+     "wb_day_green": 1.334869,
+     "wb_day_green_all": 1.207089,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 1.189944
+    },
+    "cam_r_L0_yatak_odasi_3": {
+     "lower_wall_green": 0.981,
+     "wall_green": 1.022,
+     "wb_day_green": 1.28378,
+     "wb_day_green_all": 1.233059,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 1.173859
+    },
+    "cam_r_L0_yatak_odasi_3_1": {
+     "lower_wall_green": 0.994,
+     "wall_green": 0.999,
+     "wb_day_green": 0.983441,
+     "wb_day_green_all": 0.983553,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 0.987459
+    },
+    "cam_r_L0_yatak_odasi_3_2": {
+     "lower_wall_green": 0.996,
+     "wall_green": 1.0,
+     "wb_day_green": 0.98691,
+     "wb_day_green_all": 0.990355,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 0.989412
+    },
+    "cam_r_L0_yatak_odasi_3_3": {
+     "lower_wall_green": 1.001,
+     "wall_green": 1.003,
+     "wb_day_green": 0.990388,
+     "wb_day_green_all": 0.989314,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 0.991909
+    },
+    "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1": {
+     "lower_wall_green": 0.989,
+     "wall_green": 1.002,
+     "wb_day_green": 1.013491,
+     "wb_day_green_all": 0.983359,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 1.006653
+    },
+    "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2": {
+     "lower_wall_green": 0.989,
+     "wall_green": 0.99,
+     "wb_day_green": 0.983127,
+     "wb_day_green_all": 0.98226,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 0.986946
+    },
+    "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3": {
+     "lower_wall_green": 0.991,
+     "wall_green": 0.998,
+     "wb_day_green": 0.992955,
+     "wb_day_green_all": 0.981876,
+     "wb_day_green_source": "walls",
+     "wb_tint_green_residual": true,
+     "wb_view_tint_gain": 0.993347
+    }
+   }
+  }
+ },
+ "interior_glazing_keeps_one_white_point": {
+  "real04": {
+   "max_delta": 0.3,
+   "named": [],
+   "views": {}
+  }
+ },
+ "rig_lit_rooms_have_no_orange_cast": {
+  "real04": {
+   "above_day": 0.15,
+   "above_day_max": 0.35,
+   "above_warmest_day": 0.05,
+   "blocked_daylight": [],
+   "daylight": {
+    "cam_r_L-1_salon_1": {
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 2.0473,
+     "wall_light_rb": 2.1802,
+     "wall_rb": 1.464,
+     "wall_rig_kelvin": null,
+     "wall_rig_rb": null,
+     "wall_rig_share": 0.0
+    },
+    "cam_r_L-1_salon_2": {
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 2.5142,
+     "wall_light_rb": 2.7351,
+     "wall_rb": 1.713,
+     "wall_rig_kelvin": null,
+     "wall_rig_rb": null,
+     "wall_rig_share": 0.006972
+    },
+    "cam_r_L-1_salon_3": {
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 2.2062,
+     "wall_light_rb": 2.3667,
+     "wall_rb": 1.477,
+     "wall_rig_kelvin": null,
+     "wall_rig_rb": null,
+     "wall_rig_share": 0.0
+    },
+    "cam_r_L0_e_yatak_odasi_1": {
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 2.3686,
+     "wall_light_rb": 2.508,
+     "wall_rb": 1.407,
+     "wall_rig_kelvin": null,
+     "wall_rig_rb": null,
+     "wall_rig_share": 0.0
+    },
+    "cam_r_L0_e_yatak_odasi_2": {
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 2.4237,
+     "wall_light_rb": 2.6938,
+     "wall_rb": 1.49,
+     "wall_rig_kelvin": 2748.8,
+     "wall_rig_rb": 10.5496,
+     "wall_rig_share": 0.080989
+    },
+    "cam_r_L0_e_yatak_odasi_3": {
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 2.384,
+     "wall_light_rb": 2.6118,
+     "wall_rb": 1.494,
+     "wall_rig_kelvin": 2440.7,
+     "wall_rig_rb": 20.3904,
+     "wall_rig_share": 0.054402
+    },
+    "cam_r_L0_yatak_odasi_3": {
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 2.3383,
+     "wall_light_rb": 2.5177,
+     "wall_rb": 1.467,
+     "wall_rig_kelvin": null,
+     "wall_rig_rb": null,
+     "wall_rig_share": 0.0
+    },
+    "cam_r_L0_yatak_odasi_3_2": {
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 1.8584,
+     "wall_light_rb": 1.9335,
+     "wall_rb": 1.405,
+     "wall_rig_kelvin": 2567.8,
+     "wall_rig_rb": 15.3297,
+     "wall_rig_share": 0.02907
+    },
+    "cam_r_L1_banyo_1": {
+     "kind": "tiled",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 1.598,
+     "wall_light_rb": 1.6072,
+     "wall_rb": 1.079,
+     "wall_rig_kelvin": null,
+     "wall_rig_rb": null,
+     "wall_rig_share": 0.0
+    },
+    "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1": {
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 2.2143,
+     "wall_light_rb": 2.2084,
+     "wall_rb": 1.544,
+     "wall_rig_kelvin": null,
+     "wall_rig_rb": null,
+     "wall_rig_share": 0.0
+    },
+    "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2": {
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 2.2269,
+     "wall_light_rb": 2.2222,
+     "wall_rb": 1.528,
+     "wall_rig_kelvin": null,
+     "wall_rig_rb": null,
+     "wall_rig_share": 0.0
+    },
+    "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3": {
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "wall_day_rb": 2.1591,
+     "wall_light_rb": 2.1524,
+     "wall_rb": 1.472,
+     "wall_rig_kelvin": null,
+     "wall_rig_rb": null,
+     "wall_rig_share": 0.0
+    }
+   },
+   "neutral_rig_k": 4000.0,
+   "references": {
+    "painted": 1.477,
+    "tiled": 1.079
+   },
+   "rig_alone_share": 0.95,
+   "rig_lit": {
+    "cam_r_L-1_banyo_1": {
+     "bound": 1.229,
+     "kind": "tiled",
+     "lamp_rb": 2.6511,
+     "regime": "rig alone",
+     "rig_kelvin": 4000.0,
+     "rig_share": 1.0,
+     "wall_day_rb": null,
+     "wall_light_rb": 2.7749,
+     "wall_rb": 1.069,
+     "wall_rig_kelvin": 3927.4,
+     "wall_rig_rb": 2.7749,
+     "wall_rig_share": 1.0
+    },
+    "cam_r_L-1_banyo_2": {
+     "bound": 1.229,
+     "kind": "tiled",
+     "lamp_rb": 2.6511,
+     "regime": "rig alone",
+     "rig_kelvin": 4000.0,
+     "rig_share": 1.0,
+     "wall_day_rb": null,
+     "wall_light_rb": 2.7896,
+     "wall_rb": 1.064,
+     "wall_rig_kelvin": 3918.1,
+     "wall_rig_rb": 2.7896,
+     "wall_rig_share": 1.0
+    },
+    "cam_r_L-1_koridor_2_1": {
+     "bound": 1.763,
+     "kind": "painted",
+     "lamp_rb": 2.6511,
+     "regime": "mixed",
+     "rig_kelvin": 4000.0,
+     "rig_share": 0.727219,
+     "wall_day_rb": 3.2619,
+     "wall_light_rb": 4.0567,
+     "wall_rb": 1.613,
+     "wall_rig_kelvin": 3266.1,
+     "wall_rig_rb": 4.3078,
+     "wall_rig_share": 0.776287
+    },
+    "cam_r_L-1_koridor_2_2": {
+     "bound": 1.763,
+     "kind": "painted",
+     "lamp_rb": 2.6511,
+     "regime": "mixed",
+     "rig_kelvin": 4000.0,
+     "rig_share": 0.826979,
+     "wall_day_rb": 3.0053,
+     "wall_light_rb": 4.4732,
+     "wall_rb": 1.552,
+     "wall_rig_kelvin": 3130.2,
+     "wall_rig_rb": 4.8878,
+     "wall_rig_share": 0.798236
+    },
+    "cam_r_L-1_koridor_2_3": {
+     "bound": 1.763,
+     "kind": "painted",
+     "lamp_rb": 2.6511,
+     "regime": "mixed",
+     "rig_kelvin": 4000.0,
+     "rig_share": 0.790721,
+     "wall_day_rb": 3.2278,
+     "wall_light_rb": 3.8004,
+     "wall_rb": 1.577,
+     "wall_rig_kelvin": 3364.9,
+     "wall_rig_rb": 3.9223,
+     "wall_rig_share": 0.827685
+    },
+    "cam_r_L-1_mutfak_1": {
+     "bound": 1.627,
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "regime": "warm rig",
+     "rig_kelvin": 2700.0,
+     "rig_share": 0.646583,
+     "wall_day_rb": 1.6009,
+     "wall_light_rb": 4.5871,
+     "wall_rb": 1.144,
+     "wall_rig_kelvin": 2681.3,
+     "wall_rig_rb": 10.2586,
+     "wall_rig_share": 0.672458
+    },
+    "cam_r_L-1_mutfak_2": {
+     "bound": 1.627,
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "regime": "warm rig",
+     "rig_kelvin": 2700.0,
+     "rig_share": 0.561087,
+     "wall_day_rb": 1.5058,
+     "wall_light_rb": 4.1608,
+     "wall_rb": 1.176,
+     "wall_rig_kelvin": 2652.0,
+     "wall_rig_rb": 11.1522,
+     "wall_rig_share": 0.625928
+    },
+    "cam_r_L-1_mutfak_3": {
+     "bound": 1.627,
+     "kind": "painted",
+     "lamp_rb": 10.0668,
+     "regime": "warm rig",
+     "rig_kelvin": 2700.0,
+     "rig_share": 0.670891,
+     "wall_day_rb": 1.8706,
+     "wall_light_rb": 5.228,
+     "wall_rb": 1.236,
+     "wall_rig_kelvin": 2624.0,
+     "wall_rig_rb": 11.0436,
+     "wall_rig_share": 0.679226
+    },
+    "cam_r_L0_banyo_1": {
+     "bound": 1.229,
+     "kind": "tiled",
+     "lamp_rb": 2.6511,
+     "regime": "rig alone",
+     "rig_kelvin": 4000.0,
+     "rig_share": 0.999994,
+     "wall_day_rb": null,
+     "wall_light_rb": 2.7879,
+     "wall_rb": 1.073,
+     "wall_rig_kelvin": 3924.6,
+     "wall_rig_rb": 2.7879,
+     "wall_rig_share": 1.0
+    },
+    "cam_r_L0_banyo_2": {
+     "bound": 1.229,
+     "kind": "tiled",
+     "lamp_rb": 2.6511,
+     "regime": "rig alone",
+     "rig_kelvin": 4000.0,
+     "rig_share": 1.0,
+     "wall_day_rb": null,
+     "wall_light_rb": 2.902,
+     "wall_rb": 1.072,
+     "wall_rig_kelvin": 3863.8,
+     "wall_rig_rb": 2.902,
+     "wall_rig_share": 1.0
+    },
+    "cam_r_L0_e_banyo_1": {
+     "bound": 1.229,
+     "kind": "tiled",
+     "lamp_rb": 2.6511,
+     "regime": "rig alone",
+     "rig_kelvin": 4000.0,
+     "rig_share": 1.0,
+     "wall_day_rb": null,
+     "wall_light_rb": 2.9716,
+     "wall_rb": 1.093,
+     "wall_rig_kelvin": 3813.6,
+     "wall_rig_rb": 2.9716,
+     "wall_rig_share": 1.0
+    },
+    "cam_r_L0_e_banyo_2": {
+     "bound": 1.229,
+     "kind": "tiled",
+     "lamp_rb": 2.6511,
+     "regime": "rig alone",
+     "rig_kelvin": 4000.0,
+     "rig_share": 1.0,
+     "wall_day_rb": null,
+     "wall_light_rb": 2.9858,
+     "wall_rb": 1.086,
+     "wall_rig_kelvin": 3810.2,
+     "wall_rig_rb": 2.9858,
+     "wall_rig_share": 1.0
+    },
+    "cam_r_L1_koridor_1": {
+     "bound": 1.763,
+     "kind": "painted",
+     "lamp_rb": 2.6511,
+     "regime": "mixed",
+     "rig_kelvin": 4000.0,
+     "rig_share": 0.948563,
+     "wall_day_rb": 3.6031,
+     "wall_light_rb": 3.8323,
+     "wall_rb": 1.484,
+     "wall_rig_kelvin": 3383.8,
+     "wall_rig_rb": 3.8456,
+     "wall_rig_share": 0.947707
+    },
+    "cam_r_L1_koridor_2": {
+     "bound": 1.763,
+     "kind": "painted",
+     "lamp_rb": 2.6511,
+     "regime": "mixed",
+     "rig_kelvin": 4000.0,
+     "rig_share": 0.907188,
+     "wall_day_rb": 3.194,
+     "wall_light_rb": 3.3098,
+     "wall_rb": 1.362,
+     "wall_rig_kelvin": 3604.5,
+     "wall_rig_rb": 3.3252,
+     "wall_rig_share": 0.886267
+    },
+    "cam_r_L1_koridor_3": {
+     "bound": 1.627,
+     "kind": "painted",
+     "lamp_rb": 2.6511,
+     "regime": "rig alone",
+     "rig_kelvin": 4000.0,
+     "rig_share": 0.954483,
+     "wall_day_rb": 3.9476,
+     "wall_light_rb": 3.762,
+     "wall_rb": 1.404,
+     "wall_rig_kelvin": 3415.7,
+     "wall_rig_rb": 3.754,
+     "wall_rig_share": 0.956971
+    }
+   },
+   "warm": [],
+   "warmest": {
+    "painted": 1.713,
+    "tiled": 1.079
+   }
+  }
+ }
+}

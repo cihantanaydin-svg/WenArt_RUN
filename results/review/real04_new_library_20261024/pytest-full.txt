@@ -1,0 +1,144 @@
+[wenart.run] 2026-10-24T00:12:22Z $ /workspace/venv/bin/python -m pytest -m gpu tests/gpu/test_full_run.py tests/gpu/test_render.py tests/gpu/test_camera_replay.py tests/gpu/test_look_m6.py tests/gpu/test_furnish.py tests/gpu/test_check.py tests/gpu/test_m9.py -v -ra --junitxml=/workspace/jobs/20261023-222215-full/results/junit-full.xml
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /workspace/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /workspace/repo
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.12.2
+collecting ... collected 56 items
+
+tests/gpu/test_full_run.py::test_every_public_project_ended_ok_or_needs_review PASSED [  1%]
+tests/gpu/test_full_run.py::test_run_project_is_ok_with_allowed_stage_states[real04] PASSED [  3%]
+tests/gpu/test_full_run.py::test_pending_pipeline_has_its_final_building[real04] PASSED [  5%]
+tests/gpu/test_full_run.py::test_final_report_has_every_rendered_view[real04] PASSED [  7%]
+tests/gpu/test_full_run.py::test_unvalidated_gate_means_cycles_finals[real04] SKIPPED [  8%]
+tests/gpu/test_full_run.py::test_needs_review_project[NOTSET] SKIPPED    [ 10%]
+tests/gpu/test_full_run.py::test_selftest_files_stay_private SKIPPED     [ 12%]
+tests/gpu/test_render.py::test_gpu_device_and_full_resolution[real04] PASSED [ 14%]
+tests/gpu/test_render.py::test_every_room_has_three_views[real04] PASSED [ 16%]
+tests/gpu/test_render.py::test_no_blocked_searched_view[real04] PASSED   [ 17%]
+tests/gpu/test_render.py::test_view_time_under_four_minutes[real04] PASSED [ 19%]
+tests/gpu/test_render.py::test_cameras_render_with_their_own_lens[real04] PASSED [ 21%]
+tests/gpu/test_render.py::test_render_matches_the_scene_build[real04] PASSED [ 23%]
+tests/gpu/test_render.py::test_passes_exist_and_depth_is_plausible[real04] PASSED [ 25%]
+tests/gpu/test_render.py::test_closed_door_views_end_on_the_door[real04] PASSED [ 26%]
+tests/gpu/test_render.py::test_index_pass_contains_every_visible_proxy[real04] PASSED [ 28%]
+tests/gpu/test_render.py::test_entries_are_m5_renders_with_helper_maps[real04] PASSED [ 30%]
+tests/gpu/test_render.py::test_exposure_recorded_and_within_the_clamp[real04] PASSED [ 32%]
+tests/gpu/test_render.py::test_uint16_index_stats_match_the_index_maps[real04] PASSED [ 33%]
+tests/gpu/test_render.py::test_white_plaster_walls_are_neutral[real04] SKIPPED [ 35%]
+tests/gpu/test_render.py::test_views_keep_the_project_white_point_or_mix_it_with_the_rig[real04] PASSED [ 37%]
+tests/gpu/test_render.py::test_rig_lit_rooms_have_no_orange_cast[real04] PASSED [ 39%]
+tests/gpu/test_render.py::test_daylight_walls_are_not_olive[real04] PASSED [ 41%]
+tests/gpu/test_render.py::test_sky_pull_leaves_no_dotted_edges[real04] PASSED [ 42%]
+tests/gpu/test_render.py::test_open_air_views_render_under_the_exterior_sky[real04] PASSED [ 44%]
+tests/gpu/test_render.py::test_the_interior_world_is_the_sky_of_the_levers[real04] PASSED [ 46%]
+tests/gpu/test_render.py::test_sky_and_window_pulls_reach_their_targets[real04] PASSED [ 48%]
+tests/gpu/test_render.py::test_window_pull_takes_an_unclipped_k_when_one_was_tried[real04] PASSED [ 50%]
+tests/gpu/test_render.py::test_window_pull_leaves_panes_that_need_no_pull[real04] PASSED [ 51%]
+tests/gpu/test_render.py::test_interior_glazing_pull_removes_clipping[real04] PASSED [ 53%]
+tests/gpu/test_render.py::test_interior_glazing_keeps_one_white_point[real04] SKIPPED [ 55%]
+tests/gpu/test_render.py::test_exterior_views_cap_the_ground_and_keep_the_lawn_green[real04] PASSED [ 57%]
+tests/gpu/test_render.py::test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit[real04] PASSED [ 58%]
+tests/gpu/test_camera_replay.py::test_one_camera_per_name_and_a_plan_per_render[real04] PASSED [ 60%]
+tests/gpu/test_camera_replay.py::test_replayed_cameras_follow_the_camera_file[real04] SKIPPED [ 62%]
+tests/gpu/test_camera_replay.py::test_agent_cameras_record_their_pose[real04] SKIPPED [ 64%]
+tests/gpu/test_look_m6.py::test_renders_are_milestone_6_renders[real04] PASSED [ 66%]
+tests/gpu/test_look_m6.py::test_unverified_pieces_cast_no_colour[real04] FAILED [ 67%]
+tests/gpu/test_look_m6.py::test_kitchen_counter_fronts_are_lit[real04] SKIPPED [ 69%]
+tests/gpu/test_look_m6.py::test_window_pull_keeps_the_panes_unclipped[real04] PASSED [ 71%]
+tests/gpu/test_look_m6.py::test_dim_rooms_are_metered_below_six_ev[real04] SKIPPED [ 73%]
+tests/gpu/test_look_m6.py::test_assumed_entries_of_the_design_details[real04] PASSED [ 75%]
+tests/gpu/test_furnish.py::test_every_empty_room_was_laid_out[real04] PASSED [ 76%]
+tests/gpu/test_furnish.py::test_rooms_got_what_their_type_calls_for[real04] PASSED [ 78%]
+tests/gpu/test_furnish.py::test_added_pieces_pass_every_check[real04] PASSED [ 80%]
+tests/gpu/test_furnish.py::test_real_model_and_latency_logged[real04] PASSED [ 82%]
+tests/gpu/test_furnish.py::test_refit_library_models_fit_the_style[real04] FAILED [ 83%]
+tests/gpu/test_check.py::test_every_model_answered_its_calls[real04] PASSED [ 85%]
+tests/gpu/test_check.py::test_calibration_present[real04] PASSED         [ 87%]
+tests/gpu/test_check.py::test_advisory_set_exactly_when_a_target_is_missed[real04] PASSED [ 89%]
+tests/gpu/test_check.py::test_style_photo_test[real04] PASSED            [ 91%]
+tests/gpu/test_check.py::test_insertion_measured[real04] PASSED          [ 92%]
+tests/gpu/test_m9.py::test_ai_decor_records_every_room_and_both_passes[real04] PASSED [ 94%]
+tests/gpu/test_m9.py::test_ai_decor_is_built[real04] PASSED              [ 96%]
+tests/gpu/test_m9.py::test_surface_decor_rests_on_its_host[real04] PASSED [ 98%]
+tests/gpu/test_m9.py::test_3d_files_are_packed_and_complete[real04] PASSED [100%]
+
+=================================== FAILURES ===================================
+________________ test_unverified_pieces_cast_no_colour[real04] _________________
+
+project = ('real04', {'schema_version': '0.1', 'project': 'real04', 'building': 'outputs/real04/building_final.json', 'style': '...ne.blend', 'scene_sha256': '637f3499aced31cc2599d5b5bacf87470448210197a41b324d592d153a417a95', 'device': 'OPTIX', ...})
+
+    def test_unverified_pieces_cast_no_colour(project):
+        name, scene, render = project
+        rooms = {o.get("room_id") for o in _furniture(scene) if o["status"] == "unverified"}
+        rooms |= {o.get("element_id") for o in scene["objects"] if o["kind"] == "floor" and o["status"] == "unverified"}
+        views = [r for r in render["renders"] if r.get("room_id") in rooms]
+        if not views:
+            pytest.skip(f"{name}: no view of a room with an unverified piece")
+        tinted = [(r["camera"], r["exposure"]["wb_tint"]) for r in views
+                  if r["exposure"].get("wb_tint") is not None and abs(r["exposure"]["wb_tint"]) > MAX_ABS_TINT]
+        print(f"{name}: {len(views)} views of rooms with unverified pieces, tints "
+              f"{[r['exposure'].get('wb_tint') for r in views]}")
+>       assert not tinted, f"{name}: white-balance tint beyond +-{MAX_ABS_TINT}: {tinted}"
+E       AssertionError: real04: white-balance tint beyond +-40.0: [('cam_r_L0_e_yatak_odasi_2', 43.71), ('cam_r_L0_e_yatak_odasi_3', 44.35)]
+E       assert not [('cam_r_L0_e_yatak_odasi_2', 43.71), ('cam_r_L0_e_yatak_odasi_3', 44.35)]
+
+tests/gpu/test_look_m6.py:93: AssertionError
+----------------------------- Captured stdout call -----------------------------
+real04: 31 views of rooms with unverified pieces, tints [2.87, 2.87, 8.11, 9.25, 6.8, 22.12, 32.15, 25.9, 2.87, 2.87, 2.87, 2.87, 38.56, 43.71, 44.35, 1.56, 1.63, 0.77, 33.61, 32.16, 32.57, 1.99, 3.42, 2.61, 5.69, 6.41, 2.98, 4.1, 5.26, 5.26, 5.26]
+_______________ test_refit_library_models_fit_the_style[real04] ________________
+
+project = ('real04', {'schema_version': '0.1', 'project': {'id': 'real04', 'source_folder': 'projects/real04', 'created_utc': '2...ogram': [{'group_id': 'r_L1_teras_2.balcony', 'group': 'balcony', 'options': [...], 'drawn': False, ...}], ...}], ...})
+
+    def test_refit_library_models_fit_the_style(project):
+        """docs/milestone7.md §6.3: refit takes a library model only when its styles hold the project's family or
+        neutral; no bed without a mattress; every CC BY model carries its credit line."""
+        from wenart.furniture import catalog as C
+        from wenart.furniture import fit as F
+    
+        name, _building, _summary = project
+        final, style = OUTPUTS / name / "building_final.json", OUTPUTS / name / "style.json"
+        if not final.exists() or not style.exists():
+            pytest.skip(f"{name}: no building_final.json / style.json (refit not run in this job)")
+        building = json.loads(final.read_text(encoding="utf-8"))
+        family, how = F.style_family_of(json.loads(style.read_text(encoding="utf-8")))
+        catalog = C.load()
+        wrong, library = [], 0
+        for f in building["furniture"]:
+            asset = f.get("asset") or {}
+            if asset.get("method") != "library":
+                continue
+            library += 1
+            entry = catalog.entry(asset["asset_id"])
+            assert entry is not None, (f["id"], asset["asset_id"])
+            # Milestone 12 (§4.8): the fit tries the project's family, then its STYLE_FALLBACK chain
+            found = asset.get("style_family")
+            assert found in F.style_chain(family), (f["id"], found, F.style_chain(family))
+            if not C.styles_match(entry, found) or not C.has_mattress(entry):
+                wrong.append((f["id"], asset["asset_id"], entry.get("styles"), entry.get("has_mattress")))
+            if asset["licence"] == C.CC_BY:
+                assert all(str(asset.get(k) or "").strip() for k in C.CC_BY_FIELDS), (f["id"], asset)
+        print(f"{name}: style family {family!r} ({how}); {library} library models")
+>       assert not wrong, f"{name}: library models of another style or without a mattress: {wrong}"
+E       AssertionError: real04: library models of another style or without a mattress: [('f_L1_005', 'round_wooden_table_02', ['classic', 'rustic'], None)]
+E       assert not [('f_L1_005', 'round_wooden_table_02', ['classic', 'rustic'], None)]
+
+tests/gpu/test_furnish.py:185: AssertionError
+----------------------------- Captured stdout call -----------------------------
+real04: style family 'modern' (the profile's family); 194 library models
+- generated xml file: /workspace/jobs/20261023-222215-full/results/junit-full.xml -
+=========================== short test summary info ============================
+SKIPPED [1] tests/gpu/test_full_run.py:164: real04: no gate validation (polish off)
+SKIPPED [1] tests/gpu/test_full_run.py:185: got empty parameter set for (project)
+SKIPPED [1] tests/gpu/test_full_run.py:196: no private self-test in this run
+SKIPPED [1] tests/gpu/test_render.py:797: the white-wall check is for synthetic-01
+SKIPPED [1] tests/gpu/test_render.py:1739: real04: none of the named interior-glazing views was rendered
+SKIPPED [1] tests/gpu/test_camera_replay.py:90: real04: built without --cameras-from
+SKIPPED [1] tests/gpu/test_camera_replay.py:167: real04: no agent camera
+SKIPPED [1] tests/gpu/test_look_m6.py:104: real04: no parametric kitchen counter
+SKIPPED [1] tests/gpu/test_look_m6.py:149: real04: no dim room
+FAILED tests/gpu/test_look_m6.py::test_unverified_pieces_cast_no_colour[real04]
+FAILED tests/gpu/test_furnish.py::test_refit_library_models_fit_the_style[real04]
+=================== 2 failed, 45 passed, 9 skipped in 31.59s ===================
+[wenart.run] 2026-10-24T00:12:56Z rc 1

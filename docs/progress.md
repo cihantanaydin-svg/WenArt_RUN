@@ -1096,3 +1096,19 @@ group; 9 s for all rooms.
 the basement's size). The sheets stage now takes the drawing whose outline matches the adjacent levels as the base
 and leaves the other out (`outline_mismatch` conflict, listed in the report); same-size copies and copies in other
 documents stay as before.
+
+**real04 with the new library** (pod `hpd4daiaklaefz`, RTX PRO 6000, 118 min, $4.90, code 0f15dbe, polish off, 256
+spp, 3 agent rounds): [`results/review/real04_new_library_20261024/`](../results/review/real04_new_library_20261024/).
+
+- Ground floor read from r16 (r5 ignored, conflict `sc_002`); 42 views (37 interior, 5 exterior); drawn anchors 40/40;
+  0 interior views at EV ≥ +5.
+- 44 of 236 built furniture pieces and 18 of 105 decor items use 3D Warehouse models; the most used model covers 5 %
+  of the built library pieces (M12: 34 %), 114 distinct models; library quality ≤ 3 on 36 % (this morning 52 %).
+- New group options in use: 1.40 m bed with nightstands, 1.00 m wardrobe, bookshelf with a plant, narrow bookshelf,
+  bistro table with a plant. Bedrooms with a complete set 6/8 (this morning 8/8): the two 14 m² ground-floor bedrooms
+  of r16 have one nightstand each. Accepted edits whose finding is gone 74 % (14/19; this morning 91 %, 10/11).
+- GPU tests: 45 passed, 2 failed, 9 skipped (the same two kinds as this morning: white-balance tint 43.7 / 44.4 in L0
+  e_yatak_odasi_2 / _3; one Poly Haven table tagged classic / rustic). Not fixed.
+- Full CPU suite after the fixes of 87abeca: 5,855 passed, 0 failed (46 min).
+
+GPU cost: 23 Oct $22.18, 24 Oct $4.90 so far. Project total **$203.48 of $300**. No pod is running.
