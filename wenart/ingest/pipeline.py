@@ -2254,6 +2254,8 @@ def _labels_outside_building(ex: LevelExtraction) -> list[str]:
         block = getattr(t, "block", None)
         if block is None or getattr(block, "exterior", False):
             continue
+        if getattr(block, "room_type", None) == "balcony":
+            continue           # an open balcony outside the outer walls (real06's VERANDA): ``topology`` records it
         points = (_to_building(ex, t.start), _to_building(ex, G.box_center(t.box)))
         if not any(outline.contains(Point(p)) for p in points):
             out.append(t.text)

@@ -110,6 +110,7 @@ RAY_REACH_M = 30.0
 BRIDGE_M = 3.0                 # ... and a ray through a door or window gap (<= 3 m, openings.GAP_MAX_M) in a band hits
 NEVER_PLOTTED_LAYERS = ("DEFPOINTS",)
 FACE_KINDS = ("face_pair", "face_join", "column")
+DIMENSION_LAYER_SHARE = 0.2    # a layer this share of whose straight strokes draw dimensions is a dimension layer
 
 
 @dataclass
@@ -510,9 +511,11 @@ def _rect_sides(rect) -> tuple[float, float]:
 # treads and furniture close in no room, so such layers never win. The primitive only runs when the primitives above
 # close in fewer than 70 % of the labels (real01 and the synthetic pages are unchanged), and a page without room
 # labels gives no evidence for a layer: no face pairs. The chosen layer, its numbers and the runner-up go into every
-# primitive's ``note`` (the wall evidence) and ``face_pair_choice`` (the report). The pieces of dimension lines
-# (``dimension_ids``) take no part: real06's dimension chains, two parallel lines 0.30 m apart on their own layer
-# crossing the building, closed in every labelled room and won over the plaster lines of the walls.
+# primitive's ``note`` (the wall evidence) and ``face_pair_choice`` (the report). On a dimension layer (>=
+# ``DIMENSION_LAYER_SHARE`` of its straight strokes are dimension lines or marks, ``dimension_ids``) the dimension
+# lines take no part: real06's dimension chains, two parallel lines 0.30 m apart on their own layer crossing the
+# building, closed in every labelled room and won over the plaster lines of the walls. On any other layer a stroke
+# the dimension finder took (a wall face next to a ``20``) stays.
 
 @dataclass
 class _Line:
@@ -532,6 +535,7 @@ class _Pair:
     lo: float
     hi: float
     lines: tuple[_Line, _Line]
+    run: float = 0.0          # the length of the stepped run it belongs to (``stepped_runs``), 0 = none
 
     @property
     def width(self) -> float:
@@ -539,7 +543,7 @@ class _Pair:
 
     @property
     def primary(self) -> bool:
-        return self.hi - self.lo >= PAIR_OVERLAP_M - 1e-9
+        return max(self.hi - self.lo, self.run) >= PAIR_OVERLAP_M - 1e-9
 
     def point(self, s: float, o: float) -> tuple[float, float]:
         return (s * self.u[0] + o * self.n[0], s * self.u[1] + o * self.n[1])
@@ -692,6 +696,32 @@ def _pairs_of(lines: list[_Line], layer: str, u: tuple, n: tuple) -> list[_Pair]
     return out
 
 
+def stepped_runs(pairs: list[_Pair]) -> None:
+    """A wall pier whose other face steps (real06: a 0.85 m pier between two windows, drawn as a 0.35 m piece of the
+    25 cm wall between two 0.25 m pieces 45 cm thick, the pilasters at the jambs) is one wall piece: pairs that share
+    a face line on the same side and follow each other without a gap make a run; each pair gets the run's length
+    (``_Pair.run``), so a run of >= ``PAIR_OVERLAP_M`` makes all its pieces primary. A cap line paired with the face
+    of the wall it meets lies on the other side of that face and never joins the wall's own run."""
+    groups: dict[tuple[int, int], list[_Pair]] = {}
+    for p in pairs:
+        for side in (0, 1):
+            groups.setdefault((id(p.lines[side]), side), []).append(p)
+    for items in groups.values():
+        if len(items) < 2:
+            continue
+        items.sort(key=lambda p: p.lo)
+        run = [items[0]]
+        for p in items[1:] + [None]:
+            if p is not None and p.lo <= max(q.hi for q in run) + PAIR_SAME_M:
+                run.append(p)
+                continue
+            if len(run) >= 2:
+                length = max(q.hi for q in run) - run[0].lo
+                for q in run:
+                    q.run = max(q.run, length)
+            run = [p]
+
+
 def _column_candidates(page: GenericPage, s: float) -> list[tuple[Polygon, str]]:
     """Small closed rectangles (or ends that meet) and fills of any layer, 0.15-0.80 m on both sides."""
     out = []
@@ -758,7 +788,8 @@ def _network(pairs: list[_Pair], columns: list[tuple[Polygon, str]]) -> list[_El
     cols = [(poly, sid) for poly, sid in columns
             if any(_ends_on(p, poly) or _runs_through(p, poly) for p in prim_pairs)]
     # A short piece shorter than it is thick is a wall end's cap line paired with the face of the wall it meets
-    # (real02: the cap of a stub beside a door and the corridor wall's face), not a wall piece.
+    # (real02: the cap of a stub beside a door and the corridor wall's face), not a wall piece; a piece of a stepped
+    # run is primary (``stepped_runs``).
     rest = [p for p in pairs if not p.primary and p.hi - p.lo >= p.width - 1e-9]
     while rest and elems:
         tree = STRtree([e.polygon for e in elems] + [c for c, _ in cols])
@@ -933,13 +964,18 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
         return prims, choice
     columns = _column_candidates(page, s)
     rows = []
-    skip = {i for p in prims for i in p.stroke_ids} | set(dimension_ids)
+    skip = {i for p in prims for i in p.stroke_ids}
     for layer, pieces in _straight_pieces(page, s, skip).items():
+        ids = {sid for sid, _, _ in pieces}
+        dims = ids & set(dimension_ids)
+        if dims and len(dims) >= DIMENSION_LAYER_SHARE * len(ids):
+            pieces = [pc for pc in pieces if pc[0] not in dims]
         pairs: list[_Pair] = []
         long_lines = paired = 0
         for u, n, group in _direction_groups(pieces):
             lines = _merge_lines(group, u, n)
             found = _pairs_of(lines, layer, u, n)
+            stepped_runs(found)
             pairs.extend(found)
             in_pairs = {id(ln) for p in found if p.primary for ln in p.lines}
             for ln in lines:

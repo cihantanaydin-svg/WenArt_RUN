@@ -17,7 +17,8 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
       hit within 3.0 m.
   Width g < 0.25 m -> closed (warning); 0.25-3.0 m -> classified; > 3.0 m -> open (topology decides).
 - **Classifier** (strokes in the gap grown by 0.35 m on both faces; the zone is for classification only):
-  *door* = an arc hinged within 0.08 m of a gap end (or inside the wall band at the gap end), radius g +- 12 %,
+  *door* = an arc hinged within 0.08 m of a gap end (or inside the wall band at the gap end), radius g +- 12 % (or
+  down to g - 0.25 m: door frames take the rest, real06),
   sweep 60-100 deg (or two arcs of radius g/2 hinged at both ends), with an optional leaf (a thin shape <= 60 mm
   wide starting within 0.10 m of the hinge, 0.85-1.05 r long, along the arc's start or end radius); *window* = >= 2
   straight strokes parallel to the wall inside the band spanning >= 80 % of g; *doorless* = nothing in the band and
@@ -39,7 +40,8 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
 - ``operation`` (Milestone 10, §1.6b row 17; set as attributes by ``set_operation``, copied by the pipeline): a block
   name that says it (``OPERATION_WORDS``: sliding / sürme, pocket, folding / katlanır, double / çift kanat, fixed /
   sabit) wins (``block_name``); else the drawing (``geometry``): one swing arc = swing, two half arcs = double, and a
-  gap with no swing arc but one or two thin closed leaves parallel to the wall, overlapping it, in the band or within
+  gap with no swing arc but one or two thin closed leaves parallel to the wall (real06, 24 Oct 2026: or a leaf drawn
+  as >= 2 parallel lines with the same ends, <= a leaf's width apart), overlapping it, in the band or within
   0.10 m of a face, either shorter than 0.85 x the gap or drawn half open (off the gap centre), is a sliding door (a
   window's glass spans its gap, centred). A door block whose name says a door that opens without a swing arc
   (KAPI/DOOR with sliding, pocket or folding; no window word) is that door whatever its leaf looks like, checked
@@ -123,6 +125,7 @@ DOOR_LIKE_RADIUS = (0.4, 1.5)  # x gap width: an arc in the zone that keeps a ga
 BAND_SLACK_M = 0.02
 HINGE_M = 0.08
 RADIUS_TOL = 0.12
+DOOR_FRAME_M = 0.25            # ... or a leaf up to this much narrower than the gap (frames; real06: 0.70 m in 0.90 m)
 SWEEP_DEG = (60.0, 100.0)
 LEAF_WIDTH_M = 0.06
 FUSED_STRIP_M = LEAF_WIDTH_M       # a door leaf fused along a wall face in the mask is at most a leaf wide ...
@@ -169,6 +172,10 @@ SLIDING_OVERLAP = 0.4
 SLIDING_SHORT = 0.85            # ... shorter than 0.85 x the gap, or drawn half open (its centre >= 0.2 x the gap
 SLIDING_SHIFT = 0.2             # off the gap centre): a window's glass is as long as its gap and centred on it
 SLIDING_REACH_M = 0.10          # ... in the wall band or within 0.10 m of a face
+LEAF_END_M = 0.01               # a leaf drawn as lines: its lines end within 1 cm of each other
+PANEL_LEAF = (0.35, 0.60)       # two-panel sliding door: each leaf this share of the gap ...
+PANEL_COVER = 0.8               # ... together covering this share of it ...
+PANEL_TRACK_M = 0.01            # ... on two tracks this far apart across
 CONF_RASTER = 0.7
 
 
@@ -607,7 +614,7 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         end = _near_gap_end(g, arc["center"])
         if end is None or not SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1]:
             continue
-        if abs(arc["radius"] - width) <= RADIUS_TOL * width:
+        if abs(arc["radius"] - width) <= RADIUS_TOL * width or width - DOOR_FRAME_M <= arc["radius"] <= width:
             singles.append((it, arc, end))
         elif abs(arc["radius"] - width / 2.0) <= RADIUS_TOL * width / 2.0:
             halves.append((it, arc, end))
@@ -773,10 +780,9 @@ def _sliding_leaves(g: Gap, zone: list) -> list:
     drawn half open (centre >= 0.2 x the gap off the gap centre; synthetic-07's KAPI_SURME_90: a leaf as long as the
     gap, half in the wall pocket). A window glass rectangle spans its gap, centred: no leaf."""
     out = []
-    for it in zone:
-        pts = it.pts
-        if len(pts) < 4 or not (it.st.closed or math.dist(pts[0], pts[-1]) <= 0.001):
-            continue
+    for items, pts in [([it], it.pts) for it in zone
+                       if len(it.pts) >= 4 and (it.st.closed or math.dist(it.pts[0], it.pts[-1]) <= 0.001)] \
+            + _line_leaves(g, zone):
         xs, ys = [q[0] for q in pts], [q[1] for q in pts]
         along = (max(xs) - min(xs)) if g.axis == "h" else (max(ys) - min(ys))
         across = (max(ys) - min(ys)) if g.axis == "h" else (max(xs) - min(xs))
@@ -789,7 +795,61 @@ def _sliding_leaves(g: Gap, zone: list) -> list:
         shift = abs((lo + hi) / 2.0 - (g.a + g.b) / 2.0)
         if along > SLIDING_SHORT * g.width and shift < SLIDING_SHIFT * g.width:
             continue
-        out.append(it)
+        out.extend(items)
+    if not out:
+        out = _panel_pair(g, _line_leaves(g, zone))
+    return out
+
+
+def _panel_pair(g: Gap, leaves: list[tuple[list, list]]) -> list:
+    """A two-panel sliding door drawn with line leaves (real06: two panels of 1.33 m in a 2.95 m gap, 0.45 x the gap
+    each): two leaves on different tracks (their middles >= ``PANEL_TRACK_M`` apart across), each ``PANEL_LEAF`` x the
+    gap long, in the band, together covering >= ``PANEL_COVER`` of the gap. Their lines, or []."""
+    rows = []
+    for items, pts in leaves:
+        along_vals = [q[0] if g.axis == "h" else q[1] for q in pts]
+        across_vals = [q[1] if g.axis == "h" else q[0] for q in pts]
+        lo, hi = min(along_vals), max(along_vals)
+        mid = (min(across_vals) + max(across_vals)) / 2.0 - g.c
+        if PANEL_LEAF[0] * g.width <= hi - lo <= PANEL_LEAF[1] * g.width and abs(mid) <= g.t / 2.0:
+            rows.append((lo, hi, mid, items))
+    for i, a in enumerate(rows):
+        for b in rows[i + 1:]:
+            if abs(a[2] - b[2]) < PANEL_TRACK_M:
+                continue
+            spans = sorted([(max(a[0], g.a), min(a[1], g.b)), (max(b[0], g.a), min(b[1], g.b))])
+            cover = sum(max(0.0, y - x) for x, y in spans) - max(0.0, spans[0][1] - spans[1][0])
+            if cover >= PANEL_COVER * g.width:
+                return a[3] + b[3]
+    return []
+
+
+def _line_leaves(g: Gap, zone: list) -> list[tuple[list, list]]:
+    """Leaves drawn as separate lines (real06's sliding door to the veranda: each leaf three lines 1.33 m long,
+    25 mm apart): >= 2 straight lines parallel to the gap with the same ends (within ``LEAF_END_M``), all within
+    ``LEAF_WIDTH_M`` across. ``[(the lines, their points)]``; the caller applies the leaf rules."""
+    lines = []
+    for it in zone:
+        if len(it.pts) != 2 or it.st.arc is not None:
+            continue
+        (x0, y0), (x1, y1) = it.pts
+        along, across = (abs(x1 - x0), abs(y1 - y0)) if g.axis == "h" else (abs(y1 - y0), abs(x1 - x0))
+        if along <= 0 or across > 1e-3 * along:
+            continue
+        lo, hi = (min(x0, x1), max(x0, x1)) if g.axis == "h" else (min(y0, y1), max(y0, y1))
+        lines.append((lo, hi, (y0 + y1) / 2.0 if g.axis == "h" else (x0 + x1) / 2.0, it))
+    lines.sort(key=lambda r: (round(r[0] / LEAF_END_M), round(r[1] / LEAF_END_M), r[2]))
+    out, used = [], set()
+    for i, (lo, hi, off, it) in enumerate(lines):
+        if id(it) in used:
+            continue
+        group = [r for r in lines[i:] if id(r[3]) not in used and abs(r[0] - lo) <= LEAF_END_M
+                 and abs(r[1] - hi) <= LEAF_END_M and 0.0 <= r[2] - off <= LEAF_WIDTH_M]
+        if len(group) < 2:
+            continue
+        used.update(id(r[3]) for r in group)
+        pts = [p for r in group for p in r[3].pts]
+        out.append(([r[3] for r in group], pts))
     return out
 
 
