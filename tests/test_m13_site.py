@@ -467,8 +467,11 @@ def test_real04_exterior_views_behind_the_hedges_are_kept_and_the_site_view_sees
     assert len(model.hedges) == 6                                      # 4 rows, one with 3 polyline segments
     plans, dropped = E.plan_exterior(model, vb, vb["levels"], sp["plot"] or [], variant="base")
     names = [p["name"] for p in plans]
-    assert {"ext_1", "ext_2", "ext_3", "ext_4", "ext_5", "ext_7"} <= set(names)      # M12 dropped ext_3 and ext_4
-    assert [d["name"] for d in dropped] == ["ext_6"] and "inside the copy" in dropped[0]["dropped_reason"]
+    # M12 dropped ext_3 and ext_4. 24 Oct 2026: the roof is the drawn one (the agent's 45 degree override is refused),
+    # 1.35 m lower, so from the back corner the trees and the plot wall hide 48 % or more of it: ext_4 goes again
+    assert {"ext_1", "ext_2", "ext_3", "ext_5", "ext_7"} <= set(names)
+    assert [d["name"] for d in dropped] == ["ext_4", "ext_6"] and "blocked by trees" in dropped[0]["dropped_reason"]
+    assert "inside the copy" in dropped[1]["dropped_reason"]
     site_view = next(p for p in plans if p.get("site_view"))
     assert site_view["score"]["ok"] and 1 / 3 < site_view["horizon_frac"] < 1.0 and -28.0 <= site_view["pitch_deg"] < 0
     assert site_view["aerial_allowed"] and next(p for p in plans if p["name"] == "ext_5")["aerial_allowed"]
@@ -522,8 +525,11 @@ def test_facade_kit_only_where_the_documents_imply_it():
     # the gutters hang just under the eaves, the downpipes reach the ground
     gutters = [x for x in plan["boxes"] if x["kind"] == "gutter"]
     assert all(abs(g["center"][2] + FA.KIT["gutter_h"] / 2 + FA.KIT["gutter_drop"] - prep["roof"]["eaves_z"]) < 1e-6 for g in gutters)
-    pipes = [x for x in plan["boxes"] if x["kind"] == "downpipe"]
+    pipes = [x for x in plan["boxes"] if x["kind"] == "downpipe" and x["size"][0] == x["size"][1]]
     assert all(p["size"][2] > 2.0 and p["center"][2] - p["size"][2] / 2 < 0.5 for p in pipes)
+    # 24 Oct 2026: each pipe's outlet runs from the gutter to the pipe's top, square to the wall
+    outlets = [x for x in plan["boxes"] if x["kind"] == "downpipe" and x["size"][0] != x["size"][1]]
+    assert len(outlets) == len(pipes) and all(o["size"][2] == FA.KIT["downpipe"] for o in outlets)
 
 
 @pytest.mark.skipif(not REAL02.is_file(), reason="no committed real02 building")
