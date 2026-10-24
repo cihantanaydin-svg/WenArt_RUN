@@ -842,6 +842,35 @@ def facade_faces(building: dict, outlines: dict[str, list]) -> tuple[dict[str, l
     return out, warnings
 
 
+LIBRARY_OPENINGS_ENV = "WENART_LIBRARY_OPENINGS"      # "off": the parametric doors and windows (A/B)
+
+
+def library_openings(building: dict, levels: list, prep: dict, brief, warnings: list) -> dict:
+    """``opening_models.plan`` for the outer doors and windows of a whole-building build (24 Oct 2026), in the
+    run's licence mode; {} when ``WENART_LIBRARY_OPENINGS=off`` or the catalogue has no extras."""
+    from wenart.blender import opening_models as OM
+    from wenart.blender import site as S
+
+    if str(os.environ.get(LIBRARY_OPENINGS_ENV) or "").strip().lower() in ("off", "0", "no", "false"):
+        return {}
+    try:
+        from wenart.furniture.catalog import licence_mode_from
+        mode = licence_mode_from(brief)[0]
+    except Exception:  # the Blender Python without the fit's dependencies
+        mode = str(os.environ.get("WENART_LICENCE_MODE") or "relaxed").strip().lower()
+    extras = OM.load_extras(REPO_ROOT / "wenart" / "furniture" / "catalog_library.json")
+    if not extras:
+        return {}
+    outer = S.outer_openings(building, levels, prep.get("ground_outline") or [], prep.get("outlines"))
+    plan = OM.plan(building, outer, extras, mode)
+    cats: dict = {}
+    for v in plan.values():
+        cats.setdefault(v["category"], set()).add(v["asset"]["asset_id"])
+    print(f"LIBRARY_OPENINGS {len(plan)} of {len(outer)} outer openings ({mode}): "
+          + ", ".join(f"{k} {sorted(v)}" for k, v in sorted(cats.items())))
+    return plan
+
+
 def prepare(building_all: dict, variant: str = "base", brief: dict | None = None) -> dict:
     """What the build decides before Blender (pure; Milestone 10): the variant's building
     (``views.variant_building``), its ``views_for`` and ``variant_changes``, the brief values
@@ -1105,6 +1134,8 @@ def main(argv: list[str]) -> int:
         for face in scheme:
             assumed.append({"object": face.get("wall_id") or face.get("level_id"), "field": "facade_scheme",
                             "value": face["material"], "reason": face["reason"]})
+    lib_openings = library_openings(building, levels, prep, brief, warnings) if whole else {}
+    geo_cache: dict = {}
     slabs = prep["slabs"]
     roof = prep["roof"]
     render_rooms = set(views["rooms"])
@@ -1147,7 +1178,8 @@ def main(argv: list[str]) -> int:
         lap("setup")
         shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings, whole=wall_whole)
         lap("walls")
-        shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings)
+        shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings,
+                             library_openings=lib_openings, assets_dir=args.assets, geo_cache=geo_cache)
         shell.build_skirting(building, level, col, library, style, manifest_objects, assumed)
         floor_whole = None
         if whole:

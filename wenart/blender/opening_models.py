@@ -9,18 +9,19 @@ reads the catalogue's ``extras`` (the 3D Warehouse doors and windows).
 Why: the parametric doors and windows are plain frames and slabs; the library holds about 90 audited doors and 50
 windows (``wenart/furniture/catalog_library.json`` extras, types ``door`` and ``window``).
 
-How (pure; ``build_opening`` makes the Blender object):
+How (pure; ``opening_build.build_library_opening`` makes the Blender objects):
 - categories: ``entrance`` (the main entrance of ``site.entrances``, else the first door at grade), ``door`` (any
   other outside door narrower than ``WIDE_DOOR_M``), ``glazed_door`` (wider) and ``window``;
 - candidates: audit ``keep`` / ``fix``, usable in the licence mode, a plausible size for the category (``SIZES``), no
-  pack or set in the title, depth under ``MAX_DEPTH_M``; ranked textured first, ``keep`` before ``fix``, the title's
-  category words (``WORDS``), then the smallest proportion error over the category's openings, then the id;
+  pack, set or inside door (``INSIDE_WORDS``) in the title, depth under ``MAX_DEPTH_M``; ranked textured first, the
+  title's category words (``WORDS``), ``keep`` before ``fix``, then the smallest proportion error over the
+  category's openings, then the id;
 - one model per category, so a building's windows match: an opening takes the category's model when one panel's
   proportions (panel width over height) lie within ``ASPECT_TOL`` (a log ratio) of the model's, with the number of
   panels (1 .. ``MAX_PANELS``) that fits best and its height lies within ``MAX_SCALE`` of the model's (a scaled-down
   model gets toy frames); else the next ranked candidate that fits; else none.
-Every entry records the asset (id, file, frame fields, licence), ``panels``, ``category``, ``aspect_error`` and the
-reason; the build marks the object ``inferred`` (the documents draw the opening, not its product).
+Every entry records the asset (id, file, frame fields, licence), ``panels``, ``category``, ``aspect_error``, the
+``outward`` plan direction and the reason; the build marks the object ``inferred`` (the documents draw the opening, not its product).
 """
 from __future__ import annotations
 
@@ -41,15 +42,16 @@ SIZES = {                          # (width range, height range) of one model, m
     "window": ((0.4, 3.0), (0.4, 2.6)),
 }
 WORDS = {                          # title words that say a model is meant for the category
-    "entrance": ("front", "entrance", "entry", "main", "pivot", "exterior", "door"),
-    "door": ("door", "wood", "pvc", "exterior"),
+    "entrance": ("front", "entrance", "entry", "main", "pivot", "exterior"),
+    "door": ("front", "entry", "exterior", "door"),
     "glazed_door": ("sliding", "glass", "french", "patio", "folding", "balcony", "terrace"),
     "window": ("window", "casement", "sliding", "awning", "tilt"),
 }
-NOT_WORDS = {                      # title words that rule a model out of the category
-    "entrance": ("sliding", "folding", "glass", "garage", "pack", "set", "window", "closet", "wardrobe", "shower"),
-    "door": ("sliding", "folding", "garage", "pack", "set", "window", "closet", "wardrobe", "shower"),
-    "glazed_door": ("garage", "pack", "set", "closet", "wardrobe", "shower"),
+INSIDE_WORDS = ("interior", "internal", "toilet", "elevator", "japanese", "closet", "wardrobe", "shower", "barn")
+NOT_WORDS = {                      # title words that rule a model out of the category (an outer opening)
+    "entrance": ("sliding", "folding", "glass", "garage", "pack", "set", "window") + INSIDE_WORDS,
+    "door": ("sliding", "folding", "garage", "pack", "set", "window") + INSIDE_WORDS,
+    "glazed_door": ("garage", "pack", "set") + INSIDE_WORDS,
     "window": ("pack", "set", "door", "curtain", "blind", "shutter", "wall"),
 }
 NEVER_FLAGS = ("no_derivatives", "unknown")
@@ -133,8 +135,8 @@ def _rank_key(entry: dict, category: str, openings: Sequence[tuple[float, float]
     errs = [best_panels(ow, oh, w / h)[1] for ow, oh in openings] or [0.0]
     title = _title(entry)
     status = str((entry.get("audit") or {}).get("status") or "").lower()
-    return (0 if entry.get("textured") else 1, 0 if status == "keep" else 1,
-            0 if _has(title, WORDS[category]) else 1, round(sum(min(e, 1.0) for e in errs) / len(errs), 4),
+    return (0 if entry.get("textured") else 1, 0 if _has(title, WORDS[category]) else 1,
+            0 if status == "keep" else 1, round(sum(min(e, 1.0) for e in errs) / len(errs), 4),
             str(entry.get("id")))
 
 
@@ -180,6 +182,8 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
     (``site.outer_openings`` records: ``opening``, ``bottom``, ``top``)."""
     cats = categorise(building, outer)
     sizes: dict[str, tuple[float, float]] = {}
+    outward = {rec["opening"]["id"]: [round(float(v), 6) for v in rec["outward"][:2]] for rec in outer
+               if rec.get("outward") is not None}
     for rec in outer:
         o = rec["opening"]
         width = _number(o.get("width")) or 0.0
@@ -204,7 +208,7 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
                     n, err = 1, abs(math.log((width / height) / (w / h)))
                 if err <= ASPECT_TOL and abs(math.log(height / h)) <= math.log(MAX_SCALE):
                     out[oid] = {"asset": asset_of(e), "panels": n, "category": category,
-                                "aspect_error": round(err, 4),
+                                "aspect_error": round(err, 4), "outward": outward.get(oid),
                                 "reason": f"library {category.replace('_', ' ')} {e.get('id')} "
                                           f"({str(e.get('title') or '')[:40]!r}) in {n} panel(s) of "
                                           f"{width / n:.2f} x {height:.2f} m (proportions off by "

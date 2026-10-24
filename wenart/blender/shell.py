@@ -1310,9 +1310,11 @@ def split_wall_at_heights(ob, heights: list[float]) -> bool:
 # --------------------------------------------------------------------------
 
 def build_openings(building: dict, level: dict, collection, library, style: dict, pass_indices: dict,
-                   manifest_objects: list, assumed: list, warnings: list) -> list:
+                   manifest_objects: list, assumed: list, warnings: list, library_openings: dict | None = None,
+                   assets_dir: str | None = None, geo_cache: dict | None = None) -> list:
     """Door frame + leaf and window frame + glass per opening (plain openings
-    are only the hole in the wall and get no object)."""
+    are only the hole in the wall and get no object). 24 Oct 2026: an outer opening in ``library_openings``
+    (``opening_models.plan``) is the library model (``opening_build``), the parametric one when it cannot load."""
     from wenart.blender import common
 
     level_id = level["id"]
@@ -1389,6 +1391,17 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
         ctx = {"library": library, "collection": collection, "manifest_objects": manifest_objects,
                "assumed": assumed, "rooms": rooms}
 
+        lib = (library_openings or {}).get(opening["id"])
+        if lib is not None:
+            from wenart.blender import opening_build as OB
+
+            made = OB.build_library_opening(opening, wall, lib, geo, dict(ctx, warnings=warnings, assets_dir=assets_dir,
+                                                                          geo_cache=geo_cache if geo_cache is not None
+                                                                          else {}),
+                                            {"glass": glass_mat, "frame": win_mat, "leaf": leaf_mat}, op_assumed, shift)
+            if made:
+                created += made
+                continue
         if opening["type"] == "door" and door_geometry_m10(style, opening):
             # Milestone 10: the door style of the look (the drawn operation first) from parametric.door_parts.
             created += build_door_m10(opening, wall, dlook, geo, ctx, {"frame": frame_mat, "leaf": leaf_mat,
