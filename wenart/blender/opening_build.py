@@ -150,5 +150,5 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
                      inferred={"field": "product", "reason": lib.get("reason")})
         ctx["manifest_objects"].append(entry)
     ctx["assumed"].append({"object": opening["id"], "field": "library_model", "value": asset.get("asset_id"),
-                           "reason": lib.get("reason"), "kind": "inferred"})
+                           "reason": lib.get("reason"), "parent": opening["id"], "kind": "library_model"})
     return created

@@ -1,7 +1,8 @@
 """Vegetation of the site: trees, hedges and grass (Milestone 13, docs/milestone13.md §13.2, track T6; CLAUDE.md
 vegetation and site rules, user OK of 12 Oct 2026).
 
-What: ``tree_object(species, height_m, seed, near_camera)`` makes one tree of a species at a height: near the
+What: ``tree_object(species, height_m, seed, near_camera)`` makes one tree of a species at a height: the library's
+model of the species when one fits (``library_plant``, ``site_models.plant_model``; 24 Oct 2026), else near the
 cameras a Poly Haven CC0 photoscanned model (``POLYHAVEN_MODELS``) instanced from one import (a collection
 instance per tree: the mesh is loaded once), elsewhere a species-look tree from the Sapling Tree Gen add-on
 (``bpy.ops.curve.tree_add`` with the add-on's own preset and our size, shape and leaf settings: its ``rect`` leaf quads
@@ -32,7 +33,7 @@ and ``Alpha``; the Displace modifier with a Clouds texture. Assets: the Poly Hav
 atlases are read from the assets folder (``WENART_ASSETS``, the scene's ``wenart_assets_dir`` or the default
 folders) through the manifest ``wenart.assets`` writes (``python -m wenart.assets models fetch --ids ...`` and
 ``fetch.fetch_texture``; ``scripts/pod_setup_vegetation.sh`` runs them); nothing is downloaded here. Every object
-records ``wenart_veg_method`` (``polyhaven`` | ``sapling`` | ``cards`` | ``palm``), ``wenart_species``,
+records ``wenart_veg_method`` (``library`` | ``polyhaven`` | ``sapling`` | ``cards`` | ``palm``), ``wenart_species``,
 ``wenart_asset`` and the licence for the scene manifest and ATTRIBUTION.md.
 """
 from __future__ import annotations
@@ -1292,6 +1293,69 @@ def _tree_hero(name: str, species: str, height_m: float, seed: int, collection, 
                 "material": None, "name": hero.get("name")}
 
 
+_LIBRARY: dict = {}
+
+
+def library_plant(species: str, levers: Optional[dict] = None) -> Optional[dict]:
+    """The library model of a species (``site_models.plant_model`` over the catalogue's extras, in the run's licence
+    mode) with its file in the assets folder: ``{"id", "path", "height_m", "licence", ...}``, else None (24 Oct 2026:
+    the library's trees, palms and bushes before the scans and the generated trees). The lever ``library`` False
+    (or ``WENART_SITE_LIBRARY=off``) turns it off."""
+    if (levers or {}).get("library") is False or \
+            str(os.environ.get("WENART_SITE_LIBRARY") or "").strip().lower() in ("off", "0", "no", "false"):
+        return None
+    from wenart.blender import site_models as SM
+    if "extras" not in _LIBRARY:
+        try:
+            data = json.loads((Path(__file__).resolve().parents[1] / "furniture" / "catalog_library.json")
+                              .read_text(encoding="utf-8"))
+            _LIBRARY["extras"] = list(data.get("extras") or [])
+        except (OSError, ValueError):
+            _LIBRARY["extras"] = []
+    rec = species_record(species)
+    mode = str(os.environ.get("WENART_LICENCE_MODE") or "relaxed").strip().lower()
+    key = (rec["name"], mode)
+    if key not in _LIBRARY:
+        _LIBRARY[key] = SM.plant_model(rec, _LIBRARY["extras"], mode)
+    pick = _LIBRARY[key]
+    folder = assets_dir()
+    if pick is None or folder is None:
+        return None
+    path = Path(folder) / pick["asset"]["glb"]
+    if not path.is_file():
+        return None
+    box = pick["asset"].get("bbox_m") or [1.0, 1.0, 1.0]
+    return {"id": pick["asset"]["asset_id"], "path": str(path), "height_m": float(box[2]),
+            "base_z": float((pick["asset"].get("bbox_min_m") or [0, 0, 0])[2]),
+            "licence": pick["asset"].get("licence"), "licence_url": pick["asset"].get("licence_url"),
+            "licence_flag": pick["asset"].get("licence_flag"), "attribution": pick["asset"].get("attribution"),
+            "polycount": pick["asset"].get("polycount"), "name": pick["asset"].get("title"),
+            "match": pick["match"], "reason": pick["reason"]}
+
+
+def _tree_library(name: str, species: str, height_m: float, seed: int, collection, model: dict):
+    """A collection instance of a library plant (bpy), scaled to ``height_m``, turned by the seed."""
+    import bpy
+    lib = _import_hero(model)
+    if lib is None:
+        raise RuntimeError(f"{model['id']}: glTF import failed")
+    ob = bpy.data.objects.new(name, None)
+    ob.instance_type = "COLLECTION"
+    ob.instance_collection = bpy.data.collections[lib["collection"]]
+    s = float(height_m) / float(lib["height_m"])
+    ob.scale = (s, s, s)
+    ob.rotation_euler = (0.0, 0.0, random.Random(seed).uniform(0.0, 2 * math.pi))
+    (collection or bpy.context.scene.collection).objects.link(ob)
+    lib["count"] += 1
+    _tag(ob, "site_decor", species_record(species)["name"], "library", model["id"], model["licence"], height_m)
+    ob["wenart_base_offset"] = -float(lib["base_z"]) * s
+    return ob, {"method": "library", "asset": model["id"], "licence": model["licence"],
+                "licence_url": model.get("licence_url"), "licence_flag": model.get("licence_flag"),
+                "attribution": model.get("attribution"), "model_height_m": lib["height_m"], "scale": round(s, 4),
+                "polycount": model.get("polycount"), "material": None, "name": model.get("name"),
+                "match": model.get("match"), "inferred": True, "reason": model.get("reason")}
+
+
 def tree_object(species: str, height_m: float, seed: int, near_camera: bool, *, collection=None,
                 name: Optional[str] = None, position=(0.0, 0.0, 0.0), levers: Optional[dict] = None,
                 crown_m: Optional[float] = None) -> tuple:
@@ -1302,6 +1366,15 @@ def tree_object(species: str, height_m: float, seed: int, near_camera: bool, *, 
     numbers of the build; the object carries ``wenart_species`` / ``wenart_veg_method`` / ``wenart_asset``."""
     rec = species_record(species)
     name = name or f"tree_{rec['name']}_{int(seed)}"
+    model = library_plant(rec["name"], levers)
+    if model is not None:
+        try:
+            ob, out = _tree_library(name, rec["name"], height_m, seed, collection, model)
+            ob.location = (float(position[0]), float(position[1]),
+                           float(position[2]) + float(ob.get("wenart_base_offset") or 0.0))
+            return ob, out
+        except Exception as exc:                      # a broken file: the earlier sources
+            print(f"{name}: library plant {model['id']} failed ({type(exc).__name__}: {exc}); the next source")
     hero = hero_model(rec["name"])
     sap = levers is None or levers.get("sapling", True)
     sapling_rec = ensure_sapling() if sap else None

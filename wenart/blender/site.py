@@ -3194,6 +3194,10 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
             # (schemas.ASSUMED_ENTRY); without it the 28 real04 platforms made validate_scene_manifest fail
             assumed.append({"object": f"platform_{pf['id']}", "field": "level", "value": pf["z"],
                             "reason": pf["reason"], "parent": str(pf["id"]), "kind": "site_platform"})
+    # 24 Oct 2026 (user request: "start using the new library items for the outside items, plants cars etc"): parked
+    # library cars on the drawn parkings
+    summary["cars"] = build_cars(plan, collection, manifest_objects, assumed, glass)
+    summary["objects"] += [c["name"] for c in summary["cars"]]
     if plan.get("pools"):                           # 11 Oct 2026 (real04): the drawn pools; Milestone 13: coping, water
         tile, water = pool_materials(ripples=bool(levers.get("pools")))
         for pool in plan["pools"]:
@@ -3395,13 +3399,119 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
 
 # --------------------------------------------------------------------------
 # Milestone 13: the vegetation records of the scene manifest, the instances of the 3D export, the building's
+def parkings(plan: dict) -> list[dict]:
+    """The parkings of a site plan (pure): ``[{"id", "polygon", "z"}]`` from the parking platforms (``z`` None for a
+    sloped one: draped on the terrain) and the parking areas that are no platform (``z`` None: on the terrain)."""
+    out = []
+    for pf in plan.get("platforms") or []:
+        if pf.get("kind") == "parking" and len(pf.get("polygon") or []) >= 3:
+            flat = not pf.get("sloped") and isinstance(pf.get("z"), (int, float))
+            out.append({"id": str(pf["id"]), "polygon": pf["polygon"], "z": float(pf["z"]) if flat else None})
+    for area in plan.get("areas") or []:
+        if area.get("kind") == "parking" and not area.get("platform_id") and len(area.get("polygon") or []) >= 3:
+            z = area.get("z") if isinstance(area.get("z"), (int, float)) else None
+            out.append({"id": str(area.get("id")), "polygon": area["polygon"], "z": z})
+    return out
+
+
+CAR_MAX_SLOPE = 0.2            # a bay steeper than 20 % (a steep driveway) gets no car
+CAR_LIFT_M = 0.02              # over a draped parking (its own lift)
+
+
+def car_ground(plan: dict, lot: dict, slot: dict) -> Optional[tuple[float, float, float]]:
+    """``(z at the bay centre, dz/dx, dz/dy)`` of a car's bay (pure): the lot's level when flat, else the terrain's
+    plane through the bay's corners (None when steeper than ``CAR_MAX_SLOPE``)."""
+    if lot.get("z") is not None:
+        return float(lot["z"]), 0.0, 0.0
+    t = plan["terrain"]
+    x, y = slot["center"]
+    r = 1.5
+    gx = (ground_z(t, x + r, y) - ground_z(t, x - r, y)) / (2 * r)
+    gy = (ground_z(t, x, y + r) - ground_z(t, x, y - r)) / (2 * r)
+    if math.hypot(gx, gy) > CAR_MAX_SLOPE:
+        return None
+    return ground_z(t, x, y) + CAR_LIFT_M, gx, gy
+
+
+def build_cars(plan: dict, collection, manifest_objects: list, assumed: list, glass=None) -> list[dict]:
+    """Library cars parked on the drawn parkings (bpy; ``site_models.car_models`` / ``car_slots``): one model per
+    bay, the models taken in turn, each scaled to ``CAR_WIDTH_M`` (kind ``site_decor``, ``inferred``). Off with
+    ``WENART_SITE_LIBRARY=off``; [] without a parking, a usable car or its file."""
+    import os
+
+    from wenart.blender import furniture as F
+    from wenart.blender import site_models as SM
+    from wenart.blender import vegetation as VG
+
+    if str(os.environ.get("WENART_SITE_LIBRARY") or "").strip().lower() in ("off", "0", "no", "false"):
+        return []
+    lots = parkings(plan)
+    if not lots:
+        return []
+    VG.library_plant("olive")                       # loads the catalogue's extras once
+    mode = str(os.environ.get("WENART_LICENCE_MODE") or "relaxed").strip().lower()
+    folder = VG.assets_dir()
+    cars = []
+    for c in SM.car_models(VG._LIBRARY.get("extras") or [], mode):
+        path, _why = F.resolve_asset(c["asset"], str(folder) if folder else None)
+        if path is not None:
+            cars.append((c, path))
+    out: list[dict] = []
+    cache: dict = {}
+    k = 0
+    for lot in lots:
+        for i, slot in enumerate(SM.car_slots(lot["polygon"])):
+            if not cars:
+                return out
+            c, path = cars[k % len(cars)]
+            k += 1
+            try:
+                geo = F._cached_geometry(path, collection, cache)
+            except Exception as exc:  # a broken file never stops the site
+                print(f"car {c['asset']['asset_id']}: import failed ({exc})")
+                continue
+            if not geo.get("verts"):
+                continue
+            ground = car_ground(plan, lot, slot)
+            if ground is None:
+                continue
+            z0, gx, gy = ground
+            w, length, h = c["size"]
+            verts, info = F.fit_vertices(geo["verts"], c["asset"], {"center": slot["center"], "size": [w, length],
+                                                                     "rotation_deg": slot["rotation_deg"]},
+                                         z0, target_size=[w, length, h])
+            if gx or gy:                      # on a draped parking: the car follows the slope (a small shear)
+                sx, sy = slot["center"]
+                verts = [(x, y, z + gx * (x - sx) + gy * (y - sy)) for x, y, z in verts]
+            name = f"car_{lot['id']}_{i}"
+            ob = F._mesh_object(name, verts, geo["faces"], geo["materials"], geo["face_materials"], collection,
+                                name, "site_decor", "assumed", uvs=geo.get("uvs"), uv_name=geo.get("uv_name"),
+                                fallback_material=glass)
+            reason = (f"library car {c['asset']['asset_id']} ({str(c['asset'].get('title') or '')[:30]!r}) on the "
+                      f"drawn parking {lot['id']} ({slot['layout']} bay; the documents draw the parking, not a car)")
+            rec = {"name": ob.name, "parking": lot["id"], "asset": c["asset"]["asset_id"],
+                   "licence": c["asset"].get("licence"), "licence_flag": c["asset"].get("licence_flag"),
+                   "attribution": c["asset"].get("attribution"), "layout": slot["layout"], "fit": info,
+                   "inferred": True, "reason": reason}
+            manifest_objects.append({"name": ob.name, "wenart_id": name, "kind": "site_decor", "status": "assumed",
+                                     "level_id": None, "element_id": name, "evidence": [], "material": None,
+                                     "textured": True, "pass_index": None, "site_part": "car", "veg_method": "library",
+                                     "asset": c["asset"]["asset_id"], "licence": c["asset"].get("licence"),
+                                     "inferred": True, "reason": reason,
+                                     "assumed": {"detail": "car", "reason": reason}})
+            assumed.append({"object": ob.name, "field": "car", "value": c["asset"]["asset_id"], "reason": reason,
+                            "parent": lot["id"], "kind": "site_car"})
+            out.append(rec)
+    return out
+
+
 # site.platforms (the pipeline_final hook)
 # --------------------------------------------------------------------------
 
 # The methods vegetation.tree_object / hedge_object / grass_patch record, grouped by source for the manifest's
 # ``site.vegetation_counts`` (docs/milestone13.md §7 metric 11: trees as real geometry, never a primitive).
-VEGETATION_SOURCES = {"polyhaven_instances": ("polyhaven",), "sapling": ("sapling",), "leaf_card": ("cards", "palm"),
-                      "proxy": ("proxy", "none", "", None)}
+VEGETATION_SOURCES = {"library": ("library",), "polyhaven_instances": ("polyhaven",), "sapling": ("sapling",),
+                      "leaf_card": ("cards", "palm"), "proxy": ("proxy", "none", "", None)}
 
 
 def vegetation_counts(summary: dict) -> dict:

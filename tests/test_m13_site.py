@@ -615,9 +615,9 @@ def test_vegetation_counts_per_source_for_metric_11():
                "hedges": [{"id": "hedge_001", "method": "cards", "symbols": 36}, {"id": "hedge_002", "method": "box"}],
                "grass": {"method": "polyhaven", "asset": "grass_medium_02", "count": 1100}}
     counts = S.vegetation_counts(summary)
-    assert counts == {"polyhaven_instances": 1, "sapling": 1, "leaf_card": 2, "proxy": 1, "trees": 5, "hedges": 2,
+    assert counts == {"library": 0, "polyhaven_instances": 1, "sapling": 1, "leaf_card": 2, "proxy": 1, "trees": 5, "hedges": 2,
                       "hedges_leaf_card": 1, "grass_patches": 1}
-    assert S.vegetation_counts({}) == {"polyhaven_instances": 0, "sapling": 0, "leaf_card": 0, "proxy": 0, "trees": 0,
+    assert S.vegetation_counts({}) == {"library": 0, "polyhaven_instances": 0, "sapling": 0, "leaf_card": 0, "proxy": 0, "trees": 0,
                                        "hedges": 0, "hedges_leaf_card": 0, "grass_patches": 0}
     assert S.vegetation_counts({"grass": {"method": "none", "error": "x"}})["grass_patches"] == 0
     # metrics13 reads the records the way build_site writes them (kind defaults to tree, method not a primitive).
