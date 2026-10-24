@@ -162,7 +162,9 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              # T5 review (15 Oct 2026): site.py and sheets/exterior.py import T6's new vegetation module.
              "wenart/blender/vegetation.py",
              # Round 2 (15 Oct 2026): site.site_kind reads the scene-manifest schema's kinds (WHOLE_BUILDING_KINDS).
-             "wenart/blender/schemas.py")
+             "wenart/blender/schemas.py",
+             # 24 Oct 2026: shell's library openings, site's library cars and the facade scheme
+             "wenart/blender/facade.py", "wenart/blender/opening_build.py", "wenart/blender/site_models.py")
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
