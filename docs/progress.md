@@ -1168,3 +1168,10 @@ before (LibreDWG-only real04 tree count, the pod-packing golden plan). Open: the
 leaf texture); fixed after the run (`vegetation.fix_plant_materials`), to be seen on the next pod run. Metric 13 (views
 with >= 50 % bare wall) went from 9 to 13 in this run's interior views (agent rounds differ; not looked into yet).
 
+**Follow-up (24 Oct 2026, user: "gaps" in the roof, "bulge at the side of the pool")**: the bulge was an assumed light well
+made against the sloped ground where the drawn pool terrace lies under the sill (`site.wells_on_platforms`); the
+roof's gaps were gutters running on along the roof terraces (`facade.eaves_edges`), and the assumed terrace parapets
+rose over the eaves (now at the eaves line with a glass railing); library models the audit rated 2 or less are no
+longer picked (the white bushes). Pods `37me6g1nvncmu1` (119 min, $4.94) and `xrsf17cw0e6od1` (109 min, $4.51):
+[`results/review/real04_exterior_20261024c/`](../results/review/real04_exterior_20261024c/); GPU tests 48 passed.
+
