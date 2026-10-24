@@ -114,8 +114,9 @@ Milestone 13 (docs/milestone13.md §6, §12 D1 and D3, §13.2; track T1): the li
   ``licence_flag`` (one of ``LICENCE_FLAGS``: ``none`` | ``non_commercial`` | ``share_alike`` | ``no_derivatives`` |
   ``research_only`` | ``regional`` | ``tool_nc``), ``commercial_safe`` and ``attribution``. The fit runs in a
   ``licence_mode`` (``LICENCE_MODES``): ``commercial`` uses only ``commercial_safe`` entries (flag ``none``);
-  ``relaxed`` (the PoC projects, user OK of 12 Oct 2026) also uses non-commercial, share-alike, research-only, regional
-  and ``tool_nc`` entries; a ``no_derivatives`` entry is never used (we scale and re-texture), nor an audit ``removed``
+  ``relaxed`` (the PoC projects, user OK of 12 Oct 2026; the default of every project since the user's decision of
+  24 Oct 2026: any library model, the renders' look decides) also uses non-commercial, share-alike, research-only,
+  regional and ``tool_nc`` entries; a ``no_derivatives`` entry is never used (we scale and re-texture), nor an audit ``removed``
   or ``pending`` one, nor a licence nobody could read (``unknown``).
 - Why: the generated TRELLIS.2 models were exported with nvdiffrast (NVIDIA Source Code License, section 3.3:
   non-commercial), so they are flagged ``tool_nc`` (D3: kept for the PoC, excluded in commercial mode); the HSSD layer
@@ -160,7 +161,8 @@ SOURCES = ("polyhaven", "objaverse", "abo", "generated", "gso", "hssd", "3dwh")
 LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso", "hssd", "3dwh")
 # Milestone 13 (docs/milestone13.md §13.2): the licence modes of the fit and the licence flags of the entries.
 LICENCE_MODES: tuple[str, ...] = ("commercial", "relaxed")
-LICENCE_MODE_DEFAULT = "commercial"
+LICENCE_MODE_DEFAULT = "relaxed"                  # the user's decision of 24 Oct 2026: every project may use any
+                                                  # library model; licences are no selection criterion
 LICENCE_MODE_ENV = "WENART_LICENCE_MODE"          # overrides the brief (the pod jobs export it, scripts/jobs/full.sh)
 LICENCE_MODE_BRIEF_KEY = "library.licence_mode"   # wenart/defaults.yaml brief.library.licence_mode
 LICENCE_FLAGS: tuple[str, ...] = ("none", "non_commercial", "share_alike", "no_derivatives", "research_only",
@@ -407,7 +409,8 @@ def check_mode(mode: Optional[str]) -> str:
 def licence_mode_from(brief: Optional[dict] = None, env: Optional[dict] = None) -> tuple[str, str]:
     """``(mode, where it came from)``: the environment's ``WENART_LICENCE_MODE`` (``env`` defaults to ``os.environ``),
     else the brief's ``library.licence_mode`` (a ``wenart.brief.load_brief`` result, or a raw brief dict), else
-    ``commercial``. A value that is no mode word is reported in the source text and skipped (never a silent pick)."""
+    ``LICENCE_MODE_DEFAULT`` (``relaxed`` since 24 Oct 2026). A value that is no mode word is reported in the source text
+    and skipped (never a silent pick)."""
     env = os.environ if env is None else env
     notes = []
     raw = env.get(LICENCE_MODE_ENV) if isinstance(env, dict) or hasattr(env, "get") else None
@@ -432,7 +435,7 @@ def licence_mode_from(brief: Optional[dict] = None, env: Optional[dict] = None) 
 
 def licence_mode(brief: Optional[dict] = None, env: Optional[dict] = None) -> str:
     """Milestone 13 (docs/milestone13.md §13.2): the fit's licence mode: env ``WENART_LICENCE_MODE`` > brief
-    ``library.licence_mode`` > ``commercial`` (``licence_mode_from`` says which one it was)."""
+    ``library.licence_mode`` > ``LICENCE_MODE_DEFAULT`` (``licence_mode_from`` says which one it was)."""
     return licence_mode_from(brief, env)[0]
 
 

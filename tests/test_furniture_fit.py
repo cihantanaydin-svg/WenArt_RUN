@@ -300,7 +300,7 @@ def test_fit_synthetic_buildings(catalog, buildings):
     assert len(buildings) == len(SYNTHETIC) + 2
     for name, building in buildings:
         before = json.dumps(building, sort_keys=True)
-        fitted = F.fit_building(building, catalog)
+        fitted = F.fit_building(building, catalog, mode="commercial")   # the commercial path (default: relaxed)
         assert json.dumps(building, sort_keys=True) == before, name  # input never modified
         assert len(fitted["furniture"]) == len(building["furniture"]) >= 10, name
         F.assert_only_assets_changed(building, fitted)

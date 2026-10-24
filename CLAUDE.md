@@ -97,9 +97,11 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   entry carries `licence`, `licence_url`, `licence_declared_by` (`publisher` | `uploader`), `licence_flag` (`none`
   | `non_commercial` | `share_alike` | `no_derivatives` | `research_only` | `regional` | `tool_nc`),
   `commercial_safe` and `attribution`.
-- `library.licence_mode: commercial` uses only `commercial_safe: yes` entries (the code default in
-  `wenart/defaults.yaml`). `relaxed` (set in the `brief.yaml` of the PoC projects real02/03/04 for Milestone 13,
-  user OK of 12 Oct 2026; env `WENART_LICENCE_MODE` overrides) may also use non-commercial, share-alike, research-only, regional and
+- User decision of 24 Oct 2026: every project, every pod run, may use any library model; licences are no selection
+  criterion, the look of the renders is (models that fit together and carry the style). So `relaxed` is the default
+  (`wenart/defaults.yaml`, `LICENCE_MODE_DEFAULT`). `library.licence_mode: commercial` in a brief (or env
+  `WENART_LICENCE_MODE`) still restricts a run to `commercial_safe: yes` entries. `relaxed` may also use
+  non-commercial, share-alike, research-only, regional and
   `tool_nc` assets (HSSD under CC BY-NC 4.0 with the user's acceptance of its terms; the TRELLIS.2 models exported
   with the non-commercial tool nvdiffrast stay usable with the `tool_nc` flag until the export is replaced).
   No-derivatives assets are never used. Research-only data sets that forbid redistribution (3D-FUTURE, 3D-FRONT)
@@ -154,8 +156,8 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
 - Save a debug image per page with detected elements drawn over the original, colored by method and confidence.
 
 ## Engineering conventions
-- Open-weight models and open-source tools only; commercial-safe licences by default (`licence_mode: commercial`);
-  other licences only in `relaxed` mode, flagged in the catalogue, in `docs/plan.md` and in `ATTRIBUTION.md`. GPL
+- Open-weight models and open-source tools only; library models of any licence by default (`licence_mode: relaxed`,
+  user decision of 24 Oct 2026), flagged in the catalogue, in `docs/plan.md` and in `ATTRIBUTION.md`. GPL
   tools (Blender and its add-ons, LibreDWG, Infinigen's GPL submodule) run as installed programs; no GPL code is
   copied into this repository.
 - Cameras keep the Milestone 11 policy (18 mm / 16 mm lenses, 1.25 m) in Milestone 13 (user decision of 12 Oct

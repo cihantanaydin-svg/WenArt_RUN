@@ -53,9 +53,10 @@ def test_catalog_licence_interfaces():
     assert params(C.usable) == ["entry", "mode"] and default_of(C.usable, "mode") == "commercial"
     assert params(C.unusable_reason) == ["entry", "mode"]
     assert default_of(C.unusable_reason, "mode") == "commercial"
-    # env WENART_LICENCE_MODE > brief library.licence_mode > commercial
+    # env WENART_LICENCE_MODE > brief library.licence_mode > relaxed (the user's decision of 24 Oct 2026)
     relaxed_brief = {"values": {"library": {"licence_mode": "relaxed"}}, "assumed": []}
-    assert C.licence_mode(None, env={}) == "commercial"
+    assert C.licence_mode(None, env={}) == "relaxed" == C.LICENCE_MODE_DEFAULT
+    assert C.licence_mode({"library": {"licence_mode": "commercial"}}, env={}) == "commercial"
     assert C.licence_mode(relaxed_brief, env={}) == "relaxed"
     assert C.licence_mode(relaxed_brief, env={"WENART_LICENCE_MODE": "commercial"}) == "commercial"
     # the flag words of §13.3 from the licence text
@@ -430,7 +431,7 @@ def test_defaults_and_briefs_carry_the_m13_settings():
     from wenart import brief as BR
 
     block = yaml.safe_load((ROOT / "wenart" / "defaults.yaml").read_text(encoding="utf-8"))["brief"]
-    assert block["library"]["licence_mode"] == "commercial"              # the product default (D1)
+    assert block["library"]["licence_mode"] == "relaxed"                 # every library model (user, 24 Oct 2026)
     assert block["render"]["white_balance_k"] is None                    # K5: the project whitepoint, metered once
     assert {"library.licence_mode", "render.white_balance_k"} <= set(BR.VALUE_RULES)
     assert BR.white_balance_arg(None) == "project"

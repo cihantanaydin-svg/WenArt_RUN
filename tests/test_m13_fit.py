@@ -104,18 +104,18 @@ def test_licence_mode_env_beats_the_brief_beats_the_default(monkeypatch):
     from wenart import brief as BR
 
     monkeypatch.delenv(C.LICENCE_MODE_ENV, raising=False)
-    assert C.licence_mode() == "commercial" and C.licence_mode_from()[1].endswith("default commercial")
+    assert C.licence_mode() == "relaxed" and C.licence_mode_from()[1].endswith("default relaxed")   # 24 Oct 2026
     real02 = BR.load_brief(ROOT / "projects" / "real02")                     # D1: the PoC projects are relaxed
     assert C.licence_mode(real02) == "relaxed" and C.licence_mode_from(real02)[1] == "brief library.licence_mode"
     for p in PROJECTS:
         assert C.licence_mode(BR.load_brief(ROOT / "projects" / p)) == "relaxed"
-    defaults = BR.load_brief(ROOT / "projects" / "does-not-exist")           # wenart/defaults.yaml: commercial
-    assert C.licence_mode(defaults) == "commercial" and "default of wenart/defaults.yaml" in C.licence_mode_from(defaults)[1]
+    defaults = BR.load_brief(ROOT / "projects" / "does-not-exist")           # wenart/defaults.yaml: relaxed
+    assert C.licence_mode(defaults) == "relaxed" and "default of wenart/defaults.yaml" in C.licence_mode_from(defaults)[1]
     assert C.licence_mode({"library": {"licence_mode": "relaxed"}}) == "relaxed"      # a raw brief dict
     assert C.licence_mode(real02, env={"WENART_LICENCE_MODE": "commercial"}) == "commercial"
     assert C.licence_mode(real02, env={"WENART_LICENCE_MODE": " Relaxed "}) == "relaxed"
     mode, why = C.licence_mode_from(defaults, env={"WENART_LICENCE_MODE": "comercial"})   # a typo never picks a mode
-    assert mode == "commercial" and "is no mode word, ignored" in why
+    assert mode == "relaxed" and "is no mode word, ignored" in why
     monkeypatch.setenv(C.LICENCE_MODE_ENV, "relaxed")
     assert C.licence_mode() == "relaxed" and C.licence_mode(defaults) == "relaxed"
     assert C.licence_mode_from()[1] == "env WENART_LICENCE_MODE"
@@ -255,7 +255,7 @@ def test_project_licence_mode_is_written_and_resolved(monkeypatch):
     cat = FakeCatalog([model("exact", "sofa", 2.0, 0.9, 0.8)])
     building = {"furniture": [piece("sofa", 2.0, 0.9)]}
     fitted = F.fit_building(building, cat)
-    assert fitted["project"]["licence_mode"] == "commercial" and "default commercial" in fitted["project"]["licence_mode_source"]
+    assert fitted["project"]["licence_mode"] == "relaxed" and "default relaxed" in fitted["project"]["licence_mode_source"]
     assert "project" not in building and fitted["project"]["size_snap"]["on"] is True
     F.assert_only_assets_changed(building, fitted)
     assert F.fit_building(building, cat, brief=BR.load_brief(ROOT / "projects" / "real02"))["project"]["licence_mode"] == "relaxed"
@@ -892,8 +892,8 @@ def test_cli_licence_mode_and_project_flags(tmp_path, monkeypatch, capsys):
     B.save(load_truth("synthetic-01"), src)
     out = tmp_path / "building_fitted.json"
     assert furniture_main(["fit", str(src), "--out", str(out)]) == 0
-    assert "licence mode: commercial" in capsys.readouterr().out
-    assert B.load(out)["project"]["licence_mode"] == "commercial"
+    assert "licence mode: relaxed" in capsys.readouterr().out
+    assert B.load(out)["project"]["licence_mode"] == "relaxed"
     assert furniture_main(["fit", str(src), "--out", str(out), "--licence-mode", "relaxed"]) == 0
     fitted = B.load(out)
     assert fitted["project"]["licence_mode"] == "relaxed" and fitted["project"]["licence_mode_source"] == "given to the fit"
