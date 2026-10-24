@@ -785,7 +785,8 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             for face in faces:
                 slot = slot_of({"material": face["material"], "colour": face.get("colour")})
                 zr = face.get("z_range") or [-1e9, 1e9]
-                face_slots.setdefault(wid, []).append((float(zr[0]), float(zr[1]), slot, face.get("direction")))
+                face_slots.setdefault(wid, []).append((float(zr[0]), float(zr[1]), slot, face.get("direction"),
+                                                       face.get("span")))
     roof_cut = whole.get("roof_cut") if whole else None
     cut_planes = roof_cut["planes"] if roof_cut else None
     slab_above = whole.get("slab_above") if whole else None
@@ -993,6 +994,10 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
         if face_slots.get(wall["id"]):
             changed = split_wall_at_heights(ob, sorted({z for z0, z1, *_ in face_slots[wall["id"]]
                                                          for z in (z0, z1) if abs(z) < 1e8})) or changed
+            spans = [part[4] for part in face_slots[wall["id"]] if len(part) > 4 and part[4]]
+            if spans:
+                changed = split_wall_at_points(ob, wall["start"], wall["end"], [p for sp in spans for p in sp]) \
+                    or changed
         if changed:
             common.assign_box_uvs(ob.data)
         outward, ambiguous = wall_outward_normal(wall, rooms, footprint_centre)
@@ -1205,7 +1210,7 @@ def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward, outl
             else:
                 slot = next((i if slot == 0 else w for pg, i, w in room_slots if G.point_in_polygon(p, pg)), slot)
         if face_slots and slot == 1:
-            slot = facade_face_slot(c.z, face_slots, slot, normal)
+            slot = facade_face_slot(c.z, face_slots, slot, normal, centre=(c.x, c.y))
         poly.material_index = slot
 
 
@@ -1226,20 +1231,57 @@ def open_face(centre, normal, open_polys, probe: float = DEFAULTS["face_probe"])
     return any(G.point_in_polygon(p, poly) for poly in open_polys)
 
 
-def facade_face_slot(z: float, face_slots, default: int, normal=None) -> int:
-    """The slot of a drawn facade part (``[(z0, z1, slot[, direction])]``) whose z range holds ``z`` and, when
+def facade_face_slot(z: float, face_slots, default: int, normal=None, centre=None) -> int:
+    """The slot of a drawn facade part (``[(z0, z1, slot[, direction[, span]]])]``) whose z range holds ``z`` and, when
     the part has a side ``direction`` (a unit vector in the building frame) and ``normal`` is given, whose
-    side the face normal lies within 45 degrees of; else ``default``."""
+    side the face normal lies within 45 degrees of, and, when it has a ``span`` (two plan points on the wall) and
+    ``centre`` is given, onto whose span the face centre projects; else ``default``."""
+    from wenart.blender.facade import on_span
+
     for part in face_slots:
         z0, z1, slot = part[0], part[1], part[2]
         direction = part[3] if len(part) > 3 else None
+        span = part[4] if len(part) > 4 else None
         if not z0 - 1e-6 <= float(z) <= z1 + 1e-6:
+            continue
+        if span and centre is not None and not on_span(centre, span):
             continue
         if direction is not None and normal is not None:
             if float(normal[0]) * direction[0] + float(normal[1]) * direction[1] < math.cos(math.radians(45.0)) - 1e-9:
                 continue
         return slot
     return default
+
+
+def split_wall_at_points(ob, start, end, points) -> bool:
+    """Cut a wall mesh with vertical planes across the wall at the plan ``points`` (the ends of facade parts with a
+    ``span``) so each face lies on one side of them. True when it cut."""
+    import bmesh
+    from mathutils import Vector
+
+    (x0, y0), (x1, y1) = start[:2], end[:2]
+    length = math.hypot(x1 - x0, y1 - y0)
+    if length <= 1e-9 or not points:
+        return False
+    ux, uy = (x1 - x0) / length, (y1 - y0) / length
+    ts = [(v.co.x - x0) * ux + (v.co.y - y0) * uy for v in ob.data.vertices]
+    cuts = []
+    for p in points:
+        t = (float(p[0]) - x0) * ux + (float(p[1]) - y0) * uy
+        if ts and min(ts) + 1e-4 < t < max(ts) - 1e-4 and all(abs(t - c) > 1e-4 for c in cuts):
+            cuts.append(t)
+    if not cuts:
+        return False
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    for t in cuts:
+        geom = list(bm.verts) + list(bm.edges) + list(bm.faces)
+        bmesh.ops.bisect_plane(bm, geom=geom, plane_co=Vector((x0 + ux * t, y0 + uy * t, 0.0)),
+                               plane_no=Vector((ux, uy, 0.0)))
+    bm.to_mesh(ob.data)
+    bm.free()
+    ob.data.update()
+    return True
 
 
 def split_wall_at_heights(ob, heights: list[float]) -> bool:
@@ -2605,7 +2647,8 @@ SLAB_EDGE_INSET = 0.01        # ... and the slab edge this far inside the outer 
 CORNER_JOIN_TOL = 0.01        # two wall ends within this meet in a corner
 STAIR_ARRIVAL_TOL = 0.05      # a stair's top must lie within this of an opening of the slab above
 SILL = {"depth": 0.30, "projection": 0.04, "thickness": 0.05, "rise": 0.02, "ears": 0.03, "material": "stone"}
-RAILING = {"height": 1.00, "rail": 0.045, "panel": 0.012, "panel_bottom": 0.10, "wall_reach": 0.05}
+RAILING = {"height": 1.00, "rail": 0.045, "panel": 0.012, "panel_bottom": 0.10, "wall_reach": 0.05,
+           "post": 0.04, "post_every": 1.5}      # steel posts at the ends and at most 1.5 m apart (24 Oct 2026)
 
 
 def corner_extensions(walls: list[dict], tol: float = CORNER_JOIN_TOL) -> dict[str, dict]:
@@ -3013,6 +3056,26 @@ def railing_edges(room: dict, walls: list[dict], reach: float = RAILING["wall_re
     return out
 
 
+def railing_posts(p, q, floor_z: float, cfg: dict | None = None) -> list[tuple]:
+    """``[(verts, faces)]``: the posts of a railing along ``p``-``q`` (at both ends and at most ``post_every``
+    apart), from the floor up to the rail (24 Oct 2026: a rail and a panel alone read as a slab, real04's terrace
+    'balcony')."""
+    c = dict(RAILING, **(cfg or {}))
+    length = G.distance(p, q)
+    if length <= 1e-6:
+        return []
+    angle = G.segment_angle_deg(p, q)
+    n = max(1, int(math.ceil(length / float(c["post_every"]) - 1e-9)))
+    h = float(c["height"]) - float(c["rail"])
+    ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
+    inset = float(c["post"]) / 2.0
+    out = []
+    for i in range(n + 1):
+        t = min(max(length * i / n, inset), length - inset)
+        out.append(geom2d.box((p[0] + ux * t, p[1] + uy * t, floor_z + h / 2.0), (c["post"], c["post"], h), angle))
+    return out
+
+
 def railing_parts(p, q, floor_z: float, cfg: dict | None = None) -> tuple[tuple, tuple]:
     """``((verts, faces) rail, (verts, faces) panel)`` of a railing along ``p``-``q`` standing on ``floor_z``."""
     c = dict(RAILING, **(cfg or {}))
@@ -3118,8 +3181,9 @@ def build_outside_details(building: dict, level: dict, collection, library, look
         parts, slots = [], []
         for p, q in edges:
             rail, panel = railing_parts(p, q, floor_z)
-            parts += [rail, panel]
-            slots += [0] * len(rail[1]) + [1] * len(panel[1])
+            posts = railing_posts(p, q, floor_z)
+            parts += [rail, panel] + posts
+            slots += [0] * len(rail[1]) + [1] * len(panel[1]) + [0] * sum(len(f) for _v, f in posts)
         verts, faces = geom2d.merge(parts)
         name = f"railing_{room['id']}"
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="railing",

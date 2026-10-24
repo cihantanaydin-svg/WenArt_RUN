@@ -1092,6 +1092,19 @@ def main(argv: list[str]) -> int:
         warnings.extend(look.get("warnings") or [])
         if look.get("assumed") and slot in E.EXTERIOR_SLOTS:
             assumed.append({"object": "exterior", "field": slot, "value": look["material"], "reason": look["reason"]})
+    if whole and looks and (looks.get("facade") or {}).get("scheme"):
+        # The facade scheme of the style family (user request of 24 Oct 2026): base and accent claddings where no
+        # drawing and no brief name the facade, after the drawn parts.
+        from wenart.blender import facade as FA
+
+        scheme = FA.scheme_faces(building, style, levels)
+        mapped, scheme_warnings = facade_faces(dict(building, facade={"faces": scheme}), prep["outlines"])
+        warnings.extend(scheme_warnings)
+        for wid, faces in mapped.items():
+            prep["faces"].setdefault(wid, []).extend(faces)
+        for face in scheme:
+            assumed.append({"object": face.get("wall_id") or face.get("level_id"), "field": "facade_scheme",
+                            "value": face["material"], "reason": face["reason"]})
     slabs = prep["slabs"]
     roof = prep["roof"]
     render_rooms = set(views["rooms"])
@@ -1294,7 +1307,7 @@ def main(argv: list[str]) -> int:
             extra_collections.append(site_col)
             whole_info["site"] = S.build_site(prep["site"], site_col, looks,
                                               lambda look: shell.look_material(library, look), manifest_objects,
-                                              assumed)
+                                              assumed, glass=library.thin_glass())
         if prep["outlines"]:                           # Milestone 11 E10: plinth, slab bands, coping, surrounds
             from wenart.blender import facade as FA
             fac_col = common.get_or_make_collection("facade_details")

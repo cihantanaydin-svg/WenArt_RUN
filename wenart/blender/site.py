@@ -2336,7 +2336,7 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
     or a sloped area; the flight of steps on ``steps_edge`` down to the ground (or the band); a railing (rail and
     panel, ``shell.railing_parts``) on the ``railing_edges`` of a terrace or pool deck that is not a band. The
     ``wall`` part carries ``walls``: ``[{edge, height_m, z0, z1}]`` (the visible height over the floor)."""
-    from wenart.blender.shell import railing_parts
+    from wenart.blender.shell import railing_parts, railing_posts
 
     poly = geom2d.ccw(pf["polygon"])
     z = float(pf["z"])
@@ -2357,7 +2357,7 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
         v, f = slab_with_holes(poly, pf.get("holes") or [], z, bottom)
         out.append({"part": "slab", "verts": v, "faces": f})
     tol = PLATFORM["level_tol"]
-    walls, kerbs, steps, rails, wall_recs = [], [], [], [], []
+    walls, kerbs, steps, rails, panels, wall_recs = [], [], [], [], [], []
     for i in range(n):
         if i in shared:
             continue
@@ -2402,7 +2402,8 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
                                         (length + kw, kw, kh + 0.04), angle))
         if i in (pf.get("railing_edges") or []) and pf.get("kind") in ("terrace", "pool") and not pf.get("parent"):
             rail, panel = railing_parts(a, b, z)
-            rails += [rail, panel]
+            rails += [rail] + railing_posts(a, b, z)
+            panels.append(panel)
     if pf.get("steps_edge") is not None and not pf.get("sloped") and pf["steps_edge"] not in shared:
         i = pf["steps_edge"]
         a, b = poly[i], poly[(i + 1) % n]
@@ -2422,10 +2423,14 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
             zb = (floors[i] if i in floors else min(ground_z(terrain, *q) for q in block)) - PLATFORM["below"]
             if top > zb:
                 steps.append(geom2d.prism(block, zb, top))
-    for part, meshes in (("wall", walls), ("kerb", kerbs), ("steps", steps), ("railing", rails)):
+    for part, meshes in (("wall", walls), ("kerb", kerbs), ("steps", steps), ("railing", rails + panels)):
         if meshes:
             v, f = geom2d.merge(meshes)
             rec = {"part": part, "verts": v, "faces": f}
+            if part == "railing":
+                # The rails and posts in metal (slot 0), the panels in glass (slot 1): one material made real04's
+                # terrace guard a solid steel slab beside the basement (24 Oct 2026).
+                rec["slots"] = [0] * sum(len(m[1]) for m in rails) + [1] * sum(len(m[1]) for m in panels)
             if part == "wall":
                 rec["walls"] = wall_recs
             out.append(rec)
@@ -2978,7 +2983,8 @@ def relief_keep(plan: dict, hedges: Optional[Sequence[dict]] = None) -> list[dic
     return out
 
 
-def build_site(plan: dict, collection, looks: dict, make_material, manifest_objects: list, assumed: list) -> dict:
+def build_site(plan: dict, collection, looks: dict, make_material, manifest_objects: list, assumed: list,
+               glass=None) -> dict:
     """The site objects of ``site_plan``: the ground (kind ``terrain``), ``lightwell_<opening>`` (kind
     ``light_well``), the plot walls (``site_wall``, their ids), the areas (``site_area``, their ids) and
     ``tree_<id>`` (``site_decor``). ``looks``: the resolved looks (``exterior.resolve_looks``: ``garden``, ``paving``,
@@ -3155,8 +3161,11 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
             for part in parts:
                 name = f"platform_{pf['id']}_{part['part']}"
                 mat = mats[part["part"]]
+                slots = part.get("slots") if glass is not None else None
                 ob = common.new_mesh_object(name, part["verts"], part["faces"], collection=collection, wenart_id=name,
-                                            kind=site_kind("platform"), status="assumed", materials=[mat])
+                                            kind=site_kind("platform"), status="assumed",
+                                            materials=[mat, glass] if slots else [mat],
+                                            face_material_indices=slots)
                 zz = [v[2] for v in part["verts"]] or [pf["z"]]
                 entry(ob.name, name, site_kind("platform"), mat, "assumed",
                       {"site_part": "platform", "parent": pf["id"], "platform_kind": pf["kind"], "part": part["part"], "level_z": pf["z"],

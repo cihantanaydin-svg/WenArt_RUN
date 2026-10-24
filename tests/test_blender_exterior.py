@@ -190,7 +190,7 @@ def test_resolve_looks_documents_brief_style_fallback():
     looks = E.resolve_looks(EXAMPLE, _style())
     # the example draws only a stone plinth (a z band of the south side): the facade itself is the fallback
     assert looks["facade"]["source"] == "fallback" and looks["facade"]["material"] == "render"
-    assert looks["facade"]["rgb"] is not None and looks["facade"]["assumed"]           # colour "walls"
+    assert looks["facade"]["rgb"] is not None and looks["facade"]["assumed"]           # the scheme colour
     assert (looks["roof"]["material"], looks["roof"]["colour"]) == ("concrete_tiles", "anthracite")
     assert looks["window_frame"]["material"] == "painted_metal_white"                    # "interior"
     assert looks["door"]["material"] == "wood_oak_light"

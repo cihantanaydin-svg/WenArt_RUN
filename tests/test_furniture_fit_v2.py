@@ -197,7 +197,8 @@ def test_caps_and_style_filter_still_apply():
     assert fit["candidates"][0]["rank"] == 1 and fit["candidates"][0]["accepted"] is False
 
 
-def test_fit_building_keeps_every_frozen_key_and_the_report_lists_the_ranking():
+def test_fit_building_keeps_every_frozen_key_and_the_report_lists_the_ranking(monkeypatch):
+    monkeypatch.setenv("WENART_LICENCE_MODE", "commercial")    # the default is relaxed since 24 Oct 2026
     # Milestone 12 (CLAUDE.md library rules): the non-commercial twin of the sofa is never taken
     cat = FakeCatalog([model("exact_nc", "sofa", 2.0, 0.9, 0.8, quality=5.0, licence_flag="non_commercial",
                              licence="CC-BY-NC-4.0", source="objaverse"),

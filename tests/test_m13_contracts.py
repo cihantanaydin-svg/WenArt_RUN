@@ -252,7 +252,8 @@ def test_site_interfaces():
         height, cls = S.tree_height(radius)
         assert cls == size_class and lo <= height <= hi, (radius, height, cls)
     assert params(S.platforms)[0] == "site"              # + an optional terrain (the levels' terrain model)
-    assert params(S.build_site) == ["plan", "collection", "looks", "make_material", "manifest_objects", "assumed"]
+    assert params(S.build_site) == ["plan", "collection", "looks", "make_material", "manifest_objects", "assumed",
+                                     "glass"]
     assert params(V.tree_object)[:4] == ["species", "height_m", "seed", "near_camera"]
     assert params(V.hedge_object)[0] == "hedge"
     assert params(V.grass_patch)[:2] == ["polygon", "density"]

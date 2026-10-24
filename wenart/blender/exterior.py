@@ -201,6 +201,8 @@ def build_finish_slugs(style: Optional[dict] = None) -> list[tuple[str, str]]:
     rows += [(slug, f"{name}_fallback") for name, slug in S.SITE_FALLBACK_LOOKS.items()]
     rules = FA.family_rules(style)
     rows += [(rules.get("plinth"), "plinth"), (rules.get("surround"), "window_surround")]
+    sch = FA.scheme_of(style)
+    rows += [(sch["main"][0], "scheme_main"), (sch.get("base"), "scheme_base"), (sch.get("accent"), "scheme_accent")]
     rows += [(slug, f"kit_{kind}") for kind, (slug, _colour, _why) in FA.KIT_LOOKS.items()]
     rows += [(slug, f"build_{name}") for name, (slug, _colour, _why) in BUILD_LOOKS.items()]
     out, seen = [], set()
@@ -326,6 +328,21 @@ def resolve_looks(building: dict, style: dict, brief=None) -> dict:
                 reason = f"style.exterior_fallback: {fb.get('material')}" + (f" in {colour}" if colour else "") + \
                          (f" ({how})" if how else "")
                 look = _look(fb.get("material") or "render", colour, "fallback", reason, rgb=rgb)
+        if slot == "facade" and look["source"] == "fallback":
+            # No drawing, brief or style word names the facade: the style family's facade scheme (user request of
+            # 24 Oct 2026): its render colour here, its base and accent claddings as faces (``facade.scheme_faces``).
+            from wenart.blender import facade as FA
+
+            sch = FA.scheme_of(style)
+            material, colour = sch["main"]
+            try:
+                from wenart.style import colours as C
+                rgb = tuple(round(float(v), 4) for v in C.linear_rgb(colour))
+            except (ImportError, KeyError, ValueError):
+                rgb = None
+            look = _look(material, colour, "fallback", f"facade scheme ({sch['family']}): {material} in {colour} "
+                         f"(no drawing, brief or style names the facade)", rgb=rgb, asset=_asset_of(material))
+            look["scheme"] = {"family": sch["family"], "base": sch["base"], "accent": sch["accent"]}
         if warnings:
             look["warnings"] = warnings
         out[slot] = look

@@ -215,6 +215,7 @@ def test_parametric_only_by_design(monkeypatch):
 
 def test_fit_building_writes_the_gap_on_the_piece_and_changes_nothing_else(monkeypatch):
     no_modules(monkeypatch)
+    monkeypatch.setenv("WENART_LICENCE_MODE", "commercial")    # the default is relaxed since 24 Oct 2026
     cat = FakeCatalog([model("odd", "sofa", 3.0, 0.9, 0.8), model("ok", "nightstand", 0.5, 0.4, 0.5)])
     building = {"project": {"id": "t"}, "furniture": [piece("sofa", 2.0, 0.9),
                                                       piece("nightstand", 0.5, 0.4, pid="f_L0_002")]}

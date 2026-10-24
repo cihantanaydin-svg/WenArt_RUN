@@ -247,7 +247,9 @@ def test_fetch_cli_collects_style_assets(tmp_path, monkeypatch, capsys):
                    "Marble012",
                    # fix round after P3: the site finishes the build puts on by itself (exterior.build_finish_slugs:
                    # the retaining walls' concrete_exposed, the inferred fence's wood_cladding)
-                   "concrete_wall_001", "weathered_plank_siding"}
+                   "concrete_wall_001", "weathered_plank_siding",
+                   # 24 Oct 2026: the default facade scheme's base (stone_wall_ledgestone)
+                   "rustic_stone_wall_02"}
     assert ("hdri", "kloppenheim_06", "1k") in calls
     assert ("texture", "Marble012", "1k") in calls and ("texture", "Marble012", "2k") in calls   # at --size
     out = capsys.readouterr().out

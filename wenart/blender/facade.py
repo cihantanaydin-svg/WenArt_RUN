@@ -22,6 +22,13 @@ along the roof's eaves edges and downpipes at their corners (a pitched roof draw
 canopy and a pair of wall lights at every entrance door at grade (``site.entrances``), and a guard rail in front of
 an upper-floor outside door that opens onto no balcony or terrace room (a door drawn there implies one).
 ``KIT`` holds the sizes; the looks are ``KIT_LOOKS`` (the agent's material slots of the same names override them).
+
+Facade scheme (user request of 24 Oct 2026: the outside walls "seem blank concrete"): when no drawing and no brief
+names the facade, the style family gives it a designed default (``FACADE_SCHEMES``, ``scheme_faces``): the main walls
+in render of the family's facade colour (``exterior.resolve_looks``), the walls of the basement levels in the family's
+base cladding (stone, brick), and a band of the family's accent cladding framing the main entrance door, from the
+entrance floor to the floor above (``ACCENT``). Every face is ``inferred`` with its reason; the plinth band takes the
+base cladding too. A face may carry a ``span`` (two plan points on its wall): only the stretch between them takes it.
 """
 from __future__ import annotations
 
@@ -33,11 +40,27 @@ from wenart.blender import geom2d
 
 # Per style family: the plinth look and height, whether the windows get surrounds (else reveals).
 ARTICULATION = {
-    "default": {"plinth": "concrete_exposed", "plinth_colour": None, "surround": None},
+    "default": {"plinth": "stone_wall_ledgestone", "plinth_colour": None, "surround": None},
     "classic": {"plinth": "stone_cladding", "plinth_colour": None, "surround": "limestone"},
     "mediterranean": {"plinth": "stone_cladding", "plinth_colour": None, "surround": "limestone"},
     "rustic": {"plinth": "stone_wall_rubble", "plinth_colour": None, "surround": "limestone"},
 }
+# The facade scheme per style family (user request of 24 Oct 2026): the main walls' render colour, the base cladding
+# of the basement levels and the accent cladding around the main entrance (None: no accent). Vocabulary slugs and
+# colour names of wenart/style; a family not listed takes "default".
+FACADE_SCHEMES = {
+    "default": {"main": ("render", "off white"), "base": "stone_wall_ledgestone", "accent": "wood_cladding"},
+    "modern": {"main": ("render", "off white"), "base": "stone_wall_ledgestone", "accent": "wood_cladding"},
+    "modern minimal": {"main": ("render", "white"), "base": "stone_wall_slate", "accent": "wood_cladding"},
+    "minimal": {"main": ("render", "white"), "base": "stone_wall_slate", "accent": "wood_cladding"},
+    "scandinavian": {"main": ("render", "white"), "base": "stone_wall_ledgestone", "accent": "wood_cladding"},
+    "japandi": {"main": ("render", "off white"), "base": "stone_wall_slate", "accent": "wood_cladding"},
+    "industrial": {"main": ("render", "light grey"), "base": "brick_red", "accent": None},
+    "mediterranean": {"main": ("render", "cream"), "base": "stone_wall_ashlar", "accent": None},
+    "classic": {"main": ("render", "ivory"), "base": "stone_wall_ashlar", "accent": None},
+    "rustic": {"main": ("render", "cream"), "base": "stone_wall_rubble", "accent": "wood_cladding"},
+}
+ACCENT = {"margin_m": 1.0, "min_width_m": 2.4}      # the accent band: the door plus 1 m on each side, >= 2.4 m wide
 DIMENSIONS = {"plinth_height": 0.45, "plinth_below": 0.05, "proud": 0.025, "band_height": 0.20, "band_proud": 0.03,
               "coping_height": 0.06, "coping_proud": 0.04, "surround_width": 0.12, "surround_proud": 0.03,
               "min_span": 0.15}
@@ -58,6 +81,72 @@ KIT_LOOKS = {
     "railing": ("steel_black", None, "guard rail in front of an upper-floor outside door with no balcony (not drawn)"),
 }
 KIT_KINDS = tuple(KIT_LOOKS)
+
+
+def scheme_of(style: Optional[dict]) -> dict:
+    """The facade scheme of the style's family (``FACADE_SCHEMES``), with ``family``."""
+    fam = str((style or {}).get("family") or "").lower()
+    return dict(FACADE_SCHEMES.get(fam) or FACADE_SCHEMES["default"], family=fam or "default")
+
+
+def main_entrance(building: dict, levels: Sequence[dict]) -> Optional[dict]:
+    """The main entrance door of the building (``site.entrances``: the one marked ``main``, else the first at grade
+    on the lowest level that has one), as its opening dict, or None."""
+    ids = {lv["id"] for lv in levels}
+    recs = [r for r in ((building.get("site") or {}).get("entrances") or []) if isinstance(r, dict)
+            and r.get("level_id") in ids and not r.get("into_air") and not r.get("below_ground")]
+    if not recs:
+        return None
+    order = {lv["id"]: float(lv["elevation"]) for lv in levels}
+    rec = next((r for r in recs if r.get("main")), None) or min(recs, key=lambda r: (order[r["level_id"]],
+                                                                                       float(r.get("rise") or 0.0)))
+    return next((o for o in building.get("openings") or [] if o.get("id") == rec.get("door_id")), None)
+
+
+def scheme_faces(building: dict, style: Optional[dict], levels: Sequence[dict]) -> list[dict]:
+    """The inferred facade faces of the style's scheme (pure; the caller asks only when no drawing and no brief name
+    the facade): the accent band around the main entrance first (``span`` and ``z_range``), then the base cladding
+    of every basement level. Each face: ``material``, ``colour``, ``side`` all, ``level_id`` / ``wall_id``, ``source``
+    ``inferred``, ``inferred`` True and its ``reason``."""
+    sch = scheme_of(style)
+    faces: list[dict] = []
+    order = sorted(levels, key=lambda lv: float(lv["elevation"]))
+    door = main_entrance(building, order) if sch.get("accent") else None
+    wall = next((w for w in building.get("walls") or [] if door and w.get("id") == door.get("wall_id")), None)
+    if door is not None and wall is not None:
+        (x0, y0), (x1, y1) = wall["start"][:2], wall["end"][:2]
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length > 1e-6:
+            ux, uy = (x1 - x0) / length, (y1 - y0) / length
+            cx, cy = door["center"][:2]
+            t = (cx - x0) * ux + (cy - y0) * uy
+            half = max(float(door.get("width") or 0.9) / 2.0 + ACCENT["margin_m"], ACCENT["min_width_m"] / 2.0)
+            t0, t1 = max(0.0, t - half), min(length, t + half)
+            lv = next(lv for lv in order if lv["id"] == wall.get("level_id"))
+            above = [float(x["elevation"]) for x in order if float(x["elevation"]) > float(lv["elevation"]) + 0.5]
+            z1 = min(above) if above else float(lv["elevation"]) + float(lv.get("height") or 3.0)
+            faces.append({"material": sch["accent"], "colour": None, "side": "all", "wall_id": wall["id"],
+                          "span": [[x0 + ux * t0, y0 + uy * t0], [x0 + ux * t1, y0 + uy * t1]],
+                          "z_range": [float(lv["elevation"]) - 0.5, z1], "source": "inferred", "inferred": True,
+                          "reason": f"facade scheme ({sch['family']}): {sch['accent']} framing the main entrance "
+                                    f"{door['id']} ({t1 - t0:.1f} m wide; not drawn)"})
+    for lv in order:
+        if str(lv.get("kind") or "") == "basement":
+            faces.append({"material": sch["base"], "colour": None, "side": "all", "level_id": lv["id"],
+                          "source": "inferred", "inferred": True,
+                          "reason": f"facade scheme ({sch['family']}): {sch['base']} on the basement level "
+                                    f"{lv['id']} (not drawn)"})
+    return faces
+
+
+def on_span(point, span, tol: float = 1e-3) -> bool:
+    """Whether the plan ``point`` projects onto the segment ``span`` (``[[x0, y0], [x1, y1]]``)."""
+    (x0, y0), (x1, y1) = span[0][:2], span[1][:2]
+    length = math.hypot(x1 - x0, y1 - y0)
+    if length <= 1e-9:
+        return False
+    t = ((float(point[0]) - x0) * (x1 - x0) + (float(point[1]) - y0) * (y1 - y0)) / length
+    return -tol <= t <= length + tol
 
 
 def family_rules(style: Optional[dict]) -> dict:
