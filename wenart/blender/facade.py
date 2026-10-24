@@ -68,7 +68,7 @@ DIMENSIONS = {"plinth_height": 0.45, "plinth_below": 0.05, "proud": 0.025, "band
 
 # Milestone 13 (T6): the facade kit sizes (metres) and looks (vocabulary slugs; a colour name or None).
 KIT = {"reveal_width": 0.06, "reveal_proud": 0.015, "gutter_w": 0.12, "gutter_h": 0.10, "gutter_drop": 0.02,
-       "downpipe": 0.10, "downpipe_every_m": 12.0, "downpipe_end_m": 0.4, "eaves_tol": 0.15,
+       "downpipe": 0.10, "downpipe_every_m": 12.0, "downpipe_end_m": 0.4, "downpipe_both_ends_m": 4.0, "eaves_tol": 0.15,
        "canopy_depth": 1.0, "canopy_thick": 0.08, "canopy_side": 0.3, "canopy_above": 0.25,
        "light_w": 0.12, "light_d": 0.08, "light_h": 0.22, "light_z": 2.1, "light_offset": 0.35,
        "guard_height": 1.0, "guard_bar": 0.04, "guard_min_drop": 1.5, "guard_side": 0.1}
@@ -341,8 +341,9 @@ def _box(kind: str, level_id, centre, size, rot: float, parent=None, reason: str
 
 def eaves_edges(roof_model: Optional[dict]) -> list[dict]:
     """The eaves edges of a pitched roof (pure): the outline edges along which the roof's top surface stays within
-    ``KIT["eaves_tol"]`` of ``eaves_z`` (a gable end rises to the ridge: no gutter there). ``[{"p", "q", "z"}]``;
-    none for a flat roof or without planes."""
+    ``KIT["eaves_tol"]`` of ``eaves_z`` (a gable end rises to the ridge: no gutter there), without their runs along
+    a roof opening (a roof terrace has no eaves). ``[{"p", "q", "z", "length"}]``; none for a flat roof or without
+    planes."""
     if not roof_model or not roof_model.get("equations") or roof_model.get("eaves_z") is None:
         return []
     if roof_model.get("type") in ("flat", None) or roof_model.get("kind") == "flat_cut":
@@ -351,6 +352,7 @@ def eaves_edges(roof_model: Optional[dict]) -> list[dict]:
 
     outline = geom2d.ccw(roof_model.get("outline") or [])
     eaves = float(roof_model["eaves_z"])
+    holes = [o["polygon"] for o in roof_model.get("openings") or [] if len(o.get("polygon") or []) >= 3]
     out = []
     n = len(outline)
     for i in range(n):
@@ -364,9 +366,55 @@ def eaves_edges(roof_model: Optional[dict]) -> list[dict]:
         for t in (0.15, 0.5, 0.85):
             x, y = p[0] + ux * t * length + nx * 0.05, p[1] + uy * t * length + ny * 0.05
             zs.append(R.surface_z(roof_model["equations"], x, y))
-        if all(abs(z - eaves) <= KIT["eaves_tol"] for z in zs):
-            out.append({"p": p, "q": q, "z": eaves, "length": length})
+        if not all(abs(z - eaves) <= KIT["eaves_tol"] for z in zs):
+            continue
+        # 24 Oct 2026 (real04): a roof terrace cut into the roof has no eaves: the gutter ran on along its parapet
+        # past the end of the roof. The edge keeps only its runs outside the roof openings.
+        for t0, t1 in _runs_outside(p, (ux, uy), (nx, ny), length, holes):
+            a = (p[0] + ux * t0, p[1] + uy * t0)
+            b = (p[0] + ux * t1, p[1] + uy * t1)
+            out.append({"p": a, "q": b, "z": eaves, "length": t1 - t0})
     return out
+
+
+def downpipe_stations(length: float) -> list[float]:
+    """Where the downpipes of an eaves run stand (pure): ``downpipe_end_m`` in from its start, then every
+    ``downpipe_every_m``, and (24 Oct 2026) one ``downpipe_end_m`` in from its end when the run is longer than
+    ``downpipe_both_ends_m`` (a gutter drains to both ends)."""
+    end = KIT["downpipe_end_m"]
+    out = []
+    t = end
+    while t <= length - 0.2:
+        out.append(t)
+        t += KIT["downpipe_every_m"]
+    last = length - end
+    if length > KIT["downpipe_both_ends_m"] and out and last - out[-1] > 1.0:
+        out.append(last)
+    return out
+
+
+def _runs_outside(p, u, n, length: float, holes, step: float = 0.05, min_run: float = 0.5) -> list[tuple]:
+    """``[(t0, t1)]``: the stretches of the edge from ``p`` along ``u`` whose points just inside (``n``, 5 cm) lie in
+    none of ``holes`` (pure), at least ``min_run`` long."""
+    if not holes:
+        return [(0.0, length)]
+    count = max(1, int(math.ceil(length / step)))
+    free = []
+    for k in range(count + 1):
+        t = min(length, k * step)
+        x, y = p[0] + u[0] * t + n[0] * 0.05, p[1] + u[1] * t + n[1] * 0.05
+        free.append(not any(G.point_in_polygon((x, y), h) for h in holes))
+    runs, start = [], None
+    for k, ok in enumerate(free):
+        t = min(length, k * step)
+        if ok and start is None:
+            start = t
+        if (not ok or k == count) and start is not None:
+            end = t if ok else max(start, t - step)
+            if end - start >= min_run:
+                runs.append((start, end))
+            start = None
+    return runs
 
 
 def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_outline, terrain: Optional[dict],
@@ -431,11 +479,7 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
         boxes.append(_box("gutter", top_level["id"] if top_level else None,
                           (mid[0] + nx * gw / 2.0, mid[1] + ny * gw / 2.0, z - KIT["gutter_drop"] - gh / 2.0),
                           (length + gw, gw, gh), rot, None, KIT_LOOKS["gutter"][2]))
-        count = 1 + int(length // KIT["downpipe_every_m"])
-        for k in range(count):
-            t = KIT["downpipe_end_m"] + k * KIT["downpipe_every_m"]
-            if t > length - 0.2:
-                break
+        for t in downpipe_stations(length):
             ex, ey = p[0] + ux * t, p[1] + uy * t
             # the wall face under the eaves edge: the nearest point of the wall outline, then the pipe outside it
             if len(wall_outline or []) >= 3:

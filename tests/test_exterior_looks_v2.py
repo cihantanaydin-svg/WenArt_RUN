@@ -164,3 +164,29 @@ def test_image_cutout_is_found_by_its_transparent_texels():
     assert VG._image_has_cutout(_Img([1.0] * 50 + [0.0] * 50))
     assert not VG._image_has_cutout(_Img([1.0] * 100))
     assert not VG._image_has_cutout(_Img([0.0] * 10, mode="NONE")) and not VG._image_has_cutout(None)
+
+
+def test_a_light_well_over_a_lower_terrace_is_dropped_and_one_under_a_higher_terrace_opens_at_it():
+    square = [[0.0, 0.0], [4.0, 0.0], [4.0, 2.0], [0.0, 2.0]]
+    well = {"opening_id": "w1", "polygon": [[1.0, 0.5], [3.0, 0.5], [3.0, 1.5], [1.0, 1.5]], "source": "assumed",
+            "sill_z": -2.1, "top_z": -1.6, "floor_z": -2.3}
+    low = [{"id": "t1", "kind": "terrace", "polygon": square, "z": -3.0, "sloped": False}]
+    kept, gone = S.wells_on_platforms([well], low)
+    assert kept == [] and "no light well" in gone[0]["dropped_reason"]
+    high = [dict(low[0], z=-1.4)]
+    kept, gone = S.wells_on_platforms([well], high)
+    assert gone == [] and kept[0]["top_z"] == -1.4 and kept[0]["platform_id"] == "t1"
+    assert S.wells_on_platforms([dict(well, source="drawn")], low)[0][0]["source"] == "drawn"   # drawn stays
+    assert S.wells_on_platforms([well], [dict(low[0], sloped=True)])[0] == [well]                 # draped: no level
+
+
+def test_gutters_stop_where_a_roof_terrace_cuts_the_eaves():
+    from wenart.blender import facade as FA
+    model = {"type": "hip", "eaves_z": 3.0, "outline": [[0, 0], [10, 0], [10, 6], [0, 6]],
+             "equations": [(0.0, 0.5, 3.0), (0.0, -0.5, 6.0), (0.5, 0.0, 3.0), (-0.5, 0.0, 8.0)],
+             "openings": [{"polygon": [[0, 0], [3, 0], [3, 6], [0, 6]]}]}
+    edges = FA.eaves_edges(model)
+    south = [e for e in edges if abs(e["p"][1]) < 1e-9 and abs(e["q"][1]) < 1e-9]
+    assert len(south) == 1 and min(south[0]["p"][0], south[0]["q"][0]) >= 3.0 - 1e-6
+    assert not any(max(e["p"][0], e["q"][0]) <= 3.0 for e in edges)        # nothing along the terrace
+    assert len(FA.eaves_edges(dict(model, openings=[]))) > len(edges)

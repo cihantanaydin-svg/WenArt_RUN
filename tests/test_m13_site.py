@@ -542,7 +542,8 @@ def test_facade_kit_of_real02_is_inferred_and_counted():
     plan = FA.articulation_plan(vb, vb["levels"], prep["outlines"], prep["ground_outline"], sp["terrain"], prep["roof"],
                                 {"family": "modern"}, {"facade": {"material": "render", "colour": "warm greige"}}, sp["wells"])
     counts = plan["kit"]["counts"]
-    assert counts["gutter"] == 4 and counts["canopy"] == 2 and counts["wall_light"] == 4 and counts["reveal"] == 24
+    # 24 Oct 2026: the two roof terraces cut the east and west eaves away: gutters on the two eaves left
+    assert counts["gutter"] == 2 and counts["canopy"] == 2 and counts["wall_light"] == 4 and counts["reveal"] == 24
     assert counts["downpipe"] >= 4 and plan["kit"]["entrances"] == ["d_L0_011", "d_L0_012"]
 
 

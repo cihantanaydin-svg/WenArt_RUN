@@ -639,22 +639,50 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
             depth = float(d.get("depth") or (gz - bottom + DEFAULTS["light_well_below_sill"]))
             wells.append({"opening_id": o["id"], "level_id": lv["id"], "polygon": geom2d.ccw(d["polygon"]),
                           "floor_z": gz - depth, "top_z": gz, "outward": list(out), "source": "drawn",
-                          "reason": "drawn light well"})
+                          "sill_z": bottom, "reason": "drawn light well"})
             continue
         ux, uy = (-out[1], out[0])
         below = gz - bottom
         if front_court == "yes" or (front_court == "auto" and below > COURT["min_below"]):
-            wells.append(court_for(o, lv, (cx, cy), out, half_t, gz, below, front_court))
+            wells.append(dict(court_for(o, lv, (cx, cy), out, half_t, gz, below, front_court), sill_z=bottom))
             continue
         w = float(o["width"]) / 2.0 + DEFAULTS["light_well_side"]
         d0, d1 = half_t, half_t + DEFAULTS["light_well_depth"]
         poly = [(cx + ux * s + out[0] * d, cy + uy * s + out[1] * d) for s, d in ((-w, d0), (w, d0), (w, d1), (-w, d1))]
         wells.append({"opening_id": o["id"], "level_id": lv["id"], "polygon": geom2d.ccw(poly),
                       "floor_z": bottom - DEFAULTS["light_well_below_sill"], "top_z": gz, "outward": list(out),
-                      "source": "assumed",
+                      "source": "assumed", "sill_z": bottom,
                       "reason": f"window sill {bottom:.2f} m, ground outside {gz:.2f} m: an open concrete light "
                                 f"well {DEFAULTS['light_well_depth']} m deep, {2 * w:.2f} m wide (no light well drawn)"})
     return merge_courts(wells), warnings
+
+
+def wells_on_platforms(wells: Sequence[dict], pfs: Sequence[dict]) -> tuple[list[dict], list[dict]]:
+    """``(wells, dropped)``: the light wells and front courts the site's flat platforms leave (pure; 24 Oct 2026,
+    real04: a 1 m concrete well stood 0.75 m above the pool terrace beside the basement window, made against the
+    sloped ground the terrace replaces). An assumed or inferred well whose middle lies on a flat platform is dropped
+    when the platform's level is at least ``LIGHT_WELL_CLEARANCE`` under the window sill (the terrace lights the
+    window), else it opens at the platform's level (``top_z``); a drawn well stays as drawn."""
+    flat = [pf for pf in pfs if not pf.get("sloped") and isinstance(pf.get("z"), (int, float))
+            and len(pf.get("polygon") or []) >= 3]
+    kept, dropped = [], []
+    for w in wells:
+        poly = w.get("polygon") or []
+        if w.get("source") == "drawn" or not poly or w.get("sill_z") is None:
+            kept.append(w)
+            continue
+        c = (sum(p[0] for p in poly) / len(poly), sum(p[1] for p in poly) / len(poly))
+        pf = next((pf for pf in flat if G.point_in_polygon(c, pf["polygon"])
+                   and not any(G.point_in_polygon(c, h) for h in pf.get("holes") or [])), None)
+        if pf is None:
+            kept.append(w)
+        elif float(w["sill_z"]) >= float(pf["z"]) + LIGHT_WELL_CLEARANCE:
+            dropped.append(dict(w, dropped_reason=f"the {pf.get('kind') or 'platform'} {pf['id']} at "
+                                                  f"{float(pf['z']):.2f} m lies under the sill {float(w['sill_z']):.2f} m: "
+                                                  f"no light well"))
+        else:
+            kept.append(dict(w, top_z=float(pf["z"]), platform_id=pf["id"]))
+    return kept, dropped
 
 
 # Milestone 11 (docs/milestone11.md §1.1 E9, decision D6): a sunken front court in front of a deep basement window.
@@ -2791,6 +2819,10 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
                                       f"({'inferred' if h.get('species_inferred') else 'named'})"})
         if levers["platforms"]:
             pfs = platforms(site, terrain, keep_out=[geom2d.ccw(outline)] + copy_holes)
+            wells, gone = wells_on_platforms(wells, pfs)
+            for w in gone:
+                assumed[:] = [a for a in assumed if a.get("field") != f"light_well:{w['opening_id']}"]
+                assumed.append({"field": f"light_well:{w['opening_id']}", "value": None, "reason": w["dropped_reason"]})
             by_pool = {pid: pf for pf in pfs for pid in pf["pools"]}
             for pool in pools:
                 if pool["id"] in by_pool:
