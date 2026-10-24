@@ -1,0 +1,30 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real04",
+ "stage": "decor_ask",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 81.35,
+ "fingerprint": "c656e7096735cc0475c1193c061a5a90475c5b4d4374f5b9ad4a3078e5b6e546",
+ "inputs": {
+  "outputs/real04/building_furnished.json": "5a633dbb21819ad9e4e8f07b56cd3b3663113355915b3e3be664c24876962844",
+  "outputs/real04/style.json": "a2e06234cf52f20082cc15bdee85464b4f11c5f5741dad7fdc40ba058d131909"
+ },
+ "outputs": [
+  "decor_ai_answers.json"
+ ],
+ "started_utc": "2026-10-23T14:17:23Z",
+ "git_commit": "2799c881928ee7e3edf3cbcb281097dfde7ba816",
+ "log": "logs/decor_ask.log",
+ "note": null,
+ "run_id": "20261023-135954-full-20261023T140546Z",
+ "steps": [
+  {
+   "name": "decor_ask",
+   "rc": 0,
+   "seconds": 81.35
+  }
+ ],
+ "written": {}
+}

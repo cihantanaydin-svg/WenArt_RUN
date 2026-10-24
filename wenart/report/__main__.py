@@ -25,8 +25,13 @@ Milestone 13 (docs/milestone13.md §7, §13.2; track T8):
 - ``metrics13 --out <project_out> [--baseline <dir>] --json <path> [--md <path>]``: the 17 metrics of §7
   (``wenart.report.metrics13``) of a run, before | after when a baseline run is given; either folder may be the
   volume's project output or a committed ``results/<area>/<p>`` folder. Exit 0; exit 2 for a missing folder.
-- ``sheets13 --out <project_out> --baseline <dir> --dir <out_dir>``: one before | after JPEG per camera
+- ``sheets13 --out <project_out> [--baseline <dir>] --dir <out_dir>``: one before | after JPEG per camera
   (``wenart.report.sheets13``). Exit 0; exit 2 for a missing folder.
+
+User rule of 24 Oct 2026: every before / after is Milestone 13 against the run with the later changes. Without
+``--baseline`` both commands take the committed Milestone 13 run of the project, ``results/baseline/m13/final/<p>``
+(``M13_BASELINE``; real04: the run of 2799c88, the Milestone 13 final code); sheets13 refuses to run without one, and
+metrics13 says that its "before" column is empty.
 
 Fix round after P4a (17 Oct 2026; the report track's ask, applied at integration): the metrics13 line names why a
 metric has no data (its text, e.g. "m11 (no drawn tree; no tree in the scene)"), so a run without trees does not read
@@ -52,7 +57,8 @@ def main(argv=None) -> int:
                              "run (outputs/<p> or results/<area>/<p>)")
     parser.add_argument("--private", action="store_true",
                         help="private project: name plan crops and debug images, never copy them (§7.4)")
-    parser.add_argument("--baseline", default=None, help="metrics13, sheets13: the baseline run's folder")
+    parser.add_argument("--baseline", default=None, help="metrics13, sheets13: the baseline run's folder (default: "
+                        "the committed Milestone 13 run, results/baseline/m13/final/<p>)")
     parser.add_argument("--json", default=None, help="metrics13: where the JSON goes")
     parser.add_argument("--md", default=None, help="metrics13: where the markdown goes (optional)")
     parser.add_argument("--dir", default=None, help="sheets13: the folder of the sheets")
@@ -107,6 +113,15 @@ def _no_data_reason(metric: dict, no_data: str) -> str:
     return f" ({text})" if text else ""
 
 
+M13_BASELINE = Path(__file__).resolve().parents[2] / "results" / "baseline" / "m13"
+
+
+def m13_baseline(project_out) -> Path | None:
+    """The committed Milestone 13 run of a project (``M13_BASELINE / final / <p>``), None when there is none."""
+    path = M13_BASELINE / "final" / Path(project_out).resolve().name
+    return path if path.is_dir() else None
+
+
 def _m13(args, parser) -> int:
     """``metrics13`` and ``sheets13`` (Milestone 13)."""
     run = args.out or args.project_out
@@ -115,6 +130,18 @@ def _m13(args, parser) -> int:
     if not Path(run).is_dir():
         print(f"report {args.command}: {run} is not a folder", file=sys.stderr)
         return 2
+    if not args.baseline:
+        found = m13_baseline(run)
+        if found is not None:
+            args.baseline = str(found)
+            print(f"report {args.command}: baseline = the Milestone 13 run {found}")
+        elif args.command == "sheets13":
+            print(f"report sheets13: no Milestone 13 baseline of {Path(run).resolve().name} in {M13_BASELINE} "
+                  f"(before / after is Milestone 13 against the new run): give --baseline", file=sys.stderr)
+            return 2
+        else:
+            print(f"report metrics13: no Milestone 13 baseline of {Path(run).resolve().name} in {M13_BASELINE}: "
+                  f"the before column stays empty")
     if args.baseline and not Path(args.baseline).is_dir():
         print(f"report {args.command}: baseline {args.baseline} is not a folder", file=sys.stderr)
         return 2
@@ -133,8 +160,6 @@ def _m13(args, parser) -> int:
         for w in result["warnings"]:
             print(f"  warning: {w}")
         return 0
-    if not args.baseline:
-        parser.error("sheets13 needs --baseline <dir>")
     if not args.dir:
         parser.error("sheets13 needs --dir <out_dir>")
     from wenart.report import sheets13 as SH

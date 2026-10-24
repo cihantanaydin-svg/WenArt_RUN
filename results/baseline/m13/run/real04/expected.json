@@ -1,0 +1,32 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real04",
+ "stage": "expected",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 109.39,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "check/expected_views.json"
+ ],
+ "started_utc": "2026-10-23T15:25:17Z",
+ "git_commit": "2799c881928ee7e3edf3cbcb281097dfde7ba816",
+ "log": "logs/expected.log",
+ "note": null,
+ "run_id": "20261023-135954-full-20261023T140546Z",
+ "steps": [
+  {
+   "name": "expected",
+   "rc": 0,
+   "seconds": 13.21
+  },
+  {
+   "name": "plan-crops",
+   "rc": 0,
+   "seconds": 96.18
+  }
+ ],
+ "written": {}
+}

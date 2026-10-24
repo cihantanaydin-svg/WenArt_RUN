@@ -1,0 +1,45 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real04",
+ "stage": "agent_apply",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 23.24,
+ "fingerprint": "e5aa933ba00172eaba4f1aaf3481d399d1d1860ee0f939c894fa46337b7ad2c1",
+ "inputs": {
+  "outputs/real04/building_decor.json": "5ef2a741e71bb3a220df7eee3f27fd9932970a400d8078576302db255d00cb06",
+  "outputs/real04/orchestrator/overrides.json": "f98c016e4f99c7ca3a2925f9cbf97289fd2f0fdd0a58e33eac203250f6343ad4"
+ },
+ "outputs": [
+  "building_agent.json"
+ ],
+ "started_utc": "2026-10-23T14:17:47Z",
+ "git_commit": "2799c881928ee7e3edf3cbcb281097dfde7ba816",
+ "log": "logs/agent_apply.log",
+ "note": null,
+ "run_id": "20261023-135954-full-20261023T140546Z",
+ "steps": [
+  {
+   "name": "agent_apply",
+   "rc": 0,
+   "seconds": 3.1
+  },
+  {
+   "name": "agent_apply",
+   "rc": 0,
+   "seconds": 6.39
+  },
+  {
+   "name": "agent_apply",
+   "rc": 0,
+   "seconds": 6.14
+  },
+  {
+   "name": "agent_apply",
+   "rc": 0,
+   "seconds": 7.61
+  }
+ ],
+ "written": {}
+}

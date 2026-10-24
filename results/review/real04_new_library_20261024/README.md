@@ -26,40 +26,45 @@ What is new in this run:
 |---|---|
 | `contact_L-1.jpg`, `contact_L0.jpg`, `contact_L1.jpg` | all interior views per level |
 | `contact_exterior_base.jpg`, `contact_exterior_l-1b-acik-mutfak.jpg`, `contact_variant_l-1b-acik-mutfak.jpg` | exterior views and the open-kitchen alternative |
-| `sheets13/` | one before / after JPEG per view (before = committed M12 run, after = this run) |
-| `metrics13.md`, `metrics13.json` | the 17 metrics of `docs/milestone13.md` §7 (before = M12) |
+| `sheets13/` | one before / after JPEG per view: before = Milestone 13 (`results/baseline/m13/`, the real04 run of 2799c88, the Milestone 13 final code), after = this run |
+| `metrics13.md`, `metrics13.json` | the 17 metrics of `docs/milestone13.md` §7, before = Milestone 13, after = this run |
 | `final_report_real04.md` | the run's final report |
 | `pytest-full.txt` | GPU tests (45 passed, 2 failed, 9 skipped) |
 | `gpu_check_values.json` | per-view values of the GPU checks |
 
-## Results against M12 and this morning's rerun
+## Results: Milestone 13 (before) against this run (after)
 
-| # | Metric | M12 | Rerun 23 Oct (2799c88) | This run (0f15dbe) | Target |
-|---|---|---|---|---|---|
-| | views (interior / exterior) | 48 | 42 (37 / 5) | 42 (37 / 5) | - |
-| 1 | drawn anchors built | 12/34 | 40/40 | 40/40 | 100 % |
-| 2 | drawn pieces built, without explained non-furniture | 63 % | 98 % (190/194) | 98 % (186/190) | ≥ 90 % |
-| 3 | pieces with `asset.method` none | 43 | 26 | 26 | 0 |
-| 4 | parametric share; grey boxes | 33 %; - | 9 %; 0 | 9 % (22/236); 0 | ≤ 25 %; 0 |
-| 5 | complete sets bath / bed / kitchen / living | 8/10, 4/8, 0/2, 0/4 | 10/10, 8/8, 2/2, 0/4 | 10/10, 6/8, 2/2, 0/4 | ≥ 90 % |
-| 6 | last round F8 / S2 > 3 cm / G10 / LG | 38 / 1 / 18 / 66 | 4 / 3 / 18 / 4 | 3 / 6 / 18 / 2 | ≤ 5 / ≤ 3 / - / ≤ 5 |
-| 7 | accepted edits whose finding is gone | 13 % | 91 % (10/11) | 74 % (14/19) | ≥ 60 % |
-| 8 | top model share; distinct models; library quality ≤ 3 | 34 %; 26; 12 % | -; -; 52 % (33/63) | 5 %; 114; 36 % (17/47) | ≤ 15 %; ≥ 60; ≤ 25 % |
-| 9 | interior views at EV ≥ +5; EV gap lit vs daylight | 9/44; - | 0/37; 0.17 | 0/37; 0.33 | 0; ≤ 2 |
-| 11 | trees; hedges; black pixels in the site view | -; -; 29.8 % | 20/20; 4/4; 3.6 % | 21/21; 4/4; 3.5 % | 100 %; -; 0 % |
-| 12 | exterior views rendered of planned | 4 of ? | 5/7 | 5/7 (ext_4, ext_6 dropped) | all |
-| 13 | views in halls or ≥ 50 % bare wall | 12/48 | 17/42 | 20/42 | ≤ 4 |
-| 14 | `in_json_not_rendered` mismatches | 18 | 0 | 0 | 0 |
-| 16 | commercial-safe line; flagged assets missing in ATTRIBUTION | 0/48 | 42/42; 0 | 42/42; 0 (26 flagged) | 100 %; 0 |
-| 17 | stage minutes, USD at $2.49/h | 122, $5.07 | 87, $3.62 | 94, $3.89 | ≤ 150, ≤ $6.50 |
+Your rule of 24 Oct 2026: every before / after is Milestone 13 against the run with the later changes. Before =
+the real04 run of 2799c88 (the Milestone 13 final code, pod `udqp9w9972b08f`, committed as the baseline in
+`results/baseline/m13/`); after = this run (0f15dbe: 3D Warehouse layer, group options 10x, ground floor from r16).
 
-- Bedrooms 6/8: the two ground-floor bedrooms `yatak_odasi_3` and `_4` (14 m², read from r16 now) have one
-  nightstand each (a set counts two).
-- S2 > 3 cm went from 3 to 6 and the bare-wall views from 17 to 20; the accepted edits whose finding is gone from 91 %
-  (10/11) to 74 % (14/19). This run's agent used the room briefs of 0f15dbe, which listed every offered option (up to
-  44 per group); 87abeca (pushed during the run) lists 5 per group and counts the rest.
-- The library is much more varied: the most used model covers 5 % of the built library pieces (34 % in M12) and 114
-  distinct models are used.
+| # | Metric | Milestone 13 (2799c88) | This run (0f15dbe) | Target |
+|---|---|---|---|---|
+| | views (interior / exterior) | 42 (37 / 5) | 42 (37 / 5) | - |
+| 1 | drawn anchors built | 40/40 | 40/40 | 100 % |
+| 2 | drawn pieces built, without explained non-furniture | 98 % (190/194) | 98 % (186/190) | ≥ 90 % |
+| 3 | pieces with `asset.method` none | 26 | 26 | 0 |
+| 4 | parametric share; module pieces; grey boxes | 9 % (22/235); 22; 0 | 9 % (22/236); 20; 0 | ≤ 25 %; -; 0 |
+| 5 | complete sets bath / bed / kitchen / living | 10/10, 8/8, 2/2, 0/4 | 10/10, 6/8, 2/2, 0/4 | ≥ 90 % |
+| 6 | last round F8 / S2 > 3 cm / G10 / LG | 4 / 3 / 18 / 4 | 3 / 6 / 18 / 2 | ≤ 5 / ≤ 3 / - / ≤ 5 |
+| 7 | accepted edits whose finding is gone | 91 % (10/11) | 74 % (14/19) | ≥ 60 % |
+| 8 | top model share; distinct models; units unknown; library quality ≤ 3 | 5 %; 98; 6 %; 52 % (33/63) | 5 %; 114; 1 %; 36 % (17/47) | ≤ 15 %; ≥ 60; ≤ 10 %; ≤ 25 % |
+| 9 | interior views at EV ≥ +5; EV gap lit vs daylight | 0/37; 0.17 | 0/37; 0.33 | 0; ≤ 2 |
+| 10 | fabric colour applied | 3/20 | 1/20 | 100 % |
+| 11 | trees; hedges; black pixels in the site view | 20/20; 4/4; 3.6 % | 21/21; 4/4; 3.5 % | 100 %; -; 0 % |
+| 12 | exterior views rendered of planned | 5/7 | 5/7 (ext_4, ext_6 dropped) | all |
+| 13 | views in halls or ≥ 50 % bare wall | 17/42 | 20/42 | ≤ 4 |
+| 14 | `in_json_not_rendered` mismatches | 0 | 0 | 0 |
+| 16 | commercial-safe line; flagged assets (missing in ATTRIBUTION) | 42/42; 18 (0) | 42/42; 26 (0) | 100 %; 0 |
+| 17 | stage minutes, USD at $2.49/h | 87, $3.62 | 94, $3.89 | ≤ 150, ≤ $6.50 |
+
+- Better: 16 more distinct library models (98 → 114), fewer models of unknown units (6 % → 1 %), fewer
+  low-quality library pieces (52 % → 36 %), F8 and LG down.
+- Worse: bedrooms 8/8 → 6/8 (the two 14 m² ground-floor bedrooms `yatak_odasi_3` and `_4`, read from r16 now,
+  have one nightstand each); S2 > 3 cm 3 → 6; bare-wall views 9 → 12; accepted edits whose finding is gone 91 % →
+  74 %; fabric colour 3/20 → 1/20 (more models without a recolourable fabric slot). This run's agent used the room
+  briefs of 0f15dbe, which listed every offered option (up to 44 per group); 87abeca (pushed during the run) lists 5
+  per group and counts the rest.
 
 ## GPU tests: 45 passed, 2 failed, 9 skipped
 

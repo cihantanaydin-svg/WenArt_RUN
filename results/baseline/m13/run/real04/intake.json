@@ -1,0 +1,19 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real04",
+ "stage": "intake",
+ "rc": null,
+ "status": "skipped",
+ "seconds": 0.0,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [],
+ "started_utc": "2026-10-23T14:05:46Z",
+ "git_commit": "2799c881928ee7e3edf3cbcb281097dfde7ba816",
+ "log": "logs/intake.log",
+ "note": "private only",
+ "run_id": "20261023-135954-full-20261023T140546Z",
+ "steps": [],
+ "written": {}
+}

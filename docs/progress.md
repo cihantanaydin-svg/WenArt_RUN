@@ -1112,3 +1112,8 @@ spp, 3 agent rounds): [`results/review/real04_new_library_20261024/`](../results
 - Full CPU suite after the fixes of 87abeca: 5,855 passed, 0 failed (46 min).
 
 GPU cost: 23 Oct $22.18, 24 Oct $4.90 so far. Project total **$203.48 of $300**. No pod is running.
+
+**Before / after rule** (your rule of 24 Oct 2026): every before / after compares the project's Milestone 13 run with
+the run that has the later changes. The Milestone 13 run of real04 (2799c88) is committed as the baseline in
+`results/baseline/m13/` and is the default of `python -m wenart.report sheets13` / `metrics13`; real02 and real03 get
+theirs (P6c, P6b) from the volume before their next run. The real04 review above already compares against it.

@@ -1,0 +1,27 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real04",
+ "stage": "export",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 99.43,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "export/export_manifest.json"
+ ],
+ "started_utc": "2026-10-23T15:07:48Z",
+ "git_commit": "2799c881928ee7e3edf3cbcb281097dfde7ba816",
+ "log": "logs/export.log",
+ "note": null,
+ "run_id": "20261023-135954-full-20261023T140546Z",
+ "steps": [
+  {
+   "name": "export",
+   "rc": 0,
+   "seconds": 99.43
+  }
+ ],
+ "written": {}
+}

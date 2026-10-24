@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real04",
+ "stage": "sheets",
+ "rc": 4,
+ "status": "pending",
+ "seconds": 54.81,
+ "fingerprint": "2a1e2bdba1f3de701533181526e6a303cd33bccecf0d5cf73f210d14393b1217",
+ "inputs": {
+  "projects/real04": "b581cd349d6acfbf71c33bbd70c10ee2d8f828d7d86ffa203393ad0209dcabad",
+  "<LibreDWG VERSION>": "0.14 d9468ae p1"
+ },
+ "outputs": [
+  "sheets.json",
+  "sheets_report.md"
+ ],
+ "started_utc": "2026-10-23T14:06:49Z",
+ "git_commit": "2799c881928ee7e3edf3cbcb281097dfde7ba816",
+ "log": "logs/sheets.log",
+ "note": "8 sheet question(s) written (sheets/requests.json)",
+ "run_id": "20261023-135954-full-20261023T140546Z",
+ "steps": [
+  {
+   "name": "sheets",
+   "rc": 4,
+   "seconds": 54.81
+  }
+ ],
+ "written": {}
+}
