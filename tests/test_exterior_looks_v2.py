@@ -190,3 +190,38 @@ def test_gutters_stop_where_a_roof_terrace_cuts_the_eaves():
     assert len(south) == 1 and min(south[0]["p"][0], south[0]["q"][0]) >= 3.0 - 1e-6
     assert not any(max(e["p"][0], e["q"][0]) <= 3.0 for e in edges)        # nothing along the terrace
     assert len(FA.eaves_edges(dict(model, openings=[]))) > len(edges)
+
+
+def test_low_rated_library_models_are_never_picked():
+    bush = _plant(9, "hedge", 1.6, 1.3, 1.1, "Small bush or hedge")
+    bush["audit"]["vision_doubt"] = ["vision quality 2 (<= 2)"]
+    assert SM.vision_quality(bush) == 2 and not SM.usable(bush, "relaxed")
+    assert SM.plant_model({"name": "oleander", "crown": "shrub"}, [bush]) is None
+    ok = dict(bush, audit={"status": "keep", "vision_doubt": ["vision quality 3"]})
+    assert SM.usable(ok, "relaxed") and SM.vision_quality(PLANTS[0]) is None
+    win = _extra(10, "window", 1.2, 0.12, 1.2, "Window")
+    win["audit"]["vision_doubt"] = ["vision quality 1 (<= 2)"]
+    assert OM.candidates([win], "window", "relaxed") == []
+
+
+def test_a_roof_terrace_parapet_stops_at_the_eaves_with_a_railing_above(monkeypatch):
+    import copy
+    import gzip
+    import json as _json
+    from pathlib import Path
+
+    from wenart.blender import build as BU
+    from wenart.blender import roof as R
+
+    path = Path(__file__).resolve().parent / "fixtures" / "m11_f1b" / "real02_building_final.json.gz"
+    b = _json.load(gzip.open(path))
+    prep = BU.prepare(copy.deepcopy(b), "base", None)
+    roof, vb = prep["roof"], prep["building"]
+    over = next(lv for lv in vb["levels"] if lv["id"] == roof["over_level_id"])
+    knee = roof["eaves_z"] - float(over["elevation"])
+    for o in roof["openings"]:
+        if o["parapet_source"] == "assumed":
+            assert o["parapet_height"] == round(knee, 3) and o["guard_height"] == R.DEFAULTS["parapet"]
+    runs = BU.terrace_railing_runs(roof, vb, over, R.parapet_cuts(roof, vb, over))
+    assert runs and all(abs(r["height"] - (R.DEFAULTS["parapet"] - round(knee, 3))) < 1e-9 for r in runs)
+    assert all(abs(r["z"] - (float(over["elevation"]) + round(knee, 3))) < 1e-9 for r in runs)

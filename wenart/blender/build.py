@@ -1331,6 +1331,7 @@ def main(argv: list[str]) -> int:
                 elif o["parapet_source"] != "drawn":
                     assumed.append({"object": ",".join(walls), "field": "parapet", "value": o["parapet_height"],
                                     "reason": reason, "parent": str(o.get("room_id") or o["id"]), "kind": "parapet"})
+            terrace_railings(roof, building, over, parapets, roof_col, library, manifest_objects, assumed)
             whole_info["roof"] = {"type": roof["type"], "planes_source": roof["planes_source"],
                                   "planes": roof["planes"], "derived_check": roof["derived_check"],
                                   "knee_wall_check": roof.get("knee_wall_check"), "profile": roof.get("profile"),
@@ -1579,6 +1580,65 @@ PITCHED_FASCIA_REASON = ("pitched roof: the eaves and verge edges are a fascia b
                          "drawn; the roof covering stretched over a 0.2 m edge read as a paper-thin sheet)")
 FLAT_CUT_FASCIA_REASON = ("flat_cut roof: the slab edge and the {h:.2f} m parapet are walling finished like the "
                           "facade ({material}), with the coping on top, not the roof covering ({covering})")
+
+
+def terrace_railing_runs(roof: dict, building: dict, level: dict, parapets: dict) -> list[dict]:
+    """The railings on the lowered parapets of the roof terraces (pure; 24 Oct 2026): per parapet stretch of an
+    opening with a ``guard_height`` over its ``parapet_height`` ``{"opening_id", "p", "q", "z", "height"}`` (the wall's
+    centre line, standing on the parapet top, up to the guard height over the terrace floor)."""
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == level["id"]}
+    guards = {o["id"]: o for o in roof.get("openings") or [] if o.get("guard_height")}
+    out = []
+    for wid, cuts in sorted(parapets.items()):
+        w = walls.get(wid)
+        for c in cuts:
+            o = guards.get(c["opening_id"])
+            if w is None or o is None:
+                continue
+            (x0, y0), (x1, y1) = w["start"][:2], w["end"][:2]
+            p = (x0 + (x1 - x0) * c["t0"], y0 + (y1 - y0) * c["t0"])
+            q = (x0 + (x1 - x0) * c["t1"], y0 + (y1 - y0) * c["t1"])
+            h = float(o["guard_height"]) - float(o["parapet_height"])
+            if math.dist(p, q) > 0.3 and h > 0.05:
+                out.append({"opening_id": o["id"], "wall_id": wid, "p": p, "q": q, "z": c["z_top"], "height": h})
+    return out
+
+
+def terrace_railings(roof: dict, building: dict, level: dict, parapets: dict, collection, library,
+                     manifest_objects: list, assumed: list) -> list:
+    """The railing objects of ``terrace_railing_runs`` (bpy): rail, glass panel and posts, one object per opening
+    (kind ``railing``, assumed)."""
+    from wenart.blender import common, shell
+
+    runs = terrace_railing_runs(roof, building, level, parapets)
+    made = []
+    for oid in sorted({r["opening_id"] for r in runs}):
+        parts, slots = [], []
+        for r in (x for x in runs if x["opening_id"] == oid):
+            cfg = {"height": r["height"], "panel_bottom": 0.02}
+            rail, panel = shell.railing_parts(r["p"], r["q"], r["z"], cfg)
+            posts = shell.railing_posts(r["p"], r["q"], r["z"], cfg)
+            parts += [rail] + posts + [panel]
+            slots += [0] * (len(rail[1]) + sum(len(f) for _v, f in posts)) + [1] * len(panel[1])
+        verts, faces = [], []
+        for v, f in parts:
+            base = len(verts)
+            verts += list(v)
+            faces += [[base + i for i in face] for face in f]
+        name = f"roof_terrace_railing_{oid}"
+        ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="railing",
+                                    status="assumed", materials=[library.get("steel_brushed"), library.thin_glass()],
+                                    face_material_indices=slots)
+        reason = (f"roof terrace {oid}: the parapet stops at the eaves line; a glass railing on it reaches the guard "
+                  f"height (not drawn)")
+        manifest_objects.append({"name": ob.name, "wenart_id": name, "kind": "railing", "status": "assumed",
+                                 "level_id": level["id"], "element_id": oid, "evidence": [], "material": None,
+                                 "textured": False, "pass_index": None, "assumed": {"detail": "terrace_railing",
+                                                                                    "reason": reason}})
+        assumed.append({"object": ob.name, "field": "terrace_railing", "value": oid, "reason": reason,
+                        "parent": str(oid), "kind": "railing"})
+        made.append(ob)
+    return made
 
 
 def roof_slot_looks(roof: dict, looks: dict) -> tuple[dict, dict, dict | None]:

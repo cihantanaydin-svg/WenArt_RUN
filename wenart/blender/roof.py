@@ -65,6 +65,7 @@ DEFAULTS = {
     "thickness": 0.25,           # the roof is one line in most sections
     "knee_wall": 1.00,           # an attic without eaves height and knee wall
     "parapet": 1.00,             # a roof terrace without a drawn parapet
+    "terrace_parapet_min": 0.30,  # a pitched roof's terrace wall stops at the eaves line when that is this high or more
     "flat_thickness": 0.30,      # a flat roof slab
     "flat_cut_parapet": 0.30,    # Milestone 12: the parapet of a flat_cut roof (a single drawn ground floor)
     "parapet_thickness": 0.20,
@@ -720,13 +721,22 @@ def roof_model(roof: Optional[dict], building: dict) -> Optional[dict]:
         psource = "drawn" if height is not None and not _is_assumed(ph) else "assumed"
         if height is None:
             height = DEFAULTS["parapet"]
+        guard = None
+        knee = (float(eaves) - float(level["elevation"])) if level is not None and eaves is not None else None
+        if psource == "assumed" and roof.get("type") not in ("flat", None) and knee is not None \
+                and DEFAULTS["terrace_parapet_min"] <= knee < height - 0.05:
+            # 24 Oct 2026 (real04): a 1.0 m parapet rose 0.4 m over the eaves and the terrace ends read as white boxes
+            # stuck on the roof; the wall stops at the eaves line and a railing makes the guard height
+            guard, height = height, round(knee, 3)
         if psource == "assumed":
             assumed.append({"field": f"parapet_height:{o.get('id')}", "value": height,
-                            "reason": (ph or {}).get("note") if isinstance(ph, dict) and ph.get("note")
-                            else "parapet height not drawn"})
+                            "reason": ((ph or {}).get("note") if isinstance(ph, dict) and ph.get("note")
+                                       else "parapet height not drawn")
+                            + (f"; the wall stops at the eaves line ({height:.2f} m over the terrace floor) and a "
+                               f"railing reaches the {guard:.2f} m guard height" if guard else "")})
         openings.append({"id": o.get("id"), "kind": o.get("kind") or "other", "room_id": o.get("room_id"),
                          "polygon": poly, "parapet_height": height, "parapet_source": psource,
-                         "parapet_wall_ids": list(o.get("parapet_wall_ids") or [])})
+                         "parapet_wall_ids": list(o.get("parapet_wall_ids") or []), "guard_height": guard})
     convex = is_convex(planes)
     warnings = list(der["warnings"])
     if not convex:

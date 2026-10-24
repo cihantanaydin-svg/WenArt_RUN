@@ -12,7 +12,8 @@ windows (``wenart/furniture/catalog_library.json`` extras, types ``door`` and ``
 How (pure; ``opening_build.build_library_opening`` makes the Blender objects):
 - categories: ``entrance`` (the main entrance of ``site.entrances``, else the first door at grade), ``door`` (any
   other outside door narrower than ``WIDE_DOOR_M``), ``glazed_door`` (wider) and ``window``;
-- candidates: audit ``keep`` / ``fix``, usable in the licence mode, a plausible size for the category (``SIZES``), no
+- candidates: audit ``keep`` / ``fix``, not rated low by the audit's vision check (``site_models.vision_quality``),
+  usable in the licence mode, a plausible size for the category (``SIZES``), no
   pack, set or inside door (``INSIDE_WORDS``) in the title, depth under ``MAX_DEPTH_M``; ranked textured first, the
   title's category words (``WORDS``), ``keep`` before ``fix``, then the smallest proportion error over the
   category's openings, then the id;
@@ -67,8 +68,13 @@ def load_extras(path) -> list[dict]:
 
 
 def _usable(entry: dict, mode: str) -> bool:
+    from wenart.blender.site_models import MIN_VISION_QUALITY, vision_quality
+
     status = str(((entry.get("audit") or {}).get("status")) or "").lower()
     if status not in ("keep", "fix"):
+        return False
+    q = vision_quality(entry)
+    if q is not None and q < MIN_VISION_QUALITY:
         return False
     flag = str(entry.get("licence_flag") or "unknown")
     if mode == "commercial":

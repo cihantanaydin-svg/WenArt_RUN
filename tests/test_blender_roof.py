@@ -359,7 +359,10 @@ def test_parapet_cuts_of_the_example_terrace():
     south, east = cuts["w_L1_001"], cuts["w_L1_002"]                   # south x 0.125..10.125, east y 0.125..8.125
     assert [(c["t0"], c["t1"]) for c in south] == pytest.approx([(0.6, 1.0)])
     assert [(c["t0"], c["t1"]) for c in east] == pytest.approx([(0.0, 0.5)])
-    assert all(c["z_top"] == pytest.approx(3.0 + 1.0) and c["opening_id"] == "ro_001"
+    # 24 Oct 2026: the assumed parapet stops at the eaves line (3.65 m: 0.65 m over the floor) and a railing reaches
+    # the 1.00 m guard height (build.terrace_railing_runs)
+    assert m["openings"][0]["parapet_height"] == pytest.approx(0.65) and m["openings"][0]["guard_height"] == 1.0
+    assert all(c["z_top"] == pytest.approx(3.0 + 0.65) and c["opening_id"] == "ro_001"
                and c["source"] == "parapet_wall_ids" for c in south + east)
     # without parapet_wall_ids: the outer walls whose centre line runs under the opening, the same stretches
     m2 = dict(m, openings=[dict(m["openings"][0], parapet_wall_ids=[])])

@@ -10,6 +10,8 @@ Why: the catalogue's ``extras`` hold about 160 trees, 30 palms, 20 hedges and 20
 the site built Sapling trees and leaf-card shrubs and no cars.
 
 How:
+- every model: audit ``keep`` / ``fix``, usable in the licence mode, not rated under ``MIN_VISION_QUALITY`` by the
+  audit's vision check (``vision_quality``);
 - a plant is a single plant: no collection, set, pot, indoor or group words (``PLANT_NOT``), round in plan (the
   smaller plan side at least ``ROUND_PLAN`` of the larger), standing (height at least ``UPRIGHT`` x the plan size for
   a tree or a palm, ``BUSH_UPRIGHT`` for a bush), textured, ``MIN_POLY`` .. ``MAX_POLY`` faces; its crown proportion
@@ -30,6 +32,7 @@ Every model records its asset (id, file, frame fields, licence) and why it was p
 from __future__ import annotations
 
 import math
+import re
 from typing import Optional, Sequence
 
 PLANT_NOT = ("collection", "part ", " set", "pack", "trees", "plants", " pot", "potted", "planter", "vaso", "vase",
@@ -70,8 +73,24 @@ def _status(e: dict) -> str:
     return str(((e.get("audit") or {}).get("status")) or "").lower()
 
 
+MIN_VISION_QUALITY = 3          # the library audit's vision score (1-5): 2 or less is never picked here
+
+
+def vision_quality(e: dict) -> Optional[int]:
+    """The audit's vision quality of a model when it noted one (``audit.vision_doubt``: "vision quality N ..."),
+    else None (24 Oct 2026: real04's library bushes, rated 2, rendered white)."""
+    for d in (e.get("audit") or {}).get("vision_doubt") or []:
+        m = re.search(r"vision quality (\d)", str(d))
+        if m:
+            return int(m.group(1))
+    return None
+
+
 def usable(e: dict, mode: str) -> bool:
     if _status(e) not in ("keep", "fix") or not e.get("glb"):
+        return False
+    q = vision_quality(e)
+    if q is not None and q < MIN_VISION_QUALITY:
         return False
     flag = str(e.get("licence_flag") or "unknown")
     return flag == "none" if mode == "commercial" else flag not in ("no_derivatives", "unknown")
