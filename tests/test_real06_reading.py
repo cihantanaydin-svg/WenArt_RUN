@@ -281,3 +281,22 @@ def test_real06_building(real06):
     assert {("L0", "living"), ("L0", "kitchen"), ("L0", "bathroom"), ("L1", "bathroom"), ("L1", "bedroom")} <= rooms
     assert sum(1 for r in building["rooms"] if r["level_id"] == "L1" and r["room_type"] == "bedroom") >= 3
     assert any(o["type"] == "door" and o.get("operation") == "sliding" for o in building["openings"])
+
+
+# --------------------------------------------------------------------------
+# The build
+# --------------------------------------------------------------------------
+
+def test_every_entrance_mesh_kind_is_a_known_kind():
+    """real06's first pod with the reading fixes stopped in build.py on 'unknown kind site_handrail': its entrance
+    stands 0.50 m above the ground, the first to get handrails. Every kind ``site.entrance_meshes`` writes (steps,
+    ramp, handrails) is in ``common.KINDS`` and the scene-manifest schema's ``WHOLE_BUILDING_KINDS``."""
+    from wenart.blender import common, schemas, site
+
+    terrain = {"kind": "flat", "z": {"+x": 0.0}}
+    st = {"opening_id": "d1", "blocks": [{"polygon": [(0, 0), (1, 0), (1, 1), (0, 1)], "z_top": 0.5}],
+          "ramp": {"polygon": [(2, 0), (3, 0), (3, 4), (2, 4)], "z_start": 0.5, "z_end": 0.0},
+          "rails": [((0.0, 0.05, 1.4), (1.0, 0.05, 0.9))], "posts": [((0.0, 0.05, 0.5), (0.0, 0.05, 1.4))]}
+    kinds = [m["kind"] for m in site.entrance_meshes(st, terrain)]
+    assert kinds == ["site_steps", "site_ramp", "site_handrail"]
+    assert all(k in common.KINDS and k in schemas.WHOLE_BUILDING_KINDS for k in kinds)

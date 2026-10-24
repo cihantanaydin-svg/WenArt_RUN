@@ -350,7 +350,9 @@ WHOLE_BUILDING_KINDS = ("slab", "roof", "facade", "terrain", "site_wall", "site_
                         # Milestone 13 (T6, round 2): the site parts of their own (platforms, hedges, grass, the haze
                         # volume); common.KINDS and views.SITE_PART_KINDS list the same names, site.site_kind
                         # writes them only once this tuple knows them
-                        "site_platform", "site_hedge", "site_grass", "atmosphere")
+                        "site_platform", "site_hedge", "site_grass", "atmosphere",
+                        # site.entrance_meshes: an entrance's ramp and handrails (common.KINDS, 24 Oct 2026)
+                        "site_ramp", "site_handrail")
 # wenart/schema/building.schema.json $defs/side.
 SIDES = ("all", "north", "east", "south", "west", "front", "back", "left", "right")
 CAMERA_VIEWS = ("corner", "aerial", "elevation",

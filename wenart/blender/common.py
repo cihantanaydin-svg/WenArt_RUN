@@ -25,7 +25,10 @@ KINDS = ("wall", "floor", "ceiling", "door", "window", "opening", "furniture_pro
          # Milestone 13 (T6, docs/milestone13.md §13.2): the site parts of site.py / vegetation.py (platforms with
          # their walls, kerbs and steps; leaf-card hedges; grass patches; the haze volume). The same four names must
          # be in wenart/blender/schemas.py WHOLE_BUILDING_KINDS (the scene-manifest schema) and views.KIND_MAP.
-         "site_platform", "site_hedge", "site_grass", "atmosphere")
+         "site_platform", "site_hedge", "site_grass", "atmosphere",
+         # Milestone 12 (site.entrance_meshes): an entrance's ramp and handrails; listed on 24 Oct 2026, when real06's
+         # +0.50 m entrance was the first to get a handrail (the build stopped on 'unknown kind site_handrail')
+         "site_ramp", "site_handrail")
 STATUSES = ("verified", "unverified", "assumed")
 
 
