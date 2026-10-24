@@ -11,8 +11,10 @@ How:
 - roof from the top plan's roof lines: a closed outline around everything else of the plan (``register.roof_outlines``)
   and a closed outline inside it covering >= 30 % of it (the line where the slope changes) mean a **mansard**
   (``type_source: plan_roof_lines``); the break line is compared with the section's slope change (a difference is a
-  warning). Without plan lines the section's profile decides: one slope per side ``gable`` (the hip/gable choice
-  across the section is assumed), two slopes per side ``gambrel``, no slope and a slab on top ``flat``;
+  warning). Without plan lines a roof plan whose slope texts all give one slope (real06, 24 Oct 2026: ``EĞİM%33``
+  ten times, with hip lines) is a **hip** roof at that slope (``type_source: roof_plan``; the pitch goes first in
+  ``pitches_deg``); else the section's profile decides: one slope per side ``gable`` (the hip/gable choice across
+  the section is assumed), two slopes per side ``gambrel``, no slope and a slab on top ``flat``;
 - facades: elevation regions (side from their title: GÜNEY / SOUTH / SÜD / SUD = south ...), materials from
   labels (``SIVA``, ``TAŞ KAPLAMA``, ``AHŞAP``, ``TUĞLA``, render, stone, timber, brick) and hatches; window- and
   door-sized rectangles counted per facade (positions along the facade);
@@ -214,6 +216,33 @@ def roof_from_plan(top, warnings: list, section=None) -> Optional[dict]:
                                 f"section's slope changes {change:.2f} m apart ({abs(nearest - change):.2f} m); both "
                                 f"kept as drawn")
     return out
+
+
+SLOPE_PCT_RE = re.compile(r"\b(?:EGIM|SLOPE|PENTE|NEIGUNG|GEFALLE)\b\s*:?\s*%\s*(\d+(?:[.,]\d+)?)"
+                          r"|\b(?:EGIM|SLOPE|PENTE|NEIGUNG|GEFALLE)\b\s*:?\s*(\d+(?:[.,]\d+)?)\s*%")
+
+
+def roof_from_roof_plan(roof_plans: list) -> Optional[dict]:
+    """A hip roof from a roof plan whose slope texts (>= 2, ``EĞİM%33``) all give one slope and whose hip lines
+    (>= 2) run from the corners: ``{"type": "hip", "pitch_deg", "slope_pct", "evidence", "note"}``, or None."""
+    for r in roof_plans:
+        slopes = []
+        for t in r.texts:
+            m = SLOPE_PCT_RE.search(T.fold(t.text))
+            if m:
+                slopes.append((float((m.group(1) or m.group(2)).replace(",", ".")), t))
+        if len(slopes) < 2 or (r.features or {}).get("hip_lines", 0) < 2:
+            continue
+        values = sorted(v for v, _ in slopes)
+        if values[-1] - values[0] > 1.0 or values[0] <= 0:
+            continue
+        pct = values[len(values) // 2]
+        pitch = math.degrees(math.atan(pct / 100.0))
+        return {"type": "hip", "pitch_deg": pitch, "slope_pct": pct,
+                "evidence": [_ev(r, t.id, "roof_slope_text", text=t.text) for _, t in slopes[:3]],
+                "note": f"{len(slopes)} slope texts on {r.id} all give {pct:g} % ({pitch:.1f} degrees), "
+                        f"{r.features.get('hip_lines')} hip lines: a hip roof"}
+    return None
 
 
 def roof_from_section(section) -> Optional[tuple[str, list[str]]]:
@@ -633,7 +662,7 @@ def ridge_lines(roof: dict, heights: dict, reference_outline) -> list:
 
 def exterior(top_plan, section, elevations: list, sites: list, reference_outline, conflict: Callable,
              warnings: list, reference=None, heights: Optional[dict] = None, plans: Optional[list] = None,
-             outlines: Optional[dict] = None) -> dict:
+             outlines: Optional[dict] = None, roof_plans: Optional[list] = None) -> dict:
     """The ``exterior`` block. ``reference``: the reference plan region (site plans register onto it);
     ``heights``: the ``heights`` block (datum, ground, cut axis, roof profile); ``plans`` / ``outlines``: the read
     plans and their outlines in building metres (11 Oct 2026: every copy of the building on a site plan,
@@ -654,7 +683,19 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
         plan_roof = dict(plan_roof, type=None, break_line=None,
                          evidence=[e for e in plan_roof["evidence"] if e.get("rule") != "roof_break_line"])
     roof = None
-    if plan_roof is not None and plan_roof["type"]:
+    hip = roof_from_roof_plan(roof_plans or []) if not (plan_roof is not None and plan_roof["type"]) else None
+    if hip is not None:
+        ev = hip["evidence"][0]
+        roof = {"type": "hip", "type_source": "roof_plan", "outline": plan_roof["outline"] if plan_roof else None,
+                "break_line": None, "ridge_lines": [], "covering": None,
+                "evidence": hip["evidence"] + (plan_roof["evidence"] if plan_roof else []), "note": hip["note"],
+                "pitches_deg": [{"value": round(hip["pitch_deg"], 1), "method": "derived", "confidence": 0.9,
+                                 "evidence": [ev], "note": f"atan({hip['slope_pct']:g} %)"}]}
+        if sec_type is not None and sec_type[0] != "gable":
+            warnings.append(f"roof: the roof plan {ev['region_id']} gives a hip roof at {hip['slope_pct']:g} %; the "
+                            f"section's profile reads as {sec_type[0]} (its outline also draws trusses and trims): "
+                            f"the roof plan wins")
+    elif plan_roof is not None and plan_roof["type"]:
         roof = {"type": plan_roof["type"], "type_source": "plan_roof_lines", "outline": plan_roof["outline"],
                 "break_line": plan_roof["break_line"], "ridge_lines": [], "covering": None,
                 "evidence": plan_roof["evidence"], "note": plan_roof["note"]}

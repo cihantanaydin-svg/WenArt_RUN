@@ -80,13 +80,16 @@
             "metres_per_unit": {"type": ["number", "null"]},
             "method": {"enum": ["dxf_insunits", "unit_check", "pdf_scale_text", "dimension_text", "raster", "none"]},
             "checks": {"type": "array", "items": {"type": "object", "required": ["check", "unit"], "properties": {
-              "check": {"enum": ["area_labels", "level_marks", "door_widths", "wall_thickness", "text_height", "dimensions"]},
-              "unit": {"type": ["string", "null"], "description": "mm, cm, m, in, ft or null (no decision)"},
+              "check": {"enum": ["area_labels", "level_marks", "door_widths", "wall_thickness", "text_height", "dimensions", "dimension_texts"]},
+              "unit": {"type": ["string", "null"], "description": "mm, cm, m, in, ft, a scaled unit such as 'm 1:50' (see scaled), or null (no decision)"},
               "score": {"type": ["number", "null"]},
               "samples": {"type": "integer"},
               "note": {"type": ["string", "null"]}
             }}},
-            "conflict": {"type": ["string", "null"], "description": "unit_mismatch description when the header disagrees with the checks"}
+            "conflict": {"type": ["string", "null"], "description": "unit_mismatch description when the header disagrees with the checks"},
+            "scaled": {"type": "object", "description": "A drawing scaled as a whole (real06: drawn in metres, shrunk to 1:50, 50 m per unit), inferred by the unit check when no plain unit fits", "required": ["unit", "base", "scale", "inferred"], "properties": {
+              "unit": {"type": "string"}, "base": {"enum": ["m", "cm", "mm"]}, "scale": {"type": "integer", "minimum": 2},
+              "inferred": {"const": true}}}
           }
         },
         "sheets": {"type": "array", "items": {"type": "object", "required": ["id", "space", "box"], "properties": {

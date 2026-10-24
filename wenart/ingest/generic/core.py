@@ -1181,7 +1181,7 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     strokes_m, texts_m = to_metres(page, s)
 
     # 3. Walls and openings (G2's order, tests/_real01_page.py g2_chain).
-    prims = W.wall_primitives(page, s)
+    prims = W.wall_primitives(page, s, frozenset(i for d in dims if d.how != "dimension_entity" for i in d.stroke_ids))
     mask = W.wall_mask(page, prims, s)
     prim_ids = {i for p in prims for i in p.stroke_ids}
     walls, wall_info = W.walls_from_mask(mask, [st for st in strokes_m if st.id not in prim_ids], file_rel, page_no,

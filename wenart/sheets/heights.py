@@ -183,15 +183,20 @@ def read_section(region, mpu: Optional[float]) -> SectionGeometry:
 
     # Ground lines: horizontal lines outside the walls that reach within 1 m of them; a level mark's own line (a line
     # that starts at the mark's apex and runs to the wall) is no ground line; a mark standing on a ground line is.
+    # The line across the top of a mark's triangle, between the apex and the text (real06: 0.24 m above every apex,
+    # under the text), is the mark's own too.
     reach = _metres(GROUND_REACH_M, mpu, 0.1, width)
     min_ground = _metres(GROUND_MIN_M, mpu, 0.1, width)
     on_tol = _metres(0.01, mpu, 0.001, width)
     apexes = [m[2] for m in g.marks]
+    symbols = [(m[2][0], m[2][1], m[0].point[1] + m[0].height) for m in g.marks]
     for ln in horiz:
         lx0, lx1 = sorted((ln.a[0], ln.b[0]))
         if lx1 - lx0 < min_ground:
             continue
         if any(min(abs(px - lx0), abs(px - lx1)) <= on_tol and abs(py - ln.a[1]) <= on_tol for px, py in apexes):
+            continue
+        if any(py + on_tol < ln.a[1] <= top_y and lx0 - on_tol <= px <= lx1 + on_tol for px, py, top_y in symbols):
             continue
         if lx1 <= x0 + 1e-6 and x0 - lx1 <= reach:
             g.ground.append(("left", ln.a[1], ln.id))
@@ -224,9 +229,12 @@ def _envelope(lines: list[Line], tol: float) -> tuple[list[tuple[float, float]],
     by_id = {(ln.key or ln.id): ln for ln in lines}
     pts = [(samples[0][0], samples[0][1])]
     ids = [samples[0][2]]
+    step = (x_max - x_min) / n
     for (xa, ya, ia), (xb, yb, ib) in zip(samples, samples[1:]):
         if ib != ia:
-            p = _intersect(by_id[ia], by_id[ib]) or (xb, yb)
+            p = _intersect(by_id[ia], by_id[ib])
+            if p is None or not (xa - step <= p[0] <= xb + step):
+                p = (xb, yb)              # nearly parallel lines meet far away (real06): the sample is the corner
             if math.dist(p, pts[-1]) > tol:
                 pts.append(p)
             ids.append(ib)

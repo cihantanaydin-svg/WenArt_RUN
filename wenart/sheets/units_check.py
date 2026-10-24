@@ -57,6 +57,12 @@ TEXT_HEIGHT_M = (0.08, 0.6)
 MIN_SAMPLES = {"area_labels": 1, "level_marks": 1, "door_widths": 3, "wall_thickness": 5, "text_height": 3,
                "dimensions": 2}
 MARK_REACH = 6.0                    # the mark's apex lies within 6 text heights of the text
+# Scaled drawings (real06, 24 Oct 2026): the whole drawing scaled from a plain unit, e.g. drawn in metres and shrunk to
+# 1:50 paper size (1 unit = 50 m). Candidates '<base> 1:<n>' = base unit x n; values a plain unit has are left out.
+DRAWING_SCALES = (2, 5, 10, 20, 25, 50, 75, 100, 200, 250, 500, 1000)
+SCALED_BASES = ("m", "cm", "mm")
+PRECISE_CHECKS = ("level_marks", "dimensions", "dimension_texts")
+DIM_TEXT_TOL = 1.02                 # a dimension text fits a unit within 2 % (its drawn span is exact)
 
 
 @dataclass
@@ -67,6 +73,7 @@ class Check:
     samples: int
     note: Optional[str] = None
     shares: dict = field(default_factory=dict)
+    values: list = field(default_factory=list)    # the raw samples in source units (``scaled_unit`` re-scores them)
 
     def to_json(self) -> dict:
         return {"check": self.check, "unit": self.unit, "score": None if self.score is None else round(self.score, 3),
@@ -83,10 +90,14 @@ class UnitResult:
     conflict: Optional[str] = None
     review: Optional[str] = None
     warnings: list[str] = field(default_factory=list)
+    scaled: Optional[dict] = None     # a scaled drawing: {"unit": "m 1:50", "base": "m", "scale": 50, "inferred": True}
 
     def to_json(self) -> dict:
-        return {"insunits": self.insunits, "metres_per_unit": self.metres_per_unit, "method": self.method,
-                "checks": [c.to_json() for c in self.checks], "conflict": self.conflict}
+        out = {"insunits": self.insunits, "metres_per_unit": self.metres_per_unit, "method": self.method,
+               "checks": [c.to_json() for c in self.checks], "conflict": self.conflict}
+        if self.scaled:
+            out["scaled"] = dict(self.scaled)
+        return out
 
 
 # --------------------------------------------------------------------------
@@ -106,6 +117,11 @@ def _decide(name: str, passed: dict[str, int], samples: int, note: Optional[str]
     why = (f"{' and '.join(fitting)} fit equally well" if len(fitting) > 1 else
            f"no unit fits {DECIDE_SHARE:.0%} of the samples")
     return Check(name, None, shares[best], samples, (note + "; " if note else "") + why, shares)
+
+
+def _with_values(check: Check, values: list) -> Check:
+    check.values = list(values)
+    return check
 
 
 def _in(v: float, lo_hi: tuple[float, float]) -> bool:
@@ -185,7 +201,7 @@ def check_area_labels(regions) -> Check:
                 passed[u] += 1
     rooms = sum(1 for s in samples if s[0] == "room")
     note = f"{rooms} labels alone in a closed outline, {len(samples) - rooms} regions with >= 2 labels"
-    return _decide("area_labels", passed, len(samples), note)
+    return _with_values(_decide("area_labels", passed, len(samples), note), samples)
 
 
 def _straight(st) -> Optional[tuple[tuple[float, float], tuple[float, float]]]:
@@ -305,7 +321,7 @@ def check_level_marks(regions) -> tuple[Check, list[dict]]:
                     pairs.append(dv / dy)
     passed = {u: sum(1 for m in pairs if _ratio_ok(m, f)) for u, f in UNITS.items()}
     note = (f"{len(pairs)} mark pair(s): " + ", ".join(f"{m:.4g} m/unit" for m in pairs[:4])) if pairs else None
-    return _decide("level_marks", passed, len(pairs), note), found
+    return _with_values(_decide("level_marks", passed, len(pairs), note), pairs), found
 
 
 def door_arcs(strokes) -> list[float]:
@@ -356,7 +372,7 @@ def check_door_widths(regions) -> Check:
     radii = [r for reg in regions for r in door_arcs(reg.strokes())]
     passed = {u: sum(1 for r in radii if _in(r * f, DOOR_RADIUS_M)) for u, f in UNITS.items()}
     note = f"median door radius {statistics.median(radii):.4g} units" if radii else None
-    return _decide("door_widths", passed, len(radii), note)
+    return _with_values(_decide("door_widths", passed, len(radii), note), radii)
 
 
 def face_pair_distances(strokes, diag: float) -> list[float]:
@@ -405,21 +421,22 @@ def check_wall_thickness(regions) -> Check:
         ds.extend(face_pair_distances(r.strokes(), diag))
     passed = {u: sum(1 for d in ds if _in(d * f, WALL_M)) for u, f in UNITS.items()}
     note = f"median face-pair distance {statistics.median(ds):.4g} units" if ds else None
-    return _decide("wall_thickness", passed, len(ds), note)
+    return _with_values(_decide("wall_thickness", passed, len(ds), note), ds)
 
 
 def check_text_height(regions) -> Check:
     hs = [t.height for r in regions for t in r.texts
           if t.height > 0 and T.class_of(t.text) is None and T.level_of(t.text) is None]
     if len(hs) < MIN_SAMPLES["text_height"]:
-        return Check("text_height", None, None, len(hs), f"{len(hs)} text(s)")
+        return Check("text_height", None, None, len(hs), f"{len(hs)} text(s)", values=hs)
     median = statistics.median(hs)
     fitting = [u for u, f in UNITS.items() if _in(median * f, TEXT_HEIGHT_M)]
     note = f"median text height {median:.4g} units"
     if len(fitting) == 1:
-        return Check("text_height", fitting[0], 1.0, len(hs), note)
+        return Check("text_height", fitting[0], 1.0, len(hs), note, values=hs)
     return Check("text_height", None, None, len(hs),
-                 note + ("; " + " and ".join(fitting) + " fit equally well" if fitting else "; no unit fits"))
+                 note + ("; " + " and ".join(fitting) + " fit equally well" if fitting else "; no unit fits"),
+                 values=hs)
 
 
 def check_dimensions(regions) -> Check:
@@ -433,7 +450,135 @@ def check_dimensions(regions) -> Check:
             if length is not None and length.metres > 0:
                 ratios.append(length.metres / d.measured_units)
     passed = {u: sum(1 for m in ratios if _ratio_ok(m, f)) for u, f in UNITS.items()}
-    return _decide("dimensions", passed, len(ratios))
+    return _with_values(_decide("dimensions", passed, len(ratios)), ratios)
+
+
+def check_dimension_texts(regions) -> Check:
+    """Dimension texts with their dimension line in each drawing region (the generic core's ``find_dimensions``, which
+    reads bare integers in the one plausible metric unit): printed length / measured span. Scaled drawings only."""
+    from wenart.ingest.generic import scale as SC
+    from wenart.ingest.generic.model import GenericPage
+    from wenart.sheets.model import top_entity
+
+    ratios = []
+    for r in regions:
+        page = r.sheet.generic_page
+        ids = {t.id for t in r.texts}
+        if page is None or not ids:
+            continue
+        runs = [t for t in page.texts if (top_entity(t.id) if t.id.startswith("MTEXT:") else t.id) in ids]
+        sub = GenericPage(file=page.file, page=page.page, source_kind=page.source_kind, units=page.units,
+                          units_to_m=None, size=page.size, strokes=r.strokes(), texts=runs)
+        ratios.extend(d.ratio for d in SC.find_dimensions(sub)
+                      if d.how != "dimension_entity" and d.measured_units > 0 and d.length.metres > 0)
+    note = (f"{len(ratios)} dimension text(s) with a dimension line, median {statistics.median(ratios):.4g} m/unit"
+            if ratios else "no dimension text with a dimension line")
+    return Check("dimension_texts", None, None, len(ratios), note, values=ratios)
+
+
+def scaled_units() -> dict[str, float]:
+    """The scaled candidate units, '<base> 1:<n>' -> metres per unit (a value a plain unit or an earlier candidate
+    has is left out: cm 1:100 is m)."""
+    out: dict[str, float] = {}
+    seen = {round(math.log10(f), 6) for f in UNITS.values()}
+    for n in DRAWING_SCALES:
+        for base in SCALED_BASES:
+            mpu = UNITS[base] * n
+            key = round(math.log10(mpu), 6)
+            if key not in seen:
+                seen.add(key)
+                out[f"{base} 1:{n}"] = mpu
+    return out
+
+
+def share_at(check: Check, mpu: float) -> Optional[float]:
+    """The share of a check's samples that fit ``mpu`` metres per unit (text height: 1 or 0 for its median); None
+    without samples."""
+    vals = check.values
+    if not vals:
+        return None
+    name = check.check
+    if name == "text_height":
+        return 1.0 if _in(statistics.median(vals) * mpu, TEXT_HEIGHT_M) else 0.0
+    if name in ("level_marks", "dimensions"):
+        ok = sum(1 for m in vals if _ratio_ok(m, mpu))
+    elif name == "dimension_texts":
+        ok = sum(1 for m in vals if m > 0 and abs(math.log(m / mpu)) <= math.log(DIM_TEXT_TOL))
+    elif name == "door_widths":
+        ok = sum(1 for r in vals if _in(r * mpu, DOOR_RADIUS_M))
+    elif name == "wall_thickness":
+        ok = sum(1 for d in vals if _in(d * mpu, WALL_M))
+    elif name == "area_labels":
+        ok = sum(1 for kind, m2, area in vals
+                 if area > 0 and _in(m2 / (area * mpu * mpu), ROOM_AREA if kind == "room" else REGION_AREA))
+    else:
+        return None
+    return ok / len(vals)
+
+
+def _decide_scaled(check: Check, cands: dict[str, float]) -> Optional[str]:
+    """A precise check's scaled unit: the candidate with the most fitting samples (>= 50 %) when every candidate
+    outside its tolerance has >= 0.3 less."""
+    if check.samples < max(MIN_SAMPLES.get(check.check, 2), 2):
+        return None
+    shares = {u: share_at(check, v) or 0.0 for u, v in cands.items()}
+    best = max(cands, key=lambda u: shares[u])
+    tol = math.log(DIM_TEXT_TOL if check.check == "dimension_texts" else RATIO_TOL)
+    rivals = [shares[u] for u, v in cands.items() if abs(math.log(v / cands[best])) > 2 * tol]
+    if shares[best] >= DECIDE_SHARE and all(s <= shares[best] - DECIDE_MARGIN for s in rivals):
+        return best
+    return None
+
+
+def scaled_unit(checks: list[Check]) -> Optional[tuple[str, float, list[Check]]]:
+    """A drawing scaled as a whole: the scaled unit that a precise check (level marks, dimensions, dimension texts)
+    decides, with no precise check deciding another one, and that >= 2 checks support in all (the deciding ones plus
+    every other check with >= 50 % of its samples fitting). (unit, metres per unit, supporting checks) or None."""
+    cands = scaled_units()
+    decided: dict[str, list[Check]] = {}
+    for c in checks:
+        if c.check in PRECISE_CHECKS:
+            unit = _decide_scaled(c, cands)
+            if unit is not None:
+                decided.setdefault(unit, []).append(c)
+    if len(decided) != 1:
+        return None
+    unit, support = next(iter(decided.items()))
+    mpu = cands[unit]
+    for c in checks:
+        if c in support or c.samples < MIN_SAMPLES.get(c.check, 1):
+            continue
+        share = share_at(c, mpu)
+        if share is not None and share >= DECIDE_SHARE:
+            support.append(c)
+    if len(support) < 2:
+        return None
+    return unit, mpu, support
+
+
+def _use_scaled(result: UnitResult, drawings, file_rel: str) -> bool:
+    """When no plain unit holds: try the scaled units (``scaled_unit``, with the dimension texts as one more check).
+    Sets the result (``unit_check``, ``scaled`` marked inferred) and returns True when one is found."""
+    checks = result.checks + [check_dimension_texts(drawings)]
+    found = scaled_unit(checks)
+    if found is None:
+        return False
+    unit, mpu, support = found
+    base, n = unit.split(" 1:")
+    for c in support:
+        c.unit, c.score = unit, share_at(c, mpu)
+    result.checks = checks
+    result.unit, result.metres_per_unit, result.method, result.review = unit, mpu, "unit_check", None
+    result.scaled = {"unit": unit, "base": base, "scale": int(n), "inferred": True}
+    names = ", ".join(f"{c.check} {share_at(c, mpu):.0%}" for c in support)
+    header = INSUNITS_NAME.get(int(result.insunits)) if result.insunits is not None else None
+    text = (f"the drawing is scaled: drawn in {base} at 1:{n} ({mpu:g} m per unit), inferred from {len(support)} "
+            f"agreeing checks ({names}); no plain unit fits")
+    if header is not None:
+        result.conflict = f"$INSUNITS {result.insunits} says {header}, but {text}: {mpu:g} m per unit used"
+    else:
+        result.warnings.append(f"{file_rel}: $INSUNITS {result.insunits} names no unit; {text}")
+    return True
 
 
 # --------------------------------------------------------------------------
@@ -459,6 +604,8 @@ def check_units(insunits: Optional[int], regions, file_rel: str) -> UnitResult:
     names = lambda cs: ", ".join(c.check for c in cs)  # noqa: E731 - a short local formatter
     if header is not None and not against:
         if not support:
+            if _use_scaled(result, drawings, file_rel):
+                return result
             result.warnings.append(f"{file_rel}: no unit check could decide (too few samples); $INSUNITS "
                                    f"{insunits} ({header}) used")
         return result
@@ -471,6 +618,8 @@ def check_units(insunits: Optional[int], regions, file_rel: str) -> UnitResult:
         else:
             result.warnings.append(f"{file_rel}: $INSUNITS {insunits} names no unit; {len(top[1])} checks "
                                    f"({names(top[1])}) agree on {unit}: {unit} used")
+        return result
+    if not decided and _use_scaled(result, drawings, file_rel):
         return result
     if header is None:
         result.warnings.append(f"{file_rel}: $INSUNITS {insunits} names no unit and the checks do not agree on one "

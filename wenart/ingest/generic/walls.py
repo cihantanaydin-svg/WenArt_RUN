@@ -203,8 +203,9 @@ def fill_polygons(st: Stroke, s: float = 1.0) -> list[list[tuple[float, float]]]
 # 1. Primitives
 # --------------------------------------------------------------------------
 
-def wall_primitives(page: GenericPage, units_to_m: float) -> list[WallPrim]:
-    """All wall primitives of a page, in page metres (see the module docstring for the rules)."""
+def wall_primitives(page: GenericPage, units_to_m: float, dimension_ids: frozenset = frozenset()) -> list[WallPrim]:
+    """All wall primitives of a page, in page metres (see the module docstring for the rules). ``dimension_ids``:
+    the strokes that draw dimension lines and their end marks (``scale.find_dimensions``), never wall faces."""
     s = float(units_to_m)
     prims: list[WallPrim] = []
     if page.wall_mask is not None:
@@ -219,7 +220,7 @@ def wall_primitives(page: GenericPage, units_to_m: float) -> list[WallPrim]:
     prims.extend(_dark_fills(page, s, used))
     prims.extend(_outline_walls(page, s, used))
     if page.wall_mask is None and not page.source_kind.startswith("raster"):
-        prims = face_pair_walls(page, s, prims)[0]
+        prims = face_pair_walls(page, s, prims, dimension_ids)[0]
     return prims
 
 
@@ -509,7 +510,9 @@ def _rect_sides(rect) -> tuple[float, float]:
 # treads and furniture close in no room, so such layers never win. The primitive only runs when the primitives above
 # close in fewer than 70 % of the labels (real01 and the synthetic pages are unchanged), and a page without room
 # labels gives no evidence for a layer: no face pairs. The chosen layer, its numbers and the runner-up go into every
-# primitive's ``note`` (the wall evidence) and ``face_pair_choice`` (the report).
+# primitive's ``note`` (the wall evidence) and ``face_pair_choice`` (the report). The pieces of dimension lines
+# (``dimension_ids``) take no part: real06's dimension chains, two parallel lines 0.30 m apart on their own layer
+# crossing the building, closed in every labelled room and won over the plaster lines of the walls.
 
 @dataclass
 class _Line:
@@ -910,7 +913,8 @@ def _prim_geoms(prims: list[WallPrim]) -> list:
     return out
 
 
-def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim]) -> tuple[list[WallPrim], dict]:
+def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim],
+                    dimension_ids: frozenset = frozenset()) -> tuple[list[WallPrim], dict]:
     """``(prims, choice)``: the page's primitives with the face-pair walls of the layer chosen by evidence added
     (the other primitives kept only where they touch them), or unchanged; ``choice`` says why (see the section
     comment above)."""
@@ -929,7 +933,8 @@ def face_pair_walls(page: GenericPage, units_to_m: float, prims: list[WallPrim])
         return prims, choice
     columns = _column_candidates(page, s)
     rows = []
-    for layer, pieces in _straight_pieces(page, s, {i for p in prims for i in p.stroke_ids}).items():
+    skip = {i for p in prims for i in p.stroke_ids} | set(dimension_ids)
+    for layer, pieces in _straight_pieces(page, s, skip).items():
         pairs: list[_Pair] = []
         long_lines = paired = 0
         for u, n, group in _direction_groups(pieces):

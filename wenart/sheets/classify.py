@@ -9,12 +9,19 @@ Why: trust order: the title text decides; geometry decides untitled regions; AI 
 How (geometry rules, first that holds):
 - ``title_block``: a lone rectangle with texts (a title box: real02's ``PLANLAR``), or a region at the frame edge
   with >= 4 short texts and no room names;
+- ``floor_plan`` (real06, 24 Oct 2026: untitled plans whose full-width outer walls look like slab bands): >= 2 room
+  names, >= 2 door swings and a wall structure;
 - ``section``: >= 2 slab bands across the building width and a roof line or a level mark (``heights.read_section``);
 - ``elevation``: no slab bands, a ground line and >= 3 window-like rectangles in rows;
 - ``site_plan``: a north arrow or street words with a closed outline inside a larger one;
 - ``floor_plan``: >= 2 room names and a wall structure (M7's cheap wall test, or >= 4 wall face pairs
   0.05-0.6 m apart);
+- ``roof_plan``: no room names, an enclosing outline or >= 2 slope texts (``EĞİM %33``), and >= 2 hip lines;
 - otherwise no class (``other``, ``class_method none``, unverified).
+
+After the rules, ``outside_views`` (real06): a section by slab bands with no room name, on a document where other
+sections by slab bands show their rooms, is an elevation (its slab bands are siding or floor lines seen from
+outside; its windows drawn as lines give no window rows).
 """
 from __future__ import annotations
 
@@ -36,6 +43,7 @@ TITLE_CONFIDENCE = 0.99
 LEVEL_ONLY_CONFIDENCE = 0.7
 GEOMETRY_CONFIDENCE = {"title_block": 0.9, "section": 0.85, "elevation": 0.7, "site_plan": 0.7, "floor_plan": 0.7,
                        "roof_plan": 0.6}
+SLOPE_TEXT = re.compile(r"\b(EGIM|SLOPE|PENTE|NEIGUNG|GEFALLE)\b\s*:?\s*%?\s*\d")
 STREET_WORDS = re.compile(r"\b(SOKAK|SOK|CADDE|CAD|BULVAR|YOL|PARSEL|ADA|STREET|ROAD|AVENUE|STRASSE|RUE|AVENUE)\b")
 # 11 Oct 2026 (real04): words only a site plan carries: the plot line, the building setback line, the site plan's
 # own name; with them one area label (GÜNEŞLENME ALANI, a pool) does not make the region a floor plan.
@@ -113,6 +121,7 @@ def features(region: Region, mpu: Optional[float]) -> dict:
     f["room_labels"] = len(GL.room_name_runs(runs))
     if f["room_labels"] >= 2:
         f["wall_test"] = _wall_test(region)
+        f["door_swings"] = len(UC.door_arcs(region.strokes()))
     f["area_labels"] = len(UC.area_label_texts(region.texts))
     sec = H.read_section(region, mpu)
     if region.cls not in PLAN_CLASSES or region.class_method != "title":
@@ -138,6 +147,7 @@ def features(region: Region, mpu: Optional[float]) -> dict:
     if not f["room_labels"] and region.class_method != "title":
         from wenart.sheets import register as RG
         f["roof_outline"] = bool(RG.enclosing_outlines(region, mpu))
+        f["slope_texts"] = sum(1 for t in region.texts if SLOPE_TEXT.search(T.fold(t.text)))
         f["hip_lines"] = sum(1 for a, b, _ in UC.segments(region.strokes())
                              if 20.0 <= abs(math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))) % 90.0 <= 70.0
                              and math.dist(a, b) >= 0.1 * max(b_ - a_ for a_, b_ in zip(region.geometry_box[:2],
@@ -242,6 +252,9 @@ def geometry_rule(region: Region, f: dict, frames: list, gap: float) -> tuple[Op
     takes a region no drawing rule claims and that shows no drawing evidence."""
     if f.get("title_box"):
         return "title_block", "lone_rectangle_with_texts" if region.texts else "lone_rectangle"
+    if f.get("room_labels", 0) >= 2 and f.get("door_swings", 0) >= 2 \
+            and (f.get("wall_test") or f.get("wall_pairs", 0) >= 4):
+        return "floor_plan", "room_labels_door_swings_and_walls"
     if f.get("slab_bands", 0) >= 2 and (f.get("roof_lines", 0) >= 1 or f.get("level_marks", 0) >= 1):
         return "section", "slab_bands"
     if not f.get("slab_bands") and f.get("ground_lines") and f.get("window_rows", 0) >= 1:
@@ -256,6 +269,8 @@ def geometry_rule(region: Region, f: dict, frames: list, gap: float) -> tuple[Op
         return "floor_plan", "room_labels_and_walls"
     if not f.get("room_labels") and f.get("roof_outline") and f.get("hip_lines", 0) >= 2:
         return "roof_plan", "outline_with_hip_lines"
+    if not f.get("room_labels") and f.get("slope_texts", 0) >= 2 and f.get("hip_lines", 0) >= 2:
+        return "roof_plan", "slope_texts_with_hip_lines"
     drawn = f.get("slab_bands") or f.get("window_rows") or f.get("wall_pairs", 0) >= 4 or f.get("roof_outline")
     if _frame_edge_texts(region, frames, gap) and not f.get("room_labels") and not drawn:
         return "title_block", "frame_edge_short_texts"
@@ -275,6 +290,28 @@ def by_geometry(region: Region, f: dict, frames: list, gap: float) -> bool:
                             "text": ", ".join(f"{k} {v}" for k, v in f.items() if v and k not in
                                               ("entities", "texts"))})
     return True
+
+
+def outside_views(regions: list[Region]) -> list[Region]:
+    """Sections by slab bands without a room name become elevations when sections by slab bands of the same
+    document show their rooms (real06: four elevations drawn with siding lines and line-drawn windows next to two
+    sections with room names). Returns the regions changed."""
+    by_bands = [r for r in regions if r.cls == "section" and r.class_method == "geometry"]
+    inside = [r for r in by_bands if r.features.get("room_labels", 0) >= 1]
+    if not inside:
+        return []
+    changed = []
+    for r in by_bands:
+        if r.features.get("room_labels", 0) >= 1:
+            continue
+        r.cls, r.class_confidence = "elevation", GEOMETRY_CONFIDENCE["elevation"]
+        ev = r.evidence[-1] if r.evidence and r.evidence[-1].get("rule") == "slab_bands" else None
+        if ev is not None:
+            ev.update({"rule": "outside_view_beside_sections", "confidence": r.class_confidence,
+                       "text": f"slab bands without a room name; {', '.join(x.id for x in inside)} are the sections "
+                               f"with rooms; " + (ev.get("text") or "")})
+        changed.append(r)
+    return changed
 
 
 def _at_frame_edge(region: Region, frames: list, gap: float) -> bool:

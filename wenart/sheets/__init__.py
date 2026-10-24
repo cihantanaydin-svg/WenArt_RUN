@@ -218,6 +218,9 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
             r.features = CL.features(r, mpu)
             if not titled:
                 CL.by_geometry(r, r.features, r.sheet.frames, r.sheet.gap or 0.0)
+        for r in CL.outside_views(doc_regions):
+            warnings.append(f"{r.file} {r.id}: slab bands but no room name, beside sections with rooms: an elevation "
+                            f"(inferred)")
         regions.extend(doc_regions)
     for s in strays_json:
         s.pop("_m", None)
@@ -303,10 +306,11 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
         top_plan = next((r for r in read_plans if r.id == top_level["base_region"]), None)
     elevations = [r for r in regions if r.cls == "elevation" and r.use == "exterior"]
     sites = [r for r in regions if r.cls == "site_plan" and r.use == "exterior"]
+    roof_plans = [r for r in regions if r.cls == "roof_plan" and r.use == "exterior"]
     exterior_json = EX.exterior(top_plan, section_geom, elevations, sites,
                                 outlines.get(reference.id) if reference is not None else None, conflict, warnings,
                                 reference=reference if reference is not None and reference.id in outlines else None,
-                                heights=heights_json, plans=read_plans, outlines=outlines)
+                                heights=heights_json, plans=read_plans, outlines=outlines, roof_plans=roof_plans)
     if multi and not elevations:
         warnings.append("no elevation drawn: facade materials and outside openings are not drawn (facade empty)")
 

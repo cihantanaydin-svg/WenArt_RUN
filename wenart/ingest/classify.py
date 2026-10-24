@@ -747,12 +747,16 @@ def unit_scale(file: str, units: dict, region_id: Optional[str] = None) -> Optio
     mpu = units.get("metres_per_unit")
     if not mpu:
         return None
-    unit = UNIT_NAMES.get(round(float(mpu), 6), f"{mpu:g} m")
+    scaled = units.get("scaled") or {}
+    unit = scaled.get("unit") or UNIT_NAMES.get(round(float(mpu), 6), f"{mpu:g} m")
     header = INSUNITS_NAMES.get(units.get("insunits"), f"code {units.get('insunits')}")
     agree = [c["check"].replace("_", " ") for c in units.get("checks") or [] if c.get("unit") == unit]
     if units.get("method") == "unit_check":
         text = f"header {header}; {', '.join(agree) or 'the checks'} agree on {unit}"
-        return {"metres_per_unit": float(mpu), "method": "unit_check", "confidence": 0.95,
+        if scaled:
+            # A scaled drawing (real06: metres shrunk to 1:50) is an inference, not a reading of the header.
+            text += f" (inferred: drawn in {scaled['base']} at 1:{scaled['scale']}, {mpu:g} m per unit)"
+        return {"metres_per_unit": float(mpu), "method": "unit_check", "confidence": 0.85 if scaled else 0.95,
                 "evidence": B.evidence(file, "vector", 1.0, entity=f"$INSUNITS={units.get('insunits')}", text=text,
                                        region_id=region_id, rule="unit_check")}
     text = f"$INSUNITS {units.get('insunits')} ({header}): {mpu:g} m per unit" + \

@@ -20,6 +20,12 @@ How:
    A cluster inside another drawing's box (a table in the middle of a room) joins it; a small cluster (<= 5 % of a
    drawing's box, or thin like a dimension chain) within half the drawing's shorter side and with 10 x fewer
    entities joins it too (a single drawing on a sheet without a frame stays one region).
+   **Panels** (real06, 24 Oct 2026): a sheet laid out as a grid of drawing frames, each drawn as four separate LINE
+   entities and sharing an edge with its neighbour (no closed rectangle anywhere). Such a rectangle (``panel_
+   rectangles``: four LINEs meeting at the corners, both sides >= 20 % of the sheet, sharing an edge with another one)
+   is a frame when it holds the centre of any entity (its drawings may come closer to its edges and to the next
+   panel's drawings than the gap); what the clustering joins across a panel edge is split again by the panel that
+   holds each entity's centre. An empty panel gives its four lines back unchanged.
 3. Texts never bridge: each joins the region whose box holds its point (the smallest), else the nearest region of
    the same frame within ``TEXT_REACH`` gaps or 0.3 x that region's height (its title); texts left over are grouped
    among themselves (a notes block).
@@ -56,6 +62,9 @@ STRAY_FAR = 10.0           # ... and (no frame) lie > 10 x the median region siz
 PERCENTILES = (2.0, 98.0)
 RASTER_STEPS = 8           # clustering raster: cells of gap / 8 ...
 RASTER_MAX = 6000          # ... at most this many cells per side
+PANEL_MIN_REL = 0.2        # panels: both sides >= 20 % of the sheet's shorter side (a drawing's frame, not a cabinet)
+PANEL_TOL_REL = 1e-3       # ... corners meet and neighbours share an edge within 0.1 % of the sheet's shorter side
+PANEL_SHARED = 0.5         # ... neighbouring panels share >= 50 % of the shorter of the two edges
 
 
 @dataclass
@@ -192,6 +201,82 @@ def _groups(uf: _UF, idx: list[int]) -> list[list[int]]:
 
 
 # --------------------------------------------------------------------------
+# Panels: drawing frames drawn line by line
+# --------------------------------------------------------------------------
+
+def _line_segment(e: Ent) -> Optional[tuple[tuple[float, float], tuple[float, float]]]:
+    if e.kind != "LINE" or len(e.strokes) != 1:
+        return None
+    st = e.strokes[0]
+    if st.arc is not None or len(st.pts) != 2:
+        return None
+    return (float(st.pts[0][0]), float(st.pts[0][1])), (float(st.pts[1][0]), float(st.pts[1][1]))
+
+
+def _shared_edge(a: Box, b: Box, tol: float) -> bool:
+    """``a`` and ``b`` lie side by side and share >= ``PANEL_SHARED`` of the shorter of their touching edges."""
+    if abs(a[2] - b[0]) <= tol or abs(b[2] - a[0]) <= tol:
+        return min(a[3], b[3]) - max(a[1], b[1]) >= PANEL_SHARED * min(a[3] - a[1], b[3] - b[1])
+    if abs(a[3] - b[1]) <= tol or abs(b[3] - a[1]) <= tol:
+        return min(a[2], b[2]) - max(a[0], b[0]) >= PANEL_SHARED * min(a[2] - a[0], b[2] - b[0])
+    return False
+
+
+def panel_rectangles(ents: list[Ent], min_side: float, tol: float) -> list[tuple[Box, list[int]]]:
+    """Axis-aligned rectangles drawn as four separate LINE entities (each line one whole side >= ``min_side``,
+    corners within ``tol``) that share an edge with another such rectangle: [(box, indices of its four lines)].
+    A line belongs to one rectangle at most."""
+    hs, vs = [], []
+    for k, e in enumerate(ents):
+        seg = _line_segment(e)
+        if seg is None:
+            continue
+        (x0, y0), (x1, y1) = seg
+        if abs(y1 - y0) <= tol and abs(x1 - x0) >= min_side:
+            hs.append((min(x0, x1), max(x0, x1), (y0 + y1) / 2.0, k))
+        elif abs(x1 - x0) <= tol and abs(y1 - y0) >= min_side:
+            vs.append((min(y0, y1), max(y0, y1), (x0 + x1) / 2.0, k))
+    if len(hs) < 4 or len(vs) < 4:
+        return []
+    q = max(tol, 1e-12)
+    vindex: dict[tuple[int, int, int], list] = {}
+    for v in vs:
+        vindex.setdefault((round(v[2] / q), round(v[0] / q), round(v[1] / q)), []).append(v)
+    used: set[int] = set()
+
+    def vertical(x: float, y0: float, y1: float) -> Optional[int]:
+        kx, k0, k1 = round(x / q), round(y0 / q), round(y1 / q)
+        for dx in (-1, 0, 1):
+            for d0 in (-1, 0, 1):
+                for d1 in (-1, 0, 1):
+                    for v in vindex.get((kx + dx, k0 + d0, k1 + d1), ()):
+                        if v[3] not in used and abs(v[2] - x) <= tol and abs(v[0] - y0) <= tol \
+                                and abs(v[1] - y1) <= tol:
+                            return v[3]
+        return None
+
+    hs.sort()
+    rects: list[tuple[Box, list[int]]] = []
+    for i, lo in enumerate(hs):
+        for hi in hs[i + 1:]:
+            if hi[0] - lo[0] > tol:
+                break
+            if lo[3] in used or hi[3] in used or abs(hi[1] - lo[1]) > tol or abs(hi[2] - lo[2]) < min_side:
+                continue
+            bottom, top = (lo, hi) if lo[2] < hi[2] else (hi, lo)
+            x0, x1 = (lo[0] + hi[0]) / 2.0, (lo[1] + hi[1]) / 2.0
+            left = vertical(x0, bottom[2], top[2])
+            right = vertical(x1, bottom[2], top[2]) if left is not None else None
+            if left is None or right is None or left == right:
+                continue
+            used.update((bottom[3], top[3], left, right))
+            rects.append(((x0, bottom[2], x1, top[2]), [bottom[3], right, top[3], left]))
+            if lo[3] in used:
+                break
+    return [r for r in rects if any(_shared_edge(r[0], o[0], tol) for o in rects if o is not r)]
+
+
+# --------------------------------------------------------------------------
 # Sheet box
 # --------------------------------------------------------------------------
 
@@ -232,6 +317,18 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
     gap = gap_rel * max(_diag(box), 1e-9)
     total = n_doc_entities if n_doc_entities is not None else len(ents) + len(texts)
     short = max(min(box_size(box)), 1e-9)
+    # Panels: each becomes one rectangle entity (a frame candidate); lines_of gives a non-frame panel its lines back.
+    panel_tol = PANEL_TOL_REL * short
+    panels = panel_rectangles(ents, PANEL_MIN_REL * short, panel_tol)
+    lines_of: dict[int, list[Ent]] = {}
+    if panels:
+        drawn = {i for _, idx in panels for i in idx}
+        ents = [e for k, e in enumerate(ents) if k not in drawn]
+        for pbox, idx in panels:
+            first_line = sheet.ents[idx[0]]
+            lines_of[len(ents)] = [sheet.ents[i] for i in idx]
+            ents.append(Ent(id=first_line.id, kind="LINE", layer=first_line.layer, box=pbox,
+                            strokes=[st for i in idx for st in sheet.ents[i].strokes], rect=pbox))
     cand = [k for k, e in enumerate(ents) if e.rect is not None
             and min(box_size(e.rect)) >= FRAME_MIN_REL * short]
     cand_set = set(cand)
@@ -254,6 +351,12 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
                          for t in texts)]
     for k in sorted(cand, key=lambda k: -_area(ents[k].rect)):
         rect = ents[k].rect
+        if k in lines_of:
+            # A panel of a frame grid is a frame when it holds anything: the grid itself says where drawings end
+            # (its drawings may come closer to its edges, and to each other, than the sheet's gap).
+            if any(in_box(ents[i].centre, rect) for i in others):
+                frames.append(k)
+            continue
         held = [(b, len(g)) for b, g in zip(first_boxes, first) if box_inside(b, rect, tol=gap * 0.5)]
         held += [(b, 1) for b in text_boxes if b != rect and box_inside(b, rect, tol=gap * 0.5)
                  and _edge_distance(b, rect) > gap]
@@ -286,6 +389,9 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
                 uf.union(k, g[0])
             groups = _groups(uf, members)
 
+    panel_boxes = [ents[k].rect for k in frames if k in lines_of]
+    if panel_boxes:
+        groups = _split_by_panel(groups, ents, panel_boxes)
     frame_boxes = [(ents[k].id, ents[k].rect) for k in frames]
 
     def frame_of(b: Box) -> Optional[str]:
@@ -297,7 +403,7 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
 
     clusters = []
     for g in groups:
-        c = Cluster(ents=[ents[i] for i in g])
+        c = Cluster(ents=[x for i in g for x in lines_of.get(i, [ents[i]])])
         c.frame = frame_of(c.geometry_box)
         if len(g) == 1 and ents[g[0]].rect is not None and g[0] in cand_set:
             c.kind = "box"
@@ -333,6 +439,25 @@ def split_sheet(sheet: Sheet, n_doc_entities: Optional[int] = None, gap_rel: flo
     sheet.gap = gap
     sheet.frames = [{"entity": fid, "box": list(fb)} for fid, fb in frame_boxes]
     return SplitResult(box=sheet.box, gap=gap, frames=sheet.frames, clusters=reading_order(regions), strays=strays)
+
+
+def _split_by_panel(groups: list[list[int]], ents: list[Ent], panel_boxes: list[Box]) -> list[list[int]]:
+    """A group that the clustering joined across a panel edge is split by the panel holding each entity's centre;
+    an entity in no panel stays with the largest part of its group."""
+    out = []
+    for g in groups:
+        parts: dict[Optional[int], list[int]] = {}
+        for i in g:
+            c = ents[i].centre
+            parts.setdefault(next((n for n, pb in enumerate(panel_boxes) if in_box(c, pb)), None), []).append(i)
+        loose = parts.pop(None, [])
+        if not parts:
+            out.append(g)
+            continue
+        if loose:
+            max(parts.values(), key=len).extend(loose)
+        out.extend(sorted(p) for p in parts.values())
+    return out
 
 
 def _height(c: Cluster) -> float:
