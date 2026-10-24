@@ -1147,3 +1147,24 @@ roof, entrance steps with handrails. GPU tests 43 passed, 2 failed (depth over 6
 planned pieces hidden in bathroom views). Weak spots seen on the sheets: the ground-floor kitchen run is not in view or
 not built, the dining area has small tables instead of the drawn round table, the facades carry many dark vertical
 strips, the sliding doors are built as wooden slabs.
+
+## Exterior upgrade (24 Oct 2026): facade, railing, library doors / windows / plants / cars, gutters, roof
+
+User request of 24 Oct 2026 (real04 remarks, fixes general). Changes, each for every project:
+
+| Remark | Change |
+|---|---|
+| walls look like blank concrete | `facade.FACADE_SCHEMES`: per style family a render colour, a basement cladding and a wood accent around the main entrance, when no drawing, brief or style names the facade (inferred faces) |
+| a "balcony" bulge in the basement | inferred terrace guards: glass panels and posts instead of one steel slab |
+| outside doors, new windows | `opening_models` / `opening_build`: one audited library model per category (entrance, door, glazed door, window) on the outer openings, panels side by side for ribbon windows, the scene glass, the style's frame colour on plain frames; `WENART_LIBRARY_OPENINGS=off` |
+| plants, cars | `site_models`: library trees / palms / bushes per species (species words, crown words, kind), cars on drawn parkings (also a draped driveway up to 20 %); `WENART_SITE_LIBRARY=off` |
+| rain gutters | an outlet from each gutter to its downpipe |
+| roof | `roof.apply_override` refuses agent values the drawing gives (real04's drawn 32.5 / 11.3 degree mansard had been rebuilt at 45 degrees, 1.35 m too high); fascia board in the gutter look; ridge and hip caps |
+| walls under the eaves read yellow | the lawn's bounced light is 75 % desaturated |
+
+Pod `x884zdj3506zo3` (110 min, $4.55, code a7e0084): [`results/review/real04_exterior_20261024/`](../results/review/real04_exterior_20261024/),
+before / after vs Milestone 13. GPU tests 47 passed, 9 skipped. Full CPU suite 5,935 passed; 2 failed, both failing
+before (LibreDWG-only real04 tree count, the pod-packing golden plan). Open: the library bush rendered white (an opaque
+leaf texture); fixed after the run (`vegetation.fix_plant_materials`), to be seen on the next pod run. Metric 13 (views
+with >= 50 % bare wall) went from 9 to 13 in this run's interior views (agent rounds differ; not looked into yet).
+

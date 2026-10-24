@@ -1333,12 +1333,77 @@ def library_plant(species: str, levers: Optional[dict] = None) -> Optional[dict]
             "match": pick["match"], "reason": pick["reason"]}
 
 
+PLANT_PALE = {"saturation": 0.12, "value": 0.5}     # an untextured leaf material this pale is the importer's white
+BARK_WORDS = ("trunk", "bark", "wood", "stem", "branch", "stamm", "tronco")
+
+
+def _image_has_cutout(image) -> bool:
+    """Whether an image carries transparent texels (alpha under 0.5 somewhere; sampled)."""
+    try:
+        if image is None or int(image.channels) < 4 or image.alpha_mode == "NONE":
+            return False
+        n = len(image.pixels)
+        if n == 0:
+            return False
+        step = max(4, (n // 4 // 4096) * 4)            # about 4,096 texels
+        px = image.pixels[:]
+        return any(px[i] < 0.5 for i in range(3, n, step))
+    except Exception:                                 # an unloaded or broken image: leave it
+        return False
+
+
+def fix_plant_materials(objects, species: str) -> dict:
+    """Make a library plant's materials read as foliage (bpy; 24 Oct 2026: real04's 21 library bushes rendered white).
+    3D Warehouse plants are leaf cards whose texture has a transparent background, often exported opaque: the image's
+    alpha is wired to the Principled BSDF's Alpha where nothing drives it. An untextured material as pale as the
+    importer's white (``PLANT_PALE``) takes the species' foliage colour (its bark colour when the name says trunk /
+    bark / wood). Returns ``{"cutout": [...], "tinted": [...]}``; each material is changed once (``wenart_plant_fix``)."""
+    import colorsys
+    rec = species_record(species)
+    out = {"cutout": [], "tinted": []}
+    seen = set()
+    for ob in objects:
+        if getattr(ob, "type", None) != "MESH":
+            continue
+        for slot in ob.material_slots:
+            mat = slot.material
+            if mat is None or mat.name in seen or getattr(mat, "node_tree", None) is None:
+                continue
+            seen.add(mat.name)
+            if mat.get("wenart_plant_fix"):
+                continue
+            mat["wenart_plant_fix"] = 1
+            nodes, links = mat.node_tree.nodes, mat.node_tree.links
+            bsdf = next((n for n in nodes if n.bl_idname == "ShaderNodeBsdfPrincipled"), None)
+            if bsdf is None:
+                continue
+            texs = [n for n in nodes if n.bl_idname == "ShaderNodeTexImage" and n.image is not None]
+            if texs:
+                tex = next((t for t in texs if _image_has_cutout(t.image)), None)
+                if tex is not None and not bsdf.inputs["Alpha"].links:
+                    links.new(tex.outputs["Alpha"], bsdf.inputs["Alpha"])
+                    out["cutout"].append(mat.name)
+                continue
+            if bsdf.inputs["Base Color"].links:
+                continue
+            r, g, b, _a = bsdf.inputs["Base Color"].default_value
+            _h, sat, val = colorsys.rgb_to_hsv(r, g, b)
+            if sat < PLANT_PALE["saturation"] and val > PLANT_PALE["value"]:
+                bark = any(w in mat.name.lower() for w in BARK_WORDS)
+                col = (0.10, 0.07, 0.05) if bark else tuple(rec["colour"])
+                bsdf.inputs["Base Color"].default_value = (*col, 1.0)
+                out["tinted"].append(mat.name)
+    return out
+
+
 def _tree_library(name: str, species: str, height_m: float, seed: int, collection, model: dict):
     """A collection instance of a library plant (bpy), scaled to ``height_m``, turned by the seed."""
     import bpy
     lib = _import_hero(model)
     if lib is None:
         raise RuntimeError(f"{model['id']}: glTF import failed")
+    if "plant_fix" not in lib:
+        lib["plant_fix"] = fix_plant_materials(bpy.data.collections[lib["collection"]].all_objects, species)
     ob = bpy.data.objects.new(name, None)
     ob.instance_type = "COLLECTION"
     ob.instance_collection = bpy.data.collections[lib["collection"]]
@@ -1353,7 +1418,8 @@ def _tree_library(name: str, species: str, height_m: float, seed: int, collectio
                 "licence_url": model.get("licence_url"), "licence_flag": model.get("licence_flag"),
                 "attribution": model.get("attribution"), "model_height_m": lib["height_m"], "scale": round(s, 4),
                 "polycount": model.get("polycount"), "material": None, "name": model.get("name"),
-                "match": model.get("match"), "inferred": True, "reason": model.get("reason")}
+                "match": model.get("match"), "inferred": True, "reason": model.get("reason"),
+                "material_fix": lib.get("plant_fix")}
 
 
 def tree_object(species: str, height_m: float, seed: int, near_camera: bool, *, collection=None,

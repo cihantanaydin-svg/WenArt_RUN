@@ -149,3 +149,18 @@ def test_parkings_and_car_ground_follow_the_terrain():
     assert S.car_ground(plan, lots[0], {"center": [3, 3]}) == (0.5, 0.0, 0.0)
     z, gx, gy = S.car_ground(plan, lots[1], {"center": [3, 3]})
     assert abs(z - 1.0 - S.CAR_LIFT_M) < 1e-9 and gx == gy == 0.0
+
+
+from wenart.blender import vegetation as VG
+
+
+class _Img:
+    def __init__(self, alphas, channels=4, mode="STRAIGHT"):
+        self.channels, self.alpha_mode = channels, mode
+        self.pixels = [v for a in alphas for v in (1.0, 1.0, 1.0, a)]
+
+
+def test_image_cutout_is_found_by_its_transparent_texels():
+    assert VG._image_has_cutout(_Img([1.0] * 50 + [0.0] * 50))
+    assert not VG._image_has_cutout(_Img([1.0] * 100))
+    assert not VG._image_has_cutout(_Img([0.0] * 10, mode="NONE")) and not VG._image_has_cutout(None)
