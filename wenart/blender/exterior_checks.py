@@ -1069,6 +1069,10 @@ def validate_exterior_override(building: dict, override: dict) -> dict:
                                     else "flat")
         if t != "flat" and roof_ov.get("pitch_deg") is not None and not 5.0 <= float(roof_ov["pitch_deg"]) <= 60.0:
             failed.append(f"a {t} roof at {roof_ov['pitch_deg']} degrees (5-60)")
+        # 24 Oct 2026: a drawn roof value is the anchor (roof.apply_override refuses it): say so to the agent
+        drawn_roof = building.get("roof") if isinstance(building.get("roof"), dict) else None
+        refused = (R.apply_override(drawn_roof, roof_ov)[0] or {}).get("override_refused") if drawn_roof else None
+        failed += [f"roof {c['field']} is drawn ({c['kept']}); the override would not apply" for c in refused or []]
         trial = dict(building, agent_overrides=dict(building.get("agent_overrides") or {},
                                                     exterior=dict(((building.get("agent_overrides") or {})
                                                                    .get("exterior") or {}), roof=roof_ov)))

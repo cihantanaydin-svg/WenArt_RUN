@@ -845,12 +845,27 @@ def apply_override(roof: Optional[dict], override: Optional[dict]) -> tuple[Opti
     """The roof with the agent's ``exterior.roof`` override on top (pure; §17.3: ``{type, pitch_deg, overhang_m}``,
     every key optional): ``type`` replaces the type; ``pitch_deg`` the first pitch; ``overhang_m`` the overhang,
     and the roof outline is then grown from the walls (a drawn outline fixes the overhang). Each change is
-    ``{"field", "value", "was", "reason"}`` (method ``ai`` on the value). No override: the roof unchanged."""
+    ``{"field", "value", "was", "reason"}`` (method ``ai`` on the value). No override: the roof unchanged. A key
+    whose value the drawing gives (``_drawn``, ``_drawn_type``, ``_drawn_outline``) is refused: the roof lists it in
+    ``override_refused`` (24 Oct 2026)."""
     if not isinstance(override, dict) or not override or roof is None:
         return roof, []
     out = dict(roof)
     changes = []
     note = "agent override (docs/milestone11.md §17.3)"
+    # 24 Oct 2026 (real04: the agent's 45 degree, 0.8 m override replaced the drawn 32.5 / 11.3 degree mansard, its
+    # outline and its 5.8 m ridge: the roof stood 1.35 m too high). CLAUDE.md evidence rules: the drawn geometry is
+    # the anchor; an override of a drawn value is refused and listed (``override_refused``), the rest applies.
+    refused = []
+    override = dict(override)
+    for key, drawn in (("type", _drawn_type(roof)), ("pitch_deg", _drawn((roof.get("pitches_deg") or [None])[0])),
+                       ("overhang_m", _drawn(roof.get("overhang")) or _drawn_outline(roof))):
+        if key in override and drawn and not (key == "type" and override[key] == roof.get("type")):
+            refused.append({"field": key, "value": override.pop(key), "kept": drawn,
+                            "reason": f"{note}: refused, the drawing gives {key} ({drawn}); the drawn geometry is "
+                                      f"the anchor (CLAUDE.md evidence rules)"})
+    if refused:
+        out["override_refused"] = refused
     if override.get("type") in OVERRIDE_TYPES:
         changes.append({"field": "type", "value": override["type"], "was": roof.get("type"), "reason": note})
         out["type"], out["type_source"] = override["type"], "agent"
@@ -872,6 +887,33 @@ def apply_override(roof: Optional[dict], override: Optional[dict]) -> tuple[Opti
         out["outline"] = None
         out["openings"] = [dict(o) for o in roof.get("openings") or []]
     return out, changes
+
+
+DRAWN_METHODS = ("vector", "ocr", "dimension")
+
+
+def _drawn(entry) -> Optional[str]:
+    """``"<method> <value>"`` when a roof value is drawn (method vector / ocr / dimension, confidence 0.9 or more),
+    else None."""
+    if isinstance(entry, dict) and entry.get("method") in DRAWN_METHODS and entry.get("value") is not None \
+            and float(entry.get("confidence") or 0.0) >= 0.9:
+        return f"{entry['method']} {entry['value']}"
+    return None
+
+
+def _drawn_type(roof: dict) -> Optional[str]:
+    """The roof type when the drawing gives it (``type_source`` a drawing rule, not assumed / agent / default)."""
+    src = str(roof.get("type_source") or "")
+    if roof.get("type") in (None, "other") or src in ("", "assumed", "agent", "default", "inferred", "brief"):
+        return None
+    return f"{src} {roof['type']}"
+
+
+def _drawn_outline(roof: dict) -> Optional[str]:
+    if len(roof.get("outline") or []) >= 3 and any(isinstance(e, dict) and e.get("rule") == "roof_outline"
+                                                   for e in roof.get("evidence") or []):
+        return "drawn roof outline"
+    return None
 
 
 OPENING_ROOF_GAP = 0.05          # an opening with an assumed height stops this far under the roof underside
@@ -1025,6 +1067,93 @@ def roof_solid(model: dict) -> tuple[list, list, list[int]]:
     return _mesh(faces)
 
 
+RIDGE_CAP = {"radius": 0.13, "segments": 8, "sink": 0.04, "min_length": 0.4, "break_cos": 0.7}
+
+
+def ridge_lines(model: dict) -> list[tuple[tuple, tuple]]:
+    """The ridges and hips of a pitched roof (pure; 24 Oct 2026): the 3D edges two roof planes share on the covering
+    (``surface_pieces`` of the top equations; the outer surface is the lowest plane, so every shared edge is a
+    ridge, a hip or a break line) but the break lines (both planes falling the same way, ``break_cos``). [] for a
+    flat roof."""
+    if model.get("type") in ("flat", None) or model.get("kind") == "flat_cut" or not model.get("equations"):
+        return []
+    top = list(model["equations"])
+    holes = [o["polygon"] for o in model.get("openings") or []]
+    pieces = geom2d.surface_pieces(geom2d.ccw(model["outline"]), holes, top)
+
+    segs = []                                            # (plane, a, b) of every piece edge
+    for i, poly in pieces:
+        n = len(poly)
+        for k in range(n):
+            a, b = poly[k], poly[(k + 1) % n]
+            if G.distance(a, b) >= 1e-6:
+                segs.append((i, (float(a[0]), float(a[1])), (float(b[0]), float(b[1]))))
+    tol = 1e-3
+    found: dict = {}
+    for x in range(len(segs)):
+        i, a, b = segs[x]
+        length = G.distance(a, b)
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        for y in range(x + 1, len(segs)):
+            j, c, d = segs[y]
+            if j == i:
+                continue
+            # collinear: c and d on the line through a, b; then the overlap of the two along it
+            if abs((c[0] - a[0]) * uy - (c[1] - a[1]) * ux) > tol or abs((d[0] - a[0]) * uy - (d[1] - a[1]) * ux) > tol:
+                continue
+            tc = (c[0] - a[0]) * ux + (c[1] - a[1]) * uy
+            td = (d[0] - a[0]) * ux + (d[1] - a[1]) * uy
+            t0, t1 = max(0.0, min(tc, td)), min(length, max(tc, td))
+            if t1 - t0 < RIDGE_CAP["min_length"]:
+                continue
+            p0 = (round(a[0] + ux * t0, 4), round(a[1] + uy * t0, 4))
+            p1 = (round(a[0] + ux * t1, 4), round(a[1] + uy * t1, 4))
+            found[tuple(sorted((p0, p1)))] = (min(i, j), max(i, j))
+    out = []
+    for (a, b), (i, j) in sorted(found.items()):
+        grads = [(top[i][0], top[i][1]), (top[j][0], top[j][1])]
+        norms = [math.hypot(*g) for g in grads]
+        if min(norms) > 1e-6 and (grads[0][0] * grads[1][0] + grads[0][1] * grads[1][1]) / (norms[0] * norms[1]) \
+                > RIDGE_CAP["break_cos"]:
+            continue                                     # a break line (mansard, gambrel): both planes fall one way
+        za = min(geom2d.plane_z(top[k], *a) for k in (i, j))
+        zb = min(geom2d.plane_z(top[k], *b) for k in (i, j))
+        out.append(((a[0], a[1], za), (b[0], b[1], zb)))
+    return out
+
+
+def ridge_caps(model: dict) -> tuple[list, list]:
+    """``(verts, faces)`` of the ridge and hip caps (pure): a half-round tile line of ``RIDGE_CAP["radius"]`` along
+    every ``ridge_lines`` edge, sunk ``sink`` into the covering, closed at both ends."""
+    r, seg, sink = RIDGE_CAP["radius"], RIDGE_CAP["segments"], RIDGE_CAP["sink"]
+    verts: list = []
+    faces: list = []
+    for a, b in ridge_lines(model):
+        d = [b[i] - a[i] for i in range(3)]
+        length = math.sqrt(sum(c * c for c in d))
+        if length < 1e-6:
+            continue
+        u = [c / length for c in d]
+        side = [u[1], -u[0], 0.0]                          # horizontal, square to the edge
+        sl = math.hypot(side[0], side[1]) or 1.0
+        side = [side[0] / sl, side[1] / sl, 0.0]
+        up = [side[1] * u[2] - side[2] * u[1], side[2] * u[0] - side[0] * u[2], side[0] * u[1] - side[1] * u[0]]
+        if up[2] < 0:
+            up = [-c for c in up]
+        base = len(verts)
+        for end in (a, b):
+            for k in range(seg + 1):
+                t = math.pi * k / seg
+                c, s_ = math.cos(t) * r, math.sin(t) * r - sink
+                verts.append(tuple(end[i] + side[i] * c + up[i] * s_ for i in range(3)))
+        m = seg + 1
+        for k in range(seg):
+            faces.append([base + k, base + k + 1, base + m + k + 1, base + m + k])
+        faces.append([base + k for k in range(m)][::-1])
+        faces.append([base + m + k for k in range(m)])
+    return verts, faces
+
+
 def parapet_ring(model: dict) -> list[tuple[list, list]]:
     """The parapet of a ``flat_cut`` roof (Milestone 12, pure): one box per outline edge, ``parapet_thickness``
     inside the outline, from the roof top up by ``model["parapet"]``; [] for any other roof."""
@@ -1151,4 +1280,16 @@ def build_roof(model: dict, collection, materials: Sequence, manifest_objects: l
     })
     for a in model["assumed"]:
         assumed.append({"object": "roof", "field": a["field"], "value": a["value"], "reason": a["reason"]})
+    cv, cf = ridge_caps(model)
+    if cf:                                       # 24 Oct 2026: the ridge and hip tiles (not drawn)
+        caps = common.new_mesh_object("roof_ridges", cv, cf, collection=collection, wenart_id="roof_ridges",
+                                      kind="roof", status="assumed", materials=[materials[0]] if materials else [])
+        reason = "ridge and hip caps along the roof's ridges and hips (not drawn; a tiled roof has them)"
+        manifest_objects.append({
+            "name": caps.name, "wenart_id": "roof_ridges", "kind": "roof", "status": "assumed",
+            "level_id": model.get("over_level_id"), "element_id": "roof", "evidence": [],
+            "material": materials[0].name if materials else None, "textured": False, "pass_index": None,
+            "assumed": {"detail": "ridge_caps", "reason": reason}, "ridges": len(ridge_lines(model))})
+        assumed.append({"object": caps.name, "field": "ridge_caps", "value": len(ridge_lines(model)),
+                        "reason": reason, "parent": "roof", "kind": "ridge_caps"})
     return ob

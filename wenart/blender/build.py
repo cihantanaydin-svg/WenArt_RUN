@@ -924,6 +924,10 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
     if changes:
         out["overrides_applied"]["roof"] = changes
         out["warnings"] += [f"roof {c['field']}: {c['was']} -> {c['value']} ({c['reason']})" for c in changes]
+    for c in (roof_in or {}).get("override_refused") or []:
+        out["warnings"].append(f"roof {c['field']}: agent value {c['value']} not applied ({c['reason']})")
+        if out["overrides_applied"] is not None:
+            out["overrides_applied"].setdefault("roof_refused", []).append(c)
     roof_in, out["terraces"], warnings = R.terrace_decisions(roof_in, vb, out["brief"]["roof_terraces"]["value"])
     out["warnings"] += warnings
     for d in out["terraces"]:
@@ -1570,6 +1574,9 @@ def main(argv: list[str]) -> int:
     return 0
 
 
+PITCHED_FASCIA_TYPES = ("gable", "hip", "mansard", "gambrel", "shed")
+PITCHED_FASCIA_REASON = ("pitched roof: the eaves and verge edges are a fascia board in the gutter's {material} (not "
+                         "drawn; the roof covering stretched over a 0.2 m edge read as a paper-thin sheet)")
 FLAT_CUT_FASCIA_REASON = ("flat_cut roof: the slab edge and the {h:.2f} m parapet are walling finished like the "
                           "facade ({material}), with the coping on top, not the roof covering ({covering})")
 
@@ -1590,6 +1597,16 @@ def roof_slot_looks(roof: dict, looks: dict) -> tuple[dict, dict, dict | None]:
                                                         material=facade.get("material"),
                                                         covering=covering.get("material"))}
         return covering, facade, note
+    if roof.get("type") in PITCHED_FASCIA_TYPES:
+        # 24 Oct 2026 (real04): the 0.2 m roof edge carried the tile texture stretched over it and read as a paper-thin
+        # sheet; a pitched roof's eaves and verges get a fascia board in the gutter's look (facade.KIT_LOOKS)
+        from wenart.blender import facade as FA
+        material, colour, _why = FA.KIT_LOOKS["gutter"]
+        fascia = {"material": material, "colour": colour, "rgb": None, "asset": None, "source": "build",
+                  "assumed": True, "reason": PITCHED_FASCIA_REASON.format(material=material), "evidence": []}
+        note = {"object": "roof", "field": "fascia_material", "value": material,
+                "reason": PITCHED_FASCIA_REASON.format(material=material)}
+        return covering, fascia, note
     return covering, covering, None
 
 

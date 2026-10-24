@@ -382,6 +382,19 @@ MANIFEST = {"objects": [{"name": "furn_f_L1_058", "wenart_id": "f_L1_058", "kind
                                    "rotation_deg": 270.0}}]}
 
 
+def undrawn_roof(b: dict) -> dict:
+    """The building with its roof values marked assumed (24 Oct 2026: an agent override of a drawn roof value is
+    refused; the override machinery is tested on a roof the drawing does not give)."""
+    r = b["roof"]
+    r["type_source"] = "assumed"
+    for k in ("overhang", "ridge_height", "eaves_height"):
+        if isinstance(r.get(k), dict):
+            r[k] = dict(r[k], method="assumed")
+    r["pitches_deg"] = [dict(p, method="assumed") if isinstance(p, dict) else p for p in r.get("pitches_deg") or []]
+    r["evidence"] = [e for e in r.get("evidence") or [] if not (isinstance(e, dict) and e.get("rule") == "roof_outline")]
+    return b
+
+
 def _real02() -> dict:
     b = read(REAL02)
     b["furniture"] = [f for f in b["furniture"] if f.get("id") != "f_L1_058"] + [copy.deepcopy(P4A_BOOKSHELF)]
@@ -427,7 +440,7 @@ def test_a_roof_override_still_meets_every_manifest_box():
     degree override brings it through the roof. That new critical stays and rejects the roof edit (the key-not-before
     rule applies only while the roof is kept)."""
     from wenart.blender import roof as R
-    b = _real02()
+    b = undrawn_roof(_real02())         # 24 Oct 2026: an override of a drawn roof value is refused
     roof = X._prep(b)["roof"]
     z = R.surface_z(roof["equations"], 3.0, 6.0)
     box = {"name": "decor_dec_L1_900", "wenart_id": "dec_L1_900", "kind": "decor",

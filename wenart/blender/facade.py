@@ -455,6 +455,15 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
                 continue
             boxes.append(_box("downpipe", top_level["id"] if top_level else None, (px, py, (z0 + z1) / 2.0), (d, d, z1 - z0),
                               math.degrees(math.atan2(wn[1], wn[0])), None, KIT_LOOKS["downpipe"][2]))
+            # 24 Oct 2026: the outlet from the gutter back to the pipe on the wall (the overhang stood between them:
+            # the pipe ended under the soffit, the gutter ran alone at the roof edge)
+            gx, gy = ex + nx * gw / 2.0, ey + ny * gw / 2.0
+            reach = math.hypot(px - gx, py - gy)
+            if reach > d:
+                boxes.append(_box("downpipe", top_level["id"] if top_level else None,
+                                  ((gx + px) / 2.0, (gy + py) / 2.0, z1 - d / 2.0), (reach + d, d, d),
+                                  math.degrees(math.atan2(py - gy, px - gx)), None,
+                                  "downpipe outlet from the gutter to the wall (not drawn)"))
     # 3. canopy and wall lights at the entrance doors at grade
     ents = []
     if len(ground_outline or []) >= 3 and terrain is not None:

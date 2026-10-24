@@ -1828,6 +1828,10 @@ def test_p4b_flat_cut_parapet_and_slab_edge_take_the_facade_look():
     assert "0.30 m parapet" in note["reason"] and "concrete_tiles" in note["reason"]
     for kind in (None, "pitched", "mansard"):
         assert BB.roof_slot_looks({"kind": kind}, looks) == (looks["roof"], looks["roof"], None)
+    # 24 Oct 2026: a pitched roof type gets the fascia board (the gutter's look) on slot 2
+    _c, board, why = BB.roof_slot_looks({"type": "mansard"}, looks)
+    assert board["material"] == "aluminium_anthracite" and why["field"] == "fascia_material"
+    assert BB.roof_slot_looks({"type": "flat"}, looks) == (looks["roof"], looks["roof"], None)
     src = inspect.getsource(BB.main)
     assert "roof_slot_looks(roof, looks)" in src and "shell.look_material(library, fascia)" in src
     # the parapet ring and the slab edge are the faces of slot 2

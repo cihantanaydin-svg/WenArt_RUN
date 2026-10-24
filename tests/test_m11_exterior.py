@@ -168,13 +168,32 @@ def test_e8_assumed_openings_are_clipped_under_the_roof(real02, real02_prep):
 
 
 def test_agent_roof_override(real02):
-    b = copy.deepcopy(real02)
-    b["agent_overrides"] = {"exterior": {"roof": {"type": "hip", "pitch_deg": 30.0, "overhang_m": 0.6}}, "round": 1}
+    ov = {"exterior": {"roof": {"type": "hip", "pitch_deg": 30.0, "overhang_m": 0.6}}, "round": 1}
+    drawn = copy.deepcopy(real02)
+    drawn["agent_overrides"] = copy.deepcopy(ov)
+    kept = B.prepare(drawn, "base", None)          # 24 Oct 2026: the drawn mansard is the anchor
+    assert kept["roof"]["type"] == "mansard" and not kept["overrides_applied"].get("roof")
+    assert [c["field"] for c in kept["overrides_applied"]["roof_refused"]] == ["type", "pitch_deg", "overhang_m"]
+    b = undrawn_roof(copy.deepcopy(real02))
+    b["agent_overrides"] = ov
     prep = B.prepare(b, "base", None)
     assert prep["roof"]["type"] == "hip" and prep["roof"]["planes_source"] == "derived"
     assert {p["slope_deg"] for p in prep["roof"]["planes"]} == {30.0}
     assert [c["field"] for c in prep["overrides_applied"]["roof"]] == ["type", "pitch_deg", "profile", "overhang_m"]
     assert prep["overrides_applied"]["round"] == 1
+
+
+def undrawn_roof(b: dict) -> dict:
+    """The building with its roof values marked assumed (24 Oct 2026: an agent override of a drawn roof value is
+    refused; the override machinery is tested on a roof the drawing does not give)."""
+    r = b["roof"]
+    r["type_source"] = "assumed"
+    for k in ("overhang", "ridge_height", "eaves_height"):
+        if isinstance(r.get(k), dict):
+            r[k] = dict(r[k], method="assumed")
+    r["pitches_deg"] = [dict(p, method="assumed") if isinstance(p, dict) else p for p in r.get("pitches_deg") or []]
+    r["evidence"] = [e for e in r.get("evidence") or [] if not (isinstance(e, dict) and e.get("rule") == "roof_outline")]
+    return b
 
 
 # --------------------------------------------------------------------------
@@ -569,7 +588,9 @@ def test_validate_camera_override_interior_and_exterior(real02):
 
 
 def test_validate_exterior_and_material_overrides(real02):
-    assert X.validate_exterior_override(real02, {"roof": {"type": "hip", "pitch_deg": 30.0}})["ok"]
+    drawn = X.validate_exterior_override(real02, {"roof": {"type": "hip", "pitch_deg": 30.0}})
+    assert not drawn["ok"] and all("is drawn" in f for f in drawn["failed"])           # 24 Oct 2026
+    assert X.validate_exterior_override(undrawn_roof(copy.deepcopy(real02)), {"roof": {"type": "hip", "pitch_deg": 30.0}})["ok"]
     assert not X.validate_exterior_override(real02, {"roof": {"pitch_deg": 80.0}})["ok"]          # schema
     steep = X.validate_exterior_override(real02, {"roof": {"type": "gable", "pitch_deg": 65.0}})
     assert not steep["ok"] and "5-60" in steep["failed"][0]

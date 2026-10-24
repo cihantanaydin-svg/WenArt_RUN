@@ -352,9 +352,9 @@ def test_a_decor_piece_through_the_roof_is_reported_to_the_decor_stage_not_sent_
 P3_ROOF_CLAIM = "The roof is a standard hipped or gable roof, not a mansard roof as specified in the brief."
 
 
-def roof_building(override=None) -> dict:
+def roof_building(override=None, type_source="plan_roof_lines") -> dict:
     b = building()
-    b["roof"] = {"type": "mansard", "type_source": "plan_roof_lines", "pitches_deg": [{"value": 32.5},
+    b["roof"] = {"type": "mansard", "type_source": type_source, "pitches_deg": [{"value": 32.5},
                                                                                     {"value": 11.3}],
                  "overhang": {"value": 0.5}}
     if override:
@@ -379,8 +379,10 @@ def test_the_vision_roof_type_claim_is_dropped_when_the_build_makes_the_drawn_ro
     assert res["dropped"][0]["message"] == P3_ROOF_CLAIM and "outranks AI vision" in res["dropped"][0]["dropped"]
     prompt = json.dumps(model.critic_requests()[0]["messages"])
     assert "roof as built: mansard (from plan_roof_lines), pitch 45 / 11.3 deg, overhang 0.8 m." in prompt
-    # an override to another type: the drawings say mansard, the build makes a flat roof; vision may be right
-    flat = roof_building({"type": "flat"})
+    # 24 Oct 2026: an override of the drawn type is refused (the build keeps the mansard: the claim is dropped)
+    assert CV.roof_matches(roof_building({"type": "flat"}))
+    # an override to another type where the type is not drawn: the build makes a flat roof; vision may be right
+    flat = roof_building({"type": "flat"}, type_source="assumed")
     res = CV.critique_exterior(model, flat, "ext_1", preview=preview, plan_crop=None, code=code, call_id="r3-v2")
     assert P3_ROOF_CLAIM in [f["message"] for f in res["kept"]]
     assert "roof as built: flat (from agent override)" in CV.roof_note(flat) and "drawings say mansard" in \

@@ -1496,6 +1496,9 @@ def lawn_tile_m(size_m) -> float:
     return round(min(LAWN_TILE_M[1], max(LAWN_TILE_M[0], side)), 3)
 
 
+LAWN_BOUNCE_DESAT = 0.75            # share of the lawn's bounced light turned grey (the camera sees the lawn as is)
+
+
 def lawn_material(mat) -> dict:
     """Give the ground's grass material its lawn look (bpy; round 3; idempotent): the texture's Mapping node scaled
     to ``lawn_tile_m`` of its current tile, a Noise texture (Object coordinates, ``LAWN_VARIATION``) through a
@@ -1543,7 +1546,20 @@ def lawn_material(mat) -> dict:
     else:
         mix.inputs[6].default_value = tuple(base.default_value)
     links.new(ramp.outputs["Color"], mix.inputs[7])
-    links.new(mix.outputs[2], base)
+    # 24 Oct 2026 (real04: the walls under the eaves read yellow-olive, lit mostly by the sunlit lawn): the light
+    # the lawn bounces is desaturated by LAWN_BOUNCE_DESAT; the camera sees the lawn's own colour
+    path = _node(tree, "ShaderNodeLightPath")
+    grey = _node(tree, "ShaderNodeRGBToBW")
+    links.new(mix.outputs[2], grey.inputs["Color"])
+    fac = _node(tree, "ShaderNodeMath", operation="MULTIPLY_ADD")
+    links.new(path.outputs["Is Camera Ray"], fac.inputs[0])
+    fac.inputs[1].default_value = -LAWN_BOUNCE_DESAT
+    fac.inputs[2].default_value = LAWN_BOUNCE_DESAT
+    bounce = _node(tree, "ShaderNodeMix", data_type="RGBA", blend_type="MIX")
+    links.new(fac.outputs[0], bounce.inputs["Factor"])
+    links.new(mix.outputs[2], bounce.inputs[6])
+    links.new(grey.outputs["Val"], bounce.inputs[7])
+    links.new(bounce.outputs[2], base)
     bump = False
     if not bsdf.inputs["Normal"].links:
         fine = _node(tree, "ShaderNodeTexNoise")
@@ -1556,7 +1572,7 @@ def lawn_material(mat) -> dict:
         links.new(bnode.outputs["Normal"], bsdf.inputs["Normal"])
         bump = True
     rec = {"tile_m": tile, "textured": mapping is not None, "variation": [list(cfg["dark"]), list(cfg["light"])],
-           "noise_scale_per_m": cfg["scale_per_m"], "bump": bump}
+           "noise_scale_per_m": cfg["scale_per_m"], "bump": bump, "bounce_desaturation": LAWN_BOUNCE_DESAT}
     mat["wenart_lawn"] = _json.dumps(rec)
     return dict(rec, applied=True)
 
