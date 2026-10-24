@@ -1,0 +1,194 @@
+[wenart.run] 2026-10-24T06:25:12Z $ /workspace/venv/bin/python -m pytest -m gpu tests/gpu/test_full_run.py tests/gpu/test_render.py tests/gpu/test_camera_replay.py tests/gpu/test_look_m6.py tests/gpu/test_furnish.py tests/gpu/test_check.py tests/gpu/test_m9.py -v -ra --junitxml=/workspace/jobs/20261024-053145-full/results/junit-full.xml
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /workspace/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /workspace/repo
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.12.2
+collecting ... collected 56 items
+
+tests/gpu/test_full_run.py::test_every_public_project_ended_ok_or_needs_review PASSED [  1%]
+tests/gpu/test_full_run.py::test_run_project_is_ok_with_allowed_stage_states[real06] PASSED [  3%]
+tests/gpu/test_full_run.py::test_pending_pipeline_has_its_final_building[real06] PASSED [  5%]
+tests/gpu/test_full_run.py::test_final_report_has_every_rendered_view[real06] PASSED [  7%]
+tests/gpu/test_full_run.py::test_unvalidated_gate_means_cycles_finals[real06] SKIPPED [  8%]
+tests/gpu/test_full_run.py::test_needs_review_project[NOTSET] SKIPPED    [ 10%]
+tests/gpu/test_full_run.py::test_selftest_files_stay_private SKIPPED     [ 12%]
+tests/gpu/test_render.py::test_gpu_device_and_full_resolution[real06] PASSED [ 14%]
+tests/gpu/test_render.py::test_every_room_has_three_views[real06] PASSED [ 16%]
+tests/gpu/test_render.py::test_no_blocked_searched_view[real06] PASSED   [ 17%]
+tests/gpu/test_render.py::test_view_time_under_four_minutes[real06] PASSED [ 19%]
+tests/gpu/test_render.py::test_cameras_render_with_their_own_lens[real06] PASSED [ 21%]
+tests/gpu/test_render.py::test_render_matches_the_scene_build[real06] PASSED [ 23%]
+tests/gpu/test_render.py::test_passes_exist_and_depth_is_plausible[real06] FAILED [ 25%]
+tests/gpu/test_render.py::test_closed_door_views_end_on_the_door[real06] SKIPPED [ 26%]
+tests/gpu/test_render.py::test_index_pass_contains_every_visible_proxy[real06] FAILED [ 28%]
+tests/gpu/test_render.py::test_entries_are_m5_renders_with_helper_maps[real06] PASSED [ 30%]
+tests/gpu/test_render.py::test_exposure_recorded_and_within_the_clamp[real06] PASSED [ 32%]
+tests/gpu/test_render.py::test_uint16_index_stats_match_the_index_maps[real06] PASSED [ 33%]
+tests/gpu/test_render.py::test_white_plaster_walls_are_neutral[real06] SKIPPED [ 35%]
+tests/gpu/test_render.py::test_views_keep_the_project_white_point_or_mix_it_with_the_rig[real06] PASSED [ 37%]
+tests/gpu/test_render.py::test_rig_lit_rooms_have_no_orange_cast[real06] PASSED [ 39%]
+tests/gpu/test_render.py::test_daylight_walls_are_not_olive[real06] PASSED [ 41%]
+tests/gpu/test_render.py::test_sky_pull_leaves_no_dotted_edges[real06] PASSED [ 42%]
+tests/gpu/test_render.py::test_open_air_views_render_under_the_exterior_sky[real06] SKIPPED [ 44%]
+tests/gpu/test_render.py::test_the_interior_world_is_the_sky_of_the_levers[real06] PASSED [ 46%]
+tests/gpu/test_render.py::test_sky_and_window_pulls_reach_their_targets[real06] PASSED [ 48%]
+tests/gpu/test_render.py::test_window_pull_takes_an_unclipped_k_when_one_was_tried[real06] PASSED [ 50%]
+tests/gpu/test_render.py::test_window_pull_leaves_panes_that_need_no_pull[real06] PASSED [ 51%]
+tests/gpu/test_render.py::test_interior_glazing_pull_removes_clipping[real06] PASSED [ 53%]
+tests/gpu/test_render.py::test_interior_glazing_keeps_one_white_point[real06] SKIPPED [ 55%]
+tests/gpu/test_render.py::test_exterior_views_cap_the_ground_and_keep_the_lawn_green[real06] PASSED [ 57%]
+tests/gpu/test_render.py::test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit[real06] PASSED [ 58%]
+tests/gpu/test_camera_replay.py::test_one_camera_per_name_and_a_plan_per_render[real06] PASSED [ 60%]
+tests/gpu/test_camera_replay.py::test_replayed_cameras_follow_the_camera_file[real06] SKIPPED [ 62%]
+tests/gpu/test_camera_replay.py::test_agent_cameras_record_their_pose[real06] SKIPPED [ 64%]
+tests/gpu/test_look_m6.py::test_renders_are_milestone_6_renders[real06] PASSED [ 66%]
+tests/gpu/test_look_m6.py::test_unverified_pieces_cast_no_colour[real06] PASSED [ 67%]
+tests/gpu/test_look_m6.py::test_kitchen_counter_fronts_are_lit[real06] SKIPPED [ 69%]
+tests/gpu/test_look_m6.py::test_window_pull_keeps_the_panes_unclipped[real06] PASSED [ 71%]
+tests/gpu/test_look_m6.py::test_dim_rooms_are_metered_below_six_ev[real06] SKIPPED [ 73%]
+tests/gpu/test_look_m6.py::test_assumed_entries_of_the_design_details[real06] PASSED [ 75%]
+tests/gpu/test_furnish.py::test_every_empty_room_was_laid_out[real06] PASSED [ 76%]
+tests/gpu/test_furnish.py::test_rooms_got_what_their_type_calls_for[real06] PASSED [ 78%]
+tests/gpu/test_furnish.py::test_added_pieces_pass_every_check[real06] PASSED [ 80%]
+tests/gpu/test_furnish.py::test_real_model_and_latency_logged[real06] PASSED [ 82%]
+tests/gpu/test_furnish.py::test_refit_library_models_fit_the_style[real06] PASSED [ 83%]
+tests/gpu/test_check.py::test_every_model_answered_its_calls[real06] PASSED [ 85%]
+tests/gpu/test_check.py::test_calibration_present[real06] PASSED         [ 87%]
+tests/gpu/test_check.py::test_advisory_set_exactly_when_a_target_is_missed[real06] PASSED [ 89%]
+tests/gpu/test_check.py::test_style_photo_test[real06] PASSED            [ 91%]
+tests/gpu/test_check.py::test_insertion_measured[real06] PASSED          [ 92%]
+tests/gpu/test_m9.py::test_ai_decor_records_every_room_and_both_passes[real06] PASSED [ 94%]
+tests/gpu/test_m9.py::test_ai_decor_is_built[real06] PASSED              [ 96%]
+tests/gpu/test_m9.py::test_surface_decor_rests_on_its_host[real06] PASSED [ 98%]
+tests/gpu/test_m9.py::test_3d_files_are_packed_and_complete[real06] PASSED [100%]
+
+=================================== FAILURES ===================================
+_______________ test_passes_exist_and_depth_is_plausible[real06] _______________
+
+project = ('real06', {'schema_version': '0.1', 'project': 'real06', 'building': 'outputs/real06/building_final.json', 'style': '...ne.blend', 'scene_sha256': 'b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9', 'device': 'OPTIX', ...})
+
+    def test_passes_exist_and_depth_is_plausible(project):
+        """Files and depth range of every view, all bad views listed in one failure. Interior views: MIN_DEPTH_M <
+        min < max < MAX_INDOOR_DEPTH_M and coverage over MIN_COVERAGE; Milestone 10: an interior view of a room open
+        to the sky has no coverage bound; an exterior view: MIN_DEPTH_M < min < max < ``exterior.CLIP_END`` and
+        coverage over EXTERIOR_MIN_COVERAGE (sky by design)."""
+        from wenart.blender import exterior
+    
+        name, scene, render = project
+        out = OUTPUTS / name / "renders"
+        plans = {c["name"]: c for c in scene.get("cameras") or []}
+        open_sky = None                     # read from the building only when an interior view needs it
+        bad, sky = [], []
+        for r in render["renders"]:
+            cam = r["camera"]
+            lost = [r[k] for k in ("png", "exr", "preview") if not (out / r[k]).exists()]
+            if lost:
+                bad.append((cam, f"missing {lost}"))
+            elif (out / r["preview"]).stat().st_size > MAX_PREVIEW_BYTES:
+                bad.append((cam, f"preview over {MAX_PREVIEW_BYTES} bytes"))
+            depth = r.get("depth")
+            if depth is None:
+                bad.append((cam, "no depth statistics"))
+                continue
+            plan = plans.get(cam)
+            if plan is None:
+                # fix round after P4a (17 Oct 2026): a render without a scene camera (P4a: Blender's ext_6.001) is listed;
+                # its limits follow the kind of the rendered camera (an exterior view has no room and no level)
+                bad.append((cam, "rendered but not in the scene manifest"))
+                plan = {"kind": "exterior" if r.get("room_id") is None and r.get("level_id") is None else "interior"}
+            if plan.get("kind") == "exterior":
+                far, coverage = exterior.CLIP_END, EXTERIOR_MIN_COVERAGE
+            else:
+                far, coverage = MAX_INDOOR_DEPTH_M, MIN_COVERAGE
+                if open_sky is None:
+                    open_sky = _open_sky_rooms(_building(name, scene))
+                if (plan.get("room_id") or r.get("room_id")) in open_sky or r.get("open_air"):
+                    # M11 (pod G2b): a room open to the sky (a roof terrace) sees the ground to the horizon (site
+                    # HORIZON_M): the exterior clip end applies, and no coverage bound. Fix round part 2 (17 Oct 2026):
+                    # also every view the render marked open-air (render.open_air: a balcony type without a roof
+                    # opening), rendered with the exterior clip end (render.view_clip_end).
+                    far = exterior.CLIP_END
+                    if not depth["coverage"] > coverage:
+                        sky.append((cam, round(depth["coverage"], 3)))
+                        coverage = None
+            if not MIN_DEPTH_M < depth["min"] < depth["max"] < far:
+                bad.append((cam, f"depth not {MIN_DEPTH_M:g} < min < max < {far:g} m", depth))
+            if coverage is not None and not depth["coverage"] > coverage:
+                bad.append((cam, f"coverage not over {coverage:g}", depth))
+        if sky:
+            print(f"{name}: views of rooms open to the sky, no coverage bound (camera, coverage): {sky}")
+>       assert not bad, f"{name}: views with missing files or an implausible depth pass: {bad}"
+E       AssertionError: real06: views with missing files or an implausible depth pass: [('cam_r_L0_banyo_2', 'depth not 0.1 < min < max < 60 m', {'min': 1.0071783065795898, 'max': 184.6392822265625, 'mean': 2.1418700218200684, 'coverage': 0.9765403163580247}), ('cam_r_L0_banyo_3', 'depth not 0.1 < min < max < 60 m', {'min': 0.6394720077514648, 'max': 184.6319580078125, 'mean': 3.140791654586792, 'coverage': 0.8813512731481481}), ('cam_r_L0_banyo_3', 'coverage not over 0.9', {'min': 0.6394720077514648, 'max': 184.6319580078125, 'mean': 3.140791654586792, 'coverage': 0.8813512731481481}), ('cam_r_L0_mutfak_3', 'depth not 0.1 < min < max < 60 m', {'min': 1.0072741508483887, 'max': 197.65972900390625, 'mean': 3.1835668087005615, 'coverage': 0.9771532600308642}), ('cam_r_L0_salon_1', 'depth not 0.1 < min < max < 60 m', {'min': 0.677361249923706, 'max': 184.63034057617188, 'mean': 3.8308308124542236, 'coverage': 0.9936265432098765}), ('cam_r_L0_salon_3', 'depth not 0.1 < min < max < 60 m', {'min': 1.640465259552002, 'max': 184.63482666015625, 'mean': 3.1358399391174316, 'coverage': 0.9965769675925926}), ('cam_r_L1_banyo_1', 'depth not 0.1 < min < max < 60 m', {'min': 1.01251220703125, 'max': 199.03050231933594, 'mean': 4.057615756988525, 'coverage': 0.9440962577160494}), ('cam_r_L1_cocuk_odasi_1', 'depth not 0.1 < min < max < 60 m', {'min': 1.159663200378418, 'max': 199.03086853027344, 'mean': 4.023324489593506, 'coverage': 0.9736111111111111}), ('cam_r_L1_cocuk_odasi_3', 'depth not 0.1 < min < max < 60 m', {'min': 1.6404657363891602, 'max': 199.03086853027344, 'mean': 4.886368274688721, 'coverage': 0.9450139853395062}), ('cam_r_L1_oda_2_2', 'depth not 0.1 < min < max < 60 m', {'min': 0.8576412200927734, 'max': 199.02911376953125, 'mean': 2.6346068382263184, 'coverage': 0.9515388695987654}), ('cam_r_L1_oda_2_3', 'depth not 0.1 < min < max < 60 m', {'min': 1.4254975318908691, 'max': 199.03353881835938, 'mean': 3.4126639366149902, 'coverage': 0.9570423418209877})]
+E       assert not [('cam_r_L0_banyo_2', 'depth not 0.1 < min < max < 60 m', {'min': 1.0071783065795898, 'max': 184.6392822265625, 'mean': 2.1418700218200684, 'coverage': 0.9765403163580247}), ('cam_r_L0_banyo_3', 'depth not 0.1 < min < max < 60 m', {'min': 0.6394720077514648, 'max': 184.6319580078125, 'mean': 3.140791654586792, 'coverage': 0.8813512731481481}), ('cam_r_L0_banyo_3', 'coverage not over 0.9', {'min': 0.6394720077514648, 'max': 184.6319580078125, 'mean': 3.140791654586792, 'coverage': 0.8813512731481481}), ('cam_r_L0_mutfak_3', 'depth not 0.1 < min < max < 60 m', {'min': 1.0072741508483887, 'max': 197.65972900390625, 'mean': 3.1835668087005615, 'coverage': 0.9771532600308642}), ('cam_r_L0_salon_1', 'depth not 0.1 < min < max < 60 m', {'min': 0.677361249923706, 'max': 184.63034057617188, 'mean': 3.8308308124542236, 'coverage': 0.9936265432098765}), ('cam_r_L0_salon_3', 'depth not 0.1 < min < max < 60 m', {'min': 1.640465259552002, 'max': 184.63482666015625, 'mean': 3.1358399391174316, 'coverage': 0.9965769675925926}), ...]
+
+tests/gpu/test_render.py:579: AssertionError
+_____________ test_index_pass_contains_every_visible_proxy[real06] _____________
+
+project = ('real06', {'schema_version': '0.1', 'project': 'real06', 'building': 'outputs/real06/building_final.json', 'style': '...ne.blend', 'scene_sha256': 'b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9', 'device': 'OPTIX', ...})
+
+    def test_index_pass_contains_every_visible_proxy(project):
+        name, scene, render = project
+        table = scene["pass_index"]
+        plans = {c["name"]: c for c in scene["cameras"]}
+        box3d = {o["wenart_id"]: o.get("box3d") for o in scene.get("objects") or [] if o.get("kind") == "furniture"}
+        missing, hidden, edge = [], [], []
+        building = None
+        for r in render["renders"]:
+            plan = plans.get(r["camera"])
+            if plan is None:                        # fix round after P4a (17 Oct 2026): P4a's KeyError 'ext_6.001'
+                missing.append((r["camera"], ["rendered but not in the scene manifest"]))
+                continue
+            seen = set(r["index_values"])
+            absent = []
+            for f in plan["visible_furniture"]:
+                # Milestone 4 keys furniture by its id (proxies by proxy:<id>): accept both.
+                idx = {table[k] for k in (f, f"proxy:{f}") if k in table}
+                if idx and not idx <= seen:
+                    absent.append(f)
+            if absent and _policy(plan) == "search":
+                # A searched view looks across the room: a piece whose centre is in the frustum can be
+                # hidden behind another one. Allowed only when the ray-cast model sees none of it either.
+                from wenart.blender import camsearch
+    
+                building = building or _building(name, scene)
+                shares = camsearch.model_shares(building, plan)
+                hidden.extend((r["camera"], f) for f in absent if shares.get(f, 0.0) < MODEL_HIDDEN_SHARE)
+                absent = [f for f in absent if shares.get(f, 0.0) >= MODEL_HIDDEN_SHARE]
+                # Milestone 10: a library mesh is smaller than its fitted box; seen only at the box's edge it may be
+                # outside the frame (the box3d guard keeps a misplaced or mis-scaled mesh a failure).
+                edge_only = [f for f in absent if _library_box_edge_only(building, plan, f, box3d, shares.get(f))]
+                edge.extend((r["camera"], f, round(shares[f], 4)) for f in edge_only)
+                absent = [f for f in absent if f not in edge_only]
+            if absent:
+                missing.append((r["camera"], sorted(absent)))
+        if hidden:
+            print(f"{name}: pieces in a searched frustum but hidden by the model too (allowed): {hidden}")
+        if edge:
+            print(f"{name}: library box edge only, pieces the model sees only at the edge of their fitted box "
+                  f"(allowed; camera, piece, model share): {edge}")
+>       assert not missing, f"{name}: proxies planned in the frustum but absent from the index pass: {missing}"
+E       AssertionError: real06: proxies planned in the frustum but absent from the index pass: [('cam_r_L0_banyo_1', ['f_L0_038']), ('cam_r_L0_banyo_3', ['f_L0_037'])]
+E       assert not [('cam_r_L0_banyo_1', ['f_L0_038']), ('cam_r_L0_banyo_3', ['f_L0_037'])]
+
+tests/gpu/test_render.py:730: AssertionError
+----------------------------- Captured stdout call -----------------------------
+real06: pieces in a searched frustum but hidden by the model too (allowed): [('cam_r_L0_salon_1', 'f_L0_034'), ('cam_r_L0_salon_1', 'f_L0_035'), ('cam_r_L1_oda_2_3', 'f_L1_003')]
+- generated xml file: /workspace/jobs/20261024-053145-full/results/junit-full.xml -
+=========================== short test summary info ============================
+SKIPPED [1] tests/gpu/test_full_run.py:164: real06: no gate validation (polish off)
+SKIPPED [1] tests/gpu/test_full_run.py:185: got empty parameter set for (project)
+SKIPPED [1] tests/gpu/test_full_run.py:196: no private self-test in this run
+SKIPPED [1] tests/gpu/test_render.py:645: real06: none of ('cam_r_L1_koridor_2_2',) rendered: cam_r_L1_koridor_2_2 not rendered (no room of the building)
+SKIPPED [1] tests/gpu/test_render.py:797: the white-wall check is for synthetic-01
+SKIPPED [1] tests/gpu/test_render.py:1427: real06: no view of an open-air room
+SKIPPED [1] tests/gpu/test_render.py:1739: real06: none of the named interior-glazing views was rendered
+SKIPPED [1] tests/gpu/test_camera_replay.py:90: real06: built without --cameras-from
+SKIPPED [1] tests/gpu/test_camera_replay.py:167: real06: no agent camera
+SKIPPED [1] tests/gpu/test_look_m6.py:104: real06: no parametric kitchen counter
+SKIPPED [1] tests/gpu/test_look_m6.py:149: real06: no dim room
+FAILED tests/gpu/test_render.py::test_passes_exist_and_depth_is_plausible[real06]
+FAILED tests/gpu/test_render.py::test_index_pass_contains_every_visible_proxy[real06]
+================== 2 failed, 43 passed, 11 skipped in 23.80s ===================
+[wenart.run] 2026-10-24T06:25:38Z rc 1

@@ -1117,3 +1117,33 @@ GPU cost: 23 Oct $22.18, 24 Oct $4.90 so far. Project total **$203.48 of $300**.
 the run that has the later changes. The Milestone 13 run of real04 (2799c88) is committed as the baseline in
 `results/baseline/m13/` and is the default of `python -m wenart.report sheets13` / `metrics13`; real02 and real03 get
 theirs (P6c, P6b) from the volume before their next run. The real04 review above already compares against it.
+
+## real06 (24 Oct 2026): the user's DWG, read and rendered
+
+The DWG (`projects/real06/real06.dwg`, AutoCAD 2004, no unit, no brief) stopped the first pod at the sheets stage
+(pod `r00voo3mh1lz8b`, 6 min, $0.24). The reading code now handles what it showed, each rule general and tested
+(`tests/test_real06_reading.py`, 15 tests):
+
+| What the drawing does | Rule added |
+|---|---|
+| no unit, drawn in metres and shrunk to 1:50 (1 unit = 50 m) | a scaled unit (`m 1:50`) from level marks, dimension texts and door swings when no plain unit fits; marked inferred |
+| nine drawings in a grid of frames drawn as four LINEs each | frame panels split the sheet |
+| no drawing titles | plans by room names + door swings, elevations beside sections with rooms, roof plan by slope texts (`EĞİM%33`), plan levels by their floor marks |
+| level-mark lines beside the section, nearly parallel roof lines | not read as terrain; no roof corner far away |
+| dimension chains on their own layer pass for walls | dimension lines leave the wall choice on a dimension layer |
+| wall piers with pilasters at the window jambs | a stepped run of short pieces is one wall |
+| a two-panel sliding door drawn with lines, a door leaf narrower than its gap | read as doors |
+| an entrance 0.50 m above the ground: handrails | `site_ramp` / `site_handrail` are known object kinds (the build stopped on them) |
+
+real02/03/04 are unchanged (rooms, walls, areas; a few wall ends move 1-2 mm). Full CPU suite: 5,911 passed, 2 failed
+(both already failing before, visible only with LibreDWG installed: real04's tree count, a pod-packing golden test).
+
+**Library**: user decision of 24 Oct 2026: every project may use any library model (licence mode `relaxed` by
+default; `CLAUDE.md`, `wenart/defaults.yaml`).
+
+**Render** (pod `lrmdbppb3lr1c1`, 56 min, $2.31, code 36d1b20, polish off, 256 spp, default style):
+[`results/review/real06_20261024/`](../results/review/real06_20261024/): 34 views (28 interior, 6 exterior), hip
+roof, entrance steps with handrails. GPU tests 43 passed, 2 failed (depth over 60 m through bathroom windows; two
+planned pieces hidden in bathroom views). Weak spots seen on the sheets: the ground-floor kitchen run is not in view or
+not built, the dining area has small tables instead of the drawn round table, the facades carry many dark vertical
+strips, the sliding doors are built as wooden slabs.
