@@ -1190,5 +1190,18 @@ pod must answer the questions and make the changes"; "don't restrict this to 16 
 | the AI on the pod answers | `wenart/agent/architect_ai.py`, run by the scheduler before round 0: the agent model picks one choice per open question (strict JSON schema), code carries it out on a copy and asks every question again; kept only when its question is settled and no new major question opens; `keep` never settles a major question. Accepted answers: `orchestrator/architect_answers.json` (the build reads them through the build brief, so they enter the build fingerprint; the user's answers win); log: `orchestrator/architect_ai.md` |
 | top-down: "from right up to left down, halve the walls" | `wenart/blender/topdown.py`: camera at the north-east looking south-west (azimuth 225), walls / doors / windows / railings cut at 0.6 m (was 1.2 m), furniture whole; exact-solver and bisect fallbacks where the fast Boolean failed; the labels draw every window as a blue line with its id, as built |
 
+**No clashing furniture** (user note of 25 Oct 2026: "it's unacceptable to see clashing furniture at this stage"):
+`wenart/blender/clashes.py`, run by `build.prepare` on every build (variants too): two pieces whose plan shapes
+overlap more than 3 cm (an L sofa is its two parts) and whose heights meet are planned apart before anything is
+built. Overlaps by design stay (a seat tucked under its table, a kitchen run's members, a basin on its unit, a
+wall-hung piece). One object read twice is built once (real04: a cupboard read as its outline and as its "dolap"
+block). The lesser piece gives way (accessory, then seating, then anchor; added before drawn) by the shortest way to a
+free place in its room, clear of the doorways, at most 0.5 m (drawn) or 1 m; a table set moves as one; a seat stops
+tucked; a bed or sofa never moves for a lamp; an accessory with no place is not built. Every change keeps
+`drawn_footprint` and is reported by the architect (F5). real04: 23 clashes fixed on the base build (chairs through
+tables, lamps in beds, lamps through lamps, ottomans under armchairs), 20 on the open-kitchen variant, none left. The
+mesh check S2 had let them through (soft seats take 5 cm; open library meshes escape its ray test). The dark "table"
+on real04's corner sofa is the model's own arm tray (3D Warehouse "sofá bandeja de braço"), not a second piece.
+
 Also: `RESTORE_OUTPUTS=1` in `scripts/jobs/full.sh` moves the pipeline outputs a failed pod set aside
 (`/workspace/.repo-broken-*/outputs`) back into the repo's outputs (a move, never a delete).
