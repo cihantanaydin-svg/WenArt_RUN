@@ -5,27 +5,27 @@
  "stage": "combine",
  "rc": 0,
  "status": "ok",
- "seconds": 24.9,
+ "seconds": 27.67,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "check/check_manifest.json"
  ],
- "started_utc": "2026-10-24T06:24:35Z",
- "git_commit": "36d1b2049d1c915e3c258dd1895bd22afb623c1a",
+ "started_utc": "2026-10-25T21:18:17Z",
+ "git_commit": "e83cf89e5def139064c82174c5763d9a2ecf3942",
  "log": "logs/combine.log",
  "note": null,
- "run_id": "20261024-053145-full-20261024T053734Z",
+ "run_id": "20261025-195332-full-20261025T195827Z",
  "steps": [
   {
    "name": "combine",
    "rc": 0,
-   "seconds": 18.86
+   "seconds": 20.52
   },
   {
    "name": "calibrate",
    "rc": 0,
-   "seconds": 6.04
+   "seconds": 7.15
   }
  ],
  "written": {}

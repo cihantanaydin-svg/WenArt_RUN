@@ -1280,3 +1280,21 @@ Fixed after the run (general, tested):
 | the new corner sofa ("Sofa en L", 3D Warehouse) showed dark bands | a SketchUp export: each face has a copy on the same vertices turned the other way in a dark default colour (99 % of its faces); the two fight in the render | `furniture.separate_twins` moves each such face 0.2 mm along its own normal at import, so the copy facing the camera is the nearer one (every double-sided library model; a bed with the same doubling renders as before); `tests/test_blender_backfaces.py` |
 | the AI lesson check said "unknown" for 11 of 13 lessons | it saw room names and furniture types only | each lesson carries what its code checks found (open findings first) from the review after the AI's answers; rooms carry their area, open-air flag and the models' wood tone and metal (`agent/lessons.py`) |
 | 4 Blender tests failed since the details and clash work (not run in the last CPU pass) | the stair record listed 3 of its 4 materials; cushions sink 2 cm; the test showroom's library row overlapped the grid, so the clash planner moved it | the stair record lists the glass; tests updated; the library row sits below the grid |
+
+## real06 pod run with the 25 Oct details (25 Oct 2026)
+
+Pod `rcs1w840d63hxq` (RTX PRO 6000, 89.5 min, $3.71, code e83cf89; job 20261025-195332-full), compared with real06's
+latest run (job 20261024-053145-full):
+[`results/review/real06_details_run_20261025/`](../results/review/real06_details_run_20261025/) (34 sheets, metrics,
+top-down views, the architect's report and the AI's answers). This run predates the glass, doubled-face and decor
+fixes above. The AI architect answered 31 of 57 open questions (5 refused, 21 left for the user); the agent removed 19
+findings in 3 rounds; mesh cuts deeper than 3 cm (S2) 10 -> 2; views of halls or bare walls 8 -> 7; drawn anchors 13 of
+13 built as before. GPU tests 42 passed, 3 failed, 11 skipped: depth over 60 m in two bathroom views and two bathroom
+pieces missing from the index pass (both as in the run before), and a library model of another style: the agent swapped
+a toy-like generated washbasin (F1 out of scale, D2 crude) for an HSSD basin tagged modern / minimal in the
+Scandinavian project (`swap_model` does not check the style; open).
+
+Seen on the sheets: the bedroom now has two nightstands, a lamp, a rug and cushions that sit; the living room and the
+kitchen had no decor at all (unverified rooms: fixed above, `decor.room_takes_decor`); the new glazed doors are a library
+model with a busy black-and-white pattern (open: the glazed-door choice ranks by glass share only); the exterior tree is
+a weaker generated tree than the olive of the run before (open); sun patches through openings clip white on the floor.

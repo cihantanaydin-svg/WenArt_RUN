@@ -5,7 +5,7 @@
  "stage": "agent",
  "rc": 0,
  "status": "ok",
- "seconds": 1121.3,
+ "seconds": 2556.68,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
@@ -15,16 +15,21 @@
   "orchestrator/memory.json",
   "orchestrator/metrics.json"
  ],
- "started_utc": "2026-10-24T06:06:35Z",
- "git_commit": "36d1b2049d1c915e3c258dd1895bd22afb623c1a",
+ "started_utc": "2026-10-25T21:01:15Z",
+ "git_commit": "e83cf89e5def139064c82174c5763d9a2ecf3942",
  "log": "logs/agent.log",
- "note": "4 round(s), 34 finding(s) removed by 19 accepted edit(s) (measured; 29 predicted by the dry re-checks), 13 new, net 21, 71 rejected; stop: max rounds reached; final round for critical findings done",
- "run_id": "20261024-053145-full-20261024T053734Z",
+ "note": "3 round(s), 19 finding(s) removed by 13 accepted edit(s) (measured; 16 predicted by the dry re-checks), 9 new, net 10, 98 rejected; stop: max rounds reached; final round for critical findings not started (time budget)",
+ "run_id": "20261025-195332-full-20261025T195827Z",
  "steps": [
+  {
+   "name": "architect",
+   "rc": 0,
+   "seconds": 79.9
+  },
   {
    "name": "rounds",
    "rc": 0,
-   "seconds": 1121.3
+   "seconds": 2476.78
   }
  ],
  "written": {}
