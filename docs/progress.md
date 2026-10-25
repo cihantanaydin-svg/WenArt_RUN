@@ -1175,3 +1175,20 @@ rose over the eaves (now at the eaves line with a glass railing); library models
 longer picked (the white bushes). Pods `37me6g1nvncmu1` (119 min, $4.94) and `xrsf17cw0e6od1` (109 min, $4.51):
 [`results/review/real04_exterior_20261024c/`](../results/review/real04_exterior_20261024c/); GPU tests 48 passed.
 
+
+## The architect, its answers and the top-down views (25 Oct 2026)
+
+User requests of 25 Oct 2026 (general, every project): an "architect" that asks what an architect would ask and
+fixes the plan; top-down views of every floor with the ceilings off; answers to the first questions; "the AI on the
+pod must answer the questions and make the changes"; "don't restrict this to 16 questions: there might be 1000s".
+
+| Request | Change |
+|---|---|
+| ask like an architect, about everything | `wenart/blender/architect.py` + `architect_rules.py`: 32 rules (arrival, access to terraces and pools, circulation, kitchen, stairs, every floor reached, daylight, windows to the outside, fresh air, low sills, privacy, room size / area / type / ceiling, openings in their walls, door widths, doors that lead somewhere, outer walls, furniture in its room, free doorways and windows, room to use each piece, falls, outside doors, light wells, rain water, trees). Each rule is asked of every element it applies to: real04 gets 572 questions; a big building gets thousands |
+| a report that scales | `architect.md`: totals, one table row per rule (asked / fine / changed / answered / open), the open questions (major first, the first 150) with their answer keys and options, what changed; `architect.json` holds every answer; the scene manifest keeps only what is not fine |
+| answers: "1 no, inside window should be outside; 2 yes; 3 yes" | `projects/real04/architect_answers.json`; `architect_actions.py` carries answers out on every run before anything is planned: the two windows between bedrooms move to the bedrooms' outer wall (same size), the play-room windows grow to 1/10 of the floor (4.0 m wide, a lower sill onto the terrace: the mansard roof stops the head at 1.71 m), the kitchens stay separate. Drawn values kept (`drawn_*`), changes marked `corrected_by_ai` / `adjusted_by_ai`; an answer acts only on the element at the place it names (ids change between readings) |
+| the AI on the pod answers | `wenart/agent/architect_ai.py`, run by the scheduler before round 0: the agent model picks one choice per open question (strict JSON schema), code carries it out on a copy and asks every question again; kept only when its question is settled and no new major question opens; `keep` never settles a major question. Accepted answers: `orchestrator/architect_answers.json` (the build reads them through the build brief, so they enter the build fingerprint; the user's answers win); log: `orchestrator/architect_ai.md` |
+| top-down: "from right up to left down, halve the walls" | `wenart/blender/topdown.py`: camera at the north-east looking south-west (azimuth 225), walls / doors / windows / railings cut at 0.6 m (was 1.2 m), furniture whole; exact-solver and bisect fallbacks where the fast Boolean failed; the labels draw every window as a blue line with its id, as built |
+
+Also: `RESTORE_OUTPUTS=1` in `scripts/jobs/full.sh` moves the pipeline outputs a failed pod set aside
+(`/workspace/.repo-broken-*/outputs`) back into the repo's outputs (a move, never a delete).

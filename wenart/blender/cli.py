@@ -223,6 +223,16 @@ def build(building: str, out: str, style: str | None = None, assets: str | None 
     (a scene manifest whose cameras the build replays) and ``cameras_extra`` go to build.py as ``--cameras-from`` /
     ``--cameras-extra`` and into the ``reuse`` fingerprint; None / False leave the environment path to build.py."""
     loaded = load_brief_arg(brief)
+    if loaded is not None:
+        # 25 Oct 2026: the answers to the architect's questions (the AI architect's beside the building, the user's
+        # in the project folder) travel in the build brief: the build carries them out and a new answer rebuilds
+        import json as _json
+
+        from wenart.blender import architect_actions as AA
+        bpath = Path(building)
+        data = _json.loads(bpath.read_text(encoding="utf-8")) if bpath.is_file() else {}
+        folder = Path(brief) if brief and Path(brief).is_dir() else None
+        loaded = dict(loaded, architect_answers=AA.answers_for_build(bpath, data, folder))
     if reuse:
         from wenart.blender import build as build_script
 

@@ -25,6 +25,8 @@ import math
 from typing import Optional, Sequence
 
 from wenart import geometry as G
+from wenart.blender import architect_actions as AA
+from wenart.blender import architect_rules as RULES
 
 OPEN_AIR_TYPES = ("balcony", "terrace", "roof_terrace", "loggia", "veranda", "patio", "porch", "garden")
 DOOR_LEVEL_TOL_M = 0.30         # a door opens onto a platform when its sill is this close to the platform's level
@@ -648,14 +650,17 @@ def review_circulation(building: dict, sides: Sequence[dict]) -> dict:
     starts = entrance_rooms(building, sides)
     if not starts:
         q["answers"].append({"element": "entrance", "found": "no room lies inside an entrance or outside door",
-                             "change": None, "open": True, "ask": "Which door is the way into the house?"})
+                             "change": None, "open": True, "ask": "Which door is the way into the house?",
+                             "options": [AA.option("keep")]})
         q["status"] = "open"
         return q
     everywhere = _reach(graph, starts)
     for rid in sorted(set(by_id) - everywhere):
         q["answers"].append({"element": rid, "found": f"{rid} ({_rtype(by_id[rid])}, {by_id[rid]['level_id']}) cannot "
                              f"be reached from the entrance through any door, opening or stair", "change": None,
-                             "open": True, "ask": f"Is a door to {rid} missing in the drawing, or is it a shaft?"})
+                             "open": True, "ask": f"Is a door to {rid} missing in the drawing, or is it a shaft?",
+                             "options": [AA.option("retype_room", "it is a shaft or store room", room_type="storage"),
+                                         AA.option("keep")]})
         q["status"] = "open"
     free = _reach(graph, starts, blocked=lambda rid: _rtype(by_id.get(rid)) == "bedroom")
     for rid in sorted(everywhere - free):
@@ -664,11 +669,12 @@ def review_circulation(building: dict, sides: Sequence[dict]) -> dict:
         via = sorted(nb for nb in graph.get(rid, {}) if _rtype(by_id.get(nb)) == "bedroom")
         q["answers"].append({"element": rid, "found": f"{rid} ({_rtype(by_id[rid])}) is reached only through the "
                              f"bedroom {', '.join(via) or 'next to it'}", "change": None, "open": True,
-                             "ask": f"Should {rid} have its own door from a hall?"})
+                             "ask": f"Should {rid} have its own door from a hall?",
+                             "options": [AA.option("retype_room", "it belongs to the bedroom: a dressing room",
+                                                   room_type="dressing"), AA.option("keep")]})
         q["status"] = "open"
-    if q["status"] == "ok":
-        q["answers"].append({"element": "plan", "found": f"all {len(by_id)} rooms reached from "
-                             f"{', '.join(starts)}; none only through a bedroom", "change": None})
+    for rid in sorted(free & set(by_id)):
+        q["answers"].append({"element": rid, "found": f"reached from {', '.join(starts)}", "change": None})
     return q
 
 
@@ -691,15 +697,18 @@ def review_kitchen(building: dict, sides: Sequence[dict]) -> dict:
                                  f"space" + (f" (through the hall to {', '.join(sorted(set(two)))})" if two else ""),
                                  "change": None, "open": True,
                                  "ask": f"Is {r['id']} open to the living space (the drawing shows a wall), or is "
-                                        f"it a separate kitchen on purpose?"})
+                                        f"it a separate kitchen on purpose?",
+                                 "options": [AA.option("keep", "a separate kitchen on purpose")]})
             q["status"] = "open"
     return q
 
 
-def review_daylight_air(building: dict, sides: Sequence[dict]) -> tuple[dict, dict]:
+def review_daylight_air(building: dict, sides: Sequence[dict], answers: Optional[dict] = None) -> tuple[dict, dict]:
     """L1 (habitable rooms: glass >= ``DAYLIGHT_RATIO`` of the floor; a glazed outside door counts half) and L2 (wet
-    rooms: a window, else a mechanical extract is assumed)."""
+    rooms: a window, else a mechanical extract is assumed). A room whose only window looks into another room is
+    W2's question (the window: a reading error?); L1 asks about it again once the window is kept."""
     l1, l2 = _q("L1"), _q("L2")
+    answers = answers or {}
     rooms, _ = _rooms_at(building)
     by_id = {r["id"]: r for r in rooms}
     glass: dict = {}
@@ -726,34 +735,39 @@ def review_daylight_air(building: dict, sides: Sequence[dict]) -> tuple[dict, di
         t = _rtype(r)
         area = abs(_area(r["polygon"]))
         g = glass.get(r["id"], 0.0)
+        where = RULES._where("room", r.get("level_id"), RULES._centroid(r["polygon"]))
+        opts = [AA.option("enlarge_windows", room_id=r["id"]),
+                AA.option("retype_room", "a store or service room (no daylight needed)", room_type="storage"),
+                AA.option("keep", "keep it as drawn (a dark room on purpose)")]
         if t in HABITABLE and area > 4.0:
             ratio = g / area if area else 0.0
             if ratio + 1e-9 < DAYLIGHT_RATIO:
                 inner = borrowed.get(r["id"]) or []
-                if not g and inner:
-                    # its only window looks into another room: more likely a reading error than a dark bedroom
+                pending = [wid for wid, _there in inner if (answers.get(f"W2:{wid}") or {}).get("option") != "keep"]
+                if not g and inner and pending:
+                    # its only window looks into another room: W2 asks whether it is a reading error
                     wid, there = inner[0]
                     l1["answers"].append({"element": r["id"], "found": f"{r['id']} ({t}, {area:.1f} m2) has no window "
-                                          f"to the outside; its only window {wid} looks into {there}",
-                                          "change": None, "open": True,
-                                          "ask": f"Is {wid} on the outer wall in the drawing (a reading error the "
-                                                 f"architect should correct), or a borrowed-light window on purpose?"})
+                                          f"to the outside; its only window {wid} looks into {there} (W2 asks about "
+                                          f"{wid})", "change": None})
                 else:
                     l1["answers"].append({"element": r["id"], "found": f"{r['id']} ({t}, {area:.1f} m2) has "
                                           f"{g:.2f} m2 of glass: 1/{(area / g):.0f} of its floor" if g else
-                                          f"{r['id']} ({t}, {area:.1f} m2) has no window", "change": None,
-                                          "open": True,
+                                          f"{r['id']} ({t}, {area:.1f} m2) has no window to the outside",
+                                          "change": None, "open": True, "where": where, "options": opts,
                                           "ask": (f"Is {r['id']} a store or service room (then no daylight is "
-                                                  f"needed)?" if not g else f"Should the windows of {r['id']} be "
-                                                                            f"larger?")})
-                l1["status"] = "open"
+                                                  f"needed), or should it get a window?" if not g else
+                                                  f"Should the windows of {r['id']} be larger?")})
+                    l1["status"] = "open"
+            else:
+                l1["answers"].append({"element": r["id"], "found": f"glass 1/{(area / g):.0f} of the floor",
+                                      "change": None})
         if t in WET and g <= 0.0:
             l2["answers"].append({"element": r["id"], "found": f"{r['id']} ({t}) has no window",
                                   "change": "a mechanical extract is assumed (inferred; listed in the report)"})
             l2["status"] = "fixed"
-    if l1["status"] == "ok":
-        l1["answers"].append({"element": "plan", "found": "every habitable room has glass of at least 1/10 of its "
-                              "floor", "change": None})
+        elif t in WET:
+            l2["answers"].append({"element": r["id"], "found": f"a window ({g:.2f} m2)", "change": None})
     return l1, l2
 
 
@@ -775,8 +789,12 @@ def review_privacy(building: dict, sides: Sequence[dict]) -> dict:
             q["answers"].append({"element": s["opening"]["id"], "found": f"the bathroom door {s['opening']['id']} "
                                  f"opens into {s['a'] if ta in ('living', 'dining', 'kitchen') else s['b']}",
                                  "change": None, "open": True,
-                                 "ask": "Keep it (a guest WC by the living room), or should a small lobby screen it?"})
+                                 "ask": "Keep it (a guest WC by the living room), or should a small lobby screen it?",
+                                 "options": [AA.option("keep", "keep: a guest WC by the living room")]})
             q["status"] = "open"
+        elif pair & {"bathroom", "wc", "toilet"}:
+            q["answers"].append({"element": s["opening"]["id"], "found": f"opens into {s['a'] if ta not in WET else s['b']}",
+                                 "change": None})
     return q
 
 
@@ -797,15 +815,23 @@ def review_room_use(building: dict) -> tuple[dict, dict]:
         if t == "bedroom" and narrow < BED_ROOM_MIN_M:
             r1["answers"].append({"element": r["id"], "found": f"{r['id']} is {narrow:.2f} m wide", "change": None,
                                   "open": True, "ask": f"Is {r['id']} a study or a dressing room rather than a "
-                                                       f"bedroom?"})
+                                                       f"bedroom?",
+                                  "options": [AA.option("retype_room", "a study", room_type="study"),
+                                              AA.option("retype_room", "a dressing room", room_type="dressing"),
+                                              AA.option("keep")]})
             r1["status"] = "open"
+        elif t == "bedroom":
+            r1["answers"].append({"element": r["id"], "found": f"{narrow:.2f} m wide", "change": None})
         want = ANCHORS.get(t)
         if want and not (pieces.get(r["id"], set()) & set(want)):
             r2["answers"].append({"element": r["id"], "found": f"{r['id']} ({t}) has no {' / '.join(want)}",
                                   "change": None, "open": True,
                                   "ask": f"Is {r['id']} really a {t}? (The furnishing adds the missing piece when "
-                                         f"the room type is right.)"})
+                                         f"the room type is right.)", "options": [AA.option("keep")]})
             r2["status"] = "open"
+        elif want:
+            r2["answers"].append({"element": r["id"], "found": "has its " + " / ".join(
+                sorted(pieces.get(r["id"], set()) & set(want))), "change": None})
     return r1, r2
 
 
@@ -839,11 +865,12 @@ def review_outside_door_landings(building: dict) -> dict:
             where = "into the air" if e.get("into_air") else "below the ground"
             q["answers"].append({"element": e.get("door_id"), "found": f"door {e.get('door_id')} opens {where}",
                                  "change": None, "open": True,
-                                 "ask": f"Is the level of {e.get('door_id')} or of the ground outside it wrong?"})
+                                 "ask": f"Is the level of {e.get('door_id')} or of the ground outside it wrong?",
+                                 "options": [AA.option("keep")]})
             q["status"] = "open"
-    if q["status"] == "ok":
-        q["answers"].append({"element": "doors", "found": "every outside door lands on the ground, a terrace or "
-                             "steps", "change": None})
+        else:
+            q["answers"].append({"element": e.get("door_id"), "found": "lands on the ground, a terrace or steps",
+                                 "change": None})
     return q
 
 
@@ -932,21 +959,29 @@ def _length(route) -> float:
 # --------------------------------------------------------------------------
 
 def review(building: dict, prep: dict) -> dict:
-    """The architect's review of a whole-building build plan (pure; changes the plan in place): A3 (outside doors),
-    A2 (access), A4 (light wells); A1 follows with the facade kit (``drainage_answer``)."""
+    """The architect's review of a whole-building build plan (pure; changes the plan in place): the answers first
+    (``prep["architect_applied"]``: ``build.prepare`` carried them out before planning; else here), then A3 (outside
+    doors), the plan questions, every rule of ``architect_rules.RULES`` on every element, and the site questions
+    (A2 access, A4 light wells, A5, B1-B2); A1 follows with the facade kit (``drainage_answer``)."""
     from wenart.blender import site as S
 
-    answers = apply_answers(building)
+    if "architect_applied" in prep:
+        answers, applied = prep.get("architect_answers") or {}, prep.get("architect_applied") or []
+    else:
+        answers = AA.answers_of(building)
+        applied = AA.apply_answers(building, answers)
     a3, _recs = review_outside_doors(building)
     questions = [a3]
     sides = opening_sides(building)
     questions.append(review_circulation(building, sides))
     questions.append(review_kitchen(building, sides))
-    questions += list(review_daylight_air(building, sides))
+    questions += list(review_daylight_air(building, sides, answers))
     questions.append(review_privacy(building, sides))
     questions += list(review_room_use(building))
     questions.append(review_outside_door_landings(building))
     questions.append(review_falls(prep))
+    graph = room_graph(building, sides)
+    questions += RULES.review(building, prep, sides, graph, entrance_rooms(building, sides), _is_stair, _reach)
     if prep.get("site") is not None:
         questions += list(review_arrival(building, prep))
         levels = building.get("levels") or []
@@ -957,80 +992,177 @@ def review(building: dict, prep: dict) -> dict:
         questions.append(review_access(prep, outer))
         questions.append(review_light_wells(prep))
         questions.append(review_deck_doors(building, prep, outer, windows))
-    return summary(close_answered(questions, answers))
+    return summary(close_answered(questions, answers, applied), applied)
 
 
 # --------------------------------------------------------------------------
-# The user's answers: asked once, remembered, acted on
+# The answers: asked once, remembered, acted on (wenart/blender/architect_actions.py)
 # --------------------------------------------------------------------------
 
-STORE_WORDS = ("store", "storage", "service", "depo", "kiler")
+STORE_WORDS = AA.STORE_WORDS
 
 
-def apply_answers(building: dict) -> dict:
-    """The user's answers to earlier questions (``building["architect_answers"]``: ``{"<question id>:<element>":
-    "<answer>"}``), acted on before the review: "store" (or "storage", "service") to a daylight question retypes the
-    room to ``storage`` (``adjusted_by_ai``, ``drawn_type`` kept). Returns the answers."""
-    answers = building.get("architect_answers") if isinstance(building.get("architect_answers"), dict) else {}
-    rooms = {r["id"]: r for r in building.get("rooms") or []}
-    for key, value in answers.items():
-        qid, _sep, element = str(key).partition(":")
-        text = str(value).strip().lower()
-        if qid == "L1" and element in rooms and any(w in text for w in STORE_WORDS):
-            r = rooms[element]
-            if r.get("room_type") != "storage":
-                r.setdefault("drawn_type", r.get("room_type"))
-                r["room_type"] = "storage"
-                r["adjusted_by_ai"] = {"by": "architect", "reason": f"the user's answer to L1: {value!r}"}
+def apply_answers(building: dict, brief_answers: Optional[dict] = None) -> dict:
+    """The answers for ``building`` (``architect_actions.answers_of``) carried out on it (in place); returns them
+    (normalised) and keeps what was done in ``building["_architect_applied"]``."""
+    answers = AA.answers_of(building, brief_answers)
+    building["_architect_applied"] = AA.apply_answers(building, answers)
     return answers
 
 
-def close_answered(questions: list[dict], answers: dict) -> list[dict]:
-    """An open point the user answered is not asked again: it shows the answer instead."""
+def _who(rec: dict) -> str:
+    return "you" if rec.get("by", "user") == "user" else "the AI architect"
+
+
+def close_answered(questions: list[dict], answers: dict, applied: Sequence[dict] = ()) -> list[dict]:
+    """An open point that has an answer is not asked again: it shows the answer and what it changed. An answer that
+    could not be carried out leaves the point open with the reason; an answer whose change settled the check shows
+    on the (now passing) element."""
+    done = {r["key"]: r for r in applied}
+    by_el = {(r["rule"], r["element"]): r for r in applied}
     for q in questions:
         for a in q["answers"]:
             key = f"{q['id']}:{a['element']}"
-            if a.get("open") and key in answers:
+            rec = done.get(key) or by_el.get((q["id"], a["element"]))
+            if rec is None and key in answers:
+                rec = {"key": key, "option": answers[key].get("option", "keep"), "ok": True, "change": None,
+                       "by": answers[key].get("by", "user"), "answer": answers[key].get("answer")}
+            if rec is None:
+                continue
+            label = AA.ACTIONS.get(rec["option"], rec["option"])
+            words = f" (\"{rec['answer']}\")" if rec.get("answer") else ""
+            if a.get("open") and rec.get("ok"):
                 a["open"] = False
                 a.pop("ask", None)
-                a["change"] = f"answered by you: {answers[key]}"
+                a["answered"] = True
+                a["change"] = f"answered by {_who(rec)}{words}: {label}" + (f" -> {rec['change']}"
+                                                                            if rec.get("change") else "")
+            elif a.get("open"):
+                a["note"] = f"{_who(rec)} answered {rec['option']}{words}, but it could not be done: {rec['change']}"
+            elif rec.get("ok") and rec.get("change") and not a.get("change"):
+                a["answered"] = True
+                a["change"] = f"answered by {_who(rec)}{words}: {rec['change']}"
         if q["status"] == "open" and not any(a.get("open") for a in q["answers"]):
             q["status"] = "answered"
     return questions
 
 
-def summary(questions: list[dict]) -> dict:
-    order = {q["id"]: k for k, q in enumerate(QUESTIONS)}
-    order.update({qid: k for k, qid in enumerate(("B1", "B2", "A2", "A5", "E1", "C1", "C2", "L1", "L2", "P1", "R1",
-                                                    "R2", "S1", "A3", "A4", "A1"))})
+def status_of(a: dict) -> str:
+    if a.get("open"):
+        return "open"
+    if a.get("answered"):
+        return "answered"
+    if a.get("change"):
+        return "changed"
+    return "ok"
+
+
+ORDER = ("B1", "B2", "A2", "A5", "E1", "C1", "C2", "T1", "T2", "L1", "W2", "L2", "W3", "P1", "R1", "R2", "R3", "R4",
+         "R5", "O1", "D1", "D2", "X1", "F1", "F2", "F3", "F4", "S1", "A3", "A4", "A1", "G1")
+
+
+def summary(questions: list[dict], applied: Optional[Sequence[dict]] = None) -> dict:
+    """The review record: the questions in the architect's order (``ORDER``), each with its counts, and the totals:
+    ``asked`` (every element checked by every rule), ``changes``, ``open``, ``answered``."""
+    order = {qid: k for k, qid in enumerate(ORDER)}
     questions = sorted(questions, key=lambda q: order.get(q["id"], 99))
-    return {"questions": questions, "changes": sum(1 for q in questions for a in q["answers"] if a.get("change")),
-            "open": sum(1 for q in questions for a in q["answers"] if a.get("open"))}
+    total = {"ok": 0, "changed": 0, "open": 0, "answered": 0}
+    for q in questions:
+        c = {"ok": 0, "changed": 0, "open": 0, "answered": 0}
+        for a in q["answers"]:
+            if a.get("open") and not a.get("options"):
+                a["options"] = [AA.option("keep")]
+            st = status_of(a)
+            a["status"] = st
+            c[st] += 1
+        q["counts"] = dict(c, asked=len(q["answers"]))
+        for k in total:
+            total[k] += c[k]
+    out = {"questions": questions, "asked": sum(len(q["answers"]) for q in questions),
+           "changes": sum(1 for q in questions for a in q["answers"] if a.get("change")),
+           "open": total["open"], "answered": total["answered"], "rules": len(questions)}
+    if applied is not None:
+        out["applied"] = list(applied)
+    return out
+
+
+def compact(review_rec: dict) -> dict:
+    """The record without the passing answers (the scene manifest's copy; ``architect.json`` keeps them all)."""
+    out = {k: v for k, v in review_rec.items() if k != "questions"}
+    out["questions"] = [dict({k: v for k, v in q.items() if k != "answers"},
+                             answers=[a for a in q["answers"] if a.get("status", status_of(a)) != "ok"])
+                        for q in review_rec.get("questions") or []]
+    return out
+
+
+def open_points(review_rec: dict) -> list[tuple[dict, dict]]:
+    """``[(question, answer)]`` still open, the major ones first."""
+    out = [(q, a) for q in review_rec.get("questions") or [] for a in q["answers"] if a.get("open")]
+    out.sort(key=lambda qa: (qa[0].get("severity") != "major", order_of(qa[0]["id"]), str(qa[1]["element"])))
+    return out
+
+
+def order_of(qid: str) -> int:
+    return ORDER.index(qid) if qid in ORDER else 99
+
+
+MD_OPEN_MAX = 150               # the report lists this many open points (all of them are in architect.json)
+MD_CHANGES_MAX = 200
 
 
 def report_md(review_rec: dict, project: str = "") -> str:
-    """The review as markdown: per question the architect's question, then each element, what was found and what
-    was changed."""
+    """The review as markdown, for any size of building: the totals, a table of every rule (elements asked, fine,
+    changed, answered, open), the open questions for you (the first ``MD_OPEN_MAX``, major first, with their answer
+    keys and options) and what was changed (the first ``MD_CHANGES_MAX``); every answer is in ``architect.json``."""
+    qs = review_rec.get("questions") or []
     lines = [f"# Architect's review{': ' + project if project else ''}", "",
-             f"{len(review_rec.get('questions') or [])} questions, {review_rec.get('changes', 0)} change(s), "
-             f"{review_rec.get('open', 0)} open point(s).", ""]
-    concerns = [(q, a) for q in review_rec.get("questions") or [] for a in q["answers"] if a.get("open")]
-    concerns.sort(key=lambda qa: (qa[0].get("severity") != "major", qa[0]["id"]))
+             f"{review_rec.get('asked', sum(len(q['answers']) for q in qs))} questions asked ({len(qs)} rules x the "
+             f"elements they apply to), {review_rec.get('changes', 0)} change(s), {review_rec.get('answered', 0)} "
+             f"answered, {review_rec.get('open', 0)} open point(s).", "",
+             "| rule | topic | asked | fine | changed | answered | open |", "|---|---|---|---|---|---|---|"]
+    for q in qs:
+        c = q.get("counts") or {}
+        lines.append(f"| {q['id']} | {q['topic']} | {c.get('asked', len(q['answers']))} | {c.get('ok', 0)} | "
+                     f"{c.get('changed', 0)} | {c.get('answered', 0)} | {c.get('open', 0)} |")
+    lines.append("")
+    concerns = open_points(review_rec)
     if concerns:
         lines += ["## The architect's questions for you", ""]
-        for k, (q, a) in enumerate(concerns, 1):
+        for k, (q, a) in enumerate(concerns[:MD_OPEN_MAX], 1):
+            opts = ", ".join(f"`{o['id']}`" + (f" ({o['label']})" if o.get("label") and o["id"] == "keep" else "")
+                             for o in a.get("options") or [])
             lines.append(f"{k}. **{q['id']} {q['topic']}** ({q.get('severity', 'minor')}): {a['found']}."
-                         + (f" *{a['ask']}*" if a.get("ask") else "") + f" (answer key `{q['id']}:{a['element']}`)")
-        lines += ["", "Answers go into the building's `architect_answers` (`{\"L1:<room>\": \"store room\"}` and so "
-                  "on); the next run acts on them and does not ask again.", ""]
-    for q in review_rec.get("questions") or []:
-        lines += [f"## {q['id']} {q['topic']} ({q['status']})", "", f"*{q['question']}*"
-                  + (f" Why: {q['why']}." if q.get("why") else ""), ""]
-        if not q["answers"]:
-            lines.append("- nothing to look at in this building")
-        for a in q["answers"]:
-            lines.append(f"- **{a['element']}**: {a['found']}" + (f" -> {a['change']}" if a.get("change") else "")
-                         + (f" **Question for you: {a['ask']}**" if a.get("ask") else "")
-                         + (" (open)" if a.get("open") and not a.get("ask") else ""))
+                         + (f" *{a['ask']}*" if a.get("ask") else "") + f" Answer key `{q['id']}:{a['element']}`"
+                         + (f"; options {opts}" if opts else "") + (f". Note: {a['note']}" if a.get("note") else ""))
+        if len(concerns) > MD_OPEN_MAX:
+            lines.append(f"... and {len(concerns) - MD_OPEN_MAX} more open point(s) in architect.json.")
+        lines += ["", "Answers go into `projects/<project>/architect_answers.json` as `{\"answers\": {\"<key>\": "
+                  "{\"option\": \"<option>\", \"answer\": \"<your words>\"}}}`; the next run carries them out and "
+                  "does not ask again. The AI architect on the pod answers the rest it can settle (checked by code).",
+                  ""]
+    changed = [(q, a) for q in qs for a in q["answers"] if a.get("change")]
+    if changed:
+        lines += ["## What the architect changed or settled", ""]
+        for q, a in changed[:MD_CHANGES_MAX]:
+            lines.append(f"- **{q['id']} {a['element']}**: {a['found']} -> {a['change']}")
+        if len(changed) > MD_CHANGES_MAX:
+            lines.append(f"- ... and {len(changed) - MD_CHANGES_MAX} more in architect.json")
         lines.append("")
+    failed = [r for r in review_rec.get("applied") or [] if not r.get("ok") and not r.get("skipped")]
+    if failed:
+        lines += ["## Answers that could not be carried out", ""]
+        lines += [f"- `{r['key']}` ({r['option']}, by {_who(r)}): {r.get('change')}" for r in failed]
+        lines.append("")
+    skipped = [r for r in review_rec.get("applied") or [] if r.get("skipped")]
+    if skipped:
+        lines += ["## Answers about elements not in this reading of the plan", ""]
+        lines += [f"- `{r['key']}` ({r['option']}, by {_who(r)}): {r.get('change')}" for r in skipped]
+        lines.append("")
+    lines += ["## The questions", ""]
+    for q in qs:
+        c = q.get("counts") or {}
+        lines.append(f"- **{q['id']} {q['topic']}** ({q.get('severity', 'minor')}, {q['status']}): *{q['question']}*"
+                     + (f" Why: {q['why']}." if q.get("why") else "")
+                     + f" Asked of {c.get('asked', len(q['answers']))} element(s).")
+    lines.append("")
     return "\n".join(lines)

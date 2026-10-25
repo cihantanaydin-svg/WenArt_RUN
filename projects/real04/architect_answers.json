@@ -1,0 +1,89 @@
+{
+ "_note": "The user's answers to the architect's questions (wenart/blender/architect_actions.py). Key '<rule>:<element>'; option = the action carried out on every run; where = the element's place in the reading the question was asked on (ids can change between readings). Answers of 25 Oct 2026: 1 the windows between the bedrooms are reading errors (move them to the outer wall), 2 enlarge the play-room windows, 3 the kitchens are separate on purpose.",
+ "answers": {
+  "W2:win_L0_005": {
+   "option": "move_window_to_outer_wall",
+   "answer": "no, an inside window should be outside",
+   "by": "user",
+   "date": "2026-10-25",
+   "where": {
+    "kind": "window",
+    "level_id": "L0",
+    "centre": [
+     2.335,
+     7.082
+    ]
+   }
+  },
+  "W2:win_L0_006": {
+   "option": "move_window_to_outer_wall",
+   "answer": "no, an inside window should be outside",
+   "by": "user",
+   "date": "2026-10-25",
+   "where": {
+    "kind": "window",
+    "level_id": "L0",
+    "centre": [
+     14.838,
+     7.082
+    ]
+   }
+  },
+  "L1:r_L1_oyun_aktivite_ve_dinlenme_odasi": {
+   "option": "enlarge_windows",
+   "answer": "yes",
+   "by": "user",
+   "date": "2026-10-25",
+   "where": {
+    "kind": "room",
+    "level_id": "L1",
+    "centre": [
+     5.593,
+     3.821
+    ]
+   }
+  },
+  "L1:r_L1_oyun_aktivite_ve_dinlenme_odasi_2": {
+   "option": "enlarge_windows",
+   "answer": "yes",
+   "by": "user",
+   "date": "2026-10-25",
+   "where": {
+    "kind": "room",
+    "level_id": "L1",
+    "centre": [
+     11.579,
+     3.821
+    ]
+   }
+  },
+  "C2:r_L-1_mutfak": {
+   "option": "keep",
+   "answer": "yes: a separate kitchen on purpose",
+   "by": "user",
+   "date": "2026-10-25",
+   "where": {
+    "kind": "room",
+    "level_id": "L-1",
+    "centre": [
+     3.155,
+     9.029
+    ]
+   }
+  },
+  "C2:r_L-1_mutfak_2": {
+   "option": "keep",
+   "answer": "yes: a separate kitchen on purpose",
+   "by": "user",
+   "date": "2026-10-25",
+   "where": {
+    "kind": "room",
+    "level_id": "L-1",
+    "centre": [
+     14.019,
+     9.029
+    ]
+   }
+  }
+ }
+}

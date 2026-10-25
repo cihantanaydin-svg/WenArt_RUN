@@ -2,17 +2,20 @@
 the floor with the ceiling off that I can take a look and tell what is wrong").
 
 What: ``blender -b <scene.blend> -P wenart/blender/topdown.py -- --out <dir> [--levels L-1,L0] [--res 1600]
-[--samples 24] [--device CPU|GPU] [--tilt 35] [--azimuth 0]`` renders ``top_<level>.png`` per level and
+[--samples 24] [--device CPU|GPU] [--tilt 35] [--azimuth 225]`` renders ``top_<level>.png`` per level and
 ``top_<level>.png.frame.json`` (the view's frame); ``python -m wenart.report.topdown_labels`` writes the room names
 on them (``top_<level>_plan.jpg``, the name the pod job's results copy takes). ``scripts/jobs/full.sh`` makes them
 after every run (``RUN_TOPDOWN=0`` skips it).
 
 How: the views are angled (25 Oct 2026, user: "make the top down view a bit angled"): an orthographic camera
-``TILT_DEG`` from straight down, looking north (``--tilt 0``: the plan). Every mesh crossing ``SECTION_M`` over the
-floor is cut there by a Boolean difference (``section_cut``: an architect's cutaway; full-height walls hid the rooms
-behind them) and every mesh whose lowest point lies above it is hidden (ceilings, slabs, upper floors, the roof,
-ceiling lights), and so are the building copies, trees, hedges and grass (they cover the plan); the camera frames
-the level's walls with ``PAD_M`` around them up to the cut; a sun from nearly overhead lights it.
+``TILT_DEG`` from straight down; since the user's note of 25 Oct 2026 ("a better angle from right up to left down and
+halved the walls preventing the views") it stands at the plan's upper right (north-east) and looks to the lower left
+(``AZIMUTH_DEG`` 225: south-west). The walls, doors, windows and railings (``CUT_KINDS``) crossing ``WALL_CUT_M``
+over the floor are cut there by a Boolean difference (``section_cut``: an architect's cutaway at half the earlier
+1.2 m) and the ones above it are hidden; the furniture stays whole (only what lies above ``CUT_M``: ceilings, slabs,
+upper floors, the roof, ceiling lights, is hidden), and so are the building copies, trees, hedges and grass (they
+cover the plan); the camera frames the level's walls with ``PAD_M`` around them up to ``CUT_M``; a sun from nearly
+overhead lights it. ``topdown_labels`` draws the windows (blue, with their ids) where the cut walls hide them.
 """
 import argparse
 import json
@@ -21,7 +24,9 @@ import sys
 CUT_M = 2.2
 PAD_M = 1.0
 TILT_DEG = 35.0                 # 25 Oct 2026: the views are a bit angled (the walls and furniture show their height)
-SECTION_M = 1.2                 # an angled view cuts the walls at this height over the floor (a cutaway)
+AZIMUTH_DEG = 225.0             # 25 Oct 2026 (user): from the upper right (north-east) to the lower left (south-west)
+WALL_CUT_M = 0.6                # 25 Oct 2026 (user: "halved the walls"): an angled view cuts the walls here (was 1.2)
+CUT_KINDS = {"wall", "door", "window", "railing", "facade_detail", "splashback", "light_well"}
 HIDE_KINDS = {"ceiling", "roof", "site_decor", "site_decor_part", "vegetation_card", "atmosphere", "building_copy",
               "site_hedge", "site_grass", "light"}
 
@@ -33,8 +38,10 @@ def bbox(o):
 
 
 def section_cut(z: float) -> int:
-    """Cut every rendered mesh that crosses height ``z`` (walls, doors, tall furniture) with a Boolean difference of a
-    box over ``z`` (the angled views: an architect's cutaway; full-height walls hid the rooms behind them)."""
+    """Cut every rendered wall, door, window and railing (``CUT_KINDS``) that crosses height ``z`` with a Boolean
+    difference of a box over ``z`` (the angled views: an architect's cutaway; full-height walls hid the rooms behind
+    them); the furniture is never cut. The fast solver gives up on some meshes (real04's L1 outer wall stayed whole):
+    those get the exact solver, and a mesh still standing above ``z`` is cut by a plane (``bisect_top``)."""
     import bpy
 
     cutter = bpy.data.objects.get("topdown_cutter")
@@ -46,9 +53,10 @@ def section_cut(z: float) -> int:
     cutter.location = (0.0, 0.0, z + 500.0)
     cutter.hide_render = True
     cutter.display_type = "WIRE"
-    n = 0
+    cut = []
     for o in bpy.data.objects:
-        if o.type != "MESH" or o.hide_render or o is cutter or o.name.startswith("topdown_"):
+        if o.type != "MESH" or o.hide_render or o is cutter or o.name.startswith("topdown_") \
+                or str(o.get("wenart_kind")) not in CUT_KINDS:
             continue
         lo, hi = bbox(o)
         if lo[2] < z < hi[2]:
@@ -57,8 +65,65 @@ def section_cut(z: float) -> int:
             m.solver = "FLOAT" if "FLOAT" in {i.identifier for i in m.bl_rna.properties["solver"].enum_items} \
                 else "FAST"
             m.object = cutter
-            n += 1
-    return n
+            cut.append(o)
+    for solver in ("EXACT", None):
+        dg = bpy.context.evaluated_depsgraph_get()
+        left = [o for o in cut if (evaluated_top(o, dg) or 0.0) > z + 0.02]
+        for o in left:
+            m = o.modifiers.get("topdown_section")
+            if solver and m is not None:
+                m.solver = solver
+                if hasattr(m, "use_hole_tolerant"):
+                    m.use_hole_tolerant = True
+            elif not solver:
+                if m is not None:
+                    o.modifiers.remove(m)
+                bisect_top(o, z)
+        if not left:
+            break
+    return len(cut)
+
+
+def evaluated_top(o, dg):
+    ev = o.evaluated_get(dg)
+    zs = [(ev.matrix_world @ v.co).z for v in ev.data.vertices]
+    return max(zs) if zs else None
+
+
+def bisect_top(o, z: float) -> None:
+    """Cut ``o`` at world height ``z`` with a plane: the part above goes, the cut is closed (a copy of the mesh: the
+    original data comes back for the next level, ``restore_meshes``)."""
+    import bmesh
+    from mathutils import Vector
+
+    if "topdown_orig_mesh" not in o:
+        o["topdown_orig_mesh"] = o.data.name
+    me = o.data.copy()
+    me.name = f"topdown_cut_{o.name}"
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    mw = o.matrix_world
+    co = mw.inverted() @ Vector((0.0, 0.0, z))
+    no = (mw.to_3x3().transposed() @ Vector((0.0, 0.0, 1.0))).normalized()
+    res = bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], dist=1e-5, plane_co=co,
+                                 plane_no=no, clear_outer=True)
+    edges = [e for e in res.get("geom_cut", []) if isinstance(e, bmesh.types.BMEdge)]
+    if edges:
+        bmesh.ops.holes_fill(bm, edges=edges, sides=0)
+    bm.to_mesh(me)
+    bm.free()
+    o.data = me
+
+
+def restore_meshes() -> None:
+    """The meshes ``bisect_top`` replaced get their own data back."""
+    import bpy
+
+    for o in bpy.data.objects:
+        name = o.get("topdown_orig_mesh") if o.type == "MESH" else None
+        if name and bpy.data.meshes.get(name) is not None:
+            o.data = bpy.data.meshes[name]
+            del o["topdown_orig_mesh"]
 
 
 def render_level(level_id: str, elevation: float, out: str, res: int, samples: int, device: str,
@@ -67,7 +132,9 @@ def render_level(level_id: str, elevation: float, out: str, res: int, samples: i
     from mathutils import Vector  # noqa: F401  (bbox)
 
     sc = bpy.context.scene
-    cut = elevation + (SECTION_M if tilt > 0 else CUT_M)
+    cut = elevation + CUT_M
+    wall_cut = elevation + (WALL_CUT_M if tilt > 0 else CUT_M)
+    restore_meshes()
     for col in bpy.data.collections:
         col.hide_render = col.name in ("building_copies", "building_instance") or col.name.startswith("veg_")
     for o in bpy.data.objects:
@@ -78,14 +145,15 @@ def render_level(level_id: str, elevation: float, out: str, res: int, samples: i
             continue
         if o.type not in ("MESH", "EMPTY", "CURVE"):
             continue
-        hide = str(o.get("wenart_kind")) in HIDE_KINDS
+        kind = str(o.get("wenart_kind"))
+        hide = kind in HIDE_KINDS
         if not hide and o.type == "MESH":
-            hide = bbox(o)[0][2] > cut
+            hide = bbox(o)[0][2] >= (wall_cut if kind in CUT_KINDS else cut) - 0.01
         o.hide_render = hide
         for m in [m for m in o.modifiers if m.name == "topdown_section"] if o.type == "MESH" else []:
             o.modifiers.remove(m)
     if tilt > 0:
-        section_cut(elevation + SECTION_M)
+        section_cut(wall_cut)
     col = bpy.data.collections.get(f"level_{level_id}")
     walls = [o for o in (col.all_objects if col else []) if o.type == "MESH" and str(o.get("wenart_kind")) == "wall"]
     if not walls:
@@ -138,6 +206,7 @@ def render_level(level_id: str, elevation: float, out: str, res: int, samples: i
     bpy.ops.render.render(write_still=True)
     frame = {"level_id": level_id, "elevation": elevation, "x0": x0, "y0": y0, "x1": x1, "y1": y1,
              "w": sc.render.resolution_x, "h": sc.render.resolution_y, "tilt_deg": tilt, "azimuth_deg": azimuth,
+             "wall_cut_m": round(wall_cut - elevation, 3),
              "target": list(target), "right": list(right), "up": list(up),
              "umin": umin, "umax": umax, "vmin": vmin, "vmax": vmax}
     with open(out + ".frame.json", "w", encoding="utf-8") as f:
@@ -155,7 +224,8 @@ def main(argv) -> int:
     ap.add_argument("--samples", type=int, default=24)
     ap.add_argument("--device", default="CPU")
     ap.add_argument("--tilt", type=float, default=TILT_DEG, help="degrees from straight down (0 = a plan)")
-    ap.add_argument("--azimuth", type=float, default=0.0, help="the view's direction, degrees from north")
+    ap.add_argument("--azimuth", type=float, default=AZIMUTH_DEG,
+                    help="the view's direction, degrees from north (225: from the north-east to the south-west)")
     a = ap.parse_args(argv)
     from pathlib import Path
     Path(a.out).mkdir(parents=True, exist_ok=True)

@@ -56,6 +56,9 @@
 #                       match). A failed move stops the job before the setup (the run would use the stale answers).
 #   WENART_AGENT_SLEEP  on | off | auto (default: the agent server sleeps for the gate and polish below 80 GB)
 #   RUN_THREADS         CPU threads per process (default: the pod's cgroup CPU quota, see cpu_budget)
+#   RESTORE_OUTPUTS=1   25 Oct 2026: move the pipeline outputs a failed pod set aside ($WS/.repo-broken-*/outputs/<p>)
+#                       back into $WENART_OUTPUTS before the run (a move, never a delete; see the step below)
+#   WENART_ARCHITECT_AI=0  25 Oct 2026: skip the AI architect's answers to the open questions (agent phase)
 #
 # Results: the background loop (every 300 s, under flock) and the EXIT trap run `python -m wenart.run copy`
 # (small files only, into the committed layout $RESULTS/<area>/<p>/; private projects: an allow-list into
@@ -367,6 +370,24 @@ if [ -n "${RUN_FRESH_RECOGNITION//[[:space:],]/}" ]; then
                                         "aside: stopping (the run would use them)"; exit 1; }
   done
 fi
+# 25 Oct 2026 (user OK "Both", volume clean-up): a pod that found the volume full moved the repo, with every
+# project's pipeline outputs, aside to $WS/.repo-broken-<stamp>. RESTORE_OUTPUTS=1 moves (never deletes) the newest
+# such folder's outputs/<p> back into $WENART_OUTPUTS; a project folder the fresh repo made since is moved aside to
+# <p>.fresh-<stamp> first. Idempotent: what was moved is no longer there.
+if [ "${RESTORE_OUTPUTS:-0}" = "1" ]; then
+  broken=$(ls -d "$WS"/.repo-broken-* 2>/dev/null | sort | tail -1 || true)
+  if [ -n "$broken" ] && [ -d "$broken/outputs" ]; then
+    stamp=$(date -u +%Y%m%dT%H%M%SZ)
+    for src in "$broken"/outputs/*; do
+      [ -d "$src" ] || continue
+      dst=$WENART_OUTPUTS/$(basename "$src")
+      if [ -e "$dst" ]; then mv "$dst" "$dst.fresh-$stamp" && log "RESTORE_OUTPUTS: $dst moved aside to $dst.fresh-$stamp"; fi
+      mv "$src" "$dst" && log "RESTORE_OUTPUTS: $src -> $dst"
+    done
+  else
+    log "RESTORE_OUTPUTS: no .repo-broken-*/outputs to restore"
+  fi
+fi
 set_threads
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || log "nvidia-smi failed"
 copy_loop &
@@ -405,7 +426,8 @@ if [ "${RUN_TOPDOWN:-1}" != "0" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ]; th
     "$WENART_BLENDER" -b "$scene" -P wenart/blender/topdown.py -- --out "$WENART_OUTPUTS/$p/topdown" --device GPU \
       --samples 48 > "$LOGS/topdown-$JOB-$p.log" 2>&1 \
       && "$PY" -m wenart.report.topdown_labels "$WENART_OUTPUTS/$p/building_final.json" "$WENART_OUTPUTS/$p/topdown" \
-           --out "$WENART_OUTPUTS/$p/renders" >> "$LOGS/topdown-$JOB-$p.log" 2>&1 \
+           --out "$WENART_OUTPUTS/$p/renders" --architect "$WENART_OUTPUTS/$p/scene/architect.json" \
+           >> "$LOGS/topdown-$JOB-$p.log" 2>&1 \
       && log "topdown $p: done" || log "warning: topdown $p failed (see $LOGS/topdown-$JOB-$p.log)"
   done
 fi

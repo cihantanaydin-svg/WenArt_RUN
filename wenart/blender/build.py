@@ -417,6 +417,12 @@ def brief_args(building: dict, brief: dict | None = None) -> dict:
         if value not in M11_BRIEF_CHOICES.get(key, (value,)):
             value, assumed = default, True
         out[key] = {"value": value, "assumed": bool(assumed)}
+    # 25 Oct 2026: the user's answers to the architect's questions (the brief's ``architect_answers``, else the
+    # project's ``architect_answers.json``): in the fingerprint, so a new answer rebuilds the scene
+    from wenart.blender import architect_actions as AA
+    given = (brief or {}).get("architect_answers") if isinstance(brief, dict) else None
+    out["architect_answers"] = {"value": given if isinstance(given, dict) else AA.project_answers(building),
+                                "assumed": False}
     return out
 
 
@@ -947,6 +953,20 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
             lv["ceiling_planes"] = [list(p) for p in R.ceiling_planes(roof, lv)]
     out["open_rooms"] = {o["room_id"] for o in roof["openings"] if o.get("room_id")}
     over = next((lv for lv in vb["levels"] if lv["id"] == roof.get("over_level_id")), None)
+    # 25 Oct 2026 (user: "ai on the pod needs to be clever and able to answer the questions and make modifications
+    # accordingly"): the answers to the architect's questions (the user's project file through the brief, the AI
+    # architect's through the agent overrides) are carried out before the openings are clipped and anything else
+    # is planned; a window is sized under the roof as the clip will cut it (``roof.opening_head_limit``)
+    from wenart.blender import architect_actions as AA
+    walls_by_id = {w["id"]: w for w in vb["walls"]}
+
+    def head_limit(o):
+        wall = walls_by_id.get(o.get("wall_id"))
+        if over is None or wall is None or o.get("level_id") != over["id"]:
+            return None
+        return R.opening_head_limit(roof, over, wall, o)
+    out["architect_answers"] = AA.answers_of(vb, out["brief"]["architect_answers"]["value"])
+    out["architect_applied"] = AA.apply_answers(vb, out["architect_answers"], head_limit=head_limit)
     out["clips"] = R.clip_openings_to_roof(vb, over, roof) if over is not None else []
     if out["clips"]:
         variant_meta = vb.get("_variant")
@@ -991,6 +1011,12 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
         # 25 Oct 2026: the architect's review (wenart/blender/architect.py) asks its questions and fixes the plan
         from wenart.blender import architect as AR
         out["architect"] = AR.review(vb, out)
+        # the openings the answers moved, resized or added, as built (the top-down labels draw them there)
+        out["architect"]["openings_changed"] = [
+            o for o in vb.get("openings") or []
+            if any(k in o for k in ("corrected_by_ai", "adjusted_by_ai", "added_by_ai")) and isinstance(
+                o.get("corrected_by_ai") or o.get("adjusted_by_ai") or o.get("added_by_ai"), dict)
+            and (o.get("corrected_by_ai") or o.get("adjusted_by_ai") or o.get("added_by_ai")).get("by") == "architect"]
     return out
 
 
@@ -1367,8 +1393,11 @@ def main(argv: list[str]) -> int:
                                                                  manifest_objects, assumed)
             if prep.get("architect") is not None:          # 25 Oct 2026: the architect's question about the rain
                 from wenart.blender import architect as AR
+                changed = prep["architect"].get("openings_changed")
                 prep["architect"] = AR.summary([q for q in prep["architect"]["questions"] if q["id"] != "A1"]
-                                               + [AR.drainage_answer(fplan.get("kit"), fplan.get("boxes") or [])])
+                                               + [AR.drainage_answer(fplan.get("kit"), fplan.get("boxes") or [])],
+                                               prep["architect"].get("applied"))
+                prep["architect"]["openings_changed"] = changed
         # 11 Oct 2026 (real04): every other building on the plot, an instance of this one (wenart/blender/copies.py)
         from wenart.blender import copies as CP
         if CP.copies_of(building):
@@ -1579,19 +1608,30 @@ def main(argv: list[str]) -> int:
         "agent_overrides": prep.get("overrides_applied"),
         "seconds": round(time.time() - t0, 1),
         "phase_seconds": phases,
-        "architect": prep.get("architect"),
+        "architect": architect_compact(prep.get("architect")),
     }
     (out / "scene_manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
     if prep.get("architect") is not None:          # 25 Oct 2026: the architect's review as the architect hands it over
         from wenart.blender import architect as AR
         (out / "architect.md").write_text(AR.report_md(prep["architect"], Path(args.building).parent.name),
                                           encoding="utf-8")
+        (out / "architect.json").write_text(json.dumps(prep["architect"], indent=1, ensure_ascii=False),
+                                            encoding="utf-8")
     kinds = {}
     for o in manifest_objects:
         kinds[o["kind"]] = kinds.get(o["kind"], 0) + 1
     print(f"BUILD_DONE {out} objects={kinds} cameras={len(camera_plans)} furniture={furniture_summary['by_method']} "
           f"decor={furniture_summary['decor']} warnings={len(warnings)} seconds={manifest['seconds']}")
     return 0
+
+
+def architect_compact(rec: dict | None) -> dict | None:
+    """The architect's review for the scene manifest: without the answers that passed (``architect.json`` keeps
+    every answer; a big building has thousands)."""
+    if rec is None:
+        return None
+    from wenart.blender import architect as AR
+    return AR.compact(rec)
 
 
 PITCHED_FASCIA_TYPES = ("gable", "hip", "mansard", "gambrel", "shed")

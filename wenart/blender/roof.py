@@ -982,6 +982,24 @@ def clip_openings_to_roof(building: dict, level: dict, model: Optional[dict]) ->
     return out
 
 
+def opening_head_limit(model: Optional[dict], level: Optional[dict], wall: dict, opening: dict) -> Optional[float]:
+    """How high over the floor an opening's head may reach under the roof at its wall (the lowest roof underside at
+    its two ends on both wall faces, ``OPENING_ROOF_GAP`` under it, as ``clip_openings_to_roof`` clips); None when
+    the roof is not over this level (pure). The architect's answers size windows with it (25 Oct 2026)."""
+    from wenart.blender import shell
+
+    cut = wall_cut(model) if model else None
+    if not cut or level is None or model.get("over_level_id") != level["id"]:
+        return None
+    cx, cy, _ = shell.opening_centre_on_wall(opening, wall)
+    ux, uy = _unit(wall)
+    nx, ny = -uy, ux
+    half_w, half_t = float(opening["width"]) / 2.0, float(wall.get("thickness") or 0.2) / 2.0
+    under = min(surface_z(cut["planes"], cx + ux * a + nx * b, cy + uy * a + ny * b)
+                for a in (-half_w, half_w) for b in (-half_t, half_t))
+    return under - OPENING_ROOF_GAP - float(level["elevation"])
+
+
 def _unit(wall: dict) -> tuple[float, float]:
     (x0, y0), (x1, y1) = wall["start"][:2], wall["end"][:2]
     n = math.hypot(x1 - x0, y1 - y0) or 1.0

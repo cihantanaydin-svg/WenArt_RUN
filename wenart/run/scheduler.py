@@ -2163,8 +2163,10 @@ class Orchestrator:
             self.close_agent_session()
 
     def agent_project(self, pr: ProjectRun, url: str) -> None:
-        """Round 0 (the scene and the previews of every view), then the loop (``AgentLoop.run``)."""
+        """Round 0 (the scene and the previews of every view), then the loop (``AgentLoop.run``). 25 Oct 2026: the
+        AI architect answers the architect's open questions first (``architect_round``), so round 0 builds them."""
         from wenart.agent.loop import AgentLoop
+        self.architect_round(pr, url)
         self.stage_build(pr)
         if not pr.active or self.status_of(pr, "build") != "ok":
             self.finish(pr, "agent", "warning", "no scene: no agent rounds", outputs=[])
@@ -2207,6 +2209,33 @@ class Orchestrator:
         # Fix round after P6a (module docstring): the loop's wording (the final round rewrites the note with it)
         from wenart.agent.loop import stage_note
         self.finish(pr, "agent", "ok", stage_note(summary, STOPS.get(stop, stop)))
+
+    def architect_round(self, pr: ProjectRun, url: str) -> None:
+        """25 Oct 2026 (user: "ai on the pod needs to be clever and able to answer the questions and make
+        modifications accordingly"): the architect's open questions about ``building_final.json`` go to the agent
+        model (``wenart.agent.architect_ai``); the answers code accepted are written beside the building, where the
+        build reads them (``architect_actions.answers_for_build``). Never fatal: a failure leaves the questions open
+        for the user. ``WENART_ARCHITECT_AI=0`` skips it."""
+        if os.environ.get("WENART_ARCHITECT_AI", "1") == "0" or not (pr.out / "building_final.json").is_file():
+            return
+        from wenart.agent import architect_ai as AI
+        brief = None
+        try:
+            from wenart.brief import load_brief
+            brief = load_brief(pr.ref.project_dir)
+        except Exception:  # noqa: BLE001 - the brief's defaults then
+            brief = None
+        t0 = self.now()
+        try:
+            model = pr.agent_model or self.make_agent_model(url, pr)
+            rec = AI.answer_open(pr.out, model, brief=brief, out=self.out,
+                                 time_ok=lambda: self.can_start(S.EST_BUILD_S * 2))
+        except Exception as exc:  # noqa: BLE001 - the questions stay open for the user
+            self.out(f"{pr.name} architect AI: {type(exc).__name__}: {exc}")
+            return
+        pr.parts.setdefault("agent", []).append({"name": "architect", "rc": 0, "seconds": round(self.now() - t0, 2)})
+        self.out(f"{pr.name} architect AI: {rec['accepted']} of {rec['asked']} open question(s) answered "
+                 f"({rec['refused']} refused, {rec['ask_user']} left for the user)")
 
     def agent_note_after_final(self, pr: ProjectRun, note: Optional[str]) -> None:
         """Fix round after P6a (module docstring): the agent stage record of ``pr`` gets ``note`` (the loop's
