@@ -498,9 +498,13 @@ def act_enlarge(plan: Plan, key: str, ans: dict, room_id: str, ratio: float = DA
         done.append(f"{o['id']} sill {sill:.2f} -> {new_sill:.2f} m (it opens onto a terrace at its floor)")
         _mark(o, "adjusted_by_ai", key, ans, f"a lower sill onto the terrace for daylight ({room_id})")
     if have < need:
-        sill = float(wins[0].get("sill_height") or 0.9) if wins else 0.9
-        h = float(wins[0].get("height") or 1.2) if wins else min(1.4, plan.ceiling(room.get("level_id")) - LINTEL_M
-                                                                     - sill)
+        # a new window looks like the others of its floor (their median width, sill and height): a bedroom window
+        # 1.0 m wide beside 2.7 m ones reads as a mistake; the need for daylight is the least it gets
+        typ = typical_window(plan, room.get("level_id"))
+        sill = float(wins[0].get("sill_height") or 0.9) if wins else (typ or {}).get("sill", 0.9)
+        h = float(wins[0].get("height") or 1.2) if wins else (typ or {}).get(
+            "height", min(1.4, plan.ceiling(room.get("level_id")) - LINTEL_M - sill))
+        wide = max(NEW_WINDOW_W[1], (typ or {}).get("width", 0.0))
         spans = sorted(((t1 - t0, w, t0, t1) for w in plan.room_walls(room_id)
                         for t0, t1, _s in plan.free_spans(w, room_id)), key=lambda s: -s[0])
         k = 0
@@ -511,13 +515,13 @@ def act_enlarge(plan: Plan, key: str, ans: dict, room_id: str, ratio: float = DA
             k += 1
             nid = f"win_arch_{room_id}_{k}"
             o = {"id": nid, "type": "window", "level_id": room.get("level_id"), "wall_id": w["id"],
-                 "center": [round(x, 4), round(y, 4)], "width": NEW_WINDOW_W[1], "height": round(h, 3),
-                 "sill_height": round(sill, 3), "swing_side": None, "status": "inferred", "evidence": []}
+                 "center": [round(x, 4), round(y, 4)], "width": wide, "height": round(h, 3),
+                 "sill_height": round(sill, 3), "swing_side": None, "status": "unverified", "evidence": []}
             eff = max(0.0, min(sill + h, plan.top(o)) - sill)
             if eff < MIN_WINDOW_H:
                 k -= 1
                 continue
-            new_w = min(NEW_WINDOW_W[1], length, max(NEW_WINDOW_W[0], (need - have) / eff))
+            new_w = min(length, max(NEW_WINDOW_W[0], (typ or {}).get("width", 0.0), (need - have) / eff))
             o["width"] = round(new_w, 3)
             _mark(o, "added_by_ai", key, ans, f"a new window for daylight ({room_id} had {have:.2f} m2 of glass)")
             plan.b.setdefault("openings", []).append(o)
@@ -531,6 +535,23 @@ def act_enlarge(plan: Plan, key: str, ans: dict, room_id: str, ratio: float = DA
     text += ")"
     # carried out when it reached 1/10, or did all the walls and the roof allow (the shortfall is in the text)
     return bool(done), text if done else f"{room_id}: no window could grow and no outer wall is free"
+
+
+def typical_window(plan: Plan, level_id) -> Optional[dict]:
+    """The median width, sill and height of the windows to the outside of a level (None without any)."""
+    rows = []
+    for o in plan.openings.values():
+        w = plan.walls.get(o.get("wall_id"))
+        if o.get("type") != "window" or o.get("level_id") != level_id or w is None or o.get("added_by_ai"):
+            continue
+        sides = window_sides(plan, o)
+        if sides and any(Plan.is_outside(r) for r in sides):
+            rows.append((float(o.get("width") or 0.0), float(o.get("sill_height") if o.get("sill_height") is not None
+                                                             else 0.9), float(o.get("height") or 1.2)))
+    if not rows:
+        return None
+    mid = lambda k: sorted(r[k] for r in rows)[len(rows) // 2]          # noqa: E731
+    return {"width": mid(0), "sill": mid(1), "height": mid(2)}
 
 
 def act_retype(plan: Plan, key: str, ans: dict, room_id: str, room_type: str):

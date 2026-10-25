@@ -273,3 +273,22 @@ def test_topdown_labels_name_the_side_the_view_comes_from():
     lines = TL.window_lines(_plan_building(), "L0")
     w1 = next(x for x in lines if x[0] == "w1")
     assert abs(w1[1][0] - 9.0) < 1e-6 and abs(w1[2][0] - 11.0) < 1e-6
+
+
+def test_a_new_window_is_like_the_others_of_its_floor_and_buildable():
+    """Pod run of 25 Oct 2026: the AI architect gave the windowless bedrooms of an older real04 reading new windows;
+    the build stopped on their status ("inferred" is no build status). A new window is ``unverified`` (its evidence
+    says inferred), passes the schema and is as wide as the floor's other windows to the outside."""
+    from wenart import building as WB
+    from wenart.blender import common
+
+    b = _plan_building()
+    b["walls"].append({"id": "wxe", "level_id": "L0", "start": [16, 0], "end": [16, 4], "thickness": 0.2})
+    b["openings"] = [o for o in b["openings"] if o["id"] != "w2"]              # x has no window at all
+    done = AA.apply_answers(b, AA.answers_of(b, {"L1:x": {"option": "enlarge_windows", "by": "ai"}}))
+    assert done[0]["ok"], done
+    new = [o for o in b["openings"] if o.get("added_by_ai")]
+    assert len(new) == 1 and new[0]["wall_id"] == "wxe" and abs(new[0]["width"] - 2.0) < 1e-6   # w1 is 2.0 m
+    assert new[0]["status"] in common.STATUSES and new[0]["evidence"][0]["file"] == AA.AI_ANSWERS
+    k = b["openings"].index(new[0])
+    assert not [e for e in WB.validation_errors(b) if e.startswith(f"openings/{k}:") or e.startswith(f"openings/{k}/")]
