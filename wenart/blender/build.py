@@ -1622,7 +1622,13 @@ def main(argv: list[str]) -> int:
         "seconds": round(time.time() - t0, 1),
         "phase_seconds": phases,
         "architect": architect_compact(prep.get("architect")),
+        # 25 Oct 2026: the building as built (the architect's answers and the clash moves carried out): the checks
+        # and reports that compare with the scene read it (views.scene_building_path)
+        "building_built": str(out / BUILT_BUILDING),
     }
+    (out / BUILT_BUILDING).write_text(json.dumps(prep["building"], indent=1, ensure_ascii=False,
+                                                 default=lambda v: sorted(v) if isinstance(v, set) else str(v)),
+                                      encoding="utf-8")
     (out / "scene_manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
     if prep.get("architect") is not None:          # 25 Oct 2026: the architect's review as the architect hands it over
         from wenart.blender import architect as AR
@@ -1636,6 +1642,9 @@ def main(argv: list[str]) -> int:
     print(f"BUILD_DONE {out} objects={kinds} cameras={len(camera_plans)} furniture={furniture_summary['by_method']} "
           f"decor={furniture_summary['decor']} warnings={len(warnings)} seconds={manifest['seconds']}")
     return 0
+
+
+BUILT_BUILDING = "building_built.json"
 
 
 def architect_compact(rec: dict | None) -> dict | None:

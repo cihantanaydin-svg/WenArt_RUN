@@ -175,7 +175,7 @@ def test_assumed_entries_of_the_design_details(project):
     assert sorted(a["parent"] for a in _assumed(scene, "door_handles")) == doors, name
     assert sorted(a["parent"] for a in _assumed(scene, "skirting")) == skirting, name
     assert sorted(a["parent"] for a in _assumed(scene, "dim_room_light")) == lights, name
-    building_path = V.resolve_repo_path(scene["building"])
+    building_path = V.scene_building_path(scene, OUTPUTS / name)
     if building_path is None or not building_path.is_file():
         building_path = OUTPUTS / name / "building_final.json"
     building = json.loads(building_path.read_text(encoding="utf-8"))

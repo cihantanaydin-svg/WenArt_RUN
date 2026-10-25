@@ -188,7 +188,7 @@ def test_agent_cameras_record_their_pose(project):
 def _building(name: str, scene: dict) -> dict:
     from wenart import views
 
-    path = views._resolve_repo_path(scene.get("building"), OUTPUTS / name)
+    path = views.scene_building_path(scene, OUTPUTS / name)
     if path is None or not path.is_file():
         path = OUTPUTS / name / "building_final.json"
     assert path.is_file(), f"{name}: building JSON of the scene not found ({scene.get('building')})"

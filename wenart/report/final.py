@@ -615,7 +615,7 @@ def _building_path(scene: dict, project_out: Path) -> Optional[Path]:
     ``building_final.json`` in the project output."""
     from wenart import views as VW
 
-    p = VW._resolve_repo_path(scene.get("building"), project_out)
+    p = VW.scene_building_path(scene, project_out)
     if p is not None and p.is_file():
         return p
     fallback = project_out / "building_final.json"

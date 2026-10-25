@@ -761,6 +761,15 @@ def _resolve_repo_path(value, project_out: Path) -> Optional[Path]:
     return first
 
 
+def scene_building_path(scene: dict, project_out: Path) -> Optional[Path]:
+    """The building a scene shows: ``building_built`` (the build's building with the architect's answers and the
+    clash moves carried out, 25 Oct 2026) when that file is there, else ``building`` (the build's input)."""
+    built = _resolve_repo_path(scene.get("building_built"), project_out)
+    if built is not None and built.is_file():
+        return built
+    return _resolve_repo_path(scene.get("building"), project_out)
+
+
 def resolve_repo_path(value) -> Optional[Path]:
     """A path recorded relative to the repo root, or absolute (docs/milestone6.md §1.1).
 
@@ -805,7 +814,7 @@ def project_paths(project_out) -> dict:
     scene = json.loads(scene_path.read_text(encoding="utf-8"))
     project = scene.get("project") or out.name
     warnings: list[str] = []
-    building_path = _resolve_repo_path(scene.get("building"), out)
+    building_path = scene_building_path(scene, out)
     if building_path is None:
         building_path = out / "building_final.json"
         warnings.append("scene manifest names no building; using building_final.json in the project output")

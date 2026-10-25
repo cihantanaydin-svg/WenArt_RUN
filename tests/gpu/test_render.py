@@ -250,7 +250,7 @@ def _policy(camera: dict) -> str:
 def _building(name: str, scene: dict) -> dict:
     from wenart import views
 
-    path = views._resolve_repo_path(scene.get("building"), OUTPUTS / name)
+    path = views.scene_building_path(scene, OUTPUTS / name)          # 25 Oct 2026: the building as built
     if path is None or not path.is_file():
         path = OUTPUTS / name / "building_final.json"
     assert path.is_file(), f"{name}: building JSON of the scene not found ({scene.get('building')})"
@@ -526,6 +526,14 @@ def _open_sky_rooms(building: dict) -> set:
     return {o["room_id"] for o in (building.get("roof") or {}).get("openings") or [] if o.get("room_id")}
 
 
+def _outside_door_rooms(building: dict) -> set:
+    """Rooms with a glazed outside door (``outside_door``, architect A3: a door to a terrace or balcony)."""
+    from wenart.blender import architect as AR
+
+    ids = {o["id"] for o in building.get("openings") or [] if o.get("outside_door")}
+    return {r["room"] for r in AR.open_air_doors(building) if r["opening"]["id"] in ids}
+
+
 def test_passes_exist_and_depth_is_plausible(project):
     """Files and depth range of every view, all bad views listed in one failure. Interior views: MIN_DEPTH_M <
     min < max < MAX_INDOOR_DEPTH_M and coverage over MIN_COVERAGE; Milestone 10: an interior view of a room open
@@ -537,6 +545,7 @@ def test_passes_exist_and_depth_is_plausible(project):
     out = OUTPUTS / name / "renders"
     plans = {c["name"]: c for c in scene.get("cameras") or []}
     open_sky = None                     # read from the building only when an interior view needs it
+    outside_doors = None
     bad, sky = [], []
     for r in render["renders"]:
         cam = r["camera"]
@@ -561,6 +570,12 @@ def test_passes_exist_and_depth_is_plausible(project):
             far, coverage = MAX_INDOOR_DEPTH_M, MIN_COVERAGE
             if open_sky is None:
                 open_sky = _open_sky_rooms(_building(name, scene))
+            if outside_doors is None:
+                outside_doors = _outside_door_rooms(_building(name, scene))
+            if (plan.get("room_id") or r.get("room_id")) in outside_doors:
+                # 25 Oct 2026 (architect A3): a room with a glazed outside door (a terrace door) sees out through
+                # its glass: the exterior clip end applies, the coverage bound stays (a hole still fails it)
+                far = exterior.CLIP_END
             if (plan.get("room_id") or r.get("room_id")) in open_sky or r.get("open_air"):
                 # M11 (pod G2b): a room open to the sky (a roof terrace) sees the ground to the horizon (site
                 # HORIZON_M): the exterior clip end applies, and no coverage bound. Fix round part 2 (17 Oct 2026):
@@ -641,6 +656,15 @@ def test_closed_door_views_end_on_the_door(project):
             print(f"{name}: {cam} not rendered ({room_id} is a twin of {first} under render.twin_rooms: one): "
                   f"the views of {first} that see its mirrored doors are checked: {sorted(views)}")
             entries.update(views)
+    # 25 Oct 2026 (architect A3): a view that ends on a glazed outside door sees out through its glass: no closed
+    # door view (the door it was chosen for is a terrace door now)
+    building = building or (_building(name, scene) if entries else None)
+    glazed = {o["id"] for o in (building or {}).get("openings") or [] if o.get("outside_door")}
+    plans = {c["name"]: c for c in scene.get("cameras") or []}
+    for cam in [c for c in entries if set((plans.get(c) or {}).get("visible_openings") or []) & glazed]:
+        reasons.append(f"{cam} sees the glazed outside door(s) "
+                       f"{sorted(set(plans[cam]['visible_openings']) & glazed)}: not a closed-door view")
+        entries.pop(cam)
     if not entries:
         pytest.skip(f"{name}: none of {CLOSED_DOOR_VIEWS} rendered: {'; '.join(reasons)}")
     if reasons:
@@ -1813,7 +1837,19 @@ def test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(project):
     assumed = scene.get("assumed") or []
     rig_lights = set(rig.get("lights") or [])
     missing = []
+    lit = set()
+    if FILL_LIGHT_ROOMS.get(name):
+        # 25 Oct 2026: the architect may give a windowless bedroom a window (an answer to its daylight question);
+        # such a room is not windowless any more and is not checked here
+        from wenart.blender import architect_actions as AA
+
+        plan = AA.Plan(_building(name, scene))
+        lit = {room for room in FILL_LIGHT_ROOMS[name] if room in plan.room and AA.outside_glass(plan, room)[0] > 0}
+        if lit:
+            print(f"{name}: no longer windowless (a window from the architect's answers): {sorted(lit)}")
     for room, required in FILL_LIGHT_ROOMS.get(name, {}).items():
+        if room in lit:
+            continue
         if room not in types:
             if required:
                 missing.append((room, "not in the scene"))
@@ -1833,7 +1869,7 @@ def test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(project):
                 missing.append((room, "rig fixtures without their lights", lost))
     assert not missing, f"{name}: windowless bedrooms without the fill light next to their rig: {missing}"
     dark = [(r["camera"], r["exposure"]["ev_raw"]) for r in render["renders"]
-            if r.get("room_id") in adds | set(FILL_LIGHT_ROOMS.get(name, {})) and _dark(r)]
+            if r.get("room_id") in (adds | set(FILL_LIGHT_ROOMS.get(name, {}))) - lit and _dark(r)]
     halls = [r for r in render["renders"] if types.get(r.get("room_id") or "") in ("hall", "stair")]
     dark_halls = [(r["camera"], r["exposure"]["ev_raw"]) for r in halls if _dark(r)]
     print(f"{name}: rooms whose rig adds to the fill light {sorted(adds)}; hall views {len(halls)}, over the cap "
