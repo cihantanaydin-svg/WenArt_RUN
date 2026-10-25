@@ -339,7 +339,7 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
     allowed = set(ROOM_TYPES.get(rtype, ROOM_TYPES["other"]))
     slots: list[Slot] = []
     notes: list[str] = []
-    if rtype in D.NO_DECOR_ROOM_TYPES or room.get("status") != "verified":
+    if not D.room_takes_decor(room):
         return slots, notes
     ctx = placer.room_context(building, room)
     ceiling = _ceiling(building, room)

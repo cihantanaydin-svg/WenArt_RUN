@@ -163,6 +163,15 @@ PLANT_SIZE = (0.4, 0.4)
 PLANT_HEIGHT_M = 1.0
 PLANT_ROOM_TYPES: tuple[str, ...] = ("living", "bedroom")
 NO_DECOR_ROOM_TYPES: tuple[str, ...] = ("prayer", "stair", "shaft")   # Milestone 7: no decor at all in these rooms
+# 25 Oct 2026 (user: "there are not enough decor around"): a room the reading left unverified (an inferred scale or
+# label; real06's living room and kitchen, 14 of real04's 38 rooms) is furnished, so it is dressed too; only these
+# statuses take decor
+DECOR_ROOM_STATUSES: tuple[str, ...] = ("verified", "unverified")
+
+
+def room_takes_decor(room: dict) -> bool:
+    """A room decor may dress (pure): a status of ``DECOR_ROOM_STATUSES`` and not a ``NO_DECOR_ROOM_TYPES`` room."""
+    return room.get("status") in DECOR_ROOM_STATUSES and room.get("room_type") not in NO_DECOR_ROOM_TYPES
 CORNER_INSET_M = 0.25             # plant centre from each wall of the corner
 HOST_TYPES: dict[str, str] = {    # host type -> decor type
     "sofa": "cushion", "bed_double": "cushion", "bed_single": "cushion",
@@ -842,7 +851,7 @@ def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> t
                           "host_id": host["id"], "source": "added_by_ai", "method": "rule",
                           "reason": item["reason"]})
             row["cushions" if item["type"] == "cushion" else "books"] += 1
-    if room.get("room_type") in PLANT_ROOM_TYPES and room.get("status") == "verified":
+    if room.get("room_type") in PLANT_ROOM_TYPES and room_takes_decor(room):
         center, why = plant_position(room, pieces, building)
         if center is not None:
             items.append({"id": new_id(room["level_id"]), "kind": "decor", "type": "plant",
@@ -853,7 +862,7 @@ def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> t
         else:
             row["plant"] = "none"
             row["note"] = why
-    if room.get("status") == "verified":
+    if room_takes_decor(room):
         notes = [row["note"]] if row["note"] else []
         rugs, rug_notes = rugs_for_room(room, pieces, building)
         for item in rugs:

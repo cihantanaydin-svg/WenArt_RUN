@@ -160,8 +160,9 @@ def test_no_decor_cushions_on_models_with_their_own():
     assert D.takes_cushions(duvet_only)                     # a duvet but no pillows: decor cushions are no duplicate
     assert DA._cushions(sofa) == [] and DA._cushions(bed) == [] and len(DA._cushions(bare)) == 2
     building = {"rooms": [], "furniture": [sofa, bed, bare]}
+    # a room status that takes no plant or rugs (25 Oct 2026: unverified rooms are dressed too), so only cushions
     items, row = D.rule_decor_room(building, {"id": "r1", "label": "x", "level_id": "L0", "room_type": "other",
-                                              "status": "unverified"}, [sofa, bed, bare], lambda lv: "d")
+                                              "status": "needs_review"}, [sofa, bed, bare], lambda lv: "d")
     assert [i["host_id"] for i in items] == ["c", "c"] and row["cushions"] == 2
 
 

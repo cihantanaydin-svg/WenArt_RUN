@@ -493,3 +493,13 @@ def test_a_long_top_is_styled_as_a_group_of_three():
     assert [round(p[1][0], 3) for p in parts] == [-0.6, 0.0, 0.6] and all(p[2][0] < 0.6 for p in parts)
     assert [p[0] for p in DA._top_parts(short)] == ["left", "right"]
     assert DA.PART_PICK["left"][0] == "table_lamp" and DA.ROOM_MIN["living"] >= 8
+
+
+def test_an_unverified_room_is_dressed_too():
+    """25 Oct 2026 (user: "not enough decor around"): real06's living room and kitchen and 14 of real04's 38 rooms
+    were unverified (an inferred scale or label) and got no decor at all, though they are furnished."""
+    from wenart.furniture import decor as DD
+    assert DD.room_takes_decor({"status": "verified", "room_type": "living"})
+    assert DD.room_takes_decor({"status": "unverified", "room_type": "living"})
+    assert not DD.room_takes_decor({"status": "needs_review", "room_type": "living"})
+    assert not DD.room_takes_decor({"status": "verified", "room_type": "stair"})
