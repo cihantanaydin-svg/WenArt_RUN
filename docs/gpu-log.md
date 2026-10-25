@@ -119,5 +119,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-25 07:39 | 5jhdmz6lignhdc | NVIDIA RTX PRO 6000 Blackwell Server Edition | 16 | 0.67 | real04 full run with the architect's review (steps opened, paths from the decks' steps, glazed terrace doors, downpipes on walls) and the angled top-down views; commit ee2b03d; polish off; 256 spp; GPU tests; user request of 25 Oct 2026 | unknown |
 | 2026-10-25 07:42 | jistoby2rzjqqt | NVIDIA GeForce RTX 5090 | 3 | 0.06 | fetch the job log of the failed real04 run 20261025-072303-full from the volume | unknown |
 | 2026-10-25 07:48 | jjblj3i82m7ibg | NVIDIA GeForce RTX 5090 | 3 | 0.06 | diagnostic: volume usage and the logs of the failed real04 job 20261025-072303-full (read only) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-25 07:50 | pending:20261025-075026-volume_free | RTX 5090 | 30 | 0.59 | volume: restore the repo, delete outputs-archive, old job folders and pip-cache (user OK 25 Oct 2026) | creating (provisional, worst case) |
 
-**Total spent so far: $222.09** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
+**Total spent so far: $222.68** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
