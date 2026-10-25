@@ -1,6 +1,6 @@
 {
  "project": "real04",
- "project_out": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04",
+ "project_out": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04",
  "baseline_out": "/home/user/WenArt_RUN/results/baseline/m13/final/real04",
  "sheets": {
   "cam_r_L-1_banyo_1": "cam_r_L-1_banyo_1_before_after.jpg",
@@ -53,12 +53,12 @@
    "room_type": "bathroom",
    "file": "cam_r_L-1_banyo_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L-1_banyo_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L-1_banyo_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L-1_banyo_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_c6ffbbcdb60a0cf942ce85663aa54754cd760551 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_0aeba5bbe2589951a26b2cc9 [non_commercial], 3dwh_4799895b90ee49a1f4cd032a [non_commercial], 3dwh_9314d5619fde2de825a4a2a1 [non_commercial], hssd_2991e695ef8215a75b43d63417caed6a7c5c0fed [non_commercial])",
    "camera_note": null,
-   "bytes": 147258
+   "bytes": 147114
   },
   {
    "camera": "cam_r_L-1_banyo_2",
@@ -66,12 +66,12 @@
    "room_type": "bathroom",
    "file": "cam_r_L-1_banyo_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L-1_banyo_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L-1_banyo_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L-1_banyo_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_2991e695ef8215a75b43d63417caed6a7c5c0fed [non_commercial], hssd_c6ffbbcdb60a0cf942ce85663aa54754cd760551 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_0aeba5bbe2589951a26b2cc9 [non_commercial], 3dwh_9314d5619fde2de825a4a2a1 [non_commercial])",
    "camera_note": null,
-   "bytes": 121450
+   "bytes": 121456
   },
   {
    "camera": "cam_r_L-1_koridor_2_1",
@@ -79,12 +79,12 @@
    "room_type": "hall",
    "file": "cam_r_L-1_koridor_2_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L-1_koridor_2_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L-1_koridor_2_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L-1_koridor_2_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610 [non_commercial], hssd_db19f85684c964132250926f988da86ac513baa6 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_fec63d27ea3695ada8319828 [non_commercial], hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610 [non_commercial], hssd_db19f85684c964132250926f988da86ac513baa6 [non_commercial])",
    "camera_note": null,
-   "bytes": 198450
+   "bytes": 197355
   },
   {
    "camera": "cam_r_L-1_koridor_2_2",
@@ -92,12 +92,12 @@
    "room_type": "hall",
    "file": "cam_r_L-1_koridor_2_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L-1_koridor_2_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L-1_koridor_2_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L-1_koridor_2_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: yes",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 146402
+   "bytes": 144588
   },
   {
    "camera": "cam_r_L-1_koridor_2_3",
@@ -105,12 +105,12 @@
    "room_type": "hall",
    "file": "cam_r_L-1_koridor_2_3_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L-1_koridor_2_3_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L-1_koridor_2_3_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L-1_koridor_2_3_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610 [non_commercial], hssd_db19f85684c964132250926f988da86ac513baa6 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610 [non_commercial], hssd_db19f85684c964132250926f988da86ac513baa6 [non_commercial])",
    "camera_note": null,
-   "bytes": 188774
+   "bytes": 188487
   },
   {
    "camera": "cam_r_L-1_mutfak_1",
@@ -118,12 +118,12 @@
    "room_type": "kitchen",
    "file": "cam_r_L-1_mutfak_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L-1_mutfak_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L-1_mutfak_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L-1_mutfak_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_a354f2a1205878521964e4eb5fc968981549c6fe [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: hssd_a354f2a1205878521964e4eb5fc968981549c6fe [non_commercial])",
    "camera_note": null,
-   "bytes": 150529
+   "bytes": 149089
   },
   {
    "camera": "cam_r_L-1_mutfak_2",
@@ -131,12 +131,12 @@
    "room_type": "kitchen",
    "file": "cam_r_L-1_mutfak_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L-1_mutfak_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L-1_mutfak_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L-1_mutfak_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_a354f2a1205878521964e4eb5fc968981549c6fe [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: hssd_a354f2a1205878521964e4eb5fc968981549c6fe [non_commercial])",
    "camera_note": null,
-   "bytes": 151120
+   "bytes": 152211
   },
   {
    "camera": "cam_r_L-1_mutfak_3",
@@ -144,12 +144,12 @@
    "room_type": "kitchen",
    "file": "cam_r_L-1_mutfak_3_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L-1_mutfak_3_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L-1_mutfak_3_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L-1_mutfak_3_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_78a02cbe18b9bac0aedf264e100a73f34fd05023 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_dff7590ce6f78822c852419d [non_commercial])",
    "camera_note": null,
-   "bytes": 134967
+   "bytes": 133813
   },
   {
    "camera": "cam_r_L-1_salon_1",
@@ -157,12 +157,12 @@
    "room_type": "living",
    "file": "cam_r_L-1_salon_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L-1_salon_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L-1_salon_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L-1_salon_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_0ef97f65cbf5ec5a97e982db08cfb42533d8dc12 [non_commercial], hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_fec63d27ea3695ada8319828 [non_commercial], hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610 [non_commercial])",
    "camera_note": null,
-   "bytes": 178446
+   "bytes": 182786
   },
   {
    "camera": "cam_r_L-1_salon_2",
@@ -170,12 +170,12 @@
    "room_type": "living",
    "file": "cam_r_L-1_salon_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L-1_salon_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L-1_salon_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L-1_salon_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_0ef97f65cbf5ec5a97e982db08cfb42533d8dc12 [non_commercial], hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_fec63d27ea3695ada8319828 [non_commercial], hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610 [non_commercial])",
    "camera_note": null,
-   "bytes": 196469
+   "bytes": 202241
   },
   {
    "camera": "cam_r_L-1_salon_3",
@@ -183,12 +183,12 @@
    "room_type": "living",
    "file": "cam_r_L-1_salon_3_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L-1_salon_3_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L-1_salon_3_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L-1_salon_3_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_cb3ded4460b53bfe63437e8d950482cfc8f88610 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_fec63d27ea3695ada8319828 [non_commercial])",
    "camera_note": null,
-   "bytes": 181693
+   "bytes": 187410
   },
   {
    "camera": "cam_r_L0_banyo_1",
@@ -196,12 +196,12 @@
    "room_type": "bathroom",
    "file": "cam_r_L0_banyo_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_banyo_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_banyo_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_banyo_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_c1965c146b48cddf434f6d5407dfc6ac43bde9b7 [non_commercial], hssd_c6ffbbcdb60a0cf942ce85663aa54754cd760551 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_4799895b90ee49a1f4cd032a [non_commercial], 3dwh_9314d5619fde2de825a4a2a1 [non_commercial], hssd_c1965c146b48cddf434f6d5407dfc6ac43bde9b7 [non_commercial])",
    "camera_note": null,
-   "bytes": 156564
+   "bytes": 156521
   },
   {
    "camera": "cam_r_L0_banyo_2",
@@ -209,12 +209,12 @@
    "room_type": "bathroom",
    "file": "cam_r_L0_banyo_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_banyo_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_banyo_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_banyo_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_c6ffbbcdb60a0cf942ce85663aa54754cd760551 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_4799895b90ee49a1f4cd032a [non_commercial], hssd_c1965c146b48cddf434f6d5407dfc6ac43bde9b7 [non_commercial])",
    "camera_note": null,
-   "bytes": 109600
+   "bytes": 109606
   },
   {
    "camera": "cam_r_L0_e_banyo_1",
@@ -222,12 +222,12 @@
    "room_type": "bathroom",
    "file": "cam_r_L0_e_banyo_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_e_banyo_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_e_banyo_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_e_banyo_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_c6ffbbcdb60a0cf942ce85663aa54754cd760551 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_25468a5fe0e85110daefcb0f [non_commercial], 3dwh_9314d5619fde2de825a4a2a1 [non_commercial])",
    "camera_note": null,
-   "bytes": 122007
+   "bytes": 121973
   },
   {
    "camera": "cam_r_L0_e_banyo_2",
@@ -235,12 +235,12 @@
    "room_type": "bathroom",
    "file": "cam_r_L0_e_banyo_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_e_banyo_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_e_banyo_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_e_banyo_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_c6ffbbcdb60a0cf942ce85663aa54754cd760551 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_25468a5fe0e85110daefcb0f [non_commercial], 3dwh_9314d5619fde2de825a4a2a1 [non_commercial])",
    "camera_note": null,
-   "bytes": 102287
+   "bytes": 102246
   },
   {
    "camera": "cam_r_L0_e_yatak_odasi_1",
@@ -248,12 +248,12 @@
    "room_type": "bedroom",
    "file": "cam_r_L0_e_yatak_odasi_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_e_yatak_odasi_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_e_yatak_odasi_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_e_yatak_odasi_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: yes",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 106000
+   "bytes": 110137
   },
   {
    "camera": "cam_r_L0_e_yatak_odasi_2",
@@ -261,12 +261,12 @@
    "room_type": "bedroom",
    "file": "cam_r_L0_e_yatak_odasi_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_e_yatak_odasi_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_e_yatak_odasi_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_e_yatak_odasi_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: gen_books_classic_3_3223f281 [tool_nc], gen_plant_large_modern_4_2b0c9146 [tool_nc])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_56d1c005237fa418b00eede5 [non_commercial], gen_plant_large_modern_4_2b0c9146 [tool_nc])",
    "camera_note": null,
-   "bytes": 136803
+   "bytes": 136551
   },
   {
    "camera": "cam_r_L0_e_yatak_odasi_3",
@@ -274,12 +274,12 @@
    "room_type": "bedroom",
    "file": "cam_r_L0_e_yatak_odasi_3_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_e_yatak_odasi_3_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_e_yatak_odasi_3_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_e_yatak_odasi_3_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: gen_books_classic_3_3223f281 [tool_nc], gen_plant_large_modern_4_2b0c9146 [tool_nc])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_56d1c005237fa418b00eede5 [non_commercial], gen_plant_large_modern_4_2b0c9146 [tool_nc])",
    "camera_note": null,
-   "bytes": 164172
+   "bytes": 168464
   },
   {
    "camera": "cam_r_L0_koridor_1",
@@ -287,12 +287,12 @@
    "room_type": "hall",
    "file": "cam_r_L0_koridor_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_koridor_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_koridor_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_koridor_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: yes",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 164637
+   "bytes": 164660
   },
   {
    "camera": "cam_r_L0_koridor_2",
@@ -300,12 +300,12 @@
    "room_type": "hall",
    "file": "cam_r_L0_koridor_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_koridor_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_koridor_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_koridor_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: yes",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 141915
+   "bytes": 141705
   },
   {
    "camera": "cam_r_L0_koridor_3",
@@ -313,12 +313,12 @@
    "room_type": "hall",
    "file": "cam_r_L0_koridor_3_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_koridor_3_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_koridor_3_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_koridor_3_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: yes",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 160617
+   "bytes": 160607
   },
   {
    "camera": "cam_r_L0_yatak_odasi_1",
@@ -326,12 +326,12 @@
    "room_type": "bedroom",
    "file": "cam_r_L0_yatak_odasi_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_yatak_odasi_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_yatak_odasi_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_yatak_odasi_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: gen_plant_small_modern_minimal_1_7ea34d3d [tool_nc])",
    "after_line": "commercial-safe: no (flagged assets: 3dwh_ba5b8da5b7298d1ee5838b5a [non_commercial], 3dwh_ce9604f33d3a30bc31bea94d [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc])",
    "camera_note": null,
-   "bytes": 178691
+   "bytes": 186358
   },
   {
    "camera": "cam_r_L0_yatak_odasi_2",
@@ -339,12 +339,12 @@
    "room_type": "bedroom",
    "file": "cam_r_L0_yatak_odasi_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_yatak_odasi_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_yatak_odasi_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_yatak_odasi_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: gen_plant_small_modern_minimal_1_7ea34d3d [tool_nc])",
-   "after_line": "commercial-safe: no (flagged assets: 3dwh_ba5b8da5b7298d1ee5838b5a [non_commercial], 3dwh_ce9604f33d3a30bc31bea94d [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc])",
+   "after_line": "commercial-safe: no (flagged assets: 3dwh_ba5b8da5b7298d1ee5838b5a [non_commercial])",
    "camera_note": null,
-   "bytes": 180493
+   "bytes": 171859
   },
   {
    "camera": "cam_r_L0_yatak_odasi_3",
@@ -352,12 +352,12 @@
    "room_type": "bedroom",
    "file": "cam_r_L0_yatak_odasi_3_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L0_yatak_odasi_3_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_yatak_odasi_3_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_yatak_odasi_3_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: yes",
-   "after_line": "commercial-safe: no (flagged assets: 3dwh_ba5b8da5b7298d1ee5838b5a [non_commercial], hssd_49c43df0f4010e965d68f8f748c9810b335ca4a7 [non_commercial])",
+   "after_line": "commercial-safe: no (flagged assets: 3dwh_ba5b8da5b7298d1ee5838b5a [non_commercial], 3dwh_ce9604f33d3a30bc31bea94d [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc])",
    "camera_note": null,
-   "bytes": 154668
+   "bytes": 176828
   },
   {
    "camera": "cam_r_L0_yatak_odasi_3_1",
@@ -365,12 +365,12 @@
    "room_type": "bedroom",
    "file": "cam_r_L0_yatak_odasi_3_1_before_after.jpg",
    "before": null,
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_yatak_odasi_3_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_yatak_odasi_3_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "no view in this run",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 96953
+   "bytes": 95710
   },
   {
    "camera": "cam_r_L0_yatak_odasi_3_2",
@@ -378,12 +378,12 @@
    "room_type": "bedroom",
    "file": "cam_r_L0_yatak_odasi_3_2_before_after.jpg",
    "before": null,
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_yatak_odasi_3_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_yatak_odasi_3_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "no view in this run",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 100908
+   "bytes": 94886
   },
   {
    "camera": "cam_r_L0_yatak_odasi_3_3",
@@ -391,12 +391,12 @@
    "room_type": "bedroom",
    "file": "cam_r_L0_yatak_odasi_3_3_before_after.jpg",
    "before": null,
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L0_yatak_odasi_3_3_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L0_yatak_odasi_3_3_final_preview.jpg",
    "before_left_out": null,
    "before_line": "no view in this run",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 102765
+   "bytes": 101487
   },
   {
    "camera": "cam_r_L1_banyo_1",
@@ -404,12 +404,12 @@
    "room_type": "bathroom",
    "file": "cam_r_L1_banyo_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L1_banyo_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L1_banyo_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L1_banyo_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_c6ffbbcdb60a0cf942ce85663aa54754cd760551 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: hssd_c6ffbbcdb60a0cf942ce85663aa54754cd760551 [non_commercial])",
    "camera_note": null,
-   "bytes": 121549
+   "bytes": 121561
   },
   {
    "camera": "cam_r_L1_koridor_1",
@@ -417,12 +417,12 @@
    "room_type": "hall",
    "file": "cam_r_L1_koridor_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L1_koridor_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L1_koridor_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L1_koridor_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: yes",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 154303
+   "bytes": 154381
   },
   {
    "camera": "cam_r_L1_koridor_2",
@@ -430,12 +430,12 @@
    "room_type": "hall",
    "file": "cam_r_L1_koridor_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L1_koridor_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L1_koridor_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L1_koridor_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_5ae72d0e8fdadc834a6de0b722be6f259c587c96 [non_commercial])",
    "after_line": "commercial-safe: no (flagged assets: hssd_85a85b8d95fa810baeaebaf0d04d6c931d23ed3b [non_commercial])",
    "camera_note": null,
-   "bytes": 174592
+   "bytes": 174610
   },
   {
    "camera": "cam_r_L1_koridor_3",
@@ -443,12 +443,12 @@
    "room_type": "hall",
    "file": "cam_r_L1_koridor_3_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L1_koridor_3_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L1_koridor_3_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L1_koridor_3_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: yes",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 150536
+   "bytes": 150518
   },
   {
    "camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1",
@@ -456,12 +456,12 @@
    "room_type": "other",
    "file": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_b8e36ac6fc006b0b7aaa4dabcbce9fa3108abcc2 [non_commercial])",
-   "after_line": "commercial-safe: no (flagged assets: hssd_52e54d4aedff229ec50eefe25bd168c60141c37f [non_commercial], hssd_7025cd14a948f491902ef12724f0fe6e4ce672af [non_commercial], hssd_79ad3c2f9e40b87e3a22d82bec28cbfb4f0ab627 [non_commercial], hssd_b8e36ac6fc006b0b7aaa4dabcbce9fa3108abcc2 [non_commercial])",
+   "after_line": "commercial-safe: no (flagged assets: hssd_3b558ce715c88cca63b307f8e0e9b665ca57ef43 [non_commercial], hssd_52e54d4aedff229ec50eefe25bd168c60141c37f [non_commercial], hssd_7025cd14a948f491902ef12724f0fe6e4ce672af [non_commercial], hssd_79ad3c2f9e40b87e3a22d82bec28cbfb4f0ab627 [non_commercial], hssd_8d5bb48091eb674ed2e72177175d7a80e7196f31 [non_commercial], hssd_b8e36ac6fc006b0b7aaa4dabcbce9fa3108abcc2 [non_commercial])",
    "camera_note": null,
-   "bytes": 200062
+   "bytes": 225937
   },
   {
    "camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
@@ -469,12 +469,12 @@
    "room_type": "other",
    "file": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_79ad3c2f9e40b87e3a22d82bec28cbfb4f0ab627 [non_commercial])",
-   "after_line": "commercial-safe: no (flagged assets: hssd_b8e36ac6fc006b0b7aaa4dabcbce9fa3108abcc2 [non_commercial])",
+   "after_line": "commercial-safe: no (flagged assets: hssd_3b558ce715c88cca63b307f8e0e9b665ca57ef43 [non_commercial], hssd_b8e36ac6fc006b0b7aaa4dabcbce9fa3108abcc2 [non_commercial])",
    "camera_note": null,
-   "bytes": 177688
+   "bytes": 187530
   },
   {
    "camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3",
@@ -482,12 +482,12 @@
    "room_type": "other",
    "file": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_b8e36ac6fc006b0b7aaa4dabcbce9fa3108abcc2 [non_commercial])",
-   "after_line": "commercial-safe: no (flagged assets: hssd_b8e36ac6fc006b0b7aaa4dabcbce9fa3108abcc2 [non_commercial])",
+   "after_line": "commercial-safe: no (flagged assets: hssd_3b558ce715c88cca63b307f8e0e9b665ca57ef43 [non_commercial], hssd_52e54d4aedff229ec50eefe25bd168c60141c37f [non_commercial], hssd_7025cd14a948f491902ef12724f0fe6e4ce672af [non_commercial], hssd_b8e36ac6fc006b0b7aaa4dabcbce9fa3108abcc2 [non_commercial])",
    "camera_note": null,
-   "bytes": 161049
+   "bytes": 180874
   },
   {
    "camera": "cam_r_L1_teras_1",
@@ -495,12 +495,12 @@
    "room_type": "balcony",
    "file": "cam_r_L1_teras_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L1_teras_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L1_teras_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L1_teras_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_b1d8f04a74bc6fe1a303593f1acf0c1c5efb19e7 [non_commercial])",
-   "after_line": "commercial-safe: no (flagged assets: 3dwh_61d3ec6b31b39c2256ef4df4 [non_commercial], 3dwh_8512ac158d0f8579041a1fc2 [non_commercial], hssd_b1d8f04a74bc6fe1a303593f1acf0c1c5efb19e7 [non_commercial])",
+   "after_line": "commercial-safe: no (flagged assets: 3dwh_8512ac158d0f8579041a1fc2 [non_commercial], 3dwh_cf8a7127be5783e2fc5e61ae [non_commercial])",
    "camera_note": null,
-   "bytes": 167195
+   "bytes": 159333
   },
   {
    "camera": "cam_r_L1_teras_2",
@@ -508,12 +508,12 @@
    "room_type": "balcony",
    "file": "cam_r_L1_teras_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L1_teras_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L1_teras_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L1_teras_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_b1d8f04a74bc6fe1a303593f1acf0c1c5efb19e7 [non_commercial])",
-   "after_line": "commercial-safe: no (flagged assets: 3dwh_61d3ec6b31b39c2256ef4df4 [non_commercial], 3dwh_8512ac158d0f8579041a1fc2 [non_commercial], hssd_b1d8f04a74bc6fe1a303593f1acf0c1c5efb19e7 [non_commercial])",
+   "after_line": "commercial-safe: no (flagged assets: 3dwh_8512ac158d0f8579041a1fc2 [non_commercial], 3dwh_cf8a7127be5783e2fc5e61ae [non_commercial])",
    "camera_note": null,
-   "bytes": 170046
+   "bytes": 167207
   },
   {
    "camera": "cam_r_L1_teras_3",
@@ -521,12 +521,12 @@
    "room_type": "balcony",
    "file": "cam_r_L1_teras_3_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/cam_r_L1_teras_3_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/cam_r_L1_teras_3_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/cam_r_L1_teras_3_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_b1d8f04a74bc6fe1a303593f1acf0c1c5efb19e7 [non_commercial])",
-   "after_line": "commercial-safe: no (flagged assets: 3dwh_61d3ec6b31b39c2256ef4df4 [non_commercial], 3dwh_8512ac158d0f8579041a1fc2 [non_commercial], hssd_b1d8f04a74bc6fe1a303593f1acf0c1c5efb19e7 [non_commercial])",
+   "after_line": "commercial-safe: no (flagged assets: 3dwh_8512ac158d0f8579041a1fc2 [non_commercial], 3dwh_cf8a7127be5783e2fc5e61ae [non_commercial])",
    "camera_note": null,
-   "bytes": 178902
+   "bytes": 171352
   },
   {
    "camera": "ext_1",
@@ -534,12 +534,12 @@
    "room_type": "",
    "file": "ext_1_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/ext_1_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/ext_1_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/ext_1_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: yes",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 144305
+   "bytes": 143918
   },
   {
    "camera": "ext_2",
@@ -547,12 +547,12 @@
    "room_type": "",
    "file": "ext_2_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/ext_2_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/ext_2_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/ext_2_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: yes",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 158012
+   "bytes": 157713
   },
   {
    "camera": "ext_3",
@@ -560,12 +560,12 @@
    "room_type": "",
    "file": "ext_3_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/ext_3_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/ext_3_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/ext_3_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: yes",
    "after_line": "commercial-safe: yes",
    "camera_note": null,
-   "bytes": 157983
+   "bytes": 157431
   },
   {
    "camera": "ext_5",
@@ -573,12 +573,12 @@
    "room_type": "",
    "file": "ext_5_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/ext_5_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/ext_5_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/ext_5_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_b1d8f04a74bc6fe1a303593f1acf0c1c5efb19e7 [non_commercial])",
-   "after_line": "commercial-safe: no (flagged assets: 3dwh_61d3ec6b31b39c2256ef4df4 [non_commercial], 3dwh_8512ac158d0f8579041a1fc2 [non_commercial])",
+   "after_line": "commercial-safe: no (flagged assets: 3dwh_8512ac158d0f8579041a1fc2 [non_commercial])",
    "camera_note": null,
-   "bytes": 200695
+   "bytes": 196411
   },
   {
    "camera": "ext_7",
@@ -586,12 +586,12 @@
    "room_type": "",
    "file": "ext_7_before_after.jpg",
    "before": "/home/user/WenArt_RUN/results/baseline/m13/final/real04/ext_7_final_preview.jpg",
-   "after": "/home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04/ext_7_final_preview.jpg",
+   "after": "/home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04/ext_7_final_preview.jpg",
    "before_left_out": null,
    "before_line": "commercial-safe: no (flagged assets: hssd_088c257155d527517719972d29f363a438cfb4cd [non_commercial])",
-   "after_line": "commercial-safe: no (flagged assets: 3dwh_cf8a7127be5783e2fc5e61ae [non_commercial])",
+   "after_line": "commercial-safe: no (flagged assets: hssd_b1d8f04a74bc6fe1a303593f1acf0c1c5efb19e7 [non_commercial])",
    "camera_note": null,
-   "bytes": 163996
+   "bytes": 165617
   }
  ],
  "missing_before": [
@@ -608,8 +608,8 @@
  "before_left_out": [],
  "index": "sheets13.md",
  "warnings": [
-  "log: no file (results layout under /home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04)",
-  "rubric: no file (results layout under /home/user/WenArt_RUN/runs/20261025-094446-full/results/final/real04)",
+  "log: no file (results layout under /home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04)",
+  "rubric: no file (results layout under /home/user/WenArt_RUN/runs/20261025-141109-fetch_results/results/final/real04)",
   "baseline: orchestrator log: the latest run from seq 6859 (1024 of 7882 events; earlier runs of the appended log left out)",
   "baseline: rubric: no file (results layout under /home/user/WenArt_RUN/results/baseline/m13/final/real04)"
  ]

@@ -1214,5 +1214,18 @@ building as built: now `scene/building_built.json`; one coffee table hidden behi
 an opaque picture of glass. A window model must now have see-through glass (`opening_models.glb_glass`, and a guard
 when the model loads), and the model ranking takes the proportion error in steps of 0.05.
 
+Final run `waqvtaiocrgu02` (123 min, $5.10: 2 % over its $4.98 worst case, the job ran to 116 min and the pod's
+grace ran while the results downloaded; the runner had been cut by the session's 2-hour background limit and was
+re-attached late, so most files were fetched afterwards: `pxsy2vhcgnqn7q` did not boot, $0.19; `dy1u0yky8kfk58`,
+8 min, $0.33): [`results/review/real04_architect_20261025/`](../results/review/real04_architect_20261025/) (top-down
+views, the architect's report, the AI's answers, before / after sheets and metrics vs Milestone 13). The aluminium
+window is back; no interior view at +5 EV or more (metric 9 as in the baseline); 2 clashes planned apart, mesh cuts
+all under 3 cm; GPU tests 45 passed, 1 failed (a classic / rustic library table in the modern play room), 10
+skipped. After the run: the corner sofa "sofá bandeja de braço" (3D Warehouse) is removed from the library (its
+built-in arm tray reads as a table through the sofa; the English-titled sofas and chairs with a table had been
+removed by the audit); the next run picks another corner sofa. Open: bedroom 3's new north window keeps its views
+darker (the lighting gives no fill light to a room with a window); metric 5 shows one nightstand per bed in bedrooms
+3 and 4 and no fridge in kitchen 2 in this run's building (the fit and the agent's rounds, not the build).
+
 Also: `RESTORE_OUTPUTS=1` in `scripts/jobs/full.sh` moves the pipeline outputs a failed pod set aside
 (`/workspace/.repo-broken-*/outputs`) back into the repo's outputs (a move, never a delete).

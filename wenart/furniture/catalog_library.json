@@ -516962,8 +516962,10 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "25 Oct 2026, user review of real04 (\"clashing furniture\"): the model carries a wooden arm tray (Portuguese title 'sofá bandeja de braço'); in the renders it reads as a side table standing through the sofa, like the removed sofas and chairs with a table"
+    ],
     "fixes": {},
     "version": "m12",
     "checked_utc": "2026-10-23T21:58:17Z",

@@ -1,0 +1,162 @@
+{
+ "_note": "the AI architect's accepted answers (wenart/agent/architect_ai.py); the user's answers in the project folder win",
+ "answers": {
+  "L1:r_L0_yatak_odasi_3": {
+   "option": "enlarge_windows",
+   "params": {
+    "room_id": "r_L0_yatak_odasi_3"
+   },
+   "answer": "The room is a habitable bedroom with zero outside glass, so it requires a window to meet daylight codes.",
+   "reason": "The room is a habitable bedroom with zero outside glass, so it requires a window to meet daylight codes.",
+   "by": "ai",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "where": {
+    "kind": "room",
+    "level_id": "L0",
+    "centre": [
+     1.709,
+     9.472
+    ]
+   },
+   "date": "2026-10-25"
+  },
+  "L1:r_L0_yatak_odasi_4": {
+   "option": "enlarge_windows",
+   "params": {
+    "room_id": "r_L0_yatak_odasi_4"
+   },
+   "answer": "The room is a habitable bedroom with zero outside glass, so it requires a window to meet daylight codes.",
+   "reason": "The room is a habitable bedroom with zero outside glass, so it requires a window to meet daylight codes.",
+   "by": "ai",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "where": {
+    "kind": "room",
+    "level_id": "L0",
+    "centre": [
+     13.464,
+     9.472
+    ]
+   },
+   "date": "2026-10-25"
+  },
+  "F4:f_L0_014": {
+   "option": "keep",
+   "params": {},
+   "answer": "The shower is a fixed fixture that does not require clearance in front for operation, making the current placement plausible.",
+   "reason": "The shower is a fixed fixture that does not require clearance in front for operation, making the current placement plausible.",
+   "by": "ai",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "where": {
+    "kind": "furniture",
+    "level_id": "L0",
+    "centre": [
+     8.187,
+     6.643
+    ]
+   },
+   "date": "2026-10-25"
+  },
+  "X1:w_L1_005": {
+   "option": "keep",
+   "params": {},
+   "answer": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "reason": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "by": "ai",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "where": {
+    "kind": "wall",
+    "level_id": "L1",
+    "centre": [
+     2.46,
+     10.246
+    ]
+   },
+   "date": "2026-10-25"
+  },
+  "X1:w_L1_006": {
+   "option": "keep",
+   "params": {},
+   "answer": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "reason": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "by": "ai",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "where": {
+    "kind": "wall",
+    "level_id": "L1",
+    "centre": [
+     12.713,
+     10.246
+    ]
+   },
+   "date": "2026-10-25"
+  },
+  "X1:w_L1_009": {
+   "option": "keep",
+   "params": {},
+   "answer": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "reason": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "by": "ai",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "where": {
+    "kind": "wall",
+    "level_id": "L1",
+    "centre": [
+     1.75,
+     5.201
+    ]
+   },
+   "date": "2026-10-25"
+  },
+  "X1:w_L1_010": {
+   "option": "keep",
+   "params": {},
+   "answer": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "reason": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "by": "ai",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "where": {
+    "kind": "wall",
+    "level_id": "L1",
+    "centre": [
+     3.268,
+     10.996
+    ]
+   },
+   "date": "2026-10-25"
+  },
+  "X1:w_L1_014": {
+   "option": "keep",
+   "params": {},
+   "answer": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "reason": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "by": "ai",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "where": {
+    "kind": "wall",
+    "level_id": "L1",
+    "centre": [
+     11.905,
+     10.996
+    ]
+   },
+   "date": "2026-10-25"
+  },
+  "X1:w_L1_015": {
+   "option": "keep",
+   "params": {},
+   "answer": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "reason": "The wall is not flagged as exterior in the drawing, suggesting it is a partition or glass element where the thin thickness is plausible.",
+   "by": "ai",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "where": {
+    "kind": "wall",
+    "level_id": "L1",
+    "centre": [
+     13.422,
+     5.201
+    ]
+   },
+   "date": "2026-10-25"
+  }
+ }
+}
