@@ -2239,7 +2239,7 @@ class Orchestrator:
         # 25 Oct 2026: the user's lessons that no rule checks yet, judged by the AI on this building (never fatal)
         try:
             from wenart.agent import lessons as LS
-            LS.review_lessons(pr.out, model, out=self.out)
+            LS.review_lessons(pr.out, model, out=self.out, architect=rec.get("review"))
         except Exception as exc:  # noqa: BLE001 - the lessons stay unchecked this run
             self.out(f"{pr.name} architect lessons: {type(exc).__name__}: {exc}")
 

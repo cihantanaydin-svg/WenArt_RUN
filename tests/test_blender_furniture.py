@@ -519,16 +519,19 @@ def _building(assets_dir: Path) -> dict:
         furniture.append(piece)
         x += span
         row_h = max(row_h, span)
+    # the library row below the grid (25 Oct 2026: the grid grew past y = 6.5 with the new types, and the clash
+    # planner, build.prepare, moved the overlapping library pieces)
+    lib_y = y + row_h + 1.0
     furniture += [
-        _piece("f_lib", "armchair", (9.0, 6.5), (0.96, 0.5), 0.0,
+        _piece("f_lib", "armchair", (9.0, lib_y), (0.96, 0.5), 0.0,
                asset=_library_asset([0.8, 0.5, 0.9], (1.2, 1.0, 1.1))),
-        _piece("f_lib_rot", "chair", (10.8, 6.5), (0.8, 0.5), 90.0, status="unverified",
+        _piece("f_lib_rot", "chair", (10.8, lib_y), (0.8, 0.5), 90.0, status="unverified",
                asset=_library_asset([0.8, 0.5, 0.9])),
-        _piece("f_missing", "tv_unit", (7.0, 6.5), (1.6, 0.45), 0.0,
+        _piece("f_missing", "tv_unit", (7.0, lib_y), (1.6, 0.45), 0.0,
                asset=_library_asset([1.6, 0.45, 0.5], file="models/nope/nope.glb")),
-        _piece("f_licence", "nightstand", (4.5, 6.5), (0.5, 0.4), 0.0,
+        _piece("f_licence", "nightstand", (4.5, lib_y), (0.5, 0.4), 0.0,
                asset=_library_asset([0.5, 0.4, 0.5], licence="CC-BY")),
-        dict(_piece("f_unknown", "unknown", (2.0, 6.5), (1.2, 0.6), 0.0), status="unverified"),
+        dict(_piece("f_unknown", "unknown", (2.0, lib_y), (1.2, 0.6), 0.0), status="unverified"),
     ]
     sofa = next(f for f in furniture if f["type"] == "sofa")
     desk = next(f for f in furniture if f["type"] == "desk")
@@ -695,7 +698,8 @@ def test_library_asset_is_imported_oriented_fitted_and_placed(scene):
     assert sorted(e["imported_objects"]) == ["cube_a", "cube_b", "cube_root"]
     (x0, x1), (y0, y1), (z0, z1) = ob["bounds"]
     assert (x1 - x0, y1 - y0, z1 - z0) == pytest.approx((0.96, 0.5, 0.99), abs=1e-3)
-    assert ((x0 + x1) / 2, (y0 + y1) / 2, z0) == pytest.approx((9.0, 6.5, 0.0), abs=1e-3)
+    lib_y = next(f for f in scene["building"]["furniture"] if f["id"] == "f_lib")["footprint"]["center"][1]
+    assert ((x0 + x1) / 2, (y0 + y1) / 2, z0) == pytest.approx((9.0, lib_y, 0.0), abs=1e-3)
     assert ob["kind"] == "furniture" and ob["props"]["wenart_asset"] == "test_cube" and ob["wenart_id"] == "f_lib"
     assert set(ob["materials"]) == {"cube_a_mat", "cube_b_mat"} == set(e["materials"]) and e["textured"] is False
     # One import per file and build: three pieces use the GLB, no "cube_a_mat.001" copies appear.
@@ -720,7 +724,8 @@ def test_rotated_unverified_library_piece_keeps_stripes_on_copied_materials(scen
     ob = objects["furn_f_lib_rot"]
     (x0, x1), (y0, y1), (z0, z1) = ob["bounds"]
     assert (x1 - x0, y1 - y0, z1 - z0) == pytest.approx((0.5, 0.8, 0.9), abs=1e-3)   # 90 degrees: width along Y
-    assert ((x0 + x1) / 2, (y0 + y1) / 2, z0) == pytest.approx((10.8, 6.5, 0.0), abs=1e-3)
+    lib_y = next(f for f in scene["building"]["furniture"] if f["id"] == "f_lib_rot")["footprint"]["center"][1]
+    assert ((x0 + x1) / 2, (y0 + y1) / 2, z0) == pytest.approx((10.8, lib_y, 0.0), abs=1e-3)
     assert e["status"] == ob["status"] == "unverified"
     assert set(ob["materials"]) == {"cube_a_mat__unverified", "cube_b_mat__unverified"}
     assert all(scene["materials"][n]["stripes"] for n in ob["materials"])
@@ -778,7 +783,10 @@ def test_decor_sits_on_its_hosts_and_shares_their_pass_index(scene):
     # Milestone 12 (docs/milestone12.md §4.7): hosted decor rests on the built mesh (rays), checked by S5
     cushion, plant = by_host[sofa["id"]]
     assert cushion["type"] == "cushion" and cushion["support"] == "back"
-    assert objects[cushion["name"]]["bounds"][2][0] == pytest.approx(P.sofa_seat_height(0.85), abs=2e-3)  # the seat
+    from wenart.blender import rest as RS
+    # the seat; 25 Oct 2026: a cushion sinks RS.SOFT_SINK_M into a soft seat ("pillows seem floating")
+    assert objects[cushion["name"]]["bounds"][2][0] == pytest.approx(P.sofa_seat_height(0.85) - RS.SOFT_SINK_M,
+                                                                     abs=3e-3)
     assert cushion["rest"]["gap_m"] <= 0.010 and cushion["rest"]["penetration_m"] <= 0.030
     assert plant["type"] == "plant" and objects[plant["name"]]["bounds"][2] == pytest.approx([0.0, 0.6], abs=1e-4)
     assert plant["size"] == [0.6, 0.6, 0.6]

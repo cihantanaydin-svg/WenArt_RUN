@@ -662,7 +662,8 @@ def test_m7_stair_is_built_from_the_drawn_lines_with_its_assumptions(built_m7):
     assert stair["stair"]["risers"] == 16 and stair["stair"]["riser_m"] == pytest.approx(2.85 / 16, abs=1e-4)
     assert stair["stair"]["riser_source"] == "derived from assumed ceiling and slab"
     assert [f["treads"] for f in stair["stair"]["flights"]] == [7, 7] and stair["box3d"]
-    assert objects["furn_f_L0_019"]["materials"] == stair["materials"] and len(stair["materials"]) == 3
+    # 25 Oct 2026: tread, structure, steel and the glass of a glass balustrade (parametric.STAIR_SLOTS)
+    assert objects["furn_f_L0_019"]["materials"] == stair["materials"] and len(stair["materials"]) == 4
     assert "f_L0_019" in m["furniture"]["stairs"] and m["furniture"]["pieces"] == 4
     kinds = {(a["object"], a["kind"]) for a in m["assumed"] if a.get("parent") == "f_L0_019"}
     assert {("furn_f_L0_019", k) for k in ("stair_riser", "stair_direction", "stair_turn", "stair_handrail",

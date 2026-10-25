@@ -97,3 +97,23 @@ def test_the_rooms_are_checked_as_a_set_styled_and_complete():
     assert s3["status"] == "open" and "holds 1 decor" in s3["answers"][0]["found"]
     assert s4["status"] == "open" and "side_table or floor_lamp" in s4["answers"][0]["found"]
     assert "a rug" in s4["answers"][0]["found"]
+
+
+def test_the_ai_gets_the_checks_evidence_and_the_rooms_facts():
+    """25 Oct 2026 pod run: the AI answered "unknown" for 11 of 13 lessons (it saw room names and furniture types
+    only). Each lesson now carries what its code checks found, the open findings first, and the rooms their area,
+    open-air flag and the models' wood tone and metal."""
+    arch = {"questions": [{"id": "U1", "question": "Is the furniture on the terrace made for outside?",
+                           "status": "open", "counts": {"ok": 1, "open": 1},
+                           "answers": [{"element": "f1", "found": "teak table", "status": "ok"},
+                                       {"element": "f2", "found": "an upholstered armchair outside",
+                                        "status": "open"}]}]}
+    ev = LA.check_evidence(arch, ["U1", "Z9"])
+    assert list(ev) == ["U1"] and ev["U1"]["found"][0].startswith("f2: an upholstered armchair")
+    b = {"rooms": [{"id": "t", "room_type": "terrace", "level_id": "L1", "polygon": [[0, 0], [4, 0], [4, 3], [0, 3]]}],
+         "furniture": [{"id": "f1", "type": "table_dining", "room_id": "t", "source": "added_by_ai",
+                        "asset": {"taste": {"wood_tone": "medium", "metal": "black"}}}]}
+    room = LA.building_facts(b, arch)["rooms"][0]
+    assert room["area_m2"] == 12.0 and room["open_air"] is True
+    assert room["furniture"] == [{"id": "f1", "type": "table_dining", "source": "added_by_ai", "wood_tone": "medium",
+                                  "metal": "black"}]

@@ -5,8 +5,8 @@
  "stage": "pipeline",
  "rc": 4,
  "status": "pending",
- "seconds": 112.64,
- "fingerprint": "1bf95e9cdd8d55617116f7fb8a1a26e08628a821c418540b17499612c6dff4ec",
+ "seconds": 112.74,
+ "fingerprint": "705d7938c4bfb180c367a41989d872134f37ee7d9b59ffd7d7458e33666f0a5f",
  "inputs": {
   "projects/real04": "a2e03d086e77a4bb6154e739028441055464f6152f2faa4abe8bbad4897f0574",
   "<LibreDWG VERSION>": "0.14 d9468ae p1"
@@ -15,16 +15,16 @@
   "building.json",
   "report.md"
  ],
- "started_utc": "2026-10-25T11:59:31Z",
- "git_commit": "d20ad5b9a2f62b3a4d5a54285c75abd780f67a9f",
+ "started_utc": "2026-10-25T18:08:04Z",
+ "git_commit": "4ee8192e2673fa2b9d5123ff3ce6291db321a023",
  "log": "logs/pipeline.log",
  "note": "70 recognition question(s) written (recognition/requests.json); 8 sheet question(s) (sheets/requests.json)",
- "run_id": "20261025-115105-full-20261025T115639Z",
+ "run_id": "20261025-180008-full-20261025T180511Z",
  "steps": [
   {
    "name": "pipeline",
    "rc": 4,
-   "seconds": 112.64
+   "seconds": 112.74
   }
  ],
  "written": {}

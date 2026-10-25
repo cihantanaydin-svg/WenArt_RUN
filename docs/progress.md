@@ -1254,3 +1254,29 @@ User rule of 25 Oct 2026: "From now on every run is against its latest run compa
 | which run is "before" | `wenart/report/latest.py`: the project's newest run older than the new one, from the runner's copies (`runs/<job>/results/final/<p>`, a fetch job's folder counts for the run it fetched; the most complete folder wins), the committed `results/baseline/latest/` and, when nothing newer is known, the Milestone 13 copy. A run without renders is skipped |
 | reports | `python -m wenart.report sheets13` / `metrics13` take it by default (`--baseline m13` on request); each sheet's labels name the two runs ("before: run 20261025-115105-full") |
 | keeping the latest run | `python -m wenart.report latest --out <run>/final/<p> --promote` copies the run into `results/baseline/latest/` (`runs.json` names it) after its report. Now there: real04 = job 20261025-115105-full, real06 = job 20261024-053145-full |
+
+## real04 pod run with the 25 Oct details (25 Oct 2026) and the fixes it showed
+
+Pod `s20y6p5bz1fx3w` (RTX PRO 6000, 113 min, $4.68, code 4ee8192; job 20261025-180008-full), compared with the
+latest real04 run (job 20261025-115105-full, the new rule):
+[`results/review/real04_details_run_20261025/`](../results/review/real04_details_run_20261025/) (41 before / after
+sheets labelled with the two runs, metrics, top-down views, the architect's report, the AI's answers and lesson
+check). All stages ok; GPU tests 46 passed, 1 failed (a bathtub planned at the edge of banyo_1's frame is not in its
+index pass: a near miss of the frustum test, as in earlier runs), 9 skipped.
+
+| Seen | Result |
+|---|---|
+| ext_7 east pool deck | one sunken terrace at the basement floor (-3.00 m) with a retaining wall, a guard and steps up into the slope; the saw-tooth bands are gone |
+| terrace furniture | the turned-leg indoor table on the roof terrace is now a marble bistro table with outdoor chairs |
+| stairs | tread plates with nosings over painted risers, a round handrail; 4 U stairs with 5-7 winders |
+| complete room sets (metric 5) | 17 of 24 -> 19 of 25 (both kitchens, one more bedroom with two nightstands); living rooms still lack a TV unit |
+| the AI architect | 14 of 14 open questions answered and carried out; the lesson check: 2 issues (decor, nightstands), 11 "unknown" |
+
+Fixed after the run (general, tested):
+
+| Problem | Cause | Fix |
+|---|---|---|
+| every glass balustrade (stairs, roof terraces, pool decks) rendered black | the thin glass's Fresnel node takes 1 / IOR on a back face, so past ~44 degrees the pane reflected everything (total internal reflection); a straight-on test had passed | the back face gets 1 / IOR so both faces reflect like the front (`materials.thin_glass_material`); `tests/test_blender_thin_glass.py` renders a pane at 0 and 75 degrees (was 0.03 % light through at 75 degrees) |
+| the new corner sofa ("Sofa en L", 3D Warehouse) showed dark bands | a SketchUp export: each face has a copy on the same vertices turned the other way in a dark default colour (99 % of its faces); the two fight in the render | `furniture.separate_twins` moves each such face 0.2 mm along its own normal at import, so the copy facing the camera is the nearer one (every double-sided library model; a bed with the same doubling renders as before); `tests/test_blender_backfaces.py` |
+| the AI lesson check said "unknown" for 11 of 13 lessons | it saw room names and furniture types only | each lesson carries what its code checks found (open findings first) from the review after the AI's answers; rooms carry their area, open-air flag and the models' wood tone and metal (`agent/lessons.py`) |
+| 4 Blender tests failed since the details and clash work (not run in the last CPU pass) | the stair record listed 3 of its 4 materials; cushions sink 2 cm; the test showroom's library row overlapped the grid, so the clash planner moved it | the stair record lists the glass; tests updated; the library row sits below the grid |

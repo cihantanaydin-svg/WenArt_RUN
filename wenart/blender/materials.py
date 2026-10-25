@@ -1020,7 +1020,17 @@ def thin_glass_material(name: str, roughness: float = 0.0, ior: float = 1.45):
             nodes.remove(n)
     out = nodes.get("Material Output")
     fresnel = nodes.new("ShaderNodeFresnel")
-    fresnel.inputs["IOR"].default_value = ior
+    # 25 Oct 2026: the Fresnel node takes 1 / IOR on a back face (a ray leaving the glass), so past ~44 degrees it
+    # gave 1 (total internal reflection) and a pane seen at a grazing angle (a stair or terrace balustrade along the
+    # view) rendered black. A thin pane is entered on both faces: the back face gets 1 / IOR, which the node inverts
+    # back to IOR.
+    backfacing = nodes.new("ShaderNodeNewGeometry")
+    eta = nodes.new("ShaderNodeMath")
+    eta.operation = "MULTIPLY_ADD"
+    eta.inputs[1].default_value = 1.0 / ior - ior
+    eta.inputs[2].default_value = ior
+    links.new(backfacing.outputs["Backfacing"], eta.inputs[0])
+    links.new(eta.outputs["Value"], fresnel.inputs["IOR"])
     glossy = nodes.new("ShaderNodeBsdfAnisotropic")  # the Glossy BSDF (merged with Anisotropic in 4.0)
     glossy.inputs["Color"].default_value = (1.0, 1.0, 1.0, 1.0)
     glossy.inputs["Roughness"].default_value = roughness

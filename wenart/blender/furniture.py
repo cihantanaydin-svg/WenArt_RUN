@@ -803,11 +803,83 @@ def wall_art_placement(item: dict, art_box, host_top: float | None, ceiling: flo
 # bpy: import, merge, objects
 # --------------------------------------------------------------------------
 
+TWIN_DIGITS = 4              # vertex positions rounded to 0.1 mm to find a face's turned copy
+TWIN_OFFSET_M = 0.0002       # each copy moves this far along its own normal
+
+
+def _newell(pts) -> tuple:
+    nx = ny = nz = 0.0
+    for a, b in zip(pts, pts[1:] + pts[:1]):
+        nx += (a[1] - b[1]) * (a[2] + b[2])
+        ny += (a[2] - b[2]) * (a[0] + b[0])
+        nz += (a[0] - b[0]) * (a[1] + b[1])
+    n = math.sqrt(nx * nx + ny * ny + nz * nz)
+    return (nx / n, ny / n, nz / n) if n > 1e-12 else (0.0, 0.0, 0.0)
+
+
+def backface_twins(verts, faces) -> set:
+    """Indices of the faces that have a copy on the same vertices turned the other way (pure; 25 Oct 2026: a
+    double-sided export, SketchUp's front face and its back face of another colour at the same place; real04's
+    corner sofa "Sofa en L" had 99 % of its faces so and rendered with dark bands where the two copies fight)."""
+    groups: dict = {}
+    normals = []
+    for i, f in enumerate(faces):
+        pts = [tuple(float(c) for c in verts[k]) for k in f]
+        normals.append(_newell(pts))
+        groups.setdefault(tuple(sorted(tuple(round(c, TWIN_DIGITS) for c in p) for p in pts)), []).append(i)
+    out = set()
+    for ids in groups.values():
+        for i in ids if len(ids) > 1 else ():
+            if any(sum(a * b for a, b in zip(normals[i], normals[j])) < 0 for j in ids if j != i):
+                out.add(i)
+    return out
+
+
+def separate_twins(verts, faces, offset: float = TWIN_OFFSET_M) -> tuple[list, list, int]:
+    """``(verts, faces, n)``: the faces of ``backface_twins`` moved ``offset`` along their own normals (pure), so
+    the copy that faces the camera is always the nearer one and shows its own colour from either side (a ray no
+    longer meets two faces at one depth). A vertex gets one moved copy per side (the faces' main axis and its
+    sign), along the average normal of that side's faces; library pieces are shaded flat, so the look is the
+    model's, and a crack between two sides is at most ``offset`` wide."""
+    twins = backface_twins(verts, faces)
+    if not twins:
+        return list(verts), [list(f) for f in faces], 0
+    verts = [tuple(float(c) for c in v) for v in verts]
+    faces = [list(f) for f in faces]
+    side_sum: dict = {}
+    normals = {}
+    for i in twins:
+        n = _newell([verts[k] for k in faces[i]])
+        normals[i] = n
+        for k in faces[i]:
+            key = (k, max(range(3), key=lambda a: abs(n[a])), n[max(range(3), key=lambda a: abs(n[a]))] > 0)
+            acc = side_sum.setdefault(key, [0.0, 0.0, 0.0])
+            for a in range(3):
+                acc[a] += n[a]
+    new_index: dict = {}
+    for i in sorted(twins):
+        n = normals[i]
+        axis = max(range(3), key=lambda a: abs(n[a]))
+        out = []
+        for k in faces[i]:
+            key = (k, axis, n[axis] > 0)
+            if key not in new_index:
+                s = side_sum[key]
+                ln = math.sqrt(sum(c * c for c in s)) or 1.0
+                v = verts[k]
+                new_index[key] = len(verts)
+                verts.append(tuple(v[a] + offset * s[a] / ln for a in range(3)))
+            out.append(new_index[key])
+        faces[i] = out
+    return verts, faces, len(twins)
+
+
 def import_gltf_geometry(path: Path, collection) -> dict:
     """Import a glTF/GLB and return its merged geometry in the file's
     (Z-up) frame: ``{"verts", "faces", "materials", "face_materials", "uvs",
-    "uv_name", "objects"}``. The imported objects are deleted again; the
-    materials (and packed images) stay in ``bpy.data`` for the new object."""
+    "uv_name", "objects", "backface_twins"}``. The imported objects are deleted again; the
+    materials (and packed images) stay in ``bpy.data`` for the new object. The faces of a double-sided export
+    are moved apart from their turned copies (``separate_twins``; ``backface_twins`` counts them)."""
     import bpy
 
     before = {o.name for o in bpy.data.objects}
@@ -854,8 +926,9 @@ def import_gltf_geometry(path: Path, collection) -> dict:
     names = [o.name for o in new]
     for ob in new:
         _delete_object(ob)
+    verts, faces, twins = separate_twins(verts, faces)
     return {"verts": verts, "faces": faces, "materials": materials, "face_materials": face_materials,
-            "uvs": uvs, "uv_name": uv_name or "UVMap", "objects": names}
+            "uvs": uvs, "uv_name": uv_name or "UVMap", "objects": names, "backface_twins": twins}
 
 
 def _cached_geometry(path: Path, collection, geo_cache: dict) -> dict:

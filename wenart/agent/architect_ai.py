@@ -241,6 +241,7 @@ def answer_open(project_out, model, *, brief: Optional[dict] = None, building_na
                                                "answers": accepted})
     LG.write_json_atomic(odir / LOG_JSON, rec)
     (odir / LOG_MD).write_text(report_md(rec), encoding="utf-8")
+    rec["review"] = base            # not logged: the architect's review after the answers, for the lessons check
     return rec
 
 

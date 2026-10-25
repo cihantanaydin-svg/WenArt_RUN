@@ -35,7 +35,12 @@ ADD_SYSTEM = (
 REVIEW_SYSTEM = (
     "You are the architect of this house. For each lesson the client taught us, look at the facts of the built "
     "building and say whether the building follows it: ok, issue (name the rooms or elements and what is wrong) "
-    "or unknown (the facts do not show it). Base every verdict on the facts given, never on a guess.")
+    "or unknown (the facts do not show it). Each lesson carries the results of the code checks that test it "
+    "(evidence: per check its question, its counts and what it found per element, open findings first): an open "
+    "finding is an issue; checks that are fine or fixed mean ok unless the facts say otherwise. Answer unknown "
+    "only when neither the evidence nor the facts show it. Base every verdict on the facts given, never on a "
+    "guess.")
+EVIDENCE_PER_CHECK = 8          # findings per check given to the AI (the open ones first)
 REVIEW_JSON = "architect_lessons.json"
 REVIEW_MD = "architect_lessons.md"
 
@@ -72,22 +77,53 @@ def add_with_ai(request: str, model=None, path: Optional[Path] = None) -> dict:
                         checks=checks, status="rule" if checks else "open", path=path)
 
 
+def _area(poly) -> float:
+    pts = [(float(p[0]), float(p[1])) for p in poly or []]
+    return abs(sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(pts, pts[1:] + pts[:1]))) / 2.0
+
+
 def building_facts(building: dict, architect: Optional[dict] = None) -> dict:
-    """What the AI sees of a building (pure): rooms with their furniture and decor types, the architect's counts."""
-    rooms = []
+    """What the AI sees of a building (pure): rooms with their area, open-air flag, furniture (id, type, source,
+    the model's wood tone and metal) and decor types; the architect's counts per rule."""
+    from wenart.blender.outdoor import OPEN_AIR_ROOMS
     furn: dict = {}
     for f in building.get("furniture") or []:
         if f.get("build") is not False:
-            furn.setdefault(f.get("room_id"), []).append(str(f.get("type")))
+            item = {"id": f.get("id"), "type": str(f.get("type")), "source": f.get("source")}
+            taste = (f.get("asset") or {}).get("taste") or {}
+            for k in ("wood_tone", "metal"):
+                if taste.get(k):
+                    item[k] = taste[k]
+            furn.setdefault(f.get("room_id"), []).append(item)
     dec: dict = {}
     for d in building.get("decor") or []:
         dec.setdefault(d.get("room_id"), []).append(str(d.get("type")))
+    rooms = []
     for r in building.get("rooms") or []:
         rooms.append({"id": r.get("id"), "type": r.get("room_type"), "level": r.get("level_id"),
-                      "furniture": sorted(furn.get(r.get("id"), [])), "decor": sorted(dec.get(r.get("id"), []))})
+                      "area_m2": round(_area(r.get("polygon")), 1),
+                      "open_air": str(r.get("room_type") or "") in OPEN_AIR_ROOMS,
+                      "furniture": sorted(furn.get(r.get("id"), []), key=lambda x: (x["type"], str(x["id"]))),
+                      "decor": sorted(dec.get(r.get("id"), []))})
     counts = {q["id"]: {"status": q.get("status"), **(q.get("counts") or {})}
               for q in (architect or {}).get("questions") or []}
     return {"rooms": rooms, "architect": counts}
+
+
+def check_evidence(architect: Optional[dict], checks, limit: int = EVIDENCE_PER_CHECK) -> dict:
+    """``{check id: {"question", "status", "counts", "found": [...]}}`` of the architect's rules that test a
+    lesson (pure): what each check found per element, the open and changed findings first."""
+    by = {q["id"]: q for q in (architect or {}).get("questions") or []}
+    order = {"open": 0, "answered": 1, "changed": 2, "ok": 3}
+    out = {}
+    for c in checks or []:
+        q = by.get(c)
+        if q is None:
+            continue
+        answers = sorted(q.get("answers") or [], key=lambda a: order.get(str(a.get("status")), 4))
+        out[c] = {"question": q.get("question"), "status": q.get("status"), "counts": q.get("counts"),
+                  "found": [f"{a.get('element')}: {a.get('found')} ({a.get('status')})" for a in answers[:limit]]}
+    return out
 
 
 def review_schema(ids: list[str]) -> dict:
@@ -101,16 +137,18 @@ def review_schema(ids: list[str]) -> dict:
 
 
 def review_lessons(project_out, model, *, building_name: str = "building_final.json",
-                   out=print) -> dict:
-    """The open lessons checked by the AI on the built building (module docstring). Returns the record."""
+                   out=print, architect: Optional[dict] = None) -> dict:
+    """The open lessons checked by the AI on the built building (module docstring), each with the evidence of the
+    architect's checks for it (``architect``: the fresh review, else ``architect.json`` beside the building).
+    Returns the record."""
     t0 = time.time()
     project_out = Path(project_out)
     from wenart.agent import log as LG
 
     building = json.loads((project_out / building_name).read_text(encoding="utf-8"))
     odir = LG.orchestrator_dir(project_out)
-    arch = None
-    for name in ("architect.json",):
+    arch = architect
+    for name in (() if arch is not None else ("architect.json",)):
         for p in (project_out / "scene" / name, project_out / name):
             if p.is_file():
                 arch = json.loads(p.read_text(encoding="utf-8"))
@@ -122,7 +160,9 @@ def review_lessons(project_out, model, *, building_name: str = "building_final.j
         reply = model.structured([{"role": "system", "content": REVIEW_SYSTEM},
                                   {"role": "user", "content": json.dumps(
                                       {"lessons": [{"id": x["id"], "lesson": x["lesson"],
-                                                    "question": x.get("question")} for x in todo],
+                                                    "question": x.get("question"),
+                                                    "evidence": check_evidence(arch, x.get("checks"))}
+                                                   for x in todo],
                                        "building": building_facts(building, arch)})}],
                                  review_schema(ids), call_id="lessons_review", name="lessons", kind="task")
         rec["verdicts"] = [v for v in (reply.data or {}).get("verdicts") or [] if v.get("lesson") in ids]

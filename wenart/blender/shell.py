@@ -2500,9 +2500,10 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
         plan["balustrade"] = D.balustrade_kind(style)       # 25 Oct 2026: the balustrade follows the style
         verts, faces, slots, parts = stair_mesh(plan, floor_z)
         name = f"furn_{piece['id']}"
+        glass = library.thin_glass()
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=piece["id"],
                                     kind="furniture", status=status,
-                                    materials=[tread, structure, steel, library.thin_glass()],
+                                    materials=[tread, structure, steel, glass],
                                     face_material_indices=slots)
         index = len(pass_indices) + 1
         pass_indices[piece["id"]] = index
@@ -2525,7 +2526,7 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
             "asset": piece.get("asset"), "fit_scale": [1.0, 1.0, 1.0],
             "method": STAIR_METHOD_GENERIC if plan["generic"] else STAIR_METHOD,
             "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)], "fallback_reason": None,
-            "materials": [m.name for m in (tread, structure, steel)], "material": tread.name,
+            "materials": [m.name for m in (tread, structure, steel, glass)], "material": tread.name,
             "textured": any(library.textured(m) for m in (tread, structure)),
             "stair": stair_record(plan, parts),
         }
