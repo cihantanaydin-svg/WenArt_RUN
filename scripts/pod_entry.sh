@@ -32,6 +32,7 @@ if ! { mkdir -p /workspace/jobs 2>/dev/null \
   VOLUME_NOTE="the network volume cannot be written (full?): job folder and logs on the container disk"
   JOB_DIR=/tmp/wenart-jobs/$JOB_ID
   LOGS=/tmp/wenart-logs
+  REPO_DIR=/tmp/wenart-repo          # a fresh clone on the container disk (the diagnostic jobs still run)
   export WENART_VOLUME_FULL=1
 fi
 rm -f "/workspace/jobs/.write_probe_$JOB_ID" 2>/dev/null || true
@@ -146,13 +147,13 @@ log "status server on :8000 /<token>/status.json"
 # 4. Code: clone or self-heal the repo on the volume, then check out the given commit.
 repo_fresh_clone() {
   cd /
-  [ -d /workspace/repo ] && mv /workspace/repo "/workspace/.repo-broken-$(date +%s)"
+  [ -d "$REPO_DIR" ] && [ "$REPO_DIR" = /workspace/repo ] && mv "$REPO_DIR" "/workspace/.repo-broken-$(date +%s)"
   git clone -q "$REPO_URL" "$REPO_DIR"
   cd "$REPO_DIR"
 }
 if [ -d "$REPO_DIR/.git" ]; then
   cd "$REPO_DIR"
-  find /workspace/repo/.git -maxdepth 1 -name '*.lock' -delete 2>/dev/null || true
+  find "$REPO_DIR/.git" -maxdepth 1 -name '*.lock' -delete 2>/dev/null || true
   git remote set-url origin "$REPO_URL" || true
   if ! { git fetch -q origin "$REPO_COMMIT" 2>/dev/null || git fetch -q origin; } \
      || ! git checkout -q --force --detach "$REPO_COMMIT"; then
