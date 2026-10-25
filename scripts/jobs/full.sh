@@ -418,6 +418,13 @@ log "orchestrator exit $rc"
 # User request of 25 Oct 2026: angled top-down views of every level with the ceilings off and the room names
 # (wenart/blender/topdown.py, wenart/report/topdown_labels.py) into outputs/<p>/renders/top_<level>_plan.jpg, which
 # the results copy takes; a failure is a warning only. RUN_TOPDOWN=0 skips it.
+# built_building <p>: the building the scene was built from with the architect's answers and the clash moves
+# (scene/building_built.json, 25 Oct 2026), else building_final.json
+built_building() {
+  local b="$WENART_OUTPUTS/$1/scene/building_built.json"
+  [ -f "$b" ] || b="$WENART_OUTPUTS/$1/building_final.json"
+  echo "$b"
+}
 if [ "${RUN_TOPDOWN:-1}" != "0" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ]; then
   read -r -a TOP_LIST <<< "${RUN_PROJECTS//,/ }"
   for p in "${TOP_LIST[@]}"; do
@@ -425,7 +432,7 @@ if [ "${RUN_TOPDOWN:-1}" != "0" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ]; th
     if [ ! -f "$scene" ]; then log "topdown $p: no scene.blend"; continue; fi
     "$WENART_BLENDER" -b "$scene" -P wenart/blender/topdown.py -- --out "$WENART_OUTPUTS/$p/topdown" --device GPU \
       --samples 48 > "$LOGS/topdown-$JOB-$p.log" 2>&1 \
-      && "$PY" -m wenart.report.topdown_labels "$WENART_OUTPUTS/$p/building_final.json" "$WENART_OUTPUTS/$p/topdown" \
+      && "$PY" -m wenart.report.topdown_labels "$(built_building "$p")" "$WENART_OUTPUTS/$p/topdown" \
            --out "$WENART_OUTPUTS/$p/renders" --architect "$WENART_OUTPUTS/$p/scene/architect.json" \
            >> "$LOGS/topdown-$JOB-$p.log" 2>&1 \
       && log "topdown $p: done" || log "warning: topdown $p failed (see $LOGS/topdown-$JOB-$p.log)"

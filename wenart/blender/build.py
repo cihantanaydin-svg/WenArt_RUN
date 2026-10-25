@@ -851,7 +851,7 @@ def facade_faces(building: dict, outlines: dict[str, list]) -> tuple[dict[str, l
 LIBRARY_OPENINGS_ENV = "WENART_LIBRARY_OPENINGS"      # "off": the parametric doors and windows (A/B)
 
 
-def library_openings(building: dict, levels: list, prep: dict, brief, warnings: list) -> dict:
+def library_openings(building: dict, levels: list, prep: dict, brief, warnings: list, assets_dir=None) -> dict:
     """``opening_models.plan`` for the outer doors and windows of a whole-building build (24 Oct 2026), in the
     run's licence mode; {} when ``WENART_LIBRARY_OPENINGS=off`` or the catalogue has no extras."""
     from wenart.blender import opening_models as OM
@@ -874,7 +874,7 @@ def library_openings(building: dict, levels: list, prep: dict, brief, warnings: 
     taken = {r["opening"]["id"] for r in outer}
     outer = list(outer) + [r for r in AR.open_air_doors(building) if r["level"]["id"] in ids
                            and r["opening"]["id"] not in taken and r["opening"].get("outside_door")]
-    plan = OM.plan(building, outer, extras, mode)
+    plan = OM.plan(building, outer, extras, mode, assets_dir=assets_dir)
     cats: dict = {}
     for v in plan.values():
         cats.setdefault(v["category"], set()).add(v["asset"]["asset_id"])
@@ -1187,7 +1187,7 @@ def main(argv: list[str]) -> int:
         for face in scheme:
             assumed.append({"object": face.get("wall_id") or face.get("level_id"), "field": "facade_scheme",
                             "value": face["material"], "reason": face["reason"]})
-    lib_openings = library_openings(building, levels, prep, brief, warnings) if whole else {}
+    lib_openings = library_openings(building, levels, prep, brief, warnings, assets_dir=args.assets) if whole else {}
     geo_cache: dict = {}
     slabs = prep["slabs"]
     roof = prep["roof"]

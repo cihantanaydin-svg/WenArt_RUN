@@ -14,6 +14,7 @@ from pathlib import Path
 
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 MAX_SIDE = 1400
+MAX_BYTES = 280 * 1024          # under the results copy's 300 KiB (wenart.run.copy.MAX_JPEG_BYTES)
 WINDOW_RGB = (40, 120, 230)
 COMPASS = ("north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west")
 
@@ -116,7 +117,12 @@ def label(building: dict, level_id: str, image: Path, out: Path) -> Path:
     if max(w, h) > MAX_SIDE:                       # the results copy keeps previews under 300 KB
         k = MAX_SIDE / max(w, h)
         im = im.resize((int(w * k), int(h * k)), Image.LANCZOS)
-    im.save(out, quality=82)
+    # 25 Oct 2026: a view with more labels came out over the copy's 300 KiB and the pod's results kept an older
+    # copy; the quality steps down until the file is under MAX_BYTES
+    for quality in (82, 76, 70, 64, 58, 52):
+        im.save(out, quality=quality)
+        if Path(out).stat().st_size <= MAX_BYTES:
+            break
     return out
 
 

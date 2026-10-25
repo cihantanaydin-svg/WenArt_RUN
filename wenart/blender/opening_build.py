@@ -118,6 +118,12 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
     if not model.get("verts") or not model.get("faces"):
         warnings.append(f"{opening['id']}: library model {path.name} has no geometry; parametric opening")
         return []
+    if (opening.get("type") != "door" or lib.get("category") in ("glazed_door", "terrace_door")) \
+            and not any(is_glass(m) for m in model.get("materials") or []):
+        # 25 Oct 2026: a window whose panes are an opaque picture of glass shuts the daylight out (real04's
+        # "Window1 1": the south rooms went +4..+7 EV darker); the parametric window has real glass
+        warnings.append(f"{opening['id']}: library model {path.name} has no see-through glass; parametric opening")
+        return []
     asset = lib["asset"]
     panels = max(1, int(lib.get("panels") or 1))
     width, height, thickness = geo["width"], geo["height"], geo["thickness"]

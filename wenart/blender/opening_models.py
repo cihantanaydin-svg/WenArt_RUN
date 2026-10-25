@@ -37,6 +37,8 @@ MAX_DEPTH_M = 0.45
 ASPECT_TOL = 0.25                  # |log(panel w/h over model w/h)| <= 0.25: about 28 % either way
 MAX_SCALE = 1.8                    # the opening's height within 1/1.8 .. 1.8 x the model's (frames keep real sizes)
 MAX_PANELS = 8
+RANK_STEP = 0.05                   # 25 Oct 2026: the mean proportion error ranks in steps: a few new windows of odd
+                                   # proportions no longer swap the building's model (real04: aluminium -> leaded)
 SIZES = {                          # (width range, height range) of one model, metres
     "entrance": ((0.75, 1.5), (1.9, 2.8)),
     "door": ((0.65, 1.4), (1.9, 2.7)),
@@ -69,6 +71,43 @@ def load_extras(path) -> list[dict]:
         return []
     data = json.loads(p.read_text(encoding="utf-8"))
     return list(data.get("extras") or [])
+
+
+GLASS_NAME_WORDS = ("glass", "glas", "glazing", "pane", "vidro", "vitre", "cam_", "camlar", "transparent",
+                    "window_glass")                # = opening_build.GLASS_WORDS (that module imports bpy)
+GLAZED = ("window", "glazed_door", "terrace_door")
+
+
+def glb_glass(path) -> Optional[bool]:
+    """Whether a GLB model has a see-through material (pure: the file's JSON chunk): a material named like glass, one
+    with a blended alpha under 0.7, or with ``KHR_materials_transmission`` over 0.5. None when the file cannot be
+    read. 25 Oct 2026: real04's "Window1 1" (3D Warehouse) has panes painted on an opaque texture: chosen for every
+    window it shut the daylight out of the south rooms (+4..+7 EV)."""
+    import struct
+
+    try:
+        with open(path, "rb") as f:
+            head = f.read(12)
+            if len(head) < 12 or head[:4] != b"glTF":
+                return None
+            n, kind = struct.unpack("<II", f.read(8))
+            if kind != 0x4E4F534A:                     # "JSON"
+                return None
+            doc = json.loads(f.read(n).decode("utf-8"))
+    except (OSError, ValueError, struct.error):
+        return None
+    for m in doc.get("materials") or []:
+        name = str(m.get("name") or "").lower()
+        if any(w in name for w in GLASS_NAME_WORDS):
+            return True
+        pbr = m.get("pbrMetallicRoughness") or {}
+        alpha = (pbr.get("baseColorFactor") or [1, 1, 1, 1])[3:4] or [1.0]
+        if m.get("alphaMode") == "BLEND" and float(alpha[0]) < 0.7:
+            return True
+        trans = ((m.get("extensions") or {}).get("KHR_materials_transmission") or {}).get("transmissionFactor")
+        if trans is not None and float(trans) > 0.5:
+            return True
+    return False
 
 
 def _usable(entry: dict, mode: str) -> bool:
@@ -147,7 +186,7 @@ def _rank_key(entry: dict, category: str, openings: Sequence[tuple[float, float]
     title = _title(entry)
     status = str((entry.get("audit") or {}).get("status") or "").lower()
     return (0 if entry.get("textured") else 1, 0 if _has(title, WORDS[category]) else 1,
-            0 if status == "keep" else 1, round(sum(min(e, 1.0) for e in errs) / len(errs), 4),
+            0 if status == "keep" else 1, RANK_STEP * round(sum(min(e, 1.0) for e in errs) / len(errs) / RANK_STEP),
             str(entry.get("id")))
 
 
@@ -191,9 +230,11 @@ def categorise(building: dict, outer: Sequence[dict]) -> dict[str, str]:
     return out
 
 
-def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: str = "relaxed") -> dict[str, dict]:
+def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: str = "relaxed",
+         assets_dir=None) -> dict[str, dict]:
     """``{opening id: {"asset", "panels", "category", "aspect_error", "reason"}}`` for the outer openings ``outer``
-    (``site.outer_openings`` records: ``opening``, ``bottom``, ``top``)."""
+    (``site.outer_openings`` records: ``opening``, ``bottom``, ``top``). With ``assets_dir`` a window or glazed door
+    model must have see-through glass (``glb_glass``; a model whose file is not there is not judged)."""
     cats = categorise(building, outer)
     sizes: dict[str, tuple[float, float]] = {}
     outward = {rec["opening"]["id"]: [round(float(v), 6) for v in rec["outward"][:2]] for rec in outer
@@ -210,6 +251,8 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
         if not ids:
             continue
         cands = candidates(extras, category, mode)
+        if assets_dir is not None and category in GLAZED:
+            cands = [e for e in cands if glb_glass(Path(assets_dir) / str(e.get("glb") or "")) is not False]
         if not cands:
             continue
         ranked = sorted(cands, key=lambda e: _rank_key(e, category, [sizes[i] for i in ids]))
