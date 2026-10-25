@@ -23,6 +23,19 @@ LOG=/tmp/pod_entry-$JOB_ID.log     # moved under /workspace/logs once that is wr
 ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 log() { echo "[$(ts)] entry: $*"; }
 
+# 25 Oct 2026: two pods stopped without a readable status: everything the runner reads lives on the volume, so a
+# full (or unwritable) volume hid its own error. When 1 MB cannot be written there, the job folder and the logs go to
+# the container disk (the runner still reads the status and the results) and the status says why.
+VOLUME_NOTE=""
+if ! { mkdir -p /workspace/jobs 2>/dev/null \
+       && head -c 1048576 /dev/zero > "/workspace/jobs/.write_probe_$JOB_ID" 2>/dev/null; }; then
+  VOLUME_NOTE="the network volume cannot be written (full?): job folder and logs on the container disk"
+  JOB_DIR=/tmp/wenart-jobs/$JOB_ID
+  LOGS=/tmp/wenart-logs
+  export WENART_VOLUME_FULL=1
+fi
+rm -f "/workspace/jobs/.write_probe_$JOB_ID" 2>/dev/null || true
+
 # deadline_epoch <start_s> <max_runtime_s>: the moment after which the heavy job steps start
 # nothing new (docs/milestone5.md §8.2): 15 min before the watchdog, so the reports are
 # written and copied before the pod stops. Runs shorter than 30 min keep half their time.
@@ -67,6 +80,8 @@ d = {"job_id": job, "state": state, "exit_code": code,
      "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
      "pod_id": os.environ.get("RUNPOD_POD_ID"), "dc": os.environ.get("RUNPOD_DC_ID"),
      "volume": os.environ.get("RUNPOD_VOLUME_ID")}
+if os.environ.get("WENART_VOLUME_FULL") == "1":
+    d["volume_note"] = "the network volume cannot be written (full?): job folder and logs on the container disk"
 os.makedirs(os.path.dirname(path), exist_ok=True)
 tmp = path + ".tmp"
 json.dump(d, open(tmp, "w"), indent=1); os.replace(tmp, path)
@@ -106,6 +121,7 @@ if [ -w "$LOGS" ]; then
 fi
 exec > >(tee -a "$LOG") 2>&1
 log "pod ${RUNPOD_POD_ID:-?} dc ${RUNPOD_DC_ID:-?} volume ${RUNPOD_VOLUME_ID:-none} job $JOB_ID image ${WENART_IMAGE:-?}"
+if [ -n "$VOLUME_NOTE" ]; then log "WARNING: $VOLUME_NOTE"; df -h /workspace 2>/dev/null || true; fi
 log "watchdog armed: ${MAX_RUNTIME_S}s (pid $WATCHDOG_PID); WENART_DEADLINE=${WENART_DEADLINE:-none} (start $START_S)"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader || log "nvidia-smi failed"
 if [ "${WENART_EXPECT_VOLUME:-0}" = "1" ] && [ -z "${RUNPOD_VOLUME_ID:-}" ]; then
