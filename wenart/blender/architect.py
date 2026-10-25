@@ -52,8 +52,71 @@ QUESTIONS = (
 )
 
 
+# 25 Oct 2026 (user: "make the architect more clever, asking better and better questions"): the design review an
+# architect walks through a plan: arriving, moving through the house, light, air, privacy, use, safety. Each has the
+# reason it matters (``why``); open findings carry a follow-up question for the user (``ask``).
+QUESTIONS += (
+    {"id": "B1", "topic": "arrival", "severity": "major",
+     "question": "Where do I come in? Is there a path from the street to the main entrance door?",
+     "why": "a front door nobody can find or reach on foot is the first thing a visitor notices"},
+    {"id": "B2", "topic": "parking", "severity": "minor",
+     "question": "Where do I leave the car, and how do I walk from it to the front door?",
+     "why": "a parking with no path to the entrance makes people cross the lawn or the driveway's kerb"},
+    {"id": "C1", "topic": "circulation", "severity": "major",
+     "question": "Can I reach every room from the entrance, and without walking through somebody's bedroom?",
+     "why": "a room you can only reach through a bedroom is a planning fault (an en-suite bathroom or dressing "
+            "room is the exception)"},
+    {"id": "C2", "topic": "kitchen", "severity": "minor",
+     "question": "Is the kitchen next to where people eat and sit (a door or an opening to the living or dining "
+                 "space)?",
+     "why": "carrying plates through a hall or another room every day is a sign the plan is not working"},
+    {"id": "L1", "topic": "daylight", "severity": "major",
+     "question": "Does every bedroom, living room and kitchen get daylight: a window with glass of at least a tenth "
+                 "of its floor?",
+     "why": "a habitable room without enough daylight feels like a cellar; building codes ask for about 1/10"},
+    {"id": "L2", "topic": "fresh air", "severity": "minor",
+     "question": "Can every bathroom and kitchen be aired: a window, else a mechanical extract?",
+     "why": "steam and cooking smells need a way out"},
+    {"id": "P1", "topic": "privacy", "severity": "minor",
+     "question": "Does a bathroom door open straight into the living room, the dining space or the kitchen?",
+     "why": "a toilet door in the room where people eat or receive guests is uncomfortable for everybody"},
+    {"id": "R1", "topic": "room size", "severity": "minor",
+     "question": "Is every bedroom wide enough for its bed with room to walk around it?",
+     "why": "a bedroom narrower than about 2.4 m leaves no passage beside a bed"},
+    {"id": "R2", "topic": "use", "severity": "minor",
+     "question": "Is every room furnished for what it is (a bed in each bedroom, a sofa in the living room, a "
+                 "table where people eat, a WC and a basin in each bathroom)?",
+     "why": "a room without its main piece reads as unfinished in the renders"},
+    {"id": "S1", "topic": "falls", "severity": "major",
+     "question": "Where could somebody fall more than half a metre: is every such terrace, pool deck and roof "
+                 "terrace edge guarded?",
+     "why": "an unguarded drop is the first safety question of every design review"},
+    {"id": "E1", "topic": "outside doors", "severity": "major",
+     "question": "Does every outside door open onto something: the ground, a terrace, a balcony or steps?",
+     "why": "a door into the air or below the ground is a drawing or level error"},
+)
+HABITABLE = ("bedroom", "living", "kitchen", "dining", "office", "study", "other")
+WET = ("bathroom", "wc", "toilet", "shower", "kitchen", "laundry")
+DAYLIGHT_RATIO = 0.10
+BED_ROOM_MIN_M = 2.4
+STAIR_WORDS = ("merdiven", "stair", "treppe", "escalier", "escalera", "escada", "scala")
+ANCHORS = {"bedroom": ("bed_double", "bed_single", "bed", "bed_bunk"), "living": ("sofa", "sofa_corner"),
+           "bathroom": ("toilet",), "kitchen": ("kitchen_counter", "sink_kitchen", "cooktop", "stove")}
+
+
+FIRST_FIVE = {"A1": ("minor", "rain running down a facade stains it and a pipe in the air looks like a mistake"),
+              "A2": ("major", "a terrace or pool nobody can walk to is useless and unsafe"),
+              "A3": ("minor", "an inside door on the open air leaks and looks wrong from outside"),
+              "A4": ("minor", "a light well where none is needed is a concrete box in the garden"),
+              "A5": ("minor", "a deck at the floor's level begs for a door; the drawings decide it")}
+
+
 def _q(qid: str) -> dict:
-    return dict(next(q for q in QUESTIONS if q["id"] == qid), answers=[], status="ok")
+    q = dict(next(q for q in QUESTIONS if q["id"] == qid), answers=[], status="ok")
+    sev, why = FIRST_FIVE.get(qid, (q.get("severity") or "minor", q.get("why") or ""))
+    q.setdefault("severity", sev)
+    q.setdefault("why", why)
+    return q
 
 
 # --------------------------------------------------------------------------
@@ -468,6 +531,403 @@ def drainage_answer(kit: Optional[dict], boxes: Sequence[dict]) -> dict:
 
 
 # --------------------------------------------------------------------------
+# The plan: rooms, their doors and windows
+# --------------------------------------------------------------------------
+
+def _rooms_at(building: dict):
+    rooms = [r for r in building.get("rooms") or [] if len(r.get("polygon") or []) >= 3]
+
+    def room_at(pt, level_id):
+        return next((r for r in rooms if r.get("level_id") == level_id and G.point_in_polygon(pt, r["polygon"])), None)
+    return rooms, room_at
+
+
+def opening_sides(building: dict) -> list[dict]:
+    """Every door, window and opening with the rooms on its two sides (pure): ``[{"opening", "type", "a", "b",
+    "area_m2"}]``, ``a`` / ``b`` a room id or None (outside); virtual separators link the rooms across their line."""
+    from wenart.blender.shell import opening_centre_on_wall, opening_vertical
+
+    levels = {lv["id"]: lv for lv in building.get("levels") or []}
+    walls = {w["id"]: w for w in building.get("walls") or []}
+    _rooms, room_at = _rooms_at(building)
+    out = []
+    for o in building.get("openings") or []:
+        lv = levels.get(o.get("level_id"))
+        if lv is None or o.get("type") not in ("door", "window", "opening"):
+            continue
+        w = walls.get(o.get("wall_id"))
+        if w is not None:
+            cx, cy, _ = opening_centre_on_wall(o, w)
+            nx, ny = G.unit_normal_left(w["start"], w["end"])
+            reach = float(w.get("thickness") or 0.2) / 2.0 + 0.25
+        elif o.get("virtual") and len(o.get("line") or []) >= 2:
+            (x0, y0), (x1, y1) = o["line"][0][:2], o["line"][-1][:2]
+            cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+            nx, ny = G.unit_normal_left((x0, y0), (x1, y1))
+            reach = 0.25
+        else:
+            continue
+        a = room_at((cx + nx * reach, cy + ny * reach), lv["id"])
+        b = room_at((cx - nx * reach, cy - ny * reach), lv["id"])
+        above = any(float(x["elevation"]) > float(lv["elevation"]) for x in levels.values())
+        try:
+            bottom, top, _ = opening_vertical(o, lv, above)
+        except (KeyError, TypeError, ValueError):
+            bottom, top = 0.0, 1.2
+        out.append({"opening": o, "type": "opening" if o.get("virtual") else o["type"],
+                    "a": (a or {}).get("id"), "b": (b or {}).get("id"),
+                    "area_m2": max(0.0, float(o.get("width") or 0.0) * (float(top) - float(bottom)))})
+    return out
+
+
+def _rtype(room: Optional[dict]) -> str:
+    return str((room or {}).get("room_type") or "").lower()
+
+
+def _is_stair(room: dict) -> bool:
+    text = f"{room.get('id')} {room.get('label') or ''} {room.get('room_subtype') or ''}".lower()
+    return any(w in text for w in STAIR_WORDS)
+
+
+def room_graph(building: dict, sides: Sequence[dict]) -> dict:
+    """``{room id: {neighbour id: [opening ids]}}`` through doors, openings and separators, and through the stairs:
+    a stair room links to the rooms of the levels above and below that it overlaps (pure)."""
+    rooms, _ = _rooms_at(building)
+    graph: dict = {r["id"]: {} for r in rooms}
+    for s in sides:
+        if s["type"] == "window" or not s["a"] or not s["b"] or s["a"] == s["b"]:
+            continue
+        graph[s["a"]].setdefault(s["b"], []).append(s["opening"]["id"])
+        graph[s["b"]].setdefault(s["a"], []).append(s["opening"]["id"])
+    order = sorted(building.get("levels") or [], key=lambda lv: float(lv["elevation"]))
+    nxt = {a["id"]: b["id"] for a, b in zip(order, order[1:])}
+    for st in (r for r in rooms if _is_stair(r)):
+        poly = st["polygon"]
+        c = (sum(p[0] for p in poly) / len(poly), sum(p[1] for p in poly) / len(poly))
+        for lid in (nxt.get(st["level_id"]), next((k for k, v in nxt.items() if v == st["level_id"]), None)):
+            for r in rooms:
+                if r.get("level_id") == lid and (G.point_in_polygon(c, r["polygon"])
+                                                 or any(G.point_in_polygon(p, poly) for p in r["polygon"])):
+                    graph[st["id"]].setdefault(r["id"], []).append("stairs")
+                    graph[r["id"]].setdefault(st["id"], []).append("stairs")
+    return graph
+
+
+def entrance_rooms(building: dict, sides: Sequence[dict]) -> list[str]:
+    """The rooms just inside the entrance doors (``site.entrances``), else inside any outside door."""
+    by_id = {s["opening"]["id"]: s for s in sides}
+    ids = [e.get("door_id") for e in (building.get("site") or {}).get("entrances") or []
+           if isinstance(e, dict) and not e.get("into_air") and not e.get("below_ground")]
+    out = [r for i in ids if i in by_id for r in (by_id[i]["a"], by_id[i]["b"]) if r]
+    if not out:
+        out = [r for s in sides if s["type"] == "door" and (s["a"] is None) != (s["b"] is None)
+               for r in (s["a"], s["b"]) if r]
+    return sorted(set(out))
+
+
+def _reach(graph: dict, starts: Sequence[str], blocked=lambda rid: False) -> set:
+    seen = set(starts)
+    todo = list(starts)
+    while todo:
+        rid = todo.pop()
+        for nb in graph.get(rid, {}):
+            if nb not in seen:
+                seen.add(nb)
+                if not blocked(nb):
+                    todo.append(nb)
+    return seen
+
+
+def review_circulation(building: dict, sides: Sequence[dict]) -> dict:
+    """C1: every room reachable from the entrance; none only through a bedroom (an en-suite bathroom, dressing room
+    or balcony of that bedroom excepted)."""
+    q = _q("C1")
+    rooms, _ = _rooms_at(building)
+    by_id = {r["id"]: r for r in rooms}
+    graph = room_graph(building, sides)
+    starts = entrance_rooms(building, sides)
+    if not starts:
+        q["answers"].append({"element": "entrance", "found": "no room lies inside an entrance or outside door",
+                             "change": None, "open": True, "ask": "Which door is the way into the house?"})
+        q["status"] = "open"
+        return q
+    everywhere = _reach(graph, starts)
+    for rid in sorted(set(by_id) - everywhere):
+        q["answers"].append({"element": rid, "found": f"{rid} ({_rtype(by_id[rid])}, {by_id[rid]['level_id']}) cannot "
+                             f"be reached from the entrance through any door, opening or stair", "change": None,
+                             "open": True, "ask": f"Is a door to {rid} missing in the drawing, or is it a shaft?"})
+        q["status"] = "open"
+    free = _reach(graph, starts, blocked=lambda rid: _rtype(by_id.get(rid)) == "bedroom")
+    for rid in sorted(everywhere - free):
+        if _rtype(by_id[rid]) in ("bathroom", "wc", "balcony", "terrace", "dressing", "closet", "storage"):
+            continue                                     # en-suite: reached through its own bedroom
+        via = sorted(nb for nb in graph.get(rid, {}) if _rtype(by_id.get(nb)) == "bedroom")
+        q["answers"].append({"element": rid, "found": f"{rid} ({_rtype(by_id[rid])}) is reached only through the "
+                             f"bedroom {', '.join(via) or 'next to it'}", "change": None, "open": True,
+                             "ask": f"Should {rid} have its own door from a hall?"})
+        q["status"] = "open"
+    if q["status"] == "ok":
+        q["answers"].append({"element": "plan", "found": f"all {len(by_id)} rooms reached from "
+                             f"{', '.join(starts)}; none only through a bedroom", "change": None})
+    return q
+
+
+def review_kitchen(building: dict, sides: Sequence[dict]) -> dict:
+    q = _q("C2")
+    rooms, _ = _rooms_at(building)
+    by_id = {r["id"]: r for r in rooms}
+    graph = room_graph(building, sides)
+    for r in rooms:
+        if _rtype(r) != "kitchen":
+            continue
+        near = [nb for nb in graph.get(r["id"], {}) if _rtype(by_id.get(nb)) in ("living", "dining")]
+        two = [nb2 for nb in graph.get(r["id"], {}) for nb2 in graph.get(nb, {})
+               if _rtype(by_id.get(nb2)) in ("living", "dining") and _rtype(by_id.get(nb)) == "hall"]
+        if near:
+            q["answers"].append({"element": r["id"], "found": f"{r['id']} opens onto {', '.join(sorted(near))}",
+                                 "change": None})
+        else:
+            q["answers"].append({"element": r["id"], "found": f"{r['id']} has no door or opening to a living or dining "
+                                 f"space" + (f" (through the hall to {', '.join(sorted(set(two)))})" if two else ""),
+                                 "change": None, "open": True,
+                                 "ask": f"Is {r['id']} open to the living space (the drawing shows a wall), or is "
+                                        f"it a separate kitchen on purpose?"})
+            q["status"] = "open"
+    return q
+
+
+def review_daylight_air(building: dict, sides: Sequence[dict]) -> tuple[dict, dict]:
+    """L1 (habitable rooms: glass >= ``DAYLIGHT_RATIO`` of the floor; a glazed outside door counts half) and L2 (wet
+    rooms: a window, else a mechanical extract is assumed)."""
+    l1, l2 = _q("L1"), _q("L2")
+    rooms, _ = _rooms_at(building)
+    by_id = {r["id"]: r for r in rooms}
+    glass: dict = {}
+    borrowed: dict = {}
+    for s in sides:
+        sa, sb = s["a"], s["b"]
+        # a window or door onto an open-air room (a terrace, a balcony) lights the room as one onto the outside
+        if sa and _rtype(by_id.get(sa)) in OPEN_AIR_TYPES:
+            sa = None
+        if sb and _rtype(by_id.get(sb)) in OPEN_AIR_TYPES:
+            sb = None
+        outside = sa is None or sb is None
+        room = sa or sb
+        if s["type"] == "window" and sa and sb:
+            for here, there in ((sa, sb), (sb, sa)):
+                borrowed.setdefault(here, []).append((s["opening"]["id"], there))
+        if not room or not outside:
+            continue
+        if s["type"] == "window":
+            glass[room] = glass.get(room, 0.0) + s["area_m2"]
+        elif s["type"] == "door":
+            glass[room] = glass.get(room, 0.0) + 0.5 * s["area_m2"]
+    for r in rooms:
+        t = _rtype(r)
+        area = abs(_area(r["polygon"]))
+        g = glass.get(r["id"], 0.0)
+        if t in HABITABLE and area > 4.0:
+            ratio = g / area if area else 0.0
+            if ratio + 1e-9 < DAYLIGHT_RATIO:
+                inner = borrowed.get(r["id"]) or []
+                if not g and inner:
+                    # its only window looks into another room: more likely a reading error than a dark bedroom
+                    wid, there = inner[0]
+                    l1["answers"].append({"element": r["id"], "found": f"{r['id']} ({t}, {area:.1f} m2) has no window "
+                                          f"to the outside; its only window {wid} looks into {there}",
+                                          "change": None, "open": True,
+                                          "ask": f"Is {wid} on the outer wall in the drawing (a reading error the "
+                                                 f"architect should correct), or a borrowed-light window on purpose?"})
+                else:
+                    l1["answers"].append({"element": r["id"], "found": f"{r['id']} ({t}, {area:.1f} m2) has "
+                                          f"{g:.2f} m2 of glass: 1/{(area / g):.0f} of its floor" if g else
+                                          f"{r['id']} ({t}, {area:.1f} m2) has no window", "change": None,
+                                          "open": True,
+                                          "ask": (f"Is {r['id']} a store or service room (then no daylight is "
+                                                  f"needed)?" if not g else f"Should the windows of {r['id']} be "
+                                                                            f"larger?")})
+                l1["status"] = "open"
+        if t in WET and g <= 0.0:
+            l2["answers"].append({"element": r["id"], "found": f"{r['id']} ({t}) has no window",
+                                  "change": "a mechanical extract is assumed (inferred; listed in the report)"})
+            l2["status"] = "fixed"
+    if l1["status"] == "ok":
+        l1["answers"].append({"element": "plan", "found": "every habitable room has glass of at least 1/10 of its "
+                              "floor", "change": None})
+    return l1, l2
+
+
+def _area(poly) -> float:
+    return 0.5 * sum(poly[i][0] * poly[(i + 1) % len(poly)][1] - poly[(i + 1) % len(poly)][0] * poly[i][1]
+                     for i in range(len(poly)))
+
+
+def review_privacy(building: dict, sides: Sequence[dict]) -> dict:
+    q = _q("P1")
+    rooms, _ = _rooms_at(building)
+    by_id = {r["id"]: r for r in rooms}
+    for s in sides:
+        if s["type"] != "door" or not s["a"] or not s["b"]:
+            continue
+        ta, tb = _rtype(by_id.get(s["a"])), _rtype(by_id.get(s["b"]))
+        pair = {ta, tb}
+        if pair & {"bathroom", "wc", "toilet"} and pair & {"living", "dining", "kitchen"}:
+            q["answers"].append({"element": s["opening"]["id"], "found": f"the bathroom door {s['opening']['id']} "
+                                 f"opens into {s['a'] if ta in ('living', 'dining', 'kitchen') else s['b']}",
+                                 "change": None, "open": True,
+                                 "ask": "Keep it (a guest WC by the living room), or should a small lobby screen it?"})
+            q["status"] = "open"
+    return q
+
+
+def review_room_use(building: dict) -> tuple[dict, dict]:
+    """R1 (a bedroom's narrower side at least ``BED_ROOM_MIN_M``) and R2 (each room has its anchor piece:
+    ``ANCHORS``)."""
+    r1, r2 = _q("R1"), _q("R2")
+    rooms, _ = _rooms_at(building)
+    pieces: dict = {}
+    for f in building.get("furniture") or []:
+        if f.get("build") is False:
+            continue
+        pieces.setdefault(f.get("room_id"), set()).add(str(f.get("type") or ""))
+    for r in rooms:
+        t = _rtype(r)
+        xs, ys = [p[0] for p in r["polygon"]], [p[1] for p in r["polygon"]]
+        narrow = min(max(xs) - min(xs), max(ys) - min(ys))
+        if t == "bedroom" and narrow < BED_ROOM_MIN_M:
+            r1["answers"].append({"element": r["id"], "found": f"{r['id']} is {narrow:.2f} m wide", "change": None,
+                                  "open": True, "ask": f"Is {r['id']} a study or a dressing room rather than a "
+                                                       f"bedroom?"})
+            r1["status"] = "open"
+        want = ANCHORS.get(t)
+        if want and not (pieces.get(r["id"], set()) & set(want)):
+            r2["answers"].append({"element": r["id"], "found": f"{r['id']} ({t}) has no {' / '.join(want)}",
+                                  "change": None, "open": True,
+                                  "ask": f"Is {r['id']} really a {t}? (The furnishing adds the missing piece when "
+                                         f"the room type is right.)"})
+            r2["status"] = "open"
+    return r1, r2
+
+
+def review_falls(prep: dict) -> dict:
+    """S1: the drops over ``railing_drop`` on the platforms (railings), the roof terraces (parapets and railings)."""
+    q = _q("S1")
+    site = prep.get("site") or {}
+    for pf in site.get("platforms") or []:
+        if pf.get("parent") or pf.get("kind") not in ("terrace", "pool"):
+            continue
+        edges = pf.get("railing_edges") or []
+        if edges:
+            q["answers"].append({"element": pf["id"], "found": f"{pf['id']}: {len(edges)} edge(s) over a drop of more "
+                                 f"than 0.5 m carry a glass railing (max drop {float(pf.get('drop_m') or 0):.2f} m)"
+                                 + (f"; the steps leave a gap in it" if pf.get("railing_gaps") else ""),
+                                 "change": None})
+    for o in (prep.get("roof") or {}).get("openings") or []:
+        guard = o.get("guard_height") or o.get("parapet_height")
+        q["answers"].append({"element": o["id"], "found": f"roof terrace {o['id']}: guarded to {float(guard):.2f} m "
+                             f"(parapet {float(o['parapet_height']):.2f} m" + (" + glass railing)" if o.get("guard_height")
+                                                                                 else ")"), "change": None})
+    return q
+
+
+def review_outside_door_landings(building: dict) -> dict:
+    q = _q("E1")
+    for e in (building.get("site") or {}).get("entrances") or []:
+        if not isinstance(e, dict):
+            continue
+        if e.get("into_air") or e.get("below_ground"):
+            where = "into the air" if e.get("into_air") else "below the ground"
+            q["answers"].append({"element": e.get("door_id"), "found": f"door {e.get('door_id')} opens {where}",
+                                 "change": None, "open": True,
+                                 "ask": f"Is the level of {e.get('door_id')} or of the ground outside it wrong?"})
+            q["status"] = "open"
+    if q["status"] == "ok":
+        q["answers"].append({"element": "doors", "found": "every outside door lands on the ground, a terrace or "
+                             "steps", "change": None})
+    return q
+
+
+def review_arrival(building: dict, prep: dict) -> tuple[dict, dict]:
+    """B1 (a path reaches the main entrance) and B2 (the parking is joined to the paths: else a path is added, as
+    A2 does for the decks)."""
+    from wenart.blender.site import INFERRED
+
+    b1, b2 = _q("B1"), _q("B2")
+    site = prep.get("site") or {}
+    paths = [a for a in site.get("areas") or [] if a.get("kind") == "path"]
+    ents = [e for e in (building.get("site") or {}).get("entrances") or [] if isinstance(e, dict)]
+    main = next((e for e in ents if e.get("main")), ents[0] if ents else None)
+    if main is None:
+        b1["answers"].append({"element": "entrance", "found": "no entrance door is known", "change": None,
+                              "open": True, "ask": "Which door is the main entrance?"})
+        b1["status"] = "open"
+    else:
+        did = main.get("door_id")
+        hit = [p["id"] for p in paths if any(did in str(x) for x in [p.get("id")])]
+        b1["answers"].append({"element": did, "found": f"main entrance {did}: " + (
+            f"reached by {', '.join(hit)}" if hit else ("a path of the site leads to the house" if paths else
+                                                         "no path of the site leads to it")), "change": None,
+            **({} if hit or paths else {"open": True, "ask": "Where does the street or the gate meet the plot?"})})
+        if not hit and not paths:
+            b1["status"] = "open"
+    half = INFERRED["path_width"] / 2.0
+    for pf in site.get("platforms") or []:
+        if pf.get("kind") != "parking" or len(pf.get("polygon") or []) < 3 or not paths:
+            continue
+        if any(_touches(pf["polygon"], p["polygon"]) for p in paths):
+            b2["answers"].append({"element": pf["id"], "found": f"parking {pf['id']} meets a path", "change": None})
+            continue
+        targets = path_targets(paths, half)
+        keep = site_keep_out(site, pf["id"])
+        best = None
+        for s in _edge_points(pf["polygon"], 1.0):
+            route = access_path(s, targets, keep, half)
+            if route and (best is None or _length(route) < _length(best)):
+                best = route
+        if best is None:
+            b2["answers"].append({"element": pf["id"], "found": f"parking {pf['id']} is not joined to any path",
+                                  "change": None, "open": True,
+                                  "ask": "Where should people walk from the car to the door?"})
+            b2["status"] = "open"
+            continue
+        reason = f"architect B2: a path from the parking {pf['id']} to the site's path ({_length(best):.1f} m; inferred)"
+        site.setdefault("areas", []).extend(path_areas(pf["id"], best, half, reason))
+        b2["answers"].append({"element": pf["id"], "found": f"parking {pf['id']} was not joined to the paths",
+                              "change": reason.replace("architect B2: ", ""), "fixed": True})
+        b2["status"] = "fixed"
+    return b1, b2
+
+
+def _touches(a, b, tol: float = 0.3) -> bool:
+    from wenart.blender import geom2d
+    return any(G.point_in_polygon(p, b) or geom2d.distance_to_polygon_edges(p, b) <= tol for p in a) or \
+        any(G.point_in_polygon(p, a) for p in b)
+
+
+def _edge_points(poly, step: float):
+    """Points just outside a polygon's edges, every ``step`` metres."""
+    from wenart.blender import geom2d
+    pts = []
+    ccw = geom2d.ccw(poly)
+    for i in range(len(ccw)):
+        a, b = ccw[i], ccw[(i + 1) % len(ccw)]
+        length = G.distance(a, b)
+        if length < 1e-6:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        nx, ny = uy, -ux
+        k = 0.5
+        while k < length:
+            pts.append((a[0] + ux * k + nx * 0.8, a[1] + uy * k + ny * 0.8))
+            k += step
+    return pts
+
+
+def _length(route) -> float:
+    return sum(G.distance(a, b) for a, b in zip(route, route[1:]))
+
+
+# --------------------------------------------------------------------------
 # The review
 # --------------------------------------------------------------------------
 
@@ -476,9 +936,19 @@ def review(building: dict, prep: dict) -> dict:
     A2 (access), A4 (light wells); A1 follows with the facade kit (``drainage_answer``)."""
     from wenart.blender import site as S
 
+    answers = apply_answers(building)
     a3, _recs = review_outside_doors(building)
     questions = [a3]
+    sides = opening_sides(building)
+    questions.append(review_circulation(building, sides))
+    questions.append(review_kitchen(building, sides))
+    questions += list(review_daylight_air(building, sides))
+    questions.append(review_privacy(building, sides))
+    questions += list(review_room_use(building))
+    questions.append(review_outside_door_landings(building))
+    questions.append(review_falls(prep))
     if prep.get("site") is not None:
+        questions += list(review_arrival(building, prep))
         levels = building.get("levels") or []
         outer = S.outer_openings(building, levels, prep.get("ground_outline") or [], prep.get("outlines"),
                                  kinds=("door",))
@@ -487,11 +957,52 @@ def review(building: dict, prep: dict) -> dict:
         questions.append(review_access(prep, outer))
         questions.append(review_light_wells(prep))
         questions.append(review_deck_doors(building, prep, outer, windows))
-    return summary(questions)
+    return summary(close_answered(questions, answers))
+
+
+# --------------------------------------------------------------------------
+# The user's answers: asked once, remembered, acted on
+# --------------------------------------------------------------------------
+
+STORE_WORDS = ("store", "storage", "service", "depo", "kiler")
+
+
+def apply_answers(building: dict) -> dict:
+    """The user's answers to earlier questions (``building["architect_answers"]``: ``{"<question id>:<element>":
+    "<answer>"}``), acted on before the review: "store" (or "storage", "service") to a daylight question retypes the
+    room to ``storage`` (``adjusted_by_ai``, ``drawn_type`` kept). Returns the answers."""
+    answers = building.get("architect_answers") if isinstance(building.get("architect_answers"), dict) else {}
+    rooms = {r["id"]: r for r in building.get("rooms") or []}
+    for key, value in answers.items():
+        qid, _sep, element = str(key).partition(":")
+        text = str(value).strip().lower()
+        if qid == "L1" and element in rooms and any(w in text for w in STORE_WORDS):
+            r = rooms[element]
+            if r.get("room_type") != "storage":
+                r.setdefault("drawn_type", r.get("room_type"))
+                r["room_type"] = "storage"
+                r["adjusted_by_ai"] = {"by": "architect", "reason": f"the user's answer to L1: {value!r}"}
+    return answers
+
+
+def close_answered(questions: list[dict], answers: dict) -> list[dict]:
+    """An open point the user answered is not asked again: it shows the answer instead."""
+    for q in questions:
+        for a in q["answers"]:
+            key = f"{q['id']}:{a['element']}"
+            if a.get("open") and key in answers:
+                a["open"] = False
+                a.pop("ask", None)
+                a["change"] = f"answered by you: {answers[key]}"
+        if q["status"] == "open" and not any(a.get("open") for a in q["answers"]):
+            q["status"] = "answered"
+    return questions
 
 
 def summary(questions: list[dict]) -> dict:
     order = {q["id"]: k for k, q in enumerate(QUESTIONS)}
+    order.update({qid: k for k, qid in enumerate(("B1", "B2", "A2", "A5", "E1", "C1", "C2", "L1", "L2", "P1", "R1",
+                                                    "R2", "S1", "A3", "A4", "A1"))})
     questions = sorted(questions, key=lambda q: order.get(q["id"], 99))
     return {"questions": questions, "changes": sum(1 for q in questions for a in q["answers"] if a.get("change")),
             "open": sum(1 for q in questions for a in q["answers"] if a.get("open"))}
@@ -501,9 +1012,20 @@ def report_md(review_rec: dict, project: str = "") -> str:
     """The review as markdown: per question the architect's question, then each element, what was found and what
     was changed."""
     lines = [f"# Architect's review{': ' + project if project else ''}", "",
-             f"{review_rec.get('changes', 0)} change(s), {review_rec.get('open', 0)} open point(s).", ""]
+             f"{len(review_rec.get('questions') or [])} questions, {review_rec.get('changes', 0)} change(s), "
+             f"{review_rec.get('open', 0)} open point(s).", ""]
+    concerns = [(q, a) for q in review_rec.get("questions") or [] for a in q["answers"] if a.get("open")]
+    concerns.sort(key=lambda qa: (qa[0].get("severity") != "major", qa[0]["id"]))
+    if concerns:
+        lines += ["## The architect's questions for you", ""]
+        for k, (q, a) in enumerate(concerns, 1):
+            lines.append(f"{k}. **{q['id']} {q['topic']}** ({q.get('severity', 'minor')}): {a['found']}."
+                         + (f" *{a['ask']}*" if a.get("ask") else "") + f" (answer key `{q['id']}:{a['element']}`)")
+        lines += ["", "Answers go into the building's `architect_answers` (`{\"L1:<room>\": \"store room\"}` and so "
+                  "on); the next run acts on them and does not ask again.", ""]
     for q in review_rec.get("questions") or []:
-        lines += [f"## {q['id']} {q['topic']} ({q['status']})", "", f"*{q['question']}*", ""]
+        lines += [f"## {q['id']} {q['topic']} ({q['status']})", "", f"*{q['question']}*"
+                  + (f" Why: {q['why']}." if q.get("why") else ""), ""]
         if not q["answers"]:
             lines.append("- nothing to look at in this building")
         for a in q["answers"]:

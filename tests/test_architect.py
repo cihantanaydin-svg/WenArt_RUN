@@ -95,6 +95,61 @@ def test_a_deck_reached_only_by_steps_gets_a_path_to_the_site_paths():
     assert q["status"] == "open"
 
 
+def _plan_building():
+    """Hall h (entrance d0 from the south), bedroom b1 east of it, room x reached only through b1, kitchen k west
+    of the hall, bathroom w opening into the kitchen; windows: b1 to the outside, x into b1 (borrowed)."""
+    lv = {"id": "L0", "elevation": 0.0, "height": 2.8, "ceiling_height": 2.8}
+
+    def wall(wid, a, b):
+        return {"id": wid, "level_id": "L0", "start": a, "end": b, "thickness": 0.2}
+
+    def op(oid, kind, wid, c, width=0.9, **kw):
+        return dict({"id": oid, "type": kind, "level_id": "L0", "wall_id": wid, "center": c, "width": width}, **kw)
+
+    rooms = [_room("h", "hall", [[4, 0], [8, 0], [8, 4], [4, 4]]), _room("b1", "bedroom", [[8, 0], [12, 0], [12, 4], [8, 4]]),
+             _room("x", "bedroom", [[12, 0], [16, 0], [16, 4], [12, 4]]), _room("k", "kitchen", [[0, 0], [4, 0], [4, 4], [0, 4]]),
+             _room("w", "bathroom", [[0, 4], [4, 4], [4, 6], [0, 6]])]
+    for r in rooms:
+        r["level_id"] = "L0"
+    walls = [wall("ws", [4, 0], [8, 0]), wall("wb", [8, 0], [8, 4]), wall("wx", [12, 0], [12, 4]),
+             wall("wk", [4, 0], [4, 4]), wall("ww", [0, 4], [4, 4]), wall("wbs", [8, 0], [12, 0])]
+    openings = [op("d0", "door", "ws", [6, 0]), op("d1", "door", "wb", [8, 2]), op("d2", "door", "wx", [12, 2]),
+                op("d3", "door", "wk", [4, 2]), op("d4", "door", "ww", [2, 4]),
+                op("w1", "window", "wbs", [10, 0], 2.0, height=1.5, sill_height=0.9),
+                op("w2", "window", "wx", [12, 3.2], 1.0, height=1.2, sill_height=0.9)]
+    return {"levels": [lv], "rooms": rooms, "walls": walls, "openings": openings, "furniture": [],
+            "site": {"entrances": [{"door_id": "d0", "level_id": "L0", "main": True}]}}
+
+
+def test_circulation_daylight_privacy_and_kitchen_questions():
+    b = _plan_building()
+    sides = AR.opening_sides(b)
+    assert AR.entrance_rooms(b, sides) == ["h"]
+    c1 = AR.review_circulation(b, sides)
+    assert c1["status"] == "open" and any(a["element"] == "x" and "through the bedroom b1" in a["found"]
+                                          for a in c1["answers"])
+    l1, l2 = AR.review_daylight_air(b, sides)
+    xs = [a for a in l1["answers"] if a["element"] == "x"]
+    assert xs and "looks into b1" in xs[0]["found"] and "reading error" in xs[0]["ask"]
+    assert not any(a["element"] == "b1" for a in l1["answers"])                   # 3 m2 of glass for 16 m2
+    assert {a["element"] for a in l2["answers"]} == {"k", "w"}                    # no window: extract assumed
+    p1 = AR.review_privacy(b, sides)
+    assert p1["status"] == "open" and p1["answers"][0]["element"] == "d4"
+    c2 = AR.review_kitchen(b, sides)
+    assert c2["status"] == "open" and c2["answers"][0]["element"] == "k"
+    r1, r2 = AR.review_room_use(b)
+    assert r2["status"] == "open" and {a["element"] for a in r2["answers"]} >= {"b1", "x", "w"}
+
+
+def test_the_users_answers_are_remembered_and_acted_on():
+    b = _plan_building()
+    b["architect_answers"] = {"L1:x": "a store room", "C1:x": "fine, it is a dressing room"}
+    answers = AR.apply_answers(b)
+    assert next(r for r in b["rooms"] if r["id"] == "x")["room_type"] == "storage"
+    qs = AR.close_answered([AR.review_circulation(b, AR.opening_sides(b))], answers)
+    assert qs[0]["status"] in ("ok", "answered") and not any(a.get("ask") for a in qs[0]["answers"])
+
+
 def test_real04_review_asks_and_fixes():
     from wenart.blender import build as BU
 
