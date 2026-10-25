@@ -1203,5 +1203,16 @@ tables, lamps in beds, lamps through lamps, ottomans under armchairs), 20 on the
 mesh check S2 had let them through (soft seats take 5 cm; open library meshes escape its ray test). The dark "table"
 on real04's corner sofa is the model's own arm tray (3D Warehouse "sofá bandeja de braço"), not a second piece.
 
+**Pod runs of 25 Oct 2026** (real04): `hc7yat1tfh1440` stopped after 18 min ($0.76) to restart with the clash fix;
+`nrf83xxffuzj3g` (32 min, $1.31) stopped in the build: the AI architect had given the two windowless bedrooms of the
+older reading new windows (its answers: enlarge the bedrooms' windows, keep the thin walls to the roof terrace) and
+those windows carried a status the build refuses (fixed: `unverified`, as wide as the floor's other windows);
+`8feaummqlo4zc1` (111 min, $4.59) ran the whole pipeline: 731 architect questions, 0 open; 2 clashes planned apart
+(armchairs over their small tables); 4 of 56 GPU tests failed (three read `building_final.json` instead of the
+building as built: now `scene/building_built.json`; one coffee table hidden behind a sofa). Its south rooms rendered
+4-7 EV darker: the new odd-sized windows had swapped the building's window model to "Window1 1", whose panes are
+an opaque picture of glass. A window model must now have see-through glass (`opening_models.glb_glass`, and a guard
+when the model loads), and the model ranking takes the proportion error in steps of 0.05.
+
 Also: `RESTORE_OUTPUTS=1` in `scripts/jobs/full.sh` moves the pipeline outputs a failed pod set aside
 (`/workspace/.repo-broken-*/outputs`) back into the repo's outputs (a move, never a delete).
