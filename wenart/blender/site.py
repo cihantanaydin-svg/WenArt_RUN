@@ -1929,6 +1929,7 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
             drops.append(z - min(zs))
             rises.append(max(zs) - z)
         rec["drop_m"], rec["rise_m"] = round(max(drops), 3), round(max(rises), 3)
+        rec["edge_drops"] = {i: round(v, 3) for i, v in enumerate(drops)}       # architect.access_edge reads them
         tol = PLATFORM["level_tol"]
         n = len(poly)
         rec["railing_edges"] = [i for i in range(n) if drops[i] > PLATFORM["railing_drop"]]
@@ -2353,6 +2354,26 @@ def slab_with_holes(outer, holes, z_top: float, z_bottom: float) -> tuple[list, 
     return geom2d.merge(parts)
 
 
+def railing_runs(a, b, i: int, pf: dict) -> list[tuple]:
+    """The stretches of a platform's railing on edge ``i`` (pure): the whole edge, or (25 Oct 2026, architect A2: a
+    railing closed real04's pool-deck steps) the two pieces beside the flight when the edge is in ``railing_gaps``."""
+    if i not in (pf.get("railing_gaps") or []) or i != pf.get("steps_edge"):
+        return [(a, b)]
+    from wenart.blender.architect import STEP_GAP_M
+    length = G.distance(a, b)
+    if length <= 1e-6:
+        return []
+    ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+    half = PLATFORM["step_width"] / 2.0 + STEP_GAP_M
+    t0, t1 = length / 2.0 - half, length / 2.0 + half
+    out = []
+    if t0 > 0.2:
+        out.append((a, (a[0] + ux * t0, a[1] + uy * t0)))
+    if length - t1 > 0.2:
+        out.append(((a[0] + ux * t1, a[1] + uy * t1), b))
+    return out
+
+
 def platform_parts(pf: dict, terrain: dict) -> list[dict]:
     """The meshes of one platform (pure): ``[{"part": slab | wall | kerb | steps | railing, "verts", "faces"}]``.
     The slab is a closed block from ``PLATFORM["below"]`` under its lowest ground (or ``bottom_z``: a band's slab
@@ -2429,9 +2450,10 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
                 kerbs.append(geom2d.box((mid[0] + nx * kw / 2.0, mid[1] + ny * kw / 2.0, z + kh / 2.0 - 0.02),
                                         (length + kw, kw, kh + 0.04), angle))
         if i in (pf.get("railing_edges") or []) and pf.get("kind") in ("terrace", "pool") and not pf.get("parent"):
-            rail, panel = railing_parts(a, b, z)
-            rails += [rail] + railing_posts(a, b, z)
-            panels.append(panel)
+            for ra, rb in railing_runs(a, b, i, pf):
+                rail, panel = railing_parts(ra, rb, z)
+                rails += [rail] + railing_posts(ra, rb, z)
+                panels.append(panel)
     if pf.get("steps_edge") is not None and not pf.get("sloped") and pf["steps_edge"] not in shared:
         i = pf["steps_edge"]
         a, b = poly[i], poly[(i + 1) % n]

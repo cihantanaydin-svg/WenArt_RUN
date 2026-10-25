@@ -68,7 +68,8 @@ DIMENSIONS = {"plinth_height": 0.45, "plinth_below": 0.05, "proud": 0.025, "band
 
 # Milestone 13 (T6): the facade kit sizes (metres) and looks (vocabulary slugs; a colour name or None).
 KIT = {"reveal_width": 0.06, "reveal_proud": 0.015, "gutter_w": 0.12, "gutter_h": 0.10, "gutter_drop": 0.02,
-       "downpipe": 0.10, "downpipe_every_m": 12.0, "downpipe_end_m": 0.4, "downpipe_both_ends_m": 4.0, "eaves_tol": 0.15,
+       "downpipe": 0.10, "downpipe_every_m": 12.0, "downpipe_end_m": 0.4, "downpipe_both_ends_m": 4.0,
+       "pipe_search_m": 3.0, "pipe_search_step_m": 0.1, "pipe_wall_tol_m": 0.15, "pipe_min_gap_m": 1.5, "eaves_tol": 0.15,
        "canopy_depth": 1.0, "canopy_thick": 0.08, "canopy_side": 0.3, "canopy_above": 0.25,
        "light_w": 0.12, "light_d": 0.08, "light_h": 0.22, "light_z": 2.1, "light_offset": 0.35,
        "guard_height": 1.0, "guard_bar": 0.04, "guard_min_drop": 1.5, "guard_side": 0.1}
@@ -377,6 +378,111 @@ def eaves_edges(roof_model: Optional[dict]) -> list[dict]:
     return out
 
 
+def _wall_point(pt, outline):
+    """``(x, y, outward normal, distance)``: the nearest point of an outline's boundary to ``pt``."""
+    dist, (a, b) = geom2d.nearest_edge(pt, outline)
+    tt = max(0.0, min(1.0, ((pt[0] - a[0]) * (b[0] - a[0]) + (pt[1] - a[1]) * (b[1] - a[1])) /
+                      max(1e-9, G.distance(a, b) ** 2)))
+    wx, wy = a[0] + (b[0] - a[0]) * tt, a[1] + (b[1] - a[1]) * tt
+    wn = G.unit_normal_left(a, b)
+    if G.point_in_polygon((wx + wn[0] * 0.05, wy + wn[1] * 0.05), outline):
+        wn = (-wn[0], -wn[1])
+    return wx, wy, wn, math.hypot(pt[0] - wx, pt[1] - wy)
+
+
+def _opening_spans(building: dict, level_id: str) -> list[tuple]:
+    """``[(cx, cy, ux, uy, half_width, bottom, top)]`` of the doors and windows of a level (pure)."""
+    from wenart.blender.shell import opening_centre_on_wall
+
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == level_id}
+    lv = next((x for x in building.get("levels") or [] if x["id"] == level_id), None)
+    out = []
+    for o in building.get("openings") or []:
+        w = walls.get(o.get("wall_id"))
+        if o.get("level_id") != level_id or w is None or o.get("type") not in ("door", "window", "opening"):
+            continue
+        cx, cy, _ = opening_centre_on_wall(o, w)
+        length = G.distance(w["start"], w["end"]) or 1.0
+        ux, uy = (w["end"][0] - w["start"][0]) / length, (w["end"][1] - w["start"][1]) / length
+        floor = float(lv["elevation"]) if lv else 0.0
+        sill = float((o.get("sill_height") or {}).get("value") if isinstance(o.get("sill_height"), dict)
+                     else o.get("sill_height") or 0.0)
+        height = float((o.get("height") or {}).get("value") if isinstance(o.get("height"), dict)
+                       else o.get("height") or 2.1)
+        out.append((cx, cy, ux, uy, float(o.get("width") or 0.9) / 2.0, floor + sill, floor + sill + height))
+    return out
+
+
+def pipe_spot(p, u, n, length: float, t: float, z_top: float, levels: Sequence[dict], outlines: dict, top_outline,
+              building: dict, gz) -> Optional[dict]:
+    """Where a downpipe for the eaves station ``t`` stands (pure; 25 Oct 2026, user: "rain gutters going on the air,
+    they need to be connected to walls"): the nearest spot within ``pipe_search_m`` of ``t`` along the eaves whose
+    wall face, on every storey the pipe passes from ``z_top`` down to the ground, lies within ``pipe_wall_tol_m`` of the
+    pipe (no loggia recess, no open corner) and crosses no door or window. ``{"t", "x", "y", "normal", "z0"}`` or
+    None. A pipe stands ``downpipe / 2 + 0.02`` out from the top storey's wall face."""
+    if len(top_outline or []) < 3:
+        return None
+    d = KIT["downpipe"]
+    step = KIT["pipe_search_step_m"]
+    cands = [t]
+    k = 1
+    while k * step <= KIT["pipe_search_m"]:
+        cands += [t + k * step, t - k * step]
+        k += 1
+    lo, hi = min(KIT["downpipe_end_m"], length / 2.0), max(length - KIT["downpipe_end_m"], length / 2.0)
+    # then anywhere on the run, nearest first (a facade of loggias and ribbon windows may have one pier for it)
+    far = [lo + j * step for j in range(int((hi - lo) / step) + 1)]
+    cands += sorted((c for c in far if abs(c - t) > KIT["pipe_search_m"]), key=lambda c: abs(c - t))
+    spans: dict = {}
+    for tc in cands:
+        if not lo - 1e-9 <= tc <= hi + 1e-9:
+            continue
+        ex, ey = p[0] + u[0] * tc, p[1] + u[1] * tc
+        wx, wy, wn, _dist = _wall_point((ex, ey), top_outline)
+        off = d / 2.0 + 0.02
+        px, py = wx + wn[0] * off, wy + wn[1] * off
+        # clear the outermost storey face under it (a pier or a band standing proud of the top wall)
+        for _k in range(int(KIT["pipe_wall_tol_m"] / 0.02)):
+            if not any(len(outlines.get(lv["id"]) or []) >= 3 and G.point_in_polygon((px, py), outlines[lv["id"]])
+                       for lv in levels):
+                break
+            off += 0.02
+            px, py = wx + wn[0] * off, wy + wn[1] * off
+        z0 = gz(px, py) + 0.1
+        if z_top - z0 < 1.0:
+            continue
+        ok = True
+        for i, lv in enumerate(levels):
+            floor = float(lv["elevation"])
+            above = [float(x["elevation"]) for x in levels if float(x["elevation"]) > floor + 0.5]
+            ceiling = min(above) if above else z_top
+            if ceiling <= z0 + 0.05 or floor >= z_top - 0.05:
+                continue                                  # the pipe does not pass this storey
+            outline = outlines.get(lv["id"]) or []
+            if len(outline) < 3:
+                continue
+            if G.point_in_polygon((px, py), outline):
+                ok = False                                # the storey reaches out over the pipe
+                break
+            _x, _y, _n, dist = _wall_point((px, py), outline)
+            if dist > d / 2.0 + 0.02 + KIT["pipe_wall_tol_m"]:
+                ok = False                                # a recess (loggia) or no wall behind the pipe
+                break
+            if lv["id"] not in spans:
+                spans[lv["id"]] = _opening_spans(building, lv["id"])
+            for cx, cy, ox, oy, half, bottom, top in spans[lv["id"]]:
+                along = (wx - cx) * ox + (wy - cy) * oy
+                across = abs((wx - cx) * -oy + (wy - cy) * ox)
+                if across < 0.4 and abs(along) < half + 0.12 and bottom < z_top and top > z0:
+                    ok = False                            # a door or window under the pipe
+                    break
+            if not ok:
+                break
+        if ok:
+            return {"t": tc, "x": px, "y": py, "normal": wn, "z0": z0}
+    return None
+
+
 def downpipe_stations(length: float) -> list[float]:
     """Where the downpipes of an eaves run stand (pure): ``downpipe_end_m`` in from its start, then every
     ``downpipe_every_m``, and (24 Oct 2026) one ``downpipe_end_m`` in from its end when the run is longer than
@@ -467,6 +573,7 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
                                       (w_, proud, h), rot, it["id"], why))
     # 2. gutters and downpipes along the eaves of a pitched roof
     edges = eaves_edges(roof_model)
+    pipe_notes: list[dict] = []
     top_level = next((lv for lv in order if roof_model and lv["id"] == roof_model.get("over_level_id")), None)
     wall_outline = outlines.get(top_level["id"]) if top_level else ground_outline
     for e in edges:
@@ -479,24 +586,19 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
         boxes.append(_box("gutter", top_level["id"] if top_level else None,
                           (mid[0] + nx * gw / 2.0, mid[1] + ny * gw / 2.0, z - KIT["gutter_drop"] - gh / 2.0),
                           (length + gw, gw, gh), rot, None, KIT_LOOKS["gutter"][2]))
+        z1 = z - KIT["gutter_drop"] - KIT["gutter_h"]
+        d = KIT["downpipe"]
+        placed: list[float] = []
         for t in downpipe_stations(length):
-            ex, ey = p[0] + ux * t, p[1] + uy * t
-            # the wall face under the eaves edge: the nearest point of the wall outline, then the pipe outside it
-            if len(wall_outline or []) >= 3:
-                _d, (a, b) = geom2d.nearest_edge((ex, ey), wall_outline)
-                tt = max(0.0, min(1.0, ((ex - a[0]) * (b[0] - a[0]) + (ey - a[1]) * (b[1] - a[1])) /
-                                  max(1e-9, G.distance(a, b) ** 2)))
-                wx, wy = a[0] + (b[0] - a[0]) * tt, a[1] + (b[1] - a[1]) * tt
-                wn = G.unit_normal_left(a, b)
-                wn = (-wn[0], -wn[1]) if G.point_in_polygon((wx + wn[0] * 0.2, wy + wn[1] * 0.2), wall_outline) else wn
-            else:
-                wx, wy, wn = ex, ey, (nx, ny)
-            d = KIT["downpipe"]
-            px, py = wx + wn[0] * (d / 2.0 + 0.02), wy + wn[1] * (d / 2.0 + 0.02)
-            z0 = gz(px, py) + 0.1
-            z1 = z - KIT["gutter_drop"] - KIT["gutter_h"]
-            if z1 - z0 < 1.0:
+            spot = pipe_spot(p, (ux, uy), (nx, ny), length, t, z1, order, outlines, wall_outline, building, gz)
+            if spot is None or any(abs(spot["t"] - u) < KIT["pipe_min_gap_m"] for u in placed):
+                if spot is None:
+                    pipe_notes.append({"edge": [list(p), list(q)], "station_m": round(t, 2),
+                                       "reason": "no wall face runs down to the ground near this station"})
                 continue
+            placed.append(spot["t"])
+            ex, ey = p[0] + ux * spot["t"], p[1] + uy * spot["t"]
+            px, py, wn, z0 = spot["x"], spot["y"], spot["normal"], spot["z0"]
             boxes.append(_box("downpipe", top_level["id"] if top_level else None, (px, py, (z0 + z1) / 2.0), (d, d, z1 - z0),
                               math.degrees(math.atan2(wn[1], wn[0])), None, KIT_LOOKS["downpipe"][2]))
             # 24 Oct 2026: the outlet from the gutter back to the pipe on the wall (the overhang stood between them:
@@ -508,6 +610,9 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
                                   ((gx + px) / 2.0, (gy + py) / 2.0, z1 - d / 2.0), (reach + d, d, d),
                                   math.degrees(math.atan2(py - gy, px - gx)), None,
                                   "downpipe outlet from the gutter to the wall (not drawn)"))
+        if not placed:
+            pipe_notes.append({"edge": [list(p), list(q)], "station_m": None,
+                               "reason": "this gutter run found no wall to take a downpipe"})
     # 3. canopy and wall lights at the entrance doors at grade
     ents = []
     if len(ground_outline or []) >= 3 and terrain is not None:
@@ -576,7 +681,8 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
         assumed.append({"field": f"kit:{kind}", "value": n, "reason": KIT_LOOKS[kind][2] + " (inferred)"})
     used = {k: v for k, v in out_looks.items() if k in counts}
     return {"boxes": boxes, "looks": used, "assumed": assumed,
-            "summary": {"counts": counts, "eaves_edges": len(edges), "entrances": [e["opening_id"] for e in ents]}}
+            "summary": {"counts": counts, "eaves_edges": len(edges), "entrances": [e["opening_id"] for e in ents],
+                        "downpipes_not_placed": pipe_notes}}
 
 
 PLINTH_BASE_DEPTH = 0.10        # Milestone 12: the raised base reaches this far in under the outer wall face

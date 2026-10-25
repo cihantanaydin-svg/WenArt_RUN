@@ -1383,6 +1383,10 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
         # The door leaf and window frame looks (looks.door_look / window_frame_look: the style slots, the door
         # style decided by the drawn operation first).
         dlook = door_look(style, opening) if opening["type"] == "door" else None
+        if dlook is not None and opening.get("outside_door") and dlook.get("door_style") in ("flush", "shaker_panel"):
+            # 25 Oct 2026 (architect A3): a door to a terrace or balcony is glazed, never the inside's flush leaf
+            dlook = dict(dlook, door_style="glazed",
+                         reason=dlook.get("reason", "") + "; glazed: " + opening["outside_door"]["reason"])
         wlook = window_frame_look(style, opening) if opening["type"] != "door" else None
         leaf_mat = look_material(library, dlook) if dlook is not None else None
         win_mat = look_material(library, wlook) if wlook is not None else None

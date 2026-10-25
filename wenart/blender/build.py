@@ -862,6 +862,12 @@ def library_openings(building: dict, levels: list, prep: dict, brief, warnings: 
     if not extras:
         return {}
     outer = S.outer_openings(building, levels, prep.get("ground_outline") or [], prep.get("outlines"))
+    # 25 Oct 2026 (architect A3): the doors to terrace and balcony rooms are outside doors too
+    from wenart.blender import architect as AR
+    ids = {lv["id"] for lv in levels}
+    taken = {r["opening"]["id"] for r in outer}
+    outer = list(outer) + [r for r in AR.open_air_doors(building) if r["level"]["id"] in ids
+                           and r["opening"]["id"] not in taken and r["opening"].get("outside_door")]
     plan = OM.plan(building, outer, extras, mode)
     cats: dict = {}
     for v in plan.values():
@@ -981,6 +987,10 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
                                            out["outlines"])
     out["faces"], warnings = facade_faces(vb, out["outlines"])
     out["warnings"] += warnings
+    if out["whole"]:
+        # 25 Oct 2026: the architect's review (wenart/blender/architect.py) asks its questions and fixes the plan
+        from wenart.blender import architect as AR
+        out["architect"] = AR.review(vb, out)
     return out
 
 
@@ -1355,6 +1365,10 @@ def main(argv: list[str]) -> int:
             whole_info["facade_details"] = FA.build_articulation(fplan, fac_col,
                                                                  lambda look: shell.look_material(library, look),
                                                                  manifest_objects, assumed)
+            if prep.get("architect") is not None:          # 25 Oct 2026: the architect's question about the rain
+                from wenart.blender import architect as AR
+                prep["architect"] = AR.summary([q for q in prep["architect"]["questions"] if q["id"] != "A1"]
+                                               + [AR.drainage_answer(fplan.get("kit"), fplan.get("boxes") or [])])
         # 11 Oct 2026 (real04): every other building on the plot, an instance of this one (wenart/blender/copies.py)
         from wenart.blender import copies as CP
         if CP.copies_of(building):
@@ -1565,8 +1579,13 @@ def main(argv: list[str]) -> int:
         "agent_overrides": prep.get("overrides_applied"),
         "seconds": round(time.time() - t0, 1),
         "phase_seconds": phases,
+        "architect": prep.get("architect"),
     }
     (out / "scene_manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
+    if prep.get("architect") is not None:          # 25 Oct 2026: the architect's review as the architect hands it over
+        from wenart.blender import architect as AR
+        (out / "architect.md").write_text(AR.report_md(prep["architect"], Path(args.building).parent.name),
+                                          encoding="utf-8")
     kinds = {}
     for o in manifest_objects:
         kinds[o["kind"]] = kinds.get(o["kind"], 0) + 1

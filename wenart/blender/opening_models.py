@@ -11,7 +11,8 @@ windows (``wenart/furniture/catalog_library.json`` extras, types ``door`` and ``
 
 How (pure; ``opening_build.build_library_opening`` makes the Blender objects):
 - categories: ``entrance`` (the main entrance of ``site.entrances``, else the first door at grade), ``door`` (any
-  other outside door narrower than ``WIDE_DOOR_M``), ``glazed_door`` (wider) and ``window``;
+  other outside door narrower than ``WIDE_DOOR_M``), ``glazed_door`` (wider), ``terrace_door`` (a door the architect
+  marked ``outside_door``: to a terrace or balcony room; glazed, one leaf) and ``window``;
 - candidates: audit ``keep`` / ``fix``, not rated low by the audit's vision check (``site_models.vision_quality``),
   usable in the licence mode, a plausible size for the category (``SIZES``), no
   pack, set or inside door (``INSIDE_WORDS``) in the title, depth under ``MAX_DEPTH_M``; ranked textured first, the
@@ -40,12 +41,14 @@ SIZES = {                          # (width range, height range) of one model, m
     "entrance": ((0.75, 1.5), (1.9, 2.8)),
     "door": ((0.65, 1.4), (1.9, 2.7)),
     "glazed_door": ((1.2, 4.0), (1.9, 2.9)),
+    "terrace_door": ((0.7, 1.6), (1.9, 2.7)),
     "window": ((0.4, 3.0), (0.4, 2.6)),
 }
 WORDS = {                          # title words that say a model is meant for the category
     "entrance": ("front", "entrance", "entry", "main", "pivot", "exterior"),
     "door": ("front", "entry", "exterior", "door"),
     "glazed_door": ("sliding", "glass", "french", "patio", "folding", "balcony", "terrace"),
+    "terrace_door": ("balcony", "glass", "glazed", "french", "patio", "terrace", "lite"),
     "window": ("window", "casement", "sliding", "awning", "tilt"),
 }
 INSIDE_WORDS = ("interior", "internal", "toilet", "elevator", "japanese", "closet", "wardrobe", "shower", "barn")
@@ -53,6 +56,7 @@ NOT_WORDS = {                      # title words that rule a model out of the ca
     "entrance": ("sliding", "folding", "glass", "garage", "pack", "set", "window") + INSIDE_WORDS,
     "door": ("sliding", "folding", "garage", "pack", "set", "window") + INSIDE_WORDS,
     "glazed_door": ("garage", "pack", "set") + INSIDE_WORDS,
+    "terrace_door": ("garage", "pack", "set", "sliding", "folding") + INSIDE_WORDS,
     "window": ("pack", "set", "door", "curtain", "blind", "shutter", "wall"),
 }
 NEVER_FLAGS = ("no_derivatives", "unknown")
@@ -117,7 +121,8 @@ def candidates(extras: Sequence[dict], category: str, mode: str) -> list[dict]:
         title = _title(e)
         if not (w0 <= w <= w1 and h0 <= h <= h1 and d <= MAX_DEPTH_M) or _has(title, NOT_WORDS[category]):
             continue
-        if category == "glazed_door" and not (_has(title, WORDS["glazed_door"]) or "glass" in (e.get("material_tags") or [])):
+        if category in ("glazed_door", "terrace_door") and not (_has(title, WORDS[category])
+                                                                or "glass" in (e.get("material_tags") or [])):
             continue
         out.append(e)
     return out
@@ -176,7 +181,10 @@ def categorise(building: dict, outer: Sequence[dict]) -> dict[str, str]:
     for rec in outer:
         o = rec["opening"]
         width = _number(o.get("width")) or 0.0
-        if o.get("type") == "door":
+        if o.get("type") == "door" and o.get("outside_door") and o["id"] != main:
+            # 25 Oct 2026 (architect A3): a door to a terrace or balcony room is a glazed outside door
+            out[o["id"]] = "glazed_door" if width >= WIDE_DOOR_M else "terrace_door"
+        elif o.get("type") == "door":
             out[o["id"]] = "entrance" if o["id"] == main else ("glazed_door" if width >= WIDE_DOOR_M else "door")
         elif o.get("type") == "window":
             out[o["id"]] = "window"
@@ -197,7 +205,7 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
         if width > 0 and height > 0:
             sizes[o["id"]] = (width, height)
     out: dict[str, dict] = {}
-    for category in ("entrance", "door", "glazed_door", "window"):
+    for category in ("entrance", "door", "glazed_door", "terrace_door", "window"):
         ids = [i for i, c in cats.items() if c == category and i in sizes]
         if not ids:
             continue
@@ -210,7 +218,7 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
             for e in ranked:
                 w, _d, h = model_size(e)
                 n, err = best_panels(width, height, w / h)
-                if category in ("entrance", "door"):
+                if category in ("entrance", "door", "terrace_door"):
                     n, err = 1, abs(math.log((width / height) / (w / h)))
                 if err <= ASPECT_TOL and abs(math.log(height / h)) <= math.log(MAX_SCALE):
                     out[oid] = {"asset": asset_of(e), "panels": n, "category": category,
