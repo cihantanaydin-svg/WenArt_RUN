@@ -1841,10 +1841,13 @@ def test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(project):
     if FILL_LIGHT_ROOMS.get(name):
         # 25 Oct 2026: the architect may give a windowless bedroom a window (an answer to its daylight question);
         # such a room is not windowless any more and is not checked here
+        from wenart import views
         from wenart.blender import architect_actions as AA
 
-        plan = AA.Plan(_building(name, scene))
-        lit = {room for room in FILL_LIGHT_ROOMS[name] if room in plan.room and AA.outside_glass(plan, room)[0] > 0}
+        path = views.scene_building_path(scene, OUTPUTS / name)
+        plan = AA.Plan(json.loads(path.read_text(encoding="utf-8"))) if path is not None and path.is_file() else None
+        lit = {room for room in FILL_LIGHT_ROOMS[name] if plan is not None and room in plan.room
+               and AA.outside_glass(plan, room)[0] > 0}
         if lit:
             print(f"{name}: no longer windowless (a window from the architect's answers): {sorted(lit)}")
     for room, required in FILL_LIGHT_ROOMS.get(name, {}).items():

@@ -257,7 +257,8 @@ def test_complete_group_takes_a_smaller_coffee_table_when_the_first_fit_fails_th
     assert [c["pieces"] for c in first] == [[]] and "front_from" not in first[0]
     monkeypatch.undo()
     cands = _solve(b, group)
-    assert [c["front_from"] for c in cands] == [7] and not cands[0]["hard_failures"]
+    # 25 Oct 2026: a drawn group may take accessory options too: every candidate starts its front partners at 7
+    assert {c["front_from"] for c in cands} == {7} and not cands[0]["hard_failures"]
     res = E.apply_edit(b, {"op": "complete_group", "group_id": group["group_id"], "reason": "test"})
     assert res["accepted"], res["failed_checks"]
     (table,) = _tables(res["building"])
@@ -280,8 +281,8 @@ def test_a_coffee_table_that_passes_keeps_its_first_fit():
         [[[1.2, 0.7]]] * 3
     b, group = _seating(3.6, 90.0)
     cands = _solve(b, group)
-    assert [c["front_from"] for c in cands] == [4]
-    assert [p["footprint"]["size"] for p in cands[0]["pieces"]] == [[1.0, 0.6]]
+    assert {c["front_from"] for c in cands} == {4}
+    assert [p["footprint"]["size"] for p in cands[0]["pieces"] if p["type"] == "table_coffee"] == [[1.0, 0.6]]
 
 
 @needs_p4a

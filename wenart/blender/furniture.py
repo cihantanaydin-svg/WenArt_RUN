@@ -1201,6 +1201,15 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                                                  "room_id": item.get("room_id"),
                                                  "reason": f"its host {host['id']} is not built"})
                 continue
+        if item.get("type") == "cushion" and host is not None:
+            from wenart.blender import rest as R
+            if R.own_cushions(host):
+                # 25 Oct 2026: the final model (after the refit) has its own cushions or pillows; a decor cushion
+                # would lie on top of them and read as floating
+                summary["decor_skipped"].append({"id": item.get("id"), "type": "cushion",
+                                                 "room_id": item.get("room_id"),
+                                                 "reason": f"the model of {host['id']} has its own cushions/pillows"})
+                continue
         # Milestone 12: the room's floor (shell.room_floor_z); lights from the level's ceiling, curtains and blinds at
         # their window (decor_floor)
         item_floor, item, _floor_how = decor_floor(building, level, item)

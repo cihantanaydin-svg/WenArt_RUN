@@ -600,10 +600,20 @@ def test_stair_risers_are_the_drawn_lines():
     assert all(_closed_and_outward(p) for p in parts)
     for f in plan["flights"]:
         steps = [p for p in parts if p["role"] == "step" and p["flight"] == f["index"]]
+        treads = [p for p in parts if p["role"] == "tread" and p["flight"] == f["index"]]
         plates = [p for p in parts if p["role"] == "riser" and p["flight"] == f["index"]]
-        assert len(steps) == f["lines"] - 1 == 7 and len(plates) == 1
-        tops = sorted(max(v[2] for v in p["verts"]) for p in steps + plates)
+        assert len(steps) == len(treads) == f["lines"] - 1 == 7 and len(plates) == 1
+        tops = sorted(max(v[2] for v in p["verts"]) for p in treads + plates)
         assert tops == pytest.approx([f["base_z"] + k * rh for k in range(1, f["lines"] + 1)])
+        # 25 Oct 2026: the steps carry a tread plate STAIR_TREAD_T thick with a nosing over the riser below
+        assert sorted(max(v[2] for v in p["verts"]) for p in steps) == pytest.approx(
+            [f["base_z"] + k * rh - P.STAIR_TREAD_T for k in range(1, f["lines"])])
+        for p in treads:
+            top = max(v[2] for v in p["verts"])
+            along = [v[0] * f["rise_dir"][0] + v[1] * f["rise_dir"][1] for v in p["verts"] if abs(v[2] - top) < 1e-9]
+            assert max(along) - min(along) == pytest.approx(f["going"] + P.STAIR_NOSING_M, abs=1e-9) or \
+                min(along) == pytest.approx(min(min(q[0] * f["rise_dir"][0] + q[1] * f["rise_dir"][1]
+                                                    for q in t["verts"]) for t in treads), abs=1e-9)   # the first
         # The nosings are the drawn lines (the flight record keeps the first and last line and the count; the
         # stair rule only accepts evenly spaced lines, real01's within 2 mm), each tread runs from one to the next.
         assert sorted(round(y / FT, 3) for _, y in f["nosings"]) == pytest.approx(TREAD_LINES_FT, abs=0.01)
@@ -611,7 +621,8 @@ def test_stair_risers_are_the_drawn_lines():
         for p in steps:
             top = max(v[2] for v in p["verts"])
             along = [v[0] * f["rise_dir"][0] + v[1] * f["rise_dir"][1] for v in p["verts"] if abs(v[2] - top) < 1e-9]
-            assert max(along) - min(along) == pytest.approx(f["going"], abs=1e-9)
+            assert max(along) - min(along) in (pytest.approx(f["going"], abs=1e-9),     # the structure under it
+                                               pytest.approx(f["going"] - P.STAIR_NOSING_M, abs=1e-9))  # 1st
             assert min(v[2] for v in p["verts"]) >= -1e-12                     # never below the floor
     # Rule of thumb for the derived riser: outside 0.15-0.20 m is a warning, never a silent change.
     short = real01_stair_piece()
@@ -711,12 +722,13 @@ def test_stair_handrails_on_free_sides_under_the_cap():
     assert [(r["flight"], r["side"]) for r in plan["rails"]] == [(0, "right"), (1, "right")]
     parts = P.stair_parts(plan)
     rails = [p for p in parts if p["key"] == "steel"]
-    assert {p["role"] for p in rails} == {"rail", "post"}
+    assert {p["role"] for p in rails} == {"rail", "post", "baluster"}            # 25 Oct 2026: balusters
     for p in rails:
         xs = [v[0] / FT for v in p["verts"]]
         assert 13.751 - 0.25 < min(xs) and max(xs) < 13.751 + 0.25
         assert max(v[2] for v in p["verts"]) <= plan["cap_z"] - P.STAIR_CAP_CLEARANCE + 1e-9
     upper = [p for p in rails if p["role"] == "rail" and p["flight"] == 1]
+    # the round handrail's top (a polygon of P.STAIR_HANDRAIL_R) ends just under the cap
     assert upper and max(v[2] for v in upper[0]["verts"]) == pytest.approx(plan["cap_z"] - P.STAIR_CAP_CLEARANCE)
     assert len(P.stair_plan(real01_stair_piece(), 2.85, 2.70)["rails"]) == 4     # no walls given: every side
 
@@ -732,8 +744,14 @@ def test_stair_face_slots_and_the_void_shaft():
             n = geom2d.face_normal(p["verts"], f)
             if p["key"] == "steel":
                 assert slots[i] == 2
+            elif p["key"] == "glass":
+                assert slots[i] == 3
+            elif p["role"] == "tread":
+                assert slots[i] == 0                                            # the tread plates (25 Oct 2026)
+            elif p["role"] in ("step", "riser"):
+                assert slots[i] == 1                                            # painted risers and structure
             elif n[2] > 0.5:
-                assert slots[i] == 0                                            # treads, landing top
+                assert slots[i] == 0                                            # the landing's top
             elif n[2] < -0.5:
                 assert slots[i] == 1                                            # soffit
             i += 1

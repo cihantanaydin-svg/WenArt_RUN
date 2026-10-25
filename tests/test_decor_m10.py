@@ -296,7 +296,8 @@ def test_a_chain_of_partners_copies_the_roots_decor_to_every_room():
     mine = [d for d in out["decor"] if d["room_id"] == RID]
     twin = {d["id"]: d for d in out["decor"] if d["room_id"] == "r_b"}
     chain = [d for d in out["decor"] if d["room_id"] == "r_c"]
-    assert {d["type"] for d in mine} == {"cushion", "curtain", "vase"} and len(twin) == len(chain) == len(mine)
+    picked = {d["type"] for d in mine if not str(d.get("reason", "")).startswith("styling")}   # 25 Oct: + the fill
+    assert picked == {"cushion", "curtain", "vase"} and len(twin) == len(chain) == len(mine)
     for c in chain:
         d = twin[c["mirrored_from"]]                  # the copy of the twin's copy: the root's decor mirrored once
         assert c["center"] == d["center"] and c["rotation_deg"] == d["rotation_deg"] and c["type"] == d["type"]
@@ -322,7 +323,8 @@ def test_copy_notes_go_to_their_own_room_only():
     b = _chain(third="r_b_2", window=False)
     out, records = applied(b, choose(*PICKS))
     recs = {r.room_id: r for r in records}
-    assert {d["type"] for d in out["decor"] if d["room_id"] == "r_b_2"} == {"cushion", "vase"}      # no curtain
+    assert {d["type"] for d in out["decor"] if d["room_id"] == "r_b_2"
+            and d.get("method") != "rule"} == {"cushion", "vase"}      # no curtain (25 Oct 2026: + the fill)
     assert any(n.startswith("r_b_2: curtain") and "window win_b" in n for n in recs["r_b_2"].notes)
     assert not any("r_b_2" in n for n in recs["r_b"].notes), recs["r_b"].notes
 

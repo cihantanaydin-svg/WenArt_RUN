@@ -1131,14 +1131,9 @@ def piece_is_built(piece: Optional[dict]) -> bool:
 def takes_cushions(host: dict) -> bool:
     """A seat or bed takes decor cushions unless its model already has them (the audit's ``has_cushions`` on a
     seat, ``has_pillows`` / ``has_cushions`` on a bed: §4.7, no duplicates)."""
-    asset = host.get("asset") if isinstance(host.get("asset"), dict) else {}
+    from wenart.blender.rest import own_cushions    # the build checks the final model with the same rule
 
-    def flag(name: str) -> bool:                   # = catalog.model_flag (track B's audit flags; absent: False)
-        return asset.get(name) is True
-
-    if host.get("type") in BED_HOSTS:          # its own pillows or scatter cushions (a duvet alone takes cushions)
-        return not (flag("has_pillows") or flag("has_cushions"))
-    return not flag("has_cushions")
+    return not own_cushions(host)
 
 
 def _frame_ref(item: dict, pieces: dict) -> tuple[Optional[dict], Optional[str]]:

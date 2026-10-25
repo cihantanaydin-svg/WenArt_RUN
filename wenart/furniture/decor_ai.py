@@ -215,7 +215,19 @@ ROOM_GUIDE: dict[str, str] = {
 # Accent colours the AI may name (linear RGB for the parametric decor, ``parametric.DECOR_COLOURS``; the library pick
 # prefers a model whose name holds the colour word).
 COLOURS: dict[str, tuple[float, float, float]] = P.DECOR_COLOURS
-MAX_ITEMS = 16
+MAX_ITEMS = 24
+# 25 Oct 2026 (user: "there is not enough decor around"): the fewest items a styled room of each type holds; a room
+# below it after the AI's choice is filled from its empty slots in ``FILL_ORDER`` (the code's own pick, method rule).
+ROOM_MIN: dict[str, int] = {"living": 9, "bedroom": 7, "dining": 4, "kitchen": 2, "hall": 2, "bathroom": 2, "wc": 1,
+                            "other": 4}
+FILL_ORDER: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("soft", ("cushion", "throw")), ("rug", ("rug",)), ("wall", ("wall_art", "mirror", "clock")),
+    ("ceiling", ("pendant_light", "ceiling_light")), ("window", ("curtain", "blind")),
+    ("top", ("table_lamp", "vase", "books", "plant_small", "bowl", "candle", "tray", "book_set", "sculpture")),
+    ("floor", ("plant_large", "plant", "basket")), ("shelf", ("book_set",)))
+# the part of a long top and the item a stylist puts there first
+PART_PICK = {"left": ("table_lamp", "vase"), "middle": ("vase", "bowl", "sculpture", "plant_small"),
+             "right": ("books", "plant_small", "candle", "tray"), "centre": ("vase", "plant_small", "bowl", "candle")}
 SYSTEM_PROMPT = (
     "You are an interior stylist. You choose decor for one furnished room of a home and answer only with JSON that "
     "follows the given schema. You never move, add or remove furniture: you only fill the listed places (slots) with "
@@ -289,14 +301,26 @@ def _window_limit(piece: dict, ctx: placer.RoomContext) -> Optional[float]:
     return min(sills) if sills else None
 
 
+# 25 Oct 2026 (user: "there is not enough decor around"): a long top is styled as a group (the rule of three:
+# something tall, something low, something that joins them), a long coffee table on both sides.
+VIGNETTE_MIN_W = {"sideboard": 1.2, "console_table": 1.1, "dresser": 1.2, "tv_unit": 1.4}
+VIGNETTE_PARTS: dict[str, tuple[str, ...]] = {}
+
+
 def _top_parts(host: dict) -> list[tuple[str, tuple[float, float], tuple[float, float]]]:
-    """``(part, local centre, (w, d))`` of the top parts of a host (TOP_HOSTS), in the host frame."""
+    """``(part, local centre, (w, d))`` of the top parts of a host (TOP_HOSTS), in the host frame; a long host
+    (``VIGNETTE_MIN_W``) gets three parts (left, middle, right)."""
     w, d = (float(v) for v in host["footprint"]["size"][:2])
     m = TOP_MARGIN_M
     parts = TOP_HOSTS[host["type"]][0]
+    if w >= VIGNETTE_MIN_W.get(host["type"], math.inf):
+        parts = VIGNETTE_PARTS.get(host["type"], ("left", "middle", "right"))
     out = []
     for part in parts:
-        if part == "centre":
+        if part in ("left", "middle", "right") and len(parts) == 3:
+            k = {"left": -1.0, "middle": 0.0, "right": 1.0}[part]
+            out.append((part, (k * w / 3.0, 0.0), (w / 3.0 - 2 * m, d - 2 * m)))
+        elif part == "centre":
             cw, cd = CENTRE_MAX.get(host["type"], (w, d))
             out.append((part, (0.0, 0.0), (min(w - 2 * m, cw), min(d - 2 * m, cd))))
         elif part in ("left", "right"):
@@ -843,6 +867,46 @@ def build_items(rq: RoomQuestion, agreed: list[dict], model: str, building: dict
     return items, refused
 
 
+def fill_to_minimum(rq: "RoomQuestion", items: list[dict], building: dict, new_id) -> list[dict]:
+    """The items that bring a room up to ``ROOM_MIN`` of its type (pure; 25 Oct 2026): its slots no item took, in
+    ``FILL_ORDER`` (soft, rug, wall, ceiling, window, top, floor, shelf), each with the first type it allows of the
+    order (a long top's part with ``PART_PICK``), through the same checks as the AI's items (``build_items``);
+    labelled ``method: rule`` with the reason."""
+    want = ROOM_MIN.get(str(rq.room.get("room_type") or "other"), ROOM_MIN["other"])
+    have = len(items)
+    if have >= want:
+        return []
+    taken = {i.get("slot") for i in items}
+    # the M8 rule items carry no slot: a kind they already dress (cushions, books, wall art, a rug, a plant, a light)
+    # is not filled again
+    noslot = {str(i.get("type")) for i in items if not i.get("slot")}
+    kinds_done = {kind for kind, order in FILL_ORDER if noslot & set(order)}
+    picks = []
+    for kind, order in FILL_ORDER:
+        if kind in kinds_done:
+            continue
+        for slot in rq.slots:
+            if slot.kind != kind or slot.id in taken:
+                continue
+            part = slot.id.rsplit(".", 1)[-1] if kind == "top" else None
+            prefs = PART_PICK.get(part, ()) + order
+            dtype = next((t for t in prefs if t in slot.types), None)
+            if dtype is None:
+                continue
+            why = (f"styling: the room held {have} item(s), a styled {rq.room.get('room_type') or 'room'} holds "
+                   f"{want} or more")
+            picks.append({"slot": slot.id, "type": dtype, "colour": None, "reasons": [why, why]})
+    out = []
+    for choice in picks:
+        if have + len(out) >= want:
+            break
+        made, _refused = build_items(rq, [choice], "rule", building, new_id)
+        for it in made:
+            it.update(method="rule", confidence=0.6, reason=choice["reasons"][0])
+        out += made
+    return out
+
+
 def lamps_on_of(style: Optional[dict]) -> bool:
     """True when the style's mood turns the lamps on (``vocabulary.LIGHTING[mood]["lamps_on"]``)."""
     from wenart.style import vocabulary as V
@@ -904,6 +968,8 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         rec.agreed, rec.not_agreed = agreed, other
         items, refused = build_items(q, agreed, model, out, new_id) if agreed else ([], [])
         rec.refused = refused
+        if items:
+            items += fill_to_minimum(q, items, out, new_id)
         apply_brief_looks(items, style, lamps, looks)
         if items:
             rec.items = items
@@ -913,6 +979,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             why = ("; ".join(errors) if errors else "the two passes agreed on no item" if not agreed
                    else "every agreed item was refused by the checks")
             fallback, row = D.rule_decor_room(out, room, pieces, new_id)
+            fallback += fill_to_minimum(q, fallback, out, new_id)
             apply_brief_looks(fallback, style, lamps, looks)
             rec.items, rec.fallback = fallback, why
             out["decor"].extend(fallback)

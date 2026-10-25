@@ -2778,6 +2778,7 @@ def _with_drawn_group(building: dict, room: dict, prog: dict, drawn_group) -> di
         rows.append(entry)
     entry["resolve"] = {"reason": reason, "anchor_id": anchor["id"], "members": list(g.get("members") or []),
                         "centre": list(g["centre"]), "template": g["template"]}
+    entry["options"] = PR.core_only(g["template"], entry["options"])
     entry["members"] = sorted(set(entry.get("members") or []) | set(g.get("members") or []))
     entry["missing"] = GR._expected_missing(g["template"], anchor, [by_id[m] for m in entry["members"] if m in by_id],
                                             room, building)

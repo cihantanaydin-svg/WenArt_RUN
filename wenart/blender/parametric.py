@@ -1269,6 +1269,23 @@ STAIR_CAP_CLEARANCE = 0.03         # rails stay this far below the cap
 STAIR_HEADROOM_M = 2.0             # below this under the ceiling at a flight's top: a warning
 STAIR_WALL_PROBE = 0.05            # a side is against a wall when points this far outside it lie in one
 STAIR_RISER_SOURCE = "derived from assumed ceiling and slab"
+# 25 Oct 2026 (user: "better internal stairs"): a tread plate in the floor finish with a nosing over the riser below
+# (painted risers and structure), a balustrade on every open side (balusters at a 0.104 m gap, or a glass panel fixed
+# to the side of the flight, under a round handrail) and a round handrail on brackets along the wall of a flight that
+# has no open side.
+STAIR_TREAD_T = 0.04
+STAIR_NOSING_M = 0.025
+STAIR_HANDRAIL_R = 0.022
+STAIR_BALUSTER = 0.016
+STAIR_BALUSTER_PITCH = 0.12
+STAIR_GLASS_T = 0.012
+STAIR_WALL_RAIL_GAP = 0.06
+STAIR_BALUSTRADE_DEFAULT = "bars"
+# 25 Oct 2026 (architect K1, real04: U stairs drawn with 11 lines for a 3 m storey, risers of 0.25-0.29 m): an answer
+# may turn the half landing of a U stair into winders (``stair.winders``: "auto" or a count), turning treads around
+# the well, so the stair keeps its drawn footprint with comfortable risers (``STAIR_WINDER_TARGET_RISER``).
+STAIR_WINDER_TARGET_RISER = 0.185
+STAIR_WINDER_MAX = 8
 
 
 def stair_data(piece: dict | None) -> dict | None:
@@ -1411,8 +1428,20 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
     elif landing_poly is None and len(flights) >= 2:
         notes.append("no landing drawn: the flights are climbed in the drawn order without a landing slab")
 
-    # Risers: every drawn line is a nosing; riser = rise / all risers (or a documented riser).
+    # Risers: every drawn line is a nosing; riser = rise / all risers (or a documented riser). Winders (an answer to
+    # the architect's K1) add their treads in the half landing of a U stair.
     total = sum(f["lines"] for f in flights)
+    winders = 0
+    want = data.get("winders")
+    if want and len(flights) == 2 and landing_poly is not None:
+        winders = int(want) if str(want).isdigit() else \
+            max(0, int(math.ceil(rise / STAIR_WINDER_TARGET_RISER - 1e-9)) - total)
+        winders = max(0, min(STAIR_WINDER_MAX, winders))
+        if winders:
+            total += winders
+            assumed.append({"field": "winders", "kind": "stair_winders", "value": winders,
+                            "reason": "the architect's answer (K1): the half landing turned into winders, so the "
+                                      "drawn footprint holds comfortable risers"})
     documented = data.get("riser_m")
     doc_source = str(data.get("riser_source") or "")
     if isinstance(documented, (int, float)) and not isinstance(documented, bool) and documented > 0 \
@@ -1439,7 +1468,7 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
         first = f["start"] if _d2(a, r) > 0 else f["end"]
         f.update({"rise_dir": r, "base_z": z, "top_z": z + n * riser,
                   "nosings": [(first[0] + r[0] * g * i, first[1] + r[1] * g * i) for i in range(n)]})
-        z = f["top_z"]
+        z = f["top_z"] + (winders * riser if winders and not planned else 0.0)
         planned.append(f)
 
     landing = None
@@ -1454,6 +1483,8 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
             if role == "floor":
                 notes.append("the landing lies at the foot of the flight: it is the floor, no slab")
         landing = {"polygon": landing_poly, "z": z_l, "role": role, "thickness": STAIR_WAIST_M}
+        if winders and role == "mid":
+            landing.update(role="winders", winders=winder_treads(landing_poly, planned, z_l, riser, winders))
 
     # The ceiling opening: the last flight and the landing (in the frame of flight 1).
     void, void_raw = [], []
@@ -1521,9 +1552,54 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
     if top_limit is not None:
         notes.append(f"the last riser stops at {top_limit:.3f} m, under the shaft cap ({cap:.3f} m)")
     return {"flights": planned, "risers": total, "riser_m": riser, "riser_source": riser_source, "rise_m": rise,
+            "winders": winders,
             "landing": landing, "void": void, "void_raw": void_raw, "ceiling_z": ceiling, "cap_z": cap,
             "top_limit": top_limit, "rails": rails, "direction": [round(r0[0], 4), round(r0[1], 4)], "turn": turn,
             "generic": generic, "assumed": assumed, "warnings": warnings, "notes": notes}
+
+
+def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k: int) -> list[dict]:
+    """The ``k`` winder treads of a U stair's half landing (pure): sectors of 180 / k degrees around the pivot (the
+    middle of the landing's edge between the two flights), from the first flight's side to the second's, clipped to
+    the landing; tread ``j`` tops at ``z0 + j * riser``. ``[{"polygon", "top"}]``."""
+    a, b = planned[0], planned[1]
+    u = a["rise_dir"]                                           # into the landing
+    poly = geom2d.ccw([(float(p[0]), float(p[1])) for p in landing_poly])
+    # the landing edge the flights arrive at: the one with the smallest projection on u
+    proj = [_d2(p, u) for p in poly]
+    base = min(proj)
+    edge = [p for p, d in zip(poly, proj) if d - base < 0.05]
+    ca = G.segment_midpoint(a["nosings"][0], a["nosings"][-1])
+    cb = G.segment_midpoint(b["nosings"][0], b["nosings"][-1])
+    mid = G.segment_midpoint(ca, cb)
+    v = (-u[1], u[0])
+    side_a = -1.0 if _d2(_v(mid, ca), v) < 0 else 1.0          # the first flight's side along v
+    pivot = (mid[0] + u[0] * (base - _d2(mid, u)), mid[1] + u[1] * (base - _d2(mid, u)))
+    if len(edge) >= 2:
+        es = sorted(_d2(p, v) for p in edge)
+        t = min(max(_d2(pivot, v), es[0]), es[-1])
+        pivot = (pivot[0] + v[0] * (t - _d2(pivot, v)), pivot[1] + v[1] * (t - _d2(pivot, v)))
+    far = 50.0
+    out = []
+    for j in range(k):
+        # angle from the first flight's side (along v * side_a, 0) through u (90) to the other side (180)
+        t0, t1 = math.pi * j / k, math.pi * (j + 1) / k
+        pts = [pivot]
+        for t in (t0, (t0 + t1) / 2.0, t1):
+            d = (v[0] * side_a * math.cos(t) + u[0] * math.sin(t), v[1] * side_a * math.cos(t) + u[1] * math.sin(t))
+            pts.append((pivot[0] + d[0] * far, pivot[1] + d[1] * far))
+        sector = geom2d.ccw(pts)
+        piece = sector
+        n = len(poly)
+        for i in range(n):                                    # clip to the convex landing
+            p0, p1 = poly[i], poly[(i + 1) % n]
+            nx, ny = (p1[1] - p0[1]), -(p1[0] - p0[0])        # outward normal of a ccw edge
+            piece = geom2d.clip_half_plane(piece, nx, ny, -(nx * p0[0] + ny * p0[1]))
+            if not piece:
+                break
+        if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
+            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + (j + 1) * riser})
+    return out
 
 
 def _frame_box(points) -> tuple[float, float, float, float]:
@@ -1569,13 +1645,19 @@ def stair_parts(plan: dict) -> list[Part]:
         for i in range(1, n):
             s0, s1 = (i - 1) * g, i * g
             top = base + i * riser
-            z0, z1 = base + s0 * k - t_v, base + s1 * k - t_v       # soffit under the root line
+            body = top - STAIR_TREAD_T                               # the structure under the tread plate
+            # the first riser stands back by the nosing (the drawn first line is the nosing: the stair stays in its
+            # footprint); every other tread overhangs the riser below
+            b0, n0 = (s0 + STAIR_NOSING_M, s0) if i == 1 else (s0, s0 - STAIR_NOSING_M)
+            z0, z1 = base + b0 * k - t_v, base + s1 * k - t_v       # soffit under the root line
             if z0 < 0.0 < z1:
                 sc = (t_v - base) / k
-                profile = [(s0, 0.0), (sc, 0.0), (s1, z1), (s1, top), (s0, top)]
+                profile = [(b0, 0.0), (sc, 0.0), (s1, z1), (s1, body), (b0, body)]
             else:
-                profile = [(s0, max(0.0, z0)), (s1, max(0.0, z1)), (s1, top), (s0, top)]
+                profile = [(b0, max(0.0, z0)), (s1, max(0.0, z1)), (s1, body), (b0, body)]
             parts.append(_part(geom2d.extrude_profile(profile, origin, r, width), "worktop", "step", **extra))
+            tread = [(n0, body), (s1, body), (s1, top), (n0, top)]
+            parts.append(_part(geom2d.extrude_profile(tread, origin, r, width), "worktop", "tread", **extra))
         sn = (n - 1) * g
         z_lo = base + (n - 1) * riser
         z_hi = base + n * riser if limit is None else min(base + n * riser, limit)
@@ -1583,10 +1665,19 @@ def stair_parts(plan: dict) -> list[Part]:
             parts.append(_part(geom2d.extrude_profile(
                 [(sn - STAIR_RISER_PLATE, z_lo), (sn, z_lo), (sn, z_hi), (sn - STAIR_RISER_PLATE, z_hi)],
                 origin, r, width), "worktop", "riser", **extra))
+        kind = plan.get("balustrade") or STAIR_BALUSTRADE_DEFAULT
         for rail in rails.get(f["index"], []):
-            parts.extend(_rail_parts(f, rail["offset"], riser, plan["cap_z"] - STAIR_CAP_CLEARANCE))
+            parts.extend(_rail_parts(f, rail["offset"], riser, plan["cap_z"] - STAIR_CAP_CLEARANCE, kind))
+        if not rails.get(f["index"]):                            # walls on both sides: a wall handrail
+            parts.extend(_wall_rail_parts(f, -1.0, riser, plan["cap_z"] - STAIR_CAP_CLEARANCE))
     landing = plan.get("landing")
-    if landing is not None and landing["role"] in ("mid", "top"):
+    if landing is not None and landing["role"] == "winders":
+        z_bottom = landing["z"] - landing["thickness"]
+        for j, w in enumerate(landing.get("winders") or []):
+            top = w["top"] if limit is None else min(w["top"], limit)
+            parts.append(_part(geom2d.prism(w["polygon"], z_bottom, top), "worktop", "winder", flight=None,
+                               rise_dir=None, winder=j))
+    elif landing is not None and landing["role"] in ("mid", "top"):
         z_top = landing["z"] if limit is None else min(landing["z"], limit)
         poly = landing["polygon"]
         moves = {j["edge"]: float(j["extend_m"]) for j in joints if j["part"] == "landing"}
@@ -1616,10 +1707,9 @@ def landing_with_joints(polygon, moves: dict) -> list[tuple[float, float]]:
     return [(p[0] + sx, p[1] + sy) for p, (sx, sy) in zip(pts, shift)]
 
 
-def _rail_parts(f: dict, offset: float, riser: float, limit: float) -> list[Part]:
-    """A sloped rail bar ``STAIR_RAIL_HEIGHT`` above the nosing line of a
-    flight, ``offset`` metres left of its centre line, and a post at each end
-    standing on its tread; cut where its top would pass ``limit``."""
+def _rail_span(f: dict, riser: float, limit: float):
+    """``(s_a, s_b, rail_top, at)`` of a flight's handrail (pure): its run along the flight (cut where its top would
+    pass ``limit``), its top over the nosing line and the world point at ``(s, q, z)``; None when it is too short."""
     n, g, base = f["lines"], f["going"], f["base_z"]
     r, o = f["rise_dir"], f["nosings"][0]
     p = (-r[1], r[0])
@@ -1632,45 +1722,116 @@ def _rail_parts(f: dict, offset: float, riser: float, limit: float) -> list[Part
     if rail_top(s_b) > limit:
         s_b = (limit - STAIR_RAIL_HEIGHT - base - riser) / k
     if s_b - s_a < STAIR_RAIL_MIN_M:
-        return []
+        return None
 
     def at(s, q, z):
         return (o[0] + r[0] * s + p[0] * q, o[1] + r[1] * s + p[1] * q, z)
 
-    verts = [at(s, offset + dq, rail_top(s) + dz) for s in (s_a, s_b) for dq in (-STAIR_RAIL_W / 2.0, STAIR_RAIL_W / 2.0)
-             for dz in (-STAIR_RAIL_T, 0.0)]
-    # index = 4 * s + 2 * q + z
-    faces = [[0, 2, 6, 4], [1, 5, 7, 3], [0, 4, 5, 1], [2, 3, 7, 6], [0, 1, 3, 2], [4, 6, 7, 5]]
-    parts = [_part(geom2d.convex_solid(verts, faces), "steel", "rail", flight=f["index"])]
+    return s_a, s_b, rail_top, at
+
+
+def _rail_parts(f: dict, offset: float, riser: float, limit: float, kind: str = STAIR_BALUSTRADE_DEFAULT
+                ) -> list[Part]:
+    """The balustrade of an open flight side ``offset`` metres left of its centre line (pure): a round handrail
+    ``STAIR_RAIL_HEIGHT`` above the nosing line, a post at each end standing on its tread and the infill: balusters
+    on the treads ``STAIR_BALUSTER_PITCH`` apart (``bars``), or a glass panel fixed to the side of the flight (the
+    glass kinds of ``details.KINDS``); cut where the handrail's top would pass ``limit``."""
+    from wenart.blender import details as D
+
+    span = _rail_span(f, riser, limit)
+    if span is None:
+        return []
+    s_a, s_b, rail_top, at = span
+    n, g, base = f["lines"], f["going"], f["base_z"]
+    r = f["rise_dir"]
+    k = riser / g
+    rr = STAIR_HANDRAIL_R
+    angle = math.degrees(math.atan2(r[1], r[0]))
+    glass = kind in ("glass_channel", "glass_posts")
+    q_rail = offset
+    if glass:                                                # the glass hangs on the flight's side, the rail on it
+        side = 1.0 if offset >= 0 else -1.0
+        q_rail = side * (abs(offset) + STAIR_RAIL_INSET + STAIR_GLASS_T / 2.0 + 0.003)
+    # a vertex on the rail's top: its highest point is rail_top exactly (the cap clearance holds)
+    cz = rr * g / math.hypot(g, riser)
+    parts = [_part(D.tube(at(s_a, q_rail, rail_top(s_a) - cz), at(s_b, q_rail, rail_top(s_b) - cz), rr, 12, 0.0),
+                   "steel", "rail", flight=f["index"])]
+
+    def tread_at(s):
+        return base + (min(n - 1, int(s / g)) + 1) * riser
+
+    if glass:
+        o = at(0.0, q_rail, 0.0)
+        bottom = [(s_a, base + s_a * k - 0.02), (s_b, base + s_b * k - 0.02)]   # down the flight's side
+        top = [(s_b, rail_top(s_b) - 2 * rr - 0.01), (s_a, rail_top(s_a) - 2 * rr - 0.01)]
+        parts.append(_part(geom2d.extrude_profile(bottom + top, (o[0], o[1]), r, STAIR_GLASS_T), "glass", "glass",
+                           flight=f["index"]))
+        return parts
     for s in (s_a + STAIR_POST / 2.0, s_b - STAIR_POST / 2.0):
-        tread = base + (min(n - 1, int(s / g)) + 1) * riser
+        tread = tread_at(s)
         cx, cy, _ = at(s, offset, 0.0)
-        z_top = rail_top(s) - STAIR_RAIL_T
+        z_top = rail_top(s) - 2 * rr
         if z_top - tread > 0.02:
             parts.append(_part(geom2d.box((cx, cy, (tread + z_top) / 2.0), (STAIR_POST, STAIR_POST, z_top - tread),
-                                          math.degrees(math.atan2(r[1], r[0]))), "steel", "post", flight=f["index"]))
+                                          angle), "steel", "post", flight=f["index"]))
+    m = max(1, int((s_b - s_a) / STAIR_BALUSTER_PITCH))
+    for j in range(1, m):
+        s = s_a + (s_b - s_a) * j / m
+        tread = tread_at(s)
+        z_top = rail_top(s) - 2 * rr + 0.005
+        cx, cy, _ = at(s, offset, 0.0)
+        if z_top - tread > 0.05:
+            parts.append(_part(geom2d.box((cx, cy, (tread + z_top) / 2.0),
+                                          (STAIR_BALUSTER, STAIR_BALUSTER, z_top - tread), angle),
+                               "steel", "baluster", flight=f["index"]))
     return parts
 
 
-# Material slots of a built stair (shell.build_stairs): treads and risers, structure, steel.
-STAIR_SLOTS = ("tread", "structure", "steel")
+def _wall_rail_parts(f: dict, side: float, riser: float, limit: float) -> list[Part]:
+    """A round handrail on brackets along the wall on the ``side`` (+1 left, -1 right of the rise direction) of a
+    flight with walls on both sides (pure): ``STAIR_WALL_RAIL_GAP`` off the drawn side, ``STAIR_RAIL_HEIGHT`` over
+    the nosing line."""
+    from wenart.blender import details as D
+
+    span = _rail_span(f, riser, limit)
+    if span is None:
+        return []
+    s_a, s_b, rail_top, at = span
+    hw = f["width"] / 2.0
+    q = side * (hw - STAIR_WALL_RAIL_GAP - STAIR_HANDRAIL_R)
+    r = f["rise_dir"]
+    wall = (-r[1] * side, r[0] * side)
+    path = [at(s_a, q, rail_top(s_a) - STAIR_HANDRAIL_R), at(s_b, q, rail_top(s_b) - STAIR_HANDRAIL_R)]
+    out = []
+    for k, mesh in enumerate(D.wall_handrail(path, wall, {"handrail_r": STAIR_HANDRAIL_R,
+                                                           "wall_gap": STAIR_WALL_RAIL_GAP + STAIR_HANDRAIL_R})):
+        out.append(_part(mesh, "steel", "rail" if k == 0 else "bracket", flight=f["index"]))
+    return out
+
+
+# Material slots of a built stair (shell.build_stairs): treads (and the landing's top), structure (steps, risers,
+# soffit: the wall paint), steel, glass.
+STAIR_SLOTS = ("tread", "structure", "steel", "glass")
 
 
 def stair_face_slots(parts: Sequence[Part]) -> list[int]:
-    """Slot per face of ``stair_parts`` (``STAIR_SLOTS``): the top and the
-    climbing-side face of steps, riser plates and the landing are ``tread``
-    (the floor finish), their other faces ``structure`` (soffit, sides), rails
-    and posts ``steel``."""
+    """Slot per face of ``stair_parts`` (``STAIR_SLOTS``): the tread plates and the landing's top are ``tread``
+    (the floor finish), the steps, the riser plates and the landing's other faces ``structure`` (painted risers,
+    soffit, sides; 25 Oct 2026), rails, posts, balusters and brackets ``steel``, a glass panel ``glass``."""
     slots = []
     for part in parts:
-        if part["key"] == "steel":
-            slots.extend([2] * len(part["faces"]))
+        if part["key"] in ("steel", "glass"):
+            slots.extend([2 if part["key"] == "steel" else 3] * len(part["faces"]))
             continue
-        r = part.get("rise_dir")
+        if part.get("role") == "tread":                       # the tread plate: the floor finish all round
+            slots.extend([0] * len(part["faces"]))
+            continue
+        if part.get("role") in ("step", "riser"):             # 25 Oct 2026: painted risers under the tread plates
+            slots.extend([1] * len(part["faces"]))
+            continue
         for f in part["faces"]:
             nx, ny, nz = geom2d.face_normal(part["verts"], f)
-            front = r is not None and -(nx * r[0] + ny * r[1]) > 0.5
-            slots.append(0 if nz > 0.5 or front else 1)
+            slots.append(0 if nz > 0.5 else 1)
     return slots
 
 

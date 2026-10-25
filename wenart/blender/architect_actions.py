@@ -64,10 +64,13 @@ ACTIONS = {
     "retype_room": "the room is another type (params: room_type)",
     "widen_door": f"widen the door to {DOOR_MIN_W:.2f} m ({WC_DOOR_MIN_W:.2f} m for a WC) where the wall allows",
     "raise_sill": f"raise the window's sill to {SAFE_SILL_M:.2f} m (the head stays)",
+    "remove_piece": "the piece is not built (it does not belong there)",
+    "stair_winders": "the U stair's half landing becomes winders for comfortable risers (params: count, 0 = as drawn)",
+    "retype_piece": "the piece is another type (params: type)",
 }
 
 
-CONTEXT_PARAMS = ("room_id", "window_id", "door_id")     # name the element, not the choice
+CONTEXT_PARAMS = ("room_id", "window_id", "door_id", "piece_id")     # name the element, not the choice
 
 
 def option(action: str, label: Optional[str] = None, **params) -> dict:
@@ -566,6 +569,46 @@ def act_retype(plan: Plan, key: str, ans: dict, room_id: str, room_type: str):
     return True, f"{room_id} is a {room_type}"
 
 
+def _piece(plan: Plan, piece_id: str) -> Optional[dict]:
+    return next((f for f in plan.b.get("furniture") or [] if f.get("id") == piece_id), None)
+
+
+def act_stair_winders(plan: Plan, key: str, ans: dict, piece_id: str, count="auto"):
+    """A U stair's half landing as winders (``count`` "auto": as many as comfortable risers need; 0: as drawn)."""
+    f = _piece(plan, piece_id)
+    if f is None or str(f.get("type")) != "stair":
+        return False, f"no stair {piece_id}"
+    data = f.get("stair") if isinstance(f.get("stair"), dict) else (f.get("details") or {}).get("stair")
+    if not isinstance(data, dict):
+        return False, f"{piece_id} has no stair record"
+    data["winders"] = count if str(count) == "auto" else int(count)
+    _mark(f, "adjusted_by_ai", key, ans, f"the answer to {key}: winders {count}")
+    return True, f"{piece_id}: winders {count}"
+
+
+def act_remove_piece(plan: Plan, key: str, ans: dict, piece_id: str):
+    """The piece is not built (an answer: it does not belong where it stands; 25 Oct 2026)."""
+    f = _piece(plan, piece_id)
+    if f is None:
+        return False, f"no piece {piece_id}"
+    f["build"] = False
+    f["not_built_reason"] = f"the answer to {key}: not built"
+    _mark(f, "adjusted_by_ai", key, ans, f"the answer to {key}: the piece is not built")
+    return True, f"{piece_id} is not built"
+
+
+def act_retype_piece(plan: Plan, key: str, ans: dict, piece_id: str, ftype: str):
+    """The piece is another furniture type (the fit gives it a model of that type on the next fit)."""
+    f = _piece(plan, piece_id)
+    if f is None or not ftype:
+        return False, f"cannot retype {piece_id} to {ftype!r}"
+    if f.get("type") != ftype:
+        f.setdefault("drawn_type", f.get("type"))
+        f["type"] = ftype
+        _mark(f, "adjusted_by_ai", key, ans, f"the answer to {key}: a {ftype}")
+    return True, f"{piece_id} is a {ftype}"
+
+
 def act_widen_door(plan: Plan, key: str, ans: dict, door_id: str, room_id: Optional[str] = None):
     o = plan.openings.get(door_id)
     w = plan.walls.get((o or {}).get("wall_id"))
@@ -687,6 +730,14 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                     ok, text = act_widen_door(plan, key, ans, params.get("door_id") or target, params.get("room_id"))
                 elif opt == "raise_sill":
                     ok, text = act_raise_sill(plan, key, ans, params.get("window_id") or target)
+                elif opt == "stair_winders":
+                    ok, text = act_stair_winders(plan, key, ans, params.get("piece_id") or target,
+                                                 params.get("count", "auto"))
+                elif opt == "remove_piece":
+                    ok, text = act_remove_piece(plan, key, ans, params.get("piece_id") or target)
+                elif opt == "retype_piece":
+                    ok, text = act_retype_piece(plan, key, ans, params.get("piece_id") or target,
+                                                str(params.get("type") or ""))
                 else:
                     ok, text = False, f"unknown option {opt!r}"
             except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:

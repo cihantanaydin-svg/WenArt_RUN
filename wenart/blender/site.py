@@ -918,6 +918,53 @@ def outer_openings(building: dict, levels: Sequence[dict], outline: Sequence[Seq
     return out
 
 
+def facade_openings(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]],
+                    outlines: Optional[dict] = None) -> dict:
+    """The outside doors and windows of the building and of every copy on the plot in site metres (pure; 25 Oct
+    2026, real04: the east pool deck took the mean ground under it, -1.40 m, half way between the basement and the
+    ground floor; it buried the basement window and a front court was cut into the deck). ``{"openings": [{"id",
+    "building", "type", "level_id", "bottom", "top", "probe": (x, y)}], "floors": {building: [(z, level ids)]}}``:
+    ``probe`` lies 0.3 m out of the wall face, a copy's openings are the building's moved by its transform and
+    raised by its ``dz`` (``copies``)."""
+    from wenart.blender import copies as CP
+
+    recs = outer_openings(building, levels, outline, outlines)
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    ref = next((c for c in site.get("buildings") or [] if isinstance(c, dict) and c.get("reference")), {})
+    floors_ref: dict[float, list[str]] = {}
+    for lv in levels:
+        floors_ref.setdefault(round(float(lv["elevation"]), 3), []).append(str(lv["id"]))
+    out: dict = {"openings": [], "floors": {}}
+    for c in [None] + CP.copies_of(building):
+        bid = str((c or ref).get("id") or "building")
+        dz = float((c or {}).get("dz") or 0.0)
+        out["floors"][bid] = [(round(z + dz, 3), ids) for z, ids in sorted(floors_ref.items())]
+        for r in recs:
+            (cx, cy), (ox, oy), reach = r["centre"], r["outward"], r["half_t"] + 0.3
+            p = (cx + ox * reach, cy + oy * reach)
+            out["openings"].append({"id": str(r["opening"]["id"]), "building": bid, "type": r["opening"]["type"],
+                                    "level_id": r["level"]["id"], "bottom": round(r["bottom"] + dz, 3),
+                                    "top": round(r["top"] + dz, 3),
+                                    "probe": CP.move_point(c, p) if c is not None else p})
+    return out
+
+
+def building_facades(building: dict) -> dict:
+    """``facade_openings`` of a building JSON on its own (pure): each level's wall outline as the outward test, the
+    largest one as the fallback (``building_keep_out``'s outlines)."""
+    outlines = {}
+    for lv in building.get("levels") or []:
+        walls = [w for w in building.get("walls") or [] if w.get("level_id") == lv.get("id")]
+        if walls:
+            outlines[lv["id"]] = geom2d.wall_outline(walls)[0]
+    levels = [lv for lv in building.get("levels") or [] if lv.get("elevation") is not None
+              and lv.get("ceiling_height") is not None]
+    if not outlines or not levels:
+        return {"openings": [], "floors": {}}
+    largest = max(outlines.values(), key=lambda p: G.polygon_area(p) if len(p) >= 3 else 0.0)
+    return facade_openings(building, levels, largest, outlines)
+
+
 def entrances(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]],
               outlines: Optional[dict] = None) -> list[dict]:
     """The entrance doors (pure): outside doors whose bottom lies from ``LIGHT_WELL_CLEARANCE`` under to
@@ -1830,6 +1877,9 @@ PLATFORM = {"mark_reach": 2.0, "level_tol": 0.15, "max_spread": 1.0, "step_max_d
 # ``band_w`` outside the edge, each ``RETAINING_MAX_M`` or less above the next, down to the ground; a cut (the ground
 # above the level) steps up the same way).
 RETAINING_MAX_M = 1.2
+# 25 Oct 2026: a cut wall that holds the ground more than this over the platform (only where no stepped band fits)
+# carries a guard on its top (the fall from the ground outside into the platform).
+GUARD_RISE_M = RETAINING_MAX_M
 PLATFORM_KINDS = {"paving": "terrace", "parking": "parking", "pools": "pool", "path": "path"}
 POOL_COPING_M = 0.35
 
@@ -1876,7 +1926,68 @@ def _edge_samples(poly, k: int = 3) -> list[list[tuple[float, float]]]:
     return out
 
 
-def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = ()) -> list[dict]:
+def floor_level(poly, g: dict, facades: Optional[dict]) -> Optional[tuple[float, str, list[str]]]:
+    """The floor level a terrace beside a building takes when no level mark sets it (pure; 25 Oct 2026, real04: the
+    east pool deck at the mean ground, -1.40 m, buried the basement window and got a front court cut into it, while
+    its mirror twin at the basement floor from a level mark let the window open onto it). ``(z, reason, opening
+    ids)`` or None: the doors and windows whose outside (``facade_openings`` probe) lies on the platform, or within
+    ``FLOOR_SNAP["probe_m"]`` of it, open onto it; the candidates are the floors of their buildings within
+    ``FLOOR_SNAP["reach_m"]`` of the ground under the platform; a floor that buries one of them (a window sill less
+    than ``LIGHT_WELL_CLEARANCE`` over it, a door under it) is out; of the rest the one most doors open onto at their
+    threshold wins, then the one nearest the mean ground. None when no opening faces the platform or every floor
+    buries one (the mean ground stays, with its light wells)."""
+    if not facades:
+        return None
+    facing = [o for o in facades.get("openings") or [] if G.point_in_polygon(o["probe"], poly)
+              or geom2d.distance_to_polygon_edges(o["probe"], poly) <= FLOOR_SNAP["probe_m"]]
+    if not facing:
+        return None
+    lo, hi = float(g["min"]) - FLOOR_SNAP["reach_m"], float(g["max"]) + FLOOR_SNAP["reach_m"]
+    best = None
+    for bid in sorted({o["building"] for o in facing}):
+        mine = [o for o in facing if o["building"] == bid]
+        for z, ids in (facades.get("floors") or {}).get(bid) or []:
+            if not lo <= z <= hi:
+                continue
+            buried = [o["id"] for o in mine if (o["type"] == "window" and o["bottom"] < z + LIGHT_WELL_CLEARANCE)
+                      or (o["type"] == "door" and o["bottom"] < z - LIGHT_WELL_CLEARANCE)]
+            if buried:
+                continue
+            served = [o["id"] for o in mine if o["type"] == "door" and abs(o["bottom"] - z) <= FLOOR_SNAP["door_step_m"]]
+            key = (-len(served), abs(z - float(g["mean"])))
+            if best is None or key < best[0]:
+                names = "/".join(ids) + (f" of {bid}" if len(facades.get("floors") or {}) > 1 else "")
+                why = (f"the floor of {names} ({z:+.2f} m): "
+                       + (f"the doors {', '.join(served)} open onto it" if served else
+                          f"the windows {', '.join(sorted({o['id'] for o in mine}))} open over it")
+                       + f" (a terrace takes the floor its doors and windows serve; the mean ground under it "
+                         f"{float(g['mean']):+.2f} m)")
+                best = (key, z, why, sorted({o["id"] for o in mine}))
+    return None if best is None else (round(best[1], 3), best[2], best[3])
+
+
+# 25 Oct 2026: a terrace that doors or windows open onto takes a floor of their building (``floor_level``): within
+# reach_m of the ground under it, a door's threshold within door_step_m of it, the openings 0.3 m out of the wall face
+# within probe_m of the platform.
+FLOOR_SNAP = {"reach_m": 1.0, "probe_m": 0.5, "door_step_m": 0.2}
+
+
+def hedge_keep_out(hedges: Sequence[dict]) -> list[tuple[str, list]]:
+    """``[(hedge id, rectangle)]``: every drawn hedge's hull, one rectangle per stretch of its polyline (pure; 25 Oct
+    2026: a stepped band, an inferred part, stops at a drawn hedge instead of running under it)."""
+    out = []
+    for h in hedges or []:
+        pts, hw = h.get("polyline") or [], float(h.get("width_m") or 0.0) / 2.0
+        for a, b in zip(pts, pts[1:]):
+            length = G.distance(a, b)
+            if length > 1e-6 and hw > 0:
+                d = ((b[0] - a[0]) / length, (b[1] - a[1]) / length)
+                out.append((str(h.get("id")), _rect_along(a, d, -hw, length + hw, hw)))
+    return out
+
+
+def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (),
+              facades: Optional[dict] = None, band_keep: Sequence[tuple[str, list]] = ()) -> list[dict]:
     """One level per drawn terrace, pool or parking polygon (pure; Milestone 13 T6, docs/milestone13.md §13.2):
     ``[{"id", "polygon", "holes", "z", "kind": terrace | pool | parking | path, "edge": retaining | kerb | steps |
     none, "source", "z_source", "marks", "ground": {min, mean, max}, "drop_m", "rise_m", "sloped", "steps_edge",
@@ -1912,6 +2023,9 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
             return (round(round(z / PLATFORM["round"]) * PLATFORM["round"], 3), "level marks",
                     [str(m.get("mark_id") or m.get("id") or k) for k, m in enumerate(near)],
                     g, max(vals) - min(vals) > PLATFORM["max_spread"])
+        snap = floor_level(poly, g, facades)
+        if snap is not None:
+            return snap[0], snap[1], [], g, False
         return round(round(g["mean"] / PLATFORM["round"]) * PLATFORM["round"], 3), "the mean ground under it", [], g, False
 
     def edges_of(poly, z, kind, sloped, skip=()):
@@ -1936,10 +2050,20 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
         if rec["drop_m"] <= tol and rec["rise_m"] <= tol:
             rec["edge"] = "kerb" if kind in ("parking", "path") else "none"
             return rec
+        rec["edge_rises"] = {i: round(v, 3) for i, v in enumerate(rises) if i not in skip}
         cands = [i for i in range(n) if tol < drops[i] <= PLATFORM["step_max_drop"]
                  and G.distance(poly[i], poly[(i + 1) % n]) >= PLATFORM["step_width"]]
+        # 25 Oct 2026 (real04: the east pool deck at the basement floor lies under the ground on every side): a sunken
+        # terrace with no edge to step down from gets a flight up into the slope on the edge with the smallest rise
+        ups = [i for i in range(n) if i not in skip and drops[i] <= tol and tol < rises[i] <= PLATFORM["step_max_drop"]
+               and G.distance(poly[i], poly[(i + 1) % n]) >= PLATFORM["step_width"] + 2 * PLATFORM["wall_t"]]
         if kind in ("terrace", "pool") and cands:
             rec["steps_edge"] = max(cands, key=lambda i: (G.distance(poly[i], poly[(i + 1) % n]), -drops[i]))
+            rec["edge"] = "steps"
+        elif kind in ("terrace", "pool") and ups:
+            ups.sort(key=lambda i: (rises[i], -G.distance(poly[i], poly[(i + 1) % n])))
+            rec["steps_edge"], rec["up_edges"] = ups[0], ups
+            rec["steps_dir"] = "up"
             rec["edge"] = "steps"
         else:
             rec["edge"] = "retaining"
@@ -1989,6 +2113,21 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
             pf["polygon"] = subdivide_edges(pf["polygon"], PLATFORM["edge_split_m"])
         pf["against_edges"] = [] if pf["sloped"] else against_edges(pf["polygon"], keep)
         pf.update(edges_of(pf["polygon"], pf["z"], pf["kind"], pf["sloped"], skip=pf["against_edges"]))
+    for pf in out:
+        if pf.get("steps_dir") != "up":
+            continue
+        # the flight lands on a paved area (a driveway, a path, another terrace) where one of its edges allows it,
+        # else on the edge with the smallest rise (the garden)
+        paved = [q["polygon"] for q in out if q is not pf]
+        for i in pf.get("up_edges") or [pf["steps_edge"]]:
+            fl = up_flight(dict(pf, steps_edge=i), gz=gz)
+            if fl is not None and any(G.point_in_polygon(fl["landing"], q) for q in paved):
+                pf["steps_edge"] = i
+                pf["flight_lands_on"] = next(q["id"] for q in out if q is not pf
+                                             and G.point_in_polygon(fl["landing"], q["polygon"]))
+                break
+        pf["flight"] = up_flight(pf, gz=gz)
+    for pf in out:
         pf["reason"] = (f"{pf['kind']} {pf['id']}: one level at {pf['z']:+.2f} m ({pf['z_source']}"
                         + (f" {', '.join(pf['marks'])}" if pf["marks"] else "") + f"); ground {pf['ground']['min']:+.2f}"
                         f"..{pf['ground']['max']:+.2f} m under it; edge: {pf['edge']}"
@@ -2003,18 +2142,28 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
             pf["cap_exceeded"] = []
             continue
         others = [q for q in out if q is not pf]
-        for band in stepped_bands(pf, gz, keep_out=keep_inner + [q["polygon"] for q in others],
-                                  keep_ids=["building"] * len(keep_inner) + [q["id"] for q in others]):
+        # a hedge drawn on the platform itself (fit_hedges keeps it there) is planted on it, not in a band's way
+        hedges_out = [(hid, poly) for hid, poly in band_keep
+                      if not G.point_in_polygon(G.polygon_centroid(poly), pf["polygon"])
+                      and geom2d.distance_to_polygon_edges(G.polygon_centroid(poly), pf["polygon"])
+                      > HEDGE_FIT["max_shift_m"] + 0.5]
+        for band in stepped_bands(pf, gz, keep_out=keep_inner + [q["polygon"] for q in others]
+                                  + [poly for _, poly in hedges_out],
+                                  keep_ids=["building"] * len(keep_inner) + [q["id"] for q in others]
+                                  + [hid for hid, _ in hedges_out]):
             band["against_edges"] = []
             band.update(edges_of(band["polygon"], band["z"], band["kind"], False, skip=band["shared_edges"]))
             band["steps_edge"], band["railing_edges"] = None, []
+            band.pop("steps_dir", None)
             band["edge"] = "retaining"
             band["wall_max_m"] = platform_wall_max(band, gz)
             # the outermost band of a chain that had no room for the next one keeps its full outer wall
             chain_by = {b["edge"]: b.get("by") for b in pf.get("band_blocked") or []}
+            # a band's side (not its outer edge) never steps on: the rising ground beside a band's end is held by a
+            # full wall there (with a guard on it over the cap), recorded as band_side (25 Oct 2026)
             band["cap_exceeded"] = [{"edge": i, "height_m": h,
                                      "blocked_by": chain_by.get(band["stepped_from"]["edge"])
-                                     if i == band.get("outer_edge") else None}
+                                     if i == band.get("outer_edge") else "band_side"}
                                     for i, h in sorted(platform_wall_edges(band, gz).items())
                                     if h > RETAINING_MAX_M + 1e-6]
             band["reason"] = (f"terrace {band['id']}: step {band['step']} of {band['parent']} at {band['z']:+.2f} m "
@@ -2038,6 +2187,10 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
             pf["reason"] += (f"; stepped terraces on edge{'s' if len(pf['stepped']) > 1 else ''} "
                              + ", ".join(f"{st['edge']} ({st['bands']} x {st['step_m']:.2f} m {st['direction']})"
                                          for st in pf["stepped"]) + f" (retaining cap {RETAINING_MAX_M} m)")
+        if pf.get("flight"):
+            pf["reason"] += (f"; a flight of {pf['flight']['count']} steps up out of it on edge {pf['steps_edge']} "
+                             f"({pf['flight']['rise']:.2f} m" + (f", onto {pf['flight_lands_on']}" if
+                                                                 pf.get("flight_lands_on") else "") + ")")
         if pf.get("against_edges"):
             pf["reason"] += (f"; edges {', '.join(str(i) for i in pf['against_edges'])} face the building (its walls "
                              f"retain there: no wall, band or steps)")
@@ -2198,6 +2351,14 @@ def stepped_bands(pf: dict, gz, cap: float = RETAINING_MAX_M, keep_out: Sequence
                 hit = _band_blocked([a_in, b_in, b_out, a_out], keep_out)
                 if hit is not None:                             # it would enter the building or another platform
                     return mine, "blocked", hit
+                # 25 Oct 2026 (real04 sp_004 at its floor level: the bands of two short edges of a notch overlapped):
+                # a band never enters this platform's earlier bands; the first band of an edge whose place an earlier
+                # band at its level already takes is served by it (the edge's wall ends at that band)
+                own = _band_blocked([a_in, b_in, b_out, a_out], [q["polygon"] for q in bands])
+                if own is not None:
+                    if k == 1 and abs(float(bands[own]["z"]) - zk) <= PLATFORM["level_tol"]:
+                        return mine, "served", own
+                    return mine, "blocked_own", own
                 quad = geom2d.ccw([a_in, b_in, b_out, a_out])
 
                 def edge_index(p0, p1):
@@ -2230,13 +2391,19 @@ def stepped_bands(pf: dict, gz, cap: float = RETAINING_MAX_M, keep_out: Sequence
         chosen = None
         for mitre_a, mitre_b in [(same_a, same_b)] + ([(False, False)] if same_a or same_b else []):
             mine, status, hit = attempt(mitre_a, mitre_b)
-            complete = status in ("done", "band_max")
+            complete = status in ("done", "band_max", "served")
             if chosen is None or complete or len(mine) > len(chosen[0]):
                 chosen = (mine, status, hit, mitre_a, mitre_b)
             if complete:
                 break
         mine, status, hit, mitre_a, mitre_b = chosen
-        if status in ("blocked", "band_max"):
+        if status == "served":
+            pf["edge_floor"][str(i)] = float(bands[hit]["z"])
+            pf.setdefault("band_served", []).append({"edge": i, "by": bands[hit]["id"]})
+            continue
+        if status == "blocked_own":
+            pf["band_blocked"].append({"edge": i, "bands": len(mine), "direction": direction, "by": bands[hit]["id"]})
+        elif status in ("blocked", "band_max"):
             by = "band_max" if status == "band_max" else (keep_ids[hit] if hit is not None and hit < len(keep_ids)
                                                            else "keep_out")
             pf["band_blocked"].append({"edge": i, "bands": len(mine), "direction": direction, "by": by})
@@ -2271,6 +2438,39 @@ def _band_quad_ok(a_in, b_in, b_out, a_out) -> bool:
     return not _segments_cross(a_in, a_out, b_in, b_out)
 
 
+def sloped_box(centre, length: float, thickness: float, angle_deg: float, z0: float, z1_start: float,
+               z1_end: float, z0_end: Optional[float] = None) -> tuple[list, list]:
+    """``(verts, faces)`` of a wall, kerb or rail piece (pure): ``length`` along ``angle_deg``, ``thickness``
+    across, its bottom from ``z0`` (the start end) to ``z0_end`` (default ``z0``: flat) and its top from
+    ``z1_start`` to ``z1_end`` (25 Oct 2026: pieces with flat tops stepped like teeth along a slope)."""
+    z0_end = z0 if z0_end is None else z0_end
+    lo, top = min(z0, z0_end), max(z1_start, z1_end)
+    v, f = geom2d.box((centre[0], centre[1], (lo + top) / 2.0), (length, thickness, top - lo), angle_deg)
+    v = [list(p) for p in v]
+    for k, zb in ((0, z0), (3, z0), (1, z0_end), (2, z0_end)):
+        v[k][2] = zb
+    for k, zt, zb in ((4, z1_start, z0), (7, z1_start, z0), (5, z1_end, z0_end), (6, z1_end, z0_end)):
+        v[k][2] = max(zt, zb + 0.01)
+    return [tuple(p) for p in v], f
+
+
+def guard_parts(p0, p1, z_start: float, z_end: float) -> tuple[list, list, list]:
+    """``(rails, panels, posts)`` of a guard on a sloping wall top from ``p0`` (standing at ``z_start``) to ``p1``
+    (``z_end``) (pure; ``shell.RAILING`` sizes: a rail, a glass panel and a post at ``p0``; 25 Oct 2026)."""
+    from wenart.blender.shell import RAILING as R
+
+    length = G.distance(p0, p1)
+    if length <= 1e-6:
+        return [], [], []
+    mid, angle = G.segment_midpoint(p0, p1), G.segment_angle_deg(p0, p1)
+    h, r = float(R["height"]), float(R["rail"])
+    rail = sloped_box(mid, length, r, angle, z_start + h - r, z_start + h, z_end + h, z_end + h - r)
+    panel = sloped_box(mid, length, float(R["panel"]), angle, z_start + float(R["panel_bottom"]), z_start + h - r,
+                       z_end + h - r, z_end + float(R["panel_bottom"]))
+    post = geom2d.box((p0[0], p0[1], z_start + (h - r) / 2.0), (float(R["post"]), float(R["post"]), h - r), angle)
+    return [rail], [panel], [post]
+
+
 def wall_pieces(a, b, z: float, gz, floor: Optional[float] = None, piece_m: Optional[float] = None) -> list[dict]:
     """The retaining wall pieces along one platform edge (pure; round 3): the edge cut into pieces of at most
     ``piece_m`` (``PLATFORM["wall_piece_m"]``); a piece gets a wall when the ground along it lies more than
@@ -2297,8 +2497,14 @@ def wall_pieces(a, b, z: float, gz, floor: Optional[float] = None, piece_m: Opti
             continue
         z0 = min(z, min(zs)) - below
         z1 = max(z + lip, max(zs) + (lip if floor is not None else 0.1)) if rise > tol else z + lip
+        # 25 Oct 2026 (real04 ext_7: the cut wall beside the driveway read as a saw-tooth): a cut piece's top follows
+        # the ground from one end to the other (its ends' ground + 0.1, never under the level + lip)
+        if rise > tol and floor is None:
+            ends = tuple(round(max(z + lip, gz(*q) + 0.1), 4) for q in (p0, p1))
+        else:
+            ends = (round(z1, 4), round(z1, 4))
         out.append({"p0": p0, "p1": p1, "zs": zs, "drop": round(drop, 4), "rise": round(rise, 4), "z0": round(z0, 4),
-                    "z1": round(z1, 4), "height_m": round(max(z, max(zs)) - min(z, min(zs)), 3),
+                    "z1": round(z1, 4), "z1_ends": ends, "height_m": round(max(z, max(zs)) - min(z, min(zs)), 3),
                     "to_band": floor is not None, "piece": j})
     return out
 
@@ -2374,6 +2580,63 @@ def railing_runs(a, b, i: int, pf: dict) -> list[tuple]:
     return out
 
 
+def up_flight(pf: dict, terrain: Optional[dict] = None, gz=None) -> Optional[dict]:
+    """The flight of steps up out of a sunken platform (``steps_dir: up``; pure, 25 Oct 2026): from the middle of its
+    steps edge out into the slope until the treads reach the ground. ``{"edge", "mid", "out", "count", "rise",
+    "length", "half_w", "footprint", "landing"}``: ``footprint`` is the flight with its cheek walls (a hole in the
+    ground), ``landing`` the ground point past its top step. None for any other platform."""
+    i = pf.get("steps_edge")
+    poly = pf.get("polygon") or []
+    if pf.get("steps_dir") != "up" or i is None or len(poly) < 3 or pf.get("sloped"):
+        return None
+    if gz is None:
+        if terrain is None:
+            return None
+        gz = lambda x, y: ground_z(terrain, x, y)          # noqa: E731
+    a, b = poly[i], poly[(i + 1) % len(poly)]
+    length = G.distance(a, b)
+    if length <= 1e-6:
+        return None
+    ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+    out = (uy, -ux)                                          # counter-clockwise: the right side is outside
+    mid = G.segment_midpoint(a, b)
+    z, tread = float(pf["z"]), PLATFORM["step_tread"]
+    count = 1
+    for _ in range(4):                                       # the ground rises further out: settle the count
+        d = count * tread
+        g = gz(mid[0] + out[0] * d, mid[1] + out[1] * d)
+        count = max(1, min(12, int(math.ceil((g - z) / PLATFORM["step_rise"] - 1e-9))))
+    d = count * tread
+    rise = max(PLATFORM["level_tol"], gz(mid[0] + out[0] * d, mid[1] + out[1] * d) - z)
+    half_w = PLATFORM["step_width"] / 2.0
+    t = PLATFORM["wall_t"]
+    return {"edge": i, "mid": mid, "out": out, "count": count, "rise": round(rise, 3), "length": round(d, 3),
+            "half_w": half_w, "footprint": _rect_along(mid, out, 0.0, d, half_w + t),
+            "landing": (mid[0] + out[0] * (d + 0.6), mid[1] + out[1] * (d + 0.6)), "span": (length / 2.0 - half_w - t,
+                                                                                            length / 2.0 + half_w + t)}
+
+
+def up_flight_parts(fl: dict, z: float, gz) -> tuple[list, list]:
+    """``(steps, cheeks)`` meshes of an up flight (pure): ``count`` treads rising from the platform to the ground and
+    a cheek wall on each side holding the slope back, its top 0.1 m over the ground."""
+    mid, out, n, tread = fl["mid"], fl["out"], fl["count"], PLATFORM["step_tread"]
+    r = fl["rise"] / n
+    below, t = PLATFORM["below"], PLATFORM["wall_t"]
+    steps = [geom2d.prism(_rect_along(mid, out, (j - 1) * tread, j * tread, fl["half_w"]), z - below, z + j * r)
+             for j in range(1, n + 1)]
+    cheeks = []
+    side = (-out[1], out[0])
+    angle = math.degrees(math.atan2(out[1], out[0]))
+    for sgn in (-1.0, 1.0):
+        off = sgn * (fl["half_w"] + t / 2.0)
+        p0 = (mid[0] + side[0] * off, mid[1] + side[1] * off)
+        p1 = (p0[0] + out[0] * fl["length"], p0[1] + out[1] * fl["length"])
+        c = G.segment_midpoint(p0, p1)
+        cheeks.append(sloped_box(c, fl["length"], t, angle, z - below, max(z + 0.05, gz(*p0) + 0.1),
+                                 max(z + fl["rise"] + 0.05, gz(*p1) + 0.1)))
+    return steps, cheeks
+
+
 def platform_parts(pf: dict, terrain: dict) -> list[dict]:
     """The meshes of one platform (pure): ``[{"part": slab | wall | kerb | steps | railing, "verts", "faces"}]``.
     The slab is a closed block from ``PLATFORM["below"]`` under its lowest ground (or ``bottom_z``: a band's slab
@@ -2385,7 +2648,7 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
     or a sloped area; the flight of steps on ``steps_edge`` down to the ground (or the band); a railing (rail and
     panel, ``shell.railing_parts``) on the ``railing_edges`` of a terrace or pool deck that is not a band. The
     ``wall`` part carries ``walls``: ``[{edge, height_m, z0, z1}]`` (the visible height over the floor)."""
-    from wenart.blender.shell import railing_parts, railing_posts
+    from wenart.blender import details as D
 
     poly = geom2d.ccw(pf["polygon"])
     z = float(pf["z"])
@@ -2407,6 +2670,11 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
         out.append({"part": "slab", "verts": v, "faces": f})
     tol = PLATFORM["level_tol"]
     walls, kerbs, steps, rails, panels, wall_recs = [], [], [], [], [], []
+    flight = up_flight(pf, terrain)
+    if flight is not None and flight["edge"] not in shared:
+        st, ch = up_flight_parts(flight, z, lambda x, y: ground_z(terrain, x, y))
+        steps += st
+        walls += ch
     for i in range(n):
         if i in shared:
             continue
@@ -2420,16 +2688,35 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
         angle = G.segment_angle_deg(a, b)
         if not pf.get("sloped"):
             # the wall in pieces that follow the ground (wall_pieces); pieces overlap by the thickness, every
-            # second one 2 mm thicker (no coplanar faces)
-            pieces = wall_pieces(a, b, z, lambda x, y: ground_z(terrain, x, y), floors.get(i))
+            # second one 2 mm thicker (no coplanar faces); an up flight's edge has a gap for the flight
+            gzf = lambda x, y: ground_z(terrain, x, y)          # noqa: E731
+            if flight is not None and i == flight["edge"]:
+                s0, s1 = flight["span"]
+                pieces = [dict(pc, piece=pc["piece"] + 100 * k) for k, (q0, q1) in
+                          enumerate(((a, G.point_along_segment(a, b, max(0.0, s0) / length)),
+                                     (G.point_along_segment(a, b, min(length, s1) / length), b)))
+                          for pc in wall_pieces(q0, q1, z, gzf, floors.get(i))]
+            else:
+                pieces = wall_pieces(a, b, z, gzf, floors.get(i))
             t = PLATFORM["wall_t"]
             for piece in pieces:
                 pm = G.segment_midpoint(piece["p0"], piece["p1"])
                 reach = G.distance(piece["p0"], piece["p1"]) + t
-                c = (pm[0] + nx * (t / 2.0 + 0.001), pm[1] + ny * (t / 2.0 + 0.001), (piece["z0"] + piece["z1"]) / 2.0)
-                walls.append(geom2d.box(c, (reach, t + 0.002 * (piece["piece"] % 2), piece["z1"] - piece["z0"]), angle))
+                c = (pm[0] + nx * (t / 2.0 + 0.001), pm[1] + ny * (t / 2.0 + 0.001))
+                walls.append(sloped_box(c, reach, t + 0.002 * (piece["piece"] % 2), angle, piece["z0"],
+                                        *piece.get("z1_ends", (piece["z1"], piece["z1"]))))
                 wall_recs.append({"edge": i, "piece": piece["piece"], "height_m": piece["height_m"], "z0": piece["z0"],
                                   "z1": piece["z1"], "to_band": piece["to_band"]})
+                if piece["rise"] > GUARD_RISE_M and not piece["to_band"]:
+                    # 25 Oct 2026: the ground over a wall taller than the cap (no band fits there, e.g. a driveway
+                    # beside a sunken pool deck) is a fall into the deck: a guard on the wall top
+                    off = t / 2.0
+                    ga = (piece["p0"][0] + nx * off, piece["p0"][1] + ny * off)
+                    gb = (piece["p1"][0] + nx * off, piece["p1"][1] + ny * off)
+                    rl, pn, po = guard_parts(ga, gb, *piece["z1_ends"])
+                    rails += rl + po
+                    panels += pn
+                    wall_recs[-1]["guard"] = True
         if pf.get("edge") == "kerb" or pf.get("kind") in ("parking", "path"):
             kh, kw = PLATFORM["kerb_h"], PLATFORM["kerb_w"]
             if pf.get("sloped"):
@@ -2441,20 +2728,23 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
                     # each piece reaches down to 2 cm under the lowest ground of its footprint (the piece's ends
                     # with the kw/2 overlap, on both faces), its top kh over the highest
                     ends = [(p0[0] - ux * kw / 2.0, p0[1] - uy * kw / 2.0), (p1[0] + ux * kw / 2.0, p1[1] + uy * kw / 2.0)]
-                    g = [ground_z(terrain, *m2)] + [ground_z(terrain, q[0] + nx * off, q[1] + ny * off)
-                                                    for q in ends for off in (0.0, kw)]
-                    zt, zb = max(g) + PAVING_LIFT + kh, min(g) - 0.02
-                    kerbs.append(geom2d.box((m2[0] + nx * kw / 2.0, m2[1] + ny * kw / 2.0, (zt + zb) / 2.0),
-                                            (G.distance(p0, p1) + kw, kw, zt - zb), angle))
+                    g_end = [[ground_z(terrain, q[0] + nx * off, q[1] + ny * off) for off in (0.0, kw)] for q in ends]
+                    g = [ground_z(terrain, *m2)] + g_end[0] + g_end[1]
+                    # 25 Oct 2026 (real04 ext_7: the kerb pieces read as teeth): the top follows the slope
+                    zb = min(g) - 0.02
+                    kerbs.append(sloped_box((m2[0] + nx * kw / 2.0, m2[1] + ny * kw / 2.0), G.distance(p0, p1) + kw,
+                                            kw, angle, zb, max(g_end[0]) + PAVING_LIFT + kh,
+                                            max(g_end[1]) + PAVING_LIFT + kh))
             else:
                 kerbs.append(geom2d.box((mid[0] + nx * kw / 2.0, mid[1] + ny * kw / 2.0, z + kh / 2.0 - 0.02),
                                         (length + kw, kw, kh + 0.04), angle))
         if i in (pf.get("railing_edges") or []) and pf.get("kind") in ("terrace", "pool") and not pf.get("parent"):
             for ra, rb in railing_runs(a, b, i, pf):
-                rail, panel = railing_parts(ra, rb, z)
-                rails += [rail] + railing_posts(ra, rb, z)
-                panels.append(panel)
-    if pf.get("steps_edge") is not None and not pf.get("sloped") and pf["steps_edge"] not in shared:
+                metal, panes = D.balustrade(ra, rb, z, 1.0, pf.get("balustrade") or D.DEFAULT_KIND)
+                rails += metal
+                panels += panes
+    if pf.get("steps_edge") is not None and not pf.get("sloped") and pf["steps_edge"] not in shared \
+            and pf.get("steps_dir") != "up":
         i = pf["steps_edge"]
         a, b = poly[i], poly[(i + 1) % n]
         length = G.distance(a, b)
@@ -2840,7 +3130,9 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
                             "reason": h["reason"] + f"; species {h['species']} "
                                       f"({'inferred' if h.get('species_inferred') else 'named'})"})
         if levers["platforms"]:
-            pfs = platforms(site, terrain, keep_out=[geom2d.ccw(outline)] + copy_holes)
+            pfs = platforms(site, terrain, keep_out=[geom2d.ccw(outline)] + copy_holes,
+                            facades=facade_openings(building, levels, outline, outlines),
+                            band_keep=hedge_keep_out(hedges))
             wells, gone = wells_on_platforms(wells, pfs)
             for w in gone:
                 assumed[:] = [a for a in assumed if a.get("field") != f"light_well:{w['opening_id']}"]
@@ -2958,7 +3250,8 @@ def ground_holes(plan: dict) -> list:
     pooled = {pid for pf in pfs for pid in pf.get("pools") or []}
     return [plan["outline"]] + [w["polygon"] for w in plan.get("wells") or []] + list(plan.get("copy_holes") or []) \
         + [p["polygon"] for p in plan.get("pools") or [] if p["id"] not in pooled] \
-        + [pf["polygon"] for pf in pfs if not pf.get("sloped")]
+        + [pf["polygon"] for pf in pfs if not pf.get("sloped")] \
+        + [fl["footprint"] for fl in (up_flight(pf, plan.get("terrain")) for pf in pfs) if fl is not None]
 
 
 def hedge_records(plan: dict, levers: Optional[dict] = None) -> list[dict]:
@@ -3203,12 +3496,17 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         step_mat = make_material(looks.get("steps") or looks["paving"])
         rail_mat = make_material(looks.get("railing") or {"material": SITE_FALLBACK_LOOKS["railing"], "colour": None})
         for pf in pfs:
-            slab_area = {"kind": "paving" if pf["kind"] in ("terrace", "pool", "path") else "parking",
-                         "id": pf["id"], "material": pf.get("material"), "colour": pf.get("colour")}
+            # 25 Oct 2026 (real04 ext_7: the stepped bands read as paved concrete boxes): a stepped band is a planted
+            # terrace of the garden, its top the garden's look
+            slab_area = {"kind": "grass" if pf.get("parent") else
+                         "paving" if pf["kind"] in ("terrace", "pool", "path") else "parking",
+                         "id": pf["id"], "material": None if pf.get("parent") else pf.get("material"),
+                         "colour": None if pf.get("parent") else pf.get("colour")}
             slab_look = area_look(slab_area, looks)
             mats = {"slab": make_material(slab_look), "wall": concrete, "kerb": concrete, "steps": step_mat,
                     "railing": rail_mat}
-            parts = platform_parts(pf, terrain)
+            parts = platform_parts(dict(pf, balustrade=plan.get("balustrade")) if plan.get("balustrade") else pf,
+                                   terrain)
             wall_part = next((q for q in parts if q["part"] == "wall"), None)
             built_walls = (wall_part or {}).get("walls") or []
             wall_max = max([w["height_m"] for w in built_walls] or [0.0])
@@ -3740,7 +4038,10 @@ def platforms_into_building(building: dict) -> dict:
     site = building.get("site") if isinstance(building.get("site"), dict) else None
     if site is None:
         return {"count": None, "ids": [], "kinds": {}}
-    pfs = json.loads(json.dumps(platforms(site, keep_out=building_keep_out(building))))
+    hedges = hedges_of(building, climate_of(building)["climate"], detect=site_levers()["hedge"])[0] \
+        if site_levers()["platforms"] else []
+    pfs = json.loads(json.dumps(platforms(site, keep_out=building_keep_out(building),
+                                          facades=building_facades(building), band_keep=hedge_keep_out(hedges))))
     site["platforms"] = pfs
     kinds: dict[str, int] = {}
     for pf in pfs:

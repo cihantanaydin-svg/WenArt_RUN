@@ -863,7 +863,7 @@ def test_a_camera_in_a_stair_well_is_not_picked_next_to_a_step(monkeypatch):
     by_yaw = {c["yaw"]: c for c in C.score_candidates(model, points, lens_mm=16.0)}
     pod = [by_yaw[180.0], by_yaw[330.0]]                         # the pod run's picks
     for c in pod:
-        assert c["shares"]["near"] < C.SCORE["blocked_near"] and c["shares"]["max_single"] < C.SCORE["blocked_single"]
+        # 25 Oct 2026: the stair's balusters are in the model too, so these views are blocked on more counts now
         assert c["shares"]["min_depth"] < C.SCORE["blocked_min_depth"] and c["blocked"], c["yaw"]
     fine = [_min_depth(building, C._plan(model, 1, c, warning, 16.0)) for c in pod]
     assert max(fine) < C.SCORE["blocked_min_depth"] and min(fine) < 0.1          # 0.108 and 0.082 m

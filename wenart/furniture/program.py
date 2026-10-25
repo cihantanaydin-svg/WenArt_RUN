@@ -317,11 +317,43 @@ def _rows(kind: str, area: float, polygon: Polygon, building: dict, room: dict, 
     return out
 
 
+# 25 Oct 2026 (user: "furniture groups are not sufficient"): a drawn group is completed with the accessories a
+# designer adds (CLAUDE.md: the AI adds the pieces the room type misses, never a second anchor): an extra option of
+# the room's size whose counts only add these types, take nothing away and leave the drawn anchor's size alone.
+ACCESSORY_TYPES = ("side_table", "floor_lamp", "potted_plant", "bench", "dresser", "armchair", "ottoman")
+
+
+def _accessory_option(group: str, opt: dict) -> bool:
+    if opt.get("sizes") or opt.get("partner_sizes") or opt.get("auto") is False:
+        return False                          # accessories add pieces; they never resize the anchor or the core
+    template = GR.load_groups()[group]
+    partners = {p["type"]: p for p in template.get("partners") or []}
+    core = [o for o in template["options"].values() if GR.is_core(o)]
+    for ftype, n in (opt.get("counts") or {}).items():
+        p = partners.get(ftype)
+        # the fewest of the type a core option leaves (the core options choose 0-2 armchairs, a bench or none)
+        base = min([int((o.get("counts") or {}).get(ftype)) for o in core if ftype in (o.get("counts") or {})]
+                   or [int((p or {}).get("default", (p or {}).get("max", 1)) or 0)])
+        if int(n) < base or (int(n) > base and ftype not in ACCESSORY_TYPES):
+            return False
+    return True
+
+
+def core_only(group: str, options: list[str]) -> list[str]:
+    """The core options of ``options`` (else ``options``): a drawn group re-solved as one unit is put right, not
+    accessorised in the same step."""
+    opts = GR.load_groups()[group]["options"]
+    return [o for o in options if o in opts and GR.is_core(opts[o])] or list(options)
+
+
 def drawn_options(group: str, options: list[str]) -> list[str]:
     """The options a drawn group is completed with: the core ones of ``options`` (else all core options of the
-    group); the extras (side tables, lamps, dressers ...) are never added to a drawn group."""
+    group) and, since 25 Oct 2026, the extras of ``options`` that only add accessories (``ACCESSORY_TYPES``: end
+    tables, a floor lamp, a plant, a bench, a dresser, an armchair) and keep the drawn anchor's size."""
     opts = GR.load_groups()[group]["options"]
-    return [o for o in options if o in opts and GR.is_core(opts[o])] or GR.core_options(group) or list(options)
+    core = [o for o in options if o in opts and GR.is_core(opts[o])] or GR.core_options(group) or list(options)
+    extra = [o for o in options if o in opts and not GR.is_core(opts[o]) and _accessory_option(group, opts[o])]
+    return list(dict.fromkeys(core + extra))
 
 
 def _core_rows(kind: str, area: float, polygon: Polygon, building: dict, room: dict,
@@ -589,6 +621,7 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
             rows.append(entry)
         entry["resolve"] = {"reason": reason, "anchor_id": anchor["id"], "members": list(g["members"]),
                             "centre": list(g["centre"]), "template": g["template"]}
+        entry["options"] = core_only(g["template"], entry["options"])   # a re-solve fixes the drawn group only
         entry["members"] = sorted(set(entry.get("members") or []) | set(g["members"]))
         entry["missing"] = GR._expected_missing(g["template"], anchor, [drawn[m] for m in entry["members"]
                                                                        if m in drawn], room, building)

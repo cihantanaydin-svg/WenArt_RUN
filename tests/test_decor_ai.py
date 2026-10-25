@@ -281,9 +281,12 @@ def test_rooms_without_agreement_or_answers_get_the_rules_with_the_reason():
     out, records = applied(b, choose())                                 # both passes answer nothing
     rec = records[0]
     assert rec.fallback == "the two passes agreed on no item"
-    rule = [d for d in out["decor"] if d["method"] == "rule"]
+    rule = [d for d in out["decor"] if d["method"] == "rule" and not str(d.get("reason", "")).startswith("styling")]
     expected, _row = D.rule_decor_room(b, b["rooms"][0], b["furniture"], lambda lv: "x")
     assert sorted(d["type"] for d in rule) == sorted(d["type"] for d in expected) and rule
+    # 25 Oct 2026: the room is then filled up to a styled living room's minimum from its empty slots
+    filled = [d for d in out["decor"] if str(d.get("reason", "")).startswith("styling")]
+    assert filled and len(rule) + len(filled) >= min(DA.ROOM_MIN["living"], len(rule) + len(records[0].slots))
     # No answers at all (the server never answered): the rules, each pass named.
     out, records = DA.apply(b, STYLE, {"answers": {}})
     assert records[0].fallback == "pass 1: not asked; pass 2: not asked"
@@ -463,3 +466,30 @@ def test_apply_keeps_the_solvers_rug_members_and_numbers_the_new_items_after_the
     off = copy.deepcopy(b)
     off["project"]["brief"] = {"decor": False}
     assert DA.apply(off, STYLE, {"answers": {}})[0]["decor"] == []
+
+
+def test_a_room_is_filled_up_to_its_styling_minimum_from_its_empty_slots():
+    """25 Oct 2026 (user: "there is not enough decor around"): after the AI's agreed items, a room below ROOM_MIN is
+    filled from its empty slots in FILL_ORDER, through the same checks; the AI's items stay."""
+    b = living()
+    out, records = applied(b, choose(("f_L0_002.centre", "vase", "terracotta")))
+    rec = records[0]
+    mine = [d for d in out["decor"] if d["room_id"] == rec.room_id]
+    ai = [d for d in mine if d["method"] == "ai"]
+    fill = [d for d in mine if str(d.get("reason", "")).startswith("styling")]
+    assert [d["type"] for d in ai] == ["vase"] and fill
+    assert not {d["slot"] for d in fill} & {d["slot"] for d in ai}      # the fill takes the empty slots only
+    assert len(mine) >= min(DA.ROOM_MIN["living"], len(rec.slots))
+    assert all(d["method"] == "rule" and d["confidence"] == 0.6 for d in fill)
+
+
+def test_a_long_top_is_styled_as_a_group_of_three():
+    """25 Oct 2026 (user: "there is not enough decor around"): a sideboard 1.2 m or longer gets three parts (the rule
+    of three); a short one keeps its two halves."""
+    long_ = {"id": "s", "type": "sideboard", "footprint": {"center": [0, 0], "size": [1.8, 0.45], "rotation_deg": 0}}
+    short = {"id": "t", "type": "sideboard", "footprint": {"center": [0, 0], "size": [1.0, 0.45], "rotation_deg": 0}}
+    parts = DA._top_parts(long_)
+    assert [p[0] for p in parts] == ["left", "middle", "right"]
+    assert [round(p[1][0], 3) for p in parts] == [-0.6, 0.0, 0.6] and all(p[2][0] < 0.6 for p in parts)
+    assert [p[0] for p in DA._top_parts(short)] == ["left", "right"]
+    assert DA.PART_PICK["left"][0] == "table_lamp" and DA.ROOM_MIN["living"] >= 8

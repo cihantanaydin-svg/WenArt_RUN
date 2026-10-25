@@ -152,12 +152,17 @@ CHECKLIST: dict[str, dict] = {
     "D2": {"what": "a wrong object: a model that is not what its type says (a blob as a throw, a street lamp, a "
                    "table lamp stretched into a floor lamp, a bench as a throw), or a crude low-poly model",
            "how": "V", "scope": "piece"},
+    # 25 Oct 2026 (user: "there is no taste in the furniture selection"): the piece that breaks the room's set
+    "D3": {"what": "a piece that does not go with the rest of the room: a third wood tone, a second metal finish, "
+                   "another design style (an ornate classic piece in a modern room) or a loud colour outside the "
+                   "brief's palette; name the one piece that clashes",
+           "how": "V", "scope": "piece"},
 }
 ROOM_CHECKS = ("R1", "R2", "R3", "R4", "R5", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "V1", "V2", "V3")
 EXTERIOR_CHECKS = ("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "V2", "V3")
 # Milestone 12 (§5.4 "vision only where it adds something"): the room critic is asked only what an image of the
 # render shows (looks, wrong objects, the room type, finishes, the camera), never what code measures.
-ROOM_LOOK_CHECKS = ("R1", "R4", "F1", "F9", "D1", "D2", "V1", "V2")
+ROOM_LOOK_CHECKS = ("R1", "R4", "F1", "F9", "D1", "D2", "D3", "V1", "V2")
 CODE_ONLY = tuple(k for k, v in CHECKLIST.items() if v["how"] == "C")
 
 CRITIC_SYSTEM = (

@@ -234,6 +234,7 @@ import hashlib
 import html
 import json
 import math
+import os
 import re
 import sys
 from collections import Counter
@@ -499,8 +500,13 @@ def diversity_steps(asset_id: str, used: Optional[dict]) -> int:
     return steps
 
 
+# 25 Oct 2026 (user on real04's roof terrace): outdoor models first in open-air rooms (wenart/blender/outdoor.py, which
+# the build's architect reads too); each grade adds OUTDOOR_STEPS size steps to the rank.
+from wenart.blender.outdoor import OPEN_AIR_ROOMS, OUTDOOR_STEPS, outdoor_grade  # noqa: E402
+
+
 def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = None,
-             prefs: Optional[dict] = None) -> tuple:
+             prefs: Optional[dict] = None, outdoor: bool = False, taste: Optional[dict] = None) -> tuple:
     """The order of a candidate on a ``width x depth`` footprint (lower first, docs/milestone8.md §1; Milestone 13
     K2): generated last, known units before normalised ones, the real-size step of the uniform scale plus the
     diversity penalty (``diversity_steps``), an audited real product (``real_product: true``) before the others of its
@@ -512,6 +518,11 @@ def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = Non
     known = units_known(entry)
     bucket = int(size_error(scales) / SIZE_BUCKET + 1e-9) if known else 0
     bucket += diversity_steps(entry["id"], used)
+    if outdoor:
+        bucket += OUTDOOR_STEPS * outdoor_grade(entry)
+    if taste:                                    # 25 Oct 2026: the room's set (wenart/furniture/taste.py)
+        from wenart.furniture.taste import TASTE_STEP
+        bucket += TASTE_STEP * int(taste.get(entry["id"], 0))
     real = 0 if entry.get("real_product") is True else 1
     pref = int((prefs or {}).get(entry["id"], 0) or 0)
     vq = vision_quality_of(entry)
@@ -521,8 +532,21 @@ def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = Non
 
 
 def rank_candidates(candidates: list[dict], width: float, depth: float, used: Optional[dict] = None,
-                    prefs: Optional[dict] = None) -> list[dict]:
-    return sorted(candidates, key=lambda e: rank_key(e, width, depth, used, prefs))
+                    prefs: Optional[dict] = None, outdoor: bool = False, taste=None) -> list[dict]:
+    """The candidates in rank order (``rank_key``). ``taste`` (25 Oct 2026): ``(cache, room set, target)`` of
+    ``wenart.furniture.taste``: the first ``TASTE_POOL`` of the order are ranked again with their taste steps."""
+    ordered = sorted(candidates, key=lambda e: rank_key(e, width, depth, used, prefs, outdoor))
+    if not taste:
+        return ordered
+    from wenart.furniture import taste as T
+    cache, room, target = taste
+    head = ordered[:TASTE_POOL]
+    pens = {e["id"]: T.steps(cache.get(e), room, target) for e in head}
+    head = sorted(head, key=lambda e: rank_key(e, width, depth, used, prefs, outdoor, pens))
+    return head + ordered[TASTE_POOL:]
+
+
+TASTE_POOL = 25                  # the candidates whose look is read (the cost of a first run is bounded)
 
 
 def ranking_reasons(tried: list[dict], chosen: dict) -> dict:
@@ -834,7 +858,7 @@ def _relaxed_caps(cap: float, uniform_range: tuple[float, float]) -> Optional[tu
 
 def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str], cap: float,
                 uniform_range: tuple[float, float], design: Optional[dict], *, used: Optional[dict] = None,
-                within_table: bool = False, ceiling: Optional[float] = None) -> dict:
+                within_table: bool = False, ceiling: Optional[float] = None, taste=None) -> dict:
     """The fit of one style family on the usable candidates: the bed rule, the style filter, the chaise side, the
     design as a preference (Milestone 13: models that cannot show it are listed under ``excluded`` with the reason
     and still tried after the ones that can), the rank order (``rank_key`` with the diversity penalty ``used``) and
@@ -864,7 +888,8 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
                 prefs[e["id"]] = 1
             else:
                 looks[e["id"]] = look
-    ordered = rank_candidates(candidates, width, depth, used, prefs)
+    taste = taste or (used or {}).get("taste")
+    ordered = rank_candidates(candidates, width, depth, used, prefs, bool(piece.get("open_air_room")), taste)
     tried = []
     heights = real_height_range(ftype)
     for rank, entry in enumerate(ordered, start=1):
@@ -1887,7 +1912,8 @@ def resolve_mode(building: dict, brief: Optional[dict], mode: Optional[str]) -> 
 
 def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                  style_family: Optional[str] = None, style: Optional[dict] = None, *, mode: Optional[str] = None,
-                 brief: Optional[dict] = None, settings=None, snap: Optional[bool] = None) -> dict:
+                 brief: Optional[dict] = None, settings=None, snap: Optional[bool] = None,
+                 assets_dir: Optional[Path] = None) -> dict:
     """A deep copy of ``building`` with ``asset`` set on every furniture piece and on every decor item (a library
     decor model, or None: parametric decor, no wall art). ``style_family`` (refit only): the library style filter of
     ``fit_piece`` and ``fit_decor_item``; ``style`` (refit only, Milestone 10): the profile whose looks the fit
@@ -1938,6 +1964,11 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     # fix round after P3 (module docstring): the drawn sinks and stoves inside the kitchen runs
     kitchen = kitchen_built_ins(fitted)
     by_id = {p.get("id"): p for p in fitted.get("furniture", [])}
+    room_types = {r.get("id"): str(r.get("room_type") or "").lower() for r in fitted.get("rooms") or []}
+    from wenart.furniture import taste as T
+    taste_cache = T.TasteCache(assets_dir) if assets_dir is not None else None
+    taste_target = T.targets(style) if taste_cache is not None else {}
+    taste_rooms: dict[str, dict] = {}
     planes_of: dict = {}             # fix round after P6a: the sloped ceiling of each level (made once per level)
 
     def ceiling_of(piece: dict) -> Optional[float]:
@@ -1950,6 +1981,8 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         frozen = {k: copy.deepcopy(piece.get(k)) for k in FROZEN_KEYS}
         room = str(piece.get("room_id") or "")
         used = {"project": used_project, "room": used_rooms.setdefault(room, Counter())}
+        if taste_cache is not None:          # 25 Oct 2026: the room's set of wood tones and metal (taste.py)
+            used["taste"] = (taste_cache, taste_rooms.setdefault(room, {}), taste_target)
         if built_into is not None:
             asset = built_in_fit(piece, built_into, mode, style_family)
         else:
@@ -1958,8 +1991,12 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
             # the run's hints reach its plan on a copy: the building piece never gets module_hints (FROZEN_KEYS,
             # assert_only_assets_changed); the asset keeps them beside the plan (furniture.module_plan_of)
             target = dict(piece, module_hints={**(piece.get("module_hints") or {}), **hints}) if hints else piece
+            if room_types.get(piece.get("room_id")) in OPEN_AIR_ROOMS:
+                target = dict(target, open_air_room=True)     # outdoor models first (a copy: the piece stays)
             asset = fit_piece(target, catalog, cap=cap, style_family=style_family, design=design or None, mode=mode,
                               used=used, style=style, ceiling=ceiling_of(piece))
+            if target.get("open_air_room") and asset.get("method") == "library":
+                asset["outdoor_grade"] = outdoor_grade(catalog.entry(asset.get("asset_id")) or {})
             if hints and asset.get("method") == MODULE_METHOD:
                 asset["module_hints"] = copy.deepcopy(hints)
             if piece.get("id") in split_first:
@@ -1975,6 +2012,11 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         if asset.get("method") == "library":
             used_project[asset["asset_id"]] += 1
             used["room"][asset["asset_id"]] += 1
+            if taste_cache is not None:
+                attrs = taste_cache.get(catalog.entry(asset["asset_id"]) or {})
+                if attrs:
+                    asset["taste"] = {k: attrs[k] for k in ("wood_tone", "metal", "loud", "main") if k in attrs}
+                    T.note(taste_rooms.setdefault(room, {}), attrs)
         # Milestone 12 (§4.8, §6.4): the library gap (type, style, what was used instead) is a finding on the piece
         if asset.get("library_gap"):
             piece["library_gap"] = dict(asset["library_gap"])
@@ -1985,7 +2027,10 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
                 raise RuntimeError(f"fit changed {key} of {piece['id']}")
 
     deferred = []
-    for piece in fitted.get("furniture", []):
+    order = list(fitted.get("furniture", []))
+    if taste_cache is not None:              # the anchors of a room first: the partners follow their look
+        order.sort(key=lambda p: (str(p.get("room_id") or ""), T.anchor_rank(str(p.get("type") or ""))))
+    for piece in order:
         if piece.get("id") in kitchen["sinks"]:
             deferred.append(piece)             # after its run: built in only when the run's plan holds it
             continue
@@ -1995,10 +2040,14 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         fit_one(piece, run if holds_built_in(run, piece["id"]) else None)
     for item in fitted.get("decor") or []:
         item["asset"] = fit_decor_item(item, catalog, style_family=style_family, mode=mode)
+    if taste_cache is not None:
+        taste_cache.save()
+        project["taste"] = {"target": {k: v for k, v in taste_target.items() if k != "palette"},
+                            "rooms": {r: dict(v) for r, v in sorted(taste_rooms.items()) if v}}
     return fitted
 
 
-PROJECT_FIT_KEYS = ("licence_mode", "licence_mode_source", "size_snap")
+PROJECT_FIT_KEYS = ("licence_mode", "licence_mode_source", "size_snap", "taste")
 SNAP_PIECE_KEYS = ("size_snap", "adjusted_by_ai", "footprint", "height") + tuple(k for k, _ in DRAWN_KEYS)
 
 
@@ -2399,6 +2448,8 @@ def main(argv=None) -> int:
     project_dir = project_dir_of(building, args.project)
     brief = BR.load_brief(project_dir) if project_dir is not None else None
     fitted = fit_building(building, catalog, style_family=family, style=profile if isinstance(profile, dict) else None,
+                          assets_dir=Path(args.assets) if args.assets and os.environ.get("WENART_TASTE", "1") != "0"
+                          else None,
                           mode=args.licence_mode, brief=brief)
     project = fitted.get("project") or {}
     print(f"licence mode: {project.get('licence_mode')} ({project.get('licence_mode_source')}); size snap "

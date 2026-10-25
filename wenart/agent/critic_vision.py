@@ -207,7 +207,7 @@ LIGHT_WORDS = re.compile(r"\b(?:lamps?|sconces?|chandeliers?|luminaires?|spotlig
                          r"(?:wall|ceiling|bedside|reading|wall-mounted|wall mounted|recessed|panel|strip)[ -]lights?|"
                          r"light[ -](?:fixtures?|fittings?|panels?))\b")
 LIGHT_TYPE_WORDS = ("lamp", "light", "sconce", "chandelier", "pendant")
-REROUTE_CHECKS = ("D2", "F1", "F9")
+REROUTE_CHECKS = ("D2", "D3", "F1", "F9")
 LIGHT_CAUSE = "light_fixture"               # = causes (no tool, REPORT_TO lighting)
 
 

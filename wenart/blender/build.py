@@ -883,7 +883,20 @@ def library_openings(building: dict, levels: list, prep: dict, brief, warnings: 
     return plan
 
 
-def prepare(building_all: dict, variant: str = "base", brief: dict | None = None) -> dict:
+def style_family_of(style_path) -> Optional[str]:
+    """The ``family`` of a style file (pure; None when there is none or it cannot be read): the architect's
+    balustrade kind follows it (``details.balustrade_kind``)."""
+    try:
+        data = json.loads(Path(style_path).read_text(encoding="utf-8")) if style_path else None
+    except (OSError, ValueError):
+        return None
+    if isinstance(data, list):
+        data = data[0] if data else None
+    return str(data.get("family")) if isinstance(data, dict) and data.get("family") else None
+
+
+def prepare(building_all: dict, variant: str = "base", brief: dict | None = None,
+            style_family: Optional[str] = None) -> dict:
     """What the build decides before Blender (pure; Milestone 10): the variant's building
     (``views.variant_building``), its ``views_for`` and ``variant_changes``, the brief values
     (``brief_args``), and for a whole building the slab plan, the roof model (``roof: null`` = an assumed flat
@@ -1023,6 +1036,7 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
     if out["whole"]:
         # 25 Oct 2026: the architect's review (wenart/blender/architect.py) asks its questions and fixes the plan
         from wenart.blender import architect as AR
+        out["style_family"] = style_family
         out["architect"] = AR.review(vb, out)
         # the openings the answers moved, resized or added, as built (the top-down labels draw them there)
         out["architect"]["openings_changed"] = [
@@ -1102,7 +1116,7 @@ def main(argv: list[str]) -> int:
     print(f"LIGHT_VARIANT build={levers['variant'] or 'none'} sun_wm2={levers['sun_wm2']} ev_cap={levers['ev_cap']} "
           f"rig={levers['rig']} shell={levers['shell']}")
     try:
-        prep = prepare(building_all, args.variant, brief)
+        prep = prepare(building_all, args.variant, brief, style_family=style_family_of(args.style))
     except KeyError as exc:
         print(f"--variant {args.variant}: {exc}")
         return 2
@@ -1380,7 +1394,9 @@ def main(argv: list[str]) -> int:
                 elif o["parapet_source"] != "drawn":
                     assumed.append({"object": ",".join(walls), "field": "parapet", "value": o["parapet_height"],
                                     "reason": reason, "parent": str(o.get("room_id") or o["id"]), "kind": "parapet"})
-            terrace_railings(roof, building, over, parapets, roof_col, library, manifest_objects, assumed)
+            from wenart.blender import details as DT
+            terrace_railings(roof, building, over, parapets, roof_col, library, manifest_objects, assumed,
+                             kind=DT.balustrade_kind(style))
             whole_info["roof"] = {"type": roof["type"], "planes_source": roof["planes_source"],
                                   "planes": roof["planes"], "derived_check": roof["derived_check"],
                                   "knee_wall_check": roof.get("knee_wall_check"), "profile": roof.get("profile"),
@@ -1391,6 +1407,8 @@ def main(argv: list[str]) -> int:
         if prep["site"] is not None:
             site_col = common.get_or_make_collection("site")
             extra_collections.append(site_col)
+            from wenart.blender import details as DT
+            prep["site"]["balustrade"] = DT.balustrade_kind(style)
             whole_info["site"] = S.build_site(prep["site"], site_col, looks,
                                               lambda look: shell.look_material(library, look), manifest_objects,
                                               assumed, glass=library.thin_glass())
@@ -1686,21 +1704,25 @@ def terrace_railing_runs(roof: dict, building: dict, level: dict, parapets: dict
 
 
 def terrace_railings(roof: dict, building: dict, level: dict, parapets: dict, collection, library,
-                     manifest_objects: list, assumed: list) -> list:
-    """The railing objects of ``terrace_railing_runs`` (bpy): rail, glass panel and posts, one object per opening
-    (kind ``railing``, assumed)."""
-    from wenart.blender import common, shell
+                     manifest_objects: list, assumed: list, kind: str = "glass_channel") -> list:
+    """The railing objects of ``terrace_railing_runs`` (bpy): a stone coping on the parapet and a balustrade on it
+    (``details.balustrade`` of ``kind``: 25 Oct 2026, user: "better finishes in the fences on top of the parapets"),
+    one object per opening (kind ``railing``, assumed; slots metal, glass, coping)."""
+    from wenart.blender import common
+    from wenart.blender import details as D
 
     runs = terrace_railing_runs(roof, building, level, parapets)
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == level["id"]}
     made = []
     for oid in sorted({r["opening_id"] for r in runs}):
         parts, slots = [], []
         for r in (x for x in runs if x["opening_id"] == oid):
-            cfg = {"height": r["height"], "panel_bottom": 0.02}
-            rail, panel = shell.railing_parts(r["p"], r["q"], r["z"], cfg)
-            posts = shell.railing_posts(r["p"], r["q"], r["z"], cfg)
-            parts += [rail] + posts + [panel]
-            slots += [0] * (len(rail[1]) + sum(len(f) for _v, f in posts)) + [1] * len(panel[1])
+            width = float((walls.get(r["wall_id"]) or {}).get("thickness") or 0.2)
+            cap = D.coping(r["p"], r["q"], r["z"], width)
+            z = r["z"] + D.DIMS["coping_t"]
+            metal, panes = D.balustrade(r["p"], r["q"], z, max(0.3, r["height"] - D.DIMS["coping_t"]), kind)
+            parts += metal + panes + [cap]
+            slots += [0] * sum(len(f) for _v, f in metal) + [1] * sum(len(f) for _v, f in panes) + [2] * len(cap[1])
         verts, faces = [], []
         for v, f in parts:
             base = len(verts)
@@ -1708,10 +1730,12 @@ def terrace_railings(roof: dict, building: dict, level: dict, parapets: dict, co
             faces += [[base + i for i in face] for face in f]
         name = f"roof_terrace_railing_{oid}"
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="railing",
-                                    status="assumed", materials=[library.get("steel_brushed"), library.thin_glass()],
+                                    status="assumed", materials=[library.get("steel_brushed"), library.thin_glass(),
+                                                                 library.get("concrete_polished")],
                                     face_material_indices=slots)
-        reason = (f"roof terrace {oid}: the parapet stops at the eaves line; a glass railing on it reaches the guard "
-                  f"height (not drawn)")
+        reason = (f"roof terrace {oid}: the parapet stops at the eaves line; a {D.DIMS['coping_t']:.2f} m coping on it "
+                  f"and a {kind.replace('_', ' ')} balustrade reach the guard height (not drawn; the kind follows the "
+                  f"style)")
         manifest_objects.append({"name": ob.name, "wenart_id": name, "kind": "railing", "status": "assumed",
                                  "level_id": level["id"], "element_id": oid, "evidence": [], "material": None,
                                  "textured": False, "pass_index": None, "assumed": {"detail": "terrace_railing",

@@ -48,6 +48,14 @@ SYSTEM = (
     "- Base every choice on the facts given, never on a guess; the reason is one sentence naming the deciding fact.")
 
 
+def system_prompt() -> str:
+    """``SYSTEM`` and what the user taught us (``architect_lessons.prompt_text``; 25 Oct 2026)."""
+    from wenart.blender import architect_lessons as LS
+
+    extra = LS.prompt_text()
+    return SYSTEM + ("\n" + extra if extra else "")
+
+
 def schema(keys: list[str], choices: list[str]) -> dict:
     return {"type": "object", "additionalProperties": False, "required": ["answers"],
             "properties": {"answers": {"type": "array", "items": {
@@ -167,7 +175,7 @@ def answer_open(project_out, model, *, brief: Optional[dict] = None, building_na
         part = todo[k:k + batch]
         keys = [q["key"] for q in part]
         choices = [o["choice"] for q in part for o in q["options"]]
-        reply = model.structured([{"role": "system", "content": SYSTEM},
+        reply = model.structured([{"role": "system", "content": system_prompt()},
                                   {"role": "user", "content": prompt(part, building, plan)}],
                                  schema(keys, choices), call_id=f"architect_{k // batch + 1}", name="architect",
                                  kind="task")

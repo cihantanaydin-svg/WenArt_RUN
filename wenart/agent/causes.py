@@ -405,7 +405,7 @@ CHECK_CAUSE: dict[str, str] = {
     "V1": "interior_camera", "V2": "render_match", "V3": "debug_marker", "V4": "polish",
     "L1": "entrance", "L2": "entrance", "L3": "terrain", "L4": "levels", "L5": "entrance", "L6": "terrain",
     "L7": "exterior_camera",
-    "D1": "decor_look", "D2": "wrong_model",
+    "D1": "decor_look", "D2": "wrong_model", "D3": "wrong_model",
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",

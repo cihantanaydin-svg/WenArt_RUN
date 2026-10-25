@@ -187,6 +187,9 @@ def steps_landing(pf: dict) -> Optional[tuple[float, float]]:
     poly = pf.get("polygon") or []
     if i is None or len(poly) < 3:
         return None
+    if pf.get("steps_dir") == "up":                      # a flight up out of a sunken deck lands on the slope above
+        land = (pf.get("flight") or {}).get("landing")
+        return (float(land[0]), float(land[1])) if land else None
     a, b = poly[i], poly[(i + 1) % len(poly)]
     length = G.distance(a, b)
     if length <= 1e-6:
@@ -310,6 +313,10 @@ def outside_access(pf: dict, site: dict) -> Optional[list[dict]]:
         return None
     if not paths or any(G.point_in_polygon(start, p["polygon"]) for p in paths):
         return []                                        # no paths to join (the garden is the way in), or on one
+    paved = [a for a in site.get("areas") or [] if a.get("kind") in ("parking", "paving") and a.get("id") != pf["id"]
+             and len(a.get("polygon") or []) >= 3]
+    if any(G.point_in_polygon(start, a["polygon"]) for a in paved):
+        return []                                        # the steps land on a driveway or another terrace
     route = access_path(start, path_targets(paths, half), site_keep_out(site, pf["id"]), half)
     if route is None:
         return None
@@ -982,6 +989,9 @@ def review(building: dict, prep: dict) -> dict:
     questions.append(review_falls(prep))
     graph = room_graph(building, sides)
     questions += RULES.review(building, prep, sides, graph, entrance_rooms(building, sides), _is_stair, _reach)
+    # 25 Oct 2026: the open-air rooms (terrace furniture, terrace doors) and the details (stairs, guards, balustrades)
+    from wenart.blender import architect_details as AD
+    questions += AD.review(building, prep, sides)
     if prep.get("site") is not None:
         questions += list(review_arrival(building, prep))
         levels = building.get("levels") or []
@@ -1058,7 +1068,8 @@ def status_of(a: dict) -> str:
 
 
 ORDER = ("B1", "B2", "A2", "A5", "E1", "C1", "C2", "T1", "T2", "L1", "W2", "L2", "W3", "P1", "R1", "R2", "R3", "R4",
-         "R5", "O1", "D1", "D2", "X1", "F5", "F1", "F2", "F3", "F4", "S1", "A3", "A4", "A1", "G1")
+         "R5", "O1", "D1", "D2", "D3", "X1", "F5", "F1", "F2", "F3", "F4", "U1", "S4", "S2", "S3", "K1", "K2", "K3",
+         "S1", "A3", "A4", "A1", "G1")
 
 
 def summary(questions: list[dict], applied: Optional[Sequence[dict]] = None) -> dict:
@@ -1164,5 +1175,8 @@ def report_md(review_rec: dict, project: str = "") -> str:
         lines.append(f"- **{q['id']} {q['topic']}** ({q.get('severity', 'minor')}, {q['status']}): *{q['question']}*"
                      + (f" Why: {q['why']}." if q.get("why") else "")
                      + f" Asked of {c.get('asked', len(q['answers']))} element(s).")
+    # 25 Oct 2026: the user's requests and corrections as lessons, and how their rules came out here
+    from wenart.blender import architect_lessons as LS
+    lines += LS.report_md(review_rec)
     lines.append("")
     return "\n".join(lines)

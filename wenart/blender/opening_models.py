@@ -110,6 +110,67 @@ def glb_glass(path) -> Optional[bool]:
     return False
 
 
+GLAZED_DOOR_MIN_SHARE = 0.45     # a terrace or glazed door model is at least this much glass (25 Oct 2026)
+
+
+def _glb_json(path) -> Optional[dict]:
+    import struct
+
+    try:
+        with open(path, "rb") as f:
+            head = f.read(12)
+            if len(head) < 12 or head[:4] != b"glTF":
+                return None
+            n, kind = struct.unpack("<II", f.read(8))
+            if kind != 0x4E4F534A:                     # "JSON"
+                return None
+            return json.loads(f.read(n).decode("utf-8"))
+    except (OSError, ValueError, struct.error):
+        return None
+
+
+def _glass_material(m: dict) -> bool:
+    name = str(m.get("name") or "").lower()
+    if any(w in name for w in GLASS_NAME_WORDS):
+        return True
+    pbr = m.get("pbrMetallicRoughness") or {}
+    alpha = (pbr.get("baseColorFactor") or [1, 1, 1, 1])[3:4] or [1.0]
+    if m.get("alphaMode") == "BLEND" and float(alpha[0]) < 0.7:
+        return True
+    trans = ((m.get("extensions") or {}).get("KHR_materials_transmission") or {}).get("transmissionFactor")
+    return trans is not None and float(trans) > 0.5
+
+
+def glb_glass_share(path) -> Optional[float]:
+    """The share of a door or window model's face that is glass (pure: the GLB's JSON chunk; 25 Oct 2026, user on
+    real04's roof terrace door, a wood door with four small panes: "is the door to the terrace ok?"): the summed
+    face areas (the two largest sides of the box) of the glass primitives' position bounds over the model's. None
+    when the file cannot be read or holds no bounds."""
+    doc = _glb_json(path)
+    if doc is None:
+        return None
+    mats = doc.get("materials") or []
+    acc = doc.get("accessors") or []
+    glass, lo, hi = 0.0, [math.inf] * 3, [-math.inf] * 3
+    for mesh in doc.get("meshes") or []:
+        for prim in mesh.get("primitives") or []:
+            a = (prim.get("attributes") or {}).get("POSITION")
+            if a is None or a >= len(acc) or not acc[a].get("min") or not acc[a].get("max"):
+                continue
+            mn, mx = [float(v) for v in acc[a]["min"][:3]], [float(v) for v in acc[a]["max"][:3]]
+            lo = [min(x, y) for x, y in zip(lo, mn)]
+            hi = [max(x, y) for x, y in zip(hi, mx)]
+            m = prim.get("material")
+            if m is not None and m < len(mats) and _glass_material(mats[m]):
+                e = sorted((y - x for x, y in zip(mn, mx)), reverse=True)
+                glass += e[0] * e[1]
+    if not math.isfinite(lo[0]):
+        return None
+    e = sorted((y - x for x, y in zip(lo, hi)), reverse=True)
+    face = e[0] * e[1]
+    return None if face <= 0 else round(min(1.0, glass / face), 3)
+
+
 def _usable(entry: dict, mode: str) -> bool:
     from wenart.blender.site_models import MIN_VISION_QUALITY, vision_quality
 
@@ -253,6 +314,10 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
         cands = candidates(extras, category, mode)
         if assets_dir is not None and category in GLAZED:
             cands = [e for e in cands if glb_glass(Path(assets_dir) / str(e.get("glb") or "")) is not False]
+        if assets_dir is not None and category in ("glazed_door", "terrace_door"):
+            # a door to a terrace is mostly glass (a wood door with small panes is an inside or a front door)
+            share = {e.get("id"): glb_glass_share(Path(assets_dir) / str(e.get("glb") or "")) for e in cands}
+            cands = [e for e in cands if share[e.get("id")] is None or share[e.get("id")] >= GLAZED_DOOR_MIN_SHARE]
         if not cands:
             continue
         ranked = sorted(cands, key=lambda e: _rank_key(e, category, [sizes[i] for i in ids]))

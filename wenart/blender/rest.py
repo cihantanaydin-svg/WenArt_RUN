@@ -64,7 +64,12 @@ PARITY_DIRS = ((0.5773, 0.3141, 0.7536), (-0.4121, 0.6627, 0.6253), (0.2718, -0.
 AXIS_DIRS = ((1.0, 0.0, 0.0), (-1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0),
              (0.0, 0.0, -1.0))
 MAX_SAMPLES = 300                 # sample points of an item for the penetration test
-LEAN_DEG = 12.0                   # cushions lean 10-15 degrees on the back (§4.7)
+# 25 Oct 2026 (user: "pillows on top of the beds and sofas seem to be floating"): an upright 12-degree cushion standing
+# on the seat read as hovering; a styled cushion leans back 20 degrees on a sofa and 24 on a headboard and sinks a
+# little into the soft seat or mattress (within the soft penetration tolerance of S5)
+LEAN_DEG = 20.0
+HEADBOARD_LEAN_DEG = 24.0
+SOFT_SINK_M = 0.02
 BACK_PROBE_SHARES = (0.03, 0.15, 0.5, 0.85, 1.0)   # horizontal back rays at these shares of the item's height
 ARM_PROBE_SHARES = (0.1, 0.5)     # side rays at these shares of the item's height (an arm lower than its middle)
 SEAT_PROBE_SHARES = (0.30, 0.45, 0.60, 0.75)   # the seat is probed at these shares of the host depth from its front
@@ -653,6 +658,16 @@ def floor_rest(item_verts, floor_z: float) -> dict:
 # One decor item: place, build, measure, place once more, or not build (§4.7)
 # --------------------------------------------------------------------------
 
+def own_cushions(host: dict) -> bool:
+    """Whether a seat's or bed's model already has its cushions (the audit's ``has_cushions`` on a seat,
+    ``has_pillows`` / ``has_cushions`` on a bed; pure): decor cushions on it would lie on top of them (25 Oct 2026:
+    the decor stage judged the provisional model, the build the final one)."""
+    asset = host.get("asset") if isinstance(host.get("asset"), dict) else {}
+    if host.get("type") in BED_HOSTS:
+        return asset.get("has_pillows") is True or asset.get("has_cushions") is True
+    return asset.get("has_cushions") is True
+
+
 SOFT_DECOR: tuple[str, ...] = ("cushion", "throw")      # the median of the ray grid, not the highest hit
 SOFT_HOST_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bed_single",
                                     "bed_double", "bunk_bed", "crib")
@@ -666,7 +681,8 @@ def place_item(support: str, caster, host_fp: dict, center, size, rotation_deg: 
     board, or lying on a top, a seat or a mattress; None when the host offers no support there. Fix round after
     P4b: a ``headboard`` is searched in the bed's head half (``place_leaning(bed=True)``)."""
     if support in ("back", "headboard"):
-        return place_leaning(caster, host_fp, center, size, lean_deg or LEAN_DEG,
+        return place_leaning(caster, host_fp, center, size,
+                             lean_deg or (HEADBOARD_LEAN_DEG if support == "headboard" else LEAN_DEG),
                              turn_deg=float(rotation_deg) - float(host_fp["rotation_deg"]), attempt=attempt,
                              bed=support == "headboard")
     if support == "shelf":
@@ -707,6 +723,8 @@ def plan_decor(item: dict, host: dict, caster, local_verts, local_faces, support
         if pose is None:
             last = {"reason": f"no {support} found on the built host (attempt {attempt + 1})", "measured": None}
             continue
+        if soft_item and soft_host and item.get("type") == "cushion":
+            pose = dict(pose, z=float(pose["z"]) - SOFT_SINK_M, sink_m=SOFT_SINK_M)   # into the soft seat
         verts = local_verts
         if pose["size"][0] < w - 1e-9:                       # narrowed between the arms
             k = pose["size"][0] / w

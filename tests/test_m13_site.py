@@ -36,6 +36,7 @@ def assert_walls_within_cap_or_blocked(pfs) -> list:
     ``cap_exceeded`` names, each one where a stepped band had no room (``blocked_by``: another platform, the
     building, or band_max), so nothing over the cap is silent. Returns the exceedances ``[(id, edge, height, by)]``."""
     ids = {p["id"] for p in pfs}
+    hedge_ids = {f"hedge_{k:03d}" for k in range(1, 100)}          # a drawn hedge stops a band (25 Oct 2026)
     found = []
     for p in pfs:
         over = p.get("cap_exceeded") or []
@@ -44,7 +45,7 @@ def assert_walls_within_cap_or_blocked(pfs) -> list:
             assert max(c["height_m"] for c in over) == pytest.approx(p["wall_max_m"], abs=1e-3)
         blocked = {b["edge"]: b.get("by") for b in p.get("band_blocked") or []}
         for c in over:
-            assert c["blocked_by"] in ids | {"building", "keep_out", "band_max"}, (p["id"], c)
+            assert c["blocked_by"] in ids | hedge_ids | {"building", "keep_out", "band_max", "band_side"}, (p["id"], c)
             if not p.get("parent"):
                 assert blocked.get(c["edge"]) == c["blocked_by"], (p["id"], c, blocked)
             found.append((p["id"], c["edge"], c["height_m"], c["blocked_by"]))
@@ -314,15 +315,19 @@ def test_site_plan_of_real04_carries_hedges_platforms_species_and_the_levers(mon
     assert [h["id"] for h in sp["hedges"]] == ["hedge_001", "hedge_002", "hedge_003", "hedge_004"]
     assert len(sp["trees"]) == 19 and sp["climate"]["climate"] == "mediterranean"
     primary = [p for p in sp["platforms"] if not p.get("parent")]
-    assert sorted((p["id"], p["z"]) for p in primary) == [("sp_001", -3.0), ("sp_002", -1.4), ("sp_003", 1.55),
-                                                          ("sp_004", -0.2), ("spk_001", 0.75)]
+    # 25 Oct 2026: the terraces without a level mark take the floor their windows open over (the basement of each
+    # twin block: -3.00 m, and 0.00 m for the copy b2 raised 3 m), as the marked twin sp_001 does
+    assert sorted((p["id"], p["z"]) for p in primary) == [("sp_001", -3.0), ("sp_002", -3.0), ("sp_003", 0.0),
+                                                          ("sp_004", 0.0), ("spk_001", 0.75)]
+    assert all("the floor of L-1" in p["z_source"] for p in primary if p["id"] in ("sp_002", "sp_003", "sp_004"))
+    assert not any(w["opening_id"] == "win_L-1_004" for w in sp["wells"])        # no front court cut into the deck
     # round 3: the stepped terraces (bands) of the steep terraces, every wall within the retaining cap except where a
     # band had no room (recorded with what blocked it; review of round 3)
     bands = [p for p in sp["platforms"] if p.get("parent")]
     assert bands and {b["parent"] for b in bands} <= {"sp_001", "sp_002", "sp_003", "sp_004"}
     assert_walls_within_cap_or_blocked(sp["platforms"])
     assert next(p for p in sp["platforms"] if p["id"] == "spk_001")["sloped"]
-    assert {p["deck_z"] for p in sp["pools"]} == {-3.0, -1.4, 1.55, -0.2}
+    assert {p["deck_z"] for p in sp["pools"]} == {-3.0, 0.0}
     assert all(a.get("platform_id") for a in sp["areas"] if a["kind"] in ("paving", "parking"))
     assert {v["species"] for v in sp["species"].values()} == {"oleander"} and all(v["inferred"] for v in sp["species"].values())
     assert {v["size_class"] for v in sp["species"].values()} == {"shrub"}
@@ -675,7 +680,10 @@ def test_platforms_into_the_building_after_the_levels_and_the_cli(tmp_path):
     assert sum(rec["kinds"].values()) == rec["count"]
     BM.validate(building)                                  # the schema the lead added for the field
     # The same records as the build's site plan (the scene manifest's site.platforms), ids and levels.
-    plan = S.platforms(building["site"], keep_out=S.building_keep_out(building))      # the build's keep-out too
+    hedges = S.hedges_of(building, S.climate_of(building)["climate"])[0]
+    plan = S.platforms(building["site"], keep_out=S.building_keep_out(building),      # the build's keep-out too
+                       facades=S.building_facades(building),                         # and its floors (25 Oct 2026)
+                       band_keep=S.hedge_keep_out(hedges))                           # and the drawn hedges
     assert [(pf["id"], pf["z"], pf["kind"], pf["edge"]) for pf in plan] == \
         [(pf["id"], pf["z"], pf["kind"], pf["edge"]) for pf in pfs]
     # Idempotent: a second call replaces the list with the same records.
@@ -882,14 +890,22 @@ def test_round3_real04_platforms_step_down_with_no_wall_over_the_retaining_cap(m
             op = BB.prepare(ob, "base", None)
             if op["ground_outline"]:
                 assert same_outline(S.building_keep_out(ob)[0], op["ground_outline"]), name
-    for pfs in (S.platforms(b["site"], keep_out=keep), prep["site"]["platforms"]):
+    for pfs in (S.platforms(b["site"], keep_out=keep, facades=S.building_facades(b)), prep["site"]["platforms"]):
         primary = [p for p in pfs if not p.get("parent")]
         assert [p["id"] for p in primary] == ["sp_001", "sp_002", "sp_003", "sp_004", "spk_001"]
         bands = [p for p in pfs if p.get("parent")]
         assert len(bands) >= 15 and all(p["kind"] == "terrace" and p["edge"] == "retaining" for p in bands)
         over = assert_walls_within_cap_or_blocked(pfs)
-        assert {(pid, edge, by) for pid, edge, _h, by in over} == {("sp_002", 15, "spk_001"), ("sp_004", 2, "spk_001")}
-        assert all(h < 1.6 for _pid, _e, h, _by in over)
+        # 25 Oct 2026: the pool decks at the basement floor are held by the driveway's retaining wall (a guard on it)
+        # and the sides of the bands at sp_002's north end; nothing else passes the cap
+        assert {(pid, by) for pid, _e, _h, by in over} == {("sp_002", "spk_001"), ("sp_003", "spk_001"),
+                                                            ("sp_004", "spk_001"), ("sp_002_s1e4", "band_side"),
+                                                            ("sp_002_s1e5", "band_side")}
+        assert all(h < 2.6 for _pid, _e, h, _by in over)
+        walls = next(q for q in S.platform_parts(next(p for p in pfs if p["id"] == "sp_002"),
+                                                 prep["site"]["terrain"]) if q["part"] == "wall")["walls"]
+        assert any(w.get("guard") for w in walls) and all(w.get("guard") for w in walls
+                                                          if w["z1"] - w["z0"] > S.GUARD_RISE_M + S.PLATFORM["below"] + 0.2)
         sp1 = primary[0]
         assert sp1["against_edges"] == [0, 1, 12, 13, 14, 15, 16]          # drawn into the basement L-1
         assert {p["id"]: bool(p["against_edges"]) for p in primary} == \
@@ -936,7 +952,8 @@ def test_round3_real04_platforms_step_down_with_no_wall_over_the_retaining_cap(m
             # the box spans the piece's buried part and the lip; its visible face is height_m (wall_pieces)
             assert w["z1"] - w["z0"] <= w["height_m"] + S.PLATFORM["below"] + S.PLATFORM["lip"] + 0.1 + 1e-6
         if pf.get("parent"):
-            assert "railing" not in parts                      # bands carry no railing
+            # bands carry no railing, only the guard on a side wall that holds the ground over the cap (25 Oct 2026)
+            assert "railing" not in parts or any(w.get("guard") for w in parts["wall"]["walls"])
         if pf.get("steps_edge") is not None:
             assert pf["steps_edge"] not in pf["against_edges"]
     assert n_walls > 50 and max(heights) <= S.RETAINING_MAX_M + 1e-6 and to_band >= 10
@@ -1324,7 +1341,7 @@ def test_p3_trees_shrubs_and_hedges_stand_on_the_terrace_they_are_drawn_on(monke
         if pf is not None:
             on_band += 1
             assert S.tree_parts(t, real)["ground_z"] == pytest.approx(pf["z"]), t["id"]
-    assert on_band >= 5
+    assert on_band >= 1          # 25 Oct 2026: fewer bands since the terraces take their floor level
     # the camera model's obstacles stand where build_site builds them: every segment of hedge_003 (its fitted polyline)
     # tops out at sp_001's level + its height (the raw terrain gave -2.72 / -2.37 m tops there)
     model = E.build_model(vb, vb["levels"], prep["roof"], sp)

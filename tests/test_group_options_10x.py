@@ -100,8 +100,15 @@ def test_a_drawn_group_keeps_the_core_options():
     sofa = fp("s1", "sofa", (2.5, 0.5), (2.2, 0.9), 90.0)
     prog = PR.room_program(M.building(w=5.0, h=4.5, room_type="living", furniture=[sofa]), ROOM)
     (g,) = [g for g in prog["groups"] if g["anchor_id"] == "s1"]
-    assert g["drawn"] and g["options"] and all(GR.is_core(GR.load_groups()["seating"]["options"][o])
+    # 25 Oct 2026 (user: "furniture groups are not sufficient"): the core options and the accessory extras (end
+    # tables, a lamp, a plant: PR.ACCESSORY_TYPES) that keep the drawn sofa's size
+    opts = GR.load_groups()["seating"]["options"]
+    assert g["drawn"] and g["options"] and all(GR.is_core(opts[o]) or PR._accessory_option("seating", opts[o])
                                                 for o in g["options"])
+    assert not any(opts[o].get("sizes") for o in g["options"])
+    # a group re-solved as one unit (this sofa stands on a door strip) is put right with the core options only
+    assert g.get("resolve") and all(GR.is_core(opts[o]) for o in g["options"])
+    assert any(not GR.is_core(opts[o]) for o in PR.drawn_options("seating", list(opts)))
 
 
 def test_an_on_request_option_can_be_chosen():

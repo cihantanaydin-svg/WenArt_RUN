@@ -2236,6 +2236,12 @@ class Orchestrator:
         pr.parts.setdefault("agent", []).append({"name": "architect", "rc": 0, "seconds": round(self.now() - t0, 2)})
         self.out(f"{pr.name} architect AI: {rec['accepted']} of {rec['asked']} open question(s) answered "
                  f"({rec['refused']} refused, {rec['ask_user']} left for the user)")
+        # 25 Oct 2026: the user's lessons that no rule checks yet, judged by the AI on this building (never fatal)
+        try:
+            from wenart.agent import lessons as LS
+            LS.review_lessons(pr.out, model, out=self.out)
+        except Exception as exc:  # noqa: BLE001 - the lessons stay unchecked this run
+            self.out(f"{pr.name} architect lessons: {type(exc).__name__}: {exc}")
 
     def agent_note_after_final(self, pr: ProjectRun, note: Optional[str]) -> None:
         """Fix round after P6a (module docstring): the agent stage record of ``pr`` gets ``note`` (the loop's

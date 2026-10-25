@@ -145,6 +145,7 @@ from __future__ import annotations
 import math
 
 from wenart import geometry as G
+from wenart.blender import details as D
 from wenart.blender import geom2d
 from wenart.blender import parametric as P
 
@@ -1388,6 +1389,13 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             dlook = dict(dlook, door_style="glazed",
                          reason=dlook.get("reason", "") + "; glazed: " + opening["outside_door"]["reason"])
         wlook = window_frame_look(style, opening) if opening["type"] != "door" else None
+        if dlook is not None and opening.get("outside_door") and dlook.get("door_style") == "glazed":
+            # 25 Oct 2026 (user: "is the door to the terrace ok?"): a glazed terrace door is joinery of the facade:
+            # its frame takes the windows' frame finish, not the inside doors' wood
+            frame = window_frame_look(style, opening)
+            if isinstance(frame, dict) and frame.get("material"):
+                dlook = dict(dlook, **{k: frame[k] for k in ("material", "colour", "asset") if k in frame},
+                             reason=dlook.get("reason", "") + "; frame in the windows' finish")
         leaf_mat = look_material(library, dlook) if dlook is not None else None
         win_mat = look_material(library, wlook) if wlook is not None else None
         geo = {"centre": (cx, cy), "bottom": bottom, "width": width, "height": height, "thickness": thickness,
@@ -2489,10 +2497,12 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
         # fix round after P4b (17 Oct 2026): a smooth paint of the wall colour (STAIR_STRUCTURE_REASON)
         structure = slot_material(library, stair_structure_slot(walls_style), unverified=unverified)
         plan = stair_build_plan(plan, level_walls)          # fix round after P4b: the stair meets its walls
+        plan["balustrade"] = D.balustrade_kind(style)       # 25 Oct 2026: the balustrade follows the style
         verts, faces, slots, parts = stair_mesh(plan, floor_z)
         name = f"furn_{piece['id']}"
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=piece["id"],
-                                    kind="furniture", status=status, materials=[tread, structure, steel],
+                                    kind="furniture", status=status,
+                                    materials=[tread, structure, steel, library.thin_glass()],
                                     face_material_indices=slots)
         index = len(pass_indices) + 1
         pass_indices[piece["id"]] = index
@@ -3196,17 +3206,18 @@ def build_outside_details(building: dict, level: dict, collection, library, look
         if not edges:
             continue
         parts, slots = [], []
+        kind = D.balustrade_kind(style)
         for p, q in edges:
-            rail, panel = railing_parts(p, q, floor_z)
-            posts = railing_posts(p, q, floor_z)
-            parts += [rail, panel] + posts
-            slots += [0] * len(rail[1]) + [1] * len(panel[1]) + [0] * sum(len(f) for _v, f in posts)
+            metal, panes = D.balustrade(p, q, floor_z, RAILING["height"], kind)   # 25 Oct 2026: real balustrades
+            parts += metal + panes
+            slots += [0] * sum(len(f) for _v, f in metal) + [1] * sum(len(f) for _v, f in panes)
         verts, faces = geom2d.merge(parts)
         name = f"railing_{room['id']}"
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="railing",
                                     status="assumed", materials=[rail_mat, glass], face_material_indices=slots)
         ob.pass_index = 0
-        reason = f"balcony edge without a wall: a {RAILING['height']} m railing (height not drawn: assumed)"
+        reason = (f"balcony edge without a wall: a {RAILING['height']} m {kind.replace('_', ' ')} balustrade "
+                  f"(height not drawn: assumed; the kind follows the style)")
         manifest_objects.append({
             "name": ob.name, "wenart_id": name, "kind": "railing", "status": "assumed", "level_id": level["id"],
             "element_id": room["id"], "parent": room["id"], "evidence": [], "material": rail_mat.name,

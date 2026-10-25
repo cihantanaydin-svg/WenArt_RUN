@@ -113,7 +113,7 @@ GROUPS_CODE = ("wenart/furniture/groups.py", "wenart/furniture/groups.yaml", "we
                "wenart/furniture/program.py", "wenart/furniture/solver.py",
                "wenart/furniture/edit_ops.py", "wenart/furniture/fit.py", "wenart/furniture/layout.py",
                "wenart/furniture/complete.py", "wenart/furniture/locked.py", "wenart/furniture/prompts.py",
-               "wenart/assets/**")
+               "wenart/assets/**", "wenart/furniture/taste.py")    # 25 Oct 2026: fit.py's room set
 # catalog*.json: catalog.json and, once committed, catalog_objaverse.json (catalog.load merges it).
 FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
@@ -127,7 +127,8 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "
             # Milestone 12 (track G): the fit reads the groups (built pieces, group tags); groups reach the group
             # checks, plausibility, the inference and through it the ingest, the sheets and the levels.
             "wenart/furniture/infer.py", "wenart/furniture/plausibility.py", "wenart/ingest/**", "wenart/sheets/**",
-            "wenart/recognition/**", "wenart/brief.py", "wenart/defaults.yaml") + GROUPS_CODE + LEVELS_CODE
+            "wenart/recognition/**", "wenart/brief.py", "wenart/defaults.yaml",
+            "wenart/furniture/taste.py", "wenart/blender/outdoor.py") + GROUPS_CODE + LEVELS_CODE   # 25 Oct 2026
 # The pipeline (and pipeline_final): the vector, DXF/DWG and generic cores, the recognition questions and answers
 # (crops, size table, the two-pass rule, check.yaml's model ids and slugs) and the room-type table.
 PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",
@@ -167,7 +168,12 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/facade.py", "wenart/blender/opening_build.py", "wenart/blender/site_models.py",
              "wenart/blender/architect.py",              # 25 Oct 2026: site.railing_runs reads its step gap
              "wenart/blender/architect_actions.py", "wenart/blender/architect_rules.py",   # ... and its rules
-             "wenart/blender/clashes.py", "wenart/blender/parametric.py")    # F5: clashes, L-sofa parts
+             "wenart/blender/clashes.py", "wenart/blender/parametric.py",    # F5: clashes, L-sofa parts
+             # 25 Oct 2026: the balustrades, the coping and the stair details; the architect's terrace and detail
+             # questions (the outdoor grade of the fit)
+             "wenart/blender/details.py", "wenart/blender/architect_details.py", "wenart/furniture/fit.py",
+             "wenart/blender/architect_lessons.py", "wenart/blender/architect_lessons.json",
+             "wenart/furniture/taste.py", "wenart/blender/outdoor.py")
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height

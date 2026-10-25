@@ -174,4 +174,7 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   `/workspace/logs/`, idempotent, everything persistent under `/workspace`.
 - After every milestone: commit, push, update `docs/progress.md`.
 - Communication: simple English, short reports, tables for comparisons.
+- Every new request or correction of the user becomes a lesson (`python -m wenart.agent.lessons add "..."`,
+  `wenart/blender/architect_lessons.json`); the architect checks the lessons on every project (user request of 25 Oct
+  2026).
 - Today's date for this project: see the user's prompt (planning started 1 Oct 2026).

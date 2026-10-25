@@ -79,10 +79,11 @@ def test_cushion_rests_on_the_real_seat_against_the_real_back():
         m = plan["rest"]
         assert m["gap_m"] <= 0.010 and m["penetration_m"] <= 0.030 and m["support_share"] >= 0.8
         pose = plan["pose"]
-        assert pose["z"] == pytest.approx(0.48, abs=1e-3) and pose["lean_deg"] == 12.0      # the model's seat
-        assert "backrest found" in pose["how"]
+        # the model's seat, sunk SOFT_SINK_M into it (25 Oct 2026: a cushion standing on the seat read as floating)
+        assert pose["z"] == pytest.approx(0.48 - R.SOFT_SINK_M, abs=1e-3) and pose["lean_deg"] == 12.0
+        assert "backrest found" in pose["how"] and pose["sink_m"] == R.SOFT_SINK_M
         low = min(v[2] for v in plan["verts"])
-        assert low == pytest.approx(0.48, abs=2e-3)
+        assert low == pytest.approx(0.48 - R.SOFT_SINK_M, abs=2e-3)
         # its back touches the reclined back (within 2 cm) at the probe heights, never deeper than the soft limit
         local = [R.to_local(SOFA_FP["center"], 30.0, v[0], v[1]) + (v[2],) for v in plan["verts"]]
         for z in (0.55, 0.7):
@@ -142,7 +143,7 @@ def test_bed_cushions_rest_on_the_mattress_whatever_its_height(top):
     plan = R.plan_decor(item, piece("bed_double", BED_FP), caster, cushion["verts"], cushion["faces"], "headboard",
                         lean_deg=12.0)
     assert "not_rested" not in plan
-    assert plan["pose"]["z"] == pytest.approx(top, abs=1e-3) and plan["rest"]["gap_m"] <= 0.010
+    assert plan["pose"]["z"] == pytest.approx(top - R.SOFT_SINK_M, abs=1e-3) and plan["rest"]["gap_m"] <= 0.010
     old = {"center": item["center"], "z": 0.55, "rotation_deg": 90.0, "lean_deg": 0.0}
     m = R.measure_rest(R.pose_vertices(cushion["verts"], old), cushion["faces"], caster,
                        {"center": item["center"], "size": [0.5, 0.15], "rotation_deg": 90.0}, True)

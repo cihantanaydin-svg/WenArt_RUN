@@ -18,20 +18,25 @@ def test_the_ai_answers_are_checked_by_code_and_written_beside_the_building(tmp_
     b["project"]["source_folder"] = "projects/no_such_project"          # no user answers: the AI gets them all
     (tmp_path / "building_final.json").write_text(json.dumps(b), encoding="utf-8")
 
-    def reply(body):
-        text = body["messages"][-1]["content"]
-        assert "win_L0_005" in text and "outside_glass_m2" in text               # the element's facts are given
-        enum = body["response_format"]["json_schema"]["schema"]["properties"]["answers"]["items"]["properties"]
-        assert "ask_user" in enum["choice"]["enum"] and "W2:win_L0_005" in enum["key"]["enum"]
-        return {"answers": [
-            {"key": "W2:win_L0_005", "choice": "move_window_to_outer_wall", "reason": "the dark bedroom has no window"},
-            {"key": f"L1:{PLAY}", "choice": "keep", "reason": "fine"},             # major: keep is refused
-            {"key": f"L1:{PLAY}_2", "choice": "enlarge_windows", "reason": "1/25 of the floor is too dark"},
-            {"key": "X1:w_L1_005", "choice": "keep", "reason": "a thin wall onto the roof terrace"},
-            {"key": "C2:r_L-1_mutfak", "choice": "ask_user", "reason": "the drawing does not say"},
-            {"key": "W2:win_L0_006", "choice": "retype_room:storage", "reason": "not a choice of it"}]}
+    script = [
+        {"key": "W2:win_L0_005", "choice": "move_window_to_outer_wall", "reason": "the dark bedroom has no window"},
+        {"key": f"L1:{PLAY}", "choice": "keep", "reason": "fine"},             # major: keep is refused
+        {"key": f"L1:{PLAY}_2", "choice": "enlarge_windows", "reason": "1/25 of the floor is too dark"},
+        {"key": "X1:w_L1_005", "choice": "keep", "reason": "a thin wall onto the roof terrace"},
+        {"key": "C2:r_L-1_mutfak", "choice": "ask_user", "reason": "the drawing does not say"},
+        {"key": "W2:win_L0_006", "choice": "retype_room:storage", "reason": "not a choice of it"}]
 
-    model = MockModel(critic=[reply])
+    def reply(body):
+        enum = body["response_format"]["json_schema"]["schema"]["properties"]["answers"]["items"]["properties"]
+        assert "ask_user" in enum["choice"]["enum"]
+        if "W2:win_L0_005" in enum["key"]["enum"]:
+            text = body["messages"][-1]["content"]
+            assert "win_L0_005" in text and "outside_glass_m2" in text           # the element's facts are given
+        # the script answers the keys of this batch (25 Oct 2026: more rules, more batches)
+        return {"answers": [a for a in script if a["key"] in enum["key"]["enum"]
+                            and (a["choice"] in enum["choice"]["enum"])]}
+
+    model = MockModel(critic=[reply] * 12)
     rec = AI.answer_open(tmp_path, model, out=lambda s: None)
     by = {e["key"]: e for e in rec["entries"]}
     assert by["W2:win_L0_005"]["verdict"] == "accepted"
