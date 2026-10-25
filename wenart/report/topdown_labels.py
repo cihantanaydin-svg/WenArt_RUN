@@ -1,8 +1,8 @@
 """Room names on the top-down level views (``wenart/blender/topdown.py``; user request of 25 Oct 2026).
 
 ``python -m wenart.report.topdown_labels <building.json> <dir> [--out DIR]``: for every ``top_<level>.png`` with its
-``.frame.json`` in ``dir`` writes ``top_<level>.jpg`` with each room's name and type at its middle and a title bar
-(level, floor height, "ceilings off, north up")."""
+``.frame.json`` in ``dir`` writes ``top_<level>_plan.jpg`` with each room's name and type at its middle floor point
+(projected through the view's frame for an angled view) and a title bar (level, floor height, the view)."""
 from __future__ import annotations
 
 import argparse
@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+MAX_SIDE = 1400
 
 
 def label(building: dict, level_id: str, image: Path, out: Path) -> Path:
@@ -27,6 +28,14 @@ def label(building: dict, level_id: str, image: Path, out: Path) -> Path:
         font = big = ImageFont.load_default()
 
     def px(x, y):
+        if "right" in fr:                                  # the angled view: project the floor point
+            p = (x - fr["target"][0], y - fr["target"][1], float(fr["elevation"]) + 0.05 - fr["target"][2])
+            u = sum(a * b for a, b in zip(p, fr["right"]))
+            v = sum(a * b for a, b in zip(p, fr["up"]))
+            span = max(fr["umax"] - fr["umin"], fr["vmax"] - fr["vmin"])
+            uc, vc = (fr["umin"] + fr["umax"]) / 2.0, (fr["vmin"] + fr["vmax"]) / 2.0
+            scale = max(w, h) / span
+            return w / 2.0 + (u - uc) * scale, h / 2.0 - (v - vc) * scale
         return (x - fr["x0"]) / (fr["x1"] - fr["x0"]) * w, (fr["y1"] - y) / (fr["y1"] - fr["y0"]) * h
 
     for r in building.get("rooms") or []:
@@ -44,8 +53,13 @@ def label(building: dict, level_id: str, image: Path, out: Path) -> Path:
     level = next((lv for lv in building.get("levels") or [] if lv["id"] == level_id), None)
     floor = float(level["elevation"]) if level else float(fr.get("elevation") or 0.0)
     dr.rectangle((0, 0, w, int(w / 30) + 10), fill=(30, 30, 30))
-    dr.text((12, 6), f"{level_id}  floor {floor:+.2f} m  (ceilings off, north up)", font=big, fill=(255, 255, 255))
-    im.save(out, quality=88)
+    view = (f"seen from the south, {float(fr['tilt_deg']):g} deg from above" if fr.get("tilt_deg")
+            else "north up")
+    dr.text((12, 6), f"{level_id}  floor {floor:+.2f} m  (ceilings off, {view})", font=big, fill=(255, 255, 255))
+    if max(w, h) > MAX_SIDE:                       # the results copy keeps previews under 300 KB
+        k = MAX_SIDE / max(w, h)
+        im = im.resize((int(w * k), int(h * k)), Image.LANCZOS)
+    im.save(out, quality=82)
     return out
 
 
@@ -61,7 +75,7 @@ def main(argv=None) -> int:
     dst.mkdir(parents=True, exist_ok=True)
     for png in sorted(src.glob("top_*.png")):
         lid = png.stem[len("top_"):]
-        print(label(building, lid, png, dst / f"top_{lid}.jpg"))
+        print(label(building, lid, png, dst / f"top_{lid}_plan.jpg"))
     return 0
 
 

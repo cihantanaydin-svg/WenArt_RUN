@@ -394,6 +394,21 @@ export HF_HUB_OFFLINE=1       # every model is in HF_HOME now; nothing is fetche
 rc=0
 "$PY" -m wenart.run pod "${POD_ARGS[@]}" || rc=$?
 log "orchestrator exit $rc"
+# User request of 25 Oct 2026: angled top-down views of every level with the ceilings off and the room names
+# (wenart/blender/topdown.py, wenart/report/topdown_labels.py) into outputs/<p>/renders/top_<level>_plan.jpg, which
+# the results copy takes; a failure is a warning only. RUN_TOPDOWN=0 skips it.
+if [ "${RUN_TOPDOWN:-1}" != "0" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ]; then
+  read -r -a TOP_LIST <<< "${RUN_PROJECTS//,/ }"
+  for p in "${TOP_LIST[@]}"; do
+    scene="$WENART_OUTPUTS/$p/scene/scene.blend"
+    if [ ! -f "$scene" ]; then log "topdown $p: no scene.blend"; continue; fi
+    "$WENART_BLENDER" -b "$scene" -P wenart/blender/topdown.py -- --out "$WENART_OUTPUTS/$p/topdown" --device GPU \
+      --samples 48 > "$LOGS/topdown-$JOB-$p.log" 2>&1 \
+      && "$PY" -m wenart.report.topdown_labels "$WENART_OUTPUTS/$p/building_final.json" "$WENART_OUTPUTS/$p/topdown" \
+           --out "$WENART_OUTPUTS/$p/renders" >> "$LOGS/topdown-$JOB-$p.log" 2>&1 \
+      && log "topdown $p: done" || log "warning: topdown $p failed (see $LOGS/topdown-$JOB-$p.log)"
+  done
+fi
 # User request of 10 Oct 2026: the 3D files of the public projects to Google Drive (gpu_run.py --drive-upload passes
 # the RunPod secret rclone_conf); a failure is a warning only. Private projects never leave the volume this way.
 if [ "${DRIVE_UPLOAD:-0}" = "1" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ]; then

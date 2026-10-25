@@ -73,6 +73,28 @@ def test_drainage_answer_names_runs_without_a_pipe():
     assert AR.drainage_answer(None, [])["answers"][0]["found"].startswith("no gutter")
 
 
+def test_a_deck_reached_only_by_steps_gets_a_path_to_the_site_paths():
+    deck = {"id": "t1", "kind": "terrace", "polygon": SQUARE, "z": -1.0, "sloped": False, "pools": [],
+            "steps_edge": 0, "railing_edges": [], "edge_drops": {0: 0.3}}    # steps down the south edge (y = 0)
+    house = [[8.0, -10.0], [20.0, -10.0], [20.0, 10.0], [8.0, 10.0]]
+    site = {"platforms": [deck], "outline": house, "pools": [], "wells": [],
+            "areas": [{"id": "p0", "kind": "path", "polygon": [[-3.0, 12.0], [-1.8, 12.0], [-1.8, 30.0], [-3.0, 30.0]]}]}
+    landing = AR.steps_landing(deck)
+    assert abs(landing[0] - 3.0) < 1e-9 and landing[1] < 0                       # out from the middle of the edge
+    q = AR._q("A2")
+    AR._path_from_outside(deck, site, "terrace t1", q)
+    new = [a for a in site["areas"] if a["id"].startswith("path_access_t1")]
+    assert deck["outside_access"] == "path" and new and all(a["inferred"] for a in new)
+    for a in new:                                                               # around the deck, never over it
+        cx = sum(p[0] for p in a["polygon"]) / 4.0
+        cy = sum(p[1] for p in a["polygon"]) / 4.0
+        assert not (0.0 < cx < 6.0 and 0.0 < cy < 4.0)
+    walled = dict(site, outline=[[-20.0, -20.0], [20.0, -20.0], [20.0, -0.5], [-20.0, -0.5]], areas=site["areas"][:1])
+    q = AR._q("A2")
+    AR._path_from_outside(dict(deck, id="t2"), walled, "terrace t2", q)      # the landing lies in the house
+    assert q["status"] == "open"
+
+
 def test_real04_review_asks_and_fixes():
     from wenart.blender import build as BU
 
@@ -83,6 +105,13 @@ def test_real04_review_asks_and_fixes():
     decks = {pf["id"]: pf for pf in prep["site"]["platforms"]}
     assert all(AR.steps_open(decks[i]) for i in ("sp_001", "sp_002", "sp_003", "sp_004"))
     assert any(a["element"] == "win_L-1_003" and a.get("fixed") for a in by["A4"]["answers"])
-    assert by["A5"]["status"] in ("ok", "open")
+    # 25 Oct 2026: every deck is reached from outside by its steps and a path; no window is asked to become a door
+    assert all(decks[i].get("outside_access") in ("path", "on_path") for i in ("sp_001", "sp_002", "sp_003", "sp_004"))
+    assert by["A5"]["status"] == "ok" and not any(a.get("ask") for a in by["A5"]["answers"])
+    paths = [a for a in prep["site"]["areas"] if a["id"].startswith("path_access_")]
+    keep = AR.site_keep_out(prep["site"], "none")
+    assert paths and all(not any(S.G.point_in_polygon((sum(p[0] for p in a["polygon"]) / 4,
+                                                       sum(p[1] for p in a["polygon"]) / 4), k) for k in keep)
+                         for a in paths)
     md = AR.report_md(rec, "real04")
     assert md.startswith("# Architect's review: real04") and "How do people get" in md

@@ -45,9 +45,10 @@ QUESTIONS = (
     {"id": "A4", "topic": "light wells",
      "question": "Why does this basement window have a light well? Only where the ground outside stands above its "
                  "sill; a terrace below the sill lights it on its own."},
-    {"id": "A5", "topic": "doors to the decks",
-     "question": "This terrace lies at the floor level of the rooms beside it, right outside their windows: should "
-                 "one of those windows be a door? (The drawings decide; the architect asks you.)"},
+    {"id": "A5", "topic": "decks without a door",
+     "question": "This terrace lies at the floor level of the rooms beside it, right outside their windows, and no "
+                 "door opens onto it: can people still reach it from outside? (The drawn windows stay windows; only "
+                 "when no outside way exists does the architect ask you about a door.)"},
 )
 
 
@@ -107,6 +108,151 @@ def access_edge(platform: dict) -> Optional[int]:
     return min(cands)[2] if cands else None
 
 
+PATH_SAMPLE_M = 0.25            # a route is checked every this many metres
+PATH_TARGET_STEP_M = 0.5        # the points of an existing path a new path may join
+LANDING_M = 0.6                 # the new path starts this far past the last step
+
+
+def steps_landing(pf: dict) -> Optional[tuple[float, float]]:
+    """Where a platform's flight of steps lands on the ground (pure): past the last tread, out from the middle of the
+    steps edge."""
+    from wenart.blender.site import PLATFORM
+
+    i = pf.get("steps_edge")
+    poly = pf.get("polygon") or []
+    if i is None or len(poly) < 3:
+        return None
+    a, b = poly[i], poly[(i + 1) % len(poly)]
+    length = G.distance(a, b)
+    if length <= 1e-6:
+        return None
+    ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+    nx, ny = uy, -ux                                     # counter-clockwise polygon: the right normal points out
+    mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+    drop = float((pf.get("edge_drops") or {}).get(i, (pf.get("edge_drops") or {}).get(str(i), 0.3)) or 0.3)
+    count = max(1, int(math.ceil(drop / PLATFORM["step_rise"] - 1e-9)))
+    d = count * PLATFORM["step_tread"] + LANDING_M
+    return mid[0] + nx * d, mid[1] + ny * d
+
+
+def _free(pt, keep_out, half: float) -> bool:
+    """Whether a path point and its sides (``half`` either way, both axes) stay out of every keep-out polygon."""
+    for dx, dy in ((0.0, 0.0), (half, 0.0), (-half, 0.0), (0.0, half), (0.0, -half)):
+        q = (pt[0] + dx, pt[1] + dy)
+        if any(G.point_in_polygon(q, poly) for poly in keep_out):
+            return False
+    return True
+
+
+def _route_ok(points, keep_out, half: float) -> bool:
+    for a, b in zip(points, points[1:]):
+        length = G.distance(a, b)
+        n = max(1, int(length / PATH_SAMPLE_M))
+        for k in range(n + 1):
+            t = k / n
+            if not _free((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t), keep_out, half):
+                return False
+    return True
+
+
+def path_targets(paths: Sequence[dict], half: float) -> list[tuple[float, float]]:
+    """Points along the existing paths a new path may join (pure): a grid of ``PATH_TARGET_STEP_M`` inside each path
+    polygon, at least ``half`` - 0.2 m from its edge (its middle)."""
+    from wenart.blender import geom2d
+
+    out = []
+    for p in paths:
+        poly = p.get("polygon") or []
+        if len(poly) < 3:
+            continue
+        xs, ys = [q[0] for q in poly], [q[1] for q in poly]
+        x = min(xs)
+        while x <= max(xs):
+            y = min(ys)
+            while y <= max(ys):
+                if G.point_in_polygon((x, y), poly) and geom2d.distance_to_polygon_edges((x, y), poly) >= half - 0.2:
+                    out.append((x, y))
+                y += PATH_TARGET_STEP_M
+            x += PATH_TARGET_STEP_M
+    return out
+
+
+def access_path(start, targets, keep_out, half: float) -> Optional[list[tuple[float, float]]]:
+    """The shortest L-shaped route (two straight legs along the plan axes) from ``start`` to one of ``targets`` that
+    keeps out of ``keep_out`` (pure), or None."""
+    if not _free(start, keep_out, half):
+        return None
+    best = None
+    for t in targets:
+        for corner in ((start[0], t[1]), (t[0], start[1])):
+            pts = [start, corner, t]
+            length = G.distance(start, corner) + G.distance(corner, t)
+            if best is not None and length >= best[0]:
+                continue
+            if _route_ok(pts, keep_out, half):
+                best = (length, pts)
+    return best[1] if best else None
+
+
+def path_areas(pf_id: str, points, half: float, reason: str) -> list[dict]:
+    """The route as path areas of the site plan (one rectangle per leg, ``inferred``)."""
+    from wenart.blender.site import PAVING_LIFT
+
+    out = []
+    for k, (a, b) in enumerate(zip(points, points[1:])):
+        length = G.distance(a, b)
+        if length < 0.05:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        nx, ny = -uy, ux
+        a0 = (a[0] - ux * half, a[1] - uy * half)        # the legs overlap at the corner
+        b0 = (b[0] + ux * half, b[1] + uy * half)
+        poly = [(a0[0] + nx * half, a0[1] + ny * half), (a0[0] - nx * half, a0[1] - ny * half),
+                (b0[0] - nx * half, b0[1] - ny * half), (b0[0] + nx * half, b0[1] + ny * half)]
+        out.append({"id": f"path_access_{pf_id}_{k}", "kind": "path", "polygon": [list(p) for p in poly], "z": None,
+                    "material": None, "colour": None, "source": "assumed", "area_id": None, "lift": PAVING_LIFT,
+                    "inferred": True, "reason": reason})
+    return out
+
+
+def site_keep_out(site: dict, skip_id: str) -> list:
+    """What a new path keeps out of (pure): the building's ground outline, the other buildings, the pools, the light
+    wells and every flat platform but ``skip_id`` itself, its stepped bands included (a path on the ground never cuts
+    a band's retaining wall; a driveway's draped parking may be crossed)."""
+    keep = []
+    if len(site.get("outline") or []) >= 3:
+        keep.append(site["outline"])
+    keep += [h for h in site.get("copy_holes") or [] if len(h) >= 3]
+    keep += [p["polygon"] for p in site.get("pools") or [] if len(p.get("polygon") or []) >= 3]
+    keep += [w["polygon"] for w in site.get("wells") or [] if len(w.get("polygon") or []) >= 3]
+    for pf in site.get("platforms") or []:
+        if pf["id"] == skip_id or pf.get("kind") == "parking" or pf.get("sloped"):
+            continue
+        keep.append(pf["polygon"])
+    return keep
+
+
+def outside_access(pf: dict, site: dict) -> Optional[list[dict]]:
+    """A path from the foot of a deck's steps to the nearest path of the site (25 Oct 2026, user: "try to have an
+    access from the outside instead of including the door"), or None when the steps already land on a path or no
+    route keeps out of the house, the pools and the other terraces."""
+    from wenart.blender.site import INFERRED
+
+    half = INFERRED["path_width"] / 2.0
+    start = steps_landing(pf)
+    paths = [a for a in site.get("areas") or [] if a.get("kind") == "path"]
+    if start is None:
+        return None
+    if not paths or any(G.point_in_polygon(start, p["polygon"]) for p in paths):
+        return []                                        # no paths to join (the garden is the way in), or on one
+    route = access_path(start, path_targets(paths, half), site_keep_out(site, pf["id"]), half)
+    if route is None:
+        return None
+    reason = (f"architect A2: a path from the steps of {pf['id']} to the site's path "
+              f"({sum(G.distance(a, b) for a, b in zip(route, route[1:])):.1f} m; inferred)")
+    return path_areas(pf["id"], route, half, reason)
+
+
 def review_access(prep: dict, outer_doors: Sequence[dict]) -> dict:
     q = _q("A2")
     site = prep.get("site") or {}
@@ -120,6 +266,8 @@ def review_access(prep: dict, outer_doors: Sequence[dict]) -> dict:
             how = (f"door {', '.join(doors)} from the house" if doors else "") + \
                   (" and " if doors and before else "") + ("steps to the garden" if before else "")
             q["answers"].append({"element": pf["id"], "found": f"{name}: reached by {how}", "change": None})
+            if not doors:
+                _path_from_outside(pf, site, name, q)
             continue
         i = pf.get("steps_edge")
         if i is not None and not pf.get("sloped"):
@@ -145,9 +293,31 @@ def review_access(prep: dict, outer_doors: Sequence[dict]) -> dict:
                              f"steps", "change": change, "fixed": ok})
         if not ok:
             q["status"] = "open"
+        else:
+            _path_from_outside(pf, site, name, q)
     if any(a.get("change") for a in q["answers"]) and q["status"] == "ok":
         q["status"] = "fixed"
     return q
+
+
+def _path_from_outside(pf: dict, site: dict, name: str, q: dict) -> None:
+    """The deck's way in from outside (no door from the house): a path from its steps to the site's paths."""
+    areas = outside_access(pf, site)
+    if areas is None:
+        pf["outside_access"] = "steps"
+        q["answers"].append({"element": pf["id"], "found": f"{name}: its steps land on the garden, no path of the site "
+                             f"can be reached around the house, the pools and the terraces", "change": None,
+                             "open": True})
+        q["status"] = "open"
+        return
+    if not areas:
+        pf["outside_access"] = "on_path"
+        return
+    site.setdefault("areas", []).extend(areas)
+    pf["outside_access"] = "path"
+    pf.setdefault("architect", []).append({"question": "A2", "change": areas[0]["reason"]})
+    q["answers"].append({"element": pf["id"], "found": f"{name}: its steps led onto the lawn and nowhere else",
+                         "change": areas[0]["reason"].replace("architect A2: ", ""), "fixed": True})
 
 
 def review_deck_doors(building: dict, prep: dict, outer_doors: Sequence[dict], outer_windows: Sequence[dict]) -> dict:
@@ -170,15 +340,23 @@ def review_deck_doors(building: dict, prep: dict, outer_doors: Sequence[dict], o
             reach = float(r.get("half_t") or 0.1) + DOOR_PROBE_M
             if G.point_in_polygon((cx + ox * reach, cy + oy * reach), pf["polygon"]):
                 facing.append(r["opening"]["id"])
-        if facing:
-            name = f"{'pool deck' if pf.get('pools') else 'terrace'} {pf['id']}"
-            q["answers"].append({"element": pf["id"], "found": f"{name} lies at the {lv['id']} floor "
-                                 f"({float(pf['z']):+.2f} m) outside window(s) {', '.join(sorted(facing))}; no door "
-                                 f"opens onto it", "change": None, "open": True,
-                                 "ask": (f"Should window {facing[0]}" if len(facing) == 1 else
-                                         f"Should one of the windows {', '.join(sorted(facing))}")
-                                        + f" be a door to the {name}?"})
-            q["status"] = "open"
+        if not facing:
+            continue
+        name = f"{'pool deck' if pf.get('pools') else 'terrace'} {pf['id']}"
+        found = (f"{name} lies at the {lv['id']} floor ({float(pf['z']):+.2f} m) outside window(s) "
+                 f"{', '.join(sorted(facing))}; no door opens onto it")
+        # 25 Oct 2026 (user: "try to have an access from the outside instead of including the door"): the deck is
+        # reached from outside (A2: its steps and a path); the drawn windows stay windows
+        if pf.get("outside_access") in ("path", "on_path"):
+            q["answers"].append({"element": pf["id"], "found": found, "change": "reached from outside: its steps and "
+                                 "a path to the site's paths (A2); the windows stay as drawn"})
+            continue
+        q["answers"].append({"element": pf["id"], "found": found, "change": None, "open": True,
+                             "ask": f"no path from outside reaches the {name}: should the architect find another "
+                                    f"way, or should " + (f"window {facing[0]}" if len(facing) == 1 else
+                                                          f"one of the windows {', '.join(sorted(facing))}")
+                                    + " be a door?"})
+        q["status"] = "open"
     return q
 
 
