@@ -70,6 +70,9 @@ MAX_SAMPLES = 300                 # sample points of an item for the penetration
 LEAN_DEG = 20.0
 HEADBOARD_LEAN_DEG = 24.0
 SOFT_SINK_M = 0.02
+# a back that leaves no room for the full lean (a parametric sofa's upright back: 20 degrees cut it 0.096 m) takes the
+# next smaller lean before the cushion is given up
+LEAN_FALLBACK_DEG = (16.0, 12.0)
 BACK_PROBE_SHARES = (0.03, 0.15, 0.5, 0.85, 1.0)   # horizontal back rays at these shares of the item's height
 ARM_PROBE_SHARES = (0.1, 0.5)     # side rays at these shares of the item's height (an arm lower than its middle)
 SEAT_PROBE_SHARES = (0.30, 0.45, 0.60, 0.75)   # the seat is probed at these shares of the host depth from its front
@@ -718,25 +721,31 @@ def plan_decor(item: dict, host: dict, caster, local_verts, local_faces, support
         rot = host_fp["rotation_deg"]                    # a cushion faces the seat's front (B3 left turned items)
     center = item.get("center") or host_fp["center"]
     last = {"reason": "no support under the item", "measured": None}
+    leans = [lean_deg]
+    if support in ("back", "headboard") and not lean_deg:
+        first = HEADBOARD_LEAN_DEG if support == "headboard" else LEAN_DEG
+        leans = [first] + [a for a in LEAN_FALLBACK_DEG if a < first]
     for attempt in range(attempts):
-        pose = place_item(support, caster, host_fp, center, (w, d, h), rot, soft_item, lean_deg, shelf, attempt)
-        if pose is None:
-            last = {"reason": f"no {support} found on the built host (attempt {attempt + 1})", "measured": None}
-            continue
-        if soft_item and soft_host and item.get("type") == "cushion":
-            pose = dict(pose, z=float(pose["z"]) - SOFT_SINK_M, sink_m=SOFT_SINK_M)   # into the soft seat
-        verts = local_verts
-        if pose["size"][0] < w - 1e-9:                       # narrowed between the arms
-            k = pose["size"][0] / w
-            verts = [(x * k, y, z) for x, y, z in local_verts]
-        world = pose_vertices(verts, pose)
-        foot = {"center": list(pose["center"]), "size": [pose["size"][0], d], "rotation_deg": pose["rotation_deg"]}
-        m = measure_rest(world, local_faces, caster, foot, soft_host)
-        ok, why = rest_ok(m)
-        if ok:
-            return {"verts": world, "faces": [list(f) for f in local_faces], "pose": pose, "rest": m,
-                    "footprint": foot, "attempt": attempt + 1}
-        last = {"reason": "; ".join(why), "measured": m}
+        for lean in leans:
+            pose = place_item(support, caster, host_fp, center, (w, d, h), rot, soft_item, lean, shelf, attempt)
+            if pose is None:
+                last = {"reason": f"no {support} found on the built host (attempt {attempt + 1})", "measured": None}
+                break
+            if soft_item and soft_host and item.get("type") == "cushion":
+                pose = dict(pose, z=float(pose["z"]) - SOFT_SINK_M, sink_m=SOFT_SINK_M)   # into the soft seat
+            verts = local_verts
+            if pose["size"][0] < w - 1e-9:                       # narrowed between the arms
+                k = pose["size"][0] / w
+                verts = [(x * k, y, z) for x, y, z in local_verts]
+            world = pose_vertices(verts, pose)
+            foot = {"center": list(pose["center"]), "size": [pose["size"][0], d],
+                    "rotation_deg": pose["rotation_deg"]}
+            m = measure_rest(world, local_faces, caster, foot, soft_host)
+            ok, why = rest_ok(m)
+            if ok:
+                return {"verts": world, "faces": [list(f) for f in local_faces], "pose": pose, "rest": m,
+                        "footprint": foot, "attempt": attempt + 1}
+            last = {"reason": "; ".join(why), "measured": m}
     return {"not_rested": {"id": item.get("id"), "type": item.get("type"), "host_id": host.get("id"),
                            "support": support, "reason": last["reason"], "measured": last["measured"],
                            "attempts": attempts}}

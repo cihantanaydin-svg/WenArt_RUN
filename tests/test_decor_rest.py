@@ -327,3 +327,10 @@ def test_committed_parametric_hosts_before_and_after(project):
     if n == 0:
         pytest.skip("no cushion on a parametric seat or bed")
     assert before_fail >= 0.5 * n and after_ok == n, (n, before_fail, after_ok)
+
+
+def test_a_cushion_takes_a_smaller_lean_when_the_back_leaves_no_room_for_the_full_one():
+    """25 Oct 2026: a 20-degree cushion cut a parametric sofa's upright back by 0.096 m and was not built; the lean
+    falls back to 16, then 12 degrees before the cushion is given up."""
+    assert R.LEAN_DEG > R.LEAN_FALLBACK_DEG[0] > R.LEAN_FALLBACK_DEG[-1] >= 10.0
+    assert R.HEADBOARD_LEAN_DEG > R.LEAN_DEG
