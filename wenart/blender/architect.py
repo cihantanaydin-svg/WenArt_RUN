@@ -175,7 +175,9 @@ def review_deck_doors(building: dict, prep: dict, outer_doors: Sequence[dict], o
             q["answers"].append({"element": pf["id"], "found": f"{name} lies at the {lv['id']} floor "
                                  f"({float(pf['z']):+.2f} m) outside window(s) {', '.join(sorted(facing))}; no door "
                                  f"opens onto it", "change": None, "open": True,
-                                 "ask": f"Should one of {', '.join(sorted(facing))} be a door to {name}?"})
+                                 "ask": (f"Should window {facing[0]}" if len(facing) == 1 else
+                                         f"Should one of the windows {', '.join(sorted(facing))}")
+                                        + f" be a door to the {name}?"})
             q["status"] = "open"
     return q
 
