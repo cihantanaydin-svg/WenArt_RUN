@@ -1298,3 +1298,9 @@ Seen on the sheets: the bedroom now has two nightstands, a lamp, a rug and cushi
 kitchen had no decor at all (unverified rooms: fixed above, `decor.room_takes_decor`); the new glazed doors are a library
 model with a busy black-and-white pattern (open: the glazed-door choice ranks by glass share only); the exterior tree is
 a weaker generated tree than the olive of the run before (open); sun patches through openings clip white on the floor.
+
+Full CPU suite with Blender on the path (25 Oct 2026, after the fixes above): 5,868 passed, 20 failed. One was caused
+by the 20-degree cushion lean and is fixed (`rest.LEAN_FALLBACK_DEG`); the other 19 fail the same way on the code before
+the 25 Oct details (5178a81): Blender look / variants / render / site / m11 exterior / m5 e2e / run e2e / doors-windows
+tests left behind by earlier milestones' changes (ceiling material names, facade, roof ridges, pool coping, decor ids,
+A/B controls), the golden run plan and real04's sheets test. Open: bring those tests up to date.
