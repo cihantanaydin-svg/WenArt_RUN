@@ -120,5 +120,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-25 07:42 | jistoby2rzjqqt | NVIDIA GeForce RTX 5090 | 3 | 0.06 | fetch the job log of the failed real04 run 20261025-072303-full from the volume | unknown |
 | 2026-10-25 07:48 | jjblj3i82m7ibg | NVIDIA GeForce RTX 5090 | 3 | 0.06 | diagnostic: volume usage and the logs of the failed real04 job 20261025-072303-full (read only) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-25 07:57 | j6nus8t17xmlgy | NVIDIA GeForce RTX 5090 | 8 | 0.15 | volume: restore the repo, delete outputs-archive, old job folders and pip-cache (user OK 25 Oct 2026) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-25 08:41 | pending:20261025-084142-full | RTX PRO 6000 | 120 | 4.98 | real04 full run: the architect's rules on every element, the user's answers carried out (windows moved, play-room windows enlarged), the AI architect's answers, top-down views from the north-east with low walls; outputs restored from the set-aside repo (a move) | creating (provisional, worst case) |
 
-**Total spent so far: $222.24** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
+**Total spent so far: $227.22** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
