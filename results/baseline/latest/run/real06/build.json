@@ -1,0 +1,48 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real06",
+ "stage": "build",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 470.38,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "scene/scene.blend",
+  "scene/scene_manifest.json"
+ ],
+ "started_utc": "2026-10-24T05:46:00Z",
+ "git_commit": "36d1b2049d1c915e3c258dd1895bd22afb623c1a",
+ "log": "logs/build.log",
+ "note": null,
+ "run_id": "20261024-053145-full-20261024T053734Z",
+ "steps": [
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 171.28
+  },
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 97.08
+  },
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 101.11
+  },
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 98.82
+  },
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 2.09
+  }
+ ],
+ "written": {}
+}

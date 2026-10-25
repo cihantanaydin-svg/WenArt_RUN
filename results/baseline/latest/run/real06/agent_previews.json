@@ -1,0 +1,42 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real06",
+ "stage": "agent_previews",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 331.43,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "agent/previews/render_manifest.json"
+ ],
+ "started_utc": "2026-10-24T05:47:54Z",
+ "git_commit": "36d1b2049d1c915e3c258dd1895bd22afb623c1a",
+ "log": "logs/agent_previews.log",
+ "note": "7 view(s)",
+ "run_id": "20261024-053145-full-20261024T053734Z",
+ "steps": [
+  {
+   "name": "previews",
+   "rc": 0,
+   "seconds": 113.75
+  },
+  {
+   "name": "previews",
+   "rc": 0,
+   "seconds": 114.64
+  },
+  {
+   "name": "previews",
+   "rc": 0,
+   "seconds": 63.91
+  },
+  {
+   "name": "previews",
+   "rc": 0,
+   "seconds": 39.13
+  }
+ ],
+ "written": {}
+}

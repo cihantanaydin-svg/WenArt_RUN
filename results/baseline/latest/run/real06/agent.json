@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real06",
+ "stage": "agent",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 1121.3,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "orchestrator/log.json",
+  "orchestrator/log.md",
+  "orchestrator/overrides.json",
+  "orchestrator/memory.json",
+  "orchestrator/metrics.json"
+ ],
+ "started_utc": "2026-10-24T06:06:35Z",
+ "git_commit": "36d1b2049d1c915e3c258dd1895bd22afb623c1a",
+ "log": "logs/agent.log",
+ "note": "4 round(s), 34 finding(s) removed by 19 accepted edit(s) (measured; 29 predicted by the dry re-checks), 13 new, net 21, 71 rejected; stop: max rounds reached; final round for critical findings done",
+ "run_id": "20261024-053145-full-20261024T053734Z",
+ "steps": [
+  {
+   "name": "rounds",
+   "rc": 0,
+   "seconds": 1121.3
+  }
+ ],
+ "written": {}
+}

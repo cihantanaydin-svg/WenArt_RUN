@@ -1243,3 +1243,14 @@ The user's notes of 25 Oct 2026 and what changed (CPU only so far; the next real
 | "No taste in the furniture selection" | `wenart/furniture/taste.py`: every library model's wood tone, metal finish and colours are read from its GLB (cached on the volume); the fit fits a room's anchors first and ranks the rest by the room's set: one wood tone from the style and one contrast, one metal finish, loud colours only from the palette (design rules: 60-30-10, one dominant wood repeated, one metal per room). The vision critic gets D3 (a piece that does not go with the room: swap it). Architect S2. |
 | "Not enough decor; furniture groups are not sufficient" | Long tops (sideboard, console, dresser, TV unit) take a group of three; every room is filled up to a styled minimum (living 9, bedroom 7, dining 4, kitchen and hall 2) from its empty slots in a stylist's order. Drawn groups are completed with accessory options too (end tables, a floor lamp, a plant, a bench, a dresser), never a second anchor; a re-solved group keeps the core options. Architect S3, S4. |
 | "The architect should ask what I asked all along; use AI; keep developing" | `wenart/blender/architect_lessons.json`: 25 lessons from the user's requests and corrections, each with the rules that check it; architect.md gets "What the user taught me"; the AI architect's prompt carries them; on the pod the AI checks the lessons no rule covers yet (`orchestrator/architect_lessons.md`); `python -m wenart.agent.lessons add "<request>"` turns a new request into a lesson (with the agent model: a general lesson, its question and rules). |
+
+## Before / after against the latest run (25 Oct 2026)
+
+User rule of 25 Oct 2026: "From now on every run is against its latest run compare not according to milestones"
+(it replaces the Milestone 13 rule of 24 Oct 2026; `CLAUDE.md`, lesson UL26).
+
+| What | Change |
+|---|---|
+| which run is "before" | `wenart/report/latest.py`: the project's newest run older than the new one, from the runner's copies (`runs/<job>/results/final/<p>`, a fetch job's folder counts for the run it fetched; the most complete folder wins), the committed `results/baseline/latest/` and, when nothing newer is known, the Milestone 13 copy. A run without renders is skipped |
+| reports | `python -m wenart.report sheets13` / `metrics13` take it by default (`--baseline m13` on request); each sheet's labels name the two runs ("before: run 20261025-115105-full") |
+| keeping the latest run | `python -m wenart.report latest --out <run>/final/<p> --promote` copies the run into `results/baseline/latest/` (`runs.json` names it) after its report. Now there: real04 = job 20261025-115105-full, real06 = job 20261024-053145-full |

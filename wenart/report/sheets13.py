@@ -188,9 +188,10 @@ def caption_lines(caption: list[tuple[str, tuple]], width: float) -> list[tuple[
 
 
 def compose(before: Optional[Path], after: Optional[Path], caption: list[tuple[str, tuple]],
-            before_message: Optional[str] = None):
+            before_message: Optional[str] = None, labels: tuple[str, str] = ("before", "after")):
     """One sheet: before | after over a caption band (``caption``: (text, colour) entries, wrapped to the sheet's
-    width); ``before_message``: the grey tile's text when the before side has no preview."""
+    width); ``before_message``: the grey tile's text when the before side has no preview; ``labels``: the two tile
+    labels (25 Oct 2026: they name the two runs, "before: run <job>")."""
     from PIL import Image, ImageDraw
     left = _tile(before, "before", before_message)
     right = _tile(after, "after")
@@ -206,8 +207,8 @@ def compose(before: Optional[Path], after: Optional[Path], caption: list[tuple[s
     for text, colour in lines:
         draw.text((MARGIN, y), text, fill=colour, font=font)
         y += LINE_HEIGHT
-    _label(draw, (MARGIN, 8), "before", font)
-    _label(draw, (left.width + GAP + MARGIN, 8), "after", font)
+    _label(draw, (MARGIN, 8), labels[0], font)
+    _label(draw, (left.width + GAP + MARGIN, 8), labels[1], font)
     return sheet
 
 
@@ -277,8 +278,10 @@ def sheets(project_out, baseline_out, out_dir) -> dict:
     """Write one before | after JPEG per camera of the "after" run into ``out_dir``; returns
     ``{"sheets": {camera: file}, "missing_before": [cameras], "missing_after": [cameras], "baseline_only":
     [cameras], "before_left_out": [{camera, file, reason}], "index": "sheets13.md", "warnings": [...]}``."""
+    from wenart.report import latest as LT
     after = M.locate(project_out)
     before = M.locate(baseline_out)
+    labels = (f"before: {LT.label(baseline_out)}", f"after: {LT.label(project_out)}")
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     views_after = _view_map(after)
@@ -312,7 +315,7 @@ def sheets(project_out, baseline_out, out_dir) -> dict:
         message = ("before: no view of this camera in the baseline report (an earlier run's preview file in the "
                    "baseline folder is left out)" if stale is not None else
                    "before: no view of this camera in the baseline report" if cam not in views_before else None)
-        sheet = compose(pb, pa, caption, before_message=message)
+        sheet = compose(pb, pa, caption, before_message=message, labels=labels)
         name = f"{cam}{SUFFIX}"
         info = C.save_jpeg_under(sheet, out / name)
         written[cam] = name
@@ -325,6 +328,7 @@ def sheets(project_out, baseline_out, out_dir) -> dict:
     if not views_before:
         warnings.append("baseline: no final or render manifest lists a view, so no baseline preview is used")
     result = {"project": after.name, "project_out": str(after.root), "baseline_out": str(before.root),
+              "labels": list(labels),
               "sheets": written, "records": records, "missing_before": missing_before,
               "missing_after": missing_after, "baseline_only": baseline_only, "before_left_out": left_out,
               "index": INDEX_MD, "warnings": warnings}
@@ -335,7 +339,8 @@ def sheets(project_out, baseline_out, out_dir) -> dict:
 
 def index_markdown(result: dict) -> str:
     lines = [f"# Before | after sheets: {result['project']}", "",
-             f"After: `{result['project_out']}`; before: `{result['baseline_out']}`. One sheet per camera of the "
+             f"After ({(result.get('labels') or ['', 'after'])[1]}): `{result['project_out']}`; before "
+             f"({(result.get('labels') or ['before'])[0]}): `{result['baseline_out']}`. One sheet per camera of the "
              "after run (docs/milestone13.md §7, same views by camera name); the before image is used only for a "
              "camera the baseline report lists (fix round after P4a); the caption carries the commercial-safe line of "
              "each side.", ""]

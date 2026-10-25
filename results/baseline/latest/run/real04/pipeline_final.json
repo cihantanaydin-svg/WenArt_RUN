@@ -1,0 +1,55 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real04",
+ "stage": "pipeline_final",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 167.11,
+ "fingerprint": "ebad50c52812191390ad714e1c9e973de4cfe05fdeecfa8d27a30cfba5d607d6",
+ "inputs": {
+  "projects/real04": "a2e03d086e77a4bb6154e739028441055464f6152f2faa4abe8bbad4897f0574",
+  "outputs/real04/sheets/answers_qwen3-vl-8b.json": "640e0ef04e3612823e33776ea51e2aed11b31bc7bb6e65da1bf5960c780315af",
+  "outputs/real04/sheets/answers_glm-4.6v-flash.json": "b635d0004c9bfce591ed86deea8dca55fc12d46c3235488124e035e6fcf1201d",
+  "outputs/real04/sheets/answers_qwen3.8-27b-fp8.json": null,
+  "outputs/real04/sheets/answers_qwen3.6-35b-a3b-fp8.json": null,
+  "outputs/real04/sheets/answers_bakeoff.json": null,
+  "outputs/real04/recognition/answers_qwen3-vl-8b.json": "8a1938ef911fd650eae2da49f18521efbd60f244125bc259cc9f7a1a640a0d9f",
+  "outputs/real04/recognition/answers_glm-4.6v-flash.json": "ae9d07fe005f181c02677d17a3087733e21ef535dfd6ce6ee1e95f32b3db55b2",
+  "outputs/real04/recognition/answers_qwen3.8-27b-fp8.json": null,
+  "outputs/real04/recognition/answers_qwen3.6-35b-a3b-fp8.json": null,
+  "outputs/real04/recognition/answers_bakeoff.json": null,
+  "<LibreDWG VERSION>": "0.14 d9468ae p1"
+ },
+ "outputs": [
+  "sheets.json",
+  "building.json",
+  "report.md"
+ ],
+ "started_utc": "2026-10-25T12:02:28Z",
+ "git_commit": "d20ad5b9a2f62b3a4d5a54285c75abd780f67a9f",
+ "log": "logs/pipeline_final.log",
+ "note": "answers applied",
+ "run_id": "20261025-115105-full-20261025T115639Z",
+ "steps": [
+  {
+   "name": "sheets --answers",
+   "rc": 0,
+   "seconds": 51.95
+  },
+  {
+   "name": "pipeline_final",
+   "rc": 0,
+   "seconds": 113.73
+  },
+  {
+   "name": "site platforms",
+   "rc": 0,
+   "seconds": 1.43
+  }
+ ],
+ "written": {
+  "building.json": "06e3c01b885bca2b77a184306a30927da0d15f0d37825a3e0b749f71b86e3304",
+  "sheets.json": "6b7e30d0696ffc0de1ed880b0725427f26a641c3fd6447b6577819ab736dade1"
+ }
+}

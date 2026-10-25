@@ -1,9 +1,10 @@
 # Milestone 13 baseline (before / after rule of 24 Oct 2026)
 
 Your rule of 24 Oct 2026: "from now on every before after must be between ms 13 and other changes implemented".
-Every before / after (`python -m wenart.report sheets13` / `metrics13`) compares a project's Milestone 13 run
-(before) with the new run (after). Without `--baseline` both commands read the project's folder here
-(`final/<p>`), in the committed results layout (`furniture/`, `renders/`, `final/`, `agent/`, `run/`).
+Replaced by the rule of 25 Oct 2026 ("every run is against its latest run, not according to milestones"): the
+default "before" is now the project's latest run (`../latest/README.md`). These Milestone 13 runs are kept and
+used with `--baseline m13` when asked, or as the "before" when no later run of the project is known. Layout: the
+committed results layout (`furniture/`, `renders/`, `final/`, `agent/`, `run/`).
 
 | Project | Milestone 13 run here | Source |
 |---|---|---|

@@ -1,0 +1,8978 @@
+{
+ "schema_version": "0.1",
+ "scene": "../scene/scene.blend",
+ "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 256,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m13.5",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "auto",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  3.0
+ ],
+ "exposure_floor": {
+  "sun_wm2": 1000.0,
+  "reference_wm2": 3.0,
+  "shift_stops": 8.3808,
+  "view_limits": [
+   -10.3808,
+   3.0
+  ]
+ },
+ "white_balance_mode": "project",
+ "white_balance_project": {
+  "whitepoint": [
+   1.116705,
+   0.980228,
+   0.852212
+  ],
+  "from_camera": "cam_r_L0_mutfak_2",
+  "source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+  "residual": 0.35,
+  "metered_on": "cam_r_L0_mutfak_2",
+  "daylight_only": true,
+  "tried": [
+   "cam_r_L0_mutfak_1",
+   "cam_r_L0_mutfak_2",
+   "cam_r_L0_mutfak_3"
+  ],
+  "candidates": [
+   {
+    "camera": "cam_r_L0_mutfak_1",
+    "room_id": "r_L0_mutfak",
+    "daylight": true,
+    "sunlit": true,
+    "incident_p50": 0.334374,
+    "kelvin": 5158.0
+   },
+   {
+    "camera": "cam_r_L0_mutfak_2",
+    "room_id": "r_L0_mutfak",
+    "daylight": true,
+    "sunlit": true,
+    "incident_p50": 0.365925,
+    "kelvin": 5554.3
+   },
+   {
+    "camera": "cam_r_L0_mutfak_3",
+    "room_id": "r_L0_mutfak",
+    "daylight": true,
+    "sunlit": true,
+    "incident_p50": 0.346809,
+    "kelvin": 5575.3
+   }
+  ],
+  "rig_objects_hidden": 21,
+  "daylight_rooms": [
+   "r_L0_banyo",
+   "r_L0_mutfak",
+   "r_L0_salon",
+   "r_L1_banyo",
+   "r_L1_cocuk_odasi",
+   "r_L1_dus",
+   "r_L1_ebeveyn_y_odasi",
+   "r_L1_hol",
+   "r_L1_oda_2",
+   "r_L1_soyunma_odasi"
+  ],
+  "sunlit_rooms": [
+   "r_L0_mutfak",
+   "r_L0_salon",
+   "r_L1_cocuk_odasi",
+   "r_L1_dus",
+   "r_L1_ebeveyn_y_odasi",
+   "r_L1_hol",
+   "r_L1_soyunma_odasi"
+  ],
+  "daylight_camera": true,
+  "sunlit_camera": true,
+  "kelvin": 5554.3,
+  "tint": 5.28
+ },
+ "light_variant": {
+  "render": null,
+  "build": null
+ },
+ "lighting_dark": [],
+ "look_from": null,
+ "hidden": [],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "clamp": {
+  "direct": 0.0,
+  "indirect": 10.0
+ },
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "d_L0_001": 1,
+  "d_L0_002": 2,
+  "win_L0_001": 3,
+  "d_L0_003": 4,
+  "d_L0_004": 5,
+  "d_L0_005": 6,
+  "d_L0_006": 7,
+  "d_L0_007": 8,
+  "win_L0_002": 9,
+  "win_L0_003": 10,
+  "win_L0_004": 11,
+  "win_L0_005": 12,
+  "win_L0_006": 13,
+  "win_L0_007": 14,
+  "f_L0_004": 15,
+  "f_L0_005": 16,
+  "f_L0_006": 17,
+  "f_L0_007": 18,
+  "f_L0_008": 19,
+  "f_L0_009": 20,
+  "f_L0_012": 21,
+  "f_L0_016": 22,
+  "f_L0_017": 23,
+  "f_L0_018": 24,
+  "f_L0_019": 25,
+  "f_L0_020": 26,
+  "f_L0_021": 27,
+  "f_L0_022": 28,
+  "f_L0_023": 29,
+  "f_L0_024": 30,
+  "f_L0_025": 31,
+  "f_L0_026": 32,
+  "f_L0_028": 33,
+  "f_L0_031": 34,
+  "f_L0_033": 35,
+  "f_L0_034": 36,
+  "f_L0_035": 37,
+  "f_L0_036": 38,
+  "f_L0_037": 39,
+  "f_L0_038": 40,
+  "dec_L0_001": 41,
+  "f_L0_001": 42,
+  "d_L1_001": 43,
+  "d_L1_002": 44,
+  "win_L1_001": 45,
+  "d_L1_003": 46,
+  "d_L1_004": 47,
+  "d_L1_005": 48,
+  "d_L1_006": 49,
+  "d_L1_007": 50,
+  "d_L1_008": 51,
+  "d_L1_009": 52,
+  "d_L1_010": 53,
+  "d_L1_011": 54,
+  "win_L1_002": 55,
+  "win_L1_003": 56,
+  "win_L1_004": 57,
+  "win_L1_005": 58,
+  "win_L1_006": 59,
+  "win_L1_007": 60,
+  "win_L1_008": 61,
+  "win_L1_009": 62,
+  "win_L1_010": 63,
+  "win_L1_011": 64,
+  "f_L1_003": 65,
+  "f_L1_004": 66,
+  "f_L1_008": 67,
+  "f_L1_009": 68,
+  "f_L1_011": 69,
+  "f_L1_012": 70,
+  "f_L1_014": 71,
+  "f_L1_015": 72,
+  "f_L1_018": 73,
+  "f_L1_019": 74,
+  "f_L1_020": 75,
+  "f_L1_021": 76,
+  "f_L1_022": 77,
+  "f_L1_023": 78,
+  "f_L1_024": 79,
+  "f_L1_025": 80,
+  "f_L1_026": 81,
+  "f_L1_027": 82,
+  "f_L1_028": 83,
+  "f_L1_029": 84,
+  "f_L1_030": 85,
+  "f_L1_031": 86,
+  "f_L1_032": 87,
+  "f_L1_033": 88,
+  "f_L1_034": 89,
+  "f_L1_035": 90,
+  "f_L1_036": 91,
+  "dec_L1_004": 92,
+  "dec_L1_007": 93,
+  "dec_L1_008": 94,
+  "dec_L1_009": 95,
+  "dec_L1_014": 96,
+  "dec_L1_015": 97,
+  "dec_L1_016": 98
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L0_banyo_1",
+   "room_id": "r_L0_banyo",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bathroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L0_banyo_1.png",
+   "exr": "cam_r_L0_banyo_1_passes.exr",
+   "preview": "cam_r_L0_banyo_1_preview.jpg",
+   "depth_png": "cam_r_L0_banyo_1_depth.png",
+   "index_png": "cam_r_L0_banyo_1_index.png",
+   "files": {
+    "index": "cam_r_L0_banyo_1_index.png",
+    "depth_mm": "cam_r_L0_banyo_1_depth_mm.png",
+    "normal": "cam_r_L0_banyo_1_normal.png",
+    "depth": "cam_r_L0_banyo_1_depth.png"
+   },
+   "preview_bytes": 111920,
+   "seconds": 14.6,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8747344017028809,
+    "max": 2.8492565155029297,
+    "mean": 1.796774983406067,
+    "coverage": 1.0
+   },
+   "index_values": [
+    8,
+    34,
+    39
+   ],
+   "index_stats": {
+    "8": {
+     "pixels": 343076,
+     "box": [
+      1169,
+      0,
+      1653,
+      762
+     ]
+    },
+    "34": {
+     "pixels": 85859,
+     "box": [
+      425,
+      515,
+      657,
+      1074
+     ]
+    },
+    "39": {
+     "pixels": 459000,
+     "box": [
+      0,
+      0,
+      425,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 0.166667,
+    "ev_raw": 0.0989,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.840374,
+    "whitepoint": [
+     1.117295,
+     0.987036,
+     0.783034
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5339.8,
+    "wb_tint": 12.12,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 1.77,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 668,
+     "block_px": 6,
+     "interior_frac": 0.7816
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.16461,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.095566,
+    "wb_view_tint_gain": 1.046605,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.689486,
+    "wb_rig_share_p50": 0.179548,
+    "wb_walls": {
+     "share": 0.4705,
+     "rig_share": 0.199883,
+     "light_rgb": [
+      1.199749,
+      0.976335,
+      0.646245
+     ],
+     "day_rgb": [
+      1.115527,
+      0.99236,
+      0.735498
+     ],
+     "rig_rgb": [
+      1.536883,
+      0.912185,
+      0.288974
+     ],
+     "rig_rb": 5.3184,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": 3421.8,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.100798,
+    "wb_day_wall_share": 0.4705,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 7.23
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L0_banyo_2",
+   "room_id": "r_L0_banyo",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bathroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L0_banyo_2.png",
+   "exr": "cam_r_L0_banyo_2_passes.exr",
+   "preview": "cam_r_L0_banyo_2_preview.jpg",
+   "depth_png": "cam_r_L0_banyo_2_depth.png",
+   "index_png": "cam_r_L0_banyo_2_index.png",
+   "files": {
+    "index": "cam_r_L0_banyo_2_index.png",
+    "depth_mm": "cam_r_L0_banyo_2_depth_mm.png",
+    "normal": "cam_r_L0_banyo_2_normal.png",
+    "depth": "cam_r_L0_banyo_2_depth.png"
+   },
+   "preview_bytes": 113831,
+   "seconds": 14.01,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.0071783065795898,
+    "max": 184.6392822265625,
+    "mean": 2.1418700218200684,
+    "coverage": 0.9765403163580247
+   },
+   "index_values": [
+    8,
+    39,
+    40
+   ],
+   "index_stats": {
+    "8": {
+     "pixels": 122008,
+     "box": [
+      0,
+      0,
+      140,
+      959
+     ]
+    },
+    "39": {
+     "pixels": 413640,
+     "box": [
+      1537,
+      0,
+      1920,
+      1080
+     ]
+    },
+    "40": {
+     "pixels": 55602,
+     "box": [
+      710,
+      632,
+      1049,
+      942
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 0.0,
+    "ev_raw": 0.0557,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.865929,
+    "whitepoint": [
+     1.074795,
+     0.997188,
+     0.807609
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5543.0,
+    "wb_tint": 15.89,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 1.856,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 699,
+     "block_px": 6,
+     "interior_frac": 0.803
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.030225,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.112712,
+    "wb_view_tint_gain": 1.064674,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.706231,
+    "wb_rig_share_p50": 0.184423,
+    "wb_walls": {
+     "share": 0.5365,
+     "rig_share": 0.076663,
+     "light_rgb": [
+      1.188806,
+      0.979935,
+      0.642805
+     ],
+     "day_rgb": [
+      1.155023,
+      0.98621,
+      0.680115
+     ],
+     "rig_rgb": [
+      1.59569,
+      0.904348,
+      0.193439
+     ],
+     "rig_rb": 8.2491,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": 3222.8,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.066555,
+    "wb_day_wall_share": 0.5388,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 0.37
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L0_banyo_3",
+   "room_id": "r_L0_banyo",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bathroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L0_banyo_3.png",
+   "exr": "cam_r_L0_banyo_3_passes.exr",
+   "preview": "cam_r_L0_banyo_3_preview.jpg",
+   "depth_png": "cam_r_L0_banyo_3_depth.png",
+   "index_png": "cam_r_L0_banyo_3_index.png",
+   "files": {
+    "index": "cam_r_L0_banyo_3_index.png",
+    "depth_mm": "cam_r_L0_banyo_3_depth_mm.png",
+    "normal": "cam_r_L0_banyo_3_normal.png",
+    "depth": "cam_r_L0_banyo_3_depth.png"
+   },
+   "preview_bytes": 193884,
+   "seconds": 11.12,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.6394720077514648,
+    "max": 184.6319580078125,
+    "mean": 3.140791654586792,
+    "coverage": 0.8813512731481481
+   },
+   "index_values": [
+    11
+   ],
+   "index_stats": {
+    "11": {
+     "pixels": 434581,
+     "box": [
+      739,
+      0,
+      1582,
+      671
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -1.166667,
+    "ev_raw": -1.1545,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 2.003464,
+    "whitepoint": [
+     1.050792,
+     1.004899,
+     0.801911
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5598.9,
+    "wb_tint": 20.01,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.872,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 559,
+     "block_px": 6,
+     "interior_frac": 0.6711
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.0,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.149378,
+    "wb_view_tint_gain": 1.089474,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 2.092906,
+    "wb_rig_share_p50": 0.0,
+    "wb_walls": {
+     "share": 0.427,
+     "rig_share": 0.0,
+     "light_rgb": [
+      1.214048,
+      0.977917,
+      0.588459
+     ],
+     "day_rgb": [
+      1.205745,
+      0.979043,
+      0.601759
+     ],
+     "rig_rgb": null,
+     "rig_rb": null,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": null,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.021535,
+    "wb_day_wall_share": 0.427,
+    "wb_tint_green_residual": true,
+    "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": -1.43
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": -2.166667,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 377740,
+    "pane_median": 0.8523,
+    "pane_p90": 0.8746,
+    "pane_saturation": 0.0936,
+    "wall_median": 0.4842,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.7677,
+      "p90": 0.797
+     }
+    ],
+    "pane_median_after": 0.7677,
+    "pane_p90_after": 0.797,
+    "pane_saturation_after": 0.1324,
+    "seconds": 0.413
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L0_mutfak_1",
+   "room_id": "r_L0_mutfak",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "kitchen",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L0_mutfak_1.png",
+   "exr": "cam_r_L0_mutfak_1_passes.exr",
+   "preview": "cam_r_L0_mutfak_1_preview.jpg",
+   "depth_png": "cam_r_L0_mutfak_1_depth.png",
+   "index_png": "cam_r_L0_mutfak_1_index.png",
+   "files": {
+    "index": "cam_r_L0_mutfak_1_index.png",
+    "depth_mm": "cam_r_L0_mutfak_1_depth_mm.png",
+    "normal": "cam_r_L0_mutfak_1_normal.png",
+    "depth": "cam_r_L0_mutfak_1_depth.png"
+   },
+   "preview_bytes": 122341,
+   "seconds": 14.18,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.6412687301635742,
+    "max": 3.445685386657715,
+    "mean": 2.1353631019592285,
+    "coverage": 1.0
+   },
+   "index_values": [
+    4,
+    6,
+    8,
+    14,
+    42
+   ],
+   "index_stats": {
+    "4": {
+     "pixels": 1382,
+     "box": [
+      83,
+      54,
+      244,
+      99
+     ]
+    },
+    "6": {
+     "pixels": 345580,
+     "box": [
+      1493,
+      0,
+      1920,
+      865
+     ]
+    },
+    "8": {
+     "pixels": 82038,
+     "box": [
+      1067,
+      0,
+      1179,
+      857
+     ]
+    },
+    "14": {
+     "pixels": 105605,
+     "box": [
+      1214,
+      226,
+      1483,
+      644
+     ]
+    },
+    "42": {
+     "pixels": 532127,
+     "box": [
+      0,
+      0,
+      1033,
+      1066
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 1.166667,
+    "ev_raw": 1.2218,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.385885,
+    "whitepoint": [
+     1.141608,
+     0.983146,
+     0.749977
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5174.8,
+    "wb_tint": 11.87,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 2.054,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 800,
+     "block_px": 6,
+     "interior_frac": 0.9262
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.106933,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.126903,
+    "wb_view_tint_gain": 1.067231,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.339434,
+    "wb_rig_share_p50": 0.120374,
+    "wb_walls": {
+     "share": 0.2826,
+     "rig_share": 0.133642,
+     "light_rgb": [
+      1.261954,
+      0.966701,
+      0.558507
+     ],
+     "day_rgb": [
+      1.194688,
+      0.979268,
+      0.632085
+     ],
+     "rig_rgb": [
+      1.698013,
+      0.88523,
+      0.081522
+     ],
+     "rig_rb": 20.8289,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": 2967.5,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.113676,
+    "wb_day_wall_share": 0.2826,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 13.2
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": {
+    "windows": [
+     "win_L0_007"
+    ],
+    "pane_px": 81881,
+    "pane_rb": 1.051,
+    "wall_rb": 1.153,
+    "delta_rb": -0.102,
+    "clip": 0.0,
+    "pull": {
+     "ev": -1.0,
+     "k": 1,
+     "pane_ev": 0.166667,
+     "clip_before": 0.1568,
+     "clip_after": 0.0,
+     "pane_px": 81881,
+     "pane_median": 0.8826,
+     "wall_median": 0.6246,
+     "rule": "smallest k with interior pane clip <= 1 % (panes >= 0.8 x the wall median): removes the clipping only",
+     "targets": {
+      "max_clip": 0.01,
+      "wall_ratio_min": 0.8
+     },
+     "tried": [
+      {
+       "k": 1,
+       "clip": 0.0,
+       "median": 0.8072
+      }
+     ],
+     "pane_median_after": 0.8098,
+     "seconds": 0.211
+    },
+    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure (pulled k 1)"
+   },
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L0_mutfak_2",
+   "room_id": "r_L0_mutfak",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "kitchen",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L0_mutfak_2.png",
+   "exr": "cam_r_L0_mutfak_2_passes.exr",
+   "preview": "cam_r_L0_mutfak_2_preview.jpg",
+   "depth_png": "cam_r_L0_mutfak_2_depth.png",
+   "index_png": "cam_r_L0_mutfak_2_index.png",
+   "files": {
+    "index": "cam_r_L0_mutfak_2_index.png",
+    "depth_mm": "cam_r_L0_mutfak_2_depth_mm.png",
+    "normal": "cam_r_L0_mutfak_2_normal.png",
+    "depth": "cam_r_L0_mutfak_2_depth.png"
+   },
+   "preview_bytes": 96226,
+   "seconds": 13.75,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.3756999969482422,
+    "max": 4.449999809265137,
+    "mean": 2.3825042247772217,
+    "coverage": 1.0
+   },
+   "index_values": [
+    4,
+    9,
+    42,
+    47
+   ],
+   "index_stats": {
+    "4": {
+     "pixels": 849,
+     "box": [
+      1203,
+      146,
+      1340,
+      156
+     ]
+    },
+    "9": {
+     "pixels": 41000,
+     "box": [
+      0,
+      252,
+      125,
+      580
+     ]
+    },
+    "42": {
+     "pixels": 546167,
+     "box": [
+      699,
+      0,
+      1920,
+      846
+     ]
+    },
+    "47": {
+     "pixels": 424,
+     "box": [
+      1147,
+      0,
+      1200,
+      8
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 1.0,
+    "ev_raw": 1.0677,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.429358,
+    "whitepoint": [
+     1.137436,
+     0.976161,
+     0.831447
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5423.8,
+    "wb_tint": 4.31,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.846,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 838,
+     "block_px": 6,
+     "interior_frac": 0.97
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.03092,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.010928,
+    "wb_view_tint_gain": 1.002198,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.366417,
+    "wb_rig_share_p50": 0.146593,
+    "wb_walls": {
+     "share": 0.4289,
+     "rig_share": 0.045032,
+     "light_rgb": [
+      1.196574,
+      0.965839,
+      0.759561
+     ],
+     "day_rgb": [
+      1.182297,
+      0.968408,
+      0.776157
+     ],
+     "rig_rgb": [
+      1.499353,
+      0.911365,
+      0.407608
+     ],
+     "rig_rb": 3.6784,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": 3633.4,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.007535,
+    "wb_day_wall_share": 0.4289,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 4.33
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -3.0,
+    "k": 3,
+    "pane_ev": -2.0,
+    "clip_before": 0.0826,
+    "clip_after": 0.0,
+    "pane_px": 37106,
+    "pane_median": 0.9745,
+    "pane_p90": 0.984,
+    "pane_saturation": 0.0476,
+    "wall_median": 0.6859,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.9266,
+      "p90": 0.9397
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.866,
+      "p90": 0.8826
+     },
+     {
+      "k": 3,
+      "clip": 0.0,
+      "median": 0.7852,
+      "p90": 0.8089
+     }
+    ],
+    "pane_median_after": 0.7856,
+    "pane_p90_after": 0.8092,
+    "pane_saturation_after": 0.1346,
+    "seconds": 0.649
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L0_mutfak_3",
+   "room_id": "r_L0_mutfak",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "kitchen",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L0_mutfak_3.png",
+   "exr": "cam_r_L0_mutfak_3_passes.exr",
+   "preview": "cam_r_L0_mutfak_3_preview.jpg",
+   "depth_png": "cam_r_L0_mutfak_3_depth.png",
+   "index_png": "cam_r_L0_mutfak_3_index.png",
+   "files": {
+    "index": "cam_r_L0_mutfak_3_index.png",
+    "depth_mm": "cam_r_L0_mutfak_3_depth_mm.png",
+    "normal": "cam_r_L0_mutfak_3_normal.png",
+    "depth": "cam_r_L0_mutfak_3_depth.png"
+   },
+   "preview_bytes": 105577,
+   "seconds": 13.04,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.0072741508483887,
+    "max": 197.65972900390625,
+    "mean": 3.1835668087005615,
+    "coverage": 0.9771532600308642
+   },
+   "index_values": [
+    4,
+    9,
+    10,
+    42
+   ],
+   "index_stats": {
+    "4": {
+     "pixels": 61229,
+     "box": [
+      1340,
+      89,
+      1755,
+      509
+     ]
+    },
+    "9": {
+     "pixels": 15450,
+     "box": [
+      555,
+      282,
+      625,
+      509
+     ]
+    },
+    "10": {
+     "pixels": 6083,
+     "box": [
+      1291,
+      269,
+      1340,
+      496
+     ]
+    },
+    "42": {
+     "pixels": 528986,
+     "box": [
+      703,
+      0,
+      1920,
+      1028
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 1.166667,
+    "ev_raw": 1.1366,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.40935,
+    "whitepoint": [
+     1.10862,
+     0.983254,
+     0.846042
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5559.9,
+    "wb_tint": 7.08,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.883,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 813,
+     "block_px": 6,
+     "interior_frac": 0.9462
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.014073,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.023577,
+    "wb_view_tint_gain": 1.010402,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.355879,
+    "wb_rig_share_p50": 0.130624,
+    "wb_walls": {
+     "share": 0.315,
+     "rig_share": 0.015971,
+     "light_rgb": [
+      1.186526,
+      0.969337,
+      0.754499
+     ],
+     "day_rgb": [
+      1.180584,
+      0.970413,
+      0.761334
+     ],
+     "rig_rgb": null,
+     "rig_rb": null,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": null,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.011606,
+    "wb_day_wall_share": 0.315,
+    "wb_tint_green_residual": true,
+    "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": -0.18
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -3.0,
+    "k": 3,
+    "pane_ev": -1.833333,
+    "clip_before": 0.1181,
+    "clip_after": 0.0,
+    "pane_px": 18782,
+    "pane_median": 0.949,
+    "pane_p90": 0.9885,
+    "pane_saturation": 0.0429,
+    "wall_median": 0.6271,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8948,
+      "p90": 0.9473
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.8239,
+      "p90": 0.8915
+     },
+     {
+      "k": 3,
+      "clip": 0.0,
+      "median": 0.7312,
+      "p90": 0.8212
+     }
+    ],
+    "pane_median_after": 0.7541,
+    "pane_p90_after": 0.8268,
+    "pane_saturation_after": 0.1176,
+    "seconds": 0.7
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L0_salon_1",
+   "room_id": "r_L0_salon",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "living",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L0_salon_1.png",
+   "exr": "cam_r_L0_salon_1_passes.exr",
+   "preview": "cam_r_L0_salon_1_preview.jpg",
+   "depth_png": "cam_r_L0_salon_1_depth.png",
+   "index_png": "cam_r_L0_salon_1_index.png",
+   "files": {
+    "index": "cam_r_L0_salon_1_index.png",
+    "depth_mm": "cam_r_L0_salon_1_depth_mm.png",
+    "normal": "cam_r_L0_salon_1_normal.png",
+    "depth": "cam_r_L0_salon_1_depth.png"
+   },
+   "preview_bytes": 178400,
+   "seconds": 12.46,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.677361249923706,
+    "max": 184.63034057617188,
+    "mean": 3.8308308124542236,
+    "coverage": 0.9936265432098765
+   },
+   "index_values": [
+    2,
+    3,
+    13,
+    15,
+    21,
+    23,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    35,
+    38
+   ],
+   "index_stats": {
+    "2": {
+     "pixels": 51551,
+     "box": [
+      783,
+      115,
+      1289,
+      451
+     ]
+    },
+    "3": {
+     "pixels": 68348,
+     "box": [
+      1200,
+      196,
+      1545,
+      411
+     ]
+    },
+    "13": {
+     "pixels": 151714,
+     "box": [
+      95,
+      0,
+      427,
+      500
+     ]
+    },
+    "15": {
+     "pixels": 112339,
+     "box": [
+      0,
+      687,
+      381,
+      1080
+     ]
+    },
+    "21": {
+     "pixels": 70770,
+     "box": [
+      427,
+      383,
+      866,
+      603
+     ]
+    },
+    "23": {
+     "pixels": 13521,
+     "box": [
+      1768,
+      498,
+      1920,
+      765
+     ]
+    },
+    "26": {
+     "pixels": 10508,
+     "box": [
+      1424,
+      438,
+      1701,
+      637
+     ]
+    },
+    "27": {
+     "pixels": 26,
+     "box": [
+      1444,
+      472,
+      1546,
+      601
+     ]
+    },
+    "28": {
+     "pixels": 849,
+     "box": [
+      1419,
+      444,
+      1517,
+      618
+     ]
+    },
+    "29": {
+     "pixels": 38793,
+     "box": [
+      1395,
+      471,
+      1797,
+      817
+     ]
+    },
+    "30": {
+     "pixels": 14377,
+     "box": [
+      1395,
+      522,
+      1591,
+      793
+     ]
+    },
+    "31": {
+     "pixels": 5461,
+     "box": [
+      1388,
+      462,
+      1546,
+      735
+     ]
+    },
+    "32": {
+     "pixels": 13867,
+     "box": [
+      1723,
+      457,
+      1920,
+      642
+     ]
+    },
+    "33": {
+     "pixels": 39692,
+     "box": [
+      1608,
+      252,
+      1839,
+      710
+     ]
+    },
+    "35": {
+     "pixels": 874,
+     "box": [
+      443,
+      505,
+      527,
+      578
+     ]
+    },
+    "38": {
+     "pixels": 11299,
+     "box": [
+      606,
+      496,
+      713,
+      618
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 0.833333,
+    "ev_raw": 0.7714,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.527269,
+    "whitepoint": [
+     1.150145,
+     0.974804,
+     0.807471
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5312.6,
+    "wb_tint": 4.83,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.453,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 751,
+     "block_px": 6,
+     "interior_frac": 0.8744
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.059782,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.028196,
+    "wb_view_tint_gain": 1.01256,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.473584,
+    "wb_rig_share_p50": 0.101817,
+    "wb_walls": {
+     "share": 0.2664,
+     "rig_share": 0.072013,
+     "light_rgb": [
+      1.277597,
+      0.951331,
+      0.664694
+     ],
+     "day_rgb": [
+      1.244184,
+      0.957936,
+      0.697649
+     ],
+     "rig_rgb": [
+      1.708162,
+      0.866213,
+      0.240019
+     ],
+     "rig_rb": 7.1168,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": 3075.9,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.052976,
+    "wb_day_wall_share": 0.2664,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 8.19
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": -0.166667,
+    "clip_before": 0.0012,
+    "clip_after": 0.0,
+    "pane_px": 128508,
+    "pane_median": 0.6998,
+    "pane_p90": 0.863,
+    "pane_saturation": 0.2121,
+    "wall_median": 0.567,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 58256,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.572,
+      "p90": 0.7823
+     }
+    ],
+    "pane_median_after": 0.5726,
+    "pane_p90_after": 0.7823,
+    "pane_saturation_after": 0.3091,
+    "seconds": 0.306
+   },
+   "interior_glazing": {
+    "windows": [
+     "win_L0_001"
+    ],
+    "pane_px": 58256,
+    "pane_rb": 1.367,
+    "wall_rb": 1.342,
+    "delta_rb": 0.025,
+    "clip": 0.0,
+    "pull": {
+     "ev": 0.0,
+     "k": 0,
+     "pane_ev": 0.833333,
+     "clip_before": 0.0,
+     "clip_after": 0.0,
+     "pane_px": 58256,
+     "pane_median": 0.5699,
+     "wall_median": 0.567,
+     "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
+     "targets": {
+      "max_clip": 0.01,
+      "wall_ratio_min": 0.8
+     },
+     "tried": [],
+     "seconds": 0.018
+    },
+    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
+   },
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L0_salon_2",
+   "room_id": "r_L0_salon",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "living",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L0_salon_2.png",
+   "exr": "cam_r_L0_salon_2_passes.exr",
+   "preview": "cam_r_L0_salon_2_preview.jpg",
+   "depth_png": "cam_r_L0_salon_2_depth.png",
+   "index_png": "cam_r_L0_salon_2_index.png",
+   "files": {
+    "index": "cam_r_L0_salon_2_index.png",
+    "depth_mm": "cam_r_L0_salon_2_depth_mm.png",
+    "normal": "cam_r_L0_salon_2_normal.png",
+    "depth": "cam_r_L0_salon_2_depth.png"
+   },
+   "preview_bytes": 176578,
+   "seconds": 12.64,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.5819520950317383,
+    "max": 4.822000503540039,
+    "mean": 3.405024290084839,
+    "coverage": 1.0
+   },
+   "index_values": [
+    2,
+    3,
+    21,
+    23,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33
+   ],
+   "index_stats": {
+    "2": {
+     "pixels": 166475,
+     "box": [
+      83,
+      51,
+      919,
+      505
+     ]
+    },
+    "3": {
+     "pixels": 94472,
+     "box": [
+      799,
+      177,
+      1191,
+      418
+     ]
+    },
+    "21": {
+     "pixels": 84965,
+     "box": [
+      0,
+      437,
+      248,
+      861
+     ]
+    },
+    "23": {
+     "pixels": 30025,
+     "box": [
+      1664,
+      513,
+      1920,
+      882
+     ]
+    },
+    "25": {
+     "pixels": 3041,
+     "box": [
+      1850,
+      648,
+      1920,
+      821
+     ]
+    },
+    "26": {
+     "pixels": 16946,
+     "box": [
+      1107,
+      450,
+      1407,
+      711
+     ]
+    },
+    "27": {
+     "pixels": 2891,
+     "box": [
+      1104,
+      478,
+      1213,
+      664
+     ]
+    },
+    "28": {
+     "pixels": 9141,
+     "box": [
+      1124,
+      470,
+      1256,
+      714
+     ]
+    },
+    "29": {
+     "pixels": 88465,
+     "box": [
+      1279,
+      513,
+      1781,
+      1079
+     ]
+    },
+    "30": {
+     "pixels": 41372,
+     "box": [
+      1270,
+      635,
+      1622,
+      1049
+     ]
+    },
+    "31": {
+     "pixels": 16043,
+     "box": [
+      1191,
+      514,
+      1444,
+      917
+     ]
+    },
+    "32": {
+     "pixels": 12892,
+     "box": [
+      1414,
+      461,
+      1685,
+      697
+     ]
+    },
+    "33": {
+     "pixels": 47763,
+     "box": [
+      1377,
+      231,
+      1626,
+      787
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 1.166667,
+    "ev_raw": 1.1503,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.405472,
+    "whitepoint": [
+     1.161578,
+     0.973436,
+     0.787353
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5220.2,
+    "wb_tint": 5.15,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.53,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 785,
+     "block_px": 6,
+     "interior_frac": 0.928
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.084772,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.043054,
+    "wb_view_tint_gain": 1.0209,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.354476,
+    "wb_rig_share_p50": 0.125771,
+    "wb_walls": {
+     "share": 0.3432,
+     "rig_share": 0.083978,
+     "light_rgb": [
+      1.326647,
+      0.942765,
+      0.605119
+     ],
+     "day_rgb": [
+      1.297317,
+      0.948257,
+      0.637078
+     ],
+     "rig_rgb": [
+      1.646576,
+      0.882854,
+      0.256519
+     ],
+     "rig_rb": 6.4189,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": 3193.5,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.063801,
+    "wb_day_wall_share": 0.3432,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 11.52
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": {
+    "windows": [
+     "win_L0_001"
+    ],
+    "pane_px": 80006,
+    "pane_rb": 1.369,
+    "wall_rb": 1.342,
+    "delta_rb": 0.027,
+    "clip": 0.0,
+    "pull": {
+     "ev": 0.0,
+     "k": 0,
+     "pane_ev": 1.166667,
+     "clip_before": 0.0,
+     "clip_after": 0.0,
+     "pane_px": 80006,
+     "pane_median": 0.5937,
+     "wall_median": 0.5751,
+     "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
+     "targets": {
+      "max_clip": 0.01,
+      "wall_ratio_min": 0.8
+     },
+     "tried": [],
+     "seconds": 0.026
+    },
+    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
+   },
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L0_salon_3",
+   "room_id": "r_L0_salon",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "living",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L0_salon_3.png",
+   "exr": "cam_r_L0_salon_3_passes.exr",
+   "preview": "cam_r_L0_salon_3_preview.jpg",
+   "depth_png": "cam_r_L0_salon_3_depth.png",
+   "index_png": "cam_r_L0_salon_3_index.png",
+   "files": {
+    "index": "cam_r_L0_salon_3_index.png",
+    "depth_mm": "cam_r_L0_salon_3_depth_mm.png",
+    "normal": "cam_r_L0_salon_3_normal.png",
+    "depth": "cam_r_L0_salon_3_depth.png"
+   },
+   "preview_bytes": 181695,
+   "seconds": 12.44,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.640465259552002,
+    "max": 184.63482666015625,
+    "mean": 3.1358399391174316,
+    "coverage": 0.9965769675925926
+   },
+   "index_values": [
+    1,
+    5,
+    7,
+    13,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    36
+   ],
+   "index_stats": {
+    "1": {
+     "pixels": 171186,
+     "box": [
+      0,
+      41,
+      287,
+      763
+     ]
+    },
+    "5": {
+     "pixels": 51541,
+     "box": [
+      437,
+      120,
+      556,
+      649
+     ]
+    },
+    "7": {
+     "pixels": 1928,
+     "box": [
+      1113,
+      0,
+      1221,
+      89
+     ]
+    },
+    "13": {
+     "pixels": 143685,
+     "box": [
+      1215,
+      55,
+      1594,
+      468
+     ]
+    },
+    "15": {
+     "pixels": 74038,
+     "box": [
+      583,
+      505,
+      1062,
+      1018
+     ]
+    },
+    "16": {
+     "pixels": 13184,
+     "box": [
+      739,
+      618,
+      979,
+      891
+     ]
+    },
+    "17": {
+     "pixels": 19879,
+     "box": [
+      607,
+      623,
+      861,
+      923
+     ]
+    },
+    "18": {
+     "pixels": 8529,
+     "box": [
+      404,
+      659,
+      607,
+      811
+     ]
+    },
+    "19": {
+     "pixels": 13587,
+     "box": [
+      447,
+      541,
+      667,
+      847
+     ]
+    },
+    "20": {
+     "pixels": 21787,
+     "box": [
+      360,
+      500,
+      595,
+      804
+     ]
+    },
+    "21": {
+     "pixels": 40018,
+     "box": [
+      1677,
+      401,
+      1920,
+      642
+     ]
+    },
+    "36": {
+     "pixels": 18704,
+     "box": [
+      1685,
+      546,
+      1847,
+      675
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 0.666667,
+    "ev_raw": 0.5973,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.594896,
+    "whitepoint": [
+     1.086212,
+     0.998357,
+     0.762416
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5372.0,
+    "wb_tint": 18.81,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.384,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 803,
+     "block_px": 6,
+     "interior_frac": 0.9228
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.059942,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.174313,
+    "wb_view_tint_gain": 1.0982,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.512401,
+    "wb_rig_share_p50": 0.138671,
+    "wb_walls": {
+     "share": 0.3819,
+     "rig_share": 0.146114,
+     "light_rgb": [
+      1.335018,
+      0.952786,
+      0.481198
+     ],
+     "day_rgb": [
+      1.247827,
+      0.97187,
+      0.548901
+     ],
+     "rig_rgb": [
+      1.844562,
+      0.841261,
+      0.085539
+     ],
+     "rig_rb": 21.564,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": 2759.0,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.07348,
+    "wb_day_wall_share": 0.3872,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 6.11
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": -0.333333,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 115998,
+    "pane_median": 0.662,
+    "pane_p90": 0.9254,
+    "pane_saturation": 0.246,
+    "wall_median": 0.6348,
+    "rule": "smallest k with pane clip <= 1 % and the pane target; panes slightly darker than the walls (median >= 0.8 x the wall median)",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.5261,
+      "p90": 0.8635
+     }
+    ],
+    "pane_median_after": 0.5272,
+    "pane_p90_after": 0.8635,
+    "pane_saturation_after": 0.351,
+    "seconds": 0.295
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_banyo_1",
+   "room_id": "r_L1_banyo",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bathroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_banyo_1.png",
+   "exr": "cam_r_L1_banyo_1_passes.exr",
+   "preview": "cam_r_L1_banyo_1_preview.jpg",
+   "depth_png": "cam_r_L1_banyo_1_depth.png",
+   "index_png": "cam_r_L1_banyo_1_index.png",
+   "files": {
+    "index": "cam_r_L1_banyo_1_index.png",
+    "depth_mm": "cam_r_L1_banyo_1_depth_mm.png",
+    "normal": "cam_r_L1_banyo_1_normal.png",
+    "depth": "cam_r_L1_banyo_1_depth.png"
+   },
+   "preview_bytes": 98294,
+   "seconds": 10.93,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.01251220703125,
+    "max": 199.03050231933594,
+    "mean": 4.057615756988525,
+    "coverage": 0.9440962577160494
+   },
+   "index_values": [
+    60,
+    83,
+    84
+   ],
+   "index_stats": {
+    "60": {
+     "pixels": 232103,
+     "box": [
+      456,
+      0,
+      1015,
+      500
+     ]
+    },
+    "83": {
+     "pixels": 218052,
+     "box": [
+      1353,
+      577,
+      1920,
+      1080
+     ]
+    },
+    "84": {
+     "pixels": 18294,
+     "box": [
+      126,
+      877,
+      454,
+      1026
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.666667,
+    "ev_raw": -0.7283,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 1.49106,
+    "whitepoint": [
+     1.029082,
+     1.013025,
+     0.785343
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5613.0,
+    "wb_tint": 24.92,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.451,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 622,
+     "block_px": 6,
+     "interior_frac": 0.7298
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.008912,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.201691,
+    "wb_view_tint_gain": 1.121454,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 1.287042,
+    "wb_rig_share_p50": 0.136827,
+    "wb_walls": {
+     "share": 0.4954,
+     "rig_share": 0.100387,
+     "light_rgb": [
+      1.151813,
+      0.999267,
+      0.560233
+     ],
+     "day_rgb": [
+      1.12226,
+      1.002059,
+      0.619595
+     ],
+     "rig_rgb": [
+      1.41665,
+      0.974244,
+      0.028264
+     ],
+     "rig_rb": 50.1221,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": 3371.4,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.012245,
+    "wb_day_wall_share": 0.4954,
+    "wb_tint_green_residual": true,
+    "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": -1.88
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": -1.666667,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 193427,
+    "pane_median": 0.8859,
+    "pane_p90": 0.9062,
+    "pane_saturation": 0.0785,
+    "wall_median": 0.638,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8131,
+      "p90": 0.8388
+     }
+    ],
+    "pane_median_after": 0.8131,
+    "pane_p90_after": 0.8388,
+    "pane_saturation_after": 0.1127,
+    "seconds": 0.308
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_banyo_2",
+   "room_id": "r_L1_banyo",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bathroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_banyo_2.png",
+   "exr": "cam_r_L1_banyo_2_passes.exr",
+   "preview": "cam_r_L1_banyo_2_preview.jpg",
+   "depth_png": "cam_r_L1_banyo_2_depth.png",
+   "index_png": "cam_r_L1_banyo_2_index.png",
+   "files": {
+    "index": "cam_r_L1_banyo_2_index.png",
+    "depth_mm": "cam_r_L1_banyo_2_depth_mm.png",
+    "normal": "cam_r_L1_banyo_2_normal.png",
+    "depth": "cam_r_L1_banyo_2_depth.png"
+   },
+   "preview_bytes": 94813,
+   "seconds": 12.96,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.9032373428344727,
+    "max": 2.504612922668457,
+    "mean": 1.9347785711288452,
+    "coverage": 1.0
+   },
+   "index_values": [
+    52,
+    80,
+    83
+   ],
+   "index_stats": {
+    "52": {
+     "pixels": 257278,
+     "box": [
+      1560,
+      0,
+      1833,
+      1075
+     ]
+    },
+    "80": {
+     "pixels": 7526,
+     "box": [
+      554,
+      648,
+      837,
+      805
+     ]
+    },
+    "83": {
+     "pixels": 199082,
+     "box": [
+      291,
+      562,
+      847,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.666667,
+    "ev_raw": -0.6049,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 1.368818,
+    "whitepoint": [
+     1.079256,
+     1.000482,
+     0.761853
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5390.9,
+    "wb_tint": 19.9,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 1.445,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 792,
+     "block_px": 6,
+     "interior_frac": 0.9067
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.150808,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.186835,
+    "wb_view_tint_gain": 1.094692,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 1.207326,
+    "wb_rig_share_p50": 0.117979,
+    "wb_walls": {
+     "share": 0.666,
+     "rig_share": 0.160393,
+     "light_rgb": [
+      1.156264,
+      0.996694,
+      0.572617
+     ],
+     "day_rgb": [
+      1.10377,
+      1.004578,
+      0.649095
+     ],
+     "rig_rgb": [
+      1.431054,
+      0.955424,
+      0.172281
+     ],
+     "rig_rb": 8.3065,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": 3490.6,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.176083,
+    "wb_day_wall_share": 0.6679,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 5.46
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_banyo_3",
+   "room_id": "r_L1_banyo",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bathroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_banyo_3.png",
+   "exr": "cam_r_L1_banyo_3_passes.exr",
+   "preview": "cam_r_L1_banyo_3_preview.jpg",
+   "depth_png": "cam_r_L1_banyo_3_depth.png",
+   "index_png": "cam_r_L1_banyo_3_index.png",
+   "files": {
+    "index": "cam_r_L1_banyo_3_index.png",
+    "depth_mm": "cam_r_L1_banyo_3_depth_mm.png",
+    "normal": "cam_r_L1_banyo_3_normal.png",
+    "depth": "cam_r_L1_banyo_3_depth.png"
+   },
+   "preview_bytes": 84627,
+   "seconds": 12.03,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7194662094116211,
+    "max": 2.0868139266967773,
+    "mean": 1.7606240510940552,
+    "coverage": 1.0
+   },
+   "index_values": [
+    60,
+    80,
+    83
+   ],
+   "index_stats": {
+    "60": {
+     "pixels": 376289,
+     "box": [
+      0,
+      0,
+      590,
+      766
+     ]
+    },
+    "80": {
+     "pixels": 21833,
+     "box": [
+      1780,
+      815,
+      1920,
+      1080
+     ]
+    },
+    "83": {
+     "pixels": 165866,
+     "box": [
+      1387,
+      526,
+      1839,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.5,
+    "ev_raw": -0.5705,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 1.33652,
+    "whitepoint": [
+     1.083966,
+     0.999031,
+     0.762354
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5378.5,
+    "wb_tint": 19.15,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.362,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 637,
+     "block_px": 6,
+     "interior_frac": 0.742
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.157884,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.179513,
+    "wb_view_tint_gain": 1.090168,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 1.124838,
+    "wb_rig_share_p50": 0.158383,
+    "wb_walls": {
+     "share": 0.6446,
+     "rig_share": 0.168464,
+     "light_rgb": [
+      1.156625,
+      0.995897,
+      0.579449
+     ],
+     "day_rgb": [
+      1.099607,
+      1.004728,
+      0.659863
+     ],
+     "rig_rgb": [
+      1.438064,
+      0.952306,
+      0.182531
+     ],
+     "rig_rb": 7.8785,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": 3488.9,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.171953,
+    "wb_day_wall_share": 0.6448,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 5.88
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": -1.5,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 331841,
+    "pane_median": 0.8924,
+    "pane_p90": 0.9138,
+    "pane_saturation": 0.0738,
+    "wall_median": 0.6518,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8226,
+      "p90": 0.8482
+     }
+    ],
+    "pane_median_after": 0.8226,
+    "pane_p90_after": 0.8482,
+    "pane_saturation_after": 0.1032,
+    "seconds": 0.446
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_cocuk_odasi_1",
+   "room_id": "r_L1_cocuk_odasi",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bedroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_cocuk_odasi_1.png",
+   "exr": "cam_r_L1_cocuk_odasi_1_passes.exr",
+   "preview": "cam_r_L1_cocuk_odasi_1_preview.jpg",
+   "depth_png": "cam_r_L1_cocuk_odasi_1_depth.png",
+   "index_png": "cam_r_L1_cocuk_odasi_1_index.png",
+   "files": {
+    "index": "cam_r_L1_cocuk_odasi_1_index.png",
+    "depth_mm": "cam_r_L1_cocuk_odasi_1_depth_mm.png",
+    "normal": "cam_r_L1_cocuk_odasi_1_normal.png",
+    "depth": "cam_r_L1_cocuk_odasi_1_depth.png"
+   },
+   "preview_bytes": 176724,
+   "seconds": 11.09,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.159663200378418,
+    "max": 199.03086853027344,
+    "mean": 4.023324489593506,
+    "coverage": 0.9736111111111111
+   },
+   "index_values": [
+    48,
+    55,
+    67,
+    68,
+    69,
+    70,
+    96
+   ],
+   "index_stats": {
+    "48": {
+     "pixels": 232110,
+     "box": [
+      940,
+      0,
+      1920,
+      722
+     ]
+    },
+    "55": {
+     "pixels": 95740,
+     "box": [
+      214,
+      122,
+      618,
+      449
+     ]
+    },
+    "67": {
+     "pixels": 344485,
+     "box": [
+      1281,
+      450,
+      1920,
+      1080
+     ]
+    },
+    "68": {
+     "pixels": 31245,
+     "box": [
+      1023,
+      465,
+      1417,
+      788
+     ]
+    },
+    "69": {
+     "pixels": 221113,
+     "box": [
+      168,
+      386,
+      917,
+      860
+     ]
+    },
+    "70": {
+     "pixels": 470,
+     "box": [
+      709,
+      429,
+      784,
+      518
+     ]
+    },
+    "96": {
+     "pixels": 30194,
+     "box": [
+      701,
+      152,
+      857,
+      354
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.833333,
+    "ev_raw": -0.9119,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 1.69337,
+    "whitepoint": [
+     1.115378,
+     0.983391,
+     0.824783
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5471.5,
+    "wb_tint": 8.2,
+    "residual": 0.35,
+    "window_clip_frac": 0.0046,
+    "meter_seconds": 1.354,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 706,
+     "block_px": 6,
+     "interior_frac": 0.8328
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.02265,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.043849,
+    "wb_view_tint_gain": 1.02283,
+    "wb_rig_kelvin_source": "scene",
+    "wb_day_incident_p50": 1.433221,
+    "wb_rig_share_p50": 0.153628,
+    "wb_walls": {
+     "share": 0.2534,
+     "rig_share": 0.151393,
+     "light_rgb": [
+      1.345481,
+      0.938324,
+      0.593648
+     ],
+     "day_rgb": [
+      1.3292,
+      0.94133,
+      0.611812
+     ],
+     "rig_rgb": [
+      1.436746,
+      0.921473,
+      0.49183
+     ],
+     "rig_rb": 2.9212,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": 3883.2,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 0.996518,
+    "wb_day_wall_share": 0.2534,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 2.72
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": -1.833333,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 83200,
+    "pane_median": 0.8986,
+    "pane_p90": 0.9025,
+    "pane_saturation": 0.0259,
+    "wall_median": 0.5945,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8291,
+      "p90": 0.833
+     }
+    ],
+    "pane_median_after": 0.8291,
+    "pane_p90_after": 0.8333,
+    "pane_saturation_after": 0.037,
+    "seconds": 0.283
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_cocuk_odasi_2",
+   "room_id": "r_L1_cocuk_odasi",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bedroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_cocuk_odasi_2.png",
+   "exr": "cam_r_L1_cocuk_odasi_2_passes.exr",
+   "preview": "cam_r_L1_cocuk_odasi_2_preview.jpg",
+   "depth_png": "cam_r_L1_cocuk_odasi_2_depth.png",
+   "index_png": "cam_r_L1_cocuk_odasi_2_index.png",
+   "files": {
+    "index": "cam_r_L1_cocuk_odasi_2_index.png",
+    "depth_mm": "cam_r_L1_cocuk_odasi_2_depth_mm.png",
+    "normal": "cam_r_L1_cocuk_odasi_2_normal.png",
+    "depth": "cam_r_L1_cocuk_odasi_2_depth.png"
+   },
+   "preview_bytes": 177395,
+   "seconds": 11.95,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8533520102500916,
+    "max": 4.3368401527404785,
+    "mean": 2.6654365062713623,
+    "coverage": 1.0
+   },
+   "index_values": [
+    48,
+    67,
+    68,
+    69,
+    70,
+    96
+   ],
+   "index_stats": {
+    "48": {
+     "pixels": 360028,
+     "box": [
+      362,
+      0,
+      1256,
+      818
+     ]
+    },
+    "67": {
+     "pixels": 298717,
+     "box": [
+      979,
+      422,
+      1877,
+      1012
+     ]
+    },
+    "68": {
+     "pixels": 40684,
+     "box": [
+      623,
+      475,
+      1048,
+      852
+     ]
+    },
+    "69": {
+     "pixels": 188014,
+     "box": [
+      0,
+      456,
+      345,
+      1080
+     ]
+    },
+    "70": {
+     "pixels": 54,
+     "box": [
+      0,
+      702,
+      22,
+      707
+     ]
+    },
+    "96": {
+     "pixels": 51479,
+     "box": [
+      0,
+      0,
+      143,
+      360
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.5,
+    "ev_raw": -0.4962,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 1.269457,
+    "whitepoint": [
+     1.193756,
+     0.968929,
+     0.737246
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 4991.4,
+    "wb_tint": 5.46,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 1.377,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 822,
+     "block_px": 6,
+     "interior_frac": 0.9503
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.15036,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.080956,
+    "wb_view_tint_gain": 1.039682,
+    "wb_rig_kelvin_source": "scene",
+    "wb_day_incident_p50": 1.062782,
+    "wb_rig_share_p50": 0.162806,
+    "wb_walls": {
+     "share": 0.3452,
+     "rig_share": 0.162009,
+     "light_rgb": [
+      1.35782,
+      0.939678,
+      0.543905
+     ],
+     "day_rgb": [
+      1.338152,
+      0.943017,
+      0.568745
+     ],
+     "rig_rgb": [
+      1.459554,
+      0.922407,
+      0.41542
+     ],
+     "rig_rb": 3.5134,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": 3725.7,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.058473,
+    "wb_day_wall_share": 0.3452,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 20.3
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_cocuk_odasi_3",
+   "room_id": "r_L1_cocuk_odasi",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bedroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_cocuk_odasi_3.png",
+   "exr": "cam_r_L1_cocuk_odasi_3_passes.exr",
+   "preview": "cam_r_L1_cocuk_odasi_3_preview.jpg",
+   "depth_png": "cam_r_L1_cocuk_odasi_3_depth.png",
+   "index_png": "cam_r_L1_cocuk_odasi_3_index.png",
+   "files": {
+    "index": "cam_r_L1_cocuk_odasi_3_index.png",
+    "depth_mm": "cam_r_L1_cocuk_odasi_3_depth_mm.png",
+    "normal": "cam_r_L1_cocuk_odasi_3_normal.png",
+    "depth": "cam_r_L1_cocuk_odasi_3_depth.png"
+   },
+   "preview_bytes": 178315,
+   "seconds": 11.22,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.6404657363891602,
+    "max": 199.03086853027344,
+    "mean": 4.886368274688721,
+    "coverage": 0.9450139853395062
+   },
+   "index_values": [
+    48,
+    55,
+    67,
+    68,
+    69,
+    70,
+    96
+   ],
+   "index_stats": {
+    "48": {
+     "pixels": 366722,
+     "box": [
+      1171,
+      0,
+      1920,
+      799
+     ]
+    },
+    "55": {
+     "pixels": 105697,
+     "box": [
+      359,
+      87,
+      763,
+      466
+     ]
+    },
+    "67": {
+     "pixels": 24510,
+     "box": [
+      1852,
+      469,
+      1920,
+      905
+     ]
+    },
+    "68": {
+     "pixels": 54688,
+     "box": [
+      1336,
+      484,
+      1876,
+      899
+     ]
+    },
+    "69": {
+     "pixels": 314041,
+     "box": [
+      332,
+      392,
+      1142,
+      1000
+     ]
+    },
+    "70": {
+     "pixels": 587,
+     "box": [
+      903,
+      440,
+      984,
+      530
+     ]
+    },
+    "96": {
+     "pixels": 42277,
+     "box": [
+      868,
+      125,
+      1062,
+      355
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -1.166667,
+    "ev_raw": -1.1852,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 2.046613,
+    "whitepoint": [
+     1.085479,
+     0.991915,
+     0.828382
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5575.8,
+    "wb_tint": 12.23,
+    "residual": 0.35,
+    "window_clip_frac": 0.0054,
+    "meter_seconds": 1.486,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 768,
+     "block_px": 6,
+     "interior_frac": 0.8931
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.008469,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.071703,
+    "wb_view_tint_gain": 1.041033,
+    "wb_rig_kelvin_source": "scene",
+    "wb_day_incident_p50": 1.707367,
+    "wb_rig_share_p50": 0.16576,
+    "wb_walls": {
+     "share": 0.188,
+     "rig_share": 0.131529,
+     "light_rgb": [
+      1.307319,
+      0.949434,
+      0.595968
+     ],
+     "day_rgb": [
+      1.294524,
+      0.951881,
+      0.609405
+     ],
+     "rig_rgb": [
+      1.391805,
+      0.933276,
+      0.507243
+     ],
+     "rig_rb": 2.7439,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": 4009.2,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 0.992387,
+    "wb_day_wall_share": 0.188,
+    "wb_tint_green_residual": true,
+    "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": -0.69
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": -2.166667,
+    "clip_before": 0.0001,
+    "clip_after": 0.0,
+    "pane_px": 92192,
+    "pane_median": 0.877,
+    "pane_p90": 0.8809,
+    "pane_saturation": 0.0351,
+    "wall_median": 0.6371,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8001,
+      "p90": 0.8058
+     }
+    ],
+    "pane_median_after": 0.8005,
+    "pane_p90_after": 0.8059,
+    "pane_saturation_after": 0.0478,
+    "seconds": 0.271
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_dus_1",
+   "room_id": "r_L1_dus",
+   "level_id": "L1",
+   "lens_mm": 16.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bathroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_dus_1.png",
+   "exr": "cam_r_L1_dus_1_passes.exr",
+   "preview": "cam_r_L1_dus_1_preview.jpg",
+   "depth_png": "cam_r_L1_dus_1_depth.png",
+   "index_png": "cam_r_L1_dus_1_index.png",
+   "files": {
+    "index": "cam_r_L1_dus_1_index.png",
+    "depth_mm": "cam_r_L1_dus_1_depth_mm.png",
+    "normal": "cam_r_L1_dus_1_normal.png",
+    "depth": "cam_r_L1_dus_1_depth.png"
+   },
+   "preview_bytes": 141965,
+   "seconds": 14.56,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.6729803085327148,
+    "max": 2.4910407066345215,
+    "mean": 1.536673665046692,
+    "coverage": 1.0
+   },
+   "index_values": [
+    46,
+    53,
+    57,
+    58,
+    79,
+    88
+   ],
+   "index_stats": {
+    "46": {
+     "pixels": 284674,
+     "box": [
+      855,
+      0,
+      1166,
+      993
+     ]
+    },
+    "53": {
+     "pixels": 201257,
+     "box": [
+      352,
+      0,
+      609,
+      933
+     ]
+    },
+    "57": {
+     "pixels": 284518,
+     "box": [
+      1183,
+      0,
+      1697,
+      580
+     ]
+    },
+    "58": {
+     "pixels": 98883,
+     "box": [
+      627,
+      0,
+      846,
+      491
+     ]
+    },
+    "79": {
+     "pixels": 380160,
+     "box": [
+      0,
+      0,
+      352,
+      1080
+     ]
+    },
+    "88": {
+     "pixels": 21690,
+     "box": [
+      1450,
+      966,
+      1813,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 0.5,
+    "ev_raw": 0.462,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.653366,
+    "whitepoint": [
+     1.167064,
+     0.975272,
+     0.753014
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5109.4,
+    "wb_tint": 7.79,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.517,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 552,
+     "block_px": 6,
+     "interior_frac": 0.6592
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.320711,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.069159,
+    "wb_view_tint_gain": 1.026615,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.454076,
+    "wb_rig_share_p50": 0.30502,
+    "wb_walls": {
+     "share": 0.295,
+     "rig_share": 0.336982,
+     "light_rgb": [
+      1.29541,
+      0.952425,
+      0.601408
+     ],
+     "day_rgb": [
+      1.168935,
+      0.97841,
+      0.716418
+     ],
+     "rig_rgb": [
+      1.544252,
+      0.901298,
+      0.375125
+     ],
+     "rig_rb": 4.1166,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": 3503.7,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.091559,
+    "wb_day_wall_share": 0.295,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 15.68
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": {
+    "windows": [
+     "win_L1_004",
+     "win_L1_005"
+    ],
+    "pane_px": 312881,
+    "pane_rb": 1.315,
+    "wall_rb": 1.124,
+    "delta_rb": 0.191,
+    "clip": 0.0,
+    "pull": {
+     "ev": 0.0,
+     "k": 0,
+     "pane_ev": 0.5,
+     "clip_before": 0.0,
+     "clip_after": 0.0,
+     "pane_px": 312881,
+     "pane_median": 0.3755,
+     "wall_median": 0.6092,
+     "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
+     "targets": {
+      "max_clip": 0.01,
+      "wall_ratio_min": 0.8
+     },
+     "tried": [],
+     "seconds": 0.031
+    },
+    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
+   },
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_dus_2",
+   "room_id": "r_L1_dus",
+   "level_id": "L1",
+   "lens_mm": 16.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bathroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_dus_2.png",
+   "exr": "cam_r_L1_dus_2_passes.exr",
+   "preview": "cam_r_L1_dus_2_preview.jpg",
+   "depth_png": "cam_r_L1_dus_2_depth.png",
+   "index_png": "cam_r_L1_dus_2_index.png",
+   "files": {
+    "index": "cam_r_L1_dus_2_index.png",
+    "depth_mm": "cam_r_L1_dus_2_depth_mm.png",
+    "normal": "cam_r_L1_dus_2_normal.png",
+    "depth": "cam_r_L1_dus_2_depth.png"
+   },
+   "preview_bytes": 108639,
+   "seconds": 13.22,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.5204076766967773,
+    "max": 1.7891759872436523,
+    "mean": 1.1520591974258423,
+    "coverage": 1.0
+   },
+   "index_values": [
+    53,
+    64,
+    79,
+    82
+   ],
+   "index_stats": {
+    "53": {
+     "pixels": 290486,
+     "box": [
+      1651,
+      0,
+      1920,
+      1080
+     ]
+    },
+    "64": {
+     "pixels": 126857,
+     "box": [
+      1411,
+      0,
+      1651,
+      539
+     ]
+    },
+    "79": {
+     "pixels": 462791,
+     "box": [
+      973,
+      0,
+      1428,
+      1080
+     ]
+    },
+    "82": {
+     "pixels": 139425,
+     "box": [
+      0,
+      722,
+      493,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 0.833333,
+    "ev_raw": 0.7556,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.533061,
+    "whitepoint": [
+     1.187407,
+     0.973955,
+     0.706162
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 4929.9,
+    "wb_tint": 9.81,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.45,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 582,
+     "block_px": 6,
+     "interior_frac": 0.6912
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.470722,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.137475,
+    "wb_view_tint_gain": 1.04266,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.215345,
+    "wb_rig_share_p50": 0.596022,
+    "wb_walls": {
+     "share": 0.4966,
+     "rig_share": 0.56446,
+     "light_rgb": [
+      1.356965,
+      0.941834,
+      0.525068
+     ],
+     "day_rgb": [
+      1.221004,
+      0.974563,
+      0.601201
+     ],
+     "rig_rgb": [
+      1.461873,
+      0.916579,
+      0.466323
+     ],
+     "rig_rb": 3.1349,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": 3790.7,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.116992,
+    "wb_day_wall_share": 0.4966,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 22.8
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -3.0,
+    "k": 3,
+    "pane_ev": -2.166667,
+    "clip_before": 0.0098,
+    "clip_after": 0.0,
+    "pane_px": 104123,
+    "pane_median": 0.9751,
+    "pane_p90": 0.9818,
+    "pane_saturation": 0.0471,
+    "wall_median": 0.643,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.9317,
+      "p90": 0.9376
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.8716,
+      "p90": 0.8799
+     },
+     {
+      "k": 3,
+      "clip": 0.0,
+      "median": 0.7943,
+      "p90": 0.8046
+     }
+    ],
+    "pane_median_after": 0.7943,
+    "pane_p90_after": 0.8049,
+    "pane_saturation_after": 0.1549,
+    "seconds": 0.66
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_ebeveyn_y_odasi_1",
+   "room_id": "r_L1_ebeveyn_y_odasi",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bedroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_ebeveyn_y_odasi_1.png",
+   "exr": "cam_r_L1_ebeveyn_y_odasi_1_passes.exr",
+   "preview": "cam_r_L1_ebeveyn_y_odasi_1_preview.jpg",
+   "depth_png": "cam_r_L1_ebeveyn_y_odasi_1_depth.png",
+   "index_png": "cam_r_L1_ebeveyn_y_odasi_1_index.png",
+   "files": {
+    "index": "cam_r_L1_ebeveyn_y_odasi_1_index.png",
+    "depth_mm": "cam_r_L1_ebeveyn_y_odasi_1_depth_mm.png",
+    "normal": "cam_r_L1_ebeveyn_y_odasi_1_normal.png",
+    "depth": "cam_r_L1_ebeveyn_y_odasi_1_depth.png"
+   },
+   "preview_bytes": 165777,
+   "seconds": 12.5,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.9984455108642578,
+    "max": 4.963587760925293,
+    "mean": 2.8565618991851807,
+    "coverage": 1.0
+   },
+   "index_values": [
+    43,
+    50,
+    63,
+    71,
+    75,
+    76,
+    77,
+    78,
+    81,
+    87,
+    93,
+    94
+   ],
+   "index_stats": {
+    "43": {
+     "pixels": 242326,
+     "box": [
+      134,
+      57,
+      997,
+      688
+     ]
+    },
+    "50": {
+     "pixels": 44414,
+     "box": [
+      1094,
+      153,
+      1200,
+      634
+     ]
+    },
+    "63": {
+     "pixels": 88812,
+     "box": [
+      1561,
+      164,
+      1865,
+      490
+     ]
+    },
+    "71": {
+     "pixels": 333163,
+     "box": [
+      1101,
+      488,
+      1920,
+      1080
+     ]
+    },
+    "75": {
+     "pixels": 211448,
+     "box": [
+      97,
+      148,
+      473,
+      799
+     ]
+    },
+    "76": {
+     "pixels": 20102,
+     "box": [
+      906,
+      487,
+      1135,
+      742
+     ]
+    },
+    "77": {
+     "pixels": 4832,
+     "box": [
+      947,
+      484,
+      1092,
+      700
+     ]
+    },
+    "78": {
+     "pixels": 9739,
+     "box": [
+      838,
+      467,
+      1000,
+      717
+     ]
+    },
+    "81": {
+     "pixels": 19829,
+     "box": [
+      683,
+      477,
+      891,
+      778
+     ]
+    },
+    "87": {
+     "pixels": 23994,
+     "box": [
+      1436,
+      505,
+      1609,
+      744
+     ]
+    },
+    "93": {
+     "pixels": 12493,
+     "box": [
+      920,
+      971,
+      1189,
+      1080
+     ]
+    },
+    "94": {
+     "pixels": 61844,
+     "box": [
+      1513,
+      0,
+      1880,
+      207
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.166667,
+    "ev_raw": -0.1306,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.985287,
+    "whitepoint": [
+     1.024149,
+     1.014871,
+     0.781578
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5616.2,
+    "wb_tint": 26.04,
+    "residual": 0.35,
+    "window_clip_frac": 0.0059,
+    "meter_seconds": 1.619,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 832,
+     "block_px": 6,
+     "interior_frac": 0.9534
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.0,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.214005,
+    "wb_view_tint_gain": 1.12891,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.988526,
+    "wb_rig_share_p50": 0.0,
+    "wb_walls": {
+     "share": 0.2589,
+     "rig_share": 0.038732,
+     "light_rgb": [
+      1.227372,
+      0.984541,
+      0.483619
+     ],
+     "day_rgb": [
+      1.243514,
+      0.976084,
+      0.519855
+     ],
+     "rig_rgb": null,
+     "rig_rb": null,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": null,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.11211,
+    "wb_day_wall_share": 0.2589,
+    "wb_tint_green_residual": true,
+    "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": -1.98
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -2.0,
+    "k": 2,
+    "pane_ev": -2.166667,
+    "clip_before": 0.0002,
+    "clip_after": 0.0,
+    "pane_px": 73849,
+    "pane_median": 0.9182,
+    "pane_p90": 0.9366,
+    "pane_saturation": 0.0339,
+    "wall_median": 0.5642,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8551,
+      "p90": 0.8784
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.77,
+      "p90": 0.8022
+     }
+    ],
+    "pane_median_after": 0.7728,
+    "pane_p90_after": 0.8025,
+    "pane_saturation_after": 0.0705,
+    "seconds": 0.445
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_ebeveyn_y_odasi_2",
+   "room_id": "r_L1_ebeveyn_y_odasi",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bedroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_ebeveyn_y_odasi_2.png",
+   "exr": "cam_r_L1_ebeveyn_y_odasi_2_passes.exr",
+   "preview": "cam_r_L1_ebeveyn_y_odasi_2_preview.jpg",
+   "depth_png": "cam_r_L1_ebeveyn_y_odasi_2_depth.png",
+   "index_png": "cam_r_L1_ebeveyn_y_odasi_2_index.png",
+   "files": {
+    "index": "cam_r_L1_ebeveyn_y_odasi_2_index.png",
+    "depth_mm": "cam_r_L1_ebeveyn_y_odasi_2_depth_mm.png",
+    "normal": "cam_r_L1_ebeveyn_y_odasi_2_normal.png",
+    "depth": "cam_r_L1_ebeveyn_y_odasi_2_depth.png"
+   },
+   "preview_bytes": 172540,
+   "seconds": 12.99,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.6317329406738281,
+    "max": 5.532441139221191,
+    "mean": 3.146545171737671,
+    "coverage": 1.0
+   },
+   "index_values": [
+    43,
+    50,
+    63,
+    71,
+    76,
+    77,
+    78,
+    81,
+    85,
+    87,
+    92,
+    93,
+    94
+   ],
+   "index_stats": {
+    "43": {
+     "pixels": 175054,
+     "box": [
+      0,
+      103,
+      430,
+      679
+     ]
+    },
+    "50": {
+     "pixels": 33571,
+     "box": [
+      529,
+      187,
+      620,
+      584
+     ]
+    },
+    "63": {
+     "pixels": 23529,
+     "box": [
+      854,
+      243,
+      985,
+      430
+     ]
+    },
+    "71": {
+     "pixels": 261151,
+     "box": [
+      481,
+      432,
+      1269,
+      1059
+     ]
+    },
+    "76": {
+     "pixels": 15540,
+     "box": [
+      330,
+      468,
+      551,
+      683
+     ]
+    },
+    "77": {
+     "pixels": 4441,
+     "box": [
+      375,
+      468,
+      540,
+      650
+     ]
+    },
+    "78": {
+     "pixels": 8983,
+     "box": [
+      254,
+      458,
+      427,
+      678
+     ]
+    },
+    "81": {
+     "pixels": 20895,
+     "box": [
+      69,
+      473,
+      314,
+      743
+     ]
+    },
+    "85": {
+     "pixels": 32381,
+     "box": [
+      1249,
+      417,
+      1398,
+      775
+     ]
+    },
+    "87": {
+     "pixels": 4560,
+     "box": [
+      765,
+      452,
+      838,
+      582
+     ]
+    },
+    "92": {
+     "pixels": 15876,
+     "box": [
+      1010,
+      346,
+      1153,
+      493
+     ]
+    },
+    "93": {
+     "pixels": 150737,
+     "box": [
+      341,
+      732,
+      1351,
+      1080
+     ]
+    },
+    "94": {
+     "pixels": 18181,
+     "box": [
+      822,
+      125,
+      995,
+      253
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.166667,
+    "ev_raw": -0.0974,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.96289,
+    "whitepoint": [
+     1.011689,
+     1.019535,
+     0.772069
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5624.1,
+    "wb_tint": 28.88,
+    "residual": 0.35,
+    "window_clip_frac": 0.0076,
+    "meter_seconds": 1.381,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 863,
+     "block_px": 6,
+     "interior_frac": 0.9852
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.007872,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.24584,
+    "wb_view_tint_gain": 1.148065,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.917235,
+    "wb_rig_share_p50": 0.047415,
+    "wb_walls": {
+     "share": 0.4078,
+     "rig_share": 0.086283,
+     "light_rgb": [
+      1.223475,
+      0.987508,
+      0.465695
+     ],
+     "day_rgb": [
+      1.220068,
+      0.983925,
+      0.511229
+     ],
+     "rig_rgb": null,
+     "rig_rb": null,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": null,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.089729,
+    "wb_day_wall_share": 0.4078,
+    "wb_tint_green_residual": true,
+    "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": -2.23
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -2.0,
+    "k": 2,
+    "pane_ev": -2.166667,
+    "clip_before": 0.0004,
+    "clip_after": 0.0,
+    "pane_px": 19631,
+    "pane_median": 0.9154,
+    "pane_p90": 0.9372,
+    "pane_saturation": 0.0298,
+    "wall_median": 0.6116,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8526,
+      "p90": 0.8795
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.7669,
+      "p90": 0.8047
+     }
+    ],
+    "pane_median_after": 0.768,
+    "pane_p90_after": 0.805,
+    "pane_saturation_after": 0.0613,
+    "seconds": 0.487
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_ebeveyn_y_odasi_3",
+   "room_id": "r_L1_ebeveyn_y_odasi",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bedroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_ebeveyn_y_odasi_3.png",
+   "exr": "cam_r_L1_ebeveyn_y_odasi_3_passes.exr",
+   "preview": "cam_r_L1_ebeveyn_y_odasi_3_preview.jpg",
+   "depth_png": "cam_r_L1_ebeveyn_y_odasi_3_depth.png",
+   "index_png": "cam_r_L1_ebeveyn_y_odasi_3_index.png",
+   "files": {
+    "index": "cam_r_L1_ebeveyn_y_odasi_3_index.png",
+    "depth_mm": "cam_r_L1_ebeveyn_y_odasi_3_depth_mm.png",
+    "normal": "cam_r_L1_ebeveyn_y_odasi_3_normal.png",
+    "depth": "cam_r_L1_ebeveyn_y_odasi_3_depth.png"
+   },
+   "preview_bytes": 164957,
+   "seconds": 13.47,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8420178890228271,
+    "max": 5.775601387023926,
+    "mean": 3.0754246711730957,
+    "coverage": 1.0
+   },
+   "index_values": [
+    44,
+    45,
+    56,
+    63,
+    71,
+    85,
+    87,
+    92,
+    93,
+    94
+   ],
+   "index_stats": {
+    "44": {
+     "pixels": 45386,
+     "box": [
+      856,
+      194,
+      981,
+      574
+     ]
+    },
+    "45": {
+     "pixels": 52605,
+     "box": [
+      1178,
+      159,
+      1385,
+      426
+     ]
+    },
+    "56": {
+     "pixels": 54168,
+     "box": [
+      1392,
+      140,
+      1585,
+      433
+     ]
+    },
+    "63": {
+     "pixels": 69009,
+     "box": [
+      0,
+      185,
+      260,
+      475
+     ]
+    },
+    "71": {
+     "pixels": 239880,
+     "box": [
+      169,
+      427,
+      994,
+      986
+     ]
+    },
+    "85": {
+     "pixels": 3375,
+     "box": [
+      627,
+      399,
+      725,
+      553
+     ]
+    },
+    "87": {
+     "pixels": 43039,
+     "box": [
+      0,
+      516,
+      199,
+      884
+     ]
+    },
+    "92": {
+     "pixels": 19938,
+     "box": [
+      322,
+      346,
+      489,
+      520
+     ]
+    },
+    "93": {
+     "pixels": 141349,
+     "box": [
+      81,
+      693,
+      1081,
+      1080
+     ]
+    },
+    "94": {
+     "pixels": 48845,
+     "box": [
+      0,
+      3,
+      304,
+      217
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.333333,
+    "ev_raw": -0.2667,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 1.082761,
+    "whitepoint": [
+     1.055525,
+     1.003127,
+     0.805523
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5595.8,
+    "wb_tint": 18.95,
+    "residual": 0.35,
+    "window_clip_frac": 0.0023,
+    "meter_seconds": 1.544,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 792,
+     "block_px": 6,
+     "interior_frac": 0.9147
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.0,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.138365,
+    "wb_view_tint_gain": 1.082677,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 1.057355,
+    "wb_rig_share_p50": 0.023464,
+    "wb_walls": {
+     "share": 0.4203,
+     "rig_share": 0.035548,
+     "light_rgb": [
+      1.198212,
+      0.983525,
+      0.579545
+     ],
+     "day_rgb": [
+      1.20708,
+      0.977703,
+      0.611104
+     ],
+     "rig_rgb": null,
+     "rig_rb": null,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": null,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.085808,
+    "wb_day_wall_share": 0.4203,
+    "wb_tint_green_residual": true,
+    "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": -1.34
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -2.0,
+    "k": 2,
+    "pane_ev": -2.333333,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 59076,
+    "pane_median": 0.8574,
+    "pane_p90": 0.9546,
+    "pane_saturation": 0.0533,
+    "wall_median": 0.5783,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 87228,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.7728,
+      "p90": 0.9032
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.6651,
+      "p90": 0.8341
+     }
+    ],
+    "pane_median_after": 0.6977,
+    "pane_p90_after": 0.8342,
+    "pane_saturation_after": 0.108,
+    "seconds": 0.477
+   },
+   "interior_glazing": {
+    "windows": [
+     "win_L1_001",
+     "win_L1_003"
+    ],
+    "pane_px": 87228,
+    "pane_rb": 1.511,
+    "wall_rb": 1.283,
+    "delta_rb": 0.228,
+    "clip": 0.0,
+    "pull": {
+     "ev": 0.0,
+     "k": 0,
+     "pane_ev": -0.333333,
+     "clip_before": 0.0,
+     "clip_after": 0.0,
+     "pane_px": 87228,
+     "pane_median": 0.2629,
+     "wall_median": 0.5783,
+     "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
+     "targets": {
+      "max_clip": 0.01,
+      "wall_ratio_min": 0.8
+     },
+     "tried": [],
+     "seconds": 0.025
+    },
+    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
+   },
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_hol_1",
+   "room_id": "r_L1_hol",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "hall",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_hol_1.png",
+   "exr": "cam_r_L1_hol_1_passes.exr",
+   "preview": "cam_r_L1_hol_1_preview.jpg",
+   "depth_png": "cam_r_L1_hol_1_depth.png",
+   "index_png": "cam_r_L1_hol_1_index.png",
+   "files": {
+    "index": "cam_r_L1_hol_1_index.png",
+    "depth_mm": "cam_r_L1_hol_1_depth_mm.png",
+    "normal": "cam_r_L1_hol_1_normal.png",
+    "depth": "cam_r_L1_hol_1_depth.png"
+   },
+   "preview_bytes": 151794,
+   "seconds": 13.67,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8704056739807129,
+    "max": 5.200569152832031,
+    "mean": 2.751552104949951,
+    "coverage": 1.0
+   },
+   "index_values": [
+    4,
+    10,
+    42,
+    47,
+    49,
+    52,
+    59,
+    61,
+    62
+   ],
+   "index_stats": {
+    "4": {
+     "pixels": 60795,
+     "box": [
+      1216,
+      710,
+      1388,
+      1080
+     ]
+    },
+    "10": {
+     "pixels": 7118,
+     "box": [
+      1162,
+      791,
+      1216,
+      1029
+     ]
+    },
+    "42": {
+     "pixels": 103175,
+     "box": [
+      854,
+      658,
+      1205,
+      1080
+     ]
+    },
+    "47": {
+     "pixels": 83274,
+     "box": [
+      1197,
+      121,
+      1548,
+      633
+     ]
+    },
+    "49": {
+     "pixels": 81000,
+     "box": [
+      0,
+      0,
+      75,
+      1080
+     ]
+    },
+    "52": {
+     "pixels": 70325,
+     "box": [
+      1681,
+      0,
+      1754,
+      1080
+     ]
+    },
+    "59": {
+     "pixels": 27683,
+     "box": [
+      1099,
+      175,
+      1216,
+      419
+     ]
+    },
+    "61": {
+     "pixels": 251853,
+     "box": [
+      94,
+      0,
+      578,
+      556
+     ]
+    },
+    "62": {
+     "pixels": 20436,
+     "box": [
+      1006,
+      160,
+      1090,
+      425
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 0.833333,
+    "ev_raw": 0.8554,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.497454,
+    "whitepoint": [
+     1.170097,
+     0.979218,
+     0.704993
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 4975.7,
+    "wb_tint": 12.33,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.506,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 736,
+     "block_px": 6,
+     "interior_frac": 0.8515
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.447023,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.178901,
+    "wb_view_tint_gain": 1.05813,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.260012,
+    "wb_rig_share_p50": 0.477314,
+    "wb_walls": {
+     "share": 0.5759,
+     "rig_share": 0.459433,
+     "light_rgb": [
+      1.361053,
+      0.944032,
+      0.491252
+     ],
+     "day_rgb": [
+      1.219995,
+      0.978544,
+      0.56474
+     ],
+     "rig_rgb": [
+      1.527021,
+      0.903425,
+      0.404787
+     ],
+     "rig_rb": 3.7724,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": 3573.5,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.170048,
+    "wb_day_wall_share": 0.5759,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 20.94
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -3.0,
+    "k": 3,
+    "pane_ev": -2.166667,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 44511,
+    "pane_median": 0.9329,
+    "pane_p90": 0.9669,
+    "pane_saturation": 0.0562,
+    "wall_median": 0.6307,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 209489,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8735,
+      "p90": 0.9169
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.7965,
+      "p90": 0.8529
+     },
+     {
+      "k": 3,
+      "clip": 0.0,
+      "median": 0.6949,
+      "p90": 0.7677
+     }
+    ],
+    "pane_median_after": 0.7012,
+    "pane_p90_after": 0.7725,
+    "pane_saturation_after": 0.1515,
+    "seconds": 0.644
+   },
+   "interior_glazing": {
+    "windows": [
+     "win_L1_008"
+    ],
+    "pane_px": 209489,
+    "pane_rb": 1.144,
+    "wall_rb": 1.182,
+    "delta_rb": -0.038,
+    "clip": 0.0,
+    "pull": {
+     "ev": -1.0,
+     "k": 1,
+     "pane_ev": -0.166667,
+     "clip_before": 0.0653,
+     "clip_after": 0.0,
+     "pane_px": 209489,
+     "pane_median": 0.7234,
+     "wall_median": 0.6307,
+     "rule": "smallest k with interior pane clip <= 1 % (panes >= 0.8 x the wall median): removes the clipping only",
+     "targets": {
+      "max_clip": 0.01,
+      "wall_ratio_min": 0.8
+     },
+     "tried": [
+      {
+       "k": 1,
+       "clip": 0.0,
+       "median": 0.6018
+      }
+     ],
+     "pane_median_after": 0.6024,
+     "seconds": 0.077
+    },
+    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure (pulled k 1)"
+   },
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_hol_2",
+   "room_id": "r_L1_hol",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "hall",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_hol_2.png",
+   "exr": "cam_r_L1_hol_2_passes.exr",
+   "preview": "cam_r_L1_hol_2_preview.jpg",
+   "depth_png": "cam_r_L1_hol_2_depth.png",
+   "index_png": "cam_r_L1_hol_2_index.png",
+   "files": {
+    "index": "cam_r_L1_hol_2_index.png",
+    "depth_mm": "cam_r_L1_hol_2_depth_mm.png",
+    "normal": "cam_r_L1_hol_2_normal.png",
+    "depth": "cam_r_L1_hol_2_depth.png"
+   },
+   "preview_bytes": 156401,
+   "seconds": 13.85,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.6086273193359375,
+    "max": 3.812040328979492,
+    "mean": 2.34548282623291,
+    "coverage": 1.0
+   },
+   "index_values": [
+    4,
+    42,
+    47,
+    52,
+    59
+   ],
+   "index_stats": {
+    "4": {
+     "pixels": 5356,
+     "box": [
+      576,
+      881,
+      801,
+      1013
+     ]
+    },
+    "42": {
+     "pixels": 53962,
+     "box": [
+      264,
+      903,
+      829,
+      1080
+     ]
+    },
+    "47": {
+     "pixels": 146428,
+     "box": [
+      543,
+      54,
+      944,
+      739
+     ]
+    },
+    "52": {
+     "pixels": 449894,
+     "box": [
+      1449,
+      0,
+      1898,
+      1080
+     ]
+    },
+    "59": {
+     "pixels": 90545,
+     "box": [
+      329,
+      63,
+      576,
+      465
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 0.666667,
+    "ev_raw": 0.6106,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.589436,
+    "whitepoint": [
+     1.124935,
+     0.989392,
+     0.737197
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5188.0,
+    "wb_tint": 15.65,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.379,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 835,
+     "block_px": 6,
+     "interior_frac": 0.9549
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.291667,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.174655,
+    "wb_view_tint_gain": 1.073277,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.405538,
+    "wb_rig_share_p50": 0.311989,
+    "wb_walls": {
+     "share": 0.5781,
+     "rig_share": 0.294,
+     "light_rgb": [
+      1.274554,
+      0.966852,
+      0.519905
+     ],
+     "day_rgb": [
+      1.17658,
+      0.987788,
+      0.601015
+     ],
+     "rig_rgb": [
+      1.509824,
+      0.916579,
+      0.325131
+     ],
+     "rig_rb": 4.6437,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": 3512.9,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.159793,
+    "wb_day_wall_share": 0.5781,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 12.71
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -3.0,
+    "k": 3,
+    "pane_ev": -2.333333,
+    "clip_before": 0.0039,
+    "clip_after": 0.0,
+    "pane_px": 69568,
+    "pane_median": 0.956,
+    "pane_p90": 0.9723,
+    "pane_saturation": 0.0526,
+    "wall_median": 0.622,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.9045,
+      "p90": 0.9252
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.838,
+      "p90": 0.8636
+     },
+     {
+      "k": 3,
+      "clip": 0.0,
+      "median": 0.7495,
+      "p90": 0.7828
+     }
+    ],
+    "pane_median_after": 0.7495,
+    "pane_p90_after": 0.7849,
+    "pane_saturation_after": 0.1493,
+    "seconds": 0.677
+   },
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_hol_3",
+   "room_id": "r_L1_hol",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "hall",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_hol_3.png",
+   "exr": "cam_r_L1_hol_3_passes.exr",
+   "preview": "cam_r_L1_hol_3_preview.jpg",
+   "depth_png": "cam_r_L1_hol_3_depth.png",
+   "index_png": "cam_r_L1_hol_3_index.png",
+   "files": {
+    "index": "cam_r_L1_hol_3_index.png",
+    "depth_mm": "cam_r_L1_hol_3_depth_mm.png",
+    "normal": "cam_r_L1_hol_3_normal.png",
+    "depth": "cam_r_L1_hol_3_depth.png"
+   },
+   "preview_bytes": 141295,
+   "seconds": 13.97,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.0005216598510742,
+    "max": 4.67549991607666,
+    "mean": 2.5577659606933594,
+    "coverage": 1.0
+   },
+   "index_values": [
+    4,
+    42,
+    47,
+    52,
+    59,
+    61,
+    62
+   ],
+   "index_stats": {
+    "4": {
+     "pixels": 33412,
+     "box": [
+      981,
+      729,
+      1079,
+      1080
+     ]
+    },
+    "42": {
+     "pixels": 115892,
+     "box": [
+      610,
+      725,
+      988,
+      1080
+     ]
+    },
+    "47": {
+     "pixels": 79081,
+     "box": [
+      894,
+      146,
+      1209,
+      621
+     ]
+    },
+    "52": {
+     "pixels": 215066,
+     "box": [
+      1487,
+      0,
+      1720,
+      1047
+     ]
+    },
+    "59": {
+     "pixels": 34544,
+     "box": [
+      779,
+      168,
+      915,
+      422
+     ]
+    },
+    "61": {
+     "pixels": 170846,
+     "box": [
+      0,
+      0,
+      273,
+      672
+     ]
+    },
+    "62": {
+     "pixels": 10260,
+     "box": [
+      724,
+      140,
+      762,
+      433
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 0.666667,
+    "ev_raw": 0.746,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.536614,
+    "whitepoint": [
+     1.153646,
+     0.982814,
+     0.717815
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5054.8,
+    "wb_tint": 13.37,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.437,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 777,
+     "block_px": 6,
+     "interior_frac": 0.8964
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.388023,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.174194,
+    "wb_view_tint_gain": 1.062836,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.303102,
+    "wb_rig_share_p50": 0.435158,
+    "wb_walls": {
+     "share": 0.6505,
+     "rig_share": 0.416613,
+     "light_rgb": [
+      1.331373,
+      0.951541,
+      0.504268
+     ],
+     "day_rgb": [
+      1.201732,
+      0.982205,
+      0.58226
+     ],
+     "rig_rgb": [
+      1.512911,
+      0.908602,
+      0.395056
+     ],
+     "rig_rb": 3.8296,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": 3590.0,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.169333,
+    "wb_day_wall_share": 0.6505,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 17.79
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -3.0,
+    "k": 3,
+    "pane_ev": -2.333333,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 33784,
+    "pane_median": 0.9267,
+    "pane_p90": 0.9653,
+    "pane_saturation": 0.0571,
+    "wall_median": 0.6172,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 130289,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8659,
+      "p90": 0.9149
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.7861,
+      "p90": 0.8505
+     },
+     {
+      "k": 3,
+      "clip": 0.0,
+      "median": 0.6816,
+      "p90": 0.7662
+     }
+    ],
+    "pane_median_after": 0.6861,
+    "pane_p90_after": 0.7733,
+    "pane_saturation_after": 0.1641,
+    "seconds": 0.744
+   },
+   "interior_glazing": {
+    "windows": [
+     "win_L1_008"
+    ],
+    "pane_px": 130289,
+    "pane_rb": 1.407,
+    "wall_rb": 1.186,
+    "delta_rb": 0.221,
+    "clip": 0.0,
+    "pull": {
+     "ev": 0.0,
+     "k": 0,
+     "pane_ev": 0.666667,
+     "clip_before": 0.0,
+     "clip_after": 0.0,
+     "pane_px": 130289,
+     "pane_median": 0.495,
+     "wall_median": 0.6172,
+     "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
+     "targets": {
+      "max_clip": 0.01,
+      "wall_ratio_min": 0.8
+     },
+     "tried": [],
+     "seconds": 0.033
+    },
+    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
+   },
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_oda_1",
+   "room_id": "r_L1_oda",
+   "level_id": "L1",
+   "lens_mm": 16.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "hall",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_oda_1.png",
+   "exr": "cam_r_L1_oda_1_passes.exr",
+   "preview": "cam_r_L1_oda_1_preview.jpg",
+   "depth_png": "cam_r_L1_oda_1_depth.png",
+   "index_png": "cam_r_L1_oda_1_index.png",
+   "files": {
+    "index": "cam_r_L1_oda_1_index.png",
+    "depth_mm": "cam_r_L1_oda_1_depth_mm.png",
+    "normal": "cam_r_L1_oda_1_normal.png",
+    "depth": "cam_r_L1_oda_1_depth.png"
+   },
+   "preview_bytes": 158126,
+   "seconds": 13.1,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.3773212432861328,
+    "max": 2.083704948425293,
+    "mean": 1.2303086519241333,
+    "coverage": 1.0
+   },
+   "index_values": [
+    44,
+    89
+   ],
+   "index_stats": {
+    "44": {
+     "pixels": 308313,
+     "box": [
+      908,
+      0,
+      1266,
+      875
+     ]
+    },
+    "89": {
+     "pixels": 29593,
+     "box": [
+      1308,
+      899,
+      1557,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 1.5,
+    "ev_raw": 1.4314,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.333697,
+    "whitepoint": [
+     1.29679,
+     0.949953,
+     0.621828
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 4447.0,
+    "wb_tint": 4.16,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 1.483,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 869,
+     "block_px": 6,
+     "interior_frac": 0.9883
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.845895,
+    "wb_rig_kelvin": 4000.0,
+    "wb_rig_whitepoint": [
+     1.414034,
+     0.924032,
+     0.533367
+    ],
+    "wb_day_green": 1.126851,
+    "wb_view_tint_gain": 1.011287,
+    "wb_rig_kelvin_source": "room",
+    "wb_day_incident_p50": 0.046054,
+    "wb_rig_share_p50": 0.861988,
+    "wb_walls": {
+     "share": 0.7761,
+     "rig_share": 0.858103,
+     "light_rgb": [
+      1.533752,
+      0.896458,
+      0.453978
+     ],
+     "day_rgb": [
+      1.353633,
+      0.943542,
+      0.517952
+     ],
+     "rig_rgb": [
+      1.563537,
+      0.888673,
+      0.4434
+     ],
+     "rig_rb": 3.5262,
+     "lamp_rb": 2.6511,
+     "rig_kelvin": 3546.8,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.130725,
+    "wb_day_wall_share": 0.7761,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 44.83
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_oda_2_1",
+   "room_id": "r_L1_oda_2",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bedroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_oda_2_1.png",
+   "exr": "cam_r_L1_oda_2_1_passes.exr",
+   "preview": "cam_r_L1_oda_2_1_preview.jpg",
+   "depth_png": "cam_r_L1_oda_2_1_depth.png",
+   "index_png": "cam_r_L1_oda_2_1_index.png",
+   "files": {
+    "index": "cam_r_L1_oda_2_1_index.png",
+    "depth_mm": "cam_r_L1_oda_2_1_depth_mm.png",
+    "normal": "cam_r_L1_oda_2_1_normal.png",
+    "depth": "cam_r_L1_oda_2_1_depth.png"
+   },
+   "preview_bytes": 136214,
+   "seconds": 12.15,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8139553070068359,
+    "max": 2.5,
+    "mean": 1.8668670654296875,
+    "coverage": 1.0
+   },
+   "index_values": [
+    49,
+    66,
+    72,
+    73,
+    90,
+    91
+   ],
+   "index_stats": {
+    "49": {
+     "pixels": 273048,
+     "box": [
+      113,
+      0,
+      400,
+      1080
+     ]
+    },
+    "66": {
+     "pixels": 261998,
+     "box": [
+      823,
+      483,
+      1412,
+      948
+     ]
+    },
+    "72": {
+     "pixels": 126779,
+     "box": [
+      1419,
+      580,
+      1920,
+      1080
+     ]
+    },
+    "73": {
+     "pixels": 122040,
+     "box": [
+      0,
+      0,
+      113,
+      1080
+     ]
+    },
+    "90": {
+     "pixels": 436036,
+     "box": [
+      1392,
+      0,
+      1920,
+      1076
+     ]
+    },
+    "91": {
+     "pixels": 144219,
+     "box": [
+      837,
+      0,
+      1371,
+      271
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -1.666667,
+    "ev_raw": -1.7121,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 2.948728,
+    "whitepoint": [
+     1.085786,
+     0.991801,
+     0.828616
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5575.6,
+    "wb_tint": 12.16,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 1.313,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 799,
+     "block_px": 6,
+     "interior_frac": 0.9241
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.001069,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.071046,
+    "wb_view_tint_gain": 1.040618,
+    "wb_rig_kelvin_source": "scene",
+    "wb_day_incident_p50": 2.942091,
+    "wb_rig_share_p50": 0.002251,
+    "wb_walls": {
+     "share": 0.2343,
+     "rig_share": 0.022575,
+     "light_rgb": [
+      1.270511,
+      0.960075,
+      0.598943
+     ],
+     "day_rgb": [
+      1.27645,
+      0.955791,
+      0.623888
+     ],
+     "rig_rgb": null,
+     "rig_rb": null,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": null,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.069723,
+    "wb_day_wall_share": 0.2343,
+    "wb_tint_green_residual": true,
+    "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": -0.69
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_oda_2_2",
+   "room_id": "r_L1_oda_2",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bedroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_oda_2_2.png",
+   "exr": "cam_r_L1_oda_2_2_passes.exr",
+   "preview": "cam_r_L1_oda_2_2_preview.jpg",
+   "depth_png": "cam_r_L1_oda_2_2_depth.png",
+   "index_png": "cam_r_L1_oda_2_2_index.png",
+   "files": {
+    "index": "cam_r_L1_oda_2_2_index.png",
+    "depth_mm": "cam_r_L1_oda_2_2_depth_mm.png",
+    "normal": "cam_r_L1_oda_2_2_normal.png",
+    "depth": "cam_r_L1_oda_2_2_depth.png"
+   },
+   "preview_bytes": 178980,
+   "seconds": 11.68,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8576412200927734,
+    "max": 199.02911376953125,
+    "mean": 2.6346068382263184,
+    "coverage": 0.9515388695987654
+   },
+   "index_values": [
+    66,
+    72,
+    73,
+    74,
+    90,
+    91
+   ],
+   "index_stats": {
+    "66": {
+     "pixels": 119880,
+     "box": [
+      484,
+      438,
+      887,
+      791
+     ]
+    },
+    "72": {
+     "pixels": 559510,
+     "box": [
+      893,
+      446,
+      1920,
+      1080
+     ]
+    },
+    "73": {
+     "pixels": 191320,
+     "box": [
+      0,
+      0,
+      178,
+      1080
+     ]
+    },
+    "74": {
+     "pixels": 920,
+     "box": [
+      87,
+      1030,
+      116,
+      1080
+     ]
+    },
+    "90": {
+     "pixels": 106541,
+     "box": [
+      877,
+      136,
+      1137,
+      744
+     ]
+    },
+    "91": {
+     "pixels": 83711,
+     "box": [
+      484,
+      46,
+      864,
+      297
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -2.166667,
+    "ev_raw": -2.1261,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 3.928835,
+    "whitepoint": [
+     1.077157,
+     0.99503,
+     0.822031
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5581.4,
+    "wb_tint": 14.09,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 1.427,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 787,
+     "block_px": 6,
+     "interior_frac": 0.9165
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.0,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.089712,
+    "wb_view_tint_gain": 1.05237,
+    "wb_rig_kelvin_source": "scene",
+    "wb_day_incident_p50": 3.89736,
+    "wb_rig_share_p50": 0.008011,
+    "wb_walls": {
+     "share": 0.282,
+     "rig_share": 0.021481,
+     "light_rgb": [
+      1.181926,
+      0.980223,
+      0.660209
+     ],
+     "day_rgb": [
+      1.185947,
+      0.977221,
+      0.678104
+     ],
+     "rig_rgb": null,
+     "rig_rb": null,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": null,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.037809,
+    "wb_day_wall_share": 0.282,
+    "wb_tint_green_residual": true,
+    "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": -0.87
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": null,
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_oda_2_3",
+   "room_id": "r_L1_oda_2",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "bedroom",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_oda_2_3.png",
+   "exr": "cam_r_L1_oda_2_3_passes.exr",
+   "preview": "cam_r_L1_oda_2_3_preview.jpg",
+   "depth_png": "cam_r_L1_oda_2_3_depth.png",
+   "index_png": "cam_r_L1_oda_2_3_index.png",
+   "files": {
+    "index": "cam_r_L1_oda_2_3_index.png",
+    "depth_mm": "cam_r_L1_oda_2_3_depth_mm.png",
+    "normal": "cam_r_L1_oda_2_3_normal.png",
+    "depth": "cam_r_L1_oda_2_3_depth.png"
+   },
+   "preview_bytes": 204703,
+   "seconds": 11.31,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.4254975318908691,
+    "max": 199.03353881835938,
+    "mean": 3.4126639366149902,
+    "coverage": 0.9570423418209877
+   },
+   "index_values": [
+    49,
+    61,
+    62,
+    73,
+    74
+   ],
+   "index_stats": {
+    "49": {
+     "pixels": 401725,
+     "box": [
+      1548,
+      0,
+      1920,
+      1080
+     ]
+    },
+    "61": {
+     "pixels": 183319,
+     "box": [
+      1187,
+      0,
+      1531,
+      550
+     ]
+    },
+    "62": {
+     "pixels": 470,
+     "box": [
+      259,
+      432,
+      290,
+      449
+     ]
+    },
+    "73": {
+     "pixels": 771343,
+     "box": [
+      392,
+      0,
+      1188,
+      1080
+     ]
+    },
+    "74": {
+     "pixels": 20813,
+     "box": [
+      483,
+      720,
+      865,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -2.333333,
+    "ev_raw": -2.2864,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 4.390396,
+    "whitepoint": [
+     1.053609,
+     1.003844,
+     0.80406
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5597.1,
+    "wb_tint": 19.38,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.47,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 744,
+     "block_px": 6,
+     "interior_frac": 0.867
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.0,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.142807,
+    "wb_view_tint_gain": 1.085421,
+    "wb_rig_kelvin_source": "scene",
+    "wb_day_incident_p50": 4.665167,
+    "wb_rig_share_p50": 0.0,
+    "wb_walls": {
+     "share": 0.1429,
+     "rig_share": 0.000249,
+     "light_rgb": [
+      1.226875,
+      0.976515,
+      0.564578
+     ],
+     "day_rgb": [
+      1.229385,
+      0.973213,
+      0.589905
+     ],
+     "rig_rgb": null,
+     "rig_rb": null,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": null,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.017186,
+    "wb_day_wall_share": 0.1429,
+    "wb_tint_green_residual": true,
+    "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": -1.38
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": {
+    "windows": [
+     "win_L1_008"
+    ],
+    "pane_px": 155386,
+    "pane_rb": 1.493,
+    "wall_rb": 1.225,
+    "delta_rb": 0.268,
+    "clip": 0.0,
+    "pull": {
+     "ev": 0.0,
+     "k": 0,
+     "pane_ev": -2.333333,
+     "clip_before": 0.0,
+     "clip_after": 0.0,
+     "pane_px": 155386,
+     "pane_median": 0.3265,
+     "wall_median": 0.4965,
+     "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
+     "targets": {
+      "max_clip": 0.01,
+      "wall_ratio_min": 0.8
+     },
+     "tried": [],
+     "seconds": 0.021
+    },
+    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
+   },
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "cam_r_L1_soyunma_odasi_1",
+   "room_id": "r_L1_soyunma_odasi",
+   "level_id": "L1",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": "other",
+   "open_air": false,
+   "sky_pull": null,
+   "clip": {
+    "start_m": 0.05,
+    "end_m": 200.0,
+    "built_end_m": 200.0,
+    "rule": null
+   },
+   "haze_hidden": true,
+   "vram_mib": 65458,
+   "png": "cam_r_L1_soyunma_odasi_1.png",
+   "exr": "cam_r_L1_soyunma_odasi_1_passes.exr",
+   "preview": "cam_r_L1_soyunma_odasi_1_preview.jpg",
+   "depth_png": "cam_r_L1_soyunma_odasi_1_depth.png",
+   "index_png": "cam_r_L1_soyunma_odasi_1_index.png",
+   "files": {
+    "index": "cam_r_L1_soyunma_odasi_1_index.png",
+    "depth_mm": "cam_r_L1_soyunma_odasi_1_depth_mm.png",
+    "normal": "cam_r_L1_soyunma_odasi_1_normal.png",
+    "depth": "cam_r_L1_soyunma_odasi_1_depth.png"
+   },
+   "preview_bytes": 166505,
+   "seconds": 14.6,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8704051971435547,
+    "max": 2.8865127563476562,
+    "mean": 1.99805748462677,
+    "coverage": 1.0
+   },
+   "index_values": [
+    46,
+    56,
+    58
+   ],
+   "index_stats": {
+    "46": {
+     "pixels": 404097,
+     "box": [
+      0,
+      0,
+      406,
+      1080
+     ]
+    },
+    "56": {
+     "pixels": 74049,
+     "box": [
+      1755,
+      0,
+      1877,
+      659
+     ]
+    },
+    "58": {
+     "pixels": 121213,
+     "box": [
+      418,
+      0,
+      682,
+      501
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": 2.833333,
+    "ev_raw": 2.7622,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 0.13266,
+    "whitepoint": [
+     1.219165,
+     0.970116,
+     0.650671
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 4710.9,
+    "wb_tint": 11.68,
+    "residual": 0.35,
+    "window_clip_frac": 0.002,
+    "meter_seconds": 1.495,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 783,
+     "block_px": 6,
+     "interior_frac": 0.9035
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": 0.250835,
+    "wb_rig_kelvin": 2700.0,
+    "wb_rig_whitepoint": [
+     1.935351,
+     0.803501,
+     0.19225
+    ],
+    "wb_day_green": 1.220536,
+    "wb_view_tint_gain": 1.097957,
+    "wb_rig_kelvin_source": "scene",
+    "wb_day_incident_p50": 0.095388,
+    "wb_rig_share_p50": 0.280963,
+    "wb_walls": {
+     "share": 0.5746,
+     "rig_share": 0.287017,
+     "light_rgb": [
+      1.310794,
+      0.960914,
+      0.472012
+     ],
+     "day_rgb": [
+      1.248011,
+      0.975551,
+      0.511895
+     ],
+     "rig_rgb": [
+      1.466755,
+      0.924555,
+      0.372939
+     ],
+     "rig_rb": 3.933,
+     "lamp_rb": 10.0668,
+     "rig_kelvin": 3655.8,
+     "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+    },
+    "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+    "wb_rig_residual": 0.0,
+    "wb_day_green_source": "walls",
+    "wb_day_green_all": 1.217788,
+    "wb_day_wall_share": 0.5746,
+    "wb_tint_green_residual": true,
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 32.23
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "interior_glazing": {
+    "windows": [
+     "win_L1_003",
+     "win_L1_005"
+    ],
+    "pane_px": 143196,
+    "pane_rb": 1.175,
+    "wall_rb": 1.139,
+    "delta_rb": 0.036,
+    "clip": 0.0008,
+    "pull": {
+     "ev": -2.0,
+     "k": 2,
+     "pane_ev": 0.833333,
+     "clip_before": 0.1342,
+     "clip_after": 0.0008,
+     "pane_px": 143196,
+     "pane_median": 0.8211,
+     "wall_median": 0.6534,
+     "rule": "smallest k with interior pane clip <= 1 % (panes >= 0.8 x the wall median): removes the clipping only",
+     "targets": {
+      "max_clip": 0.01,
+      "wall_ratio_min": 0.8
+     },
+     "tried": [
+      {
+       "k": 1,
+       "clip": 0.0639,
+       "median": 0.7273
+      },
+      {
+       "k": 2,
+       "clip": 0.0,
+       "median": 0.6068
+      }
+     ],
+     "pane_median_after": 0.6117,
+     "seconds": 0.473
+    },
+    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure (pulled k 2)"
+   },
+   "lawn": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
+  {
+   "camera": "ext_1",
+   "room_id": null,
+   "level_id": null,
+   "lens_mm": 26.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": null,
+   "open_air": false,
+   "sky_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "sky_ev": -6.166667,
+    "sky_px": 691617,
+    "sky_share": 0.3335,
+    "haze_px": 328982,
+    "full_weight_share": 0.9253,
+    "ring_px": 85251,
+    "sun_offset_deg": 103.37,
+    "into_sun": false,
+    "median_before": 0.7665,
+    "saturation_before": 0.1095,
+    "median_after": 0.6564,
+    "saturation_after": 0.1559,
+    "rule": "smallest k with the sky median <= 0.8 and saturation >= 0.12",
+    "targets": {
+     "median_max": 0.8,
+     "saturation_min": 0.12,
+     "median_target": 0.6,
+     "saturation_near": 0.1,
+     "ring_px": 2,
+     "median_min": 0.4
+    },
+    "tried": [
+     {
+      "k": 1,
+      "median": 0.6562,
+      "saturation": 0.1568
+     }
+    ],
+    "edge_dot_px": 4,
+    "edge_px": 37404,
+    "seconds": 0.772
+   },
+   "clip": {
+    "start_m": 0.1,
+    "end_m": 3000.0,
+    "built_end_m": 3000.0,
+    "rule": null
+   },
+   "haze_hidden": false,
+   "vram_mib": 65376,
+   "png": "ext_1.png",
+   "exr": "ext_1_passes.exr",
+   "preview": "ext_1_preview.jpg",
+   "depth_png": "ext_1_depth.png",
+   "index_png": "ext_1_index.png",
+   "files": {
+    "index": "ext_1_index.png",
+    "depth_mm": "ext_1_depth_mm.png",
+    "normal": "ext_1_normal.png",
+    "depth": "ext_1_depth.png"
+   },
+   "preview_bytes": 282090,
+   "seconds": 6.57,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 6.662229061126709,
+    "max": 2995.59619140625,
+    "mean": 24.915864944458008,
+    "coverage": 0.8251181520061729
+   },
+   "index_values": [
+    1,
+    3,
+    12,
+    22,
+    23,
+    24,
+    25,
+    43,
+    45,
+    55,
+    56,
+    64
+   ],
+   "index_stats": {
+    "1": {
+     "pixels": 43534,
+     "box": [
+      609,
+      706,
+      1142,
+      1034
+     ]
+    },
+    "3": {
+     "pixels": 42,
+     "box": [
+      1112,
+      766,
+      1128,
+      769
+     ]
+    },
+    "12": {
+     "pixels": 768,
+     "box": [
+      470,
+      760,
+      501,
+      870
+     ]
+    },
+    "22": {
+     "pixels": 3231,
+     "box": [
+      1112,
+      768,
+      1128,
+      974
+     ]
+    },
+    "23": {
+     "pixels": 83,
+     "box": [
+      1240,
+      881,
+      1242,
+      952
+     ]
+    },
+    "24": {
+     "pixels": 40,
+     "box": [
+      1240,
+      895,
+      1242,
+      929
+     ]
+    },
+    "25": {
+     "pixels": 27,
+     "box": [
+      1240,
+      914,
+      1242,
+      956
+     ]
+    },
+    "43": {
+     "pixels": 40439,
+     "box": [
+      609,
+      197,
+      1142,
+      612
+     ]
+    },
+    "45": {
+     "pixels": 222,
+     "box": [
+      1126,
+      480,
+      1128,
+      591
+     ]
+    },
+    "55": {
+     "pixels": 556,
+     "box": [
+      494,
+      489,
+      501,
+      599
+     ]
+    },
+    "56": {
+     "pixels": 232,
+     "box": [
+      1240,
+      465,
+      1242,
+      581
+     ]
+    },
+    "64": {
+     "pixels": 1940,
+     "box": [
+      1388,
+      522,
+      1427,
+      630
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -5.166667,
+    "ev_raw": -5.1342,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 31.607381,
+    "whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5554.3,
+    "wb_tint": 5.28,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.77,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 325,
+     "block_px": 6,
+     "interior_frac": 0.4394,
+     "metered": "facade",
+     "ground_blocks_used": 56
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "ev_facade": -5.166667,
+    "ev_ground": -6.4739,
+    "ground_p50": 79.999408,
+    "ground_headroom_stops": 1.5,
+    "ground_cap": false,
+    "ground_rule": "the ground within 1.5 stops of the target: the facade exposure",
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": null,
+    "wb_rig_kelvin": null,
+    "wb_rig_whitepoint": null,
+    "wb_view_rule": "under the exterior sky (daylight): the project white point",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": 0.0,
+    "k": 0,
+    "pane_ev": -5.166667,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 1738,
+    "pane_median": 0.2536,
+    "pane_p90": 0.4933,
+    "pane_saturation": 0.3176,
+    "wall_median": 0.4926,
+    "rule": "no k keeps the panes brighter than the walls: no pull",
+    "interior_pane_px": 210,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.1472,
+      "p90": 0.3481
+     }
+    ],
+    "seconds": 0.286
+   },
+   "interior_glazing": {
+    "windows": [
+     "win_L1_003"
+    ],
+    "pane_px": 210,
+    "pane_rb": 0.529,
+    "wall_rb": 0.863,
+    "delta_rb": -0.334,
+    "clip": 0.0,
+    "pull": {
+     "ev": 0.0,
+     "k": 0,
+     "pane_ev": -5.166667,
+     "clip_before": 0.0,
+     "clip_after": 0.0,
+     "pane_px": 210,
+     "pane_median": 0.0344,
+     "wall_median": 0.4926,
+     "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
+     "targets": {
+      "max_clip": 0.01,
+      "wall_ratio_min": 0.8
+     },
+     "tried": [],
+     "seconds": 0.03
+    },
+    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
+   },
+   "lawn": {
+    "px_share": 0.0964,
+    "saturation": 0.3269,
+    "median": 0.5318
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "wenart_world_exterior"
+  },
+  {
+   "camera": "ext_2",
+   "room_id": null,
+   "level_id": null,
+   "lens_mm": 26.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": null,
+   "open_air": false,
+   "sky_pull": {
+    "ev": -4.0,
+    "k": 4,
+    "sky_ev": -7.833333,
+    "sky_px": 708249,
+    "sky_share": 0.3416,
+    "haze_px": 341929,
+    "full_weight_share": 0.9582,
+    "ring_px": 41223,
+    "sun_offset_deg": 10.23,
+    "into_sun": true,
+    "median_before": 0.9395,
+    "saturation_before": 0.0288,
+    "median_after": 0.5869,
+    "saturation_after": 0.128,
+    "rule": "smallest k with the sky median <= 0.8 and saturation >= 0.12",
+    "targets": {
+     "median_max": 0.8,
+     "saturation_min": 0.12,
+     "median_target": 0.6,
+     "saturation_near": 0.1,
+     "ring_px": 2,
+     "median_min": 0.4
+    },
+    "tried": [
+     {
+      "k": 1,
+      "median": 0.8835,
+      "saturation": 0.0429
+     },
+     {
+      "k": 2,
+      "median": 0.8087,
+      "saturation": 0.0599
+     },
+     {
+      "k": 3,
+      "median": 0.7099,
+      "saturation": 0.086
+     },
+     {
+      "k": 4,
+      "median": 0.5847,
+      "saturation": 0.128
+     }
+    ],
+    "edge_dot_px": 46,
+    "edge_px": 21586,
+    "seconds": 2.207
+   },
+   "clip": {
+    "start_m": 0.1,
+    "end_m": 3000.0,
+    "built_end_m": 3000.0,
+    "rule": null
+   },
+   "haze_hidden": false,
+   "vram_mib": 65378,
+   "png": "ext_2.png",
+   "exr": "ext_2_passes.exr",
+   "preview": "ext_2_preview.jpg",
+   "depth_png": "ext_2_depth.png",
+   "index_png": "ext_2_index.png",
+   "files": {
+    "index": "ext_2_index.png",
+    "depth_mm": "ext_2_depth_mm.png",
+    "normal": "ext_2_normal.png",
+    "depth": "ext_2_depth.png"
+   },
+   "preview_bytes": 200613,
+   "seconds": 6.92,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 7.488330841064453,
+    "max": 2991.8017578125,
+    "mean": 24.129623413085938,
+    "coverage": 0.823341049382716
+   },
+   "index_values": [
+    1,
+    4,
+    9,
+    10,
+    11,
+    43,
+    47,
+    59,
+    60,
+    62,
+    64,
+    72
+   ],
+   "index_stats": {
+    "1": {
+     "pixels": 182,
+     "box": [
+      292,
+      764,
+      363,
+      768
+     ]
+    },
+    "4": {
+     "pixels": 8078,
+     "box": [
+      1297,
+      676,
+      1328,
+      946
+     ]
+    },
+    "9": {
+     "pixels": 3252,
+     "box": [
+      1504,
+      755,
+      1551,
+      880
+     ]
+    },
+    "10": {
+     "pixels": 6128,
+     "box": [
+      1345,
+      742,
+      1404,
+      900
+     ]
+    },
+    "11": {
+     "pixels": 32222,
+     "box": [
+      910,
+      724,
+      1118,
+      926
+     ]
+    },
+    "43": {
+     "pixels": 141,
+     "box": [
+      292,
+      548,
+      363,
+      558
+     ]
+    },
+    "47": {
+     "pixels": 7645,
+     "box": [
+      1297,
+      353,
+      1328,
+      619
+     ]
+    },
+    "59": {
+     "pixels": 6782,
+     "box": [
+      1345,
+      360,
+      1412,
+      523
+     ]
+    },
+    "60": {
+     "pixels": 31208,
+     "box": [
+      910,
+      236,
+      1118,
+      468
+     ]
+    },
+    "62": {
+     "pixels": 40,
+     "box": [
+      1431,
+      520,
+      1438,
+      528
+     ]
+    },
+    "64": {
+     "pixels": 8091,
+     "box": [
+      604,
+      366,
+      674,
+      542
+     ]
+    },
+    "72": {
+     "pixels": 1770,
+     "box": [
+      1435,
+      572,
+      1475,
+      659
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -3.833333,
+    "ev_raw": -3.8862,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 13.30814,
+    "whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5554.3,
+    "wb_tint": 5.28,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.801,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 315,
+     "block_px": 6,
+     "interior_frac": 0.4284,
+     "metered": "facade",
+     "ground_blocks_used": 38
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "ev_facade": -3.833333,
+    "ev_ground": -4.8327,
+    "ground_p50": 25.646697,
+    "ground_headroom_stops": 1.5,
+    "ground_cap": false,
+    "ground_rule": "the ground within 1.5 stops of the target: the facade exposure",
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": null,
+    "wb_rig_kelvin": null,
+    "wb_rig_whitepoint": null,
+    "wb_view_rule": "under the exterior sky (daylight): the project white point",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": 0.0,
+    "k": 0,
+    "pane_ev": -3.833333,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 68730,
+    "pane_median": 0.3318,
+    "pane_p90": 0.4896,
+    "pane_saturation": 0.2278,
+    "wall_median": 0.6652,
+    "rule": "no k keeps the panes brighter than the walls: no pull",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.2099,
+      "p90": 0.344
+     }
+    ],
+    "seconds": 0.578
+   },
+   "interior_glazing": null,
+   "lawn": {
+    "px_share": 0.0799,
+    "saturation": 0.233,
+    "median": 0.35
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "wenart_world_exterior"
+  },
+  {
+   "camera": "ext_3",
+   "room_id": null,
+   "level_id": null,
+   "lens_mm": 26.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": null,
+   "open_air": false,
+   "sky_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "sky_ev": -6.5,
+    "sky_px": 706304,
+    "sky_share": 0.3406,
+    "haze_px": 341813,
+    "full_weight_share": 0.9603,
+    "ring_px": 43113,
+    "sun_offset_deg": 82.0,
+    "into_sun": false,
+    "median_before": 0.7519,
+    "saturation_before": 0.0995,
+    "median_after": 0.6371,
+    "saturation_after": 0.1467,
+    "rule": "smallest k with the sky median <= 0.8 and saturation >= 0.12",
+    "targets": {
+     "median_max": 0.8,
+     "saturation_min": 0.12,
+     "median_target": 0.6,
+     "saturation_near": 0.1,
+     "ring_px": 2,
+     "median_min": 0.4
+    },
+    "tried": [
+     {
+      "k": 1,
+      "median": 0.6368,
+      "saturation": 0.1467
+     }
+    ],
+    "edge_dot_px": 3,
+    "edge_px": 22971,
+    "seconds": 0.803
+   },
+   "clip": {
+    "start_m": 0.1,
+    "end_m": 3000.0,
+    "built_end_m": 3000.0,
+    "rule": null
+   },
+   "haze_hidden": false,
+   "vram_mib": 65376,
+   "png": "ext_3.png",
+   "exr": "ext_3_passes.exr",
+   "preview": "ext_3_preview.jpg",
+   "depth_png": "ext_3_depth.png",
+   "index_png": "ext_3_index.png",
+   "files": {
+    "index": "ext_3_index.png",
+    "depth_mm": "ext_3_depth_mm.png",
+    "normal": "ext_3_normal.png",
+    "depth": "ext_3_depth.png"
+   },
+   "preview_bytes": 223484,
+   "seconds": 7.08,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 7.300166130065918,
+    "max": 2893.6826171875,
+    "mean": 24.752655029296875,
+    "coverage": 0.8242230902777777
+   },
+   "index_values": [
+    4,
+    7,
+    9,
+    10,
+    11,
+    12,
+    21,
+    39,
+    47,
+    49,
+    59,
+    60,
+    62,
+    72,
+    73,
+    74,
+    86,
+    90,
+    91
+   ],
+   "index_stats": {
+    "4": {
+     "pixels": 6109,
+     "box": [
+      630,
+      656,
+      658,
+      905
+     ]
+    },
+    "7": {
+     "pixels": 2203,
+     "box": [
+      1463,
+      731,
+      1479,
+      899
+     ]
+    },
+    "9": {
+     "pixels": 10754,
+     "box": [
+      1074,
+      705,
+      1181,
+      882
+     ]
+    },
+    "10": {
+     "pixels": 4123,
+     "box": [
+      654,
+      712,
+      721,
+      869
+     ]
+    },
+    "11": {
+     "pixels": 7898,
+     "box": [
+      379,
+      722,
+      488,
+      855
+     ]
+    },
+    "12": {
+     "pixels": 554,
+     "box": [
+      1542,
+      736,
+      1561,
+      835
+     ]
+    },
+    "21": {
+     "pixels": 525,
+     "box": [
+      1463,
+      831,
+      1471,
+      911
+     ]
+    },
+    "39": {
+     "pixels": 5557,
+     "box": [
+      504,
+      741,
+      544,
+      898
+     ]
+    },
+    "47": {
+     "pixels": 5885,
+     "box": [
+      630,
+      359,
+      658,
+      604
+     ]
+    },
+    "49": {
+     "pixels": 844,
+     "box": [
+      1065,
+      438,
+      1075,
+      583
+     ]
+    },
+    "59": {
+     "pixels": 4581,
+     "box": [
+      654,
+      333,
+      721,
+      496
+     ]
+    },
+    "60": {
+     "pixels": 8817,
+     "box": [
+      379,
+      399,
+      488,
+      546
+     ]
+    },
+    "62": {
+     "pixels": 12560,
+     "box": [
+      735,
+      328,
+      837,
+      501
+     ]
+    },
+    "72": {
+     "pixels": 919,
+     "box": [
+      1060,
+      505,
+      1307,
+      586
+     ]
+    },
+    "73": {
+     "pixels": 28576,
+     "box": [
+      904,
+      377,
+      1065,
+      599
+     ]
+    },
+    "74": {
+     "pixels": 488,
+     "box": [
+      976,
+      567,
+      1043,
+      592
+     ]
+    },
+    "86": {
+     "pixels": 2972,
+     "box": [
+      1021,
+      409,
+      1072,
+      587
+     ]
+    },
+    "90": {
+     "pixels": 1493,
+     "box": [
+      1297,
+      406,
+      1307,
+      587
+     ]
+    },
+    "91": {
+     "pixels": 6,
+     "box": [
+      1297,
+      405,
+      1301,
+      407
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -5.5,
+    "ev_raw": -5.5213,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 14.419977,
+    "whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5554.3,
+    "wb_tint": 5.28,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.739,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 320,
+     "block_px": 6,
+     "interior_frac": 0.4223,
+     "metered": "facade",
+     "ground_blocks_used": 70
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "ev_facade": -4.0,
+    "ev_ground": -7.0213,
+    "ground_p50": 116.913728,
+    "ground_headroom_stops": 1.5,
+    "ground_cap": true,
+    "ground_rule": "the facade exposure would show the sunlit ground 3.02 stops over the target (more than 1.5): the ground exposure + 1.5 stops",
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": null,
+    "wb_rig_kelvin": null,
+    "wb_rig_whitepoint": null,
+    "wb_view_rule": "under the exterior sky (daylight): the project white point",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": 0.0,
+    "k": 0,
+    "pane_ev": -5.5,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 36404,
+    "pane_median": 0.1198,
+    "pane_p90": 0.2419,
+    "pane_saturation": 0.3333,
+    "wall_median": 0.435,
+    "rule": "no k keeps the panes brighter than the walls: no pull",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.0482,
+      "p90": 0.1368
+     }
+    ],
+    "seconds": 0.295
+   },
+   "interior_glazing": null,
+   "lawn": {
+    "px_share": 0.1149,
+    "saturation": 0.3465,
+    "median": 0.4599
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "wenart_world_exterior"
+  },
+  {
+   "camera": "ext_4",
+   "room_id": null,
+   "level_id": null,
+   "lens_mm": 26.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": null,
+   "open_air": false,
+   "sky_pull": {
+    "ev": 0.0,
+    "k": 0,
+    "sky_ev": -7.666667,
+    "sky_px": 655834,
+    "sky_share": 0.3163,
+    "haze_px": 315845,
+    "full_weight_share": 0.9556,
+    "ring_px": 51255,
+    "sun_offset_deg": 171.03,
+    "into_sun": false,
+    "median_before": 0.3986,
+    "saturation_before": 0.3643,
+    "median_after": 0.3986,
+    "saturation_after": 0.3643,
+    "rule": "the sky is under the shoulder and saturated as rendered: no pull",
+    "targets": {
+     "median_max": 0.8,
+     "saturation_min": 0.12,
+     "median_target": 0.6,
+     "saturation_near": 0.1,
+     "ring_px": 2,
+     "median_min": 0.4
+    },
+    "tried": [],
+    "seconds": 0.319
+   },
+   "clip": {
+    "start_m": 0.1,
+    "end_m": 3000.0,
+    "built_end_m": 3000.0,
+    "rule": null
+   },
+   "haze_hidden": false,
+   "vram_mib": 65374,
+   "png": "ext_4.png",
+   "exr": "ext_4_passes.exr",
+   "preview": "ext_4_preview.jpg",
+   "depth_png": "ext_4_depth.png",
+   "index_png": "ext_4_index.png",
+   "files": {
+    "index": "ext_4_index.png",
+    "depth_mm": "ext_4_depth_mm.png",
+    "normal": "ext_4_normal.png",
+    "depth": "ext_4_depth.png"
+   },
+   "preview_bytes": 231280,
+   "seconds": 7.23,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 6.565306663513184,
+    "max": 2889.784423828125,
+    "mean": 24.360340118408203,
+    "coverage": 0.8360392554012346
+   },
+   "index_values": [
+    1,
+    5,
+    7,
+    9,
+    12,
+    43,
+    48,
+    50,
+    54,
+    55,
+    63,
+    69
+   ],
+   "index_stats": {
+    "1": {
+     "pixels": 20091,
+     "box": [
+      1360,
+      688,
+      1588,
+      920
+     ]
+    },
+    "5": {
+     "pixels": 15177,
+     "box": [
+      1170,
+      685,
+      1233,
+      934
+     ]
+    },
+    "7": {
+     "pixels": 62097,
+     "box": [
+      673,
+      686,
+      943,
+      930
+     ]
+    },
+    "9": {
+     "pixels": 8,
+     "box": [
+      349,
+      792,
+      351,
+      796
+     ]
+    },
+    "12": {
+     "pixels": 2876,
+     "box": [
+      599,
+      686,
+      651,
+      833
+     ]
+    },
+    "43": {
+     "pixels": 18512,
+     "box": [
+      1360,
+      353,
+      1588,
+      594
+     ]
+    },
+    "48": {
+     "pixels": 1005,
+     "box": [
+      516,
+      410,
+      522,
+      591
+     ]
+    },
+    "50": {
+     "pixels": 14581,
+     "box": [
+      1170,
+      329,
+      1233,
+      586
+     ]
+    },
+    "54": {
+     "pixels": 14507,
+     "box": [
+      941,
+      380,
+      1014,
+      603
+     ]
+    },
+    "55": {
+     "pixels": 23491,
+     "box": [
+      667,
+      328,
+      850,
+      494
+     ]
+    },
+    "63": {
+     "pixels": 3908,
+     "box": [
+      1025,
+      387,
+      1066,
+      516
+     ]
+    },
+    "69": {
+     "pixels": 198,
+     "box": [
+      847,
+      557,
+      853,
+      590
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -7.666667,
+    "ev_raw": -7.6457,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 180.228932,
+    "whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5554.3,
+    "wb_tint": 5.28,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.799,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 332,
+     "block_px": 6,
+     "interior_frac": 0.4254,
+     "metered": "facade",
+     "ground_blocks_used": 115
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "ev_facade": -7.666667,
+    "ev_ground": -7.8038,
+    "ground_p50": 201.105459,
+    "ground_headroom_stops": 1.5,
+    "ground_cap": false,
+    "ground_rule": "the ground within 1.5 stops of the target: the facade exposure",
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": null,
+    "wb_rig_kelvin": null,
+    "wb_rig_whitepoint": null,
+    "wb_view_rule": "under the exterior sky (daylight): the project white point",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": 0.0,
+    "k": 0,
+    "pane_ev": -7.666667,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 24278,
+    "pane_median": 0.0115,
+    "pane_p90": 0.0378,
+    "pane_saturation": 0.5,
+    "wall_median": 0.4131,
+    "rule": "no k keeps the panes brighter than the walls: no pull",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.0039,
+      "p90": 0.0106
+     }
+    ],
+    "seconds": 0.273
+   },
+   "interior_glazing": null,
+   "lawn": {
+    "px_share": 0.1488,
+    "saturation": 0.6667,
+    "median": 0.2128
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "wenart_world_exterior"
+  },
+  {
+   "camera": "ext_5",
+   "room_id": null,
+   "level_id": null,
+   "lens_mm": 26.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": null,
+   "open_air": false,
+   "sky_pull": {
+    "ev": -2.0,
+    "k": 2,
+    "sky_ev": -8.166667,
+    "sky_px": 277053,
+    "sky_share": 0.1336,
+    "haze_px": 149002,
+    "full_weight_share": 0.9823,
+    "ring_px": 4379,
+    "sun_offset_deg": 80.24,
+    "into_sun": false,
+    "median_before": 0.7253,
+    "saturation_before": 0.05,
+    "median_after": 0.4567,
+    "saturation_after": 0.1111,
+    "rule": "smallest k with the sky median <= 0.6 (mid-tone) and saturation >= 0.1",
+    "targets": {
+     "median_max": 0.8,
+     "saturation_min": 0.12,
+     "median_target": 0.6,
+     "saturation_near": 0.1,
+     "ring_px": 2,
+     "median_min": 0.4
+    },
+    "tried": [
+     {
+      "k": 1,
+      "median": 0.6032,
+      "saturation": 0.0747
+     },
+     {
+      "k": 2,
+      "median": 0.4567,
+      "saturation": 0.1111
+     }
+    ],
+    "edge_dot_px": 0,
+    "edge_px": 5423,
+    "seconds": 0.79
+   },
+   "clip": {
+    "start_m": 0.1,
+    "end_m": 3000.0,
+    "built_end_m": 3000.0,
+    "rule": null
+   },
+   "haze_hidden": false,
+   "vram_mib": 65374,
+   "png": "ext_5.png",
+   "exr": "ext_5_passes.exr",
+   "preview": "ext_5_preview.jpg",
+   "depth_png": "ext_5_depth.png",
+   "index_png": "ext_5_index.png",
+   "files": {
+    "index": "ext_5_index.png",
+    "depth_mm": "ext_5_depth_mm.png",
+    "normal": "ext_5_normal.png",
+    "depth": "ext_5_depth.png"
+   },
+   "preview_bytes": 240001,
+   "seconds": 7.02,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 16.50598907470703,
+    "max": 2999.933837890625,
+    "mean": 69.49610137939453,
+    "coverage": 0.9382470100308642
+   },
+   "index_values": [
+    2,
+    4,
+    7,
+    9,
+    10,
+    11,
+    12,
+    21,
+    39,
+    47,
+    48,
+    49,
+    59,
+    60,
+    62,
+    72,
+    73,
+    74,
+    83,
+    84,
+    86,
+    90
+   ],
+   "index_stats": {
+    "2": {
+     "pixels": 151,
+     "box": [
+      1131,
+      758,
+      1136,
+      798
+     ]
+    },
+    "4": {
+     "pixels": 1874,
+     "box": [
+      772,
+      752,
+      796,
+      867
+     ]
+    },
+    "7": {
+     "pixels": 342,
+     "box": [
+      1248,
+      679,
+      1271,
+      723
+     ]
+    },
+    "9": {
+     "pixels": 2344,
+     "box": [
+      1015,
+      821,
+      1067,
+      913
+     ]
+    },
+    "10": {
+     "pixels": 1355,
+     "box": [
+      794,
+      786,
+      832,
+      872
+     ]
+    },
+    "11": {
+     "pixels": 3605,
+     "box": [
+      613,
+      724,
+      687,
+      815
+     ]
+    },
+    "12": {
+     "pixels": 427,
+     "box": [
+      1314,
+      638,
+      1331,
+      703
+     ]
+    },
+    "21": {
+     "pixels": 549,
+     "box": [
+      1245,
+      710,
+      1258,
+      768
+     ]
+    },
+    "39": {
+     "pixels": 1826,
+     "box": [
+      690,
+      749,
+      721,
+      826
+     ]
+    },
+    "47": {
+     "pixels": 2205,
+     "box": [
+      765,
+      589,
+      791,
+      719
+     ]
+    },
+    "48": {
+     "pixels": 272,
+     "box": [
+      1272,
+      518,
+      1281,
+      621
+     ]
+    },
+    "49": {
+     "pixels": 125,
+     "box": [
+      1014,
+      618,
+      1019,
+      651
+     ]
+    },
+    "59": {
+     "pixels": 1688,
+     "box": [
+      787,
+      596,
+      827,
+      685
+     ]
+    },
+    "60": {
+     "pixels": 3993,
+     "box": [
+      600,
+      551,
+      676,
+      641
+     ]
+    },
+    "62": {
+     "pixels": 3462,
+     "box": [
+      835,
+      589,
+      887,
+      689
+     ]
+    },
+    "72": {
+     "pixels": 572,
+     "box": [
+      1010,
+      662,
+      1146,
+      745
+     ]
+    },
+    "73": {
+     "pixels": 7280,
+     "box": [
+      923,
+      598,
+      1014,
+      713
+     ]
+    },
+    "74": {
+     "pixels": 223,
+     "box": [
+      962,
+      664,
+      1001,
+      705
+     ]
+    },
+    "83": {
+     "pixels": 952,
+     "box": [
+      689,
+      587,
+      712,
+      644
+     ]
+    },
+    "84": {
+     "pixels": 152,
+     "box": [
+      692,
+      676,
+      714,
+      693
+     ]
+    },
+    "86": {
+     "pixels": 879,
+     "box": [
+      989,
+      642,
+      1017,
+      743
+     ]
+    },
+    "90": {
+     "pixels": 780,
+     "box": [
+      1136,
+      588,
+      1149,
+      687
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -6.166667,
+    "ev_raw": -6.2352,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 16.723864,
+    "whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5554.3,
+    "wb_tint": 5.28,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.748,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 79,
+     "block_px": 6,
+     "interior_frac": 0.1584,
+     "metered": "facade",
+     "ground_blocks_used": 87
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "ev_facade": -4.166667,
+    "ev_ground": -7.7352,
+    "ground_p50": 191.771502,
+    "ground_headroom_stops": 1.5,
+    "ground_cap": true,
+    "ground_rule": "the facade exposure would show the sunlit ground 3.52 stops over the target (more than 1.5): the ground exposure + 1.5 stops",
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": null,
+    "wb_rig_kelvin": null,
+    "wb_rig_whitepoint": null,
+    "wb_view_rule": "under the exterior sky (daylight): the project white point",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": 0.0,
+    "k": 0,
+    "pane_ev": -6.166667,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 11873,
+    "pane_median": 0.0664,
+    "pane_p90": 0.1213,
+    "pane_saturation": 0.4,
+    "wall_median": 0.3456,
+    "rule": "no k keeps the panes brighter than the walls: no pull",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.0179,
+      "p90": 0.0493
+     }
+    ],
+    "seconds": 0.242
+   },
+   "interior_glazing": null,
+   "lawn": {
+    "px_share": 0.2471,
+    "saturation": 0.46,
+    "median": 0.396
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "wenart_world_exterior"
+  },
+  {
+   "camera": "ext_6",
+   "room_id": null,
+   "level_id": null,
+   "lens_mm": 26.0,
+   "sensor_mm": 36.0,
+   "lighting_dark": null,
+   "sun_hidden": false,
+   "room_type": null,
+   "open_air": false,
+   "sky_pull": {
+    "ev": 0.0,
+    "k": 0,
+    "sky_ev": -7.166667,
+    "sky_px": 500559,
+    "sky_share": 0.2414,
+    "haze_px": 236346,
+    "full_weight_share": 0.9192,
+    "ring_px": 86863,
+    "sun_offset_deg": 138.34,
+    "into_sun": false,
+    "median_before": 0.4845,
+    "saturation_before": 0.2914,
+    "median_after": 0.4845,
+    "saturation_after": 0.2914,
+    "rule": "the sky is under the shoulder and saturated as rendered: no pull",
+    "targets": {
+     "median_max": 0.8,
+     "saturation_min": 0.12,
+     "median_target": 0.6,
+     "saturation_near": 0.1,
+     "ring_px": 2,
+     "median_min": 0.4
+    },
+    "tried": [],
+    "seconds": 0.462
+   },
+   "clip": {
+    "start_m": 0.1,
+    "end_m": 3000.0,
+    "built_end_m": 3000.0,
+    "rule": null
+   },
+   "haze_hidden": false,
+   "vram_mib": 65374,
+   "png": "ext_6.png",
+   "exr": "ext_6_passes.exr",
+   "preview": "ext_6_preview.jpg",
+   "depth_png": "ext_6_depth.png",
+   "index_png": "ext_6_index.png",
+   "files": {
+    "index": "ext_6_index.png",
+    "depth_mm": "ext_6_depth_mm.png",
+    "normal": "ext_6_normal.png",
+    "depth": "ext_6_depth.png"
+   },
+   "preview_bytes": 256671,
+   "seconds": 7.18,
+   "samples": 256,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 7.516176700592041,
+    "max": 2941.67236328125,
+    "mean": 21.21245574951172,
+    "coverage": 0.8725824652777778
+   },
+   "index_values": [
+    1,
+    7,
+    12,
+    43,
+    54,
+    55,
+    63,
+    67,
+    69,
+    97
+   ],
+   "index_stats": {
+    "1": {
+     "pixels": 94826,
+     "box": [
+      1011,
+      700,
+      1646,
+      1030
+     ]
+    },
+    "7": {
+     "pixels": 83894,
+     "box": [
+      416,
+      728,
+      765,
+      972
+     ]
+    },
+    "12": {
+     "pixels": 513,
+     "box": [
+      371,
+      729,
+      416,
+      873
+     ]
+    },
+    "43": {
+     "pixels": 88428,
+     "box": [
+      1011,
+      254,
+      1646,
+      570
+     ]
+    },
+    "54": {
+     "pixels": 15491,
+     "box": [
+      762,
+      377,
+      828,
+      623
+     ]
+    },
+    "55": {
+     "pixels": 28608,
+     "box": [
+      404,
+      374,
+      619,
+      521
+     ]
+    },
+    "63": {
+     "pixels": 6,
+     "box": [
+      866,
+      504,
+      867,
+      510
+     ]
+    },
+    "67": {
+     "pixels": 12,
+     "box": [
+      688,
+      619,
+      694,
+      622
+     ]
+    },
+    "69": {
+     "pixels": 3182,
+     "box": [
+      622,
+      564,
+      688,
+      622
+     ]
+    },
+    "97": {
+     "pixels": 41,
+     "box": [
+      691,
+      389,
+      698,
+      402
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "b237ce0e62821f0780a2bcac6918b8312e860b52b39b2d300b1ae69b8c5f97e9",
+   "render_key": "4eeb4183e2c6df9c",
+   "exposure": {
+    "mode": "auto",
+    "ev": -7.166667,
+    "ev_raw": -7.1014,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -10.3808,
+     3.0
+    ],
+    "incident_p50": 123.58964,
+    "whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_mode": "project",
+    "wb_temperature": 5554.3,
+    "wb_tint": 5.28,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.756,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 430,
+     "block_px": 6,
+     "interior_frac": 0.5425,
+     "metered": "facade",
+     "ground_blocks_used": 43
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "lighting_dark": null,
+    "floor_shift_stops": 8.3808,
+    "ev_facade": -7.166667,
+    "ev_ground": -7.7922,
+    "ground_p50": 199.493168,
+    "ground_headroom_stops": 1.5,
+    "ground_cap": false,
+    "ground_rule": "the ground within 1.5 stops of the target: the facade exposure",
+    "wb_source": "metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)",
+    "wb_from_camera": "cam_r_L0_mutfak_2",
+    "wb_project_whitepoint": [
+     1.116705,
+     0.980228,
+     0.852212
+    ],
+    "wb_rig_share": null,
+    "wb_rig_kelvin": null,
+    "wb_rig_whitepoint": null,
+    "wb_view_rule": "under the exterior sky (daylight): the project white point",
+    "ev_offset": 0.0,
+    "wb_view_shift_mired": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": 0.0,
+    "k": 0,
+    "pane_ev": -7.166667,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 24056,
+    "pane_median": 0.0334,
+    "pane_p90": 0.0866,
+    "pane_saturation": 0.6,
+    "wall_median": 0.4599,
+    "rule": "no k keeps the panes brighter than the walls: no pull",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.0084,
+      "p90": 0.0263
+     }
+    ],
+    "seconds": 0.272
+   },
+   "interior_glazing": null,
+   "lawn": {
+    "px_share": 0.0928,
+    "saturation": 0.5849,
+    "median": 0.2691
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "wenart_world_exterior"
+  }
+ ],
+ "carried_from_earlier_build": [],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1792826255.0,
+ "warnings": []
+}

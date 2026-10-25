@@ -165,9 +165,10 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   polish stays off in Milestone 13; the interior sky is windows-only, +3.5 stops, by default (user decision of 23 Oct
   2026).
 - Verify model IDs, versions and flags against official sources; never invent them.
-- Before / after (user rule of 24 Oct 2026): every before / after compares the Milestone 13 run of the project
-  (before, `results/baseline/m13/`, the default of `wenart.report sheets13` / `metrics13`) with the run that has the
-  later changes (after); never M12 or another older run as "before".
+- Before / after (user rule of 25 Oct 2026, replaces the Milestone 13 rule of 24 Oct 2026): every before / after
+  compares a run with the project's latest run before it, never a milestone run (`wenart.report.latest`, the default
+  of `wenart.report sheets13` / `metrics13`; `--baseline m13` only when asked). After the report the new run becomes
+  the latest (`python -m wenart.report latest --out <run>/final/<p> --promote`, committed in `results/baseline/latest/`).
 - Tests: CPU tests run here (`pytest -m "not gpu"`); GPU tests run on RunPod
   (`pytest -m gpu` via the runner). Run GPU tests before calling a milestone done.
 - Scripts: `#!/usr/bin/env bash`, `set -Eeuo pipefail`, error trap, logs in

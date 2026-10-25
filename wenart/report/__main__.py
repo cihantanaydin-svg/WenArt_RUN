@@ -28,10 +28,14 @@ Milestone 13 (docs/milestone13.md §7, §13.2; track T8):
 - ``sheets13 --out <project_out> [--baseline <dir>] --dir <out_dir>``: one before | after JPEG per camera
   (``wenart.report.sheets13``). Exit 0; exit 2 for a missing folder.
 
-User rule of 24 Oct 2026: every before / after is Milestone 13 against the run with the later changes. Without
-``--baseline`` both commands take the committed Milestone 13 run of the project, ``results/baseline/m13/final/<p>``
-(``M13_BASELINE``; real04: the run of 2799c88, the Milestone 13 final code); sheets13 refuses to run without one, and
-metrics13 says that its "before" column is empty.
+User rule of 25 Oct 2026 (it replaces the Milestone 13 rule of 24 Oct 2026): every before / after compares a run
+with the project's latest run before it. Without ``--baseline`` both commands take that run
+(``wenart.report.latest.latest_run``: the runner's ``runs/<job>/results/final/<p>``, the committed copy
+``results/baseline/latest/final/<p>``, the Milestone 13 copy ``results/baseline/m13/final/<p>`` when nothing newer is
+known); ``--baseline m13`` asks for the Milestone 13 run. sheets13 refuses to run without a baseline, and metrics13
+says that its "before" column is empty.
+- ``latest --out <run>/final/<p> [--promote]``: names the run that is "before" for ``<run>``; ``--promote`` copies
+  ``<run>`` into ``results/baseline/latest`` (the project's latest run from now on).
 
 Fix round after P4a (17 Oct 2026; the report track's ask, applied at integration): the metrics13 line names why a
 metric has no data (its text, e.g. "m11 (no drawn tree; no tree in the scene)"), so a run without trees does not read
@@ -43,7 +47,7 @@ import argparse
 import sys
 from pathlib import Path
 
-M13_COMMANDS = ("metrics13", "sheets13")
+M13_COMMANDS = ("metrics13", "sheets13", "latest")
 
 
 def main(argv=None) -> int:
@@ -58,7 +62,10 @@ def main(argv=None) -> int:
     parser.add_argument("--private", action="store_true",
                         help="private project: name plan crops and debug images, never copy them (§7.4)")
     parser.add_argument("--baseline", default=None, help="metrics13, sheets13: the baseline run's folder (default: "
-                        "the committed Milestone 13 run, results/baseline/m13/final/<p>)")
+                        "the project's latest run before this one, wenart.report.latest; 'm13': the committed "
+                        "Milestone 13 run, results/baseline/m13/final/<p>)")
+    parser.add_argument("--promote", action="store_true",
+                        help="latest: copy the run into results/baseline/latest (the project's latest run)")
     parser.add_argument("--json", default=None, help="metrics13: where the JSON goes")
     parser.add_argument("--md", default=None, help="metrics13: where the markdown goes (optional)")
     parser.add_argument("--dir", default=None, help="sheets13: the folder of the sheets")
@@ -130,17 +137,37 @@ def _m13(args, parser) -> int:
     if not Path(run).is_dir():
         print(f"report {args.command}: {run} is not a folder", file=sys.stderr)
         return 2
-    if not args.baseline:
+    from wenart.report import latest as LT
+    if args.command == "latest":
+        if args.promote:
+            rec = LT.promote(run)
+            print(f"report latest {Path(run).resolve().name}: run {rec['job']} is the latest run now "
+                  f"({rec['files']} files, {rec['previews']} previews) -> {LT.LATEST}")
+            return 0
+        found = LT.latest_run(run)
+        print(f"report latest {Path(run).resolve().name}: before = " +
+              (f"run {found.job} ({found.final_dir})" if found else "no earlier run known"))
+        return 0
+    if args.baseline == "m13":
         found = m13_baseline(run)
-        if found is not None:
-            args.baseline = str(found)
-            print(f"report {args.command}: baseline = the Milestone 13 run {found}")
+        if found is None:
+            print(f"report {args.command}: no Milestone 13 run of {Path(run).resolve().name} in {M13_BASELINE}",
+                  file=sys.stderr)
+            return 2
+        args.baseline = str(found)
+        print(f"report {args.command}: baseline = the Milestone 13 run {found}")
+    if not args.baseline:
+        latest = LT.latest_run(run)
+        if latest is not None:
+            args.baseline = str(latest.final_dir)
+            print(f"report {args.command}: baseline = the latest run before this one, run {latest.job} "
+                  f"({latest.final_dir})")
         elif args.command == "sheets13":
-            print(f"report sheets13: no Milestone 13 baseline of {Path(run).resolve().name} in {M13_BASELINE} "
-                  f"(before / after is Milestone 13 against the new run): give --baseline", file=sys.stderr)
+            print(f"report sheets13: no earlier run of {Path(run).resolve().name} in {LT.RUNS} or {LT.BASELINE} "
+                  f"(before / after is the latest run against the new run): give --baseline", file=sys.stderr)
             return 2
         else:
-            print(f"report metrics13: no Milestone 13 baseline of {Path(run).resolve().name} in {M13_BASELINE}: "
+            print(f"report metrics13: no earlier run of {Path(run).resolve().name} in {LT.RUNS} or {LT.BASELINE}: "
                   f"the before column stays empty")
     if args.baseline and not Path(args.baseline).is_dir():
         print(f"report {args.command}: baseline {args.baseline} is not a folder", file=sys.stderr)

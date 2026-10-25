@@ -3,101 +3,313 @@
  "version": 1,
  "updated": "2026-10-25",
  "lessons": [
-  {"id": "UL01", "date": "2026-10-24", "area": "facade", "status": "built", "checks": ["build"],
+  {
+   "id": "UL01",
+   "date": "2026-10-24",
+   "area": "facade",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "real04 outside renders are not that good, first start giving some material to the outside walls, they seem blank concrete",
    "lesson": "Every outer wall carries a facade finish (render, stone, cladding) with a plinth, slab bands, copings and window surrounds; never bare concrete.",
-   "question": "Does every outer wall carry a facade finish, with a plinth, bands and copings?"},
-  {"id": "UL02", "date": "2026-10-24", "area": "site", "status": "built", "checks": ["build", "B1"],
+   "question": "Does every outer wall carry a facade finish, with a plinth, bands and copings?"
+  },
+  {
+   "id": "UL02",
+   "date": "2026-10-24",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "build",
+    "B1"
+   ],
    "request": "there is a bulge in bodrum kat looks like a balcony there should not be there; bulge at the side of the pool",
    "lesson": "Nothing sticks out of the facade unless drawn: a basement window gets a light well or a court only when the ground outside is above its sill, never on a terrace that lies below it.",
-   "question": "Does anything stick out of the facade that the drawing does not show?"},
-  {"id": "UL03", "date": "2026-10-24", "area": "openings", "status": "rule", "checks": ["D3", "build"],
+   "question": "Does anything stick out of the facade that the drawing does not show?"
+  },
+  {
+   "id": "UL03",
+   "date": "2026-10-24",
+   "area": "openings",
+   "status": "rule",
+   "checks": [
+    "D3",
+    "build"
+   ],
    "request": "start using outside doors; there are new windows you can try to use",
    "lesson": "Outer doors and windows are real products from the library with see-through glass; a door to a terrace is mostly glass, in the windows' frame finish.",
-   "question": "Is every outer door and window a real product with glass, and every terrace door glazed?"},
-  {"id": "UL04", "date": "2026-10-24", "area": "site", "status": "built", "checks": ["build", "G1"],
+   "question": "Is every outer door and window a real product with glass, and every terrace door glazed?"
+  },
+  {
+   "id": "UL04",
+   "date": "2026-10-24",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "build",
+    "G1"
+   ],
    "request": "start using the new library items for the outside items, plants cars etc",
    "lesson": "The site is furnished like a real garden: trees, shrubs, hedges, lawn, cars on the parking, from the library.",
-   "question": "Is the garden furnished: plants, trees, hedges, cars where they belong?"},
-  {"id": "UL05", "date": "2026-10-24", "area": "roof", "status": "built", "checks": ["build"],
+   "question": "Is the garden furnished: plants, trees, hedges, cars where they belong?"
+  },
+  {
+   "id": "UL05",
+   "date": "2026-10-24",
+   "area": "roof",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "rain gutters you can include; rain gutters going on the air, they need to be connected to walls instead of flying",
    "lesson": "Gutters run along every eave and downpipes run down solid walls to the ground; nothing hangs in the air.",
-   "question": "Do the gutters and downpipes hang on the building and reach the ground?"},
-  {"id": "UL06", "date": "2026-10-24", "area": "roof", "status": "built", "checks": ["build"],
+   "question": "Do the gutters and downpipes hang on the building and reach the ground?"
+  },
+  {
+   "id": "UL06",
+   "date": "2026-10-24",
+   "area": "roof",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "roof not looking good may require a rework; roof still not looking realistic enough, there seem to be some gaps",
    "lesson": "The roof is closed and real: no gaps, eaves with a fascia, ridges and hips, its form following the plan.",
-   "question": "Is the roof closed, with real eaves, fascia, ridges and hips?"},
-  {"id": "UL07", "date": "2026-10-24", "area": "access", "status": "rule", "checks": ["A2", "A5"],
+   "question": "Is the roof closed, with real eaves, fascia, ridges and hips?"
+  },
+  {
+   "id": "UL07",
+   "date": "2026-10-24",
+   "area": "access",
+   "status": "rule",
+   "checks": [
+    "A2",
+    "A5"
+   ],
    "request": "it seems there is no access to the pool, how will people walk to the pool?",
    "lesson": "Every terrace and pool deck can be reached: from a door at its level or by steps and a path from the site's paths.",
-   "question": "Can people reach every terrace and pool deck?"},
-  {"id": "UL08", "date": "2026-10-24", "area": "process", "status": "built", "checks": ["build"],
+   "question": "Can people reach every terrace and pool deck?"
+  },
+  {
+   "id": "UL08",
+   "date": "2026-10-24",
+   "area": "process",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "design a module called architect that can ask these kind of questions and make necessary changes; make the architect more clever asking better and better questions; don't restrict this to only 16 questions",
    "lesson": "The architect asks every rule of every element (thousands of questions), fixes what code can fix safely, asks the user the rest with options, and the AI on the pod answers the open ones.",
-   "question": "Has every element been asked every rule that applies to it?"},
-  {"id": "UL09", "date": "2026-10-25", "area": "views", "status": "built", "checks": ["build"],
+   "question": "Has every element been asked every rule that applies to it?"
+  },
+  {
+   "id": "UL09",
+   "date": "2026-10-25",
+   "area": "views",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "make the top down view a bit angled; give a better angle from right up to left down and halve the walls preventing the views",
    "lesson": "The top-down views look from the north-east at about 35 degrees with the walls cut at 0.6 m and the windows marked.",
-   "question": "Do the top-down views show every room clearly?"},
-  {"id": "UL10", "date": "2026-10-25", "area": "access", "status": "rule", "checks": ["A5", "A2"],
+   "question": "Do the top-down views show every room clearly?"
+  },
+  {
+   "id": "UL10",
+   "date": "2026-10-25",
+   "area": "access",
+   "status": "rule",
+   "checks": [
+    "A5",
+    "A2"
+   ],
    "request": "try to have an access from the outside instead of including the door",
    "lesson": "Reach a terrace from outside (steps and a path) before turning a drawn window into a door: drawn openings stay as drawn.",
-   "question": "Is a terrace reached from outside before any drawn window becomes a door?"},
-  {"id": "UL11", "date": "2026-10-25", "area": "openings", "status": "rule", "checks": ["W2"],
+   "question": "Is a terrace reached from outside before any drawn window becomes a door?"
+  },
+  {
+   "id": "UL11",
+   "date": "2026-10-25",
+   "area": "openings",
+   "status": "rule",
+   "checks": [
+    "W2"
+   ],
    "request": "no inside window should be outside",
    "lesson": "A window between two rooms is a reading error: it moves to the dark room's outer wall.",
-   "question": "Does every window look outside?"},
-  {"id": "UL12", "date": "2026-10-25", "area": "daylight", "status": "rule", "checks": ["L1"],
+   "question": "Does every window look outside?"
+  },
+  {
+   "id": "UL12",
+   "date": "2026-10-25",
+   "area": "daylight",
+   "status": "rule",
+   "checks": [
+    "L1"
+   ],
    "request": "yes (enlarge the play room windows)",
    "lesson": "A habitable room gets glass of at least a tenth of its floor; too little glass: the windows are enlarged.",
-   "question": "Does every habitable room get enough daylight?"},
-  {"id": "UL13", "date": "2026-10-25", "area": "plan", "status": "rule", "checks": ["C2"],
+   "question": "Does every habitable room get enough daylight?"
+  },
+  {
+   "id": "UL13",
+   "date": "2026-10-25",
+   "area": "plan",
+   "status": "rule",
+   "checks": [
+    "C2"
+   ],
    "request": "yes (the two kitchens are separate on purpose)",
    "lesson": "A separate kitchen may be meant: the architect asks before joining rooms and keeps the answer.",
-   "question": "Is a separate kitchen meant?"},
-  {"id": "UL14", "date": "2026-10-25", "area": "furniture", "status": "rule", "checks": ["F5"],
+   "question": "Is a separate kitchen meant?"
+  },
+  {
+   "id": "UL14",
+   "date": "2026-10-25",
+   "area": "furniture",
+   "status": "rule",
+   "checks": [
+    "F5"
+   ],
    "request": "it's unacceptable to see the clashing furniture at this stage",
    "lesson": "No two pieces of furniture cut each other in any render; clashes are planned apart before the build.",
-   "question": "Does any piece cut another?"},
-  {"id": "UL15", "date": "2026-10-25", "area": "site", "status": "rule", "checks": ["build", "A2", "K2"],
+   "question": "Does any piece cut another?"
+  },
+  {
+   "id": "UL15",
+   "date": "2026-10-25",
+   "area": "site",
+   "status": "rule",
+   "checks": [
+    "build",
+    "A2",
+    "K2"
+   ],
    "request": "this section is not making any sense at all, rework it, make it make sense (the east pool deck beside the basement)",
    "lesson": "A terrace beside the house sits at the floor its doors and windows serve, never half way between floors; no pit is cut into a terrace; mirrored twins match; walls over 1.2 m step back as planted terraces or carry a guard.",
-   "question": "Does every terrace sit at a floor level that makes sense with the house and its twin?"},
-  {"id": "UL16", "date": "2026-10-25", "area": "furniture", "status": "rule", "checks": ["S2"],
+   "question": "Does every terrace sit at a floor level that makes sense with the house and its twin?"
+  },
+  {
+   "id": "UL16",
+   "date": "2026-10-25",
+   "area": "furniture",
+   "status": "rule",
+   "checks": [
+    "S2"
+   ],
    "request": "there is no taste in the furniture selection; make something to develop a tasteful selection of furniture",
    "lesson": "The furniture of a room and of the house is one coherent set: one design language, one or two wood tones, one metal finish, a colour palette from the style (60-30-10), real proportions, and one statement piece per room.",
-   "question": "Does the furniture of every room look chosen together, in the style?"},
-  {"id": "UL17", "date": "2026-10-25", "area": "decor", "status": "rule", "checks": ["S3"],
+   "question": "Does the furniture of every room look chosen together, in the style?"
+  },
+  {
+   "id": "UL17",
+   "date": "2026-10-25",
+   "area": "decor",
+   "status": "rule",
+   "checks": [
+    "S3"
+   ],
    "request": "there is not enough decor around",
    "lesson": "Rooms are styled like a magazine shoot: every table, console, shelf and nightstand carries a small group of decor, walls carry art, every living room and bedroom has plants, lamps, a rug, cushions and a throw.",
-   "question": "Is every room styled with enough decor?"},
-  {"id": "UL18", "date": "2026-10-25", "area": "furniture", "status": "rule", "checks": ["S4"],
+   "question": "Is every room styled with enough decor?"
+  },
+  {
+   "id": "UL18",
+   "date": "2026-10-25",
+   "area": "furniture",
+   "status": "rule",
+   "checks": [
+    "S4"
+   ],
    "request": "furniture groups are not sufficient",
    "lesson": "Every room is complete for its use: a sofa with a coffee table, side tables, a floor lamp and a rug; a bed with two nightstands and lamps (and a bench in a large room); a dining table with its chairs, a pendant and a sideboard.",
-   "question": "Is every furniture group complete?"},
-  {"id": "UL19", "date": "2026-10-25", "area": "decor", "status": "built", "checks": ["build"],
+   "question": "Is every furniture group complete?"
+  },
+  {
+   "id": "UL19",
+   "date": "2026-10-25",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "there are pillows on top of the beds and sofas that seem to be floating",
    "lesson": "Cushions and pillows rest on and lean against their seat or headboard and sink a little into it; no cushion on a model that has its own.",
-   "question": "Does every cushion rest on its seat or bed?"},
-  {"id": "UL20", "date": "2026-10-25", "area": "terrace", "status": "rule", "checks": ["U1", "D3"],
+   "question": "Does every cushion rest on its seat or bed?"
+  },
+  {
+   "id": "UL20",
+   "date": "2026-10-25",
+   "area": "terrace",
+   "status": "rule",
+   "checks": [
+    "U1",
+    "D3"
+   ],
    "request": "is that table on the terrace ok? is that a table suitable for the terrace? is the door to the terrace ok?",
    "lesson": "A terrace is furnished with outdoor pieces (metal, teak, rattan, stone; no indoor desks or upholstery) and reached through a glazed door.",
-   "question": "Is the furniture on every terrace made for outside, and its door glazed?"},
-  {"id": "UL21", "date": "2026-10-25", "area": "details", "status": "rule", "checks": ["K1", "K2", "K3"],
+   "question": "Is the furniture on every terrace made for outside, and its door glazed?"
+  },
+  {
+   "id": "UL21",
+   "date": "2026-10-25",
+   "area": "details",
+   "status": "rule",
+   "checks": [
+    "K1",
+    "K2",
+    "K3"
+   ],
    "request": "better architectural details needed, better internal stairs, better finishes in the fences on top of the parapets",
    "lesson": "Details are built like real products: stairs with comfortable risers, tread plates with nosings, a balustrade and a handrail; guards of 1 m with gaps under 0.11 m; a coping on every parapet; one balustrade language for the house.",
-   "question": "Are the stairs, guards and parapets detailed like real products?"},
-  {"id": "UL22", "date": "2026-10-24", "area": "process", "status": "process", "checks": [],
+   "question": "Are the stairs, guards and parapets detailed like real products?"
+  },
+  {
+   "id": "UL22",
+   "date": "2026-10-24",
+   "area": "process",
+   "status": "process",
+   "checks": [],
    "request": "fixes need to be general: they need to work for every project I can throw at this, old and new",
-   "lesson": "Every fix is a general rule with a test, never a patch for one project."},
-  {"id": "UL23", "date": "2026-10-24", "area": "library", "status": "process", "checks": [],
+   "lesson": "Every fix is a general rule with a test, never a patch for one project."
+  },
+  {
+   "id": "UL23",
+   "date": "2026-10-24",
+   "area": "library",
+   "status": "process",
+   "checks": [],
    "request": "every project can use any library item; do not restrict with commercial only, the important thing is to look good and fit together with a style",
-   "lesson": "Library models are chosen for the look of the render (fitting together, carrying the style), not for their licence (licence_mode relaxed)."},
-  {"id": "UL24", "date": "2026-10-23", "area": "reading", "status": "process", "checks": [],
+   "lesson": "Library models are chosen for the look of the render (fitting together, carrying the style), not for their licence (licence_mode relaxed)."
+  },
+  {
+   "id": "UL24",
+   "date": "2026-10-23",
+   "area": "reading",
+   "status": "process",
+   "checks": [],
    "request": "increase the drawing reading functions so the pod can take care of problems like this",
-   "lesson": "A reading problem is fixed in the reader, so the pod handles the next drawing of that kind alone."},
-  {"id": "UL25", "date": "2026-10-25", "area": "process", "status": "process", "checks": [],
+   "lesson": "A reading problem is fixed in the reader, so the pod handles the next drawing of that kind alone."
+  },
+  {
+   "id": "UL25",
+   "date": "2026-10-25",
+   "area": "process",
+   "status": "process",
+   "checks": [],
    "request": "the architect should ask the questions and corrections I was asking all along; use AI to understand them and keep developing with future requests",
-   "lesson": "Every new request or correction of the user becomes a lesson here (python -m wenart.agent.lessons add); open lessons are checked by the AI architect on every run until a rule checks them."}
+   "lesson": "Every new request or correction of the user becomes a lesson here (python -m wenart.agent.lessons add); open lessons are checked by the AI architect on every run until a rule checks them."
+  },
+  {
+   "id": "UL26",
+   "date": "2026-10-25",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "From now on every run is against its latest run compare not according to milestones",
+   "lesson": "Every before / after compares the new run with the project's latest run before it (never a milestone run); the new run then becomes the latest.",
+   "question": null
+  }
  ]
 }
