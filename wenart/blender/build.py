@@ -908,7 +908,13 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
 
     whole = is_whole_building(building_all)
     vb = V.variant_building(building_all, variant)
-    out = {"whole": whole, "variant": variant, "building": vb if whole else building_all,
+    # 25 Oct 2026: the architect's answers and the clash resolver change rooms, openings, furniture and decor: the
+    # plan works on its own copies (the variant's lists share their items with the caller's building)
+    import copy as _copy
+    vb = dict(vb, **{k: _copy.deepcopy(vb[k]) for k in ("rooms", "openings", "furniture", "decor") if k in vb})
+    own = building_all if whole else dict(building_all, **{k: _copy.deepcopy(building_all[k])
+                                                           for k in ("furniture", "decor") if k in building_all})
+    out = {"whole": whole, "variant": variant, "building": vb if whole else own,
            "views": V.views_for(building_all, variant, brief=brief), "changes": V.variant_changes(building_all, variant),
            "warnings": list(vb["_variant"]["warnings"]), "assumed": [], "slabs": None, "roof": None,
            "open_rooms": set(), "outlines": {}, "ground_outline": [], "site": None, "faces": {},
@@ -918,6 +924,13 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
     if agent is not None:
         out["overrides_applied"] = {"round": agent.get("round"), "roof": [], "cameras": [], "materials": [],
                                     "sun": None, "site": None}
+    # 25 Oct 2026 (user: "it's unacceptable to see clashing furniture at this stage"): every clash of two pieces is
+    # planned apart before the build, for a whole building and a variant alike (wenart/blender/clashes.py; the
+    # architect reports it as F5)
+    from wenart.blender import clashes as CL
+    out["clashes"] = CL.resolve(out["building"])
+    out["warnings"] += [f"furniture clash left: {c['id']} and {c['other']} overlap {c['depth_m']:.2f} m"
+                        for c in out["clashes"]["left"]]
     if not whole:
         return out
     slab_t, slab_assumed = out["brief"]["slab_thickness"]["value"], out["brief"]["slab_thickness"]["assumed"]

@@ -166,7 +166,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              # 24 Oct 2026: shell's library openings, site's library cars and the facade scheme
              "wenart/blender/facade.py", "wenart/blender/opening_build.py", "wenart/blender/site_models.py",
              "wenart/blender/architect.py",              # 25 Oct 2026: site.railing_runs reads its step gap
-             "wenart/blender/architect_actions.py", "wenart/blender/architect_rules.py")   # ... and its rules
+             "wenart/blender/architect_actions.py", "wenart/blender/architect_rules.py",   # ... and its rules
+             "wenart/blender/clashes.py", "wenart/blender/parametric.py")    # F5: clashes, L-sofa parts
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height

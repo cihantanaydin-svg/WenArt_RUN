@@ -90,6 +90,9 @@ RULES = (
     {"id": "F3", "topic": "free windows", "scope": "window", "severity": "minor",
      "question": "Is every window free of tall furniture standing in front of it?",
      "why": "a wardrobe against a window blocks the light and looks wrong from outside"},
+    {"id": "F5", "topic": "clashing furniture", "scope": "furniture", "severity": "major",
+     "question": "Does any piece cut another (a side table in a sofa, a lamp in a bed, a chair through its table)?",
+     "why": "two pieces through each other are the first thing a client sees in a render"},
     {"id": "F4", "topic": "room to use", "scope": "furniture", "severity": "minor",
      "question": "Is there room in front of every bed, sofa, wardrobe, WC and counter to use it (0.5 m)?",
      "why": "a piece you cannot reach or open is not usable"},
@@ -519,11 +522,47 @@ def site_rules(prep: dict) -> list[dict]:
     return [g1]
 
 
+def clash_rule(building: dict, clashes: Optional[dict]) -> list[dict]:
+    """F5 from ``clashes.resolve`` (``build.prepare`` ran it): every piece checked, the ones moved or not built,
+    the clashes left."""
+    from wenart.blender import clashes as CL
+
+    f5 = _q(next(r for r in RULES if r["id"] == "F5"))
+    if clashes is None:
+        clashes = CL.resolve(building)
+    done = {}
+    for x in clashes.get("fixed") or []:
+        for m in x.get("members") or [x["id"]]:
+            done.setdefault(m, x)
+    left = {}
+    for x in clashes.get("left") or []:
+        left.setdefault(x["id"], x)
+        left.setdefault(x["other"], x)
+    for f in building.get("furniture") or []:
+        if str(f.get("type") or "") in CL.SKIP_TYPES + CL.FLOOR_ONLY or not f.get("footprint"):
+            continue
+        x = done.get(f["id"])
+        if f["id"] in left:
+            c = left[f["id"]]
+            other = c["other"] if c["id"] == f["id"] else c["id"]
+            _open(f5, f["id"], f"{f['id']} ({f.get('type')}) and {other} still overlap {c['depth_m']:.2f} m: no "
+                  f"free place within the move limits", f"Which of {f['id']} and {other} should go?",
+                  [AA.option("keep")], where=_where("furniture", f.get("level_id"), f["footprint"]["center"]))
+        elif x is not None:
+            f5["answers"].append({"element": f["id"], "found": f"{f.get('type')} clashed with {x['other']}",
+                                  "change": x["reason"].replace("architect F5: ", ""), "fixed": True})
+            f5["status"] = "fixed" if f5["status"] == "ok" else f5["status"]
+        elif f.get("build") is not False:
+            _ok(f5, f["id"], "clear of the other pieces")
+    return [f5]
+
+
 def review(building: dict, prep: dict, sides: list[dict], graph: dict, starts: list, is_stair, reach) -> list[dict]:
     """Every rule of ``RULES`` on every element it applies to (pure)."""
     plan = AA.Plan(building)
     out = rooms_rules(plan) + openings_rules(plan, sides) + walls_rules(plan) + \
-        stairs_rules(plan, graph, starts, is_stair, reach) + furniture_rules(plan, sides)
+        stairs_rules(plan, graph, starts, is_stair, reach) + furniture_rules(plan, sides) + \
+        clash_rule(building, prep.get("clashes"))
     if prep.get("site") is not None:
         out += site_rules(prep)
     return out

@@ -1058,7 +1058,7 @@ def status_of(a: dict) -> str:
 
 
 ORDER = ("B1", "B2", "A2", "A5", "E1", "C1", "C2", "T1", "T2", "L1", "W2", "L2", "W3", "P1", "R1", "R2", "R3", "R4",
-         "R5", "O1", "D1", "D2", "X1", "F1", "F2", "F3", "F4", "S1", "A3", "A4", "A1", "G1")
+         "R5", "O1", "D1", "D2", "X1", "F5", "F1", "F2", "F3", "F4", "S1", "A3", "A4", "A1", "G1")
 
 
 def summary(questions: list[dict], applied: Optional[Sequence[dict]] = None) -> dict:

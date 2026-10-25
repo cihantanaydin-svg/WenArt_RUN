@@ -210,7 +210,10 @@ def test_the_guard_on_a_turned_plain_wall_and_a_wall_wholly_cut():
 
 def test_the_parapet_piece_keeps_its_top_above_a_lower_roof_underside():
     # the M10 example's south attic wall: the roof underside lies at 3.70-3.87 m along the terrace, the parapet top
-    # stays at 4.00 m (no roof is over a parapet); a box clipped by the roof planes would lower it
+    # stays flat (no roof is over a parapet); a box clipped by the roof planes would lower it. Since 24 Oct 2026 a
+    # pitched roof's terrace parapet stops at the eaves line (3.65 m here, ``roof.DEFAULTS["terrace_parapet_min"]``)
+    # and a glass railing takes the guard to its height (the parapet had risen over the eaves)
+    top = 3.65
     roof = B.prepare(EXAMPLE)["roof"]
     cut = R.wall_cut(roof)
     vb = V.variant_building(EXAMPLE, "base")
@@ -221,14 +224,14 @@ def test_the_parapet_piece_keeps_its_top_above_a_lower_roof_underside():
     wall = next(w for w in walls if w["id"] == "w_L1_001")
     start, end = trims[wall["id"]]["start"], trims[wall["id"]]["end"]
     spans = shell.trimmed_spans(wall, start, end, R.parapet_cuts(roof, vb, level)[wall["id"]])
-    assert spans == [pytest.approx((6.125, 10.25, 4.0))]
+    assert spans == [pytest.approx((6.125, 10.25, top))]
     under = geom2d.surface_z(cut["planes"], 8.0, 0.125)
     assert under == pytest.approx(3.7824, abs=1e-3)
     verts, faces = shell.wall_pieces(start, end, float(wall["thickness"]), 3.0, float(cut["top"]) + 0.5 - 3.0,
                                      cut["planes"], spans)
     tops = [geom2d.face_center(verts, f) for f in faces if geom2d.face_normal(verts, f)[2] > 0.9]
     over = [c for c in tops if c[0] > 6.125]
-    assert over and all(c[2] == pytest.approx(4.0, abs=1e-9) for c in over)
+    assert over and all(c[2] == pytest.approx(top, abs=1e-9) for c in over)
 
 
 # --------------------------------------------------------------------------
