@@ -1,0 +1,3825 @@
+{
+"_note": "real06 L0 of run 20261026-170020-full (building_final.json), trimmed for the plan-vs-model auditor tests (wenart/audit/plan_vs_model.py): L0 walls, openings, rooms, furniture (no asset records), symbols, level marks, site areas and entrances; both levels (2 storeys) and the roof.",
+"schema_version": "0.1",
+"project": {
+"id": "real06",
+"source_folder": "projects/real06"
+},
+"documents": [
+{
+"id": "doc_real06_dwg",
+"file": "real06.dwg",
+"format": "dwg",
+"pages": [
+{
+"page": 1,
+"class": "floor_plan",
+"kind": "vector",
+"level_id": "L0",
+"region_id": "r3",
+"region_box": [
+182769.18,
+101811.758,
+182769.493,
+101812.196
+],
+"transform_to_building": [
+50.0,
+0.0,
+-9138462.76,
+0.0,
+50.0,
+-5090592.466
+],
+"debug_image": "debug/real06_dwg_p1_r3.png"
+}
+]
+}
+],
+"levels": [
+{
+"id": "L0",
+"label": "Ground floor",
+"order": 0,
+"elevation": 0.0,
+"ceiling_height": 2.85,
+"kind": "floor",
+"region_id": "r3"
+},
+{
+"id": "L1",
+"label": "Level 1",
+"order": 1,
+"elevation": 3.0,
+"ceiling_height": 2.85,
+"kind": "floor",
+"region_id": "r4"
+}
+],
+"walls": [
+{
+"id": "w_L0_001",
+"level_id": "L0",
+"start": [
+4.35,
+0.325
+],
+"end": [
+8.4009,
+0.325
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947F7,LINE:2947F9,LINE:2947FB,LINE:2947FD,LINE:2947EB,LINE:2947EC,LINE:2947F2,LINE:2947F3,LINE:2947F5",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_002",
+"level_id": "L0",
+"start": [
+8.651,
+1.425
+],
+"end": [
+8.85,
+1.425
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947EE,LINE:2947F0",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_003",
+"level_id": "L0",
+"start": [
+8.6605,
+3.225
+],
+"end": [
+8.85,
+3.225
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947E8,LINE:2947EA",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_004",
+"level_id": "L0",
+"start": [
+0.5,
+3.425
+],
+"end": [
+4.3509,
+3.425
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "derived",
+"confidence": 0.8,
+"entity": "LINE:294809,LINE:294803,LINE:294804,LINE:294808,LINE:2574D7,LINE:2574D9,LINE:2574D8,LINE:2574E1,LINE:2574E0,LINE:2574DF",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_005",
+"level_id": "L0",
+"start": [
+8.6605,
+3.825
+],
+"end": [
+8.85,
+3.825
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947E4,LINE:2947EA",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_006",
+"level_id": "L0",
+"start": [
+0.0,
+5.525
+],
+"end": [
+0.2,
+5.525
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:29480C,LINE:294812",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_007",
+"level_id": "L0",
+"start": [
+8.6605,
+5.625
+],
+"end": [
+8.85,
+5.625
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947D2,LINE:2947E2",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_008",
+"level_id": "L0",
+"start": [
+0.0,
+7.925
+],
+"end": [
+0.2,
+7.925
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:29481A,LINE:29481C",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_009",
+"level_id": "L0",
+"start": [
+0.45,
+9.2
+],
+"end": [
+4.6,
+9.2
+],
+"thickness": 0.3,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294815,LINE:294819,LINE:2947C5,LINE:2947C9",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_010",
+"level_id": "L0",
+"start": [
+0.95,
+9.225
+],
+"end": [
+3.85,
+9.225
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294815,LINE:294817,LINE:2947C5,LINE:2947CB,LINE:2947CC,LINE:2947CE,LINE:2947CF",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_011",
+"level_id": "L0",
+"start": [
+7.0,
+9.225
+],
+"end": [
+8.4,
+9.225
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947D5,LINE:2947D7,LINE:2947DD",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_012",
+"level_id": "L0",
+"start": [
+4.6,
+9.275
+],
+"end": [
+7.0,
+9.275
+],
+"thickness": 0.15,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947C5,LINE:2947C7,LINE:2947D9,LINE:2947DB",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_013",
+"level_id": "L0",
+"start": [
+0.0,
+10.475
+],
+"end": [
+0.2,
+10.475
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294814,LINE:294820",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_014",
+"level_id": "L0",
+"start": [
+7.0,
+11.35
+],
+"end": [
+8.4,
+11.35
+],
+"thickness": 0.3,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294853,LINE:294854,LINE:294856,LINE:29485B",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_015",
+"level_id": "L0",
+"start": [
+6.0,
+11.37
+],
+"end": [
+7.0,
+11.37
+],
+"thickness": 0.16,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "derived",
+"confidence": 0.8,
+"entity": "LINE:294863,LINE:294865,ARC:298706,LINE:29870C,LINE:298708,LINE:29872C,LINE:29872D,LINE:29872E,LINE:29AB10,LINE:29AB11,ARC:29AB12,CIRCLE:2986FF,CIRCLE:2986FE,LINE:298700,LINE:2986FD,LINE:29AB13,LINE:298704,LINE:298703,LINE:298702",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_016",
+"level_id": "L0",
+"start": [
+0.0,
+12.175
+],
+"end": [
+0.2,
+12.175
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294824,LINE:294826",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_017",
+"level_id": "L0",
+"start": [
+2.95,
+13.3
+],
+"end": [
+3.35,
+13.3
+],
+"thickness": 0.5,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:27CAFF,LINE:294829",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_018",
+"level_id": "L0",
+"start": [
+0.2,
+13.4043
+],
+"end": [
+0.95,
+13.4043
+],
+"thickness": 0.3,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294823,LINE:294829",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_019",
+"level_id": "L0",
+"start": [
+0.95,
+13.425
+],
+"end": [
+3.65,
+13.425
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294821,LINE:294829,LINE:27CAFF,LINE:29482A,LINE:29482E",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_020",
+"level_id": "L0",
+"start": [
+5.7,
+14.1
+],
+"end": [
+6.19,
+14.1
+],
+"thickness": 0.4,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:27CB04,LINE:294867",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_021",
+"level_id": "L0",
+"start": [
+3.65,
+14.425
+],
+"end": [
+8.4009,
+14.425
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:29482B,LINE:29482D,LINE:294868,LINE:29486A,LINE:294851,LINE:294852,LINE:29485E,LINE:29485F",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_022",
+"level_id": "L0",
+"start": [
+0.325,
+4.05
+],
+"end": [
+0.325,
+13.276
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:29480C,LINE:294810,LINE:294812,LINE:294814,LINE:294815,LINE:294819,LINE:29481A,LINE:29481C,LINE:29481E,LINE:294820,LINE:294823,LINE:294824,LINE:294826,LINE:294828,LINE:294829",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_023",
+"level_id": "L0",
+"start": [
+0.35,
+3.3
+],
+"end": [
+0.35,
+4.05
+],
+"thickness": 0.3,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:29480E,LINE:294810",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_024",
+"level_id": "L0",
+"start": [
+3.475,
+11.3
+],
+"end": [
+3.475,
+13.3
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:27CAFF,LINE:294829,LINE:294830,LINE:294832",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_025",
+"level_id": "L0",
+"start": [
+3.5,
+13.55
+],
+"end": [
+3.5,
+14.55
+],
+"thickness": 0.3,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:29482A,LINE:29482B,LINE:29482D,LINE:29482E",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_026",
+"level_id": "L0",
+"start": [
+3.575,
+3.55
+],
+"end": [
+3.575,
+4.65
+],
+"thickness": 0.15,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294800,LINE:294802,LINE:294803,LINE:294809",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_027",
+"level_id": "L0",
+"start": [
+3.575,
+8.3
+],
+"end": [
+3.575,
+9.1
+],
+"thickness": 0.15,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947CC,LINE:2947CE",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_028",
+"level_id": "L0",
+"start": [
+4.45,
+2.8
+],
+"end": [
+4.45,
+3.3
+],
+"thickness": 0.3,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294804,LINE:294806,LINE:294808",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_029",
+"level_id": "L0",
+"start": [
+4.4751,
+0.45
+],
+"end": [
+4.4751,
+3.55
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947F7,LINE:2947FD,LINE:294804,LINE:294806,LINE:294803,LINE:294808",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_030",
+"level_id": "L0",
+"start": [
+5.125,
+0.0
+],
+"end": [
+5.125,
+0.2
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947F9,LINE:2947FB",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_031",
+"level_id": "L0",
+"start": [
+5.85,
+13.8
+],
+"end": [
+5.85,
+13.9
+],
+"thickness": 0.3,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294861,LINE:294865,LINE:294867",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_032",
+"level_id": "L0",
+"start": [
+5.8744,
+11.3
+],
+"end": [
+5.8744,
+14.3
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294861,LINE:294863,LINE:294865,LINE:27CB04,LINE:294867",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_033",
+"level_id": "L0",
+"start": [
+7.125,
+9.35
+],
+"end": [
+7.125,
+11.2
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": false,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947D7,LINE:2947DD,LINE:294854,LINE:294856",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_034",
+"level_id": "L0",
+"start": [
+7.525,
+0.0
+],
+"end": [
+7.525,
+0.2
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947EB,LINE:2947F5",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_035",
+"level_id": "L0",
+"start": [
+8.5,
+0.45
+],
+"end": [
+8.5,
+0.95
+],
+"thickness": 0.3,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947EC,LINE:2947EE,LINE:2947F2",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_036",
+"level_id": "L0",
+"start": [
+8.5,
+6.0
+],
+"end": [
+8.5,
+6.75
+],
+"thickness": 0.3,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947D4,LINE:2947DE,LINE:2947E0,LINE:2947E2",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_037",
+"level_id": "L0",
+"start": [
+8.5,
+13.8
+],
+"end": [
+8.5,
+14.3
+],
+"thickness": 0.3,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:294852,LINE:29485C,LINE:29485E",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "w_L0_038",
+"level_id": "L0",
+"start": [
+8.526,
+0.2
+],
+"end": [
+8.526,
+14.55
+],
+"thickness": 0.25,
+"height": 2.85,
+"exterior": true,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.8,
+"entity": "LINE:2947EC,LINE:2947F2,LINE:2947F3,LINE:2947EE,LINE:2947F0,LINE:2947E4,LINE:2947E6,LINE:2947E8,LINE:2947EA,LINE:2947D2,LINE:2947D4,LINE:2947E2,LINE:2947D5,LINE:2947DD,LINE:2947DE,LINE:294852,LINE:294853,LINE:29485B,LINE:29485C,LINE:294851,LINE:29485E",
+"region_id": "r3"
+}
+]
+}
+],
+"openings": [
+{
+"id": "d_L0_001",
+"type": "door",
+"level_id": "L0",
+"wall_id": "w_L0_001",
+"center": [
+6.325,
+0.325
+],
+"width": 2.15,
+"height": 2.1,
+"sill_height": null,
+"operation": "sliding",
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.85,
+"entity": "LINE:25756E,LINE:25756C,LINE:25756D",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "o_L0_001",
+"type": "opening",
+"level_id": "L0",
+"wall_id": "w_L0_009",
+"center": [
+2.4,
+9.2
+],
+"width": 2.9,
+"height": 2.1,
+"sill_height": null,
+"operation": null,
+"status": "unverified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "derived",
+"confidence": 0.5,
+"entity": "gap:LINE:294815,LINE:294819,LINE:2947C5,LINE:2947C9",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "d_L0_002",
+"type": "door",
+"level_id": "L0",
+"wall_id": "w_L0_010",
+"center": [
+2.275,
+9.225
+],
+"width": 1.95,
+"height": 2.1,
+"sill_height": null,
+"operation": "sliding",
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.85,
+"entity": "LINE:2574F5,LINE:2574F7,LINE:2574F6,LINE:2574FF,LINE:2574FE,LINE:2574FD",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "win_L0_001",
+"type": "window",
+"level_id": "L0",
+"wall_id": "w_L0_012",
+"center": [
+5.625,
+9.275
+],
+"width": 1.95,
+"height": 1.2,
+"sill_height": 0.9,
+"operation": null,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:257513,LINE:257512",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "d_L0_003",
+"type": "door",
+"level_id": "L0",
+"wall_id": "w_L0_021",
+"center": [
+4.675,
+14.425
+],
+"width": 0.65,
+"height": 2.1,
+"sill_height": null,
+"operation": "sliding",
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.85,
+"entity": "LINE:295444,LINE:295442,LINE:257943,LINE:257942",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "o_L0_002",
+"type": "opening",
+"level_id": "L0",
+"wall_id": "w_L0_021",
+"center": [
+6.25,
+14.425
+],
+"width": 1.1,
+"height": 2.1,
+"sill_height": null,
+"operation": null,
+"status": "unverified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "derived",
+"confidence": 0.5,
+"entity": "gap:LINE:294868,LINE:29486A,LINE:294851,LINE:294852,LINE:29485E,LINE:29485F",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "o_L0_003",
+"type": "opening",
+"level_id": "L0",
+"wall_id": "w_L0_022",
+"center": [
+0.325,
+6.725
+],
+"width": 2.15,
+"height": 2.1,
+"sill_height": null,
+"operation": null,
+"status": "unverified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "derived",
+"confidence": 0.5,
+"entity": "gap:LINE:29480C,LINE:294810,LINE:294812,LINE:294814,LINE:294815,LINE:294819,LINE:29481A,LINE:29481C,LINE:29481E,LINE:294820",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "o_L0_004",
+"type": "opening",
+"level_id": "L0",
+"wall_id": "w_L0_022",
+"center": [
+0.325,
+11.325
+],
+"width": 1.45,
+"height": 2.1,
+"sill_height": null,
+"operation": null,
+"status": "unverified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "derived",
+"confidence": 0.5,
+"entity": "gap:LINE:294814,LINE:294815,LINE:294819,LINE:29481A,LINE:29481C,LINE:29481E,LINE:294820,LINE:294823,LINE:294824,LINE:294826,LINE:294828,LINE:294829",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "d_L0_004",
+"type": "door",
+"level_id": "L0",
+"wall_id": "w_L0_029",
+"center": [
+4.4751,
+0.975
+],
+"width": 0.75,
+"height": 2.1,
+"sill_height": null,
+"operation": "swing",
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.95,
+"entity": "ARC:298892,LINE:298894,LINE:298898,LINE:29AA94,LINE:29AA97,ARC:29AA96,LINE:29AA95,LINE:2988BA,LINE:298889,CIRCLE:29888B,LINE:29888C,CIRCLE:29888A,LINE:298890,LINE:2988B9,LINE:29888F,LINE:2988B8,LINE:29888E,LINE:2989FE",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "d_L0_005",
+"type": "door",
+"level_id": "L0",
+"wall_id": "w_L0_033",
+"center": [
+7.125,
+9.925
+],
+"width": 0.95,
+"height": 2.1,
+"sill_height": null,
+"operation": "swing",
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.95,
+"entity": "ARC:298747,LINE:298749,LINE:29874D,LINE:29AAFB,LINE:29AAF8,ARC:29AAFA,LINE:29876F,LINE:29AAF9,LINE:298741,LINE:29873E,CIRCLE:29873F,CIRCLE:298740,LINE:298745,LINE:29876E,LINE:298744,LINE:29876D,LINE:298743",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "o_L0_005",
+"type": "opening",
+"level_id": "L0",
+"wall_id": "w_L0_038",
+"center": [
+8.526,
+2.325
+],
+"width": 1.55,
+"height": 2.1,
+"sill_height": null,
+"operation": null,
+"status": "unverified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "derived",
+"confidence": 0.5,
+"entity": "gap:LINE:2947EE,LINE:2947F0,LINE:2947F2,LINE:2947E4,LINE:2947E6,LINE:2947E8,LINE:2947EA",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "o_L0_006",
+"type": "opening",
+"level_id": "L0",
+"wall_id": "w_L0_038",
+"center": [
+8.526,
+4.725
+],
+"width": 1.55,
+"height": 2.1,
+"sill_height": null,
+"operation": null,
+"status": "unverified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "derived",
+"confidence": 0.5,
+"entity": "gap:LINE:2947E4,LINE:2947E6,LINE:2947E8,LINE:2947EA,LINE:2947D2,LINE:2947D4,LINE:2947E2",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "o_L0_007",
+"type": "opening",
+"level_id": "L0",
+"wall_id": "w_L0_038",
+"center": [
+8.526,
+10.275
+],
+"width": 1.85,
+"height": 2.1,
+"sill_height": null,
+"operation": null,
+"status": "unverified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "derived",
+"confidence": 0.5,
+"entity": "gap:LINE:2947D4,LINE:2947D5,LINE:2947DD,LINE:2947DE,LINE:294852,LINE:294853,LINE:29485B,LINE:29485C",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "d_L0_006",
+"type": "door",
+"level_id": "L0",
+"wall_id": "w_L0_004",
+"center": [
+1.975,
+3.425
+],
+"width": 2.95,
+"height": 2.1,
+"sill_height": null,
+"operation": "sliding",
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.85,
+"entity": "LINE:2574D7,LINE:2574D9,LINE:2574D8,LINE:2574E1,LINE:2574E0,LINE:2574DF",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "d_L0_007",
+"type": "door",
+"level_id": "L0",
+"wall_id": "w_L0_015",
+"center": [
+6.55,
+11.37
+],
+"width": 0.9,
+"height": 2.1,
+"sill_height": null,
+"operation": "swing",
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.95,
+"entity": "ARC:298706,LINE:29870C,LINE:298708,LINE:29872C,LINE:29872D,LINE:29872E,LINE:29AB10,LINE:29AB11,ARC:29AB12,CIRCLE:2986FF,CIRCLE:2986FE,LINE:298700,LINE:2986FD,LINE:29AB13,LINE:298704,LINE:298703,LINE:298702",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "win_L0_002",
+"type": "window",
+"level_id": "L0",
+"wall_id": "w_L0_018",
+"center": [
+0.588,
+13.4043
+],
+"width": 0.7241,
+"height": 1.2,
+"sill_height": 0.9,
+"operation": null,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:2574A1,LINE:2575B5,LINE:2719E6,LINE:2944A1,LINE:2944A7,LINE:2944A8,LINE:2948C7,LINE:2948C9",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "win_L0_003",
+"type": "window",
+"level_id": "L0",
+"wall_id": "w_L0_021",
+"center": [
+3.988,
+14.425
+],
+"width": 0.6759,
+"height": 1.2,
+"sill_height": 0.9,
+"operation": null,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:2574A2,LINE:2575B7,LINE:294435,LINE:29443B,LINE:29443C",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "win_L0_004",
+"type": "window",
+"level_id": "L0",
+"wall_id": "w_L0_021",
+"center": [
+7.6134,
+14.425
+],
+"width": 1.575,
+"height": 1.2,
+"sill_height": 0.9,
+"operation": null,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:257995,LINE:257996,LINE:271971,LINE:294A6B",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "win_L0_005",
+"type": "window",
+"level_id": "L0",
+"wall_id": "w_L0_023",
+"center": [
+0.35,
+3.6752
+],
+"width": 0.7,
+"height": 1.2,
+"sill_height": 0.9,
+"operation": null,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:2719DA,LINE:29452B,LINE:294531,LINE:294532,LINE:2948D3,LINE:2948D5",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "win_L0_006",
+"type": "window",
+"level_id": "L0",
+"wall_id": "w_L0_026",
+"center": [
+3.575,
+4.1
+],
+"width": 1.1,
+"height": 1.2,
+"sill_height": 0.9,
+"operation": null,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:2574EC,LINE:2574ED,LINE:2574F0,LINE:2574F1,LINE:294515,LINE:29451B,LINE:29451C,LINE:294524",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "win_L0_007",
+"type": "window",
+"level_id": "L0",
+"wall_id": "w_L0_033",
+"center": [
+7.125,
+10.8126
+],
+"width": 0.7748,
+"height": 1.2,
+"sill_height": 0.9,
+"operation": null,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:25749A,LINE:2575BB,LINE:2945A3,LINE:2945A9,LINE:2945AA,LINE:2945B2",
+"region_id": "r3"
+}
+]
+}
+],
+"rooms": [
+{
+"id": "r_L0_salon",
+"level_id": "L0",
+"label": "Salon",
+"label_raw": "SALON",
+"room_type": "living",
+"polygon": [
+[
+0.45,
+4.05
+],
+[
+0.5,
+4.05
+],
+[
+0.5,
+3.55
+],
+[
+3.5,
+3.55
+],
+[
+3.5,
+4.65
+],
+[
+3.65,
+4.65
+],
+[
+3.65,
+3.55
+],
+[
+4.6001,
+3.55
+],
+[
+4.6001,
+0.45
+],
+[
+8.35,
+0.45
+],
+[
+8.35,
+0.95
+],
+[
+8.401,
+0.95
+],
+[
+8.401,
+6.0
+],
+[
+8.35,
+6.0
+],
+[
+8.35,
+6.75
+],
+[
+8.401,
+6.75
+],
+[
+8.401,
+9.1
+],
+[
+7.0,
+9.1
+],
+[
+7.0,
+9.2
+],
+[
+4.6,
+9.2
+],
+[
+4.6,
+9.05
+],
+[
+3.65,
+9.05
+],
+[
+3.65,
+8.3
+],
+[
+3.5,
+8.3
+],
+[
+3.5,
+9.05
+],
+[
+0.45,
+9.05
+]
+],
+"area_computed": 55.577,
+"area_label": 39.15,
+"status": "unverified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"entity": "TEXT:29585A",
+"text": "SALON",
+"region_id": "r3"
+},
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"entity": "TEXT:29585B",
+"text": "39,15m²",
+"region_id": "r3"
+},
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"entity": "TEXT:295858",
+"text": "YEMEK BÖLÜMÜ",
+"region_id": "r3"
+},
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"entity": "TEXT:295859",
+"text": "17,35m²",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "r_L0_mutfak",
+"level_id": "L0",
+"label": "Mutfak",
+"label_raw": "MUTFAK",
+"room_type": "kitchen",
+"polygon": [
+[
+0.45,
+9.35
+],
+[
+7.0,
+9.35
+],
+[
+7.0,
+11.29
+],
+[
+6.0,
+11.29
+],
+[
+6.0,
+11.3
+],
+[
+5.7494,
+11.3
+],
+[
+5.7494,
+13.8
+],
+[
+5.7,
+13.8
+],
+[
+5.7,
+14.3
+],
+[
+3.6501,
+14.3
+],
+[
+3.65,
+13.55
+],
+[
+3.65,
+13.3
+],
+[
+3.6,
+13.3
+],
+[
+3.6,
+11.3
+],
+[
+3.35,
+11.3
+],
+[
+3.35,
+13.05
+],
+[
+2.95,
+13.05
+],
+[
+2.95,
+13.3
+],
+[
+0.95,
+13.3
+],
+[
+0.95,
+13.2543
+],
+[
+0.45,
+13.2543
+]
+],
+"area_computed": 24.813,
+"area_label": 12.0,
+"status": "unverified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"entity": "TEXT:295856",
+"text": "MUTFAK",
+"region_id": "r3"
+},
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"entity": "TEXT:295857",
+"text": "12,00m²",
+"region_id": "r3"
+},
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"entity": "TEXT:294BCF",
+"text": "ANTRE",
+"region_id": "r3"
+},
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"entity": "TEXT:294BD1",
+"text": "m²",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "r_L0_oda",
+"level_id": "L0",
+"label": "Oda",
+"label_raw": null,
+"room_type": "hall",
+"polygon": [
+[
+7.25,
+9.35
+],
+[
+8.401,
+9.35
+],
+[
+8.401,
+11.2
+],
+[
+7.25,
+11.2
+]
+],
+"area_computed": 2.129,
+"area_label": null,
+"status": "unverified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "derived",
+"confidence": 1.0,
+"entity": "derived-from:w_L0_011,w_L0_014,w_L0_033,w_L0_038",
+"region_id": "r3"
+}
+]
+},
+{
+"id": "r_L0_banyo",
+"level_id": "L0",
+"label": "Banyo",
+"label_raw": "BANYO",
+"room_type": "bathroom",
+"polygon": [
+[
+5.9994,
+11.45
+],
+[
+7.0,
+11.45
+],
+[
+7.0,
+11.5
+],
+[
+8.401,
+11.5
+],
+[
+8.401,
+13.8
+],
+[
+8.35,
+13.8
+],
+[
+8.35,
+14.3
+],
+[
+6.19,
+14.3
+],
+[
+6.19,
+13.9
+],
+[
+6.0,
+13.9
+],
+[
+6.0,
+13.8
+],
+[
+5.9994,
+13.8
+]
+],
+"area_computed": 6.673,
+"area_label": 7.25,
+"status": "verified",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"entity": "TEXT:295854",
+"text": "BANYO",
+"region_id": "r3"
+},
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"entity": "TEXT:295855",
+"text": "7,25m²",
+"region_id": "r3"
+},
+{
+"file": "real06.dwg",
+"method": "derived",
+"confidence": 1.0,
+"entity": "derived-from:w_L0_014,w_L0_015,w_L0_020,w_L0_021,w_L0_031,w_L0_032,w_L0_037,w_L0_038",
+"region_id": "r3"
+}
+]
+}
+],
+"furniture": [
+{
+"id": "f_L0_001",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"type": "stair",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+4.6759,
+12.3004
+],
+"size": [
+2.2,
+2.1495
+],
+"rotation_deg": 0.0
+},
+"front_deg": null,
+"build": true,
+"status": "unverified",
+"type_method": "rule",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:277310,LINE:277316,LINE:277327-277328,LINE:294601-294602,LINE:295851-295853,CIRCLE:2577CD,LINE:2574AC,LINE:2574AD,LINE:2574AE,LINE:2574AF,LINE:2574B0,LINE:2574B1,LINE:2574B2,LINE:2574B3,LINE:2574B4,LINE:2574B5,LINE:2574B6,LINE:2574B7,LINE:2574B8,LINE:2574B9,LINE:27730D,LINE:27732A,LINE:27732C,LINE:27732D,LINE:2908B3,LINE:2908B4,LINE:298D79,LINE:298D7A,LINE:298D7B,LINE:298D7C,LINE:298D7D,LINE:298D7F",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "parametric"
+},
+"stair": {
+"flights": [
+{
+"start": [
+4.0759,
+11.5752
+],
+"end": [
+4.0759,
+13.0752
+],
+"width": 1.0,
+"lines": 7,
+"spacing": 0.25
+},
+{
+"start": [
+5.2759,
+11.5752
+],
+"end": [
+5.2759,
+13.0752
+],
+"width": 1.0,
+"lines": 7,
+"spacing": 0.25
+}
+]
+}
+},
+{
+"id": "f_L0_002",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"type": "kitchen_counter",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+2.3798,
+13.0578
+],
+"size": [
+0.9,
+0.4844
+],
+"rotation_deg": 0.0
+},
+"front_deg": 270.0,
+"build": true,
+"status": "verified",
+"type_method": "rule",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:2987B4,LINE:2987B6,LINE:29AAE1,LINE:29AAE3,LINE:29AAEB,LINE:29AAED",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "module"
+}
+},
+{
+"id": "f_L0_003",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"type": "kitchen_counter",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+2.3798,
+13.0293
+],
+"size": [
+0.56,
+0.5384
+],
+"rotation_deg": 0.0
+},
+"front_deg": 270.0,
+"build": false,
+"status": "verified",
+"type_method": "rule",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "ARC:29AADA,ARC:29AADC,ARC:29AADE,ARC:29AAE0,LINE:29AAD9,LINE:29AADB,LINE:29AADD,LINE:29AADF",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "none"
+}
+},
+{
+"id": "f_L0_004",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"type": "unknown",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+2.2259,
+11.3204
+],
+"size": [
+3.9904,
+2.4
+],
+"rotation_deg": 90.0
+},
+"front_deg": null,
+"build": false,
+"status": "unverified",
+"type_method": "none",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "CIRCLE:298780,CIRCLE:298789,LINE:298773-298776,LINE:298781-298788,LINE:298790-298796,LINE:298835-298840,CIRCLE:29877F,CIRCLE:29878A,CIRCLE:29878D,CIRCLE:29878E,CIRCLE:2987A3,CIRCLE:2987A4,LINE:25750A,LINE:25750B,LINE:25750C,LINE:25750D,LINE:29878B,LINE:29878C,LINE:29878F,LINE:29879B,LINE:29879C,LINE:29879D,LINE:29879E,LINE:2987A1,LINE:2987A2,LINE:2987A6,LINE:2987A8,LINE:2987A9,LINE:2987B0,LINE:2987B1,LINE:2987B5,LINE:29883A,LINE:29883B,LINE:29883C,LINE:29883D,LINE:29883E,LINE:29883F,LINE:29AAAB,LINE:29AAAC,LINE:29AAAD,LINE:29AAAE,LINE:29AAAF,LINE:29AAB0,LINE:29AAB1,LINE:29AAB2,LINE:29AAB3,LINE:29AAB4,LINE:29AAB5,LINE:29AAB6,LINE:29AAB7,LINE:29AAB8,LINE:29AAB9,LINE:29AABA,LINE:29AABB,LINE:29AABC,LINE:29AABD,LINE:29AABE,LINE:29AABF,LINE:29AAC0,LINE:29AAC1,LINE:29AAC2,LINE:29AAC3,LINE:29AAC4,LINE:29AAC5,LINE:29AAC6,LINE:29AAC7,LINE:29AAC8,LINE:29AAC9,LINE:29AACA,LINE:29AACB,LINE:29AACC,LINE:29AACD,LINE:29AACE,LINE:29AACF,LINE:29AAD0,LINE:29AAD1,LINE:29AAD2,LINE:29AAD3,LINE:29AAD4,LINE:29AAD5,LINE:29AAD6,LINE:29AAD7,LINE:29AAD8,LINE:29AAE2,LINE:29AAE4,LINE:29AAE5,LINE:29AAE6,LINE:29AAE7,LINE:29AAE8,LINE:29AAE9,LINE:29AAEA,LINE:29AAEC,LINE:29AAEE,LINE:29AAEF,LINE:29AAF0,LINE:29AAF1,LINE:29AAF2,LINE:29AAF3,LINE:29AAF4,LINE:29AAF5,LINE:29AAF6",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "parametric"
+}
+},
+{
+"id": "f_L0_005",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "unknown",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+6.5009,
+2.3252
+],
+"size": [
+3.89,
+1.65
+],
+"rotation_deg": 0.0
+},
+"front_deg": null,
+"build": false,
+"status": "unverified",
+"type_method": "none",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:296002-296003,LINE:296009,LINE:296160-296174,LINE:296192-296199,LINE:296240-296248,LINE:296250-296271,LINE:2719F6,LINE:271A03,LINE:271A09,LINE:2944ED,LINE:295DA1,LINE:295DEE,LINE:295DEF,LINE:295DF0,LINE:295DF1,LINE:295DF2,LINE:295DF3,LINE:295DF4,LINE:295DF5,LINE:295DF6,LINE:295DF7,LINE:295DF8,LINE:295E33,LINE:295E34,LINE:295E35,LINE:295E36,LINE:295E37,LINE:295E38,LINE:295E39,LINE:295E3A,LINE:295E3B,LINE:295E3C,LINE:295E3D,LINE:295E3E,LINE:295E3F,LINE:295E40,LINE:295E59,LINE:295E8D,LINE:295E8E,LINE:295E8F,LINE:295E90,LINE:295E91,LINE:295E92,LINE:295E93,LINE:295E94,LINE:295E95,LINE:295E96,LINE:295E97,LINE:295E98,LINE:295E99,LINE:295E9A,LINE:295FF0,LINE:295FF1,LINE:295FF2,LINE:295FF4,LINE:295FF5,LINE:295FF6,LINE:295FF7,LINE:295FF8,LINE:295FF9,LINE:295FFA,LINE:295FFB,LINE:295FFC,LINE:295FFF,LINE:29600A,LINE:29600B,LINE:29600C,LINE:29600D,LINE:29615E,LINE:29615F,LINE:29616A,LINE:29616B,LINE:29616C,LINE:29616D,LINE:29616E,LINE:29616F,LINE:29619A,LINE:29619B,LINE:29619C,LINE:29619D,LINE:29619E,LINE:29619F,LINE:2961A0,LINE:2961A1,LINE:2961A2,LINE:2961A3,LINE:2961A4,LINE:2961DD,LINE:2961DE,LINE:2961DF,LINE:2961E2,LINE:2961E3,LINE:2961E4,LINE:2961E5,LINE:2961E6,LINE:29622D,LINE:29622E,LINE:29622F,LINE:29623D,LINE:29623E,LINE:29623F,LINE:29624A,LINE:29624B,LINE:29624C,LINE:29624D,LINE:29624E,LINE:29624F,LINE:29625A,LINE:29625B,LINE:29625C,LINE:29625D,LINE:29625E,LINE:29625F,LINE:29626A,LINE:29626B,LINE:29626C,LINE:29626D,LINE:29626E,LINE:29626F",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "parametric"
+}
+},
+{
+"id": "f_L0_006",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "unknown",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+7.8455,
+2.505
+],
+"size": [
+2.1157,
+0.7823
+],
+"rotation_deg": 270.0
+},
+"front_deg": 180.0,
+"build": false,
+"status": "unverified",
+"type_method": "none",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:296004-296008,LINE:296010-296099,LINE:296115-296155,LINE:296157-296159,LINE:296175-296191,LINE:296200-296239,LINE:296272-296299,LINE:29600E,LINE:29600F,LINE:29601A,LINE:29601B,LINE:29601C,LINE:29601D,LINE:29601E,LINE:29601F,LINE:29602A,LINE:29602B,LINE:29602C,LINE:29602D,LINE:29602E,LINE:29602F,LINE:29603A,LINE:29603B,LINE:29603C,LINE:29603D,LINE:29603E,LINE:29603F,LINE:29604A,LINE:29604B,LINE:29604C,LINE:29604D,LINE:29604E,LINE:29604F,LINE:29605A,LINE:29605B,LINE:29605C,LINE:29605D,LINE:29605E,LINE:29605F,LINE:29606A,LINE:29606B,LINE:29606C,LINE:29606D,LINE:29606E,LINE:29606F,LINE:29607A,LINE:29607B,LINE:29607C,LINE:29607D,LINE:29607E,LINE:29607F,LINE:29608A,LINE:29608B,LINE:29608C,LINE:29608D,LINE:29608E,LINE:29608F,LINE:29609A,LINE:29609B,LINE:29609C,LINE:29609D,LINE:29609E,LINE:29609F,LINE:2960A0,LINE:2960A1,LINE:2960A2,LINE:2960A3,LINE:2960A4,LINE:2960A5,LINE:2960A6,LINE:2960A7,LINE:2960A8,LINE:2960A9,LINE:2960AA,LINE:2960AB,LINE:2960AC,LINE:2960AD,LINE:2960AE,LINE:2960AF,LINE:2960B0,LINE:2960B1,LINE:2960B2,LINE:2960B3,LINE:2960B4,LINE:2960B5,LINE:2960B6,LINE:2960B7,LINE:2960B8,LINE:29611A,LINE:29611B,LINE:29611C,LINE:29611D,LINE:29611E,LINE:29611F,LINE:29612A,LINE:29612B,LINE:29612C,LINE:29612D,LINE:29612E,LINE:29612F,LINE:29613A,LINE:29613B,LINE:29613C,LINE:29613D,LINE:29613E,LINE:29613F,LINE:29614A,LINE:29614B,LINE:29614F,LINE:29615A,LINE:29615B,LINE:29615C,LINE:29615D,LINE:29617A,LINE:29617B,LINE:29617C,LINE:29617D,LINE:29617E,LINE:29617F,LINE:29618A,LINE:29618B,LINE:29618C,LINE:29618D,LINE:29618E,LINE:29618F,LINE:2961A5,LINE:2961A6,LINE:2961A7,LINE:2961A8,LINE:2961A9,LINE:2961AA,LINE:2961AB,LINE:2961AC,LINE:2961AD,LINE:2961AE,LINE:2961AF,LINE:2961B0,LINE:2961B1,LINE:2961B2,LINE:2961B3,LINE:2961B4,LINE:2961B5,LINE:2961B6,LINE:2961B7,LINE:2961B8,LINE:2961B9,LINE:2961BA,LINE:2961BB,LINE:2961BC,LINE:2961BD,LINE:2961BE,LINE:2961BF,LINE:2961C0,LINE:2961C1,LINE:2961C2,LINE:2961C3,LINE:2961C4,LINE:2961C5,LINE:2961C6,LINE:2961C7,LINE:2961C8,LINE:2961C9,LINE:2961CA,LINE:2961CB,LINE:2961CC,LINE:2961CD,LINE:2961CE,LINE:2961CF,LINE:2961D0,LINE:2961D1,LINE:2961D2,LINE:2961D3,LINE:2961D4,LINE:2961D5,LINE:2961D6,LINE:2961D7,LINE:2961D8,LINE:2961D9,LINE:2961DA,LINE:2961DB,LINE:2961DC,LINE:2961E0,LINE:2961E1,LINE:2961E7,LINE:2961E8,LINE:2961E9,LINE:2961EA,LINE:2961EB,LINE:2961EC,LINE:2961ED,LINE:2961EE,LINE:2961EF,LINE:2961F0,LINE:2961F1,LINE:2961F2,LINE:2961F3,LINE:2961F4,LINE:2961F5,LINE:2961F6,LINE:2961F7,LINE:2961F8,LINE:2961F9,LINE:2961FA,LINE:2961FB,LINE:2961FC,LINE:2961FD,LINE:2961FE,LINE:2961FF,LINE:29620A,LINE:29620B,LINE:29620C,LINE:29620D,LINE:29620E,LINE:29620F,LINE:29621A,LINE:29621B,LINE:29621C,LINE:29621D,LINE:29621E,LINE:29621F,LINE:29622A,LINE:29622B,LINE:29622C,LINE:29623A,LINE:29623B,LINE:29623C,LINE:29627A,LINE:29627B,LINE:29627C,LINE:29627D,LINE:29627E,LINE:29627F,LINE:29628A,LINE:29628B,LINE:29628C,LINE:29628D,LINE:29628E,LINE:29628F,LINE:29629A,LINE:29629B,LINE:29629C,LINE:29629D,LINE:29629E,LINE:29629F,LINE:2962A0,LINE:2962A1,LINE:2962A2,LINE:2962A3,LINE:2962A4,LINE:2962A5,LINE:2962A6,LINE:2962A7,LINE:2962A8,LINE:2962A9,LINE:2962AA,LINE:2962AB,LINE:2962AC,LINE:2962AD,LINE:2962AE,LINE:2962AF,LINE:2962B0,LINE:2962B1,LINE:2962B2,LINE:2962B3,LINE:2962B4,LINE:2962B5,LINE:2962B6,LINE:2962B7,LINE:2962B8,LINE:2962B9,LINE:2962BA,LINE:2962BB,LINE:2962BC,LINE:2962BD,LINE:2962BE,LINE:2962BF,LINE:2962C0,LINE:2962C1,LINE:2962C2,LINE:2962C3,LINE:2962C4,LINE:2962C5,LINE:2962C6,LINE:2962C7,LINE:2962C8,LINE:2962C9,LINE:2962CA,LINE:2962CB,LINE:2962CC,LINE:2962CD,LINE:2962CE,LINE:2962CF,LINE:2962D0,LINE:2962D1,LINE:2962D2,LINE:2962D3,LINE:2962D4,LINE:2962D5,LINE:2962D6,LINE:2962D7,LINE:2962D8,LINE:2962D9,LINE:2962DA,LINE:2962DB,LINE:2962DC,LINE:2962DD,LINE:2962DE",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "parametric"
+}
+},
+{
+"id": "f_L0_007",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "armchair",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+5.0488,
+2.9906
+],
+"size": [
+0.9156,
+0.7723
+],
+"rotation_deg": 90.0
+},
+"front_deg": 0.0,
+"build": true,
+"status": "verified",
+"type_method": "rule",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.85,
+"entity": "LINE:295EC0,LINE:295EC1,LINE:295EC2,LINE:295EC3,LINE:295EC4,LINE:295EC5,LINE:295EC6,LINE:295EC7,LINE:295EC8,LINE:295EC9,LINE:295ECA,LINE:295ECB,LINE:295ECC,LINE:295ECD,LINE:295ECE,LINE:295ECF,LINE:295ED0,LINE:295ED1,LINE:295ED2,LINE:295ED3,LINE:295ED4,LINE:295ED5,LINE:295ED6,LINE:295ED7,LINE:295ED8,LINE:295ED9,LINE:295EDA,LINE:295EDB,LINE:295EDC,LINE:295EDD,LINE:295EDE,LINE:295EDF,LINE:295EE0,LINE:295EE1,LINE:295EE2,LINE:295EE3,LINE:295EE4,LINE:295EE5,LINE:295EE6,LINE:295EE7,LINE:295EE8,LINE:295EE9,LINE:295EEA,LINE:295EEB,LINE:295EEC,LINE:295EED,LINE:295EEE,LINE:295EEF,LINE:295EF0,LINE:295EF1,LINE:295EF2,LINE:295EF3,LINE:295EF4,LINE:295EF5,LINE:295EF6,LINE:295EF7,LINE:295EF8,LINE:295EF9,LINE:295EFA,LINE:295EFB,LINE:295EFC,LINE:295EFD,LINE:295EFE,LINE:295EFF,LINE:295F00,LINE:295F01,LINE:295F02,LINE:295F03,LINE:295F04,LINE:295F05,LINE:295F06,LINE:295F07,LINE:295F08,LINE:295F09,LINE:295F0A,LINE:295F0B,LINE:295F0C,LINE:295F0D,LINE:295F0E,LINE:295F0F,LINE:295F10,LINE:295F11,LINE:295F12,LINE:295F13,LINE:295F14,LINE:295F15,LINE:295F16,LINE:295F17,LINE:295F18,LINE:295F19,LINE:295F1A,LINE:295F1B,LINE:295F1C,LINE:295F1D,LINE:295F1E,LINE:295F1F,LINE:295F20,LINE:295F21,LINE:295F22,LINE:295F23,LINE:295F24,LINE:295F25,LINE:295F26,LINE:295F27,LINE:295F28,LINE:295F29,LINE:295F2A,LINE:295F2B,LINE:295F2C,LINE:295F2D,LINE:295F2E,LINE:295F2F,LINE:295F30,LINE:295F31,LINE:295F32,LINE:295F33,LINE:295F34,LINE:295F35,LINE:295F36,LINE:295F37,LINE:295F38,LINE:295F39,LINE:295F3A,LINE:295F3B,LINE:295F3C,LINE:295F3D,LINE:295F3E,LINE:295F3F,LINE:295F40,LINE:295F41,LINE:295F42,LINE:295F43,LINE:295F44,LINE:295F45,LINE:295F46,LINE:295F47,LINE:295F48,LINE:295F49,LINE:295F4A,LINE:295F4B,LINE:295F4C,LINE:295F4D,LINE:295F4E,LINE:295F4F,LINE:295F50,LINE:295F51,LINE:295F52,LINE:295F53,LINE:295F54,LINE:295F55,LINE:295F56,LINE:295F57,LINE:295F58,LINE:295F59,LINE:295F5A,LINE:295F5B,LINE:295F5C,LINE:295F5D,LINE:295F5E,LINE:295F5F,LINE:295F60,LINE:295F61,LINE:295F62,LINE:295F63,LINE:295F64,LINE:295F65,LINE:295F66,LINE:295F67,LINE:295F68,LINE:295F69,LINE:295F6A,LINE:295F6B,LINE:295F6C,LINE:295F6D,LINE:295F6E,LINE:295F6F,LINE:295F70,LINE:295F71,LINE:295F72,LINE:295F73,LINE:295F74,LINE:295F75,LINE:295F76,LINE:295F77,LINE:295F78,LINE:295F79,LINE:295F7A,LINE:295F7B,LINE:295F7C,LINE:295F7D,LINE:295F7E,LINE:295F7F,LINE:295F80,LINE:295F81,LINE:295F82,LINE:295F83,LINE:295F84,LINE:295F85,LINE:295F86,LINE:295F87,LINE:295F88,LINE:295F89,LINE:295F8A,LINE:295F8B,LINE:295F8C,LINE:295F8D,LINE:295F8E,LINE:295F8F,LINE:295F90,LINE:295F91,LINE:295F92,LINE:295F93,LINE:295F94,LINE:295F95,LINE:295F96,LINE:295F97,LINE:295F98,LINE:295F99,LINE:295F9A,LINE:295F9B,LINE:295F9C,LINE:295F9D,LINE:295F9E,LINE:295F9F,LINE:295FA0,LINE:295FA1,LINE:295FA2,LINE:295FA3,LINE:295FA4,LINE:295FA5,LINE:295FA6,LINE:295FA7,LINE:295FA8,LINE:295FA9,LINE:295FAA,LINE:295FAB,LINE:295FAC,LINE:295FAD,LINE:295FAE,LINE:295FAF,LINE:295FB0,LINE:295FB1,LINE:295FB2,LINE:295FB3,LINE:295FB4,LINE:295FB5,LINE:295FB6,LINE:295FB7,LINE:295FB8,LINE:295FB9,LINE:295FBA,LINE:295FBB,LINE:295FBC,LINE:295FBD,LINE:295FBE,LINE:295FBF,LINE:295FC0,LINE:295FC1,LINE:295FC2,LINE:295FC3,LINE:295FC4,LINE:295FC5,LINE:295FC6,LINE:295FC7,LINE:295FC8,LINE:295FC9,LINE:295FCA,LINE:295FCB,LINE:295FCC,LINE:295FCD,LINE:295FCE,LINE:295FCF,LINE:295FD0,LINE:295FD1,LINE:295FD2,LINE:295FD3,LINE:295FD4,LINE:295FD5,LINE:295FD6,LINE:295FD7,LINE:295FD8,LINE:295FD9,LINE:295FDB,LINE:295FDC,LINE:295FDD,LINE:295FDE,LINE:295FDF,LINE:295FE0,LINE:295FE1,LINE:295FE2,LINE:295FE3,LINE:295FE4,LINE:295FE5,LINE:295FE6,LINE:295FE7,LINE:295FE8,LINE:295FE9,LINE:295FEA,LINE:295FEB,LINE:295FEC,LINE:295FED,LINE:295FEE,LINE:295FEF",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_008",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "armchair",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+5.125,
+1.9049
+],
+"size": [
+0.9157,
+0.6198
+],
+"rotation_deg": 90.0
+},
+"front_deg": null,
+"build": true,
+"status": "verified",
+"type_method": "rule",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.85,
+"entity": "LINE:295D90,LINE:295D91,LINE:295D92,LINE:295D93,LINE:295D94,LINE:295D95,LINE:295D96,LINE:295D97,LINE:295D98,LINE:295D99,LINE:295D9E,LINE:295D9F,LINE:295DA0,LINE:295DA2,LINE:295DA3,LINE:295DA4,LINE:295DA5,LINE:295DA6,LINE:295DA7,LINE:295DA8,LINE:295DA9,LINE:295DAA,LINE:295DAB,LINE:295DAC,LINE:295DAD,LINE:295DAE,LINE:295DAF,LINE:295DB0,LINE:295DB1,LINE:295DB2,LINE:295DB3,LINE:295DB4,LINE:295DB5,LINE:295DB6,LINE:295DB7,LINE:295DB8,LINE:295DB9,LINE:295DBA,LINE:295DBB,LINE:295DBC,LINE:295DBD,LINE:295DBE,LINE:295DBF,LINE:295DC0,LINE:295DC1,LINE:295DC2,LINE:295DC3,LINE:295DC4,LINE:295DC5,LINE:295DC6,LINE:295DC7,LINE:295DC8,LINE:295DC9,LINE:295DCA,LINE:295DCB,LINE:295DCC,LINE:295DCD,LINE:295DCE,LINE:295DCF,LINE:295DD0,LINE:295DD1,LINE:295DD2,LINE:295DD3,LINE:295DD4,LINE:295DD5,LINE:295DD6,LINE:295DD7,LINE:295DD8,LINE:295DD9,LINE:295DDA,LINE:295DDB,LINE:295DDC,LINE:295DDD,LINE:295DDE,LINE:295DDF,LINE:295DE0,LINE:295DE1,LINE:295DE2,LINE:295DE3,LINE:295DE4,LINE:295DE5,LINE:295DE6,LINE:295DE7,LINE:295DE8,LINE:295DE9,LINE:295DEA,LINE:295DEB,LINE:295DEC,LINE:295DED,LINE:295DF9,LINE:295DFA,LINE:295DFB,LINE:295DFC,LINE:295DFD,LINE:295DFE,LINE:295DFF,LINE:295E00,LINE:295E01,LINE:295E02,LINE:295E03,LINE:295E04,LINE:295E05,LINE:295E06,LINE:295E07,LINE:295E08,LINE:295E09,LINE:295E0A,LINE:295E0B,LINE:295E0C,LINE:295E0D,LINE:295E0E,LINE:295E0F,LINE:295E10,LINE:295E11,LINE:295E12,LINE:295E13,LINE:295E14,LINE:295E15,LINE:295E16,LINE:295E17,LINE:295E18,LINE:295E19,LINE:295E1A,LINE:295E1B,LINE:295E1C,LINE:295E1D,LINE:295E1E,LINE:295E1F,LINE:295E20,LINE:295E21,LINE:295E22,LINE:295E23,LINE:295E24,LINE:295E25,LINE:295E26,LINE:295E27,LINE:295E28,LINE:295E29,LINE:295E2A,LINE:295E2B,LINE:295E2C,LINE:295E2D,LINE:295E2E,LINE:295E2F,LINE:295E30,LINE:295E31,LINE:295E32,LINE:295E41,LINE:295E42,LINE:295E43,LINE:295E44,LINE:295E45,LINE:295E46,LINE:295E47,LINE:295E48,LINE:295E49,LINE:295E4A,LINE:295E4B,LINE:295E4C,LINE:295E4D,LINE:295E4E,LINE:295E4F,LINE:295E50,LINE:295E51,LINE:295E52,LINE:295E53,LINE:295E54,LINE:295E55,LINE:295E56,LINE:295E57,LINE:295E58,LINE:295E5A,LINE:295E5B,LINE:295E5C,LINE:295E5D,LINE:295E5E,LINE:295E5F,LINE:295E60,LINE:295E61,LINE:295E62,LINE:295E63,LINE:295E64,LINE:295E65,LINE:295E66,LINE:295E67,LINE:295E68,LINE:295E69,LINE:295E6A,LINE:295E6B,LINE:295E6C,LINE:295E6D,LINE:295E6E,LINE:295E6F,LINE:295E70,LINE:295E71,LINE:295E72,LINE:295E73,LINE:295E74,LINE:295E75,LINE:295E76,LINE:295E77,LINE:295E78,LINE:295E79,LINE:295E7A,LINE:295E7B,LINE:295E7C,LINE:295E7D,LINE:295E7E,LINE:295E7F,LINE:295E80,LINE:295E81,LINE:295E82,LINE:295E83,LINE:295E84,LINE:295E85,LINE:295E86,LINE:295E87,LINE:295E88,LINE:295E89,LINE:295E8A,LINE:295E8B,LINE:295E8C,LINE:295E9B,LINE:295E9C,LINE:295E9D,LINE:295E9E,LINE:295E9F,LINE:295EA0,LINE:295EA1,LINE:295EA2,LINE:295EA3,LINE:295EA4,LINE:295EA5,LINE:295EA6,LINE:295EA7,LINE:295EA8,LINE:295EA9,LINE:295EAA,LINE:295EAB,LINE:295EAC,LINE:295EAD,LINE:295EAE,LINE:295EAF,LINE:295EB0,LINE:295EB1,LINE:295EB2,LINE:295EB3,LINE:295EB4,LINE:295EB5,LINE:295EB6,LINE:295EB7,LINE:295EB8,LINE:295EB9,LINE:295EBA,LINE:295EBB,LINE:295EBC,LINE:295EBD,LINE:295EBE,LINE:295EBF",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_009",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "unknown",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+7.9343,
+3.2773
+],
+"size": [
+0.2087,
+0.2018
+],
+"rotation_deg": 0.0
+},
+"front_deg": null,
+"build": false,
+"status": "unverified",
+"type_method": "none",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:296100-296114,LINE:2960B9,LINE:2960BA,LINE:2960BB,LINE:2960BC,LINE:2960BD,LINE:2960BE,LINE:2960BF,LINE:2960C0,LINE:2960C1,LINE:2960C2,LINE:2960C3,LINE:2960C4,LINE:2960C5,LINE:2960C6,LINE:2960C7,LINE:2960C8,LINE:2960C9,LINE:2960CA,LINE:2960CB,LINE:2960CC,LINE:2960CD,LINE:2960CE,LINE:2960CF,LINE:2960D0,LINE:2960D1,LINE:2960D2,LINE:2960D3,LINE:2960D4,LINE:2960D5,LINE:2960D6,LINE:2960D7,LINE:2960D8,LINE:2960D9,LINE:2960DA,LINE:2960DB,LINE:2960DC,LINE:2960DD,LINE:2960DE,LINE:2960DF,LINE:2960E0,LINE:2960E1,LINE:2960E2,LINE:2960E3,LINE:2960E4,LINE:2960E5,LINE:2960E6,LINE:2960E7,LINE:2960E8,LINE:2960E9,LINE:2960EA,LINE:2960EB,LINE:2960EC,LINE:2960ED,LINE:2960EE,LINE:2960EF,LINE:2960F0,LINE:2960F1,LINE:2960F2,LINE:2960F3,LINE:2960F4,LINE:2960F5,LINE:2960F6,LINE:2960F7,LINE:2960F8,LINE:2960F9,LINE:2960FA,LINE:2960FB,LINE:2960FC,LINE:2960FD,LINE:2960FE,LINE:2960FF,LINE:29610A,LINE:29610B,LINE:29610C,LINE:29610D,LINE:29610E,LINE:29610F",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "parametric"
+}
+},
+{
+"id": "f_L0_010",
+"level_id": "L0",
+"room_id": "r_L0_banyo",
+"type": "unknown",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+7.322,
+13.8852
+],
+"size": [
+2.544,
+1.0076
+],
+"rotation_deg": 161.545
+},
+"front_deg": null,
+"build": false,
+"status": "unverified",
+"type_method": "none",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:294637,ARC:27CB13,ARC:27CB14,ARC:27CB15,ARC:27CB16,ARC:27CB17,ARC:27CB18,ARC:27CB19,ARC:27CB1B,ARC:27CB1D,ARC:27CB20,ARC:27CB21,ARC:27CB22,ARC:27CB23,ARC:2958AA,ARC:2958B2,ARC:2958B3,ARC:2958B4,ARC:2958B5,ARC:2958B6,ARC:2958B7,ARC:2958BB,ARC:2958C1,ARC:2958C4,ARC:2958C5,ARC:2958C6,ARC:2958C7,ARC:2958C8,ARC:2958C9,ARC:2958CB,ARC:2958CC,ARC:2958CD,ARC:2958CE,CIRCLE:2958AF,LINE:27CB12,LINE:27CB24,LINE:27CB25,LINE:2951D1,LINE:2951D2,LINE:2951D3,LINE:2958AB,LINE:2958AC,LINE:2958AD,LINE:2958AE,LINE:2958B0,LINE:2958B1,LINE:2958BA,LINE:2958BC,LINE:2958BF,LINE:2958C0,LINE:2958C2,LINE:2958C3",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "parametric"
+}
+},
+{
+"id": "f_L0_011",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "sofa_corner",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+1.9799,
+6.2723
+],
+"size": [
+2.4,
+2.4
+],
+"rotation_deg": 84.695
+},
+"front_deg": null,
+"build": true,
+"status": "unverified",
+"type_method": "group_member",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "ARC:296543-296558,ARC:296560-296564,ARC:296566-296569,ARC:296589,ARC:296594-296599,ARC:296615,ARC:296618-296636,ARC:296638-296639,CIRCLE:296522-296523,CIRCLE:296542,CIRCLE:296565,CIRCLE:296588,CIRCLE:296637,ELLIPSE:296591-296592,SPLINE:296593,ARC:29654E,ARC:29654F,ARC:29655D,ARC:29655E,ARC:29655F,ARC:29658A,ARC:29658B,ARC:29658C,ARC:29658D,ARC:29658E,ARC:29658F,ARC:29659A,ARC:29659B,ARC:29659C,ARC:29659D,ARC:29659E,ARC:2965A3,ARC:2965A4,ARC:2965A5,ARC:2965A6,ARC:2965A7,ARC:2965A8,ARC:2965A9,ARC:2965AA,ARC:2965AC,ARC:2965AD,ARC:2965AE,ARC:2965AF,ARC:2965CF,ARC:2965D0,ARC:2965D1,ARC:2965D2,ARC:2965D3,ARC:2965D4,ARC:2965D5,ARC:2965DA,ARC:2965DB,ARC:2965DC,ARC:2965DD,ARC:2965DE,ARC:2965DF,ARC:2965E0,ARC:2965E1,ARC:2965E2,ARC:2965E3,ARC:2965E4,ARC:2965E9,ARC:2965EA,ARC:2965EB,ARC:2965EC,ARC:2965ED,ARC:2965EE,ARC:2965EF,ARC:2965F0,ARC:2965F2,ARC:2965F3,ARC:2965F4,ARC:2965F5,ARC:29661A,ARC:29661B,ARC:29662A,ARC:29662F,ARC:29663A,ARC:29663B,ARC:29AC5E,ARC:29AC5F,ARC:29AC60,ARC:29AC61,ARC:29AC62,ARC:29AC63,ARC:29AC6A,ARC:29AC6B,ARC:29AC6C,ARC:29AC6D,ARC:29AC6E,ARC:29AC6F,ARC:29AC76,ARC:29AC77,ARC:29AC78,ARC:29AC79,ARC:29AC7A,ARC:29AC7B,ARC:29AC82,ARC:29AC83,ARC:29AC84,ARC:29AC85,ARC:29AC86,ARC:29AC87,CIRCLE:2965AB,CIRCLE:2965CE,CIRCLE:2965F1,CIRCLE:29663C,ELLIPSE:29654B,ELLIPSE:29654C,ELLIPSE:29655A,ELLIPSE:29655B,ELLIPSE:2965A0,ELLIPSE:2965A1,ELLIPSE:2965D7,ELLIPSE:2965D8,ELLIPSE:2965E6,ELLIPSE:2965E7,ELLIPSE:29661D,ELLIPSE:29661E,ELLIPSE:29662C,ELLIPSE:29662D,SPLINE:29654D,SPLINE:29655C,SPLINE:2965A2,SPLINE:2965D9,SPLINE:2965E8,SPLINE:29661F,SPLINE:29662E",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_012",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "potted_plant",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+6.0409,
+0.8594
+],
+"size": [
+0.2087,
+0.2018
+],
+"rotation_deg": 90.0
+},
+"front_deg": null,
+"build": false,
+"status": "unverified",
+"type_method": "inferred",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:296337-296339,LINE:296355-296369,LINE:296372-296373,LINE:296410-296414,LINE:296417-296439,LINE:296441,LINE:2962EA,LINE:2962EB,LINE:2962EC,LINE:2962EF,LINE:2962F0,LINE:2962F2,LINE:29633A,LINE:29633B,LINE:29633C,LINE:29633D,LINE:29635A,LINE:29635B,LINE:29635C,LINE:29635D,LINE:29635E,LINE:29635F,LINE:29636A,LINE:29636B,LINE:29636C,LINE:29636D,LINE:29636E,LINE:29636F,LINE:29640C,LINE:29640D,LINE:29640E,LINE:29640F,LINE:29641A,LINE:29641B,LINE:29641C,LINE:29641D,LINE:29641E,LINE:29641F,LINE:29642A,LINE:29642B,LINE:29642C,LINE:29642D,LINE:29642E,LINE:29642F,LINE:29643A,LINE:29643B,LINE:29643C",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "none"
+}
+},
+{
+"id": "f_L0_013",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "potted_plant",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+6.99,
+1.15
+],
+"size": [
+0.2087,
+0.2018
+],
+"rotation_deg": 90.0
+},
+"front_deg": null,
+"build": true,
+"status": "unverified",
+"type_method": "same_block",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:296467-296471,LINE:296474-296489,LINE:29646A,LINE:29646B,LINE:29646C,LINE:29646D,LINE:29646E,LINE:29646F,LINE:29647A,LINE:29647B,LINE:29647C,LINE:29647D,LINE:29647E,LINE:29647F,LINE:29648A,LINE:2964B8,LINE:2964B9,LINE:2964BA,LINE:2964BB,LINE:2964BC,LINE:2964BD,LINE:2964BE,LINE:2964BF,LINE:2964C0,LINE:2964C1,LINE:2964C2,LINE:2964C3,LINE:2964C4,LINE:2964C5,LINE:2964C6,LINE:2964C7,LINE:2964C8,LINE:2964C9,LINE:2964CA,LINE:2964CB,LINE:2964CC,LINE:2964CD,LINE:2964CE,LINE:2964CF,LINE:2964D0,LINE:2964D1,LINE:2964D2,LINE:2964D3,LINE:2964D4,LINE:2964D5,LINE:2964D6,LINE:2964D7,LINE:2964D8,LINE:2964D9,LINE:2964DA,LINE:2964DB,LINE:2964DC,LINE:2964DD,LINE:2964DE,LINE:2964DF,LINE:2964E0,LINE:2964E1,LINE:2964E2,LINE:2964E3,LINE:2964E4,LINE:2964E5,LINE:2964E6,LINE:2964E7,LINE:2964E8,LINE:2964E9,LINE:2964EA,LINE:2964EB,LINE:2964F5,LINE:2964F6,LINE:2964F7,LINE:2964F8",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_014",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "unknown",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+6.5161,
+0.9481
+],
+"size": [
+1.5217,
+0.7824
+],
+"rotation_deg": 180.0
+},
+"front_deg": 90.0,
+"build": false,
+"status": "unverified",
+"type_method": "none",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:296300-296336,LINE:296340-296354,LINE:296370-296371,LINE:296374-296409,LINE:296440,LINE:296442-296444,LINE:296446-296466,LINE:296490-296521,LINE:2962ED,LINE:2962EE,LINE:2962F1,LINE:2962F3,LINE:2962F4,LINE:2962F5,LINE:2962F6,LINE:2962F7,LINE:2962F8,LINE:2962F9,LINE:2962FA,LINE:2962FB,LINE:2962FC,LINE:2962FD,LINE:2962FE,LINE:2962FF,LINE:29630A,LINE:29630B,LINE:29630C,LINE:29630D,LINE:29630E,LINE:29630F,LINE:29631A,LINE:29631B,LINE:29631C,LINE:29631D,LINE:29631E,LINE:29631F,LINE:29632A,LINE:29632B,LINE:29632C,LINE:29632D,LINE:29632E,LINE:29632F,LINE:29633E,LINE:29633F,LINE:29634A,LINE:29634B,LINE:29634C,LINE:29634D,LINE:29634E,LINE:29634F,LINE:29637A,LINE:29637B,LINE:29637C,LINE:29637D,LINE:29637E,LINE:29637F,LINE:29638A,LINE:29638B,LINE:29638C,LINE:29638D,LINE:29638E,LINE:29638F,LINE:29639A,LINE:29639B,LINE:29639C,LINE:29639D,LINE:29639E,LINE:29639F,LINE:2963A0,LINE:2963A1,LINE:2963A2,LINE:2963A3,LINE:2963A4,LINE:2963A5,LINE:2963A6,LINE:2963A7,LINE:2963A8,LINE:2963A9,LINE:2963AA,LINE:2963AB,LINE:2963AC,LINE:2963AD,LINE:2963AE,LINE:2963AF,LINE:2963B0,LINE:2963B1,LINE:2963B2,LINE:2963B3,LINE:2963B4,LINE:2963B5,LINE:2963B6,LINE:2963B7,LINE:2963B8,LINE:2963B9,LINE:2963BA,LINE:2963BB,LINE:2963BC,LINE:2963BD,LINE:2963BE,LINE:2963BF,LINE:2963C0,LINE:2963C1,LINE:2963C2,LINE:2963C3,LINE:2963C4,LINE:2963C5,LINE:2963C6,LINE:2963C7,LINE:2963C8,LINE:2963C9,LINE:2963CA,LINE:2963CB,LINE:2963CC,LINE:2963CD,LINE:2963CE,LINE:2963CF,LINE:2963D0,LINE:2963D1,LINE:2963D2,LINE:2963D3,LINE:2963D4,LINE:2963D5,LINE:2963D6,LINE:2963D7,LINE:2963D8,LINE:2963D9,LINE:2963DA,LINE:2963DB,LINE:2963DC,LINE:2963DD,LINE:2963DE,LINE:2963DF,LINE:2963E0,LINE:2963E1,LINE:2963E2,LINE:2963E3,LINE:2963E4,LINE:2963E5,LINE:2963E6,LINE:2963E7,LINE:2963E8,LINE:2963E9,LINE:2963EA,LINE:2963EB,LINE:2963EC,LINE:2963ED,LINE:2963EE,LINE:2963EF,LINE:2963F0,LINE:2963F1,LINE:2963F2,LINE:2963F3,LINE:2963F4,LINE:2963F5,LINE:2963F6,LINE:2963F7,LINE:2963F8,LINE:2963F9,LINE:2963FA,LINE:2963FB,LINE:2963FC,LINE:2963FD,LINE:2963FE,LINE:2963FF,LINE:29640A,LINE:29640B,LINE:29643D,LINE:29643E,LINE:29643F,LINE:29644A,LINE:29644B,LINE:29644C,LINE:29644D,LINE:29644E,LINE:29644F,LINE:29645A,LINE:29645B,LINE:29645C,LINE:29645D,LINE:29645E,LINE:29645F,LINE:29648B,LINE:29648C,LINE:29648D,LINE:29648E,LINE:29648F,LINE:29649A,LINE:29649B,LINE:29649C,LINE:29649D,LINE:29649E,LINE:29649F,LINE:2964A0,LINE:2964A1,LINE:2964A2,LINE:2964A3,LINE:2964A4,LINE:2964A5,LINE:2964A6,LINE:2964A7,LINE:2964A8,LINE:2964A9,LINE:2964AA,LINE:2964AB,LINE:2964AC,LINE:2964AD,LINE:2964AE,LINE:2964AF,LINE:2964B0,LINE:2964B1,LINE:2964B2,LINE:2964B3,LINE:2964B4,LINE:2964B5,LINE:2964B6,LINE:2964B7,LINE:2964EC,LINE:2964ED,LINE:2964EE,LINE:2964EF,LINE:2964F0,LINE:2964F1,LINE:2964F2,LINE:2964F3,LINE:2964F4,LINE:2964F9,LINE:2964FA,LINE:2964FB,LINE:2964FC,LINE:2964FD,LINE:2964FE,LINE:2964FF,LINE:29650A,LINE:29650B,LINE:29650C,LINE:29650D,LINE:29650E,LINE:29650F,LINE:29651A,LINE:29651B,LINE:29651C,LINE:29651D,LINE:29651E,LINE:29651F",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "parametric"
+}
+},
+{
+"id": "f_L0_015",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "table_coffee",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+7.7683,
+4.7164
+],
+"size": [
+0.8648,
+0.5169
+],
+"rotation_deg": 135.0
+},
+"front_deg": null,
+"build": true,
+"status": "unverified",
+"type_method": "inferred",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "ARC:2962E9,CIRCLE:2962E3,LINE:2962DF,LINE:2962E0,LINE:29AC8E,LINE:29AC8F,LINE:29AC90,LINE:29AC91,LINE:29AC92,LINE:29AC93,LINE:29AC94,LINE:29AC95,LINE:29AC96,LINE:29AC97,LINE:29AC98,LINE:29AC99,LINE:29AC9A,LINE:29AC9B,LINE:29AC9C,LINE:29AC9D,LINE:29AC9E,LINE:29AC9F,LINE:29ACA0,LINE:29ACA1,LINE:29ACA2,LINE:29ACA3,LINE:29ACA4",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_016",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "armchair",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+7.7568,
+6.547
+],
+"size": [
+0.9172,
+0.7694
+],
+"rotation_deg": 209.41
+},
+"front_deg": 119.41,
+"build": true,
+"status": "verified",
+"type_method": "rule",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.85,
+"entity": "LINE:295C60,LINE:295C61,LINE:295C62,LINE:295C63,LINE:295C64,LINE:295C65,LINE:295C66,LINE:295C67,LINE:295C68,LINE:295C69,LINE:295C6A,LINE:295C6B,LINE:295C6C,LINE:295C6D,LINE:295C6E,LINE:295C6F,LINE:295C70,LINE:295C71,LINE:295C72,LINE:295C73,LINE:295C74,LINE:295C75,LINE:295C76,LINE:295C77,LINE:295C78,LINE:295C79,LINE:295C7A,LINE:295C7B,LINE:295C7C,LINE:295C7D,LINE:295C7E,LINE:295C7F,LINE:295C80,LINE:295C81,LINE:295C82,LINE:295C83,LINE:295C84,LINE:295C85,LINE:295C86,LINE:295C87,LINE:295C88,LINE:295C89,LINE:295C8A,LINE:295C8B,LINE:295C8C,LINE:295C8D,LINE:295C8E,LINE:295C8F,LINE:295C90,LINE:295C91,LINE:295C92,LINE:295C93,LINE:295C94,LINE:295C95,LINE:295C96,LINE:295C97,LINE:295C98,LINE:295C99,LINE:295C9A,LINE:295C9B,LINE:295C9C,LINE:295C9D,LINE:295C9E,LINE:295C9F,LINE:295CA0,LINE:295CA1,LINE:295CA2,LINE:295CA3,LINE:295CA4,LINE:295CA5,LINE:295CA6,LINE:295CA7,LINE:295CA8,LINE:295CA9,LINE:295CAA,LINE:295CAB,LINE:295CAC,LINE:295CAD,LINE:295CAE,LINE:295CAF,LINE:295CB0,LINE:295CB1,LINE:295CB2,LINE:295CB3,LINE:295CB4,LINE:295CB5,LINE:295CB6,LINE:295CB7,LINE:295CB8,LINE:295CB9,LINE:295CBA,LINE:295CBB,LINE:295CBC,LINE:295CBD,LINE:295CBE,LINE:295CBF,LINE:295CC0,LINE:295CC1,LINE:295CC2,LINE:295CC3,LINE:295CC4,LINE:295CC5,LINE:295CC6,LINE:295CC7,LINE:295CC8,LINE:295CC9,LINE:295CCA,LINE:295CCB,LINE:295CCC,LINE:295CCD,LINE:295CCE,LINE:295CCF,LINE:295CD0,LINE:295CD1,LINE:295CD2,LINE:295CD3,LINE:295CD4,LINE:295CD5,LINE:295CD6,LINE:295CD7,LINE:295CD8,LINE:295CD9,LINE:295CDA,LINE:295CDB,LINE:295CDC,LINE:295CDD,LINE:295CDE,LINE:295CDF,LINE:295CE0,LINE:295CE1,LINE:295CE2,LINE:295CE3,LINE:295CE4,LINE:295CE5,LINE:295CE6,LINE:295CE7,LINE:295CE8,LINE:295CE9,LINE:295CEA,LINE:295CEB,LINE:295CEC,LINE:295CED,LINE:295CEE,LINE:295CEF,LINE:295CF0,LINE:295CF1,LINE:295CF2,LINE:295CF3,LINE:295CF4,LINE:295CF5,LINE:295CF6,LINE:295CF7,LINE:295CF8,LINE:295CF9,LINE:295CFA,LINE:295CFB,LINE:295CFC,LINE:295CFD,LINE:295CFE,LINE:295CFF,LINE:295D00,LINE:295D01,LINE:295D02,LINE:295D03,LINE:295D04,LINE:295D05,LINE:295D06,LINE:295D07,LINE:295D08,LINE:295D09,LINE:295D0A,LINE:295D0B,LINE:295D0C,LINE:295D0D,LINE:295D0E,LINE:295D0F,LINE:295D10,LINE:295D11,LINE:295D12,LINE:295D13,LINE:295D14,LINE:295D15,LINE:295D16,LINE:295D17,LINE:295D18,LINE:295D19,LINE:295D1A,LINE:295D1B,LINE:295D1C,LINE:295D1D,LINE:295D1E,LINE:295D1F,LINE:295D20,LINE:295D21,LINE:295D22,LINE:295D23,LINE:295D24,LINE:295D25,LINE:295D26,LINE:295D27,LINE:295D28,LINE:295D29,LINE:295D2A,LINE:295D2B,LINE:295D2C,LINE:295D2D,LINE:295D2E,LINE:295D2F,LINE:295D30,LINE:295D31,LINE:295D32,LINE:295D33,LINE:295D34,LINE:295D35,LINE:295D36,LINE:295D38,LINE:295D39,LINE:295D3A,LINE:295D3B,LINE:295D3C,LINE:295D3D,LINE:295D3E,LINE:295D3F,LINE:295D40,LINE:295D41,LINE:295D42,LINE:295D43,LINE:295D44,LINE:295D45,LINE:295D46,LINE:295D47,LINE:295D48,LINE:295D49,LINE:295D4A,LINE:295D4B,LINE:295D4C,LINE:295D4D,LINE:295D4E,LINE:295D4F,LINE:295D50,LINE:295D51,LINE:295D52,LINE:295D53,LINE:295D54,LINE:295D55,LINE:295D56,LINE:295D57,LINE:295D58,LINE:295D59,LINE:295D5A,LINE:295D5B,LINE:295D5C,LINE:295D5D,LINE:295D5E,LINE:295D5F,LINE:295D60,LINE:295D61,LINE:295D62,LINE:295D63,LINE:295D64,LINE:295D65,LINE:295D66,LINE:295D67,LINE:295D68,LINE:295D69,LINE:295D6A,LINE:295D6B,LINE:295D6C,LINE:295D6D,LINE:295D6E,LINE:295D6F,LINE:295D70,LINE:295D71,LINE:295D72,LINE:295D73,LINE:295D74,LINE:295D75,LINE:295D76,LINE:295D77,LINE:295D78,LINE:295D79,LINE:295D7A,LINE:295D7B,LINE:295D7C,LINE:295D7D,LINE:295D7E,LINE:295D7F,LINE:295D80,LINE:295D81,LINE:295D82,LINE:295D83,LINE:295D84,LINE:295D85,LINE:295D86,LINE:295D87,LINE:295D88,LINE:295D89,LINE:295D8A,LINE:295D8B,LINE:295D8C,LINE:295D8D,LINE:295D8E,LINE:295D8F",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_017",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "armchair",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+6.4959,
+8.264
+],
+"size": [
+0.9172,
+0.7693
+],
+"rotation_deg": 29.41
+},
+"front_deg": 299.41,
+"build": true,
+"status": "verified",
+"type_method": "rule",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.85,
+"entity": "LINE:295900-295973,LINE:295975-295999,LINE:2958D0,LINE:2958D1,LINE:2958D2,LINE:2958D3,LINE:2958D4,LINE:2958D5,LINE:2958D6,LINE:2958D7,LINE:2958D8,LINE:2958D9,LINE:2958DA,LINE:2958DB,LINE:2958DC,LINE:2958DD,LINE:2958DE,LINE:2958DF,LINE:2958E0,LINE:2958E1,LINE:2958E2,LINE:2958E3,LINE:2958E4,LINE:2958E5,LINE:2958E6,LINE:2958E7,LINE:2958E8,LINE:2958E9,LINE:2958EA,LINE:2958EB,LINE:2958EC,LINE:2958ED,LINE:2958EE,LINE:2958EF,LINE:2958F0,LINE:2958F1,LINE:2958F2,LINE:2958F3,LINE:2958F4,LINE:2958F5,LINE:2958F6,LINE:2958F7,LINE:2958F8,LINE:2958F9,LINE:2958FA,LINE:2958FB,LINE:2958FC,LINE:2958FD,LINE:2958FE,LINE:2958FF,LINE:29590A,LINE:29590B,LINE:29590C,LINE:29590D,LINE:29590E,LINE:29590F,LINE:29591A,LINE:29591B,LINE:29591C,LINE:29591D,LINE:29591E,LINE:29591F,LINE:29592A,LINE:29592B,LINE:29592C,LINE:29592D,LINE:29592E,LINE:29592F,LINE:29593A,LINE:29593B,LINE:29593C,LINE:29593D,LINE:29593E,LINE:29593F,LINE:29594A,LINE:29594B,LINE:29594C,LINE:29594D,LINE:29594E,LINE:29594F,LINE:29595A,LINE:29595B,LINE:29595C,LINE:29595D,LINE:29595E,LINE:29595F,LINE:29596A,LINE:29596B,LINE:29596C,LINE:29596D,LINE:29596E,LINE:29596F,LINE:29597A,LINE:29597B,LINE:29597C,LINE:29597D,LINE:29597E,LINE:29597F,LINE:29598A,LINE:29598B,LINE:29598C,LINE:29598D,LINE:29598E,LINE:29598F,LINE:29599A,LINE:29599B,LINE:29599C,LINE:29599D,LINE:29599E,LINE:29599F,LINE:2959A0,LINE:2959A1,LINE:2959A2,LINE:2959A3,LINE:2959A4,LINE:2959A5,LINE:2959A6,LINE:2959A7,LINE:2959A8,LINE:2959A9,LINE:2959AA,LINE:2959AB,LINE:2959AC,LINE:2959AD,LINE:2959AE,LINE:2959AF,LINE:2959B0,LINE:2959B1,LINE:2959B2,LINE:2959B3,LINE:2959B4,LINE:2959B5,LINE:2959B6,LINE:2959B7,LINE:2959B8,LINE:2959B9,LINE:2959BA,LINE:2959BB,LINE:2959BC,LINE:2959BD,LINE:2959BE,LINE:2959BF,LINE:2959C0,LINE:2959C1,LINE:2959C2,LINE:2959C3,LINE:2959C4,LINE:2959C5,LINE:2959C6,LINE:2959C7,LINE:2959C8,LINE:2959C9,LINE:2959CA,LINE:2959CB,LINE:2959CC,LINE:2959CD,LINE:2959CE,LINE:2959CF,LINE:2959D0,LINE:2959D1,LINE:2959D2,LINE:2959D3,LINE:2959D4,LINE:2959D5,LINE:2959D6,LINE:2959D7,LINE:2959D8,LINE:2959D9,LINE:2959DA,LINE:2959DB,LINE:2959DC,LINE:2959DD,LINE:2959DE,LINE:2959DF,LINE:2959E0,LINE:2959E1,LINE:2959E2,LINE:2959E3,LINE:2959E9,LINE:2959EB,LINE:2959EC,LINE:2959ED,LINE:2959EE,LINE:2959EF,LINE:2959F0,LINE:2959F1,LINE:2959F2,LINE:2959F3,LINE:2959F4,LINE:2959F5,LINE:2959F6,LINE:2959F7,LINE:2959F8,LINE:2959F9,LINE:2959FA,LINE:2959FB,LINE:2959FC,LINE:2959FD,LINE:2959FE,LINE:2959FF",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_018",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "armchair",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+6.551,
+6.547
+],
+"size": [
+0.9172,
+0.7694
+],
+"rotation_deg": 150.59
+},
+"front_deg": 60.59,
+"build": true,
+"status": "verified",
+"type_method": "rule",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.85,
+"entity": "LINE:295A00,LINE:295A01,LINE:295A02,LINE:295A03,LINE:295A04,LINE:295A05,LINE:295A06,LINE:295A07,LINE:295A08,LINE:295A09,LINE:295A0A,LINE:295A0B,LINE:295A0C,LINE:295A0D,LINE:295A0E,LINE:295A0F,LINE:295A10,LINE:295A11,LINE:295A12,LINE:295A13,LINE:295A14,LINE:295A15,LINE:295A16,LINE:295A17,LINE:295A18,LINE:295A19,LINE:295A1A,LINE:295A1B,LINE:295A1C,LINE:295A1D,LINE:295A1E,LINE:295A1F,LINE:295A20,LINE:295A21,LINE:295A22,LINE:295A23,LINE:295A24,LINE:295A25,LINE:295A26,LINE:295A27,LINE:295A28,LINE:295A29,LINE:295A2A,LINE:295A2B,LINE:295A2C,LINE:295A2D,LINE:295A2E,LINE:295A2F,LINE:295A30,LINE:295A31,LINE:295A32,LINE:295A33,LINE:295A34,LINE:295A35,LINE:295A36,LINE:295A37,LINE:295A38,LINE:295A39,LINE:295A3A,LINE:295A3B,LINE:295A3C,LINE:295A3D,LINE:295A3E,LINE:295A3F,LINE:295A40,LINE:295A41,LINE:295A42,LINE:295A43,LINE:295A44,LINE:295A45,LINE:295A46,LINE:295A47,LINE:295A48,LINE:295A49,LINE:295A4A,LINE:295A4B,LINE:295A4C,LINE:295A4D,LINE:295A4E,LINE:295A4F,LINE:295A50,LINE:295A51,LINE:295A52,LINE:295A53,LINE:295A54,LINE:295A55,LINE:295A56,LINE:295A58,LINE:295A59,LINE:295A5A,LINE:295A5B,LINE:295A5C,LINE:295A5D,LINE:295A5E,LINE:295A5F,LINE:295A60,LINE:295A61,LINE:295A62,LINE:295A63,LINE:295A64,LINE:295A65,LINE:295A66,LINE:295A67,LINE:295A68,LINE:295A69,LINE:295A6A,LINE:295A6B,LINE:295A6C,LINE:295A6D,LINE:295A6E,LINE:295A6F,LINE:295A70,LINE:295A71,LINE:295A72,LINE:295A73,LINE:295A74,LINE:295A75,LINE:295A76,LINE:295A77,LINE:295A78,LINE:295A79,LINE:295A7A,LINE:295A7B,LINE:295A7C,LINE:295A7D,LINE:295A7E,LINE:295A7F,LINE:295A80,LINE:295A81,LINE:295A82,LINE:295A83,LINE:295A84,LINE:295A85,LINE:295A86,LINE:295A87,LINE:295A88,LINE:295A89,LINE:295A8A,LINE:295A8B,LINE:295A8C,LINE:295A8D,LINE:295A8E,LINE:295A8F,LINE:295A90,LINE:295A91,LINE:295A92,LINE:295A93,LINE:295A94,LINE:295A95,LINE:295A96,LINE:295A97,LINE:295A98,LINE:295A99,LINE:295A9A,LINE:295A9B,LINE:295A9C,LINE:295A9D,LINE:295A9E,LINE:295A9F,LINE:295AA0,LINE:295AA1,LINE:295AA2,LINE:295AA3,LINE:295AA4,LINE:295AA5,LINE:295AA6,LINE:295AA7,LINE:295AA8,LINE:295AA9,LINE:295AAA,LINE:295AAB,LINE:295AAC,LINE:295AAD,LINE:295AAE,LINE:295AAF,LINE:295AB0,LINE:295AB1,LINE:295AB2,LINE:295AB3,LINE:295AB4,LINE:295AB5,LINE:295AB6,LINE:295AB7,LINE:295AB8,LINE:295AB9,LINE:295ABA,LINE:295ABB,LINE:295ABC,LINE:295ABD,LINE:295ABE,LINE:295ABF,LINE:295AC0,LINE:295AC1,LINE:295AC2,LINE:295AC3,LINE:295AC4,LINE:295AC5,LINE:295AC6,LINE:295AC7,LINE:295AC8,LINE:295AC9,LINE:295ACA,LINE:295ACB,LINE:295ACC,LINE:295ACD,LINE:295ACE,LINE:295ACF,LINE:295AD0,LINE:295AD1,LINE:295AD2,LINE:295AD3,LINE:295AD4,LINE:295AD5,LINE:295AD6,LINE:295AD7,LINE:295AD8,LINE:295AD9,LINE:295ADA,LINE:295ADB,LINE:295ADC,LINE:295ADD,LINE:295ADE,LINE:295ADF,LINE:295AE0,LINE:295AE1,LINE:295AE2,LINE:295AE3,LINE:295AE4,LINE:295AE5,LINE:295AE6,LINE:295AE7,LINE:295AE8,LINE:295AE9,LINE:295AEA,LINE:295AEB,LINE:295AEC,LINE:295AED,LINE:295AEE,LINE:295AEF,LINE:295AF0,LINE:295AF1,LINE:295AF2,LINE:295AF3,LINE:295AF4,LINE:295AF5,LINE:295AF6,LINE:295AF7,LINE:295AF8,LINE:295AF9,LINE:295AFA,LINE:295AFB,LINE:295AFC,LINE:295AFD,LINE:295AFE,LINE:295AFF,LINE:295B00,LINE:295B01,LINE:295B02,LINE:295B03,LINE:295B04,LINE:295B05,LINE:295B06,LINE:295B07,LINE:295B08,LINE:295B09,LINE:295B0A,LINE:295B0B,LINE:295B0C,LINE:295B0D,LINE:295B0E,LINE:295B0F,LINE:295B10,LINE:295B11,LINE:295B12,LINE:295B13,LINE:295B14,LINE:295B15,LINE:295B16,LINE:295B17,LINE:295B18,LINE:295B19,LINE:295B1A,LINE:295B1B,LINE:295B1C,LINE:295B1D,LINE:295B1E,LINE:295B1F,LINE:295B20,LINE:295B21,LINE:295B22,LINE:295B23,LINE:295B24,LINE:295B25,LINE:295B26,LINE:295B27,LINE:295B28,LINE:295B29,LINE:295B2A,LINE:295B2B,LINE:295B2C,LINE:295B2D,LINE:295B2E,LINE:295B2F",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_019",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "armchair",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+7.7535,
+8.264
+],
+"size": [
+0.9172,
+0.7693
+],
+"rotation_deg": 330.59
+},
+"front_deg": 240.59,
+"build": true,
+"status": "verified",
+"type_method": "same_block",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "LINE:295B30,LINE:295B31,LINE:295B32,LINE:295B33,LINE:295B34,LINE:295B35,LINE:295B36,LINE:295B37,LINE:295B38,LINE:295B39,LINE:295B3A,LINE:295B3B,LINE:295B3C,LINE:295B3D,LINE:295B3E,LINE:295B3F,LINE:295B40,LINE:295B41,LINE:295B42,LINE:295B43,LINE:295B44,LINE:295B45,LINE:295B46,LINE:295B47,LINE:295B48,LINE:295B49,LINE:295B4A,LINE:295B4B,LINE:295B4C,LINE:295B4D,LINE:295B4E,LINE:295B4F,LINE:295B50,LINE:295B51,LINE:295B52,LINE:295B53,LINE:295B54,LINE:295B55,LINE:295B56,LINE:295B57,LINE:295B58,LINE:295B59,LINE:295B5A,LINE:295B5B,LINE:295B5C,LINE:295B5D,LINE:295B5E,LINE:295B5F,LINE:295B60,LINE:295B61,LINE:295B62,LINE:295B63,LINE:295B64,LINE:295B65,LINE:295B66,LINE:295B67,LINE:295B68,LINE:295B69,LINE:295B6A,LINE:295B6B,LINE:295B6C,LINE:295B6D,LINE:295B6E,LINE:295B6F,LINE:295B70,LINE:295B71,LINE:295B72,LINE:295B73,LINE:295B74,LINE:295B75,LINE:295B76,LINE:295B77,LINE:295B78,LINE:295B79,LINE:295B7A,LINE:295B7B,LINE:295B7C,LINE:295B7D,LINE:295B7E,LINE:295B7F,LINE:295B80,LINE:295B81,LINE:295B82,LINE:295B83,LINE:295B84,LINE:295B85,LINE:295B86,LINE:295B87,LINE:295B88,LINE:295B89,LINE:295B8A,LINE:295B8B,LINE:295B8C,LINE:295B8D,LINE:295B8E,LINE:295B8F,LINE:295B90,LINE:295B91,LINE:295B92,LINE:295B93,LINE:295B94,LINE:295B95,LINE:295B96,LINE:295B97,LINE:295B98,LINE:295B99,LINE:295B9A,LINE:295B9B,LINE:295B9C,LINE:295B9D,LINE:295B9E,LINE:295B9F,LINE:295BA0,LINE:295BA1,LINE:295BA2,LINE:295BA3,LINE:295BA4,LINE:295BA5,LINE:295BA6,LINE:295BA7,LINE:295BA8,LINE:295BA9,LINE:295BAA,LINE:295BAB,LINE:295BAC,LINE:295BAD,LINE:295BAE,LINE:295BAF,LINE:295BB0,LINE:295BB1,LINE:295BB2,LINE:295BB3,LINE:295BB4,LINE:295BB5,LINE:295BB6,LINE:295BB7,LINE:295BB8,LINE:295BB9,LINE:295BBA,LINE:295BBB,LINE:295BBC,LINE:295BBD,LINE:295BBE,LINE:295BBF,LINE:295BC0,LINE:295BC1,LINE:295BC2,LINE:295BC3,LINE:295BC4,LINE:295BC5,LINE:295BC6,LINE:295BC7,LINE:295BC8,LINE:295BC9,LINE:295BCA,LINE:295BCB,LINE:295BCC,LINE:295BCD,LINE:295BCE,LINE:295BCF,LINE:295BD0,LINE:295BD1,LINE:295BD2,LINE:295BD3,LINE:295BD4,LINE:295BD5,LINE:295BD6,LINE:295BD7,LINE:295BD8,LINE:295BD9,LINE:295BDC,LINE:295BDD,LINE:295BDE,LINE:295BDF,LINE:295BE0,LINE:295BE1,LINE:295BE2,LINE:295BE3,LINE:295BE4,LINE:295BE5,LINE:295BE6,LINE:295BE7,LINE:295BE8,LINE:295BE9,LINE:295BEA,LINE:295BEB,LINE:295BEC,LINE:295BED,LINE:295BEE,LINE:295BEF,LINE:295BF0,LINE:295BF1,LINE:295BF2,LINE:295BF3,LINE:295BF4,LINE:295BF5,LINE:295BF6,LINE:295BF7,LINE:295BF8,LINE:295BF9,LINE:295BFA,LINE:295BFB,LINE:295BFC,LINE:295BFD,LINE:295BFE,LINE:295BFF,LINE:295C00,LINE:295C01,LINE:295C02,LINE:295C03,LINE:295C04,LINE:295C05,LINE:295C06,LINE:295C07,LINE:295C08,LINE:295C09,LINE:295C0A,LINE:295C0B,LINE:295C0C,LINE:295C0D,LINE:295C0E,LINE:295C0F,LINE:295C10,LINE:295C11,LINE:295C12,LINE:295C13,LINE:295C14,LINE:295C15,LINE:295C16,LINE:295C17,LINE:295C18,LINE:295C19,LINE:295C1A,LINE:295C1B,LINE:295C1C,LINE:295C1D,LINE:295C1E,LINE:295C1F,LINE:295C20,LINE:295C21,LINE:295C22,LINE:295C23,LINE:295C24,LINE:295C25,LINE:295C26,LINE:295C27,LINE:295C29,LINE:295C2A,LINE:295C2B,LINE:295C2C,LINE:295C2D,LINE:295C2E,LINE:295C2F,LINE:295C30,LINE:295C31,LINE:295C32,LINE:295C33,LINE:295C34,LINE:295C35,LINE:295C36,LINE:295C37,LINE:295C38,LINE:295C39,LINE:295C3A,LINE:295C3B,LINE:295C3C,LINE:295C3D,LINE:295C3E,LINE:295C3F,LINE:295C40,LINE:295C41,LINE:295C42,LINE:295C43,LINE:295C44,LINE:295C45,LINE:295C46,LINE:295C47,LINE:295C48,LINE:295C49,LINE:295C4A,LINE:295C4B,LINE:295C4C,LINE:295C4D,LINE:295C4E,LINE:295C4F,LINE:295C50,LINE:295C51,LINE:295C52,LINE:295C53,LINE:295C54,LINE:295C55,LINE:295C56,LINE:295C57,LINE:295C58,LINE:295C59,LINE:295C5A,LINE:295C5B,LINE:295C5C,LINE:295C5D,LINE:295C5E,LINE:295C5F",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_020",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"type": "sink_kitchen",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+0.7552,
+11.302
+],
+"size": [
+1.2,
+0.45
+],
+"rotation_deg": 90.0
+},
+"front_deg": 0.0,
+"build": true,
+"status": "unverified",
+"type_method": "group_member",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "ARC:298801-298804,ARC:298815,ARC:298817,ARC:298820-298822,ARC:298831-298834,LINE:298805-298814,LINE:298816,LINE:298818-298819,LINE:298823-298830,ARC:2987D3,ARC:2987E1,ARC:2987E2,ARC:2987FA,ARC:2987FB,ARC:2987FC,ARC:2987FD,ARC:29880B,ARC:29881B,ARC:29881C,ARC:29881D,ARC:29881E,ARC:29881F,CIRCLE:2987DF,CIRCLE:2987E3,CIRCLE:2987E4,CIRCLE:2987E6,CIRCLE:2987E9,CIRCLE:2987EB,CIRCLE:2987ED,CIRCLE:2987EE,CIRCLE:2987EF,CIRCLE:2987F1,CIRCLE:2987F3,CIRCLE:2987F4,CIRCLE:2987F6,CIRCLE:2987F7,CIRCLE:29880C,CIRCLE:29880D,LINE:2987B7,LINE:2987B8,LINE:2987B9,LINE:2987BA,LINE:2987BB,LINE:2987BC,LINE:2987BD,LINE:2987BE,LINE:2987BF,LINE:2987C0,LINE:2987C1,LINE:2987C2,LINE:2987C3,LINE:2987C4,LINE:2987C5,LINE:2987C6,LINE:2987C7,LINE:2987C8,LINE:2987C9,LINE:2987CA,LINE:2987CB,LINE:2987CC,LINE:2987CD,LINE:2987CE,LINE:2987CF,LINE:2987D0,LINE:2987D1,LINE:2987D2,LINE:2987D4,LINE:2987D5,LINE:2987D6,LINE:2987DA,LINE:2987DB,LINE:2987DC,LINE:2987DD,LINE:2987DE,LINE:2987E0,LINE:2987F8,LINE:2987F9,LINE:2987FE,LINE:2987FF,LINE:29880A,LINE:29880E,LINE:29880F,LINE:29881A,LINE:29882A,LINE:29882B,LINE:29882C,LINE:29882D,LINE:29882E,LINE:29882F",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "parametric"
+}
+},
+{
+"id": "f_L0_021",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "table_coffee",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+7.0955,
+7.4053
+],
+"size": [
+0.6601,
+0.6601
+],
+"rotation_deg": 0.0
+},
+"front_deg": null,
+"build": true,
+"status": "verified",
+"type_method": "inferred",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "ARC:2577B3,ARC:2577B6,ARC:2577B9,ARC:2577BC,CIRCLE:2577AD,CIRCLE:2577AE,CIRCLE:2577AF,CIRCLE:2577B0,LINE:2577B1,LINE:2577B2,LINE:2577B4,LINE:2577B5,LINE:2577B7,LINE:2577B8,LINE:2577BA,LINE:2577BB",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_024",
+"level_id": "L0",
+"room_id": "r_L0_banyo",
+"type": "toilet",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+8.0684,
+12.4323
+],
+"size": [
+0.445,
+0.705
+],
+"rotation_deg": 270.0
+},
+"front_deg": 180.0,
+"build": true,
+"status": "verified",
+"type_method": "level",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "ELLIPSE:295860-295871,ELLIPSE:295873,ELLIPSE:295879-295883,ELLIPSE:295885,ELLIPSE:295887-295888,ELLIPSE:295890,ELLIPSE:295892,ELLIPSE:295894-295896,LINE:295872,LINE:295874-295878,LINE:295884,LINE:295886,LINE:295889,LINE:295891,LINE:295893,ELLIPSE:29586A,ELLIPSE:29586B,ELLIPSE:29586D,ELLIPSE:29586E,ELLIPSE:29586F,ELLIPSE:29587A,ELLIPSE:29587B,ELLIPSE:29587C,ELLIPSE:29587D,ELLIPSE:29587E,ELLIPSE:29587F,ELLIPSE:29588B,ELLIPSE:29588C,ELLIPSE:29588E,ELLIPSE:29588F,LINE:29585E,LINE:29585F,LINE:29586C,LINE:29588A,LINE:29588D",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_026",
+"level_id": "L0",
+"room_id": "r_L0_banyo",
+"type": "washbasin",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+6.4994,
+14.0461
+],
+"size": [
+0.531,
+0.342
+],
+"rotation_deg": 0.0
+},
+"front_deg": 270.0,
+"build": true,
+"status": "verified",
+"type_method": "ai_two_pass",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "ARC:29589A,ARC:29589B,ARC:29589C,ARC:29589D,ARC:29589E,ARC:29589F,ARC:2958A0,ARC:2958A1,ARC:2958A2,ARC:2958A3,ARC:2958A4,ARC:2958A5,ARC:2958A6,ARC:2958A7,ARC:2958A8,ARC:2958A9",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_027",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "ottoman",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+1.1123,
+6.2724
+],
+"size": [
+0.5,
+0.5
+],
+"rotation_deg": 90.0
+},
+"front_deg": null,
+"build": true,
+"status": "unverified",
+"type_method": "inferred",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "ARC:296600-296607,ARC:296610-296613,ELLIPSE:296609,ARC:2965F6,ARC:2965F7,ARC:2965F8,ARC:2965FD,ARC:2965FE,ARC:2965FF,ARC:29660C,ARC:29660D,ARC:29660E,ARC:29660F,ARC:29AC64,ARC:29AC65,ARC:29AC66,ARC:29AC67,ARC:29AC68,ARC:29AC69,ELLIPSE:2965FA,ELLIPSE:2965FB,ELLIPSE:29660A,SPLINE:2965FC,SPLINE:29660B",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_028",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "ottoman",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+1.979,
+5.318
+],
+"size": [
+0.5,
+0.5
+],
+"rotation_deg": 0.0
+},
+"front_deg": 270.0,
+"build": true,
+"status": "unverified",
+"type_method": "inferred",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "ARC:296524-296526,ARC:296530-296535,ARC:296540-296541,ELLIPSE:296528-296529,ELLIPSE:296537-296538,SPLINE:296539,ARC:29652B,ARC:29652C,ARC:29652D,ARC:29652E,ARC:29652F,ARC:29653A,ARC:29653B,ARC:29653C,ARC:29653D,ARC:29653E,ARC:29653F,ARC:29AC88,ARC:29AC89,ARC:29AC8A,ARC:29AC8B,ARC:29AC8C,ARC:29AC8D,SPLINE:29652A",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_029",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "ottoman",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+1.979,
+7.1392
+],
+"size": [
+0.5,
+0.5
+],
+"rotation_deg": 0.0
+},
+"front_deg": null,
+"build": true,
+"status": "unverified",
+"type_method": "inferred",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "ARC:2965B0,ARC:2965B1,ARC:2965B2,ARC:2965B7,ARC:2965B8,ARC:2965B9,ARC:2965BA,ARC:2965BB,ARC:2965BC,ARC:2965BD,ARC:2965BE,ARC:2965BF,ARC:2965C0,ARC:2965C1,ARC:2965C6,ARC:2965C7,ARC:2965C8,ARC:2965C9,ARC:2965CA,ARC:2965CB,ARC:2965CC,ARC:2965CD,ARC:29AC70,ARC:29AC71,ARC:29AC72,ARC:29AC73,ARC:29AC74,ARC:29AC75,ELLIPSE:2965B4,ELLIPSE:2965B5,ELLIPSE:2965C3,ELLIPSE:2965C4,SPLINE:2965B6,SPLINE:2965C5",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_030",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"type": "ottoman",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+2.8458,
+6.2724
+],
+"size": [
+0.5,
+0.5
+],
+"rotation_deg": 90.0
+},
+"front_deg": null,
+"build": true,
+"status": "unverified",
+"type_method": "inferred",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "ARC:296571-296587,SPLINE:296570,ARC:29656A,ARC:29656B,ARC:29656C,ARC:29657A,ARC:29657B,ARC:29AC7C,ARC:29AC7D,ARC:29AC7E,ARC:29AC7F,ARC:29AC80,ARC:29AC81,ELLIPSE:29656E,ELLIPSE:29656F,ELLIPSE:29657D,ELLIPSE:29657E,SPLINE:29657F",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "library"
+}
+},
+{
+"id": "f_L0_031",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"type": "kitchen_counter",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+2.2259,
+13.0156
+],
+"size": [
+2.4,
+0.6
+],
+"rotation_deg": 0.0
+},
+"front_deg": 270.0,
+"build": true,
+"status": "unverified",
+"type_method": "inferred",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "CIRCLE:298780,CIRCLE:298789,LINE:298773-298776,LINE:298781-298788,LINE:298790-298796,LINE:298835-298840,CIRCLE:29877F,CIRCLE:29878A,CIRCLE:29878D,CIRCLE:29878E,CIRCLE:2987A3,CIRCLE:2987A4,LINE:25750A,LINE:25750B,LINE:25750C,LINE:25750D,LINE:29878B,LINE:29878C,LINE:29878F,LINE:29879B,LINE:29879C,LINE:29879D,LINE:29879E,LINE:2987A1,LINE:2987A2,LINE:2987A6,LINE:2987A8,LINE:2987A9,LINE:2987B0,LINE:2987B1,LINE:2987B5,LINE:29883A,LINE:29883B,LINE:29883C,LINE:29883D,LINE:29883E,LINE:29883F,LINE:29AAAB,LINE:29AAAC,LINE:29AAAD,LINE:29AAAE,LINE:29AAAF,LINE:29AAB0,LINE:29AAB1,LINE:29AAB2,LINE:29AAB3,LINE:29AAB4,LINE:29AAB5,LINE:29AAB6,LINE:29AAB7,LINE:29AAB8,LINE:29AAB9,LINE:29AABA,LINE:29AABB,LINE:29AABC,LINE:29AABD,LINE:29AABE,LINE:29AABF,LINE:29AAC0,LINE:29AAC1,LINE:29AAC2,LINE:29AAC3,LINE:29AAC4,LINE:29AAC5,LINE:29AAC6,LINE:29AAC7,LINE:29AAC8,LINE:29AAC9,LINE:29AACA,LINE:29AACB,LINE:29AACC,LINE:29AACD,LINE:29AACE,LINE:29AACF,LINE:29AAD0,LINE:29AAD1,LINE:29AAD2,LINE:29AAD3,LINE:29AAD4,LINE:29AAD5,LINE:29AAD6,LINE:29AAD7,LINE:29AAD8,LINE:29AAE2,LINE:29AAE4,LINE:29AAE5,LINE:29AAE6,LINE:29AAE7,LINE:29AAE8,LINE:29AAE9,LINE:29AAEA,LINE:29AAEC,LINE:29AAEE,LINE:29AAEF,LINE:29AAF0,LINE:29AAF1,LINE:29AAF2,LINE:29AAF3,LINE:29AAF4,LINE:29AAF5,LINE:29AAF6",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "module"
+}
+},
+{
+"id": "f_L0_032",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"type": "kitchen_counter",
+"type_raw": null,
+"source": "from_documents",
+"footprint": {
+"center": [
+2.2259,
+9.6252
+],
+"size": [
+2.4,
+0.6
+],
+"rotation_deg": 180.0
+},
+"front_deg": 90.0,
+"build": true,
+"status": "unverified",
+"type_method": "inferred",
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 0.9,
+"entity": "CIRCLE:298780,CIRCLE:298789,LINE:298773-298776,LINE:298781-298788,LINE:298790-298796,LINE:298835-298840,CIRCLE:29877F,CIRCLE:29878A,CIRCLE:29878D,CIRCLE:29878E,CIRCLE:2987A3,CIRCLE:2987A4,LINE:25750A,LINE:25750B,LINE:25750C,LINE:25750D,LINE:29878B,LINE:29878C,LINE:29878F,LINE:29879B,LINE:29879C,LINE:29879D,LINE:29879E,LINE:2987A1,LINE:2987A2,LINE:2987A6,LINE:2987A8,LINE:2987A9,LINE:2987B0,LINE:2987B1,LINE:2987B5,LINE:29883A,LINE:29883B,LINE:29883C,LINE:29883D,LINE:29883E,LINE:29883F,LINE:29AAAB,LINE:29AAAC,LINE:29AAAD,LINE:29AAAE,LINE:29AAAF,LINE:29AAB0,LINE:29AAB1,LINE:29AAB2,LINE:29AAB3,LINE:29AAB4,LINE:29AAB5,LINE:29AAB6,LINE:29AAB7,LINE:29AAB8,LINE:29AAB9,LINE:29AABA,LINE:29AABB,LINE:29AABC,LINE:29AABD,LINE:29AABE,LINE:29AABF,LINE:29AAC0,LINE:29AAC1,LINE:29AAC2,LINE:29AAC3,LINE:29AAC4,LINE:29AAC5,LINE:29AAC6,LINE:29AAC7,LINE:29AAC8,LINE:29AAC9,LINE:29AACA,LINE:29AACB,LINE:29AACC,LINE:29AACD,LINE:29AACE,LINE:29AACF,LINE:29AAD0,LINE:29AAD1,LINE:29AAD2,LINE:29AAD3,LINE:29AAD4,LINE:29AAD5,LINE:29AAD6,LINE:29AAD7,LINE:29AAD8,LINE:29AAE2,LINE:29AAE4,LINE:29AAE5,LINE:29AAE6,LINE:29AAE7,LINE:29AAE8,LINE:29AAE9,LINE:29AAEA,LINE:29AAEC,LINE:29AAEE,LINE:29AAEF,LINE:29AAF0,LINE:29AAF1,LINE:29AAF2,LINE:29AAF3,LINE:29AAF4,LINE:29AAF5,LINE:29AAF6",
+"region_id": "r3"
+}
+],
+"asset": {
+"method": "module"
+}
+},
+{
+"id": "f_L0_033",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"type": "wall_cabinet",
+"type_raw": null,
+"source": "added_by_ai",
+"footprint": {
+"center": [
+2.3798,
+13.125
+],
+"size": [
+0.9,
+0.35
+],
+"rotation_deg": 0.0
+},
+"front_deg": 270.0,
+"build": null,
+"status": "verified",
+"type_method": null,
+"evidence": [
+{
+"file": "building.json",
+"method": "derived",
+"confidence": 1.0,
+"text": "wall cabinets along the counter run f_L0_002 (rule, docs/milestone10.md §4.4), 1.45-2.15 m"
+}
+],
+"asset": {
+"method": "parametric"
+}
+},
+{
+"id": "f_L0_034",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"type": "wall_cabinet",
+"type_raw": null,
+"source": "added_by_ai",
+"footprint": {
+"center": [
+1.5909,
+13.1406
+],
+"size": [
+0.67,
+0.35
+],
+"rotation_deg": 0.0
+},
+"front_deg": 270.0,
+"build": null,
+"status": "verified",
+"type_method": null,
+"evidence": [
+{
+"file": "building.json",
+"method": "derived",
+"confidence": 1.0,
+"text": "wall cabinets along the counter run f_L0_031 (rule, docs/milestone10.md §4.4), 1.45-2.15 m; left free: wall cabinet over f_L0_002, window win_L0_002"
+}
+],
+"asset": {
+"method": "parametric"
+}
+},
+{
+"id": "f_L0_035",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"type": "wall_cabinet",
+"type_raw": null,
+"source": "added_by_ai",
+"footprint": {
+"center": [
+3.1309,
+13.1406
+],
+"size": [
+0.59,
+0.35
+],
+"rotation_deg": 0.0
+},
+"front_deg": 270.0,
+"build": null,
+"status": "verified",
+"type_method": null,
+"evidence": [
+{
+"file": "building.json",
+"method": "derived",
+"confidence": 1.0,
+"text": "wall cabinets along the counter run f_L0_031 (rule, docs/milestone10.md §4.4), 1.45-2.15 m; left free: wall cabinet over f_L0_002, window win_L0_002"
+}
+],
+"asset": {
+"method": "parametric"
+}
+},
+{
+"id": "f_L0_036",
+"level_id": "L0",
+"room_id": "r_L0_banyo",
+"type": "shower",
+"type_raw": null,
+"source": "added_by_ai",
+"footprint": {
+"center": [
+7.93,
+13.329
+],
+"size": [
+0.9,
+0.9
+],
+"rotation_deg": 270.0
+},
+"front_deg": 180.0,
+"build": null,
+"status": "verified",
+"type_method": null,
+"evidence": [
+{
+"file": "building.json",
+"method": "derived",
+"confidence": 0.9,
+"text": "shower (bath) of the bathroom_set group, option shower, placed by the group solver"
+}
+],
+"asset": {
+"method": "library"
+}
+}
+],
+"symbols": [
+{
+"id": "sym_f_L0_022",
+"kind": "level_mark",
+"level_id": "L0",
+"room_id": "r_L0_oda",
+"footprint": {
+"center": [
+7.7789,
+9.8392
+],
+"size": [
+0.8775,
+0.3403
+],
+"rotation_deg": 166.475
+},
+"reason": "a level-mark symbol, not furniture (a small drawn piece around a level mark text: '+0,50'); drawn as unknown 0.88 x 0.34 m"
+},
+{
+"id": "sy_L0_002",
+"kind": "level_mark",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"footprint": {
+"center": [
+3.3168,
+10.0227
+],
+"size": [
+0.8775,
+0.3403
+],
+"rotation_deg": 166.475
+},
+"reason": "drawn on the 'kot' layer(s): level_mark, not furniture (both AI passes said wall_cabinet: the drawing outranks them)"
+},
+{
+"id": "sy_L0_003",
+"kind": "door_arc",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"footprint": {
+"center": [
+4.6759,
+14.2321
+],
+"size": [
+0.7,
+0.3591
+],
+"rotation_deg": 0.0
+},
+"reason": "drawn on the 'KAPI' layer(s): door, not furniture (both AI passes said sink_kitchen: the drawing outranks them)"
+},
+{
+"id": "sym_L0_001",
+"kind": "dimension_outline",
+"level_id": "L0",
+"room_id": "r_L0_banyo",
+"footprint": {
+"center": [
+7.322,
+13.8852
+],
+"size": [
+2.544,
+1.0076
+],
+"rotation_deg": 161.545
+},
+"reason": "The 2.54 x 1.01 m drawn outline is the dashed dimension/outline band around the drawn washbasin and bathtub fixtures, not a separate furniture piece."
+},
+{
+"id": "sym_L0_002",
+"kind": "other",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"footprint": {
+"center": [
+6.0409,
+0.8594
+],
+"size": [
+0.2087,
+0.2018
+],
+"rotation_deg": 90.0
+},
+"reason": "Tiny 0.21x0.20 m drawn symbol blocks door d_L0_001 (F7 critical); move_piece is exhausted (3 tries), so mark it as a non-furniture reading to clear the opening."
+},
+{
+"id": "sym_L0_003",
+"kind": "other",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"footprint": {
+"center": [
+7.9343,
+3.2773
+],
+"size": [
+0.2087,
+0.2018
+],
+"rotation_deg": 0.0
+},
+"reason": "Tiny 0.21x0.20 m drawn symbol identical to the door-strip mark already recorded as not furniture; retype to potted_plant was rejected (F8 stands alone)."
+}
+],
+"level_marks": [
+{
+"id": "lm_001",
+"value": 0.5,
+"kind": "threshold",
+"point": [
+1.74,
+1.359
+],
+"level_id": "L0",
+"room_id": null,
+"raw": "+0,50",
+"door_id": "d_L0_006"
+},
+{
+"id": "lm_002",
+"value": 0.5,
+"kind": "floor",
+"point": [
+3.44,
+10.159
+],
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"raw": "+0,50",
+"door_id": null
+},
+{
+"id": "lm_003",
+"value": 0.5,
+"kind": "floor",
+"point": [
+7.89,
+9.959
+],
+"level_id": "L0",
+"room_id": "r_L0_oda",
+"raw": "+0,50",
+"door_id": null
+},
+{
+"id": "lm_004",
+"value": 0.0,
+"kind": "ground_finished",
+"point": [
+9.54,
+8.909
+],
+"level_id": "L0",
+"room_id": null,
+"raw": "±0,00",
+"door_id": null
+},
+{
+"id": "lm_006",
+"value": 0.0,
+"kind": "slab_top",
+"point": null,
+"level_id": "L0",
+"room_id": null,
+"raw": "+0,50",
+"door_id": null
+}
+],
+"site": {
+"areas": [
+{
+"id": "sa_L0_veranda",
+"level_id": "L0",
+"label": "VERANDA",
+"label_raw": "VERANDA",
+"polygon": null,
+"evidence": [
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"layer": "YAZıMAHAL",
+"entity": "TEXT:29585C",
+"text": "VERANDA",
+"region_id": "r3"
+},
+{
+"file": "real06.dwg",
+"method": "vector",
+"confidence": 1.0,
+"layer": "YAZıMAHAL",
+"entity": "TEXT:29585D",
+"text": "22,80m²",
+"region_id": "r3"
+}
+],
+"anchor": [
+1.9746,
+0.9031
+],
+"note": "open balcony outside the outer walls (no walls drawn around it)",
+"kind": "other",
+"build": false
+}
+],
+"paving": [],
+"parking": [],
+"grass": [],
+"pools": [],
+"platforms": [],
+"north_deg": null,
+"entrances": [
+{
+"door_id": "d_L0_001",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"solution": "steps",
+"steps": {
+"count": 4,
+"riser": 0.125,
+"tread": 0.33,
+"rule_2r_t": 0.58,
+"flights": [
+4
+],
+"intermediate_landings": 0,
+"width": 2.75,
+"handrails": true,
+"cheek_walls": true,
+"run": 0.99
+},
+"drawn": false,
+"inferred": true,
+"side": "front"
+},
+{
+"door_id": "d_L0_003",
+"level_id": "L0",
+"room_id": "r_L0_mutfak",
+"solution": "steps",
+"steps": {
+"count": 4,
+"riser": 0.125,
+"tread": 0.33,
+"rule_2r_t": 0.58,
+"flights": [
+4
+],
+"intermediate_landings": 0,
+"width": 1.25,
+"handrails": true,
+"cheek_walls": true,
+"run": 0.99
+},
+"drawn": false,
+"inferred": true,
+"side": "back"
+},
+{
+"door_id": "d_L0_004",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"solution": "steps",
+"steps": {
+"count": 4,
+"riser": 0.125,
+"tread": 0.33,
+"rule_2r_t": 0.58,
+"flights": [
+4
+],
+"intermediate_landings": 0,
+"width": 1.35,
+"handrails": true,
+"cheek_walls": true,
+"run": 0.99
+},
+"drawn": false,
+"inferred": true,
+"side": "left"
+},
+{
+"door_id": "d_L0_006",
+"level_id": "L0",
+"room_id": "r_L0_salon",
+"solution": "steps",
+"steps": {
+"count": 4,
+"riser": 0.125,
+"tread": 0.33,
+"rule_2r_t": 0.58,
+"flights": [
+4
+],
+"intermediate_landings": 0,
+"width": 3.55,
+"handrails": true,
+"cheek_walls": true,
+"run": 0.99
+},
+"drawn": true,
+"inferred": true,
+"side": "front"
+}
+]
+},
+"roof": {
+"type": "hip",
+"type_source": "roof_plan",
+"over_level_id": "L1",
+"eaves_height": {
+"value": 6.0,
+"method": "vector",
+"confidence": 1.0,
+"evidence": [
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD9D",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+}
+],
+"note": "3.00 m above the top floor"
+},
+"ridge_height": {
+"value": 7.77,
+"method": "vector",
+"confidence": 1.0,
+"evidence": [
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD9D",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD48",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD5A",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD77",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD76",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD85",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD86",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD88",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD87",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD91",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD92",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD5C",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD57",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD5E",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD59",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+}
+],
+"note": "4.77 m above the top floor"
+},
+"pitches_deg": [
+{
+"value": 18.3,
+"method": "derived",
+"confidence": 0.9,
+"evidence": [
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "TEXT:290A34",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_slope_text",
+"region_id": "r6",
+"text": "EĞİM%33"
+}
+],
+"note": "atan(33 %)"
+}
+],
+"overhang": {
+"value": 0.475,
+"method": "vector",
+"confidence": 1.0,
+"evidence": [
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:1BBF04",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+}
+],
+"note": "left 0.50 m, right 0.48 m"
+},
+"thickness": {
+"value": null,
+"method": "assumed",
+"confidence": 0.0,
+"evidence": [],
+"note": "not drawn: the roof is one line in the section"
+},
+"knee_wall": {
+"value": 3.001,
+"method": "vector",
+"confidence": 1.0,
+"evidence": [
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "LINE:27BD9D",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_line",
+"region_id": "r5"
+}
+],
+"note": "the roof's top surface at the outer face of the outer wall above the top floor (a cross-check)"
+},
+"profile": {
+"region_id": "r5",
+"cut_axis": "y",
+"points": [
+[
+-0.5,
+6.0
+],
+[
+1.507,
+6.002
+],
+[
+5.425,
+7.19
+],
+[
+5.468,
+6.299
+],
+[
+6.368,
+7.057
+],
+[
+6.985,
+7.675
+],
+[
+7.614,
+7.187
+],
+[
+8.555,
+6.246
+],
+[
+9.508,
+7.058
+],
+[
+10.22,
+7.77
+],
+[
+10.944,
+7.187
+],
+[
+11.861,
+7.195
+],
+[
+11.878,
+7.294
+],
+[
+14.984,
+6.494
+],
+[
+15.001,
+6.594
+],
+[
+16.8,
+6.0
+]
+],
+"method": "vector"
+},
+"outline": null,
+"break_line": null,
+"ridge_lines": [],
+"planes": [],
+"openings": [],
+"covering": null,
+"covering_colour": null,
+"covering_source": null,
+"assumed": [
+"outline (the outer walls + overhang)"
+],
+"evidence": [
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "TEXT:290A34",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_slope_text",
+"region_id": "r6",
+"text": "EĞİM%33"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "TEXT:290A35",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_slope_text",
+"region_id": "r6",
+"text": "EĞİM%33"
+},
+{
+"file": "real06.dwg",
+"page": 1,
+"layer": null,
+"entity": "TEXT:290A36",
+"method": "vector",
+"confidence": 1.0,
+"rule": "roof_slope_text",
+"region_id": "r6",
+"text": "EĞİM%33"
+}
+],
+"status": "verified"
+},
+"facade": {
+"faces": [],
+"elevations": [
+{
+"region_id": "r1",
+"title": null,
+"side": "all",
+"view_bearing_deg": null,
+"windows": 0,
+"doors": 0,
+"positions_m": [],
+"plan_check": null
+},
+{
+"region_id": "r2",
+"title": null,
+"side": "all",
+"view_bearing_deg": null,
+"windows": 0,
+"doors": 0,
+"positions_m": [],
+"plan_check": null
+},
+{
+"region_id": "r7",
+"title": null,
+"side": "all",
+"view_bearing_deg": null,
+"windows": 0,
+"doors": 0,
+"positions_m": [],
+"plan_check": null
+},
+{
+"region_id": "r8",
+"title": null,
+"side": "all",
+"view_bearing_deg": null,
+"windows": 0,
+"doors": 0,
+"positions_m": [],
+"plan_check": null
+}
+],
+"evidence": []
+}
+}
