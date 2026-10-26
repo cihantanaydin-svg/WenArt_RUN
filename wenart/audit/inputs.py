@@ -82,7 +82,8 @@ def _fill(inp: Inputs, scene: Path, orch: Path, recog: Path, run: Path, final: P
     inp.agent_log = read_json(orch / "log.json") if (orch / "log.json").is_file() else None
     inp.architect_look = read_json(orch / "architect_look.json") if (orch / "architect_look.json").is_file() else None
     rubric = read_json(final / "rubric_per_view.json") if (final / "rubric_per_view.json").is_file() else None
-    inp.rubric = rubric if isinstance(rubric, list) else (rubric or {}).get("views") if isinstance(rubric, dict) else None
+    inp.rubric = rubric if isinstance(rubric, list) else \
+        (rubric or {}).get("views") if isinstance(rubric, dict) else None
     inp.requests = read_json(recog / "requests.json") if (recog / "requests.json").is_file() else None
     if check is not None and (check / "check_manifest.json").is_file():
         inp.check = read_json(check / "check_manifest.json")
@@ -91,9 +92,11 @@ def _fill(inp: Inputs, scene: Path, orch: Path, recog: Path, run: Path, final: P
     for p in sorted(run.glob("*.json")) if run.is_dir() else ():
         inp.records[p.stem] = read_json(p)
     if results is not None:
-        inp.run_manifest = read_json(results / "run_manifest.json") if (results / "run_manifest.json").is_file() else None
+        rm = results / "run_manifest.json"
+        inp.run_manifest = read_json(rm) if rm.is_file() else None
         inp.junit = sorted(results.glob("junit-*.xml"))
-    tops = {p.name: p for d in (scene, scene.parent / "renders") if d.is_dir() for p in sorted(d.glob("top_*_plan*.jpg"))}
+    tops = {p.name: p for d in (scene, scene.parent / "renders") if d.is_dir()
+            for p in sorted(d.glob("top_*_plan*.jpg"))}
     inp.top_plans = [tops[k] for k in sorted(tops)]          # the pod keeps them in renders/, a collected run in scene
     inp.images = sorted(final.glob("*_final_preview.jpg")) if final.is_dir() else []
     return inp

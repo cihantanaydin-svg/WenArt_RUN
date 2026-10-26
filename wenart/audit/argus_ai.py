@@ -9,7 +9,8 @@ What: ``investigate(project_out, model)`` runs on the pod after a build (and aga
    rooms with labels, types, areas, doors and windows, pieces; the site's labelled areas and symbols and whether they
    are built; the warnings by rule).
 2. **Triage** (``TRIAGE_BATCH`` findings per call, every finding: no cap). The agent model (Qwen3.8-27B, Apache-2.0,
-   thinking on, temperature 0, strict JSON schema) says per finding whether it is a real problem, its kind, the stage
+   thinking off (measured: see THINKING), temperature 0, strict JSON schema) says per finding whether it is a real
+   problem, its kind, the stage
    that caused it, and the fix: an architect action on one element (``FIX_ARCH``: the AI architect's typed actions),
    ``agent_round`` (the furniture agent's next round works on it), ``rerun_stage``, ``rule_needed`` (no fix in this
    run: it writes the general rule that would prevent the kind in every project) or ``not_a_problem``. The "not built:
@@ -51,9 +52,16 @@ LOG_JSON = "argus_ai.json"
 LOG_MD = "argus_ai.md"
 FINAL_JSON = "argus_ai_final.json"       # the end of the run (``act_on`` False): the record of the first pass stays
 FINAL_MD = "argus_ai_final.md"
-TRIAGE_BATCH = 12              # findings per triage call (every finding is triaged: the batches cover them all)
-MAX_TOKENS = 12000             # per call: the thinking plus the JSON (the prompt stays under 16k of the 32k context)
+TRIAGE_BATCH = 16              # findings per triage call (every finding is triaged: the batches cover them all)
+# Pod run 20261026-195707 (real06): with thinking on, 19 of 20 triage calls thought until the 12,000-token cap at
+# about 45 tokens/s and returned no JSON ("not JSON: Expecting value"), and Argus used the hour the agent's rounds
+# needed. The calls are structured (a strict schema, a "why" per item): thinking off, as the critic; a call that still
+# comes back empty is asked once more (the client's second try).
+THINKING = False
+MAX_TOKENS = 4096              # per call: the JSON of one batch (about 120 tokens a finding)
 WORKERS = 4                    # calls at once (the agent server's --max-num-seqs 4)
+BUDGET_S = 900                 # one investigation at most (the documents line, the triage, the discovery)
+CYCLE_BUDGET_S = 420           # an investigation before a big-loop cycle (no documents line)
 DISCOVER_MAX = 15              # new findings per floor per call
 FACT_LINES = 140               # project fact lines in the case file
 MESSAGE_CHARS = 320
@@ -64,7 +72,8 @@ FIX_ARCH = ("door_to_window", "french_window", "raise_sill", "widen_door", "inte
             "move_piece", "mount_fixture", "remove_piece")
 FIX_OTHER = ("agent_round", "rerun_stage", "rule_needed", "not_a_problem")
 # 26 Oct 2026 (user: "make Argus fix everything itself, give it more power"): the agent's edit tools Argus may call
-# itself (23) (the loop runs them in Argus's session through the same registry, validators and acceptance: ``argus_session``)
+# itself (23; the loop runs them in Argus's session through the same registry, validators and acceptance:
+# ``argus_session``)
 AGENT_TOOLS = ("retype_piece", "swap_model", "place_group", "complete_group", "relayout_room", "set_room_type",
                "mark_not_furniture", "fix_fixture", "set_front", "resize_piece", "move_group", "rotate_piece",
                "set_camera", "remove_camera",
@@ -280,7 +289,7 @@ def triage(model, items: list[dict], fact_lines: list[str], *, time_ok: Callable
         try:
             reply = model.structured([{"role": "system", "content": SYSTEM}, {"role": "user", "content": text}],
                                      triage_schema([f["aid"] for f in batch]), call_id=f"argus_triage_{n}",
-                                     name="argus_triage", kind="task", thinking=True, max_tokens=MAX_TOKENS)
+                                     name="argus_triage", kind="task", thinking=THINKING, max_tokens=MAX_TOKENS)
         except Exception as exc:  # noqa: BLE001 - one batch that fails is logged; the others are still triaged
             return n, None, f"{type(exc).__name__}: {exc}"
         return n, reply, "; ".join(reply.errors[:2]) if reply.errors else None
@@ -307,7 +316,8 @@ def _parallel(fn, jobs: list) -> list:
 
 
 def _tool_help() -> list[str]:
-    """One line per agent tool Argus may call: its arguments (``*`` required) and what it does (the registry's specs)."""
+    """One line per agent tool Argus may call: its arguments (``*`` required) and what it does (the registry's
+    specs)."""
     try:
         from wenart.agent import tools as TL
         reg = TL.build_registry()
@@ -476,8 +486,8 @@ def discover(model, inp: I.Inputs, rep: dict, fact_lines: list[str], *, time_ok:
             {"role": "user", "content": text}
         try:
             reply = model.structured([{"role": "system", "content": DISCOVER_SYSTEM}, msg], discover_schema(),
-                                     call_id=f"argus_discover_{lv}", name="argus_discover", kind="task", thinking=True,
-                                     max_tokens=MAX_TOKENS)
+                                     call_id=f"argus_discover_{lv}", name="argus_discover", kind="task",
+                                     thinking=THINKING, max_tokens=MAX_TOKENS)
         except Exception as exc:  # noqa: BLE001 - a floor that fails is logged; the others are still looked at
             return lv, image, None, f"{type(exc).__name__}: {exc}"
         return lv, image, reply, None
@@ -565,7 +575,8 @@ def act(project_out, building: dict, brief: Optional[dict], decisions: list[dict
 
 def investigate(project_out, model, *, brief: Optional[dict] = None, results=None,
                 time_ok: Callable[[], bool] = lambda: True, out: Callable[[str], None] = print,
-                discover_on: bool = True, act_on: bool = True, documents: bool = True) -> dict:
+                discover_on: bool = True, act_on: bool = True, documents: bool = True,
+                budget_s: Optional[float] = None) -> dict:
     """Module docstring. Returns the record written to ``orchestrator/argus_ai.json``. ``act_on`` False (the end of the
     run, nothing is built after it): the decisions are listed, not carried out."""
     from wenart.agent import log as LG
@@ -573,6 +584,11 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
     t0 = time.time()
     project_out = Path(project_out)
     errors: list = []
+    limit = float(budget_s if budget_s is not None else (BUDGET_S if documents else CYCLE_BUDGET_S))
+    outer_ok = time_ok
+
+    def time_ok() -> bool:                 # the run's time and Argus's own budget (the agent's rounds need the rest)
+        return outer_ok() and time.time() - t0 < limit
     if act_on and documents and time_ok():
         documents_vs_model(model, project_out, errors=errors)
     inp = I.pod(project_out, results)
@@ -739,7 +755,8 @@ def tool_actions(project_out) -> list[dict]:
 def report_md(rec: dict) -> str:
     lines = [f"# {R.NAME} AI: the auditor thinks and acts", "",
              f"{rec['triaged']} of {rec['items']} finding(s) triaged by {rec.get('model') or 'the agent model'} "
-             f"(thinking on); {len(rec['findings'])} new finding(s); {rec['accepted']} of {len(rec['decisions'])} "
+             f"(thinking {'on' if THINKING else 'off'}); {len(rec['findings'])} new finding(s); {rec['accepted']} of "
+             f"{len(rec['decisions'])} "
              f"decision(s) carried out (code-checked); {len(rec['work'])} handed to the agent; {len(rec['guards'])} "
              f"rule(s) proposed; {len(rec['disputed'])} disputed; {len(rec['dropped'])} claim(s) dropped (no such "
              f"target). Score before: {rec.get('score_before')}.", ""]

@@ -1,8 +1,8 @@
 """The problem kinds (26 Oct 2026, user: "don't only fix the problem I gave it to you, also develop a system to
 understand the problem kinds and prevent it happening").
 
-What: ``KINDS`` names the general kinds of problem the project has met (each with what it is, the stage boundary where it
-arises, and the guards that catch it: the audit lines and checks that prevent it from passing silently);
+What: ``KINDS`` names the general kinds of problem the project has met (each with what it is, the stage boundary where
+it arises, and the guards that catch it: the audit lines and checks that prevent it from passing silently);
 ``kind_of(finding)`` gives a finding's kind from its line and check (``CHECK_KIND``, ``LINE_KIND``; a finding may carry
 its own ``kind``, e.g. from the AI auditor); ``FINDING_KEYS`` is the one format every audit line writes.
 
@@ -51,7 +51,8 @@ KINDS = {
     "silent": {"what": "a stage noted a problem in a warning and nothing acted on it",
                "arises": "any stage",
                "guards": ["process P2 (warnings that say something was left out)"]},
-    "process": {"what": "the run itself: a stage failed or was skipped, a test failed, time was left unused, a question "
+    "process": {"what": "the run itself: a stage failed or was skipped, a test failed, time was left unused, a "
+                        "question "
                         "stayed unanswered",
                 "arises": "scheduler",
                 "guards": ["process (P*)"]},
@@ -74,7 +75,8 @@ CHECK_KIND = {
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",
                "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense"}
-LINE_KIND = {"ledger": "lost", "source": "lost", "conservation": "lost", "process": "process", "plan_vs_model": "lost", "sense": "no_sense", "render": "lost", "consistency": "stale",
+LINE_KIND = {"ledger": "lost", "source": "lost", "conservation": "lost", "process": "process",
+             "plan_vs_model": "lost", "sense": "no_sense", "render": "lost", "consistency": "stale",
              "elevations": "lost", "judge": "taste", "model": "no_sense", "architect": "no_sense"}
 
 

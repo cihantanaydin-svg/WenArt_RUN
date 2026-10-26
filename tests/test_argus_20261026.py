@@ -253,7 +253,7 @@ def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable
         name = MockModel.schema_name(body)
         content = body["messages"][-1]["content"]
         text = content if isinstance(content, str) else json.dumps(content, ensure_ascii=False)
-        assert body["chat_template_kwargs"]["enable_thinking"] is True          # Argus thinks
+        assert body["chat_template_kwargs"]["enable_thinking"] is AX.THINKING   # off: measured on the pod
         if name == "argus_triage":
             calls["triage"] += 1
             batch = json.loads(text.split("The findings (", 1)[1].split("):\n", 1)[1].split("\n\nAgent tools", 1)[0])

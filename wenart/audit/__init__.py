@@ -19,7 +19,8 @@ Lines (each a module; every finding in one format, see ``kinds.FINDING_KEYS``):
   exterior renders (open-weight vision model, every claim checked by code).
 - ``argus_ai``: the open-weight agent model reads every line's findings and the project's facts (and what earlier runs
   learned: the problem log's recurring findings and rules), thinks, sorts each finding (real or not, kind, the stage
-  that caused it), and fixes it itself where a tool can: one of the agent's 23 edit tools (room and building-wide) with its arguments (run by
+  that caused it), and fixes it itself where a tool can: one of the agent's 23 edit tools (room and building-wide)
+  with its arguments (run by
   the agent loop in Argus's own session of every round, through the same registry, validators and acceptance), an
   architect decision (code checks and re-checks it), the exact fixes its code lines name (no model needed), or the
   revocation of an AI decision that broke a room's set; else the general rule that would prevent it. It looks for

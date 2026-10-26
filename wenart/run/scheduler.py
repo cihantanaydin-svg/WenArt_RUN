@@ -2260,7 +2260,7 @@ class Orchestrator:
         """26 Oct 2026 (user: "we need a big smart auditor to check everything in the project ... use open weight AI
         models for this auditor, it needs to be smart, it needs to solve the problems even without me telling it"):
         after the first build, Argus (``wenart.audit.argus_ai.investigate``) runs its code lines on every record of the
-        project, the agent model triages every finding (thinking on), looks for what no line found, and takes the
+        project, the agent model triages every finding, looks for what no line found, and takes the
         architect actions code accepts (each re-checked: its target finding gone, nothing new broken). True when it
         accepted one (the scene is built again). Never fatal. ``WENART_ARGUS_AI=0`` skips it."""
         if os.environ.get("WENART_ARGUS_AI", "1") == "0" or not (pr.out / "building_final.json").is_file():
