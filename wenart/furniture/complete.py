@@ -69,6 +69,13 @@ covers it; ``shape: L``, ``chaise_side``, ``chaise_depth``, ``inferred`` with th
 rule, so it had no L; the fit took a right-chaise model and the scene put the chaise over the drawn coffee table
 f_L0_191 (S2 0.099 m, F9 0.26 m², G2 in every agent round). With the chaise on the left the table stands in the open
 corner, as in the six living rooms whose L the reading measured. The reading's own L (the ingest) stays first.
+
+Fix round of 26 Oct 2026 (user: "fix should be general"). What: before the solver, drawn dining tables that touch
+with the same axes become one table (``groups.merge_touching_tables``: the largest takes the box of all, labelled
+``adjusted_by_ai`` with the drawn values kept; the others stay as drawn with ``build: false`` and ``merged_into``);
+not in kept rooms and not with ``furnished_rooms_keep_size``; a warning line names each merge. The record's
+``critical`` lists a kitchen the completion left without a run (``layout.empty_kitchens``). An untyped unbuilt drawn
+piece is no obstacle of a copied partner's pieces either (``floor_pieces``, as in the solver).
 """
 from __future__ import annotations
 
@@ -387,6 +394,8 @@ class RoomCompletion:
     # Milestone 13 (D5): the drawn pieces re-solved as one unit (ids) and the pieces code typed before the solve.
     resolved: list = field(default_factory=list)
     typed_by_code: list = field(default_factory=list)
+    # 26 Oct 2026: kitchens the completion left without a run (``layout.empty_kitchens``; critical findings)
+    critical: list = field(default_factory=list)
 
     @property
     def room_id(self) -> str:
@@ -450,6 +459,7 @@ class RoomCompletion:
                        "mirrored_from": f.get("mirrored_from")} for f in self.added],
             "refused": self.refused, "dropped": self.dropped,
             "resolved": list(self.resolved), "typed_by_code": list(self.typed_by_code),
+            "critical": list(self.critical),
             "wall_cabinets": [{"id": f["id"], "run": f["rule"]["run"], "size": f["footprint"]["size"],
                                "excluded": f["rule"]["excluded"]} for f in self.wall_cabinets],
             "missing": self.missing, "drawn_layout": self.drawn_layout(),
@@ -586,6 +596,7 @@ def complete_room(room: dict, building: dict, out: dict, style_text: str, client
                                                                         lay.chosen, lay.solve_s)
     rec.added = list(lay.pieces)
     rec.resolved = list(lay.resolved)
+    rec.critical = list(lay.critical)          # 26 Oct 2026: a kitchen left without a run (layout.empty_kitchens)
     if lay.skipped:
         rec.reason = lay.skipped
     elif not rec.added:
@@ -689,8 +700,11 @@ def copy_added(room: dict, partner_id: str, partner_added: list[dict], t: Transf
 
 
 def floor_pieces(drawn: list[Drawn]) -> list[placer.Piece]:
-    """The drawn pieces that stand on the floor (obstacles of copies), in building order."""
-    return [d.piece for d in drawn if d.kind not in ("mounted", "outline")]
+    """The drawn pieces that stand on the floor (obstacles of copies), in building order. 26 Oct 2026: not an
+    untyped unbuilt piece (``solver.untyped_unbuilt``: in no render, no obstacle of the solver either)."""
+    from wenart.furniture import solver as SV
+
+    return [d.piece for d in drawn if d.kind not in ("mounted", "outline") and not SV.untyped_unbuilt(d.item)]
 
 
 def copy_room(room: dict, partner_rec: RoomCompletion, kind: str, t: Transform, building: dict, out: dict,
@@ -838,6 +852,15 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
             INF.apply_chaise_sides(out, chaise)
             out["warnings"] = list(out.get("warnings", [])) + [
                 f"{p['piece_id']}: inferred {p['reason']}" for p in chaise]
+        # 26 Oct 2026 (fix C): drawn tables that touch are one table (groups.merge_touching_tables); not in kept rooms
+        # and not with furnished_rooms_keep_size (program.resolve_allowed: the drawn sizes stay)
+        from wenart.furniture import groups as GR
+        from wenart.furniture import program as PR
+
+        rooms = [r["id"] for r in out["rooms"] if r["id"] not in kept_ids
+                 and PR.resolve_allowed(out, r, settings.brief_values())[0]]
+        for m in GR.merge_touching_tables(out, rooms):
+            out["warnings"] = list(out.get("warnings", [])) + [f"{m['table_id']}: adjusted_by_ai: {m['reason']}"]
 
     def solve(room: dict) -> RoomCompletion:
         rec = complete_room(room, building, out, style_text, client, settings, passes, family, image_dir)

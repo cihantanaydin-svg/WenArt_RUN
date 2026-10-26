@@ -23,7 +23,8 @@ candidates (``layout.py``).
 How (one room):
 
 1. **Free space** (``Space``): the room on a 5 cm raster in its own axis frame (``group_checks.RoomRaster``), minus
-   the fixed pieces (drawn pieces, built or not, unless recorded as not furniture; ``fixed_ids``), the door approach
+   the fixed pieces (drawn pieces, built or not, unless recorded as not furniture or untyped and unbuilt;
+   ``fixed_ids``), the door approach
    strips and swings, and, per piece height, the window bands (sill + 0.05 m; a TV unit counts with its TV, a hob
    never stands in a window band). Use zones may cover door swings but never fixed pieces or the outside. Pieces and
    zones are boxes in their own frame; their raster cells come from arithmetic (no geometry objects) and are tested
@@ -128,6 +129,21 @@ returned (with their refusal). The candidates of a repeated search carry ``front
 data P6c replays) complete_group of the drawn sofa f_L-1b_041 took a 1.2 x 0.7 table at the 0.40 m gap, which cut
 the kitchen island's walkway (G11), and the group got no candidate; a smaller table at a smaller gap clears its F3
 and G2 with no new finding.
+
+Fix round of 26 Oct 2026 (user: "a kitchen must never be empty"; "fix should be general, it is not a fix for real06").
+What: (1) an untyped drawn piece the reading left unbuilt (``untyped_unbuilt``: ``type`` unknown, ``build: false``)
+is no fixed obstacle (``_fixed_items``): it is in no render; (2) the kitchen legs stand on the outline with its jogs
+under ``JOG_M`` (0.15 m) merged onto the inner wall line (``run_outline``), so a plaster step no longer splits a wall
+or breaks a real corner; (3) when no option of the program fits, ``run_candidates`` tries the compact fallback runs of
+``groups.yaml`` (``fallback: true``: an I from 2.1 m, an L with 0.9 m legs, a galley of 1.35 + 0.6 m; a 0.60 m tall
+fridge unit, a 0.60 or 0.45 m sink and hob, 0.30 m base units between; the run's ``compact`` limits,
+``run_limits``; the work triangle and the NKBA landings are scored and reported as minor by the ``compact_run``
+tier), and ``solve_room`` searches once more with only those runs when the program's run was generated but no
+passing candidate places it (``run_left_out``; the candidates carry ``compact_fallback``). A room that holds a full
+run keeps it: the compact runs are never tried beside one. A kitchen that still gets no run is a critical finding of
+the layout (``layout.empty_kitchens``) and G9 is critical for a kitchen without any run piece. Why: real06's 24.8 m²
+kitchen (a stair, an untyped 3.99 x 2.40 m unbuilt drawn piece over two walls, a 4.6 cm jog in its back wall, free
+stretches of 2.2, 2.0 and 1.75 m) got "no candidate position fits the room" and rendered empty.
 """
 from __future__ import annotations
 
@@ -1673,19 +1689,93 @@ def member_candidates(space: Space, entry: dict, members: list[dict], level: int
 # --------------------------------------------------------------------------
 
 BIN_M = 0.05
+JOG_M = 0.15                   # 26 Oct 2026: outline jogs shorter than this are merged before the kitchen legs
+STRAIGHT_DEG = 3.0             # ... and two outline segments within this angle are one wall
+LEG_MIN_M = 1.2                # a wall shorter than this is no kitchen leg (the compact fallback: its own minimum)
+
+
+def run_outline(segments: list) -> list[tuple]:
+    """26 Oct 2026 (user: "a kitchen must never be empty"): the room outline the kitchen legs stand on, ``[(a, b)]``
+    counter-clockwise like ``RoomContext.segments``. What: a jog shorter than ``JOG_M`` between two parallel walls
+    (a plaster step, a 5 cm offset of two wall layers) is merged: the two walls become one leg on the inner of their
+    two lines (the line further into the room, so the counters stay inside it; the back gap is at most the jog), and
+    the walls before and after it are lengthened or shortened to meet that line; straight runs of segments become one
+    segment. Why: real06's kitchen has a 4.6 cm jog in its back wall; it split the wall into a 2.0 m and a 0.5 m
+    segment and broke the real corner with the side wall, so no I or L run fitted. Pure; the room is not changed."""
+    pts = [(float(a[0]), float(a[1])) for a, _b in segments]
+
+    def unit(p, q):
+        d = G.distance(p, q)
+        return ((q[0] - p[0]) / d, (q[1] - p[1]) / d) if d > 1e-9 else (0.0, 0.0)
+
+    def straight(p, q, r) -> bool:
+        u, v = unit(p, q), unit(q, r)
+        return u[0] * v[0] + u[1] * v[1] > math.cos(math.radians(STRAIGHT_DEG))
+
+    def meet(p, q, origin, u):
+        """The point where the line p-q meets the line through ``origin`` along ``u`` (None when parallel)."""
+        d = (q[0] - p[0], q[1] - p[1])
+        den = d[0] * u[1] - d[1] * u[0]
+        if abs(den) < 1e-9:
+            return None
+        s = ((origin[0] - p[0]) * u[1] - (origin[1] - p[1]) * u[0]) / den
+        return (p[0] + d[0] * s, p[1] + d[1] * s), s
+
+    changed = True
+    while changed and len(pts) > 4:
+        changed = False
+        n = len(pts)
+        for i in range(n):                                   # drop repeated and straight-through vertices
+            p, q, r = pts[i - 1], pts[i], pts[(i + 1) % n]
+            if G.distance(p, q) < 1e-6 or straight(p, q, r):
+                del pts[i]
+                changed = True
+                break
+        if changed:
+            continue
+        for i in range(n):
+            a, b = pts[i], pts[(i + 1) % n]                  # the jog a -> b
+            if G.distance(a, b) >= JOG_M:
+                continue
+            p0, p1 = pts[i - 2], pts[i - 1]                  # the wall before p1 -> a
+            q1, q2 = pts[(i + 2) % n], pts[(i + 3) % n]      # the wall after b -> q1
+            u_prev, u_next = unit(p1, a), unit(b, q1)
+            if u_prev[0] * u_next[0] + u_prev[1] * u_next[1] < math.cos(math.radians(STRAIGHT_DEG)):
+                continue                                     # not two parallel walls of the same direction
+            normal = G.unit_normal_left(p1, a)               # inward (counter-clockwise outline)
+            depth_in = (b[0] - a[0]) * normal[0] + (b[1] - a[1]) * normal[1]
+            if depth_in > 0:                                 # the next wall's line lies further in: move p1 onto it
+                hit = meet(p0, p1, b, u_next)
+                if hit is None or hit[1] <= 1e-3:
+                    continue
+                pts[i - 1] = hit[0]
+            else:                                            # the wall before lies further in: move q1 onto its line
+                hit = meet(q2, q1, a, u_prev)
+                if hit is None or hit[1] <= 1e-3:
+                    continue
+                pts[(i + 2) % n] = hit[0]
+            for j in sorted({i, (i + 1) % n}, reverse=True):
+                del pts[j]
+            changed = True
+            break
+    ring = Polygon(pts)
+    if len(pts) < 3 or not ring.is_valid or ring.area <= 1e-6:
+        return [tuple(s) for s in segments]               # a merge that breaks the outline: the outline as it is
+    return [(pts[i], pts[(i + 1) % len(pts)]) for i in range(len(pts))]
 
 
 class Leg:
     """One outline segment as a kitchen leg: 0.05 m bins along it saying what may stand there (a counter, the
-    fridge, the hob), each with its aisle in front inside the room and off the fixed pieces."""
+    fridge, the hob), each with its aisle in front inside the room and off the fixed pieces. 26 Oct 2026: ``seg``
+    is the segment ``(a, b)`` of the merged outline (``run_outline``); without it the room's segment ``k``."""
 
-    def __init__(self, space: Space, k: int, depth: float, aisle: float):
+    def __init__(self, space: Space, k: int, depth: float, aisle: float, seg: Optional[tuple] = None):
         self.k = k
-        a, b = space.ctx.segments[k]
+        a, b = seg if seg is not None else space.ctx.segments[k]
         self.a = a
         self.length = G.distance(a, b)
         self.u = ((b[0] - a[0]) / self.length, (b[1] - a[1]) / self.length)
-        self.n = space.ctx.segment_normal(k)
+        self.n = G.unit_normal_left(a, b)
         self.rot = placer._rotation_for_normal(self.n)
         self.depth = depth
         self.nb = max(0, int(self.length / BIN_M))
@@ -1736,9 +1826,10 @@ class Leg:
         return Spot(ftype, (round(c[0], 4), round(c[1], 4)), self.rot, (round(t1 - t0, 3), self.depth), role, True)
 
 
-def _convex_turn(space: Space, k: int) -> bool:
-    """The corner between segment k and the next turns left by about 90 degrees (an inner corner of the room)."""
-    segs = space.ctx.segments
+def _convex_turn(space: Space, k: int, segs: Optional[list] = None) -> bool:
+    """The corner between segment k and the next turns left by about 90 degrees (an inner corner of the room).
+    ``segs``: the outline (26 Oct 2026: the merged one of ``run_outline``; default the room's segments)."""
+    segs = segs if segs is not None else space.ctx.segments
     a, b = segs[k]
     c, d = segs[(k + 1) % len(segs)]
     v1 = (b[0] - a[0], b[1] - a[1])
@@ -1818,16 +1909,38 @@ def _lengths(available: float, wanted: tuple) -> list[float]:
                   reverse=True)
 
 
-def _run_paths(space: Space, legs: dict, shape: str, depth: float, max_leg: float) -> list[list[tuple]]:
-    """The parts ``[(leg, t0, t1)]`` of every run of one shape (outline order)."""
-    n = len(space.ctx.segments)
+# The run lengths the search tries (``_run_paths``, ``_galley_paths``) and the hard limits of the layouts
+# (``_run_layouts``, ``_galley_layouts``). 26 Oct 2026: a kitchen-run option marked ``fallback`` (groups.yaml, the
+# compact runs) takes the run's ``compact`` block over these: shorter runs and legs of real module sizes, a 0.30 m base
+# unit as the least landing, the work triangle scored instead of hard (the ``compact_run`` tier reports it as minor).
+RUN_LIMITS = {"i_min": 3.0, "i_lengths": (3.6, 3.0), "leg_min": 1.2, "leg_lengths": (2.4, 1.8), "galley_a_min": 1.8,
+              "galley_a_lengths": (2.4, 1.8), "galley_b_min": 1.2, "galley_b_lengths": (1.2,), "landing_min": None,
+              "triangle": "hard", "wall_min": LEG_MIN_M}
+
+
+def run_limits(run: dict) -> dict:
+    """``RUN_LIMITS`` with the run's ``compact`` block over them when the run is a compact fallback (``_option_run``
+    sets ``compact_fallback``)."""
+    out = dict(RUN_LIMITS)
+    if run.get("compact_fallback"):
+        out.update({k: (tuple(v) if isinstance(v, list) else v) for k, v in (run.get("compact") or {}).items()})
+    return out
+
+
+def _run_paths(space: Space, legs: dict, shape: str, depth: float, max_leg: float, segs: Optional[list] = None,
+               limits: Optional[dict] = None) -> list[list[tuple]]:
+    """The parts ``[(leg, t0, t1)]`` of every run of one shape (outline order). 26 Oct 2026: ``segs`` the outline the
+    legs stand on (``run_outline``), ``limits`` the run lengths (``run_limits``)."""
+    lim = limits or RUN_LIMITS
+    segs = segs if segs is not None else space.ctx.segments
+    n = len(segs)
     d2 = round(depth + 2 * GAP, 3)
     out = []
     if shape == "I":
         for k, leg in sorted(legs.items()):
             for i0, i1 in leg.intervals():
-                for length in _lengths(min(i1 - i0, max_leg), (3.6, 3.0)):
-                    if length < 2.99:
+                for length in _lengths(min(i1 - i0, max_leg), tuple(lim["i_lengths"])):
+                    if length < float(lim["i_min"]) - 0.01:
                         continue
                     for start in sorted({i0, round(i1 - length, 3)}):
                         out.append([(k, start, round(start + length, 3))])
@@ -1835,7 +1948,7 @@ def _run_paths(space: Space, legs: dict, shape: str, depth: float, max_leg: floa
         for k in sorted(legs):
             chain = [k, (k + 1) % n] if shape == "L" else [k, (k + 1) % n, (k + 2) % n]
             if len(set(chain)) < len(chain) or any(c not in legs for c in chain) or \
-                    not all(_convex_turn(space, c) for c in chain[:-1]):
+                    not all(_convex_turn(space, c, segs) for c in chain[:-1]):
                 continue
             first, last = legs[chain[0]], legs[chain[-1]]
             end_a = round(first.length - GAP, 3)
@@ -1850,24 +1963,37 @@ def _run_paths(space: Space, legs: dict, shape: str, depth: float, max_leg: floa
                     mids.append((mid, d2, round(m.length - GAP, 3)))
             if len(mids) != len(chain) - 2:
                 continue
-            for la in _lengths(min(end_a - ia[0], max_leg), (2.4, 1.8)):
-                for lb in _lengths(min(ib[1] - d2, max_leg), (2.4, 1.8)):
-                    if la < 1.2 or lb < 1.2:
+            for la in _lengths(min(end_a - ia[0], max_leg), tuple(lim["leg_lengths"])):
+                for lb in _lengths(min(ib[1] - d2, max_leg), tuple(lim["leg_lengths"])):
+                    if la < float(lim["leg_min"]) or lb < float(lim["leg_min"]):
                         continue
                     out.append([(chain[0], round(end_a - la, 3), end_a)] + mids + [(chain[-1], d2, round(d2 + lb, 3))])
     return out
 
 
+def _triangle_ok(legs_m: tuple) -> bool:
+    """The NKBA work triangle: every leg within ``triangle_leg`` and the sum within ``triangle_sum``."""
+    leg_rule, sum_rule = GR.rule("triangle_leg"), GR.rule("triangle_sum")
+    return all(leg_rule["min"] - 1e-9 <= v <= leg_rule["max"] + 1e-9 for v in legs_m) and \
+        sum(legs_m) <= sum_rule["max"] + 1e-9
+
+
 def _run_layouts(path: Path, run: dict, space: Space) -> list[tuple]:
     """Module layouts of one path, best first: ``(spots, terms, key)``. The fridge stands at the path start, the sink
     and the hob after it; the minimum landings and the work-triangle legs are hard, the recommended landings, a
-    compact triangle and the sink under a window score."""
+    compact triangle and the sink under a window score. 26 Oct 2026: a compact fallback run (``run_limits``) takes
+    its own least landing (a 0.30 m base unit), every hob size of its modules, and scores the work triangle (a
+    straight 2.4 m run cannot hold 1.20 m legs) instead of refusing it."""
+    lim = run_limits(run)
     mods = run["modules"]
     fr_w = float(mods["fridge"]["sizes"][0][0])
-    hob_w = float(mods["hob"]["sizes"][0][0])
+    hob_ws = [float(s[0]) for s in mods["hob"]["sizes"]] if lim["landing_min"] is not None else \
+        [float(mods["hob"]["sizes"][0][0])]
     land = {k: GR.rule_min(mods[k]["landing"]) for k in mods}
     c1_min, c2_min = max(land["fridge"], 0.40), max(land["sink"], 0.50)
-    leg_rule, sum_rule = GR.rule("triangle_leg"), GR.rule("triangle_sum")
+    if lim["landing_min"] is not None:
+        c1_min = c2_min = float(lim["landing_min"])
+    soft_triangle = lim["triangle"] == "soft"
     total = path.total
     fr = path.module_ok("fridge", 0.0, fr_w)
     if fr is None:
@@ -1875,50 +2001,56 @@ def _run_layouts(path: Path, run: dict, space: Space) -> list[tuple]:
     f_pt = path.front_mid(fr)
     wins = [w.inner_point for w in space.ctx.windows]
     results = []
-    for sink_size in mods["sink"]["sizes"]:
-        sw = float(sink_size[0])
-        q_s = fr_w + c1_min
-        while q_s + sw + c2_min + hob_w <= total + 1e-6:
-            sk = path.module_ok("kitchen_counter", q_s, q_s + sw)
-            if sk is not None:
-                s_pt = path.front_mid(sk)
-                hobs = {round(q_s + sw + c, 3) for c in (c2_min, 0.6, 0.9, 1.2)}
-                hobs |= {round(total - hob_w - c, 3) for c in (0.0, 0.3, 0.4, 0.6)}
-                for q_h in sorted(hobs):
-                    c2, c3 = q_h - (q_s + sw), total - (q_h + hob_w)
-                    if c2 < c2_min - 1e-6 or c3 < -1e-6 or (1e-6 < c3 < 0.30 - 1e-6):
-                        continue
-                    hb = path.module_ok("stove", q_h, q_h + hob_w)
-                    if hb is None:
-                        continue
-                    h_pt = path.front_mid(hb)
-                    legs_m = (G.distance(f_pt, s_pt), G.distance(s_pt, h_pt), G.distance(h_pt, f_pt))
-                    if not all(leg_rule["min"] - 1e-9 <= v <= leg_rule["max"] + 1e-9 for v in legs_m) or \
-                            sum(legs_m) > sum_rule["max"] + 1e-9:
-                        continue
-                    c1 = q_s - fr_w
-                    rec = (c1 >= GR.rule_rec("fridge_landing"),
-                           c2 >= GR.rule_rec("sink_landing") + GR.rule_min("hob_landing"),
-                           c3 >= GR.rule_rec("hob_landing"))
-                    sink_c = path.L[sk[0]].point((sk[1] + sk[2]) / 2.0, 0.0)
-                    terms = {"recommended": round(sum(rec) / 3.0, 4),
-                             "wall_use": round(max(0.0, 1.0 - abs(sum(legs_m) - 4.5) / 4.5), 4),
-                             "sink_window": 1.0 if any(G.distance(sink_c, w) <= SINK_WINDOW_M + sw / 2.0
-                                                       for w in wins) else 0.0}
-                    results.append((_score(terms), (round(q_s, 2), round(q_h, 2), sw), terms))
-            q_s = round(q_s + 0.1, 3)
+    for hob_w in hob_ws:
+        for sink_size in mods["sink"]["sizes"]:
+            sw = float(sink_size[0])
+            q_s = fr_w + c1_min
+            while q_s + sw + c2_min + hob_w <= total + 1e-6:
+                sk = path.module_ok("kitchen_counter", q_s, q_s + sw)
+                if sk is not None:
+                    s_pt = path.front_mid(sk)
+                    hobs = {round(q_s + sw + c, 3) for c in (c2_min, 0.6, 0.9, 1.2)}
+                    hobs |= {round(total - hob_w - c, 3) for c in (0.0, 0.3, 0.4, 0.6)}
+                    for q_h in sorted(hobs):
+                        c2, c3 = q_h - (q_s + sw), total - (q_h + hob_w)
+                        if c2 < c2_min - 1e-6 or c3 < -1e-6 or (1e-6 < c3 < 0.30 - 1e-6):
+                            continue
+                        hb = path.module_ok("stove", q_h, q_h + hob_w)
+                        if hb is None:
+                            continue
+                        h_pt = path.front_mid(hb)
+                        legs_m = (G.distance(f_pt, s_pt), G.distance(s_pt, h_pt), G.distance(h_pt, f_pt))
+                        tri = _triangle_ok(legs_m)
+                        if not tri and not soft_triangle:
+                            continue
+                        c1 = q_s - fr_w
+                        rec = (c1 >= GR.rule_rec("fridge_landing"),
+                               c2 >= GR.rule_rec("sink_landing") + GR.rule_min("hob_landing"),
+                               c3 >= GR.rule_rec("hob_landing"))
+                        sink_c = path.L[sk[0]].point((sk[1] + sk[2]) / 2.0, 0.0)
+                        share = (sum(rec) + int(tri)) / 4.0 if soft_triangle else sum(rec) / 3.0
+                        terms = {"recommended": round(share, 4),
+                                 "wall_use": round(max(0.0, 1.0 - abs(sum(legs_m) - 4.5) / 4.5), 4),
+                                 "sink_window": 1.0 if any(G.distance(sink_c, w) <= SINK_WINDOW_M + sw / 2.0
+                                                           for w in wins) else 0.0}
+                        key = (round(q_s, 2), round(q_h, 2), sw) + ((hob_w,) if len(hob_ws) > 1 else ())
+                        results.append((_score(terms), key, terms))
+                q_s = round(q_s + 0.1, 3)
     results.sort(key=lambda r: (-r[0], r[1]))
     out = []
     for _sc, key, terms in results[:2]:
-        q_s, q_h, sw = key
+        q_s, q_h, sw = key[:3]
+        hob_w = key[3] if len(key) > 3 else hob_ws[0]
         spots = path.spots([(0.0, fr_w, "fridge", "fridge"), (q_s, q_s + sw, "sink_kitchen", "sink"),
                             (q_h, q_h + hob_w, "stove", "hob")])
         out.append((spots, terms, key))
     return out
 
 
-def _galley_paths(legs: dict, depth: float, aisle: float) -> list:
-    """Two opposite legs ``(leg A part, leg B part)``: fridge and sink on A, the hob on B, the aisle between."""
+def _galley_paths(legs: dict, depth: float, aisle: float, limits: Optional[dict] = None) -> list:
+    """Two opposite legs ``(leg A part, leg B part)``: fridge and sink on A, the hob on B, the aisle between.
+    26 Oct 2026: ``limits`` the leg lengths (``run_limits``; the compact fallback takes shorter legs)."""
+    lim = limits or RUN_LIMITS
     out = []
     keys = sorted(legs)
     for i, ka in enumerate(keys):
@@ -1932,9 +2064,9 @@ def _galley_paths(legs: dict, depth: float, aisle: float) -> list:
                 continue
             for ia in A.intervals():
                 for ib in B.intervals():
-                    for la in _lengths(min(ia[1] - ia[0], 3.6), (2.4, 1.8)):
-                        for lb in _lengths(min(ib[1] - ib[0], 2.4), (1.2,)):
-                            if la < 1.79 or lb < 1.19:
+                    for la in _lengths(min(ia[1] - ia[0], 3.6), tuple(lim["galley_a_lengths"])):
+                        for lb in _lengths(min(ib[1] - ib[0], 2.4), tuple(lim["galley_b_lengths"])):
+                            if la < float(lim["galley_a_min"]) - 0.01 or lb < float(lim["galley_b_min"]) - 0.01:
                                 continue
                             pa, pb = (ka, ia[0], round(ia[0] + la, 3)), (kb, ib[0], round(ib[0] + lb, 3))
                             out += [(pa, pb), (pb, pa)]
@@ -1942,44 +2074,56 @@ def _galley_paths(legs: dict, depth: float, aisle: float) -> list:
 
 
 def _galley_layouts(legs: dict, parts: tuple, forward: bool, run: dict) -> list[tuple]:
-    """Fridge and sink on the first leg (from its start in the walk direction), the hob on the second."""
+    """Fridge and sink on the first leg (from its start in the walk direction), the hob on the second. 26 Oct 2026:
+    a compact fallback run (``run_limits``) takes its own least landing, every hob size of its modules and scores the
+    work triangle instead of refusing it (as ``_run_layouts``)."""
+    lim = run_limits(run)
     mods = run["modules"]
     depth = float(run["depth"])
-    fr_w, hob_w = float(mods["fridge"]["sizes"][0][0]), float(mods["hob"]["sizes"][0][0])
+    fr_w = float(mods["fridge"]["sizes"][0][0])
+    hob_ws = [float(s[0]) for s in mods["hob"]["sizes"]] if lim["landing_min"] is not None else \
+        [float(mods["hob"]["sizes"][0][0])]
     land = {k: GR.rule_min(mods[k]["landing"]) for k in mods}
-    leg_rule, sum_rule = GR.rule("triangle_leg"), GR.rule("triangle_sum")
+    c1_min, c2_min, c_hob = max(land["fridge"], 0.40), max(land["sink"], 0.5), max(land["hob"], 0.3)
+    if lim["landing_min"] is not None:
+        c1_min = c2_min = c_hob = float(lim["landing_min"])
+    soft_triangle = lim["triangle"] == "soft"
     pa, pb = Path(legs, [parts[0]], forward, depth), Path(legs, [parts[1]], forward, depth)
     fr = pa.module_ok("fridge", 0.0, fr_w)
     if fr is None:
         return []
     f_pt = pa.front_mid(fr)
     results = []
-    for sink_size in mods["sink"]["sizes"]:
-        sw = float(sink_size[0])
-        q_s = fr_w + max(land["fridge"], 0.40)
-        while q_s + sw + max(land["sink"], 0.5) <= pa.total + 1e-6:
-            sk = pa.module_ok("kitchen_counter", q_s, q_s + sw)
-            if sk is not None:
-                s_pt = pa.front_mid(sk)
-                q_h = max(land["hob"], 0.3)
-                while q_h + hob_w <= pb.total + 1e-6:
-                    c3 = pb.total - (q_h + hob_w)
-                    hb = pb.module_ok("stove", q_h, q_h + hob_w)
-                    if hb is not None and not (1e-6 < c3 < 0.30 - 1e-6):
-                        h_pt = pb.front_mid(hb)
-                        lm = (G.distance(f_pt, s_pt), G.distance(s_pt, h_pt), G.distance(h_pt, f_pt))
-                        if all(leg_rule["min"] - 1e-9 <= v <= leg_rule["max"] + 1e-9 for v in lm) and \
-                                sum(lm) <= sum_rule["max"] + 1e-9:
-                            terms = {"recommended": 1.0 if (q_s - fr_w) >= 0.6 and c3 >= 0.38 else 0.5,
-                                     "wall_use": round(max(0.0, 1.0 - abs(sum(lm) - 4.5) / 4.5), 4),
-                                     "sink_window": 0.0}
-                            results.append((_score(terms), (round(q_s, 2), round(q_h, 2), sw), terms))
-                    q_h = round(q_h + 0.1, 3)
-            q_s = round(q_s + 0.1, 3)
+    for hob_w in hob_ws:
+        for sink_size in mods["sink"]["sizes"]:
+            sw = float(sink_size[0])
+            q_s = fr_w + c1_min
+            while q_s + sw + c2_min <= pa.total + 1e-6:
+                sk = pa.module_ok("kitchen_counter", q_s, q_s + sw)
+                if sk is not None:
+                    s_pt = pa.front_mid(sk)
+                    q_h = c_hob
+                    while q_h + hob_w <= pb.total + 1e-6:
+                        c3 = pb.total - (q_h + hob_w)
+                        hb = pb.module_ok("stove", q_h, q_h + hob_w)
+                        if hb is not None and not (1e-6 < c3 < 0.30 - 1e-6):
+                            h_pt = pb.front_mid(hb)
+                            lm = (G.distance(f_pt, s_pt), G.distance(s_pt, h_pt), G.distance(h_pt, f_pt))
+                            tri = _triangle_ok(lm)
+                            if tri or soft_triangle:
+                                good = 1.0 if (q_s - fr_w) >= 0.6 and c3 >= 0.38 else 0.5
+                                terms = {"recommended": round((good + int(tri)) / 2.0, 4) if soft_triangle else good,
+                                         "wall_use": round(max(0.0, 1.0 - abs(sum(lm) - 4.5) / 4.5), 4),
+                                         "sink_window": 0.0}
+                                key = (round(q_s, 2), round(q_h, 2), sw) + ((hob_w,) if len(hob_ws) > 1 else ())
+                                results.append((_score(terms), key, terms))
+                        q_h = round(q_h + 0.1, 3)
+                q_s = round(q_s + 0.1, 3)
     results.sort(key=lambda r: (-r[0], r[1]))
     out = []
     for _sc, key, terms in results[:2]:
-        q_s, q_h, sw = key
+        q_s, q_h, sw = key[:3]
+        hob_w = key[3] if len(key) > 3 else hob_ws[0]
         spots = pa.spots([(0.0, fr_w, "fridge", "fridge"), (q_s, q_s + sw, "sink_kitchen", "sink")])
         spots += pb.spots([(q_h, q_h + hob_w, "stove", "hob")])
         out.append((spots, terms, key))
@@ -1988,13 +2132,24 @@ def _galley_layouts(legs: dict, parts: tuple, forward: bool, run: dict) -> list[
 
 def _option_run(template: dict, oname: str) -> dict:
     """The run of a kitchen-run option: the template's ``run`` with the option's module sizes (``modules``: a 0.70 m
-    fridge, a 1.00 m double sink ...)."""
+    fridge, a 1.00 m double sink ...). 26 Oct 2026: a ``fallback`` option is marked ``compact_fallback`` (its limits
+    are the run's ``compact`` block, ``run_limits``)."""
     run = template["run"]
-    over = template["options"][oname].get("modules") or {}
-    if not over:
+    opt = template["options"][oname]
+    over = opt.get("modules") or {}
+    if not over and not opt.get("fallback"):
         return run
     modules = {k: (dict(m, sizes=over[k]["sizes"]) if k in over else m) for k, m in run["modules"].items()}
-    return dict(run, modules=modules)
+    out = dict(run, modules=modules)
+    if opt.get("fallback"):
+        out["compact_fallback"] = True
+    return out
+
+
+def fallback_options(group: str) -> list[str]:
+    """26 Oct 2026: the options of a group the solver tries only when none of the program's options fits
+    (``fallback: true`` in groups.yaml: the compact kitchen runs), in file order."""
+    return [name for name, opt in GR.load_groups()[group]["options"].items() if opt.get("fallback")]
 
 
 def run_candidates(space: Space, entry: dict, level: int, info: dict) -> list[Cand]:
@@ -2006,38 +2161,62 @@ def run_candidates(space: Space, entry: dict, level: int, info: dict) -> list[Ca
     over = space.overrides.get("kitchen_aisle")
     aisle = float(over["min"]) if over else GR.rule_min("kitchen_aisle")
     zone_poly = info["zones"].get(entry.get("zone_id"))
-    legs = {k: Leg(space, k, depth, aisle) for k, (a, b) in enumerate(space.ctx.segments) if G.distance(a, b) >= 1.2}
+    # 26 Oct 2026: the legs stand on the outline with its short jogs merged (``run_outline``); the compact fallback
+    # takes shorter walls as legs (its ``wall_min``).
+    segs = run_outline(space.ctx.segments)
+    leg_cache: dict = {}
+
+    def legs_of(wall_min: float) -> dict:
+        out_legs = {}
+        for k, (a, b) in enumerate(segs):
+            if G.distance(a, b) >= wall_min - 1e-9:
+                if k not in leg_cache:
+                    leg_cache[k] = Leg(space, k, depth, aisle, (a, b))
+                out_legs[k] = leg_cache[k]
+        return out_legs
+
     options = [entry["chosen"]] if entry.get("chosen") else list(entry["options"])
     out = []
     budget = info["budget"]
-    for oname in options:
-        shape = template["options"][oname]["shape"]
-        run = _option_run(template, oname)
-        if shape == "galley":
-            jobs = [(parts, fw) for parts in _galley_paths(legs, depth, aisle) for fw in (True, False)]
-        else:
-            jobs = [(parts, fw) for parts in _run_paths(space, legs, shape, depth, float(run["max_leg"]))
-                    for fw in (True, False)]
-        for parts, forward in jobs:
-            if budget["used"] >= budget["generate"]:
-                break
-            budget["used"] += 1
+
+    def search(onames: list[str]) -> None:
+        for oname in onames:
+            shape = template["options"][oname]["shape"]
+            run = _option_run(template, oname)
+            lim = run_limits(run)
+            legs = legs_of(float(lim["wall_min"]))
             if shape == "galley":
-                layouts = _galley_layouts(legs, parts, forward, run)
+                jobs = [(parts, fw) for parts in _galley_paths(legs, depth, aisle, lim) for fw in (True, False)]
             else:
-                layouts = _run_layouts(Path(legs, parts, forward, depth), run, space)
-            for spots, terms, key in layouts:
-                if zone_poly is not None and not all(zone_poly.buffer(0.1).contains(Point(s.center)) for s in spots):
-                    continue
-                anchor = next((s for s in spots if s.type == "kitchen_counter"), spots[0])
-                zones = [z for s in spots for z in s.zones(overrides=space.overrides)]
-                cand = Cand(level, entry["group_id"], entry["group"], oname, anchor, spots, zones, dict(terms))
-                if not all(space.allowed(s.type, s.center) for s in spots) or not _finish(space, cand):
-                    continue
-                cand.local = _score(cand.terms)
-                cand.sig = (oname, tuple((p[0], int(round(p[1] / MERGE_M)), int(round(p[2] / MERGE_M)))
-                                         for p in parts), forward, key)
-                out.append(cand)
+                jobs = [(parts, fw) for parts in _run_paths(space, legs, shape, depth, float(run["max_leg"]), segs,
+                                                            lim) for fw in (True, False)]
+            for parts, forward in jobs:
+                if budget["used"] >= budget["generate"]:
+                    break
+                budget["used"] += 1
+                if shape == "galley":
+                    layouts = _galley_layouts(legs, parts, forward, run)
+                else:
+                    layouts = _run_layouts(Path(legs, parts, forward, depth), run, space)
+                for spots, terms, key in layouts:
+                    if zone_poly is not None and not all(zone_poly.buffer(0.1).contains(Point(s.center))
+                                                         for s in spots):
+                        continue
+                    anchor = next((s for s in spots if s.type == "kitchen_counter"), spots[0])
+                    zones = [z for s in spots for z in s.zones(overrides=space.overrides)]
+                    cand = Cand(level, entry["group_id"], entry["group"], oname, anchor, spots, zones, dict(terms))
+                    if not all(space.allowed(s.type, s.center) for s in spots) or not _finish(space, cand):
+                        continue
+                    cand.local = _score(cand.terms)
+                    cand.sig = (oname, tuple((p[0], int(round(p[1] / MERGE_M)), int(round(p[2] / MERGE_M)))
+                                             for p in parts), forward, key)
+                    out.append(cand)
+
+    search(options)
+    if not out:
+        # 26 Oct 2026 (user: "a kitchen must never be empty"): no option of the program fits: the compact runs of
+        # real module sizes (groups.yaml ``fallback``), tried only now so a room that holds a full run keeps it.
+        search([o for o in fallback_options(entry["group"]) if o not in options])
     return _keep(out, PER_LEVEL, kind=lambda c: template["options"][c.option]["shape"])
 
 
@@ -2719,10 +2898,19 @@ def _without_group(piece: dict) -> dict:
     return {k: v for k, v in piece.items() if k not in ("group", "drawn_group")}
 
 
+def untyped_unbuilt(f: dict) -> bool:
+    """26 Oct 2026 (module docstring, fix round of 26 Oct): a drawn piece the reading left untyped and unbuilt
+    (``type`` unknown or empty, ``build: false``). It is in no render (CLAUDE.md: no untyped piece is built), so it is
+    no obstacle for the solver; the review list keeps it."""
+    return f.get("build") is False and str(f.get("type") or "unknown") == "unknown"
+
+
 def _fixed_items(building: dict, room_id: str, fixed_ids: set, exclude=()) -> list[dict]:
     """The pieces the solver never moves: drawn pieces (built or not; not a rug outline, not one recorded as not
-    furniture) and the ``fixed_ids``; wall-hung pieces stand above the floor. ``exclude`` (Milestone 13): the
-    drawn pieces of a group re-solved as one unit: an unbuilt drawn anchor is never an obstacle for its own group."""
+    furniture, not an untyped unbuilt piece) and the ``fixed_ids``; wall-hung pieces stand above the floor.
+    ``exclude`` (Milestone 13): the drawn pieces of a group re-solved as one unit: an unbuilt drawn anchor is never an
+    obstacle for its own group. 26 Oct 2026: an untyped unbuilt drawn piece (``untyped_unbuilt``) is no obstacle
+    either (real06's 3.99 x 2.40 m f_L0_002 covered the kitchen's walls, so no counter run fitted)."""
     out = []
     not_furniture = {s.get("former_piece_id") for s in building.get("symbols") or [] if s.get("former_piece_id")}
     skip = set(exclude or ())
@@ -2733,6 +2921,8 @@ def _fixed_items(building: dict, room_id: str, fixed_ids: set, exclude=()) -> li
             continue
         if f["id"] in not_furniture or f.get("not_furniture") or f.get("inferred_as") == "rug":
             continue
+        if f.get("source") == "from_documents" and untyped_unbuilt(f) and f["id"] not in fixed_ids:
+            continue                                   # 26 Oct 2026: in no render, so no obstacle
         if f.get("source") == "from_documents" or f["id"] in fixed_ids:
             out.append(f)
     return out
@@ -2830,7 +3020,27 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
             c["front_from"] = space.front_from
     if not any(_passes(c) for c in out):
         out = first
+    # 26 Oct 2026 (user: "a kitchen must never be empty"): a kitchen run of the program that no passing candidate
+    # places (its full runs were generated but each failed the search or the final check) is searched again with the
+    # compact fallback runs only; their candidates are used when one of them places the run and passes.
+    missing = [g for g in prog["groups"] if run_left_out(g, out)]
+    if missing:
+        fb = dict(prog, groups=[dict(g, options=[o for o in fallback_options(g["group"]) if o not in g["options"]]
+                                     or g["options"], chosen=None) if g in missing else g for g in prog["groups"]])
+        space.front_from, space.front_chosen = 0, []
+        retry = _solve_try(space, building, room, fb, k, base, kept, start)
+        if any(_passes(c) and not any(run_left_out(g, [c]) for g in missing) for c in retry):
+            for c in retry:
+                c["compact_fallback"] = [g["group_id"] for g in missing]
+            out = retry
     return out
+
+
+def run_left_out(entry: dict, cands: list[dict]) -> bool:
+    """26 Oct 2026: a kitchen run the room's program asks for (not drawn) that no passing candidate places."""
+    if entry.get("group") != "kitchen_run" or entry.get("drawn") or not fallback_options("kitchen_run"):
+        return False
+    return not any(_passes(c) and entry["group_id"] in (c.get("placed") or []) for c in cands)
 
 
 def _passes(cand: dict) -> bool:

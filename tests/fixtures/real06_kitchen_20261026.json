@@ -1,0 +1,1329 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "real06_kitchen_fixture",
+  "name": "real06 kitchen (trimmed from results/baseline/latest, 25 Oct 2026)"
+ },
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Ground floor",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.85,
+   "ceiling_height_source": "section",
+   "evidence": [
+    {
+     "file": "real06.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LINE:257490",
+     "method": "vector",
+     "confidence": 0.7,
+     "rule": "room_labels_door_swings_and_walls",
+     "text": "room_labels 5, wall_test hatch comb of 509 lines at 0 deg, median step 0.0005 dxf, door_swings 3, area_labels 5, slab_bands 6, level_marks 4, outer_walls True, wall_pairs 220, stairs 6",
+     "region_id": "r3"
+    }
+   ],
+   "label_source": "assumed",
+   "kind": "floor",
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "base_level_id": null,
+   "region_id": "r3",
+   "elevation_source": "section",
+   "floor_to_floor": {
+    "value": 3.0,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LINE:1B9AC2",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "slab_bands",
+      "region_id": "r5"
+     }
+    ]
+   }
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    4.35,
+    0.325
+   ],
+   "end": [
+    8.4009,
+    0.325
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    8.651,
+    1.425
+   ],
+   "end": [
+    8.85,
+    1.425
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    8.6605,
+    3.225
+   ],
+   "end": [
+    8.85,
+    3.225
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    0.5,
+    3.425
+   ],
+   "end": [
+    4.3509,
+    3.425
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    8.6605,
+    3.825
+   ],
+   "end": [
+    8.85,
+    3.825
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    5.525
+   ],
+   "end": [
+    0.2,
+    5.525
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_007",
+   "level_id": "L0",
+   "start": [
+    8.6605,
+    5.625
+   ],
+   "end": [
+    8.85,
+    5.625
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_008",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    7.925
+   ],
+   "end": [
+    0.2,
+    7.925
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_009",
+   "level_id": "L0",
+   "start": [
+    0.45,
+    9.2
+   ],
+   "end": [
+    4.6,
+    9.2
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_010",
+   "level_id": "L0",
+   "start": [
+    0.95,
+    9.225
+   ],
+   "end": [
+    3.85,
+    9.225
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_011",
+   "level_id": "L0",
+   "start": [
+    7.0,
+    9.225
+   ],
+   "end": [
+    8.4,
+    9.225
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_012",
+   "level_id": "L0",
+   "start": [
+    4.6,
+    9.275
+   ],
+   "end": [
+    7.0,
+    9.275
+   ],
+   "thickness": 0.15
+  },
+  {
+   "id": "w_L0_013",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    10.475
+   ],
+   "end": [
+    0.2,
+    10.475
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_014",
+   "level_id": "L0",
+   "start": [
+    7.0,
+    11.35
+   ],
+   "end": [
+    8.4,
+    11.35
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_015",
+   "level_id": "L0",
+   "start": [
+    6.0,
+    11.37
+   ],
+   "end": [
+    7.0,
+    11.37
+   ],
+   "thickness": 0.16
+  },
+  {
+   "id": "w_L0_016",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    12.175
+   ],
+   "end": [
+    0.2,
+    12.175
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_017",
+   "level_id": "L0",
+   "start": [
+    2.95,
+    13.3
+   ],
+   "end": [
+    3.35,
+    13.3
+   ],
+   "thickness": 0.5
+  },
+  {
+   "id": "w_L0_018",
+   "level_id": "L0",
+   "start": [
+    0.2,
+    13.4043
+   ],
+   "end": [
+    0.95,
+    13.4043
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_019",
+   "level_id": "L0",
+   "start": [
+    0.95,
+    13.425
+   ],
+   "end": [
+    3.65,
+    13.425
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_020",
+   "level_id": "L0",
+   "start": [
+    5.7,
+    14.1
+   ],
+   "end": [
+    6.19,
+    14.1
+   ],
+   "thickness": 0.4
+  },
+  {
+   "id": "w_L0_021",
+   "level_id": "L0",
+   "start": [
+    3.65,
+    14.425
+   ],
+   "end": [
+    8.4009,
+    14.425
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_022",
+   "level_id": "L0",
+   "start": [
+    0.325,
+    4.05
+   ],
+   "end": [
+    0.325,
+    13.276
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_023",
+   "level_id": "L0",
+   "start": [
+    0.35,
+    3.3
+   ],
+   "end": [
+    0.35,
+    4.05
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_024",
+   "level_id": "L0",
+   "start": [
+    3.475,
+    11.3
+   ],
+   "end": [
+    3.475,
+    13.3
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_025",
+   "level_id": "L0",
+   "start": [
+    3.5,
+    13.55
+   ],
+   "end": [
+    3.5,
+    14.55
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_026",
+   "level_id": "L0",
+   "start": [
+    3.575,
+    3.55
+   ],
+   "end": [
+    3.575,
+    4.65
+   ],
+   "thickness": 0.15
+  },
+  {
+   "id": "w_L0_027",
+   "level_id": "L0",
+   "start": [
+    3.575,
+    8.3
+   ],
+   "end": [
+    3.575,
+    9.1
+   ],
+   "thickness": 0.15
+  },
+  {
+   "id": "w_L0_028",
+   "level_id": "L0",
+   "start": [
+    4.45,
+    2.8
+   ],
+   "end": [
+    4.45,
+    3.3
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_029",
+   "level_id": "L0",
+   "start": [
+    4.4751,
+    0.45
+   ],
+   "end": [
+    4.4751,
+    3.55
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_030",
+   "level_id": "L0",
+   "start": [
+    5.125,
+    0.0
+   ],
+   "end": [
+    5.125,
+    0.2
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_031",
+   "level_id": "L0",
+   "start": [
+    5.85,
+    13.8
+   ],
+   "end": [
+    5.85,
+    13.9
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_032",
+   "level_id": "L0",
+   "start": [
+    5.8744,
+    11.3
+   ],
+   "end": [
+    5.8744,
+    14.3
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_033",
+   "level_id": "L0",
+   "start": [
+    7.125,
+    9.35
+   ],
+   "end": [
+    7.125,
+    11.2
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_034",
+   "level_id": "L0",
+   "start": [
+    7.525,
+    0.0
+   ],
+   "end": [
+    7.525,
+    0.2
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_035",
+   "level_id": "L0",
+   "start": [
+    8.5,
+    0.45
+   ],
+   "end": [
+    8.5,
+    0.95
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_036",
+   "level_id": "L0",
+   "start": [
+    8.5,
+    6.0
+   ],
+   "end": [
+    8.5,
+    6.75
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_037",
+   "level_id": "L0",
+   "start": [
+    8.5,
+    13.8
+   ],
+   "end": [
+    8.5,
+    14.3
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_038",
+   "level_id": "L0",
+   "start": [
+    8.526,
+    0.2
+   ],
+   "end": [
+    8.526,
+    14.55
+   ],
+   "thickness": 0.25
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    6.325,
+    0.325
+   ],
+   "width": 2.15,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "o_L0_001",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_009",
+   "center": [
+    2.4,
+    9.2
+   ],
+   "width": 2.9,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_010",
+   "center": [
+    2.275,
+    9.225
+   ],
+   "width": 1.95,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "win_L0_001",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_012",
+   "center": [
+    5.625,
+    9.275
+   ],
+   "width": 1.95,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "height": 1.2
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_021",
+   "center": [
+    4.675,
+    14.425
+   ],
+   "width": 0.65,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "o_L0_002",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_021",
+   "center": [
+    6.25,
+    14.425
+   ],
+   "width": 1.1,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "o_L0_003",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_022",
+   "center": [
+    0.325,
+    6.725
+   ],
+   "width": 2.15,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "o_L0_004",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_022",
+   "center": [
+    0.325,
+    11.325
+   ],
+   "width": 1.45,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_029",
+   "center": [
+    4.4751,
+    0.975
+   ],
+   "width": 0.75,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "d_L0_005",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_033",
+   "center": [
+    7.125,
+    9.925
+   ],
+   "width": 0.95,
+   "sill_height": null,
+   "swing_side": "r_L0_mutfak",
+   "height": 2.1
+  },
+  {
+   "id": "o_L0_005",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_038",
+   "center": [
+    8.526,
+    2.325
+   ],
+   "width": 1.55,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "o_L0_006",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_038",
+   "center": [
+    8.526,
+    4.725
+   ],
+   "width": 1.55,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "o_L0_007",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_038",
+   "center": [
+    8.526,
+    10.275
+   ],
+   "width": 1.85,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "d_L0_006",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_004",
+   "center": [
+    1.975,
+    3.425
+   ],
+   "width": 2.95,
+   "sill_height": null,
+   "swing_side": null,
+   "height": 2.1
+  },
+  {
+   "id": "d_L0_007",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_015",
+   "center": [
+    6.55,
+    11.37
+   ],
+   "width": 0.9,
+   "sill_height": null,
+   "swing_side": "r_L0_banyo",
+   "height": 2.1
+  },
+  {
+   "id": "win_L0_002",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_018",
+   "center": [
+    0.588,
+    13.4043
+   ],
+   "width": 0.7241,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "height": 1.2
+  },
+  {
+   "id": "win_L0_003",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_021",
+   "center": [
+    3.988,
+    14.425
+   ],
+   "width": 0.6759,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "height": 1.2
+  },
+  {
+   "id": "win_L0_004",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_021",
+   "center": [
+    7.6134,
+    14.425
+   ],
+   "width": 1.575,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "height": 1.2
+  },
+  {
+   "id": "win_L0_005",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_023",
+   "center": [
+    0.35,
+    3.6752
+   ],
+   "width": 0.7,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "height": 1.2
+  },
+  {
+   "id": "win_L0_006",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_026",
+   "center": [
+    3.575,
+    4.1
+   ],
+   "width": 1.1,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "height": 1.2
+  },
+  {
+   "id": "win_L0_007",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_033",
+   "center": [
+    7.125,
+    10.8126
+   ],
+   "width": 0.7748,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "height": 1.2
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L0_salon",
+   "level_id": "L0",
+   "label": "Salon",
+   "label_raw": "SALON",
+   "room_type": "living",
+   "room_subtype": null,
+   "polygon": [
+    [
+     0.45,
+     4.05
+    ],
+    [
+     0.5,
+     4.05
+    ],
+    [
+     0.5,
+     3.55
+    ],
+    [
+     3.5,
+     3.55
+    ],
+    [
+     3.5,
+     4.65
+    ],
+    [
+     3.65,
+     4.65
+    ],
+    [
+     3.65,
+     3.55
+    ],
+    [
+     4.6001,
+     3.55
+    ],
+    [
+     4.6001,
+     0.45
+    ],
+    [
+     8.35,
+     0.45
+    ],
+    [
+     8.35,
+     0.95
+    ],
+    [
+     8.401,
+     0.95
+    ],
+    [
+     8.401,
+     6.0
+    ],
+    [
+     8.35,
+     6.0
+    ],
+    [
+     8.35,
+     6.75
+    ],
+    [
+     8.401,
+     6.75
+    ],
+    [
+     8.401,
+     9.1
+    ],
+    [
+     7.0,
+     9.1
+    ],
+    [
+     7.0,
+     9.2
+    ],
+    [
+     4.6,
+     9.2
+    ],
+    [
+     4.6,
+     9.05
+    ],
+    [
+     3.65,
+     9.05
+    ],
+    [
+     3.65,
+     8.3
+    ],
+    [
+     3.5,
+     8.3
+    ],
+    [
+     3.5,
+     9.05
+    ],
+    [
+     0.45,
+     9.05
+    ]
+   ],
+   "area_computed": 55.577,
+   "area_label": 39.15,
+   "has_documented_furniture": true,
+   "status": "unverified",
+   "twin_of": null,
+   "same_as": null
+  },
+  {
+   "id": "r_L0_mutfak",
+   "level_id": "L0",
+   "label": "Mutfak",
+   "label_raw": "MUTFAK",
+   "room_type": "kitchen",
+   "room_subtype": null,
+   "polygon": [
+    [
+     0.45,
+     9.35
+    ],
+    [
+     7.0,
+     9.35
+    ],
+    [
+     7.0,
+     11.29
+    ],
+    [
+     6.0,
+     11.29
+    ],
+    [
+     6.0,
+     11.3
+    ],
+    [
+     5.7494,
+     11.3
+    ],
+    [
+     5.7494,
+     13.8
+    ],
+    [
+     5.7,
+     13.8
+    ],
+    [
+     5.7,
+     14.3
+    ],
+    [
+     3.6501,
+     14.3
+    ],
+    [
+     3.65,
+     13.55
+    ],
+    [
+     3.65,
+     13.3
+    ],
+    [
+     3.6,
+     13.3
+    ],
+    [
+     3.6,
+     11.3
+    ],
+    [
+     3.35,
+     11.3
+    ],
+    [
+     3.35,
+     13.05
+    ],
+    [
+     2.95,
+     13.05
+    ],
+    [
+     2.95,
+     13.3
+    ],
+    [
+     0.95,
+     13.3
+    ],
+    [
+     0.95,
+     13.2543
+    ],
+    [
+     0.45,
+     13.2543
+    ]
+   ],
+   "area_computed": 24.813,
+   "area_label": 12.0,
+   "has_documented_furniture": true,
+   "status": "unverified",
+   "twin_of": null,
+   "same_as": null
+  },
+  {
+   "id": "r_L0_oda",
+   "level_id": "L0",
+   "label": "Oda",
+   "label_raw": null,
+   "room_type": "hall",
+   "room_subtype": null,
+   "polygon": [
+    [
+     7.25,
+     9.35
+    ],
+    [
+     8.401,
+     9.35
+    ],
+    [
+     8.401,
+     11.2
+    ],
+    [
+     7.25,
+     11.2
+    ]
+   ],
+   "area_computed": 2.129,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "status": "unverified",
+   "twin_of": null,
+   "same_as": null
+  },
+  {
+   "id": "r_L0_banyo",
+   "level_id": "L0",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "room_subtype": null,
+   "polygon": [
+    [
+     5.9994,
+     11.45
+    ],
+    [
+     7.0,
+     11.45
+    ],
+    [
+     7.0,
+     11.5
+    ],
+    [
+     8.401,
+     11.5
+    ],
+    [
+     8.401,
+     13.8
+    ],
+    [
+     8.35,
+     13.8
+    ],
+    [
+     8.35,
+     14.3
+    ],
+    [
+     6.19,
+     14.3
+    ],
+    [
+     6.19,
+     13.9
+    ],
+    [
+     6.0,
+     13.9
+    ],
+    [
+     6.0,
+     13.8
+    ],
+    [
+     5.9994,
+     13.8
+    ]
+   ],
+   "area_computed": 6.673,
+   "area_label": 7.25,
+   "has_documented_furniture": true,
+   "status": "verified",
+   "twin_of": null,
+   "same_as": null
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L0_001",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "type": "stair",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     4.6759,
+     12.3004
+    ],
+    "size": [
+     2.2,
+     2.1495
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "status": "unverified",
+   "type_method": "rule",
+   "build": true,
+   "stair": {
+    "flights": [
+     {
+      "start": [
+       4.0759,
+       11.5752
+      ],
+      "end": [
+       4.0759,
+       13.0752
+      ],
+      "width": 1.0,
+      "lines": 7,
+      "spacing": 0.25
+     },
+     {
+      "start": [
+       5.2759,
+       11.5752
+      ],
+      "end": [
+       5.2759,
+       13.0752
+      ],
+      "width": 1.0,
+      "lines": 7,
+      "spacing": 0.25
+     }
+    ],
+    "landing": {
+     "polygon": [
+      [
+       3.5759,
+       11.2257
+      ],
+      [
+       5.7759,
+       11.2257
+      ],
+      [
+       5.7759,
+       11.5752
+      ],
+      [
+       3.5759,
+       11.5752
+      ]
+     ],
+     "depth": 0.3495
+    },
+    "direction": [
+     0.0,
+     1.0
+    ],
+    "direction_assumed": true,
+    "turn": "U",
+    "turn_assumed": true,
+    "void_assumed": true,
+    "riser_m": null,
+    "riser_source": null,
+    "reason": "no UP arrow, break line or riser text drawn: rise direction and flight order are assumed; two side-by-side flights read as a U-turn (dog-leg) stair"
+   },
+   "evidence": [
+    {
+     "file": "real06.dwg",
+     "method": "vector",
+     "confidence": 0.9
+    }
+   ]
+  },
+  {
+   "id": "f_L0_002",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.2259,
+     11.3204
+    ],
+    "size": [
+     3.9904,
+     2.4
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "status": "unverified",
+   "type_method": "none",
+   "build": false,
+   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)",
+   "evidence": [
+    {
+     "file": "real06.dwg",
+     "method": "vector",
+     "confidence": 0.9
+    }
+   ]
+  },
+  {
+   "id": "f_L0_027",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.7552,
+     11.302
+    ],
+    "size": [
+     1.2,
+     0.45
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "status": "unverified",
+   "type_method": "none",
+   "build": false,
+   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)",
+   "evidence": [
+    {
+     "file": "real06.dwg",
+     "method": "vector",
+     "confidence": 0.9
+    }
+   ]
+  }
+ ],
+ "decor": [],
+ "conflicts": [],
+ "unverified": [],
+ "warnings": [],
+ "symbols": []
+}

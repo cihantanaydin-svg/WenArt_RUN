@@ -28,6 +28,12 @@ rug members (``candidate["rugs"]``, decor). ``apply_choice`` changes the drawn d
 takes the decor list ``apply_candidate`` wrote; ``layout_room(..., settings=...)`` hands the brief keys to the
 program (the re-solve is off with ``keep`` / ``furnished_rooms_keep_size``). ``RoomLayout.resolved`` lists the ids.
 
+Fix round of 26 Oct 2026 (user: "a kitchen must never be empty"): ``layout_room`` records every kitchen run of the
+room's program that the applied candidate does not place as a critical finding (``empty_kitchens``:
+``RoomLayout.critical``, ``layout.json``'s ``critical``, a ``<room>: critical: ...`` line in the building's warnings;
+the solver has tried the compact fallback runs first), and a second drawn table set of the room the program reports
+(``second_tables``) as a warning line.
+
 CLI (unchanged arguments; ``--passes`` is accepted and ignored): ``python -m wenart.furniture.layout
 outputs/<p>/building_fitted.json --style outputs/<p>/style.json --server http://127.0.0.1:8001/v1 --model <id>
 --out outputs/<p>/building_furnished.json --debug outputs/<p>/layout_debug/ --project-dir <project>`` writes the
@@ -210,6 +216,7 @@ class RoomLayout:
     copy_dropped: list = field(default_factory=list)
     solve_s: float = 0.0
     resolved: list = field(default_factory=list)         # Milestone 13: drawn pieces re-solved as one unit (ids)
+    critical: list = field(default_factory=list)         # 26 Oct 2026: kitchens left without a run (empty_kitchens)
 
     @property
     def latency_s(self) -> float:
@@ -227,6 +234,8 @@ class RoomLayout:
         if self.copied_from is not None:
             out["copied_from"] = self.copied_from
             out["copy_dropped"] = list(self.copy_dropped)
+        if self.critical:
+            out["critical"] = list(self.critical)
         return out
 
 
@@ -427,11 +436,46 @@ def apply_choice(out: dict, room: dict, cand: dict, choice: dict, completes: boo
     return added
 
 
+def empty_kitchens(room: dict, program: Optional[dict], cand: Optional[dict], why: str = "") -> list[dict]:
+    """26 Oct 2026 (user: "a kitchen must never be empty"): one critical finding per kitchen run of the room's
+    program (a kitchen room or a kitchen zone; not a drawn run) that the applied candidate ``cand`` (None: nothing
+    applied) does not place: ``{"check": "kitchen_run", "severity": "critical", "kind": "kitchen_without_run",
+    "room_id", "level_id", "group_id", "zone_id", "reason"}``. The solver tries the compact fallback runs before it
+    gives up (``solver.run_left_out``), so such a finding names a room where not even a compact run fits."""
+    out = []
+    for g in (program or {}).get("groups") or []:
+        if g.get("group") != "kitchen_run" or g.get("drawn"):
+            continue
+        if cand is not None and g["group_id"] in (cand.get("placed") or []):
+            continue
+        reason = next((x["reason"] for x in (cand or {}).get("not_placed") or [] if x.get("group_id") == g["group_id"]),
+                      None) or why or "no candidate was applied"
+        where = f"kitchen zone {g['zone_id']}" if g.get("zone_id") else "the kitchen"
+        out.append({"check": "kitchen_run", "severity": "critical", "kind": "kitchen_without_run",
+                    "room_id": room["id"], "level_id": room.get("level_id"), "group_id": g["group_id"],
+                    "zone_id": g.get("zone_id"),
+                    "reason": f"{where} of {room['id']} got no counter run, not even a compact one ({reason}): a "
+                              "kitchen is never left empty; listed for review"})
+    return out
+
+
+def _note_critical(rec: RoomLayout, building: dict, room: dict, cand: Optional[dict], why: str = "") -> RoomLayout:
+    """26 Oct 2026: ``empty_kitchens`` on the record and as ``critical:`` lines of the building's warnings (the
+    building is changed in place)."""
+    rec.critical = empty_kitchens(room, rec.program, cand, why)
+    if rec.critical:
+        building["warnings"] = list(building.get("warnings") or []) + [
+            f"{room['id']}: critical: {c['reason']}" for c in rec.critical]
+    return rec
+
+
 def layout_room(room: dict, building: dict, style_text: str, client, image_dir: Optional[Path] = None,
                 purpose: str = "furnish", settings=None) -> RoomLayout:
     """Program -> solver -> choice -> pieces for one room; ``building`` (the building being written) is changed in
     place. ``settings`` (Milestone 13, a ``complete.Settings``): the brief keys the program reads (the drawn-group
-    re-solve is off with ``keep`` / ``furnished_rooms_keep_size``)."""
+    re-solve is off with ``keep`` / ``furnished_rooms_keep_size``). 26 Oct 2026: a kitchen run of the program that
+    the applied candidate does not place is a critical finding (``empty_kitchens``: ``RoomLayout.critical`` and a
+    ``critical:`` line in the building's warnings)."""
     from wenart.furniture import program as PR
     from wenart.furniture import solver as SV
 
@@ -439,6 +483,10 @@ def layout_room(room: dict, building: dict, style_text: str, client, image_dir: 
     rec.context = placer.room_context(building, room)
     brief = settings.brief_values() if settings is not None and hasattr(settings, "brief_values") else None
     rec.program = PR.room_program(building, room["id"], brief=brief)
+    # 26 Oct 2026 (fix C): a second drawn table set of the room is reported (the program adds nothing to it)
+    lines = [f"{room['id']}: {t['reason']}" for t in rec.program.get("second_tables") or []]
+    building["warnings"] = list(building.get("warnings") or []) + [
+        x for x in lines if x not in (building.get("warnings") or [])]
     if not rec.program["groups"]:
         rec.skipped = f"no groups for this room ({rec.program['reason']})"
         return rec
@@ -457,13 +505,13 @@ def layout_room(room: dict, building: dict, style_text: str, client, image_dir: 
         else:
             why = "; ".join(f"#{c['rank']}: " + ", ".join(c["hard_failures"][:2]) for c in rec.candidates)
             rec.skipped = f"no candidate passes the checks ({why})"
-        return rec
+        return _note_critical(rec, building, room, None, rec.skipped)
     rec.choice = choose_candidate(client, room, building, usable, style_text, image_dir, purpose)
     cand = usable[rec.choice["index"]]
     rec.chosen = cand["rank"]
     rec.pieces = apply_choice(building, room, cand, rec.choice, completes=(purpose == "complete"))
     rec.resolved = list(cand.get("resolved") or [])
-    return rec
+    return _note_critical(rec, building, room, cand)
 
 
 # --------------------------------------------------------------------------
