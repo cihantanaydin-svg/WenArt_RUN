@@ -1852,6 +1852,27 @@ class AgentLoop:
             self.vision_cache[cache_key] = res["kept"]
             kept += res["kept"]
             dropped += res["dropped"]
+        # 26 Oct 2026 (user: "reviewing the 3d model itself could be better"): on the final renders the critic also
+        # looks at the model's floors from above (renders/top_<level>_plan.jpg, made before the final round)
+        if self.stale_keys is None and ctx.preview_dir == TL.FINAL_RENDER_DIR:
+            for lv in building.get("levels") or []:
+                img = self.project_out / TL.FINAL_RENDER_DIR / f"top_{lv.get('id')}_plan.jpg"
+                if not img.is_file():
+                    continue
+                n += 1
+                call_id = f"r{round_no}-m{n}"
+                try:
+                    res = CV.critique_model_view(self.model, building, lv["id"], image=img, code=code, call_id=call_id)
+                except ModelError as exc:
+                    checks.append({"source": "vision", "target": lv["id"], "status": "error", "note": str(exc),
+                                   "call_id": call_id})
+                    continue
+                checks.append({"source": "vision", "target": f"model:{lv['id']}", "status": "error" if res["error"]
+                               else "ok", "note": res["error"], "call_id": call_id,
+                               "images": [self.image_ref(img)],
+                               "counts": {"kept": len(res["kept"]), "dropped": len(res["dropped"])}})
+                kept += res["kept"]
+                dropped += res["dropped"]
         return {"kept": kept, "dropped": dropped, "checks": checks}
 
     # ----- logging helpers ---------------------------------------------------------------------

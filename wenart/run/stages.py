@@ -581,6 +581,15 @@ def render(tools: Tools, ref: ProjectRef, force: bool = False, alt_look: bool = 
     return cmd + (["--force"] if force else [])
 
 
+def topdown(tools: Tools, ref: ProjectRef) -> list[str]:
+    """26 Oct 2026 (user: "reviewing the 3d model itself could be better"): the model's labelled top-down views of the
+    final scene (``wenart.blender.cli topdown``) for the AI inspector's look at every room before the final round."""
+    return [tools.py, "-m", "wenart.blender.cli", "topdown", "--scene", _out(ref, "scene/scene.blend"),
+            "--out", _out(ref, "topdown"), "--building", _out(ref, "scene/building_built.json"),
+            "--labels-out", _out(ref, "renders"), "--architect", _out(ref, "scene/architect.json"),
+            "--samples", "32", "--device", "GPU"]
+
+
 def agent_apply(tools: Tools, ref: ProjectRef) -> list[str]:
     """Milestone 11 (§17.3): ``orchestrator/overrides.json`` replayed on ``building_decor.json`` ->
     ``building_agent.json`` (``python -m wenart.agent apply``)."""

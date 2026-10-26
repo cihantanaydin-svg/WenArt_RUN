@@ -790,3 +790,62 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
     kept, dropped = drop_camera_claims(kept, dropped, view, camera, eye, code, role=role,  # after P4b, P5 pass
                                        building=building, prep=prep)
     return {"kept": kept, "dropped": dropped, "error": None, "images": images}
+
+
+# --------------------------------------------------------------------------
+# 26 Oct 2026 (user: "reviewing the 3d model itself could be better solution rather than individual renders"): the
+# model's floors from above, every room at once
+# --------------------------------------------------------------------------
+
+MODEL_VIEW_CHECKS = ("Q3", "Q4", "Q5", "Q6", "D3", "F9")
+MODEL_VIEW_SCHEMA = answer_schema(MODEL_VIEW_CHECKS)
+
+
+def model_view_ids(building: dict, level_id: str) -> tuple[set, list[dict]]:
+    """The ids a finding on a level's top-down view may target: its rooms, their built pieces and its openings."""
+    rooms = [r for r in building.get("rooms") or [] if r.get("level_id") == level_id and r.get("id")]
+    rids = {r["id"] for r in rooms}
+    ids = set(rids)
+    ids |= {f.get("id") for f in building.get("furniture") or [] if f.get("room_id") in rids and TD.is_built(f)}
+    ids |= {o.get("id") for o in building.get("openings") or [] if o.get("level_id") == level_id}
+    return {i for i in ids if i}, rooms
+
+
+def critique_model_view(model, building: dict, level_id: str, *, image: Path, code: dict, call_id: str) -> dict:
+    """One level of the model seen from above (``renders/top_<level>_plan.jpg``: angled, ceilings off, walls cut at
+    0.6 m, rooms named): the visitor checks a whole floor shows (rooms that make no sense, pieces that repeat or
+    clash, pieces with their back to the room or before a window or door, a stair void with no guard) on every room
+    of the level, also the ones no camera frames. Findings target a room (or a piece) and are screened like the
+    room critic's."""
+    ids, rooms = model_view_ids(building, level_id)
+    pieces = {}
+    for f in building.get("furniture") or []:
+        if f.get("room_id") in {r["id"] for r in rooms} and TD.is_built(f):
+            pieces.setdefault(f["room_id"], []).append(f"{f.get('id')} {f.get('type')}")
+    room_lines = [f"- {r['id']} ({r.get('label') or r.get('name') or ''}, type {r.get('room_type')}): "
+                  + (", ".join(pieces.get(r["id"], [])[:14]) or "no furniture") for r in rooms]
+    known = [f"- {f['check']} {f['severity']} {f['target']}: {f['message']}" for f in code.get("findings") or []
+             if f.get("room_id") in {r["id"] for r in rooms} and f.get("severity") in ("critical", "major")][:30]
+    prompt = "\n".join([
+        f"Image 1 is the 3D model of level {level_id} seen from above at an angle: the ceilings are off and the walls "
+        "are cut at 0.6 m, so every room and every piece of furniture shows; each room carries its name, the windows "
+        "are blue lines with their ids.",
+        "", "Rooms (use these ids as target; a piece id when one piece is the problem):", *room_lines,
+        "", "Checklist:", P.checklist_text(MODEL_VIEW_CHECKS),
+        "", "Problems the code already measured (do not repeat them):", *(known or ["- none"]),
+        "", P.VISITOR_TEXT, P.SEVERITY_TEXT,
+        "List what is wrong on this floor of the model. evidence_image = 1."])
+    messages = [{"role": "system", "content": P.CRITIC_SYSTEM},
+                user_message(prompt, [image], [f"Image 1: the model of level {level_id} from above"])]
+    reply = model.critic(messages, MODEL_VIEW_SCHEMA, call_id=call_id)
+    if reply.data is None:
+        return {"kept": [], "dropped": [], "error": "; ".join(reply.errors[:3]) or "no answer", "images": [image]}
+    kept, dropped = screen(reply.data, ids, 1, code, None, call_id=call_id)
+    room_of = {f.get("id"): f.get("room_id") for f in building.get("furniture") or []}
+    for f in kept + dropped:
+        if not f.get("room_id"):
+            f["room_id"] = f.get("target") if f.get("target") in {r["id"] for r in rooms} else room_of.get(f.get("target"))
+        if not isinstance(f.get("evidence"), dict):
+            f["evidence"] = {}
+        f["evidence"]["model_view"] = level_id
+    return {"kept": kept, "dropped": dropped, "error": None, "images": [image]}

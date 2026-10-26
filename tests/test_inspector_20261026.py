@@ -135,3 +135,29 @@ def test_the_model_review_measures_what_the_user_saw_on_the_old_real06_model():
         if f["check"].startswith("M"):
             c = CS.cause_of(f, b)
             assert CS.CAUSE_TOOLS.get(c) or CS.REPORT_TO.get(c), (f["check"], c)
+
+
+def test_the_critic_looks_at_a_floor_of_the_model_from_above(tmp_path):
+    """26 Oct 2026: the final round's look at the model: a level's top-down view, every room of the floor, targets
+    the rooms and their pieces (a claim on an id of another floor is dropped)."""
+    from PIL import Image
+    from wenart.agent.model import MockModel
+    img = tmp_path / "top_L0_plan.jpg"
+    Image.new("RGB", (64, 48), (200, 200, 200)).save(img)
+    b = {"levels": [{"id": "L0", "elevation": 0.0}, {"id": "L1", "elevation": 3.0}],
+         "rooms": [{"id": "r_kitchen", "level_id": "L0", "room_type": "kitchen", "label": "Mutfak"},
+                   {"id": "r_bed", "level_id": "L1", "room_type": "bedroom"}],
+         "furniture": [{"id": "f_tab", "room_id": "r_kitchen", "type": "table_dining", "level_id": "L0"}],
+         "openings": []}
+    reply = {"findings": [
+        {"check": "Q4", "severity": "critical", "target": "r_kitchen", "message": "a kitchen with no counters",
+         "evidence_image": 1},
+        {"check": "Q6", "severity": "major", "target": "r_bed", "message": "a room of another floor",
+         "evidence_image": 1}]}
+    model = MockModel(critic=[reply])
+    res = CV.critique_model_view(model, b, "L0", image=img, code={"findings": []}, call_id="t")
+    assert [f["target"] for f in res["kept"]] == ["r_kitchen"] and res["kept"][0]["room_id"] == "r_kitchen"
+    assert res["kept"][0]["evidence"]["model_view"] == "L0"
+    assert [f["target"] for f in res["dropped"]] == ["r_bed"]
+    text = json.dumps(model.critic_requests()[0]["messages"][-1]["content"])
+    assert "f_tab table_dining" in text and "ceilings are off" in text

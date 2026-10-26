@@ -2389,6 +2389,11 @@ class Orchestrator:
         are rendered again and the stages after the render run again for that project (each reuses its own work)."""
         for pr in [p for p in self.runs if p.agent_loop is not None and p.active]:
             loop = pr.agent_loop
+            # 26 Oct 2026: the model's labelled top-down views of the final scene, so the inspector looks at every
+            # room of the model (a failure leaves the camera renders only; never a stop)
+            rc = self.run_step(pr, "agent", "topdown", S.topdown(self.tools, pr.ref))
+            if rc != 0:
+                self.out(f"{pr.name} topdown for the inspector: exit {rc} (the final round uses the renders only)")
             k = int((loop.stop or {}).get("round") or 0) + 1
             try:
                 res = loop.final_round(k)

@@ -78,6 +78,7 @@ REPO_ROOT = HERE.parents[1]
 BUILD_SCRIPT = HERE / "build.py"
 RENDER_SCRIPT = HERE / "render.py"
 EXPORT_SCRIPT = HERE / "export.py"           # Milestone 9: the 3D files of the results (.blend packed, .glb)
+TOPDOWN_SCRIPT = HERE / "topdown.py"         # 26 Oct 2026: the model's top-down views for the AI inspector too
 CANDIDATES = ("/workspace/tools/blender/blender", "/opt/wenart/blender/blender")
 
 
@@ -336,6 +337,24 @@ def render(scene: str, out: str, cameras: str = "all", samples: int | None = Non
     return Path(out) if hide_sets else Path(out) / "render_manifest.json"
 
 
+def topdown(scene: str, out: str, building: str, labels_out: str, architect: str | None = None, samples: int = 32,
+            device: str = "GPU", timeout: int = 1800) -> str:
+    """The angled top-down views of every level of the model with the ceilings off (``topdown.py``) and their labels
+    (``wenart.report.topdown_labels``: room names, windows): ``<labels_out>/top_<level>_plan.jpg`` (26 Oct 2026, user:
+    "reviewing the 3d model itself could be better": the AI inspector looks at every room of the model, not only at
+    what the cameras frame)."""
+    out_p = Path(out)
+    out_p.mkdir(parents=True, exist_ok=True)
+    run_blender(TOPDOWN_SCRIPT, ["--out", str(out_p), "--device", device, "--samples", str(int(samples))],
+                blend=str(scene), log_path=out_p / "topdown.log", timeout=timeout)
+    from wenart.report import topdown_labels as TDL
+    rc = TDL.main([str(building), str(out_p), "--out", str(labels_out)] + (["--architect", str(architect)]
+                                                                           if architect else []))
+    if rc:
+        raise RuntimeError(f"topdown labels exited with {rc}")
+    return str(labels_out)
+
+
 def export(scene: str, out: str, name: str, renders: str | None = None, max_texture: int | None = None,
            no_glb: bool = False, timeout: int = 1800, variant: str = BASE_VARIANT) -> Path:
     """``<out>/<name>.blend`` (textures packed, scaled to ``max_texture`` px) and ``<out>/<name>.glb`` of a built
@@ -419,6 +438,14 @@ def main(argv: list[str] | None = None) -> int:
     e.add_argument("--max-texture", type=int, help="scale textures down to this many px (default 1024; 0 = none)")
     e.add_argument("--no-glb", action="store_true")
     e.add_argument("--variant", default=BASE_VARIANT, help=variant_help + "; the files are named <name>-<id>")
+    t = sub.add_parser("topdown", help="the model's top-down views of every level, ceilings off, labelled")
+    t.add_argument("--scene", required=True)
+    t.add_argument("--out", required=True, help="the folder of the raw views (top_<level>.png)")
+    t.add_argument("--building", required=True, help="the building as built (scene/building_built.json)")
+    t.add_argument("--labels-out", required=True, help="the folder of the labelled views (top_<level>_plan.jpg)")
+    t.add_argument("--architect", help="the scene's architect.json (the openings as built)")
+    t.add_argument("--samples", type=int, default=32)
+    t.add_argument("--device", default="GPU")
     sub.add_parser("which", help="print the Blender binary that would be used")
     ns = parser.parse_args(argv)
     try:
@@ -433,6 +460,8 @@ def main(argv: list[str] | None = None) -> int:
                          cameras_extra=ns.cameras_extra)
         elif ns.command == "export":
             path = export(ns.scene, ns.out, ns.name, ns.renders, ns.max_texture, ns.no_glb, variant=ns.variant)
+        elif ns.command == "topdown":
+            path = topdown(ns.scene, ns.out, ns.building, ns.labels_out, ns.architect, ns.samples, ns.device)
         else:
             path = render(ns.scene, ns.out, ns.cameras, ns.samples, ns.res, ns.force, ns.device, hide=ns.hide,
                           plug=ns.plug, hide_sets=ns.hide_sets, look_from=ns.look_from, exposure=ns.exposure,
