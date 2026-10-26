@@ -103,6 +103,13 @@ RULES = (
     {"id": "D4", "topic": "doors on their floor", "scope": "door", "severity": "major",
      "question": "Does every door stand on the floor of the rooms it joins (no door raised over both floors)?",
      "why": "a door that starts half a metre over the floor is the first thing a visitor sees; it is a level error"},
+    # 26 Oct 2026 (user on real06's facade: "these sections not making sense": a 2.95 m flat oak leaf in the facade)
+    {"id": "D5", "topic": "door types", "scope": "door", "severity": "major",
+     "question": "What kind of door is every outside door and every wide door: French doors or a glazed sliding door "
+                 "into a room, the entrance door at the front, a sectional door to the garage, and never one leaf "
+                 "much wider than 1.2 m?",
+     "why": "a 3 m flat wooden leaf in a facade reads as a garage door on a house that has none; a living room opens "
+            "to the garden through glass"},
     {"id": "H1", "topic": "working heights", "scope": "furniture", "severity": "major",
      "question": "Is every fixture at its working height (a washbasin's rim at 0.80-0.90 m)?",
      "why": "a basin at knee height looks like a toy and cannot be used"},
@@ -327,6 +334,46 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
             else:
                 _ok(d2, o["id"], f"{(a or {}).get('id') or 'outside'} - {(b or {}).get('id') or 'outside'}")
     return [w2, w3, o1, d1, d2, d4]
+
+
+def door_types(plan: AA.Plan, sides: list[dict]) -> list[dict]:
+    """D5 (pure): the kind of every outside door and every door of ``architect_actions.WIDE_DOOR_M`` or more
+    (``architect_actions.door_kind``: the room behind it, the main entrance, the drawn operation). A door that needs
+    a kind is open with the safe default the build carries out (``architect.defaults_of``: French doors or a glazed
+    sliding door into a room, the entrance door, a sectional garage door, two leaves inside) and the other kinds as
+    options; a door already decided (``door_decision``) or right as one leaf is fine. A door of an upper floor with
+    nothing outside is E1's question (a door into the air), not a door type."""
+    d5 = _q(next(r for r in RULES if r["id"] == "D5"))
+    side_of = {s["opening"]["id"]: s for s in sides}
+    ground = _ground_z(plan.b)
+    main = AA.main_entrance_id(plan.b)
+    for o in plan.openings.values():
+        if o.get("type") != "door" or plan.walls.get(o.get("wall_id")) is None or o.get("level_id") not in plan.levels:
+            continue
+        s = side_of.get(o["id"]) or {}
+        a, b = plan.room.get(s.get("a")), plan.room.get(s.get("b"))
+        out_a, out_b = AA.Plan.is_outside(a), AA.Plan.is_outside(b)
+        if out_a and out_b:
+            continue                                     # no room on either side: D2's question
+        outer = out_a != out_b
+        if outer and (a is None or b is None) and \
+                float(plan.levels[o["level_id"]]["elevation"]) - ground >= LIMITS["sill_drop_m"]:
+            continue                                     # an upper-floor door onto nothing: E1's
+        width = float(o.get("width") or 0.0)
+        dec = o.get("door_decision")
+        if isinstance(dec, dict) and dec.get("kind") in AA.DOOR_KINDS:
+            _ok(d5, o["id"], f"{width:.2f} m: {AA.DOOR_KINDS[dec['kind']]['label']}")
+            continue
+        rooms = [_rtype(x) for x in (a, b) if x is not None and not AA.Plan.is_outside(x)]
+        kind, why, others = AA.door_kind(width, rooms, outer, o["id"] == main, AA.drawn_operation(o))
+        if kind is None:
+            _ok(d5, o["id"], why)
+            continue
+        opts = [AA.option("door_type", AA.DOOR_KINDS[k]["label"], door_id=o["id"], kind=k) for k in [kind] + others]
+        opts.append(AA.option("keep", f"keep one {width:.2f} m leaf as drawn"))
+        _open(d5, o["id"], f"{o['id']} is {why}", f"What kind of door is {o['id']} ({width:.2f} m)?", opts,
+              where=_where("door", o.get("level_id"), o["center"]), default=opts[0]["choice"])
+    return [d5]
 
 
 # --------------------------------------------------------------------------
@@ -643,7 +690,7 @@ def review(building: dict, prep: dict, sides: list[dict], graph: dict, starts: l
     plan = AA.Plan(building)
     seen = reach(graph, starts) if starts else set()
     unreached = {r["id"] for r in plan.rooms if r["id"] not in seen and not AA.Plan.is_outside(r)} if starts else set()
-    out = rooms_rules(plan) + openings_rules(plan, sides, unreached) + walls_rules(plan) + \
+    out = rooms_rules(plan) + openings_rules(plan, sides, unreached) + door_types(plan, sides) + walls_rules(plan) + \
         stairs_rules(plan, graph, starts, is_stair, reach) + furniture_rules(plan, sides) + \
         clash_rule(building, prep.get("clashes"))
     if prep.get("site") is not None:

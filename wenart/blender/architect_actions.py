@@ -79,6 +79,9 @@ ACTIONS = {
     "gap_to_door": "a door the reading missed: a glazed door in the gap (sliding from 1.40 m wide)",
     "merge_openings": "one opening read twice: the two become one over both spans (params: other_id)",
     "window_to_door": "a reading error: the room has no door, this opening between two rooms is its door",
+    # 26 Oct 2026 (user on real06: "these sections not making sense": a 2.95 m flat oak leaf in the facade): D5
+    "door_type": "the kind of door (params: kind): French doors, a glazed sliding or folding door, the entrance "
+                 "door, a sectional garage door, or two leaves; never one leaf much wider than 1.2 m",
 }
 # The rules whose answers are carried out first (a door that becomes a window is not widened as a door)
 FIRST_RULES = ("E1", "O2", "D4")
@@ -778,6 +781,174 @@ def act_french_window(plan: Plan, key: str, ans: dict, door_id: str):
     return True, f"{door_id}: a glass guard across its width"
 
 
+# --------------------------------------------------------------------------
+# D5: what kind of door every outside door and every wide door is (26 Oct 2026)
+# --------------------------------------------------------------------------
+#
+# User on real06 (26 Oct 2026, a render circled: "these sections not making sense"): the living room's 2.95 m outside
+# door got no library model and the parametric builder made one flat oak leaf as wide as the opening: a garage door
+# on a house that has no garage. An architect decides the kind of every outside door (the room behind it says it)
+# and never draws one leaf much wider than 1.2 m; the drawn operation stays the anchor (a drawn sliding door stays a
+# sliding door, now glazed panels instead of one slab). ``architect_rules.door_types`` asks, ``act_door_type`` builds.
+
+WIDE_DOOR_M = 1.4               # from this width a door is more than one leaf (= opening_models.WIDE_DOOR_M)
+LEAF_MAX_M = 1.2                # no leaf or sliding panel wider than about this
+FRENCH_MAX_M = 2.4              # a pair of glazed swing leaves up to this width (two leaves of 1.2 m); wider: sliding
+FOLDING_LEAF_M = 0.9            # a folding door's leaves at most this wide
+GARAGE_DOOR_MIN_M = 2.2         # a door this wide into a garage, a carport or a service room: a sectional door
+DOOR_FRAMES_M = 0.11            # the two jambs and the clearances of a door frame (2 x 0.05 + 0.01)
+GARAGE_ROOMS = ("garage", "carport")
+SERVICE_ROOMS = GARAGE_ROOMS + ("storage", "store", "technical", "plant", "boiler", "utility", "shed", "workshop",
+                                "cellar", "laundry")
+DOOR_KINDS = {                  # kind -> the build's door style, operation, glass and what the report says
+    "french": {"style": "double", "operation": "double", "glazed": True,
+               "label": "French doors: two glazed swing leaves"},
+    "glazed_sliding": {"style": "glazed_sliding", "operation": "sliding", "glazed": True,
+                       "label": "a glazed sliding door: glazed panels of at most 1.2 m in the frame, one fixed"},
+    "glazed_folding": {"style": "folding", "operation": "folding", "glazed": True,
+                       "label": "a glazed folding door: glazed leaves of at most 0.9 m"},
+    "entrance": {"style": "entrance", "operation": "swing", "glazed": False,
+                 "label": "the entrance door: one entrance leaf, glazed side lights where the opening is wider"},
+    "garage_sectional": {"style": "sectional", "operation": "sectional", "glazed": False,
+                         "label": "a sectional garage door: horizontal panels"},
+    "double": {"style": "double", "operation": "double", "glazed": False, "label": "a pair of swing leaves"},
+    "sliding_pair": {"style": "sliding", "operation": "sliding", "glazed": False,
+                     "label": "sliding leaves of at most 1.2 m parting in the middle"},
+    "folding": {"style": "folding", "operation": "folding", "glazed": False,
+                "label": "a folding door: leaves of at most 0.9 m"},
+}
+GLAZED_KINDS = ("french", "glazed_sliding", "glazed_folding")
+
+
+def drawn_operation(o: dict) -> Optional[str]:
+    """The operation the drawing gives a door (``drawn_operation`` once an answer changed it), lower case; None for
+    none (a gap the architect made a door)."""
+    op = o.get("drawn_operation") if "drawn_operation" in o else o.get("operation")
+    return str(op).lower() if op else None
+
+
+def door_leaves(kind: str, width: float) -> int:
+    """How many leaves or panels a door of ``kind`` gets in an opening ``width`` wide (pure): two for a pair, sliding
+    panels and folding leaves no wider than ``LEAF_MAX_M`` / ``FOLDING_LEAF_M`` (at least two), one otherwise."""
+    clear = max(0.0, float(width) - DOOR_FRAMES_M)
+    if kind in ("french", "double"):
+        return 2
+    if kind in ("glazed_sliding", "sliding_pair"):
+        return max(2, int(math.ceil(clear / LEAF_MAX_M - 1e-9)))
+    if kind in ("glazed_folding", "folding"):
+        return max(2, int(math.ceil(clear / FOLDING_LEAF_M - 1e-9)))
+    return 1
+
+
+def main_entrance_id(building: dict) -> Optional[str]:
+    """The main entrance door (``site.entrances``: the one marked ``main``, else the first; a door into the air or
+    below the ground is none), as ``opening_models.categorise`` reads it."""
+    recs = [r for r in ((building.get("site") or {}).get("entrances") or []) if isinstance(r, dict)
+            and not r.get("into_air") and not r.get("below_ground")]
+    main = next((r.get("door_id") for r in recs if r.get("main")), None)
+    return main if main is not None or not recs else recs[0].get("door_id")
+
+
+def door_kind(width: float, rooms: list, outer: bool, main: bool, op: Optional[str]
+              ) -> tuple[Optional[str], str, list]:
+    """``(kind, why, other kinds)`` of a door (pure): ``rooms`` the types of the rooms it joins (an outside door: the
+    room behind it), ``outer`` to the outside or an open-air room, ``main`` the main entrance, ``op`` its drawn
+    operation. ``kind`` None: one leaf is right (``why`` says so).
+
+    - an outside door into a garage, a carport or a service room (``SERVICE_ROOMS``): ``GARAGE_DOOR_MIN_M`` or wider a
+      sectional garage door; from ``WIDE_DOOR_M`` a pair of leaves (a drawn sliding or folding door keeps its way);
+    - the main entrance (not drawn sliding, folding or double): the entrance door (side lights when it is wider);
+    - an outside door of ``WIDE_DOOR_M`` or more into any other room: glazed: a drawn sliding door a glazed sliding
+      door, a drawn folding door a glazed folding door, a drawn pair French doors, else French doors up to
+      ``FRENCH_MAX_M`` and a glazed sliding door when wider;
+    - an inside door of ``WIDE_DOOR_M`` or more: two sliding leaves for a drawn sliding door, folding leaves for a
+      drawn folding door, a pair of swing leaves otherwise (a drawn pocket door stays one leaf)."""
+    w = float(width)
+    op = (op or "").lower() or None
+    as_drawn = "one leaf" if op in (None, "swing", "unknown") else f"its drawn {op} door"
+    if outer:
+        t = str((rooms or [""])[0] or "").lower()
+        if t in SERVICE_ROOMS:
+            if w + 1e-6 >= GARAGE_DOOR_MIN_M:
+                return "garage_sectional", (f"a {w:.2f} m outside door into the {t}: a sectional garage door, "
+                                            f"never one leaf"), ["double"]
+            if w + 1e-6 >= WIDE_DOOR_M:
+                k = {"sliding": "sliding_pair", "folding": "folding"}.get(op or "", "double")
+                return k, f"a {w:.2f} m outside door into the {t}: {DOOR_KINDS[k]['label']}", \
+                    [x for x in ("double", "garage_sectional") if x != k]
+            return None, f"a {w:.2f} m outside door into the {t}: {as_drawn}", []
+        if main and op in (None, "swing", "unknown"):
+            return "entrance", (f"the main entrance ({w:.2f} m, into the {t or 'house'}): the entrance door"
+                                + (", glazed side lights beside one leaf" if w - DOOR_FRAMES_M > LEAF_MAX_M + 0.05
+                                   else "")), ["french"] if w + 1e-6 >= WIDE_DOOR_M else []
+        if w + 1e-6 < WIDE_DOOR_M:
+            return None, f"a {w:.2f} m outside door{' (the main entrance)' if main else ''}: {as_drawn}", []
+        note = f" (the main entrance record names this drawn {op} door)" if main else ""
+        if op == "sliding":
+            k = "glazed_sliding"
+        elif op == "folding":
+            k = "glazed_folding"
+        elif op == "double" or w <= FRENCH_MAX_M + 1e-6:
+            k = "french"
+        else:
+            k = "glazed_sliding"
+        why = (f"a {w:.2f} m outside door into the {t or 'room'}{note}"
+               + (f", drawn {op}" if op in ("sliding", "folding", "double") else "")
+               + f": {DOOR_KINDS[k]['label']}, never one leaf as wide as the opening")
+        return k, why, [x for x in GLAZED_KINDS if x != k]
+    if w + 1e-6 < WIDE_DOOR_M or op == "pocket":
+        return None, f"a {w:.2f} m inside door: {as_drawn}", []
+    k = {"sliding": "sliding_pair", "folding": "folding"}.get(op or "", "double")
+    names = " and ".join(str(x or "?") for x in rooms) or "two rooms"
+    return k, f"a {w:.2f} m inside door between {names}: {DOOR_KINDS[k]['label']}, never one leaf as wide as the " \
+              f"opening", [x for x in ("double", "sliding_pair", "french", "glazed_sliding") if x != k]
+
+
+def act_door_type(plan: Plan, key: str, ans: dict, door_id: str, kind: str):
+    """D5: the door becomes a door of ``kind`` (``DOOR_KINDS``): ``door_type``, the build's ``door_style``,
+    ``glazed``, ``leaves`` (``door_leaves``), ``sidelights`` (the entrance) and the operation of the kind (the drawn
+    one kept in ``drawn_operation``); ``door_decision`` records the rule, whether it is an outside door (its glazed
+    leaves or panels take the windows' frame finish, ``looks.door_look``), the answer and the reason. A door another
+    answer made a window has nothing to decide."""
+    o = plan.openings.get(door_id)
+    spec = DOOR_KINDS.get(kind)
+    if o is None:
+        return False, f"no door {door_id}"
+    if o.get("type") != "door":
+        return True, None
+    if spec is None:
+        return False, f"{door_id}: unknown door kind {kind!r}"
+    width = float(o.get("width") or 0.0)
+    sides = window_sides(plan, o)
+    outs = [Plan.is_outside(r) for r in sides]
+    outer = len(sides) == 2 and outs[0] != outs[1]
+    leaves = door_leaves(kind, width)
+    if o.get("operation") != spec["operation"]:
+        _keep_drawn(o, "operation", "operation_source")
+        o["operation"], o["operation_source"] = spec["operation"], "architect"
+    for f in ("door_style", "glazed", "leaves", "sidelights"):
+        if f in o:
+            _keep_drawn(o, f)
+    o["door_type"], o["door_style"], o["glazed"], o["leaves"] = kind, spec["style"], spec["glazed"], leaves
+    if kind == "entrance":
+        o["sidelights"] = True
+    else:
+        o.pop("sidelights", None)
+    reason = (f"{door_id} ({width:.2f} m, {'an outside door' if outer else 'an inside door'}): {spec['label']}"
+              + (f", {leaves} {'panels' if kind == 'glazed_sliding' else 'leaves'}" if leaves > 1 else ""))
+    o["door_decision"] = {"by": "architect", "rule": "architect D5", "kind": kind, "outer": outer,
+                          "answer_key": key, "answer_by": ans.get("by", "user"), "answer": ans.get("answer"),
+                          "found": ans.get("reason"), "reason": reason}
+    if isinstance(o.get("adjusted_by_ai"), dict) or isinstance(o.get("corrected_by_ai"), dict):
+        ev = o.setdefault("evidence", [])                # an earlier answer's record stays; this one is the decision
+        if isinstance(ev, list):
+            ev.append({"file": ANSWERS_FILE if ans.get("by", "user") == "user" else AI_ANSWERS, "method": "inferred",
+                       "confidence": 0.6, "rule": f"architect {key}", "text": reason})
+    else:
+        _mark(o, "adjusted_by_ai", key, ans, reason)
+    return True, reason
+
+
 def room_floor(plan: Plan, room: Optional[dict]) -> Optional[float]:
     """A room's floor z (its level's elevation + ``floor_offset_m``), None for no room."""
     if room is None:
@@ -987,6 +1158,9 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                 elif opt == "move_piece":
                     ok, text = act_move_piece(plan, key, ans, params.get("piece_id") or target,
                                               params.get("away_from"))
+                elif opt == "door_type":
+                    ok, text = act_door_type(plan, key, ans, params.get("door_id") or target,
+                                             str(params.get("kind") or ""))
                 else:
                     ok, text = False, f"unknown option {opt!r}"
             except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
