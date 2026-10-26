@@ -651,6 +651,7 @@ def offered_tools(registry, brief: dict) -> list[str]:
 # gone (the validator passed) and the next round's critics re-measure them; elsewhere they stay as they are.
 # Round 4: the render's lighting_dark (a view above the +3 EV cap) is measured by the next render only; a
 # set_lighting on its room changes its view (``tools.changed_targets``).
+ARGUS_MAX_CALLS = 30            # 26 Oct 2026: Argus's own edits per round at most (argus_session)
 NOT_REMEASURED = frozenset({"S1", "S2", "S3", "S4", "S5", "S6", "V1", "V2", "V3", "X6", "L7", "R4", "R5", "X8",
                             *CS.LIGHTING_CHECKS, CS.CAMERA_BLOCKED_CHECK,       # fix round after P5: + blocked view
                             # 26 Oct 2026: the review of the model as built needs a build: carried, never "removed"
@@ -2344,15 +2345,21 @@ class AgentLoop:
                    "refused_repeats": 0, "dry_runs": 0, "findings_removed": 0, "context_full": 0,
                    "camera_no_effect": 0}
         self.rounds.append(summary)
-        if not open_:
+        # 26 Oct 2026: Argus's own edits first (``argus_session``); a round with only those still re-runs
+        argus = self.argus_session(ctx, round_no)
+        summary["argus"] = argus
+        if not open_ and not argus["accepted"]:
             summary["stop"] = "no_finding"
             return self._end_round(summary, t0)
-        sessions, coverage = self.sessions_for(ctx, work, wanted, lighting=lighting)
+        sessions, coverage = self.sessions_for(ctx, work, wanted, lighting=lighting) if open_ else \
+            ([], {"fixable_rooms": [], "unfixable_open": 0})
         summary.update(rooms_fixable=coverage["fixable_rooms"], unfixable_open=coverage["unfixable_open"])
-        if not sessions:
+        if not sessions and not argus["accepted"]:
             summary["stop"] = "no_fixable"
             return self._end_round(summary, t0)
-        plan = self.plan(ctx, round_no, sessions, critical_only, lighting=lighting)
+        plan = self.plan(ctx, round_no, sessions, critical_only, lighting=lighting) if sessions else \
+            {"calls": 0, "schema_errors": 0, "rooms": [], "sessions": 0, "plans_ok": 0, "error": None,
+             "context_full": 0}
         self.last_accepted = list(ctx.accepted)
         removed = sum(int(((a.get("result") or {}).get("acceptance") or {}).get("removed") or 0)
                       for a in ctx.accepted)
@@ -2582,11 +2589,16 @@ class AgentLoop:
         The originals (the judge's cache) are never changed."""
         out: list[dict] = []
         seen: set = set()
-        for f in getattr(self, "extra_findings", None) or []:
+        extra = list(getattr(self, "extra_findings", None) or [])
+        ids = {str(f.get("id")) for f in extra if isinstance(f, dict) and f.get("id")}
+        extra += [f for f in self.argus_work() if str(f.get("id")) not in ids]   # Argus's work in every round
+        for f in extra:
             if not isinstance(f, dict):
                 continue
             f = copy.deepcopy(f)
             f.pop("cause", None)
+            if f.get("argus_cause"):
+                f["cause"] = f["argus_cause"]     # 26 Oct 2026: the cause Argus chose (its tool fixes it)
             fid = str(f.get("id") or f"{str(f.get('source') or 'x')[:1]}:{f.get('check')}:{f.get('target')}")
             n, base = 1, fid
             while fid in seen:
@@ -2595,6 +2607,55 @@ class AgentLoop:
             seen.add(fid)
             f["id"] = fid
             out.append(f)
+        return out
+
+    def argus_work(self) -> list[dict]:
+        """26 Oct 2026 (user: "make Argus fix everything itself, give it more power"): the findings Argus handed to the
+        agent (``argus_ai.work_findings``), read again every round. Never raises."""
+        try:
+            from wenart.audit import argus_ai as AX
+            return AX.work_findings(self.project_out)
+        except Exception:  # noqa: BLE001 - Argus is a helper, never a stop
+            return []
+
+    def argus_session(self, ctx: TL.ToolContext, round_no: int) -> dict:
+        """26 Oct 2026 (user: "make Argus fix everything itself, give it more power"): Argus's own edits of this round
+        (``argus_ai.tool_actions``: the tool calls Argus AI chose and the typed fixes its code lines propose) run in the
+        building session through the same registry as the agent's: the same schemas, validators, memory and acceptance
+        (the targeted finding gone in the dry re-check, no new critical one), logged as edits. At most
+        ``ARGUS_MAX_CALLS`` a round, each action once a run. ``{"calls", "accepted", "rejected"}``; never raises."""
+        out = {"calls": 0, "accepted": 0, "rejected": 0}
+        try:
+            from wenart.audit import argus_ai as AX
+            actions = AX.tool_actions(self.project_out)
+        except Exception as exc:  # noqa: BLE001
+            self.log.event("check", round_no, check="argus", status="error", note=f"{type(exc).__name__}: {exc}")
+            return out
+        done = getattr(self, "argus_done", None)
+        if done is None:
+            done = self.argus_done = set()
+        todo = [a for a in actions if a.get("id") not in done and a.get("tool") in self.registry.tools]
+        if not todo:
+            return out
+        ctx.begin_session(BUILDING)
+        try:
+            for n, a in enumerate(todo[:ARGUS_MAX_CALLS]):
+                if not self.time_ok(FINAL_ROUND_SHARE):
+                    break
+                done.add(a.get("id"))
+                args = dict(a.get("args") or {})
+                args.setdefault("reason", f"Argus: {a.get('why') or 'fix'} (fixes {a.get('finding_id')})")
+                if a.get("finding_id") and str(a["finding_id"]) not in str(args["reason"]):
+                    args["reason"] = f"{args['reason']} (fixes {a['finding_id']})"
+                label = TL.label_for(a["tool"], ctx, args)
+                result = self.registry.call(ctx, a["tool"], args)
+                out["calls"] += 1
+                out["accepted" if result.get("accepted") else "rejected"] += 1
+                self.log_edit(round_no, f"argus-r{round_no}-{n + 1}", a["tool"], args, result, label,
+                              ctx.findings, args.get("room_id"))
+        finally:
+            ctx.end_session()
+        self.out(f"Argus round {round_no}: {out['accepted']} of {out['calls']} own edit(s) accepted")
         return out
 
     def argus_measure(self) -> dict:

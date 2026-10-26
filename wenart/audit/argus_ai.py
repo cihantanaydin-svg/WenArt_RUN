@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 import time
 from pathlib import Path
 from typing import Callable, Optional
@@ -62,7 +63,22 @@ FIX_ARCH = ("door_to_window", "french_window", "raise_sill", "widen_door", "inte
             "pass_through", "gap_to_door", "window_to_door", "snap_threshold", "retype_room", "enlarge_windows",
             "move_piece", "mount_fixture", "remove_piece")
 FIX_OTHER = ("agent_round", "rerun_stage", "rule_needed", "not_a_problem")
-FIXES = FIX_ARCH + FIX_OTHER
+# 26 Oct 2026 (user: "make Argus fix everything itself, give it more power"): the agent's edit tools Argus may call
+# itself (the loop runs them in Argus's session through the same registry, validators and acceptance: ``argus_session``)
+AGENT_TOOLS = ("retype_piece", "swap_model", "place_group", "complete_group", "relayout_room", "set_room_type",
+               "mark_not_furniture", "fix_fixture", "set_front", "resize_piece", "move_group", "rotate_piece",
+               "set_camera", "remove_camera")
+TOOL_CAUSE = {"retype_piece": "wrong_type", "swap_model": "wrong_model", "place_group": "missing_member",
+              "complete_group": "missing_member", "relayout_room": "clearance", "set_room_type": "room_type",
+              "mark_not_furniture": "untyped", "fix_fixture": "fixture_place", "set_front": "orientation",
+              "resize_piece": "size", "move_group": "group_layout", "rotate_piece": "orientation",
+              "set_camera": "interior_camera", "remove_camera": "interior_camera"}
+PIECE_TOOLS = ("retype_piece", "swap_model", "mark_not_furniture", "fix_fixture", "set_front", "resize_piece",
+               "rotate_piece")
+ROOM_TOOLS = ("place_group", "relayout_room", "set_room_type")
+FIXES = FIX_ARCH + AGENT_TOOLS + FIX_OTHER
+HISTORY_FILE = Path(__file__).resolve().parents[2] / "results" / "argus" / "problem_log.json"
+HISTORY_LINES = 30             # earlier runs' recurring problems and learned rules put to the model
 SYSTEM = (
     "You are Argus, the auditor of an automated pipeline that turns an architect's drawings (DWG or PDF plans, "
     "sections, elevations) into a furnished 3D house and photoreal renders. You check everything, not only the "
@@ -73,11 +89,14 @@ SYSTEM = (
     "- Think about the cause, not the symptom: many findings often have one cause (a misread wall, a missing rule); "
     "name the stage that caused it.\n"
     "- A finding is real unless the facts show it is a false alarm; then fix = not_a_problem and say why.\n"
-    "- Choose the fix the run can carry out now: an architect action on one element (give the element id, and a "
-    "value when the action needs one, e.g. a room type), agent_round (the furniture agent's next round: collisions, "
-    "walkways, orientation, a piece in the wrong place), rerun_stage, or rule_needed when nothing in this run can fix "
-    "it: then write the general rule (one or two sentences, for every project, never for this one only) that would "
-    "prevent this kind of problem.\n"
+    "- Fix it yourself whenever a tool can: choose an agent tool and give its arguments as a JSON object in args "
+    "(e.g. {\"piece_id\": \"f_L1_011\", \"type\": \"bathtub\"}); you carry it out through the same code checks as "
+    "the agent, so a wrong edit is refused, never built. Or an architect action on one element (the element id, and a "
+    "value when the action needs one, e.g. a room type); agent_round (the furniture agent's next round decides); "
+    "rerun_stage; or rule_needed when nothing in this run can fix it: then write the general rule (one or two "
+    "sentences, for every project, never for this one only) that would prevent this kind of problem.\n"
+    "- Prefer the fix of the cause: retype a misread piece rather than move its neighbours, build the missing piece "
+    "of a room's set, swap the model that does not match its set, set the camera that shows a bare wall.\n"
     "- 'not built: <reason>' lists elements a stage left out and the reason it gave, and 'gone after the ... stage, "
     "named in ...' an element a stage dropped and the record that names it: real = true when the reason hides a loss "
     "(something the documents show that the house should have), false when it is a good reason.\n"
@@ -94,7 +113,8 @@ def triage_schema(ids: list[str]) -> dict:
     return {"type": "object", "additionalProperties": False, "required": ["items"],
             "properties": {"items": {"type": "array", "items": {
                 "type": "object", "additionalProperties": False,
-                "required": ["id", "real", "severity", "kind", "cause", "fix", "element", "value", "rule", "why"],
+                "required": ["id", "real", "severity", "kind", "cause", "fix", "element", "value", "args", "rule",
+                             "why"],
                 "properties": {"id": {"type": "string", "enum": ids},
                                "real": {"type": "boolean"},
                                "severity": {"type": "string", "enum": ["critical", "major", "minor"]},
@@ -103,6 +123,7 @@ def triage_schema(ids: list[str]) -> dict:
                                "fix": {"type": "string", "enum": list(FIXES)},
                                "element": {"type": "string"},
                                "value": {"type": "string"},
+                               "args": {"type": "string"},
                                "rule": {"type": "string"},
                                "why": {"type": "string", "minLength": 5}}}}}}
 
@@ -111,7 +132,7 @@ def discover_schema() -> dict:
     return {"type": "object", "additionalProperties": False, "required": ["found"],
             "properties": {"found": {"type": "array", "maxItems": DISCOVER_MAX, "items": {
                 "type": "object", "additionalProperties": False,
-                "required": ["target", "kind", "severity", "what", "cause", "fix", "element", "value", "rule"],
+                "required": ["target", "kind", "severity", "what", "cause", "fix", "element", "value", "args", "rule"],
                 "properties": {"target": {"type": "string", "minLength": 2},
                                "kind": {"type": "string", "enum": list(K.KINDS)},
                                "severity": {"type": "string", "enum": ["critical", "major", "minor"]},
@@ -120,6 +141,7 @@ def discover_schema() -> dict:
                                "fix": {"type": "string", "enum": list(FIXES)},
                                "element": {"type": "string"},
                                "value": {"type": "string"},
+                               "args": {"type": "string"},
                                "rule": {"type": "string"}}}}}}
 
 
@@ -207,20 +229,22 @@ def _item_text(f: dict) -> dict:
 
 # ---------------------------------------------------------------------------------------------------- the calls
 def triage(model, items: list[dict], fact_lines: list[str], *, time_ok: Callable[[], bool] = lambda: True,
-           out: Callable[[str], None] = print, errors: Optional[list] = None) -> dict:
+           out: Callable[[str], None] = print, errors: Optional[list] = None, project: str = "") -> dict:
     """``{aid: verdict}`` for every item (module docstring 2); an item the model skipped has none (``errors`` gets
     what failed)."""
     errors = errors if errors is not None else []
     verdicts: dict = {}
     batches = [items[s:s + TRIAGE_BATCH] for s in range(0, len(items), TRIAGE_BATCH)]
+    history = history_lines(project)
 
     def one(n: int, batch: list[dict]):
         if not time_ok():
             return n, None, "time is up"
         start = n * TRIAGE_BATCH
-        text = "\n".join(["The project as built:", *fact_lines, "",
+        text = "\n".join(["The project as built:", *fact_lines, *history, "",
                           f"The findings ({start + 1}-{start + len(batch)} of {len(items)}):",
                           json.dumps([_item_text(f) for f in batch], indent=1, ensure_ascii=False), "",
+                          "Agent tools (fix; their arguments go in args as JSON):", *_tool_help(), "",
                           "Architect actions (fix) and what they do: " + _arch_help()])
         try:
             reply = model.structured([{"role": "system", "content": SYSTEM}, {"role": "user", "content": text}],
@@ -249,6 +273,147 @@ def _parallel(fn, jobs: list) -> list:
         return [fn(n, j) for n, j in enumerate(jobs)]
     with ThreadPoolExecutor(max_workers=WORKERS) as ex:
         return list(ex.map(lambda nj: fn(*nj), list(enumerate(jobs))))
+
+
+def _tool_help() -> list[str]:
+    """One line per agent tool Argus may call: its arguments (``*`` required) and what it does (the registry's specs)."""
+    try:
+        from wenart.agent import tools as TL
+        reg = TL.build_registry()
+    except Exception:  # noqa: BLE001
+        return []
+    out = []
+    for name in AGENT_TOOLS:
+        t = reg.tools.get(name)
+        if t is None:
+            continue
+        props = (t.parameters or {}).get("properties") or {}
+        req = set((t.parameters or {}).get("required") or [])
+        params = ", ".join(f"{k}{'*' if k in req else ''}" for k in props if k != "reason")
+        out.append(f"- {name}({params}): {str(getattr(t, 'description', '') or '').split('. ')[0][:200]}")
+    return out
+
+
+def history_lines(project: str, path: Path = HISTORY_FILE, limit: int = HISTORY_LINES) -> list[str]:
+    """26 Oct 2026 (user: "give it more power"): what Argus learned in earlier runs (the problem log of the repository,
+    ``report.update_log``): this project's recurring problems and the general rules proposed before, as prompt lines."""
+    log = I.read_json(path) if Path(path).is_file() else None
+    if not log:
+        return []
+    rec = R.recurring(log, project) if project else []
+    lines = [f"- seen in {len(v['runs'])} runs: {s.split('|', 1)[-1]}: {str(v.get('message'))[:140]}"
+             for s, v in rec[:limit]]
+    rules = sorted((g for g in (log.get("guards") or {}).values() if g.get("rule")),
+                   key=lambda g: -len(g.get("runs") or []))[:max(0, limit - len(lines))]
+    lines += [f"- rule learned ({len(g.get('runs') or [])} runs): {str(g['rule'])[:200]}" for g in rules]
+    return (["", "From earlier runs (fix the cause of what keeps coming back):"] + lines) if lines else []
+
+
+def cause_for_tool(tool: str) -> Optional[str]:
+    """A cause of ``causes.CAUSE_TOOLS`` that ``tool`` fixes (``TOOL_CAUSE`` first): the cause Argus's work finding
+    carries, so the loop routes it to that tool and the edit may target it."""
+    from wenart.agent import causes as CS
+    c = TOOL_CAUSE.get(tool)
+    if c in CS.CAUSE_TOOLS and tool in CS.CAUSE_TOOLS[c]:
+        return c
+    return next((c for c, ts in sorted(CS.CAUSE_TOOLS.items()) if tool in ts), None)
+
+
+def parse_args(text: str, tool: str, target: str) -> tuple[Optional[dict], str]:
+    """``(args, why_not)`` of the model's ``args`` text for an agent tool: a JSON object; the piece or room the
+    finding names fills ``piece_id`` / ``room_id`` / ``view_id`` when the model left it out."""
+    try:
+        args = json.loads(text) if str(text or "").strip() else {}
+    except ValueError as exc:
+        return None, f"args are not JSON: {exc}"
+    if not isinstance(args, dict):
+        return None, "args are not a JSON object"
+    t = str(target or "")
+    if tool in PIECE_TOOLS and "piece_id" not in args and t.startswith("f_"):
+        args["piece_id"] = t
+    if tool in ROOM_TOOLS and "room_id" not in args and t.startswith("r_"):
+        args["room_id"] = t
+    if tool in ("set_camera", "remove_camera") and "view_id" not in args and t.startswith(("cam_", "ext_")):
+        args["view_id"] = t
+    return args, ""
+
+
+def _action(aid: str, tool: str, args: dict, f: dict, why: str, source: str) -> tuple[dict, dict]:
+    """``(action, work finding)``: the tool call Argus makes and the finding it fixes (critic format, id ``a:<aid>``,
+    the tool's cause), which joins the round's findings so the edit has its target."""
+    fid = f"a:{aid}"
+    cause = cause_for_tool(tool)
+    work = {"id": fid, "check": str(f.get("check") or "AI"), "severity": f.get("severity") if f.get("severity") in
+            ("critical", "major") else "major", "target": args.get("piece_id") or args.get("room_id") or
+            args.get("view_id") or f.get("target"), "room_id": args.get("room_id"), "view": None, "source": "argus",
+            "message": f"Argus: {str(f.get('message') or '')[:300]}", "argus_cause": cause, "fix": "argus_tool"}
+    act = {"id": f"{source}:{aid}:{tool}:{work['target']}", "tool": tool, "args": args, "finding_id": fid,
+           "why": str(why or "")[:240], "source": source, "cause": cause}
+    return act, work
+
+
+def bath_or_shower(piece: dict) -> str:
+    size = sorted(float(v) for v in ((piece.get("footprint") or {}).get("size") or [0, 0])[:2])
+    return "bathtub" if size and size[-1] >= 1.40 else "shower"
+
+
+def code_actions(rep: dict, building: dict) -> tuple[list[dict], list[dict], list[str]]:
+    """The fixes Argus's code lines name exactly, as tool calls with no model (``(actions, work, revoke keys)``):
+    the ledger's ``type_piece`` (a furniture name written beside an untyped piece), N5 (a room missing a piece of
+    its set holds an untyped drawn piece: typed as that piece, a bath or a shower by its length; or a piece an AI
+    decision took out: that decision is revoked)."""
+    pieces = {f.get("id"): f for f in building.get("furniture") or []}
+    actions, work, revoke = [], [], []
+    for n, f in enumerate(rep.get("findings") or [], 1):
+        fix = f.get("fix")
+        if isinstance(fix, dict) and fix.get("action") == "type_piece" and fix.get("element_id") in pieces \
+                and fix.get("type"):
+            a, w = _action(f"c{n}", "retype_piece", {"piece_id": fix["element_id"], "type": fix["type"],
+                                                     "reason": f"the plan names it: {f.get('message')}"[:300]},
+                           f, f.get("message"), "code")
+            actions.append(a)
+            work.append(w)
+        if f.get("check") == "N5" or "sense:N5" in (f.get("seen_by") or []):
+            p = pieces.get(f.get("target")) or {}
+            reason = str(p.get("not_built_reason") or "")
+            m = re.search(r"answer to (AI\.[a-z_]+:[A-Za-z0-9_]+)", reason)
+            if m:
+                revoke.append(m.group(1))
+                continue
+            missing = str((f.get("evidence") or {}).get("missing") or "")
+            if str(p.get("type")) in ("unknown", "other", ""):
+                ftype = bath_or_shower(p) if missing == "shower|bathtub" else missing.split("|")[0]
+                if ftype:
+                    a, w = _action(f"c{n}", "retype_piece", {"piece_id": p["id"], "type": ftype,
+                                                             "reason": f"the room misses its {ftype}: "
+                                                                       f"{f.get('message')}"[:300]},
+                                   f, f.get("message"), "code")
+                    actions.append(a)
+                    work.append(w)
+    return actions, work, revoke
+
+
+def revoke_decisions(project_out, keys: list[str]) -> list[dict]:
+    """Take out decisions of the AI (``by`` ai or argus, never the user's or the architect's defaults) from
+    ``orchestrator/architect_answers.json``: the next build no longer carries them out. ``[{key, done, why}]``."""
+    from wenart.agent import architect_ai as AIA
+    from wenart.agent import log as LG
+
+    odir = LG.orchestrator_dir(Path(project_out))
+    saved = dict(AIA._saved_answers(odir))
+    out = []
+    for key in dict.fromkeys(keys):
+        ans = saved.get(key)
+        if ans is None:
+            out.append({"key": key, "done": False, "why": "not among the saved AI decisions"})
+        elif ans.get("by") not in ("ai", "argus"):
+            out.append({"key": key, "done": False, "why": f"decided by {ans.get('by')}: only the AI's are revoked"})
+        else:
+            saved.pop(key)
+            out.append({"key": key, "done": True, "why": "it left a room without a piece of its set"})
+    if any(r["done"] for r in out):
+        AIA._save_answers(odir, saved)
+    return out
 
 
 def _arch_help() -> str:
@@ -298,7 +463,8 @@ def discover(model, inp: I.Inputs, rep: dict, fact_lines: list[str], *, time_ok:
             f = K.finding("argus_ai", "AI1", d["severity"], target, d["what"], owner=d.get("cause"),
                           fix=d.get("fix"), kind=d.get("kind"),
                           evidence={"level": lv, "rule": d.get("rule"), "element": d.get("element"),
-                                    "value": d.get("value"), "image": image.name if image else None})
+                                    "value": d.get("value"), "args": d.get("args"),
+                                    "image": image.name if image else None})
             found.append(f)
     return found, dropped
 
@@ -383,9 +549,11 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
     building = inp.stage("final") or inp.final or {}
     fact_lines = facts(building, rep)
     items = items_of(rep)
-    verdicts = triage(model, items, fact_lines, time_ok=time_ok, out=out, errors=errors) if items else {}
+    verdicts = triage(model, items, fact_lines, time_ok=time_ok, out=out, errors=errors,
+                      project=inp.project) if items else {}
     by_id = {f["aid"]: f for f in items}
     new, decisions, work, guards, disputed = [], [], [], [], []
+    actions: list = []
     for aid, v in verdicts.items():
         f = by_id.get(aid)
         if f is None:
@@ -410,6 +578,14 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
         if v.get("fix") in FIX_ARCH:
             decisions.append({"aid": aid, "action": v["fix"], "element": v.get("element") or str(f.get("target")),
                               "value": v.get("value") or "", "reason": v.get("why"), "finding": f})
+        elif v.get("fix") in AGENT_TOOLS:
+            args, why_not = parse_args(v.get("args"), v["fix"], v.get("element") or str(f.get("target")))
+            if args is None:
+                errors.append(f"{aid} {v['fix']}: {why_not}"[:300])
+            else:
+                act_, w = _action(aid, v["fix"], args, f, v.get("why"), "argus_ai")
+                actions.append(act_)
+                work.append(w)
         elif v.get("fix") in ("agent_round", "rerun_stage"):
             work.append({"aid": aid, "fix": v["fix"], "check": f.get("check"), "severity": f.get("severity"),
                          "target": f.get("target"), "message": f.get("message"), "cause": v.get("cause"),
@@ -425,9 +601,27 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
         if f.get("fix") in FIX_ARCH:
             decisions.append({"aid": "AI1", "action": f["fix"], "element": ev.get("element") or f["target"],
                               "value": ev.get("value") or "", "reason": f["message"], "finding": None})
+        elif f.get("fix") in AGENT_TOOLS:
+            n = len(actions) + 1
+            args, why_not = parse_args(ev.get("args"), f["fix"], ev.get("element") or f["target"])
+            if args is None:
+                errors.append(f"AI1 {f['fix']}: {why_not}"[:300])
+            else:
+                act_, w = _action(f"N{n}", f["fix"], args, f, f["message"], "argus_ai")
+                actions.append(act_)
+                work.append(w)
         elif f.get("fix") == "agent_round":
             work.append({"aid": "AI1", "fix": "agent_round", "check": "AI1", "severity": f["severity"],
                          "target": f["target"], "message": f["message"], "cause": f.get("owner"), "why": ""})
+    # the fixes the code lines name exactly: no model needed (they run even when the model failed)
+    c_actions, c_work, revoke = code_actions(rep, inp.stage("build") or building)
+    have = {(x["tool"], json.dumps(x["args"], sort_keys=True)) for x in actions}
+    for x, w in zip(c_actions, c_work):
+        if (x["tool"], json.dumps(x["args"], sort_keys=True)) not in have:
+            actions.append(x)
+            work.append(w)
+    revoked = revoke_decisions(project_out, revoke) if act_on and revoke else \
+        [{"key": k, "done": False, "why": "the end of the run: not carried out"} for k in revoke]
     if act_on:
         entries = act(project_out, building, brief, decisions, getattr(model, "model", "")) if decisions else []
     else:
@@ -439,7 +633,9 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
            "findings": new, "decisions": entries, "work": work, "guards": guards, "disputed": disputed,
            "dropped": dropped, "verdicts": [dict(v, target=str(by_id.get(k, {}).get("target"))) for k, v in
                                             verdicts.items()],
-           "accepted": sum(1 for e in entries if e["verdict"] == "accepted"), "errors": errors,
+           "actions": actions, "revoked": revoked,
+           "accepted": sum(1 for e in entries if e["verdict"] == "accepted") + sum(1 for r in revoked if r["done"]),
+           "errors": errors,
            "untriaged": [f["aid"] for f in items if f["aid"] not in verdicts],
            "seconds": round(time.time() - t0, 1)}
     odir = LG.orchestrator_dir(project_out)
@@ -477,19 +673,32 @@ def _jsonable(rec: dict) -> dict:
     return json.loads(json.dumps(rec, default=str))
 
 
-def work_findings(project_out) -> list[dict]:
-    """The findings Argus handed to the agent (``work``), in the critic's format, for the agent's next round."""
+def _record(project_out) -> Optional[dict]:
     from wenart.agent import log as LG
 
     path = LG.orchestrator_dir(Path(project_out)) / LOG_JSON
-    rec = I.read_json(path) if path.is_file() else None
+    return I.read_json(path) if path.is_file() else None
+
+
+def work_findings(project_out) -> list[dict]:
+    """The findings Argus handed to the agent (``work``), in the critic's format, for the agent's rounds: its own
+    tool calls' targets (``argus_tool``: an id ``a:<aid>`` and the cause its tool fixes, ``argus_cause``) and the
+    critical / major ones it left to the agent's next round (``agent_round``)."""
     out = []
-    for w in (rec or {}).get("work") or []:
-        if w.get("fix") != "agent_round" or w.get("severity") not in ("critical", "major"):
-            continue
-        out.append({"check": str(w.get("check") or "AI1"), "severity": w["severity"], "target": w.get("target"),
-                    "room": None, "view": None, "source": "argus", "message": f"Argus: {w.get('message')}"})
+    for w in (_record(project_out) or {}).get("work") or []:
+        if w.get("fix") == "argus_tool":
+            out.append(dict(w))
+        elif w.get("fix") == "agent_round" and w.get("severity") in ("critical", "major"):
+            out.append({"check": str(w.get("check") or "AI1"), "severity": w["severity"], "target": w.get("target"),
+                        "room": None, "view": None, "source": "argus", "message": f"Argus: {w.get('message')}"})
     return out
+
+
+def tool_actions(project_out) -> list[dict]:
+    """The tool calls Argus makes itself (``investigate``'s ``actions``: the model's and the code lines'), for the
+    loop's ``argus_session``."""
+    return [a for a in (_record(project_out) or {}).get("actions") or []
+            if isinstance(a, dict) and a.get("tool") and isinstance(a.get("args"), dict)]
 
 
 def report_md(rec: dict) -> str:
@@ -510,6 +719,14 @@ def report_md(rec: dict) -> str:
         lines += ["", "## Decisions", "", "| finding | action | element | verdict | why |", "|---|---|---|---|---|"]
         lines += [f"| {e.get('aid')} | {e['action']} | {e['element']} | {e['verdict']} | {R._cell(e.get('why'))} |"
                   for e in rec["decisions"]]
+    if rec.get("actions"):
+        lines += ["", "## Argus's own edits (run in the agent loop through the same checks)", "",
+                  "| source | tool | arguments | fixes | why |", "|---|---|---|---|---|"]
+        lines += [f"| {x['source']} | {x['tool']} | {R._cell(json.dumps(x['args'], ensure_ascii=False)[:160])} | "
+                  f"{x['finding_id']} | {R._cell(x.get('why'))} |" for x in rec["actions"]]
+    if rec.get("revoked"):
+        lines += ["", "## AI decisions revoked", ""]
+        lines += [f"- {r['key']}: {'revoked' if r['done'] else 'kept'} ({r['why']})" for r in rec["revoked"]]
     if rec["work"]:
         lines += ["", "## Handed to the agent", ""]
         lines += [f"- {w['severity']} {w['target']}: {R._cell(str(w['message'])[:200])}" for w in rec["work"]]

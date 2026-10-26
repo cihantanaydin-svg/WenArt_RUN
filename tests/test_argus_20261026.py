@@ -256,11 +256,11 @@ def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable
         assert body["chat_template_kwargs"]["enable_thinking"] is True          # Argus thinks
         if name == "argus_triage":
             calls["triage"] += 1
-            batch = json.loads(text.split("):\n", 1)[1].split("\n\nArchitect actions", 1)[0])
+            batch = json.loads(text.split("The findings (", 1)[1].split("):\n", 1)[1].split("\n\nAgent tools", 1)[0])
             items = []
             for it in batch:
                 v = {"id": it["id"], "real": True, "severity": "major", "kind": "lost", "cause": "site",
-                     "fix": "rule_needed",
+                     "fix": "rule_needed", "args": "",
                      "element": "", "value": "", "rule": "a labelled outdoor space is always built",
                      "why": "the documents label it"}
                 if it["check"] in ("conservation:C5", "process:P2"):
@@ -275,9 +275,9 @@ def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable
         calls["discover"].append("image_url" in text)
         return {"found": [
             {"target": "VERANDA", "kind": "lost", "severity": "critical", "what": "the labelled veranda is missing",
-             "cause": "site", "fix": "rule_needed", "element": "", "value": "", "rule": "build every labelled space"},
+             "cause": "site", "fix": "rule_needed", "element": "", "value": "", "args": "", "rule": "build every labelled space"},
             {"target": "garage_north", "kind": "lost", "severity": "major", "what": "a garage is missing",
-             "cause": "reading", "fix": "rule_needed", "element": "", "value": "", "rule": ""}]}
+             "cause": "reading", "fix": "rule_needed", "element": "", "value": "", "args": "", "rule": ""}]}
 
     rec = AX.investigate(out, MockModel(critic=[reply] * 40), out=lambda s: None)
     assert rec["items"] >= 3 and rec["triaged"] == rec["items"] and calls["triage"] == (rec["items"] + 1) // 2
@@ -307,7 +307,7 @@ def test_argus_ai_at_the_end_proposes_and_keeps_the_first_record(tmp_path):
         if MockModel.schema_name(body) == "argus_triage":
             text = body["messages"][-1]["content"]
             return {"items": [{"id": aid, "real": True, "severity": "major", "kind": "misread", "cause": "reading",
-                               "fix": "retype_room",
+                               "fix": "retype_room", "args": "",
                                "element": "r_L1_soyunma_odasi", "value": "closet", "rule": "", "why": "a closet"}
                               for aid in re.findall(r'"id": "(F\d+)"', text)[-1:]]}
         return {"found": []}
@@ -420,12 +420,12 @@ def test_argus_ai_reads_every_unknown_warning_and_survives_a_failing_call(tmp_pa
     def reply(body):
         if MockModel.schema_name(body) != "argus_triage":
             return {"found": []}
-        batch = json.loads(body["messages"][-1]["content"].split("):\n", 1)[1].split("\n\nArchitect actions", 1)[0])
+        batch = json.loads(body["messages"][-1]["content"].split("The findings (", 1)[1].split("):\n", 1)[1].split("\n\nAgent tools", 1)[0])
         seen.extend(it["check"] for it in batch)
         if len(seen) <= 2:
             raise RuntimeError("the server went away")           # the first batch fails: logged, the rest go on
         return {"items": [{"id": it["id"], "real": it["check"] == "process:P0", "severity": "major", "kind": "silent",
-                           "cause": "reading", "fix": "rule_needed", "element": "", "value": "",
+                           "cause": "reading", "fix": "rule_needed", "element": "", "value": "", "args": "",
                            "rule": "every odd thing is checked", "why": "an odd thing in the hall"} for it in batch]}
 
     rec = AX.investigate(out, MockModel(critic=[reply] * 40), out=lambda s: None)
@@ -588,3 +588,135 @@ def test_sense_a_room_missing_its_set_names_the_piece_that_is_probably_it():
     # bath or shower; the kitchen's drawn outline, replaced by its counter runs for a good reason, is no suspect
     assert {("f_L1_011", "shower|bathtub"), ("f_L1_031", "shower|bathtub")} <= found
     assert not any(t == "f_L0_004" for t, _m in found)
+
+
+# --------------------------------------------------------------------------
+# More power (user, 26 Oct 2026: "keep going, make Argus fix everything itself give it more power")
+# --------------------------------------------------------------------------
+
+def test_argus_ai_calls_agent_tools_itself_and_hands_their_targets_to_the_loop(tmp_path, monkeypatch):
+    monkeypatch.setattr(AX, "WORKERS", 1)
+    out = _real06_out(tmp_path)
+
+    def reply(body):
+        if MockModel.schema_name(body) != "argus_triage":
+            return {"found": [{"target": "r_L1_soyunma_odasi", "kind": "taste", "severity": "major",
+                               "what": "the dressing room is empty", "cause": "fit", "fix": "place_group",
+                               "element": "r_L1_soyunma_odasi", "value": "",
+                               "args": "{\"group\": \"storage\"}", "rule": ""}]}
+        text = body["messages"][-1]["content"]
+        assert "Agent tools" in text and "retype_piece(piece_id*, type*)" in text
+        batch = json.loads(text.split("The findings (", 1)[1].split("):\n", 1)[1].split("\n\nAgent tools", 1)[0])
+        items = []
+        for it in batch:
+            v = {"id": it["id"], "real": True, "severity": "major", "kind": "misread", "cause": "reading",
+                 "fix": "rule_needed", "element": "", "value": "", "args": "", "rule": "", "why": "a reason"}
+            if it["check"] == "sense:N5":
+                v.update(fix="retype_piece", element=it["target"], args="{\"type\": \"bathtub\"}")
+            if it["check"] == "conservation:C4":
+                v.update(fix="mark_not_furniture", args="not json")
+            items.append(v)
+        return {"items": items}
+
+    b = json.loads((out / "building_final.json").read_text(encoding="utf-8"))
+    bath = next(r for r in b["rooms"] if r["room_type"] == "bathroom")
+    b["furniture"].append({"id": "f_L1_777", "type": "unknown", "room_id": bath["id"], "build": False,
+                           "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)",
+                           "footprint": {"center": [0, 0], "size": [1.7, 0.75], "rotation_deg": 0},
+                           "evidence": [{"method": "vector"}]})
+    (out / "building_final.json").write_text(json.dumps(b), encoding="utf-8")
+    rec = AX.investigate(out, MockModel(critic=[reply] * 20), out=lambda s: None)
+    tools = {(a["source"], a["tool"], a["args"].get("piece_id") or a["args"].get("room_id")) for a in rec["actions"]}
+    assert ("argus_ai", "place_group", "r_L1_soyunma_odasi") in tools
+    if any(f["check"] == "N5" for f in R.run(I.pod(out))["findings"]):
+        assert any(t == "retype_piece" for _s, t, _p in tools)
+    assert any("args are not JSON" in e for e in rec["errors"])                   # a bad call is logged, not run
+    acts = AX.tool_actions(out)
+    work = {w["id"]: w for w in AX.work_findings(out)}
+    for a in acts:
+        w = work[a["finding_id"]]
+        assert w["source"] == "argus" and w["argus_cause"] and a["tool"] in __import__(
+            "wenart.agent.causes", fromlist=["x"]).CAUSE_TOOLS[w["argus_cause"]]
+
+
+def test_argus_code_fixes_need_no_model_and_revoke_only_the_ais_decisions(tmp_path):
+    from wenart.agent import architect_ai as AIA
+    from wenart.agent import log as LG
+    b = {"furniture": [{"id": "f_bath", "type": "unknown", "room_id": "r_b", "footprint": {"size": [1.75, 0.8]}},
+                       {"id": "f_sh", "type": "shower", "room_id": "r_b", "build": False,
+                        "not_built_reason": "the answer to AI.remove_piece:f_sh: not built"},
+                       {"id": "f_dr", "type": "unknown", "room_id": "r_c"}]}
+    rep = {"findings": [
+        K.finding("sense", "N5", "major", "f_bath", "bathroom without a shower or a bathtub",
+                  evidence={"missing": "shower|bathtub"}),
+        K.finding("sense", "N5", "major", "f_sh", "bathroom without a shower or a bathtub",
+                  evidence={"missing": "shower|bathtub"}),
+        dict(K.finding("source", "A6", "major", "TEXT:1", "the plan names a dresser"),
+             fix={"action": "type_piece", "element_id": "f_dr", "type": "dresser"})]}
+    actions, work, revoke = AX.code_actions(rep, b)
+    assert {(a["tool"], a["args"]["piece_id"], a["args"]["type"]) for a in actions} == {
+        ("retype_piece", "f_bath", "bathtub"), ("retype_piece", "f_dr", "dresser")}
+    assert revoke == ["AI.remove_piece:f_sh"] and all(w["argus_cause"] == "wrong_type" for w in work)
+    odir = LG.orchestrator_dir(tmp_path)
+    AIA._save_answers(odir, {"AI.remove_piece:f_sh": {"by": "ai"}, "W2:w1": {"by": "user"}})
+    res = AX.revoke_decisions(tmp_path, ["AI.remove_piece:f_sh", "W2:w1", "AI.x:y"])
+    assert [r["done"] for r in res] == [True, False, False]
+    assert set(AIA._saved_answers(odir)) == {"W2:w1"}
+
+
+def test_the_loop_runs_argus_own_edits_through_the_registry_once():
+    import types
+
+    from wenart.agent import loop as LP
+    calls = []
+
+    class Reg:
+        tools = {"retype_piece": object()}
+
+        def call(self, ctx, name, args):
+            calls.append((name, dict(args)))
+            return {"accepted": name == "retype_piece" and args["piece_id"] == "f1"}
+
+    class Ctx:
+        findings = []
+
+        def piece(self, pid):
+            return None
+
+        def begin_session(self, room):
+            self.room = room
+
+        def end_session(self):
+            self.room = None
+
+    logged = []
+    fake = types.SimpleNamespace(registry=Reg(), project_out=Path("/nowhere"), time_ok=lambda share=1.0: True,
+                                 out=lambda s: None, log=types.SimpleNamespace(event=lambda *a, **k: None),
+                                 log_edit=lambda *a, **k: logged.append(a[2]))
+    acts = [{"id": "x1", "tool": "retype_piece", "args": {"piece_id": "f1", "type": "bathtub"}, "finding_id": "a:F1",
+             "why": "the bath"},
+            {"id": "x2", "tool": "retype_piece", "args": {"piece_id": "f2", "type": "dresser"}, "finding_id": "a:F2"},
+            {"id": "x3", "tool": "no_such_tool", "args": {}}]
+    import wenart.audit.argus_ai as AXM
+    orig = AXM.tool_actions
+    AXM.tool_actions = lambda project_out: acts
+    try:
+        ctx = Ctx()
+        res = LP.AgentLoop.argus_session(fake, ctx, 3)
+        again = LP.AgentLoop.argus_session(fake, ctx, 4)
+    finally:
+        AXM.tool_actions = orig
+    assert res == {"calls": 2, "accepted": 1, "rejected": 1} and again == {"calls": 0, "accepted": 0, "rejected": 0}
+    assert all("fixes a:F" in a["reason"] for _n, a in calls) and logged == ["retype_piece", "retype_piece"]
+
+
+def test_argus_remembers_earlier_runs(tmp_path):
+    rep = {"project": "p", "run_id": "r1", "findings": [K.finding("conservation", "C5", "critical", "sa_x", "lost")],
+           "guards": [{"kind": "lost", "rule": "Build every labelled space."}]}
+    log_path = tmp_path / "log.json"
+    R.update_log(rep, log_path)
+    R.update_log(dict(rep, run_id="r2"), log_path)
+    lines = AX.history_lines("p", log_path)
+    assert any("seen in 2 runs" in x and "sa_x" in x for x in lines)
+    assert any("rule learned" in x and "labelled space" in x for x in lines)
+    assert AX.history_lines("p", tmp_path / "none.json") == []
