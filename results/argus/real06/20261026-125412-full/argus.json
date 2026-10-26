@@ -1,0 +1,3447 @@
+{
+ "name": "Argus",
+ "project": "real06",
+ "layout": "collected",
+ "root": "runs/20261026-125412-full/results",
+ "created_utc": "2026-10-26T19:03:50Z",
+ "run_id": "20261026-125412-full-20261026T130049Z",
+ "score": 9.5,
+ "severity": {
+  "critical": 28,
+  "major": 63,
+  "minor": 15,
+  "info": 19
+ },
+ "by_kind": {
+  "lost": {
+   "critical": 1,
+   "major": 4,
+   "minor": 1,
+   "info": 19,
+   "fixable": 3,
+   "owners": [
+    "agent",
+    "site",
+    "build",
+    "building",
+    "cameras"
+   ]
+  },
+  "untyped": {
+   "critical": 0,
+   "major": 1,
+   "minor": 0,
+   "info": 0,
+   "fixable": 1,
+   "owners": [
+    "reading"
+   ]
+  },
+  "misread": {
+   "critical": 1,
+   "major": 6,
+   "minor": 2,
+   "info": 0,
+   "fixable": 0,
+   "owners": [
+    "building",
+    "scene",
+    "missing_member",
+    "room_type"
+   ]
+  },
+  "process": {
+   "critical": 0,
+   "major": 3,
+   "minor": 1,
+   "info": 0,
+   "fixable": 1,
+   "owners": [
+    "building",
+    "tests",
+    "scheduler"
+   ]
+  },
+  "taste": {
+   "critical": 0,
+   "major": 9,
+   "minor": 10,
+   "info": 0,
+   "fixable": 4,
+   "owners": [
+    "building",
+    "scene",
+    "fit",
+    "drawn_layout",
+    "collision",
+    "wrong_model",
+    "wrong_type"
+   ]
+  },
+  "silent": {
+   "critical": 0,
+   "major": 1,
+   "minor": 0,
+   "info": 0,
+   "fixable": 0,
+   "owners": [
+    "scene"
+   ]
+  },
+  "no_sense": {
+   "critical": 0,
+   "major": 6,
+   "minor": 0,
+   "info": 0,
+   "fixable": 2,
+   "owners": [
+    "scene",
+    "architect"
+   ]
+  },
+  "geometry": {
+   "critical": 26,
+   "major": 25,
+   "minor": 1,
+   "info": 0,
+   "fixable": 0,
+   "owners": [
+    "scene",
+    "build",
+    "blocked_opening",
+    "floating",
+    "collision",
+    "clearance",
+    "orientation",
+    "drawn_layout",
+    "fixture_clearance",
+    "off_wall",
+    "decor_look"
+   ]
+  },
+  "other": {
+   "critical": 0,
+   "major": 8,
+   "minor": 0,
+   "info": 0,
+   "fixable": 0,
+   "owners": [
+    "untyped"
+   ]
+  }
+ },
+ "lines": {
+  "conservation": {
+   "findings": 21,
+   "checked": {
+    "reading": 250,
+    "fit": 250,
+    "layout": 260,
+    "decor": 260,
+    "agent": 260,
+    "final": 260,
+    "build": 259
+   },
+   "note": null
+  },
+  "process": {
+   "findings": 35,
+   "checked": {
+    "stages": 27,
+    "warnings": 144,
+    "test_reports": 1,
+    "missing_records": [
+     "model_review"
+    ]
+   },
+   "note": null
+  },
+  "model": {
+   "findings": 0,
+   "checked": {},
+   "note": "no model_review.json"
+  },
+  "inspector": {
+   "findings": 118,
+   "checked": {
+    "round": 4,
+    "seen": 14,
+    "visitor": 4,
+    "fixed": 1,
+    "handed": 0,
+    "open": 117,
+    "dropped": 3,
+    "architect_open": 7,
+    "architect_open_major": 4
+   },
+   "note": null
+  },
+  "judge": {
+   "findings": 0,
+   "checked": {},
+   "note": "no rubric_per_view.json (the big loop did not measure)"
+  },
+  "sense": {
+   "findings": 0,
+   "checked": {
+    "rooms": 12,
+    "joins": 13,
+    "reached": 12
+   },
+   "note": null
+  }
+ },
+ "warning_counts": {
+  "assumed": 45,
+  "other": 8,
+  "not_read": 1,
+  "not_built": 15,
+  "outside_not_room": 2,
+  "disagree": 14,
+  "read_by": 21,
+  "not_allowed": 1,
+  "more_labels": 2,
+  "no_label": 2,
+  "not_checked": 4,
+  "not_used": 2,
+  "nothing_fits": 2,
+  "drawn_mismatch": 17,
+  "shortfall": 1,
+  "parametric": 1,
+  "no_model": 3,
+  "not_cut": 2,
+  "not_rested": 1
+ },
+ "missing": [
+  "model_review"
+ ],
+ "findings": [
+  {
+   "line": "conservation",
+   "check": "C1",
+   "severity": "major",
+   "target": "f_L0_044",
+   "message": "furniture f_L0_044 (shower) of the decor stage is missing after the agent stage and nothing there names it",
+   "evidence": {
+    "collection": "furniture",
+    "from": "decor",
+    "to": "agent"
+   },
+   "owner": "agent",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C1"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C5",
+   "severity": "critical",
+   "target": "sa_L0_veranda",
+   "message": "the documents label a site area 'VERANDA' and the model does not build it (open balcony outside the outer walls (no walls drawn around it))",
+   "evidence": {
+    "collection": "site_areas",
+    "label": "VERANDA",
+    "source": [
+     "TEXT:29585C",
+     "TEXT:29585D"
+    ]
+   },
+   "owner": "site",
+   "fix": "build_outdoor_space",
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C5"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C4",
+   "severity": "major",
+   "target": "42 site_symbols",
+   "message": "42 drawn site symbols (sd_L0_001, sd_L0_002, sd_L0_003, sd_L0_004, sd_L0_005, sd_L0_006 ...) that no rule or model typed ('other'): nothing builds them and nothing explains them",
+   "evidence": {
+    "collection": "site_symbols",
+    "ids": [
+     "sd_L0_001",
+     "sd_L0_002",
+     "sd_L0_003",
+     "sd_L0_004",
+     "sd_L0_005",
+     "sd_L0_006",
+     "sd_L0_007",
+     "sd_L0_008",
+     "sd_L0_009",
+     "sd_L0_010",
+     "sd_L0_011",
+     "sd_L0_012",
+     "sd_L0_013",
+     "sd_L0_014",
+     "sd_L0_015",
+     "sd_L0_016",
+     "sd_L0_017",
+     "sd_L0_018",
+     "sd_L0_019",
+     "sd_L0_020",
+     "sd_L0_021",
+     "sd_L0_022",
+     "sd_L0_023",
+     "sd_L0_024",
+     "sd_L0_025",
+     "sd_L0_026",
+     "sd_L0_027",
+     "sd_L0_028",
+     "sd_L0_029",
+     "sd_L0_030",
+     "sd_L0_031",
+     "sd_L0_032",
+     "sd_L0_033",
+     "sd_L0_034",
+     "sd_L0_035",
+     "sd_L0_036",
+     "sd_L0_037",
+     "sd_L0_038",
+     "sd_L0_039",
+     "sd_L0_040",
+     "sd_L0_041",
+     "sd_L0_042"
+    ],
+    "source": [
+     "CIRCLE:272B5A",
+     "CIRCLE:272B5D",
+     "CIRCLE:272B69",
+     "CIRCLE:272B6C"
+    ]
+   },
+   "owner": "reading",
+   "fix": "type_site_symbols",
+   "kind": "untyped",
+   "seen_by": [
+    "conservation:C4"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "42 elements",
+   "message": "not built: site decor of kind 'other' is not built (no model) (sd_L0_001, sd_L0_002, sd_L0_003, sd_L0_004, sd_L0_005, sd_L0_006, sd_L0_007, sd_L0_008 ...)",
+   "evidence": {
+    "ids": [
+     "sd_L0_001",
+     "sd_L0_002",
+     "sd_L0_003",
+     "sd_L0_004",
+     "sd_L0_005",
+     "sd_L0_006",
+     "sd_L0_007",
+     "sd_L0_008",
+     "sd_L0_009",
+     "sd_L0_010",
+     "sd_L0_011",
+     "sd_L0_012",
+     "sd_L0_013",
+     "sd_L0_014",
+     "sd_L0_015",
+     "sd_L0_016",
+     "sd_L0_017",
+     "sd_L0_018",
+     "sd_L0_019",
+     "sd_L0_020",
+     "sd_L0_021",
+     "sd_L0_022",
+     "sd_L0_023",
+     "sd_L0_024",
+     "sd_L0_025",
+     "sd_L0_026",
+     "sd_L0_027",
+     "sd_L0_028",
+     "sd_L0_029",
+     "sd_L0_030",
+     "sd_L0_031",
+     "sd_L0_032",
+     "sd_L0_033",
+     "sd_L0_034",
+     "sd_L0_035",
+     "sd_L0_036",
+     "sd_L0_037",
+     "sd_L0_038",
+     "sd_L0_039",
+     "sd_L0_040",
+     "sd_L0_041",
+     "sd_L0_042"
+    ],
+    "reason": "site decor of kind 'other' is not built (no model)"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "7 elements",
+   "message": "not built: untyped (CLAUDE.md: no untyped piece is built) (f_L0_012, f_L0_015, f_L0_016, f_L1_014, f_L1_015, f_L1_023, f_L1_026)",
+   "evidence": {
+    "ids": [
+     "f_L0_012",
+     "f_L0_015",
+     "f_L0_016",
+     "f_L1_014",
+     "f_L1_015",
+     "f_L1_023",
+     "f_L1_026"
+    ],
+    "reason": "untyped (CLAUDE.md: no untyped piece is built)"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "2 elements",
+   "message": "not built: the model of f_L1_009 has its own cushions/pillows (dec_L1_009, dec_L1_010)",
+   "evidence": {
+    "ids": [
+     "dec_L1_009",
+     "dec_L1_010"
+    ],
+    "reason": "the model of f_L1_009 has its own cushions/pillows"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L0_002",
+   "message": "not built: architect F5: f_L0_002 (kitchen_counter) lies inside f_L0_039 (kitchen_counter): one object read twice; built once (f_L0_002)",
+   "evidence": {
+    "ids": [
+     "f_L0_002"
+    ],
+    "reason": "architect F5: f_L0_002 (kitchen_counter) lies inside f_L0_039 (kitchen_counter): one object read twice; built once"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L0_003",
+   "message": "not built: drawn inside the kitchen_counter f_L0_002 (60% or more of it): the same piece drawn twice, or a part of it (not built) (f_L0_003)",
+   "evidence": {
+    "ids": [
+     "f_L0_003"
+    ],
+    "reason": "drawn inside the kitchen_counter f_L0_002 (60% or more of it): the same piece drawn twice, or a part of it (not built)"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L0_004",
+   "message": "not built: the kitchen run drawn as one outline with its fixtures (sink: 8 circles): replaced by its counter legs f_L0_039, f_L0_040 along the walls (not built); plan crop recognition/reading/f_L0_004_ctx.png (f_L0_004)",
+   "evidence": {
+    "ids": [
+     "f_L0_004"
+    ],
+    "reason": "the kitchen run drawn as one outline with its fixtures (sink: 8 circles): replaced by its counter legs f_L0_039, f_L0_040 along the walls (not built); plan crop recognition/reading/f_L0_004_ctx.png"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L0_005",
+   "message": "not built: outline 3.89 x 2.12 m around 7 other piece(s) (f_L0_006, f_L0_007, f_L0_008, f_L0_009, f_L0_010, f_L0_011): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups) (f_L0_005)",
+   "evidence": {
+    "ids": [
+     "f_L0_005"
+    ],
+    "reason": "outline 3.89 x 2.12 m around 7 other piece(s) (f_L0_006, f_L0_007, f_L0_008, f_L0_009, f_L0_010, f_L0_011): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups)"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L0_013",
+   "message": "not built: untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (other) by Qwen/Qwen3.8-27B-FP8, round 2: Fixes c:NR:f_L0_013: the recognition crop shows a drawn bathtub + washbasin unit (the bathroom_set fixtures), not a separate 2.54 m furniture piece, so the untyped symbol is not furniture. (f_L0_013)",
+   "evidence": {
+    "ids": [
+     "f_L0_013"
+    ],
+    "reason": "untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (other) by Qwen/Qwen3.8-27B-FP8, round 2: Fixes c:NR:f_L0_013: the recognition crop shows a drawn bathtub + washbasin unit (the bathroom_set fixtures), not a separate 2.54 m furniture piece, so the untyped symbol is not furniture."
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L0_017",
+   "message": "not built: outline 1.52 x 0.78 m around 2 other piece(s) (f_L0_015, f_L0_016): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups) (f_L0_017)",
+   "evidence": {
+    "ids": [
+     "f_L0_017"
+    ],
+    "reason": "outline 1.52 x 0.78 m around 2 other piece(s) (f_L0_015, f_L0_016): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups)"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L1_002",
+   "message": "not built: cluster larger than 4.5 m on a side: a group of drawn pieces, not built (f_L1_002)",
+   "evidence": {
+    "ids": [
+     "f_L1_002"
+    ],
+    "reason": "cluster larger than 4.5 m on a side: a group of drawn pieces, not built"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L1_003",
+   "message": "not built: 2.25 x 0.18 m fits no type and is thinner than 0.2 m: a drawn mark (a tap, a valve, a threshold or shelf line), not a piece (not built) (f_L1_003)",
+   "evidence": {
+    "ids": [
+     "f_L1_003"
+    ],
+    "reason": "2.25 x 0.18 m fits no type and is thinner than 0.2 m: a drawn mark (a tap, a valve, a threshold or shelf line), not a piece (not built)"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L1_004",
+   "message": "not built: 0.50 x 0.12 m fits no type and is thinner than 0.2 m: a drawn mark (a tap, a valve, a threshold or shelf line), not a piece (not built) (f_L1_004)",
+   "evidence": {
+    "ids": [
+     "f_L1_004"
+    ],
+    "reason": "0.50 x 0.12 m fits no type and is thinner than 0.2 m: a drawn mark (a tap, a valve, a threshold or shelf line), not a piece (not built)"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L1_008",
+   "message": "not built: drawn inside bed_double f_L1_006 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built) (f_L1_008)",
+   "evidence": {
+    "ids": [
+     "f_L1_008"
+    ],
+    "reason": "drawn inside bed_double f_L1_006 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built)"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L1_010",
+   "message": "not built: architect F5: it cut f_L1_009 (bed_double) by 0.40 m and no free place lies within 1.0 m; not built (f_L1_010)",
+   "evidence": {
+    "ids": [
+     "f_L1_010"
+    ],
+    "reason": "architect F5: it cut f_L1_009 (bed_double) by 0.40 m and no free place lies within 1.0 m; not built"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L1_011",
+   "message": "not built: untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (dimension_outline) by Qwen/Qwen3.8-27B-FP8, round 1: The 2.42 x 0.98 m drawn outline is the dashed dimension/outline box around the drawn corner tub and washbasin, not a separate piece of furniture; the code's own size/zone table rejects bathtub and gives stair, so it is a misread outline. (f_L1_011)",
+   "evidence": {
+    "ids": [
+     "f_L1_011"
+    ],
+    "reason": "untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (dimension_outline) by Qwen/Qwen3.8-27B-FP8, round 1: The 2.42 x 0.98 m drawn outline is the dashed dimension/outline box around the drawn corner tub and washbasin, not a separate piece of furniture; the code's own size/zone table rejects bathtub and gives stair, so it is a misread outline."
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "f_L1_001",
+   "message": "not built: arrives from f_L0_001 (L0 -> L1): the drawn upper end of that stair; no level above, not built again (f_L1_001)",
+   "evidence": {
+    "ids": [
+     "f_L1_001"
+    ],
+    "reason": "arrives from f_L0_001 (L0 -> L1): the drawn upper end of that stair; no level above, not built again"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "dec_L1_012",
+   "message": "not built: its host f_L1_010 is not built (dec_L1_012)",
+   "evidence": {
+    "ids": [
+     "dec_L1_012"
+    ],
+    "reason": "its host f_L1_010 is not built"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "conservation",
+   "check": "C6",
+   "severity": "info",
+   "target": "sa_L0_veranda",
+   "message": "not built: exterior label: its surface is built from site.paving / parking / grass (sa_L0_veranda)",
+   "evidence": {
+    "ids": [
+     "sa_L0_veranda"
+    ],
+    "reason": "exterior label: its surface is built from site.paving / parking / grass"
+   },
+   "owner": "build",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "conservation:C6"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "minor",
+   "target": "entity types not read",
+   "message": "source entities the reading did not read (the ledger checks what they hold): real06.dwg: entity types not read: ATTDEF x28",
+   "evidence": {
+    "rule": "not_read",
+    "source": "building",
+    "cases": [
+     "real06.dwg: entity types not read: ATTDEF x28"
+    ]
+   },
+   "owner": "building",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "major",
+   "target": "VERANDA",
+   "message": "a labelled space outside the walls was kept as a site record: it must be built: real06.dwg: balcony 'VERANDA' at (9138464.73, 5090593.37) m lies outside the outer walls: an open balcony, recorded in site, not a room",
+   "evidence": {
+    "rule": "outside_not_room",
+    "source": "building",
+    "cases": [
+     "real06.dwg: balcony 'VERANDA' at (9138464.73, 5090593.37) m lies outside the outer walls: an open balcony, recorded in site, not a room"
+    ]
+   },
+   "owner": "building",
+   "fix": "build_outdoor_space",
+   "kind": "lost",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "major",
+   "target": "BALKON",
+   "message": "a labelled space outside the walls was kept as a site record: it must be built: real06.dwg: balcony 'BALKON' at (9138484.48, 5090593.07) m lies outside the outer walls: an open balcony, recorded in site, not a room",
+   "evidence": {
+    "rule": "outside_not_room",
+    "source": "building",
+    "cases": [
+     "real06.dwg: balcony 'BALKON' at (9138484.48, 5090593.07) m lies outside the outer walls: an open balcony, recorded in site, not a room"
+    ]
+   },
+   "owner": "building",
+   "fix": "build_outdoor_space",
+   "kind": "lost",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "minor",
+   "target": "sym_L1_008",
+   "message": "a piece whose type the room does not allow, kept unverified: sym_L1_008: sofa is not a type allowed in a bedroom room: kept, unverified",
+   "evidence": {
+    "rule": "not_allowed",
+    "source": "building",
+    "cases": [
+     "sym_L1_008: sofa is not a type allowed in a bedroom room: kept, unverified"
+    ]
+   },
+   "owner": "building",
+   "fix": null,
+   "kind": "misread",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "minor",
+   "target": "room '...' has more labels",
+   "message": "one room outline holds the labels of two rooms (a wall not read?): room '...' has more labels: 2 cases, e.g. L0: room 'Salon' has more labels: YEMEK BÖLÜMÜ; the label with the largest printed area (else the first) kept",
+   "evidence": {
+    "rule": "more_labels",
+    "source": "building",
+    "cases": [
+     "L0: room 'Salon' has more labels: YEMEK BÖLÜMÜ; the label with the largest printed area (else the first) kept",
+     "L0: room 'Mutfak' has more labels: ANTRE m²; the label with the largest printed area (else the first) kept"
+    ]
+   },
+   "owner": "building",
+   "fix": null,
+   "kind": "misread",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "minor",
+   "target": "elevation r# (all)",
+   "message": "a check that could not run: elevation r# (all): 4 cases, e.g. elevation r1 (all): its openings are not checked against the plans (the side needs the north arrow)",
+   "evidence": {
+    "rule": "not_checked",
+    "source": "building",
+    "cases": [
+     "elevation r1 (all): its openings are not checked against the plans (the side needs the north arrow)",
+     "elevation r2 (all): its openings are not checked against the plans (the side needs the north arrow)",
+     "elevation r7 (all): its openings are not checked against the plans (the side needs the north arrow)",
+     "elevation r8 (all): its openings are not checked against the plans (the side needs the north arrow)"
+    ]
+   },
+   "owner": "building",
+   "fix": null,
+   "kind": "process",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "major",
+   "target": "site",
+   "message": "items the reading found and no stage used: site: 2 cases, e.g. site: 1 areas read outside the walls of L1 not used (the site is the ground floor's, L0)",
+   "evidence": {
+    "rule": "not_used",
+    "source": "building",
+    "cases": [
+     "site: 1 areas read outside the walls of L1 not used (the site is the ground floor's, L0)",
+     "site: 42 decor read outside the walls of L1 not used (the site is the ground floor's, L0)"
+    ]
+   },
+   "owner": "building",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "minor",
+   "target": "r_L1_hol",
+   "message": "a group the room should have found no place: r_L1_hol: completion added nothing, nothing fits: entrance: no place passes the checks",
+   "evidence": {
+    "rule": "nothing_fits",
+    "source": "building",
+    "cases": [
+     "r_L1_hol: completion added nothing, nothing fits: entrance: no place passes the checks"
+    ]
+   },
+   "owner": "building",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "minor",
+   "target": "r_L1_dus",
+   "message": "a group the room should have found no place: r_L1_dus: completion added nothing, nothing fits: bathroom_set: no place passes the checks",
+   "evidence": {
+    "rule": "nothing_fits",
+    "source": "building",
+    "cases": [
+     "r_L1_dus: completion added nothing, nothing fits: bathroom_set: no place passes the checks"
+    ]
+   },
+   "owner": "building",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "major",
+   "target": "roof vs the drawn section at s # m",
+   "message": "the model differs from the drawn section or elevation: roof vs the drawn section at s # m: 11 cases, e.g. roof vs the drawn section at s 1.51 m: 6.589 m built, 6.002 m drawn (+59 cm)",
+   "evidence": {
+    "rule": "drawn_mismatch",
+    "source": "scene",
+    "cases": [
+     "roof vs the drawn section at s 1.51 m: 6.589 m built, 6.002 m drawn (+59 cm)",
+     "roof vs the drawn section at s 5.42 m: 7.608 m built, 7.190 m drawn (+42 cm)",
+     "roof vs the drawn section at s 5.47 m: 7.608 m built, 6.299 m drawn (+131 cm)",
+     "roof vs the drawn section at s 6.37 m: 7.608 m built, 7.057 m drawn (+55 cm)",
+     "roof vs the drawn section at s 7.61 m: 7.608 m built, 7.187 m drawn (+42 cm)",
+     "roof vs the drawn section at s 8.55 m: 7.608 m built, 6.246 m drawn (+136 cm)",
+     "roof vs the drawn section at s 9.51 m: 7.608 m built, 7.058 m drawn (+55 cm)",
+     "roof vs the drawn section at s 11.88 m: 7.041 m built, 7.294 m drawn (-25 cm)",
+     "roof vs the drawn section at s 14.98 m: 6.014 m built, 6.494 m drawn (-48 cm)",
+     "roof vs the drawn section at s 15.00 m: 6.008 m built, 6.594 m drawn (-59 cm)",
+     "roof vs the drawn section at s 16.80 m: 5.413 m built, 6.000 m drawn (-59 cm)"
+    ]
+   },
+   "owner": "scene",
+   "fix": null,
+   "kind": "misread",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "major",
+   "target": "derived ridge # m vs the drawn ridge height # m (# cm)",
+   "message": "the model differs from the drawn section or elevation: derived ridge 8.530 m vs the drawn ridge height 7.770 m (+76 cm): the pitches are kept",
+   "evidence": {
+    "rule": "drawn_mismatch",
+    "source": "scene",
+    "cases": [
+     "derived ridge 8.530 m vs the drawn ridge height 7.770 m (+76 cm): the pitches are kept"
+    ]
+   },
+   "owner": "scene",
+   "fix": null,
+   "kind": "misread",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "major",
+   "target": "inferred trees",
+   "message": "a stage placed fewer items than it planned: inferred trees: placed 0 of 3 (74 candidates; removed by building 1, path 20, sightline 36, window 67, front 27; most by window; the first pass placed 0, the second pass with the window band narrowed to 4 m added 0)",
+   "evidence": {
+    "rule": "shortfall",
+    "source": "scene",
+    "cases": [
+     "inferred trees: placed 0 of 3 (74 candidates; removed by building 1, path 20, sightline 36, window 67, front 27; most by window; the first pass placed 0, the second pass with the window band narrowed to 4 m added 0)"
+    ]
+   },
+   "owner": "scene",
+   "fix": null,
+   "kind": "silent",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "minor",
+   "target": "d_L0_006",
+   "message": "built parametric (library gap): opening d_L0_006: parametric in the style's finish (no library entrance fits 2.95 x 2.10 m: the parametric opening in the style's finish)",
+   "evidence": {
+    "rule": "parametric",
+    "source": "scene",
+    "cases": [
+     "opening d_L0_006: parametric in the style's finish (no library entrance fits 2.95 x 2.10 m: the parametric opening in the style's finish)"
+    ]
+   },
+   "owner": "scene",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "minor",
+   "target": "o_L0_002",
+   "message": "no library model: built parametric or not at all: opening o_L0_002: parametric in the style's finish (no model of the building's window family 'Single Casement Window' fits 1.10 x 1.20 m: the parametric opening in the style's finish keeps one door and window language)",
+   "evidence": {
+    "rule": "no_model",
+    "source": "scene",
+    "cases": [
+     "opening o_L0_002: parametric in the style's finish (no model of the building's window family 'Single Casement Window' fits 1.10 x 1.20 m: the parametric opening in the style's finish keeps one door and window language)"
+    ]
+   },
+   "owner": "scene",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "minor",
+   "target": "win_L0_006",
+   "message": "no library model: built parametric or not at all: opening win_L0_006: parametric in the style's finish (no model of the building's window family 'Single Casement Window' fits 1.10 x 1.20 m: the parametric opening in the style's finish keeps one door and window language)",
+   "evidence": {
+    "rule": "no_model",
+    "source": "scene",
+    "cases": [
+     "opening win_L0_006: parametric in the style's finish (no model of the building's window family 'Single Casement Window' fits 1.10 x 1.20 m: the parametric opening in the style's finish keeps one door and window language)"
+    ]
+   },
+   "owner": "scene",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "minor",
+   "target": "win_L1_001",
+   "message": "no library model: built parametric or not at all: opening win_L1_001: parametric in the style's finish (no model of the building's window family 'Single Casement Window' fits 0.95 x 1.20 m: the parametric opening in the style's finish keeps one door and window language)",
+   "evidence": {
+    "rule": "no_model",
+    "source": "scene",
+    "cases": [
+     "opening win_L1_001: parametric in the style's finish (no model of the building's window family 'Single Casement Window' fits 0.95 x 1.20 m: the parametric opening in the style's finish keeps one door and window language)"
+    ]
+   },
+   "owner": "scene",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "process:P2"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "major",
+   "target": "o_L0_001",
+   "message": "an opening of the documents is not cut through its wall: o_L0_001: door ray hits splashback_r_L0_mutfak (splashback); the opening is not cut through its wall",
+   "evidence": {
+    "rule": "not_cut",
+    "source": "scene",
+    "cases": [
+     "o_L0_001: door ray hits splashback_r_L0_mutfak (splashback); the opening is not cut through its wall"
+    ]
+   },
+   "owner": "scene",
+   "fix": "clear_opening",
+   "kind": "no_sense",
+   "seen_by": [
+    "process:P2",
+    "process:P5"
+   ],
+   "also": [
+    "the ray through opening o_L0_001 hits splashback_r_L0_mutfak (splashback): something blocks the way through"
+   ]
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "major",
+   "target": "d_L0_002",
+   "message": "an opening of the documents is not cut through its wall: d_L0_002: door ray hits splashback_r_L0_mutfak (splashback); the opening is not cut through its wall",
+   "evidence": {
+    "rule": "not_cut",
+    "source": "scene",
+    "cases": [
+     "d_L0_002: door ray hits splashback_r_L0_mutfak (splashback); the opening is not cut through its wall"
+    ]
+   },
+   "owner": "scene",
+   "fix": "clear_opening",
+   "kind": "no_sense",
+   "seen_by": [
+    "process:P2",
+    "process:P5"
+   ],
+   "also": [
+    "the ray through opening d_L0_002 hits splashback_r_L0_mutfak (splashback): something blocks the way through"
+   ]
+  },
+  {
+   "line": "process",
+   "check": "P2",
+   "severity": "minor",
+   "target": "dec_L1_017",
+   "message": "decor that could not rest on its host: decor plant_small dec_L1_017 on f_L1_034: not rested (no top found on the built host (attempt 2)); not built",
+   "evidence": {
+    "rule": "not_rested",
+    "source": "scene",
+    "cases": [
+     "decor plant_small dec_L1_017 on f_L1_034: not rested (no top found on the built host (attempt 2)); not built"
+    ]
+   },
+   "owner": "scene",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "process:P2",
+    "process:P5"
+   ],
+   "also": [
+    "decor plant_small dec_L1_017 on f_L1_034 not built: no top found on the built host (attempt 2)"
+   ]
+  },
+  {
+   "line": "process",
+   "check": "P3",
+   "severity": "major",
+   "target": "W2:win_L0_001",
+   "message": "the architect's question W2 (windows to the outside) is open for win_L0_001: win_L0_001 sits in the wall between r_L0_mutfak (kitchen) and r_L0_salon (living)",
+   "evidence": {},
+   "owner": "architect",
+   "fix": null,
+   "kind": "no_sense",
+   "seen_by": [
+    "process:P3"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P3",
+   "severity": "major",
+   "target": "W2:win_L1_004",
+   "message": "the architect's question W2 (windows to the outside) is open for win_L1_004: win_L1_004 sits in the wall between r_L1_soyunma_odasi (dressing) and r_L1_dus (bathroom)",
+   "evidence": {},
+   "owner": "architect",
+   "fix": null,
+   "kind": "no_sense",
+   "seen_by": [
+    "process:P3"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P3",
+   "severity": "major",
+   "target": "W2:win_L1_005",
+   "message": "the architect's question W2 (windows to the outside) is open for win_L1_005: win_L1_005 sits in the wall between r_L1_soyunma_odasi (dressing) and r_L1_dus (bathroom)",
+   "evidence": {},
+   "owner": "architect",
+   "fix": null,
+   "kind": "no_sense",
+   "seen_by": [
+    "process:P3"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P3",
+   "severity": "major",
+   "target": "W2:win_L1_008",
+   "message": "the architect's question W2 (windows to the outside) is open for win_L1_008: win_L1_008 sits in the wall between r_L1_oda_2 (living) and r_L1_hol (hall)",
+   "evidence": {},
+   "owner": "architect",
+   "fix": null,
+   "kind": "no_sense",
+   "seen_by": [
+    "process:P3"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P4",
+   "severity": "major",
+   "target": "test_passes_exist_and_depth_is_plausible[real06]",
+   "message": "test tests.gpu.test_render::test_passes_exist_and_depth_is_plausible[real06] failure: AssertionError: real06: views with missing files or an implausible depth pass: [('cam_r_L0_salon_2', 'depth not 0.1 < min < max < 60 m', {'min': 1.6010942459106445, 'max': 197.65771484375, 'mean': 3.4686529636383057, 'coverage': 0.9973885995370371})]\nassert not [('cam_r_L0_salon_2', 'depth not 0.1 < min < max < 60 m', {'min': 1.6010942459106445, 'max': 197.65771484375, 'mean': 3.4686529636383057, ",
+   "evidence": {
+    "report": "junit-full.xml"
+   },
+   "owner": "tests",
+   "fix": null,
+   "kind": "process",
+   "seen_by": [
+    "process:P4"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P4",
+   "severity": "major",
+   "target": "test_index_pass_contains_every_visible_proxy[real06]",
+   "message": "test tests.gpu.test_render::test_index_pass_contains_every_visible_proxy[real06] failure: AssertionError: real06: proxies planned in the frustum but absent from the index pass: [('cam_r_L0_banyo_3', ['f_L0_046']), ('cam_r_L1_banyo_3', ['f_L1_038'])]\nassert not [('cam_r_L0_banyo_3', ['f_L0_046']), ('cam_r_L1_banyo_3', ['f_L1_038'])]",
+   "evidence": {
+    "report": "junit-full.xml"
+   },
+   "owner": "tests",
+   "fix": null,
+   "kind": "process",
+   "seen_by": [
+    "process:P4"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P5",
+   "severity": "major",
+   "target": "L0:S2",
+   "message": "scene check S2 on L0: 5 of 41 failed",
+   "evidence": {},
+   "owner": "build",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "process:P5"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P6",
+   "severity": "info",
+   "target": "r_L0_oda",
+   "message": "room Oda (2.1 m2) has no view: no furniture after layout and decor and 2.13 m2 < 2.5 m2: no view (docs/milestone7.md §6.2)",
+   "evidence": {},
+   "owner": "cameras",
+   "fix": null,
+   "kind": "lost",
+   "seen_by": [
+    "process:P6"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P7",
+   "severity": "minor",
+   "target": "f_L0_029",
+   "message": "sink_kitchen f_L0_029 built below the library level: fitting chose the parametric mesh",
+   "evidence": {},
+   "owner": "fit",
+   "fix": "library_gap",
+   "kind": "taste",
+   "seen_by": [
+    "process:P7"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P7",
+   "severity": "minor",
+   "target": "f_L0_041",
+   "message": "wall_cabinet f_L0_041 built below the library level: fitting chose the parametric mesh",
+   "evidence": {},
+   "owner": "fit",
+   "fix": "library_gap",
+   "kind": "taste",
+   "seen_by": [
+    "process:P7"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P7",
+   "severity": "minor",
+   "target": "f_L0_042",
+   "message": "wall_cabinet f_L0_042 built below the library level: fitting chose the parametric mesh",
+   "evidence": {},
+   "owner": "fit",
+   "fix": "library_gap",
+   "kind": "taste",
+   "seen_by": [
+    "process:P7"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P7",
+   "severity": "minor",
+   "target": "f_L0_043",
+   "message": "wall_cabinet f_L0_043 built below the library level: fitting chose the parametric mesh",
+   "evidence": {},
+   "owner": "fit",
+   "fix": "library_gap",
+   "kind": "taste",
+   "seen_by": [
+    "process:P7"
+   ],
+   "also": []
+  },
+  {
+   "line": "process",
+   "check": "P8",
+   "severity": "major",
+   "target": "run",
+   "message": "the run ended 31 min before its deadline with 122 open major point(s): the time could have gone to more fix cycles",
+   "evidence": {
+    "minutes_left": 31.3,
+    "open": 122
+   },
+   "owner": "scheduler",
+   "fix": "more_cycles",
+   "kind": "process",
+   "seen_by": [
+    "process:P8"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "F7",
+   "severity": "critical",
+   "target": "f_L0_018",
+   "message": "table_coffee blocks door o_L0_006",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "blocked_opening",
+    "source": "code"
+   },
+   "owner": "blocked_opening",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F7",
+    "inspector:F8"
+   ],
+   "also": [
+    "table_coffee stands alone in the room (no wall, no sofa / sofa_corner / armchair within 1.5 m)"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "F7",
+   "severity": "critical",
+   "target": "f_L0_035",
+   "message": "ottoman blocks door o_L0_003",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "blocked_opening",
+    "source": "code"
+   },
+   "owner": "blocked_opening",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F7",
+    "inspector:F9",
+    "inspector:G2"
+   ],
+   "also": [
+    "ottoman f_L0_035 overlaps sofa_corner f_L0_014 by 0.15 m²",
+    "coffee table f_L0_035 is not in front of the sofa and is 0.00 m from the sofa front, needs ≥ 0.30 m"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "F8",
+   "severity": "major",
+   "target": "f_L0_009",
+   "message": "table_coffee stands alone in the room (no wall, no sofa / sofa_corner / armchair within 1.5 m)",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "floating",
+    "source": "code"
+   },
+   "owner": "floating",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F8"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "F9",
+   "severity": "major",
+   "target": "f_L0_008",
+   "message": "chair f_L0_008 overlaps chair f_L0_007 by 0.07 m²",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "collision",
+    "source": "code"
+   },
+   "owner": "collision",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F9",
+    "inspector:G6"
+   ],
+   "also": [
+    "chair f_L0_008: 0.45 m from the table edge to the wall or piece behind, needs ≥ 0.81 m"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "F9",
+   "severity": "major",
+   "target": "f_L0_036",
+   "message": "ottoman f_L0_036 overlaps sofa_corner f_L0_014 by 0.24 m²",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "collision",
+    "source": "code"
+   },
+   "owner": "collision",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F9"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "F9",
+   "severity": "major",
+   "target": "f_L0_037",
+   "message": "ottoman f_L0_037 overlaps sofa_corner f_L0_014 by 0.25 m²",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "collision",
+    "source": "code"
+   },
+   "owner": "collision",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F9"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "F9",
+   "severity": "major",
+   "target": "f_L0_038",
+   "message": "ottoman f_L0_038 overlaps sofa_corner f_L0_014 by 0.25 m²",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "collision",
+    "source": "code"
+   },
+   "owner": "collision",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F9"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G6",
+   "severity": "major",
+   "target": "f_L0_007",
+   "message": "chair f_L0_007: 0.12 m from the table edge to the wall or piece behind, needs ≥ 0.81 m",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G6"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G6",
+   "severity": "major",
+   "target": "f_L0_010",
+   "message": "chair f_L0_010 is 180° off the table f_L0_006 (needs ≤ 45°)",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "orientation",
+    "source": "code"
+   },
+   "owner": "orientation",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G6"
+   ],
+   "also": [
+    "chair f_L0_010: 0.45 m from the table edge to the wall or piece behind, needs ≥ 0.81 m"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G6",
+   "severity": "major",
+   "target": "f_L0_011",
+   "message": "chair f_L0_011: 0.45 m from the table edge to the wall or piece behind, needs ≥ 0.81 m",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G6"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G6",
+   "severity": "major",
+   "target": "f_L0_020",
+   "message": "chair f_L0_020 is 50° off the table f_L0_019 (needs ≤ 45°)",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "orientation",
+    "source": "code"
+   },
+   "owner": "orientation",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G6"
+   ],
+   "also": [
+    "chair f_L0_020: 0.64 m from the table edge to the wall or piece behind, needs ≥ 0.81 m"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G6",
+   "severity": "major",
+   "target": "f_L0_021",
+   "message": "chair f_L0_021: 0.37 m from the table edge to the wall or piece behind, needs ≥ 0.81 m",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G6"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G6",
+   "severity": "major",
+   "target": "f_L0_023",
+   "message": "chair f_L0_023 is 50° off the table f_L0_022 (needs ≤ 45°)",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "orientation",
+    "source": "code"
+   },
+   "owner": "orientation",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G6"
+   ],
+   "also": [
+    "chair f_L0_023: 0.69 m from the table edge to the wall or piece behind, needs ≥ 0.81 m"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G6",
+   "severity": "major",
+   "target": "f_L0_026",
+   "message": "chair f_L0_026 is 50° off the table f_L0_025 (needs ≤ 45°)",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "orientation",
+    "source": "code"
+   },
+   "owner": "orientation",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G6"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "d_L0_001",
+   "message": "no 0.60 m walkway from door d_L0_001 to door d_L0_006",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "d_L0_002",
+   "message": "no 0.60 m walkway from door d_L0_002 to door d_L0_006",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": [
+    "no 0.60 m walkway from door d_L0_002 to door d_L0_003",
+    "no 0.60 m walkway from door d_L0_002 to door d_L0_005",
+    "no 0.60 m walkway from door d_L0_002 to door d_L0_007",
+    "no 0.60 m walkway from door d_L0_002 to door o_L0_004"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "d_L0_004",
+   "message": "no 0.60 m walkway from door d_L0_004 to door d_L0_006",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "major",
+   "target": "f_L0_014",
+   "message": "sofa_corner f_L0_014: its front use zone is not reached by a 0.60 m walkway from door d_L0_006",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "major",
+   "target": "f_L0_028",
+   "message": "armchair f_L0_028: its front use zone is not reached by a 0.60 m walkway from door d_L0_006",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "o_L0_001",
+   "message": "no 0.60 m walkway from door o_L0_001 to door d_L0_006",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": [
+    "no 0.60 m walkway from door o_L0_001 to door d_L0_002",
+    "no 0.60 m walkway from door o_L0_001 to door d_L0_003",
+    "no 0.60 m walkway from door o_L0_001 to door o_L0_004"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "o_L0_003",
+   "message": "no 0.60 m walkway from door o_L0_003 to door d_L0_006",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "o_L0_005",
+   "message": "no 0.60 m walkway from door o_L0_005 to door d_L0_006",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "o_L0_006",
+   "message": "no 0.60 m walkway from door o_L0_006 to door d_L0_006",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "F7",
+   "severity": "critical",
+   "target": "f_L0_029",
+   "message": "sink_kitchen blocks door o_L0_004",
+   "evidence": {
+    "room": "r_L0_mutfak",
+    "cause": "drawn_layout",
+    "source": "code"
+   },
+   "owner": "drawn_layout",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F3",
+    "inspector:F7",
+    "inspector:G8",
+    "inspector:G11"
+   ],
+   "also": [
+    "sink_kitchen: its back is not on a wall (0.08 m off)",
+    "sink f_L0_029: 0.00 m of counter beside it, needs ≥ 0.46 m on one side",
+    "sink_kitchen f_L0_029: its front use zone is not reached by a 0.60 m walkway from door o_L0_004"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "F7",
+   "severity": "critical",
+   "target": "f_L0_040",
+   "message": "kitchen_counter blocks door o_L0_001",
+   "evidence": {
+    "room": "r_L0_mutfak",
+    "cause": "drawn_layout",
+    "source": "code"
+   },
+   "owner": "drawn_layout",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F7",
+    "inspector:F9",
+    "inspector:G11"
+   ],
+   "also": [
+    "kitchen_counter blocks door d_L0_002",
+    "kitchen_counter reaches 0.06 m² through the room outline, up to 0.025 m deep",
+    "kitchen_counter f_L0_040: its front use zone is not reached by a 0.60 m walkway from door o_L0_004"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "F9",
+   "severity": "major",
+   "target": "f_L0_039",
+   "message": "kitchen_counter f_L0_039 overlaps kitchen_counter f_L0_002 by 0.44 m²",
+   "evidence": {
+    "room": "r_L0_mutfak",
+    "cause": "collision",
+    "source": "code"
+   },
+   "owner": "collision",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F9",
+    "inspector:G11"
+   ],
+   "also": [
+    "kitchen_counter reaches 0.18 m² through the room outline, up to 0.175 m deep",
+    "kitchen_counter f_L0_039: its front use zone is not reached by a 0.60 m walkway from door o_L0_004"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G8",
+   "severity": "major",
+   "target": "f_L0_002",
+   "message": "kitchen aisle 0.10 m in front of kitchen_counter f_L0_002, needs ≥ 0.90 m",
+   "evidence": {
+    "room": "r_L0_mutfak",
+    "cause": "fixture_clearance",
+    "source": "code"
+   },
+   "owner": "fixture_clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G8",
+    "inspector:G11"
+   ],
+   "also": [
+    "kitchen_counter f_L0_002: its front use zone is not reached by a 0.60 m walkway from door o_L0_004"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G9",
+   "severity": "major",
+   "target": "r_L0_mutfak",
+   "message": "kitchen r_L0_mutfak has no fridge (fridge)",
+   "evidence": {
+    "room": "r_L0_mutfak",
+    "cause": "missing_member",
+    "source": "code"
+   },
+   "owner": "missing_member",
+   "fix": null,
+   "kind": "misread",
+   "seen_by": [
+    "inspector:G9"
+   ],
+   "also": [
+    "kitchen r_L0_mutfak has no hob (stove)"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "d_L0_003",
+   "message": "no 0.60 m walkway from door d_L0_003 to door d_L0_005",
+   "evidence": {
+    "room": "r_L0_mutfak",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": [
+    "no 0.60 m walkway from door d_L0_003 to door d_L0_007",
+    "no 0.60 m walkway from door d_L0_003 to door o_L0_004"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "o_L0_004",
+   "message": "no 0.60 m walkway from door o_L0_004 to door d_L0_005",
+   "evidence": {
+    "room": "r_L0_mutfak",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": [
+    "no 0.60 m walkway from door o_L0_004 to door d_L0_007"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G10",
+   "severity": "major",
+   "target": "r_L0_banyo",
+   "message": "bathroom without a washbasin",
+   "evidence": {
+    "room": "r_L0_banyo",
+    "cause": "missing_member",
+    "source": "code"
+   },
+   "owner": "missing_member",
+   "fix": null,
+   "kind": "misread",
+   "seen_by": [
+    "inspector:G10"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "F3",
+   "severity": "critical",
+   "target": "f_L1_012",
+   "message": "bed_double: the headboard stands in the room (0.06 m off)",
+   "evidence": {
+    "room": "r_L1_ebeveyn_y_odasi",
+    "cause": "off_wall",
+    "source": "code"
+   },
+   "owner": "off_wall",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F3"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "F4",
+   "severity": "major",
+   "target": "f_L1_018",
+   "message": "chair does not face its group (f_L1_017)",
+   "evidence": {
+    "room": "r_L1_ebeveyn_y_odasi",
+    "cause": "orientation",
+    "source": "code"
+   },
+   "owner": "orientation",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F4",
+    "inspector:G6"
+   ],
+   "also": [
+    "chair f_L1_018 is 50° off the table f_L1_017 (needs ≤ 45°)",
+    "chair f_L1_018: 0.69 m from the table edge to the wall or piece behind, needs ≥ 0.81 m"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "F7",
+   "severity": "critical",
+   "target": "f_L1_017",
+   "message": "table_dining blocks door d_L1_001",
+   "evidence": {
+    "room": "r_L1_ebeveyn_y_odasi",
+    "cause": "blocked_opening",
+    "source": "code"
+   },
+   "owner": "blocked_opening",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F7"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "F7",
+   "severity": "critical",
+   "target": "f_L1_019",
+   "message": "chair blocks door d_L1_001",
+   "evidence": {
+    "room": "r_L1_ebeveyn_y_odasi",
+    "cause": "blocked_opening",
+    "source": "code"
+   },
+   "owner": "blocked_opening",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F7",
+    "inspector:G6"
+   ],
+   "also": [
+    "chair f_L1_019: 0.52 m from the table edge to the wall or piece behind, needs ≥ 0.81 m"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "F7",
+   "severity": "critical",
+   "target": "f_L1_021",
+   "message": "chair blocks door d_L1_001",
+   "evidence": {
+    "room": "r_L1_ebeveyn_y_odasi",
+    "cause": "blocked_opening",
+    "source": "code"
+   },
+   "owner": "blocked_opening",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F7"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "major",
+   "target": "d_L1_001",
+   "message": "the main walkway from the entrance door is below 0.80 m between doors d_L1_001 and d_L1_002",
+   "evidence": {
+    "room": "r_L1_ebeveyn_y_odasi",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": [
+    "the main walkway from the entrance door is below 0.80 m between doors d_L1_001 and d_L1_007",
+    "the main walkway from the entrance door is below 0.80 m between doors d_L1_001 and o_L1_006",
+    "the main walkway from the entrance door is below 0.80 m between doors d_L1_001 and o_L1_007"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "F7",
+   "severity": "critical",
+   "target": "f_L1_007",
+   "message": "desk blocks door d_L1_005",
+   "evidence": {
+    "room": "r_L1_cocuk_odasi",
+    "cause": "drawn_layout",
+    "source": "code"
+   },
+   "owner": "drawn_layout",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F3",
+    "inspector:F7",
+    "inspector:F9"
+   ],
+   "also": [
+    "desk: its back is not on a wall (0.06 m off)",
+    "desk f_L1_007 overlaps bed_double f_L1_006 by 0.07 m²"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "F7",
+   "severity": "critical",
+   "target": "f_L1_009",
+   "message": "bed_double blocks door o_L1_001",
+   "evidence": {
+    "room": "r_L1_cocuk_odasi",
+    "cause": "blocked_opening",
+    "source": "code"
+   },
+   "owner": "blocked_opening",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F7",
+    "inspector:G5",
+    "inspector:G11"
+   ],
+   "also": [
+    "bed_double f_L1_009: 0.10 m free along the left side, needs ≥ 0.60 m",
+    "bed_double f_L1_009: its left use zone is not reached by a 0.60 m walkway from door o_L1_001"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "F9",
+   "severity": "major",
+   "target": "f_L1_010",
+   "message": "nightstand f_L1_010 overlaps bed_double f_L1_009 by 0.17 m²",
+   "evidence": {
+    "room": "r_L1_cocuk_odasi",
+    "cause": "collision",
+    "source": "code"
+   },
+   "owner": "collision",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F9",
+    "inspector:G4"
+   ],
+   "also": [
+    "nightstand f_L1_010 of bed_double f_L1_009: -0.56 m from the bed side (needs ≤ 0.30 m)"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G5",
+   "severity": "major",
+   "target": "f_L1_006",
+   "message": "bed_double f_L1_006: 0.10 m free along the right side, needs ≥ 0.60 m",
+   "evidence": {
+    "room": "r_L1_cocuk_odasi",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G5",
+    "inspector:G11"
+   ],
+   "also": [
+    "bed_double f_L1_006: its right use zone is not reached by a 0.60 m walkway from door o_L1_001"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "major",
+   "target": "o_L1_001",
+   "message": "the main walkway from the entrance door is below 0.80 m between doors o_L1_001 and d_L1_005",
+   "evidence": {
+    "room": "r_L1_cocuk_odasi",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "d_L1_004",
+   "message": "no 0.60 m walkway from door d_L1_004 to door d_L1_006",
+   "evidence": {
+    "room": "r_L1_hol",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": [
+    "no 0.60 m walkway from door d_L1_004 to door d_L1_009"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "d_L1_006",
+   "message": "no 0.60 m walkway from door d_L1_006 to door d_L1_009",
+   "evidence": {
+    "room": "r_L1_hol",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "o_L1_002",
+   "message": "no 0.60 m walkway from door o_L1_002 to door d_L1_004",
+   "evidence": {
+    "room": "r_L1_hol",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": [
+    "no 0.60 m walkway from door o_L1_002 to door d_L1_009"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "G10",
+   "severity": "major",
+   "target": "r_L1_dus",
+   "message": "bathroom without a washbasin",
+   "evidence": {
+    "room": "r_L1_dus",
+    "cause": "missing_member",
+    "source": "code"
+   },
+   "owner": "missing_member",
+   "fix": null,
+   "kind": "misread",
+   "seen_by": [
+    "inspector:G10"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G12",
+   "severity": "major",
+   "target": "f_L1_024",
+   "message": "shower f_L1_024 (2.00 m) stands in front of window win_L1_011 (sill 0.90 m + 0.05)",
+   "evidence": {
+    "room": "r_L1_dus",
+    "cause": "blocked_opening",
+    "source": "code"
+   },
+   "owner": "blocked_opening",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G12"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "F7",
+   "severity": "critical",
+   "target": "f_L1_013",
+   "message": "sofa blocks door o_L1_003",
+   "evidence": {
+    "room": "r_L1_oda_2",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F6",
+    "inspector:F7"
+   ],
+   "also": [
+    "sofa: the free zone in front of it is blocked by f_L1_031",
+    "sofa blocks door o_L1_005"
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "F7",
+   "severity": "critical",
+   "target": "f_L1_031",
+   "message": "floor_lamp blocks door o_L1_003",
+   "evidence": {
+    "room": "r_L1_oda_2",
+    "cause": "blocked_opening",
+    "source": "code"
+   },
+   "owner": "blocked_opening",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F7"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "o_L1_003",
+   "message": "no 0.60 m walkway from door o_L1_003 to door o_L1_005",
+   "evidence": {
+    "room": "r_L1_oda_2",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G11",
+   "severity": "critical",
+   "target": "o_L1_005",
+   "message": "no 0.60 m walkway from door o_L1_005 to door d_L1_006",
+   "evidence": {
+    "room": "r_L1_oda_2",
+    "cause": "clearance",
+    "source": "code"
+   },
+   "owner": "clearance",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:G11"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "F3",
+   "severity": "major",
+   "target": "f_L1_029",
+   "message": "washbasin: its back is not on a wall (0.07 m off)",
+   "evidence": {
+    "room": "r_L1_banyo",
+    "cause": "off_wall",
+    "source": "code"
+   },
+   "owner": "off_wall",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:F3"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "G10",
+   "severity": "major",
+   "target": "r_L1_banyo",
+   "message": "bathroom without a washbasin",
+   "evidence": {
+    "room": "r_L1_banyo",
+    "cause": "missing_member",
+    "source": "code"
+   },
+   "owner": "missing_member",
+   "fix": null,
+   "kind": "misread",
+   "seen_by": [
+    "inspector:G10"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "S2",
+   "severity": "major",
+   "target": "f_L0_039",
+   "message": "kitchen_counter f_L0_039 cuts wall w_L0_024 by 0.075 m (allowed 0.030 m for a fixture piece)",
+   "evidence": {
+    "room": "r_L0_mutfak",
+    "cause": "drawn_layout",
+    "source": "code"
+   },
+   "owner": "drawn_layout",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "inspector:S2"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "S2",
+   "severity": "major",
+   "target": "f_L0_006",
+   "message": "table_dining f_L0_006 and chair f_L0_007 cut each other by 0.224 m (allowed 0.010 m)",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "collision",
+    "source": "code"
+   },
+   "owner": "collision",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "inspector:S2",
+    "inspector:D2"
+   ],
+   "also": [
+    "table_dining f_L0_006 and chair f_L0_008 cut each other by 0.181 m (allowed 0.010 m)",
+    "The object labeled as a dining table is rendered as a small side table, which is the wrong scale and type for a dining set."
+   ]
+  },
+  {
+   "line": "inspector",
+   "check": "NR",
+   "severity": "major",
+   "target": "f_L0_012",
+   "message": "untyped drawn piece left for review: drawn piece 0.21 x 0.20 m in r_L0_salon has no type (AI passes: potted_plant, unknown): not built (plan crop recognition/crops/sym_L0_003_ctx.png)",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "untyped",
+    "source": "code"
+   },
+   "owner": "untyped",
+   "fix": null,
+   "kind": "other",
+   "seen_by": [
+    "inspector:NR"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "NR",
+   "severity": "major",
+   "target": "f_L0_015",
+   "message": "untyped drawn piece left for review: drawn piece 0.21 x 0.20 m in r_L0_salon has no type (AI passes: potted_plant, unknown): not built (plan crop recognition/crops/sym_L0_006_ctx.png)",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "untyped",
+    "source": "code"
+   },
+   "owner": "untyped",
+   "fix": null,
+   "kind": "other",
+   "seen_by": [
+    "inspector:NR"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "NR",
+   "severity": "major",
+   "target": "f_L0_016",
+   "message": "untyped drawn piece left for review: drawn piece 0.21 x 0.20 m in r_L0_salon has no type (AI passes: potted_plant, unknown): not built (plan crop recognition/crops/sym_L0_007_ctx.png)",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "untyped",
+    "source": "code"
+   },
+   "owner": "untyped",
+   "fix": null,
+   "kind": "other",
+   "seen_by": [
+    "inspector:NR"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "NR",
+   "severity": "major",
+   "target": "f_L1_002",
+   "message": "untyped drawn piece left for review: drawn piece 4.64 x 0.68 m in r_L1_cocuk_odasi has no type; cluster larger than 4.5 m on a side: a group of drawn pieces, not built: not built",
+   "evidence": {
+    "room": "r_L1_cocuk_odasi",
+    "cause": "untyped",
+    "source": "code"
+   },
+   "owner": "untyped",
+   "fix": null,
+   "kind": "other",
+   "seen_by": [
+    "inspector:NR"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "NR",
+   "severity": "major",
+   "target": "f_L1_014",
+   "message": "untyped drawn piece left for review: drawn piece 2.27 x 0.85 m in r_L1_soyunma_odasi has no type (AI passes: stair, unknown): not built (plan crop recognition/crops/sym_L1_009_ctx.png)",
+   "evidence": {
+    "room": "r_L1_soyunma_odasi",
+    "cause": "untyped",
+    "source": "code"
+   },
+   "owner": "untyped",
+   "fix": null,
+   "kind": "other",
+   "seen_by": [
+    "inspector:NR"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "NR",
+   "severity": "major",
+   "target": "f_L1_015",
+   "message": "untyped drawn piece left for review: drawn piece 2.27 x 0.85 m in r_L1_soyunma_odasi has no type (AI passes: stair, unknown): not built (plan crop recognition/crops/sym_L1_010_ctx.png)",
+   "evidence": {
+    "room": "r_L1_soyunma_odasi",
+    "cause": "untyped",
+    "source": "code"
+   },
+   "owner": "untyped",
+   "fix": null,
+   "kind": "other",
+   "seen_by": [
+    "inspector:NR"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "NR",
+   "severity": "major",
+   "target": "f_L1_023",
+   "message": "untyped drawn piece left for review: drawn piece 1.20 x 0.55 m in r_L1_oda_2 has no type (AI passes: desk, dresser): not built (plan crop recognition/crops/sym_L1_014_ctx.png)",
+   "evidence": {
+    "room": "r_L1_oda_2",
+    "cause": "untyped",
+    "source": "code"
+   },
+   "owner": "untyped",
+   "fix": null,
+   "kind": "other",
+   "seen_by": [
+    "inspector:NR"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "NR",
+   "severity": "major",
+   "target": "f_L1_026",
+   "message": "untyped drawn piece left for review: drawn piece 0.58 x 0.58 m in r_L1_ebeveyn_y_odasi has no type (AI passes: floor_lamp, table_coffee): not built (plan crop recognition/crops/sym_L1_017_ctx.png)",
+   "evidence": {
+    "room": "r_L1_ebeveyn_y_odasi",
+    "cause": "untyped",
+    "source": "code"
+   },
+   "owner": "untyped",
+   "fix": null,
+   "kind": "other",
+   "seen_by": [
+    "inspector:NR"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "Q5",
+   "severity": "major",
+   "target": "f_L0_007",
+   "message": "A folding garden chair is placed indoors in the living room, which is inappropriate for the interior setting and clashes with the other furniture.",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "wrong_model",
+    "source": "vision"
+   },
+   "owner": "wrong_model",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "inspector:Q5"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "D2",
+   "severity": "major",
+   "target": "f_L0_019",
+   "message": "The object labeled as a dining table is rendered as a small side table, which is the wrong scale and type for a dining set.",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "wrong_model",
+    "source": "vision"
+   },
+   "owner": "wrong_model",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "inspector:D2"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "D2",
+   "severity": "major",
+   "target": "f_L0_022",
+   "message": "The object labeled as a dining table is rendered as a small side table, which is the wrong scale and type for a dining set.",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "wrong_model",
+    "source": "vision"
+   },
+   "owner": "wrong_model",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "inspector:D2"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "D2",
+   "severity": "major",
+   "target": "f_L0_025",
+   "message": "The object labeled as a dining table is rendered as a small side table, which is the wrong scale and type for a dining set.",
+   "evidence": {
+    "room": "r_L0_salon",
+    "cause": "wrong_model",
+    "source": "vision"
+   },
+   "owner": "wrong_model",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "inspector:D2"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "D2",
+   "severity": "major",
+   "target": "f_L0_047",
+   "message": "The washbasin model is a crude, low-poly block with a simple rectangular cutout and a floating blue knob, lacking the detail and form of a real sink.",
+   "evidence": {
+    "room": "r_L0_banyo",
+    "cause": "wrong_model",
+    "source": "vision"
+   },
+   "owner": "wrong_model",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "inspector:D2"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "Q4",
+   "severity": "critical",
+   "target": "r_L1_ebeveyn_y_odasi",
+   "message": "The room is labeled as a bedroom but contains two dining tables and multiple chairs, which are not appropriate fixtures for a bedroom.",
+   "evidence": {
+    "room": "r_L1_ebeveyn_y_odasi",
+    "cause": "room_type",
+    "source": "vision"
+   },
+   "owner": "room_type",
+   "fix": null,
+   "kind": "misread",
+   "seen_by": [
+    "inspector:Q4"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "Q5",
+   "severity": "major",
+   "target": "f_L1_017",
+   "message": "The dining table is accompanied by a mix of different chair models (white and wooden), which do not belong together as a cohesive set.",
+   "evidence": {
+    "room": "r_L1_ebeveyn_y_odasi",
+    "cause": "wrong_model",
+    "source": "vision"
+   },
+   "owner": "wrong_model",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "inspector:Q5"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "Q5",
+   "severity": "major",
+   "target": "f_L1_020",
+   "message": "The second dining table is accompanied by a mix of different chair models (white and wooden), which do not belong together as a cohesive set.",
+   "evidence": {
+    "room": "r_L1_ebeveyn_y_odasi",
+    "cause": "wrong_type",
+    "source": "vision"
+   },
+   "owner": "wrong_type",
+   "fix": null,
+   "kind": "taste",
+   "seen_by": [
+    "inspector:Q5"
+   ],
+   "also": []
+  },
+  {
+   "line": "inspector",
+   "check": "D1",
+   "severity": "major",
+   "target": "f_L1_016",
+   "message": "A white object (resembling a book or tray) is floating in mid-air above the sofa cushions, not resting on the seat or a table.",
+   "evidence": {
+    "room": "r_L1_oda_2",
+    "cause": "decor_look",
+    "source": "vision"
+   },
+   "owner": "decor_look",
+   "fix": null,
+   "kind": "geometry",
+   "seen_by": [
+    "inspector:D1"
+   ],
+   "also": [
+    "A white object is floating in mid-air above the sofa cushions, not resting on the seat or a table."
+   ]
+  }
+ ],
+ "prevention": [
+  {
+   "kind": "geometry",
+   "what": "pieces through walls or each other, blocked doors and windows, no walkway",
+   "arises": "layout, agent",
+   "guards": [
+    "code critic (F*, G*)",
+    "architect F-rules"
+   ],
+   "open": 52,
+   "fixable": 0,
+   "needs_guard": [
+    {
+     "target": "L0:S2",
+     "check": "process:P5",
+     "message": "scene check S2 on L0: 5 of 41 failed",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_018",
+     "check": "inspector:F7",
+     "message": "table_coffee blocks door o_L0_006",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_035",
+     "check": "inspector:F7",
+     "message": "ottoman blocks door o_L0_003",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_009",
+     "check": "inspector:F8",
+     "message": "table_coffee stands alone in the room (no wall, no sofa / sofa_corner / armchair within 1.5 m)",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_008",
+     "check": "inspector:F9",
+     "message": "chair f_L0_008 overlaps chair f_L0_007 by 0.07 m²",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_036",
+     "check": "inspector:F9",
+     "message": "ottoman f_L0_036 overlaps sofa_corner f_L0_014 by 0.24 m²",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_037",
+     "check": "inspector:F9",
+     "message": "ottoman f_L0_037 overlaps sofa_corner f_L0_014 by 0.25 m²",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_038",
+     "check": "inspector:F9",
+     "message": "ottoman f_L0_038 overlaps sofa_corner f_L0_014 by 0.25 m²",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_007",
+     "check": "inspector:G6",
+     "message": "chair f_L0_007: 0.12 m from the table edge to the wall or piece behind, needs ≥ 0.81 m",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_010",
+     "check": "inspector:G6",
+     "message": "chair f_L0_010 is 180° off the table f_L0_006 (needs ≤ 45°)",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_011",
+     "check": "inspector:G6",
+     "message": "chair f_L0_011: 0.45 m from the table edge to the wall or piece behind, needs ≥ 0.81 m",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_020",
+     "check": "inspector:G6",
+     "message": "chair f_L0_020 is 50° off the table f_L0_019 (needs ≤ 45°)",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_021",
+     "check": "inspector:G6",
+     "message": "chair f_L0_021: 0.37 m from the table edge to the wall or piece behind, needs ≥ 0.81 m",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_023",
+     "check": "inspector:G6",
+     "message": "chair f_L0_023 is 50° off the table f_L0_022 (needs ≤ 45°)",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_026",
+     "check": "inspector:G6",
+     "message": "chair f_L0_026 is 50° off the table f_L0_025 (needs ≤ 45°)",
+     "recurring": false
+    },
+    {
+     "target": "d_L0_001",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door d_L0_001 to door d_L0_006",
+     "recurring": false
+    },
+    {
+     "target": "d_L0_002",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door d_L0_002 to door d_L0_006",
+     "recurring": false
+    },
+    {
+     "target": "d_L0_004",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door d_L0_004 to door d_L0_006",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_014",
+     "check": "inspector:G11",
+     "message": "sofa_corner f_L0_014: its front use zone is not reached by a 0.60 m walkway from door d_L0_006",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_028",
+     "check": "inspector:G11",
+     "message": "armchair f_L0_028: its front use zone is not reached by a 0.60 m walkway from door d_L0_006",
+     "recurring": false
+    },
+    {
+     "target": "o_L0_001",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door o_L0_001 to door d_L0_006",
+     "recurring": false
+    },
+    {
+     "target": "o_L0_003",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door o_L0_003 to door d_L0_006",
+     "recurring": false
+    },
+    {
+     "target": "o_L0_005",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door o_L0_005 to door d_L0_006",
+     "recurring": false
+    },
+    {
+     "target": "o_L0_006",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door o_L0_006 to door d_L0_006",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_029",
+     "check": "inspector:F7",
+     "message": "sink_kitchen blocks door o_L0_004",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_040",
+     "check": "inspector:F7",
+     "message": "kitchen_counter blocks door o_L0_001",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_039",
+     "check": "inspector:F9",
+     "message": "kitchen_counter f_L0_039 overlaps kitchen_counter f_L0_002 by 0.44 m²",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_002",
+     "check": "inspector:G8",
+     "message": "kitchen aisle 0.10 m in front of kitchen_counter f_L0_002, needs ≥ 0.90 m",
+     "recurring": false
+    },
+    {
+     "target": "d_L0_003",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door d_L0_003 to door d_L0_005",
+     "recurring": false
+    },
+    {
+     "target": "o_L0_004",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door o_L0_004 to door d_L0_005",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_012",
+     "check": "inspector:F3",
+     "message": "bed_double: the headboard stands in the room (0.06 m off)",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_018",
+     "check": "inspector:F4",
+     "message": "chair does not face its group (f_L1_017)",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_017",
+     "check": "inspector:F7",
+     "message": "table_dining blocks door d_L1_001",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_019",
+     "check": "inspector:F7",
+     "message": "chair blocks door d_L1_001",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_021",
+     "check": "inspector:F7",
+     "message": "chair blocks door d_L1_001",
+     "recurring": false
+    },
+    {
+     "target": "d_L1_001",
+     "check": "inspector:G11",
+     "message": "the main walkway from the entrance door is below 0.80 m between doors d_L1_001 and d_L1_002",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_007",
+     "check": "inspector:F7",
+     "message": "desk blocks door d_L1_005",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_009",
+     "check": "inspector:F7",
+     "message": "bed_double blocks door o_L1_001",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_010",
+     "check": "inspector:F9",
+     "message": "nightstand f_L1_010 overlaps bed_double f_L1_009 by 0.17 m²",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_006",
+     "check": "inspector:G5",
+     "message": "bed_double f_L1_006: 0.10 m free along the right side, needs ≥ 0.60 m",
+     "recurring": false
+    },
+    {
+     "target": "o_L1_001",
+     "check": "inspector:G11",
+     "message": "the main walkway from the entrance door is below 0.80 m between doors o_L1_001 and d_L1_005",
+     "recurring": false
+    },
+    {
+     "target": "d_L1_004",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door d_L1_004 to door d_L1_006",
+     "recurring": false
+    },
+    {
+     "target": "d_L1_006",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door d_L1_006 to door d_L1_009",
+     "recurring": false
+    },
+    {
+     "target": "o_L1_002",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door o_L1_002 to door d_L1_004",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_024",
+     "check": "inspector:G12",
+     "message": "shower f_L1_024 (2.00 m) stands in front of window win_L1_011 (sill 0.90 m + 0.05)",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_013",
+     "check": "inspector:F7",
+     "message": "sofa blocks door o_L1_003",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_031",
+     "check": "inspector:F7",
+     "message": "floor_lamp blocks door o_L1_003",
+     "recurring": false
+    },
+    {
+     "target": "o_L1_003",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door o_L1_003 to door o_L1_005",
+     "recurring": false
+    },
+    {
+     "target": "o_L1_005",
+     "check": "inspector:G11",
+     "message": "no 0.60 m walkway from door o_L1_005 to door d_L1_006",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_029",
+     "check": "inspector:F3",
+     "message": "washbasin: its back is not on a wall (0.07 m off)",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_016",
+     "check": "inspector:D1",
+     "message": "A white object (resembling a book or tray) is floating in mid-air above the sofa cushions, not resting on the seat or a table.",
+     "recurring": false
+    }
+   ]
+  },
+  {
+   "kind": "misread",
+   "what": "the reading typed, sized or placed something wrong (armchairs read as tables with chairs, a vanity read as a kitchen counter)",
+   "arises": "reading",
+   "guards": [
+    "plan_vs_model (B*)",
+    "the room-sense rules (G*, R*)",
+    "model review M7"
+   ],
+   "open": 9,
+   "fixable": 0,
+   "needs_guard": [
+    {
+     "target": "roof vs the drawn section at s # m",
+     "check": "process:P2",
+     "message": "the model differs from the drawn section or elevation: roof vs the drawn section at s # m: 11 cases, e.g. roof vs the drawn section at s 1.51 m: 6.589 m built, 6.002 m drawn (+59 cm)",
+     "recurring": false
+    },
+    {
+     "target": "derived ridge # m vs the drawn ridge height # m (# cm)",
+     "check": "process:P2",
+     "message": "the model differs from the drawn section or elevation: derived ridge 8.530 m vs the drawn ridge height 7.770 m (+76 cm): the pitches are kept",
+     "recurring": false
+    },
+    {
+     "target": "r_L0_mutfak",
+     "check": "inspector:G9",
+     "message": "kitchen r_L0_mutfak has no fridge (fridge)",
+     "recurring": false
+    },
+    {
+     "target": "r_L0_banyo",
+     "check": "inspector:G10",
+     "message": "bathroom without a washbasin",
+     "recurring": false
+    },
+    {
+     "target": "r_L1_dus",
+     "check": "inspector:G10",
+     "message": "bathroom without a washbasin",
+     "recurring": false
+    },
+    {
+     "target": "r_L1_banyo",
+     "check": "inspector:G10",
+     "message": "bathroom without a washbasin",
+     "recurring": false
+    },
+    {
+     "target": "r_L1_ebeveyn_y_odasi",
+     "check": "inspector:Q4",
+     "message": "The room is labeled as a bedroom but contains two dining tables and multiple chairs, which are not appropriate fixtures for a bedroom.",
+     "recurring": false
+    }
+   ]
+  },
+  {
+   "kind": "lost",
+   "what": "something the documents or an earlier stage hold is missing from the model (a labelled veranda, drawn site symbols, a room, an opening, a piece)",
+   "arises": "any stage boundary: reading -> building, fit, layout, build, render",
+   "guards": [
+    "ledger (A*)",
+    "conservation (C*)",
+    "plan_vs_model (B*)",
+    "process (P*)"
+   ],
+   "open": 6,
+   "fixable": 3,
+   "needs_guard": [
+    {
+     "target": "f_L0_044",
+     "check": "conservation:C1",
+     "message": "furniture f_L0_044 (shower) of the decor stage is missing after the agent stage and nothing there names it",
+     "recurring": false
+    },
+    {
+     "target": "site",
+     "check": "process:P2",
+     "message": "items the reading found and no stage used: site: 2 cases, e.g. site: 1 areas read outside the walls of L1 not used (the site is the ground floor's, L0)",
+     "recurring": false
+    }
+   ]
+  },
+  {
+   "kind": "taste",
+   "what": "the house does not look designed (pieces that do not match, plain or dated rooms, a garage door look)",
+   "arises": "fit, decor, opening models",
+   "guards": [
+    "judge (J*)",
+    "visitor checks Q5, Q7",
+    "the fit's matched sets"
+   ],
+   "open": 19,
+   "fixable": 4,
+   "needs_guard": [
+    {
+     "target": "f_L0_039",
+     "check": "inspector:S2",
+     "message": "kitchen_counter f_L0_039 cuts wall w_L0_024 by 0.075 m (allowed 0.030 m for a fixture piece)",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_006",
+     "check": "inspector:S2",
+     "message": "table_dining f_L0_006 and chair f_L0_007 cut each other by 0.224 m (allowed 0.010 m)",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_007",
+     "check": "inspector:Q5",
+     "message": "A folding garden chair is placed indoors in the living room, which is inappropriate for the interior setting and clashes with the other furniture.",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_019",
+     "check": "inspector:D2",
+     "message": "The object labeled as a dining table is rendered as a small side table, which is the wrong scale and type for a dining set.",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_022",
+     "check": "inspector:D2",
+     "message": "The object labeled as a dining table is rendered as a small side table, which is the wrong scale and type for a dining set.",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_025",
+     "check": "inspector:D2",
+     "message": "The object labeled as a dining table is rendered as a small side table, which is the wrong scale and type for a dining set.",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_047",
+     "check": "inspector:D2",
+     "message": "The washbasin model is a crude, low-poly block with a simple rectangular cutout and a floating blue knob, lacking the detail and form of a real sink.",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_017",
+     "check": "inspector:Q5",
+     "message": "The dining table is accompanied by a mix of different chair models (white and wooden), which do not belong together as a cohesive set.",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_020",
+     "check": "inspector:Q5",
+     "message": "The second dining table is accompanied by a mix of different chair models (white and wooden), which do not belong together as a cohesive set.",
+     "recurring": false
+    }
+   ]
+  },
+  {
+   "kind": "other",
+   "what": "not classified yet: a new kind to name",
+   "arises": "-",
+   "guards": [],
+   "open": 8,
+   "fixable": 0,
+   "needs_guard": [
+    {
+     "target": "f_L0_012",
+     "check": "inspector:NR",
+     "message": "untyped drawn piece left for review: drawn piece 0.21 x 0.20 m in r_L0_salon has no type (AI passes: potted_plant, unknown): not built (plan crop recognition/crops/sym_L0_003_ctx.png)",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_015",
+     "check": "inspector:NR",
+     "message": "untyped drawn piece left for review: drawn piece 0.21 x 0.20 m in r_L0_salon has no type (AI passes: potted_plant, unknown): not built (plan crop recognition/crops/sym_L0_006_ctx.png)",
+     "recurring": false
+    },
+    {
+     "target": "f_L0_016",
+     "check": "inspector:NR",
+     "message": "untyped drawn piece left for review: drawn piece 0.21 x 0.20 m in r_L0_salon has no type (AI passes: potted_plant, unknown): not built (plan crop recognition/crops/sym_L0_007_ctx.png)",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_002",
+     "check": "inspector:NR",
+     "message": "untyped drawn piece left for review: drawn piece 4.64 x 0.68 m in r_L1_cocuk_odasi has no type; cluster larger than 4.5 m on a side: a group of drawn pieces, not built: not built",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_014",
+     "check": "inspector:NR",
+     "message": "untyped drawn piece left for review: drawn piece 2.27 x 0.85 m in r_L1_soyunma_odasi has no type (AI passes: stair, unknown): not built (plan crop recognition/crops/sym_L1_009_ctx.png)",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_015",
+     "check": "inspector:NR",
+     "message": "untyped drawn piece left for review: drawn piece 2.27 x 0.85 m in r_L1_soyunma_odasi has no type (AI passes: stair, unknown): not built (plan crop recognition/crops/sym_L1_010_ctx.png)",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_023",
+     "check": "inspector:NR",
+     "message": "untyped drawn piece left for review: drawn piece 1.20 x 0.55 m in r_L1_oda_2 has no type (AI passes: desk, dresser): not built (plan crop recognition/crops/sym_L1_014_ctx.png)",
+     "recurring": false
+    },
+    {
+     "target": "f_L1_026",
+     "check": "inspector:NR",
+     "message": "untyped drawn piece left for review: drawn piece 0.58 x 0.58 m in r_L1_ebeveyn_y_odasi has no type (AI passes: floor_lamp, table_coffee): not built (plan crop recognition/crops/sym_L1_017_ctx.png)",
+     "recurring": false
+    }
+   ]
+  },
+  {
+   "kind": "no_sense",
+   "what": "the model makes no sense to a visitor (a door into the air, a basin at knee height, stairs running into each other, a railing across a door)",
+   "arises": "architect, build",
+   "guards": [
+    "sense (N*: every room reached, no bathroom as a corridor, every level reached)",
+    "model review (M*)",
+    "architect rules",
+    "visitor checks (Q*)"
+   ],
+   "open": 6,
+   "fixable": 2,
+   "needs_guard": [
+    {
+     "target": "W2:win_L0_001",
+     "check": "process:P3",
+     "message": "the architect's question W2 (windows to the outside) is open for win_L0_001: win_L0_001 sits in the wall between r_L0_mutfak (kitchen) and r_L0_salon (living)",
+     "recurring": false
+    },
+    {
+     "target": "W2:win_L1_004",
+     "check": "process:P3",
+     "message": "the architect's question W2 (windows to the outside) is open for win_L1_004: win_L1_004 sits in the wall between r_L1_soyunma_odasi (dressing) and r_L1_dus (bathroom)",
+     "recurring": false
+    },
+    {
+     "target": "W2:win_L1_005",
+     "check": "process:P3",
+     "message": "the architect's question W2 (windows to the outside) is open for win_L1_005: win_L1_005 sits in the wall between r_L1_soyunma_odasi (dressing) and r_L1_dus (bathroom)",
+     "recurring": false
+    },
+    {
+     "target": "W2:win_L1_008",
+     "check": "process:P3",
+     "message": "the architect's question W2 (windows to the outside) is open for win_L1_008: win_L1_008 sits in the wall between r_L1_oda_2 (living) and r_L1_hol (hall)",
+     "recurring": false
+    }
+   ]
+  },
+  {
+   "kind": "process",
+   "what": "the run itself: a stage failed or was skipped, a test failed, time was left unused, a question stayed unanswered",
+   "arises": "scheduler",
+   "guards": [
+    "process (P*)"
+   ],
+   "open": 4,
+   "fixable": 1,
+   "needs_guard": [
+    {
+     "target": "test_passes_exist_and_depth_is_plausible[real06]",
+     "check": "process:P4",
+     "message": "test tests.gpu.test_render::test_passes_exist_and_depth_is_plausible[real06] failure: AssertionError: real06: views with missing files or an implausible depth pass: [('cam_r_L0_salon_2', 'depth not 0.",
+     "recurring": false
+    },
+    {
+     "target": "test_index_pass_contains_every_visible_proxy[real06]",
+     "check": "process:P4",
+     "message": "test tests.gpu.test_render::test_index_pass_contains_every_visible_proxy[real06] failure: AssertionError: real06: proxies planned in the frustum but absent from the index pass: [('cam_r_L0_banyo_3', [",
+     "recurring": false
+    }
+   ]
+  },
+  {
+   "kind": "untyped",
+   "what": "a drawn element no rule or model typed, so nothing builds it ('other', 'unknown')",
+   "arises": "reading",
+   "guards": [
+    "conservation C4",
+    "ledger",
+    "the reading's AI questions"
+   ],
+   "open": 1,
+   "fixable": 1,
+   "needs_guard": []
+  },
+  {
+   "kind": "silent",
+   "what": "a stage noted a problem in a warning and nothing acted on it",
+   "arises": "any stage",
+   "guards": [
+    "process P2 (warnings that say something was left out)"
+   ],
+   "open": 1,
+   "fixable": 0,
+   "needs_guard": [
+    {
+     "target": "inferred trees",
+     "check": "process:P2",
+     "message": "a stage placed fewer items than it planned: inferred trees: placed 0 of 3 (74 candidates; removed by building 1, path 20, sightline 36, window 67, front 27; most by window; the first pass placed 0, th",
+     "recurring": false
+    }
+   ]
+  }
+ ]
+}

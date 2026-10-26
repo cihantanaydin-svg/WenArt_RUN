@@ -1420,3 +1420,32 @@ Decided and applied:
 The loop around the pod runs (the session): each run is reviewed against the latest run, its general problems are
 fixed in code with tests, and the next run starts; the first: drawn pieces of one set type in a room take one model
 (`fit.role_sets`: the living room's six armchairs, three of them outside the seating group).
+
+## Argus, the auditor: everything is judged, not only the looks (26 Oct 2026)
+
+User: "the audit is very weak, only the looks being judged, everything needs to be judged. There was a veranda in the
+real06, it has been fully missed ... the issue is not just veranda ... develop a system to understand the problem kinds
+and prevent it happening ... this auditor should have no limits ... use open weight AI models for this auditor, it
+needs to be smart, it needs to solve the problems even without me telling it ... we need to improve Argus rigorously"
+(lessons UL38, UL39). The name: Argus, the giant of a hundred eyes who never slept.
+
+| Line | What it checks (every item, nothing sampled) | Where |
+|---|---|---|
+| conservation (C1-C6) | every element of a stage is in the next one or named there; nothing planned to be built goes unbuilt without a reason; every planned element has a scene object; drawn symbols are typed; labelled outdoor spaces are built; every reason for leaving something out is listed for the AI to judge | `wenart/audit/conservation.py` |
+| process (P1-P9) | failed or pending stages; every warning matched to a rule (`WARN_RULES`: left out, fell short "placed 0 of 3", "not used", "not cut through its wall", differs from the drawn section by 25 cm or more, ...; the cases of one problem are one finding); unanswered questions; failed tests; the scene's own checks (a door ray that hits a splashback); rooms with no view; library gaps; time left unused with open majors; a big loop that did not raise the score | `wenart/audit/process.py` |
+| sense (N1-N4) | the house can be walked through: every room reached from outside through doors, openings, open-plan joins and stairs; no wet room as the only way in; every level reached; an entrance exists | `wenart/audit/sense.py` |
+| model, inspector, judge | the model review M1-M8, the inspector's last code and vision findings, the judge's low views and problems | `wenart/audit/report.py` |
+| Argus AI | the agent model (Qwen3.8-27B, open weights, thinking on, strict JSON) triages every finding (real or not, kind, the stage that caused it, the fix), judges every not-built reason, looks at each floor for what no line found (a claim about an element the project does not have is dropped), takes architect actions that code accepts only when the targeted finding is gone in a dry re-check and nothing new breaks, hands furniture problems to the agent, writes the general rule for what the run cannot fix | `wenart/audit/argus_ai.py` |
+| kinds and prevention | every finding has a kind (lost, untyped, misread, no_sense, taste, geometry, stale, silent, process), where the kind arises and the guards that catch it; the problem log across runs (`results/argus/problem_log.json`) marks recurring findings, and the report lists per kind what needs a new general rule | `wenart/audit/kinds.py`, `report.py` |
+
+In the run: Argus AI after the first build (the scene is built again when it decided), Argus's house defects in the big
+loop's score and its work in the next round, Argus's last word at the end (`orchestrator/argus.md`, `argus_ai*.md`).
+Here: `python -m wenart.audit run --results runs/<job>/results --project <p> --log`.
+
+First audit of the two real06 runs of 26 Oct (`results/argus/real06/`): score 9.5 and 15.5 of 100. Beyond the veranda
+it found, unseen before: the roof up to 1.36 m off the drawn section (11 points, ridge +76 cm), the upper-floor
+balcony "BALKON" and 42 site symbols read and never used, the inferred trees "placed 0 of 3", the kitchen pass-through
+o_L0_001 not cut through its wall (a splashback over it), two rooms holding the labels of two rooms (the kitchen and
+the entrance hall "ANTRE" read as one), and 31 recurring findings across both runs. Being fixed as general rules:
+labelled outdoor spaces on every level built, drawn site symbols typed as vegetation, the roof follows the drawn
+section, a splashback never covers an opening.

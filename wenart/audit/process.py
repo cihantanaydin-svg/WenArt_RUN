@@ -154,14 +154,21 @@ def warnings_of(inp: Inputs) -> list[tuple[str, str]]:
     return out
 
 
+PREFIX_RE = re.compile(r"^\s*(?:[\w.-]+\.(?:dwg|dxf|pdf)(?: r\d+)?|[A-Z]\d+)\s*:\s*", re.I)
+
+
 def _subject(text: str) -> str:
-    """What a warning is about, for merging the cases of one problem: its element id, else its words before the first
-    number ("roof vs the drawn section at s" for every point of that check)."""
+    """What a warning is about, for merging the cases of one problem: its element id, else its text up to the first
+    ':' or ';' with the file or level prefix taken off and numbers and quoted names made general ("roof vs the drawn
+    section at s # m" for every point of that check; "room '...' has more labels" for every room)."""
     m = ID_RE.search(text)
     if m:
         return m.group(1)
-    head = re.split(r"[0-9(']", text, maxsplit=1)[0].strip(" :,")
-    return re.sub(r"\s+(at|of|in|on)( \w)?$", "", head) or text[:48]
+    t = PREFIX_RE.sub("", text)
+    t = re.sub(r"'[^']*'", "'...'", t)
+    t = re.sub(r"[-+]?\d+(?:[.,]\d+)?", "#", t)
+    head = re.split(r"[:;]", t, maxsplit=1)[0].strip(" ,")
+    return head[:80] or text[:48]
 
 
 def warnings(inp: Inputs) -> tuple[list[dict], dict]:

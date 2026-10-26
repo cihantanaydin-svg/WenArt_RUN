@@ -185,6 +185,11 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   falls, rooms that make sense, matching pieces, door and window style, rain water, entrances) of every render and
   reports what it fixed and what is left (`orchestrator/inspector.md`) before the user looks (user request of 26 Oct
   2026).
+- Argus, the auditor (`wenart/audit`, user request of 26 Oct 2026), checks everything a run makes, not only the
+  looks: nothing lost between stages, every warning read, the house can be walked through, the run itself; Argus AI
+  (open-weight agent model) triages every finding and acts through code checks. Every finding has a problem kind; a
+  kind that recurs (`results/argus/problem_log.json`) gets a general rule. Review every run with
+  `python -m wenart.audit run --results runs/<job>/results --project <p> --log`.
 - Every new request or correction of the user becomes a lesson (`python -m wenart.agent.lessons add "..."`,
   `wenart/blender/architect_lessons.json`); the architect checks the lessons on every project (user request of 25 Oct
   2026).

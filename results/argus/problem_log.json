@@ -1,0 +1,1413 @@
+{
+ "runs": [
+  {
+   "run_id": "20261026-125412-full-20261026T130049Z",
+   "project": "real06",
+   "score": 9.5,
+   "severity": {
+    "critical": 28,
+    "major": 63,
+    "minor": 15,
+    "info": 19
+   },
+   "created_utc": "2026-10-26T19:03:50Z"
+  },
+  {
+   "run_id": "20261026-170020-full-20261026T170641Z",
+   "project": "real06",
+   "score": 15.5,
+   "severity": {
+    "critical": 14,
+    "major": 42,
+    "minor": 15,
+    "info": 23
+   },
+   "created_utc": "2026-10-26T19:03:51Z"
+  }
+ ],
+ "signatures": {
+  "real06|conservation:C1|f_L0_044": {
+   "kind": "lost",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "furniture f_L0_044 (shower) of the decor stage is missing after the agent stage and nothing there names it",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|conservation:C5|sa_L0_veranda": {
+   "kind": "lost",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "the documents label a site area 'VERANDA' and the model does not build it (open balcony outside the outer walls (no walls drawn around it))",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|conservation:C4|42 site_symbols": {
+   "kind": "untyped",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "42 drawn site symbols (sd_L0_001, sd_L0_002, sd_L0_003, sd_L0_004, sd_L0_005, sd_L0_006 ...) that no rule or model typed ('other'): nothing builds them and nothing explains them",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|entity types not read": {
+   "kind": "lost",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "source entities the reading did not read (the ledger checks what they hold): real06.dwg: entity types not read: ATTDEF x28",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|VERANDA": {
+   "kind": "lost",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "a labelled space outside the walls was kept as a site record: it must be built: real06.dwg: balcony 'VERANDA' at (9138464.73, 5090593.37) m lies outside the outer walls: an open balcony, recorded in site, not a room",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|BALKON": {
+   "kind": "lost",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "a labelled space outside the walls was kept as a site record: it must be built: real06.dwg: balcony 'BALKON' at (9138484.48, 5090593.07) m lies outside the outer walls: an open balcony, recorded in site, not a room",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|sym_L1_008": {
+   "kind": "misread",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "a piece whose type the room does not allow, kept unverified: sym_L1_008: sofa is not a type allowed in a bedroom room: kept, unverified",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|room '...' has more labels": {
+   "kind": "misread",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "one room outline holds the labels of two rooms (a wall not read?): room '...' has more labels: 2 cases, e.g. L0: room 'Salon' has more labels: YEMEK BÖLÜMÜ; the label with the largest printed area (else the first) kept",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|elevation r# (all)": {
+   "kind": "process",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "a check that could not run: elevation r# (all): 4 cases, e.g. elevation r1 (all): its openings are not checked against the plans (the side needs the north arrow)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|site": {
+   "kind": "lost",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "items the reading found and no stage used: site: 2 cases, e.g. site: 1 areas read outside the walls of L1 not used (the site is the ground floor's, L0)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|r_L1_hol": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "a group the room should have found no place: r_L1_hol: completion added nothing, nothing fits: entrance: no place passes the checks",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|r_L1_dus": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "minor",
+   "message": "a group the room should have found no place: r_L1_dus: completion added nothing, nothing fits: bathroom_set: no place passes the checks",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P2|roof vs the drawn section at s # m": {
+   "kind": "misread",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "the model differs from the drawn section or elevation: roof vs the drawn section at s # m: 11 cases, e.g. roof vs the drawn section at s 1.51 m: 6.589 m built, 6.002 m drawn (+59 cm)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|derived ridge # m vs the drawn ridge height # m (# cm)": {
+   "kind": "misread",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "the model differs from the drawn section or elevation: derived ridge 8.530 m vs the drawn ridge height 7.770 m (+76 cm): the pitches are kept",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|inferred trees": {
+   "kind": "silent",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "a stage placed fewer items than it planned: inferred trees: placed 0 of 3 (74 candidates; removed by building 1, path 15, sightline 36, window 67, front 27; most by window; the first pass placed 0, the second pass with the window band narrowed to 4 m added 0)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|d_L0_006": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "minor",
+   "message": "built parametric (library gap): opening d_L0_006: parametric in the style's finish (no library entrance fits 2.95 x 2.10 m: the parametric opening in the style's finish)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P2|o_L0_002": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "no library model: built parametric or not at all: opening o_L0_002: parametric in the style's finish (no model of the building's window family 'Single Casement Window' fits 1.10 x 1.20 m: the parametric opening in the style's finish keeps one door and window language)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|win_L0_006": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "no library model: built parametric or not at all: opening win_L0_006: parametric in the style's finish (no model of the building's window family 'Single Casement Window' fits 1.10 x 1.20 m: the parametric opening in the style's finish keeps one door and window language)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|win_L1_001": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "no library model: built parametric or not at all: opening win_L1_001: parametric in the style's finish (no model of the building's window family 'Single Casement Window' fits 0.95 x 1.20 m: the parametric opening in the style's finish keeps one door and window language)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|o_L0_001": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "an opening of the documents is not cut through its wall: o_L0_001: door ray hits splashback_r_L0_mutfak (splashback); the opening is not cut through its wall",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|d_L0_002": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "an opening of the documents is not cut through its wall: d_L0_002: door ray hits splashback_r_L0_mutfak (splashback); the opening is not cut through its wall",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P2|dec_L1_017": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "decor that could not rest on its host: decor plant_small dec_L1_017 on f_L1_030: not rested (no top found on the built host (attempt 2)); not built",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P3|W2:win_L0_001": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "the architect's question W2 (windows to the outside) is open for win_L0_001: win_L0_001 sits in the wall between r_L0_mutfak (kitchen) and r_L0_salon (living)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P3|W2:win_L1_004": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "the architect's question W2 (windows to the outside) is open for win_L1_004: win_L1_004 sits in the wall between r_L1_soyunma_odasi (dressing) and r_L1_dus (bathroom)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P3|W2:win_L1_005": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "the architect's question W2 (windows to the outside) is open for win_L1_005: win_L1_005 sits in the wall between r_L1_soyunma_odasi (dressing) and r_L1_dus (bathroom)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P3|W2:win_L1_008": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "the architect's question W2 (windows to the outside) is open for win_L1_008: win_L1_008 sits in the wall between r_L1_oda_2 (living) and r_L1_hol (hall)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P4|test_passes_exist_and_depth_is_plausible[real06]": {
+   "kind": "process",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "test tests.gpu.test_render::test_passes_exist_and_depth_is_plausible[real06] failure: AssertionError: real06: views with missing files or an implausible depth pass: [('cam_r_L0_salon_2', 'depth not 0.1 < min < max < 60 m', {'min': 1.6010942459106445, 'max': 197.65771484375, 'mean': 3.4686529636383057, 'coverage': 0.9973885995370371})]\nassert not [('cam_r_L0_salon_2', 'depth not 0.1 < min < max < 60 m', {'min': 1.6010942459106445, 'max': 197.65771484375, 'mean': 3.4686529636383057, ",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P4|test_index_pass_contains_every_visible_proxy[real06]": {
+   "kind": "process",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "test tests.gpu.test_render::test_index_pass_contains_every_visible_proxy[real06] failure: AssertionError: real06: proxies planned in the frustum but absent from the index pass: [('cam_r_L0_banyo_3', ['f_L0_046']), ('cam_r_L1_banyo_3', ['f_L1_038'])]\nassert not [('cam_r_L0_banyo_3', ['f_L0_046']), ('cam_r_L1_banyo_3', ['f_L1_038'])]",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P5|L0:S2": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "scene check S2 on L0: 1 of 23 failed",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P7|f_L0_029": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "minor",
+   "message": "sink_kitchen f_L0_029 built below the library level: fitting chose the parametric mesh",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P7|f_L0_041": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "minor",
+   "message": "wall_cabinet f_L0_041 built below the library level: fitting chose the parametric mesh",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P7|f_L0_042": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "minor",
+   "message": "wall_cabinet f_L0_042 built below the library level: fitting chose the parametric mesh",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P7|f_L0_043": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "minor",
+   "message": "wall_cabinet f_L0_043 built below the library level: fitting chose the parametric mesh",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|process:P8|run": {
+   "kind": "process",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "the run ended 35 min before its deadline with 68 open major point(s): the time could have gone to more fix cycles",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F7|f_L0_018": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "table_coffee blocks door o_L0_006",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F7|f_L0_035": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "ottoman blocks door o_L0_003",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F8|f_L0_009": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "table_coffee stands alone in the room (no wall, no sofa / sofa_corner / armchair within 1.5 m)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F9|f_L0_008": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "chair f_L0_008 overlaps chair f_L0_007 by 0.07 m²",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F9|f_L0_036": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "ottoman f_L0_036 overlaps sofa_corner f_L0_014 by 0.24 m²",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F9|f_L0_037": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "ottoman f_L0_037 overlaps sofa_corner f_L0_014 by 0.25 m²",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F9|f_L0_038": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "ottoman f_L0_038 overlaps sofa_corner f_L0_014 by 0.25 m²",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G6|f_L0_007": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "chair f_L0_007: 0.12 m from the table edge to the wall or piece behind, needs ≥ 0.81 m",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G6|f_L0_010": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "chair f_L0_010 is 180° off the table f_L0_006 (needs ≤ 45°)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G6|f_L0_011": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "chair f_L0_011: 0.45 m from the table edge to the wall or piece behind, needs ≥ 0.81 m",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G6|f_L0_020": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "chair f_L0_020 is 50° off the table f_L0_019 (needs ≤ 45°)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G6|f_L0_021": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "chair f_L0_021: 0.37 m from the table edge to the wall or piece behind, needs ≥ 0.81 m",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G6|f_L0_023": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "chair f_L0_023 is 50° off the table f_L0_022 (needs ≤ 45°)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G6|f_L0_026": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "chair f_L0_026 is 50° off the table f_L0_025 (needs ≤ 45°)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G11|d_L0_001": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door d_L0_001 to door d_L0_006",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G11|d_L0_002": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door d_L0_002 to door d_L0_006",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G11|d_L0_004": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door d_L0_004 to door d_L0_006",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G11|f_L0_014": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "sofa_corner f_L0_014: its front use zone is not reached by a 0.60 m walkway from door d_L0_006",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G11|f_L0_028": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "armchair f_L0_028: its front use zone is not reached by a 0.60 m walkway from door d_L0_006",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G11|o_L0_001": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door o_L0_001 to door d_L0_006",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G11|o_L0_003": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door o_L0_003 to door d_L0_006",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G11|o_L0_005": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door o_L0_005 to door d_L0_006",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G11|o_L0_006": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door o_L0_006 to door d_L0_006",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F7|f_L0_029": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "sink_kitchen blocks door o_L0_004",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F7|f_L0_040": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "kitchen_counter blocks door o_L0_001",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F9|f_L0_039": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "kitchen_counter f_L0_039 overlaps kitchen_counter f_L0_002 by 0.44 m²",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G8|f_L0_002": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "kitchen aisle 0.10 m in front of kitchen_counter f_L0_002, needs ≥ 0.90 m",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G9|r_L0_mutfak": {
+   "kind": "misread",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "kitchen r_L0_mutfak has no fridge (fridge)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G11|d_L0_003": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door d_L0_003 to door d_L0_005",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G11|o_L0_004": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door o_L0_004 to door d_L0_005",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G10|r_L0_banyo": {
+   "kind": "misread",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "bathroom without a washbasin",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F3|f_L1_012": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "bed_double: the headboard stands in the room (0.06 m off)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F4|f_L1_018": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "chair does not face its group (f_L1_017)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F7|f_L1_017": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "table_dining blocks door d_L1_001",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F7|f_L1_019": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "chair blocks door d_L1_001",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F7|f_L1_021": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "chair blocks door d_L1_001",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G11|d_L1_001": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "the main walkway from the entrance door is below 0.80 m between doors d_L1_001 and d_L1_002",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F7|f_L1_007": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "desk blocks door d_L1_005",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F7|f_L1_009": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "bed_double blocks door o_L1_001",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F9|f_L1_010": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "nightstand f_L1_010 overlaps bed_double f_L1_009 by 0.17 m²",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G5|f_L1_006": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "bed_double f_L1_006: 0.10 m free along the right side, needs ≥ 0.60 m",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G11|o_L1_001": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "the main walkway from the entrance door is below 0.80 m between doors o_L1_001 and d_L1_005",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G11|d_L1_004": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door d_L1_004 to door d_L1_006",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G11|d_L1_006": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door d_L1_006 to door d_L1_009",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G11|o_L1_002": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door o_L1_002 to door d_L1_009",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G10|r_L1_dus": {
+   "kind": "misread",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "bathroom without a washbasin",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G12|f_L1_024": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "shower f_L1_024 (2.00 m) stands in front of window win_L1_011 (sill 0.90 m + 0.05)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F7|f_L1_013": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "sofa blocks door o_L1_003",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F7|f_L1_031": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "floor_lamp blocks door o_L1_003",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G11|o_L1_003": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door o_L1_003 to door o_L1_005",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G11|o_L1_005": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "no 0.60 m walkway from door o_L1_005 to door d_L1_006",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:F3|f_L1_029": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "washbasin: its back is not on a wall (0.07 m off)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:G10|r_L1_banyo": {
+   "kind": "misread",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "bathroom without a washbasin",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:S2|f_L0_039": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "kitchen_counter f_L0_039 cuts wall w_L0_024 by 0.075 m (allowed 0.030 m for a fixture piece)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:S2|f_L0_006": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "table_dining f_L0_006 and chair f_L0_007 cut each other by 0.224 m (allowed 0.010 m)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:NR|f_L0_012": {
+   "kind": "other",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "untyped drawn piece left for review: drawn piece 0.21 x 0.20 m in r_L0_salon has no type (AI passes: potted_plant, unknown): not built (plan crop recognition/crops/sym_L0_003_ctx.png)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:NR|f_L0_015": {
+   "kind": "other",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "untyped drawn piece left for review: drawn piece 0.21 x 0.20 m in r_L0_salon has no type (AI passes: potted_plant, unknown): not built (plan crop recognition/crops/sym_L0_006_ctx.png)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:NR|f_L0_016": {
+   "kind": "other",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "untyped drawn piece left for review: drawn piece 0.21 x 0.20 m in r_L0_salon has no type (AI passes: potted_plant, unknown): not built (plan crop recognition/crops/sym_L0_007_ctx.png)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:NR|f_L1_002": {
+   "kind": "other",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z",
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "untyped drawn piece left for review: drawn piece 4.64 x 0.68 m in r_L1_cocuk_odasi has no type; cluster larger than 4.5 m on a side: a group of drawn pieces, not built: not built",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:NR|f_L1_014": {
+   "kind": "other",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "untyped drawn piece left for review: drawn piece 2.27 x 0.85 m in r_L1_soyunma_odasi has no type (AI passes: stair, unknown): not built (plan crop recognition/crops/sym_L1_009_ctx.png)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:NR|f_L1_015": {
+   "kind": "other",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "untyped drawn piece left for review: drawn piece 2.27 x 0.85 m in r_L1_soyunma_odasi has no type (AI passes: stair, unknown): not built (plan crop recognition/crops/sym_L1_010_ctx.png)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:NR|f_L1_023": {
+   "kind": "other",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "untyped drawn piece left for review: drawn piece 1.20 x 0.55 m in r_L1_oda_2 has no type (AI passes: desk, dresser): not built (plan crop recognition/crops/sym_L1_014_ctx.png)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:NR|f_L1_026": {
+   "kind": "other",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "untyped drawn piece left for review: drawn piece 0.58 x 0.58 m in r_L1_ebeveyn_y_odasi has no type (AI passes: floor_lamp, table_coffee): not built (plan crop recognition/crops/sym_L1_017_ctx.png)",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:Q5|f_L0_007": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "A folding garden chair is placed indoors in the living room, which is inappropriate for the interior setting and clashes with the other furniture.",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:D2|f_L0_019": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "The object labeled as a dining table is rendered as a small side table, which is the wrong scale and type for a dining set.",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:D2|f_L0_022": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "The object labeled as a dining table is rendered as a small side table, which is the wrong scale and type for a dining set.",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:D2|f_L0_025": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "The object labeled as a dining table is rendered as a small side table, which is the wrong scale and type for a dining set.",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:D2|f_L0_047": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "The washbasin model is a crude, low-poly block with a simple rectangular cutout and a floating blue knob, lacking the detail and form of a real sink.",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:Q4|r_L1_ebeveyn_y_odasi": {
+   "kind": "misread",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "critical",
+   "message": "The room is labeled as a bedroom but contains two dining tables and multiple chairs, which are not appropriate fixtures for a bedroom.",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:Q5|f_L1_017": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "The dining table is accompanied by a mix of different chair models (white and wooden), which do not belong together as a cohesive set.",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:Q5|f_L1_020": {
+   "kind": "taste",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "The second dining table is accompanied by a mix of different chair models (white and wooden), which do not belong together as a cohesive set.",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|inspector:D1|f_L1_016": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-125412-full-20261026T130049Z"
+   ],
+   "severity": "major",
+   "message": "A white object (resembling a book or tray) is floating in mid-air above the sofa cushions, not resting on the seat or a table.",
+   "last": "20261026-125412-full-20261026T130049Z"
+  },
+  "real06|conservation:C2|f_L0_012": {
+   "kind": "lost",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "f_L0_012 (potted_plant) was to be built after the decor stage and is not built after the agent stage, with no reason",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|r_L1_ebeveyn_y_odasi": {
+   "kind": "taste",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "a group the room should have found no place: r_L1_ebeveyn_y_odasi: completion added nothing, nothing fits: storage: no candidate position fits the room; work: no place passes the checks",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P2|dec_L0_009": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "decor that could not rest on its host: decor cushion dec_L0_009 on f_L0_008: not rested (67% of the footprint over the support < 80%); not built",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P4|test_sky_and_window_pulls_reach_their_targets[real06]": {
+   "kind": "process",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "test tests.gpu.test_render::test_sky_and_window_pulls_reach_their_targets[real06] failure: AssertionError: real06: [('window panes', 'median pane saturation 0.0612 under 0.065: grey cards, not the sky', [('cam_r_L0_banyo_1', 0.0612), ('cam_r_L0_banyo_3', 0.0972), ('cam_r_L0_mutfak_1', 0.0673), ('cam_r_L0_mutfak_3', 0.0631), ('cam_r_L0_salon_1', 0.0288), ('cam_r_L0_salon_2', 0.0585), ('cam_r_L0_salon_3', 0.0411), ('cam_r_L1_banyo_1', 0.0845), ('cam_r_L1_banyo_2', 0.0648), ('cam_r_L1_cocu",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P7|f_L0_020": {
+   "kind": "taste",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "sink_kitchen f_L0_020 built below the library level: fitting chose the parametric mesh",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P7|f_L0_033": {
+   "kind": "taste",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "wall_cabinet f_L0_033 built below the library level: fitting chose the parametric mesh",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P7|f_L0_034": {
+   "kind": "taste",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "wall_cabinet f_L0_034 built below the library level: fitting chose the parametric mesh",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|process:P7|f_L0_035": {
+   "kind": "taste",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "minor",
+   "message": "wall_cabinet f_L0_035 built below the library level: fitting chose the parametric mesh",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F9|f_L0_027": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "ottoman f_L0_027 overlaps sofa_corner f_L0_011 by 0.25 m²",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F9|f_L0_028": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "ottoman f_L0_028 overlaps sofa_corner f_L0_011 by 0.25 m²",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F9|f_L0_029": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "ottoman f_L0_029 overlaps sofa_corner f_L0_011 by 0.25 m²",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F9|f_L0_030": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "ottoman f_L0_030 overlaps sofa_corner f_L0_011 by 0.25 m²",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G3|f_L0_007": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "armchair f_L0_007 is 123° off the ottoman f_L0_030 (needs ≤ 30°) at 3.61 m (needs ≤ 2.50 m)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G3|f_L0_017": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "armchair f_L0_017 is 87° off the ottoman f_L0_028 (needs ≤ 30°) at 5.05 m (needs ≤ 2.50 m)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G3|f_L0_018": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "armchair f_L0_018 is 114° off the sofa_corner f_L0_011 (needs ≤ 30°) at 3.33 m (needs ≤ 2.50 m)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G11|f_L0_008": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "armchair f_L0_008: its front use zone is not reached by a 0.60 m walkway from door d_L0_006",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G11|f_L0_016": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "armchair f_L0_016: its front use zone is not reached by a 0.60 m walkway from door d_L0_006",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G11|f_L0_019": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "armchair f_L0_019: its front use zone is not reached by a 0.60 m walkway from door d_L0_006",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F3|f_L0_020": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "sink_kitchen: its back is not on a wall (0.08 m off)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F7|f_L0_032": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "kitchen_counter blocks door o_L0_001",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F9|f_L0_031": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "kitchen_counter f_L0_031 overlaps kitchen_counter f_L0_002 by 0.44 m²",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F3|f_L0_026": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "washbasin: its back is not on a wall (0.07 m off)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G10|f_L0_026": {
+   "kind": "misread",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "washbasin f_L0_026: centre 0.31 m from the side wall on its left, needs ≥ 0.38 m",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F6|f_L1_018": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "armchair: the free zone in front of it is blocked by f_L1_022",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F3|f_L1_007": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "desk: its back is not on a wall (0.06 m off)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G5|f_L1_009": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "bed_double f_L1_009: 0.10 m free along the left side, needs ≥ 0.60 m",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G12|f_L1_020": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "shower f_L1_020 (2.00 m) stands in front of window win_L1_011 (sill 0.90 m + 0.05)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F6|f_L1_013": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "sofa: the free zone in front of it is blocked by f_L1_027",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G12|f_L1_027": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "floor_lamp f_L1_027 (1.60 m) stands in front of window o_L1_003 (sill 0.90 m + 0.05)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:F3|f_L1_025": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "washbasin: its back is not on a wall (0.07 m off)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G10|f_L1_021": {
+   "kind": "misread",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "washbasin f_L1_021: 0.11 m clear in front, needs ≥ 0.53 m",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G10|f_L1_024": {
+   "kind": "misread",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "toilet f_L1_024: centre 0.33 m from the side wall or fixture on its right, needs ≥ 0.38 m",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:G10|f_L1_025": {
+   "kind": "misread",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "washbasin f_L1_025: centre 0.31 m from the side wall on its left, needs ≥ 0.38 m",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:X3|d_L1_001": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "door d_L1_001 is 3.50 m above the ground with nothing to reach it (a door into the air)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:X3|d_L1_004": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "door d_L1_004 is 3.50 m above the ground with nothing to reach it (a door into the air)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:X3|d_L1_005": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "door d_L1_005 is 3.50 m above the ground with nothing to reach it (a door into the air)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:X3|d_L1_007": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "door d_L1_007 is 3.50 m above the ground with nothing to reach it (a door into the air)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:X3|d_L1_010": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "door d_L1_010 is 3.50 m above the ground with nothing to reach it (a door into the air)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:X3|d_L1_011": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "critical",
+   "message": "door d_L1_011 is 3.50 m above the ground with nothing to reach it (a door into the air)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  },
+  "real06|inspector:S2|f_L0_031": {
+   "kind": "taste",
+   "runs": [
+    "20261026-170020-full-20261026T170641Z"
+   ],
+   "severity": "major",
+   "message": "kitchen_counter f_L0_031 cuts wall w_L0_024 by 0.075 m (allowed 0.030 m for a fixture piece)",
+   "last": "20261026-170020-full-20261026T170641Z"
+  }
+ },
+ "kinds": {
+  "lost": {
+   "signatures": 7,
+   "recurring": 5
+  },
+  "untyped": {
+   "signatures": 1,
+   "recurring": 1
+  },
+  "misread": {
+   "signatures": 13,
+   "recurring": 5
+  },
+  "process": {
+   "signatures": 5,
+   "recurring": 2
+  },
+  "taste": {
+   "signatures": 25,
+   "recurring": 4
+  },
+  "silent": {
+   "signatures": 1,
+   "recurring": 1
+  },
+  "no_sense": {
+   "signatures": 12,
+   "recurring": 1
+  },
+  "geometry": {
+   "signatures": 74,
+   "recurring": 11
+  },
+  "other": {
+   "signatures": 8,
+   "recurring": 1
+  }
+ }
+}
