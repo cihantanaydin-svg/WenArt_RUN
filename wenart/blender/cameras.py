@@ -293,7 +293,9 @@ def room_lens(room: dict, lens_mm: float | None = None) -> tuple[float, str]:
 
 def mount_bottom(piece: dict) -> float:
     """How high a wall-hung piece hangs above the floor (``mount_bottom_m``, docs/milestone10.md §1.6b row 15:
-    wall cabinets at 1.45 m); 0 for a piece standing on the floor. Wall-hung pieces are no floor obstacles."""
+    wall cabinets at 1.45 m); 0 for a piece standing on the floor. Wall-hung pieces are no floor obstacles of the M5
+    cameras; the search's camera points keep away from a piece hung below the lens (a wall-hung basin:
+    ``camsearch.floor_obstacle``, fix round after the real06 run)."""
     v = piece.get("mount_bottom_m")
     return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0 else 0.0
 
