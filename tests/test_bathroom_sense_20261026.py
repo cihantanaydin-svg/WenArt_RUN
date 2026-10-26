@@ -289,3 +289,28 @@ def test_sanitary_ware_in_a_loud_colour_is_not_taken():
     assert "loud colour" in FIT.use_misfit(loud, "washbasin", False)
     assert FIT.use_misfit({"id": "y", "title": "Cooke & Lewis Lanzo white basin"}, "washbasin", False) is None
     assert FIT.use_misfit(loud, "vase", False) is None                    # decor may be an accent
+
+
+def test_a_counter_with_a_basin_in_a_bathroom_is_its_vanity():
+    """26 Oct 2026 (full suite with LibreDWG): real03's bathroom vanities with their basin's drain were read as a
+    kitchen counter and a kitchen sink, and every such bathroom got an open kitchen. In a wet room the counter is the
+    washbasin (a vanity unit) and the sink inside it its basin; a kitchen's sink cabinet keeps its type."""
+    from types import SimpleNamespace
+    from wenart.ingest.generic import reading as RD
+
+    def piece(pid, ftype, room, c, s):
+        return {"id": pid, "type": ftype, "type_method": "rule", "room_id": room, "evidence": [{"file": "x.dwg"}],
+                "footprint": {"center": c, "size": s, "rotation_deg": 0.0}}
+
+    b = {"rooms": [{"id": "bath", "room_type": "bathroom", "polygon": [[0, 0], [3, 0], [3, 3], [0, 3]]},
+                   {"id": "kit", "room_type": "kitchen", "polygon": [[3, 0], [6, 0], [6, 3], [3, 3]]}],
+         "furniture": [piece("c", "kitchen_counter", "bath", [1.0, 0.25], [1.0, 0.5]),
+                       piece("s", "sink_kitchen", "bath", [1.0, 0.3], [0.5, 0.4]),
+                       piece("k", "kitchen_counter", "kit", [4.0, 0.3], [0.9, 0.6])]}
+    build = SimpleNamespace(building=b, warn=lambda text: None)
+    assert sorted(RD.wet_room_vanities(build)) == ["c", "s"]
+    by = {f["id"]: f for f in b["furniture"]}
+    assert by["c"]["type"] == "washbasin" and by["c"]["drawn_type"] == "kitchen_counter"
+    assert by["s"]["build"] is False and by["s"]["replaced_by"] == "c"
+    assert by["k"]["type"] == "kitchen_counter"
+    assert RD.kitchen_zones(build) == 0 and "zones" not in b["rooms"][0]      # no open kitchen in the bathroom

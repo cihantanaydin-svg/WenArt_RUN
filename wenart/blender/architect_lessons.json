@@ -408,22 +408,25 @@
   {
    "id": "UL35",
    "date": "2026-10-26",
-   "area": "other",
-   "status": "open",
+   "area": "process",
+   "status": "process",
    "checks": [],
-   "request": "The AI architect decides: every open point ends with a decision (the next safe fix is tried when one cannot be done), a refused AI pick is asked again with the reason, the AI sees each floor of the model, and it may propose its own changes from the typed actions; code carries them out and keeps them only when nothing new breaks (user request of 26 Oct 2026: make the AI architect a lot more smart and let it take decisions more).",
-   "lesson": "The AI architect decides: every open point ends with a decision (the next safe fix is tried when one cannot be done), a refused AI pick is asked again with the reason, the AI sees each floor of the model, and it may propose its own changes from the typed actions; code carries them out and keeps them only when nothing new breaks (user request of 26 Oct 2026: make the AI architect a lot more smart and let it take decisions more).",
-   "question": null
+   "request": "Make the AI architect a lot more smart and let it take decisions more",
+   "lesson": "The architect decides: every open point ends with a decision (the next safe fix when one cannot be done); a refused AI pick is asked again with the reason; the AI looks at each floor of the model, may change a default or decide on its own from typed actions; code keeps a decision only when nothing new breaks.",
+   "question": "Did every open point end with a decision, checked by code?"
   },
   {
    "id": "UL36",
    "date": "2026-10-26",
-   "area": "other",
-   "status": "open",
-   "checks": [],
-   "request": "Entrances make sense: doors whose landings or flights touch share one platform with one flight; a handrail or a ramp never crosses in front of a door; the front door is a normal entrance door, not the widest garden door; a wide outside door of a living room is glazed (French or sliding), never one flat slab that reads as a garage door; the model review checks this (user, 26 Oct 2026: these sections are not making sense, the AI inspector needs to make sense of this).",
-   "lesson": "Entrances make sense: doors whose landings or flights touch share one platform with one flight; a handrail or a ramp never crosses in front of a door; the front door is a normal entrance door, not the widest garden door; a wide outside door of a living room is glazed (French or sliding), never one flat slab that reads as a garage door; the model review checks this (user, 26 Oct 2026: these sections are not making sense, the AI inspector needs to make sense of this).",
-   "question": null
+   "area": "openings",
+   "status": "rule",
+   "checks": [
+    "D5",
+    "build"
+   ],
+   "request": "These sections not making sense AI inspector needs to make sense of this (the circled garage-like door with steps and the crossing railings of real06's entrance)",
+   "lesson": "Entrances make sense: doors whose landings or flights touch share one platform with one flight; a handrail or ramp never crosses in front of a door; the front door is a normal entrance door, not the widest garden door; a wide outside door of a living room is glazed (French or sliding), never one flat slab that reads as a garage door (D5; the model check M8; the visitor check Q9).",
+   "question": "Can every door be reached, with no railing or stair across it, and does every door look like the door it is?"
   }
  ]
 }

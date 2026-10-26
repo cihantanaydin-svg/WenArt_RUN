@@ -2515,12 +2515,53 @@ def kitchen_outlines(build, items: dict, pending=()) -> list[str]:
 # 6. Kitchen zones of open plans
 # --------------------------------------------------------------------------
 
+WET_ROOM_TYPES = ("bathroom", "wc", "toilet", "shower")
+VANITY_RULE = "reading.wet_room_vanity"
+
+
+def wet_room_vanities(build) -> list[str]:
+    """26 Oct 2026 (full suite with LibreDWG: real03's bathroom vanities with their basin's drain were read as a kitchen
+    counter and a kitchen sink, and each bathroom got an "open kitchen"): in a bathroom, WC or shower room a counter or
+    a kitchen sink the code typed (not the AI) is the vanity: the counter becomes the washbasin (a vanity unit, its
+    footprint kept), a sink inside it is its basin (not built, ``replaced_by``), a sink alone is the washbasin. The
+    drawn type stays (``drawn_type``), ``adjusted_by_ai`` (by code) with the reason. A kitchen's sink cabinet is drawn
+    the same way, so only the room tells them apart. Returns the ids of the changed pieces."""
+    b = build.building
+    wet = {r["id"] for r in b.get("rooms") or [] if str(r.get("room_type") or "") in WET_ROOM_TYPES}
+    changed = []
+    by_room: dict = {}
+    for f in b.get("furniture") or []:
+        if f.get("room_id") in wet and f.get("build") is not False and f.get("type_method") in ("rule", "inferred") \
+                and f.get("type") in ("kitchen_counter", "sink_kitchen"):
+            by_room.setdefault(f["room_id"], []).append(f)
+    for rid, pieces in sorted(by_room.items()):
+        counters = [f for f in pieces if f["type"] == "kitchen_counter"]
+        for f in pieces:
+            host = next((c for c in counters if c is not f and rect(c).buffer(0.05).contains(rect(f).centroid)), None) \
+                if f["type"] == "sink_kitchen" else None
+            f.setdefault("drawn_type", f["type"])
+            if host is not None:
+                why = f"the basin of the vanity {host['id']} in the {rid} wet room, not a kitchen sink"
+                f.update(build=False, inferred_as="detail", replaced_by=host["id"], not_built_reason=why)
+            else:
+                why = (f"a {f['type'].replace('_', ' ')} read in the wet room {rid}: its vanity with the basin, a "
+                       f"washbasin")
+                f["type"] = "washbasin"
+            f["adjusted_by_ai"] = {"by": "code", "rule": VANITY_RULE, "reason": why}
+            f.setdefault("evidence", []).append(_ev(f, VANITY_RULE, why, 0.8))
+            build.warn(f"{f['id']}: {why}")
+            changed.append(f["id"])
+    return changed
+
+
 def kitchen_zones(build) -> int:
     """Step 6 (see the module docstring; contract §13.3). Returns the number of zones."""
     b = build.building
     n = 0
     for room in b.get("rooms") or []:
-        if room.get("room_type") == "kitchen" or len(room.get("polygon") or []) < 3:
+        # 26 Oct 2026: never an open kitchen in a bathroom, WC or shower room (a vanity read as a counter there)
+        if room.get("room_type") in ("kitchen", "bathroom", "wc", "toilet", "shower") or \
+                len(room.get("polygon") or []) < 3:
             continue
         pieces = [f for f in b["furniture"] if f.get("room_id") == room["id"] and f["type"] in KITCHEN_ZONE_TYPES
                   and f.get("build") is not False]
@@ -2723,6 +2764,7 @@ def read_furniture(build, works: dict) -> None:
     for k, v in context_types(build, items, pending).items():
         context[k] = context.get(k, 0) + v
     fronts += infer_fronts(build, pending)
+    vanities = wet_room_vanities(build)          # 26 Oct 2026: never a kitchen counter in a bathroom
     zones = kitchen_zones(build)
     review = never_a_box(build, items, pending)
     _refresh_rooms(b)
@@ -2732,6 +2774,6 @@ def read_furniture(build, works: dict) -> None:
                      "fronts": fronts, "zones": zones, "needs_review": review, "tie_break": sorted(tied),
                      "answer_typed": sorted(from_answers), "long_side_fronts": flipped, "desk_chairs": desks,
                      "seat_cushions": cushions, "rooms_retyped": rooms_retyped, "nested_outlines": nested,
-                     "kitchen_outline_legs": outline_legs,
+                     "kitchen_outline_legs": outline_legs, "wet_room_vanities": vanities,
                      "code_typed": sorted(typed_by), "questions_withdrawn": sorted(withdrawn),
                      "typed_by": dict(sorted(typed_by.items()))}
