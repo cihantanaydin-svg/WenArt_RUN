@@ -246,6 +246,14 @@ takes it) kept the label and the frontal role, and the guard accepted it.
 Fix round after P6b (23 Oct 2026): an edit's ``acceptance`` record carries the dry re-check's fit record too
 (``acceptance_record``: ``fitted`` ``{"overlaid", "refit"}``, at most 8 refit ids), so the log shows whether a piece
 was fitted for the dry re-check (P6b's 219 edit events had no such record; ``loop.ACCEPTANCE_LOG_KEYS``).
+
+26 Oct 2026 (Argus P10; real06 round 4): ``target_findings`` also reads the finding ids the edit's reason names
+(``reason_findings``: a finding whose cause the tool fixes; a vision finding only on what the edit changes), after the
+checklist step and before the finding on the edit's target: the model names the finding the refusal "an edit must
+name the finding it fixes" asks for (a piece moved for the walkway finding on the door it blocks, a model swapped
+for the judge's Q5 on the piece), and the code never read it. ``changed_targets`` reads every vision source
+(``causes.is_vision``). The memory refuses the repeat of a "no target finding" only while the round's list still has
+no target for the edit (``_repeat_of``).
 """
 from __future__ import annotations
 
@@ -904,11 +912,20 @@ class Registry:
 
 def _repeat_of(ctx: ToolContext, room: Optional[str], name: str, args: dict) -> Optional[dict]:
     """The memory's earlier rejection of this edit (``memory.Memory.repeat_of``); fix round after P5: with the round,
-    so a rejection about the round's finding list only refuses its repeat in that round."""
+    so a rejection about the round's finding list only refuses its repeat in that round. 26 Oct 2026 (Argus P10): and
+    only while the round's list still has no target for it (``target_findings``): a repeat whose reason now names its
+    finding, or whose finding the list holds again, is validated again (real06 round 4 seq 4216: the swap_model of
+    f_L1_017 naming "j:judge_cam_r_L1_ebeveyn_y_odasi_2:1" was refused as the repeat of a "no target finding")."""
     try:
-        return ctx.memory.repeat_of(room, name, args, round_no=ctx.round)
+        prev = ctx.memory.repeat_of(room, name, args, round_no=ctx.round)
     except TypeError:                    # a memory without the round argument (an older one, a test fake)
         return ctx.memory.repeat_of(room, name, args)
+    if prev is not None and MEM.bookkeeping(prev) and target_findings(ctx, name, args):
+        try:
+            return ctx.memory.repeat_of(room, name, args, round_no=ctx.round, skip_bookkeeping=True)
+        except TypeError:                # a memory without the flag (a test fake): validate it again
+            return None
+    return prev
 
 
 # --------------------------------------------------------------------------
@@ -1198,12 +1215,48 @@ def _target(tool: str, args: dict) -> str:
     return tool
 
 
+def _rank(f: dict):
+    return (CS.SEVERITY_ORDER.get(f.get("severity"), 3), str(f.get("check")), str(f.get("target")))
+
+
+def names_id(text: str, finding_id: str) -> bool:
+    """26 Oct 2026 (Argus P10): ``text`` names the finding id ``finding_id`` as a whole (``c:G11:d_L0_001`` is not
+    named by ``c:G11:d_L0_0012`` or ``c:G11:d_L0_001#2``; a full stop after it ends a sentence)."""
+    if not text or not finding_id:
+        return False
+    return re.search(r"(?<![\w#.:-])" + re.escape(finding_id) + r"(?![\w#-]|[.:]\w)", text) is not None
+
+
+def reason_findings(findings: list[dict], tool: str, args: dict) -> list[dict]:
+    """26 Oct 2026 (Argus P10): the findings of ``findings`` whose id the edit's ``reason`` names (``names_id``) and
+    whose cause ``tool`` fixes (``causes.tools_for_finding``), the most severe first. A finding an AI made by looking
+    (``causes.is_vision``) counts only on what the edit changes (its piece, room, group or view, or the anchor the
+    finding is about): the dry re-check counts such a finding as re-judged on a changed target, so a look on another
+    target is no target of this edit. Why: the refusal "no target finding: an edit must name the finding it fixes"
+    made the model name it (real06 round 4: "Fixes j:judge_cam_r_L1_ebeveyn_y_odasi_2:1 (Q5, f_L1_017)"; a move of
+    the plant f_L0_013 "(c:G11:d_L0_001)", the walkway finding on the door it blocks) and the code never read it."""
+    text = str((args or {}).get("reason") or "")
+    if not text:
+        return []
+    own = {_target(tool, args)} | {str(args[k]) for k in ("piece_id", "room_id", "group_id", "view_id")
+                                   if args.get(k)}
+    out = []
+    for f in findings:
+        if not f.get("id") or not names_id(text, str(f["id"])) or tool not in CS.tools_for_finding(f):
+            continue
+        if CS.is_vision(f) and str(f.get("target")) not in own and CS.anchor_of(f) not in own:
+            continue
+        out.append(f)
+    return sorted(out, key=_rank)
+
+
 def target_findings(ctx: ToolContext, tool: str, args: dict) -> list[dict]:
     """Milestone 13: the findings an edit targets, from the round's findings (``ctx.findings``): the session's
-    checklist step with this tool and target names them (``finding_ids``); else the most severe finding on the
-    edit's target whose cause this tool fixes (``causes.tools_for_finding``), else any finding on the target; for a
-    room tool the room's findings the tool fixes, for a group tool its members', for a building-wide tool the
-    building-level ones. At most one finding unless the checklist named several."""
+    checklist step with this tool and target names them (``finding_ids``); else (26 Oct 2026) the findings the edit's
+    reason names by id that this tool fixes (``reason_findings``); else the most severe finding on the edit's target
+    whose cause this tool fixes (``causes.tools_for_finding``), else any finding on the target; for a room tool the
+    room's findings the tool fixes, for a group tool its members', for a building-wide tool the building-level ones.
+    At most one finding unless the checklist or the reason named several."""
     findings = list(ctx.findings or [])
     if not findings:
         return []
@@ -1215,26 +1268,26 @@ def target_findings(ctx: ToolContext, tool: str, args: dict) -> list[dict]:
         named = [by_id[i] for i in step.get("finding_ids") or [] if i in by_id]
         if named:
             return named
-
-    def rank(f: dict):
-        return (CS.SEVERITY_ORDER.get(f.get("severity"), 3), str(f.get("check")), str(f.get("target")))
+    named = reason_findings(findings, tool, args)
+    if named:
+        return named
 
     def fixes(f: dict) -> bool:
         return tool in CS.tools_for_finding(f)
 
     # round 2: a finding about an unbuilt anchor (``causes.anchor_of``) is on the anchor the edit builds
-    on_target = sorted((f for f in findings if f.get("target") == target or CS.anchor_of(f) == target), key=rank)
+    on_target = sorted((f for f in findings if f.get("target") == target or CS.anchor_of(f) == target), key=_rank)
     cands = [f for f in on_target if fixes(f)] or on_target
     if not cands and args.get("group_id"):
         members = {f.get("id") for f in ctx.building.get("furniture") or []
                    if (f.get("group") or {}).get("group_id") == args["group_id"]}
-        cands = sorted((f for f in findings if f.get("target") in members and fixes(f)), key=rank)
+        cands = sorted((f for f in findings if f.get("target") in members and fixes(f)), key=_rank)
     if not cands and args.get("room_id"):
         room = args["room_id"]
         cands = sorted((f for f in findings if (f.get("room_id") == room or f.get("target") == room) and fixes(f)),
-                       key=rank)
+                       key=_rank)
     if not cands and CS.is_building_wide(tool, args):
-        cands = sorted((f for f in findings if not f.get("room_id") and fixes(f)), key=rank)
+        cands = sorted((f for f in findings if not f.get("room_id") and fixes(f)), key=_rank)
     return cands[:1]
 
 
@@ -1249,7 +1302,7 @@ def changed_targets(tool: str, args: dict, result: dict, targets: list[dict], fi
     override = {k: v for k, v in args.items() if k != "reason"} if tool == "set_exterior" else None
     # fix round after P4b: a set_exterior changes a vision finding's target only through a slot of its cause
     out |= {f.get("target") for f in targets if f.get("target") is not None
-            and (override is None or f.get("source") != "vision"
+            and (override is None or not CS.is_vision(f)
                  or CS.override_touches(f.get("cause") if f.get("cause") in CS.CAUSE_TOOLS else CS.cause_of(f),
                                         override))}
     if tool == "set_lighting" and args.get("room_id"):
