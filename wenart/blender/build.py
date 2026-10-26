@@ -1694,6 +1694,19 @@ def main(argv: list[str]) -> int:
                                           encoding="utf-8")
         (out / "architect.json").write_text(json.dumps(prep["architect"], indent=1, ensure_ascii=False),
                                             encoding="utf-8")
+    if whole:
+        # 26 Oct 2026 (user: "reviewing the 3d model itself could be better ... than individual renders"): every
+        # element of the model as built, measured (wenart/blender/model_review.py); the agent's code critic reads
+        # the same review each round, the inspector's report lists it
+        from wenart.blender import model_review as MR
+        try:
+            review = MR.review(prep["building"], manifest, prep)
+            (out / MR.REVIEW_JSON).write_text(json.dumps(review, indent=1, ensure_ascii=False), encoding="utf-8")
+            (out / MR.REVIEW_MD).write_text(MR.report_md(review, Path(args.building).parent.name), encoding="utf-8")
+            print(f"MODEL_REVIEW {sum(1 for f in review['findings'] if f['severity'] == 'critical')} critical, "
+                  f"{sum(1 for f in review['findings'] if f['severity'] == 'major')} major")
+        except Exception as exc:  # noqa: BLE001 - the review is a record; it never stops a build
+            warnings.append(f"model review failed: {type(exc).__name__}: {exc}")
     kinds = {}
     for o in manifest_objects:
         kinds[o["kind"]] = kinds.get(o["kind"], 0) + 1

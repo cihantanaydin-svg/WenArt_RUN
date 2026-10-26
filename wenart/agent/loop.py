@@ -1790,8 +1790,10 @@ class AgentLoop:
         manifest = self.render_manifest(preview_dir)
         if self.code_critic is not None:
             return self.code_critic(building, ctx.scene, manifest)
+        # 26 Oct 2026: the model as built is reviewed too (critic_code family "model")
+        built = TL.read_json(self.project_out / "scene" / "building_built.json")
         return CC.run(building, ctx.scene, manifest, scene_dir=self.scene_dir or CC.scene_checks_dir(self.project_out),
-                      **self.critic_kwargs())
+                      built=built, **self.critic_kwargs())
 
     def critique_keys(self, ctx: TL.ToolContext, building: dict) -> list[tuple[str, str]]:
         """``[(kind, id)]`` (M12: only where an image adds something): rooms with at least one preview of their own

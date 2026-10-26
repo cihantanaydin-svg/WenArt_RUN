@@ -425,6 +425,9 @@ CHECK_CAUSE: dict[str, str] = {
     # 26 Oct 2026: the visitor checks (cause_of refines Q4-Q6 from the message)
     "Q1": "opening_sense", "Q2": "wrong_model", "Q3": "guard", "Q4": "empty_room", "Q5": "wrong_model",
     "Q6": "orientation", "Q7": "opening_style", "Q8": "rain_water",
+    # 26 Oct 2026: the review of the 3D model as built (wenart/blender/model_review.py; cause_of refines M7)
+    "M1": "levels", "M2": "wrong_model", "M3": "guard", "M4": "opening_sense", "M5": "rain_water",
+    "M6": "opening_style", "M7": "missing_anchor",
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",
@@ -538,6 +541,9 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
         return "empty_room"                    # fix round after P6b: furnish the room, never retype it away
     if check == "RC" and target and not _is_piece(target, building):
         return "resolved_by_code"              # fix round after P6b: a symbol the reading moved out of the furniture
+    # 26 Oct 2026: the model review's rooms: a missing anchor is furnished, an extra dining table is one too many
+    if check == "M7":
+        return "wrong_type" if target and _is_piece(target, building) else "empty_room"
     # 26 Oct 2026: the visitor checks, refined from the message
     if check == "Q4":
         if target and _is_piece(target, building):

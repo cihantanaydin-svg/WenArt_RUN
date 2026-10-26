@@ -63,6 +63,14 @@ def architect_open(project_out: Path) -> list[dict]:
     return out
 
 
+def model_review(project_out: Path) -> Optional[dict]:
+    """The review of the 3D model as built (``scene/model_review.json``, ``wenart.blender.model_review``)."""
+    try:
+        return json.loads((Path(project_out) / "scene" / "model_review.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
 def report(project_out, round_no: int, findings: dict, accepted: list[dict]) -> dict:
     """The record (module docstring). ``findings``: ``{"code": [...], "vision_kept": [...], "vision_dropped":
     [...]}`` of the final round; ``accepted``: its accepted edits (``{"tool", "args", ...}``)."""
@@ -84,8 +92,12 @@ def report(project_out, round_no: int, findings: dict, accepted: list[dict]) -> 
               "open": sum(1 for r in rows if r["outcome"].startswith("open")),
               "dropped": len(dropped), "architect_open": len(arch),
               "architect_open_major": sum(1 for a in arch if a["severity"] == "major")}
+    model = model_review(Path(project_out))
+    if model is not None:
+        counts["model_checks"] = {k: v.get("failed") for k, v in (model.get("checks") or {}).items()}
+        counts["model_open"] = sum(1 for r in code if str(r.get("check", "")).startswith("M"))
     return {"round": round_no, "counts": counts, "vision": kept, "code": code, "dropped": dropped,
-            "architect_open": arch}
+            "architect_open": arch, "model_review": model}
 
 
 def report_md(rec: dict, project: str = "") -> str:
@@ -98,6 +110,14 @@ def report_md(rec: dict, project: str = "") -> str:
              f"({c['architect_open_major']} major).", "",
              "Visitor checks: " + "; ".join(f"{k} {P.CHECKLIST[k]['what'].split(':')[0]}" for k in P.VISITOR_CHECKS),
              ""]
+    model = rec.get("model_review")
+    if isinstance(model, dict):
+        # 26 Oct 2026: the model as built is reviewed first (every element measured, not only what a camera frames)
+        lines += ["## The 3D model, measured (every element, every floor)", "",
+                  "; ".join(f"{k}: {v.get('checked', '-')} checked, {v.get('failed', '-')} failed"
+                            for k, v in sorted((model.get("checks") or {}).items()) if v.get("status") == "ok")
+                  + " (M1 doors on their floors, M2 working heights, M3 guards, M4 doors into the air, M5 rain water, "
+                    "M6 one door and window language, M7 rooms that make sense; `scene/model_review.md`).", ""]
     order = {"critical": 0, "major": 1, "minor": 2}
     rows = sorted(rec["vision"] + rec["code"], key=lambda r: (order.get(r.get("severity"), 3), not r["visitor"]))
     if rows:

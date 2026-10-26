@@ -91,3 +91,47 @@ def test_the_final_round_takes_a_visitor_major_and_writes_the_inspectors_report(
     assert res["stop"] != "no_finding"                      # the visitor major is the final round's work
     md = (out / "orchestrator" / INS.REPORT_MD).read_text(encoding="utf-8")
     assert "What the AI inspector saw" in md and "knee height" in md
+
+
+def test_the_model_review_measures_what_the_user_saw_on_the_old_real06_model():
+    """26 Oct 2026 (user: "reviewing the 3d model itself could be better"): the review of real06's model of 25 Oct as
+    it was built finds every first-look problem, with the element and the number: the doors 0.5 m up, the basins at
+    knee height, the upper-floor doors and gaps onto nothing, the empty kitchen, the four dining tables, two window
+    models."""
+    from pathlib import Path
+    from wenart.blender import build as BB
+    from wenart.blender import model_review as MR
+    from wenart.agent import critic_code as CC
+    root = Path(__file__).resolve().parents[1]
+    b = json.loads((root / "tests" / "fixtures" / "real06_building_20261025.json").read_text(encoding="utf-8"))
+    manifest = {"objects": [
+        {"kind": "furniture", "element_id": "f_L0_038", "type": "washbasin", "room_id": "r_L0_banyo",
+         "box3d": {"center": [6.22, 12.62, 0.2713], "size": [0.5, 0.4, 0.5426], "rotation_deg": 90.0}},
+        {"kind": "furniture", "element_id": "f_L0_031", "type": "toilet", "room_id": "r_L0_banyo",
+         "box3d": {"center": [8.05, 12.43, 0.44], "size": [0.45, 0.74, 0.88], "rotation_deg": 270.0}},
+        *({"kind": "furniture", "element_id": t, "type": "table_dining", "room_id": "r_L0_salon",
+           "box3d": {"center": [5.0, 3.0, 0.395], "size": [0.8, 0.8, 0.79], "rotation_deg": 0.0}}
+          for t in ("f_L0_004", "f_L0_017", "f_L0_020", "f_L0_023")),
+        {"kind": "window", "element_id": "win_L0_001", "library_model": {"asset_id": "a", "category": "window"}},
+        {"kind": "window", "element_id": "win_L0_002", "library_model": {"asset_id": "b", "category": "window"}}]}
+    prep = BB.prepare_once(b, "base", None)              # the old build: no architect defaults
+    rec = MR.review(prep["building"], manifest, prep)
+    got = {(f["check"], f["target"]) for f in rec["findings"]}
+    assert ("M1", "d_L0_007") in got                     # the bathroom door 0.5 m up from the bathroom
+    assert ("M2", "f_L0_038") in got                     # the basin's top at 0.54 m
+    assert ("M4", "d_L1_001") in got and ("M4", "o_L1_006") in got
+    assert ("M7", "r_L0_mutfak") in got and ("M7", "f_L0_017") in got
+    assert any(f["check"] == "M6" for f in rec["findings"])
+    assert "Review of the 3D model" in MR.report_md(rec, "real06")
+    # the same building after the architect's defaults: the doors into the air are windows, no M4 is left
+    after = BB.prepare(b, "base", None)
+    assert not [f for f in MR.review(after["building"], None, after)["findings"] if f["check"] == "M4"]
+    # the code critic reads it as its family "model", each finding with a cause and a route
+    code = CC.run(b, manifest, None, built=prep["building"], plausibility_fn=lambda b: {}, exterior_fn=lambda *a: {},
+                  views_fn=lambda *a: {}, groups_fn=lambda b: {}, levels_fn=lambda *a: [])
+    fams = {c["source"]: c["status"] for c in code["checks"]}
+    assert fams.get("model") == "ok" and any(f["check"] == "M2" for f in code["findings"])
+    for f in code["findings"]:
+        if f["check"].startswith("M"):
+            c = CS.cause_of(f, b)
+            assert CS.CAUSE_TOOLS.get(c) or CS.REPORT_TO.get(c), (f["check"], c)

@@ -413,10 +413,19 @@ def reading_items(building: dict) -> list[dict]:
     return out
 
 
+def model_items(built: Optional[dict], scene_manifest: Optional[dict]) -> list[dict]:
+    """The review of the model as built (``model_review.review``) as code violations (26 Oct 2026)."""
+    if not built:
+        raise FileNotFoundError("no building as built (scene/building_built.json)")
+    from wenart.blender import model_review as MR
+    return list(MR.review(built, scene_manifest).get("findings") or [])
+
+
 def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: Optional[dict] = None, *,
         plausibility_fn: Optional[Callable] = None, exterior_fn: Optional[Callable] = None,
         views_fn: Optional[Callable] = None, groups_fn: Optional[Callable] = None,
-        levels_fn: Optional[Callable] = None, scene_dir=None, scene_fn: Optional[Callable] = None) -> dict:
+        levels_fn: Optional[Callable] = None, scene_dir=None, scene_fn: Optional[Callable] = None,
+        built: Optional[dict] = None, model_fn: Optional[Callable] = None) -> dict:
     """``{"findings": [...], "checks": [{source, status, note, counts}], "scores": {room_id: score}, "mean"}``.
     ``scene_dir``: the build's checks folder (``outputs/<p>/build/checks``); without it (and without ``scene_fn``)
     the scene family is not run."""
@@ -509,6 +518,11 @@ def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: 
     family("lighting", None, lambda: lighting_items(render_manifest, building), lambda fn: fn())
     # fix round after P5: the views whose lens touches a surface or that one element fills (render manifest)
     family("blocked", None, lambda: blocked_items(render_manifest, scene_manifest), lambda fn: fn())
+    # 26 Oct 2026 (user: "reviewing the 3d model itself could be better"): the review of the model as built (doors
+    # on their floors, working heights, guards, doors into the air, rain water, one opening language, rooms that make
+    # sense: wenart/blender/model_review.py), on the building as built (``built``: scene/building_built.json)
+    if model_fn is not None or built is not None:
+        family("model", None, model_fn or (lambda: model_items(built, scene_manifest)), lambda fn: fn())
     return {"findings": _unique(findings), "checks": checks, "scores": scores, "mean": mean,
             "scene_summary": manifest_summary(scene_manifest)}
 

@@ -332,6 +332,7 @@ PUBLIC_RULES = (
     Rule("layout_debug", "furniture", "layout_debug", "debug"),
     Rule("scene", "renders", "", "scene"),
     Rule("scene", "renders", "", "names:architect.md"),          # 25 Oct 2026: the architect's review
+    Rule("scene", "renders", "", "names:model_review.md,model_review.json"),     # 26 Oct 2026: the model review
     Rule("renders", "renders", "", "general"),
     Rule("controls", "renders", "controls", "general"),
     Rule("controls/hide_*", "renders", "controls/{name}", "general"),
