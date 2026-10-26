@@ -2555,9 +2555,30 @@ class AgentLoop:
         arch = TL.read_json(self.project_out / "scene" / "architect.json") or {}
         majors = sum(1 for q in arch.get("questions") or [] if q.get("severity") == "major"
                      for a in q.get("answers") or [] if a.get("open"))
-        score = JD.house_score(judged["rows"], list(code.get("findings") or []), [], majors, views=len(ctx.cameras()))
-        self.extra_findings = list(judged["findings"])
+        audit = self.argus_measure()
+        score = JD.house_score(judged["rows"], list(code.get("findings") or []), audit["house"], majors,
+                               views=len(ctx.cameras()))
+        score["argus"] = audit["score"]
+        self.extra_findings = list(judged["findings"]) + audit["work"]
         return {"score": score, "rows": judged["rows"], "findings": judged["findings"], "errors": judged["errors"]}
+
+    def argus_measure(self) -> dict:
+        """26 Oct 2026 (user: "we need a big smart auditor to check everything in the project"): Argus's code lines on
+        the project as it stands (``wenart.audit.report.run``: nothing lost between stages, warnings nobody acted on,
+        the model's sense ...) and its report (``orchestrator/argus.md``); the defects of the house among them count
+        in the house score (``report.house_findings``), and the findings Argus AI handed to the agent join the next
+        round's work (``argus_ai.work_findings``). Never raises: ``{"score", "house", "work"}``."""
+        try:
+            from wenart.audit import argus_ai as AX
+            from wenart.audit import inputs as AI_
+            from wenart.audit import report as AR
+            rep = AR.run(AI_.pod(self.project_out))
+            AR.write(rep, AR.out_dir(AI_.pod(self.project_out)), AR.prevention(rep))
+            return {"score": rep["score"], "house": AR.house_findings(rep),
+                    "work": AX.work_findings(self.project_out)}
+        except Exception as exc:  # noqa: BLE001 - the audit is a measure, never a stop
+            self.log.event("check", 0, check="argus", status="error", note=f"{type(exc).__name__}: {exc}")
+            return {"score": None, "house": [], "work": []}
 
     def write_inspector(self, round_no: int, started: bool) -> None:
         """26 Oct 2026: the inspector's report (``orchestrator/inspector.md``): what the AI saw on the final renders

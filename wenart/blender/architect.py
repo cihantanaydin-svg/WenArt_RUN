@@ -1161,7 +1161,8 @@ def apply_answers(building: dict, brief_answers: Optional[dict] = None) -> dict:
 
 def _who(rec: dict) -> str:
     by = rec.get("by", "user")
-    return "you" if by == "user" else ("the architect's default" if by == "architect" else "the AI architect")
+    return "you" if by == "user" else ("the architect's default" if by == "architect" else
+                                        "Argus, the auditor" if by == "argus" else "the AI architect")
 
 
 DEFAULT_ROUNDS = 6              # a default may open a question that has a default of its own; a chain moves on

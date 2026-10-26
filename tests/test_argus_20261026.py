@@ -212,3 +212,137 @@ def test_inputs_read_both_layouts(tmp_path):
     (res / "run_manifest.json").write_text(json.dumps({"run_id": "x"}), encoding="utf-8")
     inp2 = I.collected(res, "p")
     assert [n for n, _b in inp2.stages] == ["final"] and inp2.run_manifest == {"run_id": "x"}
+
+
+# --------------------------------------------------------------------------
+# Argus AI (user, 26 Oct 2026: "use open weight AI models for this auditor, it needs to be smart, it needs to solve
+# the problems even without me telling it"): every finding triaged, decisions code-checked, claims verified
+# --------------------------------------------------------------------------
+import re  # noqa: E402
+
+import pytest  # noqa: E402
+from PIL import Image  # noqa: E402
+
+from wenart.agent.model import MockModel  # noqa: E402
+from wenart.audit import argus_ai as AX  # noqa: E402
+
+REAL06 = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "real06_building_20261025.json"
+
+
+def _real06_out(tmp_path: Path) -> Path:
+    b = json.loads(REAL06.read_text(encoding="utf-8"))
+    b["project"]["source_folder"] = "projects/no_such_project"
+    b["warnings"] = ["inferred trees: placed 0 of 3 (74 candidates)"]
+    out = tmp_path / "real06"
+    (out / "scene").mkdir(parents=True)
+    (out / "building_final.json").write_text(json.dumps(b), encoding="utf-8")
+    Image.new("RGB", (64, 48), (200, 200, 200)).save(out / "scene" / "top_L1_plan.jpg")
+    return out
+
+
+def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable_claims(tmp_path, monkeypatch):
+    monkeypatch.setattr(AX, "TRIAGE_BATCH", 2)                     # several batches: every finding is still triaged
+    out = _real06_out(tmp_path)
+    calls = {"triage": 0, "discover": []}
+
+    def reply(body):
+        name = MockModel.schema_name(body)
+        content = body["messages"][-1]["content"]
+        text = content if isinstance(content, str) else json.dumps(content, ensure_ascii=False)
+        assert body["chat_template_kwargs"]["enable_thinking"] is True          # Argus thinks
+        if name == "argus_triage":
+            calls["triage"] += 1
+            batch = json.loads(text.split("):\n", 1)[1].split("\n\nArchitect actions", 1)[0])
+            items = []
+            for it in batch:
+                v = {"id": it["id"], "real": True, "kind": "lost", "cause": "site", "fix": "rule_needed",
+                     "element": "", "value": "", "rule": "a labelled outdoor space is always built",
+                     "why": "the documents label it"}
+                if it["check"] in ("conservation:C5", "process:P2"):
+                    # a closet decision: it cannot remove the veranda (the dry re-check refuses it), it may settle the
+                    # process finding (no code line re-checks that: the architect's verdicts decide)
+                    v.update(kind="misread", cause="reading", fix="retype_room", element="r_L1_soyunma_odasi",
+                             value="closet", rule="", why="a dressing room off the bedroom is a walk-in closet")
+                if it["check"] == "conservation:C4":
+                    v.update(real=False, fix="not_a_problem", rule="", why="the circles are the hedge of L0")
+                items.append(v)
+            return {"items": items}
+        calls["discover"].append("image_url" in text)
+        return {"found": [
+            {"target": "VERANDA", "kind": "lost", "severity": "critical", "what": "the labelled veranda is missing",
+             "cause": "site", "fix": "rule_needed", "element": "", "value": "", "rule": "build every labelled space"},
+            {"target": "garage_north", "kind": "lost", "severity": "major", "what": "a garage is missing",
+             "cause": "reading", "fix": "rule_needed", "element": "", "value": "", "rule": ""}]}
+
+    rec = AX.investigate(out, MockModel(critic=[reply] * 40), out=lambda s: None)
+    assert rec["items"] == 3 and rec["triaged"] == 3 and calls["triage"] == 2
+    assert calls["discover"] == [False, True]                      # one call per floor, the floor's image when there is one
+    by = {(e["aid"], e["verdict"]) for e in rec["decisions"]}
+    checks = {v["id"]: v for v in rec["verdicts"]}
+    assert len(rec["decisions"]) == 2 and {v for _a, v in by} == {"accepted", "refused"}
+    refused = next(e for e in rec["decisions"] if e["verdict"] == "refused")
+    assert "still there" in refused["why"]                         # the veranda is not fixed by a closet
+    saved = json.loads((out / "orchestrator" / "architect_answers.json").read_text(encoding="utf-8"))["answers"]
+    assert saved["AI.retype_room:r_L1_soyunma_odasi"]["by"] == "argus"
+    assert len(rec["disputed"]) == 1 and checks[rec["disputed"][0]["aid"]]["real"] is False
+    assert {f["target"] for f in rec["findings"] if f["check"] == "AI1"} == {"sa_L0_veranda"}
+    assert [d["target"] for d in rec["dropped"]] == ["garage_north", "garage_north"]
+    assert any("labelled" in g["rule"] for g in rec["guards"])
+    assert (out / "orchestrator" / AX.LOG_MD).read_text(encoding="utf-8").startswith("# Argus AI")
+    # the report reads Argus AI's line: its veranda is the same problem as conservation's C5 (one row, seen by both)
+    rep = R.run(I.pod(out))
+    row = next(f for f in rep["findings"] if f["target"] == "sa_L0_veranda")
+    assert "argus_ai" in rep["lines"] and set(row["seen_by"]) == {"conservation:C5", "argus_ai:AI1"}
+
+
+def test_argus_ai_at_the_end_proposes_and_keeps_the_first_record(tmp_path):
+    out = _real06_out(tmp_path)
+
+    def reply(body):
+        if MockModel.schema_name(body) == "argus_triage":
+            text = body["messages"][-1]["content"]
+            return {"items": [{"id": aid, "real": True, "kind": "misread", "cause": "reading", "fix": "retype_room",
+                               "element": "r_L1_soyunma_odasi", "value": "closet", "rule": "", "why": "a closet"}
+                              for aid in re.findall(r'"id": "(F\d+)"', text)[-1:]]}
+        return {"found": []}
+
+    rec = AX.investigate(out, MockModel(critic=[reply] * 40), out=lambda s: None, act_on=False)
+    assert rec["decisions"] and {e["verdict"] for e in rec["decisions"]} == {"proposed"}
+    assert (out / "orchestrator" / AX.FINAL_JSON).is_file() and not (out / "orchestrator" / AX.LOG_JSON).is_file()
+    assert not (out / "orchestrator" / "architect_answers.json").is_file()
+
+
+def test_argus_target_gone_and_work_for_the_agent(tmp_path):
+    lost = K.finding("conservation", "C5", "critical", "sa_L0_veranda", "not built")
+    open_ = {"building": {"site": {"areas": [{"id": "sa_L0_veranda", "label": "VERANDA", "build": False}]}}}
+    built = {"building": {"site": {"areas": [{"id": "sa_L0_veranda", "label": "VERANDA",
+                                              "polygon": [[0, 0], [2, 0], [2, 2]]}]}}}
+    assert AX.target_gone(lost, open_) is False and AX.target_gone(lost, built) is True
+    assert AX.target_gone(K.finding("judge", "J1", "major", "cam_1", "ugly"), built) is None
+    odir = tmp_path / "orchestrator"
+    odir.mkdir()
+    (odir / AX.LOG_JSON).write_text(json.dumps({"work": [
+        {"fix": "agent_round", "severity": "major", "target": "f_L0_032", "check": "F7", "message": "blocks a door"},
+        {"fix": "agent_round", "severity": "minor", "target": "f1", "message": "small"},
+        {"fix": "rerun_stage", "severity": "major", "target": "decor", "message": "failed"}]}), encoding="utf-8")
+    work = AX.work_findings(tmp_path)
+    assert [w["target"] for w in work] == ["f_L0_032"] and work[0]["source"] == "argus"
+
+
+def test_argus_facts_and_known_targets_name_the_labels():
+    b = json.loads(REAL06.read_text(encoding="utf-8"))
+    lines = AX.facts(b)
+    assert any("site area sa_L0_veranda 'VERANDA'" in x and "NOT built" in x for x in lines)
+    assert any(x.startswith("site symbols drawn: other 42") for x in lines)
+    known = AX.known_targets(b)
+    assert known["veranda"] == "sa_L0_veranda" and known["l1"] == "L1" and known["r_l0_salon"] == "r_L0_salon"
+
+
+def test_house_findings_are_the_defects_of_the_house():
+    rows = [K.finding("conservation", "C5", "critical", "sa", "lost"),
+            K.finding("process", "P4", "major", "t", "a test failed", kind="process"),
+            K.finding("process", "P2", "major", "roof", "differs from the section", kind="misread"),
+            K.finding("process", "P8", "major", "run", "time left", kind="process"),
+            K.finding("inspector", "F7", "critical", "f1", "blocks a door"),
+            K.finding("conservation", "C6", "info", "x", "not built: reason")]
+    assert [f["target"] for f in R.house_findings({"findings": rows})] == ["sa", "roof"]

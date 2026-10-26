@@ -437,6 +437,26 @@
    "request": "Results are not getting better enough, need a big loop that fixes itself for the better",
    "lesson": "A big loop fixes the house until it stops getting better: an AI judge scores every final render 1-5 as a client would and names what costs the points; one house score (the judge, the code critic, the model review, the architect's open points); fix cycles on the final renders while the score rises and time is left; a cycle that lowers it is rolled back.",
    "question": "Did the house score rise every kept cycle, and was every cycle that lowered it rolled back?"
+  },
+  {
+   "id": "UL38",
+   "date": "2026-10-26",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "think outside the box ... audit is very weak, only the looks being judged, everything needs to be judged. There was a veranda in the real06 it has been fully missed, needs an auditor to catch these kind of things ... The issue is not just veranda ... develop a system to understand the problem kinds and prevent it happening ... This auditor should have no limits ... Everything needs to be checked and taken action for better models",
+   "lesson": "Argus, the auditor, checks everything a run makes, not only the looks: nothing the documents or an earlier stage hold may be lost (labelled spaces, drawn symbols, rooms, openings, pieces), every warning is read and the ones that say something was left out or fell short are acted on, the model is checked against the drawn sections, the run's own state is checked. Every finding has a problem kind, the stage that caused it and a fix; a kind that keeps coming back gets a new general rule.",
+   "question": "Does Argus's report show no critical or major finding of the kinds lost, untyped, misread, silent, and is every not-built element explained by a good reason?"
+  },
+  {
+   "id": "UL39",
+   "date": "2026-10-26",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "Use open weight AI models for this auditor it needs to be smart, it needs to solve the problems even without me telling it ... We need to improve argus rigorously",
+   "lesson": "Argus AI (the open-weight agent model, thinking on) triages every audit finding (real or not, kind, cause), takes the fixes code accepts after a dry re-check that its target is gone, hands the furniture problems to the agent, looks for what no check found, and writes the general rule for what the run cannot fix.",
+   "question": "Did Argus AI triage every finding, and was each of its fixes checked by code (target gone, nothing new broken)?"
   }
  ]
 }

@@ -2178,6 +2178,12 @@ class Orchestrator:
                 self.finish(pr, "agent", "warning", "no scene after the architect's decisions: no agent rounds",
                             outputs=[])
                 return
+        if self.argus_look(pr, url):
+            # 26 Oct 2026: Argus, the auditor, decided on what it found: the scene is built again with its decisions
+            self.stage_build(pr)
+            if not pr.active or self.status_of(pr, "build") != "ok":
+                self.finish(pr, "agent", "warning", "no scene after Argus's decisions: no agent rounds", outputs=[])
+                return
         pr.views = self.scene_views(pr)
         previews_status = self.stage_agent_previews(pr)
         if previews_status not in ("ok", "warning") or \
@@ -2251,6 +2257,53 @@ class Orchestrator:
                  f"and {rec['decisions']} decision(s) of its own ({rec['confirmed']} default(s) confirmed, "
                  f"{rec['refused']} refused)")
         return rec["accepted"] > 0
+
+    def argus_look(self, pr: ProjectRun, url: str) -> bool:
+        """26 Oct 2026 (user: "we need a big smart auditor to check everything in the project ... use open weight AI
+        models for this auditor, it needs to be smart, it needs to solve the problems even without me telling it"):
+        after the first build, Argus (``wenart.audit.argus_ai.investigate``) runs its code lines on every record of the
+        project, the agent model triages every finding (thinking on), looks for what no line found, and takes the
+        architect actions code accepts (each re-checked: its target finding gone, nothing new broken). True when it
+        accepted one (the scene is built again). Never fatal. ``WENART_ARGUS_AI=0`` skips it."""
+        if os.environ.get("WENART_ARGUS_AI", "1") == "0" or not (pr.out / "building_final.json").is_file():
+            return False
+        from wenart.audit import argus_ai as AX
+        t0 = self.now()
+        try:
+            model = pr.agent_model or self.make_agent_model(url, pr)
+            rec = AX.investigate(pr.out, model, brief=self.project_brief(pr), results=self.results, out=self.out,
+                                 time_ok=lambda: self.can_start(S.EST_BUILD_S * 3))
+        except Exception as exc:  # noqa: BLE001 - the run goes on with what the architect decided
+            self.out(f"{pr.name} Argus: {type(exc).__name__}: {exc}")
+            return False
+        pr.parts.setdefault("agent", []).append({"name": "argus", "rc": 0, "seconds": round(self.now() - t0, 2)})
+        self.out(f"{pr.name} Argus: score {rec['score_before']}; {rec['triaged']} finding(s) triaged, "
+                 f"{len(rec['findings'])} new, {rec['accepted']} decision(s) carried out of {len(rec['decisions'])}, "
+                 f"{len(rec['work'])} handed to the agent, {len(rec['guards'])} rule(s) proposed")
+        return rec["accepted"] > 0
+
+    def argus_final(self, url: Optional[str]) -> None:
+        """26 Oct 2026: Argus's last word on every project of the run: its code lines and report
+        (``orchestrator/argus.md``), and, while time is left, Argus AI's triage and discovery of what is still open
+        (no actions: nothing is built after it; its findings, rules and disputes go to the report and, once the run is
+        collected, to the problem log). Never fatal."""
+        from wenart.audit import argus_ai as AX
+        from wenart.audit import inputs as AI_
+        from wenart.audit import report as AR
+        for pr in [p for p in self.runs if p.active and (p.out / "building_final.json").is_file()]:
+            try:
+                if url is not None and os.environ.get("WENART_ARGUS_AI", "1") != "0" and self.can_start(600):
+                    model = pr.agent_model or self.make_agent_model(url, pr)
+                    AX.investigate(pr.out, model, brief=self.project_brief(pr), results=self.results, out=self.out,
+                                   time_ok=lambda: self.can_start(300), act_on=False)
+                inp = AI_.pod(pr.out, self.results)
+                rep = AR.run(inp)
+                AR.write(rep, AR.out_dir(inp), AR.prevention(rep))
+                sev = rep["severity"]
+                self.out(f"{pr.name} Argus final: score {rep['score']}; {sev['critical']} critical, {sev['major']} "
+                         f"major, {sev['minor']} minor")
+            except Exception as exc:  # noqa: BLE001 - the audit is a record, never a stop
+                self.out(f"{pr.name} Argus final: {type(exc).__name__}: {exc}")
 
     def architect_round(self, pr: ProjectRun, url: str) -> None:
         """25 Oct 2026 (user: "ai on the pod needs to be clever and able to answer the questions and make
@@ -2407,6 +2460,7 @@ class Orchestrator:
             self.agent_check(url)
         if url is not None:
             self.final_critical_rounds(url)
+            self.argus_final(url)
 
     def agent_check(self, url: Optional[str]) -> None:
         """Phase 8 of an orchestrated run: the M5 check with the agent model alone (one pass, D8)."""

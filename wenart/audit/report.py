@@ -37,7 +37,7 @@ REPORT_JSON = "argus.json"
 REPORT_MD = "argus.md"
 LOG_FILE = Path("results/argus/problem_log.json")
 LINE_MODULES = ("wenart.audit.ledger", "wenart.audit.plan_vs_model")
-LINE_FILES = ("ledger.json", "plan_vs_model.json", "argus_ai.json")
+LINE_FILES = ("ledger.json", "plan_vs_model.json", "argus_ai_final.json", "argus_ai.json")
 POINTS = {"critical": 10.0, "major": 3.0, "minor": 0.5, "info": 0.0}
 SCALE = 50.0                          # a house with 2 major and 5 minor points open scores about 85
 JUDGE_LOW = 2                         # a view the judge scores this or lower is a finding (a client would not accept it)
@@ -137,7 +137,7 @@ def lines(inp: I.Inputs) -> dict:
         if res is not None:
             out[name.rsplit(".", 1)[-1]] = res
     for fname in LINE_FILES:
-        line = fname[:-5]
+        line = "argus_ai" if fname.startswith("argus_ai") else fname[:-5]   # the final pass replaces the first
         if line in out:
             continue
         res = file_line(inp, fname)
@@ -172,6 +172,20 @@ def merge(findings: list[dict]) -> list[dict]:
         row["fix"] = row.get("fix") or f.get("fix")
         row["owner"] = row.get("owner") or f.get("owner")
     return [rows[k] for k in order]
+
+
+# The findings that are defects of the house itself (the big loop's house score): the kinds and lines below; the
+# geometry of the pieces is the code critic's own part of the score, the run's own state (tests, time) is not the house
+HOUSE_KINDS = ("lost", "untyped", "misread", "no_sense", "silent")
+HOUSE_LINES = ("conservation", "process", "ledger", "plan_vs_model", "argus_ai")
+NOT_HOUSE_CHECKS = ("P1", "P3", "P4", "P8", "P9")
+
+
+def house_findings(rep: dict) -> list[dict]:
+    """The critical and major findings of ``rep`` that are defects of the house (``HOUSE_KINDS`` from
+    ``HOUSE_LINES``): the big loop counts them in the house score (``judge.house_score``)."""
+    return [f for f in rep.get("findings") or [] if f.get("severity") in ("critical", "major")
+            and f.get("kind") in HOUSE_KINDS and f.get("line") in HOUSE_LINES and f.get("check") not in NOT_HOUSE_CHECKS]
 
 
 def score(findings: list[dict]) -> float:
