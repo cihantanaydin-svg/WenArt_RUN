@@ -78,6 +78,15 @@ Why: ``_infer_types`` runs after ``never_a_box``, so a piece it typed by code ke
 was built, and that stale entry is an NR finding for the agent (``critic_code``) and lifts the piece's mark lock
 (``edit_ops.mark_lock_refusal``). P3's real04 twin case is typed inside ``read_furniture`` now, so this matters only
 for rarer chains; the committed real02 / real03 / real04 buildings have no such entry.
+
+Source ledger (26 Oct 2026; user: "everything needs to be judged ... there was a veranda in real06, it has been
+fully missed"). What: every run also writes ``<out>/source_items.json`` (``wenart.ingest.source_items``): the pages
+read or not, every text with its layer, position and the reading's role, the block instances, layers, hatches and
+closed outlines, with the ids the evidence uses. ``_extract_generic`` keeps each generic page's stroke summary
+(``build.source_pages``) before the page model is dropped; ``_write_source_items`` writes the file once the
+documents are listed. Nothing the reading builds changes; a failure is a warning. Why: real06's VERANDA / 22,80m²
+were recorded as a site area without an outline and nothing checked the model against what the documents hold; the
+source ledger (``wenart.audit.ledger``) does that with this inventory.
 """
 from __future__ import annotations
 
@@ -226,6 +235,9 @@ class ProjectBuild:
         # Fix round after P3: the output folder (``run_project``), where a page's crops are published
         # (``_publish_crops``); None in hand-made builds (tests).
         self.out_dir: Optional[Path] = None
+        # Source ledger (26 Oct 2026): page key -> the stroke summary of each generic page (``source_items.
+        # page_summary``: layers, block inserts, hatches, closed outlines), taken before the page model is dropped.
+        self.source_pages: dict = {}
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -1883,6 +1895,8 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
         from wenart.sheets import register as RG
         from wenart.sheets import titles as T
         page.strokes = [st for st in page.strokes if not (st.layer and RG.CUT_LAYER_RE.search(T.fold(st.layer)))]
+    if build is not None:
+        build.source_pages[record.key] = _page_summary(page)
     origin, why = _region_origin(record)
     is_reference = build is not None and record.region_id is not None and record.region_id == build.reference_region
     if origin is not None and build is not None and not is_reference:
@@ -1921,6 +1935,29 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
 
 
 PDF_SCALE_TOL = 1e-4        # relative: sheets.json rounds a registered transform to 6 digits
+
+
+def _page_summary(page) -> dict:
+    """``source_items.page_summary`` of a generic page; an error is recorded, never raised (the inventory never stops
+    the reading)."""
+    from wenart.ingest import source_items as SI
+
+    try:
+        return SI.page_summary(page)
+    except Exception as exc:                     # noqa: BLE001 - recorded in source_items.json
+        return {"error": f"{type(exc).__name__}: {exc}"}
+
+
+def _write_source_items(build: ProjectBuild, records: list[PageRecord], works: dict, out_dir: Path) -> None:
+    """``<out>/source_items.json``: the inventory of the source documents for the source ledger
+    (``wenart.audit.ledger``). It reads what the reading kept and changes nothing; a failure is a warning."""
+    from wenart.ingest import source_items as SI
+
+    try:
+        SI.write(build, records, works, out_dir)
+    except Exception as exc:                     # noqa: BLE001 - the ledger reports the missing inventory
+        build.warn(f"source inventory not written ({type(exc).__name__}: {exc}): the source ledger has no list of "
+                   f"the documents' items")
 
 
 def _region_origin(record: PageRecord) -> tuple[Optional[tuple[float, float]], Optional[str]]:
@@ -2754,6 +2791,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         building["status"] = "needs_review"
 
     building["documents"] = _documents(records, works, out_dir, project_dir, build)
+    _write_source_items(build, records, works, out_dir)
     errors = B.validation_errors(building)
     if errors:
         building["status"] = "needs_review"
