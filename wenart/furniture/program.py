@@ -84,6 +84,17 @@ the seat segment of the corner sofa f_L-1_053's block, typed by the group-member
 as a sure anchor, so its seating group was marked for a re-solve (a TV unit and a coffee table around a phantom); the
 solver found no place and the phantom stayed. It is listed for review and the agent may mark it (the edit lock lets
 a duplicate outline through).
+
+Fix round of 26 Oct 2026 (user: "fix should be general, it is not a fix for real06, it must be a fix for the
+project"). What: (B) a room with zones plans its zones' rows and, outside the zones, its own type's rows on the area
+the zones leave (``rest_place``; not when a zone is of the room's own kind); a drawn anchor outside the zone of its
+row is completed in the room (``_in_zone``). (C) At most one dining group per room: of several dining rows only the
+room's own stays (``one_dining_row``), none beside a drawn table set; of several drawn table sets the main one
+(``primary_table``: the most drawn chairs, then the largest table) is completed, every other gets nothing added and is
+not re-solved, with ``out["second_tables"]`` naming it (the layout writes the warning). Drawn tables that touch are
+merged before the program by the completion (``groups.merge_touching_tables``). Why: real06's r_L1_oda_2 (a bedroom
+whose two misread counters made a kitchen zone) was planned as the zone only and got no bed; its living room had four
+drawn table sets (armchairs read as tables) and each got its own dining group with chairs.
 """
 from __future__ import annotations
 
@@ -502,6 +513,69 @@ def _may_be(ftype: str, size) -> bool:
     return PL.oriented_fit(ftype, (w, d))["fits"] or PL.oriented_fit(ftype, (d, w))["fits"]
 
 
+REST_MIN_M2 = 0.5                  # 26 Oct 2026: a room part outside its zones smaller than this holds no groups
+
+
+def rest_place(rtype: str, polygon: Polygon, area: float, zone_polys: list, zone_kinds: list) -> Optional[tuple]:
+    """26 Oct 2026 (fix B, user: "fix should be general"): ``(None, rtype, area, polygon)`` of the part of a zoned
+    room outside its zones, which keeps the room's own type's groups, or None when a zone already is of the room's own
+    kind (``ROOM_ZONE_KIND``: an open plan with a living zone) or nothing is left. What: the area is the room's area
+    less what its zones cover (the size variants read it), the polygon the largest part of the rest (its walls and
+    width). Why: ``room_program`` planned only the zones of a zoned room, so a bedroom whose drawing the reading gave
+    a kitchen zone (real06's r_L1_oda_2, two misread counters) got no bed, and a living room with an open kitchen
+    zone and no drawn sofa would get no seating. The solver places these groups anywhere in the room (zone None)."""
+    if ROOM_ZONE_KIND.get(rtype) in set(zone_kinds) or not zone_polys:
+        return None
+    from shapely.ops import unary_union
+
+    try:
+        covered = unary_union(zone_polys).intersection(polygon)
+        rest = polygon.difference(covered)
+    except Exception:  # noqa: BLE001 - an odd zone geometry: the room as it is
+        return None
+    rest_area = float(area) * rest.area / polygon.area if polygon.area > 1e-9 else 0.0
+    if rest.is_empty or rest_area < REST_MIN_M2:
+        return None
+    parts = [g for g in getattr(rest, "geoms", [rest]) if g.geom_type == "Polygon" and g.area > 1e-6]
+    poly = max(parts, key=lambda g: g.area) if parts else polygon
+    return (None, rtype, round(rest_area, 3), poly)
+
+
+def one_dining_row(rows: list[dict]) -> list[dict]:
+    """26 Oct 2026 (fix C): at most one dining group per room: of several dining rows (a kitchen zone's and the
+    room's own), the room's own one stays (the solver's ``related_near`` term still pulls it towards the kitchen),
+    else the first; a drawn dining group replaces them all (``room_program``)."""
+    dining = [r for r in rows if r["group"] == "dining"]
+    if any(r["drawn"] for r in dining):
+        return [r for r in rows if r["group"] != "dining" or r["drawn"]]
+    if len(dining) <= 1:
+        return rows
+    keep = next((r for r in dining if r.get("zone_id") is None), dining[0])
+    return [r for r in rows if r["group"] != "dining" or r is keep]
+
+
+def _in_zone(piece: dict, zones: list[dict], zone_id: str) -> bool:
+    """26 Oct 2026: the drawn piece's centre lies in the zone ``zone_id`` (within 0.10 m); True when the zone or the
+    centre is unknown (as before)."""
+    zone = next((z for z in zones if z.get("zone_id") == zone_id), None)
+    centre = (piece.get("footprint") or {}).get("center")
+    if zone is None or not centre:
+        return True
+    from shapely.geometry import Point
+
+    return Polygon(zone["polygon"]).buffer(0.1).contains(Point(float(centre[0]), float(centre[1])))
+
+
+def primary_table(entries: list[dict], drawn: dict) -> Optional[str]:
+    """26 Oct 2026 (fix C): the anchor id of the room's main drawn table set among drawn dining ``entries``: a sure
+    anchor before an unsure one (``unsure_anchor``), then the most drawn chairs, the largest table, the id."""
+    def key(e):
+        f = drawn.get(e["anchor_id"]) or {}
+        size = (f.get("footprint") or {}).get("size") or [0.0, 0.0]
+        return (unsure_anchor(f), -len(e.get("members") or []), -float(size[0]) * float(size[1]), str(e["anchor_id"]))
+    return min(entries, key=key)["anchor_id"] if entries else None
+
+
 def room_program(building: dict, room_id: str, brief: Optional[dict] = None, choices: Optional[dict] = None) -> dict:
     room = _room(building, room_id)
     own_type = room.get("room_type") or "unknown"
@@ -536,10 +610,18 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
                 places.append((zz["zone_id"], kind, zp.area, zp))
         if not places:
             places = [(None, rtype, area, polygon)]
+        else:
+            # 26 Oct 2026 (fix B): the rest of the room keeps its own type's groups (a living room with an open
+            # kitchen zone keeps its seating, a bedroom its bed) unless a zone already is of the room's own kind.
+            rest = rest_place(rtype, polygon, area, [Polygon(z["polygon"]).buffer(0) for z in zones],
+                              [z.get("kind") for z in zones])
+            if rest is not None:
+                places.append(rest)
     rows: list[dict] = []
     for zone_id, kind, a, poly in places:
         for group, required, options in _rows(kind, a, poly, building, room, subtype):
             rows.append(_entry(room_id, group, required, options, zone_id=zone_id, area=a))
+    rows = one_dining_row(rows)            # 26 Oct 2026 (fix C): at most one dining group in a room
     # 2. Drawn groups: the matched groups of the drawn pieces take the program's place (or join it).
     drawn = {f["id"]: f for f in building.get("furniture") or [] if f.get("room_id") == room_id}
     matched = [g for g in GR.group_members(building, room_id)
@@ -570,7 +652,12 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
                 "unverified anchor: nothing added" if unsure else
                 f"no completion: a {name} group does not belong in a {rtype} room" if foreign else "")
         drawn_members = [m for m in g["member_ids"] if (drawn.get(m) or {}).get("source") == "from_documents"]
-        entry = _entry(room_id, name, True, options, zone_id=(same or {}).get("zone_id"),
+        # 26 Oct 2026 (fix B): a drawn anchor outside the zone of its row's group is completed in the room, not in
+        # the zone (a drawn table in the living part of a room with a kitchen zone)
+        zone_id = (same or {}).get("zone_id")
+        if zone_id is not None and not _in_zone(anchor, out["zones"], zone_id):
+            zone_id = None
+        entry = _entry(room_id, name, True, options, zone_id=zone_id,
                        area=(same or {}).get("area", area), anchor_id=anchor["id"], drawn=True,
                        members=drawn_members, missing=[] if (unsure or foreign) else g.get("missing", []), note=note)
         if same is not None:
@@ -579,6 +666,27 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
             entry["group_id"] = f"{entry['group_id']}.{anchor['id']}"
         rows.append(entry)
         notes.append(f"{name} completed around drawn {anchor['type']} {anchor['id']}")
+    # 26 Oct 2026 (fix C, user: "fix should be general"): at most one dining group per room. The main drawn table
+    # set (``primary_table``) is completed; every other drawn table set of the room is reported (``second_tables``,
+    # a warning of the layout) and gets nothing added or re-solved; no dining group is planned beside a drawn one.
+    rows = one_dining_row(rows)
+    drawn_sets = GR.drawn_groups(building, room_id)
+    table_sets = [{"anchor_id": g["anchor_id"], "members": list(g["members"])} for g in drawn_sets
+                  if g["template"] == "dining"]
+    table_sets += [{"anchor_id": r["anchor_id"], "members": list(r["members"])} for r in rows
+                   if r["drawn"] and r["group"] == "dining" and r["anchor_id"] not in {t["anchor_id"] for t in table_sets}]
+    main_table = primary_table(table_sets, drawn)
+    second = {t["anchor_id"] for t in table_sets if t["anchor_id"] != main_table}
+    out["second_tables"] = [
+        {"anchor_id": t["anchor_id"], "main": main_table, "members": t["members"],
+         "reason": f"drawn table_dining {t['anchor_id']} is a second table set in the room beside {main_table}: "
+                   "nothing added to it (at most one dining group per room); listed for review"}
+        for t in sorted(table_sets, key=lambda t: str(t["anchor_id"])) if t["anchor_id"] in second]
+    for r in rows:
+        if r["drawn"] and r["group"] == "dining" and r["anchor_id"] in second:
+            r["missing"] = []
+            r["note"] = (f"second drawn table set in the room (main: {main_table}): nothing added, at most one "
+                         "dining group per room (reported)")
     # Milestone 13 (D5): drawn groups whose anchor is missing, misread or fails the checks are re-solved as one
     # unit around the drawn anchor's centre (the whole group, built or not: groups.drawn_groups), never suppressed.
     allowed, why_not = resolve_allowed(building, room, brief)
@@ -590,10 +698,12 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
                 polys[f["id"]] = placer.drawn_piece(f, k).polygon()
             except (KeyError, TypeError, ValueError):
                 continue
-    for g in GR.drawn_groups(building, room_id):
+    for g in drawn_sets:
         anchor = drawn[g["anchor_id"]]
         if unsure_anchor(anchor):                      # fix round after P4a: a code-typed anchor is re-solved too
             continue
+        if g["anchor_id"] in second:
+            continue                                   # 26 Oct 2026 (fix C): a second table set is only reported
         if duplicate_anchor(building, anchor) is not None:
             continue                                   # fix round after P4b: a duplicate outline is never re-solved
         kinds = set(room_kinds(building, room)) | {ZONE_ROOM_TYPE.get(z.get("kind") or "") for z in zones}

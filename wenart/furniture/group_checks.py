@@ -21,7 +21,7 @@ its sofa, nightstands at mid-bed, chairs facing away all passed the Milestone 11
 | G6 | dining: chairs = seats of the table size (none: major, fewer: minor), each facing the table (major), ≥ 0.81 m from the table edge to the wall or piece behind each chair (major), not all chairs on one side when both long sides are free (minor) |
 | G7 | desk: a chair in front (minor), ≥ 0.80 m free in front of the desk (major) |
 | G8 | kitchen run: sink between fridge and hob along a run (major); landing beside the sink 0.46, the hob 0.30, the fridge 0.38 m (major); hob not in a window band (major); work-triangle legs 1.20–2.70 m, sum ≤ 7.90 m (major); aisle in front of the run ≥ 0.90 m (major) |
-| G9 | a sink, a hob and a fridge in every kitchen (room or kitchen zone) (major) |
+| G9 | a sink, a hob and a fridge in every kitchen (room or kitchen zone) (major; critical for a kitchen without any run piece, 26 Oct 2026) |
 | G10 | bath: toilet + washbasin (+ shower or bathtub in a bathroom) (major; a WC's washbasin minor); ≥ 0.53 m clear in front of each fixture (major); toilet centre ≥ 0.38 m from a side wall or fixture, washbasin centre ≥ 0.38 m from a side wall (major) |
 | G11 | walkways on a 5 cm raster: every door reaches every other door at ≥ 0.60 m (critical) and the entrance door every other door at ≥ 0.80 m (major); every use zone is reached from the entrance at ≥ 0.60 m (major). Only what the empty room allows is required (a narrow corridor never fails by itself) |
 | G12 | windows: nothing taller than the sill + 0.05 m within 0.30 m in front of a window (a TV unit counts with its TV, 1.30 m) (major) |
@@ -848,12 +848,14 @@ def fridge_landing_elsewhere(r: RoomView, pid: str) -> Optional[str]:
 
 def kitchen_tiers(r: RoomView, ids: list[str]) -> dict:
     """Milestone 13: the room class of the kitchen rules (``groups.rule_for``): a small kitchen by area, a drawn
-    run when any run piece is drawn (its sink and hob cannot move)."""
+    run when any run piece is drawn (its sink and hob cannot move); 26 Oct 2026: a compact run when the solver placed
+    the run as a compact fallback (``groups.is_compact_run``: its landings and triangle are scored, minor)."""
     from wenart.furniture import plausibility as PL
 
     kind = "kitchen" if "kitchen" in PL.room_types(r.building, r.room) else r.type
     drawn = any(r.by_id[pid].get("source") == "from_documents" for pid in ids)
-    return {"room_type": kind, "area": r.area(), "drawn_run": drawn}
+    return {"room_type": kind, "area": r.area(), "drawn_run": drawn,
+            "compact_run": GR.is_compact_run([r.by_id[pid] for pid in ids])}
 
 
 def _soft(rule: dict) -> str:
@@ -884,11 +886,12 @@ def _g8_g9(r: RoomView) -> list[dict]:
         islands = [pid for pid in r.typed(("kitchen_island",)) if _in_zone(r, pid, zone)]
         present = {kind: [pid for pid in ids if r.by_id[pid]["type"] in types]
                    for kind, types in KITCHEN_FIXTURES.items()}
-        # G9
+        # G9; 26 Oct 2026 (user: "a kitchen must never be empty"): a kitchen without any run piece is critical
         for kind, pids in present.items():
             if not pids:
-                out.append(_violation("G9", "major", name, r.id, f"kitchen {name} has no {kind} "
-                                      f"({' / '.join(KITCHEN_FIXTURES[kind])})", {"missing": kind}))
+                out.append(_violation("G9", "major" if ids else "critical", name, r.id, f"kitchen {name} has no "
+                                      f"{kind} ({' / '.join(KITCHEN_FIXTURES[kind])})",
+                                      {"missing": kind, **({} if ids else {"empty_kitchen": True})}))
         if not ids:
             continue
         tiers = kitchen_tiers(r, ids)

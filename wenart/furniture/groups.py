@@ -34,6 +34,11 @@ Milestone 13 (docs/milestone13.md §13.2, track T3; user decision D5 of 12 Oct 2
   block-name words of ``infer.type_by_code`` (``block_words``) and the rug as a group member (partner type ``rug``, a
   decor type: ``DECOR_MEMBER_TYPES``; places ``under`` and ``beside``).
 
+Fix round of 26 Oct 2026 (user: "fix should be general"): a kitchen-run option may be a ``fallback`` (the compact
+runs the solver tries only when no offered option fits; ``auto: false``); the ``compact_run`` tier makes the landings
+and the work triangle of such a run scored terms (``is_compact_run``, ``tiers_for(..., compact_run=)``);
+``merge_touching_tables`` makes drawn dining tables that touch with the same axes one table (the completion runs it).
+
 Milestone 11 (kept): dining set, bed set, living set, desk set, kitchen run. ``place_group`` places a whole group as
 one unit (anchor piece + members with their relative offsets and facing) and checks it with the placer.
 
@@ -472,8 +477,10 @@ _PARTNER = {"type": "object", "additionalProperties": False, "required": ["role"
 # program offers it beside the core options of a room or zone of ``min_area`` <= area < ``max_area`` whose longest wall
 # is >= ``min_wall`` and whose narrowest width is >= ``min_width`` (``subtype``: only in such rooms, e.g. ``child``).
 # ``auto: false``: never offered by the program, only when chosen (the brief, the agent). ``what``: a short text.
+# 26 Oct 2026: ``fallback: true`` (a kitchen run): tried by the solver only when no offered option fits (the compact
+# runs; ``solver.fallback_options``); such an option is never offered by the program (it carries ``auto: false``).
 OPTION_KEYS = ("anchor", "counts", "sizes", "partner_sizes", "modules", "shape", "members", "min_area", "max_area",
-               "min_wall", "min_width", "subtype", "auto", "what")
+               "min_wall", "min_width", "subtype", "auto", "what", "fallback")
 _OPTION = {"type": "object", "properties": {
     "anchor": {"type": "string"}, "shape": {"type": "string"}, "what": {"type": "string"},
     "counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
@@ -484,7 +491,7 @@ _OPTION = {"type": "object", "properties": {
     "members": {"type": "array", "items": {"type": "string"}},
     "min_area": {"type": "number", "minimum": 0}, "max_area": {"type": "number", "exclusiveMinimum": 0},
     "min_wall": {"type": "number", "minimum": 0}, "min_width": {"type": "number", "minimum": 0},
-    "subtype": {"type": "string"}, "auto": {"type": "boolean"}}}
+    "subtype": {"type": "string"}, "auto": {"type": "boolean"}, "fallback": {"type": "boolean"}}}
 _GROUP = {
     "type": "object", "additionalProperties": False,
     "required": ["what", "layout", "zone", "room_types", "priority", "options", "partners"],
@@ -658,6 +665,8 @@ def validate_config(data: dict) -> list[str]:
                     problems.append(f"{where}/options/{oname}: unknown member role {role!r}")
             if g["layout"] == "run" and opt.get("shape") not in RUN_SHAPES:
                 problems.append(f"{where}/options/{oname}: shape must be one of {RUN_SHAPES}")
+            if opt.get("fallback") and (g["layout"] != "run" or opt.get("auto") is not False):
+                problems.append(f"{where}/options/{oname}: a fallback option is a run option with auto: false")
     return problems
 
 
@@ -711,12 +720,16 @@ def weights() -> dict:
 # Milestone 13 (T3): tiered minimums, room-size variants, aliases, block words
 # --------------------------------------------------------------------------
 
-def tiers_for(room_type: Optional[str] = None, area: Optional[float] = None, drawn_run: bool = False) -> list[str]:
+def tiers_for(room_type: Optional[str] = None, area: Optional[float] = None, drawn_run: bool = False,
+              compact_run: bool = False) -> list[str]:
     """The names of the ``tiers`` of ``groups.yaml`` that apply to a room: by its type and area (``small_kitchen``)
-    or by the ``drawn_run`` flag (the kitchen run is drawn)."""
+    or by the ``drawn_run`` flag (the kitchen run is drawn); 26 Oct 2026: the ``compact_run`` flag (the kitchen run is
+    a compact fallback, ``is_compact_run``)."""
     out = []
     for name, spec in (config().get("tiers") or {}).items():
         if spec.get("drawn_run") and not drawn_run:
+            continue
+        if spec.get("compact_run") and not compact_run:
             continue
         types = spec.get("room_types")
         if types and room_type not in types:
@@ -728,14 +741,14 @@ def tiers_for(room_type: Optional[str] = None, area: Optional[float] = None, dra
 
 
 def rule_for(name: str, *, room_type: Optional[str] = None, area: Optional[float] = None,
-             drawn_run: bool = False) -> dict:
+             drawn_run: bool = False, compact_run: bool = False) -> dict:
     """A rule's numbers for one room class: ``{"min", "rec", "max", "hard", "tier"}``. ``hard`` is False when a tier
     of ``groups.yaml`` turns the minimum into a scored term (``tiers_for``); ``tier`` names it. Without a tier the
     rule's own ``min`` / ``rec`` and ``hard: True``."""
     r = rule(name)
     out = {"min": float(r.get("min", r.get("rec", 0.0))), "rec": float(r.get("rec", r.get("min", 0.0))),
            "max": r.get("max"), "hard": True, "tier": None}
-    for tier in tiers_for(room_type, area, drawn_run):
+    for tier in tiers_for(room_type, area, drawn_run, compact_run):
         spec = (config()["tiers"][tier].get("rules") or {}).get(name)
         if not spec:
             continue
@@ -747,6 +760,14 @@ def rule_for(name: str, *, room_type: Optional[str] = None, area: Optional[float
             out["hard"] = False
         out["tier"] = tier
     return out
+
+
+def is_compact_run(pieces) -> bool:
+    """26 Oct 2026: True when a kitchen run piece of ``pieces`` was placed by a compact fallback option (its
+    ``layout.option`` is a ``kitchen_run`` option with ``fallback: true``): the ``compact_run`` tier applies."""
+    opts = (load_groups().get("kitchen_run") or {}).get("options") or {}
+    return any((opts.get(str((p.get("layout") or {}).get("option") or "")) or {}).get("fallback")
+               for p in pieces if isinstance(p, dict) and isinstance(p.get("layout"), dict))
 
 
 def small_room(kind: Optional[str], area: Optional[float]) -> Optional[dict]:
@@ -1197,3 +1218,114 @@ def group_members(building: dict, room_id: str) -> list[dict]:
         m = dict(m, member_ids=[x for x in m["member_ids"] if x not in claimed])
         out.append(m)
     return out
+
+
+# --------------------------------------------------------------------------
+# 26 Oct 2026 (fix C): drawn tables that touch are one table
+# --------------------------------------------------------------------------
+
+TABLE_TOUCH_M = 0.05             # drawn dining tables this close (footprint to footprint) are one table
+TABLE_AXIS_TOL_DEG = 5.0         # ... when their axes agree (modulo 90 degrees); tables at other angles are not
+TABLE_MERGE_RULE = "merge_tables"
+
+
+def _axes_agree(a: dict, b: dict) -> bool:
+    d = (float(a["footprint"]["rotation_deg"]) - float(b["footprint"]["rotation_deg"])) % 90.0
+    return min(d, 90.0 - d) <= TABLE_AXIS_TOL_DEG
+
+
+def touching_tables(building: dict, room_id: str) -> list[list[dict]]:
+    """26 Oct 2026 (fix C): the clusters (two or more) of the room's built drawn dining tables whose footprints come
+    within ``TABLE_TOUCH_M`` of each other with the same axes (two tables pushed together), largest table first, then
+    by id. Pure."""
+    tables = sorted((f for f in building.get("furniture") or [] if f.get("room_id") == room_id
+                     and f.get("source") == "from_documents" and f.get("type") == "table_dining"
+                     and f.get("build") is not False and (f.get("footprint") or {}).get("size")), key=lambda f: f["id"])
+    polys = {}
+    for i, f in enumerate(tables):
+        try:
+            polys[f["id"]] = placer.drawn_piece(f, i).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+    tables = [f for f in tables if f["id"] in polys]
+    cluster = {f["id"]: k for k, f in enumerate(tables)}
+    for i, a in enumerate(tables):
+        for b in tables[i + 1:]:
+            if polys[a["id"]].distance(polys[b["id"]]) <= TABLE_TOUCH_M + 1e-9 and _axes_agree(a, b):
+                ca, cb = cluster[a["id"]], cluster[b["id"]]
+                for k, v in list(cluster.items()):
+                    if v == cb:
+                        cluster[k] = ca
+    out: dict[int, list[dict]] = {}
+    for f in tables:
+        out.setdefault(cluster[f["id"]], []).append(f)
+    return [sorted(v, key=lambda f: (-polys[f["id"]].area, f["id"])) for _k, v in sorted(out.items()) if len(v) > 1]
+
+
+def merge_touching_tables(building: dict, room_ids=None) -> list[dict]:
+    """26 Oct 2026 (fix C, user: "fix should be general"): drawn dining tables that touch are one table. What: per
+    cluster of ``touching_tables`` (in ``room_ids``, default every room) the largest table takes the box of all of
+    them in its own frame (``adjusted_by_ai`` rule ``merge_tables`` with the reason and the merged ids, its drawn
+    footprint, type, front and height kept, ``drawn_group`` its own id: the move is bounded like a drawn group's, at
+    most ``GROUP_MEMBER_MOVE_MAX_M``; its fit asset is cleared for the refit); every other table of the cluster stays
+    as drawn with ``build: false``, ``merged_into`` and its own ``adjusted_by_ai`` label (its drawn footprint kept).
+    A cluster whose merged centre would move farther is left as drawn (the program reports the second table set). Why:
+    the reading may cut one long table into two touching ones (or draw two tables pushed together); the program then
+    planned a dining group around each, and their chairs stood between the two. The building is changed in place;
+    returns ``[{"room_id", "table_id", "merged", "moved_m", "reason"}]``."""
+    rooms = [r["id"] for r in building.get("rooms") or []] if room_ids is None else list(room_ids)
+    done = []
+    for room_id in rooms:
+        for cluster in touching_tables(building, room_id):
+            keep, rest = cluster[0], cluster[1:]
+            fp = keep["footprint"]
+            rot = float(fp["rotation_deg"])
+            c = (float(fp["center"][0]), float(fp["center"][1]))
+            r = math.radians(rot)
+            cos_r, sin_r = math.cos(r), math.sin(r)
+            pts = []
+            for f in cluster:
+                for x, y in list(placer.drawn_piece(f).polygon().exterior.coords)[:-1]:
+                    dx, dy = x - c[0], y - c[1]
+                    pts.append((dx * cos_r + dy * sin_r, -dx * sin_r + dy * cos_r))
+            x0, x1 = min(p[0] for p in pts), max(p[0] for p in pts)
+            y0, y1 = min(p[1] for p in pts), max(p[1] for p in pts)
+            mx, my = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+            centre = (c[0] + mx * cos_r - my * sin_r, c[1] + mx * sin_r + my * cos_r)
+            moved = round(G.distance(c, centre), 3)
+            if moved > GROUP_MEMBER_MOVE_MAX_M + 1e-9:
+                continue
+            ids = [f["id"] for f in rest]
+            new_fp = {"center": [round(centre[0], 4), round(centre[1], 4)],
+                      "size": [round(x1 - x0, 4), round(y1 - y0, 4)], "rotation_deg": fp["rotation_deg"]}
+            reason = (f"drawn tables {', '.join([keep['id']] + ids)} touch (within {TABLE_TOUCH_M:.2f} m, same axes): "
+                      f"one table, {new_fp['size'][0]:.2f} x {new_fp['size'][1]:.2f} m (the drawn footprints are "
+                      f"kept; CLAUDE.md: a clear drawing error, one dining group per room)")
+            if keep.get("drawn_type") is None:
+                keep["drawn_type"] = keep["type"]
+            if keep.get("drawn_footprint") is None:
+                keep["drawn_footprint"] = dict(fp)
+            keep.setdefault("drawn_front_deg", keep.get("front_deg"))
+            keep.setdefault("drawn_height", keep.get("height"))
+            previous = [keep["adjusted_by_ai"]] if isinstance(keep.get("adjusted_by_ai"), dict) else []
+            keep["footprint"] = new_fp
+            keep["adjusted_by_ai"] = {"by": "code", "stage": "layout", "rule": TABLE_MERGE_RULE, "reason": reason,
+                                      "merged": ids, "moved_m": moved, "drawn_group": keep["id"],
+                                      **({"previous": previous} if previous else {})}
+            keep["asset"] = None
+            keep.pop("library_gap", None)
+            keep.setdefault("evidence", []).append({"file": EVIDENCE_FILE, "method": "derived", "confidence": 0.85,
+                                                    "rule": TABLE_MERGE_RULE, "text": reason})
+            for f in rest:
+                why = f"merged into the drawn table {keep['id']}: {reason}"
+                prev = [f["adjusted_by_ai"]] if isinstance(f.get("adjusted_by_ai"), dict) else []
+                if f.get("drawn_footprint") is None:
+                    f["drawn_footprint"] = dict(f["footprint"])
+                f.update(build=False, merged_into=keep["id"], not_built_reason=why, asset=None)
+                f["adjusted_by_ai"] = {"by": "code", "stage": "layout", "rule": TABLE_MERGE_RULE, "reason": why,
+                                       "merged_into": keep["id"], **({"previous": prev} if prev else {})}
+                f.setdefault("evidence", []).append({"file": EVIDENCE_FILE, "method": "derived", "confidence": 0.85,
+                                                     "rule": TABLE_MERGE_RULE, "text": why})
+            done.append({"room_id": room_id, "table_id": keep["id"], "merged": ids, "moved_m": moved,
+                         "reason": reason})
+    return done

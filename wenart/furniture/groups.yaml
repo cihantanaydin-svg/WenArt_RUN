@@ -105,6 +105,10 @@ small_rooms:
 tiers:
   small_kitchen: {room_types: [kitchen], max_area: 7.0, rules: {kitchen_aisle: {min: 0.90, hard: false}, walkway_main: {min: 0.60}, walkway: {min: 0.60}}, source: [ours, nkba_kitchen, turkish_imar], flagged: true, what: "a kitchen under 7 m² (the legal minimum is 3.30 m²): the 0.90 m aisle is a soft term (the NKBA 1.07 m recommended stays soft), the main walkway 0.60 m"}
   drawn_run: {drawn_run: true, room_types: [kitchen], max_area: 14.0, rules: {triangle_leg: {hard: false}, triangle_sum: {hard: false}, fridge_landing: {hard: false}}, source: [ours], flagged: true, what: "a drawn counter run in a kitchen under 14 m² (real04: 13.6 m², 4 of 4 kitchens without a fridge) fixes the sink and the hob: the work triangle and the fridge landing of an added fridge are soft terms (scored, reported as minor); a larger kitchen keeps the NKBA minimums hard"}
+  # 26 Oct 2026 (user: "a kitchen must never be empty"): a compact fallback run (kitchen_run options with fallback:
+  # true) has 0.30 m base units between its appliances and no room for 1.20 m triangle legs: the NKBA landings and the
+  # work triangle are soft terms there (scored, reported as minor). Only for such a run (compact_run flag).
+  compact_run: {compact_run: true, rules: {sink_landing: {hard: false}, hob_landing: {hard: false}, fridge_landing: {hard: false}, triangle_leg: {hard: false}, triangle_sum: {hard: false}}, source: [ours, nkba_kitchen], flagged: true, what: "a compact kitchen run (the solver's fallback when no full run fits): the landings and the work triangle are scored, a kitchen is never left empty"}
 
 # Milestone 13 (T3): room-type aliases. The ingest types rooms from their labels (wenart/building.py); rooms it
 # leaves ``other`` or ``unknown`` are read here by the words of their label (Turkish keywords match at the start of
@@ -552,6 +556,13 @@ groups:
       U_double_sink: {shape: U, min_area: 9, modules: {sink: {sizes: [[1.0, 0.6], [0.8, 0.6]]}}, what: "U run, double sink"}
       U_large_fridge_wide_hob: {shape: U, min_area: 12, modules: {fridge: {sizes: [[0.9, 0.75]]}, hob: {sizes: [[0.9, 0.6]]}}, what: "U run, side-by-side fridge, wide hob"}
       U_fridge70: {shape: U, min_area: 9, modules: {fridge: {sizes: [[0.7, 0.7]]}}, what: "U run, 0.70 m fridge"}
+      # 26 Oct 2026 (user: "a kitchen must never be empty"): the compact fallback runs. The solver tries them only when
+      # no option above fits the room (``fallback: true``; never offered by the program, ``auto: false``) with the
+      # run's ``compact`` limits below; the pieces are real module sizes (a 0.60 m tall fridge unit, a 0.60 or 0.45 m
+      # sink unit and hob, 0.30 m base units between them).
+      I_compact_fallback: {shape: I, auto: false, fallback: true, modules: {sink: {sizes: [[0.6, 0.6], [0.45, 0.6]]}, hob: {sizes: [[0.6, 0.6], [0.45, 0.6]]}}, what: "compact I run (fallback): a tall fridge unit, a sink and a hob on one 2.1-2.4 m wall"}
+      L_compact_fallback: {shape: L, auto: false, fallback: true, modules: {sink: {sizes: [[0.6, 0.6], [0.45, 0.6]]}, hob: {sizes: [[0.6, 0.6], [0.45, 0.6]]}}, what: "compact L run (fallback): legs from 0.90 m"}
+      galley_compact_fallback: {shape: galley, auto: false, fallback: true, modules: {sink: {sizes: [[0.6, 0.6], [0.45, 0.6]]}, hob: {sizes: [[0.6, 0.6], [0.45, 0.6]]}}, what: "compact galley (fallback): fridge and sink on a 1.35 m wall, the hob across"}
     run:
       depth: 0.60
       max_leg: 4.80
@@ -561,6 +572,10 @@ groups:
         fridge: {type: fridge, sizes: [[0.6, 0.6]], landing: fridge_landing}
         sink: {type: sink_kitchen, sizes: [[0.8, 0.6], [0.6, 0.6]], landing: sink_landing}
         hob: {type: stove, sizes: [[0.6, 0.6]], landing: hob_landing}
+      # 26 Oct 2026: the limits of the compact fallback options (solver.run_limits; the full runs keep
+      # solver.RUN_LIMITS: an I from 3.0 m, L legs from 1.2 m, a galley 1.8 + 1.2 m, the NKBA landings and triangle
+      # hard). The work triangle and the NKBA landings are scored here and reported as minor (tier compact_run).
+      compact: {i_min: 2.1, i_lengths: [2.4, 2.1], leg_min: 0.9, leg_lengths: [1.8, 1.2, 0.9], galley_a_min: 1.35, galley_a_lengths: [1.8, 1.5, 1.35], galley_b_min: 0.6, galley_b_lengths: [1.2, 0.9, 0.75, 0.6], landing_min: 0.30, triangle: soft, wall_min: 0.6}
     partners: []
 
   island:

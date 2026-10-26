@@ -225,6 +225,18 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   building_fitted_report.md and building_final_report.md listed "... Knobs &amp; Faucet", "Hudson Reed Sublime Vanity
   Unit &amp; Basin" and "Cooke &amp; Lewis Deluvio ..." (HSSD titles stored HTML-escaped), while ATTRIBUTION.md
   already names the products as they are called.
+- Fix round of 26 Oct 2026 (user: "fix should be general"; "there is no taste in the furniture selection"). What:
+  (D) one model per role of a group: the members of one group (``group.group_id``) with the same ``ROLE_SET_TYPES``
+  type (the chairs of a table, the nightstands of a bed, the armchairs of a seating group) are a role set
+  (``role_sets``); the set's model is fitted once on the members' median drawn size (``median_size``) and used for
+  every member within the caps on its own drawn size (``asset.role_set`` with ``used: true``); a member it does not
+  fit is fitted on its own (``used: false`` and why); pinned pieces and the anchor are no members. (E) Taste rank
+  rules, never gates: a misfit (``misfit_of``: folding, camping, an outdoor piece in a known indoor room, a bar or
+  counter stool as a chair) ranks after every other model; a dining-group model (``STYLE_MIX_TYPES``) whose styles or
+  title name a style outside the project family's compatible styles (``compatible_styles``, ``style_mix_of``) takes
+  ``STYLE_MIX_STEPS`` size steps; a winner that still has either records ``taste_flags``. Why: real06's living room
+  had a folding chair, Eames chairs and a turned-leg "Traditional ... Rustic" table at one Scandinavian dining group,
+  and its four drawn chairs (0.37-0.54 m wide) took two different models.
 """
 from __future__ import annotations
 
@@ -505,15 +517,83 @@ def diversity_steps(asset_id: str, used: Optional[dict]) -> int:
 from wenart.blender.outdoor import OPEN_AIR_ROOMS, OUTDOOR_STEPS, outdoor_grade  # noqa: E402
 
 
+# 26 Oct 2026 (fix E, user: "there is no taste in the furniture selection"; real06's Scandinavian living room got a
+# folding chair at a turned-leg "Traditional ... Rustic" table with Eames chairs). Two rank rules, never gates:
+# - a misfit (``misfit_of``): a model whose title, name or audit names a folding or camping piece, an outdoor piece in
+#   an indoor room ("garden", "outdoor", "patio") or, for a dining chair, a bar or counter stool, ranks after every
+#   other model (after the generated ones too); open-air rooms keep their outdoor ranking instead;
+# - a style mix (``style_mix_of``, the dining group's table, chairs and bench): a model whose ``styles`` or title name a
+#   style outside the project family's compatible styles (the family, its ``STYLE_FALLBACK``, a style whose fallback
+#   is the family, ``neutral``) takes ``STYLE_MIX_STEPS`` size steps, so the table and the chairs come from
+#   compatible styles whenever such models fit.
+MISFIT_ANY = ("folding", "foldable", "camping")
+MISFIT_INDOOR = ("garden", "outdoor", "patio")
+MISFIT_CHAIR = ("bar", "barstool", "bar stool", "counter stool", "counterstool")
+STYLE_MIX_TYPES: tuple[str, ...] = ("table_dining", "chair", "bench")
+STYLE_MIX_STEPS = 5              # 25 %: more than the size steps two models inside the caps differ by
+# Title words that name a style (lower case, whole words): a "Traditional" turned-leg table is classic, a
+# "Farmhouse" one rustic.
+STYLE_WORDS: dict[str, tuple[str, ...]] = {
+    "classic": ("traditional", "victorian", "baroque", "rococo", "colonial", "antique", "turned"),
+    "rustic": ("rustic", "farmhouse", "provencal", "cottage", "country"),
+    "industrial": ("industrial", "loft"),
+}
+
+
+def _words_in(text: str, words: tuple[str, ...]) -> list[str]:
+    return [w for w in words if re.search(rf"\b{re.escape(w)}\b", text)]
+
+
+def misfit_of(entry: dict, ftype: str, outdoor: Optional[bool] = False) -> Optional[str]:
+    """26 Oct 2026 (fix E): why a model does not suit the piece (None when it does): its title, name or audit
+    (notes, doubts, reasons) names a folding or camping piece, an outdoor piece in an indoor room, or, for a chair, a
+    bar or counter stool. Open-air rooms (``outdoor`` True) are ranked by ``outdoor_grade`` instead; with the room
+    unknown (``outdoor`` None: a single piece fitted outside ``fit_building``) the outdoor words are not read."""
+    if outdoor:
+        return None
+    title = " ".join(str(entry.get(k) or "") for k in ("title", "name")).lower()
+    audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
+    text = title + " " + " ".join(str(x) for k in ("notes", "vision_doubt", "reasons")
+                                  for x in (audit.get(k) or [])).lower()
+    hits = _words_in(text, MISFIT_ANY) + (_words_in(text, MISFIT_INDOOR) if outdoor is False else [])
+    if ftype == "chair":
+        hits += _words_in(title, MISFIT_CHAIR)
+    return f"names {', '.join(dict.fromkeys(hits))}: not for an indoor {ftype}" if hits else None
+
+
+def compatible_styles(family: Optional[str]) -> Optional[set]:
+    """26 Oct 2026 (fix E): the styles a piece of a ``family`` project may carry: the family, its fallbacks
+    (``STYLE_FALLBACK``), every style whose fallback names the family, and ``neutral``; None without a family."""
+    if not family:
+        return None
+    out = {family, C.NEUTRAL} | set(STYLE_FALLBACK.get(family, ()))
+    out |= {s for s, chain in STYLE_FALLBACK.items() if family in chain}
+    return out
+
+
+def style_mix_of(entry: dict, ftype: str, family: Optional[str]) -> list[str]:
+    """26 Oct 2026 (fix E): the styles outside ``compatible_styles(family)`` a dining-group model carries
+    (``STYLE_MIX_TYPES``): its ``styles`` tags and the styles its title words name (``STYLE_WORDS``); [] for other
+    types or without a family."""
+    allowed = compatible_styles(family)
+    if allowed is None or ftype not in STYLE_MIX_TYPES:
+        return []
+    title = " ".join(str(entry.get(k) or "") for k in ("title", "name")).lower()
+    named = [s for s, words in STYLE_WORDS.items() if _words_in(title, words)]
+    return sorted({str(s) for s in list(entry.get("styles") or []) + named} - allowed)
+
+
 def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = None,
-             prefs: Optional[dict] = None, outdoor: bool = False, taste: Optional[dict] = None) -> tuple:
+             prefs: Optional[dict] = None, outdoor: bool = False, taste: Optional[dict] = None,
+             misfit: bool = False, mix_steps: int = 0) -> tuple:
     """The order of a candidate on a ``width x depth`` footprint (lower first, docs/milestone8.md §1; Milestone 13
     K2): generated last, known units before normalised ones, the real-size step of the uniform scale plus the
     diversity penalty (``diversity_steps``), an audited real product (``real_product: true``) before the others of its
     step, the design preference (``prefs``: 0 shows the design, 1 does not), no other audit vision doubt
     (``other_doubt_of``; integration after P5), the audit's vision quality, the texture
     maps, the judges' quality, the face count, aspect error, source order and the id. The first three keys keep their
-    Milestone 8 places (tests read ``rank_key(...)[2]`` as the size step)."""
+    Milestone 8 places (tests read ``rank_key(...)[2]`` as the size step). 26 Oct 2026 (fix E): a ``misfit`` ranks
+    after every other model (the first key: 2 + generated), a style mix adds ``mix_steps`` size steps."""
     scales, _ = scale_for(entry, width, depth)
     known = units_known(entry)
     bucket = int(size_error(scales) / SIZE_BUCKET + 1e-9) if known else 0
@@ -523,26 +603,36 @@ def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = Non
     if taste:                                    # 25 Oct 2026: the room's set (wenart/furniture/taste.py)
         from wenart.furniture.taste import TASTE_STEP
         bucket += TASTE_STEP * int(taste.get(entry["id"], 0))
+    bucket += int(mix_steps)
     real = 0 if entry.get("real_product") is True else 1
     pref = int((prefs or {}).get(entry["id"], 0) or 0)
     vq = vision_quality_of(entry)
-    return (1 if entry.get("source") == GENERATED else 0, 0 if known else 1, bucket, real, pref, other_doubt_of(entry),
-            -(vq if vq is not None else VISION_QUALITY_DEFAULT), maps_rank(entry), -quality_of(entry),
-            faces_rank(entry), round(C.aspect_error(entry, width, depth), 6), source_rank(entry), entry["id"])
+    return ((2 if misfit else 0) + (1 if entry.get("source") == GENERATED else 0), 0 if known else 1, bucket, real,
+            pref, other_doubt_of(entry), -(vq if vq is not None else VISION_QUALITY_DEFAULT), maps_rank(entry),
+            -quality_of(entry), faces_rank(entry), round(C.aspect_error(entry, width, depth), 6), source_rank(entry),
+            entry["id"])
 
 
 def rank_candidates(candidates: list[dict], width: float, depth: float, used: Optional[dict] = None,
-                    prefs: Optional[dict] = None, outdoor: bool = False, taste=None) -> list[dict]:
+                    prefs: Optional[dict] = None, outdoor: bool = False, taste=None,
+                    flags: Optional[dict] = None) -> list[dict]:
     """The candidates in rank order (``rank_key``). ``taste`` (25 Oct 2026): ``(cache, room set, target)`` of
-    ``wenart.furniture.taste``: the first ``TASTE_POOL`` of the order are ranked again with their taste steps."""
-    ordered = sorted(candidates, key=lambda e: rank_key(e, width, depth, used, prefs, outdoor))
+    ``wenart.furniture.taste``: the first ``TASTE_POOL`` of the order are ranked again with their taste steps.
+    ``flags`` (26 Oct 2026, fix E): ``{id: {"misfit": str | None, "style_mix": [styles]}}`` (``_fit_family``)."""
+    flags = flags or {}
+
+    def extra(e) -> dict:
+        f = flags.get(e["id"]) or {}
+        return {"misfit": bool(f.get("misfit")), "mix_steps": STYLE_MIX_STEPS if f.get("style_mix") else 0}
+
+    ordered = sorted(candidates, key=lambda e: rank_key(e, width, depth, used, prefs, outdoor, **extra(e)))
     if not taste:
         return ordered
     from wenart.furniture import taste as T
     cache, room, target = taste
     head = ordered[:TASTE_POOL]
     pens = {e["id"]: T.steps(cache.get(e), room, target) for e in head}
-    head = sorted(head, key=lambda e: rank_key(e, width, depth, used, prefs, outdoor, pens))
+    head = sorted(head, key=lambda e: rank_key(e, width, depth, used, prefs, outdoor, pens, **extra(e)))
     return head + ordered[TASTE_POOL:]
 
 
@@ -815,9 +905,16 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         caps = relaxed_caps if relaxed else (cap, uniform_range)
         for fam in chain:
             got = _fit_family(piece, usable, fam, caps[0], caps[1], design, used=used, within_table=relaxed,
-                              ceiling=ceiling)
+                              ceiling=ceiling, project_family=style_family)
             if got.get("method") == "library":
                 got["excluded"] = excluded + got.get("excluded", [])
+                # 26 Oct 2026 (fix E): a misfit or a style mix that still won (nothing better fitted) is recorded
+                won = next((e for e in usable if e.get("id") == got.get("asset_id")), None)
+                flag = taste_flags([won], ftype, piece.get("open_air_room"), style_family).get(
+                    got.get("asset_id")) if won is not None else None
+                if flag:
+                    got["taste_flags"] = dict(flag, why="ranked last (misfit) or later (style mix); no better model "
+                                                        "fitted the caps")
                 if fam != style_family:
                     got["style_fallback"] = {"wanted": style_family, "used": fam, "chain": list(chain),
                                              "why": "; ".join(reasons)}
@@ -856,9 +953,21 @@ def _relaxed_caps(cap: float, uniform_range: tuple[float, float]) -> Optional[tu
     return r_cap, r_range
 
 
+def taste_flags(candidates: list[dict], ftype: str, outdoor: Optional[bool], family: Optional[str]) -> dict:
+    """26 Oct 2026 (fix E): ``{id: {"misfit": reason, "style_mix": [styles]}}`` of the candidates that have either
+    (``misfit_of``, ``style_mix_of``); the rank order reads them (``rank_candidates``)."""
+    out = {}
+    for e in candidates:
+        misfit, mix = misfit_of(e, ftype, outdoor), style_mix_of(e, ftype, family)
+        if misfit or mix:
+            out[e["id"]] = {"misfit": misfit, "style_mix": mix}
+    return out
+
+
 def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str], cap: float,
                 uniform_range: tuple[float, float], design: Optional[dict], *, used: Optional[dict] = None,
-                within_table: bool = False, ceiling: Optional[float] = None, taste=None) -> dict:
+                within_table: bool = False, ceiling: Optional[float] = None, taste=None,
+                project_family: Optional[str] = None) -> dict:
     """The fit of one style family on the usable candidates: the bed rule, the style filter, the chaise side, the
     design as a preference (Milestone 13: models that cannot show it are listed under ``excluded`` with the reason
     and still tried after the ones that can), the rank order (``rank_key`` with the diversity penalty ``used``) and
@@ -889,7 +998,10 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
             else:
                 looks[e["id"]] = look
     taste = taste or (used or {}).get("taste")
-    ordered = rank_candidates(candidates, width, depth, used, prefs, bool(piece.get("open_air_room")), taste)
+    # 26 Oct 2026 (fix E): misfits rank last, a style mix of a dining-group piece takes STYLE_MIX_STEPS (the style
+    # family of the project, not the fallback family being tried: ``project_family``)
+    flags = taste_flags(candidates, ftype, piece.get("open_air_room"), project_family or style_family)
+    ordered = rank_candidates(candidates, width, depth, used, prefs, bool(piece.get("open_air_room")), taste, flags)
     tried = []
     heights = real_height_range(ftype)
     for rank, entry in enumerate(ordered, start=1):
@@ -2011,6 +2123,41 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
             planes_of[level_id] = ceiling_planes_of(fitted, level_id)
         return piece_ceiling(fitted, piece, planes_of[level_id]) if planes_of[level_id] else None
 
+    # 26 Oct 2026 (fix D): the role sets of the groups (the chairs of a table, the nightstands of a bed, the armchairs
+    # of a seating group) and the one model each set takes (``role_set_fit``)
+    sets = role_sets(fitted)
+    set_of = {pid: key for key, ids in sets.items() for pid in ids}
+    set_models: dict = {}
+
+    def role_set_fit(piece: dict, target: dict, design: Optional[dict], used: dict) -> Optional[dict]:
+        """The asset of a role-set member: the set's model (fitted once on the members' median drawn size, the
+        first time a member is fitted) on this piece's own drawn size within the caps; None when the set has no
+        library model or the model fails the caps here (the caller fits the piece on its own)."""
+        key = set_of[piece["id"]]
+        if key not in set_models:
+            members = [by_id[i] for i in sets[key] if i in by_id]
+            size = median_size(members)
+            rep = fit_piece(dict(target, footprint=dict(target["footprint"], size=size)), catalog, cap=cap,
+                            style_family=style_family, design=design or None, mode=mode, used=used, style=style,
+                            ceiling=ceiling_of(piece))
+            set_models[key] = None if rep.get("method") != "library" else {
+                "group_id": key[0], "type": key[1], "members": list(sets[key]), "median_size": size,
+                "asset_id": rep["asset_id"],
+                "rule": "one model per role of a group: fitted once on the members' median drawn size, used for "
+                        "every member within the caps (26 Oct 2026)"}
+        model = set_models[key]
+        entry = next((e for e in catalog.candidates(key[1]) if e.get("id") == model["asset_id"]), None) \
+            if model is not None else None
+        if entry is None:
+            return None
+        asset = fit_piece(target, _OneModel(catalog, entry), cap=cap, style_family=None, design=design or None,
+                          mode=mode, used=used, style=style, ceiling=ceiling_of(piece))
+        if asset.get("method") != "library":
+            return None
+        asset["style_family"] = style_family
+        asset["role_set"] = dict(model, used=True)
+        return asset
+
     def fit_one(piece: dict, built_into: Optional[dict] = None) -> None:
         frozen = {k: copy.deepcopy(piece.get(k)) for k in FROZEN_KEYS}
         room = str(piece.get("room_id") or "")
@@ -2027,8 +2174,16 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
             target = dict(piece, module_hints={**(piece.get("module_hints") or {}), **hints}) if hints else piece
             if room_types.get(piece.get("room_id")) in OPEN_AIR_ROOMS:
                 target = dict(target, open_air_room=True)     # outdoor models first (a copy: the piece stays)
-            asset = fit_piece(target, catalog, cap=cap, style_family=style_family, design=design or None, mode=mode,
-                              used=used, style=style, ceiling=ceiling_of(piece))
+            elif room_types.get(piece.get("room_id")):
+                target = dict(target, open_air_room=False)    # 26 Oct 2026 (fix E): a known indoor room
+            # 26 Oct 2026 (fix D): a member of a role set takes the set's one model (role_set_fit), else its own fit
+            asset = role_set_fit(piece, target, design, used) if piece.get("id") in set_of else None
+            if asset is None:
+                asset = fit_piece(target, catalog, cap=cap, style_family=style_family, design=design or None,
+                                  mode=mode, used=used, style=style, ceiling=ceiling_of(piece))
+                if piece.get("id") in set_of and set_models.get(set_of[piece["id"]]) is not None:
+                    asset["role_set"] = dict(set_models[set_of[piece["id"]]], used=False, why=(
+                        "the set's model fails the caps on this piece's drawn size: fitted on its own"))
             if target.get("open_air_room") and asset.get("method") == "library":
                 asset["outdoor_grade"] = outdoor_grade(catalog.entry(asset.get("asset_id")) or {})
             if hints and asset.get("method") == MODULE_METHOD:
@@ -2088,6 +2243,39 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         project["taste"] = {"target": {k: v for k, v in taste_target.items() if k != "palette"},
                             "rooms": {r: dict(v) for r, v in sorted(taste_rooms.items()) if v}}
     return fitted
+
+
+# 26 Oct 2026 (fix D, user: "fix should be general"): the piece types a group holds several of as one set (the chairs
+# of a table, the nightstands of a bed, the armchairs and poufs of a seating group, the stools of an island). Each
+# drawn chair was fitted to its own drawn width (real06: 0.37-0.54 m), so different chair models won at one table;
+# SET_TYPES only lifted the room's reuse penalty. Now the members of one group with the same type take one model.
+ROLE_SET_TYPES: tuple[str, ...] = ("chair", "nightstand", "armchair", "bar_stool", "office_chair", "ottoman",
+                                   "side_table", "bench")
+
+
+def role_sets(building: dict) -> dict:
+    """26 Oct 2026 (fix D): ``{(group_id, type): [piece ids]}`` of the groups with two or more members of one
+    ``ROLE_SET_TYPES`` type (the ``group`` field the layout writes; not the anchor, not a piece that is not built, not
+    a piece the agent pinned to a model: its pin decides)."""
+    out: dict = {}
+    for f in building.get("furniture") or []:
+        g = f.get("group")
+        if not isinstance(g, dict) or not g.get("group_id") or g.get("role") == "anchor":
+            continue
+        if f.get("type") not in ROLE_SET_TYPES or f.get("build") is False or f.get("asset_pin") \
+                or not (f.get("footprint") or {}).get("size"):
+            continue
+        out.setdefault((str(g["group_id"]), f["type"]), []).append(f["id"])
+    return {k: sorted(v) for k, v in sorted(out.items()) if len(v) >= 2}
+
+
+def median_size(pieces: list[dict]) -> list[float]:
+    """26 Oct 2026 (fix D): the median drawn width and depth of a role set's members (``footprint.size``)."""
+    import statistics
+
+    ws = [float(p["footprint"]["size"][0]) for p in pieces]
+    ds = [float(p["footprint"]["size"][1]) for p in pieces]
+    return [round(statistics.median(ws), 4), round(statistics.median(ds), 4)]
 
 
 PROJECT_FIT_KEYS = ("licence_mode", "licence_mode_source", "size_snap", "taste")
