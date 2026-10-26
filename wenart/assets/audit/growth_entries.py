@@ -519,15 +519,22 @@ def build_copies(library: dict, polyhaven: dict, entries: list[dict]) -> tuple[d
     return lib, ph, stats
 
 
+# 26 Oct 2026 (user on real06: "The house needs to make sense and needs to look very stylish"): the catalogue's
+# ``extras`` (3D Warehouse doors, windows, trees, ...) take the audit's vision styles too. They were left out, so all
+# 171 audited doors and windows kept the ``neutral`` placeholder and the opening choice could not see a style.
+VISION_SECTIONS = ("entries", "decor", "extras")
+
+
 def apply_vision_fields(doc: dict, answers: dict, ids: set, hints: Optional[dict] = None) -> dict:
     """Styles and the bed's ``has_mattress`` of the new entries (``ids``) from their pass 1 answers (``answers``:
     ``{id: answer}``): styles = the source's hint (``hints[id]``, or the entry's styles unless they are the
-    ``neutral`` placeholder) plus at most ``STYLE_MAX`` styles of the answer; nothing named -> neutral. Returns
-    ``{"styled", "beds"}``."""
+    ``neutral`` placeholder) plus at most ``STYLE_MAX`` styles of the answer; nothing named -> neutral. Every
+    catalogue section (``VISION_SECTIONS``: furniture, decor and, since 26 Oct 2026, the extras: doors, windows,
+    trees). Returns ``{"styled", "beds"}``."""
     from wenart.furniture import catalog as C
     allowed = set(C.style_values())
     out = {"styled": 0, "beds": 0}
-    for section in ("entries", "decor"):
+    for section in VISION_SECTIONS:
         for e in doc.get(section) or []:
             if not isinstance(e, dict) or e.get("id") not in ids:
                 continue
@@ -547,3 +554,33 @@ def apply_vision_fields(doc: dict, answers: dict, ids: set, hints: Optional[dict
                                  f"{'seen' if a['has_bedding'] else 'not seen'})")
                 out["beds"] += 1
     return out
+
+
+def audit_answers(audit_doc: Optional[dict]) -> dict:
+    """``{id: vision answer}`` of an audit result (``results/library/audit/<pod>/audit.json``: its ``items`` carry the
+    pass 1 answer as ``vision``), the shape ``apply_vision_fields`` reads (pure; 26 Oct 2026). {} without one."""
+    out = {}
+    for it in (audit_doc or {}).get("items") or []:
+        if isinstance(it, dict) and it.get("id") and isinstance(it.get("vision"), dict):
+            out[str(it["id"])] = it["vision"]
+    return out
+
+
+def neutral_ids(doc: dict, sections=VISION_SECTIONS) -> set:
+    """The ids of the entries whose styles are only the ``neutral`` placeholder (or none): the ones an audit's vision
+    answer may still style; an entry with named styles keeps them (pure)."""
+    return {e["id"] for s in sections for e in doc.get(s) or [] if isinstance(e, dict) and e.get("id")
+            and not [x for x in e.get("styles") or [] if x != "neutral"]}
+
+
+def apply_audit_styles(doc: dict, audit_doc: Optional[dict], sections=VISION_SECTIONS) -> dict:
+    """The audit's vision styles on the entries of ``doc`` that still carry the ``neutral`` placeholder (pure, in
+    place; 26 Oct 2026). Why: the 3D Warehouse doors and windows were audited (their vision answers name styles) but
+    the catalogue copy was written before ``apply_vision_fields`` read the ``extras``; this applies the same rule
+    (the hint, at most ``STYLE_MAX`` styles of the answer) where the catalogue is loaded, so no catalogue has to be
+    regenerated. Returns ``apply_vision_fields``' counts."""
+    answers = audit_answers(audit_doc)
+    ids = neutral_ids(doc, sections) & set(answers)
+    if not ids:
+        return {"styled": 0, "beds": 0}
+    return apply_vision_fields(doc, answers, ids)
