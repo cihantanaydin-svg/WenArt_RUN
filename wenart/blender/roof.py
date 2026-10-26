@@ -46,6 +46,12 @@ from it (``_profile_tiers``: the drawn slopes, break and ridge heights; a mansar
 pitch and run up to the ridge, assumed ``mansard_ends``); the plan's break line, pitches and eaves are
 cross-checks (warnings), and every derived roof is compared with its section (``profile_check``). Without
 ridge line or section the long-axis ridge of a gable or gambrel is assumed (``ridge_direction``).
+
+The roof follows its drawn section (26 Oct 2026, ``follow_section``; CLAUDE.md evidence rules: source geometry
+outranks a pitch text, a default and an un-drawn ridge direction): when the built roof's ridge (the highest point of its
+planes) or, for a reliable profile (``section_reliability``: one-to-one with the plan, one roof surface), its silhouette
+(``profile_diffs``) differs from the drawing by more than ``SECTION_TOL``, an un-drawn ridge direction is turned or the
+pitch is solved so the ridge meets the drawn height; the eaves and the outline stay. The record is ``section_fit``.
 """
 from __future__ import annotations
 
@@ -72,6 +78,13 @@ DEFAULTS = {
 }
 EAVES_JOG_MAX_M = 0.60           # 26 Oct 2026: facade jogs shallower than this run under one straight eaves line
 EAVES_MIN_COVER_M = 0.15         # ... and every wall face keeps at least this much roof over it
+# 26 Oct 2026 (Argus on real06; CLAUDE.md evidence rules: a drawn section is source geometry and outranks a pitch text
+# or a default): the built roof follows the drawn section's heights within SECTION_TOL (``follow_section``).
+SECTION_TOL = 0.25               # m: the built ridge / the section's points may differ this much from the drawing
+SECTION_LIST_TOL = 0.05          # m: a smaller difference is not listed (a warning above it, within SECTION_TOL too)
+SECTION_SPAN_TOL = 0.30          # m: a profile whose ends lie further from the outline is not compared point by point
+SECTION_PITCH_DEG = (5.0, 60.0)  # the pitch that meets the drawn heights must lie in this range, else the roof is kept
+SILHOUETTE_STEP = 0.05           # m: the roof's silhouette across the outline (what a section draws) is sampled so
 CEILING_GAP = 0.001              # attic ceilings stay this far under the roof underside (no coplanar faces)
 CONVEX_TOL = 0.01                # drawn planes: a plane more than this above another at its own corners -> not convex
 SAME_TOL = 0.02                  # equivalent planes: corners within 2 cm
@@ -352,22 +365,84 @@ def _profile_tiers(prof: dict, outline: Sequence[Sequence[float]], rtype: str, e
                            "ends": ends}
 
 
-def profile_check(planes: Sequence[Plane], prof: dict, outline: Sequence[Sequence[float]],
-                  tol: float = 0.05) -> list[str]:
-    """Where the roof surface of ``planes`` differs from the drawn section by more than ``tol`` (pure): the
-    surface along the cut line (``cut_at``, else the middle of the outline across the cut) at every profile
-    point. Returns warnings (empty when the roof matches its section)."""
-    cut, ridge_dir = prof["cut"], prof["ridge_dir"]
+def profile_points(prof: dict) -> list[tuple[float, float]]:
+    """The ``[(s, z)]`` points of a ``section_profile`` from one eaves end to the other."""
+    return list(prof["sides"][0]) + list(prof["sides"][1][::-1][1:])
+
+
+def roof_silhouette(planes: Sequence[Plane], outline: Sequence[Sequence[float]], cut: Sequence[float],
+                    ridge_dir: Sequence[float], s: float, step: float = SILHOUETTE_STEP) -> Optional[float]:
+    """The highest point of the roof surface over the outline on the line across the cut at ``s`` (pure): what a
+    section's roof line draws (the cut and the roof seen beyond it; the middle line for a symmetric roof). ``s``
+    within ``SECTION_SPAN_TOL`` outside the outline is read at its edge (a longer drawn overhang); None further out."""
+    along = [x * cut[0] + y * cut[1] for x, y in outline]
     proj = [x * ridge_dir[0] + y * ridge_dir[1] for x, y in outline]
-    at = float(prof["cut_at"]) if prof.get("cut_at") is not None else (min(proj) + max(proj)) / 2.0
+    lo, hi = min(along), max(along)
+    if s < lo - SECTION_SPAN_TOL or s > hi + SECTION_SPAN_TOL:
+        return None
+    s = min(max(s, lo), hi)
+    t0, t1 = min(proj), max(proj)
+    n = max(1, int(math.ceil((t1 - t0) / step)))
+    best = None
+    for k in range(n + 1):
+        t = t0 + (t1 - t0) * k / n
+        x, y = cut[0] * s + ridge_dir[0] * t, cut[1] * s + ridge_dir[1] * t
+        if G.point_in_polygon((x, y), outline):
+            z = surface_z(planes, x, y)
+            best = z if best is None or z > best else best
+    return best
+
+
+def profile_diffs(planes: Sequence[Plane], prof: dict,
+                  outline: Sequence[Sequence[float]]) -> list[tuple[float, float, float]]:
+    """``[(s, built z, drawn z)]`` of every profile point of a drawn section (pure): the roof's silhouette across the
+    outline at the point's ``s`` (``roof_silhouette``) against the drawn height; points with no roof under them are
+    left out (``section_reliability`` names them)."""
     out = []
-    for s, z in prof["sides"][0] + prof["sides"][1][::-1][1:]:
-        x, y = cut[0] * s + ridge_dir[0] * at, cut[1] * s + ridge_dir[1] * at
-        got = surface_z(planes, x, y)
-        if abs(got - z) > tol:
-            out.append(f"roof vs the drawn section at s {s:.2f} m: {got:.3f} m built, {z:.3f} m drawn "
-                       f"({(got - z) * 100:+.0f} cm)")
+    for s, z in profile_points(prof):
+        got = roof_silhouette(planes, outline, prof["cut"], prof["ridge_dir"], s)
+        if got is not None:
+            out.append((s, got, z))
     return out
+
+
+def profile_check(planes: Sequence[Plane], prof: dict, outline: Sequence[Sequence[float]],
+                  tol: float = SECTION_LIST_TOL) -> list[str]:
+    """Where the roof surface of ``planes`` differs from the drawn section by more than ``tol`` (pure;
+    ``profile_diffs``). Returns warnings (empty when the roof matches its section)."""
+    return [f"roof vs the drawn section at s {s:.2f} m: {got:.3f} m built, {z:.3f} m drawn ({(got - z) * 100:+.0f} cm)"
+            for s, got, z in profile_diffs(planes, prof, outline) if abs(got - z) > tol]
+
+
+def section_reliability(prof: dict, outline: Sequence[Sequence[float]],
+                        axis: Optional[str] = None) -> tuple[bool, list[str]]:
+    """Whether a drawn section's profile (``section_profile``) can be compared with the roof point by point (pure;
+    26 Oct 2026, real06): its two eaves ends lie within ``SECTION_SPAN_TOL`` of the roof outline's ends along the cut
+    (else the section and the plan do not run one-to-one: a porch, a wider cut), and it is one roof surface: from each
+    eaves end up to its highest point it never drops more than ``SECTION_TOL`` (else other lines are drawn with the
+    roof: trusses, trims, a dormer or a chimney). Returns ``(ok, reasons)``. An unreliable profile still gives its eaves
+    and ridge heights (the highest roof line); only its shape is not followed."""
+    pts = profile_points(prof)
+    cut = prof["cut"]
+    along = [x * cut[0] + y * cut[1] for x, y in outline]
+    lo, hi = min(along), max(along)
+    reasons = []
+    off = max(abs(pts[0][0] - lo), abs(pts[-1][0] - hi))
+    if off > SECTION_SPAN_TOL:
+        reasons.append(f"its ends at s {pts[0][0]:.2f} / {pts[-1][0]:.2f} m and the roof outline's at {lo:.2f} / "
+                       f"{hi:.2f} m along {axis or 'the cut'} are up to {off:.2f} m apart (over {SECTION_SPAN_TOL:.2f} "
+                       f"m: the section does not run one-to-one with the plan)")
+    dip, at = 0.0, None
+    for side in prof["sides"]:                       # each from its eaves point up to the peak
+        top = None
+        for s, z in side:
+            if top is not None and top - z > dip:
+                dip, at = top - z, s
+            top = z if top is None else max(top, z)
+    if dip > SECTION_TOL:
+        reasons.append(f"its roof line drops {dip:.2f} m at s {at:.2f} m on the way up to its highest point (trusses, "
+                       f"trims or another roof drawn with it: not one roof surface)")
+    return not reasons, reasons
 
 
 def _rect_planes(centre, r, across, half_along: float, half_across: float, z0: float, tan_side: float,
@@ -406,9 +481,24 @@ def _named(planes: Sequence[Plane], names: Sequence[str]) -> list[str]:
     return [f"rp_{side_name(slope_aspect(p)[1])}" + (f"_{n}" if n else "") for p, n in zip(planes, names)]
 
 
+def _turned(axis: tuple) -> tuple:
+    """A ``_ridge_axis`` result with the ridge turned 90 degrees (the other axis of the rectangle)."""
+    r, across, half_along, half_across, ridge_half, source = axis
+    return across, (-across[1], across[0]), half_across, half_along, None, source
+
+
 def derive(roof: dict, building: dict) -> dict:
     """The derivation behind ``planes_for``: ``{"planes": [...], "equations": [(a, b, c)], "outline",
-    "eaves_z", "ridge_z", "pitches", "assumed": [{"field", "value", "reason"}], "warnings", "notes"}``."""
+    "eaves_z", "ridge_z", "pitches", "assumed": [{"field", "value", "reason"}], "warnings", "notes",
+    "section_fit", "follows_section"}``. ``ridge_z`` is the highest point of the built planes. The derived roof
+    then follows its drawn section (``follow_section``, 26 Oct 2026)."""
+    return follow_section(roof, building, _derive(roof, building))
+
+
+def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: bool = False) -> dict:
+    """One derivation of the roof (``derive``). ``pitch`` replaces the pitch the drawn section may set (the pitch of a
+    gable, hip or shed, the upper pitch of a mansard or gambrel without section tiers); ``turn`` turns a ridge
+    direction no ridge line draws by 90 degrees. The private ``_ctx`` says what ``follow_section`` may change."""
     rtype = str(roof.get("type") or "other")
     assumed: list[dict] = []
     warnings: list[str] = []
@@ -431,7 +521,7 @@ def derive(roof: dict, building: dict) -> dict:
         if len(wall_line) < 3:
             return {"planes": [], "equations": [], "outline": [], "eaves_z": None, "ridge_z": None, "pitches": [],
                     "assumed": assumed, "warnings": ["no roof outline and no walls under the roof: no roof"],
-                    "notes": notes}
+                    "notes": notes, "_ctx": {"fit": None}}
         # The walls' own outline grown by the overhang (review #26: an L-shaped level keeps its notch open; the
         # planes are derived on the enclosing rectangle and cut to it, listed as outline_rectangle below).
         # 26 Oct 2026 (user: "why there is that many rain gutters in real06"): a pitched roof's eaves run straight
@@ -461,9 +551,15 @@ def derive(roof: dict, building: dict) -> dict:
     eaves = _value(roof.get("eaves_height"))
     ridge = _value(roof.get("ridge_height"))
     knee = _value(roof.get("knee_wall"))
-    r, across, half_along, half_across, ridge_half, ridge_source = _ridge_axis(rect, roof)
+    axis0 = _ridge_axis(rect, roof)
+    turn = turn and axis0[5] != "ridge_lines"          # a drawn ridge line is never turned
+    r, across, half_along, half_across, ridge_half, ridge_source = _turned(axis0) if turn else axis0
+    fit = "pitch" if rtype in ("gable", "hip", "other", "shed") else None
 
     def first_pitch() -> float:
+        if pitch is not None and fit == "pitch":
+            notes.append(f"pitch {pitch:.2f} degrees: the roof follows the drawn section's heights")
+            return float(pitch)
         if pitches:
             return pitches[0]
         if ridge is not None and eaves is not None and rtype in ("gable", "hip") and half_across > 0:
@@ -485,7 +581,8 @@ def derive(roof: dict, building: dict) -> dict:
         eq = [(0.0, 0.0, z)]
         planes = planes_from_equations(eq, outline, ["rp_flat"])
         return {"planes": planes, "equations": eq, "outline": outline, "eaves_z": z, "ridge_z": z, "pitches": [0.0],
-                "assumed": assumed, "warnings": warnings, "notes": notes}
+                "assumed": assumed, "warnings": warnings, "notes": notes,
+                "_ctx": {"fit": None, "rect": rect, "rtype": rtype, "why_fixed": "a flat roof has no pitch"}}
 
     p1 = first_pitch()
     t1 = math.tan(math.radians(p1))
@@ -517,7 +614,13 @@ def derive(roof: dict, building: dict) -> dict:
         eqs, tiers, more = _rect_planes(rect["center"], r, across, half_along, half_across, eaves, t1, ends,
                                         ridge_half, "")
         notes += more
-        if ridge_source == "long axis" and rtype != "hip":
+        if turn:
+            from_ = "the section peak" if ridge_source == "profile" else "the long side"
+            assumed.append({"field": "ridge_direction",
+                            "value": "along the section cut" if ridge_source == "profile" else "along the short side",
+                            "reason": f"no ridge line drawn ({from_} gave the other direction): turned so the drawn "
+                                      f"pitch and the drawn section's heights meet (follow_section)"})
+        elif ridge_source == "long axis" and rtype != "hip":
             assumed.append({"field": "ridge_direction", "value": "along the long side",
                             "reason": "no ridge line and no section peak drawn: the ridge along the long side of the "
                                       "outline"})
@@ -543,6 +646,7 @@ def derive(roof: dict, building: dict) -> dict:
         # The drawn section gives the tiers along its cut (slopes, break and ridge heights, the ridge across the
         # cut at its peak: real02's party wall); the plan's break line is a cross-check (§1.6b row 13).
         prof = section_profile(roof, rect)
+        fit = None                                   # the tiers are the section's own slopes and heights
         eaves_drawn = sum(z for _s, z in prof["eaves"]) / 2.0
         if any(abs(z - eaves) > 0.05 for _s, z in prof["eaves"]):
             warnings.append(f"eaves height {eaves:.3f} m vs the section's "
@@ -590,8 +694,11 @@ def derive(roof: dict, building: dict) -> dict:
         pitches = pitches or [info["lower_deg"][0], *info["upper_deg"][:1]]
     elif rtype in ("mansard", "gambrel"):
         brk = geom2d.ccw(roof.get("break_line") or [])
-        p2 = pitches[1] if len(pitches) > 1 else None
-        if rtype == "gambrel" and ridge_source == "long axis":
+        fit = "upper_pitch"
+        p2 = float(pitch) if pitch is not None else pitches[1] if len(pitches) > 1 else None
+        if pitch is not None:
+            notes.append(f"upper pitch {p2:.2f} degrees: the roof follows the drawn section's heights")
+        if rtype == "gambrel" and ridge_source == "long axis" and not turn:
             assumed.append({"field": "ridge_direction", "value": "along the long side",
                             "reason": "no ridge line and no section peak drawn: the gambrel's ridge along the long "
                                       "side of the outline"})
@@ -624,7 +731,12 @@ def derive(roof: dict, building: dict) -> dict:
                                  f"line is {off:.2f} m in there (level break line at {z_break:.3f} m)")
                 lower.append(_ramp(edge, (-axis[0] * sgn, -axis[1] * sgn), eaves, tan_i))
         # Upper tier over the break line: across the ridge at p2 (else from the ridge height, else assumed).
-        b_r, b_across, b_half_along, b_half_across, b_ridge_half, _ = _ridge_axis(brect, roof)
+        b_axis = _ridge_axis(brect, roof)
+        b_r, b_across, b_half_along, b_half_across, b_ridge_half, _ = _turned(b_axis) if turn else b_axis
+        if turn:
+            assumed.append({"field": "ridge_direction", "value": "turned 90 degrees",
+                            "reason": "no ridge line drawn: turned so the drawn pitches and the drawn section's "
+                                      "heights meet (follow_section)"})
         if p2 is None:
             if ridge is not None and b_half_across > 0:
                 p2 = math.degrees(math.atan2(max(0.0, ridge - z_break), b_half_across))
@@ -643,17 +755,192 @@ def derive(roof: dict, building: dict) -> dict:
         notes.append(f"break line at z {z_break:.3f} m")
     else:
         return {"planes": [], "equations": [], "outline": outline, "eaves_z": eaves, "ridge_z": ridge, "pitches": pitches,
-                "assumed": assumed, "warnings": [f"unknown roof type {rtype!r}: no roof"], "notes": notes}
+                "assumed": assumed, "warnings": [f"unknown roof type {rtype!r}: no roof"], "notes": notes,
+                "_ctx": {"fit": None}}
 
     planes = planes_from_equations(eqs, outline, _named(eqs, tiers))
-    prof = section_profile(roof, rect)
-    if prof is not None:                     # the derived roof against its drawn section (conflicts listed)
-        warnings += profile_check(eqs, prof, outline)
-    if ridge is not None and abs(top - ridge) > 0.05:
-        warnings.append(f"derived ridge {top:.3f} m vs the drawn ridge height {ridge:.3f} m "
-                        f"({(top - ridge) * 100:+.0f} cm): the pitches are kept")
+    # 26 Oct 2026 (real06): the ridge is the highest point of the planes as built. ``eaves + half_across x tan`` is that
+    # only when the ridge runs along the long side; a hip whose axis came from the section's peak reported 8.53 m for
+    # a roof built 7.61 m high (its four equal slopes meet over the short half-width whatever the axis).
+    top = max((plane_z(eq, x, y) for eq, poly in zip(eqs, _region_polygons(eqs, outline)) for x, y in poly),
+              default=top)
+    if pitch is not None and fit == "pitch":
+        pitches = [float(pitch)] + pitches[1:]
+    elif pitch is not None and fit == "upper_pitch":
+        pitches = (pitches[:1] or [p1]) + [float(pitch)] + pitches[2:]
     return {"planes": planes, "equations": eqs, "outline": outline, "eaves_z": eaves, "ridge_z": top,
-            "pitches": pitches or [p1], "assumed": assumed, "warnings": warnings, "notes": notes}
+            "pitches": pitches or [p1], "assumed": assumed, "warnings": warnings, "notes": notes,
+            "_ctx": {"fit": fit, "rect": rect, "rtype": rtype, "ridge_source": axis0[5], "turned": turn,
+                     "pitch": p2 if fit == "upper_pitch" else p1 if fit == "pitch" else None,
+                     "why_fixed": None if fit else
+                     "the mansard / gambrel tiers are the section's own slopes and heights"}}
+
+
+def _pitch_for_ridge(roof: dict, building: dict, target: float, turn: bool) -> tuple[Optional[dict], Optional[str]]:
+    """The derivation whose ridge meets ``target`` by its pitch (pure; bisection: the ridge rises or falls steadily
+    with the pitch while the eaves stay). ``(derivation, None)`` or ``(None, why not)`` when no pitch in
+    ``SECTION_PITCH_DEG`` reaches it."""
+    lo, hi = SECTION_PITCH_DEG
+    d_lo, d_hi = _derive(roof, building, pitch=lo, turn=turn), _derive(roof, building, pitch=hi, turn=turn)
+    f_lo, f_hi = d_lo["ridge_z"] - target, d_hi["ridge_z"] - target
+    if abs(f_hi - f_lo) < 1e-6:
+        return None, "the ridge does not move with the pitch (the eaves are taken from the drawn ridge height)"
+    if f_lo * f_hi > 0:
+        return None, (f"no pitch from {lo:g} to {hi:g} degrees reaches the drawn ridge {target:.3f} m (the ridge would "
+                      f"run from {d_lo['ridge_z']:.3f} to {d_hi['ridge_z']:.3f} m)")
+    best = d_lo if abs(f_lo) <= abs(f_hi) else d_hi
+    for _ in range(40):
+        mid = (lo + hi) / 2.0
+        d = _derive(roof, building, pitch=mid, turn=turn)
+        f = d["ridge_z"] - target
+        if abs(f) < abs(best["ridge_z"] - target):
+            best = d
+        if abs(f) < 1e-4:
+            break
+        if (f > 0) == (f_hi > 0):
+            hi, f_hi = mid, f
+        else:
+            lo = mid
+    return best, None
+
+
+def _section_evidence(roof: dict) -> list[dict]:
+    """Where the drawn section's heights come from: the profile's region and the ridge height's evidence."""
+    out = []
+    prof = roof.get("profile") if isinstance(roof.get("profile"), dict) else {}
+    if prof.get("region_id"):
+        out.append({"region_id": prof["region_id"], "rule": "section_profile", "cut_axis": prof.get("cut_axis"),
+                    "points": len(prof.get("points") or []), "method": prof.get("method") or "vector"})
+    ridge = roof.get("ridge_height")
+    for e in (ridge.get("evidence") or [])[:3] if isinstance(ridge, dict) else []:
+        out.append({k: e.get(k) for k in ("file", "region_id", "entity", "rule", "method") if e.get(k) is not None})
+    return out
+
+
+def follow_section(roof: dict, building: dict, base: dict) -> dict:
+    """The derived roof made to follow its drawn section (pure; 26 Oct 2026, Argus on real06; CLAUDE.md evidence rules:
+    a drawn section is source geometry, it outranks a pitch text, a default and a ridge direction no line draws).
+
+    Targets: the drawn ridge height (``ridge_height`` read from a drawing: vector, OCR or a dimension, from a section or
+    an elevation), else the peak of a reliable section profile; and the profile's points when ``section_reliability``
+    says the profile runs one-to-one with the plan as one roof surface. When the built roof (``ridge_z``: the highest
+    point of its planes; the profile's silhouette, ``profile_diffs``) differs from a target by more than
+    ``SECTION_TOL``, the roof follows the section, trying in this order and taking the first that brings every target
+    within ``SECTION_TOL`` without making the profile fit worse: (1) the ridge turned when no ridge line draws its
+    direction (every drawn value kept), (2) the pitch that meets the drawn ridge (``_pitch_for_ridge``; the upper pitch
+    of a mansard or gambrel without section tiers), (3) both. Else the candidate closest to the section (it must meet
+    the ridge, not worsen the profile and be better than the derived roof); else the derived roof is kept and the log
+    says why (no pitch in ``SECTION_PITCH_DEG`` reaches the ridge, the tiers already are the section's, a flat roof). The
+    eaves height and the outline never change: the roof still closes over every wall and the knee walls follow from
+    the same eaves line. Every difference over ``SECTION_LIST_TOL`` stays listed; the record is ``section_fit``:
+    ``{"status": within_tolerance | followed | followed_closest | kept_derived | not_compared, "follows_section",
+    "region_id", "tolerance_m", "derived", "drawn", "used", "change", "misfit_m", "points_compared", "reasons",
+    "evidence"}``."""
+    ctx = base.pop("_ctx", None) or {}
+    out = dict(base, section_fit=None, follows_section=False)
+    if not base.get("planes") or not ctx.get("rect"):
+        return out
+    prof_raw = roof.get("profile") if isinstance(roof.get("profile"), dict) else {}
+    axis = prof_raw.get("cut_axis")
+    rid = prof_raw.get("region_id")
+    if rid is None and isinstance(roof.get("ridge_height"), dict):
+        rid = next((e["region_id"] for e in roof["ridge_height"].get("evidence") or []
+                    if isinstance(e, dict) and e.get("region_id")), None)
+    where = f"the drawn section {rid}" if rid else "the drawn section"
+    prof = section_profile(roof, ctx["rect"])
+    points_ok, reasons = section_reliability(prof, base["outline"], axis) if prof is not None else (False, [])
+    ridge_drawn = _value(roof.get("ridge_height")) if _drawn(roof.get("ridge_height")) else None
+    target = ridge_drawn if ridge_drawn is not None else prof["peak"][1] if prof is not None and points_ok else None
+    if target is None and not points_ok:
+        if prof is not None:
+            out["section_fit"] = {"status": "not_compared", "follows_section": False, "region_id": rid,
+                                  "tolerance_m": SECTION_TOL, "points_compared": False, "reasons": reasons,
+                                  "evidence": _section_evidence(roof)}
+            out["warnings"] = list(base["warnings"]) + [f"{where} is not checked against the roof: "
+                                                        f"{'; '.join(reasons)}; it draws no ridge height either"]
+        return out
+
+    def misfit(d: dict) -> tuple[float, float, list]:
+        diffs = profile_diffs(d["equations"], prof, d["outline"]) if points_ok else []
+        return abs(d["ridge_z"] - target), max((abs(b - z) for _s, b, z in diffs), default=0.0), diffs
+
+    def summary(d: dict, c: dict) -> dict:
+        return {"ridge_z": round(d["ridge_z"], 4),
+                "pitch_deg": None if c.get("pitch") is None else round(c["pitch"], 3),
+                "ridge_turned": bool(c.get("turned"))}
+
+    r0, p0, _ = misfit(base)
+    chosen, chosen_ctx, change, why = base, ctx, None, None
+    if r0 <= SECTION_TOL and p0 <= SECTION_TOL:
+        status = "within_tolerance"
+    elif ctx.get("fit") is None:
+        status, why = "kept_derived", ctx.get("why_fixed") or "the roof type has no pitch to follow the section with"
+    else:
+        tried, why_not = [], []
+        if ctx.get("ridge_source") != "ridge_lines":
+            tried.append(("ridge_direction", _derive(roof, building, turn=True)))
+        for turn, name in ((False, "pitch"), (True, "pitch+ridge_direction")):
+            if turn and ctx.get("ridge_source") == "ridge_lines":
+                continue
+            d, no = _pitch_for_ridge(roof, building, target, turn)
+            if d is None:
+                why_not.append(f"with the ridge turned: {no}" if turn else no)
+            else:
+                tried.append((name, d))
+        scored = [(name, d, *misfit(d)[:2]) for name, d in tried]
+        ok = [s for s in scored if s[2] <= SECTION_TOL and s[3] <= SECTION_TOL]
+        closest = sorted((s for s in scored if s[2] <= SECTION_TOL and s[3] <= p0 + 1e-6
+                          and max(s[2], s[3]) < max(r0, p0) - 1e-6), key=lambda s: max(s[2], s[3]))
+        pick = ok[0] if ok else closest[0] if closest else None
+        if pick is None:
+            status = "kept_derived"
+            why = "; ".join(why_not) or (f"no ridge direction or pitch brings the roof within {SECTION_TOL:.2f} m of "
+                                         f"the section without making its fit worse")
+        else:
+            change, chosen = pick[0], pick[1]
+            chosen_ctx = chosen.pop("_ctx", None) or {}
+            status = "followed" if ok else "followed_closest"
+    r1, p1, diffs = misfit(chosen)
+    warnings = list(chosen["warnings"])
+    if prof is not None and not points_ok:
+        warnings.append(f"{where} is not checked point by point against the roof: "
+                        f"{'; '.join(reasons)}; only its ridge height {target:.3f} m is followed")
+    warnings += [f"roof vs the drawn section at s {s:.2f} m: {b:.3f} m built, {z:.3f} m drawn "
+                 f"({(b - z) * 100:+.0f} cm)" for s, b, z in diffs if abs(b - z) > SECTION_LIST_TOL]
+    if change is not None:
+        what = []
+        if "pitch" in change:
+            word = "upper pitch" if chosen_ctx.get("fit") == "upper_pitch" else "pitch"
+            what.append(f"{word} {ctx['pitch']:.1f} -> {chosen_ctx['pitch']:.1f} degrees")
+        if "ridge_direction" in change:
+            what.append("the ridge turned 90 degrees (no ridge line drawn)")
+        rest = "" if status == "followed" else f"; the section's shape still differs by up to {p1:.2f} m"
+        warnings.append(f"roof adjusted to follow {where}: {', '.join(what)}; ridge {chosen['ridge_z']:.3f} m (drawn "
+                        f"{target:.3f} m; derived {base['ridge_z']:.3f} m, {(base['ridge_z'] - target) * 100:+.0f} cm)"
+                        + rest)
+    if abs(chosen["ridge_z"] - target) > SECTION_LIST_TOL:
+        d_cm = (chosen["ridge_z"] - target) * 100
+        kept = "" if change and "pitch" in change else ", the pitches are kept"
+        tail = (f"within the {SECTION_TOL:.2f} m tolerance{kept}" if r1 <= SECTION_TOL
+                else f"the pitches are kept: {why}")
+        warnings.append(f"roof ridge {chosen['ridge_z']:.3f} m built vs the drawn ridge height {target:.3f} m "
+                        f"({d_cm:+.0f} cm): {tail}")
+    fit = {"status": status, "follows_section": status in ("within_tolerance", "followed"), "region_id": rid,
+           "tolerance_m": SECTION_TOL,
+           "derived": summary(base, ctx),
+           "drawn": {"ridge_z": round(target, 4),
+                     "ridge_source": "ridge_height" if ridge_drawn is not None else "profile peak",
+                     "eaves_z": _value(roof.get("eaves_height")),
+                     "profile_points": len(profile_points(prof)) if prof is not None else 0},
+           "used": summary(chosen, chosen_ctx), "change": change,
+           "misfit_m": {"before": round(max(r0, p0), 4), "after": round(max(r1, p1), 4)},
+           "points_compared": bool(points_ok), "reasons": ([why] if why else []) + ([] if points_ok else reasons),
+           "evidence": _section_evidence(roof)}
+    out = dict(chosen, warnings=warnings, section_fit=fit, follows_section=fit["follows_section"])
+    out.pop("_ctx", None)
+    if change is not None:
+        out["notes"] = list(chosen["notes"]) + [f"adjusted to follow {where} ({change}): see section_fit"]
+    return out
 
 
 def planes_for(roof: dict, building: dict) -> list:
@@ -759,7 +1046,10 @@ def roof_model(roof: Optional[dict], building: dict) -> Optional[dict]:
              "covering": roof.get("covering"), "covering_colour": roof.get("covering_colour"),
              "covering_source": roof.get("covering_source"), "assumed": assumed, "warnings": warnings,
              "notes": notes, "derived_check": check, "profile": roof.get("profile"),
-             "kind": roof.get("kind"), "parapet": 0.0}
+             "kind": roof.get("kind"), "parapet": 0.0,
+             # 26 Oct 2026: how the derived roof follows its drawn section (follow_section; drawn planes stay as drawn)
+             "section_fit": der.get("section_fit") if source == "derived" else None,
+             "follows_section": bool(der.get("follows_section")) if source == "derived" else False}
     if roof.get("kind") == "flat_cut":
         # Milestone 12 (docs/milestone12.md §3.4, U2): a single drawn ground floor ends with a flat roof slab and a
         # low parapet on its outer walls (inferred, "upper floors not drawn").

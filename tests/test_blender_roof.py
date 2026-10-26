@@ -266,7 +266,9 @@ def test_other_roof_type_builds_a_gable_and_says_so():
 
 def test_equivalent_planes_rejects_another_roof():
     roof = copy.deepcopy(EXAMPLE["roof"])
-    roof["planes"] = []
+    # without the drawn section (ridge height and profile) the 30 degree pitch makes another roof; with it the roof
+    # follows the section back to 35 degrees (test_the_roof_follows_the_drawn_section_over_a_pitch_text)
+    roof["planes"], roof["ridge_height"], roof["profile"] = [], None, None
     roof["pitches_deg"] = [_v(30.0)]
     assert not R.equivalent_planes(R.planes_for(roof, EXAMPLE), EXAMPLE["roof"]["planes"])[0]
 

@@ -437,6 +437,30 @@
    "request": "Results are not getting better enough, need a big loop that fixes itself for the better",
    "lesson": "A big loop fixes the house until it stops getting better: an AI judge scores every final render 1-5 as a client would and names what costs the points; one house score (the judge, the code critic, the model review, the architect's open points); fix cycles on the final renders while the score rises and time is left; a cycle that lowers it is rolled back.",
    "question": "Did the house score rise every kept cycle, and was every cycle that lowered it rolled back?"
+  },
+  {
+   "id": "UL38",
+   "date": "2026-10-26",
+   "area": "roof",
+   "status": "rule",
+   "checks": [
+    "build"
+   ],
+   "request": "Argus: the roof does not follow the drawn section (real06: derived ridge 8.53 m vs the drawn 7.77 m, 11 points of the section off by up to 1.36 m); fix it as a general rule",
+   "lesson": "The roof follows its drawn section: the built ridge is the highest point of the roof planes; when it (or a reliable section profile) differs from the drawn heights by more than 0.25 m, an un-drawn ridge direction turns or the pitch is solved so the ridge meets the drawn height (eaves and outline stay); a profile is compared point by point only when it runs one-to-one with the plan as one roof surface; every change is logged in section_fit.",
+   "question": "Is the roof's ridge within 0.25 m of the drawn section's, and does the log say how it got there?"
+  },
+  {
+   "id": "UL39",
+   "date": "2026-10-26",
+   "area": "openings",
+   "status": "rule",
+   "checks": [
+    "build"
+   ],
+   "request": "Argus: an opening of the documents is not cut through its wall because a splashback covers it (real06 o_L0_001); fix it as a general rule",
+   "lesson": "A wall finish or built-in along a wall never covers an opening: a splashback is cut at every door, window, pass-through and virtual separator of its wall with the opening's width and height range (tiles stay beside the opening and under a window sill); every cut is logged; the opening is always cut.",
+   "question": "Does any tile band or wall finish cover a door, window or pass-through?"
   }
  ]
 }

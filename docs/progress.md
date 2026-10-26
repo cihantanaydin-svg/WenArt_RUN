@@ -1420,3 +1420,18 @@ Decided and applied:
 The loop around the pod runs (the session): each run is reviewed against the latest run, its general problems are
 fixed in code with tests, and the next run starts; the first: drawn pieces of one set type in a room take one model
 (`fit.role_sets`: the living room's six armchairs, three of them outside the seating group).
+
+## Argus findings on real06: the roof follows its drawn section, finishes never cover openings (26 Oct 2026)
+
+The auditor read the warnings of the real06 run `20261026-170020-full` and found two problems nobody acted on. Both are
+fixed as general rules (lessons UL38, UL39); real06 is the test case.
+
+| Finding | Cause | Rule now | Where |
+|---|---|---|---|
+| "derived ridge 8.530 m vs the drawn 7.770 m (+76 cm)" and 16 section points off (11 by more than 25 cm, up to 1.36 m) | the ridge number was `eaves + half_across x tan`; the section's peak had put the hip's axis across the long side, so it used the 7.65 m half-width; the planes as built top out at 7.608 m (16 cm under the drawn ridge). The section's envelope also runs on truss lines (a 1.43 m drop) and reaches 1.8 m past the plan | the ridge is the highest point of the built planes; when it, or a reliable section profile, differs from the drawn heights by more than 0.25 m (`SECTION_TOL`), an un-drawn ridge direction turns (keeps the drawn pitch) or the pitch is solved so the ridge meets the drawn height; eaves and outline stay (the roof closes over every wall, the knee walls follow); a profile is compared point by point only when it runs one-to-one with the plan as one roof surface (`section_reliability`); the roof is kept, with the reason, when no pitch from 5 to 60 degrees meets the drawing; the record `section_fit` (derived, drawn, used, evidence: the section region) goes to the manifest | `roof.follow_section`, `roof.section_reliability`, `roof.profile_diffs` |
+| "o_L0_001: door ray hits splashback_r_L0_mutfak; the opening is not cut through its wall" | the splashback band (0.90-1.50 m) behind the counter f_L0_032 ran across the 2.9 m pass-through; the bands behind the sink and the second counter also covered the lower 0.6 m of two windows (sills at 0.90 m) | a wall finish is cut at every door, window, plain opening and virtual separator of its wall with the opening's width and height range (tiles stay beside an opening and under a sill); each cut is in `assumed` (`splashback_cut`); the door-ray warning names what covers an opening | `shell.wall_face_openings`, `shell.split_band`, `shell.splashback_bands` |
+
+real06 before / after (same building JSON): ridge 8.530 m reported (7.608 m built) -> 7.608 m, 16 point warnings -> 1 line
+saying why the section is not compared point by point, ridge -16 cm within tolerance (the roof plan's 33 % pitch
+kept); splashbacks: 3 bands, 2 of them over windows and 1 over the pass-through -> 1 piece of 1.24 m beside the window
+win_L0_007.
