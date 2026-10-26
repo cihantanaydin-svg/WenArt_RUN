@@ -3056,7 +3056,8 @@ def split_table_chairs(part: Cluster, table: dict, theta: float, rug: bool = Tru
     if seat_type is not None:
         # 26 Oct 2026 (module docstring): an armchair drawn as its seat cushion with the arms and the back is no
         # table with chairs (real06: four 0.77 x 0.62 m "tables" with two "chairs" each around a round table).
-        why = [seat_part(chair, tpoly, theta) for chair in split["chairs"]]
+        loose = _loose_strokes(part, tpoly, tidx, split["chairs"])
+        why = [seat_part(chair, tpoly, theta, loose) for chair in split["chairs"]]
         if all(why):
             return {"seat": one_seat(part, tpoly, split["chairs"], why, seat_type, table, theta),
                     "table": Cluster(list(part.segs)), "table_poly": tpoly, "chairs": []}
@@ -3143,13 +3144,32 @@ SEAT_BACK_RATIO = 1.25         # with two free sides at a corner, the back runs 
 SEAT_NOTE = "one seat drawn as its seat cushion with its arms and back (not a table with chairs)"
 
 
-def seat_part(chair: Cluster, tpoly, theta: float) -> Optional[str]:
+def _loose_strokes(part: Cluster, tpoly, tidx, chairs: list[Cluster]) -> list:
+    """Pod 5fr7dp2g1co4sx (26 Oct 2026): the strokes of ``part`` outside the outline ``tpoly`` (not its contour members
+    ``tidx``, not inside it) that no "chair" holds: a piece of an arm pad the clustering left beside its chair part."""
+    own = set(tidx)
+    held = {id(s) for ch in chairs for s in ch.segs}
+    inner = tpoly.buffer(-0.02)
+    return [s for k, s in enumerate(part.segs)
+            if k not in own and id(s) not in held and not inner.contains(s.geom if s.dot else s.geom.centroid)]
+
+
+def seat_part(chair: Cluster, tpoly, theta: float, loose: list = ()) -> Optional[str]:
     """26 Oct 2026 (module docstring): why the "chair" part ``chair`` of a table + chairs split is an arm or the back
     of one seat whose cushion is ``tpoly``, else None. It hugs the outline (at least ``SEAT_HUG_M`` of its strokes
     within ``SEAT_GAP_M`` of it: a dining chair drawn open towards its table touches it at two line ends only) along
     at least ``SEAT_SIDE_SHARE`` of one side (a chair tucked at a table covers a stretch of its side) and either
     reaches less than ``SEAT_PART_DEPTH_M`` from it or, grown to a chair's depth, would lie at least
-    ``SEAT_CUT_SHARE`` inside it (it would cut the "table")."""
+    ``SEAT_CUT_SHARE`` inside it (it would cut the "table").
+
+    Or (pod 5fr7dp2g1co4sx, 26 Oct 2026: a hand-drawn armchair's wavy pads keep 2-5 cm off the cushion, so their
+    strokes hug it on 10 % of a side only) it is a strip against one side of the cushion's minimum rectangle
+    (``seat_strip``): touching it, thinner than ``SEAT_PART_DEPTH_M``, over ``SEAT_SIDE_SHARE`` of the side, the
+    ``loose`` strokes of the piece in the same strip counted with it (a pad the clustering cut in two)."""
+    strip = seat_strip(chair.segs, tpoly, loose)
+    if strip is not None:
+        return (f"a {strip['depth']:.2f} m strip against the outline along {strip['cover']:.0%} of its "
+                f"{strip['side']:.2f} m side: an arm or a back")
     ring = tpoly.exterior.buffer(SEAT_GAP_M)
     hug = sum(s.geom.intersection(ring).length for s in chair.segs if not s.dot)
     if hug < SEAT_HUG_M - 1e-9 or max(_side_cover(chair.segs, tpoly)) < SEAT_SIDE_SHARE - 1e-9:
@@ -3165,6 +3185,57 @@ def seat_part(chair: Cluster, tpoly, theta: float) -> Optional[str]:
         return (f"runs {hug:.2f} m along the outline and, as a chair, would stand {cut:.0%} inside it: an arm or a "
                 f"back")
     return None
+
+
+def seat_strip(segs: list, tpoly, loose: list = ()) -> Optional[dict]:
+    """Pod 5fr7dp2g1co4sx (26 Oct 2026; ``seat_part``): the side of the outline's minimum rectangle the strokes ``segs``
+    lie against as a strip, or None: in that side's frame they reach the side (their nearest point within
+    ``SEAT_GAP_M`` of it, inside or out), stay outside the cushion beyond that gap, are thinner than
+    ``SEAT_PART_DEPTH_M`` and, with the ``loose`` strokes that lie wholly in the same strip, run along at least
+    ``SEAT_SIDE_SHARE`` of it. ``{"cover", "depth", "side"}``."""
+    rect = tpoly.minimum_rotated_rectangle
+    pts = [p for s in segs for p in s.pts]
+    if rect.geom_type != "Polygon" or not pts:
+        return None
+    extra = [[p for p in s.pts] for s in loose if s.pts]
+    c = list(rect.exterior.coords)[:4]
+    cx, cy = sum(p[0] for p in c) / 4.0, sum(p[1] for p in c) / 4.0
+    best = None
+    for k in range(4):
+        a, b = c[k], c[(k + 1) % 4]
+        side = math.dist(a, b)
+        if side <= 1e-9:
+            continue
+        ux, uy = (b[0] - a[0]) / side, (b[1] - a[1]) / side
+        nx, ny = uy, -ux
+        if (cx - a[0]) * nx + (cy - a[1]) * ny > 0:
+            nx, ny = -nx, -ny                          # the outward normal of the side
+        ts = [(p[0] - a[0]) * ux + (p[1] - a[1]) * uy for p in pts]
+        ds = [(p[0] - a[0]) * nx + (p[1] - a[1]) * ny for p in pts]
+        near, far = min(ds), max(ds)
+        if abs(near) > SEAT_GAP_M + 1e-9 or far - max(near, 0.0) >= SEAT_PART_DEPTH_M - 1e-9:
+            continue
+        spans = [(min(ts), max(ts))]
+        for sp in extra:
+            es = [(p[0] - a[0]) * nx + (p[1] - a[1]) * ny for p in sp]
+            if min(es) >= -SEAT_GAP_M - 1e-9 and max(es) <= far + SEAT_GAP_M + 1e-9:
+                et = [(p[0] - a[0]) * ux + (p[1] - a[1]) * uy for p in sp]
+                spans.append((min(et), max(et)))
+        cover = _span_cover(spans, side) / side
+        if cover >= SEAT_SIDE_SHARE - 1e-9 and (best is None or cover > best["cover"]):
+            best = {"cover": round(cover, 4), "depth": round(far - max(near, 0.0), 4), "side": round(side, 4)}
+    return best
+
+
+def _span_cover(spans: list[tuple[float, float]], length: float) -> float:
+    """The length of ``[0, length]`` the union of the intervals ``spans`` covers."""
+    out, end = 0.0, 0.0
+    for lo, hi in sorted((max(a, 0.0), min(b, length)) for a, b in spans):
+        if hi <= end:
+            continue
+        out += hi - max(lo, end)
+        end = hi
+    return out
 
 
 def _side_cover(segs: list, tpoly) -> list[float]:

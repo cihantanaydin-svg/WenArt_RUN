@@ -534,6 +534,14 @@ def _outside_door_rooms(building: dict) -> set:
     return {r["room"] for r in AR.open_air_doors(building) if r["opening"]["id"] in ids}
 
 
+def _outer_glazing(building: dict) -> set:
+    """Openings that look out of the house: windows, doors and gaps in an outer wall (``walls[].exterior``) of the
+    building as built (26 Oct 2026)."""
+    outer = {w["id"] for w in building.get("walls") or [] if w.get("exterior")}
+    return {o["id"] for o in building.get("openings") or []
+            if o.get("wall_id") in outer and o.get("type") in ("window", "door", "opening")}
+
+
 def test_passes_exist_and_depth_is_plausible(project):
     """Files and depth range of every view, all bad views listed in one failure. Interior views: MIN_DEPTH_M <
     min < max < MAX_INDOOR_DEPTH_M and coverage over MIN_COVERAGE; Milestone 10: an interior view of a room open
@@ -546,6 +554,7 @@ def test_passes_exist_and_depth_is_plausible(project):
     plans = {c["name"]: c for c in scene.get("cameras") or []}
     open_sky = None                     # read from the building only when an interior view needs it
     outside_doors = None
+    outer_glazing = None
     bad, sky = [], []
     for r in render["renders"]:
         cam = r["camera"]
@@ -575,6 +584,14 @@ def test_passes_exist_and_depth_is_plausible(project):
             if (plan.get("room_id") or r.get("room_id")) in outside_doors:
                 # 25 Oct 2026 (architect A3): a room with a glazed outside door (a terrace door) sees out through
                 # its glass: the exterior clip end applies, the coverage bound stays (a hole still fails it)
+                far = exterior.CLIP_END
+            if outer_glazing is None:
+                outer_glazing = _outer_glazing(_building(name, scene))
+            if set(plan.get("visible_openings") or []) & outer_glazing:
+                # 26 Oct 2026 (pod 5fr7dp2g1co4sx, real06 cam_r_L0_salon_2: 197.7 m through a living-room window
+                # once the upper doors into the air were windows): a view that frames a window or door of an outer
+                # wall sees the site to the horizon through the glass, as the terrace doors above; the coverage
+                # bound stays, and a view that frames no outer opening keeps the 60 m bound (P3's door slit)
                 far = exterior.CLIP_END
             if (plan.get("room_id") or r.get("room_id")) in open_sky or r.get("open_air"):
                 # M11 (pod G2b): a room open to the sky (a roof terrace) sees the ground to the horizon (site
