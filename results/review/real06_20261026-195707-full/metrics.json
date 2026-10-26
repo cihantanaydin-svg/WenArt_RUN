@@ -1,0 +1,2063 @@
+{
+ "schema_version": "m13",
+ "kind": "metrics13",
+ "project": "real06",
+ "project_out": "/home/user/WenArt_RUN/runs/20261026-195707-full/results/final/real06",
+ "layout": "results",
+ "baseline_out": "/home/user/WenArt_RUN/runs/20261026-183115-full/results/final/real06",
+ "baseline_layout": "results",
+ "baseline_project": "real06",
+ "inputs": {
+  "building": "/home/user/WenArt_RUN/runs/20261026-195707-full/results/furniture/real06/building_final.json",
+  "scene": "/home/user/WenArt_RUN/runs/20261026-195707-full/results/renders/real06/scene_manifest.json",
+  "render": "/home/user/WenArt_RUN/runs/20261026-195707-full/results/renders/real06/render_manifest.json",
+  "final": "/home/user/WenArt_RUN/runs/20261026-195707-full/results/final/real06/final_manifest.json",
+  "report": "/home/user/WenArt_RUN/runs/20261026-195707-full/results/final/real06/final_report.md",
+  "attribution": "/home/user/WenArt_RUN/runs/20261026-195707-full/results/final/real06/ATTRIBUTION.md",
+  "log": "/home/user/WenArt_RUN/runs/20261026-195707-full/results/agent/real06/log.json",
+  "rubric": "/home/user/WenArt_RUN/runs/20261026-195707-full/results/final/real06/rubric_per_view.json"
+ },
+ "baseline_inputs": {
+  "building": "/home/user/WenArt_RUN/runs/20261026-183115-full/results/furniture/real06/building_final.json",
+  "scene": "/home/user/WenArt_RUN/runs/20261026-183115-full/results/renders/real06/scene_manifest.json",
+  "render": "/home/user/WenArt_RUN/runs/20261026-183115-full/results/renders/real06/render_manifest.json",
+  "final": "/home/user/WenArt_RUN/runs/20261026-183115-full/results/final/real06/final_manifest.json",
+  "report": "/home/user/WenArt_RUN/runs/20261026-183115-full/results/final/real06/final_report.md",
+  "attribution": "/home/user/WenArt_RUN/runs/20261026-183115-full/results/final/real06/ATTRIBUTION.md",
+  "log": "/home/user/WenArt_RUN/runs/20261026-183115-full/results/agent/real06/log.json",
+  "rubric": "/home/user/WenArt_RUN/runs/20261026-183115-full/results/final/real06/rubric_per_view.json"
+ },
+ "metrics": {
+  "m1": {
+   "id": 1,
+   "name": "drawn anchors built (sofa, sofa_corner, bed_double, table_dining, wardrobe, desk)",
+   "value": 100.0,
+   "unit": "%",
+   "source": "building_final.json furniture[]: source from_documents, type or drawn_type in ANCHOR_TYPES; built = build not false and asset.method in library / module / parametric",
+   "text": "7 of 7 (100 %)",
+   "parts": {
+    "built": 7,
+    "drawn": 7,
+    "by_type": {
+     "sofa_corner": {
+      "built": 1,
+      "drawn": 1
+     },
+     "bed_double": {
+      "built": 3,
+      "drawn": 3
+     },
+     "desk": {
+      "built": 1,
+      "drawn": 1
+     },
+     "sofa": {
+      "built": 2,
+      "drawn": 2
+     }
+    },
+    "not_built": []
+   },
+   "target": "100 %",
+   "baseline": 100.0,
+   "baseline_text": "7 of 7 (100 %)",
+   "baseline_parts": {
+    "built": 7,
+    "drawn": 7,
+    "by_type": {
+     "sofa_corner": {
+      "built": 1,
+      "drawn": 1
+     },
+     "bed_double": {
+      "built": 3,
+      "drawn": 3
+     },
+     "desk": {
+      "built": 1,
+      "drawn": 1
+     },
+     "sofa": {
+      "built": 2,
+      "drawn": 2
+     }
+    },
+    "not_built": []
+   }
+  },
+  "m2": {
+   "id": 2,
+   "name": "drawn pieces in the scene (built, method not none)",
+   "value": 73.7,
+   "unit": "%",
+   "source": "building_final.json furniture[]: source from_documents; built = build not false and asset.method not none; parts furniture / built_of_furniture leave out the unbuilt pieces explained as no furniture (inferred_as rug / detail / column / decor, both AI passes not_furniture, a counter-leg detail)",
+   "text": "42 of 57 (74 %); without the 8 explained non-furniture pieces: 42 of 49 (86 %)",
+   "parts": {
+    "built": 42,
+    "drawn": 57,
+    "build_false": 15,
+    "method_none": 1,
+    "explained": 8,
+    "explained_by": {
+     "detail": 5,
+     "rug": 3
+    },
+    "furniture": 49,
+    "built_of_furniture": 85.7
+   },
+   "target": ">= 90 %",
+   "baseline": 71.9,
+   "baseline_text": "41 of 57 (72 %); without the 8 explained non-furniture pieces: 41 of 49 (84 %)",
+   "baseline_parts": {
+    "built": 41,
+    "drawn": 57,
+    "build_false": 16,
+    "method_none": 2,
+    "explained": 8,
+    "explained_by": {
+     "detail": 5,
+     "rug": 3
+    },
+    "furniture": 49,
+    "built_of_furniture": 83.7
+   }
+  },
+  "m3": {
+   "id": 3,
+   "name": "pieces with asset.method none",
+   "value": 1,
+   "unit": "count",
+   "source": "building_final.json furniture[].asset.method == none",
+   "text": "1",
+   "parts": {
+    "ids": [
+     "f_L0_003"
+    ]
+   },
+   "target": "0",
+   "baseline": 2,
+   "baseline_text": "2",
+   "baseline_parts": {
+    "ids": [
+     "f_L0_003",
+     "f_L0_012"
+    ]
+   }
+  },
+  "m4": {
+   "id": 4,
+   "name": "parametric share of the built pieces; grey boxes",
+   "value": 12.5,
+   "unit": "%",
+   "source": "building_final.json: built pieces (build not false, method not none) by asset.method; fitted = pieces with an asset whose method is not none (the unbuilt ones count, §7); grey boxes = scene_manifest.json objects of kind furniture_proxy",
+   "text": "6 of 48 (12 %) parametric of the built pieces; 20 of 62 (32 %) of every fitted piece; module 3; grey boxes 0",
+   "parts": {
+    "parametric_of_built": 12.5,
+    "module_of_built": 6.2,
+    "parametric_of_fitted": 32.3,
+    "built": 48,
+    "fitted": 62,
+    "parametric": 6,
+    "module": 3,
+    "grey_boxes": 0
+   },
+   "target": "<= 25 %; 0",
+   "baseline": 12.8,
+   "baseline_text": "6 of 47 (13 %) parametric of the built pieces; 20 of 61 (33 %) of every fitted piece; module 3; grey boxes 0",
+   "baseline_parts": {
+    "parametric_of_built": 12.8,
+    "module_of_built": 6.4,
+    "parametric_of_fitted": 32.8,
+    "built": 47,
+    "fitted": 61,
+    "parametric": 6,
+    "module": 3,
+    "grey_boxes": 0
+   }
+  },
+  "m5": {
+   "id": 5,
+   "name": "rooms with a complete group set",
+   "value": 37.5,
+   "unit": "%",
+   "source": "building_final.json rooms[].room_type x ROOM_SETS over the built furniture and decor of each room (furnished main rooms: rooms of a set type with at least one built piece)",
+   "text": "bathroom 3/3; bedroom 0/2; kitchen 0/1; living 0/2",
+   "parts": {
+    "complete": 3,
+    "rooms": 8,
+    "by_type": {
+     "living": {
+      "complete": 0,
+      "rooms": 2
+     },
+     "kitchen": {
+      "complete": 0,
+      "rooms": 1
+     },
+     "bathroom": {
+      "complete": 3,
+      "rooms": 3
+     },
+     "bedroom": {
+      "complete": 0,
+      "rooms": 2
+     }
+    },
+    "missing": {
+     "r_L0_salon": [
+      "tv unit",
+      "rug"
+     ],
+     "r_L0_mutfak": [
+      "hob",
+      "fridge"
+     ],
+     "r_L1_ebeveyn_y_odasi": [
+      "wardrobe"
+     ],
+     "r_L1_cocuk_odasi": [
+      "nightstands",
+      "wardrobe"
+     ],
+     "r_L1_oda_2": [
+      "coffee table",
+      "tv unit",
+      "rug"
+     ]
+    }
+   },
+   "target": ">= 90 % of the furnished main rooms",
+   "baseline": 37.5,
+   "baseline_text": "bathroom 3/3; bedroom 0/2; kitchen 0/1; living 0/2",
+   "baseline_parts": {
+    "complete": 3,
+    "rooms": 8,
+    "by_type": {
+     "living": {
+      "complete": 0,
+      "rooms": 2
+     },
+     "kitchen": {
+      "complete": 0,
+      "rooms": 1
+     },
+     "bathroom": {
+      "complete": 3,
+      "rooms": 3
+     },
+     "bedroom": {
+      "complete": 0,
+      "rooms": 2
+     }
+    },
+    "missing": {
+     "r_L0_salon": [
+      "tv unit",
+      "rug"
+     ],
+     "r_L0_mutfak": [
+      "hob",
+      "fridge"
+     ],
+     "r_L1_ebeveyn_y_odasi": [
+      "wardrobe"
+     ],
+     "r_L1_cocuk_odasi": [
+      "nightstands",
+      "wardrobe"
+     ],
+     "r_L1_oda_2": [
+      "coffee table",
+      "tv unit",
+      "rug"
+     ]
+    }
+   }
+  },
+  "m6": {
+   "id": 6,
+   "name": "last-round findings F8 + S2 (> 3 cm) + G10 + LG",
+   "value": "no data",
+   "unit": "count",
+   "source": "orchestrator log.json finding events of the last round of the latest run (run_first_seq; not dropped) by checklist; S2 counted when evidence.metrics.depth_m > 0.03 m",
+   "text": "no data",
+   "parts": {},
+   "target": "<= 5 / <= 3 / report-only / <= 5",
+   "baseline": 6,
+   "baseline_text": "round 4: F8 0 / S2 > 3 cm 1 (S2 all 1) / G10 5 / LG 0",
+   "baseline_parts": {
+    "F8": 0,
+    "S2": 1,
+    "G10": 5,
+    "LG": 0,
+    "S2_all": 1,
+    "round": 4,
+    "findings": 230,
+    "run_first_seq": 3405
+   }
+  },
+  "m7": {
+   "id": 7,
+   "name": "accepted agent edits whose finding is gone next round",
+   "value": "no data",
+   "unit": "%",
+   "source": "orchestrator log.json of the latest run (run_first_seq): accepted edits that target a finding and have a next round (agent.metrics edits_with_target); gone = every critical / major finding they targeted that their round has is gone in the next round (edits_removing_finding)",
+   "text": "no data",
+   "parts": {},
+   "target": ">= 60 % (or the agent is off)",
+   "baseline": 100.0,
+   "baseline_text": "11 of 11 (100 %) (accepted edits 12, rounds 4)",
+   "baseline_parts": {
+    "gone": 11,
+    "judged": 11,
+    "accepted": 12,
+    "rounds": 4,
+    "run_first_seq": 3405
+   }
+  },
+  "m8": {
+   "id": 8,
+   "name": "built library pieces: top model share; distinct; units unknown; stretch > 5 %; quality <= 3",
+   "value": 12.8,
+   "unit": "%",
+   "source": "building_final.json built pieces with asset.method library: asset_id counts, units_known, fit_scale (max / min - 1 > 5 %), quality (lower M8 judge <= 3) or a catalogue audit vision_doubt",
+   "text": "top abo_B075X4N3GM 5 of 39 (13 %); distinct 27; units unknown 4 of 39 (10 %); stretch > 5 % 0 of 39 (0 %); quality <= 3 4 of 14 (29 %)",
+   "parts": {
+    "top_model": "abo_B075X4N3GM",
+    "top_share": 12.8,
+    "distinct_models": 27,
+    "units_unknown": 10.3,
+    "stretch_over_5pct": 0.0,
+    "quality_le3": 28.6,
+    "built_library": 39,
+    "judged": 14
+   },
+   "target": "<= 15 %; >= 60; <= 10 %; <= 10 %; <= 25 %",
+   "baseline": 13.2,
+   "baseline_text": "top abo_B075X4N3GM 5 of 38 (13 %); distinct 27; units unknown 3 of 38 (8 %); stretch > 5 % 0 of 38 (0 %); quality <= 3 3 of 13 (23 %)",
+   "baseline_parts": {
+    "top_model": "abo_B075X4N3GM",
+    "top_share": 13.2,
+    "distinct_models": 27,
+    "units_unknown": 7.9,
+    "stretch_over_5pct": 0.0,
+    "quality_le3": 23.1,
+    "built_library": 38,
+    "judged": 13
+   }
+  },
+  "m9": {
+   "id": 9,
+   "name": "interior views at EV >= +5; EV median gap lit vs daylight rooms",
+   "value": 0,
+   "unit": "count",
+   "source": "render_manifest.json (else final_manifest.json views) exposure.ev of the interior views, the metered EV (lighting_dark metrics.ev_wanted) for a view the +3 cap held; window rooms from the scene manifest's window objects (room_ids); gap = median EV (no window) - median EV (window)",
+   "text": "0 of 28 interior views at EV >= +5; gap 1.0 EV (median +1.00 over 1 views of rooms without a window vs +0.00 over 27 views of rooms with one)",
+   "parts": {
+    "views_ev_ge_5": 0,
+    "interior_views": 28,
+    "ev_gap": 1.0,
+    "median_ev_no_window": 1.0,
+    "median_ev_window": 0.0,
+    "cameras": [],
+    "lighting_dark": 0,
+    "lighting_dark_critical": 0,
+    "lighting_dark_major": 0,
+    "lighting_dark_cameras": []
+   },
+   "target": "0; <= 2 EV",
+   "baseline": 0,
+   "baseline_text": "0 of 28 interior views at EV >= +5; gap 1.0 EV (median +1.00 over 1 views of rooms without a window vs +0.00 over 27 views of rooms with one)",
+   "baseline_parts": {
+    "views_ev_ge_5": 0,
+    "interior_views": 28,
+    "ev_gap": 1.0,
+    "median_ev_no_window": 1.0,
+    "median_ev_window": 0.0,
+    "cameras": [],
+    "lighting_dark": 0,
+    "lighting_dark_critical": 0,
+    "lighting_dark_major": 0,
+    "lighting_dark_cameras": []
+   }
+  },
+  "m10": {
+   "id": 10,
+   "name": "shell slots on PBR sets with normal + roughness; fabric colour applied",
+   "value": 100.0,
+   "unit": "%",
+   "source": "scene_manifest.json materials[] (textured shell slots with a maps record naming normal and roughness); built upholstered pieces (sofa, sofa_corner, armchair, ottoman) of the scene that builds them (base, else an alternative's scene manifest): applied = a recolour with a fabric slot (library model) or a fabric material key (module / parametric); models without a recolourable fabric slot are listed apart",
+   "text": "shell slots with normal + roughness: 20 of 20 (100 %); fabric colour applied: 0 of 15 (0 %) (recoloured 0, module / parametric fabric slot 0; colour asked but the model has no recolourable fabric slot: 0 piece(s), 0 model(s); no fabric colour asked: 15 piece(s)) (15 upholstered pieces built)",
+   "parts": {
+    "shell_slots_pbr": 100.0,
+    "textured_slots": 20,
+    "fabric_applied": 0.0,
+    "upholstered_built": 15,
+    "fabric_applied_n": 0,
+    "upholstered_in_scene": 15,
+    "fabric_recoloured": [],
+    "fabric_slot": [],
+    "not_recolourable": {},
+    "not_recolourable_models": [],
+    "no_colour_asked": {
+     "f_L0_007": "abo_B075X4N3GM",
+     "f_L0_008": "3dwh_1c9dbdb1c1d98b0c5c633595",
+     "f_L0_011": "abo_B071FMSMD4",
+     "f_L0_016": "abo_B075X4N3GM",
+     "f_L0_017": "abo_B075X4N3GM",
+     "f_L0_018": "abo_B075X4N3GM",
+     "f_L0_019": "abo_B075X4N3GM",
+     "f_L0_027": "abo_B07HGK77RG",
+     "f_L0_028": "abo_B07HGK77RG",
+     "f_L0_029": "abo_B07HGK77RG",
+     "f_L0_030": "abo_B07HGK77RG",
+     "f_L1_013": "3dwh_18d9a3a43ae213c8bd5a5f91",
+     "f_L1_016": "3dwh_8b448d4c97c75d1599d226eb",
+     "f_L1_017": "3dwh_038a2f938697cf94f0635b35",
+     "f_L1_018": "3dwh_038a2f938697cf94f0635b35"
+    },
+    "from_variant": {},
+    "no_scene": []
+   },
+   "target": ">= 90 %; 100 %",
+   "baseline": 100.0,
+   "baseline_text": "shell slots with normal + roughness: 19 of 19 (100 %); fabric colour applied: 0 of 15 (0 %) (recoloured 0, module / parametric fabric slot 0; colour asked but the model has no recolourable fabric slot: 0 piece(s), 0 model(s); no fabric colour asked: 15 piece(s)) (15 upholstered pieces built)",
+   "baseline_parts": {
+    "shell_slots_pbr": 100.0,
+    "textured_slots": 19,
+    "fabric_applied": 0.0,
+    "upholstered_built": 15,
+    "fabric_applied_n": 0,
+    "upholstered_in_scene": 15,
+    "fabric_recoloured": [],
+    "fabric_slot": [],
+    "not_recolourable": {},
+    "not_recolourable_models": [],
+    "no_colour_asked": {
+     "f_L0_007": "abo_B075X4N3GM",
+     "f_L0_008": "3dwh_1c9dbdb1c1d98b0c5c633595",
+     "f_L0_011": "abo_B071FMSMD4",
+     "f_L0_016": "abo_B075X4N3GM",
+     "f_L0_017": "abo_B075X4N3GM",
+     "f_L0_018": "abo_B075X4N3GM",
+     "f_L0_019": "abo_B075X4N3GM",
+     "f_L0_027": "abo_B07HGK77RG",
+     "f_L0_028": "abo_B07HGK77RG",
+     "f_L0_029": "abo_B07HGK77RG",
+     "f_L0_030": "abo_B07HGK77RG",
+     "f_L1_013": "3dwh_18d9a3a43ae213c8bd5a5f91",
+     "f_L1_016": "3dwh_8b448d4c97c75d1599d226eb",
+     "f_L1_017": "3dwh_038a2f938697cf94f0635b35",
+     "f_L1_018": "3dwh_038a2f938697cf94f0635b35"
+    },
+    "from_variant": {},
+    "no_scene": []
+   }
+  },
+  "m11": {
+   "id": 11,
+   "name": "drawn trees built as real geometry; hedges from the drawn rows; black pixels in the site view",
+   "value": "no data",
+   "unit": "%",
+   "source": "building_final.json site.decor (kind tree) and site.hedges; scene_manifest.json site.vegetation / site.trees records (method not a primitive), site hedge objects; black pixels (every channel < 16) of the aerial / site camera's final preview; with no drawn tree, the scene's trees (records and site_kind tree objects; an object without a record is a primitive) built as real geometry",
+   "text": "no drawn tree; no tree in the scene; hedges 7 built of 0 drawn rows; black pixels in the site view 2.6 % (ext_5)",
+   "parts": {
+    "trees_drawn": 0,
+    "trees_built": 0,
+    "trees_scene": 0,
+    "trees_scene_real": 0,
+    "tree_basis": null,
+    "hedges_drawn": 0,
+    "hedges_built": 7,
+    "black_pct": 2.6,
+    "site_camera": "ext_5",
+    "black_basis": "site view",
+    "black_reason": null
+   },
+   "target": "100 %; 2; 0 %",
+   "baseline": "no data",
+   "baseline_text": "no drawn tree; no tree in the scene; hedges 7 built of 0 drawn rows; black pixels in the site view 2.5 % (ext_5)",
+   "baseline_parts": {
+    "trees_drawn": 0,
+    "trees_built": 0,
+    "trees_scene": 0,
+    "trees_scene_real": 0,
+    "tree_basis": null,
+    "hedges_drawn": 0,
+    "hedges_built": 7,
+    "black_pct": 2.5,
+    "site_camera": "ext_5",
+    "black_basis": "site view",
+    "black_reason": null
+   }
+  },
+  "m12": {
+   "id": 12,
+   "name": "exterior views rendered of planned",
+   "value": 6,
+   "unit": "count",
+   "source": "scene_manifest.json cameras (kind exterior) | cameras_dropped, by name = planned; render_manifest.json / final_manifest.json exterior views of a planned camera = rendered",
+   "text": "6 of 6 (0 dropped)",
+   "parts": {
+    "rendered": 6,
+    "planned": 6,
+    "dropped": 0,
+    "dropped_cameras": [],
+    "re_added": [],
+    "not_planned": [],
+    "cameras": [
+     "ext_1",
+     "ext_2",
+     "ext_3",
+     "ext_4",
+     "ext_5",
+     "ext_6"
+    ],
+    "no_sky_or_partial": []
+   },
+   "target": "7 of 7",
+   "baseline": 6,
+   "baseline_text": "6 of 6 (0 dropped)",
+   "baseline_parts": {
+    "rendered": 6,
+    "planned": 6,
+    "dropped": 0,
+    "dropped_cameras": [],
+    "re_added": [],
+    "not_planned": [],
+    "cameras": [
+     "ext_1",
+     "ext_2",
+     "ext_3",
+     "ext_4",
+     "ext_5",
+     "ext_6"
+    ],
+    "no_sky_or_partial": []
+   }
+  },
+  "m13": {
+   "id": 13,
+   "name": "views in halls or with >= 50 % bare wall",
+   "value": 7,
+   "unit": "count",
+   "source": "views whose room (building rooms[].room_type, else the final manifest's room_type) is a hall type (hall, corridor, vestibule, landing, stair) or whose scene camera score.shares.wall >= 0.5",
+   "text": "7 of 34 views: halls 4, bare wall >= 50 % 7",
+   "parts": {
+    "hall_views": 4,
+    "bare_wall_views": 7,
+    "views": 34,
+    "cameras": [
+     "cam_r_L0_banyo_1",
+     "cam_r_L1_banyo_1",
+     "cam_r_L1_banyo_2",
+     "cam_r_L1_hol_1",
+     "cam_r_L1_hol_2",
+     "cam_r_L1_hol_3",
+     "cam_r_L1_oda_1"
+    ]
+   },
+   "target": "<= 4",
+   "baseline": 8,
+   "baseline_text": "8 of 34 views: halls 5, bare wall >= 50 % 7",
+   "baseline_parts": {
+    "hall_views": 5,
+    "bare_wall_views": 7,
+    "views": 34,
+    "cameras": [
+     "cam_r_L0_banyo_1",
+     "cam_r_L1_banyo_1",
+     "cam_r_L1_banyo_2",
+     "cam_r_L1_hol_1",
+     "cam_r_L1_hol_2",
+     "cam_r_L1_hol_3",
+     "cam_r_L1_oda_1",
+     "cam_r_L1_soyunma_odasi_1"
+    ]
+   }
+  },
+  "m14": {
+   "id": 14,
+   "name": "in_json_not_rendered mismatches of the final check",
+   "value": 0,
+   "unit": "count",
+   "source": "final_manifest.json views[].json_crosscheck.in_json_not_rendered",
+   "text": "0 in 0 view(s)",
+   "parts": {
+    "mismatches": 0,
+    "views": 0
+   },
+   "target": "0",
+   "baseline": 0,
+   "baseline_text": "0 in 0 view(s)",
+   "baseline_parts": {
+    "mismatches": 0,
+    "views": 0
+   }
+  },
+  "m15": {
+   "id": 15,
+   "name": "rubric score (reviewer, same rubric)",
+   "value": 2.26,
+   "unit": "score",
+   "source": "the reviewer's per-view rubric file (client_ready_score 1-5), over the views of the final report",
+   "text": "mean 2.26 over 34 views; 2 at 1; 1 at 4-5 (3 %)",
+   "parts": {
+    "mean": 2.26,
+    "views": 34,
+    "at_1": 2,
+    "at_4_5": 1,
+    "share_4_5": 2.9,
+    "file": "/home/user/WenArt_RUN/runs/20261026-195707-full/results/final/real06/rubric_per_view.json"
+   },
+   "target": "mean >= 3.0; 0 at 1; >= 25 % at 4-5",
+   "baseline": 2.18,
+   "baseline_text": "mean 2.18 over 34 views; 2 at 1; 1 at 4-5 (3 %)",
+   "baseline_parts": {
+    "mean": 2.18,
+    "views": 34,
+    "at_1": 2,
+    "at_4_5": 1,
+    "share_4_5": 2.9,
+    "file": "/home/user/WenArt_RUN/runs/20261026-183115-full/results/final/real06/rubric_per_view.json"
+   }
+  },
+  "m16": {
+   "id": 16,
+   "name": "commercial-safe line present; ATTRIBUTION lists every flagged asset",
+   "value": 100.0,
+   "unit": "%",
+   "source": "final_manifest.json views[].commercial_safe and the commercial-safe lines of final_report.md; the flagged asset ids against final/ATTRIBUTION.md",
+   "text": "line present for 34 of 34 (100 %); flagged assets 19, missing in ATTRIBUTION.md 0",
+   "parts": {
+    "views_with_field": 34,
+    "report_lines": 35,
+    "views": 34,
+    "flagged_assets": [
+     "3dwh_038a2f938697cf94f0635b35",
+     "3dwh_18d9a3a43ae213c8bd5a5f91",
+     "3dwh_1c9dbdb1c1d98b0c5c633595",
+     "3dwh_30a9b6efc5109d45e2cbb497",
+     "3dwh_5d52596ee79cd202260f50b9",
+     "3dwh_8b448d4c97c75d1599d226eb",
+     "3dwh_e8b0de9ce91b76051cc38d06",
+     "gen_plant_small_japandi_1_32d3b9fb",
+     "gen_washbasin_japandi_3_fc4e0710",
+     "hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549",
+     "hssd_3362008b68ae3e3f0be50057fa895cdacbfad401",
+     "hssd_3f0778f68a489d3995e2e3f13d13e4a90fb500a8",
+     "hssd_4f1b086633e1b160f09b24a9aad0ec9d1ccb56c0",
+     "hssd_6b6d600719446182c0a798676eb807c0ea4ec772",
+     "hssd_85a85b8d95fa810baeaebaf0d04d6c931d23ed3b",
+     "hssd_afd66133d43789d6e42da81cefaf3d0a27c90180",
+     "hssd_d5283d7fe8cf91f273d341bf259e1f3df3b349be",
+     "hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4",
+     "hssd_fd773312233cde1d417cc17d479c24b55005a1e9"
+    ],
+    "missing_in_attribution": 0,
+    "missing_ids": []
+   },
+   "target": "100 %; 0 missing",
+   "baseline": 100.0,
+   "baseline_text": "line present for 34 of 34 (100 %); flagged assets 19, missing in ATTRIBUTION.md 0",
+   "baseline_parts": {
+    "views_with_field": 34,
+    "report_lines": 35,
+    "views": 34,
+    "flagged_assets": [
+     "3dwh_038a2f938697cf94f0635b35",
+     "3dwh_18d9a3a43ae213c8bd5a5f91",
+     "3dwh_1c9dbdb1c1d98b0c5c633595",
+     "3dwh_30a9b6efc5109d45e2cbb497",
+     "3dwh_5d52596ee79cd202260f50b9",
+     "3dwh_8b448d4c97c75d1599d226eb",
+     "3dwh_e8b0de9ce91b76051cc38d06",
+     "gen_plant_small_japandi_1_32d3b9fb",
+     "gen_washbasin_japandi_3_fc4e0710",
+     "hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549",
+     "hssd_3362008b68ae3e3f0be50057fa895cdacbfad401",
+     "hssd_3f0778f68a489d3995e2e3f13d13e4a90fb500a8",
+     "hssd_4f1b086633e1b160f09b24a9aad0ec9d1ccb56c0",
+     "hssd_6b6d600719446182c0a798676eb807c0ea4ec772",
+     "hssd_85a85b8d95fa810baeaebaf0d04d6c931d23ed3b",
+     "hssd_afd66133d43789d6e42da81cefaf3d0a27c90180",
+     "hssd_d5283d7fe8cf91f273d341bf259e1f3df3b349be",
+     "hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4",
+     "hssd_fd773312233cde1d417cc17d479c24b55005a1e9"
+    ],
+    "missing_in_attribution": 0,
+    "missing_ids": []
+   }
+  },
+  "m17": {
+   "id": 17,
+   "name": "minutes and USD per full run",
+   "value": 86.1,
+   "unit": "min",
+   "source": "the stage seconds of the run (run/*.json records of the run id, else final_manifest.json run_stages) / 60; USD at 2.49 USD per GPU hour (WENART_GPU_USD_PER_H overrides); the pod's wall time is longer (setup, downloads: docs/gpu-log.md)",
+   "text": "86 min of stages, $3.57 at $2.49/h (27 stage records)",
+   "parts": {
+    "minutes": 86.1,
+    "usd": 3.57,
+    "price_usd_per_h": 2.49,
+    "stages": 27,
+    "by_stage": {
+     "agent": 61.7,
+     "agent_apply": 0.0,
+     "agent_previews": 2.1,
+     "assets": 0.1,
+     "build": 3.2,
+     "check": 3.2,
+     "combine": 0.4,
+     "controls": 2.3,
+     "decor": 0.1,
+     "decor_ask": 0.1,
+     "detect": 0.0,
+     "expected": 0.7,
+     "export": 0.7,
+     "fit": 0.1,
+     "gate": 0.0,
+     "intake": 0.0,
+     "layout": 0.2,
+     "photos": 0.0,
+     "pipeline": 0.6,
+     "pipeline_final": 0.6,
+     "polish": 0.0,
+     "recognize": 0.0,
+     "refit": 0.2,
+     "render": 9.3,
+     "report": 0.1,
+     "sheets": 0.4,
+     "style": 0.0
+    }
+   },
+   "target": "<= 150 min, <= $6.50 at $2.49/h",
+   "baseline": 57.6,
+   "baseline_text": "58 min of stages, $2.39 at $2.49/h (27 stage records)",
+   "baseline_parts": {
+    "minutes": 57.6,
+    "usd": 2.39,
+    "price_usd_per_h": 2.49,
+    "stages": 27,
+    "by_stage": {
+     "agent": 17.2,
+     "agent_apply": 0.4,
+     "agent_previews": 4.7,
+     "assets": 0.0,
+     "build": 13.2,
+     "check": 3.7,
+     "combine": 0.4,
+     "controls": 2.3,
+     "decor": 0.1,
+     "decor_ask": 0.1,
+     "detect": 0.0,
+     "expected": 1.6,
+     "export": 1.1,
+     "fit": 0.1,
+     "gate": 0.0,
+     "intake": 0.0,
+     "layout": 0.2,
+     "photos": 0.0,
+     "pipeline": 0.6,
+     "pipeline_final": 0.7,
+     "polish": 0.0,
+     "recognize": 0.0,
+     "refit": 0.6,
+     "render": 9.9,
+     "report": 0.2,
+     "sheets": 0.5,
+     "style": 0.0
+    }
+   }
+  }
+ },
+ "views": [
+  {
+   "camera": "cam_r_L0_banyo_1",
+   "room_id": "r_L0_banyo",
+   "room_type": "bathroom",
+   "kind": "interior",
+   "ev": 0.33,
+   "ev_metered": 0.33,
+   "lighting_dark": null,
+   "bare_wall": 0.527,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: hssd_4f1b086633e1b160f09b24a9aad0ec9d1ccb56c0 [non_commercial], hssd_6b6d600719446182c0a798676eb807c0ea4ec772 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "missing_anchor",
+    "empty_room",
+    "bad_camera",
+    "bare_material",
+    "not_stylish"
+   ],
+   "before": {
+    "camera": "cam_r_L0_banyo_1",
+    "room_id": "r_L0_banyo",
+    "room_type": "bathroom",
+    "kind": "interior",
+    "ev": 0.33,
+    "ev_metered": 0.33,
+    "lighting_dark": null,
+    "bare_wall": 0.527,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: hssd_4f1b086633e1b160f09b24a9aad0ec9d1ccb56c0 [non_commercial], hssd_6b6d600719446182c0a798676eb807c0ea4ec772 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "missing_anchor",
+     "empty_room",
+     "bad_camera",
+     "bare_material",
+     "not_stylish"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L0_banyo_2",
+   "room_id": "r_L0_banyo",
+   "room_type": "bathroom",
+   "kind": "interior",
+   "ev": 0.5,
+   "ev_metered": 0.5,
+   "lighting_dark": null,
+   "bare_wall": 0.421,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: hssd_6b6d600719446182c0a798676eb807c0ea4ec772 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "missing_anchor",
+    "bad_camera",
+    "not_stylish"
+   ],
+   "before": {
+    "camera": "cam_r_L0_banyo_2",
+    "room_id": "r_L0_banyo",
+    "room_type": "bathroom",
+    "kind": "interior",
+    "ev": 0.5,
+    "ev_metered": 0.5,
+    "lighting_dark": null,
+    "bare_wall": 0.421,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: hssd_6b6d600719446182c0a798676eb807c0ea4ec772 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "missing_anchor",
+     "bad_camera",
+     "not_stylish"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L0_banyo_3",
+   "room_id": "r_L0_banyo",
+   "room_type": "bathroom",
+   "kind": "interior",
+   "ev": 1.0,
+   "ev_metered": 1.0,
+   "lighting_dark": null,
+   "bare_wall": 0.382,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: hssd_6b6d600719446182c0a798676eb807c0ea4ec772 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])",
+   "score": 3,
+   "tags": [
+    "not_stylish",
+    "bare_material",
+    "flat_outdoor"
+   ],
+   "before": {
+    "camera": "cam_r_L0_banyo_3",
+    "room_id": "r_L0_banyo",
+    "room_type": "bathroom",
+    "kind": "interior",
+    "ev": 1.0,
+    "ev_metered": 1.0,
+    "lighting_dark": null,
+    "bare_wall": 0.382,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: hssd_6b6d600719446182c0a798676eb807c0ea4ec772 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "bad_camera",
+     "flat_outdoor",
+     "not_stylish",
+     "bare_material"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L0_mutfak_1",
+   "room_id": "r_L0_mutfak",
+   "room_type": "kitchen",
+   "kind": "interior",
+   "ev": 0.17,
+   "ev_metered": 0.17,
+   "lighting_dark": null,
+   "bare_wall": 0.135,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 2,
+   "tags": [
+    "missing_anchor",
+    "empty_room",
+    "bare_material",
+    "not_stylish",
+    "makes_no_sense"
+   ],
+   "before": {
+    "camera": "cam_r_L0_mutfak_1",
+    "room_id": "r_L0_mutfak",
+    "room_type": "kitchen",
+    "kind": "interior",
+    "ev": 0.67,
+    "ev_metered": 0.67,
+    "lighting_dark": null,
+    "bare_wall": 0.135,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 2,
+    "tags": [
+     "missing_anchor",
+     "parametric_boxy",
+     "not_stylish",
+     "bare_material",
+     "mismatched_set"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L0_mutfak_2",
+   "room_id": "r_L0_mutfak",
+   "room_type": "kitchen",
+   "kind": "interior",
+   "ev": 0.33,
+   "ev_metered": 0.33,
+   "lighting_dark": null,
+   "bare_wall": 0.288,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 2,
+   "tags": [
+    "missing_anchor",
+    "empty_room",
+    "not_stylish",
+    "bare_material",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "cam_r_L0_mutfak_2",
+    "room_id": "r_L0_mutfak",
+    "room_type": "kitchen",
+    "kind": "interior",
+    "ev": 0.67,
+    "ev_metered": 0.67,
+    "lighting_dark": null,
+    "bare_wall": 0.288,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 2,
+    "tags": [
+     "missing_anchor",
+     "empty_room",
+     "not_stylish",
+     "bare_material",
+     "looks_acceptable"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L0_mutfak_3",
+   "room_id": "r_L0_mutfak",
+   "room_type": "kitchen",
+   "kind": "interior",
+   "ev": -0.17,
+   "ev_metered": -0.17,
+   "lighting_dark": null,
+   "bare_wall": 0.254,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 3,
+   "tags": [
+    "not_stylish",
+    "bare_material",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "cam_r_L0_mutfak_3",
+    "room_id": "r_L0_mutfak",
+    "room_type": "kitchen",
+    "kind": "interior",
+    "ev": 0.33,
+    "ev_metered": 0.33,
+    "lighting_dark": null,
+    "bare_wall": 0.254,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 3,
+    "tags": [
+     "not_stylish",
+     "bare_material",
+     "looks_acceptable"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L0_salon_1",
+   "room_id": "r_L0_salon",
+   "room_type": "living",
+   "kind": "interior",
+   "ev": -0.17,
+   "ev_metered": -0.17,
+   "lighting_dark": null,
+   "bare_wall": 0.246,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "mismatched_set",
+    "not_stylish",
+    "empty_room",
+    "floating_or_odd_placement"
+   ],
+   "before": {
+    "camera": "cam_r_L0_salon_1",
+    "room_id": "r_L0_salon",
+    "room_type": "living",
+    "kind": "interior",
+    "ev": -0.67,
+    "ev_metered": -0.67,
+    "lighting_dark": null,
+    "bare_wall": 0.246,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "mismatched_set",
+     "not_stylish",
+     "empty_room",
+     "bare_material",
+     "bad_camera"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L0_salon_2",
+   "room_id": "r_L0_salon",
+   "room_type": "living",
+   "kind": "interior",
+   "ev": 0.0,
+   "ev_metered": 0.0,
+   "lighting_dark": null,
+   "bare_wall": 0.227,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial], 3dwh_30a9b6efc5109d45e2cbb497 [non_commercial], 3dwh_5d52596ee79cd202260f50b9 [non_commercial])",
+   "score": 3,
+   "tags": [
+    "mismatched_set",
+    "not_stylish",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "cam_r_L0_salon_2",
+    "room_id": "r_L0_salon",
+    "room_type": "living",
+    "kind": "interior",
+    "ev": -0.33,
+    "ev_metered": -0.33,
+    "lighting_dark": null,
+    "bare_wall": 0.227,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial], 3dwh_30a9b6efc5109d45e2cbb497 [non_commercial], 3dwh_5d52596ee79cd202260f50b9 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "mismatched_set",
+     "not_stylish",
+     "empty_room",
+     "floating_or_odd_placement"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L0_salon_3",
+   "room_id": "r_L0_salon",
+   "room_type": "living",
+   "kind": "interior",
+   "ev": 0.0,
+   "ev_metered": 0.0,
+   "lighting_dark": null,
+   "bare_wall": 0.255,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "mismatched_set",
+    "not_stylish",
+    "empty_room",
+    "floating_or_odd_placement"
+   ],
+   "before": {
+    "camera": "cam_r_L0_salon_3",
+    "room_id": "r_L0_salon",
+    "room_type": "living",
+    "kind": "interior",
+    "ev": -0.5,
+    "ev_metered": -0.5,
+    "lighting_dark": null,
+    "bare_wall": 0.255,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial])",
+    "score": 3,
+    "tags": [
+     "mismatched_set",
+     "not_stylish",
+     "looks_acceptable"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_banyo_1",
+   "room_id": "r_L1_banyo",
+   "room_type": "bathroom",
+   "kind": "interior",
+   "ev": 0.17,
+   "ev_metered": 0.17,
+   "lighting_dark": null,
+   "bare_wall": 0.515,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: gen_washbasin_japandi_3_fc4e0710 [tool_nc], hssd_3362008b68ae3e3f0be50057fa895cdacbfad401 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "missing_anchor",
+    "empty_room",
+    "not_stylish",
+    "bare_material",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "cam_r_L1_banyo_1",
+    "room_id": "r_L1_banyo",
+    "room_type": "bathroom",
+    "kind": "interior",
+    "ev": 0.0,
+    "ev_metered": 0.0,
+    "lighting_dark": null,
+    "bare_wall": 0.515,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: hssd_3362008b68ae3e3f0be50057fa895cdacbfad401 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "missing_anchor",
+     "empty_room",
+     "not_stylish",
+     "bare_material",
+     "flat_outdoor"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_banyo_2",
+   "room_id": "r_L1_banyo",
+   "room_type": "bathroom",
+   "kind": "interior",
+   "ev": 0.0,
+   "ev_metered": 0.0,
+   "lighting_dark": null,
+   "bare_wall": 0.635,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: gen_washbasin_japandi_3_fc4e0710 [tool_nc], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "missing_anchor",
+    "makes_no_sense",
+    "not_stylish",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "cam_r_L1_banyo_2",
+    "room_id": "r_L1_banyo",
+    "room_type": "bathroom",
+    "kind": "interior",
+    "ev": 0.0,
+    "ev_metered": 0.0,
+    "lighting_dark": null,
+    "bare_wall": 0.635,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: gen_washbasin_japandi_3_fc4e0710 [tool_nc], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "missing_anchor",
+     "makes_no_sense",
+     "not_stylish",
+     "bare_material"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_banyo_3",
+   "room_id": "r_L1_banyo",
+   "room_type": "bathroom",
+   "kind": "interior",
+   "ev": 0.17,
+   "ev_metered": 0.17,
+   "lighting_dark": null,
+   "bare_wall": 0.485,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: hssd_3362008b68ae3e3f0be50057fa895cdacbfad401 [non_commercial])",
+   "score": 1,
+   "tags": [
+    "missing_anchor",
+    "empty_room",
+    "bad_camera"
+   ],
+   "before": {
+    "camera": "cam_r_L1_banyo_3",
+    "room_id": "r_L1_banyo",
+    "room_type": "bathroom",
+    "kind": "interior",
+    "ev": 0.17,
+    "ev_metered": 0.17,
+    "lighting_dark": null,
+    "bare_wall": 0.485,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: hssd_3362008b68ae3e3f0be50057fa895cdacbfad401 [non_commercial])",
+    "score": 1,
+    "tags": [
+     "missing_anchor",
+     "empty_room",
+     "bad_camera"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_cocuk_odasi_1",
+   "room_id": "r_L1_cocuk_odasi",
+   "room_type": "bedroom",
+   "kind": "interior",
+   "ev": -1.17,
+   "ev_metered": -1.17,
+   "lighting_dark": null,
+   "bare_wall": 0.232,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_e8b0de9ce91b76051cc38d06 [non_commercial], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "mismatched_set",
+    "not_stylish",
+    "wrong_scale",
+    "bare_material"
+   ],
+   "before": {
+    "camera": "cam_r_L1_cocuk_odasi_1",
+    "room_id": "r_L1_cocuk_odasi",
+    "room_type": "bedroom",
+    "kind": "interior",
+    "ev": -0.83,
+    "ev_metered": -0.83,
+    "lighting_dark": null,
+    "bare_wall": 0.257,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_e8b0de9ce91b76051cc38d06 [non_commercial], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "mismatched_set",
+     "not_stylish",
+     "bare_material",
+     "wrong_scale"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_cocuk_odasi_2",
+   "room_id": "r_L1_cocuk_odasi",
+   "room_type": "bedroom",
+   "kind": "interior",
+   "ev": -1.33,
+   "ev_metered": -1.33,
+   "lighting_dark": null,
+   "bare_wall": 0.183,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_e8b0de9ce91b76051cc38d06 [non_commercial], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "overlap_cut",
+    "mismatched_set",
+    "not_stylish",
+    "wrong_scale"
+   ],
+   "before": {
+    "camera": "cam_r_L1_cocuk_odasi_2",
+    "room_id": "r_L1_cocuk_odasi",
+    "room_type": "bedroom",
+    "kind": "interior",
+    "ev": -0.67,
+    "ev_metered": -0.67,
+    "lighting_dark": null,
+    "bare_wall": 0.345,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_e8b0de9ce91b76051cc38d06 [non_commercial], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "parametric_boxy",
+     "mismatched_set",
+     "not_stylish",
+     "bare_material"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_cocuk_odasi_3",
+   "room_id": "r_L1_cocuk_odasi",
+   "room_type": "bedroom",
+   "kind": "interior",
+   "ev": -0.83,
+   "ev_metered": -0.83,
+   "lighting_dark": null,
+   "bare_wall": 0.345,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_e8b0de9ce91b76051cc38d06 [non_commercial], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "parametric_boxy",
+    "mismatched_set",
+    "not_stylish",
+    "decor_wrong"
+   ],
+   "before": {
+    "camera": "cam_r_L1_cocuk_odasi_3",
+    "room_id": "r_L1_cocuk_odasi",
+    "room_type": "bedroom",
+    "kind": "interior",
+    "ev": -1.0,
+    "ev_metered": -1.0,
+    "lighting_dark": null,
+    "bare_wall": 0.242,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_e8b0de9ce91b76051cc38d06 [non_commercial], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "mismatched_set",
+     "not_stylish",
+     "empty_room"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_dus_1",
+   "room_id": "r_L1_dus",
+   "room_type": "bathroom",
+   "kind": "interior",
+   "ev": 0.5,
+   "ev_metered": 0.5,
+   "lighting_dark": null,
+   "bare_wall": 0.442,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: hssd_afd66133d43789d6e42da81cefaf3d0a27c90180 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "missing_anchor",
+    "not_stylish",
+    "bare_material",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "cam_r_L1_dus_1",
+    "room_id": "r_L1_dus",
+    "room_type": "bathroom",
+    "kind": "interior",
+    "ev": 0.5,
+    "ev_metered": 0.5,
+    "lighting_dark": null,
+    "bare_wall": 0.442,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: hssd_afd66133d43789d6e42da81cefaf3d0a27c90180 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "missing_anchor",
+     "not_stylish",
+     "bare_material",
+     "flat_outdoor"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_dus_2",
+   "room_id": "r_L1_dus",
+   "room_type": "bathroom",
+   "kind": "interior",
+   "ev": 0.0,
+   "ev_metered": 0.0,
+   "lighting_dark": null,
+   "bare_wall": 0.426,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: hssd_3f0778f68a489d3995e2e3f13d13e4a90fb500a8 [non_commercial], hssd_afd66133d43789d6e42da81cefaf3d0a27c90180 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "missing_anchor",
+    "bad_camera",
+    "not_stylish"
+   ],
+   "before": {
+    "camera": "cam_r_L1_dus_2",
+    "room_id": "r_L1_dus",
+    "room_type": "bathroom",
+    "kind": "interior",
+    "ev": 0.0,
+    "ev_metered": 0.0,
+    "lighting_dark": null,
+    "bare_wall": 0.426,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: hssd_3f0778f68a489d3995e2e3f13d13e4a90fb500a8 [non_commercial], hssd_afd66133d43789d6e42da81cefaf3d0a27c90180 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "missing_anchor",
+     "bad_camera",
+     "not_stylish"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_ebeveyn_y_odasi_1",
+   "room_id": "r_L1_ebeveyn_y_odasi",
+   "room_type": "bedroom",
+   "kind": "interior",
+   "ev": -0.17,
+   "ev_metered": -0.17,
+   "lighting_dark": null,
+   "bare_wall": 0.441,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: gen_plant_small_japandi_1_32d3b9fb [tool_nc], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "missing_anchor",
+    "empty_room",
+    "not_stylish",
+    "mismatched_set"
+   ],
+   "before": {
+    "camera": "cam_r_L1_ebeveyn_y_odasi_1",
+    "room_id": "r_L1_ebeveyn_y_odasi",
+    "room_type": "bedroom",
+    "kind": "interior",
+    "ev": -0.33,
+    "ev_metered": -0.33,
+    "lighting_dark": null,
+    "bare_wall": 0.441,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: gen_plant_small_japandi_1_32d3b9fb [tool_nc], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "missing_anchor",
+     "empty_room",
+     "not_stylish",
+     "mismatched_set"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_ebeveyn_y_odasi_2",
+   "room_id": "r_L1_ebeveyn_y_odasi",
+   "room_type": "bedroom",
+   "kind": "interior",
+   "ev": -0.67,
+   "ev_metered": -0.67,
+   "lighting_dark": null,
+   "bare_wall": 0.368,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_038a2f938697cf94f0635b35 [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc], hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549 [non_commercial])",
+   "score": 2,
+   "tags": [
+    "mismatched_set",
+    "wrong_scale",
+    "bare_material",
+    "not_stylish"
+   ],
+   "before": {
+    "camera": "cam_r_L1_ebeveyn_y_odasi_2",
+    "room_id": "r_L1_ebeveyn_y_odasi",
+    "room_type": "bedroom",
+    "kind": "interior",
+    "ev": -0.67,
+    "ev_metered": -0.67,
+    "lighting_dark": null,
+    "bare_wall": 0.377,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_038a2f938697cf94f0635b35 [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc], hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "mismatched_set",
+     "wrong_scale",
+     "not_stylish",
+     "bare_material"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_ebeveyn_y_odasi_3",
+   "room_id": "r_L1_ebeveyn_y_odasi",
+   "room_type": "bedroom",
+   "kind": "interior",
+   "ev": -0.5,
+   "ev_metered": -0.5,
+   "lighting_dark": null,
+   "bare_wall": 0.401,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_038a2f938697cf94f0635b35 [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc], hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549 [non_commercial])",
+   "score": 4,
+   "tags": [
+    "mismatched_set",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "cam_r_L1_ebeveyn_y_odasi_3",
+    "room_id": "r_L1_ebeveyn_y_odasi",
+    "room_type": "bedroom",
+    "kind": "interior",
+    "ev": -0.5,
+    "ev_metered": -0.5,
+    "lighting_dark": null,
+    "bare_wall": 0.405,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_038a2f938697cf94f0635b35 [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc], hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549 [non_commercial])",
+    "score": 4,
+    "tags": [
+     "mismatched_set",
+     "looks_acceptable"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_hol_1",
+   "room_id": "r_L1_hol",
+   "room_type": "hall",
+   "kind": "interior",
+   "ev": 0.67,
+   "ev_metered": 0.67,
+   "lighting_dark": null,
+   "bare_wall": 0.528,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 3,
+   "tags": [
+    "not_stylish",
+    "bare_material",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "cam_r_L1_hol_1",
+    "room_id": "r_L1_hol",
+    "room_type": "hall",
+    "kind": "interior",
+    "ev": 0.67,
+    "ev_metered": 0.67,
+    "lighting_dark": null,
+    "bare_wall": 0.528,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 3,
+    "tags": [
+     "not_stylish",
+     "bare_material",
+     "looks_acceptable"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_hol_2",
+   "room_id": "r_L1_hol",
+   "room_type": "hall",
+   "kind": "interior",
+   "ev": 0.33,
+   "ev_metered": 0.33,
+   "lighting_dark": null,
+   "bare_wall": 0.5,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 2,
+   "tags": [
+    "empty_room",
+    "grey_box",
+    "bare_material",
+    "not_stylish",
+    "makes_no_sense"
+   ],
+   "before": {
+    "camera": "cam_r_L1_hol_2",
+    "room_id": "r_L1_hol",
+    "room_type": "hall",
+    "kind": "interior",
+    "ev": 0.33,
+    "ev_metered": 0.33,
+    "lighting_dark": null,
+    "bare_wall": 0.5,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 2,
+    "tags": [
+     "makes_no_sense",
+     "not_stylish",
+     "bare_material",
+     "bad_camera"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_hol_3",
+   "room_id": "r_L1_hol",
+   "room_type": "hall",
+   "kind": "interior",
+   "ev": 0.5,
+   "ev_metered": 0.5,
+   "lighting_dark": null,
+   "bare_wall": 0.566,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 3,
+   "tags": [
+    "not_stylish",
+    "bare_material",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "cam_r_L1_hol_3",
+    "room_id": "r_L1_hol",
+    "room_type": "hall",
+    "kind": "interior",
+    "ev": 0.5,
+    "ev_metered": 0.5,
+    "lighting_dark": null,
+    "bare_wall": 0.566,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 2,
+    "tags": [
+     "makes_no_sense",
+     "bad_camera",
+     "not_stylish",
+     "bare_material"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_oda_1",
+   "room_id": "r_L1_oda",
+   "room_type": "hall",
+   "kind": "interior",
+   "ev": 1.0,
+   "ev_metered": 1.0,
+   "lighting_dark": null,
+   "bare_wall": 0.774,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: hssd_85a85b8d95fa810baeaebaf0d04d6c931d23ed3b [non_commercial])",
+   "score": 2,
+   "tags": [
+    "empty_room",
+    "bad_camera",
+    "not_stylish",
+    "bare_material"
+   ],
+   "before": {
+    "camera": "cam_r_L1_oda_1",
+    "room_id": "r_L1_oda",
+    "room_type": "hall",
+    "kind": "interior",
+    "ev": 1.0,
+    "ev_metered": 1.0,
+    "lighting_dark": null,
+    "bare_wall": 0.774,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: hssd_85a85b8d95fa810baeaebaf0d04d6c931d23ed3b [non_commercial])",
+    "score": 2,
+    "tags": [
+     "empty_room",
+     "bad_camera",
+     "not_stylish",
+     "looks_acceptable"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_oda_2_1",
+   "room_id": "r_L1_oda_2",
+   "room_type": "living",
+   "kind": "interior",
+   "ev": -0.17,
+   "ev_metered": -0.17,
+   "lighting_dark": null,
+   "bare_wall": 0.348,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_18d9a3a43ae213c8bd5a5f91 [non_commercial], 3dwh_8b448d4c97c75d1599d226eb [non_commercial], hssd_d5283d7fe8cf91f273d341bf259e1f3df3b349be [non_commercial])",
+   "score": 2,
+   "tags": [
+    "parametric_boxy",
+    "mismatched_set",
+    "decor_wrong",
+    "lighting_bad"
+   ],
+   "before": {
+    "camera": "cam_r_L1_oda_2_1",
+    "room_id": "r_L1_oda_2",
+    "room_type": "living",
+    "kind": "interior",
+    "ev": -0.17,
+    "ev_metered": -0.17,
+    "lighting_dark": null,
+    "bare_wall": 0.345,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_18d9a3a43ae213c8bd5a5f91 [non_commercial], 3dwh_8b448d4c97c75d1599d226eb [non_commercial], hssd_d5283d7fe8cf91f273d341bf259e1f3df3b349be [non_commercial])",
+    "score": 2,
+    "tags": [
+     "parametric_boxy",
+     "mismatched_set",
+     "decor_wrong",
+     "lighting_bad"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_oda_2_2",
+   "room_id": "r_L1_oda_2",
+   "room_type": "living",
+   "kind": "interior",
+   "ev": -0.33,
+   "ev_metered": -0.33,
+   "lighting_dark": null,
+   "bare_wall": 0.345,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_18d9a3a43ae213c8bd5a5f91 [non_commercial], 3dwh_8b448d4c97c75d1599d226eb [non_commercial], hssd_d5283d7fe8cf91f273d341bf259e1f3df3b349be [non_commercial])",
+   "score": 2,
+   "tags": [
+    "mismatched_set",
+    "not_stylish",
+    "decor_wrong",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "cam_r_L1_oda_2_2",
+    "room_id": "r_L1_oda_2",
+    "room_type": "living",
+    "kind": "interior",
+    "ev": -0.33,
+    "ev_metered": -0.33,
+    "lighting_dark": null,
+    "bare_wall": 0.343,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_18d9a3a43ae213c8bd5a5f91 [non_commercial], 3dwh_8b448d4c97c75d1599d226eb [non_commercial], hssd_d5283d7fe8cf91f273d341bf259e1f3df3b349be [non_commercial])",
+    "score": 2,
+    "tags": [
+     "mismatched_set",
+     "decor_wrong",
+     "not_stylish"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_oda_2_3",
+   "room_id": "r_L1_oda_2",
+   "room_type": "living",
+   "kind": "interior",
+   "ev": -0.17,
+   "ev_metered": -0.17,
+   "lighting_dark": null,
+   "bare_wall": 0.395,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_18d9a3a43ae213c8bd5a5f91 [non_commercial], 3dwh_8b448d4c97c75d1599d226eb [non_commercial])",
+   "score": 2,
+   "tags": [
+    "empty_room",
+    "not_stylish",
+    "mismatched_set",
+    "bare_material",
+    "bad_camera"
+   ],
+   "before": {
+    "camera": "cam_r_L1_oda_2_3",
+    "room_id": "r_L1_oda_2",
+    "room_type": "living",
+    "kind": "interior",
+    "ev": -0.17,
+    "ev_metered": -0.17,
+    "lighting_dark": null,
+    "bare_wall": 0.394,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_18d9a3a43ae213c8bd5a5f91 [non_commercial], 3dwh_8b448d4c97c75d1599d226eb [non_commercial])",
+    "score": 2,
+    "tags": [
+     "missing_anchor",
+     "parametric_boxy",
+     "mismatched_set",
+     "not_stylish",
+     "bare_material"
+    ]
+   }
+  },
+  {
+   "camera": "cam_r_L1_soyunma_odasi_1",
+   "room_id": "r_L1_soyunma_odasi",
+   "room_type": "other",
+   "kind": "interior",
+   "ev": 1.33,
+   "ev_metered": 1.33,
+   "lighting_dark": null,
+   "bare_wall": 0.466,
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 1,
+   "tags": [
+    "empty_room",
+    "missing_anchor",
+    "grey_box",
+    "bad_camera",
+    "not_stylish"
+   ],
+   "before": {
+    "camera": "cam_r_L1_soyunma_odasi_1",
+    "room_id": "r_L1_soyunma_odasi",
+    "room_type": "hall",
+    "kind": "interior",
+    "ev": 1.5,
+    "ev_metered": 1.5,
+    "lighting_dark": null,
+    "bare_wall": 0.466,
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 1,
+    "tags": [
+     "empty_room",
+     "grey_box",
+     "bad_camera",
+     "flat_outdoor",
+     "looks_acceptable"
+    ]
+   }
+  },
+  {
+   "camera": "ext_1",
+   "room_id": null,
+   "room_type": null,
+   "kind": "exterior",
+   "ev": -4.83,
+   "ev_metered": -4.83,
+   "lighting_dark": null,
+   "bare_wall": "no data",
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 3,
+   "tags": [
+    "flat_outdoor",
+    "bare_material",
+    "not_stylish"
+   ],
+   "before": {
+    "camera": "ext_1",
+    "room_id": null,
+    "room_type": null,
+    "kind": "exterior",
+    "ev": -4.33,
+    "ev_metered": -4.33,
+    "lighting_dark": null,
+    "bare_wall": "no data",
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 3,
+    "tags": [
+     "flat_outdoor",
+     "bare_material",
+     "not_stylish",
+     "looks_acceptable"
+    ]
+   }
+  },
+  {
+   "camera": "ext_2",
+   "room_id": null,
+   "room_type": null,
+   "kind": "exterior",
+   "ev": -5.17,
+   "ev_metered": -5.17,
+   "lighting_dark": null,
+   "bare_wall": "no data",
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 3,
+   "tags": [
+    "flat_outdoor",
+    "not_stylish",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "ext_2",
+    "room_id": null,
+    "room_type": null,
+    "kind": "exterior",
+    "ev": -5.0,
+    "ev_metered": -5.0,
+    "lighting_dark": null,
+    "bare_wall": "no data",
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 3,
+    "tags": [
+     "flat_outdoor",
+     "bare_material",
+     "not_stylish",
+     "looks_acceptable"
+    ]
+   }
+  },
+  {
+   "camera": "ext_3",
+   "room_id": null,
+   "room_type": null,
+   "kind": "exterior",
+   "ev": -6.33,
+   "ev_metered": -6.33,
+   "lighting_dark": null,
+   "bare_wall": "no data",
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 3,
+   "tags": [
+    "flat_outdoor",
+    "not_stylish",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "ext_3",
+    "room_id": null,
+    "room_type": null,
+    "kind": "exterior",
+    "ev": -6.33,
+    "ev_metered": -6.33,
+    "lighting_dark": null,
+    "bare_wall": "no data",
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 3,
+    "tags": [
+     "flat_outdoor",
+     "not_stylish",
+     "looks_acceptable"
+    ]
+   }
+  },
+  {
+   "camera": "ext_4",
+   "room_id": null,
+   "room_type": null,
+   "kind": "exterior",
+   "ev": -7.67,
+   "ev_metered": -7.67,
+   "lighting_dark": null,
+   "bare_wall": "no data",
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 2,
+   "tags": [
+    "grey_box",
+    "flat_outdoor",
+    "not_stylish",
+    "bare_material",
+    "makes_no_sense"
+   ],
+   "before": {
+    "camera": "ext_4",
+    "room_id": null,
+    "room_type": null,
+    "kind": "exterior",
+    "ev": -7.83,
+    "ev_metered": -7.83,
+    "lighting_dark": null,
+    "bare_wall": "no data",
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: no (flagged assets: 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial], 3dwh_30a9b6efc5109d45e2cbb497 [non_commercial])",
+    "score": 2,
+    "tags": [
+     "flat_outdoor",
+     "not_stylish",
+     "bare_material",
+     "makes_no_sense"
+    ]
+   }
+  },
+  {
+   "camera": "ext_5",
+   "room_id": null,
+   "room_type": null,
+   "kind": "exterior",
+   "ev": -6.33,
+   "ev_metered": -6.33,
+   "lighting_dark": null,
+   "bare_wall": "no data",
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 3,
+   "tags": [
+    "flat_outdoor",
+    "not_stylish",
+    "looks_acceptable"
+   ],
+   "before": {
+    "camera": "ext_5",
+    "room_id": null,
+    "room_type": null,
+    "kind": "exterior",
+    "ev": -6.33,
+    "ev_metered": -6.33,
+    "lighting_dark": null,
+    "bare_wall": "no data",
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 2,
+    "tags": [
+     "flat_outdoor",
+     "not_stylish",
+     "bare_material"
+    ]
+   }
+  },
+  {
+   "camera": "ext_6",
+   "room_id": null,
+   "room_type": null,
+   "kind": "exterior",
+   "ev": -7.5,
+   "ev_metered": -7.5,
+   "lighting_dark": null,
+   "bare_wall": "no data",
+   "in_json_not_rendered": 0,
+   "commercial_safe": "commercial-safe: yes",
+   "score": 2,
+   "tags": [
+    "grey_box",
+    "flat_outdoor",
+    "bare_material",
+    "not_stylish",
+    "makes_no_sense"
+   ],
+   "before": {
+    "camera": "ext_6",
+    "room_id": null,
+    "room_type": null,
+    "kind": "exterior",
+    "ev": -7.67,
+    "ev_metered": -7.67,
+    "lighting_dark": null,
+    "bare_wall": "no data",
+    "in_json_not_rendered": 0,
+    "commercial_safe": "commercial-safe: yes",
+    "score": 2,
+    "tags": [
+     "grey_box",
+     "flat_outdoor",
+     "bare_material",
+     "not_stylish"
+    ]
+   }
+  }
+ ],
+ "baseline_only_views": [],
+ "warnings": [
+  "orchestrator log: the latest run from seq 4233 (2 of 4234 events; earlier runs of the appended log left out)",
+  "baseline: orchestrator log: the latest run from seq 3405 (828 of 4232 events; earlier runs of the appended log left out)"
+ ]
+}

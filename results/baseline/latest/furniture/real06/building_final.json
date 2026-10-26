@@ -3,8 +3,8 @@
  "project": {
   "id": "real06",
   "source_folder": "projects/real06",
-  "created_utc": "2026-10-26T18:37:06Z",
-  "pipeline_commit": "9ec5d11b",
+  "created_utc": "2026-10-26T20:03:44Z",
+  "pipeline_commit": "9bc1e868",
   "datum": {
    "value": 0.5,
    "method": "vector",
@@ -5004,7 +5004,7 @@
    "level_id": "L1",
    "label": "Soyunma Odası",
    "label_raw": "SOYUNMA ODASI",
-   "room_type": "hall",
+   "room_type": "other",
    "polygon": [
     [
      6.0002,
@@ -5062,16 +5062,7 @@
    "same_as": null,
    "floor_offset_m": 0.0,
    "floor_source": "level",
-   "floor_evidence": [],
-   "adjusted_by_ai": {
-    "reason": "A 5.9 m² dressing room (soyunma odası) is functionally a hall/entry space with wardrobe and bench; 'other' blocks all furniture groups.",
-    "round": 4,
-    "log_seq": 4197,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "room_type": "other"
-    }
-   }
+   "floor_evidence": []
   },
   {
    "id": "r_L1_hol",
@@ -14064,31 +14055,7 @@
     }
    ],
    "build": false,
-   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)",
-   "drawn_type": "unknown",
-   "drawn_footprint": {
-    "center": [
-     7.9343,
-     3.2773
-    ],
-    "size": [
-     0.2087,
-     0.2018
-    ],
-    "rotation_deg": 0.0
-   },
-   "drawn_front_deg": null,
-   "drawn_height": null,
-   "adjusted_by_ai": {
-    "reason": "The drawn 0.21x0.20 m symbol is a small scribble mark, not furniture (NR).",
-    "round": 3,
-    "log_seq": 3908,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "build": false
-    },
-    "not_furniture": "other"
-   }
+   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)"
   },
   {
    "id": "f_L0_010",
@@ -14206,31 +14173,7 @@
     }
    ],
    "build": false,
-   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)",
-   "drawn_type": "unknown",
-   "drawn_footprint": {
-    "center": [
-     7.322,
-     13.8852
-    ],
-    "size": [
-     2.544,
-     1.0076
-    ],
-    "rotation_deg": 161.545
-   },
-   "drawn_front_deg": null,
-   "drawn_height": null,
-   "adjusted_by_ai": {
-    "reason": "The 2.54 x 1.01 m drawn outline is the dashed dimension/outline band around the washbasin and shower bay, not a furniture item.",
-    "round": 1,
-    "log_seq": 3577,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "build": false
-    },
-    "not_furniture": "dimension_outline"
-   }
+   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)"
   },
   {
    "id": "f_L0_011",
@@ -15252,61 +15195,1998 @@
    "front_deg": null,
    "height": null,
    "asset": {
-    "library": "none",
-    "asset_id": "none:potted_plant",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "none",
+    "library": "objaverse",
+    "asset_id": "objaverse_bf122cd0854e422bb94704552c64810b",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.8776,
+     0.8776,
+     0.8776
     ],
+    "scaling": "uniform",
     "bbox_m": [
      0.2087,
-     0.2018,
-     1.0
+     0.2289,
+     0.3173
     ],
-    "aspect_error": null,
+    "depth_abs_m": 0.0271,
+    "aspect_error": 0.1259,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
-     0.0
+     -0.0119,
+     -0.016,
+     0.0106
     ],
-    "candidates": [],
-    "fallback_reason": "the piece is not built (build false): no model is searched",
-    "cap": 1.1,
-    "style_family": "scandinavian",
-    "excluded": [],
-    "library_gap": {
-     "type": "potted_plant",
-     "style": "scandinavian",
-     "step": "none",
-     "used": "nothing (not built)",
-     "reason": "the piece is not built (build false): no model is searched"
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "3dwh_bbacc7d6f448d2958a4091af",
+      "aspect_error": 1.1828,
+      "scale": [
+       0.7264,
+       0.7264,
+       0.7264
+      ],
+      "non_uniform": 3.2635,
+      "depth_m": 0.6586,
+      "mean_scale": 0.7264,
+      "accepted": false,
+      "rank": 1,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.2736,
+      "size_bucket": 5,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 50327,
+      "height_m": 0.886,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_cc9a735781c180a72cf558ce",
+      "aspect_error": 0.2515,
+      "scale": [
+       0.5671,
+       0.5671,
+       0.5671
+      ],
+      "non_uniform": 1.286,
+      "depth_m": 0.2595,
+      "mean_scale": 0.5671,
+      "accepted": false,
+      "rank": 2,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.4329,
+      "size_bucket": 8,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 11842,
+      "height_m": 0.8062,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_1cd75666af690bfed9fc5a8a",
+      "aspect_error": 0.4541,
+      "scale": [
+       0.5815,
+       0.5815,
+       0.5815
+      ],
+      "non_uniform": 1.5748,
+      "depth_m": 0.3178,
+      "mean_scale": 0.5815,
+      "accepted": false,
+      "rank": 3,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.4185,
+      "size_bucket": 8,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 4476,
+      "height_m": 1.1712,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_246a9a24bd001735f3e74bc7",
+      "aspect_error": 0.1133,
+      "scale": [
+       0.5844,
+       0.5844,
+       0.5844
+      ],
+      "non_uniform": 1.1199,
+      "depth_m": 0.226,
+      "mean_scale": 0.5844,
+      "accepted": false,
+      "rank": 4,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.4156,
+      "size_bucket": 8,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 64404,
+      "height_m": 0.4835,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_cb38065c6b0c0109cdddd59e",
+      "aspect_error": 0.1813,
+      "scale": [
+       0.5825,
+       0.5825,
+       0.5825
+      ],
+      "non_uniform": 1.1987,
+      "depth_m": 0.2419,
+      "mean_scale": 0.5825,
+      "accepted": false,
+      "rank": 5,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.4175,
+      "size_bucket": 8,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 26670,
+      "height_m": 0.4376,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_8512ac158d0f8579041a1fc2",
+      "aspect_error": 0.0009,
+      "scale": [
+       0.5058,
+       0.5058,
+       0.5058
+      ],
+      "non_uniform": 1.0009,
+      "depth_m": 0.202,
+      "mean_scale": 0.5058,
+      "accepted": false,
+      "rank": 6,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.4942,
+      "size_bucket": 9,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 13357,
+      "height_m": 0.605,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_37938c0ddf4de7b490c20f50",
+      "aspect_error": 0.0115,
+      "scale": [
+       0.4695,
+       0.4695,
+       0.4695
+      ],
+      "non_uniform": 1.0115,
+      "depth_m": 0.1995,
+      "mean_scale": 0.4695,
+      "accepted": false,
+      "rank": 7,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.5305,
+      "size_bucket": 10,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 147470,
+      "height_m": 0.1863,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_2d19bca4402c5c6991d767b7",
+      "aspect_error": 0.0053,
+      "scale": [
+       0.489,
+       0.489,
+       0.489
+      ],
+      "non_uniform": 1.0053,
+      "depth_m": 0.2007,
+      "mean_scale": 0.489,
+      "accepted": false,
+      "rank": 8,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.511,
+      "size_bucket": 10,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 16648,
+      "height_m": 0.256,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_0f768ada18615ad76e7e9f59",
+      "aspect_error": 0.3853,
+      "scale": [
+       0.4579,
+       0.4579,
+       0.4579
+      ],
+      "non_uniform": 1.4701,
+      "depth_m": 0.1373,
+      "mean_scale": 0.4579,
+      "accepted": false,
+      "rank": 9,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.5421,
+      "size_bucket": 10,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 46572,
+      "height_m": 0.124,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_0fe8cd77a0e74202f9f12142",
+      "aspect_error": 0.0788,
+      "scale": [
+       0.6067,
+       0.6067,
+       0.6067
+      ],
+      "non_uniform": 1.082,
+      "depth_m": 0.2183,
+      "mean_scale": 0.6067,
+      "accepted": false,
+      "rank": 10,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.3933,
+      "size_bucket": 7,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 22909,
+      "height_m": 0.5244,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_5407530ab15149cd71f3b895",
+      "aspect_error": 0.2704,
+      "scale": [
+       0.4406,
+       0.4406,
+       0.4406
+      ],
+      "non_uniform": 1.3106,
+      "depth_m": 0.154,
+      "mean_scale": 0.4406,
+      "accepted": false,
+      "rank": 11,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.5594,
+      "size_bucket": 11,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 9186,
+      "height_m": 0.1968,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_b07bdea00ba6a8acce6d00a0",
+      "aspect_error": 0.6402,
+      "scale": [
+       0.354,
+       0.354,
+       0.354
+      ],
+      "non_uniform": 1.8969,
+      "depth_m": 0.1064,
+      "mean_scale": 0.354,
+      "accepted": false,
+      "rank": 12,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.646,
+      "size_bucket": 12,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 13365,
+      "height_m": 0.1623,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_8f2c96eae8529ae5b635d40b",
+      "aspect_error": 0.0065,
+      "scale": [
+       0.4979,
+       0.4979,
+       0.4979
+      ],
+      "non_uniform": 1.0066,
+      "depth_m": 0.2031,
+      "mean_scale": 0.4979,
+      "accepted": false,
+      "rank": 13,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.5021,
+      "size_bucket": 10,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 24952,
+      "height_m": 0.2122,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_dadc463b68a538783cd986b8",
+      "aspect_error": 0.5074,
+      "scale": [
+       0.3897,
+       0.3897,
+       0.3897
+      ],
+      "non_uniform": 1.661,
+      "depth_m": 0.1215,
+      "mean_scale": 0.3897,
+      "accepted": false,
+      "rank": 14,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.6103,
+      "size_bucket": 12,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 18540,
+      "height_m": 0.1083,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_42c9f7dc10490b7deb9b203f",
+      "aspect_error": 0.0562,
+      "scale": [
+       0.3226,
+       0.3226,
+       0.3226
+      ],
+      "non_uniform": 1.0579,
+      "depth_m": 0.1908,
+      "mean_scale": 0.3226,
+      "accepted": false,
+      "rank": 15,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.6774,
+      "size_bucket": 13,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 18368,
+      "height_m": 0.5279,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_4d0d32e27d3dd4435de64eb8",
+      "aspect_error": 0.0062,
+      "scale": [
+       0.381,
+       0.381,
+       0.381
+      ],
+      "non_uniform": 1.0062,
+      "depth_m": 0.2005,
+      "mean_scale": 0.381,
+      "accepted": false,
+      "rank": 16,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.619,
+      "size_bucket": 12,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 5210,
+      "height_m": 0.1785,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_16feb7c4ec4a325e693834c7",
+      "aspect_error": 0.1862,
+      "scale": [
+       0.2532,
+       0.2532,
+       0.2532
+      ],
+      "non_uniform": 1.2047,
+      "depth_m": 0.2431,
+      "mean_scale": 0.2532,
+      "accepted": false,
+      "rank": 17,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7468,
+      "size_bucket": 14,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 16335,
+      "height_m": 0.3239,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_517279a0b7d4f29cb639e8a4",
+      "aspect_error": 0.4607,
+      "scale": [
+       0.3621,
+       0.3621,
+       0.3621
+      ],
+      "non_uniform": 1.5852,
+      "depth_m": 0.1273,
+      "mean_scale": 0.3621,
+      "accepted": false,
+      "rank": 18,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.6379,
+      "size_bucket": 12,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 166002,
+      "height_m": 0.2239,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_93911ea73e9c2492f926d10c",
+      "aspect_error": 0.076,
+      "scale": [
+       0.3253,
+       0.3253,
+       0.3253
+      ],
+      "non_uniform": 1.079,
+      "depth_m": 0.2177,
+      "mean_scale": 0.3253,
+      "accepted": false,
+      "rank": 19,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.6747,
+      "size_bucket": 13,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 8812,
+      "height_m": 0.2359,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_1d13c0a8510409d30c46e992",
+      "aspect_error": 0.0712,
+      "scale": [
+       0.2694,
+       0.2694,
+       0.2694
+      ],
+      "non_uniform": 1.0738,
+      "depth_m": 0.2167,
+      "mean_scale": 0.2694,
+      "accepted": false,
+      "rank": 20,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7306,
+      "size_bucket": 14,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 38394,
+      "height_m": 0.3417,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_3ca51944db9df428d5f09afc",
+      "aspect_error": 0.0931,
+      "scale": [
+       0.4706,
+       0.4706,
+       0.4706
+      ],
+      "non_uniform": 1.0976,
+      "depth_m": 0.2215,
+      "mean_scale": 0.4706,
+      "accepted": false,
+      "rank": 21,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.5294,
+      "size_bucket": 10,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 30139,
+      "height_m": 0.5578,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_7e3f5342e5c70faa686f1de0",
+      "aspect_error": 0.075,
+      "scale": [
+       0.2546,
+       0.2546,
+       0.2546
+      ],
+      "non_uniform": 1.0778,
+      "depth_m": 0.2175,
+      "mean_scale": 0.2546,
+      "accepted": false,
+      "rank": 22,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7454,
+      "size_bucket": 14,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 251685,
+      "height_m": 0.2046,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_bc043c7af4101cb4451f610b",
+      "aspect_error": 0.5477,
+      "scale": [
+       0.3605,
+       0.3605,
+       0.3605
+      ],
+      "non_uniform": 1.7293,
+      "depth_m": 0.349,
+      "mean_scale": 0.3605,
+      "accepted": false,
+      "rank": 23,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.6395,
+      "size_bucket": 12,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 6644,
+      "height_m": 0.3726,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_9751e63a91beb9534dd2e3d2",
+      "aspect_error": 0.1135,
+      "scale": [
+       0.3345,
+       0.3345,
+       0.3345
+      ],
+      "non_uniform": 1.1202,
+      "depth_m": 0.2261,
+      "mean_scale": 0.3345,
+      "accepted": false,
+      "rank": 24,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.6655,
+      "size_bucket": 13,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 13045,
+      "height_m": 0.3263,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_f5c8d80269b3645e02e983c2",
+      "aspect_error": 0.0056,
+      "scale": [
+       0.3868,
+       0.3868,
+       0.3868
+      ],
+      "non_uniform": 1.0056,
+      "depth_m": 0.2029,
+      "mean_scale": 0.3868,
+      "accepted": false,
+      "rank": 25,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.6132,
+      "size_bucket": 12,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 261553,
+      "height_m": 0.3436,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_c1bd83916c957dba2a9e90dc",
+      "aspect_error": 0.0116,
+      "scale": [
+       0.2566,
+       0.2566,
+       0.2566
+      ],
+      "non_uniform": 1.0117,
+      "depth_m": 0.1995,
+      "mean_scale": 0.2566,
+      "accepted": false,
+      "rank": 26,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7434,
+      "size_bucket": 14,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 25394,
+      "height_m": 0.4379,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_dffb320f2963aeefffa085a5",
+      "aspect_error": 0.1208,
+      "scale": [
+       0.2609,
+       0.2609,
+       0.2609
+      ],
+      "non_uniform": 1.1284,
+      "depth_m": 0.2277,
+      "mean_scale": 0.2609,
+      "accepted": false,
+      "rank": 27,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7391,
+      "size_bucket": 14,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 21328,
+      "height_m": 0.2942,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_ccc3470cfac9280baa5bfde7",
+      "aspect_error": 0.1251,
+      "scale": [
+       0.2831,
+       0.2831,
+       0.2831
+      ],
+      "non_uniform": 1.1333,
+      "depth_m": 0.1781,
+      "mean_scale": 0.2831,
+      "accepted": false,
+      "rank": 28,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7169,
+      "size_bucket": 14,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 22036,
+      "height_m": 0.1787,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_bc0743e8789ee14809491840",
+      "aspect_error": 0.2293,
+      "scale": [
+       0.2594,
+       0.2594,
+       0.2594
+      ],
+      "non_uniform": 1.2578,
+      "depth_m": 0.2538,
+      "mean_scale": 0.2594,
+      "accepted": false,
+      "rank": 29,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7406,
+      "size_bucket": 14,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 17019,
+      "height_m": 0.4774,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_ff80a37ac2088f8b9cb9ad1b",
+      "aspect_error": 0.2991,
+      "scale": [
+       0.3,
+       0.3,
+       0.3
+      ],
+      "non_uniform": 1.3487,
+      "depth_m": 0.1496,
+      "mean_scale": 0.3,
+      "accepted": false,
+      "rank": 30,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7,
+      "size_bucket": 14,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 66452,
+      "height_m": 0.2967,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_c2a9fc62b2cf7c211461feb0",
+      "aspect_error": 0.3387,
+      "scale": [
+       0.2611,
+       0.2611,
+       0.2611
+      ],
+      "non_uniform": 1.4031,
+      "depth_m": 0.2831,
+      "mean_scale": 0.2611,
+      "accepted": false,
+      "rank": 31,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7389,
+      "size_bucket": 14,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 50723,
+      "height_m": 0.2625,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_970678a999381e394ac27f86",
+      "aspect_error": 0.0172,
+      "scale": [
+       0.2755,
+       0.2755,
+       0.2755
+      ],
+      "non_uniform": 1.0174,
+      "depth_m": 0.2053,
+      "mean_scale": 0.2755,
+      "accepted": false,
+      "rank": 32,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7245,
+      "size_bucket": 14,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 83231,
+      "height_m": 0.2727,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_a2f37ab7c9d04984553ed724",
+      "aspect_error": 0.5802,
+      "scale": [
+       0.2853,
+       0.2853,
+       0.2853
+      ],
+      "non_uniform": 1.7864,
+      "depth_m": 0.113,
+      "mean_scale": 0.2853,
+      "accepted": false,
+      "rank": 33,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7147,
+      "size_bucket": 14,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 23440,
+      "height_m": 0.2108,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_4fe7e873992883e61cc8a79c",
+      "aspect_error": 0.0171,
+      "scale": [
+       0.2352,
+       0.2352,
+       0.2352
+      ],
+      "non_uniform": 1.0173,
+      "depth_m": 0.1984,
+      "mean_scale": 0.2352,
+      "accepted": false,
+      "rank": 34,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7648,
+      "size_bucket": 15,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 29715,
+      "height_m": 0.2761,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_4ce0ae4eb9fcd2f0e440de2a",
+      "aspect_error": 0.0807,
+      "scale": [
+       0.233,
+       0.233,
+       0.233
+      ],
+      "non_uniform": 1.0841,
+      "depth_m": 0.1861,
+      "mean_scale": 0.233,
+      "accepted": false,
+      "rank": 35,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.767,
+      "size_bucket": 15,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 32467,
+      "height_m": 0.2731,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_db50136a8469a48849d06006",
+      "aspect_error": 0.082,
+      "scale": [
+       0.2447,
+       0.2447,
+       0.2447
+      ],
+      "non_uniform": 1.0854,
+      "depth_m": 0.1859,
+      "mean_scale": 0.2447,
+      "accepted": false,
+      "rank": 36,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7553,
+      "size_bucket": 15,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 13354,
+      "height_m": 0.2114,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_cd89c6a8109b82ff0562c56f",
+      "aspect_error": 0.1663,
+      "scale": [
+       0.2119,
+       0.2119,
+       0.2119
+      ],
+      "non_uniform": 1.181,
+      "depth_m": 0.1709,
+      "mean_scale": 0.2119,
+      "accepted": false,
+      "rank": 37,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7881,
+      "size_bucket": 15,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 17390,
+      "height_m": 0.3201,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_22ddf337c20c3a65d66d5632",
+      "aspect_error": 0.2336,
+      "scale": [
+       0.2249,
+       0.2249,
+       0.2249
+      ],
+      "non_uniform": 1.2631,
+      "depth_m": 0.1598,
+      "mean_scale": 0.2249,
+      "accepted": false,
+      "rank": 38,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7751,
+      "size_bucket": 15,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 13071,
+      "height_m": 0.3713,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_b8533c53496ce42d8744b79f",
+      "aspect_error": 0.0499,
+      "scale": [
+       0.2449,
+       0.2449,
+       0.2449
+      ],
+      "non_uniform": 1.0512,
+      "depth_m": 0.2121,
+      "mean_scale": 0.2449,
+      "accepted": false,
+      "rank": 39,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7551,
+      "size_bucket": 15,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 4166,
+      "height_m": 0.342,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_4c9a40b724477e3c33197fe5",
+      "aspect_error": 0.1973,
+      "scale": [
+       0.2111,
+       0.2111,
+       0.2111
+      ],
+      "non_uniform": 1.2182,
+      "depth_m": 0.1657,
+      "mean_scale": 0.2111,
+      "accepted": false,
+      "rank": 40,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7889,
+      "size_bucket": 15,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 65407,
+      "height_m": 0.4561,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_b78f1415b79512bc529957ed",
+      "aspect_error": 0.2461,
+      "scale": [
+       0.2144,
+       0.2144,
+       0.2144
+      ],
+      "non_uniform": 1.2791,
+      "depth_m": 0.1578,
+      "mean_scale": 0.2144,
+      "accepted": false,
+      "rank": 41,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.7856,
+      "size_bucket": 15,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 29724,
+      "height_m": 0.3066,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_c30574797e04f024afd29b37",
+      "aspect_error": 0.0092,
+      "scale": [
+       0.1931,
+       0.1931,
+       0.1931
+      ],
+      "non_uniform": 1.0092,
+      "depth_m": 0.2,
+      "mean_scale": 0.1931,
+      "accepted": false,
+      "rank": 42,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.8069,
+      "size_bucket": 16,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 87428,
+      "height_m": 0.2056,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_2788683866a872c0e08b087f",
+      "aspect_error": 0.1005,
+      "scale": [
+       0.1886,
+       0.1886,
+       0.1886
+      ],
+      "non_uniform": 1.1058,
+      "depth_m": 0.1825,
+      "mean_scale": 0.1886,
+      "accepted": false,
+      "rank": 43,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.8114,
+      "size_bucket": 16,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 15700,
+      "height_m": 0.2656,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_64adeba9f254c9bf35e0939b",
+      "aspect_error": 1.0219,
+      "scale": [
+       0.1893,
+       0.1893,
+       0.1893
+      ],
+      "non_uniform": 2.7786,
+      "depth_m": 0.0726,
+      "mean_scale": 0.1893,
+      "accepted": false,
+      "rank": 44,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.8107,
+      "size_bucket": 16,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": null,
+      "faces": 136592,
+      "height_m": 0.1457,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_5a5ea9f625e0ce2d74d293b6",
+      "aspect_error": 0.0707,
+      "scale": [
+       0.1957,
+       0.1957,
+       0.1957
+      ],
+      "non_uniform": 1.0733,
+      "depth_m": 0.2166,
+      "mean_scale": 0.1957,
+      "accepted": false,
+      "rank": 45,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.8043,
+      "size_bucket": 16,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 3812,
+      "height_m": 0.1625,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_2d272f4441ef44d36441cb85",
+      "aspect_error": 0.1148,
+      "scale": [
+       0.196,
+       0.196,
+       0.196
+      ],
+      "non_uniform": 1.1216,
+      "depth_m": 0.1799,
+      "mean_scale": 0.196,
+      "accepted": false,
+      "rank": 46,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.804,
+      "size_bucket": 16,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 37475,
+      "height_m": 0.3794,
+      "height_ok": true
+     },
+     {
+      "id": "3dwh_e555db30dd10d653332e0c77",
+      "aspect_error": 0.4567,
+      "scale": [
+       0.1834,
+       0.1834,
+       0.1834
+      ],
+      "non_uniform": 1.5789,
+      "depth_m": 0.1278,
+      "mean_scale": 0.1834,
+      "accepted": false,
+      "rank": 47,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.8166,
+      "size_bucket": 16,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 3401,
+      "height_m": 0.2087,
+      "height_ok": false
+     },
+     {
+      "id": "3dwh_19002c3d5a6b7605fbb29f98",
+      "aspect_error": 0.0707,
+      "scale": [
+       0.1957,
+       0.1957,
+       0.1957
+      ],
+      "non_uniform": 1.0733,
+      "depth_m": 0.2166,
+      "mean_scale": 0.1957,
+      "accepted": false,
+      "rank": 48,
+      "source": "3dwh",
+      "units_known": true,
+      "size_error": 0.8043,
+      "size_bucket": 16,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 3.0,
+      "vision_quality": 2.0,
+      "faces": 3400,
+      "height_m": 0.1024,
+      "height_ok": false
+     },
+     {
+      "id": "objaverse_57972124483145b4a4bbf4fd4caca6e7",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.3382,
+       0.3382,
+       0.3382
+      ],
+      "non_uniform": 1.0228,
+      "depth_m": 0.1973,
+      "mean_scale": 0.3382,
+      "accepted": false,
+      "rank": 49,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.6618,
+      "size_bucket": null,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 4.0,
+      "vision_quality": null,
+      "faces": 3477,
+      "height_m": 0.207,
+      "height_ok": false
+     },
+     {
+      "id": "objaverse_9dd44cda400c48a083ffd9480067f04f",
+      "aspect_error": 0.0336,
+      "scale": [
+       0.4202,
+       0.4202,
+       0.4202
+      ],
+      "non_uniform": 1.0342,
+      "depth_m": 0.2087,
+      "mean_scale": 0.4202,
+      "accepted": false,
+      "rank": 50,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.5798,
+      "size_bucket": null,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 4.5,
+      "vision_quality": 2.0,
+      "faces": 11888,
+      "height_m": 0.215,
+      "height_ok": false
+     },
+     {
+      "id": "objaverse_bf122cd0854e422bb94704552c64810b",
+      "aspect_error": 0.1259,
+      "scale": [
+       0.8776,
+       0.8776,
+       0.8776
+      ],
+      "non_uniform": 1.1342,
+      "depth_m": 0.2289,
+      "mean_scale": 0.8776,
+      "accepted": true,
+      "rank": 51,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.1224,
+      "size_bucket": null,
+      "diversity_steps": 0,
+      "design_pref": 0,
+      "quality": 4.0,
+      "vision_quality": 2.0,
+      "faces": 24806,
+      "height_m": 0.3173,
+      "height_ok": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "minimal",
+     "modern"
+    ],
+    "style_family": "minimal",
+    "excluded": [
+     {
+      "id": "objaverse_41e58efcf647494483f9860df99acf60",
+      "reason": "audit: removed (the title names empty flower pot, not a potted_plant; the vision check says it is not a potted_plant)"
+     },
+     {
+      "id": "3dwh_054223a4a13dcc118dc458a6",
+      "reason": "audit: removed (broken: 96% of the edges join flipped faces)"
+     },
+     {
+      "id": "3dwh_112c554aac73e4bcfc0f3669",
+      "reason": "audit: removed (2394 triangles (< 3000): crude unless the vision quality is high; vision quality 2; vision quality 2 (<= 2))"
+     },
+     {
+      "id": "3dwh_34e2fea8beac091fa96c20b0",
+      "reason": "audit: removed (the vision check sees it lying on its side or upside down; the vision check says it is not a potted_plant)"
+     },
+     {
+      "id": "3dwh_5e7fcff8c9ba4743cb44aedf",
+      "reason": "audit: removed (proportions 0.17 x 0.98 x 0.33 m fit no real potted_plant (width (0.2, 1.0), depth (0.2, 1.0), height (0.3, 2.2)); the vision check says it is not a potted_plant (a bench); vision quality 2 (<= 2))"
+     },
+     {
+      "id": "3dwh_6a79c95467305e1645426b11",
+      "reason": "audit: removed (2224 triangles (< 3000): crude unless the vision quality is high; vision quality 3)"
+     },
+     {
+      "id": "3dwh_a2475f2dc7be3ad0006ea0b1",
+      "reason": "audit: removed (proportions 1.08 x 1.08 x 0.28 m fit no real potted_plant (width (0.2, 1.0), depth (0.2, 1.0), height (0.3, 2.2)); the vision check says it is not a potted_plant; the vision check says it is an outdoor piece; vision quality 2 (<= 2))"
+     },
+     {
+      "id": "3dwh_b4e908bdfcf1cbead4197e52",
+      "reason": "audit: removed (the same GLB as 3dwh_970678a999381e394ac27f86; vision quality 2 (<= 2))"
+     },
+     {
+      "id": "3dwh_c406de3cf0a75f6ee7e58505",
+      "reason": "audit: removed (broken: 50% of the edges join flipped faces)"
+     },
+     {
+      "id": "3dwh_c592c464c6e1ecc2c61470d9",
+      "reason": "audit: removed (the same GLB as 3dwh_b07bdea00ba6a8acce6d00a0)"
+     },
+     {
+      "id": "3dwh_cd72df416ae487c4a270cd7d",
+      "reason": "audit: removed (2234 triangles (< 3000): crude unless the vision quality is high; vision quality 2; vision quality 2 (<= 2))"
+     },
+     {
+      "id": "3dwh_fe308db5f638dab45c3e520a",
+      "reason": "audit: removed (the same GLB as 3dwh_4c9a40b724477e3c33197fe5; vision quality 2 (<= 2))"
+     },
+     {
+      "id": "gen_potted_plant_industrial_3_23920a8f",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_57972124483145b4a4bbf4fd4caca6e7",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_71b53eaee72e4a829a9256a7bcfb7dab",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_9dd44cda400c48a083ffd9480067f04f",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_b99c584dd11d4691b5d13303383371e5",
+      "reason": "styles ['mediterranean'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_bf122cd0854e422bb94704552c64810b",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_0f768ada18615ad76e7e9f59",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_0fe8cd77a0e74202f9f12142",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_1097864c4508a042341822ac",
+      "reason": "styles ['industrial', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_16feb7c4ec4a325e693834c7",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_1cd75666af690bfed9fc5a8a",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_1d13c0a8510409d30c46e992",
+      "reason": "styles ['industrial', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_22ddf337c20c3a65d66d5632",
+      "reason": "styles ['industrial', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_246a9a24bd001735f3e74bc7",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_2788683866a872c0e08b087f",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_2d272f4441ef44d36441cb85",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_3ca51944db9df428d5f09afc",
+      "reason": "styles ['industrial', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_42c9f7dc10490b7deb9b203f",
+      "reason": "styles ['japandi', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_4ce0ae4eb9fcd2f0e440de2a",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_4d0d32e27d3dd4435de64eb8",
+      "reason": "styles ['classic', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_517279a0b7d4f29cb639e8a4",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_5a5ea9f625e0ce2d74d293b6",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_69da12d880e2aa0946b7c5b1",
+      "reason": "styles ['industrial', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_8512ac158d0f8579041a1fc2",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_93911ea73e9c2492f926d10c",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_9751e63a91beb9534dd2e3d2",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_a2f37ab7c9d04984553ed724",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_b07bdea00ba6a8acce6d00a0",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_b78f1415b79512bc529957ed",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_b8533c53496ce42d8744b79f",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_bc043c7af4101cb4451f610b",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_bc0743e8789ee14809491840",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_c2a9fc62b2cf7c211461feb0",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_cc9a735781c180a72cf558ce",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_ccc3470cfac9280baa5bfde7",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_cd3826972bcafc177b8ef5c7",
+      "reason": "styles ['industrial', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_db50136a8469a48849d06006",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_dffb320f2963aeefffa085a5",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_e555db30dd10d653332e0c77",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_f5c8d80269b3645e02e983c2",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_ff80a37ac2088f8b9cb9ad1b",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "3dwh_0b037eda4d89f3fc4499fab4",
+      "reason": "styles ['modern', 'scandinavian'] include neither minimal nor neutral"
+     },
+     {
+      "id": "objaverse_71b53eaee72e4a829a9256a7bcfb7dab",
+      "reason": "styles ['rustic'] include neither minimal nor neutral"
+     },
+     {
+      "id": "objaverse_b99c584dd11d4691b5d13303383371e5",
+      "reason": "styles ['mediterranean'] include neither minimal nor neutral"
+     },
+     {
+      "id": "3dwh_0b037eda4d89f3fc4499fab4",
+      "reason": "styles ['modern', 'scandinavian'] include neither minimal nor neutral"
+     },
+     {
+      "id": "3dwh_1097864c4508a042341822ac",
+      "reason": "styles ['industrial', 'modern'] include neither minimal nor neutral"
+     },
+     {
+      "id": "3dwh_69da12d880e2aa0946b7c5b1",
+      "reason": "styles ['industrial', 'modern'] include neither minimal nor neutral"
+     },
+     {
+      "id": "3dwh_cd3826972bcafc177b8ef5c7",
+      "reason": "styles ['industrial', 'modern'] include neither minimal nor neutral"
+     }
+    ],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| of the uniform scale to the drawn width in 5 % steps, plus the diversity penalty: 1 step per earlier use in another room of the project, 4 steps from the 3. use in a room except for a matched set of chair, bar_stool, office_chair, nightstand, side_table) -> real product -> design shown (tags, fabric colour) -> no other audit vision doubt (type, objects, real product) -> audit vision quality (missing = 3) -> texture maps -> judge quality (missing = 3) -> faces (< 3000 last) -> aspect error -> source (abo, polyhaven, hssd, gso, 3dwh, objaverse, generated) -> id",
+     "rank": 51,
+     "tried": 51,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 4",
+      "audit vision quality 2",
+      "aspect error 0.126",
+      "source objaverse",
+      "faces 24806"
+     ],
+     "passed_over": [
+      {
+       "id": "3dwh_bbacc7d6f448d2958a4091af",
+       "why": "outside the caps (non-uniform 226.3 %, mean scale 0.7264)"
+      },
+      {
+       "id": "3dwh_cc9a735781c180a72cf558ce",
+       "why": "outside the caps (non-uniform 28.6 %, mean scale 0.5671)"
+      },
+      {
+       "id": "3dwh_1cd75666af690bfed9fc5a8a",
+       "why": "outside the caps (non-uniform 57.5 %, mean scale 0.5815)"
+      },
+      {
+       "id": "3dwh_246a9a24bd001735f3e74bc7",
+       "why": "outside the caps (non-uniform 12.0 %, mean scale 0.5844)"
+      },
+      {
+       "id": "3dwh_cb38065c6b0c0109cdddd59e",
+       "why": "outside the caps (non-uniform 19.9 %, mean scale 0.5825)"
+      },
+      {
+       "id": "3dwh_8512ac158d0f8579041a1fc2",
+       "why": "outside the caps (non-uniform 0.1 %, mean scale 0.5058)"
+      },
+      {
+       "id": "3dwh_37938c0ddf4de7b490c20f50",
+       "why": "outside the caps (non-uniform 1.2 %, mean scale 0.4695, height outside the range)"
+      },
+      {
+       "id": "3dwh_2d19bca4402c5c6991d767b7",
+       "why": "outside the caps (non-uniform 0.5 %, mean scale 0.489, height outside the range)"
+      },
+      {
+       "id": "3dwh_0f768ada18615ad76e7e9f59",
+       "why": "outside the caps (non-uniform 47.0 %, mean scale 0.4579, height outside the range)"
+      },
+      {
+       "id": "3dwh_0fe8cd77a0e74202f9f12142",
+       "why": "outside the caps (non-uniform 8.2 %, mean scale 0.6067)"
+      },
+      {
+       "id": "3dwh_5407530ab15149cd71f3b895",
+       "why": "outside the caps (non-uniform 31.1 %, mean scale 0.4406, height outside the range)"
+      },
+      {
+       "id": "3dwh_b07bdea00ba6a8acce6d00a0",
+       "why": "outside the caps (non-uniform 89.7 %, mean scale 0.354, height outside the range)"
+      },
+      {
+       "id": "3dwh_8f2c96eae8529ae5b635d40b",
+       "why": "outside the caps (non-uniform 0.7 %, mean scale 0.4979, height outside the range)"
+      },
+      {
+       "id": "3dwh_dadc463b68a538783cd986b8",
+       "why": "outside the caps (non-uniform 66.1 %, mean scale 0.3897, height outside the range)"
+      },
+      {
+       "id": "3dwh_42c9f7dc10490b7deb9b203f",
+       "why": "outside the caps (non-uniform 5.8 %, mean scale 0.3226)"
+      },
+      {
+       "id": "3dwh_4d0d32e27d3dd4435de64eb8",
+       "why": "outside the caps (non-uniform 0.6 %, mean scale 0.381, height outside the range)"
+      },
+      {
+       "id": "3dwh_16feb7c4ec4a325e693834c7",
+       "why": "outside the caps (non-uniform 20.5 %, mean scale 0.2532)"
+      },
+      {
+       "id": "3dwh_517279a0b7d4f29cb639e8a4",
+       "why": "outside the caps (non-uniform 58.5 %, mean scale 0.3621, height outside the range)"
+      },
+      {
+       "id": "3dwh_93911ea73e9c2492f926d10c",
+       "why": "outside the caps (non-uniform 7.9 %, mean scale 0.3253, height outside the range)"
+      },
+      {
+       "id": "3dwh_1d13c0a8510409d30c46e992",
+       "why": "outside the caps (non-uniform 7.4 %, mean scale 0.2694)"
+      },
+      {
+       "id": "3dwh_3ca51944db9df428d5f09afc",
+       "why": "outside the caps (non-uniform 9.8 %, mean scale 0.4706)"
+      },
+      {
+       "id": "3dwh_7e3f5342e5c70faa686f1de0",
+       "why": "outside the caps (non-uniform 7.8 %, mean scale 0.2546, height outside the range)"
+      },
+      {
+       "id": "3dwh_bc043c7af4101cb4451f610b",
+       "why": "outside the caps (non-uniform 72.9 %, mean scale 0.3605)"
+      },
+      {
+       "id": "3dwh_9751e63a91beb9534dd2e3d2",
+       "why": "outside the caps (non-uniform 12.0 %, mean scale 0.3345)"
+      },
+      {
+       "id": "3dwh_f5c8d80269b3645e02e983c2",
+       "why": "outside the caps (non-uniform 0.6 %, mean scale 0.3868)"
+      },
+      {
+       "id": "3dwh_c1bd83916c957dba2a9e90dc",
+       "why": "outside the caps (non-uniform 1.2 %, mean scale 0.2566)"
+      },
+      {
+       "id": "3dwh_dffb320f2963aeefffa085a5",
+       "why": "outside the caps (non-uniform 12.8 %, mean scale 0.2609)"
+      },
+      {
+       "id": "3dwh_ccc3470cfac9280baa5bfde7",
+       "why": "outside the caps (non-uniform 13.3 %, mean scale 0.2831, height outside the range)"
+      },
+      {
+       "id": "3dwh_bc0743e8789ee14809491840",
+       "why": "outside the caps (non-uniform 25.8 %, mean scale 0.2594)"
+      },
+      {
+       "id": "3dwh_ff80a37ac2088f8b9cb9ad1b",
+       "why": "outside the caps (non-uniform 34.9 %, mean scale 0.3)"
+      },
+      {
+       "id": "3dwh_c2a9fc62b2cf7c211461feb0",
+       "why": "outside the caps (non-uniform 40.3 %, mean scale 0.2611)"
+      },
+      {
+       "id": "3dwh_970678a999381e394ac27f86",
+       "why": "outside the caps (non-uniform 1.7 %, mean scale 0.2755)"
+      },
+      {
+       "id": "3dwh_a2f37ab7c9d04984553ed724",
+       "why": "outside the caps (non-uniform 78.6 %, mean scale 0.2853, height outside the range)"
+      },
+      {
+       "id": "3dwh_4fe7e873992883e61cc8a79c",
+       "why": "outside the caps (non-uniform 1.7 %, mean scale 0.2352)"
+      },
+      {
+       "id": "3dwh_4ce0ae4eb9fcd2f0e440de2a",
+       "why": "outside the caps (non-uniform 8.4 %, mean scale 0.233)"
+      },
+      {
+       "id": "3dwh_db50136a8469a48849d06006",
+       "why": "outside the caps (non-uniform 8.5 %, mean scale 0.2447, height outside the range)"
+      },
+      {
+       "id": "3dwh_cd89c6a8109b82ff0562c56f",
+       "why": "outside the caps (non-uniform 18.1 %, mean scale 0.2119)"
+      },
+      {
+       "id": "3dwh_22ddf337c20c3a65d66d5632",
+       "why": "outside the caps (non-uniform 26.3 %, mean scale 0.2249)"
+      },
+      {
+       "id": "3dwh_b8533c53496ce42d8744b79f",
+       "why": "outside the caps (non-uniform 5.1 %, mean scale 0.2449)"
+      },
+      {
+       "id": "3dwh_4c9a40b724477e3c33197fe5",
+       "why": "outside the caps (non-uniform 21.8 %, mean scale 0.2111)"
+      },
+      {
+       "id": "3dwh_b78f1415b79512bc529957ed",
+       "why": "outside the caps (non-uniform 27.9 %, mean scale 0.2144)"
+      },
+      {
+       "id": "3dwh_c30574797e04f024afd29b37",
+       "why": "outside the caps (non-uniform 0.9 %, mean scale 0.1931, height outside the range)"
+      },
+      {
+       "id": "3dwh_2788683866a872c0e08b087f",
+       "why": "outside the caps (non-uniform 10.6 %, mean scale 0.1886)"
+      },
+      {
+       "id": "3dwh_64adeba9f254c9bf35e0939b",
+       "why": "outside the caps (non-uniform 177.9 %, mean scale 0.1893, height outside the range)"
+      },
+      {
+       "id": "3dwh_5a5ea9f625e0ce2d74d293b6",
+       "why": "outside the caps (non-uniform 7.3 %, mean scale 0.1957, height outside the range)"
+      },
+      {
+       "id": "3dwh_2d272f4441ef44d36441cb85",
+       "why": "outside the caps (non-uniform 12.2 %, mean scale 0.196)"
+      },
+      {
+       "id": "3dwh_e555db30dd10d653332e0c77",
+       "why": "outside the caps (non-uniform 57.9 %, mean scale 0.1834, height outside the range)"
+      },
+      {
+       "id": "3dwh_19002c3d5a6b7605fbb29f98",
+       "why": "outside the caps (non-uniform 7.3 %, mean scale 0.1957, height outside the range)"
+      },
+      {
+       "id": "objaverse_57972124483145b4a4bbf4fd4caca6e7",
+       "why": "outside the caps (non-uniform 2.3 %, mean scale 0.3382, height outside the range)"
+      },
+      {
+       "id": "objaverse_9dd44cda400c48a083ffd9480067f04f",
+       "why": "outside the caps (non-uniform 3.4 %, mean scale 0.4202, height outside the range)"
+      }
+     ]
+    },
+    "glb": "models/objaverse/bf122cd0854e422bb94704552c64810b.glb",
+    "sha256_glb": "adcded7ebb4f10ac19f181148a9a8ac9756a31c4d3678b61012b7cfce91be0c6",
+    "uid": "bf122cd0854e422bb94704552c64810b",
+    "title": "CGT 116 Wk8 Plant",
+    "author": "mlin234",
+    "source_url": "https://sketchfab.com/3d-models/bf122cd0854e422bb94704552c64810b",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"CGT 116 Wk8 Plant\" by mlin234 (https://sketchfab.com/3d-models/bf122cd0854e422bb94704552c64810b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": "none",
+    "name": "CGT 116 Wk8 Plant",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "blinn1SG",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 0.2492,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       51,
+       46,
+       43
+      ]
+     },
+     {
+      "index": 1,
+      "name": "initialShadingGroup",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 0.046,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       51,
+       110,
+       59
+      ]
+     },
+     {
+      "index": 2,
+      "name": "lambert10SG",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 0.2931,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       174,
+       39,
+       39
+      ]
+     },
+     {
+      "index": 3,
+      "name": "lambert11SG",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 0.0357,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       200,
+       141,
+       141
+      ]
+     },
+     {
+      "index": 4,
+      "name": "lambert12SG",
+      "material": "other",
+      "materials": [],
+      "agreed": false,
+      "separable": false,
+      "share": 0.0037,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       190,
+       148,
+       141
+      ],
+      "not_asked": "share"
+     },
+     {
+      "index": 5,
+      "name": "lambert14SG",
+      "material": "other",
+      "materials": [],
+      "agreed": false,
+      "separable": false,
+      "share": 0.0071,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       27,
+       104,
+       61
+      ],
+      "not_asked": "share"
+     },
+     {
+      "index": 6,
+      "name": "lambert16SG",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 0.3579,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       209,
+       200,
+       194
+      ]
+     },
+     {
+      "index": 7,
+      "name": "lambert8SG",
+      "material": "other",
+      "materials": [],
+      "agreed": false,
+      "separable": false,
+      "share": 0.0075,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       125,
+       153,
+       105
+      ],
+      "not_asked": "share"
+     }
+    ],
+    "material_tags": [],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
+    "unit_scale": 0.0254,
+    "texture_maps": {
+     "base_colour": true,
+     "slots_textured": 8,
+     "slots": 8
+    },
+    "faces": 24806,
+    "audit": {
+     "status": "keep",
+     "reasons": [],
+     "fixes": {},
+     "version": "m12",
+     "checked_utc": "2026-10-11T03:00:00Z",
+     "decision_sha": "5ae01385bd315730",
+     "notes": [
+      "units guessed (x0.0254)",
+      "10 part(s) stick out of the main body (+z, up to 0.16 m): an open drawer or a separate prop?"
+     ],
+     "vision_doubt": [
+      "vision quality 2 (<= 2)"
+     ]
+    },
+    "real_product": false,
+    "has_mattress": null,
+    "style_fallback": {
+     "wanted": "scandinavian",
+     "used": "minimal",
+     "chain": [
+      "scandinavian",
+      "minimal",
+      "modern"
+     ],
+     "why": "scandinavian: no potted_plant candidate within 10 % non-uniform scale (Milestone 13: the depth mismatch of the uniform scale to the drawn width) and 0.85..1.2 mean scale (closest: gen_potted_plant_scandinavian_1_04f97c4b at 0.3 % non-uniform, mean scale 0.364); 9 fitted outside the real height 0.3-2.2 m (+-15 %, wenart.furniture.sizes); minimal: no potted_plant candidate within 10 % non-uniform scale (Milestone 13: the depth mismatch of the uniform scale to the drawn width) and 0.85..1.2 mean scale (closest: 3dwh_8512ac158d0f8579041a1fc2 at 0.1 % non-uniform, mean scale 0.5058); 21 fitted outside the real height 0.3-2.2 m (+-15 %, wenart.furniture.sizes); modern: no potted_plant candidate within 10 % non-uniform scale (Milestone 13: the depth mismatch of the uniform scale to the drawn width) and 0.85..1.2 mean scale (closest: 3dwh_8512ac158d0f8579041a1fc2 at 0.1 % non-uniform, mean scale 0.5058); 21 fitted outside the real height 0.3-2.2 m (+-15 %, wenart.furniture.sizes); scandinavian: relaxed caps (15 % non-uniform, 0.75..1.3 mean scale, inside the documented ranges): no potted_plant candidate either"
+    },
+    "caps_relaxed": {
+     "cap": 1.15,
+     "uniform_range": [
+      0.75,
+      1.3
+     ],
+     "why": "no model within the caps; the relaxed caps hold inside the type's documented ranges (docs/milestone13.md §13.2, ladder step 1)"
     },
     "licence_mode": "relaxed",
     "ladder": [
      {
       "step": "library",
-      "result": "not tried",
-      "reason": "the piece is not built (build false): no model is searched"
-     },
-     {
-      "step": "module",
-      "result": "not tried",
-      "reason": "the piece is not built (build false): no model is searched"
-     },
-     {
-      "step": "parametric",
-      "result": "not tried",
-      "reason": "the piece is not built (build false): no model is searched"
+      "result": "used objaverse_bf122cd0854e422bb94704552c64810b",
+      "reason": "relaxed caps inside the documented ranges"
      }
     ],
-    "licence_flag": "none",
-    "commercial_safe": true
+    "commercial_safe": true,
+    "taste": {
+     "loud": false,
+     "main": [
+      83.59,
+      -0.76,
+      7.85
+     ]
+    }
    },
    "status": "unverified",
    "evidence": [
@@ -15372,40 +17252,9 @@
      "reason": "The object's footprint and size match a potted plant, and it lacks a defined front."
     }
    ],
-   "build": false,
+   "build": true,
    "inferred": true,
-   "inferred_reason": "potted_plant: named by an AI pass and the only named type that fits the size (0.21 x 0.20 m), the living + other room and the position (others fitting: floor_lamp)",
-   "drawn_type": "potted_plant",
-   "drawn_footprint": {
-    "center": [
-     6.0409,
-     0.8594
-    ],
-    "size": [
-     0.2087,
-     0.2018
-    ],
-    "rotation_deg": 90.0
-   },
-   "drawn_front_deg": null,
-   "drawn_height": null,
-   "adjusted_by_ai": {
-    "reason": "Small drawn potted_plant blocks door d_L0_001 and move allowance is exhausted; removing it clears the blocked opening.",
-    "round": 2,
-    "log_seq": 3728,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "build": true
-    },
-    "not_furniture": "other"
-   },
-   "library_gap": {
-    "type": "potted_plant",
-    "style": "scandinavian",
-    "step": "none",
-    "used": "nothing (not built)",
-    "reason": "the piece is not built (build false): no model is searched"
-   }
+   "inferred_reason": "potted_plant: named by an AI pass and the only named type that fits the size (0.21 x 0.20 m), the living + other room and the position (others fitting: floor_lamp)"
   },
   {
    "id": "f_L0_013",
@@ -15416,8 +17265,8 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     6.99,
-     1.15
+     6.9917,
+     0.8594
     ],
     "size": [
      0.2087,
@@ -17491,41 +19340,7 @@
    ],
    "build": true,
    "inferred": true,
-   "inferred_reason": "potted_plant: the same drawn block (the same strokes (90 LINE here, within 2%)) and footprint (0.21 x 0.20 m, within 0.01 m) as f_L0_012 (typed potted_plant): one block, one type",
-   "drawn_type": "potted_plant",
-   "drawn_footprint": {
-    "center": [
-     6.9917,
-     0.8594
-    ],
-    "size": [
-     0.2087,
-     0.2018
-    ],
-    "rotation_deg": 90.0
-   },
-   "drawn_front_deg": null,
-   "drawn_height": 1.0,
-   "adjusted_by_ai": {
-    "reason": "Move potted plant f_L0_013 up 0.29 m (within allowance) out of door d_L0_001 strip and toward the wall (F7, F8).",
-    "round": 1,
-    "log_seq": 3558,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "footprint": {
-      "center": [
-       6.9917,
-       0.8594
-      ],
-      "size": [
-       0.2087,
-       0.2018
-      ],
-      "rotation_deg": 90.0
-     },
-     "front_deg": null
-    }
-   }
+   "inferred_reason": "potted_plant: the same drawn block (the same strokes (90 LINE here, within 2%)) and footprint (0.21 x 0.20 m, within 0.01 m) as f_L0_012 (typed potted_plant): one block, one type"
   },
   {
    "id": "f_L0_014",
@@ -28115,31 +29930,7 @@
     }
    ],
    "build": false,
-   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)",
-   "drawn_type": "unknown",
-   "drawn_footprint": {
-    "center": [
-     7.4197,
-     13.901
-    ],
-    "size": [
-     2.4229,
-     0.9765
-    ],
-    "rotation_deg": 158.296
-   },
-   "drawn_front_deg": null,
-   "drawn_height": null,
-   "adjusted_by_ai": {
-    "reason": "The 2.42 x 0.98 m drawn symbol is the dashed outline enclosing the drawn washbasin and bathtub (a dimension/outline mark), not a separate piece of furniture; the code's size/zone table rejects bathtub and gives stair, which fits neither.",
-    "round": 1,
-    "log_seq": 3586,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "build": false
-    },
-    "not_furniture": "dimension_outline"
-   }
+   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)"
   },
   {
    "id": "f_L1_012",
@@ -28150,7 +29941,7 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     5.571,
+     5.6117,
      3.943
     ],
     "size": [
@@ -29002,41 +30793,6 @@
     "group": "sleeping_double",
     "role": "anchor",
     "anchor_id": "f_L1_012"
-   },
-   "drawn_type": "bed_double",
-   "drawn_footprint": {
-    "center": [
-     5.6117,
-     3.943
-    ],
-    "size": [
-     1.5,
-     1.9
-    ],
-    "rotation_deg": 90.0
-   },
-   "drawn_front_deg": 0.0,
-   "drawn_height": 0.5,
-   "adjusted_by_ai": {
-    "reason": "Snap the bed headboard flush to the west wall so the drawn sleeping_double group sits on the wall, clearing G5 and the F3 off-wall findings for the bed and nightstands.",
-    "round": 1,
-    "log_seq": 3538,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "footprint": {
-      "center": [
-       5.6117,
-       3.943
-      ],
-      "size": [
-       1.5,
-       1.9
-      ],
-      "rotation_deg": 90.0
-     },
-     "front_deg": 0.0
-    },
-    "snapped_wall": "w_L1_027"
    }
   },
   {
@@ -30060,31 +31816,7 @@
     }
    ],
    "build": false,
-   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)",
-   "drawn_type": "unknown",
-   "drawn_footprint": {
-    "center": [
-     7.9741,
-     7.9947
-    ],
-    "size": [
-     2.2745,
-     0.8519
-    ],
-    "rotation_deg": 90.0
-   },
-   "drawn_front_deg": null,
-   "drawn_height": null,
-   "adjusted_by_ai": {
-    "reason": "The recognition crop shows a drawn stair (tread lines with a central stringer and a landing), not furniture; the stair retype was rejected (doors_free/inside_room/windows_free), so it is recorded as a non-furniture symbol.",
-    "round": 2,
-    "log_seq": 3748,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "build": false
-    },
-    "not_furniture": "other"
-   }
+   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)"
   },
   {
    "id": "f_L1_015",
@@ -30202,31 +31934,7 @@
     }
    ],
    "build": false,
-   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)",
-   "drawn_type": "unknown",
-   "drawn_footprint": {
-    "center": [
-     6.4427,
-     7.9947
-    ],
-    "size": [
-     2.2745,
-     0.8519
-    ],
-    "rotation_deg": 90.0
-   },
-   "drawn_front_deg": null,
-   "drawn_height": null,
-   "adjusted_by_ai": {
-    "reason": "The recognition crop shows a drawn stair (tread lines with a central stringer and a landing), not furniture; the stair retype was rejected (doors_free/inside_room/windows_free), so it is recorded as a non-furniture symbol.",
-    "round": 2,
-    "log_seq": 3751,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "build": false
-    },
-    "not_furniture": "other"
-   }
+   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)"
   },
   {
    "id": "f_L1_016",
@@ -30237,8 +31945,8 @@
    "source": "from_documents",
    "footprint": {
     "center": [
-     3.01,
-     11.83
+     3.0599,
+     11.8339
     ],
     "size": [
      1.8052,
@@ -31102,40 +32810,6 @@
     "group": "seating",
     "role": "anchor",
     "anchor_id": "f_L1_016"
-   },
-   "drawn_type": "sofa",
-   "drawn_footprint": {
-    "center": [
-     3.0599,
-     11.8339
-    ],
-    "size": [
-     1.8052,
-     0.6761
-    ],
-    "rotation_deg": 270.0
-   },
-   "drawn_front_deg": 180.0,
-   "drawn_height": 0.85,
-   "adjusted_by_ai": {
-    "reason": "Nudge sofa 0.05 m left so its right edge sits on the room outline, clearing the 0.048 m collision (F9) while keeping its back on the wall.",
-    "round": 1,
-    "log_seq": 3584,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "footprint": {
-      "center": [
-       3.0599,
-       11.8339
-      ],
-      "size": [
-       1.8052,
-       0.6761
-      ],
-      "rotation_deg": 270.0
-     },
-     "front_deg": 180.0
-    }
    }
   },
   {
@@ -31626,31 +33300,7 @@
     }
    ],
    "build": false,
-   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)",
-   "drawn_type": "unknown",
-   "drawn_footprint": {
-    "center": [
-     1.628,
-     9.6378
-    ],
-    "size": [
-     1.2,
-     0.55
-    ],
-    "rotation_deg": 180.0
-   },
-   "drawn_front_deg": 90.0,
-   "drawn_height": null,
-   "adjusted_by_ai": {
-    "reason": "The recognition crop shows a plain rectangular outline sitting on the wall line with no furniture detail, a dimension/outline mark rather than a built piece.",
-    "round": 2,
-    "log_seq": 3745,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "build": false
-    },
-    "not_furniture": "dimension_outline"
-   }
+   "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)"
   },
   {
    "id": "f_L1_020",
@@ -32292,9 +33942,9 @@
      0.6,
      0.6
     ],
-    "rotation_deg": 180.0
+    "rotation_deg": 0.0
    },
-   "front_deg": 90.0,
+   "front_deg": null,
    "height": null,
    "asset": {
     "library": "generated",
@@ -33750,40 +35400,6 @@
    },
    "design": {
     "vanity": true
-   },
-   "drawn_type": "washbasin",
-   "drawn_footprint": {
-    "center": [
-     8.1009,
-     11.8002
-    ],
-    "size": [
-     0.6,
-     0.6
-    ],
-    "rotation_deg": 0.0
-   },
-   "drawn_front_deg": null,
-   "drawn_height": null,
-   "adjusted_by_ai": {
-    "reason": "Washbasin front faced a wall 0.00 m ahead (F4); turning the front to 90° faces it into the room.",
-    "round": 1,
-    "log_seq": 3578,
-    "model": "Qwen/Qwen3.8-27B-FP8",
-    "changed": {
-     "footprint": {
-      "center": [
-       8.1009,
-       11.8002
-      ],
-      "size": [
-       0.6,
-       0.6
-      ],
-      "rotation_deg": 0.0
-     },
-     "front_deg": null
-    }
    }
   },
   {
@@ -38882,7 +40498,7 @@
      "method": "ai",
      "confidence": 0.8,
      "model": "Qwen/Qwen3.8-27B-FP8",
-     "text": "candidate 1 of 3 chosen by the vision model: The shoe cabinet is placed against the left wall, keeping the main circulation path clear and providing a balanced, uncluttered entrance look."
+     "text": "candidate 1 of 3 chosen by the vision model: The shoe cabinet is placed against the left wall, keeping the main circulation path clear and providing a balanced, functional entrance layout."
     }
    ],
    "group": {
@@ -43361,9 +44977,9 @@
   "elevation r2 (all): its openings are not checked against the plans (the side needs the north arrow)",
   "elevation r7 (all): its openings are not checked against the plans (the side needs the north arrow)",
   "elevation r8 (all): its openings are not checked against the plans (the side needs the north arrow)",
-  "site: 1 areas read outside the walls of L1 not used (the site is the ground floor's, L0)",
-  "site: 42 decor read outside the walls of L1 not used (the site is the ground floor's, L0)",
-  "levels: 7 level mark(s) read (floor 2, ground_finished 1, slab_top 2, threshold 2); ground: marks; 10 entrance(s): d_L0_001 steps, d_L0_003 steps, d_L0_004 steps, d_L0_006 steps, d_L1_001 none, d_L1_004 none, d_L1_005 none, d_L1_007 none, d_L1_010 none, d_L1_011 none",
+  "site: the labelled outdoor space 'BALKON' (sa_L1_balkon) read outside the walls of L1 is kept: it is built at that level (wenart.levels.outdoor)",
+  "site: 42 decor read outside the walls of L1 not used (the site is the ground floor's, L0); 26 of them repeat the ground plan's symbols at the same place (site.decor_other_levels)",
+  "levels: 7 level mark(s) read (floor 2, ground_finished 1, slab_top 2, threshold 2); ground: marks; 10 entrance(s): d_L0_001 steps, d_L0_003 steps, d_L0_004 none, d_L0_006 none, d_L1_001 none, d_L1_004 none, d_L1_005 none, d_L1_007 none, d_L1_010 none, d_L1_011 none",
   "levels: the ground floor (building z 0) is printed +0.50 in the section: every relative mark of the plans is read +0.50 m lower (one height frame)",
   "levels: f_L0_022 moved to symbols (sym_f_L0_022): a level-mark symbol, not furniture (a small drawn piece around a level mark text: '+0,50'); drawn as unknown 0.88 x 0.34 m",
   "f_L0_023: not furniture (level_mark): drawn on the 'kot' layer(s): level_mark, not furniture (both AI passes said wall_cabinet: the drawing outranks them); moved to the symbols (sy_L0_002)",
@@ -43445,13 +45061,216 @@
       "region_id": "r3"
      }
     ],
+    "stated_area_m2": 22.8,
+    "area_text": "22,80m²",
     "anchor": [
      1.9746,
      0.9031
     ],
     "note": "open balcony outside the outer walls (no walls drawn around it)",
+    "outline_inferred": {
+     "polygon": [
+      [
+       4.3759,
+       0.2
+      ],
+      [
+       4.3759,
+       -1.5748
+      ],
+      [
+       -0.2741,
+       -1.5748
+      ],
+      [
+       -0.2741,
+       2.0252
+      ],
+      [
+       -0.4741,
+       2.0252
+      ],
+      [
+       -0.4741,
+       3.3252
+      ],
+      [
+       0.2,
+       3.3252
+      ],
+      [
+       0.2,
+       3.3
+      ],
+      [
+       4.3,
+       3.3
+      ],
+      [
+       4.3,
+       2.8
+      ],
+      [
+       4.3501,
+       2.8
+      ],
+      [
+       4.35,
+       0.2
+      ]
+     ],
+     "area_m2": 22.835,
+     "stated_m2": 22.8,
+     "off": 0.0015,
+     "layers": [
+      "BALKON"
+     ],
+     "entities": [
+      "LINE:2574BF",
+      "LINE:2574C0",
+      "LINE:2574C1",
+      "LINE:2574C3",
+      "LINE:2574C9",
+      "LINE:271B0F"
+     ],
+     "bridges": [
+      0.4,
+      0.4,
+      0.4,
+      0.4
+     ],
+     "pass": "BALKON",
+     "method": "strokes",
+     "reason": "closed from the 6 stroke(s) on layer(s) 'BALKON' around the label and the facade, 4 gap(s) of up to 0.40 m closed: 22.84 m², 0.2 % off the stated 22.80 m² (within 15 %)",
+     "steps": {
+      "edge": [
+       [
+        -0.4741,
+        3.3252
+       ],
+       [
+        -0.4741,
+        2.0252
+       ]
+      ],
+      "dir": [
+       -1.0,
+       -0.0
+      ],
+      "treads": 2,
+      "tread_m": 0.25,
+      "width_m": 1.3,
+      "entities": [
+       "LINE:2574C7",
+       "LINE:2574CA"
+      ],
+      "reason": "2 drawn tread line(s) 0.25 m apart outside the edge, 1.30 m wide: the space's steps as drawn"
+     },
+     "inferred": true
+    },
     "kind": "other",
-    "build": false
+    "build": false,
+    "space": {
+     "built": true,
+     "id": "os_L0_veranda"
+    }
+   },
+   {
+    "id": "sa_L1_balkon",
+    "level_id": "L1",
+    "label": "BALKON",
+    "label_raw": "BALKON",
+    "polygon": null,
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 1.0,
+      "layer": "YAZıMAHAL",
+      "entity": "TEXT:295843",
+      "text": "BALKON",
+      "region_id": "r4"
+     },
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 1.0,
+      "layer": "YAZıMAHAL",
+      "entity": "TEXT:295844",
+      "text": "11,80m²",
+      "region_id": "r4"
+     }
+    ],
+    "stated_area_m2": 11.8,
+    "area_text": "11,80m²",
+    "anchor": [
+     3.1313,
+     0.6028
+    ],
+    "note": "open balcony outside the outer walls (no walls drawn around it)",
+    "outline_inferred": {
+     "polygon": [
+      [
+       4.376,
+       0.2
+      ],
+      [
+       4.376,
+       -1.5748
+      ],
+      [
+       1.9759,
+       -1.5748
+      ],
+      [
+       1.9759,
+       3.3
+      ],
+      [
+       4.3002,
+       3.3
+      ],
+      [
+       4.3002,
+       2.8
+      ],
+      [
+       4.3502,
+       2.8
+      ],
+      [
+       4.3502,
+       0.2
+      ]
+     ],
+     "area_m2": 11.595,
+     "stated_m2": 11.8,
+     "off": 0.0174,
+     "layers": [
+      "BALKON"
+     ],
+     "entities": [
+      "LINE:257722",
+      "LINE:257724",
+      "LINE:257727"
+     ],
+     "bridges": [
+      0.4,
+      0.4,
+      0.4,
+      0.4
+     ],
+     "pass": "BALKON",
+     "method": "strokes",
+     "reason": "closed from the 3 stroke(s) on layer(s) 'BALKON' around the label and the facade, 4 gap(s) of up to 0.40 m closed: 11.60 m², 1.7 % off the stated 11.80 m² (within 15 %)",
+     "inferred": true
+    },
+    "kind": "other",
+    "build": false,
+    "space": {
+     "built": true,
+     "id": "os_L1_balkon"
+    }
    }
   ],
   "decor": [
@@ -43473,9 +45292,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272B5A",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_002",
@@ -43495,9 +45319,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272B5D",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_003",
@@ -43517,9 +45346,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272B69",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_004",
@@ -43539,9 +45373,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272B6C",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_005",
@@ -43561,9 +45400,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272B60,CIRCLE:272B63,LINE:272B6F",
+      "layer": "AKS YAZI,AKS",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_006",
@@ -43583,9 +45427,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272B66,LINE:272B70",
+      "layer": "AKS,AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_007",
@@ -43605,9 +45454,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:2729F1",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_008",
@@ -43627,9 +45481,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272810",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_009",
@@ -43649,9 +45508,15 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:271B0D,CIRCLE:272BF1,LINE:272BEF,LINE:272BF0,LINE:2943FB,LINE:294AB7,LINE:294AB8,LINE:294AB9,LINE:294ABA,LINE:294BAE,LINE:294BAF,LINE:294BB0,LINE:294BB1,LINE:294BB2,LINE:294BB3,LINE:294BB4,LINE:294BB5,LINE:294BB6,LINE:294BB7,LINE:294BB8,LINE:294BB9,LINE:294BBA,LINE:298B0D,LINE:298D5F",
+      "layer": "TARAMA,aks merkezleri,KOLON,iç yatay",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "column",
+    "inferred": true,
+    "type_reason": "drawn on 'KOLON': a column; built as a post of the veranda os_L0_veranda",
+    "built_by": "os_L0_veranda"
    },
    {
     "id": "sd_L0_010",
@@ -43671,9 +45536,15 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:271B0E,CIRCLE:272BEE,LINE:272BEC,LINE:272BED,LINE:294AB4,LINE:294AB5,LINE:294AB6,LINE:294BA0,LINE:294BA1,LINE:294BA2,LINE:294BA3,LINE:294BA4,LINE:294BA5,LINE:294BA6,LINE:294BA7,LINE:294BA8,LINE:294BA9,LINE:294BAA,LINE:294BAB,LINE:294BAC,LINE:294BAD,LINE:298B01,LINE:298B02,LINE:298C19,LINE:298C30,LINE:298C47",
+      "layer": "TARAMA,aks merkezleri,KOLON",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "column",
+    "inferred": true,
+    "type_reason": "drawn on 'KOLON': a column; built as a post of the veranda os_L0_veranda",
+    "built_by": "os_L0_veranda"
    },
    {
     "id": "sd_L0_011",
@@ -43693,9 +45564,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "LINE:257570,LINE:25756B",
+      "layer": "DENIZLIK,kapı pen. yazısı",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "window_sill",
+    "inferred": true,
+    "type_reason": "drawn on 'DENIZLIK': a window sill or coping line; not built"
    },
    {
     "id": "sd_L0_012",
@@ -43715,9 +45591,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:2729EE",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_013",
@@ -43737,9 +45618,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:27280D",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_014",
@@ -43759,9 +45645,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "LINE:298891,LINE:298895-298897,LINE:298899,ARC:29889A,ARC:29889C,ARC:2988A0,ARC:2988A2,ARC:2988AB,ARC:2988AD,ARC:2988B1,ARC:2988B3,LINE:29889B,LINE:29889D,LINE:29889E,LINE:29889F,LINE:2988A1,LINE:2988A3,LINE:2988A4,LINE:2988A5,LINE:2988A6,LINE:2988A7,LINE:2988A8,LINE:2988A9,LINE:2988AA,LINE:2988AC,LINE:2988AE,LINE:2988AF,LINE:2988B0,LINE:2988B2,LINE:2988B4,LINE:298A05,LINE:298A06,LINE:298A1C,LINE:298D1C,LINE:298D35,LINE:298D42,LINE:298D44",
+      "layer": "KAPI,TARAMA",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "door_symbol",
+    "inferred": true,
+    "type_reason": "drawn on 'KAPI': a door symbol; not built"
    },
    {
     "id": "sd_L0_015",
@@ -43781,9 +45672,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:25B05E,LINE:25B05F,LINE:25B060,LINE:2989A4,LINE:2989B9,LINE:2989BC,LINE:2989BF,LINE:2989D2,LINE:298BDA,LINE:298BF3,LINE:298BF4,LINE:298C0D,LINE:298C53",
+      "layer": "TARAMA,kot",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "level_mark",
+    "inferred": true,
+    "type_reason": "drawn on 'kot': a level mark symbol; not built"
    },
    {
     "id": "sd_L0_016",
@@ -43803,9 +45699,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "LINE:294502,LINE:298984,LINE:29896C,LINE:298B26,LINE:298B27",
+      "layer": "TARAMA,iç yatay",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "hatch",
+    "inferred": true,
+    "type_reason": "drawn on 'TARAMA': a hatch; not built"
    },
    {
     "id": "sd_L0_017",
@@ -43825,9 +45726,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "LINE:2719F2,LINE:2719F7",
+      "layer": "DENIZLIK,kapı pen. yazısı",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "window_sill",
+    "inferred": true,
+    "type_reason": "drawn on 'DENIZLIK': a window sill or coping line; not built"
    },
    {
     "id": "sd_L0_018",
@@ -43847,9 +45753,15 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "LINE:2574C3,LINE:2574C4,LINE:2574C5,LINE:2574C8,LINE:2574C9,LINE:2574CA,LINE:2574CB",
+      "layer": "BALKON",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "outdoor_space_detail",
+    "inferred": true,
+    "type_reason": "drawn on 'BALKON': a detail of an outdoor space (its edge or steps); built with the veranda os_L0_veranda (its drawn steps or edge)",
+    "built_by": "os_L0_veranda"
    },
    {
     "id": "sd_L0_019",
@@ -43869,9 +45781,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:2729EB",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_020",
@@ -43891,9 +45808,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:27280A",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_021",
@@ -43913,9 +45835,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "LINE:271A1B,LINE:271A20",
+      "layer": "DENIZLIK,kapı pen. yazısı",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "window_sill",
+    "inferred": true,
+    "type_reason": "drawn on 'DENIZLIK': a window sill or coping line; not built"
    },
    {
     "id": "sd_L0_022",
@@ -43935,9 +45862,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:2729E8",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_023",
@@ -43957,9 +45889,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272807",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_024",
@@ -43979,9 +45916,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "LINE:257595,LINE:25759A",
+      "layer": "DENIZLIK,kapı pen. yazısı",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "window_sill",
+    "inferred": true,
+    "type_reason": "drawn on 'DENIZLIK': a window sill or coping line; not built"
    },
    {
     "id": "sd_L0_025",
@@ -44001,9 +45943,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272D6C,LINE:272D6D,LINE:272D6F",
+      "layer": "kot",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "level_mark",
+    "inferred": true,
+    "type_reason": "drawn on 'kot': a level mark symbol; not built"
    },
    {
     "id": "sd_L0_026",
@@ -44023,9 +45970,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:2729E5",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_027",
@@ -44045,9 +45997,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272804",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_028",
@@ -44067,9 +46024,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "LINE:295697,LINE:2578C3",
+      "layer": "DENIZLIK,POZ",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "window_sill",
+    "inferred": true,
+    "type_reason": "drawn on 'DENIZLIK': a window sill or coping line; not built"
    },
    {
     "id": "sd_L0_029",
@@ -44089,9 +46051,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:2729E2",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_030",
@@ -44111,9 +46078,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272801",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_031",
@@ -44133,9 +46105,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:2729DF",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_032",
@@ -44155,9 +46132,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:2727FE",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_033",
@@ -44177,9 +46159,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:2729DC",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_034",
@@ -44199,9 +46186,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:2727F0",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_035",
@@ -44221,9 +46213,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "LINE:257953,LINE:2953E5,LINE:2953E6,LINE:2953E7",
+      "layer": "DENIZLIK,POZ",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "window_sill",
+    "inferred": true,
+    "type_reason": "drawn on 'DENIZLIK': a window sill or coping line; not built"
    },
    {
     "id": "sd_L0_036",
@@ -44243,9 +46240,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "LINE:25797E,LINE:2951CE,LINE:2951CF,LINE:2951D0",
+      "layer": "DENIZLIK,POZ",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "window_sill",
+    "inferred": true,
+    "type_reason": "drawn on 'DENIZLIK': a window sill or coping line; not built"
    },
    {
     "id": "sd_L0_037",
@@ -44265,9 +46267,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272B4E,LINE:272B59",
+      "layer": "AKS,AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_038",
@@ -44287,9 +46294,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272B48,CIRCLE:272B4B,LINE:272B57",
+      "layer": "AKS YAZI,AKS",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_039",
@@ -44309,9 +46321,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:2727F2",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_040",
@@ -44331,9 +46348,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272B45",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_041",
@@ -44353,9 +46375,14 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272B51",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    },
    {
     "id": "sd_L0_042",
@@ -44375,12 +46402,1069 @@
       "method": "vector",
       "confidence": 0.9,
       "entity": "CIRCLE:272B54",
+      "layer": "AKS YAZI",
       "region_id": "r3"
      }
-    ]
+    ],
+    "drawn_kind": "other",
+    "inferred_as": "axis_bubble",
+    "inferred": true,
+    "type_reason": "drawn on 'AKS YAZI': a structural grid bubble (the axis label), drawing annotation; not built"
    }
   ],
   "openings": [],
+  "decor_other_levels": [
+   {
+    "id": "sd_L1_001",
+    "level_id": "L1",
+    "center": [
+     0.3259,
+     -4.2748
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_001",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:27364D",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_001 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_002",
+    "level_id": "L1",
+    "center": [
+     1.9759,
+     -4.2748
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_002",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273650",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_002 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_003",
+    "level_id": "L1",
+    "center": [
+     5.876,
+     -4.2748
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_003",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:27365C",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_003 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_004",
+    "level_id": "L1",
+    "center": [
+     8.526,
+     -4.2748
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_004",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:27365F",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_004 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_005",
+    "level_id": "L1",
+    "center": [
+     3.8556,
+     -4.2496
+    ],
+    "size": [
+     1.3393,
+     0.7814
+    ],
+    "same_as": "sd_L0_005",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273653,CIRCLE:273656,LINE:273662",
+      "layer": "AKS YAZI,AKS",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_005 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_006",
+    "level_id": "L1",
+    "center": [
+     4.776,
+     -4.1248
+    ],
+    "size": [
+     0.6,
+     0.9
+    ],
+    "same_as": "sd_L0_006",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273659,LINE:273663",
+      "layer": "AKS,AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_006 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_007",
+    "level_id": "L1",
+    "center": [
+     -3.4609,
+     -1.5748
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_007",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:27361B",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_007 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_008",
+    "level_id": "L1",
+    "center": [
+     11.3127,
+     -1.5748
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": null,
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273633",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'AKS YAZI' (axis_bubble): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_009",
+    "level_id": "L1",
+    "center": [
+     4.3333,
+     -0.7848
+    ],
+    "size": [
+     0.4853,
+     1.98
+    ],
+    "same_as": null,
+    "inferred_as": "column",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:257721-257722,LINE:294950-294951,LINE:298506,LINE:298513,LINE:298520,LINE:298547,LINE:298554,LINE:298561,LINE:298665,LINE:298680-298688,CIRCLE:271B0A,LINE:29494F,LINE:294A48,LINE:294A4A,LINE:294A4B,LINE:294A4F,LINE:294A50,LINE:294A51,LINE:294A52,LINE:294A53,LINE:294A54,LINE:29852D,LINE:29853A,LINE:29856C",
+      "layer": "TARAMA,BALKON,KOLON",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'KOLON' (column): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_010",
+    "level_id": "L1",
+    "center": [
+     6.3252,
+     0.0203
+    ],
+    "size": [
+     2.11,
+     0.3194
+    ],
+    "same_as": "sd_L0_011",
+    "inferred_as": "window_sill",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:257699,LINE:25769E",
+      "layer": "DENIZLIK,kapı pen. yazısı",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_011 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_011",
+    "level_id": "L1",
+    "center": [
+     3.1898,
+     0.0269
+    ],
+    "size": [
+     0.9266,
+     0.3567
+    ],
+    "same_as": null,
+    "inferred_as": "level_mark",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:298501,LINE:298621,CIRCLE:25B062,LINE:25B063,LINE:25B064,LINE:29850B,LINE:29850C,LINE:29850D,LINE:29850E,LINE:29850F,LINE:2985C1,LINE:2985C2,LINE:2985DB,LINE:2985EA,LINE:2985F3,LINE:29860A",
+      "layer": "TARAMA,kot",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'kot' (level_mark): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_012",
+    "level_id": "L1",
+    "center": [
+     -3.4609,
+     0.3252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_012",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273618",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_012 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_013",
+    "level_id": "L1",
+    "center": [
+     11.3127,
+     0.3252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": null,
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273630",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'AKS YAZI' (axis_bubble): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_014",
+    "level_id": "L1",
+    "center": [
+     3.8229,
+     0.5465
+    ],
+    "size": [
+     0.2964,
+     0.3667
+    ],
+    "same_as": null,
+    "inferred_as": "door_symbol",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "ARC:298413,ARC:298415,ARC:298419,ARC:298424,ARC:298426,LINE:298410,LINE:298412,LINE:298414,LINE:298416-298418,LINE:298420-298423,LINE:298425,LINE:298427-298429,LINE:298640,LINE:298657-298658,ARC:29841B,ARC:29842A,ARC:29842C,LINE:29840A,LINE:29840E,LINE:29840F,LINE:29841A,LINE:29841C,LINE:29841D,LINE:29841E,LINE:29841F,LINE:29842B,LINE:29842D,LINE:2984E8,LINE:2984EF,LINE:2984F0,LINE:29863C",
+      "layer": "KAPI,TARAMA",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'KAPI' (door_symbol): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_015",
+    "level_id": "L1",
+    "center": [
+     8.8307,
+     2.325
+    ],
+    "size": [
+     0.3195,
+     1.51
+    ],
+    "same_as": "sd_L0_017",
+    "inferred_as": "window_sill",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:2577DD,LINE:2577E2",
+      "layer": "DENIZLIK,kapı pen. yazısı",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_017 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_016",
+    "level_id": "L1",
+    "center": [
+     4.1347,
+     2.734
+    ],
+    "size": [
+     0.1918,
+     0.3325
+    ],
+    "same_as": null,
+    "inferred_as": "door_symbol",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "ARC:297201,ARC:297203,ARC:297207,ARC:297209,LINE:297200,LINE:297202,LINE:297204-297206,LINE:297208,LINE:298460-298461,LINE:298670,LINE:298674,ARC:2971F0,ARC:2971F2,ARC:2971F6,ARC:2971F8,LINE:2971E7,LINE:2971EB,LINE:2971EC,LINE:2971ED,LINE:2971EF,LINE:2971F1,LINE:2971F3,LINE:2971F4,LINE:2971F5,LINE:2971F7,LINE:2971F9,LINE:2971FA,LINE:2971FB,LINE:2971FC,LINE:2971FD,LINE:2971FE,LINE:2971FF,LINE:29720A,LINE:29845D,LINE:29846D,LINE:29867F",
+      "layer": "KAPI,TARAMA",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'KAPI' (door_symbol): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_017",
+    "level_id": "L1",
+    "center": [
+     2.6208,
+     3.0681
+    ],
+    "size": [
+     0.9104,
+     0.4239
+    ],
+    "same_as": null,
+    "inferred_as": "window_sill",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:298438-298439,LINE:298585,LINE:271B30,LINE:29474B,LINE:29474C,LINE:29474D,LINE:29843C,LINE:29843D,LINE:29843E,LINE:29844A,LINE:29859F,LINE:2985B8,LINE:2985D2,LINE:2985E9",
+      "layer": "TARAMA,DENIZLIK,POZ",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'DENIZLIK' (window_sill): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_018",
+    "level_id": "L1",
+    "center": [
+     -3.4609,
+     3.4252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_019",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273615",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_019 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_019",
+    "level_id": "L1",
+    "center": [
+     11.3127,
+     3.4252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": null,
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:27362D",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'AKS YAZI' (axis_bubble): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_020",
+    "level_id": "L1",
+    "center": [
+     8.8307,
+     4.725
+    ],
+    "size": [
+     0.3195,
+     1.51
+    ],
+    "same_as": "sd_L0_021",
+    "inferred_as": "window_sill",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:257820,LINE:257825",
+      "layer": "DENIZLIK,kapı pen. yazısı",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_021 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_021",
+    "level_id": "L1",
+    "center": [
+     0.021,
+     6.375
+    ],
+    "size": [
+     0.3193,
+     1.51
+    ],
+    "same_as": null,
+    "inferred_as": "window_sill",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:257852,LINE:25784D",
+      "layer": "DENIZLIK,kapı pen. yazısı",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'DENIZLIK' (window_sill): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_022",
+    "level_id": "L1",
+    "center": [
+     -3.4609,
+     6.6252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_022",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273612",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_022 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_023",
+    "level_id": "L1",
+    "center": [
+     11.3127,
+     6.6252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": null,
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:27362A",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'AKS YAZI' (axis_bubble): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_024",
+    "level_id": "L1",
+    "center": [
+     -3.4609,
+     9.2252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_026",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:27360F",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_026 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_025",
+    "level_id": "L1",
+    "center": [
+     11.3127,
+     9.2252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": null,
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273627",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'AKS YAZI' (axis_bubble): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_026",
+    "level_id": "L1",
+    "center": [
+     8.883,
+     9.7752
+    ],
+    "size": [
+     0.424,
+     0.5
+    ],
+    "same_as": null,
+    "inferred_as": "window_sill",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:295030,LINE:2579B0,LINE:29502E,LINE:29502F",
+      "layer": "DENIZLIK,POZ",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'DENIZLIK' (window_sill): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_027",
+    "level_id": "L1",
+    "center": [
+     -0.0312,
+     11.325
+    ],
+    "size": [
+     0.4239,
+     1.41
+    ],
+    "same_as": "sd_L0_028",
+    "inferred_as": "window_sill",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:2578EA,LINE:29556B",
+      "layer": "DENIZLIK,POZ",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_028 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_028",
+    "level_id": "L1",
+    "center": [
+     -3.4609,
+     11.3252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_029",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:27360C",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_029 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_029",
+    "level_id": "L1",
+    "center": [
+     11.3127,
+     11.3252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": null,
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273624",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'AKS YAZI' (axis_bubble): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_030",
+    "level_id": "L1",
+    "center": [
+     -3.4609,
+     13.4252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_031",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273609",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_031 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_031",
+    "level_id": "L1",
+    "center": [
+     11.3127,
+     13.4252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": null,
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273621",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'AKS YAZI' (axis_bubble): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_032",
+    "level_id": "L1",
+    "center": [
+     1.9759,
+     13.7821
+    ],
+    "size": [
+     1.95,
+     0.4243
+    ],
+    "same_as": null,
+    "inferred_as": "window_sill",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:257913,LINE:295448-295449,LINE:2946E1,LINE:2946E2,LINE:2946F0,LINE:2946F1,LINE:2947BF,LINE:2947C0,LINE:2947C1,LINE:2947C2,LINE:2947C3,LINE:2947C4,LINE:29544A",
+      "layer": "DUVAR,SIVA,DENIZLIK,POZ",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'DENIZLIK' (window_sill): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_033",
+    "level_id": "L1",
+    "center": [
+     -3.4609,
+     14.4252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_033",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273606",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_033 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_034",
+    "level_id": "L1",
+    "center": [
+     11.3127,
+     14.4252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": null,
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:27361E",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "drawn outside the walls of an upper plan on 'AKS YAZI' (axis_bubble): no symbol of the ground's site, not built"
+   },
+   {
+    "id": "sd_L1_035",
+    "level_id": "L1",
+    "center": [
+     4.6759,
+     14.7821
+    ],
+    "size": [
+     0.7,
+     0.4243
+    ],
+    "same_as": "sd_L0_035",
+    "inferred_as": "window_sill",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:257978,LINE:295313-295315",
+      "layer": "DENIZLIK,POZ",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_035 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_036",
+    "level_id": "L1",
+    "center": [
+     6.576,
+     14.7821
+    ],
+    "size": [
+     0.5,
+     0.4243
+    ],
+    "same_as": "sd_L0_036",
+    "inferred_as": "window_sill",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "LINE:257997,LINE:295100,LINE:2950FE,LINE:2950FF",
+      "layer": "DENIZLIK,POZ",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_036 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_037",
+    "level_id": "L1",
+    "center": [
+     4.776,
+     16.8752
+    ],
+    "size": [
+     0.6,
+     0.9
+    ],
+    "same_as": "sd_L0_037",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273641,LINE:27364B",
+      "layer": "AKS,AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_037 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_038",
+    "level_id": "L1",
+    "center": [
+     3.8556,
+     16.9999
+    ],
+    "size": [
+     0.7814,
+     1.3393
+    ],
+    "same_as": "sd_L0_038",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:27363B,CIRCLE:27363E,LINE:27364A",
+      "layer": "AKS YAZI,AKS",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_038 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_039",
+    "level_id": "L1",
+    "center": [
+     0.3259,
+     17.0252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_039",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273635",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_039 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_040",
+    "level_id": "L1",
+    "center": [
+     1.9759,
+     17.0252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_040",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273638",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_040 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_041",
+    "level_id": "L1",
+    "center": [
+     5.876,
+     17.0252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_041",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273644",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_041 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   },
+   {
+    "id": "sd_L1_042",
+    "level_id": "L1",
+    "center": [
+     8.526,
+     17.0252
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "same_as": "sd_L0_042",
+    "inferred_as": "axis_bubble",
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 0.9,
+      "entity": "CIRCLE:273647",
+      "layer": "AKS YAZI",
+      "region_id": "r4"
+     }
+    ],
+    "reason": "the same drawn symbol as sd_L0_042 of L0 (the upper plan repeats the ground plan's symbols at the same place)"
+   }
+  ],
   "ground": {
    "levels": [
     {
@@ -44451,6 +47535,484 @@
   "parking": [],
   "pools": [],
   "plot": null,
+  "outdoor_spaces": [
+   {
+    "id": "os_L0_veranda",
+    "area_id": "sa_L0_veranda",
+    "label": "VERANDA",
+    "kind": "veranda",
+    "cover": "roof",
+    "word": "veranda",
+    "level_id": "L0",
+    "polygon": [
+     [
+      4.3759,
+      0.2
+     ],
+     [
+      4.3759,
+      -1.5748
+     ],
+     [
+      -0.2741,
+      -1.5748
+     ],
+     [
+      -0.2741,
+      2.0252
+     ],
+     [
+      -0.4741,
+      2.0252
+     ],
+     [
+      -0.4741,
+      3.3252
+     ],
+     [
+      0.2,
+      3.3252
+     ],
+     [
+      0.2,
+      3.3
+     ],
+     [
+      4.3,
+      3.3
+     ],
+     [
+      4.3,
+      2.8
+     ],
+     [
+      4.3501,
+      2.8
+     ],
+     [
+      4.35,
+      0.2
+     ]
+    ],
+    "area_m2": 22.835,
+    "stated_area_m2": 22.8,
+    "stated_text": "22,80m²",
+    "method": "strokes",
+    "z": 0.0,
+    "z_source": "the level mark(s) +0,50 inside it",
+    "ground": {
+     "min": -0.5,
+     "mean": -0.5,
+     "max": -0.5
+    },
+    "elevated": false,
+    "doors": [
+     "d_L0_004",
+     "d_L0_006"
+    ],
+    "steps": {
+     "edge": [
+      [
+       -0.4741,
+       3.3252
+      ],
+      [
+       -0.4741,
+       2.0252
+      ]
+     ],
+     "dir": [
+      -1.0,
+      -0.0
+     ],
+     "treads": 2,
+     "tread_m": 0.25,
+     "width_m": 1.3,
+     "entities": [
+      "LINE:2574C7",
+      "LINE:2574CA"
+     ],
+     "reason": "2 drawn tread line(s) 0.25 m apart outside the edge, 1.30 m wide: the space's steps as drawn",
+     "source": "drawn"
+    },
+    "columns": [
+     {
+      "id": "sd_L0_009",
+      "center": [
+       4.3637,
+       -1.5724
+      ],
+      "size_m": 0.425
+     },
+     {
+      "id": "sd_L0_010",
+      "center": [
+       1.9544,
+       -1.5548
+      ],
+      "size_m": 0.525
+     }
+    ],
+    "roof": {
+     "kind": "light_roof",
+     "polygon": [
+      [
+       1.9759,
+       -1.5748
+      ],
+      [
+       1.9759,
+       3.3
+      ],
+      [
+       0.4507,
+       3.3
+      ],
+      [
+       0.4507,
+       3.175
+      ],
+      [
+       0.2007,
+       3.175
+      ],
+      [
+       0.2007,
+       3.3
+      ],
+      [
+       0.2,
+       3.3
+      ],
+      [
+       0.2,
+       3.3252
+      ],
+      [
+       -0.4741,
+       3.3252
+      ],
+      [
+       -0.4741,
+       2.0252
+      ],
+      [
+       -0.2741,
+       2.0252
+      ],
+      [
+       -0.2741,
+       -1.5748
+      ]
+     ],
+     "area_m2": 11.209,
+     "top_z": 3.0,
+     "thickness": 0.18,
+     "fall": 0.02,
+     "plane": {
+      "origin": [
+       -0.4741,
+       3.3252
+      ],
+      "dir": [
+       0.142139,
+       -0.989847
+      ]
+     },
+     "open_edges": [
+      [
+       [
+        0.2,
+        3.3252
+       ],
+       [
+        -0.4741,
+        3.3252
+       ]
+      ],
+      [
+       [
+        -0.4741,
+        3.3252
+       ],
+       [
+        -0.4741,
+        2.0252
+       ]
+      ],
+      [
+       [
+        -0.4741,
+        2.0252
+       ],
+       [
+        -0.2741,
+        2.0252
+       ]
+      ],
+      [
+       [
+        -0.2741,
+        2.0252
+       ],
+       [
+        -0.2741,
+        -1.5748
+       ]
+      ],
+      [
+       [
+        -0.2741,
+        -1.5748
+       ],
+       [
+        1.9759,
+        -1.5748
+       ]
+      ]
+     ],
+     "posts": [
+      {
+       "center": [
+        1.9544,
+        -1.5548
+       ],
+       "size_m": 0.525,
+       "source": "drawn",
+       "id": "sd_L0_010",
+       "z0": 0.0,
+       "z1": 2.716,
+       "carries": "the roof of os_L0_veranda"
+      },
+      {
+       "center": [
+        -0.2356,
+        -1.4879
+       ],
+       "size_m": 0.15,
+       "source": "inferred",
+       "id": null,
+       "z0": 0.0,
+       "z1": 2.724,
+       "carries": "the roof of os_L0_veranda"
+      }
+     ],
+     "reason": "light roof over 11.21 m² of the veranda (the part no floor or space above covers), its top at the floor line of L1 (+3.00 m), 0.18 m thick, falling 2 % away from the building; 1 drawn column(s) and 1 inferred post(s) (inferred)",
+     "inferred": true
+    },
+    "inferred": true,
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 1.0,
+      "layer": "YAZıMAHAL",
+      "entity": "TEXT:29585C",
+      "text": "VERANDA",
+      "region_id": "r3"
+     },
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 1.0,
+      "layer": "YAZıMAHAL",
+      "entity": "TEXT:29585D",
+      "text": "22,80m²",
+      "region_id": "r3"
+     },
+     {
+      "file": "real06.dwg",
+      "method": "inferred",
+      "confidence": 0.6,
+      "rule": "outdoor_space",
+      "text": "strokes: closed from the 6 stroke(s) on layer(s) 'BALKON' around the label and the facade, 4 gap(s) of up to 0.40 m closed: 22.84 m², 0.2 % off the stated 22.80 m² (within 15 %)"
+     }
+    ],
+    "outline": {
+     "layers": [
+      "BALKON"
+     ],
+     "entities": [
+      "LINE:2574BF",
+      "LINE:2574C0",
+      "LINE:2574C1",
+      "LINE:2574C3",
+      "LINE:2574C9",
+      "LINE:271B0F"
+     ],
+     "bridges": [
+      0.4,
+      0.4,
+      0.4,
+      0.4
+     ]
+    },
+    "posts": [
+     {
+      "center": [
+       1.9544,
+       -1.5548
+      ],
+      "size_m": 0.525,
+      "source": "drawn",
+      "id": "sd_L0_010",
+      "z0": 0.0,
+      "z1": 2.716,
+      "carries": "the roof of os_L0_veranda"
+     },
+     {
+      "center": [
+       -0.2356,
+       -1.4879
+      ],
+      "size_m": 0.15,
+      "source": "inferred",
+      "id": null,
+      "z0": 0.0,
+      "z1": 2.724,
+      "carries": "the roof of os_L0_veranda"
+     },
+     {
+      "center": [
+       4.3637,
+       -1.5724
+      ],
+      "size_m": 0.425,
+      "source": "drawn",
+      "id": "sd_L0_009",
+      "z0": 0.0,
+      "z1": 2.8,
+      "carries": "the slab of os_L1_balkon"
+     }
+    ],
+    "reason": "veranda 'VERANDA' on L0: 22.84 m² (stated 22.80 m²), strokes; floor +0.00 m (the level mark(s) +0,50 inside it); doors d_L0_004, d_L0_006 open onto it (it is their landing); its edge and steps down to the ground -0.50 m (the drawn steps); light roof over 11.21 m², top +3.00 m; 3 post(s) (2 drawn column(s)) (inferred)"
+   },
+   {
+    "id": "os_L1_balkon",
+    "area_id": "sa_L1_balkon",
+    "label": "BALKON",
+    "kind": "balcony",
+    "cover": null,
+    "word": "balkon",
+    "level_id": "L1",
+    "polygon": [
+     [
+      4.376,
+      0.2
+     ],
+     [
+      4.376,
+      -1.5748
+     ],
+     [
+      1.9759,
+      -1.5748
+     ],
+     [
+      1.9759,
+      3.3
+     ],
+     [
+      4.3002,
+      3.3
+     ],
+     [
+      4.3002,
+      2.8
+     ],
+     [
+      4.3502,
+      2.8
+     ],
+     [
+      4.3502,
+      0.2
+     ]
+    ],
+    "area_m2": 11.595,
+    "stated_area_m2": 11.8,
+    "stated_text": "11,80m²",
+    "method": "strokes",
+    "z": 3.0,
+    "z_source": "the level mark(s) +3,50 inside it",
+    "ground": {
+     "min": -0.5,
+     "mean": -0.5,
+     "max": -0.5
+    },
+    "elevated": true,
+    "doors": [
+     "d_L1_007",
+     "d_L1_011"
+    ],
+    "steps": null,
+    "columns": [
+     {
+      "id": "sd_L0_009",
+      "center": [
+       4.3637,
+       -1.5724
+      ],
+      "size_m": 0.425
+     },
+     {
+      "id": "sd_L0_010",
+      "center": [
+       1.9544,
+       -1.5548
+      ],
+      "size_m": 0.525
+     }
+    ],
+    "roof": null,
+    "inferred": true,
+    "evidence": [
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 1.0,
+      "layer": "YAZıMAHAL",
+      "entity": "TEXT:295843",
+      "text": "BALKON",
+      "region_id": "r4"
+     },
+     {
+      "file": "real06.dwg",
+      "method": "vector",
+      "confidence": 1.0,
+      "layer": "YAZıMAHAL",
+      "entity": "TEXT:295844",
+      "text": "11,80m²",
+      "region_id": "r4"
+     },
+     {
+      "file": "real06.dwg",
+      "method": "inferred",
+      "confidence": 0.6,
+      "rule": "outdoor_space",
+      "text": "strokes: closed from the 3 stroke(s) on layer(s) 'BALKON' around the label and the facade, 4 gap(s) of up to 0.40 m closed: 11.60 m², 1.7 % off the stated 11.80 m² (within 15 %)"
+     }
+    ],
+    "outline": {
+     "layers": [
+      "BALKON"
+     ],
+     "entities": [
+      "LINE:257722",
+      "LINE:257724",
+      "LINE:257727"
+     ],
+     "bridges": [
+      0.4,
+      0.4,
+      0.4,
+      0.4
+     ]
+    },
+    "posts": [],
+    "reason": "balcony 'BALKON' on L1: 11.60 m² (stated 11.80 m²), strokes; floor +3.00 m (the level mark(s) +3,50 inside it); doors d_L1_007, d_L1_011 open onto it (it is their landing); a slab with a guard on its open edges (inferred)"
+   }
+  ],
   "entrances": [
    {
     "door_id": "d_L0_001",
@@ -44621,27 +48183,10 @@
     "width": 0.75,
     "half_t": 0.125,
     "side": "left",
-    "solution": "steps",
-    "steps": {
-     "count": 4,
-     "riser": 0.125,
-     "tread": 0.33,
-     "rule_2r_t": 0.58,
-     "flights": [
-      4
-     ],
-     "intermediate_landings": 0,
-     "width": 1.35,
-     "handrails": true,
-     "cheek_walls": true,
-     "run": 0.99
-    },
+    "solution": "none",
+    "steps": null,
     "ramp": null,
-    "landing": {
-     "width": 1.35,
-     "depth": 1.2,
-     "z": 0.0
-    },
+    "landing": null,
     "main": true,
     "drawn": false,
     "inferred": true,
@@ -44649,7 +48194,7 @@
     "upper_floor": false,
     "below_ground": false,
     "terrain_lowered": false,
-    "reason": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)",
+    "reason": "opens onto the veranda os_L0_veranda ('VERANDA') at +0.00 m: the veranda is its landing (its own edge and steps lead down to the ground); no steps of its own (inferred)",
     "evidence": [
      {
       "file": "real06.dwg",
@@ -44666,9 +48211,10 @@
       "method": "inferred",
       "confidence": 0.5,
       "rule": "entrance",
-      "text": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)"
+      "text": "opens onto the veranda os_L0_veranda ('VERANDA') at +0.00 m: the veranda is its landing (its own edge and steps lead down to the ground); no steps of its own (inferred)"
      }
     ],
+    "onto": "os_L0_veranda",
     "main_reason": "d_L0_004, a 0.75 m swing door into the living r_L0_salon: no entrance door into a hall; a hinged entrance-size door into a room (inferred); 3 other outside door(s): d_L0_003 (tier 3), d_L0_006 (tier 4), d_L0_001 (tier 4)"
    },
    {
@@ -44694,27 +48240,10 @@
     "width": 2.95,
     "half_t": 0.125,
     "side": "front",
-    "solution": "steps",
-    "steps": {
-     "count": 4,
-     "riser": 0.125,
-     "tread": 0.33,
-     "rule_2r_t": 0.58,
-     "flights": [
-      4
-     ],
-     "intermediate_landings": 0,
-     "width": 3.55,
-     "handrails": true,
-     "cheek_walls": true,
-     "run": 0.99
-    },
+    "solution": "none",
+    "steps": null,
     "ramp": null,
-    "landing": {
-     "width": 3.55,
-     "depth": 1.2,
-     "z": 0.0
-    },
+    "landing": null,
     "main": false,
     "drawn": true,
     "inferred": true,
@@ -44722,7 +48251,7 @@
     "upper_floor": false,
     "below_ground": false,
     "terrain_lowered": false,
-    "reason": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)",
+    "reason": "opens onto the veranda os_L0_veranda ('VERANDA') at +0.00 m: the veranda is its landing (its own edge and steps lead down to the ground); no steps of its own (inferred)",
     "evidence": [
      {
       "file": "real06.dwg",
@@ -44748,9 +48277,10 @@
       "method": "inferred",
       "confidence": 0.5,
       "rule": "entrance",
-      "text": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)"
+      "text": "opens onto the veranda os_L0_veranda ('VERANDA') at +0.00 m: the veranda is its landing (its own edge and steps lead down to the ground); no steps of its own (inferred)"
      }
-    ]
+    ],
+    "onto": "os_L0_veranda"
    },
    {
     "door_id": "d_L1_001",
@@ -44958,11 +48488,11 @@
     "main": false,
     "drawn": true,
     "inferred": true,
-    "into_air": true,
+    "into_air": false,
     "upper_floor": true,
     "below_ground": false,
     "terrain_lowered": false,
-    "reason": "3.50 m above the ground with nothing drawn: a door into the air (L2): an outside stair or no entrance, to decide; on an upper floor: a French balcony or a balcony not drawn",
+    "reason": "opens onto the balcony os_L1_balkon ('BALKON') at +3.00 m: the balcony is its landing (a slab with a guard on its open edges); no steps of its own (inferred)",
     "evidence": [
      {
       "file": "real06.dwg",
@@ -44987,9 +48517,10 @@
       "method": "inferred",
       "confidence": 0.5,
       "rule": "entrance",
-      "text": "3.50 m above the ground with nothing drawn: a door into the air (L2): an outside stair or no entrance, to decide; on an upper floor: a French balcony or a balcony not drawn"
+      "text": "opens onto the balcony os_L1_balkon ('BALKON') at +3.00 m: the balcony is its landing (a slab with a guard on its open edges); no steps of its own (inferred)"
      }
-    ]
+    ],
+    "onto": "os_L1_balkon"
    },
    {
     "door_id": "d_L1_010",
@@ -45077,11 +48608,11 @@
     "main": false,
     "drawn": false,
     "inferred": true,
-    "into_air": true,
+    "into_air": false,
     "upper_floor": true,
     "below_ground": false,
     "terrain_lowered": false,
-    "reason": "3.50 m above the ground with nothing drawn: a door into the air (L2): an outside stair or no entrance, to decide; on an upper floor: a French balcony or a balcony not drawn",
+    "reason": "opens onto the balcony os_L1_balkon ('BALKON') at +3.00 m: the balcony is its landing (a slab with a guard on its open edges); no steps of its own (inferred)",
     "evidence": [
      {
       "file": "real06.dwg",
@@ -45098,9 +48629,10 @@
       "method": "inferred",
       "confidence": 0.5,
       "rule": "entrance",
-      "text": "3.50 m above the ground with nothing drawn: a door into the air (L2): an outside stair or no entrance, to decide; on an upper floor: a French balcony or a balcony not drawn"
+      "text": "opens onto the balcony os_L1_balkon ('BALKON') at +3.00 m: the balcony is its landing (a slab with a guard on its open edges); no steps of its own (inferred)"
      }
-    ]
+    ],
+    "onto": "os_L1_balkon"
    }
   ],
   "plinth": {
@@ -45156,7 +48688,485 @@
    ],
    "note": "the facade plinth is a raised base from the ground to this top (at least min_height)"
   },
-  "platforms": []
+  "platforms": [
+   {
+    "id": "os_L0_veranda",
+    "polygon": [
+     [
+      4.35,
+      0.2
+     ],
+     [
+      4.3501,
+      2.8
+     ],
+     [
+      4.3,
+      2.8
+     ],
+     [
+      4.3,
+      3.3
+     ],
+     [
+      2.25,
+      3.3
+     ],
+     [
+      0.2,
+      3.3
+     ],
+     [
+      0.2,
+      3.3252
+     ],
+     [
+      -0.4741,
+      3.3252
+     ],
+     [
+      -0.4741,
+      2.0252
+     ],
+     [
+      -0.2741,
+      2.0252
+     ],
+     [
+      -0.2741,
+      0.22520000000000007
+     ],
+     [
+      -0.2741,
+      -1.5748
+     ],
+     [
+      2.0508999999999995,
+      -1.5748
+     ],
+     [
+      4.3759,
+      -1.5748
+     ],
+     [
+      4.3759,
+      0.2
+     ]
+    ],
+    "holes": [],
+    "z": 0.0,
+    "kind": "terrace",
+    "source": "outdoor_space",
+    "area_id": "sa_L0_veranda",
+    "z_source": "the level mark(s) +0,50 inside it",
+    "marks": [],
+    "ground": {
+     "min": -0.5,
+     "mean": -0.5,
+     "max": -0.5
+    },
+    "sloped": false,
+    "pools": [],
+    "inferred": true,
+    "material": null,
+    "colour": null,
+    "space": {
+     "kind": "veranda",
+     "label": "VERANDA",
+     "level_id": "L0",
+     "doors": [
+      "d_L0_004",
+      "d_L0_006"
+     ],
+     "cover": "roof",
+     "method": "strokes",
+     "area_m2": 22.835,
+     "stated_area_m2": 22.8
+    },
+    "elevated": false,
+    "steps_drawn": {
+     "edge": [
+      [
+       -0.4741,
+       3.3252
+      ],
+      [
+       -0.4741,
+       2.0252
+      ]
+     ],
+     "dir": [
+      -1.0,
+      -0.0
+     ],
+     "treads": 2,
+     "tread_m": 0.25,
+     "width_m": 1.3,
+     "entities": [
+      "LINE:2574C7",
+      "LINE:2574CA"
+     ],
+     "reason": "2 drawn tread line(s) 0.25 m apart outside the edge, 1.30 m wide: the space's steps as drawn",
+     "source": "drawn"
+    },
+    "roof": {
+     "kind": "light_roof",
+     "polygon": [
+      [
+       1.9759,
+       -1.5748
+      ],
+      [
+       1.9759,
+       3.3
+      ],
+      [
+       0.4507,
+       3.3
+      ],
+      [
+       0.4507,
+       3.175
+      ],
+      [
+       0.2007,
+       3.175
+      ],
+      [
+       0.2007,
+       3.3
+      ],
+      [
+       0.2,
+       3.3
+      ],
+      [
+       0.2,
+       3.3252
+      ],
+      [
+       -0.4741,
+       3.3252
+      ],
+      [
+       -0.4741,
+       2.0252
+      ],
+      [
+       -0.2741,
+       2.0252
+      ],
+      [
+       -0.2741,
+       -1.5748
+      ]
+     ],
+     "area_m2": 11.209,
+     "top_z": 3.0,
+     "thickness": 0.18,
+     "fall": 0.02,
+     "plane": {
+      "origin": [
+       -0.4741,
+       3.3252
+      ],
+      "dir": [
+       0.142139,
+       -0.989847
+      ]
+     },
+     "open_edges": [
+      [
+       [
+        0.2,
+        3.3252
+       ],
+       [
+        -0.4741,
+        3.3252
+       ]
+      ],
+      [
+       [
+        -0.4741,
+        3.3252
+       ],
+       [
+        -0.4741,
+        2.0252
+       ]
+      ],
+      [
+       [
+        -0.4741,
+        2.0252
+       ],
+       [
+        -0.2741,
+        2.0252
+       ]
+      ],
+      [
+       [
+        -0.2741,
+        2.0252
+       ],
+       [
+        -0.2741,
+        -1.5748
+       ]
+      ],
+      [
+       [
+        -0.2741,
+        -1.5748
+       ],
+       [
+        1.9759,
+        -1.5748
+       ]
+      ]
+     ],
+     "posts": [
+      {
+       "center": [
+        1.9544,
+        -1.5548
+       ],
+       "size_m": 0.525,
+       "source": "drawn",
+       "id": "sd_L0_010",
+       "z0": 0.0,
+       "z1": 2.716,
+       "carries": "the roof of os_L0_veranda"
+      },
+      {
+       "center": [
+        -0.2356,
+        -1.4879
+       ],
+       "size_m": 0.15,
+       "source": "inferred",
+       "id": null,
+       "z0": 0.0,
+       "z1": 2.724,
+       "carries": "the roof of os_L0_veranda"
+      }
+     ],
+     "reason": "light roof over 11.21 m² of the veranda (the part no floor or space above covers), its top at the floor line of L1 (+3.00 m), 0.18 m thick, falling 2 % away from the building; 1 drawn column(s) and 1 inferred post(s) (inferred)",
+     "inferred": true
+    },
+    "posts": [
+     {
+      "center": [
+       1.9544,
+       -1.5548
+      ],
+      "size_m": 0.525,
+      "source": "drawn",
+      "id": "sd_L0_010",
+      "z0": 0.0,
+      "z1": 2.716,
+      "carries": "the roof of os_L0_veranda"
+     },
+     {
+      "center": [
+       -0.2356,
+       -1.4879
+      ],
+      "size_m": 0.15,
+      "source": "inferred",
+      "id": null,
+      "z0": 0.0,
+      "z1": 2.724,
+      "carries": "the roof of os_L0_veranda"
+     },
+     {
+      "center": [
+       4.3637,
+       -1.5724
+      ],
+      "size_m": 0.425,
+      "source": "drawn",
+      "id": "sd_L0_009",
+      "z0": 0.0,
+      "z1": 2.8,
+      "carries": "the slab of os_L1_balkon"
+     }
+    ],
+    "space_reason": "veranda 'VERANDA' on L0: 22.84 m² (stated 22.80 m²), strokes; floor +0.00 m (the level mark(s) +0,50 inside it); doors d_L0_004, d_L0_006 open onto it (it is their landing); its edge and steps down to the ground -0.50 m (the drawn steps); light roof over 11.21 m², top +3.00 m; 3 post(s) (2 drawn column(s)) (inferred)",
+    "against_edges": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     14
+    ],
+    "drop_m": 0.5,
+    "rise_m": 0.0,
+    "steps_edge": 7,
+    "railing_edges": [],
+    "edge": "steps",
+    "edge_drops": {
+     "0": 0.0,
+     "1": 0.0,
+     "2": 0.0,
+     "3": 0.0,
+     "4": 0.0,
+     "5": 0.0,
+     "6": 0.5,
+     "7": 0.5,
+     "8": 0.5,
+     "9": 0.5,
+     "10": 0.5,
+     "11": 0.5,
+     "12": 0.5,
+     "13": 0.5,
+     "14": 0.0
+    },
+    "edge_rises": {
+     "6": -0.5,
+     "7": -0.5,
+     "8": -0.5,
+     "9": -0.5,
+     "10": -0.5,
+     "11": -0.5,
+     "12": -0.5,
+     "13": -0.5
+    },
+    "steps_at": {
+     "point": [
+      -0.4741,
+      2.6752
+     ],
+     "width": 1.3,
+     "tread": 0.25,
+     "treads": 2,
+     "source": "drawn"
+    },
+    "reason": "terrace os_L0_veranda: one level at +0.00 m (the level mark(s) +0,50 inside it); ground -0.50..-0.50 m under it; edge: steps (inferred); the labelled veranda 'VERANDA' of L0, the landing of d_L0_004, d_L0_006; the drawn steps on edge 7; edges 0, 1, 2, 3, 4, 5, 14 face the building (its walls retain there: no wall, band or steps)",
+    "stepped": [],
+    "edge_floor": {},
+    "band_blocked": [],
+    "wall_max_m": 0.5,
+    "cap_exceeded": []
+   },
+   {
+    "id": "os_L1_balkon",
+    "polygon": [
+     [
+      4.3502,
+      0.2
+     ],
+     [
+      4.3502,
+      2.8
+     ],
+     [
+      4.3002,
+      2.8
+     ],
+     [
+      4.3002,
+      3.3
+     ],
+     [
+      1.9759,
+      3.3
+     ],
+     [
+      1.9759,
+      0.8626
+     ],
+     [
+      1.9759,
+      -1.5748
+     ],
+     [
+      4.376,
+      -1.5748
+     ],
+     [
+      4.376,
+      0.2
+     ]
+    ],
+    "holes": [],
+    "z": 3.0,
+    "kind": "terrace",
+    "source": "outdoor_space",
+    "area_id": "sa_L1_balkon",
+    "z_source": "the level mark(s) +3,50 inside it",
+    "marks": [],
+    "ground": {
+     "min": -0.5,
+     "mean": -0.5,
+     "max": -0.5
+    },
+    "sloped": false,
+    "pools": [],
+    "inferred": true,
+    "material": null,
+    "colour": null,
+    "space": {
+     "kind": "balcony",
+     "label": "BALKON",
+     "level_id": "L1",
+     "doors": [
+      "d_L1_007",
+      "d_L1_011"
+     ],
+     "cover": null,
+     "method": "strokes",
+     "area_m2": 11.595,
+     "stated_area_m2": 11.8
+    },
+    "elevated": true,
+    "steps_drawn": null,
+    "roof": null,
+    "posts": [],
+    "space_reason": "balcony 'BALKON' on L1: 11.60 m² (stated 11.80 m²), strokes; floor +3.00 m (the level mark(s) +3,50 inside it); doors d_L1_007, d_L1_011 open onto it (it is their landing); a slab with a guard on its open edges (inferred)",
+    "against_edges": [
+     0,
+     1,
+     2,
+     3,
+     8
+    ],
+    "drop_m": 3.5,
+    "rise_m": 0.0,
+    "steps_edge": null,
+    "railing_edges": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "edge": "none",
+    "edge_drops": {
+     "0": 0.0,
+     "1": 0.0,
+     "2": 0.0,
+     "3": 0.0,
+     "4": 3.5,
+     "5": 3.5,
+     "6": 3.5,
+     "7": 3.5,
+     "8": 0.0
+    },
+    "edge_rises": {
+     "4": -3.5,
+     "5": -3.5,
+     "6": -3.5,
+     "7": -3.5
+    },
+    "reason": "terrace os_L1_balkon: one level at +3.00 m (the level mark(s) +3,50 inside it); ground -0.50..-0.50 m under it; edge: none (inferred); the labelled balcony 'BALKON' of L1, the landing of d_L1_007, d_L1_011; elevated: a slab with a guard on its open edges",
+    "wall_max_m": 0.0,
+    "cap_exceeded": []
+   }
+  ]
  },
  "variants": [
   {
@@ -46354,209 +50364,6 @@
      "region_id": "r4"
     }
    ]
-  },
-  {
-   "id": "sym_L0_001",
-   "kind": "dimension_outline",
-   "level_id": "L0",
-   "room_id": "r_L0_banyo",
-   "footprint": {
-    "center": [
-     7.322,
-     13.8852
-    ],
-    "size": [
-     2.544,
-     1.0076
-    ],
-    "rotation_deg": 161.545
-   },
-   "former_piece_id": "f_L0_010",
-   "reason": "The 2.54 x 1.01 m drawn outline is the dashed dimension/outline band around the washbasin and shower bay, not a furniture item.",
-   "crop": "recognition/crops/sym_L0_005_ctx.png",
-   "evidence": [
-    {
-     "file": "recognition/crops/sym_L0_005_ctx.png",
-     "method": "ai",
-     "confidence": 0.8,
-     "text": "dimension_outline: recognition/crops/sym_L0_005_ctx.png",
-     "model": "Qwen/Qwen3.8-27B-FP8"
-    }
-   ]
-  },
-  {
-   "id": "sym_L1_001",
-   "kind": "dimension_outline",
-   "level_id": "L1",
-   "room_id": "r_L1_banyo",
-   "footprint": {
-    "center": [
-     7.4197,
-     13.901
-    ],
-    "size": [
-     2.4229,
-     0.9765
-    ],
-    "rotation_deg": 158.296
-   },
-   "former_piece_id": "f_L1_011",
-   "reason": "The 2.42 x 0.98 m drawn symbol is the dashed outline enclosing the drawn washbasin and bathtub (a dimension/outline mark), not a separate piece of furniture; the code's size/zone table rejects bathtub and gives stair, which fits neither.",
-   "crop": "recognition/crops/sym_L1_006_ctx.png",
-   "evidence": [
-    {
-     "file": "recognition/crops/sym_L1_006_ctx.png",
-     "method": "ai",
-     "confidence": 0.8,
-     "text": "dimension_outline: recognition/crops/sym_L1_006_ctx.png",
-     "model": "Qwen/Qwen3.8-27B-FP8"
-    }
-   ]
-  },
-  {
-   "id": "sym_L0_002",
-   "kind": "other",
-   "level_id": "L0",
-   "room_id": "r_L0_salon",
-   "footprint": {
-    "center": [
-     6.0409,
-     0.8594
-    ],
-    "size": [
-     0.2087,
-     0.2018
-    ],
-    "rotation_deg": 90.0
-   },
-   "former_piece_id": "f_L0_012",
-   "reason": "Small drawn potted_plant blocks door d_L0_001 and move allowance is exhausted; removing it clears the blocked opening.",
-   "crop": "check/r_L0_salon_plan.jpg",
-   "evidence": [
-    {
-     "file": "check/r_L0_salon_plan.jpg",
-     "method": "ai",
-     "confidence": 0.8,
-     "text": "other: plan crop check/r_L0_salon_plan.jpg: small 0.21x0.20 m drawn symbol at [6.04,0.86] sitting on the door d_L0_001 strip; move attempts exhausted (max_tries)",
-     "model": "Qwen/Qwen3.8-27B-FP8"
-    }
-   ]
-  },
-  {
-   "id": "sym_L1_002",
-   "kind": "dimension_outline",
-   "level_id": "L1",
-   "room_id": "r_L1_oda_2",
-   "footprint": {
-    "center": [
-     1.628,
-     9.6378
-    ],
-    "size": [
-     1.2,
-     0.55
-    ],
-    "rotation_deg": 180.0
-   },
-   "former_piece_id": "f_L1_019",
-   "reason": "The recognition crop shows a plain rectangular outline sitting on the wall line with no furniture detail, a dimension/outline mark rather than a built piece.",
-   "crop": "recognition/crops/sym_L1_014_ctx.png",
-   "evidence": [
-    {
-     "file": "recognition/crops/sym_L1_014_ctx.png",
-     "method": "ai",
-     "confidence": 0.8,
-     "text": "dimension_outline: recognition/crops/sym_L1_014_ctx.png",
-     "model": "Qwen/Qwen3.8-27B-FP8"
-    }
-   ]
-  },
-  {
-   "id": "sym_L1_003",
-   "kind": "other",
-   "level_id": "L1",
-   "room_id": "r_L1_soyunma_odasi",
-   "footprint": {
-    "center": [
-     7.9741,
-     7.9947
-    ],
-    "size": [
-     2.2745,
-     0.8519
-    ],
-    "rotation_deg": 90.0
-   },
-   "former_piece_id": "f_L1_014",
-   "reason": "The recognition crop shows a drawn stair (tread lines with a central stringer and a landing), not furniture; the stair retype was rejected (doors_free/inside_room/windows_free), so it is recorded as a non-furniture symbol.",
-   "crop": "recognition/crops/sym_L1_009_ctx.png",
-   "evidence": [
-    {
-     "file": "recognition/crops/sym_L1_009_ctx.png",
-     "method": "ai",
-     "confidence": 0.8,
-     "text": "other: recognition/crops/sym_L1_009_ctx.png",
-     "model": "Qwen/Qwen3.8-27B-FP8"
-    }
-   ]
-  },
-  {
-   "id": "sym_L1_004",
-   "kind": "other",
-   "level_id": "L1",
-   "room_id": "r_L1_soyunma_odasi",
-   "footprint": {
-    "center": [
-     6.4427,
-     7.9947
-    ],
-    "size": [
-     2.2745,
-     0.8519
-    ],
-    "rotation_deg": 90.0
-   },
-   "former_piece_id": "f_L1_015",
-   "reason": "The recognition crop shows a drawn stair (tread lines with a central stringer and a landing), not furniture; the stair retype was rejected (doors_free/inside_room/windows_free), so it is recorded as a non-furniture symbol.",
-   "crop": "recognition/crops/sym_L1_010_ctx.png",
-   "evidence": [
-    {
-     "file": "recognition/crops/sym_L1_010_ctx.png",
-     "method": "ai",
-     "confidence": 0.8,
-     "text": "other: recognition/crops/sym_L1_010_ctx.png",
-     "model": "Qwen/Qwen3.8-27B-FP8"
-    }
-   ]
-  },
-  {
-   "id": "sym_L0_003",
-   "kind": "other",
-   "level_id": "L0",
-   "room_id": "r_L0_salon",
-   "footprint": {
-    "center": [
-     7.9343,
-     3.2773
-    ],
-    "size": [
-     0.2087,
-     0.2018
-    ],
-    "rotation_deg": 0.0
-   },
-   "former_piece_id": "f_L0_009",
-   "reason": "The drawn 0.21x0.20 m symbol is a small scribble mark, not furniture (NR).",
-   "crop": "recognition/crops/sym_L0_004_ctx.png",
-   "evidence": [
-    {
-     "file": "recognition/crops/sym_L0_004_ctx.png",
-     "method": "ai",
-     "confidence": 0.8,
-     "text": "other: recognition/crops/sym_L0_004_ctx.png: a 0.21x0.20 m irregular scribble mark, not a furniture outline",
-     "model": "Qwen/Qwen3.8-27B-FP8"
-    }
-   ]
   }
  ],
  "level_marks": [
@@ -46799,22 +50606,139 @@
   "ground_source": "marks",
   "inferred": [
    {
+    "item": "outdoor space os_L0_veranda",
+    "value": [
+     [
+      4.3759,
+      0.2
+     ],
+     [
+      4.3759,
+      -1.5748
+     ],
+     [
+      -0.2741,
+      -1.5748
+     ],
+     [
+      -0.2741,
+      2.0252
+     ],
+     [
+      -0.4741,
+      2.0252
+     ],
+     [
+      -0.4741,
+      3.3252
+     ],
+     [
+      0.2,
+      3.3252
+     ],
+     [
+      0.2,
+      3.3
+     ],
+     [
+      4.3,
+      3.3
+     ],
+     [
+      4.3,
+      2.8
+     ],
+     [
+      4.3501,
+      2.8
+     ],
+     [
+      4.35,
+      0.2
+     ]
+    ],
+    "reason": "veranda 'VERANDA' on L0: 22.84 m² (stated 22.80 m²), strokes; floor +0.00 m (the level mark(s) +0,50 inside it); doors d_L0_004, d_L0_006 open onto it (it is their landing); its edge and steps down to the ground -0.50 m (the drawn steps); light roof over 11.21 m², top +3.00 m; 3 post(s) (2 drawn column(s)) (inferred)"
+   },
+   {
+    "item": "outdoor space os_L1_balkon",
+    "value": [
+     [
+      4.376,
+      0.2
+     ],
+     [
+      4.376,
+      -1.5748
+     ],
+     [
+      1.9759,
+      -1.5748
+     ],
+     [
+      1.9759,
+      3.3
+     ],
+     [
+      4.3002,
+      3.3
+     ],
+     [
+      4.3002,
+      2.8
+     ],
+     [
+      4.3502,
+      2.8
+     ],
+     [
+      4.3502,
+      0.2
+     ]
+    ],
+    "reason": "balcony 'BALKON' on L1: 11.60 m² (stated 11.80 m²), strokes; floor +3.00 m (the level mark(s) +3,50 inside it); doors d_L1_007, d_L1_011 open onto it (it is their landing); a slab with a guard on its open edges (inferred)"
+   },
+   {
+    "item": "site symbols: axis_bubble",
+    "value": 28,
+    "reason": "28 drawn site symbol(s) typed axis_bubble (a structural grid bubble (the axis label), drawing annotation; not built): sd_L0_001, sd_L0_002, sd_L0_003, sd_L0_004, sd_L0_005, sd_L0_006, sd_L0_007, sd_L0_008 ..."
+   },
+   {
+    "item": "site symbols: column",
+    "value": 2,
+    "reason": "2 drawn site symbol(s) typed column (a column; built with os_L0_veranda): sd_L0_009, sd_L0_010"
+   },
+   {
+    "item": "site symbols: door_symbol",
+    "value": 1,
+    "reason": "1 drawn site symbol(s) typed door_symbol (a door symbol; not built): sd_L0_014"
+   },
+   {
+    "item": "site symbols: hatch",
+    "value": 1,
+    "reason": "1 drawn site symbol(s) typed hatch (a hatch; not built): sd_L0_016"
+   },
+   {
+    "item": "site symbols: level_mark",
+    "value": 2,
+    "reason": "2 drawn site symbol(s) typed level_mark (a level mark symbol; not built): sd_L0_015, sd_L0_025"
+   },
+   {
+    "item": "site symbols: outdoor_space_detail",
+    "value": 1,
+    "reason": "1 drawn site symbol(s) typed outdoor_space_detail (a detail of an outdoor space (its edge or steps); built with os_L0_veranda): sd_L0_018"
+   },
+   {
+    "item": "site symbols: window_sill",
+    "value": 7,
+    "reason": "7 drawn site symbol(s) typed window_sill (a window sill or coping line; not built): sd_L0_011, sd_L0_017, sd_L0_021, sd_L0_024, sd_L0_028, sd_L0_035, sd_L0_036"
+   },
+   {
     "item": "entrance d_L0_001",
     "value": "steps",
     "reason": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)"
    },
    {
     "item": "entrance d_L0_003",
-    "value": "steps",
-    "reason": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)"
-   },
-   {
-    "item": "entrance d_L0_004",
-    "value": "steps",
-    "reason": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)"
-   },
-   {
-    "item": "entrance d_L0_006",
     "value": "steps",
     "reason": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)"
    },
@@ -46886,11 +50810,59 @@
  },
  "needs_review": [
   {
+   "id": "f_L0_009",
+   "kind": "untyped_piece",
+   "reason": "drawn piece 0.21 x 0.20 m in r_L0_salon has no type (AI passes: potted_plant, unknown): not built",
+   "crop": "recognition/crops/sym_L0_004_ctx.png",
+   "room_id": "r_L0_salon",
+   "level_id": "L0"
+  },
+  {
+   "id": "f_L0_010",
+   "kind": "untyped_piece",
+   "reason": "drawn piece 2.54 x 1.01 m in r_L0_banyo has no type (AI passes: not_furniture, unknown): not built",
+   "crop": "recognition/crops/sym_L0_005_ctx.png",
+   "room_id": "r_L0_banyo",
+   "level_id": "L0"
+  },
+  {
    "id": "f_L1_002",
    "kind": "untyped_piece",
    "reason": "drawn piece 4.64 x 0.68 m in r_L1_cocuk_odasi has no type; cluster larger than 4.5 m on a side: a group of drawn pieces, not built: not built",
    "crop": null,
    "room_id": "r_L1_cocuk_odasi",
+   "level_id": "L1"
+  },
+  {
+   "id": "f_L1_011",
+   "kind": "untyped_piece",
+   "reason": "drawn piece 2.42 x 0.98 m in r_L1_banyo has no type (AI passes: bunk_bed, unknown): not built",
+   "crop": "recognition/crops/sym_L1_006_ctx.png",
+   "room_id": "r_L1_banyo",
+   "level_id": "L1"
+  },
+  {
+   "id": "f_L1_014",
+   "kind": "untyped_piece",
+   "reason": "drawn piece 2.27 x 0.85 m in r_L1_soyunma_odasi has no type (AI passes: stair, unknown): not built",
+   "crop": "recognition/crops/sym_L1_009_ctx.png",
+   "room_id": "r_L1_soyunma_odasi",
+   "level_id": "L1"
+  },
+  {
+   "id": "f_L1_015",
+   "kind": "untyped_piece",
+   "reason": "drawn piece 2.27 x 0.85 m in r_L1_soyunma_odasi has no type (AI passes: stair, unknown): not built",
+   "crop": "recognition/crops/sym_L1_010_ctx.png",
+   "room_id": "r_L1_soyunma_odasi",
+   "level_id": "L1"
+  },
+  {
+   "id": "f_L1_019",
+   "kind": "untyped_piece",
+   "reason": "drawn piece 1.20 x 0.55 m in r_L1_oda_2 has no type (AI passes: desk, dresser): not built",
+   "crop": "recognition/crops/sym_L1_014_ctx.png",
+   "room_id": "r_L1_oda_2",
    "level_id": "L1"
   }
  ],
@@ -48355,7 +52327,7 @@
    "id": "dec_L1_001",
    "host_id": "f_L1_012",
    "center": [
-    4.796,
+    4.837,
     3.568
    ],
    "rotation_deg": 90.0,
@@ -48546,7 +52518,7 @@
    "id": "dec_L1_002",
    "host_id": "f_L1_012",
    "center": [
-    4.796,
+    4.837,
     4.318
    ],
    "rotation_deg": 90.0,
@@ -48598,7 +52570,7 @@
    "id": "dec_L1_003",
    "host_id": "f_L1_012",
    "center": [
-    6.241,
+    6.282,
     3.943
    ],
    "rotation_deg": 90.0,
@@ -49217,7 +53189,7 @@
    "id": "dec_L1_007",
    "host_id": null,
    "center": [
-    5.887,
+    5.928,
     3.943
    ],
    "rotation_deg": 90.0,
@@ -50859,8 +54831,8 @@
    "id": "dec_L1_019",
    "host_id": "f_L1_016",
    "center": [
-    2.976,
-    12.333
+    3.026,
+    12.337
    ],
    "rotation_deg": 270.0,
    "size": [
@@ -50988,7 +54960,7 @@
    "host_id": null,
    "center": [
     3.33,
-    11.83
+    11.834
    ],
    "rotation_deg": 270.0,
    "size": [
@@ -51000,7 +54972,7 @@
    ],
    "wall_point": [
     3.35,
-    11.83
+    11.834
    ],
    "wall_id": "w_L1_025",
    "gap_m": 0.25,
@@ -51301,7 +55273,7 @@
   "reruns": {},
   "lighting": {},
   "library_gaps": [],
-  "round": 4,
+  "round": 0,
   "not_replayed": [
    {
     "seq": 1,
@@ -51676,6 +55648,90 @@
    },
    {
     "seq": 54,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 55,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 56,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 57,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 58,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 59,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 60,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 61,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 62,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 63,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 64,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 65,
+    "failed_checks": [
+     "stale_source"
+    ],
+    "message": "made on another building_decor.json (an earlier run): not replayed"
+   },
+   {
+    "seq": 66,
     "failed_checks": [
      "stale_source"
     ],

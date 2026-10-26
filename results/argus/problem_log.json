@@ -35,6 +35,18 @@
     "info": 25
    },
    "created_utc": "2026-10-26T19:42:58Z"
+  },
+  {
+   "run_id": "20261026-195707-full-20261026T200228Z",
+   "project": "real06",
+   "score": 11.1,
+   "severity": {
+    "critical": 12,
+    "major": 82,
+    "minor": 70,
+    "info": 27
+   },
+   "created_utc": "2026-10-26T21:45:35Z"
   }
  ],
  "signatures": {
@@ -74,11 +86,12 @@
    "runs": [
     "20261026-125412-full-20261026T130049Z",
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "source entities the reading did not read (the ledger checks what they hold): real06.dwg: entity types not read: ATTDEF x28",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P2|VERANDA": {
    "kind": "lost",
@@ -107,54 +120,59 @@
    "runs": [
     "20261026-125412-full-20261026T130049Z",
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "a piece whose type the room does not allow, kept unverified: sym_L1_008: sofa is not a type allowed in a bedroom room: kept, unverified",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P2|room '...' has more labels": {
    "kind": "misread",
    "runs": [
     "20261026-125412-full-20261026T130049Z",
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "one room outline holds the labels of two rooms (a wall not read?): room '...' has more labels: 2 cases, e.g. L0: room 'Salon' has more labels: YEMEK BÖLÜMÜ; the label with the largest printed area (else the first) kept",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P2|elevation r# (all)": {
    "kind": "process",
    "runs": [
     "20261026-125412-full-20261026T130049Z",
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "a check that could not run: elevation r# (all): 4 cases, e.g. elevation r1 (all): its openings are not checked against the plans (the side needs the north arrow)",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P2|site": {
    "kind": "lost",
    "runs": [
     "20261026-125412-full-20261026T130049Z",
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
-   "severity": "major",
-   "message": "items the reading found and no stage used: site: 2 cases, e.g. site: 1 areas read outside the walls of L1 not used (the site is the ground floor's, L0)",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "severity": "minor",
+   "message": "items the reading found and no stage used: site: 42 decor read outside the walls of L1 not used (the site is the ground floor's, L0); 26 of them repeat the ground plan's symbols at the same place (site.decor_other_levels)",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P2|r_L1_hol": {
    "kind": "taste",
    "runs": [
     "20261026-125412-full-20261026T130049Z",
-    "20261026-170020-full-20261026T170641Z"
+    "20261026-170020-full-20261026T170641Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "a group the room should have found no place: r_L1_hol: completion added nothing, nothing fits: entrance: no place passes the checks",
-   "last": "20261026-170020-full-20261026T170641Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P2|r_L1_dus": {
    "kind": "taste",
@@ -192,11 +210,12 @@
    "runs": [
     "20261026-125412-full-20261026T130049Z",
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "a stage placed fewer items than it planned: inferred trees: placed 0 of 3 (74 candidates; removed by building 1, path 15, sightline 36, window 67, front 27; most by window; the first pass placed 0, the second pass with the window band narrowed to 4 m added 0)",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "a stage placed fewer items than it planned: inferred trees: placed 0 of 3 (74 candidates; removed by building 1, path 15, sightline 36, window 66, front 27; most by window; the first pass placed 0, the second pass with the window band narrowed to 4 m added 0)",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P2|d_L0_006": {
    "kind": "taste",
@@ -222,22 +241,24 @@
    "runs": [
     "20261026-125412-full-20261026T130049Z",
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "no library model: built parametric or not at all: opening win_L0_006: parametric in the style's finish (no model of the building's window family 'Single Casement Window' fits 1.10 x 1.20 m: the parametric opening in the style's finish keeps one door and window language)",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P2|win_L1_001": {
    "kind": "taste",
    "runs": [
     "20261026-125412-full-20261026T130049Z",
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "no library model: built parametric or not at all: opening win_L1_001: parametric in the style's finish (no model of the building's window family 'Single Casement Window' fits 0.95 x 1.20 m: the parametric opening in the style's finish keeps one door and window language)",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P2|o_L0_001": {
    "kind": "no_sense",
@@ -264,11 +285,12 @@
    "runs": [
     "20261026-125412-full-20261026T130049Z",
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "decor that could not rest on its host: decor plant_small dec_L1_017 on f_L1_030: not rested (no top found on the built host (attempt 2)); not built",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P3|W2:win_L0_001": {
    "kind": "no_sense",
@@ -329,11 +351,12 @@
    "runs": [
     "20261026-125412-full-20261026T130049Z",
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "scene check S2 on L0: 1 of 23 failed",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "scene check S2 on L0: 1 of 24 failed",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P7|f_L0_029": {
    "kind": "taste",
@@ -1069,41 +1092,45 @@
    "kind": "taste",
    "runs": [
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "a group the room should have found no place: r_L1_ebeveyn_y_odasi: completion added nothing, nothing fits: storage: no candidate position fits the room; work: no place passes the checks",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P2|dec_L0_009": {
    "kind": "geometry",
    "runs": [
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "decor that could not rest on its host: decor cushion dec_L0_009 on f_L0_008: not rested (67% of the footprint over the support < 80%); not built",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P4|test_sky_and_window_pulls_reach_their_targets[real06]": {
    "kind": "process",
    "runs": [
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "test tests.gpu.test_render::test_sky_and_window_pulls_reach_their_targets[real06] failure: AssertionError: real06: [('window panes', 'median pane saturation 0.0631 under 0.065: grey cards, not the sky', [('cam_r_L0_banyo_1', 0.0612), ('cam_r_L0_banyo_3', 0.0972), ('cam_r_L0_mutfak_1', 0.0673), ('cam_r_L0_mutfak_3', 0.0631), ('cam_r_L0_salon_1', 0.0288), ('cam_r_L0_salon_2', 0.0588), ('cam_r_L0_salon_3', 0.0538), ('cam_r_L1_banyo_1', 0.0959), ('cam_r_L1_banyo_3', 0.1034), ('cam_r_L1_cocu",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "test tests.gpu.test_render::test_sky_and_window_pulls_reach_their_targets[real06] failure: AssertionError: real06: [('window panes', 'median pane saturation 0.0526 under 0.065: grey cards, not the sky', [('cam_r_L0_banyo_1', 0.0612), ('cam_r_L0_banyo_3', 0.0971), ('cam_r_L0_mutfak_1', 0.0246), ('cam_r_L0_mutfak_3', 0.0459), ('cam_r_L0_salon_1', 0.0481), ('cam_r_L0_salon_2', 0.0483), ('cam_r_L0_salon_3', 0.0547), ('cam_r_L1_banyo_1', 0.0876), ('cam_r_L1_banyo_3', 0.101), ('cam_r_L1_cocuk",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P7|f_L0_020": {
    "kind": "taste",
    "runs": [
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "sink_kitchen f_L0_020 built below the library level: fitting chose the parametric mesh",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P7|f_L0_033": {
    "kind": "taste",
@@ -1119,21 +1146,23 @@
    "kind": "taste",
    "runs": [
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "wall_cabinet f_L0_034 built below the library level: fitting chose the parametric mesh",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|process:P7|f_L0_035": {
    "kind": "taste",
    "runs": [
     "20261026-170020-full-20261026T170641Z",
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "wall_cabinet f_L0_035 built below the library level: fitting chose the parametric mesh",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|inspector:F9|f_L0_027": {
    "kind": "geometry",
@@ -1474,11 +1503,12 @@
   "real06|process:P9|big_loop": {
    "kind": "process",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the big loop did not raise the house score (first 31.84; 1 cycle(s); stop: cycle 1: no gain (under 0.5))",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the big loop did not raise the house score (first 31.34; 0 cycle(s); stop: cycle 1: deadline)",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|inspector:Q4|f_L0_026": {
    "kind": "misread",
@@ -2176,20 +2206,22 @@
   "real06|judge:J1|cam_r_L0_banyo_1": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L0_banyo_1 2/5 (a client would not accept it): The render is not client-ready. It shows a nearly empty bathroom where the main fixtures are missing, and the camera is poorly framed, wasting most of the image on a blank wall.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L0_banyo_1 2/5 (a client would not accept it): The render is a near-empty bathroom: the camera is aimed at a blank tiled wall, the toilet is missing from view, and the only visible furniture is a small washbasin. It reads as a grey-box placeholder, not a finished, stylish bathroom.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L0_banyo_2": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L0_banyo_2 2/5 (a client would not accept it): The render is a dead-end corner: a toilet squeezed into a niche and a door that fills the right half of the frame. The room's main pieces (basin, shower) are not in view, so it reads as an unfinished toilet closet, not a 6.7 m2 bathroom. The wood door is a plain slab that clashes with the all-white tile scheme, and the camera is poorly placed, hiding the rest of the room.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L0_banyo_2 2/5 (a client would not accept it): The render is a dead-end view of a toilet and a door; the room's other main pieces are not in frame, so it reads as a corridor, not a bathroom. The visible toilet is a dated, bulky two-piece model that clashes with the clean, modern tile and door. The camera is poorly placed, framing a wall corner and a door leaf instead of the room's main group.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L0_banyo_3": {
    "kind": "taste",
@@ -2203,20 +2235,22 @@
   "real06|judge:J1|cam_r_L0_mutfak_1": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L0_mutfak_1 2/5 (a client would not accept it): The kitchen reads as a grey-box placeholder, not a finished project. The main run is a long, handle-less white slab with a dark plinth and a floating shelf, but there is no hob, no oven, no cooktop, and no upper cabinets above the worktop — a kitchen without its cooking anchor. The sink unit on the right is a separate, taller box with a different counter height and a bare blue-grey basin, so the two runs do not read as one coherent set. Everything is flat, untextured, and undetailed (no backsplash, no appliances, no decor), which a client would immediately flag as unfinished.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L0_mutfak_1 2/5 (a client would not accept it): The render shows a kitchen that is mostly empty and unfinished. The main run of base cabinets is present, but there is no hob, no upper cabinets, and no visible appliances, so the room reads as a shell rather than a designed kitchen. The large opening in the wall (o_L0_001) is a raw, unframed hole with a strange floating bar across it, which looks like a broken model. The surfaces are flat and untextured, and the overall look is plain and unstyled.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L0_mutfak_2": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L0_mutfak_2 2/5 (a client would not accept it): The kitchen reads as a shell, not a finished, stylish space. The main run is a bare base cabinet with an empty worktop: no hob, no sink, no tap, no small appliances, no upper cabinets above it, and no decor. The only sink visible is on a separate counter at the right edge, so the primary work zone is incomplete. The walls are flat, untextured plaster and the overall look is plain and unfinished for a client presentation.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L0_mutfak_2 2/5 (a client would not accept it): The kitchen reads as a single freestanding island with a stone top and a sink, but it is the only piece in a 24.8 m2 room: no wall run, no hob, no tall units, no stools, and the plaster walls and bare tile floor are completely untextured. A client would immediately ask where the cooking and storage are. The one element that is present is clean and correctly scaled, so the room is not broken, but it is far from presentable.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L0_salon_2": {
    "kind": "taste",
@@ -2230,101 +2264,112 @@
   "real06|judge:J1|cam_r_L1_banyo_1": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_banyo_1 2/5 (a client would not accept it): The render is a near-empty white box: the shower (f_L1_031) is missing entirely, the basin is a crude black box, and the room has no decor, so it reads as a grey-box placeholder rather than a finished bathroom.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_banyo_1 2/5 (a client would not accept it): The render is technically clean but fails as a client presentation. The room is listed as a bathroom with a shower (f_L1_031), yet the shower is completely missing, leaving a large, empty, unexplained corner. The visible fixtures (basin and toilet) are basic, and the room lacks any styling, accessories, or texture to make it feel like a finished, stylish home. It reads as an empty shell rather than a designed space.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_banyo_2": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_banyo_2 2/5 (a client would not accept it): The render is a plain, unfinished-looking bathroom that a client would not accept. The most serious issue is that the shower (f_L1_031) is completely absent: the large tiled wall on the right is just an empty, featureless surface where a shower enclosure, glass panel or at least a drain and controls should be. The washbasin (f_L1_025) is mounted at a height that reads too low and is awkwardly squeezed between the toilet (f_L1_024) and the wall, with exposed plumbing and no vanity, mirror or shelf, so the wet zone looks broken rather than designed. The door (d_L1_009) is a flat, unframed slab of raw plywood that does not reach the floor cleanly and clashes with the otherwise white, modern tile scheme. Overall the room is bare, undecorated and reads as a grey-box placeholder rather than a finished bathroom.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_banyo_2 2/5 (a client would not accept it): The render is clean and the camera is fine, but the room does not read as a finished bathroom. The shower (f_L1_031) is completely absent, so the main wet zone is missing. The washbasin (f_L1_025) is jammed into the corner behind the toilet (f_L1_024) at a height that looks too low and is unusable, and the door (d_L1_009) opens straight into the basin/toilet zone, blocking access. The space is also very plain for a modern bathroom: no mirror, no storage, no accessories, just bare tile.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_banyo_3": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_banyo_3 1/5 (a client would not accept it): The render is a near-empty corner of the bathroom. The camera is pointed at a blank tiled wall and the door, so the main fixtures (toilet, shower, second basin) are completely out of frame. The room reads as unfinished and absurd for a client presentation.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_banyo_3 1/5 (a client would not accept it): The render is a near-empty bathroom: the toilet, the second washbasin and the shower are all absent, so the room reads as a shell rather than a finished, stylish space. The camera is also poorly chosen, framing a blank tiled wall and the door instead of the only fixture present.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_cocuk_odasi_1": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_cocuk_odasi_1 2/5 (a client would not accept it): A client would not accept this as a finished children's room. The two beds are from completely different design languages (a white ornate metal frame vs. a plain modern box), the walls are bare, untextured plaster, and the desk looks like a placeholder. It reads as a grey-box stage set, not a stylish home.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_cocuk_odasi_1 2/5 (a client would not accept it): A client would not accept this as a finished children's room. The two beds are from completely different design languages (a white ornate metal frame vs. a plain modern upholstered one), the desk is a generic mid-century placeholder, and the walls are flat, untextured plaster. The room feels like a furniture showroom, not a designed home.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_cocuk_odasi_2": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_cocuk_odasi_2 2/5 (a client would not accept it): The room fails on believability and style. The furniture is a clash of placeholder models: a white metal 'hospital' bed (f_L1_009) next to a white metal 'nursery' bed (f_L1_006), with a generic mid-century desk (f_L1_007) that fits neither. The bedding on f_L1_009 is a crude, low-poly blob that looks like a melted sheet rather than a duvet. The walls are flat, untextured grey plaster, making the whole scene look like an unfinished grey-box render rather than a finished, stylish children's room.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_cocuk_odasi_2 2/5 (a client would not accept it): The render is not client-ready. The most glaring issue is a duplicated bed: two double beds are placed in the same spot, with one frame and mattress visibly cutting through the other. This is a broken model state, not a design choice. Beyond that, the room reads as a generic, low-effort placeholder: a thin white metal 'boudoir' bed frame paired with a mid-century-style desk and a bare concrete wall feels mismatched and dated for a modern children's room. The desk is also oversized and awkwardly placed under the window, and the nightstand is missing entirely, leaving the bed with no functional anchor. The overall look is plain and unstyled.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_cocuk_odasi_3": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_cocuk_odasi_3 2/5 (a client would not accept it): The room is a bedroom, but the furniture is a mismatched, dated set that does not read as a designed children's room. The white ornate metal bed (f_L1_006) is a classic/antique piece that clashes with the modern mid-century desk (f_L1_007) and the plain light-oak floor and bare plaster walls. The result looks like a placeholder staging, not a stylish, coherent project. The room is also nearly empty: no nightstand is visible, no rug under the bed, no decor, and the large 22.4 m2 space feels bare and unfinished.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_cocuk_odasi_3 2/5 (a client would not accept it): The room is a mess of clashing styles and broken models. The two beds are completely different (one ornate white metal, one plain white frame), the desk is a crude blocky placeholder, and the bedding on the right bed is a melted, low-poly blob that looks like a rendering error. The overall look is cheap and incoherent, not a stylish children's room.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_dus_1": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_dus_1 2/5 (a client would not accept it): The render is technically clean but fails as a client presentation for a 4.5 m2 bathroom. The most serious issue is that the washbasin (f_L1_029) is completely absent from the frame, so the room reads as a toilet-and-shower box rather than a finished bathroom. Everything else is flat white tile with no vanity, mirror, towel, or hardware detail, which looks like a grey-box stage rather than a stylish home. The view out the windows is a flat, featureless horizon that adds nothing. The camera is acceptable, but the composition wastes the frame on a blank tiled wall.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_dus_1 2/5 (a client would not accept it): The render is technically clean but fails as a client presentation for a 4.5 m2 bathroom. The most serious issue is that the washbasin (f_L1_029) is completely absent from the frame, so the room reads as a toilet-and-shower box rather than a finished bathroom. Everything else is flat white tile with no vanity, mirror, towel, or hardware detail, which makes the space look like a grey-box placeholder rather than a designed interior. The shower (f_L1_020) is a bare glass quadrant with no visible tray edge, mixer, or head in view, and the toilet (f_L1_023) is a plain tank-and-bowl unit with no styling. The two windows (win_L1_004, win_L1_005) look fine, but the overall set is too plain and incomplete to show a client.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_dus_2": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_dus_2 2/5 (a client would not accept it): The render is a dead-end view of a tiled corner and a door; the shower (the room's namesake) is not in frame, and the visible washbasin is a crude, floating white blob. The client would see an unfinished, empty bathroom.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_dus_2 2/5 (a client would not accept it): The render is a dead-end view of a tiled corner and a door; the shower (the room's namesake) is not in frame, and the visible washbasin is a crude, floating white slab. The client would ask, 'Where is the shower? And what is that sink?'",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_ebeveyn_y_odasi_1": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_ebeveyn_y_odasi_1 2/5 (a client would not accept it): The render is a believable, clean bedroom, but it is not the bedroom the client booked. The furniture list for this room includes two armchairs and a floor lamp, and none of them are in the image; the room reads as half-furnished and plain. The two visible doors are also a mismatch: one is a tall, full-height slab and the other a shorter, narrower leaf, so the set looks inconsistent. The nightstands are not a matched pair either (one is a drawer unit, the other a plain box), which weakens the styling. Nothing is broken or floating, so the image is acceptable as a shell, but it would not pass as a finished, stylish parent bedroom.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_ebeveyn_y_odasi_1 2/5 (a client would not accept it): The render is a near-empty shell: the bed is the only piece of furniture in a 23 m2 master bedroom, and the two armchairs, floor lamp and second nightstand from the schedule are missing, so the room reads as a grey box with a bed in it. The two doors (d_L1_001, d_L1_002) are identical flat light-oak slabs with no frame, handle detail or threshold, and one of them opens onto a blank wall with no visible destination, which a client will immediately question. The walls are flat untextured plaster with no skirting, no art beyond one small print, and no lighting other than a single bedside lamp, so the space looks unfinished rather than designed.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_ebeveyn_y_odasi_2": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_ebeveyn_y_odasi_2 2/5 (a client would not accept it): The room fails on basic coherence. The two armchairs are different models and colors, which is a glaring design error. The bed is cropped out of frame, making the render useless for showing the main piece. The walls are flat, untextured plaster, and the overall look is cheap and unfinished.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_ebeveyn_y_odasi_2 2/5 (a client would not accept it): The room is a mess of clashing styles and broken geometry. The two 'identical' armchairs are actually different models in different colors (one pink, one brown), which is a glaring error. The floor lamp is absurdly tall and thin, looking like a placeholder. The walls are flat, untextured beige, making the room feel like an unfinished grey-box. The bed is cut off, and the overall composition is unbalanced and un-stylish.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_hol_2": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_hol_2 2/5 (a client would not accept it): The render is a grey-box style view of a landing, but it has a serious logic error that a client would immediately point out. The main issue is the railing: it is placed on the landing floor, but the opening it is supposed to guard is on the other side of the wall, making the railing useless and confusing. The overall look is also very plain and unfinished.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_hol_2 2/5 (a client would not accept it): The hall is a bare, unfinished shell: flat plaster walls, no skirting, no lighting, no decor, and a stair that reads as a white block. The railing is a crude placeholder and the door is a plain slab. It does not look like a designed home.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_hol_3": {
    "kind": "taste",
@@ -2338,47 +2383,52 @@
   "real06|judge:J1|cam_r_L1_oda_1": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_oda_1 2/5 (a client would not accept it): A 3.1 m2 hall rendered as a bare corridor: the camera is aimed straight at the door leaf, the walls are flat and untextured, and the only furniture is a small bench shoved into the corner. It reads as an unfinished shell, not a designed entrance.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_oda_1 2/5 (a client would not accept it): The render is a dead-end hallway shot, not a room. The camera is aimed straight at a door, so the frame is 80% wall and door leaf. The only furniture, the shoe cabinet, is a crude, low-poly slatted box cut off in the corner. The space is completely bare: no lighting, no decor, no texture on the walls, and the wood tones of the door, floor, and cabinet are mismatched and cheap-looking. A client would see this as an unfinished, empty corridor, not a designed hall.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_oda_2_1": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_oda_2_1 2/5 (a client would not accept it): The room is unshowable: the main seating is a blocky white placeholder, the two sofas are mismatched, and the cushions on the grey sofa are broken geometry. The harsh, blown-out light patches make it look like a test render, not a finished interior.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_oda_2_1 2/5 (a client would not accept it): The room is a mess of broken models. The main sofa is a low-poly white block, the second sofa has a floating, broken object on it, and the light is blown out. A client would not accept this.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_oda_2_2": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_oda_2_2 2/5 (a client would not accept it): The room is lit and the camera is fine, but the furniture set is incoherent and the decor is broken. The two sofas are completely different models and colours (a clean white box sofa vs. a grey slipcovered sofa), which reads as a mistake, not a design choice. On the grey sofa, the white pillows and the folded throw are floating and clipping through each other and the seat, which is an obvious render flaw a client would point at immediately. The pineapple art is loud and does not fit the calm, neutral palette of the room.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_oda_2_2 2/5 (a client would not accept it): The room is bright and the camera is fine, but it fails as a designed living room. The two seating pieces are completely different in style, colour and form, and the decor is a mess. A client would immediately ask why the room has two competing sofas and a random pineapple poster.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|cam_r_L1_oda_2_3": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view cam_r_L1_oda_2_3 2/5 (a client would not accept it): The room reads as a grey-box placeholder, not a finished living room. The main seating is a blocky, untextured white slab (f_L1_016) that looks like a 3D primitive, and it clashes with the grey armchair (f_L1_013). The listed floor lamp is missing, leaving the large left wall completely bare and the space feeling empty and unfinished.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view cam_r_L1_oda_2_3 2/5 (a client would not accept it): The room reads as an unfinished shell, not a designed living room. The two sofas are of completely different styles and colours (a white classic/curved sofa vs. a grey modern one), the walls are bare plaster, and the floor lamp from the list is missing. The camera is also poorly framed, cutting off the main seating group.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|ext_4": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view ext_4 2/5 (a client would not accept it): The architectural massing is decent, but the render is far from client-ready. The environment is a 'grey box' void with a flat green plane and no context, which makes the house look like a floating model. The materials are untextured and flat, and the entrance area is cluttered with illogical railings.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view ext_4 2/5 (a client would not accept it): This is a raw massing model, not a finished render. The client would see a white block with black holes for windows, a floating balcony, and a void for a garden. It is not presentable.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|judge:J1|ext_5": {
    "kind": "taste",
@@ -2392,11 +2442,12 @@
   "real06|judge:J1|ext_6": {
    "kind": "taste",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
-   "message": "the judge scores view ext_6 2/5 (a client would not accept it): This is a raw massing/grey-box render, not a client presentation. The building is a block of flat, untextured white surfaces with no materials, landscaping, or context. The windows are pitch black voids, and the overall look is that of a CAD model, not a stylish home.",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "message": "the judge scores view ext_6 2/5 (a client would not accept it): The render is a raw grey-box massing study, not a client-ready image. The materials are flat and untextured, the landscape is a void, and the architectural details (like the balcony) are crude placeholders. A client would not accept this as a design presentation.",
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|render:K1|d_L0_004": {
    "kind": "lost",
@@ -2428,47 +2479,52 @@
   "real06|render:K3|f_L0_027": {
    "kind": "misread",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "ottoman f_L0_027 differs from the drawing (tolerance 0.05 m): 0.86 m from its drawn place; size [0.5, 0.5] vs drawn [0.446, 0.325]",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|render:K3|f_L0_028": {
    "kind": "misread",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "ottoman f_L0_028 differs from the drawing (tolerance 0.05 m): 0.09 m from its drawn place; size [0.5, 0.5] vs drawn [0.447, 0.325]",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|render:K3|f_L0_029": {
    "kind": "misread",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "ottoman f_L0_029 differs from the drawing (tolerance 0.05 m): 0.63 m from its drawn place; size [0.5, 0.5] vs drawn [0.447, 0.325]",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|render:K3|f_L0_030": {
    "kind": "misread",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "ottoman f_L0_030 differs from the drawing (tolerance 0.05 m): 0.07 m from its drawn place; size [0.5, 0.5] vs drawn [0.446, 0.325]",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|render:K3|f_L1_007": {
    "kind": "misread",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "desk f_L1_007 differs from the drawing (tolerance 0.05 m): 0.15 m from its drawn place",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|render:K3|f_L1_016": {
    "kind": "misread",
@@ -2482,25 +2538,1089 @@
   "real06|render:K4|elevations": {
    "kind": "process",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "minor",
    "message": "4 elevation(s) could not be compared with the model (r1, r2, r7, r8): the elevation has neither a view bearing nor a side: nothing to compare",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
   },
   "real06|render:K4|views": {
    "kind": "process",
    "runs": [
-    "20261026-183115-full-20261026T183543Z"
+    "20261026-183115-full-20261026T183543Z",
+    "20261026-195707-full-20261026T200228Z"
    ],
    "severity": "major",
    "message": "2 view(s) marked for review: cam_r_L1_ebeveyn_y_odasi_1, cam_r_L1_ebeveyn_y_odasi_3",
-   "last": "20261026-183115-full-20261026T183543Z"
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|process:P2|the drawn section r# is not checked point by point against the roof": {
+   "kind": "process",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "a check that could not run: the drawn section r5 is not checked point by point against the roof: its ends at s -0.50 / 16.80 m and the roof outline's at -0.28 / 15.03 m along y are up to 1.77 m apart (over 0.30 m: the section does not run one-to-one with the plan); its roof line drops 1.43 m at s 8.55 m on the way up to its highest point (trusses, trims or another roof drawn with it: not one roof surface); only its ridge hei",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:V1|o_L0_002": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The camera is pointed almost entirely at a blank wall (the opening o_L0_002 side). The main fixtures are pushed to the far right edge, so the shot does not present the room's main group.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L0_033": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The wall-cabinet run (and the whole kitchen set) is a flat, untextured white with no appliances, cooktop or styling; it reads as a plain placeholder, not a designed kitchen for the project's style.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L0_024": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The toilet (f_L0_024) is not visible in the frame. A bathroom render that omits the toilet looks unfinished and makes the room feel empty.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L0_036": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The shower (f_L0_036) is only hinted at by a glass edge on the right; it is not legible as a designed shower zone, leaving the room feeling incomplete.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L0_026": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The washbasin (f_L0_026) is the only piece in view and sits in a large empty tiled area, making the composition look sparse and unstyled.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|win_L0_004": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The view through the window is a flat, featureless grey void. This 'flat_outdoor' look makes the render look unfinished and unconvincing.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L0_026": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "The washbasin is a main piece of the bathroom but is completely missing from the frame. A bathroom render that shows only a toilet and a door makes no sense to a client.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:V1|d_L0_007": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The camera is poorly placed. It is aimed at a corner and a door leaf, which fills the right half of the frame. The room's main group (the wet zone) is not visible.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L0_024": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The toilet is a bulky, dated two-piece model. It does not match the clean, modern aesthetic suggested by the large-format tiles and the simple, modern door.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L0_036": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The shower area is very plain. The glass partition is a simple slab, and the fixtures are basic, contributing to the overall 'grey box' feel.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L0_002": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "The kitchen is missing its main functional anchor: there is no hob or cooktop on the worktop, making the room feel incomplete and non-functional.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:F9|o_L0_001": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The large opening in the wall is a raw, unframed hole with a floating horizontal bar, which looks like a broken model or a construction error rather than a designed feature.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L0_033": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The wall cabinets listed in the JSON are not visible in the render, leaving the upper wall completely bare and the kitchen feeling unfinished.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L0_002": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The base cabinets are a plain, flat white with no texture or detail, which looks cheap and unstyled for a modern kitchen.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L0_020": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The sink is present but the surrounding area is bare; there is no faucet visible in the main view, and the sink basin looks like a simple cutout rather than a finished fixture.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L0_031": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The second counter f_L0_031 at the right edge is cut off and shows only a bare slab; it does not connect to the island or to any wall run, so the two pieces do not read as one coherent set.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L0_001": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The stair f_L0_001 is not visible in this view; if it is meant to be in the kitchen, its absence leaves the room's layout unexplained, and if it is elsewhere the camera framing hides the room's main circulation.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:J1|cam_r_L0_salon_1": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "the judge scores view cam_r_L0_salon_1 2/5 (a client would not accept it): The render shows a disjointed and unfinished living space. The furniture selection is incoherent, mixing a dark, modern ribbed chair with a beige tufted armchair and a large cream sectional, which creates a 'mismatched set' that looks like a showroom display rather than a designed home. Furthermore, the room is missing key elements listed in the JSON (coffee tables, plants), leaving the center of the room empty and the seating arrangement feeling incomplete and unstyled.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q5|f_L0_007": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The dark grey ribbed armchair (f_L0_007) clashes severely with the beige/cream palette of the sofa (f_L0_011) and the other armchair (f_L0_008). It looks like a piece from a different, darker design scheme, breaking the visual coherence of the room.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q5|f_L0_008": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The beige armchair (f_L0_008) is a different style (tufted, blocky) from the sofa (f_L0_011) and the dark chair (f_L0_007). The three pieces do not form a cohesive set, making the room look like a collection of random furniture rather than a curated interior.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L0_015": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The coffee table (f_L0_015) is listed in the room data but is missing from the render. This leaves the seating area without a central anchor, making the layout feel incomplete and the space between the armchairs and sofa empty.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L0_012": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The potted plant (f_L0_012) is listed in the room data but is missing from the render. The lack of greenery or vertical elements makes the room feel sterile and flat.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q5|f_L0_011": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The cream corner sofa with its four round ottomans is a different, lighter set from the darker taupe armchairs (f_L0_007, f_L0_008, f_L0_016-f_L0_019); two competing sofa groups in one salon.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L0_015": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The bright honey-oak coffee table is a third, clashing wood tone against the pale floor and the muted upholstery; it does not belong to the room's palette.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q5|f_L0_027": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The four round ottomans (f_L0_027-f_L0_030) read as a cluster of stools rather than a designed seating group, reinforcing the mismatched, improvised feel.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:J1|cam_r_L0_salon_3": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "the judge scores view cam_r_L0_salon_3 2/5 (a client would not accept it): The room is a 55 m2 salon that reads as a showroom of mismatched, cheap-looking pieces. The main sofa group is pushed into the far corner and is not anchored to the room, while the foreground is dominated by a single armchair and a cut-off dining chair. The furniture styles and colours do not belong together, and the two potted plants from the list are missing, leaving the large space bare and unstyled.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L1_031": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "The shower is missing entirely; a bathroom with no shower/wet zone makes no sense.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|r_L1_banyo": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The room is largely empty. Aside from the basic toilet and basin, there is no shower, no storage, and no decor. This makes the space feel like an unfinished shell rather than a designed, livable room.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L1_021": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The washbasin (f_L1_021) is a very basic, blocky model. While the black and white contrast is a design choice, the overall look is plain and lacks the styling or detail expected in a high-end project.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L1_024": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The toilet (f_L1_024) is a standard, unstyled model. It does not clash, but it contributes to the overall 'bare' and un-finished feel of the room.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:V1|win_L1_007": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The camera angle is acceptable, but it emphasizes the emptiness of the room. The view is dominated by the blank tiled wall and the missing shower area, which draws attention to what is absent rather than what is present.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q2|f_L1_025": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The washbasin sits too low and is wedged behind the toilet, so it is not at a usable working height and cannot be reached.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q9|d_L1_009": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The door opens directly into the basin/toilet cluster, blocking the approach to the fixtures.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L1_024": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "The toilet (f_L1_024) is missing from the render. A bathroom without a toilet is a fundamental, client-visible failure.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L1_025": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The second washbasin (f_L1_025) is missing. Only one basin is visible, leaving the room feeling sparse and unfinished.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:V1|d_L1_009": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The camera is poorly framed. It is angled towards the door (d_L1_009) and a large blank wall, failing to show the room's main group of fixtures in a coherent way.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L1_021": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The single visible washbasin (f_L1_021) is the only piece of furniture, which emphasizes the emptiness of the room and makes the render look like a placeholder.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L1_006": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The ornate white metal bed frame is a dated, classic style that clashes completely with the modern, minimalist aesthetic of the other furniture and the room itself.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L1_007": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The desk is a generic, blocky placeholder model. It does not feel like a carefully chosen piece for a stylish home and looks out of place.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D2|f_L1_009": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "The bedding on this bed is a crude, melted-looking blob. It does not look like a duvet or pillows; it looks like a failed simulation or a low-poly placeholder. This is the single most embarrassing element in the render.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L1_010": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The nightstand is a simple, untextured block. It lacks the detail and finish of the other pieces and contributes to the 'placeholder' feel of the room.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|win_L1_002": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The window is a very basic, unadorned model. While not terrible, it lacks the detail one would expect in a high-end render and contributes to the overall plainness.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:F9|f_L1_009": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "A second double bed (f_L1_009) is duplicated on top of the first (f_L1_006). The frames and mattresses intersect and cut through each other, which is a broken/overlapping model state.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L1_010": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The nightstand (f_L1_010) is listed but not visible in the render. The bed has no bedside table, leaving the main furniture group incomplete.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q6|f_L1_007": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The desk is placed directly under the window, which is a common but often awkward placement. It blocks the window sill and feels cramped, as if it was dropped in without considering the room's flow.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L1_029": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "Bathroom with no basin: the washbasin is listed for this room but is not visible anywhere in the frame, so the room is missing its main fixture.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L1_020": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "The shower (f_L1_020) is completely missing from the frame. A bathroom render that shows no shower, no toilet, and only a fragment of a sink fails to present the room's main function.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|f_L1_023": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "Toilet is a plain white tank-and-bowl unit with no styling or hardware detail; it looks like a default placeholder rather than a chosen fixture.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|win_L1_004": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "Window and surrounding wall are flat untextured white with no sill, frame depth, or curtain; combined with the all-white tile it reads as a bare material study.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|win_L1_005": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "Second window is identical and equally bare; the pair looks like a placeholder pair rather than a designed window treatment.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:V1|d_L1_003": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The camera is poorly placed. It is aimed at a corner and a door (d_L1_003), which dominates the center of the frame. This is a 'bad camera' shot that does not showcase the room's layout or key fixtures.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D2|f_L1_029": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The washbasin (f_L1_029) in the bottom right is a crude, low-poly model. It looks like a simple white box with a faucet, not a finished, stylish sink. It also appears to be floating or cut off by the frame.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:F9|f_L1_023": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The toilet (f_L1_023) is only visible as a small, cut-off fragment in the bottom-left corner. Its placement is awkward and it does not contribute to a coherent view of the room.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L1_017": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "The scheduled armchair (and its pair f_L1_018) is absent; the bedroom has no seating or reading corner, so the main group is just a bed and the room feels incomplete.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L1_022": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The floor lamp is missing, leaving the only light source as a small bedside lamp; the right half of the room is dark and unlit, which reads as an unfinished render.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q1|d_L1_001": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The door leaf is a flat slab with no frame, no visible threshold and no destination behind it; it opens onto a blank wall, so it makes no sense in the plan.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|d_L1_002": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "Second identical flat-slab door with no frame or hardware detail; two bare slabs side by side look like placeholders rather than finished doors.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q5|f_L1_026": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "Only one nightstand is present while the schedule lists two (f_L1_026, f_L1_028); the bed is asymmetric with a lamp on one side and nothing on the other.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L1_012": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The bed, nightstand and rug are a coherent light-oak set, but the floral cushions and the single botanical print are the only decor in the room, so the styling feels thin and showroom-empty rather than a lived-in master bedroom.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q5|f_L1_017": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The two armchairs are a mismatched set. One is a pink, low-poly model, and the other is a brown, high-back model. They do not belong together.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D2|f_L1_022": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The floor lamp is a crude, low-poly model. It is disproportionately tall and thin, with a simple cone shade that looks like a placeholder.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L1_018": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The brown armchair clashes with the pink one and the rest of the neutral room. Its style and color are inconsistent with the other furniture.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:F9|f_L1_012": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The bed is cut off by the camera frame, making it look like it's floating or improperly placed. The headboard is not visible.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|f_L1_001": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The stair and its metal-and-glass railing are a plain, generic system that does not express the project's style; it looks like a default placeholder rather than a designed element.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|win_L1_006": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The windows are simple white uPVC-style units with no frames, mouldings or finish that ties them to the interior; they read as construction-phase glazing.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|d_L1_004": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The door leaf and frame are a flat, untextured slab with a bare handle; it does not match a finished, styled interior and looks like a placeholder.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|o_L1_002": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The opening to the bedroom is a raw, untrimmed hole in the wall with no architrave or reveal, reinforcing the unfinished look.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q3|f_L1_001": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The stair opening and landing edge have a flimsy, incomplete guard. The glass panel is a thin placeholder with a large open gap below it and no proper balustrade, which is a clear fall risk and looks broken.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|r_L1_hol": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The hall is completely empty and unfinished. There is no lighting, no skirting boards, no floor finish, and no decor. It looks like a grey-box construction site, not a livable space.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|r_L1_oda": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The room is essentially empty. A 3.1 m2 hall should have some sense of purpose or at least be styled, but this is just a bare box with a door.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D2|f_L1_030": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The shoe cabinet is a crude, low-poly model. It looks like a placeholder box with a grid texture, not a finished piece of furniture.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:F9|r_L1_oda": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The walls are a flat, untextured beige. The lack of any material detail, lighting, or shadowing makes the space feel like a grey-box model rather than a real room.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D2|f_L1_013": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "The main sofa is a crude, low-poly white block. It has no texture, no realistic form, and looks like a placeholder model, not a piece of furniture.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D1|f_L1_016": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "There is a broken, floating object (looks like a shattered piece of furniture or a glitch) resting on the grey sofa. This is a major rendering error.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|f_L1_027": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The floor lamp is an ornate, turned-wood classic style that clashes with the otherwise neutral and modern feel of the room. It feels out of place.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:F9|win_L1_008": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The sunlight coming through the window is blown out and creates harsh, unrealistic white patches on the floor and the white sofa, indicating a lighting problem.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q5|f_L1_016": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "Mismatched set: this grey, textured, low-profile sofa clashes completely with the other sofa (f_L1_013). They are different models, different colours, and different styles. A living room needs a coherent seating group, not two competing pieces.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|f_L1_027": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The room is missing its main anchor piece, the floor lamp (f_L1_027). A living room with only two mismatched sofas and no lighting or decor looks like an empty, unfinished space.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:D3|win_L1_008": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The window (win_L1_008) is a simple, unadorned white frame that looks generic. It doesn't add to the style of the room and the view outside is a flat, untextured gradient, which looks like a placeholder.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:J1|cam_r_L1_soyunma_odasi_1": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "the judge scores view cam_r_L1_soyunma_odasi_1 1/5 (a client would not accept it): The render shows a bare, unfurnished shell: raw plaster walls, a plain wood floor, and a door that reads as a flat slab. It looks like a construction site, not a finished dressing room, and the camera is aimed at a corner rather than a designed space. It is not client-ready.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q4|r_L1_soyunma_odasi": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "critical",
+   "message": "The dressing room (soyunma odasi) is completely empty. It has no wardrobe, bench, mirror, or any of the fixtures a dressing room requires. This is a missing-anchor failure: the room's entire purpose is absent.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:F9|r_L1_soyunma_odasi": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The walls are a flat, untextured grey plaster. This 'grey box' look is a clear sign of an unfinished model, not a rendered, client-ready space.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|w_L0_001": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The entire facade reads as a flat, untextured white surface. The windows are simple dark rectangles with no visible frames, mullions, or glass reflections. This is a classic 'grey box' look that lacks the material richness and detail a client expects to see.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q9|o_L0_002": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The entrance area is poorly resolved. The steps and handrails are basic, untextured geometry. The large terrace slab to the left is a raw, floating concrete block with no finish, making the whole approach look unfinished and un-stylish.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q8|w_L1_001": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The downpipe on the corner is a simple, dark cylinder that looks like a placeholder. It lacks the proper brackets and connection to the gutter that would make it look like a real, functional part of the building.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|d_L0_001": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The entrance door is a plain flat slab with a basic handle; it looks cheap and generic for a modern two-storey house and does not give a confident, designed front entry.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q9|d_L0_001": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The main entrance is a dark, undefined void under the porch. There is no visible door leaf, handle, or threshold, making the entry point look unfinished and inaccessible.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:F9|w_L0_001": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The whole exterior is set on a flat, textureless green field with a hard horizon and no ground plane, paving, driveway or planting, which makes the render look like an untextured grey-box study instead of a believable house.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|w_L1_001": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The windows are rendered as flat, opaque black rectangles. They have no frames, mullions, or glass reflections, making the facade look like a hole-punched cardboard box rather than a house.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q3|o_L1_001": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The balcony railing is a crude, thin wireframe that looks like a construction placeholder. It does not read as a safe, finished guardrail, and the balcony slab itself looks like a floating grey box.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q8|w_L0_001": {
+   "kind": "no_sense",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The downpipes are rendered as simple black lines that look like cracks or shadows rather than functional drainage. They lack the volume and materiality of real pipes.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:Q7|w_L0_002": {
+   "kind": "taste",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The ground floor windows are also flat black slabs. The lack of depth or framing makes the entire building look like a 3D modeling exercise rather than a realistic architectural visualization.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|judge:F9|o_L0_002": {
+   "kind": "geometry",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The outdoor environment is a flat, featureless green plane with a hard horizon line. There is no landscaping, paving texture, or context, which makes the building look like it is floating in a void.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|sense:N5|f_L1_011": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "r_L1_banyo: bathroom without a shower or a bathtub, while f_L1_011 (unknown, not built: untyped (CLAUDE.md: no untyped piece is built), 2.42 x 0.98 m) stands in it; the AI passes said: The object has a curved shape and is in a bathroom, likely a bathtub or shower, not matchi / The object's footprint and shape match a bunk bed, with a headboard-like line and a ladder: most likely the missing shower|bathtub",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|render:K1|win_L0_007": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "window win_L0_007 (from_documents) is not seen in 1 of the 2 view(s) that must show it: cam_r_L0_mutfak_3",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|render:K1|d_L1_007": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "door d_L1_007 (from_documents) is not seen in 1 of the 2 view(s) that must show it: cam_r_L1_ebeveyn_y_odasi_2",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|render:K2|d_L0_004": {
+   "kind": "misread",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "door d_L0_004 looks like something else in 1 view(s): cam_r_L0_salon_1 (seen as wall_art)",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|ledger:A3|r_L0_mutfak:TEXT:294BCF": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "the documents name a space 'ANTRE m²' that is a second label of room r_L0_mutfak (Mutfak, kitchen): it is not a room of its own in the model",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|ledger:A6|TEXT:2772EB": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "the documents name a washing_machine ('çamaşır mak.') on L1; the model has f_L1_021 washbasin, f_L1_024 toilet within 1.2 m",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|ledger:A6|TEXT:29ABD3": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "the documents name a dresser ('*SIFONIYER') on L1; the model has f_L1_019 unknown (not built) within 1.2 m",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|ledger:A6|TEXT:29AC0C": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "the documents name a dresser ('*SIFONIYER') on L1; the model has f_L1_007 desk, f_L1_008 unknown (not built), f_L1_006 bed_double within 1.2 m",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|ledger:A6|TEXT:29AC25": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "the documents name a dresser ('*SIFONIYER') on L1; the model has no piece within 1.2 m",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|ledger:A3|r_L0_salon:TEXT:295858": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "the documents name a space 'YEMEK BÖLÜMÜ' (17.35 m²) that is a second label of room r_L0_salon (Salon, living): it is not a room of its own in the model",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|ledger:A4|TEXT:294BCE": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "printed area '9,00 m²' of 'HOL' on L1 is not used: the area check of that space is lost",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|ledger:A7|warning:7": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "the reading says: real06.dwg: walls drawn as face lines: layer 'SIVA' chosen by evidence (closes in 5 of 6 labelled rooms, 85% of its long strokes pair, widths 0.15, 0.25, 0.30, 0.35, 0.40, 0.45, 0.49, 0.50 m); runner-up 'DUVAR' (5 of 6); 6 other wall primitives off that layer left out",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|ledger:A7|warning:8": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "the reading says: real06.dwg: walls drawn as face lines: layer 'SIVA' chosen by evidence (closes in 7 of 8 labelled rooms, 84% of its long strokes pair, widths 0.15, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.54 m); runner-up 'DUVAR' (7 of 8); 64 other wall primitives off that layer left out",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|ledger:A7|warning:9": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "the reading says: site: 42 decor read outside the walls of L1 not used (the site is the ground floor's, L0); 26 of them repeat the ground plan's symbols at the same place (site.decor_other_levels)",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|plan_vs_model:B8|f_L1_010": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The plan draws a nightstand (f_L1_010) in the child's room which is not built in the model.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|plan_vs_model:B8|f_L1_031": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "major",
+   "message": "The plan draws a shower (f_L1_031) in the bathroom (BANYO) which is not built in the model.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|plan_vs_model:B8|f_L1_014": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The plan draws a piece of furniture (f_L1_014) in the living room (ODA) which is not built in the model.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|plan_vs_model:B8|f_L1_015": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The plan draws a piece of furniture (f_L1_015) in the living room (ODA) which is not built in the model.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|plan_vs_model:B8|f_L1_019": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The plan draws a piece of furniture (f_L1_019) in the master bedroom (EBEVEYN Y.ODASI) which is not built in the model.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|plan_vs_model:B8|f_L1_002": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The plan draws a piece of furniture (f_L1_002) in the child's room (ÇOCUK ODASI) which is not built in the model.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|plan_vs_model:B8|f_L1_003": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The plan draws a piece of furniture (f_L1_003) in the child's room (ÇOCUK ODASI) which is not built in the model.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|plan_vs_model:B8|f_L1_004": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The plan draws a piece of furniture (f_L1_004) in the child's room (ÇOCUK ODASI) which is not built in the model.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|plan_vs_model:B8|f_L1_008": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The plan draws a piece of furniture (f_L1_008) in the child's room (ÇOCUK ODASI) which is not built in the model.",
+   "last": "20261026-195707-full-20261026T200228Z"
+  },
+  "real06|plan_vs_model:B8|f_L1_011": {
+   "kind": "lost",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ],
+   "severity": "minor",
+   "message": "The plan draws a piece of furniture (f_L1_011) in the child's room (ÇOCUK ODASI) which is not built in the model.",
+   "last": "20261026-195707-full-20261026T200228Z"
   }
  },
  "kinds": {
   "lost": {
-   "signatures": 8,
+   "signatures": 30,
    "recurring": 6
   },
   "untyped": {
@@ -2508,32 +3628,154 @@
    "recurring": 1
   },
   "misread": {
-   "signatures": 40,
-   "recurring": 7
+   "signatures": 64,
+   "recurring": 12
   },
   "process": {
-   "signatures": 8,
-   "recurring": 3
+   "signatures": 9,
+   "recurring": 6
   },
   "taste": {
-   "signatures": 90,
-   "recurring": 12
+   "signatures": 141,
+   "recurring": 33
   },
   "silent": {
    "signatures": 1,
    "recurring": 1
   },
   "no_sense": {
-   "signatures": 19,
+   "signatures": 28,
    "recurring": 7
   },
   "geometry": {
-   "signatures": 87,
+   "signatures": 98,
    "recurring": 34
   },
   "other": {
    "signatures": 8,
    "recurring": 1
+  }
+ },
+ "guards": {
+  "fixture models must be finished and detailed, and must match the room's specified material palette; plain boxes or exposed services are not acceptable unless explicitly specified.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Fixture models must be finished and detailed, and must match the room's specified material palette; plain boxes or exposed services are not acceptable unless explicitly specified.",
+   "check": "inspector:D3",
+   "target": "f_L1_024",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
+  },
+  "fixture models must conceal plumbing or use a specified exposed-service finish; unexplained exposed pipes or mismatched service materials are not acceptable.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Fixture models must conceal plumbing or use a specified exposed-service finish; unexplained exposed pipes or mismatched service materials are not acceptable.",
+   "check": "inspector:D3",
+   "target": "f_L1_025",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
+  },
+  "furniture models must be selected from a coherent style set and must match the room's material palette; generic boxes that do not coordinate with the room are not acceptable.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Furniture models must be selected from a coherent style set and must match the room's material palette; generic boxes that do not coordinate with the room are not acceptable.",
+   "check": "inspector:D3",
+   "target": "f_L1_010",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
+  },
+  "doors in the same architectural set must have consistent leaf height, width, and style; mismatched door leaves are not acceptable.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Doors in the same architectural set must have consistent leaf height, width, and style; mismatched door leaves are not acceptable.",
+   "check": "inspector:Q7",
+   "target": "d_L1_001",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
+  },
+  "paired furniture must use the same model and finish; a bed-side nightstand pair must be a matched set.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Paired furniture must use the same model and finish; a bed-side nightstand pair must be a matched set.",
+   "check": "inspector:Q5",
+   "target": "f_L1_026",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
+  },
+  "paired furniture must use the same model and finish; mismatched nightstands are not acceptable.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Paired furniture must use the same model and finish; mismatched nightstands are not acceptable.",
+   "check": "inspector:D3",
+   "target": "f_L1_028",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
+  },
+  "furniture models must be scaled and detailed appropriately for the room and adjacent pieces; flimsy or out-of-scale models are not acceptable.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Furniture models must be scaled and detailed appropriately for the room and adjacent pieces; flimsy or out-of-scale models are not acceptable.",
+   "check": "inspector:D3",
+   "target": "f_L1_022",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
+  },
+  "window models must include appropriate joinery or trim and must match the architectural style; plain untrimmed upvc is not acceptable in a styled project.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Window models must include appropriate joinery or trim and must match the architectural style; plain untrimmed uPVC is not acceptable in a styled project.",
+   "check": "inspector:Q7",
+   "target": "win_L1_006",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
+  },
+  "stair models must use finished materials consistent with the surrounding floor and wall finishes; raw concrete or exposed voids are not acceptable unless specified.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Stair models must use finished materials consistent with the surrounding floor and wall finishes; raw concrete or exposed voids are not acceptable unless specified.",
+   "check": "inspector:D3",
+   "target": "f_L1_001",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
+  },
+  "furniture models must be finished, not low-detail placeholders; crude slat or box models are not acceptable in a furnished render.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Furniture models must be finished, not low-detail placeholders; crude slat or box models are not acceptable in a furnished render.",
+   "check": "inspector:D3",
+   "target": "f_L1_030",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
+  },
+  "door frames must use a finish that is part of the room's specified material palette; unexplained third materials are not acceptable.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Door frames must use a finish that is part of the room's specified material palette; unexplained third materials are not acceptable.",
+   "check": "inspector:D3",
+   "target": "d_L1_006",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
+  },
+  "exterior glazing frames must be proportionate and stylistically consistent with the facade; heavy industrial frames are not acceptable on a light residential facade.": {
+   "kind": "taste",
+   "cause": "fit",
+   "rule": "Exterior glazing frames must be proportionate and stylistically consistent with the facade; heavy industrial frames are not acceptable on a light residential facade.",
+   "check": "inspector:Q7",
+   "target": "d_L0_003",
+   "runs": [
+    "20261026-195707-full-20261026T200228Z"
+   ]
   }
  }
 }

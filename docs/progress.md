@@ -1539,3 +1539,14 @@ walls with a 0.80 m walkway and a bench where it fits. The checks agree with the
 its counter; a zone the drawn pieces cut off from the entrance but another door reaches is minor). real06's layout
 re-run: the kitchen's two G9 majors gone (hob with oven, under-counter fridge, table with chairs), the dressing room
 2.0 m + 1.6 m wardrobes and a bench, the master bedroom a desk, the upper hall a console.
+
+### The first pod run with Argus (real06, 26 Oct 2026, job 20261026-195707-full)
+
+The labelled veranda and the L1 balcony are built (slab, base wall, drawn steps, light roof, posts; the balcony a slab
+with a glass guard), and Argus no longer finds them lost. Argus's documents-vs-model line read both floor plans from
+their strokes and the elevations (6 calls) and kept 10 checked claims. But Argus AI's look took 60 minutes: with
+thinking on, 19 of 20 triage calls thought until the 12,000-token cap at about 45 tokens/s and gave no JSON; the agent
+then had no time for a round and the big loop for a cycle (house score 31.34, judge mean 2.27, as before). Fixed:
+thinking off for the structured calls, 4,096 tokens a call, a budget of 15 minutes a look (7 before a cycle), the
+critical findings first. GPU tests 56 of 57 (the window-pane saturation, now 0.053: the window views, a helper is on
+it).

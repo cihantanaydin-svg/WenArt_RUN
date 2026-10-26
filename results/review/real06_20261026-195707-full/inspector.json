@@ -1,0 +1,74 @@
+{
+ "round": 1,
+ "counts": {
+  "seen": 0,
+  "visitor": 0,
+  "fixed": 0,
+  "handed": 0,
+  "open": 0,
+  "dropped": 0,
+  "architect_open": 0,
+  "architect_open_major": 0,
+  "model_checks": {
+   "M1": 0,
+   "M2": 0,
+   "M6": 0,
+   "M7": 0,
+   "M3": 0,
+   "M4": 0,
+   "M5": 0,
+   "M8": 0
+  },
+  "model_open": 0
+ },
+ "vision": [],
+ "code": [],
+ "dropped": [],
+ "architect_open": [],
+ "model_review": {
+  "findings": [],
+  "checks": {
+   "M1": {
+    "checked": 16,
+    "failed": 0,
+    "status": "ok"
+   },
+   "M2": {
+    "checked": 8,
+    "failed": 0,
+    "status": "ok"
+   },
+   "M6": {
+    "checked": 52,
+    "failed": 0,
+    "status": "ok"
+   },
+   "M7": {
+    "checked": 8,
+    "failed": 0,
+    "status": "ok"
+   },
+   "M3": {
+    "checked": 0,
+    "failed": 0,
+    "status": "ok"
+   },
+   "M4": {
+    "checked": 6,
+    "failed": 0,
+    "status": "ok"
+   },
+   "M5": {
+    "checked": 7,
+    "failed": 0,
+    "status": "ok"
+   },
+   "M8": {
+    "checked": 4,
+    "failed": 0,
+    "status": "ok"
+   }
+  }
+ },
+ "final_round_started": false
+}

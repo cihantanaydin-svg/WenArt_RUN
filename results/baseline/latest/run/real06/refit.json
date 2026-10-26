@@ -5,50 +5,30 @@
  "stage": "refit",
  "rc": 0,
  "status": "ok",
- "seconds": 35.27,
- "fingerprint": "336c79af4eb8b2e8c691c114cfadf6baee13bfe416f3b7c35efdbb1bc5eeebc5",
+ "seconds": 11.54,
+ "fingerprint": "99bf181c33f79d32a640b8f36f6c9b2c3eb98f87dc679c2849c3a96d941cba11",
  "inputs": {
-  "outputs/real06/building_agent.json": "ecf0042d888392b1e541702b3c5a001f99b6d543cf2f3c97732d17575d9ba52f",
+  "outputs/real06/building_agent.json": "f84c6cc43240386adc70956cd904e9de441e60b83cf5ec5bb0408db4c2849727",
   "outputs/real06/style.json": "58a1c5d8a8c2c12a199ec18e8584d6edfa900e51f3d1a14504974055d18f791d",
   "wenart/furniture/catalog.json": "a7b4e74bfefcb9e3e63c8cdf14b0a78dcf376b82e6a48317716a17d7c6071dde",
   "wenart/furniture/catalog_objaverse.json": null,
   "wenart/furniture/catalog_library.json": "65aea2815a460e93475d94c0bcff5d20ab04c8c0ff9b4f8961952674f77a590b",
-  "outputs/real06/building.json": "3424cee54269e927a3a01890ee397d0fdd5f72e18d2e99f747a87c8c8e74dc0b",
-  "outputs/real06/completion.json": "d0c31b7b97403dde066ac43f86f7e95d3390faa8d341fdda503c2286e688b578"
+  "outputs/real06/building.json": "a49a8432a82ada03769f33f5432a32db7ab8aa251153c2799c27d78406640617",
+  "outputs/real06/completion.json": "ee4e64055d47d43dde6dbdafe18cba06bc82bc8cdbd7be274427e135a342fa88"
  },
  "outputs": [
   "building_final.json"
  ],
- "started_utc": "2026-10-26T18:41:37Z",
- "git_commit": "9ec5d11b92df143614266c4e1593d2e40fc42815",
+ "started_utc": "2026-10-26T20:08:08Z",
+ "git_commit": "9bc1e868aa0e511ea356c1ddd299ecea27d20509",
  "log": "logs/refit.log",
  "note": null,
- "run_id": "20261026-183115-full-20261026T183543Z",
+ "run_id": "20261026-195707-full-20261026T200228Z",
  "steps": [
   {
    "name": "refit",
    "rc": 0,
-   "seconds": 7.25
-  },
-  {
-   "name": "refit",
-   "rc": 0,
-   "seconds": 8.45
-  },
-  {
-   "name": "refit",
-   "rc": 0,
-   "seconds": 6.84
-  },
-  {
-   "name": "refit",
-   "rc": 0,
-   "seconds": 6.69
-  },
-  {
-   "name": "refit",
-   "rc": 0,
-   "seconds": 6.04
+   "seconds": 11.54
   }
  ],
  "written": {}
