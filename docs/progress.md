@@ -1327,3 +1327,21 @@ UL27-UL33, CLAUDE.md). Every cause was general; real06 only showed it:
 | a bedroom with no bed, a "kitchen counter" in it | a room with a zone was planned for its zone only; three nested outlines of one wardrobe read as a counter, a wardrobe and a cabinet; a straight run with nothing drawn on it typed a counter; "ODA" (room) read as bedroom | the rest of a zoned room keeps its room type's groups (`program.rest_place`); nested outlines are one piece (`reading.nested_outlines`); a counter needs a sink, a hob, an L/U corner or a kitchen block (`symbols.counter_run_evidence`); a room named only "room" takes the type of its agreed anchors (`reading.generic_rooms`) |
 | armchairs read as "dining tables with chairs" | the table + chairs split took a seat cushion for a table and its arms for chairs | a seat-sized group whose parts hug the outline is one seat (`symbols.one_seat`); identical blocks get one type (`infer.same_block`); a round table ringed by 3+ seats is a coffee table; a wall type chosen by code needs its back on a wall (`infer.placeable`); a round piece is never a chair |
 | the AI saw little of it | the architect offered "keep" only, so neither code nor the AI could act; the vision critic was never asked these questions; the final round never started (it was gated on the whole final stages) | the architect's safe defaults (`architect.defaults_of`, `build.prepare`; by: architect, the AI's and the user's answers win; 33 points settled on real06's last building); the visitor checks Q1-Q8 on every room and exterior view, routed to tools or to the stage that owns them; the final round asks every view again on the final renders and needs time for its own re-render only; `orchestrator/inspector.md` lists what the AI saw, fixed, handed on and left |
+
+**The review of the 3D model itself** (user, 26 Oct 2026: "reviewing the 3d model itself could be better solution rather
+than individual renders investigate decide apply"; lesson UL34). Investigated: the renders show what 34 cameras frame
+(real06: rooms' far sides, facades and whole rooms never in a frame), and a vision model judging a height or a gap from
+a perspective image guesses; the model as built holds every element with its place (`scene/building_built.json`, the
+scene manifest's world box of every piece, the build plan and the facade kit). Decided: the model is reviewed first,
+by measurement; the vision model looks at the model's floors from above and the renders only for the look. Applied:
+
+| Layer | What | Where |
+|---|---|---|
+| the model measured (every element, every floor, before any render) | M1 doors on their floors and no floor step at a door; M2 working heights (basin, worktop, table, desk tops over the room's floor); M3 a guard before every low opening over a drop; M4 no upper-floor door or gap onto nothing; M5 rain water (pipe spacing, count per roof area, broken-up gutters); M6 one door and window model family per category; M7 rooms that make sense (anchors as built, one dining table per room) | `wenart/blender/model_review.py`; the build writes `scene/model_review.md`; the agent's code critic reads it every round (family `model`, each finding with a tool or the stage that owns it); the inspector's report leads with it |
+| the model seen by the vision model | each floor's labelled top-down view of the final scene (angled, ceilings off, walls cut at 0.6 m, rooms named), rendered before the final round, with the visitor checks a floor shows (rooms that make no sense, pieces that repeat, clash or turn their back, a void with no guard) | `wenart.blender.cli topdown`, `scheduler.final_critical_rounds`, `critic_vision.critique_model_view` |
+| the renders | the look: finishes, style, odd models, lighting, the camera | the vision critic's room and exterior checks (unchanged) |
+
+On real06's model of 25 Oct (before today's fixes) the model review finds, in 0.6 s on the CPU: the doors 0.5 m up
+(d_L0_002, d_L0_007, o_L0_001: floors 0.5 m apart with no stair), the basins with their tops at 0.10-0.57 m, 12 upper-floor
+doors and gaps onto nothing, the kitchen with no kitchen, the 4 dining tables in the living room, two window models
+and the "bedroom" with no bed (`tests/test_inspector_20261026.py`).

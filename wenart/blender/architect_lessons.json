@@ -394,6 +394,16 @@
    "request": "I want AI to figure out all of these kind of things before I look at it; I need ai models to see understand and fix everything before even I look at it",
    "lesson": "The architect settles every open point that has a safe fix by itself (its default); the AI architect answers the rest; the AI inspector asks a visitor's questions (Q1-Q8) of every render, sends each finding to its fix and reports what is left before the user looks.",
    "question": null
+  },
+  {
+   "id": "UL34",
+   "date": "2026-10-26",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "AI inspector: vision model reviews every final render ... reviewing the 3d model itself could be better solution rather than individual renders investigate decide apply",
+   "lesson": "Review the 3D model itself first: every element of the model as built is measured (doors on their floors, working heights, guards, doors into the air, rain water, one opening language, rooms that make sense), on every floor, before any render; the vision model looks at the model's floors from above (every room) and the renders only for the look.",
+   "question": "Was every element of the built model checked, not only what the cameras frame?"
   }
  ]
 }
