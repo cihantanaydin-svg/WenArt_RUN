@@ -1481,3 +1481,15 @@ complete_group / place_group refused: "kitchen_run (missing stove, fridge): no p
 room is empty ("no groups for this room"); armchairs of different models. Being fixed as general rules (helpers): a
 kitchen run gets its hob built into the counter, a fridge and upper cabinets; a dressing room gets its wardrobe run;
 every view shows the room's main pieces; furniture names written in the plan type the pieces beside them.
+
+### Labelled outdoor spaces are built; site symbols are typed (26 Oct 2026, from Argus's findings)
+
+Every labelled outdoor space of the documents (veranda, porch, loggia, balcony, terrace, deck, patio, winter garden,
+pergola; TR/EN/DE/FR/IT/ES words, the written m² read) is built on every level (`wenart/levels/outdoor.py`): its
+outline closed from the drawn strokes and the facade (within 15 % of the written area), else a rectangle of the
+written area at the label; its level from a level mark inside it or its doors' thresholds; a ground space is a
+platform with its base wall and the drawn steps, an upper one a slab with a guard on its open edges; covered kinds get
+a light roof and posts on the drawn columns; the doors onto it land on it (no door into the air, no own steps). Drawn
+site symbols are typed by layer, block and the vegetation rule (real06's 42 circles: 28 grid bubbles, 2 columns, 7
+window sills, marks; none is a plant). real06: the veranda 22.84 m² (written 22.80) and the L1 balcony 11.60 m²
+(written 11.80) are built; real03's 8 balconies too. Argus on the new reading of real06: 0 critical (was 2), score 66.
