@@ -41,6 +41,7 @@ class Inputs:
     big_loop: Optional[dict] = None
     architect_look: Optional[dict] = None
     rubric: Optional[list] = None
+    check: Optional[dict] = None                  # the final vision check (check/check_manifest.json)
     requests: Optional[dict] = None               # the recognition questions
     answers: dict = field(default_factory=dict)   # model slug -> the recognition answers
     records: dict = field(default_factory=dict)   # stage -> its run record
@@ -63,7 +64,8 @@ def _first(*paths) -> Optional[Path]:
     return next((Path(p) for p in paths if p and Path(p).is_file()), None)
 
 
-def _fill(inp: Inputs, scene: Path, orch: Path, recog: Path, run: Path, final: Path, results: Optional[Path]) -> Inputs:
+def _fill(inp: Inputs, scene: Path, orch: Path, recog: Path, run: Path, final: Path, results: Optional[Path],
+          check: Optional[Path] = None) -> Inputs:
     def get(name, *paths):
         p = _first(*paths)
         if p is None:
@@ -80,6 +82,8 @@ def _fill(inp: Inputs, scene: Path, orch: Path, recog: Path, run: Path, final: P
     rubric = read_json(final / "rubric_per_view.json") if (final / "rubric_per_view.json").is_file() else None
     inp.rubric = rubric if isinstance(rubric, list) else (rubric or {}).get("views") if isinstance(rubric, dict) else None
     inp.requests = read_json(recog / "requests.json") if (recog / "requests.json").is_file() else None
+    if check is not None and (check / "check_manifest.json").is_file():
+        inp.check = read_json(check / "check_manifest.json")
     for p in sorted(recog.glob("answers_*.json")) if recog.is_dir() else ():
         inp.answers[p.stem[len("answers_"):]] = read_json(p)
     for p in sorted(run.glob("*.json")) if run.is_dir() else ():
@@ -99,7 +103,7 @@ def pod(project_out, results=None) -> Inputs:
     out = Path(project_out)
     inp = Inputs(project=out.name, layout="pod", root=out, stages=CV.load(out))
     return _fill(inp, out / "scene", out / "orchestrator", out / "recognition", out / "run", out / "final",
-                 Path(results) if results else None)
+                 Path(results) if results else None, out / "check")
 
 
 def collected(results, project: str) -> Inputs:
@@ -108,4 +112,4 @@ def collected(results, project: str) -> Inputs:
     stages, _manifest = CV.from_results(res, project)
     inp = Inputs(project=project, layout="collected", root=res, stages=stages)
     return _fill(inp, res / "renders" / project, res / "agent" / project, res / "recognition" / project,
-                 res / "run" / project, res / "final" / project, res)
+                 res / "run" / project, res / "final" / project, res, res / "check" / project)

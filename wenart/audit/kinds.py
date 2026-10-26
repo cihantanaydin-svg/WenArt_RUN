@@ -73,7 +73,7 @@ CHECK_KIND = {
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",
                "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense"}
-LINE_KIND = {"ledger": "lost", "conservation": "lost", "process": "process", "plan_vs_model": "lost", "sense": "no_sense",
+LINE_KIND = {"ledger": "lost", "conservation": "lost", "process": "process", "plan_vs_model": "lost", "sense": "no_sense", "render": "lost",
              "elevations": "lost", "judge": "taste", "model": "no_sense", "architect": "no_sense"}
 
 

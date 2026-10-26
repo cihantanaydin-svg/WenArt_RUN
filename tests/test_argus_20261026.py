@@ -473,3 +473,27 @@ def test_argus_documents_vs_model_line_reaches_the_report(tmp_path, monkeypatch)
     assert {f["target"] for f in rep["findings"] if f["line"] == "plan_vs_model"} == {"L1", "r_L1_hol"}
     monkeypatch.setattr(PV, "audit_project", lambda *a, **k: (_ for _ in ()).throw(OSError("no DXF")))
     assert AX.documents_vs_model(None, out, errors=errors) is None and "no DXF" in errors[0]
+
+
+def test_render_line_elements_the_renders_do_not_show():
+    from wenart.audit import render_check as RC
+
+    def el(single, seen, typ="door", role="required"):
+        return {"role": role, "type": typ, "source": "from_documents", "single": single,
+                "passes": {"agent": {"seen_as": seen}}}
+    check = {"views": {
+        "v1": {"cycles": {"elements": {"d1": el("absent", "nothing"), "f1": el("different", "armchair", "armchair"),
+                                       "w1": el("different", "door", "window")}},
+               "insertion": {"elements": {"d1": el("absent", "nothing")}}},
+        "v2": {"cycles": {"elements": {"d1": el("present", "door"), "o1": el("absent", "nothing", role="optional")}},
+               "needs_review": True}},
+        "drawn_check": {"tolerance_m": 0.05, "pieces": [
+            {"id": "f9", "type": "ottoman", "checked": True, "ok": False, "anchor_distance_m": 0.86, "size": [0.5, 0.5],
+             "drawn_size": [0.45, 0.33], "notes": []},
+            {"id": "f8", "type": "sofa", "checked": True, "ok": True}]},
+        "elevation_check": {"facades": [{"region_id": "r1", "result": "not_checked", "notes": ["no side"]}]}}
+    found = {(f["check"], f["target"]): f for f in RC.audit(check)["findings"]}
+    assert set(found) == {("K1", "d1"), ("K2", "w1"), ("K3", "f9"), ("K4", "elevations"), ("K4", "views")}
+    assert found[("K1", "d1")]["severity"] == "major" and found[("K1", "d1")]["evidence"]["views"] == ["v1"]
+    assert "0.86 m" in found[("K3", "f9")]["message"] and found[("K4", "views")]["severity"] == "major"
+    assert RC.audit(None)["note"]
