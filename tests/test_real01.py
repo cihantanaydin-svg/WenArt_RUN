@@ -461,7 +461,7 @@ def test_debug_image_report_and_questions(run):
     # for the open questions); before round 2 all 17 (the code typing ran after the questions were written).
     # 26 Oct 2026 (user: "identical blocks get one type"; infer._same_block_type): the second sofa sym_L0_015 (the
     # "chaise" above) is the same block as the first (371 paths, 1.90 x 0.70 m; the reference's C06: F14 is "the same
-    # block as F15", both sofas), and the second bed's nightstands are the first bed's blocks: code types the three
+    # block as F15", both sofas), and the second bed and its nightstands are the first bed's blocks: code types the four
     # (method same_block), so 16 questions are withdrawn and sym_L0_017 alone is asked.
     assert len(keys) == 1 and keys == ["sym_L0_017"]
     for item in doc["items"]:
@@ -476,14 +476,14 @@ def test_debug_image_report_and_questions(run):
     assert len(coded) == 10 and len(chairs) == 6 and len(asked) == len(keys) == 1
     assert sorted(f["type"] for f in coded) == ["bed_double"] * 2 + ["nightstand"] * 4 + ["sofa"] * 2 + [
         "table_coffee", "table_dining"]
-    assert sorted(f["type_method"] for f in coded) == ["group_member"] * 7 + ["same_block"] * 3
+    assert sorted(f["type_method"] for f in coded) == ["group_member"] * 6 + ["same_block"] * 4
     assert all(RD.CONTEXT_RULE in [e.get("rule") for e in f["evidence"]] for f in chairs)
     withdrawn = run["build"].code_typed
     assert sorted(withdrawn.values()) == sorted(f["id"] for f in coded + chairs) and not set(withdrawn) & set(keys)
     assert all(f.get("build") is not False for f in coded + chairs)         # typed before the AI: built
     how = run["build"].code_typed_methods
-    assert set(how) == set(withdrawn) and sorted(how.values()) == ["context:chair"] * 6 + ["group_member"] * 7 + \
-        ["same_block"] * 3
+    assert set(how) == set(withdrawn) and sorted(how.values()) == ["context:chair"] * 6 + ["group_member"] * 6 + \
+        ["same_block"] * 4
     assert run["build"].reading["questions_withdrawn"] == sorted(withdrawn)
     assert run["build"].reading["typed_by"] == {withdrawn[k]: how[k] for k in withdrawn}
     assert all(f"{k} withdrawn" in " ".join(run["building"]["warnings"]) for k in withdrawn)

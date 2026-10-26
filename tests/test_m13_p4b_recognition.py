@@ -157,7 +157,7 @@ def test_real01_answers_with_real_types_withdraw_the_same_questions(tmp_path):
     assert sorted(f["type"] for f in building["furniture"] if f.get("type_method") == "ai_two_pass") == \
         ["side_table"]
     assert sorted(f["type"] for f in building["furniture"] if f.get("type_method") == "same_block") == \
-        ["nightstand", "nightstand", "sofa"]
+        ["bed_double", "nightstand", "nightstand", "sofa"]
 
 
 def test_without_answers_nothing_is_reset():
