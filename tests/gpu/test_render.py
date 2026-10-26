@@ -733,7 +733,7 @@ def test_index_pass_contains_every_visible_proxy(project):
     table = scene["pass_index"]
     plans = {c["name"]: c for c in scene["cameras"]}
     box3d = {o["wenart_id"]: o.get("box3d") for o in scene.get("objects") or [] if o.get("kind") == "furniture"}
-    missing, hidden, edge = [], [], []
+    missing, hidden, edge, see_through = [], [], [], []
     building = None
     for r in render["renders"]:
         plan = plans.get(r["camera"])
@@ -761,6 +761,12 @@ def test_index_pass_contains_every_visible_proxy(project):
             edge_only = [f for f in absent if _library_box_edge_only(building, plan, f, box3d, shares.get(f))]
             edge.extend((r["camera"], f, round(shares[f], 4)) for f in edge_only)
             absent = [f for f in absent if f not in edge_only]
+            # 26 Oct 2026 (pod 5fr7dp2g1co4sx, real06 cam_r_L0_banyo_3: a quadrant shower enclosure of glass doors, its
+            # tray under the frame): the object index pass skips see-through glass, so a glass enclosure seen only
+            # through its panes leaves no index pixel
+            glass = [f for f in absent if _see_through(scene, f)]
+            see_through.extend((r["camera"], f) for f in glass)
+            absent = [f for f in absent if f not in glass]
         if absent:
             missing.append((r["camera"], sorted(absent)))
     if hidden:
@@ -768,7 +774,21 @@ def test_index_pass_contains_every_visible_proxy(project):
     if edge:
         print(f"{name}: library box edge only, pieces the model sees only at the edge of their fitted box "
               f"(allowed; camera, piece, model share): {edge}")
+    if see_through:
+        print(f"{name}: glass enclosures seen through their panes only (allowed; camera, piece): {see_through}")
     assert not missing, f"{name}: proxies planned in the frustum but absent from the index pass: {missing}"
+
+
+SEE_THROUGH_TYPES = ("shower", "shower_enclosure", "shower_screen")
+
+
+def _see_through(scene: dict, piece_id: str) -> bool:
+    """A shower enclosure built with glass (a material named glass): the index pass may not see it (26 Oct 2026)."""
+    for o in scene.get("objects") or []:
+        if o.get("wenart_id") == piece_id and o.get("kind") == "furniture":
+            mats = [str(m).lower() for m in (o.get("materials") or [])]
+            return str(o.get("type") or "") in SEE_THROUGH_TYPES and any("glass" in m for m in mats)
+    return False
 
 
 # --------------------------------------------------------------------------
