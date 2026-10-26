@@ -1582,3 +1582,14 @@ bedroom's dresser (its text stands in front of o_L1_007, a 1.55 m doorless openi
 window: no valid place within 1 m). real03: four "portmanto" texts in the entrance halls are now read; each hall is
 too small for a shoe cabinet beside its doors, so they are listed for review. real01, real02, real04: no name texts;
 real02 / real04 have an "AÇIK MUTFAK" kitchen zone in their L-1b salons.
+
+### The windows see a garden and a horizon, not a grey void (26 Oct 2026, from the judge and Argus's P2)
+
+Three causes together: on a small inferred plot every tree candidate stood inside the window band (real06: 0 of 74
+placed); the lawn turned grey for every ray after the first glass pane (its grey for bounced light caught the camera's
+view through a window too); nothing stood at the horizon. Now: after the strict pass, a framing pass places trees seen
+from the windows but clear of their light (2.5 m) and straight view (6 m), and a neighbour's tree beyond the plot when
+it is too small (real06: 3 of 3, seen from 18 of 29 windows); the lawn greys only after a diffuse bounce; a ring of
+tree groups beyond the cameras' reach and a broken tree line at 350 m stand at the horizon (one mesh of about 9,300
+faces, no shadow, hidden from diffuse rays: the room light is unchanged), species inferred and named. A new GPU test
+(the lawn through a pane, the context in Blender) runs with the full job.

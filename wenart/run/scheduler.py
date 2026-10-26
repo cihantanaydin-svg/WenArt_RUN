@@ -204,7 +204,9 @@ GPU_TEST_GROUPS = (
                     ("tests/gpu/test_furnish.py", ("FURNISH_TEST_PROJECTS",)),
                     ("tests/gpu/test_check.py", ("CHECK_TEST_PROJECTS",)),
                     ("tests/gpu/test_realism.py", ("AB_TEST_PROJECTS",)),
-                    ("tests/gpu/test_m9.py", ("RENDER_TEST_PROJECTS",))]),          # Milestone 9: AI decor, 3D files
+                    ("tests/gpu/test_m9.py", ("RENDER_TEST_PROJECTS",)),            # Milestone 9: AI decor, 3D files
+                    # 26 Oct 2026: the lawn's own colour through a pane, the horizon context built in Blender
+                    ("tests/gpu/test_site_window_views.py", ("RENDER_TEST_PROJECTS",))]),
     ("polish", "polish_py", [("tests/gpu/test_polish.py", ("POLISH_TEST_PROJECTS", "GATE_TEST_PROJECTS")),
                              ("tests/gpu/test_polish_backend.py", ("POLISH_TEST_PROJECTS", "GATE_TEST_PROJECTS")),
                              ("tests/gpu/test_detect.py", ("DETECT_TEST_PROJECTS",))]),
