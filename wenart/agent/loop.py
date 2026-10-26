@@ -266,6 +266,20 @@ Fix round after P6b (23 Oct 2026), review:
   without its cut stands for its cuts), and ``metrics.edit_target_keys`` leaves the kept targets out, so an edit
   accepted under ``critical_cleared`` counts as removing its finding when its criticals went.
 
+26 Oct 2026 (Argus P10, "the agent tried N times and code refused every try"; the big loop's round 4 of real06, run
+20261026-183115-full): every finding an AI made by looking (``causes.is_vision``: the vision critic's, the AI judge's
+on the final renders, the inspector's, Argus AI's) is a vision finding of the dry re-check: ``after_findings`` keeps
+it on an unchanged target and counts it as re-judged on a changed one, ``room_type_kept`` keeps a judge's "the room is
+empty" through a set_room_type, the acceptance's note and ``carried`` name it; the big loop's measure after the
+re-render (keep-best, rollback when the house score falls) is the real check. Why: the rules tested ``source ==
+"vision"``; the judge's findings (``source: judge``) fell out of the round's list with the first accepted edit (a
+set_room_type of r_L1_soyunma_odasi to "hall" for the judge's "the dressing room is empty", counted with 56 findings
+"removed"), so the swap_model of f_L1_017 for the judge's critical Q5 "the two armchairs are a mismatched set" was
+refused "no target finding" and its repeat naming the finding was refused by the memory. ``round`` routes the judge's
+problems and Argus AI's work (``extra_work``: copies with an id each) through the vision critic's rules
+(``mark_replayed``, ``mark_agent_views``, a tool or a stage, else dropped with the reason in the log; before, a judge
+problem without either was dropped silently).
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -814,7 +828,7 @@ def room_type_kept(tool: str, args: Optional[dict], before: Optional[list],
     room = str(a["room_id"])
     out = []
     for f in before or []:
-        if f.get("source") != "vision" or str(f.get("target")) != room:
+        if not CS.is_vision(f) or str(f.get("target")) != room:
             continue
         cause = f.get("cause") if f.get("cause") in ROOM_FURNISHING_CAUSES else \
             CS.cause_of(dict(f, cause=None), building_after)
@@ -1193,7 +1207,8 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
             f = carry_drawn_layout(f, drawn_layout[CS.finding_key(f)])
         out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
     for f in before:
-        if f.get("source") == "vision":
+        if CS.is_vision(f):
+            # 26 Oct 2026 (Argus P10): the judge's, the inspector's and Argus AI's findings too (``causes.is_vision``)
             cause = f.get("cause") or CS.cause_of(f, building_after)
             untouched = override is not None and not CS.override_touches(cause, override)
             if untouched and (f.get("target") in changed or CS.finding_key(f) in target_keys):
@@ -1698,9 +1713,9 @@ class AgentLoop:
             return f.get("check") in NOT_REMEASURED and f.get("check") not in remeasured
 
         carried = sorted({CS._fmt(CS.finding_key(f)) for f in after
-                          if f.get("target") in changed and (f.get("source") == "vision" or unmeasured(f))})
+                          if f.get("target") in changed and (CS.is_vision(f) or unmeasured(f))})
         note = None
-        if ok and any(f.get("target") in changed and (f.get("source") == "vision" or unmeasured(f)
+        if ok and any(f.get("target") in changed and (CS.is_vision(f) or unmeasured(f)
                                                       or manifest_measured(f))
                       for f in before):
             note = "findings the dry re-check cannot measure on the changed target (scene, view, look, vision or " \
@@ -2278,12 +2293,15 @@ class AgentLoop:
             f["cause"] = CS.cause_of(f, rendered)
         ctx.violations = list(code.get("findings") or [])
         vision = self.run_vision_critic(ctx, code, round_no)
-        # Milestone 13: the vision critic's findings are work only where a tool exists for the cause
+        # Milestone 13: the vision critic's findings are work only where a tool exists for the cause; 26 Oct 2026 (the
+        # big loop; Argus P10): the AI judge's problems on the final renders and Argus AI's work are vision findings of
+        # this round (``extra_work``), marked, routed and dropped (with the reason, logged) by the same rules
         kept = []
-        CS.mark_replayed(vision.get("kept") or [], ctx.cameras())
+        looked = list(vision.get("kept") or []) + self.extra_work()
+        CS.mark_replayed(looked, ctx.cameras())
         # fix round after P6a, part 2: a claim about what the agent's own exterior view shows is that camera's
-        CS.mark_agent_views(vision.get("kept") or [], ctx.cameras(), rendered)
-        for f in list(vision.get("kept") or []):
+        CS.mark_agent_views(looked, ctx.cameras(), rendered)
+        for f in looked:
             f["cause"] = CS.cause_of(f, rendered)
             if CS.tools_for_finding(f):
                 kept.append(f)
@@ -2294,12 +2312,6 @@ class AgentLoop:
             else:
                 vision.setdefault("dropped", []).append(dict(f, dropped=f"no agent tool for the cause "
                                                                          f"{f['cause']}: {CS.no_tool_reason(f)}"))
-        # 26 Oct 2026 (the big loop): the AI judge's problems on the final renders are vision findings of this round
-        for f in list(getattr(self, "extra_findings", None) or []):
-            f = dict(f)
-            f["cause"] = CS.cause_of(f, rendered)
-            if CS.tools_for_finding(f) or CS.REPORT_TO.get(f["cause"]):
-                kept.append(f)
         vision["kept"] = kept
         self.log_findings(round_no, code, vision)
         # 26 Oct 2026: kept for the inspector's report of the final round (wenart/agent/inspector.py)
@@ -2561,6 +2573,29 @@ class AgentLoop:
         score["argus"] = audit["score"]
         self.extra_findings = list(judged["findings"]) + audit["work"]
         return {"score": score, "rows": judged["rows"], "findings": judged["findings"], "errors": judged["errors"]}
+
+    def extra_work(self) -> list[dict]:
+        """26 Oct 2026 (Argus P10): copies of ``self.extra_findings`` (``measure``: the judge's problems on the final
+        renders, Argus AI's work) for this round's work, each with an id a checklist step and an edit's reason can
+        name (the judge's own ``j:<call>:<n>``; else ``<source initial>:<check>:<target>``, numbered when it repeats,
+        as ``critic_code`` numbers its own) and without a cause, so ``round`` takes it again on this round's building.
+        The originals (the judge's cache) are never changed."""
+        out: list[dict] = []
+        seen: set = set()
+        for f in getattr(self, "extra_findings", None) or []:
+            if not isinstance(f, dict):
+                continue
+            f = copy.deepcopy(f)
+            f.pop("cause", None)
+            fid = str(f.get("id") or f"{str(f.get('source') or 'x')[:1]}:{f.get('check')}:{f.get('target')}")
+            n, base = 1, fid
+            while fid in seen:
+                n += 1
+                fid = f"{base}#{n}"
+            seen.add(fid)
+            f["id"] = fid
+            out.append(f)
+        return out
 
     def argus_measure(self) -> dict:
         """26 Oct 2026 (user: "we need a big smart auditor to check everything in the project"): Argus's code lines on

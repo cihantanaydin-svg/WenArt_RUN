@@ -41,7 +41,9 @@ before; a version-1 file's refusal count is kept as ``refused_repeats_legacy``).
 (rounds and candidates as ints, the open checklist as strings, records without the ``scope`` key). The loop re-reads
 the sha once per round (``refresh``). An acceptance rejection that only says the round's finding list had no target
 for the edit (``BOOKKEEPING_WORDS``: "no target finding", "target finding ... is not among") refuses its repeat in the
-same round only: a later round has other findings. Why: P5's memory.json held three runs (r_L-1_salon visits [1..6, 1,
+same round only: a later round has other findings (26 Oct 2026, Argus P10: and only while the round's list still has
+no target for it, ``repeat_of(skip_bookkeeping=True)`` from ``tools._repeat_of``: the repeat whose reason names its
+finding is validated again). Why: P5's memory.json held three runs (r_L-1_salon visits [1..6, 1,
 2, 3, 1, 2, 3]); 19 of P5's 33 memory refusals cited rejections that do not exist in P5's log (M12's "round 6", P3's
 remove_piece f_L1_048, M12's set_terrain), the planner skipped a relayout "tried" in M12, sessions were ordered by the
 visits of all runs, and piece ids change meaning between runs (P3's floor lamp f_L-1_065 is P5's coffee table).
@@ -200,15 +202,18 @@ class Memory:
             return sum(1 for v in self._raw(room_id).get("visits") or [] if self.mine(v))
 
     def repeat_of(self, room_id: Optional[str], tool: str, args: Optional[dict],
-                  round_no: Optional[int] = None) -> Optional[dict]:
+                  round_no: Optional[int] = None, skip_bookkeeping: bool = False) -> Optional[dict]:
         """The earlier rejection of exactly this edit in ``room_id`` (any round of the current scope), else None.
-        Fix round after P5: a ``bookkeeping`` rejection counts only in its own round (``round_no``; None: any)."""
+        Fix round after P5: a ``bookkeeping`` rejection counts only in its own round (``round_no``; None: any).
+        26 Oct 2026 (Argus P10): ``skip_bookkeeping`` leaves every ``bookkeeping`` rejection out (the tools pass it
+        when the round's finding list now holds a target for the edit, ``tools._repeat_of``)."""
         key = edit_key(tool, args)
         with self.lock:
             for e in self._raw(room_id).get("rejected") or []:
                 if e.get("key") != key or not self.mine(e):
                     continue
-                if round_no is not None and bookkeeping(e) and int(e.get("round") or 0) != int(round_no):
+                if bookkeeping(e) and (skip_bookkeeping or (round_no is not None
+                                                            and int(e.get("round") or 0) != int(round_no))):
                     continue
                 return _plain(copy.deepcopy(e))
         return None

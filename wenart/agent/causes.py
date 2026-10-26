@@ -219,6 +219,21 @@ armchair f_L1_031 in r_L1_oyun_aktivite_ve_dinlenme_odasi faced its coffee table
 move_piece ("move_piece does not fix c:G3:f_L1_032"), and the rendered room kept its G3 through three rounds (its
 unrendered twin fixed it with an off-plan move). A G3 whose angle fails keeps ``orientation``.
 
+26 Oct 2026 (Argus P10, "the agent tried N times and code refused every try"; the big loop's round 4 of real06):
+
+- ``is_vision(finding)``: a finding an AI made by looking (``VISION_SOURCES``: the vision critic's on the previews,
+  the AI judge's on the final renders, the inspector's, Argus AI's on the project) and that the dry re-check cannot
+  measure. Every rule written for "a vision finding" reads it (``critical_cleared``: a gone judge critical is no code
+  measure; ``cause_of``: a judge F1 / G14 on a drawn piece is ``drawn_type``, a judge F1 "empty" is ``empty_room``, a
+  judge F9 about the rendered model is ``wrong_model``; ``mark_agent_views``). Why: the rules tested ``source ==
+  "vision"`` and the judge's findings carry ``source: judge``; the loop's dry re-check dropped every one of them
+  after the round's first accepted edit, so the next edits on them (swap_model on f_L1_017 for the judge's Q5) were
+  refused "no target finding" and the first accepted edit counted 56 findings "removed";
+- a Q5 that says the pieces do not match (``MISMATCH_WORDS``: "a mismatched set", "different models and colours")
+  is ``wrong_model`` (swap_model), also when it counts the pieces ("the two armchairs"): the count words mean one
+  piece too many (``wrong_type``) only without a mismatch. Why: real06's Q5 "The two armchairs are a mismatched set"
+  was ``wrong_type`` and its checklist step offered retype_piece for a model's look.
+
 Why: real04 (M12, §1.5) accepted 183 edits of which 20 removed their finding; the tools were mapped by check id
 (``brief.CHECK_TOOLS``), so every room session got every tool for every check whatever the cause.
 
@@ -481,6 +496,19 @@ LOOK_WORDS: tuple[str, ...] = ("rendered as", "rendered with", "hole", "looks", 
 # view's framing causes, and the metrics flag ``mark_agent_views`` sets (the view's name).
 AGENT_VIEW_CHECKS: tuple[str, ...] = ("X3", "X6")
 AGENT_VIEW_FLAG = "agent_view"
+# 26 Oct 2026 (module docstring): the sources of findings an AI made by looking, which the dry re-check cannot measure
+# (``critic_vision``: "vision"; ``judge.judge_view``: "judge"; the inspector; ``audit.argus_ai.work_findings``:
+# "argus"), and the words of a Q5 about pieces that do not match (a model's look, not one piece too many).
+VISION_SOURCES: tuple[str, ...] = ("vision", "judge", "inspector", "argus")
+MISMATCH_WORDS: tuple[str, ...] = ("mismatch", "not match", "n't match", "should match", "different model",
+                                   "different style", "different colour", "different color", "clash")
+
+
+def is_vision(finding: Optional[dict]) -> bool:
+    """26 Oct 2026 (module docstring): ``finding`` was made by an AI looking at a render or the project
+    (``VISION_SOURCES``), not measured by code: the dry re-check keeps it on an unchanged target and counts it as
+    re-judged (gone) on a target the edit changed; the next render's critics measure it."""
+    return isinstance(finding, dict) and str(finding.get("source") or "") in VISION_SOURCES
 
 
 def _text(finding: dict) -> str:
@@ -543,9 +571,9 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
     metrics = _metrics(finding)
     target = finding.get("target")
     base = CHECK_CAUSE.get(check, "unknown")
-    if check in DRAWN_TYPE_CHECKS and finding.get("source") == "vision" and drawn_type_held(building, target):
+    if check in DRAWN_TYPE_CHECKS and is_vision(finding) and drawn_type_held(building, target):
         return "drawn_type"                    # fix round after P6a: a vision opinion, the drawing's type stays
-    if check == "F1" and finding.get("source") == "vision" and target and not _is_piece(target, building) \
+    if check == "F1" and is_vision(finding) and target and not _is_piece(target, building) \
             and any(w in f" {text} " for w in EMPTY_ROOM_WORDS):
         return "empty_room"                    # fix round after P6b: furnish the room, never retype it away
     if check == "RC" and target and not _is_piece(target, building):
@@ -559,6 +587,8 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
             return "wrong_type"                # a piece of another room: retype or remove it
         return "empty_room" if any(w in f" {text} " for w in EMPTY_ROOM_WORDS + (" no ", "without")) \
             else "room_type"
+    if check == "Q5" and any(w in text for w in MISMATCH_WORDS):
+        return "wrong_model"                   # 26 Oct 2026: pieces that do not match: swap the odd one's model
     if check == "Q5" and target and _is_piece(target, building) and \
             any(w in text for w in ("several", "two ", "three", "four", "duplicate", "repeat", "extra", "second")):
         return "wrong_type"                    # one piece too many: retype it (its group's member) or remove it
@@ -573,7 +603,7 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
         return "drawn_layout"
     if check in FIXTURE_LAYOUT_CHECKS and metrics.get(DRAWN_LAYOUT_FLAG):
         return "drawn_layout"                  # fix round after P6b: fix_fixture's search found no valid spot
-    if check in AGENT_VIEW_CHECKS and finding.get("source") == "vision" and metrics.get(AGENT_VIEW_FLAG):
+    if check in AGENT_VIEW_CHECKS and is_vision(finding) and metrics.get(AGENT_VIEW_FLAG):
         return "exterior_camera"               # fix round after P6a, part 2: the agent's view frames it so
     if check == "F8":
         if metrics.get("cause") == "anchor_not_built" or metrics.get("missing_anchor") or "not built" in text:
@@ -613,7 +643,7 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
             return "floating"
         if "duplicate" in text:
             return "wrong_type"
-        if finding.get("source") == "vision" and _built_piece(building, target):
+        if is_vision(finding) and _built_piece(building, target):
             # fix round after P6b (module docstring): a claim about the rendered model is a model's, not a type's
             if any(w in text for w in WALL_CUT_WORDS):
                 return "collision"
@@ -803,7 +833,7 @@ def mark_agent_views(findings: list[dict], cameras, building: Optional[dict] = N
     elements = None
     for f in findings or []:
         check = str(f.get("check") or f.get("checklist") or "")
-        if check not in AGENT_VIEW_CHECKS or f.get("source") != "vision":
+        if check not in AGENT_VIEW_CHECKS or not is_vision(f):
             continue
         evidence = f.get("evidence") if isinstance(f.get("evidence"), dict) else {}
         target = None if f.get("target") is None else str(f.get("target"))
@@ -949,7 +979,7 @@ def mark_drawn_layout(findings: list[dict], building: Optional[dict]) -> list[di
     fixtures: dict = {}                      # fix round after P6b: one spot search per piece
     for f in findings or []:
         check = str(f.get("check") or f.get("checklist") or "")
-        if f.get("source") == "vision" or _metrics(f).get("missing_anchor"):
+        if is_vision(f) or _metrics(f).get("missing_anchor"):
             continue
         piece = pieces.get(f.get("target"))
         if piece is None:
@@ -1366,11 +1396,12 @@ def critical_cleared(present: list, kept: list, before_by: dict, after_by: dict)
     them: at least one target is critical, every critical target is gone, at least one of the gone criticals is
     measured by code (its source is not ``vision``: a vision finding on a changed target counts as gone unmeasured),
     and no kept target became more severe; else None (the edit is refused "still there", as before). An all-major step
-    keeps the old rule (every target gone; real02 / real04 logs: 14 edits it would let through, overlaps left)."""
+    keeps the old rule (every target gone; real02 / real04 logs: 14 edits it would let through, overlaps left).
+    26 Oct 2026: "vision" is every source an AI made by looking (``is_vision``: the judge's, the inspector's too)."""
     crit = [t for t in present if (before_by.get(t) or {}).get("severity") == "critical"]
     if not crit or any(t in after_by for t in crit):
         return None
-    if not any((before_by.get(t) or {}).get("source") != "vision" for t in crit):
+    if not any(not is_vision(before_by.get(t) or {}) for t in crit):
         return None
     for t in kept:
         if SEVERITY_ORDER.get(str(after_by[t].get("severity")), 3) < \

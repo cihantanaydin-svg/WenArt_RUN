@@ -40,7 +40,7 @@
         "revision": {"type": ["string", "null"]},
         "call_id": {"type": ["string", "null"]},
         "pass": {"type": ["integer", "null"]},
-        "source": {"enum": ["code", "vision", "final", null]},
+        "source": {"enum": ["code", "vision", "judge", "inspector", "argus", "final", null]},
         "checklist": {"type": ["string", "null"]},
         "severity": {"$ref": "#/$defs/severity"},
         "target": {"type": ["string", "null"]},
