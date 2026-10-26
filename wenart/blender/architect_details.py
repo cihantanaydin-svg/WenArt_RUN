@@ -274,6 +274,19 @@ def guards(building: dict, prep: dict, balustrade: str) -> dict:
         if any(c.get("height_m", 0) > 1.2 for c in pf.get("cap_exceeded") or []):
             _ans(q, pf["id"], f"{pf['id']}: retaining walls over 1.2 m hold the ground above it",
                  "a guard on their tops (the fall from the ground into it)")
+    # 26 Oct 2026: the edges of the stair voids in the floors (shell.floor_void_guards: every edge off a wall and off
+    # the stair's arrival gets a balustrade; real06's upper landing had none)
+    try:
+        from wenart.blender import shell as SH
+        by_level = ((prep.get("slabs") or {}).get("by_level") or {})
+        for lv in building.get("levels") or []:
+            under = (by_level.get(lv["id"]) or {}).get("under") or {}
+            for g in SH.floor_void_guards(building, lv, under.get("voids") or []):
+                _ans(q, f"void_{lv['id']}_{g['void']}", f"stair void of {lv['id']}: {g['length_m']:.2f} m of free "
+                     f"edge", f"a {GUARD_MIN_M:.2f} m {balustrade.replace('_', ' ')} balustrade along it (the stair "
+                     f"arrives from {', '.join(g['arrives_from']) or 'below'})")
+    except (KeyError, TypeError, ValueError, AttributeError):
+        pass
     return q
 
 

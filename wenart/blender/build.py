@@ -851,7 +851,8 @@ def facade_faces(building: dict, outlines: dict[str, list]) -> tuple[dict[str, l
 LIBRARY_OPENINGS_ENV = "WENART_LIBRARY_OPENINGS"      # "off": the parametric doors and windows (A/B)
 
 
-def library_openings(building: dict, levels: list, prep: dict, brief, warnings: list, assets_dir=None) -> dict:
+def library_openings(building: dict, levels: list, prep: dict, brief, warnings: list, assets_dir=None,
+                     style=None, assumed: Optional[list] = None) -> dict:
     """``opening_models.plan`` for the outer doors and windows of a whole-building build (24 Oct 2026), in the
     run's licence mode; {} when ``WENART_LIBRARY_OPENINGS=off`` or the catalogue has no extras."""
     from wenart.blender import opening_models as OM
@@ -874,7 +875,20 @@ def library_openings(building: dict, levels: list, prep: dict, brief, warnings: 
     taken = {r["opening"]["id"] for r in outer}
     outer = list(outer) + [r for r in AR.open_air_doors(building) if r["level"]["id"] in ids
                            and r["opening"]["id"] not in taken and r["opening"].get("outside_door")]
-    plan = OM.plan(building, outer, extras, mode, assets_dir=assets_dir)
+    # 26 Oct 2026 (user: "the house ... needs to look very stylish"): the style picks the look, one door and window
+    # language per building; what was left out and what stays parametric is listed (opening_models.plan's notes)
+    notes: list = []
+    plan = OM.plan(building, outer, extras, mode, assets_dir=assets_dir, style=style, notes=notes)
+    for n in notes:
+        if n.get("kind") == "parametric":
+            warnings.append(f"opening {n.get('id')}: parametric in the style's finish ({n.get('reason')})")
+            if assumed is not None:
+                assumed.append({"object": n.get("id"), "field": "opening_model", "value": "parametric",
+                                "reason": str(n.get("reason") or "no model of the building's family fits")})
+        elif n.get("kind") == "left_out" and assumed is not None:
+            assumed.append({"object": "openings", "field": f"left_out:{n.get('category')}",
+                            "value": len(n.get("models") or {}), "reason": "models out of the style's look: "
+                            + "; ".join(f"{k}: {v}" for k, v in list((n.get("models") or {}).items())[:8])})
     cats: dict = {}
     for v in plan.values():
         cats.setdefault(v["category"], set()).add(v["asset"]["asset_id"])
@@ -1224,7 +1238,8 @@ def main(argv: list[str]) -> int:
         for face in scheme:
             assumed.append({"object": face.get("wall_id") or face.get("level_id"), "field": "facade_scheme",
                             "value": face["material"], "reason": face["reason"]})
-    lib_openings = library_openings(building, levels, prep, brief, warnings, assets_dir=args.assets) if whole else {}
+    lib_openings = library_openings(building, levels, prep, brief, warnings, assets_dir=args.assets, style=style,
+                                    assumed=assumed) if whole else {}
     geo_cache: dict = {}
     slabs = prep["slabs"]
     roof = prep["roof"]
@@ -1278,7 +1293,7 @@ def main(argv: list[str]) -> int:
                            "ceiling_planes": level.get("ceiling_planes"), "open_rooms": prep["open_rooms"],
                            "terrace_floor": (looks or {}).get("paving")}
         shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings, stairs=stairs,
-                                    whole=floor_whole)
+                                    whole=floor_whole, assumed=assumed)
         if whole and prep["outlines"].get(level["id"]):
             counts = shell.build_outside_details(building, level, col, library, looks, prep["outlines"][level["id"]],
                                                  pass_indices, manifest_objects, assumed, style=style)
