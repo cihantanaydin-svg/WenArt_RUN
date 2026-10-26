@@ -1550,3 +1550,35 @@ then had no time for a round and the big loop for a cycle (house score 31.34, ju
 thinking off for the structured calls, 4,096 tokens a call, a budget of 15 minutes a look (7 before a cycle), the
 critical findings first. GPU tests 56 of 57 (the window-pane saturation, now 0.053: the window views, a helper is on
 it).
+
+## Argus A6 on real06: furniture names written in the plan are read (26 Oct 2026)
+
+The source ledger (check A6) found four furniture names written as texts on real06 L1 ("*SIFONIYER" three times,
+"çamaşır mak." once) that the reading never used. Fixed as general rules for every project (`wenart/furniture/names.py`;
+real06 is the test case, `tests/test_name_texts_20261026.py`):
+
+| Rule | What | Where |
+|---|---|---|
+| the texts | every furniture name text of a read plan page (TR, EN, DE, FR, IT, ES; case, accents and a leading '*' ignored; not a room name, label, dimension, level mark or area) is recorded on the building (`furniture_texts`, the inventory's ids and positions); the ledger classifies with the same function | `names.furniture_name`, `reading.furniture_texts` |
+| 1. type the footprint | an untyped drawn footprint the text stands on or within 1.2 m of (the nearest piece of that size) gets the named type when it fits the size (block-name tolerance), the room and the wall rule: code method `name_text`, right after the block name; a text that does not fit says why in the piece's review entry | `infer.type_by_code`, `infer.name_text_note` |
+| 1b. correct an AI type | a text written on (within 0.15 m) a piece the AI passes or a weak guess typed as another type gives it the named type (`adjusted_by_ai` by code, `drawn_type` and the plan crop kept); a block name or a reading rule is never overruled | `infer.name_text_retypes` |
+| 2. add the named piece | a text with no drawn piece adds it `from_documents` (the text as evidence, footprint inferred: the default size placed by `placer.place` at the text, back to the nearest wall, every check passed); no valid place within 1 m, a room that may not hold it, a generic or a short name: listed for review with the reason, never forced | `names.add_named_pieces`, `pipeline._add_named_pieces` |
+| zone labels | a room's second label naming a zone of another kind ("YEMEK BÖLÜMÜ" in a salon; Essbereich, salle à manger, zona pranzo, comedor ...) is recorded with its zone (the part of the room nearer to it than to the room's other labels); the zone's anchor (the dining table) goes to the untyped footprint drawn there nearest the label (a table drawn with its chairs counts): code method `zone_label`; the group-member rule never gives the room's seating anchor to a footprint in such a zone | `names.zone_records`, `reading.zone_labels`, `infer._zone_label_type` |
+| the member the AI named | an untyped footprint in a room that misses a set member (a bathroom's shower or bath) whose AI passes named that member in their answer or reason ("likely a bathtub or shower") gets it (`inferred`); a named type the room may not hold (a bunk bed) is ignored; a drawn size outside the range takes the nearest real product inside the drawn footprint (`drawn_footprint` kept) | `infer.ai_named_members` |
+| wardrobe runs | in a dressing room every untyped footprint with its long side on a wall, a wardrobe run's length and a depth of 0.55-0.90 m is a wardrobe, its depth snapped to 0.60 m with the back on the wall (`drawn_footprint` kept); in a bedroom missing its wardrobe only its one such footprint | `infer._wardrobe_run_type` |
+
+The conflicts of the pieces these rules typed get the decision as their resolution (`reading.resolve_named_conflicts`).
+
+real06 before / after (reading with the answers of `20261026-170020-full`, the same code without these rules as the
+before): A6 4 -> 2. f_L1_007 (the text on it; the tie-break had said desk) is a dresser, f_L1_021 (an empty 0.60 m
+square under "çamaşır mak."; both AI passes said washbasin) is the washing machine, f_L0_011 (the round dining table
+under "YEMEK BÖLÜMÜ", 1.69 m with four chairs inside its outline; it was "the living room's corner sofa") is the dining
+table and its four split chairs (read as ottomans) are chairs facing it, the corner baths f_L0_010 / f_L1_011 (2.42 x
+0.98 m; pass 1 "likely a bathtub or shower", pass 2 "bunk_bed") are 1.80 x 0.80 m bathtubs (drawn diagonally, as the
+corner bath is drawn; the reading moved each 0.25 m off the wall), the dressing room's f_L1_014 / f_L1_015 are 2.27 x
+0.60 m wardrobes. Left, with the reason logged: f_L1_019 (the text on it, but the reading made the "ODA" a living room
+from its "sofa", which the drawing shows is a single bed, and a living room holds no dresser) and the master
+bedroom's dresser (its text stands in front of o_L1_007, a 1.55 m doorless opening the reading made of the east
+window: no valid place within 1 m). real03: four "portmanto" texts in the entrance halls are now read; each hall is
+too small for a shoe cabinet beside its doors, so they are listed for review. real01, real02, real04: no name texts;
+real02 / real04 have an "AÇIK MUTFAK" kitchen zone in their L-1b salons.

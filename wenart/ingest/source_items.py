@@ -259,7 +259,10 @@ def _label_parts(ex) -> dict[str, tuple[str, str, str]]:
     return out
 
 
-def _text_rows(ex, page_id: str, m6) -> list[dict]:
+def text_rows(ex, page_id: str, m6) -> list[dict]:
+    """The text rows of one extracted page (the inventory's ``texts`` format: position in building metres through
+    ``m6``, the reading's role and label part). 26 Oct 2026: the reading's furniture name texts are read from the same
+    rows (``generic.reading.furniture_texts``), so their ids and positions are the inventory's."""
     parts = _label_parts(ex)
     s = _units_scale(m6) if m6 else None
     rows = []
@@ -358,7 +361,7 @@ def inventory(build, records: list, works: dict) -> dict:
                       "level_id": record.level_id, "read": work is not None, "skip_reason": record.skip_reason,
                       "units_to_m": units, "transform_to_building": m6, "units": "m" if m6 else "page"})
         if ex is not None:
-            texts.extend(_text_rows(ex, page_id, m6))
+            texts.extend(text_rows(ex, page_id, m6))
         else:
             # A page the pipeline did not extract: the texts its classifier read (DXF TEXT / MTEXT, PDF words).
             for t in record.texts or []:

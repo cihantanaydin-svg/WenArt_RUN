@@ -171,6 +171,53 @@ project"; real06 is the test case, tests/test_reading_sense_20261026.py). What:
   (within ``RING_REACH_M``, facing it when they have a front, no gap of ``RING_OPEN_DEG`` between their bearings) is
   their coffee table: ``adjusted_by_ai`` by code with ``drawn_type`` and the plan crop. Why: real06's f_L0_028 (0.66 m,
   "floor lamp" by both passes) stands in the middle of four armchairs.
+
+Furniture name texts of 26 Oct 2026 (the auditor Argus, source ledger check A6; ``wenart.furniture.names``; user:
+"fix should be general"; real06 is the test case, tests/test_name_texts_20261026.py). What:
+
+- **A name text types the footprint it names** (code method ``name_text``, after ``block`` in ``CODE_TYPE_METHODS``;
+  ``_name_text``): an untyped drawn footprint with a furniture name text of the plan (``building["furniture_texts"]``,
+  recorded by the reading) on it or within ``names.NAME_NEAR_M``, when the text names this piece (of the drawn pieces
+  whose size fits the named type, it is the nearest: ``names.named_piece``), the type fits the size
+  (``names.NAME_SIZE_TOL``, the block name's tolerance), the room may hold it and a wall type has a side on a wall
+  (``_name_choice``); the nearer text wins. The evidence names the text (entity id, value, position). A text that is
+  not used says why (``name_text_note``: the reading puts it in the piece's review entry).
+- **A name text corrects an AI type** (``name_text_retypes``, in ``infer_types`` before the other retype rules;
+  proposal method ``NAME_RETYPE_METHOD``, the piece's ``type_method`` becomes ``name_text``): a drawn piece typed by the
+  AI passes or a weak code guess (``names.RETYPE_FROM``) with a name text of another type written on it (within
+  ``names.NAME_RETYPE_M``) takes the named type when it fits the size and the room: ``adjusted_by_ai`` by code with
+  ``drawn_type`` and the plan crop (``_apply_nightstand``). A block-named piece or one a reading rule typed is never
+  changed.
+
+- **A zone label types the anchor of its zone** (code method ``zone_label``, after ``name_text``; ``_zone_label_type``):
+  a second label of a room naming a zone of another kind (``building["zone_labels"]``, ``names.zone_records``:
+  "YEMEK BÖLÜMÜ" in a salon, Essbereich, salle à manger, zona pranzo, comedor) gives the zone's anchor (the dining
+  table) to the untyped drawn footprint of its zone nearest the label whose size fits it (``names.fits_with_partners``:
+  a table drawn with its chairs counts, ``names.partner_margin``), when the zone has no anchor yet and the room holds
+  it. The group-member rule never gives the room kind's anchor to a footprint in a zone of another kind.
+- **The member the room misses, named by the AI passes** (``ai_named_members``, in ``infer_types`` before the size
+  inference; proposal method ``AI_MEMBER_METHOD``, ``type_method: inferred``): an untyped drawn footprint whose room
+  misses a member of its groups (``_group_wants``: a bathroom set's "shower|bathtub") and whose passes named that
+  member as their answer or in their reason (``names.mentioned_types``: "likely a bathtub or shower") gets it; a type
+  the room may not hold (a bunk bed in a bathroom) is ignored and said; a drawn size outside the type's ranges takes
+  the nearest real product inside the drawn footprint (``product_inside``; ``adjusted_by_ai`` by code, ``drawn_*``
+  kept, the plan crop), the reading's ``fix_fixed`` then checks it like any fixed piece.
+- **A wardrobe run the room's program needs** (``_wardrobe_run_type``, method ``group_member`` after the group-member
+  rule): in a dressing room (``program.room_kind`` ``dressing`` / ``program.dressing_room``: wardrobe runs along its
+  walls) every untyped drawn footprint with its long side on a wall, a wardrobe run's length (the size table, +15 %)
+  and a depth in ``WARDROBE_DEPTH_M`` is a wardrobe; in a room whose required group has a wardrobe anchor and none is
+  built (a bedroom's storage) only its one such footprint. A depth outside the wardrobe's range is snapped to the
+  product depth with the back kept on its wall (``snapped``: ``drawn_*`` kept, ``adjusted_by_ai`` by code, rule
+  ``WARDROBE_RULE``); an AI answer of another type the room holds that fits the size leaves it to the plan crop (a
+  "stair" answer never counts: stairs come from the drawing). real06's dressing room f_L1_014 / f_L1_015 (2.27 x 0.85
+  m, the passes: unknown / stair) were unbuilt and the completion would have added new runs beside them.
+
+Why: real06 L1 writes "*SIFONIYER" on f_L1_007 (two passes: dresser / desk; the tie-break took desk) and on f_L1_019,
+and "çamaşır mak." on the empty square f_L1_021 (two passes: washbasin); none of them was read. Rule 2 of ``names``
+(a name text with no drawn piece adds the piece) runs in the pipeline after the last typing. real06's salon holds the
+label "YEMEK BÖLÜMÜ" on its round dining table f_L0_011 (1.69 m with four chairs inside the outline), which the
+group-member rule made "the living room's corner sofa"; its bathrooms' corner baths f_L0_010 / f_L1_011 (2.42 x 0.98
+m, pass 1 "likely a bathtub or shower", pass 2 "bunk_bed") stayed untyped and the bathrooms had no bath.
 """
 from __future__ import annotations
 
@@ -186,8 +233,20 @@ from wenart import geometry as G
 from wenart.furniture import groups as GR
 from wenart.furniture import placer, plausibility as PL, schemas
 
-# Milestone 13 (T3): code-first typing. 26 Oct 2026: same_block (one block drawn again elsewhere in the project).
-CODE_TYPE_METHODS = ("twin", "level", "same_block", "block", "group_member")
+# Milestone 13 (T3): code-first typing. 26 Oct 2026: same_block (one block drawn again elsewhere in the project) and
+# name_text (a furniture name written as a text of the plan, ``wenart.furniture.names``).
+NAME_TEXT_METHOD = "name_text"
+NAME_RETYPE_METHOD = "name_text_retype"   # the proposal's method of rule 1b; the piece's type_method becomes name_text
+ZONE_LABEL_METHOD = "zone_label"          # 26 Oct 2026: a zone label of the room ("YEMEK BÖLÜMÜ") names its anchor
+AI_MEMBER_METHOD = "ai_member"            # 26 Oct 2026: ai_named_members' proposal method (type_method inferred)
+AI_MEMBER_RULE = "furniture.infer.ai_named_members"
+INFER_METHOD_VALUE = "inferred"           # the schema's type_method of a piece typed by inference
+# 26 Oct 2026 (wardrobe runs, method group_member): a drawn wardrobe run is this deep (its doors drawn in front, a
+# block drawn deeper than the product); a depth outside the wardrobe's range is snapped to the product depth.
+WARDROBE_DEPTH_M = (0.55, 0.90)
+WARDROBE_ROOM = "dressing"                # the room kind whose program is wardrobe runs (program.room_kind)
+WARDROBE_RULE = "wardrobe_run"
+CODE_TYPE_METHODS = ("twin", "level", "same_block", "block", NAME_TEXT_METHOD, ZONE_LABEL_METHOD, "group_member")
 SAME_FOOTPRINT_M = 0.01          # the same footprint: sizes (and, on another level, the polygon) within 1 cm
 SAME_CENTRE_M = 0.02             # a twin's mirrored centre within this (ingest.twins.TOL: the transform is rounded)
 CONF_TWIN = 0.8
@@ -680,6 +739,332 @@ def _block_type(building: dict, piece: dict, room: Optional[dict]) -> Optional[d
             "evidence": _evidence_code(piece, "block", text, CONF_BLOCK, block=names[0], word=key)}
 
 
+def _name_choice(building: dict, piece: dict, room: Optional[dict], types, size, fit=None) -> tuple[Optional[str], str]:
+    """26 Oct 2026 (``names`` rule 1 / 1b, zone labels): ``(type, "")`` of the types a name text names that fit the
+    piece's size (``fit``, by default ``names.fits_size``: ``names.NAME_SIZE_TOL``), that its room may hold and whose
+    position rule holds (``placeable``), the nearest product of two when one is clearly nearer; else ``(None, why
+    not)``."""
+    from wenart.furniture import names as NM
+
+    fit = fit or NM.fits_size
+    fits = [t for t in types if fit(t, piece)]
+    if not fits:
+        return None, f"its product range does not fit {size[0]:.2f} x {size[1]:.2f} m"
+    if room is not None and not any(t in ("other", "unknown") for t in PL.room_types(building, room)):
+        allowed = PL.allowed_in(building, room)
+        ok = [t for t in fits if t in allowed]
+        if not ok:
+            return None, f"a {' + '.join(PL.room_types(building, room))} room holds no {' / '.join(fits)}"
+        fits = ok
+    whys = [placeable(t, piece, room) for t in fits]
+    ok = [t for t, why in zip(fits, whys) if why is None]
+    if not ok:
+        return None, str(whys[0])
+    if len(ok) > 1:
+        ranked = sorted(ok, key=lambda t: (round(_product_distance(t, size), 4), t))
+        if _product_distance(ranked[1], size) - _product_distance(ranked[0], size) < NM.PRODUCT_MARGIN:
+            return None, f"{ranked[0]} and {ranked[1]} fit {size[0]:.2f} x {size[1]:.2f} m about equally"
+        ok = ranked[:1]
+    return ok[0], ""
+
+
+def _name_evidence(piece: dict, text: dict, distance: float, reason: str, rule: str) -> dict:
+    from wenart.furniture import names as NM
+
+    ev = _evidence(piece, reason, NM.CONF_NAME_TEXT)
+    ev.update({"entity": text.get("id"), "rule": rule,
+               "name_text": {"id": text.get("id"), "text": text.get("text"), "pos": list(text.get("pos") or []),
+                             "distance_m": round(float(distance), 3)}})
+    if text.get("layer"):
+        ev["layer"] = text["layer"]
+    return ev
+
+
+def _where(distance: float) -> str:
+    return "on the footprint" if distance <= 1e-6 else f"{distance:.2f} m from it"
+
+
+def _name_text(building: dict, piece: dict, room: Optional[dict]) -> tuple[Optional[dict], list[str]]:
+    """26 Oct 2026 (``names`` rule 1): ``(proposal, notes)``: the type a furniture name text of the plan gives the
+    untyped drawn ``piece`` (the text on or within ``names.NAME_NEAR_M`` of it, nearest first: it names this piece
+    (``names.named_piece``), its type fits the size and the room (``_name_choice``)), else None with one note per
+    text that was not used and why."""
+    from wenart.furniture import names as NM
+
+    near = NM.texts_near(building, piece)
+    if not near:
+        return None, []
+    size = [float(v) for v in piece["footprint"]["size"]]
+    notes = []
+    for d, t in near:
+        if any(f.get("id") != piece.get("id") for f in NM.used_by(building, t)):
+            continue                                     # the text names another piece already (rule 1 or 1b)
+        what = t.get("type") or f"{t.get('family')} ({' / '.join(t.get('types') or ())})"
+        head = f"the documents name a {what} here ({NM.describe(t)}, {_where(d)})"
+        if not any(NM.fits_size(x, piece) for x in t.get("types") or ()):
+            notes.append(f"{head}: not used: its product range does not fit {size[0]:.2f} x {size[1]:.2f} m")
+            continue
+        owner = NM.named_piece(building, t)
+        if owner is not None and owner.get("id") != piece.get("id"):
+            notes.append(f"{head}: not used here: it names {owner['id']} (nearer to the text)")
+            continue
+        ftype, why = _name_choice(building, piece, room, list(t.get("types") or ()), size)
+        if ftype is None:
+            notes.append(f"{head}: not used: {why}")
+            continue
+        text = (f"{ftype}: the documents name it: the text {NM.describe(t)} stands {_where(d)} (within "
+                f"{NM.NAME_NEAR_M:g} m, the nearest drawn piece of that size), and the type's product range fits "
+                f"{size[0]:.2f} x {size[1]:.2f} m within {NM.NAME_SIZE_TOL:.0%}")
+        return {"type": ftype, "method": NAME_TEXT_METHOD, "confidence": NM.CONF_NAME_TEXT, "reason": text,
+                "evidence": _name_evidence(piece, t, d, text, NM.RULE_TYPE)}, notes
+    return None, notes
+
+
+def _zone_label_type(building: dict, piece: dict, room: Optional[dict]) -> Optional[dict]:
+    """26 Oct 2026 (module docstring, zone labels): the anchor type of the zone label whose zone holds the untyped
+    drawn ``piece`` ("YEMEK BÖLÜMÜ": the dining table), when the zone has no built anchor yet, the piece is the untyped
+    drawn footprint of the zone nearest the label whose size fits an anchor (``names.fits_with_partners``: a table
+    drawn with its chairs counts), and the type fits the room (``_name_choice``); else None."""
+    from shapely.geometry import Point, Polygon
+
+    from wenart.furniture import names as NM
+
+    if room is None:
+        return None
+    zone = NM.zone_of(building, piece)
+    if zone is None:
+        return None
+    cell = Polygon(zone["zone"]).buffer(1e-6)
+    anchors = list(zone.get("anchors") or ())
+    mine = [f for f in building.get("furniture") or [] if f.get("room_id") == room["id"] and f.get("footprint")
+            and cell.contains(Point(*[float(v) for v in f["footprint"]["center"]]))]
+    if any(f.get("type") in anchors and f.get("build") is not False for f in mine):
+        return None                                      # the zone has its anchor
+    label = Point(float(zone["pos"][0]), float(zone["pos"][1]))
+
+    def key(f):
+        try:
+            d = placer.drawn_piece(f).polygon().distance(label)
+        except (KeyError, TypeError, ValueError):
+            d = 9e9
+        return (round(d, 4), str(f.get("id")))
+
+    cands = sorted((f for f in mine if untyped_drawn(f) and any(NM.fits_with_partners(t, f) for t in anchors)), key=key)
+    if not cands or cands[0].get("id") != piece.get("id"):
+        return None
+    size = [float(v) for v in piece["footprint"]["size"]]
+    ftype, _why = _name_choice(building, piece, room, anchors, size, fit=NM.fits_with_partners)
+    if ftype is None:
+        return None
+    d = key(piece)[0]
+    with_partners = not NM.fits_size(ftype, piece)
+    text = (f"{ftype}: the documents name this zone of the room: the label {zone['text']!r} ({zone['id']}, a "
+            f"{zone['kind']} zone of {room['id']}) stands {_where(d)}, the nearest untyped drawn footprint of its "
+            f"zone; the {ftype}'s product range fits {size[0]:.2f} x {size[1]:.2f} m"
+            + (f" drawn with its chairs ({NM.partner_margin(ftype):.2f} m around it)" if with_partners else "")
+            + " and the room holds it")
+    ev = _evidence_code(piece, ZONE_LABEL_METHOD, text, NM.CONF_NAME_TEXT)
+    ev.update({"entity": zone["id"], "zone_label": {"id": zone["id"], "text": zone["text"], "kind": zone["kind"],
+                                                    "pos": list(zone["pos"]), "distance_m": d}})
+    return {"type": ftype, "method": ZONE_LABEL_METHOD, "confidence": NM.CONF_NAME_TEXT, "reason": text,
+            "evidence": ev}
+
+
+def name_text_note(building: dict, piece: dict) -> Optional[str]:
+    """26 Oct 2026 (``names`` rule 1): why the furniture name texts near an untyped drawn piece did not type it ("the
+    documents name a dresser here ('*SIFONIYER' (TEXT:29ABD3), on the footprint): not used: a living room holds no
+    dresser"), or None when no name text stands near it or one types it. For the piece's review entry."""
+    room = _rooms(building).get(piece.get("room_id") or "")
+    try:
+        found, notes = _name_text(building, piece, room)
+    except (KeyError, TypeError, ValueError):
+        return None
+    return None if found is not None or not notes else "; ".join(notes)
+
+
+def _code_front(building: dict, piece: dict, room: Optional[dict], ftype: str) -> Optional[float]:
+    """The front rule 4 gives a piece typed ``ftype`` by code: the side opposite the only wall side, or towards the
+    nearest partner (None without a room outline or a rule)."""
+    if room is None or len(room.get("polygon") or []) < 3:
+        return None
+    mates = [f for f in building.get("furniture") or [] if f.get("room_id") == piece.get("room_id")
+             and f["id"] != piece["id"]]
+    others = [(f["type"], placer.drawn_piece(f, k)) for k, f in enumerate(mates)
+              if f.get("type") != "unknown" and f.get("build") is not False and f.get("footprint")]
+    partners = [o for t, o in others if t in schemas.orientation_rule(ftype)["partners"]]
+    return _front_for(ftype, placer.drawn_piece(piece), _room_ring(room), partners)
+
+
+def name_text_retypes(building: dict) -> list[dict]:
+    """26 Oct 2026 (``names`` rule 1b; CLAUDE.md "code may retype a drawn piece that the vision models typed when its
+    size, room and neighbours clearly say otherwise"): proposals ``{"piece_id", "type", "type_method":
+    NAME_RETYPE_METHOD, "reason", "confidence", "evidence", "drawn_type", "crop", "front_deg"?}`` for the drawn pieces
+    typed by the AI passes or a weak code guess (``names.RETYPE_FROM``) on which a furniture name text of another
+    type is written (within ``names.NAME_RETYPE_M``; the text names this piece, no built piece of the named type
+    stands near it and no piece uses it yet), when the named type fits the size and the room. Pure."""
+    from wenart.furniture import names as NM
+
+    rooms = _rooms(building)
+    out: list[dict] = []
+    done: set = set()
+    for t in sorted(NM.texts_of(building), key=lambda t: (str(t.get("level_id")), str(t.get("id")))):
+        if NM.used_by(building, t) or NM.named_near(building, t) is not None:
+            continue
+        owner = NM.named_piece(building, t)
+        if owner is None or owner["id"] in done or owner.get("type") in (None, "unknown") \
+                or owner.get("build") is False or owner.get("type_method") not in NM.RETYPE_FROM \
+                or owner.get("type") in (t.get("types") or ()):
+            continue
+        d = NM.text_distance(t, owner)
+        if d > NM.NAME_RETYPE_M + 1e-9:
+            continue
+        room = rooms.get(owner.get("room_id") or "")
+        size = [float(v) for v in owner["footprint"]["size"]]
+        ftype, _why = _name_choice(building, owner, room, list(t.get("types") or ()), size)
+        if ftype is None:
+            continue
+        crop = _crop_of(owner)
+        reason = (f"{ftype}: the documents name it: the text {NM.describe(t)} is written {_where(d)}; the "
+                  f"{owner.get('type_method') or 'AI'} reading said {owner['type']}; the named type's product range "
+                  f"fits {size[0]:.2f} x {size[1]:.2f} m and the room holds it (trust order: the documents' text "
+                  f"before AI vision)" + (f"; plan crop {crop}" if crop else ""))
+        prop = {"piece_id": owner["id"], "type": ftype, "type_method": NAME_RETYPE_METHOD, "reason": reason,
+                "confidence": NM.CONF_NAME_TEXT, "drawn_type": owner["type"], "crop": crop,
+                "evidence": _name_evidence(owner, t, d, reason, NM.RULE_RETYPE)}
+        if owner.get("front_deg") is None:
+            front = _code_front(building, owner, room, ftype)
+            if front is not None:
+                prop["front_deg"] = front
+        out.append(prop)
+        done.add(owner["id"])
+    return out
+
+
+def product_inside(ftype: str, size) -> Optional[tuple[float, list[float]]]:
+    """26 Oct 2026 (``ai_named_members``): ``(log distance, size)`` of the drawn size itself when it lies inside the
+    type's ranges (distance 0), else of the nearest real product (``sizes.products``) that fits inside the drawn
+    footprint, in the drawn orientation (the long side along the drawn long side); None when none fits inside."""
+    from wenart.furniture import sizes as SZ
+
+    w, d = (float(v) for v in size[:2])
+    if SZ.fits(ftype, [w, d], 0.0):
+        return 0.0, [w, d]
+    long_, short = max(w, d), min(w, d)
+    best = None
+    for prod in SZ.products(ftype):
+        pl, ps = max(float(prod[0]), float(prod[1])), min(float(prod[0]), float(prod[1]))
+        if pl > long_ + 1e-9 or ps > short + 1e-9:
+            continue
+        dist = max(abs(math.log(long_ / pl)), abs(math.log(short / ps)))
+        if best is None or dist < best[0] - 1e-9:
+            best = (dist, [pl, ps] if w >= d else [ps, pl])
+    return best
+
+
+def ai_named_members(building: dict) -> list[dict]:
+    """26 Oct 2026 (module docstring): proposals ``{"piece_id", "type", "type_method": AI_MEMBER_METHOD, "reason",
+    "confidence", "evidence", "drawn_type", "crop", "footprint"?}`` for the untyped drawn footprints whose room misses a
+    member of its groups (``_group_wants``: a bathroom set's "shower|bathtub") and whose AI passes named that member, as
+    their answer or in their reason (``names.mentioned_types``: "likely a bathtub or shower"); a type the room may not
+    hold (a bunk bed in a bathroom) is ignored and said. Of two named members the one whose real product lies nearer the
+    drawn size wins (``product_inside``; about equal: nothing). A drawn size outside the type's ranges takes the nearest
+    real product inside the drawn footprint (``footprint``, the centre and rotation kept). One piece per missing type
+    and room. Pure."""
+    from wenart.furniture import names as NM
+
+    rooms = _rooms(building)
+    furniture = building.get("furniture") or []
+    out: list[dict] = []
+    taken: dict[str, set] = {}
+    for f in sorted(furniture, key=lambda f: str(f.get("id"))):
+        cands = [c for c in f.get("type_candidates") or [] if isinstance(c, dict)]
+        room = rooms.get(f.get("room_id") or "")
+        if not cands or room is None or not untyped_drawn(f):
+            continue
+        try:
+            poly = placer.drawn_piece(f).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+        mates = [g for g in furniture if g.get("room_id") == f.get("room_id") and g["id"] != f["id"]]
+        by_id = {g["id"]: g for g in mates}
+        held = outline_holds(poly, mates)
+        if any(by_id[h].get("type") not in schemas.FIXED_TYPES for h in held) or _host_of(poly, mates) is not None:
+            continue          # a rug or zone outline around loose pieces, or a part of a piece (the box of a curved
+            #                   bath may hold a basin beside it: fixed pieces held are no reason)
+        wanted = _group_wants(building, room)
+        if not wanted:
+            continue
+        allowed = None
+        if not any(t in ("other", "unknown") for t in PL.room_types(building, room)):
+            allowed = PL.allowed_in(building, room)
+        named: dict[str, list[str]] = {}
+        for c in cands:
+            who = f"pass {c.get('pass')}" + (f" ({c['model_key']})" if c.get("model_key") else "")
+            if c.get("type") in schemas.SIZE_OPTIONS:
+                named.setdefault(c["type"], []).append(f"{who} answered {c['type']}")
+            for t in NM.mentioned_types(c.get("reason") or ""):
+                if t in schemas.SIZE_OPTIONS:
+                    named.setdefault(t, []).append(f"{who}'s reason names {t}")
+        ignored = sorted(t for t in named if allowed is not None and t not in allowed)
+        options = [t for t in named if t in wanted and t not in ignored
+                   and t not in taken.get(room["id"], set())]
+        ranked = sorted((r[0], t, r[1]) for t in options for r in [product_inside(t, f["footprint"]["size"])] if r)
+        if not ranked or (len(ranked) > 1 and ranked[1][0] - ranked[0][0] < NM.PRODUCT_MARGIN):
+            continue
+        dist, ftype, size = ranked[0]
+        drawn = [float(v) for v in f["footprint"]["size"]]
+        crop = _crop_of(f)
+        resized = abs(size[0] - drawn[0]) > 1e-6 or abs(size[1] - drawn[1]) > 1e-6
+        reason = (f"{ftype}: {room['id']} misses it ({'; '.join(wanted[ftype][:2])}) and the AI passes named it "
+                  f"({'; '.join(named[ftype][:3])})"
+                  + (f"; ignored: {', '.join(ignored)} (not a piece of a {' + '.join(PL.room_types(building, room))} "
+                     f"room)" if ignored else "")
+                  + (f"; the drawn {drawn[0]:.2f} x {drawn[1]:.2f} m is outside the {ftype}'s range: the nearest real "
+                     f"product inside it, {size[0]:.2f} x {size[1]:.2f} m, centre and rotation kept (CLAUDE.md: a "
+                     f"misread size), drawn_footprint kept" if resized else "")
+                  + (f"; plan crop {crop}" if crop else ""))
+        ev = _evidence(f, reason, CONF_GROUP)
+        ev.update({"rule": AI_MEMBER_RULE, "missing": wanted[ftype][:3],
+                   "ai_reasons": [str(c.get("reason") or "") for c in cands if c.get("reason")][:2]})
+        prop = {"piece_id": f["id"], "type": ftype, "type_method": AI_MEMBER_METHOD, "reason": reason,
+                "confidence": CONF_GROUP, "evidence": ev, "drawn_type": f.get("type"), "crop": crop}
+        if resized:
+            prop["footprint"] = dict(f["footprint"], size=[round(size[0], 4), round(size[1], 4)])
+        out.append(prop)
+        # the slot is taken, with the alternatives of its role ("shower|bathtub": one of them)
+        lines = set(wanted[ftype])
+        taken.setdefault(room["id"], set()).update(t for t, ls in wanted.items() if set(ls) & lines)
+    return out
+
+
+def _apply_ai_member(item: dict, prop: dict) -> None:
+    """``ai_named_members``: the type (``type_method: inferred``, ``inferred`` with the reason and the evidence) and,
+    for a drawn size outside the type's ranges, the real product size with ``adjusted_by_ai`` by code (``drawn_*``
+    kept, the plan crop)."""
+    item["type"] = prop["type"]
+    item["type_method"] = INFER_METHOD_VALUE
+    item["inferred"] = True
+    item["inferred_reason"] = prop["reason"]
+    item.setdefault("evidence", []).append(dict(prop["evidence"]))
+    if item.get("build") is False and str(item.get("not_built_reason") or "").lower().startswith("untyped"):
+        item["build"] = True
+        item.pop("not_built_reason", None)
+    if item.get("height") is None and schemas.HEIGHTS.get(prop["type"]) is not None:
+        item["height"] = schemas.HEIGHTS[prop["type"]]
+    if prop.get("footprint"):
+        item.setdefault("drawn_type", prop.get("drawn_type"))
+        item.setdefault("drawn_footprint", copy.deepcopy(item.get("footprint")))
+        item.setdefault("drawn_front_deg", item.get("front_deg"))
+        item.setdefault("drawn_height", None)
+        before = copy.deepcopy(item.get("footprint"))
+        item["footprint"] = dict(prop["footprint"])
+        label = {"by": "code", "stage": "reading", "rule": AI_MEMBER_METHOD, "reason": prop["reason"],
+                 "changed": {"type": prop.get("drawn_type"), "footprint": before}}
+        if prop.get("crop"):
+            label["crop"] = prop["crop"]
+        merge_code_label(item, label)
+
+
 def _product_distance(ftype: str, size) -> float:
     from wenart.furniture import sizes as SZ
 
@@ -857,6 +1242,115 @@ def _role_place_ok(building: dict, piece: dict, room: dict, ftype: str) -> bool:
     return True if check is None else check(building, piece, room) is not None
 
 
+def _needs_wardrobe(building: dict, room: dict) -> Optional[str]:
+    """26 Oct 2026 (``_wardrobe_run_type``): why the room's program needs a wardrobe run, or None: a dressing room or
+    walk-in closet (``program.room_kind`` ``dressing`` or ``program.dressing_room``: wardrobe runs along its walls), or
+    a room kind whose required groups have a wardrobe anchor (a bedroom's storage) with no wardrobe built yet."""
+    from wenart.furniture import program as PR
+
+    kind = PR.room_kind(building, room)
+    if kind == WARDROBE_ROOM or PR.dressing_room(building, room):
+        return f"{room['id']} is a dressing room: its program puts wardrobe runs along its walls (groups.yaml dressing)"
+    present = {f.get("type") for f in building.get("furniture") or [] if f.get("room_id") == room["id"]
+               and f.get("build") is not False}
+    if "wardrobe" in present:
+        return None
+    required = {g for g, req, _opts in PR._rows(kind, PR._area(room), placer.room_context(building, room).polygon,
+                                                 building, room, room.get("room_subtype")) if req}
+    for name, template in GR.load_groups().items():
+        if name in required and template["layout"] == "anchored" and "wardrobe" in template["anchor"]["types"]:
+            return f"the {kind} room misses its {name} anchor (wardrobe)"
+    return None
+
+
+def _wardrobe_candidate(piece: dict, room: dict) -> Optional[tuple[float, float, int]]:
+    """``(length, depth, wall side index)`` of an untyped drawn footprint that can be a wardrobe run: its long side on a
+    wall (``side_on_wall``), its length in the wardrobe's width range (``sizes``, +15 %), its depth in
+    ``WARDROBE_DEPTH_M``; else None."""
+    from wenart.furniture import sizes as SZ
+
+    if not untyped_drawn(piece) or len(room.get("polygon") or []) < 3:
+        return None
+    w, d = (float(v) for v in piece["footprint"]["size"][:2])
+    length, depth = max(w, d), min(w, d)
+    rng = SZ.real_range("wardrobe") or {}
+    lo, hi = rng.get("width") or (0.8, 3.2)
+    if not (lo / 1.15 <= length <= hi * 1.15 and WARDROBE_DEPTH_M[0] - 1e-9 <= depth <= WARDROBE_DEPTH_M[1] + 1e-9):
+        return None
+    try:
+        poly = placer.drawn_piece(piece).polygon()
+    except (KeyError, TypeError, ValueError):
+        return None
+    ring = _room_ring(room)
+    for k, (a, b) in enumerate(_sides(poly)):
+        if abs(math.dist(a, b) - length) <= 0.02 and side_on_wall(a, b, ring):
+            return length, depth, k
+    return None
+
+
+def _wardrobe_run_type(building: dict, piece: dict, room: dict) -> Optional[dict]:
+    """26 Oct 2026 (module docstring, wardrobe runs; method ``group_member``): an untyped drawn footprint along a wall
+    of a room whose program needs a wardrobe run (``_needs_wardrobe``), with a wardrobe run's length and a depth near a
+    wardrobe's (``_wardrobe_candidate``), is a wardrobe: in a dressing room every such footprint, elsewhere only the
+    room's one candidate. A depth outside the wardrobe's range is snapped to the product depth, the back kept on its
+    wall (``snapped``: ``drawn_footprint`` kept, ``adjusted_by_ai`` by code); the front faces the room. An AI answer of
+    another type the room holds and the size fits leaves it to the plan crop."""
+    from wenart.furniture import sizes as SZ
+
+    found = _wardrobe_candidate(piece, room)
+    if found is None:
+        return None
+    why = _needs_wardrobe(building, room)
+    if why is None:
+        return None
+    dressing = why.endswith("(groups.yaml dressing)")
+    if not dressing:
+        others = [f for f in building.get("furniture") or [] if f.get("room_id") == room["id"]
+                  and f["id"] != piece["id"] and _wardrobe_candidate(f, room) is not None]
+        if others:
+            return None                                  # two candidates: the plan crop decides (AI)
+    size = [float(v) for v in piece["footprint"]["size"]]
+    allowed = PL.allowed_in(building, room) | {"wardrobe"}
+    answers = {c.get("type") for c in piece.get("type_candidates") or [] if c.get("type")}
+    # (a stair is typed by the stair rule from the drawing, never by an AI answer alone: hanger lines read as treads)
+    if any(a not in (None, "unknown", "wardrobe", "stair") and a in allowed and SZ.fits(a, size, 0.15)
+           for a in answers):
+        return None
+    length, depth, k = found
+    rng = SZ.real_range("wardrobe") or {}
+    dlo, dhi = rng.get("depth") or (0.5, 0.7)
+    poly = placer.drawn_piece(piece).polygon()
+    a, b = _sides(poly)[k]
+    mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+    c = poly.centroid
+    ux, uy = c.x - mid[0], c.y - mid[1]
+    n = math.hypot(ux, uy) or 1.0
+    ux, uy = ux / n, uy / n
+    front = round(G.normalise_angle(math.degrees(math.atan2(uy, ux))), 3)
+    out_depth = depth if dlo - 1e-9 <= depth <= dhi + 1e-9 else float((rng.get("product") or (1.2, 0.6))[1])
+    text = (f"wardrobe: {why}; the drawn {length:.2f} x {depth:.2f} m stands with its long side on a wall, its length "
+            f"fits a wardrobe run ({_span_text(rng.get('width') or (0.8, 3.2))}) and its depth is a wardrobe's "
+            f"({WARDROBE_DEPTH_M[0]:.2f}-{WARDROBE_DEPTH_M[1]:.2f} m drawn)")
+    out = {"type": "wardrobe", "method": "group_member", "confidence": CONF_GROUP, "front_deg": front}
+    if abs(out_depth - depth) > 1e-6:
+        text += (f"; the depth is outside the wardrobe's range ({dlo:.2f}-{dhi:.2f} m): {out_depth:.2f} m, the back "
+                 f"kept on its wall, drawn_footprint kept (CLAUDE.md: a real product size)")
+        cx, cy = mid[0] + ux * out_depth / 2.0, mid[1] + uy * out_depth / 2.0
+        w0, d0 = size
+        new_size = [w0, out_depth] if w0 >= d0 else [out_depth, d0]
+        out["footprint"] = {"center": [round(cx, 4), round(cy, 4)], "size": [round(new_size[0], 4),
+                                                                              round(new_size[1], 4)],
+                            "rotation_deg": piece["footprint"]["rotation_deg"]}
+        out["snapped"] = True
+    out["reason"] = text
+    out["evidence"] = _evidence_code(piece, "group_member", text, CONF_GROUP, missing=[why], rule_detail=WARDROBE_RULE)
+    return out
+
+
+def _span_text(pair) -> str:
+    return f"{float(pair[0]):.2f}-{float(pair[1]):.2f} m"
+
+
 def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict]:
     from wenart.furniture import program as PR
     from wenart.furniture import sizes as SZ
@@ -871,10 +1365,16 @@ def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict
     # Fix round after P5 (module docstring): an untyped L outline of the room is its corner sofa to be (the context
     # rule types it): the room does not miss its seating anchor, and no other footprint stands in for it.
     l_waits = _l_outline_waits(building, piece, room)
+    # 26 Oct 2026 (zone labels): a footprint in a labelled zone of another kind ("YEMEK BÖLÜMÜ" in a salon) is never
+    # the room kind's missing anchor (real06 f_L0_011, the round dining table, was "the living room's corner sofa")
+    from wenart.furniture import names as NM
+
+    zone = NM.zone_of(building, piece)
+    foreign_zone = zone is not None and zone.get("kind") != kind
     for name, template in GR.load_groups().items():
         # Only the anchor of a group the room kind requires (a bedroom's bed, a living room's sofa): an optional
         # group's anchor (a dining table in a living room) is no evidence for a lone footprint.
-        if name not in required or template["layout"] != "anchored":
+        if name not in required or template["layout"] != "anchored" or foreign_zone:
             continue
         if l_waits is not None and "sofa_corner" in template["anchor"]["types"]:
             continue
@@ -923,9 +1423,10 @@ def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict
 
 
 def type_by_code(building: dict, piece: dict) -> Optional[dict]:
-    """Milestone 13 (§13.2): ``{"type", "method": twin | level | block | group_member, "evidence", "confidence",
-    "reason", "front_deg"?, "footprint"?}`` for an untyped drawn footprint, or None when code cannot tell (the AI
-    types it from the plan crop). The methods are tried in that order (the module docstring)."""
+    """Milestone 13 (§13.2): ``{"type", "method": twin | level | same_block | block | name_text | group_member,
+    "evidence", "confidence", "reason", "front_deg"?, "footprint"?}`` for an untyped drawn footprint, or None when
+    code cannot tell (the AI types it from the plan crop). The methods are tried in that order (the module
+    docstring)."""
     if not untyped_drawn(piece):
         return None
     room = _rooms(building).get(piece.get("room_id") or "")
@@ -950,16 +1451,20 @@ def type_by_code(building: dict, piece: dict) -> Optional[dict]:
     if outline_holds(poly, mates) or _host_of(poly, mates) is not None:
         return None
     found = _block_type(building, piece, room)
+    if found is None:
+        found = _name_text(building, piece, room)[0]      # 26 Oct 2026: a furniture name written beside it
+    if found is None:
+        found = _zone_label_type(building, piece, room)   # 26 Oct 2026: a zone label of its room ("YEMEK BÖLÜMÜ")
     if found is None and room is not None:
         found = _group_member_type(building, piece, room)
+    if found is None and room is not None:
+        found = _wardrobe_run_type(building, piece, room)  # 26 Oct 2026: a wardrobe run the room's program needs
     if found is None:
         return None
-    if room is not None and piece.get("front_deg") is None and len(room.get("polygon") or []) >= 3:
+    if room is not None and piece.get("front_deg") is None and found.get("front_deg") is None \
+            and len(room.get("polygon") or []) >= 3:
         # The front as rule 4 gives it: the side opposite the only wall side, or towards the nearest partner.
-        others = [(f["type"], placer.drawn_piece(f, k)) for k, f in enumerate(mates)
-                  if f.get("type") != "unknown" and f.get("build") is not False and f.get("footprint")]
-        partners = [o for t, o in others if t in schemas.orientation_rule(found["type"])["partners"]]
-        front = _front_for(found["type"], placer.drawn_piece(piece), _room_ring(room), partners)
+        front = _code_front(building, piece, room, found["type"])
         if front is not None:
             found["front_deg"] = front
     return found
@@ -989,6 +1494,8 @@ def code_types(building: dict) -> list[dict]:
 
 
 def _apply_code_type(item: dict, prop: dict, proposal: bool) -> None:
+    before = {"type": item.get("type"), "footprint": copy.deepcopy(item.get("footprint")),
+              "front_deg": item.get("front_deg"), "height": item.get("height")}
     item["type"] = prop["type"]
     item["type_method"] = prop["type_method"]
     item["inferred"] = True
@@ -1011,6 +1518,14 @@ def _apply_code_type(item: dict, prop: dict, proposal: bool) -> None:
         return
     if prop["type_method"] in ("twin", "level", SAME_BLOCK_METHOD) and prop.get("source_status"):
         item["status"] = prop["source_status"]      # the same drawing as an agreed piece: its status
+    if prop.get("footprint") and prop.get("snapped"):
+        # 26 Oct 2026 (wardrobe runs): the drawn depth outside the type's range snapped to a real product's, the
+        # drawn values kept (CLAUDE.md: a drawn size outside the product range ... ``adjusted_by_ai``)
+        for key in ("type", "footprint", "front_deg", "height"):
+            item.setdefault(f"drawn_{key}", before[key])
+        merge_code_label(item, {"by": "code", "stage": "reading", "rule": WARDROBE_RULE, "reason": prop["reason"],
+                                "changed": {"type": before["type"], "footprint": before["footprint"]}})
+        item["front_deg"] = None                     # the snapped footprint's front (below)
     if prop.get("footprint"):
         item["footprint"] = dict(prop["footprint"])
     if prop.get("front_deg") is not None and item.get("front_deg") is None:
@@ -1040,7 +1555,9 @@ def infer_types(building: dict) -> list[dict]:
     out = list(coded)
     if coded:
         building = apply_code_types(building)[0]
-    done = {p["piece_id"] for p in coded}
+    # 26 Oct 2026: the member the room misses, named by the AI passes (answer or reason), before the size inference
+    out += ai_named_members(building)
+    done = {p["piece_id"] for p in out}
     rooms = _rooms(building)
     furniture = building.get("furniture") or []
     for item in furniture:
@@ -1124,10 +1641,14 @@ def infer_types(building: dict) -> list[dict]:
             if front is not None:
                 prop["front_deg"] = front
         out.append(prop)
+    # 26 Oct 2026 (names rule 1b): a furniture name text written on a piece the AI typed otherwise names it
+    done = {p["piece_id"] for p in out}
+    out += [p for p in name_text_retypes(building) if p["piece_id"] not in done]
+    done = {p["piece_id"] for p in out}
     # fix round after P4a: the drawn nightstand-with-lamp symbols at a bed's head (module docstring)
-    out += nightstand_symbols(building)
+    out += [p for p in nightstand_symbols(building) if p["piece_id"] not in done]
     # fix round after P5 (user decision of 22 Oct 2026): a seat drawn in a corner sofa's open corner is its table
-    out += corner_tables(building)
+    out += [p for p in corner_tables(building) if p["piece_id"] not in done]
     # 26 Oct 2026: a round "lamp" in the middle of three seats facing it is their table
     done = {p["piece_id"] for p in out}
     out += [p for p in ringed_tables(building) if p["piece_id"] not in done]
@@ -1599,6 +2120,12 @@ def apply_inferences(building: dict, proposals: list[dict]) -> dict:
             continue
         if prop.get("type_method") == NIGHTSTAND_METHOD:          # fix round after P4a: a nightstand symbol
             _apply_nightstand(item, prop)
+            continue
+        if prop.get("type_method") == NAME_RETYPE_METHOD:        # 26 Oct 2026: the name text written on it
+            _apply_nightstand(item, dict(prop, type_method=NAME_TEXT_METHOD))
+            continue
+        if prop.get("type_method") == AI_MEMBER_METHOD:          # 26 Oct 2026: the missing member the AI named
+            _apply_ai_member(item, prop)
             continue
         if prop.get("type_method") in (CORNER_TABLE_METHOD, RING_TABLE_METHOD):   # a seating group's drawn table
             _apply_nightstand(item, prop)

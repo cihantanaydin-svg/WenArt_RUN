@@ -44,8 +44,11 @@ The checks (a finding names one):
   and no element uses. Major.
 - **A6 named piece missing** - a furniture, door / window or vegetation block that no element uses, or a furniture
   name text with no built piece of that kind within ``NAME_NEAR_M`` (an untyped piece there gets a ``type_piece``
-  fix). Major (other blocks: minor). Site decor of a kind the site does not build (``other``: grid bubbles, railings,
-  sills read as decor) is a *weak* user: geometry and blocks only it records are not accounted for.
+  fix). Major (other blocks: minor). A furniture name text is what the reading reads as one
+  (``wenart.furniture.names.furniture_name``, six languages; the reading types, corrects or adds the piece it names,
+  so a finding here is a name the reading could not use, its reason in the piece's or the text's review entry). Site
+  decor of a kind the site does not build (``other``: grid bubbles, railings, sills read as decor) is a *weak* user:
+  geometry and blocks only it records are not accounted for.
 - **A7 reading drops something** - a reading warning that says something was left out, not used, dropped,
   skipped or "recorded ... not a room", that is not the logged reason of an element and that no other finding
   carries (a warning that names a flagged item joins that finding). Major when it names spaces or areas, critical
@@ -85,13 +88,14 @@ from shapely.ops import unary_union
 
 from wenart import building as B
 from wenart import units as U
+from wenart.furniture import names as NM
 
 LINE = "source"
 SEVERITIES = ("critical", "major", "minor")
 SEVERITY_RANK = {"critical": 0, "major": 1, "minor": 2}
 CHECKS = ("A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9")
 PLAN_CLASSES = ("floor_plan", "furniture_plan")
-NAME_NEAR_M = 1.2               # a furniture name text and the piece it names
+NAME_NEAR_M = NM.NAME_NEAR_M    # a furniture name text and the piece it names (1.2 m, the reading's rule)
 AREA_NEAR_M = 1.5               # an area text and the space name it belongs to
 TABLE_FAR_M = 3.0               # an area text farther than this from every room is a table entry, not a space
 SURFACE_MIN_M2 = 2.0            # A9: hatches and closed outlines smaller than this are counted only
@@ -140,22 +144,11 @@ OPEN_PLAN_PAIRS = {tuple(sorted(p)) for p in (("dining", "living"), ("dining", "
                                               ("other", "living"), ("other", "kitchen"), ("hall", "living"))}
 GRID_LAYER_RE = re.compile(r"aks|grid|axis|raster", re.I)
 OPENING_TAG_LAYER_RE = re.compile(r"kapi|pencere|door|window|denizlik", re.I)
-EXTRA_FURNITURE_WORDS = (("SIFONIYER", "dresser"), ("SIFONYER", "dresser"), ("KOMODIN", "nightstand"),
-                         ("CAMASIR MAK", "washing_machine"), ("BULASIK MAK", "kitchen_counter"))
-# Type families: a name text is matched by a built piece of the same family.
-FAMILIES = {
-    "bed": ("bed_single", "bed_double", "bunk_bed", "crib", "bed"),
-    "seat": ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bench", "seat"),
-    "table": ("table_dining", "table_coffee", "side_table", "console_table", "desk", "table"),
-    "storage": ("wardrobe", "dresser", "tall_cabinet", "sideboard", "shoe_cabinet", "display_cabinet", "bookshelf",
-                "nightstand", "tv_unit", "wall_cabinet"),
-    "kitchen": ("kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "fridge"),
-    "laundry": ("washing_machine",),
-    "bath": ("bathtub", "shower"),
-    "basin": ("washbasin",),
-    "toilet": ("toilet",),
-}
-_FAMILY_OF = {t: fam for fam, types in FAMILIES.items() for t in types}
+# Furniture name texts (26 Oct 2026): the reading's vocabulary and families (``wenart.furniture.names``), so the ledger
+# checks exactly the texts the reading uses (``names.furniture_name``); a name text is matched by a built piece of the
+# same family.
+FAMILIES = NM.FAMILIES
+_FAMILY_OF = NM.FAMILY_OF
 
 BLOCK_OPENING_RE = re.compile(r"(?<![A-Z])(KAPI|DOOR|PENCERE|WINDOW|WIN\d|DR\d|SURME|SLIDING|VASISTAS)", re.I)
 BLOCK_TREE_RE = re.compile(r"AGAC|TREE|BITKI|PLANT|CICEK|FLOWER|CALI|SHRUB|PALM|CONIFER|BUSH|HEDGE|CIT(?![A-Z])",
@@ -190,7 +183,8 @@ LAYER_NAMED_RE = re.compile(r"layers?(?:\(s\))?\s+'([^']{1,60})'|runner-up\s+'([
                             re.I)
 REASON_KEYS = ("not_built_reason", "reason", "note", "inferred_reason", "build_reason")
 DATA_KEYS = ("level_marks", "levels", "conflicts", "documents", "needs_review", "unverified", "level_inference",
-             "variants", "project")
+             "variants", "project", "furniture_texts",     # the reading's records of the name texts and the zone
+             "zone_labels")                                # labels are data: they use none of them
 SITE_LABEL_KEYS = ("areas",)
 SITE_SKIP_SURFACE = ("areas", "decor", "openings", "boundary_walls", "entrances", "hedges", "buildings")
 
@@ -264,17 +258,8 @@ def outdoor_kind(text) -> Optional[tuple[str, str]]:
 
 
 def _furniture_type(text: str) -> Optional[str]:
-    from wenart.ingest.generic import symbols as SY
-
-    t = SY.keyword_type(text)
-    if t is not None:
-        return t
-    up = B.fold_ascii(text or "").upper().replace(".", " ")
-    up = " ".join(up.replace("*", " ").split())
-    for word, ftype in EXTRA_FURNITURE_WORDS:
-        if word in up:
-            return ftype
-    return None
+    """The type a furniture name text names, its family for a generic name ("Bett": bed) (``names.ledger_type``)."""
+    return NM.ledger_type(text)
 
 
 def _family(ftype: Optional[str]) -> Optional[str]:
@@ -308,11 +293,13 @@ def classify_text(row: dict) -> str:
             return "area"
     if outdoor_kind(text) is not None:
         return "outdoor_space"
+    # 26 Oct 2026: a furniture name exactly as the reading reads it (``names.furniture_name``: no label, no room name;
+    # a room word inside the furniture phrase, "ÇALIŞMA MASASI", still names the desk)
+    if NM.furniture_name(row) is not None:
+        return "furniture_name"
     turkish, english = B.room_keyword_hits(text)
     if turkish or english or part == "name" or role == "room_label":
         return "space_name"
-    if _furniture_type(text) is not None:
-        return "furniture_name"
     if TURKISH_ROOM_MARKERS.search(f):
         return "space_name"
     if GRID_LAYER_RE.search(layer) and len(text) <= 3:

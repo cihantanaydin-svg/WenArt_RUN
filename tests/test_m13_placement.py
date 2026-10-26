@@ -67,7 +67,8 @@ def two_rooms(twin=True) -> dict:
 def test_type_by_code_contract():
     assert list(inspect.signature(INF.type_by_code).parameters) == ["building", "piece"]
     # 26 Oct 2026: same_block (one block drawn again elsewhere in the project gets one type)
-    assert set(INF.CODE_TYPE_METHODS) == {"twin", "level", "same_block", "block", "group_member"}
+    assert set(INF.CODE_TYPE_METHODS) == {"twin", "level", "same_block", "block", "name_text", "zone_label",
+                                          "group_member"}
     assert list(inspect.signature(GR.drawn_groups).parameters) == ["building", "room_id"]
     assert GR.GROUP_MEMBER_MOVE_MAX_M == 0.5
 

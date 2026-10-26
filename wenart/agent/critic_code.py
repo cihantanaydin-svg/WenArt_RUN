@@ -79,6 +79,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from wenart.agent.prompts import CHECKLIST, SEVERITIES
+from wenart.furniture import names as NM
 
 SCENE_CHECKS_GLOB = "scene_*.json"          # track S: <build --out>/checks/scene_<level>.json
 # The build stage writes the scene to outputs/<p>/scene (``--out``), so its checks land in scene/checks; the
@@ -389,19 +390,29 @@ def blocked_items(render_manifest: Optional[dict], scene_manifest: Optional[dict
 
 NEEDS_REVIEW_CHECK = "NR"
 READING_CONFLICT_CHECK = "RC"
+NAMED_REVIEW_KIND = NM.NAMED_REVIEW_KIND
 
 
 def reading_items(building: dict) -> list[dict]:
     """Milestone 12 (docs/milestone12.md §4.1, track R): one ``NR`` violation (major) per untyped drawn piece the reading
     left for review (``needs_review``; not built, never an unexplained box: the agent may type it from its plan crop
     or record it as not furniture) and one ``RC`` violation (minor) per ``type_disagreement`` conflict (the drawing
-    overruled an AI type)."""
+    overruled an AI type). 26 Oct 2026: also one ``NR`` per piece a furniture name text names that the reading could
+    not place (``names.add_named_pieces``), until a built piece of that type stands at the text."""
     out = []
     for item in building.get("needs_review") or []:
         crop = f" (plan crop {item['crop']})" if item.get("crop") else ""
+        # 26 Oct 2026: a furniture name text no drawn piece answers and no valid place lies near (names rule 2); it is
+        # answered once a built piece of the named type stands at the text (the agent added it)
+        if item.get("kind") == NAMED_REVIEW_KIND and item.get("pos") and item.get("type") and NM.named_near(
+                building, {"pos": item["pos"], "type": item["type"], "family": NM.family(item["type"]),
+                           "level_id": item.get("level_id"), "room_id": item.get("room_id")}) is not None:
+            continue
+        what = "piece the documents name, not placed" if item.get("kind") == NAMED_REVIEW_KIND else \
+            "untyped drawn piece left for review"
         out.append({"check": NEEDS_REVIEW_CHECK, "severity": "major", "target": item.get("id"),
                     "room_id": item.get("room_id"),
-                    "message": f"untyped drawn piece left for review: {item.get('reason') or item.get('kind')}{crop}",
+                    "message": f"{what}: {item.get('reason') or item.get('kind')}{crop}",
                     "metrics": {"kind": item.get("kind")}})
     for c in building.get("conflicts") or []:
         if c.get("kind") != "type_disagreement":
