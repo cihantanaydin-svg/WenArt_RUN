@@ -70,6 +70,9 @@ DIMENSIONS = {"plinth_height": 0.45, "plinth_below": 0.05, "proud": 0.025, "band
 KIT = {"reveal_width": 0.06, "reveal_proud": 0.015, "gutter_w": 0.12, "gutter_h": 0.10, "gutter_drop": 0.02,
        "downpipe": 0.10, "downpipe_every_m": 12.0, "downpipe_end_m": 0.4, "downpipe_both_ends_m": 4.0,
        "pipe_search_m": 3.0, "pipe_search_step_m": 0.1, "pipe_wall_tol_m": 0.15, "pipe_min_gap_m": 1.5, "eaves_tol": 0.15,
+       # 26 Oct 2026 (downpipe_plan): building-wide pipes at the corners, >= pipe_gap_m apart, a gutter drains at most
+       # max_drain_m to a pipe, one end of a run up to single_end_m, at most one pipe per area_per_pipe_m2 of roof
+       "pipe_gap_m": 3.0, "max_drain_m": 12.0, "single_end_m": 10.0, "area_per_pipe_m2": 50.0,
        "canopy_depth": 1.0, "canopy_thick": 0.08, "canopy_side": 0.3, "canopy_above": 0.25,
        "light_w": 0.12, "light_d": 0.08, "light_h": 0.22, "light_z": 2.1, "light_offset": 0.35,
        "guard_height": 1.0, "guard_bar": 0.04, "guard_min_drop": 1.5, "guard_side": 0.1}
@@ -483,6 +486,123 @@ def pipe_spot(p, u, n, length: float, t: float, z_top: float, levels: Sequence[d
     return None
 
 
+def gutter_systems(edges: Sequence[dict], tol: float = 0.02) -> list[list[int]]:
+    """The eaves runs joined end to start into gutter systems (pure; 26 Oct 2026): ``[[edge index, ...]]`` in the
+    order of the outline; a hip roof's eaves all round are one closed system, a gable roof's two eaves two."""
+    n = len(edges)
+    nxt = {}
+    for i, e in enumerate(edges):
+        for j, f in enumerate(edges):
+            if i != j and G.distance(e["q"], f["p"]) <= tol:
+                nxt[i] = j
+                break
+    prv = {j: i for i, j in nxt.items()}
+    seen: set = set()
+    out = []
+    for i in range(n):
+        if i in seen:
+            continue
+        start, k = i, 0                                   # walk back to the chain's start (or round a loop)
+        while start in prv and prv[start] != i and k <= n:
+            start = prv[start]
+            k += 1
+        chain, cur = [], start
+        while cur is not None and cur not in seen:
+            chain.append(cur)
+            seen.add(cur)
+            cur = nxt.get(cur)
+        out.append(chain)
+    return out
+
+
+def _corner_convex(e: dict, f: dict) -> bool:
+    """Whether the outline turns left (an outer corner of the ccw roof outline) from edge ``e`` into edge ``f``."""
+    ax, ay = e["q"][0] - e["p"][0], e["q"][1] - e["p"][1]
+    bx, by = f["q"][0] - f["p"][0], f["q"][1] - f["p"][1]
+    return ax * by - ay * bx > 1e-9
+
+
+def downpipe_plan(edges: Sequence[dict], roof_area: float) -> list[tuple[int, float]]:
+    """Where the downpipes of the whole roof go (pure; 26 Oct 2026, user: "why there is that many rain gutters"):
+    ``[(edge index, t along the edge)]``, best first. An architect's rule, building-wide: a pipe at the outer corners
+    of each gutter system (an open run: at its end corners, one end for a run up to ``single_end_m``), a pipe added
+    where a gutter would drain more than ``max_drain_m`` to its nearest pipe, never two within ``pipe_gap_m`` along
+    a system, and at most ``max(2, ceil(roof area / area_per_pipe))`` pipes in all (the corners spread furthest
+    apart are kept). Every station then looks for a wall face clear of the openings (``pipe_spot``)."""
+    end = KIT["downpipe_end_m"]
+    systems = gutter_systems(edges)
+    picks: list[tuple[int, float, float]] = []            # (edge, t, position along its system)
+    per_system: list[list[tuple[int, float, float]]] = []
+    for chain in systems:
+        closed = len(chain) > 1 and G.distance(edges[chain[-1]]["q"], edges[chain[0]]["p"]) <= 0.02
+        pos, offs = 0.0, []
+        for i in chain:
+            offs.append(pos)
+            pos += float(edges[i]["length"])
+        total = pos
+        cands: list[tuple[int, float, float]] = []
+        for k, i in enumerate(chain):
+            prev = chain[k - 1] if (k > 0 or closed) else None
+            if prev is None or _corner_convex(edges[prev], edges[i]):
+                cands.append((i, min(end, edges[i]["length"] / 2.0), offs[k] + min(end, edges[i]["length"] / 2.0)))
+        if not closed:
+            last = chain[-1]
+            t = max(edges[last]["length"] - end, edges[last]["length"] / 2.0)
+            if total > KIT["single_end_m"] or not cands:
+                cands.append((last, t, offs[-1] + t))
+        cands.sort(key=lambda c: c[2])
+        keep: list[tuple[int, float, float]] = []
+        for c in cands:                                   # never two pipes close together along a system
+            if all(abs(c[2] - k2[2]) >= KIT["pipe_gap_m"] and (not closed or total - abs(c[2] - k2[2])
+                                                                  >= KIT["pipe_gap_m"]) for k2 in keep):
+                keep.append(c)
+        if not keep and chain:
+            i = chain[0]
+            keep.append((i, min(end, edges[i]["length"] / 2.0), min(end, edges[i]["length"] / 2.0)))
+        # a gutter drains at most max_drain_m to a pipe: fill the long gaps
+        pts = sorted(k2[2] for k2 in keep)
+        gaps = [(pts[j], pts[j + 1]) for j in range(len(pts) - 1)]
+        if closed and pts:
+            gaps.append((pts[-1], pts[0] + total))
+        elif pts:
+            gaps += [(-pts[0], pts[0]), (pts[-1], 2 * total - pts[-1])]    # an open end drains back to its pipe
+        for a, b in gaps:
+            if b - a <= 2 * KIT["max_drain_m"]:
+                continue
+            for m in range(1, int(math.ceil((b - a) / (2 * KIT["max_drain_m"])))):
+                s = a + (b - a) * m / math.ceil((b - a) / (2 * KIT["max_drain_m"]))
+                s = s % total if closed and total else min(max(s, 0.0), total)
+                for k, i in enumerate(chain):
+                    if offs[k] - 1e-9 <= s <= offs[k] + edges[i]["length"] + 1e-9:
+                        keep.append((i, s - offs[k], s))
+                        break
+        per_system.append(keep)
+        picks += keep
+    cap = max(2, int(math.ceil(float(roof_area) / KIT["area_per_pipe_m2"]))) if roof_area > 0 else len(picks)
+    while len(picks) > cap:
+        # drop the pipe closest to another one (Euclidean), never a system's last
+        best = None
+        for c in picks:
+            mine = next(s for s in per_system if c in s)
+            if len(mine) <= 1:
+                continue
+            ex, ey = _edge_point(edges[c[0]], c[1])
+            near = min((math.hypot(ex - fx, ey - fy) for d in picks if d is not c
+                        for fx, fy in [_edge_point(edges[d[0]], d[1])]), default=1e9)
+            if best is None or near < best[0]:
+                best = (near, c, mine)
+        if best is None:
+            break
+        picks.remove(best[1])
+        best[2].remove(best[1])
+    return [(i, t) for i, t, _pos in picks]
+
+
+def _edge_point(e: dict, t: float) -> tuple[float, float]:
+    length = float(e["length"]) or 1.0
+    return (e["p"][0] + (e["q"][0] - e["p"][0]) * t / length, e["p"][1] + (e["q"][1] - e["p"][1]) * t / length)
+
+
 def downpipe_stations(length: float) -> list[float]:
     """Where the downpipes of an eaves run stand (pure): ``downpipe_end_m`` in from its start, then every
     ``downpipe_every_m``, and (24 Oct 2026) one ``downpipe_end_m`` in from its end when the run is longer than
@@ -576,43 +696,55 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
     pipe_notes: list[dict] = []
     top_level = next((lv for lv in order if roof_model and lv["id"] == roof_model.get("over_level_id")), None)
     wall_outline = outlines.get(top_level["id"]) if top_level else ground_outline
+    gw, gh = KIT["gutter_w"], KIT["gutter_h"]
     for e in edges:
         p, q, z, length = e["p"], e["q"], e["z"], e["length"]
         ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
         nx, ny = uy, -ux                                      # outward (ccw outline)
         mid = G.segment_midpoint(p, q)
         rot = math.degrees(math.atan2(uy, ux))
-        gw, gh = KIT["gutter_w"], KIT["gutter_h"]
         boxes.append(_box("gutter", top_level["id"] if top_level else None,
                           (mid[0] + nx * gw / 2.0, mid[1] + ny * gw / 2.0, z - KIT["gutter_drop"] - gh / 2.0),
                           (length + gw, gw, gh), rot, None, KIT_LOOKS["gutter"][2]))
+    # 26 Oct 2026: the downpipes are planned for the whole roof (downpipe_plan: at the corners, >= 3 m apart, as
+    # many as the roof area needs), no longer per run (real06: 20 pipes, two on the same spot)
+    roof_area = G.polygon_area(roof_model.get("outline") or []) if roof_model and \
+        len(roof_model.get("outline") or []) >= 3 else 0.0
+    placed_xy: list[tuple[float, float]] = []
+    served: set = set()
+    for ei, t in downpipe_plan(edges, roof_area):
+        e = edges[ei]
+        p, q, z, length = e["p"], e["q"], e["z"], e["length"]
+        ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
+        nx, ny = uy, -ux
         z1 = z - KIT["gutter_drop"] - KIT["gutter_h"]
         d = KIT["downpipe"]
-        placed: list[float] = []
-        for t in downpipe_stations(length):
-            spot = pipe_spot(p, (ux, uy), (nx, ny), length, t, z1, order, outlines, wall_outline, building, gz)
-            if spot is None or any(abs(spot["t"] - u) < KIT["pipe_min_gap_m"] for u in placed):
-                if spot is None:
-                    pipe_notes.append({"edge": [list(p), list(q)], "station_m": round(t, 2),
-                                       "reason": "no wall face runs down to the ground near this station"})
-                continue
-            placed.append(spot["t"])
-            ex, ey = p[0] + ux * spot["t"], p[1] + uy * spot["t"]
-            px, py, wn, z0 = spot["x"], spot["y"], spot["normal"], spot["z0"]
-            boxes.append(_box("downpipe", top_level["id"] if top_level else None, (px, py, (z0 + z1) / 2.0), (d, d, z1 - z0),
-                              math.degrees(math.atan2(wn[1], wn[0])), None, KIT_LOOKS["downpipe"][2]))
-            # 24 Oct 2026: the outlet from the gutter back to the pipe on the wall (the overhang stood between them:
-            # the pipe ended under the soffit, the gutter ran alone at the roof edge)
-            gx, gy = ex + nx * gw / 2.0, ey + ny * gw / 2.0
-            reach = math.hypot(px - gx, py - gy)
-            if reach > d:
-                boxes.append(_box("downpipe", top_level["id"] if top_level else None,
-                                  ((gx + px) / 2.0, (gy + py) / 2.0, z1 - d / 2.0), (reach + d, d, d),
-                                  math.degrees(math.atan2(py - gy, px - gx)), None,
-                                  "downpipe outlet from the gutter to the wall (not drawn)"))
-        if not placed:
-            pipe_notes.append({"edge": [list(p), list(q)], "station_m": None,
-                               "reason": "this gutter run found no wall to take a downpipe"})
+        spot = pipe_spot(p, (ux, uy), (nx, ny), length, t, z1, order, outlines, wall_outline, building, gz)
+        if spot is None or any(math.hypot(spot["x"] - x, spot["y"] - y) < KIT["pipe_gap_m"] for x, y in placed_xy):
+            if spot is None:
+                pipe_notes.append({"edge": [list(p), list(q)], "station_m": round(t, 2),
+                                   "reason": "no wall face runs down to the ground near this station"})
+            continue
+        placed_xy.append((spot["x"], spot["y"]))
+        served.add(ei)
+        ex, ey = p[0] + ux * spot["t"], p[1] + uy * spot["t"]
+        px, py, wn, z0 = spot["x"], spot["y"], spot["normal"], spot["z0"]
+        boxes.append(_box("downpipe", top_level["id"] if top_level else None, (px, py, (z0 + z1) / 2.0), (d, d, z1 - z0),
+                          math.degrees(math.atan2(wn[1], wn[0])), None, KIT_LOOKS["downpipe"][2]))
+        # 24 Oct 2026: the outlet from the gutter back to the pipe on the wall (the overhang stood between them:
+        # the pipe ended under the soffit, the gutter ran alone at the roof edge)
+        gx, gy = ex + nx * gw / 2.0, ey + ny * gw / 2.0
+        reach = math.hypot(px - gx, py - gy)
+        if reach > d:
+            boxes.append(_box("downpipe", top_level["id"] if top_level else None,
+                              ((gx + px) / 2.0, (gy + py) / 2.0, z1 - d / 2.0), (reach + d, d, d),
+                              math.degrees(math.atan2(py - gy, px - gx)), None,
+                              "downpipe outlet from the gutter to the wall (not drawn)"))
+    for chain in gutter_systems(edges):
+        if edges and not any(i in served for i in chain):
+            e = edges[chain[0]]
+            pipe_notes.append({"edge": [list(e["p"]), list(e["q"])], "station_m": None,
+                               "reason": "this gutter system found no wall to take a downpipe"})
     # 3. canopy and wall lights at the entrance doors at grade
     ents = []
     if len(ground_outline or []) >= 3 and terrain is not None:

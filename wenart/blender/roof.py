@@ -70,6 +70,8 @@ DEFAULTS = {
     "flat_cut_parapet": 0.30,    # Milestone 12: the parapet of a flat_cut roof (a single drawn ground floor)
     "parapet_thickness": 0.20,
 }
+EAVES_JOG_MAX_M = 0.60           # 26 Oct 2026: facade jogs shallower than this run under one straight eaves line
+EAVES_MIN_COVER_M = 0.15         # ... and every wall face keeps at least this much roof over it
 CEILING_GAP = 0.001              # attic ceilings stay this far under the roof underside (no coplanar faces)
 CONVEX_TOL = 0.01                # drawn planes: a plane more than this above another at its own corners -> not convex
 SAME_TOL = 0.02                  # equivalent planes: corners within 2 cm
@@ -432,10 +434,19 @@ def derive(roof: dict, building: dict) -> dict:
                     "notes": notes}
         # The walls' own outline grown by the overhang (review #26: an L-shaped level keeps its notch open; the
         # planes are derived on the enclosing rectangle and cut to it, listed as outline_rectangle below).
+        # 26 Oct 2026 (user: "why there is that many rain gutters in real06"): a pitched roof's eaves run straight
+        # past the shallow jogs of the facade (piers, pilasters, shallow recesses): they are closed first, so the
+        # gutter is one line per facade, not one per pier (real06: 70 outline points, 27 gutters, 20 downpipes)
+        closed = 0
+        if rtype != "flat":
+            wall_line, closed = geom2d.close_jogs(wall_line, EAVES_JOG_MAX_M,
+                                                  inward_max=max(0.0, overhang - EAVES_MIN_COVER_M))
         outline = geom2d.ccw(geom2d.offset_polygon(wall_line, -overhang) if overhang > 0 else wall_line)
         assumed.append({"field": "outline", "value": [[round(x, 4), round(y, 4)] for x, y in outline],
                         "reason": f"no roof outline drawn: the walls' outline ({method}) grown by the "
-                                  f"{'assumed ' if overhang_assumed else ''}overhang {overhang:.2f} m"})
+                                  f"{'assumed ' if overhang_assumed else ''}overhang {overhang:.2f} m"
+                                  + (f"; {closed} facade jog(s) shallower than {EAVES_JOG_MAX_M:.2f} m closed "
+                                     f"under the eaves (one eaves line per facade)" if closed else "")})
         overhang_used = True
     else:
         overhang_used = False

@@ -116,11 +116,17 @@ def read_marks(texts: Sequence[dict], building: dict, params: dict, section: Opt
                       "evidence": ev, "note": False, "bare": False, "group": None, "placement": "section",
                       "z": round(float(lm["value"]), 4)})
     datum = resolve_datum(marks, (building.get("project") or {}).get("datum"), params, conflicts, warnings)
+    zero = relative_zero((building.get("project") or {}).get("datum"))
+    if zero:
+        warnings.append(f"the ground floor (building z 0) is printed {zero:+.2f} in the section: every relative mark "
+                        f"of the plans is read {zero:+.2f} m lower (one height frame)")
     for m in marks:
         if m["placement"] == "section":
             continue
         if m["relative"]:
-            m["z"] = m["value"]
+            m["z"] = round(m["value"] - zero, 4) + 0.0
+            if zero:
+                m["frame_offset"] = -zero
         elif datum is not None:
             m["absolute"] = m["value"]
             m["value"] = round(m["value"] - datum["value"], 4) + 0.0
@@ -129,6 +135,24 @@ def read_marks(texts: Sequence[dict], building: dict, params: dict, section: Opt
         else:
             warnings.append(f"{m['id']}: absolute level {m['raw']!r} and no datum (±0.00 = ?): not used")
     return {"marks": marks, "datum": datum, "conflicts": conflicts, "warnings": warnings}
+
+
+def relative_zero(project_datum: Optional[dict]) -> float:
+    """The printed relative value of building z 0 (26 Oct 2026): the section's ground-floor mark ``+0,50`` (real06:
+    the ground floor 0.50 m over the project's ±0.00, the street) is building z 0, so a plan mark ``+0,50`` is z 0,
+    ``±0,00`` z -0.50 and ``+3,50`` z +3.00. The section's datum carries it as ``relative`` (``sheets.heights``), or
+    is itself a relative value (under ``ABSOLUTE_FROM_M``); 0.0 without one. Why: real06's section put the ground
+    floor at z 0 while its plan's ``+0,50`` floor marks raised the kitchen 0.5 m, with its doors."""
+    if not isinstance(project_datum, dict):
+        return 0.0
+    rel = project_datum.get("relative")
+    if isinstance(rel, (int, float)) and not isinstance(rel, bool):
+        return float(rel)
+    v = project_datum.get("value")
+    if isinstance(v, (int, float)) and not isinstance(v, bool) and project_datum.get("method") == "vector" \
+            and abs(float(v)) < LM.ABSOLUTE_FROM_M:
+        return float(v)
+    return 0.0
 
 
 def resolve_datum(marks: list[dict], project_datum: Optional[dict], params: dict, conflicts: list,

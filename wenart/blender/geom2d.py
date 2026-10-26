@@ -17,7 +17,7 @@ hole", since a Blender n-gon has no holes).
 from __future__ import annotations
 
 import math
-from typing import Iterable, Sequence
+from typing import Iterable, Optional, Sequence
 
 from wenart import geometry as G
 
@@ -737,6 +737,106 @@ def _axis_tidy(u: tuple[float, float]) -> tuple[float, float]:
         x, y = -x, -y
     n = math.hypot(x, y)
     return (x / n, y / n)
+
+
+JOG_PARALLEL_DEG = 10.0         # two edges this close in direction are one facade line with a jog between them
+
+
+def _line_project(pt, a, b) -> tuple[float, float]:
+    """``pt`` projected square onto the line through ``a`` and ``b``."""
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    den = dx * dx + dy * dy
+    if den < 1e-18:
+        return (float(a[0]), float(a[1]))
+    t = ((pt[0] - a[0]) * dx + (pt[1] - a[1]) * dy) / den
+    return (a[0] + dx * t, a[1] + dy * t)
+
+
+def simple_polygon(polygon: Sequence[Sequence[float]], tol: float = 1e-9) -> bool:
+    """True when no two non-adjacent edges of the polygon cross or touch (pure)."""
+    pts = list(polygon)
+    n = len(pts)
+    if n < 3:
+        return False
+
+    def orient(a, b, c):
+        v = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+        return 0 if abs(v) <= tol else (1 if v > 0 else -1)
+
+    def on_seg(a, b, c):
+        return min(a[0], b[0]) - tol <= c[0] <= max(a[0], b[0]) + tol and \
+            min(a[1], b[1]) - tol <= c[1] <= max(a[1], b[1]) + tol
+
+    for i in range(n):
+        a, b = pts[i], pts[(i + 1) % n]
+        for j in range(i + 1, n):
+            if j == i or (j + 1) % n == i or (i + 1) % n == j:
+                continue
+            c, d = pts[j], pts[(j + 1) % n]
+            o1, o2, o3, o4 = orient(a, b, c), orient(a, b, d), orient(c, d, a), orient(c, d, b)
+            if o1 != o2 and o3 != o4:
+                return False
+            if (o1 == 0 and on_seg(a, b, c)) or (o2 == 0 and on_seg(a, b, d)) or \
+                    (o3 == 0 and on_seg(c, d, a)) or (o4 == 0 and on_seg(c, d, b)):
+                return False
+    return True
+
+
+def close_jogs(polygon: Sequence[Sequence[float]], jog_max: float, inward_max: Optional[float] = None
+               ) -> tuple[list[tuple[float, float]], int]:
+    """``(outline, closed)``: a building outline with its shallow jogs closed (pure; 26 Oct 2026). A jog is an edge
+    shorter than ``jog_max`` between two edges of the same direction (a wall pier, a pilaster, a shallow recess): the
+    shorter of the two is moved onto the line of the longer, unless that moves it inward by more than ``inward_max``
+    (then the inner one moves out onto the outer line). ``closed`` counts the jogs closed. Why: real06's facade has
+    piers 0.33 m deep every few metres; the roof's eaves followed each one, so every pier got its own gutter and two
+    downpipes (40 pipe boxes). An eaves line runs straight past such jogs: the overhang covers them."""
+    pts = clean_polygon(ccw(polygon))
+    closed = 0
+    guard = 0
+    cos_par = math.cos(math.radians(JOG_PARALLEL_DEG))
+    while len(pts) >= 5 and guard < 500:
+        guard += 1
+        n = len(pts)
+        best = None
+        for i in range(n):
+            a, b, c, d = pts[i - 1], pts[i], pts[(i + 1) % n], pts[(i + 2) % n]
+            jog = G.distance(b, c)
+            if jog >= jog_max or jog < 1e-9:
+                continue
+            la, lc = G.distance(a, b), G.distance(c, d)
+            if la < 1e-9 or lc < 1e-9:
+                continue
+            ua = ((b[0] - a[0]) / la, (b[1] - a[1]) / la)
+            uc = ((d[0] - c[0]) / lc, (d[1] - c[1]) / lc)
+            if ua[0] * uc[0] + ua[1] * uc[1] < cos_par:
+                continue                                    # not one facade line on both sides of the edge
+            if best is None or jog < best[0]:
+                best = (jog, i, la, lc)
+        if best is None:
+            break
+        jog, i, la, lc = best
+        a, b, c, d = pts[i - 1], pts[i], pts[(i + 1) % n], pts[(i + 2) % n]
+        # the edge before (a-b) and after (c-d): which lies outside? ccw: the left normal points inside
+        nx, ny = G.unit_normal_left(a, b)
+        depth = (c[0] - b[0]) * nx + (c[1] - b[1]) * ny     # > 0: c-d lies further in than a-b
+        move_cd = la >= lc
+        if inward_max is not None:
+            moves_in = depth < 0 if move_cd else depth > 0  # the moved edge goes inward (the other line is inside)
+            if moves_in and abs(depth) > inward_max + 1e-9:
+                move_cd = depth > 0                          # move the inner one out onto the outer line
+        new = list(pts)
+        if move_cd:
+            new[(i + 1) % n] = _line_project(c, a, b)
+            new[(i + 2) % n] = _line_project(d, a, b)
+        else:
+            new[i - 1] = _line_project(a, c, d)
+            new[i] = _line_project(b, c, d)
+        new = _drop_collinear(clean_polygon(new, 1e-7), 1e-7)
+        if len(new) < 3 or not simple_polygon(new) or G.polygon_signed_area(new) <= 0:
+            break
+        pts = new
+        closed += 1
+    return pts, closed
 
 
 def offset_polygon(polygon: Sequence[Sequence[float]], inset: float) -> list[tuple[float, float]]:

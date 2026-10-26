@@ -204,3 +204,20 @@ def test_apply_levels_without_marks_still_fills_the_levels():
     LV.apply_levels(build, {})
     assert b["level_marks"] == [] and b["site"]["ground"]["source"] == "D3a"
     assert "levels: no level mark read; ground: D3a; 1 entrance(s): d_front steps" in b["warnings"]
+
+
+def test_a_relative_ground_floor_mark_in_the_section_sets_the_frame_of_the_plan_marks():
+    """26 Oct 2026 (real06: doors 0.5 m up): the section prints the ground floor "+0,50" (building z 0); the plan's
+    "+0,50" floor marks are then z 0, the "±0,00" ground z -0.50 and the upper landing "+3,50" z +3.00."""
+    b = F.building()
+    b["project"] = dict(b.get("project") or {}, datum={"value": 0.5, "method": "vector", "relative": 0.5,
+                                                       "evidence": [{"file": "s.dxf", "text": "+0,50"}]})
+    res = RD.read_marks([_t("+0,50", (3.0, 4.0), "TEXT:a"), _t("±0,00", (40.0, -6.0), "TEXT:b"),
+                         _t("+3,50", (3.0, 4.0), "TEXT:c", level="L1")], b, P)
+    z = {m["raw"]: m["z"] for m in res["marks"]}
+    assert z == {"+0,50": pytest.approx(0.0), "±0,00": pytest.approx(-0.5), "+3,50": pytest.approx(3.0)}
+    assert any("one height frame" in w for w in res["warnings"])
+    assert RD.relative_zero({"value": 43.0, "method": "vector"}) == 0.0          # an absolute datum: no shift
+    assert RD.relative_zero({"value": 43.0, "method": "vector", "relative": 0.0}) == 0.0
+    assert RD.relative_zero({"value": 0.5, "method": "vector"}) == 0.5          # an older reading without the field
+    assert RD.relative_zero(None) == 0.0

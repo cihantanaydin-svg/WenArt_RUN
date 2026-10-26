@@ -357,6 +357,11 @@ def heights(section: Optional[SectionGeometry], levels: list[dict], reference_ex
             out["datum"] = _value(near["abs"] if near["abs"] is not None else near["value"], "vector",
                                   [_ev(file_rel, near["t"].id, "level_mark", rid, near["t"].text)],
                                   note="absolute level of the ground floor (building z = 0) from the level mark")
+            # 26 Oct 2026: the printed relative value of the ground floor (real06: "+0,50"): the plan's relative
+            # marks are read in the same frame (wenart.levels.read.relative_zero), else a +0,50 room floor is built
+            # 0.5 m over a floor the section put at z 0 (doors 0.5 m up)
+            if near["rel"] is not None:
+                out["datum"]["relative"] = round(float(near["rel"]), 3) + 0.0
 
     def mark_z(m: dict) -> Optional[float]:
         """The building z a mark gives: its value minus the datum mark's, in a frame both have."""

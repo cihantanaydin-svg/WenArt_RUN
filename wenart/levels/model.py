@@ -662,6 +662,10 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
                                                else f"terrain ({tm['kind']})")
         landing_mark = None
         for m in marks:
+            # 26 Oct 2026: a landing mark of another level's plan is not this door's (real06: the upper floor's
+            # "+3,50" made two ground-floor doors "doors into the air")
+            if m.get("level_id") not in (None, lv["id"]):
+                continue
             if m.get("kind") in ("threshold", "entrance") and m.get("point") is not None and m.get("z") is not None \
                     and G.distance(face, m["point"]) <= float(params["door_mark_reach"]) + float(o.get("width") or 0):
                 if landing_mark is None or G.distance(face, m["point"]) < G.distance(face, landing_mark["point"]):
