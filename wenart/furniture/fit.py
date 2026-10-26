@@ -2362,17 +2362,45 @@ ROLE_SET_TYPES: tuple[str, ...] = ("chair", "nightstand", "armchair", "bar_stool
 def role_sets(building: dict) -> dict:
     """26 Oct 2026 (fix D): ``{(group_id, type): [piece ids]}`` of the groups with two or more members of one
     ``ROLE_SET_TYPES`` type (the ``group`` field the layout writes; not the anchor, not a piece that is not built, not
-    a piece the agent pinned to a model: its pin decides)."""
+    a piece the agent pinned to a model: its pin decides).
+
+    26 Oct 2026 (the big loop's first finding: real06's living room held a grey dining armchair, brown leather ones
+    and a red egg chair, all drawn and in no group): drawn pieces of one ``ROLE_SET_TYPES`` type in one room outside a
+    group, of about one drawn size (``LOOSE_SET_TOL_M`` both ways), are a set too: ``("room:<room id>", type)``."""
     out: dict = {}
+    loose: dict = {}
     for f in building.get("furniture") or []:
-        g = f.get("group")
-        if not isinstance(g, dict) or not g.get("group_id") or g.get("role") == "anchor":
-            continue
         if f.get("type") not in ROLE_SET_TYPES or f.get("build") is False or f.get("asset_pin") \
                 or not (f.get("footprint") or {}).get("size"):
             continue
-        out.setdefault((str(g["group_id"]), f["type"]), []).append(f["id"])
+        g = f.get("group")
+        if isinstance(g, dict) and g.get("group_id"):
+            if g.get("role") != "anchor":
+                out.setdefault((str(g["group_id"]), f["type"]), []).append(f["id"])
+            continue
+        if f.get("source") == "from_documents" and f.get("room_id"):
+            loose.setdefault((f"room:{f['room_id']}", f["type"]), []).append(f)
+    by_id = {f.get("id"): f for f in building.get("furniture") or []}
+
+    def close(pieces: list) -> bool:
+        sizes = [sorted(float(v) for v in q["footprint"]["size"][:2]) for q in pieces]
+        return all(max(s[i] for s in sizes) - min(s[i] for s in sizes) <= LOOSE_SET_TOL_M + 1e-9 for i in (0, 1))
+
+    for (room_key, ftype), pieces in sorted(loose.items()):
+        room = room_key.split(":", 1)[1]
+        # the room's group set of the same type takes them when they are of its size (one model for the room)
+        host = next((k for k, ids in sorted(out.items()) if k[1] == ftype and not k[0].startswith("room:")
+                     and ids and (by_id.get(ids[0]) or {}).get("room_id") == room
+                     and close([by_id[i] for i in ids if i in by_id] + pieces)), None)
+        if host is not None:
+            out[host] = out[host] + [q["id"] for q in pieces]
+        elif len(pieces) >= 2 and close(pieces):
+            out[(room_key, ftype)] = [q["id"] for q in pieces]
     return {k: sorted(v) for k, v in sorted(out.items()) if len(v) >= 2}
+
+
+LOOSE_SET_TOL_M = 0.25          # drawn pieces of one type in one room within this of each other are one set (the
+#                                 set model still fits each piece within its caps, else the piece takes its own)
 
 
 def median_size(pieces: list[dict]) -> list[float]:

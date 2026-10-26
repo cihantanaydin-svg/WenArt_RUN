@@ -333,3 +333,24 @@ def test_a_dining_table_of_another_style_ranks_later():
     assert fit["asset_id"] == "abo_plain"
     no_family = F.fit_piece(piece("table_dining", 1.6, 0.9), FakeCatalog([farm, plain]))
     assert no_family["asset_id"] == "abo_farm"                              # without a family: no style rule
+
+
+def test_drawn_pieces_of_one_type_in_a_room_take_one_model():
+    """26 Oct 2026 (the big loop's first finding: a grey dining armchair, brown leather ones and a red egg chair in
+    real06's living room): drawn armchairs outside a group join the room's seating set of armchairs, or form a set of
+    their own; a piece of another size stays alone."""
+    from wenart.furniture import fit as FIT
+
+    def arm(pid, room, size, group=None):
+        return {"id": pid, "type": "armchair", "room_id": room, "source": "from_documents",
+                "footprint": {"center": [0, 0], "size": size}, **({"group": group} if group else {})}
+
+    g = {"group_id": "r1.seating", "role": "partner"}
+    b = {"furniture": [arm("a1", "r1", [0.92, 0.77], g), arm("a2", "r1", [0.92, 0.77], g),
+                       arm("a3", "r1", [0.92, 0.62]), arm("a4", "r1", [0.92, 0.77]),
+                       arm("b1", "r2", [0.80, 0.80]), arm("b2", "r2", [0.82, 0.78]),
+                       arm("c1", "r3", [0.80, 0.80]), arm("c2", "r3", [1.40, 0.90])]}
+    sets = FIT.role_sets(b)
+    assert sets[("r1.seating", "armchair")] == ["a1", "a2", "a3", "a4"]
+    assert sets[("room:r2", "armchair")] == ["b1", "b2"]
+    assert not any(k[0] == "room:r3" for k in sets)
