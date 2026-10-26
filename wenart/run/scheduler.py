@@ -1646,7 +1646,8 @@ class Orchestrator:
         n = len(empty_rooms(building)) if mode == "ai" else 0
         from wenart.furniture import complete as C
         settings = C.load_settings(pr.ref.project_dir)
-        return n + sum(1 for r in C.furnished_rooms(building) if C.completion_skip_reason(r, settings) is None)
+        return n + sum(1 for r in C.furnished_rooms(building)
+                       if C.completion_skip_reason(r, settings, building) is None)
 
     def layout_key(self) -> str:
         """The model of the layout and the AI decor questions: the agent model in an orchestrated run (M12 §13.3:

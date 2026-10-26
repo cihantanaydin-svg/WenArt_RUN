@@ -172,6 +172,10 @@ ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
               "side_table", "floor_lamp", "ottoman", "potted_plant"),
     # Milestone 12 (docs/milestone12.md §4.2 "balcony": a small table and two chairs; real02's terraces).
     "balcony": ("table_dining", "chair", "bench", "potted_plant"),
+    # 26 Oct 2026: a dressing room or walk-in closet (no room type of the building schema: the kind of a storage /
+    # other room the label or its bedroom door names, ``program.room_kind``; groups.yaml ``dressing``).
+    "dressing": ("wardrobe", "bench", "ottoman", "dresser", "chair", "tall_cabinet", "shoe_cabinet",
+                 "side_table", "floor_lamp", "potted_plant"),
 }
 FURNISHABLE_ROOM_TYPES: tuple[str, ...] = tuple(ALLOWED_TYPES)
 # Room types the AI never furnishes even when the documents leave them empty (docs/milestone7.md §0:

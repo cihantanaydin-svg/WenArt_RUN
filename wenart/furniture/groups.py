@@ -51,6 +51,12 @@ floor filters (``mount_bottom_m is None``) left them out of the bathroom set; th
 solver added a third washbasin beside the two drawn ones (r_L1_banyo) and placed pieces as if the hung basins were not
 there; the agent's ``place_group`` could add a second set.
 
+Kitchen and dressing completion of 26 Oct 2026 (user: "fix should be general"): ``groups.yaml`` carries the modules a
+standing counter run takes into itself (``kitchen_run.run.built_in``: the hob, the under-counter fridge; read by
+``solver.built_in_spec``), the ``drawn_run_any`` tier (the work triangle of a drawn run is scored in any kitchen; the
+fridge landing only under 14 m², ``drawn_run``), the weights ``fill`` and ``triangle``, the ``dressing`` alias and
+group (set members may carry ``fill`` and ``accessory``, ``_PARTNER``).
+
 Milestone 11 (kept): dining set, bed set, living set, desk set, kitchen run. ``place_group`` places a whole group as
 one unit (anchor piece + members with their relative offsets and facing) and checks it with the placer.
 
@@ -480,7 +486,11 @@ _PARTNER = {"type": "object", "additionalProperties": False, "required": ["role"
                            "gap": {"anyOf": [_NUM, {"type": "string"}]}, "facing": {"enum": ["anchor", "same", "of"]},
                            "align": {"enum": list(ALIGNS)}, "option": {"type": "string"},
                            "option_any": {"type": "array", "items": {"type": "string"}}, "sizes": _SIZES,
-                           "default": {"type": "integer", "minimum": 0}}}
+                           "default": {"type": "integer", "minimum": 0},
+                           # 26 Oct 2026: a set member that fills its wall (a dressing room's wardrobe run): the
+                           # solver scores its width over the wall's length (weight ``fill``); an ``accessory`` member
+                           # (a dressing room's bench) is placed only where it costs the others nothing (no bonus)
+                           "fill": {"type": "boolean"}, "accessory": {"type": "boolean"}}}
 # 23 Oct 2026 (user: "increase the group furniture options 10x"): the keys an option may carry. ``anchor`` /
 # ``counts`` (partner type -> count; a partner without a count takes its ``default``, else its ``max``) / ``sizes``
 # (anchor type -> sizes) / ``partner_sizes`` (partner role -> sizes; in a set: member type -> sizes, added to the

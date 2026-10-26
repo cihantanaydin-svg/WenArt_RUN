@@ -356,14 +356,19 @@ def test_rig_plan_places_the_fixtures_on_their_anchors():
     assert pendant["center"][2] == pytest.approx(0.75 + 0.75 + 0.07)
     assert L.rig_plan(dict(dining, room_type="living"), [], 0.0, 2.7) == {"fixtures": [], "dropped": []}
     assert L.rig_plan(dining, [], 0.0, 2.7)["dropped"][0]["kind"] == "pendant"
-    # Kitchen: the strip under the wall cabinets along the counter (in front of its back edge), a ceiling fixture.
+    # Kitchen: the strip under the wall cabinet over the counter (in front of its back edge), a ceiling fixture.
+    # 26 Oct 2026: a counter without wall cabinets gets no strip (a bare bar would float: real06's "thin shelf").
     kitchen = {"id": "r1", "room_type": "kitchen", "polygon": [[0, 0], [4, 0], [4, 3], [0, 3]]}
     counter = _piece("k", "kitchen_counter", (2.0, 2.7), (3.0, 0.6), front=270.0)  # back against y = 3
-    plan = L.rig_plan(kitchen, [counter], 0.0, 2.7)
+    bare = L.rig_plan(kitchen, [counter], 0.0, 2.7)
+    assert [f["kind"] for f in bare["fixtures"]] == ["ceiling"]
+    assert bare["dropped"][0]["kind"] == "strip" and "no wall cabinet" in bare["dropped"][0]["reason"]
+    cabinet = dict(_piece("wc", "wall_cabinet", (2.0, 2.825), (3.0, 0.35), front=270.0), mount_bottom_m=1.45)
+    plan = L.rig_plan(kitchen, [counter, cabinet], 0.0, 2.7)
     kinds = [f["kind"] for f in plan["fixtures"]]
     assert kinds == ["strip", "ceiling"]
     strip = plan["fixtures"][0]
-    assert strip["light"]["type"] == "AREA" and strip["length_m"] == pytest.approx(2.9)
+    assert strip["light"]["type"] == "AREA" and strip["length_m"] == pytest.approx(2.9) and strip["anchor_id"] == "wc"
     assert strip["center"][1] == pytest.approx(3.0 - L.RIG_STRIP_SETBACK_M) and strip["center"][2] < L.RIG_WALL_CABINET_BOTTOM_M
     assert strip["lumens"] == pytest.approx(500.0 * 2.9) and strip["light"]["direction"] == [0.0, 0.0, -1.0]
     # Bathroom: the mirror light over the basin against its wall, a ceiling fixture at the pole.

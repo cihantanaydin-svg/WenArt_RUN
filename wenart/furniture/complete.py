@@ -76,6 +76,20 @@ with the same axes become one table (``groups.merge_touching_tables``: the large
 not in kept rooms and not with ``furnished_rooms_keep_size``; a warning line names each merge. The record's
 ``critical`` lists a kitchen the completion left without a run (``layout.empty_kitchens``). An untyped unbuilt drawn
 piece is no obstacle of a copied partner's pieces either (``floor_pieces``, as in the solver).
+
+Kitchen and dressing completion of 26 Oct 2026 (user: "fix should be general"; real06 the test case: its kitchen
+rendered "a bare base cabinet with an empty worktop: no hob" and without a fridge, its "Soyunma Odası" as a bare
+shell). What: (1) a counter run that misses its hob gets one built into a counter and, where no floor place passes,
+an under-counter fridge (``solver.built_in_kitchen``: ``built_into``, ``built_in`` = {kind, host, reason, ...}; the
+record's ``built_ins`` and the report's "Built into the kitchen runs" say what went where and why, or why not, and
+which fridge: on the floor beside the run or built in); (2) ``wall_cabinets_for`` hangs wall cabinets over every
+counter run against a wall, drawn or added (``hang_wall_cabinets``; the layout calls it for a run it lays in an empty
+kitchen), never over the hob (and so its hood space), a window or a door; brief ``kitchen_wall_cabinets: false``
+switches them off (``Settings.wall_cabinets``); (3) a dressing room (``program.room_kind`` ``dressing``: its label or
+its bedroom door) is completed even when the ingest typed it storage (``completion_skip_reason`` with the building);
+(4) a twin room takes a partner's built-in module into its own mapped counter (``copy_added``). Why: the solver only
+looked for a floor place for a missing fridge beside a drawn run and none for the hob (every agent complete_group
+was refused), and wall cabinets hung only over drawn counters.
 """
 from __future__ import annotations
 
@@ -123,6 +137,8 @@ class Settings:
     assumed: tuple[str, ...] = ()           # the keys above taken from wenart/defaults.yaml
     brief_path: Optional[str] = None
     warnings: tuple[str, ...] = ()
+    # 26 Oct 2026: brief ``kitchen_wall_cabinets: false`` leaves the counter runs without wall cabinets (default: hung)
+    wall_cabinets: bool = True
 
     KEYS = ("furnished_rooms", "furnished_rooms_keep", "furnished_rooms_keep_size", "render.twin_rooms")
 
@@ -136,11 +152,13 @@ class Settings:
                    keep_size=bool(BR.value(loaded, "furnished_rooms_keep_size", False)),
                    twin_rooms=str(BR.value(loaded, "render.twin_rooms", "one")),
                    assumed=tuple(k for k in loaded.get("assumed", []) if k in cls.KEYS),
-                   brief_path=loaded.get("path"), warnings=tuple(loaded.get("warnings", [])))
+                   brief_path=loaded.get("path"), warnings=tuple(loaded.get("warnings", [])),
+                   wall_cabinets=BR.value(loaded, "kitchen_wall_cabinets", True) is not False)
 
     def to_dict(self) -> dict:
         return {"furnished_rooms": self.mode, "furnished_rooms_keep": list(self.keep),
                 "furnished_rooms_keep_size": self.keep_size, "render.twin_rooms": self.twin_rooms,
+                "kitchen_wall_cabinets": self.wall_cabinets,
                 "assumed": list(self.assumed), "brief": self.brief_path, "warnings": list(self.warnings)}
 
     def brief_values(self) -> dict:
@@ -174,14 +192,25 @@ def furnished_rooms(building: dict) -> list[dict]:
     return [r for r in building["rooms"] if r.get("has_documented_furniture")]
 
 
-def completion_skip_reason(room: dict, settings: Settings) -> Optional[str]:
-    """Why a furnished room is not completed (None: it is)."""
+def dressing_kind(room: dict, building: Optional[dict]) -> bool:
+    """26 Oct 2026: the room is read as a dressing room or walk-in closet (``program.room_kind``: its label words or
+    its bedroom door), whatever its building-schema type (storage, other)."""
+    if building is None:
+        return False
+    from wenart.furniture import program as PR
+
+    return PR.room_kind(building, room) == "dressing"
+
+
+def completion_skip_reason(room: dict, settings: Settings, building: Optional[dict] = None) -> Optional[str]:
+    """Why a furnished room is not completed (None: it is). ``building`` (26 Oct 2026): a storage room read as a
+    dressing room (``dressing_kind``) is completed."""
     rtype = room.get("room_type")
     if settings.mode != "complete":
         return f"furnished_rooms: {settings.mode} (drawn furniture only restyled, Milestone 9)"
     if rtype in schemas.NOT_FURNISHED_ROOM_TYPES:
         return f"{rtype} room: never furnished by AI"
-    if rtype not in schemas.ALLOWED_TYPES:
+    if rtype not in schemas.ALLOWED_TYPES and not dressing_kind(room, building):
         return f"room type {rtype}: no furniture types to complete"
     if is_kept(room, settings):
         return "in furnished_rooms_keep: drawn furniture only restyled"
@@ -396,6 +425,9 @@ class RoomCompletion:
     typed_by_code: list = field(default_factory=list)
     # 26 Oct 2026: kitchens the completion left without a run (``layout.empty_kitchens``; critical findings)
     critical: list = field(default_factory=list)
+    # 26 Oct 2026: what was built into the kitchen runs (a hob, an under-counter fridge; the floor fridge the solver
+    # placed) and why, or why not (``solver.built_in_kitchen`` records)
+    built_ins: list = field(default_factory=list)
 
     @property
     def room_id(self) -> str:
@@ -459,7 +491,7 @@ class RoomCompletion:
                        "mirrored_from": f.get("mirrored_from")} for f in self.added],
             "refused": self.refused, "dropped": self.dropped,
             "resolved": list(self.resolved), "typed_by_code": list(self.typed_by_code),
-            "critical": list(self.critical),
+            "critical": list(self.critical), "built_ins": list(self.built_ins),
             "wall_cabinets": [{"id": f["id"], "run": f["rule"]["run"], "size": f["footprint"]["size"],
                                "excluded": f["rule"]["excluded"]} for f in self.wall_cabinets],
             "missing": self.missing, "drawn_layout": self.drawn_layout(),
@@ -502,8 +534,11 @@ def wall_cabinets_for(room: dict, building: dict, items: list[dict]) -> list[dic
     under = [(f"{f['type']} {f['id']}", placer.drawn_piece(f).polygon()) for f in items
              if f["type"] not in schemas.MOUNTED_TYPES and f.get("build") is not False
              and (f["type"] == "stove" or _height(f) > schemas.WALL_CABINET_Z[0] - 0.05)]
-    counters = [f for f in items if f["type"] == "kitchen_counter" and f.get("source") == "from_documents"
-                and f.get("build") is not False and f.get("front_deg") is not None]
+    # 26 Oct 2026 (user: "fix should be general"): every built counter run against a wall, drawn or added (a run the
+    # solver laid in an empty kitchen, a compact fallback run); before, only drawn counters got wall cabinets
+    counters = [f for f in items if f["type"] == "kitchen_counter" and f.get("source") in ("from_documents",
+                                                                                          "added_by_ai")
+                and f.get("build") is not False and f.get("front_deg") is not None and f.get("footprint")]
     placed: list[tuple[str, Polygon]] = []
     out = []
     for counter in sorted(counters, key=lambda f: f["id"]):
@@ -552,12 +587,19 @@ def wall_cabinets_for(room: dict, building: dict, items: list[dict]) -> list[dic
 
 
 def add_wall_cabinets(rec: RoomCompletion, building: dict, out: dict) -> None:
-    room = rec.room
+    rec.wall_cabinets += hang_wall_cabinets(rec.room, building, out)
+
+
+def hang_wall_cabinets(room: dict, building: dict, out: dict) -> list[dict]:
+    """The wall cabinets of ``wall_cabinets_for`` added to ``out`` (changed in place) for every counter run of
+    ``room`` against a wall; returns the new pieces. Nothing when the room has drawn wall cabinets (the documents
+    decide) or already holds added ones (asked twice)."""
     items = [f for f in out["furniture"] if f.get("room_id") == room["id"]]
-    if any(f["type"] == "wall_cabinet" and f.get("source") == "from_documents" for f in items):
-        return                                                   # drawn wall cabinets: the documents decide
+    if any(f["type"] == "wall_cabinet" for f in items):
+        return []                       # drawn wall cabinets: the documents decide; added ones: hung already
     from wenart.furniture import layout as L
 
+    added = []
     number = L._next_furniture_number(out, room["level_id"])
     for spec in wall_cabinets_for(room, building, items):
         lo, hi = schemas.WALL_CABINET_Z
@@ -573,8 +615,9 @@ def add_wall_cabinets(rec: RoomCompletion, building: dict, out: dict) -> None:
         if spec["design"]:
             f["design"] = spec["design"]
         out["furniture"].append(f)
-        rec.wall_cabinets.append(f)
+        added.append(f)
         number += 1
+    return added
 
 
 # --------------------------------------------------------------------------
@@ -597,6 +640,7 @@ def complete_room(room: dict, building: dict, out: dict, style_text: str, client
     rec.added = list(lay.pieces)
     rec.resolved = list(lay.resolved)
     rec.critical = list(lay.critical)          # 26 Oct 2026: a kitchen left without a run (layout.empty_kitchens)
+    rec.built_ins = list(lay.built_ins)        # 26 Oct 2026: the hob / fridge built into a run (or why not)
     if lay.skipped:
         rec.reason = lay.skipped
     elif not rec.added:
@@ -604,7 +648,8 @@ def complete_room(room: dict, building: dict, out: dict, style_text: str, client
     for c in rec.candidates[:1]:
         rec.dropped += [{"type": x["group"], "reason": x["reason"], "group_id": x["group_id"]}
                         for x in c.get("not_placed", [])]
-    add_wall_cabinets(rec, building, out)       # any room with a drawn counter run (a kitchen, an open kitchen)
+    if settings.wall_cabinets:                  # any room with a counter run (a kitchen, an open kitchen)
+        add_wall_cabinets(rec, building, out)
     return rec
 
 
@@ -647,7 +692,11 @@ def copy_added(room: dict, partner_id: str, partner_added: list[dict], t: Transf
     fixed = placer.obstacles_for(obstacles, ctx)
     room_ctx = placer.drawn_context(ctx, fixed) if fixed else ctx
     copies = []
+    built = []                 # 26 Oct 2026: modules built into a counter (a hob, an under-counter fridge)
     for f in partner_added:
+        if f.get("built_into"):
+            built.append(f)
+            continue
         fp = _map_footprint(f["footprint"], t)
         piece = placer.Piece(f["type"], tuple(fp["center"]), float(fp["rotation_deg"]),
                              (float(fp["size"][0]), float(fp["size"][1])),
@@ -678,11 +727,34 @@ def copy_added(room: dict, partner_id: str, partner_added: list[dict], t: Transf
         f, _fp, _p = copies.pop(bad[-1])
         dropped.append({"type": f["type"], "mirrored_from": f["id"], "center": f["footprint"]["center"],
                         "reason": "the copy fails " + ", ".join(placer.failed_checks(checks[bad[-1]])) + " here"})
-    number = L._next_furniture_number(out, room["level_id"])
+    # 26 Oct 2026: a built-in module goes into the counter its host maps onto (``ids``: the partner's drawn pieces ->
+    # this room's), never through the floor checks (it lies in its counter); it must lie in that counter here
     ids = dict(ids or {})
+    here = {f["id"]: f for f in out["furniture"] if f.get("room_id") == room["id"]}
+    built_copies = []
+    for f in built:
+        fp = _map_footprint(f["footprint"], t)
+        host = here.get(ids.get(f["built_into"]) or "")
+        poly = placer.drawn_piece({"type": f["type"], "footprint": fp, "front_deg": None}).polygon()
+        if host is None:
+            why = f"its counter {f['built_into']} has no counterpart here"
+        elif not placer.drawn_piece(host).polygon().buffer(0.01, join_style="mitre").contains(poly):
+            why = f"it does not lie in the counter {host['id']} here"
+        else:
+            built_copies.append((f, fp, host["id"]))
+            continue
+        dropped.append({"type": f["type"], "mirrored_from": f["id"], "center": f["footprint"]["center"],
+                        "reason": f"the built-in copy fails here: {why}"})
+    number = L._next_furniture_number(out, room["level_id"])
     for f, _fp, _p in copies:
         ids[f["id"]] = B.element_id("furniture", room["level_id"], number)
         number += 1
+    for f, _fp, _host in built_copies:
+        ids[f["id"]] = B.element_id("furniture", room["level_id"], number)
+        number += 1
+    copies += [(f, fp, None) for f, fp, _host in built_copies]
+    checks = list(checks) + [{name: True for name in placer.CHECKS} for _ in built_copies]
+    hosts = {f["id"]: host for f, _fp, host in built_copies}
     added = []
     for (f, fp, _p), c in zip(copies, checks):
         g = copy.deepcopy(f)
@@ -694,6 +766,11 @@ def copy_added(room: dict, partner_id: str, partner_added: list[dict], t: Transf
             g["layout"] = dict(g["layout"], copied_from=f["id"])
         if f.get("shape") == "L":
             g["chaise_side"] = t.side(f.get("chaise_side"))
+        if f["id"] in hosts:
+            g["built_into"] = hosts[f["id"]]
+            g["built_in"] = dict(g.get("built_in") or {}, host=hosts[f["id"]])
+            if isinstance(g.get("layout"), dict):
+                g["layout"]["built_into"] = hosts[f["id"]]
         out["furniture"].append(g)
         added.append(g)
     return added, dropped
@@ -720,7 +797,8 @@ def copy_room(room: dict, partner_rec: RoomCompletion, kind: str, t: Transform, 
     mapping, _why, _dev = match_pieces(_pieces_in(building, partner_rec.room_id), _pieces_in(building, room["id"]), t)
     rec.added, rec.dropped = copy_added(room, partner_rec.room_id, list(partner_rec.added), t, floor_pieces(rec.drawn),
                                         out, ctx, ids=mapping)
-    add_wall_cabinets(rec, building, out)       # any room with a drawn counter run (a kitchen, an open kitchen)
+    if settings.wall_cabinets:                  # any room with a counter run (a kitchen, an open kitchen)
+        add_wall_cabinets(rec, building, out)
     return rec
 
 
@@ -869,7 +947,7 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
 
     for room in furnished_rooms(out):
         order.append(room["id"])
-        skip = completion_skip_reason(room, settings)
+        skip = completion_skip_reason(room, settings, out)
         if skip:
             records[room["id"]] = RoomCompletion(room, state="kept" if "keep" in skip else "skipped", reason=skip)
             continue
@@ -1011,6 +1089,15 @@ def report(records: list[RoomCompletion], building: dict, settings: Settings, vi
             group = f"{g.get('group')} ({g.get('role')}, anchor {g.get('anchor_id') or '-'})" if g else "-"
             lines.append(f"| {r.room_id} | {f['id']} | {f['type']} | {group} | [{c[0]:.2f}, {c[1]:.2f}] | "
                          f"{_fmt_size(f['footprint']['size'])} | {f.get('method')} | {f.get('mirrored_from') or '-'} |")
+    built = [(r, b) for r in records for b in r.built_ins]
+    if built:
+        # 26 Oct 2026: what the kitchen runs took into themselves (or the floor fridge beside them), and why not
+        lines += ["", f"## Built into the kitchen runs ({sum(1 for _r, b in built if b.get('placed'))} placed)", "",
+                  "| Room | Module | Piece | Into | How | Reason |", "|---|---|---|---|---|---|"]
+        for r, b in built:
+            how = b.get("how") or ("built in" if b.get("placed") else "none")
+            lines.append(f"| {r.room_id} | {b['kind']} | {b.get('id') or '-'} | {b.get('host') or '-'} | "
+                         f"{how.replace('_', ' ')} | {b.get('reason') or '-'} |")
     choices = [(r, r.choice) for r in records if r.choice and r.choice.get("by") == "vlm"]
     if choices:
         lines += ["", "## Choices of the vision model", ""]

@@ -249,12 +249,13 @@ def room_types(building: dict, room: dict) -> list[str]:
             t = B.room_type_for(name)
             if t and t not in out:
                 out.append(t)
-    if out[0] in ("other", "unknown", None, "") and room.get("id"):
-        # Milestone 13: the alias kind of an ``other`` / ``unknown`` room (label words, drawn anchors).
+    if out[0] in ("other", "unknown", None, "", "storage") and room.get("id"):
+        # Milestone 13: the alias kind of an ``other`` / ``unknown`` room (label words, drawn anchors); 26 Oct 2026:
+        # a storage room only when it is read as a dressing room (``program.dressing_room``, its label words).
         from wenart.furniture import program as PR     # lazy: program imports this module
 
         kind = PR.room_kind(building, room)
-        if kind and kind not in out:
+        if kind and kind not in out and (out[0] != "storage" or kind == "dressing"):
             out.append(kind)
     return out
 
@@ -552,6 +553,9 @@ def _f6_f7_r3(r: _Room) -> list[dict]:
         p.index = i
     polys = [r.polys[pid] for pid in ids]
     room_area = r.polygon.buffer(0.01, join_style="mitre")
+    # A module built into a counter of the room (a hob, an under-counter fridge) sits inside its host: the host's own
+    # F7 / R3 finding covers the door, a second one for the module would count the same counter twice.
+    hosted = {f["id"] for f in r.floor if f.get("built_into") in set(ids)}
     for pid, p, poly in zip(ids, pieces, polys):
         item = r.item(pid)
         if p.type in F6_TYPES:
@@ -567,20 +571,21 @@ def _f6_f7_r3(r: _Room) -> list[dict]:
                                             "zone_m": schemas.CLEARANCE_DEPTH_M.get(p.type,
                                                                                     placer.CLEARANCE_FRONT_M)},
                                            **_assumed(item))))
-        for door in (r.ctx.doors if p.type != "stair" else []):      # a stair is entered through its opening
+        # a stair is entered through its opening; a hosted module is judged with its counter
+        for door in (r.ctx.doors if p.type != "stair" and pid not in hosted else []):
             if poly.intersection(door.zone).area > AREA_MIN_M2:
                 out.append(_violation("F7", pid, r.id, f"{p.type} blocks door {door.id}",
                                       {"door": door.id, "area_m2": round(poly.intersection(door.zone).area, 3)}))
     for door in r.ctx.doors:
         if door.swing is None or door.swing.is_empty:
             continue
-        hits = [pid for pid, p, poly in zip(ids, pieces, polys) if p.type != "stair"
+        hits = [pid for pid, p, poly in zip(ids, pieces, polys) if p.type != "stair" and pid not in hosted
                 and poly.intersection(door.swing).area > AREA_MIN_M2]
         if hits:
             # M11 (pod G1, synthetic-01): no drawing gives the hinge side, and the half disc covers both. Critical
             # only when the leaf hits a piece on either hinge; else minor (the leaf is built closed and the door can hinge on
             # the free jamb).
-            per_hinge = [[pid for pid, p, poly in zip(ids, pieces, polys) if p.type != "stair"
+            per_hinge = [[pid for pid, p, poly in zip(ids, pieces, polys) if p.type != "stair" and pid not in hosted
                           and poly.intersection(q).area > AREA_MIN_M2] for q in door.hinge_swings()]
             free = [i for i, h in enumerate(per_hinge) if not h]
             if per_hinge and free:
@@ -660,6 +665,11 @@ def _run_held(r: _Room) -> set:
     run, holds nothing)."""
     by_id = {f["id"]: f for f in r.floor}
     held: set = set()
+    # 26 Oct 2026: a hob or an under-counter fridge the completion built into a counter (``built_into``, the solver's
+    # ``built_in_kitchen``) is held by it before any fit has planned the run
+    for f in r.floor:
+        if f.get("built_into") in by_id and isinstance(f.get("built_in"), dict):
+            held.add(frozenset((f["built_into"], f["id"])))
     for host in r.floor:
         plan = _dict(_dict(host.get("asset")).get("module_plan"))
         for rec in plan.get("gaps") or []:

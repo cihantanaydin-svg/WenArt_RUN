@@ -23,7 +23,7 @@ its sofa, nightstands at mid-bed, chairs facing away all passed the Milestone 11
 | G8 | kitchen run: sink between fridge and hob along a run (major); landing beside the sink 0.46, the hob 0.30, the fridge 0.38 m (major); hob not in a window band (major); work-triangle legs 1.20–2.70 m, sum ≤ 7.90 m (major); aisle in front of the run ≥ 0.90 m (major) |
 | G9 | a sink, a hob and a fridge in every kitchen (room or kitchen zone) (major; critical for a kitchen without any run piece, 26 Oct 2026) |
 | G10 | bath: toilet + washbasin (+ shower or bathtub in a bathroom) (major; a WC's washbasin minor); ≥ 0.53 m clear in front of each fixture (major); toilet centre ≥ 0.38 m from a side wall or fixture, washbasin centre ≥ 0.38 m from a side wall (major) |
-| G11 | walkways on a 5 cm raster: every door reaches every other door at ≥ 0.60 m (critical) and the entrance door every other door at ≥ 0.80 m (major); every use zone is reached from the entrance at ≥ 0.60 m (major). Only what the empty room allows is required (a narrow corridor never fails by itself); a bare gap in an outer wall with drawn fixed equipment in front of it is no passage (``blocked_gaps``, 26 Oct 2026) |
+| G11 | walkways on a 5 cm raster: every door reaches every other door at ≥ 0.60 m (critical) and the entrance door every other door at ≥ 0.80 m (major); every use zone is reached from the entrance at ≥ 0.60 m (major; minor for an added piece in an area the drawn pieces alone already cut off from the entrance and another door reaches, 26 Oct 2026). Only what the empty room allows is required (a narrow corridor never fails by itself); a bare gap in an outer wall with drawn fixed equipment in front of it is no passage (``blocked_gaps``, 26 Oct 2026) |
 | G12 | windows: nothing taller than the sill + 0.05 m within 0.30 m in front of a window (a TV unit counts with its TV, 1.30 m) (major) |
 | G13 | wardrobes and other door-fronted storage: ≥ 0.80 m free in front (major) |
 | G14 | no piece of a type its room (or the zone it stands in) never holds (major; minor for drawn pieces that are not fixed equipment, as F1) |
@@ -53,6 +53,15 @@ nightstands and free sides) and G6 (its chairs) too; before, P4a's code-typed be
 Fix round after P4b (17 Oct 2026; the furniture track's ask, applied at integration): G14 skips a drawn piece that
 ``plausibility.drawn_anywhere`` lets stand in its room (a drawn washing machine in a hall, unless the room never holds
 one), as F1 does: real03's 4 hall washers were flagged in every agent round as the wrong type.
+
+Kitchen completion of 26 Oct 2026 (user: "fix should be general"): G8's aisle in front of a run piece ignores the run
+pieces that overlap it (a counter outline drawn twice, a hob or fridge built into the counter): real06's nested
+outline f_L0_002 gave the worst aisle "0.10 m" and hid every new piece standing in the aisle. ``probe_zones`` (with
+``walkway_report(..., probes=)``) says whether a piece's use zones are reached from the entrance without the piece
+standing in the room, ``zones_from_any_door`` whether a walkway from any door reaches them (the solver's ``verify``
+reads both). G11 calls an added piece's unreached use zone minor when the drawn pieces alone already cut it off from
+the entrance and another door reaches it (``_cut_off_by_drawn``): real06's kitchen, bedroom and upper hall entrances
+open into pockets the drawn pieces wall off, and every added piece there was a major finding the solver had accepted.
 """
 from __future__ import annotations
 
@@ -950,8 +959,12 @@ def _g8_g9(r: RoomView) -> list[dict]:
             if pid in islands:
                 continue
             # 23 Oct 2026: the run piece at an L or U corner faces the other leg's end (a corner cabinet): that
-            # perpendicular neighbour is part of the same run, not an obstacle in the aisle.
-            free = side_clear(r.pieces[pid], "front", r.obstacles(exclude={pid} | _corner_neighbours(r, pid, ids)))
+            # perpendicular neighbour is part of the same run, not an obstacle in the aisle. 26 Oct 2026: nor is a run
+            # piece that overlaps it (a counter outline drawn twice, a module built into the counter): before, real06's
+            # nested outline f_L0_002 gave the worst aisle "0.10 m" and hid every new piece standing in the aisle.
+            same = {q for q in ids if q != pid and r.polys[q].intersection(r.polys[pid]).area > 1e-4}
+            free = side_clear(r.pieces[pid], "front",
+                              r.obstacles(exclude={pid} | same | _corner_neighbours(r, pid, ids)))
             if worst is None or free < worst[0]:
                 worst = (free, pid)
         if worst is not None and worst[0] < aisle - 1e-9:
@@ -1153,10 +1166,14 @@ def use_zone_polys(piece: placer.Piece, ftype: str, room_poly: Optional[Polygon]
 
 def walkway_report(building: dict, room: dict, ctx: placer.RoomContext, pieces: list[placer.Piece],
                    types: list[str], ids: Optional[list[str]] = None, raster: Optional[RoomRaster] = None,
-                   baseline: Optional[dict] = None, overrides: Optional[dict] = None) -> dict:
+                   baseline: Optional[dict] = None, overrides: Optional[dict] = None,
+                   probes: Optional[list] = None, any_door: bool = False) -> dict:
     """The walkway facts of a room on the raster: ``{"pairs": [(a, b, needs_m, ok)], "zones": [(piece id, zone name,
     ok)], "entrance"}``. ``baseline`` (the same report of the empty room) limits what is required; ``overrides``
-    (Milestone 13): the room's tier minimums (the walkways and the use zones of a small kitchen)."""
+    (Milestone 13): the room's tier minimums (the walkways and the use zones of a small kitchen). ``probes`` (26 Oct
+    2026): ``[(id, placer.Piece, type)]`` whose use zones are judged the same way without standing in the room (no
+    obstacles): ``out["probes"]`` = ``[(id, zone name, ok)]``. ``any_door`` (26 Oct 2026): a use zone counts as
+    reached when a walkway from any door of the room (a blocked gap aside) reaches it, not only from the entrance."""
     raster = raster or RoomRaster(ctx.polygon)
     ids = ids or [f"#{k}" for k in range(len(pieces))]
     occ = np.zeros_like(raster.inside)
@@ -1189,11 +1206,15 @@ def walkway_report(building: dict, room: dict, ctx: placer.RoomContext, pieces: 
             ok_sec = ok if need == sec else bool(comps(sec, a) & comps(sec, b))
             pairs.append((a, b, need, ok, ok_sec))
     zones = []
+    probed = []
     if entrance is not None:
         reach_comps = comps(sec, entrance)
+        if any_door:
+            reach_comps = reach_comps.union(*[comps(sec, d) for d in door_ids])
         reach = np.isin(labels[sec], list(reach_comps)) if reach_comps else np.zeros_like(free)
         covered = raster.dilate(reach, sec / 2.0) & free
-        for pid, p, t in zip(ids, pieces, types):
+
+        def judged(pid, p, t) -> list:
             mine = []
             for name, zp in use_zone_polys(p, t, ctx.polygon, overrides=over):
                 if name.startswith("side_"):
@@ -1205,13 +1226,37 @@ def walkway_report(building: dict, room: dict, ctx: placer.RoomContext, pieces: 
             if int(GR.use_zone(t).get("sides_needed", 2)) == 1 and any(ok for _p, n, ok in mine if n in ("left",
                                                                                                     "right")):
                 mine = [(q, n, True if n in ("left", "right") else ok) for q, n, ok in mine]
-            zones += mine
-    out = {"pairs": pairs, "zones": zones, "entrance": entrance}
+            return mine
+
+        for pid, p, t in zip(ids, pieces, types):
+            zones += judged(pid, p, t)
+        for pid, p, t in probes or []:
+            probed += judged(pid, p, t)
+    out = {"pairs": pairs, "zones": zones, "entrance": entrance, "probes": probed}
     if baseline is not None:
         allowed = {(a, b): (ok, ok_sec) for a, b, _n, ok, ok_sec in baseline["pairs"]}
         out["pairs"] = [(a, b, n, ok or not allowed.get((a, b), (True, True))[0], ok_sec
                          or not allowed.get((a, b), (True, True))[1]) for a, b, n, ok, ok_sec in pairs]
     return out
+
+
+def probe_zones(building: dict, room_id: str, probes: list) -> dict:
+    """26 Oct 2026: ``{(id, zone name): reached}`` for the use zones of ``probes`` (``[(id, placer.Piece, type)]``,
+    not standing in the room) from the entrance door of ``room_id`` as the building has it (its built floor pieces the
+    obstacles, the room's tier minimums), as G11 judges a piece's zones. The solver's ``verify`` reads it: a new
+    piece's zone the fixed pieces alone already cut off is not the new piece's fault."""
+    room = next((x for x in building.get("rooms") or [] if x.get("id") == room_id), None)
+    if room is None or not probes:
+        return {}
+    r = RoomView(building, room)
+    if not r.ctx.doors:
+        return {}
+    ids = [pid for pid in r.pieces if r.by_id[pid]["type"] not in ("unknown",)]
+    over = tier_overrides_of(r.building, r.room, r.items)
+    rep = walkway_report(r.building, r.room, r.ctx, [r.pieces[pid] for pid in ids],
+                         [r.by_id[pid]["type"] for pid in ids], ids, raster=RoomRaster(r.polygon), overrides=over,
+                         probes=list(probes))
+    return {(pid, name): ok for pid, name, ok in rep.get("probes") or []}
 
 
 def _g11(r: RoomView) -> list[dict]:
@@ -1233,12 +1278,57 @@ def _g11(r: RoomView) -> list[dict]:
         elif not ok:
             out.append(_violation("G11", "major", a, r.id, f"the main walkway from the entrance door is below "
                                   f"{need:.2f} m between doors {a} and {b}", {"from": a, "to": b, "needs_m": need}))
+    cut = _cut_off_by_drawn(r, rep, ids, pieces, types, raster, over)
     for pid, zone, ok in rep["zones"]:
         if not ok:
+            if (pid, zone) in cut:
+                out.append(_violation("G11", "minor", pid, r.id, f"{r.by_id[pid]['type']} {pid}: its {zone} use zone "
+                                      f"is not reached by a {sec:.2f} m walkway from door {rep['entrance']}; the drawn "
+                                      f"pieces alone already cut that area off", {"zone": zone, "entrance":
+                                      rep["entrance"], "needs_m": sec, "cut_off_by_drawn": True}))
+                continue
             out.append(_violation("G11", "major", pid, r.id, f"{r.by_id[pid]['type']} {pid}: its {zone} use zone is not "
                                   f"reached by a {sec:.2f} m walkway from door {rep['entrance']}",
                                   {"zone": zone, "entrance": rep["entrance"], "needs_m": sec}))
     return out
+
+
+def _cut_off_by_drawn(r: RoomView, rep: dict, ids: list, pieces: list, types: list, raster: RoomRaster,
+                      over: dict) -> set:
+    """26 Oct 2026 (user: "fix should be general"): the ``(id, zone)`` use zones of pieces not from the documents
+    that fail G11 although the drawn pieces alone (the added ones not standing there) already cut that area off from
+    the entrance door, while a walkway from another door of the room still reaches them. The fault is the drawn
+    layout or the entrance the reading chose, not the added piece: minor, as the solver's ``verify``
+    (``cut_off_zones``) accepts it. A zone no door reaches, and a drawn piece's own failing zone, stay major."""
+    failing = {pid for pid, _z, ok in rep["zones"] if not ok and r.by_id[pid].get("source") != "from_documents"}
+    if not failing:
+        return set()
+    drawn = [k for k, pid in enumerate(ids) if r.by_id[pid].get("source") == "from_documents"]
+    probes = [(pid, p, t) for pid, p, t in zip(ids, pieces, types) if pid in failing]
+    alone = walkway_report(r.building, r.room, r.ctx, [pieces[k] for k in drawn], [types[k] for k in drawn],
+                           [ids[k] for k in drawn], raster=raster, overrides=over, probes=probes)
+    others = walkway_report(r.building, r.room, r.ctx, pieces, types, ids, raster=raster, overrides=over,
+                            any_door=True)
+    served = {(pid, name) for pid, name, ok in others["zones"] if ok}
+    return {(pid, name) for pid, name, ok in alone.get("probes") or [] if not ok and (pid, name) in served}
+
+
+def zones_from_any_door(building: dict, room_id: str) -> dict:
+    """26 Oct 2026: ``{(id, zone name): reached}`` for the use zones of the room's built floor pieces, reached by a
+    walkway from any door of the room (a blocked gap aside), as ``_cut_off_by_drawn`` judges it. The solver's
+    ``verify`` reads it beside ``probe_zones``."""
+    room = next((x for x in building.get("rooms") or [] if x.get("id") == room_id), None)
+    if room is None:
+        return {}
+    r = RoomView(building, room)
+    if not r.ctx.doors:
+        return {}
+    ids = [pid for pid in r.pieces if r.by_id[pid]["type"] not in ("unknown",)]
+    over = tier_overrides_of(r.building, r.room, r.items)
+    rep = walkway_report(r.building, r.room, r.ctx, [r.pieces[pid] for pid in ids],
+                         [r.by_id[pid]["type"] for pid in ids], ids, raster=RoomRaster(r.polygon), overrides=over,
+                         any_door=True)
+    return {(pid, name): ok for pid, name, ok in rep["zones"]}
 
 
 # --------------------------------------------------------------------------

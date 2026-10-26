@@ -375,7 +375,9 @@ def test_tiers_make_minimums_soft_by_room_class():
     drawn = GR.rule_for("triangle_leg", room_type="kitchen", area=13.6, drawn_run=True)
     assert drawn["hard"] is False and drawn["tier"] == "drawn_run" and drawn["max"] == 2.7
     assert GR.rule_for("triangle_leg", room_type="kitchen", area=13.6)["hard"] is True
-    assert GR.rule_for("triangle_leg", room_type="kitchen", area=15.0, drawn_run=True)["hard"] is True
+    # 26 Oct 2026 (real06's 24.8 m² kitchen kept no fridge): a drawn run in any kitchen scores the triangle
+    assert GR.rule_for("triangle_leg", room_type="kitchen", area=15.0, drawn_run=True)["hard"] is False
+    assert GR.rule_for("triangle_leg", room_type="kitchen", area=15.0)["hard"] is True
     cfg = GR.config()
     for name, tier in cfg["tiers"].items():
         assert tier["flagged"] and all(s in cfg["sources"] for s in tier["source"]) and tier["what"], name
@@ -402,7 +404,8 @@ def test_g8_reports_a_soft_aisle_as_minor_in_a_small_kitchen():
 
 def test_a_fridge_beside_a_drawn_run_is_placed_with_soft_nkba_terms():
     """real04: the only fridge candidate beside the drawn run broke the hard work triangle (3.38 m > 2.70) and the
-    landing; the kitchen stayed without a fridge for 7 rounds. With a drawn run under 14 m² they score instead."""
+    landing; the kitchen stayed without a fridge for 7 rounds. With a drawn run they score instead (under 14 m² since
+    Milestone 13; in every kitchen since 26 Oct 2026, real06)."""
     h = 4.2
     run = [fp("k1", "kitchen_counter", (1.5, h - 0.32), (3.0, 0.6), 270.0),
            fp("sk", "sink_kitchen", (0.5, h - 0.32), (0.8, 0.6), 270.0), fp("st", "stove", (2.6, h - 0.32), (0.6, 0.6), 270.0)]
@@ -419,8 +422,14 @@ def test_a_fridge_beside_a_drawn_run_is_placed_with_soft_nkba_terms():
     assert g8 and all(v["severity"] == "minor" and v["metrics"].get("tier") == "drawn_run" for v in g8)
     assert not [v for v in GC.check_room(after, ROOM) if v["check"] == "G9"]
     big = copy.deepcopy(b)
-    big["rooms"][0]["area_computed"] = 15.0                                   # over 14 m²: the NKBA rules stay hard
-    assert "fridge" not in {p["type"] for p in SV.solve_room(big, ROOM, k=1)[0]["pieces"]}
+    big["rooms"][0]["area_computed"] = 15.0                     # over 14 m²: the fridge landing stays hard
+    # 26 Oct 2026: the work triangle of a drawn run is scored in every kitchen (drawn_run_any), the landing is not:
+    # no floor place has one here, the counter between the drawn sink and stove takes no under-counter fridge (the
+    # sink would not stand between it and the hob), and the record says so (never a fridge without its landing)
+    best = SV.solve_room(big, ROOM, k=1)[0]
+    assert "fridge" not in {p["type"] for p in best["pieces"]}
+    rec = next(r for r in best["built_ins"] if r["kind"] == "fridge")
+    assert rec["placed"] is False and rec["how"] == "none" and rec["reason"].startswith("no floor place for a fridge")
 
 
 # --------------------------------------------------------------------------

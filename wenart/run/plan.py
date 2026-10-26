@@ -264,7 +264,7 @@ def project_entry(orch: "SC.Orchestrator", pr: "SC.ProjectRun", gpu: Optional[di
     ai = empty_rooms(building) if mode == "ai" and building.get("rooms") else []
     # Milestone 10 (§2.1): the furnished rooms the layout completes ask the model too (scheduler.layout_needed).
     settings = CMP.load_settings(pr.ref.project_dir)
-    completed = [r for r in CMP.furnished_rooms(building) if CMP.completion_skip_reason(r, settings) is None]
+    completed = [r for r in CMP.furnished_rooms(building) if CMP.completion_skip_reason(r, settings, building) is None]
     pr.photos = orch.photo_list(pr)
     cached = orch.photos_complete(pr) if pr.photos else None
     calls = {}

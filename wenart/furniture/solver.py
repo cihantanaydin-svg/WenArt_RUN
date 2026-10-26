@@ -150,6 +150,33 @@ Bathroom sense of 26 Oct 2026 (``groups`` module docstring): a set member whose 
 entry lists: never placed a second time. A fixture hung at its working top is a fixed obstacle and a floor piece of the
 checks (``schemas.off_floor``); the entrance of the walkways is no bare gap the drawing blocks with fixed equipment
 (``group_checks.blocked_gaps``). Why: real06's upper bathroom got a third washbasin beside its two drawn ones.
+
+Built-in kitchen modules of 26 Oct 2026 (user: "fix should be general"; real06's 24.8 m² kitchen: "no hob, no oven",
+"no fridge", 30+ refused complete_group calls). Why: a drawn run's missing hob was never planned (``_levels`` added
+only a fridge, on the floor) and every floor fridge failed, so nothing was added. What:
+
+- **Hob** (``built_in_kitchen``, ``built_in_places``; ``groups.yaml`` ``kitchen_run.run.built_in``): a counter run
+  that stands in the room (drawn fixed equipment, or added and kept; ``_built_in_entries``) and misses its hob gets
+  one built into a counter before the search, chosen by ``verify``: a 60 cm module (45 cm where only that fits) on the
+  counter's worktop at its depth and front (an oven under it where the counter is full depth), at least the hob
+  landing off both counter ends, the blind corners and every other appliance, the sink landing apart, never in a
+  window band, never over the sink or another cutout, never on a counter outline drawn over another, a free stretch
+  first (off the door strips: ``passage``), the work triangle to the sink and fridge scored. It needs no floor
+  place: ``verify`` takes its overlap with its counter as designed (``built_in_pair``), lets it follow its counter
+  through the outline by ``BUILT_IN_OUTSIDE_M`` (``built_in_inside``) and skips the door checks its counter answers.
+  The counter never moves. The search then plans the rest around it.
+- **Fridge**: beside a drawn run on the floor as before, its legs to the fixed sink and hob scored (``triangle_term``,
+  weight ``triangle``), never in a run's aisle nor within the hob landing of the hob (``_info`` ``run_aisles`` /
+  ``hobs``); a candidate without one gets an under-counter fridge built into a counter (``_finish_built_ins``: a 60 cm
+  module with counter beside it, ``appliance_gap`` off the hob), and a layout without a fridge never stands beside a
+  passing one with it. Every candidate records ``built_ins`` (what, where, why; the floor fridge; or why not).
+- **Checks**: a new piece's use zone that the fixed pieces alone already cut off from the entrance (G11) while a
+  walkway from another door reaches it is the drawn layout's fault, not the new piece's (``cut_off_zones``,
+  ``Walk.state``; a zone no door reaches still fails; the critic's G11 calls it minor); G8 findings name their kind in
+  ``_violation_key`` (a new work triangle is no old landing finding).
+- **Dressing rooms** (``groups.yaml`` ``dressing``): a set member with ``fill`` scores its width over its wall's length
+  and takes one wall per run (``Cand.fill_wall``); an ``accessory`` member (the bench) earns no bonus, so it stands only
+  where it costs the runs nothing.
 """
 from __future__ import annotations
 
@@ -180,6 +207,8 @@ GENERATE_BUDGET = 150000
 GRID_M = 0.10
 REQUIRED_BONUS = 10.0
 OPTIONAL_BONUS = 3.0
+ACCESSORY_SCALE = 0.1          # 26 Oct 2026: an accessory set member's terms count this much (no bonus)
+RUN_AISLE_END_M = 0.10         # 26 Oct 2026: a fridge beside a run stays out of its aisle but this much at its ends
 MERGE_M = 0.5                  # same option and turn, anchor within this: one candidate (the better one)
 DIVERSE_M = 1.0                # the top k differ by an option, a turn or an anchor this far apart
 ZONE_INFLATE_M = 0.02          # use zones are tested 2 cm larger on the raster (sub-cell safety)
@@ -332,6 +361,7 @@ class Cand:
     bboxes: list = field(default_factory=list)
     rugs: list = field(default_factory=list)       # Milestone 13: decor members (rug spots), never obstacles
     resolve: Optional[dict] = None                 # Milestone 13: {anchor_id, members, reason} of a re-solved group
+    fill_wall: Optional[int] = None                # 26 Oct 2026: a fill member's outline segment (one run per wall)
 
 
 def _reached(zone) -> bool:
@@ -1668,12 +1698,24 @@ def member_candidates(space: Space, entry: dict, members: list[dict], level: int
                 spot = Spot(ftype, c, rot, size, member["role"], True)
                 if not space.spot_free(spot):
                     continue
+                if member.get("triangle") and (
+                        any(spot.piece().polygon().intersection(a).area > placer.AREA_EPS
+                            for a in info.get("run_aisles") or [])
+                        or any(spot.piece().polygon().distance(h) < info["hob_gap"] - 1e-9
+                               for h in info.get("hobs") or [])):
+                    continue        # 26 Oct 2026: a fridge beside a run never stands in its aisle nor beside its hob
                 if zone_poly is not None and not zone_poly.buffer(0.05).contains(Point(spot.center)):
                     continue
                 zones = spot.zones(overrides=space.overrides)
                 if not space.zones_free(zones):
                     continue
                 terms = {"wall_use": _align_term(t, lo, hi, align)}
+                if member.get("fill"):
+                    # 26 Oct 2026: a run that fills its wall (a dressing room's wardrobe run): width / wall length
+                    terms["fill"] = round(min(1.0, float(size[0]) / max(hi - lo + float(size[0]), 1e-6)), 4)
+                if member.get("triangle") and info.get("run_points"):
+                    # 26 Oct 2026: a fridge beside a drawn run: its legs to the fixed sink and hob (triangle_leg)
+                    terms["triangle"] = triangle_term(GC._front_mid(spot.piece()), info["run_points"])
                 rec = _term_recommended(space, spot)
                 if rec is not None:
                     terms["recommended"] = rec
@@ -1685,7 +1727,13 @@ def member_candidates(space: Space, entry: dict, members: list[dict], level: int
                 if not space.allowed(ftype, spot.center) or not _finish(space, cand):
                     continue
                 cand.local = _score(terms)
+                if member.get("accessory"):
+                    # 26 Oct 2026: an accessory (a dressing room's bench) earns no placement bonus and a tenth of its
+                    # terms: it stands where it fits, never at the cost of a run's length
+                    cand.local = round(ACCESSORY_SCALE * cand.local - OPTIONAL_BONUS, 6)
                 cand.sig = (member["role"], ftype, k, int(round(t / MERGE_M)))
+                if member.get("fill"):
+                    cand.fill_wall = k
                 out.append(cand)
     return _keep(out, PER_LEVEL, kind=lambda c: c.anchor.type)
 
@@ -2254,6 +2302,8 @@ class Walk:
                 if m.any():
                     self.seeds[door.id] = m
         self.entrance = GC.entrance_door(space.building, space.room, space.ctx)
+        blocked = GC.blocked_gaps(space.building, space.room, space.ctx)
+        self.open_doors = [d for d in self.seeds if d not in blocked]     # the doors a walkway may start from
         over = space.overrides                        # Milestone 13: a small kitchen's walkway tier
         self.main = float(over["walkway_main"]["min"]) if "walkway_main" in over else GR.rule_min("walkway_main")
         self.sec = float(over["walkway"]["min"]) if "walkway" in over else GR.rule_min("walkway")
@@ -2284,11 +2334,21 @@ class Walk:
             reach_ids = list(comps[self.sec][self.entrance])
             reach = np.isin(labels[self.sec], reach_ids) if reach_ids else np.zeros_like(free)
             cover = Layer(R.dilate(reach, self.sec / 2.0) & free)
+            any_cover = None
             for zfp in zfps:
                 sub = free[zfp[1]:zfp[2], zfp[3]:zfp[4]] if zfp[0] == "r" else free.ravel()[zfp[1]]
                 if not sub.any():
                     continue
                 if not cover.hit(zfp):
+                    if self.base_cover is not None and not self.base_cover.hit(zfp):
+                        # 26 Oct 2026: the fixed pieces alone cut it off from the entrance; a walkway from another
+                        # door still reaching it is enough (verify's ``cut_off_zones``)
+                        if any_cover is None:
+                            near_ids = sorted(set().union(*[comps[self.sec][d] for d in self.open_doors]))
+                            near = np.isin(labels[self.sec], near_ids) if near_ids else np.zeros_like(free)
+                            any_cover = Layer(R.dilate(near, self.sec / 2.0) & free)
+                        if any_cover.hit(zfp):
+                            continue
                     zones_ok = False             # a new piece's use zone no walkway reaches (G11)
                     break
         return {"pairs": pairs, "zones_ok": zones_ok, "cover": cover}
@@ -2335,7 +2395,11 @@ def _levels(space: Space, prog: dict, info: dict) -> list[tuple[dict, list[Cand]
             if entry.get("drawn"):
                 if "fridge" not in (entry.get("missing") or []):
                     continue                           # a drawn run: only a missing fridge is added beside it
-                member = {"role": "fridge", "type": "fridge", "sizes": [[0.6, 0.65], [0.7, 0.7]], "align": "any"}
+                # (26 Oct 2026: its hob is built into a counter before the search, ``built_in_kitchen``; the fridge's
+                # legs to the fixed sink and hob are scored; a layout without it never stands beside a passing one
+                # with it, and none on the floor gets one built in: ``_finish_built_ins``)
+                member = {"role": "fridge", "type": "fridge", "sizes": [[0.6, 0.65], [0.7, 0.7]], "align": "any",
+                          "triangle": True}
                 levels.append((entry, member_candidates(space, entry, [member], len(levels), info), False))
             else:
                 levels.append((entry, run_candidates(space, entry, len(levels), info), entry["required"]))
@@ -2428,10 +2492,44 @@ def _info(space: Space, building: dict, room_id: str, prog: dict, budget: dict) 
                 and f.get("footprint")]
     drawn_run = any(f.get("source") == "from_documents" and f.get("type") in GR.KITCHEN_RUN_TYPES
                     and f.get("build") is not False for f in by_id.values())
+    # 26 Oct 2026: the front middles of the fixed sinks and hobs (a hob built into a drawn counter included): the work
+    # triangle of a fridge beside the run is scored against them (``triangle_term``)
+    run_points = [GC._front_mid(placer.drawn_piece(f)) for f in space.fixed_items
+                  if f.get("type") in ("sink_kitchen", "stove") and GR.piece_is_built(f)]
+    # ... and the aisles in front of the fixed run pieces, which a fridge beside the run never stands in (the raster's
+    # reserved zones skip a zone the outline cuts, real06's f_L0_031 reaching through a wall jog)
+    over = space.overrides.get("kitchen_aisle")
+    aisle = float(over["min"]) if over else GR.rule_min("kitchen_aisle")
+    run_aisles = []
+    for f in space.fixed_items:
+        if f.get("type") in GR.KITCHEN_RUN_TYPES + ("kitchen_island",) and f.get("front_deg") is not None \
+                and GR.piece_is_built(f) and not schemas.off_floor(f):
+            p = placer.drawn_piece(f)
+            inset = min(RUN_AISLE_END_M, p.size[0] / 4.0)        # a fridge at a corner may reach past a run's end
+            run_aisles.append(placer._local_box(p.center, p.rotation_deg, -p.size[0] / 2.0 + inset,
+                                                p.size[0] / 2.0 - inset, -p.size[1] / 2.0 - aisle, -p.size[1] / 2.0))
+    hobs = [placer.drawn_piece(f).polygon() for f in space.fixed_items
+            if f.get("type") == "stove" and GR.piece_is_built(f) and not schemas.off_floor(f)]
     return {"by_id": by_id, "filled": filled, "near": near, "zones": zones, "budget": budget,
             "entrance": GC.entrance_door(building, space.room, space.ctx),
             "kitchen_points": _kitchen_targets(space), "previous": previous, "resolve": resolve,
-            "drawn_run": drawn_run}
+            "drawn_run": drawn_run, "run_points": run_points, "run_aisles": run_aisles, "hobs": hobs,
+            "hob_gap": GR.rule_min("hob_landing")}
+
+
+def triangle_term(point, others) -> float:
+    """26 Oct 2026: 1 when every leg from ``point`` to ``others`` lies within ``triangle_leg`` (1.20-2.70 m), falling
+    linearly outside (0 at a leg 1.20 m too short or too long); 0.5 without ``others``."""
+    if not others:
+        return 0.5
+    leg = GR.rule("triangle_leg")
+    lo, hi = float(leg.get("min", 1.2)), float(leg.get("max", 2.7))
+    worst = 1.0
+    for p in others:
+        v = G.distance(point, p)
+        off = (lo - v) if v < lo else (v - hi)
+        worst = min(worst, 1.0 if lo - 1e-9 <= v <= hi + 1e-9 else max(0.0, 1.0 - off / lo))
+    return round(worst, 4)
 
 
 def _zone_poly(zone) -> Polygon:
@@ -2559,6 +2657,9 @@ def _search(space: Space, levels: list, walk: Walk, budget: dict, skip_fps: Opti
                 if budget["nodes"] >= budget["expand"]:
                     break
                 budget["nodes"] += 1
+                if cand.fill_wall is not None and any(c is not None and c.fill_wall == cand.fill_wall
+                                                      and c.group_id == cand.group_id for c in node.cands):
+                    continue                     # 26 Oct 2026: one run of a group per wall (a run fills its wall)
                 if _expand(node, cand, layers):
                     children.append((node, cand, node.score + bonus + cand.local))
             children.append((node, None, node.score))          # the level skipped
@@ -2831,9 +2932,16 @@ def _piece_dict(s: Spot, room: dict, pid: str, cand: Cand, role: str) -> dict:
     return f
 
 
+G8_KINDS = ("legs_m", "sum_m", "landing_m", "aisle_m", "order", "window")
+
+
 def _violation_key(v: dict) -> tuple:
+    """The identity of a group-check finding (a candidate's new findings are the ones the base room does not have).
+    26 Oct 2026: a G8 finding names its kind too (the work triangle, a landing, the aisle, the order, a window), so a
+    new work-triangle finding on the drawn sink is not taken for the sink's old landing finding."""
     m = v.get("metrics") or {}
-    return (v["check"], str(v["target"]), str(m.get("part") or m.get("zone") or m.get("side") or m.get("to") or ""),
+    kind = next((k for k in G8_KINDS if k in m), "") if v["check"] == "G8" else ""
+    return (v["check"], str(v["target"]), str(m.get("part") or m.get("zone") or m.get("side") or m.get("to") or kind),
             v["message"] if v["check"] in ("G9", "G10") and v["target"] == v["room_id"] else "")
 
 
@@ -2867,15 +2975,19 @@ def verify(base_building: dict, room_id: str, pieces: list[dict],
         if f["id"] not in new_ids:
             continue
         poly = p.polygon()
-        if not shrunk.contains(poly):
+        if not shrunk.contains(poly) and not (f.get("built_into") and built_in_inside(poly, ctx.polygon)):
             hard.append(f"{f['id']}: inside_room ({poly.difference(shrunk).area:.3f} m² outside)")
         for g, q in zip(floor, plist):
             if g["id"] == f["id"] or (g["id"] in new_ids and g["id"] < f["id"]):
                 continue
+            if built_in_pair(f, g):
+                continue                # 26 Oct 2026: a module built into its counter (a hob, an under-counter fridge)
             area = poly.intersection(q.polygon()).area
             if area > placer.AREA_EPS:
                 hard.append(f"{f['id']}: no_overlap with {g['id']} ({area:.3f} m²)")
-        if placer._opening_blocked(p, ctx):
+        if not f.get("built_into") and placer._opening_blocked(p, ctx):
+            # (26 Oct 2026: a module built into its fixed counter blocks nothing the counter does not; it keeps off
+            # the window bands by its own rule, ``built_in_places``)
             hard.append(f"{f['id']}: doors_free / windows_free (on a door strip, a door swing or a window band)")
     base = base_building
     if skip:
@@ -2883,11 +2995,46 @@ def verify(base_building: dict, room_id: str, pieces: list[dict],
                     + [copy.deepcopy(p) for p in pieces if p["id"] in skip])
     # Build round 3 (K2): the group checks (clearances G1-G14) measure the boxes the scene builder makes as well
     # (``placer.planned_building``: a uniformly scaled library model at its fitted depth; the records unchanged).
-    base_v = {_violation_key(v) for v in GC.check_room(placer.planned_building(base, room_id), room_id)}
-    after = GC.check_room(placer.planned_building(trial, room_id), room_id)
-    hard += [f"{v['check']} {v['target']}: {v['message']}" for v in after
-             if _violation_key(v) not in base_v and v["severity"] in ("critical", "major") and v["check"] != "G14"]
+    planned_base = placer.planned_building(base, room_id)
+    base_v = {_violation_key(v) for v in GC.check_room(planned_base, room_id)}
+    planned_trial = placer.planned_building(trial, room_id)
+    after = GC.check_room(planned_trial, room_id)
+    new = [v for v in after
+           if _violation_key(v) not in base_v and v["severity"] in ("critical", "major") and v["check"] != "G14"]
+    # 26 Oct 2026: a new piece's use zone that the fixed pieces alone already cut off from the entrance (G11: the
+    # drawn layout walls the entrance door off) but another door reaches is the drawn layout's fault, not the new
+    # piece's (``cut_off_zones``)
+    cut = cut_off_zones(planned_base, room_id, new, {f["id"]: p for f, p in zip(floor, plist) if f["id"] in new_ids},
+                        {f["id"]: f["type"] for f in floor}, planned_trial)
+    hard += [f"{v['check']} {v['target']}: {v['message']}" for v in new if _violation_key(v) not in cut]
     return hard, after
+
+
+def built_in_pair(a: dict, b: dict) -> bool:
+    """26 Oct 2026: ``a`` or ``b`` is a module built into the other (``built_into``: a hob or an under-counter fridge
+    in its kitchen counter): their footprints overlap by design."""
+    return (a.get("built_into") is not None and a.get("built_into") == b.get("id")) or \
+        (b.get("built_into") is not None and b.get("built_into") == a.get("id"))
+
+
+def cut_off_zones(planned_base: dict, room_id: str, violations: list[dict], new_pieces: dict,
+                  types: dict, planned_trial: Optional[dict] = None) -> set:
+    """26 Oct 2026 (user: "fix should be general"): the keys of the G11 use-zone findings of new pieces whose zone the
+    room's fixed pieces alone already cut off from the entrance door (``group_checks.probe_zones`` on the base room,
+    the new piece not standing there) while a walkway from another door still reaches it with the candidate standing
+    (``group_checks.zones_from_any_door`` on ``planned_trial``; a zone no door reaches stays a failure). Why: real06's
+    kitchen entrance d_L0_003 opens into an alcove the drawn stair and counters wall off; every drawn run piece
+    already failed G11 there, so every added fridge, hob, table or island failed it too and the kitchen got nothing
+    ("no place passes the checks")."""
+    want = [v for v in violations if v["check"] == "G11" and v["target"] in new_pieces
+            and (v.get("metrics") or {}).get("zone")]
+    if not want:
+        return set()
+    probes = [(pid, new_pieces[pid], types.get(pid, "")) for pid in dict.fromkeys(v["target"] for v in want)]
+    reach = GC.probe_zones(planned_base, room_id, probes)
+    served = GC.zones_from_any_door(planned_trial, room_id) if planned_trial is not None else {}
+    return {_violation_key(v) for v in want if reach.get((v["target"], v["metrics"]["zone"])) is False
+            and served.get((v["target"], v["metrics"]["zone"])) is True}
 
 
 def _unchanged_ids(pieces: list[dict], info: dict) -> set:
@@ -3009,7 +3156,6 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
     for g in prog["groups"]:
         if g.get("resolve"):
             resolve_ids |= {g["resolve"]["anchor_id"]} | set(g["resolve"].get("members") or [])
-    space = Space(building, room, _fixed_items(building, room_id, fixed, exclude=resolve_ids))
     # The base of the verification: the room without its replaceable added pieces (and without the re-solved drawn
     # pieces, which every candidate brings back at their new places).
     base = copy.deepcopy(building)
@@ -3017,6 +3163,39 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
     base["furniture"] = [f for f in base.get("furniture") or [] if f["id"] not in resolve_ids and not (
         f.get("room_id") == room_id and f.get("source") == "added_by_ai" and f["id"] not in fixed
         and not schemas.off_floor(f))]
+    # 26 Oct 2026 (module docstring "Built-in kitchen modules"): a counter run that stands in the room and misses its
+    # hob gets one built into a counter first (no floor place); the search then plans the rest (a floor fridge with
+    # the work triangle to that hob) around it, and ``_finish_built_ins`` gives every candidate the hob and, where no
+    # floor fridge passed, an under-counter fridge.
+    entries = _built_in_entries(prog)
+    hobs: list[dict] = []
+    records: list[dict] = []
+    number = _next_number(building, room["level_id"])
+    for entry in entries:
+        if "stove" not in (entry.get("missing") or []):
+            continue
+        pid = f"f_{room['level_id']}_{number + len(hobs):03d}"
+        piece, rec = built_in_kitchen(base, room, entry, "hob", pid, hobs,
+                                      why=f"the kitchen run {entry['group_id']} misses its cooking piece")
+        records.append(rec)
+        if piece is not None:
+            hobs.append(piece)
+    plan_building, plan_base, plan_prog, plan_fixed = building, base, prog, fixed
+    if hobs:
+        plan_building = dict(building, furniture=list(building.get("furniture") or []) + hobs)
+        plan_base = dict(base, furniture=list(base.get("furniture") or []) + hobs)
+        plan_fixed = fixed | {h["id"] for h in hobs}
+        with_hob = {h["group"]["group_id"] for h in hobs}
+        plan_prog = dict(prog, groups=[dict(g, missing=[m for m in g.get("missing") or [] if m != "stove"])
+                                       if g["group_id"] in with_hob else g for g in prog["groups"]])
+    space = Space(plan_building, room, _fixed_items(plan_building, room_id, plan_fixed, exclude=resolve_ids))
+    out = _solve_room_search(space, plan_building, room, plan_prog, k, plan_base, kept)
+    return _finish_built_ins(building, base, room, entries, out, hobs, records, kept)
+
+
+def _solve_room_search(space: "Space", building: dict, room: dict, prog: dict, k: int, base: dict,
+                       kept: list) -> list[dict]:
+    """The search of ``solve_room`` with its retries (the front partners' next options, the compact kitchen runs)."""
     start = _next_number(building, room["level_id"])
     out = _solve_try(space, building, room, prog, k, base, kept, start)
     # Fix round after P6b (23 Oct 2026), review (module docstring): when no candidate passes the final check, the
@@ -3057,6 +3236,392 @@ def _passes(cand: dict) -> bool:
     """Fix round after P6b, review: a candidate that passes the final check and places something (``edit_ops``'s
     usable candidate)."""
     return not cand["hard_failures"] and bool(cand["pieces"])
+
+
+# --------------------------------------------------------------------------
+# Built-in kitchen modules (26 Oct 2026; module docstring "Built-in kitchen modules")
+# --------------------------------------------------------------------------
+
+BUILT_IN_KINDS = ("hob", "fridge")
+BUILT_IN_STEP_M = 0.05           # module places along a counter
+BUILT_IN_TRIES = 30              # places verified per module, best first
+BUILT_IN_WINDOW_M2 = 0.01        # a module this far in a window band stands under the window (as G8's hob test)
+BUILT_IN_CORNER_M = 0.10         # a counter leg this close to a counter's front makes a corner there
+RUN_APPLIANCE_TYPES = ("sink_kitchen", "stove", "fridge", "tall_cabinet", "washing_machine")
+WORKTOP_RANGE_M = (0.80, 1.20)   # a drawn counter height in this range is the worktop (modules.KITCHEN_WORKTOP_RANGE_M)
+WORKTOP_DEFAULT_M = 0.90
+
+
+BUILT_IN_OUTSIDE_M = 0.05       # a built-in module follows its fixed counter: it may reach this far out of the room
+
+
+def built_in_inside(poly, outline) -> bool:
+    """26 Oct 2026: a built-in module's footprint stays inside the room outline but for ``BUILT_IN_OUTSIDE_M`` (its
+    drawn counter may reach a little through it: the module shares the counter's box, which never moves)."""
+    part = poly.difference(outline)
+    if part.is_empty or part.area <= placer.AREA_EPS:
+        return True
+    depth = max((outline.distance(Point(pt)) for g in getattr(part, "geoms", [part]) if hasattr(g, "exterior")
+                 for pt in g.exterior.coords), default=0.0)
+    return depth <= BUILT_IN_OUTSIDE_M + 1e-9
+
+
+def built_in_spec(kind: str) -> dict:
+    """The ``kitchen_run.run.built_in`` block of ``groups.yaml`` for ``kind`` (``hob`` | ``fridge``)."""
+    run = GR.load_groups()["kitchen_run"].get("run") or {}
+    return dict((run.get("built_in") or {}).get(kind) or {})
+
+
+def _frame(f: dict) -> tuple[tuple[float, float], float, tuple[float, float]]:
+    rot, size = placer.front_frame(f["footprint"], f.get("front_deg"))
+    return (float(f["footprint"]["center"][0]), float(f["footprint"]["center"][1])), rot, (float(size[0]),
+                                                                                           float(size[1]))
+
+
+def _local_x(c, rot: float, p) -> float:
+    r = math.radians(rot)
+    return (float(p[0]) - c[0]) * math.cos(r) + (float(p[1]) - c[1]) * math.sin(r)
+
+
+def _x_extent(c, rot: float, geom) -> Optional[tuple[float, float]]:
+    """The local x extent (counter frame) of a polygonal geometry, None when it is empty."""
+    if geom is None or geom.is_empty or geom.area <= placer.AREA_EPS:
+        return None
+    xs = [_local_x(c, rot, pt) for g in getattr(geom, "geoms", [geom]) if hasattr(g, "exterior")
+          for pt in g.exterior.coords]
+    return (min(xs), max(xs)) if xs else None
+
+
+def built_in_counters(building: dict, room_id: str) -> list[dict]:
+    """The kitchen counters of the room a module can be built into: built, typed, a front, standing on the floor
+    (drawn fixed equipment or added and kept), in id order."""
+    return sorted((f for f in building.get("furniture") or [] if f.get("room_id") == room_id
+                   and f.get("type") == "kitchen_counter" and GR.piece_is_built(f) and f.get("footprint")
+                   and f.get("front_deg") is not None and not schemas.off_floor(f)), key=lambda f: str(f["id"]))
+
+
+def _worktop_z(counter: dict) -> float:
+    h = counter.get("height")
+    if isinstance(h, (int, float)) and not isinstance(h, bool) and WORKTOP_RANGE_M[0] - 1e-9 <= h <= \
+            WORKTOP_RANGE_M[1] + 1e-9:
+        return float(h)
+    return WORKTOP_DEFAULT_M
+
+
+def _counter_blocks(building: dict, room_id: str, counter: dict, kind: str
+                    ) -> tuple[list[tuple[float, float, float, str, bool]], Optional[str]]:
+    """The spans of ``counter`` (its frame, x along the front) a ``kind`` module may not take: ``(x0, x1, gap, why,
+    ends)`` (the module keeps ``gap`` off the span; ``ends``: the span ends a landing, as an appliance, a cutout or a
+    corner does, not a counter outline drawn over this one), and why the counter takes no such module at all (None:
+    it may)."""
+    c, rot, (w, d) = _frame(counter)
+    box = placer._local_box(c, rot, -w / 2.0, w / 2.0, -d / 2.0, d / 2.0)
+    front = placer._local_box(c, rot, -w / 2.0, w / 2.0, -d / 2.0 - BUILT_IN_CORNER_M, -d / 2.0 + 0.01)
+    spec = built_in_spec(kind)
+    landing = GR.rule_min(spec.get("landing") or 0.0) if kind == "hob" else 0.0
+    sink_gap = GR.rule_min(spec.get("sink_gap") or 0.0) if kind == "hob" else 0.0
+    appliance_gap = GR.rule_min(spec.get("appliance_gap") or 0.0) if kind == "fridge" else 0.0
+    hints = counter.get("module_hints") if isinstance(counter.get("module_hints"), dict) else {}
+    if kind == "hob" and (hints.get("hob_pos_m") or hints.get("hob_x_m") is not None):
+        return [], f"the counter {counter['id']} holds a hob by its module hints"
+    out = []
+    for f in building.get("furniture") or []:
+        if f.get("room_id") != room_id or f["id"] == counter["id"] or not f.get("footprint") \
+                or not GR.piece_is_built(f) or schemas.off_floor(f):
+            continue
+        try:
+            poly = placer.drawn_piece(f).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+        if f["type"] in RUN_APPLIANCE_TYPES:
+            span = _x_extent(c, rot, box.intersection(poly))
+            if span is None:
+                continue
+            if kind == "hob":
+                gap = sink_gap if f["type"] == "sink_kitchen" else landing
+            else:
+                gap = appliance_gap if f["type"] == "stove" else 0.0
+            out.append((span[0], span[1], gap, f"{f['type']} {f['id']}", True))
+        elif f["type"] in ("kitchen_counter", "kitchen_island"):
+            span = _x_extent(c, rot, box.intersection(poly))
+            if span is not None:                        # an overlapping (nested or duplicated) counter outline
+                out.append((span[0], span[1], 0.0, f"{f['type']} {f['id']} drawn over it", False))
+                continue
+            corner = _x_extent(c, rot, front.intersection(poly.buffer(0.02, join_style="mitre")))
+            if corner is not None and f["type"] == "kitchen_counter":   # a leg meeting the front: the blind corner
+                out.append((corner[0], corner[1], landing, f"the corner with {f['id']}", True))
+    for key, what, width in (("sink_pos_m", "the sink cutout", 0.60), ("hob_pos_m", "the hob cutout", 0.60)):
+        pos = hints.get(key)
+        if pos:
+            x = _local_x(c, rot, pos)
+            gap = (sink_gap if key == "sink_pos_m" else landing) if kind == "hob" else (
+                appliance_gap if key == "hob_pos_m" else 0.0)
+            out.append((x - width / 2.0, x + width / 2.0, gap, f"{what} of {counter['id']}", True))
+    return out, None
+
+
+def built_in_places(building: dict, room_id: str, kind: str) -> tuple[list[dict], list[str]]:
+    """26 Oct 2026: the places a ``kind`` module (``hob`` | ``fridge``) can be built into the room's counters, best
+    first, as ``{"counter", "x", "w", "score", "terms", "landings", "poly"}``, and the reasons counters were left
+    out. Rules (``groups.yaml`` ``kitchen_run.run.built_in``): inside a counter (its depth, its front), off every
+    appliance and cutout of the counter (a hob ``sink_gap`` off the sink and ``landing`` off the other appliances,
+    the blind corners and both counter ends; a fridge ``appliance_gap`` off the hob, with ``landing`` of counter on
+    one side), off every window band, a hob and a fridge never side by side (across a corner too), inside the room
+    (or as far through its outline as the counter, ``built_in_inside``). Scored: the work-triangle legs to the sink,
+    the hob or the fridge (1.20-2.70 m), the landings beside a hob (its recommended landing), a hob in the middle of
+    its free stretch, a fridge at a counter end, the spec's first size, off the door strips and swings (a counter
+    drawn across a passage takes a module only when no free stretch does)."""
+    room = next(r for r in building.get("rooms") or [] if r.get("id") == room_id)
+    counters = built_in_counters(building, room_id)
+    spec = built_in_spec(kind)
+    notes: list[str] = []
+    if not counters or not spec:
+        return [], ["no kitchen counter in the room to build into" if not counters else f"no {kind} spec"]
+    ctx = placer.room_context(building, room)
+    inside = ctx.shrunk.buffer(1e-3, join_style="mitre")
+    landing_min = GR.rule_min(spec.get("landing") or 0.0)
+    landing_rec = GR.rule_rec(spec.get("landing") or 0.0)
+    partners = {"hob": ("sink_kitchen", "fridge"), "fridge": ("sink_kitchen", "stove")}[kind]
+    points = [GC._front_mid(placer.drawn_piece(f)) for f in building.get("furniture") or []
+              if f.get("room_id") == room_id and f.get("type") in partners and GR.piece_is_built(f)
+              and f.get("footprint")]
+    # the hob and the fridge never stand side by side, on one counter or across a corner (a landing between them)
+    apart = {"hob": ("fridge", "tall_cabinet"), "fridge": ("stove",)}[kind]
+    apart_gap = landing_min if kind == "hob" else GR.rule_min(spec.get("appliance_gap") or 0.0)
+    apart_polys = [placer.drawn_piece(f).polygon() for f in building.get("furniture") or []
+                   if f.get("room_id") == room_id and f.get("type") in apart and GR.piece_is_built(f)
+                   and f.get("footprint") and not schemas.off_floor(f)]
+    out = []
+    for counter in counters:
+        blocks, skip = _counter_blocks(building, room_id, counter, kind)
+        if skip:
+            notes.append(skip)
+            continue
+        c, rot, (w, d) = _frame(counter)
+        end_gap = landing_min if kind == "hob" else 0.0
+        sizes = spec.get("sizes") or []
+        for rank, size in enumerate(sizes):
+            mw = float(size[0])
+            size_term = round(1.0 - rank / max(len(sizes), 1), 4)     # the spec's sizes best first (a 60 cm hob)
+            lo, hi = -w / 2.0 + end_gap + mw / 2.0, w / 2.0 - end_gap - mw / 2.0
+            if hi < lo - 1e-9:
+                continue
+            n = int(math.floor((hi - lo) / BUILT_IN_STEP_M + 1e-6))
+            xs = sorted({round(lo + i * BUILT_IN_STEP_M, 4) for i in range(n + 1)}
+                        | {round(hi, 4), round((lo + hi) / 2.0, 4)})
+            for x in xs:
+                x0, x1 = x - mw / 2.0, x + mw / 2.0
+                if any(x0 < b1 + gap - 1e-9 and x1 > b0 - gap + 1e-9 for b0, b1, gap, _why, _e in blocks):
+                    continue
+                left = x0 - max([b1 for b0, b1, _g, _w, e in blocks if e and b1 <= x0 + 1e-9] + [-w / 2.0])
+                right = min([b0 for b0, b1, _g, _w, e in blocks if e and b0 >= x1 - 1e-9] + [w / 2.0]) - x1
+                if kind == "fridge" and max(left, right) < landing_min - 1e-9:
+                    continue                            # a fridge needs counter on one side (fridge_landing)
+                poly = placer._local_box(c, rot, x0, x1, -d / 2.0, d / 2.0)
+                if not inside.contains(poly) and not built_in_inside(poly, ctx.polygon):
+                    continue
+                if any(poly.intersection(win.band).area > BUILT_IN_WINDOW_M2 for win in ctx.windows):
+                    continue                            # never under a window (G8: a hob in a window band)
+                if any(poly.distance(o) < apart_gap - 1e-9 for o in apart_polys):
+                    continue
+                front = G.rotate_point((c[0] + x, c[1] - d / 2.0), rot, c)
+                terms = {}
+                if points:
+                    terms["triangle"] = triangle_term(front, points)
+                if kind == "hob":
+                    terms["landing"] = round(min(1.0, min(left, right) / max(landing_rec, 1e-6)), 4)
+                    mid = ((x0 - left) + (x1 + right)) / 2.0
+                    half = max((x1 + right - (x0 - left)) / 2.0 - mw / 2.0, BUILT_IN_STEP_M)
+                    terms["centre"] = round(max(0.0, 1.0 - abs(x - mid) / half), 4)
+                else:
+                    ends = min(x0 + w / 2.0, w / 2.0 - x1)
+                    terms["end"] = round(max(0.0, 1.0 - ends / max(w, 1e-6)), 4)
+                terms["size"] = size_term
+                # off the door strips and swings (a counter the drawing puts across a passage may take a module, but
+                # a free stretch of the run comes first)
+                terms["passage"] = 0.0 if any(poly.intersection(door.zone).area > placer.AREA_EPS or (
+                    door.swing is not None and poly.intersection(door.swing).area > placer.AREA_EPS)
+                    for door in ctx.doors) else 1.0
+                score = round(2.0 * terms.get("triangle", 0.5) + terms.get("landing", 0.0) + 0.5 * terms.get(
+                    "centre", 0.0) + terms.get("end", 0.0) + terms["size"] + 1.5 * terms["passage"], 6)
+                out.append({"counter": counter, "x": x, "w": mw, "d": d, "rot": rot, "c": c, "score": score,
+                            "terms": terms, "landings": (round(left, 3), round(right, 3)), "poly": poly})
+    out.sort(key=lambda p: (-p["score"], str(p["counter"]["id"]), p["x"], -p["w"]))
+    return out, notes
+
+
+def _built_in_dict(place: dict, kind: str, room: dict, pid: str, entry: Optional[dict], reason: str) -> dict:
+    counter, c, rot, x, mw, d = place["counter"], place["c"], place["rot"], place["x"], place["w"], place["d"]
+    spec = built_in_spec(kind)
+    centre = G.rotate_point((c[0] + x, c[1]), rot, c)
+    rotation = round(G.normalise_angle(rot), 3)
+    worktop = _worktop_z(counter)
+    oven = kind == "hob" and d >= float(spec.get("oven_min_depth") or 0.55) - 1e-9
+    record = {"kind": kind, "host": counter["id"], "x_m": round(x, 4), "w_m": round(mw, 3),
+              "landings_m": list(place["landings"]), "reason": reason}
+    if kind == "hob":
+        record["oven"] = oven
+    f = {"id": pid, "level_id": room["level_id"], "room_id": room["id"], "type": spec.get("type") or (
+        "stove" if kind == "hob" else "fridge"), "type_raw": None, "source": "added_by_ai",
+         "footprint": {"center": [round(centre[0], 4), round(centre[1], 4)], "size": [round(mw, 4), round(d, 4)],
+                       "rotation_deg": rotation},
+         "front_deg": round(G.front_direction_deg(rotation), 3),
+         "height": round(min(worktop, float(spec.get("height") or worktop)) if kind == "fridge" else worktop, 3),
+         "asset": None, "status": "verified", "method": "rule", "completes_room": True,
+         "built_into": counter["id"], "built_in": record,
+         "evidence": [{"file": EVIDENCE_FILE, "method": "derived", "confidence": 0.9, "rule": f"built-in {kind}",
+                       "text": f"{kind} built into the counter {counter['id']} by the group solver (kitchen_run "
+                               f"group): {reason}"}],
+         "layout": {"against_wall": False, "solver_role": kind, "option": f"built_in_{kind}",
+                    "built_into": counter["id"], "terms": dict(place["terms"])}}
+    if entry is not None:
+        f["group"] = {"group_id": entry["group_id"], "group": entry["group"], "role": "partner",
+                      "anchor_id": entry.get("anchor_id")}
+    return f
+
+
+def _built_in_reason(kind: str, place: dict, why: str) -> str:
+    counter = place["counter"]
+    left, right = place["landings"]
+    drawn = "drawn " if counter.get("source") == "from_documents" else ""
+    if kind == "hob":
+        oven = place["d"] >= float(built_in_spec("hob").get("oven_min_depth") or 0.55) - 1e-9
+        return (f"{why}: a {place['w']:.2f} m hob built into the worktop of the {drawn}counter {counter['id']}"
+                + (" with an oven under it" if oven else "")
+                + f", {left:.2f} m and {right:.2f} m of counter beside it, "
+                "off the sink, the corners and the windows; the counter is not moved (fixed equipment)")
+    return (f"{why}: a {place['w']:.2f} m under-counter fridge built into the {drawn}counter {counter['id']}, "
+            f"{max(left, right):.2f} m of counter beside it; the counter is not moved")
+
+
+def _unchanged_in(building: dict, pieces: list[dict]) -> set:
+    """The drawn pieces of ``pieces`` that come back as the building has them (``group`` / ``drawn_group`` aside)."""
+    by_id = {f["id"]: f for f in building.get("furniture") or []}
+    return {p["id"] for p in pieces if p.get("source") == "from_documents" and p["id"] in by_id
+            and _without_group(p) == _without_group(by_id[p["id"]])}
+
+
+def built_in_kitchen(base: dict, room: dict, entry: Optional[dict], kind: str, pid: str,
+                     others: Iterable[dict] = (), why: str = "") -> tuple[Optional[dict], dict]:
+    """26 Oct 2026: one ``kind`` module (``hob`` | ``fridge``) built into the room's counters: the best place of
+    ``built_in_places`` (on ``base`` with the candidate's ``others`` in it) whose trial passes ``verify`` with no
+    hard failure beyond the ones ``others`` already have (the counter it lies in is no overlap, ``built_in_pair``).
+    Returns ``(piece or None, record)``; the record names the place and why, or why none was taken."""
+    others = list(others)
+    trial = dict(base, furniture=list(base.get("furniture") or []) + others)
+    places, notes = built_in_places(trial, room["id"], kind)
+    what = "hob" if kind == "hob" else "under-counter fridge"
+    if not places:
+        return None, {"kind": kind, "placed": False, "reason": f"no place on the counters for a built-in {what}"
+                      + (f" ({'; '.join(notes)})" if notes else " (the counter ends, the sink, the corners, the doors "
+                                                                 "and the windows leave no stretch)")}
+    unchanged = _unchanged_in(base, others)
+    before = set(verify(base, room["id"], others, unchanged)[0]) if others else set()
+    last = None
+    for place in places[:BUILT_IN_TRIES]:
+        piece = _built_in_dict(place, kind, room, pid, entry, _built_in_reason(kind, place, why))
+        hard, _v = verify(base, room["id"], others + [piece], unchanged)
+        new = [h for h in hard if h not in before]
+        if not new:
+            return piece, dict(piece["built_in"], id=pid, placed=True,
+                               center=list(piece["footprint"]["center"]), score=place["score"])
+        last = new[0]
+    return None, {"kind": kind, "placed": False, "reason": f"{min(len(places), BUILT_IN_TRIES)} places on the "
+                  f"counters for a built-in {what} fail the checks (first: {last})"}
+
+
+def _built_in_entries(prog: dict) -> list[dict]:
+    """The kitchen runs of a program that already stand in the room (drawn, or kept: ``drawn``) and miss their hob or
+    fridge; never one the program completes nothing in (an unverified anchor, a foreign group)."""
+    return [g for g in prog.get("groups") or [] if g.get("group") == "kitchen_run" and g.get("drawn")
+            and not str(g.get("note") or "").startswith(("unverified", "no completion", "duplicate"))
+            and {"stove", "fridge"} & set(g.get("missing") or [])]
+
+
+def _empty_candidate(kept: list) -> dict:
+    return {"rank": 1, "score": 0.0, "terms": {}, "pieces": [], "groups": [], "hard_failures": [],
+            "group_violations": [], "options": {}, "placed": [], "not_placed": [], "kept_ids": list(kept),
+            "nodes": {"generated": 0, "expanded": 0, "walkway_checks": 0}, "resolved": [], "drawn_groups": [],
+            "rugs": []}
+
+
+def _next_free_id(level_id: str, taken: set, number: int) -> tuple[str, int]:
+    while f"f_{level_id}_{number:03d}" in taken:
+        number += 1
+    return f"f_{level_id}_{number:03d}", number + 1
+
+
+def _finish_built_ins(building: dict, base: dict, room: dict, entries: list[dict], out: list[dict],
+                      hobs: list[dict], records: list[dict], kept: list) -> list[dict]:
+    """26 Oct 2026: every candidate takes the built-in hobs chosen before the search (``hobs``, first among its
+    pieces) and, where its kitchen run still misses a fridge (no floor place passed: the search's fridge level found
+    none), an under-counter fridge built into the counters (``built_in_kitchen``); each candidate is verified again
+    and carries ``built_ins`` (what was built in, where and why, or why not; the floor fridge it placed)."""
+    want_fridge = [e for e in entries if "fridge" in (e.get("missing") or [])]
+    if not hobs and not want_fridge and not records:
+        return out
+    cands = out or [_empty_candidate(kept)]
+    room_id = room["id"]
+    for cand in cands:
+        pieces = [copy.deepcopy(h) for h in hobs] + list(cand["pieces"])
+        recs = [dict(r) for r in records]
+        taken = {f["id"] for f in building.get("furniture") or []} | {p["id"] for p in pieces}
+        number = _next_number(dict(building, furniture=list(building.get("furniture") or []) + pieces),
+                              room["level_id"])
+        for entry in want_fridge:
+            floor = next((p for p in cand["pieces"] if p.get("type") == "fridge"
+                          and (p.get("group") or {}).get("group_id") == entry["group_id"]), None)
+            if floor is not None:
+                recs.append({"kind": "fridge", "placed": True, "how": "floor", "id": floor["id"],
+                             "center": list(floor["footprint"]["center"]),
+                             "reason": "a fridge on the floor beside the run (the solver's place; its landing and "
+                                       "the work triangle checked)"})
+                continue
+            missed = next((x for x in cand.get("not_placed") or [] if x.get("group_id") == entry["group_id"]), None)
+            why = (f"no floor place for a fridge beside the run passes the checks ({missed['reason']})" if missed
+                   else "no floor place for a fridge beside the run")
+            pid, number = _next_free_id(room["level_id"], taken, number)
+            piece, rec = built_in_kitchen(base, room, entry, "fridge", pid, pieces, why)
+            rec["how"] = "built_in" if piece is not None else "none"
+            if piece is None:
+                rec["reason"] = f"{why}; {rec['reason']}: the kitchen keeps no fridge (listed for review)"
+            recs.append(rec)
+            if piece is not None:
+                pieces.append(piece)
+                taken.add(pid)
+        added = [p for p in pieces if p.get("built_into")]
+        if not added and not recs:
+            continue
+        hard, violations = verify(base, room_id, pieces, _unchanged_in(base, pieces))
+        cand["pieces"] = pieces
+        cand["hard_failures"], cand["group_violations"] = hard, violations
+        cand["built_ins"] = recs
+        for entry in entries:
+            mine = [p["id"] for p in added if (p.get("group") or {}).get("group_id") == entry["group_id"]]
+            if not mine:
+                continue
+            types = {p["type"] for p in pieces if (p.get("group") or {}).get("group_id") == entry["group_id"]}
+            if not ({"stove", "fridge"} & set(entry.get("missing") or [])) - types:
+                cand["not_placed"] = [x for x in cand.get("not_placed") or [] if x.get("group_id") != entry["group_id"]]
+            if entry["group_id"] not in cand.get("placed", []):
+                cand["placed"] = list(cand.get("placed") or []) + [entry["group_id"]]
+            g = next((x for x in cand.get("groups") or [] if x.get("group_id") == entry["group_id"]), None)
+            if g is None:
+                cand.setdefault("groups", []).append({"group_id": entry["group_id"], "group": entry["group"],
+                                                      "anchor_id": entry.get("anchor_id"), "member_ids": mine})
+            else:
+                g["member_ids"] = list(dict.fromkeys(list(g.get("member_ids") or []) + mine))
+    out = cands if out else [c for c in cands if c["pieces"] or c.get("built_ins")]
+    # A layout whose run still misses its fridge never stands beside a passing one that has it (the fridge is the
+    # run's required member; the vision model chooses among complete kitchens only).
+    for entry in want_fridge:
+        def has(c, gid=entry["group_id"]) -> bool:
+            return any(p.get("type") == "fridge" and (p.get("group") or {}).get("group_id") == gid for p in c["pieces"])
+        if any(_passes(c) and has(c) for c in out):
+            out = [c for c in out if has(c) or not _passes(c)]
+    for i, c in enumerate(out):
+        c["rank"] = i + 1
+    return out
 
 
 def _solve_try(space: Space, building: dict, room: dict, prog: dict, k: int, base: dict, kept: list,
@@ -3240,7 +3805,11 @@ def _similar(a: tuple, b: tuple, primary: bool = False) -> bool:
 
 def _candidate(score, terms, pieces, groups, hard, violations, levels, node, kept, budget, rugs=()) -> dict:
     not_placed = []
+    placed_groups = {entry["group_id"] for (entry, _cands, _req), c in zip(levels, node.cands) if c is not None}
     for (entry, cands, required), c in zip(levels, node.cands):
+        if c is None and not required and entry["group_id"] in placed_groups \
+                and GR.load_groups()[entry["group"]]["layout"] == "set":
+            continue                 # 26 Oct 2026: an optional member of a placed set (a third wardrobe run, a bench)
         if c is None:
             why = "no place passes the checks" if cands else "no candidate position fits the room"
             not_placed.append({"group_id": entry["group_id"], "group": entry["group"], "required": required,
