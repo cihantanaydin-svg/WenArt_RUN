@@ -578,3 +578,13 @@ def test_a_labelled_space_built_as_an_outdoor_space_is_not_lost(tmp_path):
     # the scene must still hold it: an outdoor space is planned to be built
     found = CV.in_scene(b, {"objects": [{"wenart_id": i} for i in ("w_L0_001", "r_L0_a", "d_L0_001", "f_L0_001")]})
     assert [f["target"] for f in found] == ["os_L0_veranda"]
+
+
+def test_sense_a_room_missing_its_set_names_the_piece_that_is_probably_it():
+    b = json.loads((Path(__file__).resolve().parents[1] / "tests" / "fixtures" /
+                    "real06_set_links_20261026.json").read_text(encoding="utf-8"))
+    found = {(f["target"], f["evidence"]["missing"]) for f in SN.set_links(b)}
+    # the L1 bathroom's curved outline the AI left untyped and the added shower a decision removed are the missing
+    # bath or shower; the kitchen's drawn outline, replaced by its counter runs for a good reason, is no suspect
+    assert {("f_L1_011", "shower|bathtub"), ("f_L1_031", "shower|bathtub")} <= found
+    assert not any(t == "f_L0_004" for t, _m in found)

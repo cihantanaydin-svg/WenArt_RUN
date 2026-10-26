@@ -7,7 +7,11 @@ What (code, on the building as built, every room and every level):
   (critical: a room nobody can enter makes no sense; a reading error: a door not read, a wall read twice);
 - N2 a room reached only through a wet room (a bathroom or a shower room as the way into a bedroom or a kitchen);
 - N3 a level above the lowest one that no stair (or other way) reaches;
-- N4 the house has no entrance at all (no passable opening to the outside on any level).
+- N4 the house has no entrance at all (no passable opening to the outside on any level);
+- N5 a room misses a piece of its set (a bathroom's shower or bath, a kitchen's hob or fridge: the group checks'
+  completeness, G9 / G10) while it holds a drawn piece nothing typed or a piece a decision took out: most likely that
+  piece is the missing one (real06: the L1 bathroom's 2.42 x 0.98 m curved outline the AI left "unknown", "likely a
+  bathtub or shower", and its added shower an AI decision removed).
 
 How: a graph of the rooms and ``outside``: an opening that is not a window joins the rooms on its two sides
 (``architect_actions.window_sides``; no room = outside, an open-air room counts as outside); two rooms of a level whose
@@ -148,6 +152,45 @@ def audit(building: Optional[dict]) -> dict:
                                          "reached": len([r for r in checked if r in reached])}}
 
 
+def set_links(building: dict) -> list[dict]:
+    """N5 (module docstring)."""
+    try:
+        from wenart.furniture import group_checks as GC
+
+        res = GC.check_building(building)
+    except Exception:  # noqa: BLE001 - no measure
+        return []
+    out = []
+    for room_id, vs in res["rooms"].items():
+        gaps = [v for v in vs if v.get("check") in ("G9", "G10") and v.get("target") == room_id
+                and (v.get("metrics") or {}).get("missing")]
+        if not gaps:
+            continue
+        here = [f for f in building.get("furniture") or [] if f.get("room_id") == room_id]
+        suspects = [f for f in here if str(f.get("type")) in ("unknown", "other", "")
+                    and (f.get("build") is not False or str(f.get("not_built_reason") or "").startswith("untyped"))
+                    and any(isinstance(e, dict) and e.get("method") in ("vector", "raster")
+                            for e in f.get("evidence") or [])]     # left out only for being untyped
+        suspects += [f for f in here if f.get("build") is False and "answer to" in str(f.get("not_built_reason") or "")]
+        for g in gaps:
+            for f in suspects:
+                size = (f.get("footprint") or {}).get("size") or []
+                hints = " / ".join(str(c.get("reason") or c.get("type"))[:90] for c in f.get("type_candidates") or [])
+                out.append(K.finding("sense", "N5", "major", f["id"],
+                                     f"{room_id}: {g['message']}, while {f['id']} "
+                                     f"({f.get('type')}{', not built: ' + str(f.get('not_built_reason'))[:80] if f.get('build') is False else ''}"
+                                     f"{', %.2f x %.2f m' % tuple(size[:2]) if len(size) >= 2 else ''}) stands in it"
+                                     + (f"; the AI passes said: {hints}" if hints else "")
+                                     + f": most likely the missing {g['metrics']['missing']}",
+                                     owner="reading" if f.get("build") is not False or "untyped" in
+                                     str(f.get("not_built_reason") or "") else "architect", kind="misread",
+                                     fix="retype_piece", evidence={"room": room_id, "missing": g["metrics"]["missing"]}))
+    return out
+
+
 def run(inp) -> dict:
     """The line for ``report.LINE_MODULES``: the building as built (the scene's), else the final one."""
-    return audit(inp.stage("build") or inp.final)
+    building = inp.stage("build") or inp.final
+    res = audit(building)
+    res["findings"] = list(res.get("findings") or []) + (set_links(building) if building else [])
+    return res
