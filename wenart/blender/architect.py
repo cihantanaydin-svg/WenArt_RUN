@@ -1184,7 +1184,7 @@ def defaults_of(review_rec: dict, answers: dict) -> dict:
             if opt is None:
                 continue
             out[key] = {"option": opt["id"], "params": dict(opt.get("params") or {}), "by": "architect",
-                        "answer": f"the architect's default: {opt['label']}", "reason": a.get("found"),
+                        "answer": "the safe default", "reason": a.get("found"),
                         "where": a.get("where")}
     return out
 
@@ -1219,6 +1219,19 @@ def close_answered(questions: list[dict], answers: dict, applied: Sequence[dict]
                 a["change"] = f"answered by {_who(rec)}{words}: {rec['change']}"
         if q["status"] == "open" and not any(a.get("open") for a in q["answers"]):
             q["status"] = "answered"
+    # 26 Oct 2026: an answer whose change removed its element from the question (a door that became a window is no
+    # longer asked E1) is still listed under its rule, so every change shows in the report
+    seen = {f"{q['id']}:{a['element']}" for q in questions for a in q["answers"]}
+    by_id = {q["id"]: q for q in questions}
+    for rec in applied:
+        if not rec.get("ok") or not rec.get("change") or rec["key"] in seen or rec.get("rule") not in by_id:
+            continue
+        q = by_id[rec["rule"]]
+        label = AA.ACTIONS.get(rec["option"], rec["option"])
+        words = f" (\"{rec['answer']}\")" if rec.get("answer") else ""
+        q["answers"].append({"element": rec["element"], "found": "settled by its answer", "answered": True,
+                             "change": f"answered by {_who(rec)}{words}: {label} -> {rec['change']}"})
+        seen.add(rec["key"])
     return questions
 
 
