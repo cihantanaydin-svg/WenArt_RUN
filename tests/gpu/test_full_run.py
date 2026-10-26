@@ -208,3 +208,19 @@ def test_selftest_files_stay_private(manifest):
             assert "inputs" not in json.loads((folder / f).read_text(encoding="utf-8")), f
     leaked = [p for p in RESULTS.rglob("*") if SELFTEST in p.relative_to(RESULTS).parts]
     assert not leaked, f"private files under $WENART_RESULTS: {leaked}"
+
+
+@pytest.mark.parametrize("project", RUN)
+def test_the_model_as_built_has_no_critical_finding(project):
+    """26 Oct 2026 (user: "I need ai models to see understand and fix everything before even I look at it";
+    "reviewing the 3d model itself could be better"): the review of the final scene's model as built
+    (``scene/model_review.json``, ``wenart.blender.model_review``) leaves no critical finding: no door off its floor,
+    no basin at knee height, no opening to fall out of, no door into the air, no room that is not what it is called.
+    A failure names every element and its number."""
+    rec = _load(project, "scene/model_review.json")
+    crit = [f"{f['check']} {f['target']}: {f['message']}" for f in rec.get("findings") or []
+            if f.get("severity") == "critical"]
+    for f in rec.get("findings") or []:
+        if f.get("severity") == "major":
+            print(f"{project} model review major {f['check']} {f['target']}: {f['message']}")
+    assert not crit, crit
