@@ -279,3 +279,13 @@ def test_without_the_text_the_basin_reads_the_same():
     assert sorted(tuple(round(v, 3) for v in c["item"].size) for c in with_text) == \
         sorted(tuple(round(v, 3) for v in c["item"].size) for c in without)
 
+
+
+def test_sanitary_ware_in_a_loud_colour_is_not_taken():
+    """26 Oct 2026 (merge): an "arancione glass sink" won a basin of a calm modern bathroom; a fixture whose title
+    names a loud colour stays out (a white or chrome one is kept)."""
+    from wenart.furniture import fit as FIT
+    loud = {"id": "x", "title": "Regia Juke Box Light 882000-28 arancione glass sink"}
+    assert "loud colour" in FIT.use_misfit(loud, "washbasin", False)
+    assert FIT.use_misfit({"id": "y", "title": "Cooke & Lewis Lanzo white basin"}, "washbasin", False) is None
+    assert FIT.use_misfit(loud, "vase", False) is None                    # decor may be an accent

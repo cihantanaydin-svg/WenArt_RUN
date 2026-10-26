@@ -594,6 +594,14 @@ OTHER_USE_WORDS: dict[str, tuple[str, ...]] = {
                      "waschbecken", "waschtisch", "wastafel"),
 }
 OTHER_USE_MATERIALS: dict[str, tuple[str, ...]] = {"washbasin": ("composite", "granite")}
+# 26 Oct 2026 (the merge of the bathroom fixes: an "arancione glass sink" won a basin of a calm modern bathroom): sanitary
+# ware and kitchen fixtures in a loud colour are an accent no style asks of them; the title's colour words (several
+# languages) keep such a model out
+LOUD_FIXTURE_TYPES: tuple[str, ...] = ("washbasin", "toilet", "bidet", "bathtub", "shower", "sink_kitchen")
+LOUD_COLOUR_WORDS: tuple[str, ...] = ("orange", "arancione", "naranja", "red", "rosso", "rojo", "rouge", "green", "verde",
+                                      "vert", "blue", "blu", "azul", "bleu", "yellow", "giallo", "amarillo", "jaune",
+                                      "pink", "rosa", "purple", "viola", "violet", "lilac", "turquoise", "teal", "lime",
+                                      "magenta", "fuchsia", "coral")
 OTHER_USE_SHARE = 0.5
 USE_RULE = "fit.product_use"
 
@@ -606,7 +614,8 @@ def _named(text: str, words: tuple[str, ...]) -> list[str]:
 def use_misfit(entry: dict, ftype: str, child_room: Optional[bool] = False) -> Optional[str]:
     """Bathroom sense of 26 Oct 2026 (the comment above): why a library model is made for another user or use than a
     ``ftype`` piece (None when it is not): a children's product outside a child's room (``child_room`` not true), a
-    fixture its title names for another room, a washbasin of a kitchen-sink material."""
+    fixture its title names for another room, a washbasin of a kitchen-sink material, a fixture whose title names a
+    loud colour (``LOUD_COLOUR_WORDS``)."""
     title = html.unescape(" ".join(str(entry.get(k) or "") for k in ("title", "name"))).lower()
     kids = _named(title, CHILD_PRODUCT_WORDS)
     if kids and child_room is not True:
@@ -615,6 +624,9 @@ def use_misfit(entry: dict, ftype: str, child_room: Optional[bool] = False) -> O
     other = _named(title, OTHER_USE_WORDS.get(ftype, ()))
     if other:
         return f"names {', '.join(dict.fromkeys(other))}: a product for another use, not a {ftype}"
+    loud = _named(title, LOUD_COLOUR_WORDS) if ftype in LOUD_FIXTURE_TYPES else []
+    if loud:
+        return f"names {', '.join(dict.fromkeys(loud))}: a {ftype} in a loud colour (sanitary ware stays calm)"
     words = OTHER_USE_MATERIALS.get(ftype)
     if words:
         for slot in entry.get("material_slots") or []:
