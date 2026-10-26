@@ -252,6 +252,25 @@ def _shift_piece(f: FurnitureItem, sh: _Shift) -> None:
             landing["polygon"] = sh.pts(landing["polygon"])
 
 
+def _outdoor_outlines(ex, where: str, site: dict, strokes: list, outline) -> None:
+    """The outline of every labelled outdoor space without a closed face, closed from the drawn strokes around its
+    label (page metres; ``wenart.levels.outdoor.read_outline``), as ``outline_inferred`` on its site area; never
+    silent (a note per space)."""
+    from wenart.levels import outdoor as OD
+
+    areas = [a for a in site.get("areas") or [] if not a.get("polygon")
+             and OD.space_kind(a.get("label_raw") or a.get("label")) is not None]
+    if not areas:
+        return
+    lines = [{"id": st.id, "pts": [tuple(p) for p in st.pts], "layer": st.layer, "closed": st.closed}
+             for st in strokes if st.pts and len(st.pts) >= 2]
+    for a in areas:
+        rec = OD.read_outline(a, lines, outline if outline is not None and not outline.is_empty else None)
+        ex.notes.append(f"{where}: outdoor space '{a.get('label')}': " + (
+            rec["reason"] + (f"; {rec['steps']['reason']}" if rec.get("steps") else "") if rec is not None else
+            "no drawn outline closes around the label (the level inference infers one)"))
+
+
 def _shift_site(site: dict, sh: _Shift) -> None:
     for w in site.get("boundary_walls", []):
         w["start"], w["end"] = list(sh.p(w["start"])), list(sh.p(w["end"]))
@@ -260,6 +279,12 @@ def _shift_site(site: dict, sh: _Shift) -> None:
             a["polygon"] = sh.pts(a["polygon"])
         if a.get("anchor"):
             a["anchor"] = list(sh.p(a["anchor"]))
+        rec = a.get("outline_inferred")
+        if isinstance(rec, dict) and rec.get("polygon"):
+            rec["polygon"] = [[round(x, 4), round(y, 4)] for x, y in sh.pts(rec["polygon"])]
+            steps = rec.get("steps")
+            if isinstance(steps, dict) and steps.get("edge"):
+                steps["edge"] = [[round(x, 4), round(y, 4)] for x, y in sh.pts(steps["edge"])]
     for d in site.get("decor", []):
         d["center"] = list(sh.p(d["center"]))
     for o in site.get("openings", []):
@@ -1235,6 +1260,9 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     if problem is not None:
         ex.review.append(f"{where}: outer walls do not close ({problem})")
     outline = TP.building_outline(bwalls, b_openings)
+    # 26 Oct 2026 (real06's VERANDA and BALKON: no walls around them, nothing built): a labelled outdoor space without
+    # a closed face is closed from the drawn strokes around its label (wenart.levels.outdoor.read_outline)
+    _outdoor_outlines(ex, where, site, non_wall, outline)
 
     # 5. Furniture, separators, faces. Milestone 12 (track R): the re-read's extra candidates and its symbols.
     extras: list[dict] = []

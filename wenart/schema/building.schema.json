@@ -88,8 +88,18 @@
         "center": {"$ref": "#/$defs/point"},
         "size": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
         "build": {"type": "boolean"},
-        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+        "inferred_as": {"type": "string", "description": "26 Oct 2026 (wenart/levels/outdoor.py type_site_decor): what the drawn symbol is, by its layer or block name, else its shape (tree, hedge, axis_bubble, column, window_sill, level_mark, lamp, planter, marker, unidentified, ...); tree and hedge are built by the site's vegetation, the rest is recorded"},
+        "drawn_kind": {"type": ["string", "null"], "description": "the reading's kind before the typing"},
+        "type_reason": {"type": "string"}
       }}},
+      "outdoor_spaces": {"type": "array", "description": "26 Oct 2026 (wenart/levels/outdoor.py): every labelled outdoor space (veranda, porch, balcony, terrace, deck, patio, loggia, winter garden, pergola, courtyard) of any level that no room or drawn surface holds: its polygon (drawn face, closed from the strokes around the label, or a rectangle), its floor z, the doors that open onto it, elevated (a slab with a guard), the drawn steps, the drawn columns, the roof and the posts; inferred, built by the site as a platform", "items": {"type": "object", "required": ["id", "kind", "level_id", "polygon", "z"], "properties": {
+        "id": {"type": "string", "description": "os_<level>_<slug>"}, "kind": {"type": "string"}, "level_id": {"type": "string"},
+        "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3}, "z": {"type": "number"},
+        "doors": {"type": "array", "items": {"type": "string"}}, "elevated": {"type": "boolean"},
+        "roof": {"type": ["object", "null"]}, "inferred": {"type": "boolean"}
+      }}},
+      "decor_other_levels": {"type": "array", "description": "26 Oct 2026: the symbols an upper plan draws outside its walls (not the ground's site): same_as names the ground plan's symbol at the same place and size, else inferred_as types it; never built", "items": {"type": "object"}},
       "openings": {"type": "array", "items": {"type": "object", "description": "Doors, windows and gaps in site boundary walls"}},
       "ground": {"type": "object", "description": "Milestone 10: the DRAWN terrain levels around the building (section ground lines, elevations, the site plan); one assumed level {side all, z 0.0} only when nothing is drawn. The build adds its own assumed terrain changes (basement doors, light wells) to the scene manifest, never here", "properties": {
         "levels": {"type": "array", "items": {"type": "object", "required": ["side", "z"], "properties": {

@@ -1307,7 +1307,7 @@ def entrance_views(building: dict, model: "ExteriorModel") -> list[tuple[list, t
     the door's axis, straight at the door) and keeps a place only with its door and the sky in the frame."""
     recs = [r for r in ((building.get("site") or {}).get("entrances") or [])
             if isinstance(r, dict) and r.get("centre") and r.get("outward") and not r.get("into_air")
-            and not r.get("below_ground")]
+            and not r.get("below_ground") and not (r.get("upper_floor") and r.get("onto"))]   # no upper balcony door
     recs.sort(key=lambda r: (not r.get("main"), r["door_id"]))
     out = []
     ang = math.radians(20.0)

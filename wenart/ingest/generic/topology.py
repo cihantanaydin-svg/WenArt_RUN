@@ -302,6 +302,11 @@ def _area(block, polygon, level_id: Optional[str], extent=None, note: Optional[s
     size_text = getattr(block, "size_text", None)
     if size_text:
         item["label_size"] = _label_size(size_text, polygon, extent, getattr(block, "size", None))
+    # 26 Oct 2026 (real06's "VERANDA 22,80m²"): the area written with the label (wenart.levels.outdoor checks the
+    # space's outline against it)
+    if getattr(block, "area_m2", None):
+        item["stated_area_m2"] = round(float(block.area_m2), 3)
+        item["area_text"] = getattr(block, "area_text", None)
     if extent is not None:
         item["extent_m"] = [round(extent[0], 3), round(extent[1], 3)]
     item["anchor"] = [round(block.anchor[0], 4), round(block.anchor[1], 4)]

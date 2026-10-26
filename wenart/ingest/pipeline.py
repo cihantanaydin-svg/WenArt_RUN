@@ -2356,14 +2356,43 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
     ground = next((lv["id"] for lv in b["levels"] if lv.get("order") == 0 and not lv.get("base_level_id")), None)
     if ground is not None:
         # The site is drawn around the ground floor: what another level's plan region reads outside its walls (a
-        # basement's or an attic's) is not site (listed).
+        # basement's or an attic's) is not site (listed). 26 Oct 2026 (real06's upper "BALKON 11,80m²" was dropped
+        # here): a labelled outdoor space of any level stays (wenart.levels.outdoor builds it at its level); an
+        # upper plan's symbols that repeat the ground plan's at the same place are recorded as such.
+        from wenart.levels import outdoor as OD
+        ground_decor = [x for x in site.get("decor") or [] if x.get("level_id") in (None, ground)]
         for key in ("boundary_walls", "areas", "decor", "openings"):
             other = [x for x in site.get(key) or [] if x.get("level_id") not in (None, ground)]
+            if key == "areas":
+                kept = [x for x in other if OD.space_kind(x.get("label_raw") or x.get("label")) is not None]
+                for x in kept:
+                    build.warn(f"site: the labelled outdoor space '{x.get('label')}' ({x.get('id')}) read outside the "
+                               f"walls of {x['level_id']} is kept: it is built at that level (wenart.levels.outdoor)")
+                other = [x for x in other if x not in kept]
             if other:
-                site[key] = [x for x in site[key] if x.get("level_id") in (None, ground)]
+                gone = {id(x) for x in other}
+                site[key] = [x for x in site[key] if id(x) not in gone]
+                note = ""
+                if key == "decor":
+                    same = OD.same_symbols(other, ground_decor)
+                    rows = []
+                    for x in other:
+                        word = OD.decor_word(x)
+                        sid = same.get(str(x.get("id")))
+                        rows.append({"id": x.get("id"), "level_id": x.get("level_id"), "center": x.get("center"),
+                                     "size": x.get("size"), "same_as": sid,
+                                     "inferred_as": word[0] if word else "unidentified", "evidence": x.get("evidence"),
+                                     "reason": (f"the same drawn symbol as {sid} of {ground} (the upper plan repeats "
+                                                f"the ground plan's symbols at the same place)" if sid else
+                                                "drawn outside the walls of an upper plan"
+                                                + (f" on {word[1]!r} ({word[0]})" if word else "")
+                                                + ": no symbol of the ground's site, not built")})
+                    site["decor_other_levels"] = rows
+                    note = (f"; {len(same)} of them repeat the ground plan's symbols at the same place "
+                            f"(site.decor_other_levels)")
                 build.warn(f"site: {len(other)} {key.replace('_', ' ')} read outside the walls of "
                            f"{', '.join(sorted({x['level_id'] for x in other}))} not used (the site is the ground "
-                           f"floor's, {ground})")
+                           f"floor's, {ground}){note}")
     b["site"] = TB.site_block(site, sheets, SE.area_kind, ground, build.frame_shift)
     b["project"]["datum"] = (sheets.get("heights") or {}).get("datum")
     for c in sheets.get("conflicts") or []:

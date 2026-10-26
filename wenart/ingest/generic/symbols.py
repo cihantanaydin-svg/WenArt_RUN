@@ -3760,8 +3760,19 @@ def _site_decor(segs: list[Seg], ctx: _Ctx, raster: bool, notes: list, wall_geom
         green = [f for f in fills if f[1] >= f[0] + 0.05 and f[1] >= f[2] + 0.05]
         kind = "plant" if fills and len(green) >= 0.3 * len(fills) else ("plant" if _radial(cl) else "other")
         box = ctx.box(fp[4])
+        ev = ctx.evidence(cl.stroke_ids(), raster=raster, box=box)
+        # 26 Oct 2026 (real06: 42 site symbols, grid bubbles, columns and sills among them, typed by nothing): the
+        # layers and blocks of the strokes, most strokes first, for the site's symbol typing (wenart.levels.outdoor)
+        for key, attr in (("layer", "layer"), ("block", "block")):
+            names: dict = {}
+            for s in cl.segs:
+                name = getattr(s.stroke, attr, None)
+                if name:
+                    names[name] = names.get(name, 0) + 1
+            if names:
+                ev[key] = ",".join(sorted(names, key=lambda n: (-names[n], n))[:4])
         item = {"kind": kind, "center": list(_r(fp[0])), "size": [round(fp[1], 4), round(fp[2], 4)],
-                "evidence": [ctx.evidence(cl.stroke_ids(), raster=raster, box=box)], "box": box}
+                "evidence": [ev], "box": box}
         out.append(item)
     out.sort(key=lambda d: (d["center"][1], d["center"][0]))
     for n, item in enumerate(out, start=1):

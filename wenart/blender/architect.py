@@ -338,6 +338,17 @@ def review_access(prep: dict, outer_doors: Sequence[dict]) -> dict:
         name = f"{'pool deck' if pf.get('pools') else 'terrace'} {pf['id']} at {float(pf['z']):+.2f} m"
         doors = doors_onto(pf, outer_doors)
         before = steps_open(pf)
+        # 26 Oct 2026 (labelled outdoor spaces, wenart/levels/outdoor.py): a platform at most a kerb's height over the
+        # garden on an open edge is reached from the garden itself
+        from wenart.blender.site import PLATFORM
+        flush = not pf.get("elevated") and pf.get("edge") in ("none", "kerb") and \
+            float(pf.get("drop_m") or 0.0) <= PLATFORM["level_tol"] + 1e-9 and \
+            len(pf.get("against_edges") or []) < len(pf.get("polygon") or [])
+        if flush and not doors and not before:
+            pf["outside_access"] = "garden"
+            q["answers"].append({"element": pf["id"], "found": f"{name}: reached from the garden (at most "
+                                 f"{PLATFORM['level_tol']:.2f} m over it on an open edge)", "change": None})
+            continue
         if doors or before:
             how = (f"door {', '.join(doors)} from the house" if doors else "") + \
                   (" and " if doors and before else "") + ("steps to the garden" if before else "")
@@ -423,9 +434,11 @@ def review_deck_doors(building: dict, prep: dict, outer_doors: Sequence[dict], o
                  f"{', '.join(sorted(facing))}; no door opens onto it")
         # 25 Oct 2026 (user: "try to have an access from the outside instead of including the door"): the deck is
         # reached from outside (A2: its steps and a path); the drawn windows stay windows
-        if pf.get("outside_access") in ("path", "on_path"):
-            q["answers"].append({"element": pf["id"], "found": found, "change": "reached from outside: its steps and "
-                                 "a path to the site's paths (A2); the windows stay as drawn"})
+        if pf.get("outside_access") in ("path", "on_path", "garden"):
+            how = ("from the garden at its own level" if pf.get("outside_access") == "garden" else
+                   "its steps and a path to the site's paths")
+            q["answers"].append({"element": pf["id"], "found": found, "change": f"reached from outside: {how} (A2); "
+                                 f"the windows stay as drawn"})
             continue
         q["answers"].append({"element": pf["id"], "found": found, "change": None, "open": True,
                              "ask": f"no path from outside reaches the {name}: should the architect find another "
@@ -664,7 +677,8 @@ def entrance_rooms(building: dict, sides: Sequence[dict]) -> list[str]:
     """The rooms just inside the entrance doors (``site.entrances``), else inside any outside door."""
     by_id = {s["opening"]["id"]: s for s in sides}
     ids = [e.get("door_id") for e in (building.get("site") or {}).get("entrances") or []
-           if isinstance(e, dict) and not e.get("into_air") and not e.get("below_ground")]
+           if isinstance(e, dict) and not e.get("into_air") and not e.get("below_ground")
+           and not (e.get("upper_floor") and e.get("onto"))]           # 26 Oct 2026: a door onto an upper balcony
     out = [r for i in ids if i in by_id for r in (by_id[i]["a"], by_id[i]["b"]) if r]
     if not out:
         out = [r for s in sides if s["type"] == "door" and (s["a"] is None) != (s["b"] is None)

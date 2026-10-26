@@ -117,6 +117,18 @@ only, no steps or path of their own for the other doors, and an ``assumed`` entr
 A ramp never passes in front of another door (``door_approach``: the door's width + 0.1 m on each side, 1.0 m out):
 the other side of the landing, else straight out beside the flight, logged (``ramp_options``, ``choose_ramp``). A
 single entrance with nothing in the way keeps exactly the steps of before. The model review's M8 measures the result.
+
+26 Oct 2026 (real06, user: "There was a veranda in real06, it has been fully missed ... think to solve issues like
+veranda"): every labelled outdoor space of ``site.outdoor_spaces`` (``wenart.levels.outdoor``: a veranda, porch,
+balcony, terrace, deck, patio, loggia, winter garden, pergola or courtyard of any level) is a platform
+(``space_platform``): kind ``terrace`` at its doors' floor with the platform rules (its base walls, its steps down to
+the ground on an open edge, the drawn flight's place, width and treads when drawn: ``steps_at``); an upper floor's
+space is ``elevated``: a ``SPACE_SLAB_M`` slab with a guard on every open edge, no base or steps. Its cover
+(``cover_parts``): a light roof (a slab whose top falls ``roof.fall`` away from the building, ``roof_z``), a glass
+roof or a pergola (edge beams and rafters), beams under the open edges and posts (a drawn column as a cylinder of its
+size, an inferred post square). A door onto a space has no steps of its own (``site.entrances[].onto``); the space's
+path starts at the foot of its flight (``space_paths``); an upper floor's door onto a balcony is no entrance
+(``record_entrances``). A typed site symbol says what it is in ``not_built`` (``inferred_as``, ``type_reason``).
 """
 from __future__ import annotations
 
@@ -1014,7 +1026,9 @@ def record_entrances(building: dict, levels: Sequence[dict]) -> Optional[list[di
     ids = {lv["id"] for lv in levels}
     out = []
     for r in recs:
-        if not isinstance(r, dict) or r.get("level_id") not in ids or r.get("into_air") or r.get("below_ground"):
+        # 26 Oct 2026: an upper floor's door onto a labelled balcony (``onto``, ``upper_floor``) is no entrance
+        if not isinstance(r, dict) or r.get("level_id") not in ids or r.get("into_air") or r.get("below_ground") \
+                or (r.get("upper_floor") and r.get("onto")):
             continue
         if not r.get("centre") or not r.get("outward"):
             continue
@@ -1972,9 +1986,41 @@ def trees_record(stats: dict) -> tuple[dict, Optional[str]]:
     return entry, (text if stats["placed"] < stats["count"] else None)
 
 
+def space_paths(spaces: Sequence[dict]) -> tuple[list[dict], dict]:
+    """``(entrances, steps)`` for ``entrance_paths`` of the labelled outdoor spaces with doors onto them and a flight
+    down to the ground (pure; 26 Oct 2026): the path starts at the foot of the space's flight (its drawn place, else
+    the steps edge's middle) in the edge's outward direction, for all the space's doors."""
+    ents, steps = [], {}
+    for pf in spaces:
+        doors = list((pf.get("space") or {}).get("doors") or [])
+        i = pf.get("steps_edge")
+        poly = pf.get("polygon") or []
+        if not doors or i is None or pf.get("elevated") or pf.get("steps_dir") == "up" or len(poly) < 3:
+            continue
+        a, b = poly[i], poly[(i + 1) % len(poly)]
+        length = G.distance(a, b)
+        if length <= 1e-6:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        out = (uy, -ux)
+        at = pf.get("steps_at")
+        mid = G.segment_midpoint(a, b)
+        if at:
+            t = (at["point"][0] - a[0]) * ux + (at["point"][1] - a[1]) * uy
+            mid = (a[0] + ux * t, a[1] + uy * t)
+        drop = float((pf.get("edge_drops") or {}).get(i, pf.get("drop_m") or 0.3))
+        count = max(1, int(math.ceil(drop / PLATFORM["step_rise"] - 1e-9)))
+        tread = float((at or {}).get("tread") or PLATFORM["step_tread"])
+        if at and int(at.get("treads") or 0) + 1 > 1 and drop / (int(at["treads"]) + 1) <= DRAWN_RISER_MAX_M:
+            count = int(at["treads"]) + 1
+        ents.append({"opening_id": pf["id"], "outward": out, "centre": mid, "width": PLATFORM["step_width"]})
+        steps[pf["id"]] = {"opening_id": pf["id"], "end": count * tread, "face": mid, "doors": doors, "blocks": []}
+    return ents, steps
+
+
 def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]],
                   outlines: Optional[dict], plot: Sequence, plot_source: str, options: dict,
-                  drawn_trees: bool) -> dict:
+                  drawn_trees: bool, spaces: Sequence[dict] = ()) -> dict:
     """What the build adds where the documents are silent (pure; docs/milestone11.md §1.1 E11, §7, CLAUDE.md
     evidence rules: every item ``inferred`` and listed): the plot (``inferred_plot`` when none is drawn), the
     entrances with their steps, the paths, the boundary (hedge or fence on an inferred plot), the trees (when
@@ -2012,8 +2058,13 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
     out["assumed"] += layout["assumed"]
     out["warnings"] += layout["warnings"]
     if options.get("path", True):
-        out["paths"] = entrance_paths([e for e in ents if e["opening_id"] not in layout["members"]], steps,
-                                      out["plot"])
+        # 26 Oct 2026: a door onto a labelled outdoor space (its record's ``onto``) has no path of its own: the
+        # space's path starts at the foot of its flight (space_paths)
+        onto = {d for pf in spaces for d in (pf.get("space") or {}).get("doors") or []}
+        own = [e for e in ents if e["opening_id"] not in layout["members"] and e["opening_id"] not in onto
+               and not (e.get("record") or {}).get("onto")]
+        extra, extra_steps = space_paths(spaces)
+        out["paths"] = entrance_paths(own + extra, {**steps, **extra_steps}, out["plot"])
         for p in out["paths"]:
             out["assumed"].append({"field": f"path:{','.join(p['opening_ids'])}", "value": p["length"],
                                    "reason": "a paved path from the plot edge to the entrance (inferred)"})
@@ -2499,8 +2550,41 @@ def hedge_keep_out(hedges: Sequence[dict]) -> list[tuple[str, list]]:
     return out
 
 
+def space_platform(space: dict, gz) -> Optional[dict]:
+    """A labelled outdoor space (``site.outdoor_spaces``, ``wenart.levels.outdoor``) as a platform record (pure; 26
+    Oct 2026, real06's veranda and balcony): kind ``terrace`` at the space's floor (the doors' level), ``space`` (its
+    kind, label, level, doors, cover, method), ``elevated`` (a slab with a guard on its open edges, no base walls or
+    steps), ``steps_drawn`` (the drawn flight), ``roof`` and ``posts``. None for a polygon under 3 points."""
+    poly = geom2d.ccw(space.get("polygon") or [])
+    if len(poly) < 3 or not isinstance(space.get("z"), (int, float)):
+        return None
+    samples = list(poly) + [G.polygon_centroid(poly)] + [q for seg in _edge_samples(poly) for q in seg]
+    zs = [gz(x, y) for x, y in samples]
+    g = {"min": round(min(zs), 3), "mean": round(sum(zs) / len(zs), 3), "max": round(max(zs), 3)}
+    return {"id": str(space["id"]), "polygon": poly, "holes": [], "z": round(float(space["z"]), 3), "kind": "terrace",
+            "source": "outdoor_space", "area_id": space.get("area_id"), "z_source": space.get("z_source") or "",
+            "marks": [], "ground": g, "sloped": False, "pools": [], "inferred": True, "material": None, "colour": None,
+            "space": {k: space.get(k) for k in ("kind", "label", "level_id", "doors", "cover", "method", "area_m2",
+                                                "stated_area_m2")},
+            "elevated": bool(space.get("elevated")), "steps_drawn": space.get("steps"), "roof": space.get("roof"),
+            "posts": list(space.get("posts") or []), "space_reason": space.get("reason")}
+
+
+def _nearest_edge(poly, p, skip=()) -> Optional[int]:
+    best = None
+    n = len(poly)
+    for i in range(n):
+        if i in skip:
+            continue
+        d = G.point_segment_distance(p, poly[i], poly[(i + 1) % n])
+        if best is None or d < best[0]:
+            best = (d, i)
+    return None if best is None else best[1]
+
+
 def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (),
-              facades: Optional[dict] = None, band_keep: Sequence[tuple[str, list]] = ()) -> list[dict]:
+              facades: Optional[dict] = None, band_keep: Sequence[tuple[str, list]] = (),
+              outlines: Optional[dict] = None) -> list[dict]:
     """One level per drawn terrace, pool or parking polygon (pure; Milestone 13 T6, docs/milestone13.md §13.2):
     ``[{"id", "polygon", "holes", "z", "kind": terrace | pool | parking | path, "edge": retaining | kerb | steps |
     none, "source", "z_source", "marks", "ground": {min, mean, max}, "drop_m", "rise_m", "sloped", "steps_edge",
@@ -2621,11 +2705,39 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
                     "kind": "pool", "source": pool.get("source"), "area_id": None, "z_source": z_src,
                     "marks": mark_ids, "ground": g, "sloped": False, "pools": [pid], "inferred": True,
                     "material": None, "colour": None})
+    # 26 Oct 2026 (real06): the labelled outdoor spaces (veranda, balcony, terrace ...) at their doors' floor
+    for s in site.get("outdoor_spaces") or []:
+        if isinstance(s, dict):
+            pf = space_platform(s, gz)
+            if pf is not None:
+                out.append(pf)
     for pf in out:
         if not pf["sloped"]:                        # round 3: short edges, each with its own wall and bands
             pf["polygon"] = subdivide_edges(pf["polygon"], PLATFORM["edge_split_m"])
-        pf["against_edges"] = [] if pf["sloped"] else against_edges(pf["polygon"], keep)
+        mine = keep
+        if pf.get("space") and (outlines or {}).get(pf["space"].get("level_id")):
+            mine = [geom2d.ccw(outlines[pf["space"]["level_id"]])] + keep[1:]      # an upper space: its level's walls
+        pf["against_edges"] = [] if pf["sloped"] else against_edges(pf["polygon"], mine)
         pf.update(edges_of(pf["polygon"], pf["z"], pf["kind"], pf["sloped"], skip=pf["against_edges"]))
+        if pf.get("elevated"):
+            # an upper balcony or terrace: a slab with a guard on every open edge; no base wall, no steps
+            n = len(pf["polygon"])
+            pf.update(edge="none", steps_edge=None,
+                      railing_edges=[i for i in range(n) if i not in pf["against_edges"]])
+            pf.pop("steps_dir", None)
+            pf.pop("up_edges", None)
+        elif pf.get("steps_drawn") and pf.get("drop_m", 0.0) > PLATFORM["level_tol"]:
+            # the drawn flight: its edge and its place on it
+            st = pf["steps_drawn"]
+            mid = G.segment_midpoint(st["edge"][0], st["edge"][1])
+            i = _nearest_edge(pf["polygon"], mid, skip=pf["against_edges"])
+            if i is not None:
+                pf["steps_edge"] = i
+                pf["edge"] = "steps"
+                pf.pop("steps_dir", None)
+                pf["steps_at"] = {"point": [round(mid[0], 4), round(mid[1], 4)], "width": float(st["width_m"]),
+                                  "tread": float(st.get("tread_m") or PLATFORM["step_tread"]),
+                                  "treads": int(st.get("treads") or 0), "source": "drawn"}
     for pf in out:
         if pf.get("steps_dir") != "up":
             continue
@@ -2646,11 +2758,17 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
                         f"..{pf['ground']['max']:+.2f} m under it; edge: {pf['edge']}"
                         + (" (the marks spread over 1 m: the area is drawn sloped and stays draped)" if pf["sloped"] else "")
                         + (f"; pools {', '.join(pf['pools'])} in the deck" if pf["pools"] else "") + " (inferred)")
+        if pf.get("space"):
+            sp = pf["space"]
+            pf["reason"] += (f"; the labelled {sp['kind']} '{sp.get('label')}' of {sp.get('level_id')}"
+                             + (f", the landing of {', '.join(sp['doors'])}" if sp.get("doors") else "")
+                             + ("; elevated: a slab with a guard on its open edges" if pf.get("elevated") else "")
+                             + (f"; the drawn steps on edge {pf['steps_edge']}" if pf.get("steps_at") else ""))
     # Round 3: the stepped terraces where a retaining wall would pass RETAINING_MAX_M; every record says the tallest
     # wall it builds (wall_max_m).
     bands: list[dict] = []
     for pf in out:
-        if pf["sloped"]:
+        if pf["sloped"] or pf.get("elevated"):
             pf["wall_max_m"] = 0.0
             pf["cap_exceeded"] = []
             continue
@@ -3174,6 +3292,10 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
     if pf.get("sloped"):
         v, f = draped_faces(poly, pf.get("holes") or [], terrain, lift=PAVING_LIFT)
         out.append({"part": "slab", "verts": v, "faces": f})
+    elif pf.get("elevated"):
+        # 26 Oct 2026: an upper balcony or terrace is a slab at its floor, SPACE_SLAB_M thick, no base to the ground
+        v, f = slab_with_holes(poly, pf.get("holes") or [], z, z - SPACE_SLAB_M)
+        out.append({"part": "slab", "verts": v, "faces": f})
     else:
         zmin = min(ground_z(terrain, x, y) for x, y in poly)
         bottom = min(z, zmin) - PLATFORM["below"]
@@ -3199,7 +3321,7 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
         nx, ny = uy, -ux                                        # ccw: the right side of the edge is outside
         mid = G.segment_midpoint(a, b)
         angle = G.segment_angle_deg(a, b)
-        if not pf.get("sloped"):
+        if not pf.get("sloped") and not pf.get("elevated"):
             # the wall in pieces that follow the ground (wall_pieces); pieces overlap by the thickness, every
             # second one 2 mm thicker (no coplanar faces); an up flight's edge has a gap for the flight
             gzf = lambda x, y: ground_z(terrain, x, y)          # noqa: E731
@@ -3265,14 +3387,26 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
         nx, ny = uy, -ux
         mid = G.segment_midpoint(a, b)
         half_w = PLATFORM["step_width"] / 2.0
+        tread = PLATFORM["step_tread"]
         gz_edge = floors[i] if i in floors else min(ground_z(terrain, *q) for q in _edge_samples([a, b], 4)[0])
         drop = z - gz_edge
         count = max(1, int(math.ceil(drop / PLATFORM["step_rise"] - 1e-9)))
+        at = pf.get("steps_at")
+        if at:
+            # 26 Oct 2026: the drawn flight of an outdoor space: its place, width, tread and (when the riser stays
+            # within DRAWN_RISER_MAX_M) its count
+            t = ((at["point"][0] - a[0]) * ux + (at["point"][1] - a[1]) * uy)
+            mid = (a[0] + ux * t, a[1] + uy * t)
+            half_w = max(0.3, float(at["width"]) / 2.0)
+            tread = float(at.get("tread") or tread)
+            k = int(at.get("treads") or 0) + 1
+            if k > 1 and drop / k <= DRAWN_RISER_MAX_M:
+                count = k
         r = drop / count
         for j in range(1, count + 1):
-            d0 = (j - 1) * PLATFORM["step_tread"]
+            d0 = (j - 1) * tread
             top = z - j * r
-            block = _rect_along(mid, (nx, ny), d0, d0 + PLATFORM["step_tread"], half_w)
+            block = _rect_along(mid, (nx, ny), d0, d0 + tread, half_w)
             zb = (floors[i] if i in floors else min(ground_z(terrain, *q) for q in block)) - PLATFORM["below"]
             if top > zb:
                 steps.append(geom2d.prism(block, zb, top))
@@ -3287,6 +3421,122 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
             if part == "wall":
                 rec["walls"] = wall_recs
             out.append(rec)
+    out += cover_parts(pf)
+    return out
+
+
+# 26 Oct 2026 (labelled outdoor spaces, wenart.levels.outdoor): an upper balcony's slab, the riser a drawn flight may
+# keep, and the sizes of a space's cover (beams under the roof's open edges, a pergola's rafters, a glass roof's pane).
+SPACE_SLAB_M = 0.20
+DRAWN_RISER_MAX_M = 0.20
+COVER = {"beam_w": 0.12, "beam_h": 0.20, "rafter_w": 0.06, "rafter_h": 0.16, "rafter_pitch": 0.6, "glass_t": 0.03,
+         "post_segments": 12}
+
+
+def roof_z(roof: dict, p: Sequence[float]) -> float:
+    """The top of a space's roof at plan point ``p`` (pure): ``top_z`` at the plane's origin, falling ``fall`` per
+    metre along its ``dir``."""
+    top = float(roof["top_z"])
+    pl = roof.get("plane") or {}
+    if not pl:
+        return top
+    o, d = pl["origin"], pl["dir"]
+    return top - float(roof.get("fall") or 0.0) * max(0.0, (p[0] - o[0]) * d[0] + (p[1] - o[1]) * d[1])
+
+
+def _clip_convex(p0, p1, poly) -> Optional[tuple]:
+    """The part of segment p0-p1 inside the convex polygon ``poly`` (counter-clockwise), or None (Cyrus-Beck)."""
+    t0, t1 = 0.0, 1.0
+    dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+    n = len(poly)
+    for i in range(n):
+        a, b = poly[i], poly[(i + 1) % n]
+        nx, ny = b[1] - a[1], -(b[0] - a[0])                  # outward normal of a counter-clockwise edge
+        num = (p0[0] - a[0]) * nx + (p0[1] - a[1]) * ny
+        den = dx * nx + dy * ny
+        if abs(den) < 1e-12:
+            if num > 0:
+                return None
+            continue
+        t = -num / den
+        if den > 0:
+            t1 = min(t1, t)
+        else:
+            t0 = max(t0, t)
+        if t0 > t1:
+            return None
+    return (p0[0] + dx * t0, p0[1] + dy * t0), (p0[0] + dx * t1, p0[1] + dy * t1)
+
+
+def cover_parts(pf: dict) -> list[dict]:
+    """The cover of a labelled outdoor space (pure; 26 Oct 2026): ``roof`` (a light roof: a slab ``thickness`` thick
+    whose top follows ``roof_z``; a glass roof: a ``glass_t`` pane, its faces in slot 1), ``beams`` (under the roof's
+    ``open_edges``; a pergola's edge beams and its rafters every ``rafter_pitch`` along the fall) and ``posts`` (a
+    drawn round column as a cylinder of its drawn size, an inferred post square, from ``z0`` to ``z1``). ``[]`` for a
+    platform without ``roof`` or ``posts``."""
+    out = []
+    roof = pf.get("roof") if isinstance(pf.get("roof"), dict) else None
+    beams = []
+    if roof and len(roof.get("polygon") or []) >= 3:
+        poly = geom2d.ccw(roof["polygon"])
+        kind = roof.get("kind") or "light_roof"
+        t = float(roof.get("thickness") or 0.18)
+        if kind in ("light_roof", "glass_roof"):
+            tt = COVER["glass_t"] if kind == "glass_roof" else t
+            v, f = slab_with_holes(poly, [], 0.0, -tt)
+            v = [(x, y, zz + roof_z(roof, (x, y))) for x, y, zz in v]
+            rec = {"part": "roof", "verts": v, "faces": f}
+            if kind == "glass_roof":
+                rec["slots"] = [1] * len(f)
+            out.append(rec)
+        under = 0.0 if kind == "pergola" else (COVER["glass_t"] if kind == "glass_roof" else t)
+        bw, bh = COVER["beam_w"], COVER["beam_h"]
+        for a, b in roof.get("open_edges") or []:
+            length = G.distance(a, b)
+            if length < 0.2:
+                continue
+            ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+            nx, ny = -uy, ux                                  # inward of a counter-clockwise edge
+            mid = G.segment_midpoint(a, b)
+            c = (mid[0] + nx * bw / 2.0, mid[1] + ny * bw / 2.0)
+            za, zb = roof_z(roof, a) - under, roof_z(roof, b) - under
+            beams.append(sloped_box(c, length, bw, G.segment_angle_deg(a, b), za - bh, za, zb, zb - bh))
+        if kind == "pergola":
+            d = (roof.get("plane") or {}).get("dir") or [0.0, -1.0]
+            u = (-d[1], d[0])
+            proj = [p[0] * u[0] + p[1] * u[1] for p in poly]
+            along = [p[0] * d[0] + p[1] * d[1] for p in poly]
+            s = min(proj) + COVER["rafter_pitch"] / 2.0
+            pieces = [geom2d.ccw(q) for q in geom2d.convex_pieces(poly)] or [poly]
+            while s < max(proj):
+                p0 = (u[0] * s + d[0] * (min(along) - 1.0), u[1] * s + d[1] * (min(along) - 1.0))
+                p1 = (u[0] * s + d[0] * (max(along) + 1.0), u[1] * s + d[1] * (max(along) + 1.0))
+                for piece in pieces:
+                    seg = _clip_convex(p0, p1, piece)
+                    if seg is None or G.distance(*seg) < 0.1:
+                        continue
+                    q0, q1 = seg
+                    rw, rh = COVER["rafter_w"], COVER["rafter_h"]
+                    beams.append(sloped_box(G.segment_midpoint(q0, q1), G.distance(q0, q1), rw,
+                                            G.segment_angle_deg(q0, q1), roof_z(roof, q0) - rh, roof_z(roof, q0),
+                                            roof_z(roof, q1), roof_z(roof, q1) - rh))
+                s += COVER["rafter_pitch"]
+    if beams:
+        v, f = geom2d.merge(beams)
+        out.append({"part": "beams", "verts": v, "faces": f})
+    posts = []
+    for q in pf.get("posts") or []:
+        z0, z1 = float(q["z0"]), float(q["z1"])
+        if z1 - z0 < 0.3:
+            continue
+        size = float(q.get("size_m") or 0.15)
+        if q.get("source") == "drawn" and size >= 0.2:
+            posts.append(_cylinder(q["center"], size / 2.0, z0, z1, COVER["post_segments"]))
+        else:
+            posts.append(geom2d.box((q["center"][0], q["center"][1], (z0 + z1) / 2.0), (size, size, z1 - z0), 0.0))
+    if posts:
+        v, f = geom2d.merge(posts)
+        out.append({"part": "posts", "verts": v, "faces": f})
     return out
 
 
@@ -3590,8 +3840,11 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
             if item.get("kind") in ("tree", "plant"):
                 trees.append(item)
             else:
+                # 26 Oct 2026: a typed symbol says what it is (wenart.levels.outdoor.type_site_decor)
                 not_built.append({"id": item.get("id"), "kind": item.get("kind"),
-                                  "reason": f"site decor of kind {item.get('kind')!r} is not built (no model)"})
+                                  **({"inferred_as": item["inferred_as"]} if item.get("inferred_as") else {}),
+                                  "reason": item.get("type_reason") or f"site decor of kind {item.get('kind')!r} is "
+                                                                       f"not built (no model)"})
         for item in site.get("openings") or []:
             if isinstance(item, dict):
                 not_built.append({"id": item.get("id"), "kind": "site_opening",
@@ -3604,18 +3857,7 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
         not_built.append({"id": None, "kind": "site", "reason": "brief site: ground (the ground plane and the "
                                                                 "light wells only)"})
     inferred = None
-    if mode == "full" and options is not None:
-        drawn_trees = any(t.get("kind") == "tree" for t in trees)
-        inferred = inferred_site(building, levels, terrain, outline, outlines, plot, plot_src, options, drawn_trees)
-        assumed += inferred["assumed"]
-        warnings += inferred["warnings"]           # fix round after P4b: fewer inferred trees than asked
-        for p in inferred["paths"]:
-            areas.append({"id": f"path_{'_'.join(p['opening_ids'])}", "kind": "path", "polygon": p["polygon"],
-                          "z": None, "material": None, "colour": None, "source": "assumed", "area_id": None,
-                          "lift": PAVING_LIFT, "inferred": True})
-        for t in inferred["trees"]:
-            trees.append(t)
-            assumed.append({"field": f"tree:{t['id']}", "value": t["center"], "reason": t["reason"]})
+    drawn_trees = any(t.get("kind") == "tree" for t in trees)
     # 11 Oct 2026 (real04): the other buildings on the plot (the ground has a hole for each) and the drawn pools.
     from wenart.blender import copies as CP
     copy_holes = [geom2d.ccw(fp) for fp in CP.footprints(building)]
@@ -3645,7 +3887,7 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
         if levers["platforms"]:
             pfs = platforms(site, terrain, keep_out=[geom2d.ccw(outline)] + copy_holes,
                             facades=facade_openings(building, levels, outline, outlines),
-                            band_keep=hedge_keep_out(hedges))
+                            band_keep=hedge_keep_out(hedges), outlines=outlines)
             wells, gone = wells_on_platforms(wells, pfs)
             for w in gone:
                 assumed[:] = [a for a in assumed if a.get("field") != f"light_well:{w['opening_id']}"]
@@ -3661,6 +3903,20 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
                     a["platform_id"] = a["id"]
             for pf in pfs:
                 assumed.append({"field": f"platform:{pf['id']}", "value": pf["z"], "reason": pf["reason"]})
+    if mode == "full" and options is not None:
+        # 26 Oct 2026: after the platforms: a door onto a labelled outdoor space takes the space's steps and path
+        inferred = inferred_site(building, levels, terrain, outline, outlines, plot, plot_src, options, drawn_trees,
+                                 spaces=[pf for pf in pfs if pf.get("space")])
+        assumed += inferred["assumed"]
+        warnings += inferred["warnings"]           # fix round after P4b: fewer inferred trees than asked
+        for p in inferred["paths"]:
+            areas.append({"id": f"path_{'_'.join(p['opening_ids'])}", "kind": "path", "polygon": p["polygon"],
+                          "z": None, "material": None, "colour": None, "source": "assumed", "area_id": None,
+                          "lift": PAVING_LIFT, "inferred": True})
+        for t in inferred["trees"]:
+            trees.append(t)
+            assumed.append({"field": f"tree:{t['id']}", "value": t["center"], "reason": t["reason"]})
+    if mode == "full":
         if hedges:                                   # fix round after P3: every hull on its planting side
             hedges, fit_assumed = fit_hedges(hedges, pfs, [geom2d.ccw(outline)] + copy_holes)
             assumed += fit_assumed
@@ -4020,6 +4276,13 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                     "railing": rail_mat}
             parts = platform_parts(dict(pf, balustrade=plan.get("balustrade")) if plan.get("balustrade") else pf,
                                    terrain)
+            if any(q["part"] in ("roof", "beams", "posts") for q in parts):
+                # 26 Oct 2026: a labelled outdoor space's cover in the house's look: the roof slab as the facade
+                # (the balcony slabs' render), the posts and beams as the window frames
+                mats["roof"] = make_material(looks["facade"]) if looks.get("facade") else concrete
+                mats["beams"] = mats["posts"] = make_material(looks.get("window_frame") or looks.get("railing")
+                                                              or {"material": SITE_FALLBACK_LOOKS["railing"],
+                                                                  "colour": None})
             wall_part = next((q for q in parts if q["part"] == "wall"), None)
             built_walls = (wall_part or {}).get("walls") or []
             wall_max = max([w["height_m"] for w in built_walls] or [0.0])
@@ -4558,8 +4821,13 @@ def platforms_into_building(building: dict) -> dict:
         return {"count": None, "ids": [], "kinds": {}}
     hedges = hedges_of(building, climate_of(building)["climate"], detect=site_levers()["hedge"])[0] \
         if site_levers()["platforms"] else []
+    outlines = {lv["id"]: geom2d.wall_outline([w for w in building.get("walls") or []
+                                                if w.get("level_id") == lv.get("id")])[0]
+                for lv in building.get("levels") or [] if isinstance(lv, dict)
+                and any(w.get("level_id") == lv.get("id") for w in building.get("walls") or [])}
     pfs = json.loads(json.dumps(platforms(site, keep_out=building_keep_out(building),
-                                          facades=building_facades(building), band_keep=hedge_keep_out(hedges))))
+                                          facades=building_facades(building), band_keep=hedge_keep_out(hedges),
+                                          outlines=outlines)))
     site["platforms"] = pfs
     kinds: dict[str, int] = {}
     for pf in pfs:
