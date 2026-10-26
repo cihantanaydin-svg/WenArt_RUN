@@ -452,3 +452,24 @@ def test_argus_ai_calls_run_in_parallel_in_order():
 
     assert AX._parallel(job, [1, 2, 3, 4, 5, 6]) == [(0, 2), (1, 4), (2, 6), (3, 8), (4, 10), (5, 12)]
     assert 1 < peak[0] <= AX.WORKERS
+
+
+def test_argus_documents_vs_model_line_reaches_the_report(tmp_path, monkeypatch):
+    from wenart.audit import plan_vs_model as PV
+    out = _real06_out(tmp_path)
+    found = {"line": "plan_vs_model", "check": "B1", "severity": "major", "target": "L1",
+             "message": "the plan labels BALKON 11,80 m2 and the model has no balcony", "owner": "reading", "fix": None,
+             "evidence": {"change": "missing_in_model", "level": "L1", "label": "BALKON"}}
+    other = dict(found, check="B2", target="r_L1_hol", message="the hall is drawn smaller",
+                 evidence={"change": "different_in_model", "level": "L1"})
+    monkeypatch.setattr(PV, "audit_project", lambda model, project_out, **kw: {
+        "findings": [dict(found), dict(other)], "dropped": [{"reason": "built"}], "levels": [{"level": "L0"}],
+        "elevations": {"calls": 2}})
+    errors = []
+    rec = AX.documents_vs_model(None, out, errors=errors)
+    assert errors == [] and [f["kind"] for f in rec["findings"]] == ["lost", "misread"]
+    rep = R.run(I.pod(out))
+    assert rep["lines"]["plan_vs_model"]["findings"] == 2
+    assert {f["target"] for f in rep["findings"] if f["line"] == "plan_vs_model"} == {"L1", "r_L1_hol"}
+    monkeypatch.setattr(PV, "audit_project", lambda *a, **k: (_ for _ in ()).throw(OSError("no DXF")))
+    assert AX.documents_vs_model(None, out, errors=errors) is None and "no DXF" in errors[0]

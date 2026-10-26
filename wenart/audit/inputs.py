@@ -87,7 +87,8 @@ def _fill(inp: Inputs, scene: Path, orch: Path, recog: Path, run: Path, final: P
     if results is not None:
         inp.run_manifest = read_json(results / "run_manifest.json") if (results / "run_manifest.json").is_file() else None
         inp.junit = sorted(results.glob("junit-*.xml"))
-    inp.top_plans = sorted(scene.glob("top_*_plan*.jpg")) if scene.is_dir() else []
+    tops = {p.name: p for d in (scene, scene.parent / "renders") if d.is_dir() for p in sorted(d.glob("top_*_plan*.jpg"))}
+    inp.top_plans = [tops[k] for k in sorted(tops)]          # the pod keeps them in renders/, a collected run in scene
     inp.images = sorted(final.glob("*_final_preview.jpg")) if final.is_dir() else []
     return inp
 

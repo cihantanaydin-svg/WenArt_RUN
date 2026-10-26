@@ -44,6 +44,8 @@ from wenart.audit import inputs as I
 from wenart.audit import kinds as K
 from wenart.audit import report as R
 
+PLAN_JSON = "plan_vs_model.json"          # the documents-vs-model line's record (``report.LINE_FILES`` reads it)
+CHANGE_KIND = {"missing_in_model": "lost", "different_in_model": "misread", "extra_in_model": "misread"}
 LOG_JSON = "argus_ai.json"
 LOG_MD = "argus_ai.md"
 FINAL_JSON = "argus_ai_final.json"       # the end of the run (``act_on`` False): the record of the first pass stays
@@ -373,12 +375,14 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
 
     t0 = time.time()
     project_out = Path(project_out)
+    errors: list = []
+    if act_on and time_ok():
+        documents_vs_model(model, project_out, errors=errors)
     inp = I.pod(project_out, results)
     rep = R.run(inp)
     building = inp.stage("final") or inp.final or {}
     fact_lines = facts(building, rep)
     items = items_of(rep)
-    errors: list = []
     verdicts = triage(model, items, fact_lines, time_ok=time_ok, out=out, errors=errors) if items else {}
     by_id = {f["aid"]: f for f in items}
     new, decisions, work, guards, disputed = [], [], [], [], []
@@ -441,6 +445,31 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
     odir = LG.orchestrator_dir(project_out)
     LG.write_json_atomic(odir / (LOG_JSON if act_on else FINAL_JSON), _jsonable(rec))
     (odir / (LOG_MD if act_on else FINAL_MD)).write_text(report_md(rec), encoding="utf-8")
+    return rec
+
+
+def documents_vs_model(model, project_out, *, errors: Optional[list] = None) -> Optional[dict]:
+    """The documents against the model (``plan_vs_model.audit_project``: each floor's source plan beside the model's
+    top-down view, the elevations beside the exterior renders; every claim checked by code), its findings given their
+    kind (``CHANGE_KIND``) and written to ``orchestrator/plan_vs_model.json``, where the report reads them. Never
+    raises (``errors`` gets the reason)."""
+    from wenart.agent import log as LG
+    from wenart.audit import plan_vs_model as PV
+
+    errors = errors if errors is not None else []
+    try:
+        res = PV.audit_project(model, project_out, call_prefix="argus_documents")
+    except Exception as exc:  # noqa: BLE001 - the other lines still run
+        errors.append(f"documents vs model: {type(exc).__name__}: {exc}"[:300])
+        return None
+    for f in res.get("findings") or []:
+        f["kind"] = CHANGE_KIND.get((f.get("evidence") or {}).get("change"), "lost")
+    ev = res.get("elevations") or {}
+    rec = {"findings": res.get("findings") or [], "dropped": res.get("dropped") or [],
+           "checked": {"levels": len(res.get("levels") or []), "elevation_calls": ev.get("calls"),
+                       "plans": {r.get("level"): r.get("plan_method") for r in res.get("levels") or []}},
+           "note": res.get("error") or ev.get("note")}
+    LG.write_json_atomic(LG.orchestrator_dir(Path(project_out)) / PLAN_JSON, _jsonable(rec))
     return rec
 
 
