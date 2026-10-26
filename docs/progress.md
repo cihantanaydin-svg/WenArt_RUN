@@ -1493,3 +1493,14 @@ a light roof and posts on the drawn columns; the doors onto it land on it (no do
 site symbols are typed by layer, block and the vegetation rule (real06's 42 circles: 28 grid bubbles, 2 columns, 7
 window sills, marks; none is a plant). real06: the veranda 22.84 m² (written 22.80) and the L1 balcony 11.60 m²
 (written 11.80) are built; real03's 8 balconies too. Argus on the new reading of real06: 0 critical (was 2), score 66.
+
+### The judge's findings reach the agent's edits (26 Oct 2026, found by Argus P10)
+
+Argus's new check P10 ("the agent tried N times and code refused every try") showed that in the big loop's final
+round the judge's problems could never be fixed: the dry re-check kept only findings of source `vision`, so all 143
+judge findings left the round's list after its first accepted edit, and every later edit on them was refused "no
+target finding" (and one wrong room-type change was accepted). Now every vision-like source (vision, judge,
+inspector, Argus) is treated the same (`causes.is_vision`); a judge finding stays on a target the edit did not change
+and is re-judged after the re-render on one it changed; the finding ids the agent names in its reason are read; "two
+armchairs that do not match" is a wrong model, not a piece too many; the log schema accepts the judge's, the
+inspector's and Argus's findings. Replayed on real06's round 4: the refused swaps and moves now have their targets.
