@@ -48,7 +48,9 @@ LOG_JSON = "argus_ai.json"
 LOG_MD = "argus_ai.md"
 FINAL_JSON = "argus_ai_final.json"       # the end of the run (``act_on`` False): the record of the first pass stays
 FINAL_MD = "argus_ai_final.md"
-TRIAGE_BATCH = 24              # findings per triage call (every finding is triaged: the batches cover them all)
+TRIAGE_BATCH = 12              # findings per triage call (every finding is triaged: the batches cover them all)
+MAX_TOKENS = 12000             # per call: the thinking plus the JSON (the prompt stays under 16k of the 32k context)
+WORKERS = 4                    # calls at once (the agent server's --max-num-seqs 4)
 DISCOVER_MAX = 15              # new findings per floor per call
 FACT_LINES = 140               # project fact lines in the case file
 MESSAGE_CHARS = 320
@@ -208,28 +210,43 @@ def triage(model, items: list[dict], fact_lines: list[str], *, time_ok: Callable
     what failed)."""
     errors = errors if errors is not None else []
     verdicts: dict = {}
-    for start in range(0, len(items), TRIAGE_BATCH):
+    batches = [items[s:s + TRIAGE_BATCH] for s in range(0, len(items), TRIAGE_BATCH)]
+
+    def one(n: int, batch: list[dict]):
         if not time_ok():
-            out(f"Argus AI: time is up after {start} of {len(items)} findings")
-            break
-        batch = items[start:start + TRIAGE_BATCH]
+            return n, None, "time is up"
+        start = n * TRIAGE_BATCH
         text = "\n".join(["The project as built:", *fact_lines, "",
                           f"The findings ({start + 1}-{start + len(batch)} of {len(items)}):",
                           json.dumps([_item_text(f) for f in batch], indent=1, ensure_ascii=False), "",
                           "Architect actions (fix) and what they do: " + _arch_help()])
         try:
             reply = model.structured([{"role": "system", "content": SYSTEM}, {"role": "user", "content": text}],
-                                     triage_schema([f["aid"] for f in batch]),
-                                     call_id=f"argus_triage_{start // TRIAGE_BATCH}", name="argus_triage",
-                                     kind="task", thinking=True)
+                                     triage_schema([f["aid"] for f in batch]), call_id=f"argus_triage_{n}",
+                                     name="argus_triage", kind="task", thinking=True, max_tokens=MAX_TOKENS)
         except Exception as exc:  # noqa: BLE001 - one batch that fails is logged; the others are still triaged
-            errors.append(f"triage {start + 1}-{start + len(batch)}: {type(exc).__name__}: {exc}"[:300])
-            continue
-        if reply.errors:
-            errors.append(f"triage {start + 1}-{start + len(batch)}: {'; '.join(reply.errors[:2])}"[:300])
-        for v in (reply.data or {}).get("items") or []:
+            return n, None, f"{type(exc).__name__}: {exc}"
+        return n, reply, "; ".join(reply.errors[:2]) if reply.errors else None
+
+    for n, reply, err in _parallel(one, batches):
+        lo = n * TRIAGE_BATCH + 1
+        if err:
+            errors.append(f"triage {lo}-{lo + len(batches[n]) - 1}: {err}"[:300])
+        for v in ((reply.data if reply is not None else None) or {}).get("items") or []:
             verdicts.setdefault(v["id"], v)
+    if any(e.endswith("time is up") for e in errors):
+        out(f"Argus AI: time is up before every finding was triaged ({len(verdicts)} of {len(items)})")
     return verdicts
+
+
+def _parallel(fn, jobs: list) -> list:
+    """``fn(n, job)`` for every job, ``WORKERS`` at once, in the jobs' order."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    if len(jobs) <= 1 or WORKERS <= 1:
+        return [fn(n, j) for n, j in enumerate(jobs)]
+    with ThreadPoolExecutor(max_workers=WORKERS) as ex:
+        return list(ex.map(lambda nj: fn(*nj), list(enumerate(jobs))))
 
 
 def _arch_help() -> str:
@@ -249,9 +266,10 @@ def discover(model, inp: I.Inputs, rep: dict, fact_lines: list[str], *, time_ok:
                     if f.get("severity") in ("critical", "major")})
     found, dropped = [], []
     levels = [lv.get("id") for lv in building.get("levels") or []] or [None]
-    for lv in levels:
+
+    def one(_n: int, lv):
         if not time_ok():
-            break
+            return lv, None, None, "time is up"
         image = next((p for p in inp.top_plans if lv and f"top_{lv}_" in p.name), None)
         text = "\n".join([f"Floor {lv}" + (" (image 1: the 3D model of this floor from above, ceilings off, rooms "
                                            "named)" if image else "") + ".", "The project as built:", *fact_lines,
@@ -260,9 +278,15 @@ def discover(model, inp: I.Inputs, rep: dict, fact_lines: list[str], *, time_ok:
             {"role": "user", "content": text}
         try:
             reply = model.structured([{"role": "system", "content": DISCOVER_SYSTEM}, msg], discover_schema(),
-                                     call_id=f"argus_discover_{lv}", name="argus_discover", kind="task", thinking=True)
+                                     call_id=f"argus_discover_{lv}", name="argus_discover", kind="task", thinking=True,
+                                     max_tokens=MAX_TOKENS)
         except Exception as exc:  # noqa: BLE001 - a floor that fails is logged; the others are still looked at
-            errors.append(f"discover {lv}: {type(exc).__name__}: {exc}"[:300])
+            return lv, image, None, f"{type(exc).__name__}: {exc}"
+        return lv, image, reply, None
+
+    for lv, image, reply, err in _parallel(one, levels):
+        if err:
+            errors.append(f"discover {lv}: {err}"[:300])
             continue
         for d in (reply.data or {}).get("found") or []:
             target = known.get(str(d.get("target") or "").strip().lower())

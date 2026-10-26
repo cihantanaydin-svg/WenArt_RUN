@@ -245,6 +245,7 @@ def _real06_out(tmp_path: Path) -> Path:
 
 def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable_claims(tmp_path, monkeypatch):
     monkeypatch.setattr(AX, "TRIAGE_BATCH", 2)                     # several batches: every finding is still triaged
+    monkeypatch.setattr(AX, "WORKERS", 1)                          # the scripted answers in order
     out = _real06_out(tmp_path)
     calls = {"triage": 0, "discover": []}
 
@@ -409,6 +410,7 @@ def test_sense_open_plan_and_stairs_join_rooms_and_levels():
 
 def test_argus_ai_reads_every_unknown_warning_and_survives_a_failing_call(tmp_path, monkeypatch):
     monkeypatch.setattr(AX, "TRIAGE_BATCH", 2)
+    monkeypatch.setattr(AX, "WORKERS", 1)
     out = _real06_out(tmp_path)
     b = json.loads((out / "building_final.json").read_text(encoding="utf-8"))
     b["warnings"] = [f"something odd number {i} happened in the hall" for i in range(5)]
@@ -431,3 +433,22 @@ def test_argus_ai_reads_every_unknown_warning_and_survives_a_failing_call(tmp_pa
     assert rec["errors"] and "the server went away" in rec["errors"][0]
     assert len(rec["untriaged"]) == 2 and rec["triaged"] == rec["items"] - 2
     assert {f["check"] for f in rec["findings"]} >= {"AI3"}
+
+
+def test_argus_ai_calls_run_in_parallel_in_order():
+    import threading
+    import time as _t
+    live, peak = [0], [0]
+    lock = threading.Lock()
+
+    def job(n, x):
+        with lock:
+            live[0] += 1
+            peak[0] = max(peak[0], live[0])
+        _t.sleep(0.05)
+        with lock:
+            live[0] -= 1
+        return n, x * 2
+
+    assert AX._parallel(job, [1, 2, 3, 4, 5, 6]) == [(0, 2), (1, 4), (2, 6), (3, 8), (4, 10), (5, 12)]
+    assert 1 < peak[0] <= AX.WORKERS
