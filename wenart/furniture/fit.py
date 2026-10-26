@@ -899,7 +899,8 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
         height = round(float(entry["bbox_m"][2]) * scales[2], 4)
         fdepth = fitted_depth(entry, width)
         roof_ok = under_ceiling(height, ceiling)          # fix round after P6a: under a sloped ceiling
-        height_ok = height_fits(height, heights) and working_height_ok(ftype, height) and roof_ok
+        height_ok = height_fits(height, heights) and working_height_ok(ftype, height) and roof_ok \
+            and working_top_ok(ftype, height)
         accepted = (depth_ratio <= cap + 1e-9 and uniform_range[0] <= mean_scale <= uniform_range[1] and height_ok)
         if accepted and within_table:
             from wenart.furniture import sizes as SZ
@@ -1242,6 +1243,39 @@ def working_height_ok(ftype: str, height: float, tol: float = WORKING_HEIGHT_TOL
     if not product or len(product) < 3 or not product[2]:
         return True
     return abs(float(height) / float(product[2]) - 1.0) <= tol + 1e-9
+
+
+# 26 Oct 2026 (user: "why the sink is so low"): a fixture works at a fixed top height. The size table allows a
+# washbasin 0.10-1.20 m tall (bowls, wall-hung basins, pedestals) and the build stood every model on the floor, so a
+# wall-hung basin had its rim at 0.54 m and a 0.10 m bowl lay on the floor. A model is taken only when it can work:
+# a floor model reaching the working top, or a wall-hung one hung so its top is there (``mount_for``); a bowl too
+# shallow to hang alone (it needs a counter) is not taken.
+WORKING_TOPS: dict[str, tuple[float, float, float, float]] = {
+    # type: (shallowest model that can hang alone, lowest top, highest top, the top a hung model gets)
+    "washbasin": (0.30, 0.78, 0.95, 0.85),
+}
+
+
+def working_top_ok(ftype: str, height: float) -> bool:
+    """False for a fixture model that cannot work at its type's top (``WORKING_TOPS``): too shallow to hang alone (a
+    taller model may carry its mirror or tap: the size table's height range bounds it); always true for other
+    types."""
+    rule = WORKING_TOPS.get(ftype)
+    if rule is None:
+        return True
+    return float(height) >= rule[0] - 1e-9
+
+
+def mount_for(ftype: str, height: float) -> Optional[float]:
+    """The ``mount_bottom_m`` that brings a fixture model's top to its type's working top (a wall-hung basin under
+    the lowest top), None when it stands on the floor."""
+    rule = WORKING_TOPS.get(ftype)
+    if rule is None:
+        return None
+    shallow, low, _high, target = rule
+    if shallow - 1e-9 <= float(height) < low:
+        return round(target - float(height), 3)
+    return None
 
 
 def real_height_range(ftype: str) -> Optional[tuple[float, float]]:
@@ -2008,6 +2042,15 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
                 asset["fabric_colour"] = colour
                 asset["fabric_colour_source"] = source
         piece["asset"] = asset
+        # 26 Oct 2026: a wall-hung fixture model hangs at its working top (the build honours mount_bottom_m)
+        mount = mount_for(str(piece.get("type") or ""), float((asset.get("bbox_m") or [0, 0, 0])[2] or 0.0)) \
+            if asset.get("method") == "library" else None
+        if mount is not None:
+            piece["mount_bottom_m"] = mount
+            piece["mount_source"] = "fit: a wall-hung model at its working top"
+        elif piece.get("mount_source", "").startswith("fit:"):
+            piece.pop("mount_bottom_m", None)
+            piece.pop("mount_source", None)
         apply_split_label(piece, asset)                 # a table footprint split into table + chairs (modules)
         if asset.get("method") == "library":
             used_project[asset["asset_id"]] += 1
@@ -2099,6 +2142,9 @@ def assert_only_assets_changed(before: dict, after: dict) -> None:
         for piece in doc.get("furniture", []):
             piece.pop("asset", None)
             piece.pop("library_gap", None)
+            if str(piece.get("mount_source") or "").startswith("fit:"):
+                piece.pop("mount_bottom_m", None)      # 26 Oct 2026: a wall-hung fixture's height is the fit's
+                piece.pop("mount_source", None)
         for item in doc.get("decor") or []:
             item.pop("asset", None)
         project = doc.get("project")

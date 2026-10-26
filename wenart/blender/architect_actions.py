@@ -67,10 +67,27 @@ ACTIONS = {
     "remove_piece": "the piece is not built (it does not belong there)",
     "stair_winders": "the U stair's half landing becomes winders for comfortable risers (params: count, 0 = as drawn)",
     "retype_piece": "the piece is another type (params: type)",
+    # 26 Oct 2026 (user: "I need ai models to see understand and fix everything before even I look at it"): the
+    # fixes of the questions that had only ``keep`` (a door into the air, a bare gap in the facade, a door off its
+    # floor, a basin on the floor, a piece in a doorway); the review offers them, a safe one is its ``default``
+    "door_to_window": "a reading error: nothing is outside this door or gap: a window at the floor's sill (same width "
+                      "and head)",
+    "french_window": "a French window: kept full height with a glass guard across its whole width (1.10 m high)",
+    "snap_threshold": "the door stands on its floor: its threshold at the floor of the rooms it joins",
+    "mount_fixture": "the fixture at its working height (a wall-hung basin's rim at 0.85 m)",
+    "move_piece": "move the piece to the nearest free place in its room, clear of the doorway or window",
+    "gap_to_door": "a door the reading missed: a glazed door in the gap (sliding from 1.40 m wide)",
+    "merge_openings": "one opening read twice: the two become one over both spans (params: other_id)",
+    "window_to_door": "a reading error: the room has no door, this opening between two rooms is its door",
 }
+# The rules whose answers are carried out first (a door that becomes a window is not widened as a door)
+FIRST_RULES = ("E1", "O2", "D4")
+GUARD_TOP_M = 1.10              # a guard in front of a French window reaches this far over its floor
+BASIN_RIM_M = 0.85              # a washbasin's rim over the floor (0.80-0.90 m)
+FIXTURE_TOPS = {"washbasin": (0.78, 0.95, BASIN_RIM_M)}     # the type's working top: (low, high, target)
 
 
-CONTEXT_PARAMS = ("room_id", "window_id", "door_id", "piece_id")     # name the element, not the choice
+CONTEXT_PARAMS = ("room_id", "window_id", "door_id", "piece_id", "away_from", "other_id")     # name the element, not the choice
 
 
 def option(action: str, label: Optional[str] = None, **params) -> dict:
@@ -123,10 +140,13 @@ def normalise(key: str, value) -> dict:
 
 
 def answers_of(building: dict, brief_answers: Optional[dict] = None) -> dict:
-    """Every answer for this building, normalised; a later source wins: the AI's (``agent_overrides.architect``),
-    the building's ``architect_answers``, the user's (``brief_answers``: the project file through the brief)."""
+    """Every answer for this building, normalised; a later source wins: the architect's own defaults
+    (``architect_defaults``, 26 Oct 2026: ``build.prepare`` carries out the safe default of every open question that
+    has one), the AI's (``agent_overrides.architect``), the building's ``architect_answers``, the user's
+    (``brief_answers``: the project file through the brief)."""
     out: dict = {}
-    sources = (((building.get("agent_overrides") or {}).get("architect") or {}),
+    sources = (building.get("architect_defaults") or {},
+               ((building.get("agent_overrides") or {}).get("architect") or {}),
                building.get("architect_answers") or {}, brief_answers or {})
     for src in sources:
         if isinstance(src, dict):
@@ -654,6 +674,217 @@ def act_raise_sill(plan: Plan, key: str, ans: dict, window_id: str):
     return True, f"{window_id}: sill {sill:.2f} -> {SAFE_SILL_M:.2f} m"
 
 
+def act_door_to_window(plan: Plan, key: str, ans: dict, door_id: str):
+    """An outside door or a bare gap with nothing outside it (a drop, no balcony, terrace or steps) becomes a window
+    (26 Oct 2026, user on real06's upper floor: "are the people going to jump off from it?"): same wall, centre and
+    width, its head kept, its sill at the floor's usual window sill (the median of the level's outside windows, else
+    ``SAFE_SILL_M``). The drawn values stay (``drawn_type``, ``drawn_sill_height``, ...), ``corrected_by_ai``; the
+    door's entrance record leaves the site (no steps, canopy or lights for a window)."""
+    o = plan.openings.get(door_id)
+    if o is None or o.get("type") not in ("door", "opening"):
+        return False, f"no door or gap {door_id}"
+    typ = typical_window(plan, o.get("level_id"))
+    sill = float(typ["sill"]) if typ and 0.6 <= float(typ["sill"]) <= 1.2 else SAFE_SILL_M
+    base = float(o.get("sill_height") or 0.0)
+    head = min(base + float(o.get("height") if o.get("height") is not None else 2.1), plan.top(o))
+    if head - sill < MIN_WINDOW_H:
+        sill = max(0.6, head - MIN_WINDOW_H)
+    if head - sill < MIN_WINDOW_H - 1e-6:
+        return False, f"{door_id}: {head:.2f} m of wall under the ceiling leaves no window"
+    was = o.get("type")
+    _keep_drawn(o, "type", "sill_height", "height", "threshold_z", "operation", "swing_side")
+    o["type"], o["sill_height"], o["height"] = "window", round(sill, 3), round(head - sill, 3)
+    for k in ("threshold_z", "operation", "operation_source", "swing_side"):
+        o.pop(k, None)
+    reason = (f"{door_id} ({was}, {float(o.get('width') or 0):.2f} m) opens onto nothing outside: read as a window, "
+              f"sill {sill:.2f} m, head {head:.2f} m (the floor's windows)")
+    _mark(o, "corrected_by_ai", key, ans, reason)
+    site = plan.b.get("site") if isinstance(plan.b.get("site"), dict) else None
+    if site is not None and isinstance(site.get("entrances"), list):
+        gone = [e for e in site["entrances"] if isinstance(e, dict) and e.get("door_id") == door_id]
+        if gone:
+            site["entrances"] = [e for e in site["entrances"] if e not in gone]
+            site.setdefault("entrances_removed", []).extend(dict(e, removed_by=f"architect {key}") for e in gone)
+    return True, reason
+
+
+def act_gap_to_door(plan: Plan, key: str, ans: dict, door_id: str):
+    """A bare gap in an outer wall at its floor onto the ground or a terrace: a glazed door (sliding from 1.40 m
+    wide) the reading did not see (26 Oct 2026); the drawn type stays (``drawn_type``), ``corrected_by_ai``."""
+    o = plan.openings.get(door_id)
+    if o is None or o.get("type") != "opening":
+        return False, f"no gap {door_id}"
+    width = float(o.get("width") or 0.0)
+    _keep_drawn(o, "type", "operation")
+    o["type"], o["operation"], o["glazed"] = "door", "sliding" if width >= 1.4 else "swing", True
+    o["operation_source"] = "architect"
+    reason = f"{door_id}: a bare {width:.2f} m gap in the facade at its floor: a glazed {o['operation']} door"
+    _mark(o, "corrected_by_ai", key, ans, reason)
+    return True, reason
+
+
+def act_window_to_door(plan: Plan, key: str, ans: dict, window_id: str):
+    """A window between two rooms, one of which no door reaches (a dressing room, an en-suite shower): it is that
+    room's door (26 Oct 2026), at least ``WC_DOOR_MIN_W`` wide where the wall allows, 2.10 m high, on the floor
+    of its rooms; the drawn values stay, ``corrected_by_ai``."""
+    o = plan.openings.get(window_id)
+    if o is None or o.get("type") != "window":
+        return False, f"no window {window_id}"
+    sides = window_sides(plan, o)
+    if len(sides) != 2 or any(r is None or Plan.is_outside(r) for r in sides):
+        return False, f"{window_id} is not between two rooms"
+    _keep_drawn(o, "type", "sill_height", "height")
+    floors = [z for z in (room_floor(plan, r) for r in sides) if z is not None]
+    o["type"], o["sill_height"], o["height"], o["operation"] = "door", None, 2.1, "swing"
+    o["threshold_z"] = round(max(floors), 4) if floors else None
+    reason = f"{window_id} between {sides[0]['id']} and {sides[1]['id']}: the door of the room no door reached"
+    _mark(o, "corrected_by_ai", key, ans, reason)
+    if float(o.get("width") or 0.0) < WC_DOOR_MIN_W:
+        act_widen_door(plan, key, ans, window_id, sides[0]["id"])
+    return True, reason
+
+
+def act_merge_openings(plan: Plan, key: str, ans: dict, opening_id: str, other_id: str):
+    """Two openings over each other on one wall (one read twice): the first takes both spans, the second is not
+    built (``drawn_*`` kept on both; 26 Oct 2026)."""
+    o, p = plan.openings.get(opening_id), plan.openings.get(other_id)
+    w = plan.walls.get((o or {}).get("wall_id"))
+    if o is None or p is None or w is None or p.get("wall_id") != o.get("wall_id"):
+        return False, f"{opening_id} and {other_id} are not on one wall"
+    ends = []
+    for x in (o, p):
+        t, h = plan.t_of(w, x["center"]), float(x.get("width") or 0.0) / 2.0
+        ends += [t - h, t + h]
+    t0, t1 = min(ends), max(ends)
+    _keep_drawn(o, "width", "center")
+    x, y = plan.at_t(w, (t0 + t1) / 2.0)
+    o["width"], o["center"] = round(t1 - t0, 3), [round(x, 4), round(y, 4)]
+    _mark(o, "corrected_by_ai", key, ans, f"one opening with {other_id} (read twice): {t1 - t0:.2f} m wide")
+    plan.b["openings"] = [x for x in plan.b.get("openings") or [] if x["id"] != other_id]
+    plan.openings.pop(other_id, None)
+    plan.b.setdefault("openings_merged", []).append(dict(p, merged_into=opening_id))
+    return True, f"{opening_id} and {other_id} merged ({t1 - t0:.2f} m)"
+
+
+def act_french_window(plan: Plan, key: str, ans: dict, door_id: str):
+    """A full-height opening over a drop kept as a French window: a glass guard across its whole width, ``GUARD_TOP_M``
+    over its floor (``facade.guard_boxes`` builds it; 26 Oct 2026: two thin bars were no guard)."""
+    o = plan.openings.get(door_id)
+    if o is None or o.get("type") not in ("door", "opening", "window"):
+        return False, f"no opening {door_id}"
+    o["guard"] = {"top_m": GUARD_TOP_M, "kind": "glass", "reason": f"the answer to {key}: a French window with a "
+                                                                    f"glass guard"}
+    _mark(o, "adjusted_by_ai", key, ans, f"a French window: a glass guard {GUARD_TOP_M:.2f} m high across its width")
+    return True, f"{door_id}: a glass guard across its width"
+
+
+def room_floor(plan: Plan, room: Optional[dict]) -> Optional[float]:
+    """A room's floor z (its level's elevation + ``floor_offset_m``), None for no room."""
+    if room is None:
+        return None
+    lv = plan.levels.get(room.get("level_id")) or {}
+    return float(lv.get("elevation") or 0.0) + float(room.get("floor_offset_m") or 0.0)
+
+
+def act_snap_threshold(plan: Plan, key: str, ans: dict, door_id: str):
+    """The door's threshold at the floor of its rooms (the higher one where they differ): a threshold that matches
+    neither floor is a reading error (26 Oct 2026, user: "why doors are up")."""
+    o = plan.openings.get(door_id)
+    if o is None or o.get("type") not in ("door", "opening"):
+        return False, f"no door {door_id}"
+    floors = [z for z in (room_floor(plan, r) for r in window_sides(plan, o)) if z is not None]
+    if not floors:
+        return False, f"{door_id}: no room beside it"
+    want = round(max(floors), 4)
+    old = o.get("threshold_z")
+    if old is not None and abs(float(old) - want) <= 0.005:
+        return True, f"{door_id}: threshold {want:+.2f} m"
+    _keep_drawn(o, "threshold_z")
+    o["threshold_z"] = want
+    _mark(o, "corrected_by_ai", key, ans, f"threshold {float(old or 0):+.2f} -> {want:+.2f} m (the floor of its rooms)")
+    return True, f"{door_id}: threshold {float(old or 0):+.2f} -> {want:+.2f} m"
+
+
+def fitted_height(f: dict) -> Optional[float]:
+    """The height of the library model built for a piece (the fit's ``asset.bbox_m``), None without one (a
+    parametric or module piece is built at its working heights by its builder)."""
+    a = f.get("asset") if isinstance(f.get("asset"), dict) else {}
+    if str(a.get("asset_id") or "").startswith("parametric") or a.get("method") not in (None, "library"):
+        return None
+    bb = a.get("bbox_m")
+    if isinstance(bb, (list, tuple)) and len(bb) >= 3 and bb[2]:
+        return float(bb[2])
+    return None
+
+
+def act_mount_fixture(plan: Plan, key: str, ans: dict, piece_id: str):
+    """A fixture at its working height: a wall-hung washbasin model (shorter than its rim height) hangs with its
+    rim at ``BASIN_RIM_M`` (``mount_bottom_m``; the build hangs it there). A bowl too shallow to hang alone (a
+    vessel basin under 0.30 m) cannot: the piece needs another model or a vanity."""
+    f = _piece(plan, piece_id)
+    if f is None:
+        return False, f"no piece {piece_id}"
+    rule = FIXTURE_TOPS.get(str(f.get("type") or ""))
+    h = fitted_height(f)
+    if rule is None or h is None:
+        return False, f"{piece_id}: no working height to check"
+    low, high, target = rule
+    top = h + float(f.get("mount_bottom_m") or 0.0)
+    if top >= low:
+        return True, f"{piece_id}: top at {top:.2f} m"
+    if h < 0.30:
+        return False, f"{piece_id}: a {h:.2f} m bowl needs a vanity or another model (it cannot hang alone)"
+    _keep_drawn(f, "mount_bottom_m")
+    f["mount_bottom_m"] = round(target - h, 3)
+    _mark(f, "adjusted_by_ai", key, ans, f"hung with its top at {target:.2f} m (the model is {h:.2f} m tall; it "
+                                        f"stood on the floor with its rim at {top:.2f} m)")
+    return True, f"{piece_id}: rim {top:.2f} -> {target:.2f} m"
+
+
+def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from: Optional[str] = None):
+    """The piece moved the shortest way out of the doorway or the window strip of ``away_from`` (an opening id)
+    to a free place in its room (``clashes.find_unit_place``: inside the room, clear of the other pieces and the
+    doorways; at most 0.5 m for a drawn piece, 1 m for an added one)."""
+    from wenart.blender import architect_rules as RR
+    from wenart.blender import clashes as CL
+
+    f = _piece(plan, piece_id)
+    if f is None or not f.get("footprint"):
+        return False, f"no piece {piece_id}"
+    o = plan.openings.get(away_from) if away_from else None
+    w = plan.walls.get((o or {}).get("wall_id"))
+    if o is None or w is None:
+        return False, f"{piece_id}: no opening {away_from} to move away from"
+    _a, u, _l = plan.axis(w)
+    n = (-u[1], u[0])
+    c = plan.at_t(w, plan.t_of(w, o["center"]))
+    half_t = float(w.get("thickness") or 0.2) / 2.0
+    depth = CL.DOOR_DEPTH_M if o.get("type") != "window" else 0.5
+    box = []
+    for sgn in (1.0, -1.0):
+        nn = (n[0] * sgn, n[1] * sgn)
+        box.append(RR._box((c[0] + nn[0] * half_t, c[1] + nn[1] * half_t), u, nn, float(o.get("width") or 0.9), depth))
+    room = plan.room.get(f.get("room_id"))
+    peers = [(g, CL.shape(g)) for g in plan.b.get("furniture") or [] if g is not f and g.get("build") is not False
+             and g.get("footprint") and g.get("level_id") == f.get("level_id")
+             and str(g.get("type") or "") not in CL.FLOOR_ONLY + CL.SKIP_TYPES]
+    doors = [d for d in CL.doorways(plan.b, f.get("level_id"))]
+    move = CL.find_unit_place([f], box, peers, {f.get("room_id"): room["polygon"]} if room else {}, doors)
+    if move is None:
+        return False, f"{piece_id}: no free place within the move limit clear of {away_from}"
+    dx, dy, dist = move
+    reason = f"moved {dist:.2f} m clear of {away_from} (the answer to {key})"
+    f.setdefault("drawn_footprint", copy.deepcopy(f["footprint"]))
+    f["footprint"] = CL._moved(f, dx, dy)["footprint"]
+    _mark(f, "adjusted_by_ai", key, ans, reason)
+    for d in plan.b.get("decor") or []:
+        if d.get("host_id") == piece_id and d.get("center"):
+            cc = list(d["center"])
+            cc[0], cc[1] = round(float(cc[0]) + dx, 4), round(float(cc[1]) + dy, 4)
+            d["center"] = cc
+    return True, f"{piece_id}: {reason}"
+
+
 # --------------------------------------------------------------------------
 # Carrying the answers out
 # --------------------------------------------------------------------------
@@ -703,7 +934,7 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
     action fails has ``ok`` False and the reason."""
     out = []
     plan = Plan(building, head_limit)
-    for key in sorted(answers):
+    for key in sorted(answers, key=lambda k: (k.partition(":")[0] not in FIRST_RULES, k)):
         ans = answers[key]
         rule, _sep, element = key.partition(":")
         opt = ans.get("option") or "keep"
@@ -738,6 +969,24 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                 elif opt == "retype_piece":
                     ok, text = act_retype_piece(plan, key, ans, params.get("piece_id") or target,
                                                 str(params.get("type") or ""))
+                elif opt == "door_to_window":
+                    ok, text = act_door_to_window(plan, key, ans, params.get("door_id") or target)
+                elif opt == "french_window":
+                    ok, text = act_french_window(plan, key, ans, params.get("door_id") or target)
+                elif opt == "snap_threshold":
+                    ok, text = act_snap_threshold(plan, key, ans, params.get("door_id") or target)
+                elif opt == "mount_fixture":
+                    ok, text = act_mount_fixture(plan, key, ans, params.get("piece_id") or target)
+                elif opt == "window_to_door":
+                    ok, text = act_window_to_door(plan, key, ans, params.get("window_id") or target)
+                elif opt == "gap_to_door":
+                    ok, text = act_gap_to_door(plan, key, ans, params.get("door_id") or target)
+                elif opt == "merge_openings":
+                    ok, text = act_merge_openings(plan, key, ans, params.get("door_id") or target,
+                                                  str(params.get("other_id") or ""))
+                elif opt == "move_piece":
+                    ok, text = act_move_piece(plan, key, ans, params.get("piece_id") or target,
+                                              params.get("away_from"))
                 else:
                     ok, text = False, f"unknown option {opt!r}"
             except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:

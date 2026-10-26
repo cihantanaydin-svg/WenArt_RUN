@@ -897,6 +897,29 @@ def style_family_of(style_path) -> Optional[str]:
 
 def prepare(building_all: dict, variant: str = "base", brief: dict | None = None,
             style_family: Optional[str] = None) -> dict:
+    """``prepare_once`` with the architect's defaults carried out (26 Oct 2026, user: "I need ai models to see
+    understand and fix everything before even I look at it"): the review's open points that have a safe default
+    (``architect.defaults_of``) are answered ``by: architect`` and the plan is made again, at most
+    ``architect.DEFAULT_ROUNDS`` times; the AI architect's and the user's answers win over a default
+    (``architect_actions.answers_of``). ``out["architect_defaults"]`` lists them."""
+    out = prepare_once(building_all, variant, brief, style_family)
+    if not out.get("whole") or out.get("architect") is None:
+        return out
+    from wenart.blender import architect as AR
+    defaults = dict(building_all.get("architect_defaults") or {})
+    for _ in range(AR.DEFAULT_ROUNDS):
+        new = {k: v for k, v in AR.defaults_of(out["architect"], out.get("architect_answers") or {}).items()
+               if k not in defaults}
+        if not new:
+            break
+        defaults.update(new)
+        out = prepare_once(dict(building_all, architect_defaults=defaults), variant, brief, style_family)
+    out["architect_defaults"] = defaults
+    return out
+
+
+def prepare_once(building_all: dict, variant: str = "base", brief: dict | None = None,
+                 style_family: Optional[str] = None) -> dict:
     """What the build decides before Blender (pure; Milestone 10): the variant's building
     (``views.variant_building``), its ``views_for`` and ``variant_changes``, the brief values
     (``brief_args``), and for a whole building the slab plan, the roof model (``roof: null`` = an assumed flat
@@ -1420,7 +1443,9 @@ def main(argv: list[str]) -> int:
                                          (prep["site"] or {}).get("terrain"), roof, style, looks,
                                          (prep["site"] or {}).get("wells") or [])
             whole_info["facade_details"] = FA.build_articulation(fplan, fac_col,
-                                                                 lambda look: shell.look_material(library, look),
+                                                                 lambda look: library.thin_glass()
+                                                                 if look.get("material") == "glass_guard"
+                                                                 else shell.look_material(library, look),
                                                                  manifest_objects, assumed)
             if prep.get("architect") is not None:          # 25 Oct 2026: the architect's question about the rain
                 from wenart.blender import architect as AR

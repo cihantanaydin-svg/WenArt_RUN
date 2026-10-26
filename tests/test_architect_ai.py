@@ -24,7 +24,7 @@ def test_the_ai_answers_are_checked_by_code_and_written_beside_the_building(tmp_
         {"key": f"L1:{PLAY}_2", "choice": "enlarge_windows", "reason": "1/25 of the floor is too dark"},
         {"key": "X1:w_L1_005", "choice": "keep", "reason": "a thin wall onto the roof terrace"},
         {"key": "C2:r_L-1_mutfak", "choice": "ask_user", "reason": "the drawing does not say"},
-        {"key": "W2:win_L0_006", "choice": "retype_room:storage", "reason": "not a choice of it"}]
+        {"key": "X1:w_L1_006", "choice": "retype_room:storage", "reason": "not a choice of its batch"}]
 
     def reply(body):
         enum = body["response_format"]["json_schema"]["schema"]["properties"]["answers"]["items"]["properties"]
@@ -39,20 +39,23 @@ def test_the_ai_answers_are_checked_by_code_and_written_beside_the_building(tmp_
     model = MockModel(critic=[reply] * 12)
     rec = AI.answer_open(tmp_path, model, out=lambda s: None)
     by = {e["key"]: e for e in rec["entries"]}
-    assert by["W2:win_L0_005"]["verdict"] == "accepted"
+    # 26 Oct 2026: the architect settles a window of a room with no glass to the outside by itself (its default):
+    # the AI is not asked about it
+    assert "W2:win_L0_005" not in by
+    assert any(r["key"] == "W2:win_L0_005" and r["by"] == "architect" and r["ok"] for r in rec["review"]["applied"])
     assert by[f"L1:{PLAY}_2"]["verdict"] == "accepted"
     assert by[f"L1:{PLAY}"]["verdict"] == "refused" and "major" in by[f"L1:{PLAY}"]["why"]
     assert by["X1:w_L1_005"]["verdict"] == "accepted"
     assert by["C2:r_L-1_mutfak"]["verdict"] == "ask_user"
-    assert by["W2:win_L0_006"]["verdict"] == "refused"
+    assert by["X1:w_L1_006"]["verdict"] == "no_answer"             # the schema's enum leaves it out
     saved = json.loads((tmp_path / "orchestrator" / "architect_answers.json").read_text(encoding="utf-8"))["answers"]
-    assert set(saved) == {"W2:win_L0_005", f"L1:{PLAY}_2", "X1:w_L1_005"}
+    assert set(saved) == {f"L1:{PLAY}_2", "X1:w_L1_005"}
     assert all(a["by"] == "ai" and a["model"] == "mock/agent" and a["where"] for a in saved.values())
     md = (tmp_path / "orchestrator" / "architect_ai.md").read_text(encoding="utf-8")
-    assert "3 answered and carried out" in md
+    assert "2 answered and carried out" in md
     # the build reads them beside the building (through the build brief); the user's answers win
     both = AA.answers_for_build(tmp_path / "building_final.json", b)
-    assert both["W2:win_L0_005"]["by"] == "ai"
+    assert both[f"L1:{PLAY}_2"]["by"] == "ai"
     # a second run asks only what is still open and keeps the earlier answers
     model2 = MockModel(critic=[{"answers": []}])
     rec2 = AI.answer_open(tmp_path, model2, out=lambda s: None)

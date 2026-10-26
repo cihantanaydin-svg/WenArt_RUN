@@ -31,6 +31,7 @@ LIMITS = {
     "front_clear_m": 0.50, "front_free": 0.60,
     "swing_depth_m": 0.80, "swing_cover": 0.25,
     "window_reach_m": 0.50, "window_cover": 0.50,
+    "threshold_tol_m": 0.03,
 }
 ROOM_MIN_M2 = {"bedroom": 6.5, "living": 10.0, "dining": 6.0, "kitchen": 4.0, "bathroom": 2.0, "wc": 1.0,
                "office": 5.0, "study": 5.0}
@@ -44,6 +45,7 @@ COMPANIONS = ("chair", "dining_chair", "office_chair", "stool", "bar_stool", "co
               "nightstand", "rug", "ottoman", "bench", "plant", "floor_lamp", "lamp", "pouf", "armchair", "cushion",
               "towel", "bath_mat", "laundry_basket", "dining_table", "table")
 FLOOR_ONLY = ("rug", "bath_mat", "carpet", "mat")
+FIXED_STAIRS = ("stair", "stairs", "staircase")
 
 RULES = (
     {"id": "R3", "topic": "ceiling height", "scope": "room", "severity": "minor",
@@ -96,6 +98,14 @@ RULES = (
     {"id": "F4", "topic": "room to use", "scope": "furniture", "severity": "minor",
      "question": "Is there room in front of every bed, sofa, wardrobe, WC and counter to use it (0.5 m)?",
      "why": "a piece you cannot reach or open is not usable"},
+    # 26 Oct 2026 (user: "why the sink is so low, why doors are up ... I need ai models to see understand and fix
+    # everything before even I look at it"): what a visitor sees at once
+    {"id": "D4", "topic": "doors on their floor", "scope": "door", "severity": "major",
+     "question": "Does every door stand on the floor of the rooms it joins (no door raised over both floors)?",
+     "why": "a door that starts half a metre over the floor is the first thing a visitor sees; it is a level error"},
+    {"id": "H1", "topic": "working heights", "scope": "furniture", "severity": "major",
+     "question": "Is every fixture at its working height (a washbasin's rim at 0.80-0.90 m)?",
+     "why": "a basin at knee height looks like a toy and cannot be used"},
     {"id": "G1", "topic": "trees", "scope": "tree", "severity": "minor",
      "question": "Does every tree and shrub stand on open ground, clear of the house, the pools, the paths and the "
                  "terraces?",
@@ -183,8 +193,8 @@ def _ground_z(building: dict) -> float:
     return min((float(x["elevation"]) for x in levels), default=0.0)
 
 
-def openings_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
-    w2, w3, o1, d1, d2 = (_q(next(r for r in RULES if r["id"] == i)) for i in ("W2", "W3", "O1", "D1", "D2"))
+def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = None) -> list[dict]:
+    w2, w3, o1, d1, d2, d4 = (_q(next(r for r in RULES if r["id"] == i)) for i in ("W2", "W3", "O1", "D1", "D2", "D4"))
     side_of = {s["opening"]["id"]: s for s in sides}
     ground = _ground_z(plan.b)
     glass = {}
@@ -218,8 +228,16 @@ def openings_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
         if head > ceiling + 0.02 and not plan.b.get("roof"):
             problems.append(f"its head ({head:.2f} m) is over the {ceiling:.2f} m ceiling")
         if problems:
+            # 26 Oct 2026: two openings over each other on one wall are one opening read twice: merged by default
+            twin = next((p for p in plan.openings.values() if p["id"] != o["id"] and p.get("wall_id") == o.get("wall_id")
+                         and min(t + half, plan.t_of(w, p["center"]) + float(p.get("width") or 0.0) / 2.0)
+                         - max(t - half, plan.t_of(w, p["center"]) - float(p.get("width") or 0.0) / 2.0)
+                         > LIMITS["overlap_tol_m"]), None)
+            opts = ([AA.option("merge_openings", f"one opening read twice: merge it with {twin['id']}",
+                               other_id=twin["id"])] if twin is not None else []) + [AA.option("keep")]
             _open(o1, o["id"], f"{o['id']} " + "; ".join(problems), f"Is {o['id']} drawn on the right wall and "
-                  f"at the right size?", [AA.option("keep")], where=where)
+                  f"at the right size?", opts, where=where,
+                  **({"default": opts[0]["choice"]} if twin is not None and o["id"] < twin["id"] else {}))
         else:
             _ok(o1, o["id"], f"fits {w['id']}")
         if o.get("type") == "window":
@@ -231,22 +249,46 @@ def openings_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                 room = min(dark or [a, b], key=lambda x: glass.setdefault(
                     x["id"], AA.outside_glass(plan, x["id"])[0]))
                 other = b if room is a else a
+                # 26 Oct 2026: moved by default when the darker room has no glass to the outside at all (or the
+                # window stands inside one room): a borrowed light then is a reading error, never a design
+                dark_glass = glass.setdefault(room["id"], AA.outside_glass(plan, room["id"])[0])
+                default = "move_window_to_outer_wall" if (dark_glass <= 1e-6 or room["id"] == other["id"]) else None
+                opts = [AA.option("move_window_to_outer_wall", f"a reading error: move it to the outer wall of "
+                                  f"{room['id']}", room_id=room["id"]),
+                        AA.option("keep", "a borrowed-light window on purpose")]
+                # a room no door reaches: the widest window from a reached room is its door (a misread door)
+                lost = [x for x in (a, b) if x["id"] in (unreached or set())]
+                if len(lost) == 1 and a["id"] != b["id"]:
+                    rival = [p for p in plan.openings.values() if p.get("type") == "window" and p["id"] != o["id"]
+                             and lost[0]["id"] in [(r or {}).get("id") for r in AA.window_sides(plan, p)]
+                             and not any((r or {}).get("id") in (unreached or set()) - {lost[0]["id"]}
+                                         or AA.Plan.is_outside(r) for r in AA.window_sides(plan, p))]
+                    opts.insert(0, AA.option("window_to_door", f"{lost[0]['id']} has no door: this is its door"))
+                    if all(float(p.get("width") or 0.0) < float(o.get("width") or 0.0) or
+                           (float(p.get("width") or 0.0) == float(o.get("width") or 0.0) and p["id"] > o["id"])
+                           for p in rival):
+                        default = "window_to_door"
                 _open(w2, o["id"], f"{o['id']} sits in the wall between {room['id']} ({_rtype(room)}) and "
                       f"{other['id']} ({_rtype(other)})",
                       f"Is {o['id']} on the outer wall of {room['id']} in the drawing (a reading error), or a "
-                      f"borrowed-light window on purpose?",
-                      [AA.option("move_window_to_outer_wall", f"a reading error: move it to the outer wall of "
-                                 f"{room['id']}", room_id=room["id"]),
-                       AA.option("keep", "a borrowed-light window on purpose")], where=where, room=room["id"])
+                      f"borrowed-light window on purpose?", opts, where=where, room=room["id"],
+                      **({"default": default} if default else {}))
             # W3: low sills over a drop
             lv = plan.levels[o["level_id"]]
             drop = float(lv["elevation"]) - ground
             if (a is None or b is None) and not (out_a and out_b) and drop >= LIMITS["sill_drop_m"]:
                 if sill + 1e-6 < LIMITS["sill_safe_m"]:
-                    _open(w3, o["id"], f"{o['id']} on level {o['level_id']} ({drop:.1f} m over the ground) has its "
-                          f"sill at {sill:.2f} m", f"Does {o['id']} need a higher sill (or is it a French window "
-                          f"with a guard)?", [AA.option("raise_sill"), AA.option("keep", "keep: a guard is fitted")],
-                          where=where)
+                    # 26 Oct 2026: the low sill gets a real guard by default (a glass guard across the window,
+                    # 1.10 m over the floor); "keep: a guard is fitted" had fitted none
+                    if o.get("guard"):
+                        _ok(w3, o["id"], f"sill {sill:.2f} m with a guard to {float(o['guard'].get('top_m') or 1.1):.2f} m")
+                    else:
+                        _open(w3, o["id"], f"{o['id']} on level {o['level_id']} ({drop:.1f} m over the ground) has "
+                              f"its sill at {sill:.2f} m", f"Does {o['id']} need a higher sill, or is it a French "
+                              f"window with a guard?",
+                              [AA.option("french_window", "keep the low sill: a glass guard across the window",
+                                         door_id=o["id"]), AA.option("raise_sill"), AA.option("keep")],
+                              where=where, default=f"french_window")
                 else:
                     _ok(w3, o["id"], f"sill {sill:.2f} m")
         elif o.get("type") == "door":
@@ -255,7 +297,23 @@ def openings_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
             wet = _rtype(a) in WET or _rtype(b) in WET
             need = LIMITS["door_outside_min_m"] if to_out else (LIMITS["door_wet_min_m"] if wet else
                                                                 LIMITS["door_min_m"])
-            if width + 1e-6 < need:
+            # 26 Oct 2026: an upper-floor door to no open-air room is E1's (a door into the air), never widened
+            upper_air = to_out and (a is None or b is None) and \
+                float(plan.levels[o["level_id"]]["elevation"]) - ground >= LIMITS["sill_drop_m"]
+            # D4: the door on the floor of its rooms (a threshold over both floors is a level reading error)
+            floors = [z for z in (AA.room_floor(plan, x) for x in (a, b) if x is not None and not AA.Plan.is_outside(x))
+                      if z is not None]
+            thr = o.get("threshold_z")
+            if floors and thr is not None and float(thr) - max(floors) > LIMITS["threshold_tol_m"]:
+                _open(d4, o["id"], f"{o['id']}'s threshold {float(thr):+.2f} m is {float(thr) - max(floors):.2f} m "
+                      f"over the floor of its room(s) ({', '.join(f'{z:+.2f}' for z in floors)} m)",
+                      f"Should {o['id']} stand on its floor?", [AA.option("snap_threshold"), AA.option("keep")],
+                      where=where, default="snap_threshold")
+            elif floors:
+                _ok(d4, o["id"], "on its floor")
+            if upper_air:
+                pass
+            elif width + 1e-6 < need:
                 room = (a if a is not None and not out_a else b) or {}
                 _open(d1, o["id"], f"{o['id']} ({'to the outside' if to_out else 'inside'}) is {width:.2f} m wide",
                       f"Is {o['id']} really {width:.2f} m wide?",
@@ -268,7 +326,7 @@ def openings_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                       [AA.option("keep")], where=where)
             else:
                 _ok(d2, o["id"], f"{(a or {}).get('id') or 'outside'} - {(b or {}).get('id') or 'outside'}")
-    return [w2, w3, o1, d1, d2]
+    return [w2, w3, o1, d1, d2, d4]
 
 
 # --------------------------------------------------------------------------
@@ -390,11 +448,11 @@ def _covered(points, rects) -> float:
 
 
 def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
-    f1, f2, f3, f4 = (_q(next(r for r in RULES if r["id"] == i)) for i in ("F1", "F2", "F3", "F4"))
+    f1, f2, f3, f4, h1 = (_q(next(r for r in RULES if r["id"] == i)) for i in ("F1", "F2", "F3", "F4", "H1"))
     pieces = []
     for f in plan.b.get("furniture") or []:
-        if f.get("build") is False:
-            continue
+        if f.get("build") is False or str(f.get("type") or "").lower() in FIXED_STAIRS:
+            continue                       # 26 Oct 2026: a stair is built like a wall, never moved for a doorway
         rect = piece_rect(f)
         if rect is not None:
             pieces.append((f, rect, str(f.get("type") or "").lower()))
@@ -406,6 +464,23 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
         where = _where("furniture", f.get("level_id"), (f.get("footprint") or {}).get("center") or (0, 0))
         if room is None:
             continue
+        # H1 (26 Oct 2026): a fixture's working top, measured on the model the fit chose (a wall-hung basin model
+        # stood on the floor with its rim at 0.54 m; a 0.10 m bowl lay on the floor)
+        rule = AA.FIXTURE_TOPS.get(t)
+        fh = AA.fitted_height(f) if rule else None
+        if rule and fh is not None:
+            low, high, target = rule
+            top = fh + float(f.get("mount_bottom_m") or 0.0)
+            # a model taller than the working top may carry its mirror or tap: its rim is not its top, it passes
+            if top >= low - 1e-6:
+                _ok(h1, f["id"], f"{t} top at {top:.2f} m")
+            else:
+                hang = 0.30 <= fh < low
+                opts = ([AA.option("mount_fixture", f"hang it with its top at {target:.2f} m")] if hang else []) + \
+                    [AA.option("remove_piece", "another model is needed: not built as it is"), AA.option("keep")]
+                _open(h1, f["id"], f"{f['id']} ({t}) has its top at {top:.2f} m (a {t} works at {low:.2f}-"
+                      f"{high:.2f} m; the model is {fh:.2f} m tall)", f"Should {f['id']} be at its working height?",
+                      opts, where=where, **({"default": "mount_fixture"} if hang else {}))
         pts = _grid(rect)
         inside = sum(1 for p in pts if G.point_in_polygon(p, room["polygon"])) / len(pts)
         if inside + 1e-6 < LIMITS["piece_inside"]:
@@ -463,9 +538,12 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                 if cov > worst[0]:
                     worst = (cov, rid, [g["id"] for g, r in rects if any(G.point_in_polygon(p, r) for p in pts)])
             if worst[0] > LIMITS["swing_cover"]:
+                first = worst[2][0] if worst[2] else None
+                opts = ([AA.option("move_piece", f"move {first} clear of the doorway", piece_id=first,
+                                   away_from=o["id"])] if first else []) + [AA.option("keep")]
                 _open(f2, o["id"], f"{100 * worst[0]:.0f}% of the doorway of {o['id']} in {worst[1]} is taken by "
                       f"{', '.join(worst[2][:3])}", f"Should {', '.join(worst[2][:2])} move away from {o['id']}?",
-                      [AA.option("keep")], where=where)
+                      opts, where=where, **({"default": opts[0]["choice"]} if first else {}))
             else:
                 _ok(f2, o["id"], "doorway free")
         else:
@@ -485,12 +563,15 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                 if cov > worst[0]:
                     worst = (cov, [g["id"] for g, r in tall if any(G.point_in_polygon(p, r) for p in line)])
             if worst[0] > LIMITS["window_cover"]:
+                first = worst[1][0] if worst[1] else None
+                opts = ([AA.option("move_piece", f"move {first} away from the window", piece_id=first,
+                                   away_from=o["id"])] if first else []) + [AA.option("keep")]
                 _open(f3, o["id"], f"{', '.join(worst[1][:2])} stand(s) in front of {100 * worst[0]:.0f}% of "
                       f"{o['id']}", f"Should {', '.join(worst[1][:2])} move away from window {o['id']}?",
-                      [AA.option("keep")], where=where)
+                      opts, where=where, **({"default": opts[0]["choice"]} if first else {}))
             else:
                 _ok(f3, o["id"], "window free")
-    return [f1, f2, f3, f4]
+    return [f1, f2, f3, f4, h1]
 
 
 # --------------------------------------------------------------------------
@@ -560,7 +641,9 @@ def clash_rule(building: dict, clashes: Optional[dict]) -> list[dict]:
 def review(building: dict, prep: dict, sides: list[dict], graph: dict, starts: list, is_stair, reach) -> list[dict]:
     """Every rule of ``RULES`` on every element it applies to (pure)."""
     plan = AA.Plan(building)
-    out = rooms_rules(plan) + openings_rules(plan, sides) + walls_rules(plan) + \
+    seen = reach(graph, starts) if starts else set()
+    unreached = {r["id"] for r in plan.rooms if r["id"] not in seen and not AA.Plan.is_outside(r)} if starts else set()
+    out = rooms_rules(plan) + openings_rules(plan, sides, unreached) + walls_rules(plan) + \
         stairs_rules(plan, graph, starts, is_stair, reach) + furniture_rules(plan, sides) + \
         clash_rule(building, prep.get("clashes"))
     if prep.get("site") is not None:

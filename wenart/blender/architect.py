@@ -96,6 +96,10 @@ QUESTIONS += (
     {"id": "E1", "topic": "outside doors", "severity": "major",
      "question": "Does every outside door open onto something: the ground, a terrace, a balcony or steps?",
      "why": "a door into the air or below the ground is a drawing or level error"},
+    # 26 Oct 2026 (user on real06: "windows second floor what is that? are the people going to jump off from it?")
+    {"id": "O2", "topic": "gaps in the facade", "severity": "major",
+     "question": "Is every gap in an outer wall a door or a window (never a bare hole in the facade)?",
+     "why": "a gap with no door and no glass reads as a hole; on an upper floor nothing stops a fall"},
 )
 HABITABLE = ("bedroom", "living", "kitchen", "dining", "office", "study", "other")
 WET = ("bathroom", "wc", "toilet", "shower", "kitchen", "laundry")
@@ -531,6 +535,24 @@ def drainage_answer(kit: Optional[dict], boxes: Sequence[dict]) -> dict:
         return q
     q["answers"].append({"element": "gutters", "found": f"{len(gutters)} gutter run(s), {len(pipes)} downpipe(s), each "
                          f"on a wall face down to the ground", "change": None})
+    # 26 Oct 2026 (user: "why there is that many rain gutters"): the count and the spacing an architect expects
+    from wenart.blender import facade as FA
+    xy = [(float(b["center"][0]), float(b["center"][1])) for b in pipes if b.get("center")]
+    close = [(i, j) for i in range(len(xy)) for j in range(i + 1, len(xy))
+             if math.hypot(xy[i][0] - xy[j][0], xy[i][1] - xy[j][1]) < FA.KIT["pipe_gap_m"] - 0.05]
+    short = [b for b in gutters if float(b["size"][0]) < 1.5]
+    if close or short:
+        q["answers"].append({"element": "downpipes", "found": (f"{len(close)} pair(s) of downpipes closer than "
+                                                               f"{FA.KIT['pipe_gap_m']:.1f} m" if close else "")
+                             + ("; " if close and short else "")
+                             + (f"{len(short)} gutter run(s) shorter than 1.5 m (broken-up eaves)" if short else ""),
+                             "change": None, "open": True, "ask": "Should the eaves run straight and the pipes stand "
+                                                                  "only at the corners?",
+                             "options": [AA.option("keep")]})
+        q["status"] = "open"
+    else:
+        q["answers"].append({"element": "downpipes", "found": f"{len(pipes)} downpipe(s), at least "
+                             f"{FA.KIT['pipe_gap_m']:.1f} m apart; no broken-up eaves", "change": None})
     for n in notes:
         q["answers"].append({"element": "downpipe", "found": n["reason"], "change": "no pipe at this station",
                              "open": n.get("station_m") is None})
@@ -619,6 +641,22 @@ def room_graph(building: dict, sides: Sequence[dict]) -> dict:
                                                  or any(G.point_in_polygon(p, poly) for p in r["polygon"])):
                     graph[st["id"]].setdefault(r["id"], []).append("stairs")
                     graph[r["id"]].setdefault(st["id"], []).append("stairs")
+    # 26 Oct 2026 (real06: "no room of L1 can be reached"): a stair drawn as a piece in a room (not a stair room)
+    # links that room with the room of the next level over its footprint
+    by_id = {r["id"]: r for r in rooms}
+    for f in building.get("furniture") or []:
+        if str(f.get("type") or "").lower() not in ("stair", "stairs", "staircase") or f.get("room_id") not in by_id:
+            continue
+        fp = f.get("footprint") or {}
+        c = fp.get("center")
+        if not c:
+            continue
+        here = by_id[f["room_id"]]
+        up = nxt.get(here.get("level_id"))
+        for r in rooms:
+            if r.get("level_id") == up and G.point_in_polygon((float(c[0]), float(c[1])), r["polygon"]):
+                graph[here["id"]].setdefault(r["id"], []).append("stairs")
+                graph[r["id"]].setdefault(here["id"], []).append("stairs")
     return graph
 
 
@@ -678,7 +716,10 @@ def review_circulation(building: dict, sides: Sequence[dict]) -> dict:
                              f"bedroom {', '.join(via) or 'next to it'}", "change": None, "open": True,
                              "ask": f"Should {rid} have its own door from a hall?",
                              "options": [AA.option("retype_room", "it belongs to the bedroom: a dressing room",
-                                                   room_type="dressing"), AA.option("keep")]})
+                                                   room_type="dressing"), AA.option("keep")],
+                             # 26 Oct 2026: a small untyped room behind a bedroom is its dressing room by default
+                             **({"default": "retype_room:dressing"} if _rtype(by_id[rid]) in ("", "other", "unknown")
+                                and AA.room_area(by_id[rid]) <= 8.0 else {})})
         q["status"] = "open"
     for rid in sorted(free & set(by_id)):
         q["answers"].append({"element": rid, "found": f"reached from {', '.join(starts)}", "change": None})
@@ -831,10 +872,15 @@ def review_room_use(building: dict) -> tuple[dict, dict]:
             r1["answers"].append({"element": r["id"], "found": f"{narrow:.2f} m wide", "change": None})
         want = ANCHORS.get(t)
         if want and not (pieces.get(r["id"], set()) & set(want)):
-            r2["answers"].append({"element": r["id"], "found": f"{r['id']} ({t}) has no {' / '.join(want)}",
+            # 26 Oct 2026: the room's drawn pieces name what it is (a fridge and a counter and no bed: a kitchen)
+            have = pieces.get(r["id"], set())
+            named = [k for k, anchors in ANCHORS.items() if k != t and have & set(anchors)]
+            opts = [AA.option("retype_room", f"it is a {k} (its pieces say so)", room_type=k) for k in named[:2]]
+            r2["answers"].append({"element": r["id"], "found": f"{r['id']} ({t}) has no {' / '.join(want)}"
+                                  + (f"; its pieces are those of a {' / '.join(named)}" if named else ""),
                                   "change": None, "open": True,
                                   "ask": f"Is {r['id']} really a {t}? (The furnishing adds the missing piece when "
-                                         f"the room type is right.)", "options": [AA.option("keep")]})
+                                         f"the room type is right.)", "options": opts + [AA.option("keep")]})
             r2["status"] = "open"
         elif want:
             r2["answers"].append({"element": r["id"], "found": "has its " + " / ".join(
@@ -863,22 +909,115 @@ def review_falls(prep: dict) -> dict:
     return q
 
 
-def review_outside_door_landings(building: dict) -> dict:
-    q = _q("E1")
-    for e in (building.get("site") or {}).get("entrances") or []:
-        if not isinstance(e, dict):
+INTO_AIR_DROP_M = 1.0           # an outside door or gap this far over the ground outside, with nothing to step on
+LANDING_TOL_M = 0.30            # a platform within this of the door's bottom is its landing
+LANDING_PROBE_M = 0.50          # the landing is looked for this far out of the wall face
+
+
+def outer_gaps(building: dict, prep: dict) -> list[dict]:
+    """Every door and bare gap (``opening``) in an outer wall with where it lands (pure; 26 Oct 2026):
+    ``[{"rec" (site.outer_openings), "drop", "lands", "upper"}]``: ``lands`` names what is outside at its bottom
+    (an open-air room, a site platform, a lower roof, the ground within 0.2 m) or is None; ``drop`` is its bottom
+    over the ground outside; ``upper``: its level stands over the ground floor."""
+    from wenart.blender import site as S
+    from wenart.blender.architect_actions import OPEN_AIR
+
+    levels = building.get("levels") or []
+    if not levels or len(prep.get("ground_outline") or []) < 3:
+        return []
+    site = prep.get("site") or {}
+    terrain = site.get("terrain")
+    # the ground floor (levels.model.ground_level's rule, not imported: the build's import closure stays small):
+    # the level of order 0, else the lowest at or above -0.5 m, else the lowest
+    order = sorted(levels, key=lambda lv: float(lv["elevation"]))
+    zero = [lv for lv in order if lv.get("order") == 0]
+    up = [lv for lv in order if float(lv["elevation"]) >= -0.5]
+    gl = float((zero or up or order)[0]["elevation"])
+    gz = (lambda x, y: S.ground_z(terrain, x, y)) if terrain else (lambda x, y: gl)
+    rooms = [r for r in building.get("rooms") or [] if len(r.get("polygon") or []) >= 3]
+    outlines = prep.get("outlines") or {}
+    out = []
+    for r in S.outer_openings(building, levels, prep.get("ground_outline") or [], outlines, kinds=("door", "opening")):
+        o, lv = r["opening"], r["level"]
+        (cx, cy), (ox, oy) = r["centre"], r["outward"]
+        probe = (cx + ox * (r["half_t"] + LANDING_PROBE_M), cy + oy * (r["half_t"] + LANDING_PROBE_M))
+        bottom = float(r["bottom"])
+        lands = None
+        room = next((x for x in rooms if x.get("level_id") == lv["id"] and G.point_in_polygon(probe, x["polygon"])),
+                    None)
+        if room is not None and str(room.get("room_type") or "").lower() in OPEN_AIR:
+            lands = f"the {room.get('room_type')} {room['id']}"
+        if lands is None:
+            pf = next((p for p in site.get("platforms") or [] if len(p.get("polygon") or []) >= 3
+                       and isinstance(p.get("z"), (int, float)) and abs(float(p["z"]) - bottom) <= LANDING_TOL_M
+                       and G.point_in_polygon(probe, p["polygon"])), None)
+            if pf is not None:
+                lands = f"the {pf.get('kind', 'platform')} {pf.get('id')}"
+        if lands is None:
+            low = next((x for x in levels if float(x["elevation"]) < float(lv["elevation"]) - 0.5
+                        and len(outlines.get(x["id"]) or []) >= 3 and G.point_in_polygon(probe, outlines[x["id"]])),
+                       None)
+            if low is not None:
+                lands = f"the roof of level {low['id']}"
+        drop = bottom - gz(*probe)
+        if lands is None and drop <= 0.2:
+            lands = "the ground"
+        out.append({"rec": r, "drop": drop, "lands": lands,
+                    "upper": float(lv["elevation"]) > gl + 0.5, "where": {"kind": o.get("type"),
+                                                                          "level_id": lv["id"],
+                                                                          "centre": [round(cx, 3), round(cy, 3)]}})
+    return out
+
+
+def review_outside_door_landings(building: dict, prep: Optional[dict] = None) -> tuple[dict, dict]:
+    """E1 (every outside door lands on something) and O2 (every gap in an outer wall is a door or a window), on the
+    openings as they stand after the answers (26 Oct 2026; the site's entrance records were read before: a door the
+    answers turned into a window still asked). A door into the air (over ``INTO_AIR_DROP_M``, nothing outside) on
+    an upper floor, and a bare gap in the facade with nothing to land on, are read as windows by default
+    (``door_to_window``); the French window with a glass guard is the other choice."""
+    e1, o2 = _q("E1"), _q("O2")
+    if prep is None or prep.get("site") is None:
+        for e in (building.get("site") or {}).get("entrances") or []:
+            if isinstance(e, dict) and (e.get("into_air") or e.get("below_ground")):
+                e1["answers"].append({"element": e.get("door_id"), "found": f"door {e.get('door_id')} opens into "
+                                      f"the air", "change": None, "open": True,
+                                      "ask": f"Is the level of {e.get('door_id')} or of the ground outside it wrong?",
+                                      "options": [AA.option("door_to_window"), AA.option("french_window"),
+                                                  AA.option("keep")]})
+                e1["status"] = "open"
+        return e1, o2
+    for g in outer_gaps(building, prep):
+        o = g["rec"]["opening"]
+        oid = o["id"]
+        gap = o.get("type") == "opening"
+        if g["lands"] is not None and not gap:
+            e1["answers"].append({"element": oid, "found": f"lands on {g['lands']}", "change": None})
             continue
-        if e.get("into_air") or e.get("below_ground"):
-            where = "into the air" if e.get("into_air") else "below the ground"
-            q["answers"].append({"element": e.get("door_id"), "found": f"door {e.get('door_id')} opens {where}",
-                                 "change": None, "open": True,
-                                 "ask": f"Is the level of {e.get('door_id')} or of the ground outside it wrong?",
-                                 "options": [AA.option("keep")]})
-            q["status"] = "open"
-        else:
-            q["answers"].append({"element": e.get("door_id"), "found": "lands on the ground, a terrace or steps",
+        if gap and g["lands"] is not None:
+            # a bare gap at the floor onto the ground or a terrace: a passage, or a door the drawing did not show
+            o2["answers"].append({"element": oid, "found": f"{oid} is a bare gap onto {g['lands']}", "change": None,
+                                  "open": True, "ask": f"Is {oid} a door to {g['lands']} or a window?",
+                                  "options": [AA.option("gap_to_door"), AA.option("door_to_window"),
+                                              AA.option("keep", "keep: an open passage")], "where": g["where"],
+                                  "default": "gap_to_door"})
+            o2["status"] = "open"
+            continue
+        q = o2 if gap else e1
+        if g["drop"] < INTO_AIR_DROP_M and not gap:
+            q["answers"].append({"element": oid, "found": f"{g['drop']:.2f} m over the ground: steps outside",
                                  "change": None})
-    return q
+            continue
+        what = "a bare gap with no door or glass" if gap else "a door"
+        over = f"{g['drop']:.2f} m over the ground outside" + (" on an upper floor" if g["upper"] else "")
+        default = gap or g["upper"]
+        q["answers"].append({"element": oid, "found": f"{oid} is {what} {over}, with nothing outside to step on",
+                             "change": None, "open": True,
+                             "ask": f"Is {oid} a window (a drawing or reading error), or a French window with a "
+                                    f"guard?",
+                             "options": [AA.option("door_to_window"), AA.option("french_window"), AA.option("keep")],
+                             "where": g["where"], **({"default": "door_to_window"} if default else {})})
+        q["status"] = "open"
+    return e1, o2
 
 
 def review_arrival(building: dict, prep: dict) -> tuple[dict, dict]:
@@ -985,7 +1124,7 @@ def review(building: dict, prep: dict) -> dict:
     questions += list(review_daylight_air(building, sides, answers))
     questions.append(review_privacy(building, sides))
     questions += list(review_room_use(building))
-    questions.append(review_outside_door_landings(building))
+    questions += list(review_outside_door_landings(building, prep))
     questions.append(review_falls(prep))
     graph = room_graph(building, sides)
     questions += RULES.review(building, prep, sides, graph, entrance_rooms(building, sides), _is_stair, _reach)
@@ -1021,7 +1160,33 @@ def apply_answers(building: dict, brief_answers: Optional[dict] = None) -> dict:
 
 
 def _who(rec: dict) -> str:
-    return "you" if rec.get("by", "user") == "user" else "the AI architect"
+    by = rec.get("by", "user")
+    return "you" if by == "user" else ("the architect's default" if by == "architect" else "the AI architect")
+
+
+DEFAULT_ROUNDS = 3              # a default may open a question that has a default of its own
+
+
+def defaults_of(review_rec: dict, answers: dict) -> dict:
+    """The safe default answer of every open point that has one (``default``: one of its option choices) and no
+    answer yet (26 Oct 2026, user: "I need ai models to see understand and fix everything before even I look at
+    it"): a door into the air on an upper floor and a bare gap in the facade become windows, a low sill gets a glass
+    guard, a door gets its floor's threshold, a wall-hung basin hangs at its working height, a piece leaves a doorway
+    or a window. ``build.prepare`` carries them out (``by: architect``, the lowest source: the AI's and the user's
+    answers win); the points without a safe default stay for the AI architect and the user."""
+    out = {}
+    for q in review_rec.get("questions") or []:
+        for a in q.get("answers") or []:
+            key = f"{q['id']}:{a['element']}"
+            if not a.get("open") or not a.get("default") or key in answers:
+                continue
+            opt = next((o for o in a.get("options") or [] if o.get("choice") == a["default"]), None)
+            if opt is None:
+                continue
+            out[key] = {"option": opt["id"], "params": dict(opt.get("params") or {}), "by": "architect",
+                        "answer": f"the architect's default: {opt['label']}", "reason": a.get("found"),
+                        "where": a.get("where")}
+    return out
 
 
 def close_answered(questions: list[dict], answers: dict, applied: Sequence[dict] = ()) -> list[dict]:
@@ -1067,9 +1232,9 @@ def status_of(a: dict) -> str:
     return "ok"
 
 
-ORDER = ("B1", "B2", "A2", "A5", "E1", "C1", "C2", "T1", "T2", "L1", "W2", "L2", "W3", "P1", "R1", "R2", "R3", "R4",
-         "R5", "O1", "D1", "D2", "D3", "X1", "F5", "F1", "F2", "F3", "F4", "U1", "S4", "S2", "S3", "K1", "K2", "K3",
-         "S1", "A3", "A4", "A1", "G1")
+ORDER = ("B1", "B2", "A2", "A5", "E1", "O2", "C1", "C2", "T1", "T2", "L1", "W2", "L2", "W3", "P1", "R1", "R2", "R3",
+         "R4", "R5", "O1", "D1", "D2", "D4", "D3", "X1", "F5", "F1", "F2", "F3", "F4", "H1", "U1", "S4", "S2", "S3",
+         "K1", "K2", "K3", "S1", "A3", "A4", "A1", "G1")
 
 
 def summary(questions: list[dict], applied: Optional[Sequence[dict]] = None) -> dict:

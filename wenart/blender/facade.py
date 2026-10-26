@@ -75,14 +75,19 @@ KIT = {"reveal_width": 0.06, "reveal_proud": 0.015, "gutter_w": 0.12, "gutter_h"
        "pipe_gap_m": 3.0, "max_drain_m": 12.0, "single_end_m": 10.0, "area_per_pipe_m2": 50.0,
        "canopy_depth": 1.0, "canopy_thick": 0.08, "canopy_side": 0.3, "canopy_above": 0.25,
        "light_w": 0.12, "light_d": 0.08, "light_h": 0.22, "light_z": 2.1, "light_offset": 0.35,
-       "guard_height": 1.0, "guard_bar": 0.04, "guard_min_drop": 1.5, "guard_side": 0.1}
+       "guard_height": 1.0, "guard_bar": 0.04, "guard_min_drop": 1.0, "guard_side": 0.05,
+       # 26 Oct 2026: a guard reaches guard_top over its floor where an opening's bottom is under guard_sill
+       "guard_top": 1.10, "guard_sill": 0.85, "guard_channel": 0.06, "guard_channel_h": 0.09, "guard_cap": 0.03,
+       "guard_glass_t": 0.012}
 KIT_LOOKS = {
     "reveal": ("render", "white", "window reveal frame at the outer face (modern family; not drawn)"),
     "gutter": ("aluminium_anthracite", None, "gutter along the eaves (a pitched roof is drawn; the gutter is not)"),
     "downpipe": ("aluminium_anthracite", None, "downpipe at the eaves corners (not drawn)"),
     "canopy": ("render", "white", "entrance canopy over the entrance door (the door is drawn; the canopy is not)"),
     "wall_light": ("steel_black", None, "wall light beside the entrance door (not drawn)"),
-    "railing": ("steel_black", None, "guard rail in front of an upper-floor outside door with no balcony (not drawn)"),
+    "railing": ("steel_brushed", None, "glass guard's channel and cap rail in front of an opening over a drop with "
+                                        "no balcony (not drawn)"),
+    "guard_glass": ("glass_guard", None, "glass guard in front of an opening over a drop with no balcony (not drawn)"),
 }
 KIT_KINDS = tuple(KIT_LOOKS)
 
@@ -341,6 +346,26 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
 def _box(kind: str, level_id, centre, size, rot: float, parent=None, reason: str = "") -> dict:
     return {"kind": kind, "level_id": level_id, "center": [float(c) for c in centre], "size": [float(v) for v in size],
             "rotation_deg": float(rot), "inferred": True, "parent": parent, "reason": reason}
+
+
+def guard_boxes(p, q, bottom: float, top: float, level_id, parent) -> list[dict]:
+    """A frameless glass guard from ``p`` to ``q`` (pure; 26 Oct 2026): a metal channel at the opening's bottom, a
+    glass pane up to a cap rail at ``top`` (kinds ``railing`` and ``guard_glass``). The pane is one piece: no gap a
+    child could pass (the 0.11 m rule)."""
+    length = G.distance(p, q)
+    if length < 0.1 or top - bottom < 0.1:
+        return []
+    ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
+    rot = math.degrees(math.atan2(uy, ux))
+    mx, my = (p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0
+    ch, chh, cap, gt = KIT["guard_channel"], KIT["guard_channel_h"], KIT["guard_cap"], KIT["guard_glass_t"]
+    why = KIT_LOOKS["railing"][2]
+    out = [_box("railing", level_id, (mx, my, bottom + chh / 2.0), (length, ch, chh), rot, parent, why),
+           _box("railing", level_id, (mx, my, top - cap / 2.0), (length, ch * 0.6, cap), rot, parent, why)]
+    g0, g1 = bottom + chh - 0.03, top - cap + 0.01
+    out.append(_box("guard_glass", level_id, (mx, my, (g0 + g1) / 2.0), (length - 0.02, gt, g1 - g0), rot, parent,
+                    KIT_LOOKS["guard_glass"][2]))
+    return out
 
 
 def eaves_edges(roof_model: Optional[dict]) -> list[dict]:
@@ -777,35 +802,39 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
                                                        bottom + KIT["light_z"]),
                               (KIT["light_w"], KIT["light_d"], KIT["light_h"]), rot, e["opening_id"],
                               KIT_LOOKS["wall_light"][2]))
-    # 4. guard rails in front of upper-floor outside doors that open onto no balcony or terrace room
+    # 4. guards in front of the openings over a drop (26 Oct 2026, user on real06: "are the people going to jump
+    # off from it?"): every outside door, gap or window whose bottom is less than guard_sill over its floor, over a
+    # drop of guard_min_drop, opening onto no balcony or terrace, and every opening the architect gave a ``guard``
+    # (a French window): a frameless glass guard across its whole width (glass in a channel, a cap rail), reaching
+    # guard_top over the floor. Two thin bars 0.5 m apart had been "the guard".
     rooms = [r for r in building.get("rooms") or [] if isinstance(r, dict) and len(r.get("polygon") or []) >= 3]
-    for rec in (S.outer_openings(building, levels, ground_outline, outlines, kinds=("door",))
+    for rec in (S.outer_openings(building, levels, ground_outline, outlines, kinds=("door", "window", "opening"))
                 if len(ground_outline or []) >= 3 else []):
-        lv = rec["level"]
+        lv, o = rec["level"], rec["opening"]
         cx, cy = rec["centre"]
         ox, oy = rec["outward"]
+        floor = float(lv["elevation"])
+        asked = isinstance(o.get("guard"), dict)
+        if not asked and rec["bottom"] - floor >= KIT["guard_sill"]:
+            continue
         drop = rec["bottom"] - gz(cx + ox * 1.0, cy + oy * 1.0)
-        if drop < KIT["guard_min_drop"]:
+        if drop < KIT["guard_min_drop"] and not asked:
             continue
         probe = (cx + ox * (rec["half_t"] + 0.5), cy + oy * (rec["half_t"] + 0.5))
-        if any(r.get("level_id") == lv["id"] and str(r.get("room_type") or "") in ("balcony", "terrace")
+        if any(r.get("level_id") == lv["id"] and str(r.get("room_type") or "") in ("balcony", "terrace", "loggia",
+                                                                                   "roof_terrace")
                and G.point_in_polygon(probe, r["polygon"]) for r in rooms):
             continue
+        top = floor + float((o.get("guard") or {}).get("top_m") or KIT["guard_top"])
+        if top <= rec["bottom"] + 0.05:
+            continue
         ux, uy = -oy, ox
-        rot = math.degrees(math.atan2(uy, ux))
-        w = float(rec["opening"]["width"]) + 2 * KIT["guard_side"]
-        bar = KIT["guard_bar"]
-        fx, fy = cx + ox * (rec["half_t"] + bar / 2.0 + 0.02), cy + oy * (rec["half_t"] + bar / 2.0 + 0.02)
-        z0 = rec["bottom"]
-        why = KIT_LOOKS["railing"][2]
-        boxes.append(_box("railing", lv["id"], (fx, fy, z0 + KIT["guard_height"] - bar / 2.0), (w, bar, bar), rot,
-                          rec["opening"]["id"], why))
-        boxes.append(_box("railing", lv["id"], (fx, fy, z0 + 0.5 * KIT["guard_height"]), (w, bar, bar), rot,
-                          rec["opening"]["id"], why))
-        for sgn in (-1.0, 1.0):
-            off = sgn * (w / 2.0 - bar / 2.0)
-            boxes.append(_box("railing", lv["id"], (fx + ux * off, fy + uy * off, z0 + KIT["guard_height"] / 2.0),
-                              (bar, bar, KIT["guard_height"]), rot, rec["opening"]["id"], why))
+        w = float(o.get("width") or 0.9) + 2 * KIT["guard_side"]
+        off = rec["half_t"] + KIT["guard_channel"] / 2.0 + 0.01
+        fx, fy = cx + ox * off, cy + oy * off
+        p = (fx - ux * w / 2.0, fy - uy * w / 2.0)
+        q = (fx + ux * w / 2.0, fy + uy * w / 2.0)
+        boxes += guard_boxes(p, q, rec["bottom"], top, lv["id"], o["id"])
     counts: dict[str, int] = {}
     for b in boxes:
         counts[b["kind"]] = counts.get(b["kind"], 0) + 1
