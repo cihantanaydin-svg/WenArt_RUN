@@ -1420,8 +1420,11 @@ def main(argv: list[str]) -> int:
         checks["door_rays"].extend(rays)
         for ray in rays:  # a ray through a door centre must cross the wall unhindered
             if ray["hit"]:
-                warnings.append(f"{ray['opening_id']}: door ray hits {ray['hit_object']} ({ray['hit_kind']}); "
-                                f"the opening is not cut through its wall")
+                # 26 Oct 2026: name what blocks it; a wall hit is an uncut opening, anything else covers a cut one
+                # (real06: a splashback over the pass-through o_L0_001; finishes are now cut at openings, split_band)
+                what = ("the opening is not cut through its wall" if ray["hit_kind"] in ("wall", None)
+                        else f"a {ray['hit_kind']} covers the opening")
+                warnings.append(f"{ray['opening_id']}: door ray hits {ray['hit_object']} ({ray['hit_kind']}); {what}")
         if level.get("ceiling_height_source") == "assumed_default":
             assumed.append({"object": f"level_{level['id']}", "field": "ceiling_height",
                             "value": level["ceiling_height"], "reason": "building JSON: assumed_default"})
@@ -1468,6 +1471,8 @@ def main(argv: list[str]) -> int:
             whole_info["roof"] = {"type": roof["type"], "planes_source": roof["planes_source"],
                                   "planes": roof["planes"], "derived_check": roof["derived_check"],
                                   "knee_wall_check": roof.get("knee_wall_check"), "profile": roof.get("profile"),
+                                  "section_fit": roof.get("section_fit"),
+                                  "follows_section": bool(roof.get("follows_section")),
                                   "eaves_z": roof["eaves_z"], "ridge_z": roof["ridge_z"], "thickness": roof["thickness"],
                                   "openings": [o["id"] for o in roof["openings"]], "parapets": parapets,
                                   "flat_assumed": not isinstance(building.get("roof"), dict),

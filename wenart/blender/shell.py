@@ -179,6 +179,13 @@ NO_SKIRTING_TYPES = WET_WALL_ROOM_TYPES | {"balcony"}
 # The splashback (M2): a tile band this high from the counter top, on the wall behind the counter run.
 SPLASHBACK = {"height": 0.60, "thickness": 0.008, "gap": 0.002, "counter_top": 0.90, "wall_reach": 0.20,
               "types": ("kitchen_counter", "sink_kitchen", "stove", "hob", "dishwasher", "oven")}
+# 26 Oct 2026 (Argus on real06: the splashback behind the counter f_L0_032 covered the 2.9 m pass-through o_L0_001
+# between the kitchen and the living room): a finish or built-in along a wall never covers an opening of that wall
+# (``wall_face_openings``, ``split_band``): it is cut at every door, window, plain opening and virtual separator with
+# the opening's width and height range, and the opening is always cut.
+WALL_FINISH_OPENING_CLEAR = 0.01  # m: a band stops this far from an opening's edges (no face shared with the reveal)
+WALL_FINISH_MIN_PIECE = 0.05      # m: a band piece narrower or lower than this is left out
+WALL_FACE_REACH = 0.10            # m: a wall face lies within half the wall's thickness + this of its centre line
 # Milestone 7 room types that take another type's material slots (docs/milestone7.md §6.4).
 ROOM_SLOT_TYPES = {"dining": "living", "prayer": "living", "stair": "hall", "shaft": "hall"}
 SKIRTING_H = 0.08
@@ -1754,12 +1761,92 @@ def kitchen_counter_back(piece: dict, room: dict, reach: float = SPLASHBACK["wal
     return best
 
 
-def splashback_plan(building: dict, level: dict) -> list[dict]:
-    """The splashback bands of a level's kitchens (pure; docs/milestone11.md §1.3 M2): behind every kitchen
-    counter run, sink, hob or stove (``SPLASHBACK["types"]``) of a kitchen that stands against a wall
-    (``kitchen_counter_back``), a band from its counter top (its height, else ``counter_top``) ``height`` high,
-    ``thickness`` thick on the wall face (``gap`` off it, into the room). ``[{"piece_id", "room_id", "center",
-    "size", "rotation_deg"}]``; neighbouring pieces on one wall each get their own band."""
+def wall_face_openings(building: dict, level: dict, p, q, reach: float = WALL_FACE_REACH) -> list[dict]:
+    """The openings of the wall a face segment ``p -> q`` lies on (pure; 26 Oct 2026): every door, window and plain
+    opening of the level whose wall runs parallel to ``p -> q`` (within about 8 degrees) with the segment within half
+    the wall's thickness + ``reach`` of its centre line, and every virtual separator whose line runs along the segment
+    (no wall there at all), when they overlap the segment. ``[{"id", "type", "t0", "t1", "z0", "z1"}]``: ``t`` in
+    metres from ``p`` along ``p -> q`` (the opening's width around its centre on the wall), ``z`` in building z
+    (``opening_vertical``; a virtual separator from the floor to the ceiling)."""
+    length = G.distance(p, q)
+    if length < 1e-9:
+        return []
+    ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
+    mid = ((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == level["id"]}
+    floor_z = float(level["elevation"])
+    out = []
+    for o in building.get("openings") or []:
+        if o.get("level_id") != level["id"]:
+            continue
+        line = o.get("line")
+        if is_virtual(o):
+            if not (isinstance(line, (list, tuple)) and len(line) == 2):
+                continue
+            (ax, ay), (bx, by) = line[0][:2], line[1][:2]
+            half, centre = 0.0, None
+            z0, z1 = floor_z, floor_z + float(level["ceiling_height"])
+        else:
+            wall = walls.get(o.get("wall_id"))
+            if wall is None or o.get("type") not in ("door", "window", "opening"):
+                continue
+            (ax, ay), (bx, by) = wall["start"][:2], wall["end"][:2]
+            half = float(wall["thickness"]) / 2.0
+            centre = opening_centre_on_wall(o, wall)[:2]
+            z0, z1, _ = opening_vertical(o, level, False)
+        wl = math.hypot(bx - ax, by - ay)
+        if wl < 1e-9 or abs((bx - ax) / wl * ux + (by - ay) / wl * uy) < 0.99:
+            continue
+        nx, ny = -(by - ay) / wl, (bx - ax) / wl
+        if abs((mid[0] - ax) * nx + (mid[1] - ay) * ny) > half + reach:
+            continue
+        if centre is None:                                    # a virtual separator: its line's ends
+            ts = sorted(((x - p[0]) * ux + (y - p[1]) * uy) for x, y in ((ax, ay), (bx, by)))
+        else:
+            tc = (centre[0] - p[0]) * ux + (centre[1] - p[1]) * uy
+            ts = [tc - float(o["width"]) / 2.0, tc + float(o["width"]) / 2.0]
+        if ts[1] <= 0.0 or ts[0] >= length:
+            continue
+        out.append({"id": o["id"], "type": "virtual" if centre is None else o["type"], "t0": ts[0], "t1": ts[1],
+                    "z0": z0, "z1": z1})
+    return out
+
+
+def split_band(t0: float, t1: float, z0: float, z1: float, holes, clear: float = WALL_FINISH_OPENING_CLEAR,
+               min_piece: float = WALL_FINISH_MIN_PIECE) -> list[tuple[float, float, float, float]]:
+    """A band on a wall face (``t0 .. t1`` along the wall, ``z0 .. z1`` high) with every opening of ``holes``
+    (``(t0, t1, z0, z1)``, grown by ``clear`` all round) taken out (pure; 26 Oct 2026): beside an opening the band
+    keeps its full height, under or over it (a window sill above the counter) only the strip the opening leaves. Pieces
+    narrower or lower than ``min_piece`` are left out. Returns the pieces ``[(t0, t1, z0, z1)]`` in order; ``[]`` when
+    the openings cover the whole band."""
+    pieces = [(float(t0), float(t1), float(z0), float(z1))]
+    for h in holes:
+        h0, h1, hz0, hz1 = float(h[0]) - clear, float(h[1]) + clear, float(h[2]) - clear, float(h[3]) + clear
+        nxt = []
+        for a, b, c, d in pieces:
+            if h1 <= a or h0 >= b or hz1 <= c or hz0 >= d:
+                nxt.append((a, b, c, d))
+                continue
+            m0, m1 = max(a, h0), min(b, h1)
+            if h0 > a:
+                nxt.append((a, h0, c, d))                     # beside the opening, full height
+            if h1 < b:
+                nxt.append((h1, b, c, d))
+            if hz0 > c:
+                nxt.append((m0, m1, c, hz0))                  # under it (a sill above the band's foot)
+            if hz1 < d:
+                nxt.append((m0, m1, hz1, d))                  # over it
+        pieces = nxt
+    return sorted(pc for pc in pieces if pc[1] - pc[0] >= min_piece and pc[3] - pc[2] >= min_piece)
+
+
+def splashback_bands(building: dict, level: dict) -> list[dict]:
+    """The splashback bands of a level's kitchens before they become boxes (pure; docs/milestone11.md §1.3 M2): behind
+    every kitchen counter run, sink, hob or stove (``SPLASHBACK["types"]``) of a kitchen that stands against a wall
+    (``kitchen_counter_back``), a band from its counter top (its height, else ``counter_top``) ``height`` high on the
+    wall face ``p -> q``, cut at every opening of that wall (``wall_face_openings``, ``split_band``; 26 Oct 2026: a
+    finish never covers an opening). ``[{"piece_id", "room_id", "p", "q", "normal", "z0", "z1", "openings": [ids that
+    cut it], "pieces": [(t0, t1, z0, z1)]}]``; neighbouring pieces on one wall each get their own band."""
     rooms = {r["id"]: r for r in building.get("rooms") or [] if r.get("level_id") == level["id"]}
     out = []
     floor_z = float(level["elevation"])
@@ -1782,13 +1869,35 @@ def splashback_plan(building: dict, level: dict) -> list[dict]:
         mid = ((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)
         if (cx - mid[0]) * nx + (cy - mid[1]) * ny < 0:
             nx, ny = -nx, -ny
-        off = SPLASHBACK["gap"] + SPLASHBACK["thickness"] / 2.0
         top = float(piece.get("height") or SPLASHBACK["counter_top"])
         top = SPLASHBACK["counter_top"] if top > 1.2 else top       # a tall unit (fridge column): the counter top
-        out.append({"piece_id": piece["id"], "room_id": room["id"],
-                    "center": [mid[0] + nx * off, mid[1] + ny * off, floor_z + top + SPLASHBACK["height"] / 2.0],
-                    "size": [length, SPLASHBACK["thickness"], SPLASHBACK["height"]],
-                    "rotation_deg": math.degrees(math.atan2(uy, ux))})
+        z0, z1 = floor_z + top, floor_z + top + SPLASHBACK["height"]
+        holes = [h for h in wall_face_openings(building, level, p, q)
+                 if h["t1"] > 0.0 and h["t0"] < length and h["z1"] > z0 and h["z0"] < z1]
+        out.append({"piece_id": piece["id"], "room_id": room["id"], "p": [p[0], p[1]], "q": [q[0], q[1]],
+                    "normal": [nx, ny], "z0": z0, "z1": z1, "openings": [h["id"] for h in holes],
+                    "pieces": split_band(0.0, length, z0, z1, [(h["t0"], h["t1"], h["z0"], h["z1"]) for h in holes]
+                                         ) if holes else [(0.0, length, z0, z1)]})
+    return out
+
+
+def splashback_plan(building: dict, level: dict) -> list[dict]:
+    """The splashback boxes of a level's kitchens (pure; ``splashback_bands``): one box per band piece left between
+    the openings of its wall, ``thickness`` thick on the wall face (``gap`` off it, into the room). ``[{"piece_id",
+    "room_id", "center", "size", "rotation_deg", "cut_at": [opening ids]}]``; a band the openings cover entirely gives
+    no box (``splashback_bands`` keeps its record)."""
+    out = []
+    off = SPLASHBACK["gap"] + SPLASHBACK["thickness"] / 2.0
+    for band in splashback_bands(building, level):
+        (px, py), (qx, qy), (nx, ny) = band["p"], band["q"], band["normal"]
+        length = math.hypot(qx - px, qy - py)
+        ux, uy = (qx - px) / length, (qy - py) / length
+        for t0, t1, z0, z1 in band["pieces"]:
+            tm = (t0 + t1) / 2.0
+            out.append({"piece_id": band["piece_id"], "room_id": band["room_id"],
+                        "center": [px + ux * tm + nx * off, py + uy * tm + ny * off, (z0 + z1) / 2.0],
+                        "size": [t1 - t0, SPLASHBACK["thickness"], z1 - z0],
+                        "rotation_deg": math.degrees(math.atan2(uy, ux)), "cut_at": list(band["openings"])})
     return out
 
 
@@ -1796,9 +1905,21 @@ def build_splashbacks(building: dict, level: dict, collection, library, style: d
                       assumed: list) -> int:
     """The splashback objects of ``splashback_plan``: one object ``splashback_<room>`` per kitchen (kind
     ``splashback``, status assumed, the room as parent, pass index 0: a finish on the wall, not an element of the
-    JSON). Its look: the style's ``splashback`` slot (agent override), else the wet walls' tiles."""
+    JSON). Its look: the style's ``splashback`` slot (agent override), else the wet walls' tiles. 26 Oct 2026: every
+    band cut at an opening of its wall is listed in ``assumed`` (field ``splashback_cut``), also when nothing is
+    left."""
     from wenart.blender import common
 
+    for band in splashback_bands(building, level):
+        if band["openings"]:
+            left = len(band["pieces"])
+            assumed.append({"object": f"splashback_{band['room_id']}", "field": "splashback_cut",
+                            "value": band["openings"],
+                            "reason": f"the splashback behind {band['piece_id']} is cut at the opening(s) "
+                                      f"{', '.join(band['openings'])} of its wall (a wall finish never covers an "
+                                      f"opening): " + (f"{left} piece(s) left" if left
+                                                       else "nothing left, the openings cover it"),
+                            "parent": band["room_id"], "kind": "splashback"})
     plan = splashback_plan(building, level)
     if not plan:
         return 0
@@ -1814,13 +1935,15 @@ def build_splashbacks(building: dict, level: dict, collection, library, style: d
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="splashback",
                                     status="assumed", materials=[mat])
         ob.pass_index = 0
+        cuts = sorted({o for b in boxes for o in b.get("cut_at") or []})
         reason = (f"kitchen splashback: tiles {SPLASHBACK['height']:g} m high from the counter top behind "
-                  f"{', '.join(b['piece_id'] for b in boxes)} (docs/milestone11.md §1.3 M2; not drawn)")
+                  f"{', '.join(dict.fromkeys(b['piece_id'] for b in boxes))} (docs/milestone11.md §1.3 M2; not drawn)"
+                  + (f"; cut at the opening(s) {', '.join(cuts)}" if cuts else ""))
         manifest_objects.append({
             "name": ob.name, "wenart_id": name, "kind": "splashback", "status": "assumed", "level_id": level["id"],
             "element_id": rid, "evidence": [], "material": mat.name, "textured": library.textured(mat),
-            "pass_index": None, "detail": "splashback", "pieces": [b["piece_id"] for b in boxes],
-            "assumed": {"reason": reason}})
+            "pass_index": None, "detail": "splashback", "pieces": list(dict.fromkeys(b["piece_id"] for b in boxes)),
+            "cut_at": cuts, "assumed": {"reason": reason}})
         assumed.append({"object": name, "field": "splashback", "value": SPLASHBACK["height"], "reason": reason,
                         "parent": rid, "kind": "splashback"})
     return len(plan)
