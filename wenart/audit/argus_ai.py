@@ -64,15 +64,22 @@ FIX_ARCH = ("door_to_window", "french_window", "raise_sill", "widen_door", "inte
             "move_piece", "mount_fixture", "remove_piece")
 FIX_OTHER = ("agent_round", "rerun_stage", "rule_needed", "not_a_problem")
 # 26 Oct 2026 (user: "make Argus fix everything itself, give it more power"): the agent's edit tools Argus may call
-# itself (the loop runs them in Argus's session through the same registry, validators and acceptance: ``argus_session``)
+# itself (23) (the loop runs them in Argus's session through the same registry, validators and acceptance: ``argus_session``)
 AGENT_TOOLS = ("retype_piece", "swap_model", "place_group", "complete_group", "relayout_room", "set_room_type",
                "mark_not_furniture", "fix_fixture", "set_front", "resize_piece", "move_group", "rotate_piece",
-               "set_camera", "remove_camera")
+               "set_camera", "remove_camera",
+               # building-wide: Argus's session is the building session (the geometry, the exterior, the looks, the
+               # levels and the entrances; each with its own validators)
+               "correct_geometry", "set_exterior", "set_material", "add_camera", "set_room_floor",
+               "set_ground_point", "set_entrance", "set_terrain", "set_mark_kind")
 TOOL_CAUSE = {"retype_piece": "wrong_type", "swap_model": "wrong_model", "place_group": "missing_member",
               "complete_group": "missing_member", "relayout_room": "clearance", "set_room_type": "room_type",
               "mark_not_furniture": "untyped", "fix_fixture": "fixture_place", "set_front": "orientation",
               "resize_piece": "size", "move_group": "group_layout", "rotate_piece": "orientation",
-              "set_camera": "interior_camera", "remove_camera": "interior_camera"}
+              "set_camera": "interior_camera", "remove_camera": "interior_camera", "correct_geometry": "geometry",
+              "set_exterior": "site", "set_material": "material", "add_camera": "exterior_camera",
+              "set_room_floor": "levels", "set_ground_point": "levels", "set_entrance": "entrance",
+              "set_terrain": "terrain", "set_mark_kind": "levels"}
 PIECE_TOOLS = ("retype_piece", "swap_model", "mark_not_furniture", "fix_fixture", "set_front", "resize_piece",
                "rotate_piece")
 ROOM_TOOLS = ("place_group", "relayout_room", "set_room_type")
