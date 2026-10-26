@@ -139,11 +139,34 @@ def load_extras(path, audits: Optional[Sequence] = None) -> list[dict]:
         if not Path(a).is_file():
             continue
         try:
-            from wenart.assets.audit import growth_entries as GE
-            GE.apply_audit_styles({"extras": extras}, json.loads(Path(a).read_text(encoding="utf-8")), ("extras",))
-        except Exception:  # noqa: BLE001 - a missing module or a broken audit file never stops the build
+            audit_styles(extras, json.loads(Path(a).read_text(encoding="utf-8")))
+        except (OSError, ValueError, TypeError, AttributeError):   # a broken audit file never stops the build
             continue
     return extras
+
+
+AUDIT_STYLE_MAX = 3             # = growth_entries.STYLE_MAX: styles taken from one vision answer
+
+
+def audit_styles(extras: list, audit_doc: Optional[dict]) -> int:
+    """The audit's vision styles (at most ``AUDIT_STYLE_MAX``) on the extras that carry only the ``neutral``
+    placeholder (pure, in place; the rule of ``growth_entries.apply_vision_fields``, kept here so the build does not
+    import the library growth code). Returns how many entries were styled."""
+    answers = {str(it["id"]): it["vision"] for it in (audit_doc or {}).get("items") or []
+               if isinstance(it, dict) and it.get("id") and isinstance(it.get("vision"), dict)}
+    n = 0
+    for e in extras:
+        if not isinstance(e, dict) or e.get("id") not in answers:
+            continue
+        if [x for x in e.get("styles") or [] if x != "neutral"]:
+            continue
+        seen = [x for x in answers[e["id"]].get("styles") or [] if isinstance(x, str) and x and x != "neutral"]
+        if not seen:
+            continue
+        e["styles"] = sorted(set(seen[:AUDIT_STYLE_MAX]))
+        e["style_note"] = f"the audit's vision answer names {seen[:AUDIT_STYLE_MAX]} (26 Oct 2026, at load)"
+        n += 1
+    return n
 
 
 def style_family(style) -> Optional[str]:

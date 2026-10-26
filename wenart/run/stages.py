@@ -103,10 +103,7 @@ BLENDER_CODE = ("wenart/blender/**", "wenart/canonical.py", "wenart/views.py", "
 # shell and geometry helpers of wenart.blender (function-level imports), and through them the catalogue and the
 # size table: every stage whose closure reaches wenart.levels lists all of it.
 LEVELS_CODE = ("wenart/levels/**", "wenart/blender/**", "wenart/canonical.py", "wenart/views.py", "wenart/style/**",
-               "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", CATALOG, "wenart/furniture/catalog*.json",
-               # 26 Oct 2026: the opening models read the audit's styles (assets.audit.growth_entries), which reaches
-               # the growth run's server helpers
-               "wenart/assets/**", "wenart/hfcache.py", "wenart/run/__init__.py", "wenart/run/servers.py")
+               "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", CATALOG, "wenart/furniture/catalog*.json")
 # Milestone 12 (track G): the groups (groups.yaml), the group checks, the room program and the solver; plausibility
 # runs the group checks, so every stage that scores a room reaches them.
 # Integration of the fix round after P4b (17 Oct 2026): program.duplicate_anchor reads edit_ops.family_host_of (a
