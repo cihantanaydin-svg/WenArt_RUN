@@ -144,6 +144,12 @@ run keeps it: the compact runs are never tried beside one. A kitchen that still 
 the layout (``layout.empty_kitchens``) and G9 is critical for a kitchen without any run piece. Why: real06's 24.8 m²
 kitchen (a stair, an untyped 3.99 x 2.40 m unbuilt drawn piece over two walls, a 4.6 cm jog in its back wall, free
 stretches of 2.2, 2.0 and 1.75 m) got "no candidate position fits the room" and rendered empty.
+
+Bathroom sense of 26 Oct 2026 (``groups`` module docstring): a set member whose type a kept piece of the room holds
+(``groups.held_types`` of the fixed pieces: drawn ones, the added ones the solver keeps) is that member, whatever the
+entry lists: never placed a second time. A fixture hung at its working top is a fixed obstacle and a floor piece of the
+checks (``schemas.off_floor``); the entrance of the walkways is no bare gap the drawing blocks with fixed equipment
+(``group_checks.blocked_gaps``). Why: real06's upper bathroom got a third washbasin beside its two drawn ones.
 """
 from __future__ import annotations
 
@@ -2344,6 +2350,10 @@ def _levels(space: Space, prog: dict, info: dict) -> list[tuple[dict, list[Cand]
             have = {info["by_id"][m]["type"] for m in entry.get("members") or [] if m in info["by_id"]}
             if entry.get("drawn") and entry.get("anchor_id") in info["by_id"]:
                 have.add(info["by_id"][entry["anchor_id"]]["type"])
+            # bathroom sense of 26 Oct 2026: a piece the room keeps (drawn, or an added one the solver does not
+            # re-place) of a member's type is that member, whether or not it is in the entry (a drawn washbasin the fit
+            # hung on the wall, a set the agent's place_group asks for again): adopted, never added a second time
+            have |= GR.held_types(space.fixed_items)
             roles = []
             for oname in options:
                 for role in template["options"][oname].get("members", []):
@@ -2846,7 +2856,7 @@ def verify(base_building: dict, room_id: str, pieces: list[dict],
     new_ids = {p["id"] for p in pieces if p["id"] not in skip and not (
         p.get("source") == "from_documents" and not isinstance(p.get("adjusted_by_ai"), dict))}
     floor = [f for f in trial["furniture"] if f.get("room_id") == room_id and f.get("build") is not False
-             and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None
+             and not schemas.off_floor(f)
              and f.get("type") != "unknown" and f.get("footprint")]
     # Milestone 13 (K2, build round 3): the overlap test runs on the boxes the scene builder makes (a uniformly
     # scaled library model is deeper at its front: ``placer.planned_piece``), as the scene check S2 will see them.
@@ -2917,7 +2927,7 @@ def _fixed_items(building: dict, room_id: str, fixed_ids: set, exclude=()) -> li
     for f in building.get("furniture") or []:
         if f.get("room_id") != room_id or not f.get("footprint") or f["id"] in skip:
             continue
-        if f.get("type") in schemas.MOUNTED_TYPES or f.get("mount_bottom_m") is not None:
+        if schemas.off_floor(f):
             continue
         if f["id"] in not_furniture or f.get("not_furniture") or f.get("inferred_as") == "rug":
             continue
@@ -3006,7 +3016,7 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
     kept = sorted(fid for fid in fixed if any(f["id"] == fid for f in base.get("furniture") or []))
     base["furniture"] = [f for f in base.get("furniture") or [] if f["id"] not in resolve_ids and not (
         f.get("room_id") == room_id and f.get("source") == "added_by_ai" and f["id"] not in fixed
-        and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None)]
+        and not schemas.off_floor(f))]
     start = _next_number(building, room["level_id"])
     out = _solve_try(space, building, room, prog, k, base, kept, start)
     # Fix round after P6b (23 Oct 2026), review (module docstring): when no candidate passes the final check, the
@@ -3263,7 +3273,7 @@ def apply_candidate(building: dict, room_id: str, candidate: dict) -> dict:
     kept = set(candidate.get("kept_ids") or [])
     gone = {f["id"] for f in out.get("furniture") or [] if f.get("room_id") == room_id
             and f.get("source") == "added_by_ai" and f["id"] not in kept
-            and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None}
+            and not schemas.off_floor(f)}
     out["furniture"] = [f for f in out.get("furniture") or [] if f["id"] not in gone]
     if gone and out.get("decor"):
         out["decor"] = [d for d in out["decor"] if d.get("host_id") not in gone]

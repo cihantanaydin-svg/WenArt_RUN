@@ -226,6 +226,13 @@ Fix round after P6b (23 Oct 2026; pod P6b, real03; verify:library:0 and verify:a
   another anchor, goes into the accepted message ("noted: ... kept for the next round"). Why: the coffee table
   completing f_L-1b_041 stands 1.7 m from the second drawn sofa f_L-1b_045 (its own seating group), within the
   score's 4.5 m sofa reach; CLAUDE.md asks fronts to face their group.
+
+Bathroom sense of 26 Oct 2026 (``groups`` module docstring): ``place_group`` of a set or run the room already holds
+(a bathroom set, a WC set, a kitchen run, an entrance set) completes that one (``complete_group``: only its missing
+members, the pieces the room has are adopted) or is refused "nothing missing, never a second set"; the floor filters
+(``_floor_items``, ``_ai_floor_ids``) count a fixture hung at its working top (``schemas.off_floor``), so a relayout
+replaces an added basin the fit hung instead of keeping it beside a new one; the refit of a retyped piece knows a
+child's room (``fit.use_context``).
 """
 from __future__ import annotations
 
@@ -497,8 +504,7 @@ def _front_problem(r: "PL._Room", pid: str) -> Optional[str]:
 
 def _floor_items(b: dict, room_id: str) -> list[dict]:
     return [f for f in b.get("furniture") or [] if f.get("room_id") == room_id and f.get("build") is not False
-            and f.get("type") != "unknown" and f.get("type") not in schemas.MOUNTED_TYPES
-            and f.get("mount_bottom_m") is None]
+            and f.get("type") != "unknown" and not schemas.off_floor(f)]
 
 
 def room_checks(b: dict, room_id: str) -> dict[str, set]:
@@ -1004,7 +1010,7 @@ def _ai_floor_ids(b: dict, room_id: str, exclude=()) -> list[str]:
     """The room's added floor pieces the solver keeps where they are."""
     ex = set(exclude)
     return [f["id"] for f in b.get("furniture") or [] if f.get("room_id") == room_id and f.get("source") == "added_by_ai"
-            and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None and f["id"] not in ex]
+            and not schemas.off_floor(f) and f["id"] not in ex]
 
 
 def _why_not(cands: list[dict]) -> str:
@@ -1133,6 +1139,11 @@ def _group_entry(room: dict, g: dict) -> dict:
     return entry
 
 
+# Bathroom sense of 26 Oct 2026: the sets of one kind (a bathroom's set and a WC's set are one sanitary set of a room).
+SAME_SET: dict[str, tuple[str, ...]] = {"bathroom_set": ("bathroom_set", "wc_set"),
+                                         "wc_set": ("bathroom_set", "wc_set")}
+
+
 def _place_group(b: dict, args: dict) -> list[str]:
     from wenart.furniture import program as PR
 
@@ -1149,6 +1160,18 @@ def _place_group(b: dict, args: dict) -> list[str]:
     option = args.get("option")
     if option is not None and option not in template["options"]:
         raise EditRejected("option", f"{option!r} is not an option of {name} ({', '.join(template['options'])})")
+    if template["layout"] in ("set", "run"):
+        # bathroom sense of 26 Oct 2026: a room holds one set or run of a kind (``groups.match_groups``); asked again,
+        # its missing members are completed (the pieces it has are adopted), never a second set beside it
+        have = next((g for g in GR.group_members(b, room["id"]) if g.get("group") in SAME_SET.get(name, (name,))),
+                    None)
+        if have is not None:
+            if not have.get("missing"):
+                raise EditRejected("no_change", f"{room['id']} already has its {have['group']} {have['group_id']} "
+                                                f"(anchor {have.get('anchor_id')}, members "
+                                                f"{', '.join(have.get('member_ids') or []) or 'none'}): nothing "
+                                                f"missing, never a second set")
+            return _complete_group(b, dict(args, group_id=have["group_id"]))
     # Milestone 13 (B3): a drawn group of this template (the drawn anchor with its drawn partners, built or not) is
     # re-solved as one unit around the drawn anchor instead of a second group beside it
     drawn = next((g for g in GR.drawn_groups(b, room["id"]) if g.get("template") == name), None)
@@ -1431,6 +1454,7 @@ def _build_retyped(b: dict, item: dict, args: dict, catalog=None) -> dict:
             asset = F.built_in_fit(trial, host, mode, family)
         else:
             target = dict(trial, module_hints={**(trial.get("module_hints") or {}), **hints}) if hints else trial
+            target = dict(target, **F.use_context(b, item))     # bathroom sense of 26 Oct 2026: a child's room
             # fix round after P6a: the piece's room under a sloped ceiling, as fit_building fits it
             asset = F.fit_piece(target, catalog, mode=mode, style_family=family, ceiling=F.piece_ceiling(b, item))
             if hints and asset.get("method") == F.MODULE_METHOD:

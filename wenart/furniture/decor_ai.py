@@ -114,7 +114,7 @@ from wenart import building as B
 from wenart import geometry as G
 from wenart.blender import parametric as P
 from wenart.furniture import decor as D
-from wenart.furniture import placer
+from wenart.furniture import placer, schemas
 from wenart.recognition import vlm_client
 
 DEFAULT_SERVER = "http://127.0.0.1:8001/v1"
@@ -470,7 +470,7 @@ def free_corners(room: dict, pieces: list[dict], building: dict, ctx: placer.Roo
     """Every convex room corner a floor plant may take (``decor.plant_position``'s checks), in boundary order;
     ``others``: plant centres placed before (obstacles). Milestone 10: ``size`` and ``inset`` of a larger floor
     item (a large plant, a floor sculpture). Wall-hung pieces (``mount_bottom_m``) are no floor obstacles."""
-    base = [placer.piece_from_furniture(f, i) for i, f in enumerate(pieces) if not f.get("mount_bottom_m")]
+    base = [placer.piece_from_furniture(f, i) for i, f in enumerate(pieces) if not schemas.off_floor(f)]
     for c in others:
         base.append(placer.Piece("plant", tuple(c), 0.0, D.PLANT_SIZE, False, index=len(base)))
     out = []
@@ -1176,7 +1176,7 @@ def window_items(room: dict, pieces: list[dict], building: dict, ctx: placer.Roo
 
     doors, windows = placer.room_openings(building, room)
     furniture = [placer.piece_from_furniture(p).polygon() for p in pieces if p.get("build", True) is not False
-                 and not p.get("mount_bottom_m")]
+                 and not schemas.off_floor(p)]
     out, notes = [], []
     clips = D.roof_clips(building, room["level_id"])
     if planes is None:

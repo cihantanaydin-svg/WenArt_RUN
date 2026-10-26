@@ -4,8 +4,9 @@ A real plan draws furniture as loose strokes with no block names (real01) or as 
 footprint must come from the geometry and the type from a rule, a block name or two agreeing AI passes:
 
 1. **Strokes considered**: every stroke except the wall primitives, the strokes the openings own, the dimension
-   strokes and glyph strokes inside text boxes (grown 10 %; a vector stroke only when all of it lies in one, a raster
-   segment by itself). Polylines and closed paths are split into segments, and a
+   strokes and glyph strokes inside text boxes (grown 10 %; a vector stroke only when all of it lies in one and it
+   is no piece's outline passing under the text, ``under_text``; a raster segment by itself). Polylines and closed
+   paths are split into segments, and a
    segment is wall outline (dropped) when >= 90 % of its length lies within 20 mm of the bridged wall geometry (wall
    rectangles plus every opening rectangle) - real01's 94.7 m outline polyline runs across every window and door gap,
    so the whole stroke would never pass a 90 % test against the walls alone - or when >= 50 % of it lies inside the
@@ -158,6 +159,21 @@ project"; real06 is the test case, tests/test_reading_sense_20261026.py). What:
   counter leg are its hob (``stove`` rule item). Unknown pieces carry ``details["kitchen_signs"]`` for the reading's
   kitchen-outline rule. Why: real06's kitchen run f_L0_002 (3.99 x 2.40 m, LINEs, sink and hob circles) stayed an
   unbuilt box that "fits no size-table type".
+
+Bathroom sense of 26 Oct 2026 (user: "fix should be general"; tests/test_bathroom_sense_20261026.py). What: a vector
+stroke that lies whole in a text box is a glyph, unless it is a piece's outline passing under the text
+(``under_text``): the strokes in the text boxes joined end to end form chains, and a chain is kept as drawing when every
+free end of it (at least ``UNDER_TEXT_JOINS``) joins the end of a stroke outside the boxes, those ends are joined to
+each other by the outside strokes (the chain closes a ring) and a closed contour through it is at least
+``CONTOUR_MIN_M`` on both sides. The page notes name the strokes kept. Why: real06's ground-floor bathroom has the text
+"50" (0.13 x 0.10 m) written over the bottom arc of the basin's ellipse (ARC:2958A9, 0.11 m long, wholly inside it);
+dropped as a glyph, the ellipse did not close, so it did not keep its own piece (``_keeps_own_piece``) and merged into
+the vanity and quadrant-shower outline (a 2.54 x 1.01 m untyped piece): the drawn basin was never built and the
+completion added one elsewhere. The upper floor, drawn without that text, read its basin (f_L1_029). Glyphs (strokes
+that end inside the text, closed letters) and lines under a text that close no piece's outline stay out, so the other
+pieces keep their clusters and their questions (real06: the basin, typed by its upper-floor twin, and the
+three-seat sofa by the salon window, whose outline the text "160" cut so the rug outline swallowed it, a new question;
+nothing else changes; real01-real04 read the same).
 """
 from __future__ import annotations
 
@@ -184,6 +200,7 @@ OUTLINE_NEAR_M = 0.02
 OUTLINE_SHARE = 0.9
 WALL_MATERIAL_SHARE = 0.5
 TEXT_GROW = 0.10
+UNDER_TEXT_JOINS = 2           # 26 Oct 2026: a stroke chain in a text box joined to the drawing at both ends is drawing
 CHAIN_M = 0.005
 CLUSTER_M = 0.02
 RECLUSTER_M = 0.002
@@ -460,6 +477,87 @@ def _text_boxes(texts) -> list:
         gx, gy = (x1 - x0) * TEXT_GROW / 2.0, (y1 - y0) * TEXT_GROW / 2.0
         boxes.append(sbox(x0 - gx, y0 - gy, x1 + gx, y1 + gy))
     return boxes
+
+
+def under_text(in_box: list[Seg], outside: list[Seg]) -> set[int]:
+    """Bathroom sense of 26 Oct 2026 (module docstring): the indices of the ``in_box`` segments (vector strokes lying
+    wholly in a text box) that are a piece's outline passing under the text, not glyphs. The ``in_box`` segments
+    joined end to end (within ``CHAIN_M``) form chains; a chain is outline when every free end of it (a node only one
+    of its segments ends at; at least ``UNDER_TEXT_JOINS``) joins the end of an ``outside`` segment (all of the page's
+    other segments), those ends are joined to each other by the outside segments (the chain closes a ring) and a closed
+    contour through the chain is at least ``CONTOUR_MIN_M`` on both sides (a piece's outline, not a hatch or a frame
+    line). A glyph's strokes end inside the text (a closed glyph has no free end); other strokes under a text stay
+    out as before, so the pieces they would touch keep their clusters and their questions."""
+    if not in_box:
+        return set()
+    n_in = len(in_box)
+    segs = list(in_box) + list(outside)
+    ends, _coords = _end_nodes(segs)
+    parent: dict = {}
+
+    def find(k):
+        while parent.setdefault(k, k) != k:
+            parent[k] = parent[parent[k]]
+            k = parent[k]
+        return k
+
+    outside_nodes: set = set()
+    for e in ends[n_in:]:
+        if e is not None:
+            outside_nodes.update(e)
+            ra, rb = find(e[0]), find(e[1])
+            if ra != rb:
+                parent[ra] = rb
+    chain_of = list(range(n_in))
+
+    def chain(i):
+        while chain_of[i] != i:
+            chain_of[i] = chain_of[chain_of[i]]
+            i = chain_of[i]
+        return i
+
+    first: dict = {}
+    for i in range(n_in):
+        if ends[i] is None:
+            continue
+        for n in ends[i]:
+            if n in first:
+                ri, rj = chain(i), chain(first[n])
+                if ri != rj:
+                    chain_of[ri] = rj
+            else:
+                first[n] = i
+    chains: dict = {}
+    for i in range(n_in):
+        if ends[i] is not None:
+            chains.setdefault(chain(i), []).append(i)
+    rings: dict = {}                                   # outside component -> its segments (built when asked)
+    out: set[int] = set()
+    for members in chains.values():
+        degree: dict = {}
+        for i in members:
+            a, b = ends[i]
+            if a == b:
+                continue                               # a closed stroke (a glyph's ring) has no free end
+            degree[a] = degree.get(a, 0) + 1
+            degree[b] = degree.get(b, 0) + 1
+        free = [n for n, k in degree.items() if k == 1]
+        if len(free) < UNDER_TEXT_JOINS or not all(n in outside_nodes for n in free):
+            continue
+        roots = {find(n) for n in free}
+        if len(roots) != 1:
+            continue                                   # its ends are not joined to each other: no ring closed
+        root = roots.pop()
+        if not rings:
+            for j in range(n_in, len(segs)):
+                if ends[j] is not None:
+                    rings.setdefault(find(ends[j][0]), []).append(segs[j])
+        local = [in_box[i] for i in members] + rings.get(root, [])
+        for poly, ring in contours(local):
+            if any(k < len(members) for k in ring) and min(_rect_sides(poly)) >= CONTOUR_MIN_M:
+                out.update(members)
+                break
+    return out
 
 
 def _as_polygon(outline):
@@ -1877,9 +1975,8 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     boxes = _text_boxes(texts_m)
     if boxes:
         tree = STRtree(boxes)
-        kept = []
-        glyphs = 0
         whole_in: dict[str, bool] = {}
+        flags = []
         for s in segs:
             if s.stroke.source == "vector":
                 # Milestone 10 (real02): a vector stroke is a glyph only when all of it lies in a text box; a room
@@ -1889,11 +1986,17 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
                     inside = whole_in[s.stroke.id] = bool(len(tree.query(_stroke_geom(s.stroke), predicate="within")))
             else:
                 inside = bool(len(tree.query(s.geom, predicate="within")))
-            if inside:
-                glyphs += 1
-            else:
-                kept.append(s)
-        segs = kept
+            flags.append(inside)
+        # Bathroom sense of 26 Oct 2026 (module docstring): a short stroke of an outline that a text covers whole
+        # (a "50" written over a basin's bowl) continues the outline on both sides: it is drawing, not a glyph.
+        in_box = [s for s, f in zip(segs, flags) if f and s.stroke.source == "vector"]
+        back = {id(in_box[i]) for i in under_text(in_box, [s for s, f in zip(segs, flags) if not f])}
+        if back:
+            kept_ids = sorted({s.stroke.id for s in in_box if id(s) in back}, key=_id_key)
+            notes.append(f"{len(back)} strokes inside text boxes kept: they continue a drawn outline under the text "
+                         f"(26 Oct 2026): {_short_ids(kept_ids)}")
+        glyphs = sum(1 for s, f in zip(segs, flags) if f and id(s) not in back)
+        segs = [s for s, f in zip(segs, flags) if not f or id(s) in back]
         if glyphs:
             notes.append(f"{glyphs} glyph strokes inside text boxes ignored")
     wall_geom = _wall_geometry(walls, openings, list(site_walls or ()))

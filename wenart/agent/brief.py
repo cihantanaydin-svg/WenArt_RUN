@@ -335,7 +335,7 @@ def free_wall_spans(building: dict, room_id: str) -> list[dict]:
     """The wall pieces of the room where a back-to-wall piece can stand: each boundary segment minus door frames,
     built floor pieces against it; window bands are listed with their sill (only lower pieces fit there)."""
     from shapely.geometry import LineString
-    from wenart.furniture import placer
+    from wenart.furniture import placer, schemas
     from wenart.agent import topdown as TD
     room = next((r for r in building.get("rooms") or [] if r.get("id") == room_id), None)
     if room is None:
@@ -346,7 +346,7 @@ def free_wall_spans(building: dict, room_id: str) -> list[dict]:
         return []
     pieces = []
     for p in TD.room_pieces(building, room_id):
-        if not built(p) or p.get("mount_bottom_m"):
+        if not built(p) or schemas.off_floor(p):
             continue
         try:
             pieces.append(TD.piece_polygon(p))

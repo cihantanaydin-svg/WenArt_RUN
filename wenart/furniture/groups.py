@@ -39,6 +39,18 @@ runs the solver tries only when no offered option fits; ``auto: false``); the ``
 and the work triangle of such a run scored terms (``is_compact_run``, ``tiers_for(..., compact_run=)``);
 ``merge_touching_tables`` makes drawn dining tables that touch with the same axes one table (the completion runs it).
 
+Bathroom sense of 26 Oct 2026 (user: "fix should be general"; CLAUDE.md "never a second anchor piece", the same for a
+fixture the room already has; tests/test_bathroom_sense_20261026.py). What: a room's pieces of a set or run member's
+type are that member, never added again. (1) Fixed equipment the fit hangs at its working top (a wall-hung basin,
+``mount_bottom_m``) stays a floor piece (``schemas.off_floor``): the groups, the solver's obstacles, the checks, the
+decor and the agent's tools all read it so. (2) A set or run lacks no type the room holds (``_expected_missing`` with
+``room_held_types``: drawn and added pieces, built or a library gap, ``holds_piece``). (3) The solver adopts the pieces
+it keeps (``held_types`` of its fixed pieces) whatever entry asks (``solver._levels``), and ``place_group`` on a set the
+room has completes it (``edit_ops._place_group``). Why: since the fit hung real06's drawn basins (26 Oct 2026), the
+floor filters (``mount_bottom_m is None``) left them out of the bathroom set; the program said "washbasin missing", the
+solver added a third washbasin beside the two drawn ones (r_L1_banyo) and placed pieces as if the hung basins were not
+there; the agent's ``place_group`` could add a second set.
+
 Milestone 11 (kept): dining set, bed set, living set, desk set, kitchen run. ``place_group`` places a whole group as
 one unit (anchor piece + members with their relative offsets and facing) and checks it with the placer.
 
@@ -350,7 +362,7 @@ def place_group(building: dict, room_id: str, group: str, anchor: dict | None = 
         return _result(False, [], [], f"no room {room_id!r}")
     ctx = placer.room_context(building, room)
     items = [f for f in building.get("furniture") or [] if f.get("room_id") == room_id and f.get("build") is not False
-             and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None]
+             and not schemas.off_floor(f)]
     existing = [placer.drawn_piece(f, i) for i, f in enumerate(items)]
     obstacles = placer.obstacles_for(existing, ctx)
     ctx = placer.drawn_context(ctx, obstacles)
@@ -936,15 +948,45 @@ def _room_of(building: dict, room_id: str) -> Optional[dict]:
 
 def _built_floor(building: dict, room_id: str) -> list[dict]:
     return [f for f in building.get("furniture") or [] if f.get("room_id") == room_id and piece_is_built(f)
-            and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None
-            and f.get("footprint")]
+            and not schemas.off_floor(f) and f.get("footprint")]
+
+
+def holds_piece(piece: dict) -> bool:
+    """Bathroom sense of 26 Oct 2026 (module docstring): True when ``piece`` stands for its type in its room, so a set
+    or run member of that type is adopted, never added again: typed, not recorded as not furniture (a rug, a detail, a
+    merged or replaced outline, a column) and built, or left unbuilt only because the fit found no model (a library
+    gap is still drawn); wall-hung or standing."""
+    if not isinstance(piece, dict) or piece.get("type") in (None, "", "unknown", "stair"):
+        return False
+    if piece.get("inferred_as") or piece.get("not_furniture") or piece.get("merged_into") \
+            or piece.get("replaced_by"):
+        return False
+    if piece.get("build") is False:
+        asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+        return asset.get("method") in NOT_BUILT_ASSET_METHODS
+    return True
+
+
+def held_types(pieces) -> set:
+    """Bathroom sense of 26 Oct 2026: the types the ``pieces`` hold (``holds_piece``)."""
+    return {str(p["type"]) for p in pieces or [] if holds_piece(p)}
+
+
+def room_held_types(building: dict, room_id: str) -> set:
+    """Bathroom sense of 26 Oct 2026: the types the room's pieces hold (drawn and added, ``holds_piece``; not the
+    pieces recorded in ``symbols[]``)."""
+    gone = {s.get("former_piece_id") for s in building.get("symbols") or [] if s.get("former_piece_id")}
+    return held_types(f for f in building.get("furniture") or [] if f.get("room_id") == room_id
+                      and f.get("id") not in gone)
 
 
 def _expected_missing(group: str, anchor: Optional[dict], members: list[dict], room: dict,
                       building: Optional[dict] = None) -> list[str]:
     """Partner types the group expects and lacks (see the module docstring). ``building`` (Milestone 13): the
     room's aliased kinds decide what it may hold (``program.room_kinds``: a sofa in an ``other`` play room still
-    misses its TV unit and coffee table)."""
+    misses its TV unit and coffee table). Bathroom sense of 26 Oct 2026: a set or run lacks no type the room already
+    holds (``room_held_types``: a drawn washbasin the fit hung on the wall or left as a library gap is the set's
+    washbasin)."""
     kinds = [room.get("room_type")]
     if building is not None:
         from wenart.furniture import program as PR     # lazy: program imports this module
@@ -973,9 +1015,13 @@ def _expected_missing(group: str, anchor: Optional[dict], members: list[dict], r
             out.append("office_chair")
     elif group == "kitchen_run":
         types = set(have) | ({anchor["type"]} if anchor else set())
+        if building is not None:
+            types |= room_held_types(building, room.get("id"))      # bathroom sense of 26 Oct 2026
         out += [t for t in ("sink_kitchen", "stove", "fridge") if t not in types]
     elif group in ("bathroom_set", "wc_set"):
         types = set(have) | ({anchor["type"]} if anchor else set())
+        if building is not None:
+            types |= room_held_types(building, room.get("id"))      # bathroom sense of 26 Oct 2026
         need = ["toilet", "washbasin"] + (["shower|bathtub"] if group == "bathroom_set" else [])
         for t in need:
             if not any(x in types for x in t.split("|")):
@@ -1093,8 +1139,7 @@ def _drawn_floor(building: dict, room_id: str) -> list[dict]:
     for f in building.get("furniture") or []:
         if f.get("room_id") != room_id or f.get("source") != "from_documents" or not f.get("footprint"):
             continue
-        if f.get("type") in ("unknown", "stair") or f.get("type") in schemas.MOUNTED_TYPES \
-                or f.get("mount_bottom_m") is not None:
+        if f.get("type") in ("unknown", "stair") or schemas.off_floor(f):
             continue
         if f["id"] in not_furniture or f.get("not_furniture") or f.get("inferred_as"):
             continue
