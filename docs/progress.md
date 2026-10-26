@@ -1304,3 +1304,23 @@ by the 20-degree cushion lean and is fixed (`rest.LEAN_FALLBACK_DEG`); the other
 the 25 Oct details (5178a81): Blender look / variants / render / site / m11 exterior / m5 e2e / run e2e / doors-windows
 tests left behind by earlier milestones' changes (ceiling material names, facade, roof ridges, pool coping, decor ids,
 A/B controls), the golden run plan and real04's sheets test. Open: bring those tests up to date.
+
+## What a visitor sees: the architect's defaults and the AI inspector (26 Oct 2026)
+
+User notes of 26 Oct 2026 on real06's latest run: "why there is that many rain gutters, why the sink is so low, why
+doors are up ... still with the furniture replacement it is not seen like a stylish house ... real06 windows second
+floor: are the people going to jump off from it? ... I need ai models to see understand and fix everything before even
+I look at it"; and: "fix should be general, it is not a fix for real06, it must be a fix for the project" (lessons
+UL27-UL33, CLAUDE.md). Every cause was general; real06 only showed it:
+
+| Seen on real06 | Cause (general) | Fix (every project) |
+|---|---|---|
+| doors 0.5 m over the floor | the section printed the ground floor "+0,50" (building z 0) while the plan's "+0,50" floor marks were read as z +0.5: the kitchen floor and its doors were built 0.5 m up; an upper floor's "+3,50" landing mark was taken for two ground-floor doors | one height frame: the section's printed ground-floor value is the zero of every relative plan mark (`levels.read.relative_zero`); a landing mark serves its own level's doors only; architect D4: a threshold over both floors snaps to them |
+| 20 downpipes, 27 gutters | the roof outline followed every facade pier (70 points, crossing edges); one gutter and two pipes per run, spacing checked per run only (two pipes on one spot) | the eaves run straight past facade jogs under 0.6 m (`geom2d.close_jogs`, every wall face keeps 0.15 m of roof over it); downpipes planned for the whole roof: at the corners, at least 3 m apart, about one per 50 m2 (`facade.downpipe_plan`); A1 flags pipes too close and broken-up eaves. real06: 4 gutters, 3 pipes |
+| basins at knee height, a bowl on the floor | the size table allows 0.10-1.20 m and the build stood every model on the floor | a wall-hung model hangs with its rim at 0.85 m (the fit sets `mount_bottom_m`, architect H1 checks and fixes), a bowl too shallow to hang alone is not taken |
+| upper-floor doors and bare gaps into the air, two thin bars as "guard" | the architect's E1 offered only "keep"; bare gaps ("unclassified gap content") were built as holes; the facade's guard was two 40 mm bars | E1/O2: a door or gap with nothing outside on an upper floor is a window at the floor's sill by default (French window with a glass guard is the other choice); a bare gap onto the ground is a glazed door; every opening over a drop with a low bottom gets a frameless glass guard 1.10 m high across its width (`facade.guard_boxes`); W3's low sills too |
+| no guard at the upper stair void | no code guarded a slab opening's edge | `details.void_guards`: a balustrade on every void edge off a wall and off the stair's arrival (K2 counts them) |
+| a dressing room and a shower reached only "through windows" | windows between two rooms read for doors | W2: a window between two rooms where one has no door is its door by default; a dark room's window moves to its outer wall |
+| dark six-panel doors, a black sash among white windows, a lattice glass | the opening models ignored the style; one model per opening; textured frames kept their colour; SketchUp's doubled panes | the style picks the look (clear glass, no panelled leaf in a modern house), one door and window family per building (else the parametric opening in the style's finish), the style's frame finish on textured frames, doubled panes made glass (`opening_models`, `opening_build`) |
+| 4 "dining tables" in the living room, an empty kitchen, a kitchen counter in a bedroom | (furnishing and reading helpers, see below) | (see below) |
+| the AI saw little of it | the architect offered "keep" only, so neither code nor the AI could act; the vision critic was never asked these questions; the final round never started (it was gated on the whole final stages) | the architect's safe defaults (`architect.defaults_of`, `build.prepare`; by: architect, the AI's and the user's answers win; 33 points settled on real06's last building); the visitor checks Q1-Q8 on every room and exterior view, routed to tools or to the stage that owns them; the final round asks every view again on the final renders and needs time for its own re-render only; `orchestrator/inspector.md` lists what the AI saw, fixed, handed on and left |
