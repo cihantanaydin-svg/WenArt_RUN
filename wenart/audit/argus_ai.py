@@ -89,9 +89,10 @@ def triage_schema(ids: list[str]) -> dict:
     return {"type": "object", "additionalProperties": False, "required": ["items"],
             "properties": {"items": {"type": "array", "items": {
                 "type": "object", "additionalProperties": False,
-                "required": ["id", "real", "kind", "cause", "fix", "element", "value", "rule", "why"],
+                "required": ["id", "real", "severity", "kind", "cause", "fix", "element", "value", "rule", "why"],
                 "properties": {"id": {"type": "string", "enum": ids},
                                "real": {"type": "boolean"},
+                               "severity": {"type": "string", "enum": ["critical", "major", "minor"]},
                                "kind": {"type": "string", "enum": list(K.KINDS)},
                                "cause": {"type": "string", "enum": list(CAUSES)},
                                "fix": {"type": "string", "enum": list(FIXES)},
@@ -181,9 +182,14 @@ def known_targets(building: dict) -> dict:
 
 
 def items_of(rep: dict) -> list[dict]:
-    """The findings put to triage: every open one (critical, major, minor) and the not-built notes (C6)."""
+    """The findings put to triage: every open one (critical, major, minor), the not-built notes (C6) and every warning
+    no rule knows (``P0``: Argus reads them all; the batches cover any number)."""
+    from wenart.audit import process as PR
+
     order = {"critical": 0, "major": 1, "minor": 2, "info": 3}
     rows = [f for f in rep.get("findings") or [] if f.get("severity") != "info" or f.get("check") == "C6"]
+    rows += [K.finding("process", "P0", "info", PR._target(w), f"a warning no rule knows: {w}", owner="process",
+                       kind="other") for w in rep.get("unmatched_warnings") or []]
     rows.sort(key=lambda f: (order.get(f.get("severity"), 4), str(f.get("kind"))))
     return [dict(f, aid=f"F{i}") for i, f in enumerate(rows, 1)]
 
@@ -196,8 +202,10 @@ def _item_text(f: dict) -> dict:
 
 # ---------------------------------------------------------------------------------------------------- the calls
 def triage(model, items: list[dict], fact_lines: list[str], *, time_ok: Callable[[], bool] = lambda: True,
-           out: Callable[[str], None] = print) -> dict:
-    """``{aid: verdict}`` for every item (module docstring 2); an item the model skipped is ``None``."""
+           out: Callable[[str], None] = print, errors: Optional[list] = None) -> dict:
+    """``{aid: verdict}`` for every item (module docstring 2); an item the model skipped has none (``errors`` gets
+    what failed)."""
+    errors = errors if errors is not None else []
     verdicts: dict = {}
     for start in range(0, len(items), TRIAGE_BATCH):
         if not time_ok():
@@ -208,9 +216,16 @@ def triage(model, items: list[dict], fact_lines: list[str], *, time_ok: Callable
                           f"The findings ({start + 1}-{start + len(batch)} of {len(items)}):",
                           json.dumps([_item_text(f) for f in batch], indent=1, ensure_ascii=False), "",
                           "Architect actions (fix) and what they do: " + _arch_help()])
-        reply = model.structured([{"role": "system", "content": SYSTEM}, {"role": "user", "content": text}],
-                                 triage_schema([f["aid"] for f in batch]), call_id=f"argus_triage_{start // TRIAGE_BATCH}",
-                                 name="argus_triage", kind="task", thinking=True)
+        try:
+            reply = model.structured([{"role": "system", "content": SYSTEM}, {"role": "user", "content": text}],
+                                     triage_schema([f["aid"] for f in batch]),
+                                     call_id=f"argus_triage_{start // TRIAGE_BATCH}", name="argus_triage",
+                                     kind="task", thinking=True)
+        except Exception as exc:  # noqa: BLE001 - one batch that fails is logged; the others are still triaged
+            errors.append(f"triage {start + 1}-{start + len(batch)}: {type(exc).__name__}: {exc}"[:300])
+            continue
+        if reply.errors:
+            errors.append(f"triage {start + 1}-{start + len(batch)}: {'; '.join(reply.errors[:2])}"[:300])
         for v in (reply.data or {}).get("items") or []:
             verdicts.setdefault(v["id"], v)
     return verdicts
@@ -222,10 +237,11 @@ def _arch_help() -> str:
 
 
 def discover(model, inp: I.Inputs, rep: dict, fact_lines: list[str], *, time_ok: Callable[[], bool] = lambda: True,
-             out: Callable[[str], None] = print) -> tuple[list[dict], list[dict]]:
+             out: Callable[[str], None] = print, errors: Optional[list] = None) -> tuple[list[dict], list[dict]]:
     """``(findings, dropped)`` of module docstring 3."""
     from wenart.agent.model import user_message
 
+    errors = errors if errors is not None else []
     building = inp.final or {}
     known = known_targets(building)
     named = sorted({f"{f.get('target')}: {str(f.get('message'))[:90]}" for f in rep.get("findings") or []
@@ -241,8 +257,12 @@ def discover(model, inp: I.Inputs, rep: dict, fact_lines: list[str], *, time_ok:
                           "", "Already found (do not repeat):", *named[:80]])
         msg = user_message(text, [image], [f"Image 1: the model of {lv} from above"]) if image else \
             {"role": "user", "content": text}
-        reply = model.structured([{"role": "system", "content": DISCOVER_SYSTEM}, msg], discover_schema(),
-                                 call_id=f"argus_discover_{lv}", name="argus_discover", kind="task", thinking=True)
+        try:
+            reply = model.structured([{"role": "system", "content": DISCOVER_SYSTEM}, msg], discover_schema(),
+                                     call_id=f"argus_discover_{lv}", name="argus_discover", kind="task", thinking=True)
+        except Exception as exc:  # noqa: BLE001 - a floor that fails is logged; the others are still looked at
+            errors.append(f"discover {lv}: {type(exc).__name__}: {exc}"[:300])
+            continue
         for d in (reply.data or {}).get("found") or []:
             target = known.get(str(d.get("target") or "").strip().lower())
             if target is None:
@@ -333,7 +353,8 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
     building = inp.stage("final") or inp.final or {}
     fact_lines = facts(building, rep)
     items = items_of(rep)
-    verdicts = triage(model, items, fact_lines, time_ok=time_ok, out=out) if items else {}
+    errors: list = []
+    verdicts = triage(model, items, fact_lines, time_ok=time_ok, out=out, errors=errors) if items else {}
     by_id = {f["aid"]: f for f in items}
     new, decisions, work, guards, disputed = [], [], [], [], []
     for aid, v in verdicts.items():
@@ -344,15 +365,19 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
             guards.append({"kind": v["kind"], "cause": v["cause"], "rule": v["rule"][:600], "from": aid,
                            "target": f.get("target"), "check": f"{f.get('line')}:{f.get('check')}"})
         if not v.get("real") or v.get("fix") == "not_a_problem":
-            if f.get("check") != "C6":
+            if f.get("check") not in ("C6", "P0"):
                 disputed.append({"aid": aid, "target": f.get("target"), "check": f"{f.get('line')}:{f.get('check')}",
                                  "why": v.get("why")})
             continue
         if f.get("check") == "C6":           # a reason that hides a loss: a finding of its own
-            new.append(K.finding("argus_ai", "AI2", "major", f.get("target"),
+            new.append(K.finding("argus_ai", "AI2", v.get("severity") or "major", f.get("target"),
                                  f"left out for a reason that hides a loss: {f.get('message')} ({v.get('why')})",
                                  owner=v.get("cause"), fix=v.get("fix"), kind=v.get("kind"),
                                  evidence=dict(f.get("evidence") or {}, rule=v.get("rule"))))
+        elif f.get("check") == "P0":         # a warning no rule knows that names a real problem
+            new.append(K.finding("argus_ai", "AI3", v.get("severity") or "major", f.get("target"),
+                                 f"{f.get('message')} ({v.get('why')})", owner=v.get("cause"), fix=v.get("fix"),
+                                 kind=v.get("kind"), evidence={"rule": v.get("rule")}))
         if v.get("fix") in FIX_ARCH:
             decisions.append({"aid": aid, "action": v["fix"], "element": v.get("element") or str(f.get("target")),
                               "value": v.get("value") or "", "reason": v.get("why"), "finding": f})
@@ -360,7 +385,8 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
             work.append({"aid": aid, "fix": v["fix"], "check": f.get("check"), "severity": f.get("severity"),
                          "target": f.get("target"), "message": f.get("message"), "cause": v.get("cause"),
                          "why": v.get("why")})
-    found, dropped = discover(model, inp, rep, fact_lines, time_ok=time_ok, out=out) if discover_on else ([], [])
+    found, dropped = discover(model, inp, rep, fact_lines, time_ok=time_ok, out=out, errors=errors) \
+        if discover_on else ([], [])
     new += found
     for f in found:
         ev = f.get("evidence") or {}
@@ -384,7 +410,9 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
            "findings": new, "decisions": entries, "work": work, "guards": guards, "disputed": disputed,
            "dropped": dropped, "verdicts": [dict(v, target=str(by_id.get(k, {}).get("target"))) for k, v in
                                             verdicts.items()],
-           "accepted": sum(1 for e in entries if e["verdict"] == "accepted"), "seconds": round(time.time() - t0, 1)}
+           "accepted": sum(1 for e in entries if e["verdict"] == "accepted"), "errors": errors,
+           "untriaged": [f["aid"] for f in items if f["aid"] not in verdicts],
+           "seconds": round(time.time() - t0, 1)}
     odir = LG.orchestrator_dir(project_out)
     LG.write_json_atomic(odir / (LOG_JSON if act_on else FINAL_JSON), _jsonable(rec))
     (odir / (LOG_MD if act_on else FINAL_MD)).write_text(report_md(rec), encoding="utf-8")
@@ -417,6 +445,9 @@ def report_md(rec: dict) -> str:
              f"decision(s) carried out (code-checked); {len(rec['work'])} handed to the agent; {len(rec['guards'])} "
              f"rule(s) proposed; {len(rec['disputed'])} disputed; {len(rec['dropped'])} claim(s) dropped (no such "
              f"target). Score before: {rec.get('score_before')}.", ""]
+    if rec.get("untriaged") or rec.get("errors"):
+        lines += [f"Not triaged: {', '.join(rec.get('untriaged') or []) or 'none'}; errors: "
+                  f"{'; '.join(rec.get('errors') or []) or 'none'}.", ""]
     if rec["findings"]:
         lines += ["## New findings", "", "| severity | kind | target | what | fix |", "|---|---|---|---|---|"]
         lines += [f"| {f['severity']} | {f['kind']} | {R._cell(f['target'])} | {R._cell(f['message'][:300])} | "

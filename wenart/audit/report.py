@@ -128,7 +128,7 @@ def lines(inp: I.Inputs) -> dict:
                            "note": None if inp.stages else "no stage buildings found"}
     proc = PR.audit(inp)
     out["process"] = {"findings": proc["findings"], "checked": proc["checked"],
-                      "warning_counts": proc["warning_counts"]}
+                      "warning_counts": proc["warning_counts"], "unmatched": proc["unmatched"]}
     out["model"] = model_line(inp)
     out["inspector"] = inspector_line(inp)
     out["judge"] = judge_line(inp)
@@ -214,6 +214,7 @@ def run(inp: I.Inputs) -> dict:
             "lines": {n: {"findings": len(r.get("findings") or []), "checked": r.get("checked"),
                           "note": r.get("note")} for n, r in per_line.items()},
             "warning_counts": per_line["process"].get("warning_counts"),
+            "unmatched_warnings": per_line["process"].get("unmatched") or [],
             "missing": list(inp.missing), "findings": rows}
 
 
@@ -332,6 +333,9 @@ def report_md(rep: dict, prev: Optional[list] = None) -> str:
         lines_ += ["", "## Warnings by rule", "", "Every warning of the reading, the build and the site, matched to a "
                    "rule (``process.WARN_RULES``); 'other' = no rule yet.", "",
                    ", ".join(f"{k} {v}" for k, v in sorted(wc.items(), key=lambda kv: -kv[1]))]
+    if rep.get("unmatched_warnings"):
+        lines_ += ["", "Warnings no rule knows yet (Argus AI reads each one; a new rule in ``process.WARN_RULES`` "
+                   "when one keeps coming):", ""] + [f"- {_cell(w)[:300]}" for w in rep["unmatched_warnings"]]
     if rep.get("missing"):
         lines_ += ["", f"Records Argus could not read: {', '.join(rep['missing'])}."]
     return "\n".join(lines_) + "\n"

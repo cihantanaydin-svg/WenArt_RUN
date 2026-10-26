@@ -255,7 +255,8 @@ def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable
             batch = json.loads(text.split("):\n", 1)[1].split("\n\nArchitect actions", 1)[0])
             items = []
             for it in batch:
-                v = {"id": it["id"], "real": True, "kind": "lost", "cause": "site", "fix": "rule_needed",
+                v = {"id": it["id"], "real": True, "severity": "major", "kind": "lost", "cause": "site",
+                     "fix": "rule_needed",
                      "element": "", "value": "", "rule": "a labelled outdoor space is always built",
                      "why": "the documents label it"}
                 if it["check"] in ("conservation:C5", "process:P2"):
@@ -301,7 +302,8 @@ def test_argus_ai_at_the_end_proposes_and_keeps_the_first_record(tmp_path):
     def reply(body):
         if MockModel.schema_name(body) == "argus_triage":
             text = body["messages"][-1]["content"]
-            return {"items": [{"id": aid, "real": True, "kind": "misread", "cause": "reading", "fix": "retype_room",
+            return {"items": [{"id": aid, "real": True, "severity": "major", "kind": "misread", "cause": "reading",
+                               "fix": "retype_room",
                                "element": "r_L1_soyunma_odasi", "value": "closet", "rule": "", "why": "a closet"}
                               for aid in re.findall(r'"id": "(F\d+)"', text)[-1:]]}
         return {"found": []}
@@ -400,3 +402,29 @@ def test_sense_open_plan_and_stairs_join_rooms_and_levels():
     no_way = _house(door_bc=True)
     no_way["openings"] = [o for o in no_way["openings"] if o["id"] != "d_out"]
     assert "N4" in {f["check"] for f in SN.audit(no_way)["findings"]}
+
+
+def test_argus_ai_reads_every_unknown_warning_and_survives_a_failing_call(tmp_path, monkeypatch):
+    monkeypatch.setattr(AX, "TRIAGE_BATCH", 2)
+    out = _real06_out(tmp_path)
+    b = json.loads((out / "building_final.json").read_text(encoding="utf-8"))
+    b["warnings"] = [f"something odd number {i} happened in the hall" for i in range(5)]
+    (out / "building_final.json").write_text(json.dumps(b), encoding="utf-8")
+    seen = []
+
+    def reply(body):
+        if MockModel.schema_name(body) != "argus_triage":
+            return {"found": []}
+        batch = json.loads(body["messages"][-1]["content"].split("):\n", 1)[1].split("\n\nArchitect actions", 1)[0])
+        seen.extend(it["check"] for it in batch)
+        if len(seen) <= 2:
+            raise RuntimeError("the server went away")           # the first batch fails: logged, the rest go on
+        return {"items": [{"id": it["id"], "real": it["check"] == "process:P0", "severity": "major", "kind": "silent",
+                           "cause": "reading", "fix": "rule_needed", "element": "", "value": "",
+                           "rule": "every odd thing is checked", "why": "an odd thing in the hall"} for it in batch]}
+
+    rec = AX.investigate(out, MockModel(critic=[reply] * 40), out=lambda s: None)
+    assert seen.count("process:P0") == 5                            # every unknown warning was put to the model
+    assert rec["errors"] and "the server went away" in rec["errors"][0]
+    assert len(rec["untriaged"]) == 2 and rec["triaged"] == rec["items"] - 2
+    assert {f["check"] for f in rec["findings"]} >= {"AI3"}

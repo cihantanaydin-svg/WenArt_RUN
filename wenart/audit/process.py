@@ -171,6 +171,11 @@ def _subject(text: str) -> str:
     return head[:80] or text[:48]
 
 
+def unmatched(inp: Inputs) -> list[str]:
+    """The warnings no rule of ``WARN_RULES`` knows: listed in full in the report and read by Argus AI (nothing unread)."""
+    return [text for _src, text in warnings_of(inp) if classify(text)[0] == "other"]
+
+
 def warnings(inp: Inputs) -> tuple[list[dict], dict]:
     """P2 and the count of every warning by rule (``{"rule": n}``, ``other`` = no rule matched). The cases of one
     problem (one rule, one subject) are one finding with every case in its evidence and the worst severity."""
@@ -372,7 +377,7 @@ def audit(inp: Inputs) -> dict:
     warn, counts = warnings(inp)
     findings = stages(inp) + warn + questions(inp) + tests(inp) + scene_checks(inp) + views(inp) + library(inp) \
         + time_left(inp) + loop_result(inp)
-    return {"findings": findings, "warning_counts": counts,
+    return {"findings": findings, "warning_counts": counts, "unmatched": unmatched(inp),
             "checked": {"stages": len(inp.records) or len(((inp.run_manifest or {}).get("projects") or [{}])[0]
                                                           .get("stages") or []),
                         "warnings": sum(counts.values()), "test_reports": len(inp.junit),
