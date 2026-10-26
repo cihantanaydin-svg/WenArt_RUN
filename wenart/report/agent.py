@@ -543,7 +543,9 @@ def agent_block(project_out, out_dir, private: bool = False, building: Optional[
             # fix round after P6b: the views the last round still found blocked (the final report marks them)
             "blocked_views": last_round_blocked(events),
             # 26 Oct 2026: what the AI inspector saw on the final renders (wenart/agent/inspector.py)
-            "inspector": _read(orch / "inspector.json")}
+            "inspector": _read(orch / "inspector.json"),
+            # 26 Oct 2026: Argus, the auditor (wenart/audit): its score, kinds and what it left open
+            "argus": _read(orch / "argus.json")}
 
 
 def _last_round_accepted(events: list[dict]) -> dict:
@@ -723,6 +725,27 @@ def inspector_lines(rec: Optional[dict]) -> list[str]:
     return lines
 
 
+def argus_lines(rec: Optional[dict]) -> list[str]:
+    """26 Oct 2026: Argus's summary (``orchestrator/argus.md`` has every finding): its score, the open findings per
+    problem kind, and the critical ones by name."""
+    if not isinstance(rec, dict) or "score" not in rec:
+        return []
+    sev = rec.get("severity") or {}
+    kinds = ", ".join(f"{k} {v.get('critical', 0) + v.get('major', 0)}" for k, v in
+                      sorted((rec.get("by_kind") or {}).items(), key=lambda kv: -(kv[1].get("critical", 0) * 100
+                                                                                   + kv[1].get("major", 0)))
+                      if v.get("critical", 0) + v.get("major", 0))
+    lines = ["", "### Argus, the auditor", "",
+             f"Score {rec['score']} / 100 (100 = nothing open): {sev.get('critical', 0)} critical, "
+             f"{sev.get('major', 0)} major, {sev.get('minor', 0)} minor open. By kind (critical + major): "
+             f"{kinds or 'none'}. Every finding with its kind, owner and fix: `orchestrator/argus.md`."]
+    crit = [f for f in rec.get("findings") or [] if f.get("severity") == "critical"]
+    if crit:
+        lines += ["", "Critical:", ""] + [f"- {f.get('kind')} {f.get('target')}: {str(f.get('message') or '')[:160]}"
+                                          for f in crit[:25]]
+    return lines
+
+
 def agent_lines(manifest: dict) -> list[str]:
     a = manifest.get("agent")
     if not a:
@@ -745,6 +768,7 @@ def agent_lines(manifest: dict) -> list[str]:
                      if earlier.get("replayed") else "")]
     lines += metrics_lines(a.get("metrics"), a.get("removed_net"), a.get("last_round_accepted"))
     lines += inspector_lines(a.get("inspector"))
+    lines += argus_lines(a.get("argus"))
     if a.get("library_gaps"):
         lines += ["", "Library gaps reported by the agent: " + ", ".join(
             f"{g.get('type')} {g.get('style') or ''} ({g.get('reason') or '-'})".replace("  ", " ")
