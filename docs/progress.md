@@ -1345,3 +1345,34 @@ On real06's model of 25 Oct (before today's fixes) the model review finds, in 0.
 (d_L0_002, d_L0_007, o_L0_001: floors 0.5 m apart with no stair), the basins with their tops at 0.10-0.57 m, 12 upper-floor
 doors and gaps onto nothing, the kitchen with no kitchen, the 4 dining tables in the living room, two window models
 and the "bedroom" with no bed (`tests/test_inspector_20261026.py`).
+
+## The architect decides, entrances and doors that make sense (26 Oct 2026, second round)
+
+The real06 run of the first round (pod `5fr7dp2g1co4sx`, 74 min, $3.08, commit b1be05a; sheets and reports in
+[`results/review/real06_sense_run_20261026/`](../results/review/real06_sense_run_20261026/)) fixed what the user named:
+3 downpipes instead of about 20, the upper-floor doors into the air are windows, the basins hang at 0.85 m, the kitchen has
+its run and sink, the master bedroom has its bed and no dining tables. It also showed what was still wrong, and the user
+added two requests: "make the AI architect a lot more smart and let it take decisions more" and, circling the entrance of
+ext_4, "these sections not making sense, AI inspector needs to make sense of this" (lessons UL35, UL36). Every fix is
+general; real06 is the test case.
+
+| Seen on the run | Cause (general) | Fix (every project) |
+|---|---|---|
+| a 2.95 m flat oak slab in the facade that reads as a garage door, steps in front of it | a door with no library model became one flat leaf as wide as the opening | architect D5 "door types": an outside door from 1.4 m into a room is glazed (French doors up to 2.4 m, a glazed sliding door wider; a drawn sliding door stays sliding), the main entrance gets the entrance door, a garage door is sectional, a wide inside door has two leaves; `parametric.door_parts` builds glazed double, folding and in-frame sliding doors |
+| handrails crossing in an X in front of the small door | two doors in the inner corner of an L facade each got a landing and four steps; the flights ran into each other | (entrances helper: one platform and one flight for doors whose landings or flights touch; a ramp never in front of a door; the front door is a normal entrance door, not the widest garden door; model check M8) |
+| 3 armchairs read as 3 "dining tables" with 6 chairs (living room), 2 in the master bedroom | the armchair rule needed the arm pads within 3 cm of the cushion; the hand-drawn pads keep 2-5 cm off it | `symbols.seat_strip`: a thin strip against a side of the cushion's minimum rectangle over 60 % of it is an arm or a back (loose strokes of the same pad counted); real06: 7 armchairs; real02: 4 more armchairs; real01, real03, real04 unchanged |
+| 6 of the AI architect's 9 picks "could not be done" and nothing more happened; the architect left 4 major points open | one pick per question, no second try; a default that failed ended the question | the architect's chains (a window that cannot move is a borrowed-light window, a high window into a bathroom; a doorway a drawn counter fills is a serving window; an AI-added piece gives way); a refused AI pick is asked again with the reason; the AI looks at each floor of the model and may change the architect's defaults or take decisions of its own, kept only when nothing new breaks |
+| 22 of 39 critical code findings about doors that were windows | the critics read the building before the architect's changes | the critics read the doors and windows as built; the model checks are carried by the dry re-check, never "removed" |
+| a third washbasin in the upper bathroom; a "TODDLER SINK" model; the ground-floor basin lost | (bathrooms helper) | (bathrooms helper) |
+
+**The architect decides** (user: "make the AI architect a lot more smart and let it take decisions more"):
+
+| Step | What it does | Checked by |
+|---|---|---|
+| chains of safe fixes (`architect.chain_of`, `build.prepare`) | an open point's default, then its fallbacks; a choice that could not be done is followed by the next; a default that opens a major point no fix settles is refused and the next is tried | the review after each round |
+| retries (`architect_ai.answer_open`) | a refused AI pick goes back to the model with what it tried and why it failed, and the choices left (2 more tries) | carried out, settled, no new major point, the model review no worse |
+| the look (`architect_ai.look`, after the first build) | each floor's labelled top-down view of the model, its open questions, the architect's major default decisions (confirm or change) and decisions of its own (`AI.<action>:<element>`: a door into the air becomes a window, a window between rooms a borrowed-light window, a room another type, a basin hung ...); the scene is built again when it decided | the same; an entrance is never made a window and a drawn piece never removed by a decision |
+| the report | `orchestrator/architect_look.md`, `architect_ai.md` (every pick, accepted or refused with the reason), the architect's report lists the AI's own decisions (A0) | |
+
+On real06's plan the architect now settles the four windows between rooms that stayed open (kitchen/living and
+living/hall: borrowed-light glass; dressing/shower: a high window, sill 1.80 m).
