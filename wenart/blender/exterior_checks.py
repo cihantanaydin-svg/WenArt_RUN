@@ -465,7 +465,8 @@ def _x3(building: dict, prep: dict, out: list) -> None:
     if not ents and any(r["opening"].get("type") == "door" for r in outer):
         out.append(_v("X3", "minor", "entrance", "no outside door at or near the ground (entrance)"))
     inferred = site.get("inferred") or {}
-    stepped = {s["opening_id"] for s in inferred.get("steps") or []}
+    # 26 Oct 2026: a shared platform (site.entrance_layout) carries the steps of all its doors
+    stepped = {i for s in inferred.get("steps") or [] for i in [s["opening_id"]] + list(s.get("members") or [])}
     records = (vb.get("site") or {}).get("entrances") if isinstance(vb.get("site"), dict) else None
     if isinstance(records, list):
         # Milestone 12 (docs/milestone12.md §3.5, track L): every outside door of site.entrances, every rise (a door

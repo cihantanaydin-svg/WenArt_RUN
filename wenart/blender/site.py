@@ -105,6 +105,18 @@ gets 2 trees behind the building, real02 keeps its 2 first-pass trees. Every bui
 ``inferred trees: placed k of n`` with the filter that removed the most candidates (``trees_record``: an ``assumed``
 entry, a site warning when short, ``inferred.tree_stats`` and the manifest's ``site.inferred.tree_stats``). The
 agent's fence choice stays; the exterior framing is not changed (the camera policy of Milestone 11 stays).
+
+26 Oct 2026 (real06, user on ext_4: "these sections not making sense, the AI inspector needs to make sense of this"):
+the garden door and the small side door in the inner corner of real06's L each got a landing and four risers; the two
+flights ran into each other at right angles and their handrails crossed in front of the small door. The entrances are
+now laid out together (``entrance_layout``, a rule for every project): entrances whose landing and flight footprints
+overlap or come within 0.6 m of each other, with their landings within 0.05 m in height, share one platform (the
+rectangle around their landings in the lead door's frame, the building cut out) with one flight from its free edge in
+the lead door's outward direction (the lead: the main entrance, else the widest door), handrails along that flight
+only, no steps or path of their own for the other doors, and an ``assumed`` entry with the reason (``merged_steps``).
+A ramp never passes in front of another door (``door_approach``: the door's width + 0.1 m on each side, 1.0 m out):
+the other side of the landing, else straight out beside the flight, logged (``ramp_options``, ``choose_ramp``). A
+single entrance with nothing in the way keeps exactly the steps of before. The model review's M8 measures the result.
 """
 from __future__ import annotations
 
@@ -1067,16 +1079,17 @@ def _rect_along(origin, d, start: float, end: float, half_w: float) -> list:
                        for t, s in ((start, -half_w), (start, half_w), (end, half_w), (end, -half_w))])
 
 
-def entrance_steps(e: dict) -> dict:
+def entrance_steps(e: dict, keep_out: Sequence = (), building: Sequence = ()) -> dict:
     """The landing and steps in front of an entrance door above the ground (pure; assumed): a landing
     ``landing`` deep at the door's floor, then steps of at most ``step_rise`` and ``step_run`` deep down to the
     ground, as wide as the door + ``landing_side`` on each side. ``{"opening_id", "blocks": [{"polygon",
     "z_top"}], "end": distance from the wall face where the path starts, "count", "rise"}``; no blocks for a door
-    at grade."""
+    at grade. ``keep_out`` (the other doors' approach zones, ``door_approach``) and ``building`` (the outline) are
+    where a record's ramp may not run (``record_steps``, 26 Oct 2026)."""
     face = (e["centre"][0] + e["outward"][0] * e["half_t"], e["centre"][1] + e["outward"][1] * e["half_t"])
     half_w = e["width"] / 2.0 + INFERRED["landing_side"]
     if e.get("record") is not None:
-        return record_steps(e, face)
+        return record_steps(e, face, keep_out, building)
     if e["rise"] <= LIGHT_WELL_CLEARANCE:
         return {"opening_id": e["opening_id"], "blocks": [], "end": 0.0, "count": 0, "rise": 0.0, "face": face}
     n = max(1, int(math.ceil(e["rise"] / INFERRED["step_rise"] - 1e-9)))
@@ -1094,13 +1107,19 @@ HANDRAIL = {"height": 0.90, "inset": 0.05, "rail": 0.05, "post": 0.05}      # ou
 CHEEK = {"thickness": 0.15, "above": 0.10}
 
 
-def record_steps(e: dict, face) -> dict:
+def record_steps(e: dict, face, keep_out: Sequence = (), building: Sequence = ()) -> dict:
     """The landing, flights, intermediate landings, ramp, handrails and cheek walls of a ``site.entrances`` record
     (Milestone 12, pure): ``{"opening_id", "blocks": [{"polygon", "z_top"}], "end", "count", "rise", "face",
     "risers", "intermediate_landings", "ramp": {"polygon", "z_start", "z_end", "s"} | None, "rails": [(p0, p1)],
     "posts": [(p0, p1)], "cheeks": [{"polygon", "z_top"}], "solution"}``. The flight runs straight out from the
     landing (riser and tread of the record, an intermediate landing between flights); a ramp runs along the facade
-    from the landing's side, down to the ground; handrails 0.90 m above the walking line on both sides."""
+    from the landing's side, down to the ground; handrails 0.90 m above the walking line on both sides.
+
+    26 Oct 2026 (real06): a ramp never passes in front of another door. ``ramp_options`` lists the places in order
+    (along the facade from the landing's +u side, as before; from its -u side; straight out beside the flight, the
+    landing widened to reach it); the first whose ramp keeps clear of ``keep_out`` (the other doors' approach zones)
+    and of the ``building`` outline is built, its ``placement`` and ``reason`` on the ramp record; when none is
+    clear the first is built and ``reason`` says so. With nothing in the way the ramp is the one of before."""
     rec = e["record"]
     o = e["outward"]
     u = (-o[1], o[0])
@@ -1154,18 +1173,499 @@ def record_steps(e: dict, face) -> dict:
                 out["rails"] += [(a, b), (b, c)]
                 out["posts"] += [((p[0], p[1], p[2] - h), p) for p in (a, b, c)]
     if ramp:
-        length, rw = float(ramp["length"]), float(ramp["width"])
-        s0, s1 = half_w, half_w + length
-        d0, d1 = max(0.0, depth - rw), depth
-        poly = [at(s, dd, 0.0)[:2] for s, dd in ((s0, d0), (s1, d0), (s1, d1), (s0, d1))]
-        out["ramp"] = {"polygon": poly, "z_start": top, "z_end": ground, "s": [s0, s1], "d": [d0, d1],
-                       "length": length, "slope": ramp.get("slope")}
+        opts = ramp_options(at, ramp, top, ground, -half_w, half_w, 0.0, depth, 0.0, half_w)
+        pick = choose_ramp(opts, keep_out, building)
+        place_ramp(out, pick, top)
+    return out
+
+
+# 26 Oct 2026 (real06, user: "these sections not making sense"): the steps of the entrances are laid out together.
+# A door's approach zone (``door_approach``: the door's width + 0.1 m on each side, 1.0 m out) stays free of another
+# door's ramp and handrails; entrances whose landings and flights would meet or come within ``gap_m`` of each other
+# with their landings at one height (``level_tol_m``) share one platform with one flight (``entrance_layout``).
+APPROACH = {"side_m": 0.10, "depth_m": 1.0}
+ENTRANCE_GROUP = {"gap_m": 0.6, "level_tol_m": 0.05, "overlap_tol_m": 0.01, "outline_margin_m": 0.02,
+                  "rail_min_m": 0.02}
+RAMP_PLACES = ("along the facade (+u side of the landing)", "along the facade (-u side of the landing)",
+               "straight out beside the flight (+u side)", "straight out beside the flight (-u side)")
+
+
+HALL_ROOM_TYPES = ("hall", "stair", "corridor", "entry", "vestibule", "lobby", "foyer", "landing")
+GARAGE_ROOM_TYPES = ("garage", "carport", "parking")
+SERVICE_ROOM_TYPES = ("storage", "shaft", "laundry", "technical", "boiler", "utility")
+# folded (ASCII, lower-case) label words; Turkish, English, German, French (labels.AREA_KIND_WORDS' parking words)
+GARAGE_WORDS = ("garaj", "garage", "carport", "otopark", "park yeri", "car porch", "parking", "stellplatz")
+HALL_WORDS = ("antre", "hol", "koridor", "giris", "ruzgarlik", "hall", "entry", "entrance", "foyer", "lobby",
+              "vestibule", "corridor", "flur", "diele", "windfang", "couloir", "merdiven", "stair")
+_TR_FOLD = str.maketrans({"ı": "i", "İ": "i", "ş": "s", "Ş": "s", "ğ": "g", "Ğ": "g", "ç": "c", "Ç": "c", "ö": "o",
+                          "Ö": "o", "ü": "u", "Ü": "u"})
+
+
+def _fold(text) -> str:
+    import unicodedata
+    folded = unicodedata.normalize("NFKD", str(text or "").translate(_TR_FOLD))
+    return " ".join("".join(ch for ch in folded if not unicodedata.combining(ch)).lower().split())
+
+
+def room_role(room: Optional[dict]) -> Optional[str]:
+    """What a door leads into, for the entrance rules (pure; 26 Oct 2026): ``garage`` (a garage, carport or parking
+    room: its type or its label), ``hall`` (a hall, entry, corridor or stair room), ``service`` (storage, shafts,
+    technical rooms), else ``room``; None without a room."""
+    if not isinstance(room, dict):
+        return None
+    rtype = str(room.get("room_type") or "").lower()
+    words = " " + " ".join(_fold(room.get(k)) for k in ("label", "label_raw", "room_subtype", "name")) + " "
+    if rtype in GARAGE_ROOM_TYPES or any(f" {w}" in words for w in GARAGE_WORDS):
+        return "garage"
+    if rtype in HALL_ROOM_TYPES:
+        return "hall"
+    if rtype in SERVICE_ROOM_TYPES:
+        return "service"
+    if rtype in ("", "unknown", "other") and any(f" {w}" in words for w in HALL_WORDS):
+        return "hall"
+    return "room"
+
+
+def door_approach(e: dict, shrink: float = 0.0) -> list:
+    """The approach zone of a door (pure): the rectangle in front of its outer wall face, the door's width +
+    ``APPROACH["side_m"]`` on each side wide and ``APPROACH["depth_m"]`` deep, ``shrink`` smaller on every side.
+    ``e``: an entrance (``entrances``: ``centre``, ``outward``, ``width``, ``half_t``)."""
+    o = (float(e["outward"][0]), float(e["outward"][1]))
+    ht = float(e.get("half_t") or 0.1)
+    face = (float(e["centre"][0]) + o[0] * ht, float(e["centre"][1]) + o[1] * ht)
+    half = float(e.get("width") or 0.9) / 2.0 + APPROACH["side_m"] - shrink
+    return _rect_along(face, o, shrink, APPROACH["depth_m"] - shrink, max(half, 0.01))
+
+
+def convex_overlap(a: Sequence, b: Sequence, tol: float = 0.0) -> bool:
+    """Whether two convex polygons overlap by more than ``tol`` (pure; separating axes): polygons that only touch,
+    or overlap by ``tol`` or less, do not."""
+    a = [(float(p[0]), float(p[1])) for p in a]
+    b = [(float(p[0]), float(p[1])) for p in b]
+    if len(a) < 3 or len(b) < 3:
+        return False
+    for poly in (a, b):
+        n = len(poly)
+        for i in range(n):
+            ex, ey = poly[(i + 1) % n][0] - poly[i][0], poly[(i + 1) % n][1] - poly[i][1]
+            length = math.hypot(ex, ey)
+            if length < 1e-12:
+                continue
+            nx, ny = -ey / length, ex / length
+            pa = [x * nx + y * ny for x, y in a]
+            pb = [x * nx + y * ny for x, y in b]
+            if min(max(pa), max(pb)) - max(min(pa), min(pb)) <= tol:
+                return False
+    return True
+
+
+def convex_gap(a: Sequence, b: Sequence) -> float:
+    """The distance between two convex polygons (pure): 0 when they touch or overlap."""
+    if convex_overlap(a, b, 0.0):
+        return 0.0
+    best = math.inf
+    for i in range(len(a)):
+        p0, p1 = a[i], a[(i + 1) % len(a)]
+        for j in range(len(b)):
+            q0, q1 = b[j], b[(j + 1) % len(b)]
+            if _segments_cross(p0, p1, q0, q1):
+                return 0.0
+            best = min(best, G.point_segment_distance(p0, q0, q1), G.point_segment_distance(p1, q0, q1),
+                       G.point_segment_distance(q0, p0, p1), G.point_segment_distance(q1, p0, p1))
+    return best
+
+
+def segment_in_convex(p0: Sequence, p1: Sequence, poly: Sequence) -> float:
+    """The length of the segment ``p0``-``p1`` (2D; a 3D point's height is ignored) inside a convex polygon (pure;
+    Cyrus-Beck clipping)."""
+    pts = geom2d.ccw([(float(p[0]), float(p[1])) for p in poly])
+    if len(pts) < 3:
+        return 0.0
+    dx, dy = float(p1[0]) - float(p0[0]), float(p1[1]) - float(p0[1])
+    t0, t1 = 0.0, 1.0
+    for i in range(len(pts)):
+        a, b = pts[i], pts[(i + 1) % len(pts)]
+        nx, ny = -(b[1] - a[1]), b[0] - a[0]                 # the inner normal of a counter-clockwise edge
+        num = nx * (float(p0[0]) - a[0]) + ny * (float(p0[1]) - a[1])
+        den = nx * dx + ny * dy
+        if abs(den) < 1e-15:
+            if num < 0.0:
+                return 0.0
+            continue
+        t = -num / den
+        if den > 0.0:
+            t0 = max(t0, t)
+        else:
+            t1 = min(t1, t)
+        if t0 >= t1:
+            return 0.0
+    return (t1 - t0) * math.hypot(dx, dy)
+
+
+def inside_outline(poly: Sequence, outline: Sequence, margin: float = ENTRANCE_GROUP["outline_margin_m"]) -> bool:
+    """Whether a part of the convex polygon lies inside the (maybe concave) building outline by more than
+    ``margin`` (pure): its points on a grid of about 0.1 m (at most about 1500), each at least ``margin`` inside the
+    polygon. A polygon that only touches the outline's face is outside."""
+    if len(outline) < 3 or len(poly) < 3:
+        return False
+    pts = [(float(p[0]), float(p[1])) for p in poly]
+    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+    area = G.polygon_area(pts)
+    step = max(0.1, math.sqrt(area / 1500.0)) if area > 0 else 0.1
+    nx = max(1, int(math.ceil((max(xs) - min(xs)) / step)))
+    ny = max(1, int(math.ceil((max(ys) - min(ys)) / step)))
+    for i in range(nx + 1):
+        for j in range(ny + 1):
+            p = (min(xs) + (max(xs) - min(xs)) * i / nx, min(ys) + (max(ys) - min(ys)) * j / ny)
+            if not G.point_in_polygon(p, pts) or geom2d.distance_to_polygon_edges(p, pts) < margin:
+                continue
+            if G.point_in_polygon(p, outline) and geom2d.distance_to_polygon_edges(p, outline) > margin:
+                return True
+    return False
+
+
+def ramp_options(at, ramp: dict, top: float, ground: float, s0: float, s1: float, dlo: float, dfar: float,
+                 c: float, hw: float) -> list[dict]:
+    """The places of a ramp at a landing or platform (pure; 26 Oct 2026), in the order ``RAMP_PLACES``: along the
+    facade from the +u side of the landing (``s1``; the Milestone 12 place, unchanged), from its -u side (``s0``),
+    straight out from the far edge (``dfar``) beside the flight (centred at ``c``, half width ``hw``) on its +u and
+    -u side, the landing widened (``ext``) where the ramp's top lies beyond ``s0`` .. ``s1``. ``at(s, d, z)``: the
+    landing's frame (``d`` out from the wall face). Each: ``{"placement", "ramp", "ext": [polygon], "rails",
+    "posts"}``."""
+    length, rw = float(ramp["length"]), float(ramp["width"])
+    h, inset = HANDRAIL["height"], HANDRAIL["inset"]
+    d0, d1 = max(dlo, dfar - rw), dfar
+    out = []
+
+    def rec(placement, corners, s_rng, d_rng, rail_pairs, ext):
+        poly = [at(s, dd, 0.0)[:2] for s, dd in corners]
+        r = {"polygon": poly, "z_start": top, "z_end": ground, "s": list(s_rng), "d": list(d_rng),
+             "length": length, "slope": ramp.get("slope"), "placement": placement}
+        rails, posts = [], []
         if ramp.get("handrails"):
-            h = HANDRAIL["height"]
-            for dd in (d1 - HANDRAIL["inset"], d0 + HANDRAIL["inset"]):
-                a, b = at(s0, dd, top + h), at(s1, dd, ground + h)
-                out["rails"].append((a, b))
-                out["posts"] += [((p[0], p[1], p[2] - h), p) for p in (a, b)]
+            for (sa, da), (sb, db) in rail_pairs:
+                a, b = at(sa, da, top + h), at(sb, db, ground + h)
+                rails.append((a, b))
+                posts += [((p[0], p[1], p[2] - h), p) for p in (a, b)]
+        ext_polys = [geom2d.ccw([at(s, dd, 0.0)[:2] for s, dd in ((e0, d0), (e1, d0), (e1, d1), (e0, d1))])
+                     for e0, e1 in ext if e1 - e0 > 1e-6]
+        out.append({"placement": placement, "ramp": r, "ext": ext_polys, "rails": rails, "posts": posts})
+
+    # along the facade, +u side: exactly the Milestone 12 ramp (s from the landing's side out, near end first)
+    a0, a1 = s1, s1 + length
+    rec(RAMP_PLACES[0], ((a0, d0), (a1, d0), (a1, d1), (a0, d1)), (a0, a1), (d0, d1),
+        [((a0, dd), (a1, dd)) for dd in (d1 - inset, d0 + inset)], [])
+    b0, b1 = s0, s0 - length
+    rec(RAMP_PLACES[1], ((b0, d0), (b1, d0), (b1, d1), (b0, d1)), (b1, b0), (d0, d1),
+        [((b0, dd), (b1, dd)) for dd in (d1 - inset, d0 + inset)], [])
+    e0, e1 = dfar, dfar + length
+    pa, pb = c + hw, c + hw + rw                         # beside the flight, +u side
+    rec(RAMP_PLACES[2], ((pa, e0), (pa, e1), (pb, e1), (pb, e0)), (pa, pb), (e0, e1),
+        [((ss, e0), (ss, e1)) for ss in (pb - inset, pa + inset)], [(max(pa, s1), pb)] if pb > s1 + 1e-6 else [])
+    ma, mb = c - hw, c - hw - rw                         # beside the flight, -u side
+    rec(RAMP_PLACES[3], ((ma, e0), (ma, e1), (mb, e1), (mb, e0)), (mb, ma), (e0, e1),
+        [((ss, e0), (ss, e1)) for ss in (mb + inset, ma - inset)], [(mb, min(ma, s0))] if mb < s0 - 1e-6 else [])
+    return out
+
+
+def ramp_blocked(opt: dict, keep_out: Sequence, building: Sequence) -> Optional[str]:
+    """Why a ramp place (``ramp_options``) is not free (pure): ``"door <i>"`` when it crosses the i-th approach zone
+    of ``keep_out``, ``"building"`` when it runs into the outline, else None."""
+    tol = ENTRANCE_GROUP["overlap_tol_m"]
+    polys = [opt["ramp"]["polygon"]] + list(opt["ext"])
+    for k, zone in enumerate(keep_out or ()):
+        if any(convex_overlap(p, zone, tol) for p in polys):
+            return f"door {k}"
+    if building and any(inside_outline(p, building) for p in polys):
+        return "building"
+    return None
+
+
+def choose_ramp(opts: Sequence[dict], keep_out: Sequence, building: Sequence) -> dict:
+    """The first ramp place that keeps clear of the other doors' approach zones and of the building (pure), with
+    ``reason``; the first place when none is clear (its ``reason`` says so)."""
+    blocked = []
+    for opt in opts:
+        why = ramp_blocked(opt, keep_out, building)
+        if why is None:
+            reason = "" if not blocked else (f"the ramp runs {opt['placement']}: " + "; ".join(
+                f"{p} would pass in front of another door" if w.startswith("door") else f"{p} runs into the building"
+                for p, w in blocked) + " (inferred)")
+            return dict(opt, reason=reason, clear=True)
+        blocked.append((opt["placement"], why))
+    return dict(opts[0], clear=False, reason="no ramp place keeps clear of the other doors and the building: the ramp "
+                                             f"runs {opts[0]['placement']} (to review)")
+
+
+def place_ramp(out: dict, pick: dict, top: float) -> None:
+    """Puts the chosen ramp (``choose_ramp``) on a steps record (mutated): the ramp, its rails and posts, the
+    landing's widening (a block at the landing's height)."""
+    out["ramp"] = dict(pick["ramp"], reason=pick.get("reason") or "", clear=pick.get("clear", True))
+    out["rails"] += pick["rails"]
+    out["posts"] += pick["posts"]
+    for poly in pick["ext"]:
+        out["blocks"].append({"polygon": poly, "z_top": top})
+
+
+def steps_footprint(st: dict, cheeks: bool = True) -> list[list]:
+    """The plan polygons of an entrance's landing (or platform) and flight (pure): its blocks, with ``cheeks`` its
+    cheek walls too (no ramp)."""
+    polys = [b["polygon"] for b in st.get("blocks") or []]
+    if cheeks:
+        polys += [c["polygon"] for c in st.get("cheeks") or []]
+    return [p for p in polys if len(p) >= 3]
+
+
+def footprints_gap(a: Sequence, b: Sequence) -> float:
+    """The smallest distance between two lists of convex polygons (pure)."""
+    return min((convex_gap(p, q) for p in a for q in b), default=math.inf)
+
+
+def flight_spec(e: dict, st: dict) -> Optional[dict]:
+    """The flight of an entrance as its steps record makes it (pure): ``{"n", "riser", "tread", "flights",
+    "landing", "handrails", "cheeks", "top", "ground"}``, None without steps (a ramp only, or at grade)."""
+    if not st.get("blocks"):
+        return None
+    top = float(st["blocks"][0]["z_top"])
+    rec = e.get("record")
+    if rec is not None:
+        s = rec.get("steps")
+        if not s:
+            return None
+        ground = float(e["ground_z"])
+        n = int(s["count"])
+        r = (top - ground) / n if n > 0 and top > ground else float(s["riser"])
+        landing = float((rec.get("landing") or {}).get("depth", INFERRED["landing"]))
+        return {"n": n, "riser": r, "tread": float(s["tread"]), "flights": [int(k) for k in s.get("flights") or [n]],
+                "landing": landing, "handrails": bool(s.get("handrails")), "cheeks": bool(s.get("cheek_walls")),
+                "top": top, "ground": ground}
+    n = max(1, int(math.ceil(e["rise"] / INFERRED["step_rise"] - 1e-9)))
+    return {"n": n, "riser": e["rise"] / n, "tread": INFERRED["step_run"], "flights": [n],
+            "landing": INFERRED["landing"], "handrails": False, "cheeks": False, "top": top,
+            "ground": top - float(e["rise"])}
+
+
+def flight_parts(base, o, spec: dict, half_w: float) -> dict:
+    """One flight of steps from ``base`` (the middle of the platform's edge) out along ``o`` (pure; 26 Oct 2026):
+    the blocks of ``spec`` (``flight_spec``: risers, tread, an intermediate landing between flights, as
+    ``record_steps`` builds them), the cheek walls, handrails on both sides from the platform's edge to the last
+    tread and their posts. ``{"blocks", "cheeks", "rails", "posts", "end", "footprint"}``; ``end``: the run from
+    ``base``."""
+    u = (-o[1], o[0])
+
+    def at(s: float, d: float, z: float = 0.0) -> tuple[float, float, float]:
+        return (base[0] + u[0] * s + o[0] * d, base[1] + u[1] * s + o[1] * d, z)
+
+    blocks, cheeks, rails, posts = [], [], [], []
+    top, r, t = spec["top"], spec["riser"], spec["tread"]
+    d, z, done = 0.0, top, 0
+    for k in spec["flights"]:
+        for j in range(k):
+            z -= r
+            done += 1
+            if done >= spec["n"]:
+                break
+            run = spec["landing"] if j == k - 1 else t     # the last riser of a flight (not the last one): a landing
+            blocks.append({"polygon": _rect_along(base, o, d, d + run, half_w), "z_top": z})
+            if spec["cheeks"]:
+                for s0, s1 in ((half_w, half_w + CHEEK["thickness"]), (-half_w - CHEEK["thickness"], -half_w)):
+                    poly = geom2d.ccw([at(s, dd)[:2] for s, dd in ((s0, d), (s1, d), (s1, d + run), (s0, d + run))])
+                    cheeks.append({"polygon": poly, "z_top": z + CHEEK["above"]})
+            d += run
+    if spec["handrails"] and d > 1e-9:
+        h = HANDRAIL["height"]
+        for s in (half_w - HANDRAIL["inset"], -half_w + HANDRAIL["inset"]):
+            a, c = at(s, 0.0, top + h), at(s, d, spec["ground"] + r + h)
+            rails.append((a, c))
+            posts += [((p[0], p[1], p[2] - h), p) for p in (a, c)]
+    side = half_w + (CHEEK["thickness"] if spec["cheeks"] else 0.0)
+    return {"blocks": blocks, "cheeks": cheeks, "rails": rails, "posts": posts, "end": d,
+            "footprint": _rect_along(base, o, 0.0, d, side) if d > 1e-9 else []}
+
+
+def entrance_lead(group: Sequence[dict]) -> dict:
+    """The door a shared platform is laid out from (pure): the main entrance when it is in the group, else the widest
+    door (then the first by id)."""
+    mains = [e for e in group if (e.get("record") or {}).get("main")]
+    return mains[0] if mains else sorted(group, key=lambda e: (-float(e["width"]), str(e["opening_id"])))[0]
+
+
+def merged_steps(group: Sequence[dict], single: dict, zones: dict, building: Sequence) -> dict:
+    """One platform and one flight for entrances whose steps would meet (pure; 26 Oct 2026, real06: two doors in the
+    inner corner of an L got a landing and four risers each, the flights ran into each other at right angles and
+    their handrails crossed in front of the small door).
+
+    The platform: the rectangle around the members' landings in the lead door's frame (``entrance_lead``), the
+    building outline cut out of it (``geom2d.convex_pieces``), at the lead's landing height. The flight: the lead's
+    risers and tread (``flight_spec``), from the platform's free edge in the lead's outward direction, centred on the
+    lead door (moved inside the edge when the platform is narrower there); when it would run into the building or in
+    front of another door, from the platform's side edges (``u``, ``-u``) instead. Handrails run along the flight
+    only (never along the platform in front of a door); no member keeps its own steps; a ramp of the lead (or of a
+    member) starts at the platform (``ramp_options``). The record has ``members`` (the other doors), ``doors``,
+    ``platform`` and ``flight``; ``path_face`` / ``path_dir`` say where the path starts."""
+    lead = entrance_lead(group)
+    lid = lead["opening_id"]
+    lst = single[lid]
+    o = (float(lead["outward"][0]), float(lead["outward"][1]))
+    u = (-o[1], o[0])
+    face = (float(lst["face"][0]), float(lst["face"][1]))
+
+    def at(s: float, d: float, z: float = 0.0) -> tuple[float, float, float]:
+        return (face[0] + u[0] * s + o[0] * d, face[1] + u[1] * s + o[1] * d, z)
+
+    ss, dd = [], []
+    for e in group:
+        for p in single[e["opening_id"]]["blocks"][0]["polygon"]:
+            ss.append((p[0] - face[0]) * u[0] + (p[1] - face[1]) * u[1])
+            dd.append((p[0] - face[0]) * o[0] + (p[1] - face[1]) * o[1])
+    s0, s1, d0, d1 = min(ss), max(ss), min(dd), max(dd)
+    rect = geom2d.ccw([at(s, d)[:2] for s, d in ((s0, d0), (s1, d0), (s1, d1), (s0, d1))])
+    cut = len(building) >= 3 and inside_outline(rect, building)          # else the rectangle stays one block
+    pieces = geom2d.convex_pieces(rect, [building]) if cut else [rect]
+    pieces = [geom2d.ccw(p) for p in pieces if len(p) >= 3 and G.polygon_area(p) > 1e-4]
+    if not pieces:
+        pieces = [rect]
+    loops = geom2d.polygon_union_outline(pieces) if len(pieces) > 1 else [pieces[0]]
+    outline = max((lp for lp in loops if G.polygon_signed_area(lp) > 0), key=G.polygon_area, default=rect)
+    top = float(lst["blocks"][0]["z_top"])
+    members = [e for e in group if e["opening_id"] != lid]
+    ids = [lid] + sorted(e["opening_id"] for e in members)
+    order = [lead] + sorted(members, key=lambda e: (-float(e["width"]), str(e["opening_id"])))
+    spec = next((sp for sp in (flight_spec(e, single[e["opening_id"]]) for e in order) if sp is not None), None)
+    if spec is not None:
+        spec = dict(spec, top=top)
+    hw = float(lead["width"]) / 2.0 + INFERRED["landing_side"]
+    if lead.get("record") is not None and (lead["record"].get("landing") or {}).get("width"):
+        hw = float(lead["record"]["landing"]["width"]) / 2.0
+    c = 0.0 if s1 - s0 >= 2 * hw else (s0 + s1) / 2.0
+    c = min(max(c, s0 + hw), s1 - hw) if s1 - s0 >= 2 * hw else c
+    dm = (d0 + d1) / 2.0
+    cd = min(max(dm, d0 + hw), d1 - hw) if d1 - d0 >= 2 * hw else dm
+    cands = [("out from the platform's free edge, centred on the lead door", at(c, d1)[:2], o),
+             ("from the platform's +u side edge", at(s1, cd)[:2], u),
+             ("from the platform's -u side edge", at(s0, cd)[:2], (-u[0], -u[1]))]
+    keep = list(zones.values())                # every door's approach zone (the members' lie on the platform)
+    tol = ENTRANCE_GROUP["overlap_tol_m"]
+    flight, placement, base, fdir, note = None, cands[0][0], cands[0][1], cands[0][2], ""
+    if spec is not None:
+        tried = []
+        for name, b, dvec in cands:
+            fp = flight_parts(b, dvec, spec, hw)
+            polys = [x["polygon"] for x in fp["blocks"] + fp["cheeks"]]
+            probe = (b[0] - dvec[0] * 0.05, b[1] - dvec[1] * 0.05)     # the flight's top meets the platform there
+            blocked = ("another door's approach" if any(convex_overlap(p, z, tol) for p in polys for z in keep)
+                       else "the building" if any(inside_outline(p, building) for p in polys)
+                       else "no platform edge" if not any(G.point_in_polygon(probe, p) for p in pieces) else None)
+            if blocked is None:
+                flight, placement, base, fdir = fp, name, b, dvec
+                break
+            tried.append(f"{name} would run into {blocked}")
+        if flight is None:
+            b, dvec = cands[0][1], cands[0][2]
+            flight, placement, base, fdir = flight_parts(b, dvec, spec, hw), cands[0][0], b, dvec
+            note = "; no free edge: " + "; ".join(tried) + " (to review)"
+        elif tried:
+            note = "; " + "; ".join(tried)
+    else:
+        flight = {"blocks": [], "cheeks": [], "rails": [], "posts": [], "end": 0.0, "footprint": []}
+    rec0 = lead.get("record") or {}
+    out = {"opening_id": lid, "members": ids[1:], "doors": ids, "face": face,
+           "blocks": [{"polygon": p, "z_top": top} for p in pieces] + flight["blocks"],
+           "cheeks": list(flight["cheeks"]), "rails": list(flight["rails"]), "posts": list(flight["posts"]),
+           "end": flight["end"], "count": max(0, (spec or {"n": 1})["n"] - 1),
+           "rise": round((spec or {"riser": 0.0})["riser"], 4), "risers": (spec or {"n": 0})["n"],
+           "intermediate_landings": len((spec or {"flights": [0]})["flights"]) - 1, "ramp": None,
+           "solution": rec0.get("solution") or ("steps" if spec else "none"),
+           "path_face": base, "path_dir": fdir,
+           "platform": {"polygon": [list(map(float, p)) for p in outline], "pieces": len(pieces), "z": top,
+                        "size_m": [round(s1 - s0, 3), round(d1 - d0, 3)],
+                        "area_m2": round(sum(G.polygon_area(p) for p in pieces), 3)},
+           "flight": {"placement": placement, "base": list(base), "dir": list(fdir), "width": round(2 * hw, 3),
+                      "run": round(flight["end"], 3), "footprint": flight["footprint"]}}
+    ramp_e = next((e for e in order if (e.get("record") or {}).get("ramp")), None)
+    if ramp_e is not None:
+        ramp = ramp_e["record"]["ramp"]
+        primary = placement == cands[0][0]
+        opts = ramp_options(at, ramp, top, float(ramp_e["ground_z"]), s0, s1, d0, d1, c, hw)
+        if not primary:
+            opts = opts[:2]                    # beside the flight only when the flight leaves from the far edge
+        extra = [flight["footprint"]] if len(flight["footprint"]) >= 3 else []
+        pick = choose_ramp(opts, keep + extra, building)
+        place_ramp(out, pick, top)
+        out["solution"] = "steps_and_ramp" if spec is not None else "ramp"
+    feet = {e["opening_id"]: steps_footprint(single[e["opening_id"]], False) for e in group}
+    gap = max((min(footprints_gap(feet[a], feet[b]) for b in feet if b != a) for a in feet), default=0.0)
+    w, dpt = out["platform"]["size_m"]
+    rails = "handrails along the flight only" if out["rails"] else "no handrails (a low rise)"
+    cut_note = " (the building cut out)" if out["platform"]["area_m2"] < w * dpt - 1e-3 else ""
+    flight_note = (f"one flight of {out['risers']} riser(s) {placement} ({lid})" if out["risers"] > 1 else
+                   f"the platform's edge is the one step ({out['rise']:.2f} m)" if out["risers"] == 1 else
+                   "no steps (a ramp)")
+    out["reason"] = (f"doors {', '.join(ids)}: their landings and steps would meet (at most {gap:.2f} m apart, "
+                     f"landings at {top:+.2f} m): one platform {w:.2f} x {dpt:.2f} m in front of all of them"
+                     f"{cut_note}, {flight_note}, {rails}; no door keeps steps of its own (inferred){note}")
+    return out
+
+
+def entrance_layout(ents: Sequence[dict], outline: Sequence = ()) -> dict:
+    """The steps of all the entrances, laid out together (pure; 26 Oct 2026, CLAUDE.md: every fix a rule for every
+    project). Each door's own steps first (``entrance_steps``; a ramp keeps clear of the other doors' approach zones
+    and of the building, ``record_steps``); then the entrances whose landing and flight footprints overlap or come
+    within ``ENTRANCE_GROUP["gap_m"]`` of each other, with their landings within ``level_tol_m`` in height, are
+    grouped (transitively) and each group becomes one platform with one flight (``merged_steps``). Returns
+    ``{"steps": {door id: steps record} (the lead's for a group; a member has none), "members": {member: lead},
+    "groups": [[door ids]], "assumed": [{"field", "value", "reason"}], "warnings": [...]}``; single entrances keep
+    the record of before."""
+    ents = list(ents)
+    building = geom2d.ccw(outline) if len(outline) >= 3 else []
+    zones = {e["opening_id"]: door_approach(e) for e in ents}
+    single = {}
+    for e in ents:
+        others = [z for i, z in zones.items() if i != e["opening_id"]]
+        single[e["opening_id"]] = entrance_steps(e, others, building)
+    stepped = [e for e in ents if single[e["opening_id"]]["blocks"]]
+    parent = {e["opening_id"]: e["opening_id"] for e in stepped}
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    feet = {e["opening_id"]: steps_footprint(single[e["opening_id"]], cheeks=False) for e in stepped}
+    for i, a in enumerate(stepped):
+        for b in stepped[i + 1:]:
+            ta = float(single[a["opening_id"]]["blocks"][0]["z_top"])
+            tb = float(single[b["opening_id"]]["blocks"][0]["z_top"])
+            if abs(ta - tb) > ENTRANCE_GROUP["level_tol_m"] + 1e-9:
+                continue
+            if footprints_gap(feet[a["opening_id"]], feet[b["opening_id"]]) <= ENTRANCE_GROUP["gap_m"] + 1e-9:
+                parent[find(a["opening_id"])] = find(b["opening_id"])
+    comps: dict = {}
+    for e in stepped:
+        comps.setdefault(find(e["opening_id"]), []).append(e)
+    out = {"steps": dict(single), "members": {}, "groups": [], "assumed": [], "warnings": []}
+    for group in sorted((g for g in comps.values() if len(g) >= 2), key=lambda g: sorted(e["opening_id"] for e in g)):
+        group = sorted(group, key=lambda e: str(e["opening_id"]))
+        st = merged_steps(group, single, zones, building)
+        for m in st["members"]:
+            out["steps"].pop(m, None)
+            out["members"][m] = st["opening_id"]
+        out["steps"][st["opening_id"]] = st
+        out["groups"].append(st["doors"])
+        out["assumed"].append({"field": f"entrance_platform:{','.join(st['doors'])}",
+                               "value": {"doors": st["doors"], "size_m": st["platform"]["size_m"],
+                                         "z": round(st["platform"]["z"], 3), "flight": st["flight"]["placement"]},
+                               "reason": st["reason"]})
+        if "(to review)" in st["reason"]:
+            out["warnings"].append(f"entrance platform {','.join(st['doors'])}: no free edge for its flight")
+    for st in out["steps"].values():
+        ramp = st.get("ramp")
+        if ramp and (ramp.get("reason") or not ramp.get("clear", True)):
+            out["assumed"].append({"field": f"ramp:{st['opening_id']}", "value": ramp.get("placement"),
+                                   "reason": ramp.get("reason") or ""})
+            if not ramp.get("clear", True):
+                out["warnings"].append(f"ramp of {st['opening_id']}: no place keeps clear of the other doors")
     return out
 
 
@@ -1224,16 +1724,18 @@ def entrance_meshes(st: dict, terrain: dict) -> list[dict]:
 def entrance_paths(ents: Sequence[dict], steps: dict, plot: Sequence) -> list[dict]:
     """A path from every entrance (the end of its steps) straight out to the plot edge (pure; assumed),
     ``path_width`` wide; paths of one facade that overlap are one path. ``[{"opening_ids", "polygon", "outward",
-    "length"}]``."""
+    "length"}]``. 26 Oct 2026: a shared platform's path starts at the end of its one flight (``path_face`` /
+    ``path_dir`` of ``merged_steps``); the caller leaves the platform's other doors out (``entrance_layout``)."""
     raw = []
     for e in ents:
         st = steps.get(e["opening_id"]) or {"end": 0.0, "face": e["centre"]}
-        face = st["face"]
-        reach = ray_exit(face, e["outward"], plot) if plot else None
+        face = st.get("path_face") or st["face"]
+        out_dir = tuple(st.get("path_dir") or e["outward"])
+        reach = ray_exit(face, out_dir, plot) if plot else None
         if reach is None or reach <= st["end"] + 0.2:
             continue
         half = INFERRED["path_width"] / 2.0
-        raw.append({"opening_ids": [e["opening_id"]], "outward": tuple(e["outward"]), "face": face,
+        raw.append({"opening_ids": list(st.get("doors") or [e["opening_id"]]), "outward": out_dir, "face": face,
                     "start": st["end"], "end": reach + 0.05, "half": half})
     merged: list[dict] = []
     for p in raw:
@@ -1479,9 +1981,11 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
     none is drawn). ``options``: ``overrides.site_options``. Returns ``{"plot", "plot_inferred", "main",
     "entrances", "steps", "paths", "boundary", "trees", "assumed", "warnings", "tree_stats"}``. Fix round after P4b
     (17 Oct 2026): when it infers trees, ``assumed`` gets ``trees_record``'s entry (placed k of n, the filters) and
-    ``warnings`` its warning when fewer than asked are placed; ``tree_stats`` keeps ``place_trees``' stats."""
+    ``warnings`` its warning when fewer than asked are placed; ``tree_stats`` keeps ``place_trees``' stats.
+    26 Oct 2026: the steps come from ``entrance_layout`` (a shared platform is one ``steps`` record with its
+    ``members``; ``entrance_groups`` lists the groups; the members get no path of their own)."""
     out = {"plot": list(plot), "plot_inferred": False, "main": None, "entrances": [], "steps": [], "paths": [],
-           "boundary": [], "trees": [], "assumed": [], "warnings": [], "tree_stats": None}
+           "boundary": [], "trees": [], "assumed": [], "warnings": [], "tree_stats": None, "entrance_groups": []}
     if len(outline) < 3:
         return out
     if not plot:
@@ -1493,14 +1997,23 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
     out["main"] = main_facade(building, levels, terrain, outline, outlines)
     ents = entrances(building, levels, terrain, outline, outlines)
     out["entrances"] = [{k: (list(v) if isinstance(v, tuple) else v) for k, v in e.items()} for e in ents]
-    steps = {e["opening_id"]: entrance_steps(e) for e in ents}
+    # 26 Oct 2026 (real06): the entrances are laid out together: doors whose steps would meet share one platform and
+    # one flight, a ramp keeps clear of the other doors (entrance_layout)
+    layout = entrance_layout(ents, outline)
+    steps = layout["steps"]
     out["steps"] = [s for s in steps.values() if s["blocks"]]
+    out["entrance_groups"] = layout["groups"]
     for s in out["steps"]:
+        what = (f"a platform for doors {', '.join(s['doors'])} and {s['count']} steps" if s.get("members")
+                else f"a landing and {s['count']} steps")
         out["assumed"].append({"field": f"steps:{s['opening_id']}", "value": s["count"],
-                               "reason": f"entrance door {s['rise'] * (s['count'] + 1):.2f} m above the ground: a "
-                                         f"landing and {s['count']} steps of {s['rise']:.3f} m (inferred)"})
+                               "reason": f"entrance door {s['rise'] * (s['count'] + 1):.2f} m above the ground: "
+                                         f"{what} of {s['rise']:.3f} m (inferred)"})
+    out["assumed"] += layout["assumed"]
+    out["warnings"] += layout["warnings"]
     if options.get("path", True):
-        out["paths"] = entrance_paths(ents, steps, out["plot"])
+        out["paths"] = entrance_paths([e for e in ents if e["opening_id"] not in layout["members"]], steps,
+                                      out["plot"])
         for p in out["paths"]:
             out["assumed"].append({"field": f"path:{','.join(p['opening_ids'])}", "value": p["length"],
                                    "reason": "a paved path from the plot edge to the entrance (inferred)"})
@@ -3710,9 +4223,12 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                             kind=mesh["kind"], status="assumed", materials=[mat])
                 entry(ob.name, wid, mesh["kind"], mat, "assumed",
                       {"parent": st["opening_id"], "inferred": True, "entrance": st["opening_id"],
+                       "doors": list(st.get("doors") or [st["opening_id"]]),
                        "assumed": {"steps": st["count"], "risers": st.get("risers"), "rise_m": st["rise"],
-                                   "solution": st.get("solution"), "reason": "entrance above the ground: a landing "
-                                                                             "and steps (inferred)"}})
+                                   "solution": st.get("solution"),
+                                   # 26 Oct 2026: doors whose steps would meet share one platform (entrance_layout)
+                                   "reason": st.get("reason") or "entrance above the ground: a landing and steps "
+                                                                 "(inferred)"}})
         kinds = sorted({seg["kind"] for seg in inferred["boundary"]})
         for kind in kinds:
             if kind == "hedge" and levers.get("hedge"):
@@ -3736,7 +4252,9 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
             "steps": [{"opening_id": s["opening_id"], "count": s["count"], "rise": s["rise"],
                        "solution": s.get("solution"), "risers": s.get("risers"),
                        "intermediate_landings": s.get("intermediate_landings"), "ramp": bool(s.get("ramp")),
-                       "handrails": bool(s.get("rails"))} for s in inferred["steps"]],
+                       "handrails": bool(s.get("rails")), "doors": list(s.get("doors") or [s["opening_id"]]),
+                       "platform_m": (s.get("platform") or {}).get("size_m"),
+                       "ramp_placement": (s.get("ramp") or {}).get("placement")} for s in inferred["steps"]],
             "paths": [{"opening_ids": p["opening_ids"], "length": p["length"], "width": p["width"]}
                       for p in inferred["paths"]],
             "boundary": kinds[0] if kinds else None, "trees": [t["id"] for t in inferred["trees"]],

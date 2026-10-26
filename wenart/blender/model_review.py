@@ -18,7 +18,13 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   ``area_per_pipe_m2`` of roof (at least 2), no gutter run shorter than ``GUTTER_MIN_M``;
 - M6 one door and window language: one library model family per opening category of the building;
 - M7 the rooms make sense: a kitchen has its run, a bedroom its bed, a bathroom its WC and basin, a living room its
-  seating; one dining table per room.
+  seating; one dining table per room;
+- M8 the entrances make sense (26 Oct 2026, real06: two flights ran into each other in the inner corner of an L and
+  their handrails crossed in front of the small door; user: "these sections not making sense, the AI inspector needs
+  to make sense of this"): the steps and landings of two doors never overlap (critical), no handrail crosses another
+  door's approach zone (``site.door_approach``: the door's width + 0.1 m on each side, 1.0 m out; critical), no ramp
+  passes in front of another door (major), no steps or landing in front of a door into a garage or carport (major).
+  Measured on the steps as built (``prep["site"]["inferred"]``: ``site.entrance_layout``).
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -51,7 +57,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8")
 REVIEW_JSON = "model_review.json"          # beside the scene (outputs/<p>/scene/)
 REVIEW_MD = "model_review.md"
 
@@ -265,6 +271,58 @@ def rooms_make_sense(built: dict, manifest: Optional[dict]) -> tuple[list[dict],
     return out, n
 
 
+def entrances_make_sense(built: dict, inferred: Optional[dict]) -> tuple[list[dict], int]:
+    """M8: the entrance steps as built (``inferred``: the site plan's ``inferred`` with ``entrances`` and ``steps``,
+    ``site.inferred_site``) against each other, the other doors' approach zones and the garage doors."""
+    from wenart.blender import site as S
+    ents = [e for e in (inferred or {}).get("entrances") or [] if isinstance(e, dict) and e.get("centre")]
+    steps = [st for st in (inferred or {}).get("steps") or [] if isinstance(st, dict)]
+    rooms = {r.get("id"): r for r in built.get("rooms") or [] if isinstance(r, dict)}
+    room_of = {e["opening_id"]: (e.get("record") or {}).get("room_id") for e in ents}
+    zones = {e["opening_id"]: S.door_approach(e) for e in ents}
+    rail_zones = {e["opening_id"]: S.door_approach(e, shrink=0.01) for e in ents}
+    tol = S.ENTRANCE_GROUP["overlap_tol_m"]
+    garages = {i for i, rid in room_of.items() if S.room_role(rooms.get(rid)) == "garage"}
+
+    def doors(st):
+        return [st["opening_id"]] + [m for m in st.get("members") or [] if m != st["opening_id"]]
+
+    out = []
+    feet = [S.steps_footprint(st) for st in steps]
+    for i, a in enumerate(steps):
+        for j in range(i + 1, len(steps)):
+            b = steps[j]
+            if any(S.convex_overlap(p, q, tol) for p in feet[i] for q in feet[j]):
+                da, db = doors(a), doors(b)
+                out.append(_v("M8", "critical", da[0], f"the steps and landing of {', '.join(da)} and those of "
+                              f"{', '.join(db)} overlap: two flights run into each other (one platform with one "
+                              f"flight belongs there)", room_of.get(da[0]), doors=da + db))
+    for st in steps:
+        own = set(doors(st))
+        for door, zone in rail_zones.items():
+            if door in own:
+                continue
+            inside = sum(S.segment_in_convex(p0, p1, zone) for p0, p1 in st.get("rails") or [])
+            if inside > S.ENTRANCE_GROUP["rail_min_m"]:
+                out.append(_v("M8", "critical", door, f"a handrail of the steps of {', '.join(doors(st))} crosses "
+                              f"the way out of {door} ({inside:.2f} m of rail in front of the door): nobody gets "
+                              f"through", room_of.get(door), steps_of=doors(st), rail_m=round(inside, 3)))
+        ramp = st.get("ramp") or {}
+        if len(ramp.get("polygon") or []) >= 3:
+            for door, zone in zones.items():
+                if door not in own and S.convex_overlap(ramp["polygon"], zone, tol):
+                    out.append(_v("M8", "major", door, f"the ramp of {', '.join(doors(st))} passes in front of "
+                                  f"{door}", room_of.get(door), ramp_of=doors(st)))
+        for door in sorted(garages):
+            if door in own:
+                out.append(_v("M8", "major", door, f"{door} leads into a garage or carport, and steps and a landing "
+                              f"stand in front of it: a car cannot drive in", room_of.get(door), steps_of=doors(st)))
+            elif any(S.convex_overlap(p, zones[door], tol) for p in S.steps_footprint(st)):
+                out.append(_v("M8", "major", door, f"the steps of {', '.join(doors(st))} stand in front of the garage "
+                              f"door {door}", room_of.get(door), steps_of=doors(st)))
+    return out, len(ents)
+
+
 def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[dict] = None) -> dict:
     """The review of the built model (module docstring). ``prep``: ``build.prepare`` of ``built`` (made here when not
     given; the plan of a whole building has the site, the outlines and the roof the facade kit needs)."""
@@ -307,6 +365,17 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
     except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
         for cid in ("M3", "M4", "M5"):
             checks.setdefault(cid, {"status": "error", "note": f"{type(exc).__name__}: {exc}"})
+    # M8 (26 Oct 2026): the entrance steps as the build made them (the site plan's inferred site)
+    inferred = ((prep or {}).get("site") or {}).get("inferred")
+    if inferred is None:
+        checks["M8"] = {"status": "unavailable", "note": "no inferred site (site: ground, or no plan): no entrance "
+                                                         "steps built"}
+    else:
+        try:
+            got, n = entrances_make_sense(built, inferred)
+            note("M8", got, n)
+        except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
+            checks["M8"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     return {"findings": findings, "checks": checks}
 
 

@@ -725,25 +725,81 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
             _apply_entrance_override(rec, agent, max(rise, 0.0), top, width, params)
         rec["evidence"].append(_evidence(file, "entrance", rec["reason"]))
         out.append(rec)
-    # The main entrance: the widest door of the main facade (the side with the most entrances at the ground).
+    # The main entrance (26 Oct 2026, main_entrance): the door a visitor uses, not the widest garden door.
     usable = [e for e in out if not e["into_air"] and not e["below_ground"]]
     if usable:
-        counts: dict = {}
-        for e in usable:
-            counts[S.nearest_axis(e["outward"])] = counts.get(S.nearest_axis(e["outward"]), 0) + 1
-        order = ("-y", "+y", "-x", "+x")
-        axis = max(counts, key=lambda a: (counts[a], -order.index(a)))
-        marked = [e for e in usable if any(m.get("kind") == "entrance" and e["door_id"] in
-                                           " ".join(m.get("used_for") or []) for m in marks)]
-        main = (marked or sorted((e for e in usable if S.nearest_axis(e["outward"]) == axis),
-                                 key=lambda e: (-e["width"], e["door_id"])))[0]
+        main, why = main_entrance(b, usable, marks)
         main["main"] = True
+        main["main_reason"] = why
         if brief_ramp and main["solution"] == "steps":
             rise = main["rise"]
             main["ramp"] = ramp_for(rise, params)
             main["solution"] = "steps_and_ramp"
             main["reason"] += f"; brief levels.accessible_entrance: a ramp {main['ramp']['ratio']} (inferred)"
     return out
+
+
+# 26 Oct 2026 (real06: the 2.95 m sliding garden door was the main entrance, as the widest door of the main facade;
+# the small swing door beside it in the same corner is the house's door): the main entrance is chosen by what the
+# door is. A hinged door 0.80-1.30 m wide (0.75 m counts: the architect's D1 widens an outside door to 0.80 m; a
+# double leaf up to 1.60 m) is an entrance door; a door wider than 1.60 m is a garden or terrace door.
+MAIN_DOOR_WIDTH = (0.75, 1.30)
+MAIN_DOUBLE_MAX = 1.60
+GARDEN_DOOR_MIN = 1.60
+HINGED = (None, "swing", "double", "unknown")          # building.schema: operation null = swing (assumed)
+
+
+def main_tier(e: dict, opening: Optional[dict], room: Optional[dict], marked: bool) -> tuple[int, str]:
+    """``(tier, reason)`` of an entrance for the main entrance (pure; lower is better): 0 a door marked as the
+    entrance in the documents (a GIRIS / entrance mark); 1 a hinged entrance-size door into a hall, entry, corridor or
+    stair room; 2 such a door into another room (not a garage or a service room); 3 any other door up to
+    ``GARDEN_DOOR_MIN``; 4 a wider (garden or terrace) door."""
+    from wenart.blender import site as S
+
+    w = float(e.get("width") or 0.0)
+    op = (opening or {}).get("operation")
+    role = S.room_role(room)
+    into = (f"the {room.get('room_type') or 'room'} {room['id']}" if isinstance(room, dict) and room.get("id")
+            else "the building")
+    what = f"{e['door_id']}, a {w:.2f} m {op or 'swing'} door into {into}"
+    if marked:
+        return 0, f"{what}: marked as the entrance in the documents"
+    size = op in HINGED and (MAIN_DOOR_WIDTH[0] - 1e-6 <= w <= MAIN_DOOR_WIDTH[1] + 1e-6
+                             or (op == "double" and MAIN_DOOR_WIDTH[0] - 1e-6 <= w <= MAIN_DOUBLE_MAX + 1e-6))
+    if size and role == "hall":
+        return 1, f"{what}: a hinged entrance door into a hall (inferred)"
+    if size and role in (None, "room"):
+        return 2, f"{what}: no entrance door into a hall; a hinged entrance-size door into a room (inferred)"
+    if w <= GARDEN_DOOR_MIN + 1e-6:
+        return 3, f"{what}: no hinged entrance door into a hall or a room; the next door up to " \
+                  f"{GARDEN_DOOR_MIN:.2f} m (inferred)"
+    return 4, f"{what}: only garden or terrace doors (over {GARDEN_DOOR_MIN:.2f} m) lead outside (inferred)"
+
+
+def main_entrance(b: dict, usable: Sequence[dict], marks: Sequence[dict]) -> tuple[dict, str]:
+    """The main entrance among the usable ``site.entrances`` records (pure; 26 Oct 2026): the best ``main_tier``,
+    then a door of the main facade (the side with the most entrances), then the widest, then by id. Returns the
+    record and the reason (kept on the record as ``main_reason``)."""
+    from wenart.blender import site as S
+
+    counts: dict = {}
+    for e in usable:
+        counts[S.nearest_axis(e["outward"])] = counts.get(S.nearest_axis(e["outward"]), 0) + 1
+    order = ("-y", "+y", "-x", "+x")
+    axis = max(counts, key=lambda a: (counts[a], -order.index(a)))
+    ops = {o.get("id"): o for o in b.get("openings") or [] if isinstance(o, dict)}
+    rooms = {r.get("id"): r for r in b.get("rooms") or [] if isinstance(r, dict)}
+    ranked = []
+    for e in usable:
+        marked = any(m.get("kind") == "entrance" and e["door_id"] in " ".join(m.get("used_for") or []) for m in marks)
+        tier, why = main_tier(e, ops.get(e["door_id"]), rooms.get(e.get("room_id")), marked)
+        ranked.append(((tier, S.nearest_axis(e["outward"]) != axis, -float(e["width"]), str(e["door_id"])), e, why))
+    ranked.sort(key=lambda x: x[0])
+    _key, main, why = ranked[0]
+    if len(ranked) > 1:
+        why += f"; {len(ranked) - 1} other outside door(s): " + ", ".join(
+            f"{e['door_id']} (tier {k[0]})" for k, e, _w in ranked[1:])
+    return main, why
 
 
 def _apply_entrance_override(rec: dict, agent: dict, rise: float, top: float, width: float, params: dict) -> None:

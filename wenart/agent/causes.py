@@ -309,6 +309,9 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     "guard": (),
     "opening_style": (),
     "rain_water": (),
+    # 26 Oct 2026: the model review's M8 (steps of two doors that meet, a handrail or a ramp in front of another
+    # door, steps in front of a garage): the site stage lays out every entrance's steps by code
+    "entrance_layout": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -357,6 +360,10 @@ NO_TOOL_REASON: dict[str, str] = {
     "opening_style": "the door and window models are chosen by code for the whole building (one language); reported "
                      "to the openings stage",
     "rain_water": "the gutters and downpipes are planned by code for the whole roof (A1); reported to the architect",
+    "entrance_layout": "the landings, steps, ramps and handrails in front of the doors are laid out by code for all "
+                       "the entrances together (site.entrance_layout: doors whose steps would meet share one platform "
+                       "with one flight, a ramp and the handrails keep clear of the other doors); no agent tool moves "
+                       "them, so the finding is reported to the site stage",
     "drawn_type": "the piece is drawn and its type is one the room's types hold (the code's room rules, aliases "
                   "included): drawn furniture is kept (CLAUDE.md), and a vision opinion on its type is no reading "
                   "error, so it is reported for review, not retyped",
@@ -380,6 +387,8 @@ REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor",
                              # 26 Oct 2026: the visitor checks the architect's rules own (E1, O2, D4, W3, A1, K2)
                              "opening_sense": "architect", "guard": "architect", "opening_style": "openings",
                              "rain_water": "architect",
+                             # 26 Oct 2026: the entrance steps (model review M8) are the site stage's
+                             "entrance_layout": "site",
                              # fix round after P4b: a frozen replayed camera, a decor light's model
                              "replayed_camera": "cameras", "decor_model": "decor",
                              # fix round after P5: a blocked view the camera search could not avoid
@@ -427,7 +436,7 @@ CHECK_CAUSE: dict[str, str] = {
     "Q6": "orientation", "Q7": "opening_style", "Q8": "rain_water",
     # 26 Oct 2026: the review of the 3D model as built (wenart/blender/model_review.py; cause_of refines M7)
     "M1": "levels", "M2": "wrong_model", "M3": "guard", "M4": "opening_sense", "M5": "rain_water",
-    "M6": "opening_style", "M7": "missing_anchor",
+    "M6": "opening_style", "M7": "missing_anchor", "M8": "entrance_layout",
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",
