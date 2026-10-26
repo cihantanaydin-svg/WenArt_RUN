@@ -208,7 +208,7 @@ class _Room:
         self.polys = {pid: p.polygon() for pid, p in self.pieces.items()}
         # Floor pieces the placer checks: built, typed, standing on the floor.
         self.floor = [f for f in self.built if f["id"] in self.pieces and f["type"] != "unknown"
-                      and f["type"] not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None]
+                      and not schemas.off_floor(f)]
 
     def item(self, pid: str) -> dict:
         return next(f for f in self.built if f["id"] == pid)

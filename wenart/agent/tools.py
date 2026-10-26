@@ -434,7 +434,8 @@ DESCRIPTIONS = {
     "place_group": "Add a missing functional group of the room's program; the solver places it. When the room has a "
                    "drawn group of that kind (a drawn anchor with its drawn partners, built or not), the drawn group "
                    "is re-solved as one unit around its drawn anchor (every member within 0.5 m of its drawn "
-                   "centre) instead of adding a second one.",
+                   "centre) instead of adding a second one. A set or run the room already has (a bathroom set, a "
+                   "kitchen run) is completed with what it misses, never placed twice.",
     "complete_group": "Add the missing partners of a group (e.g. the second nightstand); the solver places them.",
     "move_group": "Move a whole group to a free wall span (partners follow).",
     "retype_piece": "Change a piece's type to a type that fits its size and its room (zone); the piece is then "

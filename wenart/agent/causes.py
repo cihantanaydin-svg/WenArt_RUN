@@ -900,7 +900,7 @@ def drawn_layout_state(building: dict, piece: dict, check: str):
         drift = G.distance(p.center, drawn)
         floor = [f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("id") != piece.get("id")
                  and f.get("room_id") == room.get("id") and in_scene(f) and f.get("type") not in (None, "unknown")
-                 and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None]
+                 and not schemas.off_floor(f)]
         here = p.polygon()
         # a piece it already cuts (a sink in its counter run) is another finding's (S2 / F9), not a missing wall place
         pairs = [(f, placer.drawn_piece(f)) for f in floor]

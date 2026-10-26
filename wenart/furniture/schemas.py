@@ -249,6 +249,28 @@ def misplaced_fixed(ftype: Optional[str], room_type: Optional[str]) -> bool:
 UNCHANGEABLE_TYPES: tuple[str, ...] = FIXED_TYPES + DOCUMENTED_ONLY_TYPES + RULE_ONLY_TYPES
 # Hung on the wall above the floor (``furniture.mount_bottom_m``): not a floor obstacle for the placer.
 MOUNTED_TYPES: tuple[str, ...] = ("wall_cabinet",)
+# Bathroom sense of 26 Oct 2026 (``off_floor``): fixed equipment hung at its working top (the fit's wall-hung washbasin,
+# ``mount_bottom_m`` 0.3-0.5 m) stays a floor piece: a member of its set, an obstacle, its clearance in front.
+FIXTURE_HANG_MAX_M = 1.0
+
+
+def off_floor(piece: dict) -> bool:
+    """Bathroom sense of 26 Oct 2026: True for a piece hung above the room's floor use (a wall cabinet, a piece with
+    ``mount_bottom_m``), which is no floor piece, no obstacle and no group member of the floor; False for a floor
+    piece and for fixed equipment hung at its working top (``FIXED_TYPES`` with ``mount_bottom_m`` under
+    ``FIXTURE_HANG_MAX_M``: the fit hangs a wall-hung basin model there), which stands in the plan like a standing one.
+    Why: since the fit hung real06's drawn basins (26 Oct 2026), every "floor piece" filter left them out: the bathroom
+    set missed its washbasin and the solver added a third one beside the two drawn ones."""
+    if piece.get("type") in MOUNTED_TYPES:
+        return True
+    mount = piece.get("mount_bottom_m")
+    if mount is None:
+        return False
+    try:
+        low = float(mount) < FIXTURE_HANG_MAX_M
+    except (TypeError, ValueError):
+        low = False
+    return not (piece.get("type") in FIXED_TYPES and low)
 WALL_CABINET_Z: tuple[float, float] = (1.45, 2.15)          # §4.4: bottom and top above the floor, metres
 # Corner sofa geometry (see the module docstring): the defaults of ``seat_depth`` and ``chaise_width`` (assumed).
 L_SEAT_DEPTH_M = 0.9

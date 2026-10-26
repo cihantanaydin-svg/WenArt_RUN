@@ -237,6 +237,18 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   ``STYLE_MIX_STEPS`` size steps; a winner that still has either records ``taste_flags``. Why: real06's living room
   had a folding chair, Eames chairs and a turned-leg "Traditional ... Rustic" table at one Scandinavian dining group,
   and its four drawn chairs (0.37-0.54 m wide) took two different models.
+- Bathroom sense of 26 Oct 2026 (user: "fix should be general"; tests/test_bathroom_sense_20261026.py). What: a gate,
+  not a rank rule (``use_misfit``, ``use_candidates`` in ``_fit_family``): a model made for another user or use than
+  the piece is no candidate, listed under ``excluded`` with ``rule: fit.product_use`` and the reason: a children's
+  product (``CHILD_PRODUCT_WORDS`` in its title or name) outside a child's room (``child_room`` on the fitted copy of
+  the piece, from the room's ``room_subtype: child``: ``use_context``, set by ``fit_building`` and the agent's refit
+  of a retyped piece); a fixture its title names for another room (``OTHER_USE_WORDS``: a washbasin named for a kitchen, a
+  laundry, a utility, mop, bar or commercial sink; a kitchen sink named for a bathroom); a washbasin whose main
+  material slot (``OTHER_USE_SHARE``) is named composite or granite (kitchen and utility sinks; a bathroom basin is
+  glazed ceramic, as the audit's ``sanitary_finish`` says of a metal one). With none left the ladder builds the module
+  or parametric piece. Why: real06's adult bathrooms got the HSSD "TODDLER SINK" (an orange child's vanity) and
+  "Combo CEG-50BF" (a black composite utility basin); the catalogue keeps them (a child's room may take the toddler
+  sink), the fit no longer chooses them for an adult bathroom.
 """
 from __future__ import annotations
 
@@ -559,6 +571,80 @@ def misfit_of(entry: dict, ftype: str, outdoor: Optional[bool] = False) -> Optio
     if ftype == "chair":
         hits += _words_in(title, MISFIT_CHAIR)
     return f"names {', '.join(dict.fromkeys(hits))}: not for an indoor {ftype}" if hits else None
+
+
+# Bathroom sense of 26 Oct 2026 (user: "fix should be general"; real06's adult bathrooms got a "TODDLER SINK" with an
+# orange vanity and a "Combo CEG-50BF", a black composite utility basin): a model made for another user or another use
+# than the piece is no candidate (a gate, never a rank rule: ``use_misfit``, ``excluded`` with the rule and the reason).
+# - a children's product (``CHILD_PRODUCT_WORDS`` in its title or name) only in a child's room (``rooms[].room_subtype``
+#   child, ``child_room`` on the fitted piece: ``use_context``);
+# - a fixture of another room (``OTHER_USE_WORDS`` by type: a washbasin named for a kitchen, a laundry, a utility or
+#   commercial sink, a mop or bar sink; a kitchen sink named for a bathroom);
+# - a washbasin whose main material slot (``OTHER_USE_SHARE`` of the model) is named a composite or granite: the
+#   material of kitchen and utility sinks (a bathroom basin is glazed ceramic; the audit's ``sanitary_finish`` does the
+#   same for a metal one).
+CHILD_PRODUCT_WORDS: tuple[str, ...] = ("toddler", "toddlers", "kid", "kids", "child", "children", "childrens",
+                                        "baby", "babies", "nursery", "infant", "junior", "preschool", "kindergarten",
+                                        "montessori", "cocuk", "bebek")
+OTHER_USE_WORDS: dict[str, tuple[str, ...]] = {
+    "washbasin": ("kitchen", "laundry", "utility", "mop", "janitor", "slop", "service sink", "bar sink", "commercial",
+                  "sinkware", "catering", "spüle", "spule", "einbauspüle", "einbauspule", "küche", "kuche", "evye",
+                  "cocina", "cuisine", "keuken", "cucina"),
+    "sink_kitchen": ("bathroom", "vanity", "washbasin", "wash basin", "wash-basin", "lavabo", "lavatory", "cloakroom",
+                     "waschbecken", "waschtisch", "wastafel"),
+}
+OTHER_USE_MATERIALS: dict[str, tuple[str, ...]] = {"washbasin": ("composite", "granite")}
+OTHER_USE_SHARE = 0.5
+USE_RULE = "fit.product_use"
+
+
+def _named(text: str, words: tuple[str, ...]) -> list[str]:
+    """The ``words`` (or phrases) ``text`` names as whole words (letters of any script)."""
+    return [w for w in words if re.search(rf"(?<!\w){re.escape(w)}(?!\w)", text)]
+
+
+def use_misfit(entry: dict, ftype: str, child_room: Optional[bool] = False) -> Optional[str]:
+    """Bathroom sense of 26 Oct 2026 (the comment above): why a library model is made for another user or use than a
+    ``ftype`` piece (None when it is not): a children's product outside a child's room (``child_room`` not true), a
+    fixture its title names for another room, a washbasin of a kitchen-sink material."""
+    title = html.unescape(" ".join(str(entry.get(k) or "") for k in ("title", "name"))).lower()
+    kids = _named(title, CHILD_PRODUCT_WORDS)
+    if kids and child_room is not True:
+        return (f"names {', '.join(dict.fromkeys(kids))}: a children's product, not for a {ftype} outside a child's "
+                f"room")
+    other = _named(title, OTHER_USE_WORDS.get(ftype, ()))
+    if other:
+        return f"names {', '.join(dict.fromkeys(other))}: a product for another use, not a {ftype}"
+    words = OTHER_USE_MATERIALS.get(ftype)
+    if words:
+        for slot in entry.get("material_slots") or []:
+            if not isinstance(slot, dict) or float(slot.get("share") or 0.0) < OTHER_USE_SHARE:
+                continue
+            hit = _named(str(slot.get("name") or "").lower().replace("_", " "), words)
+            if hit:
+                return (f"its main material ({slot.get('name')}, {float(slot['share']):.0%}) is {hit[0]}: a kitchen "
+                        f"or utility sink, not a {ftype}")
+    return None
+
+
+def use_context(building: Optional[dict], piece: dict) -> dict:
+    """Bathroom sense of 26 Oct 2026: the keys ``use_misfit`` reads, for a fitted copy of ``piece``: ``child_room``
+    (its room's ``room_subtype`` is child)."""
+    room = next((r for r in (building or {}).get("rooms") or [] if r.get("id") == piece.get("room_id")), None)
+    return {"child_room": bool(room and room.get("room_subtype") == "child")}
+
+
+def use_candidates(piece: dict, candidates: list[dict]) -> tuple[list[dict], list[dict]]:
+    """``(kept, excluded)``: the candidates ``use_misfit`` keeps for the piece, the others with the rule and the
+    reason."""
+    kept, excluded = [], []
+    for e in candidates:
+        why = use_misfit(e, str(piece.get("type") or ""), piece.get("child_room"))
+        if why is None:
+            kept.append(e)
+        else:
+            excluded.append({"id": e["id"], "reason": why, "rule": USE_RULE})
+    return kept, excluded
 
 
 def compatible_styles(family: Optional[str]) -> Optional[set]:
@@ -981,6 +1067,13 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
     candidates, excluded, reason = usable_candidates(ftype, candidates, style_family)
     if not candidates:
         return parametric_fit(piece, reason, excluded=excluded, style_family=style_family)
+    # bathroom sense of 26 Oct 2026 (``use_misfit``): no children's product outside a child's room, no product of
+    # another use (a kitchen or utility sink as a washbasin)
+    candidates, use_excluded = use_candidates(piece, candidates)
+    excluded += use_excluded
+    if not candidates:
+        return parametric_fit(piece, f"no {ftype} model for this room's use (every model is a children's product or "
+                                     f"one of another use)", excluded=excluded, style_family=style_family)
     if piece.get("shape") == "L":
         candidates, side_excluded, side = chaise_side_candidates(candidates, piece.get("chaise_side"))
         excluded += side_excluded
@@ -2176,6 +2269,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
                 target = dict(target, open_air_room=True)     # outdoor models first (a copy: the piece stays)
             elif room_types.get(piece.get("room_id")):
                 target = dict(target, open_air_room=False)    # 26 Oct 2026 (fix E): a known indoor room
+            target = dict(target, **use_context(fitted, piece))   # bathroom sense of 26 Oct 2026: a child's room
             # 26 Oct 2026 (fix D): a member of a role set takes the set's one model (role_set_fit), else its own fit
             asset = role_set_fit(piece, target, design, used) if piece.get("id") in set_of else None
             if asset is None:

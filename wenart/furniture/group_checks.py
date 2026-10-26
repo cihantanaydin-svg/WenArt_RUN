@@ -23,7 +23,7 @@ its sofa, nightstands at mid-bed, chairs facing away all passed the Milestone 11
 | G8 | kitchen run: sink between fridge and hob along a run (major); landing beside the sink 0.46, the hob 0.30, the fridge 0.38 m (major); hob not in a window band (major); work-triangle legs 1.20–2.70 m, sum ≤ 7.90 m (major); aisle in front of the run ≥ 0.90 m (major) |
 | G9 | a sink, a hob and a fridge in every kitchen (room or kitchen zone) (major; critical for a kitchen without any run piece, 26 Oct 2026) |
 | G10 | bath: toilet + washbasin (+ shower or bathtub in a bathroom) (major; a WC's washbasin minor); ≥ 0.53 m clear in front of each fixture (major); toilet centre ≥ 0.38 m from a side wall or fixture, washbasin centre ≥ 0.38 m from a side wall (major) |
-| G11 | walkways on a 5 cm raster: every door reaches every other door at ≥ 0.60 m (critical) and the entrance door every other door at ≥ 0.80 m (major); every use zone is reached from the entrance at ≥ 0.60 m (major). Only what the empty room allows is required (a narrow corridor never fails by itself) |
+| G11 | walkways on a 5 cm raster: every door reaches every other door at ≥ 0.60 m (critical) and the entrance door every other door at ≥ 0.80 m (major); every use zone is reached from the entrance at ≥ 0.60 m (major). Only what the empty room allows is required (a narrow corridor never fails by itself); a bare gap in an outer wall with drawn fixed equipment in front of it is no passage (``blocked_gaps``, 26 Oct 2026) |
 | G12 | windows: nothing taller than the sill + 0.05 m within 0.30 m in front of a window (a TV unit counts with its TV, 1.30 m) (major) |
 | G13 | wardrobes and other door-fronted storage: ≥ 0.80 m free in front (major) |
 | G14 | no piece of a type its room (or the zone it stands in) never holds (major; minor for drawn pieces that are not fixed equipment, as F1) |
@@ -301,7 +301,7 @@ class RoomView:
         # Built floor pieces only (``groups.piece_is_built``: not ``build: false``, not ``unknown``, not a library
         # gap): what the scene shows is what the group checks judge.
         self.floor = [f for f in self.items if GR.piece_is_built(f) and f.get("footprint")
-                      and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None]
+                      and not schemas.off_floor(f)]
         self.by_id = {f["id"]: f for f in self.floor}
         self.pieces: dict[str, placer.Piece] = {}
         for i, f in enumerate(self.floor):
@@ -1032,17 +1032,62 @@ def other_room_of_door(building: dict, room: dict, door: dict) -> Optional[dict]
     return best[1] if best else None
 
 
+# Bathroom sense of 26 Oct 2026 (``blocked_gaps``): a bare gap blocked by drawn fixed equipment is no passage.
+BARE_GAP_RANK = 4                 # ... it is the entrance only when the room has no other door
+GAP_BLOCK_SHARE = 0.5             # ... a fixture with this share of its footprint in the gap's approach strip blocks it
+
+
+def blocked_gaps(building: dict, room: dict, ctx: placer.RoomContext) -> dict[str, str]:
+    """Bathroom sense of 26 Oct 2026: ``{opening id: reason}`` of the room's bare gaps (``type: opening``, no door
+    leaf) in an outer wall (no room on the other side) in front of which the documents draw fixed equipment (a drawn,
+    typed piece of ``schemas.FIXED_TYPES`` with ``GAP_BLOCK_SHARE`` of its footprint in the gap's 0.6 m approach strip):
+    the drawing makes such a gap no passage (a window over a basin or a counter the reading could not classify; the
+    architect reads it as a window by default), so it is no entrance and no walkway end (G11, the solver). Why:
+    real06's bathrooms have a 1.15 m gap behind the drawn basins; as the "entrance" it made every new piece
+    unreachable and G11 asked for a walkway through the basin."""
+    if not ctx.doors:
+        return {}
+    gaps = {o["id"]: o for o in placer.room_openings(building, room)[0] if o.get("type") == "opening"}
+    if not gaps:
+        return {}
+    fixed = []
+    for i, f in enumerate(building.get("furniture") or []):
+        if f.get("room_id") != room.get("id") or f.get("source") != "from_documents" or not f.get("footprint") \
+                or f.get("type") not in schemas.FIXED_TYPES or f.get("type") == "stair" or not GR.holds_piece(f):
+            continue
+        try:
+            fixed.append((f, placer.piece_from_furniture(f, i).polygon()))
+        except (KeyError, TypeError, ValueError):
+            continue
+    out: dict[str, str] = {}
+    for dz in ctx.doors:
+        if dz.id not in gaps or dz.zone is None or dz.zone.is_empty:
+            continue
+        if other_room_of_door(building, room, gaps[dz.id]) is not None:
+            continue
+        for f, poly in fixed:
+            if poly.area > 0 and poly.intersection(dz.zone).area >= GAP_BLOCK_SHARE * poly.area:
+                out[dz.id] = (f"a bare gap in an outer wall with the drawn {f['type']} {f['id']} in front of it: no "
+                              f"passage (a window the reading could not classify)")
+                break
+    return out
+
+
 def entrance_door(building: dict, room: dict, ctx: placer.RoomContext) -> Optional[str]:
     """The door a room is entered by: to the outside first, then from a hall or stair, a living or dining room,
-    then any; the widest first, then by id."""
+    then any; the widest first, then by id. Bathroom sense of 26 Oct 2026: a bare gap the drawing blocks with fixed
+    equipment (``blocked_gaps``) comes after every door."""
     if not ctx.doors:
         return None
     doors = {d["id"]: d for d in placer.room_openings(building, room)[0]}
     rank = {"hall": 1, "stair": 1, "living": 2, "dining": 2}
+    blocked = blocked_gaps(building, room, ctx)
 
     def key(dz):
         other = other_room_of_door(building, room, doors[dz.id]) if dz.id in doors else None
         r = 0 if other is None else rank.get(other.get("room_type"), 3)
+        if dz.id in blocked:
+            r = BARE_GAP_RANK
         return (r, -round(dz.width, 2), dz.id)
     return min(ctx.doors, key=key).id
 
@@ -1135,7 +1180,8 @@ def walkway_report(building: dict, room: dict, ctx: placer.RoomContext, pieces: 
 
     entrance = entrance_door(building, room, ctx)
     pairs = []
-    door_ids = [d.id for d in ctx.doors]
+    blocked = blocked_gaps(building, room, ctx)       # bathroom sense of 26 Oct 2026: no passage, no walkway end
+    door_ids = [d.id for d in ctx.doors if d.id not in blocked]
     for i, a in enumerate(door_ids):
         for b in door_ids[i + 1:]:
             need = main if entrance in (a, b) else sec
