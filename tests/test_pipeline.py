@@ -853,44 +853,43 @@ def test_questions_new_in_the_answer_run_are_not_pending(tmp_path):
     # the open questions too, both withdraw): 15 withdrawn (9 by code: the beds, nightstands, dining table, sofa and
     # coffee table as the rooms' missing anchors and members; 6 chairs at the table by the context rule), 2 written
     # (the chaise and the unknown 0.4 m piece); tests/test_real01.py explains the pieces.
-    assert len(items) == 2 and len(first.code_typed) == 15
-    assert sorted(first.code_typed_methods.values()) == ["context:chair"] * 6 + ["group_member"] * 9
-    late, missing = items[-1]["key"], items[0]["key"]
-    A.write_requests(rec, doc["project"], items[:-1])            # the answer round did not ask the last question
+    # 26 Oct 2026 (infer._same_block_type): the "chaise" is the same block as the drawn sofa (and the second bed's
+    # nightstands the first bed's): 16 withdrawn, 1 written (the unknown 0.4 m piece). The story of the two kinds of
+    # unanswered questions is told with that one question in two runs: first it is not in the round the answers
+    # belong to (late), then it is in the round without its answer (missing).
+    assert len(items) == 1 and len(first.code_typed) == 16
+    assert sorted(first.code_typed_methods.values()) == ["context:chair"] * 6 + ["group_member"] * 7 + \
+        ["same_block"] * 3
+    key = items[0]["key"]
     models = A.load_models()
     data = {"type": "unknown", "front": "none", "confidence": 0.2, "reason": "fake answer"}
-    for key in A.MODEL_KEYS:
-        store = A.AnswerStore.for_model(rec, key, models)
-        for it in items[1:-1]:
-            store.put(it["key"], {"task": it["task"], "input_sha256": it["input_sha256"], "data": dict(data),
-                                  "raw_text": json.dumps(data), "error": None, "attempts": 1, "latency_s": 0.0,
-                                  "model": store.data["model"], "seed": 0, "images": it["images"]}, save=False)
-        store.save()
+    for model_key in A.MODEL_KEYS:
+        A.AnswerStore.for_model(rec, model_key, models).save()      # an answer round with no answers at all
+    A.write_requests(rec, doc["project"], [])                       # ... that did not ask the question (late)
     building, build = P.run_project(project, out, answers=rec)
-    assert build.pending == [missing] and P.exit_code(building, build) == P.EXIT_QUESTIONS
-    # Review cross-5: both are unanswered; the report says which one is not waited for. Build round 3 (K3): the
-    # run with the answers withdraws the same 15 questions as the first run (code first, the context rules on what
-    # code left), so no withdrawn question comes back as a late one (round 2: the context rule "a table with its
-    # seats" typed the dining table only in the run with the answers and its question came back; now the code typing
-    # runs first in every run) and the unanswered keys are exactly the two of the story.
+    assert build.pending == [] and P.exit_code(building, build) == P.EXIT_OK
+    # Review cross-5: it is unanswered; the report says it is not waited for. Build round 3 (K3): the run with the
+    # answers withdraws the same questions as the first run (code first, the context rules on what code left), so no
+    # withdrawn question comes back as a late one.
     back = set(q["key"] for q in build.questions) - {it["key"] for it in items}
-    assert not back and set(build.unanswered) == {missing, late}
+    assert not back and build.unanswered == [key]
     assert build.code_typed == first.code_typed and build.code_typed_methods == first.code_typed_methods
-    assert [q["key"] for q in build.questions] == [it["key"] for it in items]
-    n = len(build.unanswered)
-    assert (f"{n} without a complete pair of answers ({n - 1} not in the round the answers belong to: not applied, "
+    assert [q["key"] for q in build.questions] == [key]                 # written again, for a later round
+    assert ("1 without a complete pair of answers (1 not in the round the answers belong to: not applied, "
             "they stay unknown/unverified)") in (out / "report.md").read_text(encoding="utf-8")
-    assert late in [q["key"] for q in build.questions]                   # written again, for a later round
-    assert any(late in w and "not in the round the answers belong to" in w for w in building["warnings"])
-    assert missing not in " ".join(w for w in building["warnings"] if "not in the round" in w)
-    # Without the in-round gap the run with the answers is finished: exit 0.
-    for key in A.MODEL_KEYS:
-        store = A.AnswerStore.for_model(rec, key, models)
+    assert any(key in w and "not in the round the answers belong to" in w for w in building["warnings"])
+    # In the round without its answer it is pending (exit 4) and no warning calls it late.
+    A.write_requests(rec, doc["project"], items)
+    building, build = P.run_project(project, out, answers=rec)
+    assert build.pending == [key] and P.exit_code(building, build) == P.EXIT_QUESTIONS
+    assert key not in " ".join(w for w in building["warnings"] if "not in the round" in w)
+    # With its answers the run with the answers is finished: exit 0.
+    for model_key in A.MODEL_KEYS:
+        store = A.AnswerStore.for_model(rec, model_key, models)
         it = items[0]
         store.put(it["key"], {"task": it["task"], "input_sha256": it["input_sha256"], "data": dict(data),
                               "raw_text": json.dumps(data), "error": None, "attempts": 1, "latency_s": 0.0,
                               "model": store.data["model"], "seed": 0, "images": it["images"]})
-    A.write_requests(rec, doc["project"], items[:-1])
     building, build = P.run_project(project, out, answers=rec)
     assert build.pending == [] and P.exit_code(building, build) == P.EXIT_OK and building["status"] == "ok"
 

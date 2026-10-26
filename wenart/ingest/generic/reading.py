@@ -166,6 +166,43 @@ Fix round after P5 (22 Oct 2026), review of the steps above:
   (``adjusted_by_ai["crop"]`` and the rule's evidence). The block's own strokes are not kept past the extraction, so
   the object is its drawn footprint. A misread fixed piece (``fix_fixed``) gets the same. A question's own crop still
   wins (a code-typed piece keeps the crop of its withdrawn question: real03 f_L0_145, sym_L0_053).
+
+Reading fixes of 26 Oct 2026 (user: "fix should be general, it is not a fix for real06, it must be a fix for the
+project"; real06 is the test case, tests/test_reading_sense_20261026.py). What, where in ``read_furniture``:
+
+- **A room named only by a generic word** (``generic_rooms``, first): a room whose label is only "Oda" / "Room" and a
+  number (``building.generic_room_label``) that the ingest typed by that word (bedroom, other or unknown) and that has
+  no bed drawn takes the room type its drawn anchors name (``groups.yaml`` ``room_aliases.content``; a desk names none)
+  when a block name or two agreeing AI passes typed them and they name one type (a living room's dining set counts as
+  living); a kitchen only with a drawn sink or hob. ``corrected_by_ai`` keeps the reason, the anchors and the type before. Why:
+  real06's r_L1_oda_2 "ODA" holds a sofa both passes agreed on and no bed: it was read as a bedroom (and got a kitchen
+  zone from two false counters).
+- **Nested outlines of one piece** (``nested_outlines``, before the code typing): drawn pieces whose footprints are
+  nested (``NEST_INSIDE`` of the smaller inside the bigger, centres within ``NEST_CENTRE_M``, the smaller at least
+  ``NEST_AREA_MIN`` of the bigger's area and ``NEST_LONG_MIN`` of its long side) are one piece; the strongest evidence
+  stays (``NEST_RANK``: a block name > two agreeing passes > a reading rule > the rest; on a tie the outer outline),
+  the others are not built (``inferred_as: detail``, ``merged_into``, ``adjusted_by_ai`` by code with the plan crop).
+  Two fixed types are never merged (a sink in its counter; one fixed piece drawn twice stays ``duplicates``' rule), and
+  a group with a piece whose question waits is left to its answers. Why: real06's wardrobe f_L1_018 (two passes) was
+  drawn with two inner outlines read as a kitchen counter (f_L1_003) and a coffee table (f_L1_019), one centre.
+- **Two answers of one run group** (``tie_break``, ``_one_group``, ``_holds_member``): when both AI answers are members
+  of one run group (kitchen_counter and sink_kitchen: the kitchen run), the piece is the run holding the named member
+  (``holds``; a sink or hob gets its place in ``module_hints`` for the kitchen run's module plan), and a run's depth
+  outside its product range takes the product depth (0.60 m), its back kept on its wall, ``drawn_footprint`` kept,
+  ``adjusted_by_ai`` by code (``RUN_DEPTH_RULE``). Why: real06's f_L0_027 (1.20 x 0.45 m, kitchen_counter /
+  sink_kitchen) was "two fixed types the room does not miss" and stayed an unbuilt unknown.
+- **A wall type needs its back on a wall** (``tie_break`` with ``infer.placeable``): an answer that is a wall type
+  whose back cannot stand on a wall (no side within 0.10 m and 5 deg of the room outline), or a chair drawn round, is no
+  choice: the other answer is taken. Why: real06's f_L0_016 (0.87 x 0.52 m at 135 deg, table_coffee / bookshelf)
+  became a lone diagonal bookshelf in the salon "because the room misses it".
+- **A round piece is never a chair** (the chairs rule of ``context_types``). Why: real06's round 0.58 m table
+  f_L1_026 beside an armchair read as a dining table became a chair.
+- **A kitchen run drawn as one outline** (``kitchen_outlines``, after the tie-break): an untyped piece in a kitchen,
+  deeper than a counter both ways, holding a sink's drain or a hob's burners (``details["kitchen_signs"]`` of the
+  extraction) is replaced by counter legs 0.60 m deep along each of its sides on a wall (the corner to the longer leg),
+  drawn pieces with the outline as ``drawn_footprint`` and ``adjusted_by_ai`` by code; the outline is not built
+  (``replaced_by``). Why: real06's f_L0_002 (3.99 x 2.40 m with sink and hob circles) "fits no size-table type" and
+  was not built.
 """
 from __future__ import annotations
 
@@ -253,6 +290,22 @@ INFER_METHOD = "inferred"
 TIE_RULE = "reading.tie_break"
 # Pass before P5 (17 Oct 2026, module docstring): the reason of a type both twins' AI passes named.
 TWIN_TIE_NOTE = "the AI passes of its twin {twin} in the twin room {room} named it too: the twins get one type"
+# 26 Oct 2026 (module docstring "Reading fixes of 26 Oct 2026"): nested outlines of one piece, a generic room name,
+# two answers of one functional group, a kitchen run drawn as one outline.
+NEST_INSIDE = 0.8                  # >= 80 % of the smaller footprint inside the bigger one ...
+NEST_CENTRE_M = 0.10               # ... the centres this close ...
+NEST_AREA_MIN = 0.4                # ... the smaller at least this share of the bigger's area ...
+NEST_LONG_MIN = 0.75               # ... and of its long side: two outlines of one piece (not a sink in its counter)
+NEST_RANK = {"block_name": 4, "ai_two_pass": 3, "rule": 2, "twin": 2, "level": 2, "block": 2, "same_block": 2}
+NEST_RULE = "reading.nested_outlines"
+GENERIC_ROOM_RULE = "reading.generic_room"
+GENERIC_STRONG = ("ai_two_pass", "block_name")   # the anchors a generic room name follows
+GENERIC_BEDS = ("bed_double", "bed_single", "bunk_bed", "crib")
+GROUP_TIE_RULE = "reading.group_member_tie"
+RUN_DEPTH_RULE = "reading.run_depth"
+HOLDS_HINTS = {"sink_kitchen": "sink_pos_m", "stove": "hob_pos_m"}   # modules.plan_kitchen_run's hints
+KITCHEN_OUTLINE_RULE = "reading.kitchen_outline"
+KITCHEN_OUTLINE_MIN_M = 0.75       # a kitchen outline is deeper than a counter both ways
 
 
 # --------------------------------------------------------------------------
@@ -746,6 +799,9 @@ def context_types(build, items: dict, pending=()) -> dict:
             w, d = sorted(f["footprint"]["size"], reverse=True)
             if not (CHAIR_SIDE_M[0] <= w <= CHAIR_SIDE_M[1] and d >= 0.12):
                 continue
+            det = items[f["id"]].details if f["id"] in items else {}
+            if (f.get("shape") or det.get("shape")) == "round":
+                continue            # 26 Oct 2026 (user): a round shape is never a chair (real06 f_L1_026, a table)
             poly = rect(f)
             near = [t for t in tables if rect(t).distance(poly) <= CHAIR_REACH_M]
             if not near:
@@ -1289,7 +1345,9 @@ def tie_break(build, items: dict, pending=(), deferred: Optional[set] = None) ->
             continue
         shared = [t for t in pair if answered and all(t in _named_types(g) for g in group)
                   and all(fits(p, t) and (t not in schemas.FIXED_TYPES or t in misses_of(p))
+                          and INF.placeable(t, p, rooms[p["room_id"]]) is None
                           for p in [f] + [g for g, _r in twins])]
+        holds = None
         if len(shared) == 1:
             ftype = shared[0]
             why = TWIN_TIE_NOTE.format(twin=answered[0][0]["id"], room=answered[0][1]["id"])
@@ -1299,25 +1357,47 @@ def tie_break(build, items: dict, pending=(), deferred: Optional[set] = None) ->
             room = rooms[f["room_id"]]
             size = [float(v) for v in f["footprint"]["size"]]
             misses = misses_of(f)
-            missing = [t for t in pair if t in misses]
+            # 26 Oct 2026 (module docstring): a wall type whose back cannot stand on a wall here, or a round chair, is
+            # no choice (real06 f_L0_016: a 0.87 x 0.52 m piece at 135 deg, table_coffee / bookshelf, became a lone
+            # bookshelf in the middle of the salon "because the room misses it")
+            blocked = {t: INF.placeable(t, f, room) for t in pair}
+            ok = [t for t in pair if blocked[t] is None]
+            missing = [t for t in ok if t in misses]
             # Fixed equipment is taken as drawn, never guessed (CLAUDE.md): a fixed type the room does not miss is no
             # choice (real02's salon sofa f_L-1b_045, kitchen_island / sofa, beside the open kitchen's own island).
-            choices = [t for t in pair if t not in schemas.FIXED_TYPES or t in missing]
+            choices = [t for t in ok if t not in schemas.FIXED_TYPES or t in missing]
             conf = {c.get("type"): float(c.get("confidence") or 0.0) for c in f.get("type_candidates") or []
                     if isinstance(c, dict)}
+            group = _one_group(pair, room)
             if len(missing) == 1:
                 ftype = missing[0]
                 why = f"the room misses it ({misses[ftype]})"
+                other = [t for t in pair if t != ftype and blocked[t]]
+                if other:
+                    why += f"; not {other[0]}: {blocked[other[0]]}"
             elif len(choices) == 1:
                 ftype = choices[0]
-                why = "the other answer is fixed equipment the room does not miss (taken as drawn, never guessed)"
+                other = next(t for t in pair if t != ftype)
+                why = (f"the other answer is no choice: {blocked[other]}" if blocked[other] else
+                       "the other answer is fixed equipment the room does not miss (taken as drawn, never guessed)")
             elif len(choices) == 2:
                 ftype = min(pair, key=lambda t: (round(INF._product_distance(t, size), 4), -conf.get(t, 0.0), t))
                 why = "its real product size is the nearer one to the drawn size" + \
                       (" (the room misses both)" if missing else "")
+            elif group is not None and len(ok) == 2:
+                # 26 Oct 2026 (module docstring): two fixed types of one functional group (kitchen_counter and
+                # sink_kitchen, real06 f_L0_027): the piece is that group's run or anchor holding the named member,
+                # never an unknown box
+                ftype, holds = group[0], group[1]
+                why = (f"both answers are members of the {group[2]} group: the {ftype} that holds the named "
+                       f"{holds}")
             else:
                 continue                        # two fixed types the room does not miss: the plan crop decides
+            if group is not None and group[0] == ftype:
+                holds = group[1]                # the run or anchor chosen holds the other answer's member
         _tie_type(build, f, ftype, why, items, raw, fits)
+        if holds:
+            _holds_member(build, f, holds, items)
         typed.append(f["id"])
         note = TWIN_TIE_NOTE.format(twin=f["id"], room=f["room_id"])
         for g, _r in twins:
@@ -1327,6 +1407,62 @@ def tie_break(build, items: dict, pending=(), deferred: Optional[set] = None) ->
             else:
                 later.add(g["id"])              # the twin rule types it from ``f`` (code_first after this step)
     return typed
+
+
+def _one_group(pair: list[str], room: dict) -> Optional[tuple[str, str, str]]:
+    """26 Oct 2026 (module docstring): ``(the type to give, the member it holds, the group)`` when both AI answers
+    ``pair`` are members of one functional run group (``groups.group_of_type``, ``layout: run``: kitchen_counter and
+    sink_kitchen are the kitchen run) and the group's anchor type is one of them: the anchor holding the other.
+    None otherwise."""
+    from wenart.furniture import groups as GR
+
+    rtype = room.get("room_type")
+    names = {GR.group_of_type(t, rtype) for t in pair}
+    if len(names) != 1 or None in names:
+        return None
+    name = names.pop()
+    template = GR.load_groups().get(name) or {}
+    if template.get("layout") != "run":
+        return None                             # a set (bath, WC) holds separate fixtures: no piece holds another
+    anchors = [t for t in pair if t in ((template.get("anchor") or {}).get("types") or [])]
+    if len(anchors) != 1:
+        return None
+    member = next(t for t in pair if t != anchors[0])
+    return anchors[0], member, name
+
+
+def _holds_member(build, f: dict, member: str, items: dict) -> None:
+    """26 Oct 2026 (module docstring): ``f`` (a run or anchor typed by ``tie_break``'s group rule) holds the named
+    ``member``: ``holds`` lists it, a sink or hob gets its place at the drawn centre (``module_hints``: the kitchen
+    run's module plan builds the sink unit or the hob gap there; a drawn sink or stove inside the run, which the fit
+    finds, still wins), and a run's depth outside its product range takes the product depth with its back kept on
+    its wall (``drawn_footprint`` kept, ``adjusted_by_ai`` by code, the plan crop)."""
+    from wenart.furniture import sizes
+
+    f["holds"] = sorted(set(f.get("holds") or []) | {member})
+    hint = HOLDS_HINTS.get(member)
+    if hint and f["type"] in ("kitchen_counter", "kitchen_island"):
+        f["module_hints"] = dict(f.get("module_hints") or {}, **{hint: [round(float(v), 4) for v in
+                                                                       f["footprint"]["center"]]})
+    w, d = (float(v) for v in f["footprint"]["size"][:2])
+    snap = sizes.snap_size(f["type"], (w, d))
+    if not (snap["changed"] and sizes.is_run(f["type"])):
+        return
+    room = next((r for r in build.building.get("rooms") or [] if r.get("id") == f.get("room_id")), None)
+    if room is None or len(room.get("polygon") or []) < 3:
+        return
+    det = items[f["id"]].details if f["id"] in items else {}
+    crop = _crop(det) or reading_crop(build, f)
+    before = copy.deepcopy(f["footprint"])
+    new = _resized(f, room_ring(room), snap["footprint"])
+    reason = (f"a drawn {f['type']} {w:.2f} x {d:.2f} m holding its {member}: {snap['reason']} "
+              f"({snap['product']}), its back kept on its wall" + (f"; plan crop {crop}" if crop else ""))
+    _code_label(f, RUN_DEPTH_RULE, reason, {"footprint": before}, crop)
+    f["footprint"] = new["footprint"]
+    if hint and "module_hints" in f:
+        f["module_hints"][hint] = [round(float(v), 4) for v in f["footprint"]["center"]]
+    f.setdefault("evidence", []).append(_ev(f, RUN_DEPTH_RULE, reason, 0.7))
+    build.warn(f"{f['id']}: {reason}")
 
 
 def _tie_type(build, f: dict, ftype: str, why: str, items: dict, raw: list, fits) -> None:
@@ -2118,6 +2254,264 @@ def seat_cushions(build, items: dict) -> list[str]:
 
 
 # --------------------------------------------------------------------------
+# 26 Oct 2026: reading fixes (module docstring "Reading fixes of 26 Oct 2026")
+# --------------------------------------------------------------------------
+
+def _rank(f: dict) -> int:
+    """How strong the evidence of a drawn piece's type is (``NEST_RANK``): a block name, then two agreeing AI passes,
+    then a reading rule or a copy, then any other type; 0 for an untyped piece."""
+    if f.get("type") in (None, "unknown"):
+        return 0
+    return NEST_RANK.get(str(f.get("type_method") or ""), 1)
+
+
+def nested_outlines(build, items: dict, pending=()) -> list[str]:
+    """26 Oct 2026 (module docstring): drawn pieces whose footprints are nested outlines of one piece (at least
+    ``NEST_INSIDE`` of the smaller inside the bigger, centres within ``NEST_CENTRE_M``, the smaller at least
+    ``NEST_AREA_MIN`` of the bigger's area and ``NEST_LONG_MIN`` of its long side) are one piece. The one with the
+    strongest evidence stays (``_rank``: a block name > two agreeing AI passes > a reading rule > one pass or none; on
+    a tie the outer outline); each other is merged into it: not built (``inferred_as: detail``, ``merged_into``),
+    labelled ``adjusted_by_ai`` by code with the reason, the drawn values and the plan crop. Two fixed types are never
+    merged here (a sink in its counter is two pieces; one fixed piece drawn twice is ``duplicates``' rule), nor an
+    outline that holds other pieces too (a rug under a table with its chairs); a group with a piece whose question
+    waits is left to the answers. Returns the ids merged."""
+    from wenart.furniture import infer as INF
+    from wenart.furniture import schemas
+
+    b = build.building
+    cands = [f for f in b["furniture"] if f.get("source") == "from_documents" and f.get("footprint")
+             and f.get("type") != "stair" and not f.get("inferred_as") and not f.get("not_furniture")
+             and (f.get("build") is not False or INF.untyped_drawn(f))]
+    polys = {f["id"]: rect(f) for f in cands}
+    parent = {f["id"]: f["id"] for f in cands}
+
+    def root(k: str) -> str:
+        while parent[k] != k:
+            parent[k] = parent[parent[k]]
+            k = parent[k]
+        return k
+
+    def nested(small: Polygon, big: Polygon) -> bool:
+        """``small`` is a nested outline of ``big`` (the thresholds of the docstring)."""
+        if small.area <= 0 or small.area > big.area or small.intersection(big).area < NEST_INSIDE * small.area - 1e-9:
+            return False
+        if small.centroid.distance(big.centroid) > NEST_CENTRE_M + 1e-9 or small.area < NEST_AREA_MIN * big.area:
+            return False
+        return max(sides_len(small)) >= NEST_LONG_MIN * max(sides_len(big)) - 1e-9
+
+    pairs = []
+    for i, a in enumerate(cands):
+        for c in cands[i + 1:]:
+            if a.get("level_id") != c.get("level_id"):
+                continue
+            small, big = (a, c) if polys[a["id"]].area <= polys[c["id"]].area else (c, a)
+            if not nested(polys[small["id"]], polys[big["id"]]):
+                continue
+            if a["type"] in schemas.FIXED_TYPES and c["type"] in schemas.FIXED_TYPES:
+                continue                        # a sink or hob in its counter (two pieces); one fixed type drawn
+                                                # twice is ``duplicates``' business
+            pairs.append((small, big))
+    for small, big in pairs:
+        pb = polys[big["id"]]
+        # an outline that also holds other pieces of its own (a rug under a table and its chairs) is a group outline
+        if any(o is not small and o is not big and o.get("level_id") == big.get("level_id")
+               and pb.contains(polys[o["id"]].centroid) and not nested(polys[o["id"]], pb) for o in cands):
+            continue
+        parent[root(small["id"])] = root(big["id"])
+    groups: dict[str, list[dict]] = {}
+    for f in cands:
+        groups.setdefault(root(f["id"]), []).append(f)
+    merged = []
+    for members in groups.values():
+        if len(members) < 2 or any(f["id"] in pending for f in members):
+            continue
+        keep = max(members, key=lambda f: (_rank(f), round(polys[f["id"]].area, 6), [-ord(ch) for ch in f["id"]]))
+        kw, kd = keep["footprint"]["size"][:2]
+        for f in sorted(members, key=lambda g: g["id"]):
+            if f is keep:
+                continue
+            p = polys[f["id"]]
+            share = p.intersection(polys[keep["id"]]).area / p.area if p.area > 0 else 0.0
+            det = items[f["id"]].details if f["id"] in items else {}
+            crop = _crop(det) or reading_crop(build, f)
+            w, d = f["footprint"]["size"][:2]
+            reason = (f"nested outline: {f['id']} ({float(w):.2f} x {float(d):.2f} m, {f['type']}, "
+                      f"{f.get('type_method') or 'none'}) and {keep['id']} ({float(kw):.2f} x {float(kd):.2f} m, "
+                      f"{keep['type']}, {keep.get('type_method') or 'none'}) share their centre "
+                      f"({p.centroid.distance(polys[keep['id']].centroid):.2f} m) and {share:.0%} of {f['id']} lies "
+                      f"inside the other: two outlines of one piece; {keep['id']} has the stronger evidence and stays, "
+                      f"{f['id']} is merged into it (not built)" + (f"; plan crop {crop}" if crop else ""))
+            _code_label(f, NEST_RULE, reason, {"build": f.get("build") is not False, "type": f["type"]}, crop)
+            f["adjusted_by_ai"].update(not_furniture="nested_outline", merged_into=keep["id"])
+            f.update(build=False, inferred=True, inferred_as="detail", inferred_reason=reason, not_built_reason=reason,
+                     merged_into=keep["id"])
+            f.setdefault("evidence", []).append(_ev(f, NEST_RULE, reason, 0.75))
+            keep["merged_outlines"] = sorted(set(keep.get("merged_outlines") or []) | {f["id"]})
+            build.warn(f"{f['id']}: {reason}")
+            merged.append(f["id"])
+        if keep.get("merged_outlines"):
+            keep.setdefault("evidence", []).append(_ev(keep, NEST_RULE, f"holds the nested outlines "
+                                                       f"{', '.join(keep['merged_outlines'])} (one piece)", 0.75))
+    return merged
+
+
+def sides_len(poly: Polygon) -> list[float]:
+    """The side lengths of a footprint polygon."""
+    return [math.dist(a, b) for a, b in sides(poly)]
+
+
+def generic_rooms(build) -> list[str]:
+    """26 Oct 2026 (module docstring): a room named only by a generic word (``building.generic_room_label``: "ODA",
+    "Oda 2", "Room") that the ingest typed by that word (bedroom, or other / unknown) and that has no bed drawn takes
+    the room type its drawn anchors name (``groups.yaml`` ``room_aliases.content``; a desk, at home in a bedroom too,
+    names none), when they are typed by a block name or two agreeing AI passes (``GENERIC_STRONG``) and all name one
+    type (a living room's dining table is no second type); a kitchen only with a drawn sink or hob. Logged
+    ``corrected_by_ai`` with the reason, the anchors as evidence and the type before. Returns the ids changed."""
+    from wenart.furniture import groups as GR
+
+    b = build.building
+    content = dict(GR.room_aliases().get("content") or {})
+    changed = []
+    for room in b.get("rooms") or []:
+        label = room.get("label_raw") or room.get("label") or ""
+        if not B.generic_room_label(label) or room.get("room_type") not in ("bedroom", "other", "unknown"):
+            continue
+        mine = [f for f in b.get("furniture") or [] if f.get("room_id") == room.get("id")
+                and f.get("source") == "from_documents" and f.get("build") is not False]
+        if any(f.get("type") in GENERIC_BEDS for f in mine):
+            continue                            # a bed is drawn: the generic word's bedroom stands
+        anchors = [f for f in mine if f.get("type_method") in GENERIC_STRONG and f.get("type") in content
+                   and content[f["type"]] not in ("other", "bedroom")]     # a desk is at home in a bedroom too
+        kinds = {content[f["type"]] for f in anchors}
+        if "kitchen" in kinds and not any(f.get("type") in ("sink_kitchen", "stove") for f in mine):
+            kinds.discard("kitchen")            # a counter alone does not make a kitchen
+        if "living" in kinds and kinds <= {"living", "dining"}:
+            kinds = {"living"}                  # a living room holds a dining set too
+        if len(kinds) != 1:
+            continue
+        kind = kinds.pop()
+        if kind == room.get("room_type"):
+            continue
+        ids = sorted(f["id"] for f in anchors if content[f["type"]] == kind)
+        reason = (f"the room is named only by the generic word {label!r} (read as {room.get('room_type')}); no bed is "
+                  f"drawn and its drawn anchors {', '.join(ids)} ("
+                  + ", ".join(sorted({f['type'] for f in anchors if f['id'] in ids}))
+                  + f", typed by a block name or two agreeing AI passes) name a {kind} room")
+        room["corrected_by_ai"] = {"reason": reason, "rule": GENERIC_ROOM_RULE,
+                                   "evidence": {"pieces": ids, "label": label},
+                                   "before": {"room_type": room.get("room_type")}}
+        room["room_type"] = kind
+        room.setdefault("evidence", []).append({"file": (room.get("evidence") or [{}])[0].get("file") or
+                                                "building.json", "method": "inferred", "confidence": 0.7,
+                                                "rule": GENERIC_ROOM_RULE, "text": reason})
+        build.warn(f"{room['id']}: room type {room['corrected_by_ai']['before']['room_type']} -> {kind} "
+                   f"({GENERIC_ROOM_RULE}): {reason}")
+        changed.append(room["id"])
+    return changed
+
+
+def kitchen_outlines(build, items: dict, pending=()) -> list[str]:
+    """26 Oct 2026 (module docstring): an untyped drawn piece in a kitchen that is deeper than a counter both ways
+    (``KITCHEN_OUTLINE_MIN_M``) and holds a sink's drain or a hob's burners (the extraction's
+    ``details["kitchen_signs"]``) is the kitchen run drawn as one outline: one counter leg 0.60 m deep (the kitchen
+    run's depth, ``groups.yaml``) along each of its sides that stands on a wall (``infer.back_wall_side``'s test),
+    the corner square to the longer leg; the legs are drawn pieces (``type_method: inferred``, ``drawn_footprint``
+    the outline, ``adjusted_by_ai`` by code, its vector evidence, the plan crop) facing into the room, and the outline
+    is not built (``inferred_as: detail``, ``replaced_by``). An outline with no side on a wall is left for review.
+    Returns the ids of the new legs."""
+    from wenart.furniture import groups as GR
+    from wenart.furniture import infer as INF
+
+    b = build.building
+    rooms = {r["id"]: r for r in b.get("rooms") or [] if len(r.get("polygon") or []) >= 3}
+    depth = float(((GR.load_groups().get("kitchen_run") or {}).get("run") or {}).get("depth") or 0.60)
+    made = []
+    for f in list(b["furniture"]):
+        room = rooms.get(f.get("room_id") or "")
+        det = items[f["id"]].details if f["id"] in items else {}
+        signs = det.get("kitchen_signs") or {}
+        if room is None or f["id"] in pending or not INF.untyped_drawn(f) or not signs:
+            continue
+        if room.get("room_type") != "kitchen" and not ("sink" in signs and "hob" in signs):
+            continue
+        if min(float(v) for v in f["footprint"]["size"][:2]) <= KITCHEN_OUTLINE_MIN_M:
+            continue
+        poly = rect(f)
+        ss = sides(poly)
+        ring = room_ring(room)
+        on_wall = [k for k, (a, c) in enumerate(ss) if INF.side_on_wall(a, c, ring)]
+        if not on_wall:
+            continue
+        strips = []
+        for k in on_wall:
+            a, c = ss[k]
+            ux, uy = (c[0] - a[0]) / math.dist(a, c), (c[1] - a[1]) / math.dist(a, c)
+            centre = poly.centroid
+            mx, my = (a[0] + c[0]) / 2.0, (a[1] + c[1]) / 2.0
+            nx, ny = -uy, ux                                        # one normal; turn it into the outline
+            if (centre.x - mx) * nx + (centre.y - my) * ny < 0:
+                nx, ny = -nx, -ny
+            strip = Polygon([a, c, (c[0] + nx * depth, c[1] + ny * depth), (a[0] + nx * depth, a[1] + ny * depth)])
+            strips.append((math.dist(a, c), k, strip.intersection(poly), (ux, uy), (nx, ny)))
+        strips.sort(key=lambda s: (-s[0], s[1]))
+        taken = None
+        legs = []
+        for _length, _k, strip, axis, normal in strips:
+            part = strip if taken is None else strip.difference(taken)   # the corner square goes to the longer leg
+            part = max(getattr(part, "geoms", [part]), key=lambda g: g.area) if not part.is_empty else part
+            if part.is_empty or part.area < 0.3 * depth:
+                continue
+            taken = strip if taken is None else taken.union(strip)
+            legs.append((part, axis, normal))
+        if not legs:
+            continue
+        det_crop = _crop(det) or reading_crop(build, f)
+        src = next((e for e in f.get("evidence") or [] if isinstance(e, dict) and e.get("method") == "vector"), None)
+        what = ", ".join(f"{k}: {v} circles" for k, v in sorted(signs.items()))
+        ids = []
+        for part, (ux, uy), (nx, ny) in legs:
+            pts = list(part.exterior.coords)
+            us, ns = [p[0] * ux + p[1] * uy for p in pts], [p[0] * nx + p[1] * ny for p in pts]
+            mu, mn = (min(us) + max(us)) / 2.0, (min(ns) + max(ns)) / 2.0
+            c = Point(mu * ux + mn * nx, mu * uy + mn * ny)
+            e0, e1 = max(us) - min(us), max(ns) - min(ns)
+            front = round(math.degrees(math.atan2(ny, nx)) % 360.0, 3)
+            lid = _next_piece_id(b, f["level_id"])
+            reason = (f"the kitchen run drawn as one {float(f['footprint']['size'][0]):.2f} x "
+                      f"{float(f['footprint']['size'][1]):.2f} m outline {f['id']} with its fixtures ({what}) in "
+                      f"the kitchen: a counter leg {e0:.2f} x {e1:.2f} m along its wall side, facing the "
+                      f"room (inferred)" + (f"; plan crop {det_crop}" if det_crop else ""))
+            ev = dict(src or _ev(f, KITCHEN_OUTLINE_RULE, reason, 0.6))
+            ev["note"] = f"counter leg of the kitchen outline {f['id']} ({KITCHEN_OUTLINE_RULE})"
+            # the leg: its long side along the wall, the front into the room (rotation = front + 90, the -Y front)
+            leg = {"id": lid, "level_id": f["level_id"], "room_id": f.get("room_id"), "type": "kitchen_counter",
+                   "type_raw": None, "source": "from_documents",
+                   "footprint": {"center": [round(c.x, 4), round(c.y, 4)], "size": [round(e0, 4), round(e1, 4)],
+                                 "rotation_deg": round((front + 90.0) % 360.0, 3)},
+                   "front_deg": front, "height": None, "asset": None, "status": "unverified",
+                   "evidence": [ev, _ev(f, KITCHEN_OUTLINE_RULE, reason, 0.6)], "type_method": INFER_METHOD,
+                   "type_candidates": [], "build": True, "inferred": True, "inferred_reason": reason,
+                   "drawn_type": "unknown", "drawn_footprint": copy.deepcopy(f["footprint"]),
+                   "drawn_front_deg": f.get("front_deg"), "drawn_height": f.get("height"),
+                   "adjusted_by_ai": {"by": "code", "stage": "reading", "rule": KITCHEN_OUTLINE_RULE,
+                                      "reason": reason, "changed": {"type": "unknown",
+                                                                     "footprint": copy.deepcopy(f["footprint"])},
+                                      "crop": det_crop}}
+            b["furniture"].append(leg)
+            ids.append(lid)
+        reason = (f"the kitchen run drawn as one outline with its fixtures ({what}): replaced by its counter legs "
+                  f"{', '.join(ids)} along the walls (not built)" + (f"; plan crop {det_crop}" if det_crop else ""))
+        _code_label(f, KITCHEN_OUTLINE_RULE, reason, {"build": f.get("build") is not False}, det_crop)
+        f["adjusted_by_ai"]["not_furniture"] = "kitchen_outline"
+        f.update(build=False, inferred=True, inferred_as="detail", inferred_reason=reason, not_built_reason=reason,
+                 replaced_by=ids)
+        f.setdefault("evidence", []).append(_ev(f, KITCHEN_OUTLINE_RULE, reason, 0.6))
+        build.warn(f"{f['id']}: {reason}")
+        made += ids
+    return made
+
+
+# --------------------------------------------------------------------------
 # 6. Kitchen zones of open plans
 # --------------------------------------------------------------------------
 
@@ -2228,6 +2622,8 @@ def read_furniture(build, works: dict) -> None:
     pending = _pending(build, works)
     symbols = move_symbols(build, items, works)
     log_overrides(build, items)
+    # 26 Oct 2026 (module docstring): a room named only "Oda" takes the type its agreed drawn anchors name
+    rooms_retyped = generic_rooms(build)
     # Build round 3 (K3): the open questions are held in every mode by the steps before the size inference (a block
     # copy never decides one: the code typing below does, and withdraws it, or the AI does).
     held = set(pending) | open_questions(build, works, items)
@@ -2236,6 +2632,8 @@ def read_furniture(build, works: dict) -> None:
     copied_from: dict[str, list[str]] = {}
     copied = copies(build, items, held, copied_from)
     from_answers = answer_typed(build, works, items, copied_from)
+    # 26 Oct 2026 (module docstring): nested outlines of one piece are one piece, before any typing
+    nested = nested_outlines(build, items, held)
     # Milestone 13 (K3), build round 3 (lead decision): code first, in every run. ``infer.code_types`` runs before
     # the context rules (the twin room, another level, the block name, the missing group member), on the open
     # questions too; then the context rules type what code left, on the open questions too; both kinds withdraw
@@ -2311,6 +2709,8 @@ def read_furniture(build, works: dict) -> None:
             typed_by.update(methods3)
             withdrawn.update(withdraw_questions(build, works, items, coded3, methods3))
             pending = pending - set(coded3)
+    # 26 Oct 2026 (module docstring): a kitchen run drawn as one outline with its sink or hob becomes its legs
+    outline_legs = kitchen_outlines(build, items, pending)
     # Fix round after P5 (module docstring): clear reading errors of typed pieces, before the fronts and the fit
     flipped = long_side_fronts(build, items)
     desks = desk_chairs(build, items)
@@ -2331,6 +2731,7 @@ def read_furniture(build, works: dict) -> None:
     build.reading = {"symbols": symbols, "context": context, "inferred": inferred, "fixed": fixed,
                      "fronts": fronts, "zones": zones, "needs_review": review, "tie_break": sorted(tied),
                      "answer_typed": sorted(from_answers), "long_side_fronts": flipped, "desk_chairs": desks,
-                     "seat_cushions": cushions,
+                     "seat_cushions": cushions, "rooms_retyped": rooms_retyped, "nested_outlines": nested,
+                     "kitchen_outline_legs": outline_legs,
                      "code_typed": sorted(typed_by), "questions_withdrawn": sorted(withdrawn),
                      "typed_by": dict(sorted(typed_by.items()))}

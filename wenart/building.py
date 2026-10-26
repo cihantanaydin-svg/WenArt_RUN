@@ -320,8 +320,22 @@ def room_type_for(label: str, face_area_m2: Optional[float] = None, face_aspect:
         if room_type in matched:
             return room_type
     if re.fullmatch(r"oda\s*[-_.]?\s*\d*", fold_ascii(label).strip()):
-        return "bedroom"                 # real03: ODA-01 ("room 1") in a flat is a bedroom
+        # real03: ODA-01 ("room 1") in a flat is a bedroom. 26 Oct 2026 (user: "fix should be general"): only the
+        # default of a generic word (``generic_room_label``); the furniture reading
+        # (``ingest.generic.reading.generic_rooms``) gives such a room the type its agreed drawn anchors name when no
+        # bed is drawn (real06's "ODA" with a sofa is a living room), logged corrected_by_ai.
+        return "bedroom"
     return "other"
+
+
+# 26 Oct 2026: a room label made only of a generic word ("room") and a number names no use of its own
+GENERIC_ROOM_RE = re.compile(r"(oda|room)\s*[-_.]?\s*\d*")
+
+
+def generic_room_label(label: Optional[str]) -> bool:
+    """26 Oct 2026: True when ``label`` is only a generic room word with an optional number (``ODA``, ``Oda 2``,
+    ``ODA-01``, ``Room 3``; Turkish letters folded): the room's use must come from what is drawn in it."""
+    return bool(label) and bool(GENERIC_ROOM_RE.fullmatch(fold_ascii(str(label)).strip()))
 
 
 def has_turkish_letters(text: str) -> bool:

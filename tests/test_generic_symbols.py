@@ -322,12 +322,16 @@ def test_kitchen_counter_rule_l_shape_with_a_window_behind():
 
 
 def test_counter_outside_a_kitchen_is_unverified():
+    # 26 Oct 2026 (user: a counter needs a sink, hob or fridge, or an L / U run): the L run of the test above, in a
+    # bedroom. One straight run along one wall with nothing on it is no counter any more
+    # (tests/test_reading_sense_20261026.py).
     walls = _room(0, 0, 4, 4)
-    chain = [R.stroke([(0.8, 3.9), (0.8, 3.3)]), R.stroke([(0.8, 3.3), (3.3, 3.3)]), R.stroke([(3.3, 3.3), (3.3, 3.9)])]
+    chain = [R.stroke([(0.8, 3.9), (0.8, 3.3)]), R.stroke([(0.8, 3.3), (3.3, 3.3)]),
+             R.stroke([(3.3, 3.3), (3.3, 2.0)]), R.stroke([(3.3, 2.0), (3.9, 2.0)])]
     faces = [{"polygon": sbox(0.1, 0.1, 3.9, 3.9), "room_type": "bedroom", "label": "Bed Room"}]
     notes = []
     pieces, _, _ = _furn(chain, walls=walls, faces=faces, notes=notes)
-    assert [p.status for p in pieces if p.type == "kitchen_counter"] == ["unverified"]
+    assert [p.status for p in pieces if p.type == "kitchen_counter"] == ["unverified", "unverified"]
     assert any("not in a kitchen" in n for n in notes)
 
 

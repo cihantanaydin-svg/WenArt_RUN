@@ -459,35 +459,41 @@ def test_debug_image_report_and_questions(run):
     # unknown 0.4 m piece (sym_L0_017). The count is the same with --no-ai, in the first plain run and in the run
     # with answers (tests/test_pipeline.py). Round 2 wrote 9 here and 8 in the plain run (the context rules waited
     # for the open questions); before round 2 all 17 (the code typing ran after the questions were written).
-    assert len(keys) == 2 and keys == ["sym_L0_015", "sym_L0_017"]
+    # 26 Oct 2026 (user: "identical blocks get one type"; infer._same_block_type): the second sofa sym_L0_015 (the
+    # "chaise" above) is the same block as the first (371 paths, 1.90 x 0.70 m; the reference's C06: F14 is "the same
+    # block as F15", both sofas), and the second bed's nightstands are the first bed's blocks: code types the three
+    # (method same_block), so 16 questions are withdrawn and sym_L0_017 alone is asked.
+    assert len(keys) == 1 and keys == ["sym_L0_017"]
     for item in doc["items"]:
         assert all((out / "recognition" / p).is_file() for p in item["images"])
     from wenart.furniture import infer as INF
     coded = [f for f in run["building"]["furniture"] if f["type_method"] in INF.CODE_TYPE_METHODS]
     chairs = [f for f in run["building"]["furniture"] if f["type"] == "chair"]
-    # Fix round after P4b (pinned on purpose): the --no-ai chaise is size-inferred (type_method "inferred").
+    # Fix round after P4b (pinned on purpose): the --no-ai chaise is size-inferred (type_method "inferred"); 26 Oct
+    # 2026: it is the same block as the drawn sofa, typed by code (same_block).
     asked = [f for f in run["building"]["furniture"] if f["type_method"] in ("none", RD.INFER_METHOD)
              and f["type"] != "chair"]
-    assert len(coded) == 9 and len(chairs) == 6 and len(asked) == len(keys) == 2
-    assert sorted(f["type"] for f in coded) == ["bed_double"] * 2 + ["nightstand"] * 4 + ["sofa", "table_coffee",
-                                                                                            "table_dining"]
-    assert all(f["type_method"] == "group_member" for f in coded)
+    assert len(coded) == 10 and len(chairs) == 6 and len(asked) == len(keys) == 1
+    assert sorted(f["type"] for f in coded) == ["bed_double"] * 2 + ["nightstand"] * 4 + ["sofa"] * 2 + [
+        "table_coffee", "table_dining"]
+    assert sorted(f["type_method"] for f in coded) == ["group_member"] * 7 + ["same_block"] * 3
     assert all(RD.CONTEXT_RULE in [e.get("rule") for e in f["evidence"]] for f in chairs)
     withdrawn = run["build"].code_typed
     assert sorted(withdrawn.values()) == sorted(f["id"] for f in coded + chairs) and not set(withdrawn) & set(keys)
     assert all(f.get("build") is not False for f in coded + chairs)         # typed before the AI: built
     how = run["build"].code_typed_methods
-    assert set(how) == set(withdrawn) and sorted(how.values()) == ["context:chair"] * 6 + ["group_member"] * 9
+    assert set(how) == set(withdrawn) and sorted(how.values()) == ["context:chair"] * 6 + ["group_member"] * 7 + \
+        ["same_block"] * 3
     assert run["build"].reading["questions_withdrawn"] == sorted(withdrawn)
     assert run["build"].reading["typed_by"] == {withdrawn[k]: how[k] for k in withdrawn}
     assert all(f"{k} withdrawn" in " ".join(run["building"]["warnings"]) for k in withdrawn)
     # --no-ai: nothing is pending, so the pipeline would not exit 4.
     assert run["build"].pending == [] and P.exit_code(run["building"], run["build"], no_ai=True) == 0
-    # ... but the 2 questions are still unanswered, and report.md says so (review cross-5).
+    # ... but the question is still unanswered, and report.md says so (review cross-5).
     assert run["build"].unanswered == keys
-    assert ("Recognition questions: 2 (`recognition/requests.json`), 2 without a complete pair of answers "
+    assert ("Recognition questions: 1 (`recognition/requests.json`), 1 without a complete pair of answers "
             "(--no-ai: not applied, they stay unknown/unverified).") in report
-    assert "Recognition questions withdrawn (typed by code before the AI, K3): 15 (" in report
+    assert "Recognition questions withdrawn (typed by code before the AI, K3): 16 (" in report
     assert "sym_L0_008 -> f_L0_011 [context:chair]" in report and "sym_L0_001 -> f_L0_004 [group_member]" in report
     # The page's rule outcomes (LevelExtraction.notes) are in report.md, one block per page (review cross-2).
     notes = report.split("## Notes", 1)[1].split("\n## ", 1)[0]

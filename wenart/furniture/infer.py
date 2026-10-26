@@ -148,6 +148,29 @@ Fix round after P6a (23 Oct 2026), review: the rule holds the floor lamp only (t
 are drawn as overlapping corner groups: 0.60 / 0.45 / 0.40 m canopies 0.45 m apart are three plants, not one), and
 a piece without the plan crop of its own question (``_crop_of``: a block-named symbol had none) is never left out.
 Real04's four duplicate lamps (P6a) and real02's two keep their crops and their verdict.
+
+Reading fixes of 26 Oct 2026 (user: "fix should be general, it is not a fix for real06, it must be a fix for the
+project"; real06 is the test case, tests/test_reading_sense_20261026.py). What:
+
+- **One block, one type** (``_same_block_type``, code method ``same_block`` after ``level``, in ``CODE_TYPE_METHODS``
+  and the schema): an untyped drawn piece with the same footprint (``SAME_FOOTPRINT_M``) and the same block
+  (``block_signature`` / ``same_block``: the block names, or the same stroke kinds with counts within
+  ``SAME_BLOCK_COUNT_TOL``, and the same shape) as typed drawn pieces anywhere in the project, all of one type, gets
+  that type (the twin / other-level rules extended to every room and level). Why: real06 draws one armchair block
+  in the salon (typed armchair) and again in the master bedroom upstairs (f_L1_020: "the bedroom's missing wardrobe").
+  real01: the second sofa (the reference's F15, "the same block as F14") and the second bed's nightstands.
+- **A wall type typed by code needs its back on a wall** (``placeable``, ``back_wall_side``, ``side_on_wall``; used by
+  the group-member rule, the size inference and the reading's tie-break): a type whose back stands on a wall
+  (``needs_wall``: wardrobe, bookcase, dresser, sideboard, TV unit, kitchen run, bed ...) needs a side of the drawn
+  footprint with ``WALL_BACK_SHARE`` of it within ``WALL_BACK_M`` of the room outline and parallel to it within
+  ``WALL_BACK_DEG``; else the next type. A round piece is never a chair (``ROUND_NEVER``). Why: real06's f_L1_020
+  (0.92 x 0.77 m at 60.5 deg) became a wardrobe standing diagonal in the room.
+- **A round table ringed by seats** (``ringed_tables``, in ``infer_types``; CLAUDE.md "code may retype a drawn piece
+  the vision models typed when its size, room and neighbours clearly say otherwise"): a drawn round lamp, side table,
+  chair, ottoman or plant of a coffee table's size with at least ``RING_SEATS_MIN`` seats of its room around it
+  (within ``RING_REACH_M``, facing it when they have a front, no gap of ``RING_OPEN_DEG`` between their bearings) is
+  their coffee table: ``adjusted_by_ai`` by code with ``drawn_type`` and the plan crop. Why: real06's f_L0_028 (0.66 m,
+  "floor lamp" by both passes) stands in the middle of four armchairs.
 """
 from __future__ import annotations
 
@@ -163,8 +186,8 @@ from wenart import geometry as G
 from wenart.furniture import groups as GR
 from wenart.furniture import placer, plausibility as PL, schemas
 
-# Milestone 13 (T3): code-first typing.
-CODE_TYPE_METHODS = ("twin", "level", "block", "group_member")
+# Milestone 13 (T3): code-first typing. 26 Oct 2026: same_block (one block drawn again elsewhere in the project).
+CODE_TYPE_METHODS = ("twin", "level", "same_block", "block", "group_member")
 SAME_FOOTPRINT_M = 0.01          # the same footprint: sizes (and, on another level, the polygon) within 1 cm
 SAME_CENTRE_M = 0.02             # a twin's mirrored centre within this (ingest.twins.TOL: the transform is rounded)
 CONF_TWIN = 0.8
@@ -204,6 +227,26 @@ DUPLICATE_SYMBOL_RULE = "furniture.infer.duplicate_symbols"
 DUPLICATE_SYMBOL_TYPES = ("floor_lamp",)
 DUPLICATE_SYMBOL_SHARE = 0.10      # at least this share of the smaller footprint lies in the larger one
 CONF_DUPLICATE = 0.7
+
+# 26 Oct 2026 (module docstring "Reading fixes of 26 Oct 2026"): a wall type typed by code needs its back on a wall;
+# a round piece is never a chair; one block drawn again elsewhere gets one type; a round table ringed by seats.
+WALL_BACK_M = 0.10                # a side this close to the room outline ...
+WALL_BACK_DEG = 5.0               # ... parallel to the nearest outline segment within this ...
+WALL_BACK_SHARE = 0.6             # ... along at least this share of its length can be a wall type's back
+ROUND_NEVER = ("chair",)          # user, 26 Oct 2026: "round shapes are never chairs"
+SAME_BLOCK_METHOD = "same_block"
+SAME_BLOCK_MIN_STROKES = 4        # a stroke pattern of fewer strokes says nothing (a plain box)
+SAME_BLOCK_COUNT_TOL = 0.02       # the strokes of each kind agree within this share (real06's two copies of its
+                                  # 0.92 x 0.77 m armchair block hold 301 and 306 lines: a few loose strokes joined)
+RING_TABLE_METHOD = "ringed_table"
+RING_TABLE_RULE = "furniture.infer.ringed_tables"
+RING_TABLE_FROM = ("floor_lamp", "side_table", "chair", "ottoman", "potted_plant")
+RING_SEATS = ("armchair", "sofa", "sofa_corner", "chaise", "chair", "ottoman", "bench")
+RING_SEATS_MIN = 3                # at least this many seats stand around the round piece ...
+RING_REACH_M = 0.8                # ... each within this of it ...
+RING_FACING_DEG = 60.0            # ... facing it within this when it has a front ...
+RING_OPEN_DEG = 180.0             # ... and no gap between their bearings as wide as this (it is surrounded)
+CONF_RING = 0.7
 
 OUTLINE_TYPE = "rug"              # what an outline holding other pieces is (a decor type, not a furniture type)
 WALL_SIDE_M = 0.10                # a side this close to the room outline stands on a wall
@@ -458,6 +501,134 @@ def _level_type(building: dict, piece: dict, room: Optional[dict]) -> Optional[d
     if f.get("front_deg") is not None and piece.get("front_deg") is None:
         out["front_deg"] = float(f["front_deg"])
     return out
+
+
+def entity_counts(entity) -> dict[str, int]:
+    """26 Oct 2026: the stroke count per entity kind of an evidence ``entity`` (``symbols.id_ranges`` text:
+    ``LINE:295C60,LINE:295C61,ARC:298801-298804`` -> ``{"LINE": 2, "ARC": 4}``; a numeric range counts its ids)."""
+    counts: dict[str, int] = {}
+    for part in str(entity or "").split(","):
+        part = part.strip()
+        if not part or part.startswith(("recognition:", "derived-from:")):
+            continue
+        head, _, tail = part.partition(":")
+        lo, dash, hi = tail.partition("-")
+        n = int(hi) - int(lo) + 1 if dash and lo.isdigit() and hi.isdigit() and int(hi) >= int(lo) else 1
+        counts[head] = counts.get(head, 0) + n
+    return counts
+
+
+def block_signature(piece: dict) -> Optional[tuple]:
+    """26 Oct 2026 (module docstring): what a drawn piece's block is: ``(block names, stroke counts per kind, shape)``
+    from its drawing evidence (``vector`` / ``raster`` entities), or None when it names no block and holds fewer than
+    ``SAME_BLOCK_MIN_STROKES`` strokes (a plain box says nothing)."""
+    names = tuple(sorted(set(_block_names(piece))))
+    counts: dict[str, int] = {}
+    for ev in piece.get("evidence") or []:
+        if isinstance(ev, dict) and ev.get("method") in ("vector", "raster") and ev.get("entity"):
+            counts = entity_counts(ev["entity"])
+            break
+    if not names and sum(counts.values()) < SAME_BLOCK_MIN_STROKES:
+        return None
+    return names, tuple(sorted(counts.items())), piece.get("shape") or None
+
+
+def same_block(a: Optional[tuple], b: Optional[tuple]) -> bool:
+    """26 Oct 2026: two ``block_signature``s name one block: the same block names (when either names one), the same
+    shape, the same stroke kinds, and per kind counts within ``SAME_BLOCK_COUNT_TOL`` (at least one stroke)."""
+    if a is None or b is None or a[0] != b[0] or a[2] != b[2]:
+        return False
+    if a[0]:
+        return True
+    ca, cb = dict(a[1]), dict(b[1])
+    if set(ca) != set(cb):
+        return False
+    return all(abs(ca[k] - cb[k]) <= max(1.0, SAME_BLOCK_COUNT_TOL * max(ca[k], cb[k])) + 1e-9 for k in ca)
+
+
+def _same_block_type(building: dict, piece: dict) -> Optional[dict]:
+    """26 Oct 2026 (module docstring, user: "identical blocks get one type"): the type of the typed drawn pieces
+    anywhere in the project (every room and level) with the same footprint (sizes within ``SAME_FOOTPRINT_M``) and the
+    same block (``same_block``: block names, or the same strokes per kind, and shape), when they all have one type;
+    else None."""
+    sig = block_signature(piece)
+    if sig is None:
+        return None
+    hits = []
+    for f in building.get("furniture") or []:
+        if f.get("id") == piece.get("id") or not _typed_drawn(f) or not _same_size(piece, f):
+            continue
+        if same_block(block_signature(f), sig):
+            hits.append(f)
+    types = sorted({f["type"] for f in hits})
+    if len(types) != 1:
+        return None
+    src = sorted(hits, key=lambda f: (str(f.get("level_id") or ""), str(f["id"])))[0]
+    what = f"block {sig[0][0]!r}" if sig[0] else "the same strokes (" + ", ".join(f"{n} {k}" for k, n in sig[1]) + \
+        f" here, within {SAME_BLOCK_COUNT_TOL:.0%})"
+    text = (f"{types[0]}: the same drawn block ({what}) and footprint ({_sorted_size(src)[1]:.2f} x "
+            f"{_sorted_size(src)[0]:.2f} m, within {SAME_FOOTPRINT_M:.2f} m) as {', '.join(f['id'] for f in hits[:4])}"
+            f" (typed {types[0]}): one block, one type")
+    return {"type": types[0], "method": SAME_BLOCK_METHOD, "confidence": CONF_TWIN, "reason": text,
+            "evidence": _evidence_code(piece, SAME_BLOCK_METHOD, text, CONF_TWIN, source_id=src["id"],
+                                       copies=[f["id"] for f in hits]),
+            "source_status": src.get("status")}
+
+
+def needs_wall(ftype: str) -> bool:
+    """26 Oct 2026: a type whose back stands on a wall (``schemas.ORIENTATION_RULES`` back ``wall``, not a minor
+    one): a wardrobe, bookcase, dresser, sideboard, TV unit, kitchen run, bed, toilet ..."""
+    rule = schemas.orientation_rule(ftype)
+    return rule["back"] == "wall" and rule.get("back_severity") != "minor"
+
+
+def _ring_angle(ring, point) -> float:
+    """The direction (deg) of the room outline's segment nearest to ``point``."""
+    from shapely.geometry import LineString
+
+    c = list(ring.coords)
+    best = min(range(len(c) - 1), key=lambda i: LineString([c[i], c[i + 1]]).distance(Point(point)))
+    (x0, y0), (x1, y1) = c[best], c[best + 1]
+    return math.degrees(math.atan2(y1 - y0, x1 - x0))
+
+
+def back_wall_side(piece: dict, room: dict) -> Optional[int]:
+    """26 Oct 2026 (module docstring): the index of a side of the drawn footprint (``placer.drawn_piece``) that can be
+    the back of a wall type (``side_on_wall``), or None when no side can be. Which side is the front stays the
+    front rules' business (``_front_for``, the reading's ``_front_of``)."""
+    if len(room.get("polygon") or []) < 3:
+        return None
+    try:
+        poly = placer.drawn_piece(piece).polygon()
+    except (KeyError, TypeError, ValueError):
+        return None
+    ring = _room_ring(room)
+    for k, (a, b) in enumerate(_sides(poly)):
+        if math.dist(a, b) > 1e-6 and side_on_wall(a, b, ring):
+            return k
+    return None
+
+
+def side_on_wall(a, b, ring) -> bool:
+    """26 Oct 2026: the segment ``a``-``b`` stands on the room outline ``ring``: at least ``WALL_BACK_SHARE`` of it
+    within ``WALL_BACK_M`` and parallel to the nearest outline segment within ``WALL_BACK_DEG``."""
+    pts = [(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t) for t in (0.05, 0.25, 0.5, 0.75, 0.95)]
+    if sum(ring.distance(Point(q)) <= WALL_BACK_M + 1e-9 for q in pts) < WALL_BACK_SHARE * len(pts) - 1e-9:
+        return False
+    diff = abs((math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])) - _ring_angle(ring, pts[2]) + 90.0) % 180.0 - 90.0)
+    return diff <= WALL_BACK_DEG + 1e-9
+
+
+def placeable(ftype: str, piece: dict, room: Optional[dict]) -> Optional[str]:
+    """26 Oct 2026 (module docstring): why code may not give ``piece`` the type ``ftype``, else None: a wall type
+    (``needs_wall``) with no side that can be its back on a wall (``back_wall_side``), or a chair drawn round."""
+    if ftype in ROUND_NEVER and (piece.get("shape") == "round"):
+        return f"a round piece is never a {ftype}"
+    if room is not None and needs_wall(ftype) and back_wall_side(piece, room) is None:
+        rot = float((piece.get("footprint") or {}).get("rotation_deg") or 0.0)
+        return (f"a {ftype} needs its back on a wall (within {WALL_BACK_DEG:g} deg and {WALL_BACK_M:.2f} m); the drawn "
+                f"piece (at {rot:g} deg) has no side there")
+    return None
 
 
 def _block_names(piece: dict) -> list[str]:
@@ -715,6 +886,9 @@ def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict
     size = [float(v) for v in piece["footprint"]["size"]]
     allowed = PL.allowed_in(building, room) | set(schemas.allowed_types(kind, room.get("room_subtype")))
     fits = sorted(t for t in wanted if t in allowed and SZ.fits(t, size, 0.15))
+    # 26 Oct 2026 (module docstring): a wall type needs its back on a wall, a round piece is no chair: else the next
+    # type (real06: the 0.92 x 0.77 m armchair f_L1_020, drawn at 60.5 deg, was "the bedroom's missing wardrobe")
+    fits = [t for t in fits if placeable(t, piece, room) is None]
     if not fits:
         return None
     # Fix round after P5 (module docstring): a coffee table or TV unit only where its role stands. A footprint that
@@ -760,6 +934,9 @@ def type_by_code(building: dict, piece: dict) -> Optional[dict]:
         if found is not None:
             return found
     found = _level_type(building, piece, room)
+    if found is not None:
+        return found
+    found = _same_block_type(building, piece)          # 26 Oct 2026: one block drawn again elsewhere, one type
     if found is not None:
         return found
     # An outline drawn around other pieces (a rug, a zone, a counter run) or a part inside a typed piece is no
@@ -832,7 +1009,7 @@ def _apply_code_type(item: dict, prop: dict, proposal: bool) -> None:
         item["adjusted_by_ai"] = {"by": "code", "stage": "layout", "typed_by_code": prop["type_method"],
                                   "reason": f"typed {prop['type']} by code ({prop['type_method']}): {prop['reason']}"}
         return
-    if prop["type_method"] in ("twin", "level") and prop.get("source_status"):
+    if prop["type_method"] in ("twin", "level", SAME_BLOCK_METHOD) and prop.get("source_status"):
         item["status"] = prop["source_status"]      # the same drawing as an agreed piece: its status
     if prop.get("footprint"):
         item["footprint"] = dict(prop["footprint"])
@@ -919,7 +1096,8 @@ def infer_types(building: dict) -> list[dict]:
         size = [float(v) for v in item["footprint"]["size"]]
         sized = [t for t in allowed if t not in SKIP_TYPES and t in PL._size_table() and PL._fits(t, size)
                  and _shape_ok(t, size)]
-        fits = sorted(t for t in sized if _position_ok(t, piece, on_wall, others))
+        # 26 Oct 2026 (module docstring): a wall type's back on a wall (within 5 deg), never a round chair
+        fits = sorted(t for t in sized if _position_ok(t, piece, on_wall, others) and placeable(t, item, room) is None)
         answers = {c.get("type") for c in item.get("type_candidates") or []}
         named = sorted(answers & set(fits))
         # An AI pass named another type that fits the size and the room: the piece is ambiguous (real02's sofas in
@@ -950,6 +1128,9 @@ def infer_types(building: dict) -> list[dict]:
     out += nightstand_symbols(building)
     # fix round after P5 (user decision of 22 Oct 2026): a seat drawn in a corner sofa's open corner is its table
     out += corner_tables(building)
+    # 26 Oct 2026: a round "lamp" in the middle of three seats facing it is their table
+    done = {p["piece_id"] for p in out}
+    out += [p for p in ringed_tables(building) if p["piece_id"] not in done]
     # fix round after P6a: two overlapping drawn lamp (plant) symbols are one lamp (plant) drawn twice
     done = {p["piece_id"] for p in out}
     out += [p for p in duplicate_symbols(building) if p["piece_id"] not in done and p["kept_id"] not in done]
@@ -1179,6 +1360,68 @@ def corner_tables(building: dict) -> list[dict]:
     return out
 
 
+def ringed_tables(building: dict) -> list[dict]:
+    """26 Oct 2026 (module docstring; CLAUDE.md "code may retype a drawn piece the vision models typed when its size,
+    room and neighbours clearly say otherwise"): proposals ``{"piece_id", "type": "table_coffee", "type_method":
+    RING_TABLE_METHOD, "reason", "confidence", "evidence", "drawn_type", "crop"}`` for a built drawn round piece
+    (``shape: round``) of a coffee table's size typed as a lamp, side table, chair, ottoman or plant
+    (``RING_TABLE_FROM``; never by a block name) with at least ``RING_SEATS_MIN`` drawn seats of its room around it:
+    each within ``RING_REACH_M``, facing it within ``RING_FACING_DEG`` when it has a front, and no gap of
+    ``RING_OPEN_DEG`` or more between their bearings (it stands in their middle). A lamp stands beside a seat, never
+    in the middle of three. Pure; the building is unchanged."""
+    from wenart.furniture import sizes as SZ
+
+    furniture = building.get("furniture") or []
+    out: list[dict] = []
+    for f in furniture:
+        if f.get("type") not in RING_TABLE_FROM or f.get("shape") != "round" or f.get("source") != "from_documents" \
+                or f.get("build") is False or not f.get("footprint") or f.get("type_method") == "block_name":
+            continue
+        if not SZ.fits("table_coffee", [float(v) for v in f["footprint"]["size"]], 0.15):
+            continue
+        try:
+            poly = placer.drawn_piece(f).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+        c = poly.centroid
+        seats = []
+        for s in furniture:
+            if s is f or s.get("room_id") != f.get("room_id") or s.get("type") not in RING_SEATS \
+                    or s.get("build") is False or not s.get("footprint"):
+                continue
+            try:
+                sp = placer.drawn_piece(s).polygon()
+            except (KeyError, TypeError, ValueError):
+                continue
+            if sp.distance(poly) > RING_REACH_M + 1e-9:
+                continue
+            sc = sp.centroid
+            to_table = math.degrees(math.atan2(c.y - sc.y, c.x - sc.x))
+            if s.get("front_deg") is not None and \
+                    G.angle_difference_deg(float(s["front_deg"]), to_table) > RING_FACING_DEG + 1e-9:
+                continue
+            seats.append((math.degrees(math.atan2(sc.y - c.y, sc.x - c.x)) % 360.0, str(s["id"])))
+        if len(seats) < RING_SEATS_MIN:
+            continue
+        bearings = sorted(b for b, _sid in seats)
+        gaps = [(bearings[(i + 1) % len(bearings)] - bearings[i]) % 360.0 for i in range(len(bearings))]
+        if max(gaps) >= RING_OPEN_DEG - 1e-9:
+            continue
+        crop = _crop_of(f)
+        ids = sorted(sid for _b, sid in seats)
+        r = float((f.get("circle_fit") or {}).get("radius") or max(float(v) for v in f["footprint"]["size"]) / 2.0)
+        text = (f"table_coffee: a drawn round {f['type']} ({f.get('type_method')}) {2 * r:.2f} m across with "
+                f"{len(ids)} seats around it ({', '.join(ids)}) facing it: the table of the seating group, not a "
+                f"{f['type'].replace('_', ' ')}" + (f" (plan crop {crop})" if crop else ""))
+        ev = _evidence_code(f, RING_TABLE_METHOD, text, CONF_RING, seats=ids, drawn_type=f["type"])
+        ev["rule"] = RING_TABLE_RULE
+        if crop:
+            ev["crop"] = crop
+        out.append({"piece_id": f["id"], "type": "table_coffee", "type_method": RING_TABLE_METHOD, "reason": text,
+                    "confidence": CONF_RING, "evidence": ev, "drawn_type": f["type"], "crop": crop})
+    return out
+
+
 CHAISE_RULE = "furniture.infer.chaise_sides"
 CONF_CHAISE = 0.6
 
@@ -1357,7 +1600,7 @@ def apply_inferences(building: dict, proposals: list[dict]) -> dict:
         if prop.get("type_method") == NIGHTSTAND_METHOD:          # fix round after P4a: a nightstand symbol
             _apply_nightstand(item, prop)
             continue
-        if prop.get("type_method") == CORNER_TABLE_METHOD:        # fix round after P5: a corner sofa's table
+        if prop.get("type_method") in (CORNER_TABLE_METHOD, RING_TABLE_METHOD):   # a seating group's drawn table
             _apply_nightstand(item, prop)
             item["type_method"] = "inferred"                      # a schema value; the label names the rule
             continue

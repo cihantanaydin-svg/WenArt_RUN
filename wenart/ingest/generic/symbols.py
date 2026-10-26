@@ -128,6 +128,36 @@ asked for every wall-hint-layer stroke (``dxf_generic.is_wall_hint_layer``) to b
 not safe: real02 / real04 draw their 0.40 m columns on 'A-BA' (kept as obstacles) and a stair on 'A-merdiven
 betonarme', and the layer words read DUVAR / WALL strokes as symbols already. Checked on the replays of real02 (P4a
 answers), real03 (P6b) and real04 (P6a): only real03's six lines change.
+
+Reading fixes of 26 Oct 2026 (user: "fix should be general, it is not a fix for real06, it must be a fix for the
+project"; real06 is the test case, tests/test_reading_sense_20261026.py). What:
+
+- **One seat, not a table with chairs** (``seat_part``, ``whole_seat_type``, ``seat_front``, ``one_seat`` in
+  ``split_table_chairs``; ``table_chair_items`` makes the seat): when the whole part is seat-sized (``SEAT_WHOLE_TYPES``:
+  an armchair, else a sofa, by the size table) and every "chair" around the outline hugs it (at least ``SEAT_HUG_M``
+  of its strokes within ``SEAT_GAP_M`` of it, along ``SEAT_SIDE_SHARE`` of one side) and either reaches less than
+  ``SEAT_PART_DEPTH_M`` from it or, grown to a chair's depth, would lie ``SEAT_CUT_SHARE`` inside it (a chair tucked
+  at a dining table covers a stretch of its side only), the outline is a seat cushion and the parts its arms and back:
+  one seat rule item (all the strokes as evidence; the front is the cushion's one free side, or the one opposite the
+  clearly longer held side, else none: the reading turns it to its coffee table). When only some parts hug the
+  outline, the part is no table with chairs (no split). A part that is not seat-sized is split as before (a dining
+  chair drawn open towards its table touches it at two line ends only; a closed chair abutting the table is 0.45 m
+  deep). The core's "context before AI" split never overrides the AI passes with a seat; a table-named block is not
+  split into a seat. Why: real06's armchair block (a 0.77 x 0.62 m cushion with 0.14 m strips along two sides, drawn
+  five times, four of them at 29.5 / 119.5 / 150.5 deg) became five dining tables with two chairs each, every "chair"
+  cutting its "table" by 0.30-0.39 m, around a round table the AI called a floor lamp.
+- **A counter needs a sink, hob or fridge, or an L / U run** (``counter_run_evidence``, used by ``furniture`` on
+  ``counter_rule``'s legs and by the re-read's front-line runs): two legs along two walls that meet at a corner, or a
+  sink's drain or a hob's burners drawn in a leg (``kitchen_signs``: full circles ``DRAIN_RADIUS_M`` /
+  ``BURNER_RADIUS_M``, at least ``HOB_BURNERS``), or a kitchen block within ``KITCHEN_NEAR_M``. One straight 0.45-0.75 m
+  deep run along one wall without any of these is no counter (noted; the piece is read like any other: a wardrobe,
+  shelf or sideboard by size and room). Why: real06's guest room upstairs got two "kitchen counters" (f_L1_003, the
+  inner outline of its wardrobe, and f_L1_004) and then a kitchen zone, with no sink, hob or fridge drawn.
+- **A kitchen run drawn as one outline of lines** (``_counter_runs``): an outline of more than four strokes is read
+  as a counter run when a sink's drain or a hob's burners are drawn inside it; three or more burner circles in a
+  counter leg are its hob (``stove`` rule item). Unknown pieces carry ``details["kitchen_signs"]`` for the reading's
+  kitchen-outline rule. Why: real06's kitchen run f_L0_002 (3.99 x 2.40 m, LINEs, sink and hob circles) stayed an
+  unbuilt box that "fits no size-table type".
 """
 from __future__ import annotations
 
@@ -1421,6 +1451,58 @@ def counter_rule(cl: Cluster, walls: list, openings: list, theta: float, loose_i
     return out
 
 
+BURNER_RADIUS_M = (0.04, 0.14)    # 26 Oct 2026: a hob's burner is a full circle 8-28 cm across ...
+HOB_BURNERS = 3                   # ... and a hob draws at least this many
+
+
+def kitchen_signs(segs: list, area=None) -> dict:
+    """26 Oct 2026 (module docstring): the kitchen fixtures drawn by loose circles among ``segs`` (only those whose
+    centre lies in ``area``, a polygon, when given): ``{"sink": drains, "hob": burners}`` (a drain: a full circle
+    ``DRAIN_RADIUS_M``; a burner: ``BURNER_RADIUS_M``); the hob counts only with at least ``HOB_BURNERS`` burners.
+    Empty when there is neither."""
+    drains = burners = 0
+    for s in segs:
+        circle = _full_circle(s)
+        if circle is None or (area is not None and not area.contains(Point(circle[0]))):
+            continue
+        if DRAIN_RADIUS_M[0] <= circle[1] <= DRAIN_RADIUS_M[1]:
+            drains += 1
+        elif BURNER_RADIUS_M[0] <= circle[1] <= BURNER_RADIUS_M[1]:
+            burners += 1
+    out = {}
+    if drains:
+        out["sink"] = drains
+    if burners >= HOB_BURNERS:
+        out["hob"] = burners
+    return out
+
+
+def counter_run_evidence(legs: list[dict], segs: list, theta: float) -> Optional[str]:
+    """26 Oct 2026 (user: "a counter needs a sink, hob or fridge"; module docstring): why the legs of a counter run
+    (``counter_rule``'s dicts, aligned frame) are a kitchen counter, else None: two legs along two walls that meet at a
+    corner (an L or a U run), or a kitchen fixture drawn on the run (a sink's drain or a hob's burners in a leg,
+    ``kitchen_signs``) or a kitchen block near it (``_kitchen_near``; ``segs`` are the strokes around it). One straight
+    0.45-0.75 m deep run along one wall without any of these may be a wardrobe, a shelf or a sideboard."""
+    from shapely.geometry import box as sbox
+
+    rects = [sbox(*leg["rect_f"]) for leg in legs]
+    for i, a in enumerate(legs):
+        for j in range(i + 1, len(legs)):
+            if bool(a["front_f"][0]) != bool(legs[j]["front_f"][0]) and \
+                    rects[i].distance(rects[j]) <= COUNTER_END_M + 1e-9:
+                return "an L or U run: two legs along two walls meet at a corner"
+    _to_f, from_f = _frame(theta)
+    polys = [Polygon([from_f(p) for p in r.exterior.coords]) for r in rects]
+    for poly in polys:
+        signs = kitchen_signs(segs, poly)
+        if signs:
+            return "a kitchen fixture drawn on the run (" + ", ".join(f"{k}: {v} circles" for k, v in
+                                                                       sorted(signs.items())) + ")"
+    if polys and _kitchen_near(unary_union(polys), segs):
+        return f"a kitchen appliance block within {KITCHEN_NEAR_M:.1f} m of the run"
+    return None
+
+
 def _wall_faces(walls: list, openings: list, to_f) -> list[dict]:
     """Both long faces of every axis wall in the aligned frame: {"axis", "pos", "lo", "hi", "normal"} where
     ``normal`` is the side of the face away from the wall (+1 / -1)."""
@@ -1863,6 +1945,22 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     pieces: list[FurnitureItem] = []
     cands: list[dict] = []
     reread_symbols: list[dict] = []
+
+    def run_legs(cl: Cluster) -> list[dict]:
+        """26 Oct 2026 (module docstring): ``counter_rule``'s legs of ``cl`` when the run shows it is a kitchen counter
+        (``counter_run_evidence``: an L or U, a sink, hob or kitchen block), else none (noted)."""
+        found = counter_rule(cl, walls, openings, ctx.theta)
+        if not found:
+            return found
+        why = counter_run_evidence(found, inside, ctx.theta)
+        if why is None:
+            notes.append(f"counter-like run of {len(found)} leg(s) at {_short_ids(cl.stroke_ids(), 4)}: one straight "
+                         f"run along one wall with no sink, hob or fridge drawn: no kitchen counter (a wardrobe, shelf "
+                         f"or sideboard by its size and room; 26 Oct 2026)")
+            return []
+        for leg in found:
+            leg["why"] = why
+        return found
     page_containers = containers_of(s.stroke for s in segs)
     details = 0
     line_ids: list[str] = []
@@ -1890,7 +1988,7 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
         oversize = max(fp[1], fp[2]) > MAX_SIDE_M
         # Milestone 10 (real02): a kitchen whose counter run, appliances and bar stools touch is one cluster larger
         # than 4.5 m; its counter legs are still read, and the rest is split as usual.
-        legs = counter_rule(cl, walls, openings, ctx.theta) if oversize else None
+        legs = run_legs(cl) if oversize else None
         if oversize and not legs:
             # Milestone 11 (U8): a kitchen whose counter run is drawn as closed outlines along the walls is split into
             # the counter legs, the hob and sink blocks and the rest (never asked).
@@ -1930,8 +2028,11 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
                                  f"{len(got['symbols'])} symbols")
                     continue
                 bfp = footprint([p for s in big.segs for p in s.pts], ctx.theta)
+                signs = kitchen_signs(big.segs)    # 26 Oct 2026: for the reading's kitchen-outline rule
                 pieces.append(_unknown(big, bfp, ctx, raster_page, f"cluster larger than {MAX_SIDE_M} m on a side: "
-                                       "a group of drawn pieces, not built", {"oversize": True, "build": False}))
+                                       "a group of drawn pieces, not built",
+                                       dict({"oversize": True, "build": False},
+                                            **({"kitchen_signs": signs} if signs else {}))))
             continue
         if oversize:
             stair = None
@@ -1941,7 +2042,7 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             pieces.append(_stair_item(cl, stair, fp, ctx, raster_page, notes))
             continue
         if not oversize:
-            legs = counter_rule(cl, walls, openings, ctx.theta)
+            legs = run_legs(cl)
             if legs or not fitting_types(table, (fp[1], fp[2])):
                 # Milestone 11 (U8): a kitchen cluster (a counter run, or one that fits no type): its closed counter
                 # outlines become the legs and the free blocks (a peninsula), its hob and sink blocks are named, the
@@ -2029,6 +2130,10 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             if split is not None:
                 made = table_chair_items(split, ctx, raster_page, table)
                 pieces.extend(made)
+                if split.get("seat"):
+                    # 26 Oct 2026 (module docstring): a cushion with its arms and back is one seat
+                    notes.append(f"{split['seat']['type']} at ({fp[0][0]:.2f}, {fp[0][1]:.2f}): {split['seat']['note']}")
+                    continue
                 notes.append(f"{split['wardrobe']['note']} at ({fp[0][0]:.2f}, {fp[0][1]:.2f}): one wardrobe, not "
                              f"a table with chairs (fix round after P5)" if split.get("wardrobe") else
                              f"table + {len(split['chairs'])} chairs at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) split (M11)"
@@ -2051,8 +2156,10 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
                 notes.append(f"unknown piece {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) "
                              f"({reason}) re-read (M12): {len(got['items'])} pieces, {len(got['symbols'])} symbols")
                 continue
+            signs = kitchen_signs(part.segs)       # 26 Oct 2026: for the reading's kitchen-outline rule
             pieces.append(_unknown(part, fp, ctx, raster_page, reason,
-                                   dict({"composite": n} if n > 1 else {}, **shape)))
+                                   dict({"composite": n} if n > 1 else {}, **shape,
+                                        **({"kitchen_signs": signs} if signs else {}))))
             notes.append(f"unknown piece {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}): {reason}")
             continue
         others = [o for o in infos if o is not info]
@@ -2249,7 +2356,10 @@ def _counter_item(leg: dict, walls: list, ctx: _Ctx, raster: bool) -> FurnitureI
         d = TP.wall_polygon(w).distance(Polygon(corners))
         if d < best:
             best, wall_index = d, k
-    ev = ctx.evidence(ids, raster=raster, box=box, note="kitchen counter rule: chained legs between wall faces")
+    note = "kitchen counter rule: chained legs between wall faces"
+    if leg.get("why"):
+        note += f" ({leg['why']})"                  # 26 Oct 2026: the evidence that the run is a kitchen counter
+    ev = ctx.evidence(ids, raster=raster, box=box, note=note)
     return FurnitureItem(type="kitchen_counter", type_raw=None, center=_r(centre), size=size, rotation_deg=rotation,
                          front_deg=front_deg, box=box, entity=ids[0], evidence=ev, status=status, type_method="rule",
                          details={"counter_run": {"wall_id": None, "wall_index": wall_index, "strokes": ids,
@@ -2683,6 +2793,8 @@ def _split_named(info: dict, table: dict, theta: float, notes: list) -> list[dic
         # Milestone 11 (U10): a table block drawn with its chairs (real02's "masa": a 3.35 m table and 10 chairs read
         # as one 3.35 x 1.57 m table) -> the named table and one chair per chair part, each facing the table.
         split = split_table_chairs(info["part"], table, theta)
+        if split is not None and split.get("seat"):
+            return [info]           # 26 Oct 2026: a table-named block drawn like a seat keeps its name (not split)
         if split is not None and split.get("wardrobe"):
             # Fix round after P5: a table-named block that draws a hanging rail with hangers is a coat closet
             tfp = footprint(list(split["table_poly"].exterior.coords)[:-1], theta)
@@ -2913,13 +3025,19 @@ def split_table_chairs(part: Cluster, table: dict, theta: float, rug: bool = Tru
     Fix round after P6a (module docstring): with ``rug`` (default) a rug outline drawn around the table and its chairs
     (``rug_outline``) is taken off first; when what it holds is a table with chairs, the split carries ``"rug"``
     (``rug_outline``'s dict) and ``"table_shape"`` (``round_shape`` of the table outline). Otherwise the part is split
-    as before."""
+    as before.
+
+    26 Oct 2026 (user: "fix should be general"; module docstring): when the whole part is seat-sized (an armchair or
+    a sofa, ``SEAT_WHOLE_TYPES``) and its "chairs" hug the outline (``seat_part``: an arm or a back), it is one seat:
+    ``{"seat": one_seat's dict, "table": Cluster(all of the part), "table_poly", "chairs": []}`` when every part is
+    an arm or a back, else None (some parts hug the outline: no table with chairs). A part that is not seat-sized is
+    split as before."""
     if rug:
         mark = rug_outline(part)
         if mark is not None:
             own = {id(s) for s in mark["segs"]}
             split = split_table_chairs(Cluster([s for s in part.segs if id(s) not in own]), table, theta, rug=False)
-            if split is not None and not split.get("wardrobe"):
+            if split is not None and not split.get("wardrobe") and not split.get("seat"):
                 return dict(split, rug=mark, table_shape=poly_round_shape(split["table_poly"]))
     tops = top_contours(part)
     if not tops:
@@ -2934,6 +3052,16 @@ def split_table_chairs(part: Cluster, table: dict, theta: float, rug: bool = Tru
     rail = hanging_rail(part.segs, tpoly, theta)
     if rail is not None:
         return {"wardrobe": rail, "table": Cluster(list(part.segs)), "table_poly": tpoly, "chairs": []}
+    seat_type = whole_seat_type(part, table, theta)
+    if seat_type is not None:
+        # 26 Oct 2026 (module docstring): an armchair drawn as its seat cushion with the arms and the back is no
+        # table with chairs (real06: four 0.77 x 0.62 m "tables" with two "chairs" each around a round table).
+        why = [seat_part(chair, tpoly, theta) for chair in split["chairs"]]
+        if all(why):
+            return {"seat": one_seat(part, tpoly, split["chairs"], why, seat_type, table, theta),
+                    "table": Cluster(list(part.segs)), "table_poly": tpoly, "chairs": []}
+        if any(why):
+            return None
     return split
 
 
@@ -3001,6 +3129,111 @@ def chair_footprint(chair: Cluster, tpoly, theta: float) -> tuple[tuple, float]:
     return footprint(corners, theta), front
 
 
+# --------------------------------------------------------------------------
+# 26 Oct 2026: one seat drawn as its cushion with the arms and the back (module docstring)
+# --------------------------------------------------------------------------
+
+SEAT_GAP_M = 0.03              # a part this close to the seat outline touches it ...
+SEAT_HUG_M = 0.15              # ... and runs along it when at least this much of its strokes lies that close ...
+SEAT_SIDE_SHARE = 0.6          # ... along at least this share of one side (a chair tucked at a table: a stretch of it)
+SEAT_PART_DEPTH_M = 0.25       # an arm or a back reaches less than this from the cushion (a chair is deeper) ...
+SEAT_CUT_SHARE = 0.5           # ... or its box, grown to a chair's depth (``chair_footprint``), lies this much inside it
+SEAT_WHOLE_TYPES = ("armchair", "sofa")   # the whole part is one of these by its size, else it is no seat
+SEAT_BACK_RATIO = 1.25         # with two free sides at a corner, the back runs this much longer than the arm
+SEAT_NOTE = "one seat drawn as its seat cushion with its arms and back (not a table with chairs)"
+
+
+def seat_part(chair: Cluster, tpoly, theta: float) -> Optional[str]:
+    """26 Oct 2026 (module docstring): why the "chair" part ``chair`` of a table + chairs split is an arm or the back
+    of one seat whose cushion is ``tpoly``, else None. It hugs the outline (at least ``SEAT_HUG_M`` of its strokes
+    within ``SEAT_GAP_M`` of it: a dining chair drawn open towards its table touches it at two line ends only) along
+    at least ``SEAT_SIDE_SHARE`` of one side (a chair tucked at a table covers a stretch of its side) and either
+    reaches less than ``SEAT_PART_DEPTH_M`` from it or, grown to a chair's depth, would lie at least
+    ``SEAT_CUT_SHARE`` inside it (it would cut the "table")."""
+    ring = tpoly.exterior.buffer(SEAT_GAP_M)
+    hug = sum(s.geom.intersection(ring).length for s in chair.segs if not s.dot)
+    if hug < SEAT_HUG_M - 1e-9 or max(_side_cover(chair.segs, tpoly)) < SEAT_SIDE_SHARE - 1e-9:
+        return None             # a chair tucked at a table covers a stretch of its side, an arm or back most of it
+    reach = max((tpoly.distance(Point(p)) for s in chair.segs for p in s.pts), default=0.0)
+    if reach < SEAT_PART_DEPTH_M - 1e-9:
+        return (f"runs {hug:.2f} m along the outline and reaches {reach:.2f} m from it (under "
+                f"{SEAT_PART_DEPTH_M:.2f} m): an arm or a back")
+    fp, _front = chair_footprint(chair, tpoly, theta)
+    box = Polygon(fp[4])
+    cut = box.intersection(tpoly).area / box.area if box.area > 0 else 0.0
+    if cut >= SEAT_CUT_SHARE - 1e-9:
+        return (f"runs {hug:.2f} m along the outline and, as a chair, would stand {cut:.0%} inside it: an arm or a "
+                f"back")
+    return None
+
+
+def _side_cover(segs: list, tpoly) -> list[float]:
+    """26 Oct 2026: per side of the outline's minimum rectangle, the share of its length the strokes ``segs`` run along
+    within ``SEAT_GAP_M`` (a flat-ended strip along the side)."""
+    rect = tpoly.minimum_rotated_rectangle
+    if rect.geom_type != "Polygon":
+        return [0.0]
+    c = list(rect.exterior.coords)[:4]
+    out = []
+    for k in range(4):
+        side = LineString([c[k], c[(k + 1) % 4]])
+        if side.length <= 1e-9:
+            out.append(0.0)
+            continue
+        zone = side.buffer(SEAT_GAP_M, cap_style=2)
+        out.append(sum(s.geom.intersection(zone).length for s in segs if not s.dot) / side.length)
+    return out
+
+
+def whole_seat_type(part: Cluster, table: dict, theta: float) -> Optional[str]:
+    """26 Oct 2026: the first ``SEAT_WHOLE_TYPES`` type whose size range fits the whole part's footprint, else None."""
+    fp = footprint([p for s in part.segs for p in s.pts], theta)
+    return next((t for t in SEAT_WHOLE_TYPES if fits(table, t, (fp[1], fp[2]))), None)
+
+
+def seat_front(tpoly, parts: list[Cluster]) -> Optional[float]:
+    """26 Oct 2026: the front of a seat drawn as its cushion ``tpoly`` with its arms and back (``parts``), in degrees,
+    or None. The cushion's sides (its minimum rectangle) along which a part runs are held (the back and the arms);
+    the front is the one free side, or, with two free sides, the one opposite the side held the longest (the back)."""
+    rect = tpoly.minimum_rotated_rectangle
+    if rect.geom_type != "Polygon":
+        return None
+    c = list(rect.exterior.coords)[:4]
+    centre = (sum(p[0] for p in c) / 4.0, sum(p[1] for p in c) / 4.0)
+    held = []
+    for k in range(4):
+        side = LineString([c[k], c[(k + 1) % 4]])
+        zone = side.buffer(SEAT_GAP_M, cap_style=2)
+        held.append(sum(s.geom.intersection(zone).length for p in parts for s in p.segs if not s.dot))
+    need = [min(SEAT_HUG_M, 0.3 * math.dist(c[k], c[(k + 1) % 4])) for k in range(4)]
+    free = [k for k in range(4) if held[k] < need[k] - 1e-9]
+    if len(free) == 2 and (free[1] - free[0]) % 2 == 1:
+        # two free sides at a corner: the front is opposite the side held clearly the longest (the back runs the
+        # width; ``SEAT_BACK_RATIO``), else none (the reading turns the seat to its coffee table, ``reading._front_of``)
+        opp = {k: held[(k + 2) % 4] for k in free}
+        best = sorted(free, key=lambda k: -opp[k])
+        free = [best[0]] if opp[best[0]] >= SEAT_BACK_RATIO * opp[best[1]] - 1e-9 else free
+    if len(free) != 1:
+        return None
+    a, b = c[free[0]], c[(free[0] + 1) % 4]
+    mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+    return round(math.degrees(math.atan2(mid[1] - centre[1], mid[0] - centre[0])) % 360.0, 3)
+
+
+def one_seat(part: Cluster, tpoly, parts: list[Cluster], why: list, seat_type: str, table: dict,
+             theta: float) -> dict:
+    """26 Oct 2026: ``split_table_chairs``'s seat: ``{"type", "fp", "front", "note", "record"}`` for the whole part
+    (its footprint, the type ``whole_seat_type`` found, the front ``seat_front`` gives or None)."""
+    fp = footprint([p for s in part.segs for p in s.pts], theta)
+    front = seat_front(tpoly, parts)
+    tw, td = sorted(_rect_sides(tpoly), reverse=True)
+    note = (f"{SEAT_NOTE}: the {tw:.2f} x {td:.2f} m outline is its cushion and the {len(parts)} parts around it "
+            f"{'; '.join(sorted(set(str(w) for w in why)))}; a {fp[1]:.2f} x {fp[2]:.2f} m {seat_type} (26 Oct 2026)")
+    record = {"cushion": [round(tw, 4), round(td, 4)], "parts": len(parts), "front": front,
+              "reasons": [str(w) for w in why]}
+    return {"type": seat_type, "fp": fp, "front": front, "note": note, "record": record}
+
+
 def _rule_item(segs: list, fp, ftype: str, front: Optional[float], ctx: _Ctx, raster: bool, table: dict,
                note: str, details: Optional[dict] = None) -> FurnitureItem:
     """A piece typed by a Milestone 11 split rule (``type_method: rule``); ``verified`` when its footprint fits the
@@ -3021,8 +3254,14 @@ def table_chair_items(split: dict, ctx: _Ctx, raster: bool, table: dict, named: 
                       ) -> list[FurnitureItem]:
     """The table (``named``: the block-named table, else a rule table) and one chair per part, facing the table.
     Fix round after P5: a coat closet split (``split["wardrobe"]``) is one ``wardrobe`` rule item, the outline's
-    footprint, all the part's strokes as its evidence; the wall rules give its front at the reading."""
+    footprint, all the part's strokes as its evidence; the wall rules give its front at the reading.
+    26 Oct 2026: a seat split (``split["seat"]``: a cushion with its arms and back) is one seat rule item (an armchair
+    or a sofa by the whole footprint, the front of its free side or none), all the part's strokes as its evidence."""
     tpoly = split["table_poly"]
+    if split.get("seat"):
+        seat = split["seat"]
+        return [_rule_item(split["table"].segs, seat["fp"], seat["type"], seat["front"], ctx, raster, table,
+                           seat["note"], details={"seat_split": dict(seat["record"])})]
     if split.get("wardrobe"):
         fp = footprint(list(tpoly.exterior.coords)[:-1], ctx.theta)
         return [_rule_item(split["table"].segs, fp, "wardrobe", None, ctx, raster, table, split["wardrobe"]["note"],
@@ -3811,11 +4050,17 @@ def _counter_runs(keep: list[Seg], ctx: "_Ctx", walls: list, openings: list, ras
 
     for poly, members in sorted(contours(loose), key=lambda pm: (-pm[0].area, sorted(pm[1]))):
         segs = [loose[i] for i in members]
-        if poly.area < 0.3 or any(id(s) in used for s in segs) or len({s.stroke.id for s in segs}) > 4:
+        if poly.area < 0.3 or any(id(s) in used for s in segs):
+            continue
+        # 26 Oct 2026 (module docstring): an outline drawn by more than four lines is a counter run only when a sink's
+        # drain or a hob's burners are drawn inside it (real06's kitchen run: one 3.99 x 2.40 m outline of LINEs with
+        # its sink and hob circles stayed an unknown box that "fits no size-table type").
+        signs = kitchen_signs(keep, poly)
+        if len({s.stroke.id for s in segs}) > 4 and not signs:
             continue
         found = counter_legs(Polygon([to_f(p) for p in poly.exterior.coords]).buffer(0), faces, REREAD_COUNTER_COVER,
                              short_corner=True)
-        if found is None or not (len(found[0]) >= 2 or _kitchen_near(poly, keep)):
+        if found is None or not (len(found[0]) >= 2 or signs or _kitchen_near(poly, keep)):
             continue
         for lg in found[0]:
             add_leg({"rect_f": lg["rect"], "front_f": lg["front_f"], "segs": segs, "length": lg["length"],
@@ -3834,7 +4079,9 @@ def _counter_runs(keep: list[Seg], ctx: "_Ctx", walls: list, openings: list, ras
         if len(segs) < 2:
             continue
         legs = counter_rule(Cluster(segs), walls, openings, ctx.theta, loose_in_blocks=True)
-        if not legs or not (len(legs) >= 2 or _kitchen_near(unary_union([s.geom for s in segs]), keep)):
+        # 26 Oct 2026 (module docstring): two legs count only when they meet at a corner (an L or a U), else a sink,
+        # hob or kitchen block must be drawn on or near the run (``counter_run_evidence``)
+        if not legs or counter_run_evidence(legs, keep, ctx.theta) is None:
             continue
         for leg in legs:
             add_leg(leg, "kitchen counter: its front line runs between wall faces (M12 re-read)")
@@ -3945,6 +4192,12 @@ def reread(cl: Cluster, ctx: "_Ctx", table: dict, walls: list, openings: list, w
                                     "a bowl with its drain " + ("in a counter leg" if in_leg else "beside the "
                                                                 "kitchen appliances") + " (M12 re-read)"))
             continue
+        if in_leg and named in (None, "stove") and "hob" in kitchen_signs(part.segs) and \
+                fits(table, "stove", (fp[1], fp[2])):
+            # 26 Oct 2026 (module docstring): three or more burner circles in a counter leg are its hob
+            items.append(_rule_item(part.segs, fp, "stove", _leg_front(poly, leg_polys, leg_fronts), ctx, raster,
+                                    table, "a hob: burner circles in a counter leg (M12 re-read, 26 Oct 2026)"))
+            continue
         if in_leg and named not in KITCHEN_APPLIANCES:
             dropped += 1                    # a dishwasher, drawers or a door front drawn in a counter leg
             continue
@@ -3968,6 +4221,9 @@ def reread(cl: Cluster, ctx: "_Ctx", table: dict, walls: list, openings: list, w
             details["l_front"] = lsh["front_deg"]
         if drain:
             details["drain"] = True
+        signs = kitchen_signs(part.segs)
+        if signs:
+            details["kitchen_signs"] = signs        # 26 Oct 2026: for the reading's kitchen-outline rule
         if door_note:
             details["door"] = True
             reason += f"; {door_note}"

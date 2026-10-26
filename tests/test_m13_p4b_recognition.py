@@ -123,7 +123,11 @@ def test_real01_answers_with_real_types_withdraw_the_same_questions(tmp_path):
     """The real01 two-pass run (tests/test_pipeline.py) with answers that give real types instead of 'unknown': both
     models call the chaise sym_L0_015 a sofa. The old code typing then saw the living room's seating anchor filled by
     the AI's sofa and left the drawn sofa sym_L0_014 (typed by code in the first run, question withdrawn) untyped:
-    its question came back as a late, never-asked one. Now the same 15 questions are withdrawn in both runs."""
+    its question came back as a late, never-asked one. Now the same 15 questions are withdrawn in both runs.
+
+    26 Oct 2026 (user: "identical blocks get one type"; infer._same_block_type): the second sofa sym_L0_015 is the
+    same block as the first (371 paths, 1.90 x 0.70 m; the real01 reference C06: "the same block as F15", both sofas),
+    so code types it in both runs and its question is withdrawn too: 16 withdrawn, sym_L0_017 alone is asked."""
     import shutil
 
     from wenart.recognition import answers as A
@@ -135,11 +139,12 @@ def test_real01_answers_with_real_types_withdraw_the_same_questions(tmp_path):
     rec = out / "recognition"
     _b1, first = PL.run_project(project, out)
     items = A.read_requests(rec)["items"]
-    assert [i["key"] for i in items] == ["sym_L0_015", "sym_L0_017"] and len(first.code_typed) == 15
+    assert [i["key"] for i in items] == ["sym_L0_017"] and len(first.code_typed) == 16
+    assert first.code_typed_methods["sym_L0_015"] == "same_block"
     models = A.load_models()
     for key in A.MODEL_KEYS:
         store = A.AnswerStore.for_model(rec, key, models)
-        for it, ftype in zip(items, ("sofa", "side_table")):
+        for it, ftype in zip(items, ("side_table",)):
             data = {"type": ftype, "front": "none", "confidence": 0.9, "reason": "fake answer"}
             store.put(it["key"], {"task": it["task"], "input_sha256": it["input_sha256"], "data": data,
                                   "raw_text": json.dumps(data), "error": None, "attempts": 1, "latency_s": 0.0,
@@ -147,10 +152,12 @@ def test_real01_answers_with_real_types_withdraw_the_same_questions(tmp_path):
         store.save()
     building, second = PL.run_project(project, out, answers=rec)
     assert second.code_typed == first.code_typed and second.code_typed_methods == first.code_typed_methods
-    assert [q["key"] for q in second.questions] == ["sym_L0_015", "sym_L0_017"]
+    assert [q["key"] for q in second.questions] == ["sym_L0_017"]
     assert second.unanswered == [] and second.pending == [] and PL.exit_code(building, second) == PL.EXIT_OK
     assert sorted(f["type"] for f in building["furniture"] if f.get("type_method") == "ai_two_pass") == \
-        ["side_table", "sofa"]
+        ["side_table"]
+    assert sorted(f["type"] for f in building["furniture"] if f.get("type_method") == "same_block") == \
+        ["nightstand", "nightstand", "sofa"]
 
 
 def test_without_answers_nothing_is_reset():
