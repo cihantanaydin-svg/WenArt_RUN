@@ -104,6 +104,8 @@ SYSTEM = (
     "sentences, for every project, never for this one only) that would prevent this kind of problem.\n"
     "- Prefer the fix of the cause: retype a misread piece rather than move its neighbours, build the missing piece "
     "of a room's set, swap the model that does not match its set, set the camera that shows a bare wall.\n"
+    "- A finding with tried_and_refused lists edits code refused this run, with the reason: never repeat one; choose "
+    "another tool or other arguments that answer the reason, or rule_needed when no tool can.\n"
     "- 'not built: <reason>' lists elements a stage left out and the reason it gave, and 'gone after the ... stage, "
     "named in ...' an element a stage dropped and the record that names it: real = true when the reason hides a loss "
     "(something the documents show that the house should have), false when it is a good reason.\n"
@@ -229,9 +231,31 @@ def items_of(rep: dict) -> list[dict]:
 
 
 def _item_text(f: dict) -> dict:
-    return {"id": f["aid"], "check": f"{f.get('line')}:{f.get('check')}", "severity": f.get("severity"),
-            "kind": f.get("kind"), "target": str(f.get("target")), "what": str(f.get("message"))[:MESSAGE_CHARS],
-            "owner": f.get("owner"), "code_fix": f.get("fix")}
+    out = {"id": f["aid"], "check": f"{f.get('line')}:{f.get('check')}", "severity": f.get("severity"),
+           "kind": f.get("kind"), "target": str(f.get("target")), "what": str(f.get("message"))[:MESSAGE_CHARS],
+           "owner": f.get("owner"), "code_fix": f.get("fix")}
+    if f.get("tried"):
+        out["tried_and_refused"] = f["tried"]
+    return out
+
+
+TRIED_MAX = 4                  # refused edits per target shown to the model
+
+
+def tried_by_target(agent_log: Optional[dict]) -> dict:
+    """``{target: ["tool: why refused", ...]}`` of this run's refused edits (the agent's and Argus's), so Argus does
+    not try the same again: it picks another tool or another argument (``process._run_events``, ``_refusal``)."""
+    from wenart.audit import process as PR
+
+    out: dict = {}
+    for e in PR._run_events(agent_log):
+        if e.get("kind") != "rejected_edit" or not e.get("target"):
+            continue
+        line = f"{e.get('tool')}: {PR._refusal(e)[:140]}"
+        lst = out.setdefault(str(e["target"]), [])
+        if line not in lst and len(lst) < TRIED_MAX:
+            lst.append(line)
+    return out
 
 
 # ---------------------------------------------------------------------------------------------------- the calls
@@ -556,6 +580,10 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
     building = inp.stage("final") or inp.final or {}
     fact_lines = facts(building, rep)
     items = items_of(rep)
+    tried = tried_by_target(inp.agent_log)
+    for f in items:
+        if str(f.get("target")) in tried:
+            f["tried"] = tried[str(f.get("target"))]
     verdicts = triage(model, items, fact_lines, time_ok=time_ok, out=out, errors=errors,
                       project=inp.project) if items else {}
     by_id = {f["aid"]: f for f in items}

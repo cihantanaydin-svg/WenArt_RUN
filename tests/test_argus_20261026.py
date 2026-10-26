@@ -720,3 +720,15 @@ def test_argus_remembers_earlier_runs(tmp_path):
     assert any("seen in 2 runs" in x and "sa_x" in x for x in lines)
     assert any("rule learned" in x and "labelled space" in x for x in lines)
     assert AX.history_lines("p", tmp_path / "none.json") == []
+
+
+def test_argus_sees_what_was_tried_and_refused_on_a_target():
+    log = {"run_first_seq": 5, "events": [
+        {"seq": "1", "kind": "rejected_edit", "tool": "move_piece", "target": "f1", "validation": "old run"},
+        {"seq": "6", "kind": "rejected_edit", "tool": "place_group", "target": "r_k",
+         "validation": "{'accepted': False, 'failed_checks': ['no_place: kitchen_run: no place passes the checks']}"},
+        {"seq": "7", "kind": "edit", "tool": "move_piece", "target": "f2"}]}
+    tried = AX.tried_by_target(log)
+    assert tried == {"r_k": ["place_group: no_place: kitchen_run: no place passes the checks"]}
+    item = dict(K.finding("process", "P10", "major", "r_k", "the kitchen has no fridge"), aid="F1", tried=tried["r_k"])
+    assert AX._item_text(item)["tried_and_refused"] == tried["r_k"]
