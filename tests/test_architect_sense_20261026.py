@@ -141,3 +141,13 @@ def test_the_fit_takes_a_basin_that_can_work_and_hangs_a_wall_hung_one():
     assert FIT.working_top_ok("washbasin", 1.10)          # a basin with its mirror (the size table bounds it)
     assert FIT.mount_for("washbasin", 0.54) == pytest.approx(0.31)
     assert FIT.mount_for("washbasin", 0.86) is None and FIT.mount_for("sofa", 0.4) is None
+
+
+def test_doors_onto_terraces_and_roof_terraces_stay_doors():
+    """real04 (a villa with roof terraces and pool decks): no door that lands on something becomes a window."""
+    b = json.loads((ROOT / "results" / "furniture" / "real04" / "building_agent.json").read_text(encoding="utf-8"))
+    b["project"]["source_folder"] = "projects/no_such_project"
+    prep = BB.prepare(b, "base", None)
+    assert not [k for k, v in prep["architect_defaults"].items() if v["option"] in ("door_to_window", "gap_to_door")]
+    e1 = next(q for q in prep["architect"]["questions"] if q["id"] == "E1")
+    assert e1["answers"] and not any(a.get("open") for a in e1["answers"])     # ground-floor doors with steps
