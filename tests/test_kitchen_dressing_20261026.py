@@ -324,7 +324,10 @@ def test_real06_completion_records_and_reports_the_built_ins(real06, tmp_path):
     cabinets = [f for f in out["furniture"] if f["type"] == "wall_cabinet"]
     assert all(P.drawn_piece(f).polygon().intersection(P.drawn_piece(hob).polygon()).area < 1e-6 for f in cabinets)
     dressing_rec = next(r for r in records if r.room_id == "r_L1_soyunma_odasi")
-    assert sum(1 for f in dressing_rec.added if f["type"] == "wardrobe") >= 2
+    # 26 Oct 2026 (infer._wardrobe_run_type): the room's two drawn 2.27 m runs along its walls are its wardrobes (typed
+    # by code), so the completion adds no second set of runs beside them
+    assert {t["id"]: t["type"] for t in dressing_rec.typed_by_code} == {"f_L1_014": "wardrobe", "f_L1_015": "wardrobe"}
+    assert not [f for f in dressing_rec.added if f["type"] == "wardrobe"]
     text = C.report(records, out, C.Settings(), [])
     assert "## Built into the kitchen runs" in text and "hob" in text
 

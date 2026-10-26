@@ -87,6 +87,14 @@ closed outlines, with the ids the evidence uses. ``_extract_generic`` keeps each
 documents are listed. Nothing the reading builds changes; a failure is a warning. Why: real06's VERANDA / 22,80m²
 were recorded as a site area without an outline and nothing checked the model against what the documents hold; the
 source ledger (``wenart.audit.ledger``) does that with this inventory.
+
+Furniture name texts (26 Oct 2026; the ledger's A6 on real06: "*SIFONIYER" x3, "çamaşır mak."). What: the reading
+records the furniture name texts of the plans (``building["furniture_texts"]``) and types, or corrects, the drawn
+pieces they name (``wenart.furniture.names`` rules 1 and 1b); after the last typing ``_add_named_pieces`` adds the
+piece a name text names where no drawn piece stands (rule 2: ``from_documents``, the text as evidence, the footprint
+inferred and placed by the placer at the text, every check passed), or lists the text for review with the reason.
+The zone labels of the rooms (``building["zone_labels"]``) type the anchors drawn in their zones, and the conflicts of
+the pieces these rules typed get the decision as their resolution (``reading.resolve_named_conflicts``).
 """
 from __future__ import annotations
 
@@ -2501,6 +2509,29 @@ def _infer_types(build: ProjectBuild) -> None:
 UNTYPED_REVIEW_KIND = "untyped_piece"
 
 
+def _add_named_pieces(build: ProjectBuild) -> list[str]:
+    """26 Oct 2026 (``wenart.furniture.names`` rule 2, after the last typing): a furniture name text of the plan with no
+    drawn piece near it adds the piece it names (``from_documents``, the text as evidence, the footprint inferred and
+    placed by the placer at the text); a text that cannot be placed is listed for review with the reason. Every
+    addition and every review entry is a warning; the reading's counts follow. Returns the added ids."""
+    from wenart.furniture import names as NM
+
+    b = build.building
+    if not b.get("furniture_texts"):
+        return []
+    out = NM.add_named_pieces(b)
+    for line in out["warnings"]:
+        build.warn(line)
+    if out["added"] or out["review"]:
+        stats = build.reading if isinstance(build.reading, dict) else {}
+        stats["named_pieces"] = sorted(set(stats.get("named_pieces") or []) | set(out["added"]))
+        stats["named_review"] = sorted(set(stats.get("named_review") or []) | {n["id"] for n in out["review"]})
+        if isinstance(stats.get("needs_review"), int):
+            stats["needs_review"] += len(out["review"])
+        build.reading = stats
+    return list(out["added"])
+
+
 def _drop_typed_reviews(build: ProjectBuild, piece_ids: set) -> int:
     """Pass before P5, integration (module docstring): drop the ``UNTYPED_REVIEW_KIND`` review entries of the pieces of
     ``piece_ids`` that now have a type and are built (another entry, or a piece still unknown or not built, stays);
@@ -2801,6 +2832,8 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     LV.apply_levels(build, works)
     RD.read_furniture(build, works)
     _infer_types(build)
+    _add_named_pieces(build)          # 26 Oct 2026: a furniture name text with no drawn piece adds the piece it names
+    RD.resolve_named_conflicts(build)  # 26 Oct 2026: the disputed pieces a name text, a zone label or the AI typed
     masters = [sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
     if any(w.extraction.source_kind is not None for w in masters):
         # The generic core's unit system; an evidence-only raster page beside a DXF/PDF level does not count.

@@ -1509,7 +1509,9 @@ def fixed_mark_refusal(building: dict, item: dict) -> Optional[str]:
 
 # Fix round after P4a (module docstring): mark_not_furniture is a reading-error tool.
 MARK_LOCK_METHODS: tuple[str, ...] = ("block_name", "block", "rule", "twin", "level", "group_member",
-                                      "same_block")       # 26 Oct 2026: a copy of a typed block (infer)
+                                      "same_block",       # 26 Oct 2026: a copy of a typed block (infer)
+                                      "name_text",        # 26 Oct 2026: named by a text of the plan (names)
+                                      "zone_label")       # 26 Oct 2026: the anchor a zone label names (infer)
 READING_CHECKS: tuple[str, ...] = ("NR", "RC")       # the critic's reading findings (wenart.agent.critic_code)
 NEEDS_REVIEW_CHECK_ID = "NR"                         # fix round after P5: NR keeps its way out of the lock
 DUPLICATE_SHARE = 0.5            # a drawn piece this much inside a built drawn piece of its type is a duplicate outline

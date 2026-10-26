@@ -203,6 +203,21 @@ project"; real06 is the test case, tests/test_reading_sense_20261026.py). What, 
   drawn pieces with the outline as ``drawn_footprint`` and ``adjusted_by_ai`` by code; the outline is not built
   (``replaced_by``). Why: real06's f_L0_002 (3.99 x 2.40 m with sink and hob circles) "fits no size-table type" and
   was not built.
+
+Furniture name texts of 26 Oct 2026 (the auditor Argus, source ledger A6; ``wenart.furniture.names``). What: the reading
+first records every furniture name text of the read plan pages on the building (``furniture_texts``: the inventory's
+text rows, ``names.furniture_name``; one warning each), so the code typing types an untyped footprint the text names
+(``infer.type_by_code``, method ``name_text``, in ``code_pass`` before the context rules, the tie-break and the AI), the
+inference corrects an AI type of another type the text is written on (``infer.name_text_retypes``), ``never_a_box``
+says why a text near an untyped piece was not used (``infer.name_text_note``), and the pipeline adds the piece a text
+names where no drawn piece stands (``names.add_named_pieces``, after ``_infer_types``). Why: real06 L1's "*SIFONIYER"
+(f_L1_007 became a desk by the tie-break, f_L1_019 stayed unknown, the master bedroom's dresser was missing) and
+"çamaşır mak." (the empty square f_L1_021 became a second washbasin) were not read. The reading also records the
+zone labels of the rooms (``zone_labels``: a second label naming a zone of another kind, "YEMEK BÖLÜMÜ" in the salon,
+with its zone), so the code typing gives the zone's anchor to the footprint drawn there (``infer`` method
+``zone_label``; real06's round dining table f_L0_011 was "the living room's corner sofa"); the inference types the
+member a room misses that the AI passes named (``infer.ai_named_members``: real06's corner baths); and the type
+disagreement of a piece these rules typed gets the decision as its resolution (``resolve_named_conflicts``).
 """
 from __future__ import annotations
 
@@ -296,7 +311,9 @@ NEST_INSIDE = 0.8                  # >= 80 % of the smaller footprint inside the
 NEST_CENTRE_M = 0.10               # ... the centres this close ...
 NEST_AREA_MIN = 0.4                # ... the smaller at least this share of the bigger's area ...
 NEST_LONG_MIN = 0.75               # ... and of its long side: two outlines of one piece (not a sink in its counter)
-NEST_RANK = {"block_name": 4, "ai_two_pass": 3, "rule": 2, "twin": 2, "level": 2, "block": 2, "same_block": 2}
+NEST_RANK = {"block_name": 4, "name_text": 4, "ai_two_pass": 3, "rule": 2, "twin": 2, "level": 2, "block": 2,
+             "same_block": 2}
+NAME_TEXT_SAME_M = 0.05            # one name text read on two pages of a level (the same type this close) is one text
 NEST_RULE = "reading.nested_outlines"
 GENERIC_ROOM_RULE = "reading.generic_room"
 GENERIC_STRONG = ("ai_two_pass", "block_name")   # the anchors a generic room name follows
@@ -2602,7 +2619,12 @@ def never_a_box(build, items: dict, pending: Optional[set] = None) -> int:
     Fix round after P3 (16-17 Oct 2026): a piece that carries the waiting reason (``WAITS_REASON``) from an earlier
     pass but no longer waits (not in ``pending``) gets its build flag and reason back and goes through the rule like
     any untyped piece (listed in ``needs_review``): the reason never outlives the wait (CLAUDE.md: no untyped piece
-    is left unexplained)."""
+    is left unexplained).
+
+    26 Oct 2026: a furniture name text near the piece that did not type it says why in the reason
+    (``infer.name_text_note``)."""
+    from wenart.furniture import infer as INF
+
     b = build.building
     b.setdefault("needs_review", [])
     listed = {n["id"] for n in b["needs_review"]}
@@ -2635,9 +2657,11 @@ def never_a_box(build, items: dict, pending: Optional[set] = None) -> int:
                                                          "not split (CLAUDE.md: no untyped piece is built)"
         cands = sorted({c.get("type") for c in f.get("type_candidates") or [] if c.get("type")})
         size = " x ".join(f"{v:.2f}" for v in f["footprint"]["size"])
+        named = INF.name_text_note(b, f)              # 26 Oct 2026: a furniture name text near it, and why not used
         reason = (f"drawn piece {size} m in {f.get('room_id') or 'no room'} has no type"
                   + (f" (AI passes: {', '.join(cands)})" if cands else "")
                   + (f"; {det.get('reason') or det.get('note')}" if det.get("reason") or det.get("note") else "")
+                  + (f"; {named}" if named else "")
                   + ": not built")
         b["needs_review"].append({"id": f["id"], "kind": "untyped_piece", "reason": reason, "crop": _crop(det),
                                   "room_id": f.get("room_id"), "level_id": f["level_id"]})
@@ -2657,8 +2681,112 @@ def _refresh_rooms(b: dict) -> None:
 # The hook
 # --------------------------------------------------------------------------
 
+def furniture_texts(build, works: dict) -> list[dict]:
+    """26 Oct 2026 (``wenart.furniture.names``, module docstring): every furniture name text of the read plan pages
+    (``names.furniture_name`` on the inventory's text rows, ``source_items.text_rows``): ``{"id", "level_id",
+    "room_id", "text", "type", "types", "family", "word", "pos", "layer", "file", "page", "method"}``, the page whose
+    questions are asked first; the same name on two pages of a level (``NAME_TEXT_SAME_M``) once."""
+    from wenart.furniture import names as NM
+    from wenart.ingest import source_items as SI
+
+    b = build.building
+    out: list[dict] = []
+    seen_ids: set = set()
+    for w in sorted(_works(build, works), key=lambda w: 1 if _not_asked(w) else 0):
+        ex = getattr(w, "extraction", None)
+        record = getattr(w, "record", None)
+        if ex is None or record is None or not ex.transform_to_building:
+            continue
+        level = record.level_id
+        for row in SI.text_rows(ex, "", list(ex.transform_to_building)):
+            hit = NM.furniture_name(row)
+            if hit is None or row["id"] in seen_ids:
+                continue
+            pos = [float(row["pos"][0]), float(row["pos"][1])]
+            if any(t["level_id"] == level and (t["type"], t["family"]) == (hit["type"], hit["family"])
+                   and math.dist(t["pos"], pos) <= NAME_TEXT_SAME_M for t in out):
+                continue
+            seen_ids.add(row["id"])
+            out.append({"id": row["id"], "level_id": level, "room_id": NM.room_of_point(b, level, pos),
+                        "text": row["text"],
+                        "type": hit["type"], "types": list(hit["types"]), "family": hit["family"],
+                        "word": hit["word"], "pos": pos, "layer": row.get("layer"), "file": record.file,
+                        "page": record.page if record.format == "pdf" else None,
+                        "method": row.get("method") or "vector"})
+    return sorted(out, key=lambda t: (str(t["level_id"]), str(t["id"])))
+
+
+def zone_labels(build, works: dict) -> list[dict]:
+    """26 Oct 2026 (``names.zone_records``): the zone labels of the rooms: every label block (its first name run of the
+    inventory's text rows) standing in a room whose zone kind differs from the room's type ("YEMEK BÖLÜMÜ" in the
+    salon: a dining zone), with its zone (the part of the room nearer to it than to the room's other labels) and the
+    zone's anchors (the dining table); the page whose questions are asked first."""
+    from wenart.furniture import names as NM
+    from wenart.ingest import source_items as SI
+
+    b = build.building
+    rooms = {r["id"]: r for r in b.get("rooms") or [] if len(r.get("polygon") or []) >= 3}
+    by_room: dict[str, list[dict]] = {}
+    files: dict[str, str] = {}
+    for w in sorted(_works(build, works), key=lambda w: 1 if _not_asked(w) else 0):
+        ex = getattr(w, "extraction", None)
+        record = getattr(w, "record", None)
+        if ex is None or record is None or not ex.transform_to_building:
+            continue
+        for row in SI.text_rows(ex, "", list(ex.transform_to_building)):
+            if row.get("label_part") != "name" or row.get("label_id") not in (None, row["id"]):
+                continue
+            rid = NM.room_of_point(b, record.level_id, row["pos"])
+            if rid is None or rid not in rooms:
+                continue
+            by_room.setdefault(rid, []).append(row)
+            files.setdefault(rid, record.file)
+    out: list[dict] = []
+    for rid in sorted(by_room):
+        out += NM.zone_records(b, rooms[rid], by_room[rid], file=files.get(rid))
+    return out
+
+
+def resolve_named_conflicts(build) -> int:
+    """26 Oct 2026: the ``symbol_type_disagreement`` conflict of a piece typed by a furniture name text, a zone label or
+    the missing member the AI passes named (``infer`` name_text / zone_label / ai_named_members) gets that decision as
+    its resolution (it said "unresolved: ... kept as unknown"). Returns the number of conflicts resolved."""
+    from wenart.furniture import infer as INF
+
+    b = build.building
+    by_id = {f["id"]: f for f in b.get("furniture") or []}
+    n = 0
+    for c in list(getattr(build, "raw_conflicts", []) or []) + list(b.get("conflicts") or []):
+        if c.get("kind") != "symbol_type_disagreement" or not str(c.get("resolution") or "").startswith("unresolved"):
+            continue
+        f = next((by_id[i] for i in c.get("element_ids") or [] if i in by_id), None)
+        if f is None or f.get("type") in (None, "unknown"):
+            continue
+        rules = {str(e.get("rule") or "") for e in f.get("evidence") or [] if isinstance(e, dict)}
+        if f.get("type_method") not in (INF.NAME_TEXT_METHOD, INF.ZONE_LABEL_METHOD) and INF.AI_MEMBER_RULE not in rules:
+            continue
+        how = f.get("type_method") if f.get("type_method") != "inferred" else INF.AI_MEMBER_METHOD
+        c["resolution"] = (f"typed {f['type']} by code ({how}): {str(f.get('inferred_reason') or '')[:240]}; "
+                           f"inferred, listed in the report")
+        n += 1
+    return n
+
+
 def read_furniture(build, works: dict) -> None:
     b = build.building
+    # 26 Oct 2026 (``furniture_texts``): the furniture names written as texts of the plan, for the code typing
+    # (``infer.type_by_code`` method name_text, ``infer.name_text_retypes``) and the pipeline's named pieces
+    b["furniture_texts"] = furniture_texts(build, works)
+    for t in b["furniture_texts"]:
+        build.warn(f"{t['id']}: furniture name text {t['text']!r} on {t['level_id']} at ({t['pos'][0]:.2f}, "
+                   f"{t['pos'][1]:.2f}) m in {t['room_id'] or 'no room'} names a "
+                   f"{t['type'] or t['family'] + ' (' + ' / '.join(t['types']) + ')'}")
+    # 26 Oct 2026 (``zone_labels``): a second label of a room names a zone of it and the anchor drawn there
+    b["zone_labels"] = zone_labels(build, works)
+    for z in b["zone_labels"]:
+        build.warn(f"{z['id']}: zone label {z['text']!r} in {z['room_id']}: a {z['kind']} zone "
+                   f"({', '.join(z['anchors'])}) of {len(z['zone'])} corners around ({z['pos'][0]:.2f}, "
+                   f"{z['pos'][1]:.2f}) m")
     items = _items(build, works)
     pending = _pending(build, works)
     symbols = move_symbols(build, items, works)
@@ -2776,4 +2904,6 @@ def read_furniture(build, works: dict) -> None:
                      "seat_cushions": cushions, "rooms_retyped": rooms_retyped, "nested_outlines": nested,
                      "kitchen_outline_legs": outline_legs, "wet_room_vanities": vanities,
                      "code_typed": sorted(typed_by), "questions_withdrawn": sorted(withdrawn),
-                     "typed_by": dict(sorted(typed_by.items()))}
+                     "typed_by": dict(sorted(typed_by.items())),
+                     "furniture_texts": [t["id"] for t in b.get("furniture_texts") or []],
+                     "zone_labels": [z["id"] for z in b.get("zone_labels") or []]}
