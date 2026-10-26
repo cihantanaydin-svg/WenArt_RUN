@@ -1,0 +1,47 @@
+# The AI architect looks at the model
+
+29 question(s) and default decision(s) put to Qwen/Qwen3.8-27B-FP8 with each floor's view of the model, 12 decision(s) of its own: 2 carried out (checked by code: settled, no new major point, the model review no worse), 28 default(s) confirmed, 11 refused; 0 open point(s) after (64 s).
+
+| level | kind | key | choice | verdict | why | the model's reason |
+|---|---|---|---|---|---|---|
+| L0 | decided | `O2:o_L0_002` | door_to_window | confirmed | the same as the default decision | The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill. |
+| L0 | decided | `O2:o_L0_003` | door_to_window | confirmed | the same as the default decision | The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill. |
+| L0 | decided | `O2:o_L0_004` | door_to_window | confirmed | the same as the default decision | The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill. |
+| L0 | decided | `O2:o_L0_005` | door_to_window | confirmed | the same as the default decision | The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill. |
+| L0 | decided | `O2:o_L0_006` | door_to_window | confirmed | the same as the default decision | The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill. |
+| L0 | decided | `O2:o_L0_007` | door_to_window | confirmed | the same as the default decision | The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill. |
+| L0 | decided | `W2:win_L0_001` | interior_glazing | confirmed | the same as the default decision | The kitchen and living room are both dry rooms, so the window between them is a borrowed-light glazing on purpose. |
+| L0 | decided | `D5:d_L0_001` | door_type:glazed_sliding | confirmed | the same as the default decision | The wide outside door of the living room is drawn sliding and must be glazed, never one flat slab. |
+| L0 | decided | `D5:d_L0_002` | door_type:sliding_pair | confirmed | the same as the default decision | The 1.95 m inside door between kitchen and living is best served by sliding leaves parting in the middle. |
+| L0 | decided | `D5:d_L0_004` | door_type:entrance | confirmed | the same as the default decision | The 0.80 m door into the living is the main entrance and reads as a normal entrance door. |
+| L0 | decided | `D5:d_L0_006` | door_type:glazed_sliding | confirmed | the same as the default decision | The 2.95 m outside door of the living room is drawn sliding and must be glazed, never one flat slab. |
+| L0 | own | `AI.pass_through:d_L0_002` | pass_through | accepted | d_L0_002: a serving window over the counter, sill 0.95 m | The kitchen and living room are both dry rooms, so the wide doorway between them becomes a serving window over the counter. |
+| L0 | own | `AI.remove_piece:f_L0_016` | remove_piece | refused | f_L0_016 is drawn: a drawn piece is never removed by a decision (CLAUDE.md) | The living room already has a full seating group, so the extra armchair is not built. |
+| L0 | own | `AI.remove_piece:f_L0_017` | remove_piece | refused | f_L0_017 is drawn: a drawn piece is never removed by a decision (CLAUDE.md) | The living room already has a full seating group, so the extra armchair is not built. |
+| L0 | own | `AI.remove_piece:f_L0_018` | remove_piece | refused | f_L0_018 is drawn: a drawn piece is never removed by a decision (CLAUDE.md) | The living room already has a full seating group, so the extra armchair is not built. |
+| L0 | own | `AI.remove_piece:f_L0_019` | remove_piece | refused | f_L0_019 is drawn: a drawn piece is never removed by a decision (CLAUDE.md) | The living room already has a full seating group, so the extra armchair is not built. |
+| L0 | own | `AI.remove_piece:f_L0_028` | remove_piece | refused | f_L0_028 is drawn: a drawn piece is never removed by a decision (CLAUDE.md) | The living room already has enough seating, so the extra ottoman is not built. |
+| L0 | own | `AI.remove_piece:f_L0_029` | remove_piece | refused | f_L0_029 is drawn: a drawn piece is never removed by a decision (CLAUDE.md) | The living room already has enough seating, so the extra ottoman is not built. |
+| L0 | own | `AI.remove_piece:f_L0_030` | remove_piece | refused | f_L0_030 is drawn: a drawn piece is never removed by a decision (CLAUDE.md) | The living room already has enough seating, so the extra ottoman is not built. |
+| L1 | decided | `E1:d_L1_001` | door_to_window | confirmed | the same as the default decision | The opening is a 2.15 m wide window on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `E1:d_L1_004` | door_to_window | confirmed | the same as the default decision | The opening is a 0.80 m wide window on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `E1:d_L1_005` | door_to_window | confirmed | the same as the default decision | The opening is a 1.55 m wide window on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `E1:d_L1_007` | door_to_window | confirmed | the same as the default decision | The opening is a 0.80 m wide window on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `E1:d_L1_010` | door_to_window | confirmed | the same as the default decision | The opening is a 0.80 m wide window on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `E1:d_L1_011` | door_to_window | confirmed | the same as the default decision | The opening is a 1.98 m wide window on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `O2:o_L1_001` | door_to_window | confirmed | the same as the default decision | The bare gap is on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `O2:o_L1_003` | door_to_window | confirmed | the same as the default decision | The bare gap is on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `O2:o_L1_004` | door_to_window | confirmed | the same as the default decision | The bare gap is on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `O2:o_L1_005` | door_to_window | confirmed | the same as the default decision | The bare gap is on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `O2:o_L1_006` | door_to_window | confirmed | the same as the default decision | The bare gap is on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `O2:o_L1_007` | door_to_window | confirmed | the same as the default decision | The bare gap is on the upper facade with no terrace or landing outside to step onto. |
+| L1 | decided | `C1:r_L1_soyunma_odasi` | retype_room:storage | accepted | r_L1_soyunma_odasi is a storage | The room is a small 5.9 m2 dressing room that cannot be reached from the entrance through any door, opening or stair. |
+| L1 | decided | `W2:win_L1_003` | window_to_door | confirmed | the same as the default decision | The opening is in the wall between the dressing room and the bedroom, and the dressing room has no other door. |
+| L1 | decided | `W2:win_L1_004` | high_window | confirmed | the same as the default decision | The opening is a 0.80 m wide window with a 1.80 m sill between the dressing room and the bathroom, serving as a high borrowed-light window for the bathroom's privacy. |
+| L1 | decided | `W2:win_L1_005` | high_window | confirmed | the same as the default decision | The opening is a 0.82 m wide window with a 1.80 m sill between the dressing room and the bathroom, serving as a high borrowed-light window for the bathroom's privacy. |
+| L1 | decided | `W2:win_L1_008` | interior_glazing | confirmed | the same as the default decision | The opening is a 0.97 m wide window with a 0.90 m sill between the living room and the hall, serving as a borrowed-light window on purpose. |
+| L1 | decided | `O1:d_L1_011` | merge_openings | confirmed | the same as the default decision | The opening d_L1_011 overlaps with o_L1_001, indicating it is one opening read twice. |
+| L1 | own | `AI.remove_piece:f_L1_006` | remove_piece | refused | f_L1_006 is drawn: a drawn piece is never removed by a decision (CLAUDE.md) | The room is a 22.4 m2 bedroom with a 1.94 x 1.90 m double bed, which is too large for the room and clashes with the 1.80 x 2.00 m double bed. |
+| L1 | own | `AI.remove_piece:f_L1_016` | remove_piece | refused | f_L1_016 is drawn: a drawn piece is never removed by a decision (CLAUDE.md) | The room is an 11.3 m2 living room with a 2.65 x 0.93 m sofa, which is too large for the room and clashes with the 1.81 x 0.68 m sofa. |
+| L1 | own | `AI.remove_piece:f_L1_009` | remove_piece | refused | f_L1_009 is drawn: a drawn piece is never removed by a decision (CLAUDE.md) | The child's bedroom already carries the drawn double bed f_L1_006, so the second double bed f_L1_009 is a duplicate that does not belong in the room. |
+| L1 | own | `AI.remove_piece:f_L1_017` | remove_piece | refused | f_L1_017 is drawn: a drawn piece is never removed by a decision (CLAUDE.md) | The parent bedroom already has the drawn armchair f_L1_018, so the second identical armchair f_L1_017 is a duplicate that does not belong there. |

@@ -1,0 +1,397 @@
+{
+ "levels": [
+  "L0",
+  "L1"
+ ],
+ "asked": 29,
+ "decisions": 12,
+ "accepted": 2,
+ "confirmed": 28,
+ "refused": 11,
+ "model": "Qwen/Qwen3.8-27B-FP8",
+ "entries": [
+  {
+   "level": "L0",
+   "kind": "decided",
+   "key": "O2:o_L0_002",
+   "choice": "door_to_window",
+   "reason": "The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L0",
+   "kind": "decided",
+   "key": "O2:o_L0_003",
+   "choice": "door_to_window",
+   "reason": "The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L0",
+   "kind": "decided",
+   "key": "O2:o_L0_004",
+   "choice": "door_to_window",
+   "reason": "The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L0",
+   "kind": "decided",
+   "key": "O2:o_L0_005",
+   "choice": "door_to_window",
+   "reason": "The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L0",
+   "kind": "decided",
+   "key": "O2:o_L0_006",
+   "choice": "door_to_window",
+   "reason": "The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L0",
+   "kind": "decided",
+   "key": "O2:o_L0_007",
+   "choice": "door_to_window",
+   "reason": "The opening is a bare gap with nothing outside to step on, so it is a window at the floor's sill.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L0",
+   "kind": "decided",
+   "key": "W2:win_L0_001",
+   "choice": "interior_glazing",
+   "reason": "The kitchen and living room are both dry rooms, so the window between them is a borrowed-light glazing on purpose.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L0",
+   "kind": "decided",
+   "key": "D5:d_L0_001",
+   "choice": "door_type:glazed_sliding",
+   "reason": "The wide outside door of the living room is drawn sliding and must be glazed, never one flat slab.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L0",
+   "kind": "decided",
+   "key": "D5:d_L0_002",
+   "choice": "door_type:sliding_pair",
+   "reason": "The 1.95 m inside door between kitchen and living is best served by sliding leaves parting in the middle.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L0",
+   "kind": "decided",
+   "key": "D5:d_L0_004",
+   "choice": "door_type:entrance",
+   "reason": "The 0.80 m door into the living is the main entrance and reads as a normal entrance door.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L0",
+   "kind": "decided",
+   "key": "D5:d_L0_006",
+   "choice": "door_type:glazed_sliding",
+   "reason": "The 2.95 m outside door of the living room is drawn sliding and must be glazed, never one flat slab.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L0",
+   "kind": "own",
+   "key": "AI.pass_through:d_L0_002",
+   "choice": "pass_through",
+   "value": "",
+   "reason": "The kitchen and living room are both dry rooms, so the wide doorway between them becomes a serving window over the counter.",
+   "verdict": "accepted",
+   "why": "d_L0_002: a serving window over the counter, sill 0.95 m"
+  },
+  {
+   "level": "L0",
+   "kind": "own",
+   "key": "AI.remove_piece:f_L0_016",
+   "choice": "remove_piece",
+   "value": "",
+   "reason": "The living room already has a full seating group, so the extra armchair is not built.",
+   "verdict": "refused",
+   "why": "f_L0_016 is drawn: a drawn piece is never removed by a decision (CLAUDE.md)"
+  },
+  {
+   "level": "L0",
+   "kind": "own",
+   "key": "AI.remove_piece:f_L0_017",
+   "choice": "remove_piece",
+   "value": "",
+   "reason": "The living room already has a full seating group, so the extra armchair is not built.",
+   "verdict": "refused",
+   "why": "f_L0_017 is drawn: a drawn piece is never removed by a decision (CLAUDE.md)"
+  },
+  {
+   "level": "L0",
+   "kind": "own",
+   "key": "AI.remove_piece:f_L0_018",
+   "choice": "remove_piece",
+   "value": "",
+   "reason": "The living room already has a full seating group, so the extra armchair is not built.",
+   "verdict": "refused",
+   "why": "f_L0_018 is drawn: a drawn piece is never removed by a decision (CLAUDE.md)"
+  },
+  {
+   "level": "L0",
+   "kind": "own",
+   "key": "AI.remove_piece:f_L0_019",
+   "choice": "remove_piece",
+   "value": "",
+   "reason": "The living room already has a full seating group, so the extra armchair is not built.",
+   "verdict": "refused",
+   "why": "f_L0_019 is drawn: a drawn piece is never removed by a decision (CLAUDE.md)"
+  },
+  {
+   "level": "L0",
+   "kind": "own",
+   "key": "AI.remove_piece:f_L0_028",
+   "choice": "remove_piece",
+   "value": "",
+   "reason": "The living room already has enough seating, so the extra ottoman is not built.",
+   "verdict": "refused",
+   "why": "f_L0_028 is drawn: a drawn piece is never removed by a decision (CLAUDE.md)"
+  },
+  {
+   "level": "L0",
+   "kind": "own",
+   "key": "AI.remove_piece:f_L0_029",
+   "choice": "remove_piece",
+   "value": "",
+   "reason": "The living room already has enough seating, so the extra ottoman is not built.",
+   "verdict": "refused",
+   "why": "f_L0_029 is drawn: a drawn piece is never removed by a decision (CLAUDE.md)"
+  },
+  {
+   "level": "L0",
+   "kind": "own",
+   "key": "AI.remove_piece:f_L0_030",
+   "choice": "remove_piece",
+   "value": "",
+   "reason": "The living room already has enough seating, so the extra ottoman is not built.",
+   "verdict": "refused",
+   "why": "f_L0_030 is drawn: a drawn piece is never removed by a decision (CLAUDE.md)"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "E1:d_L1_001",
+   "choice": "door_to_window",
+   "reason": "The opening is a 2.15 m wide window on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "E1:d_L1_004",
+   "choice": "door_to_window",
+   "reason": "The opening is a 0.80 m wide window on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "E1:d_L1_005",
+   "choice": "door_to_window",
+   "reason": "The opening is a 1.55 m wide window on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "E1:d_L1_007",
+   "choice": "door_to_window",
+   "reason": "The opening is a 0.80 m wide window on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "E1:d_L1_010",
+   "choice": "door_to_window",
+   "reason": "The opening is a 0.80 m wide window on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "E1:d_L1_011",
+   "choice": "door_to_window",
+   "reason": "The opening is a 1.98 m wide window on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "O2:o_L1_001",
+   "choice": "door_to_window",
+   "reason": "The bare gap is on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "O2:o_L1_003",
+   "choice": "door_to_window",
+   "reason": "The bare gap is on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "O2:o_L1_004",
+   "choice": "door_to_window",
+   "reason": "The bare gap is on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "O2:o_L1_005",
+   "choice": "door_to_window",
+   "reason": "The bare gap is on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "O2:o_L1_006",
+   "choice": "door_to_window",
+   "reason": "The bare gap is on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "O2:o_L1_007",
+   "choice": "door_to_window",
+   "reason": "The bare gap is on the upper facade with no terrace or landing outside to step onto.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "C1:r_L1_soyunma_odasi",
+   "choice": "retype_room:storage",
+   "reason": "The room is a small 5.9 m2 dressing room that cannot be reached from the entrance through any door, opening or stair.",
+   "verdict": "accepted",
+   "why": "r_L1_soyunma_odasi is a storage"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "W2:win_L1_003",
+   "choice": "window_to_door",
+   "reason": "The opening is in the wall between the dressing room and the bedroom, and the dressing room has no other door.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "W2:win_L1_004",
+   "choice": "high_window",
+   "reason": "The opening is a 0.80 m wide window with a 1.80 m sill between the dressing room and the bathroom, serving as a high borrowed-light window for the bathroom's privacy.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "W2:win_L1_005",
+   "choice": "high_window",
+   "reason": "The opening is a 0.82 m wide window with a 1.80 m sill between the dressing room and the bathroom, serving as a high borrowed-light window for the bathroom's privacy.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "W2:win_L1_008",
+   "choice": "interior_glazing",
+   "reason": "The opening is a 0.97 m wide window with a 0.90 m sill between the living room and the hall, serving as a borrowed-light window on purpose.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "decided",
+   "key": "O1:d_L1_011",
+   "choice": "merge_openings",
+   "reason": "The opening d_L1_011 overlaps with o_L1_001, indicating it is one opening read twice.",
+   "verdict": "confirmed",
+   "why": "the same as the default decision"
+  },
+  {
+   "level": "L1",
+   "kind": "own",
+   "key": "AI.remove_piece:f_L1_006",
+   "choice": "remove_piece",
+   "value": "",
+   "reason": "The room is a 22.4 m2 bedroom with a 1.94 x 1.90 m double bed, which is too large for the room and clashes with the 1.80 x 2.00 m double bed.",
+   "verdict": "refused",
+   "why": "f_L1_006 is drawn: a drawn piece is never removed by a decision (CLAUDE.md)"
+  },
+  {
+   "level": "L1",
+   "kind": "own",
+   "key": "AI.remove_piece:f_L1_016",
+   "choice": "remove_piece",
+   "value": "",
+   "reason": "The room is an 11.3 m2 living room with a 2.65 x 0.93 m sofa, which is too large for the room and clashes with the 1.81 x 0.68 m sofa.",
+   "verdict": "refused",
+   "why": "f_L1_016 is drawn: a drawn piece is never removed by a decision (CLAUDE.md)"
+  },
+  {
+   "level": "L1",
+   "kind": "own",
+   "key": "AI.remove_piece:f_L1_009",
+   "choice": "remove_piece",
+   "value": "",
+   "reason": "The child's bedroom already carries the drawn double bed f_L1_006, so the second double bed f_L1_009 is a duplicate that does not belong in the room.",
+   "verdict": "refused",
+   "why": "f_L1_009 is drawn: a drawn piece is never removed by a decision (CLAUDE.md)"
+  },
+  {
+   "level": "L1",
+   "kind": "own",
+   "key": "AI.remove_piece:f_L1_017",
+   "choice": "remove_piece",
+   "value": "",
+   "reason": "The parent bedroom already has the drawn armchair f_L1_018, so the second identical armchair f_L1_017 is a duplicate that does not belong there.",
+   "verdict": "refused",
+   "why": "f_L1_017 is drawn: a drawn piece is never removed by a decision (CLAUDE.md)"
+  }
+ ],
+ "open_after": 0,
+ "seconds": 63.5
+}

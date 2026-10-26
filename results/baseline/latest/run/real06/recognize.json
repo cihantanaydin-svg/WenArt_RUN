@@ -4,29 +4,29 @@
  "project": "real06",
  "stage": "recognize",
  "rc": 0,
- "status": "reused",
- "seconds": 2.17,
+ "status": "ok",
+ "seconds": 9.33,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "recognition/answers_qwen3-vl-8b.json",
   "recognition/answers_glm-4.6v-flash.json"
  ],
- "started_utc": "2026-10-25T19:59:47Z",
- "git_commit": "e83cf89e5def139064c82174c5763d9a2ecf3942",
+ "started_utc": "2026-10-26T17:10:59Z",
+ "git_commit": "628424bb1f80abb0a6a0df60013bcf38bbff1a89",
  "log": "logs/recognize.log",
  "note": null,
- "run_id": "20261025-195332-full-20261025T195827Z",
+ "run_id": "20261026-170020-full-20261026T170641Z",
  "steps": [
   {
-   "name": "stored answers qwen",
+   "name": "ask glm",
    "rc": 0,
-   "seconds": 1.14
+   "seconds": 4.88
   },
   {
-   "name": "stored answers glm",
+   "name": "ask qwen",
    "rc": 0,
-   "seconds": 1.03
+   "seconds": 4.45
   }
  ],
  "written": {}

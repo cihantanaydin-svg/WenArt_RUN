@@ -1381,3 +1381,23 @@ Tests: the full CPU suite (6,200 tests in 4 shards, LibreDWG built in this sessi
 real03's vanities (fixed above) and `tests/test_sheets_real04.py::test_pools_terraces_parking_trees_and_marks`
 (21 of 101 trees), which fails on the commit of 25 Oct too (open: not from today's work; the session's own
 LibreDWG build may differ from the setup script's).
+
+**The real06 run of the second round** (pod `gyuv033uvc1oqb`, RTX PRO 6000, 70 min, $2.90, commit 628424b; sheets against the
+run of the first round, the architect's look and the inspector's report in
+[`results/review/real06_decides_run_20261026/`](../results/review/real06_decides_run_20261026/); promoted as the latest):
+
+| | first round (125412) | second round (170020) |
+|---|---|---|
+| critical findings, agent round 1 / final round | 49 / 41 | 18 / 15 |
+| the review of the 3D model (M1-M8 failures) | (not yet on the pod) | 0 in every check |
+| the architect's open points (major) | 7 (4) | 1 (0) |
+| the AI architect | 9 questions, 3 answered, 6 "could not be done" | 2 answered; the look: 28 default decisions confirmed, 2 decisions carried out (a serving window over the kitchen counter, the unreachable dressing room a storage room), 11 refused (removals of drawn pieces: never by a decision) |
+| ext_4 / ext_6 (the user's circles) | a 2.95 m oak slab with steps; handrails crossing in an X | a 4-panel glazed sliding door; one platform in the corner, one flight, handrails along it only |
+| living room | 3 "dining tables" with mismatched chairs | armchairs, the corner sofa and ottomans, a coffee table |
+| upper bathroom | 3 washbasins (a black utility sink) | the drawn basins, a wall-hung vanity, no third basin |
+
+Still open after the run (for the next round): the living room's armchairs are of different models (a grey dining-style
+armchair, brown leather ones, a red egg chair) and the vision inspector did not flag it (Q5); the child's room keeps two
+large drawn beds (the AI wanted one gone; a drawn piece is never removed by a decision, so it is a question for the
+user); the GPU test of the window panes' saturation fails at its edge (median 0.061 under 0.065; 0.068 in the run before:
+the views changed with the new furniture; the panes show a pale evening sky, no haze); the real04 trees test (above).
