@@ -853,13 +853,13 @@ def test_questions_new_in_the_answer_run_are_not_pending(tmp_path):
     # the open questions too, both withdraw): 15 withdrawn (9 by code: the beds, nightstands, dining table, sofa and
     # coffee table as the rooms' missing anchors and members; 6 chairs at the table by the context rule), 2 written
     # (the chaise and the unknown 0.4 m piece); tests/test_real01.py explains the pieces.
-    # 26 Oct 2026 (infer._same_block_type): the "chaise" is the same block as the drawn sofa (and the second bed's
+    # 26 Oct 2026 (infer._same_block_type): the "chaise" is the same block as the drawn sofa (and the second bed and its
     # nightstands the first bed's): 16 withdrawn, 1 written (the unknown 0.4 m piece). The story of the two kinds of
     # unanswered questions is told with that one question in two runs: first it is not in the round the answers
     # belong to (late), then it is in the round without its answer (missing).
     assert len(items) == 1 and len(first.code_typed) == 16
-    assert sorted(first.code_typed_methods.values()) == ["context:chair"] * 6 + ["group_member"] * 7 + \
-        ["same_block"] * 3
+    assert sorted(first.code_typed_methods.values()) == ["context:chair"] * 6 + ["group_member"] * 6 + \
+        ["same_block"] * 4
     key = items[0]["key"]
     models = A.load_models()
     data = {"type": "unknown", "front": "none", "confidence": 0.2, "reason": "fake answer"}
