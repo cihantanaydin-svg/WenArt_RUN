@@ -212,6 +212,14 @@ OPERATION_BOUND: dict[str, tuple[str, ...]] = {"sliding": ("sliding",), "barn": 
 SWING_LOOKS: tuple[str, ...] = ("flush", "shaker_panel", "glazed", "entrance")
 HANDLE_SLUGS: dict[str, str] = {"brushed_steel": "steel_brushed", "black": "metal_black", "brass": "metal_brass"}
 DEFAULT_HANDLE = "brushed_steel"
+# 26 Oct 2026 (architect D5, ``architect_actions.act_door_type``): the door styles a decided door names in its
+# ``door_style`` (= parametric.DOOR_STYLES), and the glazed style of a ``glazed`` door's operation without one (a gap
+# the architect made a glazed door, ``gap_to_door``); both win over the style's swing look.
+DECIDED_STYLES: tuple[str, ...] = ("flush", "shaker_panel", "glazed", "pocket", "sliding", "barn", "double",
+                                   "entrance", "folding", "glazed_sliding", "sectional")
+GLAZED_OPERATION_STYLES: dict[str, str] = {"sliding": "glazed_sliding", "double": "double", "folding": "folding",
+                                           "swing": "glazed", "unknown": "glazed"}
+FACADE_FINISH_STYLES: tuple[str, ...] = ("sectional",)       # outside doors in the windows' finish without glass
 
 
 def _veneer(slug: Optional[str]) -> tuple[Optional[str], Optional[str]]:
@@ -255,12 +263,45 @@ def door_look(style: dict, opening: Optional[dict] = None) -> dict:
         door_style = "flush"
         if wanted:
             notes.append(f"the style's {wanted} door does not fit a drawn swing door")
+    colour = door.get("colour")
+    decided, extra = _decided(opening, op, door_style)
+    if decided is not None:
+        door_style = decided
+        notes.append(extra.pop("note"))
+        if extra.pop("frame", False):                       # the leaves in the windows' frame finish
+            frame = window_frame_look(style, opening)
+            slug, asset, colour = frame.get("material") or slug, frame.get("asset"), frame.get("colour")
+            notes.append(f"an outside door: its leaves in the windows' frame finish ({slug})")
     handle = door.get("handle") if door.get("handle") in HANDLE_SLUGS else DEFAULT_HANDLE
     reason = (f"door {door_style} (drawn operation {op}{', assumed' if op_assumed else ''}"
               f"{'; ' + '; '.join(notes) if notes else ''}), style door {door.get('material') or 'default'}")
-    return _look(slug, asset, door.get("colour"), "style", reason, door_style=door_style, handle=handle,
+    return _look(slug, asset, colour, "style", reason, door_style=door_style, handle=handle,
                  handle_material=HANDLE_SLUGS[handle], handle_assumed=door.get("handle") not in HANDLE_SLUGS,
-                 operation=op, operation_assumed=op_assumed)
+                 operation=op, operation_assumed=op_assumed, **extra)
+
+
+def _decided(opening: Optional[dict], op: str, door_style: str) -> tuple[Optional[str], dict]:
+    """``(door style, look fields)`` of a door whose kind the architect decided (D5: ``door_style``, ``glazed``,
+    ``leaves``, ``sidelights``, ``door_decision``) or that is ``glazed`` (the glazed style of its operation);
+    ``(None, {})`` for any other door, whose look stays as it was. The fields: ``glazed``, ``leaves``,
+    ``sidelights``, ``door_type``, ``note`` (for the reason) and ``frame`` (True: an outside door whose glazed or
+    sectional leaves take the windows' frame finish)."""
+    o = opening or {}
+    named = o.get("door_style") if o.get("door_style") in DECIDED_STYLES else None
+    glazed = bool(o.get("glazed"))
+    if named is None and not glazed:
+        return None, {}
+    style = named or GLAZED_OPERATION_STYLES.get(op, door_style)
+    glass = glazed or style in ("glazed", "glazed_sliding")
+    dec = o.get("door_decision") if isinstance(o.get("door_decision"), dict) else {}
+    kind = o.get("door_type") or dec.get("kind")
+    leaves = o.get("leaves")
+    out = {"glazed": glass, "door_type": kind, "sidelights": bool(o.get("sidelights")) or None,
+           "leaves": int(leaves) if isinstance(leaves, int) and not isinstance(leaves, bool) and leaves > 0 else None,
+           "note": f"the architect's {kind or ('glazed ' + style)} door" + (f" ({dec.get('rule')})" if dec else "")}
+    if (glass or style in FACADE_FINISH_STYLES) and (o.get("outside_door") or dec.get("outer")):
+        out["frame"] = True
+    return style, out
 
 
 def window_frame_look(style: dict, opening: Optional[dict] = None) -> dict:
@@ -293,11 +334,14 @@ def _count(opening: Optional[dict], key: str) -> int:
 
 def door_geometry_m10(style: dict, opening: Optional[dict] = None) -> bool:
     """True when a door is built from ``parametric.door_parts``: the style's ``door`` slot names a door style, a
-    handle or a colour, or the drawing a non-swing operation (``DRAWN_DOOR_OPERATIONS``: the drawn type wins)."""
+    handle or a colour, or the drawing a non-swing operation (``DRAWN_DOOR_OPERATIONS``: the drawn type wins), or
+    (26 Oct 2026) the architect decided its kind or made it glazed (``door_style`` / ``glazed``: D5, ``gap_to_door``;
+    the Milestone 6 door has one plain leaf)."""
     door = _slot(style, "door")
     if door.get("style") or door.get("handle") or door.get("colour"):
         return True
-    return (opening or {}).get("operation") in DRAWN_DOOR_OPERATIONS
+    o = opening or {}
+    return o.get("operation") in DRAWN_DOOR_OPERATIONS or o.get("door_style") in DECIDED_STYLES or bool(o.get("glazed"))
 
 
 def window_geometry_m10(style: dict, opening: Optional[dict] = None) -> bool:

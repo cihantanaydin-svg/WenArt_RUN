@@ -1209,10 +1209,12 @@ def defaults_of(review_rec: dict, answers: dict, tried: Optional[dict] = None) -
     return out
 
 
-def open_keys(review_rec: dict, severity: Optional[str] = None) -> set:
-    """The keys (``rule:element``) of the open points of a review record (of one severity)."""
+def open_keys(review_rec: dict, severity: Optional[str] = None, undecided: bool = False) -> set:
+    """The keys (``rule:element``) of the open points of a review record (of one severity); ``undecided``: only those
+    with no safe fix of their own (``chain_of`` empty: they stay for the AI and the user)."""
     return {f"{q['id']}:{a['element']}" for q in review_rec.get("questions") or [] for a in q.get("answers") or []
-            if a.get("open") and (severity is None or q.get("severity", "minor") == severity)}
+            if a.get("open") and (severity is None or q.get("severity", "minor") == severity)
+            and not (undecided and chain_of(a))}
 
 
 def close_answered(questions: list[dict], answers: dict, applied: Sequence[dict] = ()) -> list[dict]:
@@ -1280,8 +1282,8 @@ def status_of(a: dict) -> str:
 
 
 ORDER = ("B1", "B2", "A2", "A5", "E1", "O2", "C1", "C2", "T1", "T2", "L1", "W2", "L2", "W3", "P1", "R1", "R2", "R3",
-         "R4", "R5", "O1", "D1", "D2", "D4", "D3", "X1", "F5", "F1", "F2", "F3", "F4", "H1", "U1", "S4", "S2", "S3",
-         "K1", "K2", "K3", "S1", "A3", "A4", "A1", "G1")
+         "R4", "R5", "O1", "D1", "D2", "D4", "D5", "D3", "X1", "F5", "F1", "F2", "F3", "F4", "H1", "U1", "S4", "S2",
+         "S3", "K1", "K2", "K3", "S1", "A3", "A4", "A1", "G1")
 
 
 def summary(questions: list[dict], applied: Optional[Sequence[dict]] = None) -> dict:

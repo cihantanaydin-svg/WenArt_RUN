@@ -685,8 +685,30 @@ def asset_of(entry: dict) -> dict:
     return out
 
 
+# 26 Oct 2026 (architect D5, ``architect_actions.DOOR_KINDS``): the door kinds no library category holds (a sectional
+# garage door, a pair or a row of solid leaves: the categories' doors are one solid leaf or glass): the parametric door
+NO_LIBRARY_KINDS = ("garage_sectional", "double", "sliding_pair", "folding")
+GLAZED_KINDS = ("french", "glazed_sliding", "glazed_folding")
+
+
+def door_kind_of(o: dict) -> Optional[str]:
+    """The kind the architect gave a door (D5: ``door_type``, else ``door_decision.kind``), None without one."""
+    dec = o.get("door_decision") if isinstance(o.get("door_decision"), dict) else {}
+    return o.get("door_type") or dec.get("kind")
+
+
+def is_glazed_door(o: dict) -> bool:
+    """A door the architect made glazed (D5's glazed kinds, or ``glazed``: a gap made a glazed door)."""
+    return o.get("type") == "door" and (bool(o.get("glazed")) or door_kind_of(o) in GLAZED_KINDS)
+
+
 def categorise(building: dict, outer: Sequence[dict]) -> dict[str, str]:
-    """``{opening id: category}`` of the outer openings (``site.outer_openings`` records)."""
+    """``{opening id: category}`` of the outer openings (``site.outer_openings`` records). 26 Oct 2026 (architect
+    D5): a door's decided kind first: a glazed door is a ``glazed_door`` (``WIDE_DOOR_M`` or wider) or a
+    ``terrace_door``; a sectional garage door or a pair of solid leaves has no category (the parametric door); the
+    main entrance is an ``entrance`` when its kind is ``entrance`` or it has none (real06: a 2.95 m drawn sliding door
+    was the main entrance record, was matched against single front doors, none fitted, and the parametric builder
+    made one flat leaf as wide as the opening; D5 makes it a glazed sliding door)."""
     entrances = [r for r in ((building.get("site") or {}).get("entrances") or []) if isinstance(r, dict)
                  and not r.get("into_air") and not r.get("below_ground")]
     main = next((r.get("door_id") for r in entrances if r.get("main")), None)
@@ -696,11 +718,17 @@ def categorise(building: dict, outer: Sequence[dict]) -> dict[str, str]:
     for rec in outer:
         o = rec["opening"]
         width = _number(o.get("width")) or 0.0
-        if o.get("type") == "door" and o.get("outside_door") and o["id"] != main:
+        kind = door_kind_of(o) if o.get("type") == "door" else None
+        if kind in NO_LIBRARY_KINDS:
+            continue
+        if is_glazed_door(o):
+            out[o["id"]] = "glazed_door" if width >= WIDE_DOOR_M else "terrace_door"
+        elif o.get("type") == "door" and o.get("outside_door") and o["id"] != main:
             # 25 Oct 2026 (architect A3): a door to a terrace or balcony room is a glazed outside door
             out[o["id"]] = "glazed_door" if width >= WIDE_DOOR_M else "terrace_door"
         elif o.get("type") == "door":
-            out[o["id"]] = "entrance" if o["id"] == main else ("glazed_door" if width >= WIDE_DOOR_M else "door")
+            entrance = kind == "entrance" or (o["id"] == main and kind is None)
+            out[o["id"]] = "entrance" if entrance else ("glazed_door" if width >= WIDE_DOOR_M else "door")
         elif o.get("type") == "window":
             out[o["id"]] = "window"
     return out
@@ -776,6 +804,10 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
     "category", "reason"}`` per opening left to the parametric build."""
     look = look_of(style)
     cats = categorise(building, outer)
+    # 26 Oct 2026 (architect D5): a glazed door narrower than WIDE_DOOR_M tries the house's glazed door family first,
+    # so the glazed doors share one look where a model fits within its stretch caps; else its terrace door
+    narrow_glazed = [rec["opening"]["id"] for rec in outer if is_glazed_door(rec["opening"])
+                     and cats.get(rec["opening"]["id"]) == "terrace_door"]
     sizes: dict[str, tuple[float, float]] = {}
     outward = {rec["opening"]["id"]: [round(float(v), 6) for v in rec["outward"][:2]] for rec in outer
                if rec.get("outward") is not None}
@@ -789,15 +821,16 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
     cache: dict = {}
     notes = notes if notes is not None else []
     for category in CATEGORIES:
-        ids = [i for i, c in cats.items() if c == category and i in sizes]
-        if not ids:
+        ids = [i for i, c in cats.items() if c == category and i in sizes and i not in out]
+        also = [i for i in narrow_glazed if i in sizes and i not in out] if category == "glazed_door" else []
+        if not ids and not also:
             continue
         cands, left, look_rank = _checked(candidates(extras, category, mode), category, look, assets_dir, cache)
         if left:
             notes.append({"kind": "left_out", "category": category, "models": left})
         if not cands:
             continue
-        openings = [sizes[i] for i in ids]
+        openings = [sizes[i] for i in ids + also]
         ranked = sorted(cands, key=lambda e: (look_rank[e["id"]][0], _rank_key(e, category, openings)))
         families: dict[str, list] = {}
         for e in ranked:
@@ -818,10 +851,12 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
                                         f"{sizes[oid][1]:.2f} m: the parametric opening in the style's finish"})
             continue
         _order, key, members = best
-        for oid in ids:
+        for oid in ids + also:
             width, height = sizes[oid]
             fits = [(look_rank[m["id"]][0], f[1], i, m, f) for i, m in enumerate(members)
                     for f in [fit(m, category, width, height)] if f is not None]
+            if not fits and oid in also:
+                continue                         # no member of the glazed door family fits: its terrace door next
             if not fits:
                 head = members[0]
                 notes.append({"kind": "parametric", "id": oid, "category": category, "family": key,

@@ -919,9 +919,9 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
 
     26 Oct 2026 (user: "make the AI architect a lot more smart and let it take decisions more"): a point whose choice
     could not be carried out gets the next choice of its chain (``architect.chain_of``) the next round; a default
-    that opens a major point that was not open before is refused (tried alone when several came in one round) and
-    the next choice is tried instead (``out["architect_refused_defaults"]``: key -> the choice and the points it
-    opened)."""
+    that opens a major point that was not open before and has no safe fix of its own (a point the architect settles
+    by itself the next round does not count) is refused (tried alone when several came in one round) and the next
+    choice is tried instead (``out["architect_refused_defaults"]``: key -> the choice and the points it opened)."""
     out = prepare_once(building_all, variant, brief, style_family)
     if not out.get("whole") or out.get("architect") is None:
         return out
@@ -942,10 +942,11 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
             tried.setdefault(k, []).append(v.get("choice"))
         majors = AR.open_keys(out["architect"], "major")
         got = again(dict(defaults, **new))
-        if AR.open_keys(got["architect"], "major") - majors - set(new):
+        if AR.open_keys(got["architect"], "major", undecided=True) - majors - set(new):
             keep = {}
             for k, v in sorted(new.items()):
-                more = AR.open_keys(again(dict(defaults, **{k: v}))["architect"], "major") - majors - {k}
+                more = AR.open_keys(again(dict(defaults, **{k: v}))["architect"], "major", undecided=True) \
+                    - majors - {k}
                 if more:
                     refused[k] = {"choice": v.get("choice"), "opened": sorted(more)}
                 else:

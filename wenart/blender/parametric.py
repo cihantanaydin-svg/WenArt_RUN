@@ -2490,7 +2490,26 @@ def _bunk_bed(w: float, d: float, h: float) -> list[Part]:
 # ``window_parts`` with the looks of ``wenart.blender.looks`` (docs/milestone10.md §1.6b row 20).
 
 DOOR_STYLES: tuple[str, ...] = ("flush", "shaker_panel", "glazed", "pocket", "sliding", "barn", "double", "entrance",
-                                "folding")
+                                "folding", "glazed_sliding", "sectional")
+# 26 Oct 2026 (architect D5, user on real06: "these sections not making sense": a 2.95 m flat oak leaf in the facade):
+# the kinds of door an architect gives an outside or a wide door (``looks.door_look`` passes ``glazed``, ``leaves``,
+# ``sidelights``): glazed leaves for a double or folding door (French doors), a glazed sliding door in the frame
+# (``glazed_sliding``: panels of at most ``LEAF_MAX_M`` on two tracks, the end panels on the outer track fixed), the
+# entrance door with glazed side lights beside one leaf when the opening is wider than ``SINGLE_LEAF_MAX_M``, a
+# sectional garage door (``sectional``: horizontal sections with ribs), sliding leaves parting in the middle. Typical
+# joinery sizes (assumed: no drawing gives them).
+LEAF_MAX_M = 1.2                 # no sliding panel wider than this (= architect_actions.LEAF_MAX_M)
+SLIDING_PANEL_T = 0.035          # a glazed sliding panel's thickness
+SLIDING_TRACK_GAP_M = 0.006      # between the two tracks of a glazed sliding door
+SLIDING_PANEL_OVERLAP_M = 0.05   # two panels on different tracks overlap this much when closed
+SLIDING_STILE_M = 0.07           # a glazed sliding panel's stiles and top rail
+SECTIONAL_LEAF_T = 0.045
+SECTION_H_M = 0.5                # a sectional door's sections about this tall
+SINGLE_LEAF_MAX_M = 1.25         # an entrance leaf wider than this gets side lights (with ``sidelights``)
+ENTRANCE_LEAF_W_M = 1.0          # ... and is this wide
+SIDELIGHT_MIN_M = 0.2            # a side light narrower than this is no side light: the leaf takes the width
+SIDELIGHT_BASE_M = 0.25          # a solid panel under a side light's glass
+LEAF_GAP_M = 0.002               # between two leaves of a pair or a folding door
 DOOR_FRAME_W = 0.05
 DOOR_LEAF_T = 0.04
 ENTRANCE_LEAF_T = 0.065
@@ -2529,6 +2548,56 @@ def door_style_of(look: dict | None) -> str:
 
 def _leaf_box(cx: float, z0: float, lw: float, lh: float, t: float, y: float = 0.0) -> Part:
     return _box(cx, y, z0, lw, t, lh, "leaf", "leaf")
+
+
+GLAZING_GROOVE_M = 0.002        # the glass of a D5 leaf or panel sits this deep in its stiles and rails
+
+
+def _glazed_leaf(cx: float, y: float, lw: float, lh: float, t: float, frame: float = GLAZED_FRAME_M,
+                 groove: float = 0.0) -> list[Part]:
+    """A glazed leaf ``lw`` wide centred on ``cx`` (``y`` across the wall): two stiles, a bottom rail 1.6 times and a
+    top rail as wide as a stile (``frame``, at most a fifth of the leaf) and the glass between them, ``groove`` deep
+    in them (0 for the ``glazed`` style as it always was)."""
+    f = min(frame, lw * 0.2)
+    return [_box(cx - (lw / 2.0 - f / 2.0), y, 0.0, f, t, lh, "leaf", "leaf"),
+            _box(cx + lw / 2.0 - f / 2.0, y, 0.0, f, t, lh, "leaf", "leaf"),
+            _box(cx, y, 0.0, lw - 2 * f, t, f * 1.6, "leaf", "leaf"),
+            _box(cx, y, lh - f, lw - 2 * f, t, f, "leaf", "leaf"),
+            _box(cx, y, f * 1.6 - groove, lw - 2 * f + 2 * groove, 0.008, lh - f * 2.6 + 2 * groove, "glass", "glass")]
+
+
+def sliding_panels(lw: float, thickness: float, leaves: Optional[int] = None) -> dict:
+    """The panels of a glazed sliding door in a clear width ``lw`` (pure): ``n`` panels (``leaves``, else as many as
+    keep each at most ``LEAF_MAX_M``, at least two), on two tracks ``d`` off the wall centre when the wall is deep
+    enough for both and a stop (overlapping ``SLIDING_PANEL_OVERLAP_M``), else side by side on one line (``d`` 0,
+    ``LEAF_GAP_M`` apart); ``width`` of a panel, ``centres`` along x, ``fixed`` the end panels on the outer track."""
+    n = int(leaves) if isinstance(leaves, int) and not isinstance(leaves, bool) and leaves >= 2 else \
+        max(2, int(math.ceil(float(lw) / LEAF_MAX_M - 1e-9)))
+    d = SLIDING_PANEL_T / 2.0 + SLIDING_TRACK_GAP_M / 2.0
+    staggered = d + SLIDING_PANEL_T / 2.0 + DOOR_STOP_MIN_T_M <= float(thickness) / 2.0 + 1e-9
+    d = d if staggered else 0.0
+    ov = SLIDING_PANEL_OVERLAP_M if staggered else -LEAF_GAP_M
+    pw = (float(lw) + (n - 1) * ov) / n
+    centres = [-float(lw) / 2.0 + pw / 2.0 + i * (pw - ov) for i in range(n)]
+    return {"n": n, "d": d, "staggered": staggered, "width": pw, "centres": centres,
+            "fixed": sorted({i for i in (0, n - 1) if i % 2 == 0})}
+
+
+def entrance_sections(width: float, frame_w: float = DOOR_FRAME_W) -> list[tuple[str, float, float]]:
+    """``[(kind, x0, x1)]``: the clear spans of an entrance door with side lights between its jambs and mullions
+    (pure): one ``leaf`` span ``ENTRANCE_LEAF_W_M`` (+ 0.01 clearance) wide and ``light`` spans for the rest, a
+    mullion ``frame_w`` wide between two spans; two balanced side lights when the rest is over 0.9 m, else one beside
+    the leaf; the whole width one leaf when a side light would be narrower than ``SIDELIGHT_MIN_M``."""
+    a, b = -float(width) / 2.0 + frame_w, float(width) / 2.0 - frame_w
+    span = ENTRANCE_LEAF_W_M + 0.01
+    rest = (b - a) - span
+    if rest - frame_w < SIDELIGHT_MIN_M:
+        return [("leaf", a, b)]
+    if rest > 0.9 and (rest - 2 * frame_w) / 2.0 >= SIDELIGHT_MIN_M:
+        light = (rest - 2 * frame_w) / 2.0
+        return [("light", a, a + light), ("leaf", a + light + frame_w, a + light + frame_w + span),
+                ("light", b - light, b)]
+    return [("leaf", a, a + span), ("light", a + span + frame_w, b)]
 
 
 def door_stop_boxes(width: float, height: float, frame_w: float, face_y: float, thickness: float,
@@ -2581,32 +2650,71 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
     (flush, shaker panel, glazed, entrance, double, folding) on the face away from the room it opens into
     (``look["side"]``, so on ``-side``), against the leaf face (a shaker panel's proud stiles included); a pocket
     door on both faces (split jambs: the leaf slides between them). A double or folding door also gets an astragal
-    over its meeting stiles (role ``astragal``, key ``leaf``: the leaf object), on the stop face."""
+    over its meeting stiles (role ``astragal``, key ``leaf``: the leaf object), on the stop face.
+
+    26 Oct 2026 (architect D5): ``look["glazed"]`` makes the leaves of a double or folding door glazed (French
+    doors), ``look["leaves"]`` gives a folding door, a glazed sliding door or a sliding door that many leaves (a
+    sliding door's leaves part in the middle), ``look["sidelights"]`` gives an entrance door wider than
+    ``SINGLE_LEAF_MAX_M`` one ``ENTRANCE_LEAF_W_M`` leaf and glazed side lights (``entrance_sections``);
+    ``glazed_sliding`` is a glazed sliding door in the frame (``sliding_panels``: stops against the outer track,
+    pulls on the moving panels), ``sectional`` a sectional garage door (horizontal sections, ribs on both faces, a
+    pull near the floor). Without these the styles are built as before."""
     style = door_style_of(look)
     side = -1.0 if float((look or {}).get("side") or -1.0) < 0 else 1.0
     w, h, t = float(width), float(height), float(thickness)
     parts: list[Part] = []
     surface = style in ("sliding", "barn")
+    glazed = bool((look or {}).get("glazed")) or style in ("glazed", "glazed_sliding")
+    asked = (look or {}).get("leaves")
+    asked = int(asked) if isinstance(asked, int) and not isinstance(asked, bool) and asked > 0 else None
     if not surface:
         parts += [_box(-(w / 2.0 - frame_w / 2.0), 0.0, 0.0, frame_w, t, h, "frame", "frame"),
                   _box(w / 2.0 - frame_w / 2.0, 0.0, 0.0, frame_w, t, h, "frame", "frame"),
                   _box(0.0, 0.0, h - frame_w, w - 2 * frame_w, t, frame_w, "frame", "frame")]
     lw, lh = w - 2 * frame_w - 0.01, h - frame_w - 0.01
-    leaf_t = ENTRANCE_LEAF_T if style == "entrance" else DOOR_LEAF_T
+    leaf_t = ENTRANCE_LEAF_T if style == "entrance" else (SECTIONAL_LEAF_T if style == "sectional" else DOOR_LEAF_T)
     lever_z = min(LEVER_HEIGHT_M, lh - 0.1)
+    panels = sliding_panels(lw, t, asked) if style == "glazed_sliding" else None
+    if panels is not None:                                               # both tracks: the stops close the outer one
+        leaf_t = 2.0 * panels["d"] + SLIDING_PANEL_T
+    sections = entrance_sections(w, frame_w) if style == "entrance" and (look or {}).get("sidelights") \
+        and lw > SINGLE_LEAF_MAX_M else None
+    if sections is not None and len(sections) == 1:
+        sections = None
+    extra: dict = {}
     if not surface:                                                      # the stops (fix round after P3)
         face = leaf_t / 2.0 + (DOOR_PANEL_PROUD_M if style == "shaker_panel" else 0.0)
-        for s in ((-1.0, 1.0) if style == "pocket" else (-side,)):
-            parts += [_box(cx, cy, z0, bw, bd, bh, "frame", "stop")
-                      for cx, cy, z0, bw, bd, bh in door_stop_boxes(w, h, frame_w, face, t, s)]
-    if style in ("flush", "pocket", "entrance", "shaker_panel", "glazed"):
+        if sections is not None:
+            # side lights: the head stop of the whole frame and the jamb stops of the leaf's own span
+            (_k, x0, x1) = next(s for s in sections if s[0] == "leaf")
+            boxes = door_stop_boxes(w, h, frame_w, face, t, -side)[2:] + [
+                (cx + (x0 + x1) / 2.0, cy, z0, bw, bd, bh) for cx, cy, z0, bw, bd, bh in
+                door_stop_boxes(x1 - x0 + 2 * frame_w, h, frame_w, face, t, -side)[:2]]
+            parts += [_box(cx, cy, z0, bw, bd, bh, "frame", "stop") for cx, cy, z0, bw, bd, bh in boxes]
+        else:
+            for s in ((-1.0, 1.0) if style == "pocket" else (-side,)):
+                parts += [_box(cx, cy, z0, bw, bd, bh, "frame", "stop")
+                          for cx, cy, z0, bw, bd, bh in door_stop_boxes(w, h, frame_w, face, t, s)]
+    if sections is not None:                                             # the entrance door with side lights
+        for a, b in zip(sections, sections[1:]):
+            parts.append(_box((a[2] + b[1]) / 2.0, 0.0, 0.0, b[1] - a[2], t, h - frame_w, "frame", "frame"))
+        (_k, x0, x1) = next(s for s in sections if s[0] == "leaf")
+        ecx, elw = (x0 + x1) / 2.0, (x1 - x0) - 0.01
+        parts.append(_leaf_box(ecx, 0.0, elw, lh, leaf_t))
+        for _k, a, b in (s for s in sections if s[0] == "light"):
+            parts += [_box((a + b) / 2.0, 0.0, 0.0, b - a, leaf_t, SIDELIGHT_BASE_M, "leaf", "panel"),
+                      _box((a + b) / 2.0, 0.0, SIDELIGHT_BASE_M, b - a, 0.008, h - frame_w - SIDELIGHT_BASE_M,
+                           "glass", "glass")]
+        for z in (lh * 0.3, lh * 0.5, lh * 0.7):
+            for s in (-1, 1):
+                parts.append(_box(ecx, s * (leaf_t / 2.0 + 0.002), z, elw - 0.16, 0.004, 0.012, "frame", "groove"))
+        for s in (-1, 1):                                                # a long bar pull on both faces
+            parts.append(_box(ecx + elw / 2.0 - 0.1, s * (leaf_t / 2.0 + 0.04), lever_z - 0.4, 0.025, 0.025, 0.8,
+                              "handle", "handle"))
+        extra["sidelights"] = sum(1 for s in sections if s[0] == "light")
+    elif style in ("flush", "pocket", "entrance", "shaker_panel", "glazed"):
         if style == "glazed":
-            f = min(GLAZED_FRAME_M, lw * 0.2)
-            parts += [_box(-(lw / 2.0 - f / 2.0), 0.0, 0.0, f, leaf_t, lh, "leaf", "leaf"),
-                      _box(lw / 2.0 - f / 2.0, 0.0, 0.0, f, leaf_t, lh, "leaf", "leaf"),
-                      _box(0.0, 0.0, 0.0, lw - 2 * f, leaf_t, f * 1.6, "leaf", "leaf"),
-                      _box(0.0, 0.0, lh - f, lw - 2 * f, leaf_t, f, "leaf", "leaf"),
-                      _box(0.0, 0.0, f * 1.6, lw - 2 * f, 0.008, lh - f * 2.6, "glass", "glass")]
+            parts += _glazed_leaf(0.0, 0.0, lw, lh, leaf_t)
         else:
             parts.append(_leaf_box(0.0, 0.0, lw, lh, leaf_t))
         if style == "shaker_panel":
@@ -2631,7 +2739,7 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
                                   "handle", "handle"))
         else:
             parts += _lever_pair(lw / 2.0 - 0.07, lever_z, leaf_t)
-    elif style in ("double", "folding"):
+    elif style in ("double", "folding") and not glazed and (style == "double" or (asked or 2) == 2):
         half = lw / 2.0 - 0.002
         for s in (-1, 1):
             parts.append(_leaf_box(s * (half / 2.0 + 0.001), 0.0, half, lh, DOOR_LEAF_T))
@@ -2643,10 +2751,56 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
                 parts += _lever_pair(s * 0.06, lever_z, DOOR_LEAF_T)
         else:
             parts += _lever_pair(lw / 2.0 - 0.07, lever_z, DOOR_LEAF_T)
+    elif style in ("double", "folding"):                                 # glazed leaves (French doors), n leaves
+        n = 2 if style == "double" else max(2, asked or 2)
+        lwi = (lw - LEAF_GAP_M - (n - 1) * LEAF_GAP_M) / n
+        centres = [-lw / 2.0 + LEAF_GAP_M / 2.0 + lwi / 2.0 + i * (lwi + LEAF_GAP_M) for i in range(n)]
+        for cx in centres:
+            parts += _glazed_leaf(cx, 0.0, lwi, lh, DOOR_LEAF_T, groove=GLAZING_GROOVE_M) if glazed else \
+                [_leaf_box(cx, 0.0, lwi, lh, DOOR_LEAF_T)]
+        (_cx, cy, _z0, _bw, bd, _bh) = door_stop_boxes(w, h, frame_w, DOOR_LEAF_T / 2.0, t, -side)[0]
+        for a, b in zip(centres, centres[1:]):                           # an astragal over every meeting joint
+            parts.append(_box((a + b) / 2.0, cy, 0.0, DOOR_ASTRAGAL_W_M, bd, lh, "leaf", "astragal"))
+        if style == "double":
+            for s in (-1, 1):
+                parts += _lever_pair(s * 0.06, lever_z, DOOR_LEAF_T)
+        else:
+            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, DOOR_LEAF_T)
+        extra["leaves"] = n
+    elif style == "glazed_sliding":                                      # glazed panels on two tracks in the frame
+        pt, pw = SLIDING_PANEL_T, panels["width"]
+        moving = []
+        for i, cx in enumerate(panels["centres"]):
+            y = (-side if i % 2 == 0 else side) * panels["d"]            # the outer track away from the room
+            parts += _glazed_leaf(cx, y, pw, lh, pt, SLIDING_STILE_M, GLAZING_GROOVE_M)
+            if i not in panels["fixed"]:
+                moving.append((cx, y))
+        if not panels["staggered"]:                                      # side by side: astragals over the joints
+            (_cx, cy, _z0, _bw, bd, _bh) = door_stop_boxes(w, h, frame_w, pt / 2.0, t, -side)[0]
+            for a, b in zip(panels["centres"], panels["centres"][1:]):
+                parts.append(_box((a + b) / 2.0, cy, 0.0, DOOR_ASTRAGAL_W_M, bd, lh, "leaf", "astragal"))
+        f = min(SLIDING_STILE_M, pw * 0.2)
+        for cx, y in moving:                                             # a pull on the stile at the jamb's end
+            hx = cx + (1.0 if cx >= 0.0 else -1.0) * (pw / 2.0 - f / 2.0)
+            parts.append(_box(hx, y + side * (pt / 2.0 + 0.015), lever_z - 0.2, 0.02, 0.02, 0.4, "handle", "handle"))
+            parts.append(_box(hx, y - side * (pt / 2.0 + 0.001), lever_z - 0.1, 0.03, 0.002, 0.2, "handle", "handle"))
+        extra.update(leaves=panels["n"], fixed_panels=panels["fixed"], tracks=2 if panels["staggered"] else 1)
+    elif style == "sectional":                                           # a sectional garage door
+        n = max(3, int(round(lh / SECTION_H_M)))
+        sh = lh / n
+        parts += [_box(0.0, 0.0, i * sh, lw, leaf_t, sh, "leaf", "leaf") for i in range(n)]
+        for k in range(1, 2 * n):                                        # ribs at the joints and mid-section
+            for s in (-1, 1):
+                parts.append(_box(0.0, s * (leaf_t / 2.0 + 0.0015), k * sh / 2.0 - 0.006, lw - 0.04, 0.003, 0.012,
+                                  "leaf", "rib"))
+        for s in (-1, 1):                                                # a pull bar near the floor, both faces
+            parts.append(_box(0.0, s * (leaf_t / 2.0 + 0.02), 0.32, 0.3, 0.02, 0.03, "handle", "handle"))
+        extra["sections"] = n
     else:                                                                # sliding / barn: on the room face
         sw = w + 2 * SLIDING_OVERLAP_M
         sh = h + 0.02
         y = side * (t / 2.0 + SLIDING_STANDOFF_M + DOOR_LEAF_T / 2.0)
+        pair = asked if style == "sliding" and asked and asked > 1 else None
         if style == "barn":
             n = max(3, int(sw / 0.16))
             pw = sw / n
@@ -2655,12 +2809,24 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
             for z in (0.15, sh - 0.3):                                   # the ledges
                 parts.append(_box(0.0, y + side * (DOOR_LEAF_T / 2.0 + 0.01), z, sw - 0.04, 0.02, 0.15, "leaf",
                                   "ledge"))
-        else:
+        elif pair is None:
             parts.append(_box(0.0, y, 0.0, sw, DOOR_LEAF_T, sh, "leaf", "leaf"))
-        rail_y = side * (t / 2.0 + 0.02)
-        parts.append(_box(w / 2.0 - 0.05, rail_y, sh + 0.02, 2.0 * sw, 0.02, RAIL_H, "rail", "rail"))
-        parts.append(_box(-sw / 2.0 + 0.08, y + side * (DOOR_LEAF_T / 2.0 + 0.01), lever_z - 0.15, 0.03, 0.02, 0.3,
-                          "handle", "handle"))
+        if pair is not None:                                             # leaves parting in the middle
+            n = pair
+            pw = (sw - (n - 1) * 0.004) / n
+            centres = [-sw / 2.0 + pw / 2.0 + i * (pw + 0.004) for i in range(n)]
+            parts += [_box(cx, y, 0.0, pw, DOOR_LEAF_T, sh, "leaf", "leaf") for cx in centres]
+            parts.append(_box(0.0, side * (t / 2.0 + 0.02), sh + 0.02, 2.0 * sw, 0.02, RAIL_H, "rail", "rail"))
+            for cx in centres:                                           # a pull at each leaf's meeting edge
+                hx = cx - (1.0 if cx > 1e-9 else -1.0) * (pw / 2.0 - 0.08)
+                parts.append(_box(hx, y + side * (DOOR_LEAF_T / 2.0 + 0.01), lever_z - 0.15, 0.03, 0.02, 0.3,
+                                  "handle", "handle"))
+            extra["leaves"] = n
+        else:
+            rail_y = side * (t / 2.0 + 0.02)
+            parts.append(_box(w / 2.0 - 0.05, rail_y, sh + 0.02, 2.0 * sw, 0.02, RAIL_H, "rail", "rail"))
+            parts.append(_box(-sw / 2.0 + 0.08, y + side * (DOOR_LEAF_T / 2.0 + 0.01), lever_z - 0.15, 0.03, 0.02,
+                              0.3, "handle", "handle"))
     fixed = (look or {}).get("operation") == "fixed"
     if fixed:                                                            # a drawn fixed leaf: nothing to open it
         parts = [p for p in parts if p["key"] != "handle"]
@@ -2669,6 +2835,9 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
               "parts": sorted({p["role"] for p in parts}),
               # fix round after P3: the y face of the stops (both for a pocket door's split jambs), None without
               "stop_side": None if surface else ("both" if style == "pocket" else -side)}
+    if style != "glazed" and any(p["role"] == "glass" for p in parts):
+        extra["glazed"] = True                                          # D5: a glazed pair, sliding door, side lights
+    record.update(extra)
     return parts, record
 
 
