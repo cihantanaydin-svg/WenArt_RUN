@@ -698,6 +698,25 @@ def outside_depth(poly, outline) -> float:
     return best
 
 
+def plan_shape(r: _Room, pid: str):
+    """26 Oct 2026 (Argus consistency Y2, real06): the plan shape the clash rule (architect F5, ``blender.clashes``)
+    measures: an L sofa is its two parts, not its bounding rectangle (four ottomans in the free corner of a corner
+    sofa were an F9 overlap of 0.25 m² while F5 found them clear); every other piece its footprint."""
+    item = r.item(pid)
+    if str(item.get("type")) == "sofa_corner" or item.get("shape") == "L":
+        try:
+            from shapely.geometry import Polygon
+            from shapely.ops import unary_union
+
+            from wenart.blender import clashes as CL
+            parts = [Polygon(q) for q in CL.shape(item)]
+            if parts:
+                return unary_union(parts)
+        except Exception:  # noqa: BLE001 - the footprint then
+            pass
+    return r.polys[pid]
+
+
 def _f9(r: _Room) -> list[dict]:
     out = []
     ids = [f["id"] for f in r.floor]
@@ -709,7 +728,7 @@ def _f9(r: _Room) -> list[dict]:
             # fix round after P4a: a sink built into its run or a stove in its run's gap is no overlap
             if _tucked(ta, tb) or frozenset((a, b)) in held:
                 continue
-            area = r.polys[a].intersection(r.polys[b]).area
+            area = plan_shape(r, a).intersection(plan_shape(r, b)).area
             if area > OVERLAP_MIN_M2:
                 out.append(_violation("F9", b, r.id, f"{tb} {b} overlaps {ta} {a} by {area:.2f} m²",
                                       {"other": a, "overlap_m2": round(area, 3)}))

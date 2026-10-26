@@ -753,3 +753,40 @@ def test_consistency_names_the_rule_that_does_not_see_what_the_critic_sees():
     assert by[("Y2", "F9")]["evidence"]["elements"] == ["f_1", "f_3"]           # f_4: the architect sees it too
     assert all(f["kind"] == "stale" and f["fix"] == "rule_needed" for f in res["findings"])
     assert CY.audit(None, architect)["note"]
+
+
+def test_the_critic_measures_an_l_sofa_as_the_clash_rule_does():
+    """Argus consistency Y2 (real06): the critic's F9 measured a corner sofa's bounding rectangle, the architect's F5
+    its two L parts; four ottomans in the free corner were an overlap for one and clear for the other."""
+    from wenart.furniture import plausibility as PL
+    room = {"id": "r1", "level_id": "L0", "room_type": "living", "polygon": [[0, 0], [6, 0], [6, 6], [0, 6]]}
+    sofa = {"id": "s", "type": "sofa_corner", "room_id": "r1", "footprint": {"center": [3, 3], "size": [3.0, 2.4],
+                                                                             "rotation_deg": 0}}
+    from wenart.blender import clashes as CL
+    parts = CL.shape(sofa)
+    xs = sorted({round(x, 3) for poly in parts for x, _y in poly})
+    ys = sorted({round(y, 3) for poly in parts for _x, y in poly})
+    # a small ottoman in the bounding box but outside both L parts (if the L leaves such a corner)
+    from shapely.geometry import Point, Polygon
+    from shapely.ops import unary_union
+    L = unary_union([Polygon(p) for p in parts])
+    corner = next(((x, y) for x in (xs[0] + 0.2, xs[-1] - 0.2) for y in (ys[0] + 0.2, ys[-1] - 0.2)
+                   if not L.contains(Point(x, y))), None)
+    if corner is None:
+        pytest.skip("this L leaves no free corner")
+    ott = {"id": "o", "type": "ottoman", "room_id": "r1", "footprint": {"center": list(corner), "size": [0.3, 0.3],
+                                                                        "rotation_deg": 0}}
+    b = {"levels": [{"id": "L0", "elevation": 0}], "rooms": [room], "walls": [], "openings": [], "furniture": [sofa, ott]}
+    msgs = []
+
+    def walk(x):
+        if isinstance(x, dict):
+            if x.get("check") == "F9":
+                msgs.append(x["message"])
+            for v in x.values():
+                walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(PL.score_building(b))
+    assert not any("ottoman o overlaps" in m for m in msgs)
