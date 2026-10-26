@@ -21,6 +21,7 @@ from typing import Optional
 from wenart import geometry as G
 from wenart.blender import architect_actions as AA
 
+GAP_SILL_MAX_M = 0.20          # a plain opening with its bottom this low is a doorless doorway (F2)
 LIMITS = {
     "ceiling_habitable_m": 2.40, "ceiling_other_m": 2.10,
     "door_min_m": 0.70, "door_wet_min_m": 0.60, "door_outside_min_m": 0.80,
@@ -579,7 +580,10 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
     for s in sides:
         o = s["opening"]
         w = plan.walls.get(o.get("wall_id"))
-        if w is None or s["type"] not in ("door", "window"):
+        # 26 Oct 2026 (Argus, real06): a doorless gap is a doorway too (the code critic's F7 calls it a door: a drawn
+        # counter across real06's 2.9 m kitchen gap was a critical every run while this rule never looked at it)
+        gap = s["type"] == "opening" and float(o.get("sill_height") or 0.0) <= GAP_SILL_MAX_M
+        if w is None or (s["type"] not in ("door", "window") and not gap):
             continue
         _a, u, _l = plan.axis(w)
         n = (-u[1], u[0])
@@ -587,7 +591,7 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
         half_t = float(w.get("thickness") or 0.2) / 2.0
         width = float(o.get("width") or 0.0)
         where = _where(s["type"], o.get("level_id"), o["center"])
-        if s["type"] == "door":
+        if s["type"] == "door" or gap:
             worst = (0.0, None, [])
             for sign, rid in ((1.0, s["a"]), (-1.0, s["b"])):
                 if not rid or rid not in by_room:

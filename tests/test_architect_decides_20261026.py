@@ -329,3 +329,23 @@ def test_a_decision_that_takes_a_rooms_only_shower_is_refused():
                   "reason": "a second shower", "by": "ai", "where": None, "own": True}}
     ok, why = AI._verdicts(b, None, {}, cand, base)[key]
     assert not ok and why.startswith("a room loses a piece of its set") and bath in why
+
+
+def test_a_doorless_gap_a_drawn_counter_fills_becomes_a_serving_window():
+    """26 Oct 2026 (Argus, real06): F2 skipped plain openings, while the code critic called real06's 2.9 m kitchen gap
+    o_L0_001 a door blocked by the drawn counter f_L0_032 (a critical in every run). A doorless gap is a doorway: the
+    counter cannot move, so the next safe fix makes it a serving window over the counter."""
+    b = _real06()
+    ops = {o["id"]: o for o in b["openings"]}
+    gap = next((o for o in b["openings"] if o.get("type") == "opening" and float(o.get("width") or 0) >= 2.0), None)
+    if gap is None:
+        pytest.skip("no wide gap in this reading")
+    prep = BB.prepare(b, "base", None)
+    rec = next((r for r in prep["architect"].get("applied") or [] if r["key"] == f"F2:{gap['id']}"), None)
+    after = next(o for o in prep["building"]["openings"] if o["id"] == gap["id"])
+    q = next(q for q in prep["architect"]["questions"] if q["id"] == "F2")
+    asked = [a for a in q["answers"] if a["element"] == gap["id"]]
+    assert asked, "the gap is checked as a doorway"
+    if rec is not None:                                   # a counter fills it in this reading
+        assert rec["option"] == "pass_through" and after["type"] == "window" and after["sill_height"] == AA.PASS_SILL_M
+    assert ops[gap["id"]]["type"] == "opening"            # the drawn values stay in the input
