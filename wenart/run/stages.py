@@ -290,6 +290,7 @@ AGENT_KEY = "agent"                  # check.yaml models.agent (Qwen/Qwen3.8-27B
 AGENT_CODE = ("wenart/agent/**", "wenart/furniture/**", "wenart/blender/**", "wenart/style/**", "wenart/recognition/**",
               "wenart/levels/**",                                  # M12: level checks and level edits (track L)
               "wenart/assets/**",                                  # M13 (T4): retype_piece refits through fit -> assets
+              "wenart/audit/**",                                   # 26 Oct 2026: Argus, the auditor
               "wenart/synthetic/**", "wenart/ingest/**", "wenart/sheets/**", "wenart/schema/**", "wenart/building.py",
               "wenart/geometry.py", "wenart/units.py", "wenart/brief.py", "wenart/defaults.yaml", "wenart/views.py",
               "wenart/canonical.py", "wenart/run/servers.py", "wenart/__init__.py", CHECK_YAML)
