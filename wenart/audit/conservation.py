@@ -67,8 +67,28 @@ def _type(el: dict):
     return el.get("type") if "type" in el else el.get("kind")
 
 
+def named_at(obj, needle: str, path: str = "") -> Optional[tuple[str, str]]:
+    """``(path, text)`` of the first place in ``obj`` whose string names ``needle`` (the id itself or a text with it),
+    e.g. ``("agent_overrides.removed[3]", "f_L0_044 ...")``; None when nothing names it."""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            got = named_at(v, needle, f"{path}.{k}" if path else str(k))
+            if got:
+                return got
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            got = named_at(v, needle, f"{path}[{i}]")
+            if got:
+                return got
+    elif isinstance(obj, str) and (obj == needle or needle in obj):
+        return path, obj
+    return None
+
+
 def between(name_a: str, a: dict, name_b: str, b: dict) -> list[dict]:
-    """C1 and C2 between two consecutive stages."""
+    """C1 and C2 between two consecutive stages. An element the next stage only names (a merge, a replacement, a
+    removal record) is a C1 note (``info``) with the place and the text that name it: Argus AI judges whether that is
+    a reason or a loss."""
     out = []
     text_b = None
     for coll, path in COLLECTIONS:
@@ -78,8 +98,14 @@ def between(name_a: str, a: dict, name_b: str, b: dict) -> list[dict]:
             if nxt is None:
                 if text_b is None:
                     text_b = json.dumps(b, ensure_ascii=False)
-                if f'"{el["id"]}"' in text_b:
-                    continue                      # a merge, a replacement or a removal record names it
+                if f'{el["id"]}' in text_b:
+                    where = named_at(b, el["id"]) or ("?", "")
+                    out.append(K.finding("conservation", "C1", "info", el["id"],
+                                         f"{el['id']} ({_type(el)}) of the {name_a} stage is gone after the {name_b} "
+                                         f"stage, named in {where[0]}: {str(where[1])[:200]}", owner=name_b,
+                                         evidence={"collection": coll, "from": name_a, "to": name_b,
+                                                   "named_in": where[0]}))
+                    continue
                 out.append(K.finding("conservation", "C1", "critical" if coll in CRITICAL_COLLECTIONS else "major",
                                      el["id"], f"{coll[:-1] if coll.endswith('s') else coll} {el['id']} "
                                      f"({_type(el)}) of the {name_a} stage is missing after the {name_b} stage and "

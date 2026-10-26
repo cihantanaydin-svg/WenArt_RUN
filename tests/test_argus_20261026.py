@@ -45,7 +45,10 @@ def test_conservation_lost_between_stages_unless_named():
     found = CV.between("decor", a, "agent", b)
     assert [f["check"] for f in found] == ["C1"] and found[0]["owner"] == "agent" and found[0]["kind"] == "lost"
     named = _building(furniture=[], agent_overrides=[{"removed": "f_L0_001"}])
-    assert CV.between("decor", a, "agent", named) == []
+    notes = CV.between("decor", a, "agent", named)
+    assert [(f["check"], f["severity"]) for f in notes] == [("C1", "info")]          # named: a note for Argus AI
+    assert notes[0]["evidence"]["named_in"] == "agent_overrides[0].removed"
+    assert CV.named_at({"a": [{"b": "x f1 y"}]}, "f1") == ("a[0].b", "x f1 y") and CV.named_at({}, "f1") is None
 
 
 def test_conservation_not_built_needs_a_reason():

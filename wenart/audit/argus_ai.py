@@ -74,8 +74,9 @@ SYSTEM = (
     "walkways, orientation, a piece in the wrong place), rerun_stage, or rule_needed when nothing in this run can fix "
     "it: then write the general rule (one or two sentences, for every project, never for this one only) that would "
     "prevent this kind of problem.\n"
-    "- 'not built: <reason>' lists elements a stage left out and the reason it gave: real = true when the reason hides "
-    "a loss (something the documents show that the house should have), false when it is a good reason.\n"
+    "- 'not built: <reason>' lists elements a stage left out and the reason it gave, and 'gone after the ... stage, "
+    "named in ...' an element a stage dropped and the record that names it: real = true when the reason hides a loss "
+    "(something the documents show that the house should have), false when it is a good reason.\n"
     "- Use only element ids, labels and levels from the facts. Never invent one.")
 DISCOVER_SYSTEM = SYSTEM + (
     "\n- Now look beyond the findings: list problems no finding names yet: what the documents hold that the model "
@@ -187,7 +188,7 @@ def items_of(rep: dict) -> list[dict]:
     from wenart.audit import process as PR
 
     order = {"critical": 0, "major": 1, "minor": 2, "info": 3}
-    rows = [f for f in rep.get("findings") or [] if f.get("severity") != "info" or f.get("check") == "C6"]
+    rows = [f for f in rep.get("findings") or [] if f.get("severity") != "info" or f.get("check") in ("C1", "C6")]
     rows += [K.finding("process", "P0", "info", PR._target(w), f"a warning no rule knows: {w}", owner="process",
                        kind="other") for w in rep.get("unmatched_warnings") or []]
     rows.sort(key=lambda f: (order.get(f.get("severity"), 4), str(f.get("kind"))))
@@ -365,11 +366,11 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
             guards.append({"kind": v["kind"], "cause": v["cause"], "rule": v["rule"][:600], "from": aid,
                            "target": f.get("target"), "check": f"{f.get('line')}:{f.get('check')}"})
         if not v.get("real") or v.get("fix") == "not_a_problem":
-            if f.get("check") not in ("C6", "P0"):
+            if f.get("severity") != "info":
                 disputed.append({"aid": aid, "target": f.get("target"), "check": f"{f.get('line')}:{f.get('check')}",
                                  "why": v.get("why")})
             continue
-        if f.get("check") == "C6":           # a reason that hides a loss: a finding of its own
+        if f.get("check") in ("C1", "C6") and f.get("severity") == "info":   # a reason that hides a loss
             new.append(K.finding("argus_ai", "AI2", v.get("severity") or "major", f.get("target"),
                                  f"left out for a reason that hides a loss: {f.get('message')} ({v.get('why')})",
                                  owner=v.get("cause"), fix=v.get("fix"), kind=v.get("kind"),
