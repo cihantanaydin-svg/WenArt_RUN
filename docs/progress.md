@@ -1401,3 +1401,22 @@ armchair, brown leather ones, a red egg chair) and the vision inspector did not 
 large drawn beds (the AI wanted one gone; a drawn piece is never removed by a decision, so it is a question for the
 user); the GPU test of the window panes' saturation fails at its edge (median 0.061 under 0.065; 0.068 in the run before:
 the views changed with the new furniture; the panes show a pale evening sky, no haze); the real04 trees test (above).
+
+## The big loop: the house fixes itself while it gets better (26 Oct 2026)
+
+User, after the second round: "Results are not getting better enough, need a big loop that fixes itself for the
+better" (lesson UL37). Investigated: every pod ran three agent rounds and one final round, then stopped with half an
+hour of pod time left; the loop's measure was "findings removed", which never saw that the living room's armchairs did
+not belong together or that a room was plain, and nothing compared the whole house before and after a change.
+Decided and applied:
+
+| Part | What | Where |
+|---|---|---|
+| the AI judge | every final render goes to the vision model as to the client's designer: `client_ready_score` 1-5, the Milestone 13 rubric tags plus `mismatched_set`, `not_stylish`, `makes_no_sense`, a note, and the problems that cost the points on element ids with a checklist check (routed to a tool or to the stage that owns it); `final/rubric_per_view.json` (metric 15 reads it) | `wenart/agent/judge.py` |
+| the house score | 60 % the judge's mean (1-5 as 0-100), 40 % defects (10 points per critical and 3 per major finding of the code critic and the model review, 3 per open major point of the architect, per view, as 100 / (1 + points / 5)) | `judge.house_score` |
+| the cycles | after the final renders: measure; then, while time is left (4 cycles at most): the final round on the critical findings, the visitor checks' and the judge's major ones; the changed views rendered again, the stages after the render again, the changed views judged again; a cycle that lowers the score by more than 2 is rolled back (its edits off, the views rendered again) and the loop stops; it stops too when a cycle gains less than 0.5 | `scheduler.final_critical_rounds`, `AgentLoop.measure` |
+| the record | each cycle's score, the judge's mean, the critical and major counts, the verdict, the lowest-scored views | `orchestrator/big_loop.md` |
+
+The loop around the pod runs (the session): each run is reviewed against the latest run, its general problems are
+fixed in code with tests, and the next run starts; the first: drawn pieces of one set type in a room take one model
+(`fit.role_sets`: the living room's six armchairs, three of them outside the seating group).
