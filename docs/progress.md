@@ -1525,3 +1525,17 @@ views; search time the same).
 | every cycle | Argus looks again before each big-loop cycle (the documents line once, after the first build) | `scheduler.argus_cycle` |
 | memory | the problem log's recurring findings of the project and the rules proposed in earlier runs go into its prompt | `argus_ai.history_lines` |
 | guard rails | no decision may leave a room without a piece of its set (G9 / G10 before and after) | `architect_ai.set_gaps` |
+
+### Kitchens get a hob, a fridge and upper cabinets; dressing rooms get wardrobes (26 Oct 2026, from the judge)
+
+The solver put a missing hob on the floor like a fridge and every floor place failed (real06: 30 refused tries).
+Now a kitchen run that misses its hob gets one built into a counter (a 0.60 / 0.45 m module, oven under it on a full
+depth counter, landings kept from the sink, the ends and the corners, never under a window, a sink or a dishwasher;
+the counter does not move); a missing fridge stands beside the run with its landing, else an under-counter fridge is
+built in; wall cabinets hang over the free wall length of every counter run (off windows, the hob and doors; the
+light strip only under a cabinet); a dressing room (Soyunma, Giyinme, dressing, walk-in, vestiaire, Ankleide, cabina
+armadio, vestidor ..., or a small storage room whose only door opens into a bedroom) gets wardrobe runs on its free
+walls with a 0.80 m walkway and a bench where it fits. The checks agree with the solver (a built-in module is part of
+its counter; a zone the drawn pieces cut off from the entrance but another door reaches is minor). real06's layout
+re-run: the kitchen's two G9 majors gone (hob with oven, under-counter fridge, table with chairs), the dressing room
+2.0 m + 1.6 m wardrobes and a bench, the master bedroom a desk, the upper hall a console.
