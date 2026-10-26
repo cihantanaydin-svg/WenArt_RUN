@@ -117,7 +117,8 @@ def report_md(rec: dict, project: str = "") -> str:
                   "; ".join(f"{k}: {v.get('checked', '-')} checked, {v.get('failed', '-')} failed"
                             for k, v in sorted((model.get("checks") or {}).items()) if v.get("status") == "ok")
                   + " (M1 doors on their floors, M2 working heights, M3 guards, M4 doors into the air, M5 rain water, "
-                    "M6 one door and window language, M7 rooms that make sense; `scene/model_review.md`).", ""]
+                    "M6 one door and window language, M7 rooms that make sense, M8 entrances that make sense; "
+                    "`scene/model_review.md`).", ""]
     order = {"critical": 0, "major": 1, "minor": 2}
     rows = sorted(rec["vision"] + rec["code"], key=lambda r: (order.get(r.get("severity"), 3), not r["visitor"]))
     if rows:

@@ -1,0 +1,843 @@
+{
+ "_source": "runs/20261026-125412-full/results/renders/real06/building_built.json (trimmed 26 Oct 2026: the ground floor's walls, doors, rooms and the site.entrances records as the levels stage wrote them)",
+ "project": {
+  "id": "real06"
+ },
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Ground floor",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.85
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    4.35,
+    0.325
+   ],
+   "end": [
+    8.4009,
+    0.325
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    8.651,
+    1.425
+   ],
+   "end": [
+    8.85,
+    1.425
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    8.6605,
+    3.225
+   ],
+   "end": [
+    8.85,
+    3.225
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    0.5,
+    3.425
+   ],
+   "end": [
+    4.3509,
+    3.425
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    8.6605,
+    3.825
+   ],
+   "end": [
+    8.85,
+    3.825
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    5.525
+   ],
+   "end": [
+    0.2,
+    5.525
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_007",
+   "level_id": "L0",
+   "start": [
+    8.6605,
+    5.625
+   ],
+   "end": [
+    8.85,
+    5.625
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_008",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    7.925
+   ],
+   "end": [
+    0.2,
+    7.925
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_009",
+   "level_id": "L0",
+   "start": [
+    0.45,
+    9.2
+   ],
+   "end": [
+    4.6,
+    9.2
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_010",
+   "level_id": "L0",
+   "start": [
+    0.95,
+    9.225
+   ],
+   "end": [
+    3.85,
+    9.225
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_011",
+   "level_id": "L0",
+   "start": [
+    7.0,
+    9.225
+   ],
+   "end": [
+    8.4,
+    9.225
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_012",
+   "level_id": "L0",
+   "start": [
+    4.6,
+    9.275
+   ],
+   "end": [
+    7.0,
+    9.275
+   ],
+   "thickness": 0.15
+  },
+  {
+   "id": "w_L0_013",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    10.475
+   ],
+   "end": [
+    0.2,
+    10.475
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_014",
+   "level_id": "L0",
+   "start": [
+    7.0,
+    11.35
+   ],
+   "end": [
+    8.4,
+    11.35
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_015",
+   "level_id": "L0",
+   "start": [
+    6.0,
+    11.37
+   ],
+   "end": [
+    7.0,
+    11.37
+   ],
+   "thickness": 0.16
+  },
+  {
+   "id": "w_L0_016",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    12.175
+   ],
+   "end": [
+    0.2,
+    12.175
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_017",
+   "level_id": "L0",
+   "start": [
+    2.95,
+    13.3
+   ],
+   "end": [
+    3.35,
+    13.3
+   ],
+   "thickness": 0.5
+  },
+  {
+   "id": "w_L0_018",
+   "level_id": "L0",
+   "start": [
+    0.2,
+    13.4043
+   ],
+   "end": [
+    0.95,
+    13.4043
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_019",
+   "level_id": "L0",
+   "start": [
+    0.95,
+    13.425
+   ],
+   "end": [
+    3.65,
+    13.425
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_020",
+   "level_id": "L0",
+   "start": [
+    5.7,
+    14.1
+   ],
+   "end": [
+    6.19,
+    14.1
+   ],
+   "thickness": 0.4
+  },
+  {
+   "id": "w_L0_021",
+   "level_id": "L0",
+   "start": [
+    3.65,
+    14.425
+   ],
+   "end": [
+    8.4009,
+    14.425
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_022",
+   "level_id": "L0",
+   "start": [
+    0.325,
+    4.05
+   ],
+   "end": [
+    0.325,
+    13.276
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_023",
+   "level_id": "L0",
+   "start": [
+    0.35,
+    3.3
+   ],
+   "end": [
+    0.35,
+    4.05
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_024",
+   "level_id": "L0",
+   "start": [
+    3.475,
+    11.3
+   ],
+   "end": [
+    3.475,
+    13.3
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_025",
+   "level_id": "L0",
+   "start": [
+    3.5,
+    13.55
+   ],
+   "end": [
+    3.5,
+    14.55
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_026",
+   "level_id": "L0",
+   "start": [
+    3.575,
+    3.55
+   ],
+   "end": [
+    3.575,
+    4.65
+   ],
+   "thickness": 0.15
+  },
+  {
+   "id": "w_L0_027",
+   "level_id": "L0",
+   "start": [
+    3.575,
+    8.3
+   ],
+   "end": [
+    3.575,
+    9.1
+   ],
+   "thickness": 0.15
+  },
+  {
+   "id": "w_L0_028",
+   "level_id": "L0",
+   "start": [
+    4.45,
+    2.8
+   ],
+   "end": [
+    4.45,
+    3.3
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_029",
+   "level_id": "L0",
+   "start": [
+    4.4751,
+    0.45
+   ],
+   "end": [
+    4.4751,
+    3.55
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_030",
+   "level_id": "L0",
+   "start": [
+    5.125,
+    0.0
+   ],
+   "end": [
+    5.125,
+    0.2
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_031",
+   "level_id": "L0",
+   "start": [
+    5.85,
+    13.8
+   ],
+   "end": [
+    5.85,
+    13.9
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_032",
+   "level_id": "L0",
+   "start": [
+    5.8744,
+    11.3
+   ],
+   "end": [
+    5.8744,
+    14.3
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_033",
+   "level_id": "L0",
+   "start": [
+    7.125,
+    9.35
+   ],
+   "end": [
+    7.125,
+    11.2
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_034",
+   "level_id": "L0",
+   "start": [
+    7.525,
+    0.0
+   ],
+   "end": [
+    7.525,
+    0.2
+   ],
+   "thickness": 0.25
+  },
+  {
+   "id": "w_L0_035",
+   "level_id": "L0",
+   "start": [
+    8.5,
+    0.45
+   ],
+   "end": [
+    8.5,
+    0.95
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_036",
+   "level_id": "L0",
+   "start": [
+    8.5,
+    6.0
+   ],
+   "end": [
+    8.5,
+    6.75
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_037",
+   "level_id": "L0",
+   "start": [
+    8.5,
+    13.8
+   ],
+   "end": [
+    8.5,
+    14.3
+   ],
+   "thickness": 0.3
+  },
+  {
+   "id": "w_L0_038",
+   "level_id": "L0",
+   "start": [
+    8.526,
+    0.2
+   ],
+   "end": [
+    8.526,
+    14.55
+   ],
+   "thickness": 0.25
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    6.325,
+    0.325
+   ],
+   "width": 2.15,
+   "operation": "sliding"
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_010",
+   "center": [
+    2.275,
+    9.225
+   ],
+   "width": 1.95,
+   "operation": "sliding"
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_021",
+   "center": [
+    4.8259,
+    14.425
+   ],
+   "width": 0.8,
+   "operation": "sliding"
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_029",
+   "center": [
+    4.4751,
+    0.975
+   ],
+   "width": 0.8,
+   "operation": "swing"
+  },
+  {
+   "id": "d_L0_005",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_033",
+   "center": [
+    7.125,
+    9.925
+   ],
+   "width": 0.95,
+   "operation": "swing"
+  },
+  {
+   "id": "d_L0_006",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_004",
+   "center": [
+    1.975,
+    3.425
+   ],
+   "width": 2.95,
+   "operation": "sliding"
+  },
+  {
+   "id": "d_L0_007",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_015",
+   "center": [
+    6.55,
+    11.37
+   ],
+   "width": 0.9,
+   "operation": "swing"
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L0_salon",
+   "level_id": "L0",
+   "label": "Salon",
+   "label_raw": "SALON",
+   "room_type": "living"
+  },
+  {
+   "id": "r_L0_mutfak",
+   "level_id": "L0",
+   "label": "Mutfak",
+   "label_raw": "MUTFAK",
+   "room_type": "kitchen"
+  },
+  {
+   "id": "r_L0_oda",
+   "level_id": "L0",
+   "label": "Oda",
+   "label_raw": null,
+   "room_type": "hall"
+  },
+  {
+   "id": "r_L0_banyo",
+   "level_id": "L0",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom"
+  }
+ ],
+ "site": {
+  "entrances": [
+   {
+    "door_id": "d_L0_001",
+    "level_id": "L0",
+    "room_id": "r_L0_salon",
+    "threshold_z": 0.0,
+    "ground_z": -0.5,
+    "rise": 0.5,
+    "ground_source": "terrain (flat)",
+    "centre": [
+     6.325,
+     0.325
+    ],
+    "outward": [
+     0.0,
+     -1.0
+    ],
+    "face": [
+     6.325,
+     0.2
+    ],
+    "width": 2.15,
+    "half_t": 0.125,
+    "side": "front",
+    "solution": "steps",
+    "steps": {
+     "count": 4,
+     "riser": 0.125,
+     "tread": 0.33,
+     "rule_2r_t": 0.58,
+     "flights": [
+      4
+     ],
+     "intermediate_landings": 0,
+     "width": 2.75,
+     "handrails": true,
+     "cheek_walls": true,
+     "run": 0.99
+    },
+    "ramp": null,
+    "landing": {
+     "width": 2.75,
+     "depth": 1.2,
+     "z": 0.0
+    },
+    "main": false,
+    "drawn": false,
+    "inferred": true,
+    "into_air": false,
+    "upper_floor": false,
+    "below_ground": false,
+    "terrain_lowered": false,
+    "reason": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)"
+   },
+   {
+    "door_id": "d_L0_003",
+    "level_id": "L0",
+    "room_id": "r_L0_mutfak",
+    "threshold_z": 0.0,
+    "ground_z": -0.5,
+    "rise": 0.5,
+    "ground_source": "terrain (flat)",
+    "centre": [
+     4.675,
+     14.425
+    ],
+    "outward": [
+     0.0,
+     1.0
+    ],
+    "face": [
+     4.675,
+     14.55
+    ],
+    "width": 0.65,
+    "half_t": 0.125,
+    "side": "back",
+    "solution": "steps",
+    "steps": {
+     "count": 4,
+     "riser": 0.125,
+     "tread": 0.33,
+     "rule_2r_t": 0.58,
+     "flights": [
+      4
+     ],
+     "intermediate_landings": 0,
+     "width": 1.25,
+     "handrails": true,
+     "cheek_walls": true,
+     "run": 0.99
+    },
+    "ramp": null,
+    "landing": {
+     "width": 1.25,
+     "depth": 1.2,
+     "z": 0.0
+    },
+    "main": false,
+    "drawn": false,
+    "inferred": true,
+    "into_air": false,
+    "upper_floor": false,
+    "below_ground": false,
+    "terrain_lowered": false,
+    "reason": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)"
+   },
+   {
+    "door_id": "d_L0_004",
+    "level_id": "L0",
+    "room_id": "r_L0_salon",
+    "threshold_z": 0.0,
+    "ground_z": -0.5,
+    "rise": 0.5,
+    "ground_source": "terrain (flat)",
+    "centre": [
+     4.4751,
+     0.975
+    ],
+    "outward": [
+     -1.0,
+     0.0
+    ],
+    "face": [
+     4.3501,
+     0.975
+    ],
+    "width": 0.75,
+    "half_t": 0.125,
+    "side": "left",
+    "solution": "steps",
+    "steps": {
+     "count": 4,
+     "riser": 0.125,
+     "tread": 0.33,
+     "rule_2r_t": 0.58,
+     "flights": [
+      4
+     ],
+     "intermediate_landings": 0,
+     "width": 1.35,
+     "handrails": true,
+     "cheek_walls": true,
+     "run": 0.99
+    },
+    "ramp": null,
+    "landing": {
+     "width": 1.35,
+     "depth": 1.2,
+     "z": 0.0
+    },
+    "main": false,
+    "drawn": false,
+    "inferred": true,
+    "into_air": false,
+    "upper_floor": false,
+    "below_ground": false,
+    "terrain_lowered": false,
+    "reason": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)"
+   },
+   {
+    "door_id": "d_L0_006",
+    "level_id": "L0",
+    "room_id": "r_L0_salon",
+    "threshold_z": 0.0,
+    "ground_z": -0.5,
+    "rise": 0.5,
+    "ground_source": "terrain (flat)",
+    "centre": [
+     1.975,
+     3.425
+    ],
+    "outward": [
+     0.0,
+     -1.0
+    ],
+    "face": [
+     1.975,
+     3.3
+    ],
+    "width": 2.95,
+    "half_t": 0.125,
+    "side": "front",
+    "solution": "steps",
+    "steps": {
+     "count": 4,
+     "riser": 0.125,
+     "tread": 0.33,
+     "rule_2r_t": 0.58,
+     "flights": [
+      4
+     ],
+     "intermediate_landings": 0,
+     "width": 3.55,
+     "handrails": true,
+     "cheek_walls": true,
+     "run": 0.99
+    },
+    "ramp": null,
+    "landing": {
+     "width": 3.55,
+     "depth": 1.2,
+     "z": 0.0
+    },
+    "main": true,
+    "drawn": true,
+    "inferred": true,
+    "into_air": false,
+    "upper_floor": false,
+    "below_ground": false,
+    "terrain_lowered": false,
+    "reason": "0.50 m above the ground (terrain (flat)): a landing and 4 riser(s) of 0.125 m, tread 0.33 m (inferred)"
+   }
+  ]
+ }
+}
