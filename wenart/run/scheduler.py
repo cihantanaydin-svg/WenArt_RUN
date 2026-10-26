@@ -2171,18 +2171,15 @@ class Orchestrator:
         if not pr.active or self.status_of(pr, "build") != "ok":
             self.finish(pr, "agent", "warning", "no scene: no agent rounds", outputs=[])
             return
-        if self.architect_look(pr, url):
-            # 26 Oct 2026: the AI architect decided on the model it saw: the scene is built again with its decisions
+        # 26 Oct 2026: the AI architect decides on the model it saw, then Argus, the auditor, on everything it found
+        # (its dry re-checks carry the architect's decisions); the scene is built again once with both
+        looked = self.architect_look(pr, url)
+        audited = self.argus_look(pr, url)
+        if looked or audited:
             self.stage_build(pr)
             if not pr.active or self.status_of(pr, "build") != "ok":
-                self.finish(pr, "agent", "warning", "no scene after the architect's decisions: no agent rounds",
-                            outputs=[])
-                return
-        if self.argus_look(pr, url):
-            # 26 Oct 2026: Argus, the auditor, decided on what it found: the scene is built again with its decisions
-            self.stage_build(pr)
-            if not pr.active or self.status_of(pr, "build") != "ok":
-                self.finish(pr, "agent", "warning", "no scene after Argus's decisions: no agent rounds", outputs=[])
+                self.finish(pr, "agent", "warning", "no scene after the architect's and Argus's decisions: no agent "
+                            "rounds", outputs=[])
                 return
         pr.views = self.scene_views(pr)
         previews_status = self.stage_agent_previews(pr)
