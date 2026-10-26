@@ -38,6 +38,7 @@ class Inputs:
     architect: Optional[dict] = None
     model_review: Optional[dict] = None
     inspector: Optional[dict] = None
+    agent_log: Optional[dict] = None              # the orchestrator's decision log (orchestrator/log.json)
     big_loop: Optional[dict] = None
     architect_look: Optional[dict] = None
     rubric: Optional[list] = None
@@ -78,6 +79,7 @@ def _fill(inp: Inputs, scene: Path, orch: Path, recog: Path, run: Path, final: P
     inp.model_review = get("model_review", scene / "model_review.json")
     inp.inspector = get("inspector", orch / "inspector.json")
     inp.big_loop = read_json(orch / "big_loop.json") if (orch / "big_loop.json").is_file() else None
+    inp.agent_log = read_json(orch / "log.json") if (orch / "log.json").is_file() else None
     inp.architect_look = read_json(orch / "architect_look.json") if (orch / "architect_look.json").is_file() else None
     rubric = read_json(final / "rubric_per_view.json") if (final / "rubric_per_view.json").is_file() else None
     inp.rubric = rubric if isinstance(rubric, list) else (rubric or {}).get("views") if isinstance(rubric, dict) else None

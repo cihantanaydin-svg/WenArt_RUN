@@ -17,8 +17,11 @@ What (each check over every item, nothing sampled):
 - P7 pieces built below the library level (parametric fallbacks, proxies) and openings built parametric because no
   model fits: the library gaps to close;
 - P8 time left unused: the run stopped with open major or critical points and time left before its deadline;
-- P9 the agent's and the big loop's own result: a cycle that made the house worse, edits rejected because they did
-  not remove their target.
+- P9 the agent's and the big loop's own result: a cycle that made the house worse, a loop that did not raise the
+  score;
+- P10 the agent itself: a finding the agent tried to fix ``FUTILE_TRIES`` times or more with every try refused by code
+  (this run's log events only), with the refusal it met most: the stage or rule behind it must change, not the agent
+  (real06: "kitchen_run (missing stove, fridge): no place passes the checks", 30 tries).
 
 Why: the veranda was written in a warning ("an open balcony, recorded in site, not a room") and then nothing built
 it; real06's inferred trees were "placed 0 of 3" in a warning. A warning nobody reads is the ``silent`` kind.
@@ -72,6 +75,7 @@ WARN_RULES = (
                            r"added nothing|no view|overlaps", re.I), "info", "other", "a reading or build note"),
 )
 DRAWN_MISMATCH_CM = 25              # drawn_mismatch: a difference under this is noise of the reading (info)
+FUTILE_TRIES = 4                    # P10: tries on one finding, all refused
 TIME_LEFT_MIN_S = 15 * 60           # P8: this much time left before the deadline with open majors is time unused
 STAGE_BAD = ("failed", "error", "timeout", "timed_out", "pending", "incomplete", "needs_review")
 
@@ -372,11 +376,71 @@ def loop_result(inp: Inputs) -> list[dict]:
     return out
 
 
+def _run_events(log: Optional[dict]) -> list[dict]:
+    """The events of this run of an appended log (``run_first_seq`` on, as ``wenart.report.agent.run_scope``)."""
+    log = log or {}
+    try:
+        first = int(log.get("run_first_seq") or 1)
+    except (TypeError, ValueError):
+        first = 1
+
+    def seq(e):
+        try:
+            return int(e.get("seq") or 0)
+        except (TypeError, ValueError):
+            return 0
+    return [e for e in log.get("events") or [] if isinstance(e, dict) and seq(e) >= first]
+
+
+def _refusal(e: dict) -> str:
+    v = e.get("validation")
+    if isinstance(v, str):
+        m = re.search(r"failed_checks': \[['\"](.*?)['\"]", v)
+        text = m.group(1) if m else v
+    elif isinstance(v, dict):
+        text = "; ".join(map(str, v.get("failed_checks") or [])) or str(v.get("reason") or "")
+    else:
+        text = str(e.get("note") or "")
+    text = re.sub(r"^memory: the same edit was rejected in round \d+: ", "", text)
+    return text[:160]
+
+
+def futile(inp: Inputs) -> list[dict]:
+    """P10 (module docstring)."""
+    tries: dict = {}
+    for e in _run_events(inp.agent_log):
+        if e.get("kind") not in ("edit", "rejected_edit"):
+            continue
+        key = (str(e.get("checklist") or "?"), str(e.get("target") or "?"))
+        t = tries.setdefault(key, {"n": 0, "ok": 0, "tools": {}, "why": {}, "finding": e.get("finding"),
+                                   "severity": e.get("severity"), "room": e.get("room_id")})
+        t["n"] += 1
+        if e.get("kind") == "edit":
+            t["ok"] += 1
+        else:
+            w = _refusal(e)
+            t["why"][w] = t["why"].get(w, 0) + 1
+        t["tools"][str(e.get("tool"))] = t["tools"].get(str(e.get("tool")), 0) + 1
+    out = []
+    for (check, target), t in sorted(tries.items(), key=lambda kv: -kv[1]["n"]):
+        if t["n"] < FUTILE_TRIES or t["ok"]:
+            continue
+        why = max(t["why"].items(), key=lambda kv: kv[1])[0] if t["why"] else "?"
+        owner = "furniture" if why.startswith(("no_place", "drawn_lock")) else "agent"
+        out.append(K.finding("process", "P10", "major" if t["severity"] in ("critical", "major") else "minor", target,
+                             f"the agent tried {t['n']} times to fix {check} on {target} ({str(t['finding'])[:120]}) "
+                             f"with {', '.join(sorted(t['tools']))}; code refused every try, most often: {why}",
+                             owner=owner, kind="silent",
+                             evidence={"check": check, "tries": t["n"], "tools": t["tools"], "refusals": t["why"],
+                                       "room": t["room"]}, fix="rule_needed"))
+    return out
+
+
 def audit(inp: Inputs) -> dict:
     """``{"findings", "warning_counts", "checked"}`` of the process line."""
     warn, counts = warnings(inp)
     findings = stages(inp) + warn + questions(inp) + tests(inp) + scene_checks(inp) + views(inp) + library(inp) \
-        + time_left(inp) + loop_result(inp)
+        + time_left(inp) + loop_result(inp) + futile(inp)
     return {"findings": findings, "warning_counts": counts, "unmatched": unmatched(inp),
             "checked": {"stages": len(inp.records) or len(((inp.run_manifest or {}).get("projects") or [{}])[0]
                                                           .get("stages") or []),

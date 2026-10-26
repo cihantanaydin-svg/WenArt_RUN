@@ -536,3 +536,27 @@ def test_the_source_ledger_is_a_line_of_argus_on_both_layouts(tmp_path):
         (res / "furniture" / "real06" / name).write_text((out / name).read_text(encoding="utf-8"), encoding="utf-8")
     rep2 = R.run(I.collected(res, "real06"))
     assert rep2["lines"]["ledger"]["findings"] == rep["lines"]["ledger"]["findings"]
+
+
+def test_process_the_agent_tried_and_every_try_was_refused(tmp_path):
+    inp = _inputs(tmp_path, _building(), {})
+    refusal = ("{'accepted': False, 'failed_checks': ['no_place: r_k.kitchen_run (missing stove, fridge): no place "
+               "passes the checks']}")
+    events = [{"seq": "1", "kind": "rejected_edit", "tool": "place_group", "target": "r_k", "checklist": "G9",
+               "severity": "major", "finding": "kitchen has no fridge", "validation": refusal}]       # an earlier run
+    events += [{"seq": str(10 + i), "kind": "rejected_edit", "tool": t, "target": "r_k", "checklist": "G9",
+                "severity": "major", "finding": "kitchen r_k has no fridge",
+                "validation": refusal if i else "{'accepted': False, 'failed_checks': ['memory: the same edit was "
+                                                 "rejected in round 1: no_place: r_k.kitchen_run (missing stove, "
+                                                 "fridge): no place passes the checks']}"}
+               for i, t in enumerate(["place_group", "complete_group", "place_group", "complete_group"])]
+    events += [{"seq": "20", "kind": "rejected_edit", "tool": "move_piece", "target": "f1", "checklist": "F9",
+                "severity": "major", "validation": "{}"},
+               {"seq": "21", "kind": "edit", "tool": "move_piece", "target": "f1", "checklist": "F9",
+                "severity": "major"}] * 2
+    inp.agent_log = {"run_first_seq": 10, "events": events}
+    found = PR.futile(inp)
+    assert [(f["check"], f["target"]) for f in found] == [("P10", "r_k")]          # f1 was fixed once: not futile
+    f = found[0]
+    assert f["evidence"]["tries"] == 4 and f["owner"] == "furniture" and f["kind"] == "silent"
+    assert "no_place: r_k.kitchen_run" in f["message"] and "memory" not in f["message"]
