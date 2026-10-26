@@ -1504,3 +1504,14 @@ inspector, Argus) is treated the same (`causes.is_vision`); a judge finding stay
 and is re-judged after the re-render on one it changed; the finding ids the agent names in its reason are read; "two
 armchairs that do not match" is a wrong model, not a piece too many; the log schema accepts the judge's, the
 inspector's and Argus's findings. Replayed on real06's round 4: the refused swaps and moves now have their targets.
+
+### Every view shows the room's main pieces (26 Oct 2026, from the judge's notes)
+
+The camera search (`wenart/blender/camsearch.py`) now knows each room type's main pieces (a bathroom's toilet, basin,
+shower, bath; a living room's sofas and armchairs; a bedroom's beds; a kitchen's run) and their groups: a view must
+hold at least one of them well inside the frame, the score rewards the share of the set shown (3 points), a door
+filling the frame (over 10 %) and a bare wall or column in the middle third cost points, later views must add pieces
+the earlier ones do not show (small rooms under 8 m² get a second view only then), and a wall-hung basin keeps the
+camera points away. Replayed on real06's built building: views without a main piece 5 -> 1, bare-centre views 6 -> 0,
+door-filled views 7 -> 1, set pieces per view 1.04 -> 1.54, rooms whose views show their whole set 4 -> 7 (28 -> 24
+views; search time the same).

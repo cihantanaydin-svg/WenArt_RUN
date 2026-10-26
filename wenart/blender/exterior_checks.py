@@ -980,7 +980,8 @@ def free_floor_problems(building: dict, camera: dict) -> list[str]:
     if any(math.dist(q, (x, y)) < 1e-6 for q in points):
         return []
     polygon = CS.room_polygon(room)
-    pieces = [f for f in CS.shown_pieces(room, building) if CS.mount_bottom(f) <= 0.0]
+    # 26 Oct 2026: a piece hung below the lens (a wall-hung basin) keeps cameras away, as in the search
+    pieces = [f for f in CS.shown_pieces(room, building) if CS.floor_obstacle(f)]
     obstacles = [(f["id"], CS.obstacle_rect(f)) for f in pieces]
     if warning:                                         # no free point: only what stands at camera height counts
         obstacles = [(f["id"], CS.obstacle_rect(f)) for f in pieces if piece_bbox(f)[2] >= CS.CAMERA_HEIGHT]
