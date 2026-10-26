@@ -312,17 +312,27 @@ def test_e11_inferred_site_of_real02(real02_prep):
     windows = S.outer_openings(real02_prep["building"], real02_prep["building"]["levels"],
                                real02_prep["ground_outline"], real02_prep["outlines"], kinds=("window",))
     front_y = max(q[1] for q in real02_prep["ground_outline"])
-    assert 1 <= len(inf["trees"]) <= 3
+    assert len(inf["trees"]) == 3
     # beside the side facades, off the 30 degree lines of sight of the corner views (the F1-like tree at the front
-    # corner hid half of ext_1 in the first CPU render)
-    assert sorted(round(t["center"][0], 1) for t in inf["trees"]) == [-3.6, 18.8]
+    # corner hid half of ext_1 in the first CPU render): the strict pass's two trees as before
+    strict = [t for t in inf["trees"] if t["placement"] == "strict"]
+    assert sorted(round(t["center"][0], 1) for t in strict) == [-3.6, 18.8]
     for t in inf["trees"]:
         x, y = t["center"]
         assert y < front_y - S.INFERRED["front_zone_extra"] + 1e-6 and t["inferred"]
         for w in windows:
             (cx, cy), (ox, oy) = w["centre"], w["outward"]
             along, side = (x - cx) * ox + (y - cy) * oy, abs((x - cx) * -oy + (y - cy) * ox)
-            assert not (0 < along < S.INFERRED["tree_window_reach"] and side < float(w["opening"]["width"]) / 2 + 2.0)
+            if t["placement"] == "strict":
+                assert not (0 < along < S.INFERRED["tree_window_reach"]
+                            and side < float(w["opening"]["width"]) / 2 + 2.0)
+            else:                                                 # 26 Oct 2026: the framing rule's near zones
+                assert S.window_zone((x, y), w, t["size"][0] / 2.0, S.TREE_FRAMING["light_m"],
+                                     S.TREE_FRAMING["side_m"], S.TREE_FRAMING["view_m"]) is None
+    # 26 Oct 2026 (real06): the third planned tree, a neighbour's tree just beyond the plot, seen from the windows
+    [third] = [t for t in inf["trees"] if t["placement"] != "strict"]
+    assert third["placement"] == "beyond_plot" and third["context"] and third["seen_from"]
+    assert not G.point_in_polygon(tuple(third["center"]), [tuple(p) for p in plot])
     areas = [a for a in real02_prep["site"]["areas"] if a["kind"] == "path"]
     assert len(areas) == 2 and S.AREA_LOOKS["path"] == "paving"
 

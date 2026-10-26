@@ -1764,47 +1764,43 @@ def _corner_sightlines(outline):
     return out
 
 
-def test_p4b_real03_gets_inferred_trees_from_the_relaxed_pass_and_says_how():
+def test_p4b_real03_gets_inferred_trees_from_the_framing_pass_and_says_how():
     """P4b look lens (verified in part): real03's exterior was a bare paddock; the documents draw no planting and
     site.place_trees kept none of its 122 candidates (the 8 m window bands of the 22 windows removed 108), silently.
-    Now the relaxed second pass (window band 4 m out, 1 m on each side) places 2 trees behind the building, never in
-    the front garden, on a corner view's line of sight, at a plot corner or near the building, 6 m apart; the stats
-    name the window band; ``trees_record`` lists "placed 2 of 3" and warns. Fails on HEAD 11949a9 (0 trees, no
-    stats)."""
+    The relaxed second pass of the fix round after P4b placed 2 behind the building. 26 Oct 2026 (real06, the framing
+    rule, ``site.TREE_FRAMING``): the framing pass places all 3 planned trees, never in the front garden, on a corner
+    view's line of sight, at a plot corner or near the building, out of every window's light zone and straight view,
+    each seen from windows, 6 m apart; the stats name the window band of the strict pass; ``trees_record`` lists
+    "placed 3 of 3" and the framing pass. Fails on HEAD 11949a9 (0 trees, no stats)."""
     stats = {}
     trees = S.place_trees(P4B_REAL03_PLOT, P4B_REAL03_OUTLINE, P4B_REAL03_PATHS, _p4b_windows(),
                           {"direction": (0.0, -1.0)}, 3, stats=stats)
-    assert len(trees) >= 2 and all(t["inferred"] and t.get("relaxed") for t in trees)
+    assert len(trees) == 3 and all(t["inferred"] and t["placement"] == "framing" for t in trees)
     assert stats["candidates"] == 122 and stats["placed_first"] == 0 and stats["relaxed"]
-    assert stats["placed"] == len(trees) and stats["top_filter"] == "window" and stats["removed"]["window"] == 108
+    assert stats["placed"] == 3 and stats["placed_relaxed"] == 3 and not stats["beyond"]
+    assert stats["top_filter"] == "window" and stats["removed"]["window"] == 108
+    assert stats["passes"][0] == {"name": "strict", "ran": True, "candidates": 122, "kept": 0, "placed": 0,
+                                  "removed": stats["removed"]}             # the strict pass alone: the old nothing
     r = S.INFERRED["tree_crown"] / 2.0
     front_edge = max(-p[1] for p in P4B_REAL03_OUTLINE)
     lines = _corner_sightlines(P4B_REAL03_OUTLINE)
+    cfg = S.TREE_FRAMING
     for t in trees:
         x, y = t["center"]
         assert -y <= front_edge - S.INFERRED["front_zone_extra"]                          # not in the front garden
         assert all(G.point_segment_distance((x, y), a, b) >= r + S.INFERRED["tree_sightline"] for a, b in lines)
         assert geom2d.distance_to_polygon_edges((x, y), P4B_REAL03_OUTLINE) >= S.INFERRED["tree_from_building"] - 1e-6
         assert min(math.dist((x, y), c) for c in P4B_REAL03_PLOT) > 5.0                  # not at a plot corner
-        for (cx, cy), (ox, oy), w in P4B_REAL03_WINDOWS:                                  # out of the relaxed band
-            along, side = (x - cx) * ox + (y - cy) * oy, abs((x - cx) * -oy + (y - cy) * ox)
-            assert not (0 < along < S.TREE_RELAXED["tree_window_reach_relaxed"] + r
-                        and side < w / 2 + S.TREE_RELAXED["tree_window_side_relaxed"] + r)
-        assert "window band narrowed to 4 m" in t["reason"] and "placed 0 of 3" in t["reason"]
+        for w in _p4b_windows():                                  # out of the light zone and the straight view
+            assert S.window_zone((x, y), w, r, cfg["light_m"], cfg["side_m"], cfg["view_m"]) is None
+        assert len(t["seen_from"]) >= 2 and t["window_distance_m"] >= cfg["light_m"] + r
+        assert "frames the windows' view" in t["reason"] and "the strict pass placed 0 of 3" in t["reason"]
     assert all(math.dist(a["center"], b["center"]) >= S.INFERRED["tree_spacing"]
                for i, a in enumerate(trees) for b in trees[i + 1:])
     entry, warning = S.trees_record(stats)
-    assert entry["field"] == "trees" and entry["value"] == len(trees)
-    assert f"placed {len(trees)} of 3" in entry["reason"] and "most by window" in entry["reason"]
-    assert warning == entry["reason"]
-    # without the relaxed pass (its minimum at 0) the old silent result: nothing
-    old = dict(S.TREE_RELAXED)
-    try:
-        S.TREE_RELAXED["tree_min"] = 0
-        assert S.place_trees(P4B_REAL03_PLOT, P4B_REAL03_OUTLINE, P4B_REAL03_PATHS, _p4b_windows(),
-                             {"direction": (0.0, -1.0)}, 3) == []
-    finally:
-        S.TREE_RELAXED.update(old)
+    assert entry["field"] == "trees" and entry["value"] == 3 and warning is None
+    assert "placed 3 of 3" in entry["reason"] and "most by window" in entry["reason"]
+    assert "the framing pass (the window rule near the facade only) placed 3 of 1100" in entry["reason"]
 
 
 def test_p4b_inferred_site_lists_its_trees_and_warns_when_short():

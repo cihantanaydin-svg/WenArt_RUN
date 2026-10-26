@@ -104,7 +104,28 @@ windows: their 8 m window bands removed 108), silently. When its first pass plac
 gets 2 trees behind the building, real02 keeps its 2 first-pass trees. Every build that infers trees lists
 ``inferred trees: placed k of n`` with the filter that removed the most candidates (``trees_record``: an ``assumed``
 entry, a site warning when short, ``inferred.tree_stats`` and the manifest's ``site.inferred.tree_stats``). The
-agent's fence choice stays; the exterior framing is not changed (the camera policy of Milestone 11 stays).
+agent's fence choice stays; the exterior framing is not changed (the camera policy of Milestone 11 stays). (26 Oct
+2026: the relaxed pass and ``TREE_RELAXED`` are replaced by the framing and beyond-plot passes below.)
+
+26 Oct 2026 (real06; in every real06 run the judge said "the view out the window is a flat grey void" and the GPU test
+measured a median pane saturation of 0.063 < 0.065; Argus found "inferred trees: placed 0 of 3"). Three causes, three
+general rules:
+
+- the trees: every candidate stood on one ring 3.5 m from the facade of the inferred plot, inside the window band of
+  some window on every side (real06 has windows on all four); ``place_trees`` now runs the strict pass of before, then
+  the ``framing`` pass (a 1 m grid over the plot, the window rule only near the facade: the crown keeps its distance
+  from the window's light and off its straight view; picked by the windows that see the tree, ``windows_seeing``),
+  then the ``beyond_plot`` pass (a neighbour's tree just beyond the plot edge, ``context: true``, clear of the paths'
+  continuation, ``path_corridor``), with every pass's candidates and removals logged (``TREE_FRAMING``). real06: 0 ->
+  3 of 3 (two olives 5.9 and 6.0 m from the windows that see them, a stone pine 9.1 m behind the back windows, 3 m
+  beyond the plot), seen from 18 of its 29 windows;
+- the lawn: ``vegetation.lawn_material`` greyed the lawn for every ray but the camera's, and the camera's ray through a
+  pane is not a camera ray after the glass: the lawn behind every window read 75 % grey. It now keeps its colour on
+  every path without a diffuse bounce (``vegetation.LAWN_OWN_COLOUR_RAYS``);
+- the horizon: nothing stood between the hedge and the sky. ``horizon_context`` adds tree groups around the site at the
+  horizon (a near ring beyond the near ground and the exterior cameras' reach, a far broken tree line from 350 m, open
+  fields between the groups so the horizon stays in view), built by ``build_context`` as one mesh that casts no shadow
+  and lights nothing (the room light and the exposure stay), with the ``sky`` lever.
 
 26 Oct 2026 (real06, user on ext_4: "these sections not making sense, the AI inspector needs to make sense of this"):
 the garden door and the small side door in the inner corner of real06's L each got a landing and four risers; the two
@@ -1837,53 +1858,155 @@ def boundary_parts(seg: dict, terrain: dict) -> tuple[list, list, dict]:
 # Fix round after P4b (17 Oct 2026; pod P4b, real03: a 33 x 15 m bungalow with 22 outside windows on a 6 m plot
 # margin). The first pass kept none of its 122 candidates (window band 108, front zone 51, corner sightlines 36, path
 # 6; a candidate counts for every filter that removes it), so the exterior showed a bare lawn and nothing said so.
-# When the first pass places fewer than ``tree_min`` trees (and fewer than asked), a second pass over the same
-# candidates narrows the window band to ``tree_window_reach_relaxed`` out and ``tree_window_side_relaxed`` on each
-# side; the building, path, corner-sightline and front-garden rules stay (the corner and entrance views stay open,
-# no tree at the plot corners). real02 (2 trees in the first pass) is unchanged.
-TREE_RELAXED = {"tree_min": 2, "tree_window_reach_relaxed": 4.0, "tree_window_side_relaxed": 1.0}
+#
+# 26 Oct 2026 (real06; every real06 run: the judge's "the view out the window is a flat grey void", the GPU test's
+# median pane saturation 0.063 < 0.065; Argus: "inferred trees: placed 0 of 3 (74 candidates; ... window 67 ...)").
+# The cause: every candidate stood on one ring ``tree_inset`` inside the plot edge. On an inferred plot that ring is
+# ``plot_margin`` - ``tree_inset`` = 3.5 m from the facade, and the band in front of every window (8 m out; the old
+# relaxed pass: 4 m out plus the crown, 5.75 m) covers it wherever a facade has a window: real06 has windows on all
+# four sides, so the window band, the front garden and the corner sightlines removed all 74 in both passes (the
+# relaxed band still reached past the 6 m plot margin). The rule now places the planned trees where they keep a
+# window's light and its straight view but are seen from the windows (``TREE_FRAMING``; a rule for every project):
+# 1. ``strict``: the pass of before, unchanged (real02's two first-pass trees stay where they were);
+# 2. ``framing``, when short: every point of a 1 m grid over the plot (``edge_inset_m`` inside its edge, so the plot's
+#    corners and edges too) with the window rule only near the facade: the crown stays ``light_m`` clear of the
+#    window and ``side_m`` beside it (the window's light), and off the window's straight-out strip nearer than
+#    ``view_m`` (the view): a tree beside that strip frames the view instead of blocking it. The building, path,
+#    corner-sightline and front-garden rules stay. Picked by the windows that see it (``windows_seeing``: in front of
+#    the window, within ``seen_deg`` of its axis and ``seen_m``, no wall in between): first the candidate the most
+#    windows without a tree yet see, then the most windows, then the one nearest ``frame_m`` from its nearest window;
+# 3. ``beyond_plot``, when still short (the plot is too small): a neighbour's tree (``beyond_crown``, inferred
+#    context) on ``beyond_rows`` rings ``beyond_m`` (+ ``beyond_row_m`` per row) outside the plot edge, clear of the
+#    paths' continuation, the corner sightlines, the front and the windows' near zones, picked the same way.
+# Every pass logs its candidates and its removals per filter (``stats["passes"]``); every tree says its pass
+# (``placement``), the windows that see it (``seen_from``) and its distance to the nearest of them.
+TREE_FRAMING = {"light_m": 2.5, "side_m": 1.0, "view_m": 6.0, "frame_m": 6.0, "seen_m": 25.0, "seen_deg": 55.0,
+                "edge_inset_m": 1.0, "grid_m": 1.0, "grid_max": 4000, "beyond_m": 3.0, "beyond_row_m": 2.0,
+                "beyond_rows": 2, "beyond_crown": 5.0}
 TREE_FILTERS = ("building", "path", "sightline", "window", "front")
+TREE_PASSES = ("strict", "framing", "beyond_plot")
+
+
+def window_zone(p, window: dict, r: float, light_m: float, side_m: float, view_m: float = 0.0) -> Optional[str]:
+    """Which near zone of an outside window a tree crown of radius ``r`` at ``p`` enters (pure; 26 Oct 2026):
+    ``"light"`` when its trunk stands less than ``light_m`` + ``r`` in front of the window and less than the half
+    width + ``side_m`` + ``r`` beside its axis (the crown nearer than ``light_m`` to the window, or beside it), ``"view"``
+    when the crown covers the window's straight-out strip (less than the half width + ``r`` beside the axis) nearer
+    than ``view_m`` + ``r``, else None. ``window``: ``{"centre", "outward", "opening": {"width"}}``. ``view_m`` 0
+    is the band of the strict pass (``tree_window_reach`` / ``tree_window_side``)."""
+    (cx, cy), (ox, oy) = window["centre"], window["outward"]
+    dx, dy = p[0] - cx, p[1] - cy
+    along, side = dx * ox + dy * oy, abs(dx * -oy + dy * ox)
+    hw = float(window["opening"]["width"]) / 2.0
+    if along <= 0.0:
+        return None
+    if along < light_m + r and side < hw + side_m + r:
+        return "light"
+    if along < view_m + r and side < hw + r:
+        return "view"
+    return None
+
+
+def windows_seeing(p, windows: Sequence[dict], outline: Sequence, seen_m: float = TREE_FRAMING["seen_m"],
+                   seen_deg: float = TREE_FRAMING["seen_deg"]) -> list[tuple[str, float]]:
+    """The outside windows that see a tree at ``p`` (pure; 26 Oct 2026): ``[(window id, distance)]`` for every window
+    whose outer face point (its centre ``half_t`` + 5 cm out) has ``p`` in front of it, within ``seen_deg`` of its
+    outward axis and ``seen_m``, with no edge of the building ``outline`` between them."""
+    out = []
+    cos_max = math.cos(math.radians(seen_deg))
+    n = len(outline)
+    for k, w in enumerate(windows):
+        (cx, cy), (ox, oy) = w["centre"], w["outward"]
+        reach = float(w.get("half_t") or 0.1) + 0.05
+        q = (cx + ox * reach, cy + oy * reach)
+        dx, dy = p[0] - q[0], p[1] - q[1]
+        dist = math.hypot(dx, dy)
+        if dist < 1e-6 or dist > seen_m or (dx * ox + dy * oy) / dist < cos_max:
+            continue
+        if any(_segments_cross(q, p, outline[i], outline[(i + 1) % n]) for i in range(n)):
+            continue
+        out.append((str((w.get("opening") or {}).get("id") or w.get("id") or f"window_{k + 1}"), round(dist, 3)))
+    return out
+
+
+def path_corridor(path: dict, reach: float) -> list:
+    """A path's polygon continued ``reach`` metres along its outward direction (pure; 26 Oct 2026): a tree beyond the
+    plot edge keeps clear of the path's way on (the street or the neighbour's gate it leads to). A path without
+    ``outward`` (a drawn one) is continued both ways along its oriented rectangle's long side."""
+    poly = [(float(x), float(y)) for x, y in path["polygon"]]
+    if len(poly) < 3:
+        return poly
+    if path.get("outward"):
+        dirs = [(float(path["outward"][0]), float(path["outward"][1]))]
+    else:
+        u = geom2d.oriented_rectangle(poly)["u"]
+        dirs = [u, (-u[0], -u[1])]
+    pts = list(poly)
+    for dx, dy in dirs:
+        pts += [(x + dx * reach, y + dy * reach) for x, y in poly]
+    return geom2d.convex_hull(pts)
+
+
+def _ring_points(poly: Sequence, step: float) -> list[tuple[float, float]]:
+    out = []
+    n = len(poly)
+    for i in range(n):
+        a, b = poly[i], poly[(i + 1) % n]
+        k = max(1, int(G.distance(a, b) // step))
+        for j in range(k + 1):
+            p = G.point_along_segment(a, b, j / k)
+            out.append((round(p[0], 6), round(p[1], 6)))
+    return sorted(set(out))
+
+
+def _grid_points(poly: Sequence, step: float) -> list[tuple[float, float]]:
+    if len(poly) < 3:
+        return []
+    x0, y0, x1, y1 = G.bbox(poly)
+    out = []
+    nx, ny = int((x1 - x0) // step), int((y1 - y0) // step)
+    for i in range(nx + 1):
+        for j in range(ny + 1):
+            p = (round(x0 + i * step, 6), round(y0 + j * step, 6))
+            if G.point_in_polygon(p, poly) or geom2d.distance_to_polygon_edges(p, poly) < 1e-6:
+                out.append(p)
+    return sorted(set(out))
 
 
 def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], windows: Sequence[dict], main: dict,
                 count: int, stats: Optional[dict] = None) -> list[dict]:
-    """Up to ``count`` inferred trees inside the plot (pure; docs/milestone11.md §1.1 E11): candidates every
-    ``tree_step`` along the plot edges ``tree_inset`` inside; a candidate is kept ``tree_from_building`` clear
-    of the building, ``tree_from_path`` of every path, out of the band in front of every outside window
-    (``tree_window_reach`` out, its width + ``tree_window_side`` on each side) and out of the front garden
-    (nothing nearer the main facade's side than ``front_zone_extra`` behind its face, so the frontal and corner
+    """Up to ``count`` inferred trees (pure; docs/milestone11.md §1.1 E11). The ``strict`` pass: candidates every
+    ``tree_step`` along the plot edges ``tree_inset`` inside; a candidate is kept ``tree_from_building`` clear of the
+    building, ``tree_from_path`` of every path, out of the band in front of every outside window (``tree_window_reach``
+    out, its width + ``tree_window_side`` on each side), off the corner views' lines of sight and out of the front
+    garden (nothing nearer the main facade's side than ``front_zone_extra`` behind its face, so the frontal and corner
     views of the entrance stay open); picked greedily, beside the side facades first (nearest their middle), then
-    behind the building, at least ``tree_spacing`` apart. Each tree is site decor ``{"id",
-    "kind": "tree", "center", "size", "inferred": true, "reason"}``.
+    behind the building, at least ``tree_spacing`` apart. Each tree is site decor ``{"id", "kind": "tree", "center",
+    "size", "inferred": true, "reason", "placement", "seen_from", "window_distance_m"}``.
 
-    Fix round after P4b (17 Oct 2026, ``TREE_RELAXED``): when the first pass places fewer than ``min(count,
-    tree_min)`` trees, a second pass with the narrower window band (``tree_window_reach_relaxed`` /
-    ``tree_window_side_relaxed``) adds trees up to ``count``; those carry ``relaxed: true`` and say so in their
-    reason. ``stats`` (a dict, filled when given): ``candidates``, ``removed`` (per filter of ``TREE_FILTERS``, the
-    candidates it removes in the first pass; one candidate can count for several), ``spacing`` (kept candidates
-    left out for ``tree_spacing``), ``placed_first``, ``relaxed`` (the second pass ran), ``placed_relaxed``,
-    ``placed``, ``count`` and ``top_filter`` (the filter that removed the most candidates, None when none)."""
+    26 Oct 2026 (real06, ``TREE_FRAMING``; the comment above): when the strict pass places fewer than ``count``, the
+    ``framing`` pass (a grid over the plot, the window rule near the facade only, picked by the windows that see the
+    tree) and then the ``beyond_plot`` pass (a neighbour's tree just beyond the plot edge, ``context: true``) add trees
+    up to ``count``. ``stats`` (a dict, filled when given): ``candidates``, ``removed`` (per filter of
+    ``TREE_FILTERS``, the strict pass's removals; one candidate can count for several), ``spacing``, ``placed_first``,
+    ``relaxed`` (the framing pass ran), ``placed_relaxed`` (its trees), ``beyond`` / ``placed_beyond``, ``placed``,
+    ``count``, ``top_filter`` (the strict pass's filter that removed the most, None when none), ``passes`` (per pass:
+    ``name``, ``ran``, ``candidates``, ``removed``, ``kept``, ``placed``), ``windows`` and ``windows_seeing`` (the
+    windows that see a placed tree)."""
     st = stats if stats is not None else {}
     st.update(candidates=0, removed={k: 0 for k in TREE_FILTERS}, spacing=0, placed_first=0, relaxed=False,
-              placed_relaxed=0, placed=0, count=max(0, int(count)), top_filter=None)
+              placed_relaxed=0, beyond=False, placed_beyond=0, placed=0, count=max(0, int(count)), top_filter=None,
+              passes=[], windows=len(windows), windows_seeing=0)
     if count <= 0 or len(plot) < 3 or len(outline) < 3:
         return []
     inner = geom2d.offset_polygon(plot, INFERRED["tree_inset"])
     if len(inner) < 3:
         return []
+    cfg = TREE_FRAMING
     md = main["direction"]
     proj = [p[0] * md[0] + p[1] * md[1] for p in outline]
     across = [p[0] * -md[1] + p[1] * md[0] for p in outline]
     front_edge = max(proj)
-    cands = []
-    n = len(inner)
-    for i in range(n):
-        a, b = inner[i], inner[(i + 1) % n]
-        length = G.distance(a, b)
-        k = max(1, int(length // INFERRED["tree_step"]))
-        for j in range(k + 1):
-            p = G.point_along_segment(a, b, j / k)
-            cands.append((round(p[0], 6), round(p[1], 6)))
     r = INFERRED["tree_crown"] / 2.0
     # the lines of sight of the corner views (exterior.plan_exterior, E14): from every corner of the outline's
     # rectangle, sightline_deg off each of its two facades
@@ -1898,73 +2021,135 @@ def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], window
         for a, b in ((n1, n2), (n2, n1)):
             d = (math.cos(ang) * a[0] + math.sin(ang) * b[0], math.cos(ang) * a[1] + math.sin(ang) * b[1])
             sightlines.append((tuple(c), (c[0] + d[0] * INFERRED["sightline_m"], c[1] + d[1] * INFERRED["sightline_m"])))
+    path_polys = [q["polygon"] for q in paths]
 
-    def failed(p, reach: float, side_m: float) -> list[str]:
-        """The filters of ``TREE_FILTERS`` that remove the candidate ``p`` with this window band."""
+    def failed(p, rr: float, light_m: float, side_m: float, view_m: float, ways: Sequence) -> list[str]:
+        """The filters of ``TREE_FILTERS`` that remove a crown of radius ``rr`` at ``p`` with these window zones."""
         out = []
         if G.point_in_polygon(p, outline) or geom2d.distance_to_polygon_edges(p, outline) < INFERRED["tree_from_building"]:
             out.append("building")
-        if any(G.point_in_polygon(p, q["polygon"]) or geom2d.distance_to_polygon_edges(p, q["polygon"])
-               < INFERRED["tree_from_path"] for q in paths):
+        if any(G.point_in_polygon(p, q) or geom2d.distance_to_polygon_edges(p, q) < INFERRED["tree_from_path"]
+               for q in ways):
             out.append("path")
-        if any(G.point_segment_distance(p, a, b) < r + INFERRED["tree_sightline"] for a, b in sightlines):
+        if any(G.point_segment_distance(p, a, b) < rr + INFERRED["tree_sightline"] for a, b in sightlines):
             out.append("sightline")                   # the corner views stay open (E14)
-        for w in windows:
-            (cx, cy), (ox, oy) = w["centre"], w["outward"]
-            dx, dy = p[0] - cx, p[1] - cy
-            along, side = dx * ox + dy * oy, abs(dx * -oy + dy * ox)
-            if 0.0 < along < reach + r and side < float(w["opening"]["width"]) / 2.0 + side_m + r:
-                out.append("window")
-                break
+        if any(window_zone(p, w, rr, light_m, side_m, view_m) for w in windows):
+            out.append("window")
         if p[0] * md[0] + p[1] * md[1] > front_edge - INFERRED["front_zone_extra"]:
             out.append("front")                       # the front garden and the entrance views stay open
         return out
 
-    def ranked(reach: float, side_m: float, counting: bool) -> list:
-        keep = []
-        for p in sorted(set(cands)):
-            why = failed(p, reach, side_m)
-            if counting:
-                for k in why:
-                    st["removed"][k] += 1
-            if why:
-                continue
-            pm = p[0] * md[0] + p[1] * md[1]
-            pa = p[0] * -md[1] + p[1] * md[0]
-            # beside the side facades first (nearest their middle), then behind the building
-            rank = 0 if (pa < min(across) or pa > max(across)) else 1
-            keep.append((rank, round(abs(pm - (min(proj) + max(proj)) / 2.0), 6) if rank == 0 else round(pm, 6), p))
-        keep.sort()
-        return keep
+    def tree(p, crown: float, placement: str, reason: str, seen: Sequence) -> dict:
+        t = {"id": f"tree_inferred_{len(out) + 1}", "kind": "tree", "center": [p[0], p[1]], "size": [crown, crown],
+             "inferred": True, "reason": reason, "placement": placement,
+             "seen_from": sorted({s[0] for s in seen}),
+             "window_distance_m": round(min(s[1] for s in seen), 3) if seen else None}
+        if placement == "beyond_plot":
+            t["context"] = True
+        return t
 
-    def pick(keep: list, out: list, reason: str, relaxed: bool, counting: bool) -> None:
-        for _rank, _key, p in keep:
-            if len(out) >= count:
-                break
-            if all(G.distance(p, t["center"]) >= INFERRED["tree_spacing"] for t in out):
-                tree = {"id": f"tree_inferred_{len(out) + 1}", "kind": "tree", "center": [p[0], p[1]],
-                        "size": [INFERRED["tree_crown"], INFERRED["tree_crown"]], "inferred": True, "reason": reason}
-                if relaxed:
-                    tree["relaxed"] = True
-                out.append(tree)
-            elif counting:
-                st["spacing"] += 1
-
-    st["candidates"] = len(set(cands))
     out: list[dict] = []
-    pick(ranked(INFERRED["tree_window_reach"], INFERRED["tree_window_side"], True), out,
-         "no site plan: a tree clear of the windows, the paths and the front garden "
-         "(inferred, docs/milestone11.md §1.1 E11)", False, True)
+    # 1. the strict pass (unchanged)
+    cands = _ring_points(inner, INFERRED["tree_step"])
+    st["candidates"] = len(cands)
+    keep = []
+    for p in cands:
+        why = failed(p, r, INFERRED["tree_window_reach"], INFERRED["tree_window_side"], 0.0, path_polys)
+        for k in why:
+            st["removed"][k] += 1
+        if why:
+            continue
+        pm = p[0] * md[0] + p[1] * md[1]
+        pa = p[0] * -md[1] + p[1] * md[0]
+        # beside the side facades first (nearest their middle), then behind the building
+        rank = 0 if (pa < min(across) or pa > max(across)) else 1
+        keep.append((rank, round(abs(pm - (min(proj) + max(proj)) / 2.0), 6) if rank == 0 else round(pm, 6), p))
+    keep.sort()
+    for _rank, _key, p in keep:
+        if len(out) >= count:
+            break
+        if all(G.distance(p, t["center"]) >= INFERRED["tree_spacing"] for t in out):
+            out.append(tree(p, INFERRED["tree_crown"], "strict", "no site plan: a tree clear of the windows, the paths "
+                            "and the front garden (inferred, docs/milestone11.md §1.1 E11)",
+                            windows_seeing(p, windows, outline)))
+        else:
+            st["spacing"] += 1
     st["placed_first"] = len(out)
-    if len(out) < min(int(count), TREE_RELAXED["tree_min"]):
+    st["passes"].append({"name": "strict", "ran": True, "candidates": len(cands), "removed": dict(st["removed"]),
+                         "kept": len(keep), "placed": len(out)})
+
+    def by_windows(name: str, points: list, rr: float, crown: float, ways: Sequence, reason) -> int:
+        """A pass of the framing rule over ``points``: the window zones near the facade only, the candidates picked
+        by the windows that see them (most windows without a tree first). Returns the trees it placed."""
+        rec = {"name": name, "ran": True, "candidates": len(points), "removed": {k: 0 for k in TREE_FILTERS},
+               "kept": 0, "placed": 0}
+        st["passes"].append(rec)
+        kept = []
+        for p in points:
+            why = failed(p, rr, cfg["light_m"], cfg["side_m"], cfg["view_m"], ways)
+            for k in why:
+                rec["removed"][k] += 1
+            if not why:
+                kept.append((p, windows_seeing(p, windows, outline)))
+        rec["kept"] = len(kept)
+        before = len(out)
+        while len(out) < count:
+            served = {w for t in out for w in t.get("seen_from") or []}
+            best, best_key = None, None
+            for p, seen in kept:
+                if any(G.distance(p, t["center"]) < INFERRED["tree_spacing"] for t in out):
+                    continue
+                ids = {s[0] for s in seen}
+                near = min((s[1] for s in seen), default=1e9)
+                key = (len(ids - served), len(ids), -round(abs(near - cfg["frame_m"]), 6))
+                if best_key is None or key > best_key:
+                    best, best_key = (p, seen), key
+            if best is None:
+                break
+            out.append(tree(best[0], crown, name, reason(best[1]), best[1]))
+        rec["placed"] = len(out) - before
+        return rec["placed"]
+
+    def seen_text(seen: Sequence) -> str:
+        if not seen:
+            return "seen from no window"
+        ids = sorted({s[0] for s in seen})
+        return (f"seen from {len(ids)} window(s) ({', '.join(ids[:4])}{', ...' if len(ids) > 4 else ''}), "
+                f"{min(s[1] for s in seen):.1f} m from the nearest")
+
+    # 2. the framing pass: a grid over the plot, the window rule near the facade only
+    if len(out) < count:
         st["relaxed"] = True
-        reach, side_m = TREE_RELAXED["tree_window_reach_relaxed"], TREE_RELAXED["tree_window_side_relaxed"]
-        pick(ranked(reach, side_m, False), out,
-             f"no site plan: a tree clear of the paths and the front garden; the window band narrowed to {reach:g} m "
-             f"out and {side_m:g} m on each side because the first pass placed {st['placed_first']} of {int(count)} "
-             f"(inferred, docs/milestone11.md §1.1 E11; fix round after P4b)", True, False)
-        st["placed_relaxed"] = len(out) - st["placed_first"]
+        first = st["placed_first"]
+        edge = geom2d.offset_polygon(plot, cfg["edge_inset_m"])
+        # a large drawn plot gets a coarser grid (at most about grid_max points)
+        step = max(cfg["grid_m"], math.sqrt(abs(G.polygon_area(edge)) / cfg["grid_max"]) if len(edge) >= 3 else 0.0)
+        grid = _grid_points(edge, step)
+        st["placed_relaxed"] = by_windows(
+            "framing", grid, r, INFERRED["tree_crown"], path_polys,
+            lambda seen: (f"no site plan: a tree that frames the windows' view ({seen_text(seen)}); its crown keeps "
+                          f"{cfg['light_m']:g} m clear of every window and off their straight view within "
+                          f"{cfg['view_m']:g} m; the strict pass placed {first} of {int(count)} "
+                          f"(inferred, docs/milestone11.md §1.1 E11; 26 Oct 2026)"))
+    # 3. beyond the plot: a neighbour's tree, inferred context
+    if len(out) < count:
+        st["beyond"] = True
+        rb = cfg["beyond_crown"] / 2.0
+        rows = [cfg["beyond_m"] + k * cfg["beyond_row_m"] for k in range(int(cfg["beyond_rows"]))]
+        ring = sorted({p for d in rows for p in _ring_points(geom2d.offset_polygon(plot, -d), cfg["grid_m"])})
+        ways = [path_corridor(q, max(rows) + rb + INFERRED["tree_from_path"]) for q in paths]
+        st["placed_beyond"] = by_windows(
+            "beyond_plot", ring, rb, cfg["beyond_crown"], ways,
+            lambda seen: (f"the plot leaves no room for {int(count)} trees: a neighbour's tree just beyond the plot "
+                          f"edge ({seen_text(seen)}; inferred context, 26 Oct 2026)"))
+    else:
+        st["passes"].append({"name": "beyond_plot", "ran": False, "candidates": 0,
+                             "removed": {k: 0 for k in TREE_FILTERS}, "kept": 0, "placed": 0})
+    if not st["relaxed"]:
+        st["passes"].insert(1, {"name": "framing", "ran": False, "candidates": 0,
+                                "removed": {k: 0 for k in TREE_FILTERS}, "kept": 0, "placed": 0})
     st["placed"] = len(out)
+    st["windows_seeing"] = len({w for t in out for w in t["seen_from"]})
     top = max(TREE_FILTERS, key=lambda k: st["removed"][k])
     st["top_filter"] = top if st["removed"][top] > 0 else None
     return out
@@ -1972,15 +2157,21 @@ def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], window
 
 def trees_record(stats: dict) -> tuple[dict, Optional[str]]:
     """``(assumed entry, warning or None)`` of ``place_trees``' ``stats`` (pure; fix round after P4b, 17 Oct 2026):
-    every build that infers trees lists ``inferred trees: placed k of n`` with the first and the relaxed pass and
-    the filter that removed the most candidates (CLAUDE.md: everything inferred is listed; P4b's real03 got 0 of 3
-    in silence); a warning when fewer than asked are placed."""
+    every build that infers trees lists ``inferred trees: placed k of n`` with the filter that removed the most
+    candidates of the strict pass and what the framing and beyond-plot passes did (26 Oct 2026; CLAUDE.md: everything
+    inferred is listed; P4b's real03 got 0 of 3 in silence); a warning when fewer than asked are placed."""
     removed = ", ".join(f"{k} {v}" for k, v in stats["removed"].items() if v) or "none"
     text = (f"inferred trees: placed {stats['placed']} of {stats['count']} ({stats['candidates']} candidates; "
             f"removed by {removed}; most by {stats['top_filter'] or 'none'}")
-    if stats["relaxed"]:
-        text += (f"; the first pass placed {stats['placed_first']}, the second pass with the window band narrowed to "
-                 f"{TREE_RELAXED['tree_window_reach_relaxed']:g} m added {stats['placed_relaxed']}")
+    passes = {p["name"]: p for p in stats.get("passes") or []}
+    for name, what in (("framing", "the framing pass (the window rule near the facade only)"),
+                       ("beyond_plot", "the beyond-plot pass (a neighbour's garden)")):
+        p = passes.get(name)
+        if p and p.get("ran"):
+            gone = ", ".join(f"{k} {v}" for k, v in p["removed"].items() if v) or "none"
+            text += f"; {what} placed {p['placed']} of {p['candidates']} candidates (removed by {gone})"
+    if stats.get("placed"):
+        text += f"; seen from {stats.get('windows_seeing', 0)} of {stats.get('windows', 0)} windows"
     text += ")"
     entry = {"field": "trees", "value": stats["placed"], "reason": text}
     return entry, (text if stats["placed"] < stats["count"] else None)
@@ -3599,6 +3790,218 @@ def haze_box(near: Sequence[Sequence[float]], z_range: tuple[float, float], cfg:
     return geom2d.merge([outer, (iv, [list(reversed(f)) for f in if_])])
 
 
+# 26 Oct 2026 (real06; the judge in every real06 run: "the view out the window is a flat grey void"; the GPU test's
+# median pane saturation 0.063 < 0.065). The windows looked over the lawn and the hedge onto nothing: a flat ground to
+# 1000 m, the backdrop ring and the sky. The site now has a distant context at the horizon, a rule for every project
+# with ``site: full`` (the ``sky`` lever, with the backdrop and the haze): two rings of tree groups around the
+# building, ``near`` (groups of 8-14 m trees with open fields between them, starting ``gap_m`` beyond the near ground,
+# the haze's clear-air hole, and never nearer than ``camera_factor`` x the buildings' radius + ``camera_margin_m`` from
+# their centre: the farthest exterior cameras, the aerial at 1.5 / tan 20 deg = 4.12 radii and the site view of the
+# copies at about 4.3, stand inside it) and
+# ``far`` (a broken tree line of 12-20 m trees from ``from_m``: the horizon's own line). Each tree is a trunk and a
+# lumpy crown of the climate's species shapes (``CONTEXT_SPECIES``, the crown shapes of ``vegetation.SPECIES``),
+# deterministic by ``seed``; ``build_site`` makes them one mesh object with a leaf-textured material per species
+# (``vegetation.context_material``) that casts no shadow and is not seen by diffuse rays, so the room light, the
+# exposure and the white point stay as they are; the camera, the view through a pane and the reflections see it.
+# The open fields between the groups keep the horizon and the sky in every exterior view (CLAUDE.md).
+HORIZON_CONTEXT = {
+    "gap_m": 10.0, "camera_factor": 4.5, "camera_margin_m": 10.0, "roof_allowance_m": 3.0,
+    "rings": ({"name": "near", "rows": 2, "row_m": 14.0, "pitch_m": 8.0, "cluster": (2, 4), "gap": (4, 8),
+               "height_m": (8.0, 14.0), "jitter_m": 3.0},
+              {"name": "far", "from_m": 350.0, "rows": 1, "row_m": 60.0, "pitch_m": 16.0, "cluster": (3, 8),
+               "gap": (3, 7), "height_m": (12.0, 20.0), "jitter_m": 8.0}),
+    "sink_m": 0.3, "seed": 2610, "segments": 10, "crown_rings": 6, "lump": 0.16, "trunk_sides": 6,
+    "max_trees": 1200,
+}
+# The context species per climate (weights) and the crown shapes: width over height, the crown's share of the height.
+CONTEXT_SPECIES = {"mediterranean": (("stone_pine", 0.35), ("olive", 0.25), ("cypress", 0.2), ("plane", 0.2)),
+                   "temperate": (("oak", 0.3), ("maple", 0.3), ("conifer", 0.2), ("birch", 0.2))}
+CONTEXT_SHAPES = {"round": (0.75, 0.65), "spreading": (0.9, 0.6), "columnar": (0.22, 0.85), "conical": (0.45, 0.8),
+                  "umbrella": (0.9, 0.35), "shrub": (1.0, 0.9), "palm": (0.5, 0.3), "hedge": (1.0, 0.9)}
+
+
+def building_height(levels: Sequence[dict], default_z: float = 0.0,
+                    roof_allowance: float = HORIZON_CONTEXT["roof_allowance_m"]) -> float:
+    """The building's height over ``default_z`` for the context's camera radius (pure): the top of its highest level
+    (elevation + ceiling height) plus ``roof_allowance`` for a roof (assumed)."""
+    tops = [float(lv["elevation"]) + float(lv.get("ceiling_height") or 2.8) for lv in levels or []
+            if lv.get("elevation") is not None]
+    return round(max(tops or [default_z + 3.0]) - default_z + roof_allowance, 3)
+
+
+def context_clear_radius(outline: Sequence[Sequence[float]], height_m: float, cfg: Optional[dict] = None) -> float:
+    """How far from the buildings' centre the exterior cameras may stand (pure): ``camera_factor`` x their radius
+    (the half diagonal of the box of ``outline``, the building's outline with the footprints of its copies on the
+    plot, with half its height) + ``camera_margin_m``. The farthest exterior cameras of ``exterior.plan_exterior``: the
+    aerial at 1.5 x radius / tan 20 deg = 4.12 radii, the site view of the copies (``copies.site_view``) at about 4.3
+    radii from the box centre at most."""
+    c = dict(HORIZON_CONTEXT, **(cfg or {}))
+    x0, y0, x1, y1 = G.bbox([tuple(p[:2]) for p in outline])
+    radius = math.hypot(math.hypot(x1 - x0, y1 - y0) / 2.0, float(height_m) / 2.0)
+    return round(c["camera_factor"] * radius + c["camera_margin_m"], 3)
+
+
+def _rect_walk(cx: float, cy: float, hx: float, hy: float, s: float) -> tuple[tuple[float, float], tuple[float, float]]:
+    """The point at arc length ``s`` along the rectangle (centre, half sizes) counter-clockwise from its
+    bottom-left corner, and its outward normal."""
+    edges = (((cx - hx, cy - hy), (1.0, 0.0), 2 * hx, (0.0, -1.0)), ((cx + hx, cy - hy), (0.0, 1.0), 2 * hy, (1.0, 0.0)),
+             ((cx + hx, cy + hy), (-1.0, 0.0), 2 * hx, (0.0, 1.0)), ((cx - hx, cy + hy), (0.0, -1.0), 2 * hy, (-1.0, 0.0)))
+    per = 4 * (hx + hy)
+    s = s % per
+    for start, d, length, normal in edges:
+        if s <= length:
+            return (start[0] + d[0] * s, start[1] + d[1] * s), normal
+        s -= length
+    return edges[0][0], edges[0][3]
+
+
+def horizon_context(outline: Sequence[Sequence[float]], near_extent: Sequence[Sequence[float]], terrain: dict,
+                    climate: str = "temperate", height_m: float = 8.0, cfg: Optional[dict] = None) -> dict:
+    """The distant context at the horizon (pure; 26 Oct 2026, the comment above): ``{"trees": [{"center", "z",
+    "height", "width", "crown_h", "species", "shape", "ring", "row"}], "rings": [{"name", "rows", "half_m",
+    "outer_half_m", "count"}], "clear_m", "centre", "species": {name: count}, "count", "reason", "inferred": True}``.
+    The rings are rectangles around the building's centre (the ground and the backdrop are axis-aligned too); the
+    ``near`` ring starts ``gap_m`` beyond ``near_extent`` (the haze's clear hole) and at least ``context_clear_radius``
+    out, the ``far`` one at ``from_m`` (and beyond the near ring). Along each row, groups of ``cluster`` trees
+    ``pitch_m`` apart alternate with ``gap`` empty places (open fields: the horizon shows between the groups); every
+    position, height, width and species is drawn from a seeded random generator, so a build repeats."""
+    import random
+
+    c = dict(HORIZON_CONTEXT, **(cfg or {}))
+    rng = random.Random(int(c["seed"]))
+    x0, y0, x1, y1 = G.bbox([tuple(p[:2]) for p in outline])
+    cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+    clear = context_clear_radius(outline, height_m, c)
+    nx0, ny0, nx1, ny1 = G.bbox([tuple(p[:2]) for p in near_extent]) if near_extent else (x0, y0, x1, y1)
+    half = (max(cx - nx0, nx1 - cx, clear - c["gap_m"]) + c["gap_m"],
+            max(cy - ny0, ny1 - cy, clear - c["gap_m"]) + c["gap_m"])
+    palette = CONTEXT_SPECIES.get(climate) or CONTEXT_SPECIES["temperate"]
+    names = [n for n, _w in palette]
+    weights = [w for _n, w in palette]
+    from wenart.blender import vegetation as VG          # stdlib-only at import
+
+    trees: list[dict] = []
+    rings: list[dict] = []
+    outer = half
+    for ring in c["rings"]:
+        start = (max(ring.get("from_m") or 0.0, half[0] if ring["name"] == "near" else outer[0] + ring["row_m"]),
+                 max(ring.get("from_m") or 0.0, half[1] if ring["name"] == "near" else outer[1] + ring["row_m"]))
+        count = 0
+        for row in range(int(ring["rows"])):
+            hx, hy = start[0] + row * ring["row_m"], start[1] + row * ring["row_m"]
+            per = 4.0 * (hx + hy)
+            s = rng.uniform(0.0, ring["pitch_m"] * 3.0)
+            left = rng.randint(*ring["cluster"])
+            while s < per and len(trees) < c["max_trees"]:
+                if left <= 0:                              # an open field between two groups
+                    s += ring["pitch_m"] * rng.randint(*ring["gap"])
+                    left = rng.randint(*ring["cluster"])
+                    continue
+                (px, py), (ox, oy) = _rect_walk(cx, cy, hx, hy, s + rng.uniform(-0.3, 0.3) * ring["pitch_m"])
+                off = rng.uniform(-ring["jitter_m"], ring["jitter_m"])
+                p = (px + ox * off, py + oy * off)
+                species = rng.choices(names, weights)[0]
+                shape = VG.species_record(species).get("crown") or "round"
+                wf, share = CONTEXT_SHAPES.get(shape, CONTEXT_SHAPES["round"])
+                h = rng.uniform(*ring["height_m"])
+                w = h * wf * rng.uniform(0.85, 1.15)
+                trees.append({"center": [round(p[0], 3), round(p[1], 3)], "z": round(ground_z(terrain, *p), 4),
+                              "height": round(h, 3), "width": round(w, 3), "crown_h": round(h * share, 3),
+                              "species": species, "shape": shape, "ring": ring["name"], "row": row,
+                              "seed": rng.randint(0, 10 ** 6)})
+                count += 1
+                left -= 1
+                s += ring["pitch_m"]
+        outer = (start[0] + (int(ring["rows"]) - 1) * ring["row_m"], start[1] + (int(ring["rows"]) - 1) * ring["row_m"])
+        rings.append({"name": ring["name"], "rows": int(ring["rows"]), "half_m": [round(start[0], 3), round(start[1], 3)],
+                      "outer_half_m": [round(outer[0], 3), round(outer[1], 3)], "count": count,
+                      "height_m": list(ring["height_m"])})
+    species: dict = {}
+    for t in trees:
+        species[t["species"]] = species.get(t["species"], 0) + 1
+    return {"trees": trees, "rings": rings, "clear_m": clear, "centre": [round(cx, 3), round(cy, 3)],
+            "species": species, "count": len(trees), "climate": climate, "inferred": True,
+            "reason": (f"no context drawn: {len(trees)} trees of the {climate} climate ("
+                       + ", ".join(f"{k} {v}" for k, v in sorted(species.items(), key=lambda kv: (-kv[1], kv[0])))
+                       + f"; species inferred) in groups around the site, "
+                       f"{rings[0]['half_m'][0]:.0f}-{rings[-1]['outer_half_m'][0]:.0f} m from the building's centre "
+                       f"(the exterior cameras stand within {clear:.0f} m), with open fields between them so the "
+                       f"horizon stays in view (inferred context)")}
+
+
+def _context_crown(center, rx: float, rz: float, shape: str, seed: int, segments: int, rings: int,
+                   lump: float) -> tuple[list, list]:
+    """A lumpy crown (pure): the ``_sphere`` topology with the shape's profile (``conical`` narrows to the top,
+    ``columnar`` tapers a little) and a seeded radial noise of ``lump`` (an irregular silhouette, never a smooth
+    ball)."""
+    import random
+
+    rng = random.Random(seed)
+    a, b, c, d = (rng.uniform(0.0, 2.0 * math.pi) for _ in range(4))
+    cx, cy, cz = center
+    verts = [(cx, cy, cz - rz)]
+    for r in range(1, rings):
+        phi = math.pi * r / rings - math.pi / 2.0
+        t = (math.sin(phi) + 1.0) / 2.0
+        horiz = math.cos(phi)
+        if shape == "conical":
+            horiz = math.sqrt(max(0.0, math.cos(phi))) * (1.0 - t) * 1.25
+        elif shape == "columnar":
+            horiz = math.cos(phi) * (1.0 - 0.35 * t)
+        for s in range(segments):
+            th = 2.0 * math.pi * s / segments
+            n = lump * (0.6 * math.sin(3.0 * th + a) * math.sin(2.0 * phi + b) + 0.4 * math.sin(5.0 * th + 3.0 * phi + c))
+            f = 1.0 + n
+            verts.append((cx + rx * horiz * math.cos(th) * f, cy + rx * horiz * math.sin(th) * f,
+                          cz + rz * math.sin(phi) * (1.0 + 0.5 * n * math.sin(d + th))))
+    verts.append((cx, cy, cz + rz))
+    top = len(verts) - 1
+    faces = []
+    for s in range(segments):
+        faces.append([0, 1 + (s + 1) % segments, 1 + s])
+    for r in range(rings - 2):
+        b0, b1 = 1 + r * segments, 1 + (r + 1) * segments
+        for s in range(segments):
+            faces.append([b0 + s, b0 + (s + 1) % segments, b1 + (s + 1) % segments, b1 + s])
+    last = 1 + (rings - 2) * segments
+    for s in range(segments):
+        faces.append([last + s, last + (s + 1) % segments, top])
+    return verts, faces
+
+
+def context_parts(ctx: dict, cfg: Optional[dict] = None) -> dict:
+    """The mesh of the horizon context (pure): ``{"verts", "faces", "slots", "materials": [species ..., "bark"],
+    "faces_per_tree"}``; every tree a trunk prism (``trunk_sides``) from ``sink_m`` under its ground point into the
+    crown and a lumpy crown (``_context_crown``) of its species' shape; ``slots`` gives each face its material index
+    (the species' leaf material, the bark last)."""
+    c = dict(HORIZON_CONTEXT, **(cfg or {}))
+    species = sorted({t["species"] for t in ctx.get("trees") or []})
+    index = {s: k for k, s in enumerate(species)}
+    bark = len(species)
+    verts: list = []
+    faces: list = []
+    slots: list = []
+    for t in ctx.get("trees") or []:
+        x, y = float(t["center"][0]), float(t["center"][1])
+        z, h, w, ch = float(t["z"]), float(t["height"]), float(t["width"]), float(t["crown_h"])
+        rz = ch / 2.0
+        cz = z + h - rz
+        tr = max(0.12, 0.025 * h)
+        k = int(c["trunk_sides"])
+        ring = [(x + tr * math.cos(2 * math.pi * j / k), y + tr * math.sin(2 * math.pi * j / k)) for j in range(k)]
+        for vs, fs, slot in (geom2d.prism(ring, z - c["sink_m"], cz - 0.4 * rz) + (bark,),
+                             _context_crown((x, y, cz), w / 2.0, rz, t["shape"], int(t.get("seed") or 0),
+                                            int(c["segments"]), int(c["crown_rings"]), float(c["lump"]))
+                             + (index[t["species"]],)):
+            base = len(verts)
+            verts += [tuple(v) for v in vs]
+            faces += [[base + i for i in f] for f in fs]
+            slots += [slot] * len(fs)
+    n = len(ctx.get("trees") or [])
+    return {"verts": verts, "faces": faces, "slots": slots, "materials": species + ["bark"],
+            "faces_per_tree": round(len(faces) / n, 1) if n else 0}
+
+
 POOL_WATER_BOTTOM_M = 0.02                   # the water slab starts this far above the basin floor
 
 
@@ -3777,6 +4180,63 @@ def haze_material():
     return mat
 
 
+CONTEXT_NAME = "context_trees"
+# The rays that do not see the horizon context (26 Oct 2026): it casts no shadow and lights nothing (the room light,
+# the exposure, the white point and the exterior's light stay as before); the camera, the view through a pane
+# (transmission) and the reflections (glossy) see it.
+CONTEXT_HIDDEN_RAYS = ("visible_shadow", "visible_diffuse", "visible_volume_scatter")
+
+
+def build_context(ctx: dict, collection, entry) -> dict:
+    """The horizon context of ``horizon_context`` as one mesh object ``context_trees`` (bpy; 26 Oct 2026): the
+    trunks and lumpy crowns of ``context_parts`` with a leaf-textured material per species
+    (``vegetation.context_material``) and the bark, smooth shaded, hidden from ``CONTEXT_HIDDEN_RAYS``. ``entry`` is
+    ``build_site``'s manifest writer. Returns the summary record (``built``, ``trees``, ``faces``, ``rings``,
+    ``species``, ``atlas``, ``hidden_rays``); a failure is recorded with its error and builds nothing."""
+    from wenart.blender import common
+    from wenart.blender import vegetation as VG
+
+    rec = {"built": False, "trees": int(ctx.get("count") or 0), "rings": ctx.get("rings") or [],
+           "species": ctx.get("species") or {}, "clear_m": ctx.get("clear_m"), "climate": ctx.get("climate")}
+    ob = None
+    try:
+        parts = context_parts(ctx)
+        mats = [VG.context_material(s) for s in parts["materials"][:-1]] + [VG.bark_material()]
+        ob = common.new_mesh_object(CONTEXT_NAME, parts["verts"], parts["faces"], collection=collection,
+                                    wenart_id=CONTEXT_NAME, kind="site_decor", status="assumed", materials=mats,
+                                    face_material_indices=parts["slots"])
+        if hasattr(ob.data, "shade_smooth"):
+            ob.data.shade_smooth()
+        hidden = []
+        for attr in CONTEXT_HIDDEN_RAYS:
+            if hasattr(ob, attr):
+                setattr(ob, attr, False)
+                hidden.append(attr)
+        atlases = sorted({str(m.get("wenart_atlas") or "") for m in mats[:-1]} - {""})
+        atlas = atlases[0] if atlases else None
+        ob["wenart_site_part"] = "context"
+        ob["wenart_veg_method"] = "context"
+        ob["wenart_asset"] = atlas or ""
+        ob["wenart_licence"] = "CC0" if atlas else ""
+        rec.update(built=True, faces=len(parts["faces"]), faces_per_tree=parts["faces_per_tree"],
+                   materials=[m.name for m in mats], atlas=atlas, hidden_rays=hidden,
+                   leaf_texture="atlas" if atlas else "procedural")
+        entry(ob.name, CONTEXT_NAME, "site_decor", None, "assumed",
+              {"site_part": "context", "inferred": True, "veg_method": "context", "asset": atlas,
+               "licence": "CC0" if atlas else None, "context_species": dict(rec["species"]), "species_inferred": True,
+               "context_trees": rec["trees"], "faces": rec["faces"], "hidden_rays": hidden,
+               "assumed": {"reason": ctx.get("reason") or "the distant context at the horizon (inferred)"}})
+    except Exception as exc:  # noqa: BLE001 - the site builds without the context; the reason is in the manifest
+        rec.update(built=False, error=f"{type(exc).__name__}: {exc}")
+        if ob is not None:                            # no object without its manifest entry
+            try:
+                import bpy
+                bpy.data.objects.remove(ob, do_unlink=True)
+            except Exception:  # noqa: BLE001 - nothing more to undo
+                pass
+    return rec
+
+
 def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]], mode: str = "full",
               outlines: Optional[dict] = None, options: Optional[dict] = None) -> dict:
     """Everything the site build makes (pure): ``{"mode", "terrain", "outline", "plot", "extent", "wells",
@@ -3796,7 +4256,10 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     symbols of a hedge leave ``trees``), ``platforms`` (``platforms``: an area with a platform carries its
     ``platform_id`` and is not draped), the pools with their deck level (``deck_z``), ``near_extent`` (the ground
     rectangle around the building and the plot: the clear-air hole of the haze and the near-camera grass) and
-    ``species`` (tree id -> species, size class, inferred)."""
+    ``species`` (tree id -> species, size class, inferred).
+
+    26 Oct 2026 (real06): ``context`` (``horizon_context``: the tree groups around the site at the horizon, with
+    ``site: full`` and the ``sky`` lever; None otherwise), listed in ``assumed``."""
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
     climate = climate_of(building)
     levers = site_levers()
@@ -3928,11 +4391,17 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
         assumed.append({"field": "climate", "value": climate["climate"], "reason": f"{climate['source']} "
                         f"(inferred; the species of trees and hedges follow it): {', '.join(climate['evidence'])}"})
     near_extent = ground_extent(outline, plot, MARGIN_M)
+    context = None
+    if mode == "full" and levers.get("sky"):
+        # 26 Oct 2026 (real06's "flat grey void" through the windows): the distant context at the horizon
+        context = horizon_context(list(outline) + [p for fp in copy_holes for p in fp], near_extent, terrain,
+                                  climate["climate"], building_height(levels, default_z))
+        assumed.append({"field": "context", "value": context["count"], "reason": context["reason"]})
     return {"mode": mode, "terrain": terrain, "outline": geom2d.ccw(outline), "plot": plot, "plot_source": plot_src,
             "extent": extent, "wells": wells, "plot_walls": plot_walls, "areas": areas, "trees": trees,
             "not_built": not_built, "assumed": assumed, "warnings": warnings, "ground_is_grass": ground_is_grass,
             "inferred": inferred, "copy_holes": copy_holes, "pools": pools, "hedges": hedges, "platforms": pfs,
-            "climate": climate, "levers": levers, "near_extent": near_extent, "species": species}
+            "climate": climate, "levers": levers, "near_extent": near_extent, "species": species, "context": context}
 
 
 # The look of each built area kind (exterior.resolve_looks slots) when the area names no material of its own.
@@ -4117,7 +4586,11 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
     every tree through ``vegetation.tree_object`` (a Poly Haven instance near the cameras with ``instances``, a
     Sapling tree with ``sapling``, else the leaf-card tree; never the Milestone 12 ellipsoid) and the near-camera
     grass (``vegetation.grass_patch``) with ``instances``. Every object's manifest entry says which source built it
-    (``veg_method``, ``asset``, ``licence``) and the species (``inferred``)."""
+    (``veg_method``, ``asset``, ``licence``) and the species (``inferred``).
+
+    26 Oct 2026 (real06): with the ``sky`` lever, ``context_trees`` (kind ``site_decor``, ``site_part`` context: the
+    plan's ``context``, ``build_context``) and ``summary["context"]``; ``summary["inferred"]["trees_placed"]`` says
+    where each inferred tree stands, by which pass and which windows see it."""
     from wenart.blender import common
     from wenart.blender import vegetation as VG
 
@@ -4208,6 +4681,11 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                "assumed": {"reason": "distance haze: a closed hollow mesh volume (Volume Scatter) beyond the near "
                                      "ground, not a World volume (that disables the sun and the sky)",
                            "density_per_m": HAZE["density"]}, "inferred": True})
+        # 26 Oct 2026 (real06's "flat grey void" through the windows): the distant context at the horizon
+        if (plan.get("context") or {}).get("trees"):
+            summary["context"] = build_context(plan["context"], collection, entry)
+            if summary["context"].get("error"):
+                summary["warnings"].append(f"horizon context not built: {summary['context']['error']}")
     well_mat = make_material(looks["light_well"])
     for w in plan["wells"]:
         v, f = light_well_faces(w)
@@ -4523,7 +5001,12 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
             "boundary": kinds[0] if kinds else None, "trees": [t["id"] for t in inferred["trees"]],
             # fix round after P4b (17 Oct 2026): how the trees were placed (place_trees' stats), never a silent 0
             "tree_stats": inferred.get("tree_stats"),
-            "trees_relaxed": [t["id"] for t in inferred["trees"] if t.get("relaxed")]}
+            "trees_relaxed": [t["id"] for t in inferred["trees"] if t.get("placement") == "framing"],
+            # 26 Oct 2026 (real06): where each tree stands and which windows see it (place_trees' passes)
+            "trees_placed": [{"id": t["id"], "center": [round(float(v), 3) for v in t["center"]],
+                              "crown_m": t["size"][0], "placement": t.get("placement"), "context": bool(t.get("context")),
+                              "seen_from": t.get("seen_from") or [], "window_distance_m": t.get("window_distance_m")}
+                             for t in inferred["trees"]]}
     for a in plan["assumed"]:
         assumed.append({"object": "site", "field": a["field"], "value": a["value"], "reason": a["reason"]})
     summary["vegetation_counts"] = vegetation_counts(summary)       # Milestone 13 (T8 metric 11): per source
