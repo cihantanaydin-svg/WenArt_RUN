@@ -1593,3 +1593,11 @@ it is too small (real06: 3 of 3, seen from 18 of 29 windows); the lawn greys onl
 tree groups beyond the cameras' reach and a broken tree line at 350 m stand at the horizon (one mesh of about 9,300
 faces, no shadow, hidden from diffuse rays: the room light is unchanged), species inferred and named. A new GPU test
 (the lawn through a pane, the context in Blender) runs with the full job.
+
+### Open: the real04 trees test (26 Oct 2026)
+
+`tests/test_sheets_real04.py::test_pools_terraces_parking_trees_and_marks` expects 101 trees on real04's site plan and
+reads 21 here. A bisect shows it fails already at the repository's import commit (36d1b20) with this session's own
+LibreDWG build (the test is skipped where `dwg2dxf` is missing), so it is no regression of later work; most likely the
+DXF converter's version differs from the one that measured 101 (nested tree blocks). To check on a machine with the
+pod's LibreDWG before changing the number.
