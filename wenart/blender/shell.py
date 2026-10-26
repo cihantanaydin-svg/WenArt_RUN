@@ -1940,7 +1940,7 @@ def ceiling_faces(polygon, voids, ceil_z: float) -> tuple[list, list, list[int]]
 
 def build_floors_ceilings(building: dict, level: dict, collection, library, style: dict,
                           manifest_objects: list, warnings: list, stairs: list | None = None,
-                          whole: dict | None = None) -> list:
+                          whole: dict | None = None, assumed: list | None = None) -> list:
     """One floor face and one ceiling face per room, material per style and
     wet-room rule; unverified rooms get the dashed-red overlay on the floor.
     ``stairs`` (``plan_stairs``): their ceiling openings are cut out of the
@@ -1950,7 +1950,10 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
     of its floors), "ceiling_voids": [polygons] or None (the openings of the slab above: cut out of the
     ceilings instead of the stairs' own openings), "ceiling_planes": [(a, b, c)] or None (the rooms under the
     roof: ceilings on the lowest of these planes, ``roof.ceiling_planes``), "open_rooms": {room ids} (roof
-    terraces: no ceiling), "terrace_floor": the exterior ``paving`` look (the floor of the open rooms)}``."""
+    terraces: no ceiling), "terrace_floor": the exterior ``paving`` look (the floor of the open rooms)}``.
+
+    26 Oct 2026: the free edges of the floor openings get a guard (``build_void_guards``; ``assumed``, when given,
+    gets its entries)."""
     from wenart.blender import common
 
     level_id = level["id"]
@@ -2031,6 +2034,138 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
             entry["stair_void"] = "the opening(s) of the slab above cut out" if slab_voids is not None \
                 else "the stairs' openings cut out"
         manifest_objects.append(entry)
+    if floor_voids:
+        # 26 Oct 2026 (user on real06: "an unguarded stair void at the upper landing"): a guard on the free edges
+        created += build_void_guards(building, level, collection, library, style, manifest_objects, floor_voids,
+                                     assumed)
+    return created
+
+
+# --------------------------------------------------------------------------
+# Guards around the floor openings (26 Oct 2026, user on real06: "an unguarded stair void at the upper landing";
+# "The house needs to make sense and needs to look very stylish")
+# --------------------------------------------------------------------------
+
+VOID_ARRIVAL_NEAR_M = 0.30        # a stair's top line this near a floor opening comes up through it
+
+
+def level_below(building: dict, level: dict) -> dict | None:
+    """The level directly under ``level`` (the highest elevation below it), None for the lowest."""
+    z = float(level["elevation"])
+    under = [lv for lv in building.get("levels") or [] if float(lv["elevation"]) < z - 1e-6]
+    return max(under, key=lambda lv: float(lv["elevation"])) if under else None
+
+
+def stair_arrival_edges(building: dict, level: dict) -> list[dict]:
+    """Where the stairs of the level below come up through the floor of ``level`` (pure): per stair planned there
+    (``plan_stairs`` with the slab's opening), the top line of its last flight across its drawn width (its last
+    nosing: the last riser rises to this floor; past its apron, ``top_apron``, when it has one), and, for a landing
+    at the top (at this floor's height), every edge of that landing. ``[{"stair": piece id, "p", "q"}]``."""
+    below = level_below(building, level)
+    if below is None:
+        return []
+    out = []
+    try:
+        items = plan_stairs(building, below, slab_void=True)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
+        return []
+    for item in items:
+        plan = item.get("plan")
+        if not plan or not plan.get("flights"):
+            continue
+        sid = item["piece"]["id"]
+        f = plan["flights"][-1]
+        r = f["rise_dir"]
+        apron = float(plan.get("top_apron") or 0.0)
+        c = (f["nosings"][-1][0] + r[0] * apron, f["nosings"][-1][1] + r[1] * apron)
+        hw = float(f["width"]) / 2.0
+        p = (-r[1], r[0])
+        out.append({"stair": sid, "p": (c[0] - p[0] * hw, c[1] - p[1] * hw), "q": (c[0] + p[0] * hw, c[1] + p[1] * hw)})
+        landing = plan.get("landing")
+        if landing is not None and landing.get("role") == "top":
+            poly = geom2d.ccw(landing["polygon"])
+            out += [{"stair": sid, "p": poly[k], "q": poly[(k + 1) % len(poly)]} for k in range(len(poly))]
+    return out
+
+
+def floor_void_guards(building: dict, level: dict, voids: list) -> list[dict]:
+    """The guards around the openings of the floor of ``level`` (pure; the plan ``build_void_guards`` builds and the
+    architect's K2 / K3 can count): per opening with a free edge ``{"void": its index, "polygon", "runs": [(p, q)]
+    (``details.void_guard_runs`` with the level's walls and the arrival lines of the stairs that come up through it,
+    ``stair_arrival_edges``), "arrivals": [(p, q)], "arrives_from": [stair ids], "length_m"}``."""
+    walls = [w for w in building.get("walls") or [] if w.get("level_id") == level["id"]]
+    arrivals = stair_arrival_edges(building, level)
+    out = []
+    for i, void in enumerate(voids or []):
+        if len(void or []) < 3:
+            continue
+        poly = geom2d.ccw(void)
+        mine = [a for a in arrivals
+                if G.point_in_polygon(G.segment_midpoint(a["p"], a["q"]), poly)
+                or geom2d.distance_to_polygon_edges(G.segment_midpoint(a["p"], a["q"]), poly) <= VOID_ARRIVAL_NEAR_M]
+        lines = [(a["p"], a["q"]) for a in mine]
+        runs = D.void_guard_runs(poly, walls, lines)
+        if not runs:
+            continue
+        out.append({"void": i, "polygon": [tuple(p) for p in poly], "runs": runs, "arrivals": lines,
+                    "arrives_from": sorted({a["stair"] for a in mine}),
+                    "length_m": round(sum(G.distance(p, q) for p, q in runs), 3)})
+    return out
+
+
+def build_void_guards(building: dict, level: dict, collection, library, style: dict, manifest_objects: list,
+                      voids: list, assumed: list | None = None) -> list:
+    """One balustrade object per floor opening with free edges (``floor_void_guards``): ``void_guard_<level>_<i>``,
+    kind ``railing``, status ``assumed``, the stair's materials (steel, thin glass) and the house's balustrade kind
+    (``details.balustrade_kind``: K3, one language with the stairs, balconies and terraces), ``details.GUARD``
+    height on the floor around the opening. The manifest entry records ``assumed.detail`` ``void_guard``, the height,
+    the kind, the runs and the stairs that arrive; the stair of the level below gets ``stair.void_guard``."""
+    from wenart.blender import common
+
+    plans = floor_void_guards(building, level, voids)
+    if not plans:
+        return []
+    kind = D.balustrade_kind(style)
+    steel = library.get("steel_brushed")
+    glass = library.thin_glass()
+    walls = [w for w in building.get("walls") or [] if w.get("level_id") == level["id"]]
+    rooms = [r for r in building["rooms"] if r["level_id"] == level["id"] and len(r.get("polygon") or []) >= 3]
+    created = []
+    for g in plans:
+        p, q = g["runs"][0]
+        mid = G.segment_midpoint(p, q)
+        room = next((r for r in rooms if G.point_in_polygon(mid, r["polygon"])), None)
+        z = room_floor_z(room, level) if room is not None else float(level["elevation"])
+        metal, panes, _runs = D.void_guards(g["polygon"], walls, g["arrivals"], z, kind)
+        verts, faces = geom2d.merge(metal + panes)
+        if not faces:
+            continue
+        slots = [0] * sum(len(f) for _v, f in metal) + [1] * sum(len(f) for _v, f in panes)
+        name = f"void_guard_{level['id']}_{g['void']}"
+        ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="railing",
+                                    status="assumed", materials=[steel, glass], face_material_indices=slots)
+        ob.pass_index = 0
+        created.append(ob)
+        stairs = ", ".join(g["arrives_from"]) or "no stair"
+        parent = room["id"] if room is not None else level["id"]
+        reason = (f"floor opening {g['void']} of {level['id']} ({stairs} comes up through it): a "
+                  f"{D.GUARD['height']:.2f} m {kind.replace('_', ' ')} balustrade on its {len(g['runs'])} free "
+                  f"edge(s), {g['length_m']:.2f} m (not drawn: assumed; the kind follows the style, as the stair's)")
+        manifest_objects.append({
+            "name": ob.name, "wenart_id": name, "kind": "railing", "status": "assumed", "level_id": level["id"],
+            "element_id": name, "parent": parent, "evidence": [], "material": steel.name, "textured": False,
+            "pass_index": 0,
+            "assumed": {"detail": "void_guard", "height_m": D.GUARD["height"], "balustrade": kind,
+                        "edges": len(g["runs"]), "length_m": g["length_m"], "arrives_from": g["arrives_from"],
+                        "runs": [[[round(x, 4), round(y, 4)] for x, y in run] for run in g["runs"]],
+                        "reason": reason},
+        })
+        if assumed is not None:
+            assumed.append({"object": ob.name, "field": "void_guard", "value": D.GUARD["height"], "reason": reason,
+                            "parent": parent, "kind": "railing"})
+        for e in manifest_objects:
+            if isinstance(e.get("stair"), dict) and e.get("wenart_id") in g["arrives_from"]:
+                e["stair"]["void_guard"] = name
     return created
 
 
@@ -2159,8 +2294,35 @@ def plan_stairs(building: dict, level: dict, slab_void: bool = False) -> list[di
         plan = P.stair_plan(piece, rise, float(level["ceiling_height"]), cap, walls, source)
         if warning:
             plan["warnings"].append(warning)
+        if slab_void:
+            # 26 Oct 2026 (user on real06: "an unguarded stair void"): the stair comes up through the opening of the
+            # floor above, so its balustrade runs to the top (``parametric.stair_parts``), not cut under the slab,
+            # and a drawn opening that goes on past its top step gets an apron there (``parametric.arrival_apron``)
+            plan["rail_limit"] = rise + P.STAIR_RAIL_HEIGHT + P.STAIR_CAP_CLEARANCE
+            apron = P.arrival_apron(plan, slab_openings_above(building, level))
+            if apron > 0.0:
+                plan["top_apron"] = round(apron, 4)
+                plan["assumed"].append({"field": "top_apron", "kind": "stair_apron", "value": round(apron, 4),
+                                        "reason": f"the floor's drawn opening goes on {apron:.2f} m past the top "
+                                                  f"step: an apron in the tread finish meets the floor's edge (not "
+                                                  f"drawn: assumed)"})
         out.append({"piece": piece, "plan": plan, "reason": None})
     return out
+
+
+def slab_openings_above(building: dict, level: dict) -> list:
+    """The drawn openings of the slab directly above ``level`` (the building's ``slabs`` entry of the next level up;
+    pure; 26 Oct 2026), counter-clockwise polygons; [] when none is drawn (the slab plan then cuts the stair's own
+    opening, which ends at the top step)."""
+    z = float(level["elevation"])
+    above = [lv for lv in building.get("levels") or [] if float(lv["elevation"]) > z + 1e-6]
+    if not above:
+        return []
+    up = min(above, key=lambda lv: float(lv["elevation"]))
+    slab = next((s for s in building.get("slabs") or [] if isinstance(s, dict) and s.get("above_level_id") == up["id"]),
+                None)
+    return [geom2d.ccw(o["polygon"]) for o in (slab or {}).get("openings") or []
+            if isinstance(o, dict) and len(o.get("polygon") or []) >= 3]
 
 
 def whole_building(building: dict) -> bool:

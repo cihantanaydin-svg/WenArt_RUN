@@ -1622,9 +1622,17 @@ def stair_parts(plan: dict) -> list[Part]:
 
     Fix round after P4b (17 Oct 2026): ``plan["wall_joints"]`` (``shell.stair_wall_joints``) widens a flight's steps
     and riser plate on the side that meets a wall and moves a landing edge out by its ``extend_m``, so no slit is left
-    between the stair and the wall; the rails keep the drawn flight width. A plan without joints is built as drawn."""
+    between the stair and the wall; the rails keep the drawn flight width. A plan without joints is built as drawn.
+
+    26 Oct 2026 (user on real06: "an unguarded stair void at the upper landing"): ``plan["rail_limit"]`` (set by
+    ``shell.plan_stairs`` for a stair that comes up through the opening of the floor above) lets the balustrade of an
+    open side run to the top of the flight, where the guard of the floor opening (``details.void_guards``) takes
+    over; without it the rails stop under the cap as before. A wall handrail always stops under the cap (the wall
+    may end at the floor above)."""
     riser = float(plan["riser_m"])
     limit = plan.get("top_limit")
+    cap_limit = plan["cap_z"] - STAIR_CAP_CLEARANCE
+    rail_limit = float(plan["rail_limit"]) if plan.get("rail_limit") is not None else cap_limit
     parts: list[Part] = []
     rails = {}
     for rail in plan["rails"]:
@@ -1667,9 +1675,9 @@ def stair_parts(plan: dict) -> list[Part]:
                 origin, r, width), "worktop", "riser", **extra))
         kind = plan.get("balustrade") or STAIR_BALUSTRADE_DEFAULT
         for rail in rails.get(f["index"], []):
-            parts.extend(_rail_parts(f, rail["offset"], riser, plan["cap_z"] - STAIR_CAP_CLEARANCE, kind))
+            parts.extend(_rail_parts(f, rail["offset"], riser, rail_limit, kind))
         if not rails.get(f["index"]):                            # walls on both sides: a wall handrail
-            parts.extend(_wall_rail_parts(f, -1.0, riser, plan["cap_z"] - STAIR_CAP_CLEARANCE))
+            parts.extend(_wall_rail_parts(f, -1.0, riser, cap_limit))
     landing = plan.get("landing")
     if landing is not None and landing["role"] == "winders":
         z_bottom = landing["z"] - landing["thickness"]
@@ -1685,7 +1693,82 @@ def stair_parts(plan: dict) -> list[Part]:
             poly = landing_with_joints(poly, moves)
         parts.append(_part(geom2d.prism(poly, z_top - landing["thickness"], z_top),
                            "worktop", "landing", flight=None, rise_dir=None))
+    parts.extend(_apron_part(plan))                          # 26 Oct 2026: the floor's edge meets the top step
     return parts
+
+
+# 26 Oct 2026 (user on real06: "an unguarded stair void at the upper landing"): real06's drawn stairwell opening runs
+# 0.30 m past the top step of the last flight, so one stepped off the stair into a slot of the floor. A gap of at most
+# STAIR_APRON_MAX_M between the last nosing and the edge of the floor's opening (along the rise) is closed by an apron
+# (``top_apron``): a slab in the tread finish from the last riser to that edge, its top STAIR_APRON_UNDER_M under the
+# floor above (no coplanar faces).
+STAIR_APRON_MAX_M = 0.6
+STAIR_APRON_UNDER_M = 0.002
+
+
+def _ray_exit(o, d, polygon) -> float | None:
+    """How far the ray from ``o`` along the unit ``d`` runs before it leaves ``polygon`` (the nearest edge it
+    crosses ahead), None when it crosses none."""
+    best = None
+    n = len(polygon)
+    for i in range(n):
+        a, b = polygon[i], polygon[(i + 1) % n]
+        ex, ey = b[0] - a[0], b[1] - a[1]
+        den = d[0] * ey - d[1] * ex
+        if abs(den) < 1e-12:
+            continue
+        t = ((a[0] - o[0]) * ey - (a[1] - o[1]) * ex) / den
+        s = ((a[0] - o[0]) * d[1] - (a[1] - o[1]) * d[0]) / den
+        if t > 1e-6 and -1e-9 <= s <= 1.0 + 1e-9 and (best is None or t < best):
+            best = t
+    return best
+
+
+def arrival_apron(plan: dict, openings: Sequence[Sequence[Sequence[float]]]) -> float:
+    """The depth of the apron at the top of a stair (pure): how far past the last nosing of its last flight, along
+    its rise, the floor's opening it comes up through (``openings``: polygons of the slab above) goes on (the most of
+    three rays: the flight's centre and both sides 5 cm in), when that is between 5 mm and ``STAIR_APRON_MAX_M``; else
+    0 (the floor meets the top step, or the opening is a gallery the guard closes)."""
+    flights = plan.get("flights") or []
+    if not flights or not openings:
+        return 0.0
+    f = flights[-1]
+    r = f["rise_dir"]
+    c = f["nosings"][-1]
+    side = (-r[1], r[0])
+    hw = max(0.0, float(f["width"]) / 2.0 - 0.05)
+    starts = [(c[0] + side[0] * s, c[1] + side[1] * s) for s in (0.0, -hw, hw)]
+    for poly in openings:
+        poly = [(float(p[0]), float(p[1])) for p in poly]
+        if len(poly) < 3 or not G.point_in_polygon((c[0] + r[0] * 0.003, c[1] + r[1] * 0.003), poly):
+            continue
+        exits = [_ray_exit(o, r, poly) for o in starts]
+        exits = [t for t in exits if t is not None]
+        if not exits:
+            continue
+        depth = max(exits)
+        return depth if 0.005 <= depth <= STAIR_APRON_MAX_M else 0.0
+    return 0.0
+
+
+def _apron_part(plan: dict) -> list[Part]:
+    """The apron of ``plan["top_apron"]`` (``arrival_apron``): a slab ``STAIR_WAIST_M`` thick across the last flight's
+    drawn width, from its last riser to the floor's edge, top ``STAIR_APRON_UNDER_M`` under the rise; role
+    ``landing`` (its top in the tread finish)."""
+    depth = float(plan.get("top_apron") or 0.0)
+    if depth <= 0.0 or not plan.get("flights"):
+        return []
+    f = plan["flights"][-1]
+    r = f["rise_dir"]
+    c = f["nosings"][-1]
+    p = (-r[1], r[0])
+    hw = float(f["width"]) / 2.0
+    poly = [(c[0] - p[0] * hw, c[1] - p[1] * hw), (c[0] + p[0] * hw, c[1] + p[1] * hw),
+            (c[0] + p[0] * hw + r[0] * depth, c[1] + p[1] * hw + r[1] * depth),
+            (c[0] - p[0] * hw + r[0] * depth, c[1] - p[1] * hw + r[1] * depth)]
+    top = float(plan["rise_m"]) - STAIR_APRON_UNDER_M
+    return [_part(geom2d.prism(geom2d.ccw(poly), top - STAIR_WAIST_M, top), "worktop", "landing", flight=None,
+                  rise_dir=None, apron=True)]
 
 
 def landing_with_joints(polygon, moves: dict) -> list[tuple[float, float]]:

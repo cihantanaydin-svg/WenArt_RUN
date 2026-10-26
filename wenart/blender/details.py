@@ -20,6 +20,16 @@ a nosing over the riser, a balustrade on its open side and a handrail on the wal
 How: ``balustrade_kind(style)`` picks the kind from the project style (``style.json`` ``family`` and the railing slot
 when it names glass or bars); ``balustrade(p, q, floor_z, height, kind)`` returns ``(metal meshes, glass meshes)``;
 ``tube`` is a round bar between two 3D points; ``coping(p, q, z, width)`` is the stone cap a railing stands on.
+
+26 Oct 2026 (user on real06: "an unguarded stair void at the upper landing"; "The house needs to make sense"):
+
+- What: ``void_guard_runs(void_polygon, walls, arrival_edges)`` finds the edges of a floor opening (a stair void cut
+  out of the floor above the stair) that need a guard: every stretch of an edge that no wall runs along (within
+  ``GUARD["wall_reach"]`` of the wall's face) and that is not where the stair comes up (``arrival_edges``: the top
+  line of the stair's last flight, within ``GUARD["arrival_reach"]``); ``void_guards(...)`` builds a ``balustrade``
+  of the house's kind, ``GUARD["height"]`` high, on each run, ``GUARD["inset"]`` back on the floor.
+- Why: a flight's balustrade stands only on its open sides below; the floor above kept a bare edge over the stairwell
+  (a fall of a storey), which no rule guarded.
 """
 from __future__ import annotations
 
@@ -192,3 +202,130 @@ def wall_handrail(path: Sequence[Sequence[float]], wall_side: Sequence[float], d
             out.append(tube(m, stem, c["bracket_r"], 6))
             out.append(tube(stem, wall, c["bracket_r"], 6))
     return [m for m in out if m[0]]
+
+
+# 26 Oct 2026: the guard around a floor opening (a stair void). ``wall_reach``: an edge this near a wall face that
+# runs along it is carried by the wall; ``arrival_reach``: an edge this near the stair's top line, along it, is where
+# the stair comes up (open); ``inset``: the guard stands this far back on the floor (its base plates and channel clear
+# of the stair's own balustrade, which rises at the void's edge); ``parallel_cos``: "along" means within ~25 degrees.
+GUARD = {"height": 1.00, "wall_reach": 0.15, "arrival_reach": 0.30, "inset": 0.08, "parallel_cos": 0.9,
+         "min_run": 0.10, "step": 0.05, "wall_body": 0.005}
+
+
+def _unit(p, q):
+    length = math.hypot(q[0] - p[0], q[1] - p[1])
+    return ((q[0] - p[0]) / length, (q[1] - p[1]) / length) if length > 1e-12 else (0.0, 0.0)
+
+
+def _blocked(x, u, walls, arrivals, g) -> bool:
+    """True when the point ``x`` of a void edge running along ``u`` needs no guard: inside a wall body, near the face
+    of a wall that runs along the edge, or on an arrival edge along it."""
+    for w in walls:
+        d = G.point_segment_distance(x, w["start"], w["end"])
+        half = float(w.get("thickness") or 0.0) / 2.0
+        if d <= half + g["wall_body"]:
+            return True
+        wu = _unit(w["start"], w["end"])
+        if abs(u[0] * wu[0] + u[1] * wu[1]) >= g["parallel_cos"] and d <= half + g["wall_reach"]:
+            return True
+    for a, b in arrivals:
+        au = _unit(a, b)
+        if abs(u[0] * au[0] + u[1] * au[1]) < g["parallel_cos"]:
+            continue
+        s = (x[0] - a[0]) * au[0] + (x[1] - a[1]) * au[1]
+        across = abs((x[0] - a[0]) * au[1] - (x[1] - a[1]) * au[0])
+        if -g["step"] <= s <= G.distance(a, b) + g["step"] and across <= g["arrival_reach"]:
+            return True
+    return False
+
+
+def void_guard_runs(void_polygon: Sequence[Sequence[float]], walls: Sequence[dict] = (),
+                    arrival_edges: Sequence = (), guard: Optional[dict] = None) -> list[tuple]:
+    """The runs of a floor opening that need a guard (pure): ``[(p, q)]`` stretches of the edges of ``void_polygon``
+    whose points are free (``_blocked``: not in a wall, not along a wall face within ``wall_reach``, not along an
+    ``arrival_edges`` segment ``(a, b)`` within ``arrival_reach``), sampled every ``step`` and refined to 1 mm, at
+    least ``min_run`` long, moved ``inset`` outward of the void onto the floor; two runs that meet at a corner of the
+    void meet at the corner of their moved lines too."""
+    g = dict(GUARD, **(guard or {}))
+    poly = geom2d.ccw([(float(p[0]), float(p[1])) for p in void_polygon])
+    n = len(poly)
+    walls = [w for w in walls or () if G.distance(w["start"], w["end"]) > 1e-9]
+    arrivals = [((float(a[0]), float(a[1])), (float(b[0]), float(b[1]))) for a, b in arrival_edges or ()
+                if G.distance(a, b) > 1e-9]
+    per_edge = []
+    for i in range(n):
+        p, q = poly[i], poly[(i + 1) % n]
+        length = G.distance(p, q)
+        runs = []
+        if length >= 1e-6:
+            u = _unit(p, q)
+            k = max(2, int(math.ceil(length / g["step"])))
+            free = [not _blocked(G.point_along_segment(p, q, j / k), u, walls, arrivals, g) for j in range(k + 1)]
+
+            def edge_t(t_free, t_blocked):
+                for _ in range(12):                                # refine the run's end to about 1 mm
+                    mid = (t_free + t_blocked) / 2.0
+                    if _blocked(G.point_along_segment(p, q, mid), u, walls, arrivals, g):
+                        t_blocked = mid
+                    else:
+                        t_free = mid
+                return t_free
+
+            j = 0
+            while j <= k:
+                if not free[j]:
+                    j += 1
+                    continue
+                j0 = j
+                while j <= k and free[j]:
+                    j += 1
+                t0 = 0.0 if j0 == 0 else edge_t(j0 / k, (j0 - 1) / k)
+                t1 = 1.0 if j - 1 == k else edge_t((j - 1) / k, j / k)
+                if (t1 - t0) * length >= g["min_run"]:
+                    runs.append([t0, t1])
+        per_edge.append(runs)
+    out = []
+    inset = g["inset"]
+    for i in range(n):
+        p, q = poly[i], poly[(i + 1) % n]
+        u = _unit(p, q)
+        nx, ny = u[1], -u[0]                                       # outward of a counter-clockwise void
+        length = G.distance(p, q)
+        for t0, t1 in per_edge[i]:
+            e0 = e1 = 0.0
+            prev = per_edge[i - 1]
+            if t0 <= 1e-9 and prev and prev[-1][1] >= 1.0 - 1e-9:   # a corner with the run before
+                e0 = _miter(poly[i - 1], p, q, inset)
+            nxt = per_edge[(i + 1) % n]
+            if t1 >= 1.0 - 1e-9 and nxt and nxt[0][0] <= 1e-9:    # a corner with the run after
+                e1 = _miter(p, q, poly[(i + 2) % n], inset)
+            s0, s1 = t0 * length - e0, t1 * length + e1
+            if s1 - s0 < g["min_run"]:
+                continue
+            a = (p[0] + u[0] * s0 + nx * inset, p[1] + u[1] * s0 + ny * inset)
+            b = (p[0] + u[0] * s1 + nx * inset, p[1] + u[1] * s1 + ny * inset)
+            out.append((a, b))
+    return out
+
+
+def _miter(a, b, c, inset: float) -> float:
+    """How far a run moved ``inset`` outward of a counter-clockwise polygon reaches past the corner ``b`` of the edges
+    ``a``-``b`` and ``b``-``c`` to meet the next one: ``inset * tan(turn / 2)`` (negative at an inner corner)."""
+    u, v = _unit(a, b), _unit(b, c)
+    turn = math.atan2(u[0] * v[1] - u[1] * v[0], u[0] * v[0] + u[1] * v[1])
+    return inset * math.tan(max(-1.4, min(1.4, turn / 2.0)))
+
+
+def void_guards(void_polygon: Sequence[Sequence[float]], walls: Sequence[dict] = (), arrival_edges: Sequence = (),
+                floor_z: float = 0.0, kind: str = DEFAULT_KIND, height: Optional[float] = None,
+                guard: Optional[dict] = None) -> tuple[list, list, list]:
+    """``(metal, glass, runs)``: a ``balustrade`` of ``kind``, ``GUARD["height"]`` high, standing on ``floor_z`` along
+    each run of ``void_guard_runs`` (pure; 26 Oct 2026)."""
+    runs = void_guard_runs(void_polygon, walls, arrival_edges, guard)
+    metal, glass = [], []
+    h = float(height if height is not None else dict(GUARD, **(guard or {}))["height"])
+    for p, q in runs:
+        m, g = balustrade(p, q, floor_z, h, kind)
+        metal += m
+        glass += g
+    return metal, glass, runs
