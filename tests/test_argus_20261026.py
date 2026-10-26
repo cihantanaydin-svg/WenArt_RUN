@@ -497,3 +497,21 @@ def test_render_line_elements_the_renders_do_not_show():
     assert found[("K1", "d1")]["severity"] == "major" and found[("K1", "d1")]["evidence"]["views"] == ["v1"]
     assert "0.86 m" in found[("K3", "f9")]["message"] and found[("K4", "views")]["severity"] == "major"
     assert RC.audit(None)["note"]
+
+
+def test_rules_argus_ai_proposes_go_to_the_problem_log_and_the_prevention_list(tmp_path):
+    out = _real06_out(tmp_path)
+    (out / "orchestrator").mkdir()
+    (out / "orchestrator" / "argus_ai.json").write_text(json.dumps({"guards": [
+        {"kind": "lost", "cause": "site", "rule": "Build every labelled outdoor space.", "check": "conservation:C5",
+         "target": "sa_L0_veranda"},
+        {"kind": "lost", "cause": "site", "rule": "build every  labelled outdoor space.", "check": "x", "target": "y"}],
+        "findings": []}), encoding="utf-8")
+    rep = R.run(I.pod(out))
+    assert len(rep["guards"]) == 1
+    log = R.update_log(dict(rep, run_id="a"), tmp_path / "log.json")
+    log = R.update_log(dict(rep, run_id="b"), tmp_path / "log.json")
+    assert [len(g["runs"]) for g in log["guards"].values()] == [2]
+    lost = next(p for p in R.prevention(rep, log) if p["kind"] == "lost")
+    assert lost["rules_proposed"] == [{"rule": "Build every labelled outdoor space.", "runs": 2}]
+    assert "rule proposed by Argus AI (2 run(s))" in R.report_md(rep, R.prevention(rep, log))

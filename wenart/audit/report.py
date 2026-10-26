@@ -193,6 +193,20 @@ def score(findings: list[dict]) -> float:
     return round(100.0 / (1.0 + points / SCALE), 1)
 
 
+def guards_of(inp: I.Inputs) -> list[dict]:
+    """The general rules Argus AI proposed in this run (``argus_ai.json`` and ``argus_ai_final.json``), one per text."""
+    out, seen = [], set()
+    for fname in ("argus_ai.json", "argus_ai_final.json"):
+        path = (inp.root / "orchestrator" / fname) if inp.layout == "pod" else (inp.root / "agent" / inp.project / fname)
+        rec = I.read_json(path) if path.is_file() else None
+        for g in (rec or {}).get("guards") or []:
+            key = " ".join(str(g.get("rule") or "").lower().split())
+            if key and key not in seen:
+                seen.add(key)
+                out.append({k: g.get(k) for k in ("kind", "cause", "rule", "check", "target")})
+    return out
+
+
 def run(inp: I.Inputs) -> dict:
     """The audit of one project (module docstring)."""
     per_line = lines(inp)
@@ -215,7 +229,7 @@ def run(inp: I.Inputs) -> dict:
                           "note": r.get("note")} for n, r in per_line.items()},
             "warning_counts": per_line["process"].get("warning_counts"),
             "unmatched_warnings": per_line["process"].get("unmatched") or [],
-            "missing": list(inp.missing), "findings": rows}
+            "missing": list(inp.missing), "guards": guards_of(inp), "findings": rows}
 
 
 # ---------------------------------------------------------------------------------------------------- problem log
@@ -244,6 +258,11 @@ def update_log(rep: dict, path: Path = LOG_FILE) -> dict:
         if run_id not in sig["runs"]:
             sig["runs"].append(run_id)
         sig.update(kind=f.get("kind"), severity=f.get("severity"), message=f.get("message"), last=run_id)
+    for g in rep.get("guards") or []:
+        key = " ".join(str(g.get("rule") or "").lower().split())
+        entry = log.setdefault("guards", {}).setdefault(key, dict(g, runs=[]))
+        if run_id not in entry["runs"]:
+            entry["runs"].append(run_id)
     kinds: dict = {}
     for sig in log["signatures"].values():
         k = kinds.setdefault(sig["kind"], {"signatures": 0, "recurring": 0})
@@ -272,7 +291,11 @@ def prevention(rep: dict, log: Optional[dict] = None) -> list[dict]:
             continue
         need = [f for f in rep["findings"] if f["kind"] == kind and f["severity"] in ("critical", "major")
                 and (not f.get("fix") or signature(rep["project"], f) in rec)]
+        proposed = sorted((g for g in (log or {}).get("guards", {}).values() if g.get("kind") == kind),
+                          key=lambda g: -len(g.get("runs") or []))
+        proposed = proposed or [g for g in rep.get("guards") or [] if g.get("kind") == kind]
         out.append({"kind": kind, "what": K.KINDS.get(kind, {}).get("what"),
+                    "rules_proposed": [{"rule": g.get("rule"), "runs": len(g.get("runs") or [1])} for g in proposed],
                     "arises": K.KINDS.get(kind, {}).get("arises"), "guards": K.KINDS.get(kind, {}).get("guards"),
                     "open": open_n, "fixable": c["fixable"],
                     "needs_guard": [{"target": f["target"], "check": f"{f['line']}:{f['check']}",
@@ -328,6 +351,8 @@ def report_md(rep: dict, prev: Optional[list] = None) -> str:
                           f"guards: {', '.join(p['guards'] or []) or 'none'})")
             lines_ += [f"  - {'RECURRING ' if n['recurring'] else ''}{n['check']} {n['target']}: {n['message']}"
                        for n in p["needs_guard"]]
+            lines_ += [f"  - rule proposed by Argus AI ({g['runs']} run(s)): {g['rule']}" for g in p.get("rules_proposed")
+                       or []]
     wc = rep.get("warning_counts") or {}
     if wc:
         lines_ += ["", "## Warnings by rule", "", "Every warning of the reading, the build and the site, matched to a "
