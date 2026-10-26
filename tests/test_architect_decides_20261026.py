@@ -280,6 +280,7 @@ def _big_loop(tmp_path, scores):
     pr = SimpleNamespace(agent_loop=FakeLoop(), active=True, name="p", out=tmp_path)
     fake = SimpleNamespace(runs=[pr], out=lambda s: calls.append(s), BIG_LOOP_CYCLES=4,
                            big_loop_topdown=lambda p: calls.append("topdown"),
+                           argus_cycle=lambda p, url, cycle: calls.append(f"argus {cycle}"),
                            agent_note_after_final=lambda p, n: None,
                            final_stages_again=lambda p, url: calls.append("final stages"),
                            rollback_round=lambda p, k, why: calls.append(f"rollback {k}") or 2,

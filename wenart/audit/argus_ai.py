@@ -534,7 +534,7 @@ def act(project_out, building: dict, brief: Optional[dict], decisions: list[dict
 
 def investigate(project_out, model, *, brief: Optional[dict] = None, results=None,
                 time_ok: Callable[[], bool] = lambda: True, out: Callable[[str], None] = print,
-                discover_on: bool = True, act_on: bool = True) -> dict:
+                discover_on: bool = True, act_on: bool = True, documents: bool = True) -> dict:
     """Module docstring. Returns the record written to ``orchestrator/argus_ai.json``. ``act_on`` False (the end of the
     run, nothing is built after it): the decisions are listed, not carried out."""
     from wenart.agent import log as LG
@@ -542,7 +542,7 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
     t0 = time.time()
     project_out = Path(project_out)
     errors: list = []
-    if act_on and time_ok():
+    if act_on and documents and time_ok():
         documents_vs_model(model, project_out, errors=errors)
     inp = I.pod(project_out, results)
     rep = R.run(inp)

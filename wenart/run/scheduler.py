@@ -2279,6 +2279,23 @@ class Orchestrator:
                  f"{len(rec['work'])} handed to the agent, {len(rec['guards'])} rule(s) proposed")
         return rec["accepted"] > 0
 
+    def argus_cycle(self, pr: ProjectRun, url: str, cycle: int) -> None:
+        """26 Oct 2026: Argus AI on the current state before a big-loop cycle (``argus_ai.investigate`` without the
+        documents line): its triage of what is open now, its own tool calls for the cycle's round and its architect
+        decisions (carried out by the round's re-build). Never fatal; ``WENART_ARGUS_AI=0`` skips it."""
+        if os.environ.get("WENART_ARGUS_AI", "1") == "0" or not self.can_start(S.EST_BUILD_S * 2):
+            return
+        from wenart.audit import argus_ai as AX
+        try:
+            model = pr.agent_model or self.make_agent_model(url, pr)
+            rec = AX.investigate(pr.out, model, brief=self.project_brief(pr), results=self.results, out=self.out,
+                                 time_ok=lambda: self.can_start(S.EST_BUILD_S * 2), documents=False)
+        except Exception as exc:  # noqa: BLE001 - the cycle goes on with the agent's own work
+            self.out(f"{pr.name} Argus cycle {cycle}: {type(exc).__name__}: {exc}")
+            return
+        self.out(f"{pr.name} Argus cycle {cycle}: score {rec['score_before']}; {len(rec.get('actions') or [])} own "
+                 f"edit(s) for the round, {rec['accepted']} decision(s) carried out, {len(rec['work'])} handed on")
+
     def argus_final(self, url: Optional[str]) -> None:
         """26 Oct 2026: Argus's last word on every project of the run: its code lines and report
         (``orchestrator/argus.md``), and, while time is left, Argus AI's triage and discovery of what is still open
@@ -2503,6 +2520,10 @@ class Orchestrator:
                 JD.write(pr.out, best["rows"], rec)
                 self.out(f"{pr.name} big loop: score {best['score']['score']} (judge mean {best['score']['rubric']})")
             for cycle in range(1, self.BIG_LOOP_CYCLES + 1):
+                # 26 Oct 2026 (user: "make Argus fix everything itself, give it more power"): Argus looks again at
+                # the house as it is now and decides its own edits for this cycle's round (the documents line ran
+                # after the first build; the agent loop runs Argus's tool calls first in the round)
+                self.argus_cycle(pr, url, cycle)
                 try:
                     res = loop.final_round(k)
                 except Exception as exc:  # noqa: BLE001

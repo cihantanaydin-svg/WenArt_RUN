@@ -457,6 +457,16 @@
    "request": "Use open weight AI models for this auditor it needs to be smart, it needs to solve the problems even without me telling it ... We need to improve argus rigorously",
    "lesson": "Argus AI (the open-weight agent model, thinking on) triages every audit finding (real or not, kind, cause), takes the fixes code accepts after a dry re-check that its target is gone, hands the furniture problems to the agent, looks for what no check found, and writes the general rule for what the run cannot fix.",
    "question": "Did Argus AI triage every finding, and was each of its fixes checked by code (target gone, nothing new broken)?"
+  },
+  {
+   "id": "UL40",
+   "date": "2026-10-26",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "keep going, make Argus fix everything itself give it more power",
+   "lesson": "Argus fixes what it finds itself: it calls the agent's edit tools in its own session of every round (and before every big-loop cycle), carries out the exact fixes its code lines name without a model, revokes AI decisions that broke a room's set, and learns from earlier runs; every edit passes the same code checks as the agent's.",
+   "question": "How many of Argus's own edits were accepted this run, and which open findings had no tool Argus could use?"
   }
  ]
 }

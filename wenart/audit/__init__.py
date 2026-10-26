@@ -17,10 +17,14 @@ Lines (each a module; every finding in one format, see ``kinds.FINDING_KEYS``):
   joins and stairs, no wet room as the only way into a room, every level reached (code).
 - ``plan_vs_model``: the source plan of each floor against the model's view of it, the elevations against the
   exterior renders (open-weight vision model, every claim checked by code).
-- ``argus_ai``: the open-weight agent model reads every line's findings and the project's facts, thinks, sorts each
-  finding (real or not, kind, the stage that caused it), names the fix the run can carry out (an architect decision
-  that code checks and re-checks, a finding for the agent's next round) or the general rule that would prevent it,
-  and looks for what the lines missed.
+- ``argus_ai``: the open-weight agent model reads every line's findings and the project's facts (and what earlier runs
+  learned: the problem log's recurring findings and rules), thinks, sorts each finding (real or not, kind, the stage
+  that caused it), and fixes it itself where a tool can: one of the agent's 14 edit tools with its arguments (run by
+  the agent loop in Argus's own session of every round, through the same registry, validators and acceptance), an
+  architect decision (code checks and re-checks it), the exact fixes its code lines name (no model needed), or the
+  revocation of an AI decision that broke a room's set; else the general rule that would prevent it. It looks for
+  what the lines missed, after the first build and again before every big-loop cycle (user, 26 Oct 2026: "make Argus
+  fix everything itself, give it more power").
 - the model review (``wenart.blender.model_review``), the inspector and the judge (``wenart.agent``) are lines too.
 - ``kinds``: every finding's problem kind, where it arose and the guards that catch it; ``report``: one report
   (``orchestrator/argus.md``), the score, and the problem log across runs (``results/argus/problem_log.json``) with

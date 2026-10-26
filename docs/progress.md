@@ -1515,3 +1515,13 @@ the earlier ones do not show (small rooms under 8 m² get a second view only the
 camera points away. Replayed on real06's built building: views without a main piece 5 -> 1, bare-centre views 6 -> 0,
 door-filled views 7 -> 1, set pieces per view 1.04 -> 1.54, rooms whose views show their whole set 4 -> 7 (28 -> 24
 views; search time the same).
+
+### Argus fixes things itself (26 Oct 2026, user: "keep going, make Argus fix everything itself, give it more power")
+
+| Power | What Argus does now | Where |
+|---|---|---|
+| the agent's tools | Argus AI may choose any of 14 edit tools (retype, swap a model, place / complete a group, relayout a room, set a room type, mark not furniture, fix a fixture, front, size, group move, rotate, set or remove a camera) with its arguments; the agent loop runs them first in every round, in Argus's own building session, through the same registry, schemas, validators, memory and acceptance (the targeted finding gone in the dry re-check, no new critical finding); each once a run, at most 30 a round; a round with only Argus's edits still re-runs | `argus_ai.investigate`, `loop.argus_session` |
+| code fixes without a model | a furniture name written beside an untyped piece types it; a room missing its bath or shower that holds an untyped outline gets it typed (bath from 1.4 m long); an AI decision that left a room without a piece of its set is revoked | `argus_ai.code_actions`, `revoke_decisions` |
+| every cycle | Argus looks again before each big-loop cycle (the documents line once, after the first build) | `scheduler.argus_cycle` |
+| memory | the problem log's recurring findings of the project and the rules proposed in earlier runs go into its prompt | `argus_ai.history_lines` |
+| guard rails | no decision may leave a room without a piece of its set (G9 / G10 before and after) | `architect_ai.set_gaps` |
