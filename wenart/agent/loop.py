@@ -339,6 +339,13 @@ CUT_NOTE = "[cut to fit the context]"
 # Fix round after P4a (module docstring): the final round also takes a major lighting_dark view one set_lighting clears.
 # Fix round after P4b: off (decision 6 of 17 Oct 2026, the lead: FINAL_ROUND_LIGHTING stays off); the mechanism stays.
 FINAL_ROUND_LIGHTING = False
+# 26 Oct 2026 (user: "I need ai models to see understand and fix everything before even I look at it"): the final round
+# asks every room and view again on the final renders (no cached answer), takes the visitor checks' major findings
+# too (prompts.VISITOR_CHECKS), and needs time for its own re-render only: FINAL_ROUND_SHARE of the final stages'
+# estimate (the final render, export and check had already run when it was gated on all of them: real06's final
+# round never started)
+FINAL_VISITOR_MAJORS = True
+FINAL_ROUND_SHARE = 0.35
 CAMERA_EFFECT_CHECK = "camera_effect"   # the ``check`` event of an accepted camera edit checked after the re-run
 # Fix round after P5 (module docstring): edits in a row refused without validation on already-refused targets that end
 # a session, and the ``check`` event that says so.
@@ -1564,11 +1571,12 @@ class AgentLoop:
     def estimate(self) -> float:
         return float(self.final_estimate() if callable(self.final_estimate) else self.final_estimate or 0.0)
 
-    def time_ok(self) -> bool:
-        """``now + estimate(final stages) <= deadline - margin`` (§8)."""
+    def time_ok(self, share: float = 1.0) -> bool:
+        """``now + share x estimate(final stages) <= deadline - margin`` (§8; ``share`` < 1: the final round re-runs
+        only the views it changed)."""
         if self.deadline is None:
             return True
-        return self.clock() + self.estimate() <= float(self.deadline) - self.margin_s
+        return self.clock() + share * self.estimate() <= float(self.deadline) - self.margin_s
 
     # ----- context ------------------------------------------------------------------------
 
@@ -2261,12 +2269,23 @@ class AgentLoop:
                                                                          f"{f['cause']}: {CS.no_tool_reason(f)}"))
         vision["kept"] = kept
         self.log_findings(round_no, code, vision)
+        # 26 Oct 2026: kept for the inspector's report of the final round (wenart/agent/inspector.py)
+        self.last_findings = {"round": round_no, "code": list(code.get("findings") or []),
+                              "vision_kept": list(vision.get("kept") or []),
+                              "vision_dropped": list(vision.get("dropped") or [])}
+        self.last_accepted = []
         found = list(code.get("findings") or []) + list(vision.get("kept") or [])
         ctx.findings = found
         wanted = ("critical",) if critical_only else ("critical", "major")
         # fix round after P4a: the final round also lights a view one set_lighting clears, when a re-render follows
         lighting = bool(final and critical_only and FINAL_ROUND_LIGHTING and self.rerun is not None)
-        open_ = [f for f in found if is_wanted(f, wanted, lighting)]
+        work = found
+        if final and critical_only and FINAL_VISITOR_MAJORS:
+            # 26 Oct 2026: the visitor checks' major findings are the final round's work too
+            work = [f for f in found if is_wanted(f, ("critical",), lighting) or
+                    (str(f.get("check")) in P.VISITOR_CHECKS and f.get("severity") == "major")]
+            wanted = ("critical", "major")
+        open_ = [f for f in work if is_wanted(f, wanted, lighting)]
         summary = {"round": round_no, "final": final, "findings": {s: sum(1 for f in found if f["severity"] == s)
                                                                     for s in P.SEVERITIES},
                    "dropped": len(vision.get("dropped") or []), "accepted": 0, "rejected": 0, "calls": 0,
@@ -2282,12 +2301,13 @@ class AgentLoop:
         if not open_:
             summary["stop"] = "no_finding"
             return self._end_round(summary, t0)
-        sessions, coverage = self.sessions_for(ctx, found, wanted, lighting=lighting)
+        sessions, coverage = self.sessions_for(ctx, work, wanted, lighting=lighting)
         summary.update(rooms_fixable=coverage["fixable_rooms"], unfixable_open=coverage["unfixable_open"])
         if not sessions:
             summary["stop"] = "no_fixable"
             return self._end_round(summary, t0)
         plan = self.plan(ctx, round_no, sessions, critical_only, lighting=lighting)
+        self.last_accepted = list(ctx.accepted)
         removed = sum(int(((a.get("result") or {}).get("acceptance") or {}).get("removed") or 0)
                       for a in ctx.accepted)
         self.findings_removed += removed
@@ -2325,7 +2345,7 @@ class AgentLoop:
             self.log.event("rerun", round_no, rerun_from=None, status="skipped",
                            note="record-only edits: nothing to re-run")
             return self._end_round(summary, t0)
-        if not self.time_ok():
+        if not self.time_ok(FINAL_ROUND_SHARE if final else 1.0):
             summary["stop"] = "deadline"
             self.log.event("rerun", round_no, rerun_from=stage, status="skipped", views=views,
                            note="time budget: the accepted edits reach the final renders")
@@ -2442,16 +2462,33 @@ class AgentLoop:
         """The extra round after the final check: critical findings only, on the final renders (§8 "final"). Fix
         round after P6a: the result carries ``stage_note``, the agent stage's note on the numbers after this round
         (``stage_note``; the stage record written when the agent stage ended names the rounds before it)."""
-        if not self.time_ok():
+        if not self.time_ok(FINAL_ROUND_SHARE):
             self.log.event("stop", round_no, reason=STOPS["deadline"], status="deadline",
                            note="final round for critical findings not started")
             self.save(final=True)
+            self.write_inspector(round_no, started=False)
             return {"round": round_no, "stop": "deadline", "accepted": 0,
                     "stage_note": stage_note(self.summary(), self.final_stop(FINAL_NOT_STARTED))}
+        self.stale_keys = None                 # 26 Oct 2026: every room and view is looked at on the final renders
         res = self.round(round_no, critical_only=True, final=True)
         self.log.event("stop", round_no, reason=FINAL_DONE, status=res["stop"] or "done")
         self.save(final=True)
+        self.write_inspector(round_no, started=True)
         return dict(res, stage_note=stage_note(self.summary(), self.final_stop(FINAL_DONE)))
+
+    def write_inspector(self, round_no: int, started: bool) -> None:
+        """26 Oct 2026: the inspector's report (``orchestrator/inspector.md``): what the AI saw on the final renders
+        (the final round's findings; the last round's when the final round did not start), what it fixed, what it
+        handed to which stage, what stays open. A failure to write it never stops the run."""
+        from wenart.agent import inspector as INS
+        try:
+            found = getattr(self, "last_findings", None) or {}
+            rec = INS.report(self.project_out, int(found.get("round") or round_no), found,
+                             getattr(self, "last_accepted", None) or [])
+            rec["final_round_started"] = started
+            INS.write(self.project_out, rec, self.project_out.name)
+        except Exception as exc:  # noqa: BLE001 - the report is a record, never a stop
+            self.log.event("check", round_no, check="inspector", status="error", note=f"{type(exc).__name__}: {exc}")
 
     def final_stop(self, done: str) -> str:
         """Fix round after P6a, part 2: the stage note's stop after the final round: why the rounds stopped (``STOPS``

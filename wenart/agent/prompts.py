@@ -157,12 +157,41 @@ CHECKLIST: dict[str, dict] = {
                    "another design style (an ornate classic piece in a modern room) or a loud colour outside the "
                    "brief's palette; name the one piece that clashes",
            "how": "V", "scope": "piece"},
+    # 26 Oct 2026 (user: "problems that somebody looking at it understands: why there is that many rain gutters, why
+    # the sink is so low, why doors are up ... the house needs to make sense and needs to look very stylish ... I need
+    # ai models to see understand and fix everything before even I look at it"): what a client sees at the first look
+    "Q1": {"what": "a door that makes no sense: its leaf or frame does not reach the floor (a gap under it, raised "
+                   "over the floor), it floats, or it opens onto nothing (a door high in a facade with no balcony)",
+           "how": "V", "scope": "opening"},
+    "Q2": {"what": "a fixture at the wrong working height: a washbasin, sink or worktop far below hip height (a rim "
+                   "near the knee instead of about 0.85 m), a basin bowl lying on the floor, a toilet in the air",
+           "how": "V", "scope": "piece"},
+    "Q3": {"what": "a fall risk: an opening on an upper floor that reaches down to the floor with no real guard (a "
+                   "full glass pane or a railing with gaps under 11 cm), a stair, landing or floor edge with no railing",
+           "how": "V", "scope": "opening"},
+    "Q4": {"what": "a room that makes no sense: a kitchen with no counters, sink or hob; a bedroom with no bed; a "
+                   "bathroom with no basin; or the furniture of another room (a dining set in a bedroom, a kitchen "
+                   "counter in a bedroom)",
+           "how": "V", "scope": "room"},
+    "Q5": {"what": "pieces that repeat or do not belong together: several tables where one belongs, chairs of "
+                   "different models at one table, a folding or garden chair indoors, two sofas of other styles",
+           "how": "V", "scope": "piece"},
+    "Q6": {"what": "a piece placed the wrong way: a cabinet, wardrobe or bookcase with its back or side to the room, "
+                   "standing free in the room, or in front of a window or a door",
+           "how": "V", "scope": "piece"},
+    "Q7": {"what": "doors and windows that do not fit the house or each other: a dark traditional panelled door in a "
+                   "modern or Scandinavian house, busy patterned or opaque glass, different window types side by side",
+           "how": "V", "scope": "opening"},
+    "Q8": {"what": "rain water that makes no sense: more downpipes than the building's corners need, pipes across "
+                   "windows or in the air, gutters stepping in and out along the facade",
+           "how": "V", "scope": "building"},
 }
+VISITOR_CHECKS = ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8")
 ROOM_CHECKS = ("R1", "R2", "R3", "R4", "R5", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "V1", "V2", "V3")
-EXTERIOR_CHECKS = ("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "V2", "V3")
+EXTERIOR_CHECKS = ("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "V2", "V3", "Q1", "Q3", "Q7", "Q8")
 # Milestone 12 (§5.4 "vision only where it adds something"): the room critic is asked only what an image of the
 # render shows (looks, wrong objects, the room type, finishes, the camera), never what code measures.
-ROOM_LOOK_CHECKS = ("R1", "R4", "F1", "F9", "D1", "D2", "D3", "V1", "V2")
+ROOM_LOOK_CHECKS = ("R1", "R4", "F1", "F9", "D1", "D2", "D3", "V1", "V2", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7")
 CODE_ONLY = tuple(k for k, v in CHECKLIST.items() if v["how"] == "C")
 
 CRITIC_SYSTEM = (
@@ -172,6 +201,10 @@ CRITIC_SYSTEM = (
     "copied exactly from the list of ids you are given. Never invent an id. If nothing is wrong, answer "
     '{"findings": []}.')
 
+VISITOR_TEXT = ("Look at each image the way the client will when they first see it: anything a visitor would point at "
+                "(a door off the floor, a basin at knee height, a window you could fall out of, a room that is not "
+                "what it is called, pieces that do not go together, too many pipes) is a finding, even when the "
+                "code measured something nearby. The Q checks are such first-look problems: report every one you see.")
 SEVERITY_TEXT = ("Severity: critical = the image is clearly wrong (a missing roof, a bed in the middle of the room, a "
                  "blocked door, a piece through a wall); major = clearly odd (a sofa facing a wall, chairs not at the "
                  "table); minor = a matter of taste.")
@@ -272,7 +305,7 @@ def exterior_critic_prompt(view: str, building_note: str, ids: list[str], image_
         "", "Ids you may use as target:", *(f"- {i}" for i in ids),
         "", "Checklist:", checklist_text(EXTERIOR_CHECKS),
         "", "Problems the code already measured (do not repeat them):", *(known or ["- none"]),
-        "", SEVERITY_TEXT,
+        "", VISITOR_TEXT, SEVERITY_TEXT,
         "List what is wrong with the building or its site in the image. Use the view id as target for camera "
         "problems and 'building' for the building as a whole."])
 
@@ -358,7 +391,8 @@ def context_lines(context: Optional[dict]) -> list[str]:
 
 
 def room_look_prompt(room: dict, pieces: list[dict], views: list[str], image_labels: list[str],
-                     code_findings: list[dict], context: Optional[dict] = None) -> str:
+                     code_findings: list[dict], context: Optional[dict] = None,
+                     openings: Optional[list[dict]] = None) -> str:
     """Milestone 12: the room critic on the renders only (looks, wrong objects); built pieces only (B5); the code
     findings are given so they are not repeated. A piece whose library model (or a decor model on it) the audit kept
     with a vision doubt (decision 1a) is marked so the critic looks at it (D2). Milestone 13: ``context`` (the
@@ -372,12 +406,14 @@ def room_look_prompt(room: dict, pieces: list[dict], views: list[str], image_lab
         "Images: " + "; ".join(f"image {i + 1} = {label}" for i, label in enumerate(image_labels)) + ".",
         *context_lines(context),
         "", "Ids you may use as target (only pieces that are built and rendered):", f"- {room['id']}: the room itself",
-        *piece_lines, *(f"- {v}: camera view" for v in views),
+        *piece_lines, *(f"- {o['id']}: {o.get('type')} {float(o.get('width') or 0):.2f} m wide" for o in openings or []
+                        if o.get("id")),
+        *(f"- {v}: camera view" for v in views),
         "", "Checklist (only what the images show; positions, distances and sizes are measured by code):",
         checklist_text(ROOM_LOOK_CHECKS),
         "", "Problems the code already measured (never repeat them, not even under another checklist id):",
         *(known or ["- none"]),
-        "", SEVERITY_TEXT,
+        "", VISITOR_TEXT, SEVERITY_TEXT,
         "List what is wrong in the renders. For each finding give evidence_image = the number of the image that shows "
         "it."])
 

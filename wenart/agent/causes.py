@@ -303,6 +303,12 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     # furnishes: the re-run replays the overrides after the layout); a reading conflict on a symbol is resolved
     "empty_room": ("place_group", "relayout_room"),
     "resolved_by_code": (),
+    # 26 Oct 2026: the visitor checks (prompts Q1-Q8) the architect's code owns (a door into the air or off its floor,
+    # a fall risk, the opening models' style, the rain water): reported to the architect, never silent
+    "opening_sense": (),
+    "guard": (),
+    "opening_style": (),
+    "rain_water": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -344,6 +350,13 @@ NO_TOOL_REASON: dict[str, str] = {
                     "1.2 m when its back snaps onto a wall, and no free wall place (doors, windows, the other pieces) "
                     "or partner lies within that reach, so no move clears the finding; the drawn layout is reported "
                     "(CLAUDE.md: drawn furniture is kept)",
+    "opening_sense": "a door off its floor or into the air is the architect's (E1, O2, D4: its defaults turn such a "
+                     "door into a window or set its threshold); reported to the architect for the next build",
+    "guard": "a guard in front of an opening or a void is built by code (the architect's W3 / K2 and the facade's "
+             "glass guard); reported to the architect",
+    "opening_style": "the door and window models are chosen by code for the whole building (one language); reported "
+                     "to the openings stage",
+    "rain_water": "the gutters and downpipes are planned by code for the whole roof (A1); reported to the architect",
     "drawn_type": "the piece is drawn and its type is one the room's types hold (the code's room rules, aliases "
                   "included): drawn furniture is kept (CLAUDE.md), and a vision opinion on its type is no reading "
                   "error, so it is reported for review, not retyped",
@@ -364,6 +377,9 @@ PASSAGE_CLEAR_REASON = ("the piece is drawn fixed equipment (treated like walls)
 # Fix round after P3: cause -> the stage a finding no agent tool fixes is reported to (the loop logs it on the
 # finding event as ``report_to``). Fix round after P4a: a light fixture's look goes to the lighting stage.
 REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor", "light_fixture": "lighting",
+                             # 26 Oct 2026: the visitor checks the architect's rules own (E1, O2, D4, W3, A1, K2)
+                             "opening_sense": "architect", "guard": "architect", "opening_style": "openings",
+                             "rain_water": "architect",
                              # fix round after P4b: a frozen replayed camera, a decor light's model
                              "replayed_camera": "cameras", "decor_model": "decor",
                              # fix round after P5: a blocked view the camera search could not avoid
@@ -406,6 +422,9 @@ CHECK_CAUSE: dict[str, str] = {
     "L1": "entrance", "L2": "entrance", "L3": "terrain", "L4": "levels", "L5": "entrance", "L6": "terrain",
     "L7": "exterior_camera",
     "D1": "decor_look", "D2": "wrong_model", "D3": "wrong_model",
+    # 26 Oct 2026: the visitor checks (cause_of refines Q4-Q6 from the message)
+    "Q1": "opening_sense", "Q2": "wrong_model", "Q3": "guard", "Q4": "empty_room", "Q5": "wrong_model",
+    "Q6": "orientation", "Q7": "opening_style", "Q8": "rain_water",
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",
@@ -519,6 +538,19 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
         return "empty_room"                    # fix round after P6b: furnish the room, never retype it away
     if check == "RC" and target and not _is_piece(target, building):
         return "resolved_by_code"              # fix round after P6b: a symbol the reading moved out of the furniture
+    # 26 Oct 2026: the visitor checks, refined from the message
+    if check == "Q4":
+        if target and _is_piece(target, building):
+            return "wrong_type"                # a piece of another room: retype or remove it
+        return "empty_room" if any(w in f" {text} " for w in EMPTY_ROOM_WORDS + (" no ", "without")) \
+            else "room_type"
+    if check == "Q5" and target and _is_piece(target, building) and \
+            any(w in text for w in ("several", "two ", "three", "four", "duplicate", "repeat", "extra", "second")):
+        return "wrong_type"                    # one piece too many: retype it (its group's member) or remove it
+    if check == "Q6" and any(w in text for w in ("window", "door", "blocks", "in front of")):
+        return "blocked_opening"
+    if check == "Q6" and any(w in text for w in ("free", "middle", "floating", "away from the wall")):
+        return "off_wall"
     if check in FIXTURE_LAYOUT_CHECKS + FIXTURE_CUT_CHECKS and metrics.get(DRAWN_LAYOUT_FLAG) in (FIXTURE_LAYOUT,
                                                                                                PASSAGE_CLEAR):
         # fix round after P6b: fix_fixture's search found no valid spot; (asks) an S2 / F9 wall or outline cut of such

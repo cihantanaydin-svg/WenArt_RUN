@@ -377,7 +377,8 @@ def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[s
     views = [v for v, _ in previews]
     if looks:
         prompt = P.room_look_prompt(room, pieces, views, labels, room_code, context=room_context(building, room_id,
-                                                                                                pieces))
+                                                                                                pieces),
+                                    openings=doors + windows)
     else:
         prompt = P.room_critic_prompt(room, pieces, doors + windows, views, labels, room_code)
     messages = [{"role": "system", "content": P.CRITIC_SYSTEM},

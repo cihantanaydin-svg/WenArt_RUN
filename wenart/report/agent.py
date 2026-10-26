@@ -541,7 +541,9 @@ def agent_block(project_out, out_dir, private: bool = False, building: Optional[
             "first_seq": scope["first_seq"], "earlier": scope["earlier"], "removed_net": net,
             "last_round_accepted": _last_round_accepted(events), "replayed": replayed,
             # fix round after P6b: the views the last round still found blocked (the final report marks them)
-            "blocked_views": last_round_blocked(events)}
+            "blocked_views": last_round_blocked(events),
+            # 26 Oct 2026: what the AI inspector saw on the final renders (wenart/agent/inspector.py)
+            "inspector": _read(orch / "inspector.json")}
 
 
 def _last_round_accepted(events: list[dict]) -> dict:
@@ -698,6 +700,29 @@ def _img(link: Optional[str]) -> str:
     return f"![]({link})" if link else "-"
 
 
+def inspector_lines(rec: Optional[dict]) -> list[str]:
+    """26 Oct 2026: the AI inspector's summary (``orchestrator/inspector.md`` has every finding): what it saw on the
+    final renders, fixed, handed on and left; the open majors are listed so they are known before anyone looks."""
+    if not isinstance(rec, dict) or not rec.get("counts"):
+        return []
+    c = rec["counts"]
+    lines = ["", "### What the AI inspector saw on the final renders", "",
+             f"{c.get('seen', 0)} vision finding(s) ({c.get('visitor', 0)} of the visitor checks Q1-Q8: doors, "
+             f"working heights, falls, rooms that make no sense, pieces that clash, doors and windows, rain water): "
+             f"{c.get('fixed', 0)} fixed in the final round, {c.get('handed', 0)} handed to the stage that owns them, "
+             f"{c.get('open', 0)} open; the architect leaves {c.get('architect_open_major', 0)} major open point(s). "
+             "Every finding with its outcome: `orchestrator/inspector.md`."
+             + ("" if rec.get("final_round_started", True) else " The final round did not start (time): these are "
+                                                                  "the last round's findings on the previews.")]
+    rows = [r for r in (rec.get("vision") or []) + (rec.get("code") or [])
+            if r.get("severity") in ("critical", "major") and not str(r.get("outcome") or "").startswith("fixed")]
+    if rows:
+        lines += ["", "Still open or handed on (critical and major):", ""]
+        lines += [f"- {r.get('severity')} {r.get('check')} {r.get('target')}: {str(r.get('message') or '')[:140]} "
+                  f"({str(r.get('outcome') or '')[:90]})" for r in rows[:25]]
+    return lines
+
+
 def agent_lines(manifest: dict) -> list[str]:
     a = manifest.get("agent")
     if not a:
@@ -719,6 +744,7 @@ def agent_lines(manifest: dict) -> list[str]:
                      "were replayed into this building (listed under Replayed edits and the library gaps)."
                      if earlier.get("replayed") else "")]
     lines += metrics_lines(a.get("metrics"), a.get("removed_net"), a.get("last_round_accepted"))
+    lines += inspector_lines(a.get("inspector"))
     if a.get("library_gaps"):
         lines += ["", "Library gaps reported by the agent: " + ", ".join(
             f"{g.get('type')} {g.get('style') or ''} ({g.get('reason') or '-'})".replace("  ", " ")
