@@ -560,3 +560,21 @@ def test_process_the_agent_tried_and_every_try_was_refused(tmp_path):
     f = found[0]
     assert f["evidence"]["tries"] == 4 and f["owner"] == "furniture" and f["kind"] == "silent"
     assert "no_place: r_k.kitchen_run" in f["message"] and "memory" not in f["message"]
+
+
+def test_a_labelled_space_built_as_an_outdoor_space_is_not_lost(tmp_path):
+    area = {"id": "sa_L0_veranda", "label": "VERANDA", "build": False}
+    space = {"id": "os_L0_veranda", "area_id": "sa_L0_veranda", "label": "VERANDA", "level_id": "L0",
+             "polygon": [[0, 0], [4, 0], [4, 5], [0, 5]]}
+    b = _building(site={"areas": [area], "decor": [], "outdoor_spaces": [space]},
+                  warnings=["p.dwg: balcony 'VERANDA' at (1, 2) m lies outside the outer walls: an open balcony, "
+                            "recorded in site, not a room",
+                            "site: 42 decor read outside the walls of L1 not used (the site is the ground floor's, "
+                            "L0); 26 of them repeat the ground plan's symbols at the same place"])
+    assert CV.untyped(b) == [] and CV.outdoor_built(b) == {"sa_L0_veranda": "os_L0_veranda"}
+    found, counts = PR.warnings(_inputs(tmp_path, b, {}))
+    assert counts["outside_built"] == 1 and "outside_not_room" not in counts
+    assert [f["severity"] for f in found if f["evidence"]["rule"] == "not_used"] == ["minor"]
+    # the scene must still hold it: an outdoor space is planned to be built
+    found = CV.in_scene(b, {"objects": [{"wenart_id": i} for i in ("w_L0_001", "r_L0_a", "d_L0_001", "f_L0_001")]})
+    assert [f["target"] for f in found] == ["os_L0_veranda"]

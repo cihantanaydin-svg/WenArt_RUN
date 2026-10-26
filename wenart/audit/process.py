@@ -90,6 +90,10 @@ def classify(text: str) -> tuple[str, str, str, str]:
             continue                                  # placed all it planned
         if rule == "drawn_mismatch" and abs(int(m.group(1))) < DRAWN_MISMATCH_CM:
             return rule, "info", kind, meaning
+        if rule == "not_used":
+            rep = re.search(r"(\d+) [^;]*\bnot used\b.*?(\d+) of them repeat", text)
+            if rep:                               # the stage says which of them repeat another level's (recorded)
+                return rule, "info" if int(rep.group(2)) >= int(rep.group(1)) else "minor", kind, meaning
         return rule, sev, kind, meaning
     return "other", "info", "other", ""
 
@@ -111,7 +115,7 @@ def _built_label(inp: Inputs, label: str) -> bool:
     """A site area of the final building with this label that is built with an outline (or a platform naming it)."""
     site = (inp.final or {}).get("site") or {}
     lab = label.strip().lower()
-    for a in (site.get("areas") or []) + (site.get("platforms") or []):
+    for a in (site.get("areas") or []) + (site.get("platforms") or []) + (site.get("outdoor_spaces") or []):
         if lab and lab in str(a.get("label") or a.get("label_raw") or a.get("id") or "").lower() \
                 and a.get("build") is not False and (a.get("polygon") or a.get("outline")):
             return True

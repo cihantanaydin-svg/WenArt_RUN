@@ -36,8 +36,9 @@ STAGE_FILES = (("reading", "building.json"), ("fit", "building_fitted.json"), ("
 # the collections compared: (name, path in the building)
 COLLECTIONS = (("rooms", ("rooms",)), ("walls", ("walls",)), ("openings", ("openings",)),
                ("furniture", ("furniture",)), ("site_areas", ("site", "areas")), ("site_symbols", ("site", "decor")),
-               ("trees", ("site", "trees")), ("pools", ("site", "pools")), ("platforms", ("site", "platforms")))
-CRITICAL_COLLECTIONS = ("rooms", "walls", "openings", "site_areas", "pools", "platforms")
+               ("trees", ("site", "trees")), ("pools", ("site", "pools")), ("platforms", ("site", "platforms")),
+               ("outdoor_spaces", ("site", "outdoor_spaces")))
+CRITICAL_COLLECTIONS = ("rooms", "walls", "openings", "site_areas", "pools", "platforms", "outdoor_spaces")
 REASON_KEYS = ("not_built_reason", "inferred_as", "replaced_by", "merged_into", "removed_reason", "reason", "note",
                "not_furniture", "explained")
 UNTYPED = ("unknown", "other", "", None)
@@ -161,7 +162,7 @@ def in_scene(final: dict, manifest: Optional[dict]) -> list[dict]:
             if coll == "furniture" and ((el.get("asset") or {}).get("method") in (None, "none")):
                 continue                          # no model fitted: C2 / the fit's record says why
             if coll == "site_areas" and not el.get("polygon"):
-                continue                          # C5 below
+                continue                          # C5 below (or built as an outdoor space: that one is checked)
             if el["id"] in ids or el["id"] in names:
                 continue
             if _type(el) in UNTYPED and coll in TYPED_COLLECTIONS:
@@ -172,14 +173,24 @@ def in_scene(final: dict, manifest: Optional[dict]) -> list[dict]:
     return out
 
 
+def outdoor_built(final: dict) -> dict:
+    """``{site area id: outdoor space id}`` of the labelled site areas built as an outdoor space
+    (``site.outdoor_spaces``: ``wenart.levels.outdoor``, a polygon and not ``build: false``)."""
+    return {str(o.get("area_id")): str(o.get("id")) for o in _items(final, ("site", "outdoor_spaces"))
+            if o.get("area_id") and o.get("polygon") and o.get("build") is not False}
+
+
 def untyped(final: dict) -> list[dict]:
     """C4 and C5 on the final building. The untyped elements of one collection are one finding (one missing rule),
     every id in its evidence."""
     out = []
     untyped_: dict = {}
+    spaces = outdoor_built(final)
     for coll, path in COLLECTIONS:
         for el in _items(final, path):
             if coll == "site_areas":
+                if el["id"] in spaces:
+                    continue                      # built as the outdoor space that names it
                 if el.get("build") is False or not el.get("polygon"):
                     label = el.get("label") or el.get("label_raw") or el["id"]
                     out.append(K.finding("conservation", "C5", "critical", el["id"],

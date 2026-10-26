@@ -1063,6 +1063,9 @@ class _Ledger:
                 self.count("warning", True, True)          # the logged reason of an element, a region's use
                 continue
             quoted = {fold(q) for q in QUOTED_RE.findall(w)}
+            if quoted and quoted <= self._built_labels():
+                self.count("warning", True, True)          # the label it names was built after all (an outdoor space)
+                continue
             levels = set(re.findall(r"\bL-?\d+[a-z]?\b", w)[:1])
             carriers = [f for f in self.findings.values()
                         if quoted & {fold(f["evidence"].get("text")), fold((f.get("fix") or {}).get("label"))}]
@@ -1087,6 +1090,12 @@ class _Ledger:
             owner = "site" if re.search(r"\bsite\b|decor|areas?\b", w) else "reading"
             self.add("A7", sev, f"warning:{len(self.findings)}", f"the reading says: {w}",
                      {"text": w}, owner, None)
+
+    def _built_labels(self) -> set:
+        """The folded labels of the outdoor spaces the model builds (``site.outdoor_spaces`` with a polygon)."""
+        site = self.m.b.get("site") or {}
+        return {fold(o.get("label")) for o in site.get("outdoor_spaces") or []
+                if isinstance(o, dict) and o.get("label") and o.get("polygon") and o.get("build") is not False}
 
     def _quoted_is_note(self, q: str) -> bool:
         return bool(NOTE_RE.search(q))
