@@ -46,7 +46,8 @@ KINDS = {
     "stale": {"what": "a stage acted on an older state than the one built (the critic reading doors the architect had "
                       "made windows)",
               "arises": "agent loop, critics",
-              "guards": ["the critics read the building as built", "conservation C2"]},
+              "guards": ["the critics read the building as built", "conservation C2",
+                         "consistency (Y*: the critic and the architect's rule disagree about one element)"]},
     "silent": {"what": "a stage noted a problem in a warning and nothing acted on it",
                "arises": "any stage",
                "guards": ["process P2 (warnings that say something was left out)"]},
@@ -73,7 +74,7 @@ CHECK_KIND = {
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",
                "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense"}
-LINE_KIND = {"ledger": "lost", "source": "lost", "conservation": "lost", "process": "process", "plan_vs_model": "lost", "sense": "no_sense", "render": "lost",
+LINE_KIND = {"ledger": "lost", "source": "lost", "conservation": "lost", "process": "process", "plan_vs_model": "lost", "sense": "no_sense", "render": "lost", "consistency": "stale",
              "elevations": "lost", "judge": "taste", "model": "no_sense", "architect": "no_sense"}
 
 

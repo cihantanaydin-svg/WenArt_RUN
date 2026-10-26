@@ -732,3 +732,24 @@ def test_argus_sees_what_was_tried_and_refused_on_a_target():
     assert tried == {"r_k": ["place_group: no_place: kitchen_run: no place passes the checks"]}
     item = dict(K.finding("process", "P10", "major", "r_k", "the kitchen has no fridge"), aid="F1", tried=tried["r_k"])
     assert AX._item_text(item)["tried_and_refused"] == tried["r_k"]
+
+
+def test_consistency_names_the_rule_that_does_not_see_what_the_critic_sees():
+    from wenart.audit import consistency as CY
+    inspector = {"code": [
+        {"check": "F7", "severity": "critical", "target": "f_L0_032", "message": "kitchen_counter blocks door o_L0_001"},
+        {"check": "F9", "severity": "major", "target": "f_1", "message": "ottoman f_1 overlaps sofa f_2 by 0.25 m²"},
+        {"check": "F9", "severity": "major", "target": "f_3", "message": "ottoman f_3 overlaps sofa f_2 by 0.25 m²"},
+        {"check": "F9", "severity": "major", "target": "f_4", "message": "chair f_4 overlaps table f_5"},
+        {"check": "G11", "severity": "minor", "target": "d_L0_001", "message": "minor: not checked"}]}
+    architect = {"questions": [
+        {"id": "F2", "answers": [{"element": "d_L0_009", "open": False}]},
+        {"id": "F5", "answers": [{"element": "f_1", "open": False}, {"element": "f_3", "open": False},
+                                 {"element": "f_4", "open": True}]}]}
+    res = CY.audit(inspector, architect)
+    by = {(f["check"], f["evidence"]["critic"]): f for f in res["findings"]}
+    assert set(by) == {("Y1", "F7"), ("Y2", "F9")}
+    assert by[("Y1", "F7")]["target"] == "o_L0_001" and by[("Y1", "F7")]["severity"] == "critical"
+    assert by[("Y2", "F9")]["evidence"]["elements"] == ["f_1", "f_3"]           # f_4: the architect sees it too
+    assert all(f["kind"] == "stale" and f["fix"] == "rule_needed" for f in res["findings"])
+    assert CY.audit(None, architect)["note"]
