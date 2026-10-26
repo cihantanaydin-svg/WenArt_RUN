@@ -246,10 +246,18 @@ def test_score_table_holds_the_spec_constants():
     for t in ("wardrobe", "armchair", "stove", "tv_unit", "table_coffee"):
         assert w[t] == 1.5
     assert w["chair"] == 0.8 and C.type_weight("nightstand") == 1.0 and C.type_weight(None) == 1.0
+    # fix round after the real06 run (26 Oct 2026): a corner sofa (and a bunk bed) weighs as a sofa (a bed)
+    assert w["sofa_corner"] == w["bunk_bed"] == 3.0
     # Milestone 11 (docs/milestone11.md §1.3 M6): the edge_near penalty (one door leaf or tall piece near the lens
-    # at the frame edge) is new; the M6 penalties are unchanged.
+    # at the frame edge) is new; the M6 penalties are unchanged. Fix round after the real06 run: the door leaves'
+    # share and the bare centre are penalised too.
     assert C.SCORE["penalties"] == {"near": (3.0, 0.08), "max_single": (3.0, 0.40), "wall": (2.0, 0.55),
-                                    "window": (2.0, 0.20), "ceiling": (1.0, 0.15), "edge_near": (4.0, 0.05)}
+                                    "window": (2.0, 0.20), "ceiling": (1.0, 0.15), "edge_near": (4.0, 0.05),
+                                    "door": (4.0, 0.10), "centre": (3.0, 0.30)}
+    assert (C.SCORE["anchor_factor"], C.SCORE["anchor_inside"], C.SCORE["anchor_seen"], C.SCORE["anchor_min_share"],
+            C.SCORE["anchor_full_share"], C.SCORE["anchor_big_share"], C.SCORE["centre_near_m"]) == \
+        (3.0, 0.6, 0.5, 0.01, 0.08, 0.15, 4.0)
+    assert (C.DROP_BELOW_BEST, C.SMALL_ROOM_M2) == (0.7, 8.0)
     assert C.SCORE["edge_near_factor"] == 2.0 and C.EDGE_TALL_M == 1.4
     assert (C.SCORE["grid"], C.SCORE["near_m"], C.SCORE["blocked_near"], C.SCORE["blocked_single"]) == \
         ((64, 36), 0.9, 0.30, 0.50)
@@ -447,8 +455,8 @@ def test_select_views_greedy_diversity_and_drop_rules():
     # Exactly 50 deg or exactly 1.0 m is enough.
     picks, _ = C.select_views([_cand(3.0, 1.0, 1.0, 0), _cand(2.9, 1.0, 1.0, 50), _cand(2.8, 2.0, 1.0, 0)], 3)
     assert len(picks) == 3
-    # Below half the best score: dropped, even when diverse.
-    picks, _ = C.select_views([_cand(4.0, 1.0, 1.0, 0), _cand(1.99, 3.0, 3.0, 180), _cand(2.0, 3.0, 3.0, 90)], 3)
+    # Below 0.7 x the best score (0.5 before the fix round after the real06 run): dropped, even when diverse.
+    picks, _ = C.select_views([_cand(4.0, 1.0, 1.0, 0), _cand(2.79, 3.0, 3.0, 180), _cand(2.8, 3.0, 3.0, 90)], 3)
     assert [p["yaw"] for p in picks] == [0, 90]
     # A negative best keeps one view only.
     assert len(C.select_views([_cand(-0.5, 1.0, 1.0, 0), _cand(-0.6, 3.0, 3.0, 180)], 3)[0]) == 1
@@ -477,10 +485,13 @@ def test_a_tiny_room_gets_one_blocked_view_with_the_warning():
     assert plans[0]["lens_mm"] == 24.0 and plans[0]["lens_rule"] == "brief render.lens_mm"
     assert C.rooms_without_view(building) == []
     # Milestone 8: the automatic lens of this 1.2 m room is 16 mm; its near distance is 0.6 m (0.9 m x 16 / 24),
-    # and the same corner view is no longer blocked (near share 0.51 at 24 mm, 0.05 at 16 mm).
+    # and the same corner view is no longer blocked (near share 0.51 at 24 mm, 0.05 at 16 mm). Fix round after the
+    # real06 run: no camera point frames the basin whole (it lies mostly below every frame), so it is in the frame
+    # as a piece too big for the room (RoomModel.set_big) where the part of its box in the frame covers 15 % of it
+    # and reaches its middle third; the view showing it stands 0.15 m nearer (near share 0.29, was 0.05; not blocked).
     (plan,) = cameras.plan_cameras(building, "L0", policy="search")
     assert plan["lens_mm"] == 16.0 and plan["warning"] is None and not plan["score"]["blocked"]
-    assert plan["score"]["shares"]["near"] < 0.1
+    assert plan["score"]["shares"]["near"] < C.SCORE["blocked_near"] and plan["anchors_in_frame"] == ["wb"]
 
 
 def test_rooms_without_furniture_get_one_view_or_none_below_2_5_m2():
@@ -589,18 +600,22 @@ def test_search_plans_carry_the_spec_fields():
         assert p["target"][1] - p["position"][1] == pytest.approx(math.sin(yaw), abs=2e-6)
         assert p["anchor"] is None and p["warning"] is None and not p["score"]["blocked"]
         s = p["score"]
-        assert set(s) >= {"total", "furniture", "openings", "floor", "depth", "penalties", "blocked"}
-        assert s["total"] == pytest.approx(s["furniture"] + s["openings"] + s["floor"] + s["depth"] - s["penalties"],
-                                           abs=5e-4)
+        assert set(s) >= {"total", "furniture", "anchors", "openings", "floor", "depth", "penalties", "blocked"}
+        # fix round after the real06 run (26 Oct 2026): the room's set in the frame is a term of its own
+        assert s["total"] == pytest.approx(s["furniture"] + s["anchors"] + s["openings"] + s["floor"] + s["depth"]
+                                           - s["penalties"], abs=5e-4)
+        assert p["anchors_in_frame"] == ["bed"]          # a bedroom: every view shows its bed inside the frame
         assert p["placement"].startswith(f"search: score {s['total']:.3f} = furniture {s['furniture']:.3f}")
         assert p["search_seconds"] >= 0 and p["search_seconds"] == plans[0]["search_seconds"]
         assert geom2d.point_is_free(p["position"][:2], [tuple(v) for v in building["rooms"][0]["polygon"]],
                                     [obstacle_rect(f) for f in building["furniture"]], 0.3, 0.2)
     assert [p["score"]["total"] for p in plans] == sorted((p["score"]["total"] for p in plans), reverse=True)
     assert C.level_search_seconds(plans) == {"L0": plans[0]["search_seconds"]}
-    # The bed (type weight 3) fills a good part of the best view (its centre may lie below the frame).
-    seen = C.score_camera(building, plans[0])["shares"]["elements"]
-    assert seen.get("bed", 0.0) >= 0.1 and plans[0]["score"]["shares"]["furn"] > 0.5
+    # The bed (type weight 3) fills a good part of the best view (its centre may lie below the frame). Fix round after
+    # the real06 run: the whole bed, inside the frame (``furn`` 0.41: the wardrobe is not in this view).
+    shares = C.score_camera(building, plans[0])["shares"]
+    assert shares["elements"].get("bed", 0.0) >= 0.1 and shares["inside"]["bed"] == 1.0
+    assert plans[0]["score"]["shares"]["furn"] > 0.4 and plans[0]["score"]["shares"]["anchors"] == 1.0
 
 
 @pytest.mark.parametrize("width, brief, lens", [(5.0, None, 18.0), (2.0, None, 16.0), (2.0, 24.0, 24.0),
@@ -740,11 +755,17 @@ def test_hall_views_show_the_stair_and_list_it():
     towards the stair blocked and picked two views of the walls with ``visible_furniture: []``."""
     building = _stair_hall()
     plans = _search(building)
-    assert len(plans) == C.views_for_area(G.polygon_area(C.room_polygon(building["rooms"][0])))
+    # Fix round after the real06 run (26 Oct 2026): the 7.0 m2 hall is a small room (``SMALL_ROOM_M2``), whose later
+    # views must show a piece of its set the earlier ones do not; the stair is its only piece: one view (3 by area).
+    area = G.polygon_area(C.room_polygon(building["rooms"][0]))
+    assert C.views_for_area(area) == 3 and area < C.SMALL_ROOM_M2 and len(plans) == 1
     for p in plans:
         share = C.score_camera(building, p)["shares"]["elements"].get("f_L0_019", 0.0)
         assert share >= 0.15 and "f_L0_019" in p["visible_furniture"], (p["name"], share)
         assert not p["score"]["blocked"] and p["warning"] is None
+        # no camera point of the hall frames the stair whole (RoomModel.set_big): it is in the frame as a piece too
+        # big for it (its part there covers anchor_big_share of the frame and reaches the middle)
+        assert p["anchors_in_frame"] == ["f_L0_019"]
 
 
 @pytest.mark.parametrize("lens", [24.0, 16.0])
@@ -1244,17 +1265,24 @@ def test_synthetic_search_beats_the_m5_cameras_by_the_model(searched):
           f"{floor_search:.3f}; blocked m5 {blocked_m5}")
     assert mean_search > mean_m5 + 1.0 and floor_search > floor_m5
     # The best view of every room scores at least as well as the best M5 view of that room.
-    best_m5 = {}
-    for p, s in zip(m5, m5_scores):
-        best_m5[p["room_id"]] = max(best_m5.get(p["room_id"], -9.0), s["terms"]["total"])
     # Milestone 11 (§1.3 M6): the edge_near penalty is a trade-off the M5 cameras (other heights and pitches, not
-    # among the candidates) need not make: the guarantee holds for the M10 terms (the total without it).
-    factor, allowed = C.SCORE["penalties"]["edge_near"]
+    # among the candidates) need not make: the guarantee holds for the M10 terms (the total without it). Fix round
+    # after the real06 run (26 Oct 2026): so are the door and bare-centre penalties, and the first view of a room with
+    # anchors is its best view showing one: it is compared with the best M5 view showing one.
+    trade = [C.SCORE["penalties"][k] + (k,) for k in ("edge_near", "door", "centre")]
+    rooms = {r["id"]: r for r in building["rooms"]}
     for p in plans:
-        if p["index"] == 1:
-            again = C.score_camera(building, p)
-            edge = factor * max(0.0, again["shares"]["edge_near"] - allowed)
-            assert p["score"]["total"] + edge >= best_m5[p["room_id"]] - 1e-3, p["name"]
+        if p["index"] != 1:
+            continue
+        need = bool(p["anchors_in_frame"])
+        best_m5 = max((s["terms"]["total"] for q, s in zip(m5, m5_scores) if q["room_id"] == p["room_id"]
+                       and (not need or s["shares"].get("anchors_in"))), default=None)
+        if best_m5 is None:
+            continue                                     # no M5 view of the room shows one of its anchors
+        assert need or not C.RoomModel(rooms[p["room_id"]], building).anchor_ids or p["warning"], p["name"]
+        again = C.score_camera(building, p)
+        relief = sum(f * max(0.0, again["shares"].get(k, 0.0) - a) for f, a, k in trade)
+        assert p["score"]["total"] + relief >= best_m5 - 1e-3, p["name"]
 
 
 def test_plan_count_of_the_committed_buildings_follows_the_area_rule():

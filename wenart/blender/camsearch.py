@@ -93,7 +93,8 @@ How:
   the unblocked candidates (ties: score, then x, y, yaw), a later pick must
   differ from every earlier one by at least 50 degrees of yaw or 1.0 m, and a
   pick below 0.5 x the room's best score is dropped (at least one view per
-  room). A room with only blocked candidates gets its best one with the
+  room; 0.7 and the room's set since the fix round after the real06 run,
+  below). A room with only blocked candidates gets its best one with the
   warning ``blocked unavoidable``. Deterministic: scores are rounded to
   1e-6 before sorting, so float noise never decides a tie.
 - Output per plan: ``score`` = ``{total, furniture, openings, floor, depth,
@@ -138,7 +139,8 @@ gets its area-rule views.
 Milestone 10 (docs/milestone10.md §3.2 item 2, §1.6b row 15): a room under the roof has the sloped ceiling of
 its level's ``ceiling_planes`` in the ray model and keeps ``HEADROOM_M`` above its camera points
 (``headroom_ok``); a wall-hung piece (``mount_bottom_m``, wall cabinets at 1.45 m; ``mount_bottom``) is no floor
-obstacle for the camera points and its boxes hang from that height in the model and the frustum lists. A roof
+obstacle for the camera points (one hung above the lens only since the fix round after the real06 run,
+``floor_obstacle``) and its boxes hang from that height in the model and the frustum lists. A roof
 terrace open to the sky (the level's ``open_rooms``: ``build.prepare``'s decided roof openings, where the shell
 builds no ceiling) has no sloped ceiling in the model and no headroom filter (fix round after P5, below).
 
@@ -202,6 +204,47 @@ fridges (P4b had 0.9 m chairs there); four replayed views stood inside or agains
 index pass, three black finals). On P6b's building yasama_2_2, 3_2, 5_2 and 6_1 move 0.88, 0.72, 0.68 and 0.66 m
 (single share 0.11-0.15 after); nothing moves on P4b real03, P4a real02 or P6a real04 (no replayed camera).
 
+Fix round after the real06 run (26 Oct 2026; pod run 20261026-183115-full, the AI judge's scores of real06): a view
+shows the room's set, not its walls. Why: the judge scored real06's bathroom views 1-2 of 5 for framing a blank tiled
+wall, a door or a corner while the toilet, shower and basins were out of the frame (``cam_r_L1_banyo_3`` 1/5,
+``cam_r_L0_banyo_1``/``_2``, ``cam_r_L1_dus_2`` 2/5), a living room view whose centre was a bare column
+(``cam_r_L0_salon_1``) and a bedroom view with its bed cropped. Causes, all general: openings, floor and depth gave up
+to 3 points to any view, while a room's furniture term divided what one view shows by all its pieces (a bathroom view
+of one fixture: 1.3 points); a door counted as an opening whatever its size; nothing looked at what stands in the
+middle of the frame; edge_near treated the room's own shower 0.9 m away as a looming wardrobe side (-1.3); later views
+were kept down to half the best score; and wall-hung pieces were no obstacles, so a camera stood over a basin. What:
+- The room's anchors and set (``view_set``): the pieces of the room type's ``VIEW_ANCHOR_TYPES`` (bathroom: toilet,
+  basin, shower, bathtub; living: sofas and armchairs; bedroom: beds; kitchen: counter runs, island, sink, stove,
+  fridge; ...) and the group anchors (``group.role: anchor``), else the pieces of the room's highest type weight; the
+  set adds the other members of their groups. Only pieces the model holds count (a stair's top end on the floor above is
+  nothing in it); a room whose model holds no piece gets ``EMPTY_ROOM_VIEWS``. ``sofa_corner`` and ``bunk_bed`` weigh 3.
+- A piece in the frame (``box_in_frame``, pure numpy): the fraction of its box's projected rectangle inside the frame
+  (the box cut at 0.05 m ahead of the lens, so a piece beside the camera is outside), the frame share of that part and
+  whether it reaches the frame's middle third. A piece is in the frame (``anchors_in``, ``set_in``) when that
+  fraction is at least ``anchor_inside`` (0.6), its rays fill at least ``anchor_seen`` of ``anchor_fill`` x its
+  in-frame box (not hidden) and it covers ``anchor_min_share`` (1 %); a piece no camera point of the room frames whole
+  (``RoomModel.set_big``: a stair in a narrow hall, a basin in a 1.2 m WC) is in the frame when its in-frame part
+  covers ``anchor_big_share`` (15 %) and reaches the middle third.
+- Score: ``anchors`` = ``anchor_factor`` (3) x the set's weighted share shown (``set_cover``; a piece counts its
+  in-frame fraction x its fill x min(1, share / ``anchor_full_share``), so a far, small piece counts less); penalties
+  ``door`` (the door leaves' share over 0.10, x 4) and ``centre`` (``bare_centre``: the share of the frame's middle
+  third of columns whose lowest surface above the floor is a wall or door leaf nearer than ``centre_near_m``, 4 m,
+  over 0.30, x 3; in rooms with a set only); edge_near counts only the outside part of a set piece in the frame.
+- Pick (``select_views``): no view without an anchor in the frame while one shows it (none at all: the best view only,
+  with ``NO_ANCHOR_NOTE``: fewer views beat views of a wall); a later view is the one with the highest score + 3 x
+  what it adds to the set (``cover_gain``), kept from ``DROP_BELOW_BEST`` = 0.7 x the best score (was 0.5); in a room
+  under ``SMALL_ROOM_M2`` (8 m2) a later view must show a piece of the set no earlier view shows.
+- Camera points (``floor_obstacle``): a piece hung below the lens (a wall-hung basin or toilet) keeps them away; one
+  hung at or above it (a wall cabinet at 1.45 m) does not.
+Plans carry ``score.anchors``, ``score.shares.anchors/door/centre``, ``anchors_in_frame`` and ``set_in_frame``.
+Measured on real06's built building (all 12 rooms, both levels; the old pick reproduced exactly): 28 -> 24 views;
+views of a room with anchors but none in the frame 5 -> 1 (the 3.1 m2 entrance: no view holds its shoe cabinet);
+views with a bare centre (>= 0.9) 6 -> 0; door share over 0.10: 7 -> 1; set pieces in frame per view 1.04 -> 1.54;
+rooms whose views together show their whole set 4 -> 7; search 8.3 -> 8.4 s (best of 3; within 6 %). The tests replay
+real06's three bathrooms (tests/test_camsearch_views.py, tests/fixtures/camsearch_real06_bathrooms_20261026.json).
+On the committed synthetic-01 / synthetic-03 buildings: 29 -> 20 and 43 -> 39 views, views without an anchor in the
+frame 10 -> 0 and 16 -> 0, with a bare centre 3 -> 0 and 2 -> 0.
+
 CLI (inspection only; the build calls ``plan_level``): ``python -m
 wenart.blender.camsearch outputs/<p>/building_final.json --out cameras.json
 [--report cameras.md] [--level L0] [--lens-mm 18]``.
@@ -249,6 +292,10 @@ SCORE = {
         # filling a quarter of the frame, a wardrobe side): its share of the rays nearer than edge_near_factor x the
         # near distance, for an element that touches the frame border
         "edge_near": (4.0, 0.05),
+        # fix round after the real06 run (26 Oct 2026): the door leaves' share of the frame (a door filling half of
+        # it), and the bare wall or door in the frame's centre below eye level (``centre``: a column, a blank wall)
+        "door": (4.0, 0.10),
+        "centre": (3.0, 0.30),
     },
     "edge_near_factor": 2.0,
     "blocked_near": 0.30,             # blocked: near > 0.30 ...
@@ -257,12 +304,25 @@ SCORE = {
     "type_weight": {
         "bed": 3.0, "bed_double": 3.0, "bed_single": 3.0, "sofa": 3.0, "kitchen_counter": 3.0,
         "kitchen_island": 3.0,
+        "sofa_corner": 3.0, "bunk_bed": 3.0,          # fix round after the real06 run: a corner sofa is a sofa
         "bathtub": 2.5,
         "table_dining": 2.0, "desk": 2.0, "toilet": 2.0, "washbasin": 2.0, "shower": 2.0, "sink_kitchen": 2.0,
         "wardrobe": 1.5, "armchair": 1.5, "stove": 1.5, "tv_unit": 1.5, "table_coffee": 1.5,
         "chair": 0.8,
     },
     "default_type_weight": 1.0,
+    # fix round after the real06 run (26 Oct 2026): the room's set in the frame (``set_cover``): anchor_factor x
+    # the weighted share of the set shown, a piece counting its in-frame box fraction times its visible fill
+    "anchor_factor": 3.0,
+    "anchor_fill": 0.5,               # a piece whose rays fill half of its in-frame box is not hidden (seen = 1)
+    "anchor_full_share": 0.08,        # ... and it counts fully from this frame share on (less when far and small)
+    "anchor_inside": 0.6,             # an anchor is in the frame when this much of its box is inside it ...
+    "anchor_seen": 0.5,               # ... it is not hidden behind a wall or piece (seen >= 0.5) ...
+    "anchor_min_share": 0.01,         # ... and it covers at least 1 % of the frame
+    "anchor_big_share": 0.15,         # a piece no camera point frames whole (RoomModel.set_big: a stair in a narrow
+                                      # hall) is in the frame when its part there covers this much, in the middle
+    "centre_columns": (1.0 / 3.0, 2.0 / 3.0),   # the frame's centre: its middle third of columns ...
+    "centre_near_m": 4.0,             # ... bare where a wall or door nearer than this stands on the floor (bare_centre)
 }
 
 # Candidates and the pick (§4.1).
@@ -280,7 +340,7 @@ WALL_CLEARANCE = cameras.CAMERA_WALL_CLEARANCE          # 0.3 m
 OBSTACLE_CLEARANCE = cameras.CAMERA_OBSTACLE_CLEARANCE  # 0.2 m
 MIN_YAW_DIFF_DEG = 50.0
 MIN_DISTANCE_M = 1.0
-DROP_BELOW_BEST = 0.5
+DROP_BELOW_BEST = 0.7                # fix round after the real06 run: 0.5 kept views of a wall next to a good one
 VIEW_AREAS = ((6.0, 3), (3.0, 2))    # (minimum area m2, views); smaller rooms get 1 view
 # Milestone 7 (§6.2): a room with nothing to show gets one view, none below this area (listed).
 EMPTY_ROOM_VIEWS = 1
@@ -289,6 +349,22 @@ MIN_EMPTY_ROOM_AREA_M2 = 2.5
 EDGE_TALL_M = 1.4
 BLOCKED_WARNING = "blocked unavoidable"
 SCORE_DECIMALS = 6                   # scores are rounded before sorting (deterministic ties)
+
+# Fix round after the real06 run (26 Oct 2026; module docstring): the room's anchors by room type (the pieces a view
+# of that room is about); a room without one of its type's anchors takes its group anchors, else its pieces of the
+# highest type weight. The room's set is its anchors and the other members of their groups.
+VIEW_ANCHOR_TYPES: dict[str, tuple[str, ...]] = {
+    "bathroom": ("toilet", "washbasin", "shower", "bathtub"),
+    "wc": ("toilet", "washbasin"),
+    "kitchen": ("kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "fridge"),
+    "living": ("sofa", "sofa_corner", "armchair", "chaise"),
+    "bedroom": ("bed", "bed_double", "bed_single", "bunk_bed", "crib"),
+    "dining": ("table_dining",),
+    "storage": ("wardrobe", "tall_cabinet"),
+    "balcony": ("table_dining", "sofa", "armchair", "bench"),
+}
+SMALL_ROOM_M2 = 8.0                  # under this area a later view must show a piece of the set no earlier one does
+NO_ANCHOR_NOTE = "no candidate view shows one of the room's anchors inside the frame; the best view is kept"
 
 # Height profiles of the pieces with a back (``piece_profile``): per type, the roles of the parametric parts
 # (``parametric.build_parts``) whose box is the low part (frame and mattress, seat, bowl and seat ring) and the
@@ -520,6 +596,158 @@ def type_weight(piece_type: Optional[str]) -> float:
     return float(SCORE["type_weight"].get(piece_type or "", SCORE["default_type_weight"]))
 
 
+def _group_role(piece: dict) -> Optional[str]:
+    g = piece.get("group")
+    return g.get("role") if isinstance(g, dict) else None
+
+
+def view_set(room: dict, pieces: Sequence[dict]) -> tuple[list[str], list[str]]:
+    """``(anchors, set)``: the ids of the room's anchors and of its set among ``pieces`` (its ``shown_pieces``), in
+    piece order (pure; fix round after the real06 run, 26 Oct 2026). The anchors are the pieces of the room type's
+    ``VIEW_ANCHOR_TYPES`` and the group anchors (``group.role: anchor``); a room without any takes its pieces of the
+    highest ``type_weight`` (a hall's stair, a dressing room's wardrobes). The set adds the other members of the
+    anchors' groups (a sofa's armchairs and coffee table, a bed's nightstands). A stair counts only when it is the
+    room's only kind of piece (a kitchen's stair is no view of the kitchen)."""
+    if not pieces:
+        return [], []
+    types = set(VIEW_ANCHOR_TYPES.get(room.get("room_type") or "", ()))
+    anchors = [f["id"] for f in pieces if f.get("type") in types or _group_role(f) == "anchor"]
+    if not anchors:
+        candidates = [f for f in pieces if f.get("type") not in P.SHELL_TYPES] or list(pieces)
+        best = max(type_weight(f.get("type")) for f in candidates)
+        anchors = [f["id"] for f in candidates if type_weight(f.get("type")) >= best - 1e-9]
+    chosen = set(anchors)
+    groups = {f["group"].get("group_id") for f in pieces if f["id"] in chosen and isinstance(f.get("group"), dict)}
+    groups.discard(None)
+    members = [f["id"] for f in pieces if f["id"] not in chosen and isinstance(f.get("group"), dict)
+               and f["group"].get("group_id") in groups]
+    chosen |= set(members)
+    return anchors, [f["id"] for f in pieces if f["id"] in chosen]
+
+
+def set_cover(shown: Sequence[float], weights: Sequence[float]) -> float:
+    """The share of the room's set a view shows: ``sum_k w_k shown_k / sum_k w_k`` over the set (pure; 0 without a
+    set); ``shown_k`` = the piece's in-frame box fraction x its visible fill x min(1, share / ``anchor_full_share``)
+    (``RoomModel.measure``)."""
+    total = float(sum(weights))
+    if total <= 0:
+        return 0.0
+    return float(sum(float(w) * min(max(float(s), 0.0), 1.0) for s, w in zip(shown, weights))) / total
+
+
+# The 12 edges of a box whose 8 corners are indexed by bits (x: 1, y: 2, z: 4).
+_BOX_EDGES = tuple((i, i ^ bit) for i in range(8) for bit in (1, 2, 4) if not i & bit)
+
+
+def box_corners(cx: float, cy: float, w: float, d: float, z0: float, z1: float,
+                rotation_deg: float = 0.0) -> np.ndarray:
+    """The 8 corners (8 x 3) of a box ``w`` x ``d`` on the plan point ``(cx, cy)``, turned by ``rotation_deg``, from
+    ``z0`` to ``z1`` (corner ``i``: x side bit 1, y side bit 2, z side bit 4)."""
+    r = math.radians(float(rotation_deg))
+    c, s = math.cos(r), math.sin(r)
+    out = np.empty((8, 3))
+    for i in range(8):
+        lx = (w / 2.0) * (1 if i & 1 else -1)
+        ly = (d / 2.0) * (1 if i & 2 else -1)
+        out[i] = (cx + c * lx - s * ly, cy + s * lx + c * ly, z1 if i & 4 else z0)
+    return out
+
+
+def frame_bounds(lens_mm: float = LENS_MM, shift_x: float = 0.0, shift_y: float = 0.0, sensor_mm: float = SENSOR_MM,
+                 resolution=RESOLUTION) -> tuple[float, float, float, float]:
+    """``(a0, a1, b0, b1)``: the frame's slopes (``ray_grid``'s ``a`` right, ``b`` up) at its left, right, bottom
+    and top edges."""
+    W, H = float(resolution[0]), float(resolution[1])
+    f = float(lens_mm) / float(sensor_mm) * W
+    return ((-W / 2.0 + float(shift_x) * W) / f, (W / 2.0 + float(shift_x) * W) / f,
+            -(H / 2.0 - float(shift_y) * W) / f, (H / 2.0 + float(shift_y) * W) / f)
+
+
+def box_in_frame(corners: np.ndarray, origin, forward: np.ndarray, right: np.ndarray, up: np.ndarray,
+                 bounds, near: float = 0.05) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """``(inside, area, middle)`` of a box (``box_corners``, 8 x 3; each result C) or of K boxes (K x 8 x 3; each
+    result C x K) seen by C cameras at ``origin`` with unit axes ``forward``/``right``/``up`` (C x 3; a ray is
+    ``forward + a right + b up``) through the frame ``bounds`` (``frame_bounds``): the fraction of the box's projected
+    bounding rectangle inside the frame, the frame share of that inside part (occlusion ignored) and whether that
+    part reaches the frame's middle third of columns (``SCORE["centre_columns"]``). The box is cut at ``near`` metres
+    ahead of the lens (the part behind projects far outside the frame), so a piece beside or behind the camera
+    counts as outside."""
+    pts = np.asarray(corners, dtype=np.float64)
+    one = pts.ndim == 2
+    rel = (pts[None] if one else pts) - np.asarray(origin, dtype=np.float64)        # K x 8 x 3
+    z = np.einsum("kij,cj->kic", rel, forward)                                     # K x 8 x C
+    x = np.einsum("kij,cj->kic", rel, right)
+    y = np.einsum("kij,cj->kic", rel, up)
+    front = z > near
+    i, j = np.array(_BOX_EDGES).T
+    cross = front[:, i] != front[:, j]                                             # K x 12 x C
+    with np.errstate(divide="ignore", invalid="ignore"):
+        t = (near - z[:, i]) / (z[:, j] - z[:, i])
+        A = np.concatenate([np.where(front, x / z, np.nan),
+                            np.where(cross, (x[:, i] + t * (x[:, j] - x[:, i])) / near, np.nan)], axis=1)
+        B = np.concatenate([np.where(front, y / z, np.nan),
+                            np.where(cross, (y[:, i] + t * (y[:, j] - y[:, i])) / near, np.nan)], axis=1)
+    seen = ~np.isnan(A)                                                            # K x 20 x C
+    ok = seen.any(axis=1)
+    amin, amax = np.where(seen, A, np.inf).min(axis=1), np.where(seen, A, -np.inf).max(axis=1)
+    bmin, bmax = np.where(seen, B, np.inf).min(axis=1), np.where(seen, B, -np.inf).max(axis=1)
+    a0, a1, b0, b1 = bounds
+    c0, c1 = SCORE["centre_columns"]
+    with np.errstate(invalid="ignore"):
+        left, right_ = np.maximum(amin, a0), np.minimum(amax, a1)
+        inter = np.where(ok, np.clip(right_ - left, 0.0, None) * np.clip(np.minimum(bmax, b1) - np.maximum(bmin, b0),
+                                                                          0.0, None), 0.0)
+        area = np.where(ok, (amax - amin) * (bmax - bmin), 0.0)
+        inside = np.where(area > 1e-12, inter / np.where(area > 1e-12, area, 1.0),
+                          (ok & (amin >= a0) & (amax <= a1) & (bmin >= b0) & (bmax <= b1)).astype(float))
+        middle = (inter > 0) & (right_ > a0 + c0 * (a1 - a0)) & (left < a0 + c1 * (a1 - a0))
+    inside, share = np.clip(inside, 0.0, 1.0), inter / ((a1 - a0) * (b1 - b0))
+    if one:
+        return inside[0], share[0], middle[0]
+    return inside.T, share.T, middle.T
+
+
+def yaw_axes(yaws_deg: Sequence[float]) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """``(forward, right, up)`` (each n x 3) of pitch-0 cameras (``yaw_directions``' axes)."""
+    yaw = np.radians(np.asarray(yaws_deg, dtype=np.float64))
+    c, s = np.cos(yaw), np.sin(yaw)
+    zero = np.zeros_like(c)
+    return np.stack([c, s, zero], axis=1), np.stack([s, -c, zero], axis=1), np.stack([zero, zero, zero + 1.0], axis=1)
+
+
+def look_axes(position, target) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """``(forward, right, up)`` (each 1 x 3) of a look-at camera with world up +Z (``camera_directions``' axes)."""
+    pos = np.asarray(position, dtype=np.float64)
+    f = np.asarray(target, dtype=np.float64) - pos
+    f = f / np.linalg.norm(f)
+    r = np.cross(f, [0.0, 0.0, 1.0])
+    n = np.linalg.norm(r)
+    r = np.array([1.0, 0.0, 0.0]) if n < 1e-9 else r / n
+    return f[None, :], r[None, :], np.cross(r, f)[None, :]
+
+
+def bare_centre(labels: np.ndarray, depth: np.ndarray, grid, blank_codes) -> np.ndarray:
+    """``centre`` (C) of ray labels / depths (C x P, row-major over ``grid`` = (cols, rows)): the share of the frame's
+    middle columns (``SCORE["centre_columns"]``) whose lowest surface above the floor is a wall or one of
+    ``blank_codes`` (the door leaves) nearer than ``SCORE["centre_near_m"]`` (pure; fix round after the real06 run):
+    nothing stands in front of that wall in the middle of the picture (a column, a blank tiled wall, a door). A
+    piece in front of the wall, a window or opening down to the floor, or a wall farther away (the room's depth) is
+    no bare column."""
+    cols, rows = grid
+    lo, hi = SCORE["centre_columns"]
+    L = np.asarray(labels).reshape(-1, rows, cols)
+    D = np.asarray(depth).reshape(-1, rows, cols)
+    up = (L != FLOOR) & (L != NOTHING)
+    has = up.any(axis=1)                                           # C x cols
+    row = rows - 1 - np.argmax(up[:, ::-1, :], axis=1)            # the lowest such row of each column
+    base = np.take_along_axis(L, row[:, None, :], axis=1)[:, 0, :]
+    near = np.take_along_axis(D, row[:, None, :], axis=1)[:, 0, :] < SCORE["centre_near_m"]
+    blank = (base == WALL) | np.isin(base, np.asarray(list(blank_codes), dtype=int))
+    bare = has & blank & near
+    middle = (np.arange(cols) >= lo * cols) & (np.arange(cols) < hi * cols)
+    return bare[:, middle].mean(axis=1)
+
+
 def furniture_share(shares: Sequence[float], touches_border: Sequence[bool], weights: Sequence[float]) -> float:
     """``furn`` of §4.1: ``sum_k w_k min(c_k, cap)/cap (0.6 if k touches the border) / sum_k w_k``
     over the room's pieces (0 for a room without pieces)."""
@@ -538,19 +766,21 @@ def score_terms(m: dict) -> dict:
 
     ``m``: ``furn`` (``furniture_share``), ``open``, ``floor``, ``wall``,
     ``window``, ``ceiling``, ``near``, ``max_single`` (ray shares) and
-    ``d_wall`` (metres). Returns the terms as they enter the total:
-    ``{"total", "furniture", "openings", "floor", "depth", "penalties", "blocked"}``.
+    ``d_wall`` (metres); optional ``anchors`` (``set_cover``), ``edge_near``,
+    ``door`` and ``centre`` (0 when absent). Returns the terms as they enter the total:
+    ``{"total", "furniture", "anchors", "openings", "floor", "depth", "penalties", "blocked"}``.
     """
     furniture = SCORE["furniture_factor"] * float(m["furn"])
+    anchors = SCORE["anchor_factor"] * float(m.get("anchors", 0.0))    # fix round after the real06 run
     openings = min(float(m["open"]), SCORE["openings_cap"]) / SCORE["openings_cap"]
     floor = min(float(m["floor"]), SCORE["floor_cap"]) / SCORE["floor_cap"]
     depth = min(float(m["d_wall"]) / SCORE["depth_ref_m"], 1.0)
     penalties = 0.0
     for name, (factor, allowed) in SCORE["penalties"].items():
         penalties += factor * max(0.0, float(m.get(name, 0.0)) - allowed)   # edge_near: Milestone 11
-    total = furniture + openings + floor + depth - penalties
-    return {"total": total, "furniture": furniture, "openings": openings, "floor": floor, "depth": depth,
-            "penalties": penalties, "blocked": is_blocked(m)}
+    total = furniture + anchors + openings + floor + depth - penalties
+    return {"total": total, "furniture": furniture, "anchors": anchors, "openings": openings, "floor": floor,
+            "depth": depth, "penalties": penalties, "blocked": is_blocked(m)}
 
 
 def near_distance(lens_mm: float) -> float:
@@ -783,6 +1013,9 @@ class RoomModel:
             self.elements.append({"id": f["id"], "kind": "furniture", "type": f.get("type"),
                                   "weight": type_weight(f.get("type"))})
         self.n_labels = FIRST_ELEMENT + len(self.elements)
+        # fix round after the real06 run (26 Oct 2026): every piece's box for its in-frame fraction (``box_in_frame``;
+        # set below with the ray boxes, None for a piece not in the model); the anchors and set after them
+        self.piece_corners: list = [None] * len(self.pieces)
         idx = np.arange(FIRST_ELEMENT, self.n_labels)
         kinds = [e["kind"] for e in self.elements]
         self.piece_codes = idx[[k == "furniture" for k in kinds]] if kinds else idx
@@ -866,6 +1099,9 @@ class RoomModel:
                     solid = convex_parts_solid(P.stair_parts(plan), self.floor_z)
                     if solid is not None:
                         self.solids.append((code,) + solid)
+                        lo, hi = solid[0], solid[1]
+                        self.piece_corners[k] = box_corners((lo[0] + hi[0]) / 2.0, (lo[1] + hi[1]) / 2.0,
+                                                            hi[0] - lo[0], hi[1] - lo[1], lo[2], hi[2])
                         continue
                 elif "arrival" in item:
                     continue
@@ -874,10 +1110,44 @@ class RoomModel:
             c, s = math.cos(rot), math.sin(rot)
             fx, fy = float(fp["center"][0]), float(fp["center"][1])
             base = self.floor_z + mount_bottom(f)                # a wall-hung piece hangs (Milestone 10)
+            bw, bd, btop, _ = piece_bbox(f)
+            self.piece_corners[k] = box_corners(fx, fy, bw, bd, base, base + btop, float(fp.get("rotation_deg") or 0.0))
             for x0, y0, x1, y1, top in piece_profile(f):
                 lx, ly = (x0 + x1) / 2.0, (y0 + y1) / 2.0       # box centre in the piece frame -> world
                 self.boxes.append((code, fx + c * lx - s * ly, fy + s * lx + c * ly, base + top / 2.0,
                                    (x1 - x0) / 2.0, (y1 - y0) / 2.0, top / 2.0, c, s))
+        # fix round after the real06 run: the anchors and the set among the pieces the model holds (a stair's drawn
+        # upper end on the top level is nothing in the model, so it is nothing a view can show); the pieces no camera
+        # point of the room frames whole (``set_big``: none until it is called)
+        self.anchor_ids, self.set_ids = view_set(room, [f for k, f in enumerate(self.pieces)
+                                                        if self.piece_corners[k] is not None])
+        self.piece_big = np.zeros(len(self.pieces), dtype=bool)
+        self.big_known = False
+
+    def set_big(self, frames: Sequence) -> None:
+        """Mark the pieces too big for this room's frames (fix round after the real06 run): those whose in-frame
+        fraction stays under ``anchor_inside`` in every one of ``frames`` (``piece_frames`` of the room's candidate
+        points and yaws): a stair in a narrow hall, a counter run in a narrow kitchen. ``measure`` counts such a piece
+        in the frame when its part there covers ``anchor_big_share`` of the frame and reaches the frame's middle
+        third."""
+        self.big_known = True
+        if not self.pieces:
+            return
+        best = np.zeros(len(self.pieces))
+        for inside, _area, _middle in frames:
+            if len(inside):
+                best = np.maximum(best, np.asarray(inside).max(axis=0))
+        self.piece_big = np.array([c is not None for c in self.piece_corners]) & \
+            (best < SCORE["anchor_inside"] - 1e-9)
+
+    def room_frames(self, positions, height: float = None, yaws=None, lens_mm: float = LENS_MM,
+                    shift_x: float = SHIFT_X, shift_y: float = SHIFT_Y) -> list:
+        """``piece_frames`` of pitch-0 cameras at ``positions`` (``height`` over the room's floor, default
+        ``CAMERA_HEIGHT``) for every yaw (default every ``YAW_STEP_DEG``) through ``lens_mm``."""
+        z = self.floor_z + float(CAMERA_HEIGHT if height is None else height)
+        yaws = list(range(0, 360, YAW_STEP_DEG)) if yaws is None else list(yaws)
+        axes, bounds = yaw_axes(yaws), frame_bounds(lens_mm, shift_x, shift_y)
+        return [self.piece_frames((x, y, z), *axes, bounds) for x, y in positions]
 
     # ------------------------------------------------------------------
     def cast(self, origin, dirs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -946,12 +1216,33 @@ class RoomModel:
         return labels.reshape(shape), depth.reshape(shape)
 
     # ------------------------------------------------------------------
+    def piece_frames(self, origin, forward: np.ndarray, right: np.ndarray, up: np.ndarray,
+                     bounds) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """``(inside, area, middle)`` (each C x K, K = the room's pieces in ``pieces`` order) of ``box_in_frame`` for
+        C cameras at ``origin``; 0 (False) for a piece not in the model."""
+        C, K = forward.shape[0], len(self.pieces)
+        inside, area, middle = np.zeros((C, K)), np.zeros((C, K)), np.zeros((C, K), dtype=bool)
+        ks = [k for k, c in enumerate(self.piece_corners) if c is not None]
+        if ks:
+            got = box_in_frame(np.stack([self.piece_corners[k] for k in ks]), origin, forward, right, up, bounds)
+            inside[:, ks], area[:, ks], middle[:, ks] = got
+        return inside, area, middle
+
     def measure(self, labels: np.ndarray, depth: np.ndarray, border: np.ndarray,
-                near_m: Optional[float] = None) -> list[dict]:
+                near_m: Optional[float] = None, frame=None, grid=None) -> list[dict]:
         """Model shares (the ``score_terms`` input) of each row of ``labels``/``depth`` (C x P) and the
         nearest depth ``min_depth`` (metres, inf when no ray hits anything; ``is_blocked``);
         ``near_m``: the near distance of the camera's lens (``near_distance``; default ``SCORE["near_m"]``,
-        the 24 mm one)."""
+        the 24 mm one).
+
+        Fix round after the real06 run (26 Oct 2026): ``door`` (the door leaves' share, any depth); with ``frame``
+        (``piece_frames`` of the C cameras) every piece's ``inside`` and ``shown`` (inside x seen, seen = its rays over
+        ``anchor_fill`` of its in-frame box, at most 1), ``anchors`` (``set_cover`` of the room's set), ``anchors_in``
+        and ``set_in`` (the anchors and set pieces in the frame: ``inside >= anchor_inside`` or a big piece's part
+        there as ``set_big`` says, ``seen >= anchor_seen``, share ``>= anchor_min_share``), and an edge_near of a set
+        piece counting its outside part only (x (1 - inside), for a set piece in the frame: the room's own shower or
+        wardrobe is the subject, not a looming side);
+        with ``grid`` (the rays' (cols, rows)) in a room with a set ``centre`` (``bare_centre``)."""
         near_m = SCORE["near_m"] if near_m is None else float(near_m)
         labels = np.asarray(labels).reshape(-1, labels.shape[-1])
         depth = np.asarray(depth).reshape(-1, depth.shape[-1])
@@ -981,27 +1272,63 @@ class RoomModel:
             finite = depth[i][np.isfinite(depth[i])]
             d_wall[i] = float(np.median(finite)) if finite.size else 0.0
         close = depth < edge_m
+        # the bare centre counts in a room with a set only (a hall without furniture has nothing to put there)
+        centre = None if grid is None or not self.set_ids else bare_centre(labels, depth, grid, self.door_codes)
+        set_ids, anchor_ids = set(self.set_ids), set(self.anchor_ids)
+        ids = [f["id"] for f in self.pieces]
+        set_k = [k for k, i in enumerate(ids) if i in set_ids]
+        set_w = [type_weight(self.pieces[k].get("type")) for k in set_k]
+        code_k = {int(c): k for k, c in enumerate(self.piece_codes)}
         out = []
         for i in range(C):
             pc = self.piece_codes
             furn = furniture_share(shares[i, pc], bcounts[i, pc] > 0, self.piece_weights) if len(pc) else 0.0
+            inside = seen = None
+            if frame is not None and len(pc):
+                inside = np.asarray(frame[0][i], dtype=np.float64)
+                area = np.asarray(frame[1][i], dtype=np.float64)
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    seen = np.where(area > 1e-12, shares[i, pc] / (SCORE["anchor_fill"] * area), 0.0)
+                seen = np.clip(np.nan_to_num(seen), 0.0, 1.0)
+                # a piece no camera point of the room frames whole (set_big: a stair in a narrow hall) is in the
+                # frame when its part there covers anchor_big_share of the frame and reaches the middle third
+                big = self.piece_big & np.asarray(frame[2][i], dtype=bool) & (area >= SCORE["anchor_big_share"] - 1e-12)
+                framed = np.where(big, 1.0, inside)
             edge = 0.0
             for c in self.edge_codes:
                 if bcounts[i, c] and counts[i, c]:
-                    edge = max(edge, float(((labels[i] == c) & close[i]).sum()) / float(P))
+                    e = float(((labels[i] == c) & close[i]).sum()) / float(P)
+                    k = code_k.get(int(c))
+                    if inside is not None and k is not None and ids[k] in set_ids \
+                            and inside[k] >= SCORE["anchor_inside"] - 1e-9:
+                        e *= 1.0 - float(inside[k])          # fix round after the real06 run: its outside part
+                    edge = max(edge, e)
             opened = float(shares[i, self.opening_codes].sum()) if len(self.opening_codes) else 0.0
-            out.append({
+            row = {
                 "furn": furn,
                 "open": max(0.0, opened - float(near_door[i].sum()) / float(P)),
                 "edge_near": edge,
                 "window": float(shares[i, self.window_codes].sum()) if len(self.window_codes) else 0.0,
+                "door": float(shares[i, self.door_codes].sum()) if len(self.door_codes) else 0.0,
                 "floor": float(shares[i, FLOOR]), "ceiling": float(shares[i, CEILING]),
                 "wall": float(shares[i, WALL]), "near": float(near[i]), "max_single": float(max_single[i]),
                 "d_wall": float(d_wall[i]), "min_depth": float(min_depth[i]),
                 "elements": {self.elements[c - FIRST_ELEMENT]["id"]: float(shares[i, c])
                            for c in range(FIRST_ELEMENT, L) if counts[i, c]},
                 "cut": sorted(self.elements[c - FIRST_ELEMENT]["id"] for c in range(FIRST_ELEMENT, L) if bcounts[i, c]),
-            })
+            }
+            if centre is not None:
+                row["centre"] = float(centre[i])
+            if inside is not None:
+                shown = framed * seen * np.clip(shares[i, pc] / SCORE["anchor_full_share"], 0.0, 1.0)
+                well = (framed >= SCORE["anchor_inside"] - 1e-9) & (seen >= SCORE["anchor_seen"] - 1e-9) & \
+                    (shares[i, pc] >= SCORE["anchor_min_share"] - 1e-12)
+                row["inside"] = {ids[k]: round(float(inside[k]), 4) for k in range(len(ids)) if inside[k] > 0}
+                row["shown"] = {ids[k]: round(float(shown[k]), 4) for k in range(len(ids)) if shown[k] > 0}
+                row["anchors"] = set_cover([shown[k] for k in set_k], set_w)
+                row["anchors_in"] = [ids[k] for k in range(len(ids)) if well[k] and ids[k] in anchor_ids]
+                row["set_in"] = [ids[k] for k in range(len(ids)) if well[k] and ids[k] in set_ids]
+            out.append(row)
         return out
 
 
@@ -1051,12 +1378,22 @@ def floor_decor_rects(room: dict, building: dict) -> list[dict]:
     return out
 
 
+def floor_obstacle(piece: dict) -> bool:
+    """True when ``piece`` keeps the camera points away (pure): a piece standing on the floor, or one hung below the
+    lens (``mount_bottom`` under ``CAMERA_HEIGHT``: a wall-hung basin or toilet, a vanity). Fix round after the real06
+    run (26 Oct 2026): every wall-hung piece was exempt (Milestone 10, for the wall cabinets at 1.45 m), so real06's
+    ``cam_r_L1_banyo_3`` stood over the washbasin f_L1_021 (hung at 0.15 m, top 0.85 m), the basin under the lens
+    and out of the frame. A piece hung at or above the lens (a wall cabinet) stays no floor obstacle."""
+    return mount_bottom(piece) < CAMERA_HEIGHT - 1e-9
+
+
 def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, float]], Optional[str]]:
     """Camera points of a room and a warning: the free convex-corner points and the free 0.5 m grid
     points (sorted by x, y); without any, the M5 fallback point with its warning."""
     polygon = room_polygon(room)
-    # Wall-hung pieces (mount_bottom_m, docs/milestone10.md §1.6b row 15) are not floor obstacles.
-    pieces = [f for f in shown_pieces(room, building) if mount_bottom(f) <= 0.0]
+    # Wall-hung pieces (mount_bottom_m, docs/milestone10.md §1.6b row 15) hanging above the lens are not floor
+    # obstacles (``floor_obstacle``); a basin hung below it is (fix round after the real06 run).
+    pieces = [f for f in shown_pieces(room, building) if floor_obstacle(f)]
     # Fix round after P3: a wall standing inside the outline (``inner_wall_rects``) keeps the camera points away too.
     walls_in = inner_wall_rects(room, building, polygon)
     decor = floor_decor_rects(room, building)
@@ -1167,23 +1504,68 @@ def sort_key(c: dict) -> tuple:
     return (-round(c["total"], SCORE_DECIMALS), c["x"], c["y"], c["yaw"])
 
 
-def select_views(candidates: Sequence[dict], n: int) -> tuple[list[dict], Optional[str]]:
+def _distinct(c: dict, picks: Sequence[dict]) -> bool:
+    return all(yaw_difference(c["yaw"], p["yaw"]) >= MIN_YAW_DIFF_DEG - 1e-9
+               or math.hypot(c["x"] - p["x"], c["y"] - p["y"]) >= MIN_DISTANCE_M - 1e-9 for p in picks)
+
+
+def cover_gain(c: dict, got: dict, weights: Optional[dict]) -> float:
+    """What ``c`` adds to the room's set over the earlier picks (pure): ``sum_k w_k max(0, shown_k - got_k) / sum_k
+    w_k`` over ``weights`` (``{set piece id: type weight}``; ``shown`` of the candidate's shares, ``got`` the best
+    ``shown`` of the earlier picks); 0 without weights."""
+    total = float(sum((weights or {}).values()))
+    if total <= 0:
+        return 0.0
+    shown = (c.get("shares") or {}).get("shown") or {}
+    return sum(float(w) * max(0.0, float(shown.get(k, 0.0)) - float(got.get(k, 0.0)))
+               for k, w in weights.items()) / total
+
+
+def select_views(candidates: Sequence[dict], n: int, small: bool = False,
+                 weights: Optional[dict] = None) -> tuple[list[dict], Optional[str]]:
     """The §4.1 greedy pick: ``(picks, warning)`` from candidate dicts with ``total``, ``x``, ``y``,
-    ``yaw`` and ``blocked``; at most ``n`` and at least one pick (none for no candidate)."""
+    ``yaw`` and ``blocked``; at most ``n`` and at least one pick (none for no candidate).
+
+    Fix round after the real06 run (26 Oct 2026): a candidate with ``anchored`` (``score_candidates``: True when it
+    shows one of the room's anchors inside the frame, None in a room without anchors) False is never picked while one
+    with True exists; when no unblocked candidate shows an anchor the room gets its best view only, with
+    ``NO_ANCHOR_NOTE`` (fewer views beat views of a wall). A later pick is the eligible candidate with the highest
+    value ``total + anchor_factor x cover_gain`` (``weights``: the set's type weights; what it shows of the set that
+    the earlier picks do not); eligible: distinct from every earlier pick (50 degrees of yaw or 1 m), its value not
+    below ``DROP_BELOW_BEST`` x the best score and, with ``small`` (a room under ``SMALL_ROOM_M2``), showing a piece of
+    the room's set (``set_in``) that no earlier pick shows. Without ``weights`` the value is the score: the greedy
+    pick in score order of §4.1."""
     ordered = sorted(candidates, key=sort_key)
     free = [c for c in ordered if not c["blocked"]]
     if not free:
         return (ordered[:1], BLOCKED_WARNING) if ordered else ([], None)
-    best = round(free[0]["total"], SCORE_DECIMALS)
-    picks = [free[0]]
-    for c in free[1:]:
-        if len(picks) >= n:
+    if any(c.get("anchored") is not None for c in free):           # the room has anchors
+        pool = [c for c in free if c.get("anchored")]
+        if not pool:
+            return [free[0]], NO_ANCHOR_NOTE
+    else:
+        pool = free
+    best = round(pool[0]["total"], SCORE_DECIMALS)
+    picks = [pool[0]]
+    shown = set(pool[0].get("set_in") or ())
+    got = dict((pool[0].get("shares") or {}).get("shown") or {})
+    rest = list(pool[1:])
+    while len(picks) < n:
+        values = []
+        for c in rest:
+            if not _distinct(c, picks) or (small and c.get("set_in") is not None and not set(c["set_in"]) - shown):
+                continue
+            value = round(c["total"] + SCORE["anchor_factor"] * cover_gain(c, got, weights), SCORE_DECIMALS)
+            if value >= DROP_BELOW_BEST * best:
+                values.append(((-value,) + sort_key(c)[1:], c))
+        if not values:
             break
-        if round(c["total"], SCORE_DECIMALS) < DROP_BELOW_BEST * best:
-            break                               # sorted: every later one is lower still
-        if all(yaw_difference(c["yaw"], p["yaw"]) >= MIN_YAW_DIFF_DEG - 1e-9
-               or math.hypot(c["x"] - p["x"], c["y"] - p["y"]) >= MIN_DISTANCE_M - 1e-9 for p in picks):
-            picks.append(c)
+        c = min(values, key=lambda v: v[0])[1]
+        picks.append(c)
+        rest = [r for r in rest if r is not c]
+        shown |= set(c.get("set_in") or ())
+        for k, v in ((c.get("shares") or {}).get("shown") or {}).items():
+            got[k] = max(float(got.get(k, 0.0)), float(v))
     return picks, None
 
 
@@ -1191,21 +1573,29 @@ def score_candidates(model: RoomModel, positions, height: float = CAMERA_HEIGHT,
                      shift_x: float = SHIFT_X, shift_y: float = SHIFT_Y, grid=None,
                      lens_mm: float = LENS_MM) -> list[dict]:
     """Every (position, yaw) candidate of a room with its model shares and score terms, seen through
-    ``lens_mm`` (the room's lens, ``cameras.room_lens``)."""
+    ``lens_mm`` (the room's lens, ``cameras.room_lens``). Fix round after the real06 run: a model whose big pieces are
+    not known yet (``RoomModel.set_big``) takes them from these candidates (``plan_room``: the room's camera points)."""
     grid = grid or SCORE["grid"]
     yaws = list(range(0, 360, YAW_STEP_DEG)) if yaws is None else list(yaws)
     a, b = ray_grid(grid, lens_mm, shift_x=shift_x, shift_y=shift_y)
     dirs = yaw_directions(yaws, a, b)
     border = border_mask(grid)
+    axes = yaw_axes(yaws)                                # fix round after the real06 run: the pieces in the frame
+    bounds = frame_bounds(lens_mm, shift_x, shift_y)
     z = model.floor_z + float(height)
     out = []
     near_m = near_distance(lens_mm)
-    for x, y in positions:
+    frames = [model.piece_frames((x, y, z), *axes, bounds) for x, y in positions]
+    if not model.big_known:
+        model.set_big(frames)                            # the pieces none of these frames holds whole
+    for (x, y), frame in zip(positions, frames):
         labels, depth = model.cast((x, y, z), dirs)
-        for yaw, m in zip(yaws, model.measure(labels, depth, border, near_m)):
+        for yaw, m in zip(yaws, model.measure(labels, depth, border, near_m, frame, grid)):
             terms = score_terms(m)
             out.append({"x": float(x), "y": float(y), "yaw": float(yaw), "total": terms["total"], "terms": terms,
-                        "blocked": terms["blocked"], "shares": m})
+                        "blocked": terms["blocked"], "shares": m,
+                        "anchored": bool(m.get("anchors_in")) if model.anchor_ids else None,
+                        "set_in": list(m.get("set_in") or [])})
     return out
 
 
@@ -1219,8 +1609,16 @@ def score_camera(building: dict, camera: dict, grid=None) -> dict:
     a, b = ray_grid(grid, lens, camera.get("sensor_mm") or SENSOR_MM,
                     camera.get("resolution") or RESOLUTION, float(camera.get("shift_x") or 0.0),
                     float(camera.get("shift_y") or 0.0))
-    labels, depth = model.cast(camera["position"], camera_directions(camera["position"], camera["target"], a, b))
-    m = model.measure(labels[None, :], depth[None, :], border_mask(grid), near_distance(lens))[0]
+    dirs = camera_directions(camera["position"], camera["target"], a, b)
+    labels, depth = model.cast(camera["position"], dirs)
+    bounds = frame_bounds(lens, float(camera.get("shift_x") or 0.0), float(camera.get("shift_y") or 0.0),
+                          camera.get("sensor_mm") or SENSOR_MM, camera.get("resolution") or RESOLUTION)
+    frame = model.piece_frames(camera["position"], *look_axes(camera["position"], camera["target"]), bounds)
+    if model.anchor_ids:                                 # fix round after the real06 run: the room's big pieces
+        model.set_big(model.room_frames(candidate_positions(room, building)[0], lens_mm=lens,
+                                        shift_x=float(camera.get("shift_x") or 0.0),
+                                        shift_y=float(camera.get("shift_y") or 0.0)))
+    m = model.measure(labels[None, :], depth[None, :], border_mask(grid), near_distance(lens), frame, grid)[0]
     return {"shares": m, "terms": score_terms(m)}
 
 
@@ -1263,14 +1661,15 @@ def _plan(model: RoomModel, index: int, pick: dict, warning: Optional[str], lens
     target = [_round(pick["x"] + TARGET_DISTANCE * math.cos(yaw), 6),
               _round(pick["y"] + TARGET_DISTANCE * math.sin(yaw), 6), _round(z, 6)]
     t, m = pick["terms"], pick["shares"]
-    score = {"total": _round(t["total"]), "furniture": _round(t["furniture"]), "openings": _round(t["openings"]),
+    score = {"total": _round(t["total"]), "furniture": _round(t["furniture"]),
+             "anchors": _round(t.get("anchors", 0.0)), "openings": _round(t["openings"]),
              "floor": _round(t["floor"]), "depth": _round(t["depth"]), "penalties": _round(t["penalties"]),
              "blocked": bool(t["blocked"]), "yaw_deg": float(pick["yaw"]),
-             "shares": {k: _round(m[k]) for k in ("furn", "open", "window", "floor", "ceiling", "wall", "near",
-                                                  "max_single", "d_wall")}}
-    placement = (f"search: score {score['total']:.3f} = furniture {score['furniture']:.3f} + openings "
-                 f"{score['openings']:.3f} + floor {score['floor']:.3f} + depth {score['depth']:.3f} - penalties "
-                 f"{score['penalties']:.3f}; yaw {pick['yaw']:.0f} deg")
+             "shares": {k: _round(m[k]) for k in ("furn", "anchors", "open", "window", "door", "centre", "floor",
+                                                  "ceiling", "wall", "near", "max_single", "d_wall") if k in m}}
+    placement = (f"search: score {score['total']:.3f} = furniture {score['furniture']:.3f} + anchors "
+                 f"{score['anchors']:.3f} + openings {score['openings']:.3f} + floor {score['floor']:.3f} + depth "
+                 f"{score['depth']:.3f} - penalties {score['penalties']:.3f}; yaw {pick['yaw']:.0f} deg")
     opens, pieces = _frustum_lists(model, position, target, m.get("elements"), lens_mm)
     return {
         "name": f"cam_{room['id']}_{index}",
@@ -1280,6 +1679,8 @@ def _plan(model: RoomModel, index: int, pick: dict, warning: Optional[str], lens
         "shift_x": SHIFT_X, "shift_y": SHIFT_Y, "policy": POLICY, "score": score,
         "placement": placement, "anchor": None, "warning": warning,
         "visible_openings": opens, "visible_furniture": pieces,
+        # fix round after the real06 run (26 Oct 2026): the room's anchors and set pieces inside this frame
+        "anchors_in_frame": list(m.get("anchors_in") or []), "set_in_frame": list(m.get("set_in") or []),
     }
 
 
@@ -1298,8 +1699,13 @@ def plan_room(room: dict, building: dict, level: Optional[dict] = None,
     positions, fallback = candidate_positions(room, building)
     if fallback:                       # Milestone 11 (§1.3 M4): one cramped point gives one view, not three
         n = 1
+    if model.pieces and all(c is None for c in model.piece_corners):
+        n = min(n, EMPTY_ROOM_VIEWS)   # fix round after the real06 run: nothing in the model (a stair's top end)
     cands = score_candidates(model, positions, lens_mm=lens)
-    picks, blocked = select_views(cands, n)
+    # fix round after the real06 run: later views add what the earlier ones do not show of the room's set; a small
+    # room's later views must show a piece of it the earlier ones do not
+    weights = {f["id"]: type_weight(f.get("type")) for f in model.pieces if f["id"] in set(model.set_ids)}
+    picks, blocked = select_views(cands, n, small=G.polygon_area(model.polygon) < SMALL_ROOM_M2, weights=weights)
     warning = "; ".join(w for w in (fallback, blocked) if w) or None
     return [_plan(model, i, p, warning, lens, rule) for i, p in enumerate(picks, start=1)], len(cands)
 
