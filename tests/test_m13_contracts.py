@@ -137,7 +137,8 @@ def test_placement_interfaces():
     from wenart.furniture import edit_ops, groups, infer, solver
 
     assert params(infer.type_by_code) == ["building", "piece"]
-    assert infer.CODE_TYPE_METHODS == ("twin", "level", "block", "group_member")
+    # 26 Oct 2026: same_block (one block drawn again elsewhere in the project gets one type) after the level rule
+    assert infer.CODE_TYPE_METHODS == ("twin", "level", "same_block", "block", "group_member")
     assert params(groups.drawn_groups) == ["building", "room_id"]
     assert groups.GROUP_MEMBER_MOVE_MAX_M == 0.5
     assert params(solver.solve_room) == ["building", "room_id", "program", "k", "fixed_ids", "drawn_group"]

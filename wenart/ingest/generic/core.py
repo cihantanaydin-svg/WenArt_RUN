@@ -582,7 +582,9 @@ def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict],
             # Context before AI (§4.1): chairs drawn around a rectangle are a dining set, whatever the passes said
             # (real03: two passes called the drawn 0.9 x 1.4 m table with its chairs a sofa).
             split = SY.split_table_chairs(part, table, ctx.theta)
-            if split is not None:
+            # 26 Oct 2026 (symbols module docstring): a seat drawn as its cushion with its arms and back is no table
+            # with chairs; the AI passes' type stands (it is never overridden by "one seat").
+            if split is not None and not split.get("seat"):
                 made = SY.table_chair_items(split, ctx, raster, table)
                 for it in made:
                     it.details["reread_of"] = cand["key"]
