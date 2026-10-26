@@ -13,6 +13,8 @@ Lines (each a module; every finding in one format, see ``kinds.FINDING_KEYS``):
 - ``process``: the run itself: stage failures, every warning matched to a rule (the ones that say something was left
   out or fell short are findings), open questions, failed tests, the scene's own checks, rooms with no view, library
   gaps, time left unused, a big loop that did not improve (code).
+- ``sense``: the house can be walked through: every room reached from outside through doors, openings, open-plan
+  joins and stairs, no wet room as the only way into a room, every level reached (code).
 - ``plan_vs_model``: the source plan of each floor against the model's view of it, the elevations against the
   exterior renders (open-weight vision model, every claim checked by code).
 - ``argus_ai``: the open-weight agent model reads every line's findings and the project's facts, thinks, sorts each

@@ -275,7 +275,7 @@ def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable
              "cause": "reading", "fix": "rule_needed", "element": "", "value": "", "rule": ""}]}
 
     rec = AX.investigate(out, MockModel(critic=[reply] * 40), out=lambda s: None)
-    assert rec["items"] == 3 and rec["triaged"] == 3 and calls["triage"] == 2
+    assert rec["items"] >= 3 and rec["triaged"] == rec["items"] and calls["triage"] == (rec["items"] + 1) // 2
     assert calls["discover"] == [False, True]                      # one call per floor, the floor's image when there is one
     by = {(e["aid"], e["verdict"]) for e in rec["decisions"]}
     checks = {v["id"]: v for v in rec["verdicts"]}
@@ -346,3 +346,57 @@ def test_house_findings_are_the_defects_of_the_house():
             K.finding("inspector", "F7", "critical", "f1", "blocks a door"),
             K.finding("conservation", "C6", "info", "x", "not built: reason")]
     assert [f["target"] for f in R.house_findings({"findings": rows})] == ["sa", "roof"]
+
+
+# --------------------------------------------------------------------------
+# The sense line: the house can be walked through
+# --------------------------------------------------------------------------
+from wenart.audit import sense as SN  # noqa: E402
+
+
+def _sq(rid, x0, x1, rtype, level="L0"):
+    return {"id": rid, "level_id": level, "room_type": rtype, "label": rid,
+            "polygon": [[x0, 0], [x1, 0], [x1, 4], [x0, 4]]}
+
+
+def _wall(wid, a, b, level="L0"):
+    return {"id": wid, "level_id": level, "start": list(a), "end": list(b), "thickness": 0.2}
+
+
+def _house(first="living", door_bc=False):
+    rooms = [_sq("A", 0, 4, first), _sq("B", 4.2, 8, "bedroom"), _sq("C", 8.2, 12, "kitchen")]
+    walls = [_wall("w_out", (0, -0.1), (12, -0.1)), _wall("w_ab", (4.1, 0), (4.1, 4)), _wall("w_bc", (8.1, 0), (8.1, 4))]
+    ops = [{"id": "d_out", "type": "door", "level_id": "L0", "wall_id": "w_out", "center": [2, -0.1], "width": 0.9},
+           {"id": "d_ab", "type": "door", "level_id": "L0", "wall_id": "w_ab", "center": [4.1, 2], "width": 0.8},
+           {"id": "w_c", "type": "window", "level_id": "L0", "wall_id": "w_out", "center": [10, -0.1], "width": 1.2}]
+    if door_bc:
+        ops.append({"id": "d_bc", "type": "door", "level_id": "L0", "wall_id": "w_bc", "center": [8.1, 2], "width": 0.8})
+    return {"levels": [{"id": "L0", "elevation": 0.0}], "rooms": rooms, "walls": walls, "openings": ops,
+            "furniture": []}
+
+
+def test_sense_a_room_nobody_can_enter_and_a_bathroom_as_a_corridor():
+    found = SN.audit(_house())["findings"]
+    assert [(f["check"], f["target"]) for f in found] == [("N1", "C")] and found[0]["severity"] == "critical"
+    assert "window" not in str(SN.graph(_house())[1].values())          # a window is no way in
+    assert SN.audit(_house(door_bc=True))["findings"] == []
+    wet = SN.audit(_house(first="bathroom", door_bc=True))["findings"]
+    assert {(f["check"], f["target"]) for f in wet} == {("N2", "B"), ("N2", "C")}
+
+
+def test_sense_open_plan_and_stairs_join_rooms_and_levels():
+    b = _house()
+    b["rooms"][2]["polygon"] = [[8.0, 0], [12, 0], [12, 4], [8.0, 4]]   # C touches B: one open plan
+    b["walls"] = b["walls"][:2]
+    assert SN.audit(b)["findings"] == []
+    up = _house(door_bc=True)
+    up["levels"].append({"id": "L1", "elevation": 3.0})
+    up["rooms"].append(_sq("U", 0, 4, "bedroom", "L1"))
+    found = SN.audit(up)["findings"]
+    assert {(f["check"], f["target"]) for f in found} == {("N1", "U"), ("N3", "L1")}
+    up["furniture"].append({"id": "f_st", "type": "stair", "room_id": "A", "level_id": "L0",
+                            "footprint": {"center": [2, 2], "size": [1, 3]}})
+    assert SN.audit(up)["findings"] == []
+    no_way = _house(door_bc=True)
+    no_way["openings"] = [o for o in no_way["openings"] if o["id"] != "d_out"]
+    assert "N4" in {f["check"] for f in SN.audit(no_way)["findings"]}

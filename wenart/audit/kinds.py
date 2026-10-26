@@ -34,7 +34,8 @@ KINDS = {
     "no_sense": {"what": "the model makes no sense to a visitor (a door into the air, a basin at knee height, stairs "
                          "running into each other, a railing across a door)",
                  "arises": "architect, build",
-                 "guards": ["model review (M*)", "architect rules", "visitor checks (Q*)"]},
+                 "guards": ["sense (N*: every room reached, no bathroom as a corridor, every level reached)",
+                            "model review (M*)", "architect rules", "visitor checks (Q*)"]},
     "taste": {"what": "the house does not look designed (pieces that do not match, plain or dated rooms, a garage "
                       "door look)",
               "arises": "fit, decor, opening models",
@@ -72,7 +73,7 @@ CHECK_KIND = {
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",
                "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense"}
-LINE_KIND = {"ledger": "lost", "conservation": "lost", "process": "process", "plan_vs_model": "lost",
+LINE_KIND = {"ledger": "lost", "conservation": "lost", "process": "process", "plan_vs_model": "lost", "sense": "no_sense",
              "elevations": "lost", "judge": "taste", "model": "no_sense", "architect": "no_sense"}
 
 
