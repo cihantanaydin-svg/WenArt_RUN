@@ -2294,6 +2294,12 @@ class AgentLoop:
             else:
                 vision.setdefault("dropped", []).append(dict(f, dropped=f"no agent tool for the cause "
                                                                          f"{f['cause']}: {CS.no_tool_reason(f)}"))
+        # 26 Oct 2026 (the big loop): the AI judge's problems on the final renders are vision findings of this round
+        for f in list(getattr(self, "extra_findings", None) or []):
+            f = dict(f)
+            f["cause"] = CS.cause_of(f, rendered)
+            if CS.tools_for_finding(f) or CS.REPORT_TO.get(f["cause"]):
+                kept.append(f)
         vision["kept"] = kept
         self.log_findings(round_no, code, vision)
         # 26 Oct 2026: kept for the inspector's report of the final round (wenart/agent/inspector.py)
@@ -2310,7 +2316,8 @@ class AgentLoop:
         if final and critical_only and FINAL_VISITOR_MAJORS:
             # 26 Oct 2026: the visitor checks' major findings are the final round's work too
             work = [f for f in found if is_wanted(f, ("critical",), lighting) or
-                    (str(f.get("check")) in P.VISITOR_CHECKS and f.get("severity") == "major")]
+                    (str(f.get("check")) in P.VISITOR_CHECKS and f.get("severity") == "major") or
+                    (f.get("source") == "judge" and f.get("severity") == "major")]
             wanted = ("critical", "major")
         open_ = [f for f in work if is_wanted(f, wanted, lighting)]
         summary = {"round": round_no, "final": final, "findings": {s: sum(1 for f in found if f["severity"] == s)
@@ -2502,6 +2509,55 @@ class AgentLoop:
         self.save(final=True)
         self.write_inspector(round_no, started=True)
         return dict(res, stage_note=stage_note(self.summary(), self.final_stop(FINAL_DONE)))
+
+    def judge_views(self, ctx: TL.ToolContext, only: Optional[set] = None) -> dict:
+        """26 Oct 2026 (the big loop, ``wenart.agent.judge``): the AI judge's rows and problems of the final renders
+        (``renders/<camera>_preview.jpg``), re-asked for ``only`` (None: every view); the other views keep their last
+        rows (``self.judge_cache``). Returns ``{"rows", "findings", "dropped", "errors"}``."""
+        from wenart.agent import judge as JD
+        cache = getattr(self, "judge_cache", None)
+        if cache is None:
+            cache = self.judge_cache = {}
+        building = self.rendered_building(ctx)
+        st = building.get("style")
+        style = str((st.get("family") or st.get("name") or "") if isinstance(st, dict) else (st or ""))
+        errors = []
+        for cam in ctx.cameras():
+            name = cam.get("name")
+            if only is not None and name not in only and name in cache:
+                continue
+            image = self.project_out / TL.FINAL_RENDER_DIR / f"{name}_preview.jpg"
+            if not image.is_file():
+                continue
+            try:
+                got = JD.judge_view(self.model, building, cam, image, style=style, call_id=f"judge_{name}")
+            except Exception as exc:  # noqa: BLE001 - a view the judge cannot read keeps its last rows
+                errors.append(f"{name}: {type(exc).__name__}: {exc}")
+                continue
+            if got.get("row") is None:
+                errors.append(f"{name}: {got.get('error')}")
+                continue
+            cache[name] = got
+        names = {c.get("name") for c in ctx.cameras()}
+        live = [v for k, v in sorted(cache.items()) if k in names]
+        return {"rows": [v["row"] for v in live], "findings": [f for v in live for f in v["findings"]],
+                "dropped": [f for v in live for f in v["dropped"]], "errors": errors}
+
+    def measure(self, round_no: int, only: Optional[set] = None) -> dict:
+        """26 Oct 2026 (the big loop): the house score of the current final renders (``judge.house_score``): the
+        judge's rows (re-asked for ``only``), the code critic's findings on the final renders (with the review of the
+        model as built), the architect's open major points. Sets ``self.extra_findings`` (the judge's problems, the
+        next round's work). Returns ``{"score": ..., "rows", "findings", "errors"}``."""
+        from wenart.agent import judge as JD
+        ctx = self.context(round_no, TL.FINAL_RENDER_DIR)
+        code = self.run_code_critic(ctx, TL.FINAL_RENDER_DIR)
+        judged = self.judge_views(ctx, only)
+        arch = TL.read_json(self.project_out / "scene" / "architect.json") or {}
+        majors = sum(1 for q in arch.get("questions") or [] if q.get("severity") == "major"
+                     for a in q.get("answers") or [] if a.get("open"))
+        score = JD.house_score(judged["rows"], list(code.get("findings") or []), [], majors, views=len(ctx.cameras()))
+        self.extra_findings = list(judged["findings"])
+        return {"score": score, "rows": judged["rows"], "findings": judged["findings"], "errors": judged["errors"]}
 
     def write_inspector(self, round_no: int, started: bool) -> None:
         """26 Oct 2026: the inspector's report (``orchestrator/inspector.md``): what the AI saw on the final renders

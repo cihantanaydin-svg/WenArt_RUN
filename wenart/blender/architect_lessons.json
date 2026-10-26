@@ -427,6 +427,16 @@
    "request": "These sections not making sense AI inspector needs to make sense of this (the circled garage-like door with steps and the crossing railings of real06's entrance)",
    "lesson": "Entrances make sense: doors whose landings or flights touch share one platform with one flight; a handrail or ramp never crosses in front of a door; the front door is a normal entrance door, not the widest garden door; a wide outside door of a living room is glazed (French or sliding), never one flat slab that reads as a garage door (D5; the model check M8; the visitor check Q9).",
    "question": "Can every door be reached, with no railing or stair across it, and does every door look like the door it is?"
+  },
+  {
+   "id": "UL37",
+   "date": "2026-10-26",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "Results are not getting better enough, need a big loop that fixes itself for the better",
+   "lesson": "A big loop fixes the house until it stops getting better: an AI judge scores every final render 1-5 as a client would and names what costs the points; one house score (the judge, the code critic, the model review, the architect's open points); fix cycles on the final renders while the score rises and time is left; a cycle that lowers it is rolled back.",
+   "question": "Did the house score rise every kept cycle, and was every cycle that lowered it rolled back?"
   }
  ]
 }

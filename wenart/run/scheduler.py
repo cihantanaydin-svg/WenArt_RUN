@@ -2421,37 +2421,112 @@ class Orchestrator:
             if pr.active:
                 self.check_part(pr, key, url, seqs)
 
+    BIG_LOOP_CYCLES = 4             # 26 Oct 2026: the big loop's cycles at most (time decides first)
+
     def final_critical_rounds(self, url: str) -> None:
-        """§8 "final": critical findings on the final renders go back once more when time allows; the changed views
-        are rendered again and the stages after the render run again for that project (each reuses its own work)."""
+        """§8 "final", since 26 Oct 2026 the big loop (user: "results are not getting better enough, need a big loop
+        that fixes itself for the better"): the house is measured on its final renders (``AgentLoop.measure``: the AI
+        judge scores every view 1-5 as a client would and names what costs the points, the code critic and the review
+        of the model, the architect's open points: ``judge.house_score``); then, cycle after cycle while time is left:
+        the final round works on the critical findings, the visitor checks' and the judge's major ones; the changed
+        views are rendered again, the stages after the render run again, the changed views are judged again and the
+        house measured again. A cycle that lowers the score by more than ``judge.WORSE_MARGIN`` is rolled back (its
+        edits off, the views rendered again) and the loop stops; it stops too when a cycle gains less than
+        ``judge.MIN_GAIN``, accepts no edit, or the time is up (``BIG_LOOP_CYCLES`` at most). Everything goes to
+        ``orchestrator/big_loop.md`` and the judge's rows to ``final/rubric_per_view.json``."""
+        from wenart.agent import judge as JD
         for pr in [p for p in self.runs if p.agent_loop is not None and p.active]:
             loop = pr.agent_loop
-            # 26 Oct 2026: the model's labelled top-down views of the final scene, so the inspector looks at every
-            # room of the model (a failure leaves the camera renders only; never a stop)
-            rc = self.run_step(pr, "agent", "topdown", S.topdown(self.tools, pr.ref))
-            if rc != 0:
-                self.out(f"{pr.name} topdown for the inspector: exit {rc} (the final round uses the renders only)")
             k = int((loop.stop or {}).get("round") or 0) + 1
+            rec = {"project": pr.name, "cycles": [], "stop": None, "rows": []}
+            self.big_loop_topdown(pr)
             try:
-                res = loop.final_round(k)
-            except Exception as exc:  # noqa: BLE001
-                self.out(f"{pr.name} agent final round: {type(exc).__name__}")
-                continue
-            # fix round after P6a: the stage note names the numbers after the final round (accepted edits or not)
-            self.agent_note_after_final(pr, res.get("stage_note"))
-            if not res.get("accepted") or not res.get("rerun_from") or res.get("stop") in ("rerun_failed", "deadline"):
-                continue
-            if not res.get("views"):
-                continue
-            self.stage_export(pr)
-            slept = self.agent_server(url, "sleep")
-            self.phase6_project(pr)
-            if slept:
-                self.agent_server(url, "wake")
-            self.simple_stage(pr, "expected", [("expected", S.expected(self.tools, pr.ref), None),
-                                               ("plan-crops", S.plan_crops(self.tools, pr.ref), None)])
-            if self.status_of(pr, "expected") == "ok":
-                self.check_part(pr, self.opts.agent_key, url, self.seqs(self.opts.agent_key))
+                best = loop.measure(k)
+            except Exception as exc:  # noqa: BLE001 - no measure: one final round as before
+                self.out(f"{pr.name} big loop: the measure failed ({type(exc).__name__}: {exc}); one final round")
+                best = None
+            if best is not None:
+                rec["cycles"].append({"cycle": 0, "score": best["score"], "verdict": "first",
+                                      "note": "the final renders before the loop"})
+                rec["rows"] = best["rows"]
+                JD.write(pr.out, best["rows"], rec)
+                self.out(f"{pr.name} big loop: score {best['score']['score']} (judge mean {best['score']['rubric']})")
+            for cycle in range(1, self.BIG_LOOP_CYCLES + 1):
+                try:
+                    res = loop.final_round(k)
+                except Exception as exc:  # noqa: BLE001
+                    self.out(f"{pr.name} agent final round: {type(exc).__name__}")
+                    rec["stop"] = f"the final round failed ({type(exc).__name__})"
+                    break
+                # fix round after P6a: the stage note names the numbers after the final round (accepted edits or not)
+                self.agent_note_after_final(pr, res.get("stage_note"))
+                if not res.get("accepted") or not res.get("rerun_from") or not res.get("views") or \
+                        res.get("stop") in ("rerun_failed", "deadline"):
+                    rec["stop"] = f"cycle {cycle}: {res.get('stop') or 'no edit accepted'}"
+                    break
+                views = list(res.get("views") or [])
+                self.final_stages_again(pr, url)
+                if best is None:
+                    rec["stop"] = f"cycle {cycle}: no measure, one final round"
+                    break
+                self.big_loop_topdown(pr)
+                try:
+                    now = loop.measure(k + 1, only=set(views))
+                except Exception as exc:  # noqa: BLE001
+                    rec["stop"] = f"cycle {cycle}: the measure failed ({type(exc).__name__})"
+                    break
+                verdict = JD.verdict(best["score"], now["score"])
+                entry = {"cycle": cycle, "score": now["score"], "verdict": verdict, "accepted": res.get("accepted"),
+                         "views": len(views), "round": k}
+                rec["cycles"].append(entry)
+                self.out(f"{pr.name} big loop cycle {cycle}: score {best['score']['score']} -> "
+                         f"{now['score']['score']} ({verdict}; judge mean {now['score']['rubric']})")
+                if verdict == "worse":
+                    n = self.rollback_round(pr, k, f"big loop cycle {cycle}: the house score fell from "
+                                                   f"{best['score']['score']} to {now['score']['score']}")
+                    back = self.agent_rerun(pr, "refit", views, k, True)
+                    if back.get("status") in ("ok", "reused"):
+                        self.final_stages_again(pr, url)
+                    entry["note"] = f"rolled back ({n} edit(s)); views rendered again: {back.get('status')}"
+                    try:
+                        best = loop.measure(k + 1, only=set(views))
+                    except Exception:  # noqa: BLE001 - the rows of the measure before stay
+                        pass
+                    rec["stop"] = f"cycle {cycle}: worse, rolled back"
+                    break
+                best = now
+                rec["rows"] = now["rows"]
+                JD.write(pr.out, now["rows"], rec)
+                k += 2
+                if verdict == "same":
+                    rec["stop"] = f"cycle {cycle}: no gain (under {JD.MIN_GAIN})"
+                    break
+            else:
+                rec["stop"] = f"{self.BIG_LOOP_CYCLES} cycles"
+            rec["rows"] = best["rows"] if best else rec["rows"]
+            JD.write(pr.out, rec["rows"], rec)
+            # the inspector's report and the stage note name what the loop ended with
+            self.out(f"{pr.name} big loop: stop: {rec['stop']}; "
+                     f"{len([c for c in rec['cycles'] if c.get('cycle')])} cycle(s)")
+
+    def big_loop_topdown(self, pr: ProjectRun) -> None:
+        """26 Oct 2026: the model's labelled top-down views of the current scene (the inspector and the judge look
+        at every room); a failure leaves the camera renders only (never a stop)."""
+        rc = self.run_step(pr, "agent", "topdown", S.topdown(self.tools, pr.ref))
+        if rc != 0:
+            self.out(f"{pr.name} topdown for the inspector: exit {rc} (the final round uses the renders only)")
+
+    def final_stages_again(self, pr: ProjectRun, url: str) -> None:
+        """The stages after the render for the re-rendered views (each reuses its own work)."""
+        self.stage_export(pr)
+        slept = self.agent_server(url, "sleep")
+        self.phase6_project(pr)
+        if slept:
+            self.agent_server(url, "wake")
+        self.simple_stage(pr, "expected", [("expected", S.expected(self.tools, pr.ref), None),
+                                           ("plan-crops", S.plan_crops(self.tools, pr.ref), None)])
+        if self.status_of(pr, "expected") == "ok":
+            self.check_part(pr, self.opts.agent_key, url, self.seqs(self.opts.agent_key))
 
     # ----- phase 5: Blender --------------------------------------------------
 

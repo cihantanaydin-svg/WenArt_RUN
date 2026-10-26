@@ -174,3 +174,130 @@ def test_the_critics_read_the_doors_and_windows_as_built():
     assert CC.with_built_openings(b, built)["openings"][0]["type"] == "window" and b["openings"][0]["type"] == "door"
     assert CC.with_built_openings(b, None) is b
     assert {"M1", "M2", "M7", "M8"} <= LP.NOT_REMEASURED
+
+
+# --------------------------------------------------------------------------
+# The big loop (user, 26 Oct 2026: "results are not getting better enough, need a big loop that fixes itself for the
+# better"): the AI judge, the house score, the measure of the final renders
+# --------------------------------------------------------------------------
+
+def test_the_judge_scores_a_view_and_names_what_costs_the_points(tmp_path):
+    from wenart.agent import judge as JD
+    img = tmp_path / "cam_r1_1_preview.jpg"
+    Image.new("RGB", (64, 48), (180, 170, 160)).save(img)
+    b = {"rooms": [{"id": "r1", "room_type": "living", "label": "Salon", "polygon": [[0, 0], [5, 0], [5, 4], [0, 4]],
+                    "level_id": "L0"}],
+         "furniture": [{"id": "f1", "type": "armchair", "room_id": "r1", "footprint": {"center": [1, 1], "size": [0.8, 0.8]},
+                        "asset": {"method": "library"}},
+                       {"id": "f2", "type": "armchair", "room_id": "r1", "footprint": {"center": [3, 1], "size": [0.8, 0.8]},
+                        "asset": {"method": "library"}}],
+         "openings": [], "walls": []}
+    reply = {"client_ready_score": 2, "tags": ["mismatched_set", "not_stylish"],
+             "note": "two armchairs of different models and colours", "problems": [
+                 {"check": "Q5", "severity": "major", "target": "f2", "message": "a red egg chair beside a brown one"}]}
+    model = MockModel(critic=[reply])
+    got = JD.judge_view(model, b, {"name": "cam_r1_1", "room_id": "r1"}, img, style="modern", call_id="t")
+    assert got["row"]["client_ready_score"] == 2 and "mismatched_set" in got["row"]["tags"]
+    assert got["findings"][0]["source"] == "judge" and got["findings"][0]["target"] == "f2"
+    sent = json.dumps(model.critic_requests()[0])
+    assert "f1 armchair" in sent and "image_url" in sent and "modern" in sent
+    JD.write(tmp_path, [got["row"]], {"cycles": [{"cycle": 0, "score": JD.house_score([got["row"]], [], [], 0)}]})
+    assert json.loads((tmp_path / JD.RUBRIC_FILE).read_text())[0]["client_ready_score"] == 2
+    assert "The big loop" in (tmp_path / "orchestrator" / JD.LOOP_MD).read_text()
+
+
+def test_the_house_score_rises_with_the_judge_and_falls_with_every_defect():
+    from wenart.agent import judge as JD
+    rows = [{"client_ready_score": 2}] * 10
+    crit = [{"severity": "critical"}] * 5 + [{"severity": "major"}] * 10
+    base = JD.house_score(rows, crit, [], 0, 10)
+    assert JD.house_score([{"client_ready_score": 3}] * 10, crit, [], 0, 10)["score"] > base["score"]
+    assert JD.house_score(rows, crit[1:], [], 0, 10)["score"] > base["score"]          # one critical less
+    assert JD.house_score(rows, crit + [{"severity": "major"}], [], 0, 10)["score"] < base["score"]
+    assert JD.house_score(rows, crit * 20, [], 0, 10)["defects_part"] > 0                # never saturates
+    assert JD.verdict(None, base) == "first"
+    assert JD.verdict(base, dict(base, score=base["score"] + 1.0)) == "better"
+    assert JD.verdict(base, dict(base, score=base["score"] - 1.0)) == "same"
+    assert JD.verdict(base, dict(base, score=base["score"] - 5.0)) == "worse"
+
+
+def test_the_loop_measures_the_final_renders_and_works_on_the_judges_problems(tmp_path):
+    """The measure: every final render judged, the score, the judge's problems become the final round's work."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent))
+    from test_agent_loop_p4a import make
+    from test_m13_agent import FINISH
+    from wenart.agent import tools as TL
+
+    loop, out, model = make(tmp_path, [FINISH], [[], [], []], recheck=lambda b, s, m: [])
+    ctx = loop.context(5, TL.FINAL_RENDER_DIR)
+    cams = [c["name"] for c in ctx.cameras()]
+    (out / TL.FINAL_RENDER_DIR).mkdir(parents=True, exist_ok=True)
+    for name in cams:
+        Image.new("RGB", (64, 48), (180, 170, 160)).save(out / TL.FINAL_RENDER_DIR / f"{name}_preview.jpg")
+    room = next(c.get("room_id") for c in ctx.cameras() if c.get("room_id"))
+    piece = next(f["id"] for f in loop.rendered_building(ctx).get("furniture") or [] if f.get("room_id") == room
+                 and f.get("build") is not False)
+
+    def reply(body):
+        text = json.dumps(body["messages"][-1]["content"])
+        if f"Room {room}" in text:
+            return {"client_ready_score": 2, "tags": ["mismatched_set"], "note": "pieces that do not match",
+                    "problems": [{"check": "Q5", "severity": "major", "target": piece,
+                                  "message": "this piece does not belong with the others"}]}
+        return {"client_ready_score": 4, "tags": ["looks_acceptable"], "note": "fine", "problems": []}
+
+    model.critic_script = [reply] * (len(cams) * 3)
+    m = loop.measure(5)
+    assert len(m["rows"]) == len(cams) and m["score"]["rubric"] is not None
+    assert [f["target"] for f in loop.extra_findings] == [piece]
+    again = loop.measure(6, only=set())                       # nothing re-asked: the rows of the cache
+    assert again["score"]["rubric"] == m["score"]["rubric"]
+
+
+def _big_loop(tmp_path, scores):
+    """The big loop's control on a fake orchestrator: ``scores`` are the house scores the measures return in turn."""
+    from types import SimpleNamespace
+    from wenart.run import scheduler as SC
+
+    class FakeLoop:
+        stop = {"round": 3}
+
+        def __init__(self):
+            self.n, self.rounds_run = 0, []
+
+        def measure(self, k, only=None):
+            s = scores[min(self.n, len(scores) - 1)]
+            self.n += 1
+            return {"score": {"score": s, "rubric": 3.0, "counts": {}}, "rows": [{"view": "v", "client_ready_score": 3}],
+                    "findings": []}
+
+        def final_round(self, k):
+            self.rounds_run.append(k)
+            return {"accepted": 2, "rerun_from": "refit", "views": ["v1"], "stop": None, "stage_note": "n"}
+
+    calls = []
+    pr = SimpleNamespace(agent_loop=FakeLoop(), active=True, name="p", out=tmp_path)
+    fake = SimpleNamespace(runs=[pr], out=lambda s: calls.append(s), BIG_LOOP_CYCLES=4,
+                           big_loop_topdown=lambda p: calls.append("topdown"),
+                           agent_note_after_final=lambda p, n: None,
+                           final_stages_again=lambda p, url: calls.append("final stages"),
+                           rollback_round=lambda p, k, why: calls.append(f"rollback {k}") or 2,
+                           agent_rerun=lambda p, stage, views, k, final: calls.append("rerun") or {"status": "ok"})
+    SC.Orchestrator.final_critical_rounds(fake, "url")
+    rec = json.loads((tmp_path / "orchestrator" / "big_loop.json").read_text())
+    return rec, calls, pr.agent_loop
+
+
+def test_the_big_loop_goes_on_while_the_house_gets_better(tmp_path):
+    rec, calls, loop = _big_loop(tmp_path, [30.0, 34.0, 36.5, 36.6])
+    assert [c["verdict"] for c in rec["cycles"]] == ["first", "better", "better", "same"]
+    assert rec["stop"].startswith("cycle 3: no gain") and len(loop.rounds_run) == 3
+    assert not [c for c in calls if str(c).startswith("rollback")]
+
+
+def test_the_big_loop_rolls_back_a_cycle_that_makes_the_house_worse(tmp_path):
+    rec, calls, loop = _big_loop(tmp_path, [30.0, 34.0, 28.0, 28.0])
+    assert [c["verdict"] for c in rec["cycles"]] == ["first", "better", "worse"]
+    assert "rollback" in " ".join(str(c) for c in calls) and "rerun" in calls
+    assert rec["stop"] == "cycle 2: worse, rolled back" and "rolled back" in rec["cycles"][-1]["note"]
