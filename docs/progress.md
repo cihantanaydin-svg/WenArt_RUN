@@ -1464,3 +1464,20 @@ real06 before / after (same building JSON): ridge 8.530 m reported (7.608 m buil
 saying why the section is not compared point by point, ridge -16 cm within tolerance (the roof plan's 33 % pitch
 kept); splashbacks: 3 bands, 2 of them over windows and 1 over the pass-through -> 1 piece of 1.24 m beside the window
 win_L0_007.
+
+### The first big-loop pod run (real06, 26 Oct 2026, job 20261026-183115-full)
+
+| | before (170020) | after (183115) |
+|---|---|---|
+| house score (cycle 0 -> best) | - | 31.84 -> 31.84 (cycle 1: 1 edit, no gain) |
+| judge mean (1-5) | - | 2.18 over 34 views, 2 at 1, 1 at 4-5 |
+| views with >= 50 % bare wall | 6 | 7 |
+| GPU tests | 56 of 57 | 56 of 57 (the window-pane saturation, the same) |
+| Argus | 15.5 | 7.4 (the judge's 173 problems now counted) |
+
+The loop measured, but nothing it could do raised the score: the judge's main points have no agent tool or every try
+was refused: the bathroom cameras look at bare walls; the kitchen has no hob, no oven and no fridge (30 tries of
+complete_group / place_group refused: "kitchen_run (missing stove, fridge): no place passes the checks"); the dressing
+room is empty ("no groups for this room"); armchairs of different models. Being fixed as general rules (helpers): a
+kitchen run gets its hob built into the counter, a fridge and upper cabinets; a dressing room gets its wardrobe run;
+every view shows the room's main pieces; furniture names written in the plan type the pieces beside them.

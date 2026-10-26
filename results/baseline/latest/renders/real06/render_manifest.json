@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../scene/scene.blend",
- "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+ "scene_sha256": "65d36bb48a4521ed0eba6a57e70da3a0cf215b374ab0be4b8f03da451b984a95",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -37,7 +37,7 @@
    0.852212
   ],
   "from_camera": "cam_r_L0_mutfak_2",
-  "source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+  "source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))))",
   "residual": 0.35,
   "metered_on": "cam_r_L0_mutfak_2",
   "daylight_only": true,
@@ -213,17 +213,16 @@
   "f_L1_028": 94,
   "f_L1_029": 95,
   "f_L1_030": 96,
-  "f_L1_031": 97,
-  "dec_L1_004": 98,
-  "dec_L1_007": 99,
-  "dec_L1_008": 100,
-  "dec_L1_013": 101,
-  "dec_L1_015": 102,
-  "dec_L1_016": 103,
-  "dec_L1_018": 104,
-  "dec_L1_020": 105,
-  "dec_L1_021": 106,
-  "dec_L1_022": 107
+  "dec_L1_004": 97,
+  "dec_L1_007": 98,
+  "dec_L1_008": 99,
+  "dec_L1_013": 100,
+  "dec_L1_015": 101,
+  "dec_L1_016": 102,
+  "dec_L1_018": 103,
+  "dec_L1_020": 104,
+  "dec_L1_021": 105,
+  "dec_L1_022": 106
  },
  "renders": [
   {
@@ -244,7 +243,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L0_banyo_1.png",
    "exr": "cam_r_L0_banyo_1_passes.exr",
    "preview": "cam_r_L0_banyo_1_preview.jpg",
@@ -256,8 +255,8 @@
     "normal": "cam_r_L0_banyo_1_normal.png",
     "depth": "cam_r_L0_banyo_1_depth.png"
    },
-   "preview_bytes": 102242,
-   "seconds": 14.52,
+   "preview_bytes": 102227,
+   "seconds": 15.07,
    "samples": 256,
    "resolution": [
     1920,
@@ -314,7 +313,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -354,7 +353,7 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -379,7 +378,7 @@
      "light_rgb": [
       1.25933,
       0.954752,
-      0.684592
+      0.684593
      ],
      "day_rgb": [
       1.167633,
@@ -387,11 +386,11 @@
       0.770175
      ],
      "rig_rgb": [
-      1.846184,
+      1.846183,
       0.835598,
-      0.136864
+      0.136865
      ],
-     "rig_rb": 13.4892,
+     "rig_rb": 13.4891,
      "lamp_rb": 2.6511,
      "rig_kelvin": 2789.5,
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
@@ -430,7 +429,7 @@
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.8651,
+      "median": 0.8653,
       "p90": 0.8941
      },
      {
@@ -443,7 +442,7 @@
     "pane_median_after": 0.7866,
     "pane_p90_after": 0.8263,
     "pane_saturation_after": 0.0612,
-    "seconds": 0.551
+    "seconds": 0.968
    },
    "interior_glazing": null,
    "lawn": null,
@@ -469,7 +468,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L0_banyo_2.png",
    "exr": "cam_r_L0_banyo_2_passes.exr",
    "preview": "cam_r_L0_banyo_2_preview.jpg",
@@ -481,8 +480,8 @@
     "normal": "cam_r_L0_banyo_2_normal.png",
     "depth": "cam_r_L0_banyo_2_depth.png"
    },
-   "preview_bytes": 120543,
-   "seconds": 14.88,
+   "preview_bytes": 120552,
+   "seconds": 15.14,
    "samples": 256,
    "resolution": [
     1920,
@@ -529,7 +528,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -543,16 +542,16 @@
     ],
     "incident_p50": 0.673598,
     "whitepoint": [
-     1.12247,
-     0.981623,
-     0.821415
+     1.122466,
+     0.981624,
+     0.82142
     ],
     "wb_mode": "project",
-    "wb_temperature": 5439.1,
+    "wb_temperature": 5439.2,
     "wb_tint": 7.5,
     "residual": 0.35,
     "window_clip_frac": null,
-    "meter_seconds": 1.82,
+    "meter_seconds": 1.87,
     "meter": {
      "resolution": [
       240,
@@ -569,14 +568,14 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.081521,
+    "wb_rig_share": 0.081505,
     "wb_rig_kelvin": 4000.0,
     "wb_rig_whitepoint": [
      1.414034,
@@ -614,7 +613,7 @@
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.029954,
+    "wb_day_green_all": 1.029958,
     "wb_day_wall_share": 0.4129,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
@@ -647,7 +646,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L0_banyo_3.png",
    "exr": "cam_r_L0_banyo_3_passes.exr",
    "preview": "cam_r_L0_banyo_3_preview.jpg",
@@ -659,8 +658,8 @@
     "normal": "cam_r_L0_banyo_3_normal.png",
     "depth": "cam_r_L0_banyo_3_depth.png"
    },
-   "preview_bytes": 90375,
-   "seconds": 13.9,
+   "preview_bytes": 90412,
+   "seconds": 14.25,
    "samples": 256,
    "resolution": [
     1920,
@@ -707,7 +706,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -721,16 +720,16 @@
     ],
     "incident_p50": 0.454756,
     "whitepoint": [
-     1.143086,
+     1.143085,
      0.977745,
-     0.799127
+     0.799128
     ],
     "wb_mode": "project",
     "wb_temperature": 5309.5,
     "wb_tint": 6.7,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 1.933,
+    "meter_seconds": 1.916,
     "meter": {
      "resolution": [
       240,
@@ -747,31 +746,31 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.169341,
+    "wb_rig_share": 0.16934,
     "wb_rig_kelvin": 4000.0,
     "wb_rig_whitepoint": [
      1.414034,
      0.924032,
      0.533367
     ],
-    "wb_day_green": 1.034609,
-    "wb_view_tint_gain": 1.014488,
+    "wb_day_green": 1.03461,
+    "wb_view_tint_gain": 1.014489,
     "wb_rig_kelvin_source": "room",
     "wb_day_incident_p50": 0.35234,
     "wb_rig_share_p50": 0.22521,
     "wb_walls": {
      "share": 0.505,
-     "rig_share": 0.172367,
+     "rig_share": 0.172366,
      "light_rgb": [
       1.254857,
-      0.956723,
+      0.956722,
       0.678247
      ],
      "day_rgb": [
@@ -780,8 +779,8 @@
       0.772541
      ],
      "rig_rgb": [
-      1.737085,
-      0.859082,
+      1.737088,
+      0.859081,
       0.225487
      ],
      "rig_rb": 7.7037,
@@ -792,7 +791,7 @@
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.032598,
+    "wb_day_green_all": 1.032599,
     "wb_day_wall_share": 0.505,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
@@ -809,7 +808,7 @@
     "pane_px": 250457,
     "pane_median": 0.9787,
     "pane_p90": 0.9841,
-    "pane_saturation": 0.0332,
+    "pane_saturation": 0.0331,
     "wall_median": 0.6383,
     "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
     "interior_pane_px": 0,
@@ -842,7 +841,7 @@
     "pane_median_after": 0.7973,
     "pane_p90_after": 0.8116,
     "pane_saturation_after": 0.0972,
-    "seconds": 0.911
+    "seconds": 1.169
    },
    "interior_glazing": null,
    "lawn": null,
@@ -868,7 +867,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64214,
    "png": "cam_r_L0_mutfak_1.png",
    "exr": "cam_r_L0_mutfak_1_passes.exr",
    "preview": "cam_r_L0_mutfak_1_preview.jpg",
@@ -880,8 +879,8 @@
     "normal": "cam_r_L0_mutfak_1_normal.png",
     "depth": "cam_r_L0_mutfak_1_depth.png"
    },
-   "preview_bytes": 102160,
-   "seconds": 14.56,
+   "preview_bytes": 102118,
+   "seconds": 14.44,
    "samples": 256,
    "resolution": [
     1920,
@@ -938,7 +937,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -952,16 +951,16 @@
     ],
     "incident_p50": 0.597346,
     "whitepoint": [
-     1.234136,
-     0.957866,
-     0.727933
+     1.234028,
+     0.957889,
+     0.728025
     ],
     "wb_mode": "project",
-    "wb_temperature": 4852.5,
+    "wb_temperature": 4853.0,
     "wb_tint": 0.96,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 1.992,
+    "meter_seconds": 1.945,
     "meter": {
      "resolution": [
       240,
@@ -978,37 +977,37 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.182353,
+    "wb_rig_share": 0.182205,
     "wb_rig_kelvin": 2700.0,
     "wb_rig_whitepoint": [
      1.935351,
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.042437,
-    "wb_view_tint_gain": 1.018331,
+    "wb_day_green": 1.042432,
+    "wb_view_tint_gain": 1.018332,
     "wb_rig_kelvin_source": "room",
     "wb_day_incident_p50": 0.493404,
     "wb_rig_share_p50": 0.174005,
     "wb_walls": {
      "share": 0.3713,
-     "rig_share": 0.225565,
+     "rig_share": 0.225532,
      "light_rgb": [
-      1.456454,
-      0.911286,
-      0.534713
+      1.456344,
+      0.911311,
+      0.534793
      ],
      "day_rgb": [
-      1.169726,
-      0.975,
-      0.747869
+      1.169734,
+      0.974998,
+      0.747868
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -1019,11 +1018,11 @@
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.035607,
+    "wb_day_green_all": 1.035589,
     "wb_day_wall_share": 0.3713,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
-    "wb_view_shift_mired": 26.04
+    "wb_view_shift_mired": 26.02
    },
    "hidden": [],
    "plugged": [],
@@ -1067,9 +1066,9 @@
      }
     ],
     "pane_median_after": 0.7889,
-    "pane_p90_after": 0.7922,
+    "pane_p90_after": 0.7921,
     "pane_saturation_after": 0.0673,
-    "seconds": 0.718
+    "seconds": 1.145
    },
    "interior_glazing": {
     "windows": [
@@ -1087,7 +1086,7 @@
      "clip_before": 0.0,
      "clip_after": 0.0,
      "pane_px": 105851,
-     "pane_median": 0.8098,
+     "pane_median": 0.8109,
      "wall_median": 0.6358,
      "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
      "targets": {
@@ -1095,7 +1094,7 @@
       "wall_ratio_min": 0.8
      },
      "tried": [],
-     "seconds": 0.024
+     "seconds": 0.077
     },
     "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
    },
@@ -1122,7 +1121,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64782,
+   "vram_mib": 64212,
    "png": "cam_r_L0_mutfak_2.png",
    "exr": "cam_r_L0_mutfak_2_passes.exr",
    "preview": "cam_r_L0_mutfak_2_preview.jpg",
@@ -1134,8 +1133,8 @@
     "normal": "cam_r_L0_mutfak_2_normal.png",
     "depth": "cam_r_L0_mutfak_2_depth.png"
    },
-   "preview_bytes": 97748,
-   "seconds": 14.16,
+   "preview_bytes": 97829,
+   "seconds": 13.92,
    "samples": 256,
    "resolution": [
     1920,
@@ -1212,30 +1211,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
     "ev": 0.666667,
-    "ev_raw": 0.7379,
+    "ev_raw": 0.7348,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 0.539644,
+    "incident_p50": 0.540802,
     "whitepoint": [
-     1.217204,
-     0.961285,
-     0.743925
+     1.217069,
+     0.961312,
+     0.744055
     ],
     "wb_mode": "project",
-    "wb_temperature": 4941.2,
+    "wb_temperature": 4941.9,
     "wb_tint": 1.51,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 2.001,
+    "meter_seconds": 2.004,
     "meter": {
      "resolution": [
       240,
@@ -1252,37 +1251,37 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.157644,
+    "wb_rig_share": 0.157445,
     "wb_rig_kelvin": 2700.0,
     "wb_rig_whitepoint": [
      1.935351,
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.039243,
-    "wb_view_tint_gain": 1.01718,
+    "wb_day_green": 1.039218,
+    "wb_view_tint_gain": 1.01717,
     "wb_rig_kelvin_source": "room",
-    "wb_day_incident_p50": 0.450168,
-    "wb_rig_share_p50": 0.165805,
+    "wb_day_incident_p50": 0.449911,
+    "wb_rig_share_p50": 0.168067,
     "wb_walls": {
      "share": 0.4473,
-     "rig_share": 0.164317,
+     "rig_share": 0.164074,
      "light_rgb": [
-      1.41628,
-      0.919823,
-      0.568446
+      1.416189,
+      0.91984,
+      0.568536
      ],
      "day_rgb": [
-      1.170545,
-      0.974433,
-      0.751072
+      1.170497,
+      0.97444,
+      0.751149
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -1297,7 +1296,7 @@
     "wb_day_wall_share": 0.4473,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
-    "wb_view_shift_mired": 22.34
+    "wb_view_shift_mired": 22.31
    },
    "hidden": [],
    "plugged": [],
@@ -1308,9 +1307,9 @@
      "win_L0_001"
     ],
     "pane_px": 114007,
-    "pane_rb": 1.091,
+    "pane_rb": 1.09,
     "wall_rb": 1.155,
-    "delta_rb": -0.064,
+    "delta_rb": -0.065,
     "clip": 0.0,
     "pull": {
      "ev": 0.0,
@@ -1319,7 +1318,7 @@
      "clip_before": 0.0,
      "clip_after": 0.0,
      "pane_px": 114007,
-     "pane_median": 0.7966,
+     "pane_median": 0.7968,
      "wall_median": 0.6195,
      "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
      "targets": {
@@ -1327,7 +1326,7 @@
       "wall_ratio_min": 0.8
      },
      "tried": [],
-     "seconds": 0.027
+     "seconds": 0.107
     },
     "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
    },
@@ -1354,7 +1353,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L0_mutfak_3.png",
    "exr": "cam_r_L0_mutfak_3_passes.exr",
    "preview": "cam_r_L0_mutfak_3_preview.jpg",
@@ -1366,8 +1365,8 @@
     "normal": "cam_r_L0_mutfak_3_normal.png",
     "depth": "cam_r_L0_mutfak_3_depth.png"
    },
-   "preview_bytes": 106920,
-   "seconds": 13.09,
+   "preview_bytes": 106914,
+   "seconds": 12.94,
    "samples": 256,
    "resolution": [
     1920,
@@ -1428,7 +1427,7 @@
      ]
     },
     "38": {
-     "pixels": 365258,
+     "pixels": 365628,
      "box": [
       806,
       444,
@@ -1474,7 +1473,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -1488,16 +1487,16 @@
     ],
     "incident_p50": 0.689423,
     "whitepoint": [
-     1.138185,
-     0.975601,
-     0.834794
+     1.138172,
+     0.975606,
+     0.834786
     ],
     "wb_mode": "project",
     "wb_temperature": 5431.8,
     "wb_tint": 3.87,
     "residual": 0.35,
     "window_clip_frac": 0.0191,
-    "meter_seconds": 1.382,
+    "meter_seconds": 1.332,
     "meter": {
      "resolution": [
       240,
@@ -1514,37 +1513,37 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.028513,
+    "wb_rig_share": 0.028512,
     "wb_rig_kelvin": 2700.0,
     "wb_rig_whitepoint": [
      1.935351,
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.005894,
-    "wb_view_tint_gain": 0.99905,
+    "wb_day_green": 1.005918,
+    "wb_view_tint_gain": 0.999065,
     "wb_rig_kelvin_source": "room",
     "wb_day_incident_p50": 0.572822,
     "wb_rig_share_p50": 0.169128,
     "wb_walls": {
      "share": 0.3389,
-     "rig_share": 0.086506,
+     "rig_share": 0.086276,
      "light_rgb": [
-      1.29297,
-      0.943478,
-      0.697218
+      1.292832,
+      0.943509,
+      0.697316
      ],
      "day_rgb": [
-      1.177826,
-      0.968616,
-      0.78726
+      1.177771,
+      0.96863,
+      0.787281
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -1555,7 +1554,7 @@
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 0.996895,
+    "wb_day_green_all": 0.996904,
     "wb_day_wall_share": 0.3367,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
@@ -1573,7 +1572,7 @@
     "pane_median": 0.9448,
     "pane_p90": 0.9611,
     "pane_saturation": 0.0323,
-    "wall_median": 0.6439,
+    "wall_median": 0.6438,
     "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
     "interior_pane_px": 0,
     "targets": {
@@ -1599,7 +1598,7 @@
     "pane_median_after": 0.8196,
     "pane_p90_after": 0.8448,
     "pane_saturation_after": 0.0631,
-    "seconds": 0.481
+    "seconds": 1.038
    },
    "interior_glazing": null,
    "lawn": null,
@@ -1625,7 +1624,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64778,
+   "vram_mib": 64214,
    "png": "cam_r_L0_salon_1.png",
    "exr": "cam_r_L0_salon_1_passes.exr",
    "preview": "cam_r_L0_salon_1_preview.jpg",
@@ -1637,8 +1636,8 @@
     "normal": "cam_r_L0_salon_1_normal.png",
     "depth": "cam_r_L0_salon_1_depth.png"
    },
-   "preview_bytes": 184373,
-   "seconds": 11.85,
+   "preview_bytes": 184379,
+   "seconds": 11.65,
    "samples": 256,
    "resolution": [
     1920,
@@ -1755,30 +1754,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
     "ev": -0.666667,
-    "ev_raw": -0.741,
+    "ev_raw": -0.7398,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 1.504227,
+    "incident_p50": 1.502932,
     "whitepoint": [
-     1.114142,
-     0.981187,
-     0.850256
+     1.114116,
+     0.981197,
+     0.850236
     ],
     "wb_mode": "project",
     "wb_temperature": 5556.1,
-    "wb_tint": 5.85,
+    "wb_tint": 5.86,
     "residual": 0.35,
     "window_clip_frac": 0.011,
-    "meter_seconds": 1.431,
+    "meter_seconds": 1.371,
     "meter": {
      "resolution": [
       240,
@@ -1795,7 +1794,7 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -1809,23 +1808,23 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.0125,
-    "wb_view_tint_gain": 1.003281,
+    "wb_day_green": 1.01255,
+    "wb_view_tint_gain": 1.003314,
     "wb_rig_kelvin_source": "scene",
-    "wb_day_incident_p50": 1.876234,
+    "wb_day_incident_p50": 1.875122,
     "wb_rig_share_p50": 0.0,
     "wb_walls": {
      "share": 0.339,
      "rig_share": 0.0,
      "light_rgb": [
-      1.357989,
-      0.931546,
-      0.623962
+      1.357845,
+      0.931584,
+      0.624008
      ],
      "day_rgb": [
-      1.368328,
-      0.92931,
-      0.61566
+      1.368307,
+      0.92932,
+      0.615623
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -1834,7 +1833,7 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.010558,
+    "wb_day_green_all": 1.01058,
     "wb_day_wall_share": 0.339,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
@@ -1873,7 +1872,7 @@
     "pane_median_after": 0.8379,
     "pane_p90_after": 0.8459,
     "pane_saturation_after": 0.0288,
-    "seconds": 0.319
+    "seconds": 0.349
    },
    "interior_glazing": {
     "windows": [
@@ -1926,7 +1925,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L0_salon_2.png",
    "exr": "cam_r_L0_salon_2_passes.exr",
    "preview": "cam_r_L0_salon_2_preview.jpg",
@@ -1938,8 +1937,8 @@
     "normal": "cam_r_L0_salon_2_normal.png",
     "depth": "cam_r_L0_salon_2_depth.png"
    },
-   "preview_bytes": 191550,
-   "seconds": 12.35,
+   "preview_bytes": 191018,
+   "seconds": 12.25,
    "samples": 256,
    "resolution": [
     1920,
@@ -1948,7 +1947,7 @@
    "depth": {
     "min": 1.4923264980316162,
     "max": 10.080581665039062,
-    "mean": 3.9161980152130127,
+    "mean": 3.917689800262451,
     "coverage": 1.0
    },
    "index_values": [
@@ -2080,11 +2079,11 @@
      ]
     },
     "29": {
-     "pixels": 13229,
+     "pixels": 6198,
      "box": [
-      1483,
-      366,
-      1672,
+      1468,
+      425,
+      1687,
       504
      ]
     },
@@ -2126,30 +2125,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
     "ev": -0.333333,
-    "ev_raw": -0.4146,
+    "ev_raw": -0.4066,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 1.199673,
+    "incident_p50": 1.193005,
     "whitepoint": [
-     1.123767,
-     0.977584,
-     0.857601
+     1.12369,
+     0.977613,
+     0.857543
     ],
     "wb_mode": "project",
     "wb_temperature": 5549.4,
-    "wb_tint": 3.72,
+    "wb_tint": 3.74,
     "residual": 0.35,
     "window_clip_frac": 0.0062,
-    "meter_seconds": 1.449,
+    "meter_seconds": 1.585,
     "meter": {
      "resolution": [
       240,
@@ -2157,16 +2156,16 @@
      ],
      "samples": 16,
      "blocks": 880,
-     "blocks_used": 788,
+     "blocks_used": 794,
      "block_px": 6,
-     "interior_frac": 0.9071
+     "interior_frac": 0.9117
     },
     "mood": "warm daylight",
     "source": null,
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -2180,23 +2179,23 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 0.99355,
-    "wb_view_tint_gain": 0.991036,
+    "wb_day_green": 0.9937,
+    "wb_view_tint_gain": 0.991133,
     "wb_rig_kelvin_source": "scene",
-    "wb_day_incident_p50": 1.56886,
+    "wb_day_incident_p50": 1.556207,
     "wb_rig_share_p50": 0.0,
     "wb_walls": {
-     "share": 0.3086,
+     "share": 0.312,
      "rig_share": 0.0,
      "light_rgb": [
-      1.240101,
-      0.954458,
-      0.74413
+      1.240147,
+      0.954461,
+      0.743961
      ],
      "day_rgb": [
-      1.252994,
-      0.951806,
-      0.732434
+      1.25289,
+      0.951847,
+      0.732336
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -2205,8 +2204,8 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 0.990709,
-    "wb_day_wall_share": 0.3086,
+    "wb_day_green_all": 0.990907,
+    "wb_day_wall_share": 0.312,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "ev_offset": 0.0,
@@ -2221,10 +2220,10 @@
     "clip_before": 0.0,
     "clip_after": 0.0,
     "pane_px": 122040,
-    "pane_median": 0.9025,
+    "pane_median": 0.9028,
     "pane_p90": 0.9582,
     "pane_saturation": 0.0299,
-    "wall_median": 0.5713,
+    "wall_median": 0.5707,
     "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
     "interior_pane_px": 35947,
     "targets": {
@@ -2243,14 +2242,14 @@
      {
       "k": 2,
       "clip": 0.0,
-      "median": 0.7434,
+      "median": 0.7436,
       "p90": 0.8409
      }
     ],
-    "pane_median_after": 0.7439,
+    "pane_median_after": 0.7442,
     "pane_p90_after": 0.8412,
-    "pane_saturation_after": 0.0585,
-    "seconds": 0.487
+    "pane_saturation_after": 0.0588,
+    "seconds": 0.547
    },
    "interior_glazing": {
     "windows": [
@@ -2270,14 +2269,14 @@
      "clip_after": 0.0,
      "pane_px": 35947,
      "pane_median": 0.5205,
-     "wall_median": 0.5713,
+     "wall_median": 0.5707,
      "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
      "targets": {
       "max_clip": 0.01,
       "wall_ratio_min": 0.8
      },
      "tried": [],
-     "seconds": 0.017
+     "seconds": 0.02
     },
     "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
    },
@@ -2304,7 +2303,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L0_salon_3.png",
    "exr": "cam_r_L0_salon_3_passes.exr",
    "preview": "cam_r_L0_salon_3_preview.jpg",
@@ -2316,138 +2315,158 @@
     "normal": "cam_r_L0_salon_3_normal.png",
     "depth": "cam_r_L0_salon_3_depth.png"
    },
-   "preview_bytes": 165194,
-   "seconds": 11.72,
+   "preview_bytes": 184702,
+   "seconds": 12.19,
    "samples": 256,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 1.6404662132263184,
-    "max": 5.245165824890137,
-    "mean": 3.113722801208496,
+    "min": 1.4921176433563232,
+    "max": 9.358644485473633,
+    "mean": 3.5597047805786133,
     "coverage": 1.0
    },
    "index_values": [
+    2,
     3,
-    11,
-    25,
-    26,
-    27,
+    6,
+    19,
+    21,
+    22,
+    23,
     28,
-    29,
-    31,
+    34,
+    37,
     44
    ],
    "index_stats": {
+    "2": {
+     "pixels": 22672,
+     "box": [
+      1265,
+      236,
+      1428,
+      387
+     ]
+    },
     "3": {
-     "pixels": 94334,
+     "pixels": 31090,
+     "box": [
+      1699,
+      264,
+      1920,
+      416
+     ]
+    },
+    "6": {
+     "pixels": 14528,
+     "box": [
+      961,
+      249,
+      1076,
+      380
+     ]
+    },
+    "19": {
+     "pixels": 152227,
+     "box": [
+      215,
+      0,
+      549,
+      492
+     ]
+    },
+    "21": {
+     "pixels": 138146,
+     "box": [
+      446,
+      508,
+      883,
+      957
+     ]
+    },
+    "22": {
+     "pixels": 70309,
      "box": [
       0,
-      196,
-      397,
-      469
+      471,
+      155,
+      1080
      ]
     },
-    "11": {
-     "pixels": 149788,
+    "23": {
+     "pixels": 43119,
      "box": [
-      1499,
-      74,
-      1920,
-      461
-     ]
-    },
-    "25": {
-     "pixels": 47990,
-     "box": [
-      1616,
-      621,
-      1920,
-      907
-     ]
-    },
-    "26": {
-     "pixels": 27815,
-     "box": [
-      1046,
-      461,
-      1318,
-      733
-     ]
-    },
-    "27": {
-     "pixels": 71479,
-     "box": [
-      321,
-      483,
-      681,
-      763
+      961,
+      377,
+      1304,
+      558
      ]
     },
     "28": {
-     "pixels": 133375,
+     "pixels": 32048,
      "box": [
-      783,
-      549,
-      1254,
-      980
+      1751,
+      499,
+      1920,
+      740
      ]
     },
-    "29": {
-     "pixels": 35132,
+    "34": {
+     "pixels": 4737,
      "box": [
-      671,
-      372,
-      892,
-      646
+      996,
+      466,
+      1069,
+      535
      ]
     },
-    "31": {
-     "pixels": 2850,
+    "37": {
+     "pixels": 6167,
      "box": [
-      752,
-      611,
-      924,
-      699
+      1073,
+      481,
+      1156,
+      559
      ]
     },
     "44": {
-     "pixels": 61159,
+     "pixels": 20393,
      "box": [
-      0,
-      27,
-      424,
-      238
+      1681,
+      170,
+      1920,
+      277
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
-    "ev": 0.333333,
-    "ev_raw": 0.3596,
+    "ev": -0.5,
+    "ev_raw": -0.5462,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 0.701438,
+    "incident_p50": 1.314219,
     "whitepoint": [
-     1.112991,
-     0.981618,
-     0.849378
+     1.122347,
+     0.978116,
+     0.856518
     ],
     "wb_mode": "project",
-    "wb_temperature": 5556.9,
-    "wb_tint": 6.11,
+    "wb_temperature": 5550.4,
+    "wb_tint": 4.04,
     "residual": 0.35,
-    "window_clip_frac": 0.0,
-    "meter_seconds": 1.36,
+    "window_clip_frac": 0.0073,
+    "meter_seconds": 1.532,
     "meter": {
      "resolution": [
       240,
@@ -2455,16 +2474,16 @@
      ],
      "samples": 16,
      "blocks": 880,
-     "blocks_used": 742,
+     "blocks_used": 757,
      "block_px": 6,
-     "interior_frac": 0.8675
+     "interior_frac": 0.8909
     },
     "mood": "warm daylight",
     "source": null,
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -2478,23 +2497,23 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.014795,
-    "wb_view_tint_gain": 1.004759,
+    "wb_day_green": 0.996318,
+    "wb_view_tint_gain": 0.992829,
     "wb_rig_kelvin_source": "scene",
-    "wb_day_incident_p50": 0.897037,
+    "wb_day_incident_p50": 1.686734,
     "wb_rig_share_p50": 0.0,
     "wb_walls": {
-     "share": 0.3948,
+     "share": 0.3439,
      "rig_share": 0.0,
      "light_rgb": [
-      1.410658,
-      0.920215,
-      0.581114
+      1.294626,
+      0.943376,
+      0.693351
      ],
      "day_rgb": [
-      1.411164,
-      0.919939,
-      0.582351
+      1.309987,
+      0.940181,
+      0.679766
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -2503,28 +2522,28 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.008818,
-    "wb_day_wall_share": 0.3948,
+    "wb_day_green_all": 0.989238,
+    "wb_day_wall_share": 0.3439,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "ev_offset": 0.0,
-    "wb_view_shift_mired": -0.08
+    "wb_view_shift_mired": 0.13
    },
    "hidden": [],
    "plugged": [],
    "window_pull": {
     "ev": -2.0,
     "k": 2,
-    "pane_ev": -1.666667,
+    "pane_ev": -2.5,
     "clip_before": 0.0,
     "clip_after": 0.0,
-    "pane_px": 93923,
-    "pane_median": 0.9575,
-    "pane_p90": 0.9614,
-    "pane_saturation": 0.0208,
-    "wall_median": 0.6043,
+    "pane_px": 133829,
+    "pane_median": 0.907,
+    "pane_p90": 0.9207,
+    "pane_saturation": 0.0261,
+    "wall_median": 0.6163,
     "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
-    "interior_pane_px": 84178,
+    "interior_pane_px": 46799,
     "targets": {
      "p90_max": 0.85,
      "median_target": 0.65,
@@ -2535,46 +2554,47 @@
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.9057,
-      "p90": 0.9104
+      "median": 0.8398,
+      "p90": 0.8577
      },
      {
       "k": 2,
       "clip": 0.0,
-      "median": 0.8402,
-      "p90": 0.8446
+      "median": 0.7526,
+      "p90": 0.7755
      }
     ],
-    "pane_median_after": 0.8404,
-    "pane_p90_after": 0.8449,
-    "pane_saturation_after": 0.0411,
-    "seconds": 0.489
+    "pane_median_after": 0.7532,
+    "pane_p90_after": 0.7765,
+    "pane_saturation_after": 0.0538,
+    "seconds": 0.679
    },
    "interior_glazing": {
     "windows": [
+     "d_L0_002",
      "win_L0_001"
     ],
-    "pane_px": 84178,
-    "pane_rb": 1.511,
-    "wall_rb": 1.238,
-    "delta_rb": 0.273,
+    "pane_px": 46799,
+    "pane_rb": 1.153,
+    "wall_rb": 1.221,
+    "delta_rb": -0.068,
     "clip": 0.0,
     "pull": {
      "ev": 0.0,
      "k": 0,
-     "pane_ev": 0.333333,
+     "pane_ev": -0.5,
      "clip_before": 0.0,
      "clip_after": 0.0,
-     "pane_px": 84178,
-     "pane_median": 0.4687,
-     "wall_median": 0.6043,
+     "pane_px": 46799,
+     "pane_median": 0.5263,
+     "wall_median": 0.6163,
      "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
      "targets": {
       "max_clip": 0.01,
       "wall_ratio_min": 0.8
      },
      "tried": [],
-     "seconds": 0.023
+     "seconds": 0.021
     },
     "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
    },
@@ -2601,7 +2621,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L1_banyo_1.png",
    "exr": "cam_r_L1_banyo_1_passes.exr",
    "preview": "cam_r_L1_banyo_1_preview.jpg",
@@ -2613,8 +2633,8 @@
     "normal": "cam_r_L1_banyo_1_normal.png",
     "depth": "cam_r_L1_banyo_1_depth.png"
    },
-   "preview_bytes": 99316,
-   "seconds": 11.94,
+   "preview_bytes": 96144,
+   "seconds": 12.02,
    "samples": 256,
    "resolution": [
     1920,
@@ -2623,15 +2643,14 @@
    "depth": {
     "min": 1.01251220703125,
     "max": 3.1606521606445312,
-    "mean": 1.915662169456482,
+    "mean": 2.0452589988708496,
     "coverage": 1.0
    },
    "index_values": [
     57,
     73,
     90,
-    91,
-    97
+    91
    ],
    "index_stats": {
     "57": {
@@ -2669,42 +2688,33 @@
       456,
       858
      ]
-    },
-    "97": {
-     "pixels": 444312,
-     "box": [
-      819,
-      0,
-      1445,
-      1080
-     ]
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
-    "ev": 0.5,
-    "ev_raw": 0.4667,
+    "ev": 0.0,
+    "ev_raw": 0.0651,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 0.651276,
+    "incident_p50": 0.86031,
     "whitepoint": [
-     1.124986,
-     0.983,
-     0.800367
+     1.113151,
+     0.984886,
+     0.816537
     ],
     "wb_mode": "project",
-    "wb_temperature": 5367.8,
-    "wb_tint": 9.24,
+    "wb_temperature": 5452.8,
+    "wb_tint": 9.35,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 1.38,
+    "meter_seconds": 1.644,
     "meter": {
      "resolution": [
       240,
@@ -2712,79 +2722,75 @@
      ],
      "samples": 16,
      "blocks": 880,
-     "blocks_used": 377,
+     "blocks_used": 564,
      "block_px": 6,
-     "interior_frac": 0.4637
+     "interior_frac": 0.6721
     },
     "mood": "warm daylight",
     "source": null,
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.135826,
+    "wb_rig_share": 0.076917,
     "wb_rig_kelvin": 4000.0,
     "wb_rig_whitepoint": [
      1.414034,
      0.924032,
      0.533367
     ],
-    "wb_day_green": 1.058548,
-    "wb_view_tint_gain": 1.028204,
+    "wb_day_green": 1.052626,
+    "wb_view_tint_gain": 1.026693,
     "wb_rig_kelvin_source": "room",
-    "wb_day_incident_p50": 0.485204,
-    "wb_rig_share_p50": 0.254995,
+    "wb_day_incident_p50": 0.78539,
+    "wb_rig_share_p50": 0.087084,
     "wb_walls": {
-     "share": 0.3545,
-     "rig_share": 0.167007,
+     "share": 0.5176,
+     "rig_share": 0.071883,
      "light_rgb": [
-      1.238168,
-      0.962172,
-      0.673405
+      1.213311,
+      0.966906,
+      0.699709
      ],
      "day_rgb": [
-      1.142219,
-      0.982531,
-      0.754262
+      1.138199,
+      0.982587,
+      0.765552
      ],
-     "rig_rgb": [
-      1.716736,
-      0.860626,
-      0.27011
-     ],
-     "rig_rb": 6.3557,
+     "rig_rgb": null,
+     "rig_rb": null,
      "lamp_rb": 2.6511,
-     "rig_kelvin": 3087.1,
+     "rig_kelvin": null,
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.058069,
-    "wb_day_wall_share": 0.3545,
+    "wb_day_green_all": 1.051317,
+    "wb_day_wall_share": 0.5176,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
-    "wb_view_shift_mired": 6.26
+    "wb_view_shift_mired": 3.35
    },
    "hidden": [],
    "plugged": [],
    "window_pull": {
     "ev": -2.0,
     "k": 2,
-    "pane_ev": -1.5,
+    "pane_ev": -2.0,
     "clip_before": 0.0,
     "clip_after": 0.0,
-    "pane_px": 233194,
-    "pane_median": 0.9454,
-    "pane_p90": 0.9648,
-    "pane_saturation": 0.0444,
-    "wall_median": 0.6403,
+    "pane_px": 233195,
+    "pane_median": 0.9204,
+    "pane_p90": 0.941,
+    "pane_saturation": 0.049,
+    "wall_median": 0.6308,
     "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
     "interior_pane_px": 0,
     "targets": {
@@ -2797,20 +2803,20 @@
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.8902,
-      "p90": 0.9135
+      "median": 0.8554,
+      "p90": 0.8847
      },
      {
       "k": 2,
       "clip": 0.0,
-      "median": 0.819,
-      "p90": 0.8489
+      "median": 0.7728,
+      "p90": 0.8091
      }
     ],
-    "pane_median_after": 0.8193,
-    "pane_p90_after": 0.8496,
-    "pane_saturation_after": 0.0845,
-    "seconds": 0.545
+    "pane_median_after": 0.7756,
+    "pane_p90_after": 0.8107,
+    "pane_saturation_after": 0.0959,
+    "seconds": 0.644
    },
    "interior_glazing": null,
    "lawn": null,
@@ -2836,7 +2842,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64778,
+   "vram_mib": 64212,
    "png": "cam_r_L1_banyo_2.png",
    "exr": "cam_r_L1_banyo_2_passes.exr",
    "preview": "cam_r_L1_banyo_2_preview.jpg",
@@ -2848,88 +2854,78 @@
     "normal": "cam_r_L1_banyo_2_normal.png",
     "depth": "cam_r_L1_banyo_2_depth.png"
    },
-   "preview_bytes": 123774,
-   "seconds": 13.67,
+   "preview_bytes": 96661,
+   "seconds": 13.25,
    "samples": 256,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 0.7762702107429504,
-    "max": 3.0925040245056152,
-    "mean": 1.8475826978683472,
+    "min": 0.9032793045043945,
+    "max": 2.504612922668457,
+    "mean": 1.9284594058990479,
     "coverage": 1.0
    },
    "index_values": [
-    57,
     63,
-    91,
-    97
+    87,
+    90
    ],
    "index_stats": {
-    "57": {
-     "pixels": 68621,
-     "box": [
-      1361,
-      32,
-      1527,
-      478
-     ]
-    },
     "63": {
-     "pixels": 432222,
+     "pixels": 257278,
      "box": [
-      227,
+      1560,
       0,
-      666,
-      1067
+      1833,
+      1075
      ]
     },
-    "91": {
-     "pixels": 40243,
+    "87": {
+     "pixels": 42928,
      "box": [
-      1263,
-      500,
-      1527,
-      720
+      549,
+      508,
+      836,
+      778
      ]
     },
-    "97": {
-     "pixels": 424440,
+    "90": {
+     "pixels": 199055,
      "box": [
-      1527,
-      0,
-      1920,
+      291,
+      562,
+      847,
       1080
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
-    "ev": 0.166667,
-    "ev_raw": 0.2257,
+    "ev": 0.0,
+    "ev_raw": 0.0204,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 0.769653,
+    "incident_p50": 0.887333,
     "whitepoint": [
-     1.114141,
-     0.984403,
-     0.818397
+     1.122338,
+     0.982554,
+     0.812579
     ],
     "wb_mode": "project",
-    "wb_temperature": 5455.5,
-    "wb_tint": 9.02,
+    "wb_temperature": 5412.5,
+    "wb_tint": 8.4,
     "residual": 0.35,
-    "window_clip_frac": 0.0,
-    "meter_seconds": 1.42,
+    "window_clip_frac": null,
+    "meter_seconds": 1.509,
     "meter": {
      "resolution": [
       240,
@@ -2937,102 +2933,69 @@
      ],
      "samples": 16,
      "blocks": 880,
-     "blocks_used": 647,
+     "blocks_used": 791,
      "block_px": 6,
-     "interior_frac": 0.7466
+     "interior_frac": 0.9067
     },
     "mood": "warm daylight",
     "source": null,
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.074235,
+    "wb_rig_share": 0.102171,
     "wb_rig_kelvin": 4000.0,
     "wb_rig_whitepoint": [
      1.414034,
      0.924032,
      0.533367
     ],
-    "wb_day_green": 1.048971,
-    "wb_view_tint_gain": 1.024625,
+    "wb_day_green": 1.045672,
+    "wb_view_tint_gain": 1.021993,
     "wb_rig_kelvin_source": "room",
-    "wb_day_incident_p50": 0.696201,
-    "wb_rig_share_p50": 0.095435,
+    "wb_day_incident_p50": 0.826676,
+    "wb_rig_share_p50": 0.068358,
     "wb_walls": {
-     "share": 0.4069,
-     "rig_share": 0.055277,
+     "share": 0.6485,
+     "rig_share": 0.109486,
      "light_rgb": [
-      1.211652,
-      0.966774,
-      0.705905
+      1.227599,
+      0.963104,
+      0.695302
      ],
      "day_rgb": [
-      1.137925,
-      0.982175,
-      0.770438
+      1.142543,
+      0.980839,
+      0.770073
      ],
-     "rig_rgb": null,
-     "rig_rb": null,
+     "rig_rgb": [
+      1.919409,
+      0.818851,
+      0.087143
+     ],
+     "rig_rb": 22.026,
      "lamp_rb": 2.6511,
-     "rig_kelvin": null,
+     "rig_kelvin": 2659.4,
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.046158,
-    "wb_day_wall_share": 0.4069,
+    "wb_day_green_all": 1.042939,
+    "wb_day_wall_share": 0.6503,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
-    "wb_view_shift_mired": 3.26
+    "wb_view_shift_mired": 4.72
    },
    "hidden": [],
    "plugged": [],
-   "window_pull": {
-    "ev": -2.0,
-    "k": 2,
-    "pane_ev": -1.833333,
-    "clip_before": 0.0,
-    "clip_after": 0.0,
-    "pane_px": 41175,
-    "pane_median": 0.9144,
-    "pane_p90": 0.9294,
-    "pane_saturation": 0.0338,
-    "wall_median": 0.6237,
-    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
-    "interior_pane_px": 0,
-    "targets": {
-     "p90_max": 0.85,
-     "median_target": 0.65,
-     "max_clip": 0.01,
-     "wall_ratio_min": 0.8
-    },
-    "tried": [
-     {
-      "k": 1,
-      "clip": 0.0,
-      "median": 0.8507,
-      "p90": 0.8703
-     },
-     {
-      "k": 2,
-      "clip": 0.0,
-      "median": 0.766,
-      "p90": 0.7889
-     }
-    ],
-    "pane_median_after": 0.7699,
-    "pane_p90_after": 0.7959,
-    "pane_saturation_after": 0.0648,
-    "seconds": 0.483
-   },
+   "window_pull": null,
    "interior_glazing": null,
    "lawn": null,
    "alt_preview": null,
@@ -3057,7 +3020,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64216,
    "png": "cam_r_L1_banyo_3.png",
    "exr": "cam_r_L1_banyo_3_passes.exr",
    "preview": "cam_r_L1_banyo_3_preview.jpg",
@@ -3069,98 +3032,88 @@
     "normal": "cam_r_L1_banyo_3_normal.png",
     "depth": "cam_r_L1_banyo_3_depth.png"
    },
-   "preview_bytes": 105955,
-   "seconds": 13.38,
+   "preview_bytes": 129848,
+   "seconds": 12.41,
    "samples": 256,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 0.566436767578125,
-    "max": 4.162590980529785,
-    "mean": 1.6874014139175415,
+    "min": 1.0119266510009766,
+    "max": 3.0925040245056152,
+    "mean": 2.098135232925415,
     "coverage": 1.0
    },
    "index_values": [
-    54,
+    57,
     63,
-    87,
-    90,
-    97
+    73,
+    91
    ],
    "index_stats": {
-    "54": {
-     "pixels": 487,
+    "57": {
+     "pixels": 90973,
      "box": [
-      959,
-      149,
-      960,
-      636
+      1361,
+      18,
+      1576,
+      484
      ]
     },
     "63": {
-     "pixels": 349652,
+     "pixels": 432222,
      "box": [
-      1465,
+      227,
       0,
-      1795,
-      1080
+      666,
+      1067
      ]
     },
-    "87": {
-     "pixels": 85413,
+    "73": {
+     "pixels": 156017,
      "box": [
-      143,
-      549,
-      548,
-      981
+      1612,
+      0,
+      1920,
+      525
      ]
     },
-    "90": {
-     "pixels": 25184,
+    "91": {
+     "pixels": 42035,
      "box": [
-      143,
-      953,
-      356,
-      1080
-     ]
-    },
-    "97": {
-     "pixels": 154440,
-     "box": [
-      0,
-      0,
-      143,
-      1080
+      1263,
+      500,
+      1541,
+      720
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
-    "ev": 0.333333,
-    "ev_raw": 0.261,
+    "ev": 0.166667,
+    "ev_raw": 0.1741,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 0.751064,
+    "incident_p50": 0.79769,
     "whitepoint": [
-     1.148282,
-     0.977542,
-     0.785835
+     1.111405,
+     0.985005,
+     0.820494
     ],
     "wb_mode": "project",
-    "wb_temperature": 5255.4,
-    "wb_tint": 7.26,
+    "wb_temperature": 5470.4,
+    "wb_tint": 9.21,
     "residual": 0.35,
-    "window_clip_frac": null,
-    "meter_seconds": 1.341,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 1.482,
     "meter": {
      "resolution": [
       240,
@@ -3168,69 +3121,102 @@
      ],
      "samples": 16,
      "blocks": 880,
-     "blocks_used": 800,
+     "blocks_used": 737,
      "block_px": 6,
-     "interior_frac": 0.913
+     "interior_frac": 0.8616
     },
     "mood": "warm daylight",
     "source": null,
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.209907,
+    "wb_rig_share": 0.064522,
     "wb_rig_kelvin": 4000.0,
     "wb_rig_whitepoint": [
      1.414034,
      0.924032,
      0.533367
     ],
-    "wb_day_green": 1.045668,
-    "wb_view_tint_gain": 1.019326,
+    "wb_day_green": 1.049831,
+    "wb_view_tint_gain": 1.025398,
     "wb_rig_kelvin_source": "room",
-    "wb_day_incident_p50": 0.635726,
-    "wb_rig_share_p50": 0.153566,
+    "wb_day_incident_p50": 0.736555,
+    "wb_rig_share_p50": 0.076639,
     "wb_walls": {
-     "share": 0.631,
-     "rig_share": 0.235068,
+     "share": 0.4911,
+     "rig_share": 0.059429,
      "light_rgb": [
-      1.26073,
-      0.956254,
-      0.665599
+      1.212278,
+      0.966781,
+      0.703991
      ],
      "day_rgb": [
-      1.151756,
-      0.979009,
-      0.761071
+      1.137964,
+      0.982277,
+      0.769309
      ],
-     "rig_rgb": [
-      1.615341,
-      0.882205,
-      0.354927
-     ],
-     "rig_rb": 4.5512,
+     "rig_rgb": null,
+     "rig_rb": null,
      "lamp_rb": 2.6511,
-     "rig_kelvin": 3345.9,
+     "rig_kelvin": null,
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.044497,
-    "wb_day_wall_share": 0.6322,
+    "wb_day_green_all": 1.048201,
+    "wb_day_wall_share": 0.4911,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
-    "wb_view_shift_mired": 10.24
+    "wb_view_shift_mired": 2.76
    },
    "hidden": [],
    "plugged": [],
-   "window_pull": null,
+   "window_pull": {
+    "ev": -2.0,
+    "k": 2,
+    "pane_ev": -1.833333,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 173338,
+    "pane_median": 0.9252,
+    "pane_p90": 0.9412,
+    "pane_saturation": 0.0524,
+    "wall_median": 0.6252,
+    "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
+    "interior_pane_px": 0,
+    "targets": {
+     "p90_max": 0.85,
+     "median_target": 0.65,
+     "max_clip": 0.01,
+     "wall_ratio_min": 0.8
+    },
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8624,
+      "p90": 0.8847
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.7827,
+      "p90": 0.8102
+     }
+    ],
+    "pane_median_after": 0.7836,
+    "pane_p90_after": 0.8125,
+    "pane_saturation_after": 0.1034,
+    "seconds": 0.665
+   },
    "interior_glazing": null,
    "lawn": null,
    "alt_preview": null,
@@ -3255,7 +3241,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L1_cocuk_odasi_1.png",
    "exr": "cam_r_L1_cocuk_odasi_1_passes.exr",
    "preview": "cam_r_L1_cocuk_odasi_1_preview.jpg",
@@ -3267,8 +3253,8 @@
     "normal": "cam_r_L1_cocuk_odasi_1_normal.png",
     "depth": "cam_r_L1_cocuk_odasi_1_depth.png"
    },
-   "preview_bytes": 163667,
-   "seconds": 13.05,
+   "preview_bytes": 163727,
+   "seconds": 13.13,
    "samples": 256,
    "resolution": [
     1920,
@@ -3287,7 +3273,7 @@
     78,
     79,
     80,
-    102
+    101
    ],
    "index_stats": {
     "58": {
@@ -3344,7 +3330,7 @@
       882
      ]
     },
-    "102": {
+    "101": {
      "pixels": 48641,
      "box": [
       1046,
@@ -3355,7 +3341,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -3369,16 +3355,16 @@
     ],
     "incident_p50": 1.640454,
     "whitepoint": [
-     1.116469,
-     0.980316,
-     0.852032
+     1.116497,
+     0.980306,
+     0.852053
     ],
     "wb_mode": "project",
     "wb_temperature": 5554.5,
-    "wb_tint": 5.34,
+    "wb_tint": 5.33,
     "residual": 0.35,
     "window_clip_frac": 0.0031,
-    "meter_seconds": 1.447,
+    "meter_seconds": 1.498,
     "meter": {
      "resolution": [
       240,
@@ -3395,7 +3381,7 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -3409,8 +3395,8 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.007877,
-    "wb_view_tint_gain": 1.000301,
+    "wb_day_green": 1.007823,
+    "wb_view_tint_gain": 1.000266,
     "wb_rig_kelvin_source": "scene",
     "wb_day_incident_p50": 2.148273,
     "wb_rig_share_p50": 0.0,
@@ -3418,14 +3404,14 @@
      "share": 0.3448,
      "rig_share": 0.0,
      "light_rgb": [
-      1.282683,
-      0.947445,
-      0.688216
+      1.282795,
+      0.947413,
+      0.688195
      ],
      "day_rgb": [
-      1.287669,
-      0.946324,
-      0.684637
+      1.287798,
+      0.94629,
+      0.684593
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -3434,7 +3420,7 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 0.99587,
+    "wb_day_green_all": 0.995861,
     "wb_day_wall_share": 0.3448,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
@@ -3473,7 +3459,7 @@
     "pane_median_after": 0.8252,
     "pane_p90_after": 0.8328,
     "pane_saturation_after": 0.028,
-    "seconds": 0.387
+    "seconds": 0.379
    },
    "interior_glazing": null,
    "lawn": null,
@@ -3499,7 +3485,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L1_cocuk_odasi_2.png",
    "exr": "cam_r_L1_cocuk_odasi_2_passes.exr",
    "preview": "cam_r_L1_cocuk_odasi_2_preview.jpg",
@@ -3511,8 +3497,8 @@
     "normal": "cam_r_L1_cocuk_odasi_2_normal.png",
     "depth": "cam_r_L1_cocuk_odasi_2_depth.png"
    },
-   "preview_bytes": 161260,
-   "seconds": 13.14,
+   "preview_bytes": 161198,
+   "seconds": 13.04,
    "samples": 256,
    "resolution": [
     1920,
@@ -3529,7 +3515,7 @@
     78,
     79,
     80,
-    102
+    101
    ],
    "index_stats": {
     "58": {
@@ -3568,7 +3554,7 @@
       1080
      ]
     },
-    "102": {
+    "101": {
      "pixels": 159370,
      "box": [
       914,
@@ -3579,7 +3565,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -3593,16 +3579,16 @@
     ],
     "incident_p50": 1.349393,
     "whitepoint": [
-     1.117123,
-     0.980071,
-     0.852531
+     1.117125,
+     0.98007,
+     0.852533
     ],
     "wb_mode": "project",
     "wb_temperature": 5554.0,
     "wb_tint": 5.19,
     "residual": 0.35,
     "window_clip_frac": 0.0132,
-    "meter_seconds": 1.373,
+    "meter_seconds": 1.52,
     "meter": {
      "resolution": [
       240,
@@ -3619,7 +3605,7 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -3633,8 +3619,8 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.006583,
-    "wb_view_tint_gain": 0.999466,
+    "wb_day_green": 1.006578,
+    "wb_view_tint_gain": 0.999463,
     "wb_rig_kelvin_source": "scene",
     "wb_day_incident_p50": 1.756397,
     "wb_rig_share_p50": 0.0,
@@ -3642,14 +3628,14 @@
      "share": 0.4488,
      "rig_share": 0.0,
      "light_rgb": [
-      1.268555,
-      0.950171,
-      0.70281
+      1.268583,
+      0.950164,
+      0.702794
      ],
      "day_rgb": [
-      1.276292,
-      0.948577,
-      0.695818
+      1.276307,
+      0.948573,
+      0.695811
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -3658,7 +3644,7 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 0.997744,
+    "wb_day_green_all": 0.997742,
     "wb_day_wall_share": 0.4488,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
@@ -3697,7 +3683,7 @@
     "pane_median_after": 0.8087,
     "pane_p90_after": 0.8431,
     "pane_saturation_after": 0.0413,
-    "seconds": 0.298
+    "seconds": 0.318
    },
    "interior_glazing": null,
    "lawn": null,
@@ -3723,7 +3709,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L1_cocuk_odasi_3.png",
    "exr": "cam_r_L1_cocuk_odasi_3_passes.exr",
    "preview": "cam_r_L1_cocuk_odasi_3_preview.jpg",
@@ -3735,8 +3721,8 @@
     "normal": "cam_r_L1_cocuk_odasi_3_normal.png",
     "depth": "cam_r_L1_cocuk_odasi_3_depth.png"
    },
-   "preview_bytes": 164862,
-   "seconds": 12.81,
+   "preview_bytes": 164815,
+   "seconds": 12.91,
    "samples": 256,
    "resolution": [
     1920,
@@ -3755,7 +3741,7 @@
     78,
     79,
     80,
-    102
+    101
    ],
    "index_stats": {
     "58": {
@@ -3812,7 +3798,7 @@
       1040
      ]
     },
-    "102": {
+    "101": {
      "pixels": 50354,
      "box": [
       1654,
@@ -3823,30 +3809,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
     "ev": -1.0,
-    "ev_raw": -1.0582,
+    "ev_raw": -1.0578,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 1.874119,
+    "incident_p50": 1.873551,
     "whitepoint": [
-     1.120292,
-     0.978885,
-     0.85495
+     1.120303,
+     0.978881,
+     0.854958
     ],
     "wb_mode": "project",
     "wb_temperature": 5551.8,
     "wb_tint": 4.49,
     "residual": 0.35,
     "window_clip_frac": 0.004,
-    "meter_seconds": 1.374,
+    "meter_seconds": 1.423,
     "meter": {
      "resolution": [
       240,
@@ -3863,7 +3849,7 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -3877,8 +3863,8 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.000339,
-    "wb_view_tint_gain": 0.995432,
+    "wb_day_green": 1.000318,
+    "wb_view_tint_gain": 0.995418,
     "wb_rig_kelvin_source": "scene",
     "wb_day_incident_p50": 2.430987,
     "wb_rig_share_p50": 0.0,
@@ -3886,14 +3872,14 @@
      "share": 0.3291,
      "rig_share": 0.0,
      "light_rgb": [
-      1.273252,
-      0.948495,
-      0.705581
+      1.273278,
+      0.948487,
+      0.705582
      ],
      "day_rgb": [
-      1.281227,
-      0.946773,
-      0.699153
+      1.281243,
+      0.946767,
+      0.699163
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -3902,7 +3888,7 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 0.994497,
+    "wb_day_green_all": 0.994492,
     "wb_day_wall_share": 0.3291,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
@@ -3941,7 +3927,7 @@
     "pane_median_after": 0.8098,
     "pane_p90_after": 0.8188,
     "pane_saturation_after": 0.0332,
-    "seconds": 0.376
+    "seconds": 0.405
    },
    "interior_glazing": null,
    "lawn": null,
@@ -3967,7 +3953,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64782,
+   "vram_mib": 64212,
    "png": "cam_r_L1_dus_1.png",
    "exr": "cam_r_L1_dus_1_passes.exr",
    "preview": "cam_r_L1_dus_1_preview.jpg",
@@ -3979,8 +3965,8 @@
     "normal": "cam_r_L1_dus_1_normal.png",
     "depth": "cam_r_L1_dus_1_depth.png"
    },
-   "preview_bytes": 94792,
-   "seconds": 12.45,
+   "preview_bytes": 94795,
+   "seconds": 12.3,
    "samples": 256,
    "resolution": [
     1920,
@@ -4057,7 +4043,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -4080,7 +4066,7 @@
     "wb_tint": 6.55,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 1.407,
+    "meter_seconds": 1.476,
     "meter": {
      "resolution": [
       240,
@@ -4097,7 +4083,7 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -4118,7 +4104,7 @@
     "wb_rig_share_p50": 0.3104,
     "wb_walls": {
      "share": 0.5119,
-     "rig_share": 0.221414,
+     "rig_share": 0.221415,
      "light_rgb": [
       1.268129,
       0.95407,
@@ -4131,7 +4117,7 @@
      ],
      "rig_rgb": [
       1.648947,
-      0.87521,
+      0.875211,
       0.325254
      ],
      "rig_rb": 5.0697,
@@ -4142,7 +4128,7 @@
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.039028,
+    "wb_day_green_all": 1.039027,
     "wb_day_wall_share": 0.5119,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
@@ -4192,7 +4178,7 @@
     "pane_median_after": 0.7626,
     "pane_p90_after": 0.7751,
     "pane_saturation_after": 0.0918,
-    "seconds": 0.756
+    "seconds": 0.768
    },
    "interior_glazing": null,
    "lawn": null,
@@ -4218,7 +4204,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64214,
    "png": "cam_r_L1_dus_2.png",
    "exr": "cam_r_L1_dus_2_passes.exr",
    "preview": "cam_r_L1_dus_2_preview.jpg",
@@ -4230,8 +4216,8 @@
     "normal": "cam_r_L1_dus_2_normal.png",
     "depth": "cam_r_L1_dus_2_depth.png"
    },
-   "preview_bytes": 112773,
-   "seconds": 13.48,
+   "preview_bytes": 112727,
+   "seconds": 13.11,
    "samples": 256,
    "resolution": [
     1920,
@@ -4308,21 +4294,21 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
     "ev": 0.0,
-    "ev_raw": 0.0731,
+    "ev_raw": 0.073,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 0.855553,
+    "incident_p50": 0.855584,
     "whitepoint": [
-     1.150547,
+     1.150546,
      0.976431,
      0.79017
     ],
@@ -4331,7 +4317,7 @@
     "wb_tint": 6.5,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 1.437,
+    "meter_seconds": 1.501,
     "meter": {
      "resolution": [
       240,
@@ -4348,14 +4334,14 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.203203,
+    "wb_rig_share": 0.203202,
     "wb_rig_kelvin": 4000.0,
     "wb_rig_whitepoint": [
      1.414034,
@@ -4366,14 +4352,14 @@
     "wb_view_tint_gain": 1.014574,
     "wb_rig_kelvin_source": "room",
     "wb_day_incident_p50": 0.643961,
-    "wb_rig_share_p50": 0.247315,
+    "wb_rig_share_p50": 0.247343,
     "wb_walls": {
      "share": 0.4624,
-     "rig_share": 0.238055,
+     "rig_share": 0.238049,
      "light_rgb": [
-      1.248492,
-      0.957957,
-      0.684765
+      1.248493,
+      0.957956,
+      0.684764
      ],
      "day_rgb": [
       1.134634,
@@ -4381,11 +4367,11 @@
       0.790524
      ],
      "rig_rgb": [
-      1.612919,
-      0.883799,
-      0.346263
+      1.612936,
+      0.883796,
+      0.346246
      ],
-     "rig_rb": 4.6581,
+     "rig_rb": 4.6584,
      "lamp_rb": 2.6511,
      "rig_kelvin": 3341.4,
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
@@ -4424,7 +4410,7 @@
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.8788,
+      "median": 0.8785,
       "p90": 0.888
      },
      {
@@ -4437,7 +4423,7 @@
     "pane_median_after": 0.8045,
     "pane_p90_after": 0.8155,
     "pane_saturation_after": 0.0913,
-    "seconds": 0.531
+    "seconds": 0.461
    },
    "interior_glazing": {
     "windows": [
@@ -4464,7 +4450,7 @@
       "wall_ratio_min": 0.8
      },
      "tried": [],
-     "seconds": 0.022
+     "seconds": 0.023
     },
     "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
    },
@@ -4491,7 +4477,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64214,
    "png": "cam_r_L1_ebeveyn_y_odasi_1.png",
    "exr": "cam_r_L1_ebeveyn_y_odasi_1_passes.exr",
    "preview": "cam_r_L1_ebeveyn_y_odasi_1_preview.jpg",
@@ -4503,8 +4489,8 @@
     "normal": "cam_r_L1_ebeveyn_y_odasi_1_normal.png",
     "depth": "cam_r_L1_ebeveyn_y_odasi_1_depth.png"
    },
-   "preview_bytes": 170190,
-   "seconds": 13.03,
+   "preview_bytes": 171501,
+   "seconds": 12.73,
    "samples": 256,
    "resolution": [
     1920,
@@ -4525,9 +4511,9 @@
     81,
     92,
     94,
+    97,
     98,
-    99,
-    100
+    99
    ],
    "index_stats": {
     "52": {
@@ -4602,7 +4588,7 @@
       883
      ]
     },
-    "98": {
+    "97": {
      "pixels": 21260,
      "box": [
       311,
@@ -4611,7 +4597,7 @@
       522
      ]
     },
-    "99": {
+    "98": {
      "pixels": 143814,
      "box": [
       63,
@@ -4620,7 +4606,7 @@
       1080
      ]
     },
-    "100": {
+    "99": {
      "pixels": 48845,
      "box": [
       0,
@@ -4631,30 +4617,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
     "ev": -0.333333,
-    "ev_raw": -0.3443,
+    "ev_raw": -0.2774,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 1.142599,
+    "incident_p50": 1.09082,
     "whitepoint": [
-     1.111658,
-     0.982117,
-     0.84836
+     1.115219,
+     0.980784,
+     0.851078
     ],
     "wb_mode": "project",
-    "wb_temperature": 5557.8,
-    "wb_tint": 6.4,
+    "wb_temperature": 5555.3,
+    "wb_tint": 5.61,
     "residual": 0.35,
     "window_clip_frac": 0.0035,
-    "meter_seconds": 1.416,
+    "meter_seconds": 1.456,
     "meter": {
      "resolution": [
       240,
@@ -4671,7 +4657,7 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -4685,23 +4671,23 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.017464,
-    "wb_view_tint_gain": 1.006476,
+    "wb_day_green": 1.010356,
+    "wb_view_tint_gain": 1.0019,
     "wb_rig_kelvin_source": "room",
-    "wb_day_incident_p50": 1.436221,
+    "wb_day_incident_p50": 1.362345,
     "wb_rig_share_p50": 0.0,
     "wb_walls": {
      "share": 0.4227,
      "rig_share": 0.0,
      "light_rgb": [
-      1.272078,
-      0.950449,
-      0.689687
+      1.284767,
+      0.946818,
+      0.688283
      ],
      "day_rgb": [
-      1.273164,
-      0.950546,
-      0.685525
+      1.283886,
+      0.947424,
+      0.684878
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -4710,12 +4696,12 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 0.999052,
+    "wb_day_green_all": 0.995323,
     "wb_day_wall_share": 0.4227,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "ev_offset": 0.0,
-    "wb_view_shift_mired": -0.11
+    "wb_view_shift_mired": -0.03
    },
    "hidden": [],
    "plugged": [],
@@ -4728,8 +4714,8 @@
     "pane_px": 53462,
     "pane_median": 0.8733,
     "pane_p90": 0.9653,
-    "pane_saturation": 0.0179,
-    "wall_median": 0.6153,
+    "pane_saturation": 0.018,
+    "wall_median": 0.606,
     "rule": "smallest k with pane clip <= 1 % and the pane target; panes slightly darker than the walls (median >= 0.8 x the wall median)",
     "interior_pane_px": 0,
     "targets": {
@@ -4742,26 +4728,26 @@
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.7961,
+      "median": 0.796,
       "p90": 0.9151
      },
      {
       "k": 2,
       "clip": 0.0,
-      "median": 0.6949,
-      "p90": 0.8524
+      "median": 0.6947,
+      "p90": 0.8521
      },
      {
       "k": 3,
       "clip": 0.0,
-      "median": 0.566,
+      "median": 0.5658,
       "p90": 0.7666
      }
     ],
-    "pane_median_after": 0.5733,
-    "pane_p90_after": 0.7669,
-    "pane_saturation_after": 0.0552,
-    "seconds": 0.635
+    "pane_median_after": 0.5731,
+    "pane_p90_after": 0.7697,
+    "pane_saturation_after": 0.0556,
+    "seconds": 1.347
    },
    "interior_glazing": null,
    "lawn": null,
@@ -4787,7 +4773,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L1_ebeveyn_y_odasi_2.png",
    "exr": "cam_r_L1_ebeveyn_y_odasi_2_passes.exr",
    "preview": "cam_r_L1_ebeveyn_y_odasi_2_preview.jpg",
@@ -4799,8 +4785,8 @@
     "normal": "cam_r_L1_ebeveyn_y_odasi_2_normal.png",
     "depth": "cam_r_L1_ebeveyn_y_odasi_2_depth.png"
    },
-   "preview_bytes": 150501,
-   "seconds": 12.62,
+   "preview_bytes": 152537,
+   "seconds": 11.83,
    "samples": 256,
    "resolution": [
     1920,
@@ -4809,7 +4795,7 @@
    "depth": {
     "min": 0.9988346099853516,
     "max": 4.963587760925293,
-    "mean": 2.8928534984588623,
+    "mean": 2.881047248840332,
     "coverage": 1.0
    },
    "index_values": [
@@ -4821,18 +4807,18 @@
     85,
     88,
     94,
+    97,
     98,
-    99,
-    100
+    99
    ],
    "index_stats": {
     "51": {
-     "pixels": 114409,
+     "pixels": 106467,
      "box": [
       468,
       126,
       955,
-      439
+      433
      ]
     },
     "61": {
@@ -4863,21 +4849,21 @@
      ]
     },
     "84": {
-     "pixels": 48185,
+     "pixels": 69201,
      "box": [
-      228,
-      443,
-      629,
-      808
+      291,
+      382,
+      624,
+      821
      ]
     },
     "85": {
-     "pixels": 37122,
+     "pixels": 45590,
      "box": [
-      813,
-      421,
-      1079,
-      706
+      847,
+      375,
+      1093,
+      702
      ]
     },
     "88": {
@@ -4898,7 +4884,7 @@
       731
      ]
     },
-    "98": {
+    "97": {
      "pixels": 1292,
      "box": [
       1915,
@@ -4907,7 +4893,7 @@
       605
      ]
     },
-    "99": {
+    "98": {
      "pixels": 14119,
      "box": [
       911,
@@ -4916,7 +4902,7 @@
       1080
      ]
     },
-    "100": {
+    "99": {
      "pixels": 61844,
      "box": [
       1513,
@@ -4927,30 +4913,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
-    "ev": -0.833333,
-    "ev_raw": -0.8587,
+    "ev": -0.666667,
+    "ev_raw": -0.6968,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 1.632113,
+    "incident_p50": 1.458799,
     "whitepoint": [
-     1.115691,
-     0.980607,
-     0.851438
+     1.129626,
+     0.975391,
+     0.862073
     ],
     "wb_mode": "project",
-    "wb_temperature": 5555.0,
-    "wb_tint": 5.51,
+    "wb_temperature": 5545.2,
+    "wb_tint": 2.43,
     "residual": 0.35,
-    "window_clip_frac": 0.0035,
-    "meter_seconds": 1.363,
+    "window_clip_frac": 0.0032,
+    "meter_seconds": 1.451,
     "meter": {
      "resolution": [
       240,
@@ -4958,16 +4944,16 @@
      ],
      "samples": 16,
      "blocks": 880,
-     "blocks_used": 758,
+     "blocks_used": 712,
      "block_px": 6,
-     "interior_frac": 0.8825
+     "interior_frac": 0.8402
     },
     "mood": "warm daylight",
     "source": null,
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -4981,23 +4967,23 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.00942,
-    "wb_view_tint_gain": 1.001296,
+    "wb_day_green": 0.982233,
+    "wb_view_tint_gain": 0.983684,
     "wb_rig_kelvin_source": "room",
-    "wb_day_incident_p50": 2.126095,
+    "wb_day_incident_p50": 1.869993,
     "wb_rig_share_p50": 0.0,
     "wb_walls": {
-     "share": 0.3977,
+     "share": 0.3917,
      "rig_share": 0.0,
      "light_rgb": [
-      1.295117,
-      0.944858,
-      0.677223
+      1.370685,
+      0.924946,
+      0.651949
      ],
      "day_rgb": [
-      1.30188,
-      0.943473,
-      0.671032
+      1.370893,
+      0.925344,
+      0.647401
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -5006,26 +4992,26 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 0.993578,
-    "wb_day_wall_share": 0.3977,
+    "wb_day_green_all": 0.986735,
+    "wb_day_wall_share": 0.3917,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "ev_offset": 0.0,
-    "wb_view_shift_mired": -0.02
+    "wb_view_shift_mired": 0.3
    },
    "hidden": [],
    "plugged": [],
    "window_pull": {
     "ev": -1.0,
     "k": 1,
-    "pane_ev": -1.833333,
+    "pane_ev": -1.666667,
     "clip_before": 0.0,
     "clip_after": 0.0,
-    "pane_px": 142697,
-    "pane_median": 0.8753,
-    "pane_p90": 0.8997,
-    "pane_saturation": 0.0224,
-    "wall_median": 0.6355,
+    "pane_px": 140229,
+    "pane_median": 0.8865,
+    "pane_p90": 0.9095,
+    "pane_saturation": 0.0214,
+    "wall_median": 0.6203,
     "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
     "interior_pane_px": 0,
     "targets": {
@@ -5038,14 +5024,14 @@
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.7975,
-      "p90": 0.8302
+      "median": 0.8138,
+      "p90": 0.8434
      }
     ],
-    "pane_median_after": 0.8043,
-    "pane_p90_after": 0.8309,
-    "pane_saturation_after": 0.0296,
-    "seconds": 0.292
+    "pane_median_after": 0.8202,
+    "pane_p90_after": 0.8439,
+    "pane_saturation_after": 0.0291,
+    "seconds": 0.628
    },
    "interior_glazing": null,
    "lawn": null,
@@ -5071,7 +5057,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L1_ebeveyn_y_odasi_3.png",
    "exr": "cam_r_L1_ebeveyn_y_odasi_3_passes.exr",
    "preview": "cam_r_L1_ebeveyn_y_odasi_3_preview.jpg",
@@ -5083,8 +5069,8 @@
     "normal": "cam_r_L1_ebeveyn_y_odasi_3_normal.png",
     "depth": "cam_r_L1_ebeveyn_y_odasi_3_depth.png"
    },
-   "preview_bytes": 160690,
-   "seconds": 12.92,
+   "preview_bytes": 163888,
+   "seconds": 12.29,
    "samples": 256,
    "resolution": [
     1920,
@@ -5093,7 +5079,7 @@
    "depth": {
     "min": 0.8228135108947754,
     "max": 6.078762054443359,
-    "mean": 3.0803120136260986,
+    "mean": 3.0739216804504395,
     "coverage": 1.0
    },
    "index_values": [
@@ -5106,13 +5092,13 @@
     85,
     88,
     94,
+    97,
     98,
-    99,
-    100
+    99
    ],
    "index_stats": {
     "51": {
-     "pixels": 70254,
+     "pixels": 65058,
      "box": [
       572,
       178,
@@ -5157,21 +5143,21 @@
      ]
     },
     "84": {
-     "pixels": 22821,
+     "pixels": 32593,
      "box": [
-      441,
-      419,
-      701,
-      670
+      478,
+      373,
+      699,
+      677
      ]
     },
     "85": {
-     "pixels": 21157,
+     "pixels": 26518,
      "box": [
-      834,
-      406,
-      1039,
-      617
+      860,
+      369,
+      1048,
+      615
      ]
     },
     "88": {
@@ -5192,7 +5178,7 @@
       585
      ]
     },
-    "98": {
+    "97": {
      "pixels": 31129,
      "box": [
       1572,
@@ -5201,7 +5187,7 @@
       521
      ]
     },
-    "99": {
+    "98": {
      "pixels": 102001,
      "box": [
       908,
@@ -5210,7 +5196,7 @@
       1080
      ]
     },
-    "100": {
+    "99": {
      "pixels": 25739,
      "box": [
       1345,
@@ -5221,30 +5207,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
-    "ev": -0.666667,
-    "ev_raw": -0.6767,
+    "ev": -0.5,
+    "ev_raw": -0.5429,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 1.438669,
+    "incident_p50": 1.311236,
     "whitepoint": [
-     1.113786,
-     0.98132,
-     0.849984
+     1.122016,
+     0.97824,
+     0.856265
     ],
     "wb_mode": "project",
-    "wb_temperature": 5556.3,
-    "wb_tint": 5.93,
+    "wb_temperature": 5550.6,
+    "wb_tint": 4.11,
     "residual": 0.35,
-    "window_clip_frac": 0.0035,
-    "meter_seconds": 1.352,
+    "window_clip_frac": 0.0032,
+    "meter_seconds": 1.483,
     "meter": {
      "resolution": [
       240,
@@ -5252,16 +5238,16 @@
      ],
      "samples": 16,
      "blocks": 880,
-     "blocks_used": 807,
+     "blocks_used": 784,
      "block_px": 6,
-     "interior_frac": 0.9336
+     "interior_frac": 0.9137
     },
     "mood": "warm daylight",
     "source": null,
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -5275,23 +5261,23 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.013209,
-    "wb_view_tint_gain": 1.003738,
+    "wb_day_green": 0.996964,
+    "wb_view_tint_gain": 0.993248,
     "wb_rig_kelvin_source": "room",
-    "wb_day_incident_p50": 1.833413,
+    "wb_day_incident_p50": 1.683533,
     "wb_rig_share_p50": 0.0,
     "wb_walls": {
-     "share": 0.4363,
+     "share": 0.4327,
      "rig_share": 0.0,
      "light_rgb": [
-      1.269915,
-      0.950604,
-      0.694518
+      1.306814,
+      0.940612,
+      0.684843
      ],
      "day_rgb": [
-      1.276103,
-      0.949416,
-      0.688065
+      1.309536,
+      0.940355,
+      0.679372
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -5300,26 +5286,26 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 0.999954,
-    "wb_day_wall_share": 0.4363,
+    "wb_day_green_all": 0.991906,
+    "wb_day_wall_share": 0.4327,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "ev_offset": 0.0,
-    "wb_view_shift_mired": -0.06
+    "wb_view_shift_mired": 0.12
    },
    "hidden": [],
    "plugged": [],
    "window_pull": {
-    "ev": -1.0,
-    "k": 1,
-    "pane_ev": -1.666667,
+    "ev": -2.0,
+    "k": 2,
+    "pane_ev": -2.5,
     "clip_before": 0.0001,
     "clip_after": 0.0,
-    "pane_px": 74228,
-    "pane_median": 0.895,
-    "pane_p90": 0.9103,
-    "pane_saturation": 0.0178,
-    "wall_median": 0.6336,
+    "pane_px": 72002,
+    "pane_median": 0.9059,
+    "pane_p90": 0.9193,
+    "pane_saturation": 0.0175,
+    "wall_median": 0.637,
     "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
     "interior_pane_px": 0,
     "targets": {
@@ -5332,14 +5318,20 @@
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.8244,
-      "p90": 0.8442
+      "median": 0.8392,
+      "p90": 0.856
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.7505,
+      "p90": 0.7736
      }
     ],
-    "pane_median_after": 0.8286,
-    "pane_p90_after": 0.8448,
-    "pane_saturation_after": 0.0276,
-    "seconds": 0.297
+    "pane_median_after": 0.7591,
+    "pane_p90_after": 0.7754,
+    "pane_saturation_after": 0.0374,
+    "seconds": 0.754
    },
    "interior_glazing": null,
    "lawn": null,
@@ -5365,7 +5357,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L1_hol_1.png",
    "exr": "cam_r_L1_hol_1_passes.exr",
    "preview": "cam_r_L1_hol_1_preview.jpg",
@@ -5377,8 +5369,8 @@
     "normal": "cam_r_L1_hol_1_normal.png",
     "depth": "cam_r_L1_hol_1_depth.png"
    },
-   "preview_bytes": 151484,
-   "seconds": 15.92,
+   "preview_bytes": 151304,
+   "seconds": 15.56,
    "samples": 256,
    "resolution": [
     1920,
@@ -5485,30 +5477,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
     "ev": 0.666667,
-    "ev_raw": 0.6739,
+    "ev_raw": 0.6713,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 0.564138,
+    "incident_p50": 0.565131,
     "whitepoint": [
-     1.110395,
-     0.986241,
-     0.811221
+     1.110421,
+     0.986235,
+     0.811205
     ],
     "wb_mode": "project",
-    "wb_temperature": 5444.9,
+    "wb_temperature": 5444.8,
     "wb_tint": 10.29,
     "residual": 0.35,
     "window_clip_frac": 0.0048,
-    "meter_seconds": 1.372,
+    "meter_seconds": 1.546,
     "meter": {
      "resolution": [
       240,
@@ -5525,52 +5517,52 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.084754,
+    "wb_rig_share": 0.084837,
     "wb_rig_kelvin": 4000.0,
     "wb_rig_whitepoint": [
      1.414034,
      0.924032,
      0.533367
     ],
-    "wb_day_green": 1.063192,
-    "wb_view_tint_gain": 1.032581,
+    "wb_day_green": 1.063181,
+    "wb_view_tint_gain": 1.032572,
     "wb_rig_kelvin_source": "room",
-    "wb_day_incident_p50": 0.379193,
-    "wb_rig_share_p50": 0.327836,
+    "wb_day_incident_p50": 0.380208,
+    "wb_rig_share_p50": 0.327221,
     "wb_walls": {
      "share": 0.5824,
-     "rig_share": 0.248868,
+     "rig_share": 0.248944,
      "light_rgb": [
-      1.318744,
-      0.944412,
-      0.612077
+      1.318633,
+      0.944431,
+      0.612209
      ],
      "day_rgb": [
-      1.190155,
-      0.973336,
-      0.704203
+      1.190058,
+      0.973354,
+      0.704303
      ],
      "rig_rgb": [
-      1.706849,
-      0.857113,
-      0.334024
+      1.706541,
+      0.85717,
+      0.334364
      ],
-     "rig_rb": 5.11,
+     "rig_rb": 5.1038,
      "lamp_rb": 2.6511,
-     "rig_kelvin": 3160.2,
+     "rig_kelvin": 3161.0,
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.035259,
+    "wb_day_green_all": 1.035264,
     "wb_day_wall_share": 0.5824,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
@@ -5602,7 +5594,7 @@
       "k": 1,
       "clip": 0.0,
       "median": 0.8855,
-      "p90": 0.9023
+      "p90": 0.902
      },
      {
       "k": 2,
@@ -5614,7 +5606,7 @@
     "pane_median_after": 0.8186,
     "pane_p90_after": 0.8669,
     "pane_saturation_after": 0.0841,
-    "seconds": 0.62
+    "seconds": 0.493
    },
    "interior_glazing": {
     "windows": [
@@ -5640,7 +5632,7 @@
       "wall_ratio_min": 0.8
      },
      "tried": [],
-     "seconds": 0.035
+     "seconds": 0.036
     },
     "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
    },
@@ -5667,7 +5659,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64778,
+   "vram_mib": 64212,
    "png": "cam_r_L1_hol_2.png",
    "exr": "cam_r_L1_hol_2_passes.exr",
    "preview": "cam_r_L1_hol_2_preview.jpg",
@@ -5679,8 +5671,8 @@
     "normal": "cam_r_L1_hol_2_normal.png",
     "depth": "cam_r_L1_hol_2_depth.png"
    },
-   "preview_bytes": 151700,
-   "seconds": 15.48,
+   "preview_bytes": 151756,
+   "seconds": 15.33,
    "samples": 256,
    "resolution": [
     1920,
@@ -5737,7 +5729,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -5751,16 +5743,16 @@
     ],
     "incident_p50": 0.688744,
     "whitepoint": [
-     1.111122,
-     0.985742,
-     0.814027
+     1.111176,
+     0.985733,
+     0.813953
     ],
     "wb_mode": "project",
-    "wb_temperature": 5451.3,
+    "wb_temperature": 5450.9,
     "wb_tint": 9.9,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 1.373,
+    "meter_seconds": 1.428,
     "meter": {
      "resolution": [
       240,
@@ -5777,37 +5769,37 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.079345,
+    "wb_rig_share": 0.079616,
     "wb_rig_kelvin": 4000.0,
     "wb_rig_whitepoint": [
      1.414034,
      0.924032,
      0.533367
     ],
-    "wb_day_green": 1.058519,
-    "wb_view_tint_gain": 1.030058,
+    "wb_day_green": 1.058545,
+    "wb_view_tint_gain": 1.030064,
     "wb_rig_kelvin_source": "room",
-    "wb_day_incident_p50": 0.6294,
-    "wb_rig_share_p50": 0.086163,
+    "wb_day_incident_p50": 0.628443,
+    "wb_rig_share_p50": 0.087552,
     "wb_walls": {
      "share": 0.577,
-     "rig_share": 0.068154,
+     "rig_share": 0.068584,
      "light_rgb": [
-      1.256649,
-      0.957902,
-      0.66129
+      1.25654,
+      0.957922,
+      0.661407
      ],
      "day_rgb": [
-      1.170079,
-      0.976907,
-      0.727937
+      1.170036,
+      0.976919,
+      0.727947
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -5818,11 +5810,11 @@
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.056036,
+    "wb_day_green_all": 1.056041,
     "wb_day_wall_share": 0.577,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
-    "wb_view_shift_mired": 3.4
+    "wb_view_shift_mired": 3.42
    },
    "hidden": [],
    "plugged": [],
@@ -5860,9 +5852,9 @@
      }
     ],
     "pane_median_after": 0.8003,
-    "pane_p90_after": 0.8402,
+    "pane_p90_after": 0.8401,
     "pane_saturation_after": 0.0679,
-    "seconds": 0.5
+    "seconds": 0.518
    },
    "interior_glazing": null,
    "lawn": null,
@@ -5888,7 +5880,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L1_hol_3.png",
    "exr": "cam_r_L1_hol_3_passes.exr",
    "preview": "cam_r_L1_hol_3_preview.jpg",
@@ -5900,8 +5892,8 @@
     "normal": "cam_r_L1_hol_3_normal.png",
     "depth": "cam_r_L1_hol_3_depth.png"
    },
-   "preview_bytes": 147849,
-   "seconds": 16.39,
+   "preview_bytes": 147812,
+   "seconds": 15.88,
    "samples": 256,
    "resolution": [
     1920,
@@ -5988,30 +5980,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
     "ev": 0.5,
-    "ev_raw": 0.5753,
+    "ev_raw": 0.574,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 0.604012,
+    "incident_p50": 0.604591,
     "whitepoint": [
-     1.128598,
-     0.982429,
-     0.795383
+     1.128624,
+     0.982427,
+     0.795325
     ],
     "wb_mode": "project",
-    "wb_temperature": 5342.1,
-    "wb_tint": 9.2,
+    "wb_temperature": 5341.8,
+    "wb_tint": 9.21,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 1.359,
+    "meter_seconds": 1.412,
     "meter": {
      "resolution": [
       240,
@@ -6028,56 +6020,56 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.153936,
+    "wb_rig_share": 0.15412,
     "wb_rig_kelvin": 4000.0,
     "wb_rig_whitepoint": [
      1.414034,
      0.924032,
      0.533367
     ],
-    "wb_day_green": 1.060602,
-    "wb_view_tint_gain": 1.028701,
+    "wb_day_green": 1.060649,
+    "wb_view_tint_gain": 1.02872,
     "wb_rig_kelvin_source": "room",
     "wb_day_incident_p50": 0.473635,
-    "wb_rig_share_p50": 0.215852,
+    "wb_rig_share_p50": 0.216604,
     "wb_walls": {
      "share": 0.6251,
-     "rig_share": 0.173623,
+     "rig_share": 0.173874,
      "light_rgb": [
-      1.288856,
-      0.951698,
-      0.627901
+      1.288571,
+      0.951761,
+      0.62812
      ],
      "day_rgb": [
-      1.176702,
-      0.975803,
-      0.719372
+      1.176558,
+      0.975838,
+      0.719447
      ],
      "rig_rgb": [
-      1.822664,
-      0.836969,
-      0.192537
+      1.820778,
+      0.837363,
+      0.194193
      ],
-     "rig_rb": 9.4666,
+     "rig_rb": 9.3761,
      "lamp_rb": 2.6511,
-     "rig_kelvin": 2861.1,
+     "rig_kelvin": 2865.1,
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.065665,
+    "wb_day_green_all": 1.065699,
     "wb_day_wall_share": 0.6251,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
-    "wb_view_shift_mired": 7.15
+    "wb_view_shift_mired": 7.16
    },
    "hidden": [],
    "plugged": [],
@@ -6089,9 +6081,9 @@
     "clip_after": 0.0,
     "pane_px": 49603,
     "pane_median": 0.9414,
-    "pane_p90": 0.9578,
+    "pane_p90": 0.958,
     "pane_saturation": 0.0367,
-    "wall_median": 0.6133,
+    "wall_median": 0.6134,
     "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
     "interior_pane_px": 130289,
     "targets": {
@@ -6117,7 +6109,7 @@
     "pane_median_after": 0.8151,
     "pane_p90_after": 0.846,
     "pane_saturation_after": 0.0721,
-    "seconds": 0.509
+    "seconds": 0.5
    },
    "interior_glazing": {
     "windows": [
@@ -6135,15 +6127,15 @@
      "clip_before": 0.0,
      "clip_after": 0.0,
      "pane_px": 130289,
-     "pane_median": 0.7168,
-     "wall_median": 0.6133,
+     "pane_median": 0.717,
+     "wall_median": 0.6134,
      "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
      "targets": {
       "max_clip": 0.01,
       "wall_ratio_min": 0.8
      },
      "tried": [],
-     "seconds": 0.036
+     "seconds": 0.035
     },
     "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
    },
@@ -6170,7 +6162,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L1_oda_1.png",
    "exr": "cam_r_L1_oda_1_passes.exr",
    "preview": "cam_r_L1_oda_1_preview.jpg",
@@ -6182,7 +6174,7 @@
     "normal": "cam_r_L1_oda_1_normal.png",
     "depth": "cam_r_L1_oda_1_depth.png"
    },
-   "preview_bytes": 156619,
+   "preview_bytes": 156623,
    "seconds": 13.89,
    "samples": 256,
    "resolution": [
@@ -6220,7 +6212,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -6234,16 +6226,16 @@
     ],
     "incident_p50": 0.475065,
     "whitepoint": [
-     1.295862,
-     0.949038,
-     0.633627
+     1.295885,
+     0.949034,
+     0.633602
     ],
     "wb_mode": "project",
-    "wb_temperature": 4473.4,
+    "wb_temperature": 4473.3,
     "wb_tint": 2.95,
     "residual": 0.35,
     "window_clip_frac": null,
-    "meter_seconds": 1.354,
+    "meter_seconds": 1.409,
     "meter": {
      "resolution": [
       240,
@@ -6260,56 +6252,56 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
      0.980228,
      0.852212
     ],
-    "wb_rig_share": 0.813236,
+    "wb_rig_share": 0.813331,
     "wb_rig_kelvin": 4000.0,
     "wb_rig_whitepoint": [
      1.414034,
      0.924032,
      0.533367
     ],
-    "wb_day_green": 1.040685,
-    "wb_view_tint_gain": 1.003953,
+    "wb_day_green": 1.040681,
+    "wb_view_tint_gain": 1.00395,
     "wb_rig_kelvin_source": "room",
     "wb_day_incident_p50": 0.083324,
     "wb_rig_share_p50": 0.824605,
     "wb_walls": {
      "share": 0.7761,
-     "rig_share": 0.836607,
+     "rig_share": 0.836725,
      "light_rgb": [
-      1.524435,
-      0.897133,
+      1.524433,
+      0.897134,
       0.474729
      ],
      "day_rgb": [
-      1.302242,
-      0.946925,
-      0.635771
+      1.302376,
+      0.946895,
+      0.635671
      ],
      "rig_rgb": [
-      1.567831,
-      0.887409,
-      0.443277
+      1.567764,
+      0.887424,
+      0.443323
      ],
-     "rig_rb": 3.5369,
+     "rig_rb": 3.5364,
      "lamp_rb": 2.6511,
-     "rig_kelvin": 3537.9,
+     "rig_kelvin": 3538.1,
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "wb_rig_residual": 0.0,
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.037497,
+    "wb_day_green_all": 1.037491,
     "wb_day_wall_share": 0.7761,
     "wb_tint_green_residual": true,
     "ev_offset": 0.0,
-    "wb_view_shift_mired": 43.5
+    "wb_view_shift_mired": 43.51
    },
    "hidden": [],
    "plugged": [],
@@ -6338,7 +6330,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64214,
    "png": "cam_r_L1_oda_2_1.png",
    "exr": "cam_r_L1_oda_2_1_passes.exr",
    "preview": "cam_r_L1_oda_2_1_preview.jpg",
@@ -6350,8 +6342,8 @@
     "normal": "cam_r_L1_oda_2_1_normal.png",
     "depth": "cam_r_L1_oda_2_1_depth.png"
    },
-   "preview_bytes": 163436,
-   "seconds": 13.16,
+   "preview_bytes": 162819,
+   "seconds": 12.9,
    "samples": 256,
    "resolution": [
     1920,
@@ -6360,7 +6352,7 @@
    "depth": {
     "min": 0.6995220184326172,
     "max": 4.106535911560059,
-    "mean": 2.4217231273651123,
+    "mean": 2.42257022857666,
     "coverage": 1.0
    },
    "index_values": [
@@ -6369,7 +6361,7 @@
     82,
     83,
     93,
-    105
+    104
    ],
    "index_stats": {
     "55": {
@@ -6400,12 +6392,12 @@
      ]
     },
     "83": {
-     "pixels": 205405,
+     "pixels": 204703,
      "box": [
-      981,
+      984,
       499,
-      1642,
-      1005
+      1645,
+      1003
      ]
     },
     "93": {
@@ -6417,7 +6409,7 @@
       754
      ]
     },
-    "105": {
+    "104": {
      "pixels": 92945,
      "box": [
       1189,
@@ -6428,30 +6420,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
     "ev": -0.166667,
-    "ev_raw": -0.2082,
+    "ev_raw": -0.233,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 1.03969,
+    "incident_p50": 1.057754,
     "whitepoint": [
-     1.122773,
-     0.977956,
-     0.856843
+     1.122763,
+     0.97796,
+     0.856835
     ],
     "wb_mode": "project",
     "wb_temperature": 5550.1,
     "wb_tint": 3.94,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 1.309,
+    "meter_seconds": 1.396,
     "meter": {
      "resolution": [
       240,
@@ -6468,7 +6460,7 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -6482,23 +6474,23 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 0.995485,
-    "wb_view_tint_gain": 0.99229,
+    "wb_day_green": 0.995505,
+    "wb_view_tint_gain": 0.992303,
     "wb_rig_kelvin_source": "scene",
-    "wb_day_incident_p50": 1.342288,
+    "wb_day_incident_p50": 1.330994,
     "wb_rig_share_p50": 0.0,
     "wb_walls": {
-     "share": 0.3491,
+     "share": 0.3489,
      "rig_share": 0.0,
      "light_rgb": [
-      1.192611,
-      0.964149,
+      1.192589,
+      0.964155,
       0.787975
      ],
      "day_rgb": [
-      1.194541,
-      0.963891,
-      0.784847
+      1.194517,
+      0.963898,
+      0.784844
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -6507,8 +6499,8 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 0.996636,
-    "wb_day_wall_share": 0.3491,
+    "wb_day_green_all": 0.996646,
+    "wb_day_wall_share": 0.3489,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "ev_offset": 0.0,
@@ -6526,7 +6518,7 @@
     "pane_median": 0.9084,
     "pane_p90": 0.9325,
     "pane_saturation": 0.0417,
-    "wall_median": 0.622,
+    "wall_median": 0.6223,
     "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
     "interior_pane_px": 189225,
     "targets": {
@@ -6552,7 +6544,7 @@
     "pane_median_after": 0.7554,
     "pane_p90_after": 0.7965,
     "pane_saturation_after": 0.0812,
-    "seconds": 0.543
+    "seconds": 0.528
    },
    "interior_glazing": {
     "windows": [
@@ -6571,7 +6563,7 @@
      "clip_after": 0.0,
      "pane_px": 189225,
      "pane_median": 0.5962,
-     "wall_median": 0.622,
+     "wall_median": 0.6223,
      "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
      "targets": {
       "max_clip": 0.01,
@@ -6605,7 +6597,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L1_oda_2_2.png",
    "exr": "cam_r_L1_oda_2_2_passes.exr",
    "preview": "cam_r_L1_oda_2_2_preview.jpg",
@@ -6617,8 +6609,8 @@
     "normal": "cam_r_L1_oda_2_2_normal.png",
     "depth": "cam_r_L1_oda_2_2_depth.png"
    },
-   "preview_bytes": 172784,
-   "seconds": 12.4,
+   "preview_bytes": 172996,
+   "seconds": 12.16,
    "samples": 256,
    "resolution": [
     1920,
@@ -6627,7 +6619,7 @@
    "depth": {
     "min": 0.7898092269897461,
     "max": 3.634429931640625,
-    "mean": 2.31341814994812,
+    "mean": 2.3148229122161865,
     "coverage": 1.0
    },
    "index_values": [
@@ -6637,7 +6629,7 @@
     82,
     83,
     93,
-    105
+    104
    ],
    "index_stats": {
     "55": {
@@ -6677,9 +6669,9 @@
      ]
     },
     "83": {
-     "pixels": 285192,
+     "pixels": 284126,
      "box": [
-      1202,
+      1206,
       540,
       1920,
       1080
@@ -6694,7 +6686,7 @@
       741
      ]
     },
-    "105": {
+    "104": {
      "pixels": 182038,
      "box": [
       1479,
@@ -6705,30 +6697,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
     "ev": -0.333333,
-    "ev_raw": -0.3081,
+    "ev_raw": -0.2956,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 1.114273,
+    "incident_p50": 1.104628,
     "whitepoint": [
-     1.121544,
-     0.978416,
-     0.855905
+     1.121547,
+     0.978415,
+     0.855907
     ],
     "wb_mode": "project",
     "wb_temperature": 5550.9,
     "wb_tint": 4.21,
     "residual": 0.35,
     "window_clip_frac": 0.023,
-    "meter_seconds": 1.391,
+    "meter_seconds": 1.37,
     "meter": {
      "resolution": [
       240,
@@ -6745,7 +6737,7 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -6759,23 +6751,23 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 0.997886,
-    "wb_view_tint_gain": 0.993845,
+    "wb_day_green": 0.997882,
+    "wb_view_tint_gain": 0.993842,
     "wb_rig_kelvin_source": "scene",
-    "wb_day_incident_p50": 1.407037,
+    "wb_day_incident_p50": 1.392582,
     "wb_rig_share_p50": 0.0,
     "wb_walls": {
-     "share": 0.3064,
+     "share": 0.3058,
      "rig_share": 0.0,
      "light_rgb": [
-      1.1983,
-      0.963309,
-      0.779536
+      1.198252,
+      0.963324,
+      0.779539
      ],
      "day_rgb": [
-      1.201655,
-      0.962801,
-      0.774696
+      1.201633,
+      0.962805,
+      0.774723
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -6784,8 +6776,8 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 0.999935,
-    "wb_day_wall_share": 0.3064,
+    "wb_day_green_all": 0.999879,
+    "wb_day_wall_share": 0.3058,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "ev_offset": 0.0,
@@ -6803,7 +6795,7 @@
     "pane_median": 0.9124,
     "pane_p90": 0.9535,
     "pane_saturation": 0.026,
-    "wall_median": 0.6061,
+    "wall_median": 0.6064,
     "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
     "interior_pane_px": 0,
     "targets": {
@@ -6829,7 +6821,7 @@
     "pane_median_after": 0.7644,
     "pane_p90_after": 0.8316,
     "pane_saturation_after": 0.0526,
-    "seconds": 0.555
+    "seconds": 0.485
    },
    "interior_glazing": null,
    "lawn": null,
@@ -6855,7 +6847,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64214,
    "png": "cam_r_L1_oda_2_3.png",
    "exr": "cam_r_L1_oda_2_3_passes.exr",
    "preview": "cam_r_L1_oda_2_3_preview.jpg",
@@ -6867,7 +6859,7 @@
     "normal": "cam_r_L1_oda_2_3_normal.png",
     "depth": "cam_r_L1_oda_2_3_depth.png"
    },
-   "preview_bytes": 144298,
+   "preview_bytes": 143883,
    "seconds": 13.24,
    "samples": 256,
    "resolution": [
@@ -6875,9 +6867,9 @@
     1080
    ],
    "depth": {
-    "min": 0.8169832229614258,
+    "min": 0.8216285705566406,
     "max": 4.258970260620117,
-    "mean": 2.5123066902160645,
+    "mean": 2.51395583152771,
     "coverage": 1.0
    },
    "index_values": [
@@ -6898,12 +6890,12 @@
      ]
     },
     "60": {
-     "pixels": 75172,
+     "pixels": 75476,
      "box": [
       34,
       0,
       134,
-      786
+      788
      ]
     },
     "74": {
@@ -6925,40 +6917,40 @@
      ]
     },
     "83": {
-     "pixels": 126178,
+     "pixels": 123023,
      "box": [
       0,
-      715,
-      413,
+      717,
+      407,
       1080
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
     "ev": -0.166667,
-    "ev_raw": -0.1601,
+    "ev_raw": -0.1735,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 1.005629,
+    "incident_p50": 1.015015,
     "whitepoint": [
-     1.103873,
-     0.985031,
-     0.842419
+     1.103992,
+     0.984986,
+     0.84251
     ],
     "wb_mode": "project",
-    "wb_temperature": 5563.2,
-    "wb_tint": 8.13,
+    "wb_temperature": 5563.1,
+    "wb_tint": 8.1,
     "residual": 0.35,
     "window_clip_frac": 0.0042,
-    "meter_seconds": 1.394,
+    "meter_seconds": 1.4,
     "meter": {
      "resolution": [
       240,
@@ -6975,7 +6967,7 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -6989,23 +6981,23 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.033222,
-    "wb_view_tint_gain": 1.016581,
+    "wb_day_green": 1.03298,
+    "wb_view_tint_gain": 1.016426,
     "wb_rig_kelvin_source": "scene",
-    "wb_day_incident_p50": 1.249765,
+    "wb_day_incident_p50": 1.255572,
     "wb_rig_share_p50": 0.0,
     "wb_walls": {
-     "share": 0.4092,
+     "share": 0.4094,
      "rig_share": 0.0,
      "light_rgb": [
-      1.25547,
-      0.9562,
-      0.681622
+      1.25617,
+      0.956018,
+      0.681359
      ],
      "day_rgb": [
-      1.253511,
-      0.956565,
-      0.683775
+      1.253903,
+      0.956453,
+      0.683723
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -7014,12 +7006,12 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 0.998015,
-    "wb_day_wall_share": 0.4092,
+    "wb_day_green_all": 0.997748,
+    "wb_day_wall_share": 0.4094,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "ev_offset": 0.0,
-    "wb_view_shift_mired": -0.29
+    "wb_view_shift_mired": -0.28
    },
    "hidden": [],
    "plugged": [],
@@ -7059,7 +7051,7 @@
     "pane_median_after": 0.8,
     "pane_p90_after": 0.8047,
     "pane_saturation_after": 0.0308,
-    "seconds": 0.555
+    "seconds": 0.503
    },
    "interior_glazing": null,
    "lawn": null,
@@ -7085,7 +7077,7 @@
     "rule": null
    },
    "haze_hidden": true,
-   "vram_mib": 64776,
+   "vram_mib": 64212,
    "png": "cam_r_L1_soyunma_odasi_1.png",
    "exr": "cam_r_L1_soyunma_odasi_1_passes.exr",
    "preview": "cam_r_L1_soyunma_odasi_1_preview.jpg",
@@ -7097,8 +7089,8 @@
     "normal": "cam_r_L1_soyunma_odasi_1_normal.png",
     "depth": "cam_r_L1_soyunma_odasi_1_depth.png"
    },
-   "preview_bytes": 162037,
-   "seconds": 12.57,
+   "preview_bytes": 160099,
+   "seconds": 13.51,
    "samples": 256,
    "resolution": [
     1920,
@@ -7165,30 +7157,30 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "65d36bb48a4521ed0eba6a57e70da3a0cf215b374ab0be4b8f03da451b984a95",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
-    "ev": 1.333333,
-    "ev_raw": 1.4118,
+    "ev": 1.5,
+    "ev_raw": 1.435,
     "at_limit": false,
     "target": 0.9,
     "limits": [
      -10.3808,
      3.0
     ],
-    "incident_p50": 0.338254,
+    "incident_p50": 0.332872,
     "whitepoint": [
-     1.103008,
-     0.985354,
-     0.84176
+     1.102999,
+     0.985358,
+     0.841752
     ],
     "wb_mode": "project",
     "wb_temperature": 5563.8,
-    "wb_tint": 8.32,
+    "wb_tint": 8.33,
     "residual": 0.35,
-    "window_clip_frac": 0.0005,
-    "meter_seconds": 1.609,
+    "window_clip_frac": 0.001,
+    "meter_seconds": 3.772,
     "meter": {
      "resolution": [
       240,
@@ -7205,7 +7197,7 @@
     "notes": [],
     "lighting_dark": null,
     "floor_shift_stops": 8.3808,
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -7219,23 +7211,23 @@
      0.803501,
      0.19225
     ],
-    "wb_day_green": 1.034991,
-    "wb_view_tint_gain": 1.017712,
+    "wb_day_green": 1.035012,
+    "wb_view_tint_gain": 1.017725,
     "wb_rig_kelvin_source": "scene",
-    "wb_day_incident_p50": 0.411071,
+    "wb_day_incident_p50": 0.422757,
     "wb_rig_share_p50": 0.0,
     "wb_walls": {
-     "share": 0.4679,
+     "share": 0.4681,
      "rig_share": 0.0,
      "light_rgb": [
-      1.318624,
-      0.942812,
-      0.628274
+      1.324518,
+      0.941579,
+      0.623127
      ],
      "day_rgb": [
-      1.317421,
-      0.942985,
-      0.630103
+      1.322808,
+      0.941804,
+      0.625941
      ],
      "rig_rgb": null,
      "rig_rb": null,
@@ -7244,8 +7236,8 @@
      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
     },
     "wb_day_green_source": "walls",
-    "wb_day_green_all": 1.029295,
-    "wb_day_wall_share": 0.4679,
+    "wb_day_green_all": 1.030387,
+    "wb_day_wall_share": 0.4681,
     "wb_tint_green_residual": true,
     "wb_view_rule": "rig share below 0.02: the project white point with the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
     "ev_offset": 0.0,
@@ -7254,16 +7246,16 @@
    "hidden": [],
    "plugged": [],
    "window_pull": {
-    "ev": -3.0,
-    "k": 3,
-    "pane_ev": -1.666667,
-    "clip_before": 0.4425,
+    "ev": -4.0,
+    "k": 4,
+    "pane_ev": -2.5,
+    "clip_before": 0.7237,
     "clip_after": 0.0,
     "pane_px": 187544,
-    "pane_median": 0.9942,
-    "pane_p90": 0.9983,
-    "pane_saturation": 0.0159,
-    "wall_median": 0.5884,
+    "pane_median": 0.9958,
+    "pane_p90": 0.9992,
+    "pane_saturation": 0.0119,
+    "wall_median": 0.6108,
     "rule": "smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls",
     "interior_pane_px": 16240,
     "targets": {
@@ -7276,54 +7268,67 @@
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.9558,
-      "p90": 0.9597
+      "median": 0.9617,
+      "p90": 0.9675
      },
      {
       "k": 2,
       "clip": 0.0,
-      "median": 0.9035,
-      "p90": 0.909
+      "median": 0.9127,
+      "p90": 0.9177
      },
      {
       "k": 3,
       "clip": 0.0,
-      "median": 0.8354,
-      "p90": 0.8418
+      "median": 0.8477,
+      "p90": 0.8541
+     },
+     {
+      "k": 4,
+      "clip": 0.0,
+      "median": 0.7624,
+      "p90": 0.7712
      }
     ],
-    "pane_median_after": 0.8354,
-    "pane_p90_after": 0.8421,
-    "pane_saturation_after": 0.0509,
-    "seconds": 0.768
+    "pane_median_after": 0.7626,
+    "pane_p90_after": 0.7721,
+    "pane_saturation_after": 0.0704,
+    "seconds": 1.87
    },
    "interior_glazing": {
     "windows": [
      "win_L1_005"
     ],
     "pane_px": 16240,
-    "pane_rb": 1.069,
-    "wall_rb": 1.209,
-    "delta_rb": -0.14,
+    "pane_rb": 1.096,
+    "wall_rb": 1.194,
+    "delta_rb": -0.098,
     "clip": 0.0,
     "pull": {
-     "ev": 0.0,
-     "k": 0,
-     "pane_ev": 1.333333,
-     "clip_before": 0.0,
+     "ev": -1.0,
+     "k": 1,
+     "pane_ev": 0.5,
+     "clip_before": 0.0107,
      "clip_after": 0.0,
      "pane_px": 16240,
-     "pane_median": 0.7573,
-     "wall_median": 0.5884,
-     "rule": "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)",
+     "pane_median": 0.775,
+     "wall_median": 0.6108,
+     "rule": "smallest k with interior pane clip <= 1 % (panes >= 0.8 x the wall median): removes the clipping only",
      "targets": {
       "max_clip": 0.01,
       "wall_ratio_min": 0.8
      },
-     "tried": [],
-     "seconds": 0.026
+     "tried": [
+      {
+       "k": 1,
+       "clip": 0.0,
+       "median": 0.6663
+      }
+     ],
+     "pane_median_after": 0.6671,
+     "seconds": 0.051
     },
-    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure"
+    "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else the neighbouring room at the view's exposure (pulled k 1)"
    },
    "lawn": null,
    "alt_preview": null,
@@ -7348,7 +7353,7 @@
     "sky_share": 0.4609,
     "haze_px": 470358,
     "full_weight_share": 0.9893,
-    "ring_px": 7982,
+    "ring_px": 7985,
     "sun_offset_deg": 103.24,
     "into_sun": false,
     "median_before": 0.8424,
@@ -7378,7 +7383,7 @@
     ],
     "edge_dot_px": 0,
     "edge_px": 11450,
-    "seconds": 1.084
+    "seconds": 1.044
    },
    "clip": {
     "start_m": 0.1,
@@ -7387,7 +7392,7 @@
     "rule": null
    },
    "haze_hidden": false,
-   "vram_mib": 64692,
+   "vram_mib": 64130,
    "png": "ext_1.png",
    "exr": "ext_1_passes.exr",
    "preview": "ext_1_preview.jpg",
@@ -7399,8 +7404,8 @@
     "normal": "ext_1_normal.png",
     "depth": "ext_1_depth.png"
    },
-   "preview_bytes": 156690,
-   "seconds": 6.73,
+   "preview_bytes": 156644,
+   "seconds": 6.72,
    "samples": 256,
    "resolution": [
     1920,
@@ -7557,7 +7562,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -7580,7 +7585,7 @@
     "wb_tint": 5.28,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.737,
+    "meter_seconds": 0.757,
     "meter": {
      "resolution": [
       240,
@@ -7605,7 +7610,7 @@
     "ground_headroom_stops": 1.5,
     "ground_cap": false,
     "ground_rule": "the ground within 1.5 stops of the target: the facade exposure",
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -7628,9 +7633,9 @@
     "clip_before": 0.0,
     "clip_after": 0.0,
     "pane_px": 36999,
-    "pane_median": 0.3772,
-    "pane_p90": 0.4792,
-    "pane_saturation": 0.2432,
+    "pane_median": 0.3763,
+    "pane_p90": 0.4783,
+    "pane_saturation": 0.2414,
     "wall_median": 0.8066,
     "rule": "no k keeps the panes brighter than the walls: no pull",
     "interior_pane_px": 0,
@@ -7644,11 +7649,11 @@
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.2483,
-      "p90": 0.3346
+      "median": 0.2464,
+      "p90": 0.334
      }
     ],
-    "seconds": 0.321
+    "seconds": 0.251
    },
    "interior_glazing": null,
    "lawn": {
@@ -7678,13 +7683,13 @@
     "sky_share": 0.4106,
     "haze_px": 416130,
     "full_weight_share": 0.9891,
-    "ring_px": 8093,
+    "ring_px": 8107,
     "sun_offset_deg": 10.12,
     "into_sun": true,
     "median_before": 0.872,
     "saturation_before": 0.0435,
     "median_after": 0.56,
-    "saturation_after": 0.1333,
+    "saturation_after": 0.1329,
     "rule": "smallest k with the sky median <= 0.8 and saturation >= 0.12",
     "targets": {
      "median_max": 0.8,
@@ -7713,7 +7718,7 @@
     ],
     "edge_dot_px": 0,
     "edge_px": 10347,
-    "seconds": 1.322
+    "seconds": 1.209
    },
    "clip": {
     "start_m": 0.1,
@@ -7722,7 +7727,7 @@
     "rule": null
    },
    "haze_hidden": false,
-   "vram_mib": 64694,
+   "vram_mib": 64134,
    "png": "ext_2.png",
    "exr": "ext_2_passes.exr",
    "preview": "ext_2_preview.jpg",
@@ -7734,8 +7739,8 @@
     "normal": "ext_2_normal.png",
     "depth": "ext_2_depth.png"
    },
-   "preview_bytes": 140716,
-   "seconds": 6.97,
+   "preview_bytes": 140710,
+   "seconds": 6.87,
    "samples": 256,
    "resolution": [
     1920,
@@ -7869,9 +7874,9 @@
      ]
     },
     "57": {
-     "pixels": 17727,
+     "pixels": 17730,
      "box": [
-      1097,
+      1094,
       300,
       1220,
       493
@@ -7914,12 +7919,12 @@
      ]
     },
     "73": {
-     "pixels": 32453,
+     "pixels": 32450,
      "box": [
       903,
       242,
       1098,
-      468
+      467
      ]
     },
     "75": {
@@ -7942,7 +7947,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -7965,7 +7970,7 @@
     "wb_tint": 5.28,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.752,
+    "meter_seconds": 0.703,
     "meter": {
      "resolution": [
       240,
@@ -7990,7 +7995,7 @@
     "ground_headroom_stops": 1.5,
     "ground_cap": true,
     "ground_rule": "the facade exposure would show the sunlit ground 2.52 stops over the target (more than 1.5): the ground exposure + 1.5 stops",
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -8013,9 +8018,9 @@
     "clip_before": 0.0,
     "clip_after": 0.0,
     "pane_px": 101795,
-    "pane_median": 0.2402,
+    "pane_median": 0.2405,
     "pane_p90": 0.3806,
-    "pane_saturation": 0.3684,
+    "pane_saturation": 0.3679,
     "wall_median": 0.5577,
     "rule": "no k keeps the panes brighter than the walls: no pull",
     "interior_pane_px": 0,
@@ -8033,7 +8038,7 @@
       "p90": 0.2501
      }
     ],
-    "seconds": 0.279
+    "seconds": 0.29
    },
    "interior_glazing": null,
    "lawn": {
@@ -8063,7 +8068,7 @@
     "sky_share": 0.3822,
     "haze_px": 387700,
     "full_weight_share": 0.9881,
-    "ring_px": 7357,
+    "ring_px": 7359,
     "sun_offset_deg": 81.42,
     "into_sun": false,
     "median_before": 0.6642,
@@ -8080,7 +8085,7 @@
      "median_min": 0.4
     },
     "tried": [],
-    "seconds": 0.275
+    "seconds": 0.278
    },
    "clip": {
     "start_m": 0.1,
@@ -8089,7 +8094,7 @@
     "rule": null
    },
    "haze_hidden": false,
-   "vram_mib": 64694,
+   "vram_mib": 64130,
    "png": "ext_3.png",
    "exr": "ext_3_passes.exr",
    "preview": "ext_3_preview.jpg",
@@ -8101,8 +8106,8 @@
     "normal": "ext_3_normal.png",
     "depth": "ext_3_depth.png"
    },
-   "preview_bytes": 153097,
-   "seconds": 7.27,
+   "preview_bytes": 153145,
+   "seconds": 7.26,
    "samples": 256,
    "resolution": [
     1920,
@@ -8299,7 +8304,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -8322,7 +8327,7 @@
     "wb_tint": 5.28,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.799,
+    "meter_seconds": 0.692,
     "meter": {
      "resolution": [
       240,
@@ -8347,7 +8352,7 @@
     "ground_headroom_stops": 1.5,
     "ground_cap": true,
     "ground_rule": "the facade exposure would show the sunlit ground 3.68 stops over the target (more than 1.5): the ground exposure + 1.5 stops",
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -8370,7 +8375,7 @@
     "clip_before": 0.0,
     "clip_after": 0.0,
     "pane_px": 94243,
-    "pane_median": 0.1125,
+    "pane_median": 0.1127,
     "pane_p90": 0.1906,
     "pane_saturation": 0.4412,
     "wall_median": 0.3632,
@@ -8390,7 +8395,7 @@
       "p90": 0.099
      }
     ],
-    "seconds": 0.294
+    "seconds": 0.283
    },
    "interior_glazing": null,
    "lawn": {
@@ -8420,7 +8425,7 @@
     "sky_share": 0.3808,
     "haze_px": 387233,
     "full_weight_share": 0.9878,
-    "ring_px": 8347,
+    "ring_px": 8350,
     "sun_offset_deg": 170.38,
     "into_sun": false,
     "median_before": 0.3772,
@@ -8437,7 +8442,7 @@
      "median_min": 0.4
     },
     "tried": [],
-    "seconds": 0.294
+    "seconds": 0.28
    },
    "clip": {
     "start_m": 0.1,
@@ -8446,7 +8451,7 @@
     "rule": null
    },
    "haze_hidden": false,
-   "vram_mib": 64696,
+   "vram_mib": 64134,
    "png": "ext_4.png",
    "exr": "ext_4_passes.exr",
    "preview": "ext_4_preview.jpg",
@@ -8458,8 +8463,8 @@
     "normal": "ext_4_normal.png",
     "depth": "ext_4_depth.png"
    },
-   "preview_bytes": 176809,
-   "seconds": 7.24,
+   "preview_bytes": 176820,
+   "seconds": 7.34,
    "samples": 256,
    "resolution": [
     1920,
@@ -8676,7 +8681,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -8699,7 +8704,7 @@
     "wb_tint": 5.28,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.788,
+    "meter_seconds": 0.713,
     "meter": {
      "resolution": [
       240,
@@ -8724,7 +8729,7 @@
     "ground_headroom_stops": 1.5,
     "ground_cap": false,
     "ground_rule": "the ground within 1.5 stops of the target: the facade exposure",
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -8767,7 +8772,7 @@
       "p90": 0.0515
      }
     ],
-    "seconds": 0.355
+    "seconds": 0.376
    },
    "interior_glazing": null,
    "lawn": {
@@ -8827,7 +8832,7 @@
     ],
     "edge_dot_px": 0,
     "edge_px": 5439,
-    "seconds": 0.769
+    "seconds": 0.751
    },
    "clip": {
     "start_m": 0.1,
@@ -8836,7 +8841,7 @@
     "rule": null
    },
    "haze_hidden": false,
-   "vram_mib": 64694,
+   "vram_mib": 64134,
    "png": "ext_5.png",
    "exr": "ext_5_passes.exr",
    "preview": "ext_5_preview.jpg",
@@ -8848,8 +8853,8 @@
     "normal": "ext_5_normal.png",
     "depth": "ext_5_depth.png"
    },
-   "preview_bytes": 195046,
-   "seconds": 7.06,
+   "preview_bytes": 195045,
+   "seconds": 7.16,
    "samples": 256,
    "resolution": [
     1920,
@@ -9046,7 +9051,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -9069,7 +9074,7 @@
     "wb_tint": 5.28,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.817,
+    "meter_seconds": 0.737,
     "meter": {
      "resolution": [
       240,
@@ -9094,7 +9099,7 @@
     "ground_headroom_stops": 1.5,
     "ground_cap": true,
     "ground_rule": "the facade exposure would show the sunlit ground 3.54 stops over the target (more than 1.5): the ground exposure + 1.5 stops",
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -9118,8 +9123,8 @@
     "clip_after": 0.0,
     "pane_px": 28017,
     "pane_median": 0.0524,
-    "pane_p90": 0.1673,
-    "pane_saturation": 0.48,
+    "pane_p90": 0.1674,
+    "pane_saturation": 0.4688,
     "wall_median": 0.3787,
     "rule": "no k keeps the panes brighter than the walls: no pull",
     "interior_pane_px": 0,
@@ -9137,7 +9142,7 @@
       "p90": 0.0813
      }
     ],
-    "seconds": 0.272
+    "seconds": 0.28
    },
    "interior_glazing": null,
    "lawn": {
@@ -9184,7 +9189,7 @@
      "median_min": 0.4
     },
     "tried": [],
-    "seconds": 0.264
+    "seconds": 0.279
    },
    "clip": {
     "start_m": 0.1,
@@ -9193,7 +9198,7 @@
     "rule": null
    },
    "haze_hidden": false,
-   "vram_mib": 64694,
+   "vram_mib": 64132,
    "png": "ext_6.png",
    "exr": "ext_6_passes.exr",
    "preview": "ext_6_preview.jpg",
@@ -9205,8 +9210,8 @@
     "normal": "ext_6_normal.png",
     "depth": "ext_6_depth.png"
    },
-   "preview_bytes": 157285,
-   "seconds": 7.5,
+   "preview_bytes": 157380,
+   "seconds": 7.44,
    "samples": 256,
    "resolution": [
     1920,
@@ -9323,7 +9328,7 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "3e9993a9dda13c9375c376f42d7ee9bd47b52104af1b8e3072236fb1f7cc6eaf",
+   "scene_sha256": "ef09857f741f42000aaa1af189c03f68ef48df8a5df645407c459f6b1e6bfebe",
    "render_key": "4eeb4183e2c6df9c",
    "exposure": {
     "mode": "auto",
@@ -9346,7 +9351,7 @@
     "wb_tint": 5.28,
     "residual": 0.35,
     "window_clip_frac": 0.0,
-    "meter_seconds": 0.801,
+    "meter_seconds": 0.735,
     "meter": {
      "resolution": [
       240,
@@ -9371,7 +9376,7 @@
     "ground_headroom_stops": 1.5,
     "ground_cap": false,
     "ground_rule": "the ground within 1.5 stops of the target: the facade exposure",
-    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates)))))",
+    "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L0_mutfak_2 (daylight only: 21 rig objects hidden; the most incident light of 3 candidates))))))",
     "wb_from_camera": "cam_r_L0_mutfak_2",
     "wb_project_whitepoint": [
      1.116705,
@@ -9414,7 +9419,7 @@
       "p90": 0.0081
      }
     ],
-    "seconds": 0.319
+    "seconds": 0.258
    },
    "interior_glazing": null,
    "lawn": {
@@ -9427,10 +9432,78 @@
    "world": "wenart_world_exterior"
   }
  ],
- "carried_from_earlier_build": [],
+ "carried_from_earlier_build": [
+  "cam_r_L0_banyo_1",
+  "cam_r_L0_banyo_2",
+  "cam_r_L0_banyo_3",
+  "cam_r_L0_mutfak_1",
+  "cam_r_L0_mutfak_2",
+  "cam_r_L0_mutfak_3",
+  "cam_r_L0_salon_1",
+  "cam_r_L0_salon_2",
+  "cam_r_L0_salon_3",
+  "cam_r_L1_banyo_1",
+  "cam_r_L1_banyo_2",
+  "cam_r_L1_banyo_3",
+  "cam_r_L1_cocuk_odasi_1",
+  "cam_r_L1_cocuk_odasi_2",
+  "cam_r_L1_cocuk_odasi_3",
+  "cam_r_L1_dus_1",
+  "cam_r_L1_dus_2",
+  "cam_r_L1_ebeveyn_y_odasi_1",
+  "cam_r_L1_ebeveyn_y_odasi_2",
+  "cam_r_L1_ebeveyn_y_odasi_3",
+  "cam_r_L1_hol_1",
+  "cam_r_L1_hol_2",
+  "cam_r_L1_hol_3",
+  "cam_r_L1_oda_1",
+  "cam_r_L1_oda_2_1",
+  "cam_r_L1_oda_2_2",
+  "cam_r_L1_oda_2_3",
+  "ext_1",
+  "ext_2",
+  "ext_3",
+  "ext_4",
+  "ext_5",
+  "ext_6"
+ ],
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1793040065.0,
- "warnings": []
+ "deadline": 1793045478.0,
+ "warnings": [
+  "cam_r_L0_banyo_1: rendered from another scene build and not asked for in this run",
+  "cam_r_L0_banyo_2: rendered from another scene build and not asked for in this run",
+  "cam_r_L0_banyo_3: rendered from another scene build and not asked for in this run",
+  "cam_r_L0_mutfak_1: rendered from another scene build and not asked for in this run",
+  "cam_r_L0_mutfak_2: rendered from another scene build and not asked for in this run",
+  "cam_r_L0_mutfak_3: rendered from another scene build and not asked for in this run",
+  "cam_r_L0_salon_1: rendered from another scene build and not asked for in this run",
+  "cam_r_L0_salon_2: rendered from another scene build and not asked for in this run",
+  "cam_r_L0_salon_3: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_banyo_1: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_banyo_2: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_banyo_3: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_cocuk_odasi_1: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_cocuk_odasi_2: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_cocuk_odasi_3: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_dus_1: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_dus_2: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_ebeveyn_y_odasi_1: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_ebeveyn_y_odasi_2: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_ebeveyn_y_odasi_3: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_hol_1: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_hol_2: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_hol_3: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_oda_1: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_oda_2_1: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_oda_2_2: rendered from another scene build and not asked for in this run",
+  "cam_r_L1_oda_2_3: rendered from another scene build and not asked for in this run",
+  "ext_1: rendered from another scene build and not asked for in this run",
+  "ext_2: rendered from another scene build and not asked for in this run",
+  "ext_3: rendered from another scene build and not asked for in this run",
+  "ext_4: rendered from another scene build and not asked for in this run",
+  "ext_5: rendered from another scene build and not asked for in this run",
+  "ext_6: rendered from another scene build and not asked for in this run"
+ ]
 }

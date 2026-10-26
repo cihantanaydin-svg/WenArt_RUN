@@ -14,21 +14,21 @@
 | confirmed mismatches on the final image | 0 in 0 view(s) |
 | JSON cross-check findings (Cycles render) | 2 |
 | needs_review views | 2 |
-| unverified pieces in view (sum over views) | 76 |
+| unverified pieces in view (sum over views) | 78 |
 | rooms mixing polished and Cycles | 0 |
 | advisory | yes |
 | advisory flags | 12 |
-| exposure | -7.83 .. +1.33 EV (0 at a limit), modes auto |
+| exposure | -7.83 .. +1.50 EV (0 at a limit), modes auto |
 | views too dark for the EV cap (lighting_dark) | 0 (0 critical, 0 major) |
 | blocked views | 0 |
-| window pull | 30 view(s), -3 .. 0 EV |
-| interior glazing pull | 10 view(s) with interior glazing, 0 pulled, 0 still clipped over 1.0 % |
+| window pull | 30 view(s), -4 .. 0 EV |
+| interior glazing pull | 10 view(s) with interior glazing, 1 pulled (k 1), 0 still clipped over 1.0 % |
 | camera policy | m5 6, search 28 |
-| camera score (min / mean / max) | 0.94 / 3.08 / 4.50 |
+| camera score (min / mean / max) | 0.94 / 3.10 / 4.50 |
 | rooms by number of views | 1 with 0, 2 with 1, 1 with 2, 8 with 3 |
 | gate validation | not recorded |
-| seconds: build / render / metering | 98.0 s / 7.0 min / 47.9 s |
-| seconds: polish / gate / check | - / - / 16.3 min |
+| seconds: build / render / metering | 95.2 s / 6.9 min / 51.5 s |
+| seconds: polish / gate / check | - / - / 17.2 min |
 | brief polish | yes (default, not in brief.yaml) |
 | unit system | metric |
 | side-by-side sheets | 0 |
@@ -39,8 +39,8 @@ Open in Blender: the `.blend` directly (textures packed, cameras with their mete
 
 | file | size |
 |---|---|
-| [real06.blend](3d/real06.blend) | 103.5 MB |
-| [real06.glb](3d/real06.glb) | 272.1 MB |
+| [real06.blend](3d/real06.blend) | 101.3 MB |
+| [real06.glb](3d/real06.glb) | 265.4 MB |
 
 34 cameras; textures scaled to at most 1024 px (93 scaled) for the download.
 
@@ -103,27 +103,27 @@ None: the polish did not run in this run.
 | cam_r_L0_mutfak_2 | r_L0_mutfak | L0 | cycles | not_run | - | - | info | - | - | +0.67 | - | search 3.70 | D5 A1 | 3 | no | [preview](cam_r_L0_mutfak_2_final_preview.jpg) [plan](cam_r_L0_mutfak_2_plan.jpg) |
 | cam_r_L0_mutfak_3 | r_L0_mutfak | L0 | cycles | not_run | - | - | info | - | - | +0.33 | -2 | search 3.65 | D5 A4 | 3 | no | [preview](cam_r_L0_mutfak_3_final_preview.jpg) [plan](cam_r_L0_mutfak_3_plan.jpg) |
 | cam_r_L0_salon_1 | r_L0_salon | L0 | cycles | not_run | - | - | info | - | - | -0.67 | -1 | search 3.32 | D10 | 5 | no | [preview](cam_r_L0_salon_1_final_preview.jpg) [plan](cam_r_L0_salon_1_plan.jpg) |
-| cam_r_L0_salon_2 | r_L0_salon | L0 | cycles | not_run | - | - | info | - | - | -0.33 | -2 | search 3.32 | D12 A1 | 3 | no | [preview](cam_r_L0_salon_2_final_preview.jpg) [plan](cam_r_L0_salon_2_plan.jpg) |
-| cam_r_L0_salon_3 | r_L0_salon | L0 | cycles | not_run | - | - | info | - | - | +0.33 | -2 | search 3.26 | D7 A1 | 2 | no | [preview](cam_r_L0_salon_3_final_preview.jpg) [plan](cam_r_L0_salon_3_plan.jpg) |
-| cam_r_L1_banyo_1 | r_L1_banyo | L1 | cycles | not_run | - | - | info | - | - | +0.50 | -2 | search 2.90 | D4 A1 | 1 | no | [preview](cam_r_L1_banyo_1_final_preview.jpg) [plan](cam_r_L1_banyo_1_plan.jpg) |
-| cam_r_L1_banyo_2 | r_L1_banyo | L1 | cycles | not_run | - | - | info | - | - | +0.17 | -2 | search 2.22 | D3 A1 | 1 | no | [preview](cam_r_L1_banyo_2_final_preview.jpg) [plan](cam_r_L1_banyo_2_plan.jpg) |
-| cam_r_L1_banyo_3 | r_L1_banyo | L1 | cycles | not_run | - | - | info | - | - | +0.33 | - | search 2.12 | D3 A1 | 0 | no | [preview](cam_r_L1_banyo_3_final_preview.jpg) [plan](cam_r_L1_banyo_3_plan.jpg) |
+| cam_r_L0_salon_2 | r_L0_salon | L0 | cycles | not_run | - | - | info | - | - | -0.33 | -2 | search 3.31 | D12 A1 | 3 | no | [preview](cam_r_L0_salon_2_final_preview.jpg) [plan](cam_r_L0_salon_2_plan.jpg) |
+| cam_r_L0_salon_3 | r_L0_salon | L0 | cycles | not_run | - | - | info | - | - | -0.50 | -2 | search 3.25 | D10 A1 | 4 | no | [preview](cam_r_L0_salon_3_final_preview.jpg) [plan](cam_r_L0_salon_3_plan.jpg) |
+| cam_r_L1_banyo_1 | r_L1_banyo | L1 | cycles | not_run | - | - | info | - | - | +0.00 | -2 | search 2.81 | D4 | 1 | no | [preview](cam_r_L1_banyo_1_final_preview.jpg) [plan](cam_r_L1_banyo_1_plan.jpg) |
+| cam_r_L1_banyo_2 | r_L1_banyo | L1 | cycles | not_run | - | - | info | - | - | +0.00 | - | search 2.58 | D3 | 0 | no | [preview](cam_r_L1_banyo_2_final_preview.jpg) [plan](cam_r_L1_banyo_2_plan.jpg) |
+| cam_r_L1_banyo_3 | r_L1_banyo | L1 | cycles | not_run | - | - | info | - | - | +0.17 | -2 | search 2.49 | D4 | 1 | no | [preview](cam_r_L1_banyo_3_final_preview.jpg) [plan](cam_r_L1_banyo_3_plan.jpg) |
 | cam_r_L1_cocuk_odasi_1 | r_L1_cocuk_odasi | L1 | cycles | not_run | - | - | info | - | - | -0.83 | -1 | search 4.50 | D6 A1 | 1 | no | [preview](cam_r_L1_cocuk_odasi_1_final_preview.jpg) [plan](cam_r_L1_cocuk_odasi_1_plan.jpg) |
 | cam_r_L1_cocuk_odasi_2 | r_L1_cocuk_odasi | L1 | cycles | not_run | - | - | info | - | - | -0.67 | -1 | search 4.35 | D4 A1 | 1 | no | [preview](cam_r_L1_cocuk_odasi_2_final_preview.jpg) [plan](cam_r_L1_cocuk_odasi_2_plan.jpg) |
 | cam_r_L1_cocuk_odasi_3 | r_L1_cocuk_odasi | L1 | cycles | not_run | - | - | info | - | - | -1.00 | -1 | search 4.29 | D6 A1 | 1 | no | [preview](cam_r_L1_cocuk_odasi_3_final_preview.jpg) [plan](cam_r_L1_cocuk_odasi_3_plan.jpg) |
 | cam_r_L1_dus_1 | r_L1_dus | L1 | cycles | not_run | - | - | info | - | - | +0.50 | -3 | search 2.68 | D5 | 0 | no | [preview](cam_r_L1_dus_1_final_preview.jpg) [plan](cam_r_L1_dus_1_plan.jpg) |
 | cam_r_L1_dus_2 | r_L1_dus | L1 | cycles | not_run | - | - | info | - | - | +0.00 | -2 | search 2.14 | D6 | 1 | no | [preview](cam_r_L1_dus_2_final_preview.jpg) [plan](cam_r_L1_dus_2_plan.jpg) |
 | cam_r_L1_ebeveyn_y_odasi_1 | r_L1_ebeveyn_y_odasi | L1 | cycles | not_run | - | - | info | - | - | -0.33 | -3 | search 3.63 | D7 A3 | 4 | yes | [preview](cam_r_L1_ebeveyn_y_odasi_1_final_preview.jpg) [plan](cam_r_L1_ebeveyn_y_odasi_1_plan.jpg) |
-| cam_r_L1_ebeveyn_y_odasi_2 | r_L1_ebeveyn_y_odasi | L1 | cycles | not_run | - | - | info | - | - | -0.83 | -1 | search 3.54 | D8 A2 | 3 | no | [preview](cam_r_L1_ebeveyn_y_odasi_2_final_preview.jpg) [plan](cam_r_L1_ebeveyn_y_odasi_2_plan.jpg) |
-| cam_r_L1_ebeveyn_y_odasi_3 | r_L1_ebeveyn_y_odasi | L1 | cycles | not_run | - | - | info | - | - | -0.67 | -1 | search 3.52 | D9 A3 | 4 | yes | [preview](cam_r_L1_ebeveyn_y_odasi_3_final_preview.jpg) [plan](cam_r_L1_ebeveyn_y_odasi_3_plan.jpg) |
+| cam_r_L1_ebeveyn_y_odasi_2 | r_L1_ebeveyn_y_odasi | L1 | cycles | not_run | - | - | info | - | - | -0.67 | -1 | search 3.57 | D8 A2 | 3 | no | [preview](cam_r_L1_ebeveyn_y_odasi_2_final_preview.jpg) [plan](cam_r_L1_ebeveyn_y_odasi_2_plan.jpg) |
+| cam_r_L1_ebeveyn_y_odasi_3 | r_L1_ebeveyn_y_odasi | L1 | cycles | not_run | - | - | info | - | - | -0.50 | -2 | search 3.53 | D9 A3 | 4 | yes | [preview](cam_r_L1_ebeveyn_y_odasi_3_final_preview.jpg) [plan](cam_r_L1_ebeveyn_y_odasi_3_plan.jpg) |
 | cam_r_L1_hol_1 | r_L1_hol | L1 | cycles | not_run | - | - | info | - | - | +0.67 | -2 | search 2.75 | D9 | 1 | no | [preview](cam_r_L1_hol_1_final_preview.jpg) [plan](cam_r_L1_hol_1_plan.jpg) |
 | cam_r_L1_hol_2 | r_L1_hol | L1 | cycles | not_run | - | - | info | - | - | +0.33 | -2 | search 2.59 | D4 | 1 | no | [preview](cam_r_L1_hol_2_final_preview.jpg) [plan](cam_r_L1_hol_2_plan.jpg) |
 | cam_r_L1_hol_3 | r_L1_hol | L1 | cycles | not_run | - | - | info | - | - | +0.50 | -2 | search 2.42 | D7 | 1 | no | [preview](cam_r_L1_hol_3_final_preview.jpg) [plan](cam_r_L1_hol_3_plan.jpg) |
 | cam_r_L1_oda_1 | r_L1_oda | L1 | cycles | not_run | - | - | info | - | - | +1.00 | - | search 0.94 | D1 A1 | 0 | no | [preview](cam_r_L1_oda_1_final_preview.jpg) [plan](cam_r_L1_oda_1_plan.jpg) |
-| cam_r_L1_oda_2_1 | r_L1_oda_2 | L1 | cycles | not_run | - | - | info | - | - | -0.17 | -2 | search 4.11 | D5 A1 | 3 | no | [preview](cam_r_L1_oda_2_1_final_preview.jpg) [plan](cam_r_L1_oda_2_1_plan.jpg) |
+| cam_r_L1_oda_2_1 | r_L1_oda_2 | L1 | cycles | not_run | - | - | info | - | - | -0.17 | -2 | search 4.10 | D5 A1 | 3 | no | [preview](cam_r_L1_oda_2_1_final_preview.jpg) [plan](cam_r_L1_oda_2_1_plan.jpg) |
 | cam_r_L1_oda_2_2 | r_L1_oda_2 | L1 | cycles | not_run | - | - | info | - | - | -0.33 | -2 | search 3.97 | D6 A1 | 4 | no | [preview](cam_r_L1_oda_2_2_final_preview.jpg) [plan](cam_r_L1_oda_2_2_plan.jpg) |
 | cam_r_L1_oda_2_3 | r_L1_oda_2 | L1 | cycles | not_run | - | - | info | - | - | -0.17 | -2 | search 3.84 | D4 | 3 | no | [preview](cam_r_L1_oda_2_3_final_preview.jpg) [plan](cam_r_L1_oda_2_3_plan.jpg) |
-| cam_r_L1_soyunma_odasi_1 | r_L1_soyunma_odasi | L1 | cycles | not_run | - | - | info | - | - | +1.33 | -3 | search 2.19 | D5 | 0 | no | [preview](cam_r_L1_soyunma_odasi_1_final_preview.jpg) [plan](cam_r_L1_soyunma_odasi_1_plan.jpg) |
+| cam_r_L1_soyunma_odasi_1 | r_L1_soyunma_odasi | L1 | cycles | not_run | - | - | info | - | - | +1.50 | -4; interior k1, clip 1.1 % -> 0.0 % | search 2.19 | D5 | 0 | no | [preview](cam_r_L1_soyunma_odasi_1_final_preview.jpg) [plan](cam_r_L1_soyunma_odasi_1_plan.jpg) |
 | ext_1 | - | unknown | cycles | gate_validation | - | - | info | - | - | -4.33 | 0 | m5 | D12 | 5 | no | [preview](ext_1_final_preview.jpg) [plan](ext_1_plan.jpg) |
 | ext_2 | - | unknown | cycles | gate_validation | - | - | info | - | - | -5.00 | 0 | m5 | D16 | 6 | no | [preview](ext_2_final_preview.jpg) [plan](ext_2_plan.jpg) |
 | ext_3 | - | unknown | cycles | gate_validation | - | - | info | - | - | -6.33 | 0 | m5 | D16 | 6 | no | [preview](ext_3_final_preview.jpg) [plan](ext_3_plan.jpg) |
@@ -269,9 +269,9 @@ Unverified pieces in view:
 - cam_r_L0_mutfak_3: f_L0_020, f_L0_031, o_L0_004
 - cam_r_L0_salon_1: f_L0_011, f_L0_027, f_L0_028, f_L0_030, o_L0_003
 - cam_r_L0_salon_2: f_L0_011, f_L0_015, f_L0_030
-- cam_r_L0_salon_3: f_L0_015, o_L0_006
+- cam_r_L0_salon_3: f_L0_011, f_L0_027, f_L0_030, o_L0_003
 - cam_r_L1_banyo_1: o_L1_004
-- cam_r_L1_banyo_2: o_L1_004
+- cam_r_L1_banyo_3: o_L1_004
 - cam_r_L1_cocuk_odasi_1: f_L1_007
 - cam_r_L1_cocuk_odasi_2: f_L1_007
 - cam_r_L1_cocuk_odasi_3: f_L1_007
@@ -876,7 +876,7 @@ Reference: source building.json; mode `complete`. 57 of 57 drawn piece(s) checke
 | f_L0_029 | ottoman (ottoman) | 0.63 | - | - | - |
 | f_L0_030 | ottoman (ottoman) | 0.07 | - | - | - |
 | f_L1_007 | desk (desk) | 0.15 | 0.00 | - | - |
-| f_L1_016 | sofa (sofa) | 0.06 | 0.00 | yes | - |
+| f_L1_016 | sofa (sofa) | 0.05 | 0.00 | yes | - |
 
 Locked-rule violations:
 
@@ -954,9 +954,9 @@ AI-typed pieces:
 | piece | room | type | agreed | status | built | answers |
 |---|---|---|---|---|---|---|
 | f_L0_006 | r_L0_salon | unknown | no | unverified | no (outline 2.12 x 0.78 m around 1 other piece(s) (f_L0_009): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups)) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown 0.85; pass 2 zai-org/GLM-4.6V-Flash: sofa, front right 1.00 |
-| f_L0_009 | r_L0_salon | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (other) by Qwen/Qwen3.8-27B-FP8, round 3: Tiny 0.21x0.20 m drawn symbol identical to the door-strip mark already recorded as not furniture; retype to potted_plant was rejected (F8 stands alone).) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown 0.95; pass 2 zai-org/GLM-4.6V-Flash: potted_plant 0.80 |
-| f_L0_010 | r_L0_banyo | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (dimension_outline) by Qwen/Qwen3.8-27B-FP8, round 1: The 2.54 x 1.01 m drawn outline is the dashed dimension/outline band around the drawn washbasin and bathtub fixtures, not a separate furniture piece.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown, front right 0.95; pass 2 zai-org/GLM-4.6V-Flash: not_furniture 0.90 |
-| f_L0_012 | r_L0_salon | potted_plant | no (typed by inferred) | unverified | no (potted_plant: named by an AI pass and the only named type that fits the size (0.21 x 0.20 m), the living + other room and the position (others fitting: floor_lamp); then marked not furniture (other) by Qwen/Qwen3.8-27B-FP8, round 2: Tiny 0.21x0.20 m drawn symbol blocks door d_L0_001 (F7 critical); move_piece is exhausted (3 tries), so mark it as a non-furniture reading to clear the opening.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown 0.95; pass 2 zai-org/GLM-4.6V-Flash: potted_plant 0.80 |
+| f_L0_009 | r_L0_salon | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (other) by Qwen/Qwen3.8-27B-FP8, round 3: The drawn 0.21x0.20 m symbol is a small scribble mark, not furniture (NR).) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown 0.95; pass 2 zai-org/GLM-4.6V-Flash: potted_plant 0.80 |
+| f_L0_010 | r_L0_banyo | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (dimension_outline) by Qwen/Qwen3.8-27B-FP8, round 1: The 2.54 x 1.01 m drawn outline is the dashed dimension/outline band around the washbasin and shower bay, not a furniture item.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown, front right 0.95; pass 2 zai-org/GLM-4.6V-Flash: not_furniture 0.90 |
+| f_L0_012 | r_L0_salon | potted_plant | no (typed by inferred) | unverified | no (potted_plant: named by an AI pass and the only named type that fits the size (0.21 x 0.20 m), the living + other room and the position (others fitting: floor_lamp); then marked not furniture (other) by Qwen/Qwen3.8-27B-FP8, round 2: Small drawn potted_plant blocks door d_L0_001 and move allowance is exhausted; removing it clears the blocked opening.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown 0.95; pass 2 zai-org/GLM-4.6V-Flash: potted_plant 0.80 |
 | f_L0_013 | r_L0_salon | potted_plant | no (typed by same_block) | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown 0.95; pass 2 zai-org/GLM-4.6V-Flash: potted_plant 0.80 |
 | f_L0_014 | r_L0_salon | unknown | no | unverified | no (outline 1.52 x 0.78 m around 2 other piece(s) (f_L0_012, f_L0_013): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups)) | pass 1 Qwen/Qwen3-VL-8B-Instruct: table_dining 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa, front left 0.90 |
 | f_L0_015 | r_L0_salon | table_coffee | no (typed by inferred) | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: table_coffee, front top 0.95; pass 2 zai-org/GLM-4.6V-Flash: bookshelf, front right 0.90 |
@@ -973,11 +973,11 @@ AI-typed pieces:
 | f_L1_008 | r_L1_cocuk_odasi | unknown | no | unverified | no (drawn inside bed_double f_L1_006 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built)) | pass 1 Qwen/Qwen3-VL-8B-Instruct: nightstand 0.95; pass 2 zai-org/GLM-4.6V-Flash: floor_lamp 0.90 |
 | f_L1_009 | r_L1_cocuk_odasi | bed_double | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: bed_double, front left 0.95; pass 2 zai-org/GLM-4.6V-Flash: bed_double, front left 0.90 |
 | f_L1_010 | r_L1_cocuk_odasi | nightstand | yes | verified | no (architect F5: it cut f_L1_009 (bed_double) by 0.40 m and no free place lies within 1.0 m; not built) | pass 1 Qwen/Qwen3-VL-8B-Instruct: nightstand, front top 0.95; pass 2 zai-org/GLM-4.6V-Flash: nightstand, front right 0.90 |
-| f_L1_011 | r_L1_banyo | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (dimension_outline) by Qwen/Qwen3.8-27B-FP8, round 1: The 2.42 x 0.98 m drawn outline is the dashed dimension/outline band around the drawn washbasin and bathtub fixtures, not a separate furniture piece.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown, front right 0.95; pass 2 zai-org/GLM-4.6V-Flash: bunk_bed, front left 0.80 |
+| f_L1_011 | r_L1_banyo | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (dimension_outline) by Qwen/Qwen3.8-27B-FP8, round 1: The 2.42 x 0.98 m drawn symbol is the dashed outline enclosing the drawn washbasin and bathtub (a dimension/outline mark), not a separate piece of furniture; the code's size/zone table rejects bathtub and gives stair, which fits neither.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown, front right 0.95; pass 2 zai-org/GLM-4.6V-Flash: bunk_bed, front left 0.80 |
 | f_L1_013 | r_L1_oda_2 | sofa | yes | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: sofa, front left 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa, front top 0.90 |
-| f_L1_014 | r_L1_soyunma_odasi | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (other) by Qwen/Qwen3.8-27B-FP8, round 1: The drawn 2.27 x 0.85 m flight sits in a 2.45 m wide room with no headroom, and retype to stair fails inside_room/doors_free/windows_free: it is a drawing symbol of the adjacent stair, not furniture of this room.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown, front left 0.85; pass 2 zai-org/GLM-4.6V-Flash: stair, front right 0.90 |
-| f_L1_015 | r_L1_soyunma_odasi | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (other) by Qwen/Qwen3.8-27B-FP8, round 1: The drawn 2.27 x 0.85 m flight sits in a 2.45 m wide room with no headroom, and retype to stair fails inside_room/doors_free/windows_free: it is a drawing symbol of the adjacent stair, not furniture of this room.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown, front right 0.85; pass 2 zai-org/GLM-4.6V-Flash: stair, front left 0.90 |
-| f_L1_019 | r_L1_oda_2 | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (dimension_outline) by Qwen/Qwen3.8-27B-FP8, round 2: The recognition crop shows a simple rectangular outline with dashed border near a wall junction, consistent with a dimension or outline mark rather than a furniture piece; all retype attempts fail with inside_room confirming it is not a valid furniture placement.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: dresser, front left 0.95; pass 2 zai-org/GLM-4.6V-Flash: desk, front left 0.80 |
+| f_L1_014 | r_L1_soyunma_odasi | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (other) by Qwen/Qwen3.8-27B-FP8, round 2: The recognition crop shows a drawn stair (tread lines with a central stringer and a landing), not furniture; the stair retype was rejected (doors_free/inside_room/windows_free), so it is recorded as a non-furniture symbol.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown, front left 0.85; pass 2 zai-org/GLM-4.6V-Flash: stair, front right 0.90 |
+| f_L1_015 | r_L1_soyunma_odasi | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (other) by Qwen/Qwen3.8-27B-FP8, round 2: The recognition crop shows a drawn stair (tread lines with a central stringer and a landing), not furniture; the stair retype was rejected (doors_free/inside_room/windows_free), so it is recorded as a non-furniture symbol.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown, front right 0.85; pass 2 zai-org/GLM-4.6V-Flash: stair, front left 0.90 |
+| f_L1_019 | r_L1_oda_2 | unknown | no | unverified | no (untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (dimension_outline) by Qwen/Qwen3.8-27B-FP8, round 2: The recognition crop shows a plain rectangular outline sitting on the wall line with no furniture detail, a dimension/outline mark rather than a built piece.) | pass 1 Qwen/Qwen3-VL-8B-Instruct: dresser, front left 0.95; pass 2 zai-org/GLM-4.6V-Flash: desk, front left 0.80 |
 | f_L1_020 | r_L1_dus | shower | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: shower, front top 0.95; pass 2 zai-org/GLM-4.6V-Flash: shower, front right 1.00 |
 | f_L1_021 | r_L1_banyo | washbasin | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: washbasin, front left 0.95; pass 2 zai-org/GLM-4.6V-Flash: washbasin 0.90 |
 | f_L1_022 | r_L1_ebeveyn_y_odasi | floor_lamp | no (typed by inferred) | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: floor_lamp 0.95; pass 2 zai-org/GLM-4.6V-Flash: table_coffee 0.90 |
@@ -1208,7 +1208,7 @@ None.
 
 ## Commercial-safe per view (Milestone 13)
 
-Licence mode: relaxed (building project.licence_mode). Project: commercial-safe: no (flagged assets: 3dwh_038a2f938697cf94f0635b35 [non_commercial], 3dwh_18d9a3a43ae213c8bd5a5f91 [non_commercial], 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial], 3dwh_30a9b6efc5109d45e2cbb497 [non_commercial], 3dwh_5d52596ee79cd202260f50b9 [non_commercial], 3dwh_69e0e4f94b6b077f277e88c8 [non_commercial], 3dwh_8b448d4c97c75d1599d226eb [non_commercial], 3dwh_e8b0de9ce91b76051cc38d06 [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc], gen_washbasin_japandi_3_fc4e0710 [tool_nc], hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549 [non_commercial], hssd_3362008b68ae3e3f0be50057fa895cdacbfad401 [non_commercial], hssd_3f0778f68a489d3995e2e3f13d13e4a90fb500a8 [non_commercial], hssd_4f1b086633e1b160f09b24a9aad0ec9d1ccb56c0 [non_commercial], hssd_6b6d600719446182c0a798676eb807c0ea4ec772 [non_commercial], hssd_85a85b8d95fa810baeaebaf0d04d6c931d23ed3b [non_commercial], hssd_afd66133d43789d6e42da81cefaf3d0a27c90180 [non_commercial], hssd_b74cfc2ae648ddcf1375088e23d9643b7c5ed736 [non_commercial], hssd_d5283d7fe8cf91f273d341bf259e1f3df3b349be [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial]). A view is commercial-safe when no library asset in its object-index pass carries a licence flag (docs/milestone13.md §6).
+Licence mode: relaxed (building project.licence_mode). Project: commercial-safe: no (flagged assets: 3dwh_038a2f938697cf94f0635b35 [non_commercial], 3dwh_18d9a3a43ae213c8bd5a5f91 [non_commercial], 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial], 3dwh_30a9b6efc5109d45e2cbb497 [non_commercial], 3dwh_5d52596ee79cd202260f50b9 [non_commercial], 3dwh_8b448d4c97c75d1599d226eb [non_commercial], 3dwh_e8b0de9ce91b76051cc38d06 [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc], gen_washbasin_japandi_3_fc4e0710 [tool_nc], hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549 [non_commercial], hssd_3362008b68ae3e3f0be50057fa895cdacbfad401 [non_commercial], hssd_3f0778f68a489d3995e2e3f13d13e4a90fb500a8 [non_commercial], hssd_4f1b086633e1b160f09b24a9aad0ec9d1ccb56c0 [non_commercial], hssd_6b6d600719446182c0a798676eb807c0ea4ec772 [non_commercial], hssd_85a85b8d95fa810baeaebaf0d04d6c931d23ed3b [non_commercial], hssd_afd66133d43789d6e42da81cefaf3d0a27c90180 [non_commercial], hssd_d5283d7fe8cf91f273d341bf259e1f3df3b349be [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial]). A view is commercial-safe when no library asset in its object-index pass carries a licence flag (docs/milestone13.md §6).
 
 - cam_r_L0_banyo_1: commercial-safe: no (flagged assets: hssd_4f1b086633e1b160f09b24a9aad0ec9d1ccb56c0 [non_commercial], hssd_6b6d600719446182c0a798676eb807c0ea4ec772 [non_commercial])
 - cam_r_L0_banyo_2: commercial-safe: no (flagged assets: hssd_6b6d600719446182c0a798676eb807c0ea4ec772 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])
@@ -1217,19 +1217,19 @@ Licence mode: relaxed (building project.licence_mode). Project: commercial-safe:
 - cam_r_L0_mutfak_2: commercial-safe: yes
 - cam_r_L0_mutfak_3: commercial-safe: yes
 - cam_r_L0_salon_1: commercial-safe: no (flagged assets: 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial])
-- cam_r_L0_salon_2: commercial-safe: no (flagged assets: 3dwh_038a2f938697cf94f0635b35 [non_commercial], 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial], 3dwh_30a9b6efc5109d45e2cbb497 [non_commercial], 3dwh_5d52596ee79cd202260f50b9 [non_commercial])
-- cam_r_L0_salon_3: commercial-safe: no (flagged assets: 3dwh_038a2f938697cf94f0635b35 [non_commercial], 3dwh_30a9b6efc5109d45e2cbb497 [non_commercial], 3dwh_5d52596ee79cd202260f50b9 [non_commercial])
-- cam_r_L1_banyo_1: commercial-safe: no (flagged assets: hssd_3362008b68ae3e3f0be50057fa895cdacbfad401 [non_commercial], hssd_b74cfc2ae648ddcf1375088e23d9643b7c5ed736 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])
-- cam_r_L1_banyo_2: commercial-safe: no (flagged assets: hssd_3362008b68ae3e3f0be50057fa895cdacbfad401 [non_commercial], hssd_b74cfc2ae648ddcf1375088e23d9643b7c5ed736 [non_commercial])
-- cam_r_L1_banyo_3: commercial-safe: no (flagged assets: gen_washbasin_japandi_3_fc4e0710 [tool_nc], hssd_b74cfc2ae648ddcf1375088e23d9643b7c5ed736 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])
+- cam_r_L0_salon_2: commercial-safe: no (flagged assets: 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial], 3dwh_30a9b6efc5109d45e2cbb497 [non_commercial], 3dwh_5d52596ee79cd202260f50b9 [non_commercial])
+- cam_r_L0_salon_3: commercial-safe: no (flagged assets: 3dwh_1c9dbdb1c1d98b0c5c633595 [non_commercial])
+- cam_r_L1_banyo_1: commercial-safe: no (flagged assets: hssd_3362008b68ae3e3f0be50057fa895cdacbfad401 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])
+- cam_r_L1_banyo_2: commercial-safe: no (flagged assets: gen_washbasin_japandi_3_fc4e0710 [tool_nc], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])
+- cam_r_L1_banyo_3: commercial-safe: no (flagged assets: hssd_3362008b68ae3e3f0be50057fa895cdacbfad401 [non_commercial])
 - cam_r_L1_cocuk_odasi_1: commercial-safe: no (flagged assets: 3dwh_e8b0de9ce91b76051cc38d06 [non_commercial], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])
 - cam_r_L1_cocuk_odasi_2: commercial-safe: no (flagged assets: 3dwh_e8b0de9ce91b76051cc38d06 [non_commercial], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])
 - cam_r_L1_cocuk_odasi_3: commercial-safe: no (flagged assets: 3dwh_e8b0de9ce91b76051cc38d06 [non_commercial], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])
 - cam_r_L1_dus_1: commercial-safe: no (flagged assets: hssd_afd66133d43789d6e42da81cefaf3d0a27c90180 [non_commercial], hssd_f983ff568379c97ee9dfa7095b02a7688fbf60a4 [non_commercial])
 - cam_r_L1_dus_2: commercial-safe: no (flagged assets: hssd_3f0778f68a489d3995e2e3f13d13e4a90fb500a8 [non_commercial], hssd_afd66133d43789d6e42da81cefaf3d0a27c90180 [non_commercial])
 - cam_r_L1_ebeveyn_y_odasi_1: commercial-safe: no (flagged assets: gen_plant_small_japandi_1_32d3b9fb [tool_nc], hssd_fd773312233cde1d417cc17d479c24b55005a1e9 [non_commercial])
-- cam_r_L1_ebeveyn_y_odasi_2: commercial-safe: no (flagged assets: 3dwh_69e0e4f94b6b077f277e88c8 [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc], hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549 [non_commercial])
-- cam_r_L1_ebeveyn_y_odasi_3: commercial-safe: no (flagged assets: 3dwh_69e0e4f94b6b077f277e88c8 [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc], hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549 [non_commercial])
+- cam_r_L1_ebeveyn_y_odasi_2: commercial-safe: no (flagged assets: 3dwh_038a2f938697cf94f0635b35 [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc], hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549 [non_commercial])
+- cam_r_L1_ebeveyn_y_odasi_3: commercial-safe: no (flagged assets: 3dwh_038a2f938697cf94f0635b35 [non_commercial], gen_plant_small_japandi_1_32d3b9fb [tool_nc], hssd_10ddf3cfd25c0ec86ac74e4e3567bcd11bf03549 [non_commercial])
 - cam_r_L1_hol_1: commercial-safe: yes
 - cam_r_L1_hol_2: commercial-safe: yes
 - cam_r_L1_hol_3: commercial-safe: yes
@@ -1274,7 +1274,7 @@ Views that look into the sun (their sky may stay white whatever the sky pull; a 
 | recognition pass 1 | Qwen/Qwen3-VL-8B-Instruct | 0c351dd01ed87e9c1b53cbc748cba10e6187ff3b | Apache-2.0 | recognition/requests.json (43 of 43 answered) |
 | recognition pass 2 | zai-org/GLM-4.6V-Flash | 411bb4d77144a3f03accbf4b780f5acb8b7cde4e | MIT | recognition/requests.json (43 of 43 answered) |
 
-Assets: textures CC0 x 19; furniture/decor models 3DWH-UNREVIEWED x 11, CC-BY-4.0 x 30, CC-BY-NC-4.0 x 14, generated (TRELLIS.2-4B, MIT) x 5 (parametric meshes need no licence).
+Assets: textures CC0 x 19; furniture/decor models 3DWH-UNREVIEWED x 10, CC-BY-4.0 x 31, CC-BY-NC-4.0 x 14, generated (TRELLIS.2-4B, MIT) x 5 (parametric meshes need no licence).
 
 ## Attribution
 
@@ -1293,116 +1293,117 @@ Not run for this project (no `detect/` results in the check manifest).
 
 ## Stages
 
-This run (`20261026-170020-full-20261026T170641Z`):
+This run (`20261026-183115-full-20261026T183543Z`):
 
 | stage | status | seconds | note |
 |---|---|---|---|
 | intake | skipped | 0.0 s | private only |
-| sheets | ok | 32.2 s | - |
-| pipeline | pending | 43.7 s | 42 recognition question(s) written (recognition/requests.json) |
+| sheets | ok | 27.7 s | - |
+| pipeline | pending | 37.1 s | 42 recognition question(s) written (recognition/requests.json) |
+| recognize | reused | 1.8 s | - |
 | photos | skipped | 0.0 s | no style photos |
-| style | ok | 0.4 s | - |
-| recognize | ok | 9.3 s | - |
-| pipeline_final | ok | 56.5 s | answers applied |
-| fit | ok | 10.0 s | - |
-| layout | ok | 15.5 s | - |
-| decor_ask | ok | 79.3 s | - |
-| assets | ok | 4.8 s | - |
-| decor | ok | 8.2 s | - |
-| agent_apply | ok | 19.5 s | - |
-| refit | ok | 36.8 s | - |
-| build | ok | 11.1 min | - |
-| agent_previews | ok | 4.5 min | 3 view(s) |
-| agent | ok | 18.6 min | 4 round(s), 17 finding(s) removed by 11 accepted edit(s) (measured; 13 predicted by the dry re-checks), 4 new, net 13, 54 rejected; stop: max rounds reached; final round for critical findings done |
-| render | ok | 9.1 min | - |
-| export | ok | 39.9 s | - |
+| style | ok | 0.3 s | - |
+| pipeline_final | ok | 41.6 s | answers applied |
+| fit | ok | 4.7 s | - |
+| layout | ok | 12.6 s | - |
+| decor_ask | ok | 3.1 s | - |
+| assets | ok | 2.6 s | - |
+| decor | ok | 5.3 s | - |
+| agent_apply | ok | 22.7 s | - |
+| refit | ok | 35.3 s | - |
+| build | ok | 13.2 min | - |
+| agent_previews | ok | 4.7 min | 3 view(s) |
+| agent | ok | 17.2 min | 4 round(s), 13 finding(s) removed by 12 accepted edit(s) (measured; 13 predicted by the dry re-checks), 66 new, net -53, 103 rejected; stop: max rounds reached; final round for critical findings done |
+| render | ok | 9.9 min | - |
+| export | ok | 68.4 s | - |
 | controls | ok | 2.3 min | - |
 | detect | skipped | 0.0 s | polish off |
 | gate | skipped | 0.0 s | polish off |
 | polish | skipped | 0.0 s | polish off |
-| expected | ok | 45.7 s | - |
-| check | ok | 3.2 min | - |
-| combine | ok | 25.7 s | - |
+| expected | ok | 96.6 s | - |
+| check | ok | 3.7 min | - |
+| combine | ok | 24.7 s | - |
 
 The report stage itself is recorded after this report.
 
 ## AI orchestrator
 
-Model `Qwen/Qwen3.8-27B-FP8` @ `017b9c7af6b5689d5dd426a76e0bc077eb5ca20a`: 4 round(s), 11 edit(s) accepted, 54 rejected, 250 model calls (2995798 tokens), 23.5 min. Stop: final round for critical findings done. Every edit was checked by code before it was accepted; the full log is `orchestrator/log.md` on the volume.
+Model `Qwen/Qwen3.8-27B-FP8` @ `017b9c7af6b5689d5dd426a76e0bc077eb5ca20a`: 4 round(s), 12 edit(s) accepted, 103 rejected, 326 model calls (3314154 tokens), 22.3 min. Stop: final round for critical findings done. Every edit was checked by code before it was accepted; the full log is `orchestrator/log.md` on the volume.
 
-This run only (log events from seq 2772): earlier runs of the appended log are left out (2771 events, 854 model calls, 43 stored edits); `orchestrator/log.md` has them.
+This run only (log events from seq 3405): earlier runs of the appended log are left out (3404 events, 1104 model calls, 54 stored edits); `orchestrator/log.md` has them.
 
 ### Agent metrics
 
 | metric | value |
 |---|---|
-| edits accepted / rejected | 11 / 54 (17 % accepted) |
-| rejected by reason | drawn_lock 16, acceptance 9, max_tries 6, memory 6, inside_room 4 |
-| rooms checked by code / vision / planner | 12 / 11 / 10 |
-| rooms with fixable critical or major findings visited | 10 of 10 |
-| critical before -> after | 18 -> 15 |
-| major before -> after | 62 -> 53 |
-| agent minutes; first accepted edit after | 18.62; 19.0 s |
-| repeats refused by the memory; dry runs; plans (valid) | 6; 27; 31 (15) |
-| critical/major findings removed in rounds 1-3 (measured by the next round; predicted by the dry re-checks of the same rounds) | 17 measured; 13 predicted |
-| new critical/major findings in rounds 1-3; net removed (gone - new) | 4 new; net 13 |
+| edits accepted / rejected | 12 / 103 (10 % accepted) |
+| rejected by reason | acceptance 26, drawn_lock 16, max_tries 12, memory 12, no_place 7 |
+| rooms checked by code / vision / planner | 12 / 11 / 12 |
+| rooms with fixable critical or major findings visited | 12 of 12 |
+| critical before -> after (after: round 4's critics, before its 1 accepted edit(s)) | 18 -> 31 |
+| major before -> after (after: round 4's critics, before its 1 accepted edit(s)) | 62 -> 116 |
+| agent minutes; first accepted edit after | 20.52; 23.0 s |
+| repeats refused by the memory; dry runs; plans (valid) | 12; 22; 41 (21) |
+| critical/major findings removed in rounds 1-3 (measured by the next round; predicted by the dry re-checks of the same rounds) | 13 measured; 13 predicted (the last round's dry re-checks predicted 56 more, not measured) |
+| new critical/major findings in rounds 1-3; net removed (gone - new) | 66 new; net -53 |
 | edits removing their finding | 11 of 11 |
-| plans ok / empty / refused / default | 15 / 11 / 5 / 0 |
+| plans ok / empty / refused / default | 21 / 11 / 9 / 0 |
 
 ### What the AI inspector saw on the final renders
 
-2 vision finding(s) (0 of the visitor checks Q1-Q9: doors, working heights, falls, rooms that make no sense, pieces that clash, doors and windows, rain water): 0 fixed in the final round, 0 handed to the stage that owns them, 68 open; the architect leaves 0 major open point(s). Every finding with its outcome: `orchestrator/inspector.md`.
+145 vision finding(s) (77 of the visitor checks Q1-Q9: doors, working heights, falls, rooms that make no sense, pieces that clash, doors and windows, rain water): 1 fixed in the final round, 33 handed to the stage that owns them, 177 open; the architect leaves 0 major open point(s). Every finding with its outcome: `orchestrator/inspector.md`.
 
 Still open or handed on (critical and major):
 
-- major F9 f_L0_027: ottoman f_L0_027 overlaps sofa_corner f_L0_011 by 0.25 m² (open: a tool exists (move_piece, move_group, fix_fixture) but no edit was accepted)
-- major F9 f_L0_028: ottoman f_L0_028 overlaps sofa_corner f_L0_011 by 0.25 m² (open: a tool exists (move_piece, move_group, fix_fixture) but no edit was accepted)
-- major F9 f_L0_029: ottoman f_L0_029 overlaps sofa_corner f_L0_011 by 0.25 m² (open: a tool exists (move_piece, move_group, fix_fixture) but no edit was accepted)
-- major F9 f_L0_030: ottoman f_L0_030 overlaps sofa_corner f_L0_011 by 0.25 m² (open: a tool exists (move_piece, move_group, fix_fixture) but no edit was accepted)
-- major G2 f_L0_027: coffee table f_L0_027 is not in front of the sofa and is 0.00 m from the sofa front, needs ≥ 0.30 m (open: a tool exists (move_piece, move_group, relayout_room) but no edit was accepted)
-- major G3 f_L0_007: armchair f_L0_007 is 123° off the ottoman f_L0_030 (needs ≤ 30°) at 3.61 m (needs ≤ 2.50 m) (open: a tool exists (rotate_piece, set_front, relayout_room) but no edit was accepted)
-- major G3 f_L0_017: armchair f_L0_017 is 87° off the ottoman f_L0_028 (needs ≤ 30°) at 5.05 m (needs ≤ 2.50 m) (open: a tool exists (rotate_piece, set_front, relayout_room) but no edit was accepted)
-- major G3 f_L0_018: armchair f_L0_018 is 114° off the sofa_corner f_L0_011 (needs ≤ 30°) at 3.33 m (needs ≤ 2.50 m) (open: a tool exists (rotate_piece, set_front, relayout_room) but no edit was accepted)
-- critical G11 d_L0_001: no 0.60 m walkway from door d_L0_001 to door d_L0_006 (open: a tool exists (move_piece, move_group, relayout_room) but no edit was accepted)
-- critical G11 d_L0_004: no 0.60 m walkway from door d_L0_004 to door d_L0_006 (open: a tool exists (move_piece, move_group, relayout_room) but no edit was accepted)
-- major G11 f_L0_007: armchair f_L0_007: its front use zone is not reached by a 0.60 m walkway from door d_L0_006 (open: a tool exists (move_piece, move_group, relayout_room) but no edit was accepted)
-- major G11 f_L0_008: armchair f_L0_008: its front use zone is not reached by a 0.60 m walkway from door d_L0_006 (open: a tool exists (move_piece, move_group, relayout_room) but no edit was accepted)
-- major G11 f_L0_016: armchair f_L0_016: its front use zone is not reached by a 0.60 m walkway from door d_L0_006 (open: a tool exists (move_piece, move_group, relayout_room) but no edit was accepted)
-- major G11 f_L0_017: armchair f_L0_017: its front use zone is not reached by a 0.60 m walkway from door d_L0_006 (open: a tool exists (move_piece, move_group, relayout_room) but no edit was accepted)
-- major G11 f_L0_018: armchair f_L0_018: its front use zone is not reached by a 0.60 m walkway from door d_L0_006 (open: a tool exists (move_piece, move_group, relayout_room) but no edit was accepted)
-- major G11 f_L0_019: armchair f_L0_019: its front use zone is not reached by a 0.60 m walkway from door d_L0_006 (open: a tool exists (move_piece, move_group, relayout_room) but no edit was accepted)
-- critical G11 o_L0_001: no 0.60 m walkway from door o_L0_001 to door d_L0_006 (open: a tool exists (move_piece, move_group, relayout_room) but no edit was accepted)
-- major F3 f_L0_020: sink_kitchen: its back is not on a wall (0.08 m off) (open: the piece is drawn and stands as the documents place it: a drawn piece moves at most)
-- critical F7 f_L0_032: kitchen_counter blocks door o_L0_001 (open: the piece is drawn and stands as the documents place it: a drawn piece moves at most)
-- major F9 f_L0_031: kitchen_counter f_L0_031 overlaps kitchen_counter f_L0_002 by 0.44 m² (open: a tool exists (move_piece, move_group, fix_fixture) but no edit was accepted)
-- major F9 f_L0_031: kitchen_counter reaches 0.18 m² through the room outline, up to 0.175 m deep (open: the piece is drawn and stands as the documents place it: a drawn piece moves at most)
-- major F9 f_L0_032: kitchen_counter reaches 0.06 m² through the room outline, up to 0.025 m deep (open: the piece is drawn and stands as the documents place it: a drawn piece moves at most)
-- major G8 f_L0_002: kitchen aisle 0.10 m in front of kitchen_counter f_L0_002, needs ≥ 0.90 m (open: a tool exists (fix_fixture) but no edit was accepted)
-- major G8 f_L0_020: sink f_L0_020: 0.00 m of counter beside it, needs ≥ 0.46 m on one side (open: the piece is drawn and stands as the documents place it: a drawn piece moves at most)
-- major G9 r_L0_mutfak: kitchen r_L0_mutfak has no fridge (fridge) (open: a tool exists (complete_group, place_group, relayout_room) but no edit was accepted)
+- critical Q4 f_L0_024: The toilet (f_L0_024) is completely missing from the room. A bathroom without a toilet is a fundamental failure. (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- critical Q4 f_L0_036: The shower (f_L0_036) is missing. The room is listed as having a shower, but it is not visible in the render. (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major V1 o_L0_002: The camera angle is poor. It is pointed almost entirely at a large, empty tiled wall (o_L0_002), which makes the render look like a placehol (open: a tool exists (set_camera, remove_camera) but no edit was accepted)
+- major Q2 f_L0_026: The washbasin (f_L0_026) appears to be installed at a height that is too low, closer to knee level than the standard hip height of ~0.85m. (open: a tool exists (swap_model, report_library_gap) but no edit was accepted)
+- critical Q4 f_L0_026: Bathroom with no basin in frame: the washbasin (and shower) are not visible, so the room reads as a toilet closet rather than a complete bat (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major V1 d_L0_007: Bad camera: the door leaf fills the entire right half of the frame and the view is a corner, so the room's main group is not shown. (open: a tool exists (set_camera, remove_camera) but no edit was accepted)
+- major V1 win_L0_004: The camera is positioned too close to the window and glass partition, causing the frame to be dominated by these elements. The main function (open: a tool exists (set_camera, remove_camera) but no edit was accepted)
+- major D3 f_L0_024: The entire room is completely devoid of styling. There are no towels, no accessories, no plants, and no textures on the walls or floor. It l (open: a tool exists (swap_model, report_library_gap) but no edit was accepted)
+- critical Q4 f_L0_002: The main counter run has no hob, cooktop or oven — a kitchen without its cooking anchor. The long worktop is empty and the wall above is bar (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major Q5 f_L0_031: The sink unit is a separate, taller box with a different counter height and a bare blue-grey basin that does not match the white run on the  (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major Q6 f_L0_033: The 'wall cabinet' is rendered as a thin floating shelf with no doors or body, leaving the wall above the worktop empty. It does not read as (open: a tool exists (move_piece, move_group, fix_fixture) but no edit was accepted)
+- critical Q4 f_L0_002: The main kitchen run is just a base cabinet with an empty worktop: no hob, no sink, no tap and no upper cabinets above it. A kitchen without (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major Q4 f_L0_020: The only sink is on a separate counter at the right edge, disconnected from the main run, so the primary work zone has no sink or tap and th (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major Q4 f_L0_033: The wall_cabinet pieces are not visible above the main run, leaving a large empty wall and reinforcing the impression of an unfinished, inco (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major Q4 f_L0_031: The main worktop run has no hob or cooktop. A kitchen without a place to cook is a clear gap a client will point out immediately. (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major V1 cam_r_L0_salon_1: Bad camera: a blank column/wall fills the center of the frame and the main seating group is off to the side, so the room reads as empty and  (open: a tool exists (set_camera, remove_camera) but no edit was accepted)
+- major Q5 f_L0_007: Mismatched set: the dark ribbed armchair (f_L0_007) and the brown leather armchair (f_L0_016) do not go with the beige sectional (f_L0_011); (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major Q4 f_L0_015: Room makes no sense as a finished salon: the listed coffee tables (f_L0_015, f_L0_021) and most armchairs are absent, leaving a 55 m2 living (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major Q5 f_L0_016: mismatched_set: f_L0_016 (dark-brown armchair) and f_L0_017 are a different model and colour from f_L0_007 (tan) and the beige f_L0_011 sofa (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major Q5 f_L0_011: missing_anchor / empty_room: the corner sofa f_L0_011 is shoved into the far corner facing away from the main area, so the 55 m2 salon has n (open: a tool exists (swap_model, report_library_gap) but no edit was accepted)
+- major Q5 f_L0_015: floating_or_odd_placement: the coffee table f_L0_015 sits alone in the middle of the open floor with no sofa or chairs around it, so it has  (open: a tool exists (swap_model, report_library_gap) but no edit was accepted)
+- major Q5 f_L0_016: The grey ribbed chair at the left edge is a different model, material and colour from the beige armchairs and sofa; it reads as a dining cha (open: a tool exists (swap_model, report_library_gap) but no edit was accepted)
+- critical Q4 f_L1_031: The shower is listed for this bathroom but is not present in the render, so the room is missing one of its main fixtures and reads as an emp (open: a tool exists (retype_piece, mark_not_furniture, remove_piece) but no edit was accep)
+- major D2 f_L1_021: The washbasin is a crude black box with a thin rim and a tiny tap; it looks like a placeholder model, not a real basin, and clashes with the (open: a tool exists (swap_model, report_library_gap) but no edit was accepted)
+- major Q6 f_L1_025: A second washbasin is listed but not visible; if it is meant to be here the room is incomplete, and if not it is a stray duplicate in the se (open: a tool exists (rotate_piece, set_front, relayout_room) but no edit was accepted)
 
 ### Rounds
 
 | round | critical | major | minor | dropped (vision) | accepted | rejected | re-run from | views |
 |---|---|---|---|---|---|---|---|---|
-| 1 | 18 | 62 | 19 | 1 | 8 | 31 | refit | 16 |
-| 2 | 17 | 56 | 20 | 0 | 2 | 11 | refit | 6 |
-| 3 | 16 | 57 | 20 | 0 | 1 | 11 | refit | 3 |
-| 4 | 15 | 53 | 19 | 2 | 0 | 1 | - | 0 |
+| 1 | 18 | 62 | 19 | 3 | 6 | 25 | refit | 15 |
+| 2 | 16 | 57 | 19 | 0 | 4 | 27 | refit | 7 |
+| 3 | 15 | 54 | 19 | 0 | 1 | 26 | refit | 3 |
+| 4 | 31 | 116 | 83 | 2 | 1 | 25 | layout | 1 |
 
 ### Findings by check
 
 | check | critical | major | minor | dropped |
 |---|---|---|---|---|
-| D2 | 0 | 1 | 0 | 2 |
-| D3 | 0 | 1 | 2 | 0 |
+| D1 | 0 | 2 | 3 | 0 |
+| D2 | 2 | 5 | 1 | 4 |
+| D3 | 0 | 9 | 22 | 0 |
 | F1 | 0 | 0 | 8 | 0 |
 | F3 | 1 | 17 | 8 | 0 |
 | F4 | 0 | 1 | 0 | 0 |
 | F6 | 0 | 8 | 0 | 0 |
 | F7 | 7 | 0 | 0 | 0 |
 | F8 | 0 | 1 | 0 | 0 |
-| F9 | 2 | 39 | 0 | 1 |
+| F9 | 0 | 39 | 8 | 1 |
 | G1 | 0 | 0 | 12 | 0 |
 | G10 | 0 | 19 | 0 | 0 |
 | G11 | 32 | 48 | 0 | 0 |
@@ -1416,10 +1417,20 @@ Still open or handed on (critical and major):
 | G8 | 0 | 8 | 0 | 0 |
 | G9 | 0 | 8 | 0 | 0 |
 | L2 | 0 | 24 | 0 | 0 |
-| NR | 0 | 13 | 0 | 0 |
+| NR | 0 | 15 | 0 | 0 |
+| Q1 | 0 | 1 | 0 | 0 |
+| Q2 | 0 | 2 | 0 | 0 |
+| Q3 | 1 | 1 | 0 | 0 |
+| Q4 | 12 | 10 | 1 | 0 |
+| Q5 | 1 | 8 | 3 | 0 |
+| Q6 | 0 | 2 | 5 | 0 |
+| Q7 | 0 | 8 | 13 | 0 |
+| Q8 | 0 | 0 | 3 | 0 |
+| Q9 | 0 | 3 | 3 | 0 |
 | RC | 0 | 0 | 8 | 0 |
 | S2 | 0 | 4 | 0 | 0 |
 | S5 | 0 | 0 | 8 | 0 |
+| V1 | 0 | 10 | 2 | 0 |
 | X2 | 0 | 0 | 4 | 0 |
 | X3 | 24 | 0 | 0 | 0 |
 
@@ -1427,76 +1438,126 @@ Still open or handed on (critical and major):
 
 | # | round | tool | target | label | score | reason | before | after |
 |---|---|---|---|---|---|---|---|---|
-| 2902 | 1 | move_piece | f_L1_012 | adjusted_by_ai | 0.0 -> 0.0 | Snap the bed headboard flush to the west wall so the bed and its nightstands sit on the wall, clearing G5 and the F3 off-wall findings. | ![](agent/r1_009_move_piece_before_r_L1_ebeveyn_y_odasi.png) | ![](agent/r1_010_move_piece_after_r_L1_ebeveyn_y_odasi.png) |
-| 2916 | 1 | move_piece | f_L0_013 | adjusted_by_ai | 0.0 -> 0.0 | Move potted plant 0.29 m up off door d_L0_001's opening to clear the blocked door and floating findings. | ![](agent/r1_033_move_piece_before_r_L0_salon.png) | ![](agent/r1_035_move_piece_after_r_L0_salon.png) |
-| 2931 | 1 | move_piece | f_L1_016 | adjusted_by_ai | 0.0 -> 0.0 | Shift sofa 0.06 m inward to clear the 0.048 m penetration through the room outline (F9). | ![](agent/r1_041_move_piece_before_r_L1_oda_2.png) | ![](agent/r1_042_move_piece_after_r_L1_oda_2.png) |
-| 2935 | 1 | set_front | f_L1_021 | adjusted_by_ai | 10.0 -> 20.0 | Washbasin f_L1_021 faces a wall at 270°; turning its front to 90° orients it into the room, resolving F4. | ![](agent/r1_046_set_front_before_r_L1_banyo.png) | ![](agent/r1_047_set_front_after_r_L1_banyo.png) |
-| 2938 | 1 | mark_not_furniture | f_L0_010 | adjusted_by_ai | 50.0 -> 50.0 | The 2.54 x 1.01 m drawn outline is the dashed dimension/outline band around the drawn washbasin and bathtub fixtures, not a separate furniture piece. | ![](agent/r1_050_mark_not_furniture_before_r_L0_banyo.png) | ![](agent/r1_051_mark_not_furniture_after_r_L0_banyo.png) |
-| 2942 | 1 | mark_not_furniture | f_L1_011 | adjusted_by_ai | 20.0 -> 20.0 | The 2.42 x 0.98 m drawn outline is the dashed dimension/outline band around the drawn washbasin and bathtub fixtures, not a separate furniture piece. | ![](agent/r1_052_mark_not_furniture_before_r_L1_banyo.png) | ![](agent/r1_053_mark_not_furniture_after_r_L1_banyo.png) |
-| 2954 | 1 | mark_not_furniture | f_L1_014 | adjusted_by_ai | 100.0 -> 100.0 | The drawn 2.27 x 0.85 m flight sits in a 2.45 m wide room with no headroom, and retype to stair fails inside_room/doors_free/windows_free: it is a drawing symbol of the adjacent stair, not furniture of this room. | ![](agent/r1_061_mark_not_furniture_before_r_L1_soyunma_odasi.png) | ![](agent/r1_062_mark_not_furniture_after_r_L1_soyunma_odasi.png) |
-| 2955 | 1 | mark_not_furniture | f_L1_015 | adjusted_by_ai | 100.0 -> 100.0 | The drawn 2.27 x 0.85 m flight sits in a 2.45 m wide room with no headroom, and retype to stair fails inside_room/doors_free/windows_free: it is a drawing symbol of the adjacent stair, not furniture of this room. | ![](agent/r1_063_mark_not_furniture_before_r_L1_soyunma_odasi.png) | ![](agent/r1_064_mark_not_furniture_after_r_L1_soyunma_odasi.png) |
-| 3091 | 2 | mark_not_furniture | f_L0_012 | adjusted_by_ai | 0.0 -> 0.0 | Tiny 0.21x0.20 m drawn symbol blocks door d_L0_001 (F7 critical); move_piece is exhausted (3 tries), so mark it as a non-furniture reading to clear the opening. | ![](agent/r2_017_mark_not_furniture_before_r_L0_salon.png) | ![](agent/r2_019_mark_not_furniture_after_r_L0_salon.png) |
-| 3108 | 2 | mark_not_furniture | f_L1_019 | adjusted_by_ai | 0.0 -> 0.0 | The recognition crop shows a simple rectangular outline with dashed border near a wall junction, consistent with a dimension or outline mark rather than a furniture piece; all retype attempts fail with inside_room confirming it is not a valid furniture placement. | ![](agent/r2_037_mark_not_furniture_before_r_L1_oda_2.png) | ![](agent/r2_038_mark_not_furniture_after_r_L1_oda_2.png) |
-| 3247 | 3 | mark_not_furniture | f_L0_009 | adjusted_by_ai | 0.0 -> 0.0 | Tiny 0.21x0.20 m drawn symbol identical to the door-strip mark already recorded as not furniture; retype to potted_plant was rejected (F8 stands alone). | ![](agent/r3_016_mark_not_furniture_before_r_L0_salon.png) | ![](agent/r3_018_mark_not_furniture_after_r_L0_salon.png) |
+| 3538 | 1 | move_piece | f_L1_012 | adjusted_by_ai | 0.0 -> 0.0 | Snap the bed headboard flush to the west wall so the drawn sleeping_double group sits on the wall, clearing G5 and the F3 off-wall findings for the bed and nightstands. | ![](agent/r1_009_move_piece_before_r_L1_ebeveyn_y_odasi.png) | ![](agent/r1_010_move_piece_after_r_L1_ebeveyn_y_odasi.png) |
+| 3558 | 1 | move_piece | f_L0_013 | adjusted_by_ai | 0.0 -> 0.0 | Move potted plant f_L0_013 up 0.29 m (within allowance) out of door d_L0_001 strip and toward the wall (F7, F8). | ![](agent/r1_026_move_piece_before_r_L0_salon.png) | ![](agent/r1_027_move_piece_after_r_L0_salon.png) |
+| 3577 | 1 | mark_not_furniture | f_L0_010 | adjusted_by_ai | 50.0 -> 50.0 | The 2.54 x 1.01 m drawn outline is the dashed dimension/outline band around the washbasin and shower bay, not a furniture item. | ![](agent/r1_031_mark_not_furniture_before_r_L0_banyo.png) | ![](agent/r1_034_mark_not_furniture_after_r_L0_banyo.png) |
+| 3578 | 1 | set_front | f_L1_021 | adjusted_by_ai | 10.0 -> 20.0 | Washbasin front faced a wall 0.00 m ahead (F4); turning the front to 90° faces it into the room. | ![](agent/r1_033_set_front_before_r_L1_banyo.png) | ![](agent/r1_036_set_front_after_r_L1_banyo.png) |
+| 3584 | 1 | move_piece | f_L1_016 | adjusted_by_ai | 0.0 -> 0.0 | Nudge sofa 0.05 m left so its right edge sits on the room outline, clearing the 0.048 m collision (F9) while keeping its back on the wall. | ![](agent/r1_041_move_piece_before_r_L1_oda_2.png) | ![](agent/r1_042_move_piece_after_r_L1_oda_2.png) |
+| 3586 | 1 | mark_not_furniture | f_L1_011 | adjusted_by_ai | 20.0 -> 20.0 | The 2.42 x 0.98 m drawn symbol is the dashed outline enclosing the drawn washbasin and bathtub (a dimension/outline mark), not a separate piece of furniture; the code's size/zone table rejects bathtub and gives stair, which fits neither. | ![](agent/r1_044_mark_not_furniture_before_r_L1_banyo.png) | ![](agent/r1_046_mark_not_furniture_after_r_L1_banyo.png) |
+| 3728 | 2 | mark_not_furniture | f_L0_012 | adjusted_by_ai | 0.0 -> 0.0 | Small drawn potted_plant blocks door d_L0_001 and move allowance is exhausted; removing it clears the blocked opening. | ![](agent/r2_014_mark_not_furniture_before_r_L0_salon.png) | ![](agent/r2_015_mark_not_furniture_after_r_L0_salon.png) |
+| 3745 | 2 | mark_not_furniture | f_L1_019 | adjusted_by_ai | 0.0 -> 0.0 | The recognition crop shows a plain rectangular outline sitting on the wall line with no furniture detail, a dimension/outline mark rather than a built piece. | ![](agent/r2_031_mark_not_furniture_before_r_L1_oda_2.png) | ![](agent/r2_032_mark_not_furniture_after_r_L1_oda_2.png) |
+| 3748 | 2 | mark_not_furniture | f_L1_014 | adjusted_by_ai | 100.0 -> 100.0 | The recognition crop shows a drawn stair (tread lines with a central stringer and a landing), not furniture; the stair retype was rejected (doors_free/inside_room/windows_free), so it is recorded as a non-furniture symbol. | ![](agent/r2_034_mark_not_furniture_before_r_L1_soyunma_odasi.png) | ![](agent/r2_035_mark_not_furniture_after_r_L1_soyunma_odasi.png) |
+| 3751 | 2 | mark_not_furniture | f_L1_015 | adjusted_by_ai | 100.0 -> 100.0 | The recognition crop shows a drawn stair (tread lines with a central stringer and a landing), not furniture; the stair retype was rejected (doors_free/inside_room/windows_free), so it is recorded as a non-furniture symbol. | ![](agent/r2_036_mark_not_furniture_before_r_L1_soyunma_odasi.png) | ![](agent/r2_037_mark_not_furniture_after_r_L1_soyunma_odasi.png) |
+| 3908 | 3 | mark_not_furniture | f_L0_009 | adjusted_by_ai | 0.0 -> 0.0 | The drawn 0.21x0.20 m symbol is a small scribble mark, not furniture (NR). | ![](agent/r3_031_mark_not_furniture_before_r_L0_salon.png) | ![](agent/r3_032_mark_not_furniture_after_r_L0_salon.png) |
+| 4197 | 4 | set_room_type | r_L1_soyunma_odasi | adjusted_by_ai | 100.0 -> 100.0 | A 5.9 m² dressing room (soyunma odası) is functionally a hall/entry space with wardrobe and bench; 'other' blocks all furniture groups. | ![](agent/r4_020_set_room_type_before_r_L1_soyunma_odasi.png) | ![](agent/r4_021_set_room_type_after_r_L1_soyunma_odasi.png) |
 
 ### Rejected edits
 
 | # | round | tool | target | failed checks | reason |
 |---|---|---|---|---|---|
-| 2904 | 1 | move_piece | f_L1_026 | snap: f_L1_026: no free place on wall w_L1_027 (doors, windows, at most 1.2 m from the drawn place) | Snap the nightstand back flush to the west wall beside the bed, clearing its F3 off-wall finding. |
-| 2905 | 1 | fix_fixture | f_L0_031 | fixture_place: f_L0_031: no valid spot within 0.50 m (it stands 0.18 m² outside the room) | f_L0_031 overlaps f_L0_002 by 0.44 m²; let the code find a valid spot within 0.5 m |
-| 2906 | 1 | complete_group | r_L0_mutfak.kitchen_run | no_place: r_L0_mutfak.kitchen_run (missing stove, fridge): no place passes the checks (kitchen_run: no place passes the checks) | kitchen run is missing its stove and fridge (G9) |
-| 2907 | 1 | move_piece | f_L1_026 | f_L1_026: inside_room | Nudge the nightstand 0.06 m west so its back sits flush on the west wall, clearing its F3 off-wall finding. |
-| 2909 | 1 | move_piece | f_L0_012 | drawn_lock: f_L0_012: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.54 m) | Move potted plant off door d_L0_001's opening to clear the blocked door. |
-| 2910 | 1 | move_piece | f_L0_013 | drawn_lock: f_L0_013: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.54 m) | Move potted plant off door d_L0_001's opening and toward the wall to clear the blocked door and floating findings. |
-| 2912 | 1 | move_piece | f_L0_012 | drawn_lock: f_L0_012: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Move potted plant 0.3 m up off door d_L0_001's opening to clear the blocked door. |
-| 2913 | 1 | move_piece | f_L0_013 | drawn_lock: f_L0_013: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Move potted plant 0.3 m up off door d_L0_001's opening to clear the blocked door and floating findings. |
-| 2915 | 1 | move_piece | f_L0_012 | acceptance: finding F7:f_L0_013 is still there after the edit (potted_plant blocks door d_L0_001); 1 more kept | Move potted plant 0.29 m up off door d_L0_001's opening to clear the blocked door. |
-| 2919 | 1 | move_piece | f_L0_012 | memory: the same edit was rejected in round 1: acceptance: finding F7:f_L0_013 is still there after the edit (potted_plant blocks door d_L0_001); 1 more kept | Move potted plant 0.29 m up off door d_L0_001's opening to clear the blocked door. |
-| 2920 | 1 | move_piece | f_L1_007 | snap: f_L1_007: no free place on wall w_L1_023 (doors, windows, at most 1.2 m from the drawn place) | Desk f_L1_007 overlaps bed f_L1_006 by 0.07 m²; snapping its back to the left wall (where the drawing shows it) clears the collision and the F3 back-off-wall note. |
-| 2921 | 1 | move_piece | f_L1_010 | drawn_lock: f_L1_010: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.66 m) | Nightstand f_L1_010 overlaps bed f_L1_009 by 0.17 m² and sits -0.56 m from the bed side; moving it to the head-side corner of the bed clears the overlap and brings it within 0.30 m of the bed side. |
-| 2923 | 1 | move_piece | f_L0_012 | max_tries: f_L0_012 was edited 3 times in this round | Move potted plant 0.24 m up off door d_L0_001's opening to clear the blocked door. |
-| 2926 | 1 | move_piece | f_L1_007 | drawn_lock: f_L1_007: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.34 m) | Desk f_L1_007 overlaps bed f_L1_006 by 0.07 m²; shifting it 0.33 m down the left wall (within the 1.2 m drawn allowance) clears the collision while keeping its drawn position. |
-| 2927 | 1 | move_piece | f_L1_010 | acceptance: finding F9:f_L1_010 is still there after the edit (nightstand f_L1_010 overlaps bed_double f_L1_009 by 0.17 m²) | Nightstand f_L1_010 overlaps bed f_L1_009 by 0.17 m²; moving it 0.26 m up along the bed's left side clears the overlap and brings it within 0.30 m of the bed side. |
-| 2930 | 1 | retype_piece | f_L1_019 | f_L1_019: inside_room, score: plausibility -82 -> -92 (G13 f_L1_019: sideboard f_L1_019: 0.66 m free in front, needs ≥ 0.80 m) | Untyped drawn piece 1.20 x 0.55 m fits a sideboard in a living room; resolves NR finding. |
-| 2932 | 1 | move_piece | f_L1_007 | drawn_lock: f_L1_007: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.31 m) | Desk f_L1_007 overlaps bed f_L1_006 by 0.07 m²; shifting it 0.30 m down the left wall (within the drawn allowance) clears the collision while keeping its drawn position. |
-| 2933 | 1 | move_piece | f_L1_010 | drawn_lock: f_L1_010: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.31 m) | Nightstand f_L1_010 overlaps bed f_L1_009 by 0.17 m²; moving it 0.31 m up along the bed's left side clears the overlap and brings it within 0.30 m of the bed side. |
-| 2934 | 1 | fix_fixture | f_L0_026 | fixture_place: f_L0_026: no valid spot within 0.50 m (it stands 0.00 m² outside the room, in door o_L0_002) | Washbasin centre is 0.31 m from the left wall, below the 0.38 m clearance; nudge it to meet G10. |
-| 2936 | 1 | fix_fixture | f_L1_025 | fixture_place: f_L1_025: no valid spot within 0.50 m (it stands 0.00 m² outside the room, in door o_L1_004) | Washbasin f_L1_025 has only 0.31 m clearance to the left wall, needs ≥ 0.38 m; nudge it to meet the fixture clearance. |
-| 2937 | 1 | move_piece | f_L1_027 | drawn_lock: f_L1_027: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.93 m) | Move floor lamp away from window o_L1_003 (G12) and out of the free zone in front of sofa f_L1_013 (F6). |
-| 2939 | 1 | move_piece | f_L1_007 | max_tries: f_L1_007 was edited 3 times in this round | Desk f_L1_007 overlaps bed f_L1_006 by 0.07 m²; shifting it 0.299 m down the left wall (within the 0.3 m drawn allowance) clears the collision while keeping its drawn position. |
-| 2940 | 1 | move_piece | f_L1_010 | max_tries: f_L1_010 was edited 3 times in this round | Nightstand f_L1_010 overlaps bed f_L1_009 by 0.17 m²; moving it 0.30 m up along the bed's left side clears the overlap and brings it within 0.30 m of the bed side. |
-| 2944 | 1 | retype_piece | f_L1_019 | retype: console_table is no candidate for f_L1_019 (1.20 x 0.55 m at [1.63, 9.64]): the size table and the room / zone give armchair, chaise, display_cabinet, sideboard, table_coffee, tv_unit | 1.20 x 0.55 m drawn piece fits a console table in a living room; resolves NR finding. |
-| 2945 | 1 | move_piece | f_L1_027 | drawn_lock: f_L1_027: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Move floor lamp 0.3 m away from window o_L1_003 (G12) and out of the free zone in front of sofa f_L1_013 (F6). |
-| 2947 | 1 | retype_piece | f_L1_019 | f_L1_019: inside_room, score: plausibility -72 -> -99 (F4 f_L1_013: sofa does not face its group (f_L1_019); F4 f_L1_016: sofa does not face its group (f_L1_019); G1 f_L1_019: TV unit f_L1_019 2.19 m off the sofa axis, needs ≤ 0.30 m; 90° off the line to the sofa, needs ≤ 10°; 0.76 m from the sofa front, needs ≥ 1.50 m) | 1.20 x 0.55 m drawn piece fits a TV unit in a living room; resolves NR finding and may help G1. |
-| 2948 | 1 | retype_piece | f_L1_014 | f_L1_014: doors_free, f_L1_014: inside_room, f_L1_014: windows_free | Recognition crop shows a straight flight of treads with a stringer line (2.27 x 0.85 m), matching the stair the AI pass already read; confirming stair builds it. |
-| 2949 | 1 | move_piece | f_L1_027 | drawn_lock: f_L1_027: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.31 m) | Move floor lamp 0.31 m south away from window o_L1_003 (G12) and out of the free zone in front of sofa f_L1_013 (F6). |
-| 2950 | 1 | retype_piece | f_L1_015 | f_L1_015: doors_free, f_L1_015: inside_room, f_L1_015: windows_free | Recognition crop shows a straight flight of treads with a stringer line (2.27 x 0.85 m), matching the stair the AI pass already read; confirming stair builds it. |
-| 2951 | 1 | retype_piece | f_L1_019 | max_tries: f_L1_019 was edited 3 times in this round | 1.20 x 0.55 m drawn piece fits a display cabinet in a living room; resolves NR finding. |
-| 2952 | 1 | move_piece | f_L1_027 | memory: the same edit was rejected in round 1: drawn_lock: f_L1_027: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Move floor lamp 0.30 m south away from window o_L1_003 (G12) and out of the free zone in front of sofa f_L1_013 (F6). |
-| 3088 | 2 | relayout_room | r_L1_cocuk_odasi | no_place: r_L1_cocuk_odasi relayout: the solver places nothing and leaves the drawn pieces as drawn (sleeping_double: no candidate position fits the room; sleeping_double: no candidate position fits the room; storage: no place passes the checks) | Re-solve the room with candidate 1 to clear the desk/bed and nightstand/bed overlaps, the G11 walkway and G5 side-clearance failures on both beds, and the nightstand offset, while keeping the drawn anchors in place. |
-| 3093 | 2 | retype_piece | f_L0_009 | score: plausibility -523 -> -533 (F8 f_L0_009: potted_plant stands alone in the room (no wall, no sofa / sofa_corner / armchair within 1.5 m)) | Untyped 0.21x0.20 m drawn piece (NR major); AI passes suggest potted_plant, which fits its size and the living room. |
-| 3094 | 2 | move_piece | f_L1_022 | drawn_lock: f_L1_022: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.46 m) | Shift the floor lamp out of armchair f_L1_018's front clearance zone so the armchair's free zone is unblocked. |
-| 3095 | 2 | relayout_room | r_L0_salon | no_place: r_L0_salon relayout: the solver places nothing and leaves the drawn pieces as drawn (seating: no candidate position fits the room; dining: no place passes the checks; living_storage: no place passes the checks) | Re-solve the room layout to establish 0.60 m walkways from doors d_L0_001, d_L0_004, o_L0_001 to d_L0_006 and to the seating front use zones, resolving the critical and major G11 clearance findings. |
-| 3096 | 2 | move_piece | f_L1_022 | acceptance: finding F6:f_L1_018 is still there after the edit (armchair: the free zone in front of it is blocked by f_L1_022) | Shift the floor lamp 0.3 m out of armchair f_L1_018's front clearance zone so the armchair's free zone is unblocked. |
-| 3097 | 2 | move_piece | f_L1_022 | drawn_lock: f_L1_022: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.34 m) | Shift the floor lamp diagonally out of armchair f_L1_018's front clearance zone so the armchair's free zone is unblocked. |
-| 3098 | 2 | move_piece | f_L1_022 | max_tries: f_L1_022 was edited 3 times in this round | Shift the floor lamp diagonally out of armchair f_L1_018's front clearance zone so the armchair's free zone is unblocked. |
-| 3101 | 2 | move_piece | f_L1_027 | acceptance: finding F6:f_L1_013 is still there after the edit (sofa: the free zone in front of it is blocked by f_L1_027) | Move floor lamp 0.29m to clear window band (G12) and sofa front clearance (F6), within 0.3m allowance. |
-| 3102 | 2 | retype_piece | f_L1_019 | f_L1_019: inside_room, score: plausibility -72 -> -99 (F4 f_L1_013: sofa does not face its group (f_L1_019); F4 f_L1_016: sofa does not face its group (f_L1_019); G2 f_L1_019: coffee table f_L1_019 is not in front of the sofa) | Retype untyped drawn piece (1.20 x 0.55 m) as table_coffee, a valid candidate for its size and living room, resolving the untyped finding. |
-| 3105 | 2 | set_room_type | r_L1_banyo | no_change: r_L1_banyo is already a bathroom | F9 critical: duplicated toilet in render is a room-level type/render issue; re-asserting the room type resolves it. |
-| 3106 | 2 | fix_fixture | f_L1_025 | memory: the same edit was rejected in round 1: fixture_place: f_L1_025: no valid spot within 0.50 m (it stands 0.00 m² outside the room, in door o_L1_004) | G10 major: washbasin f_L1_025 has 0.31 m to the left wall, needs ≥ 0.38 m; nudge it to meet the clearance. |
-| 3246 | 3 | swap_model | f_L0_008 | acceptance: pin_refused: f_L0_008: abo_B0719WQGYJ: fails the fit rules (caps, height): the refit keeps the model it had, so the swap changes nothing in the scene; swap to a real model of the type, or use another tool | Replace the crude low-poly deep-red armchair with a detailed modern minimal pewter chair matching the room's neutral beige/grey palette. |
-| 3252 | 3 | swap_model | f_L0_008 | acceptance: pin_refused: f_L0_008: abo_B071FMSYCH: fails the fit rules (caps, height): the refit keeps the model it had, so the swap changes nothing in the scene; swap to a real model of the type, or use another tool | Swap the crude low-poly deep-red armchair for a detailed modern minimal felt-grey accent chair matching the neutral palette. |
-| 3254 | 3 | move_piece | f_L0_027 | drawn_lock: f_L0_027: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 1.54 m) | Pull the ottoman out of the sofa_corner footprint (0.25 m² overlap) and clear the sofa front for the coffee table. |
-| 3256 | 3 | swap_model | f_L0_008 | acceptance: pin_refused: f_L0_008: ArmChair_01: fails the fit rules (caps, height): the refit keeps the model it had, so the swap changes nothing in the scene; swap to a real model of the type, or use another tool | Swap the crude low-poly deep-red armchair for the detailed classic Arm Chair 01 model in a neutral tone. |
-| 3257 | 3 | move_piece | f_L0_027 | acceptance: finding F9:f_L0_027 is still there after the edit (ottoman f_L0_027 overlaps sofa_corner f_L0_011 by 0.25 m²) | Shift the ottoman 0.30 m out of the sofa_corner footprint to clear the 0.25 m² overlap. |
-| 3260 | 3 | move_piece | f_L0_027 | drawn_lock: f_L0_027: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Shift the ottoman 0.30 m along the sofa's left edge to clear the 0.25 m² overlap with the sofa_corner. |
-| 3261 | 3 | move_piece | f_L0_028 | drawn_lock: f_L0_028: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.39 m) | Shift the ottoman 0.30 m out of the sofa_corner footprint to clear the 0.25 m² overlap. |
-| 3262 | 3 | move_piece | f_L1_027 | memory: the same edit was rejected in round 1: drawn_lock: f_L1_027: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.31 m) | Move the floor lamp 0.31m south to clear the window band (G12) and the sofa's front clearance zone (F6), within the 0.3m move allowance. |
-| 3263 | 3 | move_piece | f_L0_027 | max_tries: f_L0_027 was edited 3 times in this round | Shift the ottoman 0.29 m along the sofa's left edge to clear the 0.25 m² overlap with the sofa_corner. |
-| 3264 | 3 | move_piece | f_L0_028 | acceptance: finding F9:f_L0_028 is still there after the edit (ottoman f_L0_028 overlaps sofa_corner f_L0_011 by 0.15 m²) | Shift the ottoman 0.21 m out of the sofa_corner footprint to clear the 0.25 m² overlap. |
-| 3267 | 3 | move_piece | f_L1_027 | memory: the same edit was rejected in round 1: drawn_lock: f_L1_027: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Move the floor lamp 0.30m south to clear the window band (G12) and the sofa's front clearance zone (F6), within the 0.3m move allowance. |
-| 3400 | 4 | relayout_room | r_L0_salon | memory: the same edit was rejected in round 2: no_place: r_L0_salon relayout: the solver places nothing and leaves the drawn pieces as drawn (seating: no candidate position fits the room; dining: no place passes the checks; living_storage: no place passes the checks) | Apply solver candidate 1 to restore 0.60 m door-to-door walkways for d_L0_001, d_L0_004 and o_L0_001 to d_L0_006 (critical G11 clearance failures). |
+| 3539 | 1 | move_piece | f_L1_022 | drawn_lock: f_L1_022: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.66 m) | Shift the floor lamp out of armchair f_L1_018's front clearance zone so its free zone is unblocked. |
+| 3540 | 1 | complete_group | r_L0_mutfak.kitchen_run | no_place: r_L0_mutfak.kitchen_run (missing stove, fridge): no place passes the checks (kitchen_run: no place passes the checks) | Kitchen run is missing its required fridge and stove members (G9 findings); re-solve the drawn run around its anchor to build them. |
+| 3541 | 1 | fix_fixture | f_L0_031 | fixture_place: f_L0_031: no valid spot within 0.50 m (it stands 0.18 m² outside the room) | f_L0_031 overlaps f_L0_002 by 0.44 m²; re-place the drawn counter within its 0.5 m reach to clear the collision. |
+| 3545 | 1 | move_piece | f_L0_012 | drawn_lock: f_L0_012: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.44 m) | Move potted plant f_L0_012 out of door d_L0_001 strip to clear the blocked opening (F7). |
+| 3546 | 1 | move_piece | f_L0_013 | drawn_lock: f_L0_013: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.44 m) | Move potted plant f_L0_013 out of door d_L0_001 strip and toward the wall so it is no longer floating (F7, F8). |
+| 3548 | 1 | relayout_room | r_L1_cocuk_odasi | no_place: r_L1_cocuk_odasi relayout: the solver places nothing and leaves the drawn pieces as drawn (sleeping_double: no candidate position fits the room; sleeping_double: no candidate position fits the room; storage: no place passes the checks) | Full relayout to resolve bed/nightstand collisions (F9) and the G5/G11 clearance and walkway violations for both beds. |
+| 3550 | 1 | move_piece | f_L0_012 | drawn_lock: f_L0_012: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Move potted plant f_L0_012 up 0.3 m (within allowance) out of door d_L0_001 strip to clear the blocked opening (F7). |
+| 3551 | 1 | move_piece | f_L0_013 | drawn_lock: f_L0_013: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Move potted plant f_L0_013 up 0.3 m (within allowance) out of door d_L0_001 strip and toward the wall (F7, F8). |
+| 3557 | 1 | move_piece | f_L0_012 | acceptance: finding F7:f_L0_013 is still there after the edit (potted_plant blocks door d_L0_001); 1 more kept | Move potted plant f_L0_012 up 0.29 m (within allowance) out of door d_L0_001 strip to clear the blocked opening (F7). |
+| 3564 | 1 | move_piece | f_L0_012 | memory: the same edit was rejected in round 1: acceptance: finding F7:f_L0_013 is still there after the edit (potted_plant blocks door d_L0_001); 1 more kept | Move potted plant f_L0_012 up 0.29 m (within allowance) out of door d_L0_001 strip to clear the blocked opening (F7). |
+| 3566 | 1 | move_piece | f_L0_012 | max_tries: f_L0_012 was edited 3 times in this round | Move potted plant f_L0_012 up 0.24 m (within allowance) out of door d_L0_001 strip to clear the blocked opening (F7). |
+| 3574 | 1 | fix_fixture | f_L0_026 | fixture_place: f_L0_026: no valid spot within 0.50 m (it stands 0.00 m² outside the room, in door o_L0_002) | Washbasin centre is 0.31 m from the left wall, below the 0.38 m clearance; nudge it to meet G10. |
+| 3575 | 1 | move_piece | f_L1_027 | drawn_lock: f_L1_027: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.61 m) | Move floor lamp out of sofa f_L1_013's front clearance and away from window o_L1_003 (fixes F6 and G12). |
+| 3576 | 1 | move_piece | f_L1_016 | score: plausibility -82 -> -112 (F3 f_L1_016: sofa: its back is not on a wall (0.11 m off); F7 f_L1_016: sofa blocks door o_L1_003) | Nudge sofa 0.16 m away from the room outline to clear the 0.048 m collision (F9). |
+| 3579 | 1 | retype_piece | f_L1_014 | f_L1_014: doors_free, f_L1_014: inside_room, f_L1_014: windows_free | Recognition crop shows a straight flight of treads with a stringer and a landing edge — a stair, matching the AI's stair pass and the 2.27 x 0.85 m footprint. |
+| 3580 | 1 | retype_piece | f_L1_015 | f_L1_015: doors_free, f_L1_015: inside_room, f_L1_015: windows_free | Recognition crop shows a straight flight of treads with a stringer and a landing edge — a stair, matching the AI's stair pass and the 2.27 x 0.85 m footprint. |
+| 3581 | 1 | fix_fixture | f_L1_025 | fixture_place: f_L1_025: no valid spot within 0.50 m (it stands 0.00 m² outside the room, in door o_L1_004) | Washbasin f_L1_025 has only 0.31 m clearance to the left side wall, needs ≥ 0.38 m (G10); nudge it to meet the clearance. |
+| 3583 | 1 | move_piece | f_L1_027 | drawn_lock: f_L1_027: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Move floor lamp 0.3 m south out of sofa f_L1_013's front clearance and below the window o_L1_003 band (fixes F6 and G12). |
+| 3585 | 1 | retype_piece | f_L1_011 | retype: bathtub is no candidate for f_L1_011 (2.42 x 0.98 m at [7.42, 13.90]): the size table and the room / zone give stair | The untyped drawn piece (2.42 x 0.98 m) is the drawn bathtub outline in the plan crop (sym_L1_006_ctx.png shows the tub shape); retype to bathtub so it is built and verified. |
+| 3587 | 1 | move_piece | f_L1_027 | acceptance: finding F6:f_L1_013 is still there after the edit (sofa: the free zone in front of it is blocked by f_L1_027) | Move floor lamp 0.29 m south out of sofa f_L1_013's front clearance and below the window o_L1_003 band (fixes F6 and G12). |
+| 3588 | 1 | move_piece | f_L1_027 | max_tries: f_L1_027 was edited 3 times in this round | Move floor lamp 0.29 m east out of the window o_L1_003 band and out of sofa f_L1_013's front clearance (fixes F6 and G12). |
+| 3590 | 1 | retype_piece | f_L1_019 | retype: dresser is no candidate for f_L1_019 (1.20 x 0.55 m at [1.63, 9.64]): the size table and the room / zone give armchair, chaise, display_cabinet, sideboard, table_coffee, tv_unit | Type the untyped 1.20 x 0.55 m drawn piece as a dresser (plausible AI pass for its footprint in a living room) so it is built and the NR finding clears. |
+| 3591 | 1 | retype_piece | f_L1_019 | f_L1_019: inside_room, score: plausibility -72 -> -82 (G13 f_L1_019: sideboard f_L1_019: 0.66 m free in front, needs ≥ 0.80 m) | Type the untyped 1.20 x 0.55 m drawn piece as a sideboard (a candidate for its footprint against the bottom wall in a living room) so it is built and the NR finding clears. |
+| 3592 | 1 | retype_piece | f_L1_019 | f_L1_019: inside_room, score: plausibility -72 -> -99 (F4 f_L1_013: sofa does not face its group (f_L1_019); F4 f_L1_016: sofa does not face its group (f_L1_019); G1 f_L1_019: TV unit f_L1_019 2.19 m off the sofa axis, needs ≤ 0.30 m; 90° off the line to the sofa, needs ≤ 10°; 0.77 m from the sofa front, needs ≥ 1.50 m) | Type the untyped 1.20 x 0.55 m drawn piece as a tv_unit (a candidate for its footprint) so it is built and the NR finding clears. |
+| 3593 | 1 | retype_piece | f_L1_019 | max_tries: f_L1_019 was edited 3 times in this round | Type the untyped 1.20 x 0.55 m drawn piece as a display_cabinet (a candidate for its footprint against the bottom wall) so it is built and the NR finding clears. |
+| 3722 | 2 | place_group | r_L0_mutfak | no_place: r_L0_mutfak.kitchen_run (missing stove, fridge): no place passes the checks (kitchen_run: no place passes the checks) | Re-solve the drawn kitchen run around its anchor with the I_fridge70 option so the required fridge and stove members are built into the run, clearing the G9 missing-member findings. |
+| 3723 | 2 | place_group | r_L0_mutfak | no_place: r_L0_mutfak.kitchen_run (missing stove, fridge): no place passes the checks (kitchen_run: no place passes the checks) | Re-solve the drawn kitchen run around its anchor with the I option so the required fridge and stove members are built into the run, clearing the G9 missing-member findings. |
+| 3726 | 2 | move_piece | f_L1_027 | memory: the same edit was rejected in round 1: acceptance: finding F6:f_L1_013 is still there after the edit (sofa: the free zone in front of it is blocked by f_L1_027) | Move the floor lamp 0.29 m to clear the sofa's front clearance and the window band; within the 0.3 m move allowance. |
+| 3727 | 2 | place_group | r_L0_mutfak | no_place: r_L0_mutfak.kitchen_run (missing stove, fridge): no place passes the checks (kitchen_run: no place passes the checks) | Re-solve the drawn kitchen run around its anchor with the L option so the required fridge and stove members are built into the run, clearing the G9 missing-member findings. |
+| 3729 | 2 | move_piece | f_L1_027 | acceptance: finding F6:f_L1_013 is still there after the edit (sofa: the free zone in front of it is blocked by f_L1_027) | Move the floor lamp 0.29 m to [1.6,12.75] to clear the sofa's front clearance and the window band; within the 0.3 m move allowance. |
+| 3730 | 2 | place_group | r_L0_mutfak | max_tries: r_L0_mutfak was edited 3 times in this round | Re-solve the drawn kitchen run around its anchor with the galley option so the required fridge and stove members are built into the run, clearing the G9 missing-member findings. |
+| 3731 | 2 | relayout_room | r_L0_salon | no_place: r_L0_salon relayout: the solver places nothing and leaves the drawn pieces as drawn (seating: no candidate position fits the room; dining: no place passes the checks; living_storage: no place passes the checks) | Re-solve the room with the solver's best candidate to restore 0.60 m walkways from doors d_L0_001, d_L0_004, o_L0_001 to d_L0_006 and to the armchair front use zones. |
+| 3733 | 2 | move_piece | f_L1_027 | acceptance: finding G12:f_L1_027 is still there after the edit (floor_lamp f_L1_027 (1.60 m) stands in front of window o_L1_003 (sill 0.90 m + 0.05)); 1 more kept | Move the floor lamp 0.29 m to [1.6,12.9] to clear the sofa's front clearance zone and the window band; within the 0.3 m move allowance. |
+| 3735 | 2 | move_piece | f_L1_022 | acceptance: finding F6:f_L1_018 is still there after the edit (armchair: the free zone in front of it is blocked by f_L1_022) | Shift the floor lamp 0.3 m away from armchair f_L1_018 to clear its blocked front clearance zone (F6). |
+| 3736 | 2 | retype_piece | f_L1_019 | f_L1_019: inside_room, score: plausibility -72 -> -82 (F2 f_L1_019: chaise 1.20 m wide x 0.55 m deep (seen from its front) is turned 90° against the type's product sizes) | Type the untyped 1.20 x 0.55 m drawn piece as a chaise, a candidate for its footprint in a living room, so it is built and the NR finding clears. |
+| 3737 | 2 | move_piece | f_L1_007 | drawn_lock: f_L1_007: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.34 m) | Shift desk 0.33 m south to clear the 0.07 m² overlap with bed f_L1_006 (c:F9:f_L1_007). |
+| 3738 | 2 | move_piece | f_L1_010 | drawn_lock: f_L1_010: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.35 m) | Shift nightstand 0.35 m east to clear the 0.17 m² overlap with bed f_L1_009 and sit within 0.30 m of the bed side (c:F9:f_L1_010, c:G4:f_L1_010). |
+| 3740 | 2 | retype_piece | f_L1_019 | f_L1_019: inside_room, score: plausibility -72 -> -99 (F4 f_L1_013: sofa does not face its group (f_L1_019); F4 f_L1_016: sofa does not face its group (f_L1_019); G2 f_L1_019: coffee table f_L1_019 is not in front of the sofa) | Type the untyped 1.20 x 0.55 m drawn piece as a coffee table, a candidate for its footprint in a living room, so it is built and the NR finding clears. |
+| 3741 | 2 | move_piece | f_L1_022 | memory: the same edit was rejected in round 2: acceptance: finding F6:f_L1_018 is still there after the edit (armchair: the free zone in front of it is blocked by f_L1_022) | Shift the floor lamp 0.3 m away from armchair f_L1_018 to clear its blocked front clearance zone (F6). |
+| 3742 | 2 | move_piece | f_L1_022 | f_L1_018: no_overlap, f_L1_022: no_overlap | Shift the floor lamp 0.3 m to the left (away from armchair f_L1_018) to clear its blocked front clearance zone (F6). |
+| 3743 | 2 | move_piece | f_L1_007 | drawn_lock: f_L1_007: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.31 m) | Shift desk 0.30 m south (max drawn allowance) to clear the 0.07 m² overlap with bed f_L1_006 (c:F9:f_L1_007). |
+| 3744 | 2 | move_piece | f_L1_010 | score: plausibility -65 -> -68 (F3 f_L1_010: nightstand: its back is not on a wall (0.34 m off)) | Shift nightstand 0.30 m east (max drawn allowance) to clear the 0.17 m² overlap with bed f_L1_009 and sit within 0.30 m of the bed side (c:F9:f_L1_010, c:G4:f_L1_010). |
+| 3746 | 2 | move_piece | f_L1_022 | memory: the same edit was rejected in round 2: f_L1_018: no_overlap; f_L1_022: no_overlap | Shift the floor lamp 0.3 m to the left (away from armchair f_L1_018) to clear its blocked front clearance zone (F6). |
+| 3747 | 2 | relayout_room | r_L1_oda_2 | no_place: r_L1_oda_2 relayout: the solver places nothing and leaves the drawn pieces as drawn (seating: no candidate position fits the room) | Re-solve the room with the solver candidate to add the missing TV units and coffee tables for both drawn seating groups. |
+| 3749 | 2 | move_piece | f_L1_022 | memory: the same edit was rejected in round 2: f_L1_018: no_overlap; f_L1_022: no_overlap | Shift the floor lamp 0.3 m to the left (away from armchair f_L1_018) to clear its blocked front clearance zone (F6). |
+| 3752 | 2 | move_piece | f_L1_007 | drawn_lock: f_L1_007: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Shift desk 0.299 m south (within the 0.3 m drawn allowance) to clear the 0.07 m² overlap with bed f_L1_006 (c:F9:f_L1_007). |
+| 3753 | 2 | move_piece | f_L1_010 | snap: f_L1_010: no free place on wall w_L1_023 (doors, windows, at most 1.2 m from the drawn place) | Snap nightstand back onto the left wall (0.3 m allowance) to clear the 0.17 m² overlap with bed f_L1_009 and sit within 0.30 m of the bed side (c:F9:f_L1_010, c:G4:f_L1_010). |
+| 3754 | 2 | complete_group | r_L1_oda_2.seating.f_L1_013 | group_exists: no group 'r_L1_oda_2.seating.f_L1_013' in r_L1_oda_2 (groups: r_L1_oda_2.seating.f_L1_016, r_L1_oda_2.seating) | Add the missing TV unit and coffee table for the drawn sofa f_L1_013 seating group. |
+| 3755 | 2 | complete_group | r_L1_oda_2.seating | unverified: r_L1_oda_2.seating: the anchor f_L1_013 is unverified and not typed by code from the drawing (retype_piece first) | Add the missing TV unit and coffee table for the drawn sofa f_L1_013 seating group. |
+| 3758 | 2 | retype_piece | f_L1_013 | acceptance: finding F6:f_L1_013 is still there after the edit (sofa: the free zone in front of it is blocked by f_L1_027); a retype to the piece's own type only confirms it (status unverified -> verified, the same fitted model): nothing changes in the render, so its vision findings stay | Confirm the drawn sofa f_L1_013's type so the seating group can be completed with its missing TV unit and coffee table. |
+| 3759 | 2 | move_piece | f_L1_007 | max_tries: f_L1_007 was edited 3 times in this round | Shift desk 0.298 m south (under the 0.3 m drawn allowance) to clear the 0.07 m² overlap with bed f_L1_006 (c:F9:f_L1_007). |
+| 3760 | 2 | move_piece | f_L1_010 | max_tries: f_L1_010 was edited 3 times in this round | Shift nightstand 0.29 m east (under the 0.3 m drawn allowance) to clear the 0.17 m² overlap with bed f_L1_009 and sit within 0.30 m of the bed side (c:F9:f_L1_010, c:G4:f_L1_010). |
+| 3883 | 3 | move_piece | f_L1_022 | drawn_lock: f_L1_022: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Shift the floor lamp 0.3 m south (max drawn allowance) to clear the blocked front zone of armchair f_L1_018. |
+| 3884 | 3 | move_piece | f_L1_022 | f_L1_022: doors_free, score: plausibility -136 -> -176 (F7 f_L1_022: floor_lamp blocks door d_L1_001; G11 f_L1_018: armchair f_L1_018: its front use zone is not reached by a 0.60 m walkway from door d_L1_001) | Shift the floor lamp 0.29 m south (within the 0.3 m drawn allowance) to clear the blocked front zone of armchair f_L1_018. |
+| 3887 | 3 | move_piece | f_L1_022 | drawn_lock: f_L1_022: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Shift the floor lamp 0.3 m east (max drawn allowance) to clear the blocked front zone of armchair f_L1_018. |
+| 3889 | 3 | move_piece | f_L1_022 | max_tries: f_L1_022 was edited 3 times in this round | Shift the floor lamp 0.29 m east (within the 0.3 m drawn allowance) to clear the blocked front zone of armchair f_L1_018. |
+| 3890 | 3 | move_piece | f_L1_027 | memory: the same edit was rejected in round 1: acceptance: finding F6:f_L1_013 is still there after the edit (sofa: the free zone in front of it is blocked by f_L1_027) | Move the floor lamp 0.29 m to clear the window band (G12) and the sofa's front clearance (F6). |
+| 3892 | 3 | move_piece | f_L1_027 | drawn_lock: f_L1_027: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.44 m) | Move the floor lamp left and down to clear the window band (G12) and the sofa's front clearance (F6). |
+| 3893 | 3 | mark_not_furniture | f_L1_002 | no_crop: f_L1_002 is an untyped drawn piece: it is marked as not furniture only with its own recognition crop (the crop of its own question, or the one its review entry records); check/cam_r_L1_cocuk_odasi_1_plan.jpg is not its crop (a whole sheet, a room's or camera's plan crop or another symbol's crop shows no reading of this piece); it has none, so it stays listed for review; CLAUDE.md removes a drawn piece only with its plan crop | The 4.64 x 0.68 m strip is the drawn window band with dimension lines, not furniture, so it is marked as a dimension outline. |
+| 3894 | 3 | move_piece | f_L1_007 | memory: the same edit was rejected in round 2: drawn_lock: f_L1_007: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.31 m) | Shift the desk 0.30 m south to clear the 0.07 m² overlap with bed f_L1_006 (c:F9:f_L1_007). |
+| 3895 | 3 | move_piece | f_L1_027 | f_L1_013: no_overlap, f_L1_027: no_overlap, score: plausibility -72 -> -82 (F9 f_L1_027: floor_lamp f_L1_027 overlaps sofa f_L1_013 by 0.05 m²) | Move the floor lamp slightly left and down to clear the window band (G12) and the sofa's front clearance (F6). |
+| 3897 | 3 | move_piece | f_L1_007 | memory: the same edit was rejected in round 2: drawn_lock: f_L1_007: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Shift the desk 0.299 m south to clear the 0.07 m² overlap with bed f_L1_006 (c:F9:f_L1_007). |
+| 3899 | 3 | move_piece | f_L1_027 | max_tries: f_L1_027 was edited 3 times in this round | Move the floor lamp right and down to clear the window band (G12) and the sofa's front clearance (F6) without overlapping the sofa. |
+| 3901 | 3 | move_piece | f_L0_027 | acceptance: finding F9:f_L0_027 is still there after the edit (ottoman f_L0_027 overlaps sofa_corner f_L0_011 by 0.25 m²) | Clear the 0.25 m² overlap with sofa f_L0_011 (F9) by shifting the ottoman 0.87 m left into the free floor. |
+| 3902 | 3 | move_piece | f_L0_028 | acceptance: finding F9:f_L0_028 is still there after the edit (ottoman f_L0_028 overlaps sofa_corner f_L0_011 by 0.25 m²) | Clear the 0.25 m² overlap with sofa f_L0_011 (F9) by shifting the ottoman 0.87 m down into the free floor. |
+| 3903 | 3 | move_piece | f_L0_029 | acceptance: finding F9:f_L0_029 is still there after the edit (ottoman f_L0_029 overlaps sofa_corner f_L0_011 by 0.25 m²) | Clear the 0.25 m² overlap with sofa f_L0_011 (F9) by shifting the ottoman 0.87 m up into the free floor. |
+| 3904 | 3 | move_piece | f_L0_030 | acceptance: finding F9:f_L0_030 is still there after the edit (ottoman f_L0_030 overlaps sofa_corner f_L0_011 by 0.25 m²) | Clear the 0.25 m² overlap with sofa f_L0_011 (F9) by shifting the ottoman 0.87 m right into the free floor. |
+| 3905 | 3 | rotate_piece | f_L0_007 | f_L0_007: clearance_ok, score: plausibility -523 -> -543 (F4 f_L0_007: armchair faces a wall 0.06 m in front of it; F6 f_L0_007: armchair: the free zone in front of it is reaches out of the room; G3 f_L0_007: armchair f_L0_007 is 36° off the ottoman f_L0_028 (needs ≤ 30°) at 3.50 m (needs ≤ 2.50 m)) | Turn the armchair to face the seating cluster (G3) and open its front use zone toward the d_L0_006 walkway (G11). |
+| 3906 | 3 | rotate_piece | f_L0_017 | acceptance: finding G3:f_L0_017 is still there after the edit (armchair f_L0_017 is 58° off the ottoman f_L0_028 (needs ≤ 30°) at 5.05 m (needs ≤ 2.50 m)) | Turn the armchair to face the seating cluster (G3) and open its front use zone toward the d_L0_006 walkway (G11). |
+| 3907 | 3 | rotate_piece | f_L0_018 | acceptance: finding G3:f_L0_018 is still there after the edit (armchair f_L0_018 is 0° off the ottoman f_L0_027 (needs ≤ 30°) at 5.19 m (needs ≤ 2.50 m)) | Turn the armchair to face the sofa (G3) and open its front use zone toward the d_L0_006 walkway (G11). |
+| 3909 | 3 | set_entrance | d_L1_001 | acceptance: finding L2:d_L1_001 is still there after the edit (door d_L1_001 is 3.50 m above the ground with no steps or ramp: a door into the air (an outside stair, or no entrance); on an upper floor (a French balcony?)) | L1 door at +3.50 m threshold (lm_005) is 3.5 m above the ±0.00 ground (lm_004); an outside stair reaches it. |
+| 3910 | 3 | set_entrance | d_L1_004 | acceptance: finding L2:d_L1_004 is still there after the edit (door d_L1_004 is 3.50 m above the ground with no steps or ramp: a door into the air (an outside stair, or no entrance); on an upper floor (a French balcony?)) | L1 door at +3.50 m threshold is 3.5 m above the ±0.00 ground; an outside stair reaches it. |
+| 3911 | 3 | set_entrance | d_L1_005 | acceptance: finding L2:d_L1_005 is still there after the edit (door d_L1_005 is 3.50 m above the ground with no steps or ramp: a door into the air (an outside stair, or no entrance); on an upper floor (a French balcony?)) | L1 door at +3.50 m threshold is 3.5 m above the ±0.00 ground; an outside stair reaches it. |
+| 3912 | 3 | set_entrance | d_L1_007 | acceptance: finding L2:d_L1_007 is still there after the edit (door d_L1_007 is 3.50 m above the ground with no steps or ramp: a door into the air (an outside stair, or no entrance); on an upper floor (a French balcony?)) | L1 door at +3.50 m threshold (lm_005) is 3.5 m above the ±0.00 ground; an outside stair reaches it. |
+| 3913 | 3 | move_piece | f_L0_027 | memory: the same edit was rejected in round 3: acceptance: finding F9:f_L0_027 is still there after the edit (ottoman f_L0_027 overlaps sofa_corner f_L0_011 by 0.25 m²) | Clear the 0.25 m² overlap with sofa f_L0_011 (F9) by shifting the ottoman 0.87 m left into the free floor. |
+| 3915 | 3 | set_entrance | d_L1_010 | acceptance: finding L2:d_L1_010 is still there after the edit (door d_L1_010 is 3.50 m above the ground with no steps or ramp: a door into the air (an outside stair, or no entrance); on an upper floor (a French balcony?)) | L1 door at +3.50 m threshold is 3.5 m above the ±0.00 ground (lm_004); an outside stair reaches it. |
+| 3916 | 3 | set_entrance | d_L1_011 | acceptance: finding L2:d_L1_011 is still there after the edit (door d_L1_011 is 3.50 m above the ground with no steps or ramp: a door into the air (an outside stair, or no entrance); on an upper floor (a French balcony?)) | L1 door at +3.50 m threshold is 3.5 m above the ±0.00 ground; an outside stair reaches it. |
+| 3917 | 3 | set_exterior | exterior:roof | roof overhang_m is drawn (vector 0.475); the override would not apply | X2: bring the roof overhang into the believable 0.3-0.8 m range (drawn 0.15-0.80 m, vector mean 0.475 m). |
+| 4191 | 4 | set_room_type | r_L1_dus | no_change: r_L1_dus is already a bathroom | Judge reports the room renders as empty/unfinished; confirming the room type as bathroom ensures the bathroom fixtures (shower, toilet, washbasin) are rendered and visible in the frame. |
+| 4192 | 4 | place_group | r_L1_soyunma_odasi | room_type: a storage group does not belong in a other room (groups.yaml room types: bedroom) | The dressing room is completely empty; a wardrobe/storage group is the core furniture needed to fulfil its purpose as a soyunma odası. |
+| 4193 | 4 | move_piece | f_L0_007 | acceptance: swap: G11:f_L0_007 replaces Q5:f_L0_007 on f_L0_007 (armchair f_L0_007: its front use zone is not reached by a 0.60 m walkway from door d_L0_006): the piece keeps as many critical / major findings, so nothing is removed; 1 more new | Shift armchair 0.3 m north to clear the 0.60 m walkway between door d_L0_001 and door d_L0_006 (c:G11:d_L0_001). |
+| 4194 | 4 | set_room_type | r_L1_soyunma_odasi | R1: a 5.9 m² room is too small for a bedroom | A soyunma odası (dressing room) is functionally a bedroom-adjacent space that needs wardrobe and bench furniture; the 'other' type blocks all furniture groups. |
+| 4196 | 4 | move_piece | f_L0_008 | f_L0_007: no_overlap, f_L0_008: clearance_ok, f_L0_008: no_overlap, score: plausibility -523 -> -553 (F8 f_L0_013: potted_plant stands alone in the room (no wall, no sofa / sofa_corner / armchair within 1.5 m); F9 f_L0_008: armchair f_L0_008 overlaps armchair f_L0_007 by 0.08 m²; G3 f_L0_008: armchair f_L0_008 is 118° off the ottoman f_L0_030 (needs ≤ 30°) at 4.33 m (needs ≤ 2.50 m)) | Shift armchair 0.3 m north to clear the 0.60 m walkway between door d_L0_004 and door d_L0_006 (c:G11:d_L0_004). |
+| 4198 | 4 | move_piece | f_L0_008 | drawn_lock: f_L0_008: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Shift armchair 0.3 m south to clear the 0.60 m walkway between door d_L0_004 and door d_L0_006 (c:G11:d_L0_004). |
+| 4199 | 4 | swap_model | f_L1_009 | acceptance: finding G11:f_L1_009 is still there after the edit (bed_double f_L1_009: its left use zone is not reached by a 0.60 m walkway from door d_L1_008) | Replace the crude low-poly blob bedding on bed f_L1_009 with a clean modern IKEA MALM double bed (1.90x2.07 m, fits the 1.8x2.0 drawn footprint) so the bedding reads as a proper duvet and pillows. |
+| 4200 | 4 | place_group | r_L1_soyunma_odasi | memory: the same edit was rejected in round 4: room_type: a storage group does not belong in a other room (groups.yaml room types: bedroom) | The dressing room (now typed as hall) needs a wardrobe to fulfil its purpose as a soyunma odası. |
+| 4201 | 4 | move_piece | f_L0_008 | f_L0_008: doors_free, score: plausibility -523 -> -553 (F7 f_L0_008: armchair blocks door d_L0_004) | Shift armchair 0.29 m south to clear the 0.60 m walkway between door d_L0_004 and door d_L0_006 (c:G11:d_L0_004). |
+| 4202 | 4 | place_group | r_L1_soyunma_odasi | max_tries: r_L1_soyunma_odasi was edited 3 times in this round | A dressing room (soyunma odası) functions as an entry/transition space; an entrance group with shoe cabinet and bench fits its purpose. |
+| 4204 | 4 | move_piece | f_L0_008 | max_tries: f_L0_008 was edited 3 times in this round | Shift armchair 0.3 m east to clear the 0.60 m walkway between door d_L0_004 and door d_L0_006 (c:G11:d_L0_004). |
+| 4206 | 4 | swap_model | f_L1_009 | acceptance: finding G11:f_L1_009 is still there after the edit (bed_double f_L1_009: its left use zone is not reached by a 0.60 m walkway from door d_L1_008) | Replace the crude low-poly blob bedding on bed f_L1_009 with a clean modern IKEA MALM double bed (1.85x2.09 m, fits the 1.8x2.0 drawn footprint) so the bedding reads as a proper duvet and pillows. |
+| 4207 | 4 | move_piece | f_L0_007 | drawn_lock: f_L0_007: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m) | Shift armchair 0.3 m east to clear the 0.60 m walkway between door o_L0_001 and door d_L0_006 (c:G11:o_L0_001). |
+| 4209 | 4 | move_piece | f_L0_007 | acceptance: finding G11:f_L0_007 is still there after the edit (armchair f_L0_007: its front use zone is not reached by a 0.60 m walkway from door d_L0_006) | Shift armchair 0.29 m east to clear the 0.60 m walkway between door o_L0_001 and door d_L0_006 (c:G11:o_L0_001). |
+| 4210 | 4 | fix_fixture | f_L0_031 | memory: the same edit was rejected in round 1: fixture_place: f_L0_031: no valid spot within 0.50 m (it stands 0.18 m² outside the room) | G11 walkway from d_L0_003 is blocked by the counter standing 0.18 m² outside the room; nudge it to a valid spot to open the 0.60 m walkway. |
+| 4211 | 4 | move_piece | f_L0_007 | max_tries: f_L0_007 was edited 3 times in this round | Shift armchair 0.29 m north to clear the 0.60 m walkway between door d_L0_001 and door d_L0_006 (c:G11:d_L0_001). |
+| 4212 | 4 | fix_fixture | f_L0_031 | no_spot: f_L0_031: the code searched every spot within 0.5 m and found none (fixture_place: f_L0_031: no valid spot within 0.50 m (it stands 0.18 m² outside the room) (round 1)); do not try centres: the finding stays for review | G11 walkway from d_L0_003 is blocked by the counter standing 0.18 m² outside the room; pull it 0.3 m into the room to open the 0.60 m walkway. |
+| 4214 | 4 | swap_model | f_L1_017 | acceptance: no target finding: an edit must name the finding it fixes (check id and target id) | Replace the crude low-poly faceted pinkish chair with a smooth classic armchair model to match its twin f_L1_018 and clear the mismatched-set and placeholder-model findings. |
+| 4215 | 4 | move_piece | f_L0_013 | acceptance: no target finding: an edit must name the finding it fixes (check id and target id) | Nudge potted plant 0.009 m south to clear the 0.60 m walkway between door d_L0_001 and door d_L0_006 (c:G11:d_L0_001). |
+| 4216 | 4 | swap_model | f_L1_017 | memory: the same edit was rejected in round 4: acceptance: no target finding: an edit must name the finding it fixes (check id and target id) | Fixes j:judge_cam_r_L1_ebeveyn_y_odasi_2:1 (Q5, f_L1_017) and j:judge_cam_r_L1_ebeveyn_y_odasi_2:3 (D2, f_L1_017): replace the crude low-poly faceted pinkish chair with a smooth classic armchair model to match its twin f_L1_018. |
+| 4217 | 4 | swap_model | f_L1_017 | acceptance: pin_refused: f_L1_017: modern_arm_chair_01: fails the fit rules (caps, height, at most 2.80 m high under the sloped ceiling): the refit keeps the model it had, so the swap changes nothing in the scene; swap to a real model of the type, or use another tool | Fixes j:judge_cam_r_L1_ebeveyn_y_odasi_2:1 (Q5, f_L1_017) and j:judge_cam_r_L1_ebeveyn_y_odasi_2:3 (D2, f_L1_017): replace the crude low-poly faceted pinkish chair with a smooth modern armchair model to match its twin f_L1_018. |
+| 4220 | 4 | swap_model | f_L1_017 | max_tries: f_L1_017 was edited 3 times in this round | Fixes j:judge_cam_r_L1_ebeveyn_y_odasi_2:1 (Q5, f_L1_017) and j:judge_cam_r_L1_ebeveyn_y_odasi_2:3 (D2, f_L1_017): replace the crude low-poly faceted pinkish chair with a smooth classic rocking chair model to match its twin f_L1_018. |
+| 4221 | 4 | set_room_type | r_L1_banyo | no_change: r_L1_banyo is already a bathroom | Re-assert bathroom type so the renderer furnishes the bathroom_set (toilet, shower, basins) and the main fixtures appear in the views. |
+| 4222 | 4 | swap_model | f_L1_013 | acceptance: finding F6:f_L1_013 is still there after the edit (sofa: the free zone in front of it is blocked by f_L1_027) | The white sofa renders as a crude low-poly grey-box placeholder (D2 critical); swap to the detailed CC0 Sofa 03 model (2.73 x 0.93 m, close to the drawn 2.65 x 0.93 m) for real fabric and cushion detail. |
+| 4224 | 4 | set_room_type | r_L0_banyo | no_change: r_L0_banyo is already a bathroom | Re-affirm bathroom type so the renderer/judge treat the room as a complete bathroom with its drawn toilet, washbasin and shower, clearing the Q4 wrong_type criticals. |
 
 ### Reported to other stages
 
@@ -1508,6 +1569,26 @@ Still open or handed on (critical and major):
 | F9 | major | f_L0_031 | r_L0_mutfak | - | drawn_layout | 1, 2, 3, 4 | the piece is drawn fixed equipment (treated like walls): only fix_fixture may move it, at most 0.5 m, and the code's search found no valid spot within that reach (inside the room, off the doors and the other pieces), so no edit clears the finding; it is reported for review |
 | F9 | major | f_L0_032 | r_L0_mutfak | - | drawn_layout | 1, 2, 3, 4 | the piece is drawn fixed equipment (treated like walls): only fix_fixture may move it, at most 0.5 m, and the code's search found no valid spot within that reach (inside the room, off the doors and the other pieces), so no edit clears the finding; it is reported for review |
 | G8 | major | f_L0_020 | r_L0_mutfak | - | drawn_layout | 1, 2, 3, 4 | the piece is drawn fixed equipment (treated like walls): only fix_fixture may move it, at most 0.5 m, and the code's search found no valid spot within that reach (inside the room, off the doors and the other pieces), so no edit clears the finding; it is reported for review |
+| Q1 | major | d_L1_004 | r_L1_hol | architect | opening_sense | 4 | a door off its floor or into the air is the architect's (E1, O2, D4: its defaults turn such a door into a window or set its threshold); reported to the architect for the next build |
+| Q3 | major | f_L1_001 | r_L1_hol | architect | guard | 4 | a guard in front of an opening or a void is built by code (the architect's W3 / K2 and the facade's glass guard); reported to the architect |
+| Q7 | minor | d_L0_001 | - | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | minor | d_L0_003 | - | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | minor | d_L0_007 | r_L0_banyo | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | minor | d_L1_001 | r_L1_ebeveyn_y_odasi | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | minor | d_L1_003 | r_L1_dus | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | minor | d_L1_004 | r_L1_hol | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | major | d_L1_009 | r_L1_banyo | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | major | o_L0_002 | - | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | minor | w_L0_001 | - | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | major | w_L1_001 | - | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | minor | win_L1_001 | r_L1_soyunma_odasi | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | major | win_L1_004 | r_L1_dus | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q7 | minor | win_L1_006 | r_L1_hol | openings | opening_style | 4 | the door and window models are chosen by code for the whole building (one language); reported to the openings stage |
+| Q8 | minor | o_L0_002 | - | architect | rain_water | 4 | the gutters and downpipes are planned by code for the whole roof (A1); reported to the architect |
+| Q8 | minor | w_L0_001 | - | architect | rain_water | 4 | the gutters and downpipes are planned by code for the whole roof (A1); reported to the architect |
+| Q8 | minor | w_L1_001 | - | architect | rain_water | 4 | the gutters and downpipes are planned by code for the whole roof (A1); reported to the architect |
+| Q9 | minor | d_L0_001 | - | site | entrance_layout | 4 | the landings, steps, ramps and handrails in front of the doors are laid out by code for all the entrances together (site.entrance_layout: doors whose steps would meet share one platform with one flight, a ramp and the handrails keep clear of the other doors); no agent tool moves them, so the finding is reported to the site stage |
+| Q9 | major | f_L1_001 | r_L1_hol | site | entrance_layout | 4 | the landings, steps, ramps and handrails in front of the doors are laid out by code for all the entrances together (site.entrance_layout: doors whose steps would meet share one platform with one flight, a ramp and the handrails keep clear of the other doors); no agent tool moves them, so the finding is reported to the site stage |
 | RC | minor | sy_L0_002 | - | - | resolved_by_code | 1, 2, 3, 4 | a reading conflict the code already resolved (the drawing won, the item was moved to the symbols): it names no furniture piece or room, so there is nothing to edit; reported |
 | RC | minor | sy_L0_003 | - | - | resolved_by_code | 1, 2, 3, 4 | a reading conflict the code already resolved (the drawing won, the item was moved to the symbols): it names no furniture piece or room, so there is nothing to edit; reported |
 | S2 | major | f_L0_031 | r_L0_mutfak | - | drawn_layout | 1, 2, 3, 4 | the piece is drawn fixed equipment (treated like walls): only fix_fixture may move it, at most 0.5 m, and the code's search found no valid spot within that reach (inside the room, off the doors and the other pieces), so no edit clears the finding; it is reported for review |
@@ -1524,11 +1605,8 @@ Still open or handed on (critical and major):
 
 | round | session | status | cuts | characters removed | context (tokens) |
 |---|---|---|---|---|---|
-| 1 | r_L1_ebeveyn_y_odasi | cut | 1 | 33259 | 32768 |
-| 2 | building | cut | 1 | 39843 | 32768 |
-| 3 | r_L0_salon | cut | 1 | 8709 | 32768 |
-| 3 | building | cut | 1 | 39833 | 32768 |
-| 4 | r_L0_salon | cut | 2 | 34664 | 32768 |
+| 1 | building | cut | 1 | 37959 | 32768 |
+| 3 | r_L0_salon | cut | 3 | 12927 | 32768 |
 
 ### Inferred and AI-changed items
 
@@ -1541,11 +1619,11 @@ Still open or handed on (critical and major):
 | f_L0_005 | piece | unknown | r_L0_salon | inferred | - | - | outline 3.89 x 1.65 m around 3 other piece(s) (f_L0_006, f_L0_007, f_L0_008): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups) |
 | f_L0_006 | piece | unknown | r_L0_salon | inferred | - | - | outline 2.12 x 0.78 m around 1 other piece(s) (f_L0_009): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups) |
 | f_L0_007 | piece | armchair | r_L0_salon | inferred | - | - | front: its back stands on the only side on a wall |
-| f_L0_009 | piece | unknown | r_L0_salon | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | Tiny 0.21x0.20 m drawn symbol identical to the door-strip mark already recorded as not furniture; retype to potted_plant was rejected (F8 stands alone). |
-| f_L0_010 | piece | unknown | r_L0_banyo | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | The 2.54 x 1.01 m drawn outline is the dashed dimension/outline band around the drawn washbasin and bathtub fixtures, not a separate furniture piece. |
+| f_L0_009 | piece | unknown | r_L0_salon | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | The drawn 0.21x0.20 m symbol is a small scribble mark, not furniture (NR). |
+| f_L0_010 | piece | unknown | r_L0_banyo | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | The 2.54 x 1.01 m drawn outline is the dashed dimension/outline band around the washbasin and shower bay, not a furniture item. |
 | f_L0_011 | piece | sofa_corner | r_L0_salon | inferred, adjusted_by_ai | size 1.69 x 1.69 m -> 2.40 x 2.40 m | code (size_snap) | size snap: the drawn sofa_corner 1.69 x 1.69 m is outside its product range (width 1.69 m is 6 % outside 1.8-4.5 m (square symbol: square products only); nearest real product 2.40 x 2.40 m); nearest real product 2.40 x 2.40 x 0.86 m (square sectional 240 x 240) (CLAUDE.md: a drawn size outside its type's product range is snapped to the nearest real product before the fit; user OK D5 of 12 Oct 2026) |
-| f_L0_012 | piece | potted_plant | r_L0_salon | inferred, adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | Tiny 0.21x0.20 m drawn symbol blocks door d_L0_001 (F7 critical); move_piece is exhausted (3 tries), so mark it as a non-furniture reading to clear the opening. |
-| f_L0_013 | piece | potted_plant | r_L0_salon | inferred, adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | Move potted plant 0.29 m up off door d_L0_001's opening to clear the blocked door and floating findings. |
+| f_L0_012 | piece | potted_plant | r_L0_salon | inferred, adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | Small drawn potted_plant blocks door d_L0_001 and move allowance is exhausted; removing it clears the blocked opening. |
+| f_L0_013 | piece | potted_plant | r_L0_salon | inferred, adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | Move potted plant f_L0_013 up 0.29 m (within allowance) out of door d_L0_001 strip and toward the wall (F7, F8). |
 | f_L0_014 | piece | unknown | r_L0_salon | inferred | - | - | outline 1.52 x 0.78 m around 2 other piece(s) (f_L0_012, f_L0_013): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups) |
 | f_L0_015 | piece | table_coffee | r_L0_salon | inferred | - | - | the two AI passes disagree (table_coffee / bookshelf); both fit the drawn 0.86 x 0.52 m and the room: table_coffee, because the other answer is no choice: a bookshelf needs its back on a wall (within 5 deg and 0.10 m); the drawn piece (at 135 deg) has no side there; plan crop recognition/crops/sym_L0_010_ctx.png |
 | f_L0_016 | piece | armchair | r_L0_salon | inferred | - | - | front: faces the coffee table f_L0_021 |
@@ -1566,20 +1644,21 @@ Still open or handed on (critical and major):
 | f_L1_008 | piece | unknown | r_L1_cocuk_odasi | inferred | - | - | drawn inside bed_double f_L1_006 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built) |
 | f_L1_009 | piece | bed_double | r_L1_cocuk_odasi | inferred, adjusted_by_ai | size 2.09 x 2.58 m -> 1.80 x 2.00 m | code (size_snap) | size snap: the drawn bed_double 2.09 x 2.58 m is outside its product range (depth 2.58 m is 15 % outside 1.85-2.25 m; nearest real product 1.80 x 2.00 m); nearest real product 1.80 x 2.00 x 1.00 m (king 180 x 200) (CLAUDE.md: a drawn size outside its type's product range is snapped to the nearest real product before the fit; user OK D5 of 12 Oct 2026) |
 | f_L1_010 | piece | nightstand | r_L1_cocuk_odasi | adjusted_by_ai | - | code (architect F5) | architect F5: it cut f_L1_009 (bed_double) by 0.40 m and no free place lies within 1.0 m; not built |
-| f_L1_011 | piece | unknown | r_L1_banyo | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | The 2.42 x 0.98 m drawn outline is the dashed dimension/outline band around the drawn washbasin and bathtub fixtures, not a separate furniture piece. |
-| f_L1_012 | piece | bed_double | r_L1_ebeveyn_y_odasi | inferred, adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | Snap the bed headboard flush to the west wall so the bed and its nightstands sit on the wall, clearing G5 and the F3 off-wall findings. |
-| f_L1_014 | piece | unknown | r_L1_soyunma_odasi | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | The drawn 2.27 x 0.85 m flight sits in a 2.45 m wide room with no headroom, and retype to stair fails inside_room/doors_free/windows_free: it is a drawing symbol of the adjacent stair, not furniture of this room. |
-| f_L1_015 | piece | unknown | r_L1_soyunma_odasi | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | The drawn 2.27 x 0.85 m flight sits in a 2.45 m wide room with no headroom, and retype to stair fails inside_room/doors_free/windows_free: it is a drawing symbol of the adjacent stair, not furniture of this room. |
-| f_L1_016 | piece | sofa | r_L1_oda_2 | inferred, adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | Shift sofa 0.06 m inward to clear the 0.048 m penetration through the room outline (F9). |
-| f_L1_019 | piece | unknown | r_L1_oda_2 | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | The recognition crop shows a simple rectangular outline with dashed border near a wall junction, consistent with a dimension or outline mark rather than a furniture piece; all retype attempts fail with inside_room confirming it is not a valid furniture placement. |
+| f_L1_011 | piece | unknown | r_L1_banyo | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | The 2.42 x 0.98 m drawn symbol is the dashed outline enclosing the drawn washbasin and bathtub (a dimension/outline mark), not a separate piece of furniture; the code's size/zone table rejects bathtub and gives stair, which fits neither. |
+| f_L1_012 | piece | bed_double | r_L1_ebeveyn_y_odasi | inferred, adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | Snap the bed headboard flush to the west wall so the drawn sleeping_double group sits on the wall, clearing G5 and the F3 off-wall findings for the bed and nightstands. |
+| f_L1_014 | piece | unknown | r_L1_soyunma_odasi | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | The recognition crop shows a drawn stair (tread lines with a central stringer and a landing), not furniture; the stair retype was rejected (doors_free/inside_room/windows_free), so it is recorded as a non-furniture symbol. |
+| f_L1_015 | piece | unknown | r_L1_soyunma_odasi | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | The recognition crop shows a drawn stair (tread lines with a central stringer and a landing), not furniture; the stair retype was rejected (doors_free/inside_room/windows_free), so it is recorded as a non-furniture symbol. |
+| f_L1_016 | piece | sofa | r_L1_oda_2 | inferred, adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | Nudge sofa 0.05 m left so its right edge sits on the room outline, clearing the 0.048 m collision (F9) while keeping its back on the wall. |
+| f_L1_019 | piece | unknown | r_L1_oda_2 | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | The recognition crop shows a plain rectangular outline sitting on the wall line with no furniture detail, a dimension/outline mark rather than a built piece. |
 | f_L1_020 | piece | shower | r_L1_dus | inferred | - | - | front: the free side facing the most room is the front |
-| f_L1_021 | piece | washbasin | r_L1_banyo | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | Washbasin f_L1_021 faces a wall at 270°; turning its front to 90° orients it into the room, resolving F4. |
+| f_L1_021 | piece | washbasin | r_L1_banyo | adjusted_by_ai | - | Qwen/Qwen3.8-27B-FP8 | Washbasin front faced a wall 0.00 m ahead (F4); turning the front to 90° faces it into the room. |
 | f_L1_022 | piece | floor_lamp | r_L1_ebeveyn_y_odasi | inferred | - | - | floor_lamp: named by an AI pass and the only named type that fits the size (0.58 x 0.58 m), the bedroom room and the position (others fitting: armchair, ottoman, potted_plant, side_table) |
 | f_L1_026 | piece | nightstand | r_L1_ebeveyn_y_odasi | inferred | - | - | nightstand: r_L1_ebeveyn_y_odasi.sleeping_double (anchor f_L1_012) misses nightstand; r_L1_ebeveyn_y_odasi.sleeping_double (anchor f_L1_012) misses nightstand, and the type's product range fits 0.42 x 0.40 m (the only missing member of that size) |
 | f_L1_028 | piece | nightstand | r_L1_ebeveyn_y_odasi | inferred | - | - | nightstand: the same drawn block (the same strokes (1 CIRCLE, 14 LINE here, within 2%)) and footprint (0.42 x 0.40 m, within 0.01 m) as f_L1_026 (typed nightstand): one block, one type; front: faces the way its bed f_L1_012 faces |
 | f_L1_029 | piece | washbasin | r_L1_dus | inferred, adjusted_by_ai | - | code (reading.fixed_equipment) | misread fixed equipment (CLAUDE.md, user OK of 10 Oct 2026): through a wall: moved 0.05 m to the nearest free spot (plan crop recognition/crops/sym_L1_024_ctx.png) |
 | f_L0_031 | piece | kitchen_counter | r_L0_mutfak | inferred, adjusted_by_ai | type unknown -> kitchen_counter; size 3.99 x 2.40 m -> 2.40 x 0.60 m | code (reading.kitchen_outline) | the kitchen run drawn as one 3.99 x 2.40 m outline f_L0_004 with its fixtures (sink: 8 circles) in the kitchen: a counter leg 2.40 x 0.60 m along its wall side, facing the room (inferred); plan crop recognition/reading/f_L0_004_ctx.png |
 | f_L0_032 | piece | kitchen_counter | r_L0_mutfak | inferred, adjusted_by_ai | type unknown -> kitchen_counter; size 3.99 x 2.40 m -> 2.40 x 0.60 m | code (reading.kitchen_outline) | the kitchen run drawn as one 3.99 x 2.40 m outline f_L0_004 with its fixtures (sink: 8 circles) in the kitchen: a counter leg 2.40 x 0.60 m along its wall side, facing the room (inferred); plan crop recognition/reading/f_L0_004_ctx.png |
+| f_L1_031 | piece | shower | r_L1_banyo | adjusted_by_ai | - | architect | the answer to AI.remove_piece:f_L1_031: the piece is not built |
 | r_L1_oda_2 | room | living | r_L1_oda_2 | corrected_by_ai | - | - | the room is named only by the generic word 'ODA' (read as bedroom); no bed is drawn and its drawn anchors f_L1_013 (sofa, typed by a block name or two agreeing AI passes) name a living room |
 
 ### Before and after (previews of the re-rendered views)
@@ -1601,16 +1680,17 @@ Still open or handed on (critical and major):
 | 1 | cam_r_L1_oda_2_1 | ![](agent/r1_cam_r_L1_oda_2_1_before.jpg) | ![](agent/r1_cam_r_L1_oda_2_1_after.jpg) |
 | 1 | cam_r_L1_oda_2_2 | ![](agent/r1_cam_r_L1_oda_2_2_before.jpg) | ![](agent/r1_cam_r_L1_oda_2_2_after.jpg) |
 | 1 | cam_r_L1_oda_2_3 | ![](agent/r1_cam_r_L1_oda_2_3_before.jpg) | ![](agent/r1_cam_r_L1_oda_2_3_after.jpg) |
-| 1 | cam_r_L1_soyunma_odasi_1 | ![](agent/r1_cam_r_L1_soyunma_odasi_1_before.jpg) | ![](agent/r1_cam_r_L1_soyunma_odasi_1_after.jpg) |
 | 2 | cam_r_L0_salon_1 | ![](agent/r2_cam_r_L0_salon_1_before.jpg) | ![](agent/r2_cam_r_L0_salon_1_after.jpg) |
 | 2 | cam_r_L0_salon_2 | ![](agent/r2_cam_r_L0_salon_2_before.jpg) | ![](agent/r2_cam_r_L0_salon_2_after.jpg) |
 | 2 | cam_r_L0_salon_3 | ![](agent/r2_cam_r_L0_salon_3_before.jpg) | ![](agent/r2_cam_r_L0_salon_3_after.jpg) |
 | 2 | cam_r_L1_oda_2_1 | ![](agent/r2_cam_r_L1_oda_2_1_before.jpg) | ![](agent/r2_cam_r_L1_oda_2_1_after.jpg) |
 | 2 | cam_r_L1_oda_2_2 | ![](agent/r2_cam_r_L1_oda_2_2_before.jpg) | ![](agent/r2_cam_r_L1_oda_2_2_after.jpg) |
 | 2 | cam_r_L1_oda_2_3 | ![](agent/r2_cam_r_L1_oda_2_3_before.jpg) | ![](agent/r2_cam_r_L1_oda_2_3_after.jpg) |
+| 2 | cam_r_L1_soyunma_odasi_1 | ![](agent/r2_cam_r_L1_soyunma_odasi_1_before.jpg) | ![](agent/r2_cam_r_L1_soyunma_odasi_1_after.jpg) |
 | 3 | cam_r_L0_salon_1 | ![](agent/r3_cam_r_L0_salon_1_before.jpg) | ![](agent/r3_cam_r_L0_salon_1_after.jpg) |
 | 3 | cam_r_L0_salon_2 | ![](agent/r3_cam_r_L0_salon_2_before.jpg) | ![](agent/r3_cam_r_L0_salon_2_after.jpg) |
 | 3 | cam_r_L0_salon_3 | ![](agent/r3_cam_r_L0_salon_3_before.jpg) | ![](agent/r3_cam_r_L0_salon_3_after.jpg) |
+| 4 | cam_r_L1_soyunma_odasi_1 | ![](agent/r4_cam_r_L1_soyunma_odasi_1_before.jpg) | ![](agent/r4_cam_r_L1_soyunma_odasi_1_after.jpg) |
 
 ### Old pipeline vs orchestrator
 

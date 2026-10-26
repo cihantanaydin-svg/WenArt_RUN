@@ -5,8 +5,8 @@
  "stage": "sheets",
  "rc": 0,
  "status": "ok",
- "seconds": 32.19,
- "fingerprint": "862dae9dc8703e5b5f7de1ab3c74bbd721ba40fbc82a4f1ed8f65daaaf7c3636",
+ "seconds": 27.68,
+ "fingerprint": "a3dd124f67af54b32e01d46c2f03aa7b3ce1c6a7873a02bf4f8801a8da21572b",
  "inputs": {
   "projects/real06": "6922c73cd2b7e661f8865add7b2860f616f88df4b03c076e2ca3897cccf33156",
   "<LibreDWG VERSION>": "0.14 d9468ae p1"
@@ -15,16 +15,16 @@
   "sheets.json",
   "sheets_report.md"
  ],
- "started_utc": "2026-10-26T17:07:24Z",
- "git_commit": "628424bb1f80abb0a6a0df60013bcf38bbff1a89",
+ "started_utc": "2026-10-26T18:36:16Z",
+ "git_commit": "9ec5d11b92df143614266c4e1593d2e40fc42815",
  "log": "logs/sheets.log",
  "note": null,
- "run_id": "20261026-170020-full-20261026T170641Z",
+ "run_id": "20261026-183115-full-20261026T183543Z",
  "steps": [
   {
    "name": "sheets",
    "rc": 0,
-   "seconds": 32.19
+   "seconds": 27.68
   }
  ],
  "written": {}

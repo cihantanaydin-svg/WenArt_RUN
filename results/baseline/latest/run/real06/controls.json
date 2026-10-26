@@ -5,27 +5,27 @@
  "stage": "controls",
  "rc": 0,
  "status": "ok",
- "seconds": 137.55,
+ "seconds": 138.95,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "check/controls.json"
  ],
- "started_utc": "2026-10-26T17:57:49Z",
- "git_commit": "628424bb1f80abb0a6a0df60013bcf38bbff1a89",
+ "started_utc": "2026-10-26T19:19:22Z",
+ "git_commit": "9ec5d11b92df143614266c4e1593d2e40fc42815",
  "log": "logs/controls.log",
  "note": null,
- "run_id": "20261026-170020-full-20261026T170641Z",
+ "run_id": "20261026-183115-full-20261026T183543Z",
  "steps": [
   {
    "name": "select-controls",
    "rc": 0,
-   "seconds": 8.42
+   "seconds": 8.0
   },
   {
    "name": "control renders",
    "rc": 0,
-   "seconds": 129.13
+   "seconds": 130.95
   }
  ],
  "written": {}
