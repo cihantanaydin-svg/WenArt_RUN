@@ -175,6 +175,13 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   `/workspace/logs/`, idempotent, everything persistent under `/workspace`.
 - After every milestone: commit, push, update `docs/progress.md`.
 - Communication: simple English, short reports, tables for comparisons.
+- Every fix is general: a rule of the pipeline for every project; the project that showed the problem is only the
+  test case (user rule of 26 Oct 2026: "fix should be general ... don't ever forget that").
+- The architect carries out the safe default fix of every open point that has one (`by: architect`, logged, drawn
+  values kept); the AI architect and the user may answer otherwise. The AI inspector asks the visitor checks Q1-Q8
+  (doors, working heights, falls, rooms that make sense, matching pieces, door and window style, rain water) of every
+  render and reports what it fixed and what is left (`orchestrator/inspector.md`) before the user looks (user request
+  of 26 Oct 2026).
 - Every new request or correction of the user becomes a lesson (`python -m wenart.agent.lessons add "..."`,
   `wenart/blender/architect_lessons.json`); the architect checks the lessons on every project (user request of 25 Oct
   2026).

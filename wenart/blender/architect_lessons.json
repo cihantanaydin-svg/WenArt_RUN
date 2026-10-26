@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-10-25",
+ "updated": "2026-10-26",
  "lessons": [
   {
    "id": "UL01",
@@ -125,7 +125,7 @@
     "A2"
    ],
    "request": "try to have an access from the outside instead of including the door",
-   "lesson": "Reach a terrace from outside (steps and a path) before turning a drawn window into a door: drawn openings stay as drawn.",
+   "lesson": "Reach a terrace from outside (steps and a path) before turning a drawn window into a door: drawn openings stay as drawn (26 Oct 2026: except a window between two rooms where one has no door at all: that is its misread door, architect W2).",
    "question": "Is a terrace reached from outside before any drawn window becomes a door?"
   },
   {
@@ -309,6 +309,90 @@
    "checks": [],
    "request": "From now on every run is against its latest run compare not according to milestones",
    "lesson": "Every before / after compares the new run with the project's latest run before it (never a milestone run); the new run then becomes the latest.",
+   "question": null
+  },
+  {
+   "id": "UL27",
+   "date": "2026-10-26",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "fix should be general, it is not a fix for real06 it must be a fix for the project don't ever forget that",
+   "lesson": "Every fix is a general rule of the pipeline for every project; the project that showed the problem is only the test case.",
+   "question": null
+  },
+  {
+   "id": "UL28",
+   "date": "2026-10-26",
+   "area": "roof",
+   "status": "rule",
+   "checks": [
+    "A1"
+   ],
+   "request": "why there is that many rain gutters in real06",
+   "lesson": "Gutters run straight along each facade under the eaves (facade jogs shallower than 0.6 m are closed under the roof); downpipes stand only at the building's corners, at least 3 m apart, about one per 50 m2 of roof.",
+   "question": "Do the gutters run straight and do the downpipes stand only at the corners, 3 m apart or more?"
+  },
+  {
+   "id": "UL29",
+   "date": "2026-10-26",
+   "area": "furniture",
+   "status": "rule",
+   "checks": [
+    "H1"
+   ],
+   "request": "why the sink is so low",
+   "lesson": "Every fixture works at its working height: a washbasin's rim at 0.80-0.90 m (a wall-hung model hangs there; a bowl too shallow to hang needs a counter and is not taken alone).",
+   "question": "Is every washbasin, sink and worktop at its working height?"
+  },
+  {
+   "id": "UL30",
+   "date": "2026-10-26",
+   "area": "openings",
+   "status": "rule",
+   "checks": [
+    "D4"
+   ],
+   "request": "why doors are up",
+   "lesson": "Every door stands on the floor of the rooms it joins; the plans' level marks are read in the section's height frame (the ground floor's printed mark is building z 0).",
+   "question": "Does every door stand on its floor?"
+  },
+  {
+   "id": "UL31",
+   "date": "2026-10-26",
+   "area": "openings",
+   "status": "rule",
+   "checks": [
+    "E1",
+    "O2",
+    "W3",
+    "K2"
+   ],
+   "request": "real06 windows second floor what is that? are the people going to jump of from it? terrible",
+   "lesson": "No opening on an upper floor reaches the floor without a real guard: a door or bare gap with nothing outside is a window at the floor's sill; a French window gets a full-width glass guard 1.10 m high; every stair void edge gets a balustrade.",
+   "question": "Could anybody fall out of an upper-floor opening or into a stair void?"
+  },
+  {
+   "id": "UL32",
+   "date": "2026-10-26",
+   "area": "furniture",
+   "status": "rule",
+   "checks": [
+    "S2",
+    "S3"
+   ],
+   "request": "still with the furniture replacement it is not seen like a stylish house; the house needs to make sense and needs to look very stylish",
+   "lesson": "The house reads as one design: one door and window language in the house's style (clear glass, no panelled doors in a modern house), one model per role in a group, one dining set per room, no folding or garden chairs indoors, no piece with its back to the room.",
+   "question": "Do the furniture, doors and windows look like one designed set in the house's style?"
+  },
+  {
+   "id": "UL33",
+   "date": "2026-10-26",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "I want AI to figure out all of these kind of things before I look at it; I need ai models to see understand and fix everything before even I look at it",
+   "lesson": "The architect settles every open point that has a safe fix by itself (its default); the AI architect answers the rest; the AI inspector asks a visitor's questions (Q1-Q8) of every render, sends each finding to its fix and reports what is left before the user looks.",
    "question": null
   }
  ]
