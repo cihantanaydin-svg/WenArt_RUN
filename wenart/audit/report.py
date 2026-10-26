@@ -208,6 +208,24 @@ def guards_of(inp: I.Inputs) -> list[dict]:
     return out
 
 
+def own_edits(inp: I.Inputs) -> dict:
+    """Argus's own edits of this run in the agent's log (call ids ``argus-r<round>-<n>``, ``loop.argus_session``):
+    ``{"tried", "accepted", "tools": {tool: [tried, accepted]}}``."""
+    from wenart.audit import process as PR
+
+    out = {"tried": 0, "accepted": 0, "tools": {}}
+    for e in PR._run_events(inp.agent_log):
+        if e.get("kind") not in ("edit", "rejected_edit") or not str(e.get("call_id") or "").startswith("argus-"):
+            continue
+        ok = e.get("kind") == "edit"
+        out["tried"] += 1
+        out["accepted"] += ok
+        t = out["tools"].setdefault(str(e.get("tool")), [0, 0])
+        t[0] += 1
+        t[1] += ok
+    return out
+
+
 def run(inp: I.Inputs) -> dict:
     """The audit of one project (module docstring)."""
     per_line = lines(inp)
@@ -230,7 +248,7 @@ def run(inp: I.Inputs) -> dict:
                           "note": r.get("note")} for n, r in per_line.items()},
             "warning_counts": per_line["process"].get("warning_counts"),
             "unmatched_warnings": per_line["process"].get("unmatched") or [],
-            "missing": list(inp.missing), "guards": guards_of(inp), "findings": rows}
+            "missing": list(inp.missing), "guards": guards_of(inp), "own_edits": own_edits(inp), "findings": rows}
 
 
 # ---------------------------------------------------------------------------------------------------- problem log
@@ -320,7 +338,10 @@ def report_md(rep: dict, prev: Optional[list] = None) -> str:
               f"caused it) and, where the run can carry it out, a fix.", "",
               f"Score **{rep['score']}** / 100 (100 = nothing open; {POINTS['critical']:g} points per critical, "
               f"{POINTS['major']:g} per major, {POINTS['minor']:g} per minor). Open: {sev['critical']} critical, "
-              f"{sev['major']} major, {sev['minor']} minor; {sev['info']} notes.", "",
+              f"{sev['major']} major, {sev['minor']} minor; {sev['info']} notes."
+              + (f" Argus's own edits this run: {rep['own_edits']['accepted']} of {rep['own_edits']['tried']} accepted "
+                 f"by code ({', '.join(f'{k} {v[1]}/{v[0]}' for k, v in sorted(rep['own_edits']['tools'].items()))})."
+                 if (rep.get("own_edits") or {}).get("tried") else ""), "",
               "## Lines", "", "| line | findings | checked | note |", "|---|---|---|---|"]
     for n, r in rep["lines"].items():
         lines_.append(f"| {n} | {r['findings']} | {_cell(json.dumps(r.get('checked'), ensure_ascii=False)[:160])} | "
