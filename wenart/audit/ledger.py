@@ -1222,3 +1222,17 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+def run(inp) -> dict:
+    """The line for ``wenart.audit.report`` (Argus): the building as built (the scene's, else the last stage's)
+    against the run's ``source_items.json`` (``<out>/`` on the pod, ``furniture/<p>/`` in a collected run)."""
+    building = inp.stage("build") or inp.final
+    if not building:
+        return {"findings": [], "checked": {}, "note": "no building"}
+    root = Path(inp.root)
+    path = root / "source_items.json" if inp.layout == "pod" else root / "furniture" / inp.project / "source_items.json"
+    if not path.is_file():
+        return {"findings": [], "checked": {}, "note": "no source_items.json (the reading wrote no inventory)"}
+    res = ledger(building, json.loads(path.read_text(encoding="utf-8")))
+    return {"findings": res.get("findings") or [], "checked": res.get("coverage") or res.get("summary") or {}}

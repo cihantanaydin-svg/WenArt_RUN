@@ -515,3 +515,24 @@ def test_rules_argus_ai_proposes_go_to_the_problem_log_and_the_prevention_list(t
     lost = next(p for p in R.prevention(rep, log) if p["kind"] == "lost")
     assert lost["rules_proposed"] == [{"rule": "Build every labelled outdoor space.", "runs": 2}]
     assert "rule proposed by Argus AI (2 run(s))" in R.report_md(rep, R.prevention(rep, log))
+
+
+def test_the_source_ledger_is_a_line_of_argus_on_both_layouts(tmp_path):
+    data = json.loads((Path(__file__).resolve().parents[1] / "tests" / "fixtures" /
+                       "real06_ledger_20261026.json").read_text(encoding="utf-8"))
+    out = tmp_path / "outputs" / "real06"
+    out.mkdir(parents=True)
+    (out / "building.json").write_text(json.dumps(data["building"]), encoding="utf-8")
+    rep = R.run(I.pod(out))
+    assert rep["lines"]["ledger"]["note"] and rep["lines"]["ledger"]["findings"] == 0      # no inventory: said so
+    (out / "source_items.json").write_text(json.dumps(data["source_items"]), encoding="utf-8")
+    rep = R.run(I.pod(out))
+    veranda = next(f for f in rep["findings"] if f["target"] == "sa_L0_veranda")
+    assert "ledger:A1" in veranda["seen_by"] and veranda["severity"] == "critical"
+    assert rep["lines"]["ledger"]["findings"] >= 1 and rep["by_kind"]["lost"]["critical"] >= 1
+    res = tmp_path / "results"
+    (res / "furniture" / "real06").mkdir(parents=True)
+    for name in ("building.json", "source_items.json"):
+        (res / "furniture" / "real06" / name).write_text((out / name).read_text(encoding="utf-8"), encoding="utf-8")
+    rep2 = R.run(I.collected(res, "real06"))
+    assert rep2["lines"]["ledger"]["findings"] == rep["lines"]["ledger"]["findings"]

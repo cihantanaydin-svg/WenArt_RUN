@@ -177,7 +177,8 @@ def merge(findings: list[dict]) -> list[dict]:
 # The findings that are defects of the house itself (the big loop's house score): the kinds and lines below; the
 # geometry of the pieces is the code critic's own part of the score, the run's own state (tests, time) is not the house
 HOUSE_KINDS = ("lost", "untyped", "misread", "no_sense", "silent")
-HOUSE_LINES = ("conservation", "process", "sense", "ledger", "plan_vs_model", "argus_ai")
+HOUSE_LINES = ("conservation", "process", "sense", "ledger", "source", "plan_vs_model", "elevations", "render",
+               "argus_ai")
 NOT_HOUSE_CHECKS = ("P1", "P3", "P4", "P8", "P9")
 
 
