@@ -194,29 +194,53 @@ def _worse(before: dict, after: dict) -> list[str]:
     return [f"{k} {before[k]} -> {after[k]}" for k in sorted(after) if k in before and after[k] > before[k]]
 
 
+def set_gaps(prep: dict) -> set:
+    """26 Oct 2026: ``{(room id, message)}`` of the rooms that miss a piece of their set on the plan the build would
+    make (the group checks' completeness findings: G9 a kitchen without its sink / hob / fridge, G10 a bathroom without
+    its toilet, basin, shower or bath; ``furniture.group_checks``). Never raises (an empty set when it cannot tell)."""
+    try:
+        from wenart.furniture import group_checks as GC
+
+        res = GC.check_building(prep["building"])
+    except Exception:  # noqa: BLE001 - no measure: nothing is refused for it
+        return set()
+    return {(v["room_id"], v["message"]) for vs in res["rooms"].values() for v in vs
+            if v.get("check") in SET_CHECKS and v.get("target") == v.get("room_id")
+            and (v.get("metrics") or {}).get("missing")}
+
+
+SET_CHECKS = ("G9", "G10")
+
+
 def _verdicts(building: dict, brief: Optional[dict], accepted: dict, candidates: dict, base_prep: dict) -> dict:
     """``{key: (ok, why)}`` for ``candidates`` on top of ``accepted`` (module docstring "nothing new breaks"): carried
-    out (and its question settled), no major question opened, the model review no worse. When the candidates
-    together break something, each is checked on its own."""
+    out (and its question settled), no major question opened, the model review no worse, and (26 Oct 2026, real06:
+    the AI removed the main bathroom's only shower, "the bathroom already has a shower" being the shower room's) no
+    room loses a piece of its set (``set_gaps``). When the candidates together break something, each is checked on its
+    own."""
     majors_before = _open_keys(base_prep["architect"], "major")
     counts_before = model_counts(base_prep)
+    gaps_before = set_gaps(base_prep)
 
     def judge(prep: dict, keys) -> dict:
         out = {}
         new_majors = _open_keys(prep["architect"], "major") - majors_before - set(keys)
         worse = _worse(counts_before, model_counts(prep)) if counts_before else []
+        new_gaps = sorted(set_gaps(prep) - gaps_before)
         for key in keys:
             ok, why = settled(prep["architect"], key)
             if ok and new_majors:
                 ok, why = False, f"opened {', '.join(sorted(new_majors))}"
             elif ok and worse:
                 ok, why = False, f"the model review finds more: {'; '.join(worse)}"
+            elif ok and new_gaps:
+                ok, why = False, "a room loses a piece of its set: " + "; ".join(f"{r}: {m}" for r, m in new_gaps)
             out[key] = (ok, why)
         return out
 
     together = judge(prep_of(building, brief, dict(accepted, **candidates)), candidates)
     if len(candidates) == 1 or all(ok for ok, _why in together.values()) or \
-            not any(why.startswith(("opened", "the model review")) for _ok, why in together.values()):
+            not any(why.startswith(("opened", "the model review", "a room loses")) for _ok, why in together.values()):
         return together
     out = {}
     for key, ans in candidates.items():

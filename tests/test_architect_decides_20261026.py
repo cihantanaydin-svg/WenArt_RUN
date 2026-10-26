@@ -301,3 +301,30 @@ def test_the_big_loop_rolls_back_a_cycle_that_makes_the_house_worse(tmp_path):
     assert [c["verdict"] for c in rec["cycles"]] == ["first", "better", "worse"]
     assert "rollback" in " ".join(str(c) for c in calls) and "rerun" in calls
     assert rec["stop"] == "cycle 2: worse, rolled back" and "rolled back" in rec["cycles"][-1]["note"]
+
+
+def test_a_decision_that_takes_a_rooms_only_shower_is_refused():
+    """26 Oct 2026 (real06 run 183115): the AI removed the main bathroom's only shower, an added one ("the bathroom
+    already has a shower": the shower room's), and the judge then saw a bathroom without a shower. No decision may
+    leave a room without a piece of its set (``architect_ai.set_gaps``: the G9 / G10 completeness checks)."""
+    b = _real06()
+    rooms = {r["id"]: r for r in b["rooms"]}
+    by_room: dict = {}
+    for f in b["furniture"]:
+        if f.get("build") is not False:
+            by_room.setdefault(f.get("room_id"), set()).add(f.get("type"))
+    bath = next(rid for rid, r in rooms.items() if r.get("room_type") == "bathroom"
+                and not ({"shower", "bathtub"} & by_room.get(rid, set())))
+    xs = [p[0] for p in rooms[bath]["polygon"]]
+    ys = [p[1] for p in rooms[bath]["polygon"]]
+    b["furniture"].append({"id": "f_add_shower", "type": "shower", "room_id": bath, "level_id": rooms[bath]["level_id"],
+                           "source": "added_by_ai", "build": True, "asset": {"method": "parametric"},
+                           "footprint": {"center": [(min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2],
+                                         "size": [0.9, 0.9], "rotation_deg": 0.0}, "height": 2.0})
+    base = AI.prep_of(b, None, {})
+    assert not any(r == bath and "shower" in m for r, m in AI.set_gaps(base))
+    key = "AI.remove_piece:f_add_shower"
+    cand = {key: {"option": "remove_piece", "params": {}, "choice": "remove_piece", "answer": "a second shower",
+                  "reason": "a second shower", "by": "ai", "where": None, "own": True}}
+    ok, why = AI._verdicts(b, None, {}, cand, base)[key]
+    assert not ok and why.startswith("a room loses a piece of its set") and bath in why
