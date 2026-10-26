@@ -72,3 +72,22 @@ def test_the_inspector_reports_what_it_saw_fixed_handed_on_and_left(tmp_path):
     md = path.read_text(encoding="utf-8")
     assert "What the AI inspector saw" in md and "f_L1_029" in md and "d_up" in md
     assert (tmp_path / "orchestrator" / INS.REPORT_JSON).is_file()
+
+
+def test_the_final_round_takes_a_visitor_major_and_writes_the_inspectors_report(tmp_path):
+    """The final round asks every room again (no cached answer), works on a visitor check's major finding (a basin
+    at knee height) next to the criticals, and writes orchestrator/inspector.md."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent))
+    from test_agent_loop_p4a import make
+    from test_m13_agent import FINISH
+
+    basin = {"check": "Q2", "severity": "major", "target": "f1", "room_id": "r1",
+             "message": "the washbasin's rim is at knee height", "metrics": {}}
+    loop, out, model = make(tmp_path, [FINISH], [[basin], []], recheck=lambda b, s, m: [])
+    loop.stale_keys = {"room:r1"}
+    res = loop.final_round(4)
+    assert res["stop"] != "no_finding"                      # the visitor major is the final round's work
+    md = (out / "orchestrator" / INS.REPORT_MD).read_text(encoding="utf-8")
+    assert "What the AI inspector saw" in md and "knee height" in md
