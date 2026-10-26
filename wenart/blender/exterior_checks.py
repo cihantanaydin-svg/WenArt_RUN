@@ -471,9 +471,12 @@ def _x3(building: dict, prep: dict, out: list) -> None:
     if isinstance(records, list):
         # Milestone 12 (docs/milestone12.md §3.5, track L): every outside door of site.entrances, every rise (a door
         # more than 1.5 m up is no longer left out: it is a door into the air).
+        built = {str(pf.get("id")) for pf in site.get("platforms") or [] if isinstance(pf, dict)}
         for r in records:
             if not isinstance(r, dict):
                 continue
+            if r.get("onto") and str(r["onto"]) in built:
+                continue                # 26 Oct 2026: it lands on a labelled outdoor space built as a platform
             rise = float(r.get("threshold_z") or 0.0) - float(r.get("ground_z") or 0.0)
             if r.get("into_air") or rise > 1.5:
                 out.append(_v("X3", "critical", r.get("door_id"), f"door {r.get('door_id')} is {rise:.2f} m above the "

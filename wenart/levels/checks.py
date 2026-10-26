@@ -74,6 +74,8 @@ def _l1_l2_l5(building: dict, params: dict, out: list) -> None:
         thr, gz = float(e.get("threshold_z") or 0.0), float(e.get("ground_z") or 0.0)
         rise = thr - gz
         sol = e.get("solution") or "none"
+        if e.get("onto"):
+            continue                # 26 Oct 2026: it opens onto a labelled outdoor space (its landing, its steps)
         if e.get("below_ground") or (rise < -flush and not e.get("terrain_lowered")):
             out.append(_v("L1", did, f"door {did}: its threshold {thr:+.2f} m is {-rise:.2f} m below the ground in "
                                      f"front ({gz:+.2f} m): a door into the ground", threshold_z=thr, ground_z=gz))
@@ -264,7 +266,8 @@ def _l7(building: dict, scene_manifest: Optional[dict], render_manifest: Optiona
                                                                            for x in cams):
                 cams.append(r)
     for e in (building.get("site") or {}).get("entrances") or []:
-        if not isinstance(e, dict) or e.get("into_air") or e.get("below_ground"):
+        if not isinstance(e, dict) or e.get("into_air") or e.get("below_ground") or \
+                (e.get("upper_floor") and e.get("onto")):
             continue
         did = e.get("door_id")
         seen = [c for c in cams if did in (c.get("visible_openings") or [])]

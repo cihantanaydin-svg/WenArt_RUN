@@ -2631,9 +2631,12 @@ def site_summary(building: Optional[dict]) -> Optional[dict]:
         if not isinstance(a, dict):
             continue
         ls = a.get("label_size") if isinstance(a.get("label_size"), dict) else {}
+        # 26 Oct 2026: a labelled outdoor space is built as site.outdoor_spaces (wenart/levels/outdoor.py)
+        space = a.get("space") if isinstance(a.get("space"), dict) else {}
         areas.append({"id": a.get("id"), "label": a.get("label"), "label_size": ls.get("text"),
                       "measured": ls.get("measured"), "status": ls.get("status"),
-                      "closed": a.get("polygon") is not None, "kind": a.get("kind"), "build": a.get("build")})
+                      "closed": a.get("polygon") is not None or bool(space.get("built")), "kind": a.get("kind"),
+                      "build": True if space.get("built") else a.get("build"), "space": space.get("id")})
     decor: dict[str, int] = {}
     for d in site.get("decor") or []:
         if isinstance(d, dict):
@@ -3493,7 +3496,8 @@ def m7_building_lines(manifest: dict) -> list[str]:
             rows.append([a["id"], f"area '{a['label']}'" + (f" ({a['kind']})" if a.get("kind") else ""),
                          f"label size {a.get('label_size') or '-'}, measured "
                          f"{measured} ({a.get('status') or '-'})" + ("" if a["closed"] else ", no closed outline")
-                         + _built_text(a.get("build"))])
+                         + (f", built as the outdoor space {a['space']} (inferred)" if a.get("space")
+                            else _built_text(a.get("build")))])
         rows += [[o["id"], f"{o['type']} in {o.get('boundary_wall_id') or '-'}", f"{length_text(o['width_m'], system)} "
                   "wide"] for o in site["openings"]]
         if site["decor"]:

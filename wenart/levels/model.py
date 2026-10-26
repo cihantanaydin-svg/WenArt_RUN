@@ -35,6 +35,10 @@ again):
    lowers), ``steps`` (n = ceil(rise / riser_max), riser = rise / n, tread, a landing of door width + 0.6 x 1.2 m, an
    intermediate landing every 12 risers, handrails and cheek walls above 0.45 m), a ``ramp`` only when drawn or when
    the brief asks for an accessible entrance (slope table), or ``into_air`` (L2) above ``door_into_air``.
+6b. **Outdoor spaces and site symbols** (26 Oct 2026, ``wenart.levels.outdoor``): the drawn site symbols are typed
+   (``type_site_decor``); every labelled outdoor space of any level gets ``site.outdoor_spaces`` (its outline, floor,
+   doors, drawn steps, columns, roof and posts); a door onto one has ``solution`` none and ``onto`` (the space is its
+   landing; an upper floor's door onto a balcony is no door into the air).
 7. **Plinth**: the ``SB.`` mark, else the ground floor; per side its height above the ground (at least
    ``plinth_min``).
 8. **Basements**: levels below the ground floor are recorded with their light wells and courts (the build's rule,
@@ -620,12 +624,46 @@ def terrain_for(b: dict, levels: list, outline, outlines: dict) -> dict:
     return tm
 
 
+def outside_doors(b: dict, levels: list, outline, outlines: dict) -> list[dict]:
+    """The outside doors of the base levels (pure; 26 Oct 2026, for ``wenart.levels.outdoor``): ``[{"id",
+    "level_id", "face", "outward", "threshold", "width"}]`` (the face of the wall on the outside, the threshold as
+    ``_entrances`` reads it)."""
+    rooms_by: dict = {}
+    for r in b.get("rooms") or []:
+        rooms_by.setdefault(r.get("level_id"), []).append(r)
+    by_id = {lv["id"]: lv for lv in levels}
+    out = []
+    for o in b.get("openings") or []:
+        lv = by_id.get(o.get("level_id"))
+        if o.get("type") != "door" or lv is None:
+            continue
+        sides = opening_sides(b, o, rooms_by.get(lv["id"]) or [], outlines.get(lv["id"]) or outline)
+        if sides is None or sum(sides["outside"]) != 1:
+            continue
+        k = 0 if sides["outside"][0] else 1
+        room = sides["rooms"][1 - k]
+        n = sides["normal"]
+        ow = (n[0], n[1]) if k == 0 else (-n[0], -n[1])
+        cx, cy = sides["centre"]
+        ht = sides["half_t"]
+        threshold = float(o.get("threshold_z") if o.get("threshold_z") is not None else
+                          (room_floor_z(b, room) if room else lv["elevation"]))
+        out.append({"id": o["id"], "level_id": lv["id"], "face": (cx + ow[0] * ht, cy + ow[1] * ht), "outward": ow,
+                    "threshold": threshold, "width": float(o.get("width") or 0.9)})
+    return out
+
+
 def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlines: dict, tm: dict,
-               ground_points: list, conflicts: list, warnings: list) -> list[dict]:
-    """Step 6: ``site.entrances``."""
+               ground_points: list, conflicts: list, warnings: list, spaces: Sequence[dict] = ()) -> list[dict]:
+    """Step 6: ``site.entrances``. 26 Oct 2026: a door that opens onto a labelled outdoor space (``spaces``,
+    ``wenart.levels.outdoor``: its ``doors``) lands on it: no steps or landing of its own (``solution`` none,
+    ``onto`` the space; the space's own edge and steps lead down); an upper floor's door onto a balcony is no door
+    into the air."""
     from wenart.blender import site as S
 
     file = _file_of(b)
+    onto = {d: s for s in spaces for d in s.get("doors") or []}
+    gl0 = ground_level(b)
     rooms_by: dict = {}
     for r in b.get("rooms") or []:
         rooms_by.setdefault(r.get("level_id"), []).append(r)
@@ -720,13 +758,24 @@ def _entrances(b: dict, marks: list, params: dict, levels: list, outline, outlin
                 rec["solution"] = "steps_and_ramp"
                 rec["drawn"] = True
                 rec["reason"] += f"; a drawn ramp {rec['ramp']['ratio']}"
+        space = onto.get(o["id"])
+        if space is not None:
+            upper = gl0 is not None and float(lv["elevation"]) > float(gl0["elevation"]) + 0.5
+            how = ("a slab with a guard on its open edges" if space.get("elevated") else
+                   "its own edge and steps lead down to the ground" if float(space["z"]) - gz > float(params["flush_max"])
+                   else "at the ground")
+            rec.update(solution="none", steps=None, ramp=None, landing=None, into_air=False, below_ground=False,
+                       upper_floor=upper, onto=space["id"],
+                       reason=f"opens onto the {space['kind']} {space['id']} ('{space.get('label')}') at "
+                              f"{float(space['z']):+.2f} m: the {space['kind']} is its landing ({how}); no steps of "
+                              f"its own (inferred)")
         agent = overrides.get(o["id"])
-        if isinstance(agent, dict) and not rec["into_air"] and not rec["below_ground"]:
+        if isinstance(agent, dict) and not rec["into_air"] and not rec["below_ground"] and space is None:
             _apply_entrance_override(rec, agent, max(rise, 0.0), top, width, params)
         rec["evidence"].append(_evidence(file, "entrance", rec["reason"]))
         out.append(rec)
     # The main entrance (26 Oct 2026, main_entrance): the door a visitor uses, not the widest garden door.
-    usable = [e for e in out if not e["into_air"] and not e["below_ground"]]
+    usable = [e for e in out if not e["into_air"] and not e["below_ground"] and not e.get("upper_floor")]
     if usable:
         main, why = main_entrance(b, usable, marks)
         main["main"] = True
@@ -946,6 +995,7 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
         b["site"] = TB.site_block({"boundary_walls": [], "areas": [], "decor": [], "openings": []}, {}, SE.area_kind,
                                   gl["id"])
     from wenart.blender import build as BB
+    from wenart.blender import site as S
 
     levels = base_levels(b)
     outline = BB.ground_outline(b, outlines)
@@ -956,7 +1006,17 @@ def infer_levels(building: dict, brief: Optional[dict] = None) -> dict:
     record["ground_source"] = g["source"]
     tm = terrain_for(b, levels, BB.ground_outline(b, outlines), outlines)
     site = b["site"]
-    site["entrances"] = _entrances(b, marks, params, levels, outline, outlines, tm, g["points"], conflicts, warnings)
+    # 26 Oct 2026 (real06): the drawn site symbols are typed, the labelled outdoor spaces of every level get their
+    # outline, floor, doors, steps and cover (wenart.levels.outdoor); a door onto a space lands on it
+    from wenart.levels import outdoor as OD
+    OD.type_site_decor(b, outline)
+    doors = outside_doors(b, levels, outline, outlines)
+    site["outdoor_spaces"] = OD.outdoor_spaces(b, levels, outlines, marks, doors,
+                                               lambda x, y: S.ground_z(tm, x, y), inferred, warnings)
+    OD.mark_decor_used(b, site["outdoor_spaces"])
+    inferred += OD.decor_summary(b)
+    site["entrances"] = _entrances(b, marks, params, levels, outline, outlines, tm, g["points"], conflicts, warnings,
+                                   spaces=site["outdoor_spaces"])
     for e in site["entrances"]:
         if e["solution"] != "none":
             inferred.append({"item": f"entrance {e['door_id']}", "value": e["solution"], "reason": e["reason"]})
