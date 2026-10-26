@@ -858,6 +858,74 @@ def bark_material(name: str = "veg_bark"):
     return mat
 
 
+# 26 Oct 2026 (real06, site.horizon_context): the leaf texture of the distant context crowns. An atlas tile covers
+# CONTEXT_LEAF["tile_m"] of the crown (seen from 50-400 m: a leafy grain, not single leaves); a Voronoi of the object
+# coordinates (``clump_per_m``) darkens the gaps between the leaf clumps from ``light`` to ``dark`` x the species colour
+# and gives them a bump, so a crown reads as foliage in the sun and in the shade.
+CONTEXT_LEAF = {"tile_m": 0.6, "clump_per_m": 0.9, "light": 1.15, "dark": 0.45, "bump": 0.6, "roughness": 0.8}
+
+
+def context_material(species: str):
+    """The material of a species' distant context crowns (bpy; 26 Oct 2026, ``site.build_context``): an opaque
+    Principled BSDF whose Base Color is the species' leaf atlas (``leaf_atlas``, CC0; the box UVs in metres of
+    ``common.assign_box_uvs`` at ``CONTEXT_LEAF["tile_m"]`` a tile) tinted by the species colour x ``LEAF_TINT_GAIN``,
+    times a Voronoi clump ramp, with a bump from the clumps; without an atlas the clump ramp on the species colour
+    alone (a procedural leaf texture). Cached by name ``veg_context_<species>``; records ``wenart_atlas``."""
+    import bpy
+    rec = species_record(species)
+    name = f"veg_context_{rec['name']}"
+    mat = bpy.data.materials.get(name)
+    if mat is not None:
+        return mat
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    tree = mat.node_tree
+    for n in list(tree.nodes):
+        tree.nodes.remove(n)
+    colour = [float(c) for c in rec["colour"]]
+    cfg = CONTEXT_LEAF
+    out = _node(tree, "ShaderNodeOutputMaterial")
+    bsdf = _node(tree, "ShaderNodeBsdfPrincipled")
+    bsdf.inputs["Roughness"].default_value = cfg["roughness"]
+    coord = _node(tree, "ShaderNodeTexCoord")
+    clumps = _node(tree, "ShaderNodeTexVoronoi")
+    clumps.inputs["Scale"].default_value = cfg["clump_per_m"]
+    tree.links.new(coord.outputs["Object"], clumps.inputs["Vector"])
+    ramp = _node(tree, "ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].color = (*[min(1.0, c * cfg["light"]) for c in colour], 1.0)
+    ramp.color_ramp.elements[1].color = (*[c * cfg["dark"] for c in colour], 1.0)
+    tree.links.new(clumps.outputs["Distance"], ramp.inputs["Fac"])
+    atlas = leaf_atlas(rec["name"])
+    base = ramp.outputs["Color"]
+    if atlas and atlas.get("files", {}).get("albedo"):
+        img = bpy.data.images.load(atlas["files"]["albedo"], check_existing=True)
+        mapping = _node(tree, "ShaderNodeMapping")
+        mapping.inputs["Scale"].default_value = (1.0 / cfg["tile_m"], 1.0 / cfg["tile_m"], 1.0)
+        tree.links.new(coord.outputs["UV"], mapping.inputs["Vector"])
+        tex = _node(tree, "ShaderNodeTexImage", image=img)
+        tree.links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
+        tint = _node(tree, "ShaderNodeMix", data_type="RGBA", blend_type="MULTIPLY")
+        tint.inputs["Factor"].default_value = 1.0
+        tree.links.new(tex.outputs["Color"], tint.inputs[6])
+        tree.links.new(ramp.outputs["Color"], tint.inputs[7])
+        gain = _node(tree, "ShaderNodeMix", data_type="RGBA", blend_type="MULTIPLY")
+        gain.inputs["Factor"].default_value = 1.0
+        tree.links.new(tint.outputs[2], gain.inputs[6])
+        gain.inputs[7].default_value = (LEAF_TINT_GAIN, LEAF_TINT_GAIN, LEAF_TINT_GAIN, 1.0)
+        base = gain.outputs[2]
+    tree.links.new(base, bsdf.inputs["Base Color"])
+    bump = _node(tree, "ShaderNodeBump")
+    bump.inputs["Strength"].default_value = cfg["bump"]
+    tree.links.new(clumps.outputs["Distance"], bump.inputs["Height"])
+    tree.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+    tree.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    mat["wenart_context"] = True
+    mat["wenart_atlas"] = atlas["id"] if atlas else ""
+    mat["wenart_licence"] = atlas["licence"] if atlas else ""
+    mat["wenart_leaf_texture"] = "atlas" if atlas else "procedural"
+    return mat
+
+
 def _card_mesh(name: str, w: float, h: float, standing: bool = False):
     """A card mesh ``w`` x ``h`` with UVs 0..1 (lying in XY with its normal +Z, or standing in XZ)."""
     import bpy
@@ -1563,6 +1631,10 @@ def lawn_tile_m(size_m) -> float:
 
 
 LAWN_BOUNCE_DESAT = 0.75            # share of the lawn's bounced light turned grey (the camera sees the lawn as is)
+# 26 Oct 2026 (real06): the Light Path output that tells a bounced ray (Blender 5.2 manual, Light Path node: "Diffuse
+# Depth: how many times the ray has undergone diffuse reflection or transmission"): 0 for the camera's own paths,
+# through a window pane and in a mirror too (``lawn_material``)
+LAWN_OWN_COLOUR_RAYS = "Diffuse Depth"
 
 
 def lawn_material(mat) -> dict:
@@ -1613,14 +1685,22 @@ def lawn_material(mat) -> dict:
         mix.inputs[6].default_value = tuple(base.default_value)
     links.new(ramp.outputs["Color"], mix.inputs[7])
     # 24 Oct 2026 (real04: the walls under the eaves read yellow-olive, lit mostly by the sunlit lawn): the light
-    # the lawn bounces is desaturated by LAWN_BOUNCE_DESAT; the camera sees the lawn's own colour
+    # the lawn bounces is desaturated by LAWN_BOUNCE_DESAT; the camera sees the lawn's own colour.
+    # 26 Oct 2026 (real06, "the view out the window is a flat grey void"): the factor was 1 - Is Camera Ray, but the
+    # camera's ray through a window pane is a transmission ray after the glass, so every window showed the lawn 75 %
+    # grey. LAWN_OWN_COLOUR_RAYS: the lawn keeps its colour on every path without a diffuse bounce (Light Path
+    # 'Diffuse Depth' 0: the camera, the view through a pane, a mirror or a glossy reflection) and is grey only for
+    # the light it bounces onto a diffuse surface (the walls, the rooms): factor = LAWN_BOUNCE_DESAT x min(Diffuse
+    # Depth, 1).
     path = _node(tree, "ShaderNodeLightPath")
     grey = _node(tree, "ShaderNodeRGBToBW")
     links.new(mix.outputs[2], grey.inputs["Color"])
-    fac = _node(tree, "ShaderNodeMath", operation="MULTIPLY_ADD")
-    links.new(path.outputs["Is Camera Ray"], fac.inputs[0])
-    fac.inputs[1].default_value = -LAWN_BOUNCE_DESAT
-    fac.inputs[2].default_value = LAWN_BOUNCE_DESAT
+    bounced = _node(tree, "ShaderNodeMath", operation="MINIMUM")
+    links.new(path.outputs[LAWN_OWN_COLOUR_RAYS], bounced.inputs[0])
+    bounced.inputs[1].default_value = 1.0
+    fac = _node(tree, "ShaderNodeMath", operation="MULTIPLY")
+    links.new(bounced.outputs[0], fac.inputs[0])
+    fac.inputs[1].default_value = LAWN_BOUNCE_DESAT
     bounce = _node(tree, "ShaderNodeMix", data_type="RGBA", blend_type="MIX")
     links.new(fac.outputs[0], bounce.inputs["Factor"])
     links.new(mix.outputs[2], bounce.inputs[6])
@@ -1638,7 +1718,8 @@ def lawn_material(mat) -> dict:
         links.new(bnode.outputs["Normal"], bsdf.inputs["Normal"])
         bump = True
     rec = {"tile_m": tile, "textured": mapping is not None, "variation": [list(cfg["dark"]), list(cfg["light"])],
-           "noise_scale_per_m": cfg["scale_per_m"], "bump": bump, "bounce_desaturation": LAWN_BOUNCE_DESAT}
+           "noise_scale_per_m": cfg["scale_per_m"], "bump": bump, "bounce_desaturation": LAWN_BOUNCE_DESAT,
+           "own_colour_rays": f"{LAWN_OWN_COLOUR_RAYS} 0"}
     mat["wenart_lawn"] = _json.dumps(rec)
     return dict(rec, applied=True)
 

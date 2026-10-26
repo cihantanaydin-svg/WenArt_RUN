@@ -794,7 +794,9 @@ def vegetation_credits(out_dir: Path) -> list[dict]:
             continue
         if method == "sapling":
             tool_pieces.append((oid, part))               # the add-on (section 1); its leaf atlas is credited below
-        if method in ("cards", "palm", "sapling"):
+        # 26 Oct 2026: ``context`` is the distant tree groups at the horizon (site.build_context), its crowns textured
+        # with the leaf atlas its entry names (none: a procedural leaf texture, nothing to credit)
+        if method in ("cards", "palm", "sapling", "context"):
             aid = str(o.get("asset") or "")
             note = ""
             # no atlas named: a card tree, a Sapling tree's leaves and a hedge all use the species' atlas of the
