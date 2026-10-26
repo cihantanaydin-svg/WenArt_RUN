@@ -404,6 +404,26 @@
    "request": "AI inspector: vision model reviews every final render ... reviewing the 3d model itself could be better solution rather than individual renders investigate decide apply",
    "lesson": "Review the 3D model itself first: every element of the model as built is measured (doors on their floors, working heights, guards, doors into the air, rain water, one opening language, rooms that make sense), on every floor, before any render; the vision model looks at the model's floors from above (every room) and the renders only for the look.",
    "question": "Was every element of the built model checked, not only what the cameras frame?"
+  },
+  {
+   "id": "UL35",
+   "date": "2026-10-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "The AI architect decides: every open point ends with a decision (the next safe fix is tried when one cannot be done), a refused AI pick is asked again with the reason, the AI sees each floor of the model, and it may propose its own changes from the typed actions; code carries them out and keeps them only when nothing new breaks (user request of 26 Oct 2026: make the AI architect a lot more smart and let it take decisions more).",
+   "lesson": "The AI architect decides: every open point ends with a decision (the next safe fix is tried when one cannot be done), a refused AI pick is asked again with the reason, the AI sees each floor of the model, and it may propose its own changes from the typed actions; code carries them out and keeps them only when nothing new breaks (user request of 26 Oct 2026: make the AI architect a lot more smart and let it take decisions more).",
+   "question": null
+  },
+  {
+   "id": "UL36",
+   "date": "2026-10-26",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "Entrances make sense: doors whose landings or flights touch share one platform with one flight; a handrail or a ramp never crosses in front of a door; the front door is a normal entrance door, not the widest garden door; a wide outside door of a living room is glazed (French or sliding), never one flat slab that reads as a garage door; the model review checks this (user, 26 Oct 2026: these sections are not making sense, the AI inspector needs to make sense of this).",
+   "lesson": "Entrances make sense: doors whose landings or flights touch share one platform with one flight; a handrail or a ramp never crosses in front of a door; the front door is a normal entrance door, not the widest garden door; a wide outside door of a living room is glazed (French or sliding), never one flat slab that reads as a garage door; the model review checks this (user, 26 Oct 2026: these sections are not making sense, the AI inspector needs to make sense of this).",
+   "question": null
   }
  ]
 }

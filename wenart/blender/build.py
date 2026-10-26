@@ -915,20 +915,49 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
     understand and fix everything before even I look at it"): the review's open points that have a safe default
     (``architect.defaults_of``) are answered ``by: architect`` and the plan is made again, at most
     ``architect.DEFAULT_ROUNDS`` times; the AI architect's and the user's answers win over a default
-    (``architect_actions.answers_of``). ``out["architect_defaults"]`` lists them."""
+    (``architect_actions.answers_of``). ``out["architect_defaults"]`` lists them.
+
+    26 Oct 2026 (user: "make the AI architect a lot more smart and let it take decisions more"): a point whose choice
+    could not be carried out gets the next choice of its chain (``architect.chain_of``) the next round; a default
+    that opens a major point that was not open before is refused (tried alone when several came in one round) and
+    the next choice is tried instead (``out["architect_refused_defaults"]``: key -> the choice and the points it
+    opened)."""
     out = prepare_once(building_all, variant, brief, style_family)
     if not out.get("whole") or out.get("architect") is None:
         return out
     from wenart.blender import architect as AR
+
+    def again(defs: dict) -> dict:
+        return prepare_once(dict(building_all, architect_defaults=defs), variant, brief, style_family)
+
     defaults = dict(building_all.get("architect_defaults") or {})
+    tried: dict = {}
+    refused: dict = {}
     for _ in range(AR.DEFAULT_ROUNDS):
-        new = {k: v for k, v in AR.defaults_of(out["architect"], out.get("architect_answers") or {}).items()
-               if k not in defaults}
+        new = {k: v for k, v in AR.defaults_of(out["architect"], out.get("architect_answers") or {}, tried).items()
+               if (defaults.get(k) or {}).get("choice") != v.get("choice")}
         if not new:
             break
+        for k, v in new.items():
+            tried.setdefault(k, []).append(v.get("choice"))
+        majors = AR.open_keys(out["architect"], "major")
+        got = again(dict(defaults, **new))
+        if AR.open_keys(got["architect"], "major") - majors - set(new):
+            keep = {}
+            for k, v in sorted(new.items()):
+                more = AR.open_keys(again(dict(defaults, **{k: v}))["architect"], "major") - majors - {k}
+                if more:
+                    refused[k] = {"choice": v.get("choice"), "opened": sorted(more)}
+                else:
+                    keep[k] = v
+            if not keep:
+                continue
+            new = keep
+            got = again(dict(defaults, **new))
         defaults.update(new)
-        out = prepare_once(dict(building_all, architect_defaults=defaults), variant, brief, style_family)
+        out = got
     out["architect_defaults"] = defaults
+    out["architect_refused_defaults"] = refused
     return out
 
 

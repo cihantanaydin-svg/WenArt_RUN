@@ -37,6 +37,7 @@ ROOM_MIN_M2 = {"bedroom": 6.5, "living": 10.0, "dining": 6.0, "kitchen": 4.0, "b
                "office": 5.0, "study": 5.0}
 HABITABLE = ("bedroom", "living", "kitchen", "dining", "office", "study", "other")
 WET = ("bathroom", "wc", "toilet", "shower")
+WET_SET = set(WET)
 UNKNOWN_TYPES = ("", "other", "unknown", "none")
 ACCESS_TYPES = ("bed", "bed_double", "bed_single", "bed_bunk", "sofa", "sofa_corner", "wardrobe", "toilet", "sink",
                 "washbasin", "kitchen_counter", "desk", "dresser", "bathtub", "shower", "fridge", "oven", "dishwasher",
@@ -46,6 +47,8 @@ COMPANIONS = ("chair", "dining_chair", "office_chair", "stool", "bar_stool", "co
               "towel", "bath_mat", "laundry_basket", "dining_table", "table")
 FLOOR_ONLY = ("rug", "bath_mat", "carpet", "mat")
 FIXED_STAIRS = ("stair", "stairs", "staircase")
+# 26 Oct 2026: a kitchen run's drawn pieces (a doorway they fill is a serving window over the counter)
+KITCHEN_RUN = ("kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "hob", "oven", "fridge", "dishwasher")
 
 RULES = (
     {"id": "R3", "topic": "ceiling height", "scope": "room", "severity": "minor",
@@ -244,6 +247,10 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
             # W2: to the outside
             if out_a or out_b:
                 _ok(w2, o["id"], "to the outside" if a is None or b is None else "onto an open-air room")
+            elif o.get("interior_glazing") and a is not None and b is not None:
+                # 26 Oct 2026: decided as a borrowed-light, high or serving window
+                _ok(w2, o["id"], f"a {o['interior_glazing'].get('kind', 'clear')} borrowed-light window between "
+                                 f"{a['id']} and {b['id']} (decided)")
             elif a is not None and b is not None:
                 dark = [x for x in (a, b) if _rtype(x) in HABITABLE]
                 room = min(dark or [a, b], key=lambda x: glass.setdefault(
@@ -256,6 +263,14 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
                 opts = [AA.option("move_window_to_outer_wall", f"a reading error: move it to the outer wall of "
                                   f"{room['id']}", room_id=room["id"]),
                         AA.option("keep", "a borrowed-light window on purpose")]
+                # 26 Oct 2026 (user: "let it take decisions more"): when it cannot move (no free outer wall) or the
+                # dark room has glass of its own, the architect keeps it as a borrowed-light window: clear glass
+                # between dry rooms, a high window (sill 1.80 m) where one side is a bathroom
+                wet_side = WET_SET & {_rtype(a), _rtype(b)}
+                keep_as = AA.option("high_window", "a high borrowed-light window (sill 1.80 m) for the bathroom's "
+                                    "privacy") if wet_side else \
+                    AA.option("interior_glazing", "a borrowed-light window on purpose (clear glass)")
+                opts.insert(1, keep_as)
                 # a room no door reaches: the widest window from a reached room is its door (a misread door)
                 lost = [x for x in (a, b) if x["id"] in (unreached or set())]
                 if len(lost) == 1 and a["id"] != b["id"]:
@@ -272,7 +287,7 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
                       f"{other['id']} ({_rtype(other)})",
                       f"Is {o['id']} on the outer wall of {room['id']} in the drawing (a reading error), or a "
                       f"borrowed-light window on purpose?", opts, where=where, room=room["id"],
-                      **({"default": default} if default else {}))
+                      **({"default": default} if default else {}), fallback=[keep_as["choice"]])
             # W3: low sills over a drop
             lv = plan.levels[o["level_id"]]
             drop = float(lv["elevation"]) - ground
@@ -540,10 +555,15 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
             if worst[0] > LIMITS["swing_cover"]:
                 first = worst[2][0] if worst[2] else None
                 opts = ([AA.option("move_piece", f"move {first} clear of the doorway", piece_id=first,
-                                   away_from=o["id"])] if first else []) + [AA.option("keep")]
+                                   away_from=o["id"])] if first else [])
+                # 26 Oct 2026 (user: "let it take decisions more"): when the piece cannot move, a doorway a drawn
+                # kitchen run fills is a serving window over the counter, and a piece the AI added gives way
+                chain = _blocked_chain(plan, first, o, s, door=True)
+                opts += chain + [AA.option("keep")]
                 _open(f2, o["id"], f"{100 * worst[0]:.0f}% of the doorway of {o['id']} in {worst[1]} is taken by "
                       f"{', '.join(worst[2][:3])}", f"Should {', '.join(worst[2][:2])} move away from {o['id']}?",
-                      opts, where=where, **({"default": opts[0]["choice"]} if first else {}))
+                      opts, where=where, **({"default": opts[0]["choice"]} if first else {}),
+                      fallback=[c["choice"] for c in chain])
             else:
                 _ok(f2, o["id"], "doorway free")
         else:
@@ -565,13 +585,34 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
             if worst[0] > LIMITS["window_cover"]:
                 first = worst[1][0] if worst[1] else None
                 opts = ([AA.option("move_piece", f"move {first} away from the window", piece_id=first,
-                                   away_from=o["id"])] if first else []) + [AA.option("keep")]
+                                   away_from=o["id"])] if first else [])
+                chain = _blocked_chain(plan, first, o, s, door=False)
+                opts += chain + [AA.option("keep")]
                 _open(f3, o["id"], f"{', '.join(worst[1][:2])} stand(s) in front of {100 * worst[0]:.0f}% of "
                       f"{o['id']}", f"Should {', '.join(worst[1][:2])} move away from window {o['id']}?",
-                      opts, where=where, **({"default": opts[0]["choice"]} if first else {}))
+                      opts, where=where, **({"default": opts[0]["choice"]} if first else {}),
+                      fallback=[c["choice"] for c in chain])
             else:
                 _ok(f3, o["id"], "window free")
     return [f1, f2, f3, f4, h1]
+
+
+def _blocked_chain(plan, piece_id: Optional[str], o: dict, side: dict, door: bool) -> list[dict]:
+    """26 Oct 2026 (user: "make the AI architect a lot more smart and let it take decisions more"): the fixes tried
+    in turn when the piece in a doorway (``door``) or before a window cannot move: a doorway between two rooms that
+    a drawn kitchen run fills becomes a serving window over the counter (``pass_through``); a piece the AI added (not
+    from the documents) is left out (``remove_piece``). Drawn pieces are never removed (CLAUDE.md)."""
+    piece = next((f for f in plan.b.get("furniture") or [] if f.get("id") == piece_id), None) if piece_id else None
+    if piece is None:
+        return []
+    out = []
+    t = str(piece.get("type") or "").lower()
+    if door and t in KITCHEN_RUN and side.get("a") and side.get("b") and piece.get("source") == "from_documents":
+        out.append(AA.option("pass_through", f"a serving window over {piece_id}: the doorway at counter height",
+                             door_id=o["id"]))
+    if piece.get("source") not in (None, "from_documents"):
+        out.append(AA.option("remove_piece", f"{piece_id} (added by the AI) gives way", piece_id=piece_id))
+    return out
 
 
 # --------------------------------------------------------------------------

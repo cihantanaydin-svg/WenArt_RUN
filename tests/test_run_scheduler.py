@@ -134,6 +134,8 @@ class FakeCLI:
                 return "build"
             if sub == "export":                                 # Milestone 9: the 3D files
                 return "export"
+            if sub == "topdown":                                # 26 Oct 2026: the model's views from above
+                return "topdown"
             return "control renders" if "--hide-sets" in cmd else "render"
         if mod == "wenart.gate":
             return f"gate {sub}"

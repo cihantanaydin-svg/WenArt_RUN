@@ -2171,6 +2171,13 @@ class Orchestrator:
         if not pr.active or self.status_of(pr, "build") != "ok":
             self.finish(pr, "agent", "warning", "no scene: no agent rounds", outputs=[])
             return
+        if self.architect_look(pr, url):
+            # 26 Oct 2026: the AI architect decided on the model it saw: the scene is built again with its decisions
+            self.stage_build(pr)
+            if not pr.active or self.status_of(pr, "build") != "ok":
+                self.finish(pr, "agent", "warning", "no scene after the architect's decisions: no agent rounds",
+                            outputs=[])
+                return
         pr.views = self.scene_views(pr)
         previews_status = self.stage_agent_previews(pr)
         if previews_status not in ("ok", "warning") or \
@@ -2210,6 +2217,41 @@ class Orchestrator:
         from wenart.agent.loop import stage_note
         self.finish(pr, "agent", "ok", stage_note(summary, STOPS.get(stop, stop)))
 
+    def project_brief(self, pr: ProjectRun) -> Optional[dict]:
+        try:
+            from wenart.brief import load_brief
+            return load_brief(pr.ref.project_dir)
+        except Exception:  # noqa: BLE001 - the brief's defaults then
+            return None
+
+    def architect_look(self, pr: ProjectRun, url: str) -> bool:
+        """26 Oct 2026 (user: "make the AI architect a lot more smart and let it take decisions more"): after the
+        first build, the model's labelled top-down view of every floor (``topdown``) goes to the AI architect with the
+        floor's open questions, the architect's major default decisions and the actions it may take of its own
+        (``wenart.agent.architect_ai.look``); code checks every decision. True when it accepted one (the scene is
+        built again). Never fatal. ``WENART_ARCHITECT_AI=0`` or ``WENART_ARCHITECT_LOOK=0`` skips it."""
+        if os.environ.get("WENART_ARCHITECT_AI", "1") == "0" or os.environ.get("WENART_ARCHITECT_LOOK", "1") == "0" \
+                or not (pr.out / "building_final.json").is_file():
+            return False
+        from wenart.agent import architect_ai as AI
+        rc = self.run_step(pr, "agent", "topdown", S.topdown(self.tools, pr.ref))
+        if rc != 0:
+            self.out(f"{pr.name} topdown for the architect: exit {rc} (it decides from the facts only)")
+        t0 = self.now()
+        try:
+            model = pr.agent_model or self.make_agent_model(url, pr)
+            rec = AI.look(pr.out, model, brief=self.project_brief(pr), out=self.out,
+                          time_ok=lambda: self.can_start(S.EST_BUILD_S * 3))
+        except Exception as exc:  # noqa: BLE001 - the plan stands as the architect's defaults left it
+            self.out(f"{pr.name} architect look: {type(exc).__name__}: {exc}")
+            return False
+        pr.parts.setdefault("agent", []).append({"name": "architect_look", "rc": 0,
+                                                 "seconds": round(self.now() - t0, 2)})
+        self.out(f"{pr.name} architect look: {rec['accepted']} decision(s) carried out of {rec['asked']} question(s) "
+                 f"and {rec['decisions']} decision(s) of its own ({rec['confirmed']} default(s) confirmed, "
+                 f"{rec['refused']} refused)")
+        return rec["accepted"] > 0
+
     def architect_round(self, pr: ProjectRun, url: str) -> None:
         """25 Oct 2026 (user: "ai on the pod needs to be clever and able to answer the questions and make
         modifications accordingly"): the architect's open questions about ``building_final.json`` go to the agent
@@ -2219,12 +2261,7 @@ class Orchestrator:
         if os.environ.get("WENART_ARCHITECT_AI", "1") == "0" or not (pr.out / "building_final.json").is_file():
             return
         from wenart.agent import architect_ai as AI
-        brief = None
-        try:
-            from wenart.brief import load_brief
-            brief = load_brief(pr.ref.project_dir)
-        except Exception:  # noqa: BLE001 - the brief's defaults then
-            brief = None
+        brief = self.project_brief(pr)
         t0 = self.now()
         try:
             model = pr.agent_model or self.make_agent_model(url, pr)

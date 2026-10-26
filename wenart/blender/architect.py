@@ -1164,29 +1164,55 @@ def _who(rec: dict) -> str:
     return "you" if by == "user" else ("the architect's default" if by == "architect" else "the AI architect")
 
 
-DEFAULT_ROUNDS = 3              # a default may open a question that has a default of its own
+DEFAULT_ROUNDS = 6              # a default may open a question that has a default of its own; a chain moves on
 
 
-def defaults_of(review_rec: dict, answers: dict) -> dict:
-    """The safe default answer of every open point that has one (``default``: one of its option choices) and no
-    answer yet (26 Oct 2026, user: "I need ai models to see understand and fix everything before even I look at
-    it"): a door into the air on an upper floor and a bare gap in the facade become windows, a low sill gets a glass
-    guard, a door gets its floor's threshold, a wall-hung basin hangs at its working height, a piece leaves a doorway
-    or a window. ``build.prepare`` carries them out (``by: architect``, the lowest source: the AI's and the user's
-    answers win); the points without a safe default stay for the AI architect and the user."""
+def chain_of(answer: dict) -> list[str]:
+    """26 Oct 2026 (user: "make the AI architect a lot more smart and let it take decisions more"): the choices the
+    architect tries in turn on an open point: its ``default``, then its ``fallback`` choices (a window that cannot move
+    to an outer wall is kept as a borrowed-light window; a doorway a drawn counter fills becomes a serving window)."""
+    out = []
+    for c in ([answer.get("default")] if answer.get("default") else []) + list(answer.get("fallback") or []):
+        if c and c not in out:
+            out.append(c)
+    return out
+
+
+def defaults_of(review_rec: dict, answers: dict, tried: Optional[dict] = None) -> dict:
+    """The safe default answer of every open point that has one (``chain_of``: its default, then its fallbacks) and
+    no answer of the AI or the user (26 Oct 2026, user: "I need ai models to see understand and fix everything before
+    even I look at it"): a door into the air on an upper floor and a bare gap in the facade become windows, a low sill
+    gets a glass guard, a door gets its floor's threshold, a wall-hung basin hangs at its working height, a piece
+    leaves a doorway or a window. A point still open under the architect's own answer (it could not be carried out)
+    gets the next choice of its chain that ``tried`` (``{key: [choices]}``) does not hold. ``build.prepare`` carries
+    them out (``by: architect``, the lowest source: the AI's and the user's answers win); the points without a safe
+    default stay for the AI architect and the user."""
+    tried = tried or {}
     out = {}
     for q in review_rec.get("questions") or []:
         for a in q.get("answers") or []:
             key = f"{q['id']}:{a['element']}"
-            if not a.get("open") or not a.get("default") or key in answers:
+            if not a.get("open"):
                 continue
-            opt = next((o for o in a.get("options") or [] if o.get("choice") == a["default"]), None)
+            prev = answers.get(key)
+            if prev is not None and prev.get("by") != "architect":
+                continue                                  # the AI's or the user's answer stands
+            done = set(tried.get(key) or []) | ({prev.get("choice")} if prev and prev.get("choice") else set())
+            nxt = next((c for c in chain_of(a) if c not in done), None)
+            opt = next((o for o in a.get("options") or [] if o.get("choice") == nxt), None) if nxt else None
             if opt is None:
                 continue
             out[key] = {"option": opt["id"], "params": dict(opt.get("params") or {}), "by": "architect",
-                        "answer": "the safe default", "reason": a.get("found"),
-                        "where": a.get("where")}
+                        "choice": opt["choice"], "answer": "the safe default" if not done else
+                        f"the next safe fix ({', '.join(sorted(done))} could not be done)",
+                        "reason": a.get("found"), "where": a.get("where")}
     return out
+
+
+def open_keys(review_rec: dict, severity: Optional[str] = None) -> set:
+    """The keys (``rule:element``) of the open points of a review record (of one severity)."""
+    return {f"{q['id']}:{a['element']}" for q in review_rec.get("questions") or [] for a in q.get("answers") or []
+            if a.get("open") and (severity is None or q.get("severity", "minor") == severity)}
 
 
 def close_answered(questions: list[dict], answers: dict, applied: Sequence[dict] = ()) -> list[dict]:
@@ -1224,9 +1250,17 @@ def close_answered(questions: list[dict], answers: dict, applied: Sequence[dict]
     seen = {f"{q['id']}:{a['element']}" for q in questions for a in q["answers"]}
     by_id = {q["id"]: q for q in questions}
     for rec in applied:
-        if not rec.get("ok") or not rec.get("change") or rec["key"] in seen or rec.get("rule") not in by_id:
+        if str(rec.get("rule") or "").startswith("AI.") and "A0" not in by_id:
+            # 26 Oct 2026 (user: "let it take decisions more"): the AI architect's own decisions (``AI.<action>:<el>``)
+            by_id["A0"] = {"id": "A0", "topic": "the AI architect's own decisions", "scope": "building",
+                           "severity": "minor", "question": "What did the AI architect decide on its own?",
+                           "why": "it looked at each floor of the model and changed what it judged wrong; code checked "
+                                  "every change", "answers": [], "status": "answered"}
+            questions.append(by_id["A0"])
+        rule = "A0" if str(rec.get("rule") or "").startswith("AI.") else rec.get("rule")
+        if not rec.get("ok") or not rec.get("change") or rec["key"] in seen or rule not in by_id:
             continue
-        q = by_id[rec["rule"]]
+        q = by_id[rule]
         label = AA.ACTIONS.get(rec["option"], rec["option"])
         words = f" (\"{rec['answer']}\")" if rec.get("answer") else ""
         q["answers"].append({"element": rec["element"], "found": "settled by its answer", "answered": True,

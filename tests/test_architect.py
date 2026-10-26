@@ -136,7 +136,9 @@ def test_circulation_daylight_privacy_and_kitchen_questions():
     w2 = next(q for q in RULES.openings_rules(AA.Plan(b), sides) if q["id"] == "W2")
     ask = next(a for a in w2["answers"] if a["element"] == "w2")
     assert ask["open"] and "reading error" in ask["ask"] and ask["room"] == "x"
-    assert [o["id"] for o in ask["options"]] == ["move_window_to_outer_wall", "keep"]
+    # 26 Oct 2026: the borrowed-light window is the fallback when it cannot move (the architect decides)
+    assert [o["id"] for o in ask["options"]] == ["move_window_to_outer_wall", "interior_glazing", "keep"]
+    assert ask["fallback"] == ["interior_glazing"]
     assert not any(a["element"] == "b1" and a.get("open") for a in l1["answers"])  # 3 m2 of glass for 16 m2
     assert {a["element"] for a in l2["answers"]} == {"k", "w"}                    # no window: extract assumed
     p1 = AR.review_privacy(b, sides)

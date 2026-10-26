@@ -79,12 +79,23 @@ ACTIONS = {
     "gap_to_door": "a door the reading missed: a glazed door in the gap (sliding from 1.40 m wide)",
     "merge_openings": "one opening read twice: the two become one over both spans (params: other_id)",
     "window_to_door": "a reading error: the room has no door, this opening between two rooms is its door",
+    # 26 Oct 2026 (user: "make the AI architect a lot more smart and let it take decisions more"): the decisions a
+    # point had none of when its first fix could not be done (a window between two rooms with no free outer wall for
+    # it, a doorway a drawn kitchen counter fills)
+    "interior_glazing": "a borrowed-light window on purpose: clear glass between two dry rooms (kept where drawn)",
+    "high_window": "a high borrowed-light window: its sill at 1.80 m, the head kept (privacy for a wet room)",
+    "pass_through": "a serving window over the drawn counter: the doorway becomes a window at counter height between "
+                    "the two rooms (the counter stays)",
 }
 # The rules whose answers are carried out first (a door that becomes a window is not widened as a door)
 FIRST_RULES = ("E1", "O2", "D4")
 GUARD_TOP_M = 1.10              # a guard in front of a French window reaches this far over its floor
 BASIN_RIM_M = 0.85              # a washbasin's rim over the floor (0.80-0.90 m)
 FIXTURE_TOPS = {"washbasin": (0.78, 0.95, BASIN_RIM_M)}     # the type's working top: (low, high, target)
+HIGH_SILL_M = 1.80              # a high borrowed-light window into a wet room (privacy by height)
+MIN_HIGH_WINDOW_H = 0.30        # ... at least this tall
+PASS_SILL_M = 0.95              # a serving window's sill: just over a 0.90 m counter top
+WET_ROOMS = ("bathroom", "wc", "toilet", "shower")
 
 
 CONTEXT_PARAMS = ("room_id", "window_id", "door_id", "piece_id", "away_from", "other_id")     # name the element, not the choice
@@ -674,6 +685,80 @@ def act_raise_sill(plan: Plan, key: str, ans: dict, window_id: str):
     return True, f"{window_id}: sill {sill:.2f} -> {SAFE_SILL_M:.2f} m"
 
 
+def _two_rooms(plan: Plan, o: dict) -> Optional[list]:
+    """The two rooms an opening joins, or None when one side is outside (or the sides are unknown)."""
+    sides = window_sides(plan, o)
+    if len(sides) != 2 or any(r is None or Plan.is_outside(r) for r in sides):
+        return None
+    return sides
+
+
+def act_interior_glazing(plan: Plan, key: str, ans: dict, window_id: str):
+    """26 Oct 2026 (user: "let it take decisions more"): a window between two dry rooms is kept on purpose, a
+    borrowed-light window with clear glass (``interior_glazing``); a window into a wet room needs ``high_window``."""
+    o = plan.openings.get(window_id)
+    if o is None or o.get("type") != "window":
+        return False, f"no window {window_id}"
+    rooms = _two_rooms(plan, o)
+    if rooms is None:
+        return False, f"{window_id} does not stand between two rooms"
+    wet = [r["id"] for r in rooms if str(r.get("room_type") or "").lower() in WET_ROOMS]
+    if wet:
+        return False, f"{window_id} looks into the wet room {wet[0]}: it needs privacy (a high window)"
+    o["interior_glazing"] = {"kind": "clear", "rooms": [r["id"] for r in rooms]}
+    _mark(o, "adjusted_by_ai", key, ans, f"a borrowed-light window between {rooms[0]['id']} and {rooms[1]['id']} "
+                                         f"on purpose (clear glass, kept where drawn)")
+    return True, f"{window_id}: a borrowed-light window between {rooms[0]['id']} and {rooms[1]['id']}"
+
+
+def act_high_window(plan: Plan, key: str, ans: dict, window_id: str):
+    """26 Oct 2026: a window between a room and a wet room becomes a high borrowed-light window: its sill at
+    ``HIGH_SILL_M`` (the head kept, at least ``MIN_HIGH_WINDOW_H`` of glass), so nobody looks into the bathroom."""
+    o = plan.openings.get(window_id)
+    if o is None or o.get("type") != "window":
+        return False, f"no window {window_id}"
+    rooms = _two_rooms(plan, o)
+    if rooms is None:
+        return False, f"{window_id} does not stand between two rooms"
+    sill = float(o.get("sill_height") if o.get("sill_height") is not None else 0.9)
+    head = min(sill + float(o.get("height") if o.get("height") is not None else 1.2), plan.top(o))
+    if head - max(sill, HIGH_SILL_M) < MIN_HIGH_WINDOW_H:
+        return False, (f"{window_id}: a sill at {HIGH_SILL_M:.2f} m under its {head:.2f} m head leaves less than "
+                       f"{MIN_HIGH_WINDOW_H:.2f} m of window")
+    if sill < HIGH_SILL_M:
+        _keep_drawn(o, "sill_height", "height")
+        o["sill_height"], o["height"] = HIGH_SILL_M, round(head - HIGH_SILL_M, 3)
+    o["interior_glazing"] = {"kind": "high", "rooms": [r["id"] for r in rooms]}
+    _mark(o, "adjusted_by_ai", key, ans, f"a high borrowed-light window between {rooms[0]['id']} and {rooms[1]['id']}: "
+                                         f"sill {sill:.2f} -> {max(sill, HIGH_SILL_M):.2f} m (privacy), head kept")
+    return True, f"{window_id}: a high window, sill {sill:.2f} -> {max(sill, HIGH_SILL_M):.2f} m"
+
+
+def act_pass_through(plan: Plan, key: str, ans: dict, door_id: str):
+    """26 Oct 2026: a doorway between two rooms that a drawn counter fills is a serving window over the counter: the
+    door or gap becomes a window (same wall, centre and width, its head kept) with its sill at ``PASS_SILL_M``; the
+    drawn values stay (``drawn_type`` ...), ``corrected_by_ai``."""
+    o = plan.openings.get(door_id)
+    if o is None or o.get("type") not in ("door", "opening"):
+        return False, f"no door or gap {door_id}"
+    rooms = _two_rooms(plan, o)
+    if rooms is None:
+        return False, f"{door_id} does not join two rooms"
+    base = float(o.get("sill_height") or 0.0)
+    head = min(base + float(o.get("height") if o.get("height") is not None else 2.1), plan.top(o))
+    if head - PASS_SILL_M < MIN_WINDOW_H:
+        return False, f"{door_id}: a sill at {PASS_SILL_M:.2f} m leaves less than {MIN_WINDOW_H:.2f} m of opening"
+    _keep_drawn(o, "type", "sill_height", "height")
+    o["type"] = "window"
+    o["sill_height"], o["height"] = PASS_SILL_M, round(head - PASS_SILL_M, 3)
+    o["interior_glazing"] = {"kind": "pass_through", "rooms": [r["id"] for r in rooms]}
+    for k in ("swing_side", "operation", "threshold_z"):
+        o.pop(k, None)
+    _mark(o, "corrected_by_ai", key, ans, f"a serving window over the drawn counter between {rooms[0]['id']} and "
+                                          f"{rooms[1]['id']}: sill {PASS_SILL_M:.2f} m, head {head:.2f} m")
+    return True, f"{door_id}: a serving window over the counter, sill {PASS_SILL_M:.2f} m"
+
+
 def act_door_to_window(plan: Plan, key: str, ans: dict, door_id: str):
     """An outside door or a bare gap with nothing outside it (a drop, no balcony, terrace or steps) becomes a window
     (26 Oct 2026, user on real06's upper floor: "are the people going to jump off from it?"): same wall, centre and
@@ -987,6 +1072,12 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                 elif opt == "move_piece":
                     ok, text = act_move_piece(plan, key, ans, params.get("piece_id") or target,
                                               params.get("away_from"))
+                elif opt == "interior_glazing":
+                    ok, text = act_interior_glazing(plan, key, ans, params.get("window_id") or target)
+                elif opt == "high_window":
+                    ok, text = act_high_window(plan, key, ans, params.get("window_id") or target)
+                elif opt == "pass_through":
+                    ok, text = act_pass_through(plan, key, ans, params.get("door_id") or target)
                 else:
                     ok, text = False, f"unknown option {opt!r}"
             except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
