@@ -104,7 +104,7 @@ def report_md(rec: dict, project: str = "") -> str:
     c = rec["counts"]
     lines = [f"# What the AI inspector saw on the final renders{': ' + project if project else ''}", "",
              f"Round {rec['round']} (the final round: every room and exterior view asked again on the final renders, "
-             f"with the visitor checks Q1-Q8). {c['seen']} vision finding(s) ({c['visitor']} visitor), "
+             f"with the visitor checks Q1-Q9). {c['seen']} vision finding(s) ({c['visitor']} visitor), "
              f"{c['fixed']} fixed in this round, {c['handed']} handed to the stage that owns them, {c['open']} open, "
              f"{c['dropped']} dropped by code; the architect leaves {c['architect_open']} open point(s) "
              f"({c['architect_open_major']} major).", "",

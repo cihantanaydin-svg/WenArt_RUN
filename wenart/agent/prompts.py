@@ -180,15 +180,22 @@ CHECKLIST: dict[str, dict] = {
                    "standing free in the room, or in front of a window or a door",
            "how": "V", "scope": "piece"},
     "Q7": {"what": "doors and windows that do not fit the house or each other: a dark traditional panelled door in a "
-                   "modern or Scandinavian house, busy patterned or opaque glass, different window types side by side",
+                   "modern or Scandinavian house, busy patterned or opaque glass, different window types side by side, "
+                   "a wide door built as one flat slab that reads as a garage door on a house with no garage",
            "how": "V", "scope": "opening"},
     "Q8": {"what": "rain water that makes no sense: more downpipes than the building's corners need, pipes across "
                    "windows or in the air, gutters stepping in and out along the facade",
            "how": "V", "scope": "building"},
+    # 26 Oct 2026 (user, circling real06's entrance: "these sections not making sense, AI inspector needs to make
+    # sense of this")
+    "Q9": {"what": "an entrance that makes no sense: a handrail or railing that crosses in front of a door or another "
+                   "stair, two flights of steps that run into each other, a ramp passing in front of a door, steps up "
+                   "to a garage door, a door with no way to reach it",
+           "how": "V", "scope": "opening"},
 }
-VISITOR_CHECKS = ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8")
+VISITOR_CHECKS = ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9")
 ROOM_CHECKS = ("R1", "R2", "R3", "R4", "R5", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "V1", "V2", "V3")
-EXTERIOR_CHECKS = ("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "V2", "V3", "Q1", "Q3", "Q7", "Q8")
+EXTERIOR_CHECKS = ("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "V2", "V3", "Q1", "Q3", "Q7", "Q8", "Q9")
 # Milestone 12 (§5.4 "vision only where it adds something"): the room critic is asked only what an image of the
 # render shows (looks, wrong objects, the room type, finishes, the camera), never what code measures.
 ROOM_LOOK_CHECKS = ("R1", "R4", "F1", "F9", "D1", "D2", "D3", "V1", "V2", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7")
@@ -203,7 +210,8 @@ CRITIC_SYSTEM = (
 
 VISITOR_TEXT = ("Look at each image the way the client will when they first see it: anything a visitor would point at "
                 "(a door off the floor, a basin at knee height, a window you could fall out of, a room that is not "
-                "what it is called, pieces that do not go together, too many pipes) is a finding, even when the "
+                "what it is called, pieces that do not go together, too many pipes, railings across a door) is a "
+                "finding, even when the "
                 "code measured something nearby. The Q checks are such first-look problems: report every one you see.")
 SEVERITY_TEXT = ("Severity: critical = the image is clearly wrong (a missing roof, a bed in the middle of the room, a "
                  "blocked door, a piece through a wall); major = clearly odd (a sofa facing a wall, chairs not at the "

@@ -303,7 +303,7 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     # furnishes: the re-run replays the overrides after the layout); a reading conflict on a symbol is resolved
     "empty_room": ("place_group", "relayout_room"),
     "resolved_by_code": (),
-    # 26 Oct 2026: the visitor checks (prompts Q1-Q8) the architect's code owns (a door into the air or off its floor,
+    # 26 Oct 2026: the visitor checks (prompts Q1-Q9) the architect's code owns (a door into the air or off its floor,
     # a fall risk, the opening models' style, the rain water): reported to the architect, never silent
     "opening_sense": (),
     "guard": (),
@@ -433,7 +433,7 @@ CHECK_CAUSE: dict[str, str] = {
     "D1": "decor_look", "D2": "wrong_model", "D3": "wrong_model",
     # 26 Oct 2026: the visitor checks (cause_of refines Q4-Q6 from the message)
     "Q1": "opening_sense", "Q2": "wrong_model", "Q3": "guard", "Q4": "empty_room", "Q5": "wrong_model",
-    "Q6": "orientation", "Q7": "opening_style", "Q8": "rain_water",
+    "Q6": "orientation", "Q7": "opening_style", "Q8": "rain_water", "Q9": "entrance_layout",
     # 26 Oct 2026: the review of the 3D model as built (wenart/blender/model_review.py; cause_of refines M7)
     "M1": "levels", "M2": "wrong_model", "M3": "guard", "M4": "opening_sense", "M5": "rain_water",
     "M6": "opening_style", "M7": "missing_anchor", "M8": "entrance_layout",

@@ -707,7 +707,7 @@ def inspector_lines(rec: Optional[dict]) -> list[str]:
         return []
     c = rec["counts"]
     lines = ["", "### What the AI inspector saw on the final renders", "",
-             f"{c.get('seen', 0)} vision finding(s) ({c.get('visitor', 0)} of the visitor checks Q1-Q8: doors, "
+             f"{c.get('seen', 0)} vision finding(s) ({c.get('visitor', 0)} of the visitor checks Q1-Q9: doors, "
              f"working heights, falls, rooms that make no sense, pieces that clash, doors and windows, rain water): "
              f"{c.get('fixed', 0)} fixed in the final round, {c.get('handed', 0)} handed to the stage that owns them, "
              f"{c.get('open', 0)} open; the architect leaves {c.get('architect_open_major', 0)} major open point(s). "
