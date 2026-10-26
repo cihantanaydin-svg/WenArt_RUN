@@ -638,7 +638,9 @@ def offered_tools(registry, brief: dict) -> list[str]:
 # Round 4: the render's lighting_dark (a view above the +3 EV cap) is measured by the next render only; a
 # set_lighting on its room changes its view (``tools.changed_targets``).
 NOT_REMEASURED = frozenset({"S1", "S2", "S3", "S4", "S5", "S6", "V1", "V2", "V3", "X6", "L7", "R4", "R5", "X8",
-                            *CS.LIGHTING_CHECKS, CS.CAMERA_BLOCKED_CHECK})      # fix round after P5: + blocked view
+                            *CS.LIGHTING_CHECKS, CS.CAMERA_BLOCKED_CHECK,       # fix round after P5: + blocked view
+                            # 26 Oct 2026: the review of the model as built needs a build: carried, never "removed"
+                            "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"})
 
 
 def lighting_kept(finding: Optional[dict], building_after: Optional[dict]) -> Optional[dict]:
@@ -1605,7 +1607,9 @@ class AgentLoop:
         elif self.code_critic is not None:
             got = self.code_critic(building, scene, manifest)
         else:
+            # 26 Oct 2026: the doors and windows as built (the architect's changes), as the round's critic reads them
             got = CC.run(building, scene, manifest, scene_dir=self.scene_dir or CC.scene_checks_dir(self.project_out),
+                         openings_from=TL.read_json(self.project_out / "scene" / "building_built.json"),
                          **self.critic_kwargs())
         if isinstance(got, dict):
             got = got.get("findings") or []
@@ -1793,7 +1797,7 @@ class AgentLoop:
         # 26 Oct 2026: the model as built is reviewed too (critic_code family "model")
         built = TL.read_json(self.project_out / "scene" / "building_built.json")
         return CC.run(building, ctx.scene, manifest, scene_dir=self.scene_dir or CC.scene_checks_dir(self.project_out),
-                      built=built, **self.critic_kwargs())
+                      built=built, openings_from=built, **self.critic_kwargs())
 
     def critique_keys(self, ctx: TL.ToolContext, building: dict) -> list[tuple[str, str]]:
         """``[(kind, id)]`` (M12: only where an image adds something): rooms with at least one preview of their own

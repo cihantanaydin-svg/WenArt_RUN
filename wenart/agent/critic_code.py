@@ -413,6 +413,16 @@ def reading_items(building: dict) -> list[dict]:
     return out
 
 
+def with_built_openings(building: dict, built: Optional[dict]) -> dict:
+    """26 Oct 2026: ``building`` with the doors and windows of the building as built (``scene/building_built.json``:
+    the architect's answers carried out by ``build.prepare``: a door into the air became a window, a gap a door, a
+    doorway a serving window). Without them the room checks kept asking about doors the scene no longer has (real06:
+    "sink blocks door o_L0_004" for a window, walkways to doors that are windows). Pure; the building is not changed."""
+    if not isinstance(built, dict) or not built.get("openings"):
+        return building
+    return dict(building, openings=built["openings"])
+
+
 def model_items(built: Optional[dict], scene_manifest: Optional[dict]) -> list[dict]:
     """The review of the model as built (``model_review.review``) as code violations (26 Oct 2026)."""
     if not built:
@@ -425,10 +435,13 @@ def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: 
         plausibility_fn: Optional[Callable] = None, exterior_fn: Optional[Callable] = None,
         views_fn: Optional[Callable] = None, groups_fn: Optional[Callable] = None,
         levels_fn: Optional[Callable] = None, scene_dir=None, scene_fn: Optional[Callable] = None,
-        built: Optional[dict] = None, model_fn: Optional[Callable] = None) -> dict:
+        built: Optional[dict] = None, model_fn: Optional[Callable] = None,
+        openings_from: Optional[dict] = None) -> dict:
     """``{"findings": [...], "checks": [{source, status, note, counts}], "scores": {room_id: score}, "mean"}``.
     ``scene_dir``: the build's checks folder (``outputs/<p>/build/checks``); without it (and without ``scene_fn``)
-    the scene family is not run."""
+    the scene family is not run. ``openings_from`` (26 Oct 2026): the building as built, whose doors and windows the
+    checks read (``with_built_openings``: the architect's changes, a door into the air that is a window now)."""
+    building = with_built_openings(building, openings_from)
     findings: list[dict] = []
     checks: list[dict] = []
     scores: dict = {}

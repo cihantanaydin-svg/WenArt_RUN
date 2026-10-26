@@ -161,3 +161,16 @@ def test_the_ai_looks_at_each_floor_and_decides(tmp_path):
     a0 = next(q for q in after["architect"]["questions"] if q["id"] == "A0")
     assert any(a["element"] == "r_L1_soyunma_odasi" for a in a0["answers"])
     assert "looks at the model" in (tmp_path / "orchestrator" / AI.LOOK_MD).read_text(encoding="utf-8")
+
+
+def test_the_critics_read_the_doors_and_windows_as_built():
+    """The architect's changes reach the critics: a door the build made a window is no door any more for the room
+    checks (real06: "sink blocks door o_L0_004" for a window); the model checks need a build, so a dry re-check
+    carries them and never counts them removed."""
+    from wenart.agent import critic_code as CC
+    from wenart.agent import loop as LP
+    b = {"openings": [{"id": "d1", "type": "door"}], "rooms": []}
+    built = {"openings": [{"id": "d1", "type": "window", "drawn_type": "door"}]}
+    assert CC.with_built_openings(b, built)["openings"][0]["type"] == "window" and b["openings"][0]["type"] == "door"
+    assert CC.with_built_openings(b, None) is b
+    assert {"M1", "M2", "M7", "M8"} <= LP.NOT_REMEASURED
