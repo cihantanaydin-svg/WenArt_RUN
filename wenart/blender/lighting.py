@@ -69,7 +69,9 @@ ceiling light and was pushed +3..+8 EV):
   ``lighting.colour_temperature_k`` when it is warmer than ``RIG_WARM_K``, else 2700 K). ``rig_plan`` places
   them (pure): a pendant over the dining table, a ceiling fixture in halls, stairs, kitchens and bathrooms at the
   pole of inaccessibility (one per ``area_light_plans`` point in a long room), bedside lamps on the nightstands
-  (else beside the bed head), a strip under the kitchen wall cabinets along the counter run, a mirror light over
+  (else beside the bed head), a strip under the kitchen wall cabinets along the counter run (26 Oct 2026: one per
+  wall cabinet, as long as the cabinet, at its bottom; none where no wall cabinet hangs, where a bare bar read as "a
+  thin floating shelf" in real06's kitchen), a mirror light over
   the washbasin; a fixture whose anchor piece is missing is dropped with the reason. With the rig a windowless
   or dim room keeps no invisible area light (the fixtures carry its light, recorded ``assumed``); a room type
   without a rig keeps the Milestone 6 light. Every fixture is ``assumed`` (the documents say nothing about lamps).
@@ -1619,21 +1621,36 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
             if not counters:
                 out["dropped"].append({"kind": kind, "reason": f"no kitchen_counter in {room['id']}: no strip"})
                 continue
-            for counter in counters:
-                (cx, cy), (fx, fy), width, depth = _piece_frame(counter)
+            # 26 Oct 2026 (user: "fix should be general"): the strip hangs under each wall cabinet, as long as the
+            # cabinet; a counter without wall cabinets gets none. Before, every counter got a strip at the wall
+            # cabinets' height whether or not a cabinet hung there: real06's run in front of an opening showed a bare
+            # bar at 1.45 m, which the AI judge read as "a wall cabinet rendered as a thin floating shelf".
+            cabinets = by_type.get("wall_cabinet") or []
+            if not cabinets:
+                out["dropped"].append({"kind": kind, "reason": f"no wall cabinet in {room['id']}: no strip under one "
+                                                               "(a bare strip would float over the counter)"})
+                continue
+            for cabinet in cabinets:
+                (cx, cy), (fx, fy), width, depth = _piece_frame(cabinet)
                 length = max(0.3, width - 0.1)
                 bx, by = cx - fx * depth / 2.0, cy - fy * depth / 2.0            # the back edge (the wall)
-                px, py = bx + fx * RIG_STRIP_SETBACK_M, by + fy * RIG_STRIP_SETBACK_M
-                z = floor_z + RIG_WALL_CABINET_BOTTOM_M - float(spec["size_m"][2]) / 2.0
+                setback = min(RIG_STRIP_SETBACK_M, max(depth - 0.05, 0.05))
+                px, py = bx + fx * setback, by + fy * setback
+                bottom = cabinet.get("mount_bottom_m")
+                bottom = float(bottom) if isinstance(bottom, (int, float)) and not isinstance(bottom, bool) \
+                    else RIG_WALL_CABINET_BOTTOM_M
+                z = floor_z + bottom - float(spec["size_m"][2]) / 2.0
                 if z <= floor_z + RIG_TABLE_TOP_M + 0.3:
-                    z = floor_z + RIG_WALL_CABINET_BOTTOM_M
+                    z = floor_z + bottom
                 lumens = float(spec["lumens_per_m"]) * length
                 watts = round(watts_for_lumens(lumens) * RIG_GAIN, 4)
                 f = dict(spec, lumens=round(lumens, 1), watts_radiometric=watts_for_lumens(lumens), watts_applied=watts,
                          length_m=round(length, 3), rotation_deg=round(math.degrees(math.atan2(fy, fx)) + 90.0, 3))
+                run = (cabinet.get("rule") or {}).get("run") if isinstance(cabinet.get("rule"), dict) else None
                 add(f, (px, py, z), (px, py, z - 0.012), "AREA", watts, [length, 0.02, 0.015],
-                    direction=(0.0, 0.0, -1.0), anchor=counter["id"], radius=0.0, mount="cabinet",
-                    reason=f"LED strip under the wall cabinets along the counter {counter['id']}")
+                    direction=(0.0, 0.0, -1.0), anchor=cabinet["id"], radius=0.0, mount="cabinet",
+                    reason=f"LED strip under the wall cabinet {cabinet['id']}"
+                           + (f" over the counter {run}" if run else ""))
         elif kind == "mirror":
             basins = by_type.get("washbasin") or []
             if not basins:

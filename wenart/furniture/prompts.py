@@ -53,6 +53,7 @@ ROOM_TYPE_TEXT: dict[str, str] = {
     "shaft": "shaft or lift (Turkish: ŞAFT, HAVA BACASI, ASANSÖR); never furnished",
     "other": "room of unspecified use",
     "balcony": "balcony or terrace (Turkish: BALKON, TERAS)",
+    "dressing": "dressing room or walk-in closet (Turkish: SOYUNMA ODASI, GİYİNME ODASI)",
 }
 
 # What a good layout of each room type contains (short, so the model does not over-furnish).
@@ -82,6 +83,8 @@ ROOM_GUIDE: dict[str, str] = {
     "shaft": "nothing: a shaft is never furnished (this text is never sent).",
     "other": "a small table with chairs or a desk and a bookshelf; keep it sparse.",
     "balcony": "a small table with two chairs; the railing side stays free.",
+    "dressing": ("wardrobe runs along the free walls with 0.80 m free in front, a bench only where the walkway "
+                 "allows it."),
 }
 
 

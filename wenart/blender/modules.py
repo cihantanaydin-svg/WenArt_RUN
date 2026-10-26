@@ -33,7 +33,13 @@ Builders (``MODULE_BUILDERS``: furniture type -> builder):
   (17 Oct 2026): the sink unit is hollow above its bowl (``parametric.open_carcass``), the sink is built in only
   within ``KITCHEN_END_SHIFT_MAX_M`` of its drawn centre (else it stands as drawn in a gap of the run, as a pinned
   sink does), and a gap never takes the whole run. Part 3 (17 Oct 2026): that distance is measured across the run
-  too (the bowl sits on the run's centreline), so a sink drawn over the run's front or back edge is not built in;
+  too (the bowl sits on the run's centreline), so a sink drawn over the run's front or back edge is not built in.
+  26 Oct 2026 (user: "fix should be general"): the hob and the under-counter fridge the completion built into a run
+  (``solver.built_in_kitchen``; the fit gives ``hob_pos_m`` / ``hob_w_m`` / ``hob_piece`` / ``oven`` and
+  ``fridge_pos_m`` / ``fridge_w_m`` / ``fridge_piece``) are held by their units (``plan["built_ins"]`` kinds ``hob``
+  and ``fridge``): the hob unit carries the black hob plate with its rings on the worktop and, in a full-depth run,
+  a 59.5 cm built-in oven (steel control strip with knobs, black glass door with a window and a bar handle) over a
+  drawer; the fridge unit a steel appliance door with a bar handle and a vent grille (``_appliance_fronts``);
 - ``bath_set`` (washbasin at least 0.45 m deep: a wall-hung vanity with drawer fronts, a ceramic top with one or
   two inset basins and taps and a framed mirror above, the vanity hollow above the basins since the fix round after
   P3, part 2; shower: a tray of a real product size with the glass screen and shower set of
@@ -125,7 +131,14 @@ KITCHEN_FILLER_MAX_M = 0.08           # NKBA / US guides: fillers 51-76 mm (modu
 KITCHEN_END_SHIFT_MAX_M = 0.10        # a sink or hob unit this close to the run's end moves to the wall (no slit
                                       # thinner than a filler); a wider slit beside it becomes a filler panel
 KITCHEN_SINK_UNIT_WIDTHS_M: tuple[float, ...] = (0.60, 0.80, 0.90)   # METOD 60 sink base; US 30 / 36 in sink bases
-KITCHEN_HOB_UNIT_WIDTHS_M: tuple[float, ...] = (0.60, 0.90)          # 60 cm hob class (size table stove 0.60); 36 in
+KITCHEN_HOB_UNIT_WIDTHS_M: tuple[float, ...] = (0.45, 0.60, 0.90)    # 60 cm hob class (size table stove 0.60); 36 in;
+                                      # 26 Oct 2026: the 45 cm hob of a short stretch (groups.yaml built_in.hob)
+# 26 Oct 2026 (module docstring): a module built into the run by the completion (``solver.built_in_kitchen``): the hob
+# unit takes an oven under the hob when the run is full depth (``module_hints["oven"]``; a 60 cm built-in oven is
+# 59.5 cm high, its control strip 9 cm), an under-counter fridge a 60 cm unit with an appliance door (82 cm class).
+KITCHEN_FRIDGE_UNIT_WIDTHS_M: tuple[float, ...] = (0.60,)
+KITCHEN_OVEN_H_M = 0.595
+KITCHEN_OVEN_STRIP_M = 0.09
 KITCHEN_SINK_BOWL_M = 0.18            # the steel bowl's depth under the worktop's top face (the depth it had since
                                       # Milestone 13); fix round after P3, part 2: the sink unit is hollow above it
 KITCHEN_HOB_PLATE_M = (0.58, 0.51)    # a 60 cm class hob plate on the worktop (US 30 in cutout 699-749 x 508-533 mm
@@ -647,10 +660,23 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
         elif span is not None:
             notes.append("no sink unit: it would overlap the gap of a drawn stove")
     if hob_x is not None:
-        hw = nearest(float(hints.get("hob_w_m") or KITCHEN_HOB_UNIT_WIDTHS_M[0]), KITCHEN_HOB_UNIT_WIDTHS_M)
+        hw = nearest(float(hints.get("hob_w_m") or KITCHEN_HOB_UNIT_WIDTHS_M[1]), KITCHEN_HOB_UNIT_WIDTHS_M)
         span = _place_fixed(w, float(hob_x), min(hw, w))
         if span is not None and free(span):
             fixed.append((span[0], span[1], "hob"))
+        elif span is not None:
+            notes.append("no hob unit: it would overlap the sink unit or the gap of a drawn stove")
+    # 26 Oct 2026: an under-counter fridge the completion built into the run (``fridge_pos_m`` / ``fridge_x_m``)
+    fridge_x = hints.get("fridge_x_m")
+    if fridge_x is None and hints.get("fridge_pos_m"):
+        fridge_x = _local_x(piece, hints["fridge_pos_m"])
+    if fridge_x is not None:
+        fw = nearest(float(hints.get("fridge_w_m") or KITCHEN_FRIDGE_UNIT_WIDTHS_M[0]), KITCHEN_FRIDGE_UNIT_WIDTHS_M)
+        span = _place_fixed(w, float(fridge_x), min(fw, w))
+        if span is not None and free(span):
+            fixed.append((span[0], span[1], "fridge"))
+        elif span is not None:
+            notes.append("no under-counter fridge unit: it would overlap another unit or a gap")
     fixed.sort()
     # a fixed unit near an end of the run moves to the wall when the slit left there is narrower than the
     # smallest unit (KITCHEN_END_SHIFT_MAX_M): a sink unit against the wall, not a 20 cm panel beside it; a gap of
@@ -731,16 +757,24 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
         if right_f > 1e-9:
             units.append(_module("filler", (right_f, d, base_h), (xx + right_f / 2.0, 0.0), "front", z_m=KITCHEN_PLINTH_M))
     for f0, f1, kind in fixed:
+        front = "door" if f1 - f0 < 0.80 - 1e-9 else "doors"
+        product = f"{kind} base unit {(f1 - f0) * 100:.0f}x{KITCHEN_BASE_DEPTH_M * 100:.0f} cm"
+        # 26 Oct 2026: the hob unit of a full-depth run holds an oven (``oven`` hint), the fridge unit is the
+        # under-counter fridge's appliance door
+        if kind == "hob" and hints.get("oven") and base_h >= KITCHEN_OVEN_H_M + 0.05:
+            front, product = "oven", f"hob with a built-in oven {(f1 - f0) * 100:.0f} cm"
+        elif kind == "fridge":
+            front, product = "fridge", f"under-counter fridge {(f1 - f0) * 100:.0f} cm"
         units.append(_module("base_unit", (f1 - f0, d, base_h), ((f0 + f1) / 2.0, 0.0), "front", z_m=KITCHEN_PLINTH_M,
-                             front="door" if f1 - f0 < 0.80 - 1e-9 else "doors", holds=kind,
-                             product=f"{kind} base unit {(f1 - f0) * 100:.0f}x{KITCHEN_BASE_DEPTH_M * 100:.0f} cm"))
+                             front=front, holds=kind, product=product))
     units.sort(key=lambda m: m["pos_m"][0])
     modules += units
     for x0, x1 in stretches:
         modules.append(_module("worktop", (x1 - x0, d, KITCHEN_WORKTOP_M), ((x0 + x1) / 2.0, 0.0), "worktop",
                                z_m=worktop_z - KITCHEN_WORKTOP_M,
                                cutouts=[{"kind": k, "x_m": round((f0 + f1) / 2.0, 4), "w_m": round(f1 - f0, 4)}
-                                        for f0, f1, k in fixed if x0 - 1e-6 <= (f0 + f1) / 2.0 <= x1 + 1e-6]))
+                                        for f0, f1, k in fixed if k != "fridge"
+                                        and x0 - 1e-6 <= (f0 + f1) / 2.0 <= x1 + 1e-6]))
     height = worktop_z
     if hints.get("wall_units") and not island:
         wall = compose_run(w, KITCHEN_WALL_WIDTHS_M, KITCHEN_FILLER_MAX_M)
@@ -765,7 +799,7 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
     plan = {"builder": "kitchen_run", "type": piece["type"], "modules": modules, "footprint_m": [w, d],
             "height_m": round(height, 4), "drawn_m": [w, d], "fit": _fit_record((w, d), (w, d)),
             "products": sorted(set(products), key=products.index), "island": island,
-            "cutouts": [k for _f0, _f1, k in fixed], "notes": notes, "design": P.piece_design(piece)}
+            "cutouts": [k for _f0, _f1, k in fixed if k != "fridge"], "notes": notes, "design": P.piece_design(piece)}
     if gaps:
         plan["gaps"] = gaps
     if built_in is not None:
@@ -779,6 +813,28 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
                      "and the tap at its cutout" + (f", {abs(shift):.2f} m from the drawn centre (unit width, run end)"
                                                     if abs(shift) > 0.005 else "")
                      + (f"; {sink_across_text(across)}" if abs(across) > 0.005 else ""))
+    # 26 Oct 2026: the hob (with its oven) and the under-counter fridge the completion built into the run: their units
+    # hold them (``built_ins``: the fit gives the pieces the built-in asset, the scene does not build them again) when
+    # the unit stands within KITCHEN_END_SHIFT_MAX_M of the piece's centre
+    for kind, key, xv in (("hob", "hob_piece", hob_x), ("fridge", "fridge_piece", fridge_x)):
+        pid = hints.get(key)
+        if not pid or xv is None:
+            continue
+        unit = next(((f0, f1) for f0, f1, k in fixed if k == kind), None)
+        shift = None if unit is None else (unit[0] + unit[1]) / 2.0 - float(xv)
+        if shift is None or abs(shift) > KITCHEN_END_SHIFT_MAX_M + 1e-9:
+            notes.append(f"the {kind} {pid} is not built in: " + ("no unit for it" if unit is None else
+                                                                  f"its unit would stand {abs(shift):.2f} m off it"))
+            continue
+        record = {"id": str(pid), "kind": kind, "x_m": round((unit[0] + unit[1]) / 2.0, 4),
+                  "w_m": round(unit[1] - unit[0], 4), "drawn_x_m": round(float(xv), 4), "shift_m": round(shift, 4)}
+        if kind == "hob":
+            record["oven"] = any(m.get("holds") == "hob" and m.get("front") == "oven" for m in modules)
+        plan.setdefault("built_ins", []).append(record)
+        notes.append(f"the {'hob' if kind == 'hob' else 'under-counter fridge'} {pid} is built into the run: a "
+                     f"{unit[1] - unit[0]:.2f} m unit" + (" with the hob plate on the worktop" if kind == "hob" else
+                                                          " with an appliance door")
+                     + (" and an oven under it" if record.get("oven") else ""))
     return plan
 
 
@@ -1049,11 +1105,56 @@ def _base_unit_parts(m: dict, design: dict, d_run: float) -> list[Part]:
     else:
         parts = [P._box(x, inset / 2.0, z0, w - 0.002, d_run - inset, h, "painted", "body")]
     kind = m.get("front") or "door"
+    if kind in ("oven", "fridge"):
+        return parts + _appliance_fronts(kind, x, w, face, z0, h, design)
     if kind == "drawers":
         fronts = P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 3, 1, design, doors=False)
     else:
         fronts = P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 1, 2 if kind == "doors" else 1, design)
     parts += _rotate_parts(fronts, x, 0.0, 0.0)
+    return parts
+
+
+def _appliance_fronts(kind: str, x: float, w: float, face: float, z0: float, h: float, design: dict) -> list[Part]:
+    """26 Oct 2026: the front of a unit that holds an appliance (module docstring). ``oven``: a 59.5 cm built-in oven
+    under the worktop (a steel control strip with two knobs, a black glass door with a steel bar handle, a glass
+    window in it) over a drawer in the design's front style; ``fridge``: the under-counter fridge's steel door with a
+    long bar handle at its top and a dark vent grille at its foot. Every part sits in front of the carcass face."""
+    gap = 0.003
+    fw = w - 0.004
+    y_back = face - P.FRONT_GAP                         # the back of a front
+    t = P.FRONT_THICKNESS
+    cy = y_back - t / 2.0
+    top = z0 + h - gap
+    parts: list[Part] = []
+    if kind == "oven":
+        oven_z = top - KITCHEN_OVEN_H_M
+        strip_z = top - KITCHEN_OVEN_STRIP_M
+        parts.append(P._box(x, cy, strip_z, fw, t, KITCHEN_OVEN_STRIP_M - gap, "steel", "front"))
+        for sx in (-1.0, 1.0):                          # two control knobs on the strip
+            parts.append(P._cylinder_y(x + sx * fw * 0.32, y_back - t - 0.022, strip_z + KITCHEN_OVEN_STRIP_M / 2.0,
+                                       0.018, 0.018, 0.022, "dark", "handle", n=16))
+        door_h = strip_z - oven_z - gap
+        parts.append(P._box(x, cy, oven_z, fw, t, door_h, "dark", "front"))
+        win_w, win_h = fw * 0.7, door_h * 0.45                   # the oven window, proud of the black glass
+        parts.append(P._box(x, y_back - t - 0.0025, oven_z + door_h * 0.22, win_w, 0.003, win_h, "glass", "front"))
+        parts.append(P._box(x, y_back - t - 0.03, oven_z + door_h - 0.055, fw * 0.8, 0.014, 0.016, "steel", "handle"))
+        for sx in (-1.0, 1.0):                          # the handle's two posts
+            parts.append(P._box(x + sx * fw * 0.38, y_back - t - 0.0125, oven_z + door_h - 0.053, 0.012, 0.023, 0.012,
+                                "steel", "handle"))
+        drawer_h = oven_z - z0 - 2 * gap
+        if drawer_h > 0.06:
+            parts += P._front_panel(x, face, z0 + gap, fw, drawer_h, P.front_style_of(design))
+            parts.append(P._handle(x, face, z0 + gap + drawer_h * 0.6, vertical=False))
+        return parts
+    door_h = top - z0 - gap
+    vent = min(0.06, door_h * 0.1)
+    parts.append(P._box(x, cy, z0 + gap + vent, fw, t, door_h - vent, "steel", "front"))
+    parts.append(P._box(x, cy, z0 + gap, fw, t, vent - gap, "dark", "front"))
+    parts.append(P._box(x, y_back - t - 0.03, top - 0.07, fw * 0.8, 0.014, 0.016, "steel", "handle"))
+    for sx in (-1.0, 1.0):
+        parts.append(P._box(x + sx * fw * 0.38, y_back - t - 0.0125, top - 0.068, 0.012, 0.023, 0.012, "steel",
+                            "handle"))
     return parts
 
 

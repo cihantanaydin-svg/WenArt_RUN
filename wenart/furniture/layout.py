@@ -217,6 +217,10 @@ class RoomLayout:
     solve_s: float = 0.0
     resolved: list = field(default_factory=list)         # Milestone 13: drawn pieces re-solved as one unit (ids)
     critical: list = field(default_factory=list)         # 26 Oct 2026: kitchens left without a run (empty_kitchens)
+    # 26 Oct 2026: what the applied candidate built into the kitchen runs (a hob, an under-counter fridge) or why not
+    # (``solver.built_in_kitchen`` records), and the wall cabinets hung over an added run (empty kitchens)
+    built_ins: list = field(default_factory=list)
+    wall_cabinets: list = field(default_factory=list)
 
     @property
     def latency_s(self) -> float:
@@ -236,6 +240,11 @@ class RoomLayout:
             out["copy_dropped"] = list(self.copy_dropped)
         if self.critical:
             out["critical"] = list(self.critical)
+        if self.built_ins:
+            out["built_ins"] = list(self.built_ins)
+        if self.wall_cabinets:
+            out["wall_cabinets"] = [{"id": f["id"], "run": (f.get("rule") or {}).get("run"),
+                                     "size": f["footprint"]["size"]} for f in self.wall_cabinets]
         return out
 
 
@@ -261,9 +270,13 @@ def style_text_of(style: Optional[dict], building: dict) -> str:
 
 
 def empty_rooms(building: dict) -> list[dict]:
-    """Rooms without documented furniture whose type the layout handles, in building order."""
+    """Rooms without documented furniture whose type the layout handles, in building order. 26 Oct 2026: a storage
+    room read as a dressing room (``program.room_kind``: its label words or its bedroom door) too."""
+    from wenart.furniture import program as PR
+
     return [r for r in building["rooms"]
-            if not r.get("has_documented_furniture") and r.get("room_type") in schemas.FURNISHABLE_ROOM_TYPES]
+            if not r.get("has_documented_furniture") and (r.get("room_type") in schemas.FURNISHABLE_ROOM_TYPES or (
+                r.get("room_type") == "storage" and PR.room_kind(building, r) == "dressing"))]
 
 
 def not_furnished_rooms(building: dict) -> list[dict]:
@@ -505,12 +518,28 @@ def layout_room(room: dict, building: dict, style_text: str, client, image_dir: 
         else:
             why = "; ".join(f"#{c['rank']}: " + ", ".join(c["hard_failures"][:2]) for c in rec.candidates)
             rec.skipped = f"no candidate passes the checks ({why})"
+        if best is not None and best.get("built_ins"):
+            # 26 Oct 2026: why no hob or fridge could be built into the run (solver.built_in_kitchen)
+            rec.built_ins = list(best["built_ins"])
+            refused = [f"built-in {b['kind']}: {b['reason']}" for b in best["built_ins"] if not b.get("placed")]
+            if refused:
+                rec.skipped = (rec.skipped + "; " if rec.skipped else "") + "; ".join(refused)
         return _note_critical(rec, building, room, None, rec.skipped)
     rec.choice = choose_candidate(client, room, building, usable, style_text, image_dir, purpose)
     cand = usable[rec.choice["index"]]
     rec.chosen = cand["rank"]
     rec.pieces = apply_choice(building, room, cand, rec.choice, completes=(purpose == "complete"))
     rec.resolved = list(cand.get("resolved") or [])
+    rec.built_ins = list(cand.get("built_ins") or [])
+    wanted = getattr(settings, "wall_cabinets", None)
+    if wanted is None:
+        wanted = ((building.get("project") or {}).get("brief") or {}).get("kitchen_wall_cabinets", True) is not False
+    if purpose != "complete" and wanted and any(f.get("type") == "kitchen_counter" for f in rec.pieces):
+        # 26 Oct 2026 (user: "fix should be general"): a counter run the solver added to an empty kitchen gets its
+        # wall cabinets by the same rule as a drawn one (the completion hangs them in complete_room)
+        from wenart.furniture import complete as C    # lazy: complete imports this module
+
+        rec.wall_cabinets = C.hang_wall_cabinets(room, building, building)
     return _note_critical(rec, building, room, cand)
 
 
@@ -602,7 +631,7 @@ def _copy_layout(room: dict, partner: tuple[str, str], done: dict, out: dict, st
 def layout_summary(layouts: list[RoomLayout], building: dict, server: str, model: str) -> dict:
     return {"project": building["project"]["id"], "server": server, "model": model,
             "rooms": [l.to_dict() for l in layouts],
-            "pieces_added": sum(len(l.pieces) for l in layouts),
+            "pieces_added": sum(len(l.pieces) + len(l.wall_cabinets) for l in layouts),
             "latency_s": round(sum(l.latency_s for l in layouts), 3),
             "solve_s": round(sum(l.solve_s for l in layouts), 3)}
 
@@ -619,7 +648,7 @@ def layout_report(layouts: list[RoomLayout], building: dict) -> str:
         groups = ", ".join(f"{g['group']}{'*' if g.get('drawn') else ''} ({'/'.join(g['options'])})"
                            for g in (l.program or {}).get("groups", [])) or "-"
         cands = ", ".join(f"#{c['rank']} {c['score']:.1f} {len(c['hard_failures'])}" for c in l.candidates) or "-"
-        added = ", ".join(f["type"] for f in l.pieces) or "-"
+        added = ", ".join(f["type"] for f in l.pieces + l.wall_cabinets) or "-"
         by = (l.choice or {}).get("by", "-")
         result = f"room stays empty: {l.skipped}" if l.skipped else "ok"
         if l.copied_from and l.copied_from.get("used", True) and not l.skipped:

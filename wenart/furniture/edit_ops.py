@@ -1154,7 +1154,9 @@ def _place_group(b: dict, args: dict) -> list[str]:
         raise EditRejected("group", f"no group template {name!r} (groups.yaml)")
     allowed = GC.allowed_types_at(b, room, None)
     rtype = room.get("room_type")
-    if not set(template["room_types"]) & ({rtype} | {z.get("kind") for z in room.get("zones") or []}):
+    # 26 Oct 2026: the room's kinds too (``program.room_kinds``: a dressing room read from an ``other`` room's label)
+    if not set(template["room_types"]) & ({rtype} | set(PR.room_kinds(b, room))
+                                          | {z.get("kind") for z in room.get("zones") or []}):
         raise EditRejected("room_type", f"a {name} group does not belong in a {rtype} room (groups.yaml room types: "
                                         f"{', '.join(template['room_types'])})")
     option = args.get("option")

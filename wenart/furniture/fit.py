@@ -249,6 +249,12 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   or parametric piece. Why: real06's adult bathrooms got the HSSD "TODDLER SINK" (an orange child's vanity) and
   "Combo CEG-50BF" (a black composite utility basin); the catalogue keeps them (a child's room may take the toddler
   sink), the fit no longer chooses them for an adult bathroom.
+- Kitchen completion of 26 Oct 2026 (user: "fix should be general"). What: ``kitchen_built_ins`` also takes the hob
+  and the under-counter fridge the completion built into a counter (``built_in_module``: ``built_into`` names the
+  run, ``built_in.kind`` hob | fridge) as the run's hints (``hob_pos_m`` / ``hob_w_m`` / ``hob_piece`` / ``oven``,
+  ``fridge_pos_m`` / ``fridge_w_m`` / ``fridge_piece``; never as a stove's gap) and maps them in ``sinks`` (every
+  built-in piece, deferred after its run); ``built_in_fit`` gives them the built-in asset of their kind. Why: real06's
+  kitchen rendered "a bare base cabinet with an empty worktop": the hob must show on the worktop with its oven.
 """
 from __future__ import annotations
 
@@ -1250,6 +1256,17 @@ PINNED_SINK_GAP_REASON = ("the agent pinned a library model (asset_pin): it stan
                           "built in")                   # fix round after P3, part 2
 
 
+BUILT_IN_MODULE_KINDS: tuple[str, ...] = ("hob", "fridge")   # 26 Oct 2026: solver.built_in_kitchen's modules
+
+
+def built_in_module(piece: dict) -> Optional[str]:
+    """26 Oct 2026: ``hob`` | ``fridge`` for a module the completion built into a kitchen counter
+    (``solver.built_in_kitchen``: ``built_into`` names the counter, ``built_in.kind`` the module), else None."""
+    rec = piece.get("built_in") if isinstance(piece.get("built_in"), dict) else {}
+    kind = rec.get("kind")
+    return kind if kind in BUILT_IN_MODULE_KINDS and piece.get("built_into") else None
+
+
 def _usable_footprint(piece: dict) -> bool:
     fp = piece.get("footprint") if isinstance(piece.get("footprint"), dict) else {}
     try:
@@ -1278,23 +1295,38 @@ def kitchen_built_ins(building: dict) -> dict:
     pieces = [p for p in building.get("furniture") or [] if isinstance(p, dict)]
     runs = [p for p in pieces if p.get("type") in KITCHEN_RUN_HOSTS and p.get("build", True) is not False
             and _usable_footprint(p)]
-    members = [p for p in pieces if p.get("type") in BUILT_IN_SINK_TYPES + RANGE_TYPES
+    members = [p for p in pieces if (p.get("type") in BUILT_IN_SINK_TYPES + RANGE_TYPES or built_in_module(p))
                and p.get("build", True) is not False and _usable_footprint(p)]
     claimed: set = set()
     for run in runs:
-        sinks, ranges = [], []
+        sinks, ranges, modules = [], [], []
         for m in members:
             if m.get("id") in claimed or m.get("level_id") != run.get("level_id") \
                     or m.get("room_id") != run.get("room_id"):
                 continue
+            kind = built_in_module(m)
+            if kind and m.get("built_into") != run.get("id"):
+                continue                        # 26 Oct 2026: a module the completion built into another run
             got = MOD.member_in_run(run, m)
             if got is None or got["share"] < BUILT_IN_SHARE - 1e-9:
                 continue
-            if m["type"] in BUILT_IN_SINK_TYPES and not m.get("asset_pin"):
+            if kind and not m.get("asset_pin"):
+                modules.append((kind, m, got))  # 26 Oct 2026: a hob or an under-counter fridge built into the run
+            elif m["type"] in BUILT_IN_SINK_TYPES and not m.get("asset_pin"):
                 sinks.append((m, got))
-            else:
+            elif m["type"] in BUILT_IN_SINK_TYPES + RANGE_TYPES:
                 ranges.append((m, got))         # a stove, or a pinned sink (part 2): a gap, its own model in it
         hints: dict = {}
+        for kind, m, got in modules:
+            key = "hob" if kind == "hob" else "fridge"
+            if f"{key}_piece" in hints:
+                continue                        # one of each per run (the first in building order)
+            hints.update({f"{key}_pos_m": [round(float(v), 4) for v in m["footprint"]["center"][:2]],
+                          f"{key}_w_m": got["w_m"], f"{key}_piece": m["id"]})
+            if kind == "hob":
+                hints["oven"] = bool((m.get("built_in") or {}).get("oven"))
+            out["sinks"][m["id"]] = run["id"]
+            claimed.add(m["id"])
         if sinks:
             sink, got = max(sinks, key=lambda mg: (float(mg[0]["footprint"]["size"][0])
                                                    * float(mg[0]["footprint"]["size"][1]), str(mg[0]["id"])))
@@ -1338,21 +1370,31 @@ def built_in_fit(piece: dict, run: dict, mode: str, style_family: Optional[str] 
     builder = plan.get("builder") or "kitchen_run"
     shift = float(record.get("shift_m") or 0.0)
     across = float(record.get("shift_y_m") or 0.0)
-    why = (f"built into the kitchen run {run['id']}: a {float(record.get('w_m') or 0.0):.2f} m sink unit with the "
-           "bowl and the tap at its cutout (the drawn sink lies inside the drawn run)"
-           # fix round after P3, part 2: a unit off the drawn centre (at most modules.KITCHEN_END_SHIFT_MAX_M) is named
-           + (f"; the unit stands {abs(shift):.2f} m from the drawn sink centre (unit width, run end)"
-              if abs(shift) > 0.005 else "")
-           # part 3: and the bowl's offset across the run (it stands on the run's centreline)
-           + (f"; {_bowl_across_text(across)}" if abs(across) > 0.005 else ""))
+    kind = record.get("kind") or "sink"
+    if kind in BUILT_IN_MODULE_KINDS:
+        # 26 Oct 2026: a hob (with its oven) or an under-counter fridge the completion built into the run
+        what = ("hob unit with the hob plate on the worktop" + (" and an oven under it" if record.get("oven") else "")
+                if kind == "hob" else "under-counter fridge unit with an appliance door")
+        why = (f"built into the kitchen run {run['id']}: a {float(record.get('w_m') or 0.0):.2f} m {what} (the "
+               f"completion built it into the counter: solver.built_in_kitchen)"
+               + (f"; the unit stands {abs(shift):.2f} m from the piece's centre" if abs(shift) > 0.005 else ""))
+        step = f"built into {run['id']} ({'hob unit' if kind == 'hob' else 'fridge unit'})"
+    else:
+        why = (f"built into the kitchen run {run['id']}: a {float(record.get('w_m') or 0.0):.2f} m sink unit with "
+               "the bowl and the tap at its cutout (the drawn sink lies inside the drawn run)"
+               # fix round after P3, part 2: a unit off the drawn centre (at most modules.KITCHEN_END_SHIFT_MAX_M)
+               + (f"; the unit stands {abs(shift):.2f} m from the drawn sink centre (unit width, run end)"
+                  if abs(shift) > 0.005 else "")
+               # part 3: and the bowl's offset across the run (it stands on the run's centreline)
+               + (f"; {_bowl_across_text(across)}" if abs(across) > 0.005 else ""))
+        step = f"built into {run['id']} (sink unit and cutout)"
     asset = parametric_fit(piece, why, style_family=style_family)
     asset.update({"library": MODULE_METHOD, "method": MODULE_METHOD, "asset_id": f"module:{run['type']}:{builder}",
                   "built_in": run["id"], "by_design": True,
-                  "module_plan": {"builder": builder, "built_into": run["id"], "kind": "sink",
+                  "module_plan": {"builder": builder, "built_into": run["id"], "kind": kind,
                                   "x_m": record.get("x_m"), "w_m": record.get("w_m"),
                                   "shift_m": round(shift, 4), "shift_y_m": round(across, 4) + 0.0}})
-    return _finish(asset, mode, [_step("library", "not tried", why),
-                                 _step(MODULE_METHOD, f"built into {run['id']} (sink unit and cutout)", None)])
+    return _finish(asset, mode, [_step("library", "not tried", why), _step(MODULE_METHOD, step, None)])
 
 
 def module_fit(piece: dict, plan: dict, reason: str, candidates: Optional[list] = None,

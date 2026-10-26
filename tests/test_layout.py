@@ -62,7 +62,12 @@ def test_furnished_building_is_valid_and_documents_untouched(furnished):
 
 def test_added_pieces_carry_their_group_evidence_and_checks(furnished):
     _b, out, layouts, _c = furnished
-    added = [f for f in out["furniture"] if f["source"] == "added_by_ai"]
+    # 26 Oct 2026: the counter run the solver laid in an empty kitchen gets its wall cabinets by the §4.4 rule
+    cabinets = [f for f in out["furniture"] if f["type"] in schemas.MOUNTED_TYPES]
+    assert cabinets and all(f["method"] == "rule" and f["rule"]["run"] and f["mount_bottom_m"] == 1.45
+                            for f in cabinets)
+    assert {f["room_id"] for f in cabinets} <= {l.room_id for l in layouts if l.wall_cabinets}
+    added = [f for f in out["furniture"] if f["source"] == "added_by_ai" and f["type"] not in schemas.MOUNTED_TYPES]
     ids = [f["id"] for f in added]
     assert added and len(ids) == len(set(ids))
     chosen = {l.room_id: l.chosen for l in layouts}
@@ -91,7 +96,8 @@ def test_bedrooms_get_beds_with_nightstands_and_nothing_blocks_a_door(furnished)
     for rid, pieces in rooms.items():
         room = next(r for r in out["rooms"] if r["id"] == rid)
         ctx = P.room_context(out, room)
-        placed = [P.piece_from_furniture(f, i) for i, f in enumerate(pieces)]
+        placed = [P.piece_from_furniture(f, i) for i, f in enumerate(pieces)
+                  if f["type"] not in schemas.MOUNTED_TYPES]       # a wall cabinet hangs on the wall face
         for p in placed:
             assert Polygon(room["polygon"]).buffer(-0.019).contains(p.polygon()), (rid, p.type)
             for door in ctx.doors:

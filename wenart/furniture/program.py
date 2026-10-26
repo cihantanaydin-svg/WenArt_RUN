@@ -95,6 +95,14 @@ not re-solved, with ``out["second_tables"]`` naming it (the layout writes the wa
 merged before the program by the completion (``groups.merge_touching_tables``). Why: real06's r_L1_oda_2 (a bedroom
 whose two misread counters made a kitchen zone) was planned as the zone only and got no bed; its living room had four
 drawn table sets (armchairs read as tables) and each got its own dining group with chairs.
+
+Dressing rooms of 26 Oct 2026 (user: "fix should be general"). What: a ``dressing`` kind (``TEMPLATE_KINDS``; no
+building-schema room type has it): a storage / other / unknown room whose label names a dressing room or walk-in
+closet (``groups.yaml`` ``room_aliases.dressing``: soyunma, giyinme, dressing, walk-in, closet, vestiaire, Ankleide,
+cabina armadio, vestidor, ...) or whose every door opens into a bedroom (``dressing_room``, ``door_neighbours``; 1.5 to
+8 m²) gets the ``dressing`` row (wardrobe runs along its free walls, a bench where it fits); a storage room read so is
+no longer left out ("storage room: no furniture groups"). Why: real06's 5.9 m² "Soyunma Odası" (other) got "no groups
+for this room (other 5.9 m²: nothing)" and rendered as a bare shell.
 """
 from __future__ import annotations
 
@@ -115,7 +123,11 @@ ZONE_ROOM_TYPE = {"living": "living", "sleeping": "bedroom", "kitchen": "kitchen
                   "work": "other", "bath": "bathroom", "hall": "hall", "balcony": "balcony"}
 MIN_HALL_WIDTH_M = 1.10            # a hall narrower than this takes no piece (0.30 deep piece + 0.80 walkway)
 # Milestone 13: the room types the templates know; ``other`` and ``unknown`` are read through the aliases.
-TEMPLATE_KINDS = ("living", "bedroom", "kitchen", "dining", "bathroom", "wc", "hall", "other", "balcony")
+# 26 Oct 2026: ``dressing`` (a dressing room or walk-in closet) is a kind only: no building-schema room type has it.
+TEMPLATE_KINDS = ("living", "bedroom", "kitchen", "dining", "bathroom", "wc", "hall", "other", "balcony", "dressing")
+# 26 Oct 2026: the room types a dressing room is read from (its label words or its bedroom door, ``dressing_room``).
+DRESSING_FROM = ("storage", "other", "unknown", None, "")
+DOOR_PROBES_M = (0.35, 0.5, 0.7)   # the other side of a door: this far behind the inner wall face
 ALIAS_KINDS = ("other", "unknown", None, "")
 RESOLVE_OVERLAP_M2 = 0.05          # a drawn anchor overlapping a drawn piece outside its group by this fails the checks
 RESOLVE_OUTSIDE_M2 = 0.02          # ... or reaching this far through the room outline
@@ -230,7 +242,75 @@ def room_kind(building: dict, room: dict) -> str:
         # Seating and sleeping anchors say more than a table or a desk (a dining table stands in a living room too).
         order = {"living": 0, "bedroom": 0, "bathroom": 1, "kitchen": 1, "dining": 2, "other": 3}
         return sorted(kinds, key=lambda k: (order.get(k, 9), -kinds[k], k))[0]
+    if dressing_room(building, room):
+        return "dressing"                          # 26 Oct 2026: a small room whose every door opens into a bedroom
     return rtype if rtype in TEMPLATE_KINDS else "other"
+
+
+def door_neighbours(building: dict, room: dict) -> list[Optional[str]]:
+    """26 Oct 2026: the id of the room on the other side of each door or opening of ``room`` (its level's rooms; None
+    where no room lies behind it), in the order of ``placer.room_context``'s doors."""
+    if len(room.get("polygon") or []) < 3:
+        return []
+    try:
+        ctx = placer.room_context(building, room)
+    except (KeyError, TypeError, ValueError):
+        return []
+    from shapely.geometry import Point
+
+    others = []
+    for r in building.get("rooms") or []:
+        if r.get("id") == room.get("id") or r.get("level_id") != room.get("level_id") \
+                or len(r.get("polygon") or []) < 3:
+            continue
+        try:
+            others.append((r["id"], Polygon(r["polygon"]).buffer(0)))
+        except (KeyError, TypeError, ValueError):
+            continue
+    out: list[Optional[str]] = []
+    for door in ctx.doors:
+        n = door.normal
+        if n is None:
+            out.append(None)
+            continue
+        hit = None
+        for k in DOOR_PROBES_M:
+            p = Point(door.inner_point[0] - n[0] * k, door.inner_point[1] - n[1] * k)
+            hit = next((rid for rid, poly in others if poly.contains(p)), None)
+            if hit is not None:
+                break
+        out.append(hit)
+    return out
+
+
+def _bedroom_by_label(room: dict) -> bool:
+    """A bedroom by its type or the words of its label (no door rule: no recursion between neighbours)."""
+    if room.get("room_type") == "bedroom":
+        return True
+    spec = GR.room_aliases().get("bedroom") or {}
+    key = _alias_hit(_label_words(room), list(spec.get("words") or []))
+    generic = {str(w) for w in GR.room_aliases().get("generic") or []}
+    return key is not None and key not in generic and (spec.get("min_area") is None or _area(room) >= float(
+        spec["min_area"]) - 1e-9)
+
+
+def dressing_room(building: dict, room: dict) -> bool:
+    """26 Oct 2026 (user: "fix should be general"): a storage / other / unknown room (``DRESSING_FROM``) of
+    ``room_aliases.dressing.min_area`` .. ``off_bedroom_max_area`` m² whose every door opens into a bedroom (at least
+    one door) is a dressing room or walk-in closet, whatever its label says (the label words of ``room_aliases``
+    are read first by ``room_kind``). Why: a closet off a bedroom is often labelled only "Oda", "Depo" or nothing."""
+    if room.get("room_type") not in DRESSING_FROM:
+        return False
+    spec = GR.room_aliases().get("dressing") or {}
+    area = _area(room)
+    lo, hi = float(spec.get("min_area") or 0.0), float(spec.get("off_bedroom_max_area") or 0.0)
+    if not (lo - 1e-9 <= area <= hi + 1e-9):
+        return False
+    sides = door_neighbours(building, room)
+    if not sides or any(s is None for s in sides):
+        return False
+    rooms = {r["id"]: r for r in building.get("rooms") or []}
+    return all(_bedroom_by_label(rooms[s]) for s in sides if s in rooms) and all(s in rooms for s in sides)
 
 
 def room_kinds(building: dict, room: dict) -> list[str]:
@@ -429,6 +509,9 @@ def _core_rows(kind: str, area: float, polygon: Polygon, building: dict, room: d
     elif kind == "balcony":
         if area >= 2.5:
             rows.append(("balcony", False, ["table_2_chairs"]))
+    elif kind == "dressing":
+        # 26 Oct 2026: a dressing room or walk-in closet: wardrobe runs along its free walls (groups.yaml dressing)
+        rows.append(("dressing", True, ["wardrobe_runs"]))
     return rows
 
 
@@ -588,8 +671,10 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
         return out
     brief = brief if brief is not None else ((building.get("project") or {}).get("brief") or {})
     if own_type in schemas.NOT_FURNISHED_ROOM_TYPES or own_type in ("prayer", "stair", "shaft", "storage"):
-        out["reason"] = f"{own_type} room: no furniture groups"
-        return out
+        # 26 Oct 2026: a storage room read as a dressing room (its label, its bedroom door) is furnished as one
+        if not (own_type == "storage" and room_kind(building, room) == "dressing"):
+            out["reason"] = f"{own_type} room: no furniture groups"
+            return out
     # Milestone 13: the kind the templates use (aliases for ``other`` / ``unknown`` rooms).
     rtype = room_kind(building, room)
     out["kind"] = rtype

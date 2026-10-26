@@ -213,20 +213,30 @@ def test_completion_is_deterministic():
     assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
 
 
-def test_a_drawn_kitchen_run_gets_its_wall_cabinets_and_no_fridge_without_a_landing(completed):
+def test_a_drawn_kitchen_run_gets_its_hob_fridge_and_wall_cabinets(completed):
     _s, out, records, _c = completed
     cabinets = [f for f in out["furniture"] if f["type"] == "wall_cabinet"]
     kitchen = [f for f in cabinets if f["room_id"] == KITCHEN]
-    assert len(kitchen) == 1 and records[KITCHEN].wall_cabinets == kitchen
-    cab = kitchen[0]
-    assert cab["source"] == "added_by_ai" and cab["method"] == "rule" and cab["completes_room"] is True
-    assert cab["evidence"][0]["method"] == "derived" and "f_L-1_004" in cab["evidence"][0]["text"]
-    assert cab["rule"]["z"] == [1.45, 2.15] and cab["mount_bottom_m"] == 1.45 and cab["height"] == pytest.approx(0.7)
-    assert cab["footprint"]["size"] == [3.0, 0.35] and cab["footprint"]["center"] == pytest.approx([9.825, 2.125])
-    assert cab["design"] == {"front_style": "shaker", "colour": "sage", "handle": "brass"}     # style.json cabinets
+    assert len(kitchen) == 2 and records[KITCHEN].wall_cabinets == kitchen
+    for cab in kitchen:
+        assert cab["source"] == "added_by_ai" and cab["method"] == "rule" and cab["completes_room"] is True
+        assert cab["evidence"][0]["method"] == "derived" and "f_L-1_004" in cab["evidence"][0]["text"]
+        assert cab["rule"]["z"] == [1.45, 2.15] and cab["mount_bottom_m"] == 1.45
+        assert cab["height"] == pytest.approx(0.7)
+        assert cab["design"] == {"front_style": "shaker", "colour": "sage", "handle": "brass"}  # style.json cabinets
+        assert any(why.startswith("stove ") for why in cab["rule"]["excluded"])        # never over the hob
+    assert sorted(tuple(c["footprint"]["center"]) for c in kitchen) == [pytest.approx((9.825, 1.225)),
+                                                                        pytest.approx((9.825, 3.025))]
+    assert all(c["footprint"]["size"] == [1.2, 0.35] for c in kitchen)
     assert len([f for f in cabinets if f["room_id"] == OPEN_KITCHEN]) == 1   # an open kitchen of a living room too
-    # The drawn run fills its wall: a fridge beside it finds no landing (G8), so it is left out, not forced in.
-    assert "fridge" not in {f["type"] for f in floor_added(out, KITCHEN)}
+    # 26 Oct 2026 (user: "fix should be general"): the drawn run misses its hob: one is built into its counter (an
+    # oven under it); it fills its wall, so no floor fridge has its landing (G8): an under-counter fridge is built in
+    hob = next(f for f in records[KITCHEN].added if f["type"] == "stove")
+    fridge = next(f for f in records[KITCHEN].added if f["type"] == "fridge")
+    assert hob["built_into"] == "f_L-1_004" and hob["built_in"]["oven"] is True
+    assert fridge["built_into"] == "f_L-1_004" and fridge["built_in"]["kind"] == "fridge"
+    how = {b["kind"]: b.get("how") for b in records[KITCHEN].built_ins}
+    assert how == {"hob": None, "fridge": "built_in"}
 
 
 def test_same_as_room_takes_the_base_rooms_pieces(completed):
@@ -245,7 +255,7 @@ def test_outputs_summary_report_and_debug(completed, tmp_path):
     recs = list(records.values())
     summary = C.summary(recs, out, C.Settings(), "http://x/v1", MODEL, [])
     assert summary["kind"] == "completion" and summary["changes_applied"] == 0 and summary["rooms_copied"] == 1
-    assert summary["pieces_added"] == sum(len(r.added) for r in recs) and summary["wall_cabinets"] == 2
+    assert summary["pieces_added"] == sum(len(r.added) for r in recs) and summary["wall_cabinets"] == 3
     rooms = {r["room_id"]: r for r in summary["rooms"]}
     assert rooms[SALON]["chosen"] == 2 and rooms[SALON]["candidates"][0]["rank"] == 1
     assert {"group_id": f"{SALON}.seating", "group": "seating", "options": rooms[SALON]["program"][0]["options"],
