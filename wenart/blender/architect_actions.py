@@ -65,7 +65,16 @@ ACTIONS = {
     "widen_door": f"widen the door to {DOOR_MIN_W:.2f} m ({WC_DOOR_MIN_W:.2f} m for a WC) where the wall allows",
     "raise_sill": f"raise the window's sill to {SAFE_SILL_M:.2f} m (the head stays)",
     "remove_piece": "the piece is not built (it does not belong there)",
-    "stair_winders": "the U stair's half landing becomes winders for comfortable risers (params: count, 0 = as drawn)",
+    "stair_winders": "the stair's landing becomes winders for comfortable risers (a U stair's half landing, an L "
+                     "stair's quarter landing; params: count, 0 = as drawn)",
+    # 27 Oct 2026 (a review: the winders were a U-stair rule only): a straight stair with too few treads
+    "stair_run": "the straight stair's run gets longer at its foot by treads of its drawn going, where the floor there "
+                 "is free, for comfortable risers (params: count, auto or 0 = as drawn)",
+    # 27 Oct 2026 (user on real06: "Needs a pathway here, how will the people go up to 2nd floor otherwise?" and "make
+    # argus fix these by itself"): a stair whose rise direction no drawing gives is read the other way
+    "flip_stair": "the stair's assumed reading turned round: its rise direction (and its half landing at the other "
+                  "end), so it leads into its floors; its floor opening is cut again (flights, half landing, headroom, "
+                  "never the arrival)",
     "retype_piece": "the piece is another type (params: type)",
     # 26 Oct 2026 (user: "I need ai models to see understand and fix everything before even I look at it"): the
     # fixes of the questions that had only ``keep`` (a door into the air, a bare gap in the facade, a door off its
@@ -764,6 +773,57 @@ def act_stair_winders(plan: Plan, key: str, ans: dict, piece_id: str, count="aut
     return True, f"{piece_id}: winders {count}"
 
 
+def act_stair_run(plan: Plan, key: str, ans: dict, piece_id: str, count="auto"):
+    """A straight stair's run longer at its foot (27 Oct 2026; ``count`` "auto": as many treads as comfortable risers
+    need where the floor there is free, ``stair_access.run_extension``; 0: as drawn)."""
+    from wenart.blender import architect_details as AD
+    from wenart.blender import parametric as P
+    from wenart.blender import shell
+    from wenart.blender import stair_access as SA
+    f = _piece(plan, piece_id)
+    if f is None or str(f.get("type")) != "stair":
+        return False, f"no stair {piece_id}"
+    data = f.get("stair") if isinstance(f.get("stair"), dict) else None
+    if not isinstance(data, dict):
+        return False, f"{piece_id} has no stair record"
+    if str(count) != "auto":
+        data["extra_treads"] = int(count)
+        _mark(f, "adjusted_by_ai", key, ans, f"the answer to {key}: {int(count)} tread(s) added at its foot")
+        return True, f"{piece_id}: {int(count)} tread(s) added at its foot"
+    level = plan.levels.get(f.get("level_id"))
+    item = next((x for x in (shell.plan_stairs(plan.b, level) if level is not None else [])
+                 if x["piece"].get("id") == piece_id and x.get("plan")), None)
+    if item is None:
+        return False, f"{piece_id} cannot be planned"
+    try:
+        n, why = SA.run_extension(plan.b, f, item["plan"], P.STAIR_WINDER_TARGET_RISER, AD.STAIR["riser"][1])
+    except Exception as exc:  # noqa: BLE001 - shapely's errors too: refused with the reason
+        return False, f"stair_run failed: {type(exc).__name__}: {exc}"
+    if not n:
+        return False, f"{piece_id}: {why}"
+    data["extra_treads"] = n
+    _mark(f, "adjusted_by_ai", key, ans, f"the answer to {key}: {why}")
+    return True, f"{piece_id}: {why}"
+
+
+def act_flip_stair(plan: Plan, key: str, ans: dict, piece_id: str):
+    """The other reading of a stair whose rise direction is assumed (27 Oct 2026; ``stair_access.flip``: the direction
+    turned round, the half landing at the other end with the flights climbed in the other order, the first that leads
+    into both floors; its floor opening derived again, never over the arrival). Refused when the direction is drawn
+    (an arrow, a break line, riser text or the plan of the level above) or no other reading leads in."""
+    from wenart.blender import stair_access as SA
+    f = _piece(plan, piece_id)
+    if f is None or str(f.get("type")) != "stair":
+        return False, f"no stair {piece_id}"
+    try:
+        ok, text = SA.flip(plan.b, f, why=f"the answer to {key}")
+    except Exception as exc:  # noqa: BLE001 - shapely's errors too: the answer is refused with the reason
+        return False, f"flip_stair failed: {type(exc).__name__}: {exc}"
+    if ok:
+        _mark(f, "adjusted_by_ai", key, ans, text)
+    return ok, text
+
+
 def act_remove_piece(plan: Plan, key: str, ans: dict, piece_id: str):
     """The piece is not built (an answer: it does not belong where it stands; 25 Oct 2026)."""
     f = _piece(plan, piece_id)
@@ -1364,6 +1424,11 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                 elif opt == "stair_winders":
                     ok, text = act_stair_winders(plan, key, ans, params.get("piece_id") or target,
                                                  params.get("count", "auto"))
+                elif opt == "flip_stair":
+                    ok, text = act_flip_stair(plan, key, ans, params.get("piece_id") or target)
+                elif opt == "stair_run":
+                    ok, text = act_stair_run(plan, key, ans, params.get("piece_id") or target,
+                                             params.get("count", "auto"))
                 elif opt == "remove_piece":
                     ok, text = act_remove_piece(plan, key, ans, params.get("piece_id") or target)
                 elif opt == "retype_piece":

@@ -487,6 +487,19 @@
    "request": "Rooms and outdoor spaces (veranda, terrace) must look like stylish rooms in good internet photos, not like a child's drawing: the AI learns what a good room of each type and style looks like from reference photos found on the internet, finds what the render lacks against them, and the pipeline adds it (interiors and exteriors).",
    "lesson": "Rooms and outdoor spaces (veranda, terrace) must look like stylish rooms in good internet photos, not like a child's drawing: the AI learns what a good room of each type and style looks like from reference photos found on the internet, finds what the render lacks against them, and the pipeline adds it (interiors and exteriors).",
    "question": null
+  },
+  {
+   "id": "UL43",
+   "date": "2026-10-27",
+   "area": "access",
+   "status": "rule",
+   "checks": [
+    "K4",
+    "build"
+   ],
+   "request": "Make argus catch these kind of things before me: the stair must lead into the floor (a pathway from the stair to the rooms)",
+   "lesson": "Every stair leads into its floors: from its last step a visitor walks through a clear way of at least 0.80 m into the rooms of the floor above, and from the rooms of its own floor onto its first step; the floor opening covers only the flights, the half landing and the headroom, never the arrival floor. An assumed stair that is cut off is read the other way at build (the plan of the level above names its half landing; architect K4, the action flip_stair), and the model review's M9 reports every stair, door or floor part no walk reaches, so Argus sees it before the user does.",
+   "question": "Can a visitor walk from the top of every stair into the rooms of that floor, and from the rooms onto its first step, with no floor opening across the way?"
   }
  ]
 }

@@ -999,7 +999,25 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
            "warnings": list(vb["_variant"]["warnings"]), "assumed": [], "slabs": None, "roof": None,
            "open_rooms": set(), "outlines": {}, "ground_outline": [], "site": None, "faces": {},
            "brief": brief_args(building_all, brief), "terraces": [], "clips": [], "site_options": None,
-           "overrides_applied": None}
+           "overrides_applied": None, "stair_access": None}
+    # 27 Oct 2026 (real06's first floor: the stair arrived on a strip by the outer wall that its floor opening cut off
+    # from the hall; user: "Needs a pathway here, how will the people go up to 2nd floor otherwise?"): before anything
+    # is planned, every stair of a whole building must lead into its floors; an assumed stair that does not takes the
+    # reading that does and its opening is cut again (wenart/blender/stair_access.py; the architect's K4 reports it)
+    if whole:
+        from wenart.blender import stair_access as SA
+        try:
+            out["stair_access"] = SA.fix_arrivals(vb)
+        except Exception as exc:  # noqa: BLE001 - shapely's errors too: the check is reported, the build goes on
+            out["stair_access"] = {"stairs": [], "fixed": 0, "open": 0, "error": f"{type(exc).__name__}: {exc}"}
+            out["warnings"].append(f"the stairs' walk check could not run: {type(exc).__name__}: {exc}")
+        for row in out["stair_access"]["stairs"]:
+            if row["status"] == "fixed":
+                out["warnings"].append(f"architect K4: {row['change']}")
+                out["assumed"].append({"object": row["stair"], "field": "stair_reading", "value": row["change"],
+                                       "reason": row["reason"], "kind": "stair_access", "parent": row["stair"]})
+            elif row["status"] == "open":
+                out["warnings"].append(f"architect K4: {row['found']}; {row['reason']}")
     agent = O.overrides_of(building_all)
     if agent is not None:
         out["overrides_applied"] = {"round": agent.get("round"), "roof": [], "cameras": [], "materials": [],
@@ -1060,6 +1078,13 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
         return R.opening_head_limit(roof, over, wall, o)
     out["architect_answers"] = AA.answers_of(vb, out["brief"]["architect_answers"]["value"])
     out["architect_applied"] = AA.apply_answers(vb, out["architect_answers"], head_limit=head_limit)
+    # 27 Oct 2026: an answer that read a stair the other way (``flip_stair``) cut its floor opening again: the slabs are
+    # planned again with it (their new notes only; the first plan's are listed already)
+    if building_all.get("slabs") and any(r.get("ok") and r.get("option") == "flip_stair" and r.get("change")
+                                         for r in out["architect_applied"]):
+        out["slabs"] = shell.slab_plan(vb, vb["levels"], float(slab_t), bool(slab_assumed))
+        out["warnings"] += [w for w in out["slabs"]["warnings"] if w not in out["warnings"]]
+        out["assumed"] += [a for a in out["slabs"]["assumed"] if a not in out["assumed"]]
     out["clips"] = R.clip_openings_to_roof(vb, over, roof) if over is not None else []
     if out["clips"]:
         variant_meta = vb.get("_variant")

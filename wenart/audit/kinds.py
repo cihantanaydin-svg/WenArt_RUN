@@ -34,8 +34,11 @@ KINDS = {
     "no_sense": {"what": "the model makes no sense to a visitor (a door into the air, a basin at knee height, stairs "
                          "running into each other, a railing across a door)",
                  "arises": "architect, build",
-                 "guards": ["sense (N*: every room reached, no bathroom as a corridor, every level reached)",
-                            "model review (M*)", "architect rules", "visitor checks (Q*)"]},
+                 "guards": ["sense (N*: every room reached, no bathroom as a corridor, every level reached; a stair "
+                            "joins the room it starts in and the room it arrives in)",
+                            "model review (M*; M9: the walk from every stair into the rooms, to every door)",
+                            "architect rules (K4: a cut-off stair takes the reading that leads into its floors)",
+                            "visitor checks (Q*)"]},
     "taste": {"what": "the house does not look designed (pieces that do not match, plain or dated rooms, a garage "
                       "door look)",
               "arises": "fit, decor, opening models",
@@ -64,6 +67,8 @@ CHECK_KIND = {
     # the model review
     "M1": "no_sense", "M2": "no_sense", "M3": "no_sense", "M4": "no_sense", "M5": "no_sense", "M6": "taste",
     "M7": "misread", "M8": "no_sense",
+    # 27 Oct 2026: the visitor's walk from every stair into its floors and to every door (model_review.stair_walks)
+    "M9": "no_sense",
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",

@@ -2392,6 +2392,12 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
         for a_id, b_id in TW.same_as(alt, base, b["openings"], b["furniture"]).items():
             next(r for r in b["rooms"] if r["id"] == a_id)["same_as"] = b_id
     b["variants"] = TB.variants_block(sheets, b["levels"], b["rooms"], b["walls"], b["openings"])
+    # 27 Oct 2026 (real06's first floor: the stair arrived on a strip its opening cut off from the hall): a U stair the
+    # plan of the next level up draws again takes that plan's half landing and arriving flight before its floor
+    # opening is cut (wenart/blender/stair_access.py); every change is a warning and is labelled on the stair
+    from wenart.blender import stair_access as SA
+    for rec in SA.read_across_levels(b):
+        build.warn(f"stair {rec['stair']}: {rec['reason']}")
     slab_default = float(BR.value(BR.load_brief(project_dir), "slab_thickness", 0.20))
     b["slabs"] = TB.slabs_block(sheets, b["levels"], build.unions, b["furniture"], slab_default, build.warn,
                                 b["variants"])

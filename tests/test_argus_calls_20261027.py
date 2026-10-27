@@ -274,7 +274,7 @@ def test_c7_a_piece_left_out_while_an_ai_pass_named_a_fitting_type():
     assert (found["f1"]["check"], found["f1"]["severity"], found["f1"]["kind"]) == ("C7", "major", "lost")
     assert found["f1"]["fix"] == {"action": "type_piece", "element_id": "f1", "type": "sofa"}
     assert found["f4"]["severity"] == "minor"
-    actions, work, _revoke = AX.code_actions({"findings": [found["f1"]]}, b)
+    actions, work, _revoke, _decisions = AX.code_actions({"findings": [found["f1"]]}, b)
     assert [(a["tool"], a["args"]["piece_id"], a["args"]["type"]) for a in actions] == [("retype_piece", "f1", "sofa")]
 
 

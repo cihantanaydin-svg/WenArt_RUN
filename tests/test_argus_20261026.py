@@ -654,10 +654,11 @@ def test_argus_code_fixes_need_no_model_and_revoke_only_the_ais_decisions(tmp_pa
                   evidence={"missing": "shower|bathtub"}),
         dict(K.finding("source", "A6", "major", "TEXT:1", "the plan names a dresser"),
              fix={"action": "type_piece", "element_id": "f_dr", "type": "dresser"})]}
-    actions, work, revoke = AX.code_actions(rep, b)
+    actions, work, revoke, decisions = AX.code_actions(rep, b)
     assert {(a["tool"], a["args"]["piece_id"], a["args"]["type"]) for a in actions} == {
         ("retype_piece", "f_bath", "bathtub"), ("retype_piece", "f_dr", "dresser")}
     assert revoke == ["AI.remove_piece:f_sh"] and all(w["argus_cause"] == "wrong_type" for w in work)
+    assert decisions == []                                   # no stair cut off from its floor (M9)
     odir = LG.orchestrator_dir(tmp_path)
     AIA._save_answers(odir, {"AI.remove_piece:f_sh": {"by": "ai"}, "W2:w1": {"by": "user"}})
     res = AX.revoke_decisions(tmp_path, ["AI.remove_piece:f_sh", "W2:w1", "AI.x:y"])

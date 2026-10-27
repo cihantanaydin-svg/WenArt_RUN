@@ -657,8 +657,21 @@ def room_graph(building: dict, sides: Sequence[dict]) -> dict:
     # 26 Oct 2026 (real06: "no room of L1 can be reached"): a stair drawn as a piece in a room (not a stair room)
     # links that room with the room of the next level over its footprint
     by_id = {r["id"]: r for r in rooms}
+    from wenart.blender import stair_access as SA
     for f in building.get("furniture") or []:
         if str(f.get("type") or "").lower() not in ("stair", "stairs", "staircase") or f.get("room_id") not in by_id:
+            continue
+        # 27 Oct 2026: the room the stair starts in and the room its arrival floor lies in on the next level (not the
+        # rooms at its centre: real06's stair arrived on a strip its opening cut off from the hall)
+        try:
+            ends = SA.stair_rooms(building, f)
+        except Exception:  # noqa: BLE001 - shapely's errors too: the centre stands in
+            ends = None
+        if ends is not None:
+            a, b = ends["start"], ends["arrival"]
+            if a in by_id and b in by_id and a != b:
+                graph[a].setdefault(b, []).append("stairs")
+                graph[b].setdefault(a, []).append("stairs")
             continue
         fp = f.get("footprint") or {}
         c = fp.get("center")
@@ -1298,7 +1311,7 @@ def status_of(a: dict) -> str:
 
 ORDER = ("B1", "B2", "A2", "A5", "E1", "O2", "C1", "C2", "T1", "T2", "L1", "W2", "L2", "W3", "P1", "R1", "R2", "R3",
          "R4", "R5", "O1", "D1", "D2", "D4", "D5", "D3", "X1", "F5", "F1", "F2", "F3", "F4", "H1", "U1", "S4", "S2",
-         "S3", "K1", "K2", "K3", "S1", "A3", "A4", "A1", "G1")
+         "S3", "K4", "K1", "K2", "K3", "S1", "A3", "A4", "A1", "G1")
 
 
 def summary(questions: list[dict], applied: Optional[Sequence[dict]] = None) -> dict:

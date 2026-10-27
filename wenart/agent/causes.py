@@ -327,6 +327,9 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     # 26 Oct 2026: the model review's M8 (steps of two doors that meet, a handrail or a ramp in front of another
     # door, steps in front of a garage): the site stage lays out every entrance's steps by code
     "entrance_layout": (),
+    # 27 Oct 2026: the model review's M9 (a stair cut off from its floor, a floor opening across a door or cutting a
+    # floor apart): the stair's reading and its opening are the architect's (K4 at build, stair_access.fix_arrivals)
+    "stair_access": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -379,6 +382,11 @@ NO_TOOL_REASON: dict[str, str] = {
                        "the entrances together (site.entrance_layout: doors whose steps would meet share one platform "
                        "with one flight, a ramp and the handrails keep clear of the other doors); no agent tool moves "
                        "them, so the finding is reported to the site stage",
+    "stair_access": "the walk from a stair into its floors (which end its half landing is at, which flight arrives, "
+                    "how far its floor opening reaches) is the architect's: at build its K4 takes the reading of an "
+                    "assumed stair that leads into both floors and cuts the opening to the flights, the half landing "
+                    "and the headroom (stair_access.fix_arrivals); no agent tool moves a stair or a floor opening, so "
+                    "the finding is reported to the architect",
     "drawn_type": "the piece is drawn and its type is one the room's types hold (the code's room rules, aliases "
                   "included): drawn furniture is kept (CLAUDE.md), and a vision opinion on its type is no reading "
                   "error, so it is reported for review, not retyped",
@@ -404,6 +412,8 @@ REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor",
                              "rain_water": "architect",
                              # 26 Oct 2026: the entrance steps (model review M8) are the site stage's
                              "entrance_layout": "site",
+                             # 27 Oct 2026: the walk from the stairs (model review M9) is the architect's
+                             "stair_access": "architect",
                              # fix round after P4b: a frozen replayed camera, a decor light's model
                              "replayed_camera": "cameras", "decor_model": "decor",
                              # fix round after P5: a blocked view the camera search could not avoid
@@ -451,7 +461,7 @@ CHECK_CAUSE: dict[str, str] = {
     "Q6": "orientation", "Q7": "opening_style", "Q8": "rain_water", "Q9": "entrance_layout",
     # 26 Oct 2026: the review of the 3D model as built (wenart/blender/model_review.py; cause_of refines M7)
     "M1": "levels", "M2": "wrong_model", "M3": "guard", "M4": "opening_sense", "M5": "rain_water",
-    "M6": "opening_style", "M7": "missing_anchor", "M8": "entrance_layout",
+    "M6": "opening_style", "M7": "missing_anchor", "M8": "entrance_layout", "M9": "stair_access",
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",
@@ -581,6 +591,10 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
     # 26 Oct 2026: the model review's rooms: a missing anchor is furnished, an extra dining table is one too many
     if check == "M7":
         return "wrong_type" if target and _is_piece(target, building) else "empty_room"
+    # 27 Oct 2026: an M9 door blocked by a movable piece is the furniture's (move it); the rest is the architect's
+    if check == "M9" and metrics.get("kind") == "pieces" and any(t != "stair" for t in metrics.get("blocked_types")
+                                                                  or []):
+        return "blocked_opening"
     # 26 Oct 2026: the visitor checks, refined from the message
     if check == "Q4":
         if target and _is_piece(target, building):

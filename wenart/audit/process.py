@@ -40,6 +40,11 @@ from wenart.audit.inputs import Inputs
 WARN_RULES = (
     ("shortfall", re.compile(r"\bplaced (\d+) of (\d+)\b", re.I), "major", "silent",
      "a stage placed fewer items than it planned"),
+    # 27 Oct 2026 (stair_access: the walk from every stair into its floors; the architect's K4, the model review's M9)
+    ("stair_cut_off", re.compile(r"no other reading of the stair leads into both floors", re.I), "major", "no_sense",
+     "a stair cut off from its floor that no reading of it fixes (the model review's M9 names the walk)"),
+    ("stair_reading", re.compile(r"^architect K4: |\bdraws the same stair\b", re.I), "info", "other",
+     "a stair read again so it leads into its floors (the plan of the level above, or the architect's K4), logged"),
     ("outside_not_room", re.compile(r"outside the outer walls.*not a room|recorded in site, not a room", re.I),
      "major", "lost", "a labelled space outside the walls was kept as a site record: it must be built"),
     ("not_used", re.compile(r"\bread\b.*\bnot used\b|\bunused\b", re.I), "major", "lost",

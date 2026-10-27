@@ -361,10 +361,14 @@ def test_real06_upper_floor_guards_its_stair_void():
     l0 = next(lv for lv in vb["levels"] if lv["id"] == "L0")
     l1 = next(lv for lv in vb["levels"] if lv["id"] == "L1")
     stair = next(i["plan"] for i in SH.plan_stairs(vb, l0, slab_void=True) if i["plan"])
-    assert stair["top_apron"] == pytest.approx(0.30, abs=0.01) and stair["rail_limit"] > stair["rise_m"]
+    # 27 Oct 2026 (stair_access, the architect's K4): the stair read from the L1 plan arrives in the hall's south part
+    # and its opening ends at its last riser: no apron any more (the 0.30 m apron led onto the cut-off strip)
+    assert prep["stair_access"]["fixed"] == 1
+    assert not stair.get("top_apron") and stair["rail_limit"] > stair["rise_m"]
     voids = prep["slabs"]["by_level"]["L1"]["under"]["voids"]
     guards = SH.floor_void_guards(vb, l1, voids)
-    assert len(guards) == 1 and guards[0]["arrives_from"] == ["f_L0_001"] and guards[0]["length_m"] > 2.0
+    # the free edges of the opening are now the edges of the floor over the first flight's low steps (1.2 + 0.45 m)
+    assert len(guards) == 1 and guards[0]["arrives_from"] == ["f_L0_001"] and guards[0]["length_m"] > 1.2
     arrival = SH.stair_arrival_edges(vb, l1)[0]
     for p, q in guards[0]["runs"]:                     # no guard across the top of the stair
         mid = ((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)

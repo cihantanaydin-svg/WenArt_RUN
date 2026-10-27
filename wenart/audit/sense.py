@@ -16,8 +16,11 @@ What (code, on the building as built, every room and every level):
 How: a graph of the rooms and ``outside``: an opening that is not a window joins the rooms on its two sides
 (``architect_actions.window_sides``; no room = outside, an open-air room counts as outside); two rooms of a level whose
 outlines touch (closer than ``OPEN_GAP_M``, no wall between them) over ``OPEN_JOIN_M`` or more are one open plan; a
-stair joins the rooms at its centre on its level and the levels next to it. Rooms smaller than ``MIN_ROOM_M2`` (shafts,
-voids) are not checked.
+stair joins the room it starts in with the room its arrival floor lies in on the level above
+(``stair_access.stair_rooms``, 27 Oct 2026: never the rooms at its centre, which passed real06's stair that arrived on
+a strip cut off from the hall; the walk itself is the model review's M9); only a stair that cannot be planned joins the
+rooms at its centre on its level and the levels next to it. Rooms smaller than ``MIN_ROOM_M2`` (shafts, voids) are not
+checked.
 """
 from __future__ import annotations
 
@@ -83,8 +86,26 @@ def graph(building: dict) -> tuple[dict, dict]:
                     join(node(ra), node(rb), "open plan")
     order = sorted(plan.levels.values(), key=lambda lv: float(lv.get("elevation") or 0.0))
     index = {lv["id"]: i for i, lv in enumerate(order)}
+    from wenart.blender import stair_access as SA
     for f in building.get("furniture") or []:
         if str(f.get("type")) not in STAIR_TYPES:
+            continue
+        # 27 Oct 2026 (real06's first floor: the stair's centre lay in the hall of both floors while it arrived on a
+        # strip its opening cut off from the hall): a stair joins the room it starts in with the room its arrival floor
+        # lies in on the level above; the drawn upper end of the stair below joins nothing (that stair does). Whether a
+        # visitor walks from the arrival into the floor is the model review's M9. Only a stair that cannot be planned
+        # (no heights, no flights) falls back to its centre.
+        try:
+            ends = SA.stair_rooms(building, f)
+            upper_end = ends is None and SA.is_upper_end(building, f)
+        except Exception:  # noqa: BLE001 - shapely's errors too: the centre stands in
+            ends, upper_end = None, False
+        if ends is not None:
+            a, b = plan.room.get(ends["start"]), plan.room.get(ends["arrival"])
+            if a is not None and b is not None:
+                join(node(a), node(b), f["id"])
+            continue
+        if upper_end:
             continue
         c = (f.get("footprint") or {}).get("center")
         room = plan.room.get(f.get("room_id"))

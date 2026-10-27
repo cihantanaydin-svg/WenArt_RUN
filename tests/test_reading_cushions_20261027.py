@@ -141,7 +141,7 @@ def test_argus_suspects_a_vision_typed_piece_the_room_cannot_hold():
     assert [f["id"] for f in SN.misfits(b, M.ROOM_ID, b["furniture"])] == ["s1"]     # a block name stands
     finding = {"check": "N5", "line": "sense", "severity": "major", "target": "s1", "message": "misses its bed",
                "evidence": {"room": M.ROOM_ID, "missing": "bed_double|bed_single"}}
-    actions, _work, _rev = AX.code_actions({"findings": [finding]}, b)
+    actions, _work, _rev, _dec = AX.code_actions({"findings": [finding]}, b)
     assert [(a["tool"], a["args"]["type"]) for a in actions] == [("retype_piece", "bed_single")]
     assert AX.missing_for({"footprint": {"size": [2.0, 1.6]}}, "bed_double|bed_single") == "bed_double"
     assert AX.missing_for({"footprint": {"size": [1.7, 0.75]}}, "shower|bathtub") == "bathtub"

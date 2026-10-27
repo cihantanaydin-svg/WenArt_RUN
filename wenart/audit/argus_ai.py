@@ -70,7 +70,9 @@ CAUSES = ("reading", "recognition", "fit", "layout", "decor", "agent", "architec
           "cameras", "render", "library", "scheduler", "unknown")
 FIX_ARCH = ("door_to_window", "french_window", "raise_sill", "widen_door", "interior_glazing", "high_window",
             "pass_through", "gap_to_door", "window_to_door", "snap_threshold", "retype_room", "enlarge_windows",
-            "move_piece", "mount_fixture", "remove_piece")
+            "move_piece", "mount_fixture", "remove_piece",
+            # 27 Oct 2026 (user: "make argus fix these by itself"): a stair cut off from its floor read the other way
+            "flip_stair")
 FIX_OTHER = ("agent_round", "rerun_stage", "rule_needed", "not_a_problem")
 # 26 Oct 2026 (user: "make Argus fix everything itself, give it more power"): the agent's edit tools Argus may call
 # itself (23; the loop runs them in Argus's session through the same registry, validators and acceptance:
@@ -435,13 +437,30 @@ def missing_for(piece: dict, missing: str) -> str:
     return opts[0] if opts else ""
 
 
-def code_actions(rep: dict, building: dict) -> tuple[list[dict], list[dict], list[str]]:
-    """The fixes Argus's code lines name exactly, as tool calls with no model (``(actions, work, revoke keys)``):
-    the ledger's ``type_piece`` (a furniture name written beside an untyped piece), N5 (a room missing a piece of
-    its set holds an untyped drawn piece: typed as that piece, a bath or a shower by its length; or a piece an AI
-    decision took out: that decision is revoked)."""
+def stair_cut_off(f: dict, pieces: dict) -> bool:
+    """27 Oct 2026 (``code_actions``): the model review's M9 finds a stair's arrival or start cut off from its floor,
+    and no drawing gives the stair's rise direction (``direction_assumed``): the architect action ``flip_stair`` reads
+    it the other way (it is carried out only when the other reading leads into both floors)."""
+    if f.get("check") != "M9" and "model:M9" not in (f.get("seen_by") or []):
+        return False
+    piece = pieces.get(f.get("target")) or {}
+    data = piece.get("stair") if isinstance(piece.get("stair"), dict) else None
+    if str(piece.get("type")) != "stair" or data is None or data.get("direction_assumed", True) is False:
+        return False
+    m = (f.get("evidence") or {}).get("metrics") or f.get("metrics") or {}
+    return m.get("part") in (None, "stair") and (m.get("arrival_ok") is False or m.get("start_ok") is False
+                                                 or "arrival_ok" not in m)
+
+
+def code_actions(rep: dict, building: dict) -> tuple[list[dict], list[dict], list[str], list[dict]]:
+    """The fixes Argus's code lines name exactly, as tool calls with no model (``(actions, work, revoke keys,
+    decisions)``): the ledger's ``type_piece`` (a furniture name written beside an untyped piece), N5 (a room missing
+    a piece of its set holds an untyped drawn piece: typed as that piece, a bath or a shower by its length; or a piece
+    an AI decision took out: that decision is revoked); 27 Oct 2026: M9 (a stair whose assumed reading is cut off from
+    its floor: the architect decision ``flip_stair``, ``stair_cut_off``)."""
     pieces = {f.get("id"): f for f in building.get("furniture") or []}
     actions, work, revoke = [], [], []
+    decisions: list[dict] = []          # 27 Oct 2026 (the architect actions the code lines name: flip_stair)
     for n, f in enumerate(rep.get("findings") or [], 1):
         fix = f.get("fix")
         if isinstance(fix, dict) and fix.get("action") == "type_piece" and fix.get("element_id") in pieces \
@@ -468,7 +487,12 @@ def code_actions(rep: dict, building: dict) -> tuple[list[dict], list[dict], lis
                                    f, f.get("message"), "code")
                     actions.append(a)
                     work.append(w)
-    return actions, work, revoke
+        # 27 Oct 2026 (user: "make argus fix these by itself"): a stair cut off from its floor, read the other way
+        if stair_cut_off(f, pieces):
+            decisions.append({"aid": f"c{n}", "action": "flip_stair", "element": str(f.get("target")), "value": "",
+                              "reason": f"the stair is cut off from its floor: {f.get('message')}"[:300],
+                              "finding": f})
+    return actions, work, revoke, decisions
 
 
 def revoke_decisions(project_out, keys: list[str]) -> list[dict]:
@@ -718,12 +742,15 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
             work.append({"aid": "AI1", "fix": "agent_round", "check": "AI1", "severity": f["severity"],
                          "target": f["target"], "message": f["message"], "cause": f.get("owner"), "why": ""})
     # the fixes the code lines name exactly: no model needed (they run even when the model failed)
-    c_actions, c_work, revoke = code_actions(rep, inp.stage("build") or building)
+    c_actions, c_work, revoke, c_decisions = code_actions(rep, inp.stage("build") or building)
     have = {(x["tool"], json.dumps(x["args"], sort_keys=True)) for x in actions}
     for x, w in zip(c_actions, c_work):
         if (x["tool"], json.dumps(x["args"], sort_keys=True)) not in have:
             actions.append(x)
             work.append(w)
+    # 27 Oct 2026: the architect decisions the code lines name exactly (flip_stair for a stair cut off from its floor)
+    have_d = {(d["action"], str(d["element"])) for d in decisions}
+    decisions += [d for d in c_decisions if (d["action"], str(d["element"])) not in have_d]
     # 27 Oct 2026: every call checked by code before the agent loop runs it; the invalid ones repaired (code, then
     # one model call) or dropped with their reasons (their findings stay in the work list for the agent's round)
     vetted = {"calls": len(actions)}

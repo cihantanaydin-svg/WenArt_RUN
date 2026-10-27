@@ -54,7 +54,9 @@ LOOK_ACTIONS = {
     "opening": ("door_to_window", "french_window", "raise_sill", "widen_door", "interior_glazing", "high_window",
                 "pass_through", "gap_to_door", "window_to_door", "snap_threshold"),
     "room": ("retype_room", "enlarge_windows"),
-    "piece": ("move_piece", "mount_fixture", "remove_piece"),
+    "piece": ("move_piece", "mount_fixture", "remove_piece",
+              # 27 Oct 2026: a stair whose assumed reading is cut off from its floor is read the other way
+              "flip_stair"),
 }
 TOPDOWN = "renders/top_{level}_plan.jpg"
 LOOK_JSON = "architect_look.json"

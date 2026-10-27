@@ -19,6 +19,13 @@ one answer per element: ``ok``, a ``change`` code made, or ``open`` with options
   guard at least 1.00 m high whose gaps a 0.1 m sphere cannot pass (``details.balustrade``), a parapet a coping.
 - K3 one balustrade language: every balustrade of the house is of one kind (``details.balustrade_kind``), the stair's
   too.
+- K4 the way up (27 Oct 2026, user on real06's first floor: "Needs a pathway here, how will the people go up to 2nd
+  floor otherwise?"): every stair leads into its floors: from its last riser a visitor walks through a 0.80 m way into
+  the main floor of the level above, and from the main floor of its own level to its first riser. The build checks it
+  before anything is planned (``stair_access.fix_arrivals``, ``build.prepare``'s ``stair_access``): an assumed stair
+  that is cut off takes the reading that leads into both floors (the upper plan's, its opening cut to the flights,
+  half landing and headroom, its rise direction flipped, its half landing at the other end), logged ``by: architect``
+  with the before and after; one no reading connects stays as drawn and is asked.
 
 How: code checks on the building JSON and the build plan, as every architect rule; the changes are the code's own
 (the fit's outdoor ranking, the glazed doors, the stair and balustrade builders), listed so the report shows them.
@@ -45,6 +52,11 @@ RULES = (
      "question": "Does every edge over a drop (a balcony, a roof terrace, a terrace over the garden) have a guard of "
                  "1.00 m whose gaps a child cannot pass, and every parapet a coping?",
      "why": "a fall of over a metre needs a guard; a bare parapet top stains the facade"},
+    {"id": "K4", "topic": "the way up", "scope": "stair", "severity": "major",
+     "question": "Does every stair lead into its floors: from its last step can I walk (0.80 m clear) into the rooms "
+                 "of the floor above, and from the rooms of its own floor onto its first step, with no floor opening "
+                 "across the way?",
+     "why": "a stair that arrives on a strip its own opening cuts off from the rooms takes nobody upstairs"},
     {"id": "K3", "topic": "one balustrade language", "scope": "house", "severity": "minor",
      "question": "Do the balustrades of the house (stairs, balconies, terraces, parapets) speak one language?",
      "why": "glass on one side and steel bars on the other look like two houses"},
@@ -173,28 +185,55 @@ def terrace_doors(plan: AA.Plan, sides: list[dict]) -> dict:
 WINDER_AUTO_RISER = 0.20     # a drawn riser over this is a drawing error no code allows: winders are made
 
 
+def _k1_label(piece: dict, riser: float, what: str) -> None:
+    earlier = piece.get("adjusted_by_ai")                     # 27 Oct 2026: K4's (or the reading's) label is kept
+    piece["adjusted_by_ai"] = {**({"earlier": earlier} if isinstance(earlier, dict) else {}),
+                               "by": "architect", "rule": "architect K1",
+                               "reason": f"a riser of {riser:.3f} m is a drawing error (the stair is drawn with too "
+                                         f"few treads for its storey): {what}"}
+
+
 def stair_details(stairs: list[dict], balustrade: str, building: Optional[dict] = None) -> dict:
-    """K1 (pure; ``building`` in place): ``stairs`` = ``shell.plan_stairs`` items of every level. A U stair drawn
-    with risers over ``WINDER_AUTO_RISER`` (real04: 11 lines for a 3 m storey) gets winders in its half landing
-    (``parametric.winder_treads``; its footprint as drawn, ``adjusted_by_ai`` with the reason) unless an answer set
-    its ``winders``; the answer ``stair_winders`` with count 0 keeps it as drawn."""
+    """K1 (pure; ``building`` in place): ``stairs`` = ``shell.plan_stairs`` items of every level. A stair drawn with
+    risers over ``WINDER_AUTO_RISER`` (real04: 11 lines for a 3 m storey) is fixed for any shape (27 Oct 2026; before,
+    only a U stair was): a U stair's half landing or an L stair's quarter landing becomes winders
+    (``parametric.winder_treads``; the footprint as drawn), a straight stair gets a longer run at its foot where the
+    floor there is free (``stair_access.run_extension``: ``stair.extra_treads``); each ``adjusted_by_ai`` with the
+    reason, unless an answer set its ``winders`` / ``extra_treads``. What stays over the limit (no landing to turn, no
+    free floor at the foot, too few winders) is asked; the answers ``stair_winders`` / ``stair_run`` with count 0
+    keep it as drawn."""
     from wenart.blender import parametric as P
+    from wenart.blender import stair_access as SA
 
     q = _q("K1")
     redo = []
+    why_not: dict = {}
     for item in stairs:
         piece, plan = item.get("piece") or {}, item.get("plan")
         if plan is None:
             continue
         data = P.stair_data(piece)
-        if (building is not None and isinstance(data, dict) and "winders" not in data and len(plan["flights"]) == 2
-                and (plan.get("landing") or {}).get("role") == "mid" and float(plan["riser_m"]) > WINDER_AUTO_RISER):
+        riser = float(plan["riser_m"])
+        if building is None or not isinstance(data, dict) or riser <= WINDER_AUTO_RISER:
+            continue
+        land = (plan.get("landing") or {}).get("role")
+        if len(plan["flights"]) == 2 and land == "mid" and "winders" not in data:
+            quarter = abs(P._d2(plan["flights"][0]["rise_dir"], plan["flights"][1]["rise_dir"])) < 0.5
             data["winders"] = "auto"
-            piece["adjusted_by_ai"] = {"by": "architect", "rule": "architect K1",
-                                       "reason": f"a riser of {float(plan['riser_m']):.3f} m is a drawing error (the "
-                                                 f"stair is drawn with too few treads for its storey): the half "
-                                                 f"landing becomes winders, the footprint stays as drawn"}
+            _k1_label(piece, riser, f"the {'quarter' if quarter else 'half'} landing becomes winders, the footprint "
+                                    f"stays as drawn")
             redo.append(piece["id"])
+        elif len(plan["flights"]) == 1 and "extra_treads" not in data:
+            try:
+                n, why = SA.run_extension(building, piece, plan, P.STAIR_WINDER_TARGET_RISER, STAIR["riser"][1])
+            except Exception as exc:  # noqa: BLE001 - shapely's errors too: the point stays open with the reason
+                n, why = 0, f"the floor at its foot cannot be measured ({type(exc).__name__})"
+            if n:
+                data["extra_treads"] = n
+                _k1_label(piece, riser, f"its run is longer at its foot: {why}")
+                redo.append(piece["id"])
+            else:
+                why_not[piece.get("id")] = why
     if redo and building is not None:
         from wenart.blender import shell
         again = []
@@ -226,23 +265,54 @@ def stair_details(stairs: list[dict], balustrade: str, building: Optional[dict] 
         built = (f"tread plates with nosings over painted risers, "
                  f"{'a ' + balustrade.replace('_', ' ') + ' balustrade on ' + str(len(rails)) + ' open side(s)' if rails else 'a wall handrail on brackets'}")
         element = str(piece.get("id"))
+        quarter = len(plan.get("flights") or []) == 2 and abs(P._d2(plan["flights"][0]["rise_dir"],
+                                                                     plan["flights"][1]["rise_dir"])) < 0.5
         if plan.get("winders"):
-            built = f"{plan['winders']} winders in the half landing, " + built
+            built = f"{plan['winders']} winders in the {'quarter' if quarter else 'half'} landing, " + built
+        extra = int((plan.get("flights") or [{}])[0].get("extra_treads") or 0)
+        if extra:
+            built = f"a run {extra} tread(s) longer at its foot, " + built
         if piece.get("id") in redo and not issues:
+            keep = AA.option("stair_run", "keep the stair as drawn (steep)", piece_id=element, count=0) if extra \
+                else AA.option("stair_winders", "keep the stair as drawn (steep)", piece_id=element, count=0)
             _ans(q, element, f"stair {element}: drawn with too few treads for its storey",
-                 f"winders: riser {r:.3f} m, going {g:.2f} m, 2R+G {blondel:.2f} m; built with {built}",
-                 options=[AA.option("stair_winders", "keep the stair as drawn (steep)", piece_id=element, count=0)])
+                 f"{'a longer run' if extra else 'winders'}: riser {r:.3f} m, going {g:.2f} m, 2R+G {blondel:.2f} m; "
+                 f"built with {built}", options=[keep])
             continue
         if issues:
             opts = [AA.option("keep")]
             if len(plan["flights"]) == 2 and (plan.get("landing") or {}).get("role") == "mid":
                 opts.insert(0, AA.option("stair_winders", piece_id=element, count="auto"))
-            _open(q, element, f"stair {element}: " + "; ".join(issues) + f" (built: {built})",
+            elif len(plan["flights"]) == 1 and not extra:
+                opts.insert(0, AA.option("stair_run", piece_id=element, count="auto"))
+            note = f"; {why_not[piece.get('id')]}" if why_not.get(piece.get("id")) else ""
+            _open(q, element, f"stair {element}: " + "; ".join(issues) + f" (built: {built}){note}",
                   f"Is stair {element} drawn as it is meant (" + "; ".join(issues) + ")?", opts,
                   where=_where("stair", piece.get("level_id"), (piece.get("footprint") or {}).get("center") or (0, 0)))
         else:
             _ans(q, element, f"stair {element}: riser {r:.3f} m, going {g:.2f} m, 2R+G {blondel:.2f} m",
                  f"built with {built}")
+    return q
+
+
+def stair_walks(prep: dict) -> dict:
+    """K4 (pure): the answers of the build's walk check of every stair (``prep["stair_access"]``,
+    ``stair_access.fix_arrivals``): ok, changed (the reading it took, with the reason, the before and the after) or
+    open (no reading leads into both floors: kept as drawn, asked)."""
+    q = _q("K4")
+    rec = prep.get("stair_access") if isinstance(prep.get("stair_access"), dict) else {}
+    for row in rec.get("stairs") or []:
+        element = str(row.get("stair"))
+        if row.get("status") == "fixed":
+            _ans(q, element, row.get("found") or "", row.get("change"), before=row.get("before"),
+                 after=row.get("after"))
+        elif row.get("status") == "open":
+            tried = "; ".join(t["reading"] for t in row.get("tried") or []) or "no other reading"
+            _open(q, element, f"{row.get('found')}; tried: {tried}",
+                  f"How do people walk from stair {element} into the floor? Its arrival or start is cut off and no "
+                  f"other reading of it leads into both floors.", [AA.option("keep")])
+        else:
+            _ans(q, element, row.get("found") or row.get("status") or "")
     return q
 
 
@@ -379,4 +449,4 @@ def review(building: dict, prep: dict, sides: list[dict], style: Optional[dict] 
               "roof terraces": sum(1 for o in (prep.get("roof") or {}).get("openings") or [] if o.get("guard_height")),
               "terraces": sum(1 for pf in (prep.get("site") or {}).get("platforms") or [] if pf.get("railing_edges"))}
     return [outdoor_furniture(plan), terrace_doors(plan, sides), stair_details(stairs, kind, building),
-            guards(building, prep, kind), one_language(kind, counts)] + styled_rooms(building)
+            stair_walks(prep), guards(building, prep, kind), one_language(kind, counts)] + styled_rooms(building)
