@@ -1647,6 +1647,13 @@ black; the 55 m² salon "four egg chairs and no sofa"; bathrooms bare; mixed cha
   reading): real06's east windows ("160/160") were 1.55 m doorless gaps until the build; before it, the drawn sofa in
   front of one "blocked a door" and its retype was refused. Six such gaps on real06 are windows before the furnishing
   now (the build made all six windows anyway).
+  A passage stays when the pieces leave a 0.60 m walkway across it or when it opens onto a drawn outdoor space; a
+  sliding door read only from parallel lines (no swing arc, no block name) counts as unsure too (real06's 2.15 m
+  "sliding door" behind the drawn sofa).
+- **A named bedroom piece keeps an "ODA" a bedroom**: real06's r_L1_oda_2 holds "*SIFONIYER" like the floor's two
+  other bedrooms; its drawn single bed was typed "sofa" by both AI passes and made it a living room, and its
+  hanger-drawn wardrobe became "the living room's missing sofa". Now: a bedroom (wardrobe, dresser); Argus N5 retypes
+  the "sofa" in a bedroom with no bed to the missing bed by its size, itself.
 - **Argus C7, a reason that hides a lost piece**: a drawn piece left out as a rug, detail or mark although an AI pass
   named a type that fits its size; its typed fix (`type_piece`) runs as Argus's own `retype_piece`. On the run it
   names both lost sofas. (The documents-vs-model vision call saw nothing on the ground floor: one image of a whole
