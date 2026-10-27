@@ -1842,3 +1842,32 @@ Argus 12.3 (3 critical, 102 major). Promoted as the latest run.
 | Argus proposed 39 decisions and carried out none: every `move_piece` failed with "no opening None" (the decision never carried what the piece blocks) | `architect_actions.move_targets`: the openings or pieces the answer names, else the openings within 1 m; a move clears a piece too (a basin over a drawn bath) |
 | 10 `door_to_window` proposals for openings the architect had already made windows | refused as "a window already" |
 | the style scores failed offline (their SigLIP 2 model was never fetched when the prefetch reused saved sets) | `full.sh` fetches it before the job goes offline |
+
+## The user's look at run 180412: every fix general, every problem Argus's to find (27 Oct 2026, evening)
+
+User, on the renders of run 180412: "flying pillows", "correct the door", "doors next to each other not making
+sense", "clashing sink and bath, also bath is not in proper place", "this in front of a window not making sense",
+"this stairs not making any sense", "something wrong with the render" (a throw), "correct all with what was planned
+before together", "all these things should be detected by argus in the future runs", "Not every opening inside the
+house requires a door or a window", "In some of the rooms the full windows from top to bottom (with a bit remaining
+wall of course) could look better". Lessons UL45-UL56.
+
+| What the user saw | Root cause (general) | Fix | Argus finds it |
+|---|---|---|---|
+| cushions standing in the air in front of the pillows | on a dressed bed with no headboard the cushions leaned on the duvet's turn-down fold mid-bed | decor on a headboard support rests on the bed and its pillows only; a backrest out of the head zone is no headboard | the placement makes it impossible; the judge and the inspector see the bed |
+| an entrance door as a thin oak strip beside glass | a door model registered with an X front: its 13 cm edge stretched to a 0.80 m leaf | the catalogue box read as written, deeper-than-wide models turned to their leaf, a stretched fit falls back to the parametric door | the build refuses the fit (stretch_problem) |
+| three doors side by side | the AI architect turned the windows beside a door into doors | door_spacing; window_to_door refuses a second door between joined rooms | model review M12; Argus revokes the decision |
+| interior passages given leaves or glass | decisions on gaps drawn open | D6: a gap drawn without a leaf stays an open passage (a door for privacy only) | M12 (needless leaf, glass or guard) |
+| basin into the bath, bath turned across the room | bath, screen and vanity read as one outline; the bath kept its centre and angle | the product seated inside the drawn outline against its wall, clear of the other fixtures; the weaker reading gives way | F5 and the clash warning become Argus move_piece decisions |
+| a tall chest in front of a child's room window | the fit took a 1.44 m model under a 0.90 m sill | fit.window_cap: a wall-backed piece in front of a window takes no model over the sill | model review M2 (rule window) |
+| the stair as loose slabs from below; the arrival cut off | the U-stair's direction and half landing assumed; no closed underside | the upper plan's reading, K4 at build, the opening cut to the flights, spandrels and posts | model review M9; Argus flip_stair |
+| a throw with leather patches through it | a cloth judged with a cushion's 3 cm soft tolerance | a cloth's own tolerance (under its 8 mm thickness): not built when the host shows through | S5 with the cloth tolerance; the not-rested warning |
+| the balcony open where the roof plan covers it | the roof outline assumed | the roof plan's eaves loop on the walls; the stepped hip roof built as drawn | model review M11 |
+| small sills everywhere | 0.90 m sills assumed | W5 tall windows in the large-glazing styles where nothing stands in front | the architect's report lists them |
+
+Also: the model review runs again in the pipeline's Python after the Blender build (Blender's Python has no shapely:
+M9, M10 and the window check were missing from what Argus read); Argus's moves name what the piece blocks; the agent's
+regular rounds leave the big loop its first measure and a cycle (run 180412 had none). User OK of 27 Oct 2026: runs
+up to 180 min, that day's cap $45, project total $500.
+
+Run 20261027-213258-full (real06, 180 min) carries all of it; real04 follows.
