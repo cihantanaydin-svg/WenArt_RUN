@@ -64,6 +64,53 @@ FAMILY_WORDS: dict[str, tuple[str, ...]] = {
     "minimal": ("minimalist",), "modern": ("modern", "contemporary"), "industrial": ("industrial", "loft"),
     "mediterranean": ("mediterranean",), "classic": ("classic", "traditional"), "rustic": ("rustic", "farmhouse"),
 }
+# 27 Oct 2026 (review: the caption ranking and filter knew one look, modern and light: "modern", "minimalist", "white
+# walls" scored for every family, "vintage", "antique" and "historic" were always out and a facade had to be a
+# "modern / contemporary / white ... house", so a classic, rustic or mediterranean family lost its own photos; user
+# rule: "every fix is general"). Each family of ``FAMILY_WORDS`` (the vocabulary's STYLE_FAMILIES) has its own caption
+# vocabulary: ``look`` (one point each in a caption), ``house`` (the words before "house" / "home" / "villa" of its
+# facades), ``buildings`` (its own words for a house: a rustic farmhouse or cottage) and ``period`` (the words of
+# ``PERIOD_WORDS`` its rooms carry, so they are no reason to drop a caption). A family's own words of ``FAMILY_WORDS``
+# count ``FAMILY_WORD_POINTS``; ``QUALITY_WORDS`` (a well-made photo of any style) count one point for every family.
+# Scandinavian keeps the old one-look words (its sets rank as before).
+FAMILY_CAPTION: dict[str, dict[str, tuple[str, ...]]] = {
+    "scandinavian": {"look": ("modern", "contemporary", "minimalist", "wooden", "light", "white walls"),
+                     "house": ("modern", "contemporary", "white", "wooden", "timber"), "buildings": (),
+                     "period": ()},
+    "japandi": {"look": ("minimalist", "japanese", "zen", "wabi-sabi", "wooden", "oak", "natural materials", "linen",
+                         "neutral tones", "calm"),
+                "house": ("modern", "contemporary", "japanese", "wooden", "timber", "minimalist"), "buildings": (),
+                "period": ()},
+    "modern minimal": {"look": ("minimal", "minimalist", "contemporary", "clean lines", "sleek", "uncluttered",
+                                "white walls", "light"),
+                       "house": ("modern", "contemporary", "minimalist", "white", "concrete"), "buildings": (),
+                       "period": ()},
+    "minimal": {"look": ("minimal", "minimalist", "contemporary", "clean lines", "sleek", "uncluttered", "white walls",
+                         "light"),
+                "house": ("modern", "contemporary", "minimalist", "white", "concrete"), "buildings": (),
+                "period": ()},
+    "modern": {"look": ("contemporary", "minimalist", "sleek", "clean lines", "open plan", "white walls", "light"),
+               "house": ("modern", "contemporary", "white", "glass", "concrete"), "buildings": (), "period": ()},
+    "industrial": {"look": ("loft", "exposed brick", "brick", "concrete", "metal", "steel", "leather", "warehouse",
+                            "exposed beams", "edison"),
+                   "house": ("industrial", "brick", "concrete", "steel", "modern"), "buildings": ("loft",),
+                   "period": ("vintage",)},
+    "mediterranean": {"look": ("whitewashed", "terracotta", "rattan", "wicker", "arched", "stucco", "tile", "olive",
+                               "linen", "coastal", "spanish", "greek", "tuscan", "provencal"),
+                      "house": ("whitewashed", "white", "spanish", "greek", "tuscan", "stucco", "stone", "coastal"),
+                      "buildings": (), "period": ("vintage", "antique", "historic", "historical")},
+    "classic": {"look": ("panelled", "paneled", "moulding", "molding", "chandelier", "fireplace", "antique",
+                         "vintage", "tufted", "velvet", "parquet", "herringbone", "georgian", "victorian"),
+                "house": ("traditional", "colonial", "georgian", "victorian", "brick", "stone", "historic"),
+                "buildings": ("townhouse", "manor house"), "period": ("vintage", "antique", "historic", "historical")},
+    "rustic": {"look": ("country", "cottage", "wooden", "reclaimed wood", "exposed beams", "beams", "stone",
+                        "fireplace", "barn", "log", "vintage", "antique"),
+               "house": ("country", "stone", "wooden", "log", "timber", "old"), "buildings": ("farmhouse", "cottage"),
+               "period": ("vintage", "antique", "historic", "historical")},
+}
+FAMILY_WORD_POINTS = 3          # a caption that names the family outranks one with two look words of any family
+QUALITY_WORDS = ("cozy", "bright", "stylish", "elegant", "plants", "natural light", "spacious", "well-lit",
+                 "interior design", "styled")
 K_REFERENCES = 8                # photos kept per space and family
 CANDIDATES = 60                 # candidates scored per space and family
 MIN_SIDE_PX = 700               # a photo smaller than this both ways is too small to read a room from
@@ -485,25 +532,85 @@ CAPTION_SPACES: dict[str, str] = {
     "terrace": r"\b(terrace|patio)\b",
     "balcony": r"\bbalcony\b",
     "garden": r"\b(garden|backyard)\b.*\b(house|home|villa)\b|\b(house|home|villa)\b.*\b(garden|backyard)\b",
-    "facade": r"\b(modern|contemporary|white|two-story|single-story) (house|home|villa)\b|\b(house|villa) exterior\b",
 }
-CAPTION_EXCLUDE = (r"\b(painting|painted|drawing|illustration|sketch|engraving|lithograph|etching|poster|map|blueprint|"
-                   r"floor plan|black and white|black-and-white|monochrome|sepia|vintage|historic|historical|old "
-                   r"photograph|antique|museum|exhibit|cartoon|render|rendering|3d|model of|miniature|dollhouse|"
-                   r"abandoned|ruins?|derelict|construction site|church|cathedral|palace|castle)\b")
-STYLE_WORDS = ("modern", "contemporary", "cozy", "bright", "stylish", "elegant", "minimalist", "wooden", "light",
-               "white walls", "plants", "natural light", "spacious")
+# 27 Oct 2026 (FAMILY_CAPTION): the words that drop a caption for every family (not a photo of a home), and the period
+# words that drop it unless the family's rooms carry them (a classic, rustic or mediterranean room is "antique")
+EXCLUDE_WORDS = ("painting", "painted", "drawing", "illustration", "sketch", "engraving", "lithograph", "etching",
+                 "poster", "map", "blueprint", "floor plan", "black and white", "black-and-white", "monochrome",
+                 "sepia", "old photograph", "museum", "exhibit", "cartoon", "render", "rendering", "3d", "model of",
+                 "miniature", "dollhouse", "abandoned", "ruins?", "derelict", "construction site", "church",
+                 "cathedral", "palace", "castle")
+PERIOD_WORDS = ("vintage", "historic", "historical", "antique")
+HOUSE_WORDS = ("modern", "contemporary", "white")     # a facade's words when no family is known (as before)
+STOREY_WORDS = ("two-story", "single-story")           # a facade's words in every family
+HOUSE_NOUNS = ("house", "home", "villa")
+
+
+def _family_key(family: Optional[str]) -> str:
+    return str(family or "").lower()
+
+
+def caption_exclude(family: Optional[str] = None) -> str:
+    """The caption filter of a family (pure): ``EXCLUDE_WORDS`` and the ``PERIOD_WORDS`` its rooms do not carry
+    (``FAMILY_CAPTION`` ``period``); no family or a light one: every period word, as before."""
+    allow = set(FAMILY_CAPTION.get(_family_key(family), {}).get("period", ()))
+    return r"\b(" + "|".join(EXCLUDE_WORDS + tuple(w for w in PERIOD_WORDS if w not in allow)) + r")\b"
+
+
+def facade_pattern(family: Optional[str] = None) -> str:
+    """The facade's caption pattern of a family (pure): one of its house words (``STOREY_WORDS``, its own words of
+    ``FAMILY_WORDS``, ``FAMILY_CAPTION`` ``house``) before a house noun (``HOUSE_NOUNS`` and its ``buildings``), or a
+    house "exterior"; no family: the modern, contemporary or white house, as before."""
+    key = _family_key(family)
+    voc = FAMILY_CAPTION.get(key)
+    words = (STOREY_WORDS + FAMILY_WORDS.get(key, ()) + voc["house"]) if voc else HOUSE_WORDS + STOREY_WORDS
+    nouns = HOUSE_NOUNS + (voc["buildings"] if voc else ())
+    ext = ("house", "villa") + (voc["buildings"] if voc else ())
+
+    def alt(ws):
+        return "|".join(re.escape(w) for w in dict.fromkeys(ws))
+    return rf"\b({alt(words)}) ({alt(nouns)})\b|\b({alt(ext)}) exterior\b"
+
+
+CAPTION_SPACES["facade"] = facade_pattern(None)
+CAPTION_EXCLUDE = caption_exclude(None)
+
+
+def caption_spaces(family: Optional[str] = None) -> dict[str, str]:
+    """``CAPTION_SPACES`` with the family's facade pattern (``facade_pattern``)."""
+    return dict(CAPTION_SPACES, facade=facade_pattern(family))
+
+
+def caption_points(family: Optional[str] = None) -> Callable[[str], int]:
+    """``text -> points`` of a family's caption ranking (pure): ``FAMILY_WORD_POINTS`` for each of its own words
+    (``FAMILY_WORDS``), one for each of its look words (``FAMILY_CAPTION``) and of ``QUALITY_WORDS``; each a whole
+    word, a plural "s" allowed ("light" is not in "bright", "plant" is in "plants"). No family: the quality words."""
+    key = _family_key(family)
+    own = tuple(w.lower() for w in FAMILY_WORDS.get(key, ()))
+    look = tuple(w for w in dict.fromkeys(FAMILY_CAPTION.get(key, {}).get("look", ()) + QUALITY_WORDS) if w not in own)
+
+    def rx(words):
+        return [re.compile(rf"\b{re.escape(w)}s?\b") for w in words]
+    own_rx, look_rx = rx(own), rx(look)
+
+    def points(text: str) -> int:
+        return (FAMILY_WORD_POINTS * sum(1 for p in own_rx if p.search(text))
+                + sum(1 for p in look_rx if p.search(text)))
+    return points
+
+
 CAPTION_KEEP = 400            # candidates kept per space from the captions (style words first)
 MIN_PHOTO_SIDE_PX = 1000
 
 
 def caption_hits(rows, family: Optional[str], spaces=None) -> dict:
     """``{space: [row, ...]}`` of PD12M rows (``id``, ``url``, ``caption``, ``width``, ``height``, ``license``,
-    ``source``) whose caption names the space (``CAPTION_SPACES``) and none of ``CAPTION_EXCLUDE``, at least
-    ``MIN_PHOTO_SIDE_PX`` wide or high; each row gets ``style_hits`` (the family's words count double) (pure)."""
-    fam = [w.lower() for w in FAMILY_WORDS.get(str(family or "").lower(), ())]
-    rx = {k: re.compile(v) for k, v in CAPTION_SPACES.items() if spaces is None or k in spaces}
-    excl = re.compile(CAPTION_EXCLUDE)
+    ``source``) whose caption names the space (``caption_spaces``) and none of the family's ``caption_exclude``, at
+    least ``MIN_PHOTO_SIDE_PX`` wide or high; each row gets ``style_hits`` (``caption_points``: the family's own words,
+    its look words, the quality words) (pure)."""
+    points = caption_points(family)
+    rx = {k: re.compile(v) for k, v in caption_spaces(family).items() if spaces is None or k in spaces}
+    excl = re.compile(caption_exclude(family))
     out: dict = {k: [] for k in rx}
     for r in rows:
         cap = str(r.get("caption") or "").lower()
@@ -518,8 +625,7 @@ def caption_hits(rows, family: Optional[str], spaces=None) -> dict:
             if space == "bedroom" and rx.get("child") is not None and rx["child"].search(cap):
                 continue
             if pat.search(cap):
-                hits = 2 * sum(1 for w in fam if w in cap) + sum(1 for w in STYLE_WORDS if w in cap)
-                out[space].append(dict(r, style_hits=hits))
+                out[space].append(dict(r, style_hits=points(cap)))
     return out
 
 
@@ -602,11 +708,12 @@ def pexels_row(rec: dict) -> Optional[dict]:
 
 def pexels_hits(rows, family: Optional[str], spaces=None) -> dict:
     """``{space: [row, ...]}`` of Pexels rows (``pexels_row``) whose title and tags name the space and none of
-    ``CAPTION_EXCLUDE`` or ``PEOPLE_WORDS``, at least ``MIN_PHOTO_SIDE_PX`` wide or high; ``style_hits`` = the decor
-    layers the detailed caption names (``LAYER_WORDS``) + its style words + twice the family's words (pure)."""
-    fam = [w.lower() for w in FAMILY_WORDS.get(str(family or "").lower(), ())]
-    rx = {k: re.compile(v) for k, v in CAPTION_SPACES.items() if spaces is None or k in spaces}
-    excl, people = re.compile(CAPTION_EXCLUDE), re.compile(PEOPLE_WORDS)
+    the family's ``caption_exclude`` or ``PEOPLE_WORDS``, at least ``MIN_PHOTO_SIDE_PX`` wide or high; ``style_hits``
+    = the decor layers the detailed caption names (``LAYER_WORDS``) + the family's ``caption_points`` of the title,
+    tags and caption (pure)."""
+    points = caption_points(family)
+    rx = {k: re.compile(v) for k, v in caption_spaces(family).items() if spaces is None or k in spaces}
+    excl, people = re.compile(caption_exclude(family)), re.compile(PEOPLE_WORDS)
     out: dict = {k: [] for k in rx}
     for r in rows:
         if not r:
@@ -625,8 +732,7 @@ def pexels_hits(rows, family: Optional[str], spaces=None) -> dict:
                 continue
             if pat.search(text):
                 every = f"{text} {detail}"
-                hits = (2 * sum(1 for w in fam if w in every) + sum(1 for w in STYLE_WORDS if w in every)
-                        + sum(1 for w in LAYER_WORDS if w in detail))
+                hits = points(every) + sum(1 for w in LAYER_WORDS if w in detail)
                 out[space].append(dict(r, style_hits=hits))
     return out
 

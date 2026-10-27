@@ -278,6 +278,14 @@ STYLE_FAMILIES: list[tuple[str, dict]] = [
     ("classic", {"floor": "wood_parquet", "walls": "plaster_cream", "light": "warm daylight"}),
     ("rustic", {"floor": "wood_parquet", "walls": "plaster_cream", "light": "golden evening"}),
 ]
+# 27 Oct 2026 (review: the decor minimums were one number per room type for every style): how full a styled room of
+# each family is, in the words of a recipe (``wenart.style.recipe.DENSITY``: sparse, balanced, layered). The decor
+# minimums scale with it until the reference photos of the space measure it (``wenart.style.density``).
+FAMILY_DENSITY: dict[str, str] = {
+    "scandinavian": "balanced", "japandi": "sparse", "modern minimal": "sparse", "minimal": "sparse",
+    "modern": "balanced", "industrial": "balanced", "mediterranean": "balanced", "classic": "layered",
+    "rustic": "layered",
+}
 
 # --------------------------------------------------------------------------
 # Lighting moods -> HDRI (Poly Haven, CC0) and sun settings

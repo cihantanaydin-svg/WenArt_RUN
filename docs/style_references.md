@@ -116,3 +116,19 @@ bathroom, hall, veranda, terrace, garden, facade 8 each, balcony 7, child 6 (95 
 layered textiles, styled surfaces. They replace the PD12M picks. Dressing room: no usable photo (shops); its built-in
 recipe stands. Unsplash's Lite data set was ruled out: mostly nature photos, and its terms forbid redistributing the
 images.
+
+## 8. Every style family its own words and its own decor density (27 Oct 2026)
+
+A review found two rules that only suited the Scandinavian test house. Both are now rules for every family of
+`wenart/style/vocabulary.py` `STYLE_FAMILIES`.
+
+| Rule | Before | Now |
+|---|---|---|
+| Caption ranking (`references.caption_points`) | "modern", "minimalist", "white walls", "light" ... scored for every family; the family's name 2 points | the family's name 3 points, its own look words 1 point (`FAMILY_CAPTION`: a classic room's "chandelier", "panelled", "antique"; a rustic room's "beams", "stone", "fireplace"), shared quality words 1 point ("cozy", "bright", "well-lit", "styled" ...); whole words only ("light" is not in "bright") |
+| Caption filter (`references.caption_exclude`) | "vintage", "antique", "historic" always out | out for the light families (Scandinavian, japandi, modern, minimal); kept for classic, rustic and mediterranean; industrial keeps "vintage" |
+| Facade (`references.facade_pattern`) | a "modern / contemporary / white ... house" only | the family's house words ("traditional brick house", "stone farmhouse", "whitewashed villa"); no family: as before |
+| Decor minimum (`decor_ai.room_minimum`, `architect_details.decor_goal`) | living 9, bedroom 7, dining 4 ... for every style | that number x the density factor (sparse 0.7, balanced 1.0, layered 1.3): the recipe's measured density, else the family's (`vocabulary.FAMILY_DENSITY`: japandi and minimal sparse, classic and rustic layered); never under a lived-in room (`density.LIVED_IN_MIN`: living 6, bedroom 5, dining 3) |
+
+The decor stage keeps each room's minimum in the building (`decor_minimum`); the architect's S3 checks the same
+number. A Scandinavian set ranks as before (its look words are the old words). Caption hits and sets already on the
+volume for other families were made with the old rules and are reused as they are until they are fetched again.

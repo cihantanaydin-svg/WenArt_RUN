@@ -220,6 +220,8 @@ COLOURS: dict[str, tuple[float, float, float]] = P.DECOR_COLOURS
 MAX_ITEMS = 24
 # 25 Oct 2026 (user: "there is not enough decor around"): the fewest items a styled room of each type holds; a room
 # below it after the AI's choice is filled from its empty slots in ``FILL_ORDER`` (the code's own pick, method rule).
+# 27 Oct 2026: these are a balanced room's numbers; a room's own minimum scales with its style's decor density
+# (``room_minimum``: the recipe's measured density, else the family's; a japandi living room 6, a classic one 12).
 ROOM_MIN: dict[str, int] = {"living": 9, "bedroom": 7, "dining": 4, "kitchen": 2, "hall": 2, "bathroom": 2, "wc": 1,
                             "other": 4}
 FILL_ORDER: tuple[tuple[str, tuple[str, ...]], ...] = (
@@ -899,12 +901,28 @@ def build_items(rq: RoomQuestion, agreed: list[dict], model: str, building: dict
     return items, refused
 
 
-def fill_to_minimum(rq: "RoomQuestion", items: list[dict], building: dict, new_id) -> list[dict]:
-    """The items that bring a room up to ``ROOM_MIN`` of its type (pure; 25 Oct 2026): its slots no item took, in
-    ``FILL_ORDER`` (soft, rug, wall, ceiling, window, top, floor, shelf), each with the first type it allows of the
-    order (a long top's part with ``PART_PICK``), through the same checks as the AI's items (``build_items``);
-    labelled ``method: rule`` with the reason."""
-    want = ROOM_MIN.get(str(rq.room.get("room_type") or "other"), ROOM_MIN["other"])
+def room_minimum(room: dict, recipe: Optional[dict] = None, family: Optional[str] = None) -> dict:
+    """The fewest decor items of a styled room (pure; 27 Oct 2026): ``ROOM_MIN`` of its type scaled by its style's
+    decor density (``density.decor_density``: the room's recipe when photos measured it, else the style family's;
+    ``density.decor_minimum``: never under what the type needs to look lived in). ``{"min", "base", "density",
+    "why"}``; ``apply`` keeps it per room in the building's ``decor_minimum`` (the architect's S3 checks it)."""
+    from wenart.style import density as DN
+
+    t = str(room.get("room_type") or "other")
+    base = ROOM_MIN.get(t, ROOM_MIN["other"])
+    level, why = DN.decor_density(recipe, family)
+    return {"min": DN.decor_minimum(t, base, level), "base": base, "density": level, "why": why}
+
+
+def fill_to_minimum(rq: "RoomQuestion", items: list[dict], building: dict, new_id, recipe: Optional[dict] = None,
+                    family: Optional[str] = None) -> list[dict]:
+    """The items that bring a room up to its minimum (pure; 25 Oct 2026; 27 Oct 2026: ``room_minimum`` of its recipe
+    and style family, ``ROOM_MIN`` of its type for a balanced style): its slots no item took, in ``FILL_ORDER``
+    (soft, rug, wall, ceiling, window, top, floor, shelf), each with the first type it allows of the order (a long
+    top's part with ``PART_PICK``), through the same checks as the AI's items (``build_items``); labelled ``method:
+    rule`` with the reason."""
+    goal = room_minimum(rq.room, recipe, family)
+    want = goal["min"]
     have = len(items)
     if have >= want:
         return []
@@ -926,7 +944,7 @@ def fill_to_minimum(rq: "RoomQuestion", items: list[dict], building: dict, new_i
             if dtype is None:
                 continue
             why = (f"styling: the room held {have} item(s), a styled {rq.room.get('room_type') or 'room'} holds "
-                   f"{want} or more")
+                   f"{want} or more ({goal['why']})")
             picks.append({"slot": slot.id, "type": dtype, "colour": None, "reasons": [why, why]})
     out = []
     for choice in picks:
@@ -1052,6 +1070,11 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
     counters: dict[str, int] = D.decor_counters(out["decor"])
     looks: dict[str, int] = {}
     lamps = lamps_on_of(style)
+    family = None
+    if style:
+        from wenart.furniture.fit import style_family_of
+
+        family = style_family_of(style)[0]
 
     def new_id(level_id: str) -> str:
         counters[level_id] = counters.get(level_id, 0) + 1
@@ -1065,6 +1088,9 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
     targets, partner_notes = D.copy_targets(out)
     questions = ({q.room["id"]: q for q in room_questions(out, style_text, set(targets), recipes=recipes)}
                  if mode == "ai" else {})
+    # 27 Oct 2026: each furnished room's decor minimum (its style's density), kept for the architect's S3 check
+    out["decor_minimum"] = {room["id"]: room_minimum(room, room_recipe(room, recipes), family)
+                            for room, _pieces in D.rooms_with_pieces(out)}
     for room, pieces in D.rooms_with_pieces(out):
         if room["id"] in targets:
             continue
@@ -1095,7 +1121,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         rec.refused = refused
         items += fill_recipe(q, items, out, new_id, room_recipe(room, recipes))
         if items:
-            items += fill_to_minimum(q, items, out, new_id)
+            items += fill_to_minimum(q, items, out, new_id, room_recipe(room, recipes), family)
         apply_brief_looks(items, style, lamps, looks)
         if items:
             rec.items = items
@@ -1106,7 +1132,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
                    else "every agreed item was refused by the checks")
             fallback, row = D.rule_decor_room(out, room, pieces, new_id)
             fallback += fill_recipe(q, fallback, out, new_id, room_recipe(room, recipes))
-            fallback += fill_to_minimum(q, fallback, out, new_id)
+            fallback += fill_to_minimum(q, fallback, out, new_id, room_recipe(room, recipes), family)
             apply_brief_looks(fallback, style, lamps, looks)
             rec.items, rec.fallback = fallback, why
             out["decor"].extend(fallback)
