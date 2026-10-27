@@ -5,25 +5,30 @@
  "stage": "decor_ask",
  "rc": 0,
  "status": "ok",
- "seconds": 97.57,
- "fingerprint": "9b80aea3a56bb66811abd091b2b1547765a6979376f93abb5722d7039423e023",
+ "seconds": 226.99,
+ "fingerprint": "ab59ef6b33d0aa0e169210bbf13c907c112b6d52f56b3b122cbc7c8a3f73dbce",
  "inputs": {
-  "outputs/real06/building_furnished.json": "e0a503fd9094efab6a1a5944d134f06b71ea0b95985282773b580c70f5a288c6",
+  "outputs/real06/building_furnished.json": "1394abc66809b127519b214bd6ea1d6fd5cbf1acd527d4b200e971adabb91893",
   "outputs/real06/style.json": "58a1c5d8a8c2c12a199ec18e8584d6edfa900e51f3d1a14504974055d18f791d"
  },
  "outputs": [
   "decor_ai_answers.json"
  ],
- "started_utc": "2026-10-27T09:28:29Z",
- "git_commit": "f0fc37f8b8ef805422bf822351b2c86714a67ac2",
+ "started_utc": "2026-10-27T16:27:55Z",
+ "git_commit": "9320ea4567fc0d15fd8b1e405c13d79c3605fa5a",
  "log": "logs/decor_ask.log",
  "note": null,
- "run_id": "20261027-091638-full-20261027T092140Z",
+ "run_id": "20261027-160846-full-20261027T161857Z",
  "steps": [
+  {
+   "name": "recipes",
+   "rc": 0,
+   "seconds": 122.4
+  },
   {
    "name": "decor_ask",
    "rc": 0,
-   "seconds": 97.57
+   "seconds": 104.59
   }
  ],
  "written": {}

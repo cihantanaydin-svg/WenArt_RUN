@@ -1757,3 +1757,28 @@ Pod run 130756: the judge named "lollipop trees on a flat green plane" in 58 fin
   temperate one); the lawn by the house stays a lawn.
 - Tests: `tests/test_site_scenery_20261027.py` (10); GPU: `test_horizon_context_scans_in_blender` renders one scan
   tree alone.
+
+### The pod run of 27 Oct (real06, job 20261027-160846-full, $4.04)
+
+| | before (130756) | after (160846) |
+|---|---|---|
+| Argus score (critical / major) | 10.2 (9 / 105) | 11.3 (0 / 122) |
+| judge mean (1-5) / views at 1 | 2.04 / 2 | 2.00 / 4 (close-ups of a shower, a dressing room and a hall corner) |
+| "lollipop" trees in the judge's findings | 58 | 5 tags |
+| GPU tests | - | 50 of 51 (the new scan-tree test's pixel threshold: a fir scan is open, not a blob) |
+
+The horizon trees are Poly Haven scans (125 instances of 4 scans); the veranda has its lounge (sofa, chairs, coffee
+table, rug, planter); the judge sees a reference photo beside each render and names the missing layers (styled
+surfaces 8 views, warm light 7, plants 5, wall art 6). Promoted as the latest real06 run.
+
+Fixes after the run (general rules):
+
+- **Art on free walls, plants beside seats and windows**: the salon's recipe wanted wall art and plants; the only art
+  place was above the sofa (a window there) and no corner was free. Now any free wall stretch takes a picture (no door,
+  window or tall piece in front; `free_wall: true` in the schema instead of a piece to hang over), a plant may stand
+  against a free wall beside a seat or a window, and a plant fails the walkway check only for a walkway it blocks
+  itself (the salon's door-to-door walkways were blocked by its furniture before any plant).
+- **The prefetch's print of committed sets** (KeyError 'searched'), **the embedding model loaded once** for the style
+  scores (they failed; their log now goes with the results).
+- **Stylish photos from Pexels** (user: "find some better photos of the rooms, there should be some more stylish photos
+  online"): 95 photos of styled homes for 12 spaces replace the public-domain picks (docs/style_references.md §7).
