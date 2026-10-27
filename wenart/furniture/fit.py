@@ -2647,6 +2647,7 @@ def assert_only_assets_changed(before: dict, after: dict) -> None:
             if str(piece.get("mount_source") or "").startswith("fit:"):
                 piece.pop("mount_bottom_m", None)      # 26 Oct 2026: a wall-hung fixture's height is the fit's
                 piece.pop("mount_source", None)
+            piece.pop("window_cap", None)              # 27 Oct 2026: the fit's record of a window in front (M2)
         for item in doc.get("decor") or []:
             item.pop("asset", None)
         project = doc.get("project")
@@ -2656,8 +2657,8 @@ def assert_only_assets_changed(before: dict, after: dict) -> None:
             if not project and "project" not in before:
                 doc.pop("project")
     if json.dumps(a, sort_keys=True) != json.dumps(b, sort_keys=True):
-        raise AssertionError("fit changed something other than furniture[].asset, decor[].asset, the size snaps and "
-                             "project.licence_mode")
+        raise AssertionError("fit changed something other than furniture[].asset, decor[].asset, the size snaps, "
+                             "furniture[].window_cap and project.licence_mode")
 
 
 def style_family_of(profile) -> tuple[Optional[str], str]:

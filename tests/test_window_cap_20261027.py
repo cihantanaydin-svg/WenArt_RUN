@@ -41,3 +41,13 @@ def test_m2_reports_a_piece_that_covers_a_window():
     assert n == 1 and len(got) == 1 and got[0]["metrics"]["rule"] == "window" and "covers the window" in got[0]["message"]
     manifest["objects"][0]["box3d"] = {"center": [2.5, 0.28, 0.42], "size": [1.2, 0.55, 0.84]}
     assert MR.over_sills(manifest, b, {RID: 0.0})[0] == []
+
+
+def test_the_fit_may_write_its_window_record():
+    # run 20261027-213258: the fit CLI's invariant refused the new key and stopped the run at the fit stage
+    import copy
+
+    b = _room()
+    after = copy.deepcopy(b)
+    after["furniture"][0]["window_cap"] = F.window_front(after, after["furniture"][0])
+    F.assert_only_assets_changed(b, after)
