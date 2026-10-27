@@ -80,6 +80,9 @@ SYSTEM = (
     "- A window that sits between two rooms is almost always a reading error when the darker room has no other "
     "window: move it to that room's outer wall; when it cannot move, keep it as a borrowed-light window (clear glass "
     "between dry rooms, a high window into a bathroom). A habitable room with too little glass gets larger windows.\n"
+    "- Not every opening inside the house needs a door or a window: a passage drawn with no leaf and no swing arc "
+    "stays open (a door only into a bathroom, a WC or a bedroom); never a second door beside the door that already "
+    "joins two rooms; a guard only over a drop.\n"
     "- Base every choice on the facts given, never on a guess; the reason is one sentence naming the deciding fact.")
 
 

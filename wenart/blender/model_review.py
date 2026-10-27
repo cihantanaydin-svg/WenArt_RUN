@@ -49,7 +49,13 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   covers and the built roof leaves open (``M11_OPEN_M2`` / ``M11_OPEN_SHARE``) is ``major`` (kind ``lost``); a built
   footprint whose overlap with the drawn one (IoU) is under ``M11_IOU_MIN`` is ``major``; a lower roof the roof plan
   draws (a porch or veranda roof) with no built roof over most of it is ``major`` (kind ``lost``). Polygon areas
-  are exact (convex pieces clipped against each other, ``overlap_area``): no shapely inside Blender.
+  are exact (convex pieces clipped against each other, ``overlap_area``): no shapely inside Blender;
+- M12 doors side by side (27 Oct 2026, user on real06's dressing room: "doors next to each other not making sense";
+  ``door_spacing``): no two doors of a floor whose openings overlap or whose frames touch (less than two frames of wall
+  between them on one wall line, or frames meeting at a corner), no two doors between the same two rooms closer than a
+  door's width, no two swing leaves into one room that sweep over each other; and (user: "Not every opening inside the
+  house requires a door or a window") no passage drawn open between two rooms with a leaf (unless a room needs
+  privacy), glass or a guard (with no drop) a decision gave it.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -83,7 +89,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12")
 # M11 (27 Oct 2026): the roof as the roof plan draws it. Physical reasons:
 M11_IOU_MIN = 0.90              # the built roof's footprint matches the drawn eaves loop within a gutter's width all
                                 # round (a 0.15 m band around a 10 x 15 m roof is about 5 % of it)
@@ -618,6 +624,24 @@ def stair_undersides(built: dict, manifest: Optional[dict]) -> tuple[list[dict],
     return out, n
 
 
+def doors_side_by_side(built: dict) -> tuple[list[dict], int]:
+    """M12: the doors of every floor against each other (``door_spacing.conflicts``): overlapping openings, touching
+    frames, two doors of one passage, leaves that sweep over each other. The finding's target is the door a decision
+    made from another drawn type when there is one (its ``made_by`` key names the decision to undo), else the later
+    id; ``other`` names the second door. Also the passages between two rooms that got a leaf, glass or a guard they do
+    not need (``door_spacing.needless``)."""
+    from wenart.blender import door_spacing as DS
+    recs, n = DS.conflicts(built)
+    # 27 Oct 2026 (user: "Not every opening inside the house requires a door or a window"): the openings between two
+    # rooms that got a leaf, glass or a guard they do not need
+    extra, m = DS.needless(built)
+    recs, n = recs + extra, n + m
+    out = [_v("M12", r["severity"], r["target"], r["message"], r.get("room_id"), rule=r["kind"], other=r["other"],
+              doors=r["doors"], gap_m=r["gap_m"], share=r["share"], same_rooms=r["same_rooms"],
+              made_by={k: v.get("key") for k, v in (r.get("made_by") or {}).items()}) for r in recs]
+    return out, n
+
+
 def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[dict] = None) -> dict:
     """The review of the built model (module docstring). ``prep``: ``build.prepare`` of ``built`` (made here when not
     given; the plan of a whole building has the site, the outlines and the roof the facade kit needs)."""
@@ -706,6 +730,13 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             checks["M11"] = {"status": "unavailable", "note": "no roof plan outline read (roof.roof_plan_outline)"}
     except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
         checks["M11"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M12 (27 Oct 2026, user on real06: "doors next to each other not making sense"): doors side by side
+    try:
+        got, n = doors_side_by_side(built)
+        note("M12", got, n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError,
+            ImportError) as exc:
+        checks["M12"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     return {"findings": findings, "checks": checks}
 
 

@@ -78,11 +78,14 @@ WORDS = {                          # title words that say a model is meant for t
     "window": ("window", "casement", "sliding", "awning", "tilt"),
 }
 INSIDE_WORDS = ("interior", "internal", "toilet", "elevator", "japanese", "closet", "wardrobe", "shower", "barn")
+# 27 Oct 2026: a one-leaf category (entrance, door, terrace door) never takes a model whose title names a sliding
+# system ("Lift Slide") or a pair ("Double ...", "Duble"): the build scales one model into the whole opening
+PAIR_WORDS = ("slide", "double", "duble", "pair")
 NOT_WORDS = {                      # title words that rule a model out of the category (an outer opening)
-    "entrance": ("sliding", "folding", "glass", "garage", "pack", "set", "window") + INSIDE_WORDS,
-    "door": ("sliding", "folding", "garage", "pack", "set", "window") + INSIDE_WORDS,
+    "entrance": ("sliding", "folding", "glass", "garage", "pack", "set", "window") + PAIR_WORDS + INSIDE_WORDS,
+    "door": ("sliding", "folding", "garage", "pack", "set", "window") + PAIR_WORDS + INSIDE_WORDS,
     "glazed_door": ("garage", "pack", "set") + INSIDE_WORDS,
-    "terrace_door": ("garage", "pack", "set", "sliding", "folding") + INSIDE_WORDS,
+    "terrace_door": ("garage", "pack", "set", "sliding", "folding") + PAIR_WORDS + INSIDE_WORDS,
     "window": ("pack", "set", "door", "curtain", "blind", "shutter", "wall"),
 }
 NEVER_FLAGS = ("no_derivatives", "unknown")
@@ -131,7 +134,8 @@ def load_extras(path, audits: Optional[Sequence] = None) -> list[dict]:
     if not p.is_file():
         return []
     data = json.loads(p.read_text(encoding="utf-8"))
-    extras = list(data.get("extras") or [])
+    # 27 Oct 2026: a door or window audited with its front along the leaf gets the leaf's face as its front
+    extras = [leaf_front(e) if isinstance(e, dict) else e for e in data.get("extras") or []]
     if audits is None:
         parents = p.resolve().parents
         audits = [parents[2] / a for a in AUDIT_FILES] if len(parents) > 2 else []
@@ -610,15 +614,46 @@ def _has(title: str, words) -> bool:
 
 
 def model_size(entry: dict) -> Optional[tuple[float, float, float]]:
-    """(width, depth, height) of a model in metres in its front frame: the catalogue box (already in metres, x along
-    the front, y the depth, z up for an entry whose front axis is -Y or +Y; a front along x swaps width and depth)."""
+    """(width, depth, height) of a model in metres in its front frame: the catalogue box ``bbox_m``, which the
+    catalogue writes in the piece frame already (``catalog.oriented_bbox``: the model box turned by its front axis;
+    ``furniture.fit_vertices`` builds in that frame).
+
+    27 Oct 2026 (user on real06's entrance: "correct the door"): this read swapped width and depth once more for a front
+    along x, so a door whose audit put its front along the leaf ("Modern Single Door", front -X: the piece box 0.13 m
+    wide and 1.07 m deep) passed as a 1.07 m leaf and was built turned 90 degrees, its 13 cm edge stretched to the
+    opening's width (fit scale 6.1 x 0.1 x 0.9: a narrow oak strip beside a dark gap), while every door modelled with
+    its face across x (front +X: "Front Door", "PVC Doors") was read 0.25 m wide and never used."""
     box = entry.get("bbox_m")
     if not box or len(box) < 3 or min(float(v) for v in box[:3]) <= 0.0:
         return None
     w, d, h = (float(v) for v in box[:3])
-    if str(entry.get("front_axis") or "-Y").upper().endswith("X"):
-        w, d = d, w
     return w, d, h
+
+
+FRONT_TURN = {"-X": "-Y", "+X": "+Y", "-Y": "-X", "+Y": "+X"}
+
+
+def leaf_front(entry: dict) -> dict:
+    """A door or window model whose piece box is deeper than wide has its front along its leaf (an audit that read "a
+    door has no front" and turned it, 27 Oct 2026): the front is turned 90 degrees (``FRONT_TURN``: the leaf's face
+    becomes the front, the sign kept) and the box with it, noted ``front_axis_fixed``; any other entry is returned as
+    it is (pure; a new dict when changed). A door or a window is always wider than its frame is deep."""
+    box = entry.get("bbox_m")
+    if entry.get("type") not in ("door", "window") or not box or len(box) < 3:
+        return entry
+    try:
+        w, d, h = (float(v) for v in box[:3])
+    except (TypeError, ValueError):
+        return entry
+    front = str(entry.get("front_axis") or "-Y").upper()
+    if not (d > w > 0.0) or front not in FRONT_TURN:
+        return entry
+    out = dict(entry, front_axis=FRONT_TURN[front], bbox_m=[d, w, h] + list(box[3:]))
+    out["front_axis_fixed"] = {"was": front, "box_was": list(box[:3]),
+                               "reason": f"its piece box was {w:.2f} m wide and {d:.2f} m deep with the front {front}: "
+                                         f"the front ran along the leaf; turned to {FRONT_TURN[front]} (the leaf's "
+                                         f"face)"}
+    return out
 
 
 def candidates(extras: Sequence[dict], category: str, mode: str) -> list[dict]:
@@ -679,7 +714,8 @@ def asset_of(entry: dict) -> dict:
     """The fields the build needs to load and frame a model (``furniture.resolve_asset`` / ``fit_vertices``) and the
     report needs to credit it."""
     keys = ("id", "glb", "front_axis", "up_axis", "unit_scale", "origin_offset", "bbox_m", "source", "licence",
-            "licence_url", "licence_flag", "commercial_safe", "attribution", "author", "title", "uid")
+            "licence_url", "licence_flag", "commercial_safe", "attribution", "author", "title", "uid",
+            "front_axis_fixed")
     out = {k: entry.get(k) for k in keys if entry.get(k) is not None}
     out.update(method="library", asset_id=entry.get("id"), library=entry.get("source") or "3dwh")
     return out
@@ -736,16 +772,22 @@ def categorise(building: dict, outer: Sequence[dict]) -> dict[str, str]:
 
 SINGLE_LEAF = ("entrance", "door", "terrace_door")       # one panel: the model is one door
 CATEGORIES = ("entrance", "door", "glazed_door", "terrace_door", "window")
+SINGLE_LEAF_MAX_M = 1.25           # = parametric.SINGLE_LEAF_MAX_M: no one-leaf model is stretched wider (27 Oct 2026)
 
 
 def fit(entry: dict, category: str, width: float, height: float) -> Optional[tuple[int, float]]:
     """``(panels, log proportion error)`` of a model in an opening ``width`` x ``height`` (pure), None when it does
-    not fit: the error over ``ASPECT_TOL`` or the height beyond ``MAX_SCALE`` of the model's."""
+    not fit: the error over ``ASPECT_TOL`` or the height beyond ``MAX_SCALE`` of the model's. 27 Oct 2026 (user on
+    real06's entrance: "correct the door"): a one-leaf model fills its opening as a real door does, so an opening wider
+    than ``SINGLE_LEAF_MAX_M`` takes no one-leaf model (the parametric door: the entrance's leaf with glazed side
+    lights, D5's pair or glazed door), never one leaf stretched past a real leaf's width."""
     size = model_size(entry)
     if size is None or width <= 0 or height <= 0:
         return None
     w, _d, h = size
     if category in SINGLE_LEAF:
+        if width > SINGLE_LEAF_MAX_M + 1e-6:
+            return None
         n, err = 1, abs(math.log((width / height) / (w / h)))
     else:
         n, err = best_panels(width, height, w / h)

@@ -477,6 +477,7 @@ CHECK_CAUSE: dict[str, str] = {
     "M1": "levels", "M2": "wrong_model", "M3": "guard", "M4": "opening_sense", "M5": "rain_water",
     "M6": "opening_style", "M7": "missing_anchor", "M8": "entrance_layout", "M9": "stair_access",
     "M10": "outdoor_space", "M11": "roof_reading",
+    "M12": "opening_sense",          # 27 Oct 2026: doors side by side (the architect and Argus own it)
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",

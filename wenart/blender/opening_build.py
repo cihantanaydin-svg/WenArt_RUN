@@ -29,6 +29,7 @@ black-and-white triangle lattice in its glass"; "The house needs to make sense a
 from __future__ import annotations
 
 import math
+from typing import Optional
 
 GLASS_WORDS = ("glass", "glas", "glazing", "pane", "vidro", "vitre", "cam_", "camlar", "transparent", "translucent",
                "window_glass")
@@ -38,6 +39,8 @@ HARDWARE_MAX_SHARE = 0.05          # a metal over this share of the model's surf
 TWIN_TOL_M = 0.001                 # a face this near a glass face, turned the other way, is that pane's back
 OUTSIDE_SET_M = 0.04
 WALL_GAP_M = 0.02
+STRETCH_TOL = 0.30                 # |log(width scale / height scale)| a library fit may carry (opening_models.ASPECT_TOL
+                                   # 0.25 plus a margin: the plan's own fit always passes)
 
 
 def _principled(mat):
@@ -205,6 +208,28 @@ def _window_finish(opening: dict, ctx: dict):
         return None
 
 
+def stretch_problem(box, panel_w: float, height: float) -> Optional[str]:
+    """Why a library model of piece box ``box`` (width, depth, height: ``catalog.oriented_bbox``) is no real product in
+    a panel ``panel_w`` x ``height`` (pure), None when it fits. 27 Oct 2026 (user on real06's entrance: "correct the
+    door"): a model is scaled into its opening keeping its proportions within the plan's tolerance; a fit that stretches
+    its width and its height by very different factors (more than ``STRETCH_TOL`` as a log ratio: a model turned on
+    its frame, its 13 cm leaf edge stretched to 0.80 m, fit scale 6.1 x 0.1 x 0.9) or a box deeper than wide (its front
+    along its leaf) is refused."""
+    try:
+        mw, md, mh = (float(v) for v in list(box)[:3])
+    except (TypeError, ValueError):
+        return "has no box"
+    if mw <= 0 or mh <= 0 or panel_w <= 0 or height <= 0:
+        return "has no size"
+    if md > mw:
+        return f"is deeper ({md:.2f} m) than wide ({mw:.2f} m): its front runs along its leaf"
+    sx, sz = panel_w / mw, height / mh
+    if abs(math.log(sx / sz)) > STRETCH_TOL:
+        return (f"would be stretched {sx:.2f} x across and {sz:.2f} x up (box {mw:.2f} x {md:.2f} x {mh:.2f} m): not "
+                f"a real product in this opening")
+    return None
+
+
 def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: dict, mats: dict,
                           op_assumed: dict, shift: float) -> list:
     from wenart.blender import furniture as F
@@ -235,10 +260,12 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
     panels = max(1, int(lib.get("panels") or 1))
     width, height, thickness = geo["width"], geo["height"], geo["thickness"]
     box = asset.get("bbox_m") or [1.0, 0.1, 1.0]
-    mw, md, mh = (float(v) for v in box[:3])
-    if str(asset.get("front_axis") or "-Y").upper().endswith("X"):
-        mw, md = md, mw
+    mw, md, mh = (float(v) for v in box[:3])        # the piece frame (catalog.oriented_bbox): width, depth, height
     pw = width / panels
+    why = stretch_problem(box, pw, height)
+    if why:
+        warnings.append(f"{opening['id']}: library model {path.name} {why}; parametric opening")
+        return []
     depth = min(md * (pw / mw + height / mh) / 2.0, max(0.03, thickness - WALL_GAP_M))
     rot = front_rotation_deg(outward)
     kind = "door" if opening["type"] == "door" else "window"

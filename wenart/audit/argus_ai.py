@@ -583,9 +583,31 @@ def code_actions(rep: dict, building: dict) -> tuple[list[dict], list[dict], lis
     return actions, work, revoke, decisions
 
 
-def revoke_decisions(project_out, keys: list[str]) -> list[dict]:
+def door_revokes(rep: dict) -> dict[str, str]:
+    """27 Oct 2026 (user on real06: "doors next to each other not making sense"; "Not every opening inside the house
+    requires a door or a window"): ``{decision key: why}`` of the decisions the model review's M12 names (``made_by``)
+    as having made a door beside a door (a window or a gap a decision turned into a door whose frame touches another
+    door, or a second door between two rooms a door joins) or as having given a passage between two rooms a leaf,
+    glass or a guard it does not need; the fix is clear with no model: the decision is revoked (``revoke_decisions``:
+    only the AI's), the opening goes back to its drawn type on the next build."""
+    out: dict[str, str] = {}
+    for f in rep.get("findings") or []:
+        if f.get("check") != "M12":
+            continue
+        m = (f.get("evidence") or {}).get("metrics") or f.get("metrics") or {}
+        needless = str(m.get("rule") or "").startswith("needless")
+        for door, key in sorted((m.get("made_by") or {}).items()):
+            if key and str(key) not in out:
+                what = f"gave {door} what a passage does not need" if needless else \
+                    f"made {door} a door beside another door"
+                out[str(key)] = f"it {what} (M12: {str(f.get('message') or '')[:160]})"
+    return out
+
+
+def revoke_decisions(project_out, keys: list[str], reasons: Optional[dict] = None) -> list[dict]:
     """Take out decisions of the AI (``by`` ai or argus, never the user's or the architect's defaults) from
-    ``orchestrator/architect_answers.json``: the next build no longer carries them out. ``[{key, done, why}]``."""
+    ``orchestrator/architect_answers.json``: the next build no longer carries them out. ``[{key, done, why}]``;
+    ``reasons``: why each key is revoked (default: it left a room without a piece of its set)."""
     from wenart.agent import architect_ai as AIA
     from wenart.agent import log as LG
 
@@ -600,7 +622,8 @@ def revoke_decisions(project_out, keys: list[str]) -> list[dict]:
             out.append({"key": key, "done": False, "why": f"decided by {ans.get('by')}: only the AI's are revoked"})
         else:
             saved.pop(key)
-            out.append({"key": key, "done": True, "why": "it left a room without a piece of its set"})
+            out.append({"key": key, "done": True,
+                        "why": (reasons or {}).get(key) or "it left a room without a piece of its set"})
     if any(r["done"] for r in out):
         AIA._save_answers(odir, saved)
     return out
@@ -1013,7 +1036,10 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
     if reg is not None and actions:
         actions, vetted = CL.vet_all(model, actions, valid, reg, {w["id"]: w for w in work if w.get("id")},
                                      help_lines=tools, errors=errors, time_ok=time_ok, thinking=THINKING)
-    revoked = revoke_decisions(project_out, revoke) if act_on and revoke else \
+    # 27 Oct 2026: a decision that made a door beside a door (M12) is revoked too
+    door_why = door_revokes(rep)
+    revoke = list(revoke) + [k for k in door_why if k not in revoke]
+    revoked = revoke_decisions(project_out, revoke, door_why) if act_on and revoke else \
         [{"key": k, "done": False, "why": "the end of the run: not carried out"} for k in revoke]
     if act_on:
         entries = act(project_out, building, brief, decisions, getattr(model, "model", "")) if decisions else []

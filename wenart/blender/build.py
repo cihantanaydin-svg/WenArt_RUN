@@ -229,7 +229,7 @@ FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry
                     "wenart/levels/__init__.py", "wenart/levels/terrain.py", "wenart/furniture/__init__.py",
                     "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml",
                     # 27 Oct 2026: the architect's cover_space plans a light roof with the outdoor spaces' rules
-                    "wenart/levels/outdoor.py", "wenart/building.py", "wenart/units.py",
+                    "wenart/levels/outdoor.py", "wenart/building.py", "wenart/units.py", "wenart/furniture/fixture_seat.py",
                     # 27 Oct 2026: the stairs' walk check (stair_access.walk_graph) reads the fixed equipment types
                     "wenart/furniture/schemas.py", "wenart/synthetic/__init__.py", "wenart/synthetic/blocks.py")
 # Asset-manifest keys that change on every fetch without changing the asset.
