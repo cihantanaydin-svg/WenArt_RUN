@@ -149,30 +149,33 @@ def doors_on_floors(built: dict, floors: dict) -> tuple[list[dict], int]:
     return out, n
 
 
+SILL_COVER_M = 0.03              # a top this far over a window's sill covers the window's glass
+
+
 def over_sills(manifest: Optional[dict], built: dict, floors: dict) -> tuple[list[dict], int]:
     """M2 (27 Oct 2026, user on real06: "this in front of a window not making sense"): a built piece in front of a
-    window (``fit.window_cap``) whose top rises over the window's sill covers it (major; the next fit takes a lower
-    model)."""
-    from wenart.furniture import fit as F
-
+    window (the fit's record ``window_cap``: ``fit.window_front``) whose top rises ``SILL_COVER_M`` over the window's
+    sill covers it (major; the next fit takes a lower model). Pure (no geometry library: it runs inside Blender)."""
     pieces = {f.get("id"): f for f in built.get("furniture") or []}
     out, n = [], 0
     for ob in (manifest or {}).get("objects") or []:
         pid = ob.get("element_id") or ob.get("wenart_id")
         if ob.get("kind") != "furniture" or pid not in pieces or not isinstance(ob.get("box3d"), dict):
             continue
-        cap = F.window_cap(built, pieces[pid])
+        front = pieces[pid].get("window_cap") if isinstance(pieces[pid].get("window_cap"), dict) else None
         rid = ob.get("room_id")
         box = ob["box3d"]
-        if cap is None or rid not in floors or not box.get("center") or not box.get("size"):
+        if front is None or rid not in floors or not box.get("center") or not box.get("size"):
             continue
         n += 1
+        sill = float(front["sill_m"])
         top = float(box["center"][2]) + float(box["size"][2]) / 2.0 - floors[rid]
-        if top > cap + F.WINDOW_SILL_GAP_M + 0.03:
-            out.append(_v("M2", "major", pid, f"{pid} ({ob['type']}) stands in front of a window with its top at "
-                          f"{top:.2f} m over the floor: it covers the window (sill {cap + F.WINDOW_SILL_GAP_M:.2f} m); "
-                          f"a lower model of its type", rid, rule="window", top_m=round(top, 3),
-                          sill_m=round(cap + F.WINDOW_SILL_GAP_M, 3)))
+        if top > sill + SILL_COVER_M:
+            out.append(_v("M2", "major", pid, f"{pid} ({ob['type']}) stands in front of "
+                          f"{', '.join(front.get('windows') or ['a window'])} with its top at {top:.2f} m over the "
+                          f"floor: it covers the window (sill {sill:.2f} m); a lower model of its type", rid,
+                          rule="window", top_m=round(top, 3), sill_m=round(sill, 3),
+                          windows=list(front.get("windows") or [])))
     return out, n
 
 
@@ -576,6 +579,8 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
 
         got, n = OR.review(built, prep)
         note("M10", got, n)
+    except ImportError as exc:                     # inside Blender (no shapely): the review after the build has it
+        checks["M10"] = {"status": "unavailable", "note": f"{type(exc).__name__}: {exc}"}
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError) as exc:
         checks["M10"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M11 (27 Oct 2026): the roof as the roof plan draws it (the roof the build makes: the plan's, else the model's)

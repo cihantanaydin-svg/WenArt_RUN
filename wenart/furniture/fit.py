@@ -1630,7 +1630,19 @@ WINDOW_FRONT_M = 0.45            # a piece this close to a window's wall line ..
 WINDOW_OVERLAP_M = 0.10          # ... overlapping its width by this much along the wall stands in front of it
 
 
+def window_front(building: Optional[dict], piece: dict) -> Optional[dict]:
+    """``{"cap_m", "sill_m", "windows"}`` of a floor piece in front of windows (``window_cap``; pure), else None. The
+    fit writes it on the piece (``window_cap``) so the model review reads it with no geometry library (inside
+    Blender)."""
+    cap, ids = _window_cap(building, piece)
+    return None if cap is None else {"cap_m": cap, "sill_m": round(cap + WINDOW_SILL_GAP_M, 4), "windows": ids}
+
+
 def window_cap(building: Optional[dict], piece: dict) -> Optional[float]:
+    return _window_cap(building, piece)[0]
+
+
+def _window_cap(building: Optional[dict], piece: dict) -> tuple[Optional[float], list]:
     """The height a floor piece in front of a window may reach (pure; module note above): the lowest sill of the
     windows of its level whose wall line lies within ``WINDOW_FRONT_M`` of its footprint and whose width it overlaps
     by ``WINDOW_OVERLAP_M`` along the wall, less ``WINDOW_SILL_GAP_M``; None when it stands in front of no window,
@@ -1647,18 +1659,18 @@ def window_cap(building: Optional[dict], piece: dict) -> Optional[float]:
 
     fp = piece.get("footprint") if isinstance(piece.get("footprint"), dict) else None
     if not isinstance(building, dict) or not fp or not fp.get("center") or not fp.get("size"):
-        return None
+        return None, []
     ftype = str(piece.get("type") or "")
     if ftype in SC.FIXED_TYPES or not INF.needs_wall(ftype):      # built as drawn; a free-standing piece moves
-        return None
+        return None, [], []
     try:
         if PX.mount_bottom(piece)[0] > 0.0:
-            return None
+            return None, []
         poly = Polygon(G.rotated_rectangle((float(fp["center"][0]), float(fp["center"][1])),
                                            (float(fp["size"][0]), float(fp["size"][1])),
                                            float(fp.get("rotation_deg") or 0.0)))
     except (KeyError, TypeError, ValueError, IndexError):
-        return None
+        return None, []
     walls = {w.get("id"): w for w in building.get("walls") or []}
     caps = []
     for o in building.get("openings") or []:
@@ -1681,12 +1693,12 @@ def window_cap(building: Optional[dict], piece: dict) -> Optional[float]:
         ts = [(px - cx) * ux + (py - cy) * uy for px, py in poly.exterior.coords]
         if min(max(ts), half) - max(min(ts), -half) < WINDOW_OVERLAP_M:
             continue
-        caps.append(float(sill) - WINDOW_SILL_GAP_M)
+        caps.append((float(sill) - WINDOW_SILL_GAP_M, o.get("id")))
     if not caps:
-        return None
+        return None, []
     heights = real_height_range(str(piece.get("type") or ""))
-    cap = round(min(caps), 4)
-    return cap if heights is None or heights[0] <= cap else None
+    cap = round(min(c for c, _i in caps), 4)
+    return (cap, sorted(i for _c, i in caps)) if heights is None or heights[0] <= cap else (None, [])
 
 
 def piece_ceiling(building: Optional[dict], piece: dict, planes: Optional[list] = None) -> Optional[float]:
@@ -2389,7 +2401,12 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         level_id = piece.get("level_id")
         if level_id not in planes_of:
             planes_of[level_id] = ceiling_planes_of(fitted, level_id)
-        return piece_ceiling(fitted, piece, planes_of[level_id])     # 27 Oct 2026: a window's sill caps it too
+        front = window_front(fitted, piece)          # 27 Oct 2026: a window's sill caps it too; the record is the
+        if front is not None:                        # model review's (M2), read with no geometry library in Blender
+            piece["window_cap"] = front
+        else:
+            piece.pop("window_cap", None)
+        return piece_ceiling(fitted, piece, planes_of[level_id])
 
     # 26 Oct 2026 (fix D): the role sets of the groups (the chairs of a table, the nightstands of a bed, the armchairs
     # of a seating group) and the one model each set takes (``role_set_fit``)

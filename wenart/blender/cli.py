@@ -275,7 +275,37 @@ def build(building: str, out: str, style: str | None = None, assets: str | None 
         brief_json.write_text(json.dumps(loaded, indent=1, ensure_ascii=False), encoding="utf-8")
         args += ["--brief", str(brief_json)]
     run_blender(BUILD_SCRIPT, args, log_path=Path(out) / "build.log", timeout=timeout)
+    if not level:
+        refresh_model_review(building, out, variant, loaded, style)
     return Path(out) / "scene_manifest.json"
+
+
+def refresh_model_review(building, out, variant: str = BASE_VARIANT, brief=None, style=None):
+    """27 Oct 2026: the model review once more after Blender has built the scene, in the pipeline's own Python
+    (``model_review.review`` on ``build.prepare`` of the same inputs and the new scene manifest). Blender's Python has
+    no shapely: the checks that need it (the outdoor spaces M10, the stair walks M9, a piece over a window's sill)
+    were missing from the review Blender wrote, and Argus reads this file. Never raises: a failure keeps Blender's
+    review and prints why."""
+    import json
+
+    from wenart.blender import build as B
+    from wenart.blender import model_review as MR
+
+    out = Path(out)
+    try:
+        manifest = json.loads((out / "scene_manifest.json").read_text(encoding="utf-8"))
+        data = json.loads(Path(building).read_text(encoding="utf-8"))
+        prep = B.prepare(data, variant or BASE_VARIANT, brief, style_family=B.style_family_of(style))
+        review = MR.review(prep["building"], manifest, prep)
+    except Exception as exc:  # noqa: BLE001 - the review is a record; it never stops a build
+        print(f"MODEL_REVIEW_REFRESH failed: {type(exc).__name__}: {exc}")
+        return None
+    review["refreshed"] = "the pipeline's Python after the Blender build (every check)"
+    (out / MR.REVIEW_JSON).write_text(json.dumps(review, indent=1, ensure_ascii=False), encoding="utf-8")
+    (out / MR.REVIEW_MD).write_text(MR.report_md(review, Path(building).parent.name), encoding="utf-8")
+    print(f"MODEL_REVIEW_REFRESH {sum(1 for f in review['findings'] if f['severity'] == 'critical')} critical, "
+          f"{sum(1 for f in review['findings'] if f['severity'] == 'major')} major")
+    return review
 
 
 def render(scene: str, out: str, cameras: str = "all", samples: int | None = None, res: str | None = None,

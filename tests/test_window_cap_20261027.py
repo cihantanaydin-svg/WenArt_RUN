@@ -33,6 +33,8 @@ def test_a_piece_against_a_window_wall_takes_a_model_under_the_sill():
 def test_m2_reports_a_piece_that_covers_a_window():
     b = _room()
     dresser = b["furniture"][0]
+    dresser["window_cap"] = F.window_front(b, dresser)          # the fit writes it (fit_building)
+    assert dresser["window_cap"] == {"cap_m": 0.88, "sill_m": 0.9, "windows": ["win1"]}
     manifest = {"objects": [{"kind": "furniture", "element_id": dresser["id"], "type": "dresser", "room_id": RID,
                              "box3d": {"center": [2.5, 0.28, 0.72], "size": [1.2, 0.55, 1.44]}}]}
     got, n = MR.over_sills(manifest, b, {RID: 0.0})
