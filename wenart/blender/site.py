@@ -2741,6 +2741,20 @@ def hedge_keep_out(hedges: Sequence[dict]) -> list[tuple[str, list]]:
     return out
 
 
+GUARD_EDGE_TOL_M = 0.05             # a platform edge this close to an asked guard edge (both ends) takes the guard
+
+
+def on_guard_edge(a, b, guards) -> bool:
+    """Whether the platform edge ``a``-``b`` lies on one of the ``guards`` segments (pure): both its ends within
+    ``GUARD_EDGE_TOL_M`` of the segment (the platform's edges are split after the answer was given)."""
+    for g in guards or []:
+        p, q = tuple(g[0][:2]), tuple(g[1][:2])
+        if G.point_segment_distance(tuple(a[:2]), p, q) <= GUARD_EDGE_TOL_M and \
+                G.point_segment_distance(tuple(b[:2]), p, q) <= GUARD_EDGE_TOL_M:
+            return True
+    return False
+
+
 def space_platform(space: dict, gz) -> Optional[dict]:
     """A labelled outdoor space (``site.outdoor_spaces``, ``wenart.levels.outdoor``) as a platform record (pure; 26
     Oct 2026, real06's veranda and balcony): kind ``terrace`` at the space's floor (the doors' level), ``space`` (its
@@ -2758,7 +2772,8 @@ def space_platform(space: dict, gz) -> Optional[dict]:
             "space": {k: space.get(k) for k in ("kind", "label", "level_id", "doors", "cover", "method", "area_m2",
                                                 "stated_area_m2")},
             "elevated": bool(space.get("elevated")), "steps_drawn": space.get("steps"), "roof": space.get("roof"),
-            "posts": list(space.get("posts") or []), "space_reason": space.get("reason")}
+            "posts": list(space.get("posts") or []), "space_reason": space.get("reason"),
+            "guard_edges": [list(map(list, e)) for e in space.get("guard_edges") or []]}
 
 
 def _nearest_edge(poly, p, skip=()) -> Optional[int]:
@@ -2929,6 +2944,11 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
                 pf["steps_at"] = {"point": [round(mid[0], 4), round(mid[1], 4)], "width": float(st["width_m"]),
                                   "tread": float(st.get("tread_m") or PLATFORM["step_tread"]),
                                   "treads": int(st.get("treads") or 0), "source": "drawn"}
+        if pf.get("guard_edges"):                   # 27 Oct 2026: the guards an answer asked for (architect guard_edge)
+            n = len(pf["polygon"])
+            asked = [i for i in range(n) if i != pf.get("steps_edge")
+                     and on_guard_edge(pf["polygon"][i], pf["polygon"][(i + 1) % n], pf["guard_edges"])]
+            pf["railing_edges"] = sorted(set(pf.get("railing_edges") or []) | set(asked))
     for pf in out:
         if pf.get("steps_dir") != "up":
             continue

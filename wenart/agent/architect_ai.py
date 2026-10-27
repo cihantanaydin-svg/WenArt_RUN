@@ -55,6 +55,8 @@ LOOK_ACTIONS = {
                 "pass_through", "gap_to_door", "window_to_door", "snap_threshold"),
     "room": ("retype_room", "enlarge_windows"),
     "piece": ("move_piece", "mount_fixture", "remove_piece"),
+    # 27 Oct 2026: an outdoor space (site.outdoor_spaces): a guard on an open edge, a roof over a covered kind
+    "space": ("guard_edge", "cover_space"),
 }
 TOPDOWN = "renders/top_{level}_plan.jpg"
 LOOK_JSON = "architect_look.json"
@@ -442,6 +444,11 @@ def _level_of(plan: AA.Plan, building: dict, element: str) -> Optional[str]:
     if element in plan.openings:
         return plan.openings[element].get("level_id")
     piece = next((f for f in building.get("furniture") or [] if f.get("id") == element), None)
+    if piece is None:                              # 27 Oct 2026: an outdoor space's level
+        space = next((s for s in (building.get("site") or {}).get("outdoor_spaces") or [] if s.get("id") == element),
+                     None)
+        if space is not None:
+            return space.get("level_id")
     return (piece or {}).get("level_id") or (plan.room.get((piece or {}).get("room_id")) or {}).get("level_id")
 
 
@@ -515,6 +522,12 @@ def _where_of(plan: AA.Plan, building: dict, element: str, level_id: str) -> dic
         piece = next((f for f in building.get("furniture") or [] if f.get("id") == element), {})
         c = (piece.get("footprint") or {}).get("center") or (0, 0)
         kind = "furniture"
+        space = None if piece else next((s for s in (building.get("site") or {}).get("outdoor_spaces") or []
+                                         if s.get("id") == element), None)
+        if space is not None and len(space.get("polygon") or []) >= 3:      # 27 Oct 2026: an outdoor space
+            from wenart import geometry as G
+            c = G.polygon_centroid(space["polygon"])
+            kind = "space"
     return {"kind": kind, "level_id": level_id, "centre": [round(float(c[0]), 3), round(float(c[1]), 3)]}
 
 
@@ -528,6 +541,8 @@ def _decision(d: dict, plan: AA.Plan, built: dict, level_id: str) -> tuple[Optio
         kind = "room"
     elif any(f.get("id") == element for f in built.get("furniture") or []):
         kind = "piece"
+    elif any(s.get("id") == element for s in (built.get("site") or {}).get("outdoor_spaces") or []):
+        kind = "space"
     else:
         return None, None, f"{element} is no element of the plan"
     if action not in LOOK_ACTIONS[kind]:
@@ -549,6 +564,15 @@ def _decision(d: dict, plan: AA.Plan, built: dict, level_id: str) -> tuple[Optio
         if outside and here <= lowest + 0.5:
             return None, None, (f"{element} is a ground-floor door to the outside: an entrance is never made a window "
                                 f"by a decision")
+    if action == "guard_edge":
+        try:
+            edges = AA.guard_segments(json.loads(value)) if value else []
+        except ValueError:
+            edges = []
+        if not edges:
+            return None, None, (f"guard_edge needs value [[x0, y0], [x1, y1]] (the edge) or a list of edges, "
+                                f"got {value!r}")
+        params["edges"] = edges
     if action == "remove_piece":
         piece = next(f for f in built.get("furniture") or [] if f.get("id") == element)
         if piece.get("source") in (None, "from_documents"):

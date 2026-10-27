@@ -507,6 +507,16 @@
    "request": "All the solutions must be general: check the project, every decision and solution is a rule of the pipeline for every house, never for one project (no project names, element ids, coordinates or values tuned to one drawing in the pipeline's code; the project that showed a problem is only its test case; reference photos for every style family, not only the one of the current project)",
    "lesson": "Every decision and solution is general: a rule for every house, phrased for the general case, its constants with a physical or architectural reason; the project that showed a problem is only its test case. Pipeline code never names a project or one house's element ids (tests/test_generality.py); the reference photos of any style family are picked automatically when no curated set exists.",
    "question": null
+  },
+  {
+   "id": "UL45",
+   "date": "2026-10-27",
+   "area": "process",
+   "status": "built",
+   "checks": [],
+   "request": "Make Argus fix the outdoor problems by itself: a raised space nobody can reach gets a door (the widest window onto it), every open edge over a drop or onto a roof at its floor level gets a guard, a covered kind left open gets a light roof; each fix goes through the architect's checked path (dry re-check of the exact rule, nothing new breaks)",
+   "lesson": "An outdoor-space finding of the model review (M10) is fixed by Argus with no model: O1 the widest window onto a raised space becomes its door (window_to_door), O2/O5 every open edge of one space gets a guard in one decision (guard_edge), O4 a covered kind left open gets a light roof (cover_space); each goes through argus_ai.act (dry re-check of the same rule, no new critical finding, the model review no worse).",
+   "question": null
   }
  ]
 }

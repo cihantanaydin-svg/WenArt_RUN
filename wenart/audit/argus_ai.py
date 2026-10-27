@@ -70,7 +70,9 @@ CAUSES = ("reading", "recognition", "fit", "layout", "decor", "agent", "architec
           "cameras", "render", "library", "scheduler", "unknown")
 FIX_ARCH = ("door_to_window", "french_window", "raise_sill", "widen_door", "interior_glazing", "high_window",
             "pass_through", "gap_to_door", "window_to_door", "snap_threshold", "retype_room", "enlarge_windows",
-            "move_piece", "mount_fixture", "remove_piece")
+            "move_piece", "mount_fixture", "remove_piece",
+            # 27 Oct 2026 (user: "make argus fix these by itself"): an outdoor space's guard and cover
+            "guard_edge", "cover_space")
 FIX_OTHER = ("agent_round", "rerun_stage", "rule_needed", "not_a_problem")
 # 26 Oct 2026 (user: "make Argus fix everything itself, give it more power"): the agent's edit tools Argus may call
 # itself (23; the loop runs them in Argus's session through the same registry, validators and acceptance:
@@ -435,11 +437,59 @@ def missing_for(piece: dict, missing: str) -> str:
     return opts[0] if opts else ""
 
 
+def outdoor_decisions(rep: dict, building: dict) -> list[dict]:
+    """27 Oct 2026 (user: "make argus fix these by itself"): the architect decisions the model review's outdoor checks
+    (M10) name exactly, with no model: O1 a raised space nobody can step onto: the widest window among its openings
+    becomes its door (``window_to_door``); O2 an open edge over a drop and O5 a balcony edge onto a roof at its floor
+    level: a guard on that edge (``guard_edge``, the edge's ends from the finding); O4 a covered kind left open: a light
+    roof over it (``cover_space``). Each goes through the same checked path as the AI's decisions (``act``: carried out
+    on a copy, the finding gone in the dry re-check, no new critical finding)."""
+    spaces = {s.get("id"): s for s in (building.get("site") or {}).get("outdoor_spaces") or []}
+    openings = {o.get("id"): o for o in building.get("openings") or []}
+    out, seen, guards = [], set(), {}
+    for f in rep.get("findings") or []:
+        if f.get("check") != "M10":
+            continue
+        m = (f.get("evidence") or {}).get("metrics") or {}
+        rule, sid = m.get("rule"), str(f.get("target") or "")
+        if sid not in spaces:
+            continue
+        d = None
+        if rule == "O1":
+            wins = [openings[o] for o in spaces[sid].get("doors") or [] if (openings.get(o) or {}).get("type") == "window"]
+            if wins:
+                w = max(wins, key=lambda o: float(o.get("width") or 0.0))
+                d = {"action": "window_to_door", "element": w["id"], "value": ""}
+        elif rule in ("O2", "O5") and m.get("edge_xy"):
+            # every open edge of one space in one decision (one key per action and element)
+            g = guards.get(sid)
+            if g is None:
+                g = guards[sid] = dict(action="guard_edge", element=sid, edges=[], aid=f"c:{rule}:{sid}",
+                                       reason=f"Argus (code): {f.get('message')}"[:300], finding=f, rules=set())
+                out.append(g)
+            if m["edge_xy"] not in g["edges"]:
+                g["edges"].append(m["edge_xy"])
+            g["rules"].add(rule)
+            continue
+        elif rule == "O4":
+            d = {"action": "cover_space", "element": sid, "value": ""}
+        if d is None or (d["action"], d["element"]) in seen:
+            continue
+        seen.add((d["action"], d["element"]))
+        out.append(dict(d, aid=f"c:{rule}:{sid}", reason=f"Argus (code): {f.get('message')}"[:300], finding=f))
+    for g in guards.values():
+        edges, rules = g.pop("edges"), g.pop("rules")
+        g["value"] = json.dumps(edges)
+        if len(edges) > 1:
+            g["reason"] = f"Argus (code): {len(edges)} open edges of {g['element']} ({', '.join(sorted(rules))})"
+    return out
+
+
 def code_actions(rep: dict, building: dict) -> tuple[list[dict], list[dict], list[str]]:
     """The fixes Argus's code lines name exactly, as tool calls with no model (``(actions, work, revoke keys)``):
     the ledger's ``type_piece`` (a furniture name written beside an untyped piece), N5 (a room missing a piece of
     its set holds an untyped drawn piece: typed as that piece, a bath or a shower by its length; or a piece an AI
-    decision took out: that decision is revoked)."""
+    decision took out: that decision is revoked). The architect decisions the code lines name: ``outdoor_decisions``."""
     pieces = {f.get("id"): f for f in building.get("furniture") or []}
     actions, work, revoke = [], [], []
     for n, f in enumerate(rep.get("findings") or [], 1):
@@ -721,7 +771,9 @@ def target_gone(finding: dict, prep: dict) -> Optional[bool]:
             rec = MR.review(b, None, prep)
         except Exception:  # noqa: BLE001
             return None
+        rule = ((finding.get("evidence") or {}).get("metrics") or finding.get("metrics") or {}).get("rule")
         return not any(f.get("check") == finding.get("check") and str(f.get("target")) == str(finding.get("target"))
+                       and (rule is None or (f.get("metrics") or {}).get("rule") == rule)     # M10: O1..O6
                        for f in rec.get("findings") or [])
     return None
 
@@ -878,6 +930,9 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
                          "target": f["target"], "message": f["message"], "cause": f.get("owner"), "why": ""})
     # the fixes the code lines name exactly: no model needed (they run even when the model failed)
     c_actions, c_work, revoke = code_actions(rep, inp.stage("build") or building)
+    have_d = {(d["action"], d["element"]) for d in decisions}
+    decisions += [d for d in outdoor_decisions(rep, inp.stage("build") or building)
+                  if (d["action"], d["element"]) not in have_d]
     have = {(x["tool"], json.dumps(x["args"], sort_keys=True)) for x in actions}
     for x, w in zip(c_actions, c_work):
         if (x["tool"], json.dumps(x["args"], sort_keys=True)) not in have:

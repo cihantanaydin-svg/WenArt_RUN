@@ -148,7 +148,8 @@ def review(built: dict, prep: Optional[dict]) -> tuple[list[dict], int]:
                                   f"O2: the {name}'s edge {i} ({length:.2f} m, from {a[0]:.2f}, {a[1]:.2f} to "
                                   f"{b[0]:.2f}, {b[1]:.2f}) is open over a {drop:.2f} m drop: no guard, no wall "
                                   f"behind it ({backed:.0%} backed)", rule="O2", edge=i, length_m=round(length, 3),
-                                  drop_m=round(drop, 3), backed=round(backed, 3)))
+                                  drop_m=round(drop, 3), backed=round(backed, 3),
+                                  edge_xy=[[round(a[0], 4), round(a[1], 4)], [round(b[0], 4), round(b[1], 4)]]))
         # O3 an outdoor floor of its kind
         slug = _floor_slug(pf)
         if slug in GARDEN_FLOORS:
@@ -199,7 +200,8 @@ def review(built: dict, prep: Optional[dict]) -> tuple[list[dict], int]:
                                       f"{name} over {shared:.2f} m of edge {i}: the roof's top "
                                       f"({float(roof['top_z']):.2f} m) is the balcony's floor level "
                                       f"({float(other['z']):.2f} m) and nothing guards the edge",
-                                      rule="O5", edge=i, shared_m=round(shared, 3), roof_of=pf["id"]))
+                                      rule="O5", edge=i, shared_m=round(shared, 3), roof_of=pf["id"],
+                                      edge_xy=[[round(a[0], 4), round(a[1], 4)], [round(b[0], 4), round(b[1], 4)]]))
         # O6 one post language
         posts = [q for q in pf.get("posts") or [] if isinstance(q.get("size_m"), (int, float))]
         if len(posts) >= 2:

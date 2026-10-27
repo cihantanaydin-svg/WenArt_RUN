@@ -89,6 +89,9 @@ ACTIONS = {
     # 26 Oct 2026 (user on real06: "these sections not making sense": a 2.95 m flat oak leaf in the facade): D5
     "door_type": "the kind of door (params: kind): French doors, a glazed sliding or folding door, the entrance "
                  "door, a sectional garage door, or two leaves; never one leaf much wider than 1.2 m",
+    # 27 Oct 2026 (user: "make argus fix these by itself"): the outdoor spaces (site.outdoor_spaces) as elements
+    "guard_edge": "a guard (railing) on open edges of an outdoor space (params: edges [[[x0, y0], [x1, y1]], ...])",
+    "cover_space": "a light roof over the part of an outdoor space no floor, space or roof above covers",
 }
 # The rules whose answers are carried out first (a door that becomes a window is not widened as a door)
 FIRST_RULES = ("E1", "O2", "D4")
@@ -764,6 +767,69 @@ def act_stair_winders(plan: Plan, key: str, ans: dict, piece_id: str, count="aut
     return True, f"{piece_id}: winders {count}"
 
 
+def _space(plan: Plan, space_id: str) -> Optional[dict]:
+    site = plan.b.get("site") if isinstance(plan.b.get("site"), dict) else {}
+    return next((s for s in site.get("outdoor_spaces") or [] if s.get("id") == space_id or
+                 s.get("area_id") == space_id), None)
+
+
+def guard_segments(value) -> list[list[list[float]]]:
+    """The edges of a ``guard_edge`` answer (pure): one edge ``[[x0, y0], [x1, y1]]`` or a list of them; [] when
+    none is valid."""
+    if not isinstance(value, (list, tuple)) or not value:
+        return []
+    edges = [value] if isinstance(value[0], (list, tuple)) and value[0] and \
+        isinstance(value[0][0], (int, float)) else value
+    out = []
+    for e in edges:
+        try:
+            (x0, y0), (x1, y1) = [(float(p[0]), float(p[1])) for p in e]
+        except (TypeError, ValueError, IndexError):
+            continue
+        if math.hypot(x1 - x0, y1 - y0) > 1e-3:
+            out.append([[round(x0, 4), round(y0, 4)], [round(x1, 4), round(y1, 4)]])
+    return out
+
+
+def act_guard_edge(plan: Plan, key: str, ans: dict, space_id: str, edges):
+    """27 Oct 2026 (Argus M10 O2 / O5): a guard on open edges of an outdoor space: each edge's two ends join the
+    space's ``guard_edges`` (``site.platforms`` puts a railing on every platform edge on one of them, after the edges
+    are split)."""
+    sp = _space(plan, space_id)
+    if sp is None:
+        return False, f"no outdoor space {space_id}"
+    segs = guard_segments(edges)
+    if not segs:
+        return False, f"no edge given for {space_id} (params.edges [[[x0, y0], [x1, y1]], ...])"
+    guards = sp.setdefault("guard_edges", [])
+    guards += [g for g in segs if g not in guards]
+    _mark(sp, "adjusted_by_ai", key, ans, f"the answer to {key}: a guard on {len(segs)} edge(s)")
+    return True, f"{sp['id']}: a guard on " + "; ".join(f"the edge from {g[0]} to {g[1]}" for g in segs)
+
+
+def act_cover_space(plan: Plan, key: str, ans: dict, space_id: str):
+    """27 Oct 2026 (Argus M10 O4): a covered kind left open gets a light roof over the part nothing above covers
+    (``outdoor.roof_plan`` with cover ``roof``, the levels' outlines from the slabs) and its posts again."""
+    from wenart.levels import outdoor as OD
+
+    sp = _space(plan, space_id)
+    if sp is None:
+        return False, f"no outdoor space {space_id}"
+    spaces = (plan.b.get("site") or {}).get("outdoor_spaces") or []
+    outlines = {s.get("above_level_id"): s.get("outline") for s in plan.b.get("slabs") or []
+                if s.get("above_level_id") and len(s.get("outline") or []) >= 3}
+    was = sp.get("cover")
+    sp["cover"] = "roof" if was not in ("roof", "glass", "pergola", "building") else was
+    roof = OD.roof_plan(sp, spaces, list(plan.levels.values()), outlines, plan.b, [])
+    if roof is None:
+        sp["cover"] = was
+        return False, f"{sp['id']}: nothing left to cover (the floors and spaces above cover it)"
+    sp["roof"] = roof
+    OD.assign_posts(spaces, lambda x, y: float(sp.get("z") or 0.0))
+    _mark(sp, "adjusted_by_ai", key, ans, f"the answer to {key}: a light roof over {roof.get('area_m2')} m2")
+    return True, f"{sp['id']}: a light roof over {roof.get('area_m2')} m2 ({roof.get('reason')})"
+
+
 def act_remove_piece(plan: Plan, key: str, ans: dict, piece_id: str):
     """The piece is not built (an answer: it does not belong where it stands; 25 Oct 2026)."""
     f = _piece(plan, piece_id)
@@ -1396,6 +1462,11 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                 elif opt == "door_type":
                     ok, text = act_door_type(plan, key, ans, params.get("door_id") or target,
                                              str(params.get("kind") or ""))
+                elif opt == "guard_edge":
+                    ok, text = act_guard_edge(plan, key, ans, params.get("space_id") or target,
+                                              params.get("edges") or params.get("edge"))
+                elif opt == "cover_space":
+                    ok, text = act_cover_space(plan, key, ans, params.get("space_id") or target)
                 else:
                     ok, text = False, f"unknown option {opt!r}"
             except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
