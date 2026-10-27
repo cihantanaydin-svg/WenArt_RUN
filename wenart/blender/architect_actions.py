@@ -76,7 +76,9 @@ ACTIONS = {
     "snap_threshold": "the door stands on its floor: its threshold at the floor of the rooms it joins",
     "mount_fixture": "the fixture at its working height (a wall-hung basin's rim at 0.85 m)",
     "move_piece": "move the piece to the nearest free place in its room, clear of the doorway or window",
-    "gap_to_door": "a door the reading missed: a glazed door in the gap (sliding from 1.40 m wide)",
+    "gap_to_door": "a door the reading missed: a glazed door in a gap of the facade (sliding from 1.40 m wide); "
+                   "inside the house only into a room that needs privacy (a bathroom, a WC, a bedroom): one solid "
+                   "leaf; any other inside gap stays an open passage",
     "merge_openings": "one opening read twice: the two become one over both spans (params: other_id)",
     "window_to_door": "a reading error: the room has no door, this opening between two rooms is its door",
     # 26 Oct 2026 (user: "make the AI architect a lot more smart and let it take decisions more"): the decisions a
@@ -950,7 +952,9 @@ def act_high_window(plan: Plan, key: str, ans: dict, window_id: str):
 def act_pass_through(plan: Plan, key: str, ans: dict, door_id: str):
     """26 Oct 2026: a doorway between two rooms that a drawn counter fills is a serving window over the counter: the
     door or gap becomes a window (same wall, centre and width, its head kept) with its sill at ``PASS_SILL_M``; the
-    drawn values stay (``drawn_type`` ...), ``corrected_by_ai``."""
+    drawn values stay (``drawn_type`` ...), ``corrected_by_ai``. 27 Oct 2026 (user: "Not every opening inside the house
+    requires a door or a window"): it is an open hatch, the build gives it no glass and no frame
+    (``door_spacing.open_hatch``)."""
     o = plan.openings.get(door_id)
     if o is None or o.get("type") not in ("door", "opening"):
         return False, f"no door or gap {door_id}"
@@ -981,6 +985,12 @@ def act_door_to_window(plan: Plan, key: str, ans: dict, door_id: str):
     o = plan.openings.get(door_id)
     if o is None or o.get("type") not in ("door", "opening"):
         return False, f"no door or gap {door_id}"
+    rooms = _two_rooms(plan, o)
+    if rooms is not None:
+        # 27 Oct 2026 (user: "Not every opening inside the house requires a door or a window"): a door or a passage
+        # between two rooms of the house is never made a window (a doorway a drawn counter fills: ``pass_through``)
+        return False, (f"{door_id} joins {rooms[0]['id']} and {rooms[1]['id']} inside the house: a door or passage "
+                       f"between two rooms is never made a window")
     typ = typical_window(plan, o.get("level_id"))
     sill = float(typ["sill"]) if typ and 0.6 <= float(typ["sill"]) <= 1.2 else SAFE_SILL_M
     base = float(o.get("sill_height") or 0.0)
@@ -1010,9 +1020,36 @@ def act_gap_to_door(plan: Plan, key: str, ans: dict, door_id: str):
     """A bare gap in an outer wall at its floor onto the ground or a terrace: a glazed door (sliding from 1.40 m
     wide) the reading did not see (26 Oct 2026); the drawn type stays (``drawn_type``), ``corrected_by_ai``."""
     o = plan.openings.get(door_id)
-    if o is None or o.get("type") != "opening":
-        return False, f"no gap {door_id}"
+    if o is None or o.get("type") != "opening" or o.get("virtual") or o.get("wall_id") not in plan.walls:
+        return False, f"no gap {door_id} in a wall"
     width = float(o.get("width") or 0.0)
+    rooms = _two_rooms(plan, o)
+    if rooms is not None:
+        # 27 Oct 2026 (user: "Not every opening inside the house requires a door or a window"; real06: the AI made the
+        # 2.00 m passage between the two upper halls a glazed door with a guard): a gap inside the house, drawn with no
+        # leaf and no swing arc, stays an open passage; it gets a door only where a room needs privacy (a bathroom, a
+        # WC, a bedroom: ``door_spacing.PRIVACY_ROOMS``), one solid leaf (D5 decides a pair when it is wide), never
+        # glass, and never a frame against another door
+        from wenart.blender import door_spacing as DS
+        private = [r["id"] for r in rooms if DS.needs_privacy(r)]
+        if not private:
+            return False, (f"{door_id}: an open passage between {rooms[0]['id']} and {rooms[1]['id']} (no leaf or "
+                           f"swing drawn, neither room needs privacy): it stays open")
+        before = copy.deepcopy(o)
+        _keep_drawn(o, "type", "operation")
+        o["type"], o["operation"], o["operation_source"] = "door", "swing", "architect"
+        o.pop("glazed", None)
+        o["privacy_door"] = {"rooms": private, "unclear_gap": DS.unclear_gap(o)}
+        reason = (f"{door_id}: a {width:.2f} m gap into {', '.join(private)} with no leaf drawn"
+                  + (" (unclear lines in it)" if DS.unclear_gap(o) else "") + ": a door for its privacy (one solid "
+                  "swing leaf)")
+        _mark(o, "corrected_by_ai", key, ans, reason)
+        clash = [r for r in DS.conflicts(plan.b, ids={door_id})[0] if r["kind"] in ("overlap", "frames")]
+        if clash:
+            o.clear()
+            o.update(before)
+            return False, f"{door_id} as a door: {clash[0]['message']}"
+        return True, reason
     _keep_drawn(o, "type", "operation")
     o["type"], o["operation"], o["glazed"] = "door", "sliding" if width >= 1.4 else "swing", True
     o["operation_source"] = "architect"
@@ -1031,6 +1068,16 @@ def act_window_to_door(plan: Plan, key: str, ans: dict, window_id: str):
     sides = window_sides(plan, o)
     if len(sides) != 2 or any(r is None or Plan.is_outside(r) for r in sides):
         return False, f"{window_id} is not between two rooms"
+    # 27 Oct 2026 (user on real06: "doors next to each other not making sense": the AI made the windows on both sides
+    # of the door between a shower room and a dressing room doors, three doors side by side): a window is the door of
+    # a room no door reaches, never a second door of two rooms a door or doorway joins already, and never a door whose
+    # frame touches another door (``door_spacing``: two frames of wall between two doors)
+    from wenart.blender import door_spacing as DS
+    joined = DS.joined_by(plan.b, [r["id"] for r in sides], skip=(window_id,))
+    if joined:
+        return False, (f"{window_id}: {sides[0]['id']} and {sides[1]['id']} are joined by {', '.join(joined)} already: "
+                       f"a window beside their door stays a window")
+    before = copy.deepcopy(o)
     _keep_drawn(o, "type", "sill_height", "height")
     floors = [z for z in (room_floor(plan, r) for r in sides) if z is not None]
     o["type"], o["sill_height"], o["height"], o["operation"] = "door", None, 2.1, "swing"
@@ -1039,6 +1086,11 @@ def act_window_to_door(plan: Plan, key: str, ans: dict, window_id: str):
     _mark(o, "corrected_by_ai", key, ans, reason)
     if float(o.get("width") or 0.0) < WC_DOOR_MIN_W:
         act_widen_door(plan, key, ans, window_id, sides[0]["id"])
+    clash = [r for r in DS.conflicts(plan.b, ids={window_id})[0] if r["kind"] in ("overlap", "frames")]
+    if clash:
+        o.clear()
+        o.update(before)
+        return False, f"{window_id} as a door: {clash[0]['message']}"
     return True, reason
 
 
@@ -1071,6 +1123,15 @@ def act_french_window(plan: Plan, key: str, ans: dict, door_id: str):
     o = plan.openings.get(door_id)
     if o is None or o.get("type") not in ("door", "opening", "window"):
         return False, f"no opening {door_id}"
+    rooms = _two_rooms(plan, o)
+    if rooms is not None:
+        # 27 Oct 2026 (real06: the AI put glass guards across a passage and two windows between rooms of one floor): a
+        # guard stands only over a drop; between two rooms whose floors differ by at most a step there is none
+        from wenart.blender import door_spacing as DS
+        zs = [room_floor(plan, r) or 0.0 for r in rooms]
+        if abs(zs[0] - zs[1]) <= DS.STEP_M:
+            return False, (f"{door_id} joins {rooms[0]['id']} and {rooms[1]['id']} on one floor: no drop, no guard "
+                           f"(a guard stands only over a drop)")
     o["guard"] = {"top_m": GUARD_TOP_M, "kind": "balustrade", "reason": f"the answer to {key}: a French window with "
                                                                          f"a guard"}
     _mark(o, "adjusted_by_ai", key, ans, f"a French window: a guard {GUARD_TOP_M:.2f} m high across its width")

@@ -458,6 +458,7 @@ CHECK_CAUSE: dict[str, str] = {
     # 26 Oct 2026: the review of the 3D model as built (wenart/blender/model_review.py; cause_of refines M7)
     "M1": "levels", "M2": "wrong_model", "M3": "guard", "M4": "opening_sense", "M5": "rain_water",
     "M6": "opening_style", "M7": "missing_anchor", "M8": "entrance_layout", "M10": "outdoor_space",
+    "M12": "opening_sense",          # 27 Oct 2026: doors side by side (the architect and Argus own it)
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",

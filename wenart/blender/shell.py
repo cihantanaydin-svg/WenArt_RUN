@@ -1376,7 +1376,12 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             # removes the wall bottom, so the footprint needs its own floor face.
             created.append(_threshold(opening, wall, (cx, cy), angle, floor_z, has_below, rooms, style, library,
                                       collection, manifest_objects, warnings, op_assumed, shift))
-        if opening["type"] == "opening":
+        hatch = opening["type"] == "window" and (opening.get("interior_glazing") or {}).get("kind") == "pass_through"
+        if hatch:
+            # 27 Oct 2026 (user: "Not every opening inside the house requires a door or a window"): a serving hatch
+            # over a drawn counter (door_spacing.open_hatch) is open above the counter: no glass, no frame
+            op_assumed["open_hatch"] = "a serving hatch over the drawn counter: open, no glass or frame"
+        if opening["type"] == "opening" or hatch:
             wall_h, _ = wall_height(wall, level, has_above)
             if cut_full_height(top, floor_z, wall_h):
                 # Nothing above the wall: close the wall top over the opening.

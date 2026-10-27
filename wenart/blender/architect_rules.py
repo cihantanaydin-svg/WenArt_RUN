@@ -114,6 +114,13 @@ RULES = (
                  "much wider than 1.2 m?",
      "why": "a 3 m flat wooden leaf in a facade reads as a garage door on a house that has none; a living room opens "
             "to the garden through glass"},
+    # 27 Oct 2026 (user: "Not every opening inside the house requires a door or a window")
+    {"id": "D6", "topic": "inside passages", "scope": "opening", "severity": "minor",
+     "question": "Does every opening inside the house get only what the drawing and its rooms need: an open passage "
+                 "where no leaf or swing arc is drawn, a door only where a room needs privacy (a bathroom, a WC, a "
+                 "bedroom)?",
+     "why": "a hall, a kitchen and a living room open into each other; a leaf or glass in a passage drawn open is a "
+            "reading or decision error, a bathroom or bedroom behind an unclear gap needs its door"},
     {"id": "H1", "topic": "working heights", "scope": "furniture", "severity": "major",
      "question": "Is every fixture at its working height (a washbasin's rim at 0.80-0.90 m)?",
      "why": "a basin at knee height looks like a toy and cannot be used"},
@@ -209,6 +216,17 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
     side_of = {s["opening"]["id"]: s for s in sides}
     ground = _ground_z(plan.b)
     glass = {}
+    # 27 Oct 2026 (user on real06: "doors next to each other not making sense"): two drawn doors on one wall between
+    # the same two rooms whose frames touch or overlap are one passage drawn or read twice (``door_spacing``): merged
+    # by default like two openings over each other; a door a decision made beside a door is undone where it was made
+    from wenart.blender import door_spacing as DS
+    twins: dict = {}
+    for r in DS.conflicts(plan.b)[0]:
+        x, y = (plan.openings.get(i) for i in r["doors"])
+        if r["kind"] in ("overlap", "frames") and r["same_rooms"] and not r["made_by"] and x is not None \
+                and y is not None and x.get("wall_id") == y.get("wall_id"):
+            twins.setdefault(x["id"], (y["id"], r))
+            twins.setdefault(y["id"], (x["id"], r))
     for o in plan.openings.values():
         w = plan.walls.get(o.get("wall_id"))
         if w is None or o.get("level_id") not in plan.levels:
@@ -238,12 +256,20 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
                                                                                  else 1.2))
         if head > ceiling + 0.02 and not plan.b.get("roof"):
             problems.append(f"its head ({head:.2f} m) is over the {ceiling:.2f} m ceiling")
+        pair = twins.get(o["id"])
+        if pair is not None and not any(pair[0] in x for x in problems):
+            gap = pair[1]["gap_m"]
+            problems.append(f"its frame touches {pair[0]}" + (f" ({max(gap, 0.0):.2f} m apart)" if gap is not None
+                                                              else "") + f", both doors between "
+                            f"{' and '.join(pair[1]['rooms'][o['id']])}: one passage drawn or read twice")
         if problems:
             # 26 Oct 2026: two openings over each other on one wall are one opening read twice: merged by default
             twin = next((p for p in plan.openings.values() if p["id"] != o["id"] and p.get("wall_id") == o.get("wall_id")
                          and min(t + half, plan.t_of(w, p["center"]) + float(p.get("width") or 0.0) / 2.0)
                          - max(t - half, plan.t_of(w, p["center"]) - float(p.get("width") or 0.0) / 2.0)
                          > LIMITS["overlap_tol_m"]), None)
+            if twin is None and pair is not None:
+                twin = plan.openings.get(pair[0])
             opts = ([AA.option("merge_openings", f"one opening read twice: merge it with {twin['id']}",
                                other_id=twin["id"])] if twin is not None else []) + [AA.option("keep")]
             _open(o1, o["id"], f"{o['id']} " + "; ".join(problems), f"Is {o['id']} drawn on the right wall and "
@@ -695,6 +721,40 @@ def site_rules(prep: dict) -> list[dict]:
     return [g1]
 
 
+def passages_rule(plan: AA.Plan, sides: list[dict]) -> list[dict]:
+    """D6 (27 Oct 2026, user: "Not every opening inside the house requires a door or a window"): every doorless gap at
+    the floor between two rooms of the house (``GAP_SILL_MAX_M``; the reading found no swing arc and no leaf in it):
+    an open passage (ok, logged with its evidence), except an unclear gap (lines in it no rule could read,
+    ``door_spacing.unclear_gap``) into a room that needs privacy (``door_spacing.PRIVACY_ROOMS``): a door there by
+    default (``gap_to_door``: one solid leaf), or kept open. A clear empty gap stays open whatever the rooms are."""
+    from wenart.blender import door_spacing as DS
+
+    d6 = _q(next(r for r in RULES if r["id"] == "D6"))
+    for s in sides:
+        o = s["opening"]
+        if s.get("type") != "opening" or o.get("virtual") or o.get("wall_id") not in plan.walls \
+                or float(o.get("sill_height") or 0.0) > GAP_SILL_MAX_M:
+            continue                                   # a separator line between two rooms has no wall: no gap
+        a, b = plan.room.get(s.get("a")), plan.room.get(s.get("b"))
+        if a is None or b is None or AA.Plan.is_outside(a) or AA.Plan.is_outside(b) or a["id"] == b["id"]:
+            continue
+        private = [r["id"] for r in (a, b) if DS.needs_privacy(r)]
+        unclear = DS.unclear_gap(o)
+        between = f"between {a['id']} ({_rtype(a) or '?'}) and {b['id']} ({_rtype(b) or '?'})"
+        if private and unclear:
+            where = _where("opening", o.get("level_id"), o["center"])
+            opts = [AA.option("gap_to_door", f"a door for the privacy of {', '.join(private)} (one solid leaf)",
+                              door_id=o["id"]), AA.option("keep", "an open passage as drawn")]
+            _open(d6, o["id"], f"{o['id']} is a gap {between} with lines no rule could read and no swing arc; "
+                  f"{', '.join(private)} needs privacy", f"Does {o['id']} need a door for the privacy of "
+                  f"{', '.join(private)}, or is it an open passage?", opts, where=where, default=opts[0]["choice"])
+        else:
+            why = "an empty gap: no leaf, no swing arc" if not unclear else "no leaf or swing arc read"
+            _ok(d6, o["id"], f"an open passage {between} ({why}" + (f"; drawn open into {', '.join(private)}"
+                                                                    if private else "; no room needs privacy") + ")")
+    return [d6]
+
+
 def clash_rule(building: dict, clashes: Optional[dict]) -> list[dict]:
     """F5 from ``clashes.resolve`` (``build.prepare`` ran it): every piece checked, the ones moved or not built,
     the clashes left."""
@@ -736,6 +796,7 @@ def review(building: dict, prep: dict, sides: list[dict], graph: dict, starts: l
     seen = reach(graph, starts) if starts else set()
     unreached = {r["id"] for r in plan.rooms if r["id"] not in seen and not AA.Plan.is_outside(r)} if starts else set()
     out = rooms_rules(plan) + openings_rules(plan, sides, unreached) + door_types(plan, sides) + walls_rules(plan) + \
+        passages_rule(plan, sides) + \
         stairs_rules(plan, graph, starts, is_stair, reach) + furniture_rules(plan, sides) + \
         clash_rule(building, prep.get("clashes"))
     if prep.get("site") is not None:

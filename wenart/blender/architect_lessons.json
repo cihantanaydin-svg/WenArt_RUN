@@ -517,6 +517,42 @@
    "request": "Make Argus fix the outdoor problems by itself: a raised space nobody can reach gets a door (the widest window onto it), every open edge over a drop or onto a roof at its floor level gets a guard, a covered kind left open gets a light roof; each fix goes through the architect's checked path (dry re-check of the exact rule, nothing new breaks)",
    "lesson": "An outdoor-space finding of the model review (M10) is fixed by Argus with no model: O1 the widest window onto a raised space becomes its door (window_to_door), O2/O5 every open edge of one space gets a guard in one decision (guard_edge), O4 a covered kind left open gets a light roof (cover_space); each goes through argus_ai.act (dry re-check of the same rule, no new critical finding, the model review no worse).",
    "question": null
+  },
+  {
+   "id": "UL46",
+   "date": "2026-10-27",
+   "area": "openings",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "correct the door (real06's entrance at the top of the outside steps: a narrow oak strip with a dark panel beside it in the opening). General rule: a library door or window fills its opening as a real product does: the catalogue box is read in the piece frame it is written in; a door or window model deeper than wide has its front along its leaf and is turned to its leaf's face; the build refuses a fit that stretches a model's width and height by very different factors; a one-leaf door takes no model wider than a real leaf (1.25 m) and none named as a pair or a sliding system: a wider entrance gets the parametric leaf with glazed side lights or a pair (D5); leaf and frame centred in the opening",
+   "lesson": "A library door or window fills its opening as a real product does: its catalogue box is read in the piece frame it is written in; a door or window model deeper than wide has its front along its leaf and is turned to its leaf's face; a fit that stretches a model's width and height by very different factors is refused (the parametric opening instead); a one-leaf door takes no model wider than a real leaf (1.25 m) nor one named as a pair or a sliding system (a wider entrance gets the leaf with glazed side lights, or D5's pair); the leaf and its frame stand centred in the opening.",
+   "question": "Does every outside door fill its opening as a real door: one leaf of a real width (side lights or a pair when wider), centred, never turned or stretched?"
+  },
+  {
+   "id": "UL47",
+   "date": "2026-10-27",
+   "area": "openings",
+   "status": "rule",
+   "checks": [
+    "O1"
+   ],
+   "request": "doors next to each other not making sense (real06's dressing room and upper hall: the AI made the windows beside the doors of two rooms doors, three doors side by side). General rule: no two doors whose openings overlap or whose frames touch (less than two frames of wall between them, or frames meeting at a corner), no two doors between the same two rooms closer than a door's width, no two swing leaves into one room that sweep over each other; a window becomes a door only for a room no door reaches and never beside the door of two rooms; the model review (M12) finds it in every project, a decision that makes it worse is refused, Argus revokes the AI decision that made such a door, and two drawn doors of one passage whose frames touch become one opening (O1)",
+   "lesson": "Doors never crowd each other: no two doors whose openings overlap or whose frames touch (two frames of wall between them, none meeting at a corner), no two doors between the same two rooms closer than a door's width, no two leaves that sweep over each other; a window becomes a door only for a room no door reaches, never beside the door of two rooms; the model review (M12) finds it in every project, Argus revokes the AI decision that made such a door, two drawn doors of one passage whose frames touch become one opening (O1).",
+   "question": "Does any door stand against another door (touching frames, one passage drawn twice, leaves that hit each other)?"
+  },
+  {
+   "id": "UL48",
+   "date": "2026-10-27",
+   "area": "openings",
+   "status": "rule",
+   "checks": [
+    "D6"
+   ],
+   "request": "Not every opening inside the house requires a door or a window. General rule: an opening between two rooms drawn with no leaf and no swing arc (a passage, an archway, an open doorway between a hall and a dressing room, a kitchen and a living area) stays an open passage: no leaf, no glass, no guard (a guard only over a drop); where the drawing is unclear the open passage is the default, a door (one solid leaf) only into a room that needs privacy (a bathroom, a WC, a bedroom); a door or passage between rooms is never made a window, a serving hatch over a drawn counter is open (no glass); the architect logs the decision (D6) and the model review (M12) reports an inside opening that got a leaf, glass or a guard it does not need",
+   "lesson": "Not every opening inside the house has a door or a window: a passage between two rooms drawn with no leaf and no swing arc stays open (no leaf, no glass, no guard: a guard only over a drop); where the drawing is unclear the open passage is the default and a door (one solid leaf) goes only into a room that needs privacy (a bathroom, a WC, a bedroom); a door or passage between rooms is never made a window, a serving hatch over a drawn counter stays open; D6 logs the decision and the model review (M12) reports an inside opening that got a leaf, glass or a guard it does not need.",
+   "question": "Does every opening inside the house get only what it needs: an open passage where none is drawn, a door only for privacy?"
   }
  ]
 }
