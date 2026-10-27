@@ -1728,6 +1728,46 @@ def plan_level(building: dict, level_id: str, lens_mm: Optional[float] = None) -
     return plans
 
 
+SHOW_MIN_SHARE = 0.003      # a piece is "shown" by a candidate when this share of its rays hits it
+SHOW_POSES = 8              # poses_showing: the best poses returned (the camera validator picks the first that passes)
+
+
+def poses_showing(room: dict, building: dict, show: Sequence[str], lens_mm: Optional[float] = None,
+                  limit: int = SHOW_POSES) -> tuple[list[dict], list[str]]:
+    """27 Oct 2026 (Argus on real06: 26 of 56 own edits were camera poses the model guessed, at the room's origin or
+    outside it): ``(poses, not_here)``: the room's camera candidates (the build's search: its free points, its yaws,
+    its lens) that show the elements ``show`` (pieces, doors, windows), most of them first, then the most of them
+    whole in the frame, then the search score; ``not_here`` the ids of ``show`` that are no element of the room.
+    Each pose: ``position``, ``target``, ``lens_mm``, ``shows``, ``misses``, ``score`` (blocked candidates left out).
+    The AI names what a view must show; the code gives the coordinates."""
+    model = RoomModel(room, building)
+    known = {e["id"] for e in model.elements}
+    want = [str(i) for i in dict.fromkeys(show) if str(i) in known]
+    not_here = [str(i) for i in dict.fromkeys(show) if str(i) not in known]
+    if not want or len(model.polygon) < 3:
+        return [], not_here
+    lens, _rule = cameras.room_lens(room, lens_mm)
+    positions, _warning = candidate_positions(room, building)
+    rows = []
+    for c in score_candidates(model, positions, lens_mm=lens):
+        if c["blocked"]:
+            continue
+        el = c["shares"].get("elements") or {}
+        shows = [i for i in want if float(el.get(i) or 0.0) >= SHOW_MIN_SHARE]
+        if not shows:
+            continue
+        whole = set(c["shares"].get("set_in") or ()) | set(c["shares"].get("anchors_in") or ())
+        rows.append((-len(shows), -sum(1 for i in shows if i in whole), -round(float(c["total"]), SCORE_DECIMALS),
+                     c["x"], c["y"], c["yaw"], c, shows))
+    rows.sort(key=lambda r: r[:6])
+    out = []
+    for *_k, c, shows in rows[:max(1, int(limit))]:
+        plan = _plan(model, 1, c, None, lens)
+        out.append({"position": plan["position"], "target": plan["target"], "lens_mm": float(lens), "shows": shows,
+                    "misses": [i for i in want if i not in shows], "score": plan["score"]["total"]})
+    return out, not_here
+
+
 LENS_CLEARANCE_KINDS = ("furniture", "furniture_proxy", "decor")   # the scene manifest entries with ``box3d``
 
 

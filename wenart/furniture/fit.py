@@ -972,7 +972,18 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                                design, mode=mode, used=used, style=style, ceiling=ceiling)
             if pinned.get("method") == "library":
                 pinned["pinned"] = pin
-                pinned["style_family"] = style_family
+                # 27 Oct 2026 (pod run 224516, GPU test test_refit_library_models_fit_the_style): the pin records the
+                # family of the project's chain its model holds (a minimal model in a scandinavian house: minimal, a
+                # style fallback), not the project's family it does not hold; ``pin_off_style`` when it holds none
+                chain = style_chain(style_family)
+                hit = next((fam for fam in chain if C.styles_match(entry, fam)), None)
+                pinned["style_family"] = hit or style_family
+                if hit is not None and hit != style_family:
+                    pinned["style_fallback"] = {"wanted": style_family, "used": hit, "chain": list(chain),
+                                                "why": f"the agent's pinned model {pin}"}
+                elif hit is None:
+                    pinned["pin_off_style"] = (f"{pin}: its styles {entry.get('styles') or []} hold no family of "
+                                               f"{chain}")
                 pinned["pin_skips_style"] = True
                 return pinned
         asset = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family, design, mode=mode,

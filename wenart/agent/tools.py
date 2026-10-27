@@ -417,10 +417,12 @@ DESCRIPTIONS = {
     "set_camera": "Move an existing camera (position, target, lens). A camera replayed from the baseline (set 1) "
                   "is frozen and refused; a frontal view stays square to its facade, an entrance view stays "
                   "close in front of its door and the allowed aerial or site view stays an aerial view (never "
-                  "brought to eye level). A camera_blocked interior view moves to a free point with headroom.",
+                  "brought to eye level). A camera_blocked interior view moves to a free point with headroom. "
+                  "Interior views: give show (the pieces, doors or windows it must show) instead of position and "
+                  "target, and the code picks the free pose that shows them.",
     "add_camera": "Add a camera view under a new view id. An exterior view of a long, low building may be framed "
                   "wider or tilted; a refusal for standing inside a building names the free stretch of the view "
-                  "line.",
+                  "line. An interior view: give room_id and show (what it must show) and the code picks the pose.",
     "remove_camera": "Remove a camera view (e.g. a view of a bare wall); never a replayed (set 1) camera, nor the "
                      "only frontal or entrance view, nor the only view of a room (set_camera moves it).",
     "set_material": "Set the look of a material slot (walls, floor, wet walls, kitchen walls, facade, roof, ground, "
@@ -2271,15 +2273,74 @@ def duplicate_view_problem(ctx: ToolContext, view_id: str, entry: dict) -> Optio
     return None
 
 
+SHOW_SCHEMA = {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1, "maxItems": 6,
+               "description": "interior views: the pieces, doors or windows the view must show; leave out position and "
+                              "target and the code picks the best free pose of the room's camera search that shows "
+                              "them (and passes the camera checks)"}
+
+
+def show_pose(ctx: ToolContext, args: dict, entry: dict) -> tuple[Optional[dict], list[str]]:
+    """27 Oct 2026 (Argus on real06: 26 of its 56 edits were camera poses it guessed, at the room's origin or outside
+    the room, and all were refused): ``set_camera`` / ``add_camera`` with ``show`` and no position: ``(entry with the
+    pose, [])`` of the first pose of ``camsearch.poses_showing`` (the room's free points and yaws, most of the elements
+    shown first) that the camera validator accepts and that differs from the view's pose now, else ``(None, the
+    reasons)``. The room is the view's (``room_id`` of the arguments, else the camera's, else the first shown piece's).
+    A position given with ``show`` is kept: ``show`` is then ignored."""
+    if entry.get("position") is not None and entry.get("target") is not None:
+        return entry, []
+    from wenart.blender import camsearch as CSR
+
+    show = [str(i) for i in args.get("show") or []]
+    cam = ctx.camera(args["view_id"]) or {}
+    kind = entry.get("kind") or cam.get("kind") or ("interior" if cam.get("room_id") or args.get("room_id")
+                                                    else None)
+    piece_rooms = [p.get("room_id") for p in (ctx.piece(i) for i in show) if p]
+    room_id = args.get("room_id") or cam.get("room_id") or next((r for r in piece_rooms if r), None)
+    if kind == "exterior" or (kind is None and not room_id):
+        return None, [f"show picks interior poses only: {args['view_id']} is an exterior view (give position and "
+                      f"target)"]
+    room = next((r for r in ctx.building.get("rooms") or [] if r.get("id") == room_id), None)
+    if room is None:
+        return None, [f"show: no room {room_id!r} for the view {args['view_id']} (give room_id)"]
+    try:
+        poses, not_here = CSR.poses_showing(room, ctx.building, show, lens_mm=entry.get("lens_mm"))
+    except Exception as exc:  # noqa: BLE001 - the search is a helper: its failure is a refusal with the reason
+        return None, [f"show: the camera search failed in {room_id}: {type(exc).__name__}: {exc}"]
+    if not poses:
+        return None, [f"show: no free camera point of {room_id} shows {', '.join(show)}"
+                      + (f" ({', '.join(not_here)} not in {room_id}: name its pieces, doors or windows)"
+                         if not_here else "")]
+    now, _where = camera_pose_now(ctx, args["view_id"])
+    failed: list[str] = []
+    for p in poses:
+        trial = dict(entry, kind="interior", room_id=room_id, position=p["position"], target=p["target"],
+                     lens_mm=p["lens_mm"])
+        if same_pose(trial, now):
+            continue
+        verdict = dict(ctx.checks().validate_camera_override(ctx.building, trial) or {})
+        if verdict.get("ok"):
+            return trial, []
+        failed += [f for f in verdict.get("failed") or [] if f not in failed]
+    return None, [f"show: none of the {len(poses)} best poses of {room_id} that show {', '.join(show)} passes the "
+                  f"camera checks: " + "; ".join(failed[:3])]
+
+
 def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
     action = OV.CAMERA_TOOLS[tool]
 
     def handler(ctx: ToolContext, args: dict) -> dict:
-        entry = dict({k: v for k, v in args.items() if k != "reason"}, action=action, reason=args.get("reason"))
+        entry = dict({k: v for k, v in args.items() if k not in ("reason", "show")}, action=action,
+                     reason=args.get("reason"))
         if action != "add" and ctx.camera(args["view_id"]) is None:
             out = _result(False, [f"no view {args['view_id']}"], tool=tool)
             ctx.rejected.append({"tool": tool, "args": args, "result": out})
             return out
+        if action in ("set", "add") and args.get("show"):
+            entry, failed = show_pose(ctx, args, entry)              # 27 Oct 2026: the code gives the coordinates
+            if entry is None:
+                out = _result(False, failed, tool=tool, message="refused: no camera point shows these elements")
+                ctx.rejected.append({"tool": tool, "args": args, "result": out})
+                return out
         # fix round after P4b, decision 1: the replayed set 1 is frozen; decision 2: a view keeps its role
         refusal = None
         if CS.frozen_camera(ctx.camera(args["view_id"])):
@@ -2633,6 +2694,8 @@ def build_registry() -> Registry:
     remove_schema = _obj({"view_id": ID}, ["view_id"])
     for tool in OV.CAMERA_TOOLS:
         params = with_reason(remove_schema if tool == "remove_camera" else cam_schema)
+        if tool != "remove_camera":
+            params["properties"]["show"] = dict(SHOW_SCHEMA)
         tools.append(Tool(tool, "override", DESCRIPTIONS[tool], params, camera_handler(tool), "build"))
     tools.append(Tool("set_material", "override", DESCRIPTIONS["set_material"], with_reason(MATERIAL_SCHEMA),
                       t_set_material, "build"))

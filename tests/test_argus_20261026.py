@@ -605,7 +605,8 @@ def test_argus_ai_calls_agent_tools_itself_and_hands_their_targets_to_the_loop(t
                                "element": "r_L1_soyunma_odasi", "value": "",
                                "args": "{\"group\": \"storage\"}", "rule": ""}]}
         text = body["messages"][-1]["content"]
-        assert "Agent tools" in text and "retype_piece(piece_id*, type*)" in text
+        assert "Agent tools" in text and "retype_piece(piece_id*: string" in text and "type*: one of " in text
+        assert "material looks by kind" in text and "show: [the piece, door or window ids" in text
         batch = json.loads(text.split("The findings (", 1)[1].split("):\n", 1)[1].split("\n\nAgent tools", 1)[0])
         items = []
         for it in batch:

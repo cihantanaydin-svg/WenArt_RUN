@@ -45,7 +45,7 @@ import os
 import random
 import sys
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Callable, Optional, Sequence
 
 NEAR_CAMERA_M = 25.0                 # a tree this close to the building (the cameras stand around it) is a hero
 GRASS_DENSITY_NEAR = 4.0             # grass clumps per m² on the lawn near the cameras
@@ -862,15 +862,20 @@ def bark_material(name: str = "veg_bark"):
 # CONTEXT_LEAF["tile_m"] of the crown (seen from 50-400 m: a leafy grain, not single leaves); a Voronoi of the object
 # coordinates (``clump_per_m``) darkens the gaps between the leaf clumps from ``light`` to ``dark`` x the species colour
 # and gives them a bump, so a crown reads as foliage in the sun and in the shade.
-CONTEXT_LEAF = {"tile_m": 0.6, "clump_per_m": 0.9, "light": 1.15, "dark": 0.45, "bump": 0.6, "roughness": 0.8}
+CONTEXT_LEAF = {"tile_m": 0.6, "clump_per_m": 0.9, "light": 1.15, "dark": 0.45, "bump": 0.6, "roughness": 0.8,
+                # 27 Oct 2026 (pod run 224516: the judge saw "lollipop" crowns with a dotted texture in 20 of 28 views;
+                # the atlas tile of 0.6 m reads as a regular dot grid from 50 m): the atlas is off by default; a fine
+                # noise gives the leafy grain and a coarse one (``tree_var_per_m``) varies the green between trees
+                "atlas": False, "grain_per_m": 2.5, "grain": 0.35, "tree_var_per_m": 0.04, "tree_var": 0.35}
 
 
 def context_material(species: str):
     """The material of a species' distant context crowns (bpy; 26 Oct 2026, ``site.build_context``): an opaque
-    Principled BSDF whose Base Color is the species' leaf atlas (``leaf_atlas``, CC0; the box UVs in metres of
-    ``common.assign_box_uvs`` at ``CONTEXT_LEAF["tile_m"]`` a tile) tinted by the species colour x ``LEAF_TINT_GAIN``,
-    times a Voronoi clump ramp, with a bump from the clumps; without an atlas the clump ramp on the species colour
-    alone (a procedural leaf texture). Cached by name ``veg_context_<species>``; records ``wenart_atlas``."""
+    Principled BSDF whose Base Color is a Voronoi clump ramp on the species colour, times a fine leafy grain and a
+    coarse variation between trees (27 Oct 2026: a procedural leaf texture), with a bump from the clumps; with
+    ``CONTEXT_LEAF["atlas"]`` the species' leaf atlas (``leaf_atlas``, CC0; the box UVs in metres of
+    ``common.assign_box_uvs`` at ``CONTEXT_LEAF["tile_m"]`` a tile) tinted by it x ``LEAF_TINT_GAIN``. Cached by name
+    ``veg_context_<species>``; records ``wenart_atlas``."""
     import bpy
     rec = species_record(species)
     name = f"veg_context_{rec['name']}"
@@ -895,8 +900,27 @@ def context_material(species: str):
     ramp.color_ramp.elements[0].color = (*[min(1.0, c * cfg["light"]) for c in colour], 1.0)
     ramp.color_ramp.elements[1].color = (*[c * cfg["dark"] for c in colour], 1.0)
     tree.links.new(clumps.outputs["Distance"], ramp.inputs["Fac"])
-    atlas = leaf_atlas(rec["name"])
+    atlas = leaf_atlas(rec["name"]) if cfg.get("atlas") else None
     base = ramp.outputs["Color"]
+    # 27 Oct 2026: the leafy grain (a fine noise darkening up to ``grain``) and the variation between trees (a coarse
+    # noise of the object coordinates brightening or darkening up to ``tree_var``)
+    for scale, amount in ((cfg.get("grain_per_m"), cfg.get("grain")), (cfg.get("tree_var_per_m"), cfg.get("tree_var"))):
+        if not scale or not amount:
+            continue
+        noise = _node(tree, "ShaderNodeTexNoise")
+        noise.inputs["Scale"].default_value = float(scale)
+        noise.inputs["Detail"].default_value = 4.0
+        tree.links.new(coord.outputs["Object"], noise.inputs["Vector"])
+        shade = _node(tree, "ShaderNodeMapRange")
+        shade.inputs["To Min"].default_value = 1.0 - float(amount)
+        shade.inputs["To Max"].default_value = 1.0 + (float(amount) * 0.5 if scale == cfg.get("tree_var_per_m")
+                                                      else 0.0)
+        tree.links.new(noise.outputs["Fac"], shade.inputs["Value"])
+        mix = _node(tree, "ShaderNodeMix", data_type="RGBA", blend_type="MULTIPLY")
+        mix.inputs["Factor"].default_value = 1.0
+        tree.links.new(base, mix.inputs[6])
+        tree.links.new(shade.outputs["Result"], mix.inputs[7])
+        base = mix.outputs[2]
     if atlas and atlas.get("files", {}).get("albedo"):
         img = bpy.data.images.load(atlas["files"]["albedo"], check_existing=True)
         mapping = _node(tree, "ShaderNodeMapping")
@@ -1420,15 +1444,61 @@ def _image_has_cutout(image) -> bool:
         return False
 
 
+KEY_BACKGROUND = {"spread": 0.06, "bright": 0.85, "dark": 0.06, "saturation": 0.12, "border": 24,
+                  "from": 0.08, "to": 0.2}
+
+
+def image_background(image) -> Optional[tuple]:
+    """27 Oct 2026: the flat background colour of a leaf texture exported without alpha (``KEY_BACKGROUND``: the
+    texels sampled along its border all within ``spread`` of their mean, which is near white or near black and grey),
+    else None (a texture that fills its frame: bark, a photo of foliage)."""
+    import colorsys
+    try:
+        w, h = (int(v) for v in image.size)
+        ch = int(image.channels)
+        if w < 4 or h < 4 or ch < 3:
+            return None
+        px = image.pixels[:]
+        n = int(KEY_BACKGROUND["border"])
+        pts = [(int(round(i * (w - 1) / n)), y) for i in range(n + 1) for y in (0, h - 1)]
+        pts += [(x, int(round(i * (h - 1) / n))) for i in range(1, n) for x in (0, w - 1)]
+        cols = [tuple(px[(y * w + x) * ch + k] for k in range(3)) for x, y in pts]
+    except Exception:  # noqa: BLE001 - an unloaded or broken image: no key
+        return None
+    mean = tuple(sum(c[k] for c in cols) / len(cols) for k in range(3))
+    if max(max(abs(c[k] - mean[k]) for k in range(3)) for c in cols) > KEY_BACKGROUND["spread"]:
+        return None
+    _hh, sat, val = colorsys.rgb_to_hsv(*mean)
+    if sat > KEY_BACKGROUND["saturation"] or KEY_BACKGROUND["dark"] < val < KEY_BACKGROUND["bright"]:
+        return None
+    return mean
+
+
+def _key_alpha(tree, tex, bsdf, colour) -> None:
+    """Alpha = the texel's distance from the background ``colour``, mapped from ``KEY_BACKGROUND["from"]`` (0) to
+    ``["to"]`` (1)."""
+    dist = tree.nodes.new("ShaderNodeVectorMath")
+    dist.operation = "DISTANCE"
+    tree.links.new(tex.outputs["Color"], dist.inputs[0])
+    dist.inputs[1].default_value = tuple(float(c) for c in colour)
+    ramp = tree.nodes.new("ShaderNodeMapRange")
+    ramp.inputs["From Min"].default_value = KEY_BACKGROUND["from"]
+    ramp.inputs["From Max"].default_value = KEY_BACKGROUND["to"]
+    tree.links.new(dist.outputs["Value"], ramp.inputs["Value"])
+    tree.links.new(ramp.outputs["Result"], bsdf.inputs["Alpha"])
+
+
 def fix_plant_materials(objects, species: str) -> dict:
     """Make a library plant's materials read as foliage (bpy; 24 Oct 2026: real04's 21 library bushes rendered white).
     3D Warehouse plants are leaf cards whose texture has a transparent background, often exported opaque: the image's
-    alpha is wired to the Principled BSDF's Alpha where nothing drives it. An untextured material as pale as the
+    alpha is wired to the Principled BSDF's Alpha where nothing drives it; a texture with no alpha on a flat white or
+    black background (``image_background``) gets that background keyed out (27 Oct 2026). An untextured material as pale as the
     importer's white (``PLANT_PALE``) takes the species' foliage colour (its bark colour when the name says trunk /
-    bark / wood). Returns ``{"cutout": [...], "tinted": [...]}``; each material is changed once (``wenart_plant_fix``)."""
+    bark / wood). Returns ``{"cutout": [...], "tinted": [...], "keyed": [...]}``; each material is changed once
+    (``wenart_plant_fix``)."""
     import colorsys
     rec = species_record(species)
-    out = {"cutout": [], "tinted": []}
+    out = {"cutout": [], "tinted": [], "keyed": []}
     seen = set()
     for ob in objects:
         if getattr(ob, "type", None) != "MESH":
@@ -1451,6 +1521,16 @@ def fix_plant_materials(objects, species: str) -> dict:
                 if tex is not None and not bsdf.inputs["Alpha"].links:
                     links.new(tex.outputs["Alpha"], bsdf.inputs["Alpha"])
                     out["cutout"].append(mat.name)
+                elif tex is None and not bsdf.inputs["Alpha"].links \
+                        and not any(w in mat.name.lower() for w in BARK_WORDS):
+                    # 27 Oct 2026: a leaf card exported without alpha on a flat white or black background (a dotted
+                    # disc in the render): the background is keyed out
+                    for t in texs:
+                        bg = image_background(t.image)
+                        if bg is not None:
+                            _key_alpha(mat.node_tree, t, bsdf, bg)
+                            out["keyed"].append(mat.name)
+                            break
                 continue
             if bsdf.inputs["Base Color"].links:
                 continue
@@ -1462,6 +1542,18 @@ def fix_plant_materials(objects, species: str) -> dict:
                 bsdf.inputs["Base Color"].default_value = (*col, 1.0)
                 out["tinted"].append(mat.name)
     return out
+
+
+def scan_first(model: dict, near_camera: bool, levers: Optional[dict], species: str,
+               hero_of: Callable = None) -> bool:
+    """27 Oct 2026 (pod run 224516: the inferred olives near the cameras were a 3D Warehouse model titled "tree", a flat
+    dotted disc on a stick in the window views): near the cameras, a library plant matched only by its crown or its
+    kind (``site_models.plant_model``'s ``match`` not ``species``) gives way to the species' Poly Haven scan when the
+    assets hold it (``hero_model``) and the ``instances`` lever is on; a library model of the species itself (a real
+    olive) stays first (pure but for the assets lookup)."""
+    if not near_camera or model.get("match") == "species" or (levers or {}).get("instances", True) is False:
+        return False
+    return (hero_of or hero_model)(species) is not None
 
 
 def _tree_library(name: str, species: str, height_m: float, seed: int, collection, model: dict):
@@ -1501,6 +1593,8 @@ def tree_object(species: str, height_m: float, seed: int, near_camera: bool, *, 
     rec = species_record(species)
     name = name or f"tree_{rec['name']}_{int(seed)}"
     model = library_plant(rec["name"], levers)
+    if model is not None and scan_first(model, near_camera, levers, rec["name"]):
+        model = None              # 27 Oct 2026: the photoscan near the cameras before a generic library tree
     if model is not None:
         try:
             ob, out = _tree_library(name, rec["name"], height_m, seed, collection, model)

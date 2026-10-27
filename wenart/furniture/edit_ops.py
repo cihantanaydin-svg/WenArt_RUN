@@ -832,6 +832,9 @@ def _swap_model(b: dict, args: dict, catalog) -> list[str]:
     current = (item.get("asset") or {}).get("asset_id") if isinstance(item.get("asset"), dict) else None
     if args["asset_id"] in (current, item.get("asset_pin")):
         raise EditRejected("no_change", f"{item['id']} already uses the model {args['asset_id']}")
+    off = off_style_refusal(b, entry)
+    if off is not None:
+        raise EditRejected("off_style", f"{item['id']}: {off}")
     refused = generated_pin_refusal(b, item, args["asset_id"], entry, catalog)
     if refused is not None:
         raise EditRejected("pin_refused", f"{item['id']}: {refused}: the real model stays; swap to a real model of "
@@ -840,6 +843,23 @@ def _swap_model(b: dict, args: dict, catalog) -> list[str]:
     item["asset_pin"] = args["asset_id"]
     _label(item, before, args, ["asset_pin"])
     return [item["id"]]
+
+
+def off_style_refusal(b: dict, entry: dict) -> Optional[str]:
+    """27 Oct 2026 (CLAUDE.md: the models fit together and carry the style; pod run 224516: the agent's swaps): why a
+    model whose styles hold no family of the project's chain (``fit.style_chain`` of ``_style_family_of``: the family,
+    then its fallbacks; ``neutral`` fits every family) may not be swapped in, else None. No family known: None."""
+    from wenart.furniture import catalog as C
+    from wenart.furniture import fit as F
+
+    family = _style_family_of(b)
+    if family is None:
+        return None
+    chain = F.style_chain(family)
+    if any(C.styles_match(entry, fam) for fam in chain):
+        return None
+    return (f"{entry.get('id')} is of the styles {entry.get('styles') or []}, none of the project's chain "
+            f"{' -> '.join(str(c) for c in chain)}: choose a model of the style")
 
 
 def generated_pin_refusal(b: dict, item: dict, asset_id: str, entry: dict, catalog) -> Optional[str]:

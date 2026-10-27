@@ -921,6 +921,15 @@ ROOM_RIGS: dict[str, list[dict]] = {
                "lumens_per_m2": RIG_CIRCULATION_LUMENS_PER_M2,
                "source": "ceiling fixture with 1100 lm (75 W-equivalent) LED bulbs, bulbs for 450 lm per m2 of floor"}],
 }
+# 27 Oct 2026 (pod run 224516: real06's 6 m2 dressing room, typed other, has two small high windows; at the 1000 W/m2
+# sun any window counts as daylight, its type had no rig, so it got no light at all and both views rendered near
+# black, the judge's 1 of 5): every room people walk into has a ceiling light point; the room types without a rig of
+# their own get the circulation ceiling fixture (bulbs for 450 lm per m2 of floor). Bedrooms and living rooms keep their
+# own rigs (a ceiling fixture there would replace their fill light, P3).
+for _t in ("storage", "other", "prayer"):
+    ROOM_RIGS[_t] = [dict(ROOM_RIGS["hall"][0],
+                          source="ceiling fixture with 1100 lm (75 W-equivalent) LED bulbs, bulbs for 450 lm per m2 of "
+                                 "floor (every room people walk into has a ceiling light point)")]
 RIG_KINDS = ("pendant", "ceiling", "bedside", "strip", "mirror")
 
 
@@ -960,7 +969,8 @@ def rig_temperature_for(room_type: str | None, lighting: dict | None) -> float:
 def room_rig(room_type: str | None) -> list[dict]:
     """The light rig of a room type (pure, docs/milestone13.md §13.2): copies of the ``ROOM_RIGS`` fixtures with
     ``watts_radiometric`` (``watts_for_lumens``), ``watts_applied`` (x ``RIG_GAIN``) and their sources; ``[]`` for a
-    type without a rig (storage, balcony, shaft, unknown ...: the Milestone 6 light rule stays)."""
+    type without a rig (balcony, shaft, unknown ...: the Milestone 6 light rule stays; storage, other and prayer rooms
+    have the ceiling fixture since 27 Oct 2026)."""
     out = []
     for spec in ROOM_RIGS.get(str(room_type or ""), []):
         f = dict(spec)

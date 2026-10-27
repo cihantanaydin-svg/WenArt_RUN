@@ -3812,6 +3812,12 @@ HORIZON_CONTEXT = {
                "gap": (3, 7), "height_m": (12.0, 20.0), "jitter_m": 8.0}),
     "sink_m": 0.3, "seed": 2610, "segments": 10, "crown_rings": 6, "lump": 0.16, "trunk_sides": 6,
     "max_trees": 1200,
+    # 27 Oct 2026 (pod run 224516: the judge called the context "crude low-poly lollipop trees" in 20 of 28 views; a
+    # crown was one 60-face ball on a thin stick): a crown is a cluster of foliage masses (``crown_cluster``), each a
+    # lumpy blob, on a tapered trunk that reaches into the crown
+    "blobs": {"round": 6, "spreading": 7, "umbrella": 7, "conical": 5, "columnar": 4, "shrub": 5, "palm": 4,
+              "hedge": 5},
+    "blob_segments": 11, "blob_rings": 7, "blob_lump": 0.24, "blob_radius": (0.42, 0.62), "trunk_taper": 0.55,
 }
 # The context species per climate (weights) and the crown shapes: width over height, the crown's share of the height.
 CONTEXT_SPECIES = {"mediterranean": (("stone_pine", 0.35), ("olive", 0.25), ("cypress", 0.2), ("plane", 0.2)),
@@ -3969,11 +3975,55 @@ def _context_crown(center, rx: float, rz: float, shape: str, seed: int, segments
     return verts, faces
 
 
+def crown_cluster(center, rx: float, rz: float, shape: str, seed: int, cfg: Optional[dict] = None) -> list[dict]:
+    """The foliage masses of one context crown (pure; 27 Oct 2026): ``[{"center", "rx", "rz"}]``: a core mass and
+    ``blobs[shape] - 1`` others of ``blob_radius`` x the crown's size, seeded, inside the crown's envelope: around the
+    core and a little lower for a round, spreading or umbrella crown (an irregular rim and underside, never a ball),
+    stacked and narrowing upwards for a conical or columnar one."""
+    import random
+
+    c = dict(HORIZON_CONTEXT, **(cfg or {}))
+    rng = random.Random(int(seed) * 7919 + 13)
+    cx, cy, cz = (float(v) for v in center)
+    n = int((c.get("blobs") or {}).get(shape, 6))
+    lo, hi = c["blob_radius"]
+    out = [{"center": (cx, cy, cz + 0.05 * rz), "rx": rx * 0.74, "rz": rz * 0.88}]
+    stacked = shape in ("conical", "columnar")
+    for k in range(1, max(1, n)):
+        f = rng.uniform(lo, hi)
+        if stacked:
+            t = k / max(1, n - 1)                             # 0 at the bottom, 1 at the top
+            narrow = 1.0 - (0.75 if shape == "conical" else 0.3) * t
+            th = rng.uniform(0.0, 2.0 * math.pi)
+            off = rx * 0.25 * narrow
+            out.append({"center": (cx + off * math.cos(th), cy + off * math.sin(th), cz - 0.7 * rz + 1.4 * rz * t),
+                        "rx": max(0.2, rx * narrow * rng.uniform(0.7, 1.0)), "rz": rz * f * 0.8})
+            continue
+        th = 2.0 * math.pi * k / (n - 1) + rng.uniform(-0.4, 0.4)
+        dist = rx * rng.uniform(0.38, 0.6)
+        flat = 0.6 if shape == "umbrella" else 1.0
+        out.append({"center": (cx + dist * math.cos(th), cy + dist * math.sin(th),
+                               cz + rz * rng.uniform(-0.5, 0.35)),
+                    "rx": rx * f, "rz": rz * f * flat})
+    return out
+
+
+def tapered_trunk(x: float, y: float, z0: float, z1: float, r0: float, r1: float, sides: int) -> tuple[list, list]:
+    """A trunk (pure): a ``sides``-gon from radius ``r0`` at ``z0`` to ``r1`` at ``z1``, closed, wound outwards."""
+    k = max(3, int(sides))
+    verts = [(x + r0 * math.cos(2 * math.pi * j / k), y + r0 * math.sin(2 * math.pi * j / k), z0) for j in range(k)]
+    verts += [(x + r1 * math.cos(2 * math.pi * j / k), y + r1 * math.sin(2 * math.pi * j / k), z1) for j in range(k)]
+    faces = [list(range(k - 1, -1, -1)), list(range(k, 2 * k))]
+    faces += [[j, (j + 1) % k, k + (j + 1) % k, k + j] for j in range(k)]
+    return verts, faces
+
+
 def context_parts(ctx: dict, cfg: Optional[dict] = None) -> dict:
     """The mesh of the horizon context (pure): ``{"verts", "faces", "slots", "materials": [species ..., "bark"],
-    "faces_per_tree"}``; every tree a trunk prism (``trunk_sides``) from ``sink_m`` under its ground point into the
-    crown and a lumpy crown (``_context_crown``) of its species' shape; ``slots`` gives each face its material index
-    (the species' leaf material, the bark last)."""
+    "faces_per_tree"}``; every tree a tapered trunk (``tapered_trunk``, ``trunk_sides``) from ``sink_m`` under its
+    ground point into the middle of its crown and a crown of foliage masses (``crown_cluster``: each a lumpy blob,
+    ``_context_crown``) of its species' shape; ``slots`` gives each face its material index (the species' leaf
+    material, the bark last)."""
     c = dict(HORIZON_CONTEXT, **(cfg or {}))
     species = sorted({t["species"] for t in ctx.get("trees") or []})
     index = {s: k for k, s in enumerate(species)}
@@ -3986,13 +4036,15 @@ def context_parts(ctx: dict, cfg: Optional[dict] = None) -> dict:
         z, h, w, ch = float(t["z"]), float(t["height"]), float(t["width"]), float(t["crown_h"])
         rz = ch / 2.0
         cz = z + h - rz
-        tr = max(0.12, 0.025 * h)
-        k = int(c["trunk_sides"])
-        ring = [(x + tr * math.cos(2 * math.pi * j / k), y + tr * math.sin(2 * math.pi * j / k)) for j in range(k)]
-        for vs, fs, slot in (geom2d.prism(ring, z - c["sink_m"], cz - 0.4 * rz) + (bark,),
-                             _context_crown((x, y, cz), w / 2.0, rz, t["shape"], int(t.get("seed") or 0),
-                                            int(c["segments"]), int(c["crown_rings"]), float(c["lump"]))
-                             + (index[t["species"]],)):
+        tr = max(0.12, 0.03 * h)
+        seed = int(t.get("seed") or 0)
+        pieces = [tapered_trunk(x, y, z - c["sink_m"], cz, tr, tr * float(c["trunk_taper"]), int(c["trunk_sides"]))
+                  + (bark,)]
+        for k, blob in enumerate(crown_cluster((x, y, cz), w / 2.0, rz, t["shape"], seed, c)):
+            pieces.append(_context_crown(blob["center"], blob["rx"], blob["rz"], t["shape"], seed + 31 * k,
+                                         int(c["blob_segments"]), int(c["blob_rings"]), float(c["blob_lump"]))
+                          + (index[t["species"]],))
+        for vs, fs, slot in pieces:
             base = len(verts)
             verts += [tuple(v) for v in vs]
             faces += [[base + i for i in f] for f in fs]

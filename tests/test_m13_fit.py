@@ -793,6 +793,12 @@ def test_pins_skip_the_style_filter_but_not_the_caps_or_the_licence():
     pinned = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin="abo_classic"), cat, style_family="scandinavian")
     assert pinned["asset_id"] == "abo_classic" and pinned["pinned"] == "abo_classic"
     assert pinned["pin_skips_style"] is True and pinned["style_family"] == "scandinavian"
+    assert "abo_classic" in pinned["pin_off_style"] and "style_fallback" not in pinned   # 27 Oct 2026: no family held
+    minimal = model("mini", "sofa", 2.0, 0.9, 0.8, styles=("minimal",))
+    pin_min = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin="abo_mini"), FakeCatalog([minimal, scandi]),
+                          style_family="scandinavian")
+    assert pin_min["asset_id"] == "abo_mini" and pin_min["style_family"] == "minimal"     # the chain family it holds
+    assert pin_min["style_fallback"]["used"] == "minimal" and "pin_off_style" not in pin_min
     refused = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin="abo_big"), cat, style_family="scandinavian")
     assert refused["asset_id"] == "abo_scandi" and refused["pin_refused"] == "abo_big: fails the fit rules (caps, height)"
     nc = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin=gen["id"]), cat, style_family="scandinavian")

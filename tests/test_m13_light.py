@@ -299,7 +299,12 @@ def test_lumens_to_watts_follow_the_manual_table():
 
 
 def test_room_rig_table():
-    assert set(L.ROOM_RIGS) == {"dining", "living", "kitchen", "bedroom", "bathroom", "wc", "hall", "stair"}
+    assert set(L.ROOM_RIGS) == {"dining", "living", "kitchen", "bedroom", "bathroom", "wc", "hall", "stair",
+                                "storage", "other", "prayer"}       # 27 Oct 2026: every room people walk into
+    for t in ("storage", "other", "prayer"):
+        [f] = L.room_rig(t)
+        assert f["kind"] == "ceiling" and f["lumens_per_m2"] == L.RIG_CIRCULATION_LUMENS_PER_M2
+    assert L.room_rig("balcony") == [] and L.room_rig("shaft") == []
     for room_type, fixtures in L.ROOM_RIGS.items():
         rig = L.room_rig(room_type)
         assert len(rig) == len(fixtures) >= 1

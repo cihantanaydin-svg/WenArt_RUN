@@ -299,18 +299,33 @@ def test_real06_horizon_context_rings_stay_outside_the_plot_the_near_ground_and_
     assert "inferred context" in ctx["reason"]
 
 
+def _context_faces(trees) -> int:
+    c = S.HORIZON_CONTEXT
+    return sum(8 + c["blob_segments"] * c["blob_rings"] * c["blobs"][t["shape"]] for t in trees)
+
+
 def test_context_parts_are_lumpy_crowns_on_trunks_with_a_material_per_species():
-    """``context_parts``: per tree a 6-sided trunk (8 faces) and a 60-face crown of the species' shape, never a smooth
-    ball (the radius varies around every ring); ``slots`` name the species' leaf material or the bark (last)."""
+    """``context_parts``: per tree a 6-sided tapered trunk (8 faces) and a crown of foliage masses (27 Oct 2026: the
+    judge saw lollipops in a 60-face ball on a stick), each a lumpy blob, never a smooth ball (the radius varies around
+    every ring); ``slots`` name the species' leaf material or the bark (last)."""
     d, _w = _real06()
     terrain = dict(d["terrain"], warnings=[], assumed=[])
     ctx = S.horizon_context(d["outline"], d["near_extent"], terrain, d["climate"], d["height_m"])
     parts = S.context_parts(ctx)
     n = ctx["count"]
-    assert len(parts["faces"]) == 68 * n and parts["faces_per_tree"] == 68.0 and len(parts["slots"]) == 68 * n
+    assert len(parts["faces"]) == _context_faces(ctx["trees"]) == len(parts["slots"])
+    assert 250 <= parts["faces_per_tree"] <= 600                     # a cluster, not a 68-face lollipop
     assert parts["materials"][-1] == "bark" and sorted(parts["materials"][:-1]) == sorted(ctx["species"])
     assert set(parts["slots"]) == set(range(len(parts["materials"])))
     assert sum(1 for s in parts["slots"] if s == len(parts["materials"]) - 1) == 8 * n
+    # the masses of a crown: a core and the others around it, inside the crown's width; stacked for a cypress
+    blobs = S.crown_cluster((0.0, 0.0, 6.0), 3.0, 2.5, "round", 5)
+    assert len(blobs) == S.HORIZON_CONTEXT["blobs"]["round"] and blobs[0]["rx"] > max(b["rx"] for b in blobs[1:])
+    assert all(math.hypot(b["center"][0], b["center"][1]) <= 3.0 for b in blobs)
+    col = S.crown_cluster((0.0, 0.0, 6.0), 0.8, 4.0, "columnar", 5)
+    assert col[-1]["center"][2] > col[1]["center"][2] and col[-1]["rx"] <= col[1]["rx"]
+    v, f = S.tapered_trunk(0.0, 0.0, 0.0, 5.0, 0.3, 0.15, 6)
+    assert len(f) == 8 and max(math.hypot(p[0], p[1]) for p in v if p[2] == 5.0) == pytest.approx(0.15)
     assert all(0 <= i < len(parts["verts"]) for f in parts["faces"] for i in f)
     # one crown: the radii of a middle ring vary (lumps), the crown stands over its ground point
     t = ctx["trees"][0]
@@ -470,19 +485,23 @@ def test_lawn_keeps_its_colour_through_a_window_pane_and_greys_only_its_bounced_
 
 
 def test_context_material_is_an_opaque_leaf_texture(fake_bpy, monkeypatch):
-    """``context_material``: an opaque Principled BSDF (no Alpha link) whose Base Color is the species' leaf atlas on
-    the box UVs (a tile every CONTEXT_LEAF["tile_m"]) times the clump ramp of the species colour, with a bump; the
-    procedural clump texture alone when the assets have no atlas. Cached by name."""
-    monkeypatch.setattr(VG, "leaf_atlas", lambda species, *a, **k: None)
+    """``context_material``: an opaque Principled BSDF (no Alpha link) whose Base Color is the clump ramp of the
+    species colour times a fine leafy grain and a coarse variation between trees (27 Oct 2026: procedural by default,
+    the atlas tile read as a dot grid from 50 m), with a bump; with ``CONTEXT_LEAF["atlas"]`` the species' leaf atlas
+    on the box UVs (a tile every CONTEXT_LEAF["tile_m"]). Cached by name."""
+    monkeypatch.setattr(VG, "leaf_atlas", lambda species, *a, **k: {"id": "LeafSet027", "licence": "CC0",
+                                                                   "files": {"albedo": "/x/LeafSet027_Color.jpg"}})
     mat = VG.context_material("cypress")
     assert mat.name == "veg_context_cypress" and VG.context_material("cypress") is mat
     edges = _edges(mat.node_tree)
     assert not [e for e in edges if e[5] == "Alpha"]
-    assert ("ShaderNodeValToRGB", None, "Color", "ShaderNodeBsdfPrincipled", None, "Base Color") in edges
+    assert ("ShaderNodeValToRGB", None, "Color", "ShaderNodeMix", None, 6) in edges           # the clumps x grain
+    assert ("ShaderNodeTexNoise", None, "Fac", "ShaderNodeMapRange", None, "Value") in edges
+    assert ("ShaderNodeMix", None, 2, "ShaderNodeBsdfPrincipled", None, "Base Color") in edges
+    assert not [n for n in mat.node_tree.nodes if n.bl_idname == "ShaderNodeTexImage"]       # no atlas by default
     assert ("ShaderNodeBump", None, "Normal", "ShaderNodeBsdfPrincipled", None, "Normal") in edges
     assert mat["wenart_leaf_texture"] == "procedural" and mat["wenart_atlas"] == ""
-    monkeypatch.setattr(VG, "leaf_atlas", lambda species, *a, **k: {"id": "LeafSet027", "licence": "CC0",
-                                                                   "files": {"albedo": "/x/LeafSet027_Color.jpg"}})
+    monkeypatch.setitem(VG.CONTEXT_LEAF, "atlas", True)
     mat = VG.context_material("olive")
     edges = _edges(mat.node_tree)
     assert ("ShaderNodeTexCoord", None, "UV", "ShaderNodeMapping", None, "Vector") in edges
@@ -520,6 +539,7 @@ def test_build_context_makes_one_object_that_casts_no_shadow_and_lights_nothing(
         made["ob"] = _Ob(name)
         return made["ob"]
     monkeypatch.setattr(common, "new_mesh_object", new_mesh_object)
+    monkeypatch.setitem(VG.CONTEXT_LEAF, "atlas", True)
     monkeypatch.setattr(VG, "leaf_atlas", lambda species, *a, **k: {"id": "LeafSet027", "licence": "CC0",
                                                                    "files": {"albedo": "/x/c.jpg"}})
     d, _w = _real06()
@@ -527,7 +547,7 @@ def test_build_context_makes_one_object_that_casts_no_shadow_and_lights_nothing(
     entries = []
     rec = S.build_context(ctx, None, lambda *a: entries.append(a))
     ob = made["ob"]
-    assert rec["built"] and rec["trees"] == ctx["count"] and rec["faces"] == made["faces"] == 68 * ctx["count"]
+    assert rec["built"] and rec["trees"] == ctx["count"] and rec["faces"] == made["faces"] == _context_faces(ctx["trees"])
     assert made["name"] == S.CONTEXT_NAME and made["kind"] == "site_decor" and ob.smooth
     assert made["materials"][-1] == "veg_bark" and len(made["materials"]) == len(ctx["species"]) + 1
     assert not ob.visible_shadow and not ob.visible_diffuse and not ob.visible_volume_scatter
@@ -556,3 +576,42 @@ def test_the_context_is_credited_with_its_leaf_atlas(tmp_path):
     [row] = C.vegetation_credits(tmp_path)
     assert row["asset_id"] == "LeafSet027" and row["licence"] == "CC0" and row["pieces"] == [("context_trees",
                                                                                               "context")]
+
+
+class _Tex:
+    """An image: ``w`` x ``h`` RGB(A) texels from ``f(x, y) -> (r, g, b)``."""
+
+    def __init__(self, w, h, f, channels=3):
+        self.size, self.channels, self.alpha_mode = (w, h), channels, "NONE"
+        self.pixels = [v for y in range(h) for x in range(w) for v in (*f(x, y), 1.0)[:channels]]
+
+
+def test_a_leaf_texture_without_alpha_has_its_flat_background_keyed_out():
+    """27 Oct 2026 (pod run 224516: a library tree rendered as a dotted disc): a leaf texture with no alpha on a flat
+    white or black background gives that background (``image_background``); a texture that fills its frame (bark,
+    foliage photographed edge to edge, a coloured background) gives none."""
+    leaves_on_white = _Tex(32, 32, lambda x, y: (0.2, 0.5, 0.1) if 8 < x < 24 and 8 < y < 24 else (1.0, 1.0, 1.0))
+    assert VG.image_background(leaves_on_white) == pytest.approx((1.0, 1.0, 1.0))
+    leaves_on_black = _Tex(32, 32, lambda x, y: (0.2, 0.5, 0.1) if 8 < x < 24 else (0.0, 0.0, 0.0))
+    assert VG.image_background(leaves_on_black) is None        # the leaves reach the border: no flat background
+    black = _Tex(32, 32, lambda x, y: (0.2, 0.5, 0.1) if 6 < x < 26 and 6 < y < 26 else (0.01, 0.01, 0.01))
+    assert VG.image_background(black) == pytest.approx((0.01, 0.01, 0.01))
+    bark = _Tex(32, 32, lambda x, y: (0.3 + 0.01 * (x % 5), 0.2, 0.1))
+    assert VG.image_background(bark) is None
+    blue = _Tex(32, 32, lambda x, y: (0.2, 0.5, 0.1) if 8 < x < 24 and 8 < y < 24 else (0.2, 0.3, 0.9))
+    assert VG.image_background(blue) is None                    # a coloured background is never keyed
+    assert VG.image_background(None) is None
+
+
+def test_the_scan_stands_before_a_generic_library_tree_near_the_cameras():
+    """27 Oct 2026: near the cameras a library plant matched only by its crown or kind gives way to the species' Poly
+    Haven scan when the assets hold it; a library model of the species itself stays; far from the cameras, without
+    the scan or with the instances lever off, the library plant stays."""
+    hero = lambda species: {"id": "island_tree_02"}            # noqa: E731
+    none = lambda species: None                                 # noqa: E731
+    generic, olive = {"id": "3dwh_x", "match": "kind"}, {"id": "3dwh_o", "match": "species"}
+    assert VG.scan_first(generic, True, None, "olive", hero)
+    assert not VG.scan_first(olive, True, None, "olive", hero)
+    assert not VG.scan_first(generic, False, None, "olive", hero)
+    assert not VG.scan_first(generic, True, None, "olive", none)
+    assert not VG.scan_first(generic, True, {"instances": False}, "olive", hero)

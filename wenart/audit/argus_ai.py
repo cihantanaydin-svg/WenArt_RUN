@@ -43,6 +43,7 @@ from typing import Callable, Optional
 
 from wenart.audit import conservation as CV
 from wenart.audit import inputs as I
+from wenart.audit import calls as CL
 from wenart.audit import kinds as K
 from wenart.audit import report as R
 
@@ -245,7 +246,26 @@ def _item_text(f: dict) -> dict:
            "owner": f.get("owner"), "code_fix": f.get("fix")}
     if f.get("tried"):
         out["tried_and_refused"] = f["tried"]
+    if f.get("piece"):
+        out["piece"] = f["piece"]
+    if f.get("models"):
+        out["models_it_may_take"] = f["models"]
     return out
+
+
+def piece_notes(items: list[dict], valid: "CL.Valid") -> None:
+    """27 Oct 2026: a finding on a piece carries the piece (type, size, room, model) and the catalogue models it may
+    swap to (``Valid.model_options``), so a swap names a real model (pod run 224516: 13 invented model ids)."""
+    for f in items:
+        p = valid.pieces.get(str(f.get("target")))
+        if not p:
+            continue
+        size = (p.get("footprint") or {}).get("size") or []
+        asset = p.get("asset") if isinstance(p.get("asset"), dict) else {}
+        f["piece"] = (f"{p.get('type')}" + (" %.2f x %.2f m" % tuple(size[:2]) if len(size) >= 2 else "")
+                      + f" in {p.get('room_id')}" + (f", model {asset.get('asset_id')}" if asset.get("asset_id") else "")
+                      + (", not built" if p.get("build") is False else ""))
+        f["models"] = valid.model_options(p)
 
 
 TRIED_MAX = 4                  # refused edits per target shown to the model
@@ -269,13 +289,16 @@ def tried_by_target(agent_log: Optional[dict]) -> dict:
 
 # ---------------------------------------------------------------------------------------------------- the calls
 def triage(model, items: list[dict], fact_lines: list[str], *, time_ok: Callable[[], bool] = lambda: True,
-           out: Callable[[str], None] = print, errors: Optional[list] = None, project: str = "") -> dict:
+           out: Callable[[str], None] = print, errors: Optional[list] = None, project: str = "",
+           tools: Optional[list] = None, values: Optional[list] = None) -> dict:
     """``{aid: verdict}`` for every item (module docstring 2); an item the model skipped has none (``errors`` gets
-    what failed)."""
+    what failed). ``tools``: the tool help (``_tool_help``), ``values``: the valid values (``calls.Valid.lines``)."""
     errors = errors if errors is not None else []
     verdicts: dict = {}
     batches = [items[s:s + TRIAGE_BATCH] for s in range(0, len(items), TRIAGE_BATCH)]
     history = history_lines(project)
+    tools = _tool_help() if tools is None else tools
+    values = values or []
 
     def one(n: int, batch: list[dict]):
         if not time_ok():
@@ -284,8 +307,8 @@ def triage(model, items: list[dict], fact_lines: list[str], *, time_ok: Callable
         text = "\n".join(["The project as built:", *fact_lines, *history, "",
                           f"The findings ({start + 1}-{start + len(batch)} of {len(items)}):",
                           json.dumps([_item_text(f) for f in batch], indent=1, ensure_ascii=False), "",
-                          "Agent tools (fix; their arguments go in args as JSON):", *_tool_help(), "",
-                          "Architect actions (fix) and what they do: " + _arch_help()])
+                          "Agent tools (fix; their arguments go in args as one JSON object; * required):", *tools,
+                          *values, "", "Architect actions (fix) and what they do: " + _arch_help()])
         try:
             reply = model.structured([{"role": "system", "content": SYSTEM}, {"role": "user", "content": text}],
                                      triage_schema([f["aid"] for f in batch]), call_id=f"argus_triage_{n}",
@@ -315,24 +338,19 @@ def _parallel(fn, jobs: list) -> list:
         return list(ex.map(lambda nj: fn(*nj), list(enumerate(jobs))))
 
 
-def _tool_help() -> list[str]:
-    """One line per agent tool Argus may call: its arguments (``*`` required) and what it does (the registry's
-    specs)."""
+def _registry():
     try:
         from wenart.agent import tools as TL
-        reg = TL.build_registry()
-    except Exception:  # noqa: BLE001
-        return []
-    out = []
-    for name in AGENT_TOOLS:
-        t = reg.tools.get(name)
-        if t is None:
-            continue
-        props = (t.parameters or {}).get("properties") or {}
-        req = set((t.parameters or {}).get("required") or [])
-        params = ", ".join(f"{k}{'*' if k in req else ''}" for k in props if k != "reason")
-        out.append(f"- {name}({params}): {str(getattr(t, 'description', '') or '').split('. ')[0][:200]}")
-    return out
+        return TL.build_registry()
+    except Exception:  # noqa: BLE001 - no registry here: no tool help, no vetting
+        return None
+
+
+def _tool_help(reg=None) -> list[str]:
+    """One line per agent tool Argus may call: every argument with its type, allowed values and range (``*``
+    required) and what the tool does (``calls.tool_help``: 27 Oct 2026, the names alone gave 0 valid calls of 94)."""
+    reg = reg if reg is not None else _registry()
+    return CL.tool_help(reg, AGENT_TOOLS) if reg is not None else []
 
 
 def history_lines(project: str, path: Path = HISTORY_FILE, limit: int = HISTORY_LINES) -> list[str]:
@@ -463,11 +481,14 @@ def _arch_help() -> str:
 
 
 def discover(model, inp: I.Inputs, rep: dict, fact_lines: list[str], *, time_ok: Callable[[], bool] = lambda: True,
-             out: Callable[[str], None] = print, errors: Optional[list] = None) -> tuple[list[dict], list[dict]]:
-    """``(findings, dropped)`` of module docstring 3."""
+             out: Callable[[str], None] = print, errors: Optional[list] = None, tools: Optional[list] = None,
+             values: Optional[list] = None) -> tuple[list[dict], list[dict]]:
+    """``(findings, dropped)`` of module docstring 3 (``tools``, ``values``: as ``triage``)."""
     from wenart.agent.model import user_message
 
     errors = errors if errors is not None else []
+    tools = list(tools or [])
+    values = list(values or [])
     building = inp.final or {}
     known = known_targets(building)
     named = sorted({f"{f.get('target')}: {str(f.get('message'))[:90]}" for f in rep.get("findings") or []
@@ -481,7 +502,9 @@ def discover(model, inp: I.Inputs, rep: dict, fact_lines: list[str], *, time_ok:
         image = next((p for p in inp.top_plans if lv and f"top_{lv}_" in p.name), None)
         text = "\n".join([f"Floor {lv}" + (" (image 1: the 3D model of this floor from above, ceilings off, rooms "
                                            "named)" if image else "") + ".", "The project as built:", *fact_lines,
-                          "", "Already found (do not repeat):", *named[:80]])
+                          "", "Already found (do not repeat):", *named[:80]]
+                         + (["", "Agent tools (fix; their arguments go in args as one JSON object; * required):",
+                             *tools, *values] if tools else []))
         msg = user_message(text, [image], [f"Image 1: the model of {lv} from above"]) if image else \
             {"role": "user", "content": text}
         try:
@@ -600,8 +623,13 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
     for f in items:
         if str(f.get("target")) in tried:
             f["tried"] = tried[str(f.get("target"))]
+    reg = _registry()
+    valid = CL.Valid(inp.stage("build") or building, inp.manifest)
+    tools = _tool_help(reg)
+    values = valid.lines()
+    piece_notes(items, valid)
     verdicts = triage(model, items, fact_lines, time_ok=time_ok, out=out, errors=errors,
-                      project=inp.project) if items else {}
+                      project=inp.project, tools=tools, values=values) if items else {}
     by_id = {f["aid"]: f for f in items}
     new, decisions, work, guards, disputed = [], [], [], [], []
     actions: list = []
@@ -641,8 +669,8 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
             work.append({"aid": aid, "fix": v["fix"], "check": f.get("check"), "severity": f.get("severity"),
                          "target": f.get("target"), "message": f.get("message"), "cause": v.get("cause"),
                          "why": v.get("why")})
-    found, dropped = discover(model, inp, rep, fact_lines, time_ok=time_ok, out=out, errors=errors) \
-        if discover_on else ([], [])
+    found, dropped = discover(model, inp, rep, fact_lines, time_ok=time_ok, out=out, errors=errors, tools=tools,
+                              values=values) if discover_on else ([], [])
     new += found
     for f in found:
         ev = f.get("evidence") or {}
@@ -671,6 +699,12 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
         if (x["tool"], json.dumps(x["args"], sort_keys=True)) not in have:
             actions.append(x)
             work.append(w)
+    # 27 Oct 2026: every call checked by code before the agent loop runs it; the invalid ones repaired (code, then
+    # one model call) or dropped with their reasons (their findings stay in the work list for the agent's round)
+    vetted = {"calls": len(actions)}
+    if reg is not None and actions:
+        actions, vetted = CL.vet_all(model, actions, valid, reg, {w["id"]: w for w in work if w.get("id")},
+                                     help_lines=tools, errors=errors, time_ok=time_ok, thinking=THINKING)
     revoked = revoke_decisions(project_out, revoke) if act_on and revoke else \
         [{"key": k, "done": False, "why": "the end of the run: not carried out"} for k in revoke]
     if act_on:
@@ -684,7 +718,7 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
            "findings": new, "decisions": entries, "work": work, "guards": guards, "disputed": disputed,
            "dropped": dropped, "verdicts": [dict(v, target=str(by_id.get(k, {}).get("target"))) for k, v in
                                             verdicts.items()],
-           "actions": actions, "revoked": revoked,
+           "actions": actions, "calls": vetted, "revoked": revoked,
            "accepted": sum(1 for e in entries if e["verdict"] == "accepted") + sum(1 for r in revoked if r["done"]),
            "errors": errors,
            "untriaged": [f["aid"] for f in items if f["aid"] not in verdicts],
@@ -771,11 +805,17 @@ def report_md(rec: dict) -> str:
         lines += ["", "## Decisions", "", "| finding | action | element | verdict | why |", "|---|---|---|---|---|"]
         lines += [f"| {e.get('aid')} | {e['action']} | {e['element']} | {e['verdict']} | {R._cell(e.get('why'))} |"
                   for e in rec["decisions"]]
+    c = rec.get("calls") or {}
+    if c.get("calls"):
+        lines += ["", f"Own calls: {c.get('calls')} chosen, {c.get('valid', c.get('calls'))} valid "
+                      f"({c.get('code_repaired', 0)} repaired by code, {c.get('model_repaired', 0)} by the model), "
+                      f"{c.get('duplicates', 0)} duplicate(s), {c.get('dropped', 0)} dropped (errors above)."]
     if rec.get("actions"):
         lines += ["", "## Argus's own edits (run in the agent loop through the same checks)", "",
-                  "| source | tool | arguments | fixes | why |", "|---|---|---|---|---|"]
+                  "| source | tool | arguments | fixes | repaired | why |", "|---|---|---|---|---|---|"]
         lines += [f"| {x['source']} | {x['tool']} | {R._cell(json.dumps(x['args'], ensure_ascii=False)[:160])} | "
-                  f"{x['finding_id']} | {R._cell(x.get('why'))} |" for x in rec["actions"]]
+                  f"{x['finding_id']} | {R._cell('; '.join(x.get('repaired') or [])[:160])} | "
+                  f"{R._cell(x.get('why'))} |" for x in rec["actions"]]
     if rec.get("revoked"):
         lines += ["", "## AI decisions revoked", ""]
         lines += [f"- {r['key']}: {'revoked' if r['done'] else 'kept'} ({r['why']})" for r in rec["revoked"]]
