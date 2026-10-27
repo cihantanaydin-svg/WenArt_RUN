@@ -1,0 +1,144 @@
+{
+ "space": "balcony",
+ "family": "scandinavian",
+ "source": "pd12m",
+ "embed_model": "google/siglip2-so400m-patch14-384",
+ "candidates": 400,
+ "scored": 120,
+ "photos": [
+  {
+   "source": "pd12m",
+   "id": "pd_6a82b4cb545823c13a978322da808b59",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/5ed8d0ef-68fe-530a-811a-6061c7efe418.jpeg",
+   "title": "The image shows a white building with wooden doors and windows, a wooden railing, and a balcony with red flowers on it. There are also plants with flowers, lights, and other objects on the building, as well as a tree on the right side.",
+   "caption": "The image shows a white building with wooden doors and windows, a wooden railing, and a balcony with red flowers on it. There are also plants with flowers, lights, and other objects on the building, as well as a tree on the right side.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/5ed8d0ef-68fe-530a-811a-6061c7efe418.jpeg",
+   "width": 1530,
+   "height": 1722,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0013,
+    "negative": 0.0,
+    "style": 0.004,
+    "quality": 0.0036
+   },
+   "file": "pd_6a82b4cb545823c13a978322da808b59.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_0c3d5867930e4bddc6f6c943cd859f24",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/1896c1ce-6398-5b87-97eb-0c7a9b0c4380.jpeg",
+   "title": "The image shows a balcony with a wooden floor and a railing, surrounded by plants, trees, buildings, poles, vehicles, people, stairs, and other objects. The sky is visible in the background.",
+   "caption": "The image shows a balcony with a wooden floor and a railing, surrounded by plants, trees, buildings, poles, vehicles, people, stairs, and other objects. The sky is visible in the background.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/1896c1ce-6398-5b87-97eb-0c7a9b0c4380.jpeg",
+   "width": 4608,
+   "height": 3456,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0039,
+    "negative": 0.0,
+    "style": 0.0063,
+    "quality": 0.0
+   },
+   "file": "pd_0c3d5867930e4bddc6f6c943cd859f24.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_b6fc6c343faed2eb3e453cac22e413d0",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/9060f542-048c-5880-8154-bd6e69bc2b26.jpeg",
+   "title": "The image shows a view of the ocean from the balcony of a building, with trees, plants, grass, and buildings in the foreground. The sky is a beautiful blue and white, and the sun is shining brightly in the background.",
+   "caption": "The image shows a view of the ocean from the balcony of a building, with trees, plants, grass, and buildings in the foreground. The sky is a beautiful blue and white, and the sun is shining brightly in the background.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/9060f542-048c-5880-8154-bd6e69bc2b26.jpeg",
+   "width": 4608,
+   "height": 3456,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0001,
+    "negative": 0.0,
+    "style": 0.0001,
+    "quality": 0.0099
+   },
+   "file": "pd_b6fc6c343faed2eb3e453cac22e413d0.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_ab3300ee4e9ec69d1d47cfb64a8b4a87",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/ba09382a-21bd-5c83-b9d5-2e3a46aae780.jpeg",
+   "title": "The image shows a large wooden house with green shutters and flowers on the balcony, surrounded by trees and plants, with a clear blue sky in the background.",
+   "caption": "The image shows a large wooden house with green shutters and flowers on the balcony, surrounded by trees and plants, with a clear blue sky in the background.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/ba09382a-21bd-5c83-b9d5-2e3a46aae780.jpeg",
+   "width": 5472,
+   "height": 3648,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0001,
+    "negative": 0.0,
+    "style": 0.0008,
+    "quality": 0.0002
+   },
+   "file": "pd_ab3300ee4e9ec69d1d47cfb64a8b4a87.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_58cdd14762717a5a5f77349f0eaff0b2",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/bca9234f-dcbb-584b-aaba-79d18dc519f9.jpeg",
+   "title": "The image shows a wooden building with a red tiled roof and a balcony with arches and pillars, surrounded by plants in pots, a pipe, and a light.",
+   "caption": "The image shows a wooden building with a red tiled roof and a balcony with arches and pillars, surrounded by plants in pots, a pipe, and a light.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/bca9234f-dcbb-584b-aaba-79d18dc519f9.jpeg",
+   "width": 2500,
+   "height": 1875,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0058,
+    "negative": 0.0001,
+    "style": 0.0136,
+    "quality": 0.0001
+   },
+   "file": "pd_58cdd14762717a5a5f77349f0eaff0b2.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_ccb76d9867d1b3a176307bbede640fbf",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/fa24d017-c173-582e-a2a7-b7d16498098e.jpeg",
+   "title": "The image shows a balcony with potted plants and trees on it, illuminated by a light pole. In the background, there are buildings, hills, and a sky with clouds.",
+   "caption": "The image shows a balcony with potted plants and trees on it, illuminated by a light pole. In the background, there are buildings, hills, and a sky with clouds.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/fa24d017-c173-582e-a2a7-b7d16498098e.jpeg",
+   "width": 4608,
+   "height": 3456,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0001,
+    "negative": 0.0,
+    "style": 0.0006,
+    "quality": 0.0001
+   },
+   "file": "pd_ccb76d9867d1b3a176307bbede640fbf.jpg"
+  }
+ ],
+ "picked_by": "session review of the candidates (27 Oct 2026): a home of the space, light, no public rooms, museums, paintings or showrooms",
+ "candidates_job": "20261027-150744-references"
+}

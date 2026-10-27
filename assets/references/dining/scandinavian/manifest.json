@@ -1,0 +1,188 @@
+{
+ "space": "dining",
+ "family": "scandinavian",
+ "source": "pd12m",
+ "embed_model": "google/siglip2-so400m-patch14-384",
+ "candidates": 400,
+ "scored": 120,
+ "photos": [
+  {
+   "source": "pd12m",
+   "id": "pd_53eb4c8d1895feb00640a045501e042e",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/f87ddc1e-bd4d-5c5e-8e6f-e8a589b81341.jpeg",
+   "title": "The image shows a dining room with a wooden table and chairs, a remote on the table, houseplants, photo frames, and other objects on the platform, a wall with a photo frame, and a window with trees and buildings visible outside.",
+   "caption": "The image shows a dining room with a wooden table and chairs, a remote on the table, houseplants, photo frames, and other objects on the platform, a wall with a photo frame, and a window with trees and buildings visible outside.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/f87ddc1e-bd4d-5c5e-8e6f-e8a589b81341.jpeg",
+   "width": 4032,
+   "height": 3024,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0002,
+    "negative": 0.0001,
+    "style": 0.0088,
+    "quality": 0.0001
+   },
+   "file": "pd_53eb4c8d1895feb00640a045501e042e.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_7aeb67fd33417a63c43fe46840c1500a",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/c9e32e35-4ef4-5388-9630-d51079400aad.jpeg",
+   "title": "The image shows a dining room with a wooden table and chairs, houseplants, windows, a fire extinguisher, frames on the wall, steps, and other objects. Through the windows, we can see trees outside.",
+   "caption": "The image shows a dining room with a wooden table and chairs, houseplants, windows, a fire extinguisher, frames on the wall, steps, and other objects. Through the windows, we can see trees outside.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/c9e32e35-4ef4-5388-9630-d51079400aad.jpeg",
+   "width": 5472,
+   "height": 3648,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0002,
+    "negative": 0.0001,
+    "style": 0.0032,
+    "quality": 0.0021
+   },
+   "file": "pd_7aeb67fd33417a63c43fe46840c1500a.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_4febc8d9ab9add3cd51878cf6c998900",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/c034d466-3330-53a9-bf23-db6857ce4fa9.jpeg",
+   "title": "The image shows a dining room with a wooden table and chairs surrounded by a carpeted floor. On the table there are various objects, and on the walls there are frames and boards with text. There is a cupboard with racks containing various items, and lights on the ceiling. In the back, there are steps leading up to a door, and a person sitting on a chair.",
+   "caption": "The image shows a dining room with a wooden table and chairs surrounded by a carpeted floor. On the table there are various objects, and on the walls there are frames and boards with text. There is a cupboard with racks containing various items, and lights on the ceiling. In the back, there are steps leading up to a door, and a person sitting on a chair.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/c034d466-3330-53a9-bf23-db6857ce4fa9.jpeg",
+   "width": 3654,
+   "height": 2740,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0008,
+    "negative": 0.0001,
+    "style": 0.0151,
+    "quality": 0.0002
+   },
+   "file": "pd_4febc8d9ab9add3cd51878cf6c998900.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_d03b6100edf2f167047bd617e3f6a1e3",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/52ac4aa8-c804-56f1-8e10-121a049f2cc7.jpeg",
+   "title": "The image shows a dining room with a wooden table and chairs, a lamp hanging from the ceiling, flower pots with plants, toys, and other objects on the table, and a window with trees visible outside.",
+   "caption": "The image shows a dining room with a wooden table and chairs, a lamp hanging from the ceiling, flower pots with plants, toys, and other objects on the table, and a window with trees visible outside.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/52ac4aa8-c804-56f1-8e10-121a049f2cc7.jpeg",
+   "width": 5184,
+   "height": 3456,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0002,
+    "negative": 0.0,
+    "style": 0.0037,
+    "quality": 0.0019
+   },
+   "file": "pd_d03b6100edf2f167047bd617e3f6a1e3.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_fe9f98e55e0ca50a9b007a4a9dac24a9",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/14aef8e6-60ea-5afc-9c9e-5434be7d44c5.jpeg",
+   "title": "The image shows a dining room filled with lots of tables and chairs, flower vases, mats, glasses, and other objects on the tables, a wooden floor with a carpet, windows with curtains, lights, frames, and boards on the wall, and trees visible through the windows.",
+   "caption": "The image shows a dining room filled with lots of tables and chairs, flower vases, mats, glasses, and other objects on the tables, a wooden floor with a carpet, windows with curtains, lights, frames, and boards on the wall, and trees visible through the windows.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/14aef8e6-60ea-5afc-9c9e-5434be7d44c5.jpeg",
+   "width": 5472,
+   "height": 3648,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0004,
+    "negative": 0.0,
+    "style": 0.0223,
+    "quality": 0.0019
+   },
+   "file": "pd_fe9f98e55e0ca50a9b007a4a9dac24a9.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_12b58933a56c3a346fd23a40fbc08626",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/a3914c05-a3a9-5d2f-9c22-7aa169658cc2.jpeg",
+   "title": "The image shows a dining room with a table and chairs in it. On the table there is a cloth, a tray with fruits, a jug, and other objects. There are windows with curtains, pots with plants, and a cupboard with various items. The room is illuminated by a light hanging from the ceiling.",
+   "caption": "The image shows a dining room with a table and chairs in it. On the table there is a cloth, a tray with fruits, a jug, and other objects. There are windows with curtains, pots with plants, and a cupboard with various items. The room is illuminated by a light hanging from the ceiling.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/a3914c05-a3a9-5d2f-9c22-7aa169658cc2.jpeg",
+   "width": 4032,
+   "height": 3024,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0177,
+    "negative": 0.0006,
+    "style": 0.0206,
+    "quality": 0.0012
+   },
+   "file": "pd_12b58933a56c3a346fd23a40fbc08626.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_c990a1c6758392a18519572c4e7c008a",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/89967e39-d1e2-5925-a4ca-30bef2a8d415.jpeg",
+   "title": "The image shows a dining room with a wooden table and chairs, candles on the table, a cupboard on the left side, stairs in the back, a photo frame on the wall, lights on the ceiling, and a view of trees, grass, and sky outside the window.",
+   "caption": "The image shows a dining room with a wooden table and chairs, candles on the table, a cupboard on the left side, stairs in the back, a photo frame on the wall, lights on the ceiling, and a view of trees, grass, and sky outside the window.",
+   "creator": null,
+   "provider": "European Heritage Awards Archive",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/89967e39-d1e2-5925-a4ca-30bef2a8d415.jpeg",
+   "width": 2004,
+   "height": 1328,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0001,
+    "negative": 0.0001,
+    "style": 0.0011,
+    "quality": 0.0121
+   },
+   "file": "pd_c990a1c6758392a18519572c4e7c008a.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_93bab9ed763e5253af7d6b76c9c4711d",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/968e140c-ec0e-5f41-859b-4182a17b1ea2.jpeg",
+   "title": "The image shows a dining room with a table and chairs in it, adorned with house plants, mats, and other objects. There is a window with a curtain, lights, and a frame on the wall, and through the window we can see trees outside.",
+   "caption": "The image shows a dining room with a table and chairs in it, adorned with house plants, mats, and other objects. There is a window with a curtain, lights, and a frame on the wall, and through the window we can see trees outside.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/968e140c-ec0e-5f41-859b-4182a17b1ea2.jpeg",
+   "width": 4898,
+   "height": 3648,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0021,
+    "negative": 0.0001,
+    "style": 0.014,
+    "quality": 0.0041
+   },
+   "file": "pd_93bab9ed763e5253af7d6b76c9c4711d.jpg"
+  }
+ ],
+ "picked_by": "session review of the candidates (27 Oct 2026): a home of the space, light, no public rooms, museums, paintings or showrooms",
+ "candidates_job": "20261027-150744-references"
+}

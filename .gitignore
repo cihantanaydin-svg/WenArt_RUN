@@ -44,7 +44,9 @@ runs/
 .claude/worktrees/
 
 # Downloaded CC0 textures and HDRIs (manifest.json records them; pod: /workspace/assets)
-/assets/
+/assets/*
+# 27 Oct 2026: the curated style reference photos (public domain / CC0, wenart/style/references.py REPO_SETS) are code
+!/assets/references/
 
 # Private projects (docs/milestone6.md §7, docs/intake.md): never committed. The repo is public;
 # private uploads, outputs and results live on the network volume, collected into runs/.

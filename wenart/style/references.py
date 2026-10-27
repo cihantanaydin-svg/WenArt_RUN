@@ -71,7 +71,10 @@ DUPLICATE_COS = 0.95            # two photos this similar (image embeddings) are
 EMBED_MODEL = "google/siglip2-so400m-patch14-384"     # Apache-2.0 (checked on the Hub 27 Oct 2026)
 EMBED_MODEL_CPU = "google/siglip2-base-patch16-224"   # Apache-2.0: the CPU choice (a fetch in the cloud session)
 NEGATIVES = ("a floor plan or a drawing", "a 3D render or a computer graphic", "a product photo on a white background",
-             "a photo of people", "an empty unfurnished room", "a messy cluttered room", "a text document or a sign")
+             "a photo of people", "an empty unfurnished room", "a messy cluttered room", "a text document or a sign",
+             # 27 Oct 2026 (job 150744's bathrooms, dining rooms and bedrooms): rooms that are no home's
+             "a public restroom with urinals or rows of sinks", "a restaurant or a hotel dining hall",
+             "a museum period room", "a furniture store showroom", "a painting")
 QUALITY_TEXT = "a beautiful professional interior design photo, magazine quality"
 QUALITY_TEXT_OUTDOOR = "a beautiful professional architecture and landscape photo, magazine quality"
 OPENVERSE_PAGE_MAX = 20        # pod run 123917: an anonymous Openverse search takes at most 20 results a page
@@ -227,7 +230,6 @@ def score_images(paths: dict, space: str, family: Optional[str], device: Optiona
     ``EMBED_MODEL`` (SigLIP 2, sigmoid probabilities of text prompts; ``vec`` the normalised image embedding). Pod
     only (torch, transformers)."""
     import torch
-    from PIL import Image
     from transformers import AutoModel, AutoProcessor
 
     words, interior = SPACES[space]
@@ -246,7 +248,7 @@ def score_images(paths: dict, space: str, family: Optional[str], device: Optiona
         tvec = tvec / tvec.norm(dim=-1, keepdim=True)
         for pid, path in paths.items():
             try:
-                img = Image.open(path).convert("RGB")
+                img = open_photo(path)
             except Exception:  # noqa: BLE001 - a broken download is no reference
                 continue
             iin = proc(images=[img], return_tensors="pt").to(device)
@@ -555,7 +557,6 @@ def candidate_sets(family: Optional[str], root, out, per_space: int = 30, spaces
     """For the session's choice: per space the ``per_space`` best photos of PD12M's caption hits (downloaded from
     the dataset's bucket, ranked by ``scorer`` as ``select``), in ``out/<space>/<family>/`` as 512 px copies with a
     ``manifest.json`` (``source: pd12m``, licence, caption, scores). Returns ``{space: kept count}``."""
-    from PIL import Image
 
     if hits is None:
         cache = Path(root) / f"caption_hits_{re.sub(r'[^a-z0-9]+', '_', str(family or 'any').lower())}.json"
@@ -608,7 +609,7 @@ def candidate_sets(family: Optional[str], root, out, per_space: int = 30, spaces
         dst.mkdir(parents=True, exist_ok=True)
         for c in kept:
             try:
-                img = Image.open(paths[c["id"]]).convert("RGB")
+                img = open_photo(paths[c["id"]])
                 img.thumbnail((EXPORT_SIDE_PX, EXPORT_SIDE_PX))
                 img.save(dst / f"{c['id']}.jpg", quality=84)
                 c["file"] = f"{c['id']}.jpg"
@@ -632,7 +633,6 @@ CANDIDATE_ORDER = ("living", "kitchen", "veranda", "terrace", "bedroom", "bathro
 def export(root, out, size: int = EXPORT_SIDE_PX) -> int:
     """Copy every set's ``manifest.json`` and ``recipe.json`` and its photos at ``size`` px (JPEG) from ``root`` to
     ``out`` (the run's results, for the review); returns the number of photos."""
-    from PIL import Image
 
     n = 0
     for man_path in sorted(Path(root).glob("*/*/manifest.json")):
@@ -648,7 +648,7 @@ def export(root, out, size: int = EXPORT_SIDE_PX) -> int:
             if not src.is_file():
                 continue
             try:
-                img = Image.open(src).convert("RGB")
+                img = open_photo(src)
                 img.thumbnail((size, size))
                 img.save(dst / (src.stem + ".jpg"), quality=82)
                 n += 1
@@ -660,7 +660,6 @@ def export(root, out, size: int = EXPORT_SIDE_PX) -> int:
 def embed(paths: list, device: str = "cuda") -> list:
     """Normalised SigLIP 2 image embeddings of ``paths`` (pod only), a list of float lists (None for a broken file)."""
     import torch
-    from PIL import Image
     from transformers import AutoModel, AutoProcessor
 
     model = AutoModel.from_pretrained(EMBED_MODEL, torch_dtype=torch.float16).to(device).eval()
@@ -669,7 +668,7 @@ def embed(paths: list, device: str = "cuda") -> list:
     with torch.no_grad():
         for p in paths:
             try:
-                img = Image.open(p).convert("RGB")
+                img = open_photo(p)
             except Exception:  # noqa: BLE001
                 out.append(None)
                 continue
@@ -738,6 +737,19 @@ def final_views(project_out) -> list[dict]:
     return views
 
 
+def open_photo(path):
+    """A photo as RGB, upright (27 Oct 2026, job 150744: a camera's rotation tag left photos on their side in the
+    512 px copies, which keep no tag): ``ImageOps.exif_transpose`` first."""
+    from PIL import Image, ImageOps
+
+    img = Image.open(path)
+    try:
+        img = ImageOps.exif_transpose(img)
+    except Exception:  # noqa: BLE001 - a broken tag: the photo as stored
+        pass
+    return img.convert("RGB")
+
+
 def photo_ids(manifest: dict) -> list:
     """The sorted photo ids of a set's manifest (pure)."""
     return sorted(str(p.get("id")) for p in (manifest or {}).get("photos") or [])
@@ -762,7 +774,7 @@ def contact_sheet(folder, out_path, cols: int = 6, side: int = 256, title: str =
     if title:
         draw.text((8, 8), title, fill=(235, 235, 235))
     for k, (n, p) in enumerate(tiles):
-        img = Image.open(folder / p["file"]).convert("RGB")
+        img = open_photo(folder / p["file"])
         img.thumbnail((side - 6, side - 6))
         x, y = (k % cols) * side, (k // cols) * side + head
         sheet.paste(img, (x + (side - img.width) // 2, y + (side - img.height) // 2))

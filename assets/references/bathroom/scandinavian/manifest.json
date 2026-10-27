@@ -1,0 +1,188 @@
+{
+ "space": "bathroom",
+ "family": "scandinavian",
+ "source": "pd12m",
+ "embed_model": "google/siglip2-so400m-patch14-384",
+ "candidates": 400,
+ "scored": 120,
+ "photos": [
+  {
+   "source": "pd12m",
+   "id": "pd_93f312ac7fa07d2f6a81c37191bd6a29",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/718a3e34-64eb-5f72-8c87-d4217b2c49b3.jpeg",
+   "title": "The image shows a bathroom with a sink, mirror and towel rack. The sink has a tap and there is a platform with drawers beneath it. On the platform there are some objects and a tray with some items. There is a hanger with towels on it and a light hanging from the ceiling. There are also switch boards on the wall and a watermark on the image.",
+   "caption": "The image shows a bathroom with a sink, mirror and towel rack. The sink has a tap and there is a platform with drawers beneath it. On the platform there are some objects and a tray with some items. There is a hanger with towels on it and a light hanging from the ceiling. There are also switch boards on the wall and a watermark on the image.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/718a3e34-64eb-5f72-8c87-d4217b2c49b3.jpeg",
+   "width": 3000,
+   "height": 4000,
+   "style_hits": 1,
+   "scores": {
+    "space": 0.0041,
+    "negative": 0.0,
+    "style": 0.0075,
+    "quality": 0.0005
+   },
+   "file": "pd_93f312ac7fa07d2f6a81c37191bd6a29.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_555e547d721c9990fd2193f5b8dff2d7",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/90972bc4-a03a-5f27-91f8-39e443a84f41.jpeg",
+   "title": "The image shows a bathroom with a toilet, bathtub, taps, shower, wall, window, curtain and floor. The bathtub is situated in the center of the room, with the toilet to the right and the window to the left. The walls are tiled in a neutral color, and the floor is covered with a light-colored tile. The window is open, letting in natural light.",
+   "caption": "The image shows a bathroom with a toilet, bathtub, taps, shower, wall, window, curtain and floor. The bathtub is situated in the center of the room, with the toilet to the right and the window to the left. The walls are tiled in a neutral color, and the floor is covered with a light-colored tile. The window is open, letting in natural light.",
+   "creator": null,
+   "provider": "European Heritage Awards Archive",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/90972bc4-a03a-5f27-91f8-39e443a84f41.jpeg",
+   "width": 1407,
+   "height": 1093,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0046,
+    "negative": 0.0001,
+    "style": 0.0168,
+    "quality": 0.0001
+   },
+   "file": "pd_555e547d721c9990fd2193f5b8dff2d7.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_4ea662ac2190860934d2ed18ab6c5f5f",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/9cde7592-e891-5031-8fd5-1883f127bca6.jpeg",
+   "title": "The image shows a bathroom with a toilet, sink and window. The toilet has a flush and the sink has a tap. There is a cupboard with racks and other items near the window, and lights on the ceiling. Through the window glass, we can see trees outside.",
+   "caption": "The image shows a bathroom with a toilet, sink and window. The toilet has a flush and the sink has a tap. There is a cupboard with racks and other items near the window, and lights on the ceiling. Through the window glass, we can see trees outside.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/9cde7592-e891-5031-8fd5-1883f127bca6.jpeg",
+   "width": 4032,
+   "height": 3024,
+   "style_hits": 1,
+   "scores": {
+    "space": 0.0424,
+    "negative": 0.0001,
+    "style": 0.0052,
+    "quality": 0.0002
+   },
+   "file": "pd_4ea662ac2190860934d2ed18ab6c5f5f.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_9a7f1a6fd506914c412bb9cd9ae0c3ba",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/e9031fe1-a0f9-534c-99c4-eea07e18c120.jpeg",
+   "title": "The image shows a bathroom with a sink and a mirror on the wall. The sink has a tap and a bottle on it, and there is a light above it. There is also an object on the floor below the sink.",
+   "caption": "The image shows a bathroom with a sink and a mirror on the wall. The sink has a tap and a bottle on it, and there is a light above it. There is also an object on the floor below the sink.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/e9031fe1-a0f9-534c-99c4-eea07e18c120.jpeg",
+   "width": 4032,
+   "height": 3024,
+   "style_hits": 1,
+   "scores": {
+    "space": 0.0016,
+    "negative": 0.0001,
+    "style": 0.0036,
+    "quality": 0.0005
+   },
+   "file": "pd_9a7f1a6fd506914c412bb9cd9ae0c3ba.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_f084f6a9fc451858cc8cc2e679161a34",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/376945e6-328c-5b3d-8fe2-b6533b4a9f93.jpeg",
+   "title": "The image shows a bathroom with a sink, mirror, chair, carpet on the floor, table with drawers, jug and other objects, windows with curtains, and photo frames on the wall. Through the windows, we can see plants with flowers outside.",
+   "caption": "The image shows a bathroom with a sink, mirror, chair, carpet on the floor, table with drawers, jug and other objects, windows with curtains, and photo frames on the wall. Through the windows, we can see plants with flowers outside.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/376945e6-328c-5b3d-8fe2-b6533b4a9f93.jpeg",
+   "width": 4000,
+   "height": 3000,
+   "style_hits": 1,
+   "scores": {
+    "space": 0.0032,
+    "negative": 0.0003,
+    "style": 0.0013,
+    "quality": 0.0002
+   },
+   "file": "pd_f084f6a9fc451858cc8cc2e679161a34.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_ec276dd17bd8a14c30c89ff7c2d0c9be",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/16f5ceda-d38e-547d-bbd7-1fb774941dc8.jpeg",
+   "title": "The image shows a bathroom with blue tiled walls and a white bathtub. There are taps, a towel on a stand, and various objects on the bathtub, giving the room a cozy and inviting atmosphere.",
+   "caption": "The image shows a bathroom with blue tiled walls and a white bathtub. There are taps, a towel on a stand, and various objects on the bathtub, giving the room a cozy and inviting atmosphere.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/16f5ceda-d38e-547d-bbd7-1fb774941dc8.jpeg",
+   "width": 5184,
+   "height": 3888,
+   "style_hits": 1,
+   "scores": {
+    "space": 0.0006,
+    "negative": 0.0,
+    "style": 0.0005,
+    "quality": 0.0
+   },
+   "file": "pd_ec276dd17bd8a14c30c89ff7c2d0c9be.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_4bf6a2945da5d6acca5eec6a70ea14b4",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/d7887c0e-c1dc-5871-9d70-f6a02f5f31f1.jpeg",
+   "title": "The image shows a bathroom with two toilets, a sink, a toilet seat, a flush tank, a window with a curtain, a door, a stand with bottles and other objects, and a light on the wall.",
+   "caption": "The image shows a bathroom with two toilets, a sink, a toilet seat, a flush tank, a window with a curtain, a door, a stand with bottles and other objects, and a light on the wall.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/d7887c0e-c1dc-5871-9d70-f6a02f5f31f1.jpeg",
+   "width": 3648,
+   "height": 5472,
+   "style_hits": 1,
+   "scores": {
+    "space": 0.0141,
+    "negative": 0.0,
+    "style": 0.0005,
+    "quality": 0.0
+   },
+   "file": "pd_4bf6a2945da5d6acca5eec6a70ea14b4.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_2206292a4f1b8fb5f12a19ebf48a8ea6",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/b26aec60-b0be-5da5-9696-588bd76b2ed9.jpeg",
+   "title": "The image shows a bathroom with a bathtub, toilet, sink, taps, mirror, lights, and other objects. The walls are tiled and there is a window at the top of the room.",
+   "caption": "The image shows a bathroom with a bathtub, toilet, sink, taps, mirror, lights, and other objects. The walls are tiled and there is a window at the top of the room.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/b26aec60-b0be-5da5-9696-588bd76b2ed9.jpeg",
+   "width": 2448,
+   "height": 3264,
+   "style_hits": 1,
+   "scores": {
+    "space": 0.0041,
+    "negative": 0.0,
+    "style": 0.001,
+    "quality": 0.0
+   },
+   "file": "pd_2206292a4f1b8fb5f12a19ebf48a8ea6.jpg"
+  }
+ ],
+ "picked_by": "session review of the candidates (27 Oct 2026): a home of the space, light, no public rooms, museums, paintings or showrooms",
+ "candidates_job": "20261027-150744-references"
+}
