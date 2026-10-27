@@ -70,7 +70,7 @@ STEP_OFF_M2 = 0.20              # the floor past the last riser (outside the ope
 ROOM_CORE_M2 = 0.25             # a room's main floor covers at least this much of it
 PART_MIN_M2 = 0.50              # a cut-off part of a floor smaller than this is no place (M9 c)
 ROOM_JOIN_M = 0.02              # room outlines this close are one floor (no wall between them)
-ERODE_EPS_M = 0.01              # the cores are narrowed by half the clear width less this: a way of exactly 0.80 m passes
+ERODE_EPS_M = 0.01              # cores narrowed by half the clear width less this: a way of exactly 0.80 m passes
 WALK_TYPES = ("door", "opening")
 
 
@@ -1102,6 +1102,128 @@ def run_extension(building: dict, piece: dict, plan: dict, target_riser: float, 
                        f"{ARRIVAL_DEPTH_M:.2f} m before it are free): riser {rise / (total + n):.3f} m")
     return 0, (f"the floor before its first riser is taken (a wall, a piece or an opening within "
                f"{n_lo * g + ARRIVAL_DEPTH_M:.2f} m): a run {n_lo * g:.2f} m longer does not fit")
+
+
+# --------------------------------------------------------------------------
+# Under the stair: closed where it is low, carried where it hangs (27 Oct 2026)
+# --------------------------------------------------------------------------
+# User on real06's ground floor: "This stairs not making any sense": seen from below, the flights were loose slabs
+# hanging in the room, the half landing a block in the air. A stair reads as a real one when the space under it is
+# closed where a visitor would hit his head (a spandrel panel under every open side of its low part, and across it
+# where the clear height reaches ``HEADROOM_M``), and when every landing is carried (by those panels, by its walls, or
+# by a post at each free corner when it is high enough to walk under).
+SPANDREL_T_M = 0.05             # a spandrel panel: a board on studs, in the stair's structure finish
+SPANDREL_MIN_M = 0.05           # an open stretch of edge shorter than this needs no panel
+SPANDREL_TOP_GAP_M = 0.003      # the panel stops this far under the soffit (no coplanar faces)
+WALL_TOUCH_M = 0.06             # an edge this close to a wall face is carried and closed by that wall
+POST_M = 0.10                   # a landing's post, square
+
+
+def _waist(plan: dict, f: dict) -> tuple[float, float]:
+    """``(k, t_v)`` of a planned flight: the soffit's rise per metre of going and the waist measured vertically
+    (``parametric.STAIR_WAIST_M`` square to the soffit), as ``parametric.stair_parts`` builds them."""
+    from wenart.blender import parametric as P
+    k = float(plan["riser_m"]) / max(float(f["going"]), 1e-6)
+    return k, P.STAIR_WAIST_M * math.sqrt(1.0 + k * k)
+
+
+def under_parts(plan: dict) -> list[dict]:
+    """The parts of a planned stair with a space under them lower than ``HEADROOM_M`` (pure): ``[{"poly", "what",
+    "under": point -> the underside's height over the floor}]``: of every flight the stretch from where its soffit
+    leaves the floor (or from its foot, when it starts on a landing) to where it reaches ``HEADROOM_M``, and a half
+    landing (or its winders) whose underside is under ``HEADROOM_M``."""
+    out = []
+    for f in plan.get("flights") or []:
+        r, n = f["rise_dir"], len(f["nosings"])
+        o, base, length = f["nosings"][0], float(f["base_z"]), (n - 1) * float(f["going"])
+        k, tv = _waist(plan, f)
+        if k <= 1e-6 or n < 2:
+            continue
+        s_a = max(0.0, (tv - base) / k)
+        s_h = min(length, (HEADROOM_M + tv - base) / k)
+        if s_h - s_a <= SPANDREL_MIN_M:
+            continue
+        poly = _band(o, r, float(f["width"]) / 2.0, s_a, s_h)
+
+        def under(p, o=o, r=r, k=k, tv=tv, base=base):
+            return base + _dot((p[0] - o[0], p[1] - o[1]), r) * k - tv
+        out.append({"poly": poly, "what": f"flight {f['index'] + 1}", "under": under})
+    land = plan.get("landing")
+    if isinstance(land, dict) and land.get("role") in ("mid", "winders"):
+        z_u = float(land["z"]) - float(land.get("thickness") or 0.0)
+        poly = _poly(land.get("polygon") or [])
+        if poly is not None and 0.0 < z_u < HEADROOM_M:
+            out.append({"poly": poly, "what": "the landing", "under": lambda p, z_u=z_u: z_u})
+    return out
+
+
+def _lines(geom) -> list:
+    if geom is None or geom.is_empty:
+        return []
+    if geom.geom_type == "LineString":
+        return [geom]
+    return [g for g in getattr(geom, "geoms", []) if g.geom_type == "LineString" and not g.is_empty]
+
+
+def under_stair(plan: dict, walls=()) -> dict:
+    """How the space under a planned stair is closed and its landing carried (pure; module docstring of this
+    section): ``{"panels": [{"p", "q", "zp", "zq", "inward", "of"}], "posts": [{"at", "z"}], "low_m2", "reason"}``.
+    A panel stands on every stretch of the boundary of ``under_parts`` that no other part and no wall (within
+    ``WALL_TOUCH_M``) closes, from the floor to the underside over it; a half landing high enough to walk under gets a
+    post at every corner no wall and no flight carries."""
+    from shapely.geometry import LineString, Point
+    parts = under_parts(plan)
+    wall_polys = [p for p in (_wall_poly(w) for w in walls or ()) if p is not None]
+    wall_zone = _union([p.buffer(WALL_TOUCH_M) for p in wall_polys])
+    panels = []
+    for i, part in enumerate(parts):
+        others = _union([q["poly"].buffer(0.002) for j, q in enumerate(parts) if j != i])
+        ring = _ring(part["poly"])
+        for j in range(len(ring)):
+            a, b = tuple(ring[j]), tuple(ring[(j + 1) % len(ring)])
+            if G.distance(a, b) < SPANDREL_MIN_M:
+                continue
+            rest = LineString([a, b])
+            for cut in (others, wall_zone):
+                if cut is not None:
+                    rest = rest.difference(cut)
+            u = _unit((b[0] - a[0], b[1] - a[1]))
+            inward = (-u[1], u[0])                       # left of a counter-clockwise edge
+            for seg in _lines(rest):
+                c = list(seg.coords)
+                p, q = (c[0], c[-1]) if _dot((c[-1][0] - c[0][0], c[-1][1] - c[0][1]), u) >= 0 else (c[-1], c[0])
+                if G.distance(p, q) < SPANDREL_MIN_M:
+                    continue
+                zp, zq = part["under"](p), part["under"](q)
+                if max(zp, zq) <= 0.02:
+                    continue                             # the stair's body stands on the floor there
+                panels.append({"p": [round(p[0], 4), round(p[1], 4)], "q": [round(q[0], 4), round(q[1], 4)],
+                               "zp": round(max(0.0, zp), 4), "zq": round(max(0.0, zq), 4),
+                               "inward": [round(inward[0], 6), round(inward[1], 6)], "of": part["what"]})
+    posts = []
+    land = plan.get("landing")
+    if isinstance(land, dict) and land.get("role") in ("mid", "winders"):
+        z_u = float(land["z"]) - float(land.get("thickness") or 0.0)
+        flights = _union([_band(f["nosings"][0], f["rise_dir"], float(f["width"]) / 2.0, 0.0,
+                                max(G.distance(f["nosings"][0], f["nosings"][-1]), 0.01)).buffer(0.01)
+                          for f in plan.get("flights") or []])
+        poly = _poly(land.get("polygon") or [])
+        if z_u >= HEADROOM_M and poly is not None:
+            cx, cy = poly.centroid.x, poly.centroid.y
+            for c in _ring(poly):
+                pt = Point(c)
+                if (wall_zone is not None and wall_zone.contains(pt)) or (flights is not None and flights.contains(pt)):
+                    continue
+                d = _unit((cx - c[0], cy - c[1])) or (0.0, 0.0)
+                at = (c[0] + d[0] * POST_M * 0.71, c[1] + d[1] * POST_M * 0.71)     # under the landing's corner
+                posts.append({"at": [round(at[0], 4), round(at[1], 4)], "z": round(z_u, 4)})
+    low = _union([p["poly"] for p in parts])
+    reason = (f"the space under the stair lower than {HEADROOM_M:.2f} m is closed by {len(panels)} spandrel panel(s) "
+              f"in its structure finish where no wall closes it"
+              + (f"; its landing ({HEADROOM_M:.2f} m or more over the floor) stands on {len(posts)} post(s)"
+                 if posts else "") + " (not drawn: assumed, so the stair reads as built from below and the side)")
+    return {"panels": panels, "posts": posts, "low_m2": round(low.area, 3) if low is not None else 0.0,
+            "reason": reason}
 
 
 def cut_off_text(rec: dict) -> str:

@@ -2679,6 +2679,22 @@ def stair_build_plan(plan: dict, walls: list[dict]) -> dict:
     return out
 
 
+def stair_under_plan(plan: dict, walls: list[dict]) -> dict:
+    """The space under a planned stair closed where it is low and its landing carried (pure; 27 Oct 2026, user on
+    real06's ground floor: "This stairs not making any sense": loose slabs seen from below): ``plan["under"]`` =
+    ``stair_access.under_stair`` on the level's ``walls`` (the spandrel panels and the posts ``parametric.stair_parts``
+    builds) and, when there is something to build, one ``stair_under`` assumed entry. Returns the record."""
+    from wenart.blender import stair_access as SA
+    under = SA.under_stair(plan, walls)
+    plan["under"] = under
+    if under["panels"] or under["posts"]:
+        plan["assumed"] = list(plan.get("assumed") or []) + [
+            {"field": "under", "kind": "stair_under", "value": f"{len(under['panels'])} spandrel panel(s), "
+                                                               f"{len(under['posts'])} post(s)",
+             "reason": under["reason"]}]
+    return under
+
+
 def shell_stand_in(slug: str) -> str | None:
     """The texture set a bare request of ``slug`` gets from its shell slot (pure; pass before P5, module docstring):
     the set of the slot ``materials.shell_slot_of(slug)`` names when that set stands in for the slug (the rule of
@@ -2782,6 +2798,7 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
         # fix round after P4b (17 Oct 2026): a smooth paint of the wall colour (STAIR_STRUCTURE_REASON)
         structure = slot_material(library, stair_structure_slot(walls_style), unverified=unverified)
         plan = stair_build_plan(plan, level_walls)          # fix round after P4b: the stair meets its walls
+        stair_under_plan(plan, level_walls)                 # 27 Oct 2026: closed under where low, landings carried
         plan["balustrade"] = D.balustrade_kind(style)       # 25 Oct 2026: the balustrade follows the style
         verts, faces, slots, parts = stair_mesh(plan, floor_z)
         name = f"furn_{piece['id']}"
@@ -2893,6 +2910,10 @@ def stair_record(plan: dict, parts: list[dict]) -> dict:
         "rails": plan["rails"], "notes": plan["notes"],
         # fix round after P4b (17 Oct 2026): the sides that meet a wall (stair_wall_joints) and the structure finish
         "wall_joints": list(plan.get("wall_joints") or []), "structure_finish": STAIR_STRUCTURE_REASON,
+        # 27 Oct 2026: the space under the stair as built (stair_under_plan): the model review's M9 reads it
+        "under": {"panels": sum(1 for p in parts if p.get("role") == "spandrel"),
+                  "posts": sum(1 for p in parts if p.get("role") == "landing_post"),
+                  "low_m2": (plan.get("under") or {}).get("low_m2")},
     }
 
 

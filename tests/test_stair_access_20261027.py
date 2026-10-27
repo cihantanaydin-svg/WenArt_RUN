@@ -317,6 +317,83 @@ def test_a_flip_stair_answer_is_carried_out_before_the_slabs_are_built():
 
 
 # --------------------------------------------------------------------------
+# Under the stair: closed where it is low, carried where it hangs (user on real06's ground floor: "This stairs not
+# making any sense": loose slabs seen from below)
+# --------------------------------------------------------------------------
+
+def _built_plan(b, level_index=0):
+    from wenart.blender import shell
+    level = b["levels"][level_index]
+    walls = [w for w in b["walls"] if w["level_id"] == level["id"]]
+    item = next(i for i in shell.plan_stairs(b, level, slab_void=True) if i["plan"])
+    plan = shell.stair_build_plan(item["plan"], walls)
+    shell.stair_under_plan(plan, walls)
+    return plan
+
+
+def test_the_space_under_a_stair_is_closed_where_it_is_low():
+    from wenart.blender import parametric as P
+    from wenart.blender import shell
+    b = _house()
+    SA.fix_arrivals(b)
+    plan = _built_plan(b)
+    under = plan["under"]
+    assert under["low_m2"] > 1.0 and under["posts"] == []          # the half landing is low: closed, not posted
+    of = {p["of"] for p in under["panels"]}
+    assert {"flight 1", "flight 2"} <= of
+    for p in under["panels"]:                                       # from the floor to the underside, never higher
+        assert 0.0 <= p["zp"] <= SA.HEADROOM_M + 1e-6 and 0.0 <= p["zq"] <= SA.HEADROOM_M + 1e-6
+    # every open edge of the low space has a panel; the edges along a wall have none (the wall closes them)
+    walls = [w for w in b["walls"] if w["level_id"] == "L0"]
+    from shapely.geometry import LineString
+    wall_zone = Polygon()
+    for w in walls:
+        wall_zone = wall_zone.union(SA._wall_poly(w).buffer(SA.WALL_TOUCH_M))
+    assert not any(LineString([p["p"], p["q"]]).within(wall_zone) for p in under["panels"])
+    # where the flight's soffit reaches 2.0 m a panel closes the space across the flight
+    assert any(abs(p["zp"] - SA.HEADROOM_M) < 1e-3 and abs(p["zq"] - SA.HEADROOM_M) < 1e-3 for p in under["panels"])
+    parts = P.stair_parts(plan)
+    spandrels = [p for p in parts if p["role"] == "spandrel"]
+    assert len(spandrels) == len(under["panels"])
+    assert all(min(v[2] for v in p["verts"]) == pytest.approx(0.0) for p in spandrels)        # on the floor
+    assert len(P.stair_face_slots(parts)) == sum(len(p["faces"]) for p in parts)
+    assert set(P.stair_face_slots(spandrels)) == {1}                                          # the structure finish
+    rec = shell.stair_record(plan, parts)
+    assert rec["under"]["panels"] == len(spandrels) and rec["under"]["posts"] == 0
+    assert any(a["kind"] == "stair_under" for a in plan["assumed"])
+
+
+def test_a_landing_high_enough_to_walk_under_stands_on_posts():
+    flights = [{"start": [x, 0.5], "end": [x, 3.5], "width": 1.0, "lines": 13, "spacing": 0.25} for x in (2.0, 3.2)]
+    landing = {"polygon": [[1.5, 3.5], [3.7, 3.5], [3.7, 4.5], [1.5, 4.5]], "depth": 1.0}     # free of the walls
+    b = _one_stair_house(flights, landing)
+    b["levels"][1]["elevation"] = 5.2                           # a tall storey: the half landing at 2.6 m
+    b["levels"][0]["ceiling_height"] = 5.0
+    b["furniture"][0]["stair"]["turn"] = "U"
+    plan = _built_plan(b)
+    assert plan["landing"]["z"] - plan["landing"]["thickness"] >= SA.HEADROOM_M
+    posts = plan["under"]["posts"]
+    assert len(posts) == 2 and all(p["at"][1] > 4.35 for p in posts)         # the two free corners, not the flights'
+    from wenart.blender import parametric as P
+    assert sum(1 for p in P.stair_parts(plan) if p["role"] == "landing_post") == 2
+
+
+def test_m9_reports_a_stair_built_with_its_underside_open():
+    b = _house()
+    SA.fix_arrivals(b)
+    plan = _built_plan(b)
+    manifest = {"objects": [{"element_id": "st0", "kind": "furniture", "type": "stair",
+                             "stair": {"risers": plan["risers"]}}]}                  # an older build: no underside
+    found, n = MR.stair_undersides(b, manifest)
+    assert n == 1 and len(found) == 1 and found[0]["severity"] == "major"
+    assert "loose slabs" in found[0]["message"] and found[0]["metrics"]["part"] == "underside"
+    manifest["objects"][0]["stair"]["under"] = {"panels": len(plan["under"]["panels"]), "posts": 0}
+    assert MR.stair_undersides(b, manifest)[0] == []
+    rec = MR.review(b, {"objects": [dict(manifest["objects"][0], stair={"risers": 18})]}, prep={})
+    assert any(f["check"] == "M9" and f["metrics"].get("part") == "underside" for f in rec["findings"])
+
+
+# --------------------------------------------------------------------------
 # K1 for any stair shape: risers too high are fixed in a quarter landing (winders) or by a longer straight run
 # --------------------------------------------------------------------------
 

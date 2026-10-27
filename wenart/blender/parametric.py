@@ -283,6 +283,7 @@ BEVEL_BY_ROLE: dict[str, float] = {
     "plinth": 0.002, "tray": 0.01, "basin": 0.008, "pedestal": 0.02,
     # Milestone 7
     "step": 0.003, "riser": 0.002, "landing": 0.003, "rail": 0.008, "post": 0.004, "base": 0.006,
+    "spandrel": 0.002, "landing_post": 0.004,                     # 27 Oct 2026: the closed underside of a stair
     "pole": 0.0, "shade": 0.004,
     # Milestone 10
     "panel": 0.002, "rod": 0.0, "roller": 0.0, "slat": 0.002, "castor": 0.004, "rest": 0.003, "ladder": 0.004,
@@ -1759,6 +1760,43 @@ def stair_parts(plan: dict) -> list[Part]:
         parts.append(_part(geom2d.prism(poly, z_top - landing["thickness"], z_top),
                            "worktop", "landing", flight=None, rise_dir=None))
     parts.extend(_apron_part(plan))                          # 26 Oct 2026: the floor's edge meets the top step
+    parts.extend(_under_parts(plan))                         # 27 Oct 2026: the space under the stair, its posts
+    return parts
+
+
+def _under_parts(plan: dict) -> list[Part]:
+    """The spandrel panels and the landing posts of ``plan["under"]`` (``stair_access.under_stair``, set by
+    ``shell.stair_under_plan``; 27 Oct 2026, user on real06: "This stairs not making any sense": loose slabs seen from
+    below): each panel a board ``SPANDREL_T_M`` thick standing on the floor, its outer face on the open edge, its top
+    under the soffit; each post a square column up to the landing's underside; role ``spandrel`` / ``landing_post`` (the
+    stair's structure finish)."""
+    from wenart.blender import stair_access as SA
+    under = plan.get("under") or {}
+    parts: list[Part] = []
+    for pan in under.get("panels") or []:
+        p, q, n = pan["p"], pan["q"], pan["inward"]
+        length = G.distance(p, q)
+        if length < 1e-6:
+            continue
+        along = ((q[0] - p[0]) / length, (q[1] - p[1]) / length)
+        t = SA.SPANDREL_T_M
+        origin = (p[0] + n[0] * t / 2.0, p[1] + n[1] * t / 2.0)
+        zp = max(0.0, float(pan["zp"]) - SA.SPANDREL_TOP_GAP_M)
+        zq = max(0.0, float(pan["zq"]) - SA.SPANDREL_TOP_GAP_M)
+        profile = [(0.0, 0.0), (length, 0.0)] + ([(length, zq)] if zq > 1e-4 else []) + \
+            ([(0.0, zp)] if zp > 1e-4 else [])
+        if len(profile) < 3:
+            continue
+        parts.append(_part(geom2d.extrude_profile(profile, origin, along, t), "worktop", "spandrel", flight=None,
+                           rise_dir=None))
+    for post in under.get("posts") or []:
+        x, y = post["at"]
+        h = SA.POST_M / 2.0
+        top = float(post["z"]) - SA.SPANDREL_TOP_GAP_M
+        if top <= 0.0:
+            continue
+        parts.append(_part(geom2d.prism([(x - h, y - h), (x + h, y - h), (x + h, y + h), (x - h, y + h)], 0.0, top),
+                           "worktop", "landing_post", flight=None, rise_dir=None))
     return parts
 
 
@@ -1974,7 +2012,7 @@ def stair_face_slots(parts: Sequence[Part]) -> list[int]:
         if part.get("role") == "tread":                       # the tread plate: the floor finish all round
             slots.extend([0] * len(part["faces"]))
             continue
-        if part.get("role") in ("step", "riser"):             # 25 Oct 2026: painted risers under the tread plates
+        if part.get("role") in ("step", "riser", "spandrel", "landing_post"):   # painted risers, the closed underside
             slots.extend([1] * len(part["faces"]))
             continue
         for f in part["faces"]:
