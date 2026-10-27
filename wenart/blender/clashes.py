@@ -15,6 +15,12 @@ when it has none, the other piece tries; an accessory with no place left is not 
 piece moves with it. Every change keeps ``drawn_footprint`` and is labelled ``adjusted_by_ai`` (by code, the
 architect's rule F5) with the reason; ``resolve`` returns ``{"fixed": [...], "left": [...]}``.
 
+27 Oct 2026 (``wenart.furniture.fixture_seat``; user on real06 run 180412: "clashing sink and bath, also bath is not in
+proper place"): two drawn fixed pieces (sanitary ware, kitchen appliances standing on their own) that cut each other
+are separated first by ``fixture_fix``: the one with the weaker reading slides along its wall to the nearest free place
+(at most 0.5 m), else is seated in its drawn outline (a misread or merged outline becomes the real product with its
+back on a wall), else the other slides along its wall; the general move below stays the fallback.
+
 Why: the renders and the top-down views of real04 showed a side table standing in the corner sofa's chaise and two
 armchairs over their small tables: the mesh check S2 lets a soft seat take 5 cm and its ray test misses open
 library meshes, so the clash reached the images. Planning the pieces apart is general and costs nothing at render
@@ -26,6 +32,7 @@ import math
 from typing import Optional
 
 from wenart import geometry as G
+from wenart.furniture import fixture_seat as FS
 
 CLASH_TOL_M = 0.03              # a cut under 3 cm is not visible (the S2 class tolerance)
 GAP_M = 0.02                    # a separated piece keeps this far from the other
@@ -410,6 +417,13 @@ def resolve(building: dict) -> dict:
                     depth = shape_depth(sf, sg)
                     if depth <= CLASH_TOL_M or by_design(f, g, sf, sg, depth):
                         continue
+                    # 27 Oct 2026 (module docstring): two drawn fixtures keep their walls (slide, else seat)
+                    if FS.fixture_pair(f, g):
+                        hit = fixture_fix(f, g, depth, live(), rooms, doors, decor)
+                        if hit is not None:
+                            fixed.append(hit)
+                            changed = True
+                            continue
                     peers = [(p, shape(p)) for p in live()]
                     same_set = sets.get(f["id"]) is not None and sets.get(f["id"]) is sets.get(g["id"])
                     order = sorted((f, g), key=_rank)
@@ -452,6 +466,103 @@ def resolve(building: dict) -> dict:
                 break
         left += remaining(group)
     return {"fixed": fixed, "left": left}
+
+
+def must_clear(f: dict, p: dict) -> bool:
+    """``f`` may not stand in ``p``: not built into it (a basin in its vanity, a sink in its counter), their heights
+    meet (a wall-hung piece over a floor piece is free), neither lies on the floor (a rug)."""
+    if p is f or p.get("build") is False or str(p.get("type") or "") in SKIP_TYPES + FLOOR_ONLY:
+        return False
+    tf, tp = str(f.get("type") or ""), str(p.get("type") or "")
+    if FS.hosted_pair(f, p) or (tf, tp) in BASINS or (tp, tf) in BASINS:
+        return False
+    if (tf in KITCHEN_MEMBERS and tp in KITCHEN_RUN) or (tp in KITCHEN_MEMBERS and tf in KITCHEN_RUN):
+        return False
+    zf, zp = z_range(f), z_range(p)
+    return min(zf[1], zp[1]) - max(zf[0], zp[0]) > 0.02
+
+
+def fixture_fix(f: dict, g: dict, depth: float, live: list, rooms: dict, doors: list, decor: list) -> Optional[dict]:
+    """27 Oct 2026 (``wenart.furniture.fixture_seat``; user on real06 run 180412: "clashing sink and bath, also bath is
+    not in proper place"): two drawn fixed pieces that cut each other. The one with the weaker reading
+    (``fixture_seat.gives_way``) slides along its wall to the nearest free place within 0.5 m, else is seated in its
+    drawn outline (a misread or merged outline: the real product, its back on a wall and along it); else the other
+    slides along its wall. Inside its room, clear of every other piece it may not stand in and of the doorways it was
+    not in. Moved in place (``drawn_footprint`` kept, ``adjusted_by_ai`` by code with rule ``architect F5``, decor on it
+    follows); returns the ``resolve`` record or None. Why: the general move (``find_unit_place``) pushes a piece out
+    along any separating axis, which takes a basin off its wall or leaves the room; real06's bath, read as one turned
+    outline with its screen and the vanity's edge, cut its basin 0.33 m and neither found a place."""
+    mover = FS.gives_way(f, g)
+    stay = g if mover is f else f
+    for piece, other, allow_seat in ((mover, stay, True), (stay, mover, False)):
+        room = rooms.get(piece.get("room_id"))
+        if not room:
+            continue
+        sp = shape(piece)
+        obstacles = [part for p in live if must_clear(piece, p) for part in shape(p)]
+        obstacles += [d for d in doors if shape_depth(sp, [d]) <= CLASH_TOL_M]
+        fix = FS.free_fixture(piece, room, obstacles, allow_seat=allow_seat)
+        if fix is None:
+            continue
+        reason = (f"architect F5: {piece['id']} ({piece.get('type')}) cut {other['id']} ({other.get('type')}) by "
+                  f"{depth:.2f} m; {piece['id']}: {fix['reason']} (inside its room, clear of the other pieces and the "
+                  f"doorways)")
+        apply_fixture(piece, fix, {"by": "code", "rule": "architect F5", "reason": reason}, decor)
+        return {"id": piece["id"], "other": other["id"], "action": "moved" if fix["how"] == "slid" else "seated",
+                "distance_m": round(float(fix["distance_m"]), 3), "members": [piece["id"]], "reason": reason}
+    return None
+
+
+def apply_fixture(piece: dict, fix: dict, label: dict, decor: list) -> None:
+    """``fixture_seat.free_fixture``'s place carried out on ``piece`` (in place): ``drawn_footprint`` kept, the new
+    footprint (and, seated, its front away from its wall), the fitted library record following a new product size
+    (``refit_asset``: the build scales the model by the recorded fit), ``label`` as ``adjusted_by_ai`` (an earlier
+    record kept under ``previous``), the decor resting on it moved along."""
+    old = piece["footprint"]
+    dx = float(fix["footprint"]["center"][0]) - float(old["center"][0])
+    dy = float(fix["footprint"]["center"][1]) - float(old["center"][1])
+    piece.setdefault("drawn_footprint", dict(old))
+    piece["footprint"] = dict(fix["footprint"])
+    if fix.get("how") == "seated" and fix.get("front_deg") is not None:
+        piece["front_deg"] = fix["front_deg"]
+    refit_asset(piece, old.get("size"), by=str(label.get("rule") or label.get("by") or "code"))
+    label = dict(label)
+    if isinstance(piece.get("adjusted_by_ai"), dict):
+        label["previous"] = [dict(piece["adjusted_by_ai"])]
+    piece["adjusted_by_ai"] = label
+    for d in decor:
+        if d.get("host_id") == piece["id"] and d.get("center"):
+            c = list(d["center"])
+            c[0], c[1] = round(float(c[0]) + dx, 4), round(float(c[1]) + dy, 4)
+            d["center"] = c
+
+
+def refit_asset(piece: dict, old_size, by: str = "architect F5") -> None:
+    """A fitted library model follows a footprint size the build changed (``apply_fixture``: a fixture seated at
+    another product size before the build): the scene builder scales the model by the recorded ``fit_scale``, so a
+    uniform fit is scaled by the new width over the fitted width (the fit's rule: the drawn width), a stretched one
+    by each side's ratio; ``bbox_m`` follows and ``refit`` records it. Nothing for a module or parametric piece (built
+    on the footprint) or an unchanged size."""
+    a = piece.get("asset")
+    size = (piece.get("footprint") or {}).get("size")
+    if not isinstance(a, dict) or a.get("method", "library") != "library" or not a.get("fit_scale") \
+            or not old_size or not size:
+        return
+    w0, d0 = float(old_size[0]), float(old_size[1])
+    w1, d1 = float(size[0]), float(size[1])
+    if abs(w1 - w0) < 1e-4 and abs(d1 - d0) < 1e-4:
+        return
+    box = [float(v) for v in a.get("bbox_m") or [w0, d0, 0.0]]
+    if a.get("scaling") == "uniform":
+        k = w1 / box[0] if box[0] > 1e-9 else w1 / w0
+        ks = (k, k, k)
+    else:
+        ks = (w1 / box[0] if box[0] > 1e-9 else w1 / w0, d1 / box[1] if len(box) > 1 and box[1] > 1e-9 else d1 / d0,
+              1.0)
+    a["fit_scale"] = [round(float(s) * k, 4) for s, k in zip(list(a["fit_scale"])[:3], ks)]
+    a["bbox_m"] = [round(v * k, 4) for v, k in zip(box[:3], ks)]
+    a["refit"] = {"by": by, "from_size": [round(w0, 4), round(d0, 4)],
+                  "factor": [round(k, 4) for k in ks]}
 
 
 def remaining(group: list) -> list[dict]:

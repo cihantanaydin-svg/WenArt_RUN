@@ -493,8 +493,17 @@ def test_real06_dining_zone_and_corner_baths(real06):
     assert {p["piece_id"]: p["type"] for p in INF.code_types(no_zone)}.get("f_L0_011") == "sofa_corner"   # before
     # the corner baths of both bathrooms (pass 1: "likely a bathtub or shower", pass 2: bunk_bed)
     props = INF.ai_named_members(copy.deepcopy(real06))
-    assert sorted((p["piece_id"], p["type"], tuple(p["footprint"]["size"])) for p in props) == [
-        ("f_L0_010", "bathtub", (1.8, 0.8)), ("f_L1_011", "bathtub", (1.8, 0.8))]
+    # 27 Oct 2026 (fixture_seat): the 2.54 x 1.01 m outline at 161.5 deg merges the bath, its screen and the vanity's
+    # edge: the product is seated on the window wall beside the basin (was 1.80 x 0.80 m turned 18 deg into it)
+    assert sorted((p["piece_id"], p["type"], tuple(p["footprint"]["size"]), p["footprint"]["rotation_deg"],
+                   p["front_deg"]) for p in props) == [
+        ("f_L0_010", "bathtub", (1.55, 0.75), 0.0, 270.0), ("f_L1_011", "bathtub", (1.55, 0.75), 0.0, 270.0)]
+    from wenart.furniture import fixture_seat as FS
+    for p in props:
+        room = next(f["room_id"] for f in real06["furniture"] if f["id"] == p["piece_id"])
+        for g in real06["furniture"]:
+            if g.get("room_id") == room and g["type"] in ("washbasin", "toilet"):
+                assert FS.cut_depth(FS.footprint_rect(p["footprint"]), FS.footprint_rect(g["footprint"])) == 0.0
     # the dressing room's two drawn runs (2.27 x 0.85 m, "unknown" / "stair" by the passes) are its wardrobes
     runs = {p["piece_id"]: p for p in INF.code_types(copy.deepcopy(real06))
             if p["piece_id"] in ("f_L1_014", "f_L1_015")}

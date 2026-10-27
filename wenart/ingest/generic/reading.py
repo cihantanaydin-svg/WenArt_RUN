@@ -51,7 +51,12 @@ What, in order (each step deterministic, every change logged in the piece's evid
    its type's real range gets the nearest real product size (``sizes.product_size``), its back kept on its wall; a
    fixed piece through a wall or in a door swing moves up to 0.5 m to the nearest free spot. ``drawn_type``,
    ``drawn_footprint``, ``drawn_front_deg``, ``drawn_height`` are kept; ``adjusted_by_ai`` holds the reason, the
-   changed fields and the plan crop; the piece's evidence gets the rule's entry.
+   changed fields and the plan crop; the piece's evidence gets the rule's entry. 27 Oct 2026 (``fixture_seat``; user
+   on real06 run 180412: "clashing sink and bath, also bath is not in proper place"): a drawn fixed piece standing in
+   another drawn fixture (deeper than 3 cm; a piece built into a counter or vanity excepted) is a reading error as
+   well: the one with the weaker reading gives way (``fixture_rivals``), sliding along its wall to the nearest free
+   place within 0.5 m, else seated in its drawn outline; a misread outline that stands on no wall (a merged outline's
+   box angle) is seated in it (``_fixed_place``). The record merges into an earlier code record of the piece.
 5. **Fronts**: a drawn piece of a type with a front and none drawn gets one from the wall its back stands on or
    from its group (a chair faces its table, a nightstand the way its bed faces, a TV unit its sofa), ``inferred``.
 6. **Open kitchens**: a room that is not a kitchen but holds kitchen fixtures gets a kitchen zone
@@ -231,6 +236,7 @@ from shapely.ops import unary_union
 
 from wenart import building as B
 from wenart import geometry as G
+from wenart.furniture import fixture_seat as FS
 
 SYMBOL_RULE = "reading.symbols"
 CONTEXT_RULE = "reading.context"
@@ -325,6 +331,7 @@ RUN_DEPTH_RULE = "reading.run_depth"
 HOLDS_HINTS = {"sink_kitchen": "sink_pos_m", "stove": "hob_pos_m"}   # modules.plan_kitchen_run's hints
 KITCHEN_OUTLINE_RULE = "reading.kitchen_outline"
 KITCHEN_OUTLINE_MIN_M = 0.75       # a kitchen outline is deeper than a counter both ways
+FIXED_SEAT_TYPES = FS.SEAT_TYPES   # 27 Oct 2026: the fixed pieces that stand on a wall on their own (fixture_seat)
 
 
 # --------------------------------------------------------------------------
@@ -1632,7 +1639,7 @@ def fix_fixed(build, items: Optional[dict] = None) -> list[str]:
         drawn_front = f.get("front_deg")
         share = misread_share(f["type"], f["footprint"]["size"])
         found = problems(rect(f), room_poly, swings, others)
-        if share <= MISREAD_SHARE and not found:
+        if share <= MISREAD_SHARE and not found and not fixture_rivals(f, f, mates):
             # Fix round after P5 (user decision of 22 Oct 2026): a bath or shower a few cm longer than its bay. Review:
             # a piece without a question crop gets one drawn at the reading (``reading_crop``), only when it changes.
             item = (items or {}).get(f["id"])
@@ -1654,12 +1661,24 @@ def fix_fixed(build, items: Optional[dict] = None) -> list[str]:
                            f"{f['type']} size range: set to the real product size {size[0]:.2f} x {size[1]:.2f} m "
                            f"(width x depth), its back kept on its wall")
         found = problems(rect(new), room_poly, swings, others)
-        if found:
-            moved = _nearest_valid(new, room_poly, swings, others)
+        wall_problem = bool(found)
+        # 27 Oct 2026 (``fixture_seat`` rule 3): a drawn fixed piece standing in another drawn fixture is a reading
+        # error too; the one with the weaker reading gives way (real06: the merged bath outline over the basin)
+        rivals = fixture_rivals(f, new, mates)
+        if rivals:
+            found.append("on " + " and ".join(f"{o['id']} ({o['type']})" for o in rivals))
+        # the drawn outline (before an earlier resize, e.g. an AI-named member's product) decides whether it was misread:
+        # an outline outside the type's ranges at all, or resized by code already, is no product where it stands
+        outline = (f.get("drawn_footprint") or before).get("size") or before["size"]
+        misread = share > MISREAD_SHARE or misread_share(f["type"], outline) > 0.0 or FS.resized(f)
+        misread_off_wall = misread and f["type"] in FIXED_SEAT_TYPES and not wall_sides(new, ring)
+        if found or misread_off_wall:
+            moved, how = _fixed_place(f, new, room, room_poly, ring, swings, others, mates, misread, wall_problem)
             if moved is not None:
-                d = math.dist(moved["footprint"]["center"], new["footprint"]["center"])
-                reasons.append(f"{' and '.join(found)}: moved {d:.2f} m to the nearest free spot")
+                reasons.append(f"{' and '.join(found) or 'a misread outline off every wall'}: {how}")
                 new = moved
+            elif not found:
+                pass                                     # off the walls but nothing in the way: resized as before
             else:
                 reasons.append(f"{' and '.join(found)}, no free spot within {MOVE_MAX_M:.2f} m: left as drawn")
                 if share <= MISREAD_SHARE:
@@ -1679,8 +1698,10 @@ def fix_fixed(build, items: Optional[dict] = None) -> list[str]:
         crop = _crop(item.details if item is not None else None) or reading_crop(build, f)
         f["footprint"] = new["footprint"]
         f["front_deg"] = new.get("front_deg")
-        f["adjusted_by_ai"] = {"reason": f"misread fixed equipment (CLAUDE.md, user OK of 10 Oct 2026): {reason}",
-                               "changed": changed, "rule": FIXED_RULE, "crop": crop}
+        # 27 Oct 2026: merged into an earlier code record (an AI-named member's product size), not over it
+        INF.merge_code_label(f, {"by": "code", "reason": f"misread fixed equipment (CLAUDE.md, user OK of 10 Oct "
+                                                         f"2026): {reason}",
+                                 "changed": changed, "rule": FIXED_RULE, "crop": crop})
         if crop and crop not in reason:
             reason = f"{reason}; plan crop {crop}"
         f.setdefault("evidence", []).append(_ev(f, FIXED_RULE, reason, 0.8))
@@ -1723,9 +1744,11 @@ def _resized(f: dict, ring, size) -> dict:
     return _placed(f, (w1, d1), centre)
 
 
-def _nearest_valid(f: dict, room_poly: Polygon, swings: list, others: list) -> Optional[dict]:
+def _nearest_valid(f: dict, room_poly: Polygon, swings: list, others: list,
+                   avoid: Optional[list] = None) -> Optional[dict]:
     """The nearest position within ``MOVE_MAX_M`` (5 cm steps along both footprint axes, along first) where the
-    piece lies in its room, clear of door swings and other fixed pieces; None when there is none."""
+    piece lies in its room, clear of door swings and other fixed pieces; None when there is none. 27 Oct 2026:
+    ``avoid`` (corner lists of the drawn fixtures it must not stand in, ``fixture_seat``) are cleared too."""
     cx, cy = f["footprint"]["center"]
     rot = math.radians(float(f["footprint"].get("rotation_deg") or 0.0))
     axes = [(math.cos(rot), math.sin(rot)), (-math.sin(rot), math.cos(rot))]
@@ -1739,9 +1762,85 @@ def _nearest_valid(f: dict, room_poly: Polygon, swings: list, others: list) -> O
             if d > MOVE_MAX_M + 1e-9 or (best is not None and d >= best[0] - 1e-9):
                 continue
             cand = _placed(f, f["footprint"]["size"], (cx + dx, cy + dy))
-            if _fits_room(rect(cand), room_poly, swings, others):
+            if _fits_room(rect(cand), room_poly, swings, others) and not (avoid and any(
+                    FS.cut_depth(FS.footprint_rect(cand["footprint"]), o) > FS.CUT_EPS_M for o in avoid)):
                 best = (d, abs(j), cand)
     return best[2] if best else None
+
+
+def fixture_rivals(f: dict, cur: dict, mates: list[dict]) -> list[dict]:
+    """27 Oct 2026 (``fixture_seat`` rule 3): the drawn fixed pieces among ``mates`` that ``cur`` (``f`` where it
+    stands or would stand) cuts deeper than ``fixture_seat.CLASH_M`` and that ``f`` gives way to (the weaker reading
+    moves: real06's merged bath outline, unverified and resized, before the basin both AI passes agreed on). A piece
+    built into a counter or a vanity is no rival of it."""
+    out = []
+    r = FS.footprint_rect(cur["footprint"])
+    for o in mates:
+        if o is f or o.get("build") is False or not o.get("footprint") or not FS.fixture_pair(f, o):
+            continue
+        if FS.cut_depth(r, FS.footprint_rect(o["footprint"])) > FS.CLASH_M and FS.gives_way(f, o) is f:
+            out.append(o)
+    return out
+
+
+def _fixed_place(f: dict, new: dict, room: dict, room_poly: Polygon, ring, swings: list, others: list,
+                 mates: list[dict], misread: bool, wall_problem: bool) -> tuple[Optional[dict], str]:
+    """27 Oct 2026 (``fixture_seat``): where the fixed piece ``f`` (``new``: its fixed front and product size so far)
+    goes when it stands through a wall, in a door swing or in another drawn fixture, or is a misread outline off every
+    wall: ``(the piece moved, how)`` or ``(None, "")``. In order: a misread outline off every wall is seated in it
+    (rule 1: neither its centre nor its box angle is the piece's); through a wall or in a swing it moves to the
+    nearest valid spot (as before, now clear of the drawn fixtures of ``fixture_seat`` too); standing only in another
+    fixture it slides along its wall (rule 2); then it is seated in its drawn outline (its drawn size when that is a
+    product, else the type's products). It clears every other fixed piece but its host (a counter, a vanity) and a
+    fixture it stands in that gives way to it (that one moves itself)."""
+    from wenart.furniture import schemas
+
+    cur = FS.footprint_rect(new["footprint"])
+    kept = [o for o in mates if o.get("footprint") and o.get("type") in schemas.FIXED_TYPES
+            and not FS.hosted_pair(f, o) and not (FS.fixture_pair(f, o) and FS.gives_way(f, o) is o
+                                                  and FS.cut_depth(cur, FS.footprint_rect(o["footprint"])) > FS.CLASH_M)]
+    fixtures = [FS.footprint_rect(o["footprint"]) for o in kept]
+    drawn_fixtures = [FS.footprint_rect(o["footprint"]) for o in kept if FS.fixture_pair(f, o)]
+
+    def blocked(r) -> bool:
+        poly = Polygon(r)
+        return any(poly.intersection(s).area > SWING_SHARE * poly.area for s in swings)
+
+    def seated() -> tuple[Optional[dict], str]:
+        if f["type"] not in FS.SEAT_TYPES:
+            return None, ""
+        from wenart.furniture import sizes
+
+        drawn = f.get("drawn_footprint") or f["footprint"]
+        size = tuple(float(v) for v in new["footprint"]["size"][:2])
+        # its drawn size when that is a product of its type, else the type's products
+        prods = [size] if not misread and sizes.fits(f["type"], size, 0.0) else FS.products_of(f["type"])
+        got = FS.seat(f["type"], drawn, room["polygon"], fixtures, blocked=blocked if swings else None,
+                      products=prods)
+        if got is None:
+            return None, ""
+        out = copy.deepcopy(new)
+        out["footprint"] = dict(got["footprint"])
+        out["front_deg"] = got["front_deg"]
+        return out, got["reason"]
+
+    if misread and not wall_sides(new, ring):
+        got = seated()
+        if got[0] is not None:
+            return got
+    if wall_problem:
+        moved = _nearest_valid(new, room_poly, swings, others, avoid=drawn_fixtures)
+        if moved is not None:
+            d = math.dist(moved["footprint"]["center"], new["footprint"]["center"])
+            return moved, f"moved {d:.2f} m to the nearest free spot"
+    else:
+        step = FS.slide(new["footprint"], room["polygon"], fixtures, blocked=blocked if swings else None)
+        if step is not None:
+            dx, dy, d = step
+            c = new["footprint"]["center"]
+            return _placed(new, new["footprint"]["size"], (c[0] + dx, c[1] + dy)), \
+                f"moved {d:.2f} m along its wall to the nearest free spot"
+    return seated()
 
 
 def _local_room(p, room_poly: Polygon):
