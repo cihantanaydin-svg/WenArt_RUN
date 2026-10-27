@@ -1782,3 +1782,18 @@ Fixes after the run (general rules):
   scores (they failed; their log now goes with the results).
 - **Stylish photos from Pexels** (user: "find some better photos of the rooms, there should be some more stylish photos
   online"): 95 photos of styled homes for 12 spaces replace the public-domain picks (docs/style_references.md §7).
+
+## Argus catches what a visitor would (27 Oct 2026)
+
+User, looking at real06's top-down and exterior views: "Veranda still not looks like a veranda and balcony on top is
+not looking logical, need auditor to make logic and looks check as I would do and correct the things", "Needs a
+pathway here, how will the people go up to 2nd floor otherwise?", "In the plan roof is covering this balcony also and
+there is a small roof on top of the rest of the veranda", "The project needs to find these kind of things by itself
+without my input", "Make argus catch these kind of things before me" (lesson UL43).
+
+| What the user saw | Root cause (general) | Now |
+|---|---|---|
+| a stair arriving on a strip cut off from the hall | no UP arrow: the U-stair's direction and half-landing were assumed (a 0.35 m strip taken as the half-landing; the upper plan draws a 1.34 m landing at the other end); the opening cut the arrival floor; Argus's walk check was room-level | helper: the half-landing from the upper plan, an arrival that reaches the rooms (else the assumed reading flips), the opening = flights + half-landing; model review M9 walks the floors on foot |
+| a balcony open to the sky that the roof plan covers | the roof outline was assumed (outer walls + overhang), not read from the roof plan | helper: the outline read from the roof plan; model review M11 compares the roof with the plan |
+| a veranda like a carport | every outdoor space took the garden paving (grass in its joints, even 3 m up), the undersides were bare concrete, an inferred 0.15 m square post stood beside a 0.53 m round drawn column | an outdoor floor of its kind (a veranda a wood deck, a balcony stone tiles), a wood ceiling under every cover and raised outdoor floor, inferred posts like the drawn columns (`site.OUTDOOR_FLOOR_LOOKS`, `down_faces`, `outdoor.post_look`) |
+| nothing noticed any of it | no check measured outdoor spaces; Argus's discovery asked "what makes no sense?" and repeated known facts | model review M10 (`wenart/blender/outdoor_review.py`: a door onto it, guards, an outdoor floor, a covered kind covered, no roof at a balcony's floor level, one post language); Argus's visitor's walk (`argus_ai.visit`, AI4: code writes one question per stair, outdoor space and floor; the model answers each on the floor's top-down view and the exterior views; a "problem" is a finding on that element with its fix); exterior views of a veranda or balcony are judged against veranda or balcony photos (`judge.outdoor_space_of`) |

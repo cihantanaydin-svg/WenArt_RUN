@@ -3721,7 +3721,7 @@ def cover_parts(pf: dict) -> list[dict]:
         if z1 - z0 < 0.3:
             continue
         size = float(q.get("size_m") or 0.15)
-        if q.get("source") == "drawn" and size >= 0.2:
+        if q.get("shape") == "round" or (q.get("source") == "drawn" and size >= 0.2):
             posts.append(_cylinder(q["center"], size / 2.0, z0, z1, COVER["post_segments"]))
         else:
             posts.append(geom2d.box((q["center"][0], q["center"][1], (z0 + z1) / 2.0), (size, size, z1 - z0), 0.0))
@@ -4661,6 +4661,53 @@ PLATFORM_LOOKS = {"slab": {"terrace": "paving", "pool": "paving", "parking": "pa
                   "wall": ("concrete_exposed", None, "retaining wall: exposed concrete (not drawn)"),
                   "kerb": ("concrete_exposed", None, "kerb: concrete (not drawn)"),
                   "steps": None, "railing": None}
+# 27 Oct 2026 (real06, user: "Veranda still not looks like a veranda"; the renders: its floor and the balcony's were the
+# garden paving, concrete slabs with grass in the joints, even 3 m up on the balcony, and the undersides of the
+# veranda's roof and of the balcony over it bare concrete): a labelled outdoor space (``space_platform``) gets the
+# floor of its kind (``OUTDOOR_FLOOR_LOOKS``: a veranda, porch, deck or pergola a wood deck; a balcony, terrace,
+# loggia or patio stone tiles; never the garden paving, never anything green above the ground) unless the documents or
+# the style name one (``material``); the underside of its cover and of a raised outdoor floor (faces whose normal points
+# down, ``SOFFIT_NORMAL_Z``) is a ceiling of wood boards (``OUTDOOR_SOFFIT_LOOK``), as a designer finishes a veranda.
+OUTDOOR_FLOOR_LOOKS = {"veranda": "decking", "porch": "decking", "deck": "decking", "pergola": "decking",
+                       "balcony": "paving_stone", "terrace": "paving_stone", "loggia": "paving_stone",
+                       "patio": "paving_stone", "winter_garden": "paving_stone", "courtyard": "paving_stone"}
+OUTDOOR_FLOOR_DEFAULT = "paving_stone"
+OUTDOOR_SOFFIT_LOOK = ("wood_oak_natural", None, "the underside of an outdoor cover or a raised outdoor floor: a "
+                       "ceiling of wood boards (assumed)")
+SOFFIT_NORMAL_Z = -0.7               # a face whose unit normal points down this much is an underside
+
+
+def outdoor_floor_look(pf: dict) -> Optional[dict]:
+    """The floor look of a labelled outdoor space's platform (pure; the comment above): ``{"material", "colour",
+    "source", "assumed", "reason"}``, None for another platform or one whose ``material`` the documents or the style
+    name."""
+    if pf.get("source") != "outdoor_space" or pf.get("material"):
+        return None
+    kind = str((pf.get("space") or {}).get("kind") or "").lower()
+    slug = OUTDOOR_FLOOR_LOOKS.get(kind, OUTDOOR_FLOOR_DEFAULT)
+    return {"material": slug, "colour": None, "source": "build", "assumed": True,
+            "reason": f"the floor of a {kind or 'outdoor space'}: {slug.replace('_', ' ')} (not the garden paving; "
+                      f"assumed, nothing drawn)"}
+
+
+def down_faces(verts, faces) -> list[int]:
+    """The material slot of each face (pure): 1 for a face whose unit normal's z is under ``SOFFIT_NORMAL_Z`` (an
+    underside), else 0 (Newell's normal of the face's polygon)."""
+    out = []
+    for f in faces:
+        nx = ny = nz = 0.0
+        k = len(f)
+        for i in range(k):
+            x0, y0, z0 = verts[f[i]]
+            x1, y1, z1 = verts[f[(i + 1) % k]]
+            nx += (y0 - y1) * (z0 + z1)
+            ny += (z0 - z1) * (x0 + x1)
+            nz += (x0 - x1) * (y0 + y1)
+        n = math.sqrt(nx * nx + ny * ny + nz * nz)
+        out.append(1 if n > 1e-12 and nz / n < SOFFIT_NORMAL_Z else 0)
+    return out
+
+
 # Fix round after P3 (16-17 Oct 2026). What: the slugs the site builder puts on by itself when no look names one: the
 # railing and the fence of the inferred boundary, the neutral concrete of a retaining wall whose concrete_exposed
 # resolved to the facade material. Why: P3's real04 retaining, terrace and pool walls were flat boxes (concrete_exposed
@@ -4976,9 +5023,14 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                          "paving" if pf["kind"] in ("terrace", "pool", "path") else "parking",
                          "id": pf["id"], "material": None if pf.get("parent") else pf.get("material"),
                          "colour": None if pf.get("parent") else pf.get("colour")}
-            slab_look = area_look(slab_area, looks)
+            slab_look = outdoor_floor_look(pf) or area_look(slab_area, looks)
             mats = {"slab": make_material(slab_look), "wall": concrete, "kerb": concrete, "steps": step_mat,
                     "railing": rail_mat}
+            # 27 Oct 2026: the underside of a cover and of a raised outdoor floor is a ceiling of wood boards
+            soffit = None
+            if pf.get("source") == "outdoor_space":
+                soffit = make_material({"material": OUTDOOR_SOFFIT_LOOK[0], "colour": OUTDOOR_SOFFIT_LOOK[1],
+                                        "source": "build", "assumed": True, "reason": OUTDOOR_SOFFIT_LOOK[2]})
             parts = platform_parts(dict(pf, balustrade=plan.get("balustrade")) if plan.get("balustrade") else pf,
                                    terrain)
             if any(q["part"] in ("roof", "beams", "posts") for q in parts):
@@ -4995,9 +5047,15 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                 name = f"platform_{pf['id']}_{part['part']}"
                 mat = mats[part["part"]]
                 slots = part.get("slots") if glass is not None else None
+                second = glass
+                if soffit is not None and not slots and (part["part"] == "roof" or
+                                                         (part["part"] == "slab" and pf.get("elevated"))):
+                    under = down_faces(part["verts"], part["faces"])
+                    if any(under):
+                        slots, second = under, soffit
                 ob = common.new_mesh_object(name, part["verts"], part["faces"], collection=collection, wenart_id=name,
                                             kind=site_kind("platform"), status="assumed",
-                                            materials=[mat, glass] if slots else [mat],
+                                            materials=[mat, second] if slots else [mat],
                                             face_material_indices=slots)
                 zz = [v[2] for v in part["verts"]] or [pf["z"]]
                 entry(ob.name, name, site_kind("platform"), mat, "assumed",
@@ -5006,7 +5064,8 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                        "assumed": {"reason": pf["reason"]}, "area_id": pf.get("area_id"),
                        "ground_z": pf.get("ground"), "step": pf.get("step"), "platform_parent": pf.get("parent"),
                        **({"walls": part["walls"]} if part["part"] == "wall" else {}),
-                       "slug": slab_look.get("material") if part["part"] == "slab" else mats[part["part"]].name})
+                       "slug": slab_look.get("material") if part["part"] == "slab" else mats[part["part"]].name,
+                       **({"soffit": OUTDOOR_SOFFIT_LOOK[0]} if second is soffit and slots else {})})
             summary["platforms"].append({"id": pf["id"], "kind": pf["kind"], "z": pf["z"], "edge": pf["edge"],
                                          "z_source": pf["z_source"], "marks": pf["marks"], "sloped": pf["sloped"],
                                          "parts": [q["part"] for q in parts], "pools": pf["pools"],

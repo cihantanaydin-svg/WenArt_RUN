@@ -487,6 +487,16 @@
    "request": "Rooms and outdoor spaces (veranda, terrace) must look like stylish rooms in good internet photos, not like a child's drawing: the AI learns what a good room of each type and style looks like from reference photos found on the internet, finds what the render lacks against them, and the pipeline adds it (interiors and exteriors).",
    "lesson": "Rooms and outdoor spaces (veranda, terrace) must look like stylish rooms in good internet photos, not like a child's drawing: the AI learns what a good room of each type and style looks like from reference photos found on the internet, finds what the render lacks against them, and the pipeline adds it (interiors and exteriors).",
    "question": null
+  },
+  {
+   "id": "UL43",
+   "date": "2026-10-27",
+   "area": "terrace",
+   "status": "process",
+   "checks": [],
+   "request": "Make argus catch these kind of things before me: the project finds by itself, without the user's input, a veranda that does not look like a veranda (garden paving, a bare underside, mismatched posts), a balcony that is not logical (uncovered where the roof plan covers it, a roof beside it at its floor level), and a stair that arrives nowhere; Argus walks the house as a visitor (one question per stair, outdoor space and floor on the top-down views) and the model review measures the outdoor spaces (M10)",
+   "lesson": "Argus catches what a visitor would before the user: it walks every floor (one question per stair, outdoor space and floor on the top-down views: AI4) and the model review measures every outdoor space (M10: a door onto it, guards on open edges, an outdoor floor of its kind, a covered kind covered, no roof at a balcony's floor level, one post language); a veranda gets a deck or stone floor, a wood ceiling under its cover and posts like its drawn columns.",
+   "question": null
   }
  ]
 }

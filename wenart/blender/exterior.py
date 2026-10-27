@@ -199,6 +199,9 @@ def build_finish_slugs(style: Optional[dict] = None) -> list[tuple[str, str]]:
     rows: list[tuple[str, str]] = [(S.PLATFORM_LOOKS["wall"][0], "platform_wall"),
                                    (S.PLATFORM_LOOKS["kerb"][0], "platform_kerb")]
     rows += [(slug, f"{name}_fallback") for name, slug in S.SITE_FALLBACK_LOOKS.items()]
+    # 27 Oct 2026: the floors of the labelled outdoor spaces by kind and the wood ceiling under their covers
+    rows += [(slug, "outdoor_floor") for slug in sorted(set(S.OUTDOOR_FLOOR_LOOKS.values()) | {S.OUTDOOR_FLOOR_DEFAULT})]
+    rows += [(S.OUTDOOR_SOFFIT_LOOK[0], "outdoor_soffit")]
     rules = FA.family_rules(style)
     rows += [(rules.get("plinth"), "plinth"), (rules.get("surround"), "window_surround")]
     sch = FA.scheme_of(style)

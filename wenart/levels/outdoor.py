@@ -1097,6 +1097,9 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
     for c in space.get("columns") or []:
         if region.buffer(SPACE["column_reach"]).contains(Point(c["center"])):
             posts.append({"center": list(c["center"]), "size_m": c["size_m"], "source": "drawn", "id": c["id"]})
+    # 27 Oct 2026 (real06: a 0.15 m square stick stood beside the veranda's drawn 0.53 m round column; Argus O6): an
+    # inferred post takes the shape and the size of the space's drawn columns (their median), one post language
+    post_size, post_shape = post_look(space.get("columns") or [])
     ring = _ccw(_coords(region))
     for p in ring:
         pt = Point(p)
@@ -1104,12 +1107,12 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
             continue
         if any(G.distance(p, q["center"]) <= SPACE["post_reach"] for q in posts):
             continue
-        inset = SPACE["post_size"] / 2.0 + 0.02
+        inset = post_size / 2.0 + 0.02
         cx, cy = region.centroid.x, region.centroid.y
         d = G.distance(p, (cx, cy)) or 1.0
         c = (p[0] + (cx - p[0]) / d * inset, p[1] + (cy - p[1]) / d * inset)
-        posts.append({"center": [round(c[0], 4), round(c[1], 4)], "size_m": SPACE["post_size"], "source": "inferred",
-                      "id": None})
+        posts.append({"center": [round(c[0], 4), round(c[1], 4)], "size_m": post_size, "source": "inferred",
+                      "id": None, "shape": post_shape})
     # long open edges: posts at most post_span apart
     for a, b in zip(ring, ring[1:] + ring[:1]):
         length = G.distance(a, b)
@@ -1121,8 +1124,8 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
             q = G.point_along_segment(a, b, j / k)
             if any(G.distance(q, x["center"]) <= SPACE["post_span"] / 2.0 for x in posts):
                 continue
-            posts.append({"center": [round(q[0], 4), round(q[1], 4)], "size_m": SPACE["post_size"],
-                          "source": "inferred", "id": None})
+            posts.append({"center": [round(q[0], 4), round(q[1], 4)], "size_m": post_size,
+                          "source": "inferred", "id": None, "shape": post_shape})
     for q in posts:
         q["z0"] = round(z, 3)
         q["z1"] = round(top_at(q["center"]) - t, 3)
@@ -1138,3 +1141,14 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
     return {"kind": kind, "polygon": [[round(x, 4), round(y, 4)] for x, y in ring], "area_m2": round(region.area, 3),
             "top_z": round(top, 3), "thickness": t, "fall": fall, "plane": plane, "open_edges": open_edges,
             "posts": posts, "reason": reason, "inferred": True}
+
+
+def post_look(columns: list) -> tuple[float, str]:
+    """The size and shape of a space's inferred posts (pure; 27 Oct 2026): the median size of its drawn columns and
+    ``round`` (a drawn column of 0.2 m or more is built round, ``site.cover_parts``), else ``SPACE["post_size"]``
+    ``square``."""
+    sizes = sorted(float(c["size_m"]) for c in columns if isinstance(c.get("size_m"), (int, float)))
+    if not sizes:
+        return SPACE["post_size"], "square"
+    mid = sizes[len(sizes) // 2] if len(sizes) % 2 else (sizes[len(sizes) // 2 - 1] + sizes[len(sizes) // 2]) / 2.0
+    return round(mid, 3), "round" if mid >= 0.2 else "square"

@@ -272,6 +272,9 @@ def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable
                     v.update(real=False, fix="not_a_problem", rule="", why="the circles are the hedge of L0")
                 items.append(v)
             return {"items": items}
+        if name == "argus_visit":                                   # 27 Oct 2026: the visitor's walk, a call per floor
+            calls.setdefault("visit", []).append("image_url" in text)
+            return {"answers": []}
         calls["discover"].append("image_url" in text)
         return {"found": [
             {"target": "VERANDA", "kind": "lost", "severity": "critical", "what": "the labelled veranda is missing",
@@ -282,6 +285,7 @@ def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable
     rec = AX.investigate(out, MockModel(critic=[reply] * 40), out=lambda s: None)
     assert rec["items"] >= 3 and rec["triaged"] == rec["items"] and calls["triage"] == (rec["items"] + 1) // 2
     assert calls["discover"] == [False, True]                      # one call per floor, the floor's image when there is one
+    assert calls["visit"] == [False, True]                         # the visitor walks every floor too
     by = {(e["aid"], e["verdict"]) for e in rec["decisions"]}
     checks = {v["id"]: v for v in rec["verdicts"]}
     assert len(rec["decisions"]) == 2 and {v for _a, v in by} == {"accepted", "refused"}

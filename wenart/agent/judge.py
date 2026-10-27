@@ -112,6 +112,40 @@ REFERENCE_TEXT = ("Image 2 is a photo of a well-designed {space} in the project'
                   "(an exterior view: on the outer wall) whose message starts with 'missing layer: <layer>'.")
 
 
+OUTDOOR_AIM_M = 2.0             # an exterior view aimed this close to an outdoor space shows it
+
+
+def outdoor_space_of(building: dict, view: dict) -> Optional[str]:
+    """27 Oct 2026 (real06: the veranda was judged against a photo of a house front; user: "Veranda still not looks
+    like a veranda"): the reference space of an exterior view that shows a labelled outdoor space (pure): the space
+    whose doors the view sees (``visible_openings``) most, else the one its aim (``target``) is within
+    ``OUTDOOR_AIM_M`` of; its kind's space (``references.space_of(outdoor=...)``), None when it shows none."""
+    from shapely.geometry import Point, Polygon
+
+    from wenart.style import references as RF
+
+    seen = set(view.get("visible_openings") or [])
+    target = view.get("target")
+    best = None
+    for sp in (building.get("site") or {}).get("outdoor_spaces") or []:
+        space = RF.space_of(None, None, outdoor=sp.get("kind") or sp.get("word"))
+        if not space:
+            continue
+        doors = len(seen & set(sp.get("doors") or []))
+        near = None
+        if target and len(sp.get("polygon") or []) >= 3:
+            try:
+                near = Polygon([tuple(p[:2]) for p in sp["polygon"]]).distance(Point(target[0], target[1]))
+            except (ValueError, TypeError):
+                near = None
+        if doors == 0 and (near is None or near > OUTDOOR_AIM_M):
+            continue
+        key = (doors, -(near if near is not None else 99.0))
+        if best is None or key > best[0]:
+            best = (key, space)
+    return best[1] if best else None
+
+
 def reference_for(building: dict, view: dict, root=None) -> Optional[Path]:
     """27 Oct 2026 (lesson UL42): the best reference photo of the view's space (``wenart.style.references``: the
     room's space, ``facade`` for an exterior view) in the project's style family, when the pod fetched its set
@@ -121,7 +155,8 @@ def reference_for(building: dict, view: dict, root=None) -> Optional[Path]:
     from wenart.style import references as RF
 
     room = next((r for r in building.get("rooms") or [] if r.get("id") == view.get("room_id")), None)
-    space = RF.space_of(room.get("room_type"), room.get("room_subtype")) if room else "facade"
+    space = RF.space_of(room.get("room_type"), room.get("room_subtype")) if room else \
+        (outdoor_space_of(building, view) or "facade")
     if not space:
         return None
     project = building.get("project") if isinstance(building.get("project"), dict) else {}

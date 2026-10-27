@@ -552,6 +552,161 @@ def discover(model, inp: I.Inputs, rep: dict, fact_lines: list[str], *, time_ok:
     return found, dropped
 
 
+# ------------------------------------------------------------------------------------------------ the visitor's walk
+# 27 Oct 2026 (user, after finding on real06's top-down views a stair that arrives on a strip the stair opening cuts
+# off from the hall, an uncovered balcony the roof plan covers and a veranda like a carport: "The project needs to
+# find these kind of things by itself without my input" ... "Make argus catch these kind of things before me"). The
+# discovery call asked "what makes no sense?" and answered with facts it already had; nothing made it walk the house.
+# Now code writes a visitor's script per floor, one question per element a visitor uses (every stair that arrives on
+# the floor, every outdoor space, every room's entry, anything floating or cut), and the model answers each one on the
+# floor's top-down view (and the exterior views for an outdoor space): ``ok``, ``problem`` or ``cannot_see``. A
+# problem becomes a finding on the element the question names (code knows it: no invented targets), with the fix the
+# model names, through the same path as a discovery (architect action, agent tool, or the rule it writes).
+VISIT_SYSTEM = SYSTEM + (
+    "\n- Now walk the house as a visitor and as an architect would, one question at a time, on the image of the floor "
+    "(the 3D model from above, ceilings off, walls cut at 0.6 m, rooms named, windows blue). Answer every question: "
+    "verdict ok when it works, problem when it does not (say what you see and why it is wrong), cannot_see when the "
+    "image does not show it. Be strict: a stair must arrive on a floor a person can walk on to the rooms (never onto a "
+    "strip cut off by the stair opening); a balcony needs a door onto it, a guard on every open edge and the roof the "
+    "plan gives it; a veranda reads as a veranda (a covered outdoor room: a deck or stone floor, a ceiling, slim posts, "
+    "lights, outdoor furniture), not as a carport or a bare slab; nothing floats, nothing is cut through, nothing "
+    "stands where nobody can use it.")
+VISIT_MAX_QUESTIONS = 24        # questions per floor and call
+VISIT_EXTERIOR_IMAGES = 2       # exterior views shown with an outdoor space's questions
+VISIT_SEVERITY = {"stair": "critical", "outdoor": "major", "rooms": "major", "sense": "major"}
+
+
+def visitor_questions(building: dict, level_id: str) -> list[dict]:
+    """The visitor's script of one floor (pure): ``[{"id", "kind", "element", "ask"}]``: every stair that arrives on
+    ``level_id`` (from the level below) or leaves from it, every outdoor space on it (``site.outdoor_spaces``), the
+    rooms' entries and the floor's sense."""
+    levels = sorted(building.get("levels") or [], key=lambda lv: float(lv.get("elevation") or 0.0))
+    ids = [lv.get("id") for lv in levels]
+    k = ids.index(level_id) if level_id in ids else -1
+    below = ids[k - 1] if k > 0 else None
+    out: list[dict] = []
+    for f in building.get("furniture") or []:
+        if "stair" not in str(f.get("type")) or f.get("build") is False:
+            continue
+        lid = f.get("level_id")
+        st = f.get("stair") if isinstance(f.get("stair"), dict) else {}
+        guess = [w[:-len("_assumed")] for w in ("direction_assumed", "turn_assumed") if st.get(w)]
+        if lid == below:
+            out.append({"id": f"stair:{f['id']}", "kind": "stair", "element": f["id"],
+                        "ask": f"Stair {f['id']} comes up from {below} to {level_id}"
+                               + (f" ({' and '.join(guess)} assumed: no arrow drawn)" if guess else "")
+                               + ": where does a person arrive on this floor, and can they walk from the top step to "
+                                 "the doors of the rooms on a free path at least 0.8 m wide (not across the stair "
+                                 "opening, not through a wall)?"})
+        elif lid == level_id and k < len(ids) - 1:
+            out.append({"id": f"start:{f['id']}", "kind": "stair", "element": f["id"],
+                        "ask": f"Stair {f['id']} starts on {level_id}: can a person reach its first step from the "
+                               f"hall and the entrance on a free path?"})
+    for sp in (building.get("site") or {}).get("outdoor_spaces") or []:
+        if sp.get("level_id") != level_id:
+            continue
+        kind = sp.get("kind") or "outdoor space"
+        out.append({"id": f"outdoor:{sp['id']}", "kind": "outdoor", "element": sp.get("area_id") or sp["id"],
+                    "ask": f"The {kind} '{sp.get('label') or sp['id']}' ({sp['id']}): from which door does a person "
+                           f"step onto it; does every open edge over a drop have a guard; is it covered where a "
+                           f"{kind} should be (and where the roof plan covers it); does it read as a {kind} (its "
+                           f"floor, ceiling, posts, furniture, lights) or as something else (a carport, a bare slab, "
+                           f"a roof)?"})
+    out.append({"id": f"rooms:{level_id}", "kind": "rooms", "element": level_id,
+                "ask": f"Can every room of {level_id} be entered on foot from the stair arrival or the entrance (a door "
+                       f"on a free path, no room reached only through a cut-off strip or behind furniture)?"})
+    out.append({"id": f"sense:{level_id}", "kind": "sense", "element": level_id,
+                "ask": f"Is anything on {level_id} floating, cut through, unsupported or impossible (a slab, a roof, a "
+                       f"balcony on top of another roof, a column through a floor, a door into air, a window behind a "
+                       f"wardrobe)? Name the element."})
+    return out[:VISIT_MAX_QUESTIONS]
+
+
+def visit_schema(qids: list[str]) -> dict:
+    return {"type": "object", "additionalProperties": False, "required": ["answers"],
+            "properties": {"answers": {"type": "array", "maxItems": len(qids), "items": {
+                "type": "object", "additionalProperties": False,
+                "required": ["id", "verdict", "what", "element", "cause", "fix", "value", "args", "rule"],
+                "properties": {"id": {"type": "string", "enum": list(qids)},
+                               "verdict": {"type": "string", "enum": ["ok", "problem", "cannot_see"]},
+                               "what": {"type": "string"},
+                               "element": {"type": "string"},
+                               "cause": {"type": "string", "enum": list(CAUSES)},
+                               "fix": {"type": "string", "enum": list(FIXES)},
+                               "value": {"type": "string"},
+                               "args": {"type": "string"},
+                               "rule": {"type": "string"}}}}}}
+
+
+def visit(model, inp: I.Inputs, fact_lines: list[str], *, time_ok: Callable[[], bool] = lambda: True,
+          errors: Optional[list] = None, tools: Optional[list] = None,
+          values: Optional[list] = None) -> tuple[list[dict], list[dict]]:
+    """``(findings, answers)`` of the visitor's walk (the comment above): one call per floor with its top-down view
+    (and up to ``VISIT_EXTERIOR_IMAGES`` exterior views when it has an outdoor space); every ``problem`` answer a
+    finding (check ``AI4``) on the question's element, or on the element the model names when that is one of the
+    project's (``known_targets``)."""
+    from wenart.agent.model import user_message
+
+    errors = errors if errors is not None else []
+    building = inp.final or {}
+    known = known_targets(building)
+    exteriors = [p for p in inp.images if Path(str(p)).name.startswith("ext_")][:VISIT_EXTERIOR_IMAGES]
+    jobs = []
+    for lv in building.get("levels") or []:
+        qs = visitor_questions(building, lv.get("id"))
+        if qs:
+            jobs.append((lv.get("id"), qs))
+
+    def one(_n: int, job):
+        lv, qs = job
+        if not time_ok():
+            return lv, qs, None, None, "time is up"
+        top = next((p for p in inp.top_plans if f"top_{lv}_" in Path(str(p)).name), None)
+        images = ([top] if top else []) + (exteriors if any(q["kind"] == "outdoor" for q in qs) else [])
+        labels = ([f"Image 1: the model of {lv} from above"] if top else []) + \
+            [f"Image {k + (2 if top else 1)}: an exterior view of the house" for k in range(len(images) - (1 if top else 0))]
+        text = "\n".join([f"Floor {lv}." + ("" if top else " (no top-down image: answer cannot_see where the facts do "
+                                                          "not settle it)"),
+                          "The project as built:", *fact_lines, "", "The questions (answer each by its id):",
+                          json.dumps([{"id": q["id"], "ask": q["ask"]} for q in qs], indent=1, ensure_ascii=False)]
+                         + (["", "Agent tools (fix; their arguments go in args as one JSON object; * required):",
+                             *(tools or []), *(values or [])] if tools else []))
+        msg = user_message(text, images, labels) if images else {"role": "user", "content": text}
+        try:
+            reply = model.structured([{"role": "system", "content": VISIT_SYSTEM}, msg],
+                                     visit_schema([q["id"] for q in qs]), call_id=f"argus_visit_{lv}",
+                                     name="argus_visit", kind="task", thinking=THINKING, max_tokens=MAX_TOKENS)
+        except Exception as exc:  # noqa: BLE001 - a floor that fails is logged; the others are still walked
+            return lv, qs, top, None, f"{type(exc).__name__}: {exc}"
+        return lv, qs, top, reply, None
+
+    found, answers = [], []
+    for lv, qs, top, reply, err in _parallel(one, jobs):
+        if err:
+            errors.append(f"visit {lv}: {err}"[:300])
+            continue
+        by_id = {q["id"]: q for q in qs}
+        seen = set()
+        for a in (reply.data or {}).get("answers") or []:
+            q = by_id.get(a.get("id"))
+            if q is None or a["id"] in seen:
+                continue
+            seen.add(a["id"])
+            answers.append({"level": lv, "id": a["id"], "verdict": a.get("verdict"), "what": a.get("what")})
+            if a.get("verdict") != "problem":
+                continue
+            named = known.get(str(a.get("element") or "").strip().lower())
+            target = named if named is not None and q["kind"] in ("rooms", "sense") else q["element"]
+            f = K.finding("argus_ai", "AI4", VISIT_SEVERITY.get(q["kind"], "major"), target,
+                          f"visitor ({q['id']}): {a.get('what') or 'a problem'}", owner=a.get("cause"),
+                          fix=a.get("fix"), kind="no_sense",
+                          evidence={"level": lv, "question": q["ask"], "rule": a.get("rule"),
+                                    "element": a.get("element") or q["element"], "value": a.get("value"),
+                                    "args": a.get("args"), "image": Path(str(top)).name if top else None})
+            found.append(f)
+    return found, answers
+
+
 # ---------------------------------------------------------------------------------------------------- the actions
 def target_gone(finding: dict, prep: dict) -> Optional[bool]:
     """Argus's dry re-check of one finding on the prepared building (``build.prepare`` with the decision in): True when
@@ -696,6 +851,10 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
                          "why": v.get("why")})
     found, dropped = discover(model, inp, rep, fact_lines, time_ok=time_ok, out=out, errors=errors, tools=tools,
                               values=values) if discover_on else ([], [])
+    # 27 Oct 2026: the visitor's walk (one question per stair, outdoor space, floor) beside the open discovery
+    walked, answers = visit(model, inp, fact_lines, time_ok=time_ok, errors=errors, tools=tools,
+                            values=values) if discover_on else ([], [])
+    found += walked
     new += found
     for f in found:
         ev = f.get("evidence") or {}
@@ -741,7 +900,8 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
     rec = {"name": R.NAME, "model": getattr(model, "model", ""), "score_before": rep["score"],
            "severity_before": rep["severity"], "triaged": len(verdicts), "items": len(items),
            "findings": new, "decisions": entries, "work": work, "guards": guards, "disputed": disputed,
-           "dropped": dropped, "verdicts": [dict(v, target=str(by_id.get(k, {}).get("target"))) for k, v in
+           "dropped": dropped, "visit": answers,
+           "verdicts": [dict(v, target=str(by_id.get(k, {}).get("target"))) for k, v in
                                             verdicts.items()],
            "actions": actions, "calls": vetted, "revoked": revoked,
            "accepted": sum(1 for e in entries if e["verdict"] == "accepted") + sum(1 for r in revoked if r["done"]),

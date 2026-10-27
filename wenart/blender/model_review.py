@@ -25,6 +25,9 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   door's approach zone (``site.door_approach``: the door's width + 0.1 m on each side, 1.0 m out; critical), no ramp
   passes in front of another door (major), no steps or landing in front of a door into a garage or carport (major).
   Measured on the steps as built (``prep["site"]["inferred"]``: ``site.entrance_layout``).
+- M10 the outdoor spaces as a visitor uses them (27 Oct 2026, ``outdoor_review``): a door onto every balcony and
+  veranda, a guard on every open edge over a drop, an outdoor floor of its kind (never the garden paving), a covered
+  kind covered, no roof at a balcony's floor level to step onto, one post language.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -57,7 +60,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M10")
 REVIEW_JSON = "model_review.json"          # beside the scene (outputs/<p>/scene/)
 REVIEW_MD = "model_review.md"
 
@@ -376,6 +379,16 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             note("M8", got, n)
         except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
             checks["M8"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M10 (27 Oct 2026, user: "make argus catch these kind of things before me"): the outdoor spaces as a visitor uses
+    # them: a way out onto them, guards, an outdoor floor, the cover of a covered kind, no roof to step onto from a
+    # balcony, one post language (``outdoor_review``)
+    try:
+        from wenart.blender import outdoor_review as OR
+
+        got, n = OR.review(built, prep)
+        note("M10", got, n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError) as exc:
+        checks["M10"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     return {"findings": findings, "checks": checks}
 
 
