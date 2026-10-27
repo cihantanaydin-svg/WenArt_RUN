@@ -790,3 +790,20 @@ def test_the_critic_measures_an_l_sofa_as_the_clash_rule_does():
                 walk(v)
     walk(PL.score_building(b))
     assert not any("ottoman o overlaps" in m for m in msgs)
+
+
+def test_new_findings_count_only_what_the_earlier_round_measured_too():
+    """real06 run 224516: the final round adds the judge's findings and Argus's new work (and judges every final
+    render); they were counted as 81 new problems the agent made (net -64)."""
+    from wenart.agent import metrics as MX
+
+    def f(r, check, target, source="code", view=None):
+        return {"kind": "finding", "round": r, "checklist": check, "target": target, "severity": "major",
+                "source": source, "view": view, "finding": f"{check} {target}"}
+    ev = [f(1, "F9", "a"), f(1, "F7", "b"), f(1, "D2", "c", "vision", "v1"), f(1, "AI1", "x", "argus"),
+          f(2, "F7", "b"), f(2, "F9", "new_code"), f(2, "D2", "d", "vision", "v2"), f(2, "J1", "v3", "judge"),
+          f(2, "AI1", "y", "argus")]
+    res = MX.findings_removed_metrics(ev, [1, 2])
+    assert res["per_round"]["1"] == 3                    # a, c and x are gone
+    assert res["new_per_round"]["1"] == 1                # only the code finding new_code: v2 was not judged before,
+    #                                                      the judge and Argus are audits

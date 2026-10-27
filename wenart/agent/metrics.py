@@ -244,6 +244,14 @@ def _key_in(key: tuple[str, str], keys: set, bases: set) -> bool:
     return key in keys or (key == CS.base_key(key) and key in bases)
 
 
+AUDIT_SOURCES = ("judge", "argus")       # their findings follow each look (new work), never counted as new problems
+
+
+def _views(events: list[dict]) -> set:
+    """The views a round's vision-like findings name (a view no finding names was judged clean or not judged)."""
+    return {str(e.get("view")) for e in events if CS.is_vision(e) and e.get("view")}
+
+
 def findings_removed_metrics(events: list[dict], round_ids: list[int]) -> dict:
     """Milestone 13: ``{"per_round": {round: n}, "total", "dry_recheck": {round: n}, "edits_removing_finding",
     "edits_with_target", "accepted_edits"}`` (module docstring) from the finding, edit and round events of one run;
@@ -254,13 +262,29 @@ def findings_removed_metrics(events: list[dict], round_ids: list[int]) -> dict:
     round has are all gone in the next one; ``edits_with_target`` counts the accepted edits that have a target and a
     next round (record-only edits, ``RECORD_ONLY_TOOLS``, have none)."""
     findings = [e for e in events if e.get("kind") == "finding" and not e.get("dropped")]
-    by_round = {r: _finding_keys([e for e in findings if int(e.get("round") or 0) == r]) for r in round_ids}
+    in_round = {r: [e for e in findings if int(e.get("round") or 0) == r] for r in round_ids}
+    by_round = {r: _finding_keys(in_round[r]) for r in round_ids}
     bases = {r: {CS.base_key(k) for k in keys} for r, keys in by_round.items()}
+    sources = {r: {str(e.get("source") or "code") for e in in_round[r]} for r in round_ids}
     per_round: dict = {}
     new_per_round: dict = {}
     for a, b in zip(round_ids, round_ids[1:]):
-        per_round[str(a)] = len(by_round[a] - by_round[b])
-        new_per_round[str(a)] = len(by_round[b] - by_round[a])     # integration after P5: the new ones too
+        # 26 Oct 2026 (Argus, real06 run 224516): the new findings of the next round count only from the sources and
+        # the views this round measured too: the final round adds the judge's findings and judges every final render
+        # (the rounds before only the previews of the views they changed), which were counted as 81 "new" problems
+        # the agent made (net -64); what this round had and the next one has no more counts as removed, as before
+        seen_views = _views(in_round[a])
+
+        def comparable(e: dict) -> bool:
+            src = str(e.get("source") or "code")
+            if src not in sources[a] or src in AUDIT_SOURCES:
+                return False                       # an audit's scope changes with each look: not the agent's doing
+            return not CS.is_vision(e) or not e.get("view") or str(e.get("view")) in seen_views
+        ka = by_round[a]
+        kb_all = by_round[b]
+        kb = _finding_keys([e for e in in_round[b] if comparable(e)])
+        per_round[str(a)] = len(ka - kb_all)
+        new_per_round[str(a)] = len(kb - ka)                   # integration after P5: the new ones too
     edits_removing = with_target = 0
     accepted = [e for e in events if e.get("kind") == "edit"]
     for e in accepted:
