@@ -1,0 +1,188 @@
+{
+ "space": "facade",
+ "family": "scandinavian",
+ "source": "pd12m",
+ "embed_model": "google/siglip2-so400m-patch14-384",
+ "candidates": 400,
+ "scored": 120,
+ "photos": [
+  {
+   "source": "pd12m",
+   "id": "pd_a0cb65216f1459714e42fc50be18d77a",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/e85b6036-e505-50c2-987d-f7443eae1eb0.jpeg",
+   "title": "The image shows a white house with a red roof and a wooden fence, surrounded by lush green plants and trees, with a bright blue sky in the background.",
+   "caption": "The image shows a white house with a red roof and a wooden fence, surrounded by lush green plants and trees, with a bright blue sky in the background.",
+   "creator": null,
+   "provider": "The Danish Agency for Culture",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/e85b6036-e505-50c2-987d-f7443eae1eb0.jpeg",
+   "width": 1600,
+   "height": 1200,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0025,
+    "negative": 0.0,
+    "style": 0.1582,
+    "quality": 0.0
+   },
+   "file": "pd_a0cb65216f1459714e42fc50be18d77a.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_5c81ea91dac0a8cbcdcdd29bc2f7f318",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/88eb9bd0-d038-5ffc-9a9b-61e1ac26c4d0.jpeg",
+   "title": "The image shows a white house with a red roof and a wooden fence in front of it. The house has a few windows and a door, and there are a few plants and trees in the background. The sky is a bright white color.",
+   "caption": "The image shows a white house with a red roof and a wooden fence in front of it. The house has a few windows and a door, and there are a few plants and trees in the background. The sky is a bright white color.",
+   "creator": null,
+   "provider": "The Danish Agency for Culture",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/88eb9bd0-d038-5ffc-9a9b-61e1ac26c4d0.jpeg",
+   "width": 1600,
+   "height": 1200,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0044,
+    "negative": 0.0001,
+    "style": 0.1412,
+    "quality": 0.0001
+   },
+   "file": "pd_5c81ea91dac0a8cbcdcdd29bc2f7f318.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_5e772c2759d48b092c6521800717a9c5",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/0f1136ff-75d6-50c8-b183-677f889f96e3.jpeg",
+   "title": "The image shows a white house with a wooden fence in front of it, surrounded by lush green plants and trees, with a bright blue sky and fluffy white clouds in the background.",
+   "caption": "The image shows a white house with a wooden fence in front of it, surrounded by lush green plants and trees, with a bright blue sky and fluffy white clouds in the background.",
+   "creator": null,
+   "provider": "The Danish Agency for Culture",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/0f1136ff-75d6-50c8-b183-677f889f96e3.jpeg",
+   "width": 1600,
+   "height": 1200,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0003,
+    "negative": 0.0,
+    "style": 0.014,
+    "quality": 0.0
+   },
+   "file": "pd_5e772c2759d48b092c6521800717a9c5.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_c4ef5b43e4f38b7ecae588b1348bf9d8",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/eb1f8737-7027-5fa4-8fc0-bf68d7d456a4.jpeg",
+   "title": "The image shows a white house with a wooden fence in front of it, surrounded by lush green plants and trees, with a bright blue sky in the background.",
+   "caption": "The image shows a white house with a wooden fence in front of it, surrounded by lush green plants and trees, with a bright blue sky in the background.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/eb1f8737-7027-5fa4-8fc0-bf68d7d456a4.jpeg",
+   "width": 2048,
+   "height": 1536,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0004,
+    "negative": 0.0,
+    "style": 0.0055,
+    "quality": 0.0001
+   },
+   "file": "pd_c4ef5b43e4f38b7ecae588b1348bf9d8.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_06af87af4384706b194b82490c027817",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/6e9488ce-1175-5da0-877c-038fd16dc018.jpeg",
+   "title": "The image shows a white house with a red roof and a wooden fence surrounded by lush green grass, plants, and trees, with a bright blue sky in the background.",
+   "caption": "The image shows a white house with a red roof and a wooden fence surrounded by lush green grass, plants, and trees, with a bright blue sky in the background.",
+   "creator": null,
+   "provider": "The Danish Agency for Culture",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/6e9488ce-1175-5da0-877c-038fd16dc018.jpeg",
+   "width": 1600,
+   "height": 1200,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0038,
+    "negative": 0.0,
+    "style": 0.0614,
+    "quality": 0.0
+   },
+   "file": "pd_06af87af4384706b194b82490c027817.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_7f3a74b1fa97465aaedc5475ed1297cc",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/0aab3826-3f92-5469-8c46-af98f952bb7b.jpeg",
+   "title": "The image shows a white house with a red roof and a green lawn surrounded by trees, plants, grass, stones, and a wooden gate. There is a light pole in the foreground and a clear blue sky in the background.",
+   "caption": "The image shows a white house with a red roof and a green lawn surrounded by trees, plants, grass, stones, and a wooden gate. There is a light pole in the foreground and a clear blue sky in the background.",
+   "creator": null,
+   "provider": "The Danish Agency for Culture",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/0aab3826-3f92-5469-8c46-af98f952bb7b.jpeg",
+   "width": 1600,
+   "height": 1200,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0018,
+    "negative": 0.0,
+    "style": 0.0434,
+    "quality": 0.0
+   },
+   "file": "pd_7f3a74b1fa97465aaedc5475ed1297cc.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_8302d43f7f2cd1f0479633c0adc7a262",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/8a538c7f-8f0b-5a4e-849c-d5476bfef9c8.jpeg",
+   "title": "The image shows a white house with a wooden fence in front of it, surrounded by trees, plants, grass, and a light pole. The sky in the background is filled with clouds.",
+   "caption": "The image shows a white house with a wooden fence in front of it, surrounded by trees, plants, grass, and a light pole. The sky in the background is filled with clouds.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/8a538c7f-8f0b-5a4e-849c-d5476bfef9c8.jpeg",
+   "width": 4795,
+   "height": 2974,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0219,
+    "negative": 0.0001,
+    "style": 0.5796,
+    "quality": 0.0001
+   },
+   "file": "pd_8302d43f7f2cd1f0479633c0adc7a262.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_babb5f228760f6c597f90672cbbdd366",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/bc211ff9-8da6-512c-8212-4444cd2ab92b.jpeg",
+   "title": "The image shows a modern house with a large front yard and a driveway, surrounded by lush green grass, plants, and trees. The house has windows, doors, pillars, railings, and lights, and there are benches in front of it. The sky is visible in the background.",
+   "caption": "The image shows a modern house with a large front yard and a driveway, surrounded by lush green grass, plants, and trees. The house has windows, doors, pillars, railings, and lights, and there are benches in front of it. The sky is visible in the background.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/bc211ff9-8da6-512c-8212-4444cd2ab92b.jpeg",
+   "width": 5616,
+   "height": 3744,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0336,
+    "negative": 0.0008,
+    "style": 0.0177,
+    "quality": 0.0007
+   },
+   "file": "pd_babb5f228760f6c597f90672cbbdd366.jpg"
+  }
+ ],
+ "picked_by": "session review of the candidates (27 Oct 2026): a home of the space, light, no public rooms, museums, paintings or showrooms",
+ "candidates_job": "20261027-160028-references"
+}

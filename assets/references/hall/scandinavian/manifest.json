@@ -1,0 +1,34 @@
+{
+ "space": "hall",
+ "family": "scandinavian",
+ "source": "pd12m",
+ "embed_model": "google/siglip2-so400m-patch14-384",
+ "candidates": 400,
+ "scored": 120,
+ "photos": [
+  {
+   "source": "pd12m",
+   "id": "pd_9f5310875640689e35bcb8d45d5e3733",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/b3cf5e00-cd2f-5217-90b1-8e22a4368168.jpeg",
+   "title": "The image shows a hallway with a wooden floor and white walls. On the left side of the image, there is a table with a houseplant and a mirror on the wall. In the background, there are doors and lights on the ceiling.",
+   "caption": "The image shows a hallway with a wooden floor and white walls. On the left side of the image, there is a table with a houseplant and a mirror on the wall. In the background, there are doors and lights on the ceiling.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/b3cf5e00-cd2f-5217-90b1-8e22a4368168.jpeg",
+   "width": 3456,
+   "height": 2304,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0013,
+    "negative": 0.0001,
+    "style": 0.0,
+    "quality": 0.0018
+   },
+   "file": "pd_9f5310875640689e35bcb8d45d5e3733.jpg"
+  }
+ ],
+ "picked_by": "session review of the candidates (27 Oct 2026): a home of the space, light, no public rooms, museums, paintings or showrooms",
+ "candidates_job": "20261027-160028-references"
+}

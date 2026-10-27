@@ -1,0 +1,188 @@
+{
+ "space": "garden",
+ "family": "scandinavian",
+ "source": "pd12m",
+ "embed_model": "google/siglip2-so400m-patch14-384",
+ "candidates": 400,
+ "scored": 120,
+ "photos": [
+  {
+   "source": "pd12m",
+   "id": "pd_2f99103c266f67f1e73c0764d4805fec",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/d38f2a12-0967-5ad8-ab32-22bda8787b0b.jpeg",
+   "title": "The image shows a garden with two wooden chairs sitting on top of a lush green field, surrounded by trees, plants, flowers, and a wall. In the background, there is a house with a roof and windows, and the sky is visible above.",
+   "caption": "The image shows a garden with two wooden chairs sitting on top of a lush green field, surrounded by trees, plants, flowers, and a wall. In the background, there is a house with a roof and windows, and the sky is visible above.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/d38f2a12-0967-5ad8-ab32-22bda8787b0b.jpeg",
+   "width": 5472,
+   "height": 3648,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0405,
+    "negative": 0.0,
+    "style": 0.0169,
+    "quality": 0.0
+   },
+   "file": "pd_2f99103c266f67f1e73c0764d4805fec.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_746b46bffaddc818a086d358fceebf0a",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/aa5ead8a-846f-5120-811a-2314c0f37458.jpeg",
+   "title": "The image shows a small wooden house with a garden in front of it, surrounded by grass, plants, flowers, trees, fencing, and other objects. The sky can be seen in the background.",
+   "caption": "The image shows a small wooden house with a garden in front of it, surrounded by grass, plants, flowers, trees, fencing, and other objects. The sky can be seen in the background.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/aa5ead8a-846f-5120-811a-2314c0f37458.jpeg",
+   "width": 4608,
+   "height": 2592,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.005,
+    "negative": 0.0,
+    "style": 0.0443,
+    "quality": 0.0
+   },
+   "file": "pd_746b46bffaddc818a086d358fceebf0a.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_a8cc486df86c6d56f93cf79fc1151db5",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/d2b79f5e-df09-5024-a63c-7fa3580d8b47.jpeg",
+   "title": "The image shows a garden with a wooden swing in the middle of it, surrounded by lush green grass, various plants and trees, and a house in the background with a bright blue sky above.",
+   "caption": "The image shows a garden with a wooden swing in the middle of it, surrounded by lush green grass, various plants and trees, and a house in the background with a bright blue sky above.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/d2b79f5e-df09-5024-a63c-7fa3580d8b47.jpeg",
+   "width": 1067,
+   "height": 800,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.008,
+    "negative": 0.0,
+    "style": 0.0331,
+    "quality": 0.0001
+   },
+   "file": "pd_a8cc486df86c6d56f93cf79fc1151db5.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_723ae5e0bd2184bf0eeebe4c098c9fc9",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/f1d2ccbd-123c-50a4-944e-5d93db3eb2e3.jpeg",
+   "title": "The image shows a garden with a variety of plants and trees in the foreground, a walkway in the middle, and a house in the background. The garden is filled with lush green grass, vibrant flowers, and tall trees, and there are light poles and a dustbin scattered throughout. The sky is a bright blue, adding to the beauty of the scene.",
+   "caption": "The image shows a garden with a variety of plants and trees in the foreground, a walkway in the middle, and a house in the background. The garden is filled with lush green grass, vibrant flowers, and tall trees, and there are light poles and a dustbin scattered throughout. The sky is a bright blue, adding to the beauty of the scene.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/f1d2ccbd-123c-50a4-944e-5d93db3eb2e3.jpeg",
+   "width": 3088,
+   "height": 2056,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0,
+    "negative": 0.0,
+    "style": 0.0016,
+    "quality": 0.0
+   },
+   "file": "pd_723ae5e0bd2184bf0eeebe4c098c9fc9.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_ecc2e805bde1c45f2aec28baed80253a",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/8cf604b3-feb5-53a5-830b-698748f1ddb6.jpeg",
+   "title": "The image shows a garden with a wooden fence in the middle of it, surrounded by lush green plants and trees, with a house in the background and a bright blue sky above.",
+   "caption": "The image shows a garden with a wooden fence in the middle of it, surrounded by lush green plants and trees, with a house in the background and a bright blue sky above.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/8cf604b3-feb5-53a5-830b-698748f1ddb6.jpeg",
+   "width": 4608,
+   "height": 3456,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0009,
+    "negative": 0.0,
+    "style": 0.0023,
+    "quality": 0.0
+   },
+   "file": "pd_ecc2e805bde1c45f2aec28baed80253a.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_8c14a9a44cf42e86c787c416531f10d6",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/08d31939-fddd-508d-8c0d-ba9eca604017.jpeg",
+   "title": "The image shows a garden with a walkway leading to a house in the background, surrounded by lush green grass, trees, and plants with colorful flowers. The sky is a bright white, and the house has windows that let in natural light.",
+   "caption": "The image shows a garden with a walkway leading to a house in the background, surrounded by lush green grass, trees, and plants with colorful flowers. The sky is a bright white, and the house has windows that let in natural light.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/08d31939-fddd-508d-8c0d-ba9eca604017.jpeg",
+   "width": 4320,
+   "height": 3240,
+   "style_hits": 4,
+   "scores": {
+    "space": 0.0011,
+    "negative": 0.0,
+    "style": 0.0169,
+    "quality": 0.0002
+   },
+   "file": "pd_8c14a9a44cf42e86c787c416531f10d6.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_636a89fc8721c06ef52dec4d6d464c46",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/6d3b9d8f-19a0-54d7-b8c2-33fe04e65018.jpeg",
+   "title": "The image shows a garden with a wooden arbor in the middle of it, surrounded by trees, plants, and flowers. There is a chair in the foreground and a house in the background, with a clear blue sky above.",
+   "caption": "The image shows a garden with a wooden arbor in the middle of it, surrounded by trees, plants, and flowers. There is a chair in the foreground and a house in the background, with a clear blue sky above.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/6d3b9d8f-19a0-54d7-b8c2-33fe04e65018.jpeg",
+   "width": 3648,
+   "height": 5472,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0025,
+    "negative": 0.0,
+    "style": 0.0023,
+    "quality": 0.0
+   },
+   "file": "pd_636a89fc8721c06ef52dec4d6d464c46.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_becaec572c4b865c6753c5e49523bf4e",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/7e67f3b1-ccdd-51a0-a856-477583ded293.jpeg",
+   "title": "The image shows a large house with a garden in front of it, surrounded by trees, plants, grass, and wooden logs. The sky in the background is filled with white, fluffy clouds.",
+   "caption": "The image shows a large house with a garden in front of it, surrounded by trees, plants, grass, and wooden logs. The sky in the background is filled with white, fluffy clouds.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/7e67f3b1-ccdd-51a0-a856-477583ded293.jpeg",
+   "width": 5472,
+   "height": 3648,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0,
+    "negative": 0.0,
+    "style": 0.0041,
+    "quality": 0.0001
+   },
+   "file": "pd_becaec572c4b865c6753c5e49523bf4e.jpg"
+  }
+ ],
+ "picked_by": "session review of the candidates (27 Oct 2026): a home of the space, light, no public rooms, museums, paintings or showrooms",
+ "candidates_job": "20261027-160028-references"
+}

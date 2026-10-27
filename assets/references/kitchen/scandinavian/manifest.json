@@ -1,0 +1,188 @@
+{
+ "space": "kitchen",
+ "family": "scandinavian",
+ "source": "pd12m",
+ "embed_model": "google/siglip2-so400m-patch14-384",
+ "candidates": 400,
+ "scored": 120,
+ "photos": [
+  {
+   "source": "pd12m",
+   "id": "pd_bb98cce6cdbcbdf124ca9952fe33abd8",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/0ed0844e-6a92-55b6-8c46-e0f75775e4bb.png",
+   "title": "The image shows a kitchen with white cabinets and a white refrigerator. On the countertop, there are plates, bowls, spoons, and other objects. There are also pots with plants, a curtain, and lights hanging from the ceiling.",
+   "caption": "The image shows a kitchen with white cabinets and a white refrigerator. On the countertop, there are plates, bowls, spoons, and other objects. There are also pots with plants, a curtain, and lights hanging from the ceiling.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/0ed0844e-6a92-55b6-8c46-e0f75775e4bb.png",
+   "width": 3712,
+   "height": 5568,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.037,
+    "negative": 0.0037,
+    "style": 0.2524,
+    "quality": 0.0015
+   },
+   "file": "pd_bb98cce6cdbcbdf124ca9952fe33abd8.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_dc87ea179d9827411fd9e26d4410f75e",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/9f49c1ae-10c2-5de5-a492-03bbdd160295.jpeg",
+   "title": "The image shows a kitchen with a wooden counter top and white cabinets, a sink with a tap, a stove, a microwave oven, cupboards, lights hanging from the ceiling, boards with text printed on them, and other objects.",
+   "caption": "The image shows a kitchen with a wooden counter top and white cabinets, a sink with a tap, a stove, a microwave oven, cupboards, lights hanging from the ceiling, boards with text printed on them, and other objects.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/9f49c1ae-10c2-5de5-a492-03bbdd160295.jpeg",
+   "width": 4608,
+   "height": 2592,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0162,
+    "negative": 0.0092,
+    "style": 0.12,
+    "quality": 0.0002
+   },
+   "file": "pd_dc87ea179d9827411fd9e26d4410f75e.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_3ef783e59e5c99b24293a565f75bb2c3",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/6cfb2e0c-3c8d-540e-a1d7-800604b10bb0.jpeg",
+   "title": "The image shows a kitchen with a wooden table and chairs in it. On the table there are plates, cups, saucers, napkins, candles with stands, and other objects. There is a platform with drawers and cupboards, and on top of the platform there are bowls, cups and other items. Near the window there is a pot with a plant, and a light hanging from the ceiling. Through the window, we can see trees, buildings, and the sky.",
+   "caption": "The image shows a kitchen with a wooden table and chairs in it. On the table there are plates, cups, saucers, napkins, candles with stands, and other objects. There is a platform with drawers and cupboards, and on top of the platform there are bowls, cups and other items. Near the window there is a pot with a plant, and a light hanging from the ceiling. Through the window, we can see trees, buildings, and the sky.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/6cfb2e0c-3c8d-540e-a1d7-800604b10bb0.jpeg",
+   "width": 4048,
+   "height": 3036,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0146,
+    "negative": 0.002,
+    "style": 0.0239,
+    "quality": 0.0002
+   },
+   "file": "pd_3ef783e59e5c99b24293a565f75bb2c3.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_180ffdf13c4bc431742dd05eb9b2a5bf",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/a839acdc-d71a-5e7f-a98e-40d08af9fffe.png",
+   "title": "The image shows a modern kitchen with white cabinets and marble counter tops. There is a platform with a wash basin and tap, a chair, cupboards, a microwave oven, and racks with plates, bowls, and other items. The ceiling is adorned with lights, creating a warm and inviting atmosphere.",
+   "caption": "The image shows a modern kitchen with white cabinets and marble counter tops. There is a platform with a wash basin and tap, a chair, cupboards, a microwave oven, and racks with plates, bowls, and other items. The ceiling is adorned with lights, creating a warm and inviting atmosphere.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/a839acdc-d71a-5e7f-a98e-40d08af9fffe.png",
+   "width": 1366,
+   "height": 910,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0002,
+    "negative": 0.0,
+    "style": 0.0008,
+    "quality": 0.0004
+   },
+   "file": "pd_180ffdf13c4bc431742dd05eb9b2a5bf.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_35084256a7267c8e6c7b63ff6982108e",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/22f4cb6e-ebe8-5b64-8751-99a2a2592b73.png",
+   "title": "The image shows a kitchen with a table and chairs in it. On the table there are plates, glasses, a candle with a stand, and other objects. There is a cupboard with racks containing bottles, cups, bowls, plates, and food items. There are also pots with plants and other items on the platform. On top of the cupboard there are lights and a creeper on the wall. The floor is covered with a carpet.",
+   "caption": "The image shows a kitchen with a table and chairs in it. On the table there are plates, glasses, a candle with a stand, and other objects. There is a cupboard with racks containing bottles, cups, bowls, plates, and food items. There are also pots with plants and other items on the platform. On top of the cupboard there are lights and a creeper on the wall. The floor is covered with a carpet.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/22f4cb6e-ebe8-5b64-8751-99a2a2592b73.png",
+   "width": 5568,
+   "height": 3712,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0001,
+    "negative": 0.0,
+    "style": 0.0002,
+    "quality": 0.0
+   },
+   "file": "pd_35084256a7267c8e6c7b63ff6982108e.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_6e1ca2f7deaac8a9b7b9729e0a4a20c3",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/fcf91365-6a4b-5db5-bea0-9ac9a48d6268.jpeg",
+   "title": "The image shows a kitchen with wooden cabinets and white appliances, including an electric stove, microwave oven, dishwasher, cupboards, chimney, electric lights hanging from the roof, wall hangings attached to the walls, and a bowl of fruits placed on the counter-top. It is located in a property for sale in St Albans, Hertfordshire.",
+   "caption": "The image shows a kitchen with wooden cabinets and white appliances, including an electric stove, microwave oven, dishwasher, cupboards, chimney, electric lights hanging from the roof, wall hangings attached to the walls, and a bowl of fruits placed on the counter-top. It is located in a property for sale in St Albans, Hertfordshire.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/fcf91365-6a4b-5db5-bea0-9ac9a48d6268.jpeg",
+   "width": 4032,
+   "height": 3024,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0094,
+    "negative": 0.0,
+    "style": 0.0022,
+    "quality": 0.0001
+   },
+   "file": "pd_6e1ca2f7deaac8a9b7b9729e0a4a20c3.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_b7bdf9ba6053d15cc0518cbbffed5885",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/969df49c-0b46-5747-8e7a-4da85c640ec7.jpeg",
+   "title": "The image shows a kitchen with white cabinets and appliances, including a microwave oven, chimney, induction stove, induction cooktop, sink, tap, utensils, cupboards, refrigerator, houseplants, electric lights to the roof, curtains to the windows and a clock on the wall.",
+   "caption": "The image shows a kitchen with white cabinets and appliances, including a microwave oven, chimney, induction stove, induction cooktop, sink, tap, utensils, cupboards, refrigerator, houseplants, electric lights to the roof, curtains to the windows and a clock on the wall.",
+   "creator": null,
+   "provider": "Allied Museum",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/969df49c-0b46-5747-8e7a-4da85c640ec7.jpeg",
+   "width": 1480,
+   "height": 1500,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0019,
+    "negative": 0.0002,
+    "style": 0.0007,
+    "quality": 0.0001
+   },
+   "file": "pd_b7bdf9ba6053d15cc0518cbbffed5885.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_238d743a9bc1704c132de1f6e9f6ccf3",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/e913652b-915c-5ae3-855a-f9edc59fa3ec.jpeg",
+   "title": "The image shows a kitchen with a wooden counter top and black chairs. On the counter top there are glasses and other objects, as well as pots with plants. There is a sink with a tap, a bottle, plates, and other items on the platform. There are cupboards on the wall and a window with trees visible outside.",
+   "caption": "The image shows a kitchen with a wooden counter top and black chairs. On the counter top there are glasses and other objects, as well as pots with plants. There is a sink with a tap, a bottle, plates, and other items on the platform. There are cupboards on the wall and a window with trees visible outside.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/e913652b-915c-5ae3-855a-f9edc59fa3ec.jpeg",
+   "width": 3888,
+   "height": 2592,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0026,
+    "negative": 0.0001,
+    "style": 0.0091,
+    "quality": 0.0001
+   },
+   "file": "pd_238d743a9bc1704c132de1f6e9f6ccf3.jpg"
+  }
+ ],
+ "picked_by": "session review of the candidates (27 Oct 2026): a home of the space, light, no public rooms, museums, paintings or showrooms",
+ "candidates_job": "20261027-160028-references"
+}

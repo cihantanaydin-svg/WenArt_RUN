@@ -1,0 +1,188 @@
+{
+ "space": "terrace",
+ "family": "scandinavian",
+ "source": "pd12m",
+ "embed_model": "google/siglip2-so400m-patch14-384",
+ "candidates": 400,
+ "scored": 120,
+ "photos": [
+  {
+   "source": "pd12m",
+   "id": "pd_b14c720c9a4336359abc7156f276bbfd",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/4b53603f-af85-5ea4-8fab-bc6795a1872e.jpeg",
+   "title": "The image shows a patio with a wooden table and two benches, surrounded by potted plants. On the table there is a basket of fruits, a plate, and other objects. In the background, there are chairs and a glass wall.",
+   "caption": "The image shows a patio with a wooden table and two benches, surrounded by potted plants. On the table there is a basket of fruits, a plate, and other objects. In the background, there are chairs and a glass wall.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/4b53603f-af85-5ea4-8fab-bc6795a1872e.jpeg",
+   "width": 1600,
+   "height": 1200,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.212,
+    "negative": 0.0,
+    "style": 0.0168,
+    "quality": 0.0
+   },
+   "file": "pd_b14c720c9a4336359abc7156f276bbfd.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_16aa023cf754844d80d5774e3d7bdfbd",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/9cca4b39-b5cc-5b5a-bfb2-5eee8ca5bbdb.jpeg",
+   "title": "The image shows a patio with a table and chairs under an umbrella, surrounded by lush green grass, plants, and trees, with a wooden fence in the background and a clear blue sky above.",
+   "caption": "The image shows a patio with a table and chairs under an umbrella, surrounded by lush green grass, plants, and trees, with a wooden fence in the background and a clear blue sky above.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/9cca4b39-b5cc-5b5a-bfb2-5eee8ca5bbdb.jpeg",
+   "width": 852,
+   "height": 1136,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.2108,
+    "negative": 0.0,
+    "style": 0.0095,
+    "quality": 0.0
+   },
+   "file": "pd_16aa023cf754844d80d5774e3d7bdfbd.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_17365651169ab1963c8d0a10d2fa3223",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/8a5de52b-e6e7-5bfc-8eab-209f441f7fd4.jpeg",
+   "title": "The image shows a patio with a table and chairs in it, surrounded by a variety of plants and trees. There is a house in the background, and the sky is filled with white, fluffy clouds. On the table, there are various objects, adding to the cozy atmosphere of the garden.",
+   "caption": "The image shows a patio with a table and chairs in it, surrounded by a variety of plants and trees. There is a house in the background, and the sky is filled with white, fluffy clouds. On the table, there are various objects, adding to the cozy atmosphere of the garden.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/8a5de52b-e6e7-5bfc-8eab-209f441f7fd4.jpeg",
+   "width": 5568,
+   "height": 3712,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0764,
+    "negative": 0.0005,
+    "style": 0.0211,
+    "quality": 0.0
+   },
+   "file": "pd_17365651169ab1963c8d0a10d2fa3223.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_9bd53a444c85df78a317507fb8e01541",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/be4668e4-fd3c-5325-9582-25e0fee12e6b.jpeg",
+   "title": "The image shows a white cottage with a thatched roof and a patio with a table and chairs in front of it. The patio is surrounded by lush green plants and trees, and the sky is a bright white. The cottage has a door and windows, and there are a few other objects scattered around the patio.",
+   "caption": "The image shows a white cottage with a thatched roof and a patio with a table and chairs in front of it. The patio is surrounded by lush green plants and trees, and the sky is a bright white. The cottage has a door and windows, and there are a few other objects scattered around the patio.",
+   "creator": null,
+   "provider": "The Danish Agency for Culture",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/be4668e4-fd3c-5325-9582-25e0fee12e6b.jpeg",
+   "width": 1600,
+   "height": 1200,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0065,
+    "negative": 0.0001,
+    "style": 0.0093,
+    "quality": 0.0
+   },
+   "file": "pd_9bd53a444c85df78a317507fb8e01541.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_6226e3700c469603e36bd10f481e8288",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/3e1fceaa-e6ab-59b5-a366-98c466906627.jpeg",
+   "title": "The image shows a patio with a table and chairs under an umbrella, surrounded by a variety of plants and trees. There is a wooden fence on the left side of the patio, and a building with glass walls in the background. Inside the building, there are lights and other objects visible through the glass walls.",
+   "caption": "The image shows a patio with a table and chairs under an umbrella, surrounded by a variety of plants and trees. There is a wooden fence on the left side of the patio, and a building with glass walls in the background. Inside the building, there are lights and other objects visible through the glass walls.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/3e1fceaa-e6ab-59b5-a366-98c466906627.jpeg",
+   "width": 4608,
+   "height": 3456,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0039,
+    "negative": 0.0009,
+    "style": 0.0057,
+    "quality": 0.0
+   },
+   "file": "pd_6226e3700c469603e36bd10f481e8288.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_60ff8bb05b6f9d469343b7d43dad4725",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/fb56c6c6-b84c-5141-8f90-b6ef59871802.jpeg",
+   "title": "The image shows a patio with a wooden bench sitting in front of a stone building with windows and a door, surrounded by lush green grass and a variety of plants and flowers in pots. There is also a table with a flower pot on it, adding a touch of color and life to the scene.",
+   "caption": "The image shows a patio with a wooden bench sitting in front of a stone building with windows and a door, surrounded by lush green grass and a variety of plants and flowers in pots. There is also a table with a flower pot on it, adding a touch of color and life to the scene.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/fb56c6c6-b84c-5141-8f90-b6ef59871802.jpeg",
+   "width": 2048,
+   "height": 1536,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0184,
+    "negative": 0.0,
+    "style": 0.0015,
+    "quality": 0.0
+   },
+   "file": "pd_60ff8bb05b6f9d469343b7d43dad4725.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_af87677a01967b18841494123340fb9e",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/ed12a025-1f17-5944-a3ca-acffdca45b34.jpeg",
+   "title": "The image shows a white house with a patio in front of it, surrounded by a wooden fence. There is a table and chairs set up on the patio, with a cloth draped over it, and an umbrella providing shade. There are also pots with plants, a tree, and other objects scattered around the patio. The sky in the background is filled with clouds.",
+   "caption": "The image shows a white house with a patio in front of it, surrounded by a wooden fence. There is a table and chairs set up on the patio, with a cloth draped over it, and an umbrella providing shade. There are also pots with plants, a tree, and other objects scattered around the patio. The sky in the background is filled with clouds.",
+   "creator": null,
+   "provider": "The Danish Agency for Culture",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/ed12a025-1f17-5944-a3ca-acffdca45b34.jpeg",
+   "width": 1600,
+   "height": 1200,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0042,
+    "negative": 0.0,
+    "style": 0.0197,
+    "quality": 0.0
+   },
+   "file": "pd_af87677a01967b18841494123340fb9e.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_0fa003f4684c8508d95631c64c593181",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/41ef6f74-d9f3-57cd-b636-71af610351fd.jpeg",
+   "title": "The image shows a patio with a wooden table and chairs under a pergola, surrounded by a variety of plants and flowers in pots. There are wooden poles, benches, pillows, a cloth, and frames attached to the wall. On the table there are various objects, and the floor is covered with a carpet. In the background, there are trees and a clear blue sky.",
+   "caption": "The image shows a patio with a wooden table and chairs under a pergola, surrounded by a variety of plants and flowers in pots. There are wooden poles, benches, pillows, a cloth, and frames attached to the wall. On the table there are various objects, and the floor is covered with a carpet. In the background, there are trees and a clear blue sky.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/41ef6f74-d9f3-57cd-b636-71af610351fd.jpeg",
+   "width": 4160,
+   "height": 3120,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0575,
+    "negative": 0.001,
+    "style": 0.0027,
+    "quality": 0.0
+   },
+   "file": "pd_0fa003f4684c8508d95631c64c593181.jpg"
+  }
+ ],
+ "picked_by": "session review of the candidates (27 Oct 2026): a home of the space, light, no public rooms, museums, paintings or showrooms",
+ "candidates_job": "20261027-160028-references"
+}

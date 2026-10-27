@@ -1,0 +1,188 @@
+{
+ "space": "veranda",
+ "family": "scandinavian",
+ "source": "pd12m",
+ "embed_model": "google/siglip2-so400m-patch14-384",
+ "candidates": 400,
+ "scored": 120,
+ "photos": [
+  {
+   "source": "pd12m",
+   "id": "pd_432c11bd8535c2190f52230b952365d0",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/ecba6507-119e-5c78-8562-a7710bbe8107.jpeg",
+   "title": "The image shows a covered porch with wicker furniture, including chairs, tables, and a bench, as well as pillars, windows, and lights. In the background, there are trees, plants, and grass, creating a peaceful atmosphere.",
+   "caption": "The image shows a covered porch with wicker furniture, including chairs, tables, and a bench, as well as pillars, windows, and lights. In the background, there are trees, plants, and grass, creating a peaceful atmosphere.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/ecba6507-119e-5c78-8562-a7710bbe8107.jpeg",
+   "width": 4032,
+   "height": 3024,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.3398,
+    "negative": 0.0,
+    "style": 0.0742,
+    "quality": 0.0
+   },
+   "file": "pd_432c11bd8535c2190f52230b952365d0.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_9838f5b55b0f20b8d318a89820b1e70a",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/2f8eaff5-dc89-5cad-8ca5-ed5c55933906.jpeg",
+   "title": "The image shows a veranda with a table and chairs sitting on top of a patio next to a fence. The veranda is surrounded by lush green grass, plants, and trees, and the sky is visible in the background. Curtains are draped over the chairs, adding a cozy atmosphere to the scene.",
+   "caption": "The image shows a veranda with a table and chairs sitting on top of a patio next to a fence. The veranda is surrounded by lush green grass, plants, and trees, and the sky is visible in the background. Curtains are draped over the chairs, adding a cozy atmosphere to the scene.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/2f8eaff5-dc89-5cad-8ca5-ed5c55933906.jpeg",
+   "width": 4608,
+   "height": 3456,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0168,
+    "negative": 0.0019,
+    "style": 0.0109,
+    "quality": 0.0
+   },
+   "file": "pd_9838f5b55b0f20b8d318a89820b1e70a.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_649b91bd5514ab3481ab5e428d0440f0",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/e08629de-736c-5b61-8bc3-90b9e0c88963.jpeg",
+   "title": "The image shows a house with blue shutters and a red door, a porch with wicker chairs and a table, a bench, plants with flowers, a wooden fence, a group of trees, and a cloudy sky. On the porch, there are some pillows on the chairs, adding a cozy touch to the scene.",
+   "caption": "The image shows a house with blue shutters and a red door, a porch with wicker chairs and a table, a bench, plants with flowers, a wooden fence, a group of trees, and a cloudy sky. On the porch, there are some pillows on the chairs, adding a cozy touch to the scene.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/e08629de-736c-5b61-8bc3-90b9e0c88963.jpeg",
+   "width": 4096,
+   "height": 3072,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0102,
+    "negative": 0.0,
+    "style": 0.0008,
+    "quality": 0.0
+   },
+   "file": "pd_649b91bd5514ab3481ab5e428d0440f0.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_1de63336eeadd5201ce080209cb4c955",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/f46314c9-7eff-53ba-a686-697f7c384fd8.jpeg",
+   "title": "The image shows a porch with white rocking chairs and pumpkins on it. There is a table with pumpkins and other objects on it, a mat on the floor, pillars, a door with a door handle, a board with text on the wall, lights hanging from the ceiling, and trees and plants on the left side.",
+   "caption": "The image shows a porch with white rocking chairs and pumpkins on it. There is a table with pumpkins and other objects on it, a mat on the floor, pillars, a door with a door handle, a board with text on the wall, lights hanging from the ceiling, and trees and plants on the left side.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/f46314c9-7eff-53ba-a686-697f7c384fd8.jpeg",
+   "width": 4096,
+   "height": 3072,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0039,
+    "negative": 0.0006,
+    "style": 0.0003,
+    "quality": 0.0
+   },
+   "file": "pd_1de63336eeadd5201ce080209cb4c955.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_68ab6529c21c94656ced44fbaab1ac72",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/77f8bcce-9313-5e02-84f7-d9f0e16c012e.jpeg",
+   "title": "The image shows a wooden porch with a bench sitting on top of it, surrounded by a wooden railing and pillars. In the background, there is lush green grass, tall trees, and a bright blue sky.",
+   "caption": "The image shows a wooden porch with a bench sitting on top of it, surrounded by a wooden railing and pillars. In the background, there is lush green grass, tall trees, and a bright blue sky.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/77f8bcce-9313-5e02-84f7-d9f0e16c012e.jpeg",
+   "width": 4032,
+   "height": 2268,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0015,
+    "negative": 0.0,
+    "style": 0.0012,
+    "quality": 0.0
+   },
+   "file": "pd_68ab6529c21c94656ced44fbaab1ac72.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_6026c402955305344be15dd7884a2b1b",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/fe4999ab-af16-536d-a3fd-18b16fae6717.jpeg",
+   "title": "The image shows a house with a porch and a front porch surrounded by trees, plants, rocks, and a wooden fence. The house has windows, pillars, and railings, and there are chairs on the porch. The sky is visible in the background.",
+   "caption": "The image shows a house with a porch and a front porch surrounded by trees, plants, rocks, and a wooden fence. The house has windows, pillars, and railings, and there are chairs on the porch. The sky is visible in the background.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/fe4999ab-af16-536d-a3fd-18b16fae6717.jpeg",
+   "width": 5272,
+   "height": 2688,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0037,
+    "negative": 0.0002,
+    "style": 0.046,
+    "quality": 0.0
+   },
+   "file": "pd_6026c402955305344be15dd7884a2b1b.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_8173154aef9db323526e5d26adfd3cea",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/a37b346d-cccd-5119-abab-14ac3fbfbbcf.jpeg",
+   "title": "The image shows a veranda with a wooden bench sitting on top of a sidewalk next to a building. The veranda is surrounded by pillars, plants, grass, a fence, street poles, street lights, electric poles, electric cables, name boards, motor vehicles on the road, buildings, trees and a clear blue sky.",
+   "caption": "The image shows a veranda with a wooden bench sitting on top of a sidewalk next to a building. The veranda is surrounded by pillars, plants, grass, a fence, street poles, street lights, electric poles, electric cables, name boards, motor vehicles on the road, buildings, trees and a clear blue sky.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/a37b346d-cccd-5119-abab-14ac3fbfbbcf.jpeg",
+   "width": 4608,
+   "height": 3456,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0015,
+    "negative": 0.0,
+    "style": 0.0009,
+    "quality": 0.0
+   },
+   "file": "pd_8173154aef9db323526e5d26adfd3cea.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_8910318d9e1995783ea4af9f69bf3897",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/21a1d5ae-02c8-5da1-9845-2c7bda3a4bac.jpeg",
+   "title": "The image shows a veranda with a tiled floor, wooden tables and benches on the left side, windows on the wall, plants, pillars, a board with a stand, trees, and a building in the background.",
+   "caption": "The image shows a veranda with a tiled floor, wooden tables and benches on the left side, windows on the wall, plants, pillars, a board with a stand, trees, and a building in the background.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/21a1d5ae-02c8-5da1-9845-2c7bda3a4bac.jpeg",
+   "width": 4608,
+   "height": 3456,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0021,
+    "negative": 0.0019,
+    "style": 0.0145,
+    "quality": 0.0
+   },
+   "file": "pd_8910318d9e1995783ea4af9f69bf3897.jpg"
+  }
+ ],
+ "picked_by": "session review of the candidates (27 Oct 2026): a home of the space, light, no public rooms, museums, paintings or showrooms",
+ "candidates_job": "20261027-160028-references"
+}

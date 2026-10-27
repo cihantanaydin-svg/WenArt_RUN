@@ -98,5 +98,7 @@ put it into the pod".
 | 4 | the session looks at them (numbered contact sheets) and keeps the homes of the space (up to 8) | `assets/references/<space>/<family>/` (in git; the rest of `assets/` stays ignored) |
 | 5 | every run copies the committed sets to the volume first (a volume set with other photos gives way), reads their recipes with the vision model, and the judge sees the best one beside each render | `references prefetch`, `recipe_read`, `judge.reference_for` |
 
-Picked so far (scandinavian): bedroom 6, bathroom 8, dining 8, balcony 6. Dressing and child room: no usable photo
-(a cloakroom, museum rooms): their built-in recipes stand.
+Picked (scandinavian, jobs 150744 and 160028, 92 photos, 3.6 MB): living 7, kitchen 8, bedroom 6, bathroom 8, dining
+8, hall 1, veranda 8, terrace 8, balcony 6, garden 8, facade 8. Dressing and child room: no usable photo (a cloakroom,
+museum rooms): their built-in recipes stand. Left out on sight: public restrooms, restaurants, hotel rooms, museum
+period rooms, showrooms, Japanese gardens (not the family's look), near-duplicates of a picked photo.

@@ -1,0 +1,166 @@
+{
+ "space": "living",
+ "family": "scandinavian",
+ "source": "pd12m",
+ "embed_model": "google/siglip2-so400m-patch14-384",
+ "candidates": 400,
+ "scored": 120,
+ "photos": [
+  {
+   "source": "pd12m",
+   "id": "pd_baee6076cb580cc801d4d1998f144504",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/7ea0aa13-0391-5d63-b1b1-78834e39cdcb.jpeg",
+   "title": "The image shows a living room with a piano, a chair, a table fan, a carpet on the floor, houseplants, a mirror on the wall, curtains, and windows. The piano is the focal point of the room, with the chair and table providing a comfortable seating area. The houseplant adds a touch of greenery to the room. The mirror reflects the light from the windows, creating a warm and inviting atmosphere.",
+   "caption": "The image shows a living room with a piano, a chair, a table fan, a carpet on the floor, houseplants, a mirror on the wall, curtains, and windows. The piano is the focal point of the room, with the chair and table providing a comfortable seating area. The houseplant adds a touch of greenery to the room. The mirror reflects the light from the windows, creating a warm and inviting atmosphere.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/7ea0aa13-0391-5d63-b1b1-78834e39cdcb.jpeg",
+   "width": 4096,
+   "height": 2654,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0046,
+    "negative": 0.001,
+    "style": 0.0004,
+    "quality": 0.0009
+   },
+   "file": "pd_baee6076cb580cc801d4d1998f144504.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_96c7587e340ce8101ff3a0ea6039481c",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/f6b95e0a-fd2b-545e-9eda-38a0fa05cb53.jpeg",
+   "title": "The image shows a living room with a cozy atmosphere. On the right side of the room is a sofa with pillows, and on the floor is a carpet. In front of the sofa is a table with houseplants, books, and other objects. On top of the table are wooden shelves with various objects on them, and a photo frame hangs on the wall.",
+   "caption": "The image shows a living room with a cozy atmosphere. On the right side of the room is a sofa with pillows, and on the floor is a carpet. In front of the sofa is a table with houseplants, books, and other objects. On top of the table are wooden shelves with various objects on them, and a photo frame hangs on the wall.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/f6b95e0a-fd2b-545e-9eda-38a0fa05cb53.jpeg",
+   "width": 3223,
+   "height": 5902,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0029,
+    "negative": 0.0005,
+    "style": 0.0007,
+    "quality": 0.0006
+   },
+   "file": "pd_96c7587e340ce8101ff3a0ea6039481c.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_14a72dfee593a497d190ca0aa2c22eab",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/02c72664-c2bd-5654-80cb-42d695df2dcd.jpeg",
+   "title": "The image shows a living room with a sofa set, chair, table, houseplants, curtains to the window, wall hangings attached to the wall, electric lights to the roof, and a flat screen TV. The room is filled with furniture and a large window, allowing natural light to fill the space.",
+   "caption": "The image shows a living room with a sofa set, chair, table, houseplants, curtains to the window, wall hangings attached to the wall, electric lights to the roof, and a flat screen TV. The room is filled with furniture and a large window, allowing natural light to fill the space.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/02c72664-c2bd-5654-80cb-42d695df2dcd.jpeg",
+   "width": 3488,
+   "height": 2616,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0298,
+    "negative": 0.0003,
+    "style": 0.0128,
+    "quality": 0.0163
+   },
+   "file": "pd_14a72dfee593a497d190ca0aa2c22eab.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_ccf6e4ce4074f206cbb1a321dcafa961",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/652f20e6-ab4d-5599-a114-e0f90b64bdec.jpeg",
+   "title": "The image shows a living room filled with furniture, including a sofa with cushions, a table with candles and other objects, a vase with a plant, chairs, a clock on the wall, a lamp, and a light on the ceiling. Through the large window, we can see trees, plants, a wooden fence, and the sky.",
+   "caption": "The image shows a living room filled with furniture, including a sofa with cushions, a table with candles and other objects, a vase with a plant, chairs, a clock on the wall, a lamp, and a light on the ceiling. Through the large window, we can see trees, plants, a wooden fence, and the sky.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/652f20e6-ab4d-5599-a114-e0f90b64bdec.jpeg",
+   "width": 2500,
+   "height": 1667,
+   "style_hits": 3,
+   "scores": {
+    "space": 0.0534,
+    "negative": 0.0336,
+    "style": 0.0136,
+    "quality": 0.0651
+   },
+   "file": "pd_ccf6e4ce4074f206cbb1a321dcafa961.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_4a78fd3c4326a1a9e1099e15d2c4591f",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/ba9c142d-556f-5f15-b301-87440df1ba84.jpeg",
+   "title": "The image shows a living room filled with furniture such as a sofa set, side table, table lamp, carpet on the floor, flower vase on the table, television on the cabinet, houseplants in the cupboard, bed with pillows and bed sheet, wall hangings attached to the wall, electric lights to the roof, and glass doors.",
+   "caption": "The image shows a living room filled with furniture such as a sofa set, side table, table lamp, carpet on the floor, flower vase on the table, television on the cabinet, houseplants in the cupboard, bed with pillows and bed sheet, wall hangings attached to the wall, electric lights to the roof, and glass doors.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/ba9c142d-556f-5f15-b301-87440df1ba84.jpeg",
+   "width": 4608,
+   "height": 3456,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0023,
+    "negative": 0.0001,
+    "style": 0.0002,
+    "quality": 0.0069
+   },
+   "file": "pd_4a78fd3c4326a1a9e1099e15d2c4591f.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_b82948c1f4ae348d7db9611c3ed89ab4",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/833aedd5-e816-5fe3-9bfa-07fa725884cf.jpeg",
+   "title": "The image shows a living room with a brown couch sitting in front of a bookcase filled with books, houseplants, and other objects. On the left side of the room, there is a flat screen television mounted on the wall. In the background, there are stairs, a door, and lights hanging from the ceiling.",
+   "caption": "The image shows a living room with a brown couch sitting in front of a bookcase filled with books, houseplants, and other objects. On the left side of the room, there is a flat screen television mounted on the wall. In the background, there are stairs, a door, and lights hanging from the ceiling.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/833aedd5-e816-5fe3-9bfa-07fa725884cf.jpeg",
+   "width": 4032,
+   "height": 3024,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0013,
+    "negative": 0.001,
+    "style": 0.002,
+    "quality": 0.0018
+   },
+   "file": "pd_b82948c1f4ae348d7db9611c3ed89ab4.jpg"
+  },
+  {
+   "source": "pd12m",
+   "id": "pd_36a3218ebf9d3aa57fe89961b9668895",
+   "url": "https://pd12m.s3.us-west-2.amazonaws.com/images/893ad9a6-9f4a-5d5f-8d16-82b0795c1a69.jpeg",
+   "title": "The image shows a living room filled with furniture such as a sofa set, side tables with table lamps, a dining table with chairs, wall hangings attached to the walls, electric lights hanging from the ceiling, and decors on the side table. There is also a large window, allowing natural light to fill the room.",
+   "caption": "The image shows a living room filled with furniture such as a sofa set, side tables with table lamps, a dining table with chairs, wall hangings attached to the walls, electric lights hanging from the ceiling, and decors on the side table. There is also a large window, allowing natural light to fill the room.",
+   "creator": null,
+   "provider": "Wikimedia Commons",
+   "licence": "public domain / CC0 (PD12M)",
+   "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "landing_url": "https://pd12m.s3.us-west-2.amazonaws.com/images/893ad9a6-9f4a-5d5f-8d16-82b0795c1a69.jpeg",
+   "width": 4032,
+   "height": 3024,
+   "style_hits": 2,
+   "scores": {
+    "space": 0.0008,
+    "negative": 0.0001,
+    "style": 0.0001,
+    "quality": 0.0001
+   },
+   "file": "pd_36a3218ebf9d3aa57fe89961b9668895.jpg"
+  }
+ ],
+ "picked_by": "session review of the candidates (27 Oct 2026): a home of the space, light, no public rooms, museums, paintings or showrooms",
+ "candidates_job": "20261027-160028-references"
+}
