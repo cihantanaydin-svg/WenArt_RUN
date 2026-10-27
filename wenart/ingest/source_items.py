@@ -24,7 +24,8 @@ How:
   page that was not extracted; the block instances grouped by name: the top-level ones, except that a block larger
   than ``CONTAINER_M`` (a whole plan or sheet drawn as one block, real03) is a *container* whose child instances are
   listed instead (containers are listed apart); the layers per page (and the entity boxes of small layers, for the
-  ledger's outline hints); the hatches and closed outlines of at least ``MIN_REGION_M2`` that belong to no listed
+  ledger's outline hints; 27 Oct 2026: every entity's box of a furniture layer, for the ledger's lost strokes, A10);
+  the hatches and closed outlines of at least ``MIN_REGION_M2`` that belong to no listed
   block (building-metre polygons, simplified).
 - ``write(build, records, works, out_dir)`` writes the JSON (``SCHEMA``); ``load(path)`` reads it back.
 
@@ -60,6 +61,7 @@ MIN_REGION_M2 = 1.0           # hatches and closed outlines smaller than this ar
 CONTAINER_M = 10.0            # a block instance larger than this (either side) holding other blocks is a container
 MAX_LAYER_IDS = 20000         # entity ids listed per layer and page (beyond: ``ids_truncated``)
 LAYER_BOX_MAX = 300           # layers with at most this many entities list each entity's box
+FURNITURE_BOX_MAX = 60000     # 27 Oct 2026: a furniture layer lists every entity's box up to this many (ledger A10)
 MAX_POLYGON_POINTS = 64       # polygons are simplified to at most this many points
 ROUND = 3
 
@@ -114,6 +116,15 @@ def _instances(stroke_id: str, chain: Optional[str]) -> list[tuple[str, str]]:
     return out
 
 
+def furniture_layer(name) -> bool:
+    """A layer whose name says furniture (``symbols.layer_kind``: TEFRIS, MOBILYA, FURN, SANITARY ...)."""
+    try:
+        from wenart.ingest.generic import symbols as SY
+        return SY.layer_kind(name) == "furniture"
+    except Exception:  # noqa: BLE001 - no layer words here: the box cap stays
+        return False
+
+
 def page_summary(page) -> dict:
     """The strokes of one ``GenericPage`` as a compact summary in page units (taken before the pipeline drops the
     page model): layers with their entity ids, block instances at every depth, hatches and closed outlines."""
@@ -161,7 +172,7 @@ def page_summary(page) -> dict:
         ids = list(entry["ids"])
         row = {"name": name, "entities": len(ids), "types": dict(sorted(entry["types"].items())),
                "ids": ids[:MAX_LAYER_IDS], "ids_truncated": len(ids) > MAX_LAYER_IDS}
-        if len(ids) <= LAYER_BOX_MAX:
+        if len(ids) <= LAYER_BOX_MAX or (furniture_layer(name) and len(ids) <= FURNITURE_BOX_MAX):
             row["boxes"] = [entry["ids"][i] for i in ids]
         out_layers.append(row)
     out_inserts = []

@@ -321,11 +321,15 @@ HELD_INSIDE = 0.5                 # ... and holds >= half of each smaller piece 
 
 def outline_holds(poly, mates: list[dict]) -> list[str]:
     """Ids of the pieces an outline ``poly`` is drawn around: smaller pieces whose centre lies in it with at least
-    ``HELD_INSIDE`` of their area (none when the outline is smaller than ``OUTLINE_MIN_M2``)."""
+    ``HELD_INSIDE`` of their area (none when the outline is smaller than ``OUTLINE_MIN_M2``). 27 Oct 2026: a small
+    mark (``small_mark``: a cushion or pillow symbol) is a detail of the outline, never a piece it is drawn around
+    (real06's salon: two drawn sofas holding their cushion marks were "rug outlines")."""
     if poly.area < OUTLINE_MIN_M2:
         return []
     out = []
     for f in mates:
+        if small_mark(f):
+            continue
         try:
             other = placer.drawn_piece(f).polygon()
         except (KeyError, TypeError, ValueError):
@@ -356,6 +360,37 @@ def _host_of(poly, mates: list[dict]) -> Optional[dict]:
         except (KeyError, TypeError, ValueError):
             continue
         if other.area > poly.area and poly.intersection(other).area >= DETAIL_INSIDE * poly.area:
+            return f
+    return None
+
+
+def small_mark(piece: dict) -> bool:
+    """A drawn piece smaller than ``MARK_SIDE_M`` both ways (a cushion or pillow symbol, a tap, a plant mark): never a
+    piece an outline is drawn around (27 Oct 2026, module docstring)."""
+    try:
+        return max(float(v) for v in piece["footprint"]["size"][:2]) < MARK_SIDE_M
+    except (KeyError, TypeError, ValueError):
+        return False
+
+
+CUSHION_HOST_FACTOR = 4.0         # a drawn outline at least this many times a small mark's area holds it as a detail
+
+
+def drawn_host_of(item: dict, poly, mates: list[dict]) -> Optional[dict]:
+    """27 Oct 2026 (pod run 224516, real06's salon: the cushion marks of two drawn sofas were typed potted plants and
+    made the sofas "rug outlines"): the drawn piece (typed or not, built or not, not a rug) that holds at least
+    ``DETAIL_INSIDE`` of the small mark ``item`` (``small_mark``) and is ``CUSHION_HOST_FACTOR`` times its area or more:
+    the mark is a detail drawn on it (a cushion, a pillow), not a piece; else None."""
+    if not small_mark(item):
+        return None
+    for f in mates:
+        if f.get("source") != "from_documents" or f.get("type") in ("stair", OUTLINE_TYPE) or small_mark(f):
+            continue
+        try:
+            other = placer.drawn_piece(f).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+        if other.area >= CUSHION_HOST_FACTOR * poly.area and poly.intersection(other).area >= DETAIL_INSIDE * poly.area:
             return f
     return None
 
@@ -418,9 +453,21 @@ def _shape_ok(ftype: str, size) -> bool:
     return ftype not in SQUARE_TYPES or b <= SQUARE_ASPECT * a + 1e-9
 
 
+GROUP_SEATS = ("sofa", "sofa_corner", "armchair", "chaise")
+GROUP_REACH_M = 2.0               # a seat this close to another seat or to what it faces stands in its group
+
+
 def _position_ok(ftype: str, piece: placer.Piece, on_wall: bool, others: list[tuple[str, placer.Piece]]) -> bool:
     rule = schemas.orientation_rule(ftype)
-    if rule["back"] in ("wall", "wall_or_group"):
+    if rule["back"] == "wall_or_group":
+        # 27 Oct 2026 (real06's salon: a drawn 1.52 m sofa 0.107 m off the wall beside its armchairs stayed untyped):
+        # on a wall, or in its group (``schemas``: free when it faces its group): a seat or what it faces nearby
+        if on_wall:
+            return True
+        poly = piece.polygon()
+        mates = set(rule.get("front_to") or ()) | set(GROUP_SEATS)
+        return any(t in mates and o.polygon().distance(poly) <= GROUP_REACH_M for t, o in others)
+    if rule["back"] == "wall":
         return on_wall
     if rule["back"] == "free" and rule["partners"]:
         poly = piece.polygon()
@@ -1571,7 +1618,17 @@ def infer_types(building: dict) -> list[dict]:
         piece = placer.drawn_piece(item)
         poly = piece.polygon()
         mates = [f for f in furniture if f.get("room_id") == room["id"] and f["id"] != item["id"]]
+        # 27 Oct 2026: the small marks an outline holds (its cushions) never make it a rug; a small mark drawn on a
+        # larger drawn outline is a detail of it, before any type fits its size (a 0.21 m "potted plant")
         held = outline_holds(poly, mates)
+        drawn_host = drawn_host_of(item, poly, mates)
+        if drawn_host is not None:
+            reason = (f"drawn inside {drawn_host['type']} {drawn_host['id']} "
+                      f"({_sorted_size(drawn_host)[1]:.2f} x {_sorted_size(drawn_host)[0]:.2f} m): a cushion, pillow or "
+                      f"detail drawn on that piece, not a piece of its own (not built)")
+            out.append({"piece_id": item["id"], "type": DETAIL_TYPE, "build": False, "reason": reason,
+                        "confidence": CONF_OUTLINE, "evidence": _evidence(item, reason, CONF_OUTLINE)})
+            continue
         if held and not any(f["type"] in schemas.FIXED_TYPES for f in mates if f["id"] in held):
             reason = (f"outline {piece.size[0]:.2f} x {piece.size[1]:.2f} m around {len(held)} other piece(s) "
                       f"({', '.join(held[:6])}): a rug or zone outline, not a piece (not built; the decor rules lay "
@@ -1611,11 +1668,14 @@ def infer_types(building: dict) -> list[dict]:
         else:
             allowed = PL.allowed_in(building, room)
         size = [float(v) for v in item["footprint"]["size"]]
+        # 27 Oct 2026: a type whose labelled zone of the room lies elsewhere is not this piece's (names module)
+        from wenart.furniture import names as NM
+        elsewhere = NM.zone_types_elsewhere(building, item)
         sized = [t for t in allowed if t not in SKIP_TYPES and t in PL._size_table() and PL._fits(t, size)
-                 and _shape_ok(t, size)]
+                 and _shape_ok(t, size) and t not in elsewhere]
         # 26 Oct 2026 (module docstring): a wall type's back on a wall (within 5 deg), never a round chair
         fits = sorted(t for t in sized if _position_ok(t, piece, on_wall, others) and placeable(t, item, room) is None)
-        answers = {c.get("type") for c in item.get("type_candidates") or []}
+        answers = {c.get("type") for c in item.get("type_candidates") or []} - elsewhere
         named = sorted(answers & set(fits))
         # An AI pass named another type that fits the size and the room: the piece is ambiguous (real02's sofas in
         # the open kitchen: kitchen_island / sofa); the agent decides on the plan crop, nothing is inferred.

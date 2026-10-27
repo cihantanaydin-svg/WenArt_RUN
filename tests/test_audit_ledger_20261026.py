@@ -498,3 +498,45 @@ def test_real01_reading_writes_the_inventory_and_the_ledger_finds_only_the_parki
     parking = _by_target(result)["sa_L0_parking"]
     assert (parking["check"], parking["severity"], parking["fix"]["kind"]) == ("A1", "major", "parking")
     assert result["summary"]["by_severity"]["major"] <= 2
+
+
+def test_a10_furniture_strokes_no_piece_uses_are_a_lost_piece():
+    """27 Oct 2026 (pod run 224516: real06's salon lost two drawn sofas, no line said so): strokes of a furniture layer
+    no element uses, clustered, piece-sized, in a room and in no recorded piece: one major A10 finding per room; the
+    strokes of a recorded piece, a cluster too small or too sparse, and strokes outside every room are not."""
+    def strokes(prefix, x0, y0, w, h):
+        """An outline drawn as four sides and two lines across it (they touch: one drawing)."""
+        x1, y1 = x0 + w, y0 + h
+        sides = [[x0, y0, x1, y0], [x1, y0, x1, y1], [x0, y1, x1, y1], [x0, y0, x0, y1],
+                 [x0 + w / 3, y0, x0 + w / 3, y1], [x0 + 2 * w / 3, y0, x0 + 2 * w / 3, y1]]
+        return [(f"LINE:{prefix}{k:02X}", b) for k, b in enumerate(sides)]
+
+    sofa = strokes("A", 0.5, 0.3, 2.0, 0.8)                     # a lost 2.0 x 0.8 m sofa
+    chair = strokes("B", 3.5, 2.5, 0.5, 0.5)                    # the strokes of piece f_1 (its footprint holds them)
+    used = strokes("C", 1.0, 2.6, 0.6, 0.6)                     # used by f_2's evidence
+    speck = strokes("D", 4.4, 0.2, 0.1, 0.1)                    # too small
+    outside = strokes("E", 6.5, 1.0, 1.0, 1.0)                  # outside the room
+    rows = sofa + chair + used + speck + outside
+    lay = {"name": "tefriş", "page": "p1", "entities": len(rows), "types": {"LINE": len(rows)},
+           "ids": [e for e, _b in rows], "boxes": [b for _e, b in rows]}
+    f1 = {"id": "f_1", "level_id": "L0", "type": "armchair", "footprint": {"center": [3.75, 2.75], "size": [0.6, 0.6]},
+          "evidence": [_ev("LINE:999")]}
+    f2 = {"id": "f_2", "level_id": "L0", "type": "chair", "footprint": {"center": [9.0, 9.0], "size": [0.5, 0.5]},
+          "evidence": [_ev(",".join(e for e, _b in used))]}
+    b = _building(rooms=[_room("r_salon", "SALON", text_id="TEXT:1")], furniture=[f1, f2])
+    items = _items(texts=[_t("TEXT:1", "SALON", (2, 2), role="room_label", label="SALON", label_part="name",
+                             label_id="TEXT:1")], layers=[lay])
+    res = L.ledger(b, items)
+    a10 = [f for f in res["findings"] if f["check"] == "A10"]
+    assert len(a10) == 1 and a10[0]["severity"] == "major" and a10[0]["target"] == "strokes:r_salon"
+    [c] = a10[0]["evidence"]["clusters"]
+    assert c["size"] == [2.0, 0.8] and c["strokes"] == 6 and "pieces the reading lost" in a10[0]["message"]
+    assert res["summary"]["by_check"]["A10"] == 1
+    # not a furniture layer, or a page not read: nothing
+    assert not [f for f in L.ledger(b, _items(layers=[dict(lay, name="KAPI")]))["findings"] if f["check"] == "A10"]
+    assert L._clusters([("a", [0, 0, 1, 1]), ("b", [1.05, 0, 2, 1]), ("c", [5, 5, 6, 6])], 0.06) == \
+        [[("a", [0, 0, 1, 1]), ("b", [1.05, 0, 2, 1])], [("c", [5, 5, 6, 6])]]
+
+
+def test_furniture_layers_list_every_entity_box():
+    assert SI.furniture_layer("tefriş") and SI.furniture_layer("A-FURN") and not SI.furniture_layer("DUVAR")

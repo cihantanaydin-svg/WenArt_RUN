@@ -444,6 +444,21 @@ def zone_of(building: dict, piece: dict) -> Optional[dict]:
     return None
 
 
+def zone_types_elsewhere(building: dict, piece: dict) -> set:
+    """27 Oct 2026 (real06's salon: a 1.52 x 0.78 m sofa in the seating area, typed "a dining table in YEMEK BÖLÜMÜ" by
+    one AI pass): the anchor types of the labelled zones of the piece's room that do not hold it (a dining table where
+    the documents put the dining area elsewhere in the room): never its type. Empty without zone labels."""
+    here = zone_of(building, piece)
+    out: set = set()
+    for z in zones_of(building, piece.get("room_id")):
+        if here is not None and z.get("id") == here.get("id"):
+            continue
+        out |= set(z.get("anchors") or zone_anchors(z.get("kind")))
+    if here is not None:
+        out -= set(here.get("anchors") or zone_anchors(here.get("kind")))
+    return out
+
+
 def partner_margin(ftype: str) -> float:
     """How far partners drawn around an anchor reach out of it: the deepest partner placed ``around`` the anchor in
     ``groups.yaml`` (the chairs of a dining table, 0.45 m), 0 for an anchor without such partners."""

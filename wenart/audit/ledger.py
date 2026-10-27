@@ -56,6 +56,8 @@ The checks (a finding names one):
 - **A8 page or level not read** - a level left out (``levels_left_out``): critical; a plan page or region that was
   not read for a reason other than the brief's variants: critical; a region of another use that holds room or area
   labels and was ignored: major.
+- **A10 lost drawing** (27 Oct 2026) - strokes of a furniture layer that no element uses, clustered, of a piece's size,
+  inside a room and inside no recorded piece: a piece the reading lost (``lost_strokes``). Major, one per room.
 - **A9 drawn geometry not used** - a hatch or closed outline of at least ``SURFACE_MIN_M2`` outside every built
   room, site surface and wall that no element uses (a surface the model may miss): major; a geometry layer of at
   least ``LAYER_MIN_ENTITIES`` entities on a read plan page none of which is used and that no warning names as a
@@ -93,7 +95,13 @@ from wenart.furniture import names as NM
 LINE = "source"
 SEVERITIES = ("critical", "major", "minor")
 SEVERITY_RANK = {"critical": 0, "major": 1, "minor": 2}
-CHECKS = ("A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9")
+CHECKS = ("A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10")
+# A10 (27 Oct 2026): furniture strokes no element uses, clustered (a piece the reading lost)
+STROKE_GAP_M = 0.06             # strokes this close belong to one drawing
+LOST_SIZE_M = (0.30, 4.0)       # a cluster's long side in this range is piece-sized
+LOST_MIN_SHORT_M = 0.15         # ... and its short side at least this
+LOST_MIN_STROKES = 4            # ... drawn with at least this many strokes
+LOST_COVER = 0.5                # a cluster whose box lies this much inside a recorded piece belongs to it
 PLAN_CLASSES = ("floor_plan", "furniture_plan")
 NAME_NEAR_M = NM.NAME_NEAR_M    # a furniture name text and the piece it names (1.2 m, the reading's rule)
 AREA_NEAR_M = 1.5               # an area text and the space name it belongs to
@@ -922,6 +930,57 @@ class _Ledger:
         for key in ("hatches", "outlines"):
             for reg in self.items.get(key) or []:
                 self._surface(reg, key)
+        self.lost_strokes()
+
+    def lost_strokes(self) -> None:
+        """A10 (27 Oct 2026, pod run 224516: real06's salon lost two drawn sofas and its dining table four of its eight
+        chairs, and no line said so): on a read plan page, the strokes of a furniture layer (``source_items
+        .furniture_layer``, every entity's box listed) that no element uses, clustered (``STROKE_GAP_M``); a cluster
+        of piece size (``LOST_SIZE_M``, ``LOST_MIN_SHORT_M``, ``LOST_MIN_STROKES``) inside a room and not inside a
+        recorded piece (``LOST_COVER``) is a piece the reading lost: one major finding per room."""
+        from wenart.ingest import source_items as SI
+
+        pieces: dict = {}
+        for f in self.m.b.get("furniture") or []:
+            p = _footprint_poly(f)
+            if p is not None:
+                pieces.setdefault(f.get("level_id"), []).append(p)
+        per_room: dict = {}
+        for lay in self.items.get("layers") or []:
+            page = self.page_of(lay)
+            name = str(lay.get("name") or "-")
+            boxes = lay.get("boxes")
+            if not self.plan_read(page) or not boxes or not SI.furniture_layer(name):
+                continue
+            level = page.get("level_id")
+            free = [(eid, b) for eid, b in zip(lay.get("ids") or [], boxes)
+                    if b and not self.m.users_of(eid, strong=True)]
+            for members in _clusters(free, STROKE_GAP_M):
+                xs0, ys0, xs1, ys1 = zip(*(b for _e, b in members))
+                box = (min(xs0), min(ys0), max(xs1), max(ys1))
+                w, h = box[2] - box[0], box[3] - box[1]
+                if len(members) < LOST_MIN_STROKES or not LOST_SIZE_M[0] <= max(w, h) <= LOST_SIZE_M[1] \
+                        or min(w, h) < LOST_MIN_SHORT_M:
+                    continue
+                centre = ((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)
+                room = self.m.room_at(level, centre)
+                if room is None:
+                    continue
+                cell = Polygon([(box[0], box[1]), (box[2], box[1]), (box[2], box[3]), (box[0], box[3])])
+                if any(p.intersection(cell).area >= LOST_COVER * cell.area for p in pieces.get(level, [])):
+                    continue
+                per_room.setdefault((room["id"], level, name, page.get("file"), page.get("region_id")), []).append(
+                    {"size": [round(w, 2), round(h, 2)], "center": [round(centre[0], 2), round(centre[1], 2)],
+                     "strokes": len(members), "entities": [e for e, _b in members[:12]]})
+        for (rid, level, name, file, region), clusters in sorted(per_room.items()):
+            clusters.sort(key=lambda c: -c["size"][0] * c["size"][1])
+            what = "; ".join(f"{c['size'][0]:.2f} x {c['size'][1]:.2f} m at ({c['center'][0]:.2f}, "
+                             f"{c['center'][1]:.2f}), {c['strokes']} strokes" for c in clusters[:6])
+            self.add("A10", "major", f"strokes:{rid}",
+                     f"{len(clusters)} drawing(s) on the furniture layer {name!r} in {rid} that no piece uses ({what}"
+                     f"{' ...' if len(clusters) > 6 else ''}): pieces the reading lost (a sofa, chairs around a table)",
+                     {"file": file, "layer": name, "level_id": level, "region_id": region, "room": rid,
+                      "clusters": clusters[:12], "entity": clusters[0]["entities"][0]}, "reading", None)
 
     @staticmethod
     def _hint_from_layer(f: dict, lay: dict) -> None:
@@ -1168,6 +1227,46 @@ class _Ledger:
                             "by_check_severity": {f"{c}/{s}": n for (c, s), n in
                                                   sorted(Counter((f["check"], f["severity"])
                                                                  for f in findings).items())}}}
+
+
+def _footprint_poly(f: dict) -> Optional[Polygon]:
+    """A piece's footprint rectangle (centre, size, rotation), or None."""
+    try:
+        import math
+        fp = f["footprint"]
+        cx, cy = (float(v) for v in fp["center"][:2])
+        w, d = (float(v) / 2.0 for v in fp["size"][:2])
+        a = math.radians(float(fp.get("rotation_deg") or 0.0))
+        c, s = math.cos(a), math.sin(a)
+        return Polygon([(cx + x * c - y * s, cy + x * s + y * c) for x, y in ((-w, -d), (w, -d), (w, d), (-w, d))])
+    except (KeyError, TypeError, ValueError, IndexError):
+        return None
+
+
+def _clusters(rows: list, gap: float) -> list[list]:
+    """The rows ``(id, [x0, y0, x1, y1])`` grouped by boxes closer than ``gap`` (a grid of ``4 x gap`` cells, union
+    find; pure)."""
+    parent = list(range(len(rows)))
+
+    def find(i: int) -> int:
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+    cell = max(gap * 4.0, 0.25)
+    grid: dict = {}
+    for i, (_e, b) in enumerate(rows):
+        for gx in range(int((b[0] - gap) // cell), int((b[2] + gap) // cell) + 1):
+            for gy in range(int((b[1] - gap) // cell), int((b[3] + gap) // cell) + 1):
+                for j in grid.get((gx, gy), ()):
+                    o = rows[j][1]
+                    if b[0] - gap <= o[2] and o[0] - gap <= b[2] and b[1] - gap <= o[3] and o[1] - gap <= b[3]:
+                        parent[find(i)] = find(j)
+                grid.setdefault((gx, gy), []).append(i)
+    out: dict = {}
+    for i in range(len(rows)):
+        out.setdefault(find(i), []).append(rows[i])
+    return list(out.values())
 
 
 def ledger(building: dict, source_items: Optional[dict]) -> dict:
