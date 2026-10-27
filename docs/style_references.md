@@ -102,3 +102,17 @@ Picked (scandinavian, jobs 150744 and 160028, 92 photos, 3.6 MB): living 7, kitc
 8, hall 1, veranda 8, terrace 8, balcony 6, garden 8, facade 8. Dressing and child room: no usable photo (a cloakroom,
 museum rooms): their built-in recipes stand. Left out on sight: public restrooms, restaurants, hotel rooms, museum
 period rooms, showrooms, Japanese gardens (not the family's look), near-duplicates of a picked photo.
+
+## 7. Stylish photos from Pexels (27 Oct 2026)
+
+User, 27 Oct 2026: "Find some better photos of the rooms, there should be some more stylish photos online." The
+PD12M picks were museums, hotels and plain homes; the recipes read from them named shelves and plants but no rug,
+curtains or lamps (run 160846). The photo job now searches CaptionEmporium/pexels-568k-internvl2 on the Hub (567,573
+Pexels photos with title, tags, a detailed InternVL2 caption and the image address; Pexels License: free to use, no
+attribution required, no resale of unaltered copies; the captions CC BY-SA 4.0): the space on the title and tags,
+people and paintings out, ranked by the decor layers the caption names, then SigLIP 2. Job 175301 (5.4 min, $0.23)
+returned 30 candidates for 12 spaces (child 10, dressing 7: mostly shops). Picked: living, kitchen, dining, bedroom,
+bathroom, hall, veranda, terrace, garden, facade 8 each, balcony 7, child 6 (95 photos, 3.9 MB): light, wood, plants,
+layered textiles, styled surfaces. They replace the PD12M picks. Dressing room: no usable photo (shops); its built-in
+recipe stands. Unsplash's Lite data set was ruled out: mostly nature photos, and its terms forbid redistributing the
+images.

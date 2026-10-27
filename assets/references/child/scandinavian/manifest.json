@@ -1,0 +1,150 @@
+{
+ "space": "child",
+ "family": "scandinavian",
+ "source": "pexels",
+ "embed_model": "google/siglip2-so400m-patch14-384",
+ "candidates": 28,
+ "scored": 28,
+ "photos": [
+  {
+   "source": "pexels",
+   "id": "px_7018835",
+   "url": "https://images.pexels.com/photos/7018835/pexels-photo-7018835.jpeg?auto=compress&cs=tinysrgb&w=1600",
+   "title": "Interior of kid bedroom with bunk bed. accommodation, apartment, at home, bed, bedroom, bedsheet, bunk bed, childhood, contemporary, creative, cupboard, daylight, design, door, dwell, empty, estate, flat, furniture, gymnastic rings, home, house, indoors, interior, kid bedroom, linen, minimal, modern, new, nobody, parquet, play, property, residential, shelf, spacious, style, television, tv, wooden",
+   "caption": "Interior of kid bedroom with bunk bed. accommodation, apartment, at home, bed, bedroom, bedsheet, bunk bed, childhood, contemporary, creative, cupboard, daylight, design, door, dwell, empty, estate, flat, furniture, gymnastic rings, home, house, indoors, interior, kid bedroom, linen, minimal, modern, new, nobody, parquet, play, property, residential, shelf, spacious, style, television, tv, wooden | A modern, spacious child's bedroom featuring contemporary interior design elements. the room is well-lit, with a significant amount of natural daylight enhancing the overall atmosphere. the flooring is made of light wood parquet, adding warmth to the space.\n\non the left side of the image, there is a bunk bed with a lower bed and an upper bed accessible by a small staircase. the beds are neatly made with white linens. above the upper bunk, gymnastic rings are hung, adding a playful and functional element to the room. \n\nthe wall on the right side of the image is decorated with a colorful, whimsi",
+   "creator": null,
+   "provider": "pexels",
+   "licence": "Pexels License (free to use, no attribution required)",
+   "licence_url": "https://www.pexels.com/license/",
+   "landing_url": "https://www.pexels.com/photo/interior-of-kid-bedroom-with-bunk-bed-7018835/",
+   "width": 7360,
+   "height": 4912,
+   "style_hits": 5,
+   "caption_licence": "CC BY-SA 4.0 (InternVL2 caption, CaptionEmporium/pexels-568k-internvl2)",
+   "scores": {
+    "space": 0.0321,
+    "negative": 0.0001,
+    "style": 0.3794,
+    "quality": 0.0017
+   },
+   "file": "px_7018835.jpg"
+  },
+  {
+   "source": "pexels",
+   "id": "px_7045855",
+   "url": "https://images.pexels.com/photos/7045855/pexels-photo-7045855.jpeg?auto=compress&cs=tinysrgb&w=1600",
+   "title": "Modern large children bedroom with shelves and cabinet. accommodation, apartment, bed, bedroom, blanket, book, cabinet, carpet, clean, contemporary, creative, cushion, decoration, decorative, design, domestic, empty, estate, fabric, flat, floor, fragment, furniture, geometry, green, horizontal, indoors, interior, laminate, modern, pastel, peaceful, pillow, property, residential, rug, shape, shelf, simple, soft, symmetry, textile, toy, tranquil, white, wide angle",
+   "caption": "Modern large children bedroom with shelves and cabinet. accommodation, apartment, bed, bedroom, blanket, book, cabinet, carpet, clean, contemporary, creative, cushion, decoration, decorative, design, domestic, empty, estate, fabric, flat, floor, fragment, furniture, geometry, green, horizontal, indoors, interior, laminate, modern, pastel, peaceful, pillow, property, residential, rug, shape, shelf, simple, soft, symmetry, textile, toy, tranquil, white, wide angle | In this charming and well-organized bedroom, a cozy double bunk bed with a white frame and green bedding takes center stage. The upper bunk is occupied by a plush teddy bear, adding a touch of whimsy. Below, neatly arranged shelves house a few well-chosen books and decorative items, while a green cushion rests on the lower bunk. \n\nAgainst the right wall, a stylish white dresser with six drawers provides ample storage space. Above this, a floating shelf holds a small collection of books, a teddy bear, and a white figurine, contributing to the room's playful yet elegant ambiance.\n\nThe floor is a",
+   "creator": null,
+   "provider": "pexels",
+   "licence": "Pexels License (free to use, no attribution required)",
+   "licence_url": "https://www.pexels.com/license/",
+   "landing_url": "https://www.pexels.com/photo/modern-large-children-bedroom-with-shelves-and-cabinet-7045855/",
+   "width": 7360,
+   "height": 4912,
+   "style_hits": 14,
+   "caption_licence": "CC BY-SA 4.0 (InternVL2 caption, CaptionEmporium/pexels-568k-internvl2)",
+   "scores": {
+    "space": 0.564,
+    "negative": 0.0032,
+    "style": 0.077,
+    "quality": 0.0022
+   },
+   "file": "px_7045855.jpg"
+  },
+  {
+   "source": "pexels",
+   "id": "px_7167069",
+   "url": "https://images.pexels.com/photos/7167069/pexels-photo-7167069.jpeg?auto=compress&cs=tinysrgb&w=1600",
+   "title": "Light spacious children room in apartment. accommodation, apartment, at home, bed, bedroom, blur, bookshelf, carpet, comfort, contemporary, cozy, creative, decor, decoration, design, detail, domestic, dwell, element, empty, estate, flat, furniture, home, horizontal, indoors, inside, interior, lamp, light, living room, material, nobody, object, pillow, property, residential, room, seat, sofa, soft, spacious, stick, style, toy",
+   "caption": "Light spacious children room in apartment. accommodation, apartment, at home, bed, bedroom, blur, bookshelf, carpet, comfort, contemporary, cozy, creative, decor, decoration, design, detail, domestic, dwell, element, empty, estate, flat, furniture, home, horizontal, indoors, inside, interior, lamp, light, living room, material, nobody, object, pillow, property, residential, room, seat, sofa, soft, spacious, stick, style, toy | A cozy and stylish children's bedroom or playroom, creating a welcoming and comfortable atmosphere. central to the room is a neatly arranged beige sofa with floral-patterned pillows, which sits atop a light-striped beige carpet that covers the wooden floor. the sofa is adorned with a floral throw blanket, adding to the room's gentle ambiance.\n\nto the left of the image is a wooden door, which leads to another room, and it fits seamlessly with the room’s modern yet warm color palette. next to the door, there is a white bookshelf filled with an assortment of books, toys, and decorative items, suc",
+   "creator": null,
+   "provider": "pexels",
+   "licence": "Pexels License (free to use, no attribution required)",
+   "licence_url": "https://www.pexels.com/license/",
+   "landing_url": "https://www.pexels.com/photo/light-spacious-children-room-in-apartment-7167069/",
+   "width": 7360,
+   "height": 4912,
+   "style_hits": 16,
+   "caption_licence": "CC BY-SA 4.0 (InternVL2 caption, CaptionEmporium/pexels-568k-internvl2)",
+   "scores": {
+    "space": 0.1968,
+    "negative": 0.0032,
+    "style": 0.1329,
+    "quality": 0.0151
+   },
+   "file": "px_7167069.jpg"
+  },
+  {
+   "source": "pexels",
+   "id": "px_8535154",
+   "url": "https://images.pexels.com/photos/8535154/pexels-photo-8535154.jpeg?auto=compress&cs=tinysrgb&w=1600",
+   "title": "Toy Kitchen and Sensory Board in Kids Room. chair, decoration, interior design, kids room, sensory board, toy kitchen, vertical shot, wall, walls",
+   "caption": "Toy Kitchen and Sensory Board in Kids Room. chair, decoration, interior design, kids room, sensory board, toy kitchen, vertical shot, wall, walls | A charming and thoughtfully designed kids' room. the focal point of the scene is the play area against the light-colored wall. a small, vibrant yellow wooden chair sits on the right side, adding a pop of color to the subdued, neutral palette of the room. directly opposite the chair, mounted on the wall, is a wooden sensory board adorned with engaging activities, including zigzag and circular patterns, and a series of colorful beads and rings that can be manipulated by children.\n\nabove the sensory board, hanging from the wall, is a whimsical cloud-shaped decoration with a happy face and blue ri",
+   "creator": null,
+   "provider": "pexels",
+   "licence": "Pexels License (free to use, no attribution required)",
+   "licence_url": "https://www.pexels.com/license/",
+   "landing_url": "https://www.pexels.com/photo/toy-kitchen-and-sensory-board-in-kids-room-8535154/",
+   "width": 2804,
+   "height": 4200,
+   "style_hits": 3,
+   "caption_licence": "CC BY-SA 4.0 (InternVL2 caption, CaptionEmporium/pexels-568k-internvl2)",
+   "scores": {
+    "space": 0.0108,
+    "negative": 0.0006,
+    "style": 0.0038,
+    "quality": 0.0001
+   },
+   "file": "px_8535154.jpg"
+  },
+  {
+   "source": "pexels",
+   "id": "px_8924163",
+   "url": "https://images.pexels.com/photos/8924163/pexels-photo-8924163.jpeg?auto=compress&cs=tinysrgb&w=1600",
+   "title": "Colorful Toys on the Shelves. classroom, colorful, daycare, educational toy, indoors, nursery, playroom, preschool, school, still life, vertical shot",
+   "caption": "Colorful Toys on the Shelves. classroom, colorful, daycare, educational toy, indoors, nursery, playroom, preschool, school, still life, vertical shot | In a vibrant and inviting playroom, the scene captures a well-organized wooden shelf with a variety of educational toys and games. On the top shelf, a colorful abacus with beads in the numbers 1 to 10 is neatly arranged, accompanied by a set of interlocking blocks in blue, red, and yellow, stacked in various configurations. The middle shelf houses a colorful geometric puzzle with circular, square, and triangular shapes, along with a wooden puzzle board featuring different shapes and colors. The bottom shelf displays a mix of simple wooden toys, including a peg board with multicolored shapes an",
+   "creator": null,
+   "provider": "pexels",
+   "licence": "Pexels License (free to use, no attribution required)",
+   "licence_url": "https://www.pexels.com/license/",
+   "landing_url": "https://www.pexels.com/photo/colorful-toys-on-the-shelves-8924163/",
+   "width": 4000,
+   "height": 6000,
+   "style_hits": 3,
+   "caption_licence": "CC BY-SA 4.0 (InternVL2 caption, CaptionEmporium/pexels-568k-internvl2)",
+   "scores": {
+    "space": 0.0011,
+    "negative": 0.0001,
+    "style": 0.0005,
+    "quality": 0.0
+   },
+   "file": "px_8924163.jpg"
+  },
+  {
+   "source": "pexels",
+   "id": "px_7587810",
+   "url": "https://images.pexels.com/photos/7587810/pexels-photo-7587810.jpeg?auto=compress&cs=tinysrgb&w=1600",
+   "title": "Kids Bedroom. apartment, architecture, bed, bedroom, ceiling, contemporary, empty, furniture, globe, home, house, indoors, inside, interior design, lamp, parquet, room, rug, single bed, trading floor, window",
+   "caption": "Kids Bedroom. apartment, architecture, bed, bedroom, ceiling, contemporary, empty, furniture, globe, home, house, indoors, inside, interior design, lamp, parquet, room, rug, single bed, trading floor, window | A neatly organized, well-lit, and modern bedroom with a minimalistic yet cozy interior design. the walls are painted in a soft pastel pink, and the ceiling features light wooden panels, adding a touch of warmth to the space. \n\na single bed with a colorful bedspread adorned with whimsical cat and fish patterns is positioned on the right side of the room. the bed has a white frame that blends seamlessly with the other furniture. above the bed, a unique, modern hanging lamp with a red and white geometric design provides a striking focal point and enhances the contemporary feel of the room.\n\nadjac",
+   "creator": null,
+   "provider": "pexels",
+   "licence": "Pexels License (free to use, no attribution required)",
+   "licence_url": "https://www.pexels.com/license/",
+   "landing_url": "https://www.pexels.com/photo/kids-bedroom-7587810/",
+   "width": 7360,
+   "height": 4912,
+   "style_hits": 16,
+   "caption_licence": "CC BY-SA 4.0 (InternVL2 caption, CaptionEmporium/pexels-568k-internvl2)",
+   "scores": {
+    "space": 0.6245,
+    "negative": 0.0087,
+    "style": 0.224,
+    "quality": 0.0018
+   },
+   "file": "px_7587810.jpg"
+  }
+ ],
+ "picked_by": "session review of the candidates (27 Oct 2026): a home of the space, light, no public rooms, museums, paintings or showrooms",
+ "candidates_job": "20261027-175301-references"
+}
