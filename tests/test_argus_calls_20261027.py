@@ -173,3 +173,24 @@ def test_a_swap_keeps_the_project_style_chain():
     why = EO.off_style_refusal(b, {"id": "g", "styles": ["classic"]})
     assert "none of the project's chain scandinavian -> minimal -> modern" in why
     assert EO.off_style_refusal({"furniture": []}, {"id": "g", "styles": ["classic"]}) is None    # no family known
+
+
+def test_argus_learns_how_its_own_edits_fared(tmp_path):
+    """27 Oct 2026: the problem log keeps per run how many of Argus's own edits code accepted per tool and why it
+    refused the others (numbers generalised); the next run's prompt names them (``history_lines``)."""
+    from wenart.audit import argus_ai as AX
+    from wenart.audit import report as R
+
+    log_path = tmp_path / "problem_log.json"
+    for run_id, accepted in (("r1", 0), ("r2", 2)):
+        rep = {"run_id": run_id, "project": "p", "score": 5.0, "severity": {}, "findings": [],
+               "own_edits": {"tried": 3, "accepted": accepted, "tools": {"set_camera": [3, accepted]},
+                             "refusals": {"set_camera": {"kind: 'room' is not one of [...]": 3 - accepted}}}}
+        R.update_log(rep, log_path)
+    log = json.loads(log_path.read_text(encoding="utf-8"))
+    rec = R.own_record(log, "p")
+    assert rec["set_camera"]["tried"] == 6 and rec["set_camera"]["accepted"] == 2
+    assert rec["set_camera"]["refusals"]["kind: 'room' is not one of [...]"] == 4
+    lines = AX.history_lines("p", path=log_path)
+    assert any("your own set_camera edits: 2 of 6 accepted; refused for: kind: 'room'" in x for x in lines)
+    assert R.own_record(log, "other") == {}

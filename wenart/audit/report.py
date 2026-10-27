@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import importlib
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -213,7 +214,7 @@ def own_edits(inp: I.Inputs) -> dict:
     ``{"tried", "accepted", "tools": {tool: [tried, accepted]}}``."""
     from wenart.audit import process as PR
 
-    out = {"tried": 0, "accepted": 0, "tools": {}}
+    out = {"tried": 0, "accepted": 0, "tools": {}, "refusals": {}}
     for e in PR._run_events(inp.agent_log):
         if e.get("kind") not in ("edit", "rejected_edit") or not str(e.get("call_id") or "").startswith("argus-"):
             continue
@@ -223,6 +224,10 @@ def own_edits(inp: I.Inputs) -> dict:
         t = out["tools"].setdefault(str(e.get("tool")), [0, 0])
         t[0] += 1
         t[1] += ok
+        if not ok:                    # 27 Oct 2026: why code refused it, for the next run's prompt (history_lines)
+            why = re.sub(r"[0-9]+(\.[0-9]+)?", "N", PR._refusal(e))[:120] or "no reason given"
+            r = out["refusals"].setdefault(str(e.get("tool")), {})
+            r[why] = r.get(why, 0) + 1
     return out
 
 
@@ -266,8 +271,12 @@ def update_log(rep: dict, path: Path = LOG_FILE) -> dict:
         for sig in log["signatures"].values():
             sig["runs"] = [r for r in sig["runs"] if r != run_id]
         log["runs"] = [r for r in log["runs"] if not (r.get("run_id") == run_id and r.get("project") == project)]
+    own = rep.get("own_edits") or {}
     log["runs"].append({"run_id": run_id, "project": project, "score": rep.get("score"),
-                        "severity": rep.get("severity"), "created_utc": rep.get("created_utc")})
+                        "severity": rep.get("severity"), "created_utc": rep.get("created_utc"),
+                        "own_edits": {t: list(v) for t, v in (own.get("tools") or {}).items()},
+                        "own_refusals": {t: dict(sorted(r.items(), key=lambda kv: -kv[1])[:OWN_REFUSALS_KEPT])
+                                         for t, r in (own.get("refusals") or {}).items()}})
     for f in rep.get("findings") or []:
         if f.get("severity") == "info":
             continue
@@ -291,6 +300,26 @@ def update_log(rep: dict, path: Path = LOG_FILE) -> dict:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(log, indent=1, ensure_ascii=False), encoding="utf-8")
     return log
+
+
+OWN_REFUSALS_KEPT = 4           # refusal reasons kept per tool and run in the problem log
+
+
+def own_record(log: dict, project: Optional[str] = None, runs: int = 3) -> dict:
+    """27 Oct 2026 (user: "give it more power"; Argus learns from its own edits): ``{tool: {"tried", "accepted",
+    "refusals": {why: n}}}`` over the last ``runs`` runs of ``project`` (every project when None) in the problem log."""
+    rows = [r for r in (log or {}).get("runs") or [] if project is None or r.get("project") == project]
+    out: dict = {}
+    for r in rows[-runs:]:
+        for tool, (tried, ok) in (r.get("own_edits") or {}).items():
+            e = out.setdefault(tool, {"tried": 0, "accepted": 0, "refusals": {}})
+            e["tried"] += int(tried)
+            e["accepted"] += int(ok)
+        for tool, why in (r.get("own_refusals") or {}).items():
+            e = out.setdefault(tool, {"tried": 0, "accepted": 0, "refusals": {}})
+            for k, n in why.items():
+                e["refusals"][k] = e["refusals"].get(k, 0) + int(n)
+    return out
 
 
 def recurring(log: dict, project: Optional[str] = None) -> list[tuple[str, dict]]:

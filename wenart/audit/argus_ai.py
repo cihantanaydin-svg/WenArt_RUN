@@ -96,6 +96,7 @@ ROOM_TOOLS = ("place_group", "relayout_room", "set_room_type")
 FIXES = FIX_ARCH + AGENT_TOOLS + FIX_OTHER
 HISTORY_FILE = Path(__file__).resolve().parents[2] / "results" / "argus" / "problem_log.json"
 HISTORY_LINES = 30             # earlier runs' recurring problems and learned rules put to the model
+OWN_LINES = 8                  # tools whose own-edit record of earlier runs is put to the model
 SYSTEM = (
     "You are Argus, the auditor of an automated pipeline that turns an architect's drawings (DWG or PDF plans, "
     "sections, elevations) into a furnished 3D house and photoreal renders. You check everything, not only the "
@@ -365,6 +366,12 @@ def history_lines(project: str, path: Path = HISTORY_FILE, limit: int = HISTORY_
     rules = sorted((g for g in (log.get("guards") or {}).values() if g.get("rule")),
                    key=lambda g: -len(g.get("runs") or []))[:max(0, limit - len(lines))]
     lines += [f"- rule learned ({len(g.get('runs') or [])} runs): {str(g['rule'])[:200]}" for g in rules]
+    # 27 Oct 2026: how its own edits fared in the last runs, and why code refused them (never repeat the reason)
+    own = R.own_record(log, project or None)
+    for tool, e in sorted(own.items(), key=lambda kv: -kv[1]["tried"])[:OWN_LINES]:
+        why = "; ".join(f"{k} ({n}x)" for k, n in sorted(e["refusals"].items(), key=lambda kv: -kv[1])[:2])
+        lines.append(f"- your own {tool} edits: {e['accepted']} of {e['tried']} accepted"
+                     + (f"; refused for: {why}" if why else ""))
     return (["", "From earlier runs (fix the cause of what keeps coming back):"] + lines) if lines else []
 
 

@@ -58,7 +58,121 @@
     "minor": 63,
     "info": 29
    },
-   "created_utc": "2026-10-27T00:14:16Z"
+   "created_utc": "2026-10-27T00:56:34Z",
+   "own_edits": {
+    "set_camera": [
+     52,
+     0
+    ],
+    "swap_model": [
+     14,
+     0
+    ],
+    "correct_geometry": [
+     1,
+     0
+    ],
+    "retype_piece": [
+     4,
+     0
+    ],
+    "add_camera": [
+     1,
+     0
+    ],
+    "set_material": [
+     3,
+     0
+    ],
+    "fix_fixture": [
+     5,
+     0
+    ],
+    "place_group": [
+     3,
+     0
+    ],
+    "relayout_room": [
+     1,
+     0
+    ],
+    "complete_group": [
+     1,
+     0
+    ],
+    "mark_not_furniture": [
+     1,
+     0
+    ],
+    "set_exterior": [
+     6,
+     0
+    ],
+    "set_entrance": [
+     1,
+     0
+    ],
+    "set_room_type": [
+     1,
+     0
+    ]
+   },
+   "own_refusals": {
+    "set_camera": {
+     "the arguments of set_camera do not match its schema: kind: 'room' is not one of ['interior', 'exterior']": 35,
+     "set: position is required; set: target is required": 8,
+     "no view cam_r_LN_banyo_N": 3,
+     "cam_r_LN_dus_N stands outside its room r_LN_dus; cam_r_LN_dus_N: eye height -N m (wanted N-N m); the camera stands N m f": 3
+    },
+    "swap_model": {
+     "asset_exists: no catalogue model 'floor_lamp_modern_N'": 2,
+     "exists: no piece 'd_LN_N' in a room of the building": 2,
+     "asset_exists: no catalogue model 'bed_double_N'": 1,
+     "asset_exists: no catalogue model 'sofa_N'": 1
+    },
+    "correct_geometry": {
+     "the arguments of correct_geometry do not match its schema: kind: 'opening' is not one of ['close_gap', 'merge_duplicate_": 1
+    },
+    "retype_piece": {
+     "retype: dresser is no candidate for f_LN_N (N x N m at [N, N]): the size table and the room / zone give armchair, chaise": 3,
+     "exists: no piece 'sym_LN_N' in a room of the building": 1
+    },
+    "add_camera": {
+     "the arguments of add_camera do not match its schema: <root>: Additional properties are not allowed ('anchor', 'level_id'": 1
+    },
+    "set_material": {
+     "facade: look 'facade_stone_N' is not in the vocabulary": 1,
+     "window_frame: look 'window_frame_wood_N' is not in the vocabulary": 1,
+     "window_frame: look 'dark_wood' is not in the vocabulary": 1
+    },
+    "fix_fixture": {
+     "the arguments of fix_fixture do not match its schema: center: 'drawn' is not of type 'array'": 5
+    },
+    "place_group": {
+     "the arguments of place_group do not match its schema: group: 'living' is not one of ['balcony', 'bathroom_set', 'bedroom": 2,
+     "no_place: dressing group: no place passes the checks (dressing: no place passes the checks)": 1
+    },
+    "relayout_room": {
+     "the arguments of relayout_room do not match its schema: candidate: 'ai' is not of type 'integer'": 1
+    },
+    "complete_group": {
+     "exists: no group 'f_LN_N' (its room 'f_LN_N') in a room of the building": 1
+    },
+    "mark_not_furniture": {
+     "the arguments of mark_not_furniture do not match its schema: kind: 'cluster' is not one of ['level_mark', 'room_number',": 1
+    },
+    "set_exterior": {
+     "the arguments of set_exterior do not match its schema: site: 'trees' is not of type 'object'": 3,
+     "ground: look 'textured_terrain' is not in the vocabulary": 2,
+     "the arguments of set_exterior do not match its schema: site: 'high_poly_trees' is not of type 'object'": 1
+    },
+    "set_entrance": {
+     "no_change: d_LN_N has steps already": 1
+    },
+    "set_room_type": {
+     "RN: a N m² room is too small for a bedroom": 1
+    }
+   }
   }
  ],
  "signatures": {
