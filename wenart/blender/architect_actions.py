@@ -1308,29 +1308,84 @@ def act_mount_fixture(plan: Plan, key: str, ans: dict, piece_id: str):
     return True, f"{piece_id}: rim {top:.2f} -> {target:.2f} m"
 
 
-def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from: Optional[str] = None):
-    """The piece moved the shortest way out of the doorway or the window strip of ``away_from`` (an opening id)
-    to a free place in its room (``clashes.find_unit_place``: inside the room, clear of the other pieces and the
-    doorways; at most 0.5 m for a drawn piece, 1 m for an added one)."""
+MOVE_NEAR_M = 1.0                 # a piece this close to an opening's centre is in its doorway or window strip
+
+
+def _strip_of(plan: Plan, o: dict) -> list:
+    """The doorway (``clashes.DOOR_DEPTH_M`` deep) or window strip (0.5 m) of opening ``o`` on both faces of its
+    wall, as rectangles (pure); [] without its wall."""
     from wenart.blender import architect_rules as RR
     from wenart.blender import clashes as CL
 
-    f = _piece(plan, piece_id)
-    if f is None or not f.get("footprint"):
-        return False, f"no piece {piece_id}"
-    o = plan.openings.get(away_from) if away_from else None
-    w = plan.walls.get((o or {}).get("wall_id"))
-    if o is None or w is None:
-        return False, f"{piece_id}: no opening {away_from} to move away from"
+    w = plan.walls.get(o.get("wall_id"))
+    if w is None:
+        return []
     _a, u, _l = plan.axis(w)
     n = (-u[1], u[0])
     c = plan.at_t(w, plan.t_of(w, o["center"]))
     half_t = float(w.get("thickness") or 0.2) / 2.0
     depth = CL.DOOR_DEPTH_M if o.get("type") != "window" else 0.5
+    return [RR._box((c[0] + n[0] * sgn * half_t, c[1] + n[1] * sgn * half_t), u, (n[0] * sgn, n[1] * sgn),
+                    float(o.get("width") or 0.9), depth) for sgn in (1.0, -1.0)]
+
+
+def move_targets(plan: Plan, piece_id: str, text: str = "") -> list[str]:
+    """What a ``move_piece`` answer moves the piece away from (pure; 27 Oct 2026, run 180412: every move decision of
+    the AI failed with "no opening None": the decision never carried its opening): the openings and the other pieces
+    of its level that ``text`` (the answer's value and reason) names, in order; else the openings of its level within
+    ``MOVE_NEAR_M`` of the piece's plan shape, nearest first."""
+    import re
+
+    from shapely.geometry import Point, Polygon
+
+    from wenart.blender import clashes as CL
+
+    f = _piece(plan, piece_id)
+    if f is None or not f.get("footprint"):
+        return []
+    lv = f.get("level_id")
+    pieces = {g.get("id"): g for g in plan.b.get("furniture") or [] if g.get("level_id") == lv and g is not f}
+    out = []
+    for tok in re.findall(r"[A-Za-z0-9_\-]+", text or ""):
+        if tok in out or tok == piece_id:
+            continue
+        if (plan.openings.get(tok) or {}).get("level_id") == lv or tok in pieces:
+            out.append(tok)
+    if out:
+        return out
+    parts = [Polygon(q) for q in CL.shape(f) if len(q) >= 3]
+    near = []
+    for o in plan.openings.values():
+        if o.get("level_id") != lv or not o.get("center"):
+            continue
+        d = min((pp.distance(Point(o["center"][:2])) for pp in parts), default=1e9)
+        if d <= MOVE_NEAR_M:
+            near.append((round(d, 6), o["id"]))
+    return [i for _d, i in sorted(near)]
+
+
+def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from=None):
+    """The piece moved the shortest way out of the doorway or the window strip of the openings ``away_from`` names
+    and off the pieces it names (ids, a list or comma separated; 27 Oct 2026: a piece too, e.g. a basin over a
+    drawn bath) to a free place in its room (``clashes.find_unit_place``: inside the room, clear of the other pieces
+    and the doorways; at most 0.5 m for a drawn piece, 1 m for an added one)."""
+    from wenart.blender import clashes as CL
+
+    f = _piece(plan, piece_id)
+    if f is None or not f.get("footprint"):
+        return False, f"no piece {piece_id}"
+    ids = [x.strip() for x in (away_from.split(",") if isinstance(away_from, str) else away_from or []) if x.strip()]
     box = []
-    for sgn in (1.0, -1.0):
-        nn = (n[0] * sgn, n[1] * sgn)
-        box.append(RR._box((c[0] + nn[0] * half_t, c[1] + nn[1] * half_t), u, nn, float(o.get("width") or 0.9), depth))
+    for i in ids:
+        if i in plan.openings:
+            box += _strip_of(plan, plan.openings[i])
+        else:
+            g = _piece(plan, i)
+            if g is not None and g is not f and g.get("footprint"):
+                box += CL.shape(g)
+    if not box:
+        return False, f"{piece_id}: no opening or piece {away_from} to move away from"
+    away_from = ", ".join(ids)
     room = plan.room.get(f.get("room_id"))
     peers = [(g, CL.shape(g)) for g in plan.b.get("furniture") or [] if g is not f and g.get("build") is not False
              and g.get("footprint") and g.get("level_id") == f.get("level_id")

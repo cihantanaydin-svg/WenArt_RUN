@@ -151,3 +151,30 @@ def test_act_guard_edge_adds_each_edge_once(value):
     assert ok and sp["guard_edges"] == [[[0.0, 0.0], [2.0, 0.0]]] and sp["adjusted_by_ai"]["answer_key"]
     assert AA.act_guard_edge(plan, "k", {}, "os_x", value)[0] is False
     assert AA.act_guard_edge(plan, "k", {}, "os_b", None)[0] is False
+
+
+def test_a_move_decision_names_what_the_piece_blocks_and_moves_clear_of_it():
+    # run 180412: every move_piece decision of the AI failed with "no opening None to move away from"
+    from test_decor_m8 import room_building
+
+    b = room_building(6.0, 5.0, "bedroom", furniture=[("dresser", (3.0, 0.35), 0.0, (1.0, 0.5)),
+                                                      ("bathtub", (5.0, 4.0), 0.0, (1.7, 0.75)),
+                                                      ("washbasin", (4.3, 4.0), 0.0, (0.6, 0.45))],
+                      windows=(("win1", "s", 3.0, 1.2),), doors=(("d1", "w", 2.5, 0.9),))
+    plan = AA.Plan(b)
+    assert AA.move_targets(plan, "f_L0_001") == ["win1"]                           # the nearest opening it blocks
+    assert AA.move_targets(plan, "f_L0_001", "clear of win1; it covers the window") == ["win1"]
+    assert AA.move_targets(plan, "f_L0_003", "overlaps the drawn bathtub f_L0_002") == ["f_L0_002"]
+    key, ans, why = AIA._decision({"action": "move_piece", "element": "f_L0_001", "value": "none",
+                                   "reason": "the dresser covers the window win1"}, plan, b, "L0")
+    assert key and ans["opt"]["params"]["away_from"] == "win1", why
+    ok, text = AA.act_move_piece(plan, "AI.move_piece:f_L0_001", {"by": "ai"}, "f_L0_001", "win1")
+    f = next(x for x in plan.b["furniture"] if x["id"] == "f_L0_001")
+    assert ok and f["footprint"]["center"][1] > 0.35 and f["drawn_footprint"]["center"] == [3.0, 0.35], text
+    ok, text = AA.act_move_piece(plan, "AI.move_piece:f_L0_003", {"by": "ai"}, "f_L0_003", "f_L0_002")
+    basin = next(x for x in plan.b["furniture"] if x["id"] == "f_L0_003")
+    assert ok and basin["footprint"]["center"][0] <= 4.15 - 0.3 + 1e-6, text      # clear of the bath's edge
+    assert AA.act_move_piece(plan, "k", {}, "f_L0_001", "nothing")[0] is False
+    # an opening that is a window already is not made one again
+    key, _ans, why = AIA._decision({"action": "door_to_window", "element": "win1", "value": ""}, plan, b, "L0")
+    assert key is None and "window already" in why

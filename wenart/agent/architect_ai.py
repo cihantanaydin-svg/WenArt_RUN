@@ -556,6 +556,14 @@ def _decision(d: dict, plan: AA.Plan, built: dict, level_id: str) -> tuple[Optio
         if str(plan.room[element].get("room_type") or "") == value:
             return None, None, f"{element} is a {value} already"
         params["room_type"] = value
+    if action == "door_to_window" and kind == "opening" and plan.openings[element].get("type") == "window":
+        return None, None, f"{element} is a window already"
+    if action == "move_piece":                     # 27 Oct 2026: what it moves away from (AA.move_targets)
+        away = AA.move_targets(plan, element, f"{value} {d.get('reason') or ''}")
+        if not away:
+            return None, None, (f"move_piece needs what {element} blocks (an opening or a piece id in the value); "
+                                f"nothing is named and no opening is within {AA.MOVE_NEAR_M:.1f} m of it")
+        params["away_from"] = ",".join(away)
     if action == "door_to_window" and kind == "opening":
         o = plan.openings[element]
         outside = any(r is None or AA.Plan.is_outside(r) for r in AA.window_sides(plan, o))
