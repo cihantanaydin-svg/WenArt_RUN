@@ -53,14 +53,18 @@ RULES = (
                  "loud colours only from the style's palette?",
      "why": "a walnut table, a white oak bed and a pine chair with brass and chrome read as a second-hand shop"},
     {"id": "S3", "topic": "styled rooms", "scope": "room", "severity": "minor",
-     "question": "Is every room styled with enough decor (a living room 9 items, a bedroom 7, a dining room 4)?",
+     "question": "Is every room styled with enough decor for its style (a balanced living room 9 items, a bedroom 7, "
+                 "a dining room 4; fewer in a sparse style such as japandi, more in a layered one such as classic)?",
      "why": "a room without lamps, plants, art, cushions and a rug looks unfinished in a render"},
     {"id": "S4", "topic": "complete furniture groups", "scope": "room", "severity": "minor",
      "question": "Is every furniture group complete: a sofa with a coffee table, an end table or a lamp and a rug; a "
                  "double bed with two nightstands; a dining table with four chairs or more?",
      "why": "a sofa alone or a bed with one nightstand looks half furnished"},
 )
-DECOR_MIN = {"living": 9, "bedroom": 7, "dining": 4, "kitchen": 2, "hall": 2, "bathroom": 2}   # decor_ai.ROOM_MIN
+# decor_ai.ROOM_MIN: a balanced room's numbers. 27 Oct 2026: S3 checks the room's own minimum, the one the decor stage
+# filled to (the building's ``decor_minimum``: its recipe's measured density, else the family's), else this number
+# scaled by the style family's density (``wenart.style.density``)
+DECOR_MIN = {"living": 9, "bedroom": 7, "dining": 4, "kitchen": 2, "hall": 2, "bathroom": 2}
 GROUP_NEEDS = {
     "living": (("sofa", "sofa_corner"), (("table_coffee", "ottoman"), ("side_table", "floor_lamp"))),
     "bedroom": (("bed_double",), (("nightstand", "nightstand"),)),
@@ -297,8 +301,25 @@ def one_language(balustrade: str, counts: dict) -> dict:
     return q
 
 
-def styled_rooms(building: dict) -> list[dict]:
-    """S2, S3, S4 (pure): the rooms' furniture as a set (the fit's ``asset.taste``), their decor and their groups."""
+def decor_goal(building: dict, room: dict, family: Optional[str] = None) -> Optional[tuple[int, str]]:
+    """S3's ``(minimum, why)`` of a room (pure; 27 Oct 2026; ``DECOR_MIN``): the decor stage's own minimum of the
+    room (``decor_minimum``) when it kept one, else ``DECOR_MIN`` of its type scaled by the style family's density;
+    None for a type S3 does not check."""
+    from wenart.style import density as DN
+
+    t = str(room.get("room_type") or "").lower()
+    if t not in DECOR_MIN:
+        return None
+    kept = (building.get("decor_minimum") or {}).get(room.get("id"))
+    if isinstance(kept, dict) and isinstance(kept.get("min"), int):
+        return kept["min"], str(kept.get("why") or "the decor stage's minimum")
+    level, why = DN.decor_density(None, family)
+    return DN.decor_minimum(t, DECOR_MIN[t], level), why
+
+
+def styled_rooms(building: dict, family: Optional[str] = None) -> list[dict]:
+    """S2, S3, S4 (pure): the rooms' furniture as a set (the fit's ``asset.taste``), their decor (27 Oct 2026: against
+    the room's minimum for its style, ``decor_goal``; ``family``: the project's style family) and their groups."""
     s2, s3, s4 = _q("S2"), _q("S3"), _q("S4")
     furn: dict = {}
     for f in building.get("furniture") or []:
@@ -329,14 +350,15 @@ def styled_rooms(building: dict) -> list[dict]:
             else:
                 _ans(s2, r["id"], f"{r['id']}: wood {', '.join(tones) or '-'}, metal {', '.join(metals) or '-'}",
                      "chosen as a set by the fit (one wood tone and a contrast, one metal)")
-        want = DECOR_MIN.get(t)
-        if want:
+        goal = decor_goal(building, r, family)
+        if goal:
+            want, why = goal
             n = len(dec.get(r["id"], []))
             if n < want:
-                _open(s3, r["id"], f"{r['id']} ({t}) holds {n} decor item(s), a styled {t} {want}",
+                _open(s3, r["id"], f"{r['id']} ({t}) holds {n} decor item(s), a styled {t} {want} ({why})",
                       f"Is {r['id']} meant to stay this bare?", [AA.option("keep")], where=where)
             else:
-                _ans(s3, r["id"], f"{r['id']} ({t}): {n} decor items")
+                _ans(s3, r["id"], f"{r['id']} ({t}): {n} decor items (a styled {t} {want}: {why})")
         need = GROUP_NEEDS.get(t)
         if need and any(f.get("type") in need[0] for f in pieces):
             types = [str(f.get("type")) for f in pieces]
@@ -379,4 +401,5 @@ def review(building: dict, prep: dict, sides: list[dict], style: Optional[dict] 
               "roof terraces": sum(1 for o in (prep.get("roof") or {}).get("openings") or [] if o.get("guard_height")),
               "terraces": sum(1 for pf in (prep.get("site") or {}).get("platforms") or [] if pf.get("railing_edges"))}
     return [outdoor_furniture(plan), terrace_doors(plan, sides), stair_details(stairs, kind, building),
-            guards(building, prep, kind), one_language(kind, counts)] + styled_rooms(building)
+            guards(building, prep, kind), one_language(kind, counts)] + \
+        styled_rooms(building, (style or {}).get("family"))
