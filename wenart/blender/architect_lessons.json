@@ -471,8 +471,8 @@
   {
    "id": "UL41",
    "date": "2026-10-27",
-   "area": "other",
-   "status": "open",
+   "area": "process",
+   "status": "process",
    "checks": [],
    "request": "Argus gets the power to act, not only to talk: it sees every tool's arguments with their types and allowed values and the valid ids of the project (views, looks, catalogue models of the style chain), checks every call by code before it runs and repairs or drops the invalid ones; it names what a view must show and the code picks the camera pose; it never guesses an id or a coordinate (user request of 26 Oct 2026: 'make Argus fix everything itself, give it more power'; pod run 224516: 0 of 94 edits were valid).",
    "lesson": "Argus gets the power to act, not only to talk: it sees every tool's arguments with their types and allowed values and the valid ids of the project (views, looks, catalogue models of the style chain), checks every call by code before it runs and repairs or drops the invalid ones; it names what a view must show and the code picks the camera pose; it never guesses an id or a coordinate (user request of 26 Oct 2026: 'make Argus fix everything itself, give it more power'; pod run 224516: 0 of 94 edits were valid).",

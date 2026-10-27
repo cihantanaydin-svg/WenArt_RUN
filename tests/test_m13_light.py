@@ -316,7 +316,7 @@ def test_room_rig_table():
             else:
                 assert f["kind"] == "strip" and f["lumens_per_m"] > 0
             assert f["gain"] == L.RIG_GAIN and f["lumen_watt_source"] == L.LUMEN_WATT_SOURCE
-    for room_type in ("storage", "balcony", "shaft", "unknown", "other", None):
+    for room_type in ("balcony", "shaft", "unknown", None):          # storage and other: a ceiling fixture (27 Oct)
         assert L.room_rig(room_type) == []
     assert [f["kind"] for f in L.room_rig("kitchen")] == ["strip", "ceiling"]
     assert [f["kind"] for f in L.room_rig("bathroom")] == ["mirror", "ceiling"]
