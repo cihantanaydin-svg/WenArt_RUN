@@ -1661,5 +1661,15 @@ black; the 55 m² salon "four egg chairs and no sofa"; bathrooms bare; mixed cha
 - **Argus learns from its own edits**: the problem log keeps per run and tool how many of its edits code accepted and
   why it refused the others; the next run's prompt names them ("set_camera 0 of 52; refused for kind 'room'").
 
+- **A fridge at a run end is a fridge-freezer column**: the completion's built-in fridge was a 60 cm steel door under
+  the worktop (the judge: "no fridge"); at a run end with no wall cabinet over it and 0.60 m of counter beside it, it
+  is a 2.10 m column now (steel doors, the freezer below), the worktop, plinth and wall units stopping at its side.
+
+### The next pod run could not run
+
+The repeat pod run of 27 Oct (00:55, 9h5s8nyk81sikn) disappeared 24 min in (the API answers 404) and the next creation
+got HTTP 402: the RunPod account balance is too low. GPU runs wait until funds are added; the fixes above are
+committed and tested on the CPU (the real06 reading checked locally with the last run's cached AI answers).
+
 Open: the salon's round table drew 8 chairs and 4 were read (A10 cannot see strokes the table's evidence claims); the
 egg-chair models; bathrooms without a mirror or towels.
