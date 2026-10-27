@@ -1726,3 +1726,34 @@ the oda's "sofa" stayed a sofa in a bedroom (the judge: "a bedroom without a bed
   textures); near a camera such a model gives way to the scan, else Sapling, else leaf cards, with the reason recorded.
 
 Open: interior views overexpose the garden; mixed styles of pieces in one room (the judge's most frequent remark after model quality).
+
+## Style references from PD12M; real trees and fields outside the windows (27 Oct 2026)
+
+User, 27 Oct 2026: "Rooms are not looking like the stylish rooms you can see in the internet ... take the good style
+photos from the internet" and "Find the photos yourself and put it into the pod" (lesson UL42).
+
+### Reference photos
+
+- The pod's Openverse and Commons searches found nothing (runs 123917, 130756: 401 over 20 per page, 429, timeouts,
+  Commons 0 results). The photos now come from **PD12M** (Spawning/PD12M on the Hugging Face Hub: 12.4 M public-domain
+  and CC0 photos with captions): a pod job (`scripts/jobs/references.sh`) searches the captions of all 125 metadata
+  shards per space, downloads the matches, ranks them with SigLIP 2 and returns the best 30 per space as 512 px copies
+  with a manifest; the session picks the best 8 per space and commits them (`assets/references/<space>/<family>/`),
+  which every run copies to the volume before its servers start.
+
+### Real trees and fields outside the windows
+
+Pod run 130756: the judge named "lollipop trees on a flat green plane" in 58 findings, nearly every view.
+
+- **Context trees are scan instances** (`site.CONTEXT_SCANS`, `context_scan_plan`, `build_context_scans`): every
+  tree of the horizon context is a collection instance of the Poly Haven scan of its species, else of its crown shape
+  (umbrella and spreading: the jacaranda; round: island tree 02; conical and columnar: the fir, narrowed; shrub:
+  searsia), scaled to its height and width, turned by its seed. One import per scan (at most 4), one manifest entry
+  per scan (credited as the Poly Haven model, the stand-ins named). The scans cast shadows (a crown shades itself)
+  and stay hidden from diffuse and volume rays. A tree with no scan (a palm, or no scan on the volume) stays a blob
+  crown. `WENART_CONTEXT_SCANS=off` keeps the blobs.
+- **Fields, not one green plane** (`vegetation.LAWN_FIELDS`): the ground beyond 25-60 m from the building gets
+  field-scale patches (about 80 m) in the climate's tint (a dry meadow in a Mediterranean climate, a lusher one in a
+  temperate one); the lawn by the house stays a lawn.
+- Tests: `tests/test_site_scenery_20261027.py` (10); GPU: `test_horizon_context_scans_in_blender` renders one scan
+  tree alone.

@@ -416,8 +416,13 @@ def main(argv=None) -> int:
             for man in sorted(REPO_SETS.glob("*/*/manifest.json")):
                 dst = Path(a.root) / man.parent.parent.name / man.parent.name
                 old = dst / "manifest.json"
-                if old.is_file() and (json.loads(old.read_text(encoding="utf-8")).get("photos") or []):
+                # 27 Oct 2026: the volume's set gives way unless it holds the committed photos (a new pick reaches
+                # the pod; its recipe is read again: recipe_read.set_key)
+                if old.is_file() and photo_ids(json.loads(old.read_text(encoding="utf-8"))) == \
+                        photo_ids(json.loads(man.read_text(encoding="utf-8"))):
                     continue
+                if old.is_file():
+                    old.unlink()
                 shutil.copytree(man.parent, dst, dirs_exist_ok=True)
                 seeded += 1
         print(f"references: {seeded} committed set(s) copied to {a.root}")
@@ -709,6 +714,11 @@ def final_views(project_out) -> list[dict]:
         space = space_of(room.get("room_type"), room.get("room_subtype")) if room else "facade"
         views.append({"name": name, "image": img, "space": space})
     return views
+
+
+def photo_ids(manifest: dict) -> list:
+    """The sorted photo ids of a set's manifest (pure)."""
+    return sorted(str(p.get("id")) for p in (manifest or {}).get("photos") or [])
 
 
 def contact_sheet(folder, out_path, cols: int = 6, side: int = 256, title: str = "",

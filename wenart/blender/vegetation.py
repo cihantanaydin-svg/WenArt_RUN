@@ -402,7 +402,12 @@ def hero_model(species: str, manifest: Optional[dict] = None, folder: Optional[P
     "polycount", "licence", "name"}``, else None. The path is the glTF the manifest records (``models/<id>/
     <id>_<size>.gltf``), the height the manifest's measured box (``bbox_m[2]``), else the API's."""
     rec = species_record(species)
-    asset = (rec.get("source") or {}).get("polyhaven")
+    return scan_model((rec.get("source") or {}).get("polyhaven"), manifest, folder)
+
+
+def scan_model(asset: Optional[str], manifest: Optional[dict] = None, folder: Optional[Path] = None) -> Optional[dict]:
+    """The Poly Haven model ``asset`` (an id of ``POLYHAVEN_MODELS``) when the assets hold it (pure; ``hero_model``
+    by asset id, 27 Oct 2026: the horizon context's trees): the same record, else None."""
     if not asset or asset not in POLYHAVEN_MODELS:
         return None
     folder = folder or assets_dir()
@@ -1219,16 +1224,21 @@ def _import_hero(hero: dict) -> Optional[dict]:
     if col.name not in library_collection().children:
         library_collection().children.link(col)
     from mathutils import Vector
-    zs = []
+    pts = []
     for o in new:
         _unlink_everywhere(o)
         col.objects.link(o)
         if o.type == "MESH":
             for v in o.bound_box:
-                zs.append((o.matrix_world @ Vector(v)).z)
+                pts.append(o.matrix_world @ Vector(v))
+    zs = [p.z for p in pts]
     height = (max(zs) - min(zs)) if zs else hero["height_m"]
     base_z = min(zs) if zs else hero.get("base_z", 0.0)
-    _HEROES[hero["id"]] = {"collection": col.name, "height_m": max(0.3, height), "base_z": base_z, "count": 0}
+    # 27 Oct 2026: the crown's width too (the larger of its x and y extents; the context trees scale to their width)
+    width = max(max(p.x for p in pts) - min(p.x for p in pts), max(p.y for p in pts) - min(p.y for p in pts)) \
+        if pts else 0.6 * hero["height_m"]
+    _HEROES[hero["id"]] = {"collection": col.name, "height_m": max(0.3, height), "base_z": base_z,
+                           "width_m": max(0.3, width), "count": 0}
     return _HEROES[hero["id"]]
 
 
@@ -1383,6 +1393,37 @@ def _tree_hero(name: str, species: str, height_m: float, seed: int, collection, 
     return ob, {"method": "polyhaven", "asset": hero["id"], "licence": hero["licence"], "licence_url": hero["licence_url"],
                 "model_height_m": lib["height_m"], "scale": round(s, 4), "polycount": hero.get("polycount"),
                 "material": None, "name": hero.get("name")}
+
+
+def scan_library(hero: dict) -> Optional[dict]:
+    """The imported Poly Haven model of ``hero`` (bpy; imported once, shared with the hero trees near the cameras):
+    ``{"collection", "height_m", "width_m", "base_z", "count"}``, else None when the import failed."""
+    return _import_hero(hero)
+
+
+def context_instance(name: str, lib: dict, position, scale, yaw: float, parent, collection,
+                     hidden_rays: Sequence[str] = ()):
+    """One horizon-context tree (bpy; 27 Oct 2026): a collection instance of the imported scan ``lib``
+    (``scan_library``), its base on ``position``, scaled by ``scale`` (x, y, z), turned by ``yaw``, a child of
+    ``parent``, hidden from ``hidden_rays`` (Cycles takes an instance's ray visibility as its own AND its
+    instancer's, so the scan near the cameras keeps its own). No ``HERO_MAX_PER_SPECIES`` cap: instances share the
+    one mesh."""
+    import bpy
+    ob = bpy.data.objects.new(name, None)
+    ob.instance_type = "COLLECTION"
+    ob.instance_collection = bpy.data.collections[lib["collection"]]
+    sx, sy, sz = (float(v) for v in scale)
+    ob.scale = (sx, sy, sz)
+    ob.rotation_euler = (0.0, 0.0, float(yaw))
+    ob.location = (float(position[0]), float(position[1]), float(position[2]) - float(lib["base_z"]) * sz)
+    (collection or bpy.context.scene.collection).objects.link(ob)
+    if parent is not None:
+        ob.parent = parent
+    for attr in hidden_rays:
+        if hasattr(ob, attr):
+            setattr(ob, attr, False)
+    ob["wenart_kind"] = "site_decor_part"
+    return ob
 
 
 _LIBRARY: dict = {}
@@ -1744,6 +1785,13 @@ def lawn_tile_m(size_m) -> float:
     return round(min(LAWN_TILE_M[1], max(LAWN_TILE_M[0], side)), 3)
 
 
+# 27 Oct 2026 (pod run 130756: "a flat, untextured green plane" in the judge's findings of nearly every view): the 1-2 m
+# texture and the 8 m variation average to one green beyond 30 m. The ground beyond ``near_m`` from the building
+# (fading in to ``far_m``) gets field-scale patches (a noise of ``scale_per_m``: patches of about 80 m) tinted by the
+# climate's ``tint`` (a dry meadow in a Mediterranean climate, a lusher, darker one in a temperate one) through a ramp
+# from ``lo`` (no tint) to ``hi`` (the full tint): the fields read as fields, the lawn by the house stays a lawn.
+LAWN_FIELDS = {"scale_per_m": 0.012, "detail": 2.0, "lo": 0.46, "hi": 0.62, "near_m": 25.0, "far_m": 60.0,
+               "tint": {"mediterranean": (1.20, 1.06, 0.60), "temperate": (0.84, 0.96, 0.78)}}
 LAWN_BOUNCE_DESAT = 0.75            # share of the lawn's bounced light turned grey (the camera sees the lawn as is)
 # 26 Oct 2026 (real06): the Light Path output that tells a bounced ray (Blender 5.2 manual, Light Path node: "Diffuse
 # Depth: how many times the ray has undergone diffuse reflection or transmission"): 0 for the camera's own paths,
@@ -1751,13 +1799,14 @@ LAWN_BOUNCE_DESAT = 0.75            # share of the lawn's bounced light turned g
 LAWN_OWN_COLOUR_RAYS = "Diffuse Depth"
 
 
-def lawn_material(mat) -> dict:
+def lawn_material(mat, fields_centre: Optional[Sequence[float]] = None, climate: str = "temperate") -> dict:
     """Give the ground's grass material its lawn look (bpy; round 3; idempotent): the texture's Mapping node scaled
     to ``lawn_tile_m`` of its current tile, a Noise texture (Object coordinates, ``LAWN_VARIATION``) through a
     ColorRamp from ``dark`` to ``light`` multiplied into whatever feeds the Principled BSDF's Base Color (the texture
-    or the flat colour), and a fine Bump where the Normal input is free. Returns the record for the manifest:
-    ``{"tile_m", "textured", "variation", "bump", "applied"}``; ``applied`` False with the reason when the material
-    has no node tree or no Principled BSDF."""
+    or the flat colour), and a fine Bump where the Normal input is free. With ``fields_centre`` (the building's centre,
+    27 Oct 2026) the field-scale patches of ``LAWN_FIELDS`` in the ``climate``'s tint beyond ``near_m`` from it.
+    Returns the record for the manifest: ``{"tile_m", "textured", "variation", "bump", "fields", "applied"}``;
+    ``applied`` False with the reason when the material has no node tree or no Principled BSDF."""
     import json as _json
     # the node tree alone decides: Material.use_nodes is deprecated in Blender 5.x (always on) and goes in 6.0
     if mat is None or getattr(mat, "node_tree", None) is None:
@@ -1798,6 +1847,39 @@ def lawn_material(mat) -> dict:
     else:
         mix.inputs[6].default_value = tuple(base.default_value)
     links.new(ramp.outputs["Color"], mix.inputs[7])
+    colour = mix.outputs[2]
+    fields = None
+    if fields_centre is not None:
+        f = LAWN_FIELDS
+        tint = f["tint"].get(climate) or f["tint"]["temperate"]
+        fnoise = _node(tree, "ShaderNodeTexNoise")
+        fnoise.inputs["Scale"].default_value = float(f["scale_per_m"])
+        fnoise.inputs["Detail"].default_value = float(f["detail"])
+        links.new(coord.outputs["Object"], fnoise.inputs["Vector"])
+        framp = _node(tree, "ShaderNodeValToRGB")
+        lo, hi = framp.color_ramp.elements[0], framp.color_ramp.elements[1]
+        lo.position, lo.color = float(f["lo"]), (1.0, 1.0, 1.0, 1.0)
+        hi.position, hi.color = float(f["hi"]), (*tint, 1.0)
+        links.new(fnoise.outputs["Fac"], framp.inputs["Fac"])
+        off = _node(tree, "ShaderNodeVectorMath", operation="SUBTRACT")
+        links.new(coord.outputs["Object"], off.inputs[0])
+        off.inputs[1].default_value = (float(fields_centre[0]), float(fields_centre[1]), 0.0)
+        dist = _node(tree, "ShaderNodeVectorMath", operation="LENGTH")
+        links.new(off.outputs["Vector"], dist.inputs[0])
+        fade = _node(tree, "ShaderNodeMapRange")
+        links.new(dist.outputs["Value"], fade.inputs["Value"])
+        fade.inputs["From Min"].default_value = float(f["near_m"])
+        fade.inputs["From Max"].default_value = float(f["far_m"])
+        fade.inputs["To Min"].default_value = 0.0
+        fade.inputs["To Max"].default_value = 1.0
+        fmix = _node(tree, "ShaderNodeMix", data_type="RGBA", blend_type="MULTIPLY")
+        links.new(fade.outputs["Result"], fmix.inputs["Factor"])
+        links.new(colour, fmix.inputs[6])
+        links.new(framp.outputs["Color"], fmix.inputs[7])
+        colour = fmix.outputs[2]
+        fields = {"centre": [round(float(fields_centre[0]), 3), round(float(fields_centre[1]), 3)],
+                  "climate": climate if climate in f["tint"] else "temperate", "tint": list(tint),
+                  "patch_m": round(1.0 / float(f["scale_per_m"]), 1), "from_m": [f["near_m"], f["far_m"]]}
     # 24 Oct 2026 (real04: the walls under the eaves read yellow-olive, lit mostly by the sunlit lawn): the light
     # the lawn bounces is desaturated by LAWN_BOUNCE_DESAT; the camera sees the lawn's own colour.
     # 26 Oct 2026 (real06, "the view out the window is a flat grey void"): the factor was 1 - Is Camera Ray, but the
@@ -1808,7 +1890,7 @@ def lawn_material(mat) -> dict:
     # Depth, 1).
     path = _node(tree, "ShaderNodeLightPath")
     grey = _node(tree, "ShaderNodeRGBToBW")
-    links.new(mix.outputs[2], grey.inputs["Color"])
+    links.new(colour, grey.inputs["Color"])
     bounced = _node(tree, "ShaderNodeMath", operation="MINIMUM")
     links.new(path.outputs[LAWN_OWN_COLOUR_RAYS], bounced.inputs[0])
     bounced.inputs[1].default_value = 1.0
@@ -1817,7 +1899,7 @@ def lawn_material(mat) -> dict:
     fac.inputs[1].default_value = LAWN_BOUNCE_DESAT
     bounce = _node(tree, "ShaderNodeMix", data_type="RGBA", blend_type="MIX")
     links.new(fac.outputs[0], bounce.inputs["Factor"])
-    links.new(mix.outputs[2], bounce.inputs[6])
+    links.new(colour, bounce.inputs[6])
     links.new(grey.outputs["Val"], bounce.inputs[7])
     links.new(bounce.outputs[2], base)
     bump = False
@@ -1833,7 +1915,7 @@ def lawn_material(mat) -> dict:
         bump = True
     rec = {"tile_m": tile, "textured": mapping is not None, "variation": [list(cfg["dark"]), list(cfg["light"])],
            "noise_scale_per_m": cfg["scale_per_m"], "bump": bump, "bounce_desaturation": LAWN_BOUNCE_DESAT,
-           "own_colour_rays": f"{LAWN_OWN_COLOUR_RAYS} 0"}
+           "own_colour_rays": f"{LAWN_OWN_COLOUR_RAYS} 0", "fields": fields}
     mat["wenart_lawn"] = _json.dumps(rec)
     return dict(rec, applied=True)
 

@@ -309,3 +309,34 @@ def test_features_reads_the_transformers_5_output():
         pooler_output = T()
     t = T()
     assert RF._features(t) is t and RF._features(Out()) is Out.pooler_output
+
+
+def test_prefetch_puts_the_committed_sets_on_the_volume_and_replaces_an_older_pick(tmp_path, monkeypatch):
+    """``prefetch`` copies every committed set (``REPO_SETS``) to the volume first; a volume set with other photos
+    (an older pick, or an empty search) gives way, one with the same photos stays (its read recipe kept)."""
+    repo, vol = tmp_path / "repo", tmp_path / "vol"
+    for space, ids in (("living", ["pd_1", "pd_2"]), ("veranda", ["pd_7"])):
+        d = repo / space / "scandinavian"
+        d.mkdir(parents=True)
+        for i in ids:
+            Image.new("RGB", (8, 8), (200, 180, 160)).save(d / f"{i}.jpg")
+        (d / "manifest.json").write_text(json.dumps({"space": space, "family": "scandinavian", "photos": [
+            {"id": i, "file": f"{i}.jpg"} for i in ids]}), encoding="utf-8")
+    old = vol / "living" / "scandinavian"
+    old.mkdir(parents=True)
+    (old / "manifest.json").write_text(json.dumps({"photos": [{"id": "ov_9", "file": "ov_9.jpg"}]}), encoding="utf-8")
+    same = vol / "veranda" / "scandinavian"
+    same.mkdir(parents=True)
+    (same / "manifest.json").write_text(json.dumps({"photos": [{"id": "pd_7", "file": "pd_7.jpg"}]}), encoding="utf-8")
+    (same / "recipe.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(RF, "REPO_SETS", repo)
+    monkeypatch.setattr(RF, "brief_family", lambda name: "scandinavian")
+    monkeypatch.setattr(RF, "SPACES", ("living", "veranda"))
+    fetched = []
+    monkeypatch.setattr(RF, "fetch_set", lambda space, fam, root, k=8: fetched.append(space) or
+                        dict(json.loads((Path(root) / space / fam / "manifest.json").read_text(encoding="utf-8")),
+                             searched=0, errors=[]))
+    assert RF.main(["prefetch", "--projects", "real06", "--root", str(vol)]) == 0
+    assert RF.photo_ids(json.loads((old / "manifest.json").read_text(encoding="utf-8"))) == ["pd_1", "pd_2"]
+    assert (old / "pd_1.jpg").is_file() and (same / "recipe.json").is_file()
+    assert fetched == ["living", "veranda"]

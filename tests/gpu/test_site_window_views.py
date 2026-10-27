@@ -10,7 +10,8 @@ skipped without a Blender binary). Two checks in Blender 5.2 of the CPU-tested r
 - ``test_horizon_context_object_in_blender``: ``site.build_context`` of a small box's ``horizon_context`` gives one
   ``context_trees`` mesh with the faces of ``site.context_parts`` (27 Oct 2026: a trunk and a crown of foliage
   masses, not 68 faces a tree), a material per species and the bark, hidden from shadow, diffuse and
-  volume rays, seen by the camera, transmission and glossy rays, smooth shaded."""
+  volume rays, seen by the camera, transmission and glossy rays, smooth shaded (the blob crowns: ``scans=False``).
+- ``test_horizon_context_scans_in_blender`` (27 Oct 2026): the same context as instances of the Poly Haven scans."""
 from __future__ import annotations
 
 import json
@@ -107,7 +108,7 @@ SCRIPT = textwrap.dedent("""
     outline = [(0, 0), (10, 0), (10, 8), (0, 8)]
     ctx = S.horizon_context(outline, S.ground_extent(outline, S.inferred_plot(outline)), terrain, "temperate", 6.0)
     entries = []
-    rec = S.build_context(ctx, col, lambda *a: entries.append(a))
+    rec = S.build_context(ctx, col, lambda *a: entries.append(a), scans=False)
     ob = bpy.data.objects.get(S.CONTEXT_NAME)
     res["context"] = {"rec": {k: v for k, v in rec.items() if k != "rings"}, "count": ctx["count"],
                       "parts_faces": len(S.context_parts(ctx)["faces"]),
@@ -118,6 +119,24 @@ SCRIPT = textwrap.dedent("""
                           "visible": {a: bool(getattr(ob, a)) for a in ("visible_camera", "visible_diffuse",
                                                                         "visible_glossy", "visible_transmission",
                                                                         "visible_volume_scatter", "visible_shadow")}}}
+    # 27 Oct 2026 (pod run 130756: "lollipop trees"): the same context as instances of the Poly Haven scans when the
+    # assets hold them (the pod's volume does): instances of the imported scan, hidden from diffuse and volume rays
+    scol = bpy.data.collections.new("site_scans")
+    scene.collection.children.link(scol)
+    sentries = []
+    srec = S.build_context(ctx, scol, lambda *a: sentries.append(a), scans=True)
+    inst = [o for o in scol.objects if o.instance_type == "COLLECTION"]
+    res["scans"] = {"rec": {k: v for k, v in srec.items() if k != "rings"}, "entries": len(sentries),
+                    "available": sorted(a for a in VG.POLYHAVEN_MODELS if VG.scan_model(a)),
+                    "instances": len(inst),
+                    "lib_faces": sorted({sum(len(o.data.polygons) for o in i.instance_collection.all_objects
+                                             if o.type == "MESH") for i in inst})[:1],
+                    "visible": [{a: bool(getattr(o, a)) for a in ("visible_camera", "visible_diffuse",
+                                                                  "visible_shadow", "visible_volume_scatter")}
+                                for o in inst[:3]],
+                    "tree": None}
+    for o in inst:
+        o.hide_render = True
     # 27 Oct 2026 (pod run 091638: the judge saw pale "cloud" crowns in the window views): one context tree alone in
     # the sun, framed by a camera at three crown widths, film transparent: the crown's median colour (alpha > 0.5)
     lawn.hide_render = True
@@ -145,6 +164,28 @@ SCRIPT = textwrap.dedent("""
     val.sort()
     res["crown"] = {"pixels": len(sat), "saturation": sat[len(sat) // 2] if sat else None,
                     "value": val[len(val) // 2] if val else None, "tree": t0.get("species")}
+    # the same tree as a scan instance (when the scans are there): framed alone, the blob mesh hidden
+    if inst:
+        ob_blob = bpy.data.objects.get(S.CONTEXT_NAME)
+        if ob_blob is not None:
+            ob_blob.hide_render = True
+        k = ctx["trees"].index(t0)
+        name = next((o.name for o in inst if o.name.endswith(f"_{k:03d}")), None)
+        one = next((o for o in inst if o.name == name), inst[0])
+        one.hide_render = False
+        scene.render.filepath = f"{tmp}/scan.png"
+        bpy.ops.render.render(write_still=True)
+        img = bpy.data.images.load(f"{tmp}/scan.png", check_existing=False)
+        px = list(img.pixels)
+        sat = []
+        for i in range(0, len(px), 4):
+            r, g, b, a = px[i:i + 4]
+            if a >= 0.5:
+                hi, lo = max(r, g, b), min(r, g, b)
+                sat.append((hi - lo) / hi if hi > 0 else 0.0)
+        sat.sort()
+        res["scans"]["tree"] = {"name": one.name, "pixels": len(sat), "blob_pixels": res["crown"]["pixels"],
+                                "saturation": sat[len(sat) // 2] if sat else None}
     with open(out, "w") as fh:
         json.dump(res, fh)
 """)
@@ -179,6 +220,27 @@ def test_horizon_context_object_in_blender(result):
     vis = ob["visible"]
     assert vis["visible_camera"] and vis["visible_transmission"] and vis["visible_glossy"]
     assert not vis["visible_shadow"] and not vis["visible_diffuse"] and not vis["visible_volume_scatter"]
+
+
+def test_horizon_context_scans_in_blender(result):
+    """27 Oct 2026 (pod run 130756: the judge's "lollipop trees" in 58 findings): with the Poly Haven scans on the
+    volume, every context tree that has a scan is a collection instance of it (one entry per scan), hidden from diffuse
+    and volume rays, casting shadows, seen by the camera; framed alone, the scan tree covers a crown's area (not a
+    stick or a void). Skipped where the assets hold no scan."""
+    sc = result["scans"]
+    if not sc["available"]:
+        pytest.skip("no Poly Haven scan in the assets (pod_setup_vegetation.sh fetches them)")
+    rec = sc["rec"]
+    print(f"context scans: {rec.get('scans')}, instances {sc['instances']}, scan tree {sc['tree']}")
+    assert rec["built"] and rec["scans"]["built"], rec
+    assert sc["instances"] == rec["scans"]["instances"] > 0
+    assert sc["entries"] == len(rec["scans"]["assets"]) + (1 if rec.get("blob_trees") else 0)
+    assert sc["lib_faces"] and sc["lib_faces"][0] > 100_000                     # a scan, not a blob
+    for vis in sc["visible"]:
+        assert vis["visible_camera"] and vis["visible_shadow"]
+        assert not vis["visible_diffuse"] and not vis["visible_volume_scatter"]
+    tree = sc["tree"]
+    assert tree and tree["pixels"] >= 0.3 * tree["blob_pixels"] and tree["saturation"] >= 0.15, tree
 
 
 CROWN_SATURATION_MIN = 0.25    # a green crown, not a pale grey "cloud"

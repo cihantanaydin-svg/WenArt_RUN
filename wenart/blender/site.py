@@ -3824,6 +3824,88 @@ CONTEXT_SPECIES = {"mediterranean": (("stone_pine", 0.35), ("olive", 0.25), ("cy
                    "temperate": (("oak", 0.3), ("maple", 0.3), ("conifer", 0.2), ("birch", 0.2))}
 CONTEXT_SHAPES = {"round": (0.75, 0.65), "spreading": (0.9, 0.6), "columnar": (0.22, 0.85), "conical": (0.45, 0.8),
                   "umbrella": (0.9, 0.35), "shrub": (1.0, 0.9), "palm": (0.5, 0.3), "hedge": (1.0, 0.9)}
+# 27 Oct 2026 (pod run 130756: the judge named "lollipop trees on a flat green plane" in 58 findings, nearly every
+# view; the blob crowns of ``context_parts`` read as a game asset however many masses they get): the context trees are
+# instances of the photoscanned Poly Haven trees (CC0) the site already downloads for the trees near the cameras.
+# Each tree takes its species' own scan (``vegetation.SPECIES`` source.polyhaven), else the scan of its crown shape
+# (``standin``: an inferred look, named in the manifest); a tree without one (a palm, or no scan on the volume) stays a
+# blob crown in ``context_trees``. The instance is scaled to the tree's height, its width to the tree's width within
+# ``xy_ratio`` of the uniform scale (a narrow fir for a cypress), turned by its seed. Instances share one mesh per
+# scan, so the rings cost one import each. The scans cast their shadows (a crown shades itself: without it a scan
+# reads flat) but are hidden from diffuse and volume rays (``hidden_rays``: the room light, the exposure and the
+# white point stay as they are); their shadows fall on the ground far beyond the near ground. ``WENART_CONTEXT_SCANS``
+# off (or ``scans=False``) keeps the blob crowns.
+CONTEXT_SCANS = {
+    "on": True,
+    "standin": {"round": "island_tree_02", "spreading": "jacaranda_tree", "umbrella": "jacaranda_tree",
+                "conical": "fir_sapling_medium", "columnar": "fir_sapling_medium", "shrub": "searsia_lucida"},
+    "xy_ratio": (0.45, 1.6), "max_models": 4, "sink_m": 0.05,
+    "hidden_rays": ("visible_diffuse", "visible_volume_scatter"),
+}
+CONTEXT_SCANS_ENV = "WENART_CONTEXT_SCANS"
+
+
+def context_scan_asset(species: str, shape: str, available) -> tuple[Optional[str], bool]:
+    """The scan of one context tree (pure): ``(asset id, stand_in)``: the species' own Poly Haven scan when
+    ``available`` holds it, else its crown shape's stand-in (``CONTEXT_SCANS["standin"]``) when available, else
+    ``(None, False)`` (a blob crown)."""
+    from wenart.blender import vegetation as VG          # stdlib-only at import
+
+    own = (VG.species_record(species).get("source") or {}).get("polyhaven")
+    if own and own in available:
+        return own, False
+    alt = CONTEXT_SCANS["standin"].get(shape)
+    if alt and alt in available:
+        return alt, True
+    return None, False
+
+
+def context_scan_plan(ctx: dict, models: dict, cfg: Optional[dict] = None) -> dict:
+    """Which context trees are scan instances (pure; 27 Oct 2026, the comment above): ``{"scans": [{"tree" (index in
+    ``ctx["trees"]``), "asset", "stand_in", "position" (x, y, z: its ground point less ``sink_m``), "scale" (x, y, z),
+    "yaw"}], "blobs": [indices], "assets": {id: count}, "stand_ins": {species: id}}``. ``models``: asset id ->
+    ``{"height_m", "width_m"}`` of the scans at hand (measured on import); at most ``max_models`` of them are used, the
+    most needed first (the other trees fall back to the next scan of their shape or a blob crown)."""
+    c = dict(CONTEXT_SCANS, **(cfg or {}))
+    trees = ctx.get("trees") or []
+    want: dict = {}
+    for t in trees:
+        aid, _alt = context_scan_asset(t["species"], t["shape"], models)
+        if aid:
+            want[aid] = want.get(aid, 0) + 1
+    keep = {a for a, _n in sorted(want.items(), key=lambda kv: (-kv[1], kv[0]))[:int(c["max_models"])]}
+    lo, hi = c["xy_ratio"]
+    out = {"scans": [], "blobs": [], "assets": {}, "stand_ins": {}}
+    import random
+
+    for i, t in enumerate(trees):
+        aid, alt = context_scan_asset(t["species"], t["shape"], {a: models[a] for a in keep})
+        m = models.get(aid) if aid else None
+        if not m or float(m.get("height_m") or 0) <= 0 or float(m.get("width_m") or 0) <= 0:
+            out["blobs"].append(i)
+            continue
+        sz = float(t["height"]) / float(m["height_m"])
+        sxy = min(max(float(t["width"]) / float(m["width_m"]), lo * sz), hi * sz)
+        out["scans"].append({"tree": i, "asset": aid, "stand_in": alt,
+                             "position": [float(t["center"][0]), float(t["center"][1]),
+                                          round(float(t["z"]) - float(c["sink_m"]), 4)],
+                             "scale": [round(sxy, 4), round(sxy, 4), round(sz, 4)],
+                             "yaw": round(random.Random(int(t.get("seed") or i)).uniform(0.0, 2.0 * math.pi), 4)})
+        out["assets"][aid] = out["assets"].get(aid, 0) + 1
+        if alt:
+            out["stand_ins"][t["species"]] = aid
+    return out
+
+
+def context_scans_on(scans: Optional[bool] = None) -> bool:
+    """Whether the context trees are scan instances: ``scans`` when given, else ``CONTEXT_SCANS["on"]`` unless
+    ``WENART_CONTEXT_SCANS`` says off."""
+    import os
+
+    if scans is not None:
+        return bool(scans)
+    env = str(os.environ.get(CONTEXT_SCANS_ENV) or "").strip().lower()
+    return bool(CONTEXT_SCANS["on"]) and env not in ("off", "0", "no", "false")
 
 
 def building_height(levels: Sequence[dict], default_z: float = 0.0,
@@ -4239,17 +4321,106 @@ CONTEXT_NAME = "context_trees"
 CONTEXT_HIDDEN_RAYS = ("visible_shadow", "visible_diffuse", "visible_volume_scatter")
 
 
-def build_context(ctx: dict, collection, entry) -> dict:
-    """The horizon context of ``horizon_context`` as one mesh object ``context_trees`` (bpy; 26 Oct 2026): the
-    trunks and lumpy crowns of ``context_parts`` with a leaf-textured material per species
+def build_context_scans(ctx: dict, collection, entry, cfg: Optional[dict] = None) -> dict:
+    """The context trees that are scan instances (bpy; 27 Oct 2026, ``CONTEXT_SCANS``): the scans the trees want are
+    looked up (``vegetation.scan_model``), the ``max_models`` most wanted imported (``vegetation.scan_library``,
+    measured), ``context_scan_plan`` made with their measures, and per scan an empty ``context_scan_<id>`` with its
+    instances (``vegetation.context_instance``) and one manifest entry (``veg_method`` polyhaven, the asset, CC0, the
+    species it stands in for). Returns ``{"built", "instances", "assets", "stand_ins", "blobs" (tree indices left to the
+    blob crowns), "hidden_rays", "reason" | "error"}``; a failure removes what it made and leaves every tree a blob."""
+    from wenart.blender import vegetation as VG
+
+    c = dict(CONTEXT_SCANS, **(cfg or {}))
+    trees = ctx.get("trees") or []
+    every = list(range(len(trees)))
+    needed = set()
+    for t in trees:
+        for aid in ((VG.species_record(t["species"]).get("source") or {}).get("polyhaven"),
+                    c["standin"].get(t["shape"])):
+            if aid:
+                needed.add(aid)
+    heroes = {a: h for a in sorted(needed) if (h := VG.scan_model(a))}
+    if not heroes:
+        return {"built": False, "blobs": every, "reason": "no Poly Haven scan of the context's species or crown shapes "
+                                                          f"in the assets ({', '.join(sorted(needed)) or 'none'})"}
+    # the most wanted scans first, by a nominal measure (the import measures them)
+    nominal = {a: {"height_m": h["height_m"], "width_m": 0.7 * h["height_m"]} for a, h in heroes.items()}
+    first = context_scan_plan(ctx, nominal, c)
+    made: list = []
+    try:
+        import bpy
+
+        libs = {}
+        for aid in sorted(first["assets"]):
+            lib = VG.scan_library(heroes[aid])
+            if lib is not None:
+                libs[aid] = lib
+        plan = context_scan_plan(ctx, {a: {"height_m": lib["height_m"], "width_m": lib.get("width_m") or
+                                           0.7 * lib["height_m"]} for a, lib in libs.items()}, c)
+        if not plan["scans"]:
+            return {"built": False, "blobs": every, "reason": "the scans did not import: "
+                                                              + ", ".join(sorted(first["assets"]))}
+        hidden = [a for a in c["hidden_rays"]]
+        parents = {}
+        for aid in sorted(plan["assets"]):
+            par = bpy.data.objects.new(f"context_scan_{aid}", None)
+            (collection or bpy.context.scene.collection).objects.link(par)
+            made.append(par)
+            par["wenart_id"] = par.name
+            par["wenart_kind"] = "site_decor"
+            par["wenart_site_part"] = "context"
+            par["wenart_veg_method"] = "polyhaven"
+            par["wenart_asset"] = aid
+            par["wenart_licence"] = VG.POLYHAVEN_LICENCE
+            parents[aid] = par
+        for s in plan["scans"]:                           # named by the tree's index in the context
+            made.append(VG.context_instance(f"context_scan_{s['asset']}_{s['tree']:03d}", libs[s["asset"]], s["position"],
+                                            s["scale"], s["yaw"], parents[s["asset"]], collection, hidden))
+        for aid, par in parents.items():
+            species = sorted({trees[s["tree"]]["species"] for s in plan["scans"] if s["asset"] == aid})
+            alt = sorted(sp for sp, a in plan["stand_ins"].items() if a == aid)
+            entry(par.name, par.name, "site_decor", None, "assumed",
+                  {"site_part": "context", "inferred": True, "veg_method": "polyhaven", "asset": aid,
+                   "licence": VG.POLYHAVEN_LICENCE, "context_trees": plan["assets"][aid], "context_species": species,
+                   "species_inferred": True, "stand_in_for": alt, "hidden_rays": hidden,
+                   "assumed": {"reason": (ctx.get("reason") or "the distant context at the horizon (inferred)")
+                               + f"; {plan['assets'][aid]} of them are instances of the Poly Haven scan {aid}"
+                               + (f" (standing in for {', '.join(alt)}: no scan of that species; inferred look)"
+                                  if alt else "")}})
+        return {"built": True, "instances": len(plan["scans"]), "assets": dict(plan["assets"]),
+                "stand_ins": dict(plan["stand_ins"]), "blobs": list(plan["blobs"]), "hidden_rays": hidden}
+    except Exception as exc:  # noqa: BLE001 - the blob crowns stand in; the reason is in the manifest
+        try:
+            import bpy
+            for ob in reversed(made):
+                bpy.data.objects.remove(ob, do_unlink=True)
+        except Exception:  # noqa: BLE001 - nothing more to undo
+            pass
+        return {"built": False, "blobs": every, "error": f"{type(exc).__name__}: {exc}"}
+
+
+def build_context(ctx: dict, collection, entry, scans: Optional[bool] = None) -> dict:
+    """The horizon context of ``horizon_context`` (bpy; 26 Oct 2026): since 27 Oct 2026 its trees are instances of the
+    Poly Haven scans where one fits (``build_context_scans``, ``context_scans_on(scans)``), the rest one mesh object
+    ``context_trees``: the trunks and lumpy crowns of ``context_parts`` with a leaf-textured material per species
     (``vegetation.context_material``) and the bark, smooth shaded, hidden from ``CONTEXT_HIDDEN_RAYS``. ``entry`` is
     ``build_site``'s manifest writer. Returns the summary record (``built``, ``trees``, ``faces``, ``rings``,
-    ``species``, ``atlas``, ``hidden_rays``); a failure is recorded with its error and builds nothing."""
+    ``species``, ``atlas``, ``hidden_rays``, ``scans``); a failure is recorded with its error and builds nothing."""
     from wenart.blender import common
     from wenart.blender import vegetation as VG
 
     rec = {"built": False, "trees": int(ctx.get("count") or 0), "rings": ctx.get("rings") or [],
            "species": ctx.get("species") or {}, "clear_m": ctx.get("clear_m"), "climate": ctx.get("climate")}
+    trees = ctx.get("trees") or []
+    if context_scans_on(scans) and trees:
+        srec = build_context_scans(ctx, collection, entry)
+        rec["scans"] = srec
+        if srec.get("built"):
+            ctx = dict(ctx, trees=[trees[i] for i in srec["blobs"]])
+            if not ctx["trees"]:                       # every tree a scan: no blob mesh
+                rec.update(built=True, faces=0, blob_trees=0)
+                return rec
+    rec["blob_trees"] = len(ctx.get("trees") or [])
     ob = None
     try:
         parts = context_parts(ctx)
@@ -4276,10 +4447,10 @@ def build_context(ctx: dict, collection, entry) -> dict:
         entry(ob.name, CONTEXT_NAME, "site_decor", None, "assumed",
               {"site_part": "context", "inferred": True, "veg_method": "context", "asset": atlas,
                "licence": "CC0" if atlas else None, "context_species": dict(rec["species"]), "species_inferred": True,
-               "context_trees": rec["trees"], "faces": rec["faces"], "hidden_rays": hidden,
+               "context_trees": rec["blob_trees"], "faces": rec["faces"], "hidden_rays": hidden,
                "assumed": {"reason": ctx.get("reason") or "the distant context at the horizon (inferred)"}})
     except Exception as exc:  # noqa: BLE001 - the site builds without the context; the reason is in the manifest
-        rec.update(built=False, error=f"{type(exc).__name__}: {exc}")
+        rec.update(built=bool((rec.get("scans") or {}).get("built")), error=f"{type(exc).__name__}: {exc}")
         if ob is not None:                            # no object without its manifest entry
             try:
                 import bpy
@@ -4673,9 +4844,13 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
     ground_mat = make_material(ground_look)
     lawn = None
     if ground_look is looks["garden"]:
-        # round 3 (P1: the lawn rendered as a flat saturated green): tiling at 1-2 m, an albedo variation, a bump
+        # round 3 (P1: the lawn rendered as a flat saturated green): tiling at 1-2 m, an albedo variation, a bump;
+        # 27 Oct 2026: with ``site: full``, field-scale patches beyond the lawn by the house (``VG.LAWN_FIELDS``)
+        bx0, by0, bx1, by1 = G.bbox([tuple(p[:2]) for p in plan["outline"]]) if plan.get("outline") else (0, 0, 0, 0)
         try:
-            lawn = VG.lawn_material(ground_mat)
+            lawn = VG.lawn_material(ground_mat, fields_centre=((bx0 + bx1) / 2.0, (by0 + by1) / 2.0)
+                                    if plan["mode"] == "full" else None,
+                                    climate=(plan.get("climate") or {}).get("climate", "temperate"))
         except Exception as exc:  # noqa: BLE001 - the ground keeps its plain material; the reason is recorded
             lawn = {"applied": False, "reason": f"{type(exc).__name__}: {exc}"}
     verts, faces = draped_faces(plan["extent"], holes, terrain)
