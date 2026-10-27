@@ -1797,3 +1797,35 @@ without my input", "Make argus catch these kind of things before me" (lesson UL4
 | a balcony open to the sky that the roof plan covers | the roof outline was assumed (outer walls + overhang), not read from the roof plan | helper: the outline read from the roof plan; model review M11 compares the roof with the plan |
 | a veranda like a carport | every outdoor space took the garden paving (grass in its joints, even 3 m up), the undersides were bare concrete, an inferred 0.15 m square post stood beside a 0.53 m round drawn column | an outdoor floor of its kind (a veranda a wood deck, a balcony stone tiles), a wood ceiling under every cover and raised outdoor floor, inferred posts like the drawn columns (`site.OUTDOOR_FLOOR_LOOKS`, `down_faces`, `outdoor.post_look`) |
 | nothing noticed any of it | no check measured outdoor spaces; Argus's discovery asked "what makes no sense?" and repeated known facts | model review M10 (`wenart/blender/outdoor_review.py`: a door onto it, guards, an outdoor floor, a covered kind covered, no roof at a balcony's floor level, one post language); Argus's visitor's walk (`argus_ai.visit`, AI4: code writes one question per stair, outdoor space and floor; the model answers each on the floor's top-down view and the exterior views; a "problem" is a finding on that element with its fix); exterior views of a veranda or balcony are judged against veranda or balcony photos (`judge.outdoor_space_of`) |
+
+### Argus fixes the outdoor findings itself (27 Oct 2026)
+
+User: "make argus fix these by itself" (lesson UL45). Every M10 finding that names its fix becomes an architect
+decision with no model (`argus_ai.outdoor_decisions`), carried out through the same checked path as the AI's
+decisions (`argus_ai.act`: the dry re-check of the same rule, no new critical finding, the model review no worse):
+
+| Finding | Decision |
+|---|---|
+| O1 a raised space nobody can step onto | the widest window onto it becomes its door (`window_to_door`) |
+| O2 an open edge over a drop, O5 a balcony edge onto a roof at its floor level | a guard on every such edge of the space, one decision (`guard_edge`; `site.platforms` puts the railing on those edges, never on the steps' edge) |
+| O4 a veranda, porch, loggia or winter garden left open | a light roof over the part nothing above covers (`cover_space`) |
+
+The AI architect and Argus AI may pick `guard_edge` and `cover_space` for an outdoor space too.
+
+### Generality review (27 Oct 2026)
+
+User: "all the solutions must be general. check the project, all the decisions and solutions must be general not
+project specific" (lesson UL44). `tests/test_generality.py` blocks project names and element ids in pipeline strings.
+A review of the code since 24 Oct found rules shaped by one drawing; fixed as general rules:
+
+| Was | Now |
+|---|---|
+| every drawn column of 0.2 m or more built as a round cylinder (from real06's round columns) | the drawn shape: a circle symbol a cylinder, anything else a box of its drawn width, depth and rotation; inferred posts copy it (`outdoor.column_look`) |
+| guards in front of low openings always frameless glass | the house's one balustrade language (`details.balustrade_kind`: glass channel, glass with posts, or bars) |
+| climate from a word list holding real04's district, matched inside words ("salon", "villa", "kat") | the brief's or site's climate, then a named location (whole words), then the drawing's language as a flagged guess that asks for the location |
+| grid bubbles only on plans drawn along the page axes | wall lines at any angle, centre line or face, beyond the whole building |
+| reference photos ranked with modern words; decor minimums blind to the style | helper (per-family vocabulary and exclusions; minimums scaled by the family's decor density) |
+| automatic winders only for U stairs | helper (a riser over the limit is fixed for any stair shape) |
+
+Kept as they are: "a round piece is never a chair" (the user's rule of 26 Oct); the same-block stroke tolerance (a
+reading tolerance: names, stroke kinds, shape and footprint must match too).
