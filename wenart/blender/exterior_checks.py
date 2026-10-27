@@ -385,7 +385,10 @@ def _x2(building: dict, prep: dict, scene_manifest: Optional[dict], out: list) -
         if uncovered:
             out.append(_v("X2", "critical", "roof", f"the roof leaves {len(uncovered)} outline corners of "
                                                     f"{roof['over_level_id']} uncovered", corners=len(uncovered)))
-        if roof.get("type") != "flat":
+        # 27 Oct 2026: a drawn roof outline (a roof plan's eaves loop reaching over a balcony) has its overhang as
+        # drawn: only an assumed outline is checked for a believable overhang
+        drawn = not any(a.get("field") == "outline" for a in roof.get("assumed") or [])
+        if roof.get("type") != "flat" and not drawn:
             d = [geom2d.distance_to_polygon_edges(p, roof["outline"]) for p in outline
                  if G.point_in_polygon(p, roof["outline"]) and not R.in_opening(roof, *p)]
             if d:
@@ -403,7 +406,7 @@ def _x2(building: dict, prep: dict, scene_manifest: Optional[dict], out: list) -
             # fix round after P4a: the kind lets the agent report it (a dormer, review) instead of a roof edit
             out.append(_v("X2", "major", c["opening_id"], c["reason"], height=c["height"], kind=OPENING_CLIP_KIND))
     if over is not None:
-        cut = R.wall_cut(roof)
+        cut = R.wall_cut(roof, [w for w in prep["building"].get("walls") or [] if w.get("level_id") == over["id"]])
         for w in B.openings_through_roof(prep["building"], over, cut):
             out.append(_v("X2", "major", w.split(":")[0], w))
         for w in B.pieces_above_ceiling(prep["building"], over):
@@ -414,7 +417,7 @@ def _x2(building: dict, prep: dict, scene_manifest: Optional[dict], out: list) -
             continue
         cx, cy, cz = (float(v) for v in box["center"])
         top = cz + float(box["size"][2]) / 2.0
-        if R.covers(roof, cx, cy) and top > R.surface_z(roof["equations"], cx, cy) + 0.02:
+        if R.covers(roof, cx, cy) and top > R.top_z(roof, cx, cy) + 0.02:
             # fix round after P4a: the box is the round's built scene, not the building checked (``source``)
             out.append(_v("X2", "critical", o.get("wenart_id") or o.get("name"),
                           f"{o.get('name')} pokes through the roof (top {top:.2f} m)", top=top,
@@ -1092,7 +1095,7 @@ def validate_exterior_override(building: dict, override: dict) -> dict:
                    and geom2d.distance_to_polygon_edges(p, roof["outline"]) > 1e-3 and not R.in_opening(roof, *p)]
             if bad:
                 failed.append(f"the roof would leave {len(bad)} outline corners uncovered")
-            if not roof.get("convex"):
+            if not roof.get("convex") and not roof.get("parts"):      # 27 Oct 2026: a stepped hip roof is built
                 failed.append("the roof planes would not be convex")
     if override.get("ground") is not None:
         failed += _look_problems("ground", override["ground"])

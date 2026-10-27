@@ -394,7 +394,7 @@ def eaves_edges(roof_model: Optional[dict]) -> list[dict]:
         zs = []
         for t in (0.15, 0.5, 0.85):
             x, y = p[0] + ux * t * length + nx * 0.05, p[1] + uy * t * length + ny * 0.05
-            zs.append(R.surface_z(roof_model["equations"], x, y))
+            zs.append(R.top_z(roof_model, x, y))
         if not all(abs(z - eaves) <= KIT["eaves_tol"] for z in zs):
             continue
         # 24 Oct 2026 (real04): a roof terrace cut into the roof has no eaves: the gutter ran on along its parapet

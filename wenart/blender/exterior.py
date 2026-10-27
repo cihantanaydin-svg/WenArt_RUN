@@ -444,7 +444,7 @@ class ExteriorModel:
                                                           or geom2d.distance_to_polygon_edges((x, y), outline) < CLEARANCE):
                 return "copy"
         if self.roof is not None and self.roof.get("equations") and G.point_in_polygon((x, y), self.roof["outline"]):
-            top = R.surface_z(self.roof["equations"], x, y)
+            top = R.top_z(self.roof, x, y)
             if top - self.roof["thickness"] - CLEARANCE <= z <= top + CLEARANCE:
                 return "roof"
         for (a, b, half, ztop) in self.walls:
@@ -495,7 +495,8 @@ def build_model(building: dict, levels: Sequence[dict], roof_model: Optional[dic
                 ) -> ExteriorModel:
     """The ``ExteriorModel`` of a variant (pure): its levels, roof, plot walls, trees and a coarse ground."""
     m = ExteriorModel()
-    m.roof = roof_model if roof_model and roof_model.get("convex") else None
+    # 27 Oct 2026: a stepped hip roof (``parts``) is built and seen like a convex one (roof.top_z, roof.roof_solid)
+    m.roof = roof_model if roof_model and (roof_model.get("convex") or roof_model.get("parts")) else None
     for outline, z0, planes, z1 in level_prisms(building, levels, roof_model):
         m.prisms.append((outline, z0, planes, z1))
         for piece in geom2d.convex_pieces(outline):

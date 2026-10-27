@@ -4,7 +4,9 @@ What: pure functions the pipeline calls in a multi-region project: ``level_field
 elevation and ceiling from the section, floor to floor), ``variants_block`` (with ``rooms_changed`` and
 ``exterior_changed``), ``slabs_block`` (outline = the outer face of the outer walls, stair voids, thickness from the
 section; a slab that differs for an alternative again as ``sl_<above>__<variant id>``), ``roof_block`` (type,
-heights, outline, break line, ridge lines, profile, terrace openings; ``planes`` left empty for track E),
+heights, outline, break line, ridge lines, profile, terrace openings; ``planes`` left empty for track E; 27 Oct
+2026: a roof plan's eaves loop put on the top level's walls and checked, ``roof_outline_record``, recorded as
+``roof_plan_outline`` and used as the outline when it passes),
 ``facade_block`` (drawn faces and one ``elevations`` entry per elevation with its ``plan_check``) and
 ``site_block`` (drawn ground levels per side, north, label records, plot / paving / grass / parking / trees from
 the registered site plan).
@@ -273,10 +275,168 @@ def slabs_block(sheets: dict, levels: list[dict], unions: dict, furniture: list[
 # Roof
 # ----------------------------------------------------------------------------------------------------------------
 
+# 27 Oct 2026 (real06's roof plan drew the hip roof over the first-floor balcony; the roof was built over the outer
+# walls + overhang): the roofs a roof plan draws (``exterior.roof_plan_outline``, in the roof plan's own metres) are
+# put on the top level's outer walls and checked before the build uses them. Every value has a physical reason.
+ROOF_FIT = {
+    # a roof plan and a floor plan of one set agree to about a plaster layer: the drawn wall line (else the eaves loop
+    # moved in by the overhang) lies on the top level's outer wall faces within this RMS ...
+    "rms_max_m": 0.10,
+    # ... along at least this share of its length (the rest: a balcony, terrace or porch the roof reaches over, piers)
+    "share_min": 0.5,
+    # the roof covers the top level's outer wall faces: at most this much of their plan may stick out (a pier, a few
+    # cm of drawing error along a facade)
+    "uncovered_max_m2": 0.5, "uncovered_max_share": 0.01,
+    # eaves stand at most this far out of the walls; a roof that reaches farther covers something under it
+    "overhang_max_m": 1.5,
+    # ... a drawn outdoor space (a balcony, terrace, veranda, porch): its label or outline this close to that part
+    "space_reach_m": 1.0,
+    # a piece past the overhang smaller than this is the corner of the overhang, not a reach
+    "piece_min_m2": 0.5,
+    # a roof more than this many times the plan of the walls under it is no roof of this building (a plot line)
+    "area_max_ratio": 3.0,
+    # the overhangs tried when the roof plan draws no wall line and no section gives the overhang (usual eaves)
+    "overhang_tries_m": (0.3, 0.4, 0.5, 0.6, 0.75, 1.0),
+}
+
+
+def _space_anchors(site: Optional[dict], rooms: list[dict], level_ids: set) -> list[tuple[str, object]]:
+    """``[(id, shapely geometry)]`` of the drawn outdoor spaces of ``level_ids``: labelled site areas whose label
+    names one (``wenart.levels.outdoor.space_kind``: their outline, else their label point) and balcony or terrace
+    rooms (pure apart from shapely)."""
+    from shapely.geometry import Point
+    from wenart.levels import outdoor as OD
+
+    out = []
+    for a in (site or {}).get("areas") or []:
+        if not isinstance(a, dict) or (a.get("level_id") not in level_ids and a.get("level_id") is not None):
+            continue
+        if OD.space_kind(a.get("label_raw") or a.get("label")) is None:
+            continue
+        poly = a.get("polygon") or ((a.get("outline_inferred") or {}).get("polygon")
+                                    if isinstance(a.get("outline_inferred"), dict) else None)
+        if poly and len(poly) >= 3 and Polygon(poly).is_valid:
+            out.append((str(a.get("id")), Polygon(poly)))
+        elif a.get("anchor"):
+            out.append((str(a.get("id")), Point(a["anchor"])))
+    for r in rooms:
+        if r.get("level_id") in level_ids and r.get("room_type") in ("balcony", "terrace") \
+                and len(r.get("polygon") or []) >= 3:
+            out.append((str(r["id"]), Polygon(r["polygon"])))
+    return out
+
+
+def roof_outline_record(plan: dict, walls: list[dict], level_id: str, site: Optional[dict] = None,
+                        rooms: Optional[list[dict]] = None, overhang: Optional[float] = None,
+                        levels: Optional[list[dict]] = None) -> dict:
+    """The roof plan's roofs put on the building (pure apart from shapely; ``ROOF_FIT``).
+
+    How: the drawn wall line of the roof plan (else its eaves loop moved in by ``overhang``, else by each of
+    ``overhang_tries_m``) is fitted onto the outer wall faces of ``level_id`` (``geom2d.wall_outline``) by the trimmed
+    ICP of the plan registration (``register.fit_ring``: 0/90/180/270 degrees); the eaves loop and every other roof
+    move with it. The eaves loop is used as the roof's outline when: the fit is close (``rms_max_m`` along at least
+    ``share_min`` of the line); it covers the outer wall faces (``uncovered_max_*``); it is not much larger than the
+    walls' plan (``area_max_ratio``); and every part of it farther than ``overhang_max_m`` from the walls covers a drawn
+    outdoor space of the level or one below (``space_reach_m``: the balcony a roof plan draws the roof over). Else the
+    reason is given and the build keeps the walls + overhang (assumed).
+
+    ``{"region_id", "used", "reason", "points" (building metres, None when not placed), "others": [{"points",
+    "area_m2", "touches_main", "layers", "entities"}], "fit": {"rotation_deg", "shift", "rms_m", "within_m", "line"},
+    "reaches": [{"area_m2", "spaces"}], "min_overhang_m", "drawn_overhang_m", "evidence", "note"}``."""
+    from shapely.geometry import Polygon as SPolygon
+
+    from wenart.blender import geom2d
+    from wenart.sheets import register as RG
+
+    cfg = ROOF_FIT
+    rec = {"region_id": plan.get("region_id"), "used": False, "reason": None, "points": None, "others": [],
+           "fit": None, "reaches": [], "min_overhang_m": None, "drawn_overhang_m": plan.get("overhang_m"),
+           "evidence": [dict(e, rule="roof_plan_outline") for e in plan.get("evidence") or []],
+           "note": plan.get("note")}
+    wall_line, _how = geom2d.wall_outline([w for w in walls if w.get("level_id") == level_id])
+    if len(wall_line) < 3:
+        rec["reason"] = f"no outer walls of {level_id} to put the roof plan on"
+        return rec
+    ref = SPolygon(wall_line)
+    eaves = SPolygon(plan["points"])
+    if not eaves.is_valid or eaves.area <= 0:
+        rec["reason"] = "the roof plan's eaves loop is no valid polygon"
+        return rec
+    tries = []
+    if plan.get("wall_line"):
+        tries.append((SPolygon(plan["wall_line"]), "the drawn wall line"))
+    offsets = [] if tries else ([overhang] if overhang else []) + list(cfg["overhang_tries_m"])
+    for d in offsets:
+        moved_in = eaves.buffer(-float(d), join_style=2)
+        if moved_in.geom_type == "Polygon" and not moved_in.is_empty:
+            tries.append((moved_in, f"the eaves loop {float(d):.2f} m in"))
+    best = None
+    for poly, what in tries:
+        fit = RG.fit_ring(poly, ref)
+        if best is None or fit["rms_m"] < best[0]["rms_m"]:
+            best = (fit, what)
+    if best is None:
+        rec["reason"] = "nothing of the roof plan to fit on the walls"
+        return rec
+    fit, what = best
+    rec["fit"] = dict(fit, line=what, within_m={str(k): v for k, v in fit["within_m"].items()})
+    if fit["rms_m"] > cfg["rms_max_m"] or fit["within_m"][0.10] < cfg["share_min"]:
+        rec["reason"] = (f"{what} of {plan.get('region_id')} does not fit on the outer walls of {level_id} (RMS "
+                         f"{fit['rms_m']:.2f} m, {fit['within_m'][0.10]:.0%} of it within 0.10 m; needs "
+                         f"{cfg['rms_max_m']:.2f} m along {cfg['share_min']:.0%})")
+        return rec
+    th = math.radians(fit["rotation_deg"])
+    ca, sa = math.cos(th), math.sin(th)
+    tx, ty = fit["shift"]
+
+    def place(pts: list) -> list:
+        return [[round(ca * x - sa * y + tx, 4) + 0.0, round(sa * x + ca * y + ty, 4) + 0.0] for x, y in pts]
+
+    rec["points"] = place(plan["points"])
+    rec["others"] = [dict({k: o.get(k) for k in ("area_m2", "touches_main", "layers", "entities", "hip_lines")},
+                          points=place(o["points"])) for o in plan.get("others") or []]
+    roof_poly = SPolygon(rec["points"])
+    over = roof_poly.exterior.distance(ref.exterior) if roof_poly.contains(ref) else None
+    rec["min_overhang_m"] = round(over, 3) if over is not None else None       # the least eaves-to-wall distance
+    uncovered = ref.difference(roof_poly).area
+    if uncovered > max(cfg["uncovered_max_m2"], cfg["uncovered_max_share"] * ref.area):
+        rec["reason"] = (f"placed on the walls, the roof plan's eaves loop leaves {uncovered:.2f} m2 of the outer "
+                         f"walls of {level_id} uncovered")
+        return rec
+    if roof_poly.area > cfg["area_max_ratio"] * ref.area:
+        rec["reason"] = (f"the roof plan's eaves loop ({roof_poly.area:.1f} m2) is more than "
+                         f"{cfg['area_max_ratio']:g} times the plan of the walls of {level_id} ({ref.area:.1f} m2)")
+        return rec
+    order = {lv["id"]: float(lv.get("elevation") or 0.0) for lv in levels or []}
+    top_z = order.get(level_id)
+    under = {lid for lid, z in order.items() if top_z is None or z <= top_z + 1e-6} | {level_id}
+    spaces = _space_anchors(site, rooms or [], under)
+    far = roof_poly.difference(ref.buffer(cfg["overhang_max_m"], join_style=2))
+    lost = []
+    for piece in getattr(far, "geoms", [far]):
+        if piece.is_empty or piece.area < cfg["piece_min_m2"]:
+            continue
+        near = sorted({sid for sid, g in spaces if g.distance(piece) <= cfg["space_reach_m"]})
+        rec["reaches"].append({"area_m2": round(piece.area, 3), "spaces": near})
+        if not near:
+            lost.append(piece.area)
+    if lost:
+        rec["reason"] = (f"placed on the walls, the roof plan's eaves loop reaches more than "
+                         f"{cfg['overhang_max_m']:.1f} m past the walls of {level_id} over {sum(lost):.2f} m2 where no "
+                         f"balcony, terrace, veranda or porch is drawn")
+        return rec
+    rec["used"] = True
+    rec["note"] = (plan.get("note") or "") + (f"; put on the outer walls of {level_id} by {what} (RMS "
+                                              f"{fit['rms_m']:.3f} m, turned {fit['rotation_deg']:.0f} deg)")
+    return rec
+
+
 def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optional[list[dict]] = None,
-               shift: Shift = (0.0, 0.0)) -> Optional[dict]:
+               shift: Shift = (0.0, 0.0), site: Optional[dict] = None) -> Optional[dict]:
     """The roof over the top level, or None when neither a section nor a plan draws it (the build then makes a flat
-    roof over the top level, assumed)."""
+    roof over the top level, assumed). 27 Oct 2026: a roof plan's eaves loop becomes the outline when it fits the top
+    level's walls (``roof_outline_record``; ``site``: the drawn outdoor spaces a roof may reach over); the record is
+    ``roof_plan_outline``."""
     heights = sheets.get("heights") or {}
     hroof = heights.get("roof") or {}
     ex = (sheets.get("exterior") or {}).get("roof")
@@ -309,8 +469,24 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
             "assumed": assumed, "evidence": list((ex or {}).get("evidence") or [])}
     if not ex:
         roof["assumed"].append("roof type (no roof plan, elevation or plan roof lines)")
+    why_not = None
+    plan = (ex or {}).get("plan_outline")
+    if isinstance(plan, dict) and plan.get("points") and top is not None:
+        # 27 Oct 2026: the roof plan's own outline (its eaves loop, the balcony or porch it reaches over), put on the
+        # top level's walls; the drawn outline of the top plan (roof_from_plan) stays first
+        rec = roof_outline_record(plan, walls or [], top["id"], site, rooms, _value_of(hroof.get("overhang")), levels)
+        roof["roof_plan_outline"] = rec
+        if roof["outline"] is None and rec["used"]:
+            roof["outline"], roof["outline_source"] = rec["points"], "roof_plan"
+            roof["evidence"] = list(roof["evidence"]) + rec["evidence"]
+        elif roof["outline"] is None:
+            why_not = rec["reason"]
+    elif (ex or {}).get("plan_outline_note"):
+        why_not = ex["plan_outline_note"]
+        roof["roof_plan_outline"] = {"region_id": None, "used": False, "reason": why_not, "points": None,
+                                     "others": [], "evidence": []}
     if roof["outline"] is None:
-        roof["assumed"].append("outline (the outer walls + overhang)")
+        roof["assumed"].append("outline (the outer walls + overhang)" + (f": {why_not}" if why_not else ""))
     for r in rooms:
         if top is not None and r["level_id"] == top["id"] and r.get("room_type") == "balcony":
             polygon, parapets = terrace_opening(r, [w for w in walls or [] if w["level_id"] == top["id"]],
@@ -324,6 +500,14 @@ def roof_block(sheets: dict, levels: list[dict], rooms: list[dict], walls: Optio
         roof["evidence"] = [e for k in ("eaves_z", "ridge_z") for e in (hroof.get(k) or {}).get("evidence") or []][:2]
     roof["status"] = "verified" if ex and roof["type_source"] != "assumed" else "assumed"
     return roof
+
+
+def _value_of(entry) -> Optional[float]:
+    v = entry.get("value") if isinstance(entry, dict) else entry
+    try:
+        return None if v is None else float(v)
+    except (TypeError, ValueError):
+        return None
 
 
 def terrace_opening(room: dict, walls: list[dict], outline: Optional[list]) -> tuple[list, list]:

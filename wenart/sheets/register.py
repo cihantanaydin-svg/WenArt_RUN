@@ -313,6 +313,34 @@ def register(plans: list, reference, conflict: Callable, warnings: list) -> dict
     return outlines
 
 
+def fit_ring(moving: Polygon, reference: Polygon, rotations=(0.0, 90.0, 180.0, 270.0)) -> dict:
+    """The rotation (``rotations``, degrees) and shift that put the ring of ``moving`` on the ring of ``reference``
+    (both metres; pure): the same trimmed ICP as ``register`` (the 80 % nearest points: a part of one ring the other
+    does not draw, a balcony a roof plan covers, does not pull it), started from the boxes' centres and corners; the
+    lowest trimmed RMS wins (0 degrees on ties). ``{"rotation_deg", "shift": [dx, dy], "rms_m", "within_m":
+    {0.05: share, 0.10: share}}``: ``p_ref = R(rotation) p + shift``."""
+    ring = LineString(reference.exterior.coords)
+    rb = reference.bounds
+    pts0 = _points(moving, 1.0)
+    best = None
+    for theta in rotations:
+        pts = pts0 @ _rot(theta).T
+        mb = (pts[:, 0].min(), pts[:, 1].min(), pts[:, 0].max(), pts[:, 1].max())
+        inits = [((rb[0] + rb[2]) / 2 - (mb[0] + mb[2]) / 2, (rb[1] + rb[3]) / 2 - (mb[1] + mb[3]) / 2),
+                 (rb[0] - mb[0], rb[1] - mb[1]), (rb[2] - mb[2], rb[1] - mb[1]),
+                 (rb[0] - mb[0], rb[3] - mb[3]), (rb[2] - mb[2], rb[3] - mb[3])]
+        for init in inits:
+            t, rms = icp(pts, ring, np.array(init, dtype=float))
+            key = (round(rms, 4), theta != 0.0)
+            if best is None or key < best[0]:
+                best = (key, theta, t, rms)
+    _, theta, t, rms = best
+    pts = pts0 @ _rot(theta).T + t
+    d = np.hypot(*(_nearest(ring, pts) - pts).T)
+    return {"rotation_deg": float(theta), "shift": [_r(t[0]), _r(t[1])], "rms_m": round(float(rms), 4),
+            "within_m": {0.05: round(float((d <= 0.05).mean()), 4), 0.10: round(float((d <= 0.10).mean()), 4)}}
+
+
 def _size(poly) -> str:
     b = poly.bounds
     return f"{b[2] - b[0]:.2f} x {b[3] - b[1]:.2f} m"

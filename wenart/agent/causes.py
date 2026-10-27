@@ -327,6 +327,9 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     # 26 Oct 2026: the model review's M8 (steps of two doors that meet, a handrail or a ramp in front of another
     # door, steps in front of a garage): the site stage lays out every entrance's steps by code
     "entrance_layout": (),
+    # 27 Oct 2026: the roof's outline against the roof plan (model review M11): the reading puts the roof plan's
+    # eaves loop on the walls; no agent tool draws a roof outline
+    "roof_reading": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -384,6 +387,9 @@ NO_TOOL_REASON: dict[str, str] = {
                   "error, so it is reported for review, not retyped",
     "resolved_by_code": "a reading conflict the code already resolved (the drawing won, the item was moved to the "
                         "symbols): it names no furniture piece or room, so there is nothing to edit; reported",
+    "roof_reading": "the roof's outline comes from the roof plan (the reading puts its eaves loop on the walls, "
+                    "wenart.sheets.to_building.roof_outline_record): no agent tool draws a roof outline, so the "
+                    "finding is reported to the reading stage",
     "unknown": "no agent tool fixes this check",
 }
 # Fix round after P6b: why a drawn fixed piece's F7 / G12 / G8 is "not yours" (``FIXTURE_LAYOUT``).
@@ -404,6 +410,8 @@ REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor",
                              "rain_water": "architect",
                              # 26 Oct 2026: the entrance steps (model review M8) are the site stage's
                              "entrance_layout": "site",
+                             # 27 Oct 2026: the roof against the roof plan (M11) is the reading's
+                             "roof_reading": "reading",
                              # fix round after P4b: a frozen replayed camera, a decor light's model
                              "replayed_camera": "cameras", "decor_model": "decor",
                              # fix round after P5: a blocked view the camera search could not avoid
@@ -451,7 +459,7 @@ CHECK_CAUSE: dict[str, str] = {
     "Q6": "orientation", "Q7": "opening_style", "Q8": "rain_water", "Q9": "entrance_layout",
     # 26 Oct 2026: the review of the 3D model as built (wenart/blender/model_review.py; cause_of refines M7)
     "M1": "levels", "M2": "wrong_model", "M3": "guard", "M4": "opening_sense", "M5": "rain_water",
-    "M6": "opening_style", "M7": "missing_anchor", "M8": "entrance_layout",
+    "M6": "opening_style", "M7": "missing_anchor", "M8": "entrance_layout", "M11": "roof_reading",
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",

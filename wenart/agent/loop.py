@@ -655,7 +655,7 @@ ARGUS_MAX_CALLS = 30            # 26 Oct 2026: Argus's own edits per round at mo
 NOT_REMEASURED = frozenset({"S1", "S2", "S3", "S4", "S5", "S6", "V1", "V2", "V3", "X6", "L7", "R4", "R5", "X8",
                             *CS.LIGHTING_CHECKS, CS.CAMERA_BLOCKED_CHECK,       # fix round after P5: + blocked view
                             # 26 Oct 2026: the review of the model as built needs a build: carried, never "removed"
-                            "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"})
+                            "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M11"})
 
 
 def lighting_kept(finding: Optional[dict], building_after: Optional[dict]) -> Optional[dict]:

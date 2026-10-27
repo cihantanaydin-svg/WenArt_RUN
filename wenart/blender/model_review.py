@@ -25,6 +25,15 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   door's approach zone (``site.door_approach``: the door's width + 0.1 m on each side, 1.0 m out; critical), no ramp
   passes in front of another door (major), no steps or landing in front of a door into a garage or carport (major).
   Measured on the steps as built (``prep["site"]["inferred"]``: ``site.entrance_layout``).
+- M11 the roof as the roof plan draws it (27 Oct 2026, real06: the roof plan drew the hip roof over the first-floor
+  balcony, the model left the balcony open to the sky; user: "Make argus catch these kind of things before me"): the
+  built roof's footprint (``prep["roof"]``: its outline without its terrace openings) against the eaves loop the roof
+  plan draws (``roof.roof_plan_outline``, put on the walls by ``wenart.sheets.to_building``): an outline assumed (the
+  walls + overhang) while a roof plan draws it is ``major`` (kind ``misread``); a drawn outdoor space the drawn roof
+  covers and the built roof leaves open (``M11_OPEN_M2`` / ``M11_OPEN_SHARE``) is ``major`` (kind ``lost``); a built
+  footprint whose overlap with the drawn one (IoU) is under ``M11_IOU_MIN`` is ``major``; a lower roof the roof plan
+  draws (a porch or veranda roof) with no built roof over most of it is ``major`` (kind ``lost``). Polygon areas
+  are exact (convex pieces clipped against each other, ``overlap_area``): no shapely inside Blender.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -48,7 +57,8 @@ DOOR_TOL_M = 0.03               # a door's bottom within this of its floor stand
 STEP_MAX_M = 0.20               # two floors joined by a door differ by at most one step (more needs a drawn stair)
 GUARD_SILL_M = 0.85             # an opening whose bottom is lower over its floor needs a guard over a drop ...
 DROP_M = 1.0                    # ... of this much to the ground outside
-GUTTER_MIN_M = 1.5              # a gutter run shorter than this is broken-up eaves
+GUTTER_MIN_M = 1.5              # a gutter run shorter than this is broken-up eaves ...
+GUTTER_DRAWN_TOL_M = 0.15       # ... unless it runs along a drawn eaves edge of its length (within a gutter's width)
 # type -> (lowest top, highest top) over the room's floor, the working height a visitor sees at once
 WORKING_TOPS = {"washbasin": (0.78, None), "kitchen_counter": (0.84, 0.97), "sink_kitchen": (0.80, 1.30),
                 "table_dining": (0.68, 0.82), "desk": (0.68, 0.82)}
@@ -57,14 +67,25 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M11")
+# M11 (27 Oct 2026): the roof as the roof plan draws it. Physical reasons:
+M11_IOU_MIN = 0.90              # the built roof's footprint matches the drawn eaves loop within a gutter's width all
+                                # round (a 0.15 m band around a 10 x 15 m roof is about 5 % of it)
+M11_OPEN_M2 = 1.0               # a drawn-covered outdoor space left open over more than a chair's room ...
+M11_OPEN_SHARE = 0.25           # ... or a quarter of it is a roof the model lost
+M11_DRAWN_SHARE = 0.5           # a space is drawn covered when the drawn roof lies over at least half of it
+M11_CLEAR_M = 2.1               # a roof is over a space when its eaves stand a door's clear height over its floor
+M11_OTHER_SHARE = 0.5           # a drawn lower roof is built when built roofs lie over at least half of it
 REVIEW_JSON = "model_review.json"          # beside the scene (outputs/<p>/scene/)
 REVIEW_MD = "model_review.md"
 
 
-def _v(check: str, severity: str, target, message: str, room_id=None, **metrics) -> dict:
-    return {"check": check, "severity": severity, "target": target, "room_id": room_id, "message": message,
-            "metrics": dict(metrics, model_review=True)}
+def _v(check: str, severity: str, target, message: str, room_id=None, kind: Optional[str] = None, **metrics) -> dict:
+    out = {"check": check, "severity": severity, "target": target, "room_id": room_id, "message": message,
+           "metrics": dict(metrics, model_review=True)}
+    if kind:
+        out["kind"] = kind               # the problem kind (wenart.audit.kinds) when the check's default is not it
+    return out
 
 
 def _levels(built: dict) -> dict:
@@ -204,6 +225,12 @@ def rain_water(plan_boxes: list, roof: Optional[dict]) -> tuple[list[dict], int]
     area = G.polygon_area((roof or {}).get("outline") or []) if len((roof or {}).get("outline") or []) >= 3 else 0.0
     cap = max(2, int(math.ceil(area / FA.KIT["area_per_pipe_m2"]))) if area > 0 else None
     short = [b for b in gutters if float(b["size"][0]) < GUTTER_MIN_M]
+    # 27 Oct 2026: a drawn roof outline (a roof plan's eaves loop) that steps in and out has its short eaves edges as
+    # drawn; the gutter along such an edge (its length within a gutter's width of the edge's) is no broken-up eaves
+    outline = (roof or {}).get("outline") or []
+    if short and len(outline) >= 3 and not any(a.get("field") == "outline" for a in (roof or {}).get("assumed") or []):
+        edges = [G.distance(outline[i], outline[(i + 1) % len(outline)]) for i in range(len(outline))]
+        short = [b for b in short if not any(abs(float(b["size"][0]) - e) <= GUTTER_DRAWN_TOL_M for e in edges)]
     if close:
         out.append(_v("M5", "major", "building", f"{len(close)} pair(s) of downpipes stand closer than "
                       f"{FA.KIT['pipe_gap_m']:.1f} m", None, pipes=len(pipes)))
@@ -323,6 +350,139 @@ def entrances_make_sense(built: dict, inferred: Optional[dict]) -> tuple[list[di
     return out, len(ents)
 
 
+def _clip_convex(subject: list, clip: list) -> list:
+    """The part of the convex polygon ``subject`` inside the convex counter-clockwise polygon ``clip`` (pure)."""
+    from wenart.blender import geom2d
+    poly = list(subject)
+    n = len(clip)
+    for i in range(n):
+        p, q = clip[i], clip[(i + 1) % n]
+        a, b = q[1] - p[1], -(q[0] - p[0])                 # a x + b y + c <= 0: left of p -> q (inside)
+        poly = geom2d.clip_half_plane(poly, a, b, -(a * p[0] + b * p[1]))
+        if not poly:
+            return []
+    return poly
+
+
+def overlap_area(a, b) -> float:
+    """The area two simple polygons share (pure, exact: their convex pieces clipped against each other)."""
+    from wenart.blender import geom2d
+    if len(a or []) < 3 or len(b or []) < 3:
+        return 0.0
+    pa = geom2d.convex_pieces(geom2d.ccw(a))
+    pb = [geom2d.ccw(q) for q in geom2d.convex_pieces(geom2d.ccw(b))]
+    return sum(G.polygon_area(c) for x in pa for y in pb for c in [_clip_convex(x, y)] if len(c) >= 3)
+
+
+def _built_cover(space_poly, outline, holes) -> float:
+    """The area of ``space_poly`` under the built roof (its outline less its terrace openings)."""
+    return max(0.0, overlap_area(space_poly, outline) - sum(overlap_area(space_poly, h) for h in holes))
+
+
+OPEN_STEP_M = 0.10              # the sky over a space is sampled this fine (a 10 cm grid: a few hundredths of a m2)
+
+
+def open_area(poly, outline, holes: list, others: list, step: float = OPEN_STEP_M, within=None) -> float:
+    """The area of ``poly`` open to the sky (pure, sampled on a ``step`` grid): neither under the roof's ``outline``
+    (its terrace openings ``holes`` left open) nor under any of ``others`` (light roofs, floors and slabs above);
+    ``within``: only the part of ``poly`` inside this polygon counts (where a drawing puts a roof over it)."""
+    xs, ys = [float(p[0]) for p in poly], [float(p[1]) for p in poly]
+    n_open = 0
+    y = min(ys) + step / 2.0
+    while y < max(ys):
+        x = min(xs) + step / 2.0
+        while x < max(xs):
+            p = (x, y)
+            if G.point_in_polygon(p, poly) and (within is None or G.point_in_polygon(p, within)) and not (
+                    (len(outline) >= 3 and G.point_in_polygon(p, outline)
+                     and not any(G.point_in_polygon(p, h) for h in holes))
+                    or any(G.point_in_polygon(p, q) for q in others)):
+                n_open += 1
+            x += step
+        y += step
+    return n_open * step * step
+
+
+def _covers_over(built: dict, z: float, clear: float = 1.0) -> list:
+    """The polygons over a floor at ``z`` besides the roof (pure): the slabs of the floors above, the outdoor spaces
+    above (a balcony's slab over a veranda) and the light roofs of the outdoor spaces, all ``clear`` or more higher."""
+    out = [s["outline"] for s in built.get("slabs") or [] if len(s.get("outline") or []) >= 3
+           and float(s.get("z_top") or 0.0) > z + clear]
+    site = built.get("site") if isinstance(built.get("site"), dict) else {}
+    for s in site.get("outdoor_spaces") or []:
+        if len(s.get("polygon") or []) >= 3 and float(s.get("z") or 0.0) > z + clear:
+            out.append(s["polygon"])
+        lr = s.get("roof") if isinstance(s.get("roof"), dict) else None
+        if lr and len(lr.get("polygon") or []) >= 3 and float(lr.get("top_z") or 0.0) > z + clear:
+            out.append(lr["polygon"])
+    return out
+
+
+def roof_vs_plan(built: dict, roof_model: Optional[dict]) -> tuple[list[dict], int]:
+    """M11: the roof as built against the roofs the roof plan draws (module docstring). ``roof_model``: the roof the
+    build makes (``roof.roof_model`` through ``build.prepare``). ``(findings, checked)``; 0 checked when no roof plan
+    outline was read (nothing to compare)."""
+    roof = built.get("roof") if isinstance(built.get("roof"), dict) else None
+    rec = (roof or {}).get("roof_plan_outline")
+    if not isinstance(rec, dict):
+        return [], 0
+    rid = rec.get("region_id") or "the roof plan"
+    out = []
+    used = (roof or {}).get("outline_source") == "roof_plan"
+    top_plan = any(isinstance(e, dict) and e.get("rule") == "roof_outline" for e in roof.get("evidence") or [])
+    if not used and not top_plan:
+        out.append(_v("M11", "major", "roof", f"the roof is built over the outer walls + overhang (assumed) while "
+                      f"{rid if rec.get('region_id') else 'a roof plan'} draws its outline: "
+                      f"{rec.get('reason') or 'its outline was not used'}", kind="misread",
+                      roof_plan=rec.get("region_id"), reason=rec.get("reason")))
+    drawn = rec.get("points") or []
+    outline = (roof_model or {}).get("outline") or []
+    if len(drawn) < 3 or len(outline) < 3:
+        return out, 1
+    holes = [o["polygon"] for o in (roof_model or {}).get("openings") or [] if len(o.get("polygon") or []) >= 3]
+    a_d, a_b = G.polygon_area(drawn), G.polygon_area(outline) - sum(G.polygon_area(h) for h in holes)
+    inter = _built_cover(drawn, outline, holes)
+    iou = inter / max(1e-9, a_d + a_b - inter)
+    eaves = roof_model.get("eaves_z")
+    site = built.get("site") if isinstance(built.get("site"), dict) else {}
+    opened = []
+    for s in site.get("outdoor_spaces") or []:
+        poly = s.get("polygon") or []
+        if len(poly) < 3 or (eaves is not None and float(eaves) - float(s.get("z") or 0.0) < M11_CLEAR_M):
+            continue
+        area = G.polygon_area(poly)
+        under = overlap_area(poly, drawn)
+        if area <= 0 or under < M11_DRAWN_SHARE * area:
+            continue
+        # open to the sky as built: under no roof, light roof, floor or slab above (the sampled area), counted where
+        # the drawn roof is over it
+        gap = open_area(poly, outline, holes, _covers_over(built, float(s.get("z") or 0.0)), within=drawn)
+        if gap >= max(M11_OPEN_M2, M11_OPEN_SHARE * area):
+            opened.append(s.get("id"))
+            out.append(_v("M11", "major", s.get("id"), f"{rid} draws the roof over {s.get('id')} "
+                          f"({s.get('label') or s.get('kind')}): the built roof leaves {gap:.1f} m2 of it open to the "
+                          f"sky", s.get("id"), kind="lost", roof_plan=rid, open_m2=round(gap, 3),
+                          area_m2=round(area, 3)))
+    if iou < M11_IOU_MIN:
+        out.append(_v("M11", "major", "roof", f"the built roof matches {rid}'s outline by {iou:.0%} (IoU): "
+                      f"{a_d - inter:.1f} m2 drawn left open, {max(0.0, a_b - inter):.1f} m2 built where none is drawn"
+                      + (f" (over {', '.join(map(str, opened))})" if opened else ""), kind="misread",
+                      roof_plan=rid, iou=round(iou, 4), drawn_m2=round(a_d, 3), built_m2=round(a_b, 3)))
+    light = [s["roof"]["polygon"] for s in site.get("outdoor_spaces") or []
+             if isinstance(s.get("roof"), dict) and len(s["roof"].get("polygon") or []) >= 3]
+    for k, other in enumerate(rec.get("others") or []):
+        pts = other.get("points") or []
+        if len(pts) < 3:
+            continue
+        area = G.polygon_area(pts)
+        got = min(area, _built_cover(pts, outline, holes) + sum(overlap_area(pts, q) for q in light))
+        if area > 0 and got < M11_OTHER_SHARE * area:
+            out.append(_v("M11", "major", "roof", f"{rid} draws another roof of {area:.1f} m2 (a lower roof, a porch "
+                          f"or veranda roof) beside the main one; the model builds a roof over {got:.1f} m2 of it",
+                          kind="lost", roof_plan=rid, other=k, area_m2=round(area, 3), built_m2=round(got, 3)))
+    return out, 1 + len(rec.get("others") or [])
+
+
 def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[dict] = None) -> dict:
     """The review of the built model (module docstring). ``prep``: ``build.prepare`` of ``built`` (made here when not
     given; the plan of a whole building has the site, the outlines and the roof the facade kit needs)."""
@@ -376,6 +536,19 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             note("M8", got, n)
         except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
             checks["M8"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M11 (27 Oct 2026): the roof as the roof plan draws it (the roof the build makes: the plan's, else the model's)
+    try:
+        roof_model = (prep or {}).get("roof")
+        if roof_model is None and isinstance(built.get("roof"), dict):
+            from wenart.blender import roof as R
+            roof_model = R.roof_model(built["roof"], built)
+        got, n = roof_vs_plan(built, roof_model)
+        if n:
+            note("M11", got, n)
+        else:
+            checks["M11"] = {"status": "unavailable", "note": "no roof plan outline read (roof.roof_plan_outline)"}
+    except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
+        checks["M11"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     return {"findings": findings, "checks": checks}
 
 

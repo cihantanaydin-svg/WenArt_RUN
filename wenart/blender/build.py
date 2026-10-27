@@ -1303,7 +1303,8 @@ def main(argv: list[str]) -> int:
         stairs = shell.plan_stairs(building, level, slab_void=arrives)
         wall_whole = None
         if whole:
-            roof_cut = R.wall_cut(roof) if roof and roof["over_level_id"] == level["id"] else None
+            roof_cut = R.wall_cut(roof, [w for w in building["walls"] if w["level_id"] == level["id"]]) \
+                if roof and roof["over_level_id"] == level["id"] else None
             if roof_cut is not None:          # walls under a roof terrace end at the parapet (§1.6b row 13)
                 roof_cut["parapets"] = R.parapet_cuts(roof, building, level)
             wall_whole = {"slab_above": above, "looks": looks, "outline": prep["outlines"].get(level["id"]),
@@ -2280,6 +2281,7 @@ def openings_through_roof(building: dict, level: dict, cut: dict | None) -> list
     underside at their wall (pure): the drawings disagree (a window drawn higher than the knee wall); the
     opening is built as drawn and shows through the roof."""
     from wenart.blender import geom2d, shell
+    from wenart.blender import roof as R
 
     if not cut:
         return []
@@ -2291,7 +2293,7 @@ def openings_through_roof(building: dict, level: dict, cut: dict | None) -> list
             continue
         cx, cy, _ = shell.opening_centre_on_wall(o, wall)
         _bottom, top, _ = shell.opening_vertical(o, level, False)
-        under = geom2d.surface_z(cut["planes"], cx, cy)
+        under = geom2d.surface_z(R.cut_planes_for(cut, wall["id"], wall, (cx, cy)), cx, cy)   # 27 Oct: stepped roofs
         if top > under + 1e-3:
             out.append(f"{o['id']}: its top ({top:.2f} m) is above the roof underside at its wall ({under:.2f} m); "
                        f"built as drawn, it shows through the roof")

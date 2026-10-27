@@ -487,6 +487,18 @@
    "request": "Rooms and outdoor spaces (veranda, terrace) must look like stylish rooms in good internet photos, not like a child's drawing: the AI learns what a good room of each type and style looks like from reference photos found on the internet, finds what the render lacks against them, and the pipeline adds it (interiors and exteriors).",
    "lesson": "Rooms and outdoor spaces (veranda, terrace) must look like stylish rooms in good internet photos, not like a child's drawing: the AI learns what a good room of each type and style looks like from reference photos found on the internet, finds what the render lacks against them, and the pipeline adds it (interiors and exteriors).",
    "question": null
+  },
+  {
+   "id": "UL43",
+   "date": "2026-10-27",
+   "area": "roof",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "The roof as the roof plan draws it: a roof plan's eaves loop is the roof's outline (put on the top level's walls, checked); a balcony, terrace or veranda the plan draws the roof over is covered by it (no sky over it, no light roof of its own), a lower roof the plan draws beside the main one is the roof of the space under it; Argus checks the built roof against the roof plan (model review M11: an outline assumed while drawn, a drawn-covered space left open) (user, 27 Oct 2026, on a two-storey house's renders: 'In the plan roof is covering this balcony also and there is a small roof on top of the rest of the veranda', 'The project needs to find these kind of things by itself without my input', 'Make argus catch these kind of things before me').",
+   "lesson": "A roof plan's eaves loop is the roof's outline, put on the top level's walls and checked; a balcony, terrace or veranda the plan draws the roof over is covered by that roof (no light roof of its own), a lower roof drawn beside the main one is the roof of the space under it; Argus checks the built roof against the roof plan (model review M11).",
+   "question": "Does the built roof cover what the roof plan covers (every balcony, terrace or veranda under the drawn eaves, every lower roof drawn beside it), and is no outline assumed while a roof plan draws it?"
   }
  ]
 }
