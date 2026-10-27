@@ -45,6 +45,29 @@ if [ ! -f "$BL_DIR/.wenart-ok" ]; then
   log "Blender $BL_VER ready"
 fi
 ln -sfn "$BL_DIR" /workspace/tools/blender
+# 27 Oct 2026 (run 215135: the build stopped inside Blender on "No module named 'shapely'"): the build's prepare step
+# (the stairs' arrival fix, the outdoor spaces, the model review) runs inside Blender, whose bundled Python has no
+# shapely. It is installed once into Blender's own Python on the volume (stamped, idempotent) and checked in Blender.
+BL_SHAPELY=2.1.2
+if [ ! -f "$BL_DIR/.wenart-shapely-$BL_SHAPELY" ]; then
+  BL_PY=$(ls "$BL_DIR"/*/python/bin/python3* 2>/dev/null | grep -E 'python3\.[0-9]+$' | head -1 || true)
+  if [ -n "$BL_PY" ]; then
+    "$BL_PY" -m ensurepip --upgrade >/dev/null 2>&1 || true
+    # into Blender's own site-packages (--target): a plain pip install as root lands in ~/.local, which Blender ignores
+    BL_SITE=$("$BL_PY" -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+    if "$BL_PY" -m pip install -q --no-deps --no-user --root-user-action=ignore --target "$BL_SITE" \
+        "shapely==$BL_SHAPELY" \
+        && "$BL_DIR/blender" -b --factory-startup --python-expr "import shapely; print('shapely', shapely.__version__)" \
+           2>/dev/null | grep -q "shapely $BL_SHAPELY"; then
+      touch "$BL_DIR/.wenart-shapely-$BL_SHAPELY"
+      log "shapely $BL_SHAPELY in Blender's Python ($BL_PY)"
+    else
+      log "warning: shapely could not be installed into Blender's Python: the steps that need it are skipped there"
+    fi
+  else
+    log "warning: Blender's bundled Python not found under $BL_DIR"
+  fi
+fi
 
 # --- Python venv (reuses the image's torch via system site packages) ----------
 # The stamp covers the requirements, the interpreter version and the image tag, so a

@@ -2711,7 +2711,10 @@ def stair_under_plan(plan: dict, walls: list[dict]) -> dict:
     ``stair_access.under_stair`` on the level's ``walls`` (the spandrel panels and the posts ``parametric.stair_parts``
     builds) and, when there is something to build, one ``stair_under`` assumed entry. Returns the record."""
     from wenart.blender import stair_access as SA
-    under = SA.under_stair(plan, walls)
+    try:
+        under = SA.under_stair(plan, walls)
+    except ImportError:                     # 27 Oct 2026: no shapely in this Python (Blender before pod_setup's step)
+        return None
     plan["under"] = under
     if under["panels"] or under["posts"]:
         plan["assumed"] = list(plan.get("assumed") or []) + [
