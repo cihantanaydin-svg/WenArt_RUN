@@ -508,7 +508,12 @@
           "void_assumed": {"type": "boolean"},
           "riser_m": {"type": ["number", "null"]},
           "riser_source": {"type": ["string", "null"]},
-          "reason": {"type": "string", "description": "Why direction and turn are assumed"}
+          "reason": {"type": "string", "description": "Why direction and turn are assumed"},
+          "landing_assumed": {"type": "boolean", "description": "27 Oct 2026: two flights side by side whose end strips are thinner than a half landing (the flights' width, at least 0.9 m): the strip is kept, the end of the half landing is assumed"},
+          "landing_source": {"type": "string", "description": "27 Oct 2026: upper plan = the half landing the plan of the next level up draws at that end (stair_access.upper_reading)"},
+          "direction_source": {"type": "string", "description": "27 Oct 2026: upper plan = that plan draws only the flight that arrives on its level"},
+          "upper_plan": {"type": "object", "description": "27 Oct 2026: the same stair on the plan of the next level up: piece_id, level_id, landing_depth, arrives (index of the flight it draws alone)"},
+          "access_fix": {"type": "object", "description": "27 Oct 2026: the architect's K4 at build (stair_access.fix_arrivals): by, rule, reading, reason"}
         }},
         "shape": {"enum": ["round", "L"], "description": "round = a circle fits >= 90 % of the drawn outline (docs/milestone7.md §6.4: a round side table); L = the corner sofa (Milestone 10: chaise_side, chaise_depth); absent = the footprint rectangle"},
         "chaise_side": {"enum": ["left", "right"], "description": "L shape: the side of the chaise; right = local +X = the right of a viewer facing the sofa's front. In the piece frame (front = local -Y, back edge at y = +D/2): main seat x in [-W/2, W/2], y in [D/2 - seat_depth, D/2]; chaise x in [W/2 - chaise_width, W/2] (right) or [-W/2, -W/2 + chaise_width] (left), y in [-D/2, D/2]. A mirrored twin flips it. wenart.furniture.schemas.l_parts gives both rectangles"},

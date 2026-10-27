@@ -549,6 +549,39 @@
    "request": "The roof as the roof plan draws it: a roof plan's eaves loop is the roof's outline (put on the top level's walls, checked); a balcony, terrace or veranda the plan draws the roof over is covered by it (no sky over it, no light roof of its own), a lower roof the plan draws beside the main one is the roof of the space under it; Argus checks the built roof against the roof plan (model review M11: an outline assumed while drawn, a drawn-covered space left open) (user, 27 Oct 2026, on a two-storey house's renders: 'In the plan roof is covering this balcony also and there is a small roof on top of the rest of the veranda', 'The project needs to find these kind of things by itself without my input', 'Make argus catch these kind of things before me').",
    "lesson": "A roof plan's eaves loop is the roof's outline, put on the top level's walls and checked; a balcony, terrace or veranda the plan draws the roof over is covered by that roof (no light roof of its own), a lower roof drawn beside the main one is the roof of the space under it; Argus checks the built roof against the roof plan (model review M11).",
    "question": "Does the built roof cover what the roof plan covers (every balcony, terrace or veranda under the drawn eaves, every lower roof drawn beside it), and is no outline assumed while a roof plan draws it?"
+  },
+  {
+   "id": "UL49",
+   "date": "2026-10-27",
+   "area": "access",
+   "status": "rule",
+   "checks": [
+    "K4",
+    "build"
+   ],
+   "request": "Make argus catch these kind of things before me: the stair must lead into the floor (a pathway from the stair to the rooms)",
+   "lesson": "Every stair leads into its floors: from its last step a visitor walks through a clear way of at least 0.80 m into the rooms of the floor above, and from the rooms of its own floor onto its first step; the floor opening covers only the flights, the half landing and the headroom, never the arrival floor. An assumed stair that is cut off is read the other way at build (the plan of the level above names its half landing; architect K4, the action flip_stair), and the model review's M9 reports every stair, door or floor part no walk reaches, so Argus sees it before the user does.",
+   "question": "Can a visitor walk from the top of every stair into the rooms of that floor, and from the rooms onto its first step, with no floor opening across the way?"
+  },
+  {
+   "id": "UL50",
+   "date": "2026-10-27",
+   "area": "decor",
+   "status": "process",
+   "checks": [],
+   "request": "A throw or any cloth never shows its host through it: a cloth sunk into its host deeper than its own thickness is no rest (not built, reported)",
+   "lesson": "A cloth (a throw) is measured with its own S5 tolerance (rest.REST_TOLERANCES decor_pen_cloth_m 7 mm, under its 8 mm thickness): sunk deeper, the host shows through it and it is not built (not rested, reported); a cushion keeps the soft 3 cm.",
+   "question": null
+  },
+  {
+   "id": "UL51",
+   "date": "2026-10-27",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "Give the agent loop and the big improvement loop time in every run: the regular agent rounds leave the big loop its first measure and a cycle; pod runs may take up to 180 min",
+   "lesson": "AgentLoop.reserve_s (scheduler.big_loop_reserve): the regular rounds leave the big loop its first measure (10 min) and one cycle (a final round's share of the final stages + 10 min of looks); the big loop takes what is left, up to 4 cycles. Pod runs up to 180 min with --over-5-ok (user OK of 27 Oct 2026).",
+   "question": null
   }
  ]
 }

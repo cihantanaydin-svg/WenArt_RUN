@@ -25,7 +25,19 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   to make sense of this"): the steps and landings of two doors never overlap (critical), no handrail crosses another
   door's approach zone (``site.door_approach``: the door's width + 0.1 m on each side, 1.0 m out; critical), no ramp
   passes in front of another door (major), no steps or landing in front of a door into a garage or carport (major).
-  Measured on the steps as built (``prep["site"]["inferred"]``: ``site.entrance_layout``).
+  Measured on the steps as built (``prep["site"]["inferred"]``: ``site.entrance_layout``);
+- M9 the visitor's walk on the built floors (27 Oct 2026, real06's first floor: the stair arrived on a strip by the
+  outer wall that its opening cut off from the hall; user: "Needs a pathway here, how will the people go up to 2nd
+  floor otherwise?" and "Make argus catch these kind of things before me"; ``stair_access.walk_review``): (a) every
+  stair's arrival (on the level above) and start (on its own level) reach the level's main floor through a 0.80 m way
+  (critical when they lead into a pocket no way joins to any room, major when only to rooms off the main floor);
+  (b) every door of a room is reached on foot from the room's main floor (major; names what stands in front of it:
+  a floor opening, a fixed piece, a narrow floor); (c) no part of a floor is cut off by a floor opening with no stair
+  or door joining it to the rest (critical); (d) (with the scene manifest; user on real06's ground floor: "This stairs
+  not making any sense") the space under every stair lower than 2.0 m is closed and every landing high enough to walk
+  under is carried, as built (``stair_undersides``: major). Each finding names the element, the areas and the rooms
+  measured and the fix (the assumed stair flipped by the architect's K4, the opening cut to the flights, half landing
+  and headroom, the underside closed);
 - M10 the outdoor spaces as a visitor uses them (27 Oct 2026, ``outdoor_review``): a door onto every balcony and
   veranda, a guard on every open edge over a drop, an outdoor floor of its kind (never the garden paving), a covered
   kind covered, no roof at a balcony's floor level to step onto, one post language.
@@ -71,7 +83,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M10", "M11")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11")
 # M11 (27 Oct 2026): the roof as the roof plan draws it. Physical reasons:
 M11_IOU_MIN = 0.90              # the built roof's footprint matches the drawn eaves loop within a gutter's width all
                                 # round (a 0.15 m band around a 10 x 15 m roof is about 5 % of it)
@@ -80,6 +92,16 @@ M11_OPEN_SHARE = 0.25           # ... or a quarter of it is a roof the model los
 M11_DRAWN_SHARE = 0.5           # a space is drawn covered when the drawn roof lies over at least half of it
 M11_CLEAR_M = 2.1               # a roof is over a space when its eaves stand a door's clear height over its floor
 M11_OTHER_SHARE = 0.5           # a drawn lower roof is built when built roofs lie over at least half of it
+# M9: the fixes the findings name (the architect's K4 carries out the first at build time when the stair is assumed)
+FIX_STAIR = ("flip the assumed stair (its rise direction or the end of its half landing: architect K4 at build) or cut "
+             "its floor opening to the flights, the half landing and the headroom, never over the arrival floor")
+FIX_DOOR = {"opening": "cut the floor opening back to the stair's flights, half landing and headroom (architect K4), "
+                       "so a 0.80 m way passes in front of the door",
+            "pieces": "move the piece off the door's approach, or the door off the piece",
+            "narrow": "widen the floor in front of the door to a 0.80 m way",
+            "part": "join the part of the room the door opens onto to the room's main floor by a 0.80 m way"}
+FIX_PART = ("cut the floor opening back to the stair's flights, half landing and headroom (never the arrival floor), "
+            "or join the part by a door")
 REVIEW_JSON = "model_review.json"          # beside the scene (outputs/<p>/scene/)
 REVIEW_MD = "model_review.md"
 
@@ -517,6 +539,85 @@ def roof_vs_plan(built: dict, roof_model: Optional[dict]) -> tuple[list[dict], i
     return out, 1 + len(rec.get("others") or [])
 
 
+def stair_walks(built: dict) -> tuple[list[dict], int]:
+    """M9: the visitor's walk on the built floors (module docstring; ``stair_access.walk_review``). Every finding
+    carries ``owner`` and ``fix`` (Argus's model line shows them)."""
+    from wenart.blender import stair_access as SA
+    rec = SA.walk_review(built)
+    out = []
+    for s in rec["stairs"]:
+        if s.get("ok") is not False:
+            continue
+        ends = {k: s.get(k) or {} for k in ("arrival", "start")}
+        bad = [k for k, r in ends.items() if r.get("ok") is False]
+        sev = "critical" if any(ends[k].get("pocket") for k in bad) else "major"
+        room = (ends["arrival"] if "arrival" in bad else ends["start"]).get("room")
+        f = _v("M9", sev, s["stair"], f"{SA.cut_off_text(s)}: nobody gets from the stair into the rooms"
+               if "arrival" in bad else f"{SA.cut_off_text(s)}: nobody gets from the rooms onto the stair", room,
+               part="stair", level_id=s.get("level_id"), up_level_id=s.get("up_level_id"),
+               **{f"{k}_{m}": ends[k].get(m) for k in ("arrival", "start") for m in ("ok", "floor_m2", "rooms", "missed")})
+        out.append(dict(f, owner="architect", fix=FIX_STAIR))
+    types = {f.get("id"): f.get("type") for f in built.get("furniture") or []}
+    for d in rec["doors"]:
+        what = {"opening": f"the floor opening {', '.join(d['blocked_by'])} lies in front of it",
+                "pieces": f"{', '.join(d['blocked_by'])} stand(s) in front of it",
+                "narrow": f"the floor in front of it is narrower than a {SA.WALK_CLEAR_M:.2f} m way",
+                "part": "it opens onto a part of the room no way joins to the room's main floor"}[d["kind"]]
+        f = _v("M9", "major", d["door"], f"{d['door']} ({d.get('type')}) of {d['room']} on {d['level_id']} cannot be "
+               f"reached on foot from the room's main floor: {what}", d["room"], part="door", kind=d["kind"],
+               blocked_by=list(d["blocked_by"]), blocked_types=[types.get(i) for i in d["blocked_by"]],
+               level_id=d["level_id"])
+        out.append(dict(f, owner="furniture" if d["kind"] == "pieces" else "architect", fix=FIX_DOOR[d["kind"]]))
+    for p in rec["parts"]:
+        rooms = f", rooms {', '.join(p['rooms'])}" if p["rooms"] else ""
+        doors = f", doors {', '.join(p['doors'])}" if p["doors"] else ""
+        f = _v("M9", "critical", p["openings"][0], f"{p['area_m2']:.2f} m2 of the floor of {p['level_id']} "
+               f"({p['bounds']}{rooms}{doors}) is cut off by the floor opening {', '.join(p['openings'])}: no stair or "
+               f"door joins it to the rest of the floor", p["rooms"][0] if p["rooms"] else None, part="floor",
+               level_id=p["level_id"], area_m2=p["area_m2"], rooms=list(p["rooms"]), openings=list(p["openings"]))
+        out.append(dict(f, owner="architect", fix=FIX_PART))
+    return out, rec["checked"]
+
+
+def stair_undersides(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
+    """M9 (d) (27 Oct 2026, user on real06's ground floor: "This stairs not making any sense": loose slabs seen from
+    below): every built stair whose space under it is lower than ``stair_access.HEADROOM_M`` somewhere, or whose
+    landing hangs high enough to walk under, has that space closed and that landing carried in the scene (its manifest
+    record ``stair.under``: the spandrel panels and posts ``shell.stair_under_plan`` builds); a stair built without
+    them is a major finding (its flights read as loose slabs hanging in the room)."""
+    from wenart.blender import stair_access as SA
+    entries = {ob.get("element_id"): ob for ob in (manifest or {}).get("objects") or []
+               if isinstance(ob.get("stair"), dict)}
+    out, n = [], 0
+    for level in built.get("levels") or []:
+        walls = [w for w in built.get("walls") or [] if w.get("level_id") == level.get("id")]
+        for it in SA.planned(built, level):
+            plan, pid = it.get("plan"), it["piece"].get("id")
+            if not plan or pid not in entries:
+                continue
+            need = SA.under_stair(plan, walls)
+            n += 1
+            if not need["panels"] and not need["posts"]:
+                continue
+            got = entries[pid]["stair"].get("under") or {}
+            short = []
+            if int(got.get("panels") or 0) < len(need["panels"]):
+                short.append(f"{need['low_m2']:.2f} m2 under its flights and landing is lower than "
+                             f"{SA.HEADROOM_M:.2f} m and open on {len(need['panels'])} side(s) "
+                             f"({int(got.get('panels') or 0)} panel(s) built)")
+            if int(got.get("posts") or 0) < len(need["posts"]):
+                short.append(f"its landing hangs over the floor with no support at {len(need['posts'])} corner(s)")
+            if short:
+                f = _v("M9", "major", pid, f"stair {pid}: " + "; ".join(short) + ": seen from below and from the side "
+                       "its flights read as loose slabs hanging in the room", it["piece"].get("room_id"),
+                       part="underside", level_id=level.get("id"), low_m2=need["low_m2"],
+                       panels_needed=len(need["panels"]), posts_needed=len(need["posts"]))
+                out.append(dict(f, owner="build", fix="build the stair with its underside closed where it is low "
+                                                     "(spandrel panels) and its landing carried (posts): "
+                                                     "shell.stair_under_plan"))
+    return out, n
+
+
 def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[dict] = None) -> dict:
     """The review of the built model (module docstring). ``prep``: ``build.prepare`` of ``built`` (made here when not
     given; the plan of a whole building has the site, the outlines and the roof the facade kit needs)."""
@@ -571,6 +672,15 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             note("M8", got, n)
         except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
             checks["M8"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M9 (27 Oct 2026): the visitor's walk from every stair into its floors, to every door, on every floor
+    try:
+        got, n = stair_walks(built)
+        if scene_manifest:                                   # the stairs' undersides as built (the scene's records)
+            more, m = stair_undersides(built, scene_manifest)
+            got, n = got + more, n + m
+        note("M9", got, n)
+    except Exception as exc:  # noqa: BLE001 - shapely's errors too: a check that cannot run is recorded, never a stop
+        checks["M9"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M10 (27 Oct 2026, user: "make argus catch these kind of things before me"): the outdoor spaces as a visitor uses
     # them: a way out onto them, guards, an outdoor floor, the cover of a covered kind, no roof to step onto from a
     # balcony, one post language (``outdoor_review``)

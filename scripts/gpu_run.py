@@ -58,8 +58,9 @@ MAX_ACTION_USD = 5.00           # CLAUDE.md: ask the user before any single acti
 MAX_PER_DAY = 30.00                 # raised from $10 to $20, then $30, by the user on 4 Oct 2026
 # One-day raises of the daily cap by the user (UTC date -> USD); other days keep MAX_PER_DAY.
 DAY_LIMITS = {"2026-10-09": 40.00,   # user, 9 Oct 2026 (M11 pods): "we can extend today caps to 40 usd"
-              "2026-10-11": 60.00}   # user, 11 Oct 2026 (real04 multi-building test): "we can bypass the usd
+              "2026-10-11": 60.00,   # user, 11 Oct 2026 (real04 multi-building test): "we can bypass the usd
                                      # limits for this test"
+              "2026-10-27": 45.00}   # user, 27 Oct 2026: "yes, up to 180 min also don't need to wait for daily reset"
 
 
 def day_limit(day: str | None = None) -> float:

@@ -2223,6 +2223,7 @@ class Orchestrator:
         loop = AgentLoop(pr.out, pr.agent_model,
                          rerun=lambda stage, views, rnd, final: self.agent_rerun(pr, stage, views, rnd, final),
                          clock=self.clock, deadline=self.deadline, final_estimate=lambda: self.final_estimate(pr),
+                         reserve_s=lambda: self.big_loop_reserve(pr),
                          max_rounds=self.opts.agent_rounds, out=self.out, project=pr.name, **kwargs)
         t0 = self.now()
         try:
@@ -2517,6 +2518,22 @@ class Orchestrator:
                 self.check_part(pr, key, url, seqs)
 
     BIG_LOOP_CYCLES = 4             # 26 Oct 2026: the big loop's cycles at most (time decides first)
+    # 27 Oct 2026 (run 180412: the agent's rounds took the time to the final stages, the big loop got no cycle; user:
+    # "we need to give them time"): the regular rounds leave the big loop its first measure (the judge on every view)
+    # and BIG_LOOP_RESERVE_CYCLES cycles (a final round's share of the final stages plus the cycle's own looks)
+    BIG_LOOP_RESERVE_CYCLES = 1
+    BIG_LOOP_MEASURE_S = 600.0      # the judge scores every final view (about 30 views, two at a time)
+    BIG_LOOP_CYCLE_LOOK_S = 600.0   # a cycle's Argus look and the judge on the changed views
+
+    def big_loop_reserve(self, pr) -> float:
+        """The seconds the agent's regular rounds leave for the big loop (``AgentLoop.reserve_s``)."""
+        from wenart.agent.loop import FINAL_ROUND_SHARE
+        try:
+            final = float(self.final_estimate(pr))
+        except Exception:  # noqa: BLE001 - no estimate: the looks alone
+            final = 0.0
+        return self.BIG_LOOP_MEASURE_S + self.BIG_LOOP_RESERVE_CYCLES * (FINAL_ROUND_SHARE * final
+                                                                        + self.BIG_LOOP_CYCLE_LOOK_S)
 
     def final_critical_rounds(self, url: str) -> None:
         """§8 "final", since 26 Oct 2026 the big loop (user: "results are not getting better enough, need a big loop

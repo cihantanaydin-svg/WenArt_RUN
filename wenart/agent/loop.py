@@ -1521,7 +1521,7 @@ class AgentLoop:
     """Rounds, router, stop rules and the log of one project (module docstring)."""
 
     def __init__(self, project_out, model, *, rerun: Optional[Callable] = None, clock: Callable[[], float] = time.time,
-                 deadline: Optional[float] = None, final_estimate=0.0, margin_s: float = MARGIN_S,
+                 deadline: Optional[float] = None, final_estimate=0.0, margin_s: float = MARGIN_S, reserve_s=0.0,
                  max_rounds: int = MAX_ROUNDS, max_calls: Optional[int] = None, max_tries: int = MAX_TRIES,
                  code_critic: Optional[Callable] = None, vision_critic: Optional[Callable] = None, vision: bool = True,
                  registry: Optional[TL.Registry] = None, apply_edit: Optional[Callable] = None, validators=None,
@@ -1550,6 +1550,7 @@ class AgentLoop:
         self.deadline = deadline
         self.final_estimate = final_estimate
         self.margin_s = float(margin_s)
+        self.reserve_s = reserve_s          # 27 Oct 2026: the time the regular rounds leave for the big loop
         self.max_rounds = int(max_rounds)
         self.max_calls = None if max_calls is None else int(max_calls)
         self.max_tries = int(max_tries)
@@ -1589,12 +1590,19 @@ class AgentLoop:
     def estimate(self) -> float:
         return float(self.final_estimate() if callable(self.final_estimate) else self.final_estimate or 0.0)
 
+    def reserve(self) -> float:
+        r = getattr(self, "reserve_s", 0.0)
+        return float(r() if callable(r) else r or 0.0)
+
     def time_ok(self, share: float = 1.0) -> bool:
         """``now + share x estimate(final stages) <= deadline - margin`` (§8; ``share`` < 1: the final round re-runs
-        only the views it changed)."""
+        only the views it changed). 27 Oct 2026 (run 180412: the rounds took the time to the final stages and the big
+        loop got no cycle; user: "I want to see what they can fix and improve, we need to give them time"): a regular
+        round (``share`` 1) also leaves ``reserve_s`` for the big loop (its first measure and a cycle)."""
         if self.deadline is None:
             return True
-        return self.clock() + share * self.estimate() <= float(self.deadline) - self.margin_s
+        extra = self.reserve() if share >= 1.0 else 0.0
+        return self.clock() + share * self.estimate() + extra <= float(self.deadline) - self.margin_s
 
     # ----- context ------------------------------------------------------------------------
 

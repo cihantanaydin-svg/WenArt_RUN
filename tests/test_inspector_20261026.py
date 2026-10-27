@@ -161,3 +161,20 @@ def test_the_critic_looks_at_a_floor_of_the_model_from_above(tmp_path):
     assert [f["target"] for f in res["dropped"]] == ["r_bed"]
     text = json.dumps(model.critic_requests()[0]["messages"][-1]["content"])
     assert "f_tab table_dining" in text and "ceilings are off" in text
+
+
+def test_the_regular_rounds_leave_the_big_loop_its_reserve():
+    # 27 Oct 2026 (run 180412: no big-loop cycle; user: "we need to give them time")
+    from wenart.agent import loop as LP
+
+    t = [0.0]
+    loop = LP.AgentLoop.__new__(LP.AgentLoop)
+    loop.clock, loop.deadline, loop.margin_s = (lambda: t[0]), 10000.0, 1200.0
+    loop.final_estimate, loop.reserve_s = 2000.0, (lambda: 3000.0)
+    t[0] = 4000.0                                   # 4000 + 2000 + 3000 = 9000 > 8800: no regular round
+    assert not loop.time_ok() and loop.time_ok(LP.FINAL_ROUND_SHARE)
+    t[0] = 3700.0
+    assert loop.time_ok()
+    loop.reserve_s = 0.0
+    t[0] = 6700.0
+    assert loop.time_ok()

@@ -216,6 +216,16 @@ def test_stair_rule_two_flights_split_at_the_divider():
     assert st["landing"]["depth"] == pytest.approx(0.66)
     assert st["direction_assumed"] and st["turn_assumed"] and st["turn"] == "U"
     assert sorted(s.size) == pytest.approx([1.5, 1.75 + 0.66])
+    # 27 Oct 2026: a 0.66 m strip is thinner than a half landing (0.90 m at least): kept as drawn, its end assumed
+    assert st["landing_assumed"] is True and "thinner than a half landing" in st["reason"]
+
+
+def test_stair_rule_a_half_landing_as_deep_as_the_flights_are_wide_is_drawn():
+    strokes = [st for st in _stair_strokes(divider=False)]
+    strokes.append(R.stroke([(1.75, 1.0), (1.75, 1.0 + 7 * 0.25 + 1.0)]))           # the well line to the landing's end
+    st = [p for p in _furn(strokes)[0] if p.type == "stair"][0].details["stair"]
+    assert len(st["flights"]) == 2 and st["landing"]["depth"] == pytest.approx(1.0)
+    assert st["landing_assumed"] is False and "half landing" not in st["reason"]
 
 
 def test_stair_rule_single_flight_and_uneven_lines():

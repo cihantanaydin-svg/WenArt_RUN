@@ -361,3 +361,19 @@ def test_bed_cushions_lean_on_the_pillows_never_on_the_duvet_fold():
     ly = R.to_local(fp["center"], 90.0, *plan["pose"]["center"])[1]
     assert pillow_y - 0.3 <= ly <= pillow_y                                         # against the pillows' front
     assert plan["pose"]["z"] == pytest.approx(0.42 - R.SOFT_SINK_M, abs=1e-3)        # on the mattress
+
+
+def test_a_throw_the_host_shows_through_is_not_built():
+    """27 Oct 2026 (user on real06's sofa: "something wrong with the render"): a throw over a seat end and its arm sank
+    2.2 cm into the sofa, within the soft tolerance of a cushion, and the leather showed through it in patches. A cloth
+    is measured with its own tolerance (``decor_pen_cloth_m``, under its 8 mm thickness)."""
+    verts, faces = sofa_model()
+    caster = R.MeshCaster(verts, faces)
+    over_arm = {"id": "t", "type": "throw", "size": [0.5, 0.9],
+                "center": list(R.to_world(SOFA_FP["center"], SOFA_FP["rotation_deg"], 0.8, 0.0))}
+    plan = R.plan_throw(over_arm, piece("sofa", SOFA_FP), caster, 0.0)
+    assert "not_rested" in plan and "shows through" in plan["not_rested"]["reason"]
+    assert R.REST_TOLERANCES["decor_pen_cloth_m"] < 0.008 < R.REST_TOLERANCES["decor_pen_soft_m"]
+    ok, why = R.rest_ok({"gap_m": 0.0, "penetration_m": 0.02, "support_share": 1.0, "soft": True})
+    assert ok                                                          # a cushion may sink 2 cm into a soft seat
+    assert not R.rest_ok({"gap_m": 0.0, "penetration_m": 0.02, "support_share": 1.0, "soft": True, "cloth": True})[0]

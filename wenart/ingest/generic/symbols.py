@@ -1251,6 +1251,20 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
         landing = (hi_off, hi_end)
     elif lo_off - lo_end >= 0.3:
         landing = (lo_end, lo_off)
+    # 27 Oct 2026 (real06: a 0.35 m strip at one end of a U stair, a 0.30 m one at the other, the half landing taken
+    # from the larger, at the wrong end): flights side by side turn on a half landing at least as deep as they are wide
+    # (``stair_access.HALF_LANDING_MIN_M`` at least); a thinner strip is no drawn half landing: it is kept as drawn,
+    # but its end is assumed (``landing_assumed``), so the plan of the level above or the walk check may name the end
+    landing_note = None
+    if len(flights) >= 2:
+        from wenart.blender.stair_access import HALF_LANDING_MIN_M, LANDING_TOL_M
+        need = max([HALF_LANDING_MIN_M] + [f["v"] - f["u"] for f in flights])
+        if (landing[1] - landing[0] if landing else 0.0) < need - LANDING_TOL_M:
+            landing_note = (f"the strips at the ends of the flights ({max(0.0, lo_off - lo_end):.2f} m and "
+                            f"{max(0.0, hi_end - hi_off):.2f} m) are thinner than a half landing ({need:.2f} m, the "
+                            f"flights' width at least {HALF_LANDING_MIN_M:.2f} m): "
+                            + ("the larger is kept as drawn; the end of the half landing is assumed" if landing
+                               else "no half landing is drawn"))
 
     def pt(along_axis_pos, off):
         return from_f((along_axis_pos, off)) if axis == "h" else from_f((off, along_axis_pos))
@@ -1269,7 +1283,7 @@ def stair_rule(cl: Cluster, theta: float) -> Optional[dict]:
         land = {"polygon": [list(_r(c)) for c in corners], "depth": round(landing[1] - landing[0], 4)}
     used = {id(s) for f in flights for s in f["segs"]}
     return {"flights": out_flights, "landing": land, "axis": axis, "bbox_f": bbox, "theta": theta,
-            "tread_segs": used, "dividers": cuts}
+            "tread_segs": used, "dividers": cuts, "landing_note": landing_note}
 
 
 def _loose_flights(axis_segs) -> Optional[tuple[str, list, list]]:
@@ -2456,12 +2470,15 @@ def _stair_item(cl: Cluster, stair: dict, fp, ctx: _Ctx, raster: bool, notes: li
     d = (a["end"][0] - a["start"][0], a["end"][1] - a["start"][1])
     n = math.hypot(*d) or 1.0
     reason = ("no UP arrow, break line or riser text drawn: rise direction and flight order are assumed"
-              + ("; two side-by-side flights read as a U-turn (dog-leg) stair" if len(flights) == 2 else ""))
+              + ("; two side-by-side flights read as a U-turn (dog-leg) stair" if len(flights) == 2 else "")
+              + (f"; {stair['landing_note']}" if stair.get("landing_note") else ""))
     details = {"stair": {"flights": [{k: (list(v) if isinstance(v, tuple) else v) for k, v in f.items()}
                                      for f in flights],
                          "landing": stair["landing"], "direction": [round(d[0] / n, 4), round(d[1] / n, 4)],
                          "direction_assumed": True, "turn": turn, "turn_assumed": True, "void_assumed": True,
                          "riser_m": None, "riser_source": None, "reason": reason}}
+    if len(flights) >= 2:                  # 27 Oct 2026: the half landing's end is drawn only when deep enough
+        details["stair"]["landing_assumed"] = bool(stair.get("landing_note"))
     ev = ctx.evidence(cl.stroke_ids(), raster=raster, box=box,
                       note=f"stair rule: {len(flights)} flight(s), {', '.join(str(f['lines']) for f in flights)} "
                            f"tread lines")

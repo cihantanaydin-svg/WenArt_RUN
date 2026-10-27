@@ -555,6 +555,8 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
                                                 "size": list((item.get("size") or [0.3, 0.3])[:2]),
                                                 "rotation_deg": float(item.get("rotation_deg") or 0.0)}
             rm = R.measure_rest(mesh["verts"], mesh["faces"], host_caster, fp, soft)
+            if dtype == "throw":                    # 27 Oct 2026: a thin cloth shows the host through it
+                rm["cloth"] = True
         counts["S5"]["checked"] += 1
         ok, why = R.rest_ok(rm)
         m.update(rm)

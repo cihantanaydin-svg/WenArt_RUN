@@ -90,7 +90,11 @@ SHIFT_STEPS = 4                   # a top item tries its spot, then this many st
 # Check S5's tolerances (§4.7; ``scene_checks.TOLERANCES`` takes them from here): gap, penetration on hard and soft
 # hosts, the share of the footprint over the support.
 REST_TOLERANCES: dict[str, float] = {"decor_gap_m": 0.010, "decor_pen_hard_m": 0.010, "decor_pen_soft_m": 0.030,
-                                     "decor_support_share": 0.80}
+                                     "decor_support_share": 0.80,
+                                     # 27 Oct 2026 (user on real06's sofa: "something wrong with the render"): a cloth
+                                     # sunk deeper into its host than its own thickness (8 mm) shows the host through
+                                     # it: a throw over a sofa's seat end and arm, 2.2 cm in, showed leather patches
+                                     "decor_pen_cloth_m": 0.007}
 TOP_BAND_M = 0.12                 # a cloth point whose host hit is this far below the top hangs over the edge
 
 
@@ -645,7 +649,8 @@ def rest_ok(m: dict) -> tuple[bool, list[str]]:
         why.append("no host surface under the item")
     elif m["gap_m"] > tol["decor_gap_m"] + 1e-9:
         why.append(f"gap {m['gap_m']:.3f} m > {tol['decor_gap_m']} m")
-    limit = tol["decor_pen_soft_m"] if m.get("soft") else tol["decor_pen_hard_m"]
+    limit = tol["decor_pen_cloth_m"] if m.get("cloth") else \
+        tol["decor_pen_soft_m"] if m.get("soft") else tol["decor_pen_hard_m"]
     if m.get("penetration_m", 0.0) > limit + 1e-9:
         why.append(f"penetration {m['penetration_m']:.3f} m > {limit} m")
     if m.get("support_share", 0.0) < tol["decor_support_share"] - 1e-9:
@@ -771,11 +776,15 @@ def plan_throw(item: dict, host: dict, caster, floor_z: float) -> dict:
     cx, cy = to_world(host_fp["center"], host_fp["rotation_deg"], (x0 + x1) / 2.0, (y0 + y1) / 2.0)
     foot = {"center": [cx, cy], "size": [(x1 - x0) * 0.8, (y1 - y0) * 0.8], "rotation_deg": host_fp["rotation_deg"]}
     soft = host.get("type") in SOFT_HOST_TYPES
-    m = measure_rest(part["verts"], part["faces"], caster, foot, soft)
+    # 27 Oct 2026: a cloth is measured with its own tolerance (``decor_pen_cloth_m``): a host that shows through it is
+    # no rest (the throw is not built and the decor stage's not-rested record names it)
+    m = dict(measure_rest(part["verts"], part["faces"], caster, foot, soft), cloth=True)
     ok, why = rest_ok(m)
     if not ok:
         return {"not_rested": {"id": item.get("id"), "type": "throw", "host_id": host.get("id"), "support": "drape",
-                               "reason": "; ".join(why), "measured": m, "attempts": 1}}
+                               "reason": "; ".join(why) + ("; the host shows through the cloth"
+                                                           if any(w.startswith("penetration") for w in why) else ""),
+                               "measured": m, "attempts": 1}}
     return {"verts": part["verts"], "faces": part["faces"], "parts": got["parts"], "rest": m, "footprint": foot,
             "attempt": 1, "pose": {"how": "draped on the host (shrinkwrap, 5 mm)", "share": got["drape"]["share"]}}
 

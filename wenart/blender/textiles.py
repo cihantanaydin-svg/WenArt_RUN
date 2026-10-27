@@ -127,15 +127,18 @@ def drape(caster, host_fp: dict, rect: Sequence[float], floor_z: float, step: fl
     return {"grid": grid, "on_top": on_top, "top_z": top_z, "share": float(on_top.mean())}
 
 
-def throw_parts(caster, host_fp: dict, item: dict, floor_z: float) -> Optional[dict]:
+def throw_parts(caster, host_fp: dict, item: dict, floor_z: float, step: Optional[float] = None,
+                offset: Optional[float] = None) -> Optional[dict]:
     """A throw on a seat end or across a bed's foot (§4.7): its rectangle (the item's centre and size in the host
     frame) draped on the host; a rolled fold along its front edge. Returns ``{"parts", "drape", "rect"}`` or None
-    when the cloth finds no top under it."""
+    when the cloth finds no top under it. ``step`` / ``offset``: a finer grid and a higher offset for a host that
+    shows through the cloth (``rest.plan_throw``)."""
     hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
     lx, ly = rest.to_local(hc, rot, float(item["center"][0]), float(item["center"][1]))
     w, d = float(item["size"][0]), float(item["size"][1])
     rect = (lx - w / 2.0, ly - d / 2.0, lx + w / 2.0, ly + d / 2.0)
-    got = drape(caster, host_fp, rect, floor_z)
+    kw = {k: v for k, v in (("step", step), ("offset", offset)) if v is not None}
+    got = drape(caster, host_fp, rect, floor_z, **kw)
     if got["grid"] is None:
         return None
     sheet = cloth_solid(got["grid"], key="colour_fabric", role="throw")

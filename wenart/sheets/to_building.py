@@ -181,12 +181,20 @@ def _slab(lv: dict, below: Optional[dict], unions: dict, furniture: list[dict], 
     from_section = thick.get("method") not in (None, "assumed") and thick.get("value") is not None
     thickness = float(thick["value"]) if from_section else slab_default
     openings = []
+    # 27 Oct 2026 (real06's first floor: the opening cut out the whole stair footprint, its arrival floor too, and cut
+    # the arrival off from the hall): a stair with drawn flights gets the opening it needs (its flights where the
+    # headroom under this slab asks for it, its half landing, its last flight up to its last riser; never its arrival:
+    # ``stair_access.opening_polygon``); a stair without drawn flights keeps its footprint
+    from wenart.blender import stair_access as SA
+    rise = float(lv.get("elevation") or 0.0) - float(below.get("elevation") or 0.0) if below else None
     for f in _stairs(below_id, furniture):
         fp = f["footprint"]
-        poly = G.rotated_rectangle(fp["center"], fp["size"], fp["rotation_deg"])
+        poly = SA.derived_opening(f, rise, rise - thickness) if rise and rise > thickness else None
+        if poly is None:
+            poly = [[round(x, 4), round(y, 4)] for x, y in G.rotated_rectangle(fp["center"], fp["size"],
+                                                                                  fp["rotation_deg"])]
         openings.append({"id": f"sv_{slab_id[3:]}_{len(openings) + 1:03d}", "kind": "stair_void",
-                         "furniture_id": f["id"],
-                         "polygon": [[round(x, 4), round(y, 4)] for x, y in poly], "source": "derived"})
+                         "furniture_id": f["id"], "polygon": poly, "source": "derived"})
     ev = list(thick.get("evidence") or [])
     ev.append(B.evidence(lv["evidence"][0]["file"] if lv.get("evidence") else "", "derived", 1.0,
                          entity=f"outline of the outer walls of {lv['id']}" + (f" (larger {below_id} below)"
