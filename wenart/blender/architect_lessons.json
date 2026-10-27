@@ -512,7 +512,7 @@
    "id": "UL45",
    "date": "2026-10-27",
    "area": "process",
-   "status": "built",
+   "status": "process",
    "checks": [],
    "request": "Make Argus fix the outdoor problems by itself: a raised space nobody can reach gets a door (the widest window onto it), every open edge over a drop or onto a roof at its floor level gets a guard, a covered kind left open gets a light roof; each fix goes through the architect's checked path (dry re-check of the exact rule, nothing new breaks)",
    "lesson": "An outdoor-space finding of the model review (M10) is fixed by Argus with no model: O1 the widest window onto a raised space becomes its door (window_to_door), O2/O5 every open edge of one space gets a guard in one decision (guard_edge), O4 a covered kind left open gets a light roof (cover_space); each goes through argus_ai.act (dry re-check of the same rule, no new critical finding, the model review no worse).",
