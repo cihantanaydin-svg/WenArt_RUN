@@ -9,7 +9,8 @@
 # Run: scripts/gpu_run.py run --job scripts/jobs/references.sh --gpu "RTX PRO 6000" --max-minutes 30 \
 #        --env REF_FAMILIES=scandinavian --purpose "..."
 # Env: REF_FAMILIES (default "scandinavian"), REF_PER_SPACE (default 30), REF_SHARDS (default 125: every PD12M shard),
-#      REF_SPACES (default: every space, the ones every house has first).
+#      REF_SPACES (default: every space, the ones every house has first), REF_SOURCE (default pexels: the styled homes of
+#      CaptionEmporium/pexels-568k-internvl2; pd12m: the public-domain photos).
 set -Eeuo pipefail
 trap 'echo "[references] error at line $LINENO (exit $?)" >&2' ERR
 cd /workspace/repo
@@ -31,10 +32,10 @@ fi
 export HF_HOME="${WENART_HF_HOME:-/opt/wenart/hf}" HF_HUB_OFFLINE=0
 read -r -a FAMS <<< "${REF_FAMILIES:-scandinavian}"
 read -r -a SPACES <<< "${REF_SPACES:-}"
-log "families ${FAMS[*]}, ${REF_PER_SPACE:-30} per space, ${REF_SHARDS:-125} shard(s), spaces ${SPACES[*]:-all}"
+log "source ${REF_SOURCE:-pexels}, families ${FAMS[*]}, ${REF_PER_SPACE:-30} per space, ${REF_SHARDS:-125} shard(s), spaces ${SPACES[*]:-all}"
 rc=0
 "$PY" -m wenart.style.references candidates --families "${FAMS[@]}" --per-space "${REF_PER_SPACE:-30}" \
-  --shards "${REF_SHARDS:-125}" --root /workspace/references/candidates --out "$WENART_RESULTS/references_candidates" \
+  --shards "${REF_SHARDS:-125}" --source "${REF_SOURCE:-pexels}" --root /workspace/references/candidates --out "$WENART_RESULTS/references_candidates" \
   ${SPACES[@]:+--spaces "${SPACES[@]}"} 2>&1 | tee -a "$LOGS/references-$JOB.log" || rc=$?
 cp "$LOGS/references-$JOB.log" "$LOGS/references-setup-$JOB.log" "$WENART_RESULTS/" 2>/dev/null || true
 log "done: exit $rc"

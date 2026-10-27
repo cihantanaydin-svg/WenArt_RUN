@@ -460,6 +460,8 @@ fi
 if [ "${RUN_REFERENCES:-1}" != "0" ]; then
   "$PY" -m wenart.style.references export --root "${WENART_REFERENCES:-/workspace/references}" \
     --out "$RESULTS/references" >> "$LOGS/references-$JOB.log" 2>&1 || log "warning: the reference export failed"
+  # run 160846: the style scores failed with their reason in this log only; it goes with the results
+  mkdir -p "$RESULTS/logs" && cp -f "$LOGS/references-$JOB.log" "$RESULTS/logs/" 2>/dev/null || true
 fi
 # User request of 10 Oct 2026: the 3D files of the public projects to Google Drive (gpu_run.py --drive-upload passes
 # the RunPod secret rclone_conf); a failure is a warning only. Private projects never leave the volume this way.

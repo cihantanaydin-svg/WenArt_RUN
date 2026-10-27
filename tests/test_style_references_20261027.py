@@ -357,3 +357,65 @@ def test_prefetch_puts_the_committed_sets_on_the_volume_and_replaces_an_older_pi
     assert RF.photo_ids(json.loads((old / "manifest.json").read_text(encoding="utf-8"))) == ["pd_1", "pd_2"]
     assert (old / "pd_1.jpg").is_file() and (same / "recipe.json").is_file()
     assert fetched == ["living", "veranda"]
+
+
+def _pexels_rec(i, title, tags, detail, w=4000, h=3000, kind="photo"):
+    return {"id": i, "title": title, "tags": tags, "internvl2_caption": detail, "width": w, "height": h,
+            "url": f"https://images.pexels.com/photos/{i}/p-{i}.jpeg?cs=srgb&dl=x.jpg&fm=jpg", "slug": f"room-{i}",
+            "type": kind}
+
+
+def test_pexels_rows_rank_styled_homes_and_leave_out_people_and_paintings():
+    """27 Oct 2026 (user: "find some better photos of the rooms, there should be some more stylish photos online"):
+    the Pexels caption list's rows match the space on the title and tags, leave out people, paintings and small
+    photos, and rank by the decor layers the detailed caption names; the image comes resized from the Pexels CDN."""
+    rows = [RF.pexels_row(r) for r in (
+        _pexels_rec(1, "Living Room", "interior, living room, sofa", "A living room with a sofa."),
+        _pexels_rec(2, "Cozy Scandinavian Living Room", "interior design, living room, scandinavian",
+                    "A bright living room with a sofa, cushions, a wool rug, a floor lamp, a plant in a basket, "
+                    "framed artwork and sheer curtains."),
+        _pexels_rec(3, "Woman Reading in the Living Room", "woman, living room, book", "A woman reads on a sofa."),
+        _pexels_rec(4, "Painting of a Living Room", "painting, living room, art", "An oil painting of a room."),
+        _pexels_rec(5, "Small Living Room", "living room", "A living room with a rug.", w=800, h=600),
+        _pexels_rec(6, "Kitchen with an Island", "kitchen, interior, modern", "A kitchen with pendant lamps, plants."),
+        _pexels_rec(7, "Living Room Video", "living room", "A living room.", kind="video"))]
+    assert rows[-1] is None
+    r = rows[1]
+    assert r["url"] == "https://images.pexels.com/photos/2/p-2.jpeg?auto=compress&cs=tinysrgb&w=1600"
+    assert r["url_full"].endswith("fm=jpg") and r["landing_url"] == "https://www.pexels.com/photo/room-2-2/"
+    hits = RF.pexels_hits(rows, "scandinavian")
+    assert [x["id"] for x in sorted(hits["living"], key=lambda x: -x["style_hits"])] == [2, 1]
+    assert [x["id"] for x in hits["kitchen"]] == [6] and hits["bedroom"] == []
+    assert RF.hits_cache("/v", "scandinavian").name == "caption_hits_scandinavian.json"
+    assert RF.hits_cache("/v", "scandinavian", "pexels").name == "caption_hits_pexels_scandinavian.json"
+
+
+def test_pexels_candidate_sets_fall_back_to_the_full_image(tmp_path):
+    """A Pexels candidate is fetched resized, else at full size; its id is ``px_<id>``, its manifest names the Pexels
+    License and the caption's CC BY-SA 4.0."""
+    rows = [RF.pexels_row(_pexels_rec(n, "Living Room", "living room", "A living room with a rug and a lamp."))
+            for n in (11, 12)]
+    hits = RF.pexels_hits(rows, "scandinavian")
+    img = tmp_path / "x.jpg"
+    Image.new("RGB", (900, 600), (180, 170, 160)).save(img)
+    data = img.read_bytes()
+    asked = []
+
+    def http(url):
+        asked.append(url)
+        if "/12/" in url and "w=1600" in url:
+            raise OSError("404")
+        return data
+
+    def scorer(paths, space, family):
+        return {pid: {"space": 0.9, "negative": 0.1, "style": 0.5, "quality": 0.5, "vec": [1.0, float(n)]}
+                for n, pid in enumerate(sorted(paths))}
+    counts = RF.candidate_sets("scandinavian", tmp_path / "root", tmp_path / "out", per_space=5, http=http,
+                               scorer=scorer, hits={"living": hits["living"]}, source="pexels")
+    assert counts == {"living": 2}
+    assert sum(1 for u in asked if "/12/" in u) == 2 and sum(1 for u in asked if "/11/" in u) == 1
+    man = json.loads((RF.set_dir(tmp_path / "out", "living", "scandinavian") / "manifest.json").read_text())
+    assert man["source"] == "pexels" and {p["id"] for p in man["photos"]} == {"px_11", "px_12"}
+    p = man["photos"][0]
+    assert p["licence"].startswith("Pexels License") and p["licence_url"] == RF.PEXELS_LICENCE_URL
+    assert "CC BY-SA 4.0" in p["caption_licence"] and p["landing_url"].startswith("https://www.pexels.com/photo/")

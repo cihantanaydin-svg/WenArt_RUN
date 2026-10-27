@@ -385,6 +385,7 @@ def main(argv=None) -> int:
     cd.add_argument("--out", required=True)
     cd.add_argument("--shards", type=int, default=PD12M_SHARDS, help="the first N metadata shards")
     cd.add_argument("--spaces", nargs="*", default=None, help="only these spaces (default: every space)")
+    cd.add_argument("--source", choices=SOURCES, default="pexels", help="pexels (styled homes) or pd12m")
     sc = sub.add_parser("score", help="the final renders' similarity to their spaces' reference sets (pod, GPU)")
     sc.add_argument("--project-out", required=True, help="outputs/<p>")
     sc.add_argument("--project", required=True, help="the project (its brief's style family)")
@@ -398,7 +399,7 @@ def main(argv=None) -> int:
     if a.cmd == "candidates":
         for fam in a.families:
             counts = candidate_sets(fam, a.root, a.out, a.per_space, spaces=a.spaces or None,
-                                    shards=list(range(a.shards)))
+                                    shards=list(range(a.shards)), source=a.source)
             print(f"references candidates {fam}: " + ", ".join(f"{k} {v}" for k, v in counts.items()))
         return 0
     if a.cmd == "score":
@@ -446,8 +447,10 @@ def main(argv=None) -> int:
             try:
                 man = fetch_set(space, fam, a.root, k=a.k)
                 dead = dead + 1 if not man.get("searched") and not man.get("photos") else 0
-                print(f"references {space}/{fam}: {len(man['photos'])} kept of {man['searched']} found "
-                      f"({len(man['errors'])} errors)" + (f"; first error: {man['errors'][0]}" if man["errors"] else ""))
+                # run 160846: a committed set's manifest has no search counts (KeyError 'searched' on 10 sets)
+                errors = man.get("errors") or []
+                print(f"references {space}/{fam}: {len(man.get('photos') or [])} kept of {man.get('searched', 0)} found "
+                      f"({len(errors)} errors)" + (f"; first error: {errors[0]}" if errors else ""))
             except Exception as exc:  # noqa: BLE001 - one set down: the others, the built-in recipe for it
                 failed += 1
                 print(f"references {space}/{fam}: failed ({type(exc).__name__}: {str(exc)[:160]})")
@@ -551,21 +554,130 @@ def pd12m_candidates(family: Optional[str], spaces=None, shards: Optional[list] 
     return acc
 
 
+# 27 Oct 2026 (user: "find some better photos of the rooms, there should be some more stylish photos online"): PD12M's
+# public-domain rooms are mostly museums, hotels and plain homes, so the recipes read from them name shelves and plants
+# but no rug, curtains or lamps. Pexels holds the styled homes of interior photography; CaptionEmporium/pexels-568k-
+# internvl2 on the Hub lists 567,573 Pexels photos with their title, tags, a detailed InternVL2 caption (CC BY-SA 4.0)
+# and the image's address on images.pexels.com (Pexels License: free to use, no attribution required, no resale of
+# unaltered copies, https://www.pexels.com/license/). The space is matched on the title and tags (the long caption
+# names neighbouring rooms too); the photos whose captions name the most decor layers rank first (``LAYER_WORDS``):
+# a styled room, not an empty one.
+PEXELS_REPO = "CaptionEmporium/pexels-568k-internvl2"
+PEXELS_FILE = "train.jsonl.gz"
+PEXELS_LICENCE = "Pexels License (free to use, no attribution required)"
+PEXELS_LICENCE_URL = "https://www.pexels.com/license/"
+PEXELS_WIDTH_PX = 1600
+LAYER_WORDS = ("rug", "carpet", "curtain", "drape", "cushion", "pillow", "throw", "blanket", "plant", "vase", "flower",
+               "lamp", "pendant", "chandelier", "artwork", "framed", "picture", "mirror", "candle", "basket", "books",
+               "shelf", "shelves", "coffee table", "side table", "armchair", "towel", "bedding", "duvet", "lantern",
+               "planter", "string lights", "pergola", "deck", "wicker")
+PEOPLE_WORDS = r"\b(woman|women|man|men|people|person|girl|boy|couple|family|lady|guy|model|portrait|selfie)\b"
+SOURCES = ("pd12m", "pexels")
+
+
+def pexels_url(url: str, width: int = PEXELS_WIDTH_PX) -> str:
+    """A Pexels image address resized to ``width`` px (the CDN's ``w`` parameter; pure)."""
+    return f"{str(url).split('?')[0]}?auto=compress&cs=tinysrgb&w={int(width)}"
+
+
+def pexels_row(rec: dict) -> Optional[dict]:
+    """One row of the Pexels caption list as a candidate row (pure): ``id``, ``url`` (resized), ``url_full``,
+    ``caption`` (title and tags: the space is matched here), ``detail`` (the InternVL2 caption: the layers and the
+    style words), ``width``, ``height``, ``license``, ``source``, ``landing_url``; None without an image address."""
+    url = rec.get("url")
+    if not url or (rec.get("type") or "photo") != "photo":
+        return None
+    title = str(rec.get("title") or rec.get("alt") or "")
+    tags = rec.get("tags")
+    tags = ", ".join(tags) if isinstance(tags, list) else str(tags or "")
+    slug = str(rec.get("slug") or "")
+    return {"id": rec.get("id"), "url": pexels_url(url), "url_full": url, "caption": f"{title}. {tags}".strip(),
+            "detail": str(rec.get("internvl2_caption") or rec.get("cogvlm_caption") or rec.get("description") or ""),
+            "width": rec.get("width"), "height": rec.get("height"), "license": PEXELS_LICENCE_URL, "source": "pexels",
+            "landing_url": f"https://www.pexels.com/photo/{slug + '-' if slug else ''}{rec.get('id')}/"}
+
+
+def pexels_hits(rows, family: Optional[str], spaces=None) -> dict:
+    """``{space: [row, ...]}`` of Pexels rows (``pexels_row``) whose title and tags name the space and none of
+    ``CAPTION_EXCLUDE`` or ``PEOPLE_WORDS``, at least ``MIN_PHOTO_SIDE_PX`` wide or high; ``style_hits`` = the decor
+    layers the detailed caption names (``LAYER_WORDS``) + its style words + twice the family's words (pure)."""
+    fam = [w.lower() for w in FAMILY_WORDS.get(str(family or "").lower(), ())]
+    rx = {k: re.compile(v) for k, v in CAPTION_SPACES.items() if spaces is None or k in spaces}
+    excl, people = re.compile(CAPTION_EXCLUDE), re.compile(PEOPLE_WORDS)
+    out: dict = {k: [] for k in rx}
+    for r in rows:
+        if not r:
+            continue
+        text = str(r.get("caption") or "").lower()
+        detail = str(r.get("detail") or "").lower()
+        if not text or excl.search(text) or people.search(text):
+            continue
+        try:
+            if max(int(r.get("width") or 0), int(r.get("height") or 0)) < MIN_PHOTO_SIDE_PX:
+                continue
+        except (TypeError, ValueError):
+            continue
+        for space, pat in rx.items():
+            if space == "bedroom" and rx.get("child") is not None and rx["child"].search(text):
+                continue
+            if pat.search(text):
+                every = f"{text} {detail}"
+                hits = (2 * sum(1 for w in fam if w in every) + sum(1 for w in STYLE_WORDS if w in every)
+                        + sum(1 for w in LAYER_WORDS if w in detail))
+                out[space].append(dict(r, style_hits=hits))
+    return out
+
+
+def pexels_rows(path):
+    """The rows of the Pexels caption list (gzip JSON lines; pod only), one at a time."""
+    import gzip
+
+    with gzip.open(path, "rt", encoding="utf-8") as fh:
+        for line in fh:
+            try:
+                yield pexels_row(json.loads(line))
+            except (ValueError, TypeError):
+                continue
+
+
+def pexels_candidates(family: Optional[str], spaces=None, chunk: int = 50000) -> dict:
+    """The hits of the whole Pexels caption list (fetched from the Hub, read in chunks of ``chunk`` rows)."""
+    from huggingface_hub import hf_hub_download
+
+    path = hf_hub_download(PEXELS_REPO, PEXELS_FILE, repo_type="dataset")
+    acc: dict = {}
+    buf: list = []
+    for row in pexels_rows(path):
+        buf.append(row)
+        if len(buf) >= chunk:
+            acc = merge_hits(acc, pexels_hits(buf, family, spaces))
+            buf = []
+    return merge_hits(acc, pexels_hits(buf, family, spaces))
+
+
+def hits_cache(root, family: Optional[str], source: str = "pd12m") -> Path:
+    """The cache of a source's caption hits on the volume (PD12M keeps its first name)."""
+    fam = re.sub(r"[^a-z0-9]+", "_", str(family or "any").lower())
+    return Path(root) / (f"caption_hits_{fam}.json" if source == "pd12m" else f"caption_hits_{source}_{fam}.json")
+
+
 def candidate_sets(family: Optional[str], root, out, per_space: int = 30, spaces=None, shards=None,
                    http: Callable[[str], bytes] = default_http, scorer: Callable = score_images,
-                   hits: Optional[dict] = None) -> dict:
-    """For the session's choice: per space the ``per_space`` best photos of PD12M's caption hits (downloaded from
-    the dataset's bucket, ranked by ``scorer`` as ``select``), in ``out/<space>/<family>/`` as 512 px copies with a
-    ``manifest.json`` (``source: pd12m``, licence, caption, scores). Returns ``{space: kept count}``."""
+                   hits: Optional[dict] = None, source: str = "pd12m") -> dict:
+    """For the session's choice: per space the ``per_space`` best photos of a source's caption hits (``source``:
+    ``pd12m``, downloaded from the dataset's bucket, or ``pexels``, from images.pexels.com at ``PEXELS_WIDTH_PX``),
+    ranked by ``scorer`` as ``select``, in ``out/<space>/<family>/`` as 512 px copies with a ``manifest.json``
+    (``source``, licence, caption, scores). Returns ``{space: kept count}``."""
 
     if hits is None:
-        cache = Path(root) / f"caption_hits_{re.sub(r'[^a-z0-9]+', '_', str(family or 'any').lower())}.json"
+        cache = hits_cache(root, family, source)
         if cache.is_file():
             hits = json.loads(cache.read_text(encoding="utf-8"))
-        else:
-            hits = pd12m_candidates(family, None, shards)            # every space: the cache serves later picks
+        else:                                       # every space: the cache serves later picks
+            hits = pexels_candidates(family, None) if source == "pexels" else pd12m_candidates(family, None, shards)
             cache.parent.mkdir(parents=True, exist_ok=True)
             cache.write_text(json.dumps(hits, default=str), encoding="utf-8")
+    prefix = "px" if source == "pexels" else "pd"
     counts = {}
     # 27 Oct 2026 (job 150744 ran out of time after balcony .. dressing in name order): the spaces every house has
     # first, and only ``spaces`` when given (the cached caption hits hold every space)
@@ -579,11 +691,16 @@ def candidate_sets(family: Optional[str], root, out, per_space: int = 30, spaces
         todo = rows[: CANDIDATES * 2]
 
         def fetch(r):
-            p = folder / f"pd_{r['id']}.jpg"
+            p = folder / f"{prefix}_{r['id']}.jpg"
             if not p.is_file():
-                try:
-                    data = http(r["url"])
-                except Exception:  # noqa: BLE001 - a missing file is no candidate
+                data = None
+                for url in dict.fromkeys(u for u in (r.get("url"), r.get("url_full")) if u):
+                    try:
+                        data = http(url)
+                        break
+                    except Exception:  # noqa: BLE001 - the next address, else no candidate
+                        continue
+                if not data:
                     return False
                 p.write_bytes(data)
             return True
@@ -595,14 +712,19 @@ def candidate_sets(family: Optional[str], root, out, per_space: int = 30, spaces
         for r, ok in zip(todo, got):
             if not ok:
                 continue
-            pid = f"pd_{r['id']}"
+            pid = f"{prefix}_{r['id']}"
             p = folder / f"{pid}.jpg"
             paths[pid] = p
-            cands.append({"source": "pd12m", "id": pid, "url": r["url"], "title": r.get("caption"),
-                          "caption": r.get("caption"), "creator": None, "provider": r.get("source"),
-                          "licence": "public domain / CC0 (PD12M)", "licence_url": r.get("license"),
-                          "landing_url": r["url"], "width": r.get("width"), "height": r.get("height"),
-                          "style_hits": r.get("style_hits")})
+            pexels = source == "pexels"
+            cands.append({"source": source, "id": pid, "url": r["url"], "title": r.get("caption"),
+                          "caption": (f"{r.get('caption')} | {str(r.get('detail') or '')[:600]}" if pexels
+                                      else r.get("caption")),
+                          "creator": None, "provider": r.get("source"),
+                          "licence": PEXELS_LICENCE if pexels else "public domain / CC0 (PD12M)",
+                          "licence_url": r.get("license"), "landing_url": r.get("landing_url") or r["url"],
+                          "width": r.get("width"), "height": r.get("height"), "style_hits": r.get("style_hits"),
+                          **({"caption_licence": "CC BY-SA 4.0 (InternVL2 caption, " + PEXELS_REPO + ")"}
+                             if pexels else {})})
         scores = scorer(paths, space, family) if paths else {}
         kept = select(cands, scores, per_space)
         dst = set_dir(out, space, family)
@@ -616,7 +738,7 @@ def candidate_sets(family: Optional[str], root, out, per_space: int = 30, spaces
             except Exception:  # noqa: BLE001
                 continue
         kept = [c for c in kept if c.get("file")]
-        (dst / "manifest.json").write_text(json.dumps({"space": space, "family": family, "source": "pd12m",
+        (dst / "manifest.json").write_text(json.dumps({"space": space, "family": family, "source": source,
                                                        "embed_model": EMBED_MODEL, "photos": kept,
                                                        "candidates": len(rows), "scored": len(scores)},
                                                       indent=1, ensure_ascii=False), encoding="utf-8")
@@ -657,13 +779,19 @@ def export(root, out, size: int = EXPORT_SIDE_PX) -> int:
     return n
 
 
+_EMBEDDER: dict = {}          # device -> (model, processor) of EMBED_MODEL
+
+
 def embed(paths: list, device: str = "cuda") -> list:
     """Normalised SigLIP 2 image embeddings of ``paths`` (pod only), a list of float lists (None for a broken file)."""
     import torch
     from transformers import AutoModel, AutoProcessor
 
-    model = AutoModel.from_pretrained(EMBED_MODEL, torch_dtype=torch.float16).to(device).eval()
-    proc = AutoProcessor.from_pretrained(EMBED_MODEL)
+    # run 160846: style_scores calls this once per set and once per view; the model loads once
+    if device not in _EMBEDDER:
+        _EMBEDDER[device] = (AutoModel.from_pretrained(EMBED_MODEL, torch_dtype=torch.float16).to(device).eval(),
+                             AutoProcessor.from_pretrained(EMBED_MODEL))
+    model, proc = _EMBEDDER[device]
     out = []
     with torch.no_grad():
         for p in paths:
