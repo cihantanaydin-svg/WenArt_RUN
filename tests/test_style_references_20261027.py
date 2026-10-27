@@ -288,3 +288,13 @@ def test_pd12m_caption_search_and_candidate_sets(tmp_path):
     assert man["source"] == "pd12m" and man["photos"][0]["licence"].startswith("public domain")
     out_img = Image.open(RF.set_dir(tmp_path / "out", "living", "scandinavian") / man["photos"][0]["file"])
     assert max(out_img.size) <= RF.EXPORT_SIDE_PX
+
+
+def test_contact_sheet_numbers_the_photos_and_marks_the_picks(tmp_path):
+    photos = []
+    for i in range(7):
+        Image.new("RGB", (400, 300), (30 * i, 100, 150)).save(tmp_path / f"p{i}.jpg")
+        photos.append({"id": f"p{i}", "file": f"p{i}.jpg"})
+    (tmp_path / "manifest.json").write_text(json.dumps({"photos": photos}))
+    n = RF.contact_sheet(tmp_path, tmp_path / "sheet.jpg", cols=3, side=100, title="living", picked={"p1"})
+    assert n == 7 and Image.open(tmp_path / "sheet.jpg").size == (300, 3 * 100 + 28)

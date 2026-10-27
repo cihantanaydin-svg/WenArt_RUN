@@ -694,6 +694,37 @@ def final_views(project_out) -> list[dict]:
     return views
 
 
+def contact_sheet(folder, out_path, cols: int = 6, side: int = 256, title: str = "",
+                  picked: Optional[set] = None) -> int:
+    """A numbered contact sheet of a set's photos (``folder/manifest.json`` order): ``cols`` per row, ``side`` px
+    tiles, the 1-based number on each tile (green for the ``picked`` ids); returns the number of tiles (pure but for
+    the files)."""
+    from PIL import Image, ImageDraw
+
+    folder = Path(folder)
+    photos = json.loads((folder / "manifest.json").read_text(encoding="utf-8")).get("photos") or []
+    tiles = [(i + 1, p) for i, p in enumerate(photos) if (folder / str(p.get("file") or "")).is_file()]
+    if not tiles:
+        return 0
+    rows = (len(tiles) + cols - 1) // cols
+    head = 28 if title else 0
+    sheet = Image.new("RGB", (cols * side, rows * side + head), (24, 24, 24))
+    draw = ImageDraw.Draw(sheet)
+    if title:
+        draw.text((8, 8), title, fill=(235, 235, 235))
+    for k, (n, p) in enumerate(tiles):
+        img = Image.open(folder / p["file"]).convert("RGB")
+        img.thumbnail((side - 6, side - 6))
+        x, y = (k % cols) * side, (k // cols) * side + head
+        sheet.paste(img, (x + (side - img.width) // 2, y + (side - img.height) // 2))
+        mark = picked is not None and p.get("id") in picked
+        draw.rectangle([x + 3, y + 3, x + 33, y + 21], fill=(30, 140, 60) if mark else (0, 0, 0))
+        draw.text((x + 7, y + 6), str(n), fill=(255, 255, 255))
+    Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(out_path, quality=85)
+    return len(tiles)
+
+
 def brief_family(project) -> Optional[str]:
     """The style family of a project's brief (``projects/<name>`` or a folder): the family the style stage writes to
     style.json (``profile.profiles_from_brief`` -> ``fit.style_family_of``), None without style words."""
