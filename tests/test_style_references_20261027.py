@@ -288,6 +288,23 @@ def test_pd12m_caption_search_and_candidate_sets(tmp_path):
     assert man["source"] == "pd12m" and man["photos"][0]["licence"].startswith("public domain")
     out_img = Image.open(RF.set_dir(tmp_path / "out", "living", "scandinavian") / man["photos"][0]["file"])
     assert max(out_img.size) <= RF.EXPORT_SIDE_PX
+    # the spaces every house has first (a job that runs out of time has them); only ``spaces`` when given; a failed
+    # download is no candidate
+    order = []
+    counts = RF.candidate_sets("scandinavian", tmp_path / "root", tmp_path / "out2", per_space=5,
+                               http=lambda u: data, scorer=lambda p, space, f: order.append(space) or scorer(p, space, f),
+                               hits={"veranda": hits["veranda"], "child": hits["child"], "living": hits["living"]})
+    assert order == ["living", "veranda", "child"] and counts == {"living": 2, "veranda": 1, "child": 1}
+    order.clear()
+
+    def http(u):
+        if u.endswith("/2.jpg"):
+            raise OSError("404")
+        return data
+    counts = RF.candidate_sets("scandinavian", tmp_path / "root3", tmp_path / "out3", per_space=5, http=http,
+                               scorer=lambda p, space, f: order.append(space) or scorer(p, space, f),
+                               spaces=["living"], hits={"veranda": hits["veranda"], "living": hits["living"]})
+    assert order == ["living"] and counts == {"living": 1}
 
 
 def test_contact_sheet_numbers_the_photos_and_marks_the_picks(tmp_path):

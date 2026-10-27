@@ -382,6 +382,7 @@ def main(argv=None) -> int:
     cd.add_argument("--root", default="/workspace/references/candidates")
     cd.add_argument("--out", required=True)
     cd.add_argument("--shards", type=int, default=PD12M_SHARDS, help="the first N metadata shards")
+    cd.add_argument("--spaces", nargs="*", default=None, help="only these spaces (default: every space)")
     sc = sub.add_parser("score", help="the final renders' similarity to their spaces' reference sets (pod, GPU)")
     sc.add_argument("--project-out", required=True, help="outputs/<p>")
     sc.add_argument("--project", required=True, help="the project (its brief's style family)")
@@ -394,7 +395,8 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     if a.cmd == "candidates":
         for fam in a.families:
-            counts = candidate_sets(fam, a.root, a.out, a.per_space, shards=list(range(a.shards)))
+            counts = candidate_sets(fam, a.root, a.out, a.per_space, spaces=a.spaces or None,
+                                    shards=list(range(a.shards)))
             print(f"references candidates {fam}: " + ", ".join(f"{k} {v}" for k, v in counts.items()))
         return 0
     if a.cmd == "score":
@@ -560,23 +562,40 @@ def candidate_sets(family: Optional[str], root, out, per_space: int = 30, spaces
         if cache.is_file():
             hits = json.loads(cache.read_text(encoding="utf-8"))
         else:
-            hits = pd12m_candidates(family, spaces, shards)
+            hits = pd12m_candidates(family, None, shards)            # every space: the cache serves later picks
             cache.parent.mkdir(parents=True, exist_ok=True)
             cache.write_text(json.dumps(hits, default=str), encoding="utf-8")
     counts = {}
-    for space, rows in sorted(hits.items()):
+    # 27 Oct 2026 (job 150744 ran out of time after balcony .. dressing in name order): the spaces every house has
+    # first, and only ``spaces`` when given (the cached caption hits hold every space)
+    rank = {sp: k for k, sp in enumerate(CANDIDATE_ORDER)}
+    for space, rows in sorted(hits.items(), key=lambda kv: (rank.get(kv[0], len(rank)), kv[0])):
+        if spaces and space not in spaces:
+            continue
         folder = set_dir(root, space, family)
         folder.mkdir(parents=True, exist_ok=True)
         paths, cands = {}, []
-        for r in rows[: CANDIDATES * 2]:
-            pid = f"pd_{r['id']}"
-            p = folder / f"{pid}.jpg"
+        todo = rows[: CANDIDATES * 2]
+
+        def fetch(r):
+            p = folder / f"pd_{r['id']}.jpg"
             if not p.is_file():
                 try:
                     data = http(r["url"])
                 except Exception:  # noqa: BLE001 - a missing file is no candidate
-                    continue
+                    return False
                 p.write_bytes(data)
+            return True
+        # 27 Oct 2026 (job 150744: one download after the other, 120 photos of several MB per space): in parallel
+        from concurrent.futures import ThreadPoolExecutor
+
+        with ThreadPoolExecutor(max_workers=DOWNLOAD_WORKERS) as pool:
+            got = list(pool.map(fetch, todo))
+        for r, ok in zip(todo, got):
+            if not ok:
+                continue
+            pid = f"pd_{r['id']}"
+            p = folder / f"{pid}.jpg"
             paths[pid] = p
             cands.append({"source": "pd12m", "id": pid, "url": r["url"], "title": r.get("caption"),
                           "caption": r.get("caption"), "creator": None, "provider": r.get("source"),
@@ -605,6 +624,9 @@ def candidate_sets(family: Optional[str], root, out, per_space: int = 30, spaces
 
 
 EXPORT_SIDE_PX = 512
+DOWNLOAD_WORKERS = 16
+CANDIDATE_ORDER = ("living", "kitchen", "veranda", "terrace", "bedroom", "bathroom", "dining", "child", "hall",
+                   "garden", "facade", "balcony", "dressing")
 
 
 def export(root, out, size: int = EXPORT_SIDE_PX) -> int:
