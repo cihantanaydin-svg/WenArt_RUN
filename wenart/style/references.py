@@ -74,13 +74,16 @@ NEGATIVES = ("a floor plan or a drawing", "a 3D render or a computer graphic", "
              "a photo of people", "an empty unfurnished room", "a messy cluttered room", "a text document or a sign",
              # 27 Oct 2026 (job 150744's bathrooms, dining rooms and bedrooms): rooms that are no home's
              "a public restroom with urinals or rows of sinks", "a restaurant or a hotel dining hall",
-             "a museum period room", "a furniture store showroom", "a painting")
+             "a museum period room", "a furniture store showroom", "a painting",
+             # 27 Oct 2026 (job 175301's dressing rooms were clothing shops)
+             "a clothing shop or a market stall")
 QUALITY_TEXT = "a beautiful professional interior design photo, magazine quality"
 QUALITY_TEXT_OUTDOOR = "a beautiful professional architecture and landscape photo, magazine quality"
 OPENVERSE_PAGE_MAX = 20        # pod run 123917: an anonymous Openverse search takes at most 20 results a page
 REQUEST_GAP_S = 1.0            # between two searches (the APIs' anonymous rate limits)
 RETRIES = 3                    # a 429 / 5xx answer is retried after 2, 4, 8 s
-PREFETCH_BUDGET_S = 300.0     # pod run 130756: 25 min of timeouts; the prefetch stops after this ...
+PREFETCH_BUDGET_S = 600.0     # pod run 130756: 25 min of timeouts; the prefetch stops after this (27 Oct 2026: the
+                              # automatic Pexels sets of a new family take about 5 min once, then the volume keeps them)
 DEAD_SETS = 2                 # ... or when the first sets found nothing at all (the sources are unreachable)
 REPO_SETS = Path(__file__).resolve().parents[2] / "assets" / "references"   # curated sets committed with the code
 OPENVERSE = "https://api.openverse.org/v1/images/"
@@ -445,7 +448,7 @@ def main(argv=None) -> int:
                       f"the first {DEAD_SETS} sets found nothing: the sources are unreachable from here") + ")")
                 continue
             try:
-                man = fetch_set(space, fam, a.root, k=a.k)
+                man = prefetch_set(space, fam, a.root, k=a.k)
                 dead = dead + 1 if not man.get("searched") and not man.get("photos") else 0
                 # run 160846: a committed set's manifest has no search counts (KeyError 'searched' on 10 sets)
                 errors = man.get("errors") or []
@@ -863,6 +866,41 @@ def final_views(project_out) -> list[dict]:
         space = space_of(room.get("room_type"), room.get("room_subtype")) if room else "facade"
         views.append({"name": name, "image": img, "space": space})
     return views
+
+
+AUTO_ROOT = "candidates"       # under the reference root: the full-size downloads of the automatic sets
+
+
+def prefetch_set(space: str, family: Optional[str], root, k: int = K_REFERENCES, *, auto=None, search=None) -> dict:
+    """The reference set of ``space`` and ``family`` for a run (27 Oct 2026, user: "all the solutions must be general";
+    the session hand-picked sets for one family only, and Openverse and Commons answer no pod): a set on the volume
+    with photos (committed, ``REPO_SETS``, or kept from an earlier run) as it is; else the automatic set of the Pexels
+    caption list (``candidate_sets`` with ``per_space`` ``k``: the space on the title and tags, ranked by the decor
+    layers and SigLIP 2, written to the set's folder with ``picked_by`` automatic); else the Openverse and Commons search
+    (``fetch_set``). ``auto`` and ``search``: the two sources (tests)."""
+    folder = set_dir(root, space, family)
+    man_path = folder / "manifest.json"
+    if man_path.is_file():
+        try:
+            old = json.loads(man_path.read_text(encoding="utf-8"))
+        except ValueError:
+            old = {}
+        if old.get("photos"):
+            return dict(old, searched=old.get("searched", len(old["photos"])), errors=old.get("errors") or [])
+    errors: list = []
+    try:
+        counts = (auto or candidate_sets)(family, Path(root) / AUTO_ROOT, root, k, spaces=[space], source="pexels")
+        if counts.get(space) and man_path.is_file():
+            man = json.loads(man_path.read_text(encoding="utf-8"))
+            man.update(picked_by="automatic (Pexels caption search, decor layers, SigLIP 2 ranking)",
+                       searched=man.get("candidates") or len(man.get("photos") or []), errors=[])
+            man_path.write_text(json.dumps(man, indent=1, ensure_ascii=False), encoding="utf-8")
+            return man
+        errors.append(f"pexels: no photo of {space} kept")
+    except Exception as exc:  # noqa: BLE001 - the next source; the reason is kept
+        errors.append(f"pexels: {type(exc).__name__}: {str(exc)[:160]}")
+    man = (search or fetch_set)(space, family, root, k=k)
+    return dict(man, errors=errors + list(man.get("errors") or []))
 
 
 def open_photo(path):

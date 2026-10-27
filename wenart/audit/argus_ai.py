@@ -108,7 +108,7 @@ SYSTEM = (
     "name the stage that caused it.\n"
     "- A finding is real unless the facts show it is a false alarm; then fix = not_a_problem and say why.\n"
     "- Fix it yourself whenever a tool can: choose an agent tool and give its arguments as a JSON object in args "
-    "(e.g. {\"piece_id\": \"f_L1_011\", \"type\": \"bathtub\"}); you carry it out through the same code checks as "
+    "(e.g. {\"piece_id\": \"<a piece id from the facts>\", \"type\": \"bathtub\"}); you carry it out through the same code checks as "
     "the agent, so a wrong edit is refused, never built. Or an architect action on one element (the element id, and a "
     "value when the action needs one, e.g. a room type); agent_round (the furniture agent's next round decides); "
     "rerun_stage; or rule_needed when nothing in this run can fix it: then write the general rule (one or two "

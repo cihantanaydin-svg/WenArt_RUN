@@ -356,7 +356,7 @@ def test_prefetch_puts_the_committed_sets_on_the_volume_and_replaces_an_older_pi
     assert RF.main(["prefetch", "--projects", "real06", "--root", str(vol)]) == 0
     assert RF.photo_ids(json.loads((old / "manifest.json").read_text(encoding="utf-8"))) == ["pd_1", "pd_2"]
     assert (old / "pd_1.jpg").is_file() and (same / "recipe.json").is_file()
-    assert fetched == ["living", "veranda"]
+    assert fetched == []                         # sets on the volume are kept as they are: no search (prefetch_set)
 
 
 def _pexels_rec(i, title, tags, detail, w=4000, h=3000, kind="photo"):
@@ -419,3 +419,30 @@ def test_pexels_candidate_sets_fall_back_to_the_full_image(tmp_path):
     p = man["photos"][0]
     assert p["licence"].startswith("Pexels License") and p["licence_url"] == RF.PEXELS_LICENCE_URL
     assert "CC BY-SA 4.0" in p["caption_licence"] and p["landing_url"].startswith("https://www.pexels.com/photo/")
+
+
+def test_every_family_gets_its_photos_without_the_session(tmp_path):
+    """27 Oct 2026 (user: "all the solutions must be general"): a space and family with no set on the volume gets the
+    automatic Pexels set (the session's picks are an upgrade, never a need); a set on the volume stays; the Openverse
+    and Commons search is the last resort with the reason the Pexels route failed."""
+    root = tmp_path / "refs"
+    calls = []
+
+    def auto(family, cand_root, out, k, spaces=None, source=None):
+        calls.append((family, spaces, source, k))
+        d = RF.set_dir(out, spaces[0], family)
+        d.mkdir(parents=True, exist_ok=True)
+        Image.new("RGB", (8, 8)).save(d / "px_1.jpg")
+        (d / "manifest.json").write_text(json.dumps({"photos": [{"id": "px_1", "file": "px_1.jpg"}],
+                                                     "candidates": 40}), encoding="utf-8")
+        return {spaces[0]: 1}
+    man = RF.prefetch_set("living", "industrial", root, auto=auto, search=lambda *a, **k: {"photos": []})
+    assert calls == [("industrial", ["living"], "pexels", RF.K_REFERENCES)]
+    assert man["picked_by"].startswith("automatic") and man["searched"] == 40 and len(man["photos"]) == 1
+    # the set is on the volume now: kept as it is, no new search
+    again = RF.prefetch_set("living", "industrial", root, auto=lambda *a, **k: 1 / 0, search=lambda *a, **k: 1 / 0)
+    assert again["photos"] == man["photos"]
+    # Pexels fails: the old search, with the reason
+    got = RF.prefetch_set("hall", "industrial", root, auto=lambda *a, **k: (_ for _ in ()).throw(OSError("offline")),
+                          search=lambda space, fam, root, k=8: {"photos": [], "searched": 0, "errors": ["none"]})
+    assert got["errors"][0] == "pexels: OSError: offline" and got["errors"][1] == "none"
