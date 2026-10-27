@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-10-26",
+ "updated": "2026-10-27",
  "lessons": [
   {
    "id": "UL01",
@@ -467,6 +467,16 @@
    "request": "keep going, make Argus fix everything itself give it more power",
    "lesson": "Argus fixes what it finds itself: it calls the agent's edit tools in its own session of every round (and before every big-loop cycle), carries out the exact fixes its code lines name without a model, revokes AI decisions that broke a room's set, and learns from earlier runs; every edit passes the same code checks as the agent's.",
    "question": "How many of Argus's own edits were accepted this run, and which open findings had no tool Argus could use?"
+  },
+  {
+   "id": "UL41",
+   "date": "2026-10-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "Argus gets the power to act, not only to talk: it sees every tool's arguments with their types and allowed values and the valid ids of the project (views, looks, catalogue models of the style chain), checks every call by code before it runs and repairs or drops the invalid ones; it names what a view must show and the code picks the camera pose; it never guesses an id or a coordinate (user request of 26 Oct 2026: 'make Argus fix everything itself, give it more power'; pod run 224516: 0 of 94 edits were valid).",
+   "lesson": "Argus gets the power to act, not only to talk: it sees every tool's arguments with their types and allowed values and the valid ids of the project (views, looks, catalogue models of the style chain), checks every call by code before it runs and repairs or drops the invalid ones; it names what a view must show and the code picks the camera pose; it never guesses an id or a coordinate (user request of 26 Oct 2026: 'make Argus fix everything itself, give it more power'; pod run 224516: 0 of 94 edits were valid).",
+   "question": null
   }
  ]
 }

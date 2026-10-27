@@ -5,20 +5,20 @@
  "stage": "assets",
  "rc": 0,
  "status": "ok",
- "seconds": 3.83,
+ "seconds": 2.63,
  "fingerprint": null,
  "inputs": {},
  "outputs": [],
- "started_utc": "2026-10-26T20:07:43Z",
- "git_commit": "9bc1e868aa0e511ea356c1ddd299ecea27d20509",
+ "started_utc": "2026-10-26T22:57:38Z",
+ "git_commit": "4e9449b714eae33fb86448ce3647a61d88e197cc",
  "log": "logs/assets.log",
  "note": null,
- "run_id": "20261026-195707-full-20261026T200228Z",
+ "run_id": "20261026-224516-full-20261026T224959Z",
  "steps": [
   {
    "name": "assets",
    "rc": 0,
-   "seconds": 3.83
+   "seconds": 2.63
   }
  ],
  "written": {}

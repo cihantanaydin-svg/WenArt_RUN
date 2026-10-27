@@ -1601,3 +1601,47 @@ reads 21 here. A bisect shows it fails already at the repository's import commit
 LibreDWG build (the test is skipped where `dwg2dxf` is missing), so it is no regression of later work; most likely the
 DXF converter's version differs from the one that measured 101 (nested tree blocks). To check on a machine with the
 pod's LibreDWG before changing the number.
+
+## Argus acts with valid calls; the salon's sofas; the views' trees (27 Oct 2026)
+
+### The pod run of 26 Oct, evening (real06, job 20261026-224516-full, $3.68)
+
+| | before (195707) | after (224516) |
+|---|---|---|
+| GPU tests | 56 of 57 | 58 of 59 (the lawn through a pane passes) |
+| views with >= 50 % bare wall | 7 of 34 | 0 of 28 |
+| judge mean (1-5) | 2.26 | 2.07 |
+| agent edits accepted / findings gone next round | - | 23 / 6 |
+| Argus's own edits accepted | - | 0 of 94 |
+
+Promoted as the latest real06 run. The failed GPU test: the agent's model swaps pinned models outside the project's
+style family. The judge's top problems, in 20 of 28 views: "lollipop" trees in the windows; the dressing room near
+black; the 55 m² salon "four egg chairs and no sofa"; bathrooms bare; mixed chair models at one table.
+
+### What changed (general rules)
+
+- **Argus's calls are valid before they run** (`wenart/audit/calls.py`): the model sees every tool argument's type,
+  allowed values and range, and the valid ids (views by room, looks by slot, the catalogue models a piece may take
+  within the style chain); code repairs what it can (a camera's kind and room from the scene, a piece named as the view
+  becomes what the view must show, a group word the program knows under another name, an optional argument that does
+  not match its schema left out), checks the schema and the ids, and asks the model once to repair the rest. Replaying
+  the run's 56 calls: 33 valid by code, 19 duplicates, all 14 camera calls accepted by the real camera checks.
+- **The AI names what a view shows; code gives the pose**: `set_camera` / `add_camera` take `show` (pieces, doors,
+  windows); `camsearch.poses_showing` picks the free pose of the room's camera search that shows them; the room's lens
+  rule stays.
+- **A swap keeps the style chain**: a model of no family of the project's chain is refused; a pinned model records the
+  chain family it holds.
+- **Sofas with cushion marks are sofas**: a mark under 0.30 m is never what an outline is "drawn around" (two drawn
+  sofas were "rug outlines"); a small mark inside a drawn outline is its detail (two cushions were "potted plants"); a
+  type whose labelled zone lies elsewhere in the room is not the piece's (a "dining table" in the seating area); a sofa
+  stands on a wall or in its group. On the run's salon both sofas are typed.
+- **Argus A10, drawings no piece uses**: furniture-layer strokes no element uses, clustered, piece-sized, in a room
+  and in no recorded piece. The salon's lost sofas were seen only as symptoms before.
+- **Trees through the windows**: each context crown is a cluster of foliage masses on a tapered trunk (about 450 faces,
+  was a 60-face ball on a stick) with a procedural leaf texture (the tiled atlas read as a dot grid); near the cameras a
+  photoscan before a generic library tree; a leaf texture without alpha gets its flat background keyed out.
+- **Every room people walk into has a ceiling light**: storage, other and prayer rooms get the circulation fixture
+  (the dressing room, typed other, had two small high windows and no light at all).
+
+Open: the salon's round table drew 8 chairs and 4 were read (A10 cannot see strokes the table's evidence claims); the
+egg-chair models; bathrooms without a mirror or towels.

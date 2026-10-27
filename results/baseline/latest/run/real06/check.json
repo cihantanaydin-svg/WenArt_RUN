@@ -5,32 +5,32 @@
  "stage": "check",
  "rc": 0,
  "status": "ok",
- "seconds": 190.0,
+ "seconds": 178.99,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "check/answers_qwen3.8-27b-fp8.json"
  ],
- "started_utc": "2026-10-26T21:32:48Z",
- "git_commit": "9bc1e868aa0e511ea356c1ddd299ecea27d20509",
+ "started_utc": "2026-10-26T23:47:40Z",
+ "git_commit": "4e9449b714eae33fb86448ce3647a61d88e197cc",
  "log": "logs/check.log",
  "note": null,
- "run_id": "20261026-195707-full-20261026T200228Z",
+ "run_id": "20261026-224516-full-20261026T224959Z",
  "steps": [
   {
    "name": "run agent",
    "rc": 0,
-   "seconds": 185.42
+   "seconds": 174.73
   },
   {
    "name": "preference agent",
    "rc": 0,
-   "seconds": 2.58
+   "seconds": 2.48
   },
   {
    "name": "style-photo test agent",
    "rc": 0,
-   "seconds": 2.0
+   "seconds": 1.78
   }
  ],
  "written": {}
