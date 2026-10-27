@@ -610,6 +610,32 @@ def _drop_outline(segs: list[Seg], wall_geom) -> tuple[list[Seg], int]:
     return keep, dropped
 
 
+OPENING_LINE_NEAR_M = 0.10          # a sill or trim line stands at most 10 cm off the wall face
+
+
+def _drop_opening_lines(segs: list[Seg], wall_geom) -> tuple[list[Seg], list[str]]:
+    """27 Oct 2026 (pod run 091638, real06: the 'DENIZLIK' sill line 4 cm inside the wall face touched a single bed and
+    made it a 2.65 m "sofa"): a straight stroke on an opening layer (``layer_kind`` "door": doors, windows, sills,
+    trims) with >= 90 % of its length within ``OPENING_LINE_NEAR_M`` of the walls and openings is drawing of the
+    opening, not furniture. Door swings (arcs) and strokes away from the walls stay for the symbol rules."""
+    if wall_geom.is_empty or not segs:
+        return segs, []
+    near = None
+    keep, dropped = [], []
+    for s in segs:
+        if s.curve or s.dot or s.length <= 0 or layer_kind(s.stroke.layer) != "door":
+            keep.append(s)
+            continue
+        if near is None:
+            near = wall_geom.buffer(OPENING_LINE_NEAR_M, join_style=2)
+            shapely.prepare(near)
+        if s.geom.intersection(near).length / s.length >= OUTLINE_SHARE:
+            dropped.append(s.stroke.id)
+        else:
+            keep.append(s)
+    return keep, sorted(set(dropped), key=_id_key)
+
+
 # --------------------------------------------------------------------------
 # Clusters
 # --------------------------------------------------------------------------
@@ -2004,6 +2030,10 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     kept_ids = {id(s) for s in kept}
     near_wall = [s for s in segs if id(s) not in kept_ids]
     notes.append(f"{n_outline} stroke segments dropped as wall outline (>= 90 % within 20 mm of walls/openings)")
+    kept, sill_ids = _drop_opening_lines(kept, wall_geom)
+    if sill_ids:
+        notes.append(f"{len(sill_ids)} straight strokes on opening layers along the walls (sills, trims) are no "
+                     f"furniture: {_short_ids(sill_ids)}")
     # Milestone 10 (real02's attic): the long sides of an outline larger than any piece in both directions (the
     # mansard's break line runs through the bathrooms) are no furniture strokes: they would chain every fixture they
     # touch into one cluster. A long piece drawn by separate lines (one 5 m stroke per side) stays.
@@ -3836,6 +3866,9 @@ LAYER_WORDS: tuple[tuple[str, str], ...] = (
     ("KESIT", "section_mark"), ("SECTION", "section_mark"), ("NORTH", "north_arrow"), ("KUZEY", "north_arrow"),
     ("KAPI", "door"), ("DOOR", "door"), ("PENCERE", "door"), ("WINDOW", "door"), ("CAM", "door"), ("GLASS", "door"),
     ("GLAZ", "door"), ("DOGRAMA", "door"),
+    # 27 Oct 2026 (pod run 091638, real06: a window sill line on 'DENIZLIK' joined a single bed into a 2.65 m "sofa"):
+    # sills, trims and shutters are drawing of the opening
+    ("DENIZLIK", "door"), ("SILL", "door"), ("PERVAZ", "door"), ("PANJUR", "door"), ("KEPENK", "door"),
     ("KOLON", "structure"), ("COLUMN", "structure"), ("BETON", "structure"), ("PERDE", "structure"),
     ("KIRIS", "structure"), ("BEAM", "structure"), ("BA", "structure"),
     ("DEKO", "decor"), ("DECOR", "decor"), ("AKSESUAR", "decor"), ("ACCESSOR", "decor"),

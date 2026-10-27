@@ -1673,3 +1673,56 @@ committed and tested on the CPU (the real06 reading checked locally with the las
 
 Open: the salon's round table drew 8 chairs and 4 were read (A10 cannot see strokes the table's evidence claims); the
 egg-chair models; bathrooms without a mirror or towels.
+
+## Argus's swaps keep the look; the oda's single bed; Argus's calls (27 Oct 2026)
+
+### The pod run of 27 Oct (real06, job 20261027-091638-full, $4.26)
+
+| | before (224516) | after (091638) |
+|---|---|---|
+| GPU tests | 58 of 59 | 57 of 59 (the style test again; the tree test still counted 68 faces a tree) |
+| judge mean (1-5) / views at 1 | 2.07 / 3 | 2.07 / 0 |
+| drawn pieces in the scene (without explained marks) | 46 of 49 | 47 of 48 |
+| agent edits accepted / findings gone next round | 23 / 6 | 47 / 3 |
+| Argus's own edits accepted | 0 of 94 | 21 of 89 |
+| Argus score (critical / major) | - | 4.1 (44 / 231) |
+
+Promoted as the latest real06 run. Better: the child room, the salon's sofas built, the fridge-freezer column, no view
+at 1. Worse: the master bed (Argus swapped an ABO bed rated 4.5 for an unrated model that rendered as a black slab);
+the oda's "sofa" stayed a sofa in a bedroom (the judge: "a bedroom without a bed", critical, twice).
+
+### What changed (general rules)
+
+- **The agent's working building knows the project's style family**: it was fitted before style.json existed, so no
+  swap was checked against the style chain (a classic sofa came into a scandinavian house). The tools now stamp
+  `project.style_family` from style.json; Argus's model options read it too.
+- **An off-style pin gives way**: the refit takes a model of the style chain that fits over an agent's off-style pin;
+  the pin stays only when the ranking would build the piece below the library level.
+- **A swap never takes a lower-rated model** (`edit_ops.lower_quality_refusal`): more than 0.25 below the current
+  model's rating (judges and audit vision; 3 when unknown) is refused with the reason; Argus is offered only models at
+  least as good.
+- **Sill lines are no furniture**: layer words DENIZLIK, SILL, PERVAZ, PANJUR, KEPENK mark opening drawing; a straight
+  opening-layer stroke within 10 cm of the walls is dropped before the furniture clusters (real06: the 'DENIZLIK' sill
+  4 cm off the wall face joined the oda's single bed into a 2.65 m "sofa"; read again: 1.90 x 0.90 m).
+- **A bedroom's anchor is any bed**: the program of an 11 m² bedroom asks for a double bed, so a single bed's
+  footprint was never "the missing bed"; now any of the room's anchor types counts, and code types the oda's piece
+  `bed_single` before any AI pass (its lamp symbol at the head is the nightstand, by its block).
+- **A cushion mark records its sofa** (`detail_of`); Argus C7 no longer offers it as a lost potted plant (three such
+  retypes were refused in the run).
+- **Argus N5 sees a room without its anchor**: a bedroom with no bed is a gap like a kitchen without a hob; a drawn
+  piece of a bed's size the vision passes typed otherwise (or left untyped) is offered as that bed.
+- **Read again locally** (the run's cached AI answers): the oda's piece is `bed_single` by code; the child room's
+  second bed is 2.09 x 1.90 m (was 2.58 m long with a sill line); a 2.25 x 0.18 m "piece" of sill lines in the master
+  bedroom is gone. Pieces whose plan crop changed (the bathtubs) are asked again on the pod.
+- **Argus's calls**: `show` takes type names ("bed_double, desk" -> the room's pieces of those types; 6 camera calls
+  were refused as "not in the room"); `fix_fixture` on a loose piece is an id error naming move / rotate / resize (6 of
+  15 calls named a chair).
+- **GPU tests**: the context-tree face count follows `site.context_parts`; a new check renders one context tree in the
+  sun and wants a green crown (saturation >= 0.25, value <= 0.80), to measure the pale "cloud" crowns the judge sees
+  through the windows before changing their material.
+
+- **A flat-coloured library tree gives way near the cameras** (`vegetation.flat_near_camera`): the near "parasol
+  pines" were a 3D Warehouse model of flat-coloured discs (no image texture in any material; CLAUDE.md wants leaf
+  textures); near a camera such a model gives way to the scan, else Sapling, else leaf cards, with the reason recorded.
+
+Open: interior views overexpose the garden; mixed styles of pieces in one room (the judge's most frequent remark after model quality).

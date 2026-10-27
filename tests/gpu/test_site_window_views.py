@@ -118,6 +118,33 @@ SCRIPT = textwrap.dedent("""
                           "visible": {a: bool(getattr(ob, a)) for a in ("visible_camera", "visible_diffuse",
                                                                         "visible_glossy", "visible_transmission",
                                                                         "visible_volume_scatter", "visible_shadow")}}}
+    # 27 Oct 2026 (pod run 091638: the judge saw pale "cloud" crowns in the window views): one context tree alone in
+    # the sun, framed by a camera at three crown widths, film transparent: the crown's median colour (alpha > 0.5)
+    lawn.hide_render = True
+    pane.hide_render = True
+    t0 = max(ctx["trees"], key=lambda t: t["height"])
+    tx, ty = t0["center"][0], t0["center"][1]
+    h = float(t0["height"])
+    dist = 3.0 * max(h, 4.0)
+    cam.location = (tx, ty - dist, float(t0.get("z") or 0.0) + h * 0.55)
+    cam.rotation_euler = (math.radians(90.0), 0.0, 0.0)
+    scene.render.film_transparent = True
+    scene.render.filepath = f"{tmp}/crown.png"
+    bpy.ops.render.render(write_still=True)
+    img = bpy.data.images.load(f"{tmp}/crown.png", check_existing=False)
+    px = list(img.pixels)
+    sat, val = [], []
+    for i in range(0, len(px), 4):
+        r, g, b, a = px[i:i + 4]
+        if a < 0.5:
+            continue
+        hi, lo = max(r, g, b), min(r, g, b)
+        sat.append((hi - lo) / hi if hi > 0 else 0.0)
+        val.append(hi)
+    sat.sort()
+    val.sort()
+    res["crown"] = {"pixels": len(sat), "saturation": sat[len(sat) // 2] if sat else None,
+                    "value": val[len(val) // 2] if val else None, "tree": t0.get("species")}
     with open(out, "w") as fh:
         json.dump(res, fh)
 """)
@@ -152,3 +179,17 @@ def test_horizon_context_object_in_blender(result):
     vis = ob["visible"]
     assert vis["visible_camera"] and vis["visible_transmission"] and vis["visible_glossy"]
     assert not vis["visible_shadow"] and not vis["visible_diffuse"] and not vis["visible_volume_scatter"]
+
+
+CROWN_SATURATION_MIN = 0.25    # a green crown, not a pale grey "cloud"
+CROWN_VALUE_MAX = 0.80         # under a 3 W/m2 sun and a 1.0 sky: not washed white
+
+
+def test_a_context_crown_reads_green_in_the_sun(result):
+    """27 Oct 2026 (pod run 091638): the context crowns read as pale clouds through the windows. One context tree
+    alone in the sun: its median crown colour is a saturated, not washed-out green."""
+    crown = result["crown"]
+    print(f"context crown ({crown['tree']}): {crown['pixels']} px, median saturation {crown['saturation']}, "
+          f"median value {crown['value']}")
+    assert crown["pixels"] > 20
+    assert crown["saturation"] >= CROWN_SATURATION_MIN and crown["value"] <= CROWN_VALUE_MAX, crown

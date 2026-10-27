@@ -2281,6 +2281,27 @@ SHOW_SCHEMA = {"type": "array", "items": {"type": "string", "minLength": 1}, "mi
                               "them (and passes the camera checks)"}
 
 
+def show_ids(building: dict, room_id: Optional[str], show) -> list[str]:
+    """27 Oct 2026 (pod run 091638: Argus asked views to show "bed_double, desk, dresser, wardrobe" and all were refused
+    as "not in the room"): the ``show`` entries as element ids: an id stays; a type name ("bed_double", "bed",
+    "kitchen counter") names the built pieces of that type in ``room_id`` (pure)."""
+    pieces = [f for f in building.get("furniture") or [] if f.get("room_id") == room_id and f.get("build") is not False]
+    known = {str(f.get("id")) for f in building.get("furniture") or []} | \
+        {str(o.get("id")) for o in building.get("openings") or []}
+    out: list[str] = []
+    for item in show or []:
+        name = str(item).strip()
+        if name in known:
+            out.append(name)
+            continue
+        word = re.sub(r"[\s-]+", "_", name.lower())
+        for f in pieces:
+            t = str(f.get("type") or "")
+            if t and (t == word or t.startswith(word + "_") or t.endswith("_" + word)):
+                out.append(str(f["id"]))
+    return list(dict.fromkeys(out))
+
+
 def show_pose(ctx: ToolContext, args: dict, entry: dict) -> tuple[Optional[dict], list[str]]:
     """27 Oct 2026 (Argus on real06: 26 of its 56 edits were camera poses it guessed, at the room's origin or outside
     the room, and all were refused): ``set_camera`` / ``add_camera`` with ``show`` and no position: ``(entry with the
@@ -2294,6 +2315,7 @@ def show_pose(ctx: ToolContext, args: dict, entry: dict) -> tuple[Optional[dict]
 
     show = [str(i) for i in args.get("show") or []]
     cam = ctx.camera(args["view_id"]) or {}
+    show = show_ids(ctx.building, args.get("room_id") or cam.get("room_id"), show) or show
     kind = entry.get("kind") or cam.get("kind") or ("interior" if cam.get("room_id") or args.get("room_id")
                                                     else None)
     piece_rooms = [p.get("room_id") for p in (ctx.piece(i) for i in show) if p]

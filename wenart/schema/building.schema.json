@@ -486,6 +486,7 @@
         "front_inferred": {"type": ["boolean", "string"], "description": "Milestone 12 (§4.1, track R): the front was inferred (wall it touches, its group), not drawn: true or the reason (text)"},
         "not_built_reason": {"type": "string", "description": "Milestone 12 (§4.1): why a drawn piece is not built (untyped: needs review; column; decor; detail; rug)"},
         "inferred_as": {"enum": ["column", "decor", "detail", "rug"], "description": "Milestone 12 (§4.1): what a drawn mark that is no furniture piece was read as"},
+        "detail_of": {"type": "string", "description": "27 Oct 2026: the drawn piece this not-built mark is drawn on (a cushion on its sofa); Argus C7 does not count it as a lost piece"},
         "library_gap": {"type": "object", "description": "Milestone 12 (§6.4): no audited model fitted; what was used instead"},
         "level_id": {"type": "string"},
         "room_id": {"type": ["string", "null"]},

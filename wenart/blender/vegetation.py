@@ -1498,7 +1498,7 @@ def fix_plant_materials(objects, species: str) -> dict:
     (``wenart_plant_fix``)."""
     import colorsys
     rec = species_record(species)
-    out = {"cutout": [], "tinted": [], "keyed": []}
+    out = {"cutout": [], "tinted": [], "keyed": [], "textured": [], "flat": []}
     seen = set()
     for ob in objects:
         if getattr(ob, "type", None) != "MESH":
@@ -1516,6 +1516,7 @@ def fix_plant_materials(objects, species: str) -> dict:
             if bsdf is None:
                 continue
             texs = [n for n in nodes if n.bl_idname == "ShaderNodeTexImage" and n.image is not None]
+            out["textured" if texs else "flat"].append(mat.name)
             if texs:
                 tex = next((t for t in texs if _image_has_cutout(t.image)), None)
                 if tex is not None and not bsdf.inputs["Alpha"].links:
@@ -1554,6 +1555,17 @@ def scan_first(model: dict, near_camera: bool, levers: Optional[dict], species: 
     if not near_camera or model.get("match") == "species" or (levers or {}).get("instances", True) is False:
         return False
     return (hero_of or hero_model)(species) is not None
+
+
+def flat_near_camera(near_camera: bool, material_fix: Optional[dict]) -> Optional[str]:
+    """27 Oct 2026 (pod run 091638: the judge saw "lollipop" trees in the windows; the near "parasol pines" were a 3D
+    Warehouse model of flat-coloured discs): why a library plant may not stand near the cameras (none of its materials
+    holds an image texture: CLAUDE.md wants leaf textures), else None (pure)."""
+    fix = material_fix or {}
+    if not near_camera or fix.get("textured") or not fix.get("flat"):
+        return None
+    return (f"no leaf texture: its {len(fix['flat'])} material(s) are flat colours, a stylised model near the "
+            f"cameras")
 
 
 def _tree_library(name: str, species: str, height_m: float, seed: int, collection, model: dict):
@@ -1595,12 +1607,18 @@ def tree_object(species: str, height_m: float, seed: int, near_camera: bool, *, 
     model = library_plant(rec["name"], levers)
     if model is not None and scan_first(model, near_camera, levers, rec["name"]):
         model = None              # 27 Oct 2026: the photoscan near the cameras before a generic library tree
+    flat_why = None
     if model is not None:
         try:
             ob, out = _tree_library(name, rec["name"], height_m, seed, collection, model)
-            ob.location = (float(position[0]), float(position[1]),
-                           float(position[2]) + float(ob.get("wenart_base_offset") or 0.0))
-            return ob, out
+            flat_why = flat_near_camera(near_camera, out.get("material_fix"))
+            if flat_why is None:
+                ob.location = (float(position[0]), float(position[1]),
+                               float(position[2]) + float(ob.get("wenart_base_offset") or 0.0))
+                return ob, out
+            import bpy                                # 27 Oct 2026: a flat-coloured model near a camera: the next
+            bpy.data.objects.remove(ob, do_unlink=True)   # source (the scan, Sapling, cards)
+            print(f"{name}: library plant {model['id']}: {flat_why}; the next source")
         except Exception as exc:                      # a broken file: the earlier sources
             print(f"{name}: library plant {model['id']} failed ({type(exc).__name__}: {exc}); the next source")
     hero = hero_model(rec["name"])
@@ -1611,6 +1629,8 @@ def tree_object(species: str, height_m: float, seed: int, near_camera: bool, *, 
     # pre-flight of pod P3: a planned source that is missing (no Poly Haven model in the assets, no Sapling add-on)
     # is recorded with the reason; the 20 real04 shrubs near the cameras became leaf cards with no word of why
     extra: dict = missing_source(rec["name"], near_camera, levers, hero, sapling_rec)
+    if flat_why is not None:
+        extra = dict(extra, fallback_from="library", fallback_reason=f"{model['id']}: {flat_why}")
     sapling_possible = sapling_ok and (rec.get("source") or {}).get("sapling") in SAPLING_PRESETS \
         and rec.get("crown") not in ("shrub", "hedge", "palm")
     if src == "polyhaven":

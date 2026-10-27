@@ -172,6 +172,33 @@ def misfits(building: dict, room_id: str, here: list[dict]) -> list[dict]:
             and any(isinstance(e, dict) and e.get("method") in ("vector", "raster") for e in f.get("evidence") or [])]
 
 
+def anchor_gap(building: dict, room_id: str, here: list[dict]) -> Optional[dict]:
+    """27 Oct 2026 (pod run 091638, real06's r_L1_oda_2: a bedroom without a bed; no group check names a bedroom's
+    missing bed, so N5 never looked): the room's missing anchor (``schemas.anchor_types``: a bedroom's beds) as a gap
+    ``{"message", "metrics": {"missing": "a|b"}, "anchor": True}`` when no built piece of the room is one, else None."""
+    try:
+        from wenart.furniture import schemas as SC
+        room = next(r for r in building.get("rooms") or [] if r.get("id") == room_id)
+        anchors = SC.anchor_types(room.get("room_type"), room.get("room_subtype"))
+    except Exception:  # noqa: BLE001 - no room or no table: no gap
+        return None
+    if not anchors or any(f.get("type") in anchors and f.get("build") is not False for f in here):
+        return None
+    return {"message": f"{room.get('room_type')} {room_id} has no {' / '.join(anchors)}",
+            "metrics": {"missing": "|".join(anchors)}, "anchor": True}
+
+
+def _fits_any(piece: dict, types: list[str]) -> bool:
+    size = ((piece.get("footprint") or {}).get("size") or [])[:2]
+    if len(size) < 2:
+        return False
+    try:
+        from wenart.furniture import sizes as SZ
+        return any(SZ.fits(t, [float(v) for v in size], 0.15) for t in types if t)
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def set_links(building: dict) -> list[dict]:
     """N5 (module docstring)."""
     try:
@@ -181,12 +208,17 @@ def set_links(building: dict) -> list[dict]:
     except Exception:  # noqa: BLE001 - no measure
         return []
     out = []
-    for room_id, vs in res["rooms"].items():
+    rooms = list(dict.fromkeys(list(res["rooms"]) + [str(r.get("id")) for r in building.get("rooms") or []]))
+    for room_id in rooms:
+        vs = res["rooms"].get(room_id) or []
         gaps = [v for v in vs if v.get("check") in ("G9", "G10") and v.get("target") == room_id
                 and (v.get("metrics") or {}).get("missing")]
+        here = [f for f in building.get("furniture") or [] if f.get("room_id") == room_id]
+        anchor = anchor_gap(building, room_id, here)
+        if anchor is not None:
+            gaps.append(anchor)
         if not gaps:
             continue
-        here = [f for f in building.get("furniture") or [] if f.get("room_id") == room_id]
         suspects = [f for f in here if str(f.get("type")) in ("unknown", "other", "")
                     and (f.get("build") is not False or str(f.get("not_built_reason") or "").startswith("untyped"))
                     and any(isinstance(e, dict) and e.get("method") in ("vector", "raster")
@@ -195,6 +227,8 @@ def set_links(building: dict) -> list[dict]:
         suspects += misfits(building, room_id, here)
         for g in gaps:
             for f in suspects:
+                if g.get("anchor") and not _fits_any(f, str(g["metrics"]["missing"]).split("|")):
+                    continue                      # a room's missing anchor: only a piece of its size
                 size = (f.get("footprint") or {}).get("size") or []
                 hints = " / ".join(str(c.get("reason") or c.get("type"))[:90] for c in f.get("type_candidates") or [])
                 out.append(K.finding("sense", "N5", "major", f["id"],

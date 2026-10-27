@@ -835,6 +835,9 @@ def _swap_model(b: dict, args: dict, catalog) -> list[str]:
     off = off_style_refusal(b, entry)
     if off is not None:
         raise EditRejected("off_style", f"{item['id']}: {off}")
+    low = lower_quality_refusal(catalog.entry(current) if current else None, entry)
+    if low is not None:
+        raise EditRejected("lower_quality", f"{item['id']}: {low}")
     refused = generated_pin_refusal(b, item, args["asset_id"], entry, catalog)
     if refused is not None:
         raise EditRejected("pin_refused", f"{item['id']}: {refused}: the real model stays; swap to a real model of "
@@ -860,6 +863,37 @@ def off_style_refusal(b: dict, entry: dict) -> Optional[str]:
         return None
     return (f"{entry.get('id')} is of the styles {entry.get('styles') or []}, none of the project's chain "
             f"{' -> '.join(str(c) for c in chain)}: choose a model of the style")
+
+
+SWAP_QUALITY_MARGIN = 0.25         # a swap may not take a model rated this much below the current one
+
+
+def model_rating(entry: Optional[dict]) -> float:
+    """The rating a swap compares (1-5): the mean of the judges' quality (``fit.quality_of``, when recorded) and the
+    audit's vision quality (``fit.vision_quality_of``, when recorded), else ``fit.DEFAULT_QUALITY``."""
+    from wenart.furniture import fit as F
+
+    if not isinstance(entry, dict):
+        return F.DEFAULT_QUALITY
+    known = [F.quality_of(entry)] if entry.get("quality") is not None else []
+    vq = F.vision_quality_of(entry)
+    if vq is not None:
+        known.append(vq)
+    return sum(known) / len(known) if known else F.DEFAULT_QUALITY
+
+
+def lower_quality_refusal(current: Optional[dict], entry: dict) -> Optional[str]:
+    """27 Oct 2026 (pod run 091638, real06: Argus swapped the master bed, an ABO bed rated 4.5, for an unrated HSSD
+    model that rendered as a glossy black slab, over a minor "plain styling" remark): why ``entry`` may not replace
+    the current model ``current`` (rated more than ``SWAP_QUALITY_MARGIN`` lower, ``model_rating``), else None."""
+    if not isinstance(current, dict):
+        return None
+    qc, qn = model_rating(current), model_rating(entry)
+    if qn >= qc - SWAP_QUALITY_MARGIN - 1e-9:
+        return None
+    return (f"{entry.get('id')} is rated {qn:.1f} against {qc:.1f} of the current model {current.get('id')}: a swap "
+            f"never takes a lower-rated model; choose one rated at least {qc - SWAP_QUALITY_MARGIN:.1f}, or fix the "
+            f"view (camera, light) instead")
 
 
 def generated_pin_refusal(b: dict, item: dict, asset_id: str, entry: dict, catalog) -> Optional[str]:

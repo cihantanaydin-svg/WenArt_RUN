@@ -182,9 +182,13 @@ class Valid:
                 return abs(float(bb[0]) - float(size[0])) + abs(float(bb[1]) - float(size[1]))
             except (TypeError, ValueError, IndexError):
                 return 99.0
-        try:                                         # only models of the project's style chain (edit_ops refuses others)
+        try:                     # only models of the project's style chain, never rated below the current one
             from wenart.furniture import edit_ops as EO
-            entries = [e for e in entries if EO.off_style_refusal(self.building, e) is None]
+            now = cat.entry(asset.get("asset_id")) if cat is not None and asset.get("asset_id") else None
+            entries = [e for e in entries if EO.off_style_refusal(self.building, e) is None
+                       and EO.lower_quality_refusal(now, e) is None]
+            if cat is not None:
+                ids = [i for i in ids if i in {e.get("id") for e in entries}]
         except Exception:  # noqa: BLE001
             pass
         by_id = {e.get("id"): e for e in entries}
@@ -257,7 +261,8 @@ def _show_ids(valid: Valid, room_id: str, args: dict, finding: Optional[dict]) -
     """The elements a view of ``room_id`` must show: ``show`` of the call, else the pieces of the room the finding
     names (its target, its message), else the room's main pieces (``camsearch.type_weight``)."""
     here = {i for i, f in valid.pieces.items() if f.get("room_id") == room_id and f.get("build") is not False}
-    ids = [str(i) for i in args.get("show") or [] if str(i) in here or str(i) in valid.openings]
+    from wenart.agent.tools import show_ids
+    ids = [i for i in show_ids(valid.building, room_id, args.get("show") or []) if i in here or i in valid.openings]
     if ids:
         return ids[:6]
     message = str((finding or {}).get("message") or "")
@@ -328,6 +333,11 @@ def fix_args(tool: str, args: dict, valid: Valid, registry, finding: Optional[di
                     args["room_id"] = room
                     notes.append(f"room_id -> {room} (the view's)")
                 posed = args.get("position") is not None or args.get("target") is not None
+                if room and args.get("show") and not posed:
+                    ids = _show_ids(valid, room, args, finding)       # type names -> the room's pieces (27 Oct)
+                    if ids and ids != [str(i) for i in args["show"]]:
+                        notes.append(f"show {', '.join(str(i) for i in args['show'])[:80]} -> {', '.join(ids)}")
+                        args["show"] = ids
                 if room and (posed or not args.get("show")) and not _pose_ok(valid, args):
                     args.pop("position", None)
                     args.pop("target", None)
@@ -394,6 +404,16 @@ def id_errors(tool: str, args: dict, valid: Valid) -> list[str]:
         out.append(f"view_id: {vid} is frozen (a replayed camera): add_camera with a new view id instead")
     if tool == "add_camera" and vid is not None and valid.camera(vid) is not None:
         out.append(f"view_id: {vid} exists already (add_camera takes a new id; set_camera moves it)")
+    if tool == "fix_fixture" and pid in valid.pieces:
+        try:                       # 27 Oct 2026 (pod run 091638: 6 of Argus's 15 fix_fixture calls named a chair)
+            from wenart.furniture import edit_ops as EO
+            piece = valid.pieces[pid]
+            if not EO._fixed(piece):
+                out.append(f"piece_id: {pid} is a {piece.get('type')}, no drawn fixed equipment (stairs, kitchen runs, "
+                           f"sanitary ware): move it with move_piece, turn it with rotate_piece, size it with "
+                           f"resize_piece")
+        except Exception:  # noqa: BLE001
+            pass
     if tool == "swap_model" and args.get("asset_id"):
         why = valid.model_ok(str(args["asset_id"]), valid.pieces.get(pid))
         if why:

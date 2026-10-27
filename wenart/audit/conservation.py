@@ -237,6 +237,8 @@ def named_left_out(final: dict) -> list[dict]:
         how = str(el.get("inferred_as") or (el.get("type") if el.get("type") in LEFT_OUT_AS else "") or "")
         if el.get("build") is not False or not _drawn(el) or how not in LEFT_OUT_AS or el.get("not_furniture"):
             continue
+        if el.get("detail_of") or el.get("replaced_by"):
+            continue                    # 27 Oct 2026 (pod run 091638): a cushion drawn on its sofa is no lost plant
         size = ((el.get("footprint") or {}).get("size") or [])[:2]
         named = sorted({str(c.get("type")) for c in el.get("type_candidates") or [] if isinstance(c, dict)
                         and c.get("type") not in UNTYPED and c.get("type") not in LEFT_OUT_AS})

@@ -1428,6 +1428,14 @@ def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict
         for t in template["anchor"]["types"]:
             if t not in present and not (set(template["anchor"]["types"]) & present):
                 wanted.setdefault(t, []).append(f"the {kind} room misses its {name} anchor ({t})")
+        # 27 Oct 2026 (pod run 091638, real06's r_L1_oda_2: an 11 m2 bedroom whose program asks for a double bed held
+        # a drawn 1.90 x 0.90 m single bed, read as a "sofa"): the room's anchor is any of its anchor types
+        # (``schemas.anchor_types``: a bedroom's double or single bed), so a drawn footprint of the other one is
+        # the missing anchor too
+        room_anchors = schemas.anchor_types(kind, room.get("room_subtype"))
+        if set(template["anchor"]["types"]) & set(room_anchors) and not (set(room_anchors) & present):
+            for t in room_anchors:
+                wanted.setdefault(t, []).append(f"the {kind} room misses its anchor ({' | '.join(room_anchors)})")
     if not wanted:
         return None
     size = [float(v) for v in piece["footprint"]["size"]]
@@ -1627,7 +1635,8 @@ def infer_types(building: dict) -> list[dict]:
                       f"({_sorted_size(drawn_host)[1]:.2f} x {_sorted_size(drawn_host)[0]:.2f} m): a cushion, pillow or "
                       f"detail drawn on that piece, not a piece of its own (not built)")
             out.append({"piece_id": item["id"], "type": DETAIL_TYPE, "build": False, "reason": reason,
-                        "confidence": CONF_OUTLINE, "evidence": _evidence(item, reason, CONF_OUTLINE)})
+                        "confidence": CONF_OUTLINE, "evidence": _evidence(item, reason, CONF_OUTLINE),
+                        "detail_of": drawn_host["id"]})
             continue
         if held and not any(f["type"] in schemas.FIXED_TYPES for f in mates if f["id"] in held):
             reason = (f"outline {piece.size[0]:.2f} x {piece.size[1]:.2f} m around {len(held)} other piece(s) "
@@ -2201,6 +2210,8 @@ def apply_inferences(building: dict, proposals: list[dict]) -> dict:
         if prop.get("build") is False or prop["type"] not in schemas.SIZE_OPTIONS:
             item["build"] = False
             item["inferred_as"] = prop["type"]
+            if prop.get("detail_of"):                             # 27 Oct 2026: the drawn piece it is a mark of
+                item["detail_of"] = prop["detail_of"]
             continue
         item["type"] = prop["type"]
         if prop.get("front_deg") is not None and item.get("front_deg") is None:

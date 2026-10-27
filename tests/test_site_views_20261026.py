@@ -615,3 +615,14 @@ def test_the_scan_stands_before_a_generic_library_tree_near_the_cameras():
     assert not VG.scan_first(generic, False, None, "olive", hero)
     assert not VG.scan_first(generic, True, None, "olive", none)
     assert not VG.scan_first(generic, True, {"instances": False}, "olive", hero)
+
+
+def test_a_flat_coloured_library_tree_gives_way_near_the_cameras():
+    """27 Oct 2026 (pod run 091638: the near "parasol pines" were a 3D Warehouse model of flat-coloured discs, the
+    judge's "lollipops"): near the cameras a library plant none of whose materials holds an image texture gives way to
+    the next source (the scan, Sapling, cards); a textured one, or any one far from the cameras, stays."""
+    flat = {"textured": [], "flat": ["green", "brown"]}
+    assert "flat colours" in VG.flat_near_camera(True, flat)
+    assert VG.flat_near_camera(False, flat) is None
+    assert VG.flat_near_camera(True, {"textured": ["leaves"], "flat": ["bark"]}) is None
+    assert VG.flat_near_camera(True, None) is None and VG.flat_near_camera(True, {}) is None

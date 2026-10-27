@@ -99,6 +99,24 @@ def test_the_code_repairs_the_calls_of_pod_run_224516(tmp_path):
     assert any("no piece 'f_nope'" in e for e in errs)
 
 
+def test_show_takes_type_names_and_fix_fixture_only_fixed_equipment(tmp_path):
+    """Pod run 091638: Argus asked views to show "bed_double, nightstand" (refused: "not in the room") and called
+    fix_fixture on chairs (refused 6 times). A type name in ``show`` names the room's pieces of that type (the agent's
+    tool and Argus's vetting alike); fix_fixture on a loose piece is an id error naming the tools that move it."""
+    ctx = _ctx(tmp_path)
+    assert TL.show_ids(ctx.building, "r1", ["bed_double", "nightstand", "win1"]) == ["f1", "f2", "win1"]
+    assert TL.show_ids(ctx.building, "r1", ["bed", "sofa"]) == ["f1"]                   # the sofa is in r2
+    reg = TL.build_registry()
+    res = reg.call(ctx, "set_camera", {"view_id": "cam_r1_1", "show": ["bed_double"], "reason": "show the bed"})
+    assert res["accepted"], res
+    valid = _valid(ctx)
+    a, errs, notes = CL.vet({"tool": "set_camera", "args": {"view_id": "cam_r1_1", "show": ["bed", "nightstand"]}},
+                            valid, reg, None)
+    assert not errs and a["args"]["show"] == ["f1", "f2"] and any("show bed, nightstand -> f1, f2" in n for n in notes)
+    _a, errs, _n = CL.vet({"tool": "fix_fixture", "args": {"piece_id": "f2"}}, valid, reg, None)
+    assert any("no drawn fixed equipment" in e and "move_piece" in e for e in errs)
+
+
 class _Catalog:
     def __init__(self, entries):
         self.entries = {e["id"]: e for e in entries}
@@ -194,6 +212,23 @@ def test_the_working_building_knows_the_project_style_family(tmp_path):
     ctx = TL.ToolContext.load(out, round=1, model_id="mock/agent", log=LG.AgentLog(out, "toy", "mock/agent", "rev"),
                               overrides=OV.Overrides(out))
     assert EO._style_family_of(ctx.building) == "scandinavian"
+
+
+def test_a_swap_never_takes_a_lower_rated_model():
+    """Pod run 091638: Argus swapped the master bed (ABO, judges 4.5) for an unrated HSSD model that rendered as a
+    glossy black slab, over a minor "plain styling" remark. A swap may not go more than SWAP_QUALITY_MARGIN below the
+    current model's rating (judges and vision quality; 3 when unknown); equal or better ratings pass."""
+    from wenart.furniture import edit_ops as EO
+
+    good = {"id": "abo_bed", "quality": [4.5, 4.5]}
+    unrated = {"id": "hssd_bed"}
+    why = EO.lower_quality_refusal(good, unrated)
+    assert "rated 3.0 against 4.5" in why and "abo_bed" in why
+    assert EO.lower_quality_refusal(unrated, good) is None
+    assert EO.lower_quality_refusal({"id": "a", "quality": 3.2}, unrated) is None          # within the margin
+    assert EO.lower_quality_refusal(None, unrated) is None                                   # no current model
+    weak = {"id": "w", "audit": {"vision": {"quality": 2}}}
+    assert EO.model_rating(weak) == 2.0 and EO.lower_quality_refusal(unrated, weak) is not None
 
 
 def test_argus_learns_how_its_own_edits_fared(tmp_path):
