@@ -1812,19 +1812,53 @@ def audit_elevations(model, building: dict, *, sheets: Optional[dict], renders, 
 
 
 # --------------------------------------------------------------------------
+# The roof against the roof plan (code, 27 Oct 2026)
+# --------------------------------------------------------------------------
+
+def roof_outline_findings(building: dict) -> list[dict]:
+    """The roof's outline against the roof plan, measured by code (27 Oct 2026; user: "Make argus catch these kind of
+    things before me", after the roof plan drew the roof over a balcony the model left open): the model review's
+    ``roof_vs_plan`` (M11) on the roof the build makes (``roof.apply_override`` + ``roof.roof_model``), as B9 findings
+    of this line (kind ``level``, aspect ``shape``, owner ``reading``; ``evidence.source`` ``code``). No model call:
+    a drawing-vs-model claim that code measures needs no vision. [] when the building has no roof plan outline."""
+    from wenart.blender import model_review as MR
+    from wenart.blender import roof as R
+    drawn = building.get("roof") if isinstance(building.get("roof"), dict) else None
+    if drawn is None or not isinstance(drawn.get("roof_plan_outline"), dict):
+        return []
+    try:
+        built, _changes = R.apply_override(drawn, R.override_of(building))
+        got, _n = MR.roof_vs_plan(dict(building, roof=built), R.roof_model(built, building))
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
+        return []
+    out = []
+    for n, f in enumerate(got, start=1):
+        change = "missing_in_model" if f.get("kind") == "lost" else "different_in_model"
+        rec = _finding(LINE_PLAN, "level", change, "shape", f["severity"], str(f.get("target") or "roof"),
+                       f["message"], level=None, images=[], label="", room=f.get("room_id"), call_id="code_roof",
+                       n=n, cat=None, etype="roof", extra={"source": "code", "model_review": f["check"],
+                                                          "metrics": f.get("metrics")})
+        rec["owner"], rec["kind"] = "reading", f.get("kind") or "misread"
+        out.append(rec)
+    return out
+
+
+# --------------------------------------------------------------------------
 # The whole project
 # --------------------------------------------------------------------------
 
 def audit_project(model, project_out, *, building: Optional[dict] = None, levels: Optional[Sequence[str]] = None,
                   call_prefix: str = "audit", render_dir: str = "renders") -> dict:
     """Every level that has a plan and a top-down view (``<render_dir>/top_<level>_plan.jpg``), then the
-    elevations: ``{"findings", "dropped", "levels": [records], "elevations": record}``."""
+    elevations: ``{"findings", "dropped", "levels": [records], "elevations": record}``. 27 Oct 2026: the roof's
+    outline against the roof plan first, by code (``roof_outline_findings``)."""
     out = Path(project_out)
     building = building if building is not None else load_building(out)
     res = {"findings": [], "dropped": [], "levels": [], "elevations": None}
     if not building:
         res["error"] = "no building JSON"
         return res
+    res["findings"] += roof_outline_findings(building)
     for lv in building.get("levels") or []:
         lid = lv.get("id")
         if levels and lid not in levels:

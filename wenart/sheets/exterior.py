@@ -15,6 +15,10 @@ How:
   ten times, with hip lines) is a **hip** roof at that slope (``type_source: roof_plan``; the pitch goes first in
   ``pitches_deg``); else the section's profile decides: one slope per side ``gable`` (the hip/gable choice across
   the section is assumed), two slopes per side ``gambrel``, no slope and a slab on top ``flat``;
+- 27 Oct 2026: the roofs a roof plan draws (``roof_plan_outline``, ``roof.plan_outline`` in the roof plan's own
+  metres): the eaves loop the hip and valley lines end on, the drawn wall line inside it (the overhang), and every
+  other roof drawn beside it (a lower roof over a veranda or a porch, a canopy); the building registers them on the
+  top level's walls (``to_building.roof_outline_record``);
 - facades: elevation regions (side from their title: GÜNEY / SOUTH / SÜD / SUD = south ...), materials from
   labels (``SIVA``, ``TAŞ KAPLAMA``, ``AHŞAP``, ``TUĞLA``, render, stone, timber, brick) and hatches; window- and
   door-sized rectangles counted per facade (positions along the facade);
@@ -243,6 +247,241 @@ def roof_from_roof_plan(roof_plans: list) -> Optional[dict]:
                 "note": f"{len(slopes)} slope texts on {r.id} all give {pct:g} % ({pitch:.1f} degrees), "
                         f"{r.features.get('hip_lines')} hip lines: a hip roof"}
     return None
+
+
+# 27 Oct 2026 (real06; user: "In the plan roof is covering this balcony also and there is a small roof on top of the
+# rest of the veranda", "The project needs to find these kind of things by itself"): a roof plan draws the roof's
+# outline, not only its type. The hip roof was built over the outer walls + overhang (assumed) while the roof plan drew
+# the eaves around the first-floor balcony too, and a lower roof beside it over the rest of the veranda. Every
+# tolerance below has a physical reason; none is a value of one drawing.
+ROOF_PLAN = {
+    # a hip or valley runs from an eaves corner up to the ridge: at least a metre on any roof over a room (a 1.5 m
+    # wing at 45 degrees has 1.06 m hips); slope arrows and tile hatching are shorter
+    "hip_min_m": 1.0,
+    # hips and valleys of equal pitches meet the eaves at 45 degrees (unequal pitches lean, rarely past 20-70)
+    "hip_angle_deg": (20.0, 70.0),
+    # a roof line drawn up to 2 cm short of the next one still closes the loop (a drafting gap, far under any edge)
+    "join_m": 0.02,
+    # a hip ends on the eaves loop when its end lies this close to it (under a gutter's width)
+    "end_tol_m": 0.05,
+    # a closed loop smaller than a small room is no roof over the building (a downpipe box, a chimney cap)
+    "min_roof_m2": 4.0,
+    # an exploded hatch pattern (tiles, gravel, colour fills) draws many strokes shorter than half a metre; a roof's
+    # eaves, gutter and ridge lines run metres
+    "hatch_min_lines": 50, "hatch_short_m": 0.5, "hatch_share": 0.9,
+    # a layer whose texts are mostly bare numbers holds dimension chains (their lines are no roof edges)
+    "dim_text_share": 0.5,
+    # the eaves stand 0.1-1.5 m outside the walls under them: a closed line inside the eaves loop at a constant offset
+    # in this range (within 5 cm all round) is the drawn wall line ("lower building line")
+    "wall_offset_m": (0.1, 1.5), "offset_tol_m": 0.05,
+    # a separate roof (a lower roof, a canopy over a door or a porch) is at least a canopy's size and wider than a
+    # gutter band between two eaves lines
+    "other_min_m2": 1.0, "other_min_width_m": 0.3,
+    # it joins the main roof when it lies within a gutter and its fascia of the eaves loop; a roof drawn apart from
+    # the main one is a roof when it has hips of its own (a box, a legend or a plot line drawn apart has none)
+    "touch_m": 0.4, "apart_min_hips": 2,
+}
+_BARE_NUMBER_RE = re.compile(r"^[\s\d.,+\-/x×]+$")
+
+
+def _hip_like(a, b, cfg: dict = ROOF_PLAN) -> bool:
+    ang = abs(math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))) % 90.0
+    return cfg["hip_angle_deg"][0] <= ang <= cfg["hip_angle_deg"][1] and math.dist(a, b) >= cfg["hip_min_m"]
+
+
+def _annotation_layers(region, mpu: float, cfg: dict = ROOF_PLAN) -> tuple[set, set]:
+    """``(dimension layers, hatch layers)`` of a region (pure): layers whose texts are mostly bare numbers, and layers
+    of many short strokes (an exploded hatch pattern)."""
+    texts: dict = {}
+    for t in region.texts:
+        n = texts.setdefault(t.layer, [0, 0])
+        n[0] += 1
+        n[1] += bool(_BARE_NUMBER_RE.match(t.text or ""))
+    dims = {k for k, (n, num) in texts.items() if n and num >= cfg["dim_text_share"] * n}
+    strokes: dict = {}
+    for e in region.ents:
+        for a, b, _st in UC.segments(e.strokes):
+            n = strokes.setdefault(e.layer, [0, 0])
+            n[0] += 1
+            n[1] += math.dist(a, b) * mpu < cfg["hatch_short_m"]
+    hatch = {k for k, (n, short) in strokes.items() if n >= cfg["hatch_min_lines"] and short >= cfg["hatch_share"] * n}
+    return dims, hatch
+
+
+def _loops(segments: list, join: float) -> tuple[list, list]:
+    """``(faces, rings)`` of straight segments ``(a, b, entity)`` (metres): the faces they close (each segment
+    lengthened by ``join`` at both ends, so a corner drawn short still closes) and every distinct closed ring among
+    the faces' outer and inner rings and the outer rings of their union (pure, shapely)."""
+    from shapely.geometry import LineString
+    from shapely.ops import polygonize, unary_union
+
+    lines = []
+    for a, b, _e in segments:
+        d = math.dist(a, b)
+        ux, uy = (b[0] - a[0]) / d, (b[1] - a[1]) / d
+        lines.append(LineString([(a[0] - ux * join, a[1] - uy * join), (b[0] + ux * join, b[1] + uy * join)]))
+    if not lines:
+        return [], []
+    faces = [f for f in polygonize(unary_union(lines)) if f.area > 0]
+    rings = []
+    union = unary_union(faces) if faces else None
+    for g in getattr(union, "geoms", [union]) if union is not None else []:
+        rings.append(Polygon(g.exterior))
+    for f in faces:
+        rings.append(Polygon(f.exterior))
+        rings += [Polygon(h) for h in f.interiors]
+    out = []
+    for p in rings:
+        if p.is_valid and not any(abs(p.area - q.area) < 1e-6 * max(1.0, p.area) and p.symmetric_difference(q).area
+                                  < 1e-4 for q in out):
+            out.append(p)
+    return faces, out
+
+
+def _ring_pts(poly) -> list:
+    """The corners of a polygon's outer ring, counter-clockwise, collinear points dropped (1 cm), as lists."""
+    from shapely.geometry.polygon import orient
+    p = orient(poly.simplify(0.01, preserve_topology=True), 1.0)
+    return [[round(x, 4) + 0.0, round(y, 4) + 0.0] for x, y in list(p.exterior.coords)[:-1]]
+
+
+def roof_plan_outline(region, cfg: dict = ROOF_PLAN) -> tuple[Optional[dict], str]:
+    """The roofs a roof plan draws, in the region's own metres (``(x - x0, y - y0) * metres_per_unit`` from the
+    region's geometry box corner; ``to_building.roof_outline_record`` registers them on the walls). Returns ``(record,
+    why)``; the record is None when nothing could be read (``why`` says why).
+
+    How (any outline shape, any number of separate roofs):
+
+    - the roof's lines: hip and valley lines (``_hip_like``) tell the layers the roof is drawn on (each with two or
+      more of them; else every layer holding one); dimension layers, hatch patterns, the section cut line, texts and
+      arcs never count (``_annotation_layers``);
+    - the eaves loop of the main roof: among the closed loops of the roof's lines (``_loops``), the one most hip and
+      valley lines end on (their other end inside it), at least two, at least ``min_roof_m2`` (ties: the larger);
+    - the wall line: a closed loop of the roof's lines without its hips, inside the eaves loop at a constant offset of
+      ``wall_offset_m`` (the drawn "lower building line"); its offset is the drawn overhang;
+    - the other roofs (a lower roof over a veranda or a porch, a canopy, another hipped roof): the closed faces of the
+      lines outside the main roof (on any layer but the annotation ones), joined where they touch, each at least
+      ``other_min_m2`` and ``other_min_width_m`` wide (a gutter band between two eaves lines is no roof), smaller than
+      the main roof and not around it, and either joining it (``touch_m``) or with hips of its own
+      (``apart_min_hips``).
+
+    Record: ``{"region_id", "frame": {"origin_units", "metres_per_unit"}, "points", "area_m2", "size_m", "hip_lines",
+    "layers", "entities", "wall_line", "overhang_m", "others": [{"points", "area_m2", "size_m", "layers", "entities",
+    "touches_main", "hip_lines"}], "evidence", "note"}``."""
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+
+    mpu = region.metres_per_unit
+    if not mpu:
+        return None, f"roof plan {region.id}: no drawing unit"
+    x0, y0 = region.geometry_box[0], region.geometry_box[1]
+    dims, hatch = _annotation_layers(region, mpu, cfg)
+    segs = []
+    for e in region.ents:
+        if e.dim is not None or e.kind in ("HATCH", "DIMENSION") or e.layer in dims or e.layer in hatch \
+                or RG.CUT_LAYER_RE.search(T.fold(e.layer or "")):
+            continue
+        for a, b, _st in UC.segments(e.strokes):
+            am = ((a[0] - x0) * mpu, (a[1] - y0) * mpu)
+            bm = ((b[0] - x0) * mpu, (b[1] - y0) * mpu)
+            if math.dist(am, bm) >= cfg["join_m"]:
+                segs.append((am, bm, e))
+    hips = [s for s in segs if _hip_like(s[0], s[1], cfg)]
+    if len(hips) < 2:
+        return None, f"roof plan {region.id}: fewer than two hip or valley lines (the eaves loop cannot be told)"
+    per_layer: dict = {}
+    for s in hips:
+        per_layer[s[2].layer] = per_layer.get(s[2].layer, 0) + 1
+    layers = {k for k, n in per_layer.items() if n >= 2} or set(per_layer)
+    roof_segs = [s for s in segs if s[2].layer in layers]
+    _faces, rings = _loops(roof_segs, cfg["join_m"])
+    roof_hips = [s for s in hips if s[2].layer in layers]
+    best = None
+    for poly in rings:
+        if poly.area < cfg["min_roof_m2"]:
+            continue
+        ring, grown = poly.exterior, poly.buffer(cfg["end_tol_m"])
+        on = []
+        for a, b, e in roof_hips:
+            da, db = ring.distance(Point(a)), ring.distance(Point(b))
+            if min(da, db) <= cfg["end_tol_m"] + cfg["join_m"] and grown.contains(Point(b if da <= db else a)) \
+                    and max(da, db) > cfg["end_tol_m"] + cfg["join_m"]:
+                on.append(e.id)
+        key = (len(on), poly.area)
+        if len(on) >= 2 and (best is None or key > best[0]):
+            best = (key, poly, on)
+    if best is None:
+        return None, (f"roof plan {region.id}: no closed loop of its roof lines "
+                      f"({', '.join(sorted(map(str, layers)))}) that two or more hip or valley lines end on")
+    (_n, _a), main, on = best
+    pts = _ring_pts(main)
+    ring = main.exterior
+    tol = cfg["end_tol_m"]
+    ents = sorted({e.id for a, b, e in roof_segs if ring.distance(Point(a)) <= tol and ring.distance(Point(b)) <= tol
+                   and LineString([a, b]).length > 0})
+    # the wall line: the roof's lines without the hips and valleys, a loop inside at a constant offset
+    _f2, rings2 = _loops([s for s in roof_segs if not _hip_like(s[0], s[1], cfg)], cfg["join_m"])
+    wall, offset = None, None
+    for poly in sorted(rings2, key=lambda p: -p.area):
+        if poly.area >= main.area - 1e-6 or not main.buffer(1e-6).contains(poly):
+            continue
+        cs = list(poly.exterior.coords)
+        mids = [((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0) for p, q in zip(cs, cs[1:])]
+        ds = sorted(ring.distance(Point(m)) for m in mids)
+        d = ds[len(ds) // 2]
+        if not cfg["wall_offset_m"][0] <= d <= cfg["wall_offset_m"][1]:
+            continue
+        shrunk = main.buffer(-d, join_style=2)
+        if shrunk.is_empty or shrunk.geom_type != "Polygon" \
+                or shrunk.exterior.hausdorff_distance(poly.exterior) > cfg["offset_tol_m"]:
+            continue
+        wall, offset = poly, d
+        break
+    # the other roofs: the closed faces of the lines outside the main roof, joined where they touch
+    inner = main.buffer(-cfg["join_m"])
+    outside = [s for s in segs if not inner.contains(LineString([s[0], s[1]]))]
+    faces3, _r3 = _loops(outside, cfg["join_m"])
+    # a face around the main roof (a plot, a site or a frame line: the main roof is its hole) or larger than it is
+    # no other roof and must not join the faces inside it
+    keep = [f for f in faces3 if not main.contains(f.representative_point()) and f.area >= 0.25 * cfg["other_min_m2"]
+            and not f.buffer(-cfg["other_min_width_m"] / 2.0).is_empty
+            and not Polygon(f.exterior).contains(main.representative_point()) and f.area <= main.area]
+    others = []
+    joined = unary_union(keep) if keep else None
+    for g in getattr(joined, "geoms", [joined]) if joined is not None else []:
+        if g.geom_type != "Polygon" or g.area < cfg["other_min_m2"]:
+            continue
+        g = Polygon(g.exterior)
+        # a loop around the main roof (a plot, a site or a frame line) or larger than it is no other roof
+        if g.contains(main.representative_point()) or g.area > main.area:
+            continue
+        touches = g.distance(main) <= cfg["touch_m"]
+        n_hips = sum(1 for a, b, _e in hips if g.buffer(tol).contains(LineString([a, b])))
+        if not touches and n_hips < cfg["apart_min_hips"]:
+            continue
+        edge_ents = sorted({e.id for a, b, e in outside if g.exterior.distance(Point(a)) <= tol
+                            and g.exterior.distance(Point(b)) <= tol})
+        gb = g.bounds
+        others.append({"points": _ring_pts(g), "area_m2": round(g.area, 3),
+                       "size_m": [round(gb[2] - gb[0], 3), round(gb[3] - gb[1], 3)],
+                       "layers": sorted({str(e.layer) for e in region.ents if e.id in set(edge_ents)}),
+                       "entities": edge_ents, "touches_main": touches, "hip_lines": n_hips})
+    mb = main.bounds
+    ev = [_ev(region, eid, "roof_plan_outline") for eid in ents[:6]]
+    note = (f"the eaves loop of the roof lines of {region.id} ({', '.join(sorted(map(str, layers)))}): {len(pts)} "
+            f"corners, {mb[2] - mb[0]:.2f} x {mb[3] - mb[1]:.2f} m, {main.area:.2f} m2; {len(on)} hip or valley lines "
+            f"end on it")
+    if wall is not None:
+        note += f"; the drawn wall line runs {offset:.2f} m inside it (the overhang)"
+    if others:
+        note += "; " + ", ".join(f"another roof of {o['area_m2']:.2f} m2" + (" beside it" if o["touches_main"] else "")
+                                 for o in others)
+    return {"region_id": region.id, "frame": {"origin_units": [x0, y0], "metres_per_unit": mpu},
+            "points": pts, "area_m2": round(main.area, 3), "size_m": [round(mb[2] - mb[0], 3), round(mb[3] - mb[1], 3)],
+            "hip_lines": len(on), "layers": sorted(map(str, layers)), "entities": ents,
+            "wall_line": _ring_pts(wall) if wall is not None else None,
+            "overhang_m": round(offset, 3) if offset is not None else None, "others": others,
+            "evidence": ev, "note": note}, ""
 
 
 def roof_from_section(section) -> Optional[tuple[str, list[str]]]:
@@ -724,6 +963,22 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
         if cover is not None:
             roof["covering"], roof["covering_source"] = cover["covering"], cover["source"]
             roof["evidence"] = roof["evidence"] + cover["evidence"]
+    if roof is not None and roof_plans:
+        # 27 Oct 2026: the roofs the roof plan draws (``roof_plan_outline``), in the roof plan's own metres; the
+        # building registers them on the top level's walls (``to_building.roof_outline_record``)
+        first = (hip or {}).get("evidence", [{}])[0].get("region_id") if hip else None
+        ordered = sorted(roof_plans, key=lambda r: r.id != first)
+        reasons = []
+        for r in ordered:
+            rec, why = roof_plan_outline(r)
+            if rec is not None:
+                roof["plan_outline"] = rec
+                break
+            reasons.append(why)
+        if roof.get("plan_outline") is None:
+            roof["plan_outline"] = None
+            roof["plan_outline_note"] = "; ".join(reasons)
+            warnings.append(f"roof: the outline of the roof plan is not read: {'; '.join(reasons)}")
     out["roof"] = roof
 
     # Site plans (registered onto the reference through the building's outline) and the north.

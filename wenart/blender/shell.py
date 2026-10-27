@@ -822,6 +822,12 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
         mid = G.segment_midpoint(start, end)
         angle = G.segment_angle_deg(start, end)
         parapets = []
+        # 27 Oct 2026: under a stepped hip roof each wall is cut by the part of the roof over it (roof.wall_cut's
+        # wall_planes), stretch by stretch where the part over it changes along it (wall_spans); under any other roof
+        # by the roof's underside
+        wall_planes = ((roof_cut.get("wall_planes") or {}).get(wall["id"]) or cut_planes) if roof_cut else None
+        part_spans = plane_spans(wall, start, end, (roof_cut.get("wall_spans") or {}).get(wall["id"]) or []) \
+            if roof_cut else []
         if cut_planes is not None:
             # Under the roof: a box up past the ridge, cut by the roof underside (knee wall, gable end);
             # under a roof terrace the parapet height instead (roof.parapet_cuts).
@@ -831,13 +837,14 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
         drop = wall_base_drop(wall, rooms)
         wz = floor_z + drop
         height -= drop
-        if parapets:
-            verts, faces = wall_pieces(start, end, float(wall["thickness"]), wz, height, cut_planes, parapets)
+        if parapets or part_spans:
+            verts, faces = wall_pieces(start, end, float(wall["thickness"]), wz, height, wall_planes, parapets,
+                                       part_spans)
         else:
             verts, faces = geom2d.box((mid[0], mid[1], wz + height / 2.0),
                                       (length, float(wall["thickness"]), height), angle)
             if cut_planes is not None:
-                verts, faces = geom2d.clip_solid_below(verts, faces, cut_planes)
+                verts, faces = geom2d.clip_solid_below(verts, faces, wall_planes)
         if not verts:
             # Review #23: the roof underside lies below the floor along the whole wall (eaves at or below the
             # attic floor): nothing of the wall stands; listed, never a crash.
@@ -885,7 +892,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             # touch, coincident and opposite: the exact solver reads that only with self-intersection on; without
             # it, it returned synthetic-07's w_L1_006 (parapet, gable and window) as an empty mesh (pod F2). Every
             # other wall is one closed solid and keeps the default.
-            mod.use_self = bool(parapets)
+            mod.use_self = bool(parapets or part_spans)
             mod.object = cutter
 
         # Openings of another wall that this one overlaps (a facade line drawn over a thick wall): cut through
@@ -917,7 +924,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             mod = ob.modifiers.new(name=f"cut_{opening['id']}", type="BOOLEAN")
             mod.operation = "DIFFERENCE"
             mod.solver = "EXACT"
-            mod.use_self = bool(parapets)
+            mod.use_self = bool(parapets or part_spans)
             mod.object = cutter
             cut_through.append(opening["id"])
             warnings.append(f"{wall['id']}: overlaps {host['id']} at {opening['id']}: the opening is cut through "
@@ -1099,25 +1106,39 @@ def trimmed_spans(wall: dict, start, end, cuts: list[dict]) -> list[tuple[float,
     return sorted(out)
 
 
-def wall_pieces(start, end, thickness: float, floor_z: float, height: float, planes, parapets) -> tuple[list, list]:
+def plane_spans(wall: dict, start, end, spans: list[dict]) -> list[tuple[float, float, list]]:
+    """``[(s0, s1, planes)]``: a wall's stretches under the parts of a stepped hip roof (``roof.wall_cut``'s
+    ``wall_spans``: parameters along the drawn centre line) in metres along the built centre line (pure; the
+    mapping of ``trimmed_spans``)."""
+    if not spans:
+        return []
+    marked = [dict(s, z_top=float(i)) for i, s in enumerate(spans)]
+    return [(s0, s1, spans[int(round(i))]["planes"]) for s0, s1, i in trimmed_spans(wall, start, end, marked)]
+
+
+def wall_pieces(start, end, thickness: float, floor_z: float, height: float, planes, parapets,
+                part_spans=()) -> tuple[list, list]:
     """``(verts, faces)`` of a wall under the roof with parapet stretches (pure): convex boxes along the
     centre line, each cut by the roof underside ``planes`` or, under a terrace, at its parapet top (never lowered
     by the roof planes: no roof is over a parapet). The pieces stand side by side in one mesh and touch: the end
     faces at each mark lie on each other, coincident and opposite, so the mesh is not one closed manifold and any
     boolean on it needs ``use_self`` (``build_walls``; without it the exact solver returned synthetic-07's
-    ``w_L1_006`` empty, pod F2)."""
+    ``w_L1_006`` empty, pod F2). 27 Oct 2026: ``part_spans`` (``plane_spans``) cut each stretch under a stepped hip
+    roof by the planes of the part over it."""
     length = G.distance(start, end)
     angle = G.segment_angle_deg(start, end)
-    marks = sorted({0.0, length} | {s for a, b, _ in parapets for s in (a, b)})
+    marks = sorted({0.0, length} | {s for a, b, _ in parapets for s in (a, b)}
+                   | {s for a, b, _ in part_spans for s in (a, b) if 0.0 < s < length})
     parts = []
     for s0, s1 in zip(marks, marks[1:]):
         if s1 - s0 < 1e-6:
             continue
         sm = (s0 + s1) / 2.0
         top = next((z for a, b, z in parapets if a - 1e-9 <= sm <= b + 1e-9), None)
+        own = next((p for a, b, p in part_spans if a - 1e-9 <= sm <= b + 1e-9), planes)
         c = G.point_along_segment(start, end, sm / length)
         verts, faces = geom2d.box((c[0], c[1], floor_z + height / 2.0), (s1 - s0, thickness, height), angle)
-        cut = [(0.0, 0.0, top)] if top is not None else planes
+        cut = [(0.0, 0.0, top)] if top is not None else own
         parts.append(geom2d.clip_solid_below(verts, faces, cut))
     return geom2d.merge(parts)
 

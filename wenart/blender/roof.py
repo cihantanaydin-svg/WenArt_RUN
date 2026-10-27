@@ -47,6 +47,14 @@ pitch and run up to the ridge, assumed ``mansard_ends``); the plan's break line,
 cross-checks (warnings), and every derived roof is compared with its section (``profile_check``). Without
 ridge line or section the long-axis ridge of a gable or gambrel is assumed (``ridge_direction``).
 
+A hip roof over a drawn outline that steps (27 Oct 2026; a roof plan's eaves loop around a balcony wing, an L, a T):
+``hip_parts`` builds it as the roof every eaves edge makes at one pitch, the highest of the hip roofs over the
+outline's maximal rectangles (``parts``; each part convex, the roof the highest part at every point: ``top_z``,
+``underside_z``); its faces (one per eaves edge, ``merged_faces``) make the covering, the soffit and the ridge and hip
+tiles (no tiles in the valleys); every wall under it is cut, stretch by stretch, by the part over it (``wall_cut``'s
+``wall_spans``, ``shell.wall_pieces``). Its ceilings stay flat (``convex`` is False; a ceiling that would reach over
+its underside is a warning). An assumed outline (the walls + overhang) keeps the enclosing rectangle.
+
 The roof follows its drawn section (26 Oct 2026, ``follow_section``; CLAUDE.md evidence rules: source geometry
 outranks a pitch text, a default and an un-drawn ridge direction): when the built roof's ridge (the highest point of its
 planes) or, for a reliable profile (``section_reliability``: one-to-one with the plan, one roof surface), its silhouette
@@ -371,10 +379,12 @@ def profile_points(prof: dict) -> list[tuple[float, float]]:
 
 
 def roof_silhouette(planes: Sequence[Plane], outline: Sequence[Sequence[float]], cut: Sequence[float],
-                    ridge_dir: Sequence[float], s: float, step: float = SILHOUETTE_STEP) -> Optional[float]:
+                    ridge_dir: Sequence[float], s: float, step: float = SILHOUETTE_STEP,
+                    parts: Optional[Sequence[dict]] = None) -> Optional[float]:
     """The highest point of the roof surface over the outline on the line across the cut at ``s`` (pure): what a
     section's roof line draws (the cut and the roof seen beyond it; the middle line for a symmetric roof). ``s``
-    within ``SECTION_SPAN_TOL`` outside the outline is read at its edge (a longer drawn overhang); None further out."""
+    within ``SECTION_SPAN_TOL`` outside the outline is read at its edge (a longer drawn overhang); None further out.
+    ``parts``: a stepped hip roof's parts (``hip_parts``; the surface is the highest part, ``parts_z``)."""
     along = [x * cut[0] + y * cut[1] for x, y in outline]
     proj = [x * ridge_dir[0] + y * ridge_dir[1] for x, y in outline]
     lo, hi = min(along), max(along)
@@ -388,30 +398,31 @@ def roof_silhouette(planes: Sequence[Plane], outline: Sequence[Sequence[float]],
         t = t0 + (t1 - t0) * k / n
         x, y = cut[0] * s + ridge_dir[0] * t, cut[1] * s + ridge_dir[1] * t
         if G.point_in_polygon((x, y), outline):
-            z = surface_z(planes, x, y)
+            z = (parts_z(parts, x, y) if parts else None)
+            z = surface_z(planes, x, y) if z is None else z
             best = z if best is None or z > best else best
     return best
 
 
-def profile_diffs(planes: Sequence[Plane], prof: dict,
-                  outline: Sequence[Sequence[float]]) -> list[tuple[float, float, float]]:
+def profile_diffs(planes: Sequence[Plane], prof: dict, outline: Sequence[Sequence[float]],
+                  parts: Optional[Sequence[dict]] = None) -> list[tuple[float, float, float]]:
     """``[(s, built z, drawn z)]`` of every profile point of a drawn section (pure): the roof's silhouette across the
     outline at the point's ``s`` (``roof_silhouette``) against the drawn height; points with no roof under them are
     left out (``section_reliability`` names them)."""
     out = []
     for s, z in profile_points(prof):
-        got = roof_silhouette(planes, outline, prof["cut"], prof["ridge_dir"], s)
+        got = roof_silhouette(planes, outline, prof["cut"], prof["ridge_dir"], s, parts=parts)
         if got is not None:
             out.append((s, got, z))
     return out
 
 
 def profile_check(planes: Sequence[Plane], prof: dict, outline: Sequence[Sequence[float]],
-                  tol: float = SECTION_LIST_TOL) -> list[str]:
+                  tol: float = SECTION_LIST_TOL, parts: Optional[Sequence[dict]] = None) -> list[str]:
     """Where the roof surface of ``planes`` differs from the drawn section by more than ``tol`` (pure;
     ``profile_diffs``). Returns warnings (empty when the roof matches its section)."""
     return [f"roof vs the drawn section at s {s:.2f} m: {got:.3f} m built, {z:.3f} m drawn ({(got - z) * 100:+.0f} cm)"
-            for s, got, z in profile_diffs(planes, prof, outline) if abs(got - z) > tol]
+            for s, got, z in profile_diffs(planes, prof, outline, parts) if abs(got - z) > tol]
 
 
 def section_reliability(prof: dict, outline: Sequence[Sequence[float]],
@@ -487,6 +498,281 @@ def _turned(axis: tuple) -> tuple:
     return across, (-across[1], across[0]), half_across, half_along, None, source
 
 
+# --------------------------------------------------------------------------
+# Hip roofs over a stepped outline (27 Oct 2026)
+# --------------------------------------------------------------------------
+# 27 Oct 2026 (real06; user: "In the plan roof is covering this balcony also"): the roof plan draws the hip roof over
+# the first-floor balcony too, a 3.8 m wide wing 2.0 m out of the main roof with its own hip end and the valleys where
+# it meets the main roof. A hip roof over a drawn outline that is no rectangle (an L, a T, a wing over a balcony) is
+# the roof every eaves edge of that outline makes at one pitch: every eaves edge at the eaves height, every slope at
+# the pitch, valleys at the inner corners (the straight skeleton the drawn hip and valley lines draw). For an outline
+# whose edges all run along two square axes that roof is the highest of the hip roofs over the outline's maximal
+# rectangles (a point's height is set by the largest square around it that fits in the outline): ``hip_parts``. Each
+# part is a convex hip roof (the lowest of its four planes), so the roof is the highest part at every point
+# (``parts_z``), and the covering is cut into the cells where one part is the highest (``part_pieces``). The
+# enclosing rectangle of before stays for an outline at other angles and for the walls' own outline (assumed).
+HIP_PARTS = {
+    "axis_tol_deg": 0.5,          # every outline edge within this of one of the two axes (drafting: 9 mm per metre)
+    "snap_m": 0.01,               # outline coordinates a centimetre apart along an axis are one line (drafting
+                                  # noise, far under any facade jog)
+    "max_parts": 12,              # more maximal rectangles than a stepped house has (a courtyard, many piers): the
+                                  # enclosing rectangle (listed)
+    "contain_tol_m": 1e-6,        # numerical: a point this close to a part's rectangle is in it
+}
+
+
+def orthogonal_outline(outline: Sequence[Sequence[float]], u: Sequence[float],
+                       tol_deg: float = HIP_PARTS["axis_tol_deg"]) -> bool:
+    """True when every edge of ``outline`` runs along ``u`` or square to it (within ``tol_deg``; pure)."""
+    pts = geom2d.clean_polygon(outline)
+    if len(pts) < 4:
+        return False
+    for i in range(len(pts)):
+        p, q = pts[i], pts[(i + 1) % len(pts)]
+        length = G.distance(p, q)
+        if length < 1e-9:
+            continue
+        cosu = abs(((q[0] - p[0]) * u[0] + (q[1] - p[1]) * u[1]) / length)
+        if min(cosu, math.sqrt(max(0.0, 1.0 - cosu * cosu))) > math.sin(math.radians(tol_deg)):
+            return False
+    return True
+
+
+def _grid(values: Sequence[float], snap: float) -> list[float]:
+    """The distinct coordinates of ``values``: values within ``snap`` are one (their mean)."""
+    out: list[list[float]] = []
+    for v in sorted(values):
+        if out and v - out[-1][-1] <= snap:
+            out[-1].append(v)
+        else:
+            out.append([v])
+    return [sum(g) / len(g) for g in out]
+
+
+def maximal_rectangles(outline: Sequence[Sequence[float]], u: Sequence[float],
+                       snap: float = HIP_PARTS["snap_m"]) -> list[tuple[float, float, float, float]]:
+    """The maximal rectangles inside an outline whose edges run along ``u`` and ``v`` (``u`` turned 90 degrees
+    counter-clockwise; pure): ``[(s0, s1, t0, t1)]`` in the frame ``s = p . u``, ``t = p . v``, largest first. The grid
+    of the outline's coordinates (``snap``) splits it into cells; a rectangle of cells that are all inside and that
+    no row or column of inside cells extends is maximal."""
+    v = (-u[1], u[0])
+    pts = geom2d.clean_polygon(outline)
+    st = [(x * u[0] + y * u[1], x * v[0] + y * v[1]) for x, y in pts]
+    xs, ys = _grid([p[0] for p in st], snap), _grid([p[1] for p in st], snap)
+    nx, ny = len(xs) - 1, len(ys) - 1
+    if nx < 1 or ny < 1:
+        return []
+    inside = [[G.point_in_polygon(((xs[i] + xs[i + 1]) / 2.0, (ys[j] + ys[j + 1]) / 2.0), st) for j in range(ny)]
+              for i in range(nx)]
+    # prefix sums: the inside cells of any block of cells in O(1)
+    acc = [[0] * (ny + 1) for _ in range(nx + 1)]
+    for i in range(nx):
+        for j in range(ny):
+            acc[i + 1][j + 1] = acc[i][j + 1] + acc[i + 1][j] - acc[i][j] + (1 if inside[i][j] else 0)
+
+    def full(i0, i1, j0, j1) -> bool:              # cells i0..i1-1 x j0..j1-1 all inside
+        if i0 < 0 or j0 < 0 or i1 > nx or j1 > ny or i0 >= i1 or j0 >= j1:
+            return False
+        return acc[i1][j1] - acc[i0][j1] - acc[i1][j0] + acc[i0][j0] == (i1 - i0) * (j1 - j0)
+
+    out = []
+    for i0 in range(nx):
+        for i1 in range(i0 + 1, nx + 1):
+            for j0 in range(ny):
+                for j1 in range(j0 + 1, ny + 1):
+                    if not full(i0, i1, j0, j1):
+                        break
+                    if full(i0 - 1, i1, j0, j1) or full(i0, i1 + 1, j0, j1) or full(i0, i1, j0 - 1, j1) \
+                            or full(i0, i1, j0, j1 + 1):
+                        continue
+                    out.append((xs[i0], xs[i1], ys[j0], ys[j1]))
+    return sorted(out, key=lambda r: -(r[1] - r[0]) * (r[3] - r[2]))
+
+
+def hip_parts(outline: Sequence[Sequence[float]], u: Sequence[float], eaves: float,
+              tan_pitch: float) -> Optional[list[dict]]:
+    """The parts of a hip roof over a stepped outline (pure; section comment above): one convex hip roof per maximal
+    rectangle (``maximal_rectangles``), its eaves at ``eaves`` on all four sides, every slope at ``tan_pitch``, the
+    ridge along its longer side. ``[{"rect": its corners counter-clockwise, "frame": (s0, s1, t0, t1), "u",
+    "equations": its four planes}]``, largest first; None when the outline is no stepped outline along ``u`` or has
+    more than ``HIP_PARTS["max_parts"]`` maximal rectangles."""
+    if not orthogonal_outline(outline, u):
+        return None
+    rects = maximal_rectangles(outline, u)
+    if not rects or len(rects) > HIP_PARTS["max_parts"]:
+        return None
+    v = (-u[1], u[0])
+    out = []
+    for s0, s1, t0, t1 in rects:
+        sc, tc = (s0 + s1) / 2.0, (t0 + t1) / 2.0
+        centre = (u[0] * sc + v[0] * tc, u[1] * sc + v[1] * tc)
+        hs, ht = (s1 - s0) / 2.0, (t1 - t0) / 2.0
+        if hs >= ht:
+            r, across, half_along, half_across = u, v, hs, ht
+        else:
+            r, across, half_along, half_across = v, (-v[1], v[0]), ht, hs
+        eqs, _names, _notes = _rect_planes(centre, r, across, half_along, half_across, eaves, tan_pitch, "hip",
+                                           None, "")
+        corners = [(u[0] * s + v[0] * t, u[1] * s + v[1] * t) for s, t in ((s0, t0), (s1, t0), (s1, t1), (s0, t1))]
+        out.append({"rect": geom2d.ccw(corners), "frame": (s0, s1, t0, t1), "u": (float(u[0]), float(u[1])),
+                    "equations": eqs})
+    return out
+
+
+def _in_part(part: dict, x: float, y: float, tol: float = HIP_PARTS["contain_tol_m"]) -> bool:
+    u = part["u"]
+    s, t = x * u[0] + y * u[1], -x * u[1] + y * u[0]
+    s0, s1, t0, t1 = part["frame"]
+    return s0 - tol <= s <= s1 + tol and t0 - tol <= t <= t1 + tol
+
+
+def parts_z(parts: Sequence[dict], x: float, y: float, drop: float = 0.0) -> Optional[float]:
+    """The roof of ``parts`` at ``(x, y)``: the highest part over the point (each part the lowest of its planes),
+    ``drop`` lower; None when no part is over it (pure)."""
+    best = None
+    for part in parts:
+        if _in_part(part, x, y):
+            z = min(plane_z(e, x, y) for e in part["equations"])
+            best = z if best is None or z > best else best
+    return None if best is None else best - drop
+
+
+def _line_through(p, q) -> Optional[tuple[float, float, float]]:
+    """``(a, b, c)`` of the line ``a x + b y + c = 0`` through ``p`` and ``q`` (unit normal, a fixed sign), None for
+    a point."""
+    a, b = q[1] - p[1], p[0] - q[0]
+    n = math.hypot(a, b)
+    if n < 1e-12:
+        return None
+    a, b = a / n, b / n
+    c = -(a * p[0] + b * p[1])
+    if a < -1e-12 or (abs(a) <= 1e-12 and b < 0):
+        a, b, c = -a, -b, -c
+    return (a, b, c)
+
+
+def _split_cells(cells: list, line: tuple[float, float, float]) -> list:
+    """The convex ``cells`` split by ``line`` (a cell it does not cross stays whole)."""
+    a, b, c = line
+    out = []
+    for cell in cells:
+        ds = [a * x + b * y + c for x, y in cell]
+        if min(ds) >= -1e-9 or max(ds) <= 1e-9:
+            out.append(cell)
+            continue
+        for piece in (geom2d.clip_half_plane(cell, a, b, c), geom2d.clip_half_plane(cell, -a, -b, -c)):
+            if len(piece) >= 3 and G.polygon_area(piece) > MIN_PIECE_AREA:
+                out.append(piece)
+    return out
+
+
+def part_pieces(parts: Sequence[dict]) -> tuple[list[Plane], list[tuple[int, list]]]:
+    """``(planes, pieces)`` of a roof of ``parts`` (pure): ``planes`` the distinct planes of the parts, ``pieces``
+    ``[(plane index, convex polygon)]`` covering the parts' union once, each on the plane that is the roof there. Each
+    part's rectangle is cut by the lines where its planes meet the planes of a part it overlaps and by that part's
+    edges; a cell is kept by the part that is highest at its centre (ties to the first part); a kept cell is split
+    where each of its part's planes is the lowest (``plane_regions``)."""
+    planes: list[Plane] = []
+    index: dict = {}
+
+    def gid(e) -> int:
+        key = tuple(round(float(v), 7) + 0.0 for v in e)
+        if key not in index:
+            index[key] = len(planes)
+            planes.append((float(e[0]), float(e[1]), float(e[2])))
+        return index[key]
+
+    def overlap(p: dict, q: dict) -> bool:
+        a, b = p["frame"], q["frame"]
+        if p["u"] != q["u"]:
+            return True
+        return min(a[1], b[1]) - max(a[0], b[0]) > 1e-9 and min(a[3], b[3]) - max(a[2], b[2]) > 1e-9
+
+    pieces: list[tuple[int, list]] = []
+    for k, part in enumerate(parts):
+        others = [(m, q) for m, q in enumerate(parts) if m != k and overlap(part, q)]
+        lines = set()
+        for _m, q in others:
+            rc = q["rect"]
+            for i in range(len(rc)):
+                ln = _line_through(rc[i], rc[(i + 1) % len(rc)])
+                if ln is not None:
+                    lines.add(tuple(round(v, 9) for v in ln))
+            for ei in part["equations"]:
+                for ej in q["equations"]:
+                    ln = _line_through_planes(ei, ej)
+                    if ln is not None:
+                        lines.add(tuple(round(v, 9) for v in ln))
+        cells = [list(part["rect"])]
+        for ln in sorted(lines):
+            cells = _split_cells(cells, ln)
+        for cell in cells:
+            cx = sum(p[0] for p in cell) / len(cell)
+            cy = sum(p[1] for p in cell) / len(cell)
+            zk = min(plane_z(e, cx, cy) for e in part["equations"])
+            won = True
+            for m, q in others:
+                if not _in_part(q, cx, cy):
+                    continue
+                zq = min(plane_z(e, cx, cy) for e in q["equations"])
+                if zq > zk + 1e-7 or (abs(zq - zk) <= 1e-7 and m < k):
+                    won = False
+                    break
+            if not won:
+                continue
+            for i, poly in plane_regions(part["equations"], cell):
+                pieces.append((gid(part["equations"][i]), poly))
+    return planes, pieces
+
+
+def _line_through_planes(p: Plane, q: Plane) -> Optional[tuple[float, float, float]]:
+    """The plan line where two planes meet (``(a, b, c)``, unit normal), None for parallel planes."""
+    a, b, c = p[0] - q[0], p[1] - q[1], p[2] - q[2]
+    n = math.hypot(a, b)
+    if n < 1e-9:
+        return None
+    a, b, c = a / n, b / n, c / n
+    if a < -1e-12 or (abs(a) <= 1e-12 and b < 0):
+        a, b, c = -a, -b, -c
+    return (a, b, c)
+
+
+def merged_faces(pieces: Sequence[tuple[int, list]]) -> list[list]:
+    """``[[plane index, face]]``: the pieces of one plane joined into its faces (``geom2d.polygon_union_outline``;
+    counter-clockwise, JSON lists; the pieces themselves when a join fails; pure). A hip roof's face is the region of
+    one eaves edge: one face per edge, fewer mesh faces and ridge segments than the cells it was cut from."""
+    by_plane: dict[int, list] = {}
+    for g, poly in pieces:
+        by_plane.setdefault(g, []).append(poly)
+    out = []
+    for g in sorted(by_plane):
+        polys = by_plane[g]
+        loops = [lp for lp in geom2d.polygon_union_outline(polys) if G.polygon_signed_area(lp) > 0]
+        joined = sum(G.polygon_area(lp) for lp in loops)
+        if not loops or abs(joined - sum(G.polygon_area(p) for p in polys)) > 1e-4 * max(1.0, joined):
+            loops = polys                           # a join that loses or adds area: the pieces as they are
+        for lp in loops:
+            if G.polygon_area(lp) > MIN_PIECE_AREA:
+                out.append([g, [[float(x), float(y)] for x, y in geom2d.ccw(lp)]])
+    return out
+
+
+def planes_from_faces(planes: Sequence[Plane], faces: Sequence[Sequence], source: str = "derived") -> list[dict]:
+    """``roof.planes`` entries of a roof made of ``faces`` (``merged_faces``), one entry per face (pure)."""
+    out = []
+    used: dict[str, int] = {}
+    for g, lp in faces:
+        slope, aspect = slope_aspect(planes[g])
+        name = f"rp_{side_name(aspect)}"
+        used[name] = used.get(name, 0) + 1
+        pid = name if used[name] == 1 else f"{name}_{used[name]}"
+        out.append({"id": pid, "points": [[round(x, 4), round(y, 4), round(plane_z(planes[g], x, y), 4)]
+                                          for x, y in lp],
+                    "slope_deg": round(slope, 3), "aspect_deg": None if aspect is None else round(aspect, 3),
+                    "source": source})
+    return out
+
+
 def derive(roof: dict, building: dict) -> dict:
     """The derivation behind ``planes_for``: ``{"planes": [...], "equations": [(a, b, c)], "outline",
     "eaves_z", "ridge_z", "pitches", "assumed": [{"field", "value", "reason"}], "warnings", "notes",
@@ -541,10 +827,25 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
     else:
         overhang_used = False
     rect = geom2d.oriented_rectangle(outline)
-    if rtype not in ("flat",) and rect["fill"] < 0.98:
+    # 27 Oct 2026 (real06's roof plan: the hip roof reaches over the balcony): a drawn hip outline that is no rectangle
+    # but runs along two square axes is built as the hip roof of every eaves edge (``hip_parts``); its ridge rises over
+    # the widest part of it (the largest square that fits), not over the enclosing rectangle
+    axis_u = rect["u"]
+    if rtype == "hip" and not overhang_used and rect["fill"] < 0.98 and not orthogonal_outline(outline, axis_u):
+        # the smallest enclosing rectangle of an L may lie along its hull's diagonal: the longest edge gives the axes
+        p, q = geom2d.longest_edge(outline)
+        n = G.distance(p, q)
+        if n > 1e-9 and orthogonal_outline(outline, ((q[0] - p[0]) / n, (q[1] - p[1]) / n)):
+            axis_u = geom2d._axis_tidy(((q[0] - p[0]) / n, (q[1] - p[1]) / n))
+    rects = (maximal_rectangles(outline, axis_u) if rtype == "hip" and not overhang_used and rect["fill"] < 0.98
+             and orthogonal_outline(outline, axis_u) else [])
+    stepped = 0 < len(rects) <= HIP_PARTS["max_parts"]
+    if rtype not in ("flat",) and rect["fill"] < 0.98 and not stepped:
         assumed.append({"field": "outline_rectangle", "value": round(rect["fill"], 3),
                         "reason": f"the {len(outline)}-point outline is not a rectangle: the {rtype} planes are "
-                                  f"derived on its smallest enclosing rectangle and cut to the outline"})
+                                  f"derived on its smallest enclosing rectangle and cut to the outline"
+                                  + (f" (its {len(rects)} maximal rectangles are more than "
+                                     f"{HIP_PARTS['max_parts']})" if rects else "")})
 
     pitches = [_value(p) for p in roof.get("pitches_deg") or []]
     pitches = [p for p in pitches if p is not None]
@@ -552,9 +853,11 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
     ridge = _value(roof.get("ridge_height"))
     knee = _value(roof.get("knee_wall"))
     axis0 = _ridge_axis(rect, roof)
-    turn = turn and axis0[5] != "ridge_lines"          # a drawn ridge line is never turned
+    turn = turn and axis0[5] != "ridge_lines" and not stepped     # a drawn ridge line is never turned
     r, across, half_along, half_across, ridge_half, ridge_source = _turned(axis0) if turn else axis0
     fit = "pitch" if rtype in ("gable", "hip", "other", "shed") else None
+    # the ridge of a stepped hip roof rises over its widest part: half the shorter side of its largest square fit
+    rise_half = max(min(q[1] - q[0], q[3] - q[2]) / 2.0 for q in rects) if stepped else half_across
 
     def first_pitch() -> float:
         if pitch is not None and fit == "pitch":
@@ -562,8 +865,8 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
             return float(pitch)
         if pitches:
             return pitches[0]
-        if ridge is not None and eaves is not None and rtype in ("gable", "hip") and half_across > 0:
-            p = math.degrees(math.atan2(ridge - eaves, half_across))
+        if ridge is not None and eaves is not None and rtype in ("gable", "hip") and rise_half > 0:
+            p = math.degrees(math.atan2(ridge - eaves, rise_half))
             notes.append(f"pitch {p:.2f} degrees from the eaves and ridge heights")
             return p
         p = DEFAULTS["shed_pitch_deg"] if rtype == "shed" else DEFAULTS["pitch_deg"]
@@ -595,7 +898,7 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
                 assumed.append({"field": "overhang", "value": overhang,
                                 "reason": "not drawn: used to bring the knee wall to the eaves"})
         elif ridge is not None and rtype in ("gable", "hip"):
-            eaves = ridge - half_across * t1
+            eaves = ridge - rise_half * t1
             notes.append(f"eaves {eaves:.3f} m from the ridge height and the pitch")
         else:
             knee_a = DEFAULTS["knee_wall"]
@@ -606,7 +909,20 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
 
     eqs: list[Plane] = []
     tiers: list[str] = []
-    if rtype in ("gable", "hip", "other"):
+    parts, faces = None, None
+    if rtype == "hip" and stepped:
+        # 27 Oct 2026: the hip roof of every eaves edge of the drawn outline (section "Hip roofs over a stepped
+        # outline"): the highest of the hip roofs over its maximal rectangles, cut into one face per eaves edge
+        parts = hip_parts(outline, axis_u, eaves, t1)
+    if parts:
+        eqs, pieces = part_pieces(parts)
+        faces = merged_faces(pieces)
+        tiers = [""] * len(eqs)
+        notes.append(f"hip roof over the drawn {len(outline)}-corner outline: every eaves edge at {eaves:.3f} m, every "
+                     f"slope at {p1:.2f} degrees, the highest of the hip roofs over its {len(parts)} maximal "
+                     f"rectangles ({len(faces)} faces, valleys at the inner corners)")
+        top = eaves + rise_half * t1
+    elif rtype in ("gable", "hip", "other"):
         if rtype == "other":
             assumed.append({"field": "type", "value": "gable",
                             "reason": "roof type 'other': built as a gable roof along the ridge"})
@@ -758,22 +1074,31 @@ def _derive(roof: dict, building: dict, pitch: Optional[float] = None, turn: boo
                 "assumed": assumed, "warnings": [f"unknown roof type {rtype!r}: no roof"], "notes": notes,
                 "_ctx": {"fit": None}}
 
-    planes = planes_from_equations(eqs, outline, _named(eqs, tiers))
-    # 26 Oct 2026 (real06): the ridge is the highest point of the planes as built. ``eaves + half_across x tan`` is that
-    # only when the ridge runs along the long side; a hip whose axis came from the section's peak reported 8.53 m for
-    # a roof built 7.61 m high (its four equal slopes meet over the short half-width whatever the axis).
-    top = max((plane_z(eq, x, y) for eq, poly in zip(eqs, _region_polygons(eqs, outline)) for x, y in poly),
-              default=top)
+    if faces is not None:
+        planes = planes_from_faces(eqs, faces)
+        top = max((plane_z(eqs[g], x, y) for g, lp in faces for x, y in lp), default=top)
+    else:
+        planes = planes_from_equations(eqs, outline, _named(eqs, tiers))
+        # 26 Oct 2026 (real06): the ridge is the highest point of the planes as built. ``eaves + half_across x tan`` is
+        # that only when the ridge runs along the long side; a hip whose axis came from the section's peak reported
+        # 8.53 m for a roof built 7.61 m high (its four equal slopes meet over the short half-width whatever the axis).
+        top = max((plane_z(eq, x, y) for eq, poly in zip(eqs, _region_polygons(eqs, outline)) for x, y in poly),
+                  default=top)
     if pitch is not None and fit == "pitch":
         pitches = [float(pitch)] + pitches[1:]
     elif pitch is not None and fit == "upper_pitch":
         pitches = (pitches[:1] or [p1]) + [float(pitch)] + pitches[2:]
-    return {"planes": planes, "equations": eqs, "outline": outline, "eaves_z": eaves, "ridge_z": top,
-            "pitches": pitches or [p1], "assumed": assumed, "warnings": warnings, "notes": notes,
-            "_ctx": {"fit": fit, "rect": rect, "rtype": rtype, "ridge_source": axis0[5], "turned": turn,
-                     "pitch": p2 if fit == "upper_pitch" else p1 if fit == "pitch" else None,
-                     "why_fixed": None if fit else
-                     "the mansard / gambrel tiers are the section's own slopes and heights"}}
+    out = {"planes": planes, "equations": eqs, "outline": outline, "eaves_z": eaves, "ridge_z": top,
+           "pitches": pitches or [p1], "assumed": assumed, "warnings": warnings, "notes": notes,
+           "_ctx": {"fit": fit, "rect": rect, "rtype": rtype,
+                    # a stepped hip roof has no ridge direction to turn: it follows its outline
+                    "ridge_source": "outline" if parts else axis0[5], "turned": turn,
+                    "pitch": p2 if fit == "upper_pitch" else p1 if fit == "pitch" else None,
+                    "why_fixed": None if fit else
+                    "the mansard / gambrel tiers are the section's own slopes and heights"}}
+    if parts:
+        out["parts"], out["faces"] = parts, faces
+    return out
 
 
 def _pitch_for_ridge(roof: dict, building: dict, target: float, turn: bool) -> tuple[Optional[dict], Optional[str]]:
@@ -861,7 +1186,7 @@ def follow_section(roof: dict, building: dict, base: dict) -> dict:
         return out
 
     def misfit(d: dict) -> tuple[float, float, list]:
-        diffs = profile_diffs(d["equations"], prof, d["outline"]) if points_ok else []
+        diffs = profile_diffs(d["equations"], prof, d["outline"], d.get("parts")) if points_ok else []
         return abs(d["ridge_z"] - target), max((abs(b - z) for _s, b, z in diffs), default=0.0), diffs
 
     def summary(d: dict, c: dict) -> dict:
@@ -877,10 +1202,11 @@ def follow_section(roof: dict, building: dict, base: dict) -> dict:
         status, why = "kept_derived", ctx.get("why_fixed") or "the roof type has no pitch to follow the section with"
     else:
         tried, why_not = [], []
-        if ctx.get("ridge_source") != "ridge_lines":
+        fixed_axis = ctx.get("ridge_source") in ("ridge_lines", "outline")    # drawn, or a stepped hip's own
+        if not fixed_axis:
             tried.append(("ridge_direction", _derive(roof, building, turn=True)))
         for turn, name in ((False, "pitch"), (True, "pitch+ridge_direction")):
-            if turn and ctx.get("ridge_source") == "ridge_lines":
+            if turn and fixed_axis:
                 continue
             d, no = _pitch_for_ridge(roof, building, target, turn)
             if d is None:
@@ -1000,6 +1326,7 @@ def roof_model(roof: Optional[dict], building: dict) -> Optional[dict]:
         check = None
         outline, eaves, ridge = der["outline"], der["eaves_z"], der["ridge_z"]
         assumed += der["assumed"]
+    parts = der.get("parts") if source == "derived" else None
     eqs = [plane_from_points(p["points"]) for p in planes]
     eqs = [e for e in eqs if e is not None]
     thickness = _value(roof.get("thickness"))
@@ -1035,9 +1362,11 @@ def roof_model(roof: Optional[dict], building: dict) -> Optional[dict]:
         openings.append({"id": o.get("id"), "kind": o.get("kind") or "other", "room_id": o.get("room_id"),
                          "polygon": poly, "parapet_height": height, "parapet_source": psource,
                          "parapet_wall_ids": list(o.get("parapet_wall_ids") or []), "guard_height": guard})
-    convex = is_convex(planes)
+    # 27 Oct 2026: a stepped hip roof (``parts``) is the highest of its convex parts, not the lowest of its planes: the
+    # helpers of a convex roof do not hold for its planes, ``top_z`` / ``wall_cut`` / ``roof_solid`` follow its parts
+    convex = False if parts else is_convex(planes)
     warnings = list(der["warnings"])
-    if not convex:
+    if not convex and not parts:
         warnings.append("the roof planes are not convex (a valley or a raised part): walls keep their level "
                         "height and attic ceilings stay flat under this roof")
     model = {"type": roof.get("type"), "over_level_id": level["id"] if level else None, "planes": planes,
@@ -1050,6 +1379,13 @@ def roof_model(roof: Optional[dict], building: dict) -> Optional[dict]:
              # 26 Oct 2026: how the derived roof follows its drawn section (follow_section; drawn planes stay as drawn)
              "section_fit": der.get("section_fit") if source == "derived" else None,
              "follows_section": bool(der.get("follows_section")) if source == "derived" else False}
+    if parts:
+        model["parts"], model["faces"] = parts, der["faces"]
+        low = _flat_ceiling_clash(model, building, level)
+        if low is not None:
+            warnings.append(f"the flat ceiling of {level['id']} ({low[1]:.2f} m) reaches over the underside of the "
+                            f"stepped roof ({low[0]:.2f} m at its outer walls): the attic ceilings stay flat under "
+                            f"this roof (sloped ceilings follow a convex roof only)")
     if roof.get("kind") == "flat_cut":
         # Milestone 12 (docs/milestone12.md §3.4, U2): a single drawn ground floor ends with a flat roof slab and a
         # low parapet on its outer walls (inferred, "upper floors not drawn").
@@ -1071,7 +1407,7 @@ def knee_wall_check(model: dict, roof: dict, building: dict) -> Optional[dict]:
     against the drawn ``knee_wall``. None without a drawn knee wall or planes."""
     drawn = _value(roof.get("knee_wall"))
     level = over_level(roof, building)
-    if drawn is None or level is None or not model["equations"] or not model["convex"]:
+    if drawn is None or level is None or not model["equations"] or not (model["convex"] or model.get("parts")):
         return None
     walls = [w for w in building.get("walls") or [] if w.get("level_id") == level["id"] and w.get("exterior")]
     outline, _ = geom2d.wall_outline([w for w in building.get("walls") or [] if w.get("level_id") == level["id"]])
@@ -1084,7 +1420,7 @@ def knee_wall_check(model: dict, roof: dict, building: dict) -> Optional[dict]:
             p = (mid[0] + s * nx * half, mid[1] + s * ny * half)
             q = (mid[0] + s * nx * (half + 0.05), mid[1] + s * ny * (half + 0.05))
             if outline and not G.point_in_polygon(q, outline):
-                heights.append(surface_z(model["equations"], *p) - float(level["elevation"]))
+                heights.append(top_z(model, *p) - float(level["elevation"]))
     if not heights:
         return None
     derived = min(heights)
@@ -1220,8 +1556,12 @@ def _drawn_type(roof: dict) -> Optional[str]:
     return f"{src} {roof['type']}"
 
 
+# 27 Oct 2026: the eaves outline read from a roof plan (``wenart.sheets.exterior.roof_plan_outline``) is drawn too
+DRAWN_OUTLINE_RULES = ("roof_outline", "roof_plan_outline")
+
+
 def _drawn_outline(roof: dict) -> Optional[str]:
-    if len(roof.get("outline") or []) >= 3 and any(isinstance(e, dict) and e.get("rule") == "roof_outline"
+    if len(roof.get("outline") or []) >= 3 and any(isinstance(e, dict) and e.get("rule") in DRAWN_OUTLINE_RULES
                                                    for e in roof.get("evidence") or []):
         return "drawn roof outline"
     return None
@@ -1241,10 +1581,10 @@ def clip_openings_to_roof(building: dict, level: dict, model: Optional[dict]) ->
     height is never changed (``build.openings_through_roof`` warns about it)."""
     from wenart.blender import shell
 
-    cut = wall_cut(model) if model else None
+    walls = {w["id"]: w for w in building.get("walls") or [] if level is not None and w.get("level_id") == level["id"]}
+    cut = wall_cut(model, list(walls.values())) if model else None
     if not cut or level is None or model.get("over_level_id") != level["id"]:
         return []
-    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == level["id"]}
     out = []
     floor_z = float(level["elevation"])
     for o in building.get("openings") or []:
@@ -1260,8 +1600,8 @@ def clip_openings_to_roof(building: dict, level: dict, model: Optional[dict]) ->
         ux, uy = _unit(wall)
         nx, ny = -uy, ux
         half_w, half_t = float(o["width"]) / 2.0, float(wall["thickness"]) / 2.0
-        under = min(surface_z(cut["planes"], cx + ux * a + nx * b, cy + uy * a + ny * b)
-                    for a in (-half_w, half_w) for b in (-half_t, half_t))
+        corners = [(cx + ux * a + nx * b, cy + uy * a + ny * b) for a in (-half_w, half_w) for b in (-half_t, half_t)]
+        under = min(surface_z(cut_planes_for(cut, wall["id"], wall, p), *p) for p in corners)
         limit = under - OPENING_ROOF_GAP
         if top <= limit + 1e-6:
             continue
@@ -1289,15 +1629,15 @@ def opening_head_limit(model: Optional[dict], level: Optional[dict], wall: dict,
     the roof is not over this level (pure). The architect's answers size windows with it (25 Oct 2026)."""
     from wenart.blender import shell
 
-    cut = wall_cut(model) if model else None
+    cut = wall_cut(model, [wall]) if model else None
     if not cut or level is None or model.get("over_level_id") != level["id"]:
         return None
     cx, cy, _ = shell.opening_centre_on_wall(opening, wall)
     ux, uy = _unit(wall)
     nx, ny = -uy, ux
     half_w, half_t = float(opening["width"]) / 2.0, float(wall.get("thickness") or 0.2) / 2.0
-    under = min(surface_z(cut["planes"], cx + ux * a + nx * b, cy + uy * a + ny * b)
-                for a in (-half_w, half_w) for b in (-half_t, half_t))
+    corners = [(cx + ux * a + nx * b, cy + uy * a + ny * b) for a in (-half_w, half_w) for b in (-half_t, half_t)]
+    under = min(surface_z(cut_planes_for(cut, wall.get("id"), wall, p), *p) for p in corners)
     return under - OPENING_ROOF_GAP - float(level["elevation"])
 
 
@@ -1386,6 +1726,8 @@ def roof_solid(model: dict) -> tuple[list, list, list[int]]:
     bottom = underside(model)
     holes = [o["polygon"] for o in model.get("openings") or []]
     outer = geom2d.ccw(model["outline"])
+    if model.get("parts"):
+        return _parts_solid(model, outer, holes, top, bottom)
     faces = [(lift(poly, top[i], True), SLOT_COVERING) for i, poly in surface_pieces(outer, holes, top)]
     faces += [(lift(poly, bottom[i], False), SLOT_SOFFIT) for i, poly in surface_pieces(outer, holes, bottom)]
     # Terrace openings reach over the eaves (§1.6b row 13): only the edges of what is left get a fascia.
@@ -1393,6 +1735,45 @@ def roof_solid(model: dict) -> tuple[list, list, list[int]]:
         faces += [(f, SLOT_FASCIA) for f in geom2d.segment_side_faces(p, q, top, bottom)]
     for verts, idx in parapet_ring(model):           # Milestone 12: flat_cut
         faces += [([verts[i] for i in f], SLOT_FASCIA) for f in idx]
+    return _mesh(faces)
+
+
+def _boundary_runs(p, q, faces: Sequence[Sequence], tol: float = 1e-6) -> list[tuple[tuple, tuple]]:
+    """The edge ``p``-``q`` split at every face corner on it (the roof is one plane along each run; pure)."""
+    length = G.distance(p, q)
+    if length < 1e-9:
+        return []
+    ts = {0.0, 1.0}
+    for _g, lp in faces:
+        for c in lp:
+            if G.point_segment_distance(c, p, q) <= tol:
+                t = ((c[0] - p[0]) * (q[0] - p[0]) + (c[1] - p[1]) * (q[1] - p[1])) / (length * length)
+                if 1e-9 < t < 1.0 - 1e-9:
+                    ts.add(t)
+    ts = sorted(ts)
+    pt = [(p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t) for t in ts]
+    return [(a, b) for a, b in zip(pt, pt[1:]) if G.distance(a, b) > 1e-7]
+
+
+def _parts_solid(model: dict, outer, holes, top: Sequence[Plane], bottom: Sequence[Plane]
+                 ) -> tuple[list, list, list[int]]:
+    """``roof_solid`` of a stepped hip roof (27 Oct 2026, pure): every face (``merged_faces``) on its plane, the
+    soffit on its lowered plane, the fascia along the outline and the terrace edges between the roof's top and its
+    underside (``parts_z``), split where a face corner meets the edge."""
+    faces = []
+    for g, lp in model["faces"]:
+        for piece in geom2d.convex_pieces(lp, [h for h in holes if len(h) >= 3]):
+            faces.append((lift(piece, top[g], True), SLOT_COVERING))
+            faces.append((lift(piece, bottom[g], False), SLOT_SOFFIT))
+    parts = model["parts"]
+    drop = max(float(model["thickness"]) * math.sqrt(1.0 + e[0] * e[0] + e[1] * e[1]) for e in top)
+    for p, q in geom2d.region_boundary(outer, holes):
+        for a, b in _boundary_runs(p, q, model["faces"]):
+            za, zb = parts_z(parts, *a), parts_z(parts, *b)
+            if za is None or zb is None:
+                continue
+            faces.append(([(a[0], a[1], za - drop), (b[0], b[1], zb - drop), (b[0], b[1], zb), (a[0], a[1], za)],
+                          SLOT_FASCIA))
     return _mesh(faces)
 
 
@@ -1408,7 +1789,10 @@ def ridge_lines(model: dict) -> list[tuple[tuple, tuple]]:
         return []
     top = list(model["equations"])
     holes = [o["polygon"] for o in model.get("openings") or []]
-    pieces = geom2d.surface_pieces(geom2d.ccw(model["outline"]), holes, top)
+    parts = model.get("parts")
+    # 27 Oct 2026: a stepped hip roof's faces (one per eaves edge) meet in ridges, hips and valleys
+    pieces = [(g, lp) for g, lp in model["faces"]] if parts else \
+        geom2d.surface_pieces(geom2d.ccw(model["outline"]), holes, top)
 
     segs = []                                            # (plane, a, b) of every piece edge
     for i, poly in pieces:
@@ -1445,10 +1829,27 @@ def ridge_lines(model: dict) -> list[tuple[tuple, tuple]]:
         if min(norms) > 1e-6 and (grads[0][0] * grads[1][0] + grads[0][1] * grads[1][1]) / (norms[0] * norms[1]) \
                 > RIDGE_CAP["break_cos"]:
             continue                                     # a break line (mansard, gambrel): both planes fall one way
+        if parts and _valley(parts, a, b):
+            continue                                     # a valley takes no ridge tiles
+        if parts and in_opening(model, *G.segment_midpoint(a, b)):
+            continue                                     # the faces run on under a roof terrace: no tiles there
         za = min(geom2d.plane_z(top[k], *a) for k in (i, j))
         zb = min(geom2d.plane_z(top[k], *b) for k in (i, j))
         out.append(((a[0], a[1], za), (b[0], b[1], zb)))
     return out
+
+
+def _valley(parts: Sequence[dict], a, b, step: float = 0.05) -> bool:
+    """True when the crease ``a``-``b`` of a stepped hip roof is a valley: its middle lies lower than the roof on both
+    sides of it (a ridge or a hip lies higher; pure)."""
+    m = G.segment_midpoint(a, b)
+    nx, ny = G.unit_normal_left(a, b)
+    zm = parts_z(parts, *m)
+    zl = parts_z(parts, m[0] + nx * step, m[1] + ny * step)
+    zr = parts_z(parts, m[0] - nx * step, m[1] - ny * step)
+    if zm is None or zl is None or zr is None:
+        return False
+    return zm < (zl + zr) / 2.0 - 1e-6
 
 
 def ridge_caps(model: dict) -> tuple[list, list]:
@@ -1512,12 +1913,139 @@ def ceiling_faces(polygon, holes, planes: Sequence[Plane]) -> tuple[list, list]:
     return geom2d.sloped_faces(polygon, holes, planes, facing_up=False)
 
 
-def wall_cut(model: dict) -> Optional[dict]:
+def wall_cut(model: dict, walls: Optional[Sequence[dict]] = None) -> Optional[dict]:
     """What the walls under the roof are cut with (``shell.build_walls``): ``{"planes": the roof underside,
-    "top": the ridge}``; None for a roof that is not convex (its walls keep their level height)."""
-    if not model or not model.get("convex") or not model.get("equations"):
+    "top": the ridge}``; None for a roof that is not convex (its walls keep their level height). A stepped hip roof
+    (``parts``, 27 Oct 2026) also gives ``wall_planes``: per wall of ``walls`` the underside of the part over it
+    (``cut_planes_for``)."""
+    if not model or not model.get("equations"):
+        return None
+    if model.get("parts"):
+        return _parts_wall_cut(model, walls or [])
+    if not model.get("convex"):
         return None
     return {"planes": underside(model), "top": max(float(p[2]) for pl in model["planes"] for p in pl["points"])}
+
+
+WALL_SAMPLE_M = 0.05             # a wall under a stepped roof is followed this fine for the part over it ...
+WALL_SPLIT_M = 0.001             # ... and each change of part found to a millimetre
+
+
+def _wall_spans(parts: Sequence[dict], unders: Sequence[Sequence[Plane]], eaves_under: Plane, wall: dict
+                ) -> list[dict]:
+    """``[{"t0", "t1", "planes"}]`` along a wall's centre line (``t`` 0..1 from its start; pure): the stretches where
+    one part of a stepped hip roof is the highest over it, each with that part's underside planes (a stretch under no
+    part ends at the eaves' underside, ``eaves_under``). A part that ties with the current one keeps it (no
+    flicker between two parts sharing an eaves line)."""
+    (x0, y0), (x1, y1) = wall["start"][:2], wall["end"][:2]
+    length = math.hypot(x1 - x0, y1 - y0)
+
+    def best(t: float, keep: Optional[int]) -> Optional[int]:
+        x, y = x0 + (x1 - x0) * t, y0 + (y1 - y0) * t
+        vals = [(min(plane_z(e, x, y) for e in unders[k]), k) for k, p in enumerate(parts) if _in_part(p, x, y)]
+        if not vals:
+            return None
+        top = max(v for v, _k in vals)
+        tied = [k for v, k in vals if v >= top - 1e-7]
+        return keep if keep in tied else tied[0]
+
+    n = max(2, int(math.ceil(length / WALL_SAMPLE_M)))
+    spans, t_start, cur = [], 0.0, best(0.0, None)
+    prev = 0.0
+    for i in range(1, n + 1):
+        t = i / n
+        k = best(t, cur)
+        if k != cur:
+            lo, hi = prev, t
+            while (hi - lo) * length > WALL_SPLIT_M:
+                mid = (lo + hi) / 2.0
+                if best(mid, cur) == cur:
+                    lo = mid
+                else:
+                    hi = mid
+            spans.append((t_start, (lo + hi) / 2.0, cur))
+            t_start, cur = (lo + hi) / 2.0, k
+        prev = t
+    spans.append((t_start, 1.0, cur))
+    return [{"t0": round(a, 9), "t1": round(b, 9), "planes": list(unders[k]) if k is not None else [eaves_under]}
+            for a, b, k in spans if b - a > 1e-9]
+
+
+def _parts_wall_cut(model: dict, walls: Sequence[dict]) -> dict:
+    """``wall_cut`` of a stepped hip roof (pure): per wall the stretches along it under each part
+    (``_wall_spans``): ``wall_spans`` when the part over it changes along it (the wall is built as pieces side by
+    side, ``shell.wall_pieces``), and ``wall_planes`` (the planes of its longest stretch). A wall under no part ends at
+    the eaves' underside. ``planes`` are the largest part's (a caller without the wall's id)."""
+    t = float(model["thickness"])
+    parts = model["parts"]
+    unders = [[lowered(e, t) for e in p["equations"]] for p in parts]
+    eaves_under = (0.0, 0.0, float(model["eaves_z"]) - t)
+    per: dict = {}
+    spans: dict = {}
+    for w in walls:
+        try:
+            got = _wall_spans(parts, unders, eaves_under, w)
+        except (KeyError, TypeError, ValueError, IndexError):
+            continue
+        if not got:
+            continue
+        per[w["id"]] = max(got, key=lambda s: s["t1"] - s["t0"])["planes"]
+        if len(got) > 1:
+            spans[w["id"]] = got
+    return {"planes": unders[0], "top": max(float(p[2]) for pl in model["planes"] for p in pl["points"]),
+            "wall_planes": per, "wall_spans": spans}
+
+
+def cut_planes_for(cut: Optional[dict], wall_id, wall: Optional[dict] = None, at=None) -> Optional[list]:
+    """The underside planes that cut the wall ``wall_id`` (``wall_cut``: under a stepped hip roof the stretch of the
+    wall at the point ``at`` when ``wall`` is given, else its own; else the roof's); None without a cut (pure)."""
+    if not cut:
+        return None
+    spans = (cut.get("wall_spans") or {}).get(wall_id)
+    if spans and wall is not None and at is not None:
+        (x0, y0), (x1, y1) = wall["start"][:2], wall["end"][:2]
+        den = (x1 - x0) ** 2 + (y1 - y0) ** 2
+        if den > 1e-18:
+            t = ((at[0] - x0) * (x1 - x0) + (at[1] - y0) * (y1 - y0)) / den
+            for s in spans:
+                if s["t0"] - 1e-9 <= t <= s["t1"] + 1e-9:
+                    return s["planes"]
+    return (cut.get("wall_planes") or {}).get(wall_id) or cut["planes"]
+
+
+def top_z(model: dict, x: float, y: float) -> float:
+    """The roof's top surface at ``(x, y)`` (pure): a stepped hip roof's highest part over the point (``parts_z``),
+    else the lowest plane (a convex roof)."""
+    if model.get("parts"):
+        z = parts_z(model["parts"], x, y)
+        if z is not None:
+            return z
+    return surface_z(model["equations"], x, y)
+
+
+def underside_z(model: dict, x: float, y: float) -> float:
+    """The roof's underside at ``(x, y)`` (pure; ``top_z`` the roof thickness lower, square to the slope)."""
+    if model.get("parts"):
+        drop = max(float(model["thickness"]) * math.sqrt(1.0 + e[0] * e[0] + e[1] * e[1])
+                   for e in model["equations"])
+        z = parts_z(model["parts"], x, y, drop)
+        if z is not None:
+            return z
+    return surface_z(underside(model), x, y)
+
+
+def _flat_ceiling_clash(model: dict, building: dict, level: Optional[dict]) -> Optional[tuple[float, float]]:
+    """``(lowest underside over the level's rooms, the level's flat ceiling)`` when the flat ceiling reaches over the
+    underside of a stepped hip roof at a room corner (its ceilings stay flat), else None (pure)."""
+    if level is None or level.get("ceiling_height") is None:
+        return None
+    flat = float(level["elevation"]) + float(level["ceiling_height"])
+    pts = [tuple(p[:2]) for r in building.get("rooms") or [] if r.get("level_id") == level["id"]
+           for p in r.get("polygon") or [] if covers(model, float(p[0]), float(p[1]))]
+    if not pts:
+        return None
+    low = min(underside_z(model, x, y) for x, y in pts)
+    return (low, flat) if low < flat - 1e-3 else None
 
 
 # --------------------------------------------------------------------------

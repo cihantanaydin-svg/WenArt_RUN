@@ -64,6 +64,9 @@ CHECK_KIND = {
     # the model review
     "M1": "no_sense", "M2": "no_sense", "M3": "no_sense", "M4": "no_sense", "M5": "no_sense", "M6": "taste",
     "M7": "misread", "M8": "no_sense", "M10": "no_sense",
+    # 27 Oct 2026: the roof against the roof plan (an outline assumed while drawn; a finding of a roof the model lost
+    # carries its own kind, ``lost``)
+    "M11": "misread",
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",

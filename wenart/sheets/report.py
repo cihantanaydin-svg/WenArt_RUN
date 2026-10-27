@@ -106,6 +106,11 @@ def write_report(doc: dict, path: Path, pending: list[str]) -> Path:
     if roof_ex:
         lines.append(f"Roof: **{roof_ex['type']}** ({roof_ex['type_source']})" +
                      (f"; {roof_ex['note']}" if roof_ex.get("note") else ""))
+        plan = roof_ex.get("plan_outline")          # 27 Oct 2026: the roofs the roof plan draws
+        if isinstance(plan, dict):
+            lines.append(f"Roof plan outline: {plan.get('note')}")
+        elif roof_ex.get("plan_outline_note"):
+            lines.append(f"Roof plan outline: not read ({roof_ex['plan_outline_note']})")
     else:
         lines.append("Roof: nothing drawn.")
     site = ex.get("site")

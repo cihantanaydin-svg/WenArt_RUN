@@ -36,6 +36,10 @@ stay):
   windows above; drawn columns as posts, an inferred post at every open corner more than ``post_reach`` from a
   support). The site build makes them platforms (``wenart.blender.site.platforms``), the entrances use them
   (``wenart.levels.model``: a door onto a space has no steps of its own; the space's steps lead down).
+- 27 Oct 2026 (``mark_roof_cover``, ``ROOF_COVER``): a space mostly under the building's drawn roof outline (a roof
+  plan's eaves loop over a balcony) is covered by that roof (``cover`` ``roof``, ``cover_source`` ``building_roof``,
+  ``cover_reason``); ``roof_plan`` leaves the part under the drawn roof out of a light roof and records a lower roof
+  the roof plan draws over the rest (``roof.drawn``).
 - ``type_site_decor``: every drawn site symbol is typed (``inferred_as`` with the reason): by its layer or block
   name first (``DECOR_WORDS``: axis bubbles, columns, sills, level marks, doors, annotation, lamps, bollards, posts,
   planters, outdoor-space details, steps, hatches, walls, furniture, cars; plant words make it vegetation), then by
@@ -813,6 +817,77 @@ def _coords(g) -> list[list[float]]:
     return [[round(x, 4), round(y, 4)] for x, y in list(g.exterior.coords)[:-1]]
 
 
+# 27 Oct 2026 (real06: the roof plan draws the main roof over the first-floor balcony, and a lower roof over the rest of
+# the veranda; user: "In the plan roof is covering this balcony also"): an outdoor space under the building's drawn roof
+# is covered by it. Physical reasons:
+ROOF_COVER = {
+    # most of the space under the drawn roof: it reads as covered (the rest is the strip past the eaves the rain
+    # falls on)
+    "share": 0.5,
+    # the roof stands at least a door's clear height over the space's floor (a roof lower than that is no cover of it)
+    "clear_m": 2.1,
+    # a drawn lower roof (``roof.roof_plan_outline.others``) is a space's own roof when it lies over this share of the
+    # part of the space nothing else covers
+    "drawn_share": 0.5,
+}
+DRAWN_OUTLINE_RULES = ("roof_outline", "roof_plan_outline")      # = wenart.blender.roof.DRAWN_OUTLINE_RULES
+
+
+def drawn_roof(building: dict) -> Optional[dict]:
+    """The building roof as drawn (pure): ``{"polygon", "eaves_z", "source", "others": [drawn lower roofs]}`` when its
+    outline comes from a drawing (a roof plan's eaves loop or the top plan's roof outline), else None (the walls +
+    overhang the build assumes cover no outdoor space)."""
+    roof = building.get("roof") if isinstance(building.get("roof"), dict) else None
+    if roof is None or len(roof.get("outline") or []) < 3:
+        return None
+    rules = {e.get("rule") for e in roof.get("evidence") or [] if isinstance(e, dict)}
+    if not rules & set(DRAWN_OUTLINE_RULES) and roof.get("outline_source") != "roof_plan":
+        return None
+    eaves = roof.get("eaves_height")
+    eaves = eaves.get("value") if isinstance(eaves, dict) else eaves
+    rec = roof.get("roof_plan_outline") if isinstance(roof.get("roof_plan_outline"), dict) else {}
+    src = (f"the roof plan {rec.get('region_id')}" if roof.get("outline_source") == "roof_plan" and rec.get("region_id")
+           else "the drawn roof outline")
+    return {"polygon": roof["outline"], "eaves_z": None if eaves is None else float(eaves), "source": src,
+            "others": [o["points"] for o in rec.get("others") or [] if len(o.get("points") or []) >= 3],
+            # a roof terrace cut into the roof is open to the sky
+            "openings": [o["polygon"] for o in roof.get("openings") or [] if len(o.get("polygon") or []) >= 3]}
+
+
+def _roof_shape(roof: dict):
+    """The plan the drawn roof covers (its outline less its terrace openings), a shapely geometry."""
+    from shapely.ops import unary_union
+    poly = _shp(roof["polygon"])
+    holes = [_shp(h) for h in roof.get("openings") or []]
+    return poly.difference(unary_union(holes)) if holes else poly
+
+
+def mark_roof_cover(spaces: Sequence[dict], building: dict) -> None:
+    """Every space under the building's drawn roof (``drawn_roof``) is covered (mutated): ``cover`` ``roof``,
+    ``cover_source`` ``building_roof`` and ``cover_reason``, when at least ``ROOF_COVER["share"]`` of it lies under the
+    drawn outline and the eaves stand ``clear_m`` or more over its floor (a balcony under the main roof, a terrace
+    under an overhang drawn over it). Its furniture and materials are not touched."""
+    roof = drawn_roof(building)
+    if roof is None:
+        return
+    poly = _roof_shape(roof)
+    for s in spaces:
+        sp = _shp(s["polygon"])
+        if sp.area <= 0:
+            continue
+        share = sp.intersection(poly).area / sp.area
+        if share < ROOF_COVER["share"]:
+            continue
+        if roof["eaves_z"] is not None and roof["eaves_z"] - float(s["z"]) < ROOF_COVER["clear_m"]:
+            continue
+        was = s.get("cover")
+        s["cover"], s["cover_source"] = "roof", "building_roof"
+        s["cover_reason"] = (f"{share:.0%} of it lies under the building's roof as drawn ({roof['source']})"
+                             + (f", its eaves {roof['eaves_z'] - float(s['z']):.2f} m over its floor"
+                                if roof["eaves_z"] is not None else "")
+                             + (f" (its word gave '{was}')" if was not in (None, "roof") else ""))
+
+
 def space_doors(poly, level_id: str, doors: Sequence[dict]) -> list[dict]:
     """The outside doors of ``level_id`` that open onto ``poly``: their probe (``door_probe`` out of the face) lies
     on it or within ``door_reach``."""
@@ -977,6 +1052,9 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
                               "center": [round(float(c["center"][0]), 4), round(float(c["center"][1]), 4)]},
                              **column_look(c))
                         for c in cols if sp.distance(Point(c["center"])) <= SPACE["column_reach"]]
+    # 27 Oct 2026: a space the building's drawn roof covers is covered (``mark_roof_cover``) before its own roof is
+    # planned: the drawn roof needs no light roof under it
+    mark_roof_cover(out, building)
     for s in out:
         s["roof"] = roof_plan(s, out, levels, outlines, building, doors)
     assign_posts(out, gz)
@@ -1051,11 +1129,24 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
     covers = [_shp(outlines[x["id"]]) for x in above_lvls if len(outlines.get(x["id"]) or []) >= 3]
     upper = [s for s in spaces if s is not space and float(s["z"]) > z + 1.0]
     covers += [_shp(s["polygon"]) for s in upper]
-    rest = sp.difference(unary_union(covers)) if covers else sp
+    # 27 Oct 2026: the building's drawn roof over the space covers it too (``drawn_roof``; a balcony under the main
+    # roof gets no light roof of its own); it is no support of a light roof (it stands a storey higher)
+    building_roof = drawn_roof(building)
+    above = [_roof_shape(building_roof)] if building_roof is not None and (
+        building_roof["eaves_z"] is None or building_roof["eaves_z"] - z >= ROOF_COVER["clear_m"]) else []
+    rest = sp.difference(unary_union(covers + above)) if covers or above else sp
     parts = [g for g in getattr(rest, "geoms", [rest]) if g.geom_type == "Polygon" and g.area >= 0.5]
     if not parts:
         return None
     region = max(parts, key=lambda g: g.area)
+    # a lower roof the roof plan draws over this part is its roof as drawn: recorded with the light roof
+    drawn = None
+    for other in (building_roof or {}).get("others") or []:
+        o = _shp(other)
+        share = o.intersection(region).area / region.area if region.area > 0 else 0.0
+        if share >= ROOF_COVER["drawn_share"] and (drawn is None or share > drawn["share"]):
+            drawn = {"polygon": _coords(o), "share": round(share, 3), "area_m2": round(o.area, 3),
+                     "source": building_roof["source"]}
     if cover == "building" and region.area < 0.5:
         return None
     kind = {"roof": "light_roof", "glass": "glass_roof", "pergola": "pergola", "building": "light_roof"}[cover]
@@ -1152,10 +1243,17 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
     reason = (f"{kind.replace('_', ' ')} over {region.area:.2f} m² of the {space['kind']} (the part no floor or "
               f"space above covers), {why}, {t:.2f} m thick, falling {fall * 100:.0f} % away from the building; "
               f"{len(posts) - n_in} drawn column(s)" + (f" and {n_in} inferred post(s)" if n_in else "")
-              + " (inferred)")
-    return {"kind": kind, "polygon": [[round(x, 4), round(y, 4)] for x, y in ring], "area_m2": round(region.area, 3),
-            "top_z": round(top, 3), "thickness": t, "fall": fall, "plane": plane, "open_edges": open_edges,
-            "posts": posts, "reason": reason, "inferred": True}
+              + " (inferred)"
+              + (f"; {drawn['source']} draws a lower roof of {drawn['area_m2']:.2f} m² over {drawn['share']:.0%} of "
+                 f"it (roof.drawn)" if drawn else "")
+              + (f"; the building's drawn roof covers {sp.intersection(above[0]).area:.2f} m² of it"
+                 if above and sp.intersection(above[0]).area >= 0.5 else ""))
+    out = {"kind": kind, "polygon": [[round(x, 4), round(y, 4)] for x, y in ring], "area_m2": round(region.area, 3),
+           "top_z": round(top, 3), "thickness": t, "fall": fall, "plane": plane, "open_edges": open_edges,
+           "posts": posts, "reason": reason, "inferred": True}
+    if drawn is not None:
+        out["drawn"] = drawn
+    return out
 
 
 def column_look(item: dict) -> dict:
