@@ -135,6 +135,23 @@ def test_a_guard_is_one_glass_pane_across_the_whole_opening():
     assert top == pytest.approx(4.1, abs=1e-6)
 
 
+def test_a_guard_in_front_of_an_opening_speaks_the_house_balustrade_language():
+    # 27 Oct 2026, generality review: the guard was always frameless glass; it follows details.balustrade_kind
+    from wenart.blender import details as D
+
+    assert D.balustrade_kind({"family": "rustic"}) == "bars"
+    bars = FA.guard_boxes((0.0, 0.0), (2.0, 0.0), 3.0, 4.1, "L1", "w1", "bars")
+    assert not any(b["kind"] == "guard_glass" for b in bars)
+    uprights = sorted(b["center"][0] for b in bars if b["size"][2] > 0.8)          # posts and bars
+    gaps = [b - a for a, b in zip(uprights, uprights[1:])]
+    assert len(uprights) >= 15 and max(gaps) - D.DIMS["bar_w"] <= 0.11             # no gap a child could pass
+    assert max(b["center"][2] + b["size"][2] / 2.0 for b in bars) == pytest.approx(4.1, abs=1e-6)
+    posts = FA.guard_boxes((0.0, 0.0), (2.0, 0.0), 3.0, 4.1, "L1", "w1", "glass_posts")
+    panes = [b for b in posts if b["kind"] == "guard_glass"]
+    assert len(panes) == 2 and all(b["size"][0] < 1.0 for b in panes)             # a pane in each bay
+    assert len([b for b in posts if b["kind"] == "railing" and b["size"][2] > 0.8]) == 3
+
+
 def test_the_fit_takes_a_basin_that_can_work_and_hangs_a_wall_hung_one():
     assert not FIT.working_top_ok("washbasin", 0.10)      # a bowl needs a counter
     assert FIT.working_top_ok("washbasin", 0.54) and FIT.working_top_ok("washbasin", 0.86)

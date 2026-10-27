@@ -72,7 +72,7 @@ ACTIONS = {
     # floor, a basin on the floor, a piece in a doorway); the review offers them, a safe one is its ``default``
     "door_to_window": "a reading error: nothing is outside this door or gap: a window at the floor's sill (same width "
                       "and head)",
-    "french_window": "a French window: kept full height with a glass guard across its whole width (1.10 m high)",
+    "french_window": "a French window: kept full height with a guard (the house's balustrade) across its whole width (1.10 m high)",
     "snap_threshold": "the door stands on its floor: its threshold at the floor of the rooms it joins",
     "mount_fixture": "the fixture at its working height (a wall-hung basin's rim at 0.85 m)",
     "move_piece": "move the piece to the nearest free place in its room, clear of the doorway or window",
@@ -1065,15 +1065,16 @@ def act_merge_openings(plan: Plan, key: str, ans: dict, opening_id: str, other_i
 
 
 def act_french_window(plan: Plan, key: str, ans: dict, door_id: str):
-    """A full-height opening over a drop kept as a French window: a glass guard across its whole width, ``GUARD_TOP_M``
-    over its floor (``facade.guard_boxes`` builds it; 26 Oct 2026: two thin bars were no guard)."""
+    """A full-height opening over a drop kept as a French window: a guard across its whole width, ``GUARD_TOP_M``
+    over its floor, in the house's balustrade language (``facade.guard_boxes`` builds it with
+    ``details.balustrade_kind``; 26 Oct 2026: two thin bars were no guard)."""
     o = plan.openings.get(door_id)
     if o is None or o.get("type") not in ("door", "opening", "window"):
         return False, f"no opening {door_id}"
-    o["guard"] = {"top_m": GUARD_TOP_M, "kind": "glass", "reason": f"the answer to {key}: a French window with a "
-                                                                    f"glass guard"}
-    _mark(o, "adjusted_by_ai", key, ans, f"a French window: a glass guard {GUARD_TOP_M:.2f} m high across its width")
-    return True, f"{door_id}: a glass guard across its width"
+    o["guard"] = {"top_m": GUARD_TOP_M, "kind": "balustrade", "reason": f"the answer to {key}: a French window with "
+                                                                         f"a guard"}
+    _mark(o, "adjusted_by_ai", key, ans, f"a French window: a guard {GUARD_TOP_M:.2f} m high across its width")
+    return True, f"{door_id}: a guard across its width"
 
 
 # --------------------------------------------------------------------------

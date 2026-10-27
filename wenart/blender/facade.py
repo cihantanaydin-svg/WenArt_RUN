@@ -85,8 +85,8 @@ KIT_LOOKS = {
     "downpipe": ("aluminium_anthracite", None, "downpipe at the eaves corners (not drawn)"),
     "canopy": ("render", "white", "entrance canopy over the entrance door (the door is drawn; the canopy is not)"),
     "wall_light": ("steel_black", None, "wall light beside the entrance door (not drawn)"),
-    "railing": ("steel_brushed", None, "glass guard's channel and cap rail in front of an opening over a drop with "
-                                        "no balcony (not drawn)"),
+    "railing": ("steel_brushed", None, "guard's metal (rails, posts, bars or a glass channel) in front of an opening "
+                                        "over a drop with no balcony (not drawn)"),
     "guard_glass": ("glass_guard", None, "glass guard in front of an opening over a drop with no balcony (not drawn)"),
 }
 KIT_KINDS = tuple(KIT_LOOKS)
@@ -336,7 +336,7 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
             assumed.append({"field": "surround", "value": DIMENSIONS["surround_width"],
                             "reason": out_looks["surround"]["reason"]})
     # Milestone 13 (T6): the facade kit, only where the documents or the room types imply it
-    kit = facade_kit(building, levels, outlines, ground_outline, terrain, roof_model, rules, looks)
+    kit = facade_kit(building, levels, outlines, ground_outline, terrain, roof_model, rules, looks, style)
     boxes += kit["boxes"]
     out_looks.update(kit["looks"])
     assumed += kit["assumed"]
@@ -348,10 +348,15 @@ def _box(kind: str, level_id, centre, size, rot: float, parent=None, reason: str
             "rotation_deg": float(rot), "inferred": True, "parent": parent, "reason": reason}
 
 
-def guard_boxes(p, q, bottom: float, top: float, level_id, parent) -> list[dict]:
-    """A frameless glass guard from ``p`` to ``q`` (pure; 26 Oct 2026): a metal channel at the opening's bottom, a
-    glass pane up to a cap rail at ``top`` (kinds ``railing`` and ``guard_glass``). The pane is one piece: no gap a
-    child could pass (the 0.11 m rule)."""
+def guard_boxes(p, q, bottom: float, top: float, level_id, parent, kind: str = "glass_channel") -> list[dict]:
+    """A guard from ``p`` to ``q`` in the house's one balustrade language (pure; 26 Oct 2026; 27 Oct 2026, generality
+    review: it was always frameless glass, while the stairs and balconies follow ``details.balustrade_kind``): kind
+    ``glass_channel`` a metal channel at the opening's bottom and one glass pane up to a cap rail at ``top``;
+    ``glass_posts`` posts at most ``details.DIMS["post_every"]`` apart, a handrail and a glass pane in each bay;
+    ``bars`` posts, a handrail, a bottom rail and vertical bars ``bar_pitch`` apart (box kinds ``railing`` and
+    ``guard_glass``). No gap a child could pass (the 0.11 m rule)."""
+    from wenart.blender import details as D
+
     length = G.distance(p, q)
     if length < 0.1 or top - bottom < 0.1:
         return []
@@ -359,12 +364,48 @@ def guard_boxes(p, q, bottom: float, top: float, level_id, parent) -> list[dict]
     rot = math.degrees(math.atan2(uy, ux))
     mx, my = (p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0
     ch, chh, cap, gt = KIT["guard_channel"], KIT["guard_channel_h"], KIT["guard_cap"], KIT["guard_glass_t"]
-    why = KIT_LOOKS["railing"][2]
-    out = [_box("railing", level_id, (mx, my, bottom + chh / 2.0), (length, ch, chh), rot, parent, why),
-           _box("railing", level_id, (mx, my, top - cap / 2.0), (length, ch * 0.6, cap), rot, parent, why)]
-    g0, g1 = bottom + chh - 0.03, top - cap + 0.01
-    out.append(_box("guard_glass", level_id, (mx, my, (g0 + g1) / 2.0), (length - 0.02, gt, g1 - g0), rot, parent,
-                    KIT_LOOKS["guard_glass"][2]))
+    why, why_glass = KIT_LOOKS["railing"][2], KIT_LOOKS["guard_glass"][2]
+
+    def at(t):
+        return p[0] + ux * t, p[1] + uy * t
+
+    if kind not in ("glass_posts", "bars"):
+        out = [_box("railing", level_id, (mx, my, bottom + chh / 2.0), (length, ch, chh), rot, parent, why),
+               _box("railing", level_id, (mx, my, top - cap / 2.0), (length, ch * 0.6, cap), rot, parent, why)]
+        g0, g1 = bottom + chh - 0.03, top - cap + 0.01
+        out.append(_box("guard_glass", level_id, (mx, my, (g0 + g1) / 2.0), (length - 0.02, gt, g1 - g0), rot, parent,
+                        why_glass))
+        return out
+    c = D.DIMS
+    post, rail = 2 * c["post_r"], 2 * c["handrail_r"]
+    n = max(1, int(math.ceil(length / c["post_every"] - 1e-9)))
+    stations = [post / 2.0 + (length - post) * k / n for k in range(n + 1)]
+    out = [_box("railing", level_id, (mx, my, top - rail / 2.0), (length, rail, rail), rot, parent, why)]
+    for t in stations:
+        x, y = at(t)
+        out.append(_box("railing", level_id, (x, y, (bottom + top - rail) / 2.0), (post, post, top - rail - bottom),
+                        rot, parent, why))
+    if kind == "glass_posts":
+        for t0, t1 in zip(stations, stations[1:]):
+            a, b = t0 + post / 2.0 + c["bay_gap"], t1 - post / 2.0 - c["bay_gap"]
+            if b - a < 0.1:
+                continue
+            x, y = at((a + b) / 2.0)
+            g0, g1 = bottom + c["glass_bottom"], top - rail - 0.04
+            out.append(_box("guard_glass", level_id, (x, y, (g0 + g1) / 2.0), (b - a, gt, g1 - g0), rot, parent,
+                            why_glass))
+        return out
+    zb = bottom + c["bottom_rail_z"]
+    out.append(_box("railing", level_id, (mx, my, zb + c["flat_t"]), (length, c["flat_w"] * 0.6, 2 * c["flat_t"]),
+                    rot, parent, why))
+    z0, z1 = zb + 2 * c["flat_t"], top - rail
+    for t0, t1 in zip(stations, stations[1:]):
+        a, b = t0 + post / 2.0, t1 - post / 2.0
+        k = max(1, int(math.ceil((b - a) / c["bar_pitch"] - 1e-9)))
+        for j in range(1, k):
+            x, y = at(a + (b - a) * j / k)
+            out.append(_box("railing", level_id, (x, y, (z0 + z1) / 2.0), (c["bar_w"], c["bar_w"], z1 - z0), rot,
+                            parent, why))
     return out
 
 
@@ -669,7 +710,8 @@ def _runs_outside(p, u, n, length: float, holes, step: float = 0.05, min_run: fl
 
 
 def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_outline, terrain: Optional[dict],
-               roof_model: Optional[dict], rules: dict, looks: Optional[dict] = None) -> dict:
+               roof_model: Optional[dict], rules: dict, looks: Optional[dict] = None,
+               style: Optional[dict] = None) -> dict:
     """The facade kit (pure; Milestone 13 T6): ``{"boxes", "looks", "assumed", "summary"}``. Reveals around the
     windows of the families without surrounds; gutters along the eaves edges of a pitched roof and a downpipe
     ``KIT["downpipe_end_m"]`` from each eaves edge's start corner plus one every ``downpipe_every_m``, from the eaves
@@ -805,8 +847,11 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
     # 4. guards in front of the openings over a drop (26 Oct 2026, user on real06: "are the people going to jump
     # off from it?"): every outside door, gap or window whose bottom is less than guard_sill over its floor, over a
     # drop of guard_min_drop, opening onto no balcony or terrace, and every opening the architect gave a ``guard``
-    # (a French window): a frameless glass guard across its whole width (glass in a channel, a cap rail), reaching
-    # guard_top over the floor. Two thin bars 0.5 m apart had been "the guard".
+    # (a French window): a guard across its whole width in the house's balustrade language (details.balustrade_kind,
+    # as the stairs and balconies), reaching guard_top over the floor. Two thin bars 0.5 m apart had been "the guard".
+    from wenart.blender import details as D
+
+    guard_kind = D.balustrade_kind(style)
     rooms = [r for r in building.get("rooms") or [] if isinstance(r, dict) and len(r.get("polygon") or []) >= 3]
     for rec in (S.outer_openings(building, levels, ground_outline, outlines, kinds=("door", "window", "opening"))
                 if len(ground_outline or []) >= 3 else []):
@@ -834,7 +879,7 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
         fx, fy = cx + ox * off, cy + oy * off
         p = (fx - ux * w / 2.0, fy - uy * w / 2.0)
         q = (fx + ux * w / 2.0, fy + uy * w / 2.0)
-        boxes += guard_boxes(p, q, rec["bottom"], top, lv["id"], o["id"])
+        boxes += guard_boxes(p, q, rec["bottom"], top, lv["id"], o["id"], guard_kind)
     counts: dict[str, int] = {}
     for b in boxes:
         counts[b["kind"]] = counts.get(b["kind"], 0) + 1

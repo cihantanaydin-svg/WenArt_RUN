@@ -12,7 +12,7 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
 - M2 every fixture and table works at its height (the built top of a washbasin, a kitchen worktop, a dining table, a
   desk over its room's floor);
 - M3 every outside opening whose bottom is less than ``GUARD_SILL_M`` over its floor and more than ``DROP_M`` over
-  the ground outside has a guard (the facade kit's glass guard) or lands on a balcony, terrace or platform;
+  the ground outside has a guard (the facade kit's guard) or lands on a balcony, terrace or platform;
 - M4 no door or bare gap of an upper floor opens onto nothing (``architect.outer_gaps`` on the built openings);
 - M5 the rain water: downpipes at least ``facade.KIT["pipe_gap_m"]`` apart, at most one per
   ``area_per_pipe_m2`` of roof (at least 2), no gutter run shorter than ``GUTTER_MIN_M``;
@@ -156,7 +156,7 @@ def guards_and_air(built: dict, prep: dict, plan_boxes: list) -> tuple[list[dict
     """M3 (a guard before every low opening over a drop) and M4 (no upper-floor door or gap onto nothing)."""
     from wenart.blender import architect as AR
     from wenart.blender import site as S
-    guarded = {str(b.get("parent")) for b in plan_boxes if b.get("kind") == "guard_glass"}
+    guarded = {str(b.get("parent")) for b in plan_boxes if b.get("kind") in ("guard_glass", "railing")}
     m3, m4, n3, n4 = [], [], 0, 0
     gaps = {g["rec"]["opening"]["id"]: g for g in AR.outer_gaps(built, prep)}
     for g in gaps.values():

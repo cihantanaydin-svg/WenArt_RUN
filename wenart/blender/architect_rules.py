@@ -301,7 +301,7 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
             drop = float(lv["elevation"]) - ground
             if (a is None or b is None) and not (out_a and out_b) and drop >= LIMITS["sill_drop_m"]:
                 if sill + 1e-6 < LIMITS["sill_safe_m"]:
-                    # 26 Oct 2026: the low sill gets a real guard by default (a glass guard across the window,
+                    # 26 Oct 2026: the low sill gets a real guard by default (a guard across the window,
                     # 1.10 m over the floor); "keep: a guard is fitted" had fitted none
                     if o.get("guard"):
                         _ok(w3, o["id"], f"sill {sill:.2f} m with a guard to {float(o['guard'].get('top_m') or 1.1):.2f} m")
@@ -309,7 +309,7 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
                         _open(w3, o["id"], f"{o['id']} on level {o['level_id']} ({drop:.1f} m over the ground) has "
                               f"its sill at {sill:.2f} m", f"Does {o['id']} need a higher sill, or is it a French "
                               f"window with a guard?",
-                              [AA.option("french_window", "keep the low sill: a glass guard across the window",
+                              [AA.option("french_window", "keep the low sill: a guard across the window",
                                          door_id=o["id"]), AA.option("raise_sill"), AA.option("keep")],
                               where=where, default=f"french_window")
                 else:

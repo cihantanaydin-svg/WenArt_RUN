@@ -374,7 +374,7 @@ NO_TOOL_REASON: dict[str, str] = {
     "opening_sense": "a door off its floor or into the air is the architect's (E1, O2, D4: its defaults turn such a "
                      "door into a window or set its threshold); reported to the architect for the next build",
     "guard": "a guard in front of an opening or a void is built by code (the architect's W3 / K2 and the facade's "
-             "glass guard); reported to the architect",
+             "guard); reported to the architect",
     "opening_style": "the door and window models are chosen by code for the whole building (one language); reported "
                      "to the openings stage",
     "rain_water": "the gutters and downpipes are planned by code for the whole roof (A1); reported to the architect",

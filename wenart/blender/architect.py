@@ -988,7 +988,7 @@ def review_outside_door_landings(building: dict, prep: Optional[dict] = None) ->
     openings as they stand after the answers (26 Oct 2026; the site's entrance records were read before: a door the
     answers turned into a window still asked). A door into the air (over ``INTO_AIR_DROP_M``, nothing outside) on
     an upper floor, and a bare gap in the facade with nothing to land on, are read as windows by default
-    (``door_to_window``); the French window with a glass guard is the other choice."""
+    (``door_to_window``); the French window with a guard is the other choice."""
     e1, o2 = _q("E1"), _q("O2")
     if prep is None or prep.get("site") is None:
         for e in (building.get("site") or {}).get("entrances") or []:
@@ -1197,7 +1197,7 @@ def defaults_of(review_rec: dict, answers: dict, tried: Optional[dict] = None) -
     """The safe default answer of every open point that has one (``chain_of``: its default, then its fallbacks) and
     no answer of the AI or the user (26 Oct 2026, user: "I need ai models to see understand and fix everything before
     even I look at it"): a door into the air on an upper floor and a bare gap in the facade become windows, a low sill
-    gets a glass guard, a door gets its floor's threshold, a wall-hung basin hangs at its working height, a piece
+    gets a guard, a door gets its floor's threshold, a wall-hung basin hangs at its working height, a piece
     leaves a doorway or a window. A point still open under the architect's own answer (it could not be carried out)
     gets the next choice of its chain that ``tried`` (``{key: [choices]}``) does not hold. ``build.prepare`` carries
     them out (``by: architect``, the lowest source: the AI's and the user's answers win); the points without a safe
