@@ -64,7 +64,7 @@ FAMILY_WORDS: dict[str, tuple[str, ...]] = {
     "minimal": ("minimalist",), "modern": ("modern", "contemporary"), "industrial": ("industrial", "loft"),
     "mediterranean": ("mediterranean",), "classic": ("classic", "traditional"), "rustic": ("rustic", "farmhouse"),
 }
-K_REFERENCES = 10               # photos kept per space and family
+K_REFERENCES = 8                # photos kept per space and family
 CANDIDATES = 60                 # candidates scored per space and family
 MIN_SIDE_PX = 700               # a photo smaller than this both ways is too small to read a room from
 DUPLICATE_COS = 0.95            # two photos this similar (image embeddings) are one

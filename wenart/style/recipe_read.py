@@ -20,6 +20,8 @@ from typing import Optional
 
 from wenart.style.recipe import SYSTEM, aggregate, default_recipe, photo_prompt, photo_schema
 
+READ_WORKERS = 6
+
 
 def read_photo(model, path, space_words: str, family: Optional[str], interior: bool, *, call_id: str = "") -> dict:
     """One reference photo's answer through the vision model's ``critic`` call (strict schema) or ``{"error"}``."""
@@ -53,11 +55,19 @@ def recipe_for(model, manifest: dict, root, cache: Optional[Path] = None) -> dic
         old = json.loads(path.read_text(encoding="utf-8"))
         if old.get("set_key") == key:
             return old
-    answers = []
-    for i, p in enumerate(manifest.get("photos") or []):
-        ans = read_photo(model, folder / p["file"], words[0], family, interior,
-                         call_id=f"recipe-{space}-{i + 1}")
-        answers.append(dict(ans, photo=p["id"]))
+    from concurrent.futures import ThreadPoolExecutor
+
+    photos = list(manifest.get("photos") or [])
+
+    def one(ip):
+        i, p = ip
+        try:
+            ans = read_photo(model, folder / p["file"], words[0], family, interior, call_id=f"recipe-{space}-{i + 1}")
+        except Exception as exc:  # noqa: BLE001 - one unreadable photo is left out
+            ans = {"error": f"{type(exc).__name__}: {str(exc)[:160]}"}
+        return dict(ans, photo=p["id"])
+    with ThreadPoolExecutor(max_workers=READ_WORKERS) as pool:      # vLLM batches the parallel calls
+        answers = list(pool.map(one, enumerate(photos)))
     rec = dict(aggregate(answers, interior), space=space, family=family, set_key=key,
                model=getattr(model, "model", ""), answers=answers)
     path.write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
