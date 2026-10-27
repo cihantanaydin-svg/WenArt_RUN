@@ -201,7 +201,13 @@ Furniture name texts of 26 Oct 2026 (the auditor Argus, source ledger check A6; 
   member as their answer or in their reason (``names.mentioned_types``: "likely a bathtub or shower") gets it; a type
   the room may not hold (a bunk bed in a bathroom) is ignored and said; a drawn size outside the type's ranges takes
   the nearest real product inside the drawn footprint (``product_inside``; ``adjusted_by_ai`` by code, ``drawn_*``
-  kept, the plan crop), the reading's ``fix_fixed`` then checks it like any fixed piece.
+  kept, the plan crop), the reading's ``fix_fixed`` then checks it like any fixed piece. 27 Oct 2026
+  (``fixture_seat``; user on real06 run 180412: "clashing sink and bath, also bath is not in proper place"): an outline
+  outside the type's ranges is a misread or merged one (real06: the corner bath read with its screen and the vanity's
+  edge and taps, 2.54 x 1.01 m at 161.5 deg around the basin), so neither its centre nor its box angle is the piece's:
+  the product of a fixed type is seated in it (``_seated_member``: its back on a wall and along it, clear of the
+  room's other drawn fixed pieces and the door swings, covering most of the outline, a corner counting more; its
+  front away from its wall). Only when no such place exists are the centre and the rotation kept as before.
 - **A wardrobe run the room's program needs** (``_wardrobe_run_type``, method ``group_member`` after the group-member
   rule): in a dressing room (``program.room_kind`` ``dressing`` / ``program.dressing_room``: wardrobe runs along its
   walls) every untyped drawn footprint with its long side on a wall, a wardrobe run's length (the size table, +15 %)
@@ -1062,26 +1068,61 @@ def ai_named_members(building: dict) -> list[dict]:
         drawn = [float(v) for v in f["footprint"]["size"]]
         crop = _crop_of(f)
         resized = abs(size[0] - drawn[0]) > 1e-6 or abs(size[1] - drawn[1]) > 1e-6
+        # 27 Oct 2026 (module docstring): an outline outside the ranges is misread or merged: a fixed type is seated
+        seated = _seated_member(building, f, room, ftype, mates) if resized else None
+        if seated is not None:
+            how = (f"; the drawn {drawn[0]:.2f} x {drawn[1]:.2f} m is outside the {ftype}'s range: {seated['reason']} "
+                   f"(CLAUDE.md: a misread size), drawn_footprint kept")
+        elif resized:
+            how = (f"; the drawn {drawn[0]:.2f} x {drawn[1]:.2f} m is outside the {ftype}'s range: the nearest real "
+                   f"product inside it, {size[0]:.2f} x {size[1]:.2f} m, centre and rotation kept (CLAUDE.md: a "
+                   f"misread size), drawn_footprint kept")
+        else:
+            how = ""
         reason = (f"{ftype}: {room['id']} misses it ({'; '.join(wanted[ftype][:2])}) and the AI passes named it "
                   f"({'; '.join(named[ftype][:3])})"
                   + (f"; ignored: {', '.join(ignored)} (not a piece of a {' + '.join(PL.room_types(building, room))} "
                      f"room)" if ignored else "")
-                  + (f"; the drawn {drawn[0]:.2f} x {drawn[1]:.2f} m is outside the {ftype}'s range: the nearest real "
-                     f"product inside it, {size[0]:.2f} x {size[1]:.2f} m, centre and rotation kept (CLAUDE.md: a "
-                     f"misread size), drawn_footprint kept" if resized else "")
-                  + (f"; plan crop {crop}" if crop else ""))
+                  + how + (f"; plan crop {crop}" if crop else ""))
         ev = _evidence(f, reason, CONF_GROUP)
         ev.update({"rule": AI_MEMBER_RULE, "missing": wanted[ftype][:3],
                    "ai_reasons": [str(c.get("reason") or "") for c in cands if c.get("reason")][:2]})
         prop = {"piece_id": f["id"], "type": ftype, "type_method": AI_MEMBER_METHOD, "reason": reason,
                 "confidence": CONF_GROUP, "evidence": ev, "drawn_type": f.get("type"), "crop": crop}
-        if resized:
+        if seated is not None:
+            prop["footprint"] = dict(seated["footprint"])
+            prop["front_deg"] = seated["front_deg"]
+        elif resized:
             prop["footprint"] = dict(f["footprint"], size=[round(size[0], 4), round(size[1], 4)])
         out.append(prop)
         # the slot is taken, with the alternatives of its role ("shower|bathtub": one of them)
         lines = set(wanted[ftype])
         taken.setdefault(room["id"], set()).update(t for t, ls in wanted.items() if set(ls) & lines)
     return out
+
+
+def _seated_member(building: dict, f: dict, room: dict, ftype: str, mates: list[dict]) -> Optional[dict]:
+    """27 Oct 2026 (``ai_named_members``, ``fixture_seat`` rule 1): the product of the fixed type ``ftype`` seated in
+    the drawn outline of ``f`` (its back on a wall of ``room`` and along it, clear of the room's other built fixed
+    pieces and of the door swings, covering most of the outline), else None (no fixed type that stands on its own, or
+    no such place)."""
+    from shapely.geometry import Polygon
+
+    from wenart.furniture import fixture_seat as FS
+    from wenart.ingest.generic import reading as RD
+
+    if ftype not in FS.SEAT_TYPES or len(room.get("polygon") or []) < 3:
+        return None
+    me = dict(f, type=ftype)
+    obstacles = [FS.footprint_rect(g["footprint"]) for g in mates if g.get("build") is not False
+                 and g.get("footprint") and g.get("type") in schemas.FIXED_TYPES and not FS.hosted_pair(me, g)]
+    swings = RD.swing_polys(building, room)
+
+    def blocked(r) -> bool:
+        poly = Polygon(r)
+        return any(poly.intersection(s).area > RD.SWING_SHARE * poly.area for s in swings)
+
+    return FS.seat(ftype, f["footprint"], room["polygon"], obstacles, blocked=blocked if swings else None)
 
 
 def _apply_ai_member(item: dict, prop: dict) -> None:
@@ -1105,8 +1146,13 @@ def _apply_ai_member(item: dict, prop: dict) -> None:
         item.setdefault("drawn_height", None)
         before = copy.deepcopy(item.get("footprint"))
         item["footprint"] = dict(prop["footprint"])
+        changed = {"type": prop.get("drawn_type"), "footprint": before}
+        if prop.get("front_deg") is not None and item.get("front_deg") is None:
+            # 27 Oct 2026: a seated fixture faces away from its wall (``_seated_member``)
+            changed["front_deg"] = None
+            item["front_deg"] = round(G.normalise_angle(float(prop["front_deg"])), 3)
         label = {"by": "code", "stage": "reading", "rule": AI_MEMBER_METHOD, "reason": prop["reason"],
-                 "changed": {"type": prop.get("drawn_type"), "footprint": before}}
+                 "changed": changed}
         if prop.get("crop"):
             label["crop"] = prop["crop"]
         merge_code_label(item, label)

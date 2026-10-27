@@ -517,6 +517,18 @@
    "request": "Make Argus fix the outdoor problems by itself: a raised space nobody can reach gets a door (the widest window onto it), every open edge over a drop or onto a roof at its floor level gets a guard, a covered kind left open gets a light roof; each fix goes through the architect's checked path (dry re-check of the exact rule, nothing new breaks)",
    "lesson": "An outdoor-space finding of the model review (M10) is fixed by Argus with no model: O1 the widest window onto a raised space becomes its door (window_to_door), O2/O5 every open edge of one space gets a guard in one decision (guard_edge), O4 a covered kind left open gets a light roof (cover_space); each goes through argus_ai.act (dry re-check of the same rule, no new critical finding, the model review no worse).",
    "question": null
+  },
+  {
+   "id": "UL46",
+   "date": "2026-10-27",
+   "area": "furniture",
+   "status": "rule",
+   "checks": [
+    "F5"
+   ],
+   "request": "clashing sink and bath, also bath is not in proper place: drawn sanitary ware never stands in another drawn fixture; a bath read as a merged outline (bath, screen, vanity edge) is seated as a real product on its wall beside the basin, not turned across the room",
+   "lesson": "Drawn fixed equipment stands where it is drawn and never through another drawn fixture (wenart/furniture/fixture_seat.py). An outline outside its type's sizes is misread or merged (a corner bath read with its screen and the vanity's edge): neither its centre nor its box angle is the piece's, so the real product is seated in it, its back on a wall and along it, covering most of the outline, clear of the other drawn fixtures and the door swings, a corner counting more. Two drawn fixtures that cut each other: the weaker reading gives way, sliding along its wall (at most 0.5 m), else seated in its drawn outline. The reading (ai_named_members, fix_fixed), the build's clash resolver (F5, the fitted model follows a new size), the architect's move_piece and Argus (a code decision from every clash left) apply it.",
+   "question": "Does every drawn bath, shower, basin and WC stand on its wall, clear of every other drawn fixture?"
   }
  ]
 }

@@ -1368,7 +1368,9 @@ def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from=Non
     """The piece moved the shortest way out of the doorway or the window strip of the openings ``away_from`` names
     and off the pieces it names (ids, a list or comma separated; 27 Oct 2026: a piece too, e.g. a basin over a
     drawn bath) to a free place in its room (``clashes.find_unit_place``: inside the room, clear of the other pieces
-    and the doorways; at most 0.5 m for a drawn piece, 1 m for an added one)."""
+    and the doorways; at most 0.5 m for a drawn piece, 1 m for an added one). 27 Oct 2026: a drawn fixture first
+    slides along its wall, else is seated in its drawn outline (``fixture_seat.free_fixture``, ``clashes.apply_fixture``:
+    a misread or merged outline becomes the real product on a wall, the fitted model follows)."""
     from wenart.blender import clashes as CL
 
     f = _piece(plan, piece_id)
@@ -1391,6 +1393,18 @@ def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from=Non
              and g.get("footprint") and g.get("level_id") == f.get("level_id")
              and str(g.get("type") or "") not in CL.FLOOR_ONLY + CL.SKIP_TYPES]
     doors = [d for d in CL.doorways(plan.b, f.get("level_id"))]
+    if room and CL.FS.drawn_fixture(f):
+        # 27 Oct 2026 (``fixture_seat``): a drawn fixture keeps its wall: it slides along it, else it is seated in its
+        # drawn outline (a misread or merged one: real06's bath over its basin); the general move is the fallback
+        sf = CL.shape(f)
+        fix = CL.FS.free_fixture(f, room["polygon"], box + [p for g, sg in peers if CL.must_clear(f, g) for p in sg]
+                                 + [d for d in doors if CL.shape_depth(sf, [d]) <= CL.CLASH_TOL_M])
+        if fix is not None:
+            reason = f"{fix['reason']}, clear of {away_from} (the answer to {key})"
+            CL.apply_fixture(f, fix, {"by": "architect", "rule": f"architect {key}", "reason": reason},
+                             plan.b.get("decor") or [])
+            _mark(f, "adjusted_by_ai", key, ans, reason)
+            return True, f"{piece_id}: {reason}"
     move = CL.find_unit_place([f], box, peers, {f.get("room_id"): room["polygon"]} if room else {}, doors)
     if move is None:
         return False, f"{piece_id}: no free place within the move limit clear of {away_from}"

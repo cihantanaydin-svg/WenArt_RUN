@@ -485,6 +485,44 @@ def outdoor_decisions(rep: dict, building: dict) -> list[dict]:
     return out
 
 
+CLASH_OPEN = re.compile(r"([A-Za-z0-9_\-]+) \([a-z_]+\) and ([A-Za-z0-9_\-]+) still overlap")
+CLASH_WARNING = re.compile(r"furniture clash left: ([A-Za-z0-9_\-]+) and ([A-Za-z0-9_\-]+) overlap")
+
+
+def clash_decisions(rep: dict, building: dict) -> list[dict]:
+    """27 Oct 2026 (user on real06 run 180412: "clashing sink and bath, also bath is not in proper place"; Argus fixes
+    what remains by itself): every clash the build's resolver left (the architect's open F5 "<a> (<type>) and <b>
+    still overlap", the warning "furniture clash left: <a> and <b> overlap") becomes a ``move_piece`` decision with no
+    model: the piece that gives way moves away from the other (two drawn fixtures: ``fixture_seat.gives_way``, the
+    weaker reading; else the resolver's lesser one: an accessory before seating before an anchor, an added piece
+    before a drawn one, the smaller). ``architect_actions.act_move_piece`` slides a drawn fixture along its wall or
+    seats it in its drawn outline, else moves the piece to the nearest free place. Each goes through the checked path
+    of the AI's decisions (``act``). One decision per pair."""
+    from wenart.blender import clashes as CLS
+    from wenart.furniture import fixture_seat as FS
+
+    pieces = {f.get("id"): f for f in building.get("furniture") or []}
+    texts = [(str(f.get("message") or ""), f) for f in rep.get("findings") or []]
+    texts += [(str(w), None) for w in rep.get("unmatched_warnings") or []]
+    out, seen = [], set()
+    for text, finding in texts:
+        m = CLASH_OPEN.search(text) or CLASH_WARNING.search(text)
+        if not m:
+            continue
+        a, b = pieces.get(m.group(1)), pieces.get(m.group(2))
+        if a is None or b is None or a is b or a.get("build") is False or b.get("build") is False:
+            continue
+        pair = tuple(sorted((str(a["id"]), str(b["id"]))))
+        if pair in seen:
+            continue
+        seen.add(pair)
+        mover = FS.gives_way(a, b) if FS.fixture_pair(a, b) else min((a, b), key=CLS._rank)
+        other = b if mover is a else a
+        out.append({"action": "move_piece", "element": mover["id"], "value": other["id"],
+                    "aid": f"c:F5:{mover['id']}", "reason": f"Argus (code): {text}"[:300], "finding": finding})
+    return out
+
+
 def code_actions(rep: dict, building: dict) -> tuple[list[dict], list[dict], list[str]]:
     """The fixes Argus's code lines name exactly, as tool calls with no model (``(actions, work, revoke keys)``):
     the ledger's ``type_piece`` (a furniture name written beside an untyped piece), N5 (a room missing a piece of
@@ -932,6 +970,10 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
     c_actions, c_work, revoke = code_actions(rep, inp.stage("build") or building)
     have_d = {(d["action"], d["element"]) for d in decisions}
     decisions += [d for d in outdoor_decisions(rep, inp.stage("build") or building)
+                  if (d["action"], d["element"]) not in have_d]
+    have_d = {(d["action"], d["element"]) for d in decisions}
+    # 27 Oct 2026: the clashes the build left (open F5) are moved apart by code, with no model
+    decisions += [d for d in clash_decisions(rep, inp.stage("build") or building)
                   if (d["action"], d["element"]) not in have_d]
     have = {(x["tool"], json.dumps(x["args"], sort_keys=True)) for x in actions}
     for x, w in zip(c_actions, c_work):

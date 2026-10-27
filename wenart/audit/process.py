@@ -46,6 +46,9 @@ WARN_RULES = (
      "items the reading found and no stage used"),
     ("not_cut", re.compile(r"not cut through|is not cut\b", re.I), "major", "no_sense",
      "an opening of the documents is not cut through its wall"),
+    # 27 Oct 2026 (real06 run 180412, two runs in a row: the bath through its basin): a recurring kind gets its rule
+    ("clash_left", re.compile(r"furniture clash left", re.I), "major", "geometry",
+     "two pieces still cut each other after the build's clash resolver (F5): Argus moves the one that gives way"),
     ("drawn_mismatch", re.compile(r"vs the drawn .*?\(([+-]?\d+) cm\)", re.I), "major", "misread",
      "the model differs from the drawn section or elevation"),
     ("not_read", re.compile(r"entity types not read|not read\b|could not read|unreadable", re.I), "minor", "lost",
