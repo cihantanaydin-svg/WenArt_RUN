@@ -1252,7 +1252,7 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
         summary["objects"][piece["id"]] = ob
         if ob is not None and needs_dressing(piece, entry):
             dress = _dress_bed(piece, entry, ob, piece_floor_z(building, level, piece), collection, mats, assumed,
-                               warnings)
+                               warnings, casters)
             if dress is not None:
                 summary["objects"][f"{piece['id']}#dressing"] = dress     # S5 rests on it; S2 skips it
                 summary["dressed_beds"].append(piece["id"])
@@ -1362,10 +1362,15 @@ def dressing_mesh(parts: list) -> tuple[list, list, list]:
     return verts, faces, keys
 
 
-def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings):
+LEAN_CASTER = "{}#lean"           # casters key: a dressed bed and its pillows, what a decor cushion leans against
+
+
+def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, casters=None):
     """The procedural duvet and pillows of a bed model without bedding (§4.7: fixes the bare mattresses): draped on
     the evaluated bed mesh (``textiles.duvet_and_pillows``), one object ``dress_<id>`` with the bed's ``wenart_id``
-    and pass index (a design detail of the piece), recorded on the entry (``dressing``) and in ``assumed``."""
+    and pass index (a design detail of the piece), recorded on the entry (``dressing``) and in ``assumed``. 27 Oct
+    2026: ``casters[LEAN_CASTER]`` gets the bed with its pillows only (``textiles.lean_parts``): the decor cushions
+    lean against the pillows, never the duvet's fold."""
     from wenart.blender import rest as R
     from wenart.blender import textiles as T
 
@@ -1377,6 +1382,10 @@ def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings):
     if plan is None:
         warnings.append(f"{piece['id']}: no mattress top found on the bed model; no bedding added")
         return None
+    if casters is not None:
+        pv, pf = T.lean_parts(plan["parts"])
+        casters[LEAN_CASTER.format(piece["id"])] = R.MultiCaster([R.BVHCaster(verts, faces)]
+                                                                 + ([R.BVHCaster(pv, pf)] if pf else []))
     dverts, dfaces, keys = dressing_mesh(plan["parts"])
     used = sorted(set(keys), key=keys.index)
     unverified = entry.get("status") == "unverified"
@@ -1436,6 +1445,8 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
         return None
     frame = item.get("host_frame") if isinstance(item.get("host_frame"), dict) else {}
     support = hosted_support(item, host)
+    if support == "headboard" and casters.get(LEAN_CASTER.format(host["id"])) is not None:
+        caster = casters[LEAN_CASTER.format(host["id"])]       # 27 Oct 2026: against the pillows, not the duvet
     file, reason = resolve_asset(item.get("asset"), assets_dir)
     local, geo = None, None
     if file is not None and dtype != "throw":

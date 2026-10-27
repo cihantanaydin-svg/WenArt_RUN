@@ -517,6 +517,16 @@
    "request": "Make Argus fix the outdoor problems by itself: a raised space nobody can reach gets a door (the widest window onto it), every open edge over a drop or onto a roof at its floor level gets a guard, a covered kind left open gets a light roof; each fix goes through the architect's checked path (dry re-check of the exact rule, nothing new breaks)",
    "lesson": "An outdoor-space finding of the model review (M10) is fixed by Argus with no model: O1 the widest window onto a raised space becomes its door (window_to_door), O2/O5 every open edge of one space gets a guard in one decision (guard_edge), O4 a covered kind left open gets a light roof (cover_space); each goes through argus_ai.act (dry re-check of the same rule, no new critical finding, the model review no worse).",
    "question": null
+  },
+  {
+   "id": "UL46",
+   "date": "2026-10-27",
+   "area": "decor",
+   "status": "process",
+   "checks": [],
+   "request": "Flying pillows: decor cushions on a bed lean against its pillows or headboard in the bed's head zone, never against the duvet's fold in the middle of the bed (they stood upright on the duvet in front of the pillows)",
+   "lesson": "A decor cushion on a dressed bed rests on the bed and its pillows only (textiles.lean_parts, furniture.LEAN_CASTER), never on the duvet or its fold; a backrest hit that leaves it more than rest.BED_HEAD_ZONE_M from the head edge is no headboard (the head edge is used).",
+   "question": null
   }
  ]
 }

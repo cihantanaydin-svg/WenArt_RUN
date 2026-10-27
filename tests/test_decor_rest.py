@@ -334,3 +334,30 @@ def test_a_cushion_takes_a_smaller_lean_when_the_back_leaves_no_room_for_the_ful
     falls back to 16, then 12 degrees before the cushion is given up."""
     assert R.LEAN_DEG > R.LEAN_FALLBACK_DEG[0] > R.LEAN_FALLBACK_DEG[-1] >= 10.0
     assert R.HEADBOARD_LEAN_DEG > R.LEAN_DEG
+
+
+def test_bed_cushions_lean_on_the_pillows_never_on_the_duvet_fold():
+    """27 Oct 2026 (user on real06: "flying pillows"): on a dressed bed with no headboard the cushions took the duvet's
+    turn-down fold in the middle of the bed for the backrest and stood upright on the duvet in front of the pillows.
+    The build rests them on the bed and its pillows only (``textiles.lean_parts``, ``furniture.LEAN_CASTER``)."""
+    fp = {"center": [2.0, 3.0], "size": [1.6, 2.0], "rotation_deg": 90.0}
+    v, f = boxes_mesh([(-0.8, -1.0, 0.0, 0.8, 1.0, 0.42)], fp["center"], fp["rotation_deg"])     # no headboard
+    bed = R.MeshCaster(v, f)
+    got = T.duvet_and_pillows(bed, fp, 0.0)
+    pv, pf = T.lean_parts(got["parts"])
+    assert pf and len(pv) == sum(len(p["verts"]) for p in got["parts"] if p["role"] == "pillow")
+    allv, allf = merge((v, f), *[(p["verts"], p["faces"]) for p in got["parts"]])
+    cushion = T.cushion_mesh(0.5, 0.15, 0.5)
+    item = {"id": "c", "type": "cushion", "rotation_deg": 90.0,
+            "center": list(R.to_world(fp["center"], 90.0, -0.3, 0.775))}
+    pillow_y = min(got["record"]["pillow_local_y"])
+    old = R.plan_decor(item, piece("bed_double", fp), R.MeshCaster(allv, allf), cushion["verts"], cushion["faces"],
+                       "headboard")
+    # with the duvet in the caster the fold mid-bed is no headboard any more (BED_HEAD_ZONE_M): never mid-bed
+    assert "not_rested" in old or R.to_local(fp["center"], 90.0, *old["pose"]["center"])[1] >= 1.0 - R.BED_HEAD_ZONE_M
+    plan = R.plan_decor(item, piece("bed_double", fp), R.MultiCaster([bed, R.MeshCaster(pv, pf)]), cushion["verts"],
+                        cushion["faces"], "headboard")
+    assert "not_rested" not in plan
+    ly = R.to_local(fp["center"], 90.0, *plan["pose"]["center"])[1]
+    assert pillow_y - 0.3 <= ly <= pillow_y                                         # against the pillows' front
+    assert plan["pose"]["z"] == pytest.approx(0.42 - R.SOFT_SINK_M, abs=1e-3)        # on the mattress

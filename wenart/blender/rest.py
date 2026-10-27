@@ -80,6 +80,10 @@ SEAT_PROBE_SHARES = (0.30, 0.45, 0.60, 0.75)   # the seat is probed at these sha
 BED_SEAT_PROBE_SHARES = (0.55, 0.65, 0.75)     # the mattress under the pillows, never the foot
 BED_BACK_MIN_HIT_M = 0.02                      # back rays start mid-bed; a closer hit is the start inside a bulge
 BED_PROBE_MIN_Z_M = 0.03                       # back rays at least this far above the mattress
+# 27 Oct 2026 (user on real06: "flying pillows"): a cushion leaning on a bed stands in its head zone: its centre within
+# this of the head edge (a pillow up to 0.5 m deep and a cushion in front of it); a "backrest" further out (the
+# duvet's fold mid-bed) is no headboard
+BED_HEAD_ZONE_M = 0.65
 ARM_GAP_M = 0.005                 # a cushion stays this far off an arm
 MIN_CUSHION_W = 0.30              # a cushion squeezed narrower than this between the arms is not placed
 SHIFT_STEPS = 4                   # a top item tries its spot, then this many steps towards the host centre
@@ -473,8 +477,8 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
                 what = "the backrest found by horizontal rays"
                 if len(probe_xs) > 1:
                     what += " (the nearest of three over the item's width: the centre ray passed between two things)"
-            if bed and backs and cy_local < 0.0:
-                backs = []                    # fix round after P4b: a "headboard" that leaves the item at the foot
+            if bed and backs and cy_local < max(0.0, hd / 2.0 - BED_HEAD_ZONE_M):
+                backs = []                    # P4b / 27 Oct 2026: a "headboard" that leaves the item out of the head zone
             if not backs:
                 cy_local = hd / 2.0 - back_face_offset(t, h * 0.5, lean_deg)[0]
                 what = "no backrest hit: against the footprint's back edge (the wall)"

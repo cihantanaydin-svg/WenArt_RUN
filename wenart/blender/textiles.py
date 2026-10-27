@@ -197,6 +197,22 @@ def duvet_and_pillows(caster, host_fp: dict, floor_z: float) -> Optional[dict]:
     return {"parts": parts, "pillows": poses, "duvet": got, "record": record}
 
 
+LEAN_ROLES = ("pillow",)          # the bedding a decor cushion may lean against (never the duvet or its fold)
+
+
+def lean_parts(parts: list) -> tuple[list, list]:
+    """The world mesh ``(verts, faces)`` of the bedding parts a decor cushion leans against (pure; 27 Oct 2026, user on
+    real06: "flying pillows"): the pillows only. The cushions of a dressed bed without a headboard took the duvet's
+    turn-down fold in the middle of the bed for the backrest and stood upright on the duvet in front of the pillows."""
+    verts, faces = [], []
+    for part in parts or []:
+        if part.get("role") in LEAN_ROLES:
+            off = len(verts)
+            verts.extend(part["verts"])
+            faces.extend([[i + off for i in f] for f in part["faces"]])
+    return verts, faces
+
+
 def bedding_head_problems(record: dict) -> list[str]:
     """Fix round after P4b (17 Oct 2026; integration of the furniture track's ask): why the bedding of a dressing
     record is not at the head of the bed: a pillow centre at local y <= 0 (the foot half) or the duvet's head edge
