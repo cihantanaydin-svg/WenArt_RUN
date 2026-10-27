@@ -1622,11 +1622,88 @@ def ceiling_planes_of(building: Optional[dict], level_id: Optional[str]) -> list
     return [list(p) for p in R.ceiling_planes(model, level)]
 
 
+# 27 Oct 2026 (user on real06: "this in front of a window not making sense": a drawn dresser under a 0.90 m sill got
+# a 1.44 m tall chest that covered the window): a floor piece standing in front of a window gets no model taller than
+# the window's sill (less WINDOW_SILL_GAP_M), when its type has real products that low.
+WINDOW_SILL_GAP_M = 0.02         # a piece's top stays this far under the sill of the window it stands in front of
+WINDOW_FRONT_M = 0.45            # a piece this close to a window's wall line ...
+WINDOW_OVERLAP_M = 0.10          # ... overlapping its width by this much along the wall stands in front of it
+
+
+def window_cap(building: Optional[dict], piece: dict) -> Optional[float]:
+    """The height a floor piece in front of a window may reach (pure; module note above): the lowest sill of the
+    windows of its level whose wall line lies within ``WINDOW_FRONT_M`` of its footprint and whose width it overlaps
+    by ``WINDOW_OVERLAP_M`` along the wall, less ``WINDOW_SILL_GAP_M``; None when it stands in front of no window,
+    hangs on a wall (a mount height), is fixed equipment (built as drawn), is no type whose back stands on a wall
+    (``infer.needs_wall``: a chair or an armchair is not against the window), or its type has no real product that
+    low (a wardrobe: the placement moves it)."""
+    from shapely.geometry import LineString, Polygon
+
+    from wenart import geometry as G
+    from wenart.blender import proxies as PX
+
+    from wenart.furniture import infer as INF
+    from wenart.furniture import schemas as SC
+
+    fp = piece.get("footprint") if isinstance(piece.get("footprint"), dict) else None
+    if not isinstance(building, dict) or not fp or not fp.get("center") or not fp.get("size"):
+        return None
+    ftype = str(piece.get("type") or "")
+    if ftype in SC.FIXED_TYPES or not INF.needs_wall(ftype):      # built as drawn; a free-standing piece moves
+        return None
+    try:
+        if PX.mount_bottom(piece)[0] > 0.0:
+            return None
+        poly = Polygon(G.rotated_rectangle((float(fp["center"][0]), float(fp["center"][1])),
+                                           (float(fp["size"][0]), float(fp["size"][1])),
+                                           float(fp.get("rotation_deg") or 0.0)))
+    except (KeyError, TypeError, ValueError, IndexError):
+        return None
+    walls = {w.get("id"): w for w in building.get("walls") or []}
+    caps = []
+    for o in building.get("openings") or []:
+        if o.get("type") != "window" or o.get("level_id") != piece.get("level_id") or o.get("build") is False:
+            continue
+        w = walls.get(o.get("wall_id"))
+        sill = o.get("sill_height")
+        if w is None or not isinstance(sill, (int, float)) or not o.get("center"):
+            continue
+        (x0, y0), (x1, y1) = w["start"][:2], w["end"][:2]
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length < 1e-6:
+            continue
+        ux, uy = (x1 - x0) / length, (y1 - y0) / length
+        cx, cy = float(o["center"][0]), float(o["center"][1])
+        half = float(o.get("width") or 0.9) / 2.0
+        line = LineString([(cx - ux * half, cy - uy * half), (cx + ux * half, cy + uy * half)])
+        if poly.distance(line) > WINDOW_FRONT_M:
+            continue
+        ts = [(px - cx) * ux + (py - cy) * uy for px, py in poly.exterior.coords]
+        if min(max(ts), half) - max(min(ts), -half) < WINDOW_OVERLAP_M:
+            continue
+        caps.append(float(sill) - WINDOW_SILL_GAP_M)
+    if not caps:
+        return None
+    heights = real_height_range(str(piece.get("type") or ""))
+    cap = round(min(caps), 4)
+    return cap if heights is None or heights[0] <= cap else None
+
+
 def piece_ceiling(building: Optional[dict], piece: dict, planes: Optional[list] = None) -> Optional[float]:
     """Fix round after P6a (module docstring): the height a model of ``piece`` may reach under a sloped ceiling: the
     lowest ceiling over its footprint's corners and centre above the level's floor (``ceiling_planes_of``, ``planes``
     when the caller has them; = ``decor.ceiling_over``) less its mount height (``proxies.mount_bottom``: a wall cabinet
-    hangs at 1.45 m); None on a flat level (no planes), without a building, a level or a footprint."""
+    hangs at 1.45 m); None on a flat level (no planes), without a building, a level or a footprint. 27 Oct 2026: and
+    never above the sill of a window it stands in front of (``window_cap``; ``CEILING_MARGIN_M`` is added back)."""
+    slope = _slope_ceiling(building, piece, planes)
+    sill = window_cap(building, piece)
+    if sill is not None:
+        sill = round(sill + CEILING_MARGIN_M, 4)          # under_ceiling takes the margin off again
+    caps = [c for c in (slope, sill) if c is not None]
+    return min(caps) if caps else None
+
+
+def _slope_ceiling(building: Optional[dict], piece: dict, planes: Optional[list] = None) -> Optional[float]:
     level_id = piece.get("level_id")
     fp = piece.get("footprint") if isinstance(piece.get("footprint"), dict) else None
     if not isinstance(building, dict) or not level_id or not fp or not fp.get("center") or not fp.get("size"):
@@ -2312,7 +2389,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         level_id = piece.get("level_id")
         if level_id not in planes_of:
             planes_of[level_id] = ceiling_planes_of(fitted, level_id)
-        return piece_ceiling(fitted, piece, planes_of[level_id]) if planes_of[level_id] else None
+        return piece_ceiling(fitted, piece, planes_of[level_id])     # 27 Oct 2026: a window's sill caps it too
 
     # 26 Oct 2026 (fix D): the role sets of the groups (the chairs of a table, the nightstands of a bed, the armchairs
     # of a seating group) and the one model each set takes (``role_set_fit``)

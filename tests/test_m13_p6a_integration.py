@@ -112,8 +112,10 @@ def test_piece_ceiling_reads_the_roof_as_the_decor_and_the_solver_do(furnished):
     for p in furnished["furniture"]:
         if p.get("level_id") == "L1" and p.get("type") not in schemas.MOUNTED_TYPES:
             fp = p["footprint"]
-            assert F.piece_ceiling(furnished, p) == pytest.approx(
-                D.ceiling_over(furnished, "L1", fp["center"], fp["size"], fp["rotation_deg"]), abs=1e-4), p["id"]
+            over = D.ceiling_over(furnished, "L1", fp["center"], fp["size"], fp["rotation_deg"])
+            assert F._slope_ceiling(furnished, p) == pytest.approx(over, abs=1e-4), p["id"]
+            # 27 Oct 2026: a window's sill may cap a piece in front of it lower still (fit.window_cap)
+            assert F.piece_ceiling(furnished, p) <= over + 1e-4, p["id"]
     assert F.under_ceiling(0.77, 0.8212) and not F.under_ceiling(0.84, 0.8212) and F.under_ceiling(9.0, None)
 
 

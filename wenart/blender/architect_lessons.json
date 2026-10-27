@@ -527,6 +527,16 @@
    "request": "Flying pillows: decor cushions on a bed lean against its pillows or headboard in the bed's head zone, never against the duvet's fold in the middle of the bed (they stood upright on the duvet in front of the pillows)",
    "lesson": "A decor cushion on a dressed bed rests on the bed and its pillows only (textiles.lean_parts, furniture.LEAN_CASTER), never on the duvet or its fold; a backrest hit that leaves it more than rest.BED_HEAD_ZONE_M from the head edge is no headboard (the head edge is used).",
    "question": null
+  },
+  {
+   "id": "UL47",
+   "date": "2026-10-27",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "A piece in front of a window never covers it: a dresser, bed or desk whose back stands on a window's wall gets a model no taller than the window's sill; the model review (M2) reports a piece that covers a window",
+   "lesson": "A piece in front of a window never covers it: a dresser, bed or desk whose back stands on a window's wall gets a model no taller than the window's sill; the model review (M2) reports a piece that covers a window",
+   "question": null
   }
  ]
 }

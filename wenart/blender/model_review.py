@@ -10,7 +10,8 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
 - M1 every door and doorless opening stands on the floor of the rooms it joins (its built bottom vs their floors), and
   the floors a door joins differ by at most one step;
 - M2 every fixture and table works at its height (the built top of a washbasin, a kitchen worktop, a dining table, a
-  desk over its room's floor);
+  desk over its room's floor); 27 Oct 2026: no piece whose back stands on a window's wall rises over that window's
+  sill (``fit.window_cap``: a tall chest covered a child's room window);
 - M3 every outside opening whose bottom is less than ``GUARD_SILL_M`` over its floor and more than ``DROP_M`` over
   the ground outside has a guard (the facade kit's guard) or lands on a balcony, terrace or platform;
 - M4 no door or bare gap of an upper floor opens onto nothing (``architect.outer_gaps`` on the built openings);
@@ -124,6 +125,33 @@ def doors_on_floors(built: dict, floors: dict) -> tuple[list[dict], int]:
             out.append(_v("M1", "major", o["id"], f"{o['id']} ({o.get('type')}) starts {min(zs) - bottom:.2f} m under "
                           f"the floor of its rooms: it is sunk into the floor", sides[0]["id"],
                           bottom_z=round(bottom, 3), floors=[round(z, 3) for z in zs]))
+    return out, n
+
+
+def over_sills(manifest: Optional[dict], built: dict, floors: dict) -> tuple[list[dict], int]:
+    """M2 (27 Oct 2026, user on real06: "this in front of a window not making sense"): a built piece in front of a
+    window (``fit.window_cap``) whose top rises over the window's sill covers it (major; the next fit takes a lower
+    model)."""
+    from wenart.furniture import fit as F
+
+    pieces = {f.get("id"): f for f in built.get("furniture") or []}
+    out, n = [], 0
+    for ob in (manifest or {}).get("objects") or []:
+        pid = ob.get("element_id") or ob.get("wenart_id")
+        if ob.get("kind") != "furniture" or pid not in pieces or not isinstance(ob.get("box3d"), dict):
+            continue
+        cap = F.window_cap(built, pieces[pid])
+        rid = ob.get("room_id")
+        box = ob["box3d"]
+        if cap is None or rid not in floors or not box.get("center") or not box.get("size"):
+            continue
+        n += 1
+        top = float(box["center"][2]) + float(box["size"][2]) / 2.0 - floors[rid]
+        if top > cap + F.WINDOW_SILL_GAP_M + 0.03:
+            out.append(_v("M2", "major", pid, f"{pid} ({ob['type']}) stands in front of a window with its top at "
+                          f"{top:.2f} m over the floor: it covers the window (sill {cap + F.WINDOW_SILL_GAP_M:.2f} m); "
+                          f"a lower model of its type", rid, rule="window", top_m=round(top, 3),
+                          sill_m=round(cap + F.WINDOW_SILL_GAP_M, 3)))
     return out, n
 
 
@@ -341,7 +369,8 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
     note("M1", got, n)
     if scene_manifest:
         got, n = working_heights(scene_manifest, floors)
-        note("M2", got, n)
+        got2, n2 = over_sills(scene_manifest, built, floors)
+        note("M2", got + got2, n + n2)
         got, n = opening_language(scene_manifest)
         note("M6", got, n)
     else:
