@@ -220,3 +220,19 @@ def test_c7_a_piece_left_out_while_an_ai_pass_named_a_fitting_type():
     assert found["f4"]["severity"] == "minor"
     actions, work, _revoke = AX.code_actions({"findings": [found["f1"]]}, b)
     assert [(a["tool"], a["args"]["piece_id"], a["args"]["type"]) for a in actions] == [("retype_piece", "f1", "sofa")]
+
+
+def test_argus_cycle_look_only_when_the_round_still_fits():
+    """27 Oct 2026 (pod run 091638: the cycle look used its 420 s, then the big loop's round stopped at the
+    deadline): the look runs only when the final round fits after its budget."""
+    import types
+
+    from wenart.agent.loop import FINAL_ROUND_SHARE
+    from wenart.run import scheduler as SCH
+
+    def loop(now, deadline):
+        return types.SimpleNamespace(deadline=deadline, margin_s=60.0, clock=lambda: now, estimate=lambda: 1000.0)
+    need = 420.0 + FINAL_ROUND_SHARE * 1000.0 + 60.0
+    assert SCH.argus_cycle_fits(loop(0.0, need + 1.0), 420.0)
+    assert not SCH.argus_cycle_fits(loop(0.0, need - 1.0), 420.0)
+    assert SCH.argus_cycle_fits(None, 420.0) and SCH.argus_cycle_fits(loop(0.0, None), 420.0)

@@ -463,6 +463,20 @@ class ProjectRun:
         return self.ab and self.ab_dropped is None
 
 
+def argus_cycle_fits(loop, budget_s: float) -> bool:
+    """27 Oct 2026: whether a big-loop cycle's final round still fits after Argus's cycle look of ``budget_s``: the
+    loop's own deadline test (``AgentLoop.time_ok`` with ``FINAL_ROUND_SHARE``) moved ``budget_s`` later. No loop or no
+    deadline: True."""
+    if loop is None or getattr(loop, "deadline", None) is None:
+        return True
+    from wenart.agent.loop import FINAL_ROUND_SHARE
+    try:
+        need = float(loop.clock()) + float(budget_s) + FINAL_ROUND_SHARE * float(loop.estimate())
+        return need <= float(loop.deadline) - float(loop.margin_s)
+    except Exception:  # noqa: BLE001 - no estimate: let the look run (its own budget bounds it)
+        return True
+
+
 # --------------------------------------------------------------------------
 # The orchestrator
 # --------------------------------------------------------------------------
@@ -2289,6 +2303,10 @@ class Orchestrator:
         if os.environ.get("WENART_ARGUS_AI", "1") == "0" or not self.can_start(S.EST_BUILD_S * 2):
             return
         from wenart.audit import argus_ai as AX
+        if not argus_cycle_fits(pr.agent_loop, AX.CYCLE_BUDGET_S):
+            # 27 Oct 2026 (pod run 091638: the cycle look used its budget, then the round stopped at the deadline)
+            self.out(f"{pr.name} Argus cycle {cycle}: skipped: no time for the cycle's round after Argus's look")
+            return
         try:
             model = pr.agent_model or self.make_agent_model(url, pr)
             rec = AX.investigate(pr.out, model, brief=self.project_brief(pr), results=self.results, out=self.out,
