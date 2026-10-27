@@ -42,6 +42,7 @@ POST_SIZE_RATIO = 1.5            # the posts of one space differ in size by at m
 COVERED_KINDS = ("veranda", "porch", "loggia", "winter_garden")
 GARDEN_FLOORS = ("paving", "grass", "green_roof")
 RAISED_M = 1.0                   # a space more than this over the ground under it is raised
+ROOF_CLEAR_M = 2.0               # a roof whose eaves stand this far over a space's floor covers it (a door's height)
 
 
 def _v(check: str, severity: str, target, message: str, room_id=None, **metrics) -> dict:
@@ -164,7 +165,11 @@ def review(built: dict, prep: Optional[dict]) -> tuple[list[dict], int]:
             for other in spaces:
                 if other is not pf and float(other["z"]) > float(pf["z"]) + 2.0 and other.get("polygon"):
                     covers.append(_poly(other["polygon"]))
-            if roof_poly is not None and str(level) != str(((prep or {}).get("roof") or {}).get("over_level_id")):
+            # the house's roof covers it when its eaves stand a door's clear height over the space's floor (27 Oct
+            # 2026: with the roof read from the roof plan a top-floor balcony is under it; the level test missed it)
+            eaves = ((prep or {}).get("roof") or {}).get("eaves_z")
+            if roof_poly is not None and (not isinstance(eaves, (int, float))
+                                          or float(eaves) >= float(pf["z"]) + ROOF_CLEAR_M):
                 covers.append(roof_poly)
             covers = [c for c in covers if c is not None]
             covered = 0.0
