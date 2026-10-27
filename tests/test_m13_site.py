@@ -157,9 +157,18 @@ def test_climate_from_the_brief_or_the_drawing_language_and_species_per_class():
     turkish = {"rooms": [{"label_raw": "SALON"}, {"label_raw": "MUTFAK"}, {"label_raw": "YATAK ODASI"}],
                "site": {"areas": [{"label_raw": "OTOPARK ALANI"}]}}
     c = S.climate_of(turkish)
-    assert c["climate"] == "mediterranean" and c["inferred"] and "salon" in c["evidence"]
+    assert c["climate"] == "mediterranean" and c["inferred"] and "mutfak" in c["evidence"] and c["ask"]
     english = {"rooms": [{"label_raw": "LIVING ROOM"}, {"label_raw": "KITCHEN"}], "site": {}}
     assert S.climate_of(english)["climate"] == "temperate"
+    # 27 Oct 2026 (generality review): whole words only, no place names of one project, a named location wins
+    french = {"rooms": [{"label_raw": "SALON"}, {"label_raw": "CUISINE"}], "site": {"areas": [{"label": "VILLA"}]}}
+    assert S.climate_of(french)["climate"] == "temperate"
+    assert S.climate_of({"rooms": [{"label_raw": "KATALOG"}, {"label_raw": "HOLDING"}]})["climate"] == "temperate"
+    inland = dict(turkish, project={"brief": {"site": {"location": "Çankaya, Ankara"}}})
+    assert S.climate_of(inland)["climate"] == "temperate" and S.climate_of(inland)["evidence"] == ["ankara"]
+    coast = {"rooms": [], "project": {"brief": {"location": "Bodrum, Muğla"}}}
+    assert S.climate_of(coast)["climate"] == "mediterranean" and "ask" not in S.climate_of(coast)
+    assert S.climate_of({"rooms": [{"label_raw": "GİRİŞ"}, {"label_raw": "ÇOCUK ODASI"}]})["climate"] == "mediterranean"
     explicit = dict(turkish, project={"brief": {"climate": "temperate"}})
     assert S.climate_of(explicit) == {"climate": "temperate", "source": "brief.climate", "inferred": False,
                                       "evidence": ["temperate"]}

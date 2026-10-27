@@ -213,40 +213,83 @@ SPECIES_BY_CLIMATE = {
     "temperate": {"shrub": "privet_shrub", "small": "birch", "medium": "maple", "large": "oak",
                   "hedge_low": "boxwood", "hedge_mid": "privet", "hedge_high": "hornbeam"},
 }
-# Words of the documents (room and site labels, the brief) that tell the climate; Turkish -> Mediterranean.
-CLIMATE_WORDS = {
-    "mediterranean": ("salon", "mutfak", "banyo", "yatak", "oda", "hol", "otopark", "havuz", "bahce", "bahçe",
-                      "teras", "giris", "giriş", "kat", "villa", "akdeniz", "mediterranean", "ege", "beykoz",
-                      "istanbul", "izmir", "antalya", "mugla", "muğla", "bodrum", "türkiye", "turkiye", "turkey"),
+# 27 Oct 2026 (generality review: the old word list held one project's district name and matched by substring, so
+# "salon", "villa" or "kat" in any plan meant Mediterranean). The climate comes, in this order, from: the brief's or
+# the site's explicit climate; a location the brief names (``LOCATION_CLIMATE``, whole words: a region or city of a
+# known climate, Koppen Csa/Csb coasts as "mediterranean", continental and oceanic places as "temperate"); the
+# drawing's language (``LANGUAGE_WORDS``: words only that language uses for rooms, two or more) and the climate most
+# of that country's houses stand in (``LANGUAGE_CLIMATE``), a low-confidence guess the report asks to confirm; else
+# temperate. Words are compared without accents and case (``_plain``).
+LOCATION_CLIMATE = {
+    "mediterranean": ("mediterranean", "akdeniz", "aegean", "ege", "marmara", "istanbul", "izmir", "antalya", "mugla",
+                      "bodrum", "fethiye", "alanya", "cesme", "mersin", "adana", "greece", "athens", "crete", "cyprus",
+                      "malta", "sicily", "sardinia", "corsica", "andalusia", "provence", "riviera", "cote d azur",
+                      "barcelona", "valencia", "malaga", "lisbon", "algarve", "dalmatia", "croatia coast", "beirut",
+                      "tel aviv", "tunis", "algiers", "california", "los angeles", "perth", "adelaide", "cape town",
+                      "santiago"),
+    "temperate": ("ankara", "konya", "kayseri", "erzurum", "sivas", "eskisehir", "trabzon", "london", "paris",
+                  "berlin", "munich", "amsterdam", "brussels", "copenhagen", "stockholm", "oslo", "helsinki", "vienna",
+                  "zurich", "prague", "warsaw", "dublin", "edinburgh", "new york", "boston", "chicago", "toronto",
+                  "vancouver", "seattle", "melbourne", "wellington", "tokyo", "seoul"),
 }
+LANGUAGE_WORDS = {
+    "tr": ("mutfak", "banyo", "yatak", "otopark", "bahce", "giris", "ebeveyn", "cocuk", "oturma", "yemek odasi",
+           "kiler", "camasir", "merdiven", "vestiyer", "calisma", "misafir", "hamam", "antre", "dolap"),
+}
+LANGUAGE_CLIMATE = {"tr": "mediterranean"}         # most of Turkey's houses: the Marmara, Aegean and Mediterranean coasts
+LOCATION_FIELDS = (("brief", "location"), ("brief", "address"), ("brief.site", "location"), ("brief.site", "address"),
+                   ("project", "location"), ("project", "address"), ("site", "location"), ("site", "address"))
+
+
+def _plain(text: str) -> str:
+    """``text`` in lower case without accents, its words split by single spaces and padded (pure)."""
+    import re
+    import unicodedata
+
+    t = unicodedata.normalize("NFKD", str(text).replace("ı", "i").replace("İ", "I")).casefold()
+    t = "".join(ch for ch in t if not unicodedata.combining(ch))
+    return " " + " ".join(re.findall(r"[^\W\d_]+", t)) + " "
+
+
+def _words_in(blob: str, words) -> list[str]:
+    return [w for w in words if w and f" {_plain(w).strip()} " in blob]
 
 
 def climate_of(building: dict) -> dict:
     """The project's climate for the inferred species (pure): ``{"climate": "mediterranean" | "temperate",
-    "source", "inferred": True, "evidence": [words]}``. The brief (``project.brief.climate`` / ``site.climate``, or
-    climate words in its style text) first, else the drawing's language (``CLIMATE_WORDS`` in the room and site
-    labels: a Turkish plan is a Mediterranean / Anatolian site), else temperate."""
+    "source", "inferred", "evidence": [words]}`` (and ``"ask"`` when it is a guess from the drawing's language). The
+    order: the brief's or the site's ``climate``; a location the brief, the project or the site names
+    (``LOCATION_FIELDS`` / ``LOCATION_CLIMATE``, whole words); the drawing's language (``LANGUAGE_WORDS`` in the room
+    and site labels, two or more words) and ``LANGUAGE_CLIMATE``; else temperate."""
     project = building.get("project") if isinstance(building.get("project"), dict) else {}
     brief = project.get("brief") if isinstance(project.get("brief"), dict) else {}
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    bsite = brief.get("site") if isinstance(brief.get("site"), dict) else {}
     for src, value in (("brief.climate", brief.get("climate")), ("site.climate", site.get("climate")),
-                       ("brief.site.climate", (brief.get("site") or {}).get("climate")
-                        if isinstance(brief.get("site"), dict) else None)):
+                       ("brief.site.climate", bsite.get("climate"))):
         if isinstance(value, str) and value.strip().lower() in SPECIES_BY_CLIMATE:
             return {"climate": value.strip().lower(), "source": src, "inferred": False, "evidence": [value]}
-    texts = [str(brief.get("style") or ""), str(project.get("name") or ""), str(project.get("id") or "")]
-    texts += [str(r.get("label_raw") or r.get("label") or "") for r in building.get("rooms") or [] if isinstance(r, dict)]
+    holders = {"brief": brief, "brief.site": bsite, "project": project, "site": site}
+    for holder, key in LOCATION_FIELDS:
+        value = holders[holder].get(key)
+        if not isinstance(value, str) or not value.strip():
+            continue
+        blob = _plain(value)
+        for climate, words in LOCATION_CLIMATE.items():
+            hits = _words_in(blob, words)
+            if hits:
+                return {"climate": climate, "source": f"the location in {holder}.{key}", "inferred": True,
+                        "evidence": hits[:4]}
+    texts = [str(r.get("label_raw") or r.get("label") or "") for r in building.get("rooms") or [] if isinstance(r, dict)]
     texts += [str(a.get("label_raw") or a.get("label") or "") for a in site.get("areas") or [] if isinstance(a, dict)]
-    blob = " ".join(texts).lower()
-    hits = []
-    for climate, words in CLIMATE_WORDS.items():
-        for w in words:
-            if w and w in blob:
-                hits.append(w)
-        if len(hits) >= 2:
-            return {"climate": climate, "source": "the drawing's language (room and site labels)", "inferred": True,
-                    "evidence": sorted(set(hits))[:8]}
-    return {"climate": "temperate", "source": "no climate word in the brief or the labels: temperate assumed",
+    blob = _plain(" ".join(texts))
+    for lang, words in LANGUAGE_WORDS.items():
+        hits = _words_in(blob, words)
+        if len(hits) >= 2 and lang in LANGUAGE_CLIMATE:
+            return {"climate": LANGUAGE_CLIMATE[lang], "inferred": True, "evidence": sorted(set(hits))[:8],
+                    "source": f"the drawing's language ({lang}): the climate most of its houses stand in (a guess)",
+                    "ask": "the site's location or climate (brief: site.location or site.climate)"}
+    return {"climate": "temperate", "source": "no climate, location or language word: temperate assumed",
             "inferred": True, "evidence": []}
 
 
