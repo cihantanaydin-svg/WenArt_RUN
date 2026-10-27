@@ -1193,12 +1193,18 @@ def draw_room_png(rec: RoomDecor, building: dict, path: Path) -> None:
     import matplotlib.pyplot as plt
     from matplotlib.patches import Polygon as MplPolygon
 
-    room = next(r for r in building["rooms"] if r["id"] == rec.room_id)
+    # 27 Oct 2026 (pod run 123917: the decor stage stopped on the veranda's record): an outdoor space's record draws
+    # the space's outline and its pieces (``outdoor_space``)
+    spaces = (building.get("site") or {}).get("outdoor_spaces") or []
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == rec.room_id), None) or \
+        next((o for o in spaces if o.get("id") == rec.room_id), None)
+    if room is None or len(room.get("polygon") or []) < 3:
+        return
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.set_aspect("equal")
     ax.add_patch(MplPolygon(room["polygon"], closed=True, fill=False, lw=2, color="black"))
     for f in building["furniture"]:
-        if f.get("room_id") != rec.room_id:
+        if f.get("room_id") != rec.room_id and f.get("outdoor_space") != rec.room_id:
             continue
         poly = placer.piece_from_furniture(f).polygon()
         doc = f.get("source") == "from_documents"

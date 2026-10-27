@@ -81,3 +81,16 @@ def test_real06_veranda_gets_a_lounge_and_planters():
         rect = O._rect(fp["center"][0], fp["center"][1], fp["size"][0], fp["size"][1],
                        math.radians(fp["rotation_deg"]))
         assert poly.contains(rect)
+
+
+def test_the_decor_debug_draws_an_outdoor_space(tmp_path):
+    """Pod run 123917: ``decor_ai apply --debug`` stopped on the veranda's record (no room of that id)."""
+    from wenart.furniture import decor_ai as DA
+
+    out, notes = O.furnish(toy())
+    rec = DA.RoomDecor("os_v", "VERANDA", "veranda")
+    rec.items = [d for d in out["decor"] if d.get("outdoor_space") == "os_v"]
+    DA.write_room_debug(rec, out, tmp_path)
+    assert (tmp_path / "os_v.json").is_file() and (tmp_path / "os_v.png").is_file()
+    DA.write_room_debug(DA.RoomDecor("nowhere", "x", "other"), out, tmp_path)      # no polygon: JSON only
+    assert (tmp_path / "nowhere.json").is_file() and not (tmp_path / "nowhere.png").exists()
