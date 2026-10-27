@@ -592,18 +592,61 @@ def typical_window(plan: Plan, level_id) -> Optional[dict]:
 
 
 GAP_APPROACH_M = 0.60          # the approach in front of a gap a drawn piece standing in it blocks
-GAP_BLOCKED_SHARE = 0.5        # ... over this share of the gap's width
+GAP_FREE_MIN_M = 0.60          # ... leaving no free stretch this wide across it (a walkway)
 GAP_PIECE_MIN_M = 0.30         # drawn pieces smaller than this both ways (marks) never count
 NOT_A_PIECE = ("rug", "detail", "mark", "decor")
+
+
+OUTDOOR_LABEL_NEAR_M = 3.0      # an outdoor-space label this close to a passage's outside: it leads there
+
+
+def outdoor_space_at(building: dict, point, level_id) -> bool:
+    """Whether ``point`` (just outside a wall) lies on a drawn outdoor space of the level: an outdoor space, platform
+    or site area polygon, or within ``OUTDOOR_LABEL_NEAR_M`` of a labelled site area's anchor (a balcony the reading
+    has no outline for yet)."""
+    from shapely.geometry import Point, Polygon
+
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    pt = Point(float(point[0]), float(point[1]))
+    for key in ("outdoor_spaces", "platforms", "areas", "terraces"):
+        for a in site.get(key) or []:
+            if not isinstance(a, dict) or (a.get("level_id") not in (None, level_id)):
+                continue
+            poly = a.get("polygon")
+            if poly and len(poly) >= 3:
+                try:
+                    if Polygon([tuple(q[:2]) for q in poly]).buffer(0.05).contains(pt):
+                        return True
+                except Exception:  # noqa: BLE001 - a broken outline: the anchor below
+                    pass
+            anchor = a.get("anchor")
+            if key == "areas" and anchor and a.get("label") and \
+                    math.hypot(float(anchor[0]) - pt.x, float(anchor[1]) - pt.y) <= OUTDOOR_LABEL_NEAR_M:
+                return True
+    return False
+
+
+def unsure_passage(o: dict) -> bool:
+    """A passage the reading is not sure of: a gap of unclassified content, or a door read only from parallel lines
+    without a swing arc (``operation`` sliding from geometry, no block name: a window's frame and glass lines draw
+    the same)."""
+    if o.get("type") == "opening" and str(o.get("type_raw") or "") == "unclassified gap content":
+        return True
+    if o.get("type") != "door" or o.get("operation") != "sliding" or o.get("operation_source") != "geometry":
+        return False
+    notes = " ".join(str(e.get("note") or "") for e in o.get("evidence") or [] if isinstance(e, dict))
+    return "block name" not in notes
 
 
 def gaps_behind_furniture(building: dict) -> list[str]:
     """27 Oct 2026 (pod run 224516, real06: the east wall's two 1.55 m windows, tagged "160/160" on the plan, were read
     as doorless gaps 2.1 m high; the architect makes them windows only at the build, so before it every drawn piece in
-    front of them "blocked a door" and the drawn 3-seat sofa could not be built): a gap of the reading
-    (``type: opening``, ``type_raw: unclassified gap content``) in a wall between a room and the outside, with drawn
-    furniture standing across its approach (``GAP_APPROACH_M`` into the room over ``GAP_BLOCKED_SHARE`` of its width),
-    is no passage: the drawing puts a piece there. It is read as a window at the level's usual sill and height
+    front of them "blocked a door" and the drawn 3-seat sofa could not be built): a passage the reading is not sure of
+    (``unsure_passage``: a gap of unclassified content, a sliding door read only from parallel lines) in a wall between
+    a room and the outside, with drawn
+    furniture standing across its approach (``GAP_APPROACH_M`` into the room),
+    is no passage when the pieces leave no free stretch of ``GAP_FREE_MIN_M`` across its width: the drawing puts a
+    piece there. It is read as a window at the level's usual sill and height
     (``typical_window``, else 0.90 / 1.20 m), ``corrected_by_ai`` by code with the pieces as evidence, the drawn values
     kept. Pure, in place; returns the reasons."""
     from shapely.geometry import Polygon, box as sbox
@@ -627,7 +670,7 @@ def gaps_behind_furniture(building: dict) -> list[str]:
                         for x, y in ((-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2), (-w / 2, d / 2))])
         pieces.append((f, poly))
     for o in building.get("openings") or []:
-        if o.get("type") != "opening" or str(o.get("type_raw") or "") != "unclassified gap content":
+        if not unsure_passage(o):
             continue
         wall = plan.walls.get(o.get("wall_id"))
         sides = window_sides(plan, o)
@@ -639,6 +682,10 @@ def gaps_behind_furniture(building: dict) -> list[str]:
         n = (-u[1] * k, u[0] * k)
         t = plan.t_of(wall, o["center"])
         mid = (a0[0] + u[0] * t, a0[1] + u[1] * t)
+        probe = (mid[0] - n[0] * (float(wall.get("thickness") or 0.2) / 2.0 + 0.5),
+                 mid[1] - n[1] * (float(wall.get("thickness") or 0.2) / 2.0 + 0.5))
+        if outdoor_space_at(building, probe, o.get("level_id")):
+            continue                      # onto a drawn balcony, terrace or veranda: a passage
         half_w, face = float(o.get("width") or 0.0) / 2.0, float(wall.get("thickness") or 0.2) / 2.0
         corners = [(mid[0] + u[0] * s * half_w + n[0] * dd, mid[1] + u[1] * s * half_w + n[1] * dd)
                    for s, dd in ((-1, face), (1, face), (1, face + GAP_APPROACH_M), (-1, face + GAP_APPROACH_M))]
@@ -647,22 +694,34 @@ def gaps_behind_furniture(building: dict) -> list[str]:
                 and (f.get("room_id") in (None, room["id"])) and poly.intersects(zone)]
         if not hits or half_w <= 0:
             continue
-        covered = unary_union([poly.intersection(zone) for _f, poly in hits])
-        # the share of the gap's width the pieces cover (projected on the wall's axis)
-        xs = []
-        for g in getattr(covered, "geoms", [covered]):
-            for x, y in list(g.exterior.coords) if not g.is_empty else []:
-                xs.append((x - mid[0]) * u[0] + (y - mid[1]) * u[1])
-        span = (min(max(xs), half_w) - max(min(xs), -half_w)) if xs else 0.0
-        if span < GAP_BLOCKED_SHARE * 2.0 * half_w:
-            continue
+        # the pieces' stretches along the wall inside the gap's width, merged; the widest free stretch left
+        spans = []
+        for _f, poly in hits:
+            part = poly.intersection(zone)
+            xs = [(x - mid[0]) * u[0] + (y - mid[1]) * u[1] for g in getattr(part, "geoms", [part])
+                  if not g.is_empty and hasattr(g, "exterior") for x, y in g.exterior.coords]
+            if xs:
+                spans.append((max(min(xs), -half_w), min(max(xs), half_w)))
+        spans.sort()
+        free, at, span = 0.0, -half_w, 0.0
+        for lo, hi in spans:
+            if hi <= at:
+                continue
+            free = max(free, lo - at)
+            span += hi - max(lo, at)
+            at = hi
+        free = max(free, half_w - at)
+        if free >= GAP_FREE_MIN_M:
+            continue                      # a walkway is left across it: it may be a passage
         typ = typical_window(plan, o.get("level_id")) or {}
         sill = float(typ.get("sill") or 0.9)
         height = float(typ.get("height") or 1.2)
-        _keep_drawn(o, "type", "sill_height", "height", "threshold_z", "swing_side")
+        _keep_drawn(o, "type", "sill_height", "height", "threshold_z", "swing_side", "operation")
         ids = sorted(f["id"] for f, _p in hits)
-        reason = (f"{o['id']} (a {float(o.get('width') or 0):.2f} m gap in the outer wall of {room['id']}): drawn "
-                  f"{', '.join(ids)} stand(s) across its approach over {span:.2f} m of its width, so it is no passage: "
+        what = "gap" if o.get("type") == "opening" else "sliding door read from its lines (no swing arc)"
+        reason = (f"{o['id']} (a {float(o.get('width') or 0):.2f} m {what} in the outer wall of {room['id']}): drawn "
+                  f"{', '.join(ids)} stand(s) across its approach ({span:.2f} m of its width, at most {free:.2f} m free), so "
+                  f"it is no passage: "
                   f"read as a window, sill {sill:.2f} m, height {height:.2f} m (the floor's windows)")
         o["type"], o["sill_height"], o["height"] = "window", round(sill, 3), round(height, 3)
         for key in ("threshold_z", "swing_side", "operation", "operation_source"):

@@ -145,3 +145,38 @@ def test_argus_suspects_a_vision_typed_piece_the_room_cannot_hold():
     assert [(a["tool"], a["args"]["type"]) for a in actions] == [("retype_piece", "bed_single")]
     assert AX.missing_for({"footprint": {"size": [2.0, 1.6]}}, "bed_double|bed_single") == "bed_double"
     assert AX.missing_for({"footprint": {"size": [1.7, 0.75]}}, "shower|bathtub") == "bathtub"
+
+
+def test_a_passage_with_a_walkway_left_or_onto_a_terrace_stays_and_a_sliding_door_read_from_lines_may_go():
+    """27 Oct 2026: two armchairs flanking a gap with 0.8 m free between them leave a walkway (it stays); a sliding door
+    read only from its lines (no swing arc, no block name) with a sofa across it is a window; a passage onto a drawn
+    terrace stays whatever stands in front of it."""
+    from wenart.blender import architect_actions as AA
+
+    def gap(oid, x, width=2.15, **kw):
+        return dict({"id": oid, "type": "opening", "level_id": "L0", "wall_id": "w_n", "center": [x, 4.05],
+                     "width": width, "height": 2.1, "sill_height": None, "status": "unverified",
+                     "type_raw": "unclassified gap content", "evidence": []}, **kw)
+
+    chairs = [M.fp("a1", "armchair", (0.9, 3.55), (0.9, 0.8), front=270.0),
+              M.fp("a2", "armchair", (2.6, 3.55), (0.9, 0.8), front=270.0)]
+    sofa = M.fp("s1", "sofa", (6.0, 3.55), (2.0, 0.85), rotation=180.0, front=270.0)
+    b = M.building(w=12.0, h=4.0, room_type="living", window=None, furniture=chairs + [sofa])
+    sliding = gap("d1", 6.0, type="door", operation="sliding", operation_source="geometry", type_raw=None,
+                  evidence=[{"method": "vector", "note": "2 leaf/leaves drawn parallel to the wall without a swing arc"}])
+    named = dict(sliding, id="d2", center=[10.0, 4.05],
+                 evidence=[{"method": "vector", "note": "door by its block name 'SLIDE' (sliding)"}])
+    b["furniture"].append(M.fp("s2", "sofa", (10.0, 3.55), (2.0, 0.85), rotation=180.0, front=270.0))
+    b["openings"] += [gap("o1", 1.75), sliding, named]
+    reasons = AA.gaps_behind_furniture(b)
+    by = {o["id"]: o for o in b["openings"]}
+    assert by["o1"]["type"] == "opening"                         # 0.8 m free between the armchairs
+    assert by["d1"]["type"] == "window" and by["d1"]["drawn_operation"] == "sliding"
+    assert by["d2"]["type"] == "door"                            # a block name says sliding door
+    assert len(reasons) == 1 and "sliding door read from its lines" in reasons[0]
+    # onto a drawn terrace: stays
+    t = M.building(w=8.0, h=4.0, room_type="living", window=None, furniture=[M.fp("s1", "sofa", (1.5, 3.55), (2.0, 0.85),
+                                                                                  rotation=180.0, front=270.0)])
+    t["openings"].append(gap("o1", 1.5, width=1.55))
+    t["site"] = {"outdoor_spaces": [{"id": "os1", "level_id": "L0", "polygon": [[0, 4.1], [8, 4.1], [8, 7], [0, 7]]}]}
+    assert AA.gaps_behind_furniture(t) == [] and t["openings"][-1]["type"] == "opening"
