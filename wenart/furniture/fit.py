@@ -1662,7 +1662,7 @@ def _window_cap(building: Optional[dict], piece: dict) -> tuple[Optional[float],
         return None, []
     ftype = str(piece.get("type") or "")
     if ftype in SC.FIXED_TYPES or not INF.needs_wall(ftype):      # built as drawn; a free-standing piece moves
-        return None, [], []
+        return None, []
     try:
         if PX.mount_bottom(piece)[0] > 0.0:
             return None, []
