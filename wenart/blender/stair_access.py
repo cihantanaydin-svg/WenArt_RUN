@@ -68,6 +68,11 @@ DOOR_APPROACH_M = 0.60          # a door's approach: this deep in front of its w
 TOUCH_M2 = 0.02                 # an approach or an end area shares at least this much with a walkable part
 STEP_OFF_M2 = 0.20              # the floor past the last riser (outside the opening) a visitor must step onto
 ROOM_CORE_M2 = 0.25             # a room's main floor covers at least this much of it
+# 27 Oct 2026 (real04, two twin houses: each house's floor is a group of its own; the smaller one's stairs were "not
+# on the main floor"): a building may hold several dwellings, each with its own floor. Every group holding at least
+# MAIN_MIN_ROOMS rooms and MAIN_SHARE of the largest group's rooms is a main floor; a pocket holds fewer.
+MAIN_MIN_ROOMS = 2
+MAIN_SHARE = 0.5
 PART_MIN_M2 = 0.50              # a cut-off part of a floor smaller than this is no place (M9 c)
 ROOM_JOIN_M = 0.02              # room outlines this close are one floor (no wall between them)
 ERODE_EPS_M = 0.01              # cores narrowed by half the clear width less this: a way of exactly 0.80 m passes
@@ -410,8 +415,12 @@ def walk_graph(building: dict, level: dict, voids: Optional[list] = None, items:
     for i, op in enumerate(opened):
         area[group[i]] = area.get(group[i], 0.0) + op.area
     main = max(set(group), key=lambda g: (count.get(g, 0), area.get(g, 0.0))) if group else None
+    top = count.get(main, 0) if main is not None else 0
+    mains = {g for g in set(group) if count.get(g, 0) >= max(MAIN_MIN_ROOMS, MAIN_SHARE * top)}
+    if main is not None:
+        mains.add(main)
     out.update(free=free, cores=cores, opened=opened, group=group, doors=doors, room_main=room_main, main=main,
-               obstacles=obstacles)
+               mains=mains, obstacles=obstacles)
     return out
 
 
@@ -427,7 +436,8 @@ def reach(graph: dict, area) -> dict:
     floor = area.intersection(graph["free"])
     touch = [i for i, op in enumerate(graph["opened"]) if op.intersection(area).area >= TOUCH_M2]
     groups = {graph["group"][i] for i in touch}
-    main = graph["main"] in groups if graph["main"] is not None else None
+    mains = graph.get("mains") or ({graph["main"]} if graph["main"] is not None else set())
+    main = bool(groups & mains) if graph["main"] is not None else None
     rooms = sorted(rid for rid, i in graph["room_main"].items() if graph["group"][i] in groups)
     missed = sorted(rid for rid, i in graph["room_main"].items() if graph["group"][i] not in groups)
     doors = sorted(str(d["id"]) for d in graph["doors"] if any(graph["group"][i] in groups for s in d["touch"]
@@ -1312,7 +1322,7 @@ def walk_review(building: dict) -> dict:
                                      "kind": kind, "blocked_by": ids})
         if not g["holes"] or g["main"] is None:
             continue
-        for grp in sorted(set(g["group"]) - {g["main"]}):
+        for grp in sorted(set(g["group"]) - (g.get("mains") or {g["main"]})):
             idx = [i for i, x in enumerate(g["group"]) if x == grp]
             geom = _union([g["opened"][i] for i in idx])
             if geom is None or geom.area < PART_MIN_M2:

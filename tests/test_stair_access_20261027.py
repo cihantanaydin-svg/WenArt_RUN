@@ -506,3 +506,18 @@ def test_real06_the_build_fixes_it_before_planning_and_the_architect_reports_k4(
     q = next(q for q in prep["architect"]["questions"] if q["id"] == "K4")
     assert q["status"] == "fixed" and q["answers"][0]["element"] == "f_L0_001"
     assert any(w.startswith("architect K4: the upper plan's reading") for w in prep["warnings"])
+
+
+def test_every_dwelling_of_a_building_has_its_main_floor():
+    # 27 Oct 2026 (real04: two twin houses; the smaller house's stairs were "not on the main floor")
+    lid = "L0"
+    b = {"levels": [{"id": lid, "elevation": 0.0, "order": 0}], "openings": [], "furniture": [], "slabs": [],
+         "walls": [], "rooms": []}
+    for k, x0 in enumerate((0.0, 20.0)):                          # two houses 11 m apart, three open rooms each
+        for j in range(3):
+            b["rooms"].append(_room(f"r{k}{j}", lid, x0 + 3.0 * j, 0.0, x0 + 3.0 * j + 3.0, 4.0, "bedroom"))
+    b["rooms"].append(_room("pocket", lid, 40.0, 0.0, 41.5, 1.5, "storage"))
+    g = SA.walk_graph(b, b["levels"][0])
+    assert len(g["mains"]) >= 2 and g["main"] in g["mains"]
+    pocket_group = g["group"][g["room_main"]["pocket"]] if "pocket" in g["room_main"] else None
+    assert pocket_group is None or pocket_group not in g["mains"]           # one room is no dwelling's floor
