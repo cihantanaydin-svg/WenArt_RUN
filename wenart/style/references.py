@@ -365,6 +365,13 @@ def main(argv=None) -> int:
     pf.add_argument("--projects", nargs="+", required=True, help="project folders or names under projects/")
     pf.add_argument("--root", default="/workspace/references")
     pf.add_argument("--k", type=int, default=K_REFERENCES)
+    cd = sub.add_parser("candidates", help="PD12M caption search -> the best photos per space for the session's "
+                                           "choice (pod: Hub, the dataset's bucket, GPU)")
+    cd.add_argument("--families", nargs="+", default=["scandinavian"])
+    cd.add_argument("--per-space", type=int, default=30)
+    cd.add_argument("--root", default="/workspace/references/candidates")
+    cd.add_argument("--out", required=True)
+    cd.add_argument("--shards", type=int, default=PD12M_SHARDS, help="the first N metadata shards")
     sc = sub.add_parser("score", help="the final renders' similarity to their spaces' reference sets (pod, GPU)")
     sc.add_argument("--project-out", required=True, help="outputs/<p>")
     sc.add_argument("--project", required=True, help="the project (its brief's style family)")
@@ -375,6 +382,11 @@ def main(argv=None) -> int:
     ex.add_argument("--out", required=True)
     ex.add_argument("--size", type=int, default=EXPORT_SIDE_PX)
     a = ap.parse_args(argv)
+    if a.cmd == "candidates":
+        for fam in a.families:
+            counts = candidate_sets(fam, a.root, a.out, a.per_space, shards=list(range(a.shards)))
+            print(f"references candidates {fam}: " + ", ".join(f"{k} {v}" for k, v in counts.items()))
+        return 0
     if a.cmd == "score":
         res = style_scores(final_views(a.project_out), a.root, brief_family(a.project))
         Path(a.out).parent.mkdir(parents=True, exist_ok=True)
@@ -427,6 +439,147 @@ def main(argv=None) -> int:
             print(f"references {space}/{fam}: {len(man['photos'])} kept of {man['searched']} found "
                   f"({len(man['errors'])} errors)")
     return 0
+
+
+# 27 Oct 2026 (user: "find the photos yourself and put it into the pod"): the cloud session reaches no photo host and
+# the pod got nothing from Openverse (timeouts) or Commons; PD12M (Spawning/PD12M on the Hub: 12.4 M public-domain and
+# CC0 photos with captions, CDLA-Permissive-2.0 metadata, images on the dataset's own S3 bucket) is searched by caption
+PD12M_REPO = "Spawning/PD12M"
+PD12M_SHARDS = 125
+CAPTION_SPACES: dict[str, str] = {
+    "living": r"\b(living room|lounge area|sitting room)\b",
+    "dining": r"\bdining (room|area)\b",
+    "kitchen": r"\bkitchen\b",
+    "bedroom": r"\bbedroom\b",
+    "child": r"\b(children|child|kids?)['’]?s? ?(bed)?room\b|\bnursery\b",
+    "bathroom": r"\bbathroom\b",
+    "office": r"\b(home office|study room|workspace)\b",
+    "hall": r"\b(hallway|entryway|foyer|entrance hall)\b",
+    "dressing": r"\b(walk-in closet|dressing room)\b",
+    "veranda": r"\b(porch|veranda|verandah)\b",
+    "terrace": r"\b(terrace|patio)\b",
+    "balcony": r"\bbalcony\b",
+    "garden": r"\b(garden|backyard)\b.*\b(house|home|villa)\b|\b(house|home|villa)\b.*\b(garden|backyard)\b",
+    "facade": r"\b(modern|contemporary|white|two-story|single-story) (house|home|villa)\b|\b(house|villa) exterior\b",
+}
+CAPTION_EXCLUDE = (r"\b(painting|painted|drawing|illustration|sketch|engraving|lithograph|etching|poster|map|blueprint|"
+                   r"floor plan|black and white|black-and-white|monochrome|sepia|vintage|historic|historical|old "
+                   r"photograph|antique|museum|exhibit|cartoon|render|rendering|3d|model of|miniature|dollhouse|"
+                   r"abandoned|ruins?|derelict|construction site|church|cathedral|palace|castle)\b")
+STYLE_WORDS = ("modern", "contemporary", "cozy", "bright", "stylish", "elegant", "minimalist", "wooden", "light",
+               "white walls", "plants", "natural light", "spacious")
+CAPTION_KEEP = 400            # candidates kept per space from the captions (style words first)
+MIN_PHOTO_SIDE_PX = 1000
+
+
+def caption_hits(rows, family: Optional[str], spaces=None) -> dict:
+    """``{space: [row, ...]}`` of PD12M rows (``id``, ``url``, ``caption``, ``width``, ``height``, ``license``,
+    ``source``) whose caption names the space (``CAPTION_SPACES``) and none of ``CAPTION_EXCLUDE``, at least
+    ``MIN_PHOTO_SIDE_PX`` wide or high; each row gets ``style_hits`` (the family's words count double) (pure)."""
+    fam = [w.lower() for w in FAMILY_WORDS.get(str(family or "").lower(), ())]
+    rx = {k: re.compile(v) for k, v in CAPTION_SPACES.items() if spaces is None or k in spaces}
+    excl = re.compile(CAPTION_EXCLUDE)
+    out: dict = {k: [] for k in rx}
+    for r in rows:
+        cap = str(r.get("caption") or "").lower()
+        if not cap or excl.search(cap):
+            continue
+        try:
+            if max(int(r.get("width") or 0), int(r.get("height") or 0)) < MIN_PHOTO_SIDE_PX:
+                continue
+        except (TypeError, ValueError):
+            continue
+        for space, pat in rx.items():
+            if space == "bedroom" and rx.get("child") is not None and rx["child"].search(cap):
+                continue
+            if pat.search(cap):
+                hits = 2 * sum(1 for w in fam if w in cap) + sum(1 for w in STYLE_WORDS if w in cap)
+                out[space].append(dict(r, style_hits=hits))
+    return out
+
+
+def merge_hits(acc: dict, new: dict, keep: int = CAPTION_KEEP) -> dict:
+    """The best ``keep`` rows per space of two ``caption_hits`` results (style hits, then the larger photo)."""
+    for space, rows in new.items():
+        both = acc.get(space, []) + rows
+        both.sort(key=lambda r: (-int(r.get("style_hits") or 0), -max(int(r.get("width") or 0),
+                                                                       int(r.get("height") or 0)), str(r.get("id"))))
+        acc[space] = both[:keep]
+    return acc
+
+
+def pd12m_rows(path) -> list:
+    """The rows of one PD12M metadata shard (pyarrow; pod only)."""
+    import pyarrow.parquet as pq
+
+    cols = ["id", "url", "caption", "width", "height", "license", "source"]
+    return pq.read_table(path, columns=cols).to_pylist()
+
+
+def pd12m_candidates(family: Optional[str], spaces=None, shards: Optional[list] = None) -> dict:
+    """The caption hits of every PD12M shard (``shards``: shard numbers, default all), the shards fetched one by one
+    from the Hub (``huggingface_hub``) and deleted after reading."""
+    from huggingface_hub import hf_hub_download
+
+    acc: dict = {}
+    for i in shards if shards is not None else range(PD12M_SHARDS):
+        path = hf_hub_download(PD12M_REPO, f"metadata/pd12m.{i:03d}.parquet", repo_type="dataset")
+        acc = merge_hits(acc, caption_hits(pd12m_rows(path), family, spaces))
+        try:
+            Path(path).unlink()
+        except OSError:
+            pass
+    return acc
+
+
+def candidate_sets(family: Optional[str], root, out, per_space: int = 30, spaces=None, shards=None,
+                   http: Callable[[str], bytes] = default_http, scorer: Callable = score_images,
+                   hits: Optional[dict] = None) -> dict:
+    """For the session's choice: per space the ``per_space`` best photos of PD12M's caption hits (downloaded from
+    the dataset's bucket, ranked by ``scorer`` as ``select``), in ``out/<space>/<family>/`` as 512 px copies with a
+    ``manifest.json`` (``source: pd12m``, licence, caption, scores). Returns ``{space: kept count}``."""
+    from PIL import Image
+
+    hits = hits if hits is not None else pd12m_candidates(family, spaces, shards)
+    counts = {}
+    for space, rows in sorted(hits.items()):
+        folder = set_dir(root, space, family)
+        folder.mkdir(parents=True, exist_ok=True)
+        paths, cands = {}, []
+        for r in rows[: CANDIDATES * 2]:
+            pid = f"pd_{r['id']}"
+            p = folder / f"{pid}.jpg"
+            if not p.is_file():
+                try:
+                    data = http(r["url"])
+                except Exception:  # noqa: BLE001 - a missing file is no candidate
+                    continue
+                p.write_bytes(data)
+            paths[pid] = p
+            cands.append({"source": "pd12m", "id": pid, "url": r["url"], "title": r.get("caption"),
+                          "caption": r.get("caption"), "creator": None, "provider": r.get("source"),
+                          "licence": "public domain / CC0 (PD12M)", "licence_url": r.get("license"),
+                          "landing_url": r["url"], "width": r.get("width"), "height": r.get("height"),
+                          "style_hits": r.get("style_hits")})
+        scores = scorer(paths, space, family) if paths else {}
+        kept = select(cands, scores, per_space)
+        dst = set_dir(out, space, family)
+        dst.mkdir(parents=True, exist_ok=True)
+        for c in kept:
+            try:
+                img = Image.open(paths[c["id"]]).convert("RGB")
+                img.thumbnail((EXPORT_SIDE_PX, EXPORT_SIDE_PX))
+                img.save(dst / f"{c['id']}.jpg", quality=84)
+                c["file"] = f"{c['id']}.jpg"
+            except Exception:  # noqa: BLE001
+                continue
+        kept = [c for c in kept if c.get("file")]
+        (dst / "manifest.json").write_text(json.dumps({"space": space, "family": family, "source": "pd12m",
+                                                       "embed_model": EMBED_MODEL, "photos": kept,
+                                                       "candidates": len(rows), "scored": len(scores)},
+                                                      indent=1, ensure_ascii=False), encoding="utf-8")
+        counts[space] = len(kept)
+    return counts
 
 
 EXPORT_SIDE_PX = 512

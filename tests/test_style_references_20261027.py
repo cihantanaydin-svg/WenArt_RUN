@@ -253,3 +253,38 @@ def test_an_empty_set_is_fetched_again_and_searches_broaden(tmp_path):
     assert len(urls) > n                                                     # not reused
     assert RF.broad_queries("veranda", "mediterranean") == ["mediterranean covered veranda", "covered veranda",
                                                             "porch"]
+
+
+def test_pd12m_caption_search_and_candidate_sets(tmp_path):
+    """27 Oct 2026 (user: "find the photos yourself and put it into the pod"): PD12M's captions name the space; paintings,
+    drawings, maps and old photos are out; the family's words rank first; the candidates are downloaded, ranked and
+    written as 512 px copies with a manifest for the session's choice."""
+    rows = [{"id": 1, "url": "https://b/1.jpg", "caption": "A bright scandinavian living room with a grey sofa",
+             "width": 2000, "height": 1300, "license": "https://cc0", "source": "x"},
+            {"id": 2, "url": "https://b/2.jpg", "caption": "A modern living room with plants", "width": 1600,
+             "height": 1000, "license": "https://cc0", "source": "x"},
+            {"id": 3, "url": "https://b/3.jpg", "caption": "A painting of a living room", "width": 3000, "height": 2000},
+            {"id": 4, "url": "https://b/4.jpg", "caption": "A small living room", "width": 600, "height": 400},
+            {"id": 5, "url": "https://b/5.jpg", "caption": "A child's bedroom with a bunk bed", "width": 1500,
+             "height": 1000},
+            {"id": 6, "url": "https://b/6.jpg", "caption": "A covered porch with rocking chairs", "width": 1500,
+             "height": 1000}]
+    hits = RF.caption_hits(rows, "scandinavian")
+    assert [r["id"] for r in hits["living"]] == [1, 2] and hits["living"][0]["style_hits"] >= 2
+    assert [r["id"] for r in hits["child"]] == [5] and hits["bedroom"] == [] and [r["id"] for r in hits["veranda"]] == [6]
+    acc = RF.merge_hits({}, hits, keep=1)
+    assert [r["id"] for r in acc["living"]] == [1]
+    img = tmp_path / "x.jpg"
+    Image.new("RGB", (900, 600), (180, 170, 160)).save(img)
+    data = img.read_bytes()
+
+    def scorer(paths, space, family):
+        return {pid: {"space": 0.9, "negative": 0.1, "style": 0.5, "quality": 0.5, "vec": [1.0, float(n)]}
+                for n, pid in enumerate(sorted(paths))}
+    counts = RF.candidate_sets("scandinavian", tmp_path / "root", tmp_path / "out", per_space=5,
+                               http=lambda u: data, scorer=scorer, hits={"living": hits["living"]})
+    assert counts == {"living": 2}
+    man = json.loads((RF.set_dir(tmp_path / "out", "living", "scandinavian") / "manifest.json").read_text())
+    assert man["source"] == "pd12m" and man["photos"][0]["licence"].startswith("public domain")
+    out_img = Image.open(RF.set_dir(tmp_path / "out", "living", "scandinavian") / man["photos"][0]["file"])
+    assert max(out_img.size) <= RF.EXPORT_SIDE_PX
