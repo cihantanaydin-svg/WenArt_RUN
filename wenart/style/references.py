@@ -69,6 +69,7 @@ CANDIDATES = 60                 # candidates scored per space and family
 MIN_SIDE_PX = 700               # a photo smaller than this both ways is too small to read a room from
 DUPLICATE_COS = 0.95            # two photos this similar (image embeddings) are one
 EMBED_MODEL = "google/siglip2-so400m-patch14-384"     # Apache-2.0 (checked on the Hub 27 Oct 2026)
+EMBED_MODEL_CPU = "google/siglip2-base-patch16-224"   # Apache-2.0: the CPU choice (a fetch in the cloud session)
 NEGATIVES = ("a floor plan or a drawing", "a 3D render or a computer graphic", "a product photo on a white background",
              "a photo of people", "an empty unfurnished room", "a messy cluttered room", "a text document or a sign")
 QUALITY_TEXT = "a beautiful professional interior design photo, magazine quality"
@@ -76,6 +77,9 @@ QUALITY_TEXT_OUTDOOR = "a beautiful professional architecture and landscape phot
 OPENVERSE_PAGE_MAX = 20        # pod run 123917: an anonymous Openverse search takes at most 20 results a page
 REQUEST_GAP_S = 1.0            # between two searches (the APIs' anonymous rate limits)
 RETRIES = 3                    # a 429 / 5xx answer is retried after 2, 4, 8 s
+PREFETCH_BUDGET_S = 300.0     # pod run 130756: 25 min of timeouts; the prefetch stops after this ...
+DEAD_SETS = 2                 # ... or when the first sets found nothing at all (the sources are unreachable)
+REPO_SETS = Path(__file__).resolve().parents[2] / "assets" / "references"   # curated sets committed with the code
 OPENVERSE = "https://api.openverse.org/v1/images/"
 COMMONS = "https://commons.wikimedia.org/w/api.php"
 USER_AGENT = "WenArt-RUN/1.0 (style reference research; https://github.com/cihantanaydin-svg/WenArt_RUN)"
@@ -115,7 +119,7 @@ def _get_json(http: Callable[[str], bytes], url: str) -> dict:
     return json.loads(http(url).decode("utf-8"))
 
 
-def default_http(url: str, timeout: float = 30.0) -> bytes:
+def default_http(url: str, timeout: float = 15.0) -> bytes:
     """GET ``url`` with the project's User-Agent; a 429 or 5xx answer is retried ``RETRIES`` times (2, 4, 8 s)."""
     import time
     import urllib.error
@@ -159,6 +163,8 @@ def commons_search(query: str, n: int, http: Callable[[str], bytes]) -> list[dic
               "gsrlimit": str(min(n, 50)), "prop": "imageinfo", "iiprop": "url|size|extmetadata",
               "iiurlwidth": "1280"}
     data = _get_json(http, COMMONS + "?" + urllib.parse.urlencode(params))
+    if not isinstance(data, dict) or "error" in data:
+        raise RuntimeError(f"Commons answered: {json.dumps(data)[:240]}")    # pod run 130756: 0 results, no reason
     out = []
     for page in ((data.get("query") or {}).get("pages") or {}).values():
         info = (page.get("imageinfo") or [{}])[0]
@@ -215,7 +221,8 @@ def _cos(a, b) -> float:
     return num / (da * db) if da and db else 0.0
 
 
-def score_images(paths: dict, space: str, family: Optional[str], device: str = "cuda") -> dict:
+def score_images(paths: dict, space: str, family: Optional[str], device: Optional[str] = None,
+                 model_id: Optional[str] = None) -> dict:
     """``{id: {"space", "negative", "style", "quality", "vec"}}`` of downloaded photos (``paths``: id -> file) with
     ``EMBED_MODEL`` (SigLIP 2, sigmoid probabilities of text prompts; ``vec`` the normalised image embedding). Pod
     only (torch, transformers)."""
@@ -227,8 +234,11 @@ def score_images(paths: dict, space: str, family: Optional[str], device: str = "
     fam = " ".join(FAMILY_WORDS.get(str(family or "").lower(), ())[:1])
     texts = [f"a photo of a furnished {words[0]}", *NEGATIVES, f"a {fam} style {words[0]}".replace("  ", " "),
              QUALITY_TEXT if interior else QUALITY_TEXT_OUTDOOR]
-    model = AutoModel.from_pretrained(EMBED_MODEL, torch_dtype=torch.float16).to(device).eval()
-    proc = AutoProcessor.from_pretrained(EMBED_MODEL)
+    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    model_id = model_id or (EMBED_MODEL if device == "cuda" else EMBED_MODEL_CPU)
+    dtype = torch.float16 if device == "cuda" else torch.float32
+    model = AutoModel.from_pretrained(model_id, torch_dtype=dtype).to(device).eval()
+    proc = AutoProcessor.from_pretrained(model_id)
     out = {}
     with torch.no_grad():
         tin = proc(text=texts, padding="max_length", max_length=64, return_tensors="pt").to(device)
@@ -376,6 +386,21 @@ def main(argv=None) -> int:
         print(f"references export: {n} photo(s) -> {a.out}")
         return 0
     if a.cmd == "prefetch":
+        import shutil
+        import time
+
+        seeded = 0
+        if REPO_SETS.is_dir():                    # the committed sets first: no internet needed for them
+            for man in sorted(REPO_SETS.glob("*/*/manifest.json")):
+                dst = Path(a.root) / man.parent.parent.name / man.parent.name
+                old = dst / "manifest.json"
+                if old.is_file() and (json.loads(old.read_text(encoding="utf-8")).get("photos") or []):
+                    continue
+                shutil.copytree(man.parent, dst, dirs_exist_ok=True)
+                seeded += 1
+        print(f"references: {seeded} committed set(s) copied to {a.root}")
+        t0 = time.monotonic()
+        dead = 0
         pairs = []
         for name in " ".join(a.projects).replace(",", " ").split():
             fam = brief_family(name)
@@ -383,8 +408,13 @@ def main(argv=None) -> int:
             print(f"references: project {name}: style family {fam!r}")
         failed = 0
         for space, fam in pairs:
+            if time.monotonic() - t0 > PREFETCH_BUDGET_S or dead >= DEAD_SETS:
+                print(f"references {space}/{fam}: skipped (" + ("the prefetch's time is up" if dead < DEAD_SETS else
+                      f"the first {DEAD_SETS} sets found nothing: the sources are unreachable from here") + ")")
+                continue
             try:
                 man = fetch_set(space, fam, a.root, k=a.k)
+                dead = dead + 1 if not man.get("searched") and not man.get("photos") else 0
                 print(f"references {space}/{fam}: {len(man['photos'])} kept of {man['searched']} found "
                       f"({len(man['errors'])} errors)" + (f"; first error: {man['errors'][0]}" if man["errors"] else ""))
             except Exception as exc:  # noqa: BLE001 - one set down: the others, the built-in recipe for it
