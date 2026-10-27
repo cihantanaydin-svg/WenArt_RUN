@@ -460,3 +460,30 @@ def test_the_roof_height_follows_its_plane_and_posts_reach_its_underside():
     assert len(parts["beams"]["faces"]) >= 6 * 7                         # the edge beam and its rafters
     assert max(v[2] for v in parts["posts"]["verts"]) == pytest.approx(2.6)
     assert G.distance((0, 0), (0, 0)) == 0.0
+
+
+def test_grid_bubbles_are_found_on_a_rotated_plan_and_on_wall_faces():
+    # 27 Oct 2026, generality review: only walls along the page axes counted; a rotated plan's bubbles became trees
+    import math
+
+    a = math.radians(30.0)
+
+    def rot(p):
+        return [p[0] * math.cos(a) - p[1] * math.sin(a), p[0] * math.sin(a) + p[1] * math.cos(a)]
+
+    b = _box_building()
+    for w in b["walls"]:
+        w["start"], w["end"] = rot(w["start"]), rot(w["end"])
+    outline = [rot(p) for p in M.outlines_of(_box_building())["L0"]]
+    grid = [_circle(f"sd_g{k}", rot((x, -6.0)), 0.6) for k, x in enumerate((0.0, 6.0, 10.0))]
+    tree = _circle("sd_tree", rot((3.0, -6.0)), 1.6)                     # off every axis: a tree
+    b["site"]["decor"] = grid + [tree]
+    OD.type_site_decor(b, outline)
+    by = {d["id"]: d for d in b["site"]["decor"]}
+    assert all(by[f"sd_g{k}"]["inferred_as"] == "axis_bubble" for k in range(3))
+    assert by["sd_tree"]["inferred_as"] == "tree"
+    # a circle on a wall's face line beyond the building is on an axis too; one inside the building's extent is not
+    lines = OD._axis_lines([{"start": [0.0, 0.0], "end": [10.0, 0.0], "thickness": 0.3}])
+    ring = [[0.0, -0.15], [10.0, -0.15], [10.0, 8.0], [0.0, 8.0]]
+    assert OD.on_grid_axis((12.0, 0.15), lines, ring, 0.03) and OD.on_grid_axis((-2.0, 0.0), lines, ring, 0.03)
+    assert not OD.on_grid_axis((5.0, 0.0), lines, ring, 0.03) and not OD.on_grid_axis((12.0, 0.6), lines, ring, 0.03)

@@ -636,17 +636,39 @@ def _round_symbol(item: dict) -> bool:
     return circle and min(size) / max(size) >= 0.8
 
 
-def _axis_coords(walls: Sequence[dict]) -> tuple[list[float], list[float]]:
-    xs, ys = [], []
+def _axis_lines(walls: Sequence[dict]) -> list[tuple[tuple[float, float], tuple[float, float], float]]:
+    """The wall lines a structural grid may run on (pure; 27 Oct 2026, generality review: only walls drawn along the
+    page axes counted, so a rotated or angled plan's bubbles became trees): ``(point, unit direction, half
+    thickness)`` of every wall at any angle (its centre line; its faces lie ``half thickness`` either side)."""
+    out = []
     for w in walls or []:
         s, e = w.get("start"), w.get("end")
         if not s or not e:
             continue
-        if abs(s[0] - e[0]) <= 0.01:
-            xs.append(float(s[0]))
-        elif abs(s[1] - e[1]) <= 0.01:
-            ys.append(float(s[1]))
-    return xs, ys
+        length = math.hypot(float(e[0]) - float(s[0]), float(e[1]) - float(s[1]))
+        if length < 0.3:
+            continue
+        u = ((float(e[0]) - float(s[0])) / length, (float(e[1]) - float(s[1])) / length)
+        out.append(((float(s[0]), float(s[1])), u, float(w.get("thickness") or 0.0) / 2.0))
+    return out
+
+
+def on_grid_axis(c, lines, ring, tol: float) -> bool:
+    """Whether the point ``c`` lies on the extension of a wall line (its centre line or a face, within ``tol``) beyond
+    the whole building along that line (the outline ``ring`` projected on it, 0.3 m clear): where a grid bubble is
+    drawn (pure, any angle)."""
+    if not ring:
+        return False
+    for p, u, half in lines:
+        dx, dy = c[0] - p[0], c[1] - p[1]
+        off = abs(dx * u[1] - dy * u[0])
+        if min(off, abs(off - half)) > tol:
+            continue
+        along = dx * u[0] + dy * u[1]
+        ts = [(q[0] - p[0]) * u[0] + (q[1] - p[1]) * u[1] for q in ring]
+        if along < min(ts) - 0.3 or along > max(ts) + 0.3:
+            return True
+    return False
 
 
 def type_site_decor(building: dict, outline: Sequence[Sequence[float]] = ()) -> list[dict]:
@@ -663,19 +685,12 @@ def type_site_decor(building: dict, outline: Sequence[Sequence[float]] = ()) -> 
                     key=lambda lv: (lv.get("order") is None, lv.get("order") or 0))
     if levels:
         ground = levels[0].get("id")
-    xs, ys = _axis_coords([w for w in building.get("walls") or [] if w.get("level_id") in (None, ground)])
+    lines = _axis_lines([w for w in building.get("walls") or [] if w.get("level_id") in (None, ground)])
     tol = SPACE["axis_tol"]
     ring = _ccw(outline) if len(outline or []) >= 3 else []
-    bx = (min(p[0] for p in ring), max(p[0] for p in ring)) if ring else None
-    by = (min(p[1] for p in ring), max(p[1] for p in ring)) if ring else None
 
     def on_axis(d) -> bool:
-        cx, cy = float(d["center"][0]), float(d["center"][1])
-        if bx is None:
-            return False
-        beyond_y = cy < by[0] - 0.3 or cy > by[1] + 0.3
-        beyond_x = cx < bx[0] - 0.3 or cx > bx[1] + 0.3
-        return (beyond_y and any(abs(cx - x) <= tol for x in xs)) or (beyond_x and any(abs(cy - y) <= tol for y in ys))
+        return on_grid_axis((float(d["center"][0]), float(d["center"][1])), lines, ring, tol)
 
     todo = [d for d in items if d.get("inferred_as") is None and d.get("kind") in (None, "other")]
     round_axis = [d for d in todo if _round_symbol(d) and decor_word(d) is None and on_axis(d)]
