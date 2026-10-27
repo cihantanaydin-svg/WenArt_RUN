@@ -72,7 +72,8 @@ def test_plants_only_in_living_and_bedrooms_and_off_walkways(decorated):
             assert poly.intersection(door.zone).area < P.AREA_EPS
             assert door.swing is None or poly.intersection(door.swing).area < P.AREA_EPS
         plant_piece = P.Piece("plant", tuple(plant["center"]), 0.0, tuple(plant["size"]), False, index=len(pieces))
-        assert not P.walkway_failures(pieces + [plant_piece], ctx)
+        # 27 Oct 2026 (run 160846): the plant blocks no walkway itself (one the furniture blocked before it may stay)
+        assert not set(P.walkway_failures(pieces + [plant_piece], ctx)) - set(P.walkway_failures(pieces, ctx))
     assert len(plants) == len({p["room_id"] for p in plants})     # one per room
     for row in rows:
         if row["plant"] == "none":

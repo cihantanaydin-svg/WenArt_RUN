@@ -368,7 +368,8 @@ def plant_position(room: dict, furniture: list[dict], building: dict) -> tuple[O
                               and plant.polygon().intersection(p.front_zone()).area > placer.AREA_EPS
                               for p in pieces):
             failed = ["clearance of another piece"]
-        if not failed and placer.walkway_failures(pieces + [plant], ctx):
+        # 27 Oct 2026 (run 160846): only a walkway the plant blocks itself (one blocked before stays a layout finding)
+        if not failed and set(placer.walkway_failures(pieces + [plant], ctx)) - set(placer.walkway_failures(pieces, ctx)):
             failed = ["walkway"]
         if not failed:
             return center, "free corner"
@@ -770,6 +771,139 @@ def wall_art_for_host(host: dict, ctx: placer.RoomContext, building: dict, level
             "wall_point": [round(wall_point[0], 3), round(wall_point[1], 3)],
             "wall_id": _nearest_wall_id(building, host["level_id"], wall_point), "gap_m": gap,
             "bottom_m": bottom, "max_height_m": max_h, "reason": reason}, "ok"
+
+
+# 27 Oct 2026 (run 160846, real06's 55 m2 salon: the recipe's wall art and plants were musts, yet the only art slot was
+# above the sofa, where a window left 0.00 m, and no corner was free for a plant): a designer hangs art on any free
+# wall and stands a plant beside the sofa or a window. ``free_wall_art``: the longest free stretches of the room's
+# walls (no door, window or opening within OPENING_MARGIN_M, no piece taller than FREE_WALL_TALL_M in front of it
+# within FREE_WALL_FRONT_M), at least FREE_WALL_MIN_M long; the picture is FREE_WALL_ART_SHARE of the stretch (at
+# most WALL_ART_MAX_W), centred, its bottom at FREE_WALL_ART_BOTTOM_M or WALL_ART_GAP_M over the low pieces in
+# front. ``wall_candidates``: plant places along the walls, every WALL_STEP_M, inset like a corner plant.
+FREE_WALL_MIN_M = 1.0
+FREE_WALL_TALL_M = 1.3
+FREE_WALL_FRONT_M = 0.8
+FREE_WALL_ART_SHARE = 0.55
+FREE_WALL_ART_BOTTOM_M = 1.2
+FREE_WALL_ART_MAX = 2
+WALL_STEP_M = 0.5
+
+
+def _free_intervals(lo: float, hi: float, blocked: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    """The parts of ``[lo, hi]`` outside every ``blocked`` interval (pure)."""
+    out, cur = [], lo
+    for a, b in sorted(blocked):
+        if b <= cur:
+            continue
+        if a > cur:
+            out.append((cur, min(a, hi)))
+        cur = max(cur, b)
+        if cur >= hi:
+            break
+    if cur < hi:
+        out.append((cur, hi))
+    return [(a, b) for a, b in out if b - a > 1e-6]
+
+
+def free_wall_art(room: dict, furniture: list[dict], building: dict, ctx: Optional[placer.RoomContext] = None,
+                  level: Optional[dict] = None, dtype: str = "wall_art",
+                  most: int = FREE_WALL_ART_MAX) -> list[dict]:
+    """Wall art on the room's free walls (the comment above), the longest stretches first, at most ``most`` (one per
+    wall); each item as ``wall_art_for_host`` makes it, without ``anchor_ids`` (no host), ``free_wall`` True."""
+    ctx = ctx or placer.room_context(building, room)
+    level = level or next((lv for lv in building.get("levels") or [] if lv.get("id") == room["level_id"]), {})
+    doors, windows = placer.room_openings(building, room)
+    walls = {w["id"]: w for w in building.get("walls") or []}
+    floor_pieces = [f for f in furniture if f.get("footprint") and f.get("build", True) is not False]
+    ceiling_flat = float(level.get("ceiling_height") or 2.7)
+    planes = ceiling_planes(building, room["level_id"])
+    found = []
+    for i, (a, b) in enumerate(ctx.segments):
+        seg_len = G.distance(a, b)
+        if seg_len < FREE_WALL_MIN_M:
+            continue
+        u = ((b[0] - a[0]) / seg_len, (b[1] - a[1]) / seg_len)
+        n = ctx.segment_normal(i)
+        blocked = []
+        for op in doors + windows:
+            oc = (float(op["center"][0]), float(op["center"][1]))
+            wall = walls.get(op.get("wall_id") or "")
+            t = float(wall["thickness"]) if wall and wall.get("thickness") else placer.DEFAULT_WALL_THICKNESS_M
+            if G.point_segment_distance(oc, a, b) > t / 2.0 + 0.06:
+                continue
+            s_o = (oc[0] - a[0]) * u[0] + (oc[1] - a[1]) * u[1]
+            half = float(op["width"]) / 2.0 + OPENING_MARGIN_M
+            blocked.append((s_o - half, s_o + half))
+        low_tops = []                                         # (s0, s1, top) of the low pieces in front
+        for f in floor_pieces:
+            poly = placer.piece_from_furniture(f).polygon()
+            pts = list(poly.exterior.coords)
+            depth = [(x - a[0]) * n[0] + (y - a[1]) * n[1] for x, y in pts]
+            if min(depth) > FREE_WALL_FRONT_M or max(depth) < -0.05:
+                continue
+            along = [(x - a[0]) * u[0] + (y - a[1]) * u[1] for x, y in pts]
+            s0, s1 = min(along), max(along)
+            if s1 < 0.0 or s0 > seg_len:
+                continue
+            hung = placer.schemas.off_floor(f)                 # a wall-hung piece takes its stretch of the wall
+            top = 0.0 if hung else float(placer_bbox_height(f))
+            if top > FREE_WALL_TALL_M or hung:
+                blocked.append((s0 - 0.05, s1 + 0.05))
+            else:
+                low_tops.append((s0, s1, top))
+        for s0, s1 in _free_intervals(WALL_END_MARGIN_M, seg_len - WALL_END_MARGIN_M, blocked):
+            if s1 - s0 >= FREE_WALL_MIN_M:
+                found.append((s1 - s0, i, s0, s1, u, n, a, low_tops))
+    out: list[dict] = []
+    used_walls = set()
+    for length, i, s0, s1, u, n, a, low_tops in sorted(found, key=lambda x: (-x[0], x[1], x[2])):
+        if len(out) >= most or i in used_walls:
+            continue
+        width = math.floor(min(WALL_ART_MAX_W, FREE_WALL_ART_SHARE * length) * 1000.0) / 1000.0
+        if width < WALL_ART_MIN_W:
+            continue
+        s_c = (s0 + s1) / 2.0
+        under = [top for p0, p1, top in low_tops if p1 > s_c - width / 2.0 and p0 < s_c + width / 2.0]
+        bottom = round(max([FREE_WALL_ART_BOTTOM_M] + [t + WALL_ART_GAP_M for t in under]), 3)
+        wall_point = (a[0] + u[0] * s_c, a[1] + u[1] * s_c)
+        center = (wall_point[0] + n[0] * WALL_ART_DEPTH_M / 2.0, wall_point[1] + n[1] * WALL_ART_DEPTH_M / 2.0)
+        rotation = G.normalise_angle(math.degrees(math.atan2(n[0], -n[1])))
+        ceiling = ceiling_flat
+        if planes:
+            ceiling = min(ceiling, ceiling_over(building, room["level_id"], center, (width, WALL_ART_DEPTH_M),
+                                                rotation, planes=planes))
+        max_h = round(ceiling - WALL_ART_CEILING_M - bottom, 3)
+        if max_h < WALL_ART_MIN_H - 1e-9:
+            continue
+        used_walls.add(i)
+        out.append({"type": dtype, "center": [round(center[0], 3), round(center[1], 3)],
+                    "rotation_deg": round(rotation, 3), "size": [width, WALL_ART_DEPTH_M],
+                    "wall_point": [round(wall_point[0], 3), round(wall_point[1], 3)],
+                    "wall_id": _nearest_wall_id(building, room["level_id"], wall_point), "gap_m": WALL_ART_GAP_M,
+                    "bottom_m": bottom, "max_height_m": max_h, "free_wall": True,
+                    "reason": f"{dtype.replace('_', ' ')} centred on a free wall stretch of {length:.2f} m (no door, "
+                              f"window or tall piece in front)"})
+    return out
+
+
+def wall_candidates(ctx: placer.RoomContext, inset: float = CORNER_INSET_M,
+                    step: float = WALL_STEP_M) -> list[tuple[float, float]]:
+    """Floor places along the room's walls (pure but for the context): every ``step`` m along each wall segment,
+    ``inset`` into the room, from ``inset`` + 0.2 m off its ends, in boundary order."""
+    out = []
+    for i, (a, b) in enumerate(ctx.segments):
+        seg_len = G.distance(a, b)
+        start = inset + 0.2
+        if seg_len < 2.0 * start:
+            continue
+        u = ((b[0] - a[0]) / seg_len, (b[1] - a[1]) / seg_len)
+        nrm = ctx.segment_normal(i)
+        k = 0
+        while start + k * step <= seg_len - inset - 0.2 + 1e-9:
+            s = start + k * step
+            out.append((round(a[0] + u[0] * s + nrm[0] * inset, 3), round(a[1] + u[1] * s + nrm[1] * inset, 3)))
+            k += 1
+    return out
 
 
 def placer_bbox_height(piece: dict) -> float:

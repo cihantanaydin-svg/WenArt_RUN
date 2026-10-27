@@ -182,6 +182,7 @@ MIRROR_MAX_W = 1.0
 MIRROR_MIN_W = 0.35
 MIRROR_GAP_M = 0.30                   # above a washbasin's top: room for the tap
 FLOOR_CORNERS_MAX = 2
+FREE_WALL_ART_ROOM_TYPES = ("living", "bedroom", "dining", "hall", "child", "office")   # 27 Oct 2026: art on free walls
 # Room type -> the decor types the AI may choose there (docs/milestone9.md §4).
 ROOM_TYPES: dict[str, tuple[str, ...]] = {
     "living": AI_TYPES,
@@ -400,6 +401,11 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
                 slots.append(Slot(f"{host['id']}.wall", "wall", tuple(made), host["id"], htype, items=made))
             if why:
                 notes.append(f"{host['id']} wall: " + "; ".join(why))
+    # 27 Oct 2026 (run 160846): art on the free walls too, not only above a sofa, bed or dresser
+    if "wall_art" in allowed and rtype in FREE_WALL_ART_ROOM_TYPES:
+        for n, item in enumerate(D.free_wall_art(room, pieces, building, ctx, level), start=1):
+            slots.append(Slot(f"{room['id']}.wall{n}", "wall", ("wall_art",), None, None, items={"wall_art": item},
+                              note=f"free wall, {item['size'][0]:.2f} m wide picture"))
     if "rug" in allowed:
         rugs, rug_notes = D.rugs_for_room(room, pieces, building)
         for n, item in enumerate(rugs, start=1):
@@ -415,7 +421,7 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
             slots.append(Slot(sid, "floor", tuple(t for t in FLOOR_TYPES if t in made), None, None, center,
                               items=made, note=f"corner at {center[0]:.2f}, {center[1]:.2f}"))
         if not corners:
-            notes.append("no free corner for a floor plant")
+            notes.append("no free corner or wall place for a floor plant")
     if allowed & {"curtain", "blind"}:                          # Milestone 10: window dressings
         made_windows, why = window_items(room, pieces, building, ctx, ceiling, planes=planes)   # after P6a: slope
         notes += why
@@ -467,22 +473,30 @@ def _wall_item(host: dict, ctx: placer.RoomContext, building: dict, level: dict,
 
 
 def free_corners(room: dict, pieces: list[dict], building: dict, ctx: placer.RoomContext,
-                 others: tuple = (), size=D.PLANT_SIZE, inset: float = D.CORNER_INSET_M) -> list[tuple[float, float]]:
+                 others: tuple = (), size=D.PLANT_SIZE, inset: float = D.CORNER_INSET_M,
+                 candidates: Optional[list] = None) -> list[tuple[float, float]]:
     """Every convex room corner a floor plant may take (``decor.plant_position``'s checks), in boundary order;
     ``others``: plant centres placed before (obstacles). Milestone 10: ``size`` and ``inset`` of a larger floor
-    item (a large plant, a floor sculpture). Wall-hung pieces (``mount_bottom_m``) are no floor obstacles."""
+    item (a large plant, a floor sculpture). Wall-hung pieces (``mount_bottom_m``) are no floor obstacles.
+    ``candidates``: other places to check the same way (27 Oct 2026: ``wall_spots``)."""
     base = [placer.piece_from_furniture(f, i) for i, f in enumerate(pieces) if not schemas.off_floor(f)]
     for c in others:
         base.append(placer.Piece("plant", tuple(c), 0.0, D.PLANT_SIZE, False, index=len(base)))
     out = []
-    for center in D._corner_candidates(ctx, inset):
+    # 27 Oct 2026 (run 160846: real06's salon had door-to-door walkways blocked by its furniture before any plant, so
+    # every plant place failed "walkway"): a plant fails only for a walkway it blocks itself
+    before = None
+    for center in (D._corner_candidates(ctx, inset) if candidates is None else candidates):
         plant = placer.Piece("plant", center, 0.0, tuple(size), False, index=len(base))
         failed = placer.failed_checks(placer.check_piece(plant, base, ctx))
         if not failed and any(p.type in placer.schemas.CLEARANCE_TYPES
                               and plant.polygon().intersection(p.front_zone()).area > placer.AREA_EPS for p in base):
             failed = ["clearance of another piece"]
-        if not failed and placer.walkway_failures(base + [plant], ctx):
-            failed = ["walkway"]
+        if not failed:
+            if before is None:
+                before = set(placer.walkway_failures(base, ctx))
+            if set(placer.walkway_failures(base + [plant], ctx)) - before:
+                failed = ["walkway"]
         if not failed:
             out.append(center)
     return out
@@ -1545,10 +1559,15 @@ def floor_items(room: dict, pieces: list[dict], building: dict, ctx: placer.Room
     types = [t for t in ("plant", "plant_large", "basket", "sculpture") if t in allowed]
     if not types:
         return []
-    base_corners = free_corners(room, pieces, building, ctx)
+    spots = [(c, "corner") for c in free_corners(room, pieces, building, ctx)[:FLOOR_CORNERS_MAX]]
+    if len(spots) < FLOOR_CORNERS_MAX:              # 27 Oct 2026 (run 160846): beside the sofa or a window
+        for c in wall_spots(room, pieces, building, ctx, [c for c, _k in spots]):
+            if len(spots) >= FLOOR_CORNERS_MAX:
+                break
+            spots.append((c, "wall"))
     planes = D.ceiling_planes(building, room["level_id"])     # Milestone 11 (E2): the attic slope
     out = []
-    for n, small in enumerate(base_corners[:FLOOR_CORNERS_MAX], start=1):
+    for n, (small, where) in enumerate(spots, start=1):
         made = {}
         for t in types:
             w, d, h = FLOOR_ITEM_SIZES[t]
@@ -1556,7 +1575,9 @@ def floor_items(room: dict, pieces: list[dict], building: dict, ctx: placer.Room
                 continue
             centre = small
             if (w, d) != tuple(D.PLANT_SIZE):
-                options = free_corners(room, pieces, building, ctx, size=(w, d), inset=FLOOR_ITEM_INSET_M[t])
+                inset = FLOOR_ITEM_INSET_M[t]
+                options = free_corners(room, pieces, building, ctx, size=(w, d), inset=inset,
+                                       candidates=None if where == "corner" else D.wall_candidates(ctx, inset))
                 near = [c for c in options if G.distance(c, small) <= 0.3]
                 if not near:
                     continue
@@ -1566,9 +1587,35 @@ def floor_items(room: dict, pieces: list[dict], building: dict, ctx: placer.Room
                 continue                      # the sloped ceiling over this corner is too low (real02's attic)
             made[t] = {"type": t, "center": [round(centre[0], 3), round(centre[1], 3)], "rotation_deg": 0.0,
                        "size": [w, d, h] if t != "plant" else list(D.PLANT_SIZE),
-                       "reason": f"{t.replace('_', ' ')} in a free corner"}
+                       "reason": f"{t.replace('_', ' ')} " + ("in a free corner" if where == "corner"
+                                                              else "against a free wall, beside the seating or a "
+                                                                   "window")}
         if made:
-            out.append((f"{room['id']}.corner{n}", made))
+            out.append((f"{room['id']}.{'corner' if where == 'corner' else 'floor'}{n}", made))
+    return out
+
+
+PLANT_SPACING_M = 1.5            # two floor plants of a room stand at least this far apart
+PLANT_BESIDE_M = 0.9             # a wall place this close to a seat, bed or window ranks first
+
+
+def wall_spots(room: dict, pieces: list[dict], building: dict, ctx: placer.RoomContext,
+               others: list) -> list[tuple[float, float]]:
+    """27 Oct 2026 (run 160846: no free corner in real06's 55 m2 salon): the wall places a floor plant may take
+    (``decor.wall_candidates`` through ``free_corners``' checks), those within ``PLANT_BESIDE_M`` of a sofa, armchair,
+    bed or window first (the nearest first), each ``PLANT_SPACING_M`` from the others and from ``others``."""
+    free = free_corners(room, pieces, building, ctx, candidates=D.wall_candidates(ctx))
+    near_types = {"sofa", "sofa_corner", "armchair", "bed_double", "bed_single", "chaise", "sideboard", "desk"}
+    marks = [tuple(p["footprint"]["center"]) for p in pieces if p.get("type") in near_types and p.get("footprint")]
+    marks += [tuple(w.band.centroid.coords[0]) for w in ctx.windows]
+
+    def beside(c):
+        return min((G.distance(c, m) for m in marks), default=math.inf)
+    ranked = sorted(free, key=lambda c: (beside(c) > PLANT_BESIDE_M + 1.5, beside(c), c))
+    out: list = []
+    for c in ranked:
+        if all(G.distance(c, o) >= PLANT_SPACING_M for o in list(others) + out):
+            out.append(c)
     return out
 
 
