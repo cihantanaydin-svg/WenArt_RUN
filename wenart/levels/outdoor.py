@@ -958,9 +958,9 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
     cols = _columns(building)
     for s in out:
         sp = _shp(s["polygon"])
-        s["columns"] = [{"id": c.get("id"),
-                         "center": [round(float(c["center"][0]), 4), round(float(c["center"][1]), 4)],
-                         "size_m": round(max(float(v) for v in (c.get("size") or [0.3, 0.3])[:2]), 3)}
+        s["columns"] = [dict({"id": c.get("id"),
+                              "center": [round(float(c["center"][0]), 4), round(float(c["center"][1]), 4)]},
+                             **column_look(c))
                         for c in cols if sp.distance(Point(c["center"])) <= SPACE["column_reach"]]
     for s in out:
         s["roof"] = roof_plan(s, out, levels, outlines, building, doors)
@@ -1013,9 +1013,9 @@ def assign_posts(spaces: Sequence[dict], gz) -> None:
             z0 = float(owner["z"]) if low else gz(*c["center"])
             if under - z0 < 1.0:
                 continue
-            owner["posts"].append({"center": list(c["center"]), "size_m": c["size_m"], "source": "drawn",
-                                   "id": c["id"], "z0": round(z0, 3), "z1": under,
-                                   "carries": f"the slab of {up['id']}"})
+            owner["posts"].append(dict({"center": list(c["center"]), "source": "drawn", "id": c["id"],
+                                        "z0": round(z0, 3), "z1": under, "carries": f"the slab of {up['id']}"},
+                                       **_look_of(c)))
 
 
 def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outlines: dict, building: dict,
@@ -1096,10 +1096,11 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
     posts = []
     for c in space.get("columns") or []:
         if region.buffer(SPACE["column_reach"]).contains(Point(c["center"])):
-            posts.append({"center": list(c["center"]), "size_m": c["size_m"], "source": "drawn", "id": c["id"]})
+            posts.append(dict({"center": list(c["center"]), "source": "drawn", "id": c["id"]}, **_look_of(c)))
     # 27 Oct 2026 (real06: a 0.15 m square stick stood beside the veranda's drawn 0.53 m round column; Argus O6): an
     # inferred post takes the shape and the size of the space's drawn columns (their median), one post language
-    post_size, post_shape = post_look(space.get("columns") or [])
+    look = post_look(space.get("columns") or [])
+    post_size = look["size_m"]
     ring = _ccw(_coords(region))
     for p in ring:
         pt = Point(p)
@@ -1111,8 +1112,7 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
         cx, cy = region.centroid.x, region.centroid.y
         d = G.distance(p, (cx, cy)) or 1.0
         c = (p[0] + (cx - p[0]) / d * inset, p[1] + (cy - p[1]) / d * inset)
-        posts.append({"center": [round(c[0], 4), round(c[1], 4)], "size_m": post_size, "source": "inferred",
-                      "id": None, "shape": post_shape})
+        posts.append(dict({"center": [round(c[0], 4), round(c[1], 4)], "source": "inferred", "id": None}, **look))
     # long open edges: posts at most post_span apart
     for a, b in zip(ring, ring[1:] + ring[:1]):
         length = G.distance(a, b)
@@ -1124,8 +1124,8 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
             q = G.point_along_segment(a, b, j / k)
             if any(G.distance(q, x["center"]) <= SPACE["post_span"] / 2.0 for x in posts):
                 continue
-            posts.append({"center": [round(q[0], 4), round(q[1], 4)], "size_m": post_size,
-                          "source": "inferred", "id": None, "shape": post_shape})
+            posts.append(dict({"center": [round(q[0], 4), round(q[1], 4)], "source": "inferred", "id": None},
+                              **look))
     for q in posts:
         q["z0"] = round(z, 3)
         q["z1"] = round(top_at(q["center"]) - t, 3)
@@ -1143,12 +1143,33 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
             "posts": posts, "reason": reason, "inferred": True}
 
 
-def post_look(columns: list) -> tuple[float, str]:
-    """The size and shape of a space's inferred posts (pure; 27 Oct 2026): the median size of its drawn columns and
-    ``round`` (a drawn column of 0.2 m or more is built round, ``site.cover_parts``), else ``SPACE["post_size"]``
-    ``square``."""
-    sizes = sorted(float(c["size_m"]) for c in columns if isinstance(c.get("size_m"), (int, float)))
-    if not sizes:
-        return SPACE["post_size"], "square"
-    mid = sizes[len(sizes) // 2] if len(sizes) % 2 else (sizes[len(sizes) // 2 - 1] + sizes[len(sizes) // 2]) / 2.0
-    return round(mid, 3), "round" if mid >= 0.2 else "square"
+def column_look(item: dict) -> dict:
+    """The shape of a drawn column as drawn (pure; 27 Oct 2026, generality review: every drawn column of 0.2 m or more
+    was built round, from one house's round veranda columns; most concrete-frame porches have rectangular ones):
+    ``{"shape": round | square | rect, "size_m", "size_xy", "rotation_deg"}``. A round symbol (``_round_symbol``: a
+    circle or arc, its sides within 20 %) is a cylinder of its larger side; any other symbol a box of its drawn width
+    and depth (``square`` when they are within 5 %) at its drawn rotation. ``size_m`` is its larger side."""
+    w, d = [float(v) for v in (item.get("size") or [0.3, 0.3])[:2]]
+    w, d = max(w, 0.05), max(d, 0.05)
+    shape = "round" if _round_symbol(item) else ("square" if min(w, d) / max(w, d) >= 0.95 else "rect")
+    return {"shape": shape, "size_m": round(max(w, d), 3), "size_xy": [round(w, 3), round(d, 3)],
+            "rotation_deg": round(float(item.get("rotation_deg") or 0.0), 2)}
+
+
+def _look_of(c: dict) -> dict:
+    s = float(c.get("size_m") or SPACE["post_size"])
+    return {"size_m": s, "shape": c.get("shape") or "square", "size_xy": list(c.get("size_xy") or [s, s]),
+            "rotation_deg": float(c.get("rotation_deg") or 0.0)}
+
+
+def post_look(columns: list) -> dict:
+    """The look of a space's inferred posts (pure; 27 Oct 2026): one post language with its drawn columns. The
+    columns' most common shape and, of those, the one of median size (its size, footprint and rotation); without
+    drawn columns a ``SPACE["post_size"]`` square post. Returns ``_look_of``'s fields."""
+    cols = [c for c in columns if isinstance(c.get("size_m"), (int, float))]
+    if not cols:
+        return _look_of({"size_m": SPACE["post_size"], "shape": "square"})
+    shapes = [c.get("shape") or "square" for c in cols]
+    common = max(sorted(set(shapes)), key=shapes.count)
+    same = sorted((c for c in cols if (c.get("shape") or "square") == common), key=lambda c: float(c["size_m"]))
+    return _look_of(same[(len(same) - 1) // 2])

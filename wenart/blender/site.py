@@ -3683,7 +3683,8 @@ def cover_parts(pf: dict) -> list[dict]:
     """The cover of a labelled outdoor space (pure; 26 Oct 2026): ``roof`` (a light roof: a slab ``thickness`` thick
     whose top follows ``roof_z``; a glass roof: a ``glass_t`` pane, its faces in slot 1), ``beams`` (under the roof's
     ``open_edges``; a pergola's edge beams and its rafters every ``rafter_pitch`` along the fall) and ``posts`` (a
-    drawn round column as a cylinder of its drawn size, an inferred post square, from ``z0`` to ``z1``). ``[]`` for a
+    drawn column in its drawn shape (``outdoor.column_look``: a cylinder for a round symbol, else a box of its drawn
+    footprint and rotation), an inferred post in its space's post look, from ``z0`` to ``z1``). ``[]`` for a
     platform without ``roof`` or ``posts``."""
     out = []
     roof = pf.get("roof") if isinstance(pf.get("roof"), dict) else None
@@ -3741,10 +3742,12 @@ def cover_parts(pf: dict) -> list[dict]:
         if z1 - z0 < 0.3:
             continue
         size = float(q.get("size_m") or 0.15)
-        if q.get("shape") == "round" or (q.get("source") == "drawn" and size >= 0.2):
+        if q.get("shape") == "round":                   # 27 Oct 2026: the drawn shape (outdoor.column_look)
             posts.append(_cylinder(q["center"], size / 2.0, z0, z1, COVER["post_segments"]))
         else:
-            posts.append(geom2d.box((q["center"][0], q["center"][1], (z0 + z1) / 2.0), (size, size, z1 - z0), 0.0))
+            w, d = (q.get("size_xy") or [size, size])[:2]
+            posts.append(geom2d.box((q["center"][0], q["center"][1], (z0 + z1) / 2.0), (float(w), float(d), z1 - z0),
+                                    float(q.get("rotation_deg") or 0.0)))
     if posts:
         v, f = geom2d.merge(posts)
         out.append({"part": "posts", "verts": v, "faces": f})

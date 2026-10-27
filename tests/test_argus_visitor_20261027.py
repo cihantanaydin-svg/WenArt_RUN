@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from wenart.agent.model import MockModel
 from wenart.audit import argus_ai as AI
 from wenart.audit import inputs as I
@@ -49,9 +51,12 @@ def test_outdoor_floors_are_never_the_garden_paving_and_undersides_are_wood():
 
 
 def test_inferred_posts_take_the_drawn_columns_shape_and_size():
-    assert O.post_look([{"size_m": 0.525}, {"size_m": 0.425}]) == (0.475, "round")
-    assert O.post_look([]) == (O.SPACE["post_size"], "square")
-    posts = [{"size_m": 0.525, "source": "drawn", "id": "c1"}, {"size_m": 0.15, "source": "inferred", "id": None}]
+    rnd = O.post_look([{"size_m": 0.525, "shape": "round"}, {"size_m": 0.425, "shape": "round"},
+                       {"size_m": 0.3, "shape": "rect", "size_xy": [0.3, 0.2]}])
+    assert (rnd["size_m"], rnd["shape"]) == (0.425, "round")          # the common shape, its median size
+    assert O.post_look([])["shape"] == "square" and O.post_look([])["size_m"] == O.SPACE["post_size"]
+    posts = [{"size_m": 0.525, "source": "drawn", "id": "c1", "shape": "round"},
+             {"size_m": 0.15, "source": "inferred", "id": None}]
     got, n = OR.review({"openings": [], "walls": []},
                        {"site": {"platforms": [_balcony(elevated=False, z=0.0, posts=posts,
                                                         space={"kind": "terrace", "doors": [], "level_id": "L0"},
@@ -132,3 +137,30 @@ def test_an_exterior_view_of_a_veranda_is_judged_against_veranda_photos():
     assert JD.outdoor_space_of(b, {"visible_openings": ["d7"]}) == "balcony"
     assert JD.outdoor_space_of(b, {"visible_openings": [], "target": [1.0, -3.0]}) == "veranda"
     assert JD.outdoor_space_of(b, {"visible_openings": ["x"], "target": [20.0, 20.0]}) is None
+
+
+def test_a_drawn_column_is_built_in_its_drawn_shape():
+    # generality review of 27 Oct 2026: every drawn column of 0.2 m or more was built round
+    circle = {"size": [0.42, 0.44], "evidence": [{"entity": "CIRCLE:1,LINE:2"}]}
+    rect = {"size": [0.25, 0.5], "rotation_deg": 30.0, "evidence": [{"entity": "LINE:1,LINE:2,LINE:3,LINE:4"}]}
+    square = {"size": [0.3, 0.3], "evidence": [{"entity": "LWPOLYLINE:9"}]}
+    assert O.column_look(circle)["shape"] == "round" and O.column_look(circle)["size_m"] == 0.44
+    r = O.column_look(rect)
+    assert r["shape"] == "rect" and r["size_xy"] == [0.25, 0.5] and r["rotation_deg"] == 30.0 and r["size_m"] == 0.5
+    assert O.column_look(square)["shape"] == "square"
+    pf = {"roof": None, "posts": [dict(r, center=[0.0, 0.0], z0=0.0, z1=2.5, source="drawn", id="c1"),
+                                  dict(O.column_look(circle), center=[3.0, 0.0], z0=0.0, z1=2.5, source="drawn",
+                                       id="c2")]}
+    parts = {q["part"]: q for q in S.cover_parts(pf)}
+    verts = parts["posts"]["verts"]
+    box = [v for v in verts if abs(v[0]) < 1.0]
+    cyl = [v for v in verts if abs(v[0] - 3.0) < 1.0]
+    assert len(box) == 8 and len(cyl) > 8                            # a box of the drawn footprint, a cylinder
+    xs, ys = [v[0] for v in box], [v[1] for v in box]
+    import math
+    a = math.radians(30.0)
+    assert max(xs) - min(xs) == pytest.approx(0.25 * math.cos(a) + 0.5 * math.sin(a), abs=1e-6)
+    assert max(ys) - min(ys) == pytest.approx(0.25 * math.sin(a) + 0.5 * math.cos(a), abs=1e-6)
+    # inferred posts copy the drawn rectangular columns
+    look = O.post_look([dict(r, id="c1")])
+    assert look["shape"] == "rect" and look["size_xy"] == [0.25, 0.5] and look["rotation_deg"] == 30.0

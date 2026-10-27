@@ -82,9 +82,8 @@ def wall_backed(a, b, walls: list[dict]) -> float:
 
 
 def _shape(q: dict) -> str:
-    """A post's shape as ``site.cover_parts`` builds it."""
-    return "round" if q.get("shape") == "round" or (q.get("source") == "drawn" and float(q["size_m"]) >= 0.2) \
-        else "square"
+    """A post's shape as ``site.cover_parts`` builds it (``outdoor.column_look``)."""
+    return str(q.get("shape") or "square")
 
 
 def space_label(pf: dict) -> str:
