@@ -84,3 +84,19 @@ armchairs, two planters, a rug and a lantern.
 Next, from the first run with photos: hosts for the decor the rooms still lack (a coffee table and side tables in a
 seating group, a console in the hall, the counter top in the kitchen, the vanity in the bathroom), towels and bath
 mats, lit lamps, and metric 18 (the style similarity) in the report.
+
+## 6. Where the photos come from now (27 Oct 2026)
+
+The pod's Openverse and Commons searches returned nothing (runs 123917, 130756). User: "Find the photos yourself and
+put it into the pod".
+
+| Step | What | Where |
+|---|---|---|
+| 1 | search the captions of PD12M (Spawning/PD12M, 12.4 M public-domain and CC0 photos) for each space and the style family's words; no paintings, drawings, maps, old photos, photos under 1000 px | pod job `scripts/jobs/references.sh` (`references candidates`), hits cached on the volume |
+| 2 | download up to 120 per space from the dataset's bucket (16 at a time), rank with SigLIP 2: a photo of a home's space, not a plan, render, product shot, empty room, public restroom, restaurant, museum room, showroom or painting; style and photo quality first | same |
+| 3 | the best 30 per space come back as 512 px copies with a manifest | `runs/<job>/results/references_candidates/` |
+| 4 | the session looks at them (numbered contact sheets) and keeps the homes of the space (up to 8) | `assets/references/<space>/<family>/` (in git; the rest of `assets/` stays ignored) |
+| 5 | every run copies the committed sets to the volume first (a volume set with other photos gives way), reads their recipes with the vision model, and the judge sees the best one beside each render | `references prefetch`, `recipe_read`, `judge.reference_for` |
+
+Picked so far (scandinavian): bedroom 6, bathroom 8, dining 8, balcony 6. Dressing and child room: no usable photo
+(a cloakroom, museum rooms): their built-in recipes stand.
