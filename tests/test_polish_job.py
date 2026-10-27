@@ -223,6 +223,9 @@ def test_setup_parts_follow_the_phases(tmp_path):
     # (CUDA OOM retry of the review fix G1), so a tests pod downloads them too.
     assert "PLAN venv=1 models=1 check=1" in plan
     assert f"PLAN BAKEOFF_MODELS={models['glm']['id']}@{models['glm']['revision']}\n" in plan
+    # 27 Oct 2026 (job 155613: the gate phase's polish models filled the disk): the phase "venv" is the venv alone
+    plan = _setup_plan(tmp_path, POLISH_MODE="final", POLISH_PHASES="venv")
+    assert "PLAN venv=1 models=0 check=0" in plan
     plan = _setup_plan(tmp_path, POLISH_MODE="final", POLISH_PHASES="check", POLISH_RECOG_PARTS="vllm models")
     assert "PLAN RECOG_SETUP_PARTS=vllm models\n" in plan
     plan = _setup_plan(tmp_path, POLISH_MODE="sweep", POLISH_PHASES="look controls gate report")

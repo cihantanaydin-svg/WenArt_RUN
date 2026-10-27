@@ -18,9 +18,10 @@ mkdir -p "$LOGS" "$WENART_RESULTS"
 JOB="${JOB_ID:-references}"
 log() { echo "[$(date -u +%FT%TZ)] references: $*" | tee -a "$LOGS/references-$JOB.log"; }
 
-# venv-polish (transformers, huggingface-hub, the image's torch) is the environment SigLIP 2 runs in; its "gate" phase
-# builds it (and checks its models, cached). pyarrow reads the PD12M metadata.
-POLISH_PHASES="gate" POLISH_MODE=final bash scripts/pod_setup_polish.sh >> "$LOGS/references-setup-$JOB.log" 2>&1 \
+# venv-polish (transformers, huggingface-hub, the image's torch) is the environment SigLIP 2 runs in; its "venv" phase
+# builds it alone (job 155613: the "gate" phase's 33 GB of polish models filled the disk). pyarrow reads the PD12M
+# metadata.
+POLISH_PHASES="venv" POLISH_MODE=final bash scripts/pod_setup_polish.sh >> "$LOGS/references-setup-$JOB.log" 2>&1 \
   || log "warning: pod_setup_polish.sh failed (see references-setup-$JOB.log)"
 PY="${WENART_POLISH_PY:-/opt/wenart/venv-polish/bin/python}"
 if ! "$PY" -c "import pyarrow" 2>/dev/null; then

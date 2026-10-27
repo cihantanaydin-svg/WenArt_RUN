@@ -95,6 +95,9 @@ has_phase() { local p; for p in "${PHASES[@]}"; do [ "$p" = "$1" ] && return 0; 
 # Which parts this job needs (see the header).
 NEED_VENV=0; NEED_MODELS=0; NEED_CHECK=0
 if has_phase polish || has_phase gate || has_phase tests || [ "$MODE" = "smoke" ]; then NEED_VENV=1; fi
+# 27 Oct 2026 (reference photo job 155613: the gate phase's 33 GB of polish models filled a 30 GB container disk):
+# the phase "venv" is the venv alone (a job that loads its own small model, e.g. SigLIP 2)
+if has_phase venv; then NEED_VENV=1; fi
 # tests: tests/gpu/test_polish_backend.py loads the pinned polish models (CUDA OOM retry, §3.1).
 if has_phase polish || has_phase gate || has_phase tests || [ "$MODE" = "smoke" ]; then NEED_MODELS=1; NEED_VENV=1; fi
 if has_phase check; then NEED_CHECK=1; fi
