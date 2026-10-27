@@ -73,6 +73,9 @@ NEGATIVES = ("a floor plan or a drawing", "a 3D render or a computer graphic", "
              "a photo of people", "an empty unfurnished room", "a messy cluttered room", "a text document or a sign")
 QUALITY_TEXT = "a beautiful professional interior design photo, magazine quality"
 QUALITY_TEXT_OUTDOOR = "a beautiful professional architecture and landscape photo, magazine quality"
+OPENVERSE_PAGE_MAX = 20        # pod run 123917: an anonymous Openverse search takes at most 20 results a page
+REQUEST_GAP_S = 1.0            # between two searches (the APIs' anonymous rate limits)
+RETRIES = 3                    # a 429 / 5xx answer is retried after 2, 4, 8 s
 OPENVERSE = "https://api.openverse.org/v1/images/"
 COMMONS = "https://commons.wikimedia.org/w/api.php"
 USER_AGENT = "WenArt-RUN/1.0 (style reference research; https://github.com/cihantanaydin-svg/WenArt_RUN)"
@@ -99,20 +102,42 @@ def queries(space: str, family: Optional[str]) -> list[str]:
     return list(dict.fromkeys(out))
 
 
+def broad_queries(space: str, family: Optional[str]) -> list[str]:
+    """Fewer words when the family queries found too little (pod run 123917: no photo at all): the family and the
+    space (``"scandinavian living room"``), then the space alone (``"living room"``)."""
+    words, _interior = SPACES[space]
+    fam = FAMILY_WORDS.get(str(family or "").lower(), ())
+    out = [f"{fam[0]} {words[0]}"] if fam else []
+    return list(dict.fromkeys(out + [w for w in words]))
+
+
 def _get_json(http: Callable[[str], bytes], url: str) -> dict:
     return json.loads(http(url).decode("utf-8"))
 
 
 def default_http(url: str, timeout: float = 30.0) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:      # noqa: S310 - https only, fixed hosts
-        return resp.read()
+    """GET ``url`` with the project's User-Agent; a 429 or 5xx answer is retried ``RETRIES`` times (2, 4, 8 s)."""
+    import time
+    import urllib.error
+
+    for attempt in range(RETRIES + 1):
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json, image/*"})
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:      # noqa: S310 - https only, fixed hosts
+                return resp.read()
+        except urllib.error.HTTPError as exc:
+            if attempt < RETRIES and (exc.code == 429 or exc.code >= 500):
+                time.sleep(2.0 * 2 ** attempt)
+                continue
+            body = exc.read()[:200].decode("utf-8", "replace") if hasattr(exc, "read") else ""
+            raise RuntimeError(f"HTTP {exc.code} {exc.reason}: {body}") from exc
+    raise RuntimeError("unreachable")
 
 
 def openverse_search(query: str, n: int, http: Callable[[str], bytes]) -> list[dict]:
     """Openverse photographs under any CC licence for ``query`` (``n`` at most, one page)."""
-    params = {"q": query, "license_type": "all-cc", "category": "photograph", "page_size": str(min(n, 50)),
-              "mature": "false"}
+    params = {"q": query, "license_type": "all-cc", "category": "photograph",
+              "page_size": str(min(n, OPENVERSE_PAGE_MAX)), "mature": "false"}
     data = _get_json(http, OPENVERSE + "?" + urllib.parse.urlencode(params))
     out = []
     for r in data.get("results") or []:
@@ -129,7 +154,8 @@ def openverse_search(query: str, n: int, http: Callable[[str], bytes]) -> list[d
 
 def commons_search(query: str, n: int, http: Callable[[str], bytes]) -> list[dict]:
     """Wikimedia Commons files for ``query`` (``n`` at most) with their licence from the file's metadata."""
-    params = {"action": "query", "format": "json", "generator": "search", "gsrnamespace": "6", "gsrsearch": query,
+    params = {"action": "query", "format": "json", "generator": "search", "gsrnamespace": "6",
+              "gsrsearch": f"{query} filetype:bitmap",
               "gsrlimit": str(min(n, 50)), "prop": "imageinfo", "iiprop": "url|size|extmetadata",
               "iiurlwidth": "1280"}
     data = _get_json(http, COMMONS + "?" + urllib.parse.urlencode(params))
@@ -235,18 +261,35 @@ def fetch_set(space: str, family: Optional[str], root, *, http: Callable[[str], 
     folder = set_dir(root, space, family)
     man_path = folder / "manifest.json"
     if man_path.is_file() and not refresh:
-        return json.loads(man_path.read_text(encoding="utf-8"))
+        old = json.loads(man_path.read_text(encoding="utf-8"))
+        if old.get("photos"):
+            return old                  # pod run 123917: a set with no photo is fetched again, never reused
     folder.mkdir(parents=True, exist_ok=True)
     errors: list[str] = []
     cands: list[dict] = []
     qs = queries(space, family)
     per = max(10, CANDIDATES // max(1, len(qs)))
-    for q in qs:
+    import time
+
+    def run(q):
         for search in (openverse_search, commons_search):
             try:
-                cands += search(q, per, http)
+                found = search(q, per, http)
+                cands.extend(found)
+                searched.append(f"{search.__name__}({q!r}): {len(found)}")
             except Exception as exc:  # noqa: BLE001 - one source down: the other one
-                errors.append(f"{search.__name__}({q!r}): {type(exc).__name__}: {str(exc)[:120]}")
+                errors.append(f"{search.__name__}({q!r}): {type(exc).__name__}: {str(exc)[:200]}")
+            if gap:
+                time.sleep(gap)
+    searched: list[str] = []
+    gap = REQUEST_GAP_S if http is default_http else 0.0
+    for q in qs:
+        run(q)
+    if sum(1 for c in cands if big_enough(c)) < 2 * k:
+        for q in broad_queries(space, family):
+            if q not in qs:
+                run(q)
+                qs.append(q)
     seen, unique = set(), []
     for c in cands:
         if c["url"] in seen or not big_enough(c):
@@ -279,7 +322,7 @@ def fetch_set(space: str, family: Optional[str], root, *, http: Callable[[str], 
         p.unlink()
     raw.rmdir()
     man = {"space": space, "family": family, "queries": qs, "embed_model": EMBED_MODEL, "photos": kept,
-           "searched": len(cands), "scored": len(scores), "errors": errors[:20]}
+           "searched": len(cands), "scored": len(scores), "errors": errors[:20], "searches": searched}
     man_path.write_text(json.dumps(man, indent=1, ensure_ascii=False), encoding="utf-8")
     return man
 
@@ -343,7 +386,7 @@ def main(argv=None) -> int:
             try:
                 man = fetch_set(space, fam, a.root, k=a.k)
                 print(f"references {space}/{fam}: {len(man['photos'])} kept of {man['searched']} found "
-                      f"({len(man['errors'])} errors)")
+                      f"({len(man['errors'])} errors)" + (f"; first error: {man['errors'][0]}" if man["errors"] else ""))
             except Exception as exc:  # noqa: BLE001 - one set down: the others, the built-in recipe for it
                 failed += 1
                 print(f"references {space}/{fam}: failed ({type(exc).__name__}: {str(exc)[:160]})")

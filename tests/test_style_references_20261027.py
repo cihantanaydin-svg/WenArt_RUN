@@ -234,3 +234,22 @@ def test_style_scores_compare_each_render_with_its_spaces_photos(tmp_path):
     good, bad, ext = res["views"]
     assert good["similarity"] > 0.95 > bad["similarity"] and ext["reason"] == "no reference set"
     assert res["by_space"]["living"] == res["mean"]
+
+
+def test_an_empty_set_is_fetched_again_and_searches_broaden(tmp_path):
+    """Pod run 123917: every search failed (Openverse takes at most 20 results a page anonymously) and the empty sets
+    were cached. Now a page asks for at most 20, an empty set is never reused, and too few photos broaden the query."""
+    urls = []
+
+    def dead(url):
+        urls.append(url)
+        raise RuntimeError("HTTP 401 Unauthorized")
+    man = RF.fetch_set("living", "scandinavian", tmp_path, http=dead, scorer=lambda *a: {})
+    assert man["photos"] == [] and "HTTP 401" in man["errors"][0]
+    assert "page_size=20" in urls[0] and any("q=scandinavian+living+room&" in u for u in urls)  # broader query
+    assert any("living+room" in u and "scandinavian" not in u for u in urls)
+    n = len(urls)
+    RF.fetch_set("living", "scandinavian", tmp_path, http=dead, scorer=lambda *a: {})
+    assert len(urls) > n                                                     # not reused
+    assert RF.broad_queries("veranda", "mediterranean") == ["mediterranean covered veranda", "covered veranda",
+                                                            "porch"]
