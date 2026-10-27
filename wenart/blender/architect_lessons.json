@@ -549,6 +549,19 @@
    "request": "The roof as the roof plan draws it: a roof plan's eaves loop is the roof's outline (put on the top level's walls, checked); a balcony, terrace or veranda the plan draws the roof over is covered by it (no sky over it, no light roof of its own), a lower roof the plan draws beside the main one is the roof of the space under it; Argus checks the built roof against the roof plan (model review M11: an outline assumed while drawn, a drawn-covered space left open) (user, 27 Oct 2026, on a two-storey house's renders: 'In the plan roof is covering this balcony also and there is a small roof on top of the rest of the veranda', 'The project needs to find these kind of things by itself without my input', 'Make argus catch these kind of things before me').",
    "lesson": "A roof plan's eaves loop is the roof's outline, put on the top level's walls and checked; a balcony, terrace or veranda the plan draws the roof over is covered by that roof (no light roof of its own), a lower roof drawn beside the main one is the roof of the space under it; Argus checks the built roof against the roof plan (model review M11).",
    "question": "Does the built roof cover what the roof plan covers (every balcony, terrace or veranda under the drawn eaves, every lower roof drawn beside it), and is no outline assumed while a roof plan draws it?"
+  },
+  {
+   "id": "UL49",
+   "date": "2026-10-27",
+   "area": "openings",
+   "status": "rule",
+   "checks": [
+    "W5",
+    "W3"
+   ],
+   "request": "Tall windows where the style favours large glazing (user, 27 Oct 2026, on a Scandinavian two-storey house's renders: 'In some of the rooms the full windows from top to bottom (with a bit of remaining wall of course) could look better').",
+   "lesson": "In a style family that favours large glazing (scandinavian, japandi, modern, minimal, contemporary; not classic, rustic, mediterranean, industrial) the windows of the living, dining and bed rooms (and of a dry room onto a terrace or garden) whose sill and head no document fixes become tall windows: a 0.20 m upstand to 0.25 m under the ceiling or the roof, the drawn width and position kept, all windows of one facade of the room alike; never in a wet room, never behind a wall-backed piece (a dresser, wardrobe, bed head, desk, sideboard or kitchen run keeps the sill the fit caps it at); the house's guard over a drop (W3); curtains and blinds follow the new head (architect rule W5, action tall_window).",
+   "question": "Do the living, dining and bed rooms of a large-glazing style have tall windows wherever the documents fix no sill or head and no wall-backed piece stands in front, the same on every facade of the room, with a guard over a drop?"
   }
  ]
 }

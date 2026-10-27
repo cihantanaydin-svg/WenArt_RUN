@@ -92,6 +92,10 @@ ACTIONS = {
     # 27 Oct 2026 (user: "make argus fix these by itself"): the outdoor spaces (site.outdoor_spaces) as elements
     "guard_edge": "a guard (railing) on open edges of an outdoor space (params: edges [[[x0, y0], [x1, y1]], ...])",
     "cover_space": "a light roof over the part of an outdoor space no floor, space or roof above covers",
+    # 27 Oct 2026 (user on real06: "the full windows from top to bottom (with a bit of remaining wall of course)
+    # could look better"): W5
+    "tall_window": "tall windows: the room's windows to the outside from a low upstand to under the lintel (drawn "
+                   "width and position kept; a guard over a drop), one window language per facade of the room",
 }
 # The rules whose answers are carried out first (a door that becomes a window is not widened as a door)
 FIRST_RULES = ("E1", "O2", "D4")
@@ -1408,6 +1412,292 @@ def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from=Non
 
 
 # --------------------------------------------------------------------------
+# W5: tall windows (27 Oct 2026)
+# --------------------------------------------------------------------------
+#
+# User on real06 (27 Oct 2026, a Scandinavian house): "In some of the rooms the full windows from top to bottom (with a
+# bit of remaining wall of course) could look better." An architect of a style that favours large glazing draws the
+# windows of the living, dining and bed rooms (and of a dry room onto a terrace or the garden) from a low upstand to
+# under the lintel. The documents stay the anchor: a window whose sill or head they fix (a drawn value, not an assumed
+# default; a section, elevation or sill mark) keeps it; the drawn width and position are never changed. Never in a wet
+# room (privacy), never where a wall-backed piece stands in front of the window (a dresser, a wardrobe, a bed head, a
+# desk, a sideboard, a kitchen run: the fit caps such a piece at the window's sill, ``fit.window_cap``, so the two
+# rules agree: a window with such a piece in front keeps its sill), and all windows of one facade of the room alike
+# (one odd tall window beside sill windows reads as a mistake). Over a drop it gets the house's guard (W3).
+
+# The style families (``wenart.style.vocabulary.STYLE_FAMILIES``, pinned in the tests) and their window language:
+# ``tall`` favours floor-to-ceiling glazing, ``sill`` keeps sills (punched windows of a classic, rustic or
+# Mediterranean facade; an industrial loft's steel windows stand on a sill).
+GLAZING = {"scandinavian": "tall", "japandi": "tall", "modern minimal": "tall", "minimal": "tall", "modern": "tall",
+           "contemporary": "tall", "industrial": "sill", "mediterranean": "sill", "classic": "sill", "rustic": "sill"}
+TALL_SILL_M = 0.20              # a tall window's upstand: the frame's bottom rail stands on ~0.15 m of splash-water
+#                                 upstand over the floor slab plus the floor finish; it keeps the skirting, the
+#                                 radiator pipes and the vacuum cleaner off the glass
+TALL_MIN_GROW_M = 0.30          # a window whose glass would grow less than this is tall already
+TALL_ROOMS = ("living", "dining", "bedroom")
+TALL_GARDEN_ROOMS = ("kitchen", "office", "study", "other")      # ... and these where the window opens onto a terrace
+#                                                                  or a drawn garden space at their floor
+FACADE_ANGLE_DEG = 20.0         # windows of a room facing within this angle are one facade of it
+WINDOW_FRONT_M = 0.45           # = wenart.furniture.fit.WINDOW_FRONT_M: a piece this close to a window's line ...
+WINDOW_OVERLAP_M = 0.10         # = fit.WINDOW_OVERLAP_M: ... overlapping its width this much stands in front of it
+# The types whose back stands on a wall (``infer.needs_wall``) and the fixed equipment (``schemas.FIXED_TYPES``), pinned
+# in the tests (this module runs in Blender's Python, which has neither shapely nor jsonschema)
+WALL_BACKED_TYPES = ("bathtub", "bed", "bed_double", "bed_single", "bookshelf", "bookcase", "bunk_bed", "bed_bunk",
+                     "console_table", "crib", "desk", "display_cabinet", "dresser", "fridge", "kitchen_counter",
+                     "kitchen_island", "shoe_cabinet", "shower", "sideboard", "sink_kitchen", "stove", "hob", "oven",
+                     "dishwasher", "stair", "tall_cabinet", "toilet", "tv_unit", "wardrobe", "washbasin",
+                     "washing_machine", "wall_cabinet")
+DOC_SOURCES_SKIP = ("assumed", "assumed_default", "default", "inferred", "architect")
+WINDOW_DECOR_CLEAR_M = 0.02     # = build.WINDOW_DECOR_CEILING_CLEAR_M: a curtain rod or blind roller under the ceiling
+
+
+def tall_glazing(family) -> bool:
+    """Whether a style family favours tall windows (``GLAZING``; pure): the family's name, else a family word in it
+    (a ``sill`` word wins: "modern classic" keeps its sills); unknown or no family: False (the sills stay)."""
+    f = str(family or "").strip().lower()
+    if f in GLAZING:
+        return GLAZING[f] == "tall"
+    words = [k for k in GLAZING if k in f]
+    return bool(words) and all(GLAZING[k] == "tall" for k in words)
+
+
+def heights_given(building: dict, o: dict) -> Optional[str]:
+    """Why the documents fix window ``o``'s sill or head (pure), None when they do not: a ``sill_height_source`` /
+    ``height_source`` that names a document, a sill or height that is neither ``assumed`` nor set by code on a window
+    the drawing gave none (``drawn_<field>`` None: a door read as a window), or an elevation that draws the windows
+    of its level (``facade.elevations[].positions_m``)."""
+    for field, name in (("sill_height", "sill"), ("height", "height")):
+        src = o.get(f"{field}_source")
+        if src and str(src).lower() not in DOC_SOURCES_SKIP:
+            return f"its {name} comes from the {src}"
+        v = o.get(field)
+        if v is None or field in (o.get("assumed") or ()):
+            continue
+        if f"drawn_{field}" in o and o.get(f"drawn_{field}") is None:
+            continue
+        return f"its {name} ({float(v):.2f} m) is drawn"
+    lv = next((x for x in building.get("levels") or [] if x.get("id") == o.get("level_id")), None)
+    if lv is not None:
+        z0 = float(lv.get("elevation") or 0.0)
+        z1 = z0 + float(lv.get("ceiling_height") or 2.6)
+        for e in ((building.get("facade") or {}) if isinstance(building.get("facade"), dict) else {}).get(
+                "elevations") or []:
+            for p in (e or {}).get("positions_m") or []:
+                if isinstance(p, dict) and p.get("sill") is not None and z0 - 0.05 <= float(p["sill"]) < z1:
+                    return f"an elevation draws the openings of level {lv['id']} (their sills and heads)"
+    return None
+
+
+def front_pieces(plan: Plan, o: dict) -> list[str]:
+    """The wall-backed pieces (``WALL_BACKED_TYPES``) standing in front of window ``o`` (pure; the geometry of
+    ``fit.window_cap``: within ``WINDOW_FRONT_M`` of the window's line, overlapping its width by ``WINDOW_OVERLAP_M``),
+    as ``"<id> (<type>)"``."""
+    w = plan.walls.get(o.get("wall_id"))
+    if w is None or not o.get("center"):
+        return []
+    _a, u, _l = plan.axis(w)
+    n = (-u[1], u[0])
+    cx, cy = float(o["center"][0]), float(o["center"][1])
+    half = float(o.get("width") or 0.9) / 2.0
+    out = []
+    for f in plan.b.get("furniture") or []:
+        ftype = str(f.get("type") or "")
+        fp = f.get("footprint") if isinstance(f.get("footprint"), dict) else None
+        if ftype not in WALL_BACKED_TYPES or f.get("build") is False or f.get("level_id") != o.get("level_id") \
+                or not fp or not fp.get("center") or not fp.get("size"):
+            continue
+        try:
+            corners = G.rotated_rectangle((float(fp["center"][0]), float(fp["center"][1])),
+                                          (float(fp["size"][0]), float(fp["size"][1])),
+                                          float(fp.get("rotation_deg") or 0.0))
+        except (TypeError, ValueError, IndexError):
+            continue
+        ts = [(x - cx) * u[0] + (y - cy) * u[1] for x, y in corners]
+        ns = [(x - cx) * n[0] + (y - cy) * n[1] for x, y in corners]
+        if min(max(ts), half) - max(min(ts), -half) < WINDOW_OVERLAP_M:
+            continue
+        gap = 0.0 if min(ns) <= 0.0 <= max(ns) else min(abs(min(ns)), abs(max(ns)))
+        if gap <= WINDOW_FRONT_M:
+            out.append(f"{f.get('id')} ({ftype})")
+    return out
+
+
+def _sill_head(o: dict, top: float) -> tuple[float, float]:
+    sill = float(o.get("sill_height") if o.get("sill_height") is not None else 0.9)
+    return sill, min(sill + float(o.get("height") if o.get("height") is not None else 1.2), top)
+
+
+def tall_target(plan: Plan, o: dict) -> tuple[float, float]:
+    """``(sill, head)`` of window ``o`` as a tall window: ``TALL_SILL_M`` (a lower drawn sill stays), the head
+    ``LINTEL_M`` under the ceiling and under the roof over it (``Plan.top``; a higher head stays)."""
+    sill, head = _sill_head(o, plan.top(o))
+    return min(sill, TALL_SILL_M), max(head, min(plan.ceiling(o.get("level_id")) - LINTEL_M, plan.top(o)))
+
+
+def tall_room(plan: Plan, room_id: str) -> bool:
+    """Whether a room may get tall windows at all (its type: ``TALL_ROOMS``, or ``TALL_GARDEN_ROOMS`` onto a terrace or
+    garden; never a wet room)."""
+    t = str((plan.room.get(room_id) or {}).get("room_type") or "").lower()
+    return t in TALL_ROOMS or t in TALL_GARDEN_ROOMS
+
+
+def tall_window_groups(plan: Plan, room_id: str) -> list[dict]:
+    """The room's windows to the outside by facade (pure): ``[{"facing_deg", "windows": [{"id", "state", "why"}],
+    "state", "why"}]``; a window's ``state`` is ``tall`` (it is, or grows less than ``TALL_MIN_GROW_M``), ``grow`` (it
+    may become tall) or ``keep`` (the documents fix it, a wall-backed piece stands in front, a garden room's window
+    onto no terrace or garden); a facade grows only when none of its windows is ``keep`` (one window language)."""
+    room = plan.room.get(room_id)
+    if room is None or not tall_room(plan, room_id):
+        return []
+    rtype = str(room.get("room_type") or "").lower()
+    _g, wins = outside_glass(plan, room_id)
+    groups: list[dict] = []
+    for o in sorted(wins, key=lambda x: x["id"]):
+        if o.get("interior_glazing") or o.get("build") is False:
+            continue
+        sides = window_sides(plan, o)
+        ids = [(r or {}).get("id") for r in sides]
+        if room_id not in ids:
+            continue
+        _a, u, _l = plan.axis(plan.walls[o["wall_id"]])
+        out = (u[1], -u[0]) if ids[0] == room_id else (-u[1], u[0])      # away from the room
+        deg = G.normalise_angle(math.degrees(math.atan2(out[1], out[0])))
+        sill, head = _sill_head(o, plan.top(o))
+        new_sill, new_head = tall_target(plan, o)
+        given = heights_given(plan.b, o)
+        front = front_pieces(plan, o)
+        if o.get("tall_window"):
+            state, why = "tall", "a tall window (decided)"
+        elif given:
+            state, why = "keep", f"the documents fix it: {given}"
+        elif front:
+            state, why = "keep", f"{', '.join(front)} stands in front of it (the piece keeps the sill)"
+        elif rtype in TALL_GARDEN_ROOMS and not (plan.onto_open_air(o, room_id) or _onto_garden(plan, o, out)):
+            state, why = "keep", f"a {rtype} window onto no terrace or garden"
+        elif (sill - new_sill) + (new_head - head) < TALL_MIN_GROW_M:
+            state, why = "tall", f"near full height already (sill {sill:.2f} m, head {head:.2f} m)"
+        else:
+            state, why = "grow", f"sill {sill:.2f} -> {new_sill:.2f} m, head {head:.2f} -> {new_head:.2f} m"
+        g = next((g for g in groups if G.angle_difference_deg(g["facing_deg"], deg) < FACADE_ANGLE_DEG), None)
+        if g is None:
+            g = {"facing_deg": round(deg, 1), "windows": []}
+            groups.append(g)
+        g["windows"].append({"id": o["id"], "state": state, "why": why})
+    for g in groups:
+        states = {w["state"] for w in g["windows"]}
+        keep = [w for w in g["windows"] if w["state"] == "keep"]
+        if keep:
+            g["state"] = "keep"
+            g["why"] = "; ".join(f"{w['id']}: {w['why']}" for w in keep) + (
+                " (its facade keeps one window language)" if "grow" in states else "")
+        else:
+            g["state"] = "grow" if "grow" in states else "tall"
+            g["why"] = "; ".join(f"{w['id']}: {w['why']}" for w in g["windows"])
+    return groups
+
+
+def _onto_garden(plan: Plan, o: dict, out) -> bool:
+    """Whether window ``o`` looks onto a drawn outdoor space (a terrace, a garden area) of its level just outside."""
+    w = plan.walls.get(o.get("wall_id"))
+    reach = float((w or {}).get("thickness") or 0.2) / 2.0 + 0.5
+    p = (float(o["center"][0]) + out[0] * reach, float(o["center"][1]) + out[1] * reach)
+    try:
+        return outdoor_space_at(plan.b, p, o.get("level_id"))
+    except (ImportError, KeyError, TypeError, ValueError):
+        return False
+
+
+def _over_drop(plan: Plan, o: dict, room_id: str) -> bool:
+    """Whether window ``o`` lies on a floor ``architect_rules.LIMITS["sill_drop_m"]`` or more over the ground (W3's
+    rule) and opens onto no terrace or balcony of its floor."""
+    from wenart.blender import architect_rules as RULES
+
+    lv = plan.levels.get(o.get("level_id")) or {}
+    drop = float(lv.get("elevation") or 0.0) - RULES._ground_z(plan.b)
+    return drop >= RULES.LIMITS["sill_drop_m"] and not plan.onto_open_air(o, room_id)
+
+
+def _refit_window_decor(plan: Plan, o: dict, was: tuple, now: tuple, reason: str) -> list[str]:
+    """The curtains and blinds the decor stage hung at window ``o`` (``window_id``) follow its new sill and head
+    (``was`` / ``now``: ``(sill, head)`` over the floor; a decor item's ``center[2]`` is its bottom over the floor): a
+    curtain rod as far over the new head as over the old one, the curtain down to the floor as before or as far
+    under the new sill; a blind's roller over the new head, drawn down the same share of the window."""
+    out = []
+    top = min(plan.ceiling(o.get("level_id")), plan.top(o)) - WINDOW_DECOR_CLEAR_M
+    (s0, h0), (s1, h1) = was, now
+    for d in plan.b.get("decor") or []:
+        kind = str(d.get("type") or "")
+        if d.get("window_id") != o["id"] or kind not in ("curtain", "blind") or not d.get("center") or \
+                len(d["center"]) < 3 or not d.get("size") or len(d["size"]) < 3:
+            continue
+        bottom, size = float(d["center"][2]), float(d["size"][2])
+        new_top = min(h1 + max(0.0, bottom + size - h0), top)
+        if kind == "curtain":
+            new_bottom = bottom if bottom <= 0.05 else max(0.01, s1 - max(0.0, s0 - bottom))
+        else:
+            share = size / max(h0 - s0, 1e-6)
+            new_bottom = new_top - share * (h1 - s1)
+        if new_top - new_bottom < 0.3:
+            continue
+        placed = {"center": list(d["center"]), "size": list(d["size"])}
+        c, s = list(d["center"]), list(d["size"])
+        c[2], s[2] = round(new_bottom, 3), round(new_top - new_bottom, 3)
+        d["center"], d["size"] = c, s
+        d["adjusted_by_ai"] = {"by": "architect", "reason": f"follows the tall window {o['id']} ({reason})",
+                               "was": placed}
+        out.append(d.get("id") or kind)
+    return out
+
+
+def act_tall_window(plan: Plan, key: str, ans: dict, room_id: str):
+    """W5: the room's windows of every facade that may grow (``tall_window_groups``) become tall windows
+    (``tall_target``: sill ``TALL_SILL_M``, head ``LINTEL_M`` under the ceiling or the roof); the drawn width and
+    position stay, ``drawn_sill_height`` / ``drawn_height`` are kept, the window carries ``tall_window`` and
+    ``adjusted_by_ai``; over a drop it gets the house's guard (``act_french_window``'s, ``GUARD_TOP_M``), and its
+    curtains and blinds follow (``_refit_window_decor``)."""
+    if room_id not in plan.room:
+        return False, f"no room {room_id}"
+    groups = tall_window_groups(plan, room_id)
+    done, kept = [], []
+    for g in groups:
+        if g["state"] != "grow":
+            if g["state"] == "keep":
+                kept.append(g["why"])
+            continue
+        for rec in g["windows"]:
+            if rec["state"] != "grow":
+                continue
+            o = plan.openings[rec["id"]]
+            was = _sill_head(o, plan.top(o))
+            sill, head = tall_target(plan, o)
+            _keep_drawn(o, "sill_height", "height")
+            o["sill_height"], o["height"] = round(sill, 3), round(head - sill, 3)
+            guard = _over_drop(plan, o, room_id) and sill + 1e-6 < GUARD_TOP_M
+            reason = (f"a tall window: sill {was[0]:.2f} -> {sill:.2f} m (a {TALL_SILL_M:.2f} m upstand), head "
+                      f"{was[1]:.2f} -> {head:.2f} m ({LINTEL_M:.2f} m lintel under the ceiling or the roof); the "
+                      f"documents give no sill or head, the drawn width {float(o.get('width') or 0):.2f} m and the "
+                      f"position stay")
+            if guard:
+                o["guard"] = {"top_m": GUARD_TOP_M, "kind": "balustrade",
+                              "reason": f"the answer to {key}: a tall window over a drop"}
+                reason += f"; a guard {GUARD_TOP_M:.2f} m high across it (an upper floor over a drop)"
+            o["tall_window"] = {"sill_m": round(sill, 3), "head_m": round(head, 3), "was": [round(was[0], 3),
+                                round(was[1], 3)], "facing_deg": g["facing_deg"], "guard": guard}
+            _mark(o, "adjusted_by_ai", key, ans, reason)
+            decor = _refit_window_decor(plan, o, was, (sill, head), reason)
+            done.append(f"{o['id']} sill {was[0]:.2f} -> {sill:.2f} m, head {was[1]:.2f} -> {head:.2f} m"
+                        + (" (guard)" if guard else "") + (f" ({', '.join(decor)} follow)" if decor else ""))
+    if not done:
+        if any(g["state"] == "tall" for g in groups) and not kept:
+            return True, f"{room_id}: its windows are tall already"
+        return False, f"{room_id}: no facade may get tall windows" + (f" ({'; '.join(kept)})" if kept else "")
+    text = f"{room_id}: tall windows: " + "; ".join(done)
+    if kept:
+        text += f" (kept: {'; '.join(kept)})"
+    return True, text
+
+
+# --------------------------------------------------------------------------
 # Carrying the answers out
 # --------------------------------------------------------------------------
 
@@ -1523,6 +1813,8 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                                               params.get("edges") or params.get("edge"))
                 elif opt == "cover_space":
                     ok, text = act_cover_space(plan, key, ans, params.get("space_id") or target)
+                elif opt == "tall_window":
+                    ok, text = act_tall_window(plan, key, ans, params.get("room_id") or target)
                 else:
                     ok, text = False, f"unknown option {opt!r}"
             except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
