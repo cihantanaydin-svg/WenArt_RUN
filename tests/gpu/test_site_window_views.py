@@ -8,7 +8,8 @@ skipped without a Blender binary). Two checks in Blender 5.2 of the CPU-tested r
   lawn 75 % grey for every ray but the camera's: the pane view kept about a third of the straight view's saturation),
   and the material's Light Path link is 'Diffuse Depth' (a wrong socket name raises in Blender).
 - ``test_horizon_context_object_in_blender``: ``site.build_context`` of a small box's ``horizon_context`` gives one
-  ``context_trees`` mesh with 68 faces a tree, a material per species and the bark, hidden from shadow, diffuse and
+  ``context_trees`` mesh with the faces of ``site.context_parts`` (27 Oct 2026: a trunk and a crown of foliage
+  masses, not 68 faces a tree), a material per species and the bark, hidden from shadow, diffuse and
   volume rays, seen by the camera, transmission and glossy rays, smooth shaded."""
 from __future__ import annotations
 
@@ -109,6 +110,7 @@ SCRIPT = textwrap.dedent("""
     rec = S.build_context(ctx, col, lambda *a: entries.append(a))
     ob = bpy.data.objects.get(S.CONTEXT_NAME)
     res["context"] = {"rec": {k: v for k, v in rec.items() if k != "rings"}, "count": ctx["count"],
+                      "parts_faces": len(S.context_parts(ctx)["faces"]),
                       "species": len(ctx["species"]), "entries": len(entries),
                       "object": None if ob is None else {
                           "faces": len(ob.data.polygons), "materials": [m.name for m in ob.data.materials],
@@ -144,7 +146,8 @@ def test_horizon_context_object_in_blender(result):
     ctx = result["context"]
     rec, ob = ctx["rec"], ctx["object"]
     assert rec["built"] and not rec.get("error") and ctx["entries"] == 1 and ob is not None
-    assert ob["faces"] == 68 * ctx["count"] == rec["faces"]
+    assert ob["faces"] == ctx["parts_faces"] == rec["faces"]
+    assert 250 * ctx["count"] <= ob["faces"] <= 600 * ctx["count"]        # crowns of foliage masses, not lollipops
     assert len(ob["materials"]) == ctx["species"] + 1 and ob["materials"][-1] == "veg_bark" and ob["smooth"]
     vis = ob["visible"]
     assert vis["visible_camera"] and vis["visible_transmission"] and vis["visible_glossy"]

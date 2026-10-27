@@ -790,7 +790,13 @@ def test_pins_skip_the_style_filter_but_not_the_caps_or_the_licence():
     cat = FakeCatalog([classic, scandi, big, gen])
     plain = F.fit_piece(piece("sofa", 2.0, 0.9), cat, style_family="scandinavian")
     assert plain["asset_id"] == "abo_scandi" and "pinned" not in plain
-    pinned = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin="abo_classic"), cat, style_family="scandinavian")
+    # 27 Oct 2026 (pod run 091638): an off-style pin gives way to a model of the chain that fits ...
+    off = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin="abo_classic"), cat, style_family="scandinavian")
+    assert off["asset_id"] == "abo_scandi" and "pinned" not in off
+    assert off["pin_refused"].startswith("abo_classic: off style") and "abo_scandi" in off["pin_refused"]
+    # ... and stays only when nothing of the chain is a library model that fits
+    pinned = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin="abo_classic"), FakeCatalog([classic, big]),
+                         style_family="scandinavian")
     assert pinned["asset_id"] == "abo_classic" and pinned["pinned"] == "abo_classic"
     assert pinned["pin_skips_style"] is True and pinned["style_family"] == "scandinavian"
     assert "abo_classic" in pinned["pin_off_style"] and "style_fallback" not in pinned   # 27 Oct 2026: no family held

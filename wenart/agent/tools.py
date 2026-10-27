@@ -621,6 +621,8 @@ class ToolContext:
             raise FileNotFoundError(f"no building JSON in {out}")
         scene = read_json(out / "scene" / "scene_manifest.json") or {}
         style = read_json(out / "style.json") or {}
+        from wenart.furniture import edit_ops
+        edit_ops.stamp_style_family(building, style)     # the edits' style checks know the project's family
         return cls(project_out=out, building=building, scene=scene, style=style, **kwargs)
 
     # ----- lazy modules (the other tracks' functions; tests inject fakes) ---------------------------------

@@ -984,6 +984,16 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                 elif hit is None:
                     pinned["pin_off_style"] = (f"{pin}: its styles {entry.get('styles') or []} hold no family of "
                                                f"{chain}")
+                    if style_family:
+                        # 27 Oct 2026 (pod run 091638, real06: a classic sofa pinned by the agent in a scandinavian
+                        # house): a model of the chain that fits wins over an off-style pin; the pin stays only when
+                        # the ranking would build the piece below the library level
+                        ranked = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family,
+                                           design, mode=mode, used=used, style=style, ceiling=ceiling)
+                        if ranked.get("method") == "library":
+                            ranked["pin_refused"] = (f"{pin}: off style ({pinned['pin_off_style'][len(pin) + 2:]}) "
+                                                     f"while a model of the style fits ({ranked.get('asset_id')})")
+                            return ranked
                 pinned["pin_skips_style"] = True
                 return pinned
         asset = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family, design, mode=mode,

@@ -643,7 +643,13 @@ def investigate(project_out, model, *, brief: Optional[dict] = None, results=Non
         if str(f.get("target")) in tried:
             f["tried"] = tried[str(f.get("target"))]
     reg = _registry()
-    valid = CL.Valid(inp.stage("build") or building, inp.manifest)
+    looked_at = inp.stage("build") or building
+    try:                                   # the model options keep the project's style chain (edit_ops checks)
+        from wenart.furniture import edit_ops as EO
+        EO.stamp_style_family(looked_at, json.loads((Path(project_out) / "style.json").read_text(encoding="utf-8")))
+    except Exception:  # noqa: BLE001 - no style.json: the building's own family, as before
+        pass
+    valid = CL.Valid(looked_at, inp.manifest)
     tools = _tool_help(reg)
     values = valid.lines()
     piece_notes(items, valid)

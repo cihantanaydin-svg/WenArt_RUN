@@ -1420,10 +1420,34 @@ def licence_mode_of(b: dict) -> str:
     return str(mode) if mode in C.LICENCE_MODES else C.licence_mode()
 
 
+def stamp_style_family(b: dict, style) -> Optional[str]:
+    """27 Oct 2026 (pod run 091638, real06: the agent swapped a classic sofa into a scandinavian house because its
+    working building, fitted before style.json existed, named no family, so ``off_style_refusal`` had none to check):
+    writes ``project.style_family`` (and ``style_family_source``) of the project's ``style.json`` profile
+    (``fit.style_family_of``) on a building that has none; returns the building's family (None: no profile family)."""
+    project = b.get("project") if isinstance(b.get("project"), dict) else None
+    if project is None:
+        return None
+    if project.get("style_family"):
+        return str(project["style_family"])
+    from wenart.furniture.fit import style_family_of
+    try:
+        family, how = style_family_of(style) if style else (None, "")
+    except Exception:  # noqa: BLE001 - no family (no style filter), as before
+        return None
+    if family:
+        project["style_family"] = str(family)
+        project["style_family_source"] = f"style.json ({how})"
+    return family
+
+
 def _style_family_of(b: dict) -> Optional[str]:
-    """The style family the fit used on this building: the most common ``asset.style_family`` of its fitted pieces
-    (the refit's style.json is not part of the building), else the family of the brief's style text
-    (``project.brief``; integration after P5); None without either (no style filter)."""
+    """The style family the fit used on this building: ``project.style_family`` (``stamp_style_family``, the
+    project's style.json), else the most common ``asset.style_family`` of its fitted pieces, else the family of the
+    brief's style text (``project.brief``; integration after P5); None without any (no style filter)."""
+    project = b.get("project") if isinstance(b.get("project"), dict) else {}
+    if project.get("style_family"):
+        return str(project["style_family"])
     counts: dict = {}
     for f in b.get("furniture") or []:
         asset = f.get("asset") if isinstance(f.get("asset"), dict) else {}
@@ -1435,7 +1459,6 @@ def _style_family_of(b: dict) -> Optional[str]:
     # Integration of the fix round after P5 (A_agent's ask): the working building's first fit has no style family
     # (P5: None, the refit used "modern" from style.json); the family of the brief's style text is the one the style
     # stage writes to style.json (real02 / real03 / real04: "modern" both ways)
-    project = b.get("project") if isinstance(b.get("project"), dict) else {}
     brief = project.get("brief") if isinstance(project.get("brief"), dict) else None
     try:
         from wenart.furniture.fit import style_family_of

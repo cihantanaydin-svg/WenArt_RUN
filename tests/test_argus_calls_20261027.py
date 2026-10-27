@@ -175,6 +175,27 @@ def test_a_swap_keeps_the_project_style_chain():
     assert EO.off_style_refusal({"furniture": []}, {"id": "g", "styles": ["classic"]}) is None    # no family known
 
 
+def test_the_working_building_knows_the_project_style_family(tmp_path):
+    """Pod run 091638 (GPU test test_refit_library_models_fit_the_style again): the agent's working building was fitted
+    before style.json existed (no asset names a family), so no swap was checked; the project's style.json family is
+    stamped on it (``project.style_family``) when the tools load it, and the swap of a classic sofa is refused."""
+    from wenart.furniture import edit_ops as EO
+
+    b = {"project": {"id": "p"}, "furniture": [{"id": "f1", "type": "sofa", "asset": {"asset_id": "x"}}]}
+    assert EO.off_style_refusal(b, {"id": "g", "styles": ["classic"]}) is None           # no family known
+    assert EO.stamp_style_family(b, {"family": "scandinavian"}) == "scandinavian"
+    assert b["project"]["style_family"] == "scandinavian" and "style.json" in b["project"]["style_family_source"]
+    assert "scandinavian -> minimal" in EO.off_style_refusal(b, {"id": "g", "styles": ["classic"]})
+    assert EO.stamp_style_family(b, {"family": "classic"}) == "scandinavian"              # never overwritten
+    assert EO.stamp_style_family({"project": {}}, {"palette": {}}) is None
+    out = project(tmp_path)
+    style = json.loads((out / "style.json").read_text(encoding="utf-8"))
+    (out / "style.json").write_text(json.dumps(dict(style, family="scandinavian")), encoding="utf-8")
+    ctx = TL.ToolContext.load(out, round=1, model_id="mock/agent", log=LG.AgentLog(out, "toy", "mock/agent", "rev"),
+                              overrides=OV.Overrides(out))
+    assert EO._style_family_of(ctx.building) == "scandinavian"
+
+
 def test_argus_learns_how_its_own_edits_fared(tmp_path):
     """27 Oct 2026: the problem log keeps per run how many of Argus's own edits code accepted per tool and why it
     refused the others (numbers generalised); the next run's prompt names them (``history_lines``)."""
