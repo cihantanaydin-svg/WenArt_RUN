@@ -1643,5 +1643,16 @@ black; the 55 m² salon "four egg chairs and no sofa"; bathrooms bare; mixed cha
 - **Every room people walk into has a ceiling light**: storage, other and prayer rooms get the circulation fixture
   (the dressing room, typed other, had two small high windows and no light at all).
 
+- **A gap the drawing puts furniture in front of is a window** (`architect_actions.gaps_behind_furniture`, run by the
+  reading): real06's east windows ("160/160") were 1.55 m doorless gaps until the build; before it, the drawn sofa in
+  front of one "blocked a door" and its retype was refused. Six such gaps on real06 are windows before the furnishing
+  now (the build made all six windows anyway).
+- **Argus C7, a reason that hides a lost piece**: a drawn piece left out as a rug, detail or mark although an AI pass
+  named a type that fits its size; its typed fix (`type_piece`) runs as Argus's own `retype_piece`. On the run it
+  names both lost sofas. (The documents-vs-model vision call saw nothing on the ground floor: one image of a whole
+  floor is too coarse for a sofa; code checks catch it.)
+- **Argus learns from its own edits**: the problem log keeps per run and tool how many of its edits code accepted and
+  why it refused the others; the next run's prompt names them ("set_camera 0 of 52; refused for kind 'room'").
+
 Open: the salon's round table drew 8 chairs and 4 were read (A10 cannot see strokes the table's evidence claims); the
 egg-chair models; bathrooms without a mirror or towels.

@@ -2464,6 +2464,17 @@ def _pending_piece_ids(build: ProjectBuild) -> set[str]:
     return out
 
 
+def _gaps_behind_furniture(build: ProjectBuild) -> None:
+    """27 Oct 2026 (``architect_actions.gaps_behind_furniture``): a gap in an outer wall with drawn furniture across
+    its approach is read as a window before the furnishing; each one is a warning. Never fails the reading."""
+    from wenart.blender import architect_actions as AA
+    try:
+        for reason in AA.gaps_behind_furniture(build.building):
+            build.warn(reason)
+    except Exception as exc:  # noqa: BLE001 - a correction, never a stop
+        build.warn(f"gaps behind furniture: not checked ({type(exc).__name__}: {exc})")
+
+
 def _infer_types(build: ProjectBuild) -> None:
     """Milestone 11 (docs/milestone11.md §6, CLAUDE.md "never an unexplained box"): the drawn ``unknown`` pieces get an
     inferred type or are recognised as rug / group outlines (``wenart.furniture.infer``), after the AI answers were
@@ -2834,6 +2845,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     _infer_types(build)
     _add_named_pieces(build)          # 26 Oct 2026: a furniture name text with no drawn piece adds the piece it names
     RD.resolve_named_conflicts(build)  # 26 Oct 2026: the disputed pieces a name text, a zone label or the AI typed
+    _gaps_behind_furniture(build)      # 27 Oct 2026: a gap the drawing puts furniture in front of is a window
     masters = [sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
     if any(w.extraction.source_kind is not None for w in masters):
         # The generic core's unit system; an evidence-only raster page beside a DXF/PDF level does not count.

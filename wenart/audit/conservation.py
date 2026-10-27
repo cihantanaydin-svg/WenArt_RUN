@@ -18,6 +18,9 @@ the final one, the build's ``scene/building_built.json``) and the scene manifest
   auditor (``argus_ai``) judges whether it is a good one (real06: 42 site circles "of kind 'other' not built (no
   model)": an explanation that hides a loss).
 
+- C7 a drawn piece left out as not a piece (a rug outline, a detail, a mark) although an AI pass named a furniture
+  type that fits its size (``named_left_out``; 27 Oct 2026).
+
 Each finding names the stage boundary where it happened (``owner``), so the kind ``lost`` is caught where it arises,
 for every element type, in every project. Pure; no limits: every element is checked.
 """
@@ -216,6 +219,39 @@ def untyped(final: dict) -> list[dict]:
     return out
 
 
+LEFT_OUT_AS = ("rug", "detail", "mark", "decor")    # the reading's "not a piece" kinds (``inferred_as``, ``type``)
+
+
+def named_left_out(final: dict) -> list[dict]:
+    """C7 (27 Oct 2026, pod run 224516: real06's two drawn sofas were left out as "rug outlines" while an AI pass named
+    each a sofa; the judge saw a salon without a sofa, and no line named the cause): a drawn piece the reading left out
+    as not a piece (a rug or zone outline, a detail, a mark) although an AI pass named a furniture type for it whose
+    real product range fits its drawn size. Major, kind ``lost``, owner ``reading``; the fix is the typed action
+    ``type_piece`` with that type (Argus carries it out through ``retype_piece``, code checks it)."""
+    try:
+        from wenart.furniture import sizes as SZ
+    except Exception:  # noqa: BLE001 - no size table here: no check
+        return []
+    out = []
+    for el in _items(final, ("furniture",)):
+        how = str(el.get("inferred_as") or (el.get("type") if el.get("type") in LEFT_OUT_AS else "") or "")
+        if el.get("build") is not False or not _drawn(el) or how not in LEFT_OUT_AS or el.get("not_furniture"):
+            continue
+        size = ((el.get("footprint") or {}).get("size") or [])[:2]
+        named = sorted({str(c.get("type")) for c in el.get("type_candidates") or [] if isinstance(c, dict)
+                        and c.get("type") not in UNTYPED and c.get("type") not in LEFT_OUT_AS})
+        fit = [t for t in named if len(size) == 2 and SZ.fits(t, size)]
+        if not fit:
+            continue
+        out.append(K.finding("conservation", "C7", "minor" if how == "detail" else "major", el["id"],
+                             f"drawn piece {el['id']} ({float(size[0]):.2f} x {float(size[1]):.2f} m) left out as a "
+                             f"{how} ({el.get('inferred_reason') or el.get('not_built_reason') or 'no reason'}) although an AI pass named it {' / '.join(fit)}, "
+                             f"which fits its size: a reason that hides a lost piece", owner="reading", kind="lost",
+                             evidence={"named": fit, "left_out_as": how, "room": el.get("room_id")},
+                             fix={"action": "type_piece", "element_id": el["id"], "type": fit[0]}))
+    return out
+
+
 def reasons(manifest: Optional[dict]) -> list[dict]:
     """C6 (info): one finding per reason given for leaving elements out, with the ids it covers."""
     groups: dict = {}
@@ -235,10 +271,12 @@ def audit(stages: list[tuple[str, dict]], manifest: Optional[dict] = None) -> di
     if stages:
         findings += in_scene(stages[-1][1], manifest)
         findings += untyped(stages[-1][1])
+        findings += named_left_out(stages[-1][1])
     findings += reasons(manifest)
     checked = {name: sum(len(_items(b, p)) for _c, p in COLLECTIONS) for name, b in stages}
     return {"findings": findings, "checked": checked,
-            "counts": {c: sum(1 for f in findings if f["check"] == c) for c in ("C1", "C2", "C3", "C4", "C5", "C6")}}
+            "counts": {c: sum(1 for f in findings if f["check"] == c) for c in ("C1", "C2", "C3", "C4", "C5", "C6",
+                                                                                 "C7")}}
 
 
 def load(project_out, files: tuple = STAGE_FILES) -> list[tuple[str, dict]]:

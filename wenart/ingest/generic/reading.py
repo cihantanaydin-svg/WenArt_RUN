@@ -174,7 +174,8 @@ project"; real06 is the test case, tests/test_reading_sense_20261026.py). What, 
   number (``building.generic_room_label``) that the ingest typed by that word (bedroom, other or unknown) and that has
   no bed drawn takes the room type its drawn anchors name (``groups.yaml`` ``room_aliases.content``; a desk names none)
   when a block name or two agreeing AI passes typed them and they name one type (a living room's dining set counts as
-  living); a kitchen only with a drawn sink or hob. ``corrected_by_ai`` keeps the reason, the anchors and the type before. Why:
+  living); a kitchen only with a drawn sink or hob; never a bedroom whose furniture name texts name a bedroom piece (a
+  dresser, a nightstand, a bed: 27 Oct 2026, text outranks the AI passes). ``corrected_by_ai`` keeps the reason, the anchors and the type before. Why:
   real06's r_L1_oda_2 "ODA" holds a sofa both passes agreed on and no bed: it was read as a bedroom (and got a kitchen
   zone from two false counters).
 - **Nested outlines of one piece** (``nested_outlines``, before the code typing): drawn pieces whose footprints are
@@ -318,6 +319,7 @@ NEST_RULE = "reading.nested_outlines"
 GENERIC_ROOM_RULE = "reading.generic_room"
 GENERIC_STRONG = ("ai_two_pass", "block_name")   # the anchors a generic room name follows
 GENERIC_BEDS = ("bed_double", "bed_single", "bunk_bed", "crib")
+BEDROOM_NAMED = ("dresser", "nightstand") + GENERIC_BEDS   # a name text of these in the room: the bedroom stands
 GROUP_TIE_RULE = "reading.group_member_tie"
 RUN_DEPTH_RULE = "reading.run_depth"
 HOLDS_HINTS = {"sink_kitchen": "sink_pos_m", "stove": "hob_pos_m"}   # modules.plan_kitchen_run's hints
@@ -2397,6 +2399,12 @@ def generic_rooms(build) -> list[str]:
                 and f.get("source") == "from_documents" and f.get("build") is not False]
         if any(f.get("type") in GENERIC_BEDS for f in mine):
             continue                            # a bed is drawn: the generic word's bedroom stands
+        # 27 Oct 2026 (real06's r_L1_oda_2: "*SIFONIYER" written in it, as in the two other bedrooms of the floor):
+        # a furniture name text of a bedroom piece in the room keeps the bedroom (text outranks the AI passes)
+        if room.get("room_type") == "bedroom" and any(
+                t.get("room_id") == room.get("id") and t.get("type") in BEDROOM_NAMED
+                for t in b.get("furniture_texts") or [] if isinstance(t, dict)):
+            continue
         anchors = [f for f in mine if f.get("type_method") in GENERIC_STRONG and f.get("type") in content
                    and content[f["type"]] not in ("other", "bedroom")]     # a desk is at home in a bedroom too
         kinds = {content[f["type"]] for f in anchors}

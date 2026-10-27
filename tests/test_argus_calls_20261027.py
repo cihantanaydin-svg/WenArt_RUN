@@ -194,3 +194,29 @@ def test_argus_learns_how_its_own_edits_fared(tmp_path):
     lines = AX.history_lines("p", path=log_path)
     assert any("your own set_camera edits: 2 of 6 accepted; refused for: kind: 'room'" in x for x in lines)
     assert R.own_record(log, "other") == {}
+
+
+def test_c7_a_piece_left_out_while_an_ai_pass_named_a_fitting_type():
+    """27 Oct 2026: a drawn piece left out as a rug outline while an AI pass named it a sofa that fits its size is a
+    lost piece (C7, major, kind lost) with the typed fix Argus carries out through retype_piece; a rug no pass named
+    otherwise, a named type that does not fit, and a detail (minor) are told apart."""
+    from wenart.audit import argus_ai as AX
+    from wenart.audit import conservation as CV
+
+    def piece(pid, size, how, named, **kw):
+        return dict({"id": pid, "type": "unknown", "room_id": "r1", "build": False, "inferred_as": how,
+                     "inferred_reason": f"a {how}", "footprint": {"center": [1, 1], "size": list(size)},
+                     "evidence": [{"method": "vector"}],
+                     "type_candidates": [{"type": t, "pass": n} for n, t in enumerate(named, 1)]}, **kw)
+
+    b = {"furniture": [piece("f1", (2.12, 0.78), "rug", ["unknown", "sofa"]),
+                       piece("f2", (3.9, 1.65), "rug", []),
+                       piece("f3", (2.12, 0.78), "rug", ["nightstand"]),
+                       piece("f4", (0.4, 0.4), "detail", ["nightstand"])]}
+    found = {f["target"]: f for f in CV.named_left_out(b)}
+    assert set(found) == {"f1", "f4"}
+    assert (found["f1"]["check"], found["f1"]["severity"], found["f1"]["kind"]) == ("C7", "major", "lost")
+    assert found["f1"]["fix"] == {"action": "type_piece", "element_id": "f1", "type": "sofa"}
+    assert found["f4"]["severity"] == "minor"
+    actions, work, _revoke = AX.code_actions({"findings": [found["f1"]]}, b)
+    assert [(a["tool"], a["args"]["piece_id"], a["args"]["type"]) for a in actions] == [("retype_piece", "f1", "sofa")]

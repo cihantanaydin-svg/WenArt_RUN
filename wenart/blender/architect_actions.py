@@ -591,6 +591,91 @@ def typical_window(plan: Plan, level_id) -> Optional[dict]:
     return {"width": mid(0), "sill": mid(1), "height": mid(2)}
 
 
+GAP_APPROACH_M = 0.60          # the approach in front of a gap a drawn piece standing in it blocks
+GAP_BLOCKED_SHARE = 0.5        # ... over this share of the gap's width
+GAP_PIECE_MIN_M = 0.30         # drawn pieces smaller than this both ways (marks) never count
+NOT_A_PIECE = ("rug", "detail", "mark", "decor")
+
+
+def gaps_behind_furniture(building: dict) -> list[str]:
+    """27 Oct 2026 (pod run 224516, real06: the east wall's two 1.55 m windows, tagged "160/160" on the plan, were read
+    as doorless gaps 2.1 m high; the architect makes them windows only at the build, so before it every drawn piece in
+    front of them "blocked a door" and the drawn 3-seat sofa could not be built): a gap of the reading
+    (``type: opening``, ``type_raw: unclassified gap content``) in a wall between a room and the outside, with drawn
+    furniture standing across its approach (``GAP_APPROACH_M`` into the room over ``GAP_BLOCKED_SHARE`` of its width),
+    is no passage: the drawing puts a piece there. It is read as a window at the level's usual sill and height
+    (``typical_window``, else 0.90 / 1.20 m), ``corrected_by_ai`` by code with the pieces as evidence, the drawn values
+    kept. Pure, in place; returns the reasons."""
+    from shapely.geometry import Polygon, box as sbox
+    from shapely.ops import unary_union
+
+    plan = Plan(building)
+    out = []
+    pieces = []
+    for f in building.get("furniture") or []:
+        fp = f.get("footprint") or {}
+        if f.get("source") != "from_documents" or f.get("build") is False or f.get("inferred_as") in NOT_A_PIECE \
+                or f.get("type") in NOT_A_PIECE or not fp.get("size"):
+            continue
+        w, d = (float(v) for v in fp["size"][:2])
+        if max(w, d) < GAP_PIECE_MIN_M:
+            continue
+        a = math.radians(float(fp.get("rotation_deg") or 0.0))
+        c, sn = math.cos(a), math.sin(a)
+        cx, cy = (float(v) for v in fp["center"][:2])
+        poly = Polygon([(cx + x * c - y * sn, cy + x * sn + y * c)
+                        for x, y in ((-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2), (-w / 2, d / 2))])
+        pieces.append((f, poly))
+    for o in building.get("openings") or []:
+        if o.get("type") != "opening" or str(o.get("type_raw") or "") != "unclassified gap content":
+            continue
+        wall = plan.walls.get(o.get("wall_id"))
+        sides = window_sides(plan, o)
+        if wall is None or len(sides) != 2 or sum(1 for r in sides if Plan.is_outside(r)) != 1:
+            continue
+        k = 1 if not Plan.is_outside(sides[0]) else -1
+        room = sides[0] if k == 1 else sides[1]
+        a0, u, _ = plan.axis(wall)
+        n = (-u[1] * k, u[0] * k)
+        t = plan.t_of(wall, o["center"])
+        mid = (a0[0] + u[0] * t, a0[1] + u[1] * t)
+        half_w, face = float(o.get("width") or 0.0) / 2.0, float(wall.get("thickness") or 0.2) / 2.0
+        corners = [(mid[0] + u[0] * s * half_w + n[0] * dd, mid[1] + u[1] * s * half_w + n[1] * dd)
+                   for s, dd in ((-1, face), (1, face), (1, face + GAP_APPROACH_M), (-1, face + GAP_APPROACH_M))]
+        zone = Polygon(corners)
+        hits = [(f, poly) for f, poly in pieces if f.get("level_id") == o.get("level_id")
+                and (f.get("room_id") in (None, room["id"])) and poly.intersects(zone)]
+        if not hits or half_w <= 0:
+            continue
+        covered = unary_union([poly.intersection(zone) for _f, poly in hits])
+        # the share of the gap's width the pieces cover (projected on the wall's axis)
+        xs = []
+        for g in getattr(covered, "geoms", [covered]):
+            for x, y in list(g.exterior.coords) if not g.is_empty else []:
+                xs.append((x - mid[0]) * u[0] + (y - mid[1]) * u[1])
+        span = (min(max(xs), half_w) - max(min(xs), -half_w)) if xs else 0.0
+        if span < GAP_BLOCKED_SHARE * 2.0 * half_w:
+            continue
+        typ = typical_window(plan, o.get("level_id")) or {}
+        sill = float(typ.get("sill") or 0.9)
+        height = float(typ.get("height") or 1.2)
+        _keep_drawn(o, "type", "sill_height", "height", "threshold_z", "swing_side")
+        ids = sorted(f["id"] for f, _p in hits)
+        reason = (f"{o['id']} (a {float(o.get('width') or 0):.2f} m gap in the outer wall of {room['id']}): drawn "
+                  f"{', '.join(ids)} stand(s) across its approach over {span:.2f} m of its width, so it is no passage: "
+                  f"read as a window, sill {sill:.2f} m, height {height:.2f} m (the floor's windows)")
+        o["type"], o["sill_height"], o["height"] = "window", round(sill, 3), round(height, 3)
+        for key in ("threshold_z", "swing_side", "operation", "operation_source"):
+            o.pop(key, None)
+        o["corrected_by_ai"] = {"by": "code", "rule": "gap_behind_furniture", "reason": reason, "pieces": ids}
+        ev = o.setdefault("evidence", [])
+        if isinstance(ev, list):
+            ev.append({"file": "building.json", "method": "inferred", "confidence": 0.7,
+                       "rule": "gap_behind_furniture", "text": reason})
+        out.append(reason)
+    return out
+
+
 def act_retype(plan: Plan, key: str, ans: dict, room_id: str, room_type: str):
     r = plan.room.get(room_id)
     if r is None or room_type not in ROOM_TYPES:

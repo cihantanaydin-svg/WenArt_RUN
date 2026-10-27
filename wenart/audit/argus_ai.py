@@ -423,6 +423,18 @@ def bath_or_shower(piece: dict) -> str:
     return "bathtub" if size and size[-1] >= 1.40 else "shower"
 
 
+def missing_for(piece: dict, missing: str) -> str:
+    """The member of ``missing`` ("shower|bathtub", "bed_double|bed_single", ...) a drawn piece most likely is, by its
+    size: a bath from 1.40 m long, a double bed from 1.25 m wide, else the first named."""
+    opts = [m for m in str(missing or "").split("|") if m]
+    size = sorted(float(v) for v in ((piece.get("footprint") or {}).get("size") or [0, 0])[:2])
+    if {"shower", "bathtub"} <= set(opts):
+        return bath_or_shower(piece)
+    if {"bed_double", "bed_single"} <= set(opts):
+        return "bed_double" if size and size[0] >= 1.25 else "bed_single"
+    return opts[0] if opts else ""
+
+
 def code_actions(rep: dict, building: dict) -> tuple[list[dict], list[dict], list[str]]:
     """The fixes Argus's code lines name exactly, as tool calls with no model (``(actions, work, revoke keys)``):
     the ledger's ``type_piece`` (a furniture name written beside an untyped piece), N5 (a room missing a piece of
@@ -447,9 +459,9 @@ def code_actions(rep: dict, building: dict) -> tuple[list[dict], list[dict], lis
                 revoke.append(m.group(1))
                 continue
             missing = str((f.get("evidence") or {}).get("missing") or "")
-            if str(p.get("type")) in ("unknown", "other", ""):
-                ftype = bath_or_shower(p) if missing == "shower|bathtub" else missing.split("|")[0]
-                if ftype:
+            if p and p.get("build") is not False or str(p.get("type")) in ("unknown", "other", ""):
+                ftype = missing_for(p, missing)
+                if ftype and ftype != p.get("type"):
                     a, w = _action(f"c{n}", "retype_piece", {"piece_id": p["id"], "type": ftype,
                                                              "reason": f"the room misses its {ftype}: "
                                                                        f"{f.get('message')}"[:300]},

@@ -152,6 +152,26 @@ def audit(building: Optional[dict]) -> dict:
                                          "reached": len([r for r in checked if r in reached])}}
 
 
+VISION_METHODS = ("ai_two_pass", "ai_one_pass", "ai", "inferred", "rule", "none", None)
+
+
+def misfits(building: dict, room_id: str, here: list[dict]) -> list[dict]:
+    """27 Oct 2026 (real06's r_L1_oda_2: a drawn single bed typed "sofa" by two AI passes in a bedroom with no bed): the
+    drawn pieces of the room the vision passes or a size rule typed (no block name, no name text, no code rule) as a
+    type the room's type may not hold; most likely the piece its set misses."""
+    try:
+        from wenart.furniture import schemas as SC
+        room = next(r for r in building.get("rooms") or [] if r.get("id") == room_id)
+        allowed = set(SC.allowed_types(room.get("room_type"), room.get("room_subtype")))
+    except Exception:  # noqa: BLE001 - no room or no type table: no suspects
+        return []
+    if not allowed:
+        return []
+    return [f for f in here if f.get("source") == "from_documents" and f.get("type") not in ("unknown", "other", "")
+            and f.get("type") not in allowed and f.get("type_method") in VISION_METHODS
+            and any(isinstance(e, dict) and e.get("method") in ("vector", "raster") for e in f.get("evidence") or [])]
+
+
 def set_links(building: dict) -> list[dict]:
     """N5 (module docstring)."""
     try:
@@ -172,6 +192,7 @@ def set_links(building: dict) -> list[dict]:
                     and any(isinstance(e, dict) and e.get("method") in ("vector", "raster")
                             for e in f.get("evidence") or [])]     # left out only for being untyped
         suspects += [f for f in here if f.get("build") is False and "answer to" in str(f.get("not_built_reason") or "")]
+        suspects += misfits(building, room_id, here)
         for g in gaps:
             for f in suspects:
                 size = (f.get("footprint") or {}).get("size") or []
