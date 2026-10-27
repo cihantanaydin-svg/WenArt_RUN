@@ -418,6 +418,11 @@ if [ "${RUN_REFERENCES:-1}" != "0" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ];
   "$POLISH_PY" -m wenart.style.references prefetch --projects ${RUN_PROJECTS//,/ } \
     --root "${WENART_REFERENCES:-/workspace/references}" 2>&1 | tee -a "$LOGS/references-$JOB.log" \
     || log "warning: the style reference prefetch failed (see references-$JOB.log): built-in recipes"
+  # run 180412: the style scores at the end failed offline: a prefetch that only reuses saved sets never loads the
+  # SigLIP 2 model, so it was not in HF_HOME when the job went offline. Fetch it here, while downloads are allowed.
+  "$POLISH_PY" -c "from huggingface_hub import snapshot_download; from wenart.style.references import EMBED_MODEL; \
+print(snapshot_download(EMBED_MODEL))" >> "$LOGS/references-$JOB.log" 2>&1 \
+    || log "warning: the style scores' model could not be fetched (see references-$JOB.log)"
 fi
 export HF_HUB_OFFLINE=1       # every model is in HF_HOME now; nothing is fetched behind our back
 

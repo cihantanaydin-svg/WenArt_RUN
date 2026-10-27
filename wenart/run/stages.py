@@ -148,6 +148,7 @@ VISION_CODE = ("wenart/vision_check/**", "wenart/views.py", "wenart/recognition/
 # gate calibrate (polish venv) + validate: the gate package (thresholds.yaml, models.yaml, validation.yaml
 # included) and what it imports for the views, the expected objects and the scene geometry.
 GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.py", "wenart/canonical.py",
+             "wenart/building.py", "wenart/units.py",   # 27 Oct 2026: wenart.levels.outdoor (architect cover_space)
              "wenart/hfcache.py", "wenart/brief.py", "wenart/geometry.py", "wenart/style/**",
              "wenart/blender/cameras.py", "wenart/blender/camsearch.py", "wenart/blender/common.py",
              "wenart/blender/geom2d.py", "wenart/blender/lighting.py", "wenart/blender/materials.py",
