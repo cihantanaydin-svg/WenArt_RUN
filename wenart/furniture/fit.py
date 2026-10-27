@@ -1286,6 +1286,25 @@ def _usable_footprint(piece: dict) -> bool:
         return False
 
 
+def _wall_cabinet_over(pieces: list, piece: dict) -> bool:
+    """Whether a built wall cabinet of the piece's room overlaps its footprint in plan (27 Oct 2026: a fridge under
+    one stays under the counter)."""
+    try:
+        from wenart.furniture import placer as PLC
+        mine = PLC.drawn_piece(piece).polygon()
+    except Exception:  # noqa: BLE001 - no footprint: say yes (the safe under-counter unit)
+        return True
+    for p in pieces:
+        if p.get("type") != "wall_cabinet" or p.get("build", True) is False or p.get("room_id") != piece.get("room_id"):
+            continue
+        try:
+            if PLC.drawn_piece(p).polygon().intersection(mine).area > 0.01:
+                return True
+        except Exception:  # noqa: BLE001
+            continue
+    return False
+
+
 def kitchen_built_ins(building: dict) -> dict:
     """The kitchen pre-pass of ``fit_building`` (pure; fix round after P3, module docstring): ``{"hints": {run id:
     module hints}, "sinks": {sink id: run id}}``.
@@ -1336,6 +1355,9 @@ def kitchen_built_ins(building: dict) -> dict:
                           f"{key}_w_m": got["w_m"], f"{key}_piece": m["id"]})
             if kind == "hob":
                 hints["oven"] = bool((m.get("built_in") or {}).get("oven"))
+            else:
+                # 27 Oct 2026: a fridge with no wall cabinet over it may stand as a tall column at a run end
+                hints["fridge_column"] = not _wall_cabinet_over(pieces, m)
             out["sinks"][m["id"]] = run["id"]
             claimed.add(m["id"])
         if sinks:
@@ -1385,7 +1407,8 @@ def built_in_fit(piece: dict, run: dict, mode: str, style_family: Optional[str] 
     if kind in BUILT_IN_MODULE_KINDS:
         # 26 Oct 2026: a hob (with its oven) or an under-counter fridge the completion built into the run
         what = ("hob unit with the hob plate on the worktop" + (" and an oven under it" if record.get("oven") else "")
-                if kind == "hob" else "under-counter fridge unit with an appliance door")
+                if kind == "hob" else "fridge-freezer column at the run's end" if record.get("column")
+                else "under-counter fridge unit with an appliance door")
         why = (f"built into the kitchen run {run['id']}: a {float(record.get('w_m') or 0.0):.2f} m {what} (the "
                f"completion built it into the counter: solver.built_in_kitchen)"
                + (f"; the unit stands {abs(shift):.2f} m from the piece's centre" if abs(shift) > 0.005 else ""))

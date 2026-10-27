@@ -147,6 +147,11 @@ KITCHEN_WALL_WIDTHS_M: tuple[float, ...] = (0.40, 0.60, 0.80)        # METOD wal
 KITCHEN_WALL_DEPTH_M = 0.35           # the contract (METOD 37, US 12 in = 305 mm)
 KITCHEN_WALL_BOTTOM_M = 1.40          # the contract: wall units from 1.40 to 2.10 m
 KITCHEN_WALL_TOP_M = 2.10
+# 27 Oct 2026: a fridge-freezer column (IKEA METOD high cabinet 60x60x200 / 220; integrated fridge-freezers 177-194 cm
+# in a 60 cm housing) at a run end, its top in line with the wall units; the freezer door the lower 40 %
+KITCHEN_COLUMN_TOP_M = KITCHEN_WALL_TOP_M
+KITCHEN_COLUMN_FREEZER_SHARE = 0.40
+KITCHEN_COLUMN_MIN_REST_M = 0.60      # a column only when this much counter stays beside it
 KITCHEN_DRAWER_UNIT_W_M = 0.60        # a 60 unit takes three drawers (METOD / MAXIMERA); wider ones two doors
 # Fix round after P3 (16-17 Oct 2026): a drawn freestanding range (``stove``) inside a drawn run stands in a gap of
 # the run (``module_hints["ranges"]``): no base unit, plinth or worktop over its drawn span, which is kept exactly
@@ -719,6 +724,19 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
             else:
                 notes.append(f"the drawn sink {sink_piece} is not built in: {why}; no gap either ({problem}): it "
                              "stands on its own as drawn")
+    # 27 Oct 2026 (pod run 224516, real06: the judge saw "no fridge": the built-in fridge was a 60 cm steel door under
+    # the worktop, read as a dishwasher): a fridge at a run end with no wall cabinet over it (``fridge_column``, the
+    # fit's hint) is a fridge-freezer column up to the wall units' top; the worktop and the plinth stop at its side
+    column = None
+    if hints.get("fridge_column") and not island:
+        for f0, f1, kind in fixed:
+            at_end = abs(f0 + w / 2.0) < 1e-6 or abs(f1 - w / 2.0) < 1e-6
+            if kind == "fridge" and at_end and w - (f1 - f0) >= KITCHEN_COLUMN_MIN_REST_M - 1e-9:
+                column = (f0, f1)
+                gap_spans.append((f0, f1, "fridge_column"))
+                notes.append(f"the fridge stands as a {f1 - f0:.2f} m fridge-freezer column at the run's end, "
+                             f"{KITCHEN_COLUMN_TOP_M:.2f} m high (no wall cabinet over it)")
+                break
     segments = _segments(w, fixed + gap_spans)
     base_h = worktop_z - KITCHEN_WORKTOP_M - KITCHEN_PLINTH_M
     stretches = _segments(w, gap_spans)                   # the plinth and the worktop run between the gaps
@@ -763,6 +781,12 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
         # under-counter fridge's appliance door
         if kind == "hob" and hints.get("oven") and base_h >= KITCHEN_OVEN_H_M + 0.05:
             front, product = "oven", f"hob with a built-in oven {(f1 - f0) * 100:.0f} cm"
+        elif kind == "fridge" and column == (f0, f1):
+            units.append(_module("tall_unit", (f1 - f0, d, KITCHEN_COLUMN_TOP_M - KITCHEN_PLINTH_M),
+                                 ((f0 + f1) / 2.0, 0.0), "front", z_m=KITCHEN_PLINTH_M, front="fridge_column",
+                                 holds=kind, product=f"fridge-freezer column {(f1 - f0) * 100:.0f} cm, "
+                                                     f"{KITCHEN_COLUMN_TOP_M * 100:.0f} cm high"))
+            continue
         elif kind == "fridge":
             front, product = "fridge", f"under-counter fridge {(f1 - f0) * 100:.0f} cm"
         units.append(_module("base_unit", (f1 - f0, d, base_h), ((f0 + f1) / 2.0, 0.0), "front", z_m=KITCHEN_PLINTH_M,
@@ -776,10 +800,15 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
                                         for f0, f1, k in fixed if k != "fridge"
                                         and x0 - 1e-6 <= (f0 + f1) / 2.0 <= x1 + 1e-6]))
     height = worktop_z
+    if column is not None:
+        height = max(height, KITCHEN_COLUMN_TOP_M)
     if hints.get("wall_units") and not island:
-        wall = compose_run(w, KITCHEN_WALL_WIDTHS_M, KITCHEN_FILLER_MAX_M)
+        # 27 Oct 2026: beside a fridge column the wall units run over the rest of the run only
+        wa, wb = (-w / 2.0, w / 2.0) if column is None else \
+            ((column[1], w / 2.0) if abs(column[0] + w / 2.0) < 1e-6 else (-w / 2.0, column[0]))
+        wall = compose_run(wb - wa, KITCHEN_WALL_WIDTHS_M, KITCHEN_FILLER_MAX_M)
         if wall is not None:
-            xx = -w / 2.0 + wall["filler_m"]
+            xx = wa + wall["filler_m"]
             for uw in wall["widths"]:
                 modules.append(_module("wall_unit", (uw, KITCHEN_WALL_DEPTH_M, KITCHEN_WALL_TOP_M - KITCHEN_WALL_BOTTOM_M),
                                        (xx + uw / 2.0, d / 2.0 - KITCHEN_WALL_DEPTH_M / 2.0), "front",
@@ -828,12 +857,16 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
             continue
         record = {"id": str(pid), "kind": kind, "x_m": round((unit[0] + unit[1]) / 2.0, 4),
                   "w_m": round(unit[1] - unit[0], 4), "drawn_x_m": round(float(xv), 4), "shift_m": round(shift, 4)}
+        if kind == "fridge" and column is not None and tuple(unit) == column:
+            record["column"] = True
         if kind == "hob":
             record["oven"] = any(m.get("holds") == "hob" and m.get("front") == "oven" for m in modules)
         plan.setdefault("built_ins", []).append(record)
-        notes.append(f"the {'hob' if kind == 'hob' else 'under-counter fridge'} {pid} is built into the run: a "
+        what = "hob" if kind == "hob" else ("fridge" if record.get("column") else "under-counter fridge")
+        notes.append(f"the {what} {pid} is built into the run: a "
                      f"{unit[1] - unit[0]:.2f} m unit" + (" with the hob plate on the worktop" if kind == "hob" else
-                                                          " with an appliance door")
+                                                          " standing as the fridge-freezer column" if record.get("column")
+                                                          else " with an appliance door")
                      + (" and an oven under it" if record.get("oven") else ""))
     return plan
 
@@ -1147,6 +1180,17 @@ def _appliance_fronts(kind: str, x: float, w: float, face: float, z0: float, h: 
             parts += P._front_panel(x, face, z0 + gap, fw, drawer_h, P.front_style_of(design))
             parts.append(P._handle(x, face, z0 + gap + drawer_h * 0.6, vertical=False))
         return parts
+    if kind == "fridge_column":                       # 27 Oct 2026: the freezer door under the fridge door
+        split = z0 + h * KITCHEN_COLUMN_FREEZER_SHARE
+        for d0, d1 in ((z0 + gap, split - gap / 2.0), (split + gap / 2.0, top)):
+            parts.append(P._box(x, cy, d0, fw, t, d1 - d0, "steel", "front"))
+            hx = x + fw / 2.0 - 0.06                     # a long vertical bar handle near the opening edge
+            hl = min(0.9, (d1 - d0) * 0.6)
+            hz = d1 - hl - 0.08 if d1 <= split else d0 + 0.08     # near the doors' meeting line
+            parts.append(P._box(hx, y_back - t - 0.03, hz, 0.016, 0.014, hl, "steel", "handle"))
+            for sz in (hz + 0.02, hz + hl - 0.032):     # the handle's two posts
+                parts.append(P._box(hx, y_back - t - 0.0125, sz, 0.012, 0.023, 0.012, "steel", "handle"))
+        return parts
     door_h = top - z0 - gap
     vent = min(0.06, door_h * 0.1)
     parts.append(P._box(x, cy, z0 + gap + vent, fw, t, door_h - vent, "steel", "front"))
@@ -1155,6 +1199,25 @@ def _appliance_fronts(kind: str, x: float, w: float, face: float, z0: float, h: 
     for sx in (-1.0, 1.0):
         parts.append(P._box(x + sx * fw * 0.38, y_back - t - 0.0125, top - 0.068, 0.012, 0.023, 0.012, "steel",
                             "handle"))
+    return parts
+
+
+def _tall_unit_parts(m: dict, design: dict, d_run: float) -> list[Part]:
+    """27 Oct 2026: a tall unit at a run end (the fridge-freezer column): its plinth (recessed at the front), the
+    carcass up to the column's top, the fridge door over the freezer door in steel with long vertical bar handles."""
+    w, d, h = m["size_m"]
+    x, _y = m["pos_m"]
+    z0 = float(m.get("z_m") or 0.0)
+    inset = P.FRONT_GAP + P.FRONT_THICKNESS
+    face = -d_run / 2.0 + inset
+    parts = [P._box(x, KITCHEN_PLINTH_RECESS_M / 2.0, 0.0, w - 0.002, d - KITCHEN_PLINTH_RECESS_M, z0, "dark",
+                    "plinth"),
+             P._box(x, inset / 2.0, z0, w - 0.002, d_run - inset, h, "painted", "body")]
+    if m.get("front") == "fridge_column":
+        parts += _appliance_fronts("fridge_column", x, w, face, z0, h, design)
+    else:
+        fronts = P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 2, 1, design)
+        parts += _rotate_parts(fronts, x, 0.0, 0.0)
     return parts
 
 
@@ -1175,6 +1238,8 @@ def _kitchen_parts(plan: dict) -> list[Part]:
             parts.append(P._box(x, 0.0, z0, w, d - 0.015, h, "front", "front"))
         elif m["kind"] == "worktop":
             parts += _worktop_parts(m, w_run, d_run)
+        elif m["kind"] == "tall_unit":
+            parts += _tall_unit_parts(m, design, d_run)
         elif m["kind"] == "wall_unit":
             inset = P.FRONT_GAP + P.FRONT_THICKNESS
             parts.append(P._box(x, y + inset / 2.0, z0, w - 0.002, d - inset, h, "painted", "body"))
