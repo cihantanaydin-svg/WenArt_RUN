@@ -7,10 +7,10 @@
   "source": "runs/20261025-180008-full/results/final/real04"
  },
  "real06": {
-  "files": 63,
-  "job": "20261027-160846-full",
-  "previews": 29,
-  "run_id": "20261027-160846-full-20261027T161857Z",
-  "source": "runs/20261027-160846-full/results/final/real06"
+  "files": 62,
+  "job": "20261027-180412-full",
+  "previews": 28,
+  "run_id": "20261027-180412-full-20261027T181147Z",
+  "source": "runs/20261027-180412-full/results/final/real06"
  }
 }

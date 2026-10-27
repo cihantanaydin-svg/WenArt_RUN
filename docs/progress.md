@@ -1829,3 +1829,16 @@ A review of the code since 24 Oct found rules shaped by one drawing; fixed as ge
 
 Kept as they are: "a round piece is never a chair" (the user's rule of 26 Oct); the same-block stroke tolerance (a
 reading tolerance: names, stroke kinds, shape and footprint must match too).
+
+### The pod run of 27 Oct, evening (real06, job 20261027-180412-full, $4.02)
+
+The code of 18:04 (commit b06030b): the Pexels photos and the decor places, none of the outdoor checks, Argus's self-fixes
+or the generality fixes above. Against run 160846: judge 2.04 (was 2.00), anchors 9 of 9, drawn pieces 47 of 48,
+Argus 12.3 (3 critical, 102 major). Promoted as the latest run.
+
+| What the review found | Fix |
+|---|---|
+| the agent loop measured round 1 and stopped on its time budget (phase 12 spent 55 min on two scene builds, the architect's look and Argus): no edits, no big-loop cycle | the next run gets 120 min (the most a single run may cost under $5) |
+| Argus proposed 39 decisions and carried out none: every `move_piece` failed with "no opening None" (the decision never carried what the piece blocks) | `architect_actions.move_targets`: the openings or pieces the answer names, else the openings within 1 m; a move clears a piece too (a basin over a drawn bath) |
+| 10 `door_to_window` proposals for openings the architect had already made windows | refused as "a window already" |
+| the style scores failed offline (their SigLIP 2 model was never fetched when the prefetch reused saved sets) | `full.sh` fetches it before the job goes offline |
