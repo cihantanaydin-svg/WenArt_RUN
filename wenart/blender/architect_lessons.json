@@ -630,6 +630,19 @@
    "request": "Not every opening inside the house requires a door or a window. General rule: an opening between two rooms drawn with no leaf and no swing arc (a passage, an archway, an open doorway between a hall and a dressing room, a kitchen and a living area) stays an open passage: no leaf, no glass, no guard (a guard only over a drop); where the drawing is unclear the open passage is the default, a door (one solid leaf) only into a room that needs privacy (a bathroom, a WC, a bedroom); a door or passage between rooms is never made a window, a serving hatch over a drawn counter is open (no glass); the architect logs the decision (D6) and the model review (M12) reports an inside opening that got a leaf, glass or a guard it does not need",
    "lesson": "Not every opening inside the house has a door or a window: a passage between two rooms drawn with no leaf and no swing arc stays open (no leaf, no glass, no guard: a guard only over a drop); where the drawing is unclear the open passage is the default and a door (one solid leaf) goes only into a room that needs privacy (a bathroom, a WC, a bedroom); a door or passage between rooms is never made a window, a serving hatch over a drawn counter stays open; D6 logs the decision and the model review (M12) reports an inside opening that got a leaf, glass or a guard it does not need.",
    "question": "Does every opening inside the house get only what it needs: an open passage where none is drawn, a door only for privacy?"
+  },
+  {
+   "id": "UL56",
+   "date": "2026-10-27",
+   "area": "openings",
+   "status": "rule",
+   "checks": [
+    "W5",
+    "W3"
+   ],
+   "request": "Tall windows where the style favours large glazing (user, 27 Oct 2026, on a Scandinavian two-storey house's renders: 'In some of the rooms the full windows from top to bottom (with a bit of remaining wall of course) could look better').",
+   "lesson": "In a style family that favours large glazing (scandinavian, japandi, modern, minimal, contemporary; not classic, rustic, mediterranean, industrial) the windows of the living, dining and bed rooms (and of a dry room onto a terrace or garden) whose sill and head no document fixes become tall windows: a 0.20 m upstand to 0.25 m under the ceiling or the roof, the drawn width and position kept, all windows of one facade of the room alike; never in a wet room, never behind a wall-backed piece (a dresser, wardrobe, bed head, desk, sideboard or kitchen run keeps the sill the fit caps it at); the house's guard over a drop (W3); curtains and blinds follow the new head (architect rule W5, action tall_window).",
+   "question": "Do the living, dining and bed rooms of a large-glazing style have tall windows wherever the documents fix no sill or head and no wall-backed piece stands in front, the same on every facade of the room, with a guard over a drop?"
   }
  ]
 }

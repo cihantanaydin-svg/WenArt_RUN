@@ -68,6 +68,14 @@ RULES = (
     {"id": "W3", "topic": "low sills", "scope": "window", "severity": "major",
      "question": "Where a window lies more than a metre over the ground, is its sill at least 0.85 m high?",
      "why": "a low sill over a drop is a fall risk (or the window needs a guard)"},
+    # 27 Oct 2026 (user on real06: "In some of the rooms the full windows from top to bottom (with a bit of remaining
+    # wall of course) could look better")
+    {"id": "W5", "topic": "tall windows", "scope": "room", "severity": "minor",
+     "question": "In a style that favours large glazing, do the living, dining and bed rooms (and the rooms onto the "
+                 "garden) get tall windows: from a low upstand to under the lintel, the same on every facade of the "
+                 "room, where the documents fix no sill or head and no piece stands in front?",
+     "why": "a Scandinavian or modern living room with 0.90 m sills and 1.20 m windows looks like an office; tall "
+            "glass brings the garden in, and the documents' sills, a dresser's or a counter's sill stay"},
     {"id": "O1", "topic": "openings in their walls", "scope": "opening", "severity": "major",
      "question": "Does every door and window fit in its wall: within its length, clear of the other openings, under "
                  "the ceiling?",
@@ -416,6 +424,34 @@ def door_types(plan: AA.Plan, sides: list[dict]) -> list[dict]:
         _open(d5, o["id"], f"{o['id']} is {why}", f"What kind of door is {o['id']} ({width:.2f} m)?", opts,
               where=_where("door", o.get("level_id"), o["center"]), default=opts[0]["choice"])
     return [d5]
+
+
+def tall_windows_rule(plan: AA.Plan, family: Optional[str]) -> list[dict]:
+    """W5 (pure; 27 Oct 2026): in a style family that favours tall glazing (``architect_actions.tall_glazing``), every
+    room that may get tall windows (``architect_actions.tall_room``) with a facade whose windows may grow
+    (``tall_window_groups``) is open with the safe default ``tall_window`` (the architect carries it out; the AI
+    architect or the user may keep the sills); a room whose windows are tall, or kept (the documents, a piece in front,
+    no garden), is fine with the reason. Another family keeps its sills (not asked)."""
+    w5 = _q(next(r for r in RULES if r["id"] == "W5"))
+    if not AA.tall_glazing(family):
+        return [w5]
+    for r in plan.rooms:
+        if r.get("level_id") not in plan.levels or not AA.tall_room(plan, r["id"]):
+            continue
+        groups = AA.tall_window_groups(plan, r["id"])
+        if not groups:
+            continue
+        found = "; ".join(f"facing {g['facing_deg']:.0f} deg: {g['state']} ({g['why']})" for g in groups)
+        if any(g["state"] == "grow" for g in groups):
+            opts = [AA.option("tall_window", f"tall windows ({family} style): from a {AA.TALL_SILL_M:.2f} m upstand "
+                              f"to {AA.LINTEL_M:.2f} m under the ceiling", room_id=r["id"]),
+                    AA.option("keep", "keep the sills as they are")]
+            _open(w5, r["id"], f"{r['id']} ({_rtype(r)}, {family} style): {found}",
+                  f"Should the windows of {r['id']} be tall windows?", opts,
+                  where=_where("room", r.get("level_id"), _centroid(r["polygon"])), default="tall_window")
+        else:
+            _ok(w5, r["id"], found)
+    return [w5]
 
 
 # --------------------------------------------------------------------------
@@ -795,7 +831,8 @@ def review(building: dict, prep: dict, sides: list[dict], graph: dict, starts: l
     plan = AA.Plan(building)
     seen = reach(graph, starts) if starts else set()
     unreached = {r["id"] for r in plan.rooms if r["id"] not in seen and not AA.Plan.is_outside(r)} if starts else set()
-    out = rooms_rules(plan) + openings_rules(plan, sides, unreached) + door_types(plan, sides) + walls_rules(plan) + \
+    out = rooms_rules(plan) + openings_rules(plan, sides, unreached) + door_types(plan, sides) + \
+        tall_windows_rule(plan, prep.get("style_family")) + walls_rules(plan) + \
         passages_rule(plan, sides) + \
         stairs_rules(plan, graph, starts, is_stair, reach) + furniture_rules(plan, sides) + \
         clash_rule(building, prep.get("clashes"))
