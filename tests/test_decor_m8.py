@@ -137,9 +137,11 @@ def test_bedroom_rug_lies_under_the_lower_two_thirds_of_a_double_bed_only():
     assert (x0, x1) == (-1.1, 1.1)
     assert y0 == pytest.approx(-1.0 - 0.3, abs=1e-3)                         # 0.3 m past the foot
     assert y1 == pytest.approx(-1.0 + 2.0 * 2 / 3 + 0.3, abs=1e-3)           # 2/3 of the bed + 0.3 m
-    # a single bed gets none; neither does a double bed in a living room
+    # 27 Oct 2026 (UL42): a single bed gets one under its lower two thirds and out on its sides; a double bed in a
+    # living room none
     out, _ = D.add_decor(room_building(room_type="bedroom", furniture=[("bed_single", (3.0, 3.98), 0.0, (0.9, 2.0))]))
-    assert not of_type(out, "rug")
+    (rug,) = of_type(out, "rug")
+    assert "single bed" in rug["reason"] and rug["size"][0] > 0.9
     out, _ = D.add_decor(room_building(room_type="living", furniture=[bed]))
     assert not of_type(out, "rug")
 
@@ -172,9 +174,10 @@ def test_no_rug_or_wall_art_without_a_verified_group_or_when_the_room_is_too_sma
     # an unverified sofa (type unclear): nothing is hung or laid around it
     out, rows = D.add_decor(room_building(furniture=[SOFA + ("unverified",), TABLE]))
     assert not of_type(out, "rug") and not of_type(out, "wall_art")
-    # a sofa without a coffee table: no rug, the report says why
+    # 27 Oct 2026 (UL42): a sofa without a coffee table: the rug lies in front of it (the seating area)
     out, rows = D.add_decor(room_building(furniture=[SOFA]))
-    assert not of_type(out, "rug") and "no coffee table in front of a sofa" in rows[0]["note"]
+    (rug,) = of_type(out, "rug")
+    assert "in front of the sofa" in rug["reason"]
     # a tiny dining nook: the rug would be cut below 0.8 m
     out, rows = D.add_decor(room_building(room_type="dining", width=1.3, depth=1.3,
                                           furniture=[("table_dining", (0.65, 0.65), 0.0, (0.6, 0.6))]))

@@ -100,9 +100,11 @@ def test_room_types_limit_the_decor():
     bath = room_building(room_type="bathroom", furniture=[("washbasin", (3.0, 4.75), 0.0, (0.6, 0.45)),
                                                           ("toilet", (1.0, 4.65), 0.0, (0.4, 0.7))])
     slots, _ = slots_of(bath)
-    # Milestone 10: a ceiling light at the room centre besides the mirror (no window in this bathroom).
-    assert [(s.id, s.types) for s in slots] == [("f_L0_001.wall", ("mirror",)), (f"ceiling:centre_{RID}",
-                                                                                  ("ceiling_light",))]
+    # Milestone 10: a ceiling light at the room centre besides the mirror (no window in this bathroom); 27 Oct 2026
+    # (UL42): a floor plant in a free corner, as the reference photos show
+    assert [(s.id, s.types) for s in slots if s.kind != "floor"] == [("f_L0_001.wall", ("mirror",)),
+                                                                     (f"ceiling:centre_{RID}", ("ceiling_light",))]
+    assert {t for s in slots if s.kind == "floor" for t in s.types} <= {"plant", "basket"}
     mirror = slots[0].items["mirror"]
     assert mirror["type"] == "mirror" and mirror["gap_m"] == DA.MIRROR_GAP_M
     kitchen = room_building(room_type="kitchen", furniture=[("table_dining", (3.0, 2.5), 0.0, (1.2, 0.8))])

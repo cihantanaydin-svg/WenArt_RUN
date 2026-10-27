@@ -2363,7 +2363,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
             # the run's hints reach its plan on a copy: the building piece never gets module_hints (FROZEN_KEYS,
             # assert_only_assets_changed); the asset keeps them beside the plan (furniture.module_plan_of)
             target = dict(piece, module_hints={**(piece.get("module_hints") or {}), **hints}) if hints else piece
-            if room_types.get(piece.get("room_id")) in OPEN_AIR_ROOMS:
+            if room_types.get(piece.get("room_id")) in OPEN_AIR_ROOMS or piece.get("open_air"):
                 target = dict(target, open_air_room=True)     # outdoor models first (a copy: the piece stays)
             elif room_types.get(piece.get("room_id")):
                 target = dict(target, open_air_room=False)    # 26 Oct 2026 (fix E): a known indoor room

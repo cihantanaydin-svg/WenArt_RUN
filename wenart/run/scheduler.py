@@ -1920,6 +1920,12 @@ class Orchestrator:
             self.not_started(pr, "decor_ask")
             return
         src = self.decor_source(pr)
+        # 27 Oct 2026 (lesson UL42): what good photos of each space in the project's style show (recipes.json), read
+        # with this server before the questions that carry it; a failure leaves the built-in recipes
+        rrc = self.run_step(pr, "decor_ask", "recipes",
+                            S.recipes(self.tools, pr.ref, src.name == "building_furnished.json", url, self.layout_key()))
+        if rrc != 0:
+            self.out(f"{pr.name} recipes: exit {rrc}: the decor uses the built-in recipes")
         rc = self.run_step(pr, "decor_ask", "decor_ask",
                            S.decor_ask(self.tools, pr.ref, src.name == "building_furnished.json", url,
                                        self.layout_key()))
@@ -1944,7 +1950,7 @@ class Orchestrator:
             src = pr.out / ("building_furnished.json" if furnished else "building_fitted.json")
             # Milestone 9: the AI decor's answers (the rules per room without them) and the style text it asked with.
             self.fp_stage(pr, "decor", S.decor(self.tools, pr.ref, furnished),
-                          [src, pr.out / "style.json", pr.out / S.DECOR_ANSWERS])
+                          [src, pr.out / "style.json", pr.out / S.DECOR_ANSWERS, pr.out / "recipes.json"])
             if not pr.active:
                 continue
             if self.agent_on() and (pr.out / OVERRIDES_REL).is_file():

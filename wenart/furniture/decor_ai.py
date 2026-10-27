@@ -188,13 +188,14 @@ ROOM_TYPES: dict[str, tuple[str, ...]] = {
     "bedroom": AI_TYPES,
     "dining": AI_TYPES,
     "other": AI_TYPES,
-    "kitchen": ("vase", "bowl", "plant_small", "book_set", "blind", "pendant_light", "ceiling_light", "candle", "tray"),
+    "kitchen": ("vase", "bowl", "plant_small", "book_set", "blind", "pendant_light", "ceiling_light", "candle", "tray",
+                "plant", "plant_large"),                     # 27 Oct 2026 (UL42): a floor plant, as the photos show
     "hall": ("mirror", "wall_art", "plant", "vase", "bowl", "plant_small", "table_lamp", "book_set", "clock", "basket",
              "plant_large", "ceiling_light", "pendant_light", "books", "tray", "candle"),
-    "bathroom": ("mirror", "blind", "ceiling_light", "candle", "basket"),
+    "bathroom": ("mirror", "blind", "ceiling_light", "candle", "basket", "plant", "plant_small"),   # 27 Oct: a plant
     "wc": ("mirror", "blind", "ceiling_light"),
 }
-FLOOR_PLANT_ROOM_TYPES: tuple[str, ...] = ("living", "bedroom", "dining", "hall", "other")
+FLOOR_PLANT_ROOM_TYPES: tuple[str, ...] = ("living", "bedroom", "dining", "hall", "other", "kitchen", "bathroom")
 FLOOR_TYPES: tuple[str, ...] = ("plant", "plant_large", "basket", "sculpture")          # Milestone 10 floor corners
 ROOM_GUIDE: dict[str, str] = {
     "living": "cushions on the sofa, a throw, a rug under the sofa group, wall art above the sofa, curtains or a "
@@ -502,10 +503,16 @@ def piece_line(p: dict) -> dict:
             "from": "documents" if p.get("source") == "from_documents" else "added by AI"}
 
 
-def question(room: dict, pieces: list[dict], slots: list[Slot], style_text: str, pass_no: int = 1) -> str:
-    """The user prompt for one room; pass 2 reorders the blocks."""
+def question(room: dict, pieces: list[dict], slots: list[Slot], style_text: str, pass_no: int = 1,
+             recipe: Optional[dict] = None) -> str:
+    """The user prompt for one room; pass 2 reorders the blocks. 27 Oct 2026 (UL42): with the room's ``recipe``
+    (``wenart.style.recipe``: what good photos of its kind and style show) the guide is the recipe's text."""
     rtype = room.get("room_type") or "other"
     guide = ROOM_GUIDE.get(rtype, ROOM_GUIDE["other"])
+    if recipe:
+        from wenart.style import recipe as RC
+
+        guide = RC.recipe_text(recipe) + " Choose these first, then what else suits the room"
     task = (f"Task: choose decor for the {rtype} labelled '{room['label']}' ({float(room.get('area_computed') or 0):.1f} "
             f"m²). Style brief: {style_text.strip() or 'none'}.")
     furniture = "Furniture in the room (fixed; never moved):\n" + json.dumps(
@@ -578,9 +585,20 @@ class RoomQuestion:
     schema: dict
 
 
-def room_questions(building: dict, style_text: str, skip: Optional[set] = None) -> list[RoomQuestion]:
+def room_recipe(room: dict, recipes: Optional[dict]) -> Optional[dict]:
+    """The recipe of a room's reference space (``recipes``: ``{space: recipe}`` of ``recipes.json``), else None."""
+    if not recipes:
+        return None
+    from wenart.style import references as RF
+
+    return recipes.get(RF.space_of(room.get("room_type"), room.get("room_subtype")) or "")
+
+
+def room_questions(building: dict, style_text: str, skip: Optional[set] = None,
+                   recipes: Optional[dict] = None) -> list[RoomQuestion]:
     """Every room the AI decorates (furnished, verified, not a prayer room, with at least one slot); Milestone 10:
-    not the rooms that take their partner's decor (``decor.copy_targets``; ``skip`` when the caller has them)."""
+    not the rooms that take their partner's decor (``decor.copy_targets``; ``skip`` when the caller has them).
+    27 Oct 2026: ``recipes`` put each room's recipe in its question (``question``)."""
     if skip is None:
         skip = set(D.copy_targets(building)[0])
     out = []
@@ -593,7 +611,7 @@ def room_questions(building: dict, style_text: str, skip: Optional[set] = None) 
         if not slots:
             continue
         built = [p for p in pieces if p.get("build", True) is not False]
-        prompts = {n: question(room, built, slots, style_text, n) for n in PASSES}
+        prompts = {n: question(room, built, slots, style_text, n, room_recipe(room, recipes)) for n in PASSES}
         out.append(RoomQuestion(room, pieces, slots, notes, prompts, answer_schema(slots)))
     return out
 
@@ -669,13 +687,13 @@ def read_answers(path: Path) -> dict:
 
 
 def ask(building: dict, style_text: str, client, answers_path: Path, model: str,
-        log: Callable = print) -> tuple[dict, int]:
+        log: Callable = print, recipes: Optional[dict] = None) -> tuple[dict, int]:
     """Ask both passes of every room question that has no stored answer of the same key; returns the answers
     document and the number of calls that could not reach the server."""
     doc = read_answers(answers_path)
     store = doc["answers"]
     failed = 0
-    for q in room_questions(building, style_text):
+    for q in room_questions(building, style_text, recipes=recipes):
         for n in PASSES:
             key = answer_key(q.room["id"], q.prompts[n], q.schema, model, n)
             old = store.get(key)
@@ -907,6 +925,98 @@ def fill_to_minimum(rq: "RoomQuestion", items: list[dict], building: dict, new_i
     return out
 
 
+# 27 Oct 2026 (UL42): a recipe layer -> the slot kinds and decor types that make it (the first type a slot takes)
+LAYER_SLOTS: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
+    "rug": (("rug", ("rug",)),),
+    "curtains": (("window", ("curtain",)),),
+    "blinds": (("window", ("blind",)),),
+    "wall_art": (("wall", ("wall_art",)),),
+    "mirror": (("wall", ("mirror",)),),
+    "plants": (("floor", ("plant_large", "plant")), ("top", ("plant_small",))),
+    "pendant_or_ceiling_light": (("ceiling", ("pendant_light", "ceiling_light")),),
+    "table_lamps": (("top", ("table_lamp",)),),
+    "cushions": (("soft", ("cushion",)),),
+    "throw": (("soft", ("throw",)),),
+    "styled_surfaces": (("top", ("vase", "bowl", "tray", "books", "candle", "sculpture", "plant_small")),),
+    "styled_shelves": (("shelf", ("book_set",)),),
+}
+EVERY_SLOT_LAYERS = ("curtains", "rug", "cushions")     # every window, every rug place, every seat when a must
+TYPE_LAYER: dict[str, str] = {"rug": "rug", "curtain": "curtains", "blind": "blinds", "wall_art": "wall_art",
+                              "mirror": "mirror", "plant": "plants", "plant_large": "plants", "plant_small": "plants",
+                              "pendant_light": "pendant_or_ceiling_light", "ceiling_light": "pendant_or_ceiling_light",
+                              "table_lamp": "table_lamps", "cushion": "cushions", "throw": "throw",
+                              "vase": "styled_surfaces", "bowl": "styled_surfaces", "tray": "styled_surfaces",
+                              "books": "styled_surfaces", "candle": "styled_surfaces", "sculpture": "styled_surfaces",
+                              "book_set": "styled_shelves"}
+
+
+def layer_counts(items: list[dict]) -> dict[str, int]:
+    """``{layer: count}`` of a room's decor items (``TYPE_LAYER``)."""
+    out: dict[str, int] = {}
+    for it in items:
+        layer = TYPE_LAYER.get(str(it.get("type")))
+        if layer:
+            out[layer] = out.get(layer, 0) + 1
+    return out
+
+
+def fill_recipe(rq: "RoomQuestion", items: list[dict], building: dict, new_id,
+                recipe: Optional[dict]) -> list[dict]:
+    """27 Oct 2026 (lesson UL42; real06's salon held 9 items and no rug, plant, art or lamp, its bathrooms a ceiling
+    light): the items that bring a room to its recipe's ``must`` layers (``recipe.gaps``): for each missing layer the
+    free slots of its kind (``LAYER_SLOTS``) in turn, each with the first type of the layer the slot takes, up to the
+    recipe's count (every free slot for ``EVERY_SLOT_LAYERS``), through the same checks as the AI's items
+    (``build_items``); ``method: rule`` with the recipe's evidence in the reason. No recipe: nothing."""
+    if not recipe:
+        return []
+    from wenart.style import recipe as RC
+
+    have = layer_counts(items)
+    taken = {i.get("slot") for i in items}
+    src = ("built-in designer defaults" if recipe.get("source") == "default"
+           else f"{recipe.get('n')} reference photos")
+    out: list[dict] = []
+    for gap in RC.gaps(recipe, have):
+        layer = gap["layer"]
+        need = gap["wanted"] - gap["have"]
+        every = layer in EVERY_SLOT_LAYERS
+        for kind, types in LAYER_SLOTS.get(layer, ()):
+            for slot in rq.slots:
+                if (need <= 0 and not every) or slot.kind != kind or slot.id in taken:
+                    continue
+                dtype = next((t for t in types if t in slot.types), None)
+                if dtype is None:
+                    continue
+                why = (f"recipe: {float(gap['share'] or 0):.0%} of good {recipe.get('family') or ''} "
+                       f"{recipe.get('space')} rooms show {RC.LAYER_TEXT.get(layer, layer).split(' (')[0]} "
+                       f"({src})").replace("  ", " ")
+                made, _refused = build_items(rq, [{"slot": slot.id, "type": dtype, "colour": None,
+                                                   "reasons": [why, why]}], "rule", building, new_id)
+                for it in made:
+                    it.update(method="rule", confidence=0.7, reason=why)
+                if made:
+                    out += made
+                    taken.add(slot.id)
+                    need -= 1
+    return out
+
+
+def load_recipes(path: Optional[str], style_path: Optional[str]) -> Optional[dict]:
+    """``{space: recipe}`` of ``recipes.json`` (``path``, else beside ``style_path``); without the file the built-in
+    recipes of every space (``recipe.default_recipe``: a styled room is the default, lesson UL42); ``path`` "none":
+    None (no recipe)."""
+    if path == "none":
+        return None
+    from wenart.style import recipe as RC
+    from wenart.style import references as RF
+
+    cand = Path(path) if path else (Path(style_path).parent / "recipes.json" if style_path else None)
+    if cand is None or not cand.is_file():
+        return {space: RC.default_recipe(space) for space in RF.SPACES}
+    data = json.loads(cand.read_text(encoding="utf-8"))
+    return data.get("recipes") if isinstance(data, dict) and isinstance(data.get("recipes"), dict) else None
+
+
 def lamps_on_of(style: Optional[dict]) -> bool:
     """True when the style's mood turns the lamps on (``vocabulary.LIGHTING[mood]["lamps_on"]``)."""
     from wenart.style import vocabulary as V
@@ -916,7 +1026,7 @@ def lamps_on_of(style: Optional[dict]) -> bool:
 
 
 def apply(building: dict, style_text: str, answers: dict, model: Optional[str] = None,
-          style: Optional[dict] = None) -> tuple[dict, list[RoomDecor]]:
+          style: Optional[dict] = None, recipes: Optional[dict] = None) -> tuple[dict, list[RoomDecor]]:
     """The decorated building (new dict) and the per-room records (module docstring); ``style`` (Milestone 10): the
     profile whose decor words (colours, plant species and pots, the mood's lamps) ``apply_brief_looks`` applies."""
     out = json.loads(json.dumps(building))
@@ -939,7 +1049,8 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
     store = answers.get("answers") or {}
     model = model or answers.get("model") or "?"
     targets, partner_notes = D.copy_targets(out)
-    questions = {q.room["id"]: q for q in room_questions(out, style_text, set(targets))} if mode == "ai" else {}
+    questions = ({q.room["id"]: q for q in room_questions(out, style_text, set(targets), recipes=recipes)}
+                 if mode == "ai" else {})
     for room, pieces in D.rooms_with_pieces(out):
         if room["id"] in targets:
             continue
@@ -968,6 +1079,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         rec.agreed, rec.not_agreed = agreed, other
         items, refused = build_items(q, agreed, model, out, new_id) if agreed else ([], [])
         rec.refused = refused
+        items += fill_recipe(q, items, out, new_id, room_recipe(room, recipes))
         if items:
             items += fill_to_minimum(q, items, out, new_id)
         apply_brief_looks(items, style, lamps, looks)
@@ -979,6 +1091,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             why = ("; ".join(errors) if errors else "the two passes agreed on no item" if not agreed
                    else "every agreed item was refused by the checks")
             fallback, row = D.rule_decor_room(out, room, pieces, new_id)
+            fallback += fill_recipe(q, fallback, out, new_id, room_recipe(room, recipes))
             fallback += fill_to_minimum(q, fallback, out, new_id)
             apply_brief_looks(fallback, style, lamps, looks)
             rec.items, rec.fallback = fallback, why
@@ -997,6 +1110,21 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         records.append(rec)
     if partner_notes and records:
         records[-1].notes += partner_notes
+    if recipes is not None:
+        # 27 Oct 2026 (lesson UL42: "veranda is not like a veranda"): the verandas and terraces get the set, the
+        # planters, the rug and the lantern good photos of them show (outdoor_sets)
+        from wenart.furniture import outdoor_sets as OS
+
+        before = {d.get("id") for d in out["decor"]}
+        out, out_notes = OS.furnish(out, recipes)
+        for space in (out.get("site") or {}).get("outdoor_spaces") or []:
+            mine = [n for n in out_notes if n.startswith(f"{space.get('id')}: ")]
+            if not mine:
+                continue
+            rec = RoomDecor(space["id"], str(space.get("label") or space["id"]), str(space.get("kind") or "outdoor"))
+            rec.items = [d for d in out["decor"] if d.get("outdoor_space") == space["id"] and d.get("id") not in before]
+            rec.notes = mine
+            records.append(rec)
     D.attach_host_frames(out)                     # Milestone 12 (§4.7): every item in its host's frame
     return out, records
 
@@ -1514,6 +1642,8 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
     p.add_argument("--out", required=True)
     p.add_argument("--debug")
     p.add_argument("--report")
+    p.add_argument("--recipes", help="recipes.json (wenart.style.recipe build); default: next to --style")
+    a.add_argument("--recipes", help="recipes.json (wenart.style.recipe build); default: next to --style")
     try:
         args = parser.parse_args(argv)
     except SystemExit as exc:
@@ -1521,6 +1651,7 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
     try:
         building = B.load(args.building)
         style_text = _style_text(args, building)
+        recipes = load_recipes(args.recipes, args.style)
         if args.command == "ask":
             if decor_mode(building) != "ai":
                 print(f"decor ask: brief decor mode {decor_mode(building)!r}: nothing to ask")
@@ -1532,14 +1663,14 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
             except vlm_client.VLMError as exc:
                 print(f"decor ask: server not reachable: {exc}", file=sys.stderr)
                 return EXIT_SERVER
-            doc, failed = ask(building, style_text, client, Path(args.answers), model)
+            doc, failed = ask(building, style_text, client, Path(args.answers), model, recipes=recipes)
             print(f"decor ask: {len(doc['answers'])} stored answer(s) -> {args.answers}")
             return EXIT_SERVER if failed else EXIT_OK
         answers = read_answers(Path(args.answers))
         style = json.loads(Path(args.style).read_text(encoding="utf-8")) if args.style else None
         if isinstance(style, list):
             style = style[0] if style else None
-        out, records = apply(building, style_text, answers, style=style)
+        out, records = apply(building, style_text, answers, style=style, recipes=recipes)
         out_path = Path(args.out)
         B.save(out, out_path)
         model = answers.get("model")

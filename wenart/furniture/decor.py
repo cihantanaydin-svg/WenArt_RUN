@@ -185,6 +185,9 @@ RUG_ROOM_INSET_M = 0.3            # ... and is clipped to the room shrunk by thi
 DINING_CHAIR_M = 0.6              # a dining table's group: the table plus this on every side (the chairs)
 BED_RUG_SHARE = 2.0 / 3.0         # a double bed's group: the lower (foot) two thirds of the bed
 COFFEE_TABLE_REACH_M = 1.5        # a coffee table in front of a sofa within this belongs to its group
+SEATING_RUG_DEPTH_M = 1.4         # 27 Oct 2026: a sofa without a coffee table: the rug reaches this far in front ...
+SEATING_RUG_UNDER_M = 0.25        # ... and this far under the sofa (its front legs on it)
+SINGLE_BED_RUG_OUT_M = 0.6        # a single bed's rug reaches this far out on its sides (the wall side is cut)
 RUG_MIN_SIDE_M = 0.8              # a rug cut smaller than this on a side is left out
 RUG_GRID_M = 0.02                 # the cutting grid of fit_rug
 LIVING_RUG_ROOM_TYPES: tuple[str, ...] = ("living",)
@@ -613,8 +616,30 @@ def rugs_for_room(room: dict, furniture: list[dict], building: dict) -> tuple[li
                 add(item, why, f"under {sofa['id']} + {members[1]['id']}")
         elif any(f["type"] in LIVING_RUG_SOFAS for f in usable):
             if not any(f["id"] in covered for f in usable if f["type"] in LIVING_RUG_SOFAS):
-                notes.append("no rug: no coffee table in front of a sofa")
+                # 27 Oct 2026 (lesson UL42: real06's 55 m2 salon had no rug, "no coffee table in front of a sofa";
+                # every reference photo of a living room shows one): the rug lies in front of the largest sofa, its
+                # front legs on it, over the seating area
+                sofa = max((f for f in usable if f["type"] in LIVING_RUG_SOFAS),
+                           key=lambda f: (float(f["footprint"]["size"][0]), f["id"]))
+                fp = sofa["footprint"]
+                sw, sd = (float(v) for v in fp["size"])
+                region = (-sw / 2.0, -sd / 2.0 - SEATING_RUG_DEPTH_M, sw / 2.0, -sd / 2.0 + SEATING_RUG_UNDER_M)
+                item, why = _rug_item(ctx, sofa, [sofa], region, (0.0, -sd / 2.0 - SEATING_RUG_DEPTH_M / 2.0),
+                                      furniture, placed, "rug in front of the sofa, its front legs on it (no coffee "
+                                      "table: the seating area)")
+                add(item, why, f"in front of {sofa['id']}")
     if room.get("room_type") in BED_RUG_ROOM_TYPES:
+        for bed in sorted((f for f in usable if f["type"] == "bed_single"), key=lambda f: f["id"]):
+            if solver_laid(f"beside {bed['id']}", bed):
+                continue
+            # 27 Oct 2026 (UL42): a single bed's rug lies under its lower two thirds and out on its free side (the
+            # side away from the wall; both sides when it stands free)
+            bw, bd = (float(v) for v in bed["footprint"]["size"])
+            region = (-bw / 2.0 - SINGLE_BED_RUG_OUT_M, -bd / 2.0, bw / 2.0 + SINGLE_BED_RUG_OUT_M,
+                      -bd / 2.0 + BED_RUG_SHARE * bd)
+            item, why = _rug_item(ctx, bed, [bed], region, (0.0, -bd / 2.0 + BED_RUG_SHARE * bd / 2.0), furniture,
+                                  placed, "rug under the lower two thirds of the single bed and beside it")
+            add(item, why, f"beside {bed['id']}")
         for bed in sorted((f for f in usable if f["type"] == "bed_double"), key=lambda f: f["id"]):
             if solver_laid(f"under {bed['id']}", bed):
                 continue

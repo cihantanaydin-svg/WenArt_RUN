@@ -410,6 +410,15 @@ fi
 if [ "${RUN_VEGETATION_SETUP:-1}" != "0" ]; then
   bash scripts/pod_setup_vegetation.sh || log "warning: pod_setup_vegetation.sh failed (see vegetation_status.json): trees fall back to leaf cards"
 fi
+# 27 Oct 2026 (lesson UL42, docs/style_references.md): the style reference photos of every space in each project's
+# style family (Openverse / Wikimedia Commons, CC licences; SigLIP 2 picks the best 10 per set while the GPU is still
+# free), cached on the volume under /workspace/references and reused by later runs. The decor reads them into
+# recipes with its server; a failure is a warning only (the built-in recipes stand in). RUN_REFERENCES=0 skips it.
+if [ "${RUN_REFERENCES:-1}" != "0" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ]; then
+  "$POLISH_PY" -m wenart.style.references prefetch --projects ${RUN_PROJECTS//,/ } \
+    --root "${WENART_REFERENCES:-/workspace/references}" 2>&1 | tee -a "$LOGS/references-$JOB.log" \
+    || log "warning: the style reference prefetch failed (see references-$JOB.log): built-in recipes"
+fi
 export HF_HUB_OFFLINE=1       # every model is in HF_HOME now; nothing is fetched behind our back
 
 rc=0
@@ -437,6 +446,20 @@ if [ "${RUN_TOPDOWN:-1}" != "0" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ]; th
            >> "$LOGS/topdown-$JOB-$p.log" 2>&1 \
       && log "topdown $p: done" || log "warning: topdown $p failed (see $LOGS/topdown-$JOB-$p.log)"
   done
+fi
+# 27 Oct 2026 (UL42): how close each final render is to the good photos of its space (SigLIP 2 similarity), per project
+if [ "${RUN_REFERENCES:-1}" != "0" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ]; then
+  read -r -a REF_LIST <<< "${RUN_PROJECTS//,/ }"
+  for p in "${REF_LIST[@]}"; do
+    "$POLISH_PY" -m wenart.style.references score --project-out "$WENART_OUTPUTS/$p" --project "$p" \
+      --root "${WENART_REFERENCES:-/workspace/references}" --out "$RESULTS/references/style_scores_$p.json" \
+      >> "$LOGS/references-$JOB.log" 2>&1 || log "warning: the style scores of $p failed"
+  done
+fi
+# 27 Oct 2026 (UL42): the reference sets (manifests, recipes, 512 px copies of the photos) into the results for review
+if [ "${RUN_REFERENCES:-1}" != "0" ]; then
+  "$PY" -m wenart.style.references export --root "${WENART_REFERENCES:-/workspace/references}" \
+    --out "$RESULTS/references" >> "$LOGS/references-$JOB.log" 2>&1 || log "warning: the reference export failed"
 fi
 # User request of 10 Oct 2026: the 3D files of the public projects to Google Drive (gpu_run.py --drive-upload passes
 # the RunPod secret rclone_conf); a failure is a warning only. Private projects never leave the volume this way.

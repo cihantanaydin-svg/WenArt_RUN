@@ -105,18 +105,64 @@ def view_facts(building: dict, view: dict) -> tuple[str, set]:
     return "\n".join(lines), allowed
 
 
-def judge_view(model, building: dict, view: dict, image: Path, *, style: str = "", call_id: str = "") -> dict:
-    """One view (module docstring): ``{"row": rubric row, "findings": [...], "dropped": [...], "error"}``."""
+REFERENCE_TEXT = ("Image 2 is a photo of a well-designed {space} in the project's style: a reference, not this house. "
+                  "Judge the render against the standard it sets. For each layer the reference shows and the render "
+                  "lacks (a rug, curtains, wall art, plants, lamps, cushions and throws, styled surfaces, a warm light; "
+                  "outdoors: a place to sit, planters, a rug, lanterns), add a problem with check D3 on the room "
+                  "(an exterior view: on the outer wall) whose message starts with 'missing layer: <layer>'.")
+
+
+def reference_for(building: dict, view: dict, root=None) -> Optional[Path]:
+    """27 Oct 2026 (lesson UL42): the best reference photo of the view's space (``wenart.style.references``: the
+    room's space, ``facade`` for an exterior view) in the project's style family, when the pod fetched its set
+    (``root``, default ``$WENART_REFERENCES`` or /workspace/references); None otherwise."""
+    import os
+
+    from wenart.style import references as RF
+
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == view.get("room_id")), None)
+    space = RF.space_of(room.get("room_type"), room.get("room_subtype")) if room else "facade"
+    if not space:
+        return None
+    project = building.get("project") if isinstance(building.get("project"), dict) else {}
+    family = project.get("style_family")
+    if not family:
+        try:
+            from wenart.furniture.edit_ops import _style_family_of
+            family = _style_family_of(building)
+        except Exception:  # noqa: BLE001
+            family = None
+    folder = RF.set_dir(root or os.environ.get("WENART_REFERENCES", "/workspace/references"), space, family)
+    man = folder / "manifest.json"
+    if not man.is_file():
+        return None
+    try:
+        photos = json.loads(man.read_text(encoding="utf-8")).get("photos") or []
+    except (OSError, ValueError):
+        return None
+    path = folder / str((photos[0] if photos else {}).get("file") or "")
+    return path if photos and path.is_file() else None
+
+
+def judge_view(model, building: dict, view: dict, image: Path, *, style: str = "", call_id: str = "",
+               reference: Optional[Path] = None) -> dict:
+    """One view (module docstring): ``{"row": rubric row, "findings": [...], "dropped": [...], "error"}``. 27 Oct 2026
+    (UL42): with ``reference`` (``reference_for``) the judge sees a good photo of the space beside the render and names
+    the layers the render lacks (``missing layer: ...`` problems)."""
     from wenart.agent.model import user_message
 
     facts, allowed = view_facts(building, view)
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == view.get("room_id")), None)
+    ref_text = ([REFERENCE_TEXT.format(space=str((room or {}).get("room_type") or "house exterior").replace("_", " "))]
+                if reference else [])
     text = "\n".join([f"Image 1 is the final render {view.get('name')}." + (f" The project's style: {style}." if style
                                                                              else ""),
-                      facts, "", SCORES_TEXT, TAGS_TEXT,
+                      *ref_text, facts, "", SCORES_TEXT, TAGS_TEXT,
                       "Problems: the ones that cost points, most important first, at most "
                       f"{MAX_PROBLEMS}; each names one id from the lists above as target and one check:",
                       P.checklist_text(PROBLEM_CHECKS)])
-    reply = model.critic([{"role": "system", "content": SYSTEM}, user_message(text, [image], [None])],
+    images = [image] + ([reference] if reference else [])
+    reply = model.critic([{"role": "system", "content": SYSTEM}, user_message(text, images, [None] * len(images))],
                          schema(sorted(allowed)), call_id=call_id)
     if reply.data is None:
         return {"row": None, "findings": [], "dropped": [],
@@ -126,7 +172,8 @@ def judge_view(model, building: dict, view: dict, image: Path, *, style: str = "
                      "exterior" if not view.get("room_id") else None)
     row = {"view": view.get("name"), "room_id": view.get("room_id"), "room_type": room_type,
            "tags": [t for t in data.get("tags") or [] if t in TAGS],
-           "client_ready_score": int(data["client_ready_score"]), "note": data.get("note"), "judge": "ai"}
+           "client_ready_score": int(data["client_ready_score"]), "note": data.get("note"), "judge": "ai",
+           "reference": str(reference.name) if reference else None}
     findings, dropped = [], []
     for i, p in enumerate(data.get("problems") or []):
         f = {"id": f"j:{call_id}:{i + 1}", "source": "judge", "check": p.get("check"), "severity": p.get("severity"),

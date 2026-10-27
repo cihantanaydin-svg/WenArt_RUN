@@ -2549,7 +2549,8 @@ class AgentLoop:
             if not image.is_file():
                 continue
             try:
-                got = JD.judge_view(self.model, building, cam, image, style=style, call_id=f"judge_{name}")
+                got = JD.judge_view(self.model, building, cam, image, style=style, call_id=f"judge_{name}",
+                                    reference=JD.reference_for(building, cam))     # 27 Oct 2026 (UL42)
             except Exception as exc:  # noqa: BLE001 - a view the judge cannot read keeps its last rows
                 errors.append(f"{name}: {type(exc).__name__}: {exc}")
                 continue

@@ -36,6 +36,7 @@ with ``--alt-look None`` (``ALT_LOOK``).
 """
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, Sequence
@@ -463,6 +464,20 @@ def decor_ask(tools: Tools, ref: ProjectRef, furnished: bool, url: str, key: str
     src = "building_furnished.json" if furnished else "building_fitted.json"
     return [tools.py, "-m", "wenart.furniture.decor_ai", "ask", _out(ref, src), "--style", _out(ref, "style.json"),
             "--server", url, "--model", tools.model_id(key), "--answers", _out(ref, DECOR_ANSWERS)]
+
+
+REFERENCES_ENV = "WENART_REFERENCES"          # 27 Oct 2026 (UL42): the reference photo sets on the volume
+REFERENCES_ROOT = "/workspace/references"
+
+
+def recipes(tools: Tools, ref: ProjectRef, furnished: bool, url: Optional[str] = None, key: str = "agent") -> list[str]:
+    """27 Oct 2026 (lesson UL42, docs/style_references.md): the project's ``recipes.json`` (what good photos of each
+    of its spaces in its style show) from the reference sets on the volume, read with the decor's server (``url``)
+    where not cached; without a server or a set: the built-in recipes."""
+    src = "building_furnished.json" if furnished else "building_fitted.json"
+    cmd = [tools.py, "-m", "wenart.style.recipe_read", "build", _out(ref, src), "--style", _out(ref, "style.json"),
+           "--out", _out(ref, "recipes.json"), "--root", os.environ.get(REFERENCES_ENV, REFERENCES_ROOT)]
+    return cmd + (["--server", url, "--key", key] if url else [])
 
 
 def decor(tools: Tools, ref: ProjectRef, furnished: bool) -> list[str]:

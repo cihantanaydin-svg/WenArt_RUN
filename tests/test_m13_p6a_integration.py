@@ -214,9 +214,16 @@ def test_swap_model_refuses_a_generated_model_the_refit_refuses(catalog):
     assert why.startswith(f"pin_refused: f1: {gen}: a generated model (units guessed) while a real product of the "
                           f"type fits within the caps") and why.endswith("the real model stays; swap to a real model "
                                                                           "of the type or use another tool"), why
-    other = next(e["id"] for e in catalog.candidates("fridge") if e.get("source") != F.GENERATED
-                 and e["id"] != ranked["asset_id"] and F.fit_piece(dict(piece, asset_pin=e["id"]), catalog,
-                                                                   mode="relaxed", style_family="modern").get("pinned"))
+    pinnable = [e["id"] for e in catalog.candidates("fridge") if e.get("source") != F.GENERATED
+                and e["id"] != ranked["asset_id"] and F.fit_piece(dict(piece, asset_pin=e["id"]), catalog,
+                                                                  mode="relaxed", style_family="modern").get("pinned")]
+    # 27 Oct 2026: a swap never takes a lower-rated model (edit_ops.lower_quality_refusal): from one pinnable model to
+    # another of its rating
+    rated = {}
+    for i in pinnable:
+        rated.setdefault(E.model_rating(catalog.entry(i)), []).append(i)
+    first, other = next(v for v in rated.values() if len(v) >= 2)[:2]
+    b = _kitchen_with_fridge(first)
     ok = E.apply_edit(b, edit("swap_model", piece_id="f1", asset_id=other), catalog=catalog)
     assert ok["accepted"], ok["failed_checks"]
     assert by_id(ok["building"], "f1")["asset_pin"] == other

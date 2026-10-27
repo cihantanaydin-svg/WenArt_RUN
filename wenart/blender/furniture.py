@@ -1089,6 +1089,9 @@ def piece_floor_z(building: dict, level: dict, piece: dict) -> float:
     ``scene_checks.floor_z_of`` (S1, S5) and ``proxies.create_proxies`` use it too."""
     from wenart.blender.shell import room_floor_z
 
+    fz = piece.get("floor_z")
+    if isinstance(fz, (int, float)) and not isinstance(fz, bool) and not piece.get("room_id"):
+        return float(fz)          # 27 Oct 2026 (UL42): a piece on an outdoor space stands on its platform
     room = piece_room(building, level, piece)
     offset = room.get("floor_offset_m")
     if isinstance(offset, bool) or not isinstance(offset, (int, float, type(None))):
