@@ -242,7 +242,7 @@ def score_images(paths: dict, space: str, family: Optional[str], device: Optiona
     out = {}
     with torch.no_grad():
         tin = proc(text=texts, padding="max_length", max_length=64, return_tensors="pt").to(device)
-        tvec = model.get_text_features(**tin)
+        tvec = _features(model.get_text_features(**tin))
         tvec = tvec / tvec.norm(dim=-1, keepdim=True)
         for pid, path in paths.items():
             try:
@@ -250,12 +250,22 @@ def score_images(paths: dict, space: str, family: Optional[str], device: Optiona
             except Exception:  # noqa: BLE001 - a broken download is no reference
                 continue
             iin = proc(images=[img], return_tensors="pt").to(device)
-            ivec = model.get_image_features(**iin)
+            ivec = _features(model.get_image_features(**iin))
             ivec = ivec / ivec.norm(dim=-1, keepdim=True)
             logits = (ivec @ tvec.T) * model.logit_scale.exp() + model.logit_bias
             p = torch.sigmoid(logits)[0].float().tolist()
             out[pid] = {"space": p[0], "negative": max(p[1:1 + len(NEGATIVES)]), "style": p[-2], "quality": p[-1],
                         "vec": [round(v, 5) for v in ivec[0].float().tolist()]}
+    return out
+
+
+def _features(out):
+    """The embedding tensor of a ``get_*_features`` call: transformers 4 returns the tensor, transformers 5 an output
+    object with ``pooler_output`` (pod job 145214: "'BaseModelOutputWithPooling' object has no attribute 'norm'")."""
+    for name in ("pooler_output", "image_embeds", "text_embeds"):
+        val = getattr(out, name, None)
+        if val is not None and not isinstance(out, (list, tuple)) and hasattr(val, "norm"):
+            return val
     return out
 
 
@@ -540,7 +550,14 @@ def candidate_sets(family: Optional[str], root, out, per_space: int = 30, spaces
     ``manifest.json`` (``source: pd12m``, licence, caption, scores). Returns ``{space: kept count}``."""
     from PIL import Image
 
-    hits = hits if hits is not None else pd12m_candidates(family, spaces, shards)
+    if hits is None:
+        cache = Path(root) / f"caption_hits_{re.sub(r'[^a-z0-9]+', '_', str(family or 'any').lower())}.json"
+        if cache.is_file():
+            hits = json.loads(cache.read_text(encoding="utf-8"))
+        else:
+            hits = pd12m_candidates(family, spaces, shards)
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_text(json.dumps(hits, default=str), encoding="utf-8")
     counts = {}
     for space, rows in sorted(hits.items()):
         folder = set_dir(root, space, family)
@@ -629,7 +646,7 @@ def embed(paths: list, device: str = "cuda") -> list:
             except Exception:  # noqa: BLE001
                 out.append(None)
                 continue
-            v = model.get_image_features(**proc(images=[img], return_tensors="pt").to(device))
+            v = _features(model.get_image_features(**proc(images=[img], return_tensors="pt").to(device)))
             v = v / v.norm(dim=-1, keepdim=True)
             out.append([float(x) for x in v[0].float().tolist()])
     return out

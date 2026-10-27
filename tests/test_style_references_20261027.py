@@ -298,3 +298,14 @@ def test_contact_sheet_numbers_the_photos_and_marks_the_picks(tmp_path):
     (tmp_path / "manifest.json").write_text(json.dumps({"photos": photos}))
     n = RF.contact_sheet(tmp_path, tmp_path / "sheet.jpg", cols=3, side=100, title="living", picked={"p1"})
     assert n == 7 and Image.open(tmp_path / "sheet.jpg").size == (300, 3 * 100 + 28)
+
+
+def test_features_reads_the_transformers_5_output():
+    class T:
+        def norm(self, **kw):
+            return 1.0
+
+    class Out:
+        pooler_output = T()
+    t = T()
+    assert RF._features(t) is t and RF._features(Out()) is Out.pooler_output
