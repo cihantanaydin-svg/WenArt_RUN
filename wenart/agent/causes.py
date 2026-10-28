@@ -495,6 +495,7 @@ CHECK_CAUSE: dict[str, str] = {
     "M10": "outdoor_space", "M11": "roof_reading",
     "M12": "opening_sense",          # 27 Oct 2026: doors side by side (the architect and Argus own it)
     "M13": "kitchen_design",         # 28 Oct 2026: the kitchen as one designed kitchen (the fit's module builders)
+    "M14": "decor_rest",             # 28 Oct 2026: decor not attached to its support (the decor stage owns it)
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",

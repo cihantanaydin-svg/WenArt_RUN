@@ -97,6 +97,14 @@ as drawn, 1.2 m tall) where the build clipped the window to 0.81 m (top 1.71 m) 
 1.83 m: dec_L1_005 / dec_L1_014 poked 0.4 m through the roof in ext_2, ext_3, ext_5 and ext_7, the two critical
 findings left after the agent. The slots and the question are unchanged where the items still fit (the prompt names
 the slot and its types, not the sizes), so stored answers stay valid.
+
+28 Oct 2026 (user on real04 run 20261028-005318-full: "More decor pieces needed, plates on tables for example"; "I did
+not like this bed"): after the AI's (or the rules') items every room's tops are dressed by rule
+(``tabletop.dress_tops``: a place setting, a plate and a glass, at every chair of a dining table and a centre bowl;
+a small group on coffee tables, sideboards, consoles, dressers, TV units, nightstands, side tables and desks; small
+pieces on a bookshelf's boards), each clear of the others, ``method: rule`` with its reason; the AI never chooses
+``plate`` or ``glass`` (``AI_TYPES``), so the questions and the stored answers are unchanged. A bed whose model has
+its own made bedding gets no throw slot (``decor.takes_throw``).
 """
 from __future__ import annotations
 
@@ -115,6 +123,7 @@ from wenart import geometry as G
 from wenart.blender import parametric as P
 from wenart.furniture import decor as D
 from wenart.furniture import placer, schemas
+from wenart.furniture import tabletop as TT
 from wenart.recognition import vlm_client
 
 DEFAULT_SERVER = "http://127.0.0.1:8001/v1"
@@ -127,7 +136,7 @@ ANSWERS_KIND = "decor_ai_answers"
 EXIT_OK, EXIT_USAGE, EXIT_SERVER = 0, 2, 3
 
 # The decor types the AI chooses from (docs/milestone9.md §3; = decor.DECOR_TYPES).
-AI_TYPES: tuple[str, ...] = D.DECOR_TYPES
+AI_TYPES: tuple[str, ...] = tuple(t for t in D.DECOR_TYPES if t not in D.SETTING_TYPES)   # 28 Oct: rules set them
 SURFACE_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp", "book_set",
                                   "candle", "tray", "books", "sculpture")                      # Milestone 10
 WALL_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock")
@@ -391,7 +400,7 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
             if items:
                 slots.append(Slot(f"{host['id']}.cushions", "soft", ("cushion",), host["id"], htype,
                                   items={"cushion": items}))
-        if htype in THROW_HOSTS and "throw" in allowed:
+        if htype in THROW_HOSTS and "throw" in allowed and D.takes_throw(host):   # 28 Oct 2026: not on made bedding
             item = throw_item(host)
             if item is not None:
                 slots.append(Slot(f"{host['id']}.throw", "soft", ("throw",), host["id"], htype,
@@ -1186,6 +1195,8 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         if q is None:
             # No AI question for this room (rules mode, no usable piece, no slot): the M8 rules as before.
             items, row = D.rule_decor_room(out, room, pieces, new_id)
+            items += TT.dress_tops(room, pieces, out, items, new_id,      # 28 Oct 2026: set tables, styled tops
+                                   density=out["decor_minimum"][room["id"]]["density"])
             apply_brief_looks(items, style, lamps, looks)
             out["decor"].extend(items)
             if items or mode == "rules":
@@ -1213,6 +1224,8 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             # 28 Oct 2026 (user: "kettle in the kitchen, microwave in the kitchen etc"): the worktop, dressed
             # modestly by rule (the AI's slots hold no counter); the fallback gets it from decor.rule_decor_room
             items += D.kitchen_worktop_decor(out, room, pieces, new_id, existing=items)
+            items += TT.dress_tops(room, pieces, out, items, new_id, q.slots,   # 28 Oct 2026: set tables, tops
+                                   density=out["decor_minimum"][room["id"]]["density"])
         apply_brief_looks(items, style, lamps, looks)
         if items:
             rec.items = items
@@ -1225,6 +1238,8 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             fallback += fill_recipe(q, fallback, out, new_id, room_recipe(room, recipes))
             fallback += required_items(q, fallback, out, new_id)
             fallback += fill_to_minimum(q, fallback, out, new_id, room_recipe(room, recipes), family)
+            fallback += TT.dress_tops(room, pieces, out, fallback, new_id, q.slots,   # 28 Oct 2026
+                                      density=out["decor_minimum"][room["id"]]["density"])
             apply_brief_looks(fallback, style, lamps, looks)
             rec.items, rec.fallback = fallback, why
             out["decor"].extend(fallback)

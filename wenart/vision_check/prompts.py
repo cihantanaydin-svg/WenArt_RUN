@@ -118,6 +118,9 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "chopping_board": "wooden chopping board lying on the kitchen worktop",
     "utensil_pot": "pot of kitchen utensils standing on the worktop",
     "fruit_bowl": "bowl of fruit on the worktop or a table",
+    # 28 Oct 2026 (wenart.furniture.tabletop): the place settings of a dining table
+    "plate": "plate laid on a dining table in front of a chair",
+    "glass": "drinking glass standing on a table",
 }
 HINTS.update({k: v for k, v in _DECOR_HINTS_M10.items() if k in S.CATEGORIES})
 UNVERIFIED_HINT = "any piece of furniture at that place"

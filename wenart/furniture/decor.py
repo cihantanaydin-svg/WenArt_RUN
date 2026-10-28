@@ -156,9 +156,13 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug", "wall_art
                                  # Milestone 10 (docs/milestone10.md §4.6): the AI decorator's slots place them.
                                  "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock",
                                  "sculpture", "plant_large", "pendant_light", "ceiling_light",
+                                 # 28 Oct 2026 (wenart.furniture.tabletop): a dining table's place settings; the rules
+                                 # set them at every chair, the AI does not choose them
+                                 "plate", "glass",
                                  # 28 Oct 2026: the kitchen worktop's small appliances and decor (kitchen_worktop_decor)
                                  "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot",
                                  "fruit_bowl")
+SETTING_TYPES: tuple[str, ...] = ("plate", "glass")
 # Not held to MAX_DECOR_M (Milestone 8, 9; Milestone 10: window dressings, throws, large plants and floor
 # sculptures, pendants on their cord).
 LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "blind", "throw", "plant_large",
@@ -1571,6 +1575,15 @@ def takes_cushions(host: dict) -> bool:
     from wenart.blender.rest import own_cushions    # the build checks the final model with the same rule
 
     return not own_cushions(host)
+
+
+def takes_throw(host: dict) -> bool:
+    """A seat or bed takes a decor throw unless it is a bed whose model is already made up with its own duvet or cover
+    (the audit's ``has_bedding``; 28 Oct 2026, user on real04's f_L0_021: "I did not like this bed": the cream throw
+    over the model's own bedding showed its grey blanket through it and tore over its folds)."""
+    from wenart.blender.rest import own_bedding     # the build checks the final model with the same rule
+
+    return not own_bedding(host)
 
 
 def _frame_ref(item: dict, pieces: dict) -> tuple[Optional[dict], Optional[str]]:

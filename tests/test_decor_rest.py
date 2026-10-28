@@ -79,8 +79,10 @@ def test_cushion_rests_on_the_real_seat_against_the_real_back():
         m = plan["rest"]
         assert m["gap_m"] <= 0.010 and m["penetration_m"] <= 0.030 and m["support_share"] >= 0.8
         pose = plan["pose"]
-        # the model's seat, sunk SOFT_SINK_M into it (25 Oct 2026: a cushion standing on the seat read as floating)
-        assert pose["z"] == pytest.approx(0.48 - R.SOFT_SINK_M, abs=1e-3) and pose["lean_deg"] == 12.0
+        # the model's seat, sunk SOFT_SINK_M into it (25 Oct 2026: a cushion standing on the seat read as floating);
+        # 28 Oct 2026: the host frame's 12 degrees is the least lean, the styled LEAN_DEG the first one tried
+        assert pose["z"] == pytest.approx(0.48 - R.SOFT_SINK_M, abs=1e-3) and pose["lean_deg"] >= R.LEAN_DEG
+        assert plan["rest"]["back_gap_m"] <= R.REST_TOLERANCES["decor_back_gap_m"]      # it leans on the back
         assert "backrest found" in pose["how"] and pose["sink_m"] == R.SOFT_SINK_M
         low = min(v[2] for v in plan["verts"])
         assert low == pytest.approx(0.48 - R.SOFT_SINK_M, abs=2e-3)
@@ -301,6 +303,7 @@ def test_committed_parametric_hosts_before_and_after(project):
     b = json.loads(path.read_text(encoding="utf-8"))
     pieces = {p["id"]: p for p in b["furniture"]}
     before_fail = after_ok = n = 0
+    refused = []
     for item in b.get("decor") or []:
         host = pieces.get(item.get("host_id"))
         if item.get("type") != "cushion" or host is None or (host.get("asset") or {}).get("method") != "parametric" \
@@ -323,10 +326,17 @@ def test_committed_parametric_hosts_before_and_after(project):
         before_fail += not R.rest_ok(m)[0]
         plan = R.plan_decor(item, host, caster, mesh["verts"], mesh["faces"], support, lean_deg=12.0)
         after_ok += "not_rested" not in plan
+        if "not_rested" in plan:
+            refused.append(plan["not_rested"]["reason"])
+        else:                                           # 28 Oct 2026: every built one leans on its back
+            assert plan["rest"]["back_gap_m"] <= R.REST_TOLERANCES["decor_back_gap_m"], plan["rest"]
         n += 1
     if n == 0:
         pytest.skip("no cushion on a parametric seat or bed")
-    assert before_fail >= 0.5 * n and after_ok == n, (n, before_fail, after_ok)
+    # 28 Oct 2026: a cushion with nothing behind its upper part at any lean floats and is not built (real03's
+    # sideways-drawn single bed f_L0_061, 1.95 x 0.95 m: 6-18 cm behind it between its two lying pillows)
+    assert before_fail >= 0.5 * n and after_ok >= 0.8 * n, (n, before_fail, after_ok, refused)
+    assert all("does not lean on its back" in why or "stands free" in why for why in refused), refused
 
 
 def test_a_cushion_takes_a_smaller_lean_when_the_back_leaves_no_room_for_the_full_one():
