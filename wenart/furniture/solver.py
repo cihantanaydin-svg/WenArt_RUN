@@ -3420,8 +3420,12 @@ def built_in_places(building: dict, room_id: str, kind: str) -> tuple[list[dict]
                 poly = placer._local_box(c, rot, x0, x1, -d / 2.0, d / 2.0)
                 if not inside.contains(poly) and not built_in_inside(poly, ctx.polygon):
                     continue
-                if any(poly.intersection(win.band).area > BUILT_IN_WINDOW_M2 for win in ctx.windows):
-                    continue                            # never under a window (G8: a hob in a window band)
+                if any(poly.intersection(win.band).area > BUILT_IN_WINDOW_M2 for win in ctx.windows
+                       if kind == "hob" or win.sill < schemas.HEIGHTS["kitchen_counter"] - 1e-9):
+                    # never a hob under a window (G8: a hob in a window band); 28 Oct 2026 (real04 r_L-1_mutfak kept
+                    # no fridge: its free counter lay under a 4.2 m window): an under-counter fridge stays under the
+                    # worktop, so only a sill lower than the counter top keeps it out
+                    continue
                 if any(poly.distance(o) < apart_gap - 1e-9 for o in apart_polys):
                     continue
                 front = G.rotate_point((c[0] + x, c[1] - d / 2.0), rot, c)
@@ -3518,7 +3522,7 @@ def built_in_kitchen(base: dict, room: dict, entry: Optional[dict], kind: str, p
     unchanged = _unchanged_in(base, others)
     before = set(verify(base, room["id"], others, unchanged)[0]) if others else set()
     last = None
-    for place in places[:BUILT_IN_TRIES]:
+    for place in places_by_counter(places)[:BUILT_IN_TRIES]:
         piece = _built_in_dict(place, kind, room, pid, entry, _built_in_reason(kind, place, why))
         hard, _v = verify(base, room["id"], others + [piece], unchanged)
         new = [h for h in hard if h not in before]
@@ -3528,6 +3532,23 @@ def built_in_kitchen(base: dict, room: dict, entry: Optional[dict], kind: str, p
         last = new[0]
     return None, {"kind": kind, "placed": False, "reason": f"{min(len(places), BUILT_IN_TRIES)} places on the "
                   f"counters for a built-in {what} fail the checks (first: {last})"}
+
+
+def places_by_counter(places: list[dict]) -> list[dict]:
+    """The built-in places taken in turn from each counter, each counter's own order (score) kept (pure; 28 Oct 2026:
+    real04's kitchen r_L-1_mutfak kept no fridge: its 30 best places all lay in one counter, a separate run where the
+    sink can never stand between the fridge and the hob, and the other counters' places were never tried)."""
+    by: dict = {}
+    for p in places:
+        key = (p.get("counter") or {}).get("id") if isinstance(p.get("counter"), dict) else p.get("counter")
+        by.setdefault(str(key), []).append(p)
+    out: list[dict] = []
+    queues = list(by.values())
+    while any(queues):
+        for q in queues:
+            if q:
+                out.append(q.pop(0))
+    return out
 
 
 def _built_in_entries(prog: dict) -> list[dict]:

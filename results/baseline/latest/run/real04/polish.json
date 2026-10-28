@@ -3,17 +3,25 @@
  "kind": "stage_record",
  "project": "real04",
  "stage": "polish",
- "rc": null,
- "status": "skipped",
- "seconds": 0.0,
+ "rc": 0,
+ "status": "ok",
+ "seconds": 328.43,
  "fingerprint": null,
  "inputs": {},
- "outputs": [],
- "started_utc": "2026-10-25T19:28:08Z",
- "git_commit": "4ee8192e2673fa2b9d5123ff3ce6291db321a023",
+ "outputs": [
+  "polish/polish_manifest.json"
+ ],
+ "started_utc": "2026-10-28T02:55:36Z",
+ "git_commit": "58adbc20fd104f1b35cdad8706e5c25458ba2184",
  "log": "logs/polish.log",
- "note": "polish off",
- "run_id": "20261025-180008-full-20261025T180511Z",
- "steps": [],
+ "note": null,
+ "run_id": "20261028-005318-full-20261028T005953Z",
+ "steps": [
+  {
+   "name": "polish",
+   "rc": 0,
+   "seconds": 328.43
+  }
+ ],
  "written": {}
 }

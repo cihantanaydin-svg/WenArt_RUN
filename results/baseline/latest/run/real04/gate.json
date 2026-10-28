@@ -3,17 +3,57 @@
  "kind": "stage_record",
  "project": "real04",
  "stage": "gate",
- "rc": null,
- "status": "skipped",
- "seconds": 0.0,
- "fingerprint": null,
- "inputs": {},
- "outputs": [],
- "started_utc": "2026-10-25T19:28:08Z",
- "git_commit": "4ee8192e2673fa2b9d5123ff3ce6291db321a023",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 99.69,
+ "fingerprint": "b433e25ff87d49a769e66c2f6971279c1f4b0c5b359d2d01f4fe1437289221ac",
+ "inputs": {
+  "outputs/real04/renders/render_manifest.json": "2e7f58cadce4003a15b4a957083b826b2f1285001f0f288fdc1177268c468c02",
+  "outputs/real04/check/controls.json": "03c0a580ee108ffeed06e92f2d306d9a7d9286c96dd75b2d67f2b28a778d4614",
+  "outputs/real04/polish/sweep/polish_manifest.json": null,
+  "outputs/real04/controls/hide_d_L0_002/render_manifest.json": "f380fd7aab4174be65ca99c26345fcf2be1a031bd50accac976c6ab5ab0b0238",
+  "outputs/real04/controls/hide_d_L0_009/render_manifest.json": "5c282f981f0ca49244c925c0c9dca4225f71e8f760b10c7cc554b9ac6be37aac",
+  "outputs/real04/controls/hide_d_L0_011/render_manifest.json": "99f25638119bf084fb72a37103c59d262eb3d5c39534e431d3b5cedcf4860030",
+  "outputs/real04/controls/hide_d_L0_013/render_manifest.json": "b099b716f759e51f73b02a082ac583b78e8303af24413251e4622f8cd176c545",
+  "outputs/real04/controls/hide_d_L1_001/render_manifest.json": "41a23b5923832377d35d6d106437674e457bb2be2072ba763f7a5048827eba92",
+  "outputs/real04/controls/hide_d_L1_003/render_manifest.json": "9c1a120e7f89ea6322c82269cdf42123d26d215eec66004b17a5e289cdd456e5",
+  "outputs/real04/controls/hide_d_L1_006/render_manifest.json": "d017c40f1909f8fa0202886f3e37fb81f8abff8dcc1a407c2d784e867e70b0d1",
+  "outputs/real04/controls/hide_f_L-1_003/render_manifest.json": "450ffe0c1dd9d8e4821084bdd4f912c3fa5fa4221fb6a84d0a63cd875b2adb69",
+  "outputs/real04/controls/hide_f_L-1_004/render_manifest.json": "af80eab0d188a4bc19ad493e8409eae1dd28d9b55611d8ed03a380aa6bb8b3a4",
+  "outputs/real04/controls/hide_f_L-1_089/render_manifest.json": "bb84801bd07d1046286db793c67a55b8191921937c08b1b18eb430176d3c4822",
+  "outputs/real04/controls/hide_f_L0_009/render_manifest.json": "6ae15845a013933c79633c99a448da59f8860c32b4830fa319ffe337da1e8945",
+  "outputs/real04/controls/hide_f_L0_035/render_manifest.json": "5e34351a4142b21c12299dd7a2f53b2fdaac2ff51d43a9d0562f99ec1c0b72b1",
+  "outputs/real04/controls/hide_f_L1_009/render_manifest.json": "e9ae13d5a692101bf3d124faa19781e462334d42a926040c2b0fd687ee07a1f9",
+  "outputs/real04/controls/hide_f_L1_017/render_manifest.json": "bb208ddee0355feeec21fb934ed1e369769be6f16c603dcc96267131075efc6b",
+  "outputs/real04/controls/hide_f_L1_020/render_manifest.json": "8abd6320938dd1c23df46549c709f3bdc90f0918836e70491f9f61f1297f376d",
+  "outputs/real04/controls/hide_f_L1_024/render_manifest.json": "43365e5b1e82a02adc1d688fb8cc0d158306816a24352697e7816ae2fa8d501b",
+  "outputs/real04/controls/hide_f_L1_027/render_manifest.json": "a1d677568f6f284d0e6fdf1b6c0c32be7e9a22ce8008fa691a8786840414b718",
+  "outputs/real04/controls/hide_f_L1_046/render_manifest.json": "cf16620c22452b156764a286644ee4b56b56d4c823a8a3fef3cf9234ffdb1f71",
+  "outputs/real04/controls/hide_win_L-1_001/render_manifest.json": "c446b12a7954d19288604fb964e3593e08998f3d550f392c49c151460e64ce31",
+  "outputs/real04/controls/hide_win_L0_001/render_manifest.json": "f5943d85af795aedd3efc496ba8fff668c03fdea4b583c6540d4a07ecff92d67",
+  "outputs/real04/controls/hide_win_L0_002/render_manifest.json": "253525f7d81796425a92825595572668bd34d85f316a6c23d5abfb3c3825bf7c",
+  "outputs/real04/controls/hide_win_L1_001/render_manifest.json": "e3c9c3cc9f4b83c0f005919e19bb0caa2f9f44e96e66f0f9c2b367da432b794e"
+ },
+ "outputs": [
+  "gate/gate_calibration.json",
+  "gate/gate_validation.json"
+ ],
+ "started_utc": "2026-10-28T02:50:07Z",
+ "git_commit": "58adbc20fd104f1b35cdad8706e5c25458ba2184",
  "log": "logs/gate.log",
- "note": "polish off",
- "run_id": "20261025-180008-full-20261025T180511Z",
- "steps": [],
+ "note": "gate decision ok",
+ "run_id": "20261028-005318-full-20261028T005953Z",
+ "steps": [
+  {
+   "name": "calibrate",
+   "rc": 0,
+   "seconds": 98.21
+  },
+  {
+   "name": "validate",
+   "rc": 0,
+   "seconds": 1.48
+  }
+ ],
  "written": {}
 }

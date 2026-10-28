@@ -116,6 +116,29 @@ def test_an_under_counter_fridge_is_built_in_where_no_floor_place_is_asked():
     assert max(x0 - 0.0, 3.0 - x1) >= GR.rule_min("fridge_landing") - 1e-6       # counter beside it (its landing)
 
 
+def test_an_under_counter_fridge_may_stand_under_a_window_a_hob_never():
+    # 28 Oct 2026 (real04 r_L-1_mutfak kept no fridge: its free counter lay under a 4.2 m window, sill 0.90 m)
+    b = kitchen(window=(2.25, 1.5))                       # the band covers x 1.5-3.0: the whole free counter
+    piece, rec = SV.built_in_kitchen(b, b["rooms"][0], None, "fridge", "f_L0_900", why="no floor place")
+    assert piece is not None and rec["placed"], rec
+    hob, rec = SV.built_in_kitchen(b, b["rooms"][0], None, "hob", "f_L0_901")
+    ctx = P.room_context(b, b["rooms"][0])
+    assert hob is None or all(P.drawn_piece(hob).polygon().intersection(w.band).area <= SV.BUILT_IN_WINDOW_M2
+                              for w in ctx.windows)
+    low = kitchen(window=(2.25, 1.5))
+    next(o for o in low["openings"] if o["id"] == "win1")["sill_height"] = 0.5     # a sill under the worktop
+    places, _notes = SV.built_in_places(low, ROOM, "fridge")
+    lctx = P.room_context(low, low["rooms"][0])
+    assert all(p["poly"].intersection(w.band).area <= SV.BUILT_IN_WINDOW_M2 for p in places for w in lctx.windows)
+
+
+def test_built_in_tries_take_every_counter_in_turn():
+    # 28 Oct 2026: real04's 30 best fridge places all lay in one counter; the others were never tried
+    places = [{"counter": {"id": "a"}, "score": 9 - i} for i in range(4)] + [{"counter": {"id": "b"}, "score": 1}]
+    got = [p["counter"]["id"] for p in SV.places_by_counter(places)]
+    assert got == ["a", "b", "a", "a", "a"] and SV.places_by_counter([]) == []
+
+
 def test_the_built_in_specs_and_the_drawn_run_tier_come_from_groups_yaml():
     hob, fridge = SV.built_in_spec("hob"), SV.built_in_spec("fridge")
     assert hob["type"] == "stove" and hob["sizes"][0] == [0.6, 0.6] and hob["landing"] == "hob_landing"

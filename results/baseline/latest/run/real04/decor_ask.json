@@ -5,25 +5,30 @@
  "stage": "decor_ask",
  "rc": 0,
  "status": "ok",
- "seconds": 39.34,
- "fingerprint": "da8699d8211f66fe4c2b0ea1c1ed9c54c17e4108b5cb7bb98b600c04c7917120",
+ "seconds": 389.18,
+ "fingerprint": "96901d651c6a2a8dd0a482ecfcef1798f1bb4ed5b327579133d1e1696d8481cc",
  "inputs": {
-  "outputs/real04/building_furnished.json": "871ab812c89f13e4c8d6283893d389527445c812b41df49c181c9e801fb2403b",
+  "outputs/real04/building_furnished.json": "e6b1cb375b062d81feb04cc6b0277244f63f96a554b7cea76f39cd6709994925",
   "outputs/real04/style.json": "a2e06234cf52f20082cc15bdee85464b4f11c5f5741dad7fdc40ba058d131909"
  },
  "outputs": [
   "decor_ai_answers.json"
  ],
- "started_utc": "2026-10-25T18:17:07Z",
- "git_commit": "4ee8192e2673fa2b9d5123ff3ce6291db321a023",
+ "started_utc": "2026-10-28T01:15:54Z",
+ "git_commit": "58adbc20fd104f1b35cdad8706e5c25458ba2184",
  "log": "logs/decor_ask.log",
  "note": null,
- "run_id": "20261025-180008-full-20261025T180511Z",
+ "run_id": "20261028-005318-full-20261028T005953Z",
  "steps": [
+  {
+   "name": "recipes",
+   "rc": 0,
+   "seconds": 108.32
+  },
   {
    "name": "decor_ask",
    "rc": 0,
-   "seconds": 39.34
+   "seconds": 280.86
   }
  ],
  "written": {}

@@ -1902,3 +1902,37 @@ Both were real gaps, fixed as general rules:
 | depth 194 m in cam_r_L1_cocuk_odasi_1 / _2 and cam_r_L1_ebeveyn_y_odasi_1 (60 m indoor bound) | a camera the agent or Argus sets had empty `visible_openings`, so the check did not know it framed a window | the build measures every agent interior view like a searched one (`camsearch.frame_lists`, `build.finish_agent_interior_plans`): openings, pieces, anchors in the frame |
 | two renders of one view (cocuk_odasi_1 = _2, soyunma_odasi_1 = _2, set in different rounds) | the duplicate-view rule held only exterior views | an interior pose that copies another view of its room is refused (`tools.duplicate_interior_problem`, the search's own 50 deg / 1 m rule); `show` takes the next best pose |
 | "pink" lower walls in mutfak_3 | the colour checks called every dry room painted; the agent made the kitchen walls oak | `_wall_kind` reads the room's wall finish from the style profile: wood, brick or stone walls are printed, not held to the paint bounds |
+
+### The pod run of 28 Oct (real04, job 20261028-005318-full, $7.06, 170 min)
+
+real04 again with every change of 27-28 Oct (user request). Compared with the latest real04 run (20261025-180008):
+
+| | run 180008 | run 005318 |
+|---|---|---|
+| judge mean | no rubric then | 2.08 over 36 views, 5 at 1 |
+| hall / bare-wall views | 15 of 41 | 11 of 36 |
+| agent loop | - | 2 rounds: 7 edits accepted, 101 refused, 8 findings removed |
+| Argus's own edits | - | 0 of 14 |
+| big loop | - | no cycle (deadline) |
+
+Seen in the renders: full-height glazing in the lower floor's living room and kitchen, glass balcony guards, real
+trees and hedges, a master bedroom view of the bed instead of a wardrobe wall; worse: a dark indoor table on the upper
+terrace. One GPU test failed (index pass: a wardrobe 0.3 m from a searched camera's lens is in the ray model's frame
+and not in the render; open). The 400 MB download cap cut the scene and render manifests, the stage records and the
+agent log; a 5-minute fetch pod ($0.21) brought them from the volume.
+
+Where the time went: 21 min before the agent (recognition, layout, decor questions), about 50 min of architect,
+Argus and two agent rounds (three builds of 9-11 min each, 166 s of each the unused build GLB), 52 min of final stages
+(the open-kitchen alternative alone 24 min: its own build, render, 3D export and control renders), then the judge's
+measure; a big-loop cycle needs 35-40 min, 14 were left.
+
+General fixes:
+
+| problem | fix |
+|---|---|
+| the download cap cut the records first | the runner fetches JSON, Markdown and logs before images, 3D last (`collect_order`) |
+| a re-attached run counted twice in the gpu-log | `attach` replaces the pod's row or the job's provisional row (total corrected to $296.75) |
+| every build wrote a scene.glb nobody reads | `cli.build` passes `--no-glb` (the export stage writes the delivered .glb) |
+| drawn moves refused at "0.30 m" | a move up to twice the limit goes as far as the limit allows (recorded `move_clamped`) |
+| W5 tall windows with a nightstand or floor lamp in front were G12 "blocked windows" | a tall window (sill <= 0.45 m) is blocked only by a piece covering over 25 % of its glass |
+| both base kitchens lost their fridge (run 180008 had one standing 0.32 m in front of the counter run, which the 26 Oct aisle rule rightly refuses) | an under-counter fridge may stand under a window whose sill is above the worktop (only a hob never does), and the built-in places are tried counter by counter (`places_by_counter`) |

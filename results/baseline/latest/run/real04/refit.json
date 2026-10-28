@@ -5,45 +5,35 @@
  "stage": "refit",
  "rc": 0,
  "status": "ok",
- "seconds": 136.11,
- "fingerprint": "f5fb06be7d77f8ce9ee3926d7e54435fd414035ead5088716d10dd6bf3f3cef6",
+ "seconds": 67.55,
+ "fingerprint": "5e7a7a768ba83674bb74a34c7662b08ca0300744fa5aadf48a0410dfc4cd4219",
  "inputs": {
-  "outputs/real04/building_agent.json": "ac3072a52015ffe93f7a6241d1a500a4a63b34f207e8bbc777cc7aa76735b51e",
+  "outputs/real04/building_agent.json": "82a68f257e9101b9fba3b91616e7649785714f967f1ed40ee1c8b16f51f63a6c",
   "outputs/real04/style.json": "a2e06234cf52f20082cc15bdee85464b4f11c5f5741dad7fdc40ba058d131909",
   "wenart/furniture/catalog.json": "a7b4e74bfefcb9e3e63c8cdf14b0a78dcf376b82e6a48317716a17d7c6071dde",
   "wenart/furniture/catalog_objaverse.json": null,
   "wenart/furniture/catalog_library.json": "65aea2815a460e93475d94c0bcff5d20ab04c8c0ff9b4f8961952674f77a590b",
-  "outputs/real04/building.json": "700d7e7ca961b5d609907bfe5af5c45cce02d3cde525333ee9e07a2a9bb702b2",
-  "outputs/real04/completion.json": "821cc079bab0a4fb9fed7e197b0d601c11cd164c555bfd13c51c2f5626f43685"
+  "outputs/real04/building.json": "961e1f3b26a9a66a601f60d3d446b32311b109f12a4255cc9ccb5aa2a5d37d4f",
+  "outputs/real04/completion.json": "30ba62c41ae3d2bb4c75c1cdd711a0d38b2553c58a31221ac264a99ca3a58cf1"
  },
  "outputs": [
   "building_final.json"
  ],
- "started_utc": "2026-10-25T18:18:31Z",
- "git_commit": "4ee8192e2673fa2b9d5123ff3ce6291db321a023",
+ "started_utc": "2026-10-28T01:17:03Z",
+ "git_commit": "58adbc20fd104f1b35cdad8706e5c25458ba2184",
  "log": "logs/refit.log",
  "note": null,
- "run_id": "20261025-180008-full-20261025T180511Z",
+ "run_id": "20261028-005318-full-20261028T005953Z",
  "steps": [
   {
    "name": "refit",
    "rc": 0,
-   "seconds": 63.04
+   "seconds": 50.99
   },
   {
    "name": "refit",
    "rc": 0,
-   "seconds": 22.98
-  },
-  {
-   "name": "refit",
-   "rc": 0,
-   "seconds": 27.22
-  },
-  {
-   "name": "refit",
-   "rc": 0,
-   "seconds": 22.87
+   "seconds": 16.56
   }
  ],
  "written": {}
