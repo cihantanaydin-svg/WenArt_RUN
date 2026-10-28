@@ -147,6 +147,9 @@ def _files(final_dir: Path) -> dict[str, Path]:
         take(f"renders/{p}/{name}")
     for f in sorted((root / "renders" / p / "variants").glob("*/scene_manifest.json")):
         out[str(f.relative_to(root))] = f
+    # 28 Oct 2026 (user: "Where are the top down views of the last 2 runs"): the floors' top-down views go with the run
+    for f in sorted((root / "renders" / p).glob("top_*_plan.jpg")):
+        out[str(f.relative_to(root))] = f
     for name in ("final_manifest.json", "final_report.md", "ATTRIBUTION.md"):
         take(f"final/{p}/{name}")
     for f in sorted(final_dir.glob(f"*{PREVIEW}")):

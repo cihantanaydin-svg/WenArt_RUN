@@ -3818,6 +3818,22 @@ def _site_decor(segs: list[Seg], ctx: _Ctx, raster: bool, notes: list, wall_geom
                     names[name] = names.get(name, 0) + 1
             if names:
                 ev[key] = ",".join(sorted(names, key=lambda n: (-names[n], n))[:4])
+        # 28 Oct 2026 (user on real06: "columns under is too thick"; a 0.40 m round column drawn on KOLON with its
+        # hatch on TARAMA and its axis cross on "aks merkezleri" was sized 0.53 m by the whole cluster): the footprint
+        # of the strokes of each layer, so a typed symbol takes the size of the layer that names it
+        by_layer: dict = {}
+        for s in cl.segs:
+            name = getattr(s.stroke, "layer", None)
+            if name:
+                by_layer.setdefault(name, []).extend(s.pts)
+        if len(by_layer) > 1:
+            boxes = {}
+            for name, lpts in by_layer.items():
+                if len(lpts) >= 2:
+                    lfp = footprint(lpts, ctx.theta)
+                    boxes[name] = {"center": list(_r(lfp[0])), "size": [round(lfp[1], 4), round(lfp[2], 4)]}
+            if boxes:
+                ev["layer_boxes"] = boxes
         item = {"kind": kind, "center": list(_r(fp[0])), "size": [round(fp[1], 4), round(fp[2], 4)],
                 "evidence": [ev], "box": box}
         out.append(item)

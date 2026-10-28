@@ -5,6 +5,8 @@ nobody can reach made its door; the build carries them out (``architect_actions.
 and the dry re-check matches the exact rule (``argus_ai.target_gone``)."""
 from __future__ import annotations
 
+import copy
+
 import json
 
 import pytest
@@ -168,9 +170,20 @@ def test_a_move_decision_names_what_the_piece_blocks_and_moves_clear_of_it():
     key, ans, why = AIA._decision({"action": "move_piece", "element": "f_L0_001", "value": "none",
                                    "reason": "the dresser covers the window win1"}, plan, b, "L0")
     assert key and ans["opt"]["params"]["away_from"] == "win1", why
+    # 28 Oct 2026 (user: "If this is a full window this thing here closing the window"): a wall-backed dresser
+    # never leaves its wall into the room: it slides along it within the move limit, else it stays (the window's
+    # rules answer it: W5 keeps the sill over a drawn piece)
+    before = copy.deepcopy(next(x for x in plan.b["furniture"] if x["id"] == "f_L0_001")["footprint"])
     ok, text = AA.act_move_piece(plan, "AI.move_piece:f_L0_001", {"by": "ai"}, "f_L0_001", "win1")
     f = next(x for x in plan.b["furniture"] if x["id"] == "f_L0_001")
-    assert ok and f["footprint"]["center"][1] > 0.35 and f["drawn_footprint"]["center"] == [3.0, 0.35], text
+    assert not ok and "keeps its back on the wall" in text and f["footprint"] == before, text
+    near = room_building(6.0, 5.0, "bedroom", furniture=[("dresser", (2.0, 0.25), 0.0, (1.0, 0.5))],
+                         windows=(("win1", "s", 3.0, 1.2),), doors=(("d1", "w", 2.5, 0.9),))
+    plan2 = AA.Plan(near)
+    ok, text = AA.act_move_piece(plan2, "AI.move_piece:f_L0_001", {"by": "ai"}, "f_L0_001", "win1")
+    f = next(x for x in plan2.b["furniture"] if x["id"] == "f_L0_001")
+    assert ok and "along its wall" in text and f["footprint"]["center"][1] == 0.25, text
+    assert f["footprint"]["center"][0] < 2.0 and f["drawn_footprint"]["center"] == [2.0, 0.25]
     ok, text = AA.act_move_piece(plan, "AI.move_piece:f_L0_003", {"by": "ai"}, "f_L0_003", "f_L0_002")
     basin = next(x for x in plan.b["furniture"] if x["id"] == "f_L0_003")
     assert ok and basin["footprint"]["center"][0] <= 4.15 - 0.3 + 1e-6, text      # clear of the bath's edge

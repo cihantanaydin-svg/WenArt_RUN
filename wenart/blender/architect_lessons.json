@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-10-27",
+ "updated": "2026-10-28",
  "lessons": [
   {
    "id": "UL01",
@@ -643,6 +643,90 @@
    "request": "Tall windows where the style favours large glazing (user, 27 Oct 2026, on a Scandinavian two-storey house's renders: 'In some of the rooms the full windows from top to bottom (with a bit of remaining wall of course) could look better').",
    "lesson": "In a style family that favours large glazing (scandinavian, japandi, modern, minimal, contemporary; not classic, rustic, mediterranean, industrial) the windows of the living, dining and bed rooms (and of a dry room onto a terrace or garden) whose sill and head no document fixes become tall windows: a 0.20 m upstand to 0.25 m under the ceiling or the roof, the drawn width and position kept, all windows of one facade of the room alike; never in a wet room, never behind a wall-backed piece (a dresser, wardrobe, bed head, desk, sideboard or kitchen run keeps the sill the fit caps it at); the house's guard over a drop (W3); curtains and blinds follow the new head (architect rule W5, action tall_window).",
    "question": "Do the living, dining and bed rooms of a large-glazing style have tall windows wherever the documents fix no sill or head and no wall-backed piece stands in front, the same on every facade of the room, with a guard over a drop?"
+  },
+  {
+   "id": "UL57",
+   "date": "2026-10-28",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Roofs and columns of outdoor spaces (user, 28 Oct 2026, on real06's balcony facade: 'There is no column supporting the roof also columns under is too thick, no sloped roof next to the balcony').",
+   "lesson": "A drawn column is built in the size of its own outline on the column layer (the circle or box on KOLON/COLUMN), never of its hatch and axis cross. Where the building's drawn roof covers an outdoor space and reaches more than 1.5 m out from the walls over a corner, that corner gets a post from the space's floor to the eaves, continuing a drawn column below it. A lower roof the roof plan draws over a space is built as drawn: its outline, sloping away from the house at the house roof's pitch (at least 10 degrees, lowered to keep the clear height), covered like the house roof; only when no slope fits does the space get a light roof.",
+   "question": null
+  },
+  {
+   "id": "UL58",
+   "date": "2026-10-28",
+   "area": "access",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Entrances lead to doors (user, 28 Oct 2026, on real06's aerial view: 'Enterence to the window?').",
+   "lesson": "Steps, paths, handrails and canopies belong to doors only: when any rule turns a door into a window (the architect, the furniture-in-front rule), its site entrance goes with it (site.entrances_removed), the build ignores an entrance whose opening is no door, and the door-widening rule never widens a window.",
+   "question": null
+  },
+  {
+   "id": "UL59",
+   "date": "2026-10-28",
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "W5",
+    "build"
+   ],
+   "request": "Nothing closes a full-height window (user, 28 Oct 2026, on real06's child's room: 'If this is a full window this thing here closing the window').",
+   "lesson": "A wall-backed piece (dresser, sideboard, wardrobe, desk ...) cleared from a window slides along its own wall or stays; it is never pulled out into the room. Storage before a tall window blocks it whatever share it covers (G12), and a tall window (W5) keeps its sill where such a piece stands.",
+   "question": null
+  },
+  {
+   "id": "UL60",
+   "date": "2026-10-28",
+   "area": "openings",
+   "status": "built",
+   "checks": [
+    "D5",
+    "build"
+   ],
+   "request": "Doors open as drawn (user, 28 Oct 2026, on real06's living room: 'This window / door should have been sliding as indicated in the plan why it has been missed?').",
+   "lesson": "A door or window model opens as the drawing and the architect's door kind say: a sliding opening gets a sliding model (a title naming folding, bi-fold, French or pivot is refused), else the parametric glazed sliding door.",
+   "question": null
+  },
+  {
+   "id": "UL61",
+   "date": "2026-10-28",
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Seats face the room (user, 28 Oct 2026, on real06's master bedroom: 'Why this chair looking at the wall').",
+   "lesson": "Every drawn piece of a type with a front gets one: the side away from its only wall or towards its partner, else for a seat the quarter turn that looks into the most open floor towards its partner; a seat never looks at a wall.",
+   "question": null
+  },
+  {
+   "id": "UL62",
+   "date": "2026-10-28",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "Top-down views with every run (user, 28 Oct 2026: 'Where are the top down views of the last 2 runs give me real04 and real06').",
+   "lesson": "Every run's top-down views of each floor (renders/<p>/top_<level>_plan.jpg) are kept with the run: collected, promoted into results/baseline/latest, and sent with the review.",
+   "question": null
+  },
+  {
+   "id": "UL63",
+   "date": "2026-10-28",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Skirting all around (user, 28 Oct 2026: 'baseboard needs to be all around').",
+   "lesson": "The skirting runs all around every dry room's walls, cut only at doors, openings and low windows, up to the door casings and into the corners; an end that stops short of a corner or a casing is a finding.",
+   "question": null
   }
  ]
 }

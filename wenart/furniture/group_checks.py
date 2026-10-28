@@ -1348,6 +1348,11 @@ def effective_height(item: dict, piece: Optional[placer.Piece] = None) -> float:
 # over the window's width x height): a nightstand or a slim floor lamp may stand there, a wardrobe may not.
 TALL_WINDOW_SILL_M = 0.45
 TALL_WINDOW_COVER_MAX = 0.25
+# ... but storage that stands with its back to the glass closes a tall window whatever share it covers (user on real06,
+# 28 Oct 2026: "If this is a full window this thing here closing the window", a dresser before a full-height window)
+TALL_WINDOW_BLOCKERS = ("dresser", "sideboard", "chest", "chest_of_drawers", "bookcase", "bookshelf", "wardrobe",
+                        "tall_cabinet", "display_cabinet", "shoe_cabinet", "tv_unit", "console_table", "desk",
+                        "kitchen_counter", "fridge")
 
 
 def tall_window_cover(poly, win, h: float) -> Optional[float]:
@@ -1377,7 +1382,8 @@ def _g12(r: RoomView) -> list[dict]:
         for win in r.ctx.windows:
             if h > win.sill + margin + 1e-9 and r.polys[pid].intersection(win.band).area > 0.01:
                 cover = tall_window_cover(r.polys[pid], win, h)
-                if cover is not None and cover <= TALL_WINDOW_COVER_MAX + 1e-9:
+                if cover is not None and cover <= TALL_WINDOW_COVER_MAX + 1e-9 \
+                        and item["type"] not in TALL_WINDOW_BLOCKERS:
                     continue            # a low or slim piece before a tall window: the glass stays open
                 out.append(_violation("G12", "major", pid, r.id, f"{item['type']} {pid} ({h:.2f} m) stands in front of "
                                       f"window {win.id} (sill {win.sill:.2f} m + {margin:.2f})"

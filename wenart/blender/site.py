@@ -1088,11 +1088,17 @@ def record_entrances(building: dict, levels: Sequence[dict]) -> Optional[list[di
     if not isinstance(recs, list):
         return None
     ids = {lv["id"] for lv in levels}
+    # 28 Oct 2026 (user on real06: "Enterence to the window?": the kitchen's 0.65 m sliding door was read as a window
+    # behind the drawn counter after the entrances were written, and its steps, handrails, path and canopy were still
+    # built): an entrance is a door of the building as built
+    kinds = {o.get("id"): o.get("type") for o in building.get("openings") or [] if isinstance(o, dict)}
     out = []
     for r in recs:
         # 26 Oct 2026: an upper floor's door onto a labelled balcony (``onto``, ``upper_floor``) is no entrance
         if not isinstance(r, dict) or r.get("level_id") not in ids or r.get("into_air") or r.get("below_ground") \
                 or (r.get("upper_floor") and r.get("onto")):
+            continue
+        if kinds.get(r.get("door_id"), "door") != "door":
             continue
         if not r.get("centre") or not r.get("outward"):
             continue
@@ -3736,7 +3742,7 @@ def cover_parts(pf: dict) -> list[dict]:
         poly = geom2d.ccw(roof["polygon"])
         kind = roof.get("kind") or "light_roof"
         t = float(roof.get("thickness") or 0.18)
-        if kind in ("light_roof", "glass_roof"):
+        if kind in ("light_roof", "glass_roof", "pitched"):     # 28 Oct 2026: a drawn lower roof, sloped
             tt = COVER["glass_t"] if kind == "glass_roof" else t
             v, f = slab_with_holes(poly, [], 0.0, -tt)
             v = [(x, y, zz + roof_z(roof, (x, y))) for x, y, zz in v]
@@ -5103,6 +5109,9 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                 # 26 Oct 2026: a labelled outdoor space's cover in the house's look: the roof slab as the facade
                 # (the balcony slabs' render), the posts and beams as the window frames
                 mats["roof"] = make_material(looks["facade"]) if looks.get("facade") else concrete
+                if (pf.get("roof") or {}).get("covering") == "roof" and looks.get("roof"):
+                    # 28 Oct 2026: a lower roof the roof plan draws is covered like the house roof (its tiles)
+                    mats["roof"] = make_material(looks["roof"])
                 mats["beams"] = mats["posts"] = make_material(looks.get("window_frame") or looks.get("railing")
                                                               or {"material": SITE_FALLBACK_LOOKS["railing"],
                                                                   "colour": None})

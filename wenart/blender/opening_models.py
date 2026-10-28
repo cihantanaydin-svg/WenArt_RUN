@@ -656,6 +656,52 @@ def leaf_front(entry: dict) -> dict:
     return out
 
 
+# 28 Oct 2026: how a model opens by its title (folding before sliding: "Folding Sliding Door" is a bi-fold) and how an
+# opening opens by the architect's door kind, else its drawn operation
+OPERATION_WORDS = (("folding", ("folding", "bifold", "bi-fold", "bi fold", "accordion")),
+                   ("pivot", ("pivot",)),
+                   ("hinged", ("french", "casement", "hinged")),
+                   ("sliding", ("sliding", "slide", "lift-slide", "patio slider")))
+KIND_OPERATION = {"glazed_sliding": "sliding", "sliding_pair": "sliding", "glazed_folding": "folding",
+                  "folding": "folding", "french": "hinged", "double": "hinged", "entrance": "hinged"}
+
+
+def model_operation(entry: dict) -> Optional[str]:
+    """How a door model opens by its title (``OPERATION_WORDS``, the first that matches), None when it names none."""
+    title = _title(entry)
+    for op, words in OPERATION_WORDS:
+        if _has(title, words):
+            return op
+    return None
+
+
+def opening_operation(o: dict) -> Optional[str]:
+    """How an opening opens: the architect's door kind (``KIND_OPERATION``), else its drawn ``operation`` (sliding,
+    swing), None for a window or an unknown."""
+    if o.get("type") != "door":
+        return None
+    kind = door_kind_of(o)
+    if kind in KIND_OPERATION:
+        return KIND_OPERATION[kind]
+    op = str(o.get("operation") or "").lower()
+    return {"sliding": "sliding", "swing": "hinged", "folding": "folding", "pivot": "pivot"}.get(op)
+
+
+def operation_fit(cands: Sequence[dict], wanted: set) -> tuple[list[dict], dict]:
+    """``(kept, {id: why})``: the models whose own operation (``model_operation``) is the one the openings want, or
+    that name none; with several operations wanted only the models that name none (pure)."""
+    if not wanted:
+        return list(cands), {}
+    kept, wrong = [], {}
+    for e in cands:
+        op = model_operation(e)
+        if op is None or (len(wanted) == 1 and op in wanted):
+            kept.append(e)
+        else:
+            wrong[e.get("id")] = f"a {op} door for {', '.join(sorted(wanted))} opening(s)"
+    return kept, wrong
+
+
 def candidates(extras: Sequence[dict], category: str, mode: str) -> list[dict]:
     """The usable models of a category (see the module docstring), unranked."""
     kind = "window" if category == "window" else "door"
@@ -861,6 +907,7 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
             sizes[o["id"]] = (width, height)
     out: dict[str, dict] = {}
     cache: dict = {}
+    by_id = {rec["opening"]["id"]: rec["opening"] for rec in outer}
     notes = notes if notes is not None else []
     for category in CATEGORIES:
         ids = [i for i, c in cats.items() if c == category and i in sizes and i not in out]
@@ -868,6 +915,13 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
         if not ids and not also:
             continue
         cands, left, look_rank = _checked(candidates(extras, category, mode), category, look, assets_dir, cache)
+        # 28 Oct 2026 (user on real06: "This window / door should have been sliding as indicated in the plan": the
+        # drawn 2.95 m sliding door got "Valdi - Folding Sliding Door"): a model that names how it opens opens as the
+        # category's openings do
+        ops = {by_id[i].get("id"): opening_operation(by_id[i]) for i in ids + also if i in by_id}
+        cands, wrong = operation_fit(cands, set(v for v in ops.values() if v))
+        if wrong:
+            left = dict(left or {}, **wrong)
         if left:
             notes.append({"kind": "left_out", "category": category, "models": left})
         if not cands:

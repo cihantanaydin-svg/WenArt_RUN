@@ -745,6 +745,7 @@ def gaps_behind_furniture(building: dict) -> list[str]:
         for key in ("threshold_z", "swing_side", "operation", "operation_source"):
             o.pop(key, None)
         o["corrected_by_ai"] = {"by": "code", "rule": "gap_behind_furniture", "reason": reason, "pieces": ids}
+        drop_entrance(building, o["id"], "code gap_behind_furniture")          # 28 Oct 2026
         ev = o.setdefault("evidence", [])
         if isinstance(ev, list):
             ev.append({"file": "building.json", "method": "inferred", "confidence": 0.7,
@@ -924,6 +925,9 @@ def act_widen_door(plan: Plan, key: str, ans: dict, door_id: str, room_id: Optio
     w = plan.walls.get((o or {}).get("wall_id"))
     if o is None or w is None:
         return False, f"no door {door_id} on a wall"
+    if o.get("type") not in ("door", "opening"):
+        # 28 Oct 2026 (real06: D1 widened d_L0_003, read as a window behind the counter, to 0.80 m)
+        return True, f"{door_id} is a {o.get('type')} now: no door to widen"
     want = WC_DOOR_MIN_W if room_id and str(plan.room.get(room_id, {}).get("room_type")) in ("wc", "toilet") \
         else DOOR_MIN_W
     width = float(o.get("width") or 0.0)
@@ -1071,13 +1075,22 @@ def act_door_to_window(plan: Plan, key: str, ans: dict, door_id: str):
     reason = (f"{door_id} ({was}, {float(o.get('width') or 0):.2f} m) opens onto nothing outside: read as a window, "
               f"sill {sill:.2f} m, head {head:.2f} m (the floor's windows)")
     _mark(o, "corrected_by_ai", key, ans, reason)
-    site = plan.b.get("site") if isinstance(plan.b.get("site"), dict) else None
-    if site is not None and isinstance(site.get("entrances"), list):
-        gone = [e for e in site["entrances"] if isinstance(e, dict) and e.get("door_id") == door_id]
-        if gone:
-            site["entrances"] = [e for e in site["entrances"] if e not in gone]
-            site.setdefault("entrances_removed", []).extend(dict(e, removed_by=f"architect {key}") for e in gone)
+    drop_entrance(plan.b, door_id, f"architect {key}")
     return True, reason
+
+
+def drop_entrance(building: dict, door_id: str, by: str) -> int:
+    """A door that is no door any more loses its site entrance (its steps, path and canopy; mutated): the records go
+    to ``site.entrances_removed`` with ``removed_by``. Returns how many were removed (28 Oct 2026: shared by every
+    door-to-window change; the furniture rule ``gaps_behind_furniture`` left the entrance standing)."""
+    site = building.get("site") if isinstance(building.get("site"), dict) else None
+    if site is None or not isinstance(site.get("entrances"), list):
+        return 0
+    gone = [e for e in site["entrances"] if isinstance(e, dict) and e.get("door_id") == door_id]
+    if gone:
+        site["entrances"] = [e for e in site["entrances"] if e not in gone]
+        site.setdefault("entrances_removed", []).extend(dict(e, removed_by=by) for e in gone)
+    return len(gone)
 
 
 def act_gap_to_door(plan: Plan, key: str, ans: dict, door_id: str):
@@ -1518,18 +1531,27 @@ def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from=Non
              and g.get("footprint") and g.get("level_id") == f.get("level_id")
              and str(g.get("type") or "") not in CL.FLOOR_ONLY + CL.SKIP_TYPES]
     doors = [d for d in CL.doorways(plan.b, f.get("level_id"))]
-    if room and CL.FS.drawn_fixture(f):
+    fixture = CL.FS.drawn_fixture(f)
+    wall_backed = str(f.get("type") or "") in WALL_BACKED_TYPES
+    if room and (fixture or wall_backed):
         # 27 Oct 2026 (``fixture_seat``): a drawn fixture keeps its wall: it slides along it, else it is seated in its
-        # drawn outline (a misread or merged one: real06's bath over its basin); the general move is the fallback
+        # drawn outline (a misread or merged one: real06's bath over its basin); the general move is the fallback.
+        # 28 Oct 2026 (user on real06: "If this is a full window this thing here closing the window": Argus moved the
+        # child's room dresser 0.46 m straight out from the wall "clear of" its window, and W5 then made that window
+        # tall behind it): every wall-backed piece keeps its back on its wall: it slides along it, else it stays
         sf = CL.shape(f)
         fix = CL.FS.free_fixture(f, room["polygon"], box + [p for g, sg in peers if CL.must_clear(f, g) for p in sg]
-                                 + [d for d in doors if CL.shape_depth(sf, [d]) <= CL.CLASH_TOL_M])
+                                 + [d for d in doors if CL.shape_depth(sf, [d]) <= CL.CLASH_TOL_M],
+                                 allow_seat=fixture)
         if fix is not None:
             reason = f"{fix['reason']}, clear of {away_from} (the answer to {key})"
             CL.apply_fixture(f, fix, {"by": "architect", "rule": f"architect {key}", "reason": reason},
                              plan.b.get("decor") or [])
             _mark(f, "adjusted_by_ai", key, ans, reason)
             return True, f"{piece_id}: {reason}"
+        if not fixture:
+            return False, (f"{piece_id}: no free place along its wall clear of {away_from}: a {f.get('type')} keeps "
+                           f"its back on the wall (it stays where it is)")
     move = CL.find_unit_place([f], box, peers, {f.get("room_id"): room["polygon"]} if room else {}, doors)
     if move is None:
         return False, f"{piece_id}: no free place within the move limit clear of {away_from}"

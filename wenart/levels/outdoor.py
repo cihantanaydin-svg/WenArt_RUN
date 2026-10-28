@@ -1049,7 +1049,8 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
     for s in out:
         sp = _shp(s["polygon"])
         s["columns"] = [dict({"id": c.get("id"),
-                              "center": [round(float(c["center"][0]), 4), round(float(c["center"][1]), 4)]},
+                              "center": [round(float(v), 4) for v in ((core_box(c) or {}).get("center")
+                                                                      or c["center"])[:2]]},
                              **column_look(c))
                         for c in cols if sp.distance(Point(c["center"])) <= SPACE["column_reach"]]
     # 27 Oct 2026: a space the building's drawn roof covers is covered (``mark_roof_cover``) before its own roof is
@@ -1058,6 +1059,7 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
     for s in out:
         s["roof"] = roof_plan(s, out, levels, outlines, building, doors)
     assign_posts(out, gz)
+    house_roof_posts(out, building, outlines)
     for s in out:
         sz = f"{s['area_m2']:.2f} m²" + (f" (stated {s['stated_area_m2']:.2f} m²)" if s["stated_area_m2"] else "")
         what = (f"{s['kind']} '{s['label']}' on {s['level_id']}: {sz}, {s['method']}; floor {s['z']:+.2f} m "
@@ -1109,6 +1111,56 @@ def assign_posts(spaces: Sequence[dict], gz) -> None:
             owner["posts"].append(dict({"center": list(c["center"]), "source": "drawn", "id": c["id"],
                                         "z0": round(z0, 3), "z1": under, "carries": f"the slab of {up['id']}"},
                                        **_look_of(c)))
+
+
+def house_roof_posts(spaces: Sequence[dict], building: dict, outlines: dict) -> None:
+    """The posts of a space the house roof covers (mutated; 28 Oct 2026, user on real06: "There is no column supporting
+    the roof": the roof plan draws the main roof over the first-floor balcony, and its corner hung 1.6 m out from the
+    walls with nothing under it): every corner of a space covered by the building's drawn roof (``cover_source``
+    ``building_roof``) farther than ``SPACE["post_reach"]`` from the walls of its level (``outlines``) and from its
+    posts gets a post from the space's floor to the roof's eaves (``drawn_roof`` ``eaves_z``; the space's level top
+    when the roof gives none), in the post language of the space's drawn columns (``post_look``: the columns under a
+    balcony carry on up), standing on a drawn column below it when one is within ``SPACE["column_reach"]`` (its
+    centre). Recorded ``source: inferred`` with what it carries."""
+    from shapely.geometry import Point
+
+    roof = drawn_roof(building)
+    if roof is None:
+        return
+    for s in spaces:
+        if s.get("cover_source") != "building_roof" or len(s.get("polygon") or []) < 3:
+            continue
+        own = outlines.get(s.get("level_id")) or []
+        if len(own) < 3:
+            continue
+        walls = _shp(own)
+        z = float(s["z"])
+        top = roof["eaves_z"]
+        if top is None or top - z < ROOF_COVER["clear_m"]:
+            continue
+        look = post_look(s.get("columns") or [])
+        posts = s.setdefault("posts", [])
+        for p in _ccw(_coords(_shp(s["polygon"]))):
+            if walls.distance(Point(p)) <= SPACE["post_reach"]:
+                continue
+            col = min((c for c in s.get("columns") or [] if G.distance(p, c["center"]) <= SPACE["column_reach"]
+                       + float(c.get("size_m") or 0.0)), key=lambda c: G.distance(p, c["center"]), default=None)
+            if col is not None:
+                c, kind = list(col["center"]), dict(_look_of(col))
+            else:
+                inset = float(look["size_m"]) / 2.0 + 0.02
+                cen = _shp(s["polygon"]).centroid
+                d = G.distance(p, (cen.x, cen.y)) or 1.0
+                c = [round(p[0] + (cen.x - p[0]) / d * inset, 4), round(p[1] + (cen.y - p[1]) / d * inset, 4)]
+                kind = dict(look)
+            if any(G.distance(c, q["center"]) <= SPACE["post_reach"] / 2.0 for q in posts):
+                continue
+            posts.append(dict({"center": c, "source": "inferred", "id": None, "z0": round(z, 3),
+                               "z1": round(float(top), 3),
+                               "carries": f"the building's roof over {s['id']} ({roof['source']})",
+                               "reason": f"the roof reaches {walls.distance(Point(p)):.2f} m out from the walls "
+                                         f"of {s['level_id']} over this corner (over {SPACE['post_reach']:g} m: "
+                                         f"no cantilever)"}, **kind))
 
 
 def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outlines: dict, building: dict,
@@ -1189,6 +1241,47 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
     ring = _ccw(_coords(region))
     origin = min(ring, key=lambda p: p[0] * fx + p[1] * fy)
     plane = {"origin": [round(origin[0], 4), round(origin[1], 4)], "dir": [round(fx, 6), round(fy, 6)]}
+    # 28 Oct 2026 (user on real06: "no sloped roof next to the balcony": the roof plan draws a tiled lower roof with a
+    # hip line over the veranda, and a flat slab was built): a lower roof the roof plan draws over the space is built
+    # as drawn: its outline, sloping away from the building at the house roof's pitch, covered like the house roof; a
+    # pitch that would bring its low edge under the clear height falls to PITCHED["min_deg"] at least, else the
+    # space keeps a light roof and says why
+    pitched = None
+    if drawn is not None:
+        pitch = drawn_pitch(building)
+        room_m = top - t - z - SPACE["min_clear"]
+        # a lower roof drawn against the house falls away from its walls, square to the drawn outline's axes (a
+        # lean-to's slope runs square to its high edge): the axis directions that point away from the nearest wall
+        # (from it towards the drawn roof's centre), nearest first; the first whose run leaves the least pitch
+        dirs = [(fx, fy)]
+        if own is not None and not own.is_empty:
+            dp = _shp(drawn["polygon"])
+            near = nearest_points(own, dp.centroid)[0]
+            v = (dp.centroid.x - near.x, dp.centroid.y - near.y)
+            if math.hypot(*v) > 1e-6:
+                dirs = axis_dirs_away(v, drawn["polygon"])
+        fit_deg = 0.0
+        for cx_, cy_ in dirs:
+            o_ = min(ring, key=lambda p: p[0] * cx_ + p[1] * cy_)
+            run_ = max(0.0, max((p[0] - o_[0]) * cx_ + (p[1] - o_[1]) * cy_ for p in ring))
+            if run_ <= 0.1 or room_m <= 0.0:
+                continue
+            fit_deg = math.degrees(math.atan(room_m / run_))
+            if min(pitch, fit_deg) >= PITCHED["min_deg"] - 1e-9:
+                fx, fy, origin = cx_, cy_, o_
+                plane = {"origin": [round(origin[0], 4), round(origin[1], 4)], "dir": [round(fx, 6), round(fy, 6)]}
+                break
+        if room_m > 0.0 and fit_deg > 0.0:
+            use = min(pitch, fit_deg)
+            if use >= PITCHED["min_deg"] - 1e-9:
+                pitched = round(use, 2)
+                fall = math.tan(math.radians(use))
+                why += (f"; sloping {use:.1f} degrees away from the building as the roof plan draws it"
+                        + (f" (the house roof's {pitch:.1f} degrees, lowered to keep {SPACE['min_clear']:.1f} m "
+                           f"clear at its low edge)" if use < pitch - 1e-6 else " (the house roof's pitch)"))
+            else:
+                why += (f"; the drawn lower roof would slope only {fit_deg:.1f} degrees here (under "
+                        f"{PITCHED['min_deg']:g}): a light roof")
     low = min(top - fall * max(0.0, (p[0] - origin[0]) * fx + (p[1] - origin[1]) * fy) for p in ring)
     if low - t - z < SPACE["min_clear"]:
         top += z + SPACE["min_clear"] + t - low
@@ -1253,7 +1346,61 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
            "posts": posts, "reason": reason, "inferred": True}
     if drawn is not None:
         out["drawn"] = drawn
+    if pitched is not None:
+        # the drawn outline (its eaves past the posts) and the house roof's covering (site.cover_parts)
+        out.update(kind="pitched", pitch_deg=pitched, polygon=_ccw(drawn["polygon"]), covering="roof",
+                   area_m2=drawn["area_m2"])
     return out
+
+
+def axis_dirs_away(v, polygon) -> list[tuple[float, float]]:
+    """The unit directions among ``polygon``'s edge axes (its longest edge's direction and normal, both ways) that
+    point along ``v`` (a positive share of it), closest to ``v`` first (pure)."""
+    pts = [(float(p[0]), float(p[1])) for p in polygon]
+    edges = [(pts[i], pts[(i + 1) % len(pts)]) for i in range(len(pts))]
+    a, b = max(edges, key=lambda e: G.distance(e[0], e[1]))
+    d = G.distance(a, b) or 1.0
+    u = ((b[0] - a[0]) / d, (b[1] - a[1]) / d)
+    n = (-u[1], u[0])
+    cands = [c for c in (u, (-u[0], -u[1]), n, (-n[0], -n[1])) if c[0] * v[0] + c[1] * v[1] > 1e-9]
+    return sorted(cands, key=lambda c: -(c[0] * v[0] + c[1] * v[1]))
+
+
+PITCHED = {"min_deg": 10.0,      # the least slope a tiled lower roof is laid at (concrete and clay tiles: 10-15 deg)
+           "default_deg": 18.0}  # when the house roof gives no pitch
+
+
+def drawn_pitch(building: dict) -> float:
+    """The house roof's pitch in degrees (pure): the first of ``roof.pitches_deg`` (a value or ``{"value"}``),
+    else ``PITCHED["default_deg"]``."""
+    for v in ((building.get("roof") or {}).get("pitches_deg") or []):
+        v = v.get("value") if isinstance(v, dict) else v
+        try:
+            if v is not None and 0.0 < float(v) < 70.0:
+                return float(v)
+        except (TypeError, ValueError):
+            continue
+    return PITCHED["default_deg"]
+
+
+def core_box(item: dict) -> Optional[dict]:
+    """The footprint of a typed symbol's strokes on the layer that names it (pure; 28 Oct 2026, user on real06:
+    "columns under is too thick": a 0.40 m round column drawn on KOLON, its hatch on TARAMA and its axis cross on
+    "aks merkezleri", was 0.53 m by the whole symbol): ``{"center", "size"}`` of the reading's ``layer_boxes`` for the
+    layer ``decor_word`` matched, None when the symbol has one layer or no such record (its own size is its outline)."""
+    word = decor_word(item)
+    if word is None:
+        return None
+    what, _name = word
+    for ev in item.get("evidence") or []:
+        boxes = ev.get("layer_boxes") if isinstance(ev, dict) else None
+        for name, box in (boxes or {}).items():
+            if not isinstance(box, dict) or len(box.get("size") or []) < 2:
+                continue
+            if any(_hit(key, _words(name)) and kind == what for key, kind in DECOR_WORDS):
+                if min(float(v) for v in box["size"][:2]) > 0.0:
+                    return box
+    return None
 
 
 def column_look(item: dict) -> dict:
@@ -1262,9 +1409,11 @@ def column_look(item: dict) -> dict:
     ``{"shape": round | square | rect, "size_m", "size_xy", "rotation_deg"}``. A round symbol (``_round_symbol``: a
     circle or arc, its sides within 20 %) is a cylinder of its larger side; any other symbol a box of its drawn width
     and depth (``square`` when they are within 5 %) at its drawn rotation. ``size_m`` is its larger side."""
-    w, d = [float(v) for v in (item.get("size") or [0.3, 0.3])[:2]]
+    core = core_box(item)                          # 28 Oct 2026: the column's own outline, not its hatch and axes
+    w, d = [float(v) for v in ((core or {}).get("size") or item.get("size") or [0.3, 0.3])[:2]]
     w, d = max(w, 0.05), max(d, 0.05)
-    shape = "round" if _round_symbol(item) else ("square" if min(w, d) / max(w, d) >= 0.95 else "rect")
+    shape = "round" if _round_symbol(dict(item, size=[w, d])) else ("square" if min(w, d) / max(w, d) >= 0.95
+                                                                    else "rect")
     return {"shape": shape, "size_m": round(max(w, d), 3), "size_xy": [round(w, 3), round(d, 3)],
             "rotation_deg": round(float(item.get("rotation_deg") or 0.0), 2)}
 

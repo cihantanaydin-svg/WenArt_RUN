@@ -2498,8 +2498,12 @@ def _infer_types(build: ProjectBuild) -> None:
     proposals = [p for p in INF.infer_types(view)
                  if p["piece_id"] not in pending or p.get("type_method") in INF.CODE_TYPE_METHODS]
     if not proposals:
+        for reason in INF.missing_fronts(b):          # 28 Oct 2026: no typed piece is left without a front
+            build.warn(reason)
         return
     b["furniture"] = INF.apply_inferences(b, proposals)["furniture"]
+    for reason in INF.missing_fronts(b):              # 28 Oct 2026: no typed piece is left without a front
+        build.warn(reason)
     RD.mark_inferred(b, proposals)          # fix round after P4b: a size-inferred piece says so in type_method
     _drop_typed_reviews(build, {p["piece_id"] for p in proposals})      # pass before P5, integration
     coded = []

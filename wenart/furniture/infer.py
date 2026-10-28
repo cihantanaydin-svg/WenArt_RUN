@@ -2213,6 +2213,74 @@ def _apply_duplicate(item: dict, prop: dict) -> None:
     item.setdefault("evidence", []).append(dict(prop["evidence"]))
 
 
+SEAT_FRONT_REACH_M = 3.0          # missing_fronts: the open floor before a seat counted to this distance
+SEAT_FRONT_PARTNER_W = 0.5         # ... plus this weight towards its nearest partner (cosine)
+
+
+def _open_front(piece: placer.Piece, ring, partners: list[placer.Piece]) -> Optional[float]:
+    """The quarter turn of ``piece`` that looks into the most open floor of its room (``ring``), towards its nearest
+    partner when it has one (pure; 28 Oct 2026, user on real06: "Why this chair looking at the wall")."""
+    from shapely.geometry import LineString, Point, Polygon
+
+    room = Polygon(ring.coords)
+    c = Point(piece.center)
+    base = G.front_direction_deg(piece.rotation_deg)
+    mate = min(partners, key=lambda h: h.polygon().distance(piece.polygon()), default=None)
+    best = None
+    for k in range(4):
+        deg = G.normalise_angle(base + 90.0 * k)
+        ux, uy = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+        ray = LineString([(c.x, c.y), (c.x + ux * SEAT_FRONT_REACH_M, c.y + uy * SEAT_FRONT_REACH_M)])
+        hit = ray.intersection(ring)
+        free = SEAT_FRONT_REACH_M if hit.is_empty or not room.contains(c) else min(
+            c.distance(Point(q)) for g in getattr(hit, "geoms", [hit]) for q in getattr(g, "coords", []))
+        score = free
+        if mate is not None:
+            m = mate.polygon().centroid
+            dx, dy = m.x - c.x, m.y - c.y
+            d = math.hypot(dx, dy) or 1.0
+            score += SEAT_FRONT_PARTNER_W * (ux * dx + uy * dy) / d
+        if best is None or score > best[0] + 1e-9:
+            best = (score, deg)
+    return None if best is None else round(best[1], 3)
+
+
+def missing_fronts(building: dict) -> list[str]:
+    """Every drawn piece of a type with a front that has none gets the code front (mutated; 28 Oct 2026, user on real06:
+    "Why this chair looking at the wall": the vision passes typed two armchairs of a reading corner without a front and
+    the build gave one of them its model's default, facing the corner): ``_code_front`` (the side away from its only
+    wall, or towards its partner), else for a seat the quarter turn into the most open floor (``_open_front``).
+    Labelled ``adjusted_by_ai`` by code with ``drawn_front_deg`` kept (None). Returns the reasons."""
+    rooms = _rooms(building)
+    out = []
+    for item in building.get("furniture") or []:
+        if item.get("front_deg") is not None or item.get("build") is False or not item.get("footprint") \
+                or item.get("type") in (None, "unknown") or item["type"] in schemas.FRONTLESS_TYPES:
+            continue
+        room = rooms.get(item.get("room_id") or "")
+        if room is None or len(room.get("polygon") or []) < 3:
+            continue
+        front = _code_front(building, item, room, item["type"])
+        how = "the side away from its wall or towards its partner"
+        if front is None and item["type"] in GROUP_SEATS + PARTNER_ONLY:
+            mates = [f for f in building.get("furniture") or [] if f.get("room_id") == item.get("room_id")
+                     and f["id"] != item["id"] and f.get("footprint") and f.get("build") is not False]
+            partners = [placer.drawn_piece(f, k) for k, f in enumerate(mates)
+                        if f.get("type") in tuple(schemas.orientation_rule(item["type"])["partners"]) + tuple(GROUP_SEATS)]
+            front = _open_front(placer.drawn_piece(item), _room_ring(room), partners)
+            how = "the side that looks into the most open floor, towards its partner"
+        if front is None:
+            continue
+        item.setdefault("drawn_front_deg", item.get("front_deg"))
+        item.setdefault("drawn_footprint", copy.deepcopy(item["footprint"]))
+        set_front(item, front)
+        reason = f"{item['id']} ({item['type']}) had no front: {how} ({item['front_deg']:.0f} deg)"
+        merge_code_label(item, {"by": "code", "stage": "reading", "rule": "missing_front", "reason": reason,
+                                "changed": {"front_deg": None}})
+        out.append(reason)
+    return out
+
+
 def set_front(item: dict, front_deg: float) -> None:
     """Give a piece a front: the footprint turned by whole quarter turns so its local -Y faces ``front_deg``
     (``placer.front_frame``: same rectangle, size swapped on an odd turn)."""

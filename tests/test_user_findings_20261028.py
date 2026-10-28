@@ -1,0 +1,172 @@
+"""28 Oct 2026, the user's look at real06 run 222248 and real04 run 005318 (general rules, the projects are the cases):
+a drawn column takes the size of its own outline, not of its hatch and axis cross ("columns under is too thick"); a
+house roof that reaches far over a space gets posts at its corners ("There is no column supporting the roof"); a lower
+roof the roof plan draws is built sloped ("no sloped roof next to the balcony"); a door read as a window loses its
+entrance ("Enterence to the window?"); a wall-backed piece never leaves its wall to clear a window, and storage closes
+a tall window ("If this is a full window this thing here closing the window"); a floor texture never clads a wall
+("What kind of a kitchen is this"); a door model opens as the drawing does ("This window / door should have been
+sliding as indicated in the plan")."""
+from __future__ import annotations
+
+import copy
+import json
+from pathlib import Path
+
+import pytest
+
+from wenart.blender import architect_actions as AA
+from wenart.blender import exterior_checks as X
+from wenart.blender import opening_models as OM
+from wenart.blender import site as S
+from wenart.levels import outdoor as O
+
+ROOT = Path(__file__).resolve().parents[1]
+REAL06 = ROOT / "tests" / "fixtures" / "real06_building_20261025.json"
+
+
+def _column(boxes, size=(0.525, 0.44)):
+    return {"id": "sd_x", "kind": "other", "center": [1.0, 1.0], "size": list(size), "inferred_as": "column",
+            "evidence": [{"layer": "TARAMA,aks merkezleri,KOLON", "entity": "CIRCLE:1,LINE:2,LINE:3",
+                          **({"layer_boxes": boxes} if boxes else {})}]}
+
+
+def test_a_drawn_column_takes_the_size_of_its_column_layer_outline():
+    boxes = {"KOLON": {"center": [1.02, 1.0], "size": [0.4, 0.4]},
+             "TARAMA": {"center": [1.0, 1.0], "size": [0.525, 0.44]}}
+    item = _column(boxes)
+    assert O.core_box(item) == boxes["KOLON"]
+    assert O.column_look(item) == {"shape": "round", "size_m": 0.4, "size_xy": [0.4, 0.4], "rotation_deg": 0.0}
+    # without the reading's layer boxes (one layer, an older reading) the symbol's own size stays
+    assert O.core_box(_column(None)) is None and O.column_look(_column(None))["size_m"] == 0.525
+
+
+def test_the_reading_records_each_layers_footprint():
+    src = (ROOT / "wenart" / "ingest" / "generic" / "symbols.py").read_text(encoding="utf-8")
+    assert 'ev["layer_boxes"] = boxes' in src
+
+
+def _real06_spaces():
+    from wenart.levels import model as M
+
+    b = json.loads(REAL06.read_text(encoding="utf-8"))
+    n = M.infer_levels(b)
+    return b, {s["id"]: s for s in n["site"]["outdoor_spaces"]}
+
+
+@pytest.mark.skipif(not REAL06.is_file(), reason="no real06 fixture")
+def test_the_house_roof_over_a_balcony_stands_on_posts_over_the_columns_below():
+    _b, spaces = _real06_spaces()
+    bal = spaces.get("os_L1_balkon")
+    if bal is None or bal.get("cover_source") != "building_roof":
+        pytest.skip("this reading has no balcony under the drawn roof")
+    posts = [q for q in bal.get("posts") or [] if "building's roof" in str(q.get("carries"))]
+    assert posts, bal.get("posts")
+    cols = {tuple(c["center"]) for c in bal.get("columns") or []}
+    assert all(tuple(q["center"]) in cols or not cols for q in posts)      # the columns below carry on up
+    assert all(q["z1"] - q["z0"] >= 2.1 and q["source"] == "inferred" and "no cantilever" in q["reason"]
+               for q in posts)
+
+
+def test_house_roof_posts_only_where_the_roof_reaches_far_out():
+    walls = [[0, 0], [6, 0], [6, 6], [0, 6]]
+    building = {"roof": {"outline": [[-0.5, -3.0], [6.5, -3.0], [6.5, 6.5], [-0.5, 6.5]],
+                         "outline_source": "roof_plan", "eaves_height": {"value": 6.0},
+                         "roof_plan_outline": {"region_id": "r6", "others": []}}}
+    deep = {"id": "os_deep", "level_id": "L1", "z": 3.0, "polygon": [[1, -2.5], [4, -2.5], [4, 0], [1, 0]],
+            "cover_source": "building_roof", "columns": []}
+    shallow = {"id": "os_flat", "level_id": "L1", "z": 3.0, "polygon": [[1, -1.0], [4, -1.0], [4, 0], [1, 0]],
+               "cover_source": "building_roof", "columns": []}
+    O.house_roof_posts([deep, shallow], building, {"L1": walls})
+    assert len(deep["posts"]) == 2 and all(q["z0"] == 3.0 and q["z1"] == 6.0 for q in deep["posts"])
+    assert not shallow.get("posts")                                            # 1.0 m: within post_reach
+
+
+@pytest.mark.skipif(not REAL06.is_file(), reason="no real06 fixture")
+def test_a_lower_roof_the_roof_plan_draws_is_built_sloped_away_from_the_house():
+    b, spaces = _real06_spaces()
+    ver = spaces.get("os_L0_veranda")
+    roof = (ver or {}).get("roof") or {}
+    if not roof.get("drawn"):
+        pytest.skip("this reading draws no lower roof over the veranda")
+    assert roof["kind"] == "pitched" and O.PITCHED["min_deg"] <= roof["pitch_deg"] <= O.drawn_pitch(b) + 1e-6
+    assert roof["covering"] == "roof" and roof["fall"] == pytest.approx(
+        __import__("math").tan(__import__("math").radians(roof["pitch_deg"])), abs=1e-6)
+    low = min(S.roof_z(roof, p) for p in ver["polygon"]) - roof["thickness"]
+    assert low - float(ver["z"]) >= O.SPACE["min_clear"] - 0.35        # the walking area keeps its clear height
+    parts = S.cover_parts({"roof": roof, "posts": roof["posts"]})
+    assert {p["part"] for p in parts} >= {"roof", "posts"}
+
+
+def test_the_slope_takes_an_axis_away_from_the_house():
+    poly = [[0, 0], [2, 0], [2, 5], [0, 5]]
+    assert O.axis_dirs_away((0.0, -2.0), poly)[0] == (0.0, -1.0)
+    assert set(O.axis_dirs_away((-1.0, -1.0), poly)) == {(0.0, -1.0), (-1.0, 0.0)}
+    assert O.drawn_pitch({"roof": {"pitches_deg": [{"value": 18.3}]}}) == 18.3
+    assert O.drawn_pitch({}) == O.PITCHED["default_deg"]
+
+
+def test_a_door_read_as_a_window_loses_its_entrance_steps_and_canopy():
+    b = {"openings": [{"id": "d1", "type": "window", "level_id": "L0"}, {"id": "d2", "type": "door", "level_id": "L0"}],
+         "site": {"entrances": [{"door_id": "d1", "level_id": "L0", "centre": [0, 0], "outward": [0, -1],
+                                 "threshold_z": 0.0, "ground_z": 0.0},
+                                {"door_id": "d2", "level_id": "L0", "centre": [3, 0], "outward": [0, -1],
+                                 "threshold_z": 0.0, "ground_z": 0.0}]}}
+    got = S.record_entrances(b, [{"id": "L0", "elevation": 0.0}])
+    assert [e["opening_id"] for e in got] == ["d2"]
+    assert AA.drop_entrance(b, "d1", "code gap_behind_furniture") == 1
+    assert [e["door_id"] for e in b["site"]["entrances"]] == ["d2"]
+    assert b["site"]["entrances_removed"][0]["removed_by"] == "code gap_behind_furniture"
+
+
+def test_the_door_widening_skips_a_window():
+    b = {"walls": [{"id": "w", "level_id": "L0", "start": [0, 0], "end": [5, 0], "thickness": 0.2}],
+         "openings": [{"id": "d1", "type": "window", "level_id": "L0", "wall_id": "w", "center": [2.5, 0],
+                       "width": 0.65}], "rooms": [], "levels": [{"id": "L0", "elevation": 0.0}]}
+    plan = AA.Plan(b)
+    ok, text = AA.act_widen_door(plan, "D1:d1", {"by": "ai"}, "d1")
+    assert ok and "is a window now" in text and plan.openings["d1"]["width"] == 0.65
+
+
+@pytest.mark.skipif(not (ROOT / "results/baseline/latest/furniture/real06/building_final.json").is_file(),
+                    reason="no committed real06 building")
+def test_a_wall_backed_piece_keeps_its_wall_when_asked_to_clear_a_window():
+    b = json.loads((ROOT / "results/baseline/latest/furniture/real06/building_final.json").read_text())
+    if not any(f.get("id") == "f_L1_005" and f.get("type") == "dresser" for f in b.get("furniture") or []):
+        pytest.skip("this building has no drawn dresser f_L1_005")
+    plan = AA.Plan(copy.deepcopy(b))
+    before = copy.deepcopy(next(f for f in plan.b["furniture"] if f["id"] == "f_L1_005")["footprint"])
+    ok, text = AA.act_move_piece(plan, "AI.move_piece:f_L1_005", {"by": "argus"}, "f_L1_005", "d_L1_005")
+    after = next(f for f in plan.b["furniture"] if f["id"] == "f_L1_005")["footprint"]
+    if ok:                                     # slid along its wall: its distance to that wall is unchanged
+        assert "along its wall" in text
+    else:
+        assert "keeps its back on the wall" in text and after == before
+
+
+def test_storage_closes_a_tall_window_whatever_share_it_covers():
+    from wenart.furniture import group_checks as GC
+
+    assert "dresser" in GC.TALL_WINDOW_BLOCKERS and "nightstand" not in GC.TALL_WINDOW_BLOCKERS
+
+
+def test_a_floor_texture_never_clads_a_wall():
+    bad = X.validate_material_override({}, {"kitchen_walls": "wood_oak_light"})
+    assert not bad["ok"] and "floor finish" in bad["failed"][0]
+    assert X.validate_material_override({}, {"kitchen_walls": "wood_veneer_oak"})["ok"]
+    assert X.validate_material_override({}, {"floor": "wood_oak_light"})["ok"]
+    assert X.floor_texture({"asset": "WoodFloor051"}) and not X.floor_texture({"asset": "oak_veneer_01"})
+
+
+def test_a_door_model_opens_as_the_drawing_does():
+    assert OM.model_operation({"title": "Valdi - Folding Sliding Door - 4 Door Ti"}) == "folding"
+    assert OM.model_operation({"title": "Lift Slide Patio Door"}) == "sliding"
+    assert OM.model_operation({"title": "Glass Door"}) is None
+    assert OM.opening_operation({"type": "door", "door_type": "glazed_sliding"}) == "sliding"
+    assert OM.opening_operation({"type": "door", "operation": "swing"}) == "hinged"
+    assert OM.opening_operation({"type": "window"}) is None
+    kept, wrong = OM.operation_fit([{"id": "a", "title": "Folding Sliding Door"}, {"id": "b", "title": "Sliding door"},
+                                    {"id": "c", "title": "Glass door"}], {"sliding"})
+    assert [e["id"] for e in kept] == ["b", "c"] and "folding door" in wrong["a"]
+    kept, _w = OM.operation_fit([{"id": "b", "title": "Sliding door"}, {"id": "c", "title": "Glass door"}],
+                                {"sliding", "hinged"})
+    assert [e["id"] for e in kept] == ["c"]

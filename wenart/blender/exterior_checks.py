@@ -1131,6 +1131,17 @@ def sun_override_problems(building: dict, sun: dict, main: Optional[dict] = None
     return out
 
 
+UPRIGHT_SLOTS = ("walls", "kitchen_walls", "wet_walls", "ceiling", "facade", "plot_wall", "splashback")
+FLOOR_TEXTURE_WORDS = ("floor", "parquet", "decking")
+
+
+def floor_texture(entry: dict) -> bool:
+    """Whether a vocabulary look's texture set is made for floors (pure; its asset id names a floor, parquet or
+    decking set, e.g. ambientCG WoodFloor051): such boards laid on a wall read as a floor stood on end."""
+    asset = str((entry or {}).get("asset") or "").lower()
+    return any(w in asset for w in FLOOR_TEXTURE_WORDS)
+
+
 def _look_problems(slot: str, look_id: str) -> list[str]:
     from wenart.style.profile import _entry
 
@@ -1140,6 +1151,11 @@ def _look_problems(slot: str, look_id: str) -> list[str]:
     kinds = SLOT_KINDS.get(slot)
     if kinds and entry.get("kind") not in kinds:
         return [f"{slot}: {look_id} is a {entry.get('kind')} look (the slot takes {', '.join(kinds)})"]
+    if slot in UPRIGHT_SLOTS and floor_texture(entry):
+        # 28 Oct 2026 (user on real06's kitchen: "What kind of a kitchen is this": the agent clad its walls in
+        # wood_oak_light, whose texture set is the floorboards WoodFloor051)
+        return [f"{slot}: {look_id} is a floor finish (its texture set {entry.get('asset')}): a wall or ceiling takes "
+                f"a cladding, panelling or veneer look of that kind"]
     if slot in ("wet_floor",):
         from wenart.style.profile import is_wet_safe
         if not is_wet_safe(look_id) and entry.get("kind") != "hard":
