@@ -1871,3 +1871,24 @@ regular rounds leave the big loop its first measure and a cycle (run 180412 had 
 up to 180 min, that day's cap $45, project total $500.
 
 Run 20261027-213258-full (real06, 180 min) carries all of it; real04 follows.
+
+### The pod run of 27-28 Oct (real06, job 20261027-222248-full, $6.10, 147 min)
+
+Two starts before it stopped early (the fit's invariant refused the new window record, $0.68; Blender's Python had
+no shapely, $0.98); both fixed (a test; shapely installed into Blender's Python by pod_setup, the scene built in
+Blender 5.2.2 locally before the third start). The session's container restarted twice during the run; the runner
+re-attached (`gpu_run.py attach`) and collected the results.
+
+| | run 180412 (latest before) | run 222248 |
+|---|---|---|
+| agent loop | 0 rounds (out of time) | 3 rounds, 42 edits accepted, 7 findings removed, 7 new |
+| Argus decisions carried out | 0 of 39 | 5 of 23 |
+| big loop | no cycle | 1 cycle (19 edits, 31 views re-rendered, no gain: stop) |
+| judge mean (31 views) | 2.04 (28 views), 4 at 1 | 2.13, 2 at 1 |
+| what the user asked for | - | cushions on the pillows, a low dresser and a clear window in the child's room, the bath and basin apart, one door in the dressing room, tall windows in the living room and the master bedroom, a closed open passage hatch |
+
+Argus, reading the Scandinavian facade and room photos, found the facade "a flat, untextured white surface" and the
+rooms missing "warm wood or stone cladding"; the agent gave the facade dark wood cladding and the kitchen wood
+panelling (a style decision of the loops, shown to the user). Two GPU tests failed on assumptions the new rules
+broke (an interior view through a new tall window sees the horizon trees at 194 m; the kitchen's wood walls read as
+"pink" paint): to fix with the real04 review. Promoted as the latest real06 run.

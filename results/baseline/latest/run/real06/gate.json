@@ -5,59 +5,71 @@
  "stage": "gate",
  "rc": 0,
  "status": "ok",
- "seconds": 96.28,
- "fingerprint": "1271e7ad0798d057580a2cbbf6b17d1a82e55662c790554ea86e06ebe5cee2f3",
+ "seconds": 195.02,
+ "fingerprint": "47a07dbf4d28765f0c5d71e6986a43c0b1fa16576726057e167ada4438d39501",
  "inputs": {
-  "outputs/real06/renders/render_manifest.json": "8373d68b3295395b676a59a124ef15288809973bdb7bfa58973ffbe24f51abee",
-  "outputs/real06/check/controls.json": "05c2036c815261e07f9ecba879bda4575a10c9316c1b8fc58cc39f5fc1fb6e1b",
+  "outputs/real06/renders/render_manifest.json": "616405b51d8e7aeba6b3a9e8c61d3cd0e4441ca20bd215eb61c6cba302d67714",
+  "outputs/real06/check/controls.json": "b6796089f827f98e87025f23e28983aaec9a9adb8f84d5c456e7b84eea65a517",
   "outputs/real06/polish/sweep/polish_manifest.json": null,
   "outputs/real06/controls/hide_d_L0_002/render_manifest.json": "4cbfbbe3565936eb5a1f3c7275fe02f991942cd932cc1e4fe5b05718e538b0b9",
   "outputs/real06/controls/hide_d_L0_004/render_manifest.json": "cbe6980f90f89621f2b3f9582a5c1e4be3a21944306f8b5284b2b18b5d6ef833",
   "outputs/real06/controls/hide_d_L0_005/render_manifest.json": "5521a8f47dfff830b4f92ffd87fc6964205d97d35948783d8e3a855cbd44cd30",
-  "outputs/real06/controls/hide_d_L0_006/render_manifest.json": "16b1172149669cd96181d1525e4bd10a84ba979774e79047e71905a9fca94c58",
+  "outputs/real06/controls/hide_d_L0_006/render_manifest.json": "07a3277b40d5e53e0f66badbea42c3233d6098c8eb6868063f7ce00950b1fe99",
   "outputs/real06/controls/hide_d_L1_001/render_manifest.json": "20b58575d340548dade66ad122920852a8651e15581fe0fc04aa3ccc020efe8d",
   "outputs/real06/controls/hide_d_L1_005/render_manifest.json": "6bfa4a226821c678f2c786d8e57488ce4b540f290b624a827ac4ae305fe1e383",
-  "outputs/real06/controls/hide_d_L1_011/render_manifest.json": "31bfe6639261ed06eb469b3caef6317911d4e4540de9ddbb5135ecc1b80558a6",
+  "outputs/real06/controls/hide_d_L1_011/render_manifest.json": "e0e15765c6682f203471e2826d9cdcb8765756b293e4344e1118d01b46600dd3",
   "outputs/real06/controls/hide_f_L0_004/render_manifest.json": "83c02c329639ecd1f8db5ab5721ca5ed0313b14c7c70549550b893a5d7e7dc1b",
   "outputs/real06/controls/hide_f_L0_007/render_manifest.json": "109ea80e8298b99768a60acb4591d55f5ea72ac9f1a02ed75d1a4b236f9015f9",
   "outputs/real06/controls/hide_f_L0_018/render_manifest.json": "5037f6409ac75935cef740cc038dd6218ee53a3f7582b5b75a34a071d1123d6c",
   "outputs/real06/controls/hide_f_L0_023/render_manifest.json": "b4c2f45dd9dda0a6c186cbda1009366f105dff80f05cd1e57eaad7de5bc3cf38",
+  "outputs/real06/controls/hide_f_L0_040/render_manifest.json": "1263b6a3c89b45e5fe8373509a8b775148c55c66d28d118ec62cd2bd221d2245",
   "outputs/real06/controls/hide_f_L0_041/render_manifest.json": "6afb7e83dd7e3aabd73118261c2ce588ca3a84568b94a4f41b49b647c28a2058",
   "outputs/real06/controls/hide_f_L1_006/render_manifest.json": "7c891c603a052edbb068c62ccca4686abfd0ef18d33278dd6e7ee7dc68eb7e71",
-  "outputs/real06/controls/hide_f_L1_007/render_manifest.json": "285ee91b7ac0d9edca0fc2f1a8e6fe6625c2f65c4057027da65f334b03ecad19",
+  "outputs/real06/controls/hide_f_L1_007/render_manifest.json": "1279230dd4055a452039f33dc15c57f60dff32185ba50a1033bdf55988a41350",
   "outputs/real06/controls/hide_f_L1_009/render_manifest.json": "6ff562187565cfbc2c5ea3bb908b545beb8f6a3410e38ab088b9f57b6da4a3db",
   "outputs/real06/controls/hide_f_L1_011/render_manifest.json": "6f5c657339a3b9190254e027cbbd1f896bc6f82ec2560429865a8a40bba79928",
+  "outputs/real06/controls/hide_f_L1_021/render_manifest.json": "f6b1edc937749fb8133ee5e1c92442a6df16606f6e99166efa70d0197b62ed4a",
   "outputs/real06/controls/hide_f_L1_023/render_manifest.json": "71e3b8965541dc132b9803cb8255132bfabc0582d6d89ba2d111632ed4d25390",
   "outputs/real06/controls/hide_f_L1_025/render_manifest.json": "369ed1329049a3d0502f7f216c8299f23b97c7d088c032884301f1980d84b351",
   "outputs/real06/controls/hide_f_L1_027/render_manifest.json": "d46d8e2eabbe1730a50f22ac5c6b79fcd1bc55c02beeaeacb958d9c980472cce",
   "outputs/real06/controls/hide_f_L1_035/render_manifest.json": "7a9de9a603e58f6d44162144296e5042d0ca2bef8f405ac9fc9c761aa669b941",
-  "outputs/real06/controls/hide_o_L1_003/render_manifest.json": "e3a5d53b28940e3f3c584c4b2b7bef18e5922d03ee325913b561ec061650d958",
-  "outputs/real06/controls/hide_win_L0_004/render_manifest.json": "11c9e836ea94d39b6e8d2c44cc3cf405583dc9008787726deeaad39fbfcaa2ab",
+  "outputs/real06/controls/hide_o_L1_003/render_manifest.json": "a695747c3c42d6303eaea0ffd7378316b67f5cbf53a225fcffee3d8ebd2f6713",
+  "outputs/real06/controls/hide_win_L0_004/render_manifest.json": "1dac82cd62412fcb45d39f81312f9cf3d1cb191bed3c8470878e082a46c4cf83",
   "outputs/real06/controls/hide_win_L0_006/render_manifest.json": "6e24c764c4a74da956b53a500a483beddb7c4099e665d5d47ba510ffa29096bd",
   "outputs/real06/controls/hide_win_L0_007/render_manifest.json": "041dfd9399a5d3a8c4c656765e60321862dafea9b3aa6435d5682d5151847981",
   "outputs/real06/controls/hide_win_L1_002/render_manifest.json": "12e9e1b6d442cbf2fc6123827a231bf5c04093f33725771a1ec4ce1d91444e9a",
   "outputs/real06/controls/hide_win_L1_003/render_manifest.json": "b3a98bb57d18f3bbd5a7be61f47c375905bc176c02f555aaf242063ea496fde6",
-  "outputs/real06/controls/hide_win_L1_007/render_manifest.json": "1a82003a94179d39885c37dc92a7b586180f3b250101c45e1ae8fccf942aa3ec"
+  "outputs/real06/controls/hide_win_L1_007/render_manifest.json": "a11549aa2f7696f7d79bc182fe200914a365cfaa6c6fcb74f0368e8ba503f2b7"
  },
  "outputs": [
   "gate/gate_calibration.json",
   "gate/gate_validation.json"
  ],
- "started_utc": "2026-10-27T19:10:47Z",
- "git_commit": "b06030ba4a3907bfeb8cf851428eac23100c8d6c",
+ "started_utc": "2026-10-27T23:36:27Z",
+ "git_commit": "8d03dfc4b59cbf7ba27e6ffa06af3c759a100aa2",
  "log": "logs/gate.log",
- "note": "gate decision ok",
- "run_id": "20261027-180412-full-20261027T181147Z",
+ "note": "gate decision flagged",
+ "run_id": "20261027-222248-full-20261027T222733Z",
  "steps": [
   {
    "name": "calibrate",
    "rc": 0,
-   "seconds": 95.1
+   "seconds": 97.4
   },
   {
    "name": "validate",
    "rc": 0,
-   "seconds": 1.18
+   "seconds": 1.03
+  },
+  {
+   "name": "calibrate",
+   "rc": 0,
+   "seconds": 95.46
+  },
+  {
+   "name": "validate",
+   "rc": 0,
+   "seconds": 1.13
   }
  ],
  "written": {}

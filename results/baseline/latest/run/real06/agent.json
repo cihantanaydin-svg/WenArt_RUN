@@ -5,7 +5,7 @@
  "stage": "agent",
  "rc": 0,
  "status": "ok",
- "seconds": 524.81,
+ "seconds": 2320.33,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
@@ -15,36 +15,36 @@
   "orchestrator/memory.json",
   "orchestrator/metrics.json"
  ],
- "started_utc": "2026-10-27T18:59:30Z",
- "git_commit": "b06030ba4a3907bfeb8cf851428eac23100c8d6c",
+ "started_utc": "2026-10-27T23:25:22Z",
+ "git_commit": "8d03dfc4b59cbf7ba27e6ffa06af3c759a100aa2",
  "log": "logs/agent.log",
- "note": "0 round(s), 0 finding(s) removed by 0 accepted edit(s) (measured; 0 predicted by the dry re-checks), 0 new, net 0, 0 rejected; stop: time budget: the final stages need the time left before the deadline - 20 min; final round for critical findings not started (time budget)",
- "run_id": "20261027-180412-full-20261027T181147Z",
+ "note": "4 round(s), 10 finding(s) removed by 61 accepted edit(s) (measured; 56 predicted by the dry re-checks), 12 new, net -2, 117 rejected; stop: max rounds reached; final round for critical findings done",
+ "run_id": "20261027-222248-full-20261027T222733Z",
  "steps": [
   {
    "name": "architect",
    "rc": 0,
-   "seconds": 16.78
+   "seconds": 12.43
   },
   {
    "name": "topdown",
    "rc": 0,
-   "seconds": 26.7
+   "seconds": 27.01
   },
   {
    "name": "architect_look",
    "rc": 0,
-   "seconds": 34.94
+   "seconds": 44.06
   },
   {
    "name": "argus",
    "rc": 0,
-   "seconds": 446.01
+   "seconds": 487.82
   },
   {
    "name": "rounds",
    "rc": 0,
-   "seconds": 0.38
+   "seconds": 1749.01
   }
  ],
  "written": {}

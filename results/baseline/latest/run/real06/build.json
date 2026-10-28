@@ -5,33 +5,53 @@
  "stage": "build",
  "rc": 0,
  "status": "ok",
- "seconds": 1495.21,
+ "seconds": 1561.62,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "scene/scene.blend",
   "scene/scene_manifest.json"
  ],
- "started_utc": "2026-10-27T18:37:28Z",
- "git_commit": "b06030ba4a3907bfeb8cf851428eac23100c8d6c",
+ "started_utc": "2026-10-27T22:40:46Z",
+ "git_commit": "8d03dfc4b59cbf7ba27e6ffa06af3c759a100aa2",
  "log": "logs/build.log",
  "note": null,
- "run_id": "20261027-180412-full-20261027T181147Z",
+ "run_id": "20261027-222248-full-20261027T222733Z",
  "steps": [
   {
    "name": "build",
    "rc": 0,
-   "seconds": 793.65
+   "seconds": 320.16
   },
   {
    "name": "build",
    "rc": 0,
-   "seconds": 699.88
+   "seconds": 254.52
   },
   {
    "name": "build",
    "rc": 0,
-   "seconds": 1.68
+   "seconds": 244.33
+  },
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 237.56
+  },
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 251.59
+  },
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 1.78
+  },
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 251.68
   }
  ],
  "written": {}
