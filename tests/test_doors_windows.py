@@ -92,7 +92,7 @@ def test_accent_wall_is_behind_the_sofa_else_the_longest_wall_without_a_window()
     # 28 Oct 2026 (user: "more stylish internal walls please better color"): no accent in the brief: the style
     # family's own (looks.family_accent), said as assumed; "none" turns it off
     plain = looks.accent_walls(b, level, {"walls": STYLE["walls"], "family": "scandinavian"})
-    assert plain["w_n"]["r"]["colour"] == looks.FAMILY_ACCENTS["scandinavian"][1] == "sage"
+    assert plain["w_n"]["r"]["colour"] == looks.FAMILY_ACCENTS["scandinavian"][1] == "pale muted sage"
     assert "assumed" in plain["w_n"]["r"]["reason"]
     assert looks.accent_walls(b, level, {"walls": STYLE["walls"]})["w_n"]["r"]["colour"] == "greige"
     assert looks.accent_walls(b, level, {"walls": STYLE["walls"], "wall_accent": "none"}) == {}

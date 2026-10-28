@@ -756,13 +756,13 @@
    "id": "UL66",
    "date": "2026-10-28",
    "area": "materials",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "also more stylish internal walls please better color and for the baths and kitchen better desings",
-   "lesson": "Interior walls are styled: a palette per style with warm whites and one accent per room (a feature wall behind a bed or sofa, panelling, wallpaper or limewash where the style allows); bathrooms and kitchens are designed rooms (tiled walls to the right height, a vanity with mirror and light, a real bath or shower set; a kitchen run with wall units, splashback, appliances and worktop decor).",
-   "question": "Do the interior walls carry a colour scheme of the style, and are the bathrooms and kitchens designed like magazine rooms?"
+   "lesson": "Interior walls are styled: a palette per style with warm whites and one accent per room (a feature wall behind a bed or sofa, panelling, wallpaper or limewash where the style allows); bathrooms and kitchens are designed rooms (tiled walls to the right height, a vanity with mirror and light, a real bath or shower set; a kitchen run with wall units, splashback, appliances and worktop decor); the accent is a muted paint of the style family (looks.FAMILY_ACCENTS: pale muted sage, greige, pale taupe, pale dusty blue, pale terracotta ...), never a saturated named colour (real06 run 154514's plain 'sage' #87AE73 read lime green on four feature walls). The lessons line U14 finds a living room or bedroom with one paint and no accent.",
+   "question": "Do the interior walls carry a colour scheme of the style (a muted accent, never a loud one), and are the bathrooms and kitchens designed like magazine rooms?"
   },
   {
    "id": "UL67",

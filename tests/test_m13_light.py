@@ -3188,3 +3188,41 @@ def test_fixround_p5_gpu_olive_check_reads_the_daylight_walls(tmp_path, monkeypa
     with pytest.raises(AssertionError, match="cam_r_bed_2"):                   # the same view unblocked
         check("unblocked", colours, blocked=())
     assert gpu.DAYLIGHT_WALL_GREEN_MAX == 1.06
+
+
+def test_an_exterior_view_with_no_facade_to_meter_takes_the_exterior_exposure(tmp_path, monkeypatch):
+    """28 Oct 2026 (real06 run 154514: the agent's ext_4 looked 56 degrees down onto the roof, the meter found no facade
+    and the view rendered white at EV 0): such a view takes the median EV of the exterior views metered before it
+    (``exterior_fallback_ev``), else ``EXTERIOR_FALLBACK_EV``, recorded as ``fallback``; an interior view keeps EV 0."""
+    import types
+
+    from wenart.blender import schemas
+
+    assert R.exterior_fallback_ev([]) == (R.EXTERIOR_FALLBACK_EV, "the sunny exterior default") == (-6.0,
+                                                                                                    "the sunny exterior default")
+    assert R.exterior_fallback_ev([-6.166667, -5.0, -4.0])[0] == pytest.approx(-5.0)
+    assert R.exterior_fallback_ev([-6.166667, -5.0])[0] == pytest.approx(-34 / 6)      # on the 1/6-stop grid
+    look = object.__new__(R.Look)
+    look.scene, look.windows, look.haze, look.look_from = {}, set(), set(), None
+    look.exposure_mode, look.exposure_value, look.target, look.wb_mode = "auto", None, 0.9, "off"
+    look.limits, look.floor_shift, look.mood, look.ev_offset = (-10.3808, 3.0), 0.0, "warm daylight", 0.0
+    p50 = {"ext_1": 35.12, "ext_4": None, "cam_r_1": None}
+
+    def meter(scene, cam, out, res, windows, haze=()):
+        base = {"seconds": 0.2, "resolution": [8, 4], "samples": 16, "blocks": 32, "blocks_used": 8, "block_px": 1,
+                "interior_frac": 0.3, "illuminant": [1.0, 1.0, 1.0], "incident_p50": p50[cam.name]}
+        if cam.get("wenart_camera_kind") == "exterior":
+            base.update(metered="facade", ground_p50=None, ground_blocks_used=0)
+        return base
+    monkeypatch.setattr(R, "meter_camera", meter)
+    ext = lambda n: types.SimpleNamespace(name=n, get={"wenart_camera_kind": "exterior"}.get)
+    first = look.decide(ext("ext_1"), tmp_path, (64, 36))
+    assert "fallback" not in first
+    roof = look.decide(ext("ext_4"), tmp_path, (64, 36))
+    assert roof["fallback"] == "exterior" and roof["ev"] == first["ev"] and roof["incident_p50"] is None
+    assert "no facade to meter" in roof["notes"][-1] and roof["source"] == "the median of 1 metered exterior view(s)"
+    assert set(roof) <= set(schemas.EXPOSURE["properties"]) | {"limits", "meter", "mood", "notes", "lighting_dark",
+                                                               "ev_offset"}
+    room = look.decide(types.SimpleNamespace(name="cam_r_1", get={"wenart_camera_kind": "interior"}.get), tmp_path,
+                       (64, 36))
+    assert room["ev"] == 0.0 and "fallback" not in room

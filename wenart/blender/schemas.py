@@ -258,6 +258,9 @@ EXPOSURE = {
         "ground_rule": {"type": "string"},
         # Fix round after P6b (23 Oct 2026, optional): the light on the view's walls (WB_WALLS, recorded only).
         "wb_walls": WB_WALLS,
+        # 28 Oct 2026 (optional): an exterior view with no facade to meter took the EV of the exterior views metered
+        # before it (render.exterior_fallback_ev; how in ``source``)
+        "fallback": {"enum": ["exterior"]},
     },
 }
 _SHARE = {"type": ["number", "null"], "minimum": 0, "maximum": 1}

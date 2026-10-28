@@ -819,9 +819,14 @@ def test_exposure_recorded_and_within_the_clamp(project):
         x = r["exposure"]
         lo, hi = x.get("limits") or (-2.0, 8.0)
         ok = (x["mode"] == "auto" and isinstance(x["ev"], (int, float)) and math.isfinite(x["ev"])
-              and lo <= x["ev"] <= hi and abs(x["ev"] * 6 - round(x["ev"] * 6)) < 1e-4
-              and x["incident_p50"] is not None and x["incident_p50"] > 0
-              and x["at_limit"] == (x["ev_raw"] < lo or x["ev_raw"] > hi))
+              and lo <= x["ev"] <= hi and abs(x["ev"] * 6 - round(x["ev"] * 6)) < 1e-4)
+        if x.get("fallback") == "exterior":
+            # 28 Oct 2026 (render.exterior_fallback_ev): an exterior view with no facade to meter takes the EV of the
+            # exterior views metered before it
+            ok = ok and x["incident_p50"] is None and x["ev_raw"] is None and not x["at_limit"] and bool(x["source"])
+        else:
+            ok = ok and x["incident_p50"] is not None and x["incident_p50"] > 0 and \
+                x["at_limit"] == (x["ev_raw"] < lo or x["ev_raw"] > hi)
         wp = x["whitepoint"]
         ok = ok and wp is not None and len(wp) == 3 and min(wp) > 0 and \
             abs(0.2126 * wp[0] + 0.7152 * wp[1] + 0.0722 * wp[2] - 1.0) < 1e-3
@@ -1404,6 +1409,14 @@ def test_daylight_walls_are_not_olive(project):
                 and (r["exposure"].get("wb_rig_share") or 0.0) < RIG_CHECK_SHARE
                 and _wall_kind(r, manifest_types, style) == "painted"]
     daylight = [c for c in daylight if not _blocked(entries[c], out, entries[c].get("lens_mm") or 24.0)["blocked"]]
+    # 28 Oct 2026 (looks.family_accent): a room with a painted accent wall shows its colour on purpose; the pin is
+    # for a cast on the plain walls
+    accented = {str(rid) for o in scene.get("objects") or [] if o.get("kind") == "wall" and o.get("accent")
+                for rid in o.get("room_ids") or []}
+    skipped = sorted(c for c in daylight if str(entries[c].get("room_id")) in accented)
+    daylight = [c for c in daylight if c not in skipped]
+    if skipped:
+        print(f"{name}: views of rooms with an accent wall, not pinned: {skipped}")
     if not daylight:
         pytest.skip(f"{name}: no painted daylight view")
     table = views.index_table(scene)
@@ -1851,7 +1864,8 @@ def test_exterior_views_cap_the_ground_and_keep_the_lawn_green(project):
 
     name, _scene, render = project
     ext = [r for r in render["renders"] if r.get("room_id") is None and (r.get("exposure") or {}).get("mode") == "auto"
-           and ((r["exposure"].get("meter") or {}).get("metered"))]
+           and ((r["exposure"].get("meter") or {}).get("metered"))
+           and r["exposure"].get("fallback") != "exterior"]           # 28 Oct 2026: no facade metered, no cap to check
     if not ext:
         pytest.skip(f"{name}: no metered exterior view")
     bad, rows = [], {}

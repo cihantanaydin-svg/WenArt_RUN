@@ -754,6 +754,22 @@ def scene_sun_wm2(scene) -> float | None:
     return float(ob.data.energy)
 
 
+# 28 Oct 2026: the EV of an exterior view the meter cannot read (no facade in its frame), when no exterior view was
+# metered before it: a sunny exterior's facade exposure (real06 ext_1 -6.17, real02 ext_1 -6.17)
+EXTERIOR_FALLBACK_EV = -6.0
+
+
+def exterior_fallback_ev(evs) -> tuple[float, str]:
+    """``(ev, how)`` of an exterior view with no facade to meter (pure; 28 Oct 2026): the median EV of the exterior views
+    metered before it, else ``EXTERIOR_FALLBACK_EV``; on the 1/6-stop grid of the other exposures."""
+    vals = sorted(float(v) for v in evs or [])
+    if vals:
+        n = len(vals)
+        med = vals[n // 2] if n % 2 else (vals[n // 2 - 1] + vals[n // 2]) / 2.0
+        return round(round(med * 6.0) / 6.0, 6), f"the median of {n} metered exterior view(s)"
+    return EXTERIOR_FALLBACK_EV, "the sunny exterior default"
+
+
 def lighting_dark_entry(camera: str, room_id, ev_raw: float | None, ev: float, limits, incident_p50=None,
                         target: float = EXPOSURE_TARGET) -> dict | None:
     """The ``lighting_dark`` finding of a view whose metered EV would pass the cap (pure; the ``Violation`` shape
@@ -3018,12 +3034,20 @@ class Look:
             if self.floor_shift:
                 rec["floor_shift_stops"] = self.floor_shift
             if meter["incident_p50"] is None or meter["incident_p50"] <= 0:
-                rec["notes"].append("no interior block to meter: EV 0 used")
+                if cam.get("wenart_camera_kind") == "exterior":
+                    # 28 Oct 2026 (real06 ext_4, a view of the roof alone: white at EV 0): an exterior view with no
+                    # facade to meter takes the exposure of the exterior views metered before it
+                    ev, how = exterior_fallback_ev(getattr(self, "_exterior_evs", []))
+                    rec.update(ev=ev, source=how, fallback="exterior")
+                    rec["notes"].append(f"no facade to meter: EV {ev:+.2f} ({how})")
+                else:
+                    rec["notes"].append("no interior block to meter: EV 0 used")
             elif "ground_p50" in meter:
                 # fix round after P4b (17 Oct 2026): an exterior view's facade exposure, capped by its sunlit ground
                 ev, raw, at_limit, ground = exterior_exposure(meter["incident_p50"], meter["ground_p50"], self.target,
                                                               limits)
                 rec.update(ev=ev, ev_raw=raw, at_limit=at_limit, **ground)
+                self._exterior_evs = list(getattr(self, "_exterior_evs", [])) + [float(ev)]
             else:
                 ev, raw, at_limit = exposure_from(meter["incident_p50"], self.target, limits)
                 rec.update(ev=ev, ev_raw=raw, at_limit=at_limit)

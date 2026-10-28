@@ -65,3 +65,19 @@ def test_a_room_with_free_floor_keeps_the_search_clearances():
     assert "from floor decor" in X.free_floor_problems(b, cam([1.0, 1.4, 1.4]))[0]       # 0.1 m from the plant
     assert X.free_floor_problems(b, cam([2.5, 0.2, 1.4])) == []                          # 0.2 m from a wall
     assert "from a wall" in X.free_floor_problems(b, cam([2.5, 0.1, 1.4]))[0]
+
+
+def test_a_high_view_that_looks_almost_straight_down_is_refused():
+    """28 Oct 2026 (real06 run 154514: the agent's ext_4 at 18 m looked 56 degrees down onto the roof alone and rendered
+    white): a high view (``HIGH_VIEW_ABOVE_RIDGE_M`` over the ridge) looks down at most ``HIGH_VIEW_MAX_DOWN_DEG``."""
+    import math
+
+    b = {"levels": [{"id": "L0", "elevation": 0.0}], "roof": {"ridge_z": 6.0}}
+    steep = X.validate_camera_override(b, {"action": "set", "view_id": "ext_4", "kind": "exterior", "reason": "x",
+                                           "position": [12.0, 1.6, 18.0], "target": [12.0, 10.0, 5.5]})
+    down = math.degrees(math.atan2(12.5, 8.4))
+    assert down > X.HIGH_VIEW_MAX_DOWN_DEG == 40.0
+    assert any("degrees down" in f for f in steep["failed"]), steep
+    bird = X.validate_camera_override(b, {"action": "set", "view_id": "ext_4", "kind": "exterior", "reason": "x",
+                                          "position": [12.0, -14.0, 14.0], "target": [12.0, 10.0, 3.0]})
+    assert not any("degrees down" in f for f in bird["failed"]), bird

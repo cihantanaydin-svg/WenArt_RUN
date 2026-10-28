@@ -136,6 +136,10 @@ ENTRANCE_VIEW = "entrance"
 ENTRANCE_VIEW_MAX_M = 14.0              # the planner's farthest entrance view (exterior.ENTRANCE_VIEW_M, 12 m) + 2 m
 ENTRANCE_VIEW_MAX_DEG = 30.0            # the planner looks 20 degrees off the door's axis
 HIGH_VIEW_ABOVE_RIDGE_M = 1.0           # a camera this far over the ridge is a high view (X6, the validator)
+# 28 Oct 2026 (real06 run 154514: the agent's ext_4 stood 18 m up and looked 56 degrees down onto the roof alone; the
+# meter found no facade, the view rendered white at EV 0): a high view is a bird's-eye view of the house and its garden,
+# looking down at most this much (real06's searched high view ext_5: 15.7 degrees)
+HIGH_VIEW_MAX_DOWN_DEG = 40.0
 FRONTAL_POSE_VIEWS = ("elevation", "agent")         # X6: the frontal view when square to the main facade and framed
 FRAME_KEYS = ("fill", "fits", "sky_share")          # fix round after P6a: an agent plan's frame (the build records it)
 _NUM = {"type": "number"}
@@ -1051,6 +1055,11 @@ def validate_camera_override(building: dict, camera: dict) -> dict:
     ridge = float(roof.get("ridge_z") or 0.0)
     if roof.get("outline") and G.point_in_polygon((x, y), roof["outline"]) and z <= ridge + 1.0:
         failed.append("the camera stands under the roof")
+    if z >= ridge + HIGH_VIEW_ABOVE_RIDGE_M:
+        down = -math.degrees(math.atan2(tgt[2] - z, math.hypot(tgt[0] - x, tgt[1] - y)))
+        if down > HIGH_VIEW_MAX_DOWN_DEG:
+            failed.append(f"a high view looks {down:.0f} degrees down (at most {HIGH_VIEW_MAX_DOWN_DEG:g}: a bird's-eye "
+                          f"view shows the facades and the garden, not the roof alone)")
     if z < ridge + HIGH_VIEW_ABOVE_RIDGE_M:
         h = z - _ground_z(prep, x, y)
         if not EYE_LEVEL_RANGE_M[0] - 1e-3 <= h <= EYE_LEVEL_RANGE_M[1] + 1e-3:

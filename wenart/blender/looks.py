@@ -38,10 +38,10 @@ from wenart import geometry as G
 ACCENT_ROOM_TYPES: tuple[str, ...] = ("living", "bedroom")       # = wenart.style.objects.ACCENT_ROOM_TYPES
 # = wenart.style.objects.FAMILY_ACCENTS / FAMILY_ACCENT_DEFAULT (28 Oct 2026; Blender loads this module on its own)
 FAMILY_ACCENTS: dict[str, tuple[str, str]] = {
-    "scandinavian": ("paint", "sage"), "japandi": ("paint", "sand"), "modern minimal": ("paint", "greige"),
-    "minimal": ("paint", "greige"), "modern": ("paint", "dusty blue"), "contemporary": ("paint", "taupe"),
-    "industrial": ("paint", "charcoal"), "mediterranean": ("paint", "terracotta"), "classic": ("paint", "dusty blue"),
-    "rustic": ("paint", "olive")}
+    "scandinavian": ("paint", "pale muted sage"), "japandi": ("paint", "pale taupe"), "modern minimal": ("paint", "greige"),
+    "minimal": ("paint", "greige"), "modern": ("paint", "pale dusty blue"), "contemporary": ("paint", "pale taupe"),
+    "industrial": ("paint", "light charcoal"), "mediterranean": ("paint", "pale terracotta"), "classic": ("paint", "pale dusty blue"),
+    "rustic": ("paint", "pale taupe")}
 FAMILY_ACCENT_DEFAULT: tuple[str, str] = ("paint", "greige")
 ACCENT_ANCHORS: dict[str, tuple[str, ...]] = {"living": ("sofa", "sofa_corner"),
                                               "bedroom": ("bed_double", "bed_single", "bunk_bed")}
