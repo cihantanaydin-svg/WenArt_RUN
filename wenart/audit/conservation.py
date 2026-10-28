@@ -89,15 +89,42 @@ def named_at(obj, needle: str, path: str = "") -> Optional[tuple[str, str]]:
     return None
 
 
+def variant_only_levels(building: dict) -> dict:
+    """``{level id: variant id}`` of the levels only an alternative variant holds (``building["variants"]``: not in the
+    base variant's levels; pure). 28 Oct 2026 (real04 run 183611: the 21 walls and doors of L-1b, the open-kitchen
+    variant's basement, were 21 critical C1 "missing after the build" findings): such a level is built in its
+    variant's own scene, never in the base build."""
+    variants = [v for v in building.get("variants") or [] if isinstance(v, dict)]
+    base = {str(lv) for v in variants if v.get("base") for lv in v.get("levels") or []}
+    if not base:
+        return {}
+    out: dict = {}
+    for v in variants:
+        if v.get("base"):
+            continue
+        for lv in v.get("levels") or []:
+            if str(lv) not in base:
+                out.setdefault(str(lv), str(v.get("id")))
+    return out
+
+
 def between(name_a: str, a: dict, name_b: str, b: dict) -> list[dict]:
     """C1 and C2 between two consecutive stages. An element the next stage only names (a merge, a replacement, a
     removal record) is a C1 note (``info``) with the place and the text that name it: Argus AI judges whether that is
     a reason or a loss."""
     out = []
     text_b = None
+    b_levels = {str(lv.get("id")) for lv in b.get("levels") or [] if isinstance(lv, dict)}
+    elsewhere = {lv: vid for lv, vid in variant_only_levels(a).items() if b_levels and lv not in b_levels}
+    for lv, vid in sorted(elsewhere.items()):
+        out.append(K.finding("conservation", "C1", "info", lv, f"level {lv} belongs to the variant {vid} only: built "
+                             f"in that variant's scene, not after the {name_b} stage of the base", owner=name_b,
+                             evidence={"collection": "levels", "from": name_a, "to": name_b, "variant": vid}))
     for coll, path in COLLECTIONS:
         later = {x["id"]: x for x in _items(b, path)}
         for el in _items(a, path):
+            if str(el.get("level_id")) in elsewhere:
+                continue                          # 28 Oct 2026: a variant's level, built in its own scene
             nxt = later.get(el["id"])
             if nxt is None:
                 if text_b is None:

@@ -65,3 +65,31 @@ def test_a_decision_whose_reason_describes_another_piece_is_refused():
     key, _ans, why = AIA._decision({"action": "remove_piece", "element": pid,
                                     "reason": f"{pid} is a bookshelf that blocks the window"}, plan, b, "L0")
     assert key == f"{AIA.AI_RULE}.remove_piece:{pid}", why
+
+
+def _variant_building():
+    b = room_building()
+    b["levels"].append({"id": "L-1b", "elevation": -3.0, "variant": "open kitchen"})
+    b["rooms"].append(dict(b["rooms"][0], id="r_L-1b_salon", level_id="L-1b", label="SALON"))
+    b["walls"].append(dict(b["walls"][0], id="w_L-1b_001", level_id="L-1b"))
+    b["variants"] = [{"id": "base", "base": True, "levels": ["L0"]},
+                     {"id": "v_open", "base": False, "levels": ["L-1b", "L0"]}]
+    return b
+
+
+def test_a_variants_own_level_is_built_in_its_own_scene():
+    """real04 run 183611: the walls, doors and room labels of L-1b, the open-kitchen variant's basement, were 31
+    critical findings ("missing after the build", "no room of the model uses it"); the base build never holds them."""
+    from wenart.audit import ledger as LD
+
+    final = _variant_building()
+    assert CV.variant_only_levels(final) == {"L-1b": "v_open"}
+    built = dict(final, levels=[lv for lv in final["levels"] if lv["id"] != "L-1b"],
+                 rooms=[r for r in final["rooms"] if r["level_id"] != "L-1b"],
+                 walls=[w for w in final["walls"] if w["level_id"] != "L-1b"])
+    found = CV.between("final", final, "build", built)
+    assert not [f for f in found if f["severity"] in ("critical", "major")]
+    assert [f["target"] for f in found if f["check"] == "C1"] == ["L-1b"]          # one note for the level
+    back = LD.with_variant_levels(built, final)
+    assert "r_L-1b_salon" in {r["id"] for r in back["rooms"]} and "L-1b" in {lv["id"] for lv in back["levels"]}
+    assert CV.variant_only_levels(room_building()) == {} and LD.with_variant_levels(built, built) is built

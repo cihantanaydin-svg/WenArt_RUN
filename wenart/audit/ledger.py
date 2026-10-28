@@ -1319,12 +1319,33 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
+def with_variant_levels(built: dict, final: Optional[dict]) -> dict:
+    """The built building with the levels only an alternative variant holds put back from the final building (pure; 28
+    Oct 2026, real04 run 183611: the room labels of L-1b, the open-kitchen variant's basement, were 10 critical A1 "no
+    room of the model uses it" findings): those levels are built in their variant's own scene."""
+    from wenart.audit import conservation as CV
+
+    if not isinstance(final, dict) or final is built:
+        return built
+    have = {str(lv.get("id")) for lv in built.get("levels") or [] if isinstance(lv, dict)}
+    extra = {lv for lv in CV.variant_only_levels(final) if lv not in have}
+    if not extra:
+        return built
+    out = dict(built)
+    for key in ("levels", "rooms", "walls", "openings", "furniture"):
+        add = [x for x in final.get(key) or [] if isinstance(x, dict)
+               and str(x.get("id") if key == "levels" else x.get("level_id")) in extra]
+        out[key] = list(built.get(key) or []) + add
+    return out
+
+
 def run(inp) -> dict:
     """The line for ``wenart.audit.report`` (Argus): the building as built (the scene's, else the last stage's)
     against the run's ``source_items.json`` (``<out>/`` on the pod, ``furniture/<p>/`` in a collected run)."""
     building = inp.stage("build") or inp.final
     if not building:
         return {"findings": [], "checked": {}, "note": "no building"}
+    building = with_variant_levels(building, inp.final)
     root = Path(inp.root)
     path = root / "source_items.json" if inp.layout == "pod" else root / "furniture" / inp.project / "source_items.json"
     if not path.is_file():
