@@ -181,6 +181,14 @@ MIRROR_WIDTH_SHARE = 0.9
 MIRROR_MAX_W = 1.0
 MIRROR_MIN_W = 0.35
 MIRROR_GAP_M = 0.30                   # above a washbasin's top: room for the tap
+# 28 Oct 2026 (user: "Mirrors in the baths is missing sometimes"; real06: two basins under a window left 0.00 m for the
+# mirror above them, and an inferred basin was no decor host at all): every built basin gets a mirror, a required item
+# (``required_items``), never only an option of the AI: above it, else on the nearest free wall stretch beside it
+# (``basin_mirror``: within MIRROR_SIDE_REACH_M of the basin's edge, SIDE_MIRROR_W wide, slid along its free stretch
+# towards the basin)
+MIRROR_HOSTS: tuple[str, ...] = ("washbasin", "vanity")
+MIRROR_SIDE_REACH_M = 1.2
+SIDE_MIRROR_W = 0.6                    # a mirror beside a basin: a bathroom mirror's width
 FLOOR_CORNERS_MAX = 2
 FREE_WALL_ART_ROOM_TYPES = ("living", "bedroom", "dining", "hall", "child", "office")   # 27 Oct 2026: art on free walls
 # Room type -> the decor types the AI may choose there (docs/milestone9.md §4).
@@ -349,6 +357,9 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
     ceiling = _ceiling(building, room)
     level = next((lv for lv in building.get("levels") or [] if lv.get("id") == room["level_id"]), {})
     hosts = sorted((p for p in pieces if usable_host(p)), key=lambda p: p["id"])
+    # 28 Oct 2026: a built basin takes its mirror even when its type was inferred (``MIRROR_HOSTS``)
+    basins = sorted((p for p in pieces if p.get("type") in MIRROR_HOSTS and p not in hosts and p.get("footprint")
+                     and p.get("build", True) is not False), key=lambda p: p["id"])
     planes = D.ceiling_planes(building, room["level_id"])     # Milestone 11 (E2): the attic slope
     for host in hosts:
         htype = host["type"]
@@ -399,10 +410,28 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
                     made[dtype] = item
                 else:
                     why.append(f"{dtype}: {reason}")
+            if htype in MIRROR_HOSTS and "mirror" in wall_types and "mirror" not in made:
+                item, side_why = basin_mirror(host, room, pieces, building, ctx, level)
+                if item is not None:
+                    made["mirror"] = item
+                    why = [w for w in why if not w.startswith("mirror:")]
+                else:
+                    why.append(f"mirror beside it: {side_why}")
             if made:
                 slots.append(Slot(f"{host['id']}.wall", "wall", tuple(made), host["id"], htype, items=made))
             if why:
                 notes.append(f"{host['id']} wall: " + "; ".join(why))
+    for host in basins:
+        if "mirror" not in allowed:
+            break
+        item, side_why = _wall_item(host, ctx, building, level, "mirror")
+        if item is None:
+            item, side_why = basin_mirror(host, room, pieces, building, ctx, level)
+        if item is not None:
+            slots.append(Slot(f"{host['id']}.wall", "wall", ("mirror",), host["id"], host["type"],
+                              items={"mirror": item}, note="the mirror of a basin whose type was inferred"))
+        else:
+            notes.append(f"{host['id']} wall: mirror: {side_why}")
     # 27 Oct 2026 (run 160846): art on the free walls too, not only above a sofa, bed or dresser
     if "wall_art" in allowed and rtype in FREE_WALL_ART_ROOM_TYPES:
         for n, item in enumerate(D.free_wall_art(room, pieces, building, ctx, level), start=1):
@@ -472,6 +501,64 @@ def _wall_item(host: dict, ctx: placer.RoomContext, building: dict, level: dict,
                                    max_w=MIRROR_MAX_W, gap=MIRROR_GAP_M if host["type"] == "washbasin"
                                    else D.WALL_ART_GAP_M, min_w=MIRROR_MIN_W)
     return D.wall_art_for_host(host, ctx, building, level)
+
+
+def basin_mirror(host: dict, room: dict, pieces: list[dict], building: dict, ctx: placer.RoomContext,
+                 level: dict) -> tuple[Optional[dict], str]:
+    """``(item, why)``: a mirror for a basin whose wall leaves no room above it (a window behind it): the free wall
+    stretch nearest the basin (``decor.free_wall_art`` with ``dtype`` mirror), slid along it towards the basin, within
+    ``MIRROR_SIDE_REACH_M`` of its edge, ``SIDE_MIRROR_W`` wide; (None, why) when no stretch is that close."""
+    c = (float(host["footprint"]["center"][0]), float(host["footprint"]["center"][1]))
+    half = max(float(v) for v in host["footprint"]["size"][:2]) / 2.0
+    others = [p for p in pieces if p is not host]
+    cands = D.free_wall_art(room, others, building, ctx, level, dtype="mirror", most=8)
+    best = None
+    for it in cands:
+        # the free stretch the picture was centred on (``free_wall_art``: FREE_WALL_ART_SHARE of it); the mirror
+        # slides along it towards the basin
+        width = min(float(it["size"][0]), SIDE_MIRROR_W)
+        stretch = float(it["size"][0]) / D.FREE_WALL_ART_SHARE
+        r = math.radians(float(it["rotation_deg"]))
+        u = (math.cos(r), math.sin(r))                    # along the wall (local +Y, out of the room, is its normal)
+        wp = tuple(it.get("wall_point") or it["center"])
+        s_b = (c[0] - wp[0]) * u[0] + (c[1] - wp[1]) * u[1]
+        lim = max(0.0, stretch / 2.0 - width / 2.0)
+        t = max(-lim, min(lim, s_b))
+        moved = dict(it, center=[round(it["center"][0] + u[0] * t, 3), round(it["center"][1] + u[1] * t, 3)],
+                     wall_point=[round(wp[0] + u[0] * t, 3), round(wp[1] + u[1] * t, 3)])
+        d = G.distance(tuple(moved["wall_point"]), c) - half
+        if d <= MIRROR_SIDE_REACH_M and (best is None or d < best[0]):
+            best = (d, moved, width)
+    if best is None:
+        return None, f"no free wall within {MIRROR_SIDE_REACH_M:g} m of {host['id']}"
+    _d, item, width = best
+    item = dict(item)
+    if width < MIRROR_MIN_W - 1e-9:
+        return None, f"the free wall beside {host['id']} leaves {width:.2f} m (min {MIRROR_MIN_W} m)"
+    item.update(type="mirror", size=[round(width, 3), item["size"][1]], anchor_ids=[host["id"]],
+                reason=f"mirror on the wall beside the basin {host['id']} ({best[0]:.2f} m from its edge): the wall "
+                       f"above it has a window")
+    item.pop("free_wall", None)
+    return item, "ok"
+
+
+def required_items(rq: "RoomQuestion", items: list[dict], building: dict, new_id) -> list[dict]:
+    """The items a room must have whatever the AI chose (pure; 28 Oct 2026): a mirror for every basin with a mirror
+    slot (``MIRROR_HOSTS``) that has none yet, through the same checks as the AI's items (``build_items``);
+    labelled ``method: rule`` with the reason."""
+    taken = {i.get("slot") for i in items}
+    mirrored = {a for i in items if i.get("type") == "mirror" for a in i.get("anchor_ids") or []}
+    picks = [{"slot": s.id, "type": "mirror", "colour": None,
+              "reasons": [f"every basin has a mirror (user: 'Mirrors in the baths is missing sometimes')"] * 2}
+             for s in rq.slots if s.kind == "wall" and s.host_type in MIRROR_HOSTS and "mirror" in s.types
+             and s.id not in taken and s.host_id not in mirrored]
+    out = []
+    for choice in picks:
+        made, _refused = build_items(rq, [choice], "rule", building, new_id)
+        for it in made:
+            it.update(method="rule", confidence=0.8, reason=choice["reasons"][0])
+        out += made
+    return out
 
 
 def free_corners(room: dict, pieces: list[dict], building: dict, ctx: placer.RoomContext,
@@ -1120,6 +1207,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         items, refused = build_items(q, agreed, model, out, new_id) if agreed else ([], [])
         rec.refused = refused
         items += fill_recipe(q, items, out, new_id, room_recipe(room, recipes))
+        items += required_items(q, items, out, new_id)
         if items:
             items += fill_to_minimum(q, items, out, new_id, room_recipe(room, recipes), family)
         apply_brief_looks(items, style, lamps, looks)
@@ -1132,6 +1220,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
                    else "every agreed item was refused by the checks")
             fallback, row = D.rule_decor_room(out, room, pieces, new_id)
             fallback += fill_recipe(q, fallback, out, new_id, room_recipe(room, recipes))
+            fallback += required_items(q, fallback, out, new_id)
             fallback += fill_to_minimum(q, fallback, out, new_id, room_recipe(room, recipes), family)
             apply_brief_looks(fallback, style, lamps, looks)
             rec.items, rec.fallback = fallback, why

@@ -773,6 +773,18 @@
    "request": "All these feedback needs to be understand by argus an Argus needs to be able to make these kind of corrections in the future projects",
    "lesson": "Argus learns every user lesson: each lesson's question is asked on every run (Argus AI's walk on the top-down views and renders, the inspector's checks) and, where code can measure it, an Argus line finds the problem by itself and routes it to the fix that removes it (an architect action, an agent tool, a rerun or the rule to write).",
    "question": "Did Argus ask every user lesson's question on this run and fix what it found?"
+  },
+  {
+   "id": "UL68",
+   "date": "2026-10-28",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Mirrors in the baths is missing sometimes",
+   "lesson": "Every built basin has a mirror over it, a required item, not an AI option: above it, else on the nearest free wall beside it (within 1.2 m, 0.6 m wide, slid towards the basin) when a window is behind it; an inferred basin gets one too.",
+   "question": "Does every basin have a mirror over or beside it?"
   }
  ]
 }

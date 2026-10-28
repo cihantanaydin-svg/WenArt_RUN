@@ -230,3 +230,25 @@ def test_the_best_looking_door_family_comes_first():
     assert OM.audit_quality(extras, {"items": [{"id": "a", "vision": {"quality": 3}},
                                                {"id": "b", "vision": {"quality": 4}}]}) == 2
     assert [e["audit_quality"] for e in extras] == [3, 4]
+
+
+def test_every_basin_gets_a_mirror_even_under_a_window():
+    # 28 Oct 2026 (user: "Mirrors in the baths is missing sometimes"; real06: basins under a window, an inferred basin)
+    from test_decor_m8 import room_building
+    from wenart.furniture import decor_ai as DA
+
+    b = room_building(3.0, 2.5, "bathroom", furniture=[("washbasin", (1.0, 0.25), 0.0, (0.6, 0.45)),
+                                                       ("toilet", (2.4, 0.4), 0.0, (0.4, 0.7))],
+                      windows=(("win1", "s", 1.0, 1.2),))
+    rq = DA.room_questions(b, "modern")[0]
+    slot = next(s for s in rq.slots if s.id == "f_L0_001.wall")
+    mirror = slot.items["mirror"]
+    assert "beside the basin" in mirror["reason"] and mirror["size"][0] == DA.SIDE_MIRROR_W
+    n = iter(range(1, 99))
+    got = DA.required_items(rq, [], b, lambda lv: f"dec_{lv}_{next(n):03d}")
+    assert [i["type"] for i in got] == ["mirror"] and got[0]["method"] == "rule"
+    assert DA.required_items(rq, got, b, lambda lv: "x") == []                     # one mirror per basin
+    b["furniture"][0]["status"] = "unverified"                                     # an inferred basin: still one
+    b["furniture"][1]["status"] = "verified"
+    slots, _notes = DA.room_slots(b["rooms"][0], b["furniture"], b)
+    assert any(s.host_id == "f_L0_001" and "mirror" in s.types for s in slots)

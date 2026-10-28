@@ -1952,6 +1952,7 @@ Every point is a general rule with a test and a lesson (UL57-UL67), and Argus no
 | a sliding door built hinged or folding | the door model opens as drawn (`operation_fit`) |
 | a chair facing the wall | every drawn piece with a front gets one (`infer.missing_fronts`) |
 | plain walls | one accent wall per living room and bedroom in the style family's colour when the brief names none (`looks.family_accent`) |
+| bathrooms without a mirror | every built basin gets a mirror as a required item: above it, else on the nearest free wall beside it (a window behind it), also for an inferred basin (`decor_ai.basin_mirror`, `required_items`) |
 | the same plain door everywhere | inside doors vary by role (glazed into living rooms and kitchens; flush, or panelled in period styles, to private rooms); outer door families rank by the audit's vision quality |
 
 Argus (user: "All these feedback needs to be understand by argus"): a new code line `wenart/audit/lessons.py`
