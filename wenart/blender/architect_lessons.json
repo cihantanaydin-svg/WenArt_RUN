@@ -945,6 +945,43 @@
    "request": "What kind of a bath is this / this bath needs to make sense (real06 run 20261027-222248-full: both bathtubs f_L0_010 and f_L1_009 got the 3D Warehouse model 'Bathtub', 1.52 x 0.74 x 0.37 m, 85 % non-manifold edges, the vision answer real_product false, size_plausible false, quality 2, audited keep). General rule: a furniture model rated 2 or lower or found no real product is not used, a fixture is fitted only at its real height (a bath's rim 0.45-0.65 m), and the bath built from code looks like a real product (rim, taps, a panel when it stands in a niche between walls)",
    "lesson": "A furniture model the vision audit rated 2 or lower, or found no real product, is not used (removed; decor keeps the doubt), and a fixture is fitted only at its real height without tolerance (a bath's top 0.45-0.65 m: fit.FIXTURE_HEIGHTS; the washbasin's working top: fit.WORKING_TOPS); when no model is left the bath is built from code as a real product: a ceramic shell with a flat rim, the bowl floor with a drain and an overflow, a chrome deck mixer at the end on a wall, and a panel under a rim band on every open side when its back stands on a wall (a niche: the front panel; a corner: the front and the open end; fixture_seat.bath_walls).",
    "question": "Does every bath stand at a real rim height (0.45-0.65 m) and look like a real product, with its taps and its panel where it stands between walls?"
+  },
+  {
+   "id": "UL82",
+   "date": "2026-10-28",
+   "area": "site",
+   "status": "rule",
+   "checks": [
+    "G2",
+    "A2"
+   ],
+   "request": "There could be better outside solutions to the grade slope (real04 run 20261028-005318-full: on the slope between the pool terrace and the garden, bare concrete box planters stacked like stairs, steps cutting through boxes, a tilted paved ramp running diagonally down the slope with a strip of lawn inside it, grey retaining walls)",
+   "lesson": "A level difference in the garden is designed as a landscape architect builds it, on every project: where the ground can be graded (room inside the plot, clear of the house and the other platforms, a way past left, a natural slope gentler than the bank) the terrace meets the ground by a lawn bank of at most 1:3 or a planted bank of at most 1:2, no wall; a taller difference steps down in terraces whose tiers along one side share one level, each tier a planted bed, every tier end walled; steps are real flights (risers of at most 0.15 m, the step rule, a landing every 12 risers) that follow the ground to their foot, with cheek walls and a landing, and the terraces stop beside them (no steps through a planter); a path is laid level across, up to 1:20 a walk with an edging, up to 1:12 a sloped walk, steeper a stepped path of landings and short flights with stone step edges and a handrail over 0.45 m; a ramp only on an accessible route; retaining walls in the house's base stone with a coping (wenart/blender/grading.py; the model review's M15 and the architect's G2 check it)",
+   "question": "Does the garden meet every level difference as a landscape architect would build it: banks of at most 1:3 / 1:2, terraces at one level per side and planted, flights of solid treads with cheek walls and a landing, paths level across and stepped where steeper than 1:12, a ramp only where accessibility asks, walls in the house's base stone with a coping?"
+  },
+  {
+   "id": "UL83",
+   "date": "2026-10-28",
+   "area": "site",
+   "status": "rule",
+   "checks": [
+    "G2"
+   ],
+   "request": "Better solutions needed for the elevation difference outside (an aerial view of real04: a bare grey concrete retaining wall box next to the paved terrace and the pool, inside it a row of loose concrete bars or slabs lying across the grass like floating step treads, with grass between them)",
+   "lesson": "Never a loose tread or slab over the grass and never a bare concrete box: every step of a garden flight is a solid block on the one below and on the ground, from the upper level to the lower one, its flight a hole in the lawn held by cheek walls that stand over the ground beside it, its last riser landing on a landing pad at the highest ground under it (a flight that would end under the lawn is not built: the edge meets the ground); a level difference is a planted slope (at most 1:3 lawn, 1:2 ground cover), terraced planters with a coping and planting, or such steps; every retaining, cheek and wing wall has a finish (the house's base stone) and a coping; the model review's M15 G2 / G6 and the architect's G2 find a tread that does not sit on its riser or the ground and a bare concrete or uncoped wall",
+   "question": "Does every garden step sit on its riser and the ground (no loose tread in the grass), and is every retaining wall finished in stone or render with a coping (never bare concrete)?"
+  },
+  {
+   "id": "UL84",
+   "date": "2026-10-28",
+   "area": "site",
+   "status": "rule",
+   "checks": [
+    "G3"
+   ],
+   "request": "I am not liking this is the only outside flooring (real06 / real04: the garden path and the entrance steps in the same large grey square slabs with mossy joints as the terraces and the drive, with steel handrails)",
+   "lesson": "The outdoor floors are a designed set by use and style family, never one slab everywhere: the terrace and pool deck in stone or porcelain slabs with a tight joint (decking where the style calls for it), the steps and copings in a stone with a tread edge, the garden path in gravel, clay or brick pavers with a stone edging where it meets the lawn, the drive and parking in a stronger paver, all in one language with the house's base stone; a material the documents draw, or a paving the style or the brief names for the terrace, wins; every inferred floor is recorded with its reason (grading.floor_set; the model review's M15 G7 and the architect's G3 find a site whose every outdoor floor has one look)",
+   "question": "Does each outdoor floor have the material of its use (terrace and pool deck, steps, garden path, drive), in one language with the house's base, never one slab everywhere?"
   }
  ]
 }

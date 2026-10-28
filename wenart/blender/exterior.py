@@ -202,6 +202,11 @@ def build_finish_slugs(style: Optional[dict] = None) -> list[tuple[str, str]]:
     # 27 Oct 2026: the floors of the labelled outdoor spaces by kind and the wood ceiling under their covers
     rows += [(slug, "outdoor_floor") for slug in sorted(set(S.OUTDOOR_FLOOR_LOOKS.values()) | {S.OUTDOOR_FLOOR_DEFAULT})]
     rows += [(S.OUTDOOR_SOFFIT_LOOK[0], "outdoor_soffit")]
+    # 28 Oct 2026: the outdoor floors by use of the style family (grading.floor_set: terrace, steps and edging, garden
+    # path, drive), so the gravel path or the travertine deck has its texture set
+    from wenart.blender import grading as GR
+    fs = GR.floor_set(None, (style or {}).get("family"))
+    rows += [(fs[use]["material"], f"floor_{use}") for use in ("terrace", "steps", "path", "drive")]
     rules = FA.family_rules(style)
     rows += [(rules.get("plinth"), "plinth"), (rules.get("surround"), "window_surround")]
     sch = FA.scheme_of(style)

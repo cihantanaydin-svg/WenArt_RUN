@@ -68,6 +68,14 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   tolerances (``rest.rest_ok``: the gap under it, behind a leaning cushion, a cloth the host pokes through or a torn
   drape), and every pendant or ceiling light up to the ceiling over it (its ``hang`` record's ``gap_left_m``; without
   one, its box against the level's ceiling there: an older build left a library pendant 0.99 m under it, dec_L-1_008).
+- M15 the grading of the site and its outdoor floors (28 Oct 2026, users on real04: "There could be better outside
+  solutions to the grade slope", "Better solutions needed for the elevation difference outside", "I am not liking this
+  is the only outside flooring"; ``grading.review``): G1 every terrace tier planted, the tiers of one side at one level;
+  G2 every tread on its riser and the ground, never buried by the ground beside it without a hole and cheek walls,
+  never through a planter, wall, hedge or pool; G3 paths level across, stepped with landings where steeper than 1:12;
+  G4 a ramp only on an accessible route, at most the ramp slope of its rise; G5 banks at most 1:3 (lawn) or 1:2
+  (planted); G6 retaining walls in the house's base stone (never bare concrete) with a coping; G7 never one floor look
+  for every outdoor use. Each finding carries its rule (``metrics.rule``) and element.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -101,7 +109,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15")
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -1011,6 +1019,19 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
         note("M13", got, n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
         checks["M13"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M15 (28 Oct 2026, users on real04's slope and outdoor floors): the grading of the site as a landscape architect
+    # checks it, on the site plan (the architect's paths and steps in) and the scene manifest's floors and walls
+    site = (prep or {}).get("site")
+    if not site:
+        checks["M15"] = {"status": "unavailable", "note": "no site plan (not a whole building, or site: none)"}
+    else:
+        try:
+            from wenart.blender import grading as GR
+
+            got, n = GR.review(site, scene_manifest)
+            note("M15", got, n)
+        except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+            checks["M15"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     return {"findings": findings, "checks": checks}
 
 

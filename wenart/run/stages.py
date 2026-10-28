@@ -191,7 +191,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              # package init imports the asset fetchers; ambientcg reaches the exterior looks)
              "wenart/assets/__init__.py", "wenart/assets/ambientcg.py", "wenart/assets/fetch.py",
              "wenart/assets/polyhaven.py", "wenart/assets/web.py", "wenart/assets/audit/__init__.py",
-             "wenart/assets/audit/keywords.py", "wenart/blender/exterior.py")
+             "wenart/assets/audit/keywords.py", "wenart/blender/exterior.py",
+             "wenart/blender/grading.py")                # 28 Oct 2026: site and architect grade the garden
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height

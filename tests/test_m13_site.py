@@ -322,7 +322,13 @@ def test_site_plan_of_real04_carries_hedges_platforms_species_and_the_levers(mon
     monkeypatch.delenv(S.SITE_VARIANT_ENV, raising=False)
     sp = BB.prepare(b, "base", None)["site"]
     assert [h["id"] for h in sp["hedges"]] == ["hedge_001", "hedge_002", "hedge_003", "hedge_004"]
-    assert len(sp["trees"]) == 19 and sp["climate"]["climate"] == "mediterranean"
+    # 28 Oct 2026 (user on real04: bare concrete boxes stacked like stairs): the 19 drawn trees and the inferred shrubs
+    # of the planted terrace tiers (grading.tier_plants), every one on a band or a bank of its platform
+    drawn = [t for t in sp["trees"] if t.get("source") != "planting_bed"]
+    planted = [t for t in sp["trees"] if t.get("source") == "planting_bed"]
+    assert len(drawn) == 19 and sp["climate"]["climate"] == "mediterranean"
+    assert planted and all(t["kind"] == "plant" and t["inferred"] and "planted" in t["reason"] for t in planted)
+    assert all(t["parent"] in {p["id"] for p in sp["platforms"]} for t in planted)
     primary = [p for p in sp["platforms"] if not p.get("parent")]
     # 25 Oct 2026: the terraces without a level mark take the floor their windows open over (the basement of each
     # twin block: -3.00 m, and 0.00 m for the copy b2 raised 3 m), as the marked twin sp_001 does
@@ -907,9 +913,12 @@ def test_round3_real04_platforms_step_down_with_no_wall_over_the_retaining_cap(m
         over = assert_walls_within_cap_or_blocked(pfs)
         # 25 Oct 2026: the pool decks at the basement floor are held by the driveway's retaining wall (a guard on it)
         # and the sides of the bands at sp_002's north end; nothing else passes the cap
-        assert {(pid, by) for pid, _e, _h, by in over} == {("sp_002", "spk_001"), ("sp_003", "spk_001"),
-                                                            ("sp_004", "spk_001"), ("sp_002_s1e4", "band_side"),
-                                                            ("sp_002_s1e5", "band_side")}
+        # 28 Oct 2026: a band end with no band of its level beyond it gets its wall (grading.close_band_ends; the
+        # bare slab side showed before): sp_004_s1e7's end over the falling ground is 1.33 m on the build's terrain
+        # (1.2 m or less on the site's own surface), recorded as band_side
+        assert {(pid, by) for pid, _e, _h, by in over} - {("sp_004_s1e7", "band_side")} == {
+            ("sp_002", "spk_001"), ("sp_003", "spk_001"), ("sp_004", "spk_001"), ("sp_002_s1e4", "band_side"),
+            ("sp_002_s1e5", "band_side")}
         assert all(h < 2.6 for _pid, _e, h, _by in over)
         walls = next(q for q in S.platform_parts(next(p for p in pfs if p["id"] == "sp_002"),
                                                  prep["site"]["terrain"]) if q["part"] == "wall")["walls"]
@@ -1501,8 +1510,10 @@ def test_fix2_the_lawn_relief_keeps_the_ground_level_under_paths_platforms_steps
     kinds = {}
     for k in keep:
         kinds[k["kind"]] = kinds.get(k["kind"], 0) + 1
-    # holes: the building and the flat terrace; the parking's draped area has a platform (the sloped one stands in)
-    assert kinds == {"hole": 2, "area": 1, "sloped_platform": 1, "steps": 2, "shrub": 1, "tree": 1, "hedge": 1}
+    # holes: the building, the flat terrace and (28 Oct 2026, grading.path_plan) the path, which rises 19 % along
+    # the slope and is built as a stepped path level across (its edges hold the ground); the parking's draped area has
+    # a platform (the sloped one stands in)
+    assert kinds == {"hole": 3, "area": 1, "sloped_platform": 1, "steps": 2, "shrub": 1, "tree": 1, "hedge": 1}
     by = {(k["kind"], k["id"]): k["polygon"] for k in keep}
     assert G.point_in_polygon((48.3, 0.7), by[("shrub", "shrub_1")]) and G.point_in_polygon(
         (48.3 + 0.35, 0.7), by[("shrub", "shrub_1")])                       # the shrub's drawn crown (r 0.359 m)
@@ -1523,9 +1534,11 @@ def test_fix2_the_lawn_relief_keeps_the_ground_level_under_paths_platforms_steps
                 return [weights[i] for i in f], [old[i] for i in f]
         raise AssertionError((x, y))
 
-    probes = [(51.5, -9.4), (45.1, -8.9), (57.9, -9.95), (47.0, 8.0), (42.1, 11.9), (48.3, 0.7), (74.3, -9.6),
-              (49.0, -4.0), (64.0, -0.6), (67.5, -0.7)]
-    for x, y in probes:                                   # path, parking, shrub, tree, hedge, steps, ramp
+    # 28 Oct 2026: the stepped path is a hole in the ground (no ground face under it at all)
+    for x, y in ((51.5, -9.4), (45.1, -8.9), (57.9, -9.95)):
+        assert not any(G.point_in_polygon((x, y), [verts[i][:2] for i in f]) for f in faces), (x, y)
+    probes = [(47.0, 8.0), (42.1, 11.9), (48.3, 0.7), (74.3, -9.6), (49.0, -4.0), (64.0, -0.6), (67.5, -0.7)]
+    for x, y in probes:                                   # parking, shrub, tree, hedge, steps, ramp
         new_w, old_w = face_weights(x, y)
         assert new_w and all(w == 0.0 for w in new_w), (x, y, new_w)
         assert any(w == 1.0 for w in old_w), (x, y)       # part 1 let these faces drop
@@ -1594,12 +1607,12 @@ def test_fix2_build_site_keeps_the_relief_off_built_things_and_gives_the_grass_t
     keep = [k["polygon"] for k in S.relief_keep(plan)]
     assert relief["keep"] == keep
     verts, faces, w = relief["ob"].verts, relief["ob"].faces, relief["weights"]
-    for x, y in ((51.5, -9.4), (47.0, 8.0), (48.3, 0.7), (74.3, -9.6), (49.0, -4.0), (64.0, -0.6)):
+    for x, y in ((47.0, 8.0), (48.3, 0.7), (74.3, -9.6), (49.0, -4.0), (64.0, -0.6)):      # (the path is a hole)
         face = next(f for f in faces if G.point_in_polygon((x, y), [verts[i][:2] for i in f]))
         assert all(w[i] == 0.0 for i in face), (x, y)
     lr = summary["lawn_relief"]
     assert lr["weighted"] > 0 and lr["range_m"] == list(VG.relief_range()) and lr["edges_kept"]
-    assert lr["keep"] == {"hole": 2, "area": 1, "sloped_platform": 1, "steps": 2, "shrub": 1, "tree": 1, "hedge": 1}
+    assert lr["keep"] == {"hole": 3, "area": 1, "sloped_platform": 1, "steps": 2, "shrub": 1, "tree": 1, "hedge": 1}
     (grass,) = calls["grass"]
     assert grass["relief"] is True and grass["keep"] == keep and grass["reach"] == relief["reach"]
     assert grass["step"] == S.grid_step(plan["extent"])
@@ -1716,7 +1729,9 @@ def test_p3_real04_tree_symbols_are_shrubs_by_their_drawn_crown(monkeypatch):
     symbols = [d for d in b["site"]["decor"] if d.get("kind") == "tree"]
     assert len(symbols) == 100 and {tuple(t["size"]) for t in symbols} == {(0.718, 0.718)}
     prep = _real04_prep(monkeypatch)
-    singles, hedges = prep["site"]["trees"], prep["site"]["hedges"]
+    # 28 Oct 2026: the inferred shrubs of the planted terrace tiers (grading.tier_plants) are no drawn symbols
+    singles = [t for t in prep["site"]["trees"] if t.get("source") != "planting_bed"]
+    hedges = prep["site"]["hedges"]
     assert len(hedges) == 4 and len(singles) + sum(len(h["symbol_ids"]) for h in hedges) == 100
     assert S.tree_height(0.718 / 2.0) == (pytest.approx(0.862), "shrub")
     assert {S.tree_parts(t, prep["site"]["terrain"])["size_class"] for t in singles} == {"shrub"}

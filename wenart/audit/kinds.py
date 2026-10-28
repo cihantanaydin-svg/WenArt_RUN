@@ -86,6 +86,9 @@ CHECK_KIND = {
     "M13": "no_sense",
     # 28 Oct 2026: decor not attached to its support (model review M14, scene check S5)
     "M14": "detached", "S5": "detached",
+    # 28 Oct 2026: the grading of the site and its outdoor floors (grading.review; a finding of a tread through a
+    # planter carries its own kind, geometry, a crude look taste)
+    "M15": "no_sense",
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",

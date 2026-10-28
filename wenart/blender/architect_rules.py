@@ -136,6 +136,21 @@ RULES = (
      "question": "Does every tree and shrub stand on open ground, clear of the house, the pools, the paths and the "
                  "terraces?",
      "why": "a tree through a terrace or in front of a door is a reading or placement error"},
+    # 28 Oct 2026 (user on real04: "There could be better outside solutions to the grade slope", "Better solutions
+    # needed for the elevation difference outside"; wenart/blender/grading.py, the model review's M15)
+    {"id": "G2", "topic": "grading", "scope": "site", "severity": "minor",
+     "question": "Does the garden meet every level difference as a landscape architect would build it: a planted "
+                 "slope of at most 1:3 (lawn) or 1:2 (ground cover), terraced planters at one level per side with a "
+                 "coping and planting, garden steps of solid blocks (each tread on its riser, cheek walls, a landing at "
+                 "the foot), retaining walls in the house's base stone with a coping (never bare concrete), paths level "
+                 "across and stepped where steeper than 1:12, a ramp only on an accessible route?",
+     "why": "bare concrete boxes stacked like stairs, loose treads in the grass and a paved strip tilted across the "
+            "slope read as raw blocks, not as a designed garden"},
+    # 28 Oct 2026 (user: "I am not liking this is the only outside flooring")
+    {"id": "G3", "topic": "outdoor floors", "scope": "site", "severity": "minor",
+     "question": "Does each outdoor floor have the material of its use (the terrace and pool deck, the steps, the "
+                 "garden path, the drive), in one language with the house's base, never one slab everywhere?",
+     "why": "one paving on the terraces, the steps, the paths and the drive reads as a car park, not a garden"},
 )
 
 
@@ -755,6 +770,32 @@ def site_rules(prep: dict) -> list[dict]:
         else:
             _ok(g1, t["id"], "open ground")
     return [g1]
+
+
+def grading_rules(prep: dict) -> list[dict]:
+    """G2 / G3 (28 Oct 2026; wenart/blender/grading.py): the site's grading and its outdoor floors as the model
+    review's M15 measures them on the plan (``grading.review``: G1-G6 for G2, G7 for G3), asked after the access and
+    arrival questions have added their steps and paths (``architect.review``). Every finding is an open point with its
+    element (the build carries the rules out; an open point says what is still crude); a site measured clean is ok."""
+    from wenart.blender import grading as GR
+
+    g2, g3 = (_q(next(r for r in RULES if r["id"] == i)) for i in ("G2", "G3"))
+    site = prep.get("site") or {}
+    try:
+        found, checked = GR.review(site)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
+        _ok(g2, "site", f"not measured ({type(exc).__name__}: {exc})")
+        return [g2, g3]
+    for f in found:
+        rule = (f.get("metrics") or {}).get("rule")
+        q = g3 if rule == "G7" else g2
+        _open(q, str(f.get("target")), f"{rule}: {f['message']}",
+              "Should the site keep this, or should it be graded as the rule asks?", [AA.option("keep")])
+    if checked and not any(a.get("open") for a in g2["answers"]):
+        _ok(g2, "site", f"{checked} terraces, flights, paths, banks and walls measured: none crude")
+    if not any(a.get("open") for a in g3["answers"]):
+        _ok(g3, "site", "each outdoor floor has the material of its use")
+    return [g2, g3]
 
 
 def passages_rule(plan: AA.Plan, sides: list[dict]) -> list[dict]:
