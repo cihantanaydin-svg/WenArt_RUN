@@ -158,6 +158,7 @@ from typing import Optional, Sequence
 
 from wenart import geometry as G
 from wenart.blender import geom2d
+from wenart.blender import grading as GR
 from wenart.blender.shell import outward_side
 from wenart.levels import terrain as LT
 
@@ -494,10 +495,22 @@ def door_terrain(building: dict, levels: Sequence[dict], terrain: dict, outline:
 
 def ground_z(model: dict, x: float, y: float) -> float:
     """The ground level at ``(x, y)`` (``terrain_model``). A model of ``stand_terrain`` (fix round after P3) gives a
-    point inside one of its flat platforms that platform's level (the highest one when they overlap)."""
+    point inside one of its flat platforms that platform's level (the highest one when they overlap).
+
+    28 Oct 2026 (``grading``): a model with ``grading`` (the platforms' lawn and planted banks,
+    ``grading.plan_embankments``) gives the graded ground there (``grading.grade_z``): the ground mesh, the walls, the
+    flights, the plants and the cameras all stand on the same banks."""
     for poly, level in model.get("stand") or ():
         if G.point_in_polygon((x, y), poly):
             return float(level)
+    rows = model.get("grading")
+    if rows:
+        return GR.grade_z(rows, x, y, _terrain_z(model, x, y))
+    return _terrain_z(model, x, y)
+
+
+def _terrain_z(model: dict, x: float, y: float) -> float:
+    """The terrain model's own ground at ``(x, y)`` (``ground_z`` without the stands and the banks)."""
     z = model["z"]
     if model["kind"] == "flat":
         return float(z["+x"])
@@ -3006,6 +3019,22 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
                                              and G.point_in_polygon(fl["landing"], q["polygon"]))
                 break
         pf["flight"] = up_flight(pf, gz=gz)
+    # 28 Oct 2026 (user on real04: "There could be better outside solutions to the grade slope"): where the ground
+    # can be graded a platform edge meets it by a lawn (1:3) or planted (1:2) bank, no wall (grading.plan_embankments,
+    # inside the plot, clear of the house, the other platforms and the flights); the walls, bands and flights after
+    # this see the graded ground
+    natural = gz
+    corridors = [pf["flight"]["footprint"] for pf in out if pf.get("flight")]
+    corridors += [GR._rect(G.segment_midpoint(pf["polygon"][pf["steps_edge"]],
+                                              pf["polygon"][(pf["steps_edge"] + 1) % len(pf["polygon"])]),
+                           _edge_out(pf["polygon"], pf["steps_edge"]), 0.0, 6.0,
+                           PLATFORM["step_width"] / 2.0 + GR.GRADE["cheek_t"] + 0.3)
+                  for pf in out if pf.get("steps_edge") is not None and pf.get("steps_dir") != "up"
+                  and not pf.get("sloped") and _edge_out(pf["polygon"], pf["steps_edge"]) is not None]
+    grading_rows = GR.plan_embankments(out, gz, keep_out=keep, plot=plot_polygon({"site": site})[0],
+                                       corridors=corridors + [poly for _, poly in band_keep])
+    if grading_rows:
+        gz = GR.graded(natural, grading_rows)
     for pf in out:
         pf["reason"] = (f"{pf['kind']} {pf['id']}: one level at {pf['z']:+.2f} m ({pf['z_source']}"
                         + (f" {', '.join(pf['marks'])}" if pf["marks"] else "") + f"); ground {pf['ground']['min']:+.2f}"
@@ -3032,10 +3061,14 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
                       if not G.point_in_polygon(G.polygon_centroid(poly), pf["polygon"])
                       and geom2d.distance_to_polygon_edges(G.polygon_centroid(poly), pf["polygon"])
                       > HEDGE_FIT["max_shift_m"] + 0.5]
+        # 28 Oct 2026: the platform's own flight down (grading.down_flight) is a keep-out of its bands: the terraces
+        # stop beside the stair, never steps through a planter
+        own = GR.down_flight(pf, gz)
+        flights_keep = [own["footprint"]] if own else []
         for band in stepped_bands(pf, gz, keep_out=keep_inner + [q["polygon"] for q in others]
-                                  + [poly for _, poly in hedges_out],
+                                  + [poly for _, poly in hedges_out] + flights_keep,
                                   keep_ids=["building"] * len(keep_inner) + [q["id"] for q in others]
-                                  + [hid for hid, _ in hedges_out]):
+                                  + [hid for hid, _ in hedges_out] + ["flight"] * len(flights_keep)):
             band["against_edges"] = []
             band.update(edges_of(band["polygon"], band["z"], band["kind"], False, skip=band["shared_edges"]))
             band["steps_edge"], band["railing_edges"] = None, []
@@ -3082,7 +3115,31 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
         if pf.get("band_blocked"):
             pf["reason"] += ("; no further stepped band where it would enter the building or another platform (edge "
                              + ", ".join(f"{b['edge']} after {b['bands']}" for b in pf["band_blocked"]) + ")")
+        # 28 Oct 2026: the banks and the flight down as planned (grading.plan_embankments, grading.down_flight)
+        if pf.get("embankments"):
+            pf["reason"] += "; " + "; ".join(e["reason"] for e in pf["embankments"])
+        fl = GR.down_flight(pf, gz)
+        if fl is not None:
+            pf["flight_down"] = {k: fl[k] for k in ("edge", "count", "riser", "tread", "flights", "rise", "foot_z",
+                                                     "end", "landing", "footprint", "on_band", "handrails", "reason")}
+            pf["reason"] += f"; {fl['reason']}"
     return out + bands
+
+
+def _edge_out(poly, i) -> Optional[tuple[float, float]]:
+    """The outward unit normal of edge ``i`` of a counter-clockwise polygon (None for a zero-length edge)."""
+    a, b = poly[i], poly[(i + 1) % len(poly)]
+    length = G.distance(a, b)
+    if length < 1e-9:
+        return None
+    return ((b[1] - a[1]) / length, -(b[0] - a[0]) / length)
+
+
+def _same_poly(p, q, tol: float = 1e-6) -> bool:
+    """Whether two polygons have the same corners (any order and start)."""
+    if len(p) != len(q):
+        return False
+    return all(min(G.distance(tuple(a[:2]), tuple(b[:2])) for b in q) < tol for a in p)
 
 
 def _inside_any(p, polygons) -> bool:
@@ -3202,6 +3259,10 @@ def stepped_bands(pf: dict, gz, cap: float = RETAINING_MAX_M, keep_out: Sequence
         direction, diff = _edge_excess(poly, i, z, gz, zone_w=band_w)
         excess.append((direction, diff) if diff > cap + 1e-9 and length >= band_w / 2.0 and i not in against
                       else None)
+    # 28 Oct 2026 (user on real04: "There could be better outside solutions to the grade slope"; sp_001's west side
+    # stepped in six bands at six levels, -3.66 .. -4.16 m, a staircase of boxes): consecutive edges stepped the same way
+    # are one terrace run, its bands at the run's levels (grading.run_steps), one level per tier along a side
+    run_step = GR.run_steps(excess, cap)
     bands = []
     for i in range(n):
         if excess[i] is None:
@@ -3209,7 +3270,7 @@ def stepped_bands(pf: dict, gz, cap: float = RETAINING_MAX_M, keep_out: Sequence
         direction, diff = excess[i]
         sign = -1.0 if direction == "down" else 1.0
         count = max(1, int(math.ceil(diff / cap - 1e-9)))
-        step = diff / count
+        step = run_step.get(i, diff / count)
         prev_i, next_i = (i - 1) % n, (i + 1) % n
         same_a = excess[prev_i] is not None and excess[prev_i][0] == direction
         same_b = excess[next_i] is not None and excess[next_i][0] == direction
@@ -3251,7 +3312,8 @@ def stepped_bands(pf: dict, gz, cap: float = RETAINING_MAX_M, keep_out: Sequence
                     return next((j for j in range(len(quad))
                                  if G.distance(G.segment_midpoint(quad[j], quad[(j + 1) % len(quad)]), m) < 1e-6), None)
 
-                shared = [j for j in (edge_index(a_in, b_in), edge_index(a_in, a_out) if mitre_a else None,
+                inner_idx = edge_index(a_in, b_in)
+                shared = [j for j in (inner_idx, edge_index(a_in, a_out) if mitre_a else None,
                                       edge_index(b_in, b_out) if mitre_b else None) if j is not None]
                 outer_idx = edge_index(a_out, b_out)
                 if mine and mine[-1].get("outer_edge") is not None:
@@ -3265,7 +3327,7 @@ def stepped_bands(pf: dict, gz, cap: float = RETAINING_MAX_M, keep_out: Sequence
                              "holes": [], "z": zk, "kind": "terrace", "source": "stepped", "area_id": pf.get("area_id"),
                              "z_source": "stepped terrace", "marks": [], "ground": ground, "sloped": False,
                              "pools": [], "inferred": True, "material": pf.get("material"), "colour": pf.get("colour"),
-                             "shared_edges": shared, "outer_edge": outer_idx, "edge_floor": {},
+                             "shared_edges": shared, "outer_edge": outer_idx, "inner_edge": inner_idx, "edge_floor": {},
                              "bottom_z": round(z - PLATFORM["below"], 3), "mitred": [bool(mitre_a), bool(mitre_b)],
                              "stepped_from": {"edge": i, "direction": direction, "difference_m": round(diff, 3),
                                               "step_m": round(step, 3)}})
@@ -3296,8 +3358,10 @@ def stepped_bands(pf: dict, gz, cap: float = RETAINING_MAX_M, keep_out: Sequence
             continue
         bands += mine
         pf["stepped"].append({"edge": i, "bands": len(mine), "step_m": round(step, 3), "direction": direction,
-                              "mitred": [bool(mitre_a), bool(mitre_b)]})
+                              "mitred": [bool(mitre_a), bool(mitre_b)], "run_level": i in run_step})
         pf["edge_floor"][str(i)] = round(z + sign * step, 3)
+    # 28 Oct 2026: a mitred band end with no band of its level beyond it gets its wall (never a bare slab side)
+    GR.close_band_ends(bands, PLATFORM["level_tol"])
     return bands
 
 
@@ -3455,7 +3519,8 @@ def railing_runs(a, b, i: int, pf: dict) -> list[tuple]:
     if length <= 1e-6:
         return []
     ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
-    half = PLATFORM["step_width"] / 2.0 + STEP_GAP_M
+    # 28 Oct 2026: the flight has cheek walls on both sides (grading.down_flight): the railing stops beside them
+    half = PLATFORM["step_width"] / 2.0 + GR.GRADE["cheek_t"] + STEP_GAP_M
     t0, t1 = length / 2.0 - half, length / 2.0 + half
     out = []
     if t0 > 0.2:
@@ -3535,6 +3600,9 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
     ``wall`` part carries ``walls``: ``[{edge, height_m, z0, z1}]`` (the visible height over the floor)."""
     from wenart.blender import details as D
 
+    # 28 Oct 2026: a platform's own banks shape the ground its walls and flight meet, even on a bare terrain model
+    if pf.get("embankments") and not terrain.get("grading"):
+        terrain = GR.graded_terrain(terrain, [pf])
     poly = geom2d.ccw(pf["polygon"])
     z = float(pf["z"])
     out = []
@@ -3559,11 +3627,25 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
         out.append({"part": "slab", "verts": v, "faces": f})
     tol = PLATFORM["level_tol"]
     walls, kerbs, steps, rails, panels, wall_recs = [], [], [], [], [], []
+    copings, tread_recs = [], []
     flight = up_flight(pf, terrain)
     if flight is not None and flight["edge"] not in shared:
         st, ch = up_flight_parts(flight, z, lambda x, y: ground_z(terrain, x, y))
         steps += st
         walls += ch
+    # 28 Oct 2026 (users on real04: "There could be better outside solutions to the grade slope", "Better solutions
+    # needed for the elevation difference outside": every tread of sp_001's and sp_004's flights lay 5-23 cm under the
+    # cross-falling ground, loose bars in the grass): the flight down follows the ground to its foot, each tread a
+    # solid block, cheek walls, a landing at its foot, a hole in the lawn (grading.down_flight); the edge's wall leaves
+    # its place free
+    down = GR.down_flight(pf, lambda x, y: ground_z(terrain, x, y)) if pf.get("steps_edge") not in shared else None
+    if down is not None:
+        fm = GR.flight_meshes(down, lambda x, y: ground_z(terrain, x, y), PLATFORM["below"])
+        steps += fm["steps"]
+        walls += fm["walls"]
+        rails += fm["rails"]
+        tread_recs = fm["treads"]
+    coping_t, coping_over = GR.GRADE["coping_t"], GR.GRADE["coping_over"]
     for i in range(n):
         if i in shared:
             continue
@@ -3579,8 +3661,10 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
             # the wall in pieces that follow the ground (wall_pieces); pieces overlap by the thickness, every
             # second one 2 mm thicker (no coplanar faces); an up flight's edge has a gap for the flight
             gzf = lambda x, y: ground_z(terrain, x, y)          # noqa: E731
-            if flight is not None and i == flight["edge"]:
-                s0, s1 = flight["span"]
+            gap = flight["span"] if flight is not None and i == flight["edge"] else \
+                (down["span"] if down is not None and i == down["edge"] else None)
+            if gap is not None:
+                s0, s1 = gap
                 pieces = [dict(pc, piece=pc["piece"] + 100 * k) for k, (q0, q1) in
                           enumerate(((a, G.point_along_segment(a, b, max(0.0, s0) / length)),
                                      (G.point_along_segment(a, b, min(length, s1) / length), b)))
@@ -3594,6 +3678,11 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
                 c = (pm[0] + nx * (t / 2.0 + 0.001), pm[1] + ny * (t / 2.0 + 0.001))
                 walls.append(sloped_box(c, reach, t + 0.002 * (piece["piece"] % 2), angle, piece["z0"],
                                         *piece.get("z1_ends", (piece["z1"], piece["z1"]))))
+                # 28 Oct 2026: every retaining wall carries a coping (the steps' stone), its top 1 cm over the wall
+                za, zb = piece.get("z1_ends", (piece["z1"], piece["z1"]))
+                odd = 0.002 * (piece["piece"] % 2)
+                copings.append(sloped_box(c, reach, t + 2.0 * coping_over + odd, angle, za - coping_t + 0.01,
+                                          za + 0.01 + odd, zb + 0.01 + odd, zb - coping_t + 0.01))
                 wall_recs.append({"edge": i, "piece": piece["piece"], "height_m": piece["height_m"], "z0": piece["z0"],
                                   "z1": piece["z1"], "to_band": piece["to_band"]})
                 if piece["rise"] > GUARD_RISE_M and not piece["to_band"]:
@@ -3632,39 +3721,23 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
                 metal, panes = D.balustrade(ra, rb, z, 1.0, pf.get("balustrade") or D.DEFAULT_KIND)
                 rails += metal
                 panels += panes
-    if pf.get("steps_edge") is not None and not pf.get("sloped") and pf["steps_edge"] not in shared \
-            and pf.get("steps_dir") != "up":
-        i = pf["steps_edge"]
-        a, b = poly[i], poly[(i + 1) % n]
-        length = G.distance(a, b)
-        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
-        nx, ny = uy, -ux
-        mid = G.segment_midpoint(a, b)
-        half_w = PLATFORM["step_width"] / 2.0
-        tread = PLATFORM["step_tread"]
-        gz_edge = floors[i] if i in floors else min(ground_z(terrain, *q) for q in _edge_samples([a, b], 4)[0])
-        drop = z - gz_edge
-        count = max(1, int(math.ceil(drop / PLATFORM["step_rise"] - 1e-9)))
-        at = pf.get("steps_at")
-        if at:
-            # 26 Oct 2026: the drawn flight of an outdoor space: its place, width, tread and (when the riser stays
-            # within DRAWN_RISER_MAX_M) its count
-            t = ((at["point"][0] - a[0]) * ux + (at["point"][1] - a[1]) * uy)
-            mid = (a[0] + ux * t, a[1] + uy * t)
-            half_w = max(0.3, float(at["width"]) / 2.0)
-            tread = float(at.get("tread") or tread)
-            k = int(at.get("treads") or 0) + 1
-            if k > 1 and drop / k <= DRAWN_RISER_MAX_M:
-                count = k
-        r = drop / count
-        for j in range(1, count + 1):
-            d0 = (j - 1) * tread
-            top = z - j * r
-            block = _rect_along(mid, (nx, ny), d0, d0 + tread, half_w)
-            zb = (floors[i] if i in floors else min(ground_z(terrain, *q) for q in block)) - PLATFORM["below"]
-            if top > zb:
-                steps.append(geom2d.prism(block, zb, top))
-    for part, meshes in (("wall", walls), ("kerb", kerbs), ("steps", steps), ("railing", rails + panels)):
+    # 28 Oct 2026: a bank end that cannot run on (no cone) is held by a wing wall with its coping (grading.wing_walls)
+    if pf.get("embankments") and not pf.get("sloped") and not pf.get("elevated"):
+        natural = (lambda x, y: _terrain_z(terrain, x, y))
+        t = PLATFORM["wall_t"]
+        for k, w in enumerate(GR.wing_walls(pf, natural, lambda x, y: ground_z(terrain, x, y))):
+            length = G.distance(w["p0"], w["p1"])
+            if length < 0.05:
+                continue
+            c = G.segment_midpoint(w["p0"], w["p1"])
+            angle = G.segment_angle_deg(w["p0"], w["p1"])
+            za, zb = w["z1_ends"]
+            odd = 0.002 * (k % 2)
+            walls.append(sloped_box(c, length + t, t + odd, angle, w["z0"], za, zb))
+            copings.append(sloped_box(c, length + t, t + 2.0 * coping_over + odd, angle, za - coping_t + 0.01,
+                                      za + 0.01 + odd, zb + 0.01 + odd, zb - coping_t + 0.01))
+    for part, meshes in (("wall", walls), ("coping", copings), ("kerb", kerbs), ("steps", steps),
+                         ("railing", rails + panels)):
         if meshes:
             v, f = geom2d.merge(meshes)
             rec = {"part": part, "verts": v, "faces": f}
@@ -3674,6 +3747,8 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
                 rec["slots"] = [0] * sum(len(m[1]) for m in rails) + [1] * sum(len(m[1]) for m in panels)
             if part == "wall":
                 rec["walls"] = wall_recs
+            if part == "steps" and tread_recs:
+                rec["treads"] = tread_recs              # 28 Oct 2026: every tread as built (model review M13 G2)
             out.append(rec)
     out += cover_parts(pf)
     return out
@@ -4640,6 +4715,13 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
             pfs = platforms(site, terrain, keep_out=[geom2d.ccw(outline)] + copy_holes,
                             facades=facade_openings(building, levels, outline, outlines),
                             band_keep=hedge_keep_out(hedges), outlines=outlines)
+            # 28 Oct 2026: the platforms' banks are part of the ground from here on (grading.graded_terrain)
+            terrain = GR.graded_terrain(terrain, pfs)
+            for row in terrain.get("grading") or []:
+                bank = next(e for pf in pfs for e in pf.get("embankments") or []
+                            if e["platform"] == row["platform"] and e["edge"] == row["edge"])
+                assumed.append({"field": f"bank:{row['platform']}:{row['edge']}", "value": [row["finish"],
+                                round(1.0 / row["slope"], 1)], "reason": bank["reason"]})
             wells, gone = wells_on_platforms(wells, pfs)
             for w in gone:
                 assumed[:] = [a for a in assumed if a.get("field") != f"light_well:{w['opening_id']}"]
@@ -4672,6 +4754,19 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
         if hedges:                                   # fix round after P3: every hull on its planting side
             hedges, fit_assumed = fit_hedges(hedges, pfs, [geom2d.ccw(outline)] + copy_holes)
             assumed += fit_assumed
+        if pfs:
+            # 28 Oct 2026 (user on real04: bare concrete boxes stacked like stairs): every terrace tier and planted
+            # bank is a planted bed, clear of the flights, hedges, paths and the drawn plants (grading.tier_plants)
+            gz = (lambda x, y: ground_z(terrain, x, y))
+            avoid = [fl["footprint"] for fl in (GR.down_flight(pf, gz) for pf in pfs) if fl is not None]
+            avoid += [pf["flight"]["footprint"] for pf in pfs if pf.get("flight")]
+            avoid += [p for h in hedges for p in _hedge_footprints(h)]
+            avoid += [a["polygon"] for a in areas if a.get("kind") == "path"]
+            avoid += [disc_polygon(t["center"], max(0.3, max(float(v) for v in (t.get("size") or [1.0, 1.0])[:2])) / 2.0)
+                      for t in trees if t.get("center")]
+            for p in GR.tier_plants(pfs, avoid=avoid, existing=trees):
+                trees.append(p)
+                assumed.append({"field": f"plant:{p['id']}", "value": p["center"], "reason": p["reason"]})
         for t in trees:
             parts = tree_parts(t, terrain, climate["climate"])
             species[str(t.get("id"))] = {"species": parts["species"], "size_class": parts["size_class"],
@@ -4822,10 +4917,20 @@ def ground_holes(plan: dict) -> list:
     buildings (``copy_holes``), the pools no platform holds and every platform with a flat slab."""
     pfs = list(plan.get("platforms") or [])
     pooled = {pid for pf in pfs for pid in pf.get("pools") or []}
+    terrain = GR.plan_terrain(plan)
+    # 28 Oct 2026: the flights down (their treads, cheeks and foot landing: no grass between the treads) and the
+    # graded paths (level across, their edges hold the ground) are holes too (grading.down_flight, graded_paths)
+    downs = []
+    if terrain is not None:
+        gz = (lambda x, y: ground_z(terrain, x, y))
+        downs = [fl["footprint"] for fl in (GR.down_flight(pf, gz) for pf in pfs
+                                            if pf.get("steps_edge") not in (pf.get("shared_edges") or []))
+                 if fl is not None]
     return [plan["outline"]] + [w["polygon"] for w in plan.get("wells") or []] + list(plan.get("copy_holes") or []) \
         + [p["polygon"] for p in plan.get("pools") or [] if p["id"] not in pooled] \
         + [pf["polygon"] for pf in pfs if not pf.get("sloped")] \
-        + [fl["footprint"] for fl in (up_flight(pf, plan.get("terrain")) for pf in pfs) if fl is not None]
+        + [fl["footprint"] for fl in (up_flight(pf, plan.get("terrain")) for pf in pfs) if fl is not None] \
+        + downs + [geom2d.ccw(r["polygon"]) for r in GR.graded_paths(plan) if r.get("graded")]
 
 
 def hedge_records(plan: dict, levers: Optional[dict] = None) -> list[dict]:
@@ -4930,7 +5035,8 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
     from wenart.blender import common
     from wenart.blender import vegetation as VG
 
-    terrain = plan["terrain"]
+    # 28 Oct 2026: the plan's terrain with its platforms' banks (grading.plan_terrain; site_plan grades it already)
+    terrain = GR.plan_terrain(plan)
     levers = plan.get("levers") or site_levers()
     pfs = [pf for pf in plan.get("platforms") or []]
     holes = ground_holes(plan)
@@ -5051,23 +5157,91 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         if info["height_assumed"]:
             assumed.append({"object": wid, "field": "height", "value": info["height"],
                             "reason": "plot wall height not drawn"})
-    for area in plan["areas"]:
+    # 28 Oct 2026 (user: "I am not liking this is the only outside flooring"): the outdoor floors by use and style
+    # (grading.floor_set: terrace and pool deck, steps and copings, garden path, drive), a drawn material kept; the
+    # paths on a slope laid level across, stepped or sloped with their edges (grading.graded_paths)
+    floors = GR.floor_set(looks, plan.get("style_family"))
+    built_floors: dict = {}
+    wall_look = plan.get("wall_look") or GR.wall_look({}, plan.get("style_family"))
+    graded = {r["index"]: r for r in GR.graded_paths(plan)}
+    walk = GR.walkable(plan)
+    gzt = (lambda x, y: ground_z(terrain, x, y))
+
+    def floor_look(area: dict) -> dict:
+        use = GR.AREA_USES.get(area["kind"])
+        if area.get("material") or use is None:
+            return area_look(area, looks)
+        return floors[use]
+
+    edge_mats: dict = {}
+
+    def edge_mat(name: str, look: dict):
+        if name not in edge_mats:
+            edge_mats[name] = make_material(look)
+        return edge_mats[name]
+
+    summary["paths"] = []
+    for k_area, area in enumerate(plan["areas"]):
         if area.get("platform_id"):
             continue                                  # Milestone 13: built as a platform below
         z = area["z"]
+        look = floor_look(area)
+        wid = str(area.get("id") or f"{area['kind']}_{len(summary['objects'])}")
+        status = "assumed" if area.get("source") == "assumed" else "verified"
+        rec = graded.get(k_area)
+        if rec is not None and rec.get("graded"):
+            meshes = GR.path_meshes(rec, gzt, PLATFORM["below"], walk=[w for w in walk if not _same_poly(
+                w, area["polygon"])])
+            parts = (("tread", "site_area", look), ("step_edge", "site_steps", floors["steps"]),
+                     ("edge_wall", "site_wall", wall_look), ("edging", "site_area", floors["edging"]),
+                     ("rail", "site_handrail", looks.get("railing") or {"material": SITE_FALLBACK_LOOKS["railing"],
+                                                                        "colour": None}))
+            for part, kind, lk in parts:
+                if not meshes[part]:
+                    continue
+                v, f = geom2d.merge(meshes[part])
+                name = f"{wid}_{part}"
+                mat = edge_mat(f"{part}:{lk.get('material')}", lk)
+                ob = common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind=kind,
+                                            status="assumed", materials=[mat])
+                entry(ob.name, name, kind, mat, "assumed",
+                      {"parent": wid, "inferred": True, "area_kind": area["kind"] if part == "tread" else part,
+                       "slug": lk.get("material"), "path_grading": rec["kind"],
+                       "assumed": {"reason": rec["reason"]}})
+            built_floors.setdefault("path", look.get("material"))
+            summary["paths"].append({"id": wid, "kind": rec["kind"], "local": rec.get("local"), "cross": rec.get("cross"),
+                                     "rise": rec.get("rise"), "flights": rec.get("flights"), "riser": rec.get("riser"),
+                                     "tread": rec.get("tread"), "handrails": bool(rec.get("handrails")),
+                                     "slices": len(rec["slices"]), "reason": rec["reason"],
+                                     **({"accessible_open": rec["accessible_open"]} if rec.get("accessible_open") else {})})
+            assumed.append({"object": wid, "field": "path_grading", "value": rec["kind"], "reason": rec["reason"]})
+            continue
         v, f = draped_faces(area["polygon"], holes, terrain, lift=area["lift"], z=z)
         if not f:
             continue
-        look = area_look(area, looks)
         mat = make_material(look)
-        wid = str(area.get("id") or f"{area['kind']}_{len(summary['objects'])}")
-        status = "assumed" if area.get("source") == "assumed" else "verified"
         ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site_area", status=status,
                                     materials=[mat])
         entry(ob.name, wid, "site_area", mat, status,
               {"assumed": {"lift_m": area["lift"]} if z is not None else {"lift_m": area["lift"], "draped": True},
                "area_kind": area["kind"], "area_id": area.get("area_id"), "slug": look.get("material"),
                "colour": look.get("colour"), "look_source": look.get("source")})
+        if GR.AREA_USES.get(area["kind"]):
+            built_floors.setdefault(GR.AREA_USES[area["kind"]], look.get("material"))
+        if area["kind"] == "path" and rec is not None:
+            # a walk on the ground: a stone edging where it meets the lawn
+            ed = GR.walk_edging(area, gzt, walk=[w for w in walk if not _same_poly(w, area["polygon"])])
+            if ed:
+                v, f = geom2d.merge(ed)
+                name = f"{wid}_edging"
+                mat = edge_mat(f"edging:{floors['edging'].get('material')}", floors["edging"])
+                ob = common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind="site_area",
+                                            status="assumed", materials=[mat])
+                entry(ob.name, name, "site_area", mat, "assumed",
+                      {"parent": wid, "inferred": True, "area_kind": "edging", "slug": floors["edging"].get("material"),
+                       "assumed": {"reason": floors["edging"]["reason"]}})
+            summary["paths"].append({"id": wid, "kind": "walk", "local": rec.get("local"), "cross": rec.get("cross"),
+                                     "reason": rec.get("reason")})
     # Milestone 13 (T6): the platforms (one level each with retaining walls, kerbs, steps and railings)
     if pfs:
         # Round 3 (P1 'platforms' row): retaining walls and kerbs are a neutral concrete (PLATFORM_LOOKS), the steps
@@ -5080,7 +5254,16 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                       "assumed": True,
                                       "reason": "retaining wall: neutral concrete (the vocabulary slug resolved to "
                                                 "the facade material)"})
-        step_mat = make_material(looks.get("steps") or looks["paving"])
+        # 28 Oct 2026 (users on real04: grey retaining walls, "a bare grey concrete retaining wall box"): the retaining,
+        # cheek and wing walls in the house's base stone (grading.wall_look), the kerbs of a drive stay concrete
+        stone = make_material(wall_look)
+        if facade_name and getattr(stone, "name", None) == facade_name:
+            stone = make_material({"material": GR.FLOOR_SETS["default"][1], "colour": None, "source": "build",
+                                   "assumed": True, "reason": "retaining wall: stone (the base slug resolved to the "
+                                                             "facade material)"})
+        step_mat = make_material(floors["steps"])
+        summary["walls"] = {"material": wall_look.get("material"), "source": wall_look.get("source"),
+                            "reason": wall_look.get("reason"), "coping": floors["steps"].get("material")}
         rail_mat = make_material(looks.get("railing") or {"material": SITE_FALLBACK_LOOKS["railing"], "colour": None})
         for pf in pfs:
             # 25 Oct 2026 (real04 ext_7: the stepped bands read as paved concrete boxes): a stepped band is a planted
@@ -5089,9 +5272,13 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                          "paving" if pf["kind"] in ("terrace", "pool", "path") else "parking",
                          "id": pf["id"], "material": None if pf.get("parent") else pf.get("material"),
                          "colour": None if pf.get("parent") else pf.get("colour")}
-            slab_look = outdoor_floor_look(pf) or area_look(slab_area, looks)
-            mats = {"slab": make_material(slab_look), "wall": concrete, "kerb": concrete, "steps": step_mat,
-                    "railing": rail_mat}
+            # 28 Oct 2026: a terrace, pool deck, drive or path platform takes its use's floor (grading.floor_set)
+            slab_look = outdoor_floor_look(pf) or (area_look(slab_area, looks) if pf.get("parent") or pf.get("material")
+                                                   else floors[GR.slab_use(pf)])
+            if not pf.get("parent") and pf.get("source") != "outdoor_space":
+                built_floors.setdefault(GR.slab_use(pf), slab_look.get("material"))
+            mats = {"slab": make_material(slab_look), "wall": stone, "kerb": concrete, "steps": step_mat,
+                    "railing": rail_mat, "coping": step_mat}
             # 27 Oct 2026: the underside of a cover and of a raised outdoor floor is a ceiling of wood boards
             soffit = None
             if pf.get("source") == "outdoor_space":
@@ -5145,6 +5332,10 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                          "band_blocked": pf.get("band_blocked") or [],
                                          "cap_exceeded": pf.get("cap_exceeded") or [],
                                          "wall_max_m": round(wall_max, 3), "retaining_cap_m": RETAINING_MAX_M,
+                                         # 28 Oct 2026: the lawn and planted banks instead of walls (grading)
+                                         "banks": [{"edge": e["edge"], "finish": e["finish"],
+                                                    "slope": round(e["slope"], 4), "width_m": e["width_m"]}
+                                                   for e in pf.get("embankments") or []],
                                          "walls": built_walls,
                                          "materials": {k: getattr(m, "name", None) for k, m in mats.items()
                                                        if k in {q["part"] for q in parts}}})
@@ -5162,7 +5353,7 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
             parts = pool_parts(pool, terrain, deck_z=pool.get("deck_z"))
             built = [("basin", tile, "basin"), ("water", water, "water")]
             if levers.get("pools") and parts["coping"][1]:
-                built.append(("coping", step_mat if pfs else make_material(looks["paving"]), "coping"))
+                built.append(("coping", step_mat if pfs else make_material(floors["steps"]), "coping"))
             for part, mat, suffix in built:
                 v, f = parts[part]
                 name = f"{pool['id']}_{suffix}"
@@ -5303,7 +5494,8 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                          "(inferred; no planting drawn)"}})
         summary["grass"] = grec
     if inferred:                                     # Milestone 11 E11: steps and the fence (inferred)
-        step_mat = make_material(looks.get("steps") or looks["paving"]) if inferred["steps"] else None
+        # 28 Oct 2026: the entrance steps in the floor set's steps stone (grading.floor_set)
+        step_mat = make_material(floors["steps"]) if inferred["steps"] else None
         rail_mat = make_material(looks.get("railing") or {"material": SITE_FALLBACK_LOOKS["railing"],
                                                           "colour": None}) \
             if any(st.get("rails") for st in inferred["steps"]) else None
@@ -5361,6 +5553,18 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                              for t in inferred["trees"]]}
     for a in plan["assumed"]:
         assumed.append({"object": "site", "field": a["field"], "value": a["value"], "reason": a["reason"]})
+    # 28 Oct 2026: the outdoor floors by use as built (model review M13 G7) and the grading of the site
+    if any(pf.get("steps_edge") is not None for pf in pfs) or (inferred or {}).get("steps"):
+        built_floors.setdefault("steps", floors["steps"].get("material"))
+    summary["floors"] = {"family": floors.get("family"), "set": {u: floors[u].get("material") for u in GR.FLOOR_USES},
+                         "built": built_floors, "reasons": {u: floors[u].get("reason") for u in GR.FLOOR_USES}}
+    summary["grading"] = {"banks": [{k: row.get(k) for k in ("platform", "edge", "finish", "slope", "fill", "width_m")}
+                                    for row in terrain.get("grading") or []],
+                          "tiers": sum(1 for pf in pfs if pf.get("parent")),
+                          "planted_tiers": sum(1 for pf in pfs if pf.get("parent") and (pf.get("planting") or {}).get("plants")),
+                          "flights": [{"platform": pf["id"], **{k: v for k, v in (pf.get("flight_down") or {}).items()
+                                                               if k not in ("footprint", "landing")}}
+                                      for pf in pfs if pf.get("flight_down")]}
     summary["vegetation_counts"] = vegetation_counts(summary)       # Milestone 13 (T8 metric 11): per source
     return summary
 

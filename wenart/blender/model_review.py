@@ -56,6 +56,14 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   door's width, no two swing leaves into one room that sweep over each other; and (user: "Not every opening inside the
   house requires a door or a window") no passage drawn open between two rooms with a leaf (unless a room needs
   privacy), glass or a guard (with no drop) a decision gave it.
+- M13 the grading of the site and its outdoor floors (28 Oct 2026, users on real04: "There could be better outside
+  solutions to the grade slope", "Better solutions needed for the elevation difference outside", "I am not liking this
+  is the only outside flooring"; ``grading.review``): G1 every terrace tier planted, the tiers of one side at one level;
+  G2 every tread on its riser and the ground, never buried by the ground beside it without a hole and cheek walls,
+  never through a planter, wall, hedge or pool; G3 paths level across, stepped with landings where steeper than 1:12;
+  G4 a ramp only on an accessible route, at most the ramp slope of its rise; G5 banks at most 1:3 (lawn) or 1:2
+  (planted); G6 retaining walls in the house's base stone (never bare concrete) with a coping; G7 never one floor look
+  for every outdoor use. Each finding carries its rule (``metrics.rule``) and element.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -89,7 +97,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13")
 # M11 (27 Oct 2026): the roof as the roof plan draws it. Physical reasons:
 M11_IOU_MIN = 0.90              # the built roof's footprint matches the drawn eaves loop within a gutter's width all
                                 # round (a 0.15 m band around a 10 x 15 m roof is about 5 % of it)
@@ -737,6 +745,19 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError,
             ImportError) as exc:
         checks["M12"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M13 (28 Oct 2026, users on real04's slope and outdoor floors): the grading of the site as a landscape architect
+    # checks it, on the site plan (the architect's paths and steps in) and the scene manifest's floors and walls
+    site = (prep or {}).get("site")
+    if not site:
+        checks["M13"] = {"status": "unavailable", "note": "no site plan (not a whole building, or site: none)"}
+    else:
+        try:
+            from wenart.blender import grading as GR
+
+            got, n = GR.review(site, scene_manifest)
+            note("M13", got, n)
+        except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+            checks["M13"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     return {"findings": findings, "checks": checks}
 
 

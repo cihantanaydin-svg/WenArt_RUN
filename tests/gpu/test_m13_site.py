@@ -216,11 +216,15 @@ def test_hedge_tree_sources_and_pool_in_blender(tmp_path):
     assert "ShaderNodeTexBrick" in p["tiles_nodes"]
     assert p["terrain"]["sides"] == [] and p["terrain"]["changes"] == [] and p["terrain"]["kind"] == "flat"
     assert {"pool_tiles", "pool_water", "veg_hedge_core", "veg_leaf_cherry_laurel"} <= set(res["materials"])
-    # round 3: the stepped terrace: bands, every wall built within the cap, concrete walls (never the facade)
+    # round 3: the stepped terrace: bands, every wall built within the cap, never the facade's material; 28 Oct 2026
+    # (wenart/blender/grading.py): with room around it (no plot, nothing beside it) the terrace meets the ground by
+    # lawn banks of at most 1:3 instead of tiers, its walls in the house's base stone with copings
     t = res["terrace"]
     assert t["terrain"]["kind"] == "sides" and len(t["terrain"]["sides"]) == 2
     ids = [q["id"] for q in t["platforms"]]
-    assert "t1" in ids and any(q["parent"] == "t1" for q in t["platforms"])
+    t1 = next(q for q in t["platforms"] if q["id"] == "t1")
+    assert any(q["parent"] == "t1" for q in t["platforms"]) or t1.get("banks")
+    assert all(b["slope"] <= 0.5 + 1e-6 for b in t1.get("banks") or [])
     assert all(q["wall_max_m"] <= S.RETAINING_MAX_M + 1e-6 for q in t["platforms"]), \
         [(q["id"], q["wall_max_m"]) for q in t["platforms"]]
     assert all(w["height_m"] <= S.RETAINING_MAX_M + 1e-6 for q in t["platforms"] for w in q["walls"])
@@ -283,7 +287,9 @@ def test_real04_site_builds_and_the_site_view_sees_the_sky(tmp_path, monkeypatch
     assert any(p.get("parent") for p in site["platforms"])
     over = {(p["id"], c["edge"]) for p in site["platforms"] for c in p.get("cap_exceeded") or []}
     assert all(c["blocked_by"] for p in site["platforms"] for c in p.get("cap_exceeded") or [])
-    assert {pid for pid, _e in over} <= {"sp_002", "sp_004"}
+    # (as tests/test_m13_site.py: the decks held by the driveway's wall, the band sides at sp_002's north end and, 28
+    # Oct 2026, the walled end of sp_004_s1e7 where the bare slab side showed before)
+    assert {pid for pid, _e in over} <= {"sp_002", "sp_003", "sp_004", "sp_002_s1e4", "sp_002_s1e5", "sp_004_s1e7"}
     assert all(p["wall_max_m"] <= S.RETAINING_MAX_M + 1e-6 or p["cap_exceeded"] for p in site["platforms"]), \
         [(p["id"], p["wall_max_m"]) for p in site["platforms"] if p["wall_max_m"] > S.RETAINING_MAX_M]
     assert all(w["height_m"] <= S.RETAINING_MAX_M + 1e-6 for p in site["platforms"] for w in p["walls"]
@@ -291,7 +297,10 @@ def test_real04_site_builds_and_the_site_view_sees_the_sky(tmp_path, monkeypatch
     assert all(w["edge"] not in p["against_edges"] for p in site["platforms"] for w in p["walls"])
     assert next(p for p in site["platforms"] if p["id"] == "sp_001")["against_edges"]
     assert all(p["ground_z"] and p["materials"].get("slab") for p in site["platforms"])
-    assert len(site["vegetation"]) == 19 and {v["method"] for v in site["vegetation"]} <= {"polyhaven", "sapling", "cards", "palm"}
+    # 28 Oct 2026: the 19 drawn shrubs and the inferred shrubs of the planted terrace tiers (grading.tier_plants)
+    drawn = [v for v in site["vegetation"] if "_plant" not in v["id"]]
+    assert len(drawn) == 19 and len(site["vegetation"]) > 19
+    assert {v["method"] for v in site["vegetation"]} <= {"polyhaven", "sapling", "cards", "palm"}
     assert all(v["species"] == "oleander" and v["size_class"] == "shrub" for v in site["vegetation"])
     assert all((v["leaf_faces"] or 0) > 0 for v in site["vegetation"] if v["method"] == "sapling")
     assert site["lawn"] and site["lawn"]["applied"]                     # round 3: the lawn look on the ground

@@ -336,6 +336,10 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     # 27 Oct 2026: the model review's M9 (a stair cut off from its floor, a floor opening across a door or cutting a
     # floor apart): the stair's reading and its opening are the architect's (K4 at build, stair_access.fix_arrivals)
     "stair_access": (),
+    # 28 Oct 2026: the model review's M13 (bare or staggered terrace tiers, loose or buried treads, steps through a
+    # planter, a tilted path, a steep bank, bare concrete walls, one floor look everywhere): the site stage grades
+    # the garden by code (wenart/blender/grading.py); no agent tool draws the terrain
+    "site_grading": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -404,6 +408,10 @@ NO_TOOL_REASON: dict[str, str] = {
     "roof_reading": "the roof's outline comes from the roof plan (the reading puts its eaves loop on the walls, "
                     "wenart.sheets.to_building.roof_outline_record): no agent tool draws a roof outline, so the "
                     "finding is reported to the reading stage",
+    "site_grading": "the garden on the slope is graded by code (wenart/blender/grading.py: terraces at one level per "
+                    "side and planted, banks of at most 1:3 / 1:2, flights of solid treads with cheek walls and a "
+                    "landing, paths level across and stepped, walls in the house's base stone with a coping, the "
+                    "floors by use); no agent tool changes the terrain, so the finding is reported to the site stage",
     "unknown": "no agent tool fixes this check",
 }
 # Fix round after P6b: why a drawn fixed piece's F7 / G12 / G8 is "not yours" (``FIXTURE_LAYOUT``).
@@ -428,6 +436,8 @@ REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor",
                              "roof_reading": "reading",
                              # 27 Oct 2026: the walk from the stairs (model review M9) is the architect's
                              "stair_access": "architect",
+                             # 28 Oct 2026: the grading of the site (model review M13) is the site stage's
+                             "site_grading": "site",
                              # fix round after P4b: a frozen replayed camera, a decor light's model
                              "replayed_camera": "cameras", "decor_model": "decor",
                              # fix round after P5: a blocked view the camera search could not avoid
@@ -478,6 +488,7 @@ CHECK_CAUSE: dict[str, str] = {
     "M6": "opening_style", "M7": "missing_anchor", "M8": "entrance_layout", "M9": "stair_access",
     "M10": "outdoor_space", "M11": "roof_reading",
     "M12": "opening_sense",          # 27 Oct 2026: doors side by side (the architect and Argus own it)
+    "M13": "site_grading",           # 28 Oct 2026: the grading of the site and its outdoor floors
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",

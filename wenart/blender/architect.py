@@ -154,10 +154,12 @@ def steps_open(platform: dict) -> bool:
     return i not in (platform.get("railing_edges") or []) or i in (platform.get("railing_gaps") or [])
 
 
-def access_edge(platform: dict) -> Optional[int]:
+def access_edge(platform: dict, site: Optional[dict] = None) -> Optional[int]:
     """The edge for a new flight down to the garden (pure): not against the building, not shared with a band, the
     ground under it lower by ``level_tol`` .. ``ACCESS_MAX_DROP_M``, long enough for a flight; the smallest drop
-    first, then the longest edge."""
+    first, then the longest edge. 28 Oct 2026 (user on real04: "steps that cut through boxes"): with the ``site``
+    plan, an edge whose flight (``grading.down_flight`` on the site's terrain) would run through a terrace band,
+    another platform or a hedge is no candidate."""
     from wenart.blender.site import PLATFORM
 
     poly = platform.get("polygon") or []
@@ -174,6 +176,19 @@ def access_edge(platform: dict) -> Optional[int]:
             continue
         if PLATFORM["level_tol"] < float(drop) <= ACCESS_MAX_DROP_M:
             cands.append((float(drop), -length, i))
+    if site and site.get("terrain") and cands:
+        from wenart.blender import grading as GR
+        from wenart.blender import site as S
+        gz = (lambda x, y: S.ground_z(site["terrain"], x, y))
+        others = [q["polygon"] for q in site.get("platforms") or [] if q is not platform and q.get("id") !=
+                  platform.get("id") and not q.get("sloped") and len(q.get("polygon") or []) >= 3]
+        others += [p for h in site.get("hedges") or [] for p in S._hedge_footprints(h)]
+        free = []
+        for c in cands:
+            fl = GR.down_flight(dict(platform, steps_edge=c[2], steps_dir=None), gz)
+            if fl is None or not any(S.convex_overlap(fl["footprint"], q, tol=0.01) for q in others):
+                free.append(c)
+        cands = free
     return min(cands)[2] if cands else None
 
 
@@ -182,9 +197,10 @@ PATH_TARGET_STEP_M = 0.5        # the points of an existing path a new path may 
 LANDING_M = 0.6                 # the new path starts this far past the last step
 
 
-def steps_landing(pf: dict) -> Optional[tuple[float, float]]:
+def steps_landing(pf: dict, terrain: Optional[dict] = None) -> Optional[tuple[float, float]]:
     """Where a platform's flight of steps lands on the ground (pure): past the last tread, out from the middle of the
-    steps edge."""
+    steps edge. 28 Oct 2026: with the ``terrain`` the flight as the build makes it (``grading.down_flight``: it runs
+    out until its last riser lands on the ground), its landing 0.6 m past the last riser."""
     from wenart.blender.site import PLATFORM
 
     i = pf.get("steps_edge")
@@ -194,6 +210,12 @@ def steps_landing(pf: dict) -> Optional[tuple[float, float]]:
     if pf.get("steps_dir") == "up":                      # a flight up out of a sunken deck lands on the slope above
         land = (pf.get("flight") or {}).get("landing")
         return (float(land[0]), float(land[1])) if land else None
+    if terrain is not None:
+        from wenart.blender import grading as GR
+        from wenart.blender import site as S
+        fl = GR.down_flight(pf, lambda x, y: S.ground_z(terrain, x, y))
+        if fl is not None:
+            return float(fl["landing"][0]), float(fl["landing"][1])
     a, b = poly[i], poly[(i + 1) % len(poly)]
     length = G.distance(a, b)
     if length <= 1e-6:
@@ -301,6 +323,10 @@ def site_keep_out(site: dict, skip_id: str) -> list:
         if pf["id"] == skip_id or pf.get("kind") == "parking" or pf.get("sloped"):
             continue
         keep.append(pf["polygon"])
+    # 28 Oct 2026 (grading.bank_zones): a path never runs along a platform's lawn or planted bank (it would tilt
+    # across the bank's slope: real04's access paths crossed sp_001's and sp_004's banks at a 50 % cross fall)
+    from wenart.blender import grading as GR
+    keep += GR.bank_zones(site.get("terrain"))
     return keep
 
 
@@ -311,7 +337,7 @@ def outside_access(pf: dict, site: dict) -> Optional[list[dict]]:
     from wenart.blender.site import INFERRED
 
     half = INFERRED["path_width"] / 2.0
-    start = steps_landing(pf)
+    start = steps_landing(pf, site.get("terrain"))
     paths = [a for a in site.get("areas") or [] if a.get("kind") == "path"]
     if start is None:
         return None
@@ -362,7 +388,7 @@ def review_access(prep: dict, outer_doors: Sequence[dict]) -> dict:
             change = (f"the glass railing on edge {i} closed its steps: the railing now stops "
                       f"{STEP_GAP_M:.2f} m beside the flight")
         else:
-            i = access_edge(pf)
+            i = access_edge(pf, site)
             if i is None:
                 q["answers"].append({"element": pf["id"], "found": f"{name}: no door from the house at its level and "
                                      f"no edge where steps of up to {ACCESS_MAX_DROP_M:g} m can reach the garden",
@@ -1168,6 +1194,8 @@ def review(building: dict, prep: dict) -> dict:
         questions.append(review_access(prep, outer))
         questions.append(review_light_wells(prep))
         questions.append(review_deck_doors(building, prep, outer, windows))
+        # 28 Oct 2026: the grading and the outdoor floors (G2, G3), after A2 / B2 added their steps and paths
+        questions += RULES.grading_rules(prep)
     return summary(close_answered(questions, answers, applied), applied)
 
 
@@ -1311,7 +1339,7 @@ def status_of(a: dict) -> str:
 
 ORDER = ("B1", "B2", "A2", "A5", "E1", "O2", "C1", "C2", "T1", "T2", "L1", "W2", "L2", "W3", "W5", "P1", "R1", "R2",
          "R3", "R4", "R5", "O1", "D1", "D2", "D4", "D5", "D6", "D3", "X1", "F5", "F1", "F2", "F3", "F4", "H1", "U1",
-         "S4", "S2", "S3", "K4", "K1", "K2", "K3", "S1", "A3", "A4", "A1", "G1")
+         "S4", "S2", "S3", "K4", "K1", "K2", "K3", "S1", "A3", "A4", "A1", "G1", "G2", "G3")
 
 
 def summary(questions: list[dict], applied: Optional[Sequence[dict]] = None) -> dict:

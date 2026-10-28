@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-10-27",
+ "updated": "2026-10-28",
  "lessons": [
   {
    "id": "UL01",
@@ -643,6 +643,43 @@
    "request": "Tall windows where the style favours large glazing (user, 27 Oct 2026, on a Scandinavian two-storey house's renders: 'In some of the rooms the full windows from top to bottom (with a bit of remaining wall of course) could look better').",
    "lesson": "In a style family that favours large glazing (scandinavian, japandi, modern, minimal, contemporary; not classic, rustic, mediterranean, industrial) the windows of the living, dining and bed rooms (and of a dry room onto a terrace or garden) whose sill and head no document fixes become tall windows: a 0.20 m upstand to 0.25 m under the ceiling or the roof, the drawn width and position kept, all windows of one facade of the room alike; never in a wet room, never behind a wall-backed piece (a dresser, wardrobe, bed head, desk, sideboard or kitchen run keeps the sill the fit caps it at); the house's guard over a drop (W3); curtains and blinds follow the new head (architect rule W5, action tall_window).",
    "question": "Do the living, dining and bed rooms of a large-glazing style have tall windows wherever the documents fix no sill or head and no wall-backed piece stands in front, the same on every facade of the room, with a guard over a drop?"
+  },
+  {
+   "id": "UL57",
+   "date": "2026-10-28",
+   "area": "site",
+   "status": "rule",
+   "checks": [
+    "G2",
+    "A2"
+   ],
+   "request": "There could be better outside solutions to the grade slope (real04 run 20261028-005318-full: on the slope between the pool terrace and the garden, bare concrete box planters stacked like stairs, steps cutting through boxes, a tilted paved ramp running diagonally down the slope with a strip of lawn inside it, grey retaining walls)",
+   "lesson": "A level difference in the garden is designed as a landscape architect builds it, on every project: where the ground can be graded (room inside the plot, clear of the house and the other platforms, a way past left, a natural slope gentler than the bank) the terrace meets the ground by a lawn bank of at most 1:3 or a planted bank of at most 1:2, no wall; a taller difference steps down in terraces whose tiers along one side share one level, each tier a planted bed, every tier end walled; steps are real flights (risers of at most 0.15 m, the step rule, a landing every 12 risers) that follow the ground to their foot, with cheek walls and a landing, and the terraces stop beside them (no steps through a planter); a path is laid level across, up to 1:20 a walk with an edging, up to 1:12 a sloped walk, steeper a stepped path of landings and short flights with stone step edges and a handrail over 0.45 m; a ramp only on an accessible route; retaining walls in the house's base stone with a coping (wenart/blender/grading.py; the model review's M13 and the architect's G2 check it)",
+   "question": "Does the garden meet every level difference as a landscape architect would build it: banks of at most 1:3 / 1:2, terraces at one level per side and planted, flights of solid treads with cheek walls and a landing, paths level across and stepped where steeper than 1:12, a ramp only where accessibility asks, walls in the house's base stone with a coping?"
+  },
+  {
+   "id": "UL58",
+   "date": "2026-10-28",
+   "area": "site",
+   "status": "rule",
+   "checks": [
+    "G2"
+   ],
+   "request": "Better solutions needed for the elevation difference outside (an aerial view of real04: a bare grey concrete retaining wall box next to the paved terrace and the pool, inside it a row of loose concrete bars or slabs lying across the grass like floating step treads, with grass between them)",
+   "lesson": "Never a loose tread or slab over the grass and never a bare concrete box: every step of a garden flight is a solid block on the one below and on the ground, from the upper level to the lower one, its flight a hole in the lawn held by cheek walls that stand over the ground beside it, its last riser landing on a landing pad at the highest ground under it (a flight that would end under the lawn is not built: the edge meets the ground); a level difference is a planted slope (at most 1:3 lawn, 1:2 ground cover), terraced planters with a coping and planting, or such steps; every retaining, cheek and wing wall has a finish (the house's base stone) and a coping; the model review's M13 G2 / G6 and the architect's G2 find a tread that does not sit on its riser or the ground and a bare concrete or uncoped wall",
+   "question": "Does every garden step sit on its riser and the ground (no loose tread in the grass), and is every retaining wall finished in stone or render with a coping (never bare concrete)?"
+  },
+  {
+   "id": "UL59",
+   "date": "2026-10-28",
+   "area": "site",
+   "status": "rule",
+   "checks": [
+    "G3"
+   ],
+   "request": "I am not liking this is the only outside flooring (real06 / real04: the garden path and the entrance steps in the same large grey square slabs with mossy joints as the terraces and the drive, with steel handrails)",
+   "lesson": "The outdoor floors are a designed set by use and style family, never one slab everywhere: the terrace and pool deck in stone or porcelain slabs with a tight joint (decking where the style calls for it), the steps and copings in a stone with a tread edge, the garden path in gravel, clay or brick pavers with a stone edging where it meets the lawn, the drive and parking in a stronger paver, all in one language with the house's base stone; a material the documents draw, or a paving the style or the brief names for the terrace, wins; every inferred floor is recorded with its reason (grading.floor_set; the model review's M13 G7 and the architect's G3 find a site whose every outdoor floor has one look)",
+   "question": "Does each outdoor floor have the material of its use (terrace and pool deck, steps, garden path, drive), in one language with the house's base, never one slab everywhere?"
   }
  ]
 }

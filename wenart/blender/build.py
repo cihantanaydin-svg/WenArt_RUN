@@ -1124,6 +1124,11 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
             out["overrides_applied"]["site"] = {k: v for k, v in out["site_options"]["source"].items() if v == "agent"}
         out["site"] = S.site_plan(vb, vb["levels"], out["ground_outline"], mode, outlines=out["outlines"],
                                   options=out["site_options"])
+        # 28 Oct 2026 (wenart/blender/grading.py): the site's floors by the style family and its walls in the house's
+        # base stone (build_site and the model review's M13 read them)
+        from wenart.blender import grading as GR
+        out["site"]["style_family"] = style_family
+        out["site"]["wall_look"] = GR.wall_look(vb, style_family)
         out["warnings"] += out["site"]["warnings"]
         out["main_facade"] = S.main_facade(vb, vb["levels"], out["site"]["terrain"], out["ground_outline"],
                                            out["outlines"])

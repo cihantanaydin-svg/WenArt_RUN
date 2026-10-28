@@ -73,6 +73,9 @@ CHECK_KIND = {
     # 27 Oct 2026: the visitor's walk from every stair into its floors and to every door (model_review.stair_walks)
     "M9": "no_sense",
     "M12": "no_sense",
+    # 28 Oct 2026: the grading of the site and its outdoor floors (grading.review; a finding of a tread through a
+    # planter carries its own kind, geometry, a crude look taste)
+    "M13": "no_sense",
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",
