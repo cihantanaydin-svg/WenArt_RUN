@@ -266,20 +266,23 @@ def local_spent_on(text: str, day: str) -> float:
     return total
 
 
-def upsert_gpu_log(text: str, row: dict, key: str | None = None) -> str:
+def upsert_gpu_log(text: str, row: dict, key=None) -> str:
     """Insert a row into the gpu-log table (or replace the row whose Pod ID cell equals
-    `key`) and recompute the total. Returns the new text."""
+    `key`) and recompute the total. Returns the new text. `key` may be a sequence: the first key that names a row
+    is replaced (28 Oct 2026: a re-attached runner replaces the pod's row, else the job's provisional row)."""
     lines = text.splitlines()
     new = (f"| {row['date']} | {row['pod_id']} | {row['gpu']} | {row['minutes']} | "
            f"{row['cost']:.2f} | {row['purpose']} | {row['result']} |")
     replaced = False
-    if key:
+    for k in ([key] if isinstance(key, str) else list(key or [])):
         for i, l in enumerate(lines):
             cells = [c.strip() for c in l.strip().strip("|").split("|")]
-            if len(cells) == 7 and cells[1] == key:
+            if k and len(cells) == 7 and cells[1] == k:
                 lines[i] = new
                 replaced = True
                 break
+        if replaced:
+            break
     if not replaced:
         last_row = max(i for i, l in enumerate(lines) if l.startswith("|"))
         lines.insert(last_row + 1, new)
@@ -421,7 +424,7 @@ def stop(pod_id: str) -> bool:
 
 
 def log_run(pod_id: str, gpu: str, minutes: float, cost: float, purpose: str, result: str,
-            key: str | None = None) -> None:
+            key=None) -> None:
     row = {"date": utc_now().strftime("%Y-%m-%d %H:%M"), "pod_id": pod_id, "gpu": gpu,
            "minutes": int(round(minutes)), "cost": cost, "purpose": purpose, "result": result}
     GPU_LOG.write_text(upsert_gpu_log(GPU_LOG.read_text(), row, key))
@@ -510,6 +513,16 @@ def is_big_result(rel_name: str) -> bool:
     ``<alias>/final/3d/``)."""
     parts = rel_name.split("/")
     return len(parts) >= 2 and parts[-2] == "3d" and parts[-1].endswith(COLLECT_BIG_SUFFIXES)
+
+
+COLLECT_IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png", ".exr", ".webp", ".tif", ".tiff")
+
+
+def collect_order(rel_name: str) -> tuple[int, int]:
+    """The download order of a result file (28 Oct 2026; real04 run 005318: the 400 MB cap cut the scene and render
+    manifests, the stage records and the agent log, while previews filled it): text records first (JSON, Markdown,
+    logs), then images, then the 3D files; so the cap only ever cuts images."""
+    return (int(is_big_result(rel_name)), int(rel_name.lower().endswith(COLLECT_IMAGE_SUFFIXES)))
 
 
 def parse_listing(html: str) -> tuple[list[str], list[str]]:
@@ -650,7 +663,7 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS, 
             state["total"] += len(raw)
         (run_dir / tree / rel_name).write_bytes(raw)
 
-    todo.sort(key=lambda item: is_big_result(item[1]))          # the small files first (stable order otherwise)
+    todo.sort(key=lambda item: collect_order(item[1]))          # records, then images, then 3D (stable otherwise)
     with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
         list(pool.map(get, todo))
     if state["capped"]:
@@ -1063,7 +1076,9 @@ def cmd_attach(a: argparse.Namespace) -> int:
             wait_stopped(pod_id)
     minutes_used = (time.time() - t0) / 60
     result = run_result(final_status, stopped_by, self_stopped, result) + " (runner re-attached)"
-    log_run(pod_id, gpu_name, minutes_used, price * minutes_used / 60, a.purpose, result, key=pod_id)
+    # 28 Oct 2026 (real06 run 222248): the job's provisional row goes too, else the run counts twice
+    log_run(pod_id, gpu_name, minutes_used, price * minutes_used / 60, a.purpose, result,
+            key=(pod_id, f"pending:{job_id}"))
     terminate(pod_id)
     print(f"result: {result}; {minutes_used:.1f} min, ~${price * minutes_used / 60:.2f}; files in runs/{job_id}/")
     return 0 if final_status and final_status["exit_code"] == 0 else 1

@@ -133,6 +133,12 @@ def test_upsert_replaces_provisional_row():
     # a missing key falls back to insert
     out = gpu_run.upsert_gpu_log(out, dict(ROW, pod_id="other", cost=0.10), key="nope")
     assert "| other |" in out and "**Total spent so far: $0.15**" in out
+    # 28 Oct 2026: a re-attached runner names the pod and the job's provisional row; the first that exists goes
+    out = gpu_run.upsert_gpu_log(out, dict(ROW, pod_id="pending:job2", cost=7.47, result="creating"))
+    out = gpu_run.upsert_gpu_log(out, dict(ROW, pod_id="pod2", cost=6.10), key=("pod2", "pending:job2"))
+    assert "pending:job2" not in out and "| pod2 |" in out and "**Total spent so far: $6.25**" in out
+    out = gpu_run.upsert_gpu_log(out, dict(ROW, pod_id="pod2", cost=6.20), key=("pod2", "pending:job2"))
+    assert out.count("| pod2 |") == 1 and "**Total spent so far: $6.35**" in out
 
 
 def test_local_spent_on_sums_only_that_day():
@@ -414,6 +420,15 @@ def test_big_results_are_only_the_3d_files():
     assert gpu_run.is_big_result("real-01/final/3d/real-01.glb")                # private layout
     assert not gpu_run.is_big_result("final/synthetic-04/3d/export_manifest.json")
     assert not gpu_run.is_big_result("library/models/abo/x.glb") and not gpu_run.is_big_result("x.blend")
+
+
+def test_records_are_collected_before_images_and_3d():
+    # 28 Oct 2026 (real04 run 005318): the size cap cut the scene manifest while previews filled it
+    names = ["final/p/3d/p.blend", "final/p/a_final_preview.jpg", "renders/p/scene_manifest.json",
+             "renders/p/v.exr", "agent/p/log.md", "final/p/3d/export_manifest.json"]
+    got = sorted(names, key=gpu_run.collect_order)
+    assert got[:3] == ["renders/p/scene_manifest.json", "agent/p/log.md", "final/p/3d/export_manifest.json"]
+    assert set(got[3:5]) == {"final/p/a_final_preview.jpg", "renders/p/v.exr"} and got[-1] == "final/p/3d/p.blend"
 
 
 def test_collect_is_not_ok_without_job_log_or_results(status_server, tmp_path):
