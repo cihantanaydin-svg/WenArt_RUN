@@ -252,7 +252,9 @@ def test_fetch_cli_collects_style_assets(tmp_path, monkeypatch, capsys):
                    "rustic_stone_wall_02",
                    # 27 Oct 2026: the outdoor spaces' floors (decking, paving_stone) and their wood ceiling
                    # (exterior.build_finish_slugs: site.OUTDOOR_FLOOR_LOOKS, OUTDOOR_SOFFIT_LOOK)
-                   "synthetic_wood", "floor_tiles_02", "oak_wood_planks"}
+                   "synthetic_wood", "floor_tiles_02", "oak_wood_planks",
+                   # 28 Oct 2026: the outdoor floors by use (grading.floor_set): the default family's gravel path
+                   "gravel_floor_02"}
     assert ("hdri", "kloppenheim_06", "1k") in calls
     assert ("texture", "Marble012", "1k") in calls and ("texture", "Marble012", "2k") in calls   # at --size
     out = capsys.readouterr().out
