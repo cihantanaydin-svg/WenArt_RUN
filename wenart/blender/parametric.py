@@ -1583,7 +1583,9 @@ def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k:
     """The ``k`` winder treads of a U stair's half landing (pure): sectors of 180 / k degrees around the pivot (the
     middle of the landing's edge between the two flights), from the first flight's side to the second's, clipped to
     the landing; tread ``j`` tops at ``z0 + j * riser``. ``[{"polygon", "top"}]``. 27 Oct 2026: a quarter landing (the
-    flights at right angles, an L stair) turns its treads around its inner corner (``_quarter_winders``)."""
+    flights at right angles, an L stair) turns its treads around its inner corner (``_quarter_winders``). 28 Oct 2026:
+    ``NEWEL_WINDERS_MIN`` winders or more turn as two quarter turns around the newels at the well
+    (``_newel_winders``); the single fan stays for fewer, or when the flights leave no well."""
     a, b = planned[0], planned[1]
     if abs(_d2(a["rise_dir"], b["rise_dir"])) < 0.5:
         return _quarter_winders(landing_poly, a, b, z0, riser, k)
@@ -1604,6 +1606,9 @@ def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k:
         t = min(max(_d2(pivot, v), es[0]), es[-1])
         pivot = (pivot[0] + v[0] * (t - _d2(pivot, v)), pivot[1] + v[1] * (t - _d2(pivot, v)))
     far = 50.0
+    corners = _newel_winders(poly, a, b, mid, base, u, v, side_a, z0, riser, k)
+    if corners:
+        return corners
     out = []
     for j in range(k):
         # angle from the first flight's side (along v * side_a, 0) through u (90) to the other side (180)
@@ -1624,6 +1629,68 @@ def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k:
         if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
             out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + (j + 1) * riser})
     return out
+
+
+# 28 Oct 2026 (user on real04's stairs: "There should have been better indoor stair solutions"): the half landing's
+# winders fanned from one point at the middle of the landing's edge (all treads meeting there, a spiral look). A U
+# stair with winders turns around its well instead: two quarter turns, each around the newel at its flight's inner
+# corner (the well's edge), the first flight's set climbing from its last nosing to the landing's middle, the second's
+# from the middle to its first nosing; the strip between the newels (the well's width) belongs to the tread at the
+# middle of each half, so the winders still tile the landing. NEWEL_WINDERS_MIN: fewer winders keep the single fan.
+NEWEL_WINDERS_MIN = 3
+
+
+def _sector(pivot, s, u, t0: float, t1: float, far: float = 50.0) -> list:
+    """The sector from angle ``t0`` to ``t1`` (radians, ``t1 - t0`` < pi) around ``pivot`` in the frame (``s`` at 0,
+    ``u`` at pi / 2)."""
+    pts = [pivot]
+    for t in (t0, (t0 + t1) / 2.0, t1):
+        d = (s[0] * math.cos(t) + u[0] * math.sin(t), s[1] * math.cos(t) + u[1] * math.sin(t))
+        pts.append((pivot[0] + d[0] * far, pivot[1] + d[1] * far))
+    return geom2d.ccw(pts)
+
+
+def _newel_winders(poly, a: dict, b: dict, mid, base: float, u, v, side_a: float, z0: float, riser: float,
+                   k: int) -> list[dict]:
+    """The ``k`` winders of a U stair's half landing as two quarter turns around the newels (the comment above);
+    [] when ``k`` < ``NEWEL_WINDERS_MIN`` or the flights leave no well between them (the single fan then)."""
+    if k < NEWEL_WINDERS_MIN:
+        return []
+    ca = G.segment_midpoint(a["nosings"][0], a["nosings"][-1])
+    cb = G.segment_midpoint(b["nosings"][0], b["nosings"][-1])
+    m_v = _d2(mid, v)
+    inner_a = _d2(ca, v) - side_a * float(a["width"]) / 2.0        # the well edge of each flight along v
+    inner_b = _d2(cb, v) + side_a * float(b["width"]) / 2.0
+    if side_a * (inner_a - m_v) < -1e-6 or side_a * (m_v - inner_b) < -1e-6:
+        return []                                                   # the flights overlap: no well
+    k1 = (k + 1) // 2
+    k2 = k - k1
+    s_a = (v[0] * side_a, v[1] * side_a)
+    s_b = (-s_a[0], -s_a[1])
+    pa = (u[0] * base + v[0] * inner_a, u[1] * base + v[1] * inner_a)
+    pb = (u[0] * base + v[0] * inner_b, u[1] * base + v[1] * inner_b)
+    # the two halves of the landing, split along its middle line (parallel to u through mid)
+    half_a = geom2d.clip_half_plane(list(poly), -s_a[0], -s_a[1], s_a[0] * mid[0] + s_a[1] * mid[1])
+    half_b = geom2d.clip_half_plane(list(poly), -s_b[0], -s_b[1], s_b[0] * mid[0] + s_b[1] * mid[1])
+    if not half_a or not half_b:
+        return []
+    out = []
+    half = math.pi / 2.0
+    for j in range(k1):                                             # the first flight's turn: from s_a to u (and on)
+        t0, t1 = half * j / k1, (half * (j + 1) / k1 if j < k1 - 1 else math.pi - 1e-6)
+        piece = _clip_convex(_sector(pa, s_a, u, t0, t1), geom2d.ccw(half_a))
+        if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
+            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + (j + 1) * riser})
+    for j in range(k2):                                             # the second's: from u (and before) to s_b
+        hi = half - half * j / k2
+        lo = half - half * (j + 1) / k2
+        t0, t1 = lo, (math.pi - 1e-6 if j == 0 else hi)
+        piece = _clip_convex(_sector(pb, s_b, u, t0, t1) if j else
+                             _sector(pb, s_b, u, lo, math.pi - 1e-6), geom2d.ccw(half_b))
+        if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
+            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece],
+                        "top": z0 + (k1 + j + 1) * riser})
+    return out if len(out) == k else []
 
 
 def _clip_convex(piece: list, poly: list) -> list:

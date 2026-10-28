@@ -276,3 +276,25 @@ def test_an_inside_door_model_never_goes_on_the_facade():
         assert OM._has(OM._title({"title": title}), OM.NOT_WORDS["entrance"]), title
     assert OM._has(OM._title({"title": "Front Door"}), OM.NOT_WORDS["terrace_door"])
     assert not OM._has(OM._title({"title": "Balcony door"}), OM.NOT_WORDS["terrace_door"])
+
+
+def test_a_u_stair_turns_its_winders_around_the_newels_at_the_well():
+    # 28 Oct 2026 (user on real04: "There should have been better indoor stair solutions"): no single fan
+    from shapely.geometry import Point, Polygon
+    from test_details_and_terraces import _u_stair
+    from wenart.blender import parametric as P
+
+    plan = P.stair_plan(_u_stair("auto"), 3.0)
+    w = plan["landing"]["winders"]
+    k = len(w)
+    assert k == plan["winders"] >= P.NEWEL_WINDERS_MIN
+    tops = [x["top"] for x in w]
+    assert tops == sorted(tops) and len(set(tops)) == k
+    a, b = plan["flights"]
+    pa, pb = (1.4, 0.475), (1.4, 0.675)                       # the well's edges at the landing (the newels)
+    near = [min(Point(pa).distance(Polygon(x["polygon"])), Point(pb).distance(Polygon(x["polygon"]))) for x in w]
+    assert all(d < 0.02 for d in near)                         # every tread turns around a newel
+    first, last = (k + 1) // 2, k - (k + 1) // 2
+    assert all(Point(pa).distance(Polygon(x["polygon"])) < 0.02 for x in w[:first])
+    assert all(Point(pb).distance(Polygon(x["polygon"])) < 0.02 for x in w[first:]) and last > 0
+    assert sum(Polygon(x["polygon"]).area for x in w) == pytest.approx(1.27 * 2.1, rel=1e-3)

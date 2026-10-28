@@ -785,6 +785,19 @@
    "request": "Mirrors in the baths is missing sometimes",
    "lesson": "Every built basin has a mirror over it, a required item, not an AI option: above it, else on the nearest free wall beside it (within 1.2 m, 0.6 m wide, slid towards the basin) when a window is behind it; an inferred basin gets one too.",
    "question": "Does every basin have a mirror over or beside it?"
+  },
+  {
+   "id": "UL69",
+   "date": "2026-10-28",
+   "area": "details",
+   "status": "built",
+   "checks": [
+    "K1",
+    "build"
+   ],
+   "request": "There should have been better indoor stair solutions should be there I did not like this one",
+   "lesson": "A U stair that needs winders turns them as two quarter turns of kite winders around the newels at its well (never one fan of treads from a single point); handrails and balustrade follow the house style.",
+   "question": "Do the stairs read as designed stairs (clean flights, winders turning around the newels, a continuous handrail), not a spiral fan or a heavy block?"
   }
  ]
 }
