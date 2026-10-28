@@ -267,3 +267,12 @@ def test_the_skirting_wraps_the_outside_corners_of_a_room():
     # both boards run on by their thickness: the corner square (2..2+t, 2-t..2) is closed, no notch
     assert any(abs(v[0] - (2.0 + t)) < 1e-6 and abs(v[1] - (2.0 - t)) < 1e-6 for v in verts)
     assert sum(1 for v in verts if abs(v[0] - (2.0 + t)) < 1e-6 and abs(v[1] - (2.0 - t)) < 1e-6) >= 4
+
+
+def test_an_inside_door_model_never_goes_on_the_facade():
+    # 28 Oct 2026 (real04 and real06 got a "bathroom door" on the facade, real04's terrace doors a "Front Door")
+    for title in ("bathroom door", "bedroom door toilet door", "20 HiQ container"):
+        assert OM._has(OM._title({"title": title}), OM.NOT_WORDS["door"]), title
+        assert OM._has(OM._title({"title": title}), OM.NOT_WORDS["entrance"]), title
+    assert OM._has(OM._title({"title": "Front Door"}), OM.NOT_WORDS["terrace_door"])
+    assert not OM._has(OM._title({"title": "Balcony door"}), OM.NOT_WORDS["terrace_door"])

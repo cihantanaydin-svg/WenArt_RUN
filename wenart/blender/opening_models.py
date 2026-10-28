@@ -78,7 +78,10 @@ WORDS = {                          # title words that say a model is meant for t
     "terrace_door": ("balcony", "glass", "glazed", "french", "patio", "terrace", "lite"),
     "window": ("window", "casement", "sliding", "awning", "tilt"),
 }
-INSIDE_WORDS = ("interior", "internal", "toilet", "elevator", "japanese", "closet", "wardrobe", "shower", "barn")
+INSIDE_WORDS = ("interior", "internal", "toilet", "elevator", "japanese", "closet", "wardrobe", "shower", "barn",
+                # 28 Oct 2026 (real04 and real06 got a "bathroom door" model on the facade): the rooms an inside door
+                # names, and what is no door of a house
+                "bathroom", "bedroom", "room door", " wc ", "container")
 # 27 Oct 2026: a one-leaf category (entrance, door, terrace door) never takes a model whose title names a sliding
 # system ("Lift Slide") or a pair ("Double ...", "Duble"): the build scales one model into the whole opening
 PAIR_WORDS = ("slide", "double", "duble", "pair")
@@ -86,7 +89,8 @@ NOT_WORDS = {                      # title words that rule a model out of the ca
     "entrance": ("sliding", "folding", "glass", "garage", "pack", "set", "window") + PAIR_WORDS + INSIDE_WORDS,
     "door": ("sliding", "folding", "garage", "pack", "set", "window") + PAIR_WORDS + INSIDE_WORDS,
     "glazed_door": ("garage", "pack", "set") + INSIDE_WORDS,
-    "terrace_door": ("garage", "pack", "set", "sliding", "folding") + PAIR_WORDS + INSIDE_WORDS,
+    # 28 Oct 2026 (real04's terrace doors took a "Front Door"): a front or entry door is no terrace door
+    "terrace_door": ("garage", "pack", "set", "sliding", "folding", "front", "entry") + PAIR_WORDS + INSIDE_WORDS,
     "window": ("pack", "set", "door", "curtain", "blind", "shutter", "wall"),
 }
 NEVER_FLAGS = ("no_derivatives", "unknown")
