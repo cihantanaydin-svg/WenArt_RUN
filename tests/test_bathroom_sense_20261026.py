@@ -191,7 +191,9 @@ def test_children_and_other_use_products_by_title_and_material():
 
 
 def test_the_fit_never_takes_a_toddler_sink_for_an_adult_bathroom():
-    toddler = model("toddler", "washbasin", 0.5, 0.4, 0.86, title="TODDLER SINK", quality=5.0)
+    # 28 Oct 2026 (wenart.furniture.model_title): a bare "sink" is a kitchen sink, never a washbasin; the children's
+    # rule is tested on a bathroom basin
+    toddler = model("toddler", "washbasin", 0.5, 0.4, 0.86, title="TODDLER BATHROOM SINK", quality=5.0)
     plain = model("plain", "washbasin", 0.52, 0.42, 0.86, title="Wash-basin", quality=3.0)
     cat = FakeCatalog([toddler, plain])
     p = piece("washbasin", 0.5, 0.4)
@@ -205,7 +207,7 @@ def test_the_fit_never_takes_a_toddler_sink_for_an_adult_bathroom():
 
 
 def test_fit_building_reads_the_child_room_from_the_room_subtype():
-    toddler = model("toddler", "washbasin", 0.5, 0.4, 0.86, title="TODDLER SINK", quality=5.0)
+    toddler = model("toddler", "washbasin", 0.5, 0.4, 0.86, title="TODDLER BATHROOM SINK", quality=5.0)
     plain = model("plain", "washbasin", 0.52, 0.42, 0.86, title="Wash-basin", quality=3.0)
     cat = FakeCatalog([toddler, plain])
     b = {"project": {"id": "t"}, "furniture": [piece("washbasin", 0.5, 0.4)],

@@ -231,7 +231,12 @@ FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry
                     # 27 Oct 2026: the architect's cover_space plans a light roof with the outdoor spaces' rules
                     "wenart/levels/outdoor.py", "wenart/building.py", "wenart/units.py", "wenart/furniture/fixture_seat.py",
                     # 27 Oct 2026: the stairs' walk check (stair_access.walk_graph) reads the fixed equipment types
-                    "wenart/furniture/schemas.py", "wenart/synthetic/__init__.py", "wenart/synthetic/blocks.py")
+                    "wenart/furniture/schemas.py", "wenart/synthetic/__init__.py", "wenart/synthetic/blocks.py",
+                    # 28 Oct 2026: catalog.usable reads the model rules (model_title -> the audit's title words, whose
+                    # package init imports the asset fetchers: standard library only, fine inside Blender)
+                    "wenart/furniture/model_title.py", "wenart/assets/__init__.py", "wenart/assets/ambientcg.py",
+                    "wenart/assets/fetch.py", "wenart/assets/polyhaven.py", "wenart/assets/web.py",
+                    "wenart/assets/audit/__init__.py", "wenart/assets/audit/keywords.py")
 # Asset-manifest keys that change on every fetch without changing the asset.
 FINGERPRINT_VOLATILE_KEYS = ("fetched_utc",)
 STYLE_ASSET_SLOTS = ("floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door", "window_frame",

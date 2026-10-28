@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from functools import lru_cache
 from typing import Optional
 
 # Family -> the catalogue types it names (furniture types and decor names, wenart.furniture.catalog).
@@ -379,20 +380,41 @@ def _token_eq(tok: str, word: str) -> bool:
     return tok == word or tok == word + "s" or tok == word + "es"
 
 
+@lru_cache(maxsize=None)
+def _compiled(keyword: str) -> tuple:
+    """28 Oct 2026 (speed only, the same matches): a keyword folded once (``("cjk", text)``, ``("stem", stem)`` or
+    ``("words", tokens)``); the library rules of ``wenart.furniture.model_title`` read every title of the catalogue
+    and every candidate of a fit, and folding every keyword again per title cost ~50 ms a title."""
+    if _CJK.search(keyword):
+        return ("cjk", keyword)
+    if keyword.startswith("~"):
+        return ("stem", fold(keyword[1:]).replace(" ", ""))
+    return ("words", tuple(fold(keyword).split()))
+
+
+@lru_cache(maxsize=8192)
+def _bases(toks: tuple) -> frozenset:
+    """The tokens of a title with their singular forms (``_token_eq``: a plural ``s`` / ``es``), for a quick test."""
+    out = set(toks)
+    out |= {t[:-1] for t in toks if t.endswith("s")} | {t[:-2] for t in toks if t.endswith("es")}
+    return frozenset(out)
+
+
 def _matches(toks: list[str], folded: str, keyword: str) -> list[tuple[int, int, int]]:
     """``(start, end, length)`` spans (token indices; CJK keywords: negative char spans) of one keyword."""
-    if _CJK.search(keyword):
+    kind, data = _compiled(keyword)
+    if kind == "cjk":
         out, start = [], folded.find(keyword)
         while start >= 0:
             out.append((-(start + 1) - 10_000, -(start + 1) - 10_000 + len(keyword), len(keyword) * 3))
             start = folded.find(keyword, start + 1)
         return out
-    if keyword.startswith("~"):
-        stem = fold(keyword[1:]).replace(" ", "")
+    if kind == "stem":
+        stem = data
         return [(i, i + 1, len(stem)) for i, t in enumerate(toks) if stem and stem in t]
-    words = fold(keyword).split()
+    words = data
     n = len(words)
-    if not n:
+    if not n or words[0] not in _bases(tuple(toks)):
         return []
     return [(i, i + n, len(" ".join(words))) for i in range(len(toks) - n + 1)
             if all(_token_eq(toks[i + k], words[k]) for k in range(n))]

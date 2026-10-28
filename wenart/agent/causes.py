@@ -476,7 +476,7 @@ CHECK_CAUSE: dict[str, str] = {
     "G10": "fixture_clearance", "G11": "clearance", "G12": "blocked_opening", "G13": "clearance",
     "G14": "wrong_type",
     "S1": "wrong_model", "S2": "collision", "S3": "built_front", "S4": "size", "S5": "decor_rest",
-    "S6": "wrong_model", "LG": "library_gap", "NR": "untyped", "RC": "wrong_type",
+    "S6": "wrong_model", "LG": "library_gap", "LT": "wrong_model", "NR": "untyped", "RC": "wrong_type",
     "X1": "geometry", "X2": "roof", "X3": "facade", "X4": "site", "X5": "scale", "X6": "exterior_camera",
     "X7": "sun", "X8": "material",
     "V1": "interior_camera", "V2": "render_match", "V3": "debug_marker", "V4": "polish",

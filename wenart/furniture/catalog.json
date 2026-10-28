@@ -17,7 +17,8 @@
   "Milestone 7: beds carry has_mattress; old_bed_frame (Old Bed Frame, a tubular metal frame with a wire-mesh base and no mattress) was removed, so bed_single is parametric until the Objaverse library adds one.",
   "Milestone 12 pod P4: the parametric entries of bar_stool, bed_single, bench, console_table, office_chair, ottoman, side_table, sideboard, tall_cabinet, wardrobe gave way to the new Poly Haven models (a type is either library or parametric; catalog_library.json has models of bar_stool, bed_single, bench, console_table, office_chair, ottoman, side_table, sideboard, tall_cabinet, wardrobe of them, so the merged catalogue had no parametric entry for those already)",
   "Milestone 12 pod P4 (docs/milestone12.md §6.4, user OK of 11 Oct 2026): models added by the library growth (Poly Haven, ABO, Google Scanned Objects, Infinigen test batch), audited in P4 like the others (results/library/audit/p4/, results/library/growth/).",
-  "Milestone 13 pod P2 (docs/milestone13.md §5.1 phase 2, §13.6; user decisions D1, D2 of 12 Oct 2026): models added by the library growth by drawn demand (ABO size grid, Poly Haven 2K and vegetation, HSSD by type and size bin under CC BY-NC 4.0 for the relaxed licence mode), audited in P2 with the Milestone 13 gates (results/library/audit/p4/ and results/library/growth/: the folders scripts/jobs/library_growth.sh copy_results writes)."
+  "Milestone 13 pod P2 (docs/milestone13.md §5.1 phase 2, §13.6; user decisions D1, D2 of 12 Oct 2026): models added by the library growth by drawn demand (ABO size grid, Poly Haven 2K and vegetation, HSSD by type and size bin under CC BY-NC 4.0 for the relaxed licence mode), audited in P2 with the Milestone 13 gates (results/library/audit/p4/ and results/library/growth/: the folders scripts/jobs/library_growth.sh copy_results writes).",
+  "28 Oct 2026 (user: a coffee table that was a 2.4 m high table with its barstools read in feet, a kitchen sink as a washbasin): the entries whose own names disagree with them (wenart.furniture.model_title: a stated size the box disagrees with, a set of pieces, a title of another type or use; furniture the vision check rates 2 or lower or finds no real product in) carry audit.status removed (or fix with the units corrected), the ones whose own audit doubts their type (the vision check: not the type, the size odd; a front turned off its detail side) audit.status pending until a later audit pass confirms them; both with audit.title_rules; their files stay on the volume."
  ],
  "entries": [
   {
@@ -501,15 +502,34 @@
    ],
    "sha256_gltf": "0fd80d1f770fb6ce0be9ff1e07f925e18e582c8a55358d3c77d6e0fdb3f13536",
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "28 Oct 2026, audit_doubt: the vision check says it is not a chair (a armchair): never used as a chair until a later audit pass confirms the type"
+    ],
     "fixes": {},
     "version": "m12",
     "checked_utc": "2026-10-11T03:00:00Z",
     "decision_sha": "17084a23591f21ce",
     "vision_doubt": [
      "the vision check says it is not a chair (a armchair)"
-    ]
+    ],
+    "title_rules": {
+     "version": "model-title-1",
+     "checked_utc": "2026-10-28T12:00:00Z",
+     "status_before": "keep",
+     "findings": [
+      {
+       "rule": "audit_doubt",
+       "status": "review",
+       "reason": "the vision check says it is not a chair (a armchair): never used as a chair until a later audit pass confirms the type",
+       "metrics": {
+        "doubts": [
+         "the vision check says it is not a chair (a armchair)"
+        ]
+       }
+      }
+     ]
+    }
    },
    "real_product": true,
    "has_cushions": false
@@ -2420,8 +2440,10 @@
     "fits_real_size": true
    },
    "audit": {
-    "status": "fix",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "28 Oct 2026, audit_doubt: the vision check says it is not a armchair (a chair): never used as a armchair until a later audit pass confirms the type"
+    ],
     "fixes": {
      "pbr_maps": {
       "base_colour": true,
@@ -2443,7 +2465,24 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a armchair (a chair)"
-    ]
+    ],
+    "title_rules": {
+     "version": "model-title-1",
+     "checked_utc": "2026-10-28T12:00:00Z",
+     "status_before": "fix",
+     "findings": [
+      {
+       "rule": "audit_doubt",
+       "status": "review",
+       "reason": "the vision check says it is not a armchair (a chair): never used as a armchair until a later audit pass confirms the type",
+       "metrics": {
+        "doubts": [
+         "the vision check says it is not a armchair (a chair)"
+        ]
+       }
+      }
+     ]
+    }
    },
    "pbr_maps": {
     "base_colour": true,
@@ -2624,8 +2663,10 @@
     "fits_real_size": true
    },
    "audit": {
-    "status": "fix",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "28 Oct 2026, audit_doubt: the vision check says it is not a bar_stool (a chair); the vision check finds the size odd next to the scale reference (code: size ok): never used as a bar_stool until a later audit pass confirms the type"
+    ],
     "fixes": {
      "pbr_maps": {
       "base_colour": true,
@@ -2649,7 +2690,25 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a bar_stool (a chair)"
-    ]
+    ],
+    "title_rules": {
+     "version": "model-title-1",
+     "checked_utc": "2026-10-28T12:00:00Z",
+     "status_before": "fix",
+     "findings": [
+      {
+       "rule": "audit_doubt",
+       "status": "review",
+       "reason": "the vision check says it is not a bar_stool (a chair); the vision check finds the size odd next to the scale reference (code: size ok): never used as a bar_stool until a later audit pass confirms the type",
+       "metrics": {
+        "doubts": [
+         "the vision check says it is not a bar_stool (a chair)",
+         "the vision check finds the size odd next to the scale reference (code: size ok)"
+        ]
+       }
+      }
+     ]
+    }
    },
    "pbr_maps": {
     "base_colour": true,
@@ -2827,8 +2886,10 @@
     "fits_real_size": true
    },
    "audit": {
-    "status": "fix",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "28 Oct 2026, audit_doubt: the vision check says it is not a bar_stool (a chair); the vision check finds the size odd next to the scale reference (code: size ok): never used as a bar_stool until a later audit pass confirms the type"
+    ],
     "fixes": {
      "pbr_maps": {
       "base_colour": true,
@@ -2852,7 +2913,25 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a bar_stool (a chair)"
-    ]
+    ],
+    "title_rules": {
+     "version": "model-title-1",
+     "checked_utc": "2026-10-28T12:00:00Z",
+     "status_before": "fix",
+     "findings": [
+      {
+       "rule": "audit_doubt",
+       "status": "review",
+       "reason": "the vision check says it is not a bar_stool (a chair); the vision check finds the size odd next to the scale reference (code: size ok): never used as a bar_stool until a later audit pass confirms the type",
+       "metrics": {
+        "doubts": [
+         "the vision check says it is not a bar_stool (a chair)",
+         "the vision check finds the size odd next to the scale reference (code: size ok)"
+        ]
+       }
+      }
+     ]
+    }
    },
    "pbr_maps": {
     "base_colour": true,
@@ -2931,8 +3010,10 @@
     "fits_real_size": true
    },
    "audit": {
-    "status": "fix",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "28 Oct 2026, audit_doubt: the vision check finds the size odd next to the scale reference (code: size ok): never used as a bar_stool until a later audit pass confirms the type"
+    ],
     "fixes": {
      "pbr_maps": {
       "base_colour": true,
@@ -2954,7 +3035,24 @@
      "the vision answer says not a bar_stool but names bar_stool as what it is: taken as a bar_stool",
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check finds the size odd next to the scale reference (code: size ok)"
-    ]
+    ],
+    "title_rules": {
+     "version": "model-title-1",
+     "checked_utc": "2026-10-28T12:00:00Z",
+     "status_before": "fix",
+     "findings": [
+      {
+       "rule": "audit_doubt",
+       "status": "review",
+       "reason": "the vision check finds the size odd next to the scale reference (code: size ok): never used as a bar_stool until a later audit pass confirms the type",
+       "metrics": {
+        "doubts": [
+         "the vision check finds the size odd next to the scale reference (code: size ok)"
+        ]
+       }
+      }
+     ]
+    }
    },
    "pbr_maps": {
     "base_colour": true,
@@ -3955,8 +4053,10 @@
     "fits_real_size": true
    },
    "audit": {
-    "status": "fix",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "28 Oct 2026, audit_doubt: the vision check says it is not a chair (a armchair): never used as a chair until a later audit pass confirms the type"
+    ],
     "fixes": {
      "pbr_maps": {
       "base_colour": true,
@@ -3978,7 +4078,24 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a chair (a armchair)"
-    ]
+    ],
+    "title_rules": {
+     "version": "model-title-1",
+     "checked_utc": "2026-10-28T12:00:00Z",
+     "status_before": "fix",
+     "findings": [
+      {
+       "rule": "audit_doubt",
+       "status": "review",
+       "reason": "the vision check says it is not a chair (a armchair): never used as a chair until a later audit pass confirms the type",
+       "metrics": {
+        "doubts": [
+         "the vision check says it is not a chair (a armchair)"
+        ]
+       }
+      }
+     ]
+    }
    },
    "pbr_maps": {
     "base_colour": true,
@@ -4537,8 +4654,10 @@
     "fits_real_size": true
    },
    "audit": {
-    "status": "fix",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "28 Oct 2026, audit_doubt: the vision check says it is not a office_chair (a armchair); the vision check finds the size odd next to the scale reference (code: size ok): never used as a office_chair until a later audit pass confirms the type"
+    ],
     "fixes": {
      "pbr_maps": {
       "base_colour": true,
@@ -4562,7 +4681,25 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a office_chair (a armchair)"
-    ]
+    ],
+    "title_rules": {
+     "version": "model-title-1",
+     "checked_utc": "2026-10-28T12:00:00Z",
+     "status_before": "fix",
+     "findings": [
+      {
+       "rule": "audit_doubt",
+       "status": "review",
+       "reason": "the vision check says it is not a office_chair (a armchair); the vision check finds the size odd next to the scale reference (code: size ok): never used as a office_chair until a later audit pass confirms the type",
+       "metrics": {
+        "doubts": [
+         "the vision check says it is not a office_chair (a armchair)",
+         "the vision check finds the size odd next to the scale reference (code: size ok)"
+        ]
+       }
+      }
+     ]
+    }
    },
    "pbr_maps": {
     "base_colour": true,
@@ -4739,8 +4876,10 @@
     "fits_real_size": true
    },
    "audit": {
-    "status": "fix",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "28 Oct 2026, audit_doubt: the vision check says it is not a ottoman (a bar_stool): never used as a ottoman until a later audit pass confirms the type"
+    ],
     "fixes": {
      "pbr_maps": {
       "base_colour": true,
@@ -4763,7 +4902,24 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a ottoman (a bar_stool)"
-    ]
+    ],
+    "title_rules": {
+     "version": "model-title-1",
+     "checked_utc": "2026-10-28T12:00:00Z",
+     "status_before": "fix",
+     "findings": [
+      {
+       "rule": "audit_doubt",
+       "status": "review",
+       "reason": "the vision check says it is not a ottoman (a bar_stool): never used as a ottoman until a later audit pass confirms the type",
+       "metrics": {
+        "doubts": [
+         "the vision check says it is not a ottoman (a bar_stool)"
+        ]
+       }
+      }
+     ]
+    }
    },
    "pbr_maps": {
     "base_colour": true,
@@ -6064,8 +6220,10 @@
     "fits_real_size": false
    },
    "audit": {
-    "status": "fix",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "28 Oct 2026, audit_doubt: the vision check says it is not a table_dining (a side_table); the vision check finds the size odd next to the scale reference (code: size ok): never used as a table_dining until a later audit pass confirms the type"
+    ],
     "fixes": {
      "pbr_maps": {
       "base_colour": true,
@@ -6089,7 +6247,25 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a table_dining (a side_table)"
-    ]
+    ],
+    "title_rules": {
+     "version": "model-title-1",
+     "checked_utc": "2026-10-28T12:00:00Z",
+     "status_before": "fix",
+     "findings": [
+      {
+       "rule": "audit_doubt",
+       "status": "review",
+       "reason": "the vision check says it is not a table_dining (a side_table); the vision check finds the size odd next to the scale reference (code: size ok): never used as a table_dining until a later audit pass confirms the type",
+       "metrics": {
+        "doubts": [
+         "the vision check says it is not a table_dining (a side_table)",
+         "the vision check finds the size odd next to the scale reference (code: size ok)"
+        ]
+       }
+      }
+     ]
+    }
    },
    "pbr_maps": {
     "base_colour": true,
@@ -6166,8 +6342,10 @@
     "fits_real_size": true
    },
    "audit": {
-    "status": "fix",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "28 Oct 2026, audit_doubt: the vision check says it is not a table_dining (a side_table); the vision check finds the size odd next to the scale reference (code: size ok): never used as a table_dining until a later audit pass confirms the type"
+    ],
     "fixes": {
      "pbr_maps": {
       "base_colour": true,
@@ -6191,7 +6369,25 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a table_dining (a side_table)"
-    ]
+    ],
+    "title_rules": {
+     "version": "model-title-1",
+     "checked_utc": "2026-10-28T12:00:00Z",
+     "status_before": "fix",
+     "findings": [
+      {
+       "rule": "audit_doubt",
+       "status": "review",
+       "reason": "the vision check says it is not a table_dining (a side_table); the vision check finds the size odd next to the scale reference (code: size ok): never used as a table_dining until a later audit pass confirms the type",
+       "metrics": {
+        "doubts": [
+         "the vision check says it is not a table_dining (a side_table)",
+         "the vision check finds the size odd next to the scale reference (code: size ok)"
+        ]
+       }
+      }
+     ]
+    }
    },
    "pbr_maps": {
     "base_colour": true,
@@ -6467,8 +6663,10 @@
     "fits_real_size": true
    },
    "audit": {
-    "status": "fix",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "28 Oct 2026, audit_doubt: the vision check says it is not a wardrobe (a display_cabinet): never used as a wardrobe until a later audit pass confirms the type"
+    ],
     "fixes": {
      "pbr_maps": {
       "base_colour": true,
@@ -6492,7 +6690,24 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a wardrobe (a display_cabinet)"
-    ]
+    ],
+    "title_rules": {
+     "version": "model-title-1",
+     "checked_utc": "2026-10-28T12:00:00Z",
+     "status_before": "fix",
+     "findings": [
+      {
+       "rule": "audit_doubt",
+       "status": "review",
+       "reason": "the vision check says it is not a wardrobe (a display_cabinet): never used as a wardrobe until a later audit pass confirms the type",
+       "metrics": {
+        "doubts": [
+         "the vision check says it is not a wardrobe (a display_cabinet)"
+        ]
+       }
+      }
+     ]
+    }
    },
    "pbr_maps": {
     "base_colour": true,

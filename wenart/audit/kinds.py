@@ -97,6 +97,8 @@ CHECK_KIND = {
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation
     "C1": "lost", "C2": "lost", "C3": "lost", "C4": "untyped", "C5": "lost",
+    # 28 Oct 2026: a built library model its names or its audit refuse (code critic LT, process P11)
+    "LT": "misread", "P11": "misread",
 }
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",

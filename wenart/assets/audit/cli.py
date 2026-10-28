@@ -1,6 +1,7 @@
 """CLI of the library audit: ``python -m wenart.assets audit <step>`` (docs/milestone12.md §6.1, D21).
 
     audit licences [--write] [--catalog P] [--checked-utc T]       U3 + B2 on catalog_library.json (here, now)
+    audit title-rules [--write] [--checked-utc T]                     28 Oct 2026: the title rules over the catalogues
     audit render --assets DIR [--work DIR] [--blender B] [--workers N] [--deadline T] [--textures] [--plan]
                                                                      pod P2: views, measurements, sheets
     audit code [--work DIR] [--dry]                                  code checks -> code.json
@@ -116,6 +117,49 @@ def cmd_licences(args) -> int:
     return EXIT_OK
 
 
+def cmd_title_rules(args) -> int:
+    """28 Oct 2026 (``wenart.furniture.model_title``, ``write.apply_title_rules``): the title rules re-run over both
+    catalogues; prints every entry they change and the counts by rule, type and section (the blast radius); with
+    ``--write`` writes the catalogues and ``<out>/audit/title_rules.json`` (the record of the pass)."""
+    from wenart.assets.audit import items as I
+    from wenart.assets.audit import write as W
+    from wenart.furniture import catalog as C
+    from wenart.furniture import model_title as MT
+    stamp = args.checked_utc or now_utc()
+    record: dict = {"version": MT.VERSION, "checked_utc": stamp, "catalogues": {}}
+    for path, indent, complete in ((Path(args.catalog) if args.catalog else I.LIBRARY_PATH, 1, False),
+                                   (Path(args.polyhaven) if args.polyhaven else I.POLYHAVEN_PATH, 1, True)):
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        stats = W.apply_title_rules(doc, stamp)
+        C.validate(doc, complete=complete)
+        rows = []
+        for section in I.SECTIONS:
+            for e in doc.get(section) or []:
+                rules = (e.get("audit") or {}).get("title_rules") if isinstance(e, dict) else None
+                if not rules or rules.get("checked_utc") != stamp:
+                    continue
+                rows.append({"id": e["id"], "section": section, "type": MT.entry_type(e), "source": e.get("source"),
+                             "title": MT.names_of(e), "status": e["audit"]["status"],
+                             "status_before": rules["status_before"],
+                             "findings": [{"rule": f["rule"], "status": f["status"], "reason": f["reason"]}
+                                          for f in rules["findings"]]})
+                print(f"{e['audit']['status']:<8} {e['id']:<45} {MT.entry_type(e):<14} "
+                      f"{', '.join(f['rule'] for f in rules['findings']):<24} {MT.names_of(e)[:60]}")
+        counts = {k: v for k, v in stats.items() if k not in ("removed", "fixed", "pending")}
+        counts.update(removed=len(stats["removed"]), pending=len(stats["pending"]), fixed=len(stats["fixed"]))
+        print(f"audit title-rules: {path.name}: {counts} "
+              f"({'written' if args.write else 'not written: --write'})")
+        record["catalogues"][path.name] = {"counts": counts, "entries": rows}
+        if args.write and (stats["removed"] or stats["fixed"] or stats["pending"]):
+            path.write_text(json.dumps(doc, indent=indent, ensure_ascii=False) + "\n", encoding="utf-8")
+    if args.write:
+        out = _audit(args) / "title_rules.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(record, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(f"audit title-rules: record -> {out}")
+    return EXIT_OK
+
+
 def cmd_render(args) -> int:
     from wenart.assets.audit import render as R
     cfg = load_config()
@@ -217,13 +261,17 @@ def _answers(args, items):
 
 def second_pass_ids(items: list, first: dict) -> set:
     """The models of pass 2: no title evidence (generated, a title naming no type) and pass 1 says it is the type (or
-    names the type as its guess: a contradictory answer counts as the type, ``decide.py``)."""
+    names the type as its guess: a contradictory answer counts as the type, ``decide.py``); 28 Oct 2026
+    (``decide.second_look``): every model pass 1 says is not its type or finds the size odd of."""
     from wenart.assets.audit import checks as CK
     out = set()
     for it in items:
         v = CK.title_check(it, set())[0]["metrics"]["verdict"]
         a = first.get(it["id"])
         if v in ("silent", "generated") and a and (a.get("is_type") is True or a.get("type_guess") == it["type"]):
+            out.add(it["id"])
+        elif a and (a.get("is_type") is False and a.get("type_guess") != it["type"]
+                    or a.get("size_plausible") is False):
             out.add(it["id"])
     return out
 
@@ -424,6 +472,10 @@ def parser() -> argparse.ArgumentParser:
     s = common(sub.add_parser("licences", help="U3 + B2: NC/SA/ND out of the catalogue, generated credits"))
     s.add_argument("--write", action="store_true")
     s.add_argument("--checked-utc", default=None)
+    s = common(sub.add_parser("title-rules", help="28 Oct 2026: the title rules (stated size, sets, type and use) "
+                                                 "re-run over the catalogues"))
+    s.add_argument("--write", action="store_true")
+    s.add_argument("--checked-utc", default=None)
     s = common(sub.add_parser("render", help="pod P2: views, measurements, sheets (Blender)"))
     s.add_argument("--assets", required=True, help="assets folder with models/ (pod: /workspace/assets)")
     s.add_argument("--work", default=None, help="views and measurements (pod: /workspace/library-audit/work)")
@@ -476,7 +528,7 @@ def parser() -> argparse.ArgumentParser:
     return p
 
 
-COMMANDS = {"licences": cmd_licences, "render": cmd_render, "code": cmd_code, "ask": cmd_ask, "decide": cmd_decide,
+COMMANDS = {"licences": cmd_licences, "title-rules": cmd_title_rules, "render": cmd_render, "code": cmd_code, "ask": cmd_ask, "decide": cmd_decide,
             "sheets": cmd_sheets, "gaps": cmd_gaps, "write": cmd_write, "dry": cmd_dry, "status": cmd_status}
 
 

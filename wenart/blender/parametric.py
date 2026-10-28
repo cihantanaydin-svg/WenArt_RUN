@@ -1140,11 +1140,63 @@ def _shower(w: float, d: float, h: float) -> list[Part]:
     return parts
 
 
-def _bathtub(w: float, d: float, h: float) -> list[Part]:
-    t = min(0.08, w * 0.08, d * 0.12)
-    parts = _basin(0.0, 0.0, 0.0, w, d, h, t, "ceramic")
-    parts[-1] = _box(0.0, 0.0, 0.0, w - 2 * t, d - 2 * t, min(0.1, h * 0.2), "ceramic", "basin")
-    parts.append(_cylinder_z(w / 2.0 - t / 2.0, 0.0, h, 0.012, 0.012, 0.15, "steel", "tap", n=12))
+# 28 Oct 2026 (user on real06's bathrooms: "What kind of a bath is this" / "this bath needs to make sense"; the library
+# bath refused, the bath is built from code): a bath of real parts. The rim band, the panel's recess under it, the
+# mixer and the drain sizes are designer values of built-in acrylic and steel baths.
+BATH_RIM_BAND_M = 0.035           # the ceramic band of the rim over a panel
+BATH_PANEL_INSET_M = 0.012        # a bath panel stands this far back under the rim
+BATH_FLOOR_M = 0.08               # the bowl floor's thickness (capped at 15 % of the height)
+BATH_MIXER_POST_M = 0.10          # the deck mixer's post over the rim
+BATH_SPOUT_M = 0.13               # its spout, over the bowl
+
+
+def bath_walls(piece: dict | None) -> set:
+    """The sides of a bath on a wall (0 front -Y, 1 +X end, 2 back +Y, 3 -X end) the fit recorded on its asset
+    (``asset.bath_walls``, ``fixture_seat.bath_walls``); empty when unknown."""
+    asset = (piece or {}).get("asset") if isinstance((piece or {}).get("asset"), dict) else {}
+    walls = asset.get("bath_walls", (piece or {}).get("bath_walls"))
+    return {int(k) for k in walls or [] if isinstance(k, (int, float)) and int(k) in (0, 1, 2, 3)}
+
+
+def _bathtub(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """A bath (28 Oct 2026, the comment above): a ceramic shell whose walls make a flat rim around the bowl, the bowl
+    floor with a drain, an overflow on the inner end wall, and a chrome deck mixer (a post, a spout over the bowl, two
+    handles) at the end that stands on a wall (``bath_walls``; else the +X end). With its back on a wall it has a panel
+    on every side no wall covers, set back under a ceramic rim band (a niche between walls: the front panel; a corner:
+    the front and the open end); without a wall behind it (freestanding or unknown) the shell shows all round."""
+    walls = bath_walls(piece)
+    t = min(0.07, w * 0.06, d * 0.1)
+    band = min(BATH_RIM_BAND_M, h * 0.1)
+    panels = ({0, 1, 2, 3} - walls) if 2 in walls else set()
+    inset = min(BATH_PANEL_INSET_M, t * 0.4)
+    parts: list[Part] = []
+    # (side, centre x, centre y, size x, size y, outward unit)
+    sides = ((0, 0.0, -d / 2.0 + t / 2.0, w, t, (0.0, -1.0)), (2, 0.0, d / 2.0 - t / 2.0, w, t, (0.0, 1.0)),
+             (1, w / 2.0 - t / 2.0, 0.0, t, d - 2 * t, (1.0, 0.0)), (3, -w / 2.0 + t / 2.0, 0.0, t, d - 2 * t, (-1.0, 0.0)))
+    for k, cx, cy, sx, sy, (ux, uy) in sides:
+        if k in panels:
+            parts.append(_box(cx, cy, h - band, sx, sy, band, "ceramic", "rim"))
+            px, py = cx - ux * inset / 2.0, cy - uy * inset / 2.0
+            parts.append(_box(px, py, 0.0, sx - abs(ux) * inset, sy - abs(uy) * inset, h - band, "painted", "panel"))
+        else:
+            parts.append(_box(cx, cy, 0.0, sx, sy, h, "ceramic", "basin"))
+    floor = min(BATH_FLOOR_M, h * 0.15)
+    parts.append(_box(0.0, 0.0, 0.0, w - 2 * t, d - 2 * t, floor, "ceramic", "basin"))
+    end = 1.0 if 1 in walls or 3 not in walls else -1.0          # the mixer's end: on a wall
+    x_post = end * (w / 2.0 - t / 2.0)
+    r_post = min(0.018, t * 0.3)
+    parts.append(_cylinder_z(x_post, 0.0, h, r_post, r_post, BATH_MIXER_POST_M, "steel", "tap", n=16))
+    spout = min(BATH_SPOUT_M, w * 0.12)
+    x0 = x_post - spout if end > 0 else x_post
+    parts.append(_cylinder_x(x0, 0.0, h + BATH_MIXER_POST_M - 0.015, 0.011, 0.011, spout, "steel", "tap"))
+    for sy_ in (-1.0, 1.0):
+        y = sy_ * min(0.07, d / 2.0 - t)
+        parts.append(_cylinder_z(x_post, y, h, 0.016, 0.016, 0.045, "steel", "tap", n=12))
+    x_drain = end * (w / 2.0 - t - min(0.10, w * 0.08))
+    parts.append(_cylinder_z(x_drain, 0.0, floor, 0.03, 0.03, 0.004, "steel", "drain", n=20))
+    x_in = end * (w / 2.0 - t)
+    parts.append(_cylinder_x(x_in - 0.004 if end > 0 else x_in, 0.0, h - min(0.12, h * 0.25), 0.025, 0.025, 0.004,
+                             "steel", "drain", n=16))
     return parts
 
 
@@ -3374,7 +3426,9 @@ _PIECE_BUILDERS = ("stair", "side_table", "table_dining", "table_coffee", "desk"
                    "bed", "bed_single", "bed_double", "sofa", "armchair", "nightstand", "dresser", "tv_unit",
                    "bookshelf",
                    # round 4: the chair family v2 reads the design's material tags (frame, seat, base)
-                   "chair")
+                   "chair",
+                   # 28 Oct 2026: the bath reads the walls it stands on (its panels, the mixer's end)
+                   "bathtub")
 
 
 def build_parts(ftype: str, w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:

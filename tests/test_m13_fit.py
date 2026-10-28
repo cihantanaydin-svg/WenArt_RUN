@@ -769,10 +769,14 @@ def test_tie_breaks_audit_vision_quality_texture_maps_and_faces_never_gates():
     assert [e["id"] for e in F.rank_candidates([low, rich], 2.0, 0.9)] == ["abo_rich", "abo_low"]
     # tie-breaks, never gates (decision 1a of 11 Oct 2026): alone, the plain low-poly flat model is taken
     worst = model("worst", "sofa", 2.0, 0.9, 0.8, polycount=900, textured=False,
-                  audit={"status": "keep", "vision": {"quality": 1}})
+                  audit={"status": "keep", "vision": {"quality": 3}})
     fit = F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([worst]))
     assert fit["asset_id"] == "abo_worst" and fit["faces"] == 900 and fit["texture_maps"] == {"base_colour": False}
-    assert "audit vision quality 1" in fit["ranking"]["reasons"] and "faces 900" in fit["ranking"]["reasons"]
+    assert "audit vision quality 3" in fit["ranking"]["reasons"] and "faces 900" in fit["ranking"]["reasons"]
+    # 28 Oct 2026 (user on real06: "What kind of a bath is this"; model_title audit_quality): a furniture model the
+    # vision audit rated 2 or lower is no candidate at all
+    rated_1 = dict(worst, audit={"status": "keep", "vision": {"quality": 1}})
+    assert F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([rated_1]))["asset_id"] != "abo_worst"
     # the real size step and a real product still come first (the Milestone 8 / 12 order)
     better_size = model("size", "sofa", 2.0, 0.9, 0.8, audit={"status": "keep", "vision": {"quality": 2}})
     assert F.rank_candidates([fine, dict(better_size, bbox_m=[2.2, 0.99, 0.88], bbox_model_m=[2.2, 0.99, 0.88])],

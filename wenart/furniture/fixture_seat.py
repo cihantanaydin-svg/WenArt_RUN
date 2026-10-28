@@ -192,6 +192,22 @@ def wall_sides(r: list[Point], room: list[Point], tol: float = WALL_TOL_M, touch
     return out
 
 
+BATH_WALL_TOL_M = 0.08        # a bath side this close to its room's outline stands on that wall (plaster, wall line)
+
+
+def bath_walls(building: Optional[dict], piece: dict) -> list[int]:
+    """28 Oct 2026 (user on real06: "this bath needs to make sense"): the sides of a bath's footprint on a wall of its
+    room (0 front, 1 +X end, 2 back, 3 -X end; ``wall_sides`` along their length within ``BATH_WALL_TOL_M``), for the
+    bath built from code (``parametric._bathtub``: a panel on the open sides, the mixer on a wall); [] when the room
+    or the footprint is unknown."""
+    room = next((r for r in (building or {}).get("rooms") or [] if r.get("id") == piece.get("room_id")), None)
+    poly = [(float(p[0]), float(p[1])) for p in (room or {}).get("polygon") or [] if len(p) >= 2]
+    fp = piece.get("footprint") or {}
+    if len(poly) < 3 or not fp.get("size") or not fp.get("center"):
+        return []
+    return sorted(wall_sides(footprint_rect(fp), poly, tol=BATH_WALL_TOL_M))
+
+
 def _proj(poly, origin: Point, u: Point) -> tuple[float, float]:
     vals = [(p[0] - origin[0]) * u[0] + (p[1] - origin[1]) * u[1] for p in poly]
     return min(vals), max(vals)
