@@ -331,6 +331,12 @@ RUN_DEPTH_RULE = "reading.run_depth"
 HOLDS_HINTS = {"sink_kitchen": "sink_pos_m", "stove": "hob_pos_m"}   # modules.plan_kitchen_run's hints
 KITCHEN_OUTLINE_RULE = "reading.kitchen_outline"
 KITCHEN_OUTLINE_MIN_M = 0.75       # a kitchen outline is deeper than a counter both ways
+# 28 Oct 2026 (real06 run 154514: the outline stopped 0.58 m short of the west wall, where the sink stands under the
+# window; the sink was built as a lone 0.45 m box beside two counter legs): an outline side this close to a wall, with a
+# drawn kitchen fixture in the gap, is extended to the wall (the run reaches it: one more leg, the fixture built in)
+KITCHEN_OUTLINE_GAP_M = 0.9
+KITCHEN_GAP_TYPES = ("sink_kitchen", "stove", "fridge", "kitchen_counter")
+KITCHEN_GAP_SHARE = 0.5            # the fixture's footprint share inside the gap
 FIXED_SEAT_TYPES = FS.SEAT_TYPES   # 27 Oct 2026: the fixed pieces that stand on a wall on their own (fixture_seat)
 
 
@@ -2534,6 +2540,54 @@ def generic_rooms(build) -> list[str]:
     return changed
 
 
+def outline_to_walls(poly: Polygon, ring, room_id: str, pieces: list) -> tuple[Polygon, list[str]]:
+    """``(polygon, notes)``: a kitchen outline with every side that stands short of a wall extended to it (pure; 28 Oct
+    2026, ``KITCHEN_OUTLINE_GAP_M``): a side not on a wall whose outward gap to the room outline is at most that, the far
+    edge of the gap on a wall, and a built drawn kitchen fixture of the room (``KITCHEN_GAP_TYPES``) with at least
+    ``KITCHEN_GAP_SHARE`` of its footprint in the gap."""
+    from wenart.furniture import infer as INF
+
+    notes = []
+    centre = poly.centroid
+    for a, c in list(sides(poly)):
+        if INF.side_on_wall(a, c, ring):
+            continue
+        length = math.dist(a, c)
+        if length <= 1e-6:
+            continue
+        ux, uy = (c[0] - a[0]) / length, (c[1] - a[1]) / length
+        nx, ny = uy, -ux
+        mx, my = (a[0] + c[0]) / 2.0, (a[1] + c[1]) / 2.0
+        if (mx - centre.x) * nx + (my - centre.y) * ny < 0:
+            nx, ny = -nx, -ny                                       # outward, away from the outline
+        ray = LineString([(mx + nx * 0.01, my + ny * 0.01), (mx + nx * KITCHEN_OUTLINE_GAP_M, my + ny * KITCHEN_OUTLINE_GAP_M)])
+        hit = ray.intersection(ring)
+        if hit.is_empty:
+            continue
+        pts = [g for g in getattr(hit, "geoms", [hit]) if g.geom_type == "Point"]
+        if not pts:
+            continue
+        gap = min(math.dist((mx, my), (q.x, q.y)) for q in pts)
+        far = ((a[0] + nx * gap, a[1] + ny * gap), (c[0] + nx * gap, c[1] + ny * gap))
+        if not INF.side_on_wall(far[0], far[1], ring):
+            continue
+        band = Polygon([a, c, far[1], far[0]])
+        held = []
+        for f in pieces:
+            if f.get("room_id") != room_id or f.get("type") not in KITCHEN_GAP_TYPES or f.get("build") is False:
+                continue
+            fp = rect(f)
+            if fp.area > 0 and fp.intersection(band).area >= KITCHEN_GAP_SHARE * fp.area - 1e-9:
+                held.append(f["id"])
+        if not held:
+            continue
+        poly = poly.union(band).buffer(0)
+        poly = Polygon(poly.minimum_rotated_rectangle.exterior.coords) if poly.geom_type != "Polygon" else poly
+        notes.append(f"the outline stopped {gap:.2f} m short of the wall behind {', '.join(sorted(held))}: the run "
+                     f"reaches that wall")
+    return poly, notes
+
+
 def kitchen_outlines(build, items: dict, pending=()) -> list[str]:
     """26 Oct 2026 (module docstring): an untyped drawn piece in a kitchen that is deeper than a counter both ways
     (``KITCHEN_OUTLINE_MIN_M``) and holds a sink's drain or a hob's burners (the extraction's
@@ -2561,8 +2615,11 @@ def kitchen_outlines(build, items: dict, pending=()) -> list[str]:
         if min(float(v) for v in f["footprint"]["size"][:2]) <= KITCHEN_OUTLINE_MIN_M:
             continue
         poly = rect(f)
-        ss = sides(poly)
         ring = room_ring(room)
+        poly, reached = outline_to_walls(poly, ring, room["id"], b["furniture"])
+        if reached:      # the union's float noise (-2e-16) made GEOS keep the corner in a leg: snapped to 1 micrometre
+            poly = Polygon([(round(x, 6) + 0.0, round(y, 6) + 0.0) for x, y in poly.exterior.coords]).simplify(1e-6)
+        ss = sides(poly)
         on_wall = [k for k, (a, c) in enumerate(ss) if INF.side_on_wall(a, c, ring)]
         if not on_wall:
             continue
@@ -2604,7 +2661,8 @@ def kitchen_outlines(build, items: dict, pending=()) -> list[str]:
             reason = (f"the kitchen run drawn as one {float(f['footprint']['size'][0]):.2f} x "
                       f"{float(f['footprint']['size'][1]):.2f} m outline {f['id']} with its fixtures ({what}) in "
                       f"the kitchen: a counter leg {e0:.2f} x {e1:.2f} m along its wall side, facing the "
-                      f"room (inferred)" + (f"; plan crop {det_crop}" if det_crop else ""))
+                      f"room (inferred)" + "".join(f"; {n}" for n in reached)
+                      + (f"; plan crop {det_crop}" if det_crop else ""))
             ev = dict(src or _ev(f, KITCHEN_OUTLINE_RULE, reason, 0.6))
             ev["note"] = f"counter leg of the kitchen outline {f['id']} ({KITCHEN_OUTLINE_RULE})"
             # the leg: its long side along the wall, the front into the room (rotation = front + 90, the -Y front)

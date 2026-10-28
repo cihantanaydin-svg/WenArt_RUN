@@ -463,6 +463,30 @@ def test_a_kitchen_outline_holding_sink_and_hob_is_the_kitchen_run():
     assert sizes3 == [(1.8, 0.6), (1.8, 0.6), (3.99, 0.6)]              # the 3.99 m leg along the west wall
 
 
+def test_a_kitchen_outline_short_of_the_wall_behind_its_sink_reaches_that_wall():
+    """28 Oct 2026 (real06 run 154514: the outline f_L0_004 stopped 0.58 m short of the west wall, where the sink
+    f_L0_020 stands under the window; the sink was built as a lone 0.45 m box beside two counter legs): a side within
+    ``KITCHEN_OUTLINE_GAP_M`` of a wall with a drawn kitchen fixture in the gap is extended to the wall, a U of three
+    legs; without the fixture in the gap the outline keeps its two legs."""
+    box = M.fp("k", "unknown", (1.65, 2.0), (3.99, 2.4), rotation=90.0, front=None, status="unverified",
+               type_method="none")
+    sink = M.fp("s", "sink_kitchen", (0.2, 2.0), (1.2, 0.3), rotation=90.0, front=0.0, type_method="group_member")
+    build = _build([box, sink], w=3.4, h=4.0, room_type="kitchen", window=None)
+    items = {"k": SimpleNamespace(element_id="k", details={"kitchen_signs": {"sink": 8}})}
+    legs = RD.kitchen_outlines(build, items)
+    b = build.building
+    sizes = sorted(tuple(round(v, 2) for v in _piece(b, lid)["footprint"]["size"]) for lid in legs)
+    assert sizes == [(2.25, 0.6), (2.25, 0.6), (3.99, 0.6)]              # the west leg holds the sink
+    west = next(_piece(b, lid) for lid in legs if round(_piece(b, lid)["footprint"]["size"][0], 2) == 3.99)
+    assert "0.45 m short of the wall behind s" in west["inferred_reason"]
+    assert west["footprint"]["center"][0] == pytest.approx(0.3, abs=1e-3)
+    box2 = M.fp("k", "unknown", (1.65, 2.0), (3.99, 2.4), rotation=90.0, front=None, status="unverified",
+                type_method="none")
+    far = M.fp("s", "sink_kitchen", (1.65, 2.0), (1.2, 0.3), rotation=90.0, front=0.0, type_method="group_member")
+    build2 = _build([box2, far], w=3.4, h=4.0, room_type="kitchen", window=None)
+    assert len(RD.kitchen_outlines(build2, items)) == 2                   # the sink is not in the gap: two legs
+
+
 # --------------------------------------------------------------------------
 # 5. A wall type needs its back on a wall; a round piece is never a chair
 # --------------------------------------------------------------------------
