@@ -110,6 +110,14 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "plant_large": "large potted plant standing on the floor",
     "pendant_light": "lamp hanging from the ceiling on a cord or a chain",
     "ceiling_light": "lamp fixed flat to the ceiling",
+    # 28 Oct 2026 (user: "kettle in the kitchen, microwave in the kitchen etc"): the kitchen worktop items
+    "microwave": "countertop microwave oven on the kitchen worktop",
+    "kettle": "electric kettle on the kitchen worktop",
+    "coffee_machine": "coffee machine on the kitchen worktop",
+    "toaster": "toaster on the kitchen worktop",
+    "chopping_board": "wooden chopping board lying on the kitchen worktop",
+    "utensil_pot": "pot of kitchen utensils standing on the worktop",
+    "fruit_bowl": "bowl of fruit on the worktop or a table",
 }
 HINTS.update({k: v for k, v in _DECOR_HINTS_M10.items() if k in S.CATEGORIES})
 UNVERIFIED_HINT = "any piece of furniture at that place"

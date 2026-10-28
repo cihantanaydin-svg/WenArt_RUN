@@ -347,7 +347,8 @@ def test_fit_synthetic_buildings(catalog, buildings):
                 assert asset["bbox_m"][2] == pytest.approx(entry["bbox_m"][2] * sz, abs=1e-3)
             else:
                 assert asset["fallback_reason"] and asset["licence"] == "n/a"
-                assert piece["type"] in catalog.parametric_types or asset["candidates"]
+                # 28 Oct 2026: a piece built into its kitchen run (a drawn stove: the run's hob) is the run's module
+                assert piece["type"] in catalog.parametric_types or asset["candidates"] or asset.get("built_in")
                 assert asset["bbox_m"][1] == pytest.approx(piece["footprint"]["size"][1], abs=0.05)
         B.validate(fitted)
         assert fitted["project"]["licence_mode"] == "commercial"                   # Milestone 13: written by the fit

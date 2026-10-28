@@ -1201,6 +1201,20 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
         # fix round after P3: a drawn sink built into its kitchen run is that run's sink unit, no object of its own
         built_in = built_in_ids(pieces)
         pieces = [p for p in pieces if p["id"] not in built_in]
+        # 28 Oct 2026 (user on real06: "Why is this closing the window"): a wall cabinet never covers a window or a
+        # glazed door of the building as built (the architect may add or move one after the completion hung it)
+        cleared = []
+        for p in pieces:
+            q, rec = MOD.clear_windows(p, building)
+            if rec is not None:
+                assumed.append({"object": f"furn_{p['id']}", "field": "wall_cabinet_cut", "value": rec["windows"],
+                                "reason": rec["reason"]})
+                warnings.append(f"{p['id']}: {rec['reason']}")
+            if q is None:
+                not_built.append({"id": p["id"], "type": p["type"], "reason": rec["reason"]})
+                continue
+            cleared.append(q)
+        pieces = cleared
     proxy_pieces = [p for p in pieces if use_proxies or p["type"] not in P.PARAMETRIC_TYPES]
     for p in proxy_pieces:
         if p["type"] != "unknown" and not use_proxies:
@@ -1268,6 +1282,7 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
             if msg not in warnings:
                 warnings.append(msg)
     manifest_by_id = {o["wenart_id"]: o for o in manifest_objects if o.get("kind") in ("furniture", "furniture_proxy")}
+    worktop_taken: list[dict] = []                    # 28 Oct 2026: the worktop items built so far (a slide avoids them)
     for n, (item, host) in enumerate(collect_decor(building, level["id"]), start=1):
         host_entry = None
         if host is not None:
@@ -1289,6 +1304,23 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
         # Milestone 12: the room's floor (shell.room_floor_z); lights from the level's ceiling, curtains and blinds at
         # their window (decor_floor)
         item_floor, item, _floor_how = decor_floor(building, level, item)
+        if item.get("type") in P.KITCHEN_DECOR_TYPES and host is not None:
+            # 28 Oct 2026: a worktop item never stands in front of a window, glazed door or pass-through of the
+            # building as built that it would reach (the architect may add or move one after the decor stage)
+            blocked = MOD.worktop_item_window(item, host, building)
+            if blocked is not None:
+                slid = MOD.slide_worktop_item(item, host, building, worktop_taken)
+                if slid is None:
+                    summary["decor_skipped"].append({"id": item.get("id"), "type": item.get("type"),
+                                                     "room_id": item.get("room_id"),
+                                                     "reason": f"it would stand in front of {blocked} of the "
+                                                               "building as built and reach over its sill; no free "
+                                                               "spot on the worktop"})
+                    continue
+                assumed.append({"object": str(item.get("id")), "field": "worktop_slide", "value": slid["center"],
+                                "reason": f"slid along {host['id']}: in front of {blocked} of the building as built"})
+                item = slid
+            worktop_taken.append(item)
         if item.get("type") in WALL_DECOR_TYPES:
             built = dict({k[len("proxy:"):]: v for k, v in manifest_by_id.items() if k.startswith("proxy:")},
                          **entries)                      # the built boxes: pieces, and proxies behind --proxies
@@ -1604,6 +1636,10 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
     if ob is None and (piece.get("asset") or {}).get("method") == MOD.MODULE_METHOD:
         # Milestone 13: the module builder (the fit's plan, else the plan of the piece as it is)
         plan, plan_reason = module_plan_of(piece, style)
+        if plan is not None and design:
+            # 28 Oct 2026: the fronts and handles follow the design the build resolves (style.json, the family's
+            # kitchen look), as a parametric piece's do; the fit's plan kept the piece's design of its own stage
+            plan = dict(plan, design={**(plan.get("design") or {}), **design})
         if plan is not None:
             try:
                 ob = _module_object(piece, plan, name, status, floor_z, collection, mats, entry, overrides=overrides)

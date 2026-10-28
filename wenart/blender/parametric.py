@@ -189,7 +189,12 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug",   # param
                                  "vase", "bowl", "plant_small", "table_lamp", "mirror",
                                  # Milestone 10 (docs/milestone10.md §4.6)
                                  "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture",
-                                 "plant_large", "pendant_light", "ceiling_light")
+                                 "plant_large", "pendant_light", "ceiling_light",
+                                 # 28 Oct 2026 (user: "kettle in the kitchen, microwave in the kitchen etc"): the
+                                 # kitchen worktop's small appliances and decor (``kitchen_worktop_parts``)
+                                 "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot",
+                                 "fruit_bowl")
+KITCHEN_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("microwave"):]
 _NEW_DECOR: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("curtain"):]
 # Milestone 10 storage built with the cabinet fronts of the design (a design detail of the piece).
 CABINET_LOOK_TYPES: tuple[str, ...] = ("sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet")
@@ -200,7 +205,10 @@ LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "b
                                       "sculpture", "pendant_light")
 # Decor that rests on its host's built top (Milestone 9: the builder casts a ray down onto the host mesh).
 SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp",
-                                        "candle", "tray", "books", "sculpture", "basket")   # M10, with a host
+                                        "candle", "tray", "books", "sculpture", "basket",   # M10, with a host
+                                        # 28 Oct 2026: the kitchen worktop items rest on the built worktop
+                                        "microwave", "kettle", "coffee_machine", "toaster", "chopping_board",
+                                        "utensil_pot", "fruit_bowl")
 # Seats decor rests on at seat height (cushions, a throw): Milestone 10 adds the corner sofa, chaise and bench.
 SEAT_HOST_TYPES: tuple[str, ...] = ("sofa", "armchair", "sofa_corner", "chaise")
 MATERIAL_KEYS: tuple[str, ...] = ("wood", "fabric", "bedding", "ceramic", "steel", "painted", "worktop", "dark",
@@ -306,7 +314,12 @@ DECOR_DEFAULT_HEIGHT = {"cushion": 0.12, "book_set": 0.22, "plant": 0.6, "rug": 
                         # Milestone 10 (typical sizes, assumed)
                         "curtain": 2.4, "blind": 1.3, "throw": 0.05, "books": 0.12, "candle": 0.2, "basket": 0.35,
                         "tray": 0.04, "clock": 0.35, "sculpture": 0.4, "plant_large": 1.6, "pendant_light": 0.6,
-                        "ceiling_light": 0.12}
+                        "ceiling_light": 0.12,
+                        # 28 Oct 2026: real products (a 20 l countertop microwave 45-49 x 33-40 x 26-30 cm, a 1.7 l
+                        # kettle 22 x 16 x 25 cm, a bean-to-cup machine 24 x 43 x 35 cm, a 2-slice toaster 28 x 17 x
+                        # 19 cm, a 40 x 25 cm board, a utensil pot with its tools, a 28 cm fruit bowl)
+                        "microwave": 0.27, "kettle": 0.25, "coffee_machine": 0.35, "toaster": 0.19,
+                        "chopping_board": 0.02, "utensil_pot": 0.30, "fruit_bowl": 0.12}
 MIRROR_FRAME_M = 0.03            # the parametric mirror: frame width and depth; the glass sits on its front
 RUG_THICKNESS_M = 0.012
 # Bed frames (Milestone 8): the mattress on the deck and the inner box the bedding fills.
@@ -3241,7 +3254,67 @@ def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None
         return [_cylinder_z(0.0, 0.0, h - canopy, w / 2.0 * 0.8, d / 2.0 * 0.8, canopy, "colour_steel", "canopy",
                             n=32),
                 _superellipsoid(0.0, 0.0, 0.0, w, d, h - canopy + 0.004, 0.6, 1.0, "bulb", "bulb", n_eta=8, n_om=32)]
+    if dtype in KITCHEN_DECOR_TYPES:          # 28 Oct 2026: the kitchen worktop's appliances and decor
+        return kitchen_worktop_parts(dtype, w, d, h)
     raise KeyError(f"no decor builder for {dtype!r}")
+
+
+def kitchen_worktop_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
+    """28 Oct 2026 (user: "More decor pieces needed ... kettle in the kitchen, microwave in the kitchen etc"): the
+    parametric small appliances and decor of a kitchen worktop at the item's real box (bottom on z = 0, front -Y),
+    with PBR material keys (steel, dark glass, ceramic, wood, the fruit's colours): a countertop microwave (steel
+    case, dark glass door with its window, a control strip and a handle), a kettle (body, lid, spout and handle on
+    its base), a bean-to-cup coffee machine (body, drip tray, spout, cup), a 2-slice toaster (body with two slots and
+    a lever), a wooden chopping board, a ceramic utensil pot with its wooden tools, a fruit bowl with fruit."""
+    r = min(w, d) / 2.0
+    if dtype == "microwave":
+        door, f = w * 0.68, -d / 2.0                 # every part inside the item's box: the case's front 3 cm back
+        return [_box(0.0, 0.015, 0.0, w, d - 0.03, h, "steel", "body"),
+                _box(-w / 2.0 + door / 2.0 + 0.01, f + 0.027, 0.02, door, 0.006, h - 0.04, "dark", "door"),
+                _box(-w / 2.0 + door / 2.0 + 0.01, f + 0.023, 0.05, door * 0.7, 0.002, max(0.01, h - 0.10), "glass",
+                     "window"),
+                _box(w / 2.0 - (w - door) / 2.0 + 0.005, f + 0.028, 0.03, w - door - 0.03, 0.004, h - 0.06, "dark",
+                     "controls"),
+                _box(door - w / 2.0 - 0.01, f + 0.012, 0.06, 0.015, 0.024, max(0.01, h - 0.12), "steel", "handle")]
+    if dtype == "kettle":
+        base_h = 0.02
+        body_r = r * 0.72
+        return [_cylinder_z(0.0, 0.0, 0.0, r * 0.85, r * 0.85, base_h, "dark", "base", n=24),
+                _frustum_z(0.0, 0.0, base_h, body_r, body_r, body_r * 0.8, body_r * 0.8, h * 0.78, "steel", "body",
+                           n=24),
+                _cylinder_z(0.0, 0.0, base_h + h * 0.78, body_r * 0.55, body_r * 0.55, h * 0.06, "dark", "lid", n=20),
+                _box(-body_r - 0.015, 0.0, base_h + h * 0.5, 0.04, 0.025, 0.03, "steel", "spout"),   # along its width
+                _box(body_r + 0.0125, 0.0, base_h + h * 0.15, 0.025, 0.022, h * 0.6, "dark", "handle")]
+    if dtype == "coffee_machine":
+        return [_box(0.0, 0.03, 0.0, w, d - 0.06, h, "dark", "body"),
+                _box(0.0, -d / 2.0 + 0.04, 0.0, w * 0.8, 0.08, 0.02, "steel", "tray"),
+                _box(0.0, -d / 2.0 + 0.05, h * 0.55, w * 0.7, 0.10, h * 0.12, "steel", "head"),
+                _cylinder_z(0.0, -d / 2.0 + 0.05, 0.02, 0.035, 0.035, 0.075, "ceramic", "cup", n=16),
+                _box(0.0, 0.03 - (d - 0.06) / 2.0 - 0.002, h * 0.78, w * 0.6, 0.004, h * 0.12, "glass", "display")]
+    if dtype == "toaster":
+        parts = [_box(0.0, 0.015, 0.0, w, d - 0.03, h - 0.006, "steel", "body"),
+                 _box(0.0, -d / 2.0 + 0.0145, h * 0.55, 0.02, 0.025, 0.02, "dark", "lever")]
+        for sy in (-1.0, 1.0):
+            parts.append(_box(0.0, 0.015 + sy * d * 0.18, h - 0.006, w * 0.6, 0.03, 0.006, "dark", "slot"))
+        return parts
+    if dtype == "chopping_board":
+        return [_box(0.0, 0.0, 0.0, w, d, h, "wood", "board"),
+                _cylinder_z(w / 2.0 - 0.03, 0.0, h - 0.0008, 0.01, 0.01, 0.0008, "dark", "hole", n=12)]
+    if dtype == "utensil_pot":
+        pot_h = min(h * 0.55, 0.17)
+        parts = [_cylinder_z(0.0, 0.0, 0.0, r * 0.9, r * 0.9, pot_h, "ceramic", "pot", n=24)]
+        for k, (ox, oy) in enumerate(((-0.02, 0.0), (0.015, 0.015), (0.01, -0.02), (-0.01, 0.02))):
+            parts.append(_box(ox, oy, pot_h * 0.3, 0.012, 0.012, h - pot_h * 0.3 - 0.005 * k, "wood", "tool"))
+        return parts
+    if dtype == "fruit_bowl":
+        parts = [_cylinder_z(0.0, 0.0, 0.0, r * 0.5, r * 0.5, h * 0.25, "ceramic", "base", n=24),
+                 _frustum_z(0.0, 0.0, h * 0.25, r * 0.6, r * 0.6, r, r, h * 0.45, "ceramic", "body", n=24)]
+        fr = min(r * 0.32, h * 0.32)
+        for k, (ox, oy) in enumerate(((-0.35, -0.2), (0.3, -0.15), (0.0, 0.3), (0.05, -0.05))):
+            parts.append(_superellipsoid(ox * r, oy * r, h * 0.35, fr * 2.0, fr * 2.0, fr * 2.0, 1.0, 1.0,
+                                         ("terracotta", "green")[k % 2], "fruit", n_eta=6, n_om=12))
+        return parts
+    raise KeyError(f"no kitchen worktop builder for {dtype!r}")
 
 
 _BUILDERS = {

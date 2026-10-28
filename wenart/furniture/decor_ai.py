@@ -1210,6 +1210,9 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         items += required_items(q, items, out, new_id)
         if items:
             items += fill_to_minimum(q, items, out, new_id, room_recipe(room, recipes), family)
+            # 28 Oct 2026 (user: "kettle in the kitchen, microwave in the kitchen etc"): the worktop, dressed
+            # modestly by rule (the AI's slots hold no counter); the fallback gets it from decor.rule_decor_room
+            items += D.kitchen_worktop_decor(out, room, pieces, new_id, existing=items)
         apply_brief_looks(items, style, lamps, looks)
         if items:
             rec.items = items

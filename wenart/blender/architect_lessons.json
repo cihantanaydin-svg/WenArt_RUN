@@ -798,6 +798,33 @@
    "request": "There should have been better indoor stair solutions should be there I did not like this one",
    "lesson": "A U stair that needs winders turns them as two quarter turns of kite winders around the newels at its well (never one fan of treads from a single point); handrails and balustrade follow the house style.",
    "question": "Do the stairs read as designed stairs (clean flights, winders turning around the newels, a continuous handrail), not a spiral fan or a heavy block?"
+  },
+  {
+   "id": "UL70",
+   "date": "2026-10-28",
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "build",
+    "F3",
+    "H1"
+   ],
+   "request": "Kitchen design could have been a lot better this is terrible (real04 run 20261028-005318-full, kitchen r_L-1_mutfak: the drawn stove got a freestanding white cooker lower than the worktop standing in a gap of the run like a dishwasher, no cooker hood, wall cabinets as separate boxes of odd widths with gaps that do not line up; real06 run 20261027-222248-full: 'What kind of a kitchen is this', 'Why is this closing the window': wall cabinets across a window, the hob a black freestanding box between base units)",
+   "lesson": "A kitchen reads as one designed kitchen (general rule): a stove drawn in a counter run is the run's hob, set into one continuous worktop at its drawn span with a built-in oven under it (a freestanding range only away from a run); an agent pin never takes a hob or a fridge out of its run; every hob gets a cooker hood sized to it in the style's metal (a chimney hood on the wall, an under-cabinet hood under a wall cabinet, an island hood over an island); the wall cabinets are one run over the base run: one bottom and top line, one depth, real units of 300-900 mm whose joints line up with the base units, flush at the hood (the hood between them), never over any part of a window, a glazed door or a door (the build cuts them at the windows of the building as built), joined at the corners (a blind corner unit, a corner filler), never a lone box of odd width; a counter outline drawn inside a run is part of it; a fridge column never stands in front of a window or a pass-through; fronts, handles (on feet) and the worktop follow the style, the family's kitchen look where style.json names none. The model review's M13 flags what is left (a hob without a hood, an appliance off the worktop line, wall cabinets over a window, odd boxes, unexplained gaps, two lines) for Argus.",
+   "question": "Does every kitchen read as one designed kitchen: the hob set into the worktop with an oven under it and a hood over it, every appliance of a run on its worktop line, the wall cabinets one run of real units in line with the base units, flush at the hood, joined at the corners and never over a window?"
+  },
+  {
+   "id": "UL71",
+   "date": "2026-10-28",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build",
+    "F3"
+   ],
+   "request": "More decor pieces needed ... kettle in the kitchen, microwave in the kitchen etc (real06's kitchen: nothing on the counter)",
+   "lesson": "Every kitchen's worktop is dressed modestly by rule (general rule): a countertop microwave at a run end against a wall or a corner, a coffee machine (or a toaster) at another end, a kettle by the sink, a utensil pot and a chopping board beside the hob, a fruit bowl on an island or a free stretch, at real product sizes (parametric with PBR materials until audited library models exist), at most one per 0.5 m of free worktop and five per kitchen, labelled added_by_ai with the reason; each passes the code checks: on the worktop (rested on the built top), off the hob and its 0.25 m side gap, off the sink, off tall units, never in front of a window, glazed door or pass-through it would reach (the build slides it along the worktop when the building as built puts a window there).",
+   "question": "Does every kitchen worktop carry a few real small appliances and pieces of decor (a microwave, a kettle, a coffee machine or toaster, a board, a fruit bowl), none on the hob, in the sink or in front of a window?"
   }
  ]
 }

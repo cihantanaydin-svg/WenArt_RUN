@@ -110,7 +110,8 @@ def test_module_and_family_interfaces():
     # the §13.1 builders: wardrobe run, long table, L-sofa, kitchen run, bath set
     assert MD.MODULE_BUILDERS == {"wardrobe": "wardrobe_run", "table_dining": "table_long", "sofa_corner": "sofa_l",
                                   "kitchen_counter": "kitchen_run", "kitchen_island": "kitchen_run",
-                                  "washbasin": "bath_set", "shower": "bath_set"}
+                                  "washbasin": "bath_set", "shower": "bath_set",
+                                  "wall_cabinet": "wall_run"}       # 28 Oct 2026: the wall run of real units
     # pure (no bpy): a plan for a type with a builder, None for one without
     piece = {"id": "f1", "type": "wardrobe", "room_id": "r", "height": 2.1,
              "footprint": {"center": [1.0, 1.0], "size": [2.57, 0.6], "rotation_deg": 0}}

@@ -367,8 +367,11 @@ def test_looks_of_completed_rooms(completed):
 
 def test_looks_without_style_slots_and_by_rule():
     source = drawn_building(example())
-    out, _r = C.complete_building(source, "x", FakeChooser(), C.Settings(), style={"family": "modern"})
+    out, _r = C.complete_building(source, "x", FakeChooser(), C.Settings(), style={})
     assert "design" not in piece(out, "f_L-1_004")                                    # no cabinets slot: no keys
+    # 28 Oct 2026: a style family with no cabinets slot gives its kitchen look (looks.KITCHEN_FAMILY_LOOKS)
+    out, _r = C.complete_building(source, "x", FakeChooser(), C.Settings(), style={"family": "modern"})
+    assert piece(out, "f_L-1_004")["design"] == {"front_style": "flat", "handle": "black", "worktop": "stone"}
     style = {"cabinets": {"front": "slatted", "colour": 7, "handle": "gold", "worktop": "wood"}}
     out, _r = C.complete_building(source, "x", FakeChooser(), C.Settings(), style=style)
     assert piece(out, "f_L-1_004")["design"] == {"front_style": "slatted", "worktop": "wood"}   # bad values left out

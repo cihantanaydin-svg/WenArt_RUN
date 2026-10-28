@@ -130,7 +130,9 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wena
             # checks, plausibility, the inference and through it the ingest, the sheets and the levels.
             "wenart/furniture/infer.py", "wenart/furniture/plausibility.py", "wenart/ingest/**", "wenart/sheets/**",
             "wenart/recognition/**", "wenart/brief.py", "wenart/defaults.yaml",
-            "wenart/furniture/taste.py", "wenart/blender/outdoor.py") + GROUPS_CODE + LEVELS_CODE   # 25 Oct 2026
+            "wenart/furniture/taste.py", "wenart/blender/outdoor.py",
+            # 28 Oct 2026: the fit plans the kitchen runs, their hoods and the wall runs with the module builders
+            "wenart/blender/modules.py") + GROUPS_CODE + LEVELS_CODE   # 25 Oct 2026
 # The pipeline (and pipeline_final): the vector, DXF/DWG and generic cores, the recognition questions and answers
 # (crops, size table, the two-pass rule, check.yaml's model ids and slugs) and the room-type table.
 PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",
