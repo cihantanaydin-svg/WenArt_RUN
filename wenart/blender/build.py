@@ -853,12 +853,34 @@ def facade_faces(building: dict, outlines: dict[str, list]) -> tuple[dict[str, l
 
 
 LIBRARY_OPENINGS_ENV = "WENART_LIBRARY_OPENINGS"      # "off": the parametric doors and windows (A/B)
+LIBRARY_INSIDE_DOORS_ENV = "WENART_LIBRARY_INSIDE_DOORS"   # "off": the parametric inside doors (A/B, 28 Oct 2026)
+
+
+def _plan_notes(notes: list, warnings: list, assumed: Optional[list], what: str = "opening") -> None:
+    """The parametric, left-out and shared-family records of ``opening_models.plan`` / ``plan_inside`` as warnings
+    and assumed records."""
+    for n in notes:
+        if n.get("kind") == "parametric":
+            warnings.append(f"{what} {n.get('id')}: parametric in the style's finish ({n.get('reason')})")
+            if assumed is not None:
+                assumed.append({"object": n.get("id"), "field": "opening_model", "value": "parametric",
+                                "reason": str(n.get("reason") or "no model of the building's family fits")})
+        elif n.get("kind") == "left_out" and assumed is not None:
+            assumed.append({"object": "openings", "field": f"left_out:{n.get('category')}",
+                            "value": len(n.get("models") or {}), "reason": "models out of the style's look: "
+                            + "; ".join(f"{k}: {v}" for k, v in list((n.get("models") or {}).items())[:8])})
+        elif n.get("kind") == "shared_family" and assumed is not None:
+            assumed.append({"object": "openings", "field": f"shared_family:{n.get('category')}",
+                            "value": n.get("family"), "reason": str(n.get("reason"))})
 
 
 def library_openings(building: dict, levels: list, prep: dict, brief, warnings: list, assets_dir=None,
                      style=None, assumed: Optional[list] = None) -> dict:
     """``opening_models.plan`` for the outer doors and windows of a whole-building build (24 Oct 2026), in the
-    run's licence mode; {} when ``WENART_LIBRARY_OPENINGS=off`` or the catalogue has no extras."""
+    run's licence mode; {} when ``WENART_LIBRARY_OPENINGS=off`` or the catalogue has no extras. 28 Oct 2026 (user: "I
+    want better doors inside the house and the outside ... some variation is needed"): ``opening_models.plan_inside``
+    adds the interior doors (``inside_records``: one family per role, never a facade family) unless
+    ``WENART_LIBRARY_INSIDE_DOORS=off``; a door no model fits stays the parametric door (warned, assumed)."""
     from wenart.blender import opening_models as OM
     from wenart.blender import site as S
 
@@ -883,22 +905,26 @@ def library_openings(building: dict, levels: list, prep: dict, brief, warnings: 
     # language per building; what was left out and what stays parametric is listed (opening_models.plan's notes)
     notes: list = []
     plan = OM.plan(building, outer, extras, mode, assets_dir=assets_dir, style=style, notes=notes)
-    for n in notes:
-        if n.get("kind") == "parametric":
-            warnings.append(f"opening {n.get('id')}: parametric in the style's finish ({n.get('reason')})")
-            if assumed is not None:
-                assumed.append({"object": n.get("id"), "field": "opening_model", "value": "parametric",
-                                "reason": str(n.get("reason") or "no model of the building's family fits")})
-        elif n.get("kind") == "left_out" and assumed is not None:
-            assumed.append({"object": "openings", "field": f"left_out:{n.get('category')}",
-                            "value": len(n.get("models") or {}), "reason": "models out of the style's look: "
-                            + "; ".join(f"{k}: {v}" for k, v in list((n.get("models") or {}).items())[:8])})
+    _plan_notes(notes, warnings, assumed)
     cats: dict = {}
     for v in plan.values():
         cats.setdefault(v["category"], set()).add(v["asset"]["asset_id"])
     print(f"LIBRARY_OPENINGS {len(plan)} of {len(outer)} outer openings ({mode}): "
           + ", ".join(f"{k} {sorted(v)}" for k, v in sorted(cats.items())))
-    return plan
+    if str(os.environ.get(LIBRARY_INSIDE_DOORS_ENV) or "").strip().lower() in ("off", "0", "no", "false"):
+        return plan
+    inside = OM.inside_records(building, levels, {r["opening"]["id"] for r in outer})
+    facade = {v["family"] for v in plan.values() if v.get("category") in OM.FACADE_CATEGORIES}
+    in_notes: list = []
+    inner = OM.plan_inside(building, inside, extras, mode, assets_dir=assets_dir, style=style, notes=in_notes,
+                           exclude_families=facade)
+    _plan_notes(in_notes, warnings, assumed, "inside door")
+    roles: dict = {}
+    for v in inner.values():
+        roles.setdefault(str(v.get("role")), set()).add(v["asset"]["asset_id"])
+    print(f"LIBRARY_INSIDE_DOORS {len(inner)} of {len(inside)} inside doors ({mode}): "
+          + ", ".join(f"{k} {sorted(v)}" for k, v in sorted(roles.items())))
+    return dict(plan, **inner)
 
 
 def style_family_of(style_path) -> Optional[str]:

@@ -25,6 +25,13 @@ black-and-white triangle lattice in its glass"; "The house needs to make sense a
 - Why: the model's own colours beat the style (textured materials were kept), so dark frames stood in a white
   house; the doubled pane faces fought in the render (black and white triangles), and after their separation the
   opaque back face would shut the pane from inside.
+
+28 Oct 2026 (user: "I want better doors inside the house and the outside ..."): an inside door's library model
+(``opening_models.plan_inside``: ``lib["inside"]``) is centred in its wall (``panel_layout(centred=True)``) with its
+front toward the room it opens into (``lib["outward"]``), its leaf in the style's door look like the parametric
+inside doors; ``lib["mirror"]`` mirrors it across its panel's centre along the wall (``mirror_across``: the drawn
+hinge side) and ``lib["add_handles"]`` (the audit sees no handle on the model) adds the lever pair of the parametric
+door (``shell.door_handle_parts``), a design detail with its manifest entry.
 """
 from __future__ import annotations
 
@@ -178,17 +185,36 @@ def glass_faces(materials, face_materials) -> list[bool]:
     return [m is not None and 0 <= m < len(glassy) and glassy[m] for m in face_materials]
 
 
-def panel_layout(centre, wall, width: float, panels: int, outward, thickness: float, depth: float):
+def panel_layout(centre, wall, width: float, panels: int, outward, thickness: float, depth: float,
+                 centred: bool = False):
     """``[(x, y)]``: the plan centres of ``panels`` equal panels across ``width`` on the wall through ``centre``,
-    moved outward so the model's outer face sits ``OUTSIDE_SET_M`` inside the outer wall face (pure)."""
+    moved outward so the model's outer face sits ``OUTSIDE_SET_M`` inside the outer wall face (pure); ``centred``
+    (an inside door, 28 Oct 2026): on the wall's centre line."""
     (x0, y0), (x1, y1) = wall["start"][:2], wall["end"][:2]
     length = math.hypot(x1 - x0, y1 - y0) or 1.0
     ux, uy = (x1 - x0) / length, (y1 - y0) / length
     ox, oy = outward
-    push = max(0.0, thickness / 2.0 - OUTSIDE_SET_M - depth / 2.0)
+    push = 0.0 if centred else max(0.0, thickness / 2.0 - OUTSIDE_SET_M - depth / 2.0)
     pw = width / panels
     return [(centre[0] + ux * (-width / 2.0 + pw * (i + 0.5)) + ox * push,
              centre[1] + uy * (-width / 2.0 + pw * (i + 0.5)) + oy * push) for i in range(panels)]
+
+
+def mirror_across(verts, faces, uvs, centre, axis) -> tuple[list, list, Optional[list]]:
+    """``(verts, faces, uvs)`` mirrored across the vertical plane through ``centre`` (x, y) whose normal is the plan
+    direction ``axis`` (pure; 28 Oct 2026: a door turned to its drawn hinge side). Each face's corners (and their
+    UVs) are reversed, so its normal still points out."""
+    ax, ay = float(axis[0]), float(axis[1])
+    n = math.hypot(ax, ay) or 1.0
+    ax, ay = ax / n, ay / n
+    cx, cy = float(centre[0]), float(centre[1])
+    out = []
+    for v in verts:
+        d = (v[0] - cx) * ax + (v[1] - cy) * ay
+        out.append((v[0] - 2.0 * d * ax, v[1] - 2.0 * d * ay, v[2]))
+    rfaces = [list(reversed(list(f))) for f in faces]
+    ruvs = None if uvs is None else [None if uv is None else list(reversed(list(uv))) for uv in uvs]
+    return out, rfaces, ruvs
 
 
 def front_rotation_deg(outward) -> float:
@@ -250,7 +276,9 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
     if not model.get("verts") or not model.get("faces"):
         warnings.append(f"{opening['id']}: library model {path.name} has no geometry; parametric opening")
         return []
-    if (opening.get("type") != "door" or lib.get("category") in ("glazed_door", "terrace_door")) \
+    inside = bool(lib.get("inside"))
+    if (opening.get("type") != "door" or lib.get("category") in ("glazed_door", "terrace_door")
+            or (inside and lib.get("role") == "glazed")) \
             and not any(is_glass(m) for m in model.get("materials") or []):
         # 25 Oct 2026: a window whose panes are an opaque picture of glass shuts the daylight out (real04's
         # "Window1 1": the south rooms went +4..+7 EV darker); the parametric window has real glass
@@ -292,12 +320,19 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
             face_materials[k] = g
     repainted = sorted({m.name for m, b in zip(model["materials"], materials) if b is look and m is not look})
     created = []
-    for i, (px, py) in enumerate(panel_layout(geo["centre"], wall, width, panels, outward, thickness, depth)):
+    (wx0, wy0), (wx1, wy1) = wall["start"][:2], wall["end"][:2]
+    along = (wx1 - wx0, wy1 - wy0)
+    for i, (px, py) in enumerate(panel_layout(geo["centre"], wall, width, panels, outward, thickness, depth,
+                                              centred=inside)):
         verts, info = F.fit_vertices(model["verts"], asset, {"center": [px, py], "size": [pw, depth],
                                                              "rotation_deg": rot}, geo["bottom"],
                                      target_size=[pw, depth, height])
-        ob = F._mesh_object(f"{opening['id']}_lib{i}", verts, model["faces"], materials, face_materials,
-                            ctx["collection"], opening["id"], kind, geo["status"], uvs=model.get("uvs"),
+        faces, uvs = model["faces"], model.get("uvs")
+        if lib.get("mirror"):
+            # 28 Oct 2026: the drawn hinge side (opening_models.hinge_mirror)
+            verts, faces, uvs = mirror_across(verts, faces, uvs, (px, py), along)
+        ob = F._mesh_object(f"{opening['id']}_lib{i}", verts, faces, materials, face_materials,
+                            ctx["collection"], opening["id"], kind, geo["status"], uvs=uvs,
                             uv_name=model.get("uv_name"), fallback_material=look or mats["glass"])
         ob.pass_index = geo["index"]
         created.append(ob)
@@ -308,9 +343,48 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
                                     "attribution": asset.get("attribution"), "category": lib.get("category"),
                                     "panel": i, "panels": panels, "fit": info, "family": lib.get("family"),
                                     "look": lib.get("look"), "finish": None if look is None else look.name,
-                                    "repainted": repainted, "glass_twins": len(twins)},
+                                    "repainted": repainted, "glass_twins": len(twins),
+                                    # 28 Oct 2026: the role and the audit's fields (Argus: door_variety_problems)
+                                    "role": lib.get("role"), "model_role": lib.get("model_role"),
+                                    # the model's stated operation: opening_models.model_operation reads it here too
+                                    "opening": {"operation": lib.get("model_operation")},
+                                    "statement": lib.get("statement"), "quality": lib.get("quality"),
+                                    "inside": inside, "mirror": bool(lib.get("mirror")), "hinge": lib.get("hinge")},
                      inferred={"field": "product", "reason": lib.get("reason")})
         ctx["manifest_objects"].append(entry)
     ctx["assumed"].append({"object": opening["id"], "field": "library_model", "value": asset.get("asset_id"),
                            "reason": lib.get("reason"), "parent": opening["id"], "kind": "library_model"})
+    if inside and lib.get("hinge") and "assumed" in str(lib.get("hinge")):
+        ctx["assumed"].append({"object": opening["id"], "field": "door_hinge_side", "value": "as modelled",
+                               "reason": lib["hinge"], "parent": opening["id"], "kind": "library_model"})
+    if lib.get("add_handles") and opening.get("type") == "door":
+        created += _library_handles(opening, geo, ctx, lib)
     return created
+
+
+def _library_handles(opening: dict, geo: dict, ctx: dict, lib: dict) -> list:
+    """The lever pair of the parametric door on a library door whose model has no handle (28 Oct 2026: the audit's
+    ``handle_side`` none): a design detail, assumed, with the opening's id and pass index."""
+    from wenart.blender import common
+    from wenart.blender import shell as SH
+
+    library = ctx.get("library")
+    steel = library.get("steel_brushed") if library is not None else None
+    sill = float(geo["bottom"]) - float(geo.get("floor_z", geo["bottom"]))
+    parts = SH._local_to_world(SH.door_handle_parts(geo["width"], geo["height"], sill),
+                               (*geo["centre"], geo["bottom"]), geo["angle"])
+    ob = common.new_mesh_object(f"{opening['id']}_handle", *parts, collection=ctx["collection"],
+                                wenart_id=opening["id"], kind="door", status="assumed",
+                                materials=[steel] if steel is not None else ())
+    ob.pass_index = geo["index"]
+    reason = (f"design detail of the documented door: lever handles on both faces of the library model "
+              f"{(lib.get('asset') or {}).get('asset_id')} (the audit sees no handle on it); not in the documents")
+    entry = SH._opening_entry(opening, ob.name, geo["level_id"], steel.name if steel is not None else None, False,
+                              geo["index"], {}, 0.0)
+    entry.update(status="assumed", evidence=[], parent=opening["id"],
+                 assumed={"detail": "door_handles", "lever_height_m": SH.HANDLE_HEIGHT, "reason": reason})
+    ctx["manifest_objects"].append(entry)
+    ctx["assumed"].append({"object": ob.name, "field": "door_handles", "value": "steel lever pair",
+                           # its own kind: "door_handles" belongs to the parametric leaves (<id>_leaf)
+                           "reason": reason, "parent": opening["id"], "kind": "library_door_handles"})
+    return [ob]

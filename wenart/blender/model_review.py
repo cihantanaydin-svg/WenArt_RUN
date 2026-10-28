@@ -306,7 +306,8 @@ def rain_water(plan_boxes: list, roof: Optional[dict]) -> tuple[list[dict], int]
 
 
 def opening_language(manifest: Optional[dict]) -> tuple[list[dict], int]:
-    """M6: the library models of the outside doors and windows, one family per category."""
+    """M6: the library models of the outside doors and windows, one family per category; 28 Oct 2026: the inside
+    doors one family per role (``opening_models.plan_inside``: ``inside_door:solid``, ``inside_door:glazed``)."""
     cats: dict = {}
     n = 0
     for ob in (manifest or {}).get("objects") or []:
@@ -315,8 +316,8 @@ def opening_language(manifest: Optional[dict]) -> tuple[list[dict], int]:
             continue
         n += 1
         fam = str(lm.get("family") or lm.get("asset_id"))
-        cats.setdefault(str(lm.get("category") or ob["kind"]), {}).setdefault(fam, []).append(
-            ob.get("element_id") or ob.get("wenart_id"))
+        cat = str(lm.get("category") or ob["kind"]) + (f":{lm['role']}" if lm.get("role") else "")
+        cats.setdefault(cat, {}).setdefault(fam, []).append(ob.get("element_id") or ob.get("wenart_id"))
     out = []
     for cat, fams in sorted(cats.items()):
         if len(fams) > 1:

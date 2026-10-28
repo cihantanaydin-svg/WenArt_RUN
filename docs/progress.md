@@ -1968,3 +1968,21 @@ on the terrace, 4 bare worktops and 4 bare dining tables.
 Helpers working (not merged yet): sofa cushions and beds, outdoor rooms and ceiling lights, library typing and units
 (the miniature table, the kitchen sink as a washbasin, the wardrobe with a window frame), kitchen design with small
 appliances, site grading and paving.
+
+## Better doors and windows, inside and outside, with variation (28 Oct 2026; built, pod run waiting)
+
+The user: "I want better doors inside the house and the outside, I am not liking that much the models used at the
+moment, some variation is needed", then "find the best models" (lesson UL65, now `built`).
+
+| what | how (general rules) |
+|---|---|
+| better models | a new source: the HSSD doors and windows (`wenart/assets/hssd_openings.py`): 841 Floorplanner product models in 56 series of `hssd-models objects/openings/` plus the named products, typed by their synset and size into the categories; 197 picks spread over each series' proportions (`results/library/growth/candidates_hssd_openings.json`, `approved_hssd_openings.json`; 22 MB; CC BY-NC 4.0, relaxed mode) |
+| knowing what a model is | the audit asks doors and windows the opening question (`ask.version_openings` m13.3: role, operation, leaves, glazing, leaf, handle side); the catalogue keeps it (`opening_vision`, `audit_quality`), the choice reads it before the title words |
+| variation by role, one language | the entrance takes a statement door; the outside service doors another family than the entrance (shared only when no other family of the look fits); terrace doors stay glazed; one window family; each glazed door a member that opens its way; among equally good families the house's project id picks one, so two houses of one style differ |
+| inside doors | library models per role (`opening_models.plan_inside`: glazed into living rooms and kitchens, solid to private rooms, sliding where drawn; the door style of `looks.door_look`), one family per role, the glazed role preferring the solid doors' series, never a facade family; centred in the wall, facing the room it opens into, mirrored to a drawn hinge side, lever handles when the model has none; the parametric door where nothing fits (warned, assumed); `WENART_LIBRARY_INSIDE_DOORS=off` for an A/B |
+| Argus | `opening_models.door_variety_problems` (every door one model, an inside door model on the facade, an entrance without a statement door); model review M6 counts the inside doors per role |
+
+Pod job (not run yet): `scripts/jobs/library_growth.sh` `GROWTH_ONLY=openings` (download, catalogue, render, code, ask,
+decide, write, vision-fields, sheets, report, GPU tests), about 30-40 min on the RTX PRO 6000 (about $1.3-1.7; cap
+75 min, worst case about $3.1). Infinigen's door and window factories were checked at the pinned commit and left out
+(its generated furniture rated 2 of 5 in the same audit).
