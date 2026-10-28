@@ -525,6 +525,8 @@ def opening_polygon(plan: dict, soffit: float) -> Optional[list]:
         boxes.append(box(land["polygon"]))
     if not boxes:
         return None
+    from wenart.blender import parametric as P
+    boxes = P.close_box_gaps(boxes)              # 28 Oct 2026: no sliver of slab between a flight and its landing
     gp = OPENING_GAP_M
     loops = geom2d.rect_union_outline([(b[0] - gp, b[1] - gp, b[2] + gp, b[3] + gp) for b in boxes])
     if not loops:
@@ -1131,10 +1133,11 @@ POST_M = 0.10                   # a landing's post, square
 
 def _waist(plan: dict, f: dict) -> tuple[float, float]:
     """``(k, t_v)`` of a planned flight: the soffit's rise per metre of going and the waist measured vertically
-    (``parametric.STAIR_WAIST_M`` square to the soffit), as ``parametric.stair_parts`` builds them."""
-    from wenart.blender import parametric as P
-    k = float(plan["riser_m"]) / max(float(f["going"]), 1e-6)
-    return k, P.STAIR_WAIST_M * math.sqrt(1.0 + k * k)
+    (``parametric.STAIR_WAIST_M`` square to the soffit), as ``parametric.stair_parts`` builds them. 28 Oct 2026: the
+    structure of the stair's design (``stair_rails.flight_waist``: the thin plate or the stringers of a light style),
+    so the panels close up to the soffit as built."""
+    from wenart.blender import stair_rails as SR
+    return SR.flight_waist(plan, f)
 
 
 def under_parts(plan: dict) -> list[dict]:
@@ -1175,16 +1178,23 @@ def _lines(geom) -> list:
     return [g for g in getattr(geom, "geoms", []) if g.geom_type == "LineString" and not g.is_empty]
 
 
-def under_stair(plan: dict, walls=()) -> dict:
+def under_stair(plan: dict, walls=(), voids=()) -> dict:
     """How the space under a planned stair is closed and its landing carried (pure; module docstring of this
     section): ``{"panels": [{"p", "q", "zp", "zq", "inward", "of"}], "posts": [{"at", "z"}], "low_m2", "reason"}``.
     A panel stands on every stretch of the boundary of ``under_parts`` that no other part and no wall (within
     ``WALL_TOUCH_M``) closes, from the floor to the underside over it; a half landing high enough to walk under gets a
-    post at every corner no wall and no flight carries."""
+    post at every corner no wall and no flight carries.
+
+    28 Oct 2026 (user on real04's stairs: "There should have been better indoor stair solutions"; real04's stacked U
+    stairs: the stair of L0 stands over the floor opening of the stair below, its spandrel panels hung in the
+    stairwell): ``voids``, the floor openings of the stair's level (polygons, ``floor_voids``), carry no panel and no
+    post: there is no floor to stand on; the stair stands free over the void there."""
     from shapely.geometry import LineString, Point
     parts = under_parts(plan)
     wall_polys = [p for p in (_wall_poly(w) for w in walls or ()) if p is not None]
     wall_zone = _union([p.buffer(WALL_TOUCH_M) for p in wall_polys])
+    void_zone = _union([v if hasattr(v, "geom_type") else _poly(v) for v in voids or ()
+                        if v is not None and (hasattr(v, "geom_type") or len(v) >= 3)])
     panels = []
     for i, part in enumerate(parts):
         others = _union([q["poly"].buffer(0.002) for j, q in enumerate(parts) if j != i])
@@ -1194,7 +1204,7 @@ def under_stair(plan: dict, walls=()) -> dict:
             if G.distance(a, b) < SPANDREL_MIN_M:
                 continue
             rest = LineString([a, b])
-            for cut in (others, wall_zone):
+            for cut in (others, wall_zone, void_zone):
                 if cut is not None:
                     rest = rest.difference(cut)
             u = _unit((b[0] - a[0], b[1] - a[1]))
@@ -1222,7 +1232,9 @@ def under_stair(plan: dict, walls=()) -> dict:
             cx, cy = poly.centroid.x, poly.centroid.y
             for c in _ring(poly):
                 pt = Point(c)
-                if (wall_zone is not None and wall_zone.contains(pt)) or (flights is not None and flights.contains(pt)):
+                if (wall_zone is not None and wall_zone.contains(pt)) \
+                        or (flights is not None and flights.contains(pt)) \
+                        or (void_zone is not None and void_zone.buffer(0.01).contains(pt)):
                     continue
                 d = _unit((cx - c[0], cy - c[1])) or (0.0, 0.0)
                 at = (c[0] + d[0] * POST_M * 0.71, c[1] + d[1] * POST_M * 0.71)     # under the landing's corner

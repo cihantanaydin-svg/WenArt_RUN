@@ -2744,14 +2744,15 @@ def stair_build_plan(plan: dict, walls: list[dict]) -> dict:
     return out
 
 
-def stair_under_plan(plan: dict, walls: list[dict]) -> dict:
+def stair_under_plan(plan: dict, walls: list[dict], voids=()) -> dict:
     """The space under a planned stair closed where it is low and its landing carried (pure; 27 Oct 2026, user on
     real06's ground floor: "This stairs not making any sense": loose slabs seen from below): ``plan["under"]`` =
     ``stair_access.under_stair`` on the level's ``walls`` (the spandrel panels and the posts ``parametric.stair_parts``
-    builds) and, when there is something to build, one ``stair_under`` assumed entry. Returns the record."""
+    builds) and, when there is something to build, one ``stair_under`` assumed entry. Returns the record. 28 Oct
+    2026: ``voids`` (the floor openings of the level) carry no panel and no post (the stair stands free there)."""
     from wenart.blender import stair_access as SA
     try:
-        under = SA.under_stair(plan, walls)
+        under = SA.under_stair(plan, walls, voids)
     except ImportError:                     # 27 Oct 2026: no shapely in this Python (Blender before pod_setup's step)
         return None
     plan["under"] = under
@@ -2761,6 +2762,91 @@ def stair_under_plan(plan: dict, walls: list[dict]) -> dict:
                                                                f"{len(under['posts'])} post(s)",
              "reason": under["reason"]}]
     return under
+
+
+def stair_timber_slot(style: dict | None) -> dict:
+    """The timber of a stair (pure; 28 Oct 2026): the style's door slot when it is a wood (``wood_*``: the house's
+    joinery), else ``wood_oak_light``."""
+    door = (style or {}).get("door") if isinstance((style or {}).get("door"), dict) else {}
+    if str(door.get("material") or "").startswith("wood"):
+        return {k: v for k, v in door.items() if k in ("material", "asset", "colour", "tint", "params")}
+    return {"material": "wood_oak_light"}
+
+
+def level_above(building: dict, level: dict) -> dict | None:
+    """The level directly over ``level`` (the lowest elevation above it), None for the highest."""
+    z = float(level["elevation"])
+    over = [lv for lv in building.get("levels") or [] if float(lv["elevation"]) > z + 1e-6]
+    return min(over, key=lambda lv: float(lv["elevation"])) if over else None
+
+
+def upper_wall_rects(building: dict, up: dict | None, plan: dict) -> list:
+    """The wall rectangles of the level ``up`` near a planned stair (pure; 28 Oct 2026: a wall handrail goes on up
+    where its wall goes on, ``stair_rails.cap_at``); [] without a level above."""
+    from wenart.blender import stair_rails as SR
+    if up is None:
+        return []
+    near = [p for f in plan.get("flights") or [] for p in f["nosings"]] + \
+        list((plan.get("landing") or {}).get("polygon") or [])
+    return SR.wall_rects_near(near, [w for w in building.get("walls") or [] if w.get("level_id") == up["id"]])
+
+
+def stair_guard_plan(building: dict, level: dict, plan: dict, style: dict | None, floor_voids=None,
+                     ceiling_voids=None) -> dict:
+    """The stair's design and its guards (pure; 28 Oct 2026, ``stair_rails``; user on real04's stairs: "There should
+    have been better indoor stair solutions should be there I did not like this one"): ``plan["design"]`` from the
+    house's style (``stair_rails.stair_design``: the structure, the infill and the handrail of its family in the
+    house's balustrade language), ``plan["floor_voids"]`` (the floor openings of the level: the winders of a light
+    stair over one are thin, no spandrel panel stands there), ``plan["ceiling_voids"]`` (the openings of the slab
+    above when the stair comes up through it) with ``plan["upper_guards"]`` (the runs of that floor's guards,
+    ``floor_void_guards``: the stair's handrail does not run up beside them) and ``plan["guards"]``
+    (``stair_rails.plan_guards``); a ``stair_structure`` assumed entry for a light structure and a
+    ``stair_balustrade`` one. Returns the guards."""
+    from wenart.blender import stair_rails as SR
+
+    design = SR.stair_design(style)
+    plan["design"] = design
+    plan["balustrade"] = design["kind"]
+    plan["floor_voids"] = [[(float(p[0]), float(p[1])) for p in v] for v in floor_voids or [] if len(v) >= 3]
+    upper: list = []
+    up = level_above(building, level)
+    plan["upper_wall_rects"] = upper_wall_rects(building, up, plan)
+    if ceiling_voids:
+        plan["ceiling_voids"] = [[(float(p[0]), float(p[1])) for p in v] for v in ceiling_voids if len(v) >= 3]
+        if up is not None:
+            try:
+                upper = [run for g in floor_void_guards(building, up, plan["ceiling_voids"]) for run in g["runs"]]
+            except (KeyError, TypeError, ValueError, ZeroDivisionError):
+                upper = []
+    plan["upper_guards"] = upper
+    guards = SR.plan_guards(plan, plan.get("ceiling_voids"), upper)
+    plan["guards"] = guards
+    assumed = list(plan.get("assumed") or [])
+    if design["structure"] != "solid":
+        assumed = [a for a in assumed if a.get("field") != "waist"]
+        f = (plan.get("flights") or [{}])[0]
+        _k, tv = SR.flight_waist(plan, f) if f else (0.0, 0.0)
+        what = ("a thin folded-plate soffit with steel plate strings on the open sides"
+                if design["structure"] == "plate"
+                else "slim closed strings on the open sides, the soffit flush with them")
+        assumed.append({"field": "waist", "kind": "stair_structure",
+                        "value": f"{what} ({tv:.3f} m under the steps' inner corners); the landing slab "
+                                 f"{P.STAIR_WAIST_M:.2f} m"
+                                 + ("; thin winders with riser plates over the floor opening"
+                                    if SR.light_winders(plan, plan["floor_voids"]) else ""),
+                        "reason": f"the house's style ({design['why']}); the documents show the stair in plan only"})
+    n_rails = sum(1 for r in guards["rails"] if r["type"] == "balustrade")
+    n_wall = sum(1 for r in guards["rails"] if r["type"] == "wall")
+    assumed.append({"field": "balustrade", "kind": "stair_balustrade",
+                    "value": f"{design['infill'].replace('_', ' ')} under a {design['rail']['key']} handrail: "
+                             f"{n_rails} rail(s) between {len(guards['posts'])} newel(s), {n_wall} wall rail(s); "
+                             f"largest gap {guards['max_gap_m']:.3f} m"
+                             + (f"; {len(guards['cuts'])} stretch(es) without a handrail: "
+                                + "; ".join(sorted({c['why'] for c in guards['cuts']})) if guards["cuts"] else ""),
+                    "reason": f"one continuous balustrade per open side with newels at its turns (not drawn: "
+                              f"assumed; {design['why']})"})
+    plan["assumed"] = assumed
+    return guards
 
 
 def shell_stand_in(slug: str) -> str | None:
@@ -2821,7 +2907,7 @@ def stair_room(piece: dict, rooms: list[dict]) -> dict | None:
 
 def build_stairs(building: dict, level: dict, collection, library, style: dict, pass_indices: dict,
                  manifest_objects: list, assumed: list, warnings: list, plans: list | None = None,
-                 shaft: bool = True) -> dict:
+                 shaft: bool = True, floor_voids: list | None = None, ceiling_voids: list | None = None) -> dict:
     """Build the stairs of a level (``plan_stairs``): one ``furn_<id>``
     object (kind ``furniture``, the piece's pass index; treads in the room's
     floor finish, structure in the wall finish, steel rails) and one
@@ -2833,7 +2919,11 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
     the stair arrives on the level above. An item without a plan is listed
     under ``not_built`` (``stair_not_built``: Milestone 10's upper end of the
     stair below carries ``arrives_from`` and ``slab_opening``, and that
-    stair's ``stair`` record gets ``upper_end``)."""
+    stair's ``stair`` record gets ``upper_end``).
+
+    28 Oct 2026 (``stair_guard_plan``): ``floor_voids`` (the openings of this level's floor) and ``ceiling_voids``
+    (those of the slab above, when the stair comes up through it) shape the stair's guards and structure; a fifth
+    material, the house's wood (``stair_timber_slot``), takes the timber handrails, slats, balusters and strings."""
     from wenart.blender import common
 
     floor_z = float(level["elevation"])
@@ -2866,14 +2956,17 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
         # fix round after P4b (17 Oct 2026): a smooth paint of the wall colour (STAIR_STRUCTURE_REASON)
         structure = slot_material(library, stair_structure_slot(walls_style), unverified=unverified)
         plan = stair_build_plan(plan, level_walls)          # fix round after P4b: the stair meets its walls
-        stair_under_plan(plan, level_walls)                 # 27 Oct 2026: closed under where low, landings carried
-        plan["balustrade"] = D.balustrade_kind(style)       # 25 Oct 2026: the balustrade follows the style
+        # 25 Oct 2026: the balustrade follows the style; 28 Oct 2026: the whole stair's design, one continuous
+        # balustrade per open side (stair_guard_plan), and no spandrel panel over a floor opening
+        stair_guard_plan(building, level, plan, style, floor_voids, None if shaft else ceiling_voids)
+        stair_under_plan(plan, level_walls, plan.get("floor_voids") or ())   # 27 Oct 2026: closed where low
         verts, faces, slots, parts = stair_mesh(plan, floor_z)
         name = f"furn_{piece['id']}"
         glass = library.thin_glass()
+        timber = slot_material(library, stair_timber_slot(style), unverified=unverified)
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=piece["id"],
                                     kind="furniture", status=status,
-                                    materials=[tread, structure, steel, glass],
+                                    materials=[tread, structure, steel, glass, timber],
                                     face_material_indices=slots)
         index = len(pass_indices) + 1
         pass_indices[piece["id"]] = index
@@ -2896,7 +2989,7 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
             "asset": piece.get("asset"), "fit_scale": [1.0, 1.0, 1.0],
             "method": STAIR_METHOD_GENERIC if plan["generic"] else STAIR_METHOD,
             "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)], "fallback_reason": None,
-            "materials": [m.name for m in (tread, structure, steel, glass)], "material": tread.name,
+            "materials": [m.name for m in (tread, structure, steel, glass, timber)], "material": tread.name,
             "textured": any(library.textured(m) for m in (tread, structure)),
             "stair": stair_record(plan, parts),
         }
@@ -2964,6 +3057,7 @@ def stair_not_built(item: dict, level: dict) -> tuple[dict, list[dict]]:
 
 def stair_record(plan: dict, parts: list[dict]) -> dict:
     """The scene manifest's ``stair`` record of a built stair (pure)."""
+    from wenart.blender import stair_rails as SR
     return {
         "risers": plan["risers"], "riser_m": round(plan["riser_m"], 4), "riser_source": plan["riser_source"],
         "rise_m": round(plan["rise_m"], 4), "direction": plan["direction"], "turn": plan["turn"],
@@ -2982,6 +3076,9 @@ def stair_record(plan: dict, parts: list[dict]) -> dict:
         "under": {"panels": sum(1 for p in parts if p.get("role") == "spandrel"),
                   "posts": sum(1 for p in parts if p.get("role") == "landing_post"),
                   "low_m2": (plan.get("under") or {}).get("low_m2")},
+        # 28 Oct 2026: the structure and the guards as built (stair_guard_plan): the model review's M15 reads them
+        "structure": SR.structure_of(plan),
+        "guards": SR.summary(plan["guards"]) if plan.get("guards") else None,
     }
 
 

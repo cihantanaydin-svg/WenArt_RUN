@@ -68,6 +68,14 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   tolerances (``rest.rest_ok``: the gap under it, behind a leaning cushion, a cloth the host pokes through or a torn
   drape), and every pendant or ceiling light up to the ceiling over it (its ``hang`` record's ``gap_left_m``; without
   one, its box against the level's ceiling there: an older build left a library pendant 0.99 m under it, dec_L-1_008).
+- M15 the stair's handrails as one designed balustrade (28 Oct 2026, user on real04's stairs: "There should have been
+  better indoor stair solutions should be there I did not like this one"; the corridor view: steel rails at different
+  angles crossing each other near the well; ``stair_rails_review``): no rail crosses another or the floor guard of the
+  level above, none runs beside that floor guard over its floor, no handrail stops short (a rail end no newel takes, an
+  open turn, landing or apron edge without a rail and without a reason), every flight holds a handrail over most of its
+  run, the handrail 0.85-1.10 m over the nosing line (1.0 m on a level edge), nothing through a tread, a wall or the
+  floor above, no infill gap of 0.11 m, no rail out over the room (minor). Measured on the scene's guard records
+  (``stair.guards``), or on the straight per-flight rails of an older scene.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -101,7 +109,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15")
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -813,11 +821,14 @@ def stair_undersides(built: dict, manifest: Optional[dict]) -> tuple[list[dict],
     out, n = [], 0
     for level in built.get("levels") or []:
         walls = [w for w in built.get("walls") or [] if w.get("level_id") == level.get("id")]
+        # 28 Oct 2026: as the build closes it: with the stair's structure (its soffit) and no panel over a floor opening
+        voids = [p for _i, p in SA.floor_voids(built, level.get("id"))]
         for it in SA.planned(built, level):
             plan, pid = it.get("plan"), it["piece"].get("id")
             if not plan or pid not in entries:
                 continue
-            need = SA.under_stair(plan, walls)
+            plan = dict(plan, structure=entries[pid]["stair"].get("structure"))
+            need = SA.under_stair(plan, walls, voids)
             n += 1
             if not need["panels"] and not need["posts"]:
                 continue
@@ -903,6 +914,62 @@ def decor_attached(manifest: Optional[dict], built: dict) -> tuple[list[dict], i
                           measured={k: rest.get(k) for k in ("gap_m", "penetration_m", "support_share", "back_gap_m",
                                                              "poke_m", "cloth_edge_m") if k in rest},
                           fix=FIX_REST))
+    return out, n
+
+
+FIX_RAILS = ("build the stair's guards as one continuous balustrade per open side with newels at its turns and ends, "
+             "its handrail over the nosing line, stopped under the slab and beside the floor guard of the level above, "
+             "a wall handrail where a flight has none (stair_rails.plan_guards, shell.stair_guard_plan)")
+
+
+def stair_rails_review(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
+    """M15 (module docstring): the handrails and balustrades of every built stair as built: the scene manifest's
+    ``stair.guards`` record (``stair_rails.summary``), or for a scene built before 28 Oct 2026 its ``stair.rails``
+    (``stair_rails.legacy_guards``), on the stair's plan of the building as built (``stair_access.planned``), the
+    level's walls, the openings of the slab above and that floor's guards (the scene's ``void_guard`` runs);
+    ``stair_rails.review`` measures them. One finding per stair and rule."""
+    from wenart.blender import shell as SH
+    from wenart.blender import stair_access as SA
+    from wenart.blender import stair_rails as SR
+
+    entries = {ob.get("element_id"): ob for ob in (manifest or {}).get("objects") or []
+               if isinstance(ob.get("stair"), dict)}
+    guards_by_level: dict = {}
+    house_kind = None                                  # the house's balustrade language (a scene before 28 Oct 2026)
+    for ob in (manifest or {}).get("objects") or []:
+        a = ob.get("assumed") if isinstance(ob.get("assumed"), dict) else {}
+        if a.get("detail") == "void_guard":
+            guards_by_level.setdefault(ob.get("level_id"), []).extend(
+                [(tuple(p), tuple(q)) for p, q in a.get("runs") or []])
+            house_kind = house_kind or a.get("balustrade")
+    out, n = [], 0
+    for level in built.get("levels") or []:
+        walls = [w for w in built.get("walls") or [] if w.get("level_id") == level.get("id")]
+        up = SH.level_above(built, level)
+        openings = SH.slab_openings_above(built, level) or None
+        upper = guards_by_level.get(up["id"], []) if up is not None else []
+        for it in SA.planned(built, level):
+            plan, pid = it.get("plan"), it["piece"].get("id")
+            if not plan or pid not in entries:
+                continue
+            rec = entries[pid]["stair"]
+            n += 1
+            plan = dict(plan, structure=rec.get("structure"), upper_wall_rects=SH.upper_wall_rects(built, up, plan))
+            rects = SR.wall_rects_near([p for f in plan["flights"] for p in f["nosings"]]
+                                       + list((plan.get("landing") or {}).get("polygon") or []), walls)
+            guards = rec.get("guards") if isinstance(rec.get("guards"), dict) else None
+            if guards is None:
+                guards = SR.legacy_guards(plan, rec.get("rails") or [], house_kind)
+            seen = set()
+            for f in SR.review(guards, plan, rects, openings, upper):
+                if f["rule"] in seen:
+                    continue
+                seen.add(f["rule"])
+                kind_of = "taste" if f["rule"] == "outside" else None
+                out.append(dict(_v("M15", f["severity"], pid, f"stair {pid}: {f['message']}",
+                                   it["piece"].get("room_id"), kind=kind_of, rule=f["rule"],
+                                   level_id=level.get("id"), legacy=bool(guards.get("legacy")), **f["metrics"]),
+                                owner="build", fix=FIX_RAILS))
     return out, n
 
 
@@ -1010,6 +1077,17 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
         note("M13", got, n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
         checks["M13"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M15 (28 Oct 2026, user on real04's stairs: "There should have been better indoor stair solutions"): the stairs'
+    # handrails as one designed balustrade, on the scene's records of every built stair
+    if scene_manifest:
+        try:
+            got, n = stair_rails_review(built, scene_manifest)
+            note("M15", got, n)
+        except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError,
+                StopIteration) as exc:
+            checks["M15"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    else:
+        checks["M15"] = {"status": "unavailable", "note": "no scene manifest"}
     return {"findings": findings, "checks": checks}
 
 
