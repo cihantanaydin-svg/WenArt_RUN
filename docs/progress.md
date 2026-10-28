@@ -1892,3 +1892,13 @@ rooms missing "warm wood or stone cladding"; the agent gave the facade dark wood
 panelling (a style decision of the loops, shown to the user). Two GPU tests failed on assumptions the new rules
 broke (an interior view through a new tall window sees the horizon trees at 194 m; the kitchen's wood walls read as
 "pink" paint): to fix with the real04 review. Promoted as the latest real06 run.
+
+### The two GPU failures of run 222248 (28 Oct 2026)
+
+Both were real gaps, fixed as general rules:
+
+| failure | root cause | fix |
+|---|---|---|
+| depth 194 m in cam_r_L1_cocuk_odasi_1 / _2 and cam_r_L1_ebeveyn_y_odasi_1 (60 m indoor bound) | a camera the agent or Argus sets had empty `visible_openings`, so the check did not know it framed a window | the build measures every agent interior view like a searched one (`camsearch.frame_lists`, `build.finish_agent_interior_plans`): openings, pieces, anchors in the frame |
+| two renders of one view (cocuk_odasi_1 = _2, soyunma_odasi_1 = _2, set in different rounds) | the duplicate-view rule held only exterior views | an interior pose that copies another view of its room is refused (`tools.duplicate_interior_problem`, the search's own 50 deg / 1 m rule); `show` takes the next best pose |
+| "pink" lower walls in mutfak_3 | the colour checks called every dry room painted; the agent made the kitchen walls oak | `_wall_kind` reads the room's wall finish from the style profile: wood, brick or stone walls are printed, not held to the paint bounds |

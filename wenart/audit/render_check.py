@@ -8,7 +8,10 @@ What (the final vision check's record, ``check/check_manifest.json``, every view
 - K2 an element the check model saw as something else (``different``) in a view that must show it;
 - K3 a drawn piece the drawn check (``drawn_check``) finds away from its drawn place, size or front beyond the
   check's tolerance;
-- K4 an elevation the check could not compare with the model (``not_checked``), and views marked for review.
+- K4 an elevation the check could not compare with the model (``not_checked``), and views marked for review;
+- K5 (28 Oct 2026; real06 run 222248: cocuk_odasi_1 and _2 rendered one pose, set by Argus and the agent in two
+  rounds) two interior views of one room whose poses show the same view (``camsearch.distinct_views``, the search's
+  own rule), from the scene manifest's cameras: one render is wasted and the room shows less than it could.
 
 Why: the renders are what the client sees; an element the building holds and no render shows is lost to the client
 as surely as one the build dropped.
@@ -92,6 +95,37 @@ def audit(check: Optional[dict]) -> dict:
                                          "drawn_pieces": len(dc.get("pieces") or []), "elevations": len(facades)}}
 
 
+def duplicate_views(manifest: Optional[dict]) -> list[dict]:
+    """K5 findings (module docstring): each later interior camera of a room whose pose shows the view of an earlier
+    one of that room (``camsearch.distinct_views``); the fix: set it to a pose that shows another part of the room
+    (``set_camera`` with ``show``) or remove it."""
+    from wenart.blender import camsearch as CSR
+
+    cams = [c for c in (manifest or {}).get("cameras") or []
+            if isinstance(c, dict) and c.get("room_id") and c.get("position") and c.get("target")
+            and (c.get("kind") or "interior") == "interior"]
+    out, seen = [], {}
+    for c in cams:
+        twin = next((o for o in seen.get(c["room_id"], []) if not CSR.distinct_views(c, o)), None)
+        if twin is not None:
+            out.append(K.finding("render", "K5", "minor", c["name"],
+                                 f"view {c['name']} shows the view {twin['name']} of {c['room_id']} shows (within "
+                                 f"{CSR.MIN_DISTANCE_M:g} m and {CSR.MIN_YAW_DIFF_DEG:g} degrees): one render is "
+                                 f"wasted", owner="camera", kind="process",
+                                 fix=f"set_camera {c['name']} with show naming what {twin['name']} does not show, or "
+                                     f"remove_camera {c['name']}",
+                                 evidence={"same_as": twin["name"], "room_id": c["room_id"],
+                                           "policies": [twin.get("policy"), c.get("policy")]}))
+        seen.setdefault(c["room_id"], []).append(c)
+    return out
+
+
 def run(inp) -> dict:
     """The line for ``report.LINE_MODULES``."""
-    return audit(inp.check)
+    res = audit(inp.check)
+    dups = duplicate_views(getattr(inp, "manifest", None))
+    res["findings"] = list(res.get("findings") or []) + dups
+    res.setdefault("checked", {})["interior_views"] = sum(
+        1 for c in (getattr(inp, "manifest", None) or {}).get("cameras") or [] if isinstance(c, dict)
+        and c.get("room_id"))
+    return res

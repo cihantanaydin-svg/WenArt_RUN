@@ -1632,7 +1632,8 @@ def _round(v: float, nd: int = 4) -> float:
 
 
 def _frustum_lists(model: RoomModel, position, target, seen=None,
-                   lens_mm: float = LENS_MM) -> tuple[list[str], list[str]]:
+                   lens_mm: float = LENS_MM, shift_x: float = SHIFT_X,
+                   shift_y: float = SHIFT_Y) -> tuple[list[str], list[str]]:
     """The room's openings whose centre is inside the shifted frustum of a ``lens_mm`` camera (as the
     M5 lists), and its pieces whose centre is inside it or that the model's rays see (``seen``:
     ``{element id: ray share}`` of this view, the ``elements`` of ``RoomModel.measure``). A long piece
@@ -1643,13 +1644,50 @@ def _frustum_lists(model: RoomModel, position, target, seen=None,
     seen = seen or {}
     opens = [o["id"] for o in model.openings
              if geom2d.point_in_frustum((o["center"][0], o["center"][1], fz + 1.0), position, target, tangents,
-                                        shift_x=SHIFT_X, shift_y=SHIFT_Y)]
+                                        shift_x=shift_x, shift_y=shift_y)]
     pieces = [f["id"] for f in model.pieces
               if seen.get(f["id"], 0.0) > 0.0
               or geom2d.point_in_frustum((f["footprint"]["center"][0], f["footprint"]["center"][1],
                                           fz + mount_bottom(f) + piece_bbox(f)[2] / 2.0), position, target, tangents,
-                                         shift_x=SHIFT_X, shift_y=SHIFT_Y)]
+                                         shift_x=shift_x, shift_y=shift_y)]
     return opens, pieces
+
+
+def frame_lists(building: dict, camera: dict) -> Optional[dict]:
+    """28 Oct 2026 (real06 run 222248: the agent's interior views had empty ``visible_openings``, so the GPU depth
+    check held cam_r_L1_cocuk_odasi_1 to the 60 m indoor bound while it saw the site through a window): the lists the
+    search records for its own plans, measured for any interior camera pose (an agent override): ``visible_openings``
+    (in the frustum, or seen by the model's rays), ``visible_furniture``, ``anchors_in_frame``, ``set_in_frame``
+    (``score_camera``'s ray model through the camera's lens and shift). None without its room or pose."""
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == camera.get("room_id")), None)
+    if room is None or not camera.get("position") or not camera.get("target"):
+        return None
+    model = RoomModel(room, building)
+    m = score_camera(building, camera)["shares"]
+    seen = m.get("elements") or {}
+    opens, pieces = _frustum_lists(model, camera["position"], camera["target"], seen,
+                                   float(camera.get("lens_mm") or LENS_MM), float(camera.get("shift_x") or 0.0),
+                                   float(camera.get("shift_y") or 0.0))
+    opens += [o["id"] for o in model.openings if o["id"] not in opens and float(seen.get(o["id"]) or 0.0) > 0.0]
+    return {"visible_openings": opens, "visible_furniture": pieces,
+            "anchors_in_frame": list(m.get("anchors_in") or []), "set_in_frame": list(m.get("set_in") or [])}
+
+
+def distinct_views(a: dict, b: dict) -> bool:
+    """Two interior camera poses of one room show different views (pure; 28 Oct 2026): their looks differ by at
+    least ``MIN_YAW_DIFF_DEG`` or they stand at least ``MIN_DISTANCE_M`` apart, the search's own rule for the views of
+    a room. A pose without a horizontal look counts as distinct."""
+    def yaw(c):
+        dx = float(c["target"][0]) - float(c["position"][0])
+        dy = float(c["target"][1]) - float(c["position"][1])
+        return None if math.hypot(dx, dy) < 1e-9 else math.degrees(math.atan2(dy, dx))
+
+    ya, yb = yaw(a), yaw(b)
+    if ya is None or yb is None:
+        return True
+    apart = math.hypot(float(a["position"][0]) - float(b["position"][0]),
+                       float(a["position"][1]) - float(b["position"][1]))
+    return yaw_difference(ya, yb) >= MIN_YAW_DIFF_DEG - 1e-9 or apart >= MIN_DISTANCE_M - 1e-9
 
 
 def _plan(model: RoomModel, index: int, pick: dict, warning: Optional[str], lens_mm: float = LENS_MM,

@@ -2250,10 +2250,57 @@ def exterior_poses(ctx: ToolContext) -> dict[str, dict]:
     return out
 
 
+def interior_poses(ctx: ToolContext, room_id: str) -> dict[str, dict]:
+    """``{name: pose}`` of the interior views of ``room_id`` the next build makes (28 Oct 2026): the scene's cameras
+    of the room and the accepted ``add`` entries for it, each at its last accepted ``set`` / ``add``
+    (``camera_pose_now``); a view whose last accepted entry is a ``remove`` is left out."""
+    if ctx.overrides is not None:
+        source = ctx.overrides.agent_overrides()
+    else:
+        source = ctx.building.get("agent_overrides") if isinstance(ctx.building.get("agent_overrides"), dict) else {}
+    last = {}
+    for e in source.get("cameras") or []:
+        if isinstance(e, dict):
+            last[str(e.get("view_id"))] = e
+    names = [str(c.get("name")) for c in ctx.cameras() if c.get("room_id") == room_id]
+    names += [n for n, e in last.items() if e.get("room_id") == room_id and e.get("action") == "add"
+              and n not in names]
+    out = {}
+    for name in names:
+        if (last.get(name) or {}).get("action") == "remove":
+            continue
+        pose, _where = camera_pose_now(ctx, name)
+        if isinstance(pose, dict) and pose.get("position") and pose.get("target"):
+            out[name] = pose
+    return out
+
+
+def duplicate_interior_problem(ctx: ToolContext, view_id: str, entry: dict) -> Optional[str]:
+    """28 Oct 2026 (real06 run 222248: Argus and the agent, in different rounds, set cam_r_L1_cocuk_odasi_1 and _2 to
+    one pose, and so the two soyunma views; two renders of one view): why an interior ``set`` / ``add`` pose would
+    copy another view of its room now (``camsearch.distinct_views``: the search's own rule), else None."""
+    from wenart.blender import camsearch as CSR
+
+    room_id = entry.get("room_id") or (ctx.camera(view_id) or {}).get("room_id")
+    if not room_id or not entry.get("position") or not entry.get("target"):
+        return None
+    for name, pose in sorted(interior_poses(ctx, room_id).items()):
+        if name != str(view_id) and not CSR.distinct_views(entry, pose):
+            return (f"duplicate: {view_id} would show the view {name} shows (within {CSR.MIN_DISTANCE_M:g} m and "
+                    f"{CSR.MIN_YAW_DIFF_DEG:g} degrees of its pose): choose a pose that shows another part of "
+                    f"{room_id}, or remove one of the two views")
+    return None
+
+
 def duplicate_view_problem(ctx: ToolContext, view_id: str, entry: dict) -> Optional[str]:
     """Integration after P4b (module docstring): why an exterior ``set`` / ``add`` pose would copy another exterior
-    view (within ``DUPLICATE_VIEW_M`` and ``DUPLICATE_VIEW_DEG``), else None."""
-    if entry.get("kind") != "exterior" or not entry.get("position") or not entry.get("target"):
+    view (within ``DUPLICATE_VIEW_M`` and ``DUPLICATE_VIEW_DEG``), else None. 28 Oct 2026: an interior pose is held
+    to the views of its room (``duplicate_interior_problem``)."""
+    kind = entry.get("kind") or ("interior" if entry.get("room_id") or (ctx.camera(view_id) or {}).get("room_id")
+                                 else "exterior")
+    if kind == "interior":
+        return duplicate_interior_problem(ctx, view_id, entry)
+    if kind != "exterior" or not entry.get("position") or not entry.get("target"):
         return None
     look = _look_2d(entry["position"], entry["target"])
     if look is None:
@@ -2340,6 +2387,11 @@ def show_pose(ctx: ToolContext, args: dict, entry: dict) -> tuple[Optional[dict]
         trial = dict(entry, kind="interior", room_id=room_id, position=p["position"], target=p["target"],
                      lens_mm=p["lens_mm"])
         if same_pose(trial, now):
+            continue
+        dup = duplicate_interior_problem(ctx, args["view_id"], trial)        # 28 Oct 2026: the next best pose
+        if dup is not None:
+            if dup not in failed:
+                failed.append(dup)
             continue
         verdict = dict(ctx.checks().validate_camera_override(ctx.building, trial) or {})
         if verdict.get("ok"):

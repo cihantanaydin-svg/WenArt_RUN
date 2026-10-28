@@ -1430,6 +1430,8 @@ def main(argv: list[str]) -> int:
         plans, applied = merge_agent_cameras(replayed, plans, entries, level["id"], level_room_ids, replay)
         if entries:
             prep["overrides_applied"]["cameras"] += applied
+            for line in finish_agent_interior_plans(plans, camera_building(building, fit_not_built)):
+                print(f"camera agent: {line}")
         for plan in plans:
             interior_camera_fields(plan, prep["variant"])
         for line in dedupe_camera_names(plans, {p["name"] for p in camera_plans}):
@@ -2170,6 +2172,32 @@ def plan_horizon_fraction(plan: dict) -> float | None:
     sensor = float(plan.get("sensor_mm") or CP.SENSOR_MM)
     frac = CP.horizon_fraction(_down_pitch_deg(pos, tgt), float(plan["lens_mm"]), sensor, aspect)
     return round(frac - float(plan.get("shift_y") or 0.0) / aspect, 4)
+
+
+def finish_agent_interior_plans(plans: list[dict], building: dict) -> list[str]:
+    """28 Oct 2026 (real06 run 222248): the agent's interior plans (``policy: agent``, not replayed) get the lists the
+    search records for its own (``camsearch.frame_lists``: visible openings and pieces, anchors and set pieces in the
+    frame), measured from their pose; ``overrides.fixed_plan`` leaves them empty, so the depth check, the judge's
+    context and Argus read an agent view as framing nothing. A pose that cannot be measured keeps its empty lists
+    (logged). Returns the log lines."""
+    from wenart.blender import camsearch as CSR
+
+    lines = []
+    for p in plans:
+        if p.get("policy") != "agent" or p.get("source") == "replayed" or not p.get("room_id"):
+            continue
+        try:
+            rec = CSR.frame_lists(building, p)
+        except (ValueError, ZeroDivisionError, FloatingPointError, IndexError, KeyError, StopIteration) as exc:
+            lines.append(f"{p['name']}: frame not measured ({type(exc).__name__}: {exc})")
+            continue
+        if rec is None:
+            lines.append(f"{p['name']}: frame not measured (no room or pose)")
+            continue
+        p.update(rec)
+        lines.append(f"{p['name']}: frames {len(rec['visible_openings'])} openings, "
+                     f"{len(rec['visible_furniture'])} pieces")
+    return lines
 
 
 def finish_agent_exterior_plans(plans: list[dict], variant, centre, north: float = 0.0, north_known: bool = False,

@@ -1141,19 +1141,35 @@ def _wall_rb(view, table) -> float | None:
     return round(float(mean[0] / max(mean[2], 1e-6)), 3)
 
 
-def _wall_kind(entry: dict, manifest_types: dict) -> str:
+PAINTED_WALL_KINDS = ("plaster", "painted")   # vocabulary kinds of a painted wall finish (materials.ENTRIES kind)
+
+
+def _wall_kind(entry: dict, manifest_types: dict, style: dict | None = None) -> str:
     """``tiled`` or ``painted``: the finish of a view's walls by its room type (fix round after P5, 18 Oct 2026). What:
     ``tiled`` when the room's slot type (``shell.slot_room_type``) is one of ``shell.WET_WALL_ROOM_TYPES`` (bathroom,
     wc), else ``painted``; the type is the render entry's ``room_type``, else the scene manifest's room floors
     (``render.camera_room_type`` / ``room_types_from_manifest``). Why: the wet floor said ``tiled`` before, but a
     kitchen floor is wet while its walls are the style's paint with a 0.6 m splashback (Milestone 11 §1.3 M2,
     ``shell.SPLASHBACK``): P5's real04 kitchen mutfak_3 (about 64 % greige paint at R/B 1.28-1.32, tiles 1.12) read
-    1.223 against a tile-only bound of 1.208 and failed with no cast in the image."""
+    1.223 against a tile-only bound of 1.208 and failed with no cast in the image.
+    28 Oct 2026 (real06 run 222248: the agent gave the kitchen oak panelling, ``kitchen_walls`` wood_oak_light, and
+    mutfak_3's lower walls read 0.947 "pink" against the painted bound): with the scene's ``style_profile``
+    (``style``) a dry room's kind is the vocabulary kind of its wall face material (``looks.wall_face_material``):
+    ``painted`` for a plaster or painted finish (``PAINTED_WALL_KINDS``), else that kind (``wood``, ``brick``,
+    ``stone``, ``wallpaper`` ...), whose own colour no paint bound judges."""
+    from wenart.blender import looks
+    from wenart.blender import materials
     from wenart.blender import render as R
     from wenart.blender import shell
 
     room_type = R.camera_room_type(entry.get("room_type"), entry.get("room_id"), manifest_types)
-    return "tiled" if shell.slot_room_type(room_type) in shell.WET_WALL_ROOM_TYPES else "painted"
+    if shell.slot_room_type(room_type) in shell.WET_WALL_ROOM_TYPES:
+        return "tiled"
+    if not isinstance(style, dict):
+        return "painted"
+    slug = looks.wall_face_material(style, {"room_type": room_type}).get("material")
+    kind = (materials.ENTRIES.get(slug) or {}).get("kind")
+    return "painted" if kind is None or kind in PAINTED_WALL_KINDS else str(kind)
 
 
 def test_rig_lit_rooms_have_no_orange_cast(project):
@@ -1212,8 +1228,15 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     loaded = views.load_views(out, cameras=rig_lit + daylight)
     measured = {cam: _wall_rb(v, table) for cam, v in loaded.items()}
 
+    style = scene.get("style_profile") if isinstance(scene.get("style_profile"), dict) else None
+
     def kind(cam):
-        return _wall_kind(entries[cam], manifest_types)
+        return _wall_kind(entries[cam], manifest_types, style)
+    # 28 Oct 2026: walls of another finish (wood panelling, brick) have their own colour: printed, not judged
+    other = [(c, kind(c)) for c in rig_lit if kind(c) not in ("painted", "tiled")]
+    rig_lit = [c for c in rig_lit if kind(c) in ("painted", "tiled")]
+    if other:
+        print(f"{name}: rig-lit views of walls neither painted nor tiled, not judged: {other}")
     reference, warmest = {}, {}
     for k in ("painted", "tiled"):
         values = sorted(measured[c] for c in daylight if kind(c) == k and measured.get(c) is not None)
@@ -1373,12 +1396,13 @@ def test_daylight_walls_are_not_olive(project):
         pytest.skip(f"{name}: not rendered with --white-balance project")
     exterior_world = (((scene.get("lighting") or {}).get("world_exterior") or {}).get("name"))
     manifest_types = R.room_types_from_manifest(scene)
+    style = scene.get("style_profile") if isinstance(scene.get("style_profile"), dict) else None
     entries = {r["camera"]: r for r in render["renders"]}
     out = OUTPUTS / name / "renders"
     daylight = [c for c, r in entries.items() if r.get("room_id") is not None and not _dark(r)
                 and not (exterior_world and r.get("world") == exterior_world)
                 and (r["exposure"].get("wb_rig_share") or 0.0) < RIG_CHECK_SHARE
-                and _wall_kind(r, manifest_types) == "painted"]
+                and _wall_kind(r, manifest_types, style) == "painted"]
     daylight = [c for c in daylight if not _blocked(entries[c], out, entries[c].get("lens_mm") or 24.0)["blocked"]]
     if not daylight:
         pytest.skip(f"{name}: no painted daylight view")
