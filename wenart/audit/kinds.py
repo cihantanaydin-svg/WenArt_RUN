@@ -51,6 +51,15 @@ KINDS = {
               "arises": "agent loop, critics",
               "guards": ["the critics read the building as built", "conservation C2",
                          "consistency (Y*: the critic and the architect's rule disagree about one element)"]},
+    # 28 Oct 2026 (user, five times since 25 Oct: "flying pillows", "still flying pillows all around", "More flying
+    # pillows", "Light is flying in the air needs to be connected to ceiling"; "I did not like this bed"): a recurring
+    # kind gets its guards
+    "detached": {"what": "a piece is not attached to what holds it: a cushion standing free in front of its back or "
+                         "over its seat, a pendant short of the ceiling with no cord, a cloth its host pokes through",
+                 "arises": "decor, build",
+                 "guards": ["scene check S5 (rest.measure_rest under, measure_back behind, measure_cloth through; "
+                            "hang_gap to the ceiling)", "model review M14 (the rest and hang records)",
+                            "rest.plan_decor (leans until it rests), furniture.hang_plan (cord and canopy)"]},
     "silent": {"what": "a stage noted a problem in a warning and nothing acted on it",
                "arises": "any stage",
                "guards": ["process P2 (warnings that say something was left out)"]},
@@ -73,6 +82,10 @@ CHECK_KIND = {
     # 27 Oct 2026: the visitor's walk from every stair into its floors and to every door (model_review.stair_walks)
     "M9": "no_sense",
     "M12": "no_sense",
+    # 28 Oct 2026: the kitchen as one designed kitchen (model_review.kitchen_design; its look findings carry "taste")
+    "M13": "no_sense",
+    # 28 Oct 2026: decor not attached to its support (model review M14, scene check S5)
+    "M14": "detached", "S5": "detached",
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",
@@ -84,6 +97,8 @@ CHECK_KIND = {
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation
     "C1": "lost", "C2": "lost", "C3": "lost", "C4": "untyped", "C5": "lost",
+    # 28 Oct 2026: a built library model its names or its audit refuse (code critic LT, process P11)
+    "LT": "misread", "P11": "misread",
 }
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",

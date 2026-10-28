@@ -182,4 +182,4 @@ def test_the_inspector_asks_what_the_user_pointed_at():
     assert {"X9", "X10", "Q10"} <= set(P.EXTERIOR_CHECKS)
     for c in new + ("X9", "X10"):
         assert P.CHECKLIST[c]["how"] == "V" and CS.CHECK_CAUSE[c] in CS.CAUSES and K.kind_of({"check": c}) != "other"
-    assert "window or glazed frame on a wardrobe" in P.CHECKLIST["D2"]["what"]
+    assert "glazed frame on a piece of furniture" in P.CHECKLIST["D2"]["what"]

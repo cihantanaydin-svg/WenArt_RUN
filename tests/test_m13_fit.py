@@ -769,10 +769,14 @@ def test_tie_breaks_audit_vision_quality_texture_maps_and_faces_never_gates():
     assert [e["id"] for e in F.rank_candidates([low, rich], 2.0, 0.9)] == ["abo_rich", "abo_low"]
     # tie-breaks, never gates (decision 1a of 11 Oct 2026): alone, the plain low-poly flat model is taken
     worst = model("worst", "sofa", 2.0, 0.9, 0.8, polycount=900, textured=False,
-                  audit={"status": "keep", "vision": {"quality": 1}})
+                  audit={"status": "keep", "vision": {"quality": 3}})
     fit = F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([worst]))
     assert fit["asset_id"] == "abo_worst" and fit["faces"] == 900 and fit["texture_maps"] == {"base_colour": False}
-    assert "audit vision quality 1" in fit["ranking"]["reasons"] and "faces 900" in fit["ranking"]["reasons"]
+    assert "audit vision quality 3" in fit["ranking"]["reasons"] and "faces 900" in fit["ranking"]["reasons"]
+    # 28 Oct 2026 (user on real06: "What kind of a bath is this"; model_title audit_quality): a furniture model the
+    # vision audit rated 2 or lower is no candidate at all
+    rated_1 = dict(worst, audit={"status": "keep", "vision": {"quality": 1}})
+    assert F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([rated_1]))["asset_id"] != "abo_worst"
     # the real size step and a real product still come first (the Milestone 8 / 12 order)
     better_size = model("size", "sofa", 2.0, 0.9, 0.8, audit={"status": "keep", "vision": {"quality": 2}})
     assert F.rank_candidates([fine, dict(better_size, bbox_m=[2.2, 0.99, 0.88], bbox_model_m=[2.2, 0.99, 0.88])],
@@ -952,21 +956,24 @@ def _real04_kitchen(room="r_L-1_mutfak"):
 def test_kitchen_built_ins_on_the_real04_kitchen():
     """P3's drawing: f_L-1_003 holds four sink_kitchen pieces at 100 %; only f_L-1_067 is built (the 0.51 x 0.11 m
     f_L-1_009 and the 0.35 x 0.44 m bowls f_L-1_081 / f_L-1_083 are build false), so it is the sink built in;
-    f_L-1_002 holds the stove f_L-1_008 (98.6 %): a gap at its drawn span."""
+    f_L-1_002 holds the stove f_L-1_008 (98.6 %): 28 Oct 2026 (user: "Kitchen design could have been a lot better
+    this is terrible"; tests/test_kitchen_design_20261028.py) it is the run's hob at its drawn span, an oven under it
+    and a chimney hood over it (before: a gap of the run with a freestanding model in it)."""
     found = F.kitchen_built_ins(_real04_kitchen())
-    assert found["sinks"] == {"f_L-1_067": "f_L-1_003"}
+    assert found["sinks"] == {"f_L-1_067": "f_L-1_003", "f_L-1_008": "f_L-1_002"}
     assert found["hints"]["f_L-1_003"] == {"sink_pos_m": [1.4507, 10.2592], "sink_w_m": pytest.approx(0.7885, abs=1e-4),
                                            "sink_piece": "f_L-1_067"}
-    assert found["hints"]["f_L-1_002"] == {"ranges": [{"id": "f_L-1_008", "type": "stove",
-                                                       "x0_m": pytest.approx(-0.1531, abs=1e-4),
-                                                       "x1_m": pytest.approx(0.5969, abs=1e-4)}]}
+    hob = found["hints"]["f_L-1_002"]
+    assert hob["hob_piece"] == "f_L-1_008" and hob["hob_w_m"] == pytest.approx(0.75, abs=1e-4) and hob["oven"] is True
+    assert hob["hob_span_m"] == [pytest.approx(-0.1531, abs=1e-4), pytest.approx(0.5969, abs=1e-4)]
+    assert hob["hood_kind"] == "chimney" and "ranges" not in hob
     assert set(found["hints"]) == {"f_L-1_002", "f_L-1_003"}                  # f_L-1_001 / 004 hold nothing
 
 
 def test_the_fit_builds_the_drawn_sink_into_its_run_and_changes_only_assets(library):
     """The verifier's better fix: the hints reach the plan on a copy and live in ``asset.module_hints``; the sink's
     asset is ``built_in`` (method module, the run's asset id, by design, ours), its build, type and evidence stay;
-    ``assert_only_assets_changed`` and ``FROZEN_KEYS`` hold; the stove keeps its own model."""
+    ``assert_only_assets_changed`` and ``FROZEN_KEYS`` hold; 28 Oct 2026: the stove is the run's hob (built in)."""
     building = _real04_kitchen()
     fitted = F.fit_building(copy.deepcopy(building), library, style_family="modern", mode="relaxed")
     F.assert_only_assets_changed(building, fitted)
@@ -986,11 +993,14 @@ def test_the_fit_builds_the_drawn_sink_into_its_run_and_changes_only_assets(libr
     for bowl in ("f_L-1_009", "f_L-1_081", "f_L-1_083"):                     # build false: not built, no built_in
         assert after[bowl]["asset"]["method"] == "none" and "built_in" not in after[bowl]["asset"]
     stove_run = after["f_L-1_002"]["asset"]["module_plan"]
-    assert stove_run["gaps"][0]["id"] == "f_L-1_008" and stove_run["gaps"][0]["w_m"] == pytest.approx(0.75)
-    assert after["f_L-1_008"]["asset"]["method"] in ("library", "parametric") and "built_in" not in after["f_L-1_008"]["asset"]
+    # 28 Oct 2026: no gap: the drawn stove is the run's 0.75 m hob unit with an oven and a chimney hood
+    assert "gaps" not in stove_run and stove_run["hood"]["kind"] == "chimney"
+    hob = next(b for b in stove_run["built_ins"] if b["id"] == "f_L-1_008")
+    assert hob["kind"] == "hob" and hob["w_m"] == pytest.approx(0.75) and hob["oven"] and hob["drawn_span"]
+    assert after["f_L-1_008"]["asset"]["built_in"] == "f_L-1_002" and after["f_L-1_008"]["asset"]["method"] == "module"
     report = F.fit_report(fitted)
     assert "## Kitchen runs" in report and "f_L-1_067 (sink_kitchen): built into the kitchen run f_L-1_003" in report
-    assert "a 0.75 m gap for the drawn stove f_L-1_008" in report
+    assert "f_L-1_008 (stove): built into the kitchen run f_L-1_002" in report
 
 
 def test_the_synthetic03_run_takes_its_sink_and_leaves_a_gap_for_its_stove(library):
@@ -999,9 +1009,10 @@ def test_the_synthetic03_run_takes_its_sink_and_leaves_a_gap_for_its_stove(libra
     F.assert_only_assets_changed(building, fitted)
     after = {p["id"]: p for p in fitted["furniture"]}
     plan = after["f_L0_007"]["asset"]["module_plan"]
-    assert [b["id"] for b in plan["built_ins"]] == ["f_L0_008"] and [g["id"] for g in plan["gaps"]] == ["f_L0_009"]
+    # 28 Oct 2026: the drawn stove f_L0_009 is the run's hob (built in), no gap with a freestanding model any more
+    assert [b["id"] for b in plan["built_ins"]] == ["f_L0_008", "f_L0_009"] and "gaps" not in plan
     assert after["f_L0_008"]["asset"]["built_in"] == "f_L0_007"
-    assert "built_in" not in after["f_L0_009"]["asset"]
+    assert after["f_L0_009"]["asset"]["built_in"] == "f_L0_007"
 
 
 def test_a_sink_beside_its_run_a_pinned_sink_and_a_run_without_modules_keep_the_sink_s_own_model(library, monkeypatch):

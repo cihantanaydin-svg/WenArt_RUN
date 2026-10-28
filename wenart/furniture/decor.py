@@ -56,6 +56,13 @@ and prayer-room rule, only around verified, built pieces of a verified room:
   Wall art is built only from a library decor model (``fit.fit_decor_item``).
 - Rugs and wall art may be larger than ``MAX_DECOR_M`` (``LARGE_DECOR_TYPES``).
 
+28 Oct 2026 (user: "More decor pieces needed ... kettle in the kitchen, microwave in the kitchen etc"; real06's kitchen:
+nothing on the counter): ``kitchen_worktop_decor`` dresses every kitchen's worktop modestly by rule (in the rules and
+in the AI decorator's rooms): a microwave, a coffee machine or a toaster, a kettle, a utensil pot, a chopping board, a
+fruit bowl (``KITCHEN_DECOR_TYPES``, real sizes, parametric until audited library models exist), each where it belongs
+and passing ``worktop_item_ok`` (on the worktop, off the hob and its side gap, off the sink and tall units, never in
+front of a window or a pass-through it would reach), hosted on the counter, ``added_by_ai`` by rule with the reason.
+
 Milestone 10 (docs/milestone10.md §4.6, §1.6b rows 18, 20; track F):
 
 - The 12 new decor types are in ``DECOR_TYPES`` (the AI decorator places them, ``decor_ai``); curtains, blinds,
@@ -148,7 +155,14 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug", "wall_art
                                  "vase", "bowl", "plant_small", "table_lamp", "mirror",
                                  # Milestone 10 (docs/milestone10.md §4.6): the AI decorator's slots place them.
                                  "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock",
-                                 "sculpture", "plant_large", "pendant_light", "ceiling_light")
+                                 "sculpture", "plant_large", "pendant_light", "ceiling_light",
+                                 # 28 Oct 2026 (wenart.furniture.tabletop): a dining table's place settings; the rules
+                                 # set them at every chair, the AI does not choose them
+                                 "plate", "glass",
+                                 # 28 Oct 2026: the kitchen worktop's small appliances and decor (kitchen_worktop_decor)
+                                 "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot",
+                                 "fruit_bowl")
+SETTING_TYPES: tuple[str, ...] = ("plate", "glass")
 # Not held to MAX_DECOR_M (Milestone 8, 9; Milestone 10: window dressings, throws, large plants and floor
 # sculptures, pendants on their cord).
 LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "blind", "throw", "plant_large",
@@ -1037,8 +1051,267 @@ def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> t
         elif why != "-":
             row["wall_art"] = "none"
             rug_notes.append(f"no wall art: {why}")
+        # 28 Oct 2026 (user: "kettle in the kitchen, microwave in the kitchen etc"): the worktop, dressed modestly
+        worktop = kitchen_worktop_decor(building, room, pieces, new_id, existing=items)
+        if worktop:
+            items += worktop
+            rug_notes.append(f"worktop: {', '.join(i['type'] for i in worktop)}")
         row["note"] = "; ".join(notes + rug_notes)
     return items, row
+
+
+# --------------------------------------------------------------------------
+# 28 Oct 2026: the kitchen worktop, dressed modestly (user: "More decor pieces needed ... kettle in the kitchen,
+# microwave in the kitchen etc"; real06's kitchen: "nothing on the counter")
+# --------------------------------------------------------------------------
+
+KITCHEN_DECOR_TYPES: tuple[str, ...] = ("microwave", "kettle", "coffee_machine", "toaster", "chopping_board",
+                                        "utensil_pot", "fruit_bowl")
+# Real products (width, depth, height): a 20 l countertop microwave 45-49 x 33-40 x 26-30 cm, a 1.7 l kettle, a
+# bean-to-cup coffee machine 24 x 43 x 35 cm, a 2-slice toaster, a 40 x 25 cm board, a utensil pot with its tools,
+# a 28 cm fruit bowl (= parametric.DECOR_DEFAULT_HEIGHT for the heights).
+KITCHEN_DECOR_SIZES: dict[str, tuple[float, float, float]] = {
+    "microwave": (0.46, 0.36, 0.27), "kettle": (0.22, 0.16, 0.25), "coffee_machine": (0.24, 0.38, 0.35),
+    "toaster": (0.28, 0.17, 0.19), "chopping_board": (0.40, 0.25, 0.02), "utensil_pot": (0.12, 0.12, 0.30),
+    "fruit_bowl": (0.28, 0.28, 0.12)}
+# The order they are placed in, and what each stands near: the microwave at a run end against a wall or a corner,
+# the coffee machine (or, with no room for it, the toaster) at another end, the kettle by the sink, the utensil pot
+# and the board beside the hob (outside its side gap), the fruit bowl on an island or in the middle of a free stretch.
+KITCHEN_DECOR_ORDER: tuple[str, ...] = ("microwave", "coffee_machine", "kettle", "utensil_pot", "chopping_board",
+                                        "fruit_bowl")
+WORKTOP_HOB_CLEAR_M = 0.25        # nothing within this of a hob's sides (pans slide off onto the landing)
+WORKTOP_SINK_CLEAR_M = 0.10       # nor this close to the sink's sides
+WORKTOP_ITEM_GAP_M = 0.10         # between two items
+WORKTOP_END_M = 0.05              # off the run's open ends
+WORKTOP_BACK_M = 0.04             # an item's back this far off the wall (the splashback)
+WORKTOP_WINDOW_CLEAR_M = 0.02     # an item lower than a window's sill over the worktop by this may stand in front of it
+WORKTOP_PER_M = 0.5               # modest: at most one item per this much free worktop ...
+KITCHEN_DECOR_MAX = 5             # ... and this many per kitchen
+WORKTOP_TOP_RANGE_M = (0.80, 1.20)
+
+
+def _worktop_z(counter: dict) -> float:
+    h = counter.get("height")
+    if isinstance(h, (int, float)) and not isinstance(h, bool) and WORKTOP_TOP_RANGE_M[0] <= h <= WORKTOP_TOP_RANGE_M[1]:
+        return float(h)
+    return 0.90
+
+
+def _front_box(piece: dict):
+    rot, size = placer.front_frame(piece["footprint"], piece.get("front_deg"))
+    c = (float(piece["footprint"]["center"][0]), float(piece["footprint"]["center"][1]))
+    return c, rot, float(size[0]), float(size[1])
+
+
+def _x_extent_of(c, rot: float, geom) -> Optional[tuple[float, float]]:
+    if geom is None or geom.is_empty or geom.area <= placer.AREA_EPS:
+        return None
+    r = math.radians(rot)
+    xs = [(pt[0] - c[0]) * math.cos(r) + (pt[1] - c[1]) * math.sin(r)
+          for g in getattr(geom, "geoms", [geom]) if hasattr(g, "exterior") for pt in g.exterior.coords]
+    return (min(xs), max(xs)) if xs else None
+
+
+def worktop_blocks(counter: dict, pieces: list[dict]) -> list[tuple[float, float, str]]:
+    """The spans of a counter's worktop (its front frame's x) no item may take: every hob ``WORKTOP_HOB_CLEAR_M``
+    wider on both sides, every sink ``WORKTOP_SINK_CLEAR_M`` wider, every piece standing in it taller than the
+    worktop (a fridge column, a tall unit); an under-counter appliance's top is worktop."""
+    c, rot, w, d = _front_box(counter)
+    box = placer._local_box(c, rot, -w / 2.0, w / 2.0, -d / 2.0, d / 2.0)
+    top = _worktop_z(counter)
+    out = []
+    for p in pieces:
+        if p.get("id") == counter.get("id") or not p.get("footprint") or p.get("build") is False:
+            continue
+        try:
+            inside = placer.drawn_piece(p).polygon().intersection(box)
+        except (KeyError, TypeError, ValueError):
+            continue
+        if inside.is_empty or inside.area < 0.02:
+            continue
+        ext = _x_extent_of(c, rot, inside)
+        if ext is None:
+            continue
+        if p.get("type") == "stove":
+            out.append((ext[0] - WORKTOP_HOB_CLEAR_M, ext[1] + WORKTOP_HOB_CLEAR_M, "hob"))
+        elif p.get("type") == "sink_kitchen":
+            out.append((ext[0] - WORKTOP_SINK_CLEAR_M, ext[1] + WORKTOP_SINK_CLEAR_M, "sink"))
+        elif p.get("type") not in ("kitchen_counter", "kitchen_island") and not schemas_off_floor(p) \
+                and float(p.get("height") or 0.0) > top + 0.05:
+            out.append((ext[0], ext[1], "tall"))
+    return out
+
+
+def schemas_off_floor(piece: dict) -> bool:
+    from wenart.furniture import schemas
+    return schemas.off_floor(piece)
+
+
+def worktop_windows(counter: dict, building: dict, room: dict) -> list[tuple[float, float, float]]:
+    """``(x0, x1, sill over the worktop)`` of the windows in the wall behind a counter (its front frame), whose
+    width meets the counter's; a doorless opening (a pass-through over the counter) counts as a window with its sill
+    (none: the floor)."""
+    c, rot, w, d = _front_box(counter)
+    doors, windows = placer.room_openings(building, room)
+    windows = list(windows) + [o for o in doors if o.get("type") == "opening"]
+    top = _worktop_z(counter)
+    walls = {x.get("id"): x for x in building.get("walls") or []}
+    out = []
+    r = math.radians(rot)
+    for o in windows:
+        wall = walls.get(o.get("wall_id"))
+        if wall is None or not o.get("center"):
+            continue
+        (x0, y0), (x1, y1) = wall["start"][:2], wall["end"][:2]
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length < 1e-6:
+            continue
+        ux, uy = (x1 - x0) / length, (y1 - y0) / length
+        half = float(o.get("width") or 0.9) / 2.0
+        pts = [(float(o["center"][0]) + s * ux * half, float(o["center"][1]) + s * uy * half) for s in (-1, 1)]
+        loc = [((px - c[0]) * math.cos(r) + (py - c[1]) * math.sin(r),
+                -(px - c[0]) * math.sin(r) + (py - c[1]) * math.cos(r)) for px, py in pts]
+        if any(ly < d / 2.0 - 0.05 or ly > d / 2.0 + 0.60 for _lx, ly in loc):
+            continue                                       # not in the wall behind the counter
+        lo, hi = sorted(lx for lx, _ly in loc)
+        if hi <= -w / 2.0 or lo >= w / 2.0:
+            continue
+        out.append((lo, hi, float(o.get("sill_height") or 0.0) - top))
+    return out
+
+
+def worktop_item_ok(item: dict, counter: dict, pieces: list[dict], windows: list, others: list = ()) -> Optional[str]:
+    """Why a worktop item fails the code checks, None when it passes (28 Oct 2026): on the counter's top (its box
+    inside the counter's footprint: it rests on the worktop, never over its edge), off the hob and its side gap, off
+    the sink, off the tall pieces in the run, never in front of a window whose sill it would reach, never on another
+    item (``WORKTOP_ITEM_GAP_M`` apart)."""
+    c, rot, w, d = _front_box(counter)
+    r = math.radians(rot)
+    px, py = float(item["center"][0]) - c[0], float(item["center"][1]) - c[1]
+    lx, ly = math.cos(r) * px + math.sin(r) * py, -math.sin(r) * px + math.cos(r) * py
+    iw, idp, ih = (float(v) for v in item["size"][:3])
+    if abs(lx) + iw / 2.0 > w / 2.0 + 1e-6 or abs(ly) + idp / 2.0 > d / 2.0 + 1e-6:
+        return "it would stand over the worktop's edge"
+    x0, x1 = lx - iw / 2.0, lx + iw / 2.0
+    for b0, b1, kind in worktop_blocks(counter, pieces):
+        if x0 < b1 - 1e-6 and x1 > b0 + 1e-6:
+            return {"hob": "on the hob or in its side gap", "sink": "on the sink or at its edge",
+                    "tall": "against a tall piece of the run"}[kind]
+    for w0, w1, sill in windows:
+        if x0 < w1 + 0.05 and x1 > w0 - 0.05 and ih > sill - WORKTOP_WINDOW_CLEAR_M:
+            return "in front of a window it would reach (its sill over the worktop)"
+    for o in others:
+        if o is item or o.get("host_id") != counter.get("id"):
+            continue
+        ox = math.cos(r) * (float(o["center"][0]) - c[0]) + math.sin(r) * (float(o["center"][1]) - c[1])
+        if abs(ox - lx) < (float(o["size"][0]) + iw) / 2.0 + WORKTOP_ITEM_GAP_M - 1e-6:
+            return f"on or against {o.get('type')} {o.get('id')}"
+    return None
+
+
+def kitchen_worktop_decor(building: dict, room: dict, pieces: list[dict], new_id, existing: list = ()) -> list[dict]:
+    """The worktop dressing of a kitchen (any room with a kitchen run), modest (28 Oct 2026; module note above): the
+    items of ``KITCHEN_DECOR_ORDER`` placed on the built counter runs of the room (no outline drawn inside another
+    run: ``fit.nested_counters``) at their real sizes, each where it belongs (``KITCHEN_DECOR_ORDER``), every one
+    passing ``worktop_item_ok``; at most one per ``WORKTOP_PER_M`` of free worktop and ``KITCHEN_DECOR_MAX`` in all.
+    Hosted on the counter (``host_id``: the build rests them on the built worktop), ``added_by_ai`` by rule with the
+    reason. None when the room takes no decor or already holds worktop items."""
+    if room.get("room_type") in NO_DECOR_ROOM_TYPES or not room_takes_decor(room):
+        return []
+    have = [d for d in list(building.get("decor") or []) + list(existing) if d.get("room_id") == room["id"]
+            and d.get("type") in KITCHEN_DECOR_TYPES]
+    if have:
+        return []
+    from wenart.furniture import fit as FT
+    nested = FT.nested_counters(dict(building, furniture=pieces))
+    # a built counter run is a worktop whatever the reading's doubt (real06's drawn runs are unverified and built)
+    counters = [p for p in pieces if p.get("type") in ("kitchen_counter", "kitchen_island") and piece_is_built(p)
+                and p.get("footprint") and p.get("front_deg") is not None and p.get("id") not in nested]
+    if not counters:
+        return []
+    windows = {p["id"]: worktop_windows(p, building, room) for p in counters}
+    free_total = 0.0
+    stretches = []
+    for p in counters:
+        c, rot, w, d = _front_box(p)
+        spans = sorted(worktop_blocks(p, pieces))
+        x, lo, hi = -w / 2.0 + WORKTOP_END_M, -w / 2.0 + WORKTOP_END_M, w / 2.0 - WORKTOP_END_M
+        for b0, b1, _k in spans:
+            if b0 > x:
+                stretches.append((p, max(lo, x), min(hi, b0)))
+            x = max(x, b1)
+        if hi > x:
+            stretches.append((p, x, hi))
+    stretches = [s for s in stretches if s[2] - s[1] > 0.10]
+    free_total = sum(s[2] - s[1] for s in stretches)
+    budget = min(KITCHEN_DECOR_MAX, int(free_total / WORKTOP_PER_M))
+    placed: list[dict] = []
+
+    def anchors(p, kind):
+        c, rot, w, d = _front_box(p)
+        return [((b0 + b1) / 2.0) for b0, b1, k in worktop_blocks(p, pieces) if k == kind]
+
+    def candidates(dtype):
+        iw, idp, ih = KITCHEN_DECOR_SIZES[dtype]
+        out = []
+        for p, a, b in stretches:
+            c, rot, w, d = _front_box(p)
+            if b - a < iw - 1e-6 or d < idp + 0.06:
+                continue
+            island = p.get("type") == "kitchen_island"
+            y = 0.0 if island else d / 2.0 - idp / 2.0 - WORKTOP_BACK_M
+            if dtype == "fruit_bowl" and not island:
+                y = d / 2.0 - idp / 2.0 - 0.08
+            steps = max(1, int((b - a - iw) / 0.05))
+            xs = sorted({round(a + iw / 2.0, 4), round(b - iw / 2.0, 4)}
+                        | {round(a + iw / 2.0 + k * 0.05, 4) for k in range(steps + 1)})
+            for x in xs:
+                if x - iw / 2.0 < a - 1e-6 or x + iw / 2.0 > b + 1e-6:
+                    continue
+                world = G.rotate_point((c[0] + x, c[1] + y), rot, c)
+                item = {"type": dtype, "center": [round(world[0], 4), round(world[1], 4)], "rotation_deg": round(rot, 3),
+                        "size": [iw, idp, ih], "host_id": p["id"]}
+                if worktop_item_ok(item, p, pieces, windows[p["id"]], placed) is not None:
+                    continue
+                hob, sink = anchors(p, "hob"), anchors(p, "sink")
+                end = min(abs(x - iw / 2.0 - a), abs(b - x - iw / 2.0))
+                run_end = abs(x - iw / 2.0 - (-w / 2.0 + WORKTOP_END_M)) < 1e-3 or \
+                    abs(x + iw / 2.0 - (w / 2.0 - WORKTOP_END_M)) < 1e-3
+                rank = 0 if run_end else (1 if end < 1e-3 else 2)
+                if dtype in ("microwave", "coffee_machine", "toaster"):
+                    score = (rank, -min([abs(x - h) for h in hob] or [9.0]))
+                elif dtype == "kettle":
+                    score = (min([abs(x - s) for s in sink] or [5.0 + abs(x)]), 0)
+                elif dtype in ("utensil_pot", "chopping_board"):
+                    score = (min([abs(x - h) for h in hob] or [5.0 + abs(x)]), 0)
+                else:
+                    score = (0 if island else 1, -min(x - iw / 2.0 - a, b - x - iw / 2.0))
+                out.append((score, str(p["id"]), x, item))
+        out.sort(key=lambda t: (t[0], t[1], t[2]))
+        return out
+
+    reasons = {"microwave": "a countertop microwave at the end of the run, against the wall or the corner",
+               "coffee_machine": "a coffee machine at the end of the run", "toaster": "a toaster at the end of the run",
+               "kettle": "a kettle by the sink", "utensil_pot": "a utensil pot beside the hob, off its side gap",
+               "chopping_board": "a chopping board beside the hob, off its side gap",
+               "fruit_bowl": "a fruit bowl on a free stretch of the worktop"}
+    order = list(KITCHEN_DECOR_ORDER)
+    for dtype in order:
+        if len(placed) >= budget:
+            break
+        got = candidates(dtype)
+        if not got and dtype == "coffee_machine":
+            got = candidates("toaster")
+            dtype = "toaster" if got else dtype
+        if not got:
+            continue
+        _s, _pid, _x, item = got[0]
+        item.update({"id": new_id(room["level_id"]), "kind": "decor", "level_id": room["level_id"],
+                     "room_id": room["id"], "asset": None, "source": "added_by_ai", "method": "rule",
+                     "reason": f"kitchen worktop dressing (28 Oct 2026): {reasons[dtype]}; on the worktop of "
+                               f"{item['host_id']}, off the hob, the sink and the windows (code checks)"})
+        placed.append(item)
+    return placed
 
 
 def _large_item(item_id: str, room: dict, item: dict) -> dict:
@@ -1302,6 +1575,15 @@ def takes_cushions(host: dict) -> bool:
     from wenart.blender.rest import own_cushions    # the build checks the final model with the same rule
 
     return not own_cushions(host)
+
+
+def takes_throw(host: dict) -> bool:
+    """A seat or bed takes a decor throw unless it is a bed whose model is already made up with its own duvet or cover
+    (the audit's ``has_bedding``; 28 Oct 2026, user on real04's f_L0_021: "I did not like this bed": the cream throw
+    over the model's own bedding showed its grey blanket through it and tore over its folds)."""
+    from wenart.blender.rest import own_bedding     # the build checks the final model with the same rule
+
+    return not own_bedding(host)
 
 
 def _frame_ref(item: dict, pieces: dict) -> tuple[Optional[dict], Optional[str]]:

@@ -237,6 +237,16 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   ``STYLE_MIX_STEPS`` size steps; a winner that still has either records ``taste_flags``. Why: real06's living room
   had a folding chair, Eames chairs and a turned-leg "Traditional ... Rustic" table at one Scandinavian dining group,
   and its four drawn chairs (0.37-0.54 m wide) took two different models.
+- Kitchen design of 28 Oct 2026 (user on real04: "Kitchen design could have been a lot better this is terrible"; on
+  real06: "What kind of a kitchen is this"; tests/test_kitchen_design_20261028.py). What: ``kitchen_built_ins`` makes a
+  drawn stove in a run the run's hob (``hob_hints``: its drawn span, an oven in a full-depth run, the hood's kind and
+  top under the ceiling), keeps a hob or fridge the completion built in inside its run whatever the agent pinned
+  (``pins_not_used``; ``edit_ops`` refuses such a swap), claims a counter outline drawn inside a run
+  (``nested_counters``: no second run), and says a fridge column never stands in front of a window or a
+  pass-through (``openings_behind``); ``fit_building`` fits the wall cabinets after their run with its base joints
+  (``wall_cabinet_run``, ``wall_run_hints``: the wall run of real units). Why: real04's drawn stove stood in a gap as
+  a freestanding cooker under the worktop line; real06's pinned hob and fridge left their runs and its hob outline was
+  built as a run inside a run. How: hints on a copy, ``asset.module_hints``; nothing on the pieces changes.
 - Bathroom sense of 26 Oct 2026 (user: "fix should be general"; tests/test_bathroom_sense_20261026.py). What: a gate,
   not a rank rule (``use_misfit``, ``use_candidates`` in ``_fit_family``): a model made for another user or use than
   the piece is no candidate, listed under ``excluded`` with ``rule: fit.product_use`` and the reason: a children's
@@ -1144,7 +1154,7 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
         fdepth = fitted_depth(entry, width)
         roof_ok = under_ceiling(height, ceiling)          # fix round after P6a: under a sloped ceiling
         height_ok = height_fits(height, heights) and working_height_ok(ftype, height) and roof_ok \
-            and working_top_ok(ftype, height)
+            and working_top_ok(ftype, height) and fixture_height_ok(ftype, height)
         accepted = (depth_ratio <= cap + 1e-9 and uniform_range[0] <= mean_scale <= uniform_range[1] and height_ok)
         if accepted and within_table:
             from wenart.furniture import sizes as SZ
@@ -1315,6 +1325,45 @@ def _wall_cabinet_over(pieces: list, piece: dict) -> bool:
     return False
 
 
+NESTED_SHARE = 0.90              # 28 Oct 2026: a counter outline this much inside a larger one is part of it
+
+
+def nested_counters(building: dict) -> dict:
+    """28 Oct 2026 (real06: a 0.90 x 0.48 m hob-block outline inside the drawn counter f_L0_031 was built as a second
+    kitchen run inside it, with its own wall cabinet): ``{nested id: host id}`` of the built kitchen counters and islands
+    whose footprint lies at least ``NESTED_SHARE`` inside a larger built counter or island of their room (an outline
+    drawn twice, or a hob or sink outline read as a counter). Pure; without the module builders nothing."""
+    try:
+        from wenart.blender import modules as MOD
+    except ImportError:
+        return {}
+    runs = [p for p in building.get("furniture") or [] if isinstance(p, dict) and p.get("type") in KITCHEN_RUN_HOSTS
+            and p.get("build", True) is not False and _usable_footprint(p)]
+
+    def area(p):
+        return float(p["footprint"]["size"][0]) * float(p["footprint"]["size"][1])
+
+    out: dict = {}
+    for p in runs:
+        hosts = [h for h in runs if h is not p and h.get("room_id") == p.get("room_id")
+                 and h.get("level_id") == p.get("level_id") and area(h) > area(p) + 1e-6]
+        best = None
+        for h in sorted(hosts, key=lambda h: (-area(h), str(h.get("id")))):
+            got = MOD.member_in_run(h, p)
+            if got is not None and got["share"] >= NESTED_SHARE - 1e-9:
+                best = h
+                break
+        if best is not None:
+            out[p["id"]] = best["id"]
+    for pid, hid in list(out.items()):        # a host nested in another host: the outermost one holds it
+        seen = {pid}
+        while hid in out and hid not in seen:
+            seen.add(hid)
+            hid = out[hid]
+        out[pid] = hid
+    return out
+
+
 def kitchen_built_ins(building: dict) -> dict:
     """The kitchen pre-pass of ``fit_building`` (pure; fix round after P3, module docstring): ``{"hints": {run id:
     module hints}, "sinks": {sink id: run id}}``.
@@ -1333,8 +1382,9 @@ def kitchen_built_ins(building: dict) -> dict:
     except ImportError:
         return out
     pieces = [p for p in building.get("furniture") or [] if isinstance(p, dict)]
+    nested = nested_counters(building)          # 28 Oct 2026: an outline inside a run is part of it, not a run
     runs = [p for p in pieces if p.get("type") in KITCHEN_RUN_HOSTS and p.get("build", True) is not False
-            and _usable_footprint(p)]
+            and _usable_footprint(p) and p.get("id") not in nested]
     members = [p for p in pieces if (p.get("type") in BUILT_IN_SINK_TYPES + RANGE_TYPES or built_in_module(p))
                and p.get("build", True) is not False and _usable_footprint(p)]
     claimed: set = set()
@@ -1350,24 +1400,33 @@ def kitchen_built_ins(building: dict) -> dict:
             got = MOD.member_in_run(run, m)
             if got is None or got["share"] < BUILT_IN_SHARE - 1e-9:
                 continue
-            if kind and not m.get("asset_pin"):
-                modules.append((kind, m, got))  # 26 Oct 2026: a hob or an under-counter fridge built into the run
+            if kind:
+                # 26 Oct 2026: a hob or an under-counter fridge built into the run; 28 Oct 2026: also when the agent
+                # pinned a library model to it (a freestanding model in a run is the defect the user saw)
+                modules.append((kind, m, got))
+            elif m["type"] in RANGE_TYPES:
+                modules.append(("hob", m, got))  # 28 Oct 2026: a drawn stove in a run is the run's hob
             elif m["type"] in BUILT_IN_SINK_TYPES and not m.get("asset_pin"):
                 sinks.append((m, got))
-            elif m["type"] in BUILT_IN_SINK_TYPES + RANGE_TYPES:
-                ranges.append((m, got))         # a stove, or a pinned sink (part 2): a gap, its own model in it
+            elif m["type"] in BUILT_IN_SINK_TYPES:
+                ranges.append((m, got))         # a pinned sink (part 2): a gap, its own model in it
         hints: dict = {}
         for kind, m, got in modules:
             key = "hob" if kind == "hob" else "fridge"
             if f"{key}_piece" in hints:
+                if m["type"] in RANGE_TYPES:
+                    ranges.append((m, got))     # a second drawn stove in one run keeps the gap of before
                 continue                        # one of each per run (the first in building order)
             hints.update({f"{key}_pos_m": [round(float(v), 4) for v in m["footprint"]["center"][:2]],
                           f"{key}_w_m": got["w_m"], f"{key}_piece": m["id"]})
             if kind == "hob":
-                hints["oven"] = bool((m.get("built_in") or {}).get("oven"))
+                hints.update(hob_hints(building, run, m, got, pieces))
             else:
-                # 27 Oct 2026: a fridge with no wall cabinet over it may stand as a tall column at a run end
-                hints["fridge_column"] = not _wall_cabinet_over(pieces, m)
+                # 27 Oct 2026: a fridge with no wall cabinet over it may stand as a tall column at a run end;
+                # 28 Oct 2026: never in front of a window or a pass-through of the wall behind it
+                hints["fridge_column"] = not _wall_cabinet_over(pieces, m) and not _opening_behind(building, m)
+            if m.get("asset_pin"):
+                hints.setdefault("pins_not_used", []).append(m["id"])
             out["sinks"][m["id"]] = run["id"]
             claimed.add(m["id"])
         if sinks:
@@ -1382,9 +1441,134 @@ def kitchen_built_ins(building: dict) -> dict:
                                     **({"reason": PINNED_SINK_GAP_REASON} if m["type"] in BUILT_IN_SINK_TYPES else {}))
                                for m, got in sorted(ranges, key=lambda mg: (mg[1]["x0_m"], str(mg[0]["id"])))]
             claimed.update(m["id"] for m, _got in ranges)
+        outlines = sorted(pid for pid, hid in nested.items() if hid == run.get("id"))
+        if outlines:                            # 28 Oct 2026: the counter outlines drawn inside the run
+            hints["outlines"] = outlines
+            for pid in outlines:
+                out["sinks"][pid] = run["id"]
         if hints:
             out["hints"][run["id"]] = hints
     return out
+
+
+def _opening_behind(building: dict, piece: dict) -> bool:
+    """28 Oct 2026 (real06: the fridge beside the run under the 2.9 m pass-through): whether a window or a doorless
+    opening of the piece's level stands in the wall behind it over its width (``_window_cap``'s rule: the wall line
+    within ``WINDOW_FRONT_M``, overlapping it by ``WINDOW_OVERLAP_M``), so no tall unit may stand there."""
+    try:
+        return bool(openings_behind(building, piece, ("window", "opening")))
+    except Exception:  # noqa: BLE001 - no geometry: say no
+        return False
+
+
+def _ceiling_over(building: dict, piece: dict) -> Optional[float]:
+    """28 Oct 2026: the ceiling over a piece's floor (its level's ``ceiling_height`` less the room's floor offset; the
+    sloped ceiling over its footprint when lower: ``piece_ceiling``), None when the level has none."""
+    level = next((lv for lv in building.get("levels") or [] if lv.get("id") == piece.get("level_id")), None)
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == piece.get("room_id")), None)
+    flat = None
+    if level is not None and isinstance(level.get("ceiling_height"), (int, float)):
+        flat = float(level["ceiling_height"]) - float((room or {}).get("floor_offset_m") or 0.0)
+    try:
+        slope = piece_ceiling(building, piece)
+    except Exception:  # noqa: BLE001 - a roof that cannot be read: the flat ceiling
+        slope = None
+    vals = [v for v in (flat, slope) if v is not None]
+    return round(min(vals), 4) if vals else None
+
+
+def hob_hints(building: dict, run: dict, hob: dict, got: dict, pieces: list) -> dict:
+    """28 Oct 2026 (module docstring "Kitchen design"): the module hints of the hob a run holds: ``oven`` (the
+    completion's record; a drawn hob: the run at least ``groups.yaml`` ``oven_min_depth`` deep), ``hob_span_m`` (a
+    drawn hob keeps its drawn span along the run: the fixed-equipment rule), the cooker hood: ``hood_kind`` (an island
+    hood over an island, an under-cabinet hood under a wall cabinet hung over the hob, else a chimney hood),
+    ``hood_under_m`` (that cabinet's bottom), ``hood_top_m`` (the ceiling over the run, ``_ceiling_over``)."""
+    out: dict = {}
+    rec = hob.get("built_in") if isinstance(hob.get("built_in"), dict) else {}
+    if built_in_module(hob):
+        out["oven"] = bool(rec.get("oven"))
+    else:
+        depth = float(run["footprint"]["size"][1])
+        try:
+            from wenart.furniture import groups as GR
+            need = float((((GR.load_groups().get("kitchen_run") or {}).get("run") or {}).get("built_in") or {})
+                         .get("hob", {}).get("oven_min_depth") or 0.55)
+        except Exception:  # noqa: BLE001 - the table's default
+            need = 0.55
+        out["oven"] = depth >= need - 1e-9
+        out["hob_span_m"] = [got["x0_m"], got["x1_m"]]
+    over = [p for p in pieces if p.get("type") == "wall_cabinet" and p.get("build", True) is not False
+            and p.get("room_id") == hob.get("room_id") and _wall_cabinet_over([p], hob)]
+    if run.get("type") == "kitchen_island":
+        out["hood_kind"] = "island"
+    elif over:
+        out["hood_kind"] = "under_cabinet"
+        try:
+            from wenart.blender.proxies import mount_bottom
+            out["hood_under_m"] = round(min(float(mount_bottom(p)[0]) for p in over), 4)
+        except Exception:  # noqa: BLE001 - the rule's bottom
+            out["hood_under_m"] = 1.45
+    else:
+        out["hood_kind"] = "chimney"
+    top = _ceiling_over(building, run)
+    if top is not None:
+        out["hood_top_m"] = top
+    return out
+
+
+def wall_run_hints(cabinet: dict, run: Optional[dict]) -> dict:
+    """28 Oct 2026 (module docstring "Kitchen design"): the module hints of a wall cabinet hung over a fitted kitchen
+    run: ``ends`` (the completion's ``rule.ends``), ``joints_m`` (the joints of the run's base units and fillers, its
+    hob unit's sides among them, in the cabinet's own frame: ``modules.plan_wall_run`` lines the wall units up with
+    them). Without the run's module plan only the ends."""
+    rule = cabinet.get("rule") if isinstance(cabinet.get("rule"), dict) else {}
+    out: dict = {"ends": list(rule.get("ends") or ["open", "open"])}
+    plan = ((run or {}).get("asset") or {}).get("module_plan") or {}
+    if plan.get("builder") != "kitchen_run":
+        return out
+    rfp, cfp = run["footprint"], cabinet["footprint"]
+    rr, cr = math.radians(float(rfp.get("rotation_deg") or 0.0)), math.radians(float(cfp.get("rotation_deg") or 0.0))
+    rc, cc = [float(v) for v in rfp["center"][:2]], [float(v) for v in cfp["center"][:2]]
+    ux, uy = math.cos(cr), math.sin(cr)
+    if abs(math.cos(rr) * ux + math.sin(rr) * uy) < 0.99:
+        return out                                     # the cabinet does not run along this run
+    joints = set()
+    for m in plan.get("modules") or []:
+        if m.get("kind") not in ("base_unit", "filler", "tall_unit"):
+            continue
+        for x in (float(m["pos_m"][0]) - float(m["size_m"][0]) / 2.0, float(m["pos_m"][0]) + float(m["size_m"][0]) / 2.0):
+            wx, wy = rc[0] + math.cos(rr) * x, rc[1] + math.sin(rr) * x
+            joints.add(round((wx - cc[0]) * ux + (wy - cc[1]) * uy, 4))
+    half = float(cfp["size"][0]) / 2.0
+    out["joints_m"] = sorted(j for j in joints if -half - 0.01 <= j <= half + 0.01)
+    return out
+
+
+def wall_cabinet_run(building: dict, cabinet: dict) -> Optional[dict]:
+    """28 Oct 2026: the kitchen run a wall cabinet hangs over: the completion's ``rule.run``, else (a drawn cabinet)
+    the built counter of its room whose footprint it overlaps most in plan; None without one."""
+    pieces = [p for p in building.get("furniture") or [] if isinstance(p, dict)]
+    named = (cabinet.get("rule") or {}).get("run") if isinstance(cabinet.get("rule"), dict) else None
+    host = next((p for p in pieces if p.get("id") == named and p.get("type") in KITCHEN_RUN_HOSTS), None)
+    if host is not None or not _usable_footprint(cabinet):
+        return host
+    try:
+        from wenart.furniture import placer as PLC
+        mine = PLC.drawn_piece(cabinet).polygon()
+    except Exception:  # noqa: BLE001
+        return None
+    best = (0.01, None)
+    for p in pieces:
+        if p.get("type") not in KITCHEN_RUN_HOSTS or p.get("room_id") != cabinet.get("room_id") \
+                or p.get("build", True) is False or not _usable_footprint(p):
+            continue
+        try:
+            area = PLC.drawn_piece(p).polygon().intersection(mine).area
+        except Exception:  # noqa: BLE001
+            continue
+        if area > best[0]:
+            best = (area, p)
+    return best[1]
 
 
 def holds_built_in(run: Optional[dict], piece_id: str) -> bool:
@@ -1415,14 +1599,25 @@ def built_in_fit(piece: dict, run: dict, mode: str, style_family: Optional[str] 
     across = float(record.get("shift_y_m") or 0.0)
     kind = record.get("kind") or "sink"
     if kind in BUILT_IN_MODULE_KINDS:
-        # 26 Oct 2026: a hob (with its oven) or an under-counter fridge the completion built into the run
+        # 26 Oct 2026: a hob (with its oven) or an under-counter fridge the completion built into the run;
+        # 28 Oct 2026: a drawn stove in the run is its hob unit (at its drawn span), with the hood over it
         what = ("hob unit with the hob plate on the worktop" + (" and an oven under it" if record.get("oven") else "")
+                + (f", a {record['hood'].replace('_', '-')} hood over it" if record.get("hood") else "")
                 if kind == "hob" else "fridge-freezer column at the run's end" if record.get("column")
                 else "under-counter fridge unit with an appliance door")
-        why = (f"built into the kitchen run {run['id']}: a {float(record.get('w_m') or 0.0):.2f} m {what} (the "
-               f"completion built it into the counter: solver.built_in_kitchen)"
-               + (f"; the unit stands {abs(shift):.2f} m from the piece's centre" if abs(shift) > 0.005 else ""))
+        how = ("the drawn stove stands in the counter run: a hob set into the worktop, never a freestanding cooker "
+               "(kitchen design rule of 28 Oct 2026), at its drawn span" if built_in_module(piece) is None else
+               "the completion built it into the counter: solver.built_in_kitchen")
+        why = (f"built into the kitchen run {run['id']}: a {float(record.get('w_m') or 0.0):.2f} m {what} ({how})"
+               + (f"; the unit stands {abs(shift):.2f} m from the piece's centre" if abs(shift) > 0.005 else "")
+               + (f"; the pinned model {piece['asset_pin']} is not used (a freestanding model in a counter run)"
+                  if piece.get("asset_pin") else ""))
         step = f"built into {run['id']} ({'hob unit' if kind == 'hob' else 'fridge unit'})"
+    elif kind == "outline":
+        # 28 Oct 2026: a counter outline drawn inside a larger run (``nested_counters``) is part of that run
+        why = (f"part of the kitchen run {run['id']}: its outline lies inside that run (an outline drawn twice, or a hob "
+               "or sink block's outline read as a counter); no second run is built inside it")
+        step = f"part of {run['id']} (outline inside the run)"
     else:
         why = (f"built into the kitchen run {run['id']}: a {float(record.get('w_m') or 0.0):.2f} m sink unit with "
                "the bowl and the tap at its cutout (the drawn sink lies inside the drawn run)"
@@ -1569,6 +1764,22 @@ def working_top_ok(ftype: str, height: float) -> bool:
     return float(height) >= rule[0] - 1e-9
 
 
+# 28 Oct 2026 (user on real06's bathrooms: "What kind of a bath is this" / "this bath needs to make sense": a 0.37 m
+# high library bath fitted at 0.375 m; the size table's 0.40-0.72 m with the 15 % tolerance let it pass): a fixture
+# stands at its real height without the size table's tolerance: a bath's top (its rim) at 0.45-0.65 m. A model outside
+# is not fitted; the next model or the parametric bath (rim, mixer, panels) is built. The box's top may reach 0.82 m:
+# a freestanding or raised-end bath (a slipper bath) rises at its ends above its 0.60-0.65 m rim (12 of the 30
+# usable library baths are 0.67-0.80 m high at their ends; merge review of 28 Oct 2026).
+FIXTURE_HEIGHTS: dict[str, tuple[float, float]] = {"bathtub": (0.45, 0.82)}
+
+
+def fixture_height_ok(ftype: str, height: float) -> bool:
+    """False for a fixture model fitted outside its real height (``FIXTURE_HEIGHTS``, no tolerance); true for other
+    types (the washbasin's working top: ``WORKING_TOPS`` and ``mount_for``)."""
+    rng = FIXTURE_HEIGHTS.get(ftype)
+    return rng is None or rng[0] - 1e-9 <= float(height) <= rng[1] + 1e-9
+
+
 def mount_for(ftype: str, height: float) -> Optional[float]:
     """The ``mount_bottom_m`` that brings a fixture model's top to its type's working top (a wall-hung basin under
     the lowest top), None when it stands on the floor."""
@@ -1649,9 +1860,6 @@ def _window_cap(building: Optional[dict], piece: dict) -> tuple[Optional[float],
     hangs on a wall (a mount height), is fixed equipment (built as drawn), is no type whose back stands on a wall
     (``infer.needs_wall``: a chair or an armchair is not against the window), or its type has no real product that
     low (a wardrobe: the placement moves it)."""
-    from shapely.geometry import LineString, Polygon
-
-    from wenart import geometry as G
     from wenart.blender import proxies as PX
 
     from wenart.furniture import infer as INF
@@ -1666,19 +1874,43 @@ def _window_cap(building: Optional[dict], piece: dict) -> tuple[Optional[float],
     try:
         if PX.mount_bottom(piece)[0] > 0.0:
             return None, []
+    except (KeyError, TypeError, ValueError, IndexError):
+        return None, []
+    caps = [(float(o["sill_height"]) - WINDOW_SILL_GAP_M, o.get("id")) for o in openings_behind(building, piece)
+            if isinstance(o.get("sill_height"), (int, float))]
+    if not caps:
+        return None, []
+    heights = real_height_range(str(piece.get("type") or ""))
+    cap = round(min(c for c, _i in caps), 4)
+    return (cap, sorted(i for _c, i in caps)) if heights is None or heights[0] <= cap else (None, [])
+
+
+def openings_behind(building: Optional[dict], piece: dict, kinds: tuple[str, ...] = ("window",)) -> list[dict]:
+    """The openings of ``kinds`` of the piece's level whose wall line lies within ``WINDOW_FRONT_M`` of its footprint
+    and whose width it overlaps by ``WINDOW_OVERLAP_M`` along the wall (pure; the geometry of ``_window_cap``, shared
+    since 28 Oct 2026: a fridge column never stands in front of a window or a pass-through)."""
+    from shapely.geometry import LineString, Polygon
+
+    from wenart import geometry as G
+
+    fp = piece.get("footprint") if isinstance(piece.get("footprint"), dict) else None
+    if not isinstance(building, dict) or not fp or not fp.get("center") or not fp.get("size"):
+        return []
+    try:
         poly = Polygon(G.rotated_rectangle((float(fp["center"][0]), float(fp["center"][1])),
                                            (float(fp["size"][0]), float(fp["size"][1])),
                                            float(fp.get("rotation_deg") or 0.0)))
     except (KeyError, TypeError, ValueError, IndexError):
-        return None, []
+        return []
     walls = {w.get("id"): w for w in building.get("walls") or []}
-    caps = []
+    out = []
     for o in building.get("openings") or []:
-        if o.get("type") != "window" or o.get("level_id") != piece.get("level_id") or o.get("build") is False:
+        if o.get("type") not in kinds or o.get("level_id") != piece.get("level_id") or o.get("build") is False:
             continue
         w = walls.get(o.get("wall_id"))
-        sill = o.get("sill_height")
-        if w is None or not isinstance(sill, (int, float)) or not o.get("center"):
+        if w is None or not o.get("center"):
+            continue
+        if o.get("type") == "window" and not isinstance(o.get("sill_height"), (int, float)):
             continue
         (x0, y0), (x1, y1) = w["start"][:2], w["end"][:2]
         length = math.hypot(x1 - x0, y1 - y0)
@@ -1693,12 +1925,8 @@ def _window_cap(building: Optional[dict], piece: dict) -> tuple[Optional[float],
         ts = [(px - cx) * ux + (py - cy) * uy for px, py in poly.exterior.coords]
         if min(max(ts), half) - max(min(ts), -half) < WINDOW_OVERLAP_M:
             continue
-        caps.append((float(sill) - WINDOW_SILL_GAP_M, o.get("id")))
-    if not caps:
-        return None, []
-    heights = real_height_range(str(piece.get("type") or ""))
-    cap = round(min(c for c, _i in caps), 4)
-    return (cap, sorted(i for _c, i in caps)) if heights is None or heights[0] <= cap else (None, [])
+        out.append(o)
+    return out
 
 
 def piece_ceiling(building: Optional[dict], piece: dict, planes: Optional[list] = None) -> Optional[float]:
@@ -2443,7 +2671,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         asset["role_set"] = dict(model, used=True)
         return asset
 
-    def fit_one(piece: dict, built_into: Optional[dict] = None) -> None:
+    def fit_one(piece: dict, built_into: Optional[dict] = None, extra_hints: Optional[dict] = None) -> None:
         frozen = {k: copy.deepcopy(piece.get(k)) for k in FROZEN_KEYS}
         room = str(piece.get("room_id") or "")
         used = {"project": used_project, "room": used_rooms.setdefault(room, Counter())}
@@ -2454,6 +2682,8 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         else:
             design = design_of(piece, style) if (style is not None or piece.get("design")) else None
             hints = kitchen["hints"].get(piece.get("id"))
+            if extra_hints:                  # 28 Oct 2026: a wall cabinet's ends and its run's joints
+                hints = {**(hints or {}), **extra_hints}
             # the run's hints reach its plan on a copy: the building piece never gets module_hints (FROZEN_KEYS,
             # assert_only_assets_changed); the asset keeps them beside the plan (furniture.module_plan_of)
             target = dict(piece, module_hints={**(piece.get("module_hints") or {}), **hints}) if hints else piece
@@ -2483,6 +2713,10 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
                 asset["fabric_colour"] = colour
                 asset["fabric_colour_source"] = source
         piece["asset"] = asset
+        if piece.get("type") == "bathtub" and asset.get("method") != "library":
+            # 28 Oct 2026 (user on real06: "this bath needs to make sense"): a bath built from code knows its walls
+            from wenart.furniture import fixture_seat as FS
+            asset["bath_walls"] = FS.bath_walls(fitted, piece)
         # 26 Oct 2026: a wall-hung fixture model hangs at its working top (the build honours mount_bottom_m)
         mount = mount_for(str(piece.get("type") or ""), float((asset.get("bbox_m") or [0, 0, 0])[2] or 0.0)) \
             if asset.get("method") == "library" else None
@@ -2514,14 +2748,20 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     order = list(fitted.get("furniture", []))
     if taste_cache is not None:              # the anchors of a room first: the partners follow their look
         order.sort(key=lambda p: (str(p.get("room_id") or ""), T.anchor_rank(str(p.get("type") or ""))))
+    walls_after = []
     for piece in order:
         if piece.get("id") in kitchen["sinks"]:
             deferred.append(piece)             # after its run: built in only when the run's plan holds it
+            continue
+        if piece.get("type") == "wall_cabinet":
+            walls_after.append(piece)          # 28 Oct 2026: after its run, in line with its base units
             continue
         fit_one(piece)
     for piece in deferred:
         run = by_id.get(kitchen["sinks"][piece["id"]])
         fit_one(piece, run if holds_built_in(run, piece["id"]) else None)
+    for piece in walls_after:
+        fit_one(piece, extra_hints=wall_run_hints(piece, wall_cabinet_run(fitted, piece)))
     for item in fitted.get("decor") or []:
         item["asset"] = fit_decor_item(item, catalog, style_family=style_family, mode=mode)
     if taste_cache is not None:
@@ -2823,6 +3063,12 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         lines += [f"- {aid} ({lib}, {lic}) x {n}" for (lib, aid, lic), n in sorted(licences.items())]
     else:
         lines.append("- none")
+    # 28 Oct 2026 (user on real04: a 2.4 m table set read in feet as a coffee table, a kitchen sink as a washbasin):
+    # a fitted model whose own names disagree with it (check LT, wenart/furniture/model_title.py)
+    from wenart.furniture import model_title as MT
+    lines += ["", f"## Library models their names or audit refuse ({MT.CHECK}: stated size, set, type or use, "
+                  "audit doubt)", ""]
+    lines += [f"- {v['target']}: {v['message']}" for v in MT.fitted_findings(building)] or ["- none"]
     if ranking:
         lines += ["", "## Ranking (fit v2)", "", f"Rule: {RANKING_RULE}.", ""] + ranking
     if frames:

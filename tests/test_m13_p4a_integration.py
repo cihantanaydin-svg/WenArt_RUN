@@ -281,9 +281,11 @@ def test_a_pin_to_a_generated_model_is_refused_while_a_real_product_fits(catalog
     assert asset["asset_id"] != gen and "generated model (units guessed)" in asset["pin_refused"]
     assert not asset.get("pinned")
     real = asset["asset_id"]
-    other = next(e["id"] for e in catalog.candidates("fridge") if e.get("source") != "generated" and e["id"] != real
-                 and F.fit_piece(dict(piece, asset_pin=e["id"]), catalog, style_family="modern",
-                                 mode="relaxed").get("pinned"))
+    # 28 Oct 2026 (model_title audit_quality: the real 0.6 m fridges rated 2 left the library): another real fridge
+    # when one fits the footprint, else a pin to the real model the ranking took
+    other = next((e["id"] for e in catalog.candidates("fridge") if e.get("source") != "generated" and e["id"] != real
+                  and F.fit_piece(dict(piece, asset_pin=e["id"]), catalog, style_family="modern",
+                                  mode="relaxed").get("pinned")), real)
     kept = F.fit_piece(dict(piece, asset_pin=other), catalog, style_family="modern", mode="relaxed")
     assert kept["pinned"] == other and "pin_refused" not in kept
     assert "units guessed" in T.GENERATED_MODEL_NOTE

@@ -19,7 +19,7 @@ What (the checks, §4.6):
 | S2 | no piece cuts a wall (the building's wall boxes) or another piece (sample points of one inside the other, ray parity; depth = shortest axis ray) | <= 0.010 m |
 | S3 | the built front (``front_deg`` the builder records on the object, else the footprint's) vs the planned ``front_deg`` | <= 10 degrees |
 | S4 | the built box in the piece frame vs ``wenart.furniture.sizes.real_range`` of its type | +-15 % per axis (height when the table has one) |
-| S5 | decor rests on its host (``rest.measure_rest``: gap, penetration hard / soft host, support share) or on the floor | §4.7 |
+| S5 | decor rests on its host (``rest.measure_rest``: gap, penetration hard / soft host, support share) or on the floor; a leaning item on its back (``rest.measure_back``), a cloth with nothing poking through or torn (``rest.measure_cloth``), a hung light up to the ceiling (``hang_gap``) | §4.7; 28 Oct 2026 |
 | S6 | every built piece is a usable library model (``catalog.usable`` of its asset) or a by-design parametric type (``catalog.by_design_parametric``); never ``unknown`` | none |
 
 Exceptions (documented, §4.6): wall-hung pieces (``wall_cabinet``, any ``mount_bottom_m``) skip S1 and the wall part
@@ -66,6 +66,17 @@ findings were 1.2-2.5 cm cuts of drawn toilets, armchair / ottoman pairs and war
 (``S2_CLASSES["fixture"]``), ``TOLERANCES["overlap_soft"]`` (0.05 m) to soft seating (``S2_CLASSES["soft"]``: sofas,
 armchairs, chaises, ottomans, poufs: their cushions give); the 0.010 m default stays for everything else. A pair of
 pieces takes the larger of their two tolerances (``overlap_tolerance``); a piece against a wall takes its own class.
+
+28 Oct 2026 (user on real04 run 20261028-005318-full: "still flying pillows all around", "More flying pillows", "I did
+not like this bed", "Light is flying in the air needs to be connected to ceiling"): S5 also fails decor that is not
+attached to what holds it. What: a cushion on a back or a headboard whose upper part has a gap behind it over
+``decor_back_gap_m`` (or nothing behind; ``rest.measure_back``, the host's footprint back edge counting as the wall);
+a throw the host pokes through (``decor_cloth_poke_m``) or whose drape tore (``decor_cloth_edge_m``;
+``rest.measure_cloth``); a pendant or ceiling light whose top (cord and canopy included) is more than
+``decor_hang_gap_m`` under the ceiling over it (``hang_gap``; before, hung decor was not measured). Why: both sofas'
+cushions stood at the seat's front edge some 0.3 m in front of the backrest and passed (one touching point under them);
+a cream throw over a bed model's own bedding showed its grey blanket through it and was 1.35 m deep for a 0.5 m cloth;
+the salon's dining pendant hung 0.99 m under the ceiling with no cord.
 
 How: a mesh is ``{"verts", "faces"}`` in world coordinates plus optional fields the builder records on the
 object: ``front_deg`` (built front), ``method`` (``library`` / ``parametric``), ``rest_footprint`` (the decor
@@ -122,8 +133,10 @@ SOFT_HOST_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise",
                                     "bed_double", "bunk_bed", "crib")
 SOFT_SUPPORTS: tuple[str, ...] = ("seat", "mattress", "back", "headboard")
 FLOOR_DECOR: tuple[str, ...] = ("rug", "plant", "plant_large", "basket", "sculpture")
-UNMEASURED_DECOR: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind", "pendant_light",
-                                     "ceiling_light")
+UNMEASURED_DECOR: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind")
+# 28 Oct 2026 (module docstring): hung decor is measured against the ceiling over it
+HUNG_DECOR: tuple[str, ...] = ("pendant_light", "ceiling_light")
+LEANING_SUPPORTS: tuple[str, ...] = ("back", "headboard")
 KITCHEN_RUN_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "fridge",
                                       "wall_cabinet", "washing_machine")
 # Fix round after P3 (module docstring): the runs, and the floor-standing members that must not stand inside one.
@@ -364,6 +377,22 @@ def usable_asset(asset: Optional[dict]) -> bool:
     return bool(asset) and C.usable(asset, asset.get("licence_mode") or "commercial")
 
 
+def hang_gap(verts, building: dict, item: dict) -> Optional[dict]:
+    """How far a hung light's top is under the ceiling over it (28 Oct 2026, module docstring; pure): the top of its
+    mesh (its cord and canopy are part of it) at the plan point of its top (``furniture.top_point``) against the
+    level's ceiling there (``furniture.ceiling_above``: flat, or the sloped ceiling under a roof). None without its
+    level."""
+    from wenart.blender.furniture import ceiling_above, top_point
+
+    level = next((lv for lv in building.get("levels") or [] if lv.get("id") == item.get("level_id")), None)
+    if level is None or not verts:
+        return None
+    top = max(float(v[2]) for v in verts)
+    xy = top_point(verts)
+    ceiling = float(level.get("elevation") or 0.0) + float(ceiling_above(level, xy, (0.0, 0.0))[0])
+    return {"hang_gap_m": round(ceiling - top, 4), "top_z": round(top, 4), "ceiling_z": round(ceiling, 4)}
+
+
 def _decor_support(item: dict, host: Optional[dict]) -> str:
     from wenart.blender import rest as R             # not wenart.furniture.decor: Blender's Python has no shapely
 
@@ -536,7 +565,22 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
         dtype = item.get("type")
         m = measured.setdefault(did, {"type": dtype})
         if dtype in UNMEASURED_DECOR:
-            m["s5"] = "not measured (hangs on a wall or the ceiling)"
+            m["s5"] = "not measured (hangs on a wall)"
+            continue
+        if dtype in HUNG_DECOR:
+            # 28 Oct 2026: a hung light's top (its cord and canopy are part of its mesh) on the ceiling over it
+            rh = hang_gap(mesh["verts"], building, item)
+            if rh is None:
+                m["s5"] = "not measured (no level for the ceiling)"
+                continue
+            counts["S5"]["checked"] += 1
+            m.update(rh)
+            ok = rh["hang_gap_m"] <= tol["decor_hang_gap_m"] + 1e-9
+            m["s5"] = "ok" if ok else (f"its top {rh['hang_gap_m']:.3f} m under the ceiling over it with nothing up "
+                                       f"to it > {tol['decor_hang_gap_m']} m")
+            if not ok:
+                fail("S5", did, item.get("room_id"), f"{dtype} {did}: {m['s5']} (it hangs in the air: a cord or rod "
+                                                     "and a canopy must reach the ceiling)", rh)
             continue
         if host is None:
             if dtype not in FLOOR_DECOR:
@@ -557,6 +601,10 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
             rm = R.measure_rest(mesh["verts"], mesh["faces"], host_caster, fp, soft)
             if dtype == "throw":                    # 27 Oct 2026: a thin cloth shows the host through it
                 rm["cloth"] = True
+                rm.update(R.measure_cloth(mesh["verts"], mesh["faces"], host_caster, fp))   # 28 Oct 2026
+            elif support in LEANING_SUPPORTS:
+                # 28 Oct 2026: a leaning item leans on its back in its upper part (the wall: the host's back edge)
+                rm.update(R.measure_back(mesh["verts"], mesh["faces"], host_caster, fp, wall=host["footprint"]))
         counts["S5"]["checked"] += 1
         ok, why = R.rest_ok(rm)
         m.update(rm)

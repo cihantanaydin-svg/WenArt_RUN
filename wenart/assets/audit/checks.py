@@ -74,6 +74,17 @@ twins the exact ``same_mesh_as`` rule cannot record, so the next real03 pod woul
   member of the family carries it; another texture set alone is no evidence, the maker named in the title is.
 - How: the record names the twin's numbers and texture counts (the mesh match it rests on), checked against the
   entry's own fields; per item as above.
+
+28 Oct 2026 (user on real04 run 20261028-005318-full: "what is this miniature table makes no sense", a 2.4 m high
+table with its barstools read in feet as a coffee table; "terrible sink", a double-bowl kitchen sink as the washbasin
+of five bathrooms; both audited ``keep``):
+
+- What: ``model_title_check`` (``wenart.furniture.model_title``): a title's stated size against the box with the unit
+  factors (``stated_size``: fix ``rescale`` or remove), a set of pieces in one mesh (``title_set``), a title of another
+  type or use (``title_type``: a washbasin needs bathroom evidence, a bare "sink" is a kitchen sink).
+- Why: ``title_check`` read "table" as naming a coffee table and "sink" as naming a washbasin, ``title_size`` read only
+  "a x b x c cm" and warned, and the vision doubts ("more than one object") keep a model (decision 1a).
+- How: the same pure rules as ``catalog.usable`` and the run checks; code evidence, so they remove.
 """
 from __future__ import annotations
 
@@ -430,6 +441,24 @@ def title_size_check(item: dict) -> dict:
         return rec("title_size", "warn", f"the title says {_fmt(dims)} m, the box is {_fmt(item['bbox_m'])} m "
                    f"({err:.0%} off: the listing of another variant?)", metrics=metrics)
     return rec("title_size", "ok", f"the title's size matches the box within {err:.0%}", metrics=metrics)
+
+
+def model_title_check(item: dict) -> list[dict]:
+    """28 Oct 2026 (user on real04 run 20261028-005318-full: "what is this miniature table makes no sense", "terrible
+    sink"; ``wenart.furniture.model_title``): what the model's own names say against it, as audit records: a stated
+    size the box disagrees with (``stated_size``: ``fix`` with ``rescale`` when another unit makes them agree and the
+    corrected box is a real piece of the type, else ``remove``), a set of pieces (``title_set``: ``remove``), a title
+    of another type or use (``title_type``: ``remove``; a washbasin needs bathroom evidence). Code evidence: decision
+    1a's vision doubts never keep such a model. One ``model_title`` ok record when nothing is found. Left to the
+    others: a keyword conflict (the ``title`` check: review, a retype when the vision check agrees) and the audit's own
+    doubts (``audit_doubt``, ``front_side``: decide.py reads the answers, the catalogue pass the written record)."""
+    from wenart.furniture import model_title as MT
+    found = [f for f in MT.findings(item) if f["status"] != "review"
+             and not (f.get("metrics") or {}).get("keyword_conflict")]
+    if not found:
+        return [rec("model_title", "ok", "the names say nothing against the model")]
+    return [rec(f["rule"], "fix" if f["status"] == "fix" else "remove", f["reason"], fix=f.get("fix"),
+                metrics=f.get("metrics")) for f in found]
 
 
 def source_check(item: dict) -> dict:
@@ -838,6 +867,7 @@ def item_checks(item: dict, cfg: dict, known_types, measure: Optional[dict] = No
     out = [licence_check(item)]
     out += title_check(item, known_types)
     out.append(title_size_check(item))
+    out += model_title_check(item)              # 28 Oct 2026: stated size, sets, type and use (model_title.py)
     out.append(source_check(item))
     out.append(quality_check(item, cfg))
     out.append(size_check(item, cfg, box))

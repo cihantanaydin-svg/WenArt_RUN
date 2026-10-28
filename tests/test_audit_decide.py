@@ -58,10 +58,17 @@ def test_vision_answers_that_remove(change, word):
 
 
 def test_not_a_real_product_needs_quality_four():
+    # 28 Oct 2026 (user on real06: "What kind of a bath is this"): a furniture model the vision check finds no real
+    # product is removed whatever its quality (it was a decision 1a doubt); decor keeps the doubt below quality 4
     obj = item(id="objaverse_x", source="objaverse", title="Sofa", licence="CC-BY-4.0")
-    d = decide(obj, dict(YES, real_product=False, quality=3))
-    assert d["status"] == "keep" and d["vision_doubt"]               # decision 1a: a doubt, not a removal
-    d = decide(obj, dict(YES, real_product=False, quality=4))
+    for q in (3, 4):
+        d = decide(obj, dict(YES, real_product=False, quality=q))
+        assert d["status"] == "removed" and any("no real manufactured product" in r for r in d["reasons"])
+    vase = item(id="objaverse_v", source="objaverse", type="vase", kind="decor", title="Vase", licence="CC-BY-4.0",
+                bbox_m=[0.2, 0.2, 0.3], bbox_min_m=[-0.1, -0.1, 0.0], bbox_max_m=[0.1, 0.1, 0.3], polycount=20000)
+    d = decide(vase, dict(YES, type_guess="vase", real_product=False, quality=3))
+    assert d["status"] == "keep" and d["vision_doubt"]
+    d = decide(vase, dict(YES, type_guess="vase", real_product=False, quality=4))
     assert d["status"] == "keep" and not d["vision_doubt"]
 
 
@@ -94,8 +101,15 @@ def test_models_without_title_evidence_need_two_passes():
     assert decide(gen, YES, {"type_guess": "sofa_corner"})["status"] == "keep"     # a near type agrees
     d = decide(gen, YES, {"type_guess": "bench"})                    # decision 1a: the passes disagree: a doubt
     assert d["status"] == "keep" and "disagree" in d["vision_doubt"][0]
-    d = decide(gen, dict(YES, is_type=False, type_guess="bench"))     # pass 1 no: no pass 2, a doubt
-    assert d["status"] == "keep" and "not a sofa" in d["vision_doubt"][0]
+    # 28 Oct 2026 (decide.second_look; user on real04: "is this a window?"): pass 1 no waits for pass 2 (it was a
+    # decision 1a doubt): pass 2 names the type -> kept with the confirmation, another type -> removed
+    d = decide(gen, dict(YES, is_type=False, type_guess="bench"))
+    assert d["status"] == "pending" and any(p["needs"] == "vision pass 2" and "not a sofa" in p["why"]
+                                            for p in d["pending"])
+    d = decide(gen, dict(YES, is_type=False, type_guess="bench"), {"type_guess": "sofa"})
+    assert d["status"] == "keep" and not d["vision_doubt"] and any("type is confirmed" in n for n in d["notes"])
+    d = decide(gen, dict(YES, is_type=False, type_guess="bench"), {"type_guess": "bench"})
+    assert d["status"] == "removed" and "two passes doubt the sofa" in d["reasons"][-1]
     assert decide(gen, dict(YES, is_type=False))["status"] == "pending"   # "not a sofa", guess sofa: pass 2 decides
     assert decide(gen, YES, {"type_guess": "sofa"})["flags"]["real_product"] is False
 
@@ -140,7 +154,8 @@ def test_a_contradictory_answer_whose_guess_is_the_type_counts_as_the_type():
     d = decide(item(), dict(YES, is_type=False, type_guess="sofa"))
     assert d["status"] == "keep" and any("taken as a sofa" in n for n in d["notes"]), d
     d = decide(item(), dict(YES, is_type=False, type_guess="bench"))
-    assert d["status"] == "keep" and "not a sofa (a bench)" in d["vision_doubt"][0]     # decision 1a
+    # 28 Oct 2026 (decide.second_look): no longer decision 1a: the type doubt waits for pass 2
+    assert d["status"] == "pending" and "not a sofa (a bench)" in d["pending"][-1]["why"]
 
 
 def test_decor_flags():
@@ -243,11 +258,20 @@ def test_apply_a_retype_and_skip_pending():
 
 def test_vision_only_findings_keep_the_model_with_a_doubt():
     """User decision 1a of 11 Oct 2026 (docs/milestone12.md §14.3): a finding of the vision check alone keeps the
-    model with ``vision_doubt``; code evidence and the specific findings (on its side, an open part) still remove."""
-    for change, word in (({"single_object": False}, "more than one"), ({"quality": 2}, "quality 2"),
-                         ({"is_type": False, "type_guess": "bench"}, "not a sofa"), ({"indoor": "outdoor"}, "outdoor")):
+    model with ``vision_doubt``; code evidence and the specific findings (on its side, an open part) still remove.
+    28 Oct 2026 (user on real04: "is this a window?"; ``decide.second_look``): a doubt of the type or the size waits
+    for the type question of pass 2 (pending), no longer a doubt that keeps the model."""
+    for change, word in (({"single_object": False}, "more than one"), ({"indoor": "outdoor"}, "outdoor")):
         d = decide(item(), dict(YES, **change))
         assert d["status"] == "keep" and any(word in x for x in d["vision_doubt"]), (change, d)
+    # 28 Oct 2026 (user on real06: a bath rated 2): a furniture model rated 2 or lower is removed
+    d = decide(item(), dict(YES, quality=2))
+    assert d["status"] == "removed" and "vision quality 2 (<= 2)" in d["reasons"]
+    for change, word in (({"is_type": False, "type_guess": "bench"}, "not a sofa"),
+                         ({"size_plausible": False}, "size odd")):
+        d = decide(item(), dict(YES, **change))
+        assert d["status"] == "pending" and any(word in p["why"] for p in d["pending"]), (change, d)
+        assert decide(item(), dict(YES, **change), {"type_guess": "sofa"})["status"] == "keep"
     for change in ({"upright": False}, {"parts_open": True}):
         d = decide(item(), dict(YES, **change))
         assert d["status"] == "removed" and d["vision_doubt"] == []
@@ -255,8 +279,8 @@ def test_vision_only_findings_keep_the_model_with_a_doubt():
     # usable in relaxed mode and no longer code evidence)
     d = decide(item(licence="CC-BY-ND-4.0", source="objaverse"), dict(YES, quality=2))
     assert d["status"] == "removed" and any("quality 2" in r for r in d["reasons"]) and d["vision_doubt"] == []
-    d = decide(item(licence="CC-BY-NC-4.0", source="objaverse"), dict(YES, quality=2))
-    assert d["status"] == "keep" and any("quality 2" in x for x in d["vision_doubt"])
+    d = decide(item(licence="CC-BY-NC-4.0", source="objaverse"), dict(YES, quality=3))
+    assert d["status"] == "keep" and not d["vision_doubt"]
 
 
 def test_the_writer_records_the_doubt_in_the_audit():
@@ -273,4 +297,7 @@ def test_pass_two_asks_contradictory_untitled_models():
     gen = item(id="gen_x", source="generated", licence="generated (TRELLIS.2-4B, MIT)",
                title="Generated modern sofa (1)", units_known=False)
     assert cli.second_pass_ids([gen], {"gen_x": dict(YES, is_type=False, type_guess="sofa")}) == {"gen_x"}
-    assert cli.second_pass_ids([gen], {"gen_x": dict(YES, is_type=False, type_guess="bench")}) == set()
+    # 28 Oct 2026 (decide.second_look): a type or size doubt of pass 1 is asked again in pass 2
+    assert cli.second_pass_ids([gen], {"gen_x": dict(YES, is_type=False, type_guess="bench")}) == {"gen_x"}
+    assert cli.second_pass_ids([gen], {"gen_x": dict(YES, size_plausible=False)}) == {"gen_x"}
+    assert cli.second_pass_ids([item()], {"abo_x": YES}) == set()

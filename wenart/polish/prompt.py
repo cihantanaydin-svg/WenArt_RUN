@@ -269,6 +269,10 @@ DECOR_WORDS: dict[str, str] = {
     "curtain": "linen curtains", "blind": "roller blind", "throw": "throw blanket", "books": "stacked books",
     "candle": "candles", "basket": "woven basket", "tray": "tray", "clock": "wall clock", "sculpture": "sculpture",
     "plant_large": "large indoor plant", "pendant_light": "pendant light", "ceiling_light": "ceiling light",
+    # 28 Oct 2026: the kitchen worktop items (wenart.furniture.decor.kitchen_worktop_decor)
+    "microwave": "countertop microwave", "kettle": "kettle", "coffee_machine": "coffee machine", "toaster": "toaster",
+    "chopping_board": "chopping board", "utensil_pot": "utensil pot", "fruit_bowl": "fruit bowl",
+    "plate": "set table with plates", "glass": "glasses",            # 28 Oct 2026 (wenart.furniture.tabletop)
 }
 # rooms[].room_subtype words (Milestone 10: a child's room holds cribs and bunk beds).
 SUBTYPE_WORDS: dict[str, str] = {"child": "child's bedroom"}

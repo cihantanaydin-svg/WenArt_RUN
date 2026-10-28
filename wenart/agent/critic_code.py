@@ -7,7 +7,8 @@ What: ``run(building, scene_manifest, render_manifest, scene_dir=...)`` calls
 - ``wenart.blender.exterior_checks.check_exterior`` (X1–X8) and ``check_views`` (V1, V3),
 - Milestone 12: ``wenart.furniture.group_checks.check_building`` (track G: G1–G14), ``wenart.levels.checks.
   check_levels`` (track L: L1–L7), the scene checks the build wrote (track S: ``<scene_dir>/scene_<level>.json``,
-  S1–S6) and the library gaps of the built pieces (``furniture[].library_gap``: check ``LG``),
+  S1–S6) and the library gaps of the built pieces (``furniture[].library_gap``: check ``LG``); 28 Oct 2026: the
+  built library models whose own names disagree with them (``library_titles``: check ``LT``),
 
 and turns their violations (``{check, severity, target, room_id, message, metrics}``, contract §17.2 / §13.2) into
 findings ``{id, source: "code", check, severity, target, room_id, message, evidence: {metrics}}``. It also returns
@@ -87,6 +88,7 @@ SCENE_CHECKS_GLOB = "scene_*.json"          # track S: <build --out>/checks/scen
 SCENE_CHECKS_DIRS = (Path("scene") / "checks", Path("build") / "checks")
 SCENE_CHECKS_DIR = SCENE_CHECKS_DIRS[0]
 LIBRARY_GAP_CHECK = "LG"
+LIBRARY_TITLE_CHECK = "LT"                  # = wenart.furniture.model_title.CHECK (28 Oct 2026)
 REST_CHECK = "S5"
 
 
@@ -219,6 +221,16 @@ def library_gaps(building: dict) -> list[dict]:
                     "room_id": f.get("room_id"), "message": f"library gap for {f.get('type')}: {what or 'no model'}",
                     "metrics": {k: v for k, v in g.items() if isinstance(v, (int, float, str))}})
     return out
+
+
+def library_titles(building: dict) -> list[dict]:
+    """28 Oct 2026 (user on real04 run 20261028-005318-full: "what is this miniature table makes no sense", "terrible
+    sink", "is this a window?"): one ``LT`` violation (major) per built piece whose library model its own names or
+    its audit refuse (``wenart.furniture.model_title.fitted_findings``: a stated size its box disagrees with, a set
+    of pieces, a title of another type or use, a vision doubt of its type or size); ``causes`` sends it to
+    ``swap_model``."""
+    from wenart.furniture import model_title as MT
+    return MT.fitted_findings(building)
 
 
 LIGHTING_DARK_CHECK = "lighting_dark"       # = wenart.blender.render.LIGHTING_DARK_CHECK (pinned by the tests)
@@ -536,7 +548,7 @@ def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: 
         family("scene", None, scene_fn or (lambda: scene_violations(scene_dir)), scene)
     if (scene_manifest or {}).get("furniture"):
         family("scene_manifest", None, lambda: manifest_violations(scene_manifest, scene_read), lambda fn: fn())
-    family("library", None, lambda: library_gaps(building), lambda fn: fn())
+    family("library", None, lambda: library_gaps(building) + library_titles(building), lambda fn: fn())
     family("reading", None, lambda: reading_items(building), lambda fn: fn())
     # round 4: the views the EV cap held too dark (render manifest; unavailable without one)
     family("lighting", None, lambda: lighting_items(render_manifest, building), lambda fn: fn())
@@ -563,5 +575,5 @@ FAMILY_OF = {**{k: "plausibility" for k in ("F1", "F2", "F3", "F4", "F5", "F6", 
              **{f"G{i}": "groups" for i in range(1, 15)},
              **{f"L{i}": "levels" for i in range(1, 8)},
              **{f"S{i}": "scene" for i in range(1, 7)},
-             LIBRARY_GAP_CHECK: "library", NEEDS_REVIEW_CHECK: "reading", READING_CONFLICT_CHECK: "reading",
+             LIBRARY_GAP_CHECK: "library", LIBRARY_TITLE_CHECK: "library", NEEDS_REVIEW_CHECK: "reading", READING_CONFLICT_CHECK: "reading",
              LIGHTING_DARK_CHECK: "lighting", CAMERA_BLOCKED_CHECK: "blocked"}

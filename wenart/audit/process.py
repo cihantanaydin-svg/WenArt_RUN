@@ -23,6 +23,11 @@ What (each check over every item, nothing sampled):
   (this run's log events only), with the refusal it met most: the stage or rule behind it must change, not the agent
   (real06: "kitchen_run (missing stove, fridge): no place passes the checks", 30 tries).
 
+- P11 (28 Oct 2026) a built library model its own names or its audit refuse: a stated size its box disagrees with
+  (a table set read in feet), a set of pieces in one mesh, a title of another type or use (a kitchen sink as a
+  washbasin), a vision doubt of its type or size (a wardrobe with a window at its end): ``wenart.furniture
+  .model_title``.
+
 Why: the veranda was written in a warning ("an open balcony, recorded in site, not a room") and then nothing built
 it; real06's inferred trees were "placed 0 of 3" in a warning. A warning nobody reads is the ``silent`` kind.
 """
@@ -285,7 +290,7 @@ def scene_checks(inp: Inputs) -> list[dict]:
             if isinstance(c, dict) and c.get("failed"):
                 out.append(K.finding("process", "P5", "major", f"{level}:{cid}",
                                      f"scene check {cid} on {level}: {c['failed']} of {c.get('checked')} failed",
-                                     owner="build", kind="geometry"))
+                                     owner="build", kind="detached" if cid == "S5" else "geometry"))   # 28 Oct 2026
     for d in furn.get("decor_not_rested") or []:
         out.append(K.finding("process", "P5", "minor", d.get("id"),
                              f"decor {d.get('type')} {d.get('id')} on {d.get('host_id')} not built: {d.get('reason')}",
@@ -327,6 +332,27 @@ def library(inp: Inputs) -> list[dict]:
     elif proxies:
         out.append(K.finding("process", "P7", "major", "proxies", f"{proxies} piece(s) built as proxies", owner="fit",
                              kind="taste", fix="library_gap"))
+    return out
+
+
+def library_titles(inp: Inputs) -> list[dict]:
+    """P11 (28 Oct 2026, user on real04 run 20261028-005318-full: "what is this miniature table makes no sense", a
+    2.4 m table set read in feet as a coffee table; "terrible sink", a kitchen sink as five washbasins; "is this a
+    window?", a "WARDROBE" the vision audit said is not one): every built library model its own names or its audit
+    refuse (``wenart.furniture.model_title.fitted_findings`` on the final building: a stated size its box disagrees
+    with, a set of pieces, a title of another type or use, a vision doubt of its type or size), kind ``misread`` (the
+    library read the model wrong), fixed by another model (``swap_model``) and the catalogue rule."""
+    from wenart.furniture import model_title as MT
+    out, seen = [], set()
+    # the fitted building (every dwelling's pieces) and the building as built (the pieces the scene holds)
+    for b in (inp.stage("final"), inp.final):
+        for v in MT.fitted_findings(b):
+            if v.get("target") in seen:
+                continue
+            seen.add(v.get("target"))
+            out.append(K.finding("process", "P11", "major", v.get("target"), v.get("message") or "", owner="fit",
+                                 kind="misread", evidence=dict(v.get("metrics") or {}, room_id=v.get("room_id")),
+                                 fix="swap_model"))
     return out
 
 
@@ -452,7 +478,7 @@ def audit(inp: Inputs) -> dict:
     """``{"findings", "warning_counts", "checked"}`` of the process line."""
     warn, counts = warnings(inp)
     findings = stages(inp) + warn + questions(inp) + tests(inp) + scene_checks(inp) + views(inp) + library(inp) \
-        + time_left(inp) + loop_result(inp) + futile(inp)
+        + time_left(inp) + loop_result(inp) + futile(inp) + library_titles(inp)
     return {"findings": findings, "warning_counts": counts, "unmatched": unmatched(inp),
             "checked": {"stages": len(inp.records) or len(((inp.run_manifest or {}).get("projects") or [{}])[0]
                                                           .get("stages") or []),

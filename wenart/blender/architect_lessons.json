@@ -798,6 +798,153 @@
    "request": "There should have been better indoor stair solutions should be there I did not like this one",
    "lesson": "A U stair that needs winders turns them as two quarter turns of kite winders around the newels at its well (never one fan of treads from a single point); handrails and balustrade follow the house style.",
    "question": "Do the stairs read as designed stairs (clean flights, winders turning around the newels, a continuous handrail), not a spiral fan or a heavy block?"
+  },
+  {
+   "id": "UL70",
+   "date": "2026-10-28",
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "build",
+    "F3",
+    "H1"
+   ],
+   "request": "Kitchen design could have been a lot better this is terrible (real04 run 20261028-005318-full, kitchen r_L-1_mutfak: the drawn stove got a freestanding white cooker lower than the worktop standing in a gap of the run like a dishwasher, no cooker hood, wall cabinets as separate boxes of odd widths with gaps that do not line up; real06 run 20261027-222248-full: 'What kind of a kitchen is this', 'Why is this closing the window': wall cabinets across a window, the hob a black freestanding box between base units)",
+   "lesson": "A kitchen reads as one designed kitchen (general rule): a stove drawn in a counter run is the run's hob, set into one continuous worktop at its drawn span with a built-in oven under it (a freestanding range only away from a run); an agent pin never takes a hob or a fridge out of its run; every hob gets a cooker hood sized to it in the style's metal (a chimney hood on the wall, an under-cabinet hood under a wall cabinet, an island hood over an island); the wall cabinets are one run over the base run: one bottom and top line, one depth, real units of 300-900 mm whose joints line up with the base units, flush at the hood (the hood between them), never over any part of a window, a glazed door or a door (the build cuts them at the windows of the building as built), joined at the corners (a blind corner unit, a corner filler), never a lone box of odd width; a counter outline drawn inside a run is part of it; a fridge column never stands in front of a window or a pass-through; fronts, handles (on feet) and the worktop follow the style, the family's kitchen look where style.json names none. The model review's M13 flags what is left (a hob without a hood, an appliance off the worktop line, wall cabinets over a window, odd boxes, unexplained gaps, two lines) for Argus.",
+   "question": "Does every kitchen read as one designed kitchen: the hob set into the worktop with an oven under it and a hood over it, every appliance of a run on its worktop line, the wall cabinets one run of real units in line with the base units, flush at the hood, joined at the corners and never over a window?"
+  },
+  {
+   "id": "UL71",
+   "date": "2026-10-28",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build",
+    "F3"
+   ],
+   "request": "More decor pieces needed ... kettle in the kitchen, microwave in the kitchen etc (real06's kitchen: nothing on the counter)",
+   "lesson": "Every kitchen's worktop is dressed modestly by rule (general rule): a countertop microwave at a run end against a wall or a corner, a coffee machine (or a toaster) at another end, a kettle by the sink, a utensil pot and a chopping board beside the hob, a fruit bowl on an island or a free stretch, at real product sizes (parametric with PBR materials until audited library models exist), at most one per 0.5 m of free worktop and five per kitchen, labelled added_by_ai with the reason; each passes the code checks: on the worktop (rested on the built top), off the hob and its 0.25 m side gap, off the sink, off tall units, never in front of a window, glazed door or pass-through it would reach (the build slides it along the worktop when the building as built puts a window there).",
+   "question": "Does every kitchen worktop carry a few real small appliances and pieces of decor (a microwave, a kettle, a coffee machine or toaster, a board, a fruit bowl), none on the hob, in the sink or in front of a window?"
+  },
+  {
+   "id": "UL72",
+   "date": "2026-10-28",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "still flying pillows all around (real04 run 20261028-005318-full, the upper-floor living room's two sofas: the cushions stood at the seat's front edge, some 0.3 m in front of the backrest, with a gap under them)",
+   "lesson": "A decor cushion on a sofa or an armchair rests on the seat and leans on the backrest: it touches its back in its upper part (S5 measure_back, decor_back_gap_m 1.5 cm) and its seat under it. The back rays run at least 4 cm over the seat and a hit on the seat's own dome or front lip (a face looking up, or something rising less than 0.15 m over the seat) is never the back; the frame's 12 degrees is the least lean, the cushion leans at the styled 20 degrees, further when nothing is behind its upper part, and slides onto its back (rest.plan_decor, settle_back). One that cannot rest so is not built and reported, never left floating.",
+   "question": "Does every cushion on a sofa or an armchair sit on the seat and lean on the backrest?"
+  },
+  {
+   "id": "UL73",
+   "date": "2026-10-28",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "I did not like this bed (real04 f_L0_021: a cream decor throw draped over a bed model that has its own made bedding; the model's grey blanket poked through it in dark patches and the drape tore over its folds)",
+   "lesson": "No decor throw on a bed whose model is already made up with its own duvet or cover (the audit's has_bedding: decor.takes_throw in the decor stage, rest.own_bedding at the build). Any throw is built only where its drape stays clear: nothing of the host pokes through the cloth between its grid points (decor_cloth_poke_m) and the drape does not tear (decor_cloth_edge_m); else it is not built and reported (S5, model review M14).",
+   "question": "Does every bed with its own bedding stay without a second cloth over it, and does every throw lie clean on its host?"
+  },
+  {
+   "id": "UL74",
+   "date": "2026-10-28",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "flying pillows (real04 cam_r_L0_e_yatak_odasi_1, bed f_L0_007 dressed with our duvet and pillows: the two decor cushions stood upright in front of the bed's pillows with no contact with the pillows behind or the mattress below)",
+   "lesson": "On a bed our build dresses (a duvet and lying pillows) a decor cushion first stands on the pillows against the headboard (the back rays see the bed alone), else it leans back on the pillows (the bed and its pillows), never on the duvet's fold; its seat and its S5 check are measured on the bedding as built, the duvet included (furniture.BED_CASTER / LEAN_CASTER, rest.plan_decor back_caster). It touches what is behind it in its upper part, or it is not built.",
+   "question": "Does every decor cushion on a bed rest on the pillows or the mattress and lean on the pillows or the headboard?"
+  },
+  {
+   "id": "UL75",
+   "date": "2026-10-28",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Light is flying in the air needs to be connected to ceiling (real04 r_L-1_salon: the dining pendant over the long table hung 0.99 m under the ceiling with no cord, rod or canopy)",
+   "lesson": "Every pendant and ceiling light is connected to the ceiling over it (the sloped ceiling too): a ceiling light sits flush; a pendant whose own top is at most 10 cm under the ceiling is lifted to it; a pendant further down keeps its shade where the decor stage put it and gets a cord and a ceiling canopy from its top to the ceiling (furniture.hang_plan, parametric.suspension_parts). The scene check S5 (hang_gap) and the model review M14 flag a hung piece whose top is more than 2 cm under the ceiling with nothing bridging the gap.",
+   "question": "Does every hanging light reach the ceiling with a cord or rod and a canopy?"
+  },
+  {
+   "id": "UL76",
+   "date": "2026-10-28",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "More flying pillows (real04 cam_r_L0_e_yatak_odasi_3, the same bed f_L0_007: the decor cushions stood up in front of the bed's pillows with gaps under and behind them)",
+   "lesson": "A floating cushion is caught before the user sees it: S5 measures the gap behind a leaning item's upper part (measure_back) as well as under it, the model review M14 re-judges every decor rest record, and Argus files both under the problem kind 'detached' (a piece not attached to what holds it), so a recurring float gets counted in the problem log; a fix is checked on every view of the piece, not one.",
+   "question": "Is any decor item detached from what holds it (S5, M14)?"
+  },
+  {
+   "id": "UL77",
+   "date": "2026-10-28",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "More decor pieces needed, plates on tables for example",
+   "lesson": "Tops are styled, not bare: every dining table is set at each chair (a plate in front of it, a glass at the diner's right) with a centre bowl when its middle is free; coffee tables, sideboards, consoles, dressers and TV units carry a small group (up to three: books, a tray, a vase, a bowl), nightstands, side tables and desks up to two small pieces, bookshelves a vase and a candle on their boards (wenart.furniture.tabletop). Each piece rests on the real top by rays (S5), keeps clear of the others, is added_by_ai with its reason, and the brief's decor switch turns it off; kitchen appliances are the kitchen's.",
+   "question": "Is every dining table set and every top styled with a few pieces resting on it?"
+  },
+  {
+   "id": "UL78",
+   "date": "2026-10-28",
+   "area": "library",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "what is this miniature table makes no sense (real04 run 20261028-005318-full, cam_r_L-1_salon_3: the drawn coffee table f_L-1_087 got the 3D Warehouse model 'Facit High Table W2400 D800 mm NamNam Barstool Low back Metal Leg', a 2.4 m high table with its barstools in one mesh whose box was read in feet so that it passed as a 0.73 m coffee table). General rule: a model whose title states its size is used only when the size agrees with its box (a unit factor corrects it or it is refused), and a model whose title names a set of pieces is never one piece",
+   "lesson": "A library model is used only when its own names agree with it: a title that states its size (W2400 D800 mm, 120 x 60 x 36 cm, 34\"h x 30\"w) must match its box, a unit factor (feet, inches, cm, mm, x10, x100) that explains the mismatch corrects it only when the corrected box is a real piece of the type, else the model is refused; a title naming the pieces of a group (a table with chairs, stools or barstools, a chair with an ottoman, a sofa with an armchair, a bed with nightstands, a toilet with a basin, a dining or bistro set) is a set and never one piece (wenart/furniture/model_title.py: catalog.usable, the audit's model_title check, python -m wenart.assets audit title-rules, the fit report and the code critic's LT, Argus P11).",
+   "question": "Does every built library model's stated size agree with its box, and does its title name one piece of its type?"
+  },
+  {
+   "id": "UL79",
+   "date": "2026-10-28",
+   "area": "library",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "This makes no sense and terrible sink / Terrible sink (real04 run 20261028-005318-full, cam_r_L0_e_banyo_1 and cam_r_L-1_banyo_1: five washbasins got the 3D Warehouse model 'Sink' from the zip's Kitchen folder, a double-bowl kitchen sink with a drainboard hung on the wall with a strap mirror above it). General rule: a washbasin is a bathroom basin (its names or its source say so); a model titled only 'sink' or naming a kitchen, a drainer or a double bowl is a kitchen sink, never a washbasin; a title of another type than the catalogue type refuses the model",
+   "lesson": "A washbasin is a bathroom basin: its names or its source say so (basin, washbasin, lavatory, vanity, bathroom sink, lavabo, Waschbecken, wastafel; the source's Bathroom folder; HSSD found_in bathroom); a model titled only 'sink' or naming a kitchen, a drainer or drainboard, a double bowl or a commercial sink is a kitchen sink and never a washbasin, a kitchen sink named for a bathroom is no kitchen sink, and every model whose title names another type (or whose title and vision check both name another type) is refused for its catalogue type (model_title title_type; the same checks as above).",
+   "question": "Is every washbasin a bathroom basin, never a kitchen sink, and every model the type its title names?"
+  },
+  {
+   "id": "UL80",
+   "date": "2026-10-28",
+   "area": "library",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "is this a window? how is this making sense? (real04 run 20261028-005318-full, L0 top view between r_L0_yatak_odasi and r_L0_e_yatak_odasi: the drawn wardrobe f_L0_023 got the 3D Warehouse model 'WARDROBE' whose 0.64 m end shows a white two-pane glazed frame; the vision audit said is_type false and size_plausible false, the geometry put the detail on that end, the audit turned its front to the long face and kept it as fix). General rule: a model the vision audit doubts (not its type, an odd size) is not used until a later audit pass confirms it; a front turned off its detail side gets a second look; a window or glazed frame on furniture is a wrong object (D2) and is swapped",
+   "lesson": "A model the vision audit said is not its type, or whose size it found odd, is not used until a second audit pass confirms its type (audit.status pending; decide.second_look, pass 2 asks it; two passes against it remove it); a model of a long-front type whose detailed face is an end while the audit turned its front to the long face gets a second look (pending): an end with a glazed panel or a window is no wardrobe front; the vision critics treat a window or a glazed frame on a piece of furniture as a wrong object (D2, swap_model) and no swap or pin takes a model the audit or its names refuse.",
+   "question": "Does any piece of furniture show a window, a glazed frame or another object that is not its type?"
+  },
+  {
+   "id": "UL81",
+   "date": "2026-10-28",
+   "area": "library",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "What kind of a bath is this / this bath needs to make sense (real06 run 20261027-222248-full: both bathtubs f_L0_010 and f_L1_009 got the 3D Warehouse model 'Bathtub', 1.52 x 0.74 x 0.37 m, 85 % non-manifold edges, the vision answer real_product false, size_plausible false, quality 2, audited keep). General rule: a furniture model rated 2 or lower or found no real product is not used, a fixture is fitted only at its real height (a bath's rim 0.45-0.65 m), and the bath built from code looks like a real product (rim, taps, a panel when it stands in a niche between walls)",
+   "lesson": "A furniture model the vision audit rated 2 or lower, or found no real product, is not used (removed; decor keeps the doubt), and a fixture is fitted only at its real height without tolerance (a bath's top 0.45-0.65 m: fit.FIXTURE_HEIGHTS; the washbasin's working top: fit.WORKING_TOPS); when no model is left the bath is built from code as a real product: a ceramic shell with a flat rim, the bowl floor with a drain and an overflow, a chrome deck mixer at the end on a wall, and a panel under a rim band on every open side when its back stands on a wall (a niche: the front panel; a corner: the front and the open end; fixture_seat.bath_walls).",
+   "question": "Does every bath stand at a real rim height (0.45-0.65 m) and look like a real product, with its taps and its panel where it stands between walls?"
   }
  ]
 }

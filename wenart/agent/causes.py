@@ -336,6 +336,10 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     # 27 Oct 2026: the model review's M9 (a stair cut off from its floor, a floor opening across a door or cutting a
     # floor apart): the stair's reading and its opening are the architect's (K4 at build, stair_access.fix_arrivals)
     "stair_access": (),
+    # 28 Oct 2026: the model review's M13 (a hob without a hood, an appliance off the worktop line, wall cabinets that
+    # cover a window, leave odd gaps or are boxes of odd widths): the module builders and the completion's wall run
+    # rule make the kitchen; no agent tool builds a hood or splits a wall cabinet
+    "kitchen_design": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -396,6 +400,13 @@ NO_TOOL_REASON: dict[str, str] = {
                     "assumed stair that leads into both floors and cuts the opening to the flights, the half landing "
                     "and the headroom (stair_access.fix_arrivals); no agent tool moves a stair or a floor opening, so "
                     "the finding is reported to the architect",
+    # 28 Oct 2026: the model review's M13
+    "kitchen_design": "the kitchen run is designed by code: the fit builds a hob in a run into the worktop with an "
+                      "oven and a cooker hood over it (modules.plan_kitchen_run), the completion hangs the wall "
+                      "cabinets as one run beside the hood, windows and doors (complete.wall_cabinets_for) and the fit "
+                      "composes them of real units on the base joints (modules.plan_wall_run); the build cuts them "
+                      "at the windows of the building as built. No agent tool builds a hood or splits a wall "
+                      "cabinet, so the finding is reported to the fit",
     "drawn_type": "the piece is drawn and its type is one the room's types hold (the code's room rules, aliases "
                   "included): drawn furniture is kept (CLAUDE.md), and a vision opinion on its type is no reading "
                   "error, so it is reported for review, not retyped",
@@ -428,6 +439,8 @@ REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor",
                              "roof_reading": "reading",
                              # 27 Oct 2026: the walk from the stairs (model review M9) is the architect's
                              "stair_access": "architect",
+                             # 28 Oct 2026: the kitchen design (model review M13) is the fit's and the completion's
+                             "kitchen_design": "fit",
                              # fix round after P4b: a frozen replayed camera, a decor light's model
                              "replayed_camera": "cameras", "decor_model": "decor",
                              # fix round after P5: a blocked view the camera search could not avoid
@@ -463,7 +476,7 @@ CHECK_CAUSE: dict[str, str] = {
     "G10": "fixture_clearance", "G11": "clearance", "G12": "blocked_opening", "G13": "clearance",
     "G14": "wrong_type",
     "S1": "wrong_model", "S2": "collision", "S3": "built_front", "S4": "size", "S5": "decor_rest",
-    "S6": "wrong_model", "LG": "library_gap", "NR": "untyped", "RC": "wrong_type",
+    "S6": "wrong_model", "LG": "library_gap", "LT": "wrong_model", "NR": "untyped", "RC": "wrong_type",
     "X1": "geometry", "X2": "roof", "X3": "facade", "X4": "site", "X5": "scale", "X6": "exterior_camera",
     "X7": "sun", "X8": "material",
     "V1": "interior_camera", "V2": "render_match", "V3": "debug_marker", "V4": "polish",
@@ -481,6 +494,8 @@ CHECK_CAUSE: dict[str, str] = {
     "M6": "opening_style", "M7": "missing_anchor", "M8": "entrance_layout", "M9": "stair_access",
     "M10": "outdoor_space", "M11": "roof_reading",
     "M12": "opening_sense",          # 27 Oct 2026: doors side by side (the architect and Argus own it)
+    "M13": "kitchen_design",         # 28 Oct 2026: the kitchen as one designed kitchen (the fit's module builders)
+    "M14": "decor_rest",             # 28 Oct 2026: decor not attached to its support (the decor stage owns it)
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",

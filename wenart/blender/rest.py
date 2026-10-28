@@ -46,6 +46,33 @@ mattress (a lying pillow's lowest ray was 3 mm up), and a back that would still 
 half gives way to the footprint's back edge. Why: the rays started 0.2 m in front of the foot and took a footboard
 taller than the mattress, or a duvet roll at the foot, for the headboard (P4b real03: 9 of 14 bed cushions not
 rested, two at the foot, 7 of 10 beds without bedding). Sofas are unchanged.
+
+28 Oct 2026 (user on real04 run 20261028-005318-full: "still flying pillows all around", "More flying pillows"; the
+sofas of r_L1_oyun_aktivite_ve_dinlenme_odasi, the dressed bed f_L0_007): a leaning cushion touches its back in its
+upper part, and S5 measures it.
+
+- What: (1) ``measure_back``: horizontal rays through the item's upper part (``BACK_CONTACT_SHARES`` of its height,
+  ``BACK_CONTACT_XS`` of its width) along the host's back direction; ``back_gap_m`` = the smallest gap from the item's
+  back surface to the host behind it (or to the host footprint's back edge, the wall, when nothing of the host is
+  there); ``rest_ok`` fails a leaning item whose gap is over ``decor_back_gap_m`` or that has nothing behind it.
+  (2) ``plan_decor`` leans a cushion at least the styled ``LEAN_DEG`` / ``HEADBOARD_LEAN_DEG`` (the decor stage's
+  host frame carries Milestone 12's 12 degrees, which made every planned cushion stand almost upright), then steeper
+  (``LEAN_STEEPER_DEG``: a cushion with nothing behind its upper part falls back onto it), then the smaller
+  fallbacks; a gap up to ``BACK_SLIDE_MAX_M`` behind it is closed by sliding it back onto its back (a round cushion
+  meets a back with its bulge, not with the box corner ``place_leaning`` aims). (3) ``place_leaning`` on a seat: the
+  back rays run at least ``SEAT_PROBE_MIN_Z_M`` above the seat, and a hit on a face looking up (``BACK_MAX_NZ``) or on
+  something that rises less than ``BACK_MIN_RISE_M`` over the seat is the seat itself, never the back. (4)
+  ``back_caster``: a dressed bed's back rays see the bed alone (``furniture.BED_CASTER``: the cushion stands on the
+  pillows against the headboard), then the bed and its pillows (``furniture.LEAN_CASTER``: it leans back on them); its
+  seat rays and S5 see the whole bedding as built (the duvet and its band too). (5) A cloth: ``measure_cloth`` (the
+  host poking through it between its grid points, a torn drape; user on f_L0_021: "I did not like this bed") and
+  ``own_bedding`` (no throw over a bed model's own made bedding).
+- Why (the run's records): both sofas (abo_B075X4F5CS, 0.90 m deep) had their cushions at local y -0.40 (rest
+  footprint) of +-0.45, 4-9 cm behind the seat's front edge and some 0.3 m in front of the backrest: the lowest back
+  ray, 1.2 cm over the seat measured at 30 % of the depth, met the domed seat cushion and took it for the back; S5
+  passed them (gap -0.004 / -0.012 / -0.016 m at one touching point, no measure behind). The bed's cushions were placed
+  and measured on the lean caster without the duvet: the scene check on the bedding as built found 4.9 cm in the duvet
+  (S5 critical, dec_L0_011 / dec_L0_012), and their back touched only the lying pillows' low foot seam.
 """
 from __future__ import annotations
 
@@ -84,6 +111,20 @@ BED_PROBE_MIN_Z_M = 0.03                       # back rays at least this far abo
 # this of the head edge (a pillow up to 0.5 m deep and a cushion in front of it); a "backrest" further out (the
 # duvet's fold mid-bed) is no headboard
 BED_HEAD_ZONE_M = 0.65
+# 28 Oct 2026 (module docstring): a leaning cushion rests on its back in its upper part.
+LEAN_STEEPER_DEG = (30.0, 38.0, 46.0, 55.0)    # a cushion with nothing behind its upper part falls back further
+SEAT_PROBE_MIN_Z_M = 0.04         # a seat's back rays at least this above the seat (a domed or tilted seat cushion)
+BACK_MAX_NZ = 0.7                 # a hit face whose normal is steeper than this looks up: the seat, not its back
+BACK_MIN_RISE_M = 0.15            # a backrest rises at least this above the seat (a seat cushion's crown does not)
+BACK_RISE_PROBES_M = (0.03, 0.08)  # ... measured by rays down this far behind the hit (a reclined back too)
+BACK_CONTACT_SHARES = (0.4, 0.55, 0.7, 0.85, 0.95)   # measure_back: the item's upper part (shares of its height) ...
+BACK_CONTACT_XS = (-0.25, 0.0, 0.25)                 # ... over its width (shares of its width)
+BACK_RAY_FROM_M = 1.0             # the rays start this far in front of the item's base centre
+BACK_REACH_M = 0.6                # a back further than this behind the item is no back
+SETTLE_SHARES = (0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)   # settle_back: rays over the item's whole height ...
+SETTLE_XS = (-0.3, 0.0, 0.3)      # ... and width
+BACK_SLIDE_MAX_M = 0.12           # a leaning item slides at most this far (back or forward) onto its back
+BACK_PRESS_M = 0.005              # ... pressed this far into a soft back
 ARM_GAP_M = 0.005                 # a cushion stays this far off an arm
 MIN_CUSHION_W = 0.30              # a cushion squeezed narrower than this between the arms is not placed
 SHIFT_STEPS = 4                   # a top item tries its spot, then this many steps towards the host centre
@@ -94,8 +135,20 @@ REST_TOLERANCES: dict[str, float] = {"decor_gap_m": 0.010, "decor_pen_hard_m": 0
                                      # 27 Oct 2026 (user on real06's sofa: "something wrong with the render"): a cloth
                                      # sunk deeper into its host than its own thickness (8 mm) shows the host through
                                      # it: a throw over a sofa's seat end and arm, 2.2 cm in, showed leather patches
-                                     "decor_pen_cloth_m": 0.007}
+                                     "decor_pen_cloth_m": 0.007,
+                                     # 28 Oct 2026 (module docstring): a leaning item's back on its back (upper part)
+                                     "decor_back_gap_m": 0.015,
+                                     # 28 Oct 2026 (user on real04's f_L0_021: "I did not like this bed"): a cloth the
+                                     # host pokes through (its top under the host's surface) or a torn drape (two
+                                     # neighbouring cloth points far apart: the top under it is not one surface)
+                                     "decor_cloth_poke_m": 0.002, "decor_cloth_edge_m": 0.25,
+                                     # 28 Oct 2026 (user on real04's salon: "Light is flying in the air needs to be
+                                     # connected to ceiling"): a hung light's top (cord and canopy included) at most
+                                     # this far below the ceiling over it
+                                     "decor_hang_gap_m": 0.02}
 TOP_BAND_M = 0.12                 # a cloth point whose host hit is this far below the top hangs over the edge
+CLOTH_POKE_GRID = 13              # measure_cloth: a 13 x 13 grid of rays down over the cloth's footprint on the top
+#                                   (its pitch is not the drape's 5 cm: the rays fall between the cloth's grid points)
 
 
 # --------------------------------------------------------------------------
@@ -410,6 +463,33 @@ def _horizontal(caster, origin, direction, max_dist: float = 5.0, min_dist: floa
     return next((float(t) for t, _p, _n in caster.hits(origin, direction, max_dist) if float(t) >= min_dist), None)
 
 
+def _back_hit(caster, origin, direction, max_dist: float, min_dist: float = 0.0, seat_z: Optional[float] = None,
+              top_z: Optional[float] = None) -> Optional[float]:
+    """The distance to the first hit along a back ray that is a back (28 Oct 2026, module docstring); None without
+    one. With ``seat_z`` (a seat, not a bed): a hit on a face looking up (``|n_z| > BACK_MAX_NZ``) or on something
+    whose top, by rays down ``BACK_RISE_PROBES_M`` behind the hit from ``top_z``, rises less than ``BACK_MIN_RISE_M``
+    over the seat is the seat itself (its domed cushion, its front lip) and the ray goes on."""
+    if seat_z is None:
+        return _horizontal(caster, origin, direction, max_dist, min_dist)
+    d = np.asarray(direction, dtype=np.float64)
+    d = d / np.linalg.norm(d)
+    for t, p, n in caster.hits(origin, direction, max_dist):
+        if float(t) < min_dist:
+            continue
+        if abs(float(n[2])) > BACK_MAX_NZ:
+            continue
+        rise = None
+        for back in BACK_RISE_PROBES_M:
+            q = (float(p[0]) + d[0] * back, float(p[1]) + d[1] * back)
+            h = caster.ray((q[0], q[1], float(top_z)), (0.0, 0.0, -1.0))
+            if h is not None:
+                rise = max(rise if rise is not None else -1e9, float(h[1][2]) - float(seat_z))
+        if rise is None or rise < BACK_MIN_RISE_M - 1e-9:
+            continue
+        return float(t)
+    return None
+
+
 def back_face_offset(t: float, s: float, lean_deg: float) -> tuple[float, float]:
     """``(y, z)`` of the back face of a box of thickness ``t`` leaning ``lean_deg`` (top towards +Y) at the height
     parameter ``s`` along the face, in the item frame (origin at the un-leaned bottom centre, lifted onto z = 0)."""
@@ -418,7 +498,7 @@ def back_face_offset(t: float, s: float, lean_deg: float) -> tuple[float, float]
 
 
 def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LEAN_DEG, soft_host: bool = True,
-                  turn_deg: float = 0.0, attempt: int = 0, bed: bool = False) -> Optional[dict]:
+                  turn_deg: float = 0.0, attempt: int = 0, bed: bool = False, back_caster=None) -> Optional[dict]:
     """A cushion against the real back of a seat, or a pillow against the headboard of a bed (§4.7).
 
     ``host_fp``: the host footprint (``center``, ``size``, ``rotation_deg``); ``item_center``: the item's planned
@@ -428,8 +508,12 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
     ``how``); the item's centre moves so its leaning back face touches the nearest of them; rays to the sides keep
     it ``ARM_GAP_M`` off the arms (shifted, else narrowed, else None); two passes settle the seat height at the
     final spot. ``attempt`` = 1 (the S5 re-placement) moves the planned spot 0.10 m towards the host centre line.
-    ``bed`` (fix round after P4b, module docstring): the headboard of a bed, searched in its head half."""
+    ``bed`` (fix round after P4b, module docstring): the headboard of a bed, searched in its head half.
+    28 Oct 2026 (module docstring): on a seat the back rays run at least ``SEAT_PROBE_MIN_Z_M`` over it and skip the
+    seat's own surfaces (``_back_hit``); ``back_caster`` (a dressed bed: the bed and its pillows) takes the back rays,
+    ``caster`` (everything built) the rays down."""
     w, t, h = (float(v) for v in size)
+    backs_caster = caster if back_caster is None else back_caster
     hc, (hw, hd), rot = host_fp["center"], (float(host_fp["size"][0]), float(host_fp["size"][1])), \
         float(host_fp["rotation_deg"])
     lx, _ly = to_local(hc, rot, float(item_center[0]), float(item_center[1]))
@@ -466,11 +550,12 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
             for f in BACK_PROBE_SHARES:
                 s = f * h
                 _yb, zb = back_face_offset(t, s, lean_deg)
-                z = seat + (max(zb, BED_PROBE_MIN_Z_M) if bed else zb)
+                z = seat + max(zb, BED_PROBE_MIN_Z_M if bed else SEAT_PROBE_MIN_Z_M)
                 dists = []
                 for k in probe_xs:
                     ox, oy = to_world(hc, rot, lx + k * w / 4.0, start)
-                    dist = _horizontal(caster, (ox, oy, z), (back_dir[0], back_dir[1], 0.0), reach, min_hit)
+                    dist = _back_hit(backs_caster, (ox, oy, z), (back_dir[0], back_dir[1], 0.0), reach, min_hit,
+                                     None if bed else seat, top)
                     if dist is None or (k and start + dist <= seat_y):
                         continue              # a side ray stopped in front of the seat (an arm) is not a back
                     dists.append(dist)
@@ -640,9 +725,118 @@ def measure_rest(item_verts, item_faces, host_caster, footprint: dict, soft: boo
             "soft": bool(soft)}
 
 
+def measure_back(item_verts, item_faces, host_caster, footprint: dict, wall: Optional[dict] = None) -> dict:
+    """How a leaning item (a cushion on a back or a headboard) touches its back (28 Oct 2026, module docstring; pure):
+    horizontal rays along the back direction of ``footprint`` (its ``rotation_deg``: local +Y) at
+    ``BACK_CONTACT_SHARES`` of the item's height and ``BACK_CONTACT_XS`` of its width (``footprint.size[0]``) from
+    ``BACK_RAY_FROM_M`` in front of its base centre: the item's last hit (its back surface) and the host's first hit
+    after the item's front; ``back_gap_m`` = the smallest host - back distance (negative: pressed into it), None when
+    nothing of the host is within ``BACK_REACH_M`` behind any of them. ``wall`` (the host's footprint): with no host
+    hit, the footprint's back edge (local y = depth / 2: the wall a piece stands against) is the back (``back`` says
+    which)."""
+    item = MeshCaster(item_verts, item_faces)
+    z0, z1 = float(item.lo[2]), float(item.hi[2])
+    rot = float(footprint.get("rotation_deg") or 0.0)
+    cx, cy = (float(v) for v in footprint["center"][:2])
+    w = float(footprint["size"][0])
+    bx, by = direction_world(rot, 0.0, 1.0)
+    host_gaps, wall_gaps, probes = [], [], 0
+    for share in BACK_CONTACT_SHARES:
+        z = z0 + share * (z1 - z0)
+        for k in BACK_CONTACT_XS:
+            ox, oy = to_world((cx, cy), rot, k * w, -BACK_RAY_FROM_M)
+            origin = (ox, oy, z)
+            on_item = item.hits(origin, (bx, by, 0.0), 2.0 * BACK_RAY_FROM_M + 1.0)
+            if not on_item:
+                continue
+            probes += 1
+            t_front, t_back = float(on_item[0][0]), float(on_item[-1][0])
+            hit = next((float(t) for t, _p, _n in host_caster.hits(origin, (bx, by, 0.0), t_back + BACK_REACH_M)
+                        if float(t) >= t_front - 1e-9), None)
+            if hit is not None:
+                host_gaps.append(hit - t_back)
+                continue
+            if wall is not None:
+                wrot = float(wall.get("rotation_deg") or 0.0)
+                _lx, ly = to_local(wall["center"], wrot, ox, oy)
+                _dx, dy = to_local((0.0, 0.0), wrot, bx, by)
+                if dy > 1e-6:
+                    t_wall = (float(wall["size"][1]) / 2.0 - ly) / dy
+                    if t_front - 1e-9 <= t_wall <= t_back + BACK_REACH_M:
+                        wall_gaps.append(t_wall - t_back)
+    gaps = host_gaps or wall_gaps
+    return {"back_gap_m": round(min(gaps), 4) if gaps else None,
+            "back": ("host" if host_gaps else "wall (the host footprint's back edge)") if gaps else None,
+            "back_probes": probes}
+
+
+def settle_back(item_verts, item_faces, back_caster, footprint: dict, seat_z: Optional[float], top_z: float,
+                min_z: float) -> Optional[float]:
+    """How far a leaning item moves along its back direction until its real back surface first meets its back (28 Oct
+    2026, module docstring; pure): rays at ``SETTLE_SHARES`` of its height (never under ``min_z``: the seat's own
+    surface) and ``SETTLE_XS`` of its width, each the back caster's first back hit (``_back_hit``: with ``seat_z`` a
+    seat's own surfaces are skipped) after the item's front minus the item's back; the smallest (positive: move back,
+    negative: forward out of it), None when nothing is behind. ``place_leaning`` aims a box's back face; a round
+    cushion's bulge or a lying pillow's rounded end meets it elsewhere."""
+    item = MeshCaster(item_verts, item_faces)
+    z0, z1 = float(item.lo[2]), float(item.hi[2])
+    rot = float(footprint.get("rotation_deg") or 0.0)
+    cx, cy = (float(v) for v in footprint["center"][:2])
+    w = float(footprint["size"][0])
+    bx, by = direction_world(rot, 0.0, 1.0)
+    best = None
+    for share in SETTLE_SHARES:
+        z = z0 + share * (z1 - z0)
+        if z < min_z:
+            continue
+        for k in SETTLE_XS:
+            ox, oy = to_world((cx, cy), rot, k * w, -BACK_RAY_FROM_M)
+            origin = (ox, oy, z)
+            on_item = item.hits(origin, (bx, by, 0.0), 2.0 * BACK_RAY_FROM_M + 1.0)
+            if not on_item:
+                continue
+            t_front, t_back = float(on_item[0][0]), float(on_item[-1][0])
+            hit = _back_hit(back_caster, origin, (bx, by, 0.0), t_back + BACK_REACH_M, t_front - 1e-9, seat_z, top_z)
+            if hit is not None:
+                best = hit - t_back if best is None else min(best, hit - t_back)
+    return best
+
+
+def longest_edge(verts, faces) -> float:
+    """The longest edge of a mesh (pure; 28 Oct 2026): a draped cloth's neighbouring points stay a grid step apart."""
+    arr = np.asarray(verts, dtype=np.float64).reshape(-1, 3)
+    best = 0.0
+    for f in faces or ():
+        for a, b in zip(f, list(f[1:]) + [f[0]]):
+            best = max(best, float(np.linalg.norm(arr[int(a)] - arr[int(b)])))
+    return best
+
+
+def measure_cloth(item_verts, item_faces, host_caster, footprint: dict, n: int = CLOTH_POKE_GRID) -> dict:
+    """How a cloth (a throw) lies on its host (28 Oct 2026, user on real04's f_L0_021: "I did not like this bed"; pure):
+    ``poke_m`` = the most the host's surface stands above the cloth's top over an ``n`` x ``n`` grid of rays down
+    across ``footprint`` (its part on the top; positive: the host pokes through the cloth there, e.g. the folds of a
+    model's own bedding between the 5 cm drape grid), None when no ray meets both; ``cloth_edge_m`` = the cloth's
+    longest edge (a torn drape: a grid point thrown off its cell)."""
+    item = MeshCaster(item_verts, item_faces)
+    top = max(host_top(host_caster), float(item.hi[2])) + TOP_ABOVE_M
+    worst = None
+    for x, y in grid_points(footprint["center"], footprint["size"], float(footprint.get("rotation_deg") or 0.0), n=n,
+                            spread=0.5):
+        on_cloth = item.ray((x, y, top), (0.0, 0.0, -1.0))
+        on_host = host_caster.ray((x, y, top), (0.0, 0.0, -1.0))
+        if on_cloth is None or on_host is None:
+            continue
+        poke = float(on_host[1][2]) - float(on_cloth[1][2])
+        worst = poke if worst is None else max(worst, poke)
+    return {"poke_m": None if worst is None else round(worst, 4),
+            "cloth_edge_m": round(longest_edge(item_verts, item_faces), 4)}
+
+
 def rest_ok(m: dict) -> tuple[bool, list[str]]:
     """Whether an S5 measurement passes the tolerances (``REST_TOLERANCES`` = ``scene_checks.TOLERANCES``) and why
-    not."""
+    not. 28 Oct 2026: a leaning item's ``back_gap_m`` (``measure_back``; the key present and None: nothing behind
+    it), a cloth's ``poke_m`` and ``cloth_edge_m`` (``measure_cloth``)."""
     tol = REST_TOLERANCES
     why = []
     if m.get("gap_m") is None:
@@ -656,6 +850,17 @@ def rest_ok(m: dict) -> tuple[bool, list[str]]:
     if m.get("support_share", 0.0) < tol["decor_support_share"] - 1e-9:
         why.append(f"{m.get('support_share', 0.0):.0%} of the footprint over the support < "
                    f"{tol['decor_support_share']:.0%}")
+    if "back_gap_m" in m:
+        if m["back_gap_m"] is None:
+            why.append("nothing behind its upper part: it stands free instead of leaning on its back")
+        elif m["back_gap_m"] > tol["decor_back_gap_m"] + 1e-9:
+            why.append(f"gap {m['back_gap_m']:.3f} m behind its upper part > {tol['decor_back_gap_m']} m: it does not "
+                       "lean on its back")
+    if m.get("poke_m") is not None and m["poke_m"] > tol["decor_cloth_poke_m"] + 1e-9:
+        why.append(f"the host pokes {m['poke_m']:.3f} m through the cloth")
+    if m.get("cloth_edge_m") is not None and m["cloth_edge_m"] > tol["decor_cloth_edge_m"] + 1e-9:
+        why.append(f"the cloth tears ({m['cloth_edge_m']:.2f} m between two neighbouring points > "
+                   f"{tol['decor_cloth_edge_m']} m: the top under it is not one surface)")
     return (not why), why
 
 
@@ -680,6 +885,28 @@ def own_cushions(host: dict) -> bool:
     return asset.get("has_cushions") is True
 
 
+def own_bedding(host: dict) -> bool:
+    """Whether a bed's model is already made up with its own duvet or cover (the audit's ``has_bedding``; pure; 28 Oct
+    2026, user on real04's f_L0_021: "I did not like this bed"): a decor throw over it lies on modelled cloth folds the
+    5 cm drape cannot follow (the model's grey blanket poked through the cream throw and the drape tore), so it gets
+    none (``decor.takes_throw``; the build skips one the final model makes wrong)."""
+    asset = host.get("asset") if isinstance(host.get("asset"), dict) else {}
+    return host.get("type") in BED_HOSTS and asset.get("has_bedding") is True
+
+
+def lean_steps(support: str, lean_deg: float = 0.0) -> list[float]:
+    """The leans a cushion on a back or a headboard is tried at (28 Oct 2026, module docstring; pure): at least the
+    styled lean (``HEADBOARD_LEAN_DEG`` / ``LEAN_DEG``; the host frame's ``lean_deg`` when larger), then steeper
+    (``LEAN_STEEPER_DEG``: nothing behind its upper part, it falls back onto what is there), then the smaller
+    fallbacks (``LEAN_FALLBACK_DEG`` and the frame's own lean: an upright back leaves no room for the full lean)."""
+    styled = HEADBOARD_LEAN_DEG if support == "headboard" else LEAN_DEG
+    first = max(float(lean_deg or 0.0), styled)
+    steeper = [a for a in LEAN_STEEPER_DEG if a > first + 1e-9]
+    smaller = sorted({float(a) for a in (styled,) + LEAN_STEEPER_DEG + LEAN_FALLBACK_DEG
+                      + ((float(lean_deg),) if lean_deg else ()) if float(a) < first - 1e-9}, reverse=True)
+    return [first] + steeper + smaller
+
+
 SOFT_DECOR: tuple[str, ...] = ("cushion", "throw")      # the median of the ray grid, not the highest hit
 SOFT_HOST_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bed_single",
                                     "bed_double", "bunk_bed", "crib")
@@ -688,15 +915,17 @@ ATTEMPTS = 2                      # placed, then placed once more, then not buil
 
 
 def place_item(support: str, caster, host_fp: dict, center, size, rotation_deg: float, soft_item: bool,
-               lean_deg: float = 0.0, shelf: Optional[int] = None, attempt: int = 0) -> Optional[dict]:
+               lean_deg: float = 0.0, shelf: Optional[int] = None, attempt: int = 0,
+               back_caster=None) -> Optional[dict]:
     """The pose of an item on its support (``host_frame.support``): leaning on a back or a headboard, on a shelf
     board, or lying on a top, a seat or a mattress; None when the host offers no support there. Fix round after
-    P4b: a ``headboard`` is searched in the bed's head half (``place_leaning(bed=True)``)."""
+    P4b: a ``headboard`` is searched in the bed's head half (``place_leaning(bed=True)``). 28 Oct 2026:
+    ``back_caster`` takes the back rays of a leaning item (a dressed bed: the bed and its pillows)."""
     if support in ("back", "headboard"):
         return place_leaning(caster, host_fp, center, size,
                              lean_deg or (HEADBOARD_LEAN_DEG if support == "headboard" else LEAN_DEG),
                              turn_deg=float(rotation_deg) - float(host_fp["rotation_deg"]), attempt=attempt,
-                             bed=support == "headboard")
+                             bed=support == "headboard", back_caster=back_caster)
     if support == "shelf":
         return place_on_shelf(caster, center, size, rotation_deg, shelf, attempt)
     if support in ("top", "seat", "mattress"):
@@ -712,56 +941,105 @@ def local_bounds(verts) -> tuple[float, float, float]:
 
 
 def plan_decor(item: dict, host: dict, caster, local_verts, local_faces, support: str,
-               lean_deg: float = 0.0, shelf: Optional[int] = None, attempts: int = ATTEMPTS) -> dict:
+               lean_deg: float = 0.0, shelf: Optional[int] = None, attempts: int = ATTEMPTS,
+               back_caster=None) -> dict:
     """Place one hosted decor item on the built host (``caster``) and check it (S5, §4.7).
 
     ``local_verts`` / ``local_faces``: the item's mesh in its own frame (bottom on z = 0, centred, front -Y): a
     parametric or textile part, or a library model fitted to its box. Returns ``{"verts", "faces", "pose",
     "rest", "footprint", "attempt"}`` (world vertices that pass S5) or ``{"not_rested": {id, type, host_id,
-    support, reason, measured, attempts}}`` after ``attempts`` placements (the second one moves the spot)."""
+    support, reason, measured, attempts}}`` after ``attempts`` placements (the second one moves the spot).
+
+    28 Oct 2026 (module docstring): an item on a back or a headboard is tried at the leans of ``lean_steps`` (the
+    host frame's ``lean_deg`` is the least, never the only one), slid onto its back (``settle_back``, at most
+    ``BACK_SLIDE_MAX_M``) and measured behind too (``measure_back``: it leans on its back in its upper part).
+    ``back_caster``: what its back rays see (None: ``caster``), or several in order (a dressed bed: the bed alone, so
+    the cushion stands on the pillows against the headboard, then the bed and its pillows, so it leans on them);
+    ``caster`` (everything built) gives its seat and S5."""
     w, d, h = local_bounds(local_verts)
     fp = host["footprint"]
     host_fp = {"center": [float(fp["center"][0]), float(fp["center"][1])], "size": [float(v) for v in fp["size"][:2]],
                "rotation_deg": float(fp["rotation_deg"])}
     soft_item = item.get("type") in SOFT_DECOR
     soft_host = host.get("type") in SOFT_HOST_TYPES and support in SOFT_SUPPORTS
+    leaning = support in ("back", "headboard")
     rot = float(item.get("rotation_deg") if item.get("rotation_deg") is not None else host_fp["rotation_deg"])
-    if support in ("back", "headboard"):
+    if leaning:
         rot = host_fp["rotation_deg"]                    # a cushion faces the seat's front (B3 left turned items)
     center = item.get("center") or host_fp["center"]
     last = {"reason": "no support under the item", "measured": None}
-    leans = [lean_deg]
-    if support in ("back", "headboard") and not lean_deg:
-        first = HEADBOARD_LEAN_DEG if support == "headboard" else LEAN_DEG
-        leans = [first] + [a for a in LEAN_FALLBACK_DEG if a < first]
+    leans = lean_steps(support, lean_deg) if leaning else [lean_deg]
+    backs = [b for b in (back_caster if isinstance(back_caster, (list, tuple)) else [back_caster])
+             if b is not None] or [caster]
+    bx, by = direction_world(host_fp["rotation_deg"], 0.0, 1.0)
+    top = host_top(caster) + TOP_ABOVE_M
+    bed = support == "headboard"
+    sink = SOFT_SINK_M if (soft_item and soft_host and item.get("type") == "cushion") else 0.0
+
+    def settled(p: dict, verts_, back) -> dict:
+        """The pose slid along the back direction until the item's real back meets its back (``settle_back``),
+        at most ``BACK_SLIDE_MAX_M``, and seated again on what is under its new spot (soft: the median)."""
+        seat = float(p.get("seat_z", float(p["z"]) + sink))
+        foot_ = {"center": list(p["center"]), "size": [p["size"][0], d], "rotation_deg": p["rotation_deg"]}
+        delta = settle_back(pose_vertices(verts_, p), local_faces, back, foot_, None if bed else seat, top,
+                            seat + (BED_PROBE_MIN_Z_M if bed else SEAT_PROBE_MIN_Z_M))
+        if delta is None or abs(delta) > BACK_SLIDE_MAX_M + 1e-9 or abs(delta - BACK_PRESS_M) < 1e-4:
+            return p
+        move = delta - BACK_PRESS_M
+        cx, cy = float(p["center"][0]) + bx * move, float(p["center"][1]) + by * move
+        under = support_height(caster, (cx - bx * d * 0.25, cy - by * d * 0.25),
+                               (min(float(p["size"][0]) * 0.5, 0.2), max(d, 0.05)), p["rotation_deg"], True, top)
+        z = float(p["z"]) if under["z"] is None else float(under["z"]) - sink
+        return dict(p, center=[cx, cy], z=z, seat_z=z + sink, settled_m=round(move, 4),
+                    how=f"{p.get('how')}; slid {move:+.3f} m onto its back")
+
+    def measured(p: dict, verts_) -> tuple:
+        world_ = pose_vertices(verts_, p)
+        foot_ = {"center": list(p["center"]), "size": [p["size"][0], d], "rotation_deg": p["rotation_deg"]}
+        m_ = measure_rest(world_, local_faces, caster, foot_, soft_host)
+        if leaning:
+            m_.update(measure_back(world_, local_faces, caster, foot_, wall=host_fp))
+        return world_, foot_, m_
+
+    first_why = None
     for attempt in range(attempts):
-        for lean in leans:
-            pose = place_item(support, caster, host_fp, center, (w, d, h), rot, soft_item, lean, shelf, attempt)
-            if pose is None:
-                last = {"reason": f"no {support} found on the built host (attempt {attempt + 1})", "measured": None}
-                break
-            if soft_item and soft_host and item.get("type") == "cushion":
-                pose = dict(pose, z=float(pose["z"]) - SOFT_SINK_M, sink_m=SOFT_SINK_M)   # into the soft seat
-            verts = local_verts
-            if pose["size"][0] < w - 1e-9:                       # narrowed between the arms
-                k = pose["size"][0] / w
-                verts = [(x * k, y, z) for x, y, z in local_verts]
-            world = pose_vertices(verts, pose)
-            foot = {"center": list(pose["center"]), "size": [pose["size"][0], d],
-                    "rotation_deg": pose["rotation_deg"]}
-            m = measure_rest(world, local_faces, caster, foot, soft_host)
-            ok, why = rest_ok(m)
-            if ok:
-                return {"verts": world, "faces": [list(f) for f in local_faces], "pose": pose, "rest": m,
-                        "footprint": foot, "attempt": attempt + 1}
-            last = {"reason": "; ".join(why), "measured": m}
+        for back in backs:
+            for lean in leans:
+                pose = place_item(support, caster, host_fp, center, (w, d, h), rot, soft_item, lean, shelf, attempt,
+                                  back_caster=back)
+                if pose is None:
+                    last = {"reason": f"no {support} found on the built host (attempt {attempt + 1})",
+                            "measured": None}
+                    break
+                if sink:
+                    pose = dict(pose, z=float(pose["z"]) - sink, sink_m=sink)        # into the soft seat
+                verts = local_verts
+                if pose["size"][0] < w - 1e-9:                       # narrowed between the arms
+                    k = pose["size"][0] / w
+                    verts = [(x * k, y, z) for x, y, z in local_verts]
+                if leaning:
+                    pose = settled(pose, verts, back)
+                world, foot, m = measured(pose, verts)
+                ok, why = rest_ok(m)
+                if ok:
+                    return {"verts": world, "faces": [list(f) for f in local_faces], "pose": pose, "rest": m,
+                            "footprint": foot, "attempt": attempt + 1}
+                if first_why is None:
+                    first_why = (f"at {lean:g} degrees: " if leaning else "") + "; ".join(why)
+                last = {"reason": "; ".join(why), "measured": m}
+    reason = last["reason"]
+    if leaning and first_why is not None:
+        reason = f"{first_why} (leans {', '.join(f'{a:g}' for a in leans)} degrees tried; last: {last['reason']})"
     return {"not_rested": {"id": item.get("id"), "type": item.get("type"), "host_id": host.get("id"),
-                           "support": support, "reason": last["reason"], "measured": last["measured"],
+                           "support": support, "reason": reason, "measured": last["measured"],
                            "attempts": attempts}}
 
 
 def plan_throw(item: dict, host: dict, caster, floor_z: float) -> dict:
-    """A throw draped on its host (``textiles.throw_parts``) and checked (S5 over its rectangle on the top)."""
+    """A throw draped on its host (``textiles.throw_parts``) and checked (S5 over its rectangle on the top). 28 Oct
+    2026 (user on real04's f_L0_021: "I did not like this bed"): also ``measure_cloth`` (the host poking through the
+    cloth, a torn drape); the cream throw over that bed model's own bedding was 1.35 m deep for a 0.5 m cloth (grid
+    points over its folds were taken for points hanging over an edge and thrown by the side ray)."""
     from wenart.blender import textiles as T
 
     fp = host["footprint"]
@@ -777,13 +1055,15 @@ def plan_throw(item: dict, host: dict, caster, floor_z: float) -> dict:
     foot = {"center": [cx, cy], "size": [(x1 - x0) * 0.8, (y1 - y0) * 0.8], "rotation_deg": host_fp["rotation_deg"]}
     soft = host.get("type") in SOFT_HOST_TYPES
     # 27 Oct 2026: a cloth is measured with its own tolerance (``decor_pen_cloth_m``): a host that shows through it is
-    # no rest (the throw is not built and the decor stage's not-rested record names it)
+    # no rest (the throw is not built and the decor stage's not-rested record names it). 28 Oct 2026: also where the
+    # host's surface stands above the cloth between its grid points, and a torn drape (``measure_cloth``)
     m = dict(measure_rest(part["verts"], part["faces"], caster, foot, soft), cloth=True)
+    m.update(measure_cloth(part["verts"], part["faces"], caster, foot))
     ok, why = rest_ok(m)
     if not ok:
+        shows = any(w.startswith("penetration") or w.startswith("the host pokes") for w in why)
         return {"not_rested": {"id": item.get("id"), "type": "throw", "host_id": host.get("id"), "support": "drape",
-                               "reason": "; ".join(why) + ("; the host shows through the cloth"
-                                                           if any(w.startswith("penetration") for w in why) else ""),
+                               "reason": "; ".join(why) + ("; the host shows through the cloth" if shows else ""),
                                "measured": m, "attempts": 1}}
     return {"verts": part["verts"], "faces": part["faces"], "parts": got["parts"], "rest": m, "footprint": foot,
             "attempt": 1, "pose": {"how": "draped on the host (shrinkwrap, 5 mm)", "share": got["drape"]["share"]}}

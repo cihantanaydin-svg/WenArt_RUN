@@ -330,7 +330,8 @@ def test_wall_cabinets_stay_parametric_whatever_the_library_holds():
     cat = C.Catalog(merged)
     assert not cat.candidates("wall_cabinet") and "wall_cabinet" in cat.parametric_types
     asset = fit.fit_piece(_piece("wall_cabinet", (0.8, 0.35)), cat)
-    assert asset["method"] == "parametric"
+    # 28 Oct 2026: never a library model; built of real wall units by the module builder (modules.plan_wall_run)
+    assert asset["method"] == "module" and asset["module_plan"]["builder"] == "wall_run"
     assert asset["fallback_reason"] == "type wall_cabinet is parametric in the catalogue"
     reason = next(e["reason"] for e in base["entries"] if e["type"] == "wall_cabinet")
     assert "parametric only" in reason and "may replace" not in reason
