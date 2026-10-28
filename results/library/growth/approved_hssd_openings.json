@@ -1,0 +1,11 @@
+{
+ "source": "hssd_openings",
+ "approved_by": "the user, 28 Oct 2026 ('I want better doors inside the house and the outside, I am not liking that much the models used at the moment, some variation is needed', then 'find the best models'), on the HSSD layer the user approved in decision D2 of 12 Oct 2026 (docs/milestone13.md §12: the CC BY-NC 4.0 terms accepted on https://huggingface.co/datasets/hssd/hssd-models with the account behind the pod's hf_token secret). The picks follow the rule of wenart/assets/hssd_openings.py, not a hand-picked list.",
+ "approved_utc": "2026-10-28T13:00:00Z",
+ "licence": "CC-BY-NC-4.0",
+ "licence_flag": "non_commercial",
+ "licence_mode": "relaxed only",
+ "picks": {"from": "candidates_hssd_openings.json", "max": 300, "rule": "wenart.assets.hssd_openings.pick: the door and window objects of hssd-models (objects/openings/ and the named products) typed by their synset into the opening categories by size; per Floorplanner series a spread over the proportions (log(w / h) steps of 0.2), at most 6 doors and 10 windows a series; garage, revolving, lift and shower doors and a mirror filed as a window left out"},
+ "ids": null,
+ "gate": "the pod checks the gate at run time (wenart.assets.hssd.gate_check): a 403 from the Hub skips the ingest with a clear log line"
+}

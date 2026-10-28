@@ -751,3 +751,48 @@ def test_growth_3dwh_every_model_is_accounted_for_and_fixed_onto_the_floor_centr
         assert not C.usable(e, "commercial") and e["glb"] == f"models/3dwh/{e['id']}.glb"
     pending = [e["id"] for e in wh if (e.get("audit") or {}).get("status") == "pending"]
     assert len(pending) <= 0.05 * len(wh), pending[:20]
+
+
+def test_growth_openings_every_pick_is_catalogued_and_audited_with_the_opening_question():
+    """GROWTH_ONLY=openings (28 Oct 2026, the user: "I want better doors inside the house and the outside ... find the
+    best models"): every approved HSSD door and window is downloaded (or recorded with its reason), catalogued as an
+    extras entry of kind opening with the HSSD licence fields, its series and synset, audited, and carries the
+    opening question's answer (``opening_vision``) and its quality (``audit_quality``) after the vision-fields step;
+    the boxes are doors and windows (wider than deep once ``opening_models.leaf_front`` turned them)."""
+    from wenart.blender import opening_models as OM
+    rec = _m13_report("ingest_hssd_openings.json")
+    if rec.get("refused"):
+        pytest.skip(f"openings ingest refused: {rec['refused']}")
+    if rec.get("skipped"):
+        pytest.skip(f"openings ingest skipped: {(rec.get('gate') or {}).get('reason')}")
+    assert rec["approved"] >= 1 and rec["ok"] >= 0.95 * rec["approved"], (rec["ok"], rec["approved"])
+    for r in rec["records"]:
+        if not r.get("ok"):
+            assert r.get("error"), r["id"]
+    p4 = Path(os.environ.get("WENART_AUDIT_P4", "/workspace/library-audit/p4/audit"))
+    lib = OV.read_json(p4 / "catalogue" / "catalog_library.json")
+    if lib is None:
+        pytest.skip("no catalogue copy of the growth job")
+    ids = {r["id"] for r in rec["records"] if r.get("ok")}
+    ops = [e for e in lib.get("extras") or [] if e.get("id") in ids]
+    assert len(ops) >= 0.95 * len(ids), sorted(ids - {e["id"] for e in ops})[:20]
+    for e in ops:
+        WH.validate_extra(e)
+        assert e["kind"] == "opening" and e["type"] in ("door", "window") and e["source"] == "hssd"
+        assert e["licence_flag"] == "non_commercial" and e["commercial_safe"] is False and not C.usable(e, "commercial")
+        assert str(e.get("series") or "").startswith("hssd:") and (e.get("hssd") or {}).get("synset")
+        w, d, _h = OM.leaf_front(e)["bbox_m"][:3]
+        assert w > d, (e["id"], e["bbox_m"])
+    audited = [e for e in ops if (e.get("audit") or {}).get("status") in ("keep", "fix", "removed")]
+    assert len(audited) >= 0.95 * len(ops), [e["id"] for e in ops if e not in audited][:20]
+    answered = [e for e in ops if isinstance(e.get("opening_vision"), dict) and isinstance(e.get("audit_quality"), int)]
+    assert len(answered) >= 0.9 * len(ops), len(answered)
+    usable = {cat: len(OM.candidates(ops, cat, "relaxed")) for cat in OM.CATEGORIES + (OM.INSIDE_CATEGORY,)}
+    print(f"usable HSSD openings per category: {usable}")
+    assert usable["window"] >= 1, usable
+    # the build takes a window only with see-through glass (opening_models.glb_glass on the file): the Floorplanner
+    # glass must be found, else every HSSD window stays out of the house
+    windows = [e for e in ops if e["type"] == "window" and (ASSETS / e["glb"]).is_file()]
+    glass = [e["id"] for e in windows if OM.glb_glass(ASSETS / e["glb"])]
+    print(f"HSSD windows with see-through glass: {len(glass)} of {len(windows)}")
+    assert windows and len(glass) >= 0.8 * len(windows), sorted(set(e["id"] for e in windows) - set(glass))[:20]

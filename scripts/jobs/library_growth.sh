@@ -55,6 +55,24 @@
 #     python3 scripts/gpu_run.py run --job scripts/jobs/library_growth.sh --gpu 'RTX PRO 6000' --disk 150 \
 #       --max-minutes 180 --over-5-ok --env GROWTH_ONLY=3dwh --env AUDIT_MODEL_KEY=agent \
 #       --purpose "3D Warehouse layer: download, fix-ups, audit"
+#   GROWTH_ONLY=openings the HSSD doors and windows (28 Oct 2026, the user: "I want better doors inside the house and
+#                        the outside ... some variation is needed", "find the best models"; wenart/assets/
+#                        hssd_openings.py): ONE pod downloads the 197 picks of results/library/growth/
+#                        candidates_hssd_openings.json (approved_hssd_openings.json; 22 MB, the Floorplanner door and
+#                        window series of hssd-models objects/openings/ and the named products; the HSSD gate as for
+#                        GROWTH_ONLY=hssd: HF_TOKEN from the pod secret, never printed), then catalogue --only
+#                        hssd_openings (extras entries of kind opening: the series, the table's kind, operation and
+#                        categories), render, code, ask (the m13.3 opening question: role, operation, leaves,
+#                        glazing, leaf, handle side), decide, write, vision-fields (styles, audit_quality,
+#                        opening_vision), sheets, report and the GPU tests. No other download or catalogue entry; a
+#                        second run resumes. About 30-40 min with the pod's start: the vLLM setup (8-12 min) runs
+#                        beside the download (seconds), the catalogue (~1 min) and the render (197 small GLBs at
+#                        P2b's 1.4 s to the 3D Warehouse pods' 3 s a model: 5-10 min), then the ask (~5 min at 1.5 s
+#                        a request), decide to report 2-3 min, GPU tests 1-2 min; the cap of 75 min leaves room
+#                        (worst case about $3.1 on the RTX PRO 6000 at $2.5/h: no --over-5-ok):
+#     python3 scripts/gpu_run.py run --job scripts/jobs/library_growth.sh --gpu 'RTX PRO 6000' --disk 150 \
+#       --max-minutes 75 --env GROWTH_ONLY=openings --env AUDIT_MODEL_KEY=agent \
+#       --purpose "HSSD doors and windows: download, audit (opening question)"
 #
 # Milestone 12 pod P4: the library growth (docs/milestone12.md §6.4 D24, §14.3; docs/m12_tracks/P4.md). The four lists
 # the user approved on 11 Oct 2026 (results/library/growth/approved_*.json, read through growth.approved, the
@@ -104,7 +122,8 @@
 # GROWTH_ROOT (/workspace/library-growth), WENART_ASSETS (/workspace/assets), AUDIT_WORKERS (3), INFINIGEN_CAP_MIN
 # (40), INFINIGEN_TEX_RES (1024), GROWTH_PH_SIZE (2k since Milestone 13; 1k in M12), GROWTH_PROBE_MIN (15),
 # GROWTH_MIN_FREE_GB (30: the M13 downloads are about 18 GB), HF_TOKEN (the HSSD gate; from the pod secret),
-# GROWTH_ONLY (empty or all: every step; hssd: the HSSD layer alone; 3dwh: the 3D Warehouse layer alone, see above),
+# GROWTH_ONLY (empty or all: every step; hssd: the HSSD layer alone; 3dwh: the 3D Warehouse layer alone; openings: the
+# HSSD doors and windows alone, see above),
 # WH_ROOT (/workspace/library/3dwh), WH_WORKERS (16: fix-up processes), WH_FILE_ID / WH_BYTES (the Drive file).
 set -Eeuo pipefail
 
@@ -524,9 +543,9 @@ download_3dwh() {
 }
 
 case "$GROWTH_ONLY" in
-  all|hssd|3dwh) log "mode: GROWTH_ONLY=$GROWTH_ONLY" ;;
-  *) log "GROWTH_ONLY='$GROWTH_ONLY' is not a mode of this job (all | hssd | 3dwh): nothing done"
-     record "mode (GROWTH_ONLY=$GROWTH_ONLY unknown)" 1 0 "GROWTH_ONLY must be all, hssd or 3dwh"
+  all|hssd|3dwh|openings) log "mode: GROWTH_ONLY=$GROWTH_ONLY" ;;
+  *) log "GROWTH_ONLY='$GROWTH_ONLY' is not a mode of this job (all | hssd | 3dwh | openings): nothing done"
+     record "mode (GROWTH_ONLY=$GROWTH_ONLY unknown)" 1 0 "GROWTH_ONLY must be all, hssd, 3dwh or openings"
      exit 1 ;;
 esac
 
@@ -561,6 +580,34 @@ if [ "$GROWTH_ONLY" = hssd ]; then
   run_step vision-fields gr vision-fields --model-key "$MODEL_KEY"
   run_step gaps gr gaps
   run_step coverage gr size-grid
+elif [ "$GROWTH_ONLY" = openings ]; then
+  # --- GROWTH_ONLY=openings (28 Oct 2026): the HSSD doors and windows alone; every other entry stays as it is ------
+  log "GROWTH_ONLY=openings: ingest-openings, catalogue --only hssd_openings, render, code, ask, decide, write," \
+      "vision-fields, sheets, report, GPU tests; every other download and catalogue entry stays as it is"
+  if [ -z "${HF_TOKEN:-}" ]; then
+    log "ingest-openings: SKIPPED: HF_TOKEN is not set in the environment (the RunPod secret hf_token):" \
+        "GROWTH_ONLY=openings has nothing to do; the HSSD layer needs the account that accepted the terms at" \
+        "https://huggingface.co/datasets/hssd/hssd-models (D2)"
+    record "ingest-openings (skipped: no HF_TOKEN)" 1 0 "HF_TOKEN is not set"
+    exit 1
+  fi
+  start_setup_check
+  run_step ingest-openings gr ingest --source hssd_openings --workers 8 --token-env HF_TOKEN
+  if ! compgen -G "$ASSETS/models/hssd/hssd_[0-9]*-[0-9]*.glb" > /dev/null; then
+    log "GROWTH_ONLY=openings: no HSSD door or window on the volume (the reason is in the ingest-openings lines" \
+        "above): nothing to audit; the rest of the library stays as it is"
+    stop_bg setup-check
+    run_step report gr report --steps "$STEPS_TSV"
+    exit 1
+  fi
+  run_step catalogue gr catalogue --only hssd_openings
+  if need 300 render; then run_step render au render "${RENDER_ARGS[@]}"; fi
+  run_step code au code --work "$P4/work" --ids-file "$P4A/new_ids.json"
+  ask_step
+  run_step decide au decide --model-key "$MODEL_KEY" --ids-file "$P4A/new_ids.json"
+  run_step write au write
+  run_step vision-fields gr vision-fields --model-key "$MODEL_KEY"
+  run_step sheets au sheets
 elif [ "$GROWTH_ONLY" = 3dwh ]; then
   # --- GROWTH_ONLY=3dwh (23 Oct 2026): the 3D Warehouse layer alone; every other entry stays as it is ------------
   log "GROWTH_ONLY=3dwh: download-3dwh, ingest-3dwh, catalogue --only 3dwh, render, code, ask, decide, write," \

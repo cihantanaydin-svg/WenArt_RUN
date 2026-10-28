@@ -78,6 +78,19 @@ Milestone 13 round 3 (docs/milestone13.md §14.6, after pod P2):
     preview                             also the 3D Warehouse previews (up to 3 Blender workers)
     report                              also the 3D Warehouse counts
 
+HSSD doors and windows (28 Oct 2026, the user: "I want better doors inside the house and the outside ... find the
+best models"; ``scripts/jobs/library_growth.sh`` ``GROWTH_ONLY=openings``):
+
+    ingest --source hssd_openings       the picks of ``candidates_hssd_openings.json`` (``approved_hssd_openings.json``;
+                                        ``wenart.assets.hssd_openings``: the Floorplanner door and window series of
+                                        ``objects/openings/`` and the named products), the HSSD gate and download
+                                        of ``ingest --source hssd``, into ``<assets>/models/hssd/<uid>.glb``
+    catalogue --only hssd_openings      their ``extras`` entries (``growth_entries.hssd_opening_entry``: kind
+                                        ``opening``, the series, the table's kind, operation and categories)
+    vision-fields                       also a door's or window's quality (``audit_quality``) and the opening
+                                        question's answer (``opening_vision``: role, operation, leaves, glazing,
+                                        leaf, handle side; ``ask.version_openings``)
+
 Exit codes: 0 done, 1 something failed or nothing to do (the record says which), 2 server error, 3 deadline.
 """
 from __future__ import annotations
@@ -152,6 +165,8 @@ def list_names(source: str, m13: bool = False) -> tuple[str, str]:
     ambientCG have one list each."""
     if source == "infinigen":
         return "plan_infinigen.json", "infinigen"
+    if source == "hssd_openings":                # 28 Oct 2026: the HSSD doors and windows (wenart.assets.hssd_openings)
+        return "candidates_hssd_openings.json", "hssd_openings"
     if m13 and source in ("abo", "polyhaven"):
         return f"candidates_{source}_m13.json", f"{source}_m13"
     return f"candidates_{source}.json", source
@@ -444,7 +459,7 @@ def cmd_ingest(args) -> int:
     ids = list(doc["ids"])
     cands = {c["id"]: c for c in candidates(args, args.source).get("candidates") or []}
     extra: dict = {}
-    if args.source == "hssd":
+    if args.source in ("hssd", "hssd_openings"):
         records, dl = ingest_hssd(args, ids, cands)
         extra = {"download": {k: v for k, v in dl.items() if k not in ("ok", "missing")},
                  "gate": dl.get("gate"), "skipped": dl.get("skipped")}
@@ -503,7 +518,7 @@ def cmd_ingest(args) -> int:
         print(f"growth ingest {key}: ... {len(bad) - 20} more failures in {ingest_name(args)}")
     if extra.get("skipped"):
         # the last line: the job's steps.tsv takes it as the reason of the step
-        print(f"growth ingest hssd: SKIPPED: {(extra.get('gate') or {}).get('reason')}")
+        print(f"growth ingest {key}: SKIPPED: {(extra.get('gate') or {}).get('reason')}")
         return EXIT_NOTHING
     # Milestone 13 round 3: a Poly Haven asset without a glTF (dropped) is data, not a failure of the step
     return EXIT_OK if failed == 0 else EXIT_NOTHING
@@ -1003,6 +1018,23 @@ def new_entries(args, stamp: str, only: Optional[set] = None) -> tuple[list, lis
         if e:
             entries.append(e)
             hints[e["id"]] = [s for s in e["styles"] if s != "neutral"]
+    # HSSD doors and windows (28 Oct 2026, the user: "find the best models"): extras entries of kind opening
+    cands = {c["id"]: c for c in candidates(args, "hssd_openings").get("candidates") or []}
+    op_records = (read_json(report_dir(args) / "ingest_hssd_openings.json") or {}).get("records") or []
+    for r in op_records if wanted("hssd_openings") else []:
+        c = cands.get(r["id"])
+        if not r.get("ok"):
+            drop("hssd_openings", r["id"], f"not downloaded: {r.get('error')}")
+            continue
+        if c is None or c.get("type") not in ("door", "window"):
+            drop("hssd_openings", r["id"], f"not a door or window of candidates_hssd_openings.json: "
+                                           f"{(c or {}).get('type', '?')}")
+            continue
+        e = guard("hssd_openings", r["id"], lambda r=r, c=c: GE.hssd_opening_entry(
+            c, measured(assets / r["glb"], r["sha256"], cache, rules), r["sha256"], stamp, rules))
+        if e:
+            entries.append(e)
+            hints[e["id"]] = [s for s in e["styles"] if s != "neutral"]
     # 3D Warehouse (23 Oct 2026: the user's zip, relaxed licence mode only); trees, doors, windows and objects are
     # entries of the extras section, audited like the rest (the user: "keep these ones also")
     from wenart.assets import warehouse as WH
@@ -1208,9 +1240,14 @@ def cmd_catalogue(args) -> int:
             waiting.append({"id": e["id"], "reason": why})
     ids += reaudit
     by_source = Counter(source_key(e) for e in entries)
+    # 28 Oct 2026: the growth list of each new entry (the HSSD doors and windows share the source hssd)
+    by_list = Counter((e.get("growth") or {}).get("list") or source_key(e) for e in entries)
     doc = {"ids": ids, "by_source": dict(by_source), "hints": hints, "previews": previews, "written_utc": stamp,
            "reaudit": reaudit, "reaudit_waiting": waiting}
-    report = {"added": len(entries), "by_source": dict(by_source), "dropped": dropped, "previews": previews,
+    report = {"added": len(entries), "by_source": dict(by_source),
+              "by_list": {k[len("candidates_"):-len(".json")] if k.startswith("candidates_") else k: v
+                          for k, v in by_list.items()},
+              "dropped": dropped, "previews": previews,
               "reaudit": reaudit, "reaudit_waiting": waiting}
     if only is not None:
         prev = new_ids(args)
@@ -1549,7 +1586,8 @@ def cmd_report(args) -> int:
     from collections import Counter
     rep = report_dir(args)
     ing = {s: read_json(rep / f"ingest_{s}.json") or {} for s in ("polyhaven", "abo", "gso", "hssd", "ambientcg",
-                                                                   "polyhaven_m13", "abo_m13", "3dwh")}
+                                                                   "polyhaven_m13", "abo_m13", "3dwh",
+                                                                   "hssd_openings")}
     lic = read_json(rep / "gso_licences.json") or {}
     conv = {s: read_json(rep / f"convert_{s}.json") or {} for s in ("gso", "infinigen")}
     cat = read_json(rep / "catalogue.json") or {}
@@ -1566,13 +1604,19 @@ def cmd_report(args) -> int:
                                                                           "hssd" if e_id.startswith("hssd_") else
                                                                           "3dwh" if e_id.startswith("3dwh_") else
                                                                           "polyhaven")
+    # 28 Oct 2026: the HSSD doors and windows are their own row (their ids start with hssd_ too)
+    for r in ing["hssd_openings"].get("records") or []:
+        if r.get("id") in src_of:
+            src_of[r["id"]] = "hssd_openings"
     status = Counter((src_of.get(r["id"], r.get("source")), r["status"]) for r in audit.get("items") or [])
-    dropped = Counter(d["source"] if d["source"] in ("polyhaven", "abo", "gso", "infinigen", "hssd", "3dwh") else "?"
+    dropped = Counter(d["source"] if d["source"] in ("polyhaven", "abo", "gso", "infinigen", "hssd", "3dwh",
+                                                     "hssd_openings") else "?"
                       for d in cat.get("dropped") or [])                  # hssd: M13 (its drops were counted as "?")
     ig_states = Counter(j.get("state") for j in plan.get("jobs") or [])
     rows = []
-    for s in ("polyhaven", "abo", "gso", "infinigen", "hssd", "ambientcg", "polyhaven_m13", "abo_m13", "3dwh"):
-        if s == "3dwh" and not ing[s]:
+    for s in ("polyhaven", "abo", "gso", "infinigen", "hssd", "ambientcg", "polyhaven_m13", "abo_m13", "3dwh",
+              "hssd_openings"):
+        if s in ("3dwh", "hssd_openings") and not ing[s]:
             continue
         approved = ing[s].get("approved") if s not in ("infinigen", "3dwh") else (
             len(plan.get("jobs") or []) if s == "infinigen" else ing[s].get("listed"))
@@ -1580,7 +1624,8 @@ def cmd_report(args) -> int:
         rows.append({"source": s, "approved": approved, "downloaded_or_generated": got,
                      "licence_kept": lic.get("kept") if s == "gso" else None,
                      "converted": conv[s].get("converted") if s in conv else None,
-                     "catalogued": (cat.get("by_source") or {}).get(s, 0), "dropped": dropped.get(s, 0),
+                     "catalogued": (cat.get("by_list") or {}).get(s, 0) if s == "hssd_openings" else
+                     (cat.get("by_source") or {}).get(s, 0), "dropped": dropped.get(s, 0),
                      "keep": status.get((s, "keep"), 0), "fix": status.get((s, "fix"), 0),
                      "removed": status.get((s, "removed"), 0), "pending": status.get((s, "pending"), 0)})
     steps = steps_of(Path(args.steps)) if args.steps else []
@@ -1669,7 +1714,8 @@ STEPS = {"ingest": cmd_ingest, "gso-licence": cmd_gso_licence, "infinigen-list":
          # Milestone 13 round 3: the current file of an entry waiting for a re-audit
          "refetch": cmd_refetch}
 M13_STEPS = ("demands", "size-grid", "speed-probe")
-ONLY_SOURCES = ("hssd", "abo", "polyhaven", "gso", "infinigen", "3dwh")      # catalogue --only (GROWTH_ONLY=hssd)
+ONLY_SOURCES = ("hssd", "abo", "polyhaven", "gso", "infinigen", "3dwh",      # catalogue --only (GROWTH_ONLY=hssd)
+                "hssd_openings")                                             # 28 Oct 2026 (GROWTH_ONLY=openings)
 
 
 def parser() -> argparse.ArgumentParser:
@@ -1682,7 +1728,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--lists", default=str(DEFAULT_OUT), help="results/library (approvals and candidate lists)")
     p.add_argument("--report", default=None, help="small result files (default <growth>/report)")
     p.add_argument("--source", default=None, choices=["polyhaven", "abo", "gso", "infinigen", "hssd", "ambientcg",
-                                                      "3dwh"])
+                                                      "3dwh", "hssd_openings"])
     p.add_argument("--library", default=os.environ.get("WENART_3DWH_ROOT") or "/workspace/library/3dwh",
                    help="ingest 3dwh: the folder with zip/ (the download) and glb/ (the extracted GLBs)")
     p.add_argument("--m13", action="store_true", help="ingest: the Milestone 13 list of abo / polyhaven")
