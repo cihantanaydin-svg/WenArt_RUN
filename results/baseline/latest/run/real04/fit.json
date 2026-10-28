@@ -5,27 +5,27 @@
  "stage": "fit",
  "rc": 0,
  "status": "ok",
- "seconds": 16.45,
- "fingerprint": "5415ef4e346d8d4079f8ef34cce13bb6c3a7468bf9d50beac404f8c513c32ba9",
+ "seconds": 19.2,
+ "fingerprint": "559281ecf2c9184d0d1c13f289bda38a689a35dfc90ab386162db5e8937ed07e",
  "inputs": {
-  "outputs/real04/building.json": "961e1f3b26a9a66a601f60d3d446b32311b109f12a4255cc9ccb5aa2a5d37d4f",
-  "wenart/furniture/catalog.json": "a7b4e74bfefcb9e3e63c8cdf14b0a78dcf376b82e6a48317716a17d7c6071dde",
+  "outputs/real04/building.json": "de6d8a3505b41d38fa180486c7f983f5da9920d328b78e8d6205ef681545f0e3",
+  "wenart/furniture/catalog.json": "0e7b439702173f1a27792b78ee12cfd57ac1f0804aeea97cc8caadac525714e6",
   "wenart/furniture/catalog_objaverse.json": null,
-  "wenart/furniture/catalog_library.json": "65aea2815a460e93475d94c0bcff5d20ab04c8c0ff9b4f8961952674f77a590b"
+  "wenart/furniture/catalog_library.json": "4e6e39dc7a81848a45577ea63d92e7ebbbfc47737b8e74ea82cb0082b5b7dc7b"
  },
  "outputs": [
   "building_fitted.json"
  ],
- "started_utc": "2026-10-28T01:05:47Z",
- "git_commit": "58adbc20fd104f1b35cdad8706e5c25458ba2184",
+ "started_utc": "2026-10-28T18:46:46Z",
+ "git_commit": "b99dbb22ac9550fa02cda3f064d688af57e74f92",
  "log": "logs/fit.log",
  "note": null,
- "run_id": "20261028-005318-full-20261028T005953Z",
+ "run_id": "20261028-183611-full-20261028T184049Z",
  "steps": [
   {
    "name": "fit",
    "rc": 0,
-   "seconds": 16.45
+   "seconds": 19.2
   }
  ],
  "written": {}
