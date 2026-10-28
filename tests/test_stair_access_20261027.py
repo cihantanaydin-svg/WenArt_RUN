@@ -451,12 +451,13 @@ def test_k1_a_steep_l_stair_gets_winders_in_its_quarter_landing():
     assert _piece(b)["stair"]["winders"] == "auto" and "quarter landing" in _piece(b)["adjusted_by_ai"]["reason"]
     assert plan["winders"] == 4 and plan["riser_m"] == pytest.approx(3.0 / 16)       # at most 4 in a quarter turn
     land = plan["landing"]
-    assert land["role"] == "winders" and len(land["winders"]) == 4
+    # 28 Oct 2026 (parametric.WINDER_TREADS_NOTE): 4 risers in the turn are 5 treads, the first at the landing's level
+    assert land["role"] == "winders" and len(land["winders"]) == 5
     polys = [Polygon(w["polygon"]) for w in land["winders"]]
     assert sum(p.area for p in polys) == pytest.approx(1.0, abs=0.01)                # they fill the landing
     assert all(Polygon(landing["polygon"]).buffer(1e-6).contains(p) for p in polys)
     tops = [w["top"] for w in land["winders"]]
-    assert tops == sorted(tops) and tops[0] == pytest.approx(plan["flights"][0]["top_z"] + plan["riser_m"])
+    assert tops == sorted(tops) and tops[0] == pytest.approx(plan["flights"][0]["top_z"])
     assert plan["flights"][1]["base_z"] == pytest.approx(tops[-1])                   # the second flight goes on
     (ans,) = q["answers"]
     assert not ans.get("open") and "winders" in ans["change"] and "quarter landing" in ans["change"]

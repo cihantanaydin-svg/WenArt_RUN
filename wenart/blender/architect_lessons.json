@@ -1006,6 +1006,18 @@
    "request": "More lights from the ceiling needed (real04 run 20261028-005318-full: the 50.9 m2 living and dining room had one pendant over its 3.35 m table, the bedrooms one light, the halls none). General rule: every room gets the ceiling lights of its functional zones (a row of pendants along each dining table and kitchen island by its length, a light over each seating group, bed, desk and counter run) and enough general light for its floor by the lumen method (N = E x A / (F x UF x MF), the illuminance per room type scaled by the style's decor density), spread evenly, never over a wall cabinet, a tall cabinet or a stair, never in a door swing, mounted on the slope under a sloped ceiling with its lowest point 2.0 m over the floor; the model review (M17) and Argus flag a room with too little ceiling light",
    "lesson": "Every room gets the ceiling lights of its functional zones (a row of pendants along each dining table and kitchen island by its length, a light over each seating group, bed, desk and kitchen counter run) and enough general light for its floor by the lumen method (N = E x A / (F x UF x MF): a designer illuminance per room type scaled by the style's decor density, 1100 lm lamps), spread evenly; never over a wall cabinet, a tall cabinet, a wardrobe, a counter or a stair, never in a door swing; under a sloped ceiling a flush light is mounted on the slope with its lowest point 2.0 m over the floor; the decor stage hangs them whatever the AI chose (decor.ceiling_lights), the model review (M17) and Argus flag a room with too little ceiling light.",
    "question": "Does every room have enough ceiling light for its size and its groups: pendants along the dining table, a light over the seating, the bed, the desk and the kitchen run, and an even general light?"
+  },
+  {
+   "id": "UL87",
+   "date": "2026-10-28",
+   "area": "details",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "There should have been better indoor stair solutions should be there I did not like this one",
+   "lesson": "Every stair is one designed piece (wenart.blender.stair_rails): one continuous balustrade per open side that follows the flights and turns at newel posts round the landing or the winders at the well, the handrail 0.90 m over the nosing line (1.0 m on a level edge), no rail crossing another or stopping short, none through a tread, a wall or the floor above (beside the floor guard above, that guard takes over); a wall handrail on brackets with returns where a flight is wider than 1.0 m or would hold none; infill gaps under 0.11 m in the house's style (glass with a cap, slim bars, timber slats, turned or wrought balusters); a light structure (thin plate or slim strings) in light styles, the closed under-stair only on the floor; the winders start at the landing's level (no double step). The model review M18 checks it.",
+   "question": "Do the stairs read as designed stairs: one handrail per side turning at newels, nothing crossing or stopping short (M18), a light structure where the style is light?"
   }
  ]
 }

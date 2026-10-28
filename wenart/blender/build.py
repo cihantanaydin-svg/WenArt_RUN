@@ -1429,9 +1429,12 @@ def main(argv: list[str]) -> int:
         # Milestone 11 (docs/milestone11.md §1.3 M2): the kitchens' tiled splashback behind the counter runs
         splash = shell.build_splashbacks(building, level, col, library, style, manifest_objects, assumed)
         furniture_summary["splashbacks"] = furniture_summary.get("splashbacks", 0) + splash
+        # 28 Oct 2026: the floor's openings and the slab's above shape the stair's guards and structure
         add_furniture_summary(furniture_summary, shell.build_stairs(building, level, col, library, style, pass_indices,
                                                                     manifest_objects, assumed, warnings, plans=stairs,
-                                                                    shaft=not arrives))
+                                                                    shaft=not arrives,
+                                                                    floor_voids=under["voids"] if under else [],
+                                                                    ceiling_voids=above["voids"] if above else None))
         lap("splashbacks_stairs")
         # Milestone 13 (K8): the replayed cameras of this level first; the search for the rooms without one (every
         # room with --cameras-extra, those cameras renamed with the suffix EXTRA_CAMERA_SUFFIX).

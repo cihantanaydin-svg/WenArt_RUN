@@ -347,6 +347,9 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     # 28 Oct 2026: a room with fewer ceiling lights than the lighting rule hangs (model review M17): the decor stage
     # lights every room (ceiling_lights.add_lights); no agent tool adds a decor light
     "ceiling_light": (),
+    # 28 Oct 2026: the model review's M18 (a stair's rails that cross, stop short, run through a tread, a wall or the
+    # floor above, or beside the floor guard above): the build plans every stair's guards by code; no agent tool
+    "stair_rails": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -414,6 +417,11 @@ NO_TOOL_REASON: dict[str, str] = {
                       "composes them of real units on the base joints (modules.plan_wall_run); the build cuts them "
                       "at the windows of the building as built. No agent tool builds a hood or splits a wall "
                       "cabinet, so the finding is reported to the fit",
+    # 28 Oct 2026: the model review's M15
+    "stair_rails": "a stair's handrails, newels, infill and strings are planned by code for the whole stair at build "
+                   "time (stair_rails.plan_guards: one continuous balustrade per open side with newels at its turns, "
+                   "stopped under the slab and beside the floor guard above, a wall handrail where a flight has "
+                   "none); no agent tool edits a stair, so the finding is reported to the build",
     "drawn_type": "the piece is drawn and its type is one the room's types hold (the code's room rules, aliases "
                   "included): drawn furniture is kept (CLAUDE.md), and a vision opinion on its type is no reading "
                   "error, so it is reported for review, not retyped",
@@ -458,6 +466,8 @@ REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor",
                              "kitchen_design": "fit",
                              # 28 Oct 2026: the grading of the site (model review M15) is the site stage's
                              "site_grading": "site",
+                             # 28 Oct 2026: the stairs' handrails (model review M18) are the build's
+                             "stair_rails": "build",
                              # fix round after P4b: a frozen replayed camera, a decor light's model
                              "replayed_camera": "cameras", "decor_model": "decor",
                              # fix round after P5: a blocked view the camera search could not avoid
@@ -519,6 +529,7 @@ CHECK_CAUSE: dict[str, str] = {
     # 28 Oct 2026: an indoor model in an outdoor room is swapped (swap_model: the fit takes only outdoor models there);
     # a rug outside is the decor stage's (cause_of: a decor target); too little ceiling light is the decor stage's
     "M16": "wrong_model", "M17": "ceiling_light",
+    "M18": "stair_rails",            # 28 Oct 2026: the stairs' handrails as one balustrade (the build owns it)
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",

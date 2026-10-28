@@ -36,7 +36,8 @@ KINDS = {
                  "arises": "architect, build",
                  "guards": ["sense (N*: every room reached, no bathroom as a corridor, every level reached; a stair "
                             "joins the room it starts in and the room it arrives in)",
-                            "model review (M*; M9: the walk from every stair into the rooms, to every door)",
+                            "model review (M*; M9: the walk from every stair into the rooms, to every door; M15: the "
+                            "stair's handrails as one balustrade, no rail crossing another or stopping short)",
                             "architect rules (K4: a cut-off stair takes the reading that leads into its floors)",
                             "visitor checks (Q*)"]},
     "taste": {"what": "the house does not look designed (pieces that do not match, plain or dated rooms, a garage "
@@ -93,6 +94,10 @@ CHECK_KIND = {
     # indoor rug or model in an outdoor room (outdoor.review); (user: "More lights from the ceiling needed") a room with too
     # little ceiling light for its zones and floor (ceiling_lights.review)
     "M16": "no_sense", "M17": "taste",
+    # 28 Oct 2026 (user on real04's stairs: "There should have been better indoor stair solutions"): the stair's
+    # handrails as one designed balustrade (model_review.stair_rails_review): rails that cross, stop short, run through
+    # a tread, a wall or the floor above, stand beside the floor guard above; a rail out over the room carries "taste"
+    "M18": "no_sense",
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",

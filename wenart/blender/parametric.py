@@ -1574,7 +1574,9 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
                 notes.append("the landing lies at the foot of the flight: it is the floor, no slab")
         landing = {"polygon": landing_poly, "z": z_l, "role": role, "thickness": STAIR_WAIST_M}
         if winders and role == "mid":
-            landing.update(role="winders", winders=winder_treads(landing_poly, planned, z_l, riser, winders))
+            # 28 Oct 2026 (``WINDER_TREADS_NOTE``): ``winders`` risers in the turn need winders + 1 treads, the
+            # first at the landing's level
+            landing.update(role="winders", winders=winder_treads(landing_poly, planned, z_l, riser, winders + 1))
 
     # The ceiling opening: the last flight and the landing (in the frame of flight 1).
     void, void_raw = [], []
@@ -1595,8 +1597,11 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
         lp = (-last["axis"][1], last["axis"][0])
         corners = [(p[0] + lp[0] * s * hw, p[1] + lp[1] * s * hw) for p in (last["start"], last["end"]) for s in (-1, 1)]
         rects = [_frame_box([to_f(c) for c in corners])]
-        if landing is not None and landing["role"] in ("mid", "top"):
+        # 28 Oct 2026: a landing turned into winders is in the opening too (its treads climb towards the ceiling, as
+        # stair_access.opening_polygon cuts it); before, its winders stood under the ceiling with under 1 m headroom
+        if landing is not None and landing["role"] in ("mid", "top", "winders"):
             rects.append(_frame_box([to_f(p) for p in landing_poly]))
+        rects = close_box_gaps(rects)                      # 28 Oct 2026: no sliver of slab between them
         g = STAIR_SHAFT_GAP
         void_raw = [[from_f(p) for p in loop] for loop in geom2d.rect_union_outline(rects)]
         void = [[from_f(p) for p in loop]
@@ -1630,10 +1635,20 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
             if sum(1 for q in probes if any(G.point_in_polygon(q, rect) for rect in wall_rects)) >= 2:
                 continue
             rails.append({"flight": f["index"], "side": side, "offset": sgn * (hw - STAIR_RAIL_INSET)})
-    if rails:
+    # 28 Oct 2026 (stair_rails, user on real04: "There should have been better indoor stair solutions"): the two
+    # climbing sides as one path each (flights, the landing's or the winders' edge, the next flight), every leg open
+    # or against a wall; ``stair_parts`` builds one continuous balustrade per open stretch from it
+    from wenart.blender import stair_rails as SR
+    near = [p for f in planned for p in f["nosings"]] + list(landing_poly or [])
+    wall_rects_kept = SR.wall_rects_near(near, walls)
+    probe_plan = {"flights": planned, "riser_m": riser, "landing": landing, "rise_m": rise}
+    sides = SR.side_paths(probe_plan, wall_rects_kept)
+    if rails or any(not leg["wall"] for s in sides for leg in s["legs"]):
         assumed.append({"field": "handrail", "kind": "stair_handrail",
-                        "value": f"{len(rails)} steel rail(s) {STAIR_RAIL_HEIGHT:.2f} m above the nosings",
-                        "reason": "design detail on every flight side not against a wall; not in the documents"})
+                        "value": f"one continuous balustrade with newels on every open side ({len(rails)} open flight "
+                                 f"side(s)), the handrail {STAIR_RAIL_HEIGHT:.2f} m above the nosings, "
+                                 f"{SR.LEVEL_GUARD_M:.2f} m along a level edge",
+                        "reason": "design detail on every stair side not against a wall; not in the documents"})
     assumed.append({"field": "waist", "kind": "stair_structure",
                     "value": f"{STAIR_WAIST_M:.2f} m waist slab under the steps and landing slab",
                     "reason": "the documents show the stair in plan only"})
@@ -1645,15 +1660,24 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
             "winders": winders,
             "landing": landing, "void": void, "void_raw": void_raw, "ceiling_z": ceiling, "cap_z": cap,
             "top_limit": top_limit, "rails": rails, "direction": [round(r0[0], 4), round(r0[1], 4)], "turn": turn,
-            "generic": generic, "assumed": assumed, "warnings": warnings, "notes": notes}
+            "generic": generic, "assumed": assumed, "warnings": warnings, "notes": notes,
+            "sides": sides, "wall_rects": wall_rects_kept}
+
+
+# 28 Oct 2026, WINDER_TREADS_NOTE (the review of real04's stairs after the user's "There should have been better
+# indoor stair solutions"): ``stair.winders`` counts the risers the turn adds. The first flight's last riser already
+# rises to the landing's level, so the turn holds winders + 1 treads, the first at that level and the last at the
+# second flight's foot. Before, the turn held ``winders`` treads, the first one riser over the landing's level: the
+# first flight's last riser and the first winder made one double step (real04 L-1: 1.059 m, then 1.235 m).
 
 
 def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k: int) -> list[dict]:
     """The ``k`` winder treads of a U stair's half landing (pure): sectors of 180 / k degrees around the pivot (the
     middle of the landing's edge between the two flights), from the first flight's side to the second's, clipped to
-    the landing; tread ``j`` tops at ``z0 + j * riser``. ``[{"polygon", "top"}]``. 27 Oct 2026: a quarter landing (the
-    flights at right angles, an L stair) turns its treads around its inner corner (``_quarter_winders``). 28 Oct 2026:
-    ``NEWEL_WINDERS_MIN`` winders or more turn as two quarter turns around the newels at the well
+    the landing; tread ``j`` tops at ``z0 + j * riser`` (``WINDER_TREADS_NOTE``: the first at the landing's level
+    ``z0``, the first flight's top). ``[{"polygon", "top"}]``. 27 Oct 2026: a quarter landing (the flights at right
+    angles, an L stair) turns its treads around its inner corner (``_quarter_winders``). 28 Oct 2026:
+    ``NEWEL_WINDERS_MIN`` treads or more turn as two quarter turns around the newels at the well
     (``_newel_winders``); the single fan stays for fewer, or when the flights leave no well."""
     a, b = planned[0], planned[1]
     if abs(_d2(a["rise_dir"], b["rise_dir"])) < 0.5:
@@ -1696,7 +1720,7 @@ def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k:
             if not piece:
                 break
         if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
-            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + (j + 1) * riser})
+            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + j * riser})
     return out
 
 
@@ -1705,7 +1729,8 @@ def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k:
 # stair with winders turns around its well instead: two quarter turns, each around the newel at its flight's inner
 # corner (the well's edge), the first flight's set climbing from its last nosing to the landing's middle, the second's
 # from the middle to its first nosing; the strip between the newels (the well's width) belongs to the tread at the
-# middle of each half, so the winders still tile the landing. NEWEL_WINDERS_MIN: fewer winders keep the single fan.
+# middle of each half, so the winders still tile the landing. NEWEL_WINDERS_MIN: fewer winder treads keep the single
+# fan.
 NEWEL_WINDERS_MIN = 3
 
 
@@ -1721,8 +1746,9 @@ def _sector(pivot, s, u, t0: float, t1: float, far: float = 50.0) -> list:
 
 def _newel_winders(poly, a: dict, b: dict, mid, base: float, u, v, side_a: float, z0: float, riser: float,
                    k: int) -> list[dict]:
-    """The ``k`` winders of a U stair's half landing as two quarter turns around the newels (the comment above);
-    [] when ``k`` < ``NEWEL_WINDERS_MIN`` or the flights leave no well between them (the single fan then)."""
+    """The ``k`` winder treads of a U stair's half landing as two quarter turns around the newels (the comment above;
+    tread ``j`` tops at ``z0 + j * riser``); [] when ``k`` < ``NEWEL_WINDERS_MIN`` or the flights leave no well between
+    them (the single fan then)."""
     if k < NEWEL_WINDERS_MIN:
         return []
     ca = G.segment_midpoint(a["nosings"][0], a["nosings"][-1])
@@ -1749,7 +1775,7 @@ def _newel_winders(poly, a: dict, b: dict, mid, base: float, u, v, side_a: float
         t0, t1 = half * j / k1, (half * (j + 1) / k1 if j < k1 - 1 else math.pi - 1e-6)
         piece = _clip_convex(_sector(pa, s_a, u, t0, t1), geom2d.ccw(half_a))
         if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
-            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + (j + 1) * riser})
+            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + j * riser})
     for j in range(k2):                                             # the second's: from u (and before) to s_b
         hi = half - half * j / k2
         lo = half - half * (j + 1) / k2
@@ -1758,7 +1784,7 @@ def _newel_winders(poly, a: dict, b: dict, mid, base: float, u, v, side_a: float
                              _sector(pb, s_b, u, lo, math.pi - 1e-6), geom2d.ccw(half_b))
         if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
             out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece],
-                        "top": z0 + (k1 + j + 1) * riser})
+                        "top": z0 + (k1 + j) * riser})
     return out if len(out) == k else []
 
 
@@ -1778,7 +1804,7 @@ def _quarter_winders(landing_poly, a: dict, b: dict, z0: float, riser: float, k:
     """The ``k`` winder treads of an L stair's quarter landing (pure; 27 Oct 2026): the first flight arrives on one side
     of the landing (the line of its last riser), the second leaves from the next side (the line of its first riser);
     the two lines meet at the landing's inner corner, the pivot; sectors of 90 / k degrees from the first side to the
-    second, clipped to the landing; tread ``j`` tops at ``z0 + (j + 1) * riser``."""
+    second, clipped to the landing; tread ``j`` tops at ``z0 + j * riser`` (``WINDER_TREADS_NOTE``)."""
     u, w = a["rise_dir"], b["rise_dir"]
     pa, pb = a["nosings"][-1], b["nosings"][0]
     da, db = (-u[1], u[0]), (-w[1], w[0])
@@ -1800,8 +1826,29 @@ def _quarter_winders(landing_poly, a: dict, b: dict, z0: float, riser: float, k:
                          for s in (j / k, (j + 0.5) / k, (j + 1) / k)]
         piece = _clip_convex(geom2d.ccw(pts), poly)
         if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
-            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + (j + 1) * riser})
+            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + j * riser})
     return out
+
+
+# 28 Oct 2026 (stair_rails, the review of real04's U stairs): a drawn flight may stop a little short of its landing
+# (real04: 1 cm); the stair's opening, the union of the boxes of its last flight and landing, then kept a sliver of
+# slab between them, and a handrail passing there was cut "under the slab". Boxes this close are joined.
+BOX_GAP_CLOSE_M = 0.05
+
+
+def close_box_gaps(boxes, tol: float = BOX_GAP_CLOSE_M) -> list:
+    """Axis boxes ``(x0, y0, x1, y1)`` with every gap of at most ``tol`` between two of them that face each other
+    (they overlap across the gap) closed: the first box grows to the second (pure)."""
+    out = [list(b) for b in boxes]
+    for i, a in enumerate(out):
+        for j, b in enumerate(out):
+            if i == j:
+                continue
+            if min(a[3], b[3]) - max(a[1], b[1]) > 1e-3 and 0.0 < b[0] - a[2] <= tol:
+                a[2] = b[0]
+            if min(a[2], b[2]) - max(a[0], b[0]) > 1e-3 and 0.0 < b[1] - a[3] <= tol:
+                a[3] = b[1]
+    return [tuple(b) for b in out]
 
 
 def _frame_box(points) -> tuple[float, float, float, float]:
@@ -1830,15 +1877,19 @@ def stair_parts(plan: dict) -> list[Part]:
     ``shell.plan_stairs`` for a stair that comes up through the opening of the floor above) lets the balustrade of an
     open side run to the top of the flight, where the guard of the floor opening (``details.void_guards``) takes
     over; without it the rails stop under the cap as before. A wall handrail always stops under the cap (the wall
-    may end at the floor above)."""
+    may end at the floor above).
+
+    28 Oct 2026 (``stair_rails``, user on real04: "There should have been better indoor stair solutions"): the rails
+    are one continuous balustrade per open side with newels at its turns and ends, the infill under it and a wall
+    handrail where one is wanted (``plan["guards"]``, else ``stair_rails.plan_guards`` on the plan's
+    ``ceiling_voids`` and ``upper_guards``); the structure follows ``plan["design"]`` (``stair_rails.flight_waist``:
+    the thin plate or the stringers of a light style, strings on the open sides); the winders of a light stair over a
+    floor opening (``plan["floor_voids"]``) are thin treads with riser plates (``stair_rails.winder_parts``)."""
+    from wenart.blender import stair_rails as SR
+
     riser = float(plan["riser_m"])
     limit = plan.get("top_limit")
-    cap_limit = plan["cap_z"] - STAIR_CAP_CLEARANCE
-    rail_limit = float(plan["rail_limit"]) if plan.get("rail_limit") is not None else cap_limit
     parts: list[Part] = []
-    rails = {}
-    for rail in plan["rails"]:
-        rails.setdefault(rail["flight"], []).append(rail)
     joints = plan.get("wall_joints") or []
     for f in plan["flights"]:
         n, g, width, base = f["lines"], f["going"], f["width"], f["base_z"]
@@ -1849,8 +1900,7 @@ def stair_parts(plan: dict) -> list[Part]:
             shift = (el - er) / 2.0
             origin = (origin[0] - r[1] * shift, origin[1] + r[0] * shift)     # left of the rise direction
             width = width + el + er
-        k = riser / g
-        t_v = STAIR_WAIST_M * math.sqrt(1.0 + k * k)            # waist measured square to the soffit
+        k, t_v = SR.flight_waist(plan, f)                        # 28 Oct 2026: the waist of the stair's structure
         extra = {"flight": f["index"], "rise_dir": [r[0], r[1]]}
         for i in range(1, n):
             s0, s1 = (i - 1) * g, i * g
@@ -1875,13 +1925,10 @@ def stair_parts(plan: dict) -> list[Part]:
             parts.append(_part(geom2d.extrude_profile(
                 [(sn - STAIR_RISER_PLATE, z_lo), (sn, z_lo), (sn, z_hi), (sn - STAIR_RISER_PLATE, z_hi)],
                 origin, r, width), "worktop", "riser", **extra))
-        kind = plan.get("balustrade") or STAIR_BALUSTRADE_DEFAULT
-        for rail in rails.get(f["index"], []):
-            parts.extend(_rail_parts(f, rail["offset"], riser, rail_limit, kind))
-        if not rails.get(f["index"]):                            # walls on both sides: a wall handrail
-            parts.extend(_wall_rail_parts(f, -1.0, riser, cap_limit))
     landing = plan.get("landing")
-    if landing is not None and landing["role"] == "winders":
+    if landing is not None and landing["role"] == "winders" and SR.light_winders(plan, plan.get("floor_voids") or ()):
+        parts.extend(SR.winder_parts(plan))                  # 28 Oct 2026: a light stair's winders over a void
+    elif landing is not None and landing["role"] == "winders":
         z_bottom = landing["z"] - landing["thickness"]
         for j, w in enumerate(landing.get("winders") or []):
             top = w["top"] if limit is None else min(w["top"], limit)
@@ -1897,6 +1944,9 @@ def stair_parts(plan: dict) -> list[Part]:
                            "worktop", "landing", flight=None, rise_dir=None))
     parts.extend(_apron_part(plan))                          # 26 Oct 2026: the floor's edge meets the top step
     parts.extend(_under_parts(plan))                         # 27 Oct 2026: the space under the stair, its posts
+    guards = plan.get("guards") or SR.plan_guards(plan, plan.get("ceiling_voids"), plan.get("upper_guards") or ())
+    parts.extend(SR.string_parts(guards))                    # 28 Oct 2026: the strings, the rails, newels, infill
+    parts.extend(SR.guard_parts(guards))
     return parts
 
 
@@ -2029,126 +2079,27 @@ def landing_with_joints(polygon, moves: dict) -> list[tuple[float, float]]:
     return [(p[0] + sx, p[1] + sy) for p, (sx, sy) in zip(pts, shift)]
 
 
-def _rail_span(f: dict, riser: float, limit: float):
-    """``(s_a, s_b, rail_top, at)`` of a flight's handrail (pure): its run along the flight (cut where its top would
-    pass ``limit``), its top over the nosing line and the world point at ``(s, q, z)``; None when it is too short."""
-    n, g, base = f["lines"], f["going"], f["base_z"]
-    r, o = f["rise_dir"], f["nosings"][0]
-    p = (-r[1], r[0])
-    k = riser / g
-
-    def rail_top(s):
-        return base + riser + s * k + STAIR_RAIL_HEIGHT
-
-    s_a, s_b = 0.05, (n - 1) * g - 0.05
-    if rail_top(s_b) > limit:
-        s_b = (limit - STAIR_RAIL_HEIGHT - base - riser) / k
-    if s_b - s_a < STAIR_RAIL_MIN_M:
-        return None
-
-    def at(s, q, z):
-        return (o[0] + r[0] * s + p[0] * q, o[1] + r[1] * s + p[1] * q, z)
-
-    return s_a, s_b, rail_top, at
-
-
-def _rail_parts(f: dict, offset: float, riser: float, limit: float, kind: str = STAIR_BALUSTRADE_DEFAULT
-                ) -> list[Part]:
-    """The balustrade of an open flight side ``offset`` metres left of its centre line (pure): a round handrail
-    ``STAIR_RAIL_HEIGHT`` above the nosing line, a post at each end standing on its tread and the infill: balusters
-    on the treads ``STAIR_BALUSTER_PITCH`` apart (``bars``), or a glass panel fixed to the side of the flight (the
-    glass kinds of ``details.KINDS``); cut where the handrail's top would pass ``limit``."""
-    from wenart.blender import details as D
-
-    span = _rail_span(f, riser, limit)
-    if span is None:
-        return []
-    s_a, s_b, rail_top, at = span
-    n, g, base = f["lines"], f["going"], f["base_z"]
-    r = f["rise_dir"]
-    k = riser / g
-    rr = STAIR_HANDRAIL_R
-    angle = math.degrees(math.atan2(r[1], r[0]))
-    glass = kind in ("glass_channel", "glass_posts")
-    q_rail = offset
-    if glass:                                                # the glass hangs on the flight's side, the rail on it
-        side = 1.0 if offset >= 0 else -1.0
-        q_rail = side * (abs(offset) + STAIR_RAIL_INSET + STAIR_GLASS_T / 2.0 + 0.003)
-    # a vertex on the rail's top: its highest point is rail_top exactly (the cap clearance holds)
-    cz = rr * g / math.hypot(g, riser)
-    parts = [_part(D.tube(at(s_a, q_rail, rail_top(s_a) - cz), at(s_b, q_rail, rail_top(s_b) - cz), rr, 12, 0.0),
-                   "steel", "rail", flight=f["index"])]
-
-    def tread_at(s):
-        return base + (min(n - 1, int(s / g)) + 1) * riser
-
-    if glass:
-        o = at(0.0, q_rail, 0.0)
-        bottom = [(s_a, base + s_a * k - 0.02), (s_b, base + s_b * k - 0.02)]   # down the flight's side
-        top = [(s_b, rail_top(s_b) - 2 * rr - 0.01), (s_a, rail_top(s_a) - 2 * rr - 0.01)]
-        parts.append(_part(geom2d.extrude_profile(bottom + top, (o[0], o[1]), r, STAIR_GLASS_T), "glass", "glass",
-                           flight=f["index"]))
-        return parts
-    for s in (s_a + STAIR_POST / 2.0, s_b - STAIR_POST / 2.0):
-        tread = tread_at(s)
-        cx, cy, _ = at(s, offset, 0.0)
-        z_top = rail_top(s) - 2 * rr
-        if z_top - tread > 0.02:
-            parts.append(_part(geom2d.box((cx, cy, (tread + z_top) / 2.0), (STAIR_POST, STAIR_POST, z_top - tread),
-                                          angle), "steel", "post", flight=f["index"]))
-    m = max(1, int((s_b - s_a) / STAIR_BALUSTER_PITCH))
-    for j in range(1, m):
-        s = s_a + (s_b - s_a) * j / m
-        tread = tread_at(s)
-        z_top = rail_top(s) - 2 * rr + 0.005
-        cx, cy, _ = at(s, offset, 0.0)
-        if z_top - tread > 0.05:
-            parts.append(_part(geom2d.box((cx, cy, (tread + z_top) / 2.0),
-                                          (STAIR_BALUSTER, STAIR_BALUSTER, z_top - tread), angle),
-                               "steel", "baluster", flight=f["index"]))
-    return parts
-
-
-def _wall_rail_parts(f: dict, side: float, riser: float, limit: float) -> list[Part]:
-    """A round handrail on brackets along the wall on the ``side`` (+1 left, -1 right of the rise direction) of a
-    flight with walls on both sides (pure): ``STAIR_WALL_RAIL_GAP`` off the drawn side, ``STAIR_RAIL_HEIGHT`` over
-    the nosing line."""
-    from wenart.blender import details as D
-
-    span = _rail_span(f, riser, limit)
-    if span is None:
-        return []
-    s_a, s_b, rail_top, at = span
-    hw = f["width"] / 2.0
-    q = side * (hw - STAIR_WALL_RAIL_GAP - STAIR_HANDRAIL_R)
-    r = f["rise_dir"]
-    wall = (-r[1] * side, r[0] * side)
-    path = [at(s_a, q, rail_top(s_a) - STAIR_HANDRAIL_R), at(s_b, q, rail_top(s_b) - STAIR_HANDRAIL_R)]
-    out = []
-    for k, mesh in enumerate(D.wall_handrail(path, wall, {"handrail_r": STAIR_HANDRAIL_R,
-                                                           "wall_gap": STAIR_WALL_RAIL_GAP + STAIR_HANDRAIL_R})):
-        out.append(_part(mesh, "steel", "rail" if k == 0 else "bracket", flight=f["index"]))
-    return out
-
-
 # Material slots of a built stair (shell.build_stairs): treads (and the landing's top), structure (steps, risers,
-# soffit: the wall paint), steel, glass.
-STAIR_SLOTS = ("tread", "structure", "steel", "glass")
+# soffit: the wall paint), steel, glass; 28 Oct 2026: timber (the house's wood: a timber handrail, slats, turned
+# balusters, newels and strings of the styles that have them, ``stair_rails.FAMILY_DESIGN``).
+STAIR_SLOTS = ("tread", "structure", "steel", "glass", "timber")
+STAIR_KEY_SLOTS = {"steel": 2, "glass": 3, "timber": 4}
 
 
 def stair_face_slots(parts: Sequence[Part]) -> list[int]:
     """Slot per face of ``stair_parts`` (``STAIR_SLOTS``): the tread plates and the landing's top are ``tread``
-    (the floor finish), the steps, the riser plates and the landing's other faces ``structure`` (painted risers,
-    soffit, sides; 25 Oct 2026), rails, posts, balusters and brackets ``steel``, a glass panel ``glass``."""
+    (the floor finish), the steps, the riser plates, the strings in the structure finish and the landing's other faces
+    ``structure`` (painted risers, soffit, sides; 25 Oct 2026), rails, posts, balusters and brackets ``steel`` (or
+    ``timber``, by their key), a glass panel ``glass``."""
     slots = []
     for part in parts:
-        if part["key"] in ("steel", "glass"):
-            slots.extend([2 if part["key"] == "steel" else 3] * len(part["faces"]))
+        if part["key"] in STAIR_KEY_SLOTS:
+            slots.extend([STAIR_KEY_SLOTS[part["key"]]] * len(part["faces"]))
             continue
         if part.get("role") == "tread":                       # the tread plate: the floor finish all round
             slots.extend([0] * len(part["faces"]))
             continue
-        if part.get("role") in ("step", "riser", "spandrel", "landing_post"):   # painted risers, the closed underside
+        if part.get("role") in ("step", "riser", "spandrel", "landing_post", "string"):   # painted, the underside
             slots.extend([1] * len(part["faces"]))
             continue
         for f in part["faces"]:

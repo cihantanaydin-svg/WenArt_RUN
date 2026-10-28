@@ -1989,3 +1989,21 @@ pending for another reason stay) their second pass (`growth run second-look`: `a
 of `cli.second_pass_ids`, then `decide.second_look`). About 45-75 min on the RTX PRO 6000 (about $1.9-3.1; cap
 100 min, worst case about $4.2). Infinigen's door and window factories were checked at the pinned commit and left out
 (its generated furniture rated 2 of 5 in the same audit).
+
+## Stairs as one designed piece (28 Oct 2026)
+
+User on real04's stairs: "There should have been better indoor stair solutions should be there I did not like this
+one" (cam_r_L0_koridor_1: steel rails at different angles crossing each other near the well). General rules
+(`wenart/blender/stair_rails.py`, lesson UL78, model review M18), CPU-tested; not rendered yet.
+
+| what was wrong | general fix |
+|---|---|
+| one straight rail per open flight side: rails stopped at odd heights on both sides of the well, nothing at the turn | one continuous balustrade per open side: the flights, the landing's or winders' edge at the well, the next flight, the apron at the top; a newel at every turn and end (a dog-leg's on the divider); 0.90 m over the nosing line, 1.0 m on a level edge |
+| the last flight's rail ran up beside the floor guard of the level above | beside that floor guard the stair's handrail stops at that floor and its infill closes up to it; under a slab nothing passes the slab; a wall handrail where a flight would hold none (or is over 1.0 m wide), with returns, rising round the landing on the walls |
+| the same steel bars or glass in every house | the house's balustrade language in the style family: frameless glass with a steel or timber cap, glass between slim posts, slim bars, timber slats (japandi), turned (classic), square timber (rustic) or wrought (mediterranean) balusters; a timber slot (the house's wood) |
+| a 0.15 m waist slab everywhere | light styles: a thin plate soffit with steel plate strings (modern, minimal) or slim closed strings (scandinavian, japandi, industrial); thin winders with riser plates over a floor opening; no spandrel panel over a floor opening (real04's stacked stairs hung theirs in the stairwell) |
+| a 0.35 m double step at the start of the winders | the turn holds winders + 1 treads, the first at the landing's level |
+| winders under the ceiling; a 6 mm slab sliver between a flight and its landing | the stair's own opening holds its winders; boxes of an opening within 5 cm are joined |
+
+M18 also reads the rails of older scenes: on a U stair with winders the old rails are "stops short" at the turn, and
+beside a floor guard "two guards side by side". Needs a GPU look: real04's corridor and stair views.
