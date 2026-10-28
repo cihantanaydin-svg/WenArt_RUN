@@ -190,10 +190,10 @@ DEFAULT_MUST: dict[str, dict[str, int]] = {
     "office": {"rug": 1, "curtains": 1, "wall_art": 1, "plants": 1, "table_lamps": 1, "styled_shelves": 1},
     "hall": {"mirror": 1, "wall_art": 1, "plants": 1, "styled_surfaces": 1, "pendant_or_ceiling_light": 1},
     "dressing": {"rug": 1, "mirror": 1, "pendant_or_ceiling_light": 1},
-    "veranda": {"lounge_set": 1, "planters": 3, "outdoor_cushions": 1, "outdoor_rug": 1,
-                "lanterns_or_string_lights": 1},
-    "terrace": {"lounge_set": 1, "planters": 3, "outdoor_cushions": 1, "outdoor_rug": 1,
-                "lanterns_or_string_lights": 1},
+    # 28 Oct 2026 (user on real04's roof terrace: "makes no sense to have that table with the carpet outside, that's
+    # outside area"): the built-in outdoor recipes ask for no rug (the photos' outdoor_rug layer is still measured)
+    "veranda": {"lounge_set": 1, "planters": 3, "outdoor_cushions": 1, "lanterns_or_string_lights": 1},
+    "terrace": {"lounge_set": 1, "planters": 3, "outdoor_cushions": 1, "lanterns_or_string_lights": 1},
     "balcony": {"dining_set": 1, "planters": 2, "outdoor_cushions": 1},
     "garden": {"hedge_or_border": 1, "potted_trees": 1},
     "facade": {"planters": 2, "wall_lights": 1},

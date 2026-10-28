@@ -230,6 +230,14 @@ indirect clamp caps both the sky and the lawn seen through the pane). How: the b
 (``build.FINGERPRINT_CODE`` covers this file), so every scene is rebuilt and every view re-rendered; the
 ``light_variant`` of a production build stays None. No pod has rendered this default: P6a / P6b / P6c's finals were
 built with the old world (their manifests' world records have no ``sky_stops``).
+
+28 Oct 2026 (user on real04 run 20261028-005318-full: "More lights from the ceiling needed"): the decor stage now
+hangs the ceiling lights of every room (``wenart.furniture.ceiling_lights``: a row of pendants along a long dining
+table, a light over each group, the lumen method's general lights). The rig puts its light into them instead of
+hanging a fixture of its own beside them: the dining pendant's light is shared out over the row of decor pendants over
+the table (``rig_row_hosts``) when none hangs at the table's centre, and a ceiling fixture's light over the room's
+decor ceiling lights when none hangs at its spot (one spot rooms; each hosted light records its share in its reason).
+A room without a decor light keeps the rig's own fixture, as before.
 """
 from __future__ import annotations
 
@@ -1269,6 +1277,21 @@ def _decor_light_host(decor: list[dict], x: float, y: float, reach: float) -> di
     return best[1] if best else None
 
 
+RIG_ROW_REACH_M = 0.3                 # 28 Oct 2026: a decor pendant this close over a table's footprint is of its row
+
+
+def rig_row_hosts(decor: list[dict], table: dict) -> list[dict]:
+    """28 Oct 2026 (user: "More lights from the ceiling needed"; the decor stage hangs a row of pendants along a long
+    dining table, ``wenart.furniture.ceiling_lights``): the built decor pendants whose plan centre lies over the
+    table's footprint grown by ``RIG_ROW_REACH_M`` (pure), in their order along the table."""
+    fp = table["footprint"]
+    w, d = (float(v) + 2.0 * RIG_ROW_REACH_M for v in fp["size"][:2])
+    rect = G.rotated_rectangle(fp["center"][:2], (w, d), float(fp.get("rotation_deg") or 0.0))
+    row = [x for x in decor if x.get("type") == "pendant_light" and x.get("center")
+           and G.point_in_polygon((float(x["center"][0]), float(x["center"][1])), rect)]
+    return sorted(row, key=lambda x: (round(float(x["center"][0]), 3), round(float(x["center"][1]), 3)))
+
+
 def rig_fixture_problems(fixtures: list[dict], polygon, pieces: list[dict], decor: list[dict], floor_z: float,
                          stand_tops: dict | None = None) -> list[dict]:
     """What is wrong with the built rig fixtures of a room (pure; fix round after P4a, 17 Oct 2026):
@@ -1454,6 +1477,7 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
             return bottom - RIG_HOSTED_PENDANT_GAP_M
         return bottom - RIG_HOSTED_CEILING_GAP_M
 
+    hosts_used: set = set()                       # 28 Oct 2026: decor lights that already carry a rig light
     for spec in room_rig(room.get("room_type")):
         kind = spec["kind"]
         if kind == "pendant":
@@ -1473,6 +1497,19 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
                     anchor=table["id"], radius=0.06, mount="host", mesh=False, host=host["id"],
                     light_where="under_host", reason=f"pendant light over the dining table {table['id']} under the "
                                                      f"decor pendant {host['id']}")
+                continue
+            # 28 Oct 2026 (user: "More lights from the ceiling needed"): a row of decor pendants along the table (the
+            # decor stage's lighting rule, wenart.furniture.ceiling_lights) carries the rig's light, shared out
+            row = [d for d in rig_row_hosts(decor, table) if hosted_z(d) >= floor_z + RIG_HOSTED_MIN_Z_M]
+            if row:
+                for d in row:
+                    hx, hy, lz = float(d["center"][0]), float(d["center"][1]), hosted_z(d)
+                    add(spec, (hx, hy, lz), (hx, hy, lz), "POINT", spec["watts_applied"] / len(row), spec["size_m"],
+                        anchor=table["id"], radius=0.06, mount="host", mesh=False, host=d["id"],
+                        light_where="under_host", reason=f"pendant light over the dining table {table['id']}, 1/"
+                                                         f"{len(row)} of it under each decor pendant of the row "
+                                                         f"({d['id']})")
+                hosts_used.update(d["id"] for d in row)
                 continue
             # fix round after P4b: the ceiling over the shade clamps it; the one over the canopy is where the cord ends
             ceil_here = _ceiling_at(ceiling_fn, ceil_z, cx, cy, r)
@@ -1512,6 +1549,20 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
                     add(fspec, (hx, hy, lz), (hx, hy, lz), "POINT", fspec["watts_applied"], spec["size_m"],
                         radius=0.08, mount="host", mesh=False, host=host["id"], light_where="under_host",
                         reason=f"{reason}; its light under the decor {host['type'].replace('_', ' ')} {host['id']}")
+                    continue
+                # 28 Oct 2026 (user: "More lights from the ceiling needed"): the room's decor ceiling lights (the
+                # lighting rule hangs them in every room) carry the fixture's light, shared out; no second fixture
+                lit = [d for d in decor if d.get("type") in RIG_DECOR_HOST_TYPES and d.get("id") not in hosts_used
+                       and hosted_z(d) >= floor_z + RIG_HOSTED_MIN_Z_M]
+                if lit and len(plans) == 1:
+                    for d in lit:
+                        hx, hy, lz = float(d["center"][0]), float(d["center"][1]), hosted_z(d)
+                        add(fspec, (hx, hy, lz), (hx, hy, lz), "POINT", fspec["watts_applied"] / len(lit),
+                            spec["size_m"], radius=0.08, mount="host", mesh=False, host=d["id"],
+                            light_where="under_host",
+                            reason=f"{reason}; 1/{len(lit)} of its light under each decor ceiling light of the room "
+                                   f"({d['id']})")
+                    hosts_used.update(d["id"] for d in lit)
                     continue
                 ceil_here = _ceiling_at(ceiling_fn, ceil_z, cx, cy, r)
                 z = ceil_here - RIG_MOUNT_GAP_M - h / 2.0

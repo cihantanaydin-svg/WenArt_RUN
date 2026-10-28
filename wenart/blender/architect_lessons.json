@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-10-27",
+ "updated": "2026-10-28",
  "lessons": [
   {
    "id": "UL01",
@@ -643,6 +643,30 @@
    "request": "Tall windows where the style favours large glazing (user, 27 Oct 2026, on a Scandinavian two-storey house's renders: 'In some of the rooms the full windows from top to bottom (with a bit of remaining wall of course) could look better').",
    "lesson": "In a style family that favours large glazing (scandinavian, japandi, modern, minimal, contemporary; not classic, rustic, mediterranean, industrial) the windows of the living, dining and bed rooms (and of a dry room onto a terrace or garden) whose sill and head no document fixes become tall windows: a 0.20 m upstand to 0.25 m under the ceiling or the roof, the drawn width and position kept, all windows of one facade of the room alike; never in a wet room, never behind a wall-backed piece (a dresser, wardrobe, bed head, desk, sideboard or kitchen run keeps the sill the fit caps it at); the house's guard over a drop (W3); curtains and blinds follow the new head (architect rule W5, action tall_window).",
    "question": "Do the living, dining and bed rooms of a large-glazing style have tall windows wherever the documents fix no sill or head and no wall-backed piece stands in front, the same on every facade of the room, with a guard over a drop?"
+  },
+  {
+   "id": "UL57",
+   "date": "2026-10-28",
+   "area": "terrace",
+   "status": "rule",
+   "checks": [
+    "U1"
+   ],
+   "request": "makes no sense to have that table with the carpet outside, that's outside area (real04 run 20261028-005318-full, the roof terrace r_L1_teras: an indoor turned-leg pine dining table, two indoor dining chairs and a wool runner rug on the paving). General rule: an outdoor room (balcony, terrace, roof terrace, loggia, veranda, patio, any room open to the sky) and every outdoor space of the site takes no rug, runner or other indoor textile on its floor; its furniture is outdoor furniture: the fit takes only library models made for outside (named for outside or of an outdoor material such as teak, rattan, wicker, resin; never one named for inside, material tags alone do not count), else the parametric family in weather-proof materials (a steel frame with teak), recorded as a library gap; the model review (M15) and Argus find an indoor rug or an indoor model outside in every project",
+   "lesson": "An outdoor room (balcony, terrace, roof terrace, loggia, veranda, patio, any room open to the sky) and every outdoor space of the site is dressed for outside: no rug, runner or other indoor textile on its floor (no rug slot, no solver rug, no outdoor-set rug; any laid by a later rule is taken out); its tables, chairs, benches and seats are outdoor furniture: the fit takes only library models made for outside (named for outside, or of an outdoor material such as teak, rattan, wicker or resin; never one named for inside; material tags alone do not count), else the parametric family in weather-proof materials (a steel frame with teak), recorded as a library gap; the architect (U1), the model review (M15) and Argus find an indoor rug or an indoor model outside in every project.",
+   "question": "Is every outdoor room and outdoor space dressed for outside: no rug or carpet on its floor, and only furniture made for outside (no indoor table, no upholstered indoor chair)?"
+  },
+  {
+   "id": "UL58",
+   "date": "2026-10-28",
+   "area": "lighting",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "More lights from the ceiling needed (real04 run 20261028-005318-full: the 50.9 m2 living and dining room had one pendant over its 3.35 m table, the bedrooms one light, the halls none). General rule: every room gets the ceiling lights of its functional zones (a row of pendants along each dining table and kitchen island by its length, a light over each seating group, bed, desk and counter run) and enough general light for its floor by the lumen method (N = E x A / (F x UF x MF), the illuminance per room type scaled by the style's decor density), spread evenly, never over a wall cabinet, a tall cabinet or a stair, never in a door swing, mounted on the slope under a sloped ceiling with its lowest point 2.0 m over the floor; the model review (M16) and Argus flag a room with too little ceiling light",
+   "lesson": "Every room gets the ceiling lights of its functional zones (a row of pendants along each dining table and kitchen island by its length, a light over each seating group, bed, desk and kitchen counter run) and enough general light for its floor by the lumen method (N = E x A / (F x UF x MF): a designer illuminance per room type scaled by the style's decor density, 1100 lm lamps), spread evenly; never over a wall cabinet, a tall cabinet, a wardrobe, a counter or a stair, never in a door swing; under a sloped ceiling a flush light is mounted on the slope with its lowest point 2.0 m over the floor; the decor stage hangs them whatever the AI chose (decor.ceiling_lights), the model review (M16) and Argus flag a room with too little ceiling light.",
+   "question": "Does every room have enough ceiling light for its size and its groups: pendants along the dining table, a light over the seating, the bed, the desk and the kitchen run, and an even general light?"
   }
  ]
 }

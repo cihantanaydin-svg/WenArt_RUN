@@ -283,7 +283,9 @@ def test_rooms_without_agreement_or_answers_get_the_rules_with_the_reason():
     out, records = applied(b, choose())                                 # both passes answer nothing
     rec = records[0]
     assert rec.fallback == "the two passes agreed on no item"
-    rule = [d for d in out["decor"] if d["method"] == "rule" and not str(d.get("reason", "")).startswith("styling")]
+    # 28 Oct 2026: the lighting rule's ceiling lights (wenart.furniture.ceiling_lights) come on top of the rules
+    rule = [d for d in out["decor"] if d["method"] == "rule" and not str(d.get("reason", "")).startswith("styling")
+            and d.get("rule") != "decor.ceiling_lights"]
     expected, _row = D.rule_decor_room(b, b["rooms"][0], b["furniture"], lambda lv: "x")
     assert sorted(d["type"] for d in rule) == sorted(d["type"] for d in expected) and rule
     # 25 Oct 2026: the room is then filled up to a styled living room's minimum from its empty slots

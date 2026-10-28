@@ -12,6 +12,8 @@ What (code, on the building as built, every room and every level):
   completeness, G9 / G10) while it holds a drawn piece nothing typed or a piece a decision took out: most likely that
   piece is the missing one (real06: the L1 bathroom's 2.42 x 0.98 m curved outline the AI left "unknown", "likely a
   bathtub or shower", and its added shower an AI decision removed).
+- M15 / M16 (28 Oct 2026, ``dressing``): the model review's outdoor-room and ceiling-light checks on the building as
+  built (an indoor rug or model in an outdoor room; a room with too little ceiling light for its zones and floor).
 
 How: a graph of the rooms and ``outside``: an opening that is not a window joins the rooms on its two sides
 (``architect_actions.window_sides``; no room = outside, an open-air room counts as outside); two rooms of a level whose
@@ -264,9 +266,35 @@ def set_links(building: dict) -> list[dict]:
     return out
 
 
+def dressing(building: dict) -> list[dict]:
+    """28 Oct 2026: the model review's M15 and M16 on the building as built, so a run whose model review predates them
+    (or ran without shapely) is still checked: an indoor rug or model in an outdoor room (user on real04's roof
+    terrace: "makes no sense to have that table with the carpet outside, that's outside area"; ``outdoor.review``)
+    and a room with too little ceiling light for its zones and floor (user: "More lights from the ceiling needed";
+    ``ceiling_lights.review``)."""
+    from wenart.blender import model_review as MR
+    from wenart.blender import outdoor as OD
+
+    rows = list(OD.review(building)[0])
+    try:
+        from wenart.furniture import ceiling_lights as CL
+
+        rows += CL.review(building, MR.density_of(building))[0]
+    except ImportError:
+        pass
+    out = []
+    for f in rows:
+        indoor_model = (f.get("metrics") or {}).get("kind_of_item") == "indoor_model"
+        out.append(K.finding("sense", f["check"], f["severity"], f["target"], f["message"],
+                             evidence={"room": f.get("room_id"), "metrics": f.get("metrics")},
+                             owner="fit" if indoor_model else "decor",
+                             fix="swap_model" if indoor_model else None))
+    return out
+
+
 def run(inp) -> dict:
     """The line for ``report.LINE_MODULES``: the building as built (the scene's), else the final one."""
     building = inp.stage("build") or inp.final
     res = audit(building)
-    res["findings"] = list(res.get("findings") or []) + (set_links(building) if building else [])
+    res["findings"] = list(res.get("findings") or []) + (set_links(building) + dressing(building) if building else [])
     return res

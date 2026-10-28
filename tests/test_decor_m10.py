@@ -296,7 +296,8 @@ def test_a_chain_of_partners_copies_the_roots_decor_to_every_room():
     mine = [d for d in out["decor"] if d["room_id"] == RID]
     twin = {d["id"]: d for d in out["decor"] if d["room_id"] == "r_b"}
     chain = [d for d in out["decor"] if d["room_id"] == "r_c"]
-    picked = {d["type"] for d in mine if not str(d.get("reason", "")).startswith("styling")}   # 25 Oct: + the fill
+    picked = {d["type"] for d in mine if not str(d.get("reason", "")).startswith("styling")   # 25 Oct: + the fill
+              and d.get("rule") != "decor.ceiling_lights"}               # 28 Oct 2026: + the lighting rule
     assert picked == {"cushion", "curtain", "vase"} and len(twin) == len(chain) == len(mine)
     for c in chain:
         d = twin[c["mirrored_from"]]                  # the copy of the twin's copy: the root's decor mirrored once

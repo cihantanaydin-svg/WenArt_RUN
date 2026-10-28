@@ -45,7 +45,9 @@ def test_a_lounge_backs_onto_the_house_clear_of_doors_steps_and_the_walkway():
     door = Point(3.0, 0.1)
     for p in plan["pieces"]:
         assert Point(p["center"]).distance(door) > O.DOOR_CLEAR_M
-    assert plan["rug"] is not None and plan["planters"] and plan["covered"] == 1.0
+    # 28 Oct 2026 (user on real04's roof terrace: "makes no sense to have that table with the carpet outside"): no rug
+    assert plan["rug"] is None and plan["planters"] and plan["covered"] == 1.0
+    assert any(n.startswith("no rug") for n in plan["notes"])
 
 
 def test_furnish_adds_pieces_and_decor_once():
@@ -54,7 +56,8 @@ def test_furnish_adds_pieces_and_decor_once():
     assert {f["type"] for f in pieces} >= {"sofa", "table_coffee"} and all(f["open_air"] for f in pieces)
     assert all(f["source"] == "added_by_ai" and f["evidence"][0]["method"] == "inferred" for f in pieces)
     decor = [d for d in out["decor"] if d.get("outdoor_space") == "os_v"]
-    assert {"rug", "plant_large", "candle"} <= {d["type"] for d in decor} and "lounge set" in notes[0]
+    assert {"plant_large", "candle"} <= {d["type"] for d in decor} and "lounge set" in notes[0]
+    assert "rug" not in {d["type"] for d in decor} and "no rug" in notes[0]          # 28 Oct 2026: no rug outside
     again, notes2 = O.furnish(out)
     assert len(again["furniture"]) == len(out["furniture"]) and not notes2      # furnished already
 

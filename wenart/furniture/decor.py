@@ -567,7 +567,13 @@ def decor_counters(items: list[dict]) -> dict[str, int]:
 def rugs_for_room(room: dict, furniture: list[dict], building: dict) -> tuple[list[dict], list[str]]:
     """The rugs of one room (without ids) and the notes for the report (docs/milestone8.md §4). Milestone 13: the
     solver's rugs already in ``building["decor"]`` (``solver_rugs``) are kept: a group one of them belongs to gets
-    no rule rug (listed), and the rule rugs stay off them."""
+    no rule rug (listed), and the rule rugs stay off them. 28 Oct 2026 (user on real04's roof terrace: "makes no
+    sense to have that table with the carpet outside, that's outside area"; its dining table got a wool runner): an
+    open-air room (``outdoor.open_air_room``: a balcony, a terrace, a room open to the sky) gets no rug."""
+    from wenart.blender import outdoor as OD
+
+    if OD.open_air_room(room):
+        return [], [f"no rug: {OD.TEXTILE_REASON}"]
     ctx = placer.room_context(building, room)
     usable = [f for f in furniture if _usable_anchor(f)]
     rugs: list[dict] = []
@@ -975,6 +981,11 @@ def add_decor(building: dict) -> tuple[dict, list[dict]]:
                                               f"{sum(1 for c in copies if c['room_id'] == rid)} item(s)"})
     for note in notes + copy_notes:
         rows.append({"room_id": "-", "label": "-", "note": note})
+    from wenart.blender import outdoor as OD
+
+    for d in OD.strip_outdoor_textiles(out):          # 28 Oct 2026: no rug or runner on an outdoor floor
+        rows.append({"room_id": d.get("room_id") or d.get("outdoor_space") or "-", "label": "-",
+                     "note": f"{d.get('type')} {d.get('id')} left out: {d['removed_reason']}"})
     attach_host_frames(out)                           # Milestone 12: every item in its host's frame
     return out, rows
 

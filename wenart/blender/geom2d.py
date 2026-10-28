@@ -885,6 +885,32 @@ def surface_z(planes: Sequence[Sequence[float]], x: float, y: float) -> float:
     return min(plane_z(p, x, y) for p in planes)
 
 
+def tilt_onto_plane(verts: Sequence[Sequence[float]], pivot: Sequence[float], a: float, b: float) -> list:
+    """28 Oct 2026 (user: "More lights from the ceiling needed"; a ceiling light under a sloped ceiling is mounted on
+    the slope): ``verts`` turned about ``pivot`` so their up axis (+Z) becomes the normal of the plane ``z = a x + b y
+    + c`` (pointing down from it: the fixture hangs under the plane, its top face in it). Pure (Rodrigues' rotation);
+    the verts unchanged under a flat plane."""
+    n = (-float(a), -float(b), 1.0)
+    length = math.sqrt(n[0] ** 2 + n[1] ** 2 + n[2] ** 2)
+    n = (n[0] / length, n[1] / length, n[2] / length)
+    kx, ky = -n[1], n[0]                            # the axis: z x n (in the plan)
+    s = math.hypot(kx, ky)
+    if s < 1e-12:
+        return [tuple(float(c) for c in v) for v in verts]
+    kx, ky = kx / s, ky / s
+    cos_t, sin_t = n[2], s
+    px, py, pz = (float(c) for c in pivot)
+    out = []
+    for v in verts:
+        x, y, z = float(v[0]) - px, float(v[1]) - py, float(v[2]) - pz
+        dot = kx * x + ky * y
+        cx, cy, cz = ky * z, -kx * z, kx * y - ky * x       # k x v with k = (kx, ky, 0)
+        out.append((px + x * cos_t + cx * sin_t + kx * dot * (1 - cos_t),
+                    py + y * cos_t + cy * sin_t + ky * dot * (1 - cos_t),
+                    pz + z * cos_t + cz * sin_t))
+    return out
+
+
 def plane_regions(planes: Sequence[Sequence[float]], piece: Sequence[Sequence[float]]) -> list[tuple[int, list]]:
     """``[(plane index, polygon)]``: where in the convex ``piece`` each plane is the lowest one (ties go to the
     lower index)."""

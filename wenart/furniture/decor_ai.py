@@ -97,6 +97,15 @@ as drawn, 1.2 m tall) where the build clipped the window to 0.81 m (top 1.71 m) 
 1.83 m: dec_L1_005 / dec_L1_014 poked 0.4 m through the roof in ext_2, ext_3, ext_5 and ext_7, the two critical
 findings left after the agent. The slots and the question are unchanged where the items still fit (the prompt names
 the slot and its types, not the sizes), so stored answers stay valid.
+
+28 Oct 2026 (user on real04 run 20261028-005318-full). "makes no sense to have that table with the carpet outside,
+that's outside area": an open-air room (``outdoor.open_air_room``) is offered only the decor one puts outside
+(``OUTDOOR_DECOR_TYPES``: no rug, curtain, blind, throw, wall art, mirror, clock, books, lamp or ceiling light) and
+``apply`` takes out any rug, runner or carpet a rule laid on an outdoor floor (``outdoor.strip_outdoor_textiles``).
+"More lights from the ceiling needed": after the AI's choice ``apply`` hangs every lit room's ceiling lights by the
+lighting rule (``ceiling_lights.add_lights``: the zones' lights, a row of pendants along a long table, the lumen
+method's general lights), before the twins copy their partner's decor (so they take the lights mirrored) and once more
+for a twin whose copy lacks them; the slots and the question are unchanged, so stored answers stay valid.
 """
 from __future__ import annotations
 
@@ -196,6 +205,17 @@ ROOM_TYPES: dict[str, tuple[str, ...]] = {
     "bathroom": ("mirror", "blind", "ceiling_light", "candle", "basket", "plant", "plant_small"),   # 27 Oct: a plant
     "wc": ("mirror", "blind", "ceiling_light"),
 }
+# 28 Oct 2026 (user on real04's roof terrace r_L1_teras: "makes no sense to have that table with the carpet outside,
+# that's outside area"; the room fell back to "other", every decor type, and the AI laid a wool runner under its table):
+# an open-air room (``outdoor.open_air_room``) takes the decor one puts outside only: plants, a lantern (candle), a
+# vase, a bowl or a tray on the table, cushions on the seats; never a rug, curtains, a blind, a throw, wall art, a
+# mirror, a clock, books, a lamp or a ceiling light of an indoor room.
+OUTDOOR_DECOR_TYPES: tuple[str, ...] = ("cushion", "plant", "plant_large", "plant_small", "vase", "bowl", "candle",
+                                        "tray", "basket", "sculpture")
+from wenart.blender import outdoor as OD  # noqa: E402
+
+for _t in OD.OPEN_AIR_ROOMS:
+    ROOM_TYPES[_t] = OUTDOOR_DECOR_TYPES
 FLOOR_PLANT_ROOM_TYPES: tuple[str, ...] = ("living", "bedroom", "dining", "hall", "other", "kitchen", "bathroom")
 FLOOR_TYPES: tuple[str, ...] = ("plant", "plant_large", "basket", "sculpture")          # Milestone 10 floor corners
 ROOM_GUIDE: dict[str, str] = {
@@ -214,6 +234,9 @@ ROOM_GUIDE: dict[str, str] = {
     "wc": "a mirror above the washbasin, a ceiling light; 1 to 2 items",
     "other": "a few items that suit the room; 1 to 5 items",
 }
+for _t in OD.OPEN_AIR_ROOMS:                # 28 Oct 2026: an outdoor room is dressed for outside
+    ROOM_GUIDE[_t] = ("an outdoor room: a lantern or candles, a vase or a bowl on the table, cushions on the seats, "
+                      "plants in pots; no rug, curtains or wall art outside; 1 to 4 items")
 # Accent colours the AI may name (linear RGB for the parametric decor, ``parametric.DECOR_COLOURS``; the library pick
 # prefers a model whose name holds the colour word).
 COLOURS: dict[str, tuple[float, float, float]] = P.DECOR_COLOURS
@@ -341,6 +364,8 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
     """The slots of one room (module docstring) and the notes of the slots left out."""
     rtype = room.get("room_type") or "other"
     allowed = set(ROOM_TYPES.get(rtype, ROOM_TYPES["other"]))
+    if OD.open_air_room(room):                  # 28 Oct 2026: a room open to the sky too, whatever its type
+        allowed &= set(OUTDOOR_DECOR_TYPES)
     slots: list[Slot] = []
     notes: list[str] = []
     if not D.room_takes_decor(room):
@@ -1137,6 +1162,32 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             rec.items, rec.fallback = fallback, why
             out["decor"].extend(fallback)
         records.append(rec)
+    by_id = {r.room_id: r for r in records}
+
+    def record_of(room_id: str) -> RoomDecor:
+        if room_id not in by_id:
+            room = next((r for r in out.get("rooms") or [] if r.get("id") == room_id), {})
+            by_id[room_id] = RoomDecor(room_id, str(room.get("label") or room_id), room.get("room_type") or "other")
+            records.append(by_id[room_id])
+        return by_id[room_id]
+
+    def light(skip: set, only: Optional[set] = None) -> None:
+        # 28 Oct 2026 (user on real04 run 20261028-005318-full: "More lights from the ceiling needed"): every lit room
+        # gets the ceiling lights of its zones and its floor (``ceiling_lights.add_lights``), whatever the AI chose
+        from wenart.furniture import ceiling_lights as CL
+
+        made, notes = CL.add_lights(out, new_id, lambda room: room_minimum(room, room_recipe(room, recipes),
+                                                                          family)["density"], skip=skip, only=only)
+        apply_brief_looks(made, style, lamps, looks)
+        present = {d.get("id") for d in out["decor"]}
+        for rec in records:                        # a pendant row laid again replaces the AI's single pendant
+            rec.items = [i for i in rec.items if i.get("id") in present]
+        for it in made:
+            record_of(it["room_id"]).items.append(it)
+        for rid, room_notes in notes.items():
+            record_of(rid).notes += room_notes
+
+    light(set(targets))                            # the partners' copies take the lights with the rest of the decor
     copies, copy_notes = D.copy_partner_decor(out, out["decor"], targets, new_id)
     out["decor"].extend(copies)
     rooms = {r["id"]: r for r in out["rooms"]}
@@ -1148,6 +1199,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         rec.notes = [f"decor copied from {pid} ({kind}, not asked)"] + [n for n in copy_notes
                                                                          if n.startswith(f"{rid}: ")]
         records.append(rec)
+        by_id[rid] = rec
     if partner_notes and records:
         records[-1].notes += partner_notes
     if recipes is not None:
@@ -1165,6 +1217,18 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             rec.items = [d for d in out["decor"] if d.get("outdoor_space") == space["id"] and d.get("id") not in before]
             rec.notes = mine
             records.append(rec)
+            by_id[space["id"]] = rec
+    light(set(), set(targets))                     # a partner's copy that lacks lights (its pieces did not map) is lit
+    # 28 Oct 2026 (user on real04's roof terrace: "makes no sense to have that table with the carpet outside"): no rug,
+    # runner or carpet on the floor of an open-air room or an outdoor space, whatever rule laid it
+    from wenart.blender import outdoor as OD
+
+    for d in OD.strip_outdoor_textiles(out):
+        rid = d.get("room_id") or d.get("outdoor_space") or "-"
+        rec = record_of(rid) if d.get("room_id") else by_id.get(rid)
+        if rec is not None:
+            rec.items = [i for i in rec.items if i.get("id") != d.get("id")]
+            rec.notes.append(f"{d.get('type')} {d.get('id')} left out: {d['removed_reason']}")
     D.attach_host_frames(out)                     # Milestone 12 (§4.7): every item in its host's frame
     return out, records
 

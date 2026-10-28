@@ -194,7 +194,8 @@ DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/fixture_seat.py", "
               "wenart/views.py",                         # M10: render.twin_rooms through views.brief_value
               "wenart/ingest/**", "wenart/sheets/**",    # M10: complete.py's size-table check (as the layout's)
               "wenart/furniture/infer.py", "wenart/furniture/plausibility.py",
-              "wenart/furniture/outdoor_sets.py") \
+              "wenart/furniture/outdoor_sets.py",
+              "wenart/furniture/ceiling_lights.py") \
     + LEVELS_CODE + GROUPS_CODE                  # M11: infer/plausibility; M12: levels (ingest), groups (G)
 DECOR_ANSWERS = "decor_ai_answers.json"
 

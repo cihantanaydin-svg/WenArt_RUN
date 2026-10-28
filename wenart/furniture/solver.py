@@ -2891,7 +2891,13 @@ def _resolved_dict(s: Spot, room: dict, cand: Cand, role: str) -> dict:
 def _rug_dicts(room: dict, node: Node, groups: list[dict]) -> list[dict]:
     """Milestone 13 (R6): the rug members of a node as decor items (``building["decor"]`` format of
     ``wenart.furniture.decor``: ``kind: decor``, ``type: rug``, ``source: added_by_ai``, ``method: rule``, ``host_id``
-    None, ``anchor_ids`` the group's anchor and members; ids are given by ``apply_candidate``)."""
+    None, ``anchor_ids`` the group's anchor and members; ids are given by ``apply_candidate``). 28 Oct 2026 (user on
+    real04's roof terrace: "makes no sense to have that table with the carpet outside"): none in an open-air room
+    (``outdoor.open_air_room``)."""
+    from wenart.blender import outdoor as OD
+
+    if OD.open_air_room(room):
+        return []
     by_group = {g["group_id"]: g for g in groups}
     out = []
     for cand in node.cands:

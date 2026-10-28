@@ -8,8 +8,9 @@ What: five rules over every element they apply to, in the shape of ``architect_r
 one answer per element: ``ok``, a ``change`` code made, or ``open`` with options):
 
 - U1 outdoor furniture: every piece on a balcony, terrace or patio is a piece one puts outside (a table, chairs, a
-  bench, a lounger, a plant), of a model made for outside or of hard materials (``fit.outdoor_grade``: the fit ranks
-  such models first since 25 Oct 2026). An inside-only piece the AI added is not built (code); a drawn one is asked.
+  bench, a lounger, a plant), of a model made for outside (``outdoor.outdoor_ready``; 28 Oct 2026: "hard materials"
+  no longer pass, the fit takes only such models there, else the weather-proof parametric family). An inside-only
+  piece the AI added is not built (code); a drawn one is asked.
 - D3 doors to the terraces: wide enough (0.80 m), glazed (a door to a terrace is joinery of the facade: a mostly-glass
   library model or the glazed door in the windows' frame finish, ``opening_models.GLAZED_DOOR_MIN_SHARE``).
 - K1 stairs: risers 0.15-0.19 m, goings of 0.25 m or more, 2 risers + 1 going 0.60-0.65 m (Blondel), 0.80 m wide or
@@ -118,6 +119,21 @@ def open_air_rooms(plan: AA.Plan) -> dict:
     return {r["id"]: r for r in plan.rooms if str(r.get("room_type") or "").lower() in AA.OPEN_AIR}
 
 
+def _outdoor_ready(asset: dict, ftype: str) -> tuple[bool, str]:
+    """28 Oct 2026: whether a fitted library model is made for outside: the fit's record (``asset.outdoor``), else the
+    model's own words (``outdoor.outdoor_ready``), else an older fit's grade 0 (named or built for outside)."""
+    from wenart.blender import outdoor as OD
+
+    rec = asset.get("outdoor") if isinstance(asset.get("outdoor"), dict) else None
+    if rec is not None and "ready" in rec:
+        return bool(rec["ready"]), str(rec.get("reason") or "")
+    if any(asset.get(k) for k in ("title", "name")):
+        return OD.outdoor_ready(asset, ftype)
+    if asset.get("outdoor_grade") == 0:
+        return True, "an older fit's outdoor grade 0"
+    return False, "no word of the model says outside"
+
+
 def outdoor_furniture(plan: AA.Plan) -> dict:
     """U1 (pure; in place): an inside-only piece the AI added to an open-air room is not built; a drawn one is asked
     (remove it, or a table-like piece becomes the terrace's table); an outdoor type is ok when its model is made for
@@ -147,16 +163,19 @@ def outdoor_furniture(plan: AA.Plan) -> dict:
                   f"Is {f['id']} really a {t} on the terrace, or the terrace's table?", options, where=where)
             continue
         asset = f.get("asset") if isinstance(f.get("asset"), dict) else {}
-        grade = asset.get("outdoor_grade")
-        if grade is None and asset.get("method") == "library":
-            from wenart.blender.outdoor import outdoor_grade               # the model's own words and materials
-            grade = outdoor_grade(asset)
-        if asset.get("method") == "library" and grade == 2:
-            _ans(q, f["id"], f"{name}: the model fitted ({asset.get('asset_id')}) is an inside model (upholstered or "
-                             f"named for inside): no model made for outside fits its size in the library "
-                             f"(library gap)", library_gap=True)
+        ready, why = _outdoor_ready(asset, t)
+        if asset.get("method") == "library" and not ready:
+            # 28 Oct 2026 (user on real04's roof terrace: "makes no sense to have that table with the carpet outside"):
+            # a wood model without upholstery is no outdoor model ("hard materials" let the "Traditional Dining Table"
+            # pass); the fit takes outdoor models only since, so this is a pinned or an older fit
+            _ans(q, f["id"], f"{name}: the model fitted ({asset.get('asset_id')}) is an inside model ({why}): the fit "
+                             f"takes only models made for outside here (rule fit.outdoor_room); refit it",
+                 library_gap=True)
         elif asset.get("method") == "library":
-            _ans(q, f["id"], f"{name}: {'a model made for outside' if grade == 0 else 'hard materials'}")
+            _ans(q, f["id"], f"{name}: a model made for outside ({why})")
+        elif asset.get("outdoor_build"):
+            _ans(q, f["id"], f"{name}: built by the {asset.get('method')} family in weather-proof materials (no "
+                             f"outdoor library model fits: library gap)", library_gap=True)
         else:
             _ans(q, f["id"], f"{name}: built by the module or parametric family (hard materials)")
     return q

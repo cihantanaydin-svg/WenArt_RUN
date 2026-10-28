@@ -135,7 +135,8 @@ def test_the_decor_stage_fills_a_room_to_its_style_and_the_architect_checks_the_
     for fam in ("japandi", "scandinavian", "classic"):
         out, records = DA.apply(b, STYLE, answers, style={"family": fam})
         rid = records[0].room_id
-        counts[fam] = len([d for d in out["decor"] if d["room_id"] == rid])
+        counts[fam] = len([d for d in out["decor"] if d["room_id"] == rid   # 28 Oct 2026: not the lighting rule's
+                           and d.get("rule") != "decor.ceiling_lights"])
         kept[fam] = out["decor_minimum"][rid]
         fill = [d for d in out["decor"] if str(d.get("reason", "")).startswith("styling")]
         assert fill and f"the {fam} family" in fill[0]["reason"]
