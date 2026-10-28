@@ -90,6 +90,9 @@ best models"; ``scripts/jobs/library_growth.sh`` ``GROWTH_ONLY=openings``):
     vision-fields                       also a door's or window's quality (``audit_quality``) and the opening
                                         question's answer (``opening_vision``: role, operation, leaves, glazing,
                                         leaf, handle side; ``ask.version_openings``)
+    second-look [--summary]             the pending models the vision audit doubted (``second_look_ids``) join the
+                                        new ones in ``audit_ids.json`` (render, code, ask pass 1 and 2, decide,
+                                        write); the P3 ones go to ``pending``; ``--summary``: their status after
 
 Exit codes: 0 done, 1 something failed or nothing to do (the record says which), 2 server error, 3 deadline.
 """
@@ -1366,6 +1369,76 @@ def cmd_vision_fields(args) -> int:
     return EXIT_OK
 
 
+# --------------------------------------------------------------------------
+# The second look at the doubted models (28 Oct 2026)
+# --------------------------------------------------------------------------
+
+AUDIT_IDS = "audit_ids.json"          # <p4>/audit/: the new ids and the doubted ones the render, code, decide take
+
+
+def second_look_ids(*docs: Optional[dict]) -> dict:
+    """The pending entries a second audit pass settles (pure; 28 Oct 2026, ``wenart.furniture.model_title``
+    ``audit_doubt``: the vision check said a model is not its type or found its size odd; ``decide.second_look``):
+    ``{"p4": [ids], "p3": [ids], "other": [ids]}``. ``p4``: audited by a growth pod (a ``growth`` record: their pass 1
+    answers and renders are in the growth audit folder), ``p3``: the library audit of pod P3 (decided by ``pending``
+    with P3's answers), ``other``: pending for another reason (a front turned off its detail side, a re-audit, no
+    title rules record): the type question does not settle them, they stay as they are."""
+    out: dict = {"p4": [], "p3": [], "other": []}
+    for doc in docs:
+        for sec in ("entries", "decor", "extras"):
+            for e in (doc or {}).get(sec) or []:
+                a = e.get("audit") if isinstance(e, dict) and isinstance(e.get("audit"), dict) else {}
+                if not e.get("id") or str(a.get("status") or "") != "pending":
+                    continue
+                rules = {f.get("rule") for f in (a.get("title_rules") or {}).get("findings") or []
+                         if isinstance(f, dict)}
+                if rules != {"audit_doubt"} or isinstance(a.get(REAUDIT), dict):
+                    out["other"].append(e["id"])
+                else:
+                    out["p4" if e.get("growth") else "p3"].append(e["id"])
+    return {k: sorted(set(v)) for k, v in out.items()}
+
+
+def cmd_second_look(args) -> int:
+    """28 Oct 2026 (coordinator: one pod both audits the new doors and windows and settles the pending models): the
+    ids the audit steps take (``<p4>/audit/audit_ids.json``: the new ids of ``new_ids.json`` plus the doubted growth
+    models of the copies, ``second_look_ids``) and ``report/second_look.json``; the doubted models are rendered (or
+    their current render reused), coded, asked pass 1 (answers reused while current) and pass 2 (``cli
+    .second_pass_ids``), decided (``decide.second_look``) and written with the new ones; the P3 ones by ``pending``.
+    ``--summary`` (after the write and pending steps): their status now, by source."""
+    from collections import Counter
+    lib_path, ph_path = copies(args)
+    lib, ph = read_json(lib_path), read_json(ph_path)
+    if not lib or not ph:
+        print(f"growth second-look: no catalogue copies in {lib_path.parent}: run the catalogue step first")
+        return EXIT_NOTHING
+    rep = report_dir(args) / "second_look.json"
+    if getattr(args, "summary", False):
+        prev = read_json(audit_dir(args) / AUDIT_IDS) or {}
+        status = {e["id"]: ((e.get("audit") or {}).get("status") or "unaudited", e.get("source"))
+                  for d in (lib, ph) for s in ("entries", "decor", "extras") for e in d.get(s) or []
+                  if isinstance(e, dict) and e.get("id")}
+        ids = list(prev.get("second_look") or []) + list(prev.get("p3") or [])
+        after = Counter(f"{status.get(i, ('missing', None))[1]}:{status.get(i, ('missing', None))[0]}" for i in ids)
+        doc = dict(read_json(rep) or {}, after=dict(sorted(after.items())), summary_utc=now_utc())
+        write_json(rep, doc)
+        print(f"growth second-look: after the audit {dict(sorted(after.items()))}")
+        return EXIT_OK
+    sel = second_look_ids(lib, ph)
+    nid = new_ids(args)
+    new = list(nid.get("ids") or [])
+    ids = new + [i for i in sel["p4"] if i not in set(new)]
+    write_json(audit_dir(args) / AUDIT_IDS, {"kind": "library_audit_ids", "written_utc": now_utc(), "ids": ids,
+                                             "new": new, "second_look": sel["p4"], "p3": sel["p3"],
+                                             "left_pending": sel["other"]})
+    write_json(rep, {"kind": "library_second_look", "written_utc": now_utc(), "growth": len(sel["p4"]),
+                     "p3": len(sel["p3"]), "left_pending": len(sel["other"]), "ids": sel})
+    print(f"growth second-look: {len(sel['p4'])} doubted growth model(s) join the {len(new)} new one(s) "
+          f"({len(ids)} to audit), {len(sel['p3'])} P3 model(s) for the pending step, {len(sel['other'])} pending "
+          f"for another reason stay")
+    return EXIT_OK
+
+
 def cmd_pending(args) -> int:
     """The P3 models still pending (``audit.status`` pending in the copies, not new in P4) decided with P3's answers
     (pass 2 asked by ``ask``) and written into the copies (``write.apply_decisions``)."""
@@ -1712,7 +1785,9 @@ STEPS = {"ingest": cmd_ingest, "gso-licence": cmd_gso_licence, "infinigen-list":
          # Milestone 13 (track T7)
          "demands": cmd_demands, "size-grid": cmd_size_grid, "speed-probe": cmd_speed_probe,
          # Milestone 13 round 3: the current file of an entry waiting for a re-audit
-         "refetch": cmd_refetch}
+         "refetch": cmd_refetch,
+         # 28 Oct 2026: the doubted models settled by the same pod (GROWTH_ONLY=openings)
+         "second-look": cmd_second_look}
 M13_STEPS = ("demands", "size-grid", "speed-probe")
 ONLY_SOURCES = ("hssd", "abo", "polyhaven", "gso", "infinigen", "3dwh",      # catalogue --only (GROWTH_ONLY=hssd)
                 "hssd_openings")                                             # 28 Oct 2026 (GROWTH_ONLY=openings)
@@ -1747,6 +1822,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--steps", default=None, help="report: the job's steps.tsv")
     p.add_argument("--only", default=None, help="catalogue: only these sources, comma separated (GROWTH_ONLY=hssd); "
                                                  "every other entry stays as the repo's catalogues have it")
+    p.add_argument("--summary", action="store_true", help="second-look: the doubted models' status after the audit")
     return p
 
 

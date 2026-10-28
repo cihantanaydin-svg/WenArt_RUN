@@ -1982,7 +1982,10 @@ moment, some variation is needed", then "find the best models" (lesson UL65, now
 | inside doors | library models per role (`opening_models.plan_inside`: glazed into living rooms and kitchens, solid to private rooms, sliding where drawn; the door style of `looks.door_look`), one family per role, the glazed role preferring the solid doors' series, never a facade family; centred in the wall, facing the room it opens into, mirrored to a drawn hinge side, lever handles when the model has none; the parametric door where nothing fits (warned, assumed); `WENART_LIBRARY_INSIDE_DOORS=off` for an A/B |
 | Argus | `opening_models.door_variety_problems` (every door one model, an inside door model on the facade, an entrance without a statement door); model review M6 counts the inside doors per role |
 
-Pod job (not run yet): `scripts/jobs/library_growth.sh` `GROWTH_ONLY=openings` (download, catalogue, render, code, ask,
-decide, write, vision-fields, sheets, report, GPU tests), about 30-40 min on the RTX PRO 6000 (about $1.3-1.7; cap
-75 min, worst case about $3.1). Infinigen's door and window factories were checked at the pinned commit and left out
+Pod job (not run yet): `scripts/jobs/library_growth.sh` `GROWTH_ONLY=openings` (download, catalogue, second-look,
+render, code, ask, decide, write, vision-fields, pending, sheets, report, GPU tests). The same pod gives the models
+pending for an audit doubt of their type or size (`model_title` `audit_doubt`: 420 growth models, 32 P3 ones; 42 more
+pending for another reason stay) their second pass (`growth run second-look`: `audit_ids.json`; the type question
+of `cli.second_pass_ids`, then `decide.second_look`). About 45-75 min on the RTX PRO 6000 (about $1.9-3.1; cap
+100 min, worst case about $4.2). Infinigen's door and window factories were checked at the pinned commit and left out
 (its generated furniture rated 2 of 5 in the same audit).

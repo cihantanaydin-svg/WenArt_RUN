@@ -62,17 +62,24 @@
 #                        window series of hssd-models objects/openings/ and the named products; the HSSD gate as for
 #                        GROWTH_ONLY=hssd: HF_TOKEN from the pod secret, never printed), then catalogue --only
 #                        hssd_openings (extras entries of kind opening: the series, the table's kind, operation and
-#                        categories), render, code, ask (the m13.3 opening question: role, operation, leaves,
-#                        glazing, leaf, handle side), decide, write, vision-fields (styles, audit_quality,
-#                        opening_vision), sheets, report and the GPU tests. No other download or catalogue entry; a
-#                        second run resumes. About 30-40 min with the pod's start: the vLLM setup (8-12 min) runs
-#                        beside the download (seconds), the catalogue (~1 min) and the render (197 small GLBs at
-#                        P2b's 1.4 s to the 3D Warehouse pods' 3 s a model: 5-10 min), then the ask (~5 min at 1.5 s
-#                        a request), decide to report 2-3 min, GPU tests 1-2 min; the cap of 75 min leaves room
-#                        (worst case about $3.1 on the RTX PRO 6000 at $2.5/h: no --over-5-ok):
+#                        categories), second-look (the pending models whose own audit doubted their type or size,
+#                        wenart/furniture/model_title.py audit_doubt: about 420 growth models join the audit ids,
+#                        audit_ids.json; about 30 P3 ones go to the pending step), render, code, ask (the m13.3
+#                        opening question: role, operation, leaves, glazing, leaf, handle side; pass 2, the type
+#                        question, for every doubted model: cli.second_pass_ids), decide (decide.second_look:
+#                        confirmed, removed or still pending), write, vision-fields (styles, audit_quality,
+#                        opening_vision), pending (the P3 ones with P3's answers), second-look --summary, sheets,
+#                        report and the GPU tests. No other download or catalogue entry; a second run resumes.
+#                        About 45-75 min with the pod's start: the vLLM setup (8-12 min) runs beside the download
+#                        (seconds), the catalogue (~1 min) and the render (197 small GLBs, 5-10 min; the doubted
+#                        models' renders are reused when current, else ~420 x 1.4-3 s: up to 20 min), then the ask
+#                        (the doors and windows ~5 min at 1.5 s a request; the doubted models' pass 2 ~420 x 1 s,
+#                        ~7 min, and their pass 1 again only where the question or the sheet changed: up to 10 min),
+#                        decide to report 3-5 min, GPU tests 1-2 min; the cap of 100 min leaves room (worst case
+#                        about $4.2 on the RTX PRO 6000 at $2.5/h: no --over-5-ok):
 #     python3 scripts/gpu_run.py run --job scripts/jobs/library_growth.sh --gpu 'RTX PRO 6000' --disk 150 \
-#       --max-minutes 75 --env GROWTH_ONLY=openings --env AUDIT_MODEL_KEY=agent \
-#       --purpose "HSSD doors and windows: download, audit (opening question)"
+#       --max-minutes 100 --env GROWTH_ONLY=openings --env AUDIT_MODEL_KEY=agent \
+#       --purpose "HSSD doors and windows audit + second look at the doubted models"
 #
 # Milestone 12 pod P4: the library growth (docs/milestone12.md §6.4 D24, §14.3; docs/m12_tracks/P4.md). The four lists
 # the user approved on 11 Oct 2026 (results/library/growth/approved_*.json, read through growth.approved, the
@@ -582,8 +589,9 @@ if [ "$GROWTH_ONLY" = hssd ]; then
   run_step coverage gr size-grid
 elif [ "$GROWTH_ONLY" = openings ]; then
   # --- GROWTH_ONLY=openings (28 Oct 2026): the HSSD doors and windows alone; every other entry stays as it is ------
-  log "GROWTH_ONLY=openings: ingest-openings, catalogue --only hssd_openings, render, code, ask, decide, write," \
-      "vision-fields, sheets, report, GPU tests; every other download and catalogue entry stays as it is"
+  log "GROWTH_ONLY=openings: ingest-openings, catalogue --only hssd_openings, second-look, render, code, ask," \
+      "decide, write, vision-fields, pending, second-look-summary, sheets, report, GPU tests; every other download" \
+      "and catalogue entry stays as it is (the doubted models get their second pass)"
   if [ -z "${HF_TOKEN:-}" ]; then
     log "ingest-openings: SKIPPED: HF_TOKEN is not set in the environment (the RunPod secret hf_token):" \
         "GROWTH_ONLY=openings has nothing to do; the HSSD layer needs the account that accepted the terms at" \
@@ -601,12 +609,23 @@ elif [ "$GROWTH_ONLY" = openings ]; then
     exit 1
   fi
   run_step catalogue gr catalogue --only hssd_openings
-  if need 300 render; then run_step render au render "${RENDER_ARGS[@]}"; fi
-  run_step code au code --work "$P4/work" --ids-file "$P4A/new_ids.json"
+  # the pending models whose own audit doubted their type or size (wenart.furniture.model_title audit_doubt) are
+  # audited with the new ones: render (current renders reused), code, ask pass 1 (answers reused while current) and
+  # pass 2 (cli.second_pass_ids), decide (decide.second_look), write; the P3 ones by the pending step
+  run_step second-look gr second-look
+  IDS="$P4A/audit_ids.json"
+  [ -f "$IDS" ] || IDS="$P4A/new_ids.json"
+  OPEN_RENDER_ARGS=(--assets "$ASSETS" --work "$P4/work" --workers "$AUDIT_WORKERS" --blender "$WENART_BLENDER"
+                    --ids-file "$IDS")
+  if [ -n "${WENART_DEADLINE:-}" ]; then OPEN_RENDER_ARGS+=(--deadline "$WENART_DEADLINE"); fi
+  if need 300 render; then run_step render au render "${OPEN_RENDER_ARGS[@]}"; fi
+  run_step code au code --work "$P4/work" --ids-file "$IDS"
   ask_step
-  run_step decide au decide --model-key "$MODEL_KEY" --ids-file "$P4A/new_ids.json"
+  run_step decide au decide --model-key "$MODEL_KEY" --ids-file "$IDS"
   run_step write au write
   run_step vision-fields gr vision-fields --model-key "$MODEL_KEY"
+  run_step pending gr pending --model-key "$MODEL_KEY"
+  run_step second-look-summary gr second-look --summary
   run_step sheets au sheets
 elif [ "$GROWTH_ONLY" = 3dwh ]; then
   # --- GROWTH_ONLY=3dwh (23 Oct 2026): the 3D Warehouse layer alone; every other entry stays as it is ------------

@@ -611,8 +611,14 @@ def test_growth_every_new_entry_has_an_audit_record():
 def test_growth_p3_pending_models_got_their_second_pass():
     lib = p4_doc("catalogue/catalog_library.json")
     new = set(p4_doc("new_ids.json")["ids"])
-    left = [e["id"] for s in ("entries", "decor") for e in lib.get(s) or []
-            if (e.get("audit") or {}).get("status") == "pending" and e["id"] not in new]
+    # 28 Oct 2026: the P3 models (no growth record) pending for pass 2 or for an audit doubt of their type or size
+    # (model_title audit_doubt); the growth models are the second look's (test_growth_second_look_settles_...) and a
+    # model pending for another reason (a front off its detail side) waits for another pass
+    def p3_pending(e):
+        a = e.get("audit") or {}
+        rules = {f.get("rule") for f in (a.get("title_rules") or {}).get("findings") or []}
+        return a.get("status") == "pending" and not e.get("growth") and rules <= {"audit_doubt"}
+    left = [e["id"] for s in ("entries", "decor") for e in lib.get(s) or [] if p3_pending(e) and e["id"] not in new]
     if left and not (AUDIT_P4 / "pending_p3" / "audit.json").is_file():
         pytest.skip("P3's audit folder was not on the volume (no pass 2 for its pending models)")
     assert not left, left
@@ -751,6 +757,25 @@ def test_growth_3dwh_every_model_is_accounted_for_and_fixed_onto_the_floor_centr
         assert not C.usable(e, "commercial") and e["glb"] == f"models/3dwh/{e['id']}.glb"
     pending = [e["id"] for e in wh if (e.get("audit") or {}).get("status") == "pending"]
     assert len(pending) <= 0.05 * len(wh), pending[:20]
+
+
+def test_growth_second_look_settles_the_doubted_growth_models():
+    """GROWTH_ONLY=openings (28 Oct 2026, the coordinator): the growth models pending for an audit doubt of their
+    type or size were audited again with the new doors and windows (pass 2, the type question): at least 80 % are
+    settled (confirmed: keep / fix; or removed: two passes doubt them); each settled one is decided in audit.json."""
+    rep = _m13_report("second_look.json")
+    ids = list((rep.get("ids") or {}).get("p4") or [])
+    if not ids:
+        pytest.skip("no doubted growth model to settle")
+    lib = p4_doc("catalogue/catalog_library.json")
+    ph = p4_doc("catalogue/catalog.json")
+    status = {e["id"]: (e.get("audit") or {}).get("status") for d in (lib, ph) for s in ("entries", "decor", "extras")
+              for e in d.get(s) or [] if isinstance(e, dict) and e.get("id") in set(ids)}
+    settled = [i for i in ids if status.get(i) in ("keep", "fix", "removed")]
+    print(f"second look: {len(settled)} of {len(ids)} settled, after {rep.get('after')}")
+    assert len(settled) >= 0.8 * len(ids), [i for i in ids if i not in settled][:20]
+    rows = {r["id"] for r in p4_doc("audit.json")["items"]}
+    assert set(settled) <= rows
 
 
 def test_growth_openings_every_pick_is_catalogued_and_audited_with_the_opening_question():

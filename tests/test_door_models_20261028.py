@@ -183,6 +183,55 @@ def test_the_catalogue_step_builds_the_opening_entries_alone(tmp_path):
     assert row["dropped"] == 1
 
 
+def test_the_same_pod_gives_the_doubted_models_their_second_look(tmp_path):
+    """Coordinator, 28 Oct 2026: the pending models whose own audit doubted their type or size (model_title
+    ``audit_doubt``) are audited with the new doors and windows: the growth ones join the audit ids, the P3 ones go
+    to the pending step, the ones pending for another reason (a front off its detail side) stay."""
+    def pend(iid, rules, growth=True):
+        e = {"id": iid, "type": "fridge", "audit": {"status": "pending", "title_rules": {
+            "findings": [{"rule": r, "status": "review"} for r in rules]}}}
+        if growth:
+            e["growth"] = {"pod": "P2"}
+        return e
+    lib = {"entries": [pend("hssd_a", ["audit_doubt"]), pend("abo_old", ["audit_doubt"], growth=False),
+                       pend("3dwh_f", ["front_side"]), pend("3dwh_b", ["audit_doubt", "front_side"]),
+                       {"id": "ok_1", "audit": {"status": "keep"}}],
+           "decor": [pend("3dwh_d", ["audit_doubt"])], "extras": [{"id": "hssd_200-19", "audit": {"status": "pending"}}]}
+    sel = GR.second_look_ids(lib, {"entries": []})
+    assert sel == {"p4": ["3dwh_d", "hssd_a"], "p3": ["abo_old"], "other": ["3dwh_b", "3dwh_f", "hssd_200-19"]}
+    # the step: the audit ids are the new ones plus the doubted growth models; --summary records their status after
+    p4 = tmp_path / "p4" / "audit"
+    (p4 / "catalogue").mkdir(parents=True)
+    (p4 / "catalogue" / "catalog_library.json").write_text(json.dumps(lib))
+    (p4 / "catalogue" / "catalog.json").write_text(json.dumps({"entries": []}))
+    (p4 / "new_ids.json").write_text(json.dumps({"ids": ["hssd_200-19"]}))
+    a = Namespace(growth=str(tmp_path / "g"), report=None, p4=str(tmp_path / "p4"), summary=False)
+    assert GR.cmd_second_look(a) == 0
+    ids = json.loads((p4 / GR.AUDIT_IDS).read_text())
+    assert ids["ids"] == ["hssd_200-19", "3dwh_d", "hssd_a"] and ids["p3"] == ["abo_old"]
+    lib["entries"][0]["audit"] = {"status": "keep"}
+    (p4 / "catalogue" / "catalog_library.json").write_text(json.dumps(lib))
+    assert GR.cmd_second_look(Namespace(**{**vars(a), "summary": True})) == 0
+    rep = json.loads((tmp_path / "g" / "report" / "second_look.json").read_text())
+    assert rep["growth"] == 2 and rep["after"]["None:keep"] == 1 and rep["after"]["None:pending"] == 2
+    assert "second-look" in GR.STEPS and GR.parser().parse_args(["second-look", "--summary"]).summary
+
+
+def test_the_doubted_models_get_the_type_question_and_their_decision_follows_it():
+    from wenart.assets.audit import cli as CLI
+    from wenart.assets.audit import decide as D
+    item = {"id": "3dwh_w", "type": "wardrobe", "kind": "furniture", "title": "WARDROBE", "source": "3dwh"}
+    first = {"3dwh_w": {"is_type": False, "type_guess": "other", "size_plausible": False}}
+    assert CLI.second_pass_ids([item], first) == {"3dwh_w"}
+    reasons, notes, doubts, pending = [], [], [], []
+    D.second_look("the vision check says it is not a wardrobe", item, {"type_guess": "wardrobe"}, reasons, notes,
+                  doubts, pending)
+    assert not reasons and not pending and "confirmed" in notes[0]
+    reasons, notes, doubts, pending = [], [], [], []
+    D.second_look("the vision check says it is not a wardrobe", item, None, reasons, notes, doubts, pending)
+    assert pending and doubts
+
+
 # --------------------------------------------------------------------------
 # the opening question of the audit and its fields in the catalogue
 # --------------------------------------------------------------------------

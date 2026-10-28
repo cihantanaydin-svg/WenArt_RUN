@@ -71,6 +71,8 @@ if args[:4] == ["-m", "wenart.assets", "growth", "run"]:
         write(p4 / "audit" / "new_ids.json", json.dumps({"ids": ["hssd_fake"], "only": [only], "kept_ids": ["abo_x"]})
               if only else '{"ids": ["abo_x"]}')
         write(rep / "catalogue.json", "{}")
+    elif step == "second-look" and "--summary" not in args:
+        write(p4 / "audit" / "audit_ids.json", json.dumps({"ids": ["hssd_200-19", "3dwh_doubted"]}))
     elif step == "ask":
         answered = (p4 / "audit" / "ask" / "answers_fake.json").exists()
         if "--plan-only" in args:
@@ -347,15 +349,15 @@ def test_growth_only_3dwh_moves_an_html_answer_aside_and_stops_without_a_model(t
 # windows in one pod
 # --------------------------------------------------------------------------
 
-OPENING_STEPS = ("ingest-openings", "catalogue", "render", "code", "ask", "decide", "write", "vision-fields",
-                 "sheets", "report", "gpu-tests")
+OPENING_STEPS = ("ingest-openings", "catalogue", "second-look", "render", "code", "ask", "decide", "write",
+                 "vision-fields", "pending", "second-look-summary", "sheets", "report", "gpu-tests")
 
 
 @pytest.mark.skipif(not Path("/bin/bash").exists(), reason="bash needed")
 def test_growth_only_openings_audits_the_hssd_doors_and_windows_alone_and_resumes(tmp_path):
     """GROWTH_ONLY=openings: setup-check, ingest --source hssd_openings (the HSSD gate: HF_TOKEN, never written),
-    catalogue --only hssd_openings, render of the new ids, code, ask, decide, write, vision-fields, sheets, report,
-    GPU tests and nothing else; a second run resumes (every answer current: no server); no token: nothing done; no
+    catalogue --only hssd_openings, second-look (the doubted models join the new ones: audit_ids.json), render, code,
+    ask, decide, write, vision-fields, pending, second-look --summary, sheets, report, GPU tests and nothing else; a second run resumes (every answer current: no server); no token: nothing done; no
     model on the volume: the report only."""
     ws, env = _workspace(tmp_path)
     env.update(GROWTH_ONLY="openings", HF_TOKEN="hf_fake_secret_value_for_the_test")
@@ -366,10 +368,14 @@ def test_growth_only_openings_audits_the_hssd_doors_and_windows_alone_and_resume
     assert any(c.startswith("-m wenart.assets growth run ingest --source hssd_openings --workers 8 --token-env "
                             "HF_TOKEN") for c in calls)
     assert any(c.startswith("-m wenart.assets growth run catalogue --only hssd_openings") for c in calls)
-    assert any(c.startswith("-m wenart.assets audit render") and "--ids-file" in c for c in calls)
+    # the doubted models join the new ones (audit_ids.json) for the render, the code and the decision
+    for step in ("render", "code", "decide"):
+        assert any(c.startswith(f"-m wenart.assets audit {step}") and "audit_ids.json" in c for c in calls), step
+    assert any(c.startswith("-m wenart.assets growth run second-look --summary") for c in calls)
+    assert any(c.startswith("-m wenart.assets growth run pending") for c in calls)
     for never in ("--source hssd ", "--source abo", "--source polyhaven", "--source gso", "--source 3dwh",
                   "growth run demands", "growth run speed-probe", "growth run convert", "growth run refetch",
-                  "growth run pending", "growth run preview", "growth run gaps", "infinigen"):
+                  "growth run preview", "growth run gaps", "infinigen"):
         assert not any(never in c + " " for c in calls), never
     texts = [p.read_text(errors="replace") for p in (tmp_path / "results").rglob("*") if p.is_file()]
     assert texts and not any("hf_fake_secret_value_for_the_test" in t for t in texts + [out])
