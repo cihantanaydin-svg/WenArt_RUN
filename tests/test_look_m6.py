@@ -81,7 +81,8 @@ def test_piece_boxes_of_every_type_are_the_milestone_5_boxes():
     assert {k.split("|")[0] for k in table} == types
     # Milestone 12 (docs/milestone12.md §6.4): our new fridge, washing machine and shower keep their handles and
     # fronts inside the footprint (the old ones stood 8 mm proud): their box is the footprint, at least as high
-    m12_fixtures = {"fridge", "washing_machine", "shower"}
+    m12_fixtures = {"fridge", "washing_machine", "shower",
+                    "bathtub"}      # 28 Oct 2026: the parametric bath with its rim, mixer and panels (a real height)
     for key, want in table.items():
         ftype, size, height = key.split("|")
         w, d = (float(v) for v in size.split("x"))

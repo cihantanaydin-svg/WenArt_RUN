@@ -183,3 +183,12 @@ def test_the_inspector_asks_what_the_user_pointed_at():
     for c in new + ("X9", "X10"):
         assert P.CHECKLIST[c]["how"] == "V" and CS.CHECK_CAUSE[c] in CS.CAUSES and K.kind_of({"check": c}) != "other"
     assert "glazed frame on a piece of furniture" in P.CHECKLIST["D2"]["what"]
+
+
+def test_the_doors_of_the_house_are_checked_for_variety():
+    man = {"objects": [{"kind": "door", "element_id": f"d{i}", "library_model": {"asset_id": "x", "title": "Front Door",
+                                                                                "category": "door"}}
+                       for i in range(4)]}
+    got = LS.door_variety(man)
+    assert got and all(f["check"] == "U15" and f["evidence"]["lesson"] == "UL65" for f in got)
+    assert LS.door_variety({"objects": []}) == []

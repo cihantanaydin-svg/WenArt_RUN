@@ -92,7 +92,7 @@ CHECK_KIND = {
     "Q10": "no_sense", "Q11": "no_sense", "Q12": "no_sense", "Q13": "taste", "Q14": "taste", "Q15": "taste",
     "X9": "no_sense", "X10": "no_sense",
     # 28 Oct 2026: the lessons line (wenart.audit.lessons): what the user pointed at, measured
-    "U11": "taste", "U12": "taste", "U13": "taste", "U14": "taste",
+    "U11": "taste", "U12": "taste", "U13": "taste", "U14": "taste", "U15": "taste",
     # code critic
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation

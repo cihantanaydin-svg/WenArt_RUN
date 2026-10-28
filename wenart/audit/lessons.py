@@ -27,7 +27,9 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U13 a floor finish on a wall slot of the style (``exterior_checks.floor_texture``: "What kind of a kitchen is
   this");
 - U14 a living room or bedroom with no accent wall in the scene: every wall one paint ("more stylish internal walls
-  please better color").
+  please better color");
+- U15 the doors (``opening_models.door_variety_problems``): every door one model, an inside door model on the facade,
+  no statement entrance ("I want better doors inside the house and the outside ... some variation is needed").
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -388,6 +390,19 @@ def plain_walls(building: dict, manifest: Optional[dict]) -> list[dict]:
     return out
 
 
+def door_variety(manifest: Optional[dict]) -> list[dict]:
+    """U15: the doors of the house as a designer chooses them (``opening_models.door_variety_problems``: every door
+    one model, an inside door model on the facade, no statement entrance; user: "I want better doors inside the house
+    and the outside ... some variation is needed")."""
+    from wenart.blender import opening_models as OM
+
+    if not (manifest or {}).get("objects"):
+        return []
+    return [_f("U15", p.get("severity") or "major", p.get("target") or "doors", str(p.get("message")), "UL65",
+               "rerun_stage build (opening_models: families by role)", problem=p.get("kind"))
+            for p in OM.door_variety_problems(manifest)]
+
+
 BUILDING_CHECKS = (("U1", entrances_at_windows), ("U2", roofs_without_posts), ("U3", thick_columns),
                    ("U4", flat_drawn_roofs), ("U5", traced_covers), ("U6", storage_before_tall_windows),
                    ("U8", seats_facing_walls), ("U9", indoor_pieces_outdoors), ("U10", basins_without_mirrors),
@@ -395,7 +410,7 @@ BUILDING_CHECKS = (("U1", entrances_at_windows), ("U2", roofs_without_posts), ("
 # the lessons each code check measures (``coverage``)
 CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4": ("UL57",), "U5": ("UL64",),
                  "U6": ("UL59", "UL56"), "U7": ("UL60",), "U8": ("UL61",), "U9": ("UL20",), "U10": ("UL66",),
-                 "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",)}
+                 "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32")}
 
 
 def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
@@ -412,7 +427,7 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
         findings += got
         checked[cid] = len(got)
     for cid, fn in (("U7", lambda: door_operations(building, manifest)), ("U13", lambda: floor_finish_on_walls(manifest)),
-                    ("U14", lambda: plain_walls(building, manifest))):
+                    ("U14", lambda: plain_walls(building, manifest)), ("U15", lambda: door_variety(manifest))):
         if not manifest:
             checked[cid] = "no scene manifest: not run"
             continue
