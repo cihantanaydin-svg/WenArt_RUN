@@ -275,6 +275,10 @@ def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable
         if name == "argus_visit":                                   # 27 Oct 2026: the visitor's walk, a call per floor
             calls.setdefault("visit", []).append("image_url" in text)
             return {"answers": []}
+        if name == "argus_lessons":                                 # 28 Oct 2026: the lesson walk, per floor and outside
+            calls.setdefault("lessons", []).append(next(w for w in ("Floor L0", "Floor L1", "from outside")
+                                                        if w in text))
+            return {"answers": []}
         calls["discover"].append("image_url" in text)
         return {"found": [
             {"target": "VERANDA", "kind": "lost", "severity": "critical", "what": "the labelled veranda is missing",
@@ -286,6 +290,7 @@ def test_argus_ai_triages_every_finding_acts_through_code_and_drops_unverifiable
     assert rec["items"] >= 3 and rec["triaged"] == rec["items"] and calls["triage"] == (rec["items"] + 1) // 2
     assert calls["discover"] == [False, True]                      # one call per floor, the floor's image when there is one
     assert calls["visit"] == [False, True]                         # the visitor walks every floor too
+    assert {"Floor L0", "Floor L1"} <= set(calls["lessons"])        # the user's lessons are asked on every floor
     by = {(e["aid"], e["verdict"]) for e in rec["decisions"]}
     checks = {v["id"]: v for v in rec["verdicts"]}
     assert len(rec["decisions"]) == 2 and {v for _a, v in by} == {"accepted", "refused"}

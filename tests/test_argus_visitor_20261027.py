@@ -113,7 +113,7 @@ def test_the_visitor_walks_every_stair_and_outdoor_space_and_reports_on_the_elem
          "cause": "site", "fix": "rule_needed", "value": "", "args": "", "rule": ""}]}
     def reply(body):                     # the floors are walked in parallel: answer by the floor's questions
         return answers if "sense:L1" in json.dumps(body.get("response_format")) else {"answers": []}
-    model = MockModel(critic=[reply, reply])
+    model = MockModel(critic=[reply] * 12)          # 28 Oct 2026: + the lesson walk's calls (argus_lessons)
     inp = I.Inputs(project="t", layout="results", root=tmp_path)
     inp.stages = [("final", b)]
     found, got = AI.visit(model, inp, ["facts"])
@@ -124,7 +124,8 @@ def test_the_visitor_walks_every_stair_and_outdoor_space_and_reports_on_the_elem
     sense = next(f for f in found if f["check"] == "AI4" and f is not stair)
     assert sense["target"] == "os_L1_b"                               # the label the model named, as an element id
     schemas = [json.dumps(r["response_format"]) for r in model.critic_requests()]
-    assert all("argus_visit" in s for s in schemas)
+    assert sum("argus_visit" in s for s in schemas) == 2                # one visitor call per floor
+    assert all("argus_visit" in s or "argus_lessons" in s for s in schemas)
 
 
 def test_an_exterior_view_of_a_veranda_is_judged_against_veranda_photos():

@@ -473,6 +473,9 @@ CHECK_CAUSE: dict[str, str] = {
     # 26 Oct 2026: the visitor checks (cause_of refines Q4-Q6 from the message)
     "Q1": "opening_sense", "Q2": "wrong_model", "Q3": "guard", "Q4": "empty_room", "Q5": "wrong_model",
     "Q6": "orientation", "Q7": "opening_style", "Q8": "rain_water", "Q9": "entrance_layout",
+    # 28 Oct 2026: what the user pointed at (prompts Q10-Q15, X9, X10)
+    "Q10": "wrong_type", "Q11": "light_fixture", "Q12": "missing_member", "Q13": "missing_member", "Q14": "material",
+    "Q15": "decor_look", "X9": "terrain", "X10": "roof",
     # 26 Oct 2026: the review of the 3D model as built (wenart/blender/model_review.py; cause_of refines M7)
     "M1": "levels", "M2": "wrong_model", "M3": "guard", "M4": "opening_sense", "M5": "rain_water",
     "M6": "opening_style", "M7": "missing_anchor", "M8": "entrance_layout", "M9": "stair_access",

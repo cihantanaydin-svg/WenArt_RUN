@@ -472,6 +472,19 @@ def adjacent_room(centre, wall: dict, rooms: list[dict]) -> dict | None:
     return None
 
 
+def door_sides(centre, wall: dict, rooms: list[dict]) -> list:
+    """The room types on the two sides of an opening (None for no room: outside), the left side of the wall direction
+    first (28 Oct 2026: ``looks.role_door_style``)."""
+    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+    reach = float(wall["thickness"]) / 2.0 + DEFAULTS["face_probe"]
+    out = []
+    for side in (1, -1):
+        probe = (centre[0] + side * nx * reach, centre[1] + side * ny * reach)
+        room = next((r for r in rooms if len(r["polygon"]) >= 3 and G.point_in_polygon(probe, r["polygon"])), None)
+        out.append(room.get("room_type") if room else None)
+    return out
+
+
 # --------------------------------------------------------------------------
 # Milestone 6 design details and wall splits (pure Python)
 # --------------------------------------------------------------------------
@@ -1416,7 +1429,9 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
         pass_indices[opening["id"]] = index
         # The door leaf and window frame looks (looks.door_look / window_frame_look: the style slots, the door
         # style decided by the drawn operation first).
-        dlook = door_look(style, opening) if opening["type"] == "door" else None
+        # 28 Oct 2026: the rooms a door joins pick an inside door's role look (looks.role_door_style)
+        dlook = door_look(style, dict(opening, joins=door_sides((cx, cy), wall, rooms))) \
+            if opening["type"] == "door" else None
         if dlook is not None and opening.get("outside_door") and dlook.get("door_style") in ("flush", "shaker_panel"):
             # 25 Oct 2026 (architect A3): a door to a terrace or balcony is glazed, never the inside's flush leaf
             dlook = dict(dlook, door_style="glazed",

@@ -76,6 +76,10 @@ CHECK_KIND = {
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",
+    "Q10": "no_sense", "Q11": "no_sense", "Q12": "no_sense", "Q13": "taste", "Q14": "taste", "Q15": "taste",
+    "X9": "no_sense", "X10": "no_sense",
+    # 28 Oct 2026: the lessons line (wenart.audit.lessons): what the user pointed at, measured
+    "U11": "taste", "U12": "taste", "U13": "taste", "U14": "taste",
     # code critic
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation
@@ -83,7 +87,7 @@ CHECK_KIND = {
 }
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",
-               "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense"}
+               "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense", "U": "no_sense"}
 LINE_KIND = {"ledger": "lost", "source": "lost", "conservation": "lost", "process": "process",
              "plan_vs_model": "lost", "sense": "no_sense", "render": "lost", "consistency": "stale",
              "elevations": "lost", "judge": "taste", "model": "no_sense", "architect": "no_sense"}

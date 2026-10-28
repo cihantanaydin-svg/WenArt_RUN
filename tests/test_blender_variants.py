@@ -101,7 +101,10 @@ def test_track_f_look_wrappers_give_the_m9_looks():
     assert shell.wall_face_material(style) == {"material": "plaster_white", "asset": "white_plaster_02", "tint": None}
     assert shell.wet_wall_look(style, {"room_type": "bathroom"})["material"] == "tiles_light"
     assert shell.wet_wall_look({"walls": {"material": "plaster_white"}})["material"] == "plaster_white"
-    assert shell.accent_walls(EXAMPLE, EXAMPLE["levels"][0], style) == {}
+    # 28 Oct 2026 (looks.family_accent): a style with no accent of its own takes its family's accent colour
+    acc = shell.accent_walls(EXAMPLE, EXAMPLE["levels"][0], style)
+    assert all(look["accent"] and "assumed" in look["reason"] for per in acc.values() for look in per.values())
+    assert shell.accent_walls(EXAMPLE, EXAMPLE["levels"][0], dict(style, wall_accent="none")) == {}
     door = shell.door_look(style, {"id": "d", "type": "door"})
     assert (door["material"], door["asset"]) == shell.door_leaf_material(style["door"])
     assert shell.window_frame_look(style, {"id": "w"})["material"] == "painted_metal_white"

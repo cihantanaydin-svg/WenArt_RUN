@@ -773,6 +773,48 @@ def visit_schema(qids: list[str]) -> dict:
                                "rule": {"type": "string"}}}}}}
 
 
+# 28 Oct 2026 (user: "All these feedback needs to be understand by argus an Argus needs to be able to make these kind of
+# corrections in the future projects"): the lesson walk. Every lesson the user taught (``architect_lessons.json``) is a
+# question Argus asks on every run (``wenart.audit.lessons.lesson_questions``): the interior ones per floor on its
+# top-down view and up to ``LESSON_RENDERS`` renders of its rooms, the exterior ones on the exterior views; a
+# ``problem`` answer is a finding (check ``AI5``) on the element the model names (else the floor), with the fix it
+# names, through the same path as the visitor's walk. A lesson added today is asked on the next run.
+LESSON_SITE = "site"
+LESSON_RENDERS = 3              # interior renders shown with a floor's lesson questions
+LESSON_EXTERIOR_IMAGES = 4
+LESSON_SYSTEM = SYSTEM + (
+    "\n- Now check what the user taught us. Each question is a correction the user once made on another house; answer "
+    "it for this house on the images: verdict ok when this house does it right, problem when it repeats the mistake "
+    "(say what you see, on which element, and the fix), cannot_see when the images do not show it. Name the element "
+    "(a piece, room, opening or space id from the facts) in element whenever you can.")
+
+
+def lesson_jobs(building: dict, inp: I.Inputs) -> list[tuple]:
+    """``[(level or LESSON_SITE, questions, [(image, label)])]`` of the lesson walk (the comment above); a floor's
+    renders are its rooms' previews (``cam_r_<level>_...``), nearest the start of the list first."""
+    from wenart.audit import lessons as LS
+
+    out = []
+    inner = LS.lesson_questions("interior")
+    outer = LS.lesson_questions("exterior")
+    for lv in building.get("levels") or []:
+        lid = lv.get("id")
+        if not inner or not lid:
+            continue
+        renders = [p for p in inp.images if Path(str(p)).name.startswith(f"cam_r_{lid}_")][:LESSON_RENDERS]
+        shown = [(p, f"a render of {Path(str(p)).name.split('_final')[0]}") for p in renders]
+        for k in range(0, len(inner), VISIT_MAX_QUESTIONS):
+            qs = [dict(q, id=f"{q['id']}:{lid}", kind="lesson", element=lid) for q in inner[k:k + VISIT_MAX_QUESTIONS]]
+            out.append((lid, qs, shown))
+    ext = [p for p in inp.images if Path(str(p)).name.startswith("ext_")][:LESSON_EXTERIOR_IMAGES]
+    if outer and ext:
+        shown = [(p, f"the exterior view {Path(str(p)).name.split('_final')[0]}") for p in ext]
+        for k in range(0, len(outer), VISIT_MAX_QUESTIONS):
+            qs = [dict(q, kind="lesson", element="building") for q in outer[k:k + VISIT_MAX_QUESTIONS]]
+            out.append((LESSON_SITE, qs, shown))
+    return out
+
+
 def visit(model, inp: I.Inputs, fact_lines: list[str], *, time_ok: Callable[[], bool] = lambda: True,
           errors: Optional[list] = None, tools: Optional[list] = None,
           values: Optional[list] = None) -> tuple[list[dict], list[dict]]:
@@ -790,27 +832,37 @@ def visit(model, inp: I.Inputs, fact_lines: list[str], *, time_ok: Callable[[], 
     for lv in building.get("levels") or []:
         qs = visitor_questions(building, lv.get("id"))
         if qs:
-            jobs.append((lv.get("id"), qs))
+            jobs.append((lv.get("id"), qs, None))
+    jobs += lesson_jobs(building, inp)
 
     def one(_n: int, job):
-        lv, qs = job
+        lv, qs, shown = job
         if not time_ok():
             return lv, qs, None, None, "time is up"
         top = next((p for p in inp.top_plans if f"top_{lv}_" in Path(str(p)).name), None)
-        images = ([top] if top else []) + (exteriors if any(q["kind"] == "outdoor" for q in qs) else [])
+        if shown is None:
+            extra = exteriors if any(q["kind"] == "outdoor" for q in qs) else []
+            names = ["an exterior view of the house"] * len(extra)
+        else:                                        # a lesson walk's own views (``lesson_jobs``)
+            extra, names = [x for x, _n in shown], [n for _x, n in shown]
+        images = ([top] if top else []) + list(extra)
         labels = ([f"Image 1: the model of {lv} from above"] if top else []) + \
-            [f"Image {k + (2 if top else 1)}: an exterior view of the house" for k in range(len(images) - (1 if top else 0))]
-        text = "\n".join([f"Floor {lv}." + ("" if top else " (no top-down image: answer cannot_see where the facts do "
-                                                          "not settle it)"),
+            [f"Image {k + (2 if top else 1)}: {names[k]}" for k in range(len(extra))]
+        head = (f"Floor {lv}." if lv != LESSON_SITE else "The house from outside (its exterior views).") + (
+            "" if images else " (no image: answer cannot_see where the facts do not settle it)")
+        text = "\n".join([head,
                           "The project as built:", *fact_lines, "", "The questions (answer each by its id):",
                           json.dumps([{"id": q["id"], "ask": q["ask"]} for q in qs], indent=1, ensure_ascii=False)]
                          + (["", "Agent tools (fix; their arguments go in args as one JSON object; * required):",
                              *(tools or []), *(values or [])] if tools else []))
         msg = user_message(text, images, labels) if images else {"role": "user", "content": text}
         try:
-            reply = model.structured([{"role": "system", "content": VISIT_SYSTEM}, msg],
-                                     visit_schema([q["id"] for q in qs]), call_id=f"argus_visit_{lv}",
-                                     name="argus_visit", kind="task", thinking=THINKING, max_tokens=MAX_TOKENS)
+            lesson = any(q["kind"] == "lesson" for q in qs)
+            reply = model.structured([{"role": "system", "content": LESSON_SYSTEM if lesson else VISIT_SYSTEM}, msg],
+                                     visit_schema([q["id"] for q in qs]),
+                                     call_id=f"argus_{'lessons' if lesson else 'visit'}_{lv}_{_n}",
+                                     name="argus_lessons" if lesson else "argus_visit", kind="task",
+                                     thinking=THINKING, max_tokens=MAX_TOKENS)
         except Exception as exc:  # noqa: BLE001 - a floor that fails is logged; the others are still walked
             return lv, qs, top, None, f"{type(exc).__name__}: {exc}"
         return lv, qs, top, reply, None
@@ -831,13 +883,15 @@ def visit(model, inp: I.Inputs, fact_lines: list[str], *, time_ok: Callable[[], 
             if a.get("verdict") != "problem":
                 continue
             named = known.get(str(a.get("element") or "").strip().lower())
-            target = named if named is not None and q["kind"] in ("rooms", "sense") else q["element"]
-            f = K.finding("argus_ai", "AI4", VISIT_SEVERITY.get(q["kind"], "major"), target,
-                          f"visitor ({q['id']}): {a.get('what') or 'a problem'}", owner=a.get("cause"),
-                          fix=a.get("fix"), kind="no_sense",
+            target = named if named is not None and q["kind"] in ("rooms", "sense", "lesson") else q["element"]
+            lesson = q["kind"] == "lesson"
+            f = K.finding("argus_ai", "AI5" if lesson else "AI4", VISIT_SEVERITY.get(q["kind"], "major"), target,
+                          f"{'lesson' if lesson else 'visitor'} ({q['id']}): {a.get('what') or 'a problem'}",
+                          owner=a.get("cause"), fix=a.get("fix"), kind="no_sense",
                           evidence={"level": lv, "question": q["ask"], "rule": a.get("rule"),
                                     "element": a.get("element") or q["element"], "value": a.get("value"),
-                                    "args": a.get("args"), "image": Path(str(top)).name if top else None})
+                                    "args": a.get("args"), "image": Path(str(top)).name if top else None,
+                                    **({"lesson": q.get("lesson")} if lesson else {})})
             found.append(f)
     return found, answers
 
@@ -848,6 +902,13 @@ def target_gone(finding: dict, prep: dict) -> Optional[bool]:
     the code line that found it no longer finds it, False when it still does, None when no code line can tell
     (vision and process findings: the architect's verdicts decide)."""
     b = prep.get("building") or {}
+    if finding.get("line") == "lessons":            # 28 Oct 2026: the lessons line's own check, re-run
+        from wenart.audit import lessons as LS
+        got = LS.audit(b, prep.get("manifest"))
+        if str((got.get("checked") or {}).get(finding.get("check"), "")).startswith(("failed", "no ")):
+            return None
+        return not any(f.get("check") == finding.get("check") and str(f.get("target")) == str(finding.get("target"))
+                       for f in got.get("findings") or [])
     if finding.get("line") == "conservation" and finding.get("check") in ("C4", "C5"):
         return not any(f.get("target") == finding.get("target") for f in CV.untyped(b))
     if finding.get("line") in ("model", "inspector") and str(finding.get("check") or "").startswith("M"):

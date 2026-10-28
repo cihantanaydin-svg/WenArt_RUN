@@ -36,6 +36,13 @@ from wenart import geometry as G
 # --- walls -----------------------------------------------------------------------------------------------------
 
 ACCENT_ROOM_TYPES: tuple[str, ...] = ("living", "bedroom")       # = wenart.style.objects.ACCENT_ROOM_TYPES
+# = wenart.style.objects.FAMILY_ACCENTS / FAMILY_ACCENT_DEFAULT (28 Oct 2026; Blender loads this module on its own)
+FAMILY_ACCENTS: dict[str, tuple[str, str]] = {
+    "scandinavian": ("paint", "sage"), "japandi": ("paint", "sand"), "modern minimal": ("paint", "greige"),
+    "minimal": ("paint", "greige"), "modern": ("paint", "dusty blue"), "contemporary": ("paint", "taupe"),
+    "industrial": ("paint", "charcoal"), "mediterranean": ("paint", "terracotta"), "classic": ("paint", "dusty blue"),
+    "rustic": ("paint", "olive")}
+FAMILY_ACCENT_DEFAULT: tuple[str, str] = ("paint", "greige")
 ACCENT_ANCHORS: dict[str, tuple[str, ...]] = {"living": ("sofa", "sofa_corner"),
                                               "bedroom": ("bed_double", "bed_single", "bunk_bed")}
 ACCENT_REACH_M = 0.3             # the anchor's back edge within this of the wall face
@@ -164,7 +171,7 @@ def accent_walls(building: dict, level: dict, style: dict) -> dict:
     ``wall_accent`` (§4.1): the wall behind the room's sofa (corner sofa) or bed head, else the longest wall
     along the room without a window; the look's ``reason`` says which rule chose it. Rooms with neither get none
     (listed in no look; the style's ``wall_accent.rule`` is the report's text)."""
-    accent = _slot(style, "wall_accent")
+    accent = _slot(style, "wall_accent") or family_accent(style)
     if not accent or not (accent.get("material") or accent.get("colour")):
         return {}
     types = tuple(accent.get("room_types") or ACCENT_ROOM_TYPES)
@@ -197,8 +204,19 @@ def accent_walls(building: dict, level: dict, style: dict) -> dict:
             continue
         out.setdefault(wall_id, {})[room["id"]] = _look(
             material, accent.get("asset"), accent.get("colour"), "style",
-            f"accent wall of {room['id']}: {why} (style wall_accent)", accent=True)
+            f"accent wall of {room['id']}: {why} (" + (accent.get("why") or "style wall_accent") + ")", accent=True)
     return out
+
+
+def family_accent(style: dict) -> dict:
+    """The style family's default accent wall (``objects.FAMILY_ACCENTS``) for a style whose brief names none; {} when
+    the brief turns accents off (``wall_accent`` ``False`` or ``"none"``)."""
+    if (style or {}).get("wall_accent") in (False, "none", "off"):
+        return {}
+    fam = str((style or {}).get("family") or "").lower()
+    material, colour = FAMILY_ACCENTS.get(fam, FAMILY_ACCENT_DEFAULT)
+    return {"material": material, "asset": None, "colour": colour, "room_types": list(ACCENT_ROOM_TYPES),
+            "why": f"assumed: the {fam or 'house'} style's accent colour {colour} (the brief names no accent wall)"}
 
 
 # --- doors and windows -------------------------------------------------------------------------------------------
@@ -263,6 +281,11 @@ def door_look(style: dict, opening: Optional[dict] = None) -> dict:
         door_style = "flush"
         if wanted:
             notes.append(f"the style's {wanted} door does not fit a drawn swing door")
+        else:
+            role, why = role_door_style((opening or {}).get("joins"), style)
+            if role is not None:
+                door_style = role
+                notes.append(why)
     colour = door.get("colour")
     decided, extra = _decided(opening, op, door_style)
     if decided is not None:
@@ -278,6 +301,29 @@ def door_look(style: dict, opening: Optional[dict] = None) -> dict:
     return _look(slug, asset, colour, "style", reason, door_style=door_style, handle=handle,
                  handle_material=HANDLE_SLUGS[handle], handle_assumed=door.get("handle") not in HANDLE_SLUGS,
                  operation=op, operation_assumed=op_assumed, **extra)
+
+
+# 28 Oct 2026 (user: "I want better doors inside the house and the outside ... some variation is needed"): with no door
+# style in the brief, an inside swing door takes the style of its role: a door into the living rooms (living, dining,
+# kitchen) is glazed (daylight into the hall), a door to a private room (bedroom, bathroom, wc, storage) is solid:
+# flush in the light families, panelled in the period ones (classic, rustic, mediterranean, traditional).
+LIVING_ROOM_TYPES: tuple[str, ...] = ("living", "dining", "kitchen")
+PRIVATE_ROOM_TYPES: tuple[str, ...] = ("bedroom", "bathroom", "wc", "storage")
+PERIOD_FAMILIES: tuple[str, ...] = ("classic", "rustic", "mediterranean", "traditional")
+
+
+def role_door_style(joins, style: Optional[dict] = None) -> tuple[Optional[str], str]:
+    """``(door style, why)`` of an inside swing door from the room types it joins (``joins``, the shell's
+    ``door_sides``), or ``(None, "")`` (a door with no known rooms keeps the flush leaf)."""
+    types = {str(t) for t in joins or [] if t}
+    family = str((style or {}).get("family") or "").lower()
+    if types & set(PRIVATE_ROOM_TYPES):
+        if family in PERIOD_FAMILIES:
+            return "shaker_panel", f"a private room's door: a panelled leaf in the {family} style"
+        return None, ""
+    if types & set(LIVING_ROOM_TYPES):
+        return "glazed", "a door into the living rooms: a glazed leaf brings daylight into the hall"
+    return None, ""
 
 
 def _decided(opening: Optional[dict], op: str, door_style: str) -> tuple[Optional[str], dict]:

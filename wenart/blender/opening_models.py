@@ -41,7 +41,8 @@ window among white sliding ones):
   avoided styles). The audited styles reach the catalogue's extras in ``load_extras`` (the audit's vision answers,
   ``growth_entries.apply_audit_styles``).
 - One door and window language: the openings of a category take one model family (``family_key``: one model, or the
-  size and colour variants of one series), the family whose best model ranks first by style, then covers the most
+  size and colour variants of one series), the family whose best model ranks first by style, then by the audit's
+  vision quality (``audit_quality``, 28 Oct 2026), then covers the most
   openings, then the old order. An opening no member fits stays the parametric opening in the style's finish (listed
   in ``notes``) instead of a model of another family; ``opening_build`` paints every frame in the style's finish.
 - Why: the choice ranked textured models first and fell back to any model that fitted, so the house got a
@@ -143,10 +144,27 @@ def load_extras(path, audits: Optional[Sequence] = None) -> list[dict]:
         if not Path(a).is_file():
             continue
         try:
-            audit_styles(extras, json.loads(Path(a).read_text(encoding="utf-8")))
+            doc = json.loads(Path(a).read_text(encoding="utf-8"))
+            audit_styles(extras, doc)
+            audit_quality(extras, doc)
         except (OSError, ValueError, TypeError, AttributeError):   # a broken audit file never stops the build
             continue
     return extras
+
+
+def audit_quality(extras: list, audit_doc: Optional[dict]) -> int:
+    """The audit's vision quality (1-5) of each extra as ``audit_quality`` (pure, in place; 28 Oct 2026, user: "I want
+    better doors inside the house and the outside, I am not liking that much the models used at the moment"): the
+    choice ranks the best-looking models first (``_rank_key``). Returns how many entries got one."""
+    answers = {str(it["id"]): (it.get("vision") or {}).get("quality") for it in (audit_doc or {}).get("items") or []
+               if isinstance(it, dict) and it.get("id") and isinstance(it.get("vision"), dict)}
+    n = 0
+    for e in extras:
+        q = answers.get(str(e.get("id"))) if isinstance(e, dict) else None
+        if isinstance(q, int) and e.get("audit_quality") is None:
+            e["audit_quality"] = q
+            n += 1
+    return n
 
 
 AUDIT_STYLE_MAX = 3             # = growth_entries.STYLE_MAX: styles taken from one vision answer
@@ -742,7 +760,9 @@ def _rank_key(entry: dict, category: str, openings: Sequence[tuple[float, float]
     errs = [best_panels(ow, oh, w / h)[1] for ow, oh in openings] or [0.0]
     title = _title(entry)
     status = str((entry.get("audit") or {}).get("status") or "").lower()
-    return (0 if entry.get("textured") else 1, 0 if _has(title, WORDS[category]) else 1,
+    # 28 Oct 2026: the audit's vision quality first (a 4 before a 3; unknown counts as 3), then as before
+    quality = entry.get("audit_quality") if isinstance(entry.get("audit_quality"), int) else 3
+    return (-quality, 0 if entry.get("textured") else 1, 0 if _has(title, WORDS[category]) else 1,
             0 if status == "keep" else 1, RANK_STEP * round(sum(min(e, 1.0) for e in errs) / len(errs) / RANK_STEP),
             str(entry.get("id")))
 
@@ -937,7 +957,10 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
             if not covered:
                 continue
             head = members[0]
-            order = (look_rank[head["id"]][0], -covered, _rank_key(head, category, openings))
+            # 28 Oct 2026: a better-looking family (the audit's vision quality) before one that covers more openings
+            # (an opening no member fits stays parametric in the style's finish)
+            quality = max((m.get("audit_quality") if isinstance(m.get("audit_quality"), int) else 3) for m in members)
+            order = (look_rank[head["id"]][0], -quality, -covered, _rank_key(head, category, openings))
             if best is None or order < best[0]:
                 best = (order, key, members)
         if best is None:

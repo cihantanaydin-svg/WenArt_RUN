@@ -170,3 +170,63 @@ def test_a_door_model_opens_as_the_drawing_does():
     kept, _w = OM.operation_fit([{"id": "b", "title": "Sliding door"}, {"id": "c", "title": "Glass door"}],
                                 {"sliding", "hinged"})
     assert [e["id"] for e in kept] == ["c"]
+
+
+def test_a_veranda_roof_is_designed_not_traced_from_its_floor():
+    # 28 Oct 2026 (user on real06: "This should not supposed to be 1 to one with what is under, it is a veranda this
+    # roof of veranda needs to make sense")
+    from shapely.geometry import Polygon
+
+    house = Polygon([(0, 0), (10, 0), (10, 8), (0, 8)])
+    floor = Polygon([(2, 0), (2, -3), (4, -3), (4, -2.7), (4.4, -2.7), (4.4, -3), (7, -3), (7, -0.25), (6.9, -0.25),
+                     (6.9, 0)])                       # a 0.4 m notch at the front, a 0.1 m jog at the wall
+    roof, post, how = O.cover_shape(floor, [house])
+    oh = O.COVER_SHAPE["overhang_m"]
+    assert len(roof.exterior.coords) == 5 and "rectangle" in how and "1 side(s) against the house" in how
+    assert roof.bounds == pytest.approx((2 - oh, -3 - oh, 7 + oh, 0.0), abs=1e-6)   # flush with the facade
+    assert post.area >= floor.area and post.contains(floor.buffer(-0.01))
+    ell = Polygon([(0, 0), (0, -4), (6, -4), (6, -2), (3, -2), (3, 0)])            # an L stays an L
+    roof, _post, how = O.cover_shape(ell, [house])
+    assert "notches filled" in how and roof.area > ell.area and roof.area < 6 * 4
+    assert O._corner_inset((0, 0), (4, 0), (4, 3), 0.2) == pytest.approx((3.8, 0.2))
+    assert O._corner_inset((0, 0), (4, 0), (4, -3), 0.2) is None                   # a notch's corner frames no post
+
+
+def test_a_light_roof_is_covered_with_a_roofing_never_the_facade_cladding():
+    looks = {"facade": {"material": "wood_cladding"}, "window_frame": {"colour": "black"},
+             "roof": {"material": "clay_tiles"}}
+    top = S.cover_top_look({"kind": "light_roof"}, looks)
+    assert top["material"] == S.COVER_TOP_MATERIAL == "standing_seam" and top["colour"] == "black"
+    assert S.cover_top_look({"kind": "pitched", "covering": "roof"}, looks) == {"material": "clay_tiles"}
+
+
+def test_inside_doors_vary_by_the_rooms_they_join():
+    # 28 Oct 2026 (user: "I want better doors inside the house and the outside ... some variation is needed")
+    from wenart.blender import looks
+    from wenart.blender import shell
+
+    style = {"door": {"material": "wood_oak_light"}, "family": "scandinavian"}
+    living = looks.door_look(style, {"id": "d", "type": "door", "joins": ["hall", "living"]})
+    bed = looks.door_look(style, {"id": "d", "type": "door", "joins": ["hall", "bedroom"]})
+    assert living["door_style"] == "glazed" and "daylight" in living["reason"]
+    assert bed["door_style"] == "flush"
+    classic = looks.door_look(dict(style, family="classic"), {"id": "d", "type": "door", "joins": ["bathroom", "hall"]})
+    assert classic["door_style"] == "shaker_panel"
+    assert looks.door_look(style, {"id": "d", "type": "door"})["door_style"] == "flush"          # no rooms known
+    assert looks.door_look(dict(style, door={"style": "shaker_panel"}),
+                           {"id": "d", "type": "door", "joins": ["living", "hall"]})["door_style"] == "shaker_panel"
+    slide = looks.door_look(style, {"id": "d", "type": "door", "operation": "sliding", "joins": ["living", "hall"]})
+    assert slide["door_style"] == "sliding"                                # the drawn operation still wins
+    wall = {"start": [0, 0], "end": [4, 0], "thickness": 0.2}
+    rooms = [{"room_type": "living", "polygon": [[0, 0], [4, 0], [4, 3], [0, 3]]},
+             {"room_type": "hall", "polygon": [[0, -2], [4, -2], [4, 0], [0, 0]]}]
+    assert shell.door_sides((2.0, 0.0), wall, rooms) == ["living", "hall"]
+
+
+def test_the_best_looking_door_family_comes_first():
+    a = {"id": "a", "title": "Door A", "audit_quality": 3, "textured": True}
+    b = {"id": "b", "title": "Door B", "audit_quality": 4, "textured": False}
+    extras = [dict(a, audit_quality=None), dict(b, audit_quality=None)]
+    assert OM.audit_quality(extras, {"items": [{"id": "a", "vision": {"quality": 3}},
+                                               {"id": "b", "vision": {"quality": 4}}]}) == 2
+    assert [e["audit_quality"] for e in extras] == [3, 4]

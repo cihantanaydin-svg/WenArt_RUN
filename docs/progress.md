@@ -1936,3 +1936,34 @@ General fixes:
 | drawn moves refused at "0.30 m" | a move up to twice the limit goes as far as the limit allows (recorded `move_clamped`) |
 | W5 tall windows with a nightstand or floor lamp in front were G12 "blocked windows" | a tall window (sill <= 0.45 m) is blocked only by a piece covering over 25 % of its glass |
 | both base kitchens lost their fridge (run 180008 had one standing 0.32 m in front of the counter run, which the 26 Oct aisle rule rightly refuses) | an under-counter fridge may stand under a window whose sill is above the worktop (only a hob never does), and the built-in places are tried counter by counter (`places_by_counter`) |
+
+## The user's look at real06 run 222248 and real04 run 005318 (28 Oct 2026)
+
+Every point is a general rule with a test and a lesson (UL57-UL67), and Argus now looks for each kind by itself.
+
+| the user saw | general fix |
+|---|---|
+| no column under the roof over the balcony; columns below too thick | a drawn column takes its column-layer outline's size, not its hatch's; a house roof reaching over 1.5 m past the walls stands on posts at its corners (`outdoor.house_roof_posts`) |
+| no sloped roof next to the balcony | a lower roof the roof plan draws is built pitched away from the house (`roof_plan`, `axis_dirs_away`) |
+| the veranda roof copies the floor below | a cover is designed: notches filled, a rectangle when that adds at most 15 %, 0.25 m eaves past the posts on the open sides, flush at the house; a standing-seam top, never the facade cladding (`outdoor.cover_shape`, `site.cover_top_look`) |
+| an entrance at a window | a door read as a window loses its steps, path and canopy (`drop_entrance`, `record_entrances`) |
+| a dresser closing a full window | a wall-backed piece slides along its wall or stays; storage before a tall window is always a G12 finding |
+| floor boards on the kitchen walls | a floor texture never clads a wall slot |
+| a sliding door built hinged or folding | the door model opens as drawn (`operation_fit`) |
+| a chair facing the wall | every drawn piece with a front gets one (`infer.missing_fronts`) |
+| plain walls | one accent wall per living room and bedroom in the style family's colour when the brief names none (`looks.family_accent`) |
+| the same plain door everywhere | inside doors vary by role (glazed into living rooms and kitchens; flush, or panelled in period styles, to private rooms); outer door families rank by the audit's vision quality |
+
+Argus (user: "All these feedback needs to be understand by argus"): a new code line `wenart/audit/lessons.py`
+(U1-U14: entrances at windows, roofs without posts, thick columns, flat drawn roofs, traced covers, storage before tall
+windows, door operations, seats facing walls, indoor pieces outdoors, basins without mirrors, bare worktops, bare
+dining tables, floor finishes on walls, rooms without an accent wall), counted in the house score and re-checked after
+each Argus fix; a lesson walk in Argus AI that asks every user lesson's question per floor (top view and room renders)
+and outside (check AI5; a lesson added without a model is asked in the user's own words); and new vision checks for the
+inspector (Q10-Q15, X9, X10). On the latest real06 building the line finds the user's points by itself (5 entrances at
+windows, the veranda roof, 3 door models, 3 bathrooms without a mirror, the bare kitchen and table); on real04 the rug
+on the terrace, 4 bare worktops and 4 bare dining tables.
+
+Helpers working (not merged yet): sofa cushions and beds, outdoor rooms and ceiling lights, library typing and units
+(the miniature table, the kitchen sink as a washbasin, the wardrobe with a window frame), kitchen design with small
+appliances, site grading and paving.

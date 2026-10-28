@@ -150,7 +150,9 @@ CHECKLIST: dict[str, dict] = {
     "D1": {"what": "decor that looks wrong in the render: a cushion or throw floating, sunk into a back or "
                    "hanging in the air, pillows on pillows", "how": "V", "scope": "piece"},
     "D2": {"what": "a wrong object: a model that is not what its type says (a blob as a throw, a street lamp, a "
-                   "table lamp stretched into a floor lamp, a bench as a throw), or a crude low-poly model",
+                   "table lamp stretched into a floor lamp, a bench as a throw, a window or glazed frame on a "
+                   "wardrobe or cabinet, a kitchen sink as a washbasin, a table with its stools in one model), a "
+                   "piece at a toy or giant scale, or a crude low-poly model",
            "how": "V", "scope": "piece"},
     # 25 Oct 2026 (user: "there is no taste in the furniture selection"): the piece that breaks the room's set
     "D3": {"what": "a piece that does not go with the rest of the room: a third wood tone, a second metal finish, "
@@ -181,7 +183,9 @@ CHECKLIST: dict[str, dict] = {
            "how": "V", "scope": "piece"},
     "Q7": {"what": "doors and windows that do not fit the house or each other: a dark traditional panelled door in a "
                    "modern or Scandinavian house, busy patterned or opaque glass, different window types side by side, "
-                   "a wide door built as one flat slab that reads as a garage door on a house with no garage",
+                   "a wide door built as one flat slab that reads as a garage door on a house with no garage, a door "
+                   "that opens another way than drawn (a sliding door built hinged or folding), every door one "
+                   "plain model with no entrance door of its own",
            "how": "V", "scope": "opening"},
     "Q8": {"what": "rain water that makes no sense: more downpipes than the building's corners need, pipes across "
                    "windows or in the air, gutters stepping in and out along the facade",
@@ -190,15 +194,53 @@ CHECKLIST: dict[str, dict] = {
     # sense of this")
     "Q9": {"what": "an entrance that makes no sense: a handrail or railing that crosses in front of a door or another "
                    "stair, two flights of steps that run into each other, a ramp passing in front of a door, steps up "
-                   "to a garage door, a door with no way to reach it",
+                   "to a garage door, a door with no way to reach it, steps, a path or a canopy at a window",
            "how": "V", "scope": "opening"},
+    # 28 Oct 2026 (user, on real04 and real06: "makes no sense to have that table with the carpet outside", "Light is
+    # flying in the air", "More lights from the ceiling needed", "terrible sink", "What kind of a bath is this",
+    # "Mirrors in the baths is missing sometimes", "Kitchen design could have been a lot better", "baseboard needs to
+    # be all around", "plates on tables ... kettle ... microwave", "more stylish internal walls", "Better solutions
+    # needed for the elevation difference outside", "this roof of veranda needs to make sense"; "All these feedback
+    # needs to be understand by argus"): what the user pointed at, asked of every render
+    "Q10": {"what": "a piece in the wrong world: a rug, an upholstered sofa, a desk, a bed or an indoor table outdoors "
+                    "on a terrace, balcony or veranda; a garden chair or a parasol indoors",
+            "how": "V", "scope": "piece"},
+    "Q11": {"what": "a light that makes no sense: a pendant or ceiling lamp with no cord, rod or canopy up to the "
+                    "ceiling (hanging in the air), a lamp floating, a room lit by one lamp with dark corners where "
+                    "ceiling lights belong",
+            "how": "V", "scope": "piece"},
+    "Q12": {"what": "a bathroom that is not designed: a basin with no mirror over it, a kitchen sink or a bare bowl as "
+                    "the basin, a bath that is no real bath (no rim or taps, an odd shape, standing free in a niche), "
+                    "no towel rail, bare walls where tiles belong",
+            "how": "V", "scope": "room"},
+    "Q13": {"what": "a kitchen that is not designed: a worktop run with no wall or tall units, no fridge, oven or hood, "
+                    "an empty worktop (no kettle, microwave or coffee machine, nothing on it), a unit closing a "
+                    "window, a kitchen front in a floor finish",
+            "how": "V", "scope": "room"},
+    "Q14": {"what": "finishes that make no sense: a floor texture (boards, parquet, decking) on a wall or a roof, "
+                    "skirting missing along a wall or stopping short of a corner, every wall one flat colour with no "
+                    "accent where the style has one",
+            "how": "V", "scope": "room"},
+    "Q15": {"what": "a bare room where the brief allows decor: a dining table with no table setting (plates, glasses), "
+                    "a coffee table, sideboard, shelf or nightstand with nothing on it",
+            "how": "V", "scope": "piece"},
+    "X9": {"what": "a level difference outside that makes no sense: bare concrete retaining walls, slabs or bars "
+                   "lying loose on the grass, steps that do not sit on their risers or lead nowhere, a steep bare "
+                   "slope with no planting, terraces or garden steps",
+           "how": "V", "scope": "building"},
+    "X10": {"what": "an outdoor roof that makes no sense: a veranda or porch roof that copies its floor's outline notch "
+                    "for notch, a roof reaching far out with no post under it, columns much thicker than drawn, a "
+                    "lower roof the plans draw sloped built flat, a roof top in a floor or wall finish",
+            "how": "V", "scope": "building"},
 }
-VISITOR_CHECKS = ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9")
+VISITOR_CHECKS = ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10", "Q11", "Q12", "Q13", "Q14", "Q15")
 ROOM_CHECKS = ("R1", "R2", "R3", "R4", "R5", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "V1", "V2", "V3")
-EXTERIOR_CHECKS = ("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "V2", "V3", "Q1", "Q3", "Q7", "Q8", "Q9")
+EXTERIOR_CHECKS = ("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "V2", "V3", "Q1", "Q3", "Q7", "Q8", "Q9", "Q10",
+                   "X9", "X10")
 # Milestone 12 (§5.4 "vision only where it adds something"): the room critic is asked only what an image of the
 # render shows (looks, wrong objects, the room type, finishes, the camera), never what code measures.
-ROOM_LOOK_CHECKS = ("R1", "R4", "F1", "F9", "D1", "D2", "D3", "V1", "V2", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7")
+ROOM_LOOK_CHECKS = ("R1", "R4", "F1", "F9", "D1", "D2", "D3", "V1", "V2", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7",
+                    "Q10", "Q11", "Q12", "Q13", "Q14", "Q15")
 CODE_ONLY = tuple(k for k, v in CHECKLIST.items() if v["how"] == "C")
 
 CRITIC_SYSTEM = (

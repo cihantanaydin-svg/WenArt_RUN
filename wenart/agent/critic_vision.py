@@ -797,7 +797,7 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
 # model's floors from above, every room at once
 # --------------------------------------------------------------------------
 
-MODEL_VIEW_CHECKS = ("Q3", "Q4", "Q5", "Q6", "D3", "F9")
+MODEL_VIEW_CHECKS = ("Q3", "Q4", "Q5", "Q6", "D3", "F9", "D2", "Q10", "Q12", "Q15")   # 28 Oct 2026: + what the user saw from above
 MODEL_VIEW_SCHEMA = answer_schema(MODEL_VIEW_CHECKS)
 
 

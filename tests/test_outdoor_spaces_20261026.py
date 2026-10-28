@@ -293,8 +293,14 @@ def test_a_veranda_against_a_straight_facade_gets_its_area_and_a_light_roof():
     parts = {q["part"]: q for q in S.cover_parts(pf)}
     assert set(parts) == {"roof", "beams", "posts"}
     top = max(v_[2] for v_ in parts["roof"]["verts"])
-    low = min(v_[2] for v_ in parts["roof"]["verts"] if abs(v_[1] + 3.1) < 0.02)
-    assert top == pytest.approx(roof["top_z"]) and low == pytest.approx(roof["top_z"] - 0.18 - 0.02 * 3.0, abs=0.01)
+    # 28 Oct 2026 (outdoor.cover_shape): the eaves reach COVER_SHAPE["overhang_m"] past the posts on the open sides,
+    # none on the facade's side
+    oh = OD.COVER_SHAPE["overhang_m"]
+    ry = [p[1] for p in roof["polygon"]]
+    assert max(ry) == pytest.approx(-0.1, abs=0.01) and min(ry) == pytest.approx(-3.1 - oh, abs=0.02)
+    low = min(v_[2] for v_ in parts["roof"]["verts"] if abs(v_[1] + 3.1 + oh) < 0.02)
+    assert top == pytest.approx(roof["top_z"]) and low == pytest.approx(
+        roof["top_z"] - 0.18 - 0.02 * (3.0 + oh), abs=0.01)
 
 
 def test_a_label_without_a_stated_area_takes_the_doors_span_and_twice_its_distance():

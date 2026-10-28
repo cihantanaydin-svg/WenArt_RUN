@@ -366,3 +366,12 @@ HINTS: dict[str, str] = {
 ACCENT_ROOM_TYPES = ("living", "bedroom")
 ACCENT_RULE = ("one accent wall per living room and bedroom: the wall behind the sofa or the bed head, "
                "else the longest wall without a window")
+# 28 Oct 2026 (user: "also more stylish internal walls please better color"): the accent a designer of each style
+# family paints when the brief names none (``blender.looks.family_accent``; assumed and said in the room's look; a
+# brief's own ``wall_accent`` always wins). Muted colours of the family's palette (``wenart.style.colours``): one wall
+# per living room and bedroom (``ACCENT_RULE``), the other walls stay the style's ``walls``.
+FAMILY_ACCENTS = {"scandinavian": ("paint", "sage"), "japandi": ("paint", "sand"), "modern minimal": ("paint", "greige"),
+                  "minimal": ("paint", "greige"), "modern": ("paint", "dusty blue"), "contemporary": ("paint", "taupe"),
+                  "industrial": ("paint", "charcoal"), "mediterranean": ("paint", "terracotta"),
+                  "classic": ("paint", "dusty blue"), "rustic": ("paint", "olive")}
+FAMILY_ACCENT_DEFAULT = ("paint", "greige")      # a brief with no style family

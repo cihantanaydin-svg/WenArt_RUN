@@ -89,7 +89,15 @@ def test_accent_wall_is_behind_the_sofa_else_the_longest_wall_without_a_window()
     b = _room_building(windows=[("win", "w_s", [3.0, -0.1])])
     out = looks.accent_walls(b, level, STYLE)
     assert list(out) == ["w_n"] and "longest wall without a window" in out["w_n"]["r"]["reason"]
-    assert looks.accent_walls(b, level, {"walls": STYLE["walls"]}) == {}                 # no accent in the style
+    # 28 Oct 2026 (user: "more stylish internal walls please better color"): no accent in the brief: the style
+    # family's own (looks.family_accent), said as assumed; "none" turns it off
+    plain = looks.accent_walls(b, level, {"walls": STYLE["walls"], "family": "scandinavian"})
+    assert plain["w_n"]["r"]["colour"] == looks.FAMILY_ACCENTS["scandinavian"][1] == "sage"
+    assert "assumed" in plain["w_n"]["r"]["reason"]
+    assert looks.accent_walls(b, level, {"walls": STYLE["walls"]})["w_n"]["r"]["colour"] == "greige"
+    assert looks.accent_walls(b, level, {"walls": STYLE["walls"], "wall_accent": "none"}) == {}
+    from wenart.style import objects as OBJ
+    assert looks.FAMILY_ACCENTS == OBJ.FAMILY_ACCENTS and looks.FAMILY_ACCENT_DEFAULT == OBJ.FAMILY_ACCENT_DEFAULT
     assert shell.accent_walls(b, level, STYLE) == out
     assert looks.room_walls(b["rooms"][0], b["walls"])[0][1] == pytest.approx(6.0)
 

@@ -3689,6 +3689,7 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
 # keep, and the sizes of a space's cover (beams under the roof's open edges, a pergola's rafters, a glass roof's pane).
 SPACE_SLAB_M = 0.20
 DRAWN_RISER_MAX_M = 0.20
+COVER_TOP_MATERIAL = "standing_seam"     # 28 Oct 2026: a light roof's covering (wenart.style.finishes)
 COVER = {"beam_w": 0.12, "beam_h": 0.20, "rafter_w": 0.06, "rafter_h": 0.16, "rafter_pitch": 0.6, "glass_t": 0.03,
          "post_segments": 12}
 
@@ -3726,6 +3727,21 @@ def _clip_convex(p0, p1, poly) -> Optional[tuple]:
         if t0 > t1:
             return None
     return (p0[0] + dx * t0, p0[1] + dy * t0), (p0[0] + dx * t1, p0[1] + dy * t1)
+
+
+def cover_top_look(roof: dict, looks: dict) -> dict:
+    """The look of a space's roof slab (pure): a lower roof the roof plan draws is covered like the house roof (its
+    tiles; 28 Oct 2026); every other cover is a metal standing-seam canopy in the window frames' colour.
+
+    28 Oct 2026 (user on real06's veranda: "this roof of veranda needs to make sense"): the light roof took the facade's
+    look, and on a wood-clad house its top read as a deck in the air; a roof is covered with a roofing, never with a
+    wall cladding or a floor (``exterior_checks.floor_texture``)."""
+    if roof.get("covering") == "roof" and looks.get("roof"):
+        return looks["roof"]
+    colour = (looks.get("window_frame") or {}).get("colour") or "dark grey"
+    return {"material": COVER_TOP_MATERIAL, "colour": colour, "source": "build", "assumed": True,
+            "reason": f"the cover of an outdoor space: a {COVER_TOP_MATERIAL.replace('_', ' ')} canopy in the window "
+                      f"frames' colour ({colour}), the soffit in wood boards"}
 
 
 def cover_parts(pf: dict) -> list[dict]:
@@ -5108,10 +5124,7 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
             if any(q["part"] in ("roof", "beams", "posts") for q in parts):
                 # 26 Oct 2026: a labelled outdoor space's cover in the house's look: the roof slab as the facade
                 # (the balcony slabs' render), the posts and beams as the window frames
-                mats["roof"] = make_material(looks["facade"]) if looks.get("facade") else concrete
-                if (pf.get("roof") or {}).get("covering") == "roof" and looks.get("roof"):
-                    # 28 Oct 2026: a lower roof the roof plan draws is covered like the house roof (its tiles)
-                    mats["roof"] = make_material(looks["roof"])
+                mats["roof"] = make_material(cover_top_look(pf.get("roof") or {}, looks))
                 mats["beams"] = mats["posts"] = make_material(looks.get("window_frame") or looks.get("railing")
                                                               or {"material": SITE_FALLBACK_LOOKS["railing"],
                                                                   "colour": None})

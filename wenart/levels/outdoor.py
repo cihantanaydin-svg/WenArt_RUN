@@ -1163,6 +1163,112 @@ def house_roof_posts(spaces: Sequence[dict], building: dict, outlines: dict) -> 
                                          f"no cantilever)"}, **kind))
 
 
+# 28 Oct 2026 (user on real06's veranda, a wood-clad slab that copied the floor outline notch for notch: "This should
+# not supposed to be 1 to one with what is under, it is a veranda this roof of veranda needs to make sense"): a cover is
+# designed, not traced. Its outline fills the floor's notches narrower than twice ``notch_m`` (a step, a planter, a
+# drawing jog), becomes the rectangle around it when that adds at most ``rect_gain`` of its area (a lean-to roof is a
+# rectangle), and reaches ``overhang_m`` past the posts on its open sides (eaves past the posts, so the rain drips clear
+# of the floor's edge), never into the house, the floors above or the building's roof. The posts and the edge beams
+# stand on the floor's filled outline (``post`` shape), never in a notch.
+COVER_SHAPE = {"notch_m": 0.5, "rect_gain": 0.15, "overhang_m": 0.25, "simplify_m": 0.03,
+               "against_m": 0.3, "against_share": 0.5}
+
+
+def _rect_sides(rect, blockers) -> tuple:
+    """``(corners, against)`` of a rectangle (pure): its corners from its axes' extents and, per side (+u, -u, +v,
+    -v), whether it leans on ``blockers`` (``against_share`` of its length within ``against_m``)."""
+    from shapely.geometry import Point
+
+    pts = list(rect.exterior.coords)[:4]
+    ux, uy = pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]
+    ln = math.hypot(ux, uy) or 1.0
+    u = (ux / ln, uy / ln)
+    v = (-u[1], u[0])
+    pu = [p[0] * u[0] + p[1] * u[1] for p in pts]
+    pv = [p[0] * v[0] + p[1] * v[1] for p in pts]
+    ext = {"+u": max(pu), "-u": min(pu), "+v": max(pv), "-v": min(pv)}
+
+    def at(a, b):
+        return (u[0] * a + v[0] * b, u[1] * a + v[1] * b)
+
+    against = {}
+    for side in ext:
+        if side[1] == "u":
+            line = [at(ext[side], ext["-v"] + (ext["+v"] - ext["-v"]) * k / 8.0) for k in range(9)]
+        else:
+            line = [at(ext["-u"] + (ext["+u"] - ext["-u"]) * k / 8.0, ext[side]) for k in range(9)]
+        near = sum(1 for q in line if blockers is not None and not blockers.is_empty
+                   and blockers.distance(Point(q)) <= COVER_SHAPE["against_m"])
+        against[side] = near / len(line) >= COVER_SHAPE["against_share"]
+    return (u, v, ext, at), against
+
+
+def _corner_inset(prev, p, nxt, inset: float) -> Optional[tuple[float, float]]:
+    """The point ``inset`` inside both edges of a counter-clockwise ring's corner ``p`` (pure; None for a corner of
+    less than 30 degrees or more than 150, where the two edges' normals do not frame a post)."""
+    ax, ay = p[0] - prev[0], p[1] - prev[1]
+    bx, by = nxt[0] - p[0], nxt[1] - p[1]
+    la, lb = math.hypot(ax, ay), math.hypot(bx, by)
+    if la < 1e-6 or lb < 1e-6:
+        return None
+    n1 = (-ay / la, ax / la)                          # inward (left) normals of a counter-clockwise ring's edges
+    n2 = (-by / lb, bx / lb)
+    cos = (ax * bx + ay * by) / (la * lb)
+    turn = math.degrees(math.acos(max(-1.0, min(1.0, cos))))      # 90 at a right-angle corner
+    if not 30.0 <= turn <= 150.0 or (ax * by - ay * bx) <= 0.0:    # a reflex corner (a notch) frames no post
+        return None
+    # the point at distance ``inset`` from both edge lines: p + inset * (n1 + n2) / (1 + n1.n2)
+    k = inset / (1.0 + n1[0] * n2[0] + n1[1] * n2[1])
+    return (p[0] + (n1[0] + n2[0]) * k, p[1] + (n1[1] + n2[1]) * k)
+
+
+def cover_shape(region, solid: Sequence = ()) -> tuple:
+    """``(roof, post, how)`` of a cover over ``region`` (shapely polygons; pure; ``COVER_SHAPE``): the roof's outline,
+    the floor's filled outline the posts and beams stand on, and how the roof was shaped. ``solid``: the house, the
+    floors above and the building's roof the roof stops at; their jogs narrower than twice ``notch_m`` (a pilaster, a
+    column, a reveal) do not cut the roof (it meets the wall's main face). A rectangle reaches ``overhang_m`` past
+    the posts on the sides that do not lean on the house (``_rect_sides``); another outline on every side."""
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+
+    def largest(g):
+        polys = [x for x in getattr(g, "geoms", [g]) if x.geom_type == "Polygon" and not x.is_empty]
+        return max(polys, key=lambda x: x.area) if polys else None
+
+    n, oh = COVER_SHAPE["notch_m"], COVER_SHAPE["overhang_m"]
+    blockers = unary_union([g for g in solid if g is not None and not g.is_empty]) if solid else None
+    if blockers is not None and blockers.is_empty:
+        blockers = None
+    body = None
+    if blockers is not None:
+        body = blockers.buffer(-n, join_style=2, mitre_limit=10.0).buffer(n, join_style=2, mitre_limit=10.0)
+        body = body if not body.is_empty else blockers
+    closed = largest(region.buffer(n, join_style=2, mitre_limit=10.0).buffer(-n, join_style=2, mitre_limit=10.0)
+                     .union(region)) or region
+    if blockers is not None:
+        closed = largest(closed.difference(blockers)) or region
+    post = Polygon(closed.exterior).simplify(COVER_SHAPE["simplify_m"], preserve_topology=True)
+    rect = post.minimum_rotated_rectangle
+    if rect.geom_type == "Polygon" and rect.area <= post.area * (1.0 + COVER_SHAPE["rect_gain"]):
+        (u, v, ext, at), against = _rect_sides(rect, blockers)
+        for side in ext:
+            if not against[side]:
+                ext[side] += oh if side[0] == "+" else -oh
+        roof = Polygon([at(ext["-u"], ext["-v"]), at(ext["+u"], ext["-v"]), at(ext["+u"], ext["+v"]),
+                        at(ext["-u"], ext["+v"])])
+        leans = [k for k, a in against.items() if a]
+        how = (f"the rectangle around the floor, {oh:.2f} m past the posts on its open sides"
+               + (f" ({len(leans)} side(s) against the house)" if leans else ""))
+    else:
+        roof = post.buffer(oh, join_style=2, mitre_limit=10.0)
+        how = f"the floor's outline with its notches filled, {oh:.2f} m past the posts"
+    if body is not None:
+        roof = roof.difference(body)
+    roof = largest(roof) or post
+    roof = Polygon(roof.exterior).simplify(COVER_SHAPE["simplify_m"], preserve_topology=True)
+    return roof, post, how
+
+
 def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outlines: dict, building: dict,
               doors: Sequence[dict] = ()) -> Optional[dict]:
     """The cover of a space (pure; module docstring): ``{"kind": light_roof | glass_roof | pergola, "polygon",
@@ -1232,13 +1338,14 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
     walls = [g for g in ([own] if own is not None else []) + covers[:len(covers) - len(upper)]
              if g is not None and not g.is_empty]
     c0 = region.centroid
+    roof_g, post_g, shaped = cover_shape(region, [own] + covers + above)
     fx, fy = 0.0, -1.0
     if walls:
         near = nearest_points(unary_union(walls), c0)[0]
         dx, dy = c0.x - near.x, c0.y - near.y
         if math.hypot(dx, dy) > 1e-6:
             fx, fy = dx / math.hypot(dx, dy), dy / math.hypot(dx, dy)
-    ring = _ccw(_coords(region))
+    ring = _ccw(_coords(roof_g))                     # the roof's outline (cover_shape): its slope and low edge
     origin = min(ring, key=lambda p: p[0] * fx + p[1] * fy)
     plane = {"origin": [round(origin[0], 4), round(origin[1], 4)], "dir": [round(fx, 6), round(fy, 6)]}
     # 28 Oct 2026 (user on real06: "no sloped roof next to the balcony": the roof plan draws a tiled lower roof with a
@@ -1300,17 +1407,21 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
     # inferred post takes the shape and the size of the space's drawn columns (their median), one post language
     look = post_look(space.get("columns") or [])
     post_size = look["size_m"]
-    ring = _ccw(_coords(region))
-    for p in ring:
+    ring = _ccw(_coords(post_g))                     # the posts and beams stand on the floor's filled outline
+    for k, p in enumerate(ring):
         pt = Point(p)
         if any(g.distance(pt) <= SPACE["post_reach"] for g in support):
             continue
         if any(G.distance(p, q["center"]) <= SPACE["post_reach"] for q in posts):
             continue
+        # 28 Oct 2026: inset square to both edges of its corner (a diagonal inset left a square post's corner
+        # outside the floor and the roof)
         inset = post_size / 2.0 + 0.02
-        cx, cy = region.centroid.x, region.centroid.y
-        d = G.distance(p, (cx, cy)) or 1.0
-        c = (p[0] + (cx - p[0]) / d * inset, p[1] + (cy - p[1]) / d * inset)
+        c = _corner_inset(ring[k - 1], p, ring[(k + 1) % len(ring)], inset)
+        if c is None:
+            cx, cy = post_g.centroid.x, post_g.centroid.y
+            d = G.distance(p, (cx, cy)) or 1.0
+            c = (p[0] + (cx - p[0]) / d * inset, p[1] + (cy - p[1]) / d * inset)
         posts.append(dict({"center": [round(c[0], 4), round(c[1], 4)], "source": "inferred", "id": None}, **look))
     # long open edges: posts at most post_span apart
     for a, b in zip(ring, ring[1:] + ring[:1]):
@@ -1319,10 +1430,13 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
         if length <= SPACE["post_span"] or any(g.distance(Point(mid)) <= 0.3 for g in support):
             continue
         k = int(math.ceil(length / SPACE["post_span"]))
+        nx, ny = -(b[1] - a[1]) / length, (b[0] - a[0]) / length       # inward of a counter-clockwise edge
         for j in range(1, k):
             q = G.point_along_segment(a, b, j / k)
             if any(G.distance(q, x["center"]) <= SPACE["post_span"] / 2.0 for x in posts):
                 continue
+            inset = post_size / 2.0 + 0.02                              # 28 Oct 2026: on the floor, not half off it
+            q = (q[0] + nx * inset, q[1] + ny * inset)
             posts.append(dict({"center": [round(q[0], 4), round(q[1], 4)], "source": "inferred", "id": None},
                               **look))
     for q in posts:
@@ -1334,14 +1448,17 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
                   if not any(g.distance(Point(G.segment_midpoint(a, b))) <= 0.3 for g in support)]
     n_in = sum(1 for q in posts if q["source"] == "inferred")
     reason = (f"{kind.replace('_', ' ')} over {region.area:.2f} m² of the {space['kind']} (the part no floor or "
-              f"space above covers), {why}, {t:.2f} m thick, falling {fall * 100:.0f} % away from the building; "
+              f"space above covers), shaped as {shaped}, {why}, {t:.2f} m thick, falling {fall * 100:.0f} % away "
+              f"from the building; "
               f"{len(posts) - n_in} drawn column(s)" + (f" and {n_in} inferred post(s)" if n_in else "")
               + " (inferred)"
               + (f"; {drawn['source']} draws a lower roof of {drawn['area_m2']:.2f} m² over {drawn['share']:.0%} of "
                  f"it (roof.drawn)" if drawn else "")
               + (f"; the building's drawn roof covers {sp.intersection(above[0]).area:.2f} m² of it"
                  if above and sp.intersection(above[0]).area >= 0.5 else ""))
-    out = {"kind": kind, "polygon": [[round(x, 4), round(y, 4)] for x, y in ring], "area_m2": round(region.area, 3),
+    roof_ring = _ccw(_coords(roof_g))
+    out = {"kind": kind, "polygon": [[round(x, 4), round(y, 4)] for x, y in roof_ring],
+           "area_m2": round(region.area, 3), "roof_area_m2": round(roof_g.area, 3), "shaped": shaped,
            "top_z": round(top, 3), "thickness": t, "fall": fall, "plane": plane, "open_edges": open_edges,
            "posts": posts, "reason": reason, "inferred": True}
     if drawn is not None:

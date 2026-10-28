@@ -726,7 +726,53 @@
    ],
    "request": "Skirting all around (user, 28 Oct 2026: 'baseboard needs to be all around').",
    "lesson": "The skirting runs all around every dry room's walls, cut only at doors, openings and low windows, up to the door casings and into the corners; an end that stops short of a corner or a casing is a finding.",
-   "question": null
+   "question": "Does the skirting run all around every dry room's walls, up to the door casings and into the corners, with no gap?"
+  },
+  {
+   "id": "UL64",
+   "date": "2026-10-28",
+   "area": "terrace",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "This should not supposed to be 1 to one with what is under, it is a veranda this roof of veranda needs to make sense",
+   "lesson": "A veranda or porch roof is designed, not traced: its outline fills the floor's notches, is the rectangle around the floor when that adds at most 15 % (a lean-to is a rectangle), reaches 0.25 m past the posts on its open sides and stops flush at the house (its small wall jogs do not cut it); posts stand inside the floor at its corners; its top is a roofing (standing seam in the frames' colour, or the house roof's tiles on a drawn lower roof), never the facade cladding or a deck look.",
+   "question": "Does every outdoor roof read as a designed roof (a simple shape with eaves past the posts and a roofing on top), not a copy of the floor below?"
+  },
+  {
+   "id": "UL65",
+   "date": "2026-10-28",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I want better doors inside the house and the outside, I am not liking that much the models used at the moment, some variation is needed",
+   "lesson": "Doors inside and outside are good-looking real products with variation by role in one language: a statement entrance door, glazed terrace doors, interior doors in the style (flush, panelled or glazed by room: glazed or framed glass to living rooms and kitchens, solid to bedrooms and bathrooms, sliding or pocket where drawn), with handles and frames; never one plain model everywhere.",
+   "question": "Do the doors look like chosen products, with a distinct entrance door and interior doors that vary by room in one style?"
+  },
+  {
+   "id": "UL66",
+   "date": "2026-10-28",
+   "area": "materials",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "also more stylish internal walls please better color and for the baths and kitchen better desings",
+   "lesson": "Interior walls are styled: a palette per style with warm whites and one accent per room (a feature wall behind a bed or sofa, panelling, wallpaper or limewash where the style allows); bathrooms and kitchens are designed rooms (tiled walls to the right height, a vanity with mirror and light, a real bath or shower set; a kitchen run with wall units, splashback, appliances and worktop decor).",
+   "question": "Do the interior walls carry a colour scheme of the style, and are the bathrooms and kitchens designed like magazine rooms?"
+  },
+  {
+   "id": "UL67",
+   "date": "2026-10-28",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "All these feedback needs to be understand by argus an Argus needs to be able to make these kind of corrections in the future projects",
+   "lesson": "Argus learns every user lesson: each lesson's question is asked on every run (Argus AI's walk on the top-down views and renders, the inspector's checks) and, where code can measure it, an Argus line finds the problem by itself and routes it to the fix that removes it (an architect action, an agent tool, a rerun or the rule to write).",
+   "question": "Did Argus ask every user lesson's question on this run and fix what it found?"
   }
  ]
 }

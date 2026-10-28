@@ -37,7 +37,8 @@ NAME = "Argus"
 REPORT_JSON = "argus.json"
 REPORT_MD = "argus.md"
 LOG_FILE = Path("results/argus/problem_log.json")
-LINE_MODULES = ("wenart.audit.sense", "wenart.audit.render_check", "wenart.audit.consistency", "wenart.audit.ledger")
+LINE_MODULES = ("wenart.audit.sense", "wenart.audit.render_check", "wenart.audit.consistency", "wenart.audit.ledger",
+                "wenart.audit.lessons")       # 28 Oct 2026: what the user taught us, measured (U*)
 LINE_FILES = ("ledger.json", "plan_vs_model.json", "argus_ai_final.json", "argus_ai.json")
 POINTS = {"critical": 10.0, "major": 3.0, "minor": 0.5, "info": 0.0}
 SCALE = 50.0                          # a house with 2 major and 5 minor points open scores about 85
@@ -179,7 +180,7 @@ def merge(findings: list[dict]) -> list[dict]:
 # geometry of the pieces is the code critic's own part of the score, the run's own state (tests, time) is not the house
 HOUSE_KINDS = ("lost", "untyped", "misread", "no_sense", "silent")
 HOUSE_LINES = ("conservation", "process", "sense", "ledger", "source", "plan_vs_model", "elevations", "render",
-               "argus_ai")
+               "argus_ai", "lessons")
 NOT_HOUSE_CHECKS = ("P1", "P3", "P4", "P8", "P9")
 
 
