@@ -70,13 +70,27 @@ def run_id_of(final_dir) -> Optional[str]:
     return str(rid) if rid else None
 
 
+def own_renders(final_dir: Path, rid: str) -> bool:
+    """Whether the run ``rid`` rendered the previews of ``final_dir`` itself (28 Oct 2026: two real06 starts that
+    stopped before the render carried the earlier run's previews and render record, and the before / after took one
+    of them as "before"): its render stage record (``run/<p>/render.json``) names this run; True when there is no
+    record (a committed copy)."""
+    rec = final_dir.parent.parent / "run" / final_dir.name / "render.json"
+    try:
+        data = json.loads(rec.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return True
+    return str(data.get("run_id") or "") == rid
+
+
 def _candidate(final_dir: Path, source: str) -> Optional[Candidate]:
     rid = run_id_of(final_dir)
     if not rid:
         return None
     run = M.locate(final_dir)
+    previews = len(list(final_dir.glob(f"*{PREVIEW}"))) if own_renders(final_dir, rid) else 0
     return Candidate(final_dir=final_dir, run_id=rid, found=sum(1 for v in run.paths.values() if v),
-                     previews=len(list(final_dir.glob(f"*{PREVIEW}"))), source=source)
+                     previews=previews, source=source)
 
 
 def candidates(project: str, runs_dir: Optional[Path] = None, committed=None) -> list[Candidate]:
