@@ -76,6 +76,15 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   G4 a ramp only on an accessible route, at most the ramp slope of its rise; G5 banks at most 1:3 (lawn) or 1:2
   (planted); G6 retaining walls in the house's base stone (never bare concrete) with a coping; G7 never one floor look
   for every outdoor use. Each finding carries its rule (``metrics.rule``) and element.
+- M16 outdoor rooms dressed for outside (28 Oct 2026, user on real04 run 20261028-005318-full, its roof terrace:
+  "makes no sense to have that table with the carpet outside, that's outside area"; ``outdoor.review``): no rug,
+  runner or carpet on the floor of an open-air room or an outdoor space, and no library model of an outdoor type
+  (table, chair, sofa ...) there that is not made for outside (``outdoor.outdoor_ready``). Major; kind ``no_sense``.
+- M17 enough ceiling light (28 Oct 2026, same run, user: "More lights from the ceiling needed"; its 50.9 m² living and
+  dining room had one pendant; ``ceiling_lights.review``): every lit room holds the ceiling lights the lighting rule
+  hangs there (a row of pendants along each dining table, a light over each seating group, bed, desk and counter run,
+  and the lumen method's count for its floor); major with no light, under half of them or an unlit table or bed,
+  else minor; kind ``taste``.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -109,7 +118,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17")
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -1032,7 +1041,42 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             note("M15", got, n)
         except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
             checks["M15"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M16 (28 Oct 2026, user on real04's roof terrace: "makes no sense to have that table with the carpet outside"):
+    # outdoor rooms dressed for outside (pure)
+    try:
+        from wenart.blender import outdoor as OD
+
+        got, n = OD.review(built)
+        note("M16", got, n)
+    except (KeyError, TypeError, ValueError, AttributeError) as exc:
+        checks["M16"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M17 (28 Oct 2026, user: "More lights from the ceiling needed"): enough ceiling light for each room's zones and
+    # floor. The lighting rule lives with the decor (wenart.furniture, shapely and numpy): Blender's Python has no
+    # shapely, so inside the build it is "unavailable" and the pipeline's refresh after the build
+    # (cli.refresh_model_review), the code critic and Argus run it. It is imported by name, out of the build
+    # script's import closure (build.FINGERPRINT_CODE): the scene never depends on it.
+    try:
+        import importlib
+
+        CL = importlib.import_module("wenart.furniture.ceiling_lights")
+        got, n = CL.review(built, density_of(built))
+        note("M17", got, n)
+    except ImportError as exc:
+        checks["M17"] = {"status": "unavailable", "note": f"{type(exc).__name__}: {exc}"}
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M17"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     return {"findings": findings, "checks": checks}
+
+
+def density_of(built: dict):
+    """M16: each room's decor density as the decor stage filled it (the building's ``decor_minimum``), else
+    balanced."""
+    minimum = built.get("decor_minimum") if isinstance(built.get("decor_minimum"), dict) else {}
+
+    def of(room: dict) -> str:
+        rec = minimum.get(room.get("id")) if isinstance(minimum.get(room.get("id")), dict) else {}
+        return str(rec.get("density") or "balanced")
+    return of
 
 
 def report_md(rec: dict, project: str = "") -> str:

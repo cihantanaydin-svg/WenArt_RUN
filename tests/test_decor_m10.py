@@ -298,7 +298,8 @@ def test_a_chain_of_partners_copies_the_roots_decor_to_every_room():
     chain = [d for d in out["decor"] if d["room_id"] == "r_c"]
     from wenart.furniture import tabletop as TT           # 28 Oct 2026: + the styled tops (tabletop.dress_tops)
     picked = {d["type"] for d in mine if not str(d.get("reason", "")).startswith("styling")   # 25 Oct: + the fill
-              and TT.REASON_TAG not in str(d.get("reason", ""))}
+              and TT.REASON_TAG not in str(d.get("reason", ""))
+              and d.get("rule") != "decor.ceiling_lights"}               # 28 Oct 2026: + the lighting rule
     assert picked == {"cushion", "curtain", "vase"} and len(twin) == len(chain) == len(mine)
     for c in chain:
         d = twin[c["mirrored_from"]]                  # the copy of the twin's copy: the root's decor mirrored once

@@ -11,13 +11,18 @@ What (pure; the decor stage calls ``furnish``):
   door zones (``DOOR_CLEAR_M`` around each door of the space), the columns and the steps' landing (``STEPS_CLEAR_M``),
   with a ``WALKWAY_M`` path from each door to the steps free; the covered part (the roof) first, then the middle of
   the wall. Then planters (decor ``plant_large``) at the free outer corners and beside the columns (the recipe's count,
-  ``PLANTERS_DEFAULT`` without one), an outdoor rug under the lounge and a lantern (a candle) on its table.
+  ``PLANTERS_DEFAULT`` without one) and a lantern (a candle) on its table; no rug (28 Oct 2026, below).
 - ``furnish(building, recipes)``: the building with the pieces (``source: added_by_ai``, ``outdoor_space``,
-  ``open_air`` models first in the fit) and the decor items added, and the notes; a space with furniture already
-  (``outdoor_space`` set) is left as it is.
+  ``open_air``: only models made for outside in the fit) and the decor items added, and the notes; a space with
+  furniture already (``outdoor_space`` set) is left as it is.
 
 Why: the photos of a veranda all show a place to sit (a lounge or a dining set), plants in big pots, a rug, a
 lantern; the pipeline furnished rooms only, so an outdoor space stayed a bare slab.
+
+28 Oct 2026 (user on real04 run 20261028-005318-full, its roof terrace: "makes no sense to have that table with the
+carpet outside, that's outside area"): an outdoor space gets no rug (``plan_space``'s ``rug`` is always None and the
+notes say why; ``outdoor.strip_outdoor_textiles`` takes out any rug a later rule lays outside). The pieces are
+``open_air`` and the fit takes only models made for outside for them (``fit.outdoor_candidates``).
 """
 from __future__ import annotations
 
@@ -42,7 +47,6 @@ PLANTER_SIZE_M = 0.55
 PLANTER_INSET_M = 0.40
 PLANTER_GAP_M = 0.35          # a planter keeps this from the pieces and the other planters
 COLUMN_PLANTER_OFF_M = 0.80
-RUG_MARGIN_M = 0.30
 # set -> [(type, (w, d), (x, y) of the centre in the wall frame: x along the wall, y out from it, front: "out" | "in"
 # | "left" | "right")]; the sofa's back at y = WALL_GAP_M
 SETS: dict[str, list[tuple[str, tuple[float, float], tuple[float, float], str]]] = {
@@ -133,7 +137,7 @@ def _blocked(building: dict, space: dict, poly: Polygon):
 
 def plan_space(space: dict, building: dict, recipe: Optional[dict] = None) -> dict:
     """The set placed on one outdoor space (module docstring): ``{"set", "pieces": [{type, center, size, rotation_deg,
-    front_deg}], "planters": [centre], "rug": {center, size, rotation_deg} | None, "edge", "covered", "notes"}``;
+    front_deg}], "planters": [centre], "rug": None (28 Oct 2026: no rug outside), "edge", "covered", "notes"}``;
     ``pieces`` empty when no set fits (the notes say why)."""
     poly = _poly(space.get("polygon"))
     notes: list[str] = []
@@ -194,34 +198,14 @@ def plan_space(space: dict, building: dict, recipe: Optional[dict] = None) -> di
         return {"set": None, "pieces": [], "planters": [], "rug": None,
                 "notes": notes + ["no set fits clear of the doors, the columns, the steps and the walkway"]}
     _score, name, pieces, group, edge, covered, axis = best
-    rug = None
-    if name in ("lounge", "lounge_side", "compact"):
-        minx, miny, maxx, maxy = _local_bounds(group, edge[0], axis)
-        w, d = maxx - minx + 2 * RUG_MARGIN_M - 0.6, maxy - miny + 2 * RUG_MARGIN_M - 0.9
-        cx_l, cy_l = (minx + maxx) / 2.0, (miny + maxy) / 2.0 + 0.3
-        c, s = math.cos(math.radians(axis)), math.sin(math.radians(axis))
-        rug = {"center": [round(edge[0][0] + cx_l * c - cy_l * s, 4), round(edge[0][1] + cx_l * s + cy_l * c, 4)],
-               "size": [round(max(1.6, w), 3), round(max(1.2, d), 3)], "rotation_deg": round(axis % 360.0, 3)}
-        if not inner.contains(_rect(rug["center"][0], rug["center"][1], rug["size"][0], rug["size"][1],
-                                    math.radians(axis))):
-            rug = None
-            notes.append("no outdoor rug: it would run past the space's edge")
+    rug = None                  # 28 Oct 2026: no rug on an outdoor floor (module docstring)
+    notes.append("no rug: an outdoor space takes no rug or carpet (28 Oct 2026)")
     want = PLANTERS_DEFAULT
     if recipe and "planters" in (recipe.get("layers") or {}):
         want = max(1, int(round(float((recipe["layers"]["planters"] or {}).get("median") or PLANTERS_DEFAULT))))
     planters = _planters(space, building, poly, inner, blocked, group, house, want)
     return {"set": name, "pieces": pieces, "planters": planters, "rug": rug, "edge": [list(edge[0]), list(edge[1])],
             "covered": round(covered, 3), "notes": notes}
-
-
-def _local_bounds(group, origin, axis_deg):
-    c, s = math.cos(math.radians(axis_deg)), math.sin(math.radians(axis_deg))
-    xs, ys = [], []
-    for x, y in group.convex_hull.exterior.coords:
-        dx, dy = x - origin[0], y - origin[1]
-        xs.append(dx * c + dy * s)
-        ys.append(-dx * s + dy * c)
-    return min(xs), min(ys), max(xs), max(ys)
 
 
 def _planters(space, building, poly, inner, blocked, group, house, want: int) -> list[list[float]]:
@@ -306,7 +290,7 @@ def furnish(building: dict, recipes: Optional[dict] = None) -> tuple[dict, list[
         recipe = (recipes or {}).get(key)
         plan = plan_space(space, out, recipe)
         sid, level = space["id"], space["level_id"]
-        why = (f"recipe: good {key} photos show a place to sit, plants in big pots, a rug and a lantern "
+        why = (f"recipe: good {key} photos show a place to sit, plants in big pots and a lantern "
                f"({'built-in designer defaults' if not recipe or recipe.get('source') == 'default' else str(recipe.get('n')) + ' reference photos'})")
         if not plan["pieces"]:
             notes.append(f"{sid}: no outdoor set: {'; '.join(plan['notes'])}")
@@ -329,9 +313,6 @@ def furnish(building: dict, recipes: Optional[dict] = None) -> tuple[dict, list[
         for c in plan["planters"]:
             decor.append({"type": "plant_large", "center": c, "size": [PLANTER_SIZE_M, PLANTER_SIZE_M],
                           "rotation_deg": 0.0, "reason": f"a planter on the {kind} ({why})"})
-        if plan["rug"]:
-            decor.append(dict(plan["rug"], type="rug", reason=f"an outdoor rug under the {kind}'s lounge ({why})",
-                              anchor_ids=[f["id"] for f in out["furniture"] if f.get("outdoor_space") == sid]))
         if table is not None:
             decor.append({"type": "candle", "center": list(table["footprint"]["center"]), "size": [0.2, 0.2],
                           "rotation_deg": 0.0, "host_id": table["id"],
@@ -345,5 +326,5 @@ def furnish(building: dict, recipes: Optional[dict] = None) -> tuple[dict, list[
                                       "evidence": [{"file": "building.json", "method": "inferred", "confidence": 0.7,
                                                     "text": why}]}, **d))
         notes.append(f"{sid}: {plan['set']} set ({len(plan['pieces'])} pieces, {plan['covered']:.0%} under the "
-                     f"roof), {len(plan['planters'])} planter(s), rug {'yes' if plan['rug'] else 'no'}")
+                     f"roof), {len(plan['planters'])} planter(s), no rug (outdoor)")
     return out, notes

@@ -1624,6 +1624,7 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
     base, base_assumed = mount_bottom(piece)
     floor_z = floor_z + base
     design, design_notes = _looks().design_for(piece, style or {}, building)
+    design, design_notes = _looks().outdoor_design(piece, design, design_notes)   # 28 Oct 2026: open-air rooms
     overrides, override_notes = design_overrides(design, piece["type"])
     piece = dict(piece, design=design)
     fp = piece["footprint"]
@@ -2133,6 +2134,22 @@ def _surface_hit(host_entry: dict | None, center, host_center, floor_z: float, a
 BRIEF_COLOURED_DECOR: tuple[str, ...] = ("cushion", "rug")
 
 
+def slope_verts(item: dict, verts) -> list:
+    """28 Oct 2026 (user: "More lights from the ceiling needed"): a ceiling light the decor stage mounted on a sloped
+    ceiling (``slope_mount``, ``wenart.furniture.ceiling_lights``) is turned onto the ceiling plane about its top
+    centre (``geom2d.tilt_onto_plane``), so it sits on the slope instead of hanging level under its low side; every
+    other item unchanged (pure)."""
+    sm = item.get("slope_mount") if isinstance(item.get("slope_mount"), dict) else None
+    if not sm or item.get("type") != "ceiling_light" or not verts:
+        return verts
+    from wenart.blender import geom2d
+
+    plane = list(sm.get("plane") or [0.0, 0.0])
+    xs, ys = [float(v[0]) for v in verts], [float(v[1]) for v in verts]
+    pivot = ((min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0, max(float(v[2]) for v in verts))
+    return geom2d.tilt_onto_plane(verts, pivot, float(plane[0]), float(plane[1]))
+
+
 def decor_lit(item: dict, lamps_on_mood: bool) -> bool:
     """A lamp-type decor item emits light: its ``light_on`` when set, else the mood's ``lamps_on`` (pure)."""
     if item.get("type") not in LAMP_LIGHTS:
@@ -2303,7 +2320,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                 target = [float(v) for v in item["asset"]["bbox_m"][:3]]   # Milestone 9: the model's own size
             verts, info = fit_vertices(geo["verts"], item["asset"], footprint, floor_z + z_above,
                                        target_size=target)
-            if dtype in CEILING_DECOR_TYPES:
+            if dtype in CEILING_DECOR_TYPES and not (dtype == "ceiling_light" and item.get("slope_mount")):
                 # 28 Oct 2026 (hang_plan): the model fitted to its own size reaches the ceiling over it
                 cord_xy = top_point(verts)
                 ceil_c = ceiling if dtype == "ceiling_light" else ceiling_above(level, cord_xy, (0.0, 0.0))[0]
@@ -2312,6 +2329,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                     verts = [(x, y, z + hang["lift_m"]) for x, y, z in verts]
                     z_above = round(z_above + hang["lift_m"], 4)
                     z_how = f"{z_how}; {hang['how']}"
+            verts = slope_verts(item, verts)               # 28 Oct 2026: a ceiling light on a sloped ceiling
             fallback = library.proxy("proxy")
             ob = _mesh_object(name, verts, geo["faces"], geo["materials"], geo["face_materials"], collection,
                               owner_id, "decor", status, uvs=geo["uvs"], uv_name=geo["uv_name"],
@@ -2338,6 +2356,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         if lit:
             parts = [dict(part, key=f"{LIT_KEY}{part['key']}") if part["role"] == "shade" else part for part in parts]
         verts, faces, keys = P.world_mesh(parts, footprint["center"], rot, floor_z + z_above)
+        verts = slope_verts(item, verts)                   # 28 Oct 2026: a ceiling light on a sloped ceiling
         used_keys = sorted(set(keys), key=keys.index)
         accent = P.DECOR_COLOURS.get(str(item.get("colour") or ""))       # Milestone 9: the AI decor's colour
         overrides = {"pot": pot_override(item)} if dtype == "plant_large" else None
@@ -2386,6 +2405,8 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                  "kind": "suspension", "reason": "a hung light is connected to the ceiling over it (28 Oct 2026)"})
     if item.get("window_id"):
         entry["window_id"] = item["window_id"]
+    if item.get("slope_mount") and dtype == "ceiling_light":
+        entry["slope_mount"] = dict(item["slope_mount"])
     if item.get("mirrored_from"):
         entry["mirrored_from"] = item["mirrored_from"]
     ob["wenart_type"] = dtype

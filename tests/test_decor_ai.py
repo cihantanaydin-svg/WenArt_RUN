@@ -286,7 +286,8 @@ def test_rooms_without_agreement_or_answers_get_the_rules_with_the_reason():
     # 28 Oct 2026: the styled tops (tabletop.dress_tops) come after the rules too
     from wenart.furniture import tabletop as TT
     rule = [d for d in out["decor"] if d["method"] == "rule" and not str(d.get("reason", "")).startswith("styling")
-            and TT.REASON_TAG not in str(d.get("reason", ""))]
+            and TT.REASON_TAG not in str(d.get("reason", ""))
+            and d.get("rule") != "decor.ceiling_lights"]   # 28 Oct 2026: + the lighting rule
     expected, _row = D.rule_decor_room(b, b["rooms"][0], b["furniture"], lambda lv: "x")
     assert sorted(d["type"] for d in rule) == sorted(d["type"] for d in expected) and rule
     # 25 Oct 2026: the room is then filled up to a styled living room's minimum from its empty slots

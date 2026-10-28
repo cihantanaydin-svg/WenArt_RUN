@@ -982,6 +982,30 @@
    "request": "I am not liking this is the only outside flooring (real06 / real04: the garden path and the entrance steps in the same large grey square slabs with mossy joints as the terraces and the drive, with steel handrails)",
    "lesson": "The outdoor floors are a designed set by use and style family, never one slab everywhere: the terrace and pool deck in stone or porcelain slabs with a tight joint (decking where the style calls for it), the steps and copings in a stone with a tread edge, the garden path in gravel, clay or brick pavers with a stone edging where it meets the lawn, the drive and parking in a stronger paver, all in one language with the house's base stone; a material the documents draw, or a paving the style or the brief names for the terrace, wins; every inferred floor is recorded with its reason (grading.floor_set; the model review's M15 G7 and the architect's G3 find a site whose every outdoor floor has one look)",
    "question": "Does each outdoor floor have the material of its use (terrace and pool deck, steps, garden path, drive), in one language with the house's base, never one slab everywhere?"
+  },
+  {
+   "id": "UL85",
+   "date": "2026-10-28",
+   "area": "terrace",
+   "status": "rule",
+   "checks": [
+    "U1"
+   ],
+   "request": "makes no sense to have that table with the carpet outside, that's outside area (real04 run 20261028-005318-full, the roof terrace r_L1_teras: an indoor turned-leg pine dining table, two indoor dining chairs and a wool runner rug on the paving). General rule: an outdoor room (balcony, terrace, roof terrace, loggia, veranda, patio, any room open to the sky) and every outdoor space of the site takes no rug, runner or other indoor textile on its floor; its furniture is outdoor furniture: the fit takes only library models made for outside (named for outside or of an outdoor material such as teak, rattan, wicker, resin; never one named for inside, material tags alone do not count), else the parametric family in weather-proof materials (a steel frame with teak), recorded as a library gap; the model review (M16) and Argus find an indoor rug or an indoor model outside in every project",
+   "lesson": "An outdoor room (balcony, terrace, roof terrace, loggia, veranda, patio, any room open to the sky) and every outdoor space of the site is dressed for outside: no rug, runner or other indoor textile on its floor (no rug slot, no solver rug, no outdoor-set rug; any laid by a later rule is taken out); its tables, chairs, benches and seats are outdoor furniture: the fit takes only library models made for outside (named for outside, or of an outdoor material such as teak, rattan, wicker or resin; never one named for inside; material tags alone do not count), else the parametric family in weather-proof materials (a steel frame with teak), recorded as a library gap; the architect (U1), the model review (M16) and Argus find an indoor rug or an indoor model outside in every project.",
+   "question": "Is every outdoor room and outdoor space dressed for outside: no rug or carpet on its floor, and only furniture made for outside (no indoor table, no upholstered indoor chair)?"
+  },
+  {
+   "id": "UL86",
+   "date": "2026-10-28",
+   "area": "lighting",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "More lights from the ceiling needed (real04 run 20261028-005318-full: the 50.9 m2 living and dining room had one pendant over its 3.35 m table, the bedrooms one light, the halls none). General rule: every room gets the ceiling lights of its functional zones (a row of pendants along each dining table and kitchen island by its length, a light over each seating group, bed, desk and counter run) and enough general light for its floor by the lumen method (N = E x A / (F x UF x MF), the illuminance per room type scaled by the style's decor density), spread evenly, never over a wall cabinet, a tall cabinet or a stair, never in a door swing, mounted on the slope under a sloped ceiling with its lowest point 2.0 m over the floor; the model review (M17) and Argus flag a room with too little ceiling light",
+   "lesson": "Every room gets the ceiling lights of its functional zones (a row of pendants along each dining table and kitchen island by its length, a light over each seating group, bed, desk and kitchen counter run) and enough general light for its floor by the lumen method (N = E x A / (F x UF x MF): a designer illuminance per room type scaled by the style's decor density, 1100 lm lamps), spread evenly; never over a wall cabinet, a tall cabinet, a wardrobe, a counter or a stair, never in a door swing; under a sloped ceiling a flush light is mounted on the slope with its lowest point 2.0 m over the floor; the decor stage hangs them whatever the AI chose (decor.ceiling_lights), the model review (M17) and Argus flag a room with too little ceiling light.",
+   "question": "Does every room have enough ceiling light for its size and its groups: pendants along the dining table, a light over the seating, the bed, the desk and the kitchen run, and an even general light?"
   }
  ]
 }

@@ -501,6 +501,23 @@ def fabric_colour_for(piece: dict, style: Optional[dict]) -> tuple[Optional[str]
     return None, None
 
 
+def outdoor_design(piece: dict, design: dict, notes: list[str]) -> tuple[dict, list[str]]:
+    """28 Oct 2026 (user on real04's roof terrace: "makes no sense to have that table with the carpet outside"): the
+    design a module or parametric piece of an open-air room is built in (pure): the fit's ``asset.outdoor_build``
+    (``wenart.blender.outdoor.outdoor_asset``: a steel frame with teak) over the piece's design, a painted colour left
+    out (teak stays teak); ``(design, notes)`` unchanged for every other piece. Why: without a library model made for
+    outside the parametric family built the terrace's table and chairs in the style's indoor wood and fabric."""
+    asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+    build = asset.get("outdoor_build") if isinstance(asset.get("outdoor_build"), dict) else None
+    if build is None or asset.get("method") not in ("module", "parametric"):
+        return design, notes
+    out = {k: v for k, v in design.items() if k != "colour"}
+    for key in ("material_tags", "wood"):
+        if build.get(key):
+            out[key] = list(build[key]) if isinstance(build[key], list) else build[key]
+    return out, list(notes) + [f"outdoor build: {build.get('why') or 'weather-proof materials'} (asset.outdoor_build)"]
+
+
 def design_for(piece: dict, style: dict, building: Optional[dict] = None) -> tuple[dict, list[str]]:
     """``(design, notes)`` of a piece for the builders: its ``furniture.design`` as written by the layout stage
     (track B) when it has one; else (the layout stage did not run) from ``style.json``: ``cabinets`` (front style,

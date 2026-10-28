@@ -543,6 +543,32 @@ def diversity_steps(asset_id: str, used: Optional[dict]) -> int:
 # 25 Oct 2026 (user on real04's roof terrace): outdoor models first in open-air rooms (wenart/blender/outdoor.py, which
 # the build's architect reads too); each grade adds OUTDOOR_STEPS size steps to the rank.
 from wenart.blender.outdoor import OPEN_AIR_ROOMS, OUTDOOR_STEPS, outdoor_grade  # noqa: E402
+from wenart.blender import outdoor as OD  # noqa: E402
+
+# 28 Oct 2026 (user on real04 run 20261028-005318-full: "makes no sense to have that table with the carpet outside,
+# that's outside area"; the roof terrace's table was the "Ravenna Home Traditional Dining Table", grade 1, because the
+# ranking above was only a preference and no better-ranked model fitted the caps): an outdoor type
+# (``outdoor.OUTDOOR_FURNITURE_TYPES``) in an open-air room takes only the models ``outdoor.outdoor_ready`` calls made
+# for outside; the others are listed under ``excluded`` with the rule and the reason; none left -> the ladder, whose
+# module and parametric steps build the piece in weather-proof materials (``outdoor.outdoor_asset``, a library gap).
+OUTDOOR_ROOM_RULE = OD.OUTDOOR_RULE
+
+
+def outdoor_candidates(piece: dict, candidates: list[dict]) -> tuple[list[dict], list[dict]]:
+    """``(kept, excluded)``: for a piece of an outdoor type in an open-air room (``open_air_room`` on the fitted
+    copy), the candidates made for outside (``outdoor.outdoor_ready``), the others with the rule and the reason; every
+    candidate for another piece."""
+    ftype = str(piece.get("type") or "")
+    if not piece.get("open_air_room") or ftype not in OD.OUTDOOR_FURNITURE_TYPES:
+        return list(candidates), []
+    kept, excluded = [], []
+    for e in candidates:
+        ready, why = OD.outdoor_ready(e, ftype)
+        if ready:
+            kept.append(e)
+        else:
+            excluded.append({"id": e["id"], "reason": f"not made for outside: {why}", "rule": OUTDOOR_ROOM_RULE})
+    return kept, excluded
 
 
 # 26 Oct 2026 (fix E, user: "there is no taste in the furniture selection"; real06's Scandinavian living room got a
@@ -1123,6 +1149,14 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
     if not candidates:
         return parametric_fit(piece, f"no {ftype} model for this room's use (every model is a children's product or "
                                      f"one of another use)", excluded=excluded, style_family=style_family)
+    # 28 Oct 2026 (user on real04's roof terrace: "makes no sense to have that table with the carpet outside"): an
+    # outdoor type in an open-air room takes only models made for outside (``outdoor_candidates``), a gate, not a rank
+    candidates, outdoor_excluded = outdoor_candidates(piece, candidates)
+    excluded += outdoor_excluded
+    if not candidates:
+        return parametric_fit(piece, f"no {ftype} model made for outside (rule {OUTDOOR_ROOM_RULE}: an open-air "
+                                     f"room takes outdoor furniture; {len(outdoor_excluded)} indoor model(s) left out)",
+                              excluded=excluded, style_family=style_family)
     if piece.get("shape") == "L":
         candidates, side_excluded, side = chaise_side_candidates(candidates, piece.get("chaise_side"))
         excluded += side_excluded
@@ -2619,6 +2653,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     kitchen = kitchen_built_ins(fitted)
     by_id = {p.get("id"): p for p in fitted.get("furniture", [])}
     room_types = {r.get("id"): str(r.get("room_type") or "").lower() for r in fitted.get("rooms") or []}
+    open_rooms = OD.open_air_room_ids(fitted)        # 28 Oct 2026: the rooms that are outside (type or open to the sky)
     from wenart.furniture import taste as T
     taste_cache = T.TasteCache(assets_dir) if assets_dir is not None else None
     taste_target = T.targets(style) if taste_cache is not None else {}
@@ -2687,8 +2722,8 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
             # the run's hints reach its plan on a copy: the building piece never gets module_hints (FROZEN_KEYS,
             # assert_only_assets_changed); the asset keeps them beside the plan (furniture.module_plan_of)
             target = dict(piece, module_hints={**(piece.get("module_hints") or {}), **hints}) if hints else piece
-            if room_types.get(piece.get("room_id")) in OPEN_AIR_ROOMS or piece.get("open_air"):
-                target = dict(target, open_air_room=True)     # outdoor models first (a copy: the piece stays)
+            if piece.get("room_id") in open_rooms or piece.get("open_air") or piece.get("outdoor_space"):
+                target = dict(target, open_air_room=True)     # outdoor models only (a copy: the piece stays)
             elif room_types.get(piece.get("room_id")):
                 target = dict(target, open_air_room=False)    # 26 Oct 2026 (fix E): a known indoor room
             target = dict(target, **use_context(fitted, piece))   # bathroom sense of 26 Oct 2026: a child's room
@@ -2700,8 +2735,13 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
                 if piece.get("id") in set_of and set_models.get(set_of[piece["id"]]) is not None:
                     asset["role_set"] = dict(set_models[set_of[piece["id"]]], used=False, why=(
                         "the set's model fails the caps on this piece's drawn size: fitted on its own"))
-            if target.get("open_air_room") and asset.get("method") == "library":
-                asset["outdoor_grade"] = outdoor_grade(catalog.entry(asset.get("asset_id")) or {})
+            if target.get("open_air_room"):
+                entry = catalog.entry(asset.get("asset_id")) if asset.get("method") == "library" else None
+                if asset.get("method") == "library":
+                    asset["outdoor_grade"] = outdoor_grade(entry or {})
+                # 28 Oct 2026: the outdoor record (``outdoor``), and for a module or parametric piece the weather-proof
+                # design and the library gap (``outdoor.outdoor_asset``)
+                OD.outdoor_asset(asset, str(piece.get("type") or ""), entry, style_family)
             if hints and asset.get("method") == MODULE_METHOD:
                 asset["module_hints"] = copy.deepcopy(hints)
             if piece.get("id") in split_first:
