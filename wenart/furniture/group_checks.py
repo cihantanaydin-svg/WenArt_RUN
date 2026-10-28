@@ -24,7 +24,7 @@ its sofa, nightstands at mid-bed, chairs facing away all passed the Milestone 11
 | G9 | a sink, a hob and a fridge in every kitchen (room or kitchen zone) (major; critical for a kitchen without any run piece, 26 Oct 2026) |
 | G10 | bath: toilet + washbasin (+ shower or bathtub in a bathroom) (major; a WC's washbasin minor); ≥ 0.53 m clear in front of each fixture (major); toilet centre ≥ 0.38 m from a side wall or fixture, washbasin centre ≥ 0.38 m from a side wall (major) |
 | G11 | walkways on a 5 cm raster: every door reaches every other door at ≥ 0.60 m (critical) and the entrance door every other door at ≥ 0.80 m (major); every use zone is reached from the entrance at ≥ 0.60 m (major; minor for an added piece in an area the drawn pieces alone already cut off from the entrance and another door reaches, 26 Oct 2026). Only what the empty room allows is required (a narrow corridor never fails by itself); a bare gap in an outer wall with drawn fixed equipment in front of it is no passage (``blocked_gaps``, 26 Oct 2026) |
-| G12 | windows: nothing taller than the sill + 0.05 m within 0.30 m in front of a window (a TV unit counts with its TV, 1.30 m) (major) |
+| G12 | windows: nothing taller than the sill + 0.05 m within 0.30 m in front of a window (a TV unit counts with its TV, 1.30 m); a tall window (sill <= 0.45 m) only when a piece covers over 25 % of its glass (major) |
 | G13 | wardrobes and other door-fronted storage: ≥ 0.80 m free in front (major) |
 | G14 | no piece of a type its room (or the zone it stands in) never holds (major; minor for drawn pieces that are not fixed equipment, as F1) |
 
@@ -1342,6 +1342,30 @@ def effective_height(item: dict, piece: Optional[placer.Piece] = None) -> float:
     return float(h) if h is not None else schemas.HEIGHTS.get(item["type"], 1.0)
 
 
+# 28 Oct 2026 (real04 run 005318: the architect's tall windows (W5, sill 0.20 m) had a nightstand and a floor lamp in
+# front, each a G12 "blocked window"): a tall window (sill at most TALL_WINDOW_SILL_M) is a glass wall; a piece blocks
+# it only when it covers more than TALL_WINDOW_COVER_MAX of its glass (overlap along the window x height over the sill,
+# over the window's width x height): a nightstand or a slim floor lamp may stand there, a wardrobe may not.
+TALL_WINDOW_SILL_M = 0.45
+TALL_WINDOW_COVER_MAX = 0.25
+
+
+def tall_window_cover(poly, win, h: float) -> Optional[float]:
+    """The share of a tall window's glass a piece of height ``h`` and plan polygon ``poly`` covers (pure): the width it
+    takes along the window (its area in the window's band over the band's depth, at most the window's width) times its
+    height over the sill, over the window's width times its height. None for a window with a sill over
+    ``TALL_WINDOW_SILL_M`` or without a height (the sill rule judges it)."""
+    if win.height is None or win.sill > TALL_WINDOW_SILL_M + 1e-9 or win.width <= 0 or win.height <= 0:
+        return None
+    hit = float(poly.intersection(win.band).area)
+    depth = float(win.band.area) / float(win.width)
+    if hit <= 0.0 or depth <= 1e-9:
+        return 0.0
+    along = min(float(win.width), hit / depth)
+    covered = along * max(0.0, min(h, win.sill + win.height) - win.sill)
+    return covered / (float(win.width) * float(win.height))
+
+
 def _g12(r: RoomView) -> list[dict]:
     out = []
     margin = GR.rule("window_band")["sill_margin"]
@@ -1352,9 +1376,14 @@ def _g12(r: RoomView) -> list[dict]:
         h = effective_height(item)
         for win in r.ctx.windows:
             if h > win.sill + margin + 1e-9 and r.polys[pid].intersection(win.band).area > 0.01:
+                cover = tall_window_cover(r.polys[pid], win, h)
+                if cover is not None and cover <= TALL_WINDOW_COVER_MAX + 1e-9:
+                    continue            # a low or slim piece before a tall window: the glass stays open
                 out.append(_violation("G12", "major", pid, r.id, f"{item['type']} {pid} ({h:.2f} m) stands in front of "
-                                      f"window {win.id} (sill {win.sill:.2f} m + {margin:.2f})",
-                                      {"window": win.id, "height_m": h, "sill_m": win.sill}))
+                                      f"window {win.id} (sill {win.sill:.2f} m + {margin:.2f})"
+                                      + (f"; it covers {cover:.0%} of the tall window's glass" if cover is not None
+                                         else ""),
+                                      {"window": win.id, "height_m": h, "sill_m": win.sill, "cover": cover}))
     return out
 
 

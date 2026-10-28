@@ -274,6 +274,7 @@ GROUP_OPS = ("place_group", "complete_group", "move_group", "relayout_room")
 # an edit whose dry re-check shows a new room-set finding (G9 / G10) for a fixture it removed.
 CORRECTION_OPS = ("mark_not_furniture",)
 SNAP_MAX_M = 0.3                 # §5: a drawn piece may move (snap to a wall) by at most this
+MOVE_CLAMP_FACTOR = 2.0          # 28 Oct 2026: a drawn move up to this times the limit is clamped to it, not refused
 LAYOUT_OPS = ("relayout_room", "set_room_type")
 ROOM_TYPES = ("living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer",
               "stair", "shaft", "other", "unknown")
@@ -639,18 +640,32 @@ def _move(b: dict, args: dict) -> list[str]:
                                           if _drawn(item) else "") + ")")
         center, rotation = found[0], found[1]
     limit = schemas.WALL_SNAP_MAX_M if args.get("snap_wall_id") else SNAP_MAX_M
+    clamped = None
     if _drawn(item):
         drawn_center = (item.get("drawn_footprint") or item["footprint"])["center"]
-        if G.distance(center, drawn_center) > limit + 1e-6:
+        dist = G.distance(center, drawn_center)
+        if limit + 1e-6 < dist <= MOVE_CLAMP_FACTOR * limit and args.get("center") is not None:
+            # 28 Oct 2026 (real04 run 005318: 9 moves refused, several at "0.30 m", the distance counts from the drawn
+            # place, which the agent does not see): a move a little past the limit (up to MOVE_CLAMP_FACTOR times
+            # it) goes as far as the limit allows in the asked direction (recorded); the checks then decide whether it
+            # fixed its finding. A move farther than that is no small correction: refused as before
+            k = (limit - 1e-6) / dist
+            clamped = round(dist, 3)
+            center = (float(drawn_center[0]) + (center[0] - float(drawn_center[0])) * k,
+                      float(drawn_center[1]) + (center[1] - float(drawn_center[1])) * k)
+        elif dist > limit + 1e-6:
             raise EditRejected("drawn_lock", f"{item['id']}: a drawn piece moves at most {SNAP_MAX_M} m, or "
                                              f"{schemas.WALL_SNAP_MAX_M} m when its back snaps onto a wall (this move: "
-                                             f"{G.distance(center, drawn_center):.2f} m)")
+                                             f"{dist:.2f} m)")
     front = G.front_direction_deg(rotation) if (item.get("front_deg") is not None or args.get("snap_wall_id")) \
         else None
     _set_footprint(item, center, rotation, p.size, front)
     _label(item, before, args, ["footprint", "front_deg"])
     if args.get("snap_wall_id"):
         item["adjusted_by_ai"]["snapped_wall"] = str(args["snap_wall_id"])
+    if clamped is not None:
+        item["adjusted_by_ai"]["move_clamped"] = {"asked_m": clamped, "limit_m": limit,
+                                                  "note": "moved as far as a drawn piece may, towards the asked place"}
     return [item["id"]]
 
 

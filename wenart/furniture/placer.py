@@ -503,6 +503,7 @@ class WindowZone:
     sill: float
     sill_assumed: bool
     width: float
+    height: Optional[float] = None           # 28 Oct 2026: the glass height (G12 judges a tall window by its share)
 
 
 @dataclass
@@ -625,7 +626,7 @@ def room_context(building: dict, room: dict) -> RoomContext:
         band = _strip(inner, d, n, width / 2, WINDOW_BAND_M).intersection(polygon)
         sill = op.get("sill_height")
         windows.append(WindowZone(op["id"], inner, band, float(sill) if sill is not None else DEFAULT_SILL_M,
-                                  sill is None, width))
+                                  sill is None, width, float(op["height"]) if op.get("height") else None))
     ctx = RoomContext(room=room, polygon=polygon, shrunk=polygon.buffer(-ROOM_SHRINK_M, join_style="mitre"),
                       segments=segments, doors=doors, windows=windows)
     ctx.baseline_pairs = [pair for pair in _all_pairs(ctx) if _pair_ok(pair, walkable_region([], ctx), [], ctx)]

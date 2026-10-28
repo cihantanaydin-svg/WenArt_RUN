@@ -211,8 +211,10 @@ def build(building: str, out: str, style: str | None = None, assets: str | None 
           no_textures: bool = False, preview_samples: int | None = None, timeout: int = 3600,
           proxies: bool = False, reuse: bool = False, camera_policy: str = "m5",
           lens_mm: float | None = None, variant: str = BASE_VARIANT, brief=None,
-          cameras_from: str | None = None, cameras_extra: bool = False) -> Path:
+          cameras_from: str | None = None, cameras_extra: bool = False, glb: bool = False) -> Path:
     """Build the scene; returns the path of ``scene_manifest.json``.
+    ``glb`` (28 Oct 2026): also write ``scene.glb`` (off by default: nothing reads it, the export stage writes the
+    delivered ``<p>.glb`` from ``scene.blend``; it took 166 s of real04's 546 s build, in every agent round).
     ``proxies`` keeps the Milestone 3 proxy boxes for every furniture piece.
     ``camera_policy``: ``m5`` (default, the fixed rules) or ``search``
     (docs/milestone6.md §4); ``lens_mm``: the brief's lens of every searched
@@ -267,6 +269,8 @@ def build(building: str, out: str, style: str | None = None, assets: str | None 
         args += ["--cameras-from", str(cameras_from)]
     if cameras_extra:
         args.append("--cameras-extra")
+    if not glb:
+        args.append("--no-glb")
     Path(out).mkdir(parents=True, exist_ok=True)
     if loaded is not None:
         import json
@@ -433,6 +437,8 @@ def main(argv: list[str] | None = None) -> int:
                         "the rooms without a record); default: $WENART_CAMERAS_FROM, read by build.py itself")
     b.add_argument("--cameras-extra", action="store_true",
                    help="Milestone 13: with --cameras-from also run the search for every room and add those cameras")
+    b.add_argument("--glb", action="store_true",
+                   help="also write scene.glb (off: the export stage writes the delivered .glb from scene.blend)")
     r = sub.add_parser("render", help="render cameras of a built scene with Cycles")
     r.add_argument("--variant", default=BASE_VARIANT, help=variant_help)
     r.add_argument("--scene", required=True)
@@ -487,7 +493,7 @@ def main(argv: list[str] | None = None) -> int:
             path = build(ns.building, ns.out, ns.style, ns.assets, ns.level, ns.no_textures, ns.preview_samples,
                          proxies=ns.proxies, reuse=ns.reuse, camera_policy=ns.camera_policy, lens_mm=ns.lens_mm,
                          variant=ns.variant, brief=ns.brief, cameras_from=ns.cameras_from,
-                         cameras_extra=ns.cameras_extra)
+                         cameras_extra=ns.cameras_extra, glb=ns.glb)
         elif ns.command == "export":
             path = export(ns.scene, ns.out, ns.name, ns.renders, ns.max_texture, ns.no_glb, variant=ns.variant)
         elif ns.command == "topdown":

@@ -186,6 +186,16 @@ def test_g12_g13_window_band_and_storage_fronts():
     assert message(window, "G12") == "bookshelf bs (1.80 m) stands in front of window win1 (sill 0.90 m + 0.05)"
     low = M.building(w=W, h=H, furniture=[fp("ns", "nightstand", (2.25, 4.78), (0.5, 0.4), 270.0)])
     assert not found(low, "G12")                                           # below the sill
+    # 28 Oct 2026: a tall window (the architect's W5, sill 0.20 m) is judged by the share of its glass a piece covers
+    def tall(*furniture):
+        b = M.building(w=W, h=H, sill=0.2, furniture=list(furniture))
+        next(o for o in b["openings"] if o["id"] == "win1")["height"] = 2.2
+        return b
+    assert not found(tall(fp("ns", "nightstand", (2.25, 4.78), (0.5, 0.4), 270.0)), "G12")     # 6 % of the glass
+    assert not found(tall(fp("fl", "floor_lamp", (2.25, 4.78), (0.35, 0.35), 270.0)), "G12")   # slim: 15 %
+    assert found(tall(fp("bs", "bookshelf", (2.25, 4.8), (1.0, 0.35), 270.0)), "G12") == [("G12", "major", "bs")]
+    assert "covers 47% of the tall window's glass" in message(tall(fp("bs", "bookshelf", (2.25, 4.8), (1.0, 0.35),
+                                                                      270.0)), "G12")
     fronts = M.building(w=W, h=H, window=(1.0, 1.0), furniture=[
         fp("w1", "wardrobe", (3.5, 4.68), (1.8, 0.6), 270.0), fp("dr", "dresser", (3.5, 3.9), (1.2, 0.5), 90.0)])
     assert ("G13", "major", "w1") in found(fronts) and "0.23 m free in front, needs ≥ 0.80 m" in message(fronts, "G13")

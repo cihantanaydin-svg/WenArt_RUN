@@ -85,6 +85,13 @@ def test_drawn_furniture_snaps_at_most_0_3_m_and_fixed_equipment_never_moves():
     assert LK.check(b, res["building"], "complete") == []
     far = E.apply_edit(b, edit("move", piece_id="f_L0_002", center=[4.0, 2.5]))
     assert not far["accepted"] and far["failed_checks"][0].startswith("drawn_lock")
+    # 28 Oct 2026: a move a little past the limit goes as far as the limit allows, in the asked direction
+    near = E.apply_edit(b, edit("move", piece_id="f_L0_002", center=[3.7, 3.38]))        # 0.316 m: just past it
+    assert near["accepted"], near["failed_checks"]
+    got = near["building"]["furniture"][0]
+    assert got["footprint"]["center"] == pytest.approx([3.7154, 3.3851], abs=1e-3)       # 0.3 m along the asked way
+    assert got["adjusted_by_ai"]["move_clamped"]["asked_m"] == pytest.approx(0.316, abs=1e-3) and \
+        got["drawn_footprint"]["center"] == [4.0, 3.48]
     basin = M.fp("f_L0_009", "washbasin", (2.5, 3.78), (0.6, 0.45), front=270.0)
     res = E.apply_edit(M.building(room_type="bathroom", furniture=[basin]),
                        edit("move", piece_id="f_L0_009", center=[2.4, 3.78]))
