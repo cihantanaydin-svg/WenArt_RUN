@@ -57,6 +57,8 @@ if args[:4] == ["-m", "wenart.assets", "growth", "run"]:
             write(Path(opt("--assets")) / "models" / "hssd" / "hssd_fake.glb", "glTF")
         if opt("--source") == "3dwh" and not os.environ.get("FAKE_NO_3DWH"):
             write(Path(opt("--assets")) / "models" / "3dwh" / "3dwh_fake.glb", "glTF")
+        if opt("--source") == "hssd_openings" and not os.environ.get("FAKE_NO_OPENINGS"):
+            write(Path(opt("--assets")) / "models" / "hssd" / "hssd_200-19.glb", "glTF")
     elif step == "infinigen-plan":
         done = (g / "infinigen" / "fake_done").exists()
         print(f"growth infinigen-plan: todo {0 if done else 30}, done {30 if done else 0}, failed 0")
@@ -69,6 +71,8 @@ if args[:4] == ["-m", "wenart.assets", "growth", "run"]:
         write(p4 / "audit" / "new_ids.json", json.dumps({"ids": ["hssd_fake"], "only": [only], "kept_ids": ["abo_x"]})
               if only else '{"ids": ["abo_x"]}')
         write(rep / "catalogue.json", "{}")
+    elif step == "second-look" and "--summary" not in args:
+        write(p4 / "audit" / "audit_ids.json", json.dumps({"ids": ["hssd_200-19", "3dwh_doubted"]}))
     elif step == "ask":
         answered = (p4 / "audit" / "ask" / "answers_fake.json").exists()
         if "--plan-only" in args:
@@ -252,7 +256,7 @@ def test_growth_only_hssd_stops_without_a_token_a_model_or_a_known_mode(tmp_path
     assert rc == 1 and "no HSSD model on the volume" in out
     assert _started(out) == ["setup-check", "ingest-hssd", "report"]
     rc, out, _ = _run(dict(env, GROWTH_ONLY="abo"), tmp_path)
-    assert rc == 1 and "is not a mode of this job (all | hssd | 3dwh)" in out and not _started(out)
+    assert rc == 1 and "is not a mode of this job (all | hssd | 3dwh | openings)" in out and not _started(out)
 
 
 def test_the_job_header_documents_the_p2b_command():
@@ -338,3 +342,51 @@ def test_growth_only_3dwh_moves_an_html_answer_aside_and_stops_without_a_model(t
     assert [p.name.split(".part.")[1][:5] for p in folder.iterdir()] == ["html-"]
     steps = (ws / "library-growth" / "report" / "steps.tsv").read_text()
     assert "download-3dwh\t1\t" in steps and "is the file shared as 'anyone with the link'?" in steps
+
+
+# --------------------------------------------------------------------------
+# GROWTH_ONLY=openings (28 Oct 2026, the user: "I want better doors ... find the best models"): the HSSD doors and
+# windows in one pod
+# --------------------------------------------------------------------------
+
+OPENING_STEPS = ("ingest-openings", "catalogue", "second-look", "render", "code", "ask", "decide", "write",
+                 "vision-fields", "pending", "second-look-summary", "sheets", "report", "gpu-tests")
+
+
+@pytest.mark.skipif(not Path("/bin/bash").exists(), reason="bash needed")
+def test_growth_only_openings_audits_the_hssd_doors_and_windows_alone_and_resumes(tmp_path):
+    """GROWTH_ONLY=openings: setup-check, ingest --source hssd_openings (the HSSD gate: HF_TOKEN, never written),
+    catalogue --only hssd_openings, second-look (the doubted models join the new ones: audit_ids.json), render, code,
+    ask, decide, write, vision-fields, pending, second-look --summary, sheets, report, GPU tests and nothing else; a second run resumes (every answer current: no server); no token: nothing done; no
+    model on the volume: the report only."""
+    ws, env = _workspace(tmp_path)
+    env.update(GROWTH_ONLY="openings", HF_TOKEN="hf_fake_secret_value_for_the_test")
+    rc, out, _ = _run(env, tmp_path)
+    assert rc == 0 and "all steps ok" in out, out[-3000:]
+    assert _started(out) == ["setup-check", *OPENING_STEPS], _started(out)
+    calls = (tmp_path / "calls.log").read_text().splitlines()
+    assert any(c.startswith("-m wenart.assets growth run ingest --source hssd_openings --workers 8 --token-env "
+                            "HF_TOKEN") for c in calls)
+    assert any(c.startswith("-m wenart.assets growth run catalogue --only hssd_openings") for c in calls)
+    # the doubted models join the new ones (audit_ids.json) for the render, the code and the decision
+    for step in ("render", "code", "decide"):
+        assert any(c.startswith(f"-m wenart.assets audit {step}") and "audit_ids.json" in c for c in calls), step
+    assert any(c.startswith("-m wenart.assets growth run second-look --summary") for c in calls)
+    assert any(c.startswith("-m wenart.assets growth run pending") for c in calls)
+    for never in ("--source hssd ", "--source abo", "--source polyhaven", "--source gso", "--source 3dwh",
+                  "growth run demands", "growth run speed-probe", "growth run convert", "growth run refetch",
+                  "growth run preview", "growth run gaps", "infinigen"):
+        assert not any(never in c + " " for c in calls), never
+    texts = [p.read_text(errors="replace") for p in (tmp_path / "results").rglob("*") if p.is_file()]
+    assert texts and not any("hf_fake_secret_value_for_the_test" in t for t in texts + [out])
+    rc, out, secs = _run(dict(env, FAKE_SETUP_SLEEP="90"), tmp_path)
+    assert rc == 0 and "no server" in out and "stopping background step setup-check" in out and secs < 60
+    assert _started(out) == ["setup-check", *[s for s in OPENING_STEPS if s != "ask"]]
+
+    env.pop("HF_TOKEN")
+    rc, out, _ = _run(env, tmp_path)
+    assert rc == 1 and "GROWTH_ONLY=openings has nothing to do" in out and not _started(out)
+    rc, out, _ = _run(dict(env, HF_TOKEN="hf_fake", FAKE_NO_OPENINGS="1",
+                           WENART_ASSETS=str(tmp_path / "empty_assets")), tmp_path)
+    assert rc == 1 and "no HSSD door or window on the volume" in out
+    assert _started(out) == ["setup-check", "ingest-openings", "report"]

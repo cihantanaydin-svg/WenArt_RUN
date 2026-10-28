@@ -744,12 +744,12 @@
    "id": "UL65",
    "date": "2026-10-28",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I want better doors inside the house and the outside, I am not liking that much the models used at the moment, some variation is needed",
-   "lesson": "Doors inside and outside are good-looking real products with variation by role in one language: a statement entrance door, glazed terrace doors, interior doors in the style (flush, panelled or glazed by room: glazed or framed glass to living rooms and kitchens, solid to bedrooms and bathrooms, sliding or pocket where drawn), with handles and frames; never one plain model everywhere.",
+   "lesson": "Doors inside and outside are good-looking real products with variation by role in one language: a statement entrance door, glazed terrace doors, interior doors in the style (flush, panelled or glazed by room: glazed or framed glass to living rooms and kitchens, solid to bedrooms and bathrooms, sliding or pocket where drawn), with handles and frames; never one plain model everywhere. The build picks the audit's best-rated library models (the HSSD door and window series beside the 3D Warehouse ones): the entrance a statement door, the outside service doors another family than the entrance, the terrace doors glazed, one window family, and among equally good families the house's own pick (two houses of one style differ); the interior doors one family per room role, never a facade family, facing the room they open into, the parametric door where no model fits (opening_models.plan, plan_inside); Argus finds every door one model, an inside door model on the facade and an entrance without a statement door (opening_models.door_variety_problems).",
    "question": "Do the doors look like chosen products, with a distinct entrance door and interior doors that vary by room in one style?"
   },
   {

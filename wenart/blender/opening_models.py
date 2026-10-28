@@ -47,9 +47,38 @@ window among white sliding ones):
   in ``notes``) instead of a model of another family; ``opening_build`` paints every frame in the style's finish.
 - Why: the choice ranked textured models first and fell back to any model that fitted, so the house got a
   traditional sash beside modern sliders and dark panelled doors in a Scandinavian facade.
+
+28 Oct 2026 (user: "I want better doors inside the house and the outside, I am not liking that much the models used at
+the moment, some variation is needed", then "find the best models"; real04 had "Aluminium Casement Window" on 26
+windows and "Front Door" models on every outside door, real06 "Single Casement Window" x35):
+
+- What, the sources: the HSSD doors and windows (``wenart.assets.hssd_openings``: Floorplanner product series in many
+  sizes, audited with the opening question) join the 3D Warehouse extras. Their structured fields are read before the
+  title words: ``model_role`` (the audit's role: entrance, outside, inside, garage, window), ``model_glazing`` (none,
+  clear, bars, patterned), ``model_leaves``, ``model_operation`` (the audit's, then the HSSD table's, then the title),
+  ``model_handle_side``; ``family_key`` takes a model's ``series`` (the variants of one product). ``load_extras``
+  reads the openings audit too (``AUDIT_FILES``; ``audit_openings``).
+- What, variation by role in one language: the entrance takes a statement door (``is_statement``: the audit's
+  entrance role or a front-door title, before the coverage), the outside service doors take another family than the
+  entrance, terrace doors stay glazed, the windows one family; a category whose openings open two ways (a French and a
+  sliding door) gives each opening a member that opens its way (``op_ok``); among families equal on every rank the
+  house's seed (``house_seed``: its project id) picks one, so two houses of one style do not get the same products
+  (``_choose_family``).
+- What, inside doors: ``inside_records`` (the interior doors: rooms on both sides, the room each opens into) and
+  ``plan_inside`` plan library models for them (category ``inside_door``), one family per role (``inside_role``, the
+  door style of ``looks.door_look``: ``glazed`` into the living rooms, ``solid`` to the private rooms, ``sliding``
+  where the drawing slides it), the glazed role preferring the solid role's series, never a facade family; each entry
+  faces the room the door opens into (``outward``), is centred in its wall (``inside``), mirrored to a drawn hinge side
+  (``hinge_mirror``) and gets the lever handles when its model shows none (``add_handles``). A door no model fits stays
+  the parametric door (``notes``).
+- What, the checks: ``door_variety_problems`` (pure) finds a house whose doors are all one model, an inside door model
+  on the facade and an entrance without a statement door.
+- Why: after the title filters about ten 3D Warehouse models fitted an entrance and one a terrace door, all rated 3 of
+  5; the inside doors were parametric slabs.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
@@ -70,6 +99,7 @@ SIZES = {                          # (width range, height range) of one model, m
     "glazed_door": ((1.2, 4.0), (1.9, 2.9)),
     "terrace_door": ((0.7, 1.6), (1.9, 2.7)),
     "window": ((0.4, 3.0), (0.4, 2.6)),
+    "inside_door": ((0.6, 1.25), (1.9, 2.7)),        # 28 Oct 2026: the interior doors (``plan_inside``)
 }
 WORDS = {                          # title words that say a model is meant for the category
     "entrance": ("front", "entrance", "entry", "main", "pivot", "exterior"),
@@ -77,6 +107,7 @@ WORDS = {                          # title words that say a model is meant for t
     "glazed_door": ("sliding", "glass", "french", "patio", "folding", "balcony", "terrace"),
     "terrace_door": ("balcony", "glass", "glazed", "french", "patio", "terrace", "lite"),
     "window": ("window", "casement", "sliding", "awning", "tilt"),
+    "inside_door": ("interior", "internal", "inside", "room", "flush", "panel", "bedroom", "bathroom", "door"),
 }
 INSIDE_WORDS = ("interior", "internal", "toilet", "elevator", "japanese", "closet", "wardrobe", "shower", "barn",
                 # 28 Oct 2026 (real04 and real06 got a "bathroom door" model on the facade): the rooms an inside door
@@ -88,10 +119,15 @@ PAIR_WORDS = ("slide", "double", "duble", "pair")
 NOT_WORDS = {                      # title words that rule a model out of the category (an outer opening)
     "entrance": ("sliding", "folding", "glass", "garage", "pack", "set", "window") + PAIR_WORDS + INSIDE_WORDS,
     "door": ("sliding", "folding", "garage", "pack", "set", "window") + PAIR_WORDS + INSIDE_WORDS,
-    "glazed_door": ("garage", "pack", "set") + INSIDE_WORDS,
+    # 28 Oct 2026 (real06's French door took a "Front Door" with a glass tag): a front door is no glazed door either
+    "glazed_door": ("garage", "pack", "set", "front", "entry", "entrance") + INSIDE_WORDS,
     # 28 Oct 2026 (real04's terrace doors took a "Front Door"): a front or entry door is no terrace door
     "terrace_door": ("garage", "pack", "set", "sliding", "folding", "front", "entry") + PAIR_WORDS + INSIDE_WORDS,
     "window": ("pack", "set", "door", "curtain", "blind", "shutter", "wall"),
+    # 28 Oct 2026: an inside door is no front, terrace, garage or lift door and no pair (the build scales one leaf)
+    "inside_door": ("front", "entrance", "entry", "exterior", "external", "garage", "patio", "balcony", "terrace",
+                    "pack", "set", "window", "shower", "elevator", "container", "security", "storm", "double", "duble",
+                    "pair"),
 }
 NEVER_FLAGS = ("no_derivatives", "unknown")
 
@@ -127,7 +163,8 @@ FAMILY_LOOK = {"scandinavian": "light", "japandi": "light", "modern": "light", "
 BARS_MIN_LITES = 6                 # glazing bars: at least this many lites ...
 BARS_PER_M2 = 2.0                  # ... and this many per square metre of the model's face (a French door: 16 / 3.9)
 MIN_LITE_M2 = 0.01                 # glass pieces smaller than this are no lite (a peephole, a sliver)
-AUDIT_FILES = ("results/library/audit/3dwh/audit.json",)     # audits whose vision answers style the extras
+AUDIT_FILES = ("results/library/audit/3dwh/audit.json",      # audits whose vision answers style the extras
+               "results/library/audit/openings/audit.json")  # 28 Oct 2026: the HSSD doors and windows (the pod's p4)
 
 
 def load_extras(path, audits: Optional[Sequence] = None) -> list[dict]:
@@ -151,6 +188,7 @@ def load_extras(path, audits: Optional[Sequence] = None) -> list[dict]:
             doc = json.loads(Path(a).read_text(encoding="utf-8"))
             audit_styles(extras, doc)
             audit_quality(extras, doc)
+            audit_openings(extras, doc)
         except (OSError, ValueError, TypeError, AttributeError):   # a broken audit file never stops the build
             continue
     return extras
@@ -167,6 +205,27 @@ def audit_quality(extras: list, audit_doc: Optional[dict]) -> int:
         q = answers.get(str(e.get("id"))) if isinstance(e, dict) else None
         if isinstance(q, int) and e.get("audit_quality") is None:
             e["audit_quality"] = q
+            n += 1
+    return n
+
+
+OPENING_FIELDS = ("role", "operation", "leaves", "glazing", "leaf", "handle_side")     # = ask.OPENING_FIELDS
+
+
+def audit_openings(extras: list, audit_doc: Optional[dict]) -> int:
+    """The opening question's answer (``OPENING_FIELDS``) of each door or window as ``opening_vision`` where the
+    catalogue has none (pure, in place; 28 Oct 2026; the rule of ``growth_entries.opening_fields``, kept here so the
+    build does not import the growth code). Returns how many entries got one."""
+    answers = {str(it["id"]): it["vision"] for it in (audit_doc or {}).get("items") or []
+               if isinstance(it, dict) and it.get("id") and isinstance(it.get("vision"), dict)}
+    n = 0
+    for e in extras:
+        a = answers.get(str(e.get("id"))) if isinstance(e, dict) else None
+        if not a or isinstance(e.get("opening_vision"), dict):
+            continue
+        seen = {f: a[f] for f in OPENING_FIELDS if f in a}
+        if seen:
+            e["opening_vision"] = dict(seen, note="the audit's vision answer (the opening question), at load")
             n += 1
     return n
 
@@ -247,8 +306,13 @@ def look_fit(entry: dict, look: Optional[dict], panes: Optional[dict] = None,
     w = _word(title, look["not_words"])
     if w:
         return None, f"its title says {w!r}: not the {look['family']} look"
-    if look["panelled"] and _panelled(title):
+    if look["panelled"] and (_panelled(title) or model_vision(entry).get("leaf") == "panelled"):
         return None, f"a panelled leaf: not the {look['family']} look"
+    glazing = model_glazing(entry)
+    if look["clear_glass"] and glazing == "patterned" and category in GLAZED:
+        return None, f"patterned glass (the audit): the {look['family']} look wants clear glass"
+    if not look["bars"] and glazing == "bars":
+        return None, f"glazing bars (the audit): the {look['family']} look wants no or few bars"
     styles = entry_styles(entry)
     avoid = [s for s in styles if s in look["avoid"]]
     if styles and 2 * len(avoid) >= len(styles):
@@ -278,7 +342,11 @@ def family_key(entry: dict) -> str:
     """The model family of a door or window (pure): the variants of one series share it ("Window1 1" and "Window1 3",
     "Valdi - Folding Sliding Door - 3 Door White" and "- 4 Door Timber": the title without its numbers, colours and
     leaf counts, the first two parts of a "brand - product - variant" title); a title with nothing to strip is its own
-    family (seven different "Front Door" models are seven families)."""
+    family (seven different "Front Door" models are seven families). 28 Oct 2026: a model with a ``series`` (the HSSD
+    Floorplanner variants of one product, ``hssd:218``) is that series."""
+    series = entry.get("series") or _opening_rec(entry).get("series")
+    if series:
+        return f"{entry.get('type')}:series:{series}"
     title = re.sub(r"\[[^\]]*\]", " ", str(entry.get("title") or entry.get("name") or "").lower())
     title = " ".join(title.replace("_", " ").split())
     parts = [p.strip() for p in title.split(" - ") if p.strip()]
@@ -688,8 +756,66 @@ KIND_OPERATION = {"glazed_sliding": "sliding", "sliding_pair": "sliding", "glaze
                   "folding": "folding", "french": "hinged", "double": "hinged", "entrance": "hinged"}
 
 
+# 28 Oct 2026: the structured fields of a door or window model (the audit's opening question, the HSSD table)
+MODEL_ROLES = ("entrance", "outside", "inside", "garage", "window")
+GLASS_LEVELS = ("clear", "bars", "patterned")
+DOOR_OPERATIONS = ("hinged", "sliding", "folding", "pivot")
+
+
+def model_vision(entry: dict) -> dict:
+    """The audit's opening answer of a model (``opening_vision``), {} without one."""
+    v = entry.get("opening_vision") if isinstance(entry, dict) else None
+    return v if isinstance(v, dict) else {}
+
+
+def _opening_rec(entry: dict) -> dict:
+    v = entry.get("opening") if isinstance(entry, dict) else None
+    return v if isinstance(v, dict) else {}
+
+
+def model_role(entry: dict) -> Optional[str]:
+    """Where the audit puts a model (``MODEL_ROLES``), None when it does not say."""
+    v = model_vision(entry).get("role")
+    return v if v in MODEL_ROLES else None
+
+
+def model_glazing(entry: dict) -> Optional[str]:
+    """The audit's glass of a model: none, clear, bars, patterned; None when it does not say."""
+    v = model_vision(entry).get("glazing")
+    return v if v in ("none",) + GLASS_LEVELS else None
+
+
+def model_leaves(entry: dict) -> Optional[int]:
+    """The leaves of a door model side by side: the audit's count, else 2 for an HSSD ``double`` door; None unknown."""
+    v = model_vision(entry).get("leaves")
+    if isinstance(v, int) and not isinstance(v, bool) and v > 0:
+        return v
+    return 2 if _opening_rec(entry).get("kind") == "double" else None
+
+
+def model_handle_side(entry: dict) -> Optional[str]:
+    """Where the audit sees the handle in the model's front view: left, right, both, none; None unknown."""
+    v = model_vision(entry).get("handle_side")
+    return v if v in ("left", "right", "both", "none") else None
+
+
+def model_glazed(entry: dict) -> bool:
+    """Glass evidence without the file: the audit's glazing, a glass word of the title or the glass material tag."""
+    g = model_glazing(entry)
+    if g is not None:
+        return g in GLASS_LEVELS
+    return _has(_title(entry), ("glass", "glazed", "lite", "french")) or "glass" in (entry.get("material_tags") or [])
+
+
 def model_operation(entry: dict) -> Optional[str]:
-    """How a door model opens by its title (``OPERATION_WORDS``, the first that matches), None when it names none."""
+    """How a door model opens: the audit's operation (28 Oct 2026), else the HSSD table's, else its title
+    (``OPERATION_WORDS``, the first that matches); None when nothing names one."""
+    v = model_vision(entry).get("operation")
+    if v in DOOR_OPERATIONS:
+        return v
+    op = _opening_rec(entry).get("operation")
+    if op in DOOR_OPERATIONS:
+        return op
     title = _title(entry)
     for op, words in OPERATION_WORDS:
         if _has(title, words):
@@ -711,13 +837,17 @@ def opening_operation(o: dict) -> Optional[str]:
 
 def operation_fit(cands: Sequence[dict], wanted: set) -> tuple[list[dict], dict]:
     """``(kept, {id: why})``: the models whose own operation (``model_operation``) is the one the openings want, or
-    that name none; with several operations wanted only the models that name none (pure)."""
+    that name none; with several operations wanted only the models that name none (pure), and (28 Oct 2026) the
+    models whose operation the audit or the HSSD table states and one of the openings wants (``plan`` gives each
+    opening a member that opens its way: ``op_ok``)."""
     if not wanted:
         return list(cands), {}
     kept, wrong = [], {}
     for e in cands:
         op = model_operation(e)
-        if op is None or (len(wanted) == 1 and op in wanted):
+        stated = model_vision(e).get("operation") in DOOR_OPERATIONS or \
+            _opening_rec(e).get("operation") in DOOR_OPERATIONS
+        if op is None or (op in wanted and (len(wanted) == 1 or stated)):
             kept.append(e)
         else:
             wrong[e.get("id")] = f"a {op} door for {', '.join(sorted(wanted))} opening(s)"
@@ -740,10 +870,35 @@ def candidates(extras: Sequence[dict], category: str, mode: str) -> list[dict]:
         if not (w0 <= w <= w1 and h0 <= h <= h1 and d <= MAX_DEPTH_M) or _has(title, NOT_WORDS[category]):
             continue
         if category in ("glazed_door", "terrace_door") and not (_has(title, WORDS[category])
-                                                                or "glass" in (e.get("material_tags") or [])):
+                                                                or "glass" in (e.get("material_tags") or [])
+                                                                or model_glazing(e) in GLASS_LEVELS):
+            continue
+        if structured_problem(e, category):
             continue
         out.append(e)
     return out
+
+
+FACADE_CATEGORIES = ("entrance", "door", "glazed_door", "terrace_door")
+INSIDE_CATEGORY = "inside_door"
+
+
+def structured_problem(e: dict, category: str) -> Optional[str]:
+    """Why a model's structured fields (the audit, the HSSD table) rule it out of a category (pure, 28 Oct 2026),
+    None when they do not: an inside door, a garage door or a window never on the facade; an entrance, outside or
+    garage door never inside; a pair never in a one-leaf category; a door without glass never a glazed door."""
+    role = model_role(e)
+    if category in FACADE_CATEGORIES and role in ("inside", "garage", "window"):
+        return f"the audit puts it {'inside' if role == 'inside' else 'as a ' + role}: not a {category}"
+    if category == INSIDE_CATEGORY and role in ("entrance", "outside", "garage", "window"):
+        return f"the audit puts it {'outside' if role == 'outside' else 'as a ' + role}: no inside door"
+    if category == "window" and role in ("entrance", "outside", "inside", "garage"):
+        return f"the audit sees a door ({role}): no window"
+    if category in SINGLE_LEAF + (INSIDE_CATEGORY,) and (model_leaves(e) or 1) >= 2:
+        return f"{model_leaves(e)} leaves: no one-leaf door"
+    if category in ("glazed_door", "terrace_door") and model_glazing(e) == "none":
+        return "no glass (the audit): no glazed door"
+    return None
 
 
 def best_panels(width: float, height: float, model_aspect: float) -> tuple[int, float]:
@@ -764,11 +919,89 @@ def _rank_key(entry: dict, category: str, openings: Sequence[tuple[float, float]
     errs = [best_panels(ow, oh, w / h)[1] for ow, oh in openings] or [0.0]
     title = _title(entry)
     status = str((entry.get("audit") or {}).get("status") or "").lower()
-    # 28 Oct 2026: the audit's vision quality first (a 4 before a 3; unknown counts as 3), then as before
-    quality = entry.get("audit_quality") if isinstance(entry.get("audit_quality"), int) else 3
-    return (-quality, 0 if entry.get("textured") else 1, 0 if _has(title, WORDS[category]) else 1,
-            0 if status == "keep" else 1, RANK_STEP * round(sum(min(e, 1.0) for e in errs) / len(errs) / RANK_STEP),
-            str(entry.get("id")))
+    # 28 Oct 2026: the audit's vision quality first (a 4 before a 3; unknown counts as 3), then the audit's role (a
+    # model the audit puts where the category is before an unknown one), then as before
+    return (-_quality(entry), role_rank(entry, category), 0 if entry.get("textured") else 1,
+            0 if _has(title, WORDS[category]) else 1, 0 if status == "keep" else 1,
+            RANK_STEP * round(sum(min(e, 1.0) for e in errs) / len(errs) / RANK_STEP), str(entry.get("id")))
+
+
+def _quality(entry: dict) -> int:
+    """The audit's vision quality of a model (``audit_quality``), 3 when unknown."""
+    q = entry.get("audit_quality")
+    return q if isinstance(q, int) and not isinstance(q, bool) else 3
+
+
+CATEGORY_ROLES = {"entrance": ("entrance",), "door": ("outside", "entrance"), "glazed_door": ("outside",),
+                  "terrace_door": ("outside",), "window": ("window",), "inside_door": ("inside",)}
+
+
+def role_rank(entry: dict, category: str) -> int:
+    """0: the audit puts the model where the category is (``CATEGORY_ROLES``), 1: it does not say, 2: elsewhere."""
+    role = model_role(entry)
+    if role is None:
+        return 1
+    return 0 if role in CATEGORY_ROLES.get(category, ()) else 2
+
+
+def is_statement(entry: dict) -> bool:
+    """A statement front door (28 Oct 2026): the audit puts it at the entrance, or its title names a front door."""
+    return model_role(entry) == "entrance" or _has(_title(entry), WORDS["entrance"])
+
+
+def house_seed(building: dict) -> Optional[str]:
+    """The house's variation seed: its project id (``building.project.id``), else its name; None without one."""
+    proj = (building or {}).get("project")
+    if isinstance(proj, dict):
+        proj = proj.get("id") or proj.get("name")
+    return str(proj) if proj else None
+
+
+def _choose_family(cands: Sequence[dict], category: str, openings: Sequence[tuple[float, float]], look_rank: dict,
+                   seed: Optional[str] = None, exclude=(), prefer: Optional[str] = None,
+                   statement: bool = False, ops: Optional[Sequence] = None) -> Optional[tuple]:
+    """``(order, key, members, tier)`` of the family a category takes (pure; module docstring): the families of the
+    ranked candidates (``family_key``) that fit an opening, ordered by the look, the ``prefer`` family (the glazed
+    inside doors: the solid ones' series), the audit's quality, a statement door (``statement``: the entrance), the
+    openings covered and ``_rank_key``; ``exclude`` families are left out (the entrance's, the facade's). Among the
+    families equal on all of these (the ``tier``) the house's ``seed`` picks one (28 Oct 2026: two houses of one
+    style get different products); without a seed the first. ``ops`` (one per opening): the way each opening
+    opens; a member covers an opening only when it opens that way or says nothing (``op_ok``). None when no family
+    fits."""
+    ranked = sorted(cands, key=lambda e: (look_rank[e["id"]][0], _rank_key(e, category, openings)))
+    families: dict[str, list] = {}
+    for e in ranked:
+        families.setdefault(family_key(e), []).append(e)
+    rows = []
+    for key, members in families.items():
+        if key in exclude:
+            continue
+        ways = list(ops) if ops is not None else [None] * len(openings)
+        covered = sum(1 for (w, h), op in zip(openings, ways)
+                      if any(op_ok(m, op) and fit(m, category, w, h) for m in members))
+        if not covered:
+            continue
+        head = members[0]
+        quality = max(_quality(m) for m in members)
+        stmt = 0 if not statement or any(is_statement(m) for m in members) else 1
+        pref = 0 if prefer is None or key == prefer else 1
+        rows.append(((look_rank[head["id"]][0], pref, -quality, stmt, -covered, _rank_key(head, category, openings)),
+                     key, members))
+    if not rows:
+        return None
+    rows.sort(key=lambda r: r[0])
+    best = rows[0][0]
+    tier = [r for r in rows if r[0][:5] == best[:5] and r[0][5][:-1] == best[5][:-1]]
+    pick = rows[0]
+    if seed and len(tier) > 1:
+        pick = tier[int(hashlib.sha256(f"{seed}|{category}".encode("utf-8")).hexdigest(), 16) % len(tier)]
+    return pick[0], pick[1], pick[2], len(tier)
+
+
+def op_ok(model: dict, wanted: Optional[str]) -> bool:
+    """A model serves an opening that opens ``wanted``: it opens that way or names no way (28 Oct 2026)."""
+    op = model_operation(model)
+    return wanted is None or op is None or op == wanted
 
 
 def _number(v) -> Optional[float]:
@@ -855,7 +1088,7 @@ def fit(entry: dict, category: str, width: float, height: float) -> Optional[tup
     if size is None or width <= 0 or height <= 0:
         return None
     w, _d, h = size
-    if category in SINGLE_LEAF:
+    if category in SINGLE_LEAF or category == INSIDE_CATEGORY:
         if width > SINGLE_LEAF_MAX_M + 1e-6:
             return None
         n, err = 1, abs(math.log((width / height) / (w / h)))
@@ -901,8 +1134,26 @@ def _checked(cands: list, category: str, look: Optional[dict], assets_dir, cache
     return kept, left, rank
 
 
+
+
+def _entry(e: dict, category: str, n: int, err: float, width: float, height: float, key: str, look: Optional[dict],
+           look_rank: dict, outward, what: str) -> dict:
+    """The plan entry of one opening's model (``plan`` / ``plan_inside``)."""
+    rank, why = look_rank[e["id"]]
+    styled = f"; {look['family']} look: {why}" if look is not None else ""
+    return {"asset": asset_of(e), "panels": n, "category": category, "aspect_error": round(err, 4),
+            "outward": outward, "family": key,
+            "look": None if look is None else {"family": look["family"], "name": look["name"], "rank": rank,
+                                               "styles": entry_styles(e)},
+            "quality": _quality(e), "model_role": model_role(e), "model_operation": model_operation(e),
+            "reason": f"library {category.replace('_', ' ')} {e.get('id')} ({str(e.get('title') or '')[:40]!r}) in "
+                      f"{n} panel(s) of {width / n:.2f} x {height:.2f} m (proportions off by "
+                      f"{(math.exp(err) - 1) * 100:.0f} %; the documents draw the opening, not its product); {what}"
+                      f"{styled}; frames in the style's finish"}
+
+
 def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: str = "relaxed",
-         assets_dir=None, style=None, notes: Optional[list] = None) -> dict[str, dict]:
+         assets_dir=None, style=None, notes: Optional[list] = None, seed=None) -> dict[str, dict]:
     """``{opening id: {"asset", "panels", "category", "aspect_error", "family", "look", "reason"}}`` for the outer
     openings ``outer`` (``site.outer_openings`` records: ``opening``, ``bottom``, ``top``). With ``assets_dir`` a
     window or glazed door model must have see-through glass (``glb_glass``; a model whose file is not there is not
@@ -913,9 +1164,15 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
     the most of the category's openings, then by ``_rank_key``; each opening takes the family's member that fits it
     best, and an opening no member fits keeps the parametric opening in the style's finish. ``notes`` (a list) gets
     ``{"kind": "left_out", "category", "models": {id: why}}`` per category and ``{"kind": "parametric", "id",
-    "category", "reason"}`` per opening left to the parametric build."""
+    "category", "reason"}`` per opening left to the parametric build.
+
+    28 Oct 2026 (module docstring): the family choice is ``_choose_family`` (the entrance a statement door; the
+    outside service doors never the entrance's family; the house's ``seed``, default ``house_seed(building)``,
+    picks among equal families; ``seed=""`` turns that off); each opening takes a member that opens its way
+    (``op_ok``)."""
     look = look_of(style)
     cats = categorise(building, outer)
+    seed = house_seed(building) if seed is None else (seed or None)
     # 26 Oct 2026 (architect D5): a glazed door narrower than WIDE_DOOR_M tries the house's glazed door family first,
     # so the glazed doors share one look where a model fits within its stretch caps; else its terrace door
     narrow_glazed = [rec["opening"]["id"] for rec in outer if is_glazed_door(rec["opening"])
@@ -933,50 +1190,53 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
     cache: dict = {}
     by_id = {rec["opening"]["id"]: rec["opening"] for rec in outer}
     notes = notes if notes is not None else []
+    chosen: dict[str, set] = {}                            # category -> the families it took
     for category in CATEGORIES:
         ids = [i for i, c in cats.items() if c == category and i in sizes and i not in out]
         also = [i for i in narrow_glazed if i in sizes and i not in out] if category == "glazed_door" else []
         if not ids and not also:
             continue
-        cands, left, look_rank = _checked(candidates(extras, category, mode), category, look, assets_dir, cache)
+        base, left, look_rank = _checked(candidates(extras, category, mode), category, look, assets_dir, cache)
         # 28 Oct 2026 (user on real06: "This window / door should have been sliding as indicated in the plan": the
         # drawn 2.95 m sliding door got "Valdi - Folding Sliding Door"): a model that names how it opens opens as the
-        # category's openings do
-        ops = {by_id[i].get("id"): opening_operation(by_id[i]) for i in ids + also if i in by_id}
-        cands, wrong = operation_fit(cands, set(v for v in ops.values() if v))
+        # openings do; a category whose openings open two ways takes a family for each way
+        ops = {i: opening_operation(by_id[i]) for i in ids + also if i in by_id}
+        cands, wrong = operation_fit(base, set(v for v in ops.values() if v))
         if wrong:
             left = dict(left or {}, **wrong)
         if left:
             notes.append({"kind": "left_out", "category": category, "models": left})
         if not cands:
             continue
-        openings = [sizes[i] for i in ids + also]
-        ranked = sorted(cands, key=lambda e: (look_rank[e["id"]][0], _rank_key(e, category, openings)))
-        families: dict[str, list] = {}
-        for e in ranked:
-            families.setdefault(family_key(e), []).append(e)
-        best = None
-        for key, members in families.items():
-            covered = sum(1 for w, h in openings if any(fit(m, category, w, h) for m in members))
-            if not covered:
-                continue
-            head = members[0]
-            # 28 Oct 2026: a better-looking family (the audit's vision quality) before one that covers more openings
-            # (an opening no member fits stays parametric in the style's finish)
-            quality = max((m.get("audit_quality") if isinstance(m.get("audit_quality"), int) else 3) for m in members)
-            order = (look_rank[head["id"]][0], -quality, -covered, _rank_key(head, category, openings))
-            if best is None or order < best[0]:
-                best = (order, key, members)
-        if best is None:
+        # 28 Oct 2026 (user: "some variation is needed"): the outside service doors are not the entrance's family
+        exclude = set(chosen.get("entrance") or ()) if category == "door" else set()
+        group = ids + also
+        openings = [sizes[i] for i in group]
+        pick = _choose_family(cands, category, openings, look_rank, seed, exclude, statement=category == "entrance",
+                              ops=[ops.get(i) for i in group])
+        if exclude:
+            # another family than the entrance's only when one of the same look exists (an off-look model would be
+            # worse than the entrance's family: one language before variety)
+            shared = _choose_family(cands, category, openings, look_rank, seed, (), ops=[ops.get(i) for i in group])
+            if shared is not None and (pick is None or pick[0][0] > shared[0][0]):
+                pick, exclude = shared, set()
+                notes.append({"kind": "shared_family", "category": category, "family": shared[1],
+                              "reason": "no other family of the house's look fits the outside service doors: they "
+                                        "share the entrance's family"})
+        if pick is None:
             for oid in ids:
                 notes.append({"kind": "parametric", "id": oid, "category": category,
                               "reason": f"no library {category.replace('_', ' ')} fits {sizes[oid][0]:.2f} x "
                                         f"{sizes[oid][1]:.2f} m: the parametric opening in the style's finish"})
             continue
-        _order, key, members = best
-        for oid in ids + also:
+        _order, key, members, tier = pick
+        chosen.setdefault(category, set()).add(key)
+        what = (f"the building's one {category.replace('_', ' ')} family"
+                + (f" (one of {tier} equal families, picked by the house's seed)" if tier > 1 and seed else "")
+                + ("; another family than the entrance's" if exclude else ""))
+        for oid in group:
             width, height = sizes[oid]
-            fits = [(look_rank[m["id"]][0], f[1], i, m, f) for i, m in enumerate(members)
+            fits = [(look_rank[m["id"]][0], f[1], i, m, f) for i, m in enumerate(members) if op_ok(m, ops.get(oid))
                     for f in [fit(m, category, width, height)] if f is not None]
             if not fits and oid in also:
                 continue                         # no member of the glazed door family fits: its terrace door next
@@ -985,20 +1245,327 @@ def plan(building: dict, outer: Sequence[dict], extras: Sequence[dict], mode: st
                 notes.append({"kind": "parametric", "id": oid, "category": category, "family": key,
                               "reason": f"no model of the building's {category.replace('_', ' ')} family "
                                         f"{str(head.get('title') or head.get('id'))[:40]!r} fits {width:.2f} x "
-                                        f"{height:.2f} m: the parametric opening in the style's finish keeps one "
-                                        f"door and window language"})
+                                        f"{height:.2f} m (or opens {ops.get(oid) or 'its'} way): the parametric "
+                                        f"opening in the style's finish keeps one door and window language"})
                 continue
             _r, err, _i, e, (n, err) = min(fits, key=lambda t: t[:3])
-            rank, why = look_rank[e["id"]]
-            styled = f"; {look['family']} look: {why}" if look is not None else ""
-            out[oid] = {"asset": asset_of(e), "panels": n, "category": category,
-                        "aspect_error": round(err, 4), "outward": outward.get(oid), "family": key,
-                        "look": None if look is None else {"family": look["family"], "name": look["name"],
-                                                           "rank": rank, "styles": entry_styles(e)},
-                        "reason": f"library {category.replace('_', ' ')} {e.get('id')} "
-                                  f"({str(e.get('title') or '')[:40]!r}) in {n} panel(s) of "
-                                  f"{width / n:.2f} x {height:.2f} m (proportions off by "
-                                  f"{(math.exp(err) - 1) * 100:.0f} %; the documents draw the opening, "
-                                  f"not its product); the building's one {category.replace('_', ' ')} family"
-                                  f"{styled}; frames in the style's finish"}
+            out[oid] = _entry(e, category, n, err, width, height, key, look, look_rank, outward.get(oid), what)
+            if category == "entrance":
+                out[oid]["statement"] = is_statement(e)
+    return out
+
+
+# --------------------------------------------------------------------------
+# Inside doors (28 Oct 2026)
+# --------------------------------------------------------------------------
+
+INSIDE_ROLES = ("solid", "glazed", "sliding")
+# the door style of looks.door_look -> the inside door role; the others (pocket, double, folding, fixed, entrance,
+# glazed sliding, sectional) stay the parametric door: no library model of that kind
+ROLE_STYLES = {"flush": "solid", "shaker_panel": "solid", "glazed": "glazed", "sliding": "sliding",
+               "barn": "sliding"}
+INSIDE_GLAZED_MIN_SHARE = 0.15     # a glazed inside door is at least this much glass (a framed glass panel)
+INSIDE_SOLID_MAX_SHARE = 0.08      # a solid one at most this much (a vision strip)
+BARN_FAMILIES = ("rustic", "industrial")
+# = architect.OPEN_AIR_TYPES: a door to one of these rooms is an outside door, never an inside door model
+OPEN_AIR_TYPES = ("balcony", "terrace", "roof_terrace", "loggia", "veranda", "patio", "porch", "garden")
+
+
+def _sides(centre, wall: dict, rooms: Sequence[dict]) -> list:
+    """The rooms on the two sides of a wall at ``centre`` (left of the wall direction first; None: no room)."""
+    from wenart import geometry as G
+    from wenart.blender import shell as SH
+    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+    reach = float(wall["thickness"]) / 2.0 + SH.DEFAULTS["face_probe"]
+    out = []
+    for side in (1, -1):
+        probe = (centre[0] + side * nx * reach, centre[1] + side * ny * reach)
+        out.append(next((r for r in rooms if len(r.get("polygon") or []) >= 3
+                         and G.point_in_polygon(probe, r["polygon"])), None))
+    return out
+
+
+def inside_records(building: dict, levels: Sequence[dict], skip=()) -> list[dict]:
+    """The interior doors of ``levels`` (pure): ``[{"opening", "level", "centre", "joins", "rooms", "outward",
+    "swing_room", "swing_assumed", "bottom", "top", "thickness"}]`` for every door with a room on both sides of its
+    wall (``skip``: the ids the facade plan holds; virtual separators and ``outside_door`` doors left out).
+    ``outward`` is the plan direction into the room the door opens into (``shell.opening_room_side``: its
+    ``swing_side``, else the only room, else the wall's right side, assumed); the model's front faces it."""
+    from wenart import geometry as G
+    from wenart.blender import shell as SH
+    ids = {lv["id"]: lv for lv in levels}
+    every = list(building.get("levels") or levels)
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") in ids}
+    skip = set(skip or ())
+    out = []
+    for o in building.get("openings") or []:
+        lv = ids.get(o.get("level_id"))
+        wall = walls.get(o.get("wall_id"))
+        if o.get("type") != "door" or lv is None or wall is None or o.get("id") in skip or SH.is_virtual(o) \
+                or o.get("outside_door") or not _number(o.get("width")):
+            continue
+        rooms = [r for r in building.get("rooms") or [] if r.get("level_id") == lv["id"]]
+        cx, cy, _shift = SH.opening_centre_on_wall(o, wall)
+        both = _sides((cx, cy), wall, rooms)
+        if None in both or any(str(r.get("room_type") or "").lower() in OPEN_AIR_TYPES for r in both):
+            continue                                     # outside (or open air) on one side: an outside door
+        above = any(float(x["elevation"]) > float(lv["elevation"]) for x in every)
+        bottom, top, _assumed = SH.opening_vertical(o, lv, above)
+        side, room, assumed = SH.opening_room_side((cx, cy), wall, rooms, o.get("swing_side"))
+        nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+        out.append({"opening": o, "level": lv, "centre": (cx, cy), "rooms": [r.get("id") for r in both],
+                    "joins": [r.get("room_type") for r in both], "outward": [round(side * nx, 6), round(side * ny, 6)],
+                    "swing_room": room, "swing_assumed": assumed, "bottom": bottom, "top": top,
+                    "thickness": float(wall["thickness"])})
+    return out
+
+
+def inside_role(rec: dict, style=None) -> tuple[Optional[str], str]:
+    """``(role, why)`` of an interior door (``INSIDE_ROLES``), or ``(None, why)``: the door style ``looks.door_look``
+    gives it (the drawn operation first, then the style's door style, then the rooms it joins:
+    ``looks.role_door_style``), so the library model and the parametric door agree (``ROLE_STYLES``); a pair, a
+    pocket, folding or fixed door stays parametric."""
+    from wenart.blender import looks as LK
+    o = rec["opening"]
+    kind = door_kind_of(o)
+    leaves = o.get("leaves")
+    if kind in NO_LIBRARY_KINDS or (isinstance(leaves, int) and not isinstance(leaves, bool) and leaves >= 2):
+        return None, f"a {kind or 'pair of leaves'}: the parametric door (no one-leaf model)"
+    prof = style if isinstance(style, dict) else ({"family": style} if style else {})
+    dl = LK.door_look(prof, dict(o, joins=rec.get("joins")))
+    ds = dl.get("door_style")
+    role = ROLE_STYLES.get(ds)
+    if role is None:
+        return None, f"door style {ds}: no library model of that kind (the parametric door)"
+    return role, f"door style {ds}: {dl.get('reason')}"
+
+
+def _inside_problem(e: dict, role: str, family: Optional[str], assets_dir, cache: dict) -> Optional[str]:
+    """Why a model does not serve an inside door role (pure apart from the cached file reads), None when it does."""
+    op = model_operation(e)
+    path = Path(assets_dir) / str(e.get("glb") or "") if assets_dir is not None else None
+
+    def share():
+        if path is None:
+            return None
+        key = ("share", str(path))
+        if key not in cache:
+            cache[key] = glb_glass_share(path)
+        return cache[key]
+    if role == "sliding":
+        if op != "sliding":
+            return f"a {op or 'swing'} door for a drawn sliding door"
+        barn = _has(_title(e), ("barn",)) or model_vision(e).get("leaf") == "plank"
+        if barn and family not in BARN_FAMILIES:
+            return f"a barn door: not the {family or 'house'} style (rustic and industrial only)"
+        return None
+    if op in ("sliding", "folding"):
+        return f"a {op} door for a swing door"
+    g = model_glazing(e)
+    sh = share()
+    if role == "glazed":
+        if g == "none":
+            return "no glass (the audit): a solid leaf"
+        if sh is not None and sh < INSIDE_GLAZED_MIN_SHARE:
+            return f"glass {sh:.0%} of its face (< {INSIDE_GLAZED_MIN_SHARE:.0%}): not a glazed leaf"
+        if sh is None and not model_glazed(e):
+            return "no glass known (the audit, the title, the materials): not a glazed leaf"
+        return None
+    if g in GLASS_LEVELS:
+        return f"glazed (the audit: {g} glass): not a solid leaf"
+    if sh is not None and sh > INSIDE_SOLID_MAX_SHARE:
+        return f"glass {sh:.0%} of its face (> {INSIDE_SOLID_MAX_SHARE:.0%}): not a solid leaf"
+    if sh is None and model_glazed(e):
+        return "glazed by its title or materials: not a solid leaf"
+    return None
+
+
+def hinge_mirror(o: dict, model: dict) -> tuple[bool, str]:
+    """``(mirror, why)`` of an inside door model (28 Oct 2026): the drawing's ``hinge_side`` (left / right, seen from
+    the room the door opens into, where the model's front faces) against the model's handle in its front view (the
+    audit's ``handle_side``); mirrored when they do not agree; kept as modelled (assumed) when either is unknown."""
+    drawn = str(o.get("hinge_side") or "").strip().lower()
+    hs = model_handle_side(model)
+    if drawn not in ("left", "right"):
+        return False, "the drawing gives no hinge side: the model's own hinge side (assumed)"
+    if hs not in ("left", "right"):
+        return False, f"the model's handle side is not known ({hs or 'no audit answer'}): kept as modelled (assumed)"
+    want = "right" if drawn == "left" else "left"
+    if hs == want:
+        return False, f"its handle on the {hs}: hinged on the drawn {drawn}"
+    return True, f"mirrored: its handle was on the {hs}, the drawing hinges the door on the {drawn}"
+
+
+def plan_inside(building: dict, inside: Sequence[dict], extras: Sequence[dict], mode: str = "relaxed",
+                assets_dir=None, style=None, notes: Optional[list] = None, exclude_families=(),
+                seed=None) -> dict[str, dict]:
+    """``{opening id: entry}`` of library models for the interior doors ``inside`` (``inside_records``; module
+    docstring): category ``inside_door``, one family per role (``inside_role``: solid first, then glazed, which
+    prefers the solid doors' series, then sliding), never one of ``exclude_families`` (the facade's), the look of the
+    house's style (``look_fit``), the house's ``seed`` among equal families. Each entry carries ``inside: True`` (the
+    build centres it in the wall), ``role``, ``outward`` (into the room it opens into), ``mirror`` / ``hinge``
+    (``hinge_mirror``) and ``add_handles`` (the audit sees no handle). ``notes`` gets the left-out models per role and
+    a ``parametric`` record (with the reason) per door left to the parametric build."""
+    look = look_of(style)
+    family = style_family(style)
+    seed = house_seed(building) if seed is None else (seed or None)
+    notes = notes if notes is not None else []
+    out: dict[str, dict] = {}
+    by_role: dict[str, list] = {}
+    for rec in inside:
+        o = rec["opening"]
+        role, why = inside_role(rec, style)
+        width = _number(o.get("width")) or 0.0
+        height = float(rec["top"]) - float(rec["bottom"])
+        if role is None or width <= 0 or height <= 0:
+            notes.append({"kind": "parametric", "id": o["id"], "category": INSIDE_CATEGORY,
+                          "reason": why if role is None else "no size: the parametric door"})
+            continue
+        by_role.setdefault(role, []).append((rec, width, height, why))
+    base = candidates(extras, INSIDE_CATEGORY, mode)
+    cache: dict = {}
+    taken: dict[str, str] = {}
+    for role in INSIDE_ROLES:
+        recs = by_role.get(role) or []
+        if not recs:
+            continue
+        cands, left, look_rank = [], {}, {}
+        for e in base:
+            why = _inside_problem(e, role, family, assets_dir, cache)
+            if why is None:
+                panes = None
+                if assets_dir is not None and look is not None:
+                    path = Path(assets_dir) / str(e.get("glb") or "")
+                    if ("panes", str(path)) not in cache:
+                        cache[("panes", str(path))] = glb_panes(path)
+                    panes = cache[("panes", str(path))]
+                r, why2 = look_fit(e, look, panes, INSIDE_CATEGORY)
+                if r is not None and role == "solid" and look is not None and look["name"] == "period" \
+                        and not (_panelled(_title(e)) or model_vision(e).get("leaf") == "panelled"):
+                    # = looks.role_door_style: a private room's door in a period style is a panelled leaf
+                    r, why2 = r + 1, why2 + "; not panelled: after the panelled leaves of the period look"
+                if r is None:
+                    why = why2
+                else:
+                    cands.append(e)
+                    look_rank[e["id"]] = (r, why2)
+                    continue
+            left[e["id"]] = why
+        if left:
+            notes.append({"kind": "left_out", "category": f"{INSIDE_CATEGORY}:{role}", "models": left})
+        openings = [(w, h) for _r, w, h, _why in recs]
+        pick = _choose_family(cands, INSIDE_CATEGORY, openings, look_rank, seed and f"{seed}|{role}",
+                              set(exclude_families or ()), prefer=taken.get("solid") if role == "glazed" else None)
+        if pick is None:
+            for rec, w, h, _why in recs:
+                notes.append({"kind": "parametric", "id": rec["opening"]["id"], "category": INSIDE_CATEGORY,
+                              "role": role, "reason": f"no library {role} inside door fits {w:.2f} x {h:.2f} m: the "
+                                                      f"parametric door in the style's look"})
+            continue
+        _order, key, members, tier = pick
+        taken[role] = key
+        what = (f"the house's {role} inside door family"
+                + ("; the solid doors' series" if role == "glazed" and key == taken.get("solid") else "")
+                + (f" (one of {tier} equal families, picked by the house's seed)" if tier > 1 and seed else "")
+                + ("; not a facade family" if exclude_families else ""))
+        for rec, w, h, why in recs:
+            o = rec["opening"]
+            fits = [(look_rank[m["id"]][0], f[1], i, m, f) for i, m in enumerate(members)
+                    for f in [fit(m, INSIDE_CATEGORY, w, h)] if f is not None]
+            if not fits:
+                head = members[0]
+                notes.append({"kind": "parametric", "id": o["id"], "category": INSIDE_CATEGORY, "role": role,
+                              "family": key,
+                              "reason": f"no model of the house's {role} inside door family "
+                                        f"{str(head.get('title') or head.get('id'))[:40]!r} fits {w:.2f} x {h:.2f} "
+                                        f"m: the parametric door keeps the house's door language"})
+                continue
+            _r, err, _i, e, (n, err) = min(fits, key=lambda t: t[:3])
+            entry = _entry(e, INSIDE_CATEGORY, n, err, w, h, key, look, look_rank, list(rec["outward"]),
+                           f"{what}; {why}")
+            mirror, hinge = hinge_mirror(o, e)
+            entry.update(inside=True, role=role, mirror=mirror, hinge=hinge,
+                         add_handles=model_handle_side(e) == "none", swing_room=rec.get("swing_room"),
+                         swing_assumed=bool(rec.get("swing_assumed")))
+            out[o["id"]] = entry
+    return out
+
+
+# --------------------------------------------------------------------------
+# Argus: door variety (28 Oct 2026)
+# --------------------------------------------------------------------------
+
+def _door_rows(doc) -> list[dict]:
+    """``[{"id", "category", "family", "model", "title", "role", "inside_model", "statement"}]`` of the doors of a plan
+    (``{opening id: entry}``: ``plan`` and ``plan_inside`` merged) or a manifest (``{"objects": [...]}`` or the list
+    of manifest objects: a library door's ``library_model`` record, a parametric door's ``door`` record)."""
+    rows: dict[str, dict] = {}
+    if isinstance(doc, dict) and not isinstance(doc.get("objects"), list):
+        for oid, e in doc.items():
+            if not isinstance(e, dict) or "category" not in e:
+                continue
+            asset = e.get("asset") or {}
+            rows[str(oid)] = {"id": str(oid), "category": e["category"], "family": e.get("family"),
+                              "model": asset.get("asset_id") or asset.get("id"), "title": asset.get("title"),
+                              "role": e.get("model_role"), "statement": e.get("statement"),
+                              "parametric": False}
+        return [r for r in rows.values() if r["category"] != "window"]
+    objects = doc.get("objects") if isinstance(doc, dict) else doc
+    for ob in objects or []:
+        if not isinstance(ob, dict) or ob.get("kind") != "door":
+            continue
+        oid = str(ob.get("wenart_id") or ob.get("element_id") or ob.get("name"))
+        lm = ob.get("library_model") if isinstance(ob.get("library_model"), dict) else None
+        if lm is not None:
+            rows[oid] = {"id": oid, "category": lm.get("category"), "family": lm.get("family") or lm.get("asset_id"),
+                         "model": lm.get("asset_id"), "title": lm.get("title"), "role": lm.get("model_role"),
+                         "statement": lm.get("statement"), "parametric": False}
+        elif isinstance(ob.get("door"), dict) and oid not in rows:
+            style = ob["door"].get("door_style") or "door"
+            rows[oid] = {"id": oid, "category": "entrance" if style == "entrance" else None,
+                         "family": f"parametric:{style}", "model": None, "title": f"parametric {style} door",
+                         "role": None, "statement": None, "parametric": True}
+    return list(rows.values())
+
+
+def door_variety_problems(doc) -> list[dict]:
+    """Argus' door checks of a house (pure; 28 Oct 2026, user: "I want better doors inside the house and the outside
+    ... some variation is needed"; lesson UL65): ``[{"target", "message", "severity", "kind"}]`` for a plan
+    (``plan`` and ``plan_inside`` merged) or a manifest (``_door_rows``):
+
+    - ``one_door_model`` (major): three or more doors and every one is the same model family;
+    - ``inside_door_on_facade`` (major): an outside door whose model is an inside door (its title names one,
+      ``INSIDE_WORDS``, or the audit puts it inside);
+    - ``no_statement_entrance`` (major): outside doors but no library entrance door, or (minor) an entrance that is
+      no statement door or shares its family with another door of the house."""
+    rows = _door_rows(doc)
+    out: list[dict] = []
+    if len(rows) >= 3 and len({r["family"] for r in rows}) == 1:
+        r = rows[0]
+        out.append({"target": "doors", "kind": "one_door_model", "severity": "major",
+                    "message": f"every door of the house ({len(rows)}) is one model ({r['title'] or r['family']}): "
+                               "the entrance, the outside doors and the inside doors need their own families (UL65)"})
+    outside = [r for r in rows if r["category"] in FACADE_CATEGORIES]
+    for r in outside:
+        inside_title = _has(f" {str(r.get('title') or '').lower()} ", INSIDE_WORDS)
+        if inside_title or r.get("role") == "inside":
+            why = "its title names an inside door" if inside_title else "the audit puts the model inside"
+            out.append({"target": r["id"], "kind": "inside_door_on_facade", "severity": "major",
+                        "message": f"outside door {r['id']} ({r['category']}) has an inside door model "
+                                   f"({r['title'] or r['model']}): {why}"})
+    entrances = [r for r in rows if r["category"] == "entrance" and not r["parametric"]]
+    if outside and not entrances:
+        out.append({"target": "entrance", "kind": "no_statement_entrance", "severity": "major",
+                    "message": "the house has outside doors but no library entrance door: the entrance needs a "
+                               "statement door (UL65)"})
+    for r in entrances:
+        others = {x["family"] for x in rows if x["id"] != r["id"]}
+        if r["family"] in others:
+            out.append({"target": r["id"], "kind": "no_statement_entrance", "severity": "minor",
+                        "message": f"entrance {r['id']} shares its model family ({r['title'] or r['family']}) with "
+                                   "another door of the house: the entrance needs its own statement door"})
+        elif r.get("statement") is False:
+            out.append({"target": r["id"], "kind": "no_statement_entrance", "severity": "minor",
+                        "message": f"entrance {r['id']} ({r['title'] or r['model']}) is no statement door (neither "
+                                   "the audit nor its title says front door)"})
     return out

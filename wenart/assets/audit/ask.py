@@ -34,6 +34,11 @@ vLLM server itself (``wenart.run.servers.server``).
   of pods P2-P2c carries them). Giving them their own schema is not enough: the write step would then store the
   tags, ``version_for`` would switch those models to the m12.1 question and the next run would ask them again. An
   m13.2 model keeps its version whatever its tags (``LOGO_SOURCES`` first).
+
+Doors and windows (28 Oct 2026, the user: "I want better doors inside the house and the outside ... find the best
+models"): the question version ``ask.version_openings`` (m13.3 = m13.2 plus ``OPENING_FIELDS``: role, operation,
+leaves, glazing, leaf, handle side) for the doors and windows of ``OPENING_SOURCES`` (the HSSD ones); its guided schema
+is its own (``server_schema``), ``answer_version`` reads it from the fields; the 3D Warehouse doors keep m13.2.
 """
 from __future__ import annotations
 
@@ -108,9 +113,42 @@ def logo_version(cfg_ask: dict) -> str:
     return str(cfg_ask.get("version_logo") or "m13.2")
 
 
+# 28 Oct 2026 (user: "I want better doors inside the house and the outside ... find the best models"): the question
+# version ``ask.version_openings`` (m13.3: the m13.2 question plus these fields) for the doors and windows of
+# ``OPENING_SOURCES``: where the model belongs, how it opens, its leaves, its glass, its leaf and its handle side
+# (``opening_models`` reads them: an inside door never goes on the facade, a terrace door is glazed, a sliding door
+# opens as drawn, a door is mirrored to its drawn hinge). The 3D Warehouse doors keep their m13.2 answers.
+OPENING_SOURCES: tuple[str, ...] = ("hssd",)
+OPENING_ROLES: tuple[str, ...] = ("entrance", "outside", "inside", "garage", "window", "unclear")
+OPENING_OPERATIONS: tuple[str, ...] = ("hinged", "sliding", "folding", "pivot", "casement", "tilt_turn", "awning",
+                                       "hung", "fixed", "unclear")
+GLAZINGS: tuple[str, ...] = ("none", "clear", "bars", "patterned", "unclear")
+LEAF_LOOKS: tuple[str, ...] = ("flush", "panelled", "glazed", "louvred", "plank", "frame_only", "unclear")
+HANDLE_SIDES: tuple[str, ...] = ("left", "right", "both", "none", "unclear")
+OPENING_FIELDS: tuple[str, ...] = ("role", "operation", "leaves", "glazing", "leaf", "handle_side")
+
+
+def opening_version(cfg_ask: dict) -> str:
+    return str(cfg_ask.get("version_openings") or "m13.3")
+
+
+def with_openings(version: Optional[str]) -> bool:
+    """True when a question version asks for the opening fields (m13.3 and later; for kind ``opening`` only)."""
+    return _version_number(version) >= (13, 3)
+
+
+def opening_props() -> dict:
+    return {"role": {"enum": list(OPENING_ROLES)}, "operation": {"enum": list(OPENING_OPERATIONS)},
+            "leaves": {"type": "integer", "minimum": 0, "maximum": 8}, "glazing": {"enum": list(GLAZINGS)},
+            "leaf": {"enum": list(LEAF_LOOKS)}, "handle_side": {"enum": list(HANDLE_SIDES)}}
+
+
 def version_for(item: dict, cfg_ask: dict) -> str:
-    """The question version of one model: ``version_logo`` for a model of ``LOGO_SOURCES``, ``version_materials`` for
-    a model without material tags (the question asks for them), else ``version``."""
+    """The question version of one model: ``version_openings`` for a door or window of ``OPENING_SOURCES`` (28 Oct
+    2026), ``version_logo`` for a model of ``LOGO_SOURCES``, ``version_materials`` for a model without material tags
+    (the question asks for them), else ``version``."""
+    if item.get("kind") == "opening" and item.get("source") in OPENING_SOURCES:
+        return opening_version(cfg_ask)
     if item.get("source") in LOGO_SOURCES:
         return logo_version(cfg_ask)
     tags = item.get("material_tags")
@@ -165,6 +203,8 @@ def schema(kind: str, version: Optional[str] = None) -> dict:
         props["materials"] = {"type": "array", "items": {"enum": list(MATERIAL_WORDS)}, "maxItems": 4}
     if with_logo(version):
         props.update({f: {"type": "boolean"} for f in LOGO_FIELDS})
+    if with_openings(version) and kind == "opening":
+        props.update(opening_props())
     return {"$schema": "https://json-schema.org/draft/2020-12/schema", "title": "LibraryAudit", "type": "object",
             "additionalProperties": False, "required": list(props), "properties": props}
 
@@ -222,6 +262,22 @@ def prompt(item: dict, box, version: Optional[str] = None) -> str:
                    "its texture); the header text above the renders does not count.",
                    "- text_print: true when decorative lettering or text is printed on its visible surface (the "
                    "functional labels of an appliance's control panel do not count)."]
+    if with_openings(version) and item["kind"] == "opening":
+        fields += [
+            "- role: where a designer would put it: 'entrance' (the front door of a house: a solid or statement "
+            "leaf, often wider or with side lights), 'outside' (a back, service, terrace or balcony door), 'inside' (a "
+            "door between rooms: a light interior leaf), 'garage', 'window', 'unclear'.",
+            "- operation: how it opens: hinged, sliding, folding, pivot (doors); casement, tilt_turn, awning, hung, "
+            "sliding, fixed (windows); 'unclear' when you cannot tell.",
+            "- leaves: how many door leaves or window sashes it has side by side (0 when you cannot tell).",
+            "- glazing: 'none' (no glass), 'clear' (clear glass without bars), 'bars' (clear glass divided by "
+            "glazing bars or muntins into small panes), 'patterned' (frosted, textured, stained or decorated glass), "
+            "'unclear'.",
+            "- leaf: the look of the door leaf or the window sash: flush (a plain flat leaf), panelled (raised or "
+            "sunk panels), glazed (mostly glass in a frame), louvred, plank (boards or a barn door), frame_only (a "
+            "window: a frame round the glass), 'unclear'.",
+            "- handle_side: on which side of the leaf the handle is in tile 0: 'left' or 'right' of the image, "
+            "'both' (a pair), 'none' (no handle can be seen), 'unclear'."]
     return "\n\n".join([
         "The image shows one 3D model from our furniture library at its real scale: a header with its id, type, "
         "source, licence, size and title, then four renders: 0 front 3/4, 1 side (from its right), 2 top, 3 back. "
@@ -288,6 +344,8 @@ def answer_version(data) -> Optional[str]:
     (the m12.1 question)."""
     if not isinstance(data, dict):
         return None
+    if any(f in data for f in OPENING_FIELDS):
+        return opening_version({})
     if any(f in data for f in LOGO_FIELDS):
         return logo_version({})
     return materials_version({}) if "materials" in data else None
@@ -328,7 +386,8 @@ def model_of(key: str, model_id: Optional[str] = None, slug: Optional[str] = Non
 
 def server_schema(item: dict) -> dict:
     """The guided-decoding schema of a pass 1 request: its own version's schema for an m13.2 request (the logo
-    fields; module docstring), else the m12.1 schema (unchanged: see the module docstring for the m13.1 gap)."""
+    fields; module docstring) or a later one (m13.3: the opening fields of a door or window, 28 Oct 2026), else the
+    m12.1 schema (unchanged: see the module docstring for the m13.1 gap)."""
     version = item["context"].get("version")
     return schema(item["context"]["kind"], version if with_logo(version) else None)
 

@@ -21,7 +21,10 @@ What:
   fields, validated with ``wenart.furniture.catalog.validate`` and ``merge``. Every new entry starts with ``audit =
   {status: pending}``: until the P4 audit writes its decision nothing uses it (``catalog.usable``).
 - ``apply_vision_fields``: after the vision question, the styles (the source's hint plus the answer's styles, at
-  most 3 of the answer) and a bed's ``has_mattress`` (true only when the answer sees bedding) into the copies.
+  most 3 of the answer) and a bed's ``has_mattress`` (true only when the answer sees bedding) into the copies; since
+  28 Oct 2026 a door's or window's quality and opening answer too (``opening_fields``).
+- ``hssd_opening_entry`` (28 Oct 2026, the user: "find the best models"): an ``extras`` entry of an HSSD door or
+  window (``wenart.assets.hssd_openings``): kind ``opening``, its ``series``, the table's ``opening`` record.
 
 Why: CLAUDE.md library rules (only audited models are used; every model carries its licence and credit) and the
 evidence rules (every inferred field says how it was found).
@@ -359,6 +362,52 @@ def hssd_entry(cand: dict, m: dict, sha: str, checked_utc: str, rules: Optional[
     return e
 
 
+HSSD_OPENING_PENDING = ("new HSSD door or window (28 Oct 2026, the user: \"find the best models\"): waiting for its "
+                        "audit")
+
+
+def hssd_opening_entry(cand: dict, m: dict, sha: str, checked_utc: str, rules: Optional[dict] = None) -> dict:
+    """A ``catalog_library.json`` ``extras`` entry of an HSSD door or window (``wenart.assets.hssd_openings.candidate``;
+    28 Oct 2026): kind ``opening``, type ``door`` / ``window``, the HSSD licence fields (CC BY-NC 4.0, relaxed licence
+    mode only), units known (the Floorplanner products are modelled at real size), the frame fields of the measured
+    box (a door or window has no front: -Y, low; ``opening_models.leaf_front`` turns a box deeper than wide), the
+    ``series`` of its variants (one product at other sizes: ``opening_models.family_key``), the ``opening`` record of
+    the table (kind, operation, categories) and the ``hssd`` record (its synset: the type evidence of
+    ``checks.extra_title_check``), ``audit: pending``."""
+    from wenart.assets import hssd as H
+    hid = cand.get("hssd_id") or cand["id"][len(H.UID_PREFIX):]
+    uid = H.UID_PREFIX + hid
+    ftype = cand["type"]
+    front, conf, note = front_of(ftype, m.get("stats"), rules=rules)
+    title = source_text(cand.get("title")) or f"HSSD {ftype} {hid}"
+    styles, style_note = _styles(list(cand.get("styles_hint") or []) or styles_hint(cand.get("name") or ""),
+                                 "the product name" if cand.get("name") else "the HSSD table (no name)")
+    e = {"id": uid, "type": ftype, "kind": "opening", "source": "hssd", **H.entry_fields(), "name": title}
+    e.update(frame_fields(m, front, conf, note))
+    w, d, h = e["bbox_m"]
+    dims = ", ".join(f"{v:.3g}" for v in cand.get("dims_m") or [])
+    e.update({"unit_scale": 1.0, "unit_note": f"units known (metres, HSSD aligned.dims {dims}): {w:.3g} x {d:.3g} x "
+                                              f"{h:.3g} m measured",
+              "units_known": True, "styles": styles, "style_note": style_note,
+              "glb": f"models/hssd/{uid}.glb", "sha256_glb": sha, "uid": uid, "title": title,
+              "author": "the HSSD authors (Floorplanner product models; 3dlg-hcvc / Meta FAIR)",
+              "source_url": f"{H.PAGE_URL}/blob/{H.REVISION}/{cand.get('path') or H.object_path(hid)}",
+              "via": f"{H.DATASET_NAME} (CC BY-NC 4.0), {H.PAGE_URL}",
+              "attribution": H.attribution(title, hid)})
+    e.update(_mesh_fields(m))
+    if m.get("pbr"):
+        e["pbr_maps"] = dict(m["pbr"])
+    op = dict(cand.get("opening") or {})
+    e["series"] = op.get("series") or f"hssd:{hid}"
+    e["opening"] = op
+    e["hssd"] = {"id": hid, "synset": cand.get("synset") or op.get("synset"), "repo": H.REPO_ID,
+                 "revision": H.REVISION, "path": cand.get("path") or H.object_path(hid)}
+    e["growth"] = {"pod": "openings", "list": "candidates_hssd_openings.json",
+                   "decision": "the user's request of 28 Oct 2026 (better doors and windows, variation)"}
+    e["audit"] = dict(pending_audit(checked_utc), reasons=[HSSD_OPENING_PENDING])
+    return e
+
+
 WAREHOUSE_PENDING = ("new 3D Warehouse model (the user's zip, request of 23 Oct 2026): waiting for its audit")
 WAREHOUSE_NOTE = ("3D Warehouse models (23 Oct 2026, the user's request): the GLBs of the user's zip \"3D Warehouse "
                   "Furniture.zip\", typed from their folder and file names, fixed for SketchUp exports (units, up "
@@ -553,7 +602,48 @@ def apply_vision_fields(doc: dict, answers: dict, ids: set, hints: Optional[dict
                 e["bed_note"] = (f"P4 growth: has_mattress {e['has_mattress']} from the vision answer (bedding "
                                  f"{'seen' if a['has_bedding'] else 'not seen'})")
                 out["beds"] += 1
+            if e.get("kind") == "opening" and opening_fields(e, a):
+                out["openings"] = out.get("openings", 0) + 1
     return out
+
+
+def adopt_entries(repo_doc: dict, copy_doc: dict, ids) -> dict:
+    """The repo catalogue ``repo_doc`` (in place) with the entries ``ids`` of a pod's catalogue copy ``copy_doc``
+    (pure; 28 Oct 2026: the lead takes a growth pod's new doors and windows without overwriting the repo's other
+    entries, which may have changed since the pod's commit): each id replaces the entry of that id or is added to its
+    section; the copy's sources, datasets and notes join. Returns ``add_entries``' counts and the ids not found."""
+    ids = set(ids or ())
+    found = [e for sec in ("entries", "decor", "extras") for e in copy_doc.get(sec) or []
+             if isinstance(e, dict) and e.get("id") in ids]
+    stats = add_entries(repo_doc, found)
+    for src in copy_doc.get("sources") or []:
+        if src not in (repo_doc.setdefault("sources", [])):
+            repo_doc["sources"].append(src)
+    for k, v in (copy_doc.get("datasets") or {}).items():
+        repo_doc.setdefault("datasets", {}).setdefault(k, v)
+    for note in copy_doc.get("notes") or []:
+        if note not in repo_doc.setdefault("notes", []):
+            repo_doc["notes"].append(note)
+    return dict(stats, missing=sorted(ids - {e["id"] for e in found}))
+
+
+def opening_fields(e: dict, answer: Optional[dict]) -> bool:
+    """A door's or window's vision answer into its entry (pure, in place; 28 Oct 2026): ``audit_quality`` (the
+    quality 1-5, read first by ``opening_models._rank_key``) and, with the opening question (``ask.OPENING_FIELDS``),
+    ``opening_vision`` (role, operation, leaves, glazing, leaf, handle side) with its note. True when anything was
+    written."""
+    from wenart.assets.audit.ask import OPENING_FIELDS
+    if not isinstance(answer, dict):
+        return False
+    done = False
+    if isinstance(answer.get("quality"), int):
+        e["audit_quality"] = int(answer["quality"])
+        done = True
+    seen = {f: answer[f] for f in OPENING_FIELDS if f in answer}
+    if seen:
+        e["opening_vision"] = dict(seen, note="the audit's vision answer (the opening question, 28 Oct 2026)")
+        done = True
+    return done
 
 
 def audit_answers(audit_doc: Optional[dict]) -> dict:

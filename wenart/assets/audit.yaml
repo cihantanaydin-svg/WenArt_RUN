@@ -68,6 +68,9 @@ ask:
   version_materials: m13.1
   # 23 Oct 2026: the 3D Warehouse models (ask.LOGO_SOURCES) get the logo and print fields as well (ask.py)
   version_logo: m13.2
+  # 28 Oct 2026: the HSSD doors and windows (ask.OPENING_SOURCES) get the opening fields too (role, operation, leaves,
+  # glazing, leaf, handle side; ask.py): the door and window choice reads them (wenart/blender/opening_models.py)
+  version_openings: m13.3
   workers: 4
   second_pass: true       # a type question where code cannot confirm (no title evidence) and pass 1 says no
 

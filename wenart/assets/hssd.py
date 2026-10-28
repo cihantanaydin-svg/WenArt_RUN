@@ -253,7 +253,7 @@ def object_path(hid: str, listing: Optional[dict] = None) -> str:
     elif hid.startswith("x"):
         folder = "x"
     else:
-        folder = "openings"                       # doors and windows (ids like 200-19), never picked
+        folder = "openings"                       # doors and windows (ids like 200-19): wenart.assets.hssd_openings
     return f"objects/{folder}/{hid}.glb"
 
 

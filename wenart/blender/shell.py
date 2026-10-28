@@ -1380,7 +1380,8 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
                    assets_dir: str | None = None, geo_cache: dict | None = None) -> list:
     """Door frame + leaf and window frame + glass per opening (plain openings
     are only the hole in the wall and get no object). 24 Oct 2026: an outer opening in ``library_openings``
-    (``opening_models.plan``) is the library model (``opening_build``), the parametric one when it cannot load."""
+    (``opening_models.plan``) is the library model (``opening_build``), the parametric one when it cannot load.
+    28 Oct 2026: an inside door in it too (``opening_models.plan_inside``), its leaf in the role's door look."""
     from wenart.blender import common
 
     level_id = level["id"]
@@ -1471,7 +1472,8 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
         leaf_mat = look_material(library, dlook) if dlook is not None else None
         win_mat = look_material(library, wlook) if wlook is not None else None
         geo = {"centre": (cx, cy), "bottom": bottom, "width": width, "height": height, "thickness": thickness,
-               "angle": angle, "index": index, "status": status, "level_id": level_id}
+               "angle": angle, "index": index, "status": status, "level_id": level_id,
+               "floor_z": floor_z}                 # 28 Oct 2026: a library door's added handles (opening_build)
         ctx = {"library": library, "collection": collection, "manifest_objects": manifest_objects,
                "assumed": assumed, "rooms": rooms}
 

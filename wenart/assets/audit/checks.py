@@ -176,6 +176,14 @@ def extra_title_check(item: dict) -> list[dict]:
     from wenart.assets import warehouse as WH
     where = str((item.get("3dwh") or {}).get("where") or "")
     words = (item.get("3dwh") or {}).get("word")
+    # 28 Oct 2026: an HSSD door or window (wenart.assets.hssd_openings) is typed by the HSSD table's WordNet synset,
+    # the source's own record: the title evidence, as a 3D Warehouse name word is
+    synset = str((item.get("hssd") or {}).get("synset") or "")
+    if not where and synset:
+        from wenart.assets import hssd_openings as HO
+        mapped = (HO.SYNSETS.get(synset) or (None,))[0]
+        if mapped == item["type"]:
+            where, words = "the HSSD table's synset", synset
     out = []
     if item["type"] == WH.UNTYPED_OBJECT or not where or where.startswith(("group folder", "no type word")):
         evidence = where or "no name evidence"
