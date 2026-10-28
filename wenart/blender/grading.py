@@ -225,7 +225,7 @@ def level_rules() -> dict:
     """The levels' rules (``wenart.levels.model.level_params`` without a brief: risers, treads, landings, ramps),
     read once (Blender's Python has no PyYAML: the built-in copy)."""
     if not _RULES_CACHE:
-        from wenart.levels import model as LM
+        from wenart.levels import rules as LM
         try:
             _RULES_CACHE.update(LM.level_params(None))
         except Exception:  # noqa: BLE001 - the built-in copy of the rules
@@ -234,7 +234,7 @@ def level_rules() -> dict:
 
 
 def _steps_for(rise: float, width: float, rules: dict) -> Optional[dict]:
-    from wenart.levels import model as LM
+    from wenart.levels import rules as LM
     return LM.steps_for(rise, width, rules)
 
 
@@ -999,7 +999,7 @@ def path_plan(area: dict, gz: Callable, accessible: bool = False, rules: Optiona
         ts_r, g_r = ts, g
     rise = g_r[-1] - g_r[0]
     rec["rise"] = round(rise, 3)
-    from wenart.levels import model as LM
+    from wenart.levels import rules as LM
     ramp = LM.ramp_for(rise, rules) if accessible else None
     slices: list[dict] = []
     if accessible and ramp is not None and prof["overall"] <= float(ramp["slope"]) + 1e-9:
@@ -1273,8 +1273,13 @@ def walk_edging(area: dict, gz: Callable, walk: Sequence = (), piece_m: float = 
 # --------------------------------------------------------------------------
 
 def _f(severity: str, target, message: str, rule: str, kind: str, **metrics) -> dict:
-    from wenart.blender import model_review as MR
-    return MR._v(CHECK, severity, target, message, kind=kind, rule=rule, **metrics)
+    """One finding in the model review's shape (``model_review._v``), built here so the site and the architect do not
+    import the model review (and the build) through this module."""
+    out = {"check": CHECK, "severity": severity, "target": target, "room_id": None, "message": message,
+           "metrics": dict(metrics, rule=rule, model_review=True)}
+    if kind:
+        out["kind"] = kind
+    return out
 
 
 def _quad_overlap(a, b) -> bool:
@@ -1388,7 +1393,7 @@ def review(site: Optional[dict], manifest: Optional[dict] = None) -> tuple[list[
             findings.append(_f("major", pid, f"path {pid} is a ramp on a route no accessibility asks for", "G4",
                                "no_sense"))
         if rec["kind"] == "ramp":
-            from wenart.levels import model as LM
+            from wenart.levels import rules as LM
             want = LM.ramp_for(float(rec.get("rise") or 0.0), rules)
             if want and float(rec.get("slope") or 0.0) > float(want["slope"]) + 1e-6:
                 findings.append(_f("major", pid, f"ramp {pid}: {float(rec['slope']) * 100:.1f} % is steeper than "

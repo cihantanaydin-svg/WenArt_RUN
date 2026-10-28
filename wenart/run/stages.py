@@ -181,7 +181,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/furniture/taste.py", "wenart/blender/outdoor.py",
              # 27 Oct 2026: the stairs' walk check and underside (shell -> stair_access -> the fixed equipment types)
              "wenart/blender/stair_access.py", "wenart/furniture/schemas.py", "wenart/synthetic/__init__.py",
-             "wenart/synthetic/blocks.py")
+             "wenart/synthetic/blocks.py",
+             "wenart/blender/grading.py")                # 28 Oct 2026: site and architect grade the garden
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
