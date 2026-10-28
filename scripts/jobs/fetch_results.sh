@@ -7,7 +7,8 @@
 # Why: a pod that stopped itself at its job's end while no runner was attached (the session's container restarted)
 # keeps its results only on the volume; 'gpu_run.py attach' then finds the pod EXITED and cannot download them.
 # How: a plain copy, nothing is moved or deleted on the volume; FETCH_SKIP_3D=1 leaves out the 3D files
-# (final/<p>/3d/). Idempotent: a second run copies the same files again.
+# (final/<p>/3d/); FETCH_ONLY="<pattern> ..." copies only the matching files. Idempotent: a second run copies the same
+# files again.
 #
 # Usage: python3 scripts/gpu_run.py run --job scripts/jobs/fetch_results.sh --max-minutes 30 \
 #          --env FETCH_JOB=<job id> --purpose "fetch the results of job <job id> from the volume"
@@ -30,7 +31,16 @@ if [ ! -d "$SRC/results" ]; then echo "fetch_results: no $SRC/results on the vol
 mkdir -p "$RESULTS"
 
 echo "[$(date -u +%H:%M:%S)] fetch_results: copying $SRC/results -> $RESULTS ($(du -sh "$SRC/results" | cut -f1))"
-if [ "${FETCH_SKIP_3D:-0}" = "1" ]; then
+if [ -n "${FETCH_ONLY:-}" ]; then
+  # 28 Oct 2026: FETCH_ONLY="<pattern> ...": only the files whose path under results/ matches a pattern (find -path,
+  # e.g. "renders/*/top_*"), so a small fetch is collected before the pod stops itself
+  LIST="$LOGS/fetch_only-$JOB.txt"
+  set -f
+  ( cd "$SRC/results" && for pat in $FETCH_ONLY; do find . -path "./$pat" -type f; done ) | sort -u > "$LIST"
+  set +f
+  echo "[$(date -u +%H:%M:%S)] fetch_results: $(wc -l < "$LIST") file(s) match FETCH_ONLY"
+  tar -C "$SRC/results" -cf - -T "$LIST" | tar -C "$RESULTS" -xf -
+elif [ "${FETCH_SKIP_3D:-0}" = "1" ]; then
   tar -C "$SRC/results" --exclude='./final/*/3d' -cf - . | tar -C "$RESULTS" -xf -
 else
   cp -a "$SRC/results/." "$RESULTS/"
