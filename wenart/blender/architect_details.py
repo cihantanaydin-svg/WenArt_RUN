@@ -272,7 +272,10 @@ def stair_details(stairs: list[dict], balustrade: str, building: Optional[dict] 
         quarter = len(plan.get("flights") or []) == 2 and abs(P._d2(plan["flights"][0]["rise_dir"],
                                                                      plan["flights"][1]["rise_dir"])) < 0.5
         if plan.get("winders"):
-            built = f"{plan['winders']} winders in the {'quarter' if quarter else 'half'} landing, " + built
+            # 28 Oct 2026 (parametric.WINDER_TREADS_NOTE): the turn's risers and its treads (one more)
+            treads = len((plan.get("landing") or {}).get("winders") or []) or plan["winders"] + 1
+            built = f"{treads} winder treads ({plan['winders']} risers) in the {'quarter' if quarter else 'half'} " \
+                    f"landing, " + built
         extra = int((plan.get("flights") or [{}])[0].get("extra_treads") or 0)
         if extra:
             built = f"a run {extra} tread(s) longer at its foot, " + built

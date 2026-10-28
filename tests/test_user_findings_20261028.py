@@ -287,7 +287,7 @@ def test_a_u_stair_turns_its_winders_around_the_newels_at_the_well():
     plan = P.stair_plan(_u_stair("auto"), 3.0)
     w = plan["landing"]["winders"]
     k = len(w)
-    assert k == plan["winders"] >= P.NEWEL_WINDERS_MIN
+    assert k == plan["winders"] + 1 >= P.NEWEL_WINDERS_MIN              # parametric.WINDER_TREADS_NOTE
     tops = [x["top"] for x in w]
     assert tops == sorted(tops) and len(set(tops)) == k
     a, b = plan["flights"]

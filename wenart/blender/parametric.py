@@ -1522,7 +1522,9 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
                 notes.append("the landing lies at the foot of the flight: it is the floor, no slab")
         landing = {"polygon": landing_poly, "z": z_l, "role": role, "thickness": STAIR_WAIST_M}
         if winders and role == "mid":
-            landing.update(role="winders", winders=winder_treads(landing_poly, planned, z_l, riser, winders))
+            # 28 Oct 2026 (``WINDER_TREADS_NOTE``): ``winders`` risers in the turn need winders + 1 treads, the
+            # first at the landing's level
+            landing.update(role="winders", winders=winder_treads(landing_poly, planned, z_l, riser, winders + 1))
 
     # The ceiling opening: the last flight and the landing (in the frame of flight 1).
     void, void_raw = [], []
@@ -1596,12 +1598,20 @@ def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, ca
             "generic": generic, "assumed": assumed, "warnings": warnings, "notes": notes}
 
 
+# 28 Oct 2026, WINDER_TREADS_NOTE (the review of real04's stairs after the user's "There should have been better
+# indoor stair solutions"): ``stair.winders`` counts the risers the turn adds. The first flight's last riser already
+# rises to the landing's level, so the turn holds winders + 1 treads, the first at that level and the last at the
+# second flight's foot. Before, the turn held ``winders`` treads, the first one riser over the landing's level: the
+# first flight's last riser and the first winder made one double step (real04 L-1: 1.059 m, then 1.235 m).
+
+
 def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k: int) -> list[dict]:
     """The ``k`` winder treads of a U stair's half landing (pure): sectors of 180 / k degrees around the pivot (the
     middle of the landing's edge between the two flights), from the first flight's side to the second's, clipped to
-    the landing; tread ``j`` tops at ``z0 + j * riser``. ``[{"polygon", "top"}]``. 27 Oct 2026: a quarter landing (the
-    flights at right angles, an L stair) turns its treads around its inner corner (``_quarter_winders``). 28 Oct 2026:
-    ``NEWEL_WINDERS_MIN`` winders or more turn as two quarter turns around the newels at the well
+    the landing; tread ``j`` tops at ``z0 + j * riser`` (``WINDER_TREADS_NOTE``: the first at the landing's level
+    ``z0``, the first flight's top). ``[{"polygon", "top"}]``. 27 Oct 2026: a quarter landing (the flights at right
+    angles, an L stair) turns its treads around its inner corner (``_quarter_winders``). 28 Oct 2026:
+    ``NEWEL_WINDERS_MIN`` treads or more turn as two quarter turns around the newels at the well
     (``_newel_winders``); the single fan stays for fewer, or when the flights leave no well."""
     a, b = planned[0], planned[1]
     if abs(_d2(a["rise_dir"], b["rise_dir"])) < 0.5:
@@ -1644,7 +1654,7 @@ def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k:
             if not piece:
                 break
         if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
-            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + (j + 1) * riser})
+            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + j * riser})
     return out
 
 
@@ -1653,7 +1663,8 @@ def winder_treads(landing_poly, planned: list[dict], z0: float, riser: float, k:
 # stair with winders turns around its well instead: two quarter turns, each around the newel at its flight's inner
 # corner (the well's edge), the first flight's set climbing from its last nosing to the landing's middle, the second's
 # from the middle to its first nosing; the strip between the newels (the well's width) belongs to the tread at the
-# middle of each half, so the winders still tile the landing. NEWEL_WINDERS_MIN: fewer winders keep the single fan.
+# middle of each half, so the winders still tile the landing. NEWEL_WINDERS_MIN: fewer winder treads keep the single
+# fan.
 NEWEL_WINDERS_MIN = 3
 
 
@@ -1669,8 +1680,9 @@ def _sector(pivot, s, u, t0: float, t1: float, far: float = 50.0) -> list:
 
 def _newel_winders(poly, a: dict, b: dict, mid, base: float, u, v, side_a: float, z0: float, riser: float,
                    k: int) -> list[dict]:
-    """The ``k`` winders of a U stair's half landing as two quarter turns around the newels (the comment above);
-    [] when ``k`` < ``NEWEL_WINDERS_MIN`` or the flights leave no well between them (the single fan then)."""
+    """The ``k`` winder treads of a U stair's half landing as two quarter turns around the newels (the comment above;
+    tread ``j`` tops at ``z0 + j * riser``); [] when ``k`` < ``NEWEL_WINDERS_MIN`` or the flights leave no well between
+    them (the single fan then)."""
     if k < NEWEL_WINDERS_MIN:
         return []
     ca = G.segment_midpoint(a["nosings"][0], a["nosings"][-1])
@@ -1697,7 +1709,7 @@ def _newel_winders(poly, a: dict, b: dict, mid, base: float, u, v, side_a: float
         t0, t1 = half * j / k1, (half * (j + 1) / k1 if j < k1 - 1 else math.pi - 1e-6)
         piece = _clip_convex(_sector(pa, s_a, u, t0, t1), geom2d.ccw(half_a))
         if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
-            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + (j + 1) * riser})
+            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + j * riser})
     for j in range(k2):                                             # the second's: from u (and before) to s_b
         hi = half - half * j / k2
         lo = half - half * (j + 1) / k2
@@ -1706,7 +1718,7 @@ def _newel_winders(poly, a: dict, b: dict, mid, base: float, u, v, side_a: float
                              _sector(pb, s_b, u, lo, math.pi - 1e-6), geom2d.ccw(half_b))
         if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
             out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece],
-                        "top": z0 + (k1 + j + 1) * riser})
+                        "top": z0 + (k1 + j) * riser})
     return out if len(out) == k else []
 
 
@@ -1726,7 +1738,7 @@ def _quarter_winders(landing_poly, a: dict, b: dict, z0: float, riser: float, k:
     """The ``k`` winder treads of an L stair's quarter landing (pure; 27 Oct 2026): the first flight arrives on one side
     of the landing (the line of its last riser), the second leaves from the next side (the line of its first riser);
     the two lines meet at the landing's inner corner, the pivot; sectors of 90 / k degrees from the first side to the
-    second, clipped to the landing; tread ``j`` tops at ``z0 + (j + 1) * riser``."""
+    second, clipped to the landing; tread ``j`` tops at ``z0 + j * riser`` (``WINDER_TREADS_NOTE``)."""
     u, w = a["rise_dir"], b["rise_dir"]
     pa, pb = a["nosings"][-1], b["nosings"][0]
     da, db = (-u[1], u[0]), (-w[1], w[0])
@@ -1748,7 +1760,7 @@ def _quarter_winders(landing_poly, a: dict, b: dict, z0: float, riser: float, k:
                          for s in (j / k, (j + 0.5) / k, (j + 1) / k)]
         piece = _clip_convex(geom2d.ccw(pts), poly)
         if len(piece) >= 3 and abs(G.polygon_signed_area(piece)) > 1e-4:
-            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + (j + 1) * riser})
+            out.append({"polygon": [(round(x, 5), round(y, 5)) for x, y in piece], "top": z0 + j * riser})
     return out
 
 

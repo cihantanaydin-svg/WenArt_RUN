@@ -165,13 +165,16 @@ def test_a_steep_u_stair_gets_winders_in_its_half_landing():
     a, b = plan["flights"]
     assert b["base_z"] == pytest.approx(a["top_z"] + k * plan["riser_m"]) and b["top_z"] == pytest.approx(3.0)
     tops = [w["top"] for w in plan["landing"]["winders"]]
-    assert tops == pytest.approx([a["top_z"] + (j + 1) * plan["riser_m"] for j in range(k)])
+    # 28 Oct 2026 (parametric.WINDER_TREADS_NOTE): k risers in the turn are k + 1 treads, the first at the landing's
+    # level (no double step after the first flight's last riser), the last at the second flight's foot
+    assert tops == pytest.approx([a["top_z"] + j * plan["riser_m"] for j in range(k + 1)])
+    assert tops[-1] == pytest.approx(b["base_z"])
     # the winders tile the landing
     from shapely.geometry import Polygon
     area = sum(Polygon(w["polygon"]).area for w in plan["landing"]["winders"])
     assert area == pytest.approx(1.27 * 2.1, rel=1e-3)
     parts = P.stair_parts(plan)
-    assert sum(1 for p in parts if p["role"] == "winder") == k and not any(p["role"] == "landing" for p in parts)
+    assert sum(1 for p in parts if p["role"] == "winder") == k + 1 and not any(p["role"] == "landing" for p in parts)
     assert P.stair_plan(_u_stair(0), 3.0)["winders"] == 0
 
 
