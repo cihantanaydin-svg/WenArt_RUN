@@ -285,7 +285,7 @@ def scene_checks(inp: Inputs) -> list[dict]:
             if isinstance(c, dict) and c.get("failed"):
                 out.append(K.finding("process", "P5", "major", f"{level}:{cid}",
                                      f"scene check {cid} on {level}: {c['failed']} of {c.get('checked')} failed",
-                                     owner="build", kind="geometry"))
+                                     owner="build", kind="detached" if cid == "S5" else "geometry"))   # 28 Oct 2026
     for d in furn.get("decor_not_rested") or []:
         out.append(K.finding("process", "P5", "minor", d.get("id"),
                              f"decor {d.get('type')} {d.get('id')} on {d.get('host_id')} not built: {d.get('reason')}",

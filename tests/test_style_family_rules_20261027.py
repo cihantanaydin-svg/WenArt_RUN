@@ -13,6 +13,7 @@ import re
 
 from wenart.blender import architect_details as AD
 from wenart.furniture import decor_ai as DA
+from wenart.furniture import tabletop as TT
 from wenart.style import density as DN
 from wenart.style import recipe as RC
 from wenart.style import references as RF
@@ -131,11 +132,13 @@ def test_the_decor_stage_fills_a_room_to_its_style_and_the_architect_checks_the_
     client = FakeClient(choose(("f_L0_002.centre", "vase", "terracotta")))
     DA.ask(b, STYLE, client, path, client.model, log=lambda *a: None)
     answers = DA.read_answers(path)
-    counts, kept = {}, {}
+    counts, kept, styled = {}, {}, {}
     for fam in ("japandi", "scandinavian", "classic"):
         out, records = DA.apply(b, STYLE, answers, style={"family": fam})
         rid = records[0].room_id
-        counts[fam] = len([d for d in out["decor"] if d["room_id"] == rid])
+        # 28 Oct 2026: the styled tops (tabletop.dress_tops, by the style's density) come after the minimum
+        styled[fam] = len([d for d in out["decor"] if d["room_id"] == rid and TT.REASON_TAG in str(d.get("reason"))])
+        counts[fam] = len([d for d in out["decor"] if d["room_id"] == rid]) - styled[fam]
         kept[fam] = out["decor_minimum"][rid]
         fill = [d for d in out["decor"] if str(d.get("reason", "")).startswith("styling")]
         assert fill and f"the {fam} family" in fill[0]["reason"]
@@ -144,6 +147,8 @@ def test_the_decor_stage_fills_a_room_to_its_style_and_the_architect_checks_the_
         assert s3["status"] == "ok" and f"a styled living {kept[fam]['min']}" in s3["answers"][0]["found"]
     assert [kept[f]["min"] for f in ("japandi", "scandinavian", "classic")] == [6, 9, 12]
     assert counts["japandi"] == 6 < counts["scandinavian"] == 9 < counts["classic"]
+    total = {f: counts[f] + styled[f] for f in counts}                           # a sparse style, smaller groups
+    assert styled["japandi"] > 0 and total["japandi"] < total["scandinavian"] <= total["classic"], (counts, styled)
     # no style: a balanced room, as before
     out, _ = DA.apply(b, STYLE, answers)
     assert out["decor_minimum"][records[0].room_id]["min"] == DA.ROOM_MIN["living"]

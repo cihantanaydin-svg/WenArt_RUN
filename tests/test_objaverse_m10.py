@@ -132,7 +132,9 @@ def test_new_decor_types_are_the_schema_decor_types_but_the_parametric_book_set(
     from wenart import building as B
     schema = set(B.load_schema()["$defs"]["decor"]["properties"]["type"]["enum"])
     library = set(OV.DECOR_TYPES)
-    assert library == schema - {"book_set"}                        # book_set stays parametric; `books` is the library type
+    from wenart.furniture import decor as D
+    # book_set stays parametric (`books` is the library type); 28 Oct 2026: so do a table's plates and glasses
+    assert library == schema - {"book_set"} - set(D.SETTING_TYPES)
 
 
 # --------------------------------------------------------------------------

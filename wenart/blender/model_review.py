@@ -56,6 +56,12 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   door's width, no two swing leaves into one room that sweep over each other; and (user: "Not every opening inside the
   house requires a door or a window") no passage drawn open between two rooms with a leaf (unless a room needs
   privacy), glass or a guard (with no drop) a decision gave it.
+- M13 decor attached to what holds it (28 Oct 2026, user on real04 run 20261028-005318-full: "still flying pillows all
+  around", "More flying pillows", "I did not like this bed", "Light is flying in the air needs to be connected to
+  ceiling"; ``decor_attached``): every hosted decor item's rest record (the scene manifest's ``rest``) within the S5
+  tolerances (``rest.rest_ok``: the gap under it, behind a leaning cushion, a cloth the host pokes through or a torn
+  drape), and every pendant or ceiling light up to the ceiling over it (its ``hang`` record's ``gap_left_m``; without
+  one, its box against the level's ceiling there: an older build left a library pendant 0.99 m under it, dec_L-1_008).
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -89,7 +95,11 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13")
+HUNG_DECOR = ("pendant_light", "ceiling_light")     # M13: decor hung from the ceiling
+FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
+            "it until its own top meets the ceiling")
+FIX_REST = "place it again on the built host (rest.plan_decor / plan_throw), or leave it out"
 # M11 (27 Oct 2026): the roof as the roof plan draws it. Physical reasons:
 M11_IOU_MIN = 0.90              # the built roof's footprint matches the drawn eaves loop within a gutter's width all
                                 # round (a 0.15 m band around a 10 x 15 m roof is about 5 % of it)
@@ -642,6 +652,54 @@ def doors_side_by_side(built: dict) -> tuple[list[dict], int]:
     return out, n
 
 
+def decor_attached(manifest: Optional[dict], built: dict) -> tuple[list[dict], int]:
+    """M13 (module docstring): decor that is not attached to what holds it, from the scene manifest's decor records."""
+    from wenart.blender import rest as R
+    from wenart.blender.furniture import ceiling_above
+
+    tol = R.REST_TOLERANCES
+    levels = {lv.get("id"): lv for lv in built.get("levels") or []}
+    out: list[dict] = []
+    n = 0
+    for ob in (manifest or {}).get("objects") or []:
+        if ob.get("kind") != "decor":
+            continue
+        did = ob.get("decor_id") or ob.get("wenart_id") or ob.get("name")
+        dtype = ob.get("type")
+        if dtype in HUNG_DECOR:
+            hang = ob.get("hang") if isinstance(ob.get("hang"), dict) else None
+            if hang is not None and hang.get("gap_left_m") is not None:
+                gap, how = float(hang["gap_left_m"]), "its hang record"
+            else:
+                level, c, s = levels.get(ob.get("level_id")), ob.get("center"), ob.get("size")
+                if level is None or not isinstance(c, (list, tuple)) or not isinstance(s, (list, tuple)) \
+                        or len(c) < 3 or len(s) < 3:
+                    continue
+                top = float(c[2]) + float(s[2]) / 2.0 - float(level.get("elevation") or 0.0)
+                gap = float(ceiling_above(level, c[:2], (0.0, 0.0))[0]) - top
+                how = "its box (no hang record: nothing was built up to the ceiling)"
+            n += 1
+            if gap > tol["decor_hang_gap_m"] + 1e-9:
+                out.append(_v("M13", "major", did, f"{dtype} {did} hangs in the air: its top {gap:.2f} m under the "
+                                                   f"ceiling over it with nothing (cord, rod, canopy) up to it ({how})",
+                              room_id=ob.get("room_id"), kind="detached", rule="hang", gap_m=round(gap, 4),
+                              tolerance_m=tol["decor_hang_gap_m"], fix=FIX_HANG))
+            continue
+        rest = ob.get("rest")
+        if not isinstance(rest, dict) or not rest:
+            continue
+        n += 1
+        ok, why = R.rest_ok(rest)
+        if not ok:
+            out.append(_v("M13", "major", did, f"{dtype} {did} on {ob.get('host_id')} is not attached to its support "
+                                               f"({ob.get('support') or 'its host'}): {'; '.join(why)}",
+                          room_id=ob.get("room_id"), kind="detached", rule="rest", host_id=ob.get("host_id"),
+                          measured={k: rest.get(k) for k in ("gap_m", "penetration_m", "support_share", "back_gap_m",
+                                                             "poke_m", "cloth_edge_m") if k in rest},
+                          fix=FIX_REST))
+    return out, n
+
+
 def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[dict] = None) -> dict:
     """The review of the built model (module docstring). ``prep``: ``build.prepare`` of ``built`` (made here when not
     given; the plan of a whole building has the site, the outlines and the roof the facade kit needs)."""
@@ -661,8 +719,10 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
         note("M2", got + got2, n + n2)
         got, n = opening_language(scene_manifest)
         note("M6", got, n)
+        got, n = decor_attached(scene_manifest, built)      # 28 Oct 2026
+        note("M13", got, n)
     else:
-        checks["M2"] = checks["M6"] = {"status": "unavailable", "note": "no scene manifest"}
+        checks["M2"] = checks["M6"] = checks["M13"] = {"status": "unavailable", "note": "no scene manifest"}
     got, n = rooms_make_sense(built, scene_manifest)
     note("M7", got, n)
     try:

@@ -172,6 +172,19 @@ Fix round after P4b (17 Oct 2026; the review of the P4a fix round, track R_rig):
   ``_create_hosted_decor`` already did. A hosted item's ``element_id`` and ``wenart_id`` stay its host's (one pass
   index per piece), so ``lighting.built_decor_boxes`` keys decor by ``decor_id``: P4a's fix round keyed it by the
   host, and the rig lamp stood through the plant on its own nightstand unflagged.
+
+28 Oct 2026 (user on real04 run 20261028-005318-full: "still flying pillows all around", "More flying pillows", "I did
+not like this bed", "Light is flying in the air needs to be connected to ceiling"):
+
+- A decor cushion on a dressed bed finds its back with the bed alone (``BED_CASTER``: it stands on the pillows against
+  the headboard), then with the bed and its pillows (``LEAN_CASTER``: it leans back on them); its seat and S5 see the
+  whole bedding as built (``rest.plan_decor`` with ``back_caster``). Before, the lean caster was the only caster: the
+  cushions stood on the bare mattress inside the duvet's head edge (S5 on the built bedding: 4.9 cm, critical).
+- A throw on a bed whose final model has its own made bedding (``rest.own_bedding``) is not built (``decor_skipped``).
+- A pendant or ceiling light reaches the ceiling over it (``hang_plan``): a library model fitted to its own size is
+  lifted to the ceiling (a ceiling light; a pendant whose top is at most ``PENDANT_LIFT_MAX_M`` under it), else it
+  gets a cord and a ceiling canopy (``parametric.suspension_parts``, object ``<name>_cord``, ``entry["suspension"]``);
+  ``entry["hang"]`` records the numbers (``gap_left_m``) for S5, the model review (M13) and Argus.
 """
 from __future__ import annotations
 
@@ -1286,6 +1299,15 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                                                  "room_id": item.get("room_id"),
                                                  "reason": f"the model of {host['id']} has its own cushions/pillows"})
                 continue
+        if item.get("type") == "throw" and host is not None:
+            from wenart.blender import rest as R
+            if R.own_bedding(host):
+                # 28 Oct 2026 (user on real04's f_L0_021: "I did not like this bed"): the final model is made up with
+                # its own duvet; a throw over its modelled folds clips through them
+                summary["decor_skipped"].append({"id": item.get("id"), "type": "throw", "room_id": item.get("room_id"),
+                                                 "reason": f"the model of {host['id']} has its own made bedding: a "
+                                                           "throw over its folds clips through them"})
+                continue
         # Milestone 12: the room's floor (shell.room_floor_z); lights from the level's ceiling, curtains and blinds at
         # their window (decor_floor)
         item_floor, item, _floor_how = decor_floor(building, level, item)
@@ -1306,7 +1328,9 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
             continue
         manifest_objects.append(entry)
         if item.get("id"):
-            summary["objects"][str(item["id"])] = bpy.data.objects.get(entry["name"])
+            # 28 Oct 2026: a hung light's cord and canopy are part of it (S5 measures its top at the ceiling)
+            obs = [bpy.data.objects.get(n) for n in [entry["name"], (entry.get("suspension") or {}).get("name")] if n]
+            summary["objects"][str(item["id"])] = obs if len(obs) > 1 else obs[0]
         if host_entry is not None:
             host_entry.setdefault("decor", []).append({"name": entry["name"], "type": entry["type"],
                                                        "method": entry["method"]})
@@ -1363,6 +1387,7 @@ def dressing_mesh(parts: list) -> tuple[list, list, list]:
 
 
 LEAN_CASTER = "{}#lean"           # casters key: a dressed bed and its pillows, what a decor cushion leans against
+BED_CASTER = "{}#bed"             # 28 Oct 2026: a dressed bed's model alone (its headboard, the pillows not in it)
 
 
 def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, casters=None):
@@ -1370,7 +1395,8 @@ def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, c
     the evaluated bed mesh (``textiles.duvet_and_pillows``), one object ``dress_<id>`` with the bed's ``wenart_id``
     and pass index (a design detail of the piece), recorded on the entry (``dressing``) and in ``assumed``. 27 Oct
     2026: ``casters[LEAN_CASTER]`` gets the bed with its pillows only (``textiles.lean_parts``): the decor cushions
-    lean against the pillows, never the duvet's fold."""
+    lean against the pillows, never the duvet's fold. 28 Oct 2026: ``casters[BED_CASTER]`` the bed model alone, so a
+    decor cushion first stands on the pillows against the headboard (``rest.plan_decor`` takes both, in order)."""
     from wenart.blender import rest as R
     from wenart.blender import textiles as T
 
@@ -1384,8 +1410,9 @@ def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, c
         return None
     if casters is not None:
         pv, pf = T.lean_parts(plan["parts"])
-        casters[LEAN_CASTER.format(piece["id"])] = R.MultiCaster([R.BVHCaster(verts, faces)]
-                                                                 + ([R.BVHCaster(pv, pf)] if pf else []))
+        bed = R.BVHCaster(verts, faces)
+        casters[BED_CASTER.format(piece["id"])] = bed
+        casters[LEAN_CASTER.format(piece["id"])] = R.MultiCaster([bed] + ([R.BVHCaster(pv, pf)] if pf else []))
     dverts, dfaces, keys = dressing_mesh(plan["parts"])
     used = sorted(set(keys), key=keys.index)
     unverified = entry.get("status") == "unverified"
@@ -1445,8 +1472,14 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
         return None
     frame = item.get("host_frame") if isinstance(item.get("host_frame"), dict) else {}
     support = hosted_support(item, host)
-    if support == "headboard" and casters.get(LEAN_CASTER.format(host["id"])) is not None:
-        caster = casters[LEAN_CASTER.format(host["id"])]       # 27 Oct 2026: against the pillows, not the duvet
+    back = None
+    if support == "headboard":
+        # 27 Oct 2026: against the pillows, not the duvet. 28 Oct 2026 (user on real04: "More flying pillows"): the
+        # back rays only see the bed (its headboard: the cushion stands on the pillows) then the bed and its pillows
+        # (it leans on them); its seat and S5 see everything built, the duvet too (its cushions were placed without the
+        # duvet: S5 on the built bedding found them 4.9 cm in it)
+        back = [c for c in (casters.get(BED_CASTER.format(host["id"])), casters.get(LEAN_CASTER.format(host["id"])))
+                if c is not None] or None
     file, reason = resolve_asset(item.get("asset"), assets_dir)
     local, geo = None, None
     if file is not None and dtype != "throw":
@@ -1473,7 +1506,7 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
         keys = [p["key"] for p in plan.get("parts") or [] for _f in p["faces"]]
     else:
         plan = R.plan_decor(item, host, caster, local["verts"], local["faces"], support,
-                            lean_deg=float(frame.get("lean_deg") or 0.0), shelf=frame.get("shelf"))
+                            lean_deg=float(frame.get("lean_deg") or 0.0), shelf=frame.get("shelf"), back_caster=back)
         keys = local.get("keys")
     if "not_rested" in plan:
         record = dict(plan["not_rested"], room_id=item.get("room_id"))
@@ -2088,6 +2121,45 @@ def pendant_hang(z_above: float, ceiling: float) -> tuple[float, str | None]:
     return drop, None
 
 
+PENDANT_LIFT_MAX_M = 0.10     # 28 Oct 2026: a hung model this close under the ceiling is lifted to meet it
+
+
+def hang_plan(dtype: str, bottom_m: float, model_h: float, ceiling_m: float) -> dict:
+    """28 Oct 2026 (user on real04 run 005318's salon: "Light is flying in the air needs to be connected to ceiling";
+    pure): how a ceiling-hung decor model (heights over its floor) reaches the ceiling over it. A ceiling light, or a
+    pendant whose top is at most ``PENDANT_LIFT_MAX_M`` under the ceiling (its own cord and canopy), or above it, moves
+    by ``lift_m`` until its top meets the ceiling; a pendant further down keeps its shade where the decor stage put it
+    and gets a cord (``cord_m``) and a ceiling canopy (``parametric.suspension_parts``) from its top to the ceiling.
+    ``gap_left_m`` = the ceiling minus the top of what is built (0: connected). Why: the decor stage plans a pendant
+    from its bottom up to the ceiling (dec_L-1_008: 0.45 x 0.45 x 1.35 m from 1.50 m), the build fits a library model
+    to its own size (0.358 m) and its top hung 0.99 m under the ceiling with nothing up to it; a flush ceiling light
+    of 2.4 cm took the planned 12 cm and hung 9.6 cm under the ceiling (dec_L0_026)."""
+    bottom, model_h, ceiling = float(bottom_m), float(model_h), float(ceiling_m)
+    gap = ceiling - (bottom + model_h)
+    rec = {"bottom_m": round(bottom, 4), "model_top_m": round(bottom + model_h, 4), "ceiling_m": round(ceiling, 4),
+           "gap_m": round(gap, 4), "lift_m": 0.0, "cord_m": 0.0, "canopy_m": 0.0}
+    if dtype == "ceiling_light" or gap <= PENDANT_LIFT_MAX_M + 1e-9:
+        rec["lift_m"] = round(gap, 4)
+        rec["how"] = ("flush: its top on the ceiling" if dtype == "ceiling_light" else
+                      "its own top on the ceiling (moved %+.3f m)" % gap)
+    else:
+        rec["cord_m"] = round(gap - P.SUSPENSION_CANOPY_H_M, 4)
+        rec["canopy_m"] = P.SUSPENSION_CANOPY_H_M
+        rec["how"] = f"a {rec['cord_m']:.2f} m cord and a ceiling canopy from its top to the ceiling"
+    top = bottom + model_h + rec["lift_m"] + rec["cord_m"] + rec["canopy_m"]
+    rec["top_m"] = round(top, 4)
+    rec["gap_left_m"] = round(ceiling - top, 4)
+    return rec
+
+
+def top_point(verts) -> tuple[float, float]:
+    """The plan point of a model's top (pure): the mean x, y of its vertices within 1 cm of its highest one (where a
+    pendant's cord leaves it)."""
+    zmax = max(float(v[2]) for v in verts)
+    top = [v for v in verts if float(v[2]) >= zmax - 0.01]
+    return (sum(float(v[0]) for v in top) / len(top), sum(float(v[1]) for v in top) / len(top))
+
+
 def wall_art_materials(dtype: str, materials_list: list) -> tuple[list, dict | None]:
     """Fix round after P4a (17 Oct 2026; module docstring): ``(materials, mirror_glass record)`` of a library wall
     decor model: for a mirror a new list from ``materials.mirror_glass_materials`` (the cached geometry's list is
@@ -2181,6 +2253,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
     }
     file, reason = resolve_asset(item.get("asset"), assets_dir)
     ob = None
+    hang, z_above0, z_how0 = None, z_above, z_how
     if file is not None:
         try:
             geo = _cached_geometry(file, collection, geo_cache)
@@ -2194,6 +2267,15 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                 target = [float(v) for v in item["asset"]["bbox_m"][:3]]   # Milestone 9: the model's own size
             verts, info = fit_vertices(geo["verts"], item["asset"], footprint, floor_z + z_above,
                                        target_size=target)
+            if dtype in CEILING_DECOR_TYPES:
+                # 28 Oct 2026 (hang_plan): the model fitted to its own size reaches the ceiling over it
+                cord_xy = top_point(verts)
+                ceil_c = ceiling if dtype == "ceiling_light" else ceiling_above(level, cord_xy, (0.0, 0.0))[0]
+                hang = dict(hang_plan(dtype, z_above, float(info["bbox_m"][2]), ceil_c), cord_xy=list(cord_xy))
+                if abs(hang["lift_m"]) > 1e-6:
+                    verts = [(x, y, z + hang["lift_m"]) for x, y, z in verts]
+                    z_above = round(z_above + hang["lift_m"], 4)
+                    z_how = f"{z_how}; {hang['how']}"
             fallback = library.proxy("proxy")
             ob = _mesh_object(name, verts, geo["faces"], geo["materials"], geo["face_materials"], collection,
                               owner_id, "decor", status, uvs=geo["uvs"], uv_name=geo["uv_name"],
@@ -2210,6 +2292,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
             reason = f"import of {file} failed: {type(exc).__name__}: {exc}"
             warnings.append(f"decor {dtype} {where}: {reason}; parametric mesh used")
             ob = None
+            hang, z_above, z_how = None, z_above0, z_how0
     lit = decor_lit(item, bool(getattr(mats, "lamps_on", False)))
     if ob is None:
         parts = P.decor_parts(dtype, w, d, h, item)
@@ -2234,6 +2317,11 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         if dtype == "plant_large":
             entry["species"] = item.get("species")
             entry["pot"] = dict(overrides["pot"])
+        if dtype in CEILING_DECOR_TYPES:                  # 28 Oct 2026: the parametric light spans up to the ceiling
+            hang = dict(hang_plan(dtype, z_above, z1 - z0, ceiling), cord_xy=list(footprint["center"]),
+                        how="the parametric light's own canopy on the ceiling")
+            hang.update(lift_m=0.0, cord_m=0.0, canopy_m=0.0, top_m=round(z_above + z1 - z0, 4),
+                        gap_left_m=round(ceiling - z_above - (z1 - z0), 4))
         if lit and dtype in LAMP_LIGHTS:
             _lamp_light(dtype, name, ob, footprint["center"], floor_z + z_above, entry,
                         getattr(mats, "collection", None), assumed if assumed is not None else [], owner_id,
@@ -2241,6 +2329,25 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
     elif lit and dtype in LAMP_LIGHTS:
         _lamp_light(dtype, name, ob, footprint["center"], floor_z + z_above, entry, getattr(mats, "collection", None),
                     assumed if assumed is not None else [], owner_id)
+    if hang is not None:
+        entry["hang"] = dict(hang, ceiling_how=ceiling_how)
+        if hang["cord_m"] > 0.0 or hang["canopy_m"] > 0.0:
+            sparts = P.suspension_parts(hang["cord_m"])
+            sv, sf, sk = P.world_mesh(sparts, hang["cord_xy"], 0.0, floor_z + hang["model_top_m"] + hang["lift_m"])
+            used_s = sorted(set(sk), key=sk.index)
+            sslots = [_part_material(mats, k, False) for k in used_s]
+            cord_ob = _mesh_object(f"{name}_cord", sv, sf, sslots, [used_s.index(k) for k in sk], collection,
+                                   owner_id, "decor", status)
+            cord_ob.pass_index = index
+            cord_ob["wenart_type"] = dtype
+            cord_ob["wenart_room"] = room_id or ""
+            cord_ob["wenart_source"] = "added_by_ai"
+            cord_ob["wenart_detail"] = "suspension"
+            entry["suspension"] = {"name": f"{name}_cord", "cord_m": hang["cord_m"], "canopy_m": hang["canopy_m"],
+                                   "materials": [m.name for m in sslots if m is not None]}
+            (assumed if assumed is not None else []).append(
+                {"object": f"{name}_cord", "field": "suspension", "value": hang["how"], "parent": owner_id,
+                 "kind": "suspension", "reason": "a hung light is connected to the ceiling over it (28 Oct 2026)"})
     if item.get("window_id"):
         entry["window_id"] = item["window_id"]
     if item.get("mirrored_from"):

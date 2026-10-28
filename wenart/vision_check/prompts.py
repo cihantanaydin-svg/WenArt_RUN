@@ -110,6 +110,9 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "plant_large": "large potted plant standing on the floor",
     "pendant_light": "lamp hanging from the ceiling on a cord or a chain",
     "ceiling_light": "lamp fixed flat to the ceiling",
+    # 28 Oct 2026 (wenart.furniture.tabletop): the place settings of a dining table
+    "plate": "plate laid on a dining table in front of a chair",
+    "glass": "drinking glass standing on a table",
 }
 HINTS.update({k: v for k, v in _DECOR_HINTS_M10.items() if k in S.CATEGORIES})
 UNVERIFIED_HINT = "any piece of furniture at that place"

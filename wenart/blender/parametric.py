@@ -189,7 +189,9 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug",   # param
                                  "vase", "bowl", "plant_small", "table_lamp", "mirror",
                                  # Milestone 10 (docs/milestone10.md §4.6)
                                  "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture",
-                                 "plant_large", "pendant_light", "ceiling_light")
+                                 "plant_large", "pendant_light", "ceiling_light",
+                                 # 28 Oct 2026 (wenart.furniture.tabletop): a dining table's place settings
+                                 "plate", "glass")
 _NEW_DECOR: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("curtain"):]
 # Milestone 10 storage built with the cabinet fronts of the design (a design detail of the piece).
 CABINET_LOOK_TYPES: tuple[str, ...] = ("sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet")
@@ -200,7 +202,8 @@ LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "b
                                       "sculpture", "pendant_light")
 # Decor that rests on its host's built top (Milestone 9: the builder casts a ray down onto the host mesh).
 SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp",
-                                        "candle", "tray", "books", "sculpture", "basket")   # M10, with a host
+                                        "candle", "tray", "books", "sculpture", "basket",   # M10, with a host
+                                        "plate", "glass")                                   # 28 Oct 2026
 # Seats decor rests on at seat height (cushions, a throw): Milestone 10 adds the corner sofa, chaise and bench.
 SEAT_HOST_TYPES: tuple[str, ...] = ("sofa", "armchair", "sofa_corner", "chaise")
 MATERIAL_KEYS: tuple[str, ...] = ("wood", "fabric", "bedding", "ceramic", "steel", "painted", "worktop", "dark",
@@ -306,7 +309,8 @@ DECOR_DEFAULT_HEIGHT = {"cushion": 0.12, "book_set": 0.22, "plant": 0.6, "rug": 
                         # Milestone 10 (typical sizes, assumed)
                         "curtain": 2.4, "blind": 1.3, "throw": 0.05, "books": 0.12, "candle": 0.2, "basket": 0.35,
                         "tray": 0.04, "clock": 0.35, "sculpture": 0.4, "plant_large": 1.6, "pendant_light": 0.6,
-                        "ceiling_light": 0.12}
+                        "ceiling_light": 0.12,
+                        "plate": 0.025, "glass": 0.14}           # 28 Oct 2026: a dinner plate, a water glass
 MIRROR_FRAME_M = 0.03            # the parametric mirror: frame width and depth; the glass sits on its front
 RUG_THICKNESS_M = 0.012
 # Bed frames (Milestone 8): the mattress on the deck and the inner box the bedding fills.
@@ -3130,6 +3134,13 @@ def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None
     if dtype == "basket":                     # a woven basket, its open top shown dark
         return [_frustum_z(0.0, 0.0, 0.0, w / 2.0 * 0.85, d / 2.0 * 0.85, w / 2.0, d / 2.0, h * 0.98, "rattan", "body"),
                 _cylinder_z(0.0, 0.0, h * 0.98, w / 2.0 * 0.9, d / 2.0 * 0.9, h * 0.02, "dark", "inside", n=24)]
+    if dtype == "plate":                      # 28 Oct 2026: a dinner plate: a foot ring and a shallow dish
+        foot = 0.004
+        return [_cylinder_z(0.0, 0.0, 0.0, w * 0.3, d * 0.3, foot, "ceramic", "foot", n=24),
+                _frustum_z(0.0, 0.0, foot, w * 0.34, d * 0.34, w / 2.0, d / 2.0, max(0.006, h - foot), "ceramic",
+                           "plate", n=32)]
+    if dtype == "glass":                      # 28 Oct 2026: a water glass, a little wider at the rim
+        return [_frustum_z(0.0, 0.0, 0.0, w * 0.42, d * 0.42, w / 2.0, d / 2.0, h, "glass", "glass", n=24)]
     if dtype == "tray":                       # a flat tray with low rims
         t, rim = 0.008, min(0.012, w * 0.05, d * 0.05)
         return [_box(0.0, 0.0, 0.0, w, d, t, "colour_wood", "base"),
@@ -3175,6 +3186,25 @@ def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None
                             n=32),
                 _superellipsoid(0.0, 0.0, 0.0, w, d, h - canopy + 0.004, 0.6, 1.0, "bulb", "bulb", n_eta=8, n_om=32)]
     raise KeyError(f"no decor builder for {dtype!r}")
+
+
+SUSPENSION_CORD_R_M = 0.004       # the cord of a hung light (as the parametric pendant's)
+SUSPENSION_CANOPY_R_M = 0.06      # the ceiling canopy it hangs from
+SUSPENSION_CANOPY_H_M = 0.025
+
+
+def suspension_parts(cord_m: float) -> list[Part]:
+    """The cord and ceiling canopy of a hung light (28 Oct 2026, user on real04's salon: "Light is flying in the air
+    needs to be connected to ceiling"; pure): local frame, the cord from z = 0 (the model's top) up ``cord_m``, the
+    canopy (``SUSPENSION_CANOPY_R_M`` x ``SUSPENSION_CANOPY_H_M``) above it, its top on the ceiling. Keys as the
+    parametric pendant's (``dark`` cord, ``colour_steel`` canopy). A library pendant fitted to its own size hung 0.99 m
+    under the ceiling with nothing up to it."""
+    cord = max(0.0, float(cord_m))
+    parts = [_cylinder_z(0.0, 0.0, cord, SUSPENSION_CANOPY_R_M, SUSPENSION_CANOPY_R_M, SUSPENSION_CANOPY_H_M,
+                         "colour_steel", "canopy", n=16)]
+    if cord > 1e-4:
+        parts.insert(0, _cylinder_z(0.0, 0.0, 0.0, SUSPENSION_CORD_R_M, SUSPENSION_CORD_R_M, cord, "dark", "cord", n=6))
+    return parts
 
 
 _BUILDERS = {
