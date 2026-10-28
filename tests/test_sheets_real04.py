@@ -45,5 +45,8 @@ def test_pools_terraces_parking_trees_and_marks(real04):
     assert sorted(round(Polygon(p["polygon"]).area) for p in site["pools"]) == [24, 24, 24, 24]
     assert all(Polygon(p["polygon"]).area < 40 for p in site["paving"])         # the sun terraces, never the setback
     assert len(site["paving"]) == 4 and round(Polygon(site["parking"][0]["polygon"]).area) == 287
-    assert len(site["trees"]) == 101 and len(site["marks"]) == 16
+    # the 101 tree symbols: 21 single trees and 4 rows of equal symbols, hedges by the vegetation rule (user OK of
+    # 12 Oct 2026; sheets.exterior.hedge_rows)
+    assert len(site["trees"]) == 21 and len(site["marks"]) == 16
+    assert sorted(h["symbol_count"] for h in site["hedges"]) == [7, 7, 30, 36]
     assert Polygon(site["plot"]).area == pytest.approx(1165.9, abs=1.0)        # the title: 1165 M2 (621 + 544)

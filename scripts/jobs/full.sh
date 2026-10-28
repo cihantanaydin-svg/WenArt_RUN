@@ -195,9 +195,14 @@ copy_loop() {
 
 # copy_job_logs: this job's vLLM, setup and download logs (tail 200) and its own log; /workspace/logs keeps
 # every earlier pod's, so only files newer than START_STAMP.
+# job_logs_dest: where this job's logs go: $RESULTS/logs, or the private folder when a private project is in the run.
+job_logs_dest() {
+  if private_run; then echo "$JOB_DIR/results-private/_logs"; else echo "$RESULTS/logs"; fi
+}
+
 copy_job_logs() {
-  local dest="$RESULTS/logs" f
-  if private_run; then dest="$JOB_DIR/results-private/_logs"; fi
+  local dest f
+  dest="$(job_logs_dest)"
   mkdir -p "$dest" 2>/dev/null || return 0
   for f in "$LOGS"/vllm-*.log "$LOGS"/setup-polish-*.log "$LOGS"/hf-download-*.log; do
     if [ -f "$f" ] && [ "$f" -nt "$START_STAMP" ]; then
@@ -466,7 +471,8 @@ if [ "${RUN_REFERENCES:-1}" != "0" ]; then
   "$PY" -m wenart.style.references export --root "${WENART_REFERENCES:-/workspace/references}" \
     --out "$RESULTS/references" >> "$LOGS/references-$JOB.log" 2>&1 || log "warning: the reference export failed"
   # run 160846: the style scores failed with their reason in this log only; it goes with the results
-  mkdir -p "$RESULTS/logs" && cp -f "$LOGS/references-$JOB.log" "$RESULTS/logs/" 2>/dev/null || true
+  # 28 Oct 2026: a private run's references log stays private, with its other logs (job_logs_dest)
+  mkdir -p "$(job_logs_dest)" && cp -f "$LOGS/references-$JOB.log" "$(job_logs_dest)/" 2>/dev/null || true
 fi
 # User request of 10 Oct 2026: the 3D files of the public projects to Google Drive (gpu_run.py --drive-upload passes
 # the RunPod secret rclone_conf); a failure is a warning only. Private projects never leave the volume this way.

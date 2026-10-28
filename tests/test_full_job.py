@@ -108,7 +108,8 @@ def test_flock_copy_loop_and_exit_trap():
     assert 'cat "$PID_FILE"' in kill and 'kill -TERM -- "-$pid"' in kill and "kill -KILL" in kill
     assert "PID_FILE=$JOB_DIR/vllm.pid" in _text()
     logs = _body("copy_job_logs")
-    assert 'dest="$JOB_DIR/results-private/_logs"' in logs and 'tail -n 200 "$f"' in logs
+    assert 'dest="$(job_logs_dest)"' in logs and 'tail -n 200 "$f"' in logs
+    assert 'echo "$JOB_DIR/results-private/_logs"' in _body("job_logs_dest")       # a private run's logs stay private
     assert '"$f" -nt "$START_STAMP"' in logs
 
 
@@ -286,8 +287,9 @@ def test_sandbox_public_run(tmp_path):
         time.sleep(0.2)
     assert _pid_gone(pod["vllm_pid"]) and not (box.job_dir / "vllm.pid").exists()
     assert "stopping vllm (pid" in box.output
-    # This job's logs (not the earlier pod's) go to $RESULTS/logs; the job log too.
-    assert sorted(p.name for p in (box.results / "logs").iterdir()) == ["vllm-qwen.log"]
+    # This job's logs (not the earlier pod's) go to $RESULTS/logs; the job log too. 27 Oct 2026 (run 160846): the
+    # style references' log goes with them
+    assert sorted(p.name for p in (box.results / "logs").iterdir()) == ["references-test.log", "vllm-qwen.log"]
     assert len((box.results / "logs" / "vllm-qwen.log").read_text().splitlines()) == 200
     assert (box.results / "full-test.log").is_file()
     log = (box.logs / "full-test.log").read_text()

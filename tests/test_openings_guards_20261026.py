@@ -16,7 +16,8 @@ from wenart.blender import opening_models as OM
 from wenart.blender import parametric as P
 
 ROOT = Path(__file__).resolve().parents[1]
-REAL06 = ROOT / "results" / "baseline" / "latest" / "furniture" / "real06" / "building_final.json"
+# 28 Oct 2026: a fixed copy (the latest run's building moves with every promote and carries the pod's fixes)
+REAL06 = ROOT / "tests" / "fixtures" / "real06_building_20261025.json"
 
 
 # --------------------------------------------------------------------------
