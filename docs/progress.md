@@ -2041,3 +2041,28 @@ Fixes after the run (general rules, CPU-tested, not rendered yet):
 
 Open: the facade fallback (a white render; the agent chose wood cladding in the run before); the index-pass proxy of
 f_L0_008 in cam_r_L0_salon_1; the big loop had one cycle (the build took 1,700 s).
+
+## real04 run 20261028-183611-full (28 Oct 2026)
+
+Pod `26f967flsei51z`, 236 min, $9.79 (240-min cap with `--over-5-ok`, user OK); fetch pod `9gxeot42x904kr`, $0.09.
+Before / after against real04 run 20261028-005318-full; this run is the latest now.
+
+| what the user asked | in this run |
+|---|---|
+| the elevation difference outside | stone-faced retaining walls and planted terraces, steps with handrails (no bare grey concrete) |
+| kitchen design | white flat fronts, hood, oven, dishwasher, microwave, wall units over the run |
+| mirrors in the baths | a mirror over every basin (U10: none open) |
+| outdoor table with a rug | no rug outside |
+| more stylish walls | a muted accent wall per bedroom and living room |
+
+The judge's mean 2.08 -> 2.28 of 5. Argus 3.6 (the run before 3.7); 31 of its 41 critical findings were the walls,
+doors and room labels of L-1b, the open-kitchen variant's own level (fixed: `conservation.variant_only_levels`,
+`ledger.with_variant_levels`; 20 critical with the fix). GPU tests 59 of 61: the index pass misses a proxy in
+cam_r_L0_banyo_2 (f_L0_025; the open issue), four corridor views lit by the rig read orange (wall R/B 1.31-1.42
+over 1.29).
+
+Every build took about 420 s longer than the one before (519 s ... 3,077 s; real06: 230 s more each), and the previews,
+the replay and the refit slowed the same way; Blender's own timer stayed near 7 min, `build.prepare` and the model
+review take seconds on the same inputs. The stage runner now stops what a stage leaves running in its process group
+and logs the load and the GPU's processes after every stage, so the next run shows the cause. The big loop got one
+cycle in both runs because of it.
