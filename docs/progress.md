@@ -2007,3 +2007,37 @@ one" (cam_r_L0_koridor_1: steel rails at different angles crossing each other ne
 
 M18 also reads the rails of older scenes: on a U stair with winders the old rails are "stops short" at the turn, and
 beside a floor guard "two guards side by side". Needs a GPU look: real04's corridor and stair views.
+
+## real06 run 20261028-154514-full (28 Oct 2026) and the fixes it showed
+
+The first pod run with all of the user's 28 Oct requests (pod `4cqh0tawzslg65`, 153 min, $6.33; fetch pod
+`jqhlcn63dbz3wi`, $0.12). Before / after against the latest run 20261027-222248-full; this run is the latest now
+(`results/baseline/latest`).
+
+| what the user asked | in this run |
+|---|---|
+| entrance at a window | gone: the house is entered from the veranda (its drawn steps and a 4.95 m path) |
+| veranda roof that copies its floor | a pitched tiled roof wider than the floor, on posts; columns up to the house roof |
+| outdoor furniture | a seating set and a dining set on the veranda (no indoor pieces outside) |
+| kitchens | hood, oven under the hob, wall units, splashback, worktop decor |
+| baths | a panelled bath; the basin under the window has no mirror (U10 lists it) |
+| set tables, lights | plates and glasses on the dining table; ceiling lights in every lit room |
+| accent walls | built, but the plain "sage" read lime green (fixed below) |
+
+Argus: score 10.9 (3 critical, 116 major, 62 minor; the run before 12.1); the judge's mean 2.13 of 5 (2.16 before).
+The judge's most common complaint: the white render facade (the style's fallback) reads as a flat box.
+
+Fixes after the run (general rules, CPU-tested, not rendered yet):
+
+| problem | fix |
+|---|---|
+| accent walls lime green (xkcd "sage" #87AE73) | `FAMILY_ACCENTS` are muted paints: pale muted sage, greige, pale taupe, pale dusty blue, pale terracotta, light charcoal (UL66) |
+| the agent's aerial ext_4 looked 56 degrees down onto the roof, white at EV 0 | a high view looks down at most 40 degrees (`HIGH_VIEW_MAX_DOWN_DEG`); an exterior view with no facade to meter takes the median EV of the metered exterior views (`render.exterior_fallback_ev`) |
+| Argus: VERANDA / BALKON "NOT built" | a labelled area built as its outdoor space is a built fact |
+| Argus: the stove and fridge "have no object"; the counters read twice "not built" | a piece built into a run has the run's object; a piece built as another is no missing piece (`plan_vs_model.built_as`) |
+| the AI architect removed the salon's bookshelf on "f_L0_034 is a second dining table" | a decision whose reason says its piece is another type is refused and asked again (`architect_ai.wrong_piece`) |
+| the sink stood as a lone 0.45 m box beside two counter legs | a kitchen outline that stops at most 0.9 m short of a wall, with a drawn sink or appliance in the gap, reaches that wall: a U run, the sink built in (`reading.outline_to_walls`, UL70) |
+| five ceiling lights of three models in one room | the ceiling lights and pendants of a room take one model (`fit.ROOM_MATCHED_DECOR_TYPES`, UL86) |
+
+Open: the facade fallback (a white render; the agent chose wood cladding in the run before); the index-pass proxy of
+f_L0_008 in cam_r_L0_salon_1; the big loop had one cycle (the build took 1,700 s).
