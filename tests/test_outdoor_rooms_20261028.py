@@ -435,3 +435,15 @@ def test_real04_rooms_get_their_ceiling_lights():
         assert d["type"] in CL.LIGHT_TYPES and d["rule"] == CL.RULE and d["reason"].startswith("lighting rule")
         if d.get("slope_mount"):
             assert d["slope_mount"]["lowest_m"] >= D.MIN_LIGHT_BOTTOM_M - 1e-9
+
+
+def test_the_lights_of_one_room_take_one_model():
+    """28 Oct 2026 (real06 run 154514: the living room's five ceiling lights came in three models): a ceiling light or a
+    pendant picks its model by its room and type (``fit.ROOM_MATCHED_DECOR_TYPES``), other decor by its host."""
+    from wenart.furniture import fit as FIT
+
+    a = {"id": "dec_1", "type": "ceiling_light", "room_id": "r_a"}
+    b = {"id": "dec_2", "type": "ceiling_light", "room_id": "r_a"}
+    assert FIT.decor_pick_key(a) == FIT.decor_pick_key(b) == "r_a:ceiling_light"
+    assert FIT.decor_pick_key(dict(a, room_id="r_b")) != FIT.decor_pick_key(a)
+    assert FIT.decor_pick_key({"id": "dec_3", "type": "vase", "room_id": "r_a", "host_id": "f_1"}) == "f_1"

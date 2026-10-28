@@ -2212,9 +2212,17 @@ def pick_index(key: str, n: int) -> int:
     return int(hashlib.sha256(str(key).encode("utf-8")).hexdigest()[:12], 16) % n if n else 0
 
 
+# 28 Oct 2026 (real06 run 154514: the living room's five ceiling lights came in three models): the decor of these types
+# matches across its room, one model per room and type
+ROOM_MATCHED_DECOR_TYPES: tuple[str, ...] = ("ceiling_light", "pendant_light")
+
+
 def decor_pick_key(item: dict) -> str:
-    """The id the library pick hangs on: the host piece, else the first anchor piece (rug, wall art), else the
-    item itself (a floor plant)."""
+    """The id the library pick hangs on: the room and the type for ``ROOM_MATCHED_DECOR_TYPES`` (one model for the
+    room's lights), else the host piece, else the first anchor piece (rug, wall art), else the item itself (a floor
+    plant)."""
+    if item.get("type") in ROOM_MATCHED_DECOR_TYPES and item.get("room_id"):
+        return f"{item['room_id']}:{item['type']}"
     anchors = item.get("anchor_ids") or []
     return str(item.get("host_id") or (anchors[0] if anchors else None) or item.get("id") or item.get("type"))
 
