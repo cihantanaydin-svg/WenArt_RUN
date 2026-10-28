@@ -216,6 +216,12 @@ def steps_landing(pf: dict, terrain: Optional[dict] = None) -> Optional[tuple[fl
         fl = GR.down_flight(pf, lambda x, y: S.ground_z(terrain, x, y))
         if fl is not None:
             return float(fl["landing"][0]), float(fl["landing"][1])
+        # no flight: the edge meets the ground there, the path starts at the edge
+        a, b = poly[i], poly[(i + 1) % len(poly)]
+        length = G.distance(a, b)
+        if length > 1e-6:
+            ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+            return (a[0] + b[0]) / 2.0 + uy * LANDING_M, (a[1] + b[1]) / 2.0 - ux * LANDING_M
     a, b = poly[i], poly[(i + 1) % len(poly)]
     length = G.distance(a, b)
     if length <= 1e-6:
