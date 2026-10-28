@@ -536,6 +536,39 @@ def _where_of(plan: AA.Plan, building: dict, element: str, level_id: str) -> dic
     return {"kind": kind, "level_id": level_id, "centre": [round(float(c[0]), 3), round(float(c[1]), 3)]}
 
 
+def _type_phrases(ftype: str) -> tuple[str, ...]:
+    """The words a reason names a furniture type by (pure): ``table_dining`` -> "table dining", "dining table"."""
+    words = str(ftype).split("_")
+    out = {" ".join(words)}
+    if len(words) == 2:
+        out.add(f"{words[1]} {words[0]}")
+    return tuple(sorted(out))
+
+
+def wrong_piece(element: str, ftype: str, reason: str) -> Optional[str]:
+    """The furniture type a decision's reason says ``element`` is when that is not its type (pure; 28 Oct 2026, real06
+    run 154514: "f_L0_034 is a second dining table in the kitchen" removed the salon's bookshelf f_L0_034): the
+    reason must describe the piece it names. Only "<id> is / was a ... <type>" counts (at most three words between);
+    None when it says nothing of the kind or names the piece's own type."""
+    import re
+
+    from wenart.recognition.schemas import FURNITURE_TYPES
+
+    m = re.search(rf"\b{re.escape(element.lower())}\b\s*(?:\(|,)?\s*(?:is|was)?\s*(?:a|an|the)\s+((?:[\w-]+\s+){{0,4}}[\w-]+)",
+                  str(reason or "").lower())
+    if not m:
+        return None
+    said = " " + m.group(1).replace("-", " ") + " "
+    if any(f" {w} " in said for w in _type_phrases(ftype)):
+        return None
+    for t in FURNITURE_TYPES:
+        if t in ("unknown", ftype):
+            continue
+        if any(f" {w} " in said for w in _type_phrases(t)):
+            return t
+    return None
+
+
 def _decision(d: dict, plan: AA.Plan, built: dict, level_id: str) -> tuple[Optional[str], Optional[dict], str]:
     """``(key, answer, why_not)`` of one of the AI's own decisions (``AI.<action>:<element>``), or a reason it is
     not a valid one (the element is not on this floor, the action does not fit it, a drawn piece is never removed)."""
@@ -554,6 +587,12 @@ def _decision(d: dict, plan: AA.Plan, built: dict, level_id: str) -> tuple[Optio
         return None, None, f"{action} does not fit a {kind}"
     if _level_of(plan, built, element) != level_id:
         return None, None, f"{element} is not on {level_id}"
+    if kind == "piece":
+        ftype = next(str(f.get("type")) for f in built.get("furniture") or [] if f.get("id") == element)
+        other = wrong_piece(element, ftype, f"{d.get('reason') or ''} {d.get('what') or ''}")
+        if other:
+            return None, None, (f"{element} is a {ftype}, not a {other}: the reason describes another piece (name the id "
+                                f"of the piece it means)")
     params: dict = {}
     if action == "retype_room":
         if value not in AA.ROOM_TYPES:

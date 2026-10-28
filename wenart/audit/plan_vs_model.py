@@ -431,6 +431,39 @@ def text_in(label: Any, texts: Iterable[str]) -> bool:
     return False
 
 
+# 28 Oct 2026 (real06 run 154514: "the plan shows a kitchen counter not built" on the counter outlines read twice and
+# built once as the run f_L0_031): the record words that say a piece is built as another one
+_PIECE_ID = re.compile(r"\bf_L[-\w]*?_\d+\b")
+_BUILT_AS_WORDS = ("read twice", "drawn inside", "replaced by", "built once", "built into", "part of")
+
+
+def built_as(target: str, idx: dict, depth: int = 4) -> Optional[str]:
+    """The id of the built element a not-built piece is built as (pure): its ``replaced_by`` / ``built_into`` /
+    ``merged_into`` ids, or a piece its not-built or inferred reason names with one of ``_BUILT_AS_WORDS``; followed
+    through pieces that are themselves built as another (at most ``depth`` steps). None when nothing built takes it."""
+    seen = {target}
+    todo = [target]
+    for _ in range(depth):
+        nxt = []
+        for tid in todo:
+            rec = (idx.get(tid) or {}).get("record") or {}
+            ids = [str(v) for key in ("replaced_by", "built_into", "merged_into")
+                   for v in (rec.get(key) if isinstance(rec.get(key), list) else [rec.get(key)]) if v]
+            for key in ("not_built_reason", "inferred_reason"):
+                text = str(rec.get(key) or "")
+                if any(w in text for w in _BUILT_AS_WORDS):
+                    ids += _PIECE_ID.findall(text)
+            for i in ids:
+                if i in seen or i not in idx:
+                    continue
+                seen.add(i)
+                if idx[i].get("built"):
+                    return i
+                nxt.append(i)
+        todo = nxt
+    return None
+
+
 def drawn_in_source(rec: dict, regions: set) -> Optional[str]:
     """The evidence entity that puts an element in the source drawing (vector evidence of one of ``regions``, or
     a piece ``from_documents``), else None."""
@@ -1449,6 +1482,10 @@ def check_plan_claims(claims: Sequence[dict], building: dict, level_id: str, *, 
                          + (f": it carries the claim's label (matched by {match['how']})" if match else ""))
                     continue
                 if not el["built"]:
+                    host = built_as(target, idx) if el["cat"] == "piece" else None
+                    if host:
+                        drop(f"{target} is built as {host} ({idx[host]['type']}): its record says so")
+                        continue
                     notes.append(f"{target} is not built")
             elif label:
                 if plan_texts is not None and not text_in(label, plan_texts):
@@ -1474,6 +1511,9 @@ def check_plan_claims(claims: Sequence[dict], building: dict, level_id: str, *, 
                 drop(f"{target} is drawn in the source ({drawn})")
                 continue
         else:                                            # different_in_model
+            if el is not None and not el["built"] and el["cat"] == "piece" and built_as(target, idx):
+                drop(f"{target} is built as {built_as(target, idx)}: its record says so")
+                continue
             if el is not None and not el["built"]:
                 change = "missing_in_model"
                 notes.append(f"{target} is not built: missing in the model")

@@ -168,6 +168,9 @@ def in_scene(final: dict, manifest: Optional[dict]) -> list[dict]:
                 continue                          # C5 below (or built as an outdoor space: that one is checked)
             if el["id"] in ids or el["id"] in names:
                 continue
+            host = el.get("built_into") if coll == "furniture" else None
+            if host and str(host) in ids:
+                continue                          # 28 Oct 2026: a hob or fridge built into its counter run's object
             if _type(el) in UNTYPED and coll in TYPED_COLLECTIONS:
                 continue                          # C4 names it (untyped: nothing could build it)
             out.append(K.finding("conservation", "C3", "critical" if coll in CRITICAL_COLLECTIONS else "major",

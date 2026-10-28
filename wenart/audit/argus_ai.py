@@ -196,9 +196,11 @@ def facts(building: dict, rep: Optional[dict] = None, limit: int = FACT_LINES) -
         by_level.setdefault((o.get("level_id"), o.get("type")), []).append(o["id"])
     lines += [f"{t}s on {lv}: {', '.join(ids)}" for (lv, t), ids in sorted(by_level.items(), key=str)]
     site = b.get("site") or {}
+    spaces = CV.outdoor_built(b)      # 28 Oct 2026 (real06 run 154514): a labelled area built as its outdoor space
     for a in site.get("areas") or []:
         lines.append(f"site area {a.get('id')} '{a.get('label') or ''}' ({a.get('kind')}): "
-                     + ("built" if a.get("build") is not False and a.get("polygon") else
+                     + (f"built as the outdoor space {spaces[str(a.get('id'))]}" if str(a.get("id")) in spaces else
+                        "built" if a.get("build") is not False and a.get("polygon") else
                         f"NOT built ({a.get('not_built_reason') or 'no outline'})"))
     kinds: dict = {}
     for d in site.get("decor") or []:

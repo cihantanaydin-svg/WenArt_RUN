@@ -192,3 +192,16 @@ def test_the_doors_of_the_house_are_checked_for_variety():
     got = LS.door_variety(man)
     assert got and all(f["check"] == "U15" and f["evidence"]["lesson"] == "UL65" for f in got)
     assert LS.door_variety({"objects": []}) == []
+
+
+def test_a_labelled_area_built_as_its_outdoor_space_is_a_built_fact():
+    """real06 run 154514: Argus AI's fact sheet said the VERANDA and BALKON areas were 'NOT built (no outline)' (the
+    areas hold no polygon; their outdoor spaces os_L0_veranda / os_L1_balkon do) and it raised two false major
+    findings; the fact names the outdoor space now (``conservation.outdoor_built``)."""
+    b = room_building()
+    b["site"] = {"areas": [{"id": "sa_L0_veranda", "label": "VERANDA", "kind": "other"},
+                           {"id": "sa_L0_x", "label": "BAHCE", "kind": "other"}],
+                 "outdoor_spaces": [dict(_space(), id="os_L0_veranda", area_id="sa_L0_veranda")]}
+    lines = AI.facts(b)
+    assert any("sa_L0_veranda" in x and "built as the outdoor space os_L0_veranda" in x for x in lines)
+    assert any("sa_L0_x" in x and "NOT built" in x for x in lines)
