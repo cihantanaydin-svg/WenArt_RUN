@@ -93,3 +93,26 @@ def test_a_variants_own_level_is_built_in_its_own_scene():
     back = LD.with_variant_levels(built, final)
     assert "r_L-1b_salon" in {r["id"] for r in back["rooms"]} and "L-1b" in {lv["id"] for lv in back["levels"]}
     assert CV.variant_only_levels(room_building()) == {} and LD.with_variant_levels(built, built) is built
+
+
+def test_a_stage_leaves_no_process_running(tmp_path):
+    """real06 run 154514 / real04 run 183611: each build took 230-420 s longer than the one before (the previews, the
+    replay and the refit slowed the same way). A stage's processes still running after its main process ended are
+    stopped and named in the stage log."""
+    import sys
+    import time
+
+    from wenart.run import scheduler as SCH
+
+    log = tmp_path / "stage.log"
+    code = ("import subprocess, sys; subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)']); "
+            "print('main done')")
+    t = time.time()
+    rc = SCH.subprocess_runner([sys.executable, "-c", code], dict(__import__("os").environ), tmp_path, 30, log)
+    text = log.read_text(encoding="utf-8")
+    assert rc == 0 and time.time() - t < 30
+    assert "1 process(es) of the stage were still running after it ended, stopped" in text and "load average" in text
+    clean = tmp_path / "clean.log"
+    assert SCH.subprocess_runner([sys.executable, "-c", "print(1)"], dict(__import__("os").environ), tmp_path, 30,
+                                 clean) == 0
+    assert "still running" not in clean.read_text(encoding="utf-8")

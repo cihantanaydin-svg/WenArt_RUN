@@ -242,6 +242,68 @@ def _stop_group(proc: subprocess.Popen, wait_s: float = 30.0) -> None:
             continue
 
 
+def group_members(pgid: int, proc_root: str = "/proc") -> list[tuple[int, str]]:
+    """``[(pid, name)]`` of the live processes of process group ``pgid`` (Linux ``/proc/<pid>/stat``; empty where
+    there is no ``/proc``)."""
+    out = []
+    root = Path(proc_root)
+    if not root.is_dir():
+        return out
+    for d in root.iterdir():
+        if not d.name.isdigit():
+            continue
+        try:
+            stat = (d / "stat").read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        head, _, tail = stat.rpartition(")")
+        fields = tail.split()
+        if len(fields) < 3 or fields[0] == "Z":
+            continue                                  # a zombie holds nothing
+        try:
+            if int(fields[2]) == pgid:
+                out.append((int(d.name), head.partition("(")[2]))
+        except ValueError:
+            continue
+    return sorted(out)
+
+
+def gpu_apps(timeout_s: float = 5.0) -> Optional[str]:
+    """The processes on the GPU (``nvidia-smi --query-compute-apps``: ``pid name MiB; ...``), None without nvidia-smi
+    (28 Oct 2026: the stage log names them, the slowing builds' first suspect)."""
+    exe = shutil.which("nvidia-smi")
+    if not exe:
+        return None
+    try:
+        got = subprocess.run([exe, "--query-compute-apps=pid,process_name,used_memory", "--format=csv,noheader"],
+                             capture_output=True, text=True, timeout=timeout_s)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    rows = [" ".join(x.strip() for x in ln.split(",")) for ln in got.stdout.splitlines() if ln.strip()]
+    return "; ".join(rows) if rows else "none"
+
+
+def stop_leftovers(pgid: int, wait_s: float = 10.0, proc_root: str = "/proc") -> list[tuple[int, str]]:
+    """28 Oct 2026 (real06 run 154514 and real04 run 183611: every build took about 230 s / 420 s longer than the one
+    before, and the previews, the replay and the refit slowed the same way): the processes a stage left running in its
+    own process group after its main process ended are stopped (TERM, then KILL after ``wait_s``); the list of what
+    was left, for the stage log."""
+    left = group_members(pgid, proc_root)
+    if not left:
+        return []
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        try:
+            os.killpg(pgid, sig)
+        except (ProcessLookupError, PermissionError, OSError):
+            break
+        end = time.time() + wait_s
+        while time.time() < end and group_members(pgid, proc_root):
+            time.sleep(0.2)
+        if not group_members(pgid, proc_root):
+            break
+    return left
+
+
 def subprocess_runner(cmd: list, env: dict, cwd, timeout: Optional[float], log_path) -> int:
     """Run ``cmd`` (cwd ``cwd``, env ``env``) with stdout+stderr appended to ``log_path``; its exit code,
     ``TIMEOUT_RC`` when it was stopped at ``timeout`` seconds (TERM to its process group, then KILL)."""
@@ -262,7 +324,18 @@ def subprocess_runner(cmd: list, env: dict, cwd, timeout: Optional[float], log_p
             _stop_group(proc)
             rc = TIMEOUT_RC
             log.write(f"{LOG_MARK} timeout after {timeout:.0f} s: stopped (TERM, then KILL)\n".encode("utf-8"))
-        log.write(f"{LOG_MARK} {ST.utc_now()} rc {rc}\n".encode("utf-8"))
+        left = stop_leftovers(proc.pid)
+        if left:
+            names = ", ".join(f"{name} ({pid})" for pid, name in left[:12]) + (" ..." if len(left) > 12 else "")
+            log.write(f"{LOG_MARK} {len(left)} process(es) of the stage were still running after it ended, stopped: "
+                      f"{names}\n".encode("utf-8"))
+        try:
+            load = " ".join(f"{v:.1f}" for v in os.getloadavg())
+        except OSError:
+            load = "?"
+        gpu = gpu_apps()
+        tail = f"load average {load}" + (f"; on the GPU: {gpu}" if gpu is not None else "")
+        log.write(f"{LOG_MARK} {ST.utc_now()} rc {rc} ({tail})\n".encode("utf-8"))
     return rc
 
 
