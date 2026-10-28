@@ -104,7 +104,8 @@ BLENDER_CODE = ("wenart/blender/**", "wenart/canonical.py", "wenart/views.py", "
 # shell and geometry helpers of wenart.blender (function-level imports), and through them the catalogue and the
 # size table: every stage whose closure reaches wenart.levels lists all of it.
 LEVELS_CODE = ("wenart/levels/**", "wenart/blender/**", "wenart/canonical.py", "wenart/views.py", "wenart/style/**",
-               "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", CATALOG, "wenart/furniture/catalog*.json")
+               "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", CATALOG, "wenart/furniture/catalog*.json",
+               "wenart/furniture/model_title.py")     # 28 Oct 2026: catalog.usable reads the model rules
 # Milestone 12 (track G): the groups (groups.yaml), the group checks, the room program and the solver; plausibility
 # runs the group checks, so every stage that scores a room reaches them.
 # Integration of the fix round after P4b (17 Oct 2026): program.duplicate_anchor reads edit_ops.family_host_of (a
@@ -118,6 +119,7 @@ GROUPS_CODE = ("wenart/furniture/groups.py", "wenart/furniture/groups.yaml", "we
                "wenart/furniture/names.py")     # 26 Oct 2026: the furniture name texts (infer, the reading)
 # catalog*.json: catalog.json and, once committed, catalog_objaverse.json (catalog.load merges it).
 FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
+            "wenart/furniture/model_title.py",       # 28 Oct 2026: catalog.usable reads the model rules
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
             "wenart/blender/common.py", "wenart/assets/**", "wenart/style/**", "wenart/building.py", "wenart/units.py",
             "wenart/geometry.py", "wenart/schema/**",
@@ -165,6 +167,7 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/copies.py", "wenart/blender/furniture.py", "wenart/blender/modules.py",
              "wenart/blender/rest.py", "wenart/blender/textiles.py", "wenart/furniture/__init__.py",
              "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml",
+             "wenart/furniture/model_title.py",          # 28 Oct 2026: catalog.usable reads the model rules
              # T5 review (15 Oct 2026): site.py and sheets/exterior.py import T6's new vegetation module.
              "wenart/blender/vegetation.py",
              # Round 2 (15 Oct 2026): site.site_kind reads the scene-manifest schema's kinds (WHOLE_BUILDING_KINDS).
@@ -181,7 +184,12 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/furniture/taste.py", "wenart/blender/outdoor.py",
              # 27 Oct 2026: the stairs' walk check and underside (shell -> stair_access -> the fixed equipment types)
              "wenart/blender/stair_access.py", "wenart/furniture/schemas.py", "wenart/synthetic/__init__.py",
-             "wenart/synthetic/blocks.py")
+             "wenart/synthetic/blocks.py",
+             # 28 Oct 2026: catalog.usable reads the model rules (model_title -> the audit's title words, whose
+             # package init imports the asset fetchers; ambientcg reaches the exterior looks)
+             "wenart/assets/__init__.py", "wenart/assets/ambientcg.py", "wenart/assets/fetch.py",
+             "wenart/assets/polyhaven.py", "wenart/assets/web.py", "wenart/assets/audit/__init__.py",
+             "wenart/assets/audit/keywords.py", "wenart/blender/exterior.py")
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height

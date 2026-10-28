@@ -147,10 +147,19 @@ CHECKLIST: dict[str, dict] = {
     "S6": {"what": "every built piece is a typed, audited model or a by-design parametric piece", "how": "C",
            "scope": "piece"},
     "LG": {"what": "library gap: no audited model of this type and style fitted", "how": "C", "scope": "piece"},
+    # 28 Oct 2026 (user on real04: a 2.4 m table set read in feet as a coffee table, a kitchen sink as a washbasin)
+    "LT": {"what": "the built library model's own names or its audit refuse it (a stated size its box disagrees "
+                   "with, a set of pieces in one mesh, a title of another type or use, the vision audit's doubt of its "
+                   "type or size, a front turned off its detail side)", "how": "C", "scope": "piece"},
     "D1": {"what": "decor that looks wrong in the render: a cushion or throw floating, sunk into a back or "
                    "hanging in the air, pillows on pillows", "how": "V", "scope": "piece"},
+    # 28 Oct 2026 (user on real04 run 20261028-005318-full: the wardrobe with a window at its end, the kitchen sink
+    # as a washbasin, the table set as a coffee table; user on real06: "What kind of a bath is this")
     "D2": {"what": "a wrong object: a model that is not what its type says (a blob as a throw, a street lamp, a "
-                   "table lamp stretched into a floor lamp, a bench as a throw), or a crude low-poly model",
+                   "table lamp stretched into a floor lamp, a bench as a throw; a window or a glazed frame on a "
+                   "piece of furniture, such as a wardrobe whose end looks like a window, a kitchen sink with a "
+                   "drainboard as a washbasin, a table with its stools as one piece, a miniature table, a flat "
+                   "toy-like bath far below a real rim), or a crude low-poly model",
            "how": "V", "scope": "piece"},
     # 25 Oct 2026 (user: "there is no taste in the furniture selection"): the piece that breaks the room's set
     "D3": {"what": "a piece that does not go with the rest of the room: a third wood tone, a second metal finish, "

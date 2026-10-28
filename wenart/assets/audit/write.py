@@ -19,6 +19,11 @@ filed under the wrong type). ``audit.fixes`` holds the new field values, ``audit
 Why: ``catalog.usable(entry)`` (track S) reads ``audit.status``: ``removed`` entries are never used, ``fix`` ones
 after their fix, which is in the catalogue fields themselves.
 
+``apply_title_rules(doc, checked_utc)`` (28 Oct 2026, ``wenart.furniture.model_title``): the title rules re-run
+over the catalogue (``python -m wenart.assets audit title-rules``): a model whose own names refuse it (a stated size its
+box disagrees with, a set of pieces, a title of another type or use) is ``removed``, a unit error with a real size
+behind it is fixed by ``rescale``.
+
 How: idempotent: an entry whose ``audit.decision_sha`` equals the decision's hash is left as it is (a second
 ``write`` never rescales twice). The result passes ``wenart.furniture.catalog.validate``. Pure on the documents;
 the CLI reads and writes the files.
@@ -228,6 +233,89 @@ def apply_decisions(doc: dict, decisions: dict, checked_utc: str) -> dict:
                 e["material_tags_note"] = "M13 audit: from the vision answer's materials (one pass; the slot " \
                                           "judgement of recolour.py is finer where it exists)"
         stats["written"] += 1
+    return stats
+
+
+# 28 Oct 2026, provenance: user on real04 run 20261028-005318-full (a coffee table that was a 2.4 m high table with its
+# barstools read in feet, a kitchen sink as a washbasin, a wardrobe with a window at its end) and on real06 (a flat bath)
+TITLE_RULES_NOTE = ("28 Oct 2026 (user: a coffee table that was a 2.4 m high table with its barstools read in feet, a "
+                    "kitchen sink as a washbasin): the entries whose own names "
+                    "disagree with them (wenart.furniture.model_title: a stated size the box disagrees with, a set of "
+                    "pieces, a title of another type or use; furniture the vision check rates 2 or lower or finds no "
+                    "real product in) carry audit.status removed (or fix with the units "
+                    "corrected), the ones whose own audit doubts their type (the vision check: not the type, the size "
+                    "odd; a front turned off its detail side) audit.status pending until a later audit pass confirms "
+                    "them; both with audit.title_rules; their files stay on the volume.")
+
+
+def apply_title_rules(doc: dict, checked_utc: str) -> dict:
+    """28 Oct 2026 (``wenart.furniture.model_title``; the user's two models on real04 run 20261028-005318-full): the
+    model rules re-run over every ``keep`` / ``fix`` entry of a catalogue document, in place. An entry with a refusal
+    of its names gets ``audit.status`` ``removed``, the rules' reasons first in ``audit.reasons`` (its notes, doubts,
+    fixes and ``before`` kept); one with a doubt of its own audit (``audit_doubt``: the vision check said it is not
+    its type or found its size odd; ``front_side``: its front turned off its detail side) gets ``pending``: never used
+    until a later audit pass confirms it; one with only a unit ``fix`` gets the ``rescale`` applied to its fields
+    (``fix_entry``) and ``audit.status`` ``fix``. Each carries ``audit.title_rules`` = ``{version, checked_utc,
+    status_before, findings}``. ``removed`` and ``pending`` entries are left as they are (nothing is deleted, no file
+    is touched). Idempotent: a corrected entry agrees with its title, a removed or pending one is not read again.
+    Returns the counts ``{"checked", "removed": [ids], "pending": [ids], "fixed": [ids], "by_rule": {rule: n},
+    "by_type": {type: n}, "by_section"}``."""
+    from wenart.assets.audit.items import SECTIONS
+    from wenart.furniture import model_title as MT
+    stats: dict = {"checked": 0, "removed": [], "pending": [], "fixed": [], "by_rule": {}, "by_type": {},
+                   "by_section": {}}
+    for section in SECTIONS:
+        for e in doc.get(section) or []:
+            if not isinstance(e, dict) or e.get("parametric") or not e.get("id"):
+                continue
+            old = e.get("audit") if isinstance(e.get("audit"), dict) else {}
+            status = str(old.get("status") or "")
+            if status not in ("keep", "fix"):
+                continue
+            stats["checked"] += 1
+            found = MT.findings(e)
+            if not found:
+                continue
+            record = {"version": MT.VERSION, "checked_utc": checked_utc, "status_before": status,
+                      "findings": [{k: f[k] for k in ("rule", "status", "reason", "fix", "metrics") if k in f}
+                                   for f in found]}
+            for f in found:
+                stats["by_rule"][f"{f['rule']} {f['status']}"] = stats["by_rule"].get(f"{f['rule']} {f['status']}",
+                                                                                       0) + 1
+            ftype = MT.entry_type(e)
+            stats["by_type"][ftype] = stats["by_type"].get(ftype, 0) + 1
+            stats["by_section"][section] = stats["by_section"].get(section, 0) + 1
+            refuse = [f for f in found if f["status"] == "refuse"]
+            review = [f for f in found if f["status"] == "review"]
+            audit = dict(old)
+            if refuse or review:
+                reasons = [f"28 Oct 2026, {f['rule']}: {f['reason']}" for f in refuse + review]
+                audit.update(status="removed" if refuse else "pending",
+                             reasons=reasons + [r for r in old.get("reasons") or [] if r not in reasons],
+                             title_rules=record)
+                stats["removed" if refuse else "pending"].append(e["id"])
+            else:
+                fixes: dict = {}
+                for f in found:
+                    for k, v in (f.get("fix") or {}).items():
+                        fixes[k] = round(fixes.get(k, 1.0) * float(v), 6) if k == "rescale" else v
+                new, before = fix_entry(e, fixes)
+                if "unit_scale" in new:
+                    e["unit_note"] = (str(e.get("unit_note") or "").rstrip("; ") + "; 28 Oct 2026 title rules: the "
+                                      "units of the title's stated size").lstrip("; ")
+                if old.get("before"):
+                    before = dict(old["before"], **{k: v for k, v in before.items() if k not in old["before"]})
+                audit.update(status="fix", fixes=dict(old.get("fixes") or {}, **new), title_rules=record,
+                             notes=list(old.get("notes") or []) + [f"28 Oct 2026, {f['rule']}: {f['reason']}"
+                                                                   for f in found])
+                if before:
+                    audit["before"] = before
+                stats["fixed"].append(e["id"])
+            e["audit"] = audit
+    if stats["removed"] or stats["fixed"] or stats["pending"]:
+        notes = doc.setdefault("notes", [])
+        if TITLE_RULES_NOTE not in notes:
+            notes.append(TITLE_RULES_NOTE)
     return stats
 
 

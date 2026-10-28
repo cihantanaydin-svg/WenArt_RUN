@@ -1144,7 +1144,7 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
         fdepth = fitted_depth(entry, width)
         roof_ok = under_ceiling(height, ceiling)          # fix round after P6a: under a sloped ceiling
         height_ok = height_fits(height, heights) and working_height_ok(ftype, height) and roof_ok \
-            and working_top_ok(ftype, height)
+            and working_top_ok(ftype, height) and fixture_height_ok(ftype, height)
         accepted = (depth_ratio <= cap + 1e-9 and uniform_range[0] <= mean_scale <= uniform_range[1] and height_ok)
         if accepted and within_table:
             from wenart.furniture import sizes as SZ
@@ -1567,6 +1567,20 @@ def working_top_ok(ftype: str, height: float) -> bool:
     if rule is None:
         return True
     return float(height) >= rule[0] - 1e-9
+
+
+# 28 Oct 2026 (user on real06's bathrooms: "What kind of a bath is this" / "this bath needs to make sense": a 0.37 m
+# high library bath fitted at 0.375 m; the size table's 0.40-0.72 m with the 15 % tolerance let it pass): a fixture
+# stands at its real height without the size table's tolerance: a bath's top (its rim) at 0.45-0.65 m. A model outside
+# is not fitted; the next model or the parametric bath (rim, mixer, panels) is built.
+FIXTURE_HEIGHTS: dict[str, tuple[float, float]] = {"bathtub": (0.45, 0.65)}
+
+
+def fixture_height_ok(ftype: str, height: float) -> bool:
+    """False for a fixture model fitted outside its real height (``FIXTURE_HEIGHTS``, no tolerance); true for other
+    types (the washbasin's working top: ``WORKING_TOPS`` and ``mount_for``)."""
+    rng = FIXTURE_HEIGHTS.get(ftype)
+    return rng is None or rng[0] - 1e-9 <= float(height) <= rng[1] + 1e-9
 
 
 def mount_for(ftype: str, height: float) -> Optional[float]:
@@ -2483,6 +2497,10 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
                 asset["fabric_colour"] = colour
                 asset["fabric_colour_source"] = source
         piece["asset"] = asset
+        if piece.get("type") == "bathtub" and asset.get("method") != "library":
+            # 28 Oct 2026 (user on real06: "this bath needs to make sense"): a bath built from code knows its walls
+            from wenart.furniture import fixture_seat as FS
+            asset["bath_walls"] = FS.bath_walls(fitted, piece)
         # 26 Oct 2026: a wall-hung fixture model hangs at its working top (the build honours mount_bottom_m)
         mount = mount_for(str(piece.get("type") or ""), float((asset.get("bbox_m") or [0, 0, 0])[2] or 0.0)) \
             if asset.get("method") == "library" else None
@@ -2823,6 +2841,12 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         lines += [f"- {aid} ({lib}, {lic}) x {n}" for (lib, aid, lic), n in sorted(licences.items())]
     else:
         lines.append("- none")
+    # 28 Oct 2026 (user on real04: a 2.4 m table set read in feet as a coffee table, a kitchen sink as a washbasin):
+    # a fitted model whose own names disagree with it (check LT, wenart/furniture/model_title.py)
+    from wenart.furniture import model_title as MT
+    lines += ["", f"## Library models their names or audit refuse ({MT.CHECK}: stated size, set, type or use, "
+                  "audit doubt)", ""]
+    lines += [f"- {v['target']}: {v['message']}" for v in MT.fitted_findings(building)] or ["- none"]
     if ranking:
         lines += ["", "## Ranking (fit v2)", "", f"Rule: {RANKING_RULE}.", ""] + ranking
     if frames:

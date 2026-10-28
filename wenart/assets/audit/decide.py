@@ -36,6 +36,14 @@ warn); a ``material_tags`` review waits for the vision answer's ``materials`` (t
 writes them as the flag ``material_tags`` (the design enum of ``wenart.assets.recolour.TAG_ORDER``); an answer of
 the older question (no ``materials``) leaves a note, never a removal and never a second pass (one vision pass).
 
+28 Oct 2026 (user on real04 run 20261028-005318-full: "is this a window? how is this making sense?", a "WARDROBE" the
+vision check said is not a wardrobe, kept by decision 1a and fitted): a vision doubt about the type (``is_type``
+false, no retype) or the size (``size_plausible`` false while code finds the size ok) keeps the model ``pending``
+until the type question of pass 2 confirms the type (``second_look``; two passes against it remove it). A furniture
+model the vision check rates ``quality.remove_max`` (2) or lower, or finds no real product (a source whose
+``real_product`` the answer sets), is removed (user on real06: "What kind of a bath is this", a 0.37 m bath rated 2);
+decor keeps these as doubts.
+
 3D Warehouse layer (23 Oct 2026): an answer of the m13.2 question (``ask.LOGO_FIELDS``) with ``brand_logo`` or
 ``text_print`` true removes the model (a specific vision finding, like an open drawer: trademarks are not licensed
 and no catalogue fix takes a print away; the reasons of ``checks.RENDER_FINDINGS``).
@@ -115,6 +123,24 @@ def answer_flags(item: dict, answer: Optional[dict]) -> dict:
     if item["kind"] == "decor" and answer.get("contact") in CONTACTS:
         flags["contact"] = answer["contact"]
     return flags
+
+
+def second_look(text: str, item: dict, answer2: Optional[dict], reasons: list, notes: list, doubts: list,
+                pending: list) -> None:
+    """28 Oct 2026 (user on real04 run 20261028-005318-full: "is this a window? how is this making sense?", a
+    "WARDROBE" whose vision answer said is_type false and size_plausible false, audited ``fix`` and fitted): a vision
+    doubt about the type or the size no longer keeps the model (decision 1a of 11 Oct 2026 for these two findings):
+    the type question of pass 2 confirms it (its type guess near the type: a note, the model is used), contradicts it
+    (removed: two passes) or is still to be asked (``pending``: the doubt recorded, ``cli.second_pass_ids`` asks it)."""
+    guess = str((answer2 or {}).get("type_guess") or "")
+    if answer2 is not None and K.near(guess, item["type"]):
+        notes.append(f"{text.replace('the vision check', 'pass 1')}; pass 2 names a {guess}: the type is confirmed")
+    elif answer2 is not None:
+        reasons.append(f"{text}, and pass 2 names a {guess or 'other'}: two passes doubt the {item['type']}")
+    else:
+        doubts.append(text)
+        pending.append({"needs": "vision pass 2", "why": f"{text}: a second pass must confirm the type before the "
+                        f"model is used", "expect": "keep or remove"})
 
 
 def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer2: Optional[dict] = None,
@@ -209,10 +235,11 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
                             "expect": "keep"})
     else:
         if answer.get("is_type") is False and "type" not in fixes:
-            doubts.append(f"the vision check says it is not a {item['type']}"
-                          + (f" (a {answer['type_guess']})" if answer.get("type_guess") not in (None, "other",
-                                                                                                   item["type"])
-                             else ""))
+            text = (f"the vision check says it is not a {item['type']}"
+                    + (f" (a {answer['type_guess']})" if answer.get("type_guess") not in (None, "other", item["type"])
+                       else ""))
+            # 28 Oct 2026 (user on real04: "is this a window?"): a type doubt waits for a second pass that confirms
+            second_look(text, item, answer2, reasons, notes, doubts, pending)
         elif answer.get("is_type") is True and untitled:
             if answer2 is None:
                 pending.append({"needs": "vision pass 2", "why": "no title evidence: two passes must agree",
@@ -232,8 +259,15 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
         for field in ("brand_logo", "text_print"):
             if answer.get(field) is True:
                 reasons.append(f"the vision check reads {RENDER_FINDINGS[field]}: {RENDER_FINDING_WHY[field]}")
+        # 28 Oct 2026 (user on real06: "What kind of a bath is this", a bath rated 2, no real product, kept by
+        # decision 1a): a furniture model rated this low or found no real product is removed; decor keeps the doubt
+        furniture = item.get("kind") == "furniture"
         if isinstance(q, int) and q <= remove_max:
-            doubts.append(f"vision quality {q} (<= {remove_max})")
+            (reasons if furniture else doubts).append(f"vision quality {q} (<= {remove_max})")
+        elif furniture and answer.get("real_product") is False and item.get("source") not in ("abo", "gso",
+                                                                                            "generated"):
+            reasons.append("the vision check finds no real manufactured product"
+                           + (f" (vision quality {q})" if isinstance(q, int) else ""))
         elif answer.get("real_product") is False and item.get("source") not in ("abo", "gso") and isinstance(q, int) \
                 and q < keep_min:
             doubts.append(f"not a real manufactured product and vision quality {q} (< {keep_min})")
@@ -249,7 +283,9 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
         elif has_front(item["type"]) and side == "unclear":
             notes.append("the vision check cannot tell the front")
         if answer.get("size_plausible") is False and _status(checks, "size") in (None, "ok"):
-            notes.append("the vision check finds the size odd next to the scale reference (code: size ok)")
+            # 28 Oct 2026: the size doubt waits for a second pass too (its note is the doubt model_title reads)
+            second_look("the vision check finds the size odd next to the scale reference (code: size ok)", item,
+                        answer2, reasons, notes, notes, pending)
 
     flags = answer_flags(item, answer)
     flags.update(material_flags)

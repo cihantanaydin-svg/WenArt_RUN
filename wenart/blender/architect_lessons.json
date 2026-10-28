@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-10-27",
+ "updated": "2026-10-28",
  "lessons": [
   {
    "id": "UL01",
@@ -643,6 +643,46 @@
    "request": "Tall windows where the style favours large glazing (user, 27 Oct 2026, on a Scandinavian two-storey house's renders: 'In some of the rooms the full windows from top to bottom (with a bit of remaining wall of course) could look better').",
    "lesson": "In a style family that favours large glazing (scandinavian, japandi, modern, minimal, contemporary; not classic, rustic, mediterranean, industrial) the windows of the living, dining and bed rooms (and of a dry room onto a terrace or garden) whose sill and head no document fixes become tall windows: a 0.20 m upstand to 0.25 m under the ceiling or the roof, the drawn width and position kept, all windows of one facade of the room alike; never in a wet room, never behind a wall-backed piece (a dresser, wardrobe, bed head, desk, sideboard or kitchen run keeps the sill the fit caps it at); the house's guard over a drop (W3); curtains and blinds follow the new head (architect rule W5, action tall_window).",
    "question": "Do the living, dining and bed rooms of a large-glazing style have tall windows wherever the documents fix no sill or head and no wall-backed piece stands in front, the same on every facade of the room, with a guard over a drop?"
+  },
+  {
+   "id": "UL57",
+   "date": "2026-10-28",
+   "area": "library",
+   "status": "process",
+   "checks": [],
+   "request": "what is this miniature table makes no sense (real04 run 20261028-005318-full, cam_r_L-1_salon_3: the drawn coffee table f_L-1_087 got the 3D Warehouse model 'Facit High Table W2400 D800 mm NamNam Barstool Low back Metal Leg', a 2.4 m high table with its barstools in one mesh whose box was read in feet so that it passed as a 0.73 m coffee table). General rule: a model whose title states its size is used only when the size agrees with its box (a unit factor corrects it or it is refused), and a model whose title names a set of pieces is never one piece",
+   "lesson": "A library model is used only when its own names agree with it: a title that states its size (W2400 D800 mm, 120 x 60 x 36 cm, 34\"h x 30\"w) must match its box, a unit factor (feet, inches, cm, mm, x10, x100) that explains the mismatch corrects it only when the corrected box is a real piece of the type, else the model is refused; a title naming the pieces of a group (a table with chairs, stools or barstools, a chair with an ottoman, a sofa with an armchair, a bed with nightstands, a toilet with a basin, a dining or bistro set) is a set and never one piece (wenart/furniture/model_title.py: catalog.usable, the audit's model_title check, python -m wenart.assets audit title-rules, the fit report and the code critic's LT, Argus P11).",
+   "question": "Does every built library model's stated size agree with its box, and does its title name one piece of its type?"
+  },
+  {
+   "id": "UL58",
+   "date": "2026-10-28",
+   "area": "library",
+   "status": "process",
+   "checks": [],
+   "request": "This makes no sense and terrible sink / Terrible sink (real04 run 20261028-005318-full, cam_r_L0_e_banyo_1 and cam_r_L-1_banyo_1: five washbasins got the 3D Warehouse model 'Sink' from the zip's Kitchen folder, a double-bowl kitchen sink with a drainboard hung on the wall with a strap mirror above it). General rule: a washbasin is a bathroom basin (its names or its source say so); a model titled only 'sink' or naming a kitchen, a drainer or a double bowl is a kitchen sink, never a washbasin; a title of another type than the catalogue type refuses the model",
+   "lesson": "A washbasin is a bathroom basin: its names or its source say so (basin, washbasin, lavatory, vanity, bathroom sink, lavabo, Waschbecken, wastafel; the source's Bathroom folder; HSSD found_in bathroom); a model titled only 'sink' or naming a kitchen, a drainer or drainboard, a double bowl or a commercial sink is a kitchen sink and never a washbasin, a kitchen sink named for a bathroom is no kitchen sink, and every model whose title names another type (or whose title and vision check both name another type) is refused for its catalogue type (model_title title_type; the same checks as above).",
+   "question": "Is every washbasin a bathroom basin, never a kitchen sink, and every model the type its title names?"
+  },
+  {
+   "id": "UL59",
+   "date": "2026-10-28",
+   "area": "library",
+   "status": "process",
+   "checks": [],
+   "request": "is this a window? how is this making sense? (real04 run 20261028-005318-full, L0 top view between r_L0_yatak_odasi and r_L0_e_yatak_odasi: the drawn wardrobe f_L0_023 got the 3D Warehouse model 'WARDROBE' whose 0.64 m end shows a white two-pane glazed frame; the vision audit said is_type false and size_plausible false, the geometry put the detail on that end, the audit turned its front to the long face and kept it as fix). General rule: a model the vision audit doubts (not its type, an odd size) is not used until a later audit pass confirms it; a front turned off its detail side gets a second look; a window or glazed frame on furniture is a wrong object (D2) and is swapped",
+   "lesson": "A model the vision audit said is not its type, or whose size it found odd, is not used until a second audit pass confirms its type (audit.status pending; decide.second_look, pass 2 asks it; two passes against it remove it); a model of a long-front type whose detailed face is an end while the audit turned its front to the long face gets a second look (pending): an end with a glazed panel or a window is no wardrobe front; the vision critics treat a window or a glazed frame on a piece of furniture as a wrong object (D2, swap_model) and no swap or pin takes a model the audit or its names refuse.",
+   "question": "Does any piece of furniture show a window, a glazed frame or another object that is not its type?"
+  },
+  {
+   "id": "UL60",
+   "date": "2026-10-28",
+   "area": "library",
+   "status": "process",
+   "checks": [],
+   "request": "What kind of a bath is this / this bath needs to make sense (real06 run 20261027-222248-full: both bathtubs f_L0_010 and f_L1_009 got the 3D Warehouse model 'Bathtub', 1.52 x 0.74 x 0.37 m, 85 % non-manifold edges, the vision answer real_product false, size_plausible false, quality 2, audited keep). General rule: a furniture model rated 2 or lower or found no real product is not used, a fixture is fitted only at its real height (a bath's rim 0.45-0.65 m), and the bath built from code looks like a real product (rim, taps, a panel when it stands in a niche between walls)",
+   "lesson": "A furniture model the vision audit rated 2 or lower, or found no real product, is not used (removed; decor keeps the doubt), and a fixture is fitted only at its real height without tolerance (a bath's top 0.45-0.65 m: fit.FIXTURE_HEIGHTS; the washbasin's working top: fit.WORKING_TOPS); when no model is left the bath is built from code as a real product: a ceramic shell with a flat rim, the bowl floor with a drain and an overflow, a chrome deck mixer at the end on a wall, and a panel under a rim band on every open side when its back stands on a wall (a niche: the front panel; a corner: the front and the open end; fixture_seat.bath_walls).",
+   "question": "Does every bath stand at a real rim height (0.45-0.65 m) and look like a real product, with its taps and its panel where it stands between walls?"
   }
  ]
 }

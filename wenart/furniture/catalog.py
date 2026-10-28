@@ -822,15 +822,30 @@ def usable(entry: dict, mode: str = "commercial") -> bool:
     ``-SA`` / ``-ND`` markers, the export tool) suits the mode: ``commercial`` takes flag ``none`` only
     (``commercial_safe``, the rule of 10 Oct 2026); ``relaxed`` (user OK of 12 Oct 2026) takes every flag but
     ``no_derivatives`` and ``unknown`` (``NEVER_USABLE_FLAGS``). Works on a catalogue entry and on a fitted ``asset``
-    dict alike."""
+    dict alike. 28 Oct 2026: a catalogue entry its own names or audit refuse (``title_refusal``) is not used."""
     mode = check_mode(mode)
     audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
     if str(audit.get("status") or "").lower() in REMOVED_STATUSES:
+        return False
+    if title_refusal(entry):
         return False
     flag = licence_flag_of(entry)
     if mode == "commercial":
         return flag == NO_FLAG
     return flag in LICENCE_FLAGS and flag not in NEVER_USABLE_FLAGS
+
+
+def title_refusal(entry: dict) -> Optional[str]:
+    """28 Oct 2026 (user on real04 run 20261028-005318-full: a coffee table that was a 2.4 m high table with its
+    barstools read in feet, a kitchen sink as a washbasin, a "WARDROBE" with a window at its end): why a catalogue
+    entry's own names or its audit refuse it (``wenart.furniture.model_title.refusal``: a stated size its box
+    disagrees with, a set, a title of another type or use, a vision doubt of its type or size, a front turned off its
+    detail side), None when nothing does. A fitted asset dict (``asset_id``, no ``type``) is not judged here: the run's
+    checks read it (``model_title.fitted_findings``)."""
+    if "asset_id" in entry or not entry.get("type") or entry.get("parametric"):
+        return None
+    from wenart.furniture import model_title as MT
+    return MT.refusal(entry)
 
 
 def unusable_reason(entry: dict, mode: str = "commercial") -> Optional[str]:
@@ -840,6 +855,9 @@ def unusable_reason(entry: dict, mode: str = "commercial") -> Optional[str]:
     if str(audit.get("status") or "").lower() in REMOVED_STATUSES:
         reasons = "; ".join(str(r) for r in audit.get("reasons") or []) or "no reason recorded"
         return f"audit: {str(audit.get('status')).lower()} ({reasons})"
+    why = title_refusal(entry)
+    if why:
+        return f"its names or its audit refuse it ({why}; wenart.furniture.model_title)"
     if not usable(entry, mode):
         flag = licence_flag_of(entry)
         why = ("never used in any mode: no derivatives or an unknown licence" if flag in NEVER_USABLE_FLAGS
