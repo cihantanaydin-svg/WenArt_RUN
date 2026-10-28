@@ -252,3 +252,18 @@ def test_every_basin_gets_a_mirror_even_under_a_window():
     b["furniture"][1]["status"] = "verified"
     slots, _notes = DA.room_slots(b["rooms"][0], b["furniture"], b)
     assert any(s.host_id == "f_L0_001" and "mirror" in s.types for s in slots)
+
+
+def test_the_skirting_wraps_the_outside_corners_of_a_room():
+    # 28 Oct 2026 (user: "baseboard needs to be all around")
+    from wenart.blender import shell
+
+    room = [(0, 0), (4, 0), (4, 3), (2, 3), (2, 2), (0, 2)]        # an L: the corner (2, 2) juts into the room
+    assert shell.skirting_reflex_corners(room) == {4}
+    assert shell.skirting_reflex_corners(list(reversed(room))) == {1}
+    spans = shell.skirting_spans(room, [])
+    verts, _faces = shell.skirting_boxes(room, spans, 0.0)
+    t = shell.SKIRTING_T
+    # both boards run on by their thickness: the corner square (2..2+t, 2-t..2) is closed, no notch
+    assert any(abs(v[0] - (2.0 + t)) < 1e-6 and abs(v[1] - (2.0 - t)) < 1e-6 for v in verts)
+    assert sum(1 for v in verts if abs(v[0] - (2.0 + t)) < 1e-6 and abs(v[1] - (2.0 - t)) < 1e-6) >= 4

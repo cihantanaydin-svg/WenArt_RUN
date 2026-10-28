@@ -720,12 +720,12 @@
    "id": "UL63",
    "date": "2026-10-28",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Skirting all around (user, 28 Oct 2026: 'baseboard needs to be all around').",
-   "lesson": "The skirting runs all around every dry room's walls, cut only at doors, openings and low windows, up to the door casings and into the corners; an end that stops short of a corner or a casing is a finding.",
+   "lesson": "The skirting runs all around every dry room's walls, cut only at doors, openings and low windows, up to the door casings and into the corners; an end that stops short of a corner or a casing is a finding; at an outside corner of the room (a wall nib, a pilaster, a wall end) both boards run on by their thickness and meet around it (shell.skirting_reflex_corners).",
    "question": "Does the skirting run all around every dry room's walls, up to the door casings and into the corners, with no gap?"
   },
   {

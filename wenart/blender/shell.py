@@ -621,6 +621,22 @@ def skirting_gaps(openings: list[dict], level: dict, levels_above: bool) -> list
     return gaps
 
 
+def skirting_reflex_corners(poly) -> set:
+    """The indices of a room polygon's outside corners (reflex, seen from the room: the walls turn away from it)."""
+    n = len(poly)
+    if n < 3:
+        return set()
+    area = sum(poly[i][0] * poly[(i + 1) % n][1] - poly[(i + 1) % n][0] * poly[i][1] for i in range(n))
+    sign = 1.0 if area > 0 else -1.0
+    out = set()
+    for i in range(n):
+        p0, p1, p2 = poly[i - 1], poly[i], poly[(i + 1) % n]
+        cross = (p1[0] - p0[0]) * (p2[1] - p1[1]) - (p1[1] - p0[1]) * (p2[0] - p1[0])
+        if cross * sign < -1e-9:
+            out.add(i)
+    return out
+
+
 def skirting_boxes(polygon, spans, floor_z: float, height: float = SKIRTING_H,
                    thickness: float = SKIRTING_T) -> tuple[list, list]:
     """``(verts, faces)`` of the skirting boards of ``spans`` (``skirting_spans``):
@@ -630,12 +646,20 @@ def skirting_boxes(polygon, spans, floor_z: float, height: float = SKIRTING_H,
     if len(poly) > 1 and G.distance(poly[0], poly[-1]) < 1e-9:
         poly = poly[:-1]
     n = len(poly)
+    reflex = skirting_reflex_corners(poly)
     parts = []
     for i, s0, s1 in spans:
         a, b = poly[i], poly[(i + 1) % n]
         length = G.distance(a, b)
         ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
         nx, ny = geom2d.inward_normal(a, b, poly)
+        # 28 Oct 2026 (user: "baseboard needs to be all around"): at an outside corner of the room (a wall nib, a
+        # pilaster, a wall end) the boards of its two walls each run on by their thickness, so they meet around it
+        # instead of leaving a notch
+        if s0 <= 1e-6 and i in reflex:
+            s0 = -thickness
+        if s1 >= length - 1e-6 and (i + 1) % n in reflex:
+            s1 = length + thickness
         mid = (s0 + s1) / 2.0
         centre = (a[0] + ux * mid + nx * thickness / 2.0, a[1] + uy * mid + ny * thickness / 2.0,
                   floor_z + height / 2.0)
