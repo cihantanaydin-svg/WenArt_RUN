@@ -90,6 +90,17 @@ its bedroom door) is completed even when the ingest typed it storage (``completi
 (4) a twin room takes a partner's built-in module into its own mapped counter (``copy_added``). Why: the solver only
 looked for a floor place for a missing fridge beside a drawn run and none for the hob (every agent complete_group
 was refused), and wall cabinets hung only over drawn counters.
+
+Kitchen design of 28 Oct 2026 (user on real04's kitchen: "Kitchen design could have been a lot better this is
+terrible"; the wall cabinets "hang as separate boxes of odd widths with gaps and do not line up"). What:
+``wall_cabinets_for`` measures the stretches exactly (no 1 cm cells), leaves the cooker hood's span free over every
+stove (``hood_region``, the cabinets flush at its sides), keeps off every window and door with their gaps, reaches
+along the wall past a counter's end to meet another run's cabinets at the corner, records what ends each stretch
+(``rule.ends``: hood, window, door, wall, corner_butt, corner_blind, open) for the fit's wall run of real units
+(``modules.plan_wall_run``), and gives no band to a counter outline drawn inside another run
+(``fit.nested_counters``); ``rule_design`` adds the family's kitchen look where ``style.json`` names none
+(``looks.KITCHEN_FAMILY_LOOKS``). Why: real04's cabinets were 3.35 / 0.69 / 0.56 m boxes with a 0.76 m gap at the
+stove (no hood) and a 0.25 m gap at the corner; real06's nested hob outline got a wall cabinet of its own.
 """
 from __future__ import annotations
 
@@ -121,6 +132,11 @@ WALL_CABINET_WINDOW_GAP_M = 0.30
 WALL_CABINET_DOOR_GAP_M = 0.30       # §4.4 (contract amendment 1): never over a door opening or within 0.3 m
 WALL_CABINET_STEP_M = 0.01
 WALL_FACE_REACH_M = 0.10             # the wall face behind a counter's back edge is looked for this far
+# 28 Oct 2026 (module docstring "Kitchen design"): a wall run whose counter ends short of another run's wall cabinets
+# reaches along the wall this far to meet them at the corner (a counter leg's depth and a cabinet's); an end this close
+# to the room's outline ends at a wall.
+WALL_CABINET_CORNER_REACH_M = 0.70
+WALL_CABINET_WALL_END_M = 0.03
 STATES = ("completed", "copied", "mirrored", "kept", "skipped")
 
 
@@ -524,23 +540,84 @@ def _height(item: dict) -> float:
     return float(h) if h is not None else schemas.HEIGHTS.get(item["type"], 1.0)
 
 
+def _x_extent(c, rot: float, geom) -> Optional[tuple[float, float]]:
+    """The extent along a frame's local x (centre ``c``, rotation ``rot``) of a polygonal geometry, None if empty."""
+    if geom is None or geom.is_empty or geom.area <= placer.AREA_EPS:
+        return None
+    r = math.radians(rot)
+    xs = [(pt[0] - c[0]) * math.cos(r) + (pt[1] - c[1]) * math.sin(r)
+          for g in getattr(geom, "geoms", [geom]) if hasattr(g, "exterior") for pt in g.exterior.coords]
+    return (min(xs), max(xs)) if xs else None
+
+
+def hood_region(stove: dict) -> Optional[Polygon]:
+    """28 Oct 2026 (module docstring "Kitchen design"): the plan area of the cooker hood over a stove: the stove's
+    footprint widened to the hood's width (``modules.hood_width_for``, centred on the stove) and reaching
+    ``WALL_FACE_REACH_M`` + a wall cabinet's depth behind it (the wall band the wall cabinets hang in)."""
+    from wenart.blender import modules as MOD
+
+    try:
+        rot, size = placer.front_frame(stove["footprint"], stove.get("front_deg"))
+        c = (float(stove["footprint"]["center"][0]), float(stove["footprint"]["center"][1]))
+    except (KeyError, TypeError, ValueError):
+        return None
+    hw = MOD.hood_width_for(float(size[0]))
+    return placer._local_box(c, rot, -hw / 2.0, hw / 2.0, -size[1] / 2.0,
+                             size[1] / 2.0 + WALL_FACE_REACH_M + WALL_CABINET_DEPTH_M)
+
+
+def _spans_minus(lo: float, hi: float, spans: list) -> list[tuple[float, float, str, str]]:
+    """The free stretches of ``[lo, hi]`` between the blocking ``spans`` ``(x0, x1, kind, name)``, each with the kind
+    of what ends it on either side (``end`` at ``lo`` / ``hi``)."""
+    out, x, kind = [], lo, "end"
+    for s0, s1, k, _n in sorted(spans):
+        if s0 - x > 1e-6:
+            out.append((x, min(s0, hi), kind, k))
+            x, kind = s1, k
+        elif s1 > x:
+            x, kind = s1, k
+    if hi - x > 1e-6:
+        out.append((x, hi, kind, "end"))
+    return out
+
+
 def wall_cabinets_for(room: dict, building: dict, items: list[dict]) -> list[dict]:
-    """Wall cabinet runs ``{"run", "center", "size", "rotation_deg", "excluded"}`` along every drawn counter run
-    against a wall in ``room`` (``items``: the room's final furniture dicts)."""
-    ring = Polygon(room["polygon"]).exterior
+    """Wall cabinet runs ``{"run", "center", "size", "rotation_deg", "excluded", "ends"}`` along every drawn counter
+    run against a wall in ``room`` (``items``: the room's final furniture dicts).
+
+    28 Oct 2026 (module docstring "Kitchen design"; user on real04's kitchen: the wall cabinets "hang as separate boxes
+    of odd widths with gaps and do not line up"). What: the free stretches are measured exactly (no 1 cm cells): the
+    wall band of each counter minus every window and door with its gap (``WALL_CABINET_WINDOW_GAP_M``: never a cabinet
+    over any part of a window or glazed door), every tall piece and the cooker hood's span over every stove
+    (``hood_region``: the hood's width, the cabinets stop at its sides, the hood between them); a stretch whose
+    counter ends short of another run's wall cabinets reaches along the wall to meet them at the corner (at most
+    ``WALL_CABINET_CORNER_REACH_M``, over free wall inside the room). Each stretch records what ends it on either
+    side (``ends``, the cabinet's frame: ``hood``, ``window``, ``door``, ``wall`` (a wall or a tall unit's side),
+    ``corner_butt`` (it ends against another run's front), ``corner_blind`` (it runs into the corner behind the other
+    run), ``open``): the fit builds it of real wall units lined up with the base units (``modules.plan_wall_run``)."""
+    room_poly = Polygon(room["polygon"])
+    ring = room_poly.exterior
     doors, windows = placer.room_openings(building, room)
-    blocked = [(f"window {w['id']}", _opening_box(w, building), WALL_CABINET_WINDOW_GAP_M) for w in windows]
-    blocked += [(f"door {d['id']}", _opening_box(d, building), WALL_CABINET_DOOR_GAP_M) for d in doors]
-    under = [(f"{f['type']} {f['id']}", placer.drawn_piece(f).polygon()) for f in items
-             if f["type"] not in schemas.MOUNTED_TYPES and f.get("build") is not False
-             and (f["type"] == "stove" or _height(f) > schemas.WALL_CABINET_Z[0] - 0.05)]
+    blocked = [(f"window {w['id']}", _opening_box(w, building).buffer(WALL_CABINET_WINDOW_GAP_M, join_style="mitre"),
+                "window") for w in windows]
+    blocked += [(f"door {d['id']}", _opening_box(d, building).buffer(WALL_CABINET_DOOR_GAP_M, join_style="mitre"),
+                 "door") for d in doors]
+    blocked += [(f"{f['type']} {f['id']}", placer.drawn_piece(f).polygon(), "wall") for f in items
+                if f["type"] not in schemas.MOUNTED_TYPES and f.get("build") is not False and f["type"] != "stove"
+                and _height(f) > schemas.WALL_CABINET_Z[0] - 0.05]
+    blocked += [(f"stove {f['id']}", region, "hood") for f in items
+                if f["type"] == "stove" and f.get("build") is not False and f.get("footprint")
+                for region in [hood_region(f)] if region is not None]
     # 26 Oct 2026 (user: "fix should be general"): every built counter run against a wall, drawn or added (a run the
     # solver laid in an empty kitchen, a compact fallback run); before, only drawn counters got wall cabinets
+    # 28 Oct 2026: a counter outline drawn inside another run is part of it (``fit.nested_counters``): no band of its own
+    from wenart.furniture import fit as FT
+    nested = FT.nested_counters(dict(building, furniture=items))
     counters = [f for f in items if f["type"] == "kitchen_counter" and f.get("source") in ("from_documents",
                                                                                           "added_by_ai")
-                and f.get("build") is not False and f.get("front_deg") is not None and f.get("footprint")]
-    placed: list[tuple[str, Polygon]] = []
-    out = []
+                and f.get("build") is not False and f.get("front_deg") is not None and f.get("footprint")
+                and f["id"] not in nested]
+    bands = []
     for counter in sorted(counters, key=lambda f: f["id"]):
         if LK.anchor_of(counter, building)["kind"] != "back_edge":
             continue
@@ -553,36 +630,92 @@ def wall_cabinets_for(room: dict, building: dict, items: list[dict]) -> list[dic
         hit = ray.intersection(ring)
         offset = 0.0 if hit.is_empty else Point(mid).distance(hit)     # the cabinet's back on the wall face
         y1 = d / 2.0 + offset
-        y0 = y1 - WALL_CABINET_DEPTH_M
-        n = max(1, int(math.floor(w / WALL_CABINET_STEP_M + 1e-6)))
-        edges = [-w / 2.0 + k * WALL_CABINET_STEP_M for k in range(n)] + [w / 2.0]
-        free, reasons = [], []
-        for x0, x1 in zip(edges, edges[1:]):
-            cell = placer._local_box(c, rot, x0, x1, y0, y1)
-            why = next((name for name, seg, gap in blocked if cell.distance(seg) < gap - 1e-9), None)
-            why = why or next((name for name, poly in under + placed if cell.intersection(poly).area > placer.AREA_EPS),
-                              None)
-            free.append(why is None)
-            reasons.append(why)
-        runs, start = [], None
-        for k, ok in enumerate(free + [False]):
-            if ok and start is None:
-                start = k
-            elif not ok and start is not None:
-                runs.append((start, k))
-                start = None
-        excluded = sorted({r for r in reasons if r})
-        for a, b in runs:
-            x0, x1 = edges[a], edges[b]
+        bands.append({"counter": counter, "c": c, "rot": rot, "w": w, "y0": y1 - WALL_CABINET_DEPTH_M, "y1": y1})
+
+    def strip(band, xa, xb):
+        return placer._local_box(band["c"], band["rot"], xa, xb, band["y0"], band["y1"])
+
+    def spans_in(band, xa, xb, extra=()):
+        region = strip(band, xa, xb)
+        out = []
+        for name, geom, kind in list(blocked) + list(extra):
+            ext = _x_extent(band["c"], band["rot"], region.intersection(geom))
+            if ext is not None:
+                out.append((ext[0], ext[1], kind, name))
+        return out
+
+    stretches: list[dict] = []
+    for band in bands:
+        taken = [(f"wall cabinet over {s['band']['counter']['id']}", s["poly"], "corner_butt") for s in stretches]
+        spans = spans_in(band, -band["w"] / 2.0, band["w"] / 2.0, taken)
+        excluded = sorted({n for _a, _b, _k, n in spans})
+        for x0, x1, k0, k1 in _spans_minus(-band["w"] / 2.0, band["w"] / 2.0, spans):
             if x1 - x0 < WALL_CABINET_MIN_M - 1e-9:
                 continue
-            centre = G.rotate_point((c[0] + (x0 + x1) / 2.0, c[1] + (y0 + y1) / 2.0), rot, c)
-            spec = {"run": counter["id"], "center": [round(centre[0], 4), round(centre[1], 4)],
-                    "size": [round(x1 - x0, 3), WALL_CABINET_DEPTH_M], "rotation_deg": round(rot, 4),
-                    "excluded": excluded, "design": {k: v for k, v in (counter.get("design") or {}).items()
-                                                     if k in ("front_style", "colour", "handle")}}
-            out.append(spec)
-            placed.append((f"wall cabinet over {counter['id']}", placer._local_box(c, rot, x0, x1, y0, y1)))
+            stretches.append({"band": band, "x0": x0, "x1": x1, "ends": [k0, k1], "excluded": excluded,
+                              "poly": strip(band, x0, x1)})
+    # a stretch that stops at its counter's end short of another run's wall cabinets reaches along the wall to them
+    for s in stretches:
+        band = s["band"]
+        for side in (0, 1):
+            if s["ends"][side] != "end":
+                continue
+            edge = s["x1"] if side else s["x0"]
+            far = edge + WALL_CABINET_CORNER_REACH_M if side else edge - WALL_CABINET_CORNER_REACH_M
+            region = strip(band, min(edge, far), max(edge, far))
+            near = None
+            for t in stretches:
+                if t["band"] is band:
+                    continue
+                ext = _x_extent(band["c"], band["rot"], region.intersection(t["poly"]))
+                if ext is not None:
+                    near = (min(near, ext[0]) if near is not None else ext[0]) if side else \
+                        (max(near, ext[1]) if near is not None else ext[1])
+            if near is None or abs(near - edge) < 1e-6:
+                continue
+            reach = strip(band, min(edge, near), max(edge, near))
+            if spans_in(band, min(edge, near), max(edge, near)) or not room_poly.buffer(0.02).contains(reach):
+                continue
+            if side:
+                s["x1"] = near
+            else:
+                s["x0"] = near
+            s["poly"] = strip(band, s["x0"], s["x1"])
+            s["ends"][side] = "corner_butt"
+    # what ends each stretch: another run's cabinets (a butt, and a blind corner on the run behind it), a wall, open
+    for s in stretches:
+        band = s["band"]
+        for side in (0, 1):
+            x = s["x1"] if side else s["x0"]
+            point = Point(G.rotate_point((band["c"][0] + x, band["c"][1] + (band["y0"] + band["y1"]) / 2.0),
+                                         band["rot"], band["c"]))
+            others = [t for t in stretches if t["band"] is not band and t["poly"].distance(point) < 0.02]
+            if others and s["ends"][side] in ("end", "corner_butt"):
+                s["ends"][side] = "corner_butt"
+                for t in others:
+                    tb = t["band"]
+                    for tside in (0, 1):
+                        tx = t["x1"] if tside else t["x0"]
+                        tp = Point(G.rotate_point((tb["c"][0] + tx, tb["c"][1] + (tb["y0"] + tb["y1"]) / 2.0),
+                                                  tb["rot"], tb["c"]))
+                        if s["poly"].distance(tp) <= WALL_CABINET_DEPTH_M + 0.05 and t["ends"][tside] in ("end",
+                                                                                                         "wall"):
+                            t["ends"][tside] = "corner_blind"
+            elif s["ends"][side] == "end":
+                beyond = Point(G.rotate_point((band["c"][0] + x + (WALL_CABINET_WALL_END_M if side else
+                                                                   -WALL_CABINET_WALL_END_M),
+                                               band["c"][1] + (band["y0"] + band["y1"]) / 2.0), band["rot"], band["c"]))
+                s["ends"][side] = "open" if room_poly.contains(beyond) else "wall"
+    out = []
+    for s in stretches:
+        band = s["band"]
+        x0, x1, c, rot = s["x0"], s["x1"], band["c"], band["rot"]
+        centre = G.rotate_point((c[0] + (x0 + x1) / 2.0, c[1] + (band["y0"] + band["y1"]) / 2.0), rot, c)
+        out.append({"run": band["counter"]["id"], "center": [round(centre[0], 4), round(centre[1], 4)],
+                    "size": [round(x1 - x0, 4), WALL_CABINET_DEPTH_M], "rotation_deg": round(rot, 4),
+                    "excluded": s["excluded"], "ends": [("open" if k == "end" else k) for k in s["ends"]],
+                    "design": {k: v for k, v in (band["counter"].get("design") or {}).items()
+                               if k in ("front_style", "colour", "handle")}})
     return out
 
 
@@ -611,7 +744,9 @@ def hang_wall_cabinets(room: dict, building: dict, out: dict) -> list[dict]:
              "evidence": [B.evidence(EVIDENCE_FILE, "derived", 1.0, text=(
                  f"wall cabinets along the counter run {spec['run']} (rule, docs/milestone10.md §4.4), {lo:.2f}-"
                  f"{hi:.2f} m" + (f"; left free: {', '.join(spec['excluded'])}" if spec["excluded"] else "")))],
-             "rule": {"run": spec["run"], "z": [lo, hi], "excluded": spec["excluded"]}}
+             "rule": {"run": spec["run"], "z": [lo, hi], "excluded": spec["excluded"],
+                      # 28 Oct 2026: what ends the stretch on either side (modules.plan_wall_run reads it)
+                      "ends": list(spec.get("ends") or ["open", "open"])}}
         if spec["design"]:
             f["design"] = spec["design"]
         out["furniture"].append(f)
@@ -858,6 +993,12 @@ def rule_design(item: dict, building: dict, style: Optional[dict]) -> dict:
             out["handle"] = cab["handle"]
         if ftype in schemas.WORKTOP_TYPES and cab.get("worktop") in schemas.WORKTOPS:
             out["worktop"] = cab["worktop"]
+    # 28 Oct 2026 (user on real04's kitchen: the fronts and handles "look plain"): where style.json names no cabinet
+    # look, the family's kitchen look (looks.KITCHEN_FAMILY_LOOKS; the build applies the same)
+    if ftype in schemas.CABINET_TYPES:
+        from wenart.blender import looks as LO
+        extra, _notes = LO.kitchen_family_look(ftype, style, out)
+        out.update({k: v for k, v in extra.items() if v in schemas.FRONT_STYLES + schemas.HANDLES + schemas.WORKTOPS})
     if ftype == "washbasin":
         _rot, size = placer.front_frame(item["footprint"], item.get("front_deg"))
         if size[1] >= schemas.VANITY_MIN_DEPTH_M - 1e-9:

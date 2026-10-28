@@ -370,6 +370,37 @@ FABRIC_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "o
                                  "bed_double")
 VANITY_MIN_DEPTH_M = 0.45
 BUILT_IN_REACH_M = 0.05          # a wardrobe end within this of a wall face counts as touching it
+# 28 Oct 2026 (user on real04's kitchen: the fronts and handles "look plain"; its style.json named no cabinet look):
+# the kitchen look of a style family where ``style.json`` ``cabinets`` is silent (assumed, noted): front style, handle
+# metal (the hood's metal too: modules.hood_module) and worktop, as kitchens of the family are made (slab fronts with
+# slim black bars and a stone top in a modern kitchen, shaker fronts with brass in a classic one, oak tops in the
+# Nordic and rustic ones). Kitchen cabinet types only (``CABINET_TYPES``); the other storage keeps its look.
+KITCHEN_FAMILY_LOOKS: dict[str, dict[str, str]] = {
+    "modern": {"front_style": "flat", "handle": "black", "worktop": "stone"},
+    "modern minimal": {"front_style": "flat", "handle": "brushed_steel", "worktop": "stone"},
+    "minimal": {"front_style": "flat", "handle": "brushed_steel", "worktop": "stone"},
+    "scandinavian": {"front_style": "flat", "handle": "black", "worktop": "wood"},
+    "japandi": {"front_style": "flat", "handle": "black", "worktop": "wood"},
+    "industrial": {"front_style": "flat", "handle": "black", "worktop": "wood"},
+    "mediterranean": {"front_style": "shaker", "handle": "brass", "worktop": "terrazzo"},
+    "classic": {"front_style": "shaker", "handle": "brass", "worktop": "stone"},
+    "rustic": {"front_style": "shaker", "handle": "black", "worktop": "wood"},
+}
+
+
+def kitchen_family_look(ftype: str, style: Optional[dict], have: dict) -> tuple[dict, list[str]]:
+    """28 Oct 2026: the keys of ``KITCHEN_FAMILY_LOOKS`` for the style's family a kitchen cabinet piece has no value
+    for yet (``have``), with the notes; nothing for another type or an unknown family."""
+    if ftype not in CABINET_TYPES:
+        return {}, []
+    family = str((style or {}).get("family") or "").lower()
+    look = KITCHEN_FAMILY_LOOKS.get(family) or {}
+    out, notes = {}, []
+    for key, value in look.items():
+        if have.get(key) is None and (key != "worktop" or ftype in ("kitchen_counter", "kitchen_island")):
+            out[key] = value
+            notes.append(f"{key} {value}: the {family} family's kitchen look (style.json cabinets names none; assumed)")
+    return out, notes
 DESIGN_KEYS = ("front_style", "colour", "fabric_colour", "wood", "handle", "worktop", "material_tags", "built_in",
                "vanity", "style_family")
 
@@ -465,6 +496,9 @@ def design_for(piece: dict, style: dict, building: Optional[dict] = None) -> tup
             if cab.get(key) is not None and (key != "worktop" or ftype in ("kitchen_counter", "kitchen_island")):
                 design[key] = cab[key]
                 notes.append(f"{key} {cab[key]} from style.json cabinets")
+    extra, extra_notes = kitchen_family_look(ftype, style, design)     # 28 Oct 2026: the family's kitchen look
+    design.update(extra)
+    notes += extra_notes
     for key in ("fabric_colour", "colour", "material_tags"):
         if by_type.get(key) and key not in design:
             design[key] = by_type[key]

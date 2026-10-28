@@ -142,7 +142,9 @@ def test_an_agent_refit_of_a_kitchen_run_keeps_its_drawn_sink_and_stove_gap():
     assert run["method"] == "module" and run["module_hints"]["sink_piece"] == "f_L-1_067"
     assert [x["id"] for x in run["module_plan"]["built_ins"]] == ["f_L-1_067"]
     stove_run = EO._build_retyped(b, by_id["f_L-1_002"], {"type": "kitchen_counter"}, catalog)
-    assert [g["id"] for g in stove_run["module_plan"]["gaps"]] == ["f_L-1_008"]
+    # 28 Oct 2026 (kitchen design): the drawn stove is the run's hob (built in at its drawn span), no gap any more
+    assert "gaps" not in stove_run["module_plan"]
+    assert [x["id"] for x in stove_run["module_plan"]["built_ins"]] == ["f_L-1_008"]
     assert not [p for p in b["furniture"] if "module_hints" in p]           # never on the building piece
     # the sink its run's plan holds is refitted as the built-in, not as a free-standing sink model
     sink = EO._build_retyped(b, by_id["f_L-1_067"], {"type": "sink_kitchen"}, catalog)

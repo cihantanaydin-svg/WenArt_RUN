@@ -51,7 +51,8 @@ def _no_degenerate_faces(parts):
 def test_module_builders_and_the_plan_record():
     assert M.MODULE_BUILDERS == {"wardrobe": "wardrobe_run", "table_dining": "table_long", "sofa_corner": "sofa_l",
                                  "kitchen_counter": "kitchen_run", "kitchen_island": "kitchen_run",
-                                 "washbasin": "bath_set", "shower": "bath_set"}
+                                 "washbasin": "bath_set", "shower": "bath_set",
+                                 "wall_cabinet": "wall_run"}        # 28 Oct 2026: wall units on the base joints
     assert M.module_plan(_piece("chair", 0.45, 0.45)) is None                 # no builder for the type
     assert M.module_plan({"id": "x", "type": "wardrobe"}) is None             # no footprint
     assert M.module_plan(_piece("wardrobe", 0.0, 0.6)) is None                # no size
@@ -242,7 +243,10 @@ def test_kitchen_run_puts_the_sink_under_the_window_passed_in():
     assert walls and all(m["z_m"] == M.KITCHEN_WALL_BOTTOM_M and m["size_m"][1] == M.KITCHEN_WALL_DEPTH_M for m in walls)
     assert all(m["z_m"] + m["size_m"][2] == pytest.approx(M.KITCHEN_WALL_TOP_M) for m in walls)
     assert all(m["size_m"][0] in M.KITCHEN_WALL_WIDTHS_M for m in walls)
-    assert plan2["height_m"] == pytest.approx(M.KITCHEN_WALL_TOP_M) and M.plan_bbox(plan2)[2] == pytest.approx(2.1)
+    # 28 Oct 2026: the hob's cooker hood rises to the ceiling (the 2.40 m default without the fit's hood_top_m); the
+    # plan's height stays the wall units' top
+    assert plan2["height_m"] == pytest.approx(M.KITCHEN_WALL_TOP_M)
+    assert M.plan_bbox(plan2)[2] == pytest.approx(M.HOOD_TOP_DEFAULT_M) and plan2["hood"]["kind"] == "chimney"
     # no hint: no cutout (the drawn sink and stove are their own pieces), and the plan says so
     plain = M.module_plan(_piece("kitchen_counter", 2.4, 0.6))
     assert plain["cutouts"] == [] and any("no sink or hob cutout" in n for n in plain["notes"])
@@ -308,7 +312,7 @@ def test_gap_list_names_every_type_without_a_module_builder_or_a_family():
     assert gaps == ["bar_stool", "bathtub", "bench", "bunk_bed", "chaise", "console_table", "crib",
                     "display_cabinet", "floor_lamp", "fridge", "office_chair", "ottoman", "potted_plant",
                     "shoe_cabinet", "side_table", "sideboard", "sink_kitchen", "stair", "stove", "tall_cabinet",
-                    "toilet", "wall_cabinet", "washing_machine"]
+                    "toilet", "washing_machine"]          # 28 Oct 2026: wall_cabinet has its wall_run builder
 
 
 # --------------------------------------------------------------------------

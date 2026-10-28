@@ -844,6 +844,13 @@ def _swap_model(b: dict, args: dict, catalog) -> list[str]:
         raise EditRejected("asset_exists", f"no catalogue model {args['asset_id']!r}")
     if entry.get("type") != item["type"]:
         raise EditRejected("asset_type", f"{args['asset_id']} is a {entry.get('type')} model, not a {item['type']}")
+    # 28 Oct 2026 (real06: the agent pinned a freestanding stove and a tall fridge to the hob and the fridge built into
+    # the counters; they stood as boxes in the run): a hob or fridge in a counter run is part of the run
+    from wenart.furniture import fit as F
+    if item["type"] in ("stove", "fridge") and item["id"] in F.kitchen_built_ins(b)["sinks"]:
+        raise EditRejected("built_in", f"{item['id']}: the {item['type']} stands in a counter run and is built into "
+                                       "it (a hob in the worktop, an integrated fridge in the run's fronts: kitchen "
+                                       "design rule of 28 Oct 2026); no library model replaces it")
     current = (item.get("asset") or {}).get("asset_id") if isinstance(item.get("asset"), dict) else None
     if args["asset_id"] in (current, item.get("asset_pin")):
         raise EditRejected("no_change", f"{item['id']} already uses the model {args['asset_id']}")

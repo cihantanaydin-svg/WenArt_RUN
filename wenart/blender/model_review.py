@@ -56,6 +56,12 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   door's width, no two swing leaves into one room that sweep over each other; and (user: "Not every opening inside the
   house requires a door or a window") no passage drawn open between two rooms with a leaf (unless a room needs
   privacy), glass or a guard (with no drop) a decision gave it.
+- M13 the kitchen as one designed kitchen (28 Oct 2026, user on real04: "Kitchen design could have been a lot better
+  this is terrible", on real06: "Why is this closing the window"; ``kitchen_design``): a hood over every hob, no
+  cooker in a gap of a run and no under-counter appliance off its run's worktop line, no wall cabinet over a window
+  or glazed door of the building as built (critical), one bottom and top line, no unexplained gap between the
+  cabinets of a wall, no box of a width no real wall unit has, wall units on the base joints (minor). M2 reads a
+  module run at its worktop line (``module.worktop_m``), not at its tap, hood or column.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -89,7 +95,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13")
 # M11 (27 Oct 2026): the roof as the roof plan draws it. Physical reasons:
 M11_IOU_MIN = 0.90              # the built roof's footprint matches the drawn eaves loop within a gutter's width all
                                 # round (a 0.15 m band around a 10 x 15 m roof is about 5 % of it)
@@ -218,6 +224,11 @@ def working_heights(manifest: Optional[dict], floors: dict) -> tuple[list[dict],
         if rid not in floors or not box.get("center") or not box.get("size"):
             continue
         top = float(box["center"][2]) + float(box["size"][2]) / 2.0 - floors[rid]
+        # 28 Oct 2026: a kitchen run built of modules works at its worktop line, not at its tallest part (the tap, the
+        # cooker hood, a fridge column: real04's f_L-1_003 read 1.18 m from its tap)
+        worktop = (ob.get("module") or {}).get("worktop_m") if isinstance(ob.get("module"), dict) else None
+        if isinstance(worktop, (int, float)):
+            top = float(worktop) + float(ob.get("mount_bottom_m") or 0.0)
         low, high = WORKING_TOPS[ob["type"]]
         pid = ob.get("element_id") or ob.get("wenart_id")
         n += 1
@@ -358,6 +369,201 @@ def rooms_make_sense(built: dict, manifest: Optional[dict]) -> tuple[list[dict],
             out.append(_v("M7", "major", tables[1], f"{r['id']} holds {len(tables)} dining tables ({', '.join(tables)}): "
                           f"one dining set per room", r["id"], tables=tables))
     return out, n
+
+
+# M13 (28 Oct 2026, user on real04's kitchen: "Kitchen design could have been a lot better this is terrible"; on
+# real06's: "What kind of a kitchen is this", "Why is this closing the window"): the kitchen as one designed kitchen.
+M13_TOP_TOL_M = 0.03            # an under-counter appliance's top this far off its run's worktop line is off the line
+M13_UNDER_COUNTER_M = 1.30      # an appliance lower than this beside a run is an under-counter one (a tall fridge is not)
+M13_IN_LINE_M = 0.05            # an appliance whose front is this close to a run's front line stands in the run
+M13_GAP_MIN_M = 0.02            # two wall cabinets of one wall line this far apart leave a gap ...
+M13_LINE_TOL_M = 0.01           # ... and their bottom and top lines agree within this
+M13_EXPLAIN_M = 0.35            # a gap is explained by a hood, a window or a door within this of it
+APPLIANCE_TYPES = ("stove", "fridge", "dishwasher", "washing_machine")
+
+
+def _frame_of(fp: dict) -> tuple[tuple[float, float], float, float, float]:
+    c = (float(fp["center"][0]), float(fp["center"][1]))
+    return c, math.radians(float(fp.get("rotation_deg") or 0.0)), float(fp["size"][0]), float(fp["size"][1])
+
+
+def _local(c, rot: float, p) -> tuple[float, float]:
+    dx, dy = float(p[0]) - c[0], float(p[1]) - c[1]
+    return math.cos(rot) * dx + math.sin(rot) * dy, -math.sin(rot) * dx + math.cos(rot) * dy
+
+
+def _world(c, rot: float, x: float, y: float = 0.0) -> tuple[float, float]:
+    return c[0] + math.cos(rot) * x - math.sin(rot) * y, c[1] + math.sin(rot) * x + math.cos(rot) * y
+
+
+def _plan(piece: dict) -> dict:
+    plan = ((piece.get("asset") or {}).get("module_plan") or {}) if isinstance(piece.get("asset"), dict) else {}
+    return plan if isinstance(plan, dict) else {}
+
+
+def kitchen_design(built: dict, manifest: Optional[dict] = None) -> tuple[list[dict], int]:
+    """M13 (module note above): every kitchen run as one designed kitchen, measured on the model as built (pure, no
+    geometry library: it runs inside Blender):
+
+    (a) every hob has a cooker hood above it (its run's plan holds the hood: ``modules.plan_kitchen_run``; a
+        freestanding cooker has none) - major;
+    (b) no appliance of a run stands off its worktop line: a cooker in a gap of the run (``plan.gaps``: a freestanding
+        model where the hob belongs), an under-counter appliance with its own model in line with a run whose top
+        (the manifest's box, else its fitted height) is more than ``M13_TOP_TOL_M`` off the run's worktop - major;
+    (c) the wall cabinets read as one run: never over a window or glazed door of the building as built
+        (``modules.wall_unit_blocks``, unless the build left it free: the manifest's ``module.blocked_m``) - critical;
+        one bottom and top line in a room - major; no gap between two cabinets of one wall line that no hood, window
+        or door explains - major; a cabinet built as a box of a width no real wall unit has (not a wall run of real
+        units) - major; wall units whose joints miss the base units' joints - minor."""
+    from wenart.blender import modules as MOD
+    pieces = [f for f in built.get("furniture") or [] if isinstance(f, dict) and f.get("build") is not False
+              and isinstance(f.get("footprint"), dict) and f["footprint"].get("size")]
+    by_id = {f.get("id"): f for f in pieces}
+    entries = {ob.get("element_id"): ob for ob in (manifest or {}).get("objects") or []
+               if ob.get("kind") == "furniture" and ob.get("element_id")}
+    floors = _room_floors(built)
+    runs = [f for f in pieces if f.get("type") in ("kitchen_counter", "kitchen_island")
+            and _plan(f).get("builder") == "kitchen_run" and _plan(f).get("modules")]
+    out: list[dict] = []
+    n = 0
+    # (a) hobs and hoods
+    for f in pieces:
+        if f.get("type") != "stove":
+            continue
+        n += 1
+        host = by_id.get((f.get("asset") or {}).get("built_in")) if isinstance(f.get("asset"), dict) else None
+        plan = _plan(host) if host is not None else {}
+        rec = next((b for b in plan.get("built_ins") or [] if isinstance(b, dict) and b.get("id") == f["id"]), None)
+        if rec is not None and (rec.get("hood") or plan.get("hood")):
+            continue
+        where = f"built into {host['id']}" if rec is not None else "a freestanding cooker"
+        out.append(_v("M13", "major", f["id"], f"{f['id']} (stove, {where}) has no cooker hood above it: every hob "
+                      "gets a hood sized to it (a chimney hood on the wall, an under-cabinet hood under a wall "
+                      "cabinet, an island hood over an island)", f.get("room_id"), rule="hood"))
+    # (b) appliances on the worktop line
+    for run in runs:
+        plan = _plan(run)
+        worktop = float(plan.get("worktop_m") or MOD.KITCHEN_WORKTOP_HEIGHT_M)
+        c, rot, w, d = _frame_of(run["footprint"])
+        for g in plan.get("gaps") or []:
+            if g.get("type") == "stove":
+                n += 1
+                out.append(_v("M13", "major", g.get("id"), f"{g.get('id')} (stove) stands in a gap of the counter run "
+                              f"{run['id']} with its own freestanding model: a hob in a run is set into the "
+                              f"worktop with an oven under it, on the run's worktop line ({worktop:.2f} m)",
+                              run.get("room_id"), rule="worktop_line", run=run["id"]))
+        for f in pieces:
+            if f.get("type") not in APPLIANCE_TYPES or f.get("room_id") != run.get("room_id") \
+                    or (f.get("asset") or {}).get("built_in") or any(g.get("id") == f.get("id")
+                                                                     for g in plan.get("gaps") or []):
+                continue
+            fc, frot, fw, fd = _frame_of(f["footprint"])
+            if math.cos(frot - rot) < 0.99:
+                continue                                  # not facing the way this run faces
+            lx, ly = _local(c, rot, fc)
+            front_gap = abs((ly - fd / 2.0) + d / 2.0)    # its front edge against the run's front line (-Y)
+            if front_gap > M13_IN_LINE_M + abs(fd - d) or abs(lx) > w / 2.0 + fw / 2.0 + M13_IN_LINE_M:
+                continue                                  # not in line with the run, or not beside it
+            ob = entries.get(f["id"])
+            box = (ob or {}).get("box3d") if isinstance((ob or {}).get("box3d"), dict) else None
+            if box and box.get("center") and box.get("size") and f.get("room_id") in floors:
+                top = float(box["center"][2]) + float(box["size"][2]) / 2.0 - floors[f["room_id"]]
+            else:
+                bb = (f.get("asset") or {}).get("bbox_m") if isinstance(f.get("asset"), dict) else None
+                if not bb or len(bb) < 3:
+                    continue
+                top = float(bb[2])
+            if top >= M13_UNDER_COUNTER_M:
+                continue                                  # a tall appliance beside the run
+            n += 1
+            if abs(top - worktop) > M13_TOP_TOL_M:
+                out.append(_v("M13", "major", f["id"], f"{f['id']} ({f['type']}) stands in line with the counter run "
+                              f"{run['id']} with its top at {top:.2f} m, {abs(top - worktop):.2f} m "
+                              f"{'under' if top < worktop else 'over'} the worktop line ({worktop:.2f} m): an "
+                              "appliance in a run is built into it, its top on the worktop line", f.get("room_id"),
+                              rule="worktop_line", run=run["id"], top_m=round(top, 3), worktop_m=round(worktop, 3)))
+    # (c) the wall cabinets
+    cabinets = [f for f in pieces if f.get("type") == "wall_cabinet"]
+    by_room: dict = {}
+    for cab in cabinets:
+        n += 1
+        ob = entries.get(cab["id"])
+        record = (ob or {}).get("module") if isinstance((ob or {}).get("module"), dict) else None
+        plan = record if record is not None else _plan(cab)
+        free = [tuple(s) for s in (plan.get("blocked_m") or [])]
+        blocks = [b for b in MOD.wall_unit_blocks(cab, built)
+                  if not any(s[0] <= b["x0_m"] + 1e-3 and s[1] >= b["x1_m"] - 1e-3 for s in free)]
+        if blocks and (ob is not None or manifest is None):
+            out.append(_v("M13", "critical", cab["id"], f"{cab['id']} (wall cabinet) hangs over "
+                          f"{', '.join(str(b['id']) for b in blocks)}: a wall cabinet never covers any part of a "
+                          "window or glazed door (its full width and a margin)", cab.get("room_id"),
+                          rule="covers_window", windows=[b["id"] for b in blocks]))
+        units = plan.get("units_m") if plan.get("builder", "wall_run") == "wall_run" else None
+        width = float(cab["footprint"]["size"][0])
+        if not units and not any(abs(width - s) <= MOD.WALL_RUN_TOL_M for s in MOD.WALL_RUN_WIDTHS_M):
+            out.append(_v("M13", "major", cab["id"], f"{cab['id']} (wall cabinet) is one box {width:.2f} m wide, a width "
+                          "no real wall unit has: a wall run of real units (300-900 mm) in line with the base units",
+                          cab.get("room_id"), rule="odd_width", width_m=round(width, 3), kind="taste"))
+        if plan.get("misaligned"):
+            out.append(_v("M13", "minor", cab["id"], f"{cab['id']} (wall cabinet): {plan['misaligned']} joint(s) of its "
+                          "wall units miss the base units' joints under them", cab.get("room_id"), rule="joints",
+                          kind="taste"))
+        by_room.setdefault(cab.get("room_id"), []).append(cab)
+    hoods = []                                           # (room, centre, rotation, half width) of every built hood
+    for run in runs:
+        h = _plan(run).get("hood")
+        if isinstance(h, dict):
+            c, rot, _w, _d = _frame_of(run["footprint"])
+            hoods.append((run.get("room_id"), _world(c, rot, float(h.get("x_m") or 0.0)), rot,
+                          float(h.get("w_m") or 0.6) / 2.0))
+    for rid, cabs in by_room.items():
+        lines = {}
+        for cab in cabs:
+            try:
+                bottom = float(cab.get("mount_bottom_m") if cab.get("mount_bottom_m") is not None else 1.45)
+            except (TypeError, ValueError):
+                bottom = 1.45
+            top = bottom + float(cab.get("height") or 0.7)
+            lines[cab["id"]] = (round(bottom, 3), round(top, 3))
+        if len({b for b, _t in lines.values()}) > 1 or len({t for _b, t in lines.values()}) > 1:
+            spread = sorted(set(lines.values()))
+            if spread[-1][0] - spread[0][0] > M13_LINE_TOL_M or spread[-1][1] - spread[0][1] > M13_LINE_TOL_M:
+                out.append(_v("M13", "major", cabs[0]["id"], f"the wall cabinets of {rid} do not share one bottom and top "
+                              f"line ({', '.join(f'{k}: {b:.2f}-{t:.2f} m' for k, (b, t) in sorted(lines.items()))})",
+                              rid, rule="one_line", kind="taste"))
+        for i, a in enumerate(cabs):
+            ca, ra, wa, _da = _frame_of(a["footprint"])
+            for b in cabs[i + 1:]:
+                cb, rb, wb, _db = _frame_of(b["footprint"])
+                if abs(math.sin(ra - rb)) > 0.02:
+                    continue
+                bx, by = _local(ca, ra, cb)
+                if abs(by) > 0.03:
+                    continue                             # not on one wall line
+                gap = abs(bx) - wa / 2.0 - wb / 2.0
+                if gap <= M13_GAP_MIN_M:
+                    continue
+                mid_x = (bx / abs(bx)) * (wa / 2.0 + gap / 2.0) if abs(bx) > 1e-9 else 0.0
+                mid = _world(ca, ra, mid_x)
+                explained = any(hr == rid and math.hypot(hc[0] - mid[0], hc[1] - mid[1]) <= hw + gap / 2.0 + 0.02
+                                for hr, hc, _hrot, hw in hoods)
+                probe = dict(a, footprint={"center": list(mid), "size": [gap + 2 * M13_EXPLAIN_M, 0.35],
+                                           "rotation_deg": math.degrees(ra)})
+                explained = explained or bool(MOD.wall_unit_blocks(probe, built, 0.0)) or _door_near(built, probe)
+                if not explained:
+                    out.append(_v("M13", "major", b["id"], f"{a['id']} and {b['id']} (wall cabinets of one wall) leave a "
+                                  f"{gap:.2f} m gap that no hood, window or door explains: one continuous run",
+                                  rid, rule="gap", gap_m=round(gap, 3), kind="taste"))
+    return out, n
+
+
+def _door_near(built: dict, probe: dict) -> bool:
+    """Whether a door of the probe's level stands in the wall behind the probe's span (as ``wall_unit_blocks`` reads
+    a glazed door; any door here: a wall cabinet stops at a door)."""
+    from wenart.blender import modules as MOD
+    doors = [dict(o, type="door", glazed=True) for o in built.get("openings") or [] if o.get("type") in ("door",
+                                                                                                        "opening")]
+    return bool(MOD.wall_unit_blocks(dict(probe, mount_bottom_m=0.5, height=1.5), dict(built, openings=doors), 0.0))
 
 
 def entrances_make_sense(built: dict, inferred: Optional[dict]) -> tuple[list[dict], int]:
@@ -737,6 +943,13 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError,
             ImportError) as exc:
         checks["M12"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M13 (28 Oct 2026, user on real04's and real06's kitchens): the kitchen as one designed kitchen (hood over every
+    # hob, appliances on the worktop line, one wall run that never covers a window)
+    try:
+        got, n = kitchen_design(built, scene_manifest)
+        note("M13", got, n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
+        checks["M13"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     return {"findings": findings, "checks": checks}
 
 
