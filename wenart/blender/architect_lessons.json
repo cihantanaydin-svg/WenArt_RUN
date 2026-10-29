@@ -1387,6 +1387,18 @@
    "request": "look at this beautiful kitchen (a full-wall wood slat panel behind the dining table with art on it, a coffee station, a waterfall island in a hanging hood frame, framed fronts, fluted uppers, linear pendant, square downlights, glossy large tiles; docs/reference_details_20261029.md K13-K15)",
    "lesson": "look at this beautiful kitchen (a full-wall wood slat panel behind the dining table with art on it, a coffee station, a waterfall island in a hanging hood frame, framed fronts, fluted uppers, linear pendant, square downlights, glossy large tiles; docs/reference_details_20261029.md K13-K15)",
    "question": null
+  },
+  {
+   "id": "UL119",
+   "date": "2026-10-29",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "different solutions for different rooms (every room gets its own scheme: a full deep wall colour, an accent wall, slat panels or a wainscot; a TV on a unit or on the wall; a freestanding or a floating corner desk; no two rooms of one type on a level the same; docs/reference_details_20261029.md V1, R25-R30)",
+   "lesson": "different solutions for different rooms (every room gets its own scheme: a full deep wall colour, an accent wall, slat panels or a wainscot; a TV on a unit or on the wall; a freestanding or a floating corner desk; no two rooms of one type on a level the same; docs/reference_details_20261029.md V1, R25-R30)",
+   "question": null
   }
  ]
 }

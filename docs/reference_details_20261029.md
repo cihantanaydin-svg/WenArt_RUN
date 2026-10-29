@@ -5,10 +5,10 @@ The user sent seven professional interior renders on 29 Oct 2026 ("also take som
 details", "As much detail as you can digest", "we need better doors, not all the doors needs to be closed in
 default"). The photos reached the session as chat images only (no file); this page lists every detail read from
 them, so that each one becomes a general rule of the pipeline for every project (CLAUDE.md: every fix is general).
-Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen).
+Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen), UL119 (a different solution for each room).
 
 Photos: P1 bedroom with a walk-in wardrobe; P2 bedroom with slat panels and a desk; P3 kitchen seen through blue
-glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side.
+glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side; P9 a young adult's bedroom (dark green walls, wall TV, floating corner desk).
 
 ## Bathroom and WC (P4) - helper "bathroom"
 
@@ -75,6 +75,13 @@ glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance h
 | R20 | a black open bookshelf with books and decor | (UL103 books) shelf styling with objects between the books |
 | R21 | a dark venetian blind with curtains | blinds with curtains in the modern families |
 | R24 | an amber glass side table | side table model choice |
+| R25 | (P9) a whole room painted a deep colour (dark green walls, white skirting, white ceiling), not one accent wall | a room's scheme may be a full deep colour (one of the room schemes, V1) |
+| R26 | (P9) a TV mounted flat on the wall opposite the bed, no unit | the media wall (UL99) may be a wall-mounted TV with no unit (bedrooms, small rooms) |
+| R27 | (P9) a floating wood desk shelf in a corner, a black open shelf unit and white wall cabinets above it with an LED strip under them, a desktop computer, keyboard, headphones | a work corner may be a floating desk with shelves and wall cabinets over it (UL93 work set: a desktop computer in a home office or a young adult's room) |
+| R28 | (P9) a wood-veneer flush door with fine vertical grooves, black frame, black lever and lock rose | (doors helper D2) |
+| R29 | (P9) a duffle bag on the floor, headphones on the desk: lived-in objects | one or two lived-in objects per bedroom (a bag, a throw on a chair) |
+| R30 | (P9) a multi-arm linear pendant, square black downlights | statement fixture options (UL106) |
+| V1 | ("different solutions for different rooms") every room the same treatment | every room gets its own scheme from its family's pool (wall finish: one accent wall, a full deep colour, slat panels, a wainscot; TV: unit or wall-mounted; desk: freestanding or floating corner desk; bed wall: panel, art pair, headboard only), chosen deterministically by code; no two rooms of the same type on a level share one scheme; each choice recorded with its reason |
 | G2 | exposed timber beams under a sloped ceiling | a pitched-ceiling room may show its rafters as timber beams (rustic, scandinavian, farmhouse) |
 | G5 | a glass coffee table on a sculptural base, a rattan lounge chair, a shaggy rug | living room model choices |
 
