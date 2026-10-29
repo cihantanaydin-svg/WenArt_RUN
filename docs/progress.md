@@ -2157,3 +2157,35 @@ ridge 2.8 m away, 1.58 m over its exit); real04 (modern, mansard) one over the b
 w_L-1_004 at (5.94, 7.51) m and the mirrored dwelling's at (9.24, 7.51) m, tops 6.70 m on the shallow upper slope near
 the 6.01 m ridge. Argus U27 flags both runs as built (no chimney). Needs a pod render: the stack's look in the views,
 the cowls and pots.
+
+## The kitchen details of the reference photos (29 Oct 2026; built, pod run waiting)
+
+The user's reference kitchens (docs/reference_details_20261029.md K1-K15, G3; lessons UL115 kitchen part, UL118: "look
+at all these details I want these details", "look at this beautiful kitchen"). One family table
+(`wenart/blender/kitchen_details.py` `FAMILY_KITCHEN`, a row per style family with its reason) decides; drawn runs,
+islands and appliances keep type, place, orientation and footprint, every change is recorded `inferred` with its
+reason (`plan["details"]`, the scene manifest's module record). CPU-tested, not rendered yet.
+
+| id | built | how |
+|---|---|---|
+| K1 | yes | the fit's pre-pass (`fit.kitchen_details_hints`) puts a tall-unit column at a free counter end (no corner, no window, door or wall cabinet by it): an oven tower (oven + compact oven + drawers) and, when the kitchen has no fridge, a fridge column (a 90 cm French-door fridge in a run from 3.6 m), fronts to the ceiling; the hob then sits over pot drawers; the completion's wall cabinets stop at it; no end free and no fridge: an under-counter fridge in the longest run |
+| K2 / K15 | yes | waterfall ends (the worktop's slab down both island ends) in the families that use them; framed fronts in modern classic, transitional, farmhouse, classic, rustic, Mediterranean (`looks.KITCHEN_FAMILY_LOOKS`) |
+| K3 | yes | an island hob gets a steel cylinder hood hung from the ceiling (modern families) or the box hood (classic ones), a black open shelf frame round it with glass jars, dried grass and a sculpture (modern, contemporary, modern classic, transitional, industrial) where the ceiling leaves room |
+| K4 | yes | fluted (vertical-rib) handle-less uppers in modern, contemporary and Japandi kitchens; handle-less flat uppers in the minimal ones (kitchen runs' and the completion's wall runs) |
+| K5 | yes | the shell's splashback band in the family's stone (the worktop's stone, else a white marble slab), the wet walls' tiles elsewhere; a window over the worktop stays the splashback (the band is cut there) |
+| K6 / K14 | yes | seven styling sets, one mesh each at a real size (`decor.kitchen_styling_decor` after the 28 Oct appliances): a pot and a pan on the hob, glass jars, cutting boards on the splashback, oil bottles, plates and bowls, dried grass in a vase, a coffee station (the coffee machine becomes the station where it fits); code checks: on the worktop, off the sink and the windows, never under a wall cabinet they would reach, never in a tall unit or under the rail; the build rests worktop items on the plan's worktop line (no ray per item, UL111) |
+| K7 | yes | a pull-down spray tap in the handles' metal (black, steel, brass by family) on every built-in sink |
+| K8 | yes (fix) | the rig's LED strip under every wall cabinet: a kitchen run is now its worktop box plus a box per hood or tall unit for the strip's collision test (real06 run 100801 had dropped the strip under the cabinet beside its hood); open-plan living and dining rooms get the strips too |
+| K11 | yes | the modern families' kitchens take polished large-format porcelain tiles (`tiles_large_gloss`) where the brief names no wet-safe floor |
+| G3 | yes | white subway splashback (industrial, farmhouse, rustic), a utensil rail with hanging utensils beside the hob (off the windows), knee space for the bar stools at an island's back (base units 0.60 m, the worktop over the stools; the completion places the stools) |
+| K9, K10, K12 | no | linear pendants and square downlights are the lighting helper's; set tables and plants exist |
+| K13 | no | the full slat wall behind the dining table is the rooms helper's |
+
+Checks: model review M27 and Argus U31 (`kitchen_details.review`, one rule): a worktop bare beyond U11, a wall
+cabinet with no LED strip (the rig dropped it), an island hob without a hood, a family detail not built, a kitchen with
+no fridge.
+
+real06's kitchen (run 20261029-100801-full, Scandinavian): no column (the windows behind both free run ends) and no
+fridge anywhere in the kitchen, so an under-counter fridge goes into f_L0_031; the island f_L0_042 gets oak waterfall
+ends and 0.20 m knee space for its two stools; a pot and pan on the hob, oil bottles and dried grass join the
+appliances; the black pull-down tap; the strip under f_L0_046 is no longer dropped. M27 leaves nothing.

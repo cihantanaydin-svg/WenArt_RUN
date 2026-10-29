@@ -2292,6 +2292,13 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
             "material": floor_mat.name, "textured": _textured(library, floor_mat),
             "pass_index": None, "assumed": {}, "room_type": room.get("room_type"), "wet": wet,
         })
+        # 29 Oct 2026 (K11): a floor the family's kitchen rule chose is recorded with its reason
+        k11 = floor_style(room, style)[0] if room["id"] not in open_rooms else {}
+        if isinstance(k11, dict) and k11.get("reason"):
+            manifest_objects[-1]["assumed"] = {"floor": k11["material"], "reason": k11["reason"]}
+            if assumed is not None:
+                assumed.append({"object": ob.name, "field": "floor", "value": k11["material"],
+                                "reason": k11["reason"], "parent": room["id"], "kind": "floor"})
         if fcut:
             manifest_objects[-1]["stair_void"] = f"{len(fcut)} opening(s) of the slab under the level cut out"
         if abs(rz - floor_z) > 1e-9:

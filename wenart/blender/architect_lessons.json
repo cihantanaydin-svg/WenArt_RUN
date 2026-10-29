@@ -1344,12 +1344,12 @@
    "id": "UL115",
    "date": "2026-10-29",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "look at all these details I want these details. As much detail as you can digest (the kitchen with tall units, island hood in a hanging shelf frame, fluted fronts, ribbon window splashback, styled worktop, under-cabinet light; the hall with a lit niche, intercom, black frames, console with mirror, floor vases, round rug; docs/reference_details_20261029.md)",
-   "lesson": "look at all these details I want these details. As much detail as you can digest (the kitchen with tall units, island hood in a hanging shelf frame, fluted fronts, ribbon window splashback, styled worktop, under-cabinet light; the hall with a lit niche, intercom, black frames, console with mirror, floor vases, round rug; docs/reference_details_20261029.md)",
+   "lesson": "UL115, kitchen part (the hall details are the rooms helper's): every kitchen gets the details of the reference photos by its style family (wenart/blender/kitchen_details.py FAMILY_KITCHEN, one table): a tall-unit column at a free counter run end (no corner, no window, door or wall cabinet by it: an oven tower, and a fridge when the kitchen has none, fronts to the ceiling; no end free: an under-counter fridge), waterfall ends on an island, knee space for the stools at its back, a cylinder island hood in a black hanging shelf frame with glass jars over an island hob, fluted or handle-less uppers, a pull-down tap in the handles' metal, the splashback in the family's stone or white subway tiles, a utensil rail in the industrial and farmhouse families, glossy large floor tiles in the modern ones, the rig's LED strip under every wall cabinet, and the worktop styling sets (glass jars, plates and bowls, a pot and a pan on the hob, cutting boards, oil bottles, dried grass, a coffee station; one mesh each, placed with the code checks). Drawn runs, islands and appliances keep type, place, orientation and footprint; every change is recorded as inferred with its reason. Model review M27, Argus U31.",
    "question": null
   },
   {
@@ -1380,12 +1380,12 @@
    "id": "UL118",
    "date": "2026-10-29",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "look at this beautiful kitchen (a full-wall wood slat panel behind the dining table with art on it, a coffee station, a waterfall island in a hanging hood frame, framed fronts, fluted uppers, linear pendant, square downlights, glossy large tiles; docs/reference_details_20261029.md K13-K15)",
-   "lesson": "look at this beautiful kitchen (a full-wall wood slat panel behind the dining table with art on it, a coffee station, a waterfall island in a hanging hood frame, framed fronts, fluted uppers, linear pendant, square downlights, glossy large tiles; docs/reference_details_20261029.md K13-K15)",
+   "lesson": "The beautiful kitchen of the reference (P5, P8) is a rule for every project (wenart/blender/kitchen_details.py, by style family): a tall-unit wall (built-in fridge and oven tower to the ceiling), a stone waterfall island with framed fronts in the families that use them and knee space for its stools, a steel cylinder hood in a hanging black shelf frame over an island hob, fluted handle-less uppers, a stone splashback, glossy large floor tiles in the modern families, a styled worktop with a coffee station (decor.kitchen_styling_decor). The full slat wall behind the dining table (K13) is the rooms helper's. Model review M27, Argus U31.",
    "question": null
   },
   {

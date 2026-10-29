@@ -810,12 +810,13 @@ def styling_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
         lean = math.radians(BOARD_LEAN_DEG)
         t = 0.02
         parts = []
-        for k, (bw, bh) in enumerate(((w, h), (w * 0.72, h * 0.8))):
+        # an oak board and a dark slate serving board in front of it
+        for k, (bw, bh, key) in enumerate(((w, h, "wood"), (w * 0.72, h * 0.8, "dark"))):
             yb = d / 2.0 - t / 2.0 - bh * math.sin(lean) - k * 0.026
             yt = yb + bh * math.sin(lean)
             zb, zt = t * math.sin(lean) / 2.0 + 0.0, bh * math.cos(lean)
             bx = -w / 2.0 + bw / 2.0 + k * 0.04
-            part = beam((bx, yb, zb), (bx, yt, zt), bw, "wood", "board", t2=t, side=(1.0, 0.0, 0.0))
+            part = beam((bx, yb, zb), (bx, yt, zt), bw, key, "board", t2=t, side=(1.0, 0.0, 0.0))
             # the board's lowest edge on z = 0 (the worktop)
             low = min(v[2] for v in part["verts"])
             part["verts"] = [(vx, vy, vz - low) for vx, vy, vz in part["verts"]]
@@ -1146,6 +1147,7 @@ def review(building: Optional[dict], manifest: Optional[dict] = None, check: str
                 add("minor", r["id"], rid, "waterfall",
                     f"the island {r['id']} of a {rule['family']} kitchen has no waterfall ends")
             if island and det.get("seat_side") == "back" and not det.get("overhang_m") \
+                    and not any(m.get("holds") in ("sink", "hob") for m in plan["modules"]) \
                     and float(plan["footprint_m"][1]) - OVERHANG["base_d"] >= OVERHANG["min_m"] - 1e-9:
                 add("minor", r["id"], rid, "overhang",
                     f"the stools at the island {r['id']} have no knee space under its worktop")
