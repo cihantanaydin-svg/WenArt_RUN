@@ -471,3 +471,17 @@ def test_real06_bathrooms_get_their_scandinavian_set():
     assert {d["room_id"] for d in rails} == {"r_L0_banyo", "r_L1_banyo", "r_L1_dus"}
     holders = {d["anchor_ids"][0] for d in b["decor"] if d.get("type") == "toilet_paper_holder"}
     assert {"f_L0_024", "f_L1_021"} <= holders
+
+
+def test_an_accessory_without_an_anchor_has_no_anchor_list():
+    """real04 run 20261029-180458-full stopped in the decor stage: towel rails and shelves on a free wall carried
+    ``anchor_ids: []`` and the building schema wants at least one piece or no key."""
+    from wenart.furniture import bath_details as BDX
+
+    room = {"id": "r_bath", "level_id": "L0"}
+    spec = {"finish": next(iter(BDX.BT.FINISH_COLOUR)), "towel_colour": "white"}
+    free = BDX._item(room, "towel_rail", (1.0, 1.0), 0.0, (0.5, 0.1, 0.8), "a towel rail on a free wall", spec,
+                     lambda level: "dec_L0_900")
+    held = BDX._item(room, "toilet_paper_holder", (1.0, 1.0), 0.0, (0.15, 0.1, 0.12), "beside the WC", spec,
+                     lambda level: "dec_L0_901", anchors=["f_wc"])
+    assert "anchor_ids" not in free and held["anchor_ids"] == ["f_wc"]
