@@ -554,6 +554,7 @@ CHECK_CAUSE: dict[str, str] = {
     "M26": "decor_look",             # 29 Oct 2026 (UL114): the bathroom's set (the layout and the decor stage own it)
     "M28": "decor_look",             # 29 Oct 2026 (UL119): the rooms' schemes and details (the decor stage, the build)
     "M25": "wall_plates",            # 29 Oct 2026 (UL112): the light switches and sockets (the build owns them)
+    "M30": "decor_look",             # 29 Oct 2026 (UL121): the beds' family bedding (the decor stage and the build)
     # 29 Oct 2026: a blocked door front is turned (rotate_piece: fixed equipment turns for a blocked door) or what
     # stands in front of it moves; a basin under a low window is the architect's (cause_of: H2); a back a drawing gap
     # off its wall snaps onto it

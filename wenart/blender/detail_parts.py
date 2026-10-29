@@ -584,6 +584,9 @@ def variant_parts(dtype: str, w: float, d: float, h: float, item: Optional[dict]
         return track_parts(w, d, h)
     if dtype == "tv" and ((it.get("tv") or {}).get("mount") == "wall"):
         return wall_tv_parts(w, d, h)
+    if dtype == "vase" and it.get("set") == "bedside":
+        from wenart.blender import bedding_parts as BP      # 29 Oct 2026 (UL121, R36): the nightstand's decor set
+        return BP.bedside_set_parts(w, d, h, it)
     if dtype == "vase" and it.get("stems") == "pampas":
         return vase_with_stems(w, d, h)
     if dtype == "book_set" and isinstance(it.get("styled"), dict):

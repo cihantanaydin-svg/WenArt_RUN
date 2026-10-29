@@ -156,6 +156,8 @@ CHECK_KIND.update({"M27": "taste", "U31": "taste"})
 # 29 Oct 2026 (UL113, UL115, UL119): a different solution for each room, the reference photos' details
 # (room_schemes.review)
 CHECK_KIND.update({"U32": "taste", "M28": "taste"})
+# 29 Oct 2026 (UL121): a bed missing its style family's bedding (bedding_parts.review)
+CHECK_KIND.update({"U34": "taste", "M30": "taste"})
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",
                "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense", "U": "no_sense"}

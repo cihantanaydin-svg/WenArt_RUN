@@ -130,6 +130,12 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   set its style family gets: a WC with its paper holder and brush and (wall-hung families) wall-hung with its flush
   plate, a basin with its mirror of the family's kind and, where the drawing has room, the family's floating vanity, a
   shower with its walk-in enclosure, a bathroom with a towel rail and a towel shelf or bar. Minor; kind ``taste``.
+- M30 every bed in its family's bedding (29 Oct 2026, lesson UL121, the user's photo of a full, soft bed: "look how
+  realistic the bed is looking full and nice I want this much detail in our models"; ``bedding_parts.review``, Argus'
+  U34 reads it too): a dressed bed with fewer pillows than its family's set (euro shams with no headboard to stand on
+  are explained), a free side whose duvet hangs short of the floor, an old dressing without the set, a made-up model
+  measured poorer than ours left undressed, a bed without its throw, a throw without its woven pattern or its fringe.
+  Minor; kind ``taste``; the decor stage (``wenart.furniture.bedding``) and the build (``textiles.bedding_set``) own it.
 - M24 every chimney as a builder makes it (29 Oct 2026, lesson UL109, user on real06 run 20261028-154514-full: "There
   are no chimneys there could be some chimney in the projects"; ``chimney.measure``), on the scene's chimney records
   (their bottom as built), else the plan's: a chimney off the roof (it does not reach the roof) or floating over its
@@ -197,6 +203,7 @@ CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M
 CHECKS += ("M29",)          # 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125): the doors and walk-ins as designed
 CHECKS = CHECKS + ("M26",)       # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's set (bath_details.review)
 CHECKS = CHECKS + ("M28",)      # 29 Oct 2026: M28 a different solution for each room, the photos' details (UL119)
+CHECKS = CHECKS + ("M30",)      # 29 Oct 2026: M30 every bed in its family's bedding (UL121, bedding_parts.review)
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -1447,6 +1454,17 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
         checks["M28"] = {"status": "unavailable", "note": f"{type(exc).__name__}: {exc}"}
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
         checks["M28"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M30 (29 Oct 2026, lesson UL121, the user's photo of a full, soft bed): every bed in its family's bedding set, its
+    # duvet's overhang on its free sides, its throw's woven pattern and fringe (pure: bedding_parts runs in Blender)
+    try:
+        from wenart.blender import bedding_parts as BDP
+
+        got, n = BDP.review(built, scene_manifest, check="M30")
+        note("M30", [dict(_v("M30", g["severity"], g["target"], g["message"], room_id=g["room_id"], kind="taste",
+                             problem=g["problem"], family=g["family"], lesson=g["lesson"]), fix=FIX_BEDDING)
+                     for g in got], n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
+        checks["M30"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M19 / M22 (29 Oct 2026, the user on real06: "This washing machine would not open", "this sink not making sense
     # there", "There is a gap between wall and water faucet not looking good"): fronts that open, basins under a solid
     # wall, backs on their walls, on the building as built (pure)
@@ -1459,6 +1477,9 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
     return {"findings": findings, "checks": checks}
 
 
+FIX_BEDDING = ("the decor stage's bedding plan (wenart.furniture.bedding: the family's set, the free sides, the throw "
+               "pair's weave) and the build's dressing (textiles.bedding_set: shams, standing pillows, accent cushions "
+               "and a lumbar, the deep duvet hanging on the free sides; the woven, fringed throw pair)")
 FIX_BATH = ("the layout stage's bathroom looks (wenart.furniture.bath_details.plan_building: the family's WC, vanity, "
             "column and shower) and the decor stage's accessories (bath_details.dress: paper holder and brush, towel "
             "rail, shelf and bars, the family's mirror)")

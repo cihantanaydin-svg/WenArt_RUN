@@ -17,7 +17,8 @@ from wenart.style import vocabulary as V
 
 ROOT = Path(__file__).resolve().parents[1]
 CHECKS = json.loads((ROOT / "wenart" / "style" / "asset_checks_m10.json").read_text(encoding="utf-8"))
-PROCEDURAL_GROUPS = {"wenart_tiles", "wenart_wallpaper", "wenart_slats", "wenart_standing_seam", None}
+PROCEDURAL_GROUPS = {"wenart_tiles", "wenart_wallpaper", "wenart_slats", "wenart_standing_seam", None,
+                     "wenart_weave"}      # 29 Oct 2026 (UL121): the bedding's procedural fabrics
 
 # The vocabulary of Milestone 3-9: slugs, assets and moods that Milestone 10 must not move.
 LEGACY_ASSETS = {"wood_oak_light": "WoodFloor051", "wood_walnut": "WoodFloor046", "wood_parquet": "herringbone_parquet",

@@ -83,6 +83,11 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   of the scene (``wall_plates.review``, the model review's M25 rule): a room with doors and no light switch at any of
   them, a bed with no socket beside it, a kitchen with no socket over its worktop, a plate on glass, inside an opening
   or behind a piece standing against its wall.
+- U34 (UL121, 29 Oct 2026: "look how realistic the bed is looking full and nice I want this much detail in our
+  models") a bed missing its style family's bedding (``wenart.blender.bedding_parts.review``, the model review's M30):
+  fewer pillows than the family's set (shams, sleeping pillows, accent cushions, a lumbar), a free side whose duvet
+  hangs short of the floor, an old dressing without the set, a made-up model measured poorer than ours left as it was,
+  no throw, a throw without its woven pattern or its fringe. Kind ``taste``.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -931,7 +936,37 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
         checked["U31"] = len(got)
     except Exception as exc:  # noqa: BLE001
         checked["U31"] = f"failed: {type(exc).__name__}: {exc}"[:200]
+    # 29 Oct 2026 (UL121): every bed in its family's bedding (the dressing as built with a manifest, else the plan)
+    try:
+        got = bed_realism(building, manifest)
+        findings += got
+        checked["U34"] = len(got)
+    except Exception as exc:  # noqa: BLE001
+        checked["U34"] = f"failed: {type(exc).__name__}: {exc}"[:200]
     return {"findings": findings, "checked": checked}
+
+
+BEDDING_FIXES = {
+    "too_few_pillows": "rerun_stage build (textiles.bedding_set: the family's shams, pillows, accent cushions, lumbar)",
+    "no_overhang": "rerun_stage build (textiles.bedding_set: the duvet hangs almost to the floor on each free side)",
+    "flat_bedding": "rerun_stage build (furniture._bedding_test: a model's flat bedding is dressed by us)",
+    "no_throw": "rerun_stage decor (wenart.furniture.bedding.plan_beds / dressing.layer_bedding: a throw pair)",
+    "throw_pattern": "rerun_stage decor (wenart.furniture.bedding.plan_beds: the throw pair's weave), then build",
+    "throw_fringe": "rerun_stage decor (wenart.furniture.bedding.plan_beds: the throw pair's weave), then build"}
+
+
+def bed_realism(building: dict, manifest: Optional[dict] = None) -> list[dict]:
+    """U34 (29 Oct 2026, lesson UL121; module docstring): ``bedding_parts.review`` (the same rule as the model review's
+    M30); the fix names the stage that adds what is missing."""
+    from wenart.blender import bedding_parts as BP
+
+    got, _n = BP.review(building, manifest, check="U34")
+    return [_f("U34", g["severity"], g["target"], g["message"], g["lesson"],
+               BEDDING_FIXES.get(g["problem"], "rerun_stage decor (wenart.furniture.bedding), then build"),
+               problem=g["problem"], family=g.get("family"), room=g.get("room_id")) for g in got]
+
+
+CHECK_LESSONS["U34"] = ("UL121",)        # 29 Oct 2026: a full, realistic bed (bedding_parts.review)
 
 
 def kitchen_details(building: dict, manifest: Optional[dict] = None) -> list[dict]:

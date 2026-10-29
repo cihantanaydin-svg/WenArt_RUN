@@ -185,6 +185,21 @@ not like this bed", "Light is flying in the air needs to be connected to ceiling
   lifted to the ceiling (a ceiling light; a pendant whose top is at most ``PENDANT_LIFT_MAX_M`` under it), else it
   gets a cord and a ceiling canopy (``parametric.suspension_parts``, object ``<name>_cord``, ``entry["suspension"]``);
   ``entry["hang"]`` records the numbers (``gap_left_m``) for S5, the model review (M14) and Argus.
+
+29 Oct 2026 (lesson UL121, the user's photo of a full, soft bed; docs/reference_details_20261029.md R35, R36):
+
+- A dressed bed takes its style family's full set (``_dress_bed`` with the building: ``textiles.bedding_set``; the
+  decor stage's ``bedding_layers.set`` or the family's at build time, ``bed_bedding_spec``): shams, standing pillows,
+  accent cushions and a lumbar in the AI's cushion colours, a soft deep duvet hanging almost to the floor on each free
+  side (``bedding_parts.bed_sides``), still one mesh with a material slot per fabric (``dressing_mesh`` keys
+  ``<key>|<colour>``, ``split_key``); the decor cushions on such a bed are not built twice (``decor_skipped``). A
+  made-up library bed is measured first (``own_bedding_candidate``, ``_bedding_test``: ``bedding_parts.bedding_relief``
+  on its vertices, one ``foreach_get``): a flat cover is dressed in the full set, a duvet without pillows gets the
+  pillow set (``mode`` pillows), the rest is kept (``entry["bedding_test"]``); the decor stage's throw for it
+  (``when_dressed``) is built only over our dressing. ``summary["bedding"]``: each dressed bed's set and seconds.
+- A bed's throw is the woven pair (``textiles.woven_throw_parts``; the decor stage's ``weave``, else the family's): the
+  pattern's ink and angle reach its material (``part_params``), the second blanket takes the accent colour
+  (``part_colour``: ``colour_runner_<look>`` keys); ``entry["weave"]`` records the pattern and the fringe as built.
 """
 from __future__ import annotations
 
@@ -631,6 +646,11 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         # the "led" key above (detail_parts.led_strip_material is materials.led_material)
         "pampas": ("fabric_linen", asset_of("fabric_linen"), None),
     }
+    # 29 Oct 2026 (UL121, R35): the bedding's fabric looks and woven patterns (``textile_<look>``; a throw pair's second
+    # blanket ``runner_<look>``): linen keeps its Poly Haven scan, the others are the procedural weaves
+    from wenart.blender import bedding_parts as BP
+
+    keys.update({k: (slug, asset_of(slug) or _vocab_asset(slug), None) for k, slug in BP.material_keys().items()})
     return keys, assumed
 
 
@@ -1100,12 +1120,13 @@ class _Materials:
         self._cache: dict = {}
 
     def get(self, key: str, unverified: bool = False, accent=None, colour=None, overrides: dict | None = None,
-            lit: bool = False):
+            lit: bool = False, params: dict | None = None):
         """The material of a parametric key; an ``accent_<key>`` part (Milestone 9 decor) takes ``accent`` (an RGB
         tint, the item's colour) on the ``<key>`` material, or the plain ``<key>`` material without one. Milestone
         10: a ``colour_<key>`` part takes ``colour`` (a ``colours.py`` name) as its base colour; ``overrides``
         (``design_overrides``, ``pot_override``) replace a key's slug, asset and colour for one piece; ``lit``
-        makes the ``bulb`` key a light (``materials.light_material``)."""
+        makes the ``bulb`` key a light (``materials.light_material``). 29 Oct 2026 (UL121): ``params`` over a
+        procedural look's own (a woven pattern's ink and angle, ``part_params``)."""
         if key.startswith(P.ACCENT_PREFIX):
             key = key[len(P.ACCENT_PREFIX):]
             colour = None
@@ -1137,7 +1158,8 @@ class _Materials:
             colour = colour or over.get("colour")
         else:
             slug, asset, tint = self.keys[key]
-        ck = (slug, asset, unverified, tuple(accent) if accent else None, colour or None)
+        pkey = tuple(sorted((str(k), str(v)) for k, v in (params or {}).items())) or None
+        ck = (slug, asset, unverified, tuple(accent) if accent else None, colour or None, pkey)
         if ck in self._cache:
             return self._cache[ck]
         if asset and self.library.texture_set(asset)[0] is None:
@@ -1148,6 +1170,8 @@ class _Materials:
             mat = self.library.thin_glass()  # shower panels: the index pass must see the piece behind
         elif slug == SHEER_SLUG:
             mat = self.library.sheer(colour)  # UL106: a sheer curtain lets the daylight and the view through
+        elif params:
+            mat = self.library.get(slug, asset, tint, unverified=unverified, colour=colour, params=params)
         else:
             mat = self.library.get(slug, asset, tint, unverified=unverified, colour=colour)
         self._cache[ck] = mat
@@ -1262,6 +1286,33 @@ def needs_dressing(piece: dict, entry: dict) -> bool:
     return not entry.get("bedding") and not asset.get("bed_frame") and not C.has_own_bedding(asset)
 
 
+def own_bedding_candidate(piece: dict, entry: dict) -> bool:
+    """29 Oct 2026 (UL121, R35: "a library bed with its own flat or poor bedding is dressed too"): a library bed that
+    is not a frame and whose audit says it is made up (``catalog.has_own_bedding``): its bedding is measured on its mesh
+    (``_bedding_test``) before it is kept (pure)."""
+    from wenart.furniture import catalog as C
+
+    if piece.get("type") not in ("bed_single", "bed_double") or entry.get("method") != "library":
+        return False
+    asset = piece.get("asset") or {}
+    return not entry.get("bedding") and not asset.get("bed_frame") and C.has_own_bedding(asset)
+
+
+def _bedding_test(piece: dict, entry: dict, ob) -> str | None:
+    """The measured test of a made-up library bed's own bedding (``bedding_parts.bedding_relief`` on its evaluated
+    mesh's vertices, numpy, no ray; ``dress_mode``): ``full`` / ``pillows`` when it is flat or poorer than ours, None
+    when it is kept; recorded on the entry (``bedding_test``)."""
+    from wenart.blender import bedding_parts as BP
+
+    pts = _evaluated_world_points(ob)
+    centre, rot, size = BP.bed_frame(piece)
+    relief = BP.bedding_relief(pts, centre, rot, size) if len(pts) else {}
+    mode, why = BP.dress_mode(piece.get("asset"), relief)
+    entry["bedding_test"] = dict(relief, own_bedding=True, mode=mode, poorer=mode is not None, reason=why,
+                                 rule=BP.RULE)
+    return mode
+
+
 def hosted_support(item: dict, host: dict | None) -> str | None:
     """The support a hosted decor item rests on (its ``host_frame``, else the type rule), or None for an item the
     builder places without rays (no host, or a support of the floor, a wall or the ceiling)."""
@@ -1303,6 +1354,7 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
     (``shell.room_floor_z``: ``piece_floor_z``, ``decor_floor``), the ``--proxies`` boxes too."""
     mats = _Materials(library, style, assumed)
     mats.lamps_on = lamps_on(style)                   # Milestone 10: the interior evening mood lights the lamps
+    mats.family = str((style or {}).get("family") or "").lower()     # 29 Oct 2026 (UL121): the bedding's family
     mats.collection = collection
     on_level = [p for p in building.get("furniture", []) if p["level_id"] == level["id"]]
     pieces = [p for p in on_level if is_built(p)]
@@ -1379,12 +1431,23 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
             summary["fallbacks"].append({"id": piece["id"], "type": piece["type"], "reason": entry["fallback_reason"]})
         ob = bpy.data.objects.get(entry["name"])
         summary["objects"][piece["id"]] = ob
-        if ob is not None and needs_dressing(piece, entry):
+        mode = "full" if ob is not None and needs_dressing(piece, entry) else None
+        if ob is not None and mode is None and own_bedding_candidate(piece, entry):
+            # 29 Oct 2026 (UL121): a library bed with its own bedding is dressed when its bedding measures poorer
+            mode = _bedding_test(piece, entry, ob)
+        if mode is not None:
+            t_bed = time.perf_counter()
             dress = _dress_bed(piece, entry, ob, piece_floor_z(building, level, piece), collection, mats, assumed,
-                               warnings, casters)
+                               warnings, casters, building=building, style=style, mode=mode)
             if dress is not None:
                 summary["objects"][f"{piece['id']}#dressing"] = dress     # S5 rests on it; S2 skips it
                 summary["dressed_beds"].append(piece["id"])
+                rec = (entry.get("dressing") or {}).get("record") or {}
+                if (rec.get("set") or {}).get("accent") or (rec.get("set") or {}).get("lumbar"):
+                    summary.setdefault("bedding_sets", []).append(piece["id"])
+                summary.setdefault("bedding", []).append(
+                    {"id": piece["id"], "mode": mode, "set": rec.get("set"), "explained": rec.get("explained"),
+                     "seconds": round(time.perf_counter() - t_bed, 3)})
         note_time(summary, piece, "piece", time.perf_counter() - t_piece)
 
     for record in summary["built_in"]:              # the run's manifest entry names what it holds (fix round after P3)
@@ -1412,18 +1475,32 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                                                  "room_id": item.get("room_id"),
                                                  "reason": f"its host {host['id']} is not built"})
                 continue
+        if item.get("type") == "cushion" and host is not None and host["id"] in (summary.get("bedding_sets") or ()):
+            # 29 Oct 2026 (UL121): the bed's dressing carries its family's accent cushions and lumbar (their colours
+            # are this item's): a decor cushion would stand in front of them as a second set
+            summary["decor_skipped"].append({"id": item.get("id"), "type": "cushion", "room_id": item.get("room_id"),
+                                             "reason": f"built in the dressing of {host['id']}: its family's cushion "
+                                                       "set (UL121), in this cushion's colour"})
+            continue
         if item.get("type") == "cushion" and host is not None:
             from wenart.blender import rest as R
-            if R.own_cushions(host):
+            if R.own_cushions(host) and host["id"] not in summary["dressed_beds"]:
                 # 25 Oct 2026: the final model (after the refit) has its own cushions or pillows; a decor cushion
                 # would lie on top of them and read as floating
                 summary["decor_skipped"].append({"id": item.get("id"), "type": "cushion",
                                                  "room_id": item.get("room_id"),
                                                  "reason": f"the model of {host['id']} has its own cushions/pillows"})
                 continue
+        if item.get("type") == "throw" and host is not None and item.get("when_dressed") \
+                and host["id"] not in summary["dressed_beds"]:
+            # 29 Oct 2026 (UL121): the decor stage's throw for a made-up bed model, built only over our dressing
+            summary["decor_skipped"].append({"id": item.get("id"), "type": "throw", "room_id": item.get("room_id"),
+                                             "reason": f"the model of {host['id']} keeps its own made bedding (not "
+                                                       "dressed by us): no throw over its folds"})
+            continue
         if item.get("type") == "throw" and host is not None:
             from wenart.blender import rest as R
-            if R.own_bedding(host):
+            if R.own_bedding(host) and host["id"] not in summary["dressed_beds"]:
                 # 28 Oct 2026 (user on real04's f_L0_021: "I did not like this bed"): the final model is made up with
                 # its own duvet; a throw over its modelled folds clips through them
                 summary["decor_skipped"].append({"id": item.get("id"), "type": "throw", "room_id": item.get("room_id"),
@@ -1517,6 +1594,25 @@ def _evaluated_world_mesh(ob) -> tuple[list, list]:
     return verts, faces
 
 
+def _evaluated_world_points(ob):
+    """The world vertices of an object's evaluated mesh as an ``(N, 3)`` numpy array (29 Oct 2026, UL111: one
+    ``foreach_get`` and a matrix product, no Python loop per vertex; ``_bedding_test`` measures a model's bedding)."""
+    import bpy
+    import numpy as np
+
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    ev = ob.evaluated_get(depsgraph)
+    me = ev.to_mesh()
+    try:
+        co = np.empty(len(me.vertices) * 3, dtype=np.float64)
+        me.vertices.foreach_get("co", co)
+        m = np.array(ob.matrix_world, dtype=np.float64)
+        pts = co.reshape(-1, 3) @ m[:3, :3].T + m[:3, 3]
+    finally:
+        ev.to_mesh_clear()
+    return pts
+
+
 def _host_caster(host_entry: dict, casters: dict):
     """The ray caster of a built host (its evaluated mesh and the bedding the build dressed it with), cached."""
     import bpy
@@ -1538,28 +1634,57 @@ def _host_caster(host_entry: dict, casters: dict):
 
 
 def dressing_mesh(parts: list) -> tuple[list, list, list]:
-    """World parts (already placed) -> one mesh: ``(verts, faces, face_keys)`` (pure)."""
+    """World parts (already placed) -> one mesh: ``(verts, faces, face_keys)`` (pure). 29 Oct 2026 (UL121): a part
+    with a ``colour`` (the family set's fabrics) gives its faces the key ``<key>|<colour>`` (``split_key``)."""
     verts, faces, keys = [], [], []
     for part in parts:
         off = len(verts)
         verts.extend(part["verts"])
-        for f in part["faces"]:
-            faces.append([i + off for i in f])
-            keys.append(part["key"])
+        key = f"{part['key']}|{part['colour']}" if part.get("colour") else part["key"]
+        faces.extend([[i + off for i in f] for f in part["faces"]])
+        keys.extend([key] * len(part["faces"]))
     return verts, faces, keys
+
+
+def split_key(key: str) -> tuple[str, str | None]:
+    """``(key, colour)`` of a dressing face key (``dressing_mesh``)."""
+    k, _sep, colour = key.partition("|")
+    return k, (colour or None)
 
 
 LEAN_CASTER = "{}#lean"           # casters key: a dressed bed and its pillows, what a decor cushion leans against
 BED_CASTER = "{}#bed"             # 28 Oct 2026: a dressed bed's model alone (its headboard, the pillows not in it)
 
 
-def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, casters=None):
+def bed_bedding_spec(piece: dict, style: dict | None) -> tuple[dict, str]:
+    """``(spec, reason)`` of a bed's bedding set (pure; 29 Oct 2026, UL121): the decor stage's (``bedding_layers.set``,
+    ``wenart.furniture.bedding``), else its style family's (``bedding_parts.family_spec``: a decor output from before
+    the rule)."""
+    from wenart.blender import bedding_parts as BP
+
+    layers = piece.get("bedding_layers") if isinstance(piece.get("bedding_layers"), dict) else {}
+    if isinstance(layers.get("set"), dict) and layers["set"].get("duvet"):
+        return layers["set"], str(layers.get("set_why") or "the decor stage's bedding set")
+    fam = layers.get("family") or (style or {}).get("family")
+    spec, why = BP.family_spec(fam)
+    return spec, f"the {spec['family']} family's set at build time: {why}"
+
+
+def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, casters=None, building=None,
+               style=None, mode="full"):
     """The procedural duvet and pillows of a bed model without bedding (§4.7: fixes the bare mattresses): draped on
     the evaluated bed mesh (``textiles.duvet_and_pillows``), one object ``dress_<id>`` with the bed's ``wenart_id``
     and pass index (a design detail of the piece), recorded on the entry (``dressing``) and in ``assumed``. 27 Oct
     2026: ``casters[LEAN_CASTER]`` gets the bed with its pillows only (``textiles.lean_parts``): the decor cushions
     lean against the pillows, never the duvet's fold. 28 Oct 2026: ``casters[BED_CASTER]`` the bed model alone, so a
-    decor cushion first stands on the pillows against the headboard (``rest.plan_decor`` takes both, in order)."""
+    decor cushion first stands on the pillows against the headboard (``rest.plan_decor`` takes both, in order).
+
+    29 Oct 2026 (lesson UL121, R35): with the ``building`` the bed is dressed in its family's full set
+    (``textiles.bedding_set``: euro shams, standing pillows, the accent cushions and the lumbar in the AI's cushion
+    colours, the soft deep duvet hanging almost to the floor on each side ``bedding_parts.bed_sides`` finds free, the
+    rolled turn-down), still one mesh: each fabric is a material slot (``split_key``); ``mode`` pillows (a made-up model
+    whose duvet has folds but no pillows) leaves the duvet out."""
+    from wenart.blender import bedding_parts as BP
     from wenart.blender import rest as R
     from wenart.blender import textiles as T
 
@@ -1569,7 +1694,20 @@ def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, c
                "rotation_deg": float(fp["rotation_deg"])}
     # 29 Oct 2026 (UL106): the euro shams the decor stage asks for (``bedding_layers``, wenart.furniture.dressing)
     layers = piece.get("bedding_layers") if isinstance(piece.get("bedding_layers"), dict) else {}
-    plan = T.duvet_and_pillows(R.BVHCaster(verts, faces), host_fp, floor_z, shams=int(layers.get("euro_shams") or 0))
+    if building is not None:
+        spec, spec_why = bed_bedding_spec(piece, style)
+        _c, _r, (bw, bd) = BP.bed_frame(piece)
+        sides = BP.bed_sides(piece, building, (-bd / 2.0, -bd / 2.0 + BP.DUVET_SHARE * bd))
+        colours = [d.get("colour") for d in building.get("decor") or []
+                   if d.get("type") == "cushion" and d.get("host_id") == piece["id"]]
+        plan = T.bedding_set(R.BVHCaster(verts, faces), host_fp, floor_z, spec, sides, mode=mode, colours=colours)
+        if plan is not None:
+            plan["record"]["spec_why"] = spec_why
+            if entry.get("bedding_test"):
+                plan["record"]["bedding_test"] = entry["bedding_test"].get("reason")
+    else:
+        plan = T.duvet_and_pillows(R.BVHCaster(verts, faces), host_fp, floor_z,
+                                   shams=int(layers.get("euro_shams") or 0))
     if plan is None:
         warnings.append(f"{piece['id']}: no mattress top found on the bed model; no bedding added")
         return None
@@ -1583,22 +1721,38 @@ def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, c
     dverts, dfaces, keys = dressing_mesh(plan["parts"])
     used = sorted(set(keys), key=keys.index)
     unverified = entry.get("status") == "unverified"
-    slots = [mats.get(k, unverified) for k in used]
+    slots = [mats.get(split_key(k)[0], unverified, colour=split_key(k)[1]) for k in used]
     name = f"dress_{piece['id']}"
-    dob = _mesh_object(name, dverts, dfaces, slots, [used.index(k) for k in keys], collection, piece["id"],
+    index = {k: i for i, k in enumerate(used)}
+    dob = _mesh_object(name, dverts, dfaces, slots, [index[k] for k in keys], collection, piece["id"],
                        "furniture", entry.get("status") or "verified")
     for poly in dob.data.polygons:
         poly.use_smooth = True
     dob.pass_index = entry["pass_index"]
     dob["wenart_type"] = piece["type"]
     dob["wenart_dressing"] = "bedding"
-    entry["dressing"] = {"name": name, "record": plan["record"], "material_keys": {k: mats.slug(k) for k in used}}
-    detail = (f"procedural bedding: a draped duvet over the foot {T.DUVET_SHARE:.0%} and {plan['record']['pillows']} "
-              "pillow(s) against the headboard"
-              + (f" in front of {plan['record']['euro_shams']} euro sham(s)" if plan["record"].get("euro_shams") else ""))
+    entry["dressing"] = {"name": name, "record": plan["record"],
+                         "material_keys": {k: mats.slug(split_key(k)[0]) for k in used},
+                         "vertices": len(dverts), "faces": len(dfaces)}
+    rec = plan["record"]
+    if rec.get("set"):
+        s = rec["set"]
+        free = ", ".join(k for k, v in (rec.get("sides") or {}).items() if v.get("free")) or "no"
+        detail = (f"the {rec.get('family')} bedding set (UL121): {s['euro_shams']} euro sham(s), {s['pillows']} "
+                  f"{'standing' if rec.get('pillows_upright') else 'lying'} pillow(s), {s['accent']} accent "
+                  f"cushion(s), {s['lumbar']} lumbar"
+                  + (f", a soft duvet over the foot {T.DUVET_SHARE:.0%} hanging on the {free} side(s)"
+                     if rec.get("duvet") else ", the model's own duvet kept"))
+        why = (rec.get("bedding_test") or "the bed model has no bedding (docs/milestone12.md §4.7)") \
+            + f"; {rec.get('spec_why')}"
+    else:
+        detail = (f"procedural bedding: a draped duvet over the foot {T.DUVET_SHARE:.0%} and {rec['pillows']} "
+                  "pillow(s) against the headboard"
+                  + (f" in front of {rec['euro_shams']} euro sham(s)" if rec.get("euro_shams") else ""))
+        why = "the bed model has no bedding (docs/milestone12.md §4.7): our cloth on its mattress"
     entry["assumed"]["bedding"] = detail
     assumed.append({"object": name, "field": "bedding", "value": detail, "parent": piece["id"], "kind": "bedding",
-                    "reason": "the bed model has no bedding (docs/milestone12.md §4.7): our cloth on its mattress"})
+                    "reason": why})
     return dob
 
 
@@ -1607,11 +1761,31 @@ RUNNER_KEY = "colour_duvet"      # = textiles.RUNNER_KEY: a layered throw's seco
 
 
 def part_colour(item: dict, key: str):
-    """The colour phrase of a decor part (pure): a layered throw's second blanket (``RUNNER_KEY``) takes the item's
-    ``accent_colour`` when it has one, every other part the item's ``colour``."""
-    if key == RUNNER_KEY and item.get("accent_colour"):
+    """The colour phrase of a decor part (pure): a layered throw's second blanket (``RUNNER_KEY``; 29 Oct 2026, UL121:
+    any ``colour_runner_<look>`` key) takes the item's ``accent_colour`` when it has one, every other part the item's
+    ``colour``."""
+    from wenart.blender import bedding_parts as BP
+
+    if (key == RUNNER_KEY or key.startswith(BP.COLOUR_PREFIX + BP.RUNNER_PREFIX)) and item.get("accent_colour"):
         return item["accent_colour"]
     return item.get("colour")
+
+
+PATTERN_INK = "charcoal"         # a woven pattern's ink where the throw names no accent colour
+
+
+def part_params(item: dict, key: str, host: dict | None = None) -> dict | None:
+    """The procedural parameters of a decor part's material (pure; 29 Oct 2026, UL121): a throw's woven pattern
+    (``colour_textile_<pattern>``) takes the item's accent colour as its ink (its second blanket's colour: the pair
+    goes together) and its host's rotation as its angle (the pattern runs with the bed, not with the world); None for
+    every other part."""
+    from wenart.blender import bedding_parts as BP
+
+    k = key[len(BP.COLOUR_PREFIX):] if key.startswith(BP.COLOUR_PREFIX) else key
+    if not k.startswith(BP.TEXTILE_PREFIX) or k[len(BP.TEXTILE_PREFIX):] not in BP.PATTERN_SLUGS:
+        return None
+    rot = float(((host or {}).get("footprint") or {}).get("rotation_deg") or item.get("rotation_deg") or 0.0)
+    return {"ink": item.get("accent_colour") or PATTERN_INK, "angle_deg": round(rot % 180.0, 3)}
 
 
 def local_decor_mesh(item: dict, dtype: str, support: str | None = None) -> dict:
@@ -1679,6 +1853,10 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
     if parametric and dtype != "throw":
         local = local_decor_mesh(item, dtype, support)
     if dtype == "throw":
+        if not isinstance(item.get("weave"), dict) and host.get("type") in ("bed_single", "bed_double") \
+                and getattr(mats, "family", None) is not None:
+            from wenart.blender import bedding_parts as BP     # 29 Oct 2026 (UL121): a decor output from before the
+            item = dict(item, weave=BP.throw_weave(mats.family))   # rule: the family's woven pair at build time
         plan = R.plan_throw(item, host, caster, floor_z)
         keys = [p["key"] for p in plan.get("parts") or [] for _f in p["faces"]]
     else:
@@ -1700,7 +1878,8 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
             keys = [f"{LIT_KEY}{k}" if k in _shade_keys(local.get("parts") or []) else k for k in keys]
             used = sorted(set(keys), key=keys.index)
         accent = P.DECOR_COLOURS.get(str(item.get("colour") or ""))
-        slots = [_part_material(mats, k, False, accent=accent, colour=part_colour(item, k), lit=lit) for k in used]
+        slots = [_part_material(mats, k, False, accent=accent, colour=part_colour(item, k), lit=lit,
+                                params=part_params(item, k, host)) for k in used]
         ob = _mesh_object(name, plan["verts"], plan["faces"], slots, [used.index(k) for k in keys], collection,
                           host["id"], "decor", status)
         for poly in ob.data.polygons:
@@ -1736,6 +1915,8 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
     }
     if not parametric and local.get("info"):
         entry["fit"] = local["info"]
+    if plan.get("weave"):
+        entry["weave"] = plan["weave"]              # 29 Oct 2026 (UL121): the throw pair's pattern and fringe as built
     if lit and dtype in LAMP_LIGHTS:
         _lamp_light(dtype, name, ob, pose["center"], float(pose.get("z") or z0), entry,
                     getattr(mats, "collection", None), assumed, host["id"],
@@ -2113,10 +2294,14 @@ LIT_KEY = "lit:"                     # a part key prefix: the key's material wit
 CLOTH_PREFIX = "cloth:"              # 29 Oct 2026 (UL120): a part key prefix: the fabric in a colour (= modules')
 
 
-def _part_material(mats, key: str, unverified: bool, accent=None, colour=None, overrides=None, lit: bool = False):
-    """The material of one parametric part key (``_Materials.get``); a ``lit:`` key the glowing copy."""
+def _part_material(mats, key: str, unverified: bool, accent=None, colour=None, overrides=None, lit: bool = False,
+                   params=None):
+    """The material of one parametric part key (``_Materials.get``); a ``lit:`` key the glowing copy. 29 Oct 2026
+    (UL121): ``params`` (``part_params``: a woven pattern's ink and angle) reach a procedural look."""
     if key.startswith(LIT_KEY):
         return glow_copy(mats.get(key[len(LIT_KEY):], unverified, accent=accent, colour=colour, overrides=overrides))
+    if params:
+        return mats.get(key, unverified, accent=accent, colour=colour, overrides=overrides, lit=lit, params=params)
     return mats.get(key, unverified, accent=accent, colour=colour, overrides=overrides, lit=lit)
 
 

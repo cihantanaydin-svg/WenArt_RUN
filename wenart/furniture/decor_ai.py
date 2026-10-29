@@ -1401,7 +1401,13 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
 
     before_rd = {d.get("id") for d in out["decor"]}
     RD.dress_details(out, style, new_id)
-    twin_notes += mirror_to_twins(out, before_rd, targets, new_id)
+    # 29 Oct 2026 (lesson UL121: "look how realistic the bed is looking full and nice I want this much detail in our
+    # models"): every bed's family set, its free sides and its throws' weave, the round drum nightstands' decor set
+    # (wenart.furniture.bedding); its record: out["bedding"]
+    from wenart.furniture import bedding as BG
+
+    BG.dress_beds(out, style, new_id)
+    twin_notes += mirror_to_twins(out, before_rd, targets, new_id)      # the details and the beds' sets
     present = {d.get("id") for d in out["decor"]}
     for rec in records:                            # a TV hung on the wall leaves its unit's top items
         rec.items = [i for i in rec.items if i.get("id") in present or not i.get("id")]

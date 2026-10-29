@@ -716,6 +716,8 @@ def add_furniture_summary(total: dict, summary: dict) -> None:
     total["not_built"].extend(summary.get("not_built") or [])
     if summary.get("decor_skipped"):
         total.setdefault("decor_skipped", []).extend(summary["decor_skipped"])
+    if summary.get("bedding"):                              # 29 Oct 2026 (UL121): each dressed bed's set and seconds
+        total.setdefault("bedding", []).extend(summary["bedding"])
     if summary.get("slowest"):                              # 29 Oct 2026: the slowest pieces and decor items
         rows = sorted(list(total.get("slowest") or []) + list(summary["slowest"]), key=lambda r: -r["seconds"])
         total["slowest"] = rows[:15]
