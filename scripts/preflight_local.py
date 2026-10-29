@@ -4,8 +4,9 @@ stage on a schema error, and a local Blender build had caught an import crash th
 
 What: for each project, the CPU stages a code change touches most, on the project's own inputs from an earlier run's
 results (``runs/<job>/results``): the decor stage's ``apply`` (no AI: the stored answers), the building schema on its
-output, then the scene build in the local Blender (``$WENART_BLENDER``, no textures, one preview sample) from that
-output. A failure prints the stage and the tail of its log and the script exits 1, so the pod run is not started.
+output, the refit with its locked check (everything drawn stays as drawn), then the scene build in the local Blender
+(``$WENART_BLENDER``, no textures, one preview sample) from the refit's building. A failure prints the stage and the
+tail of its log and the script exits 1, so the pod run is not started.
 
 Usage: python3 scripts/preflight_local.py --project real04=runs/20261029-180458-full --project real06=runs/<job>
        [--out <dir>] [--no-build]
@@ -20,6 +21,7 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO))
 
 
 def run(cmd: list[str], log: Path) -> int:
@@ -46,13 +48,25 @@ def preflight(project: str, job_dir: Path, out: Path, build: bool) -> int:
             str(need[2]), "--out", str(dst / "building_decor.json"), "--debug", str(dst / "decor_debug")],
            dst / "decor.log"):
         return 1
+    # the refit after the decor (wenart.run.stages.refit): the locked check of everything drawn (walls, openings,
+    # rooms, drawn pieces) against the reading's building.json (real04 run 20261029-185352-full stopped there)
+    from wenart.run import stages as S
+
+    print(f"{project}: refit and locked check")
+    cmd = [py, "-m", "wenart.furniture.fit", str(dst / "building_decor.json"), "--catalog", S.CATALOG, "--out",
+           str(dst / "building_final.json"), "--assets", "assets", "--style", str(need[1]), "--source",
+           str(src / "building.json")]
+    if (src / "completion.json").is_file():
+        cmd += ["--completion", str(src / "completion.json")]
+    if run(cmd, dst / "refit.log"):
+        return 1
     if not build:
         return 0
     if not os.environ.get("WENART_BLENDER"):
         print(f"{project}: no WENART_BLENDER: the build is not checked")
         return 1
     print(f"{project}: Blender build")
-    return run([py, "-m", "wenart.blender.cli", "build", "--building", str(dst / "building_decor.json"), "--style",
+    return run([py, "-m", "wenart.blender.cli", "build", "--building", str(dst / "building_final.json"), "--style",
                 str(need[1]), "--assets", "assets", "--out", str(dst / "scene"), "--preview-samples", "1",
                 "--camera-policy", "search", "--brief", f"projects/{project}", "--no-textures"], dst / "build.log")
 

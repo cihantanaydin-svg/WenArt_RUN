@@ -148,6 +148,10 @@ def _front_ok(a: Optional[float], b: Optional[float]) -> bool:
 # Milestone 11 (pod G2b): the agent's set_room_type changes a room's type with a reason (``adjusted_by_ai``);
 # the room's geometry and every other field stay as drawn.
 AGENT_ROOM_KEYS = ("room_type", "adjusted_by_ai", "inferred")
+# 29 Oct 2026 (real04 run 20261029-185352-full stopped at the refit's locked check): the keys a later stage writes into
+# a room as its design, never drawn data (wenart.furniture.room_schemes: the room's scheme, UL119); the rooms are
+# compared without them, so the drawn record stays byte-equal and the design may change
+DESIGN_ROOM_KEYS = ("scheme",)
 
 
 def _agent_retyped(room: Optional[dict]) -> bool:
@@ -165,14 +169,16 @@ def _without_agent_keys(room: dict) -> dict:
 def _block_problems(source: dict, final: dict) -> list[str]:
     out = []
     for key in BYTE_EQUAL_BLOCKS:
-        before = {e.get("id"): _dump(e) for e in source.get(key) or []}
-        after = {e.get("id"): _dump(e) for e in final.get(key) or []}
+        strip = (lambda e: {k: v for k, v in e.items() if k not in DESIGN_ROOM_KEYS}) if key == "rooms" \
+            else (lambda e: e)
+        before = {e.get("id"): _dump(strip(e)) for e in source.get(key) or []}
+        after = {e.get("id"): _dump(strip(e)) for e in final.get(key) or []}
         if key == "rooms":                     # a reasoned room type change of the agent (set_room_type)
             src_rooms = {e.get("id"): e for e in source.get(key) or []}
             for e in final.get(key) or []:
                 if _agent_retyped(e) and e.get("id") in src_rooms:
-                    before[e["id"]] = _dump(_without_agent_keys(src_rooms[e["id"]]))
-                    after[e["id"]] = _dump(_without_agent_keys(e))
+                    before[e["id"]] = _dump(strip(_without_agent_keys(src_rooms[e["id"]])))
+                    after[e["id"]] = _dump(strip(_without_agent_keys(e)))
         if before == after:
             continue
         changed = sorted(i for i in before.keys() & after.keys() if before[i] != after[i])
