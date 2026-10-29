@@ -1471,6 +1471,30 @@
    "request": "This dressing could be a see through dressing room in the both sides, Argus should have think of this (29 Oct 2026, real06 run 100801 r_L1_soyunma_odasi; docs/reference_details_20261029.md R37)",
    "lesson": "This dressing could be a see through dressing room in the both sides, Argus should have think of this (29 Oct 2026, real06 run 100801 r_L1_soyunma_odasi; docs/reference_details_20261029.md R37)",
    "question": "Is every walk-in dressing room (a dressing room, or wardrobe runs facing each other across an aisle) see-through on both sides (slatted, glazed or open fronts with hanging clothes, folded stacks, shoes and a light inside), with a bench or pouf and a full-height mirror where the aisle allows?"
+  },
+  {
+   "id": "UL126",
+   "date": "2026-10-29",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "You can leave the right door open and show the dressing room, not all the doors should be closed (29 Oct 2026, real06 run 100801, the master bedroom view: two closed doors on one wall, the right one to the dressing room)",
+   "lesson": "You can leave the right door open and show the dressing room, not all the doors should be closed (29 Oct 2026, real06 run 100801, the master bedroom view: two closed doors on one wall, the right one to the dressing room)",
+   "question": "In every interior view that sees a door to a room worth showing (a dressing room, an en-suite, a hall or living space), does that door stand open with the room beyond lit and furnished, while private doors (a WC) stay closed or ajar, so no view shows only closed doors?"
+  },
+  {
+   "id": "UL127",
+   "date": "2026-10-29",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Leaving all the doors open in default could be a good approach (29 Oct 2026, after the real06 master bedroom view)",
+   "lesson": "Leaving all the doors open in default could be a good approach (29 Oct 2026, after the real06 master bedroom view)",
+   "question": "Does every interior door stand open by default (its leaf turned open against its swing side, ajar only where a piece or a wall stops it), with only the entrance and terrace doors closed?"
   }
  ]
 }
