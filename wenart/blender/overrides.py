@@ -151,6 +151,8 @@ def fixed_plan(entry: dict, level_id: Optional[str] = None, index: int = 1, base
             plan[key] = entry[key]
         elif base is not None and key in base:
             plan[key] = base[key]
+    if kind == "interior":                    # 29 Oct 2026 (UL106): straight verticals, the aim as a lens shift
+        cameras.level_interior(plan)
     return plan
 
 

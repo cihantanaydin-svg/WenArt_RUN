@@ -472,6 +472,8 @@ def room_look_prompt(room: dict, pieces: list[dict], views: list[str], image_lab
         "", "Problems the code already measured (never repeat them, not even under another checklist id):",
         *(known or ["- none"]),
         "", VISITOR_TEXT, SEVERITY_TEXT,
+        *([pro_bar_text(room.get("room_type")).replace(", and score a room that lacks most of them at most 3", "")]
+          if pro_bar_text(room.get("room_type")) else []),                # 29 Oct 2026 (UL106)
         "List what is wrong in the renders. For each finding give evidence_image = the number of the image that shows "
         "it."])
 
@@ -617,3 +619,37 @@ def planner_task(round_no: int, findings: list[dict], minor: list[dict], budget:
                   *[line(f) for f in minor[:20]]]
     lines += ["", "Start with the most severe finding. Call finish when done."]
     return "\n".join(lines)
+
+
+# --------------------------------------------------------------------------
+# 29 Oct 2026 (lesson UL106; user, showing a professional bedroom render: "look at this renders I want my renders to be
+# as professional as these ones"): what makes a living room or bedroom render professional. The judge (judge_view) and
+# the inspector's room critic (room_look_prompt) ask it of every such view, so they name the layers a render lacks
+# (each a 'missing layer' problem with check D3, the camera's tilt V1); no new check id.
+# --------------------------------------------------------------------------
+
+PRO_BAR: tuple[tuple[str, str], ...] = (
+    ("feature wall", "a feature wall behind the bed head or the sofa: vertical fluted or slatted wood panelling (or a "
+                     "classic panelled wainscot), not only a flat paint colour"),
+    ("patterned floor", "a wood floor laid in herringbone or chevron where the style lays parquet"),
+    ("layered curtains", "full-height curtains in two layers: a white sheer behind a heavier drape, on a ceiling track"),
+    ("layered bedding", "a bed in layers: duvet, a throw and a second blanket across the foot, sleeping pillows with "
+                        "euro shams and a decorative cushion"),
+    ("light layers", "a statement fixture over the bed or the table, bedside pendants or lamps, small recessed "
+                     "downlights, a warm lamp glow"),
+    ("rug", "a large rug under the bed or the seating group"),
+    ("styled surfaces", "a styled console or dresser: a round mirror, a vase with dried grass, books, a leaning art "
+                        "print"),
+    ("straight verticals", "a level camera: wall edges and door frames vertical, a calm, near-frontal composition"),
+)
+PRO_BAR_ROOM_TYPES: tuple[str, ...] = ("bedroom", "living", "dining")
+
+
+def pro_bar_text(room_type: Optional[str]) -> str:
+    """The professional bar of a living room or bedroom view (``PRO_BAR``), '' for any other view (pure)."""
+    if room_type not in PRO_BAR_ROOM_TYPES:
+        return ""
+    items = "; ".join(f"{name}: {what}" for name, what in PRO_BAR)
+    return ("A professional interior render of such a room shows: " + items + ". For each of these the render "
+            "lacks, add a problem with check D3 on the room whose message starts with 'missing layer: <name>' (the "
+            "camera's tilt: check V1), and score a room that lacks most of them at most 3.")

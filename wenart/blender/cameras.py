@@ -564,6 +564,52 @@ def camera_room_type(plan: dict, room_types: dict | None = None) -> str:
     return str(value) if value else ""
 
 
+# 29 Oct 2026 (lesson UL106; the professional reference: "level camera with straight verticals"): an interior camera is
+# never tilted. The searched cameras are level (pitch 0, a lens shift of camsearch.SHIFT_Y); an agent's set / add or a
+# replayed pose may aim up or down (its target above or below the eye), which leans every wall edge. ``level_interior``
+# turns such an aim into the vertical lens shift that frames the same centre line (shift_y += f tan(pitch) / sensor
+# width, the shift in units of the image width as Camera.shift_y), clamped to INTERIOR_SHIFT_MAX (the Milestone 11
+# lenses and the eye height stay); the plan records ``levelled``.
+INTERIOR_SHIFT_MAX = 0.25
+LEVEL_PITCH_TOL_DEG = 0.5
+
+
+def level_interior(plan: dict) -> dict | None:
+    """Level an interior camera plan in place (pure; the comment above): ``{"pitch_deg_was", "shift_y_was",
+    "shift_y"}`` (also the plan's ``levelled``), None for an exterior view or a level one."""
+    if not isinstance(plan, dict) or (plan.get("kind") or ("interior" if plan.get("room_id") else "exterior")) \
+            != "interior":
+        return None
+    pos = plan.get("position")
+    if not pos or len(pos) < 3:
+        return None
+    if plan.get("target") is not None and len(plan["target"]) >= 3:
+        tgt = [float(v) for v in plan["target"]]
+        run = math.hypot(tgt[0] - float(pos[0]), tgt[1] - float(pos[1]))
+        if run < 1e-6:
+            return None
+        pitch = math.degrees(math.atan2(tgt[2] - float(pos[2]), run))
+    elif plan.get("rotation_euler_deg") is not None and len(plan["rotation_euler_deg"]) >= 3:
+        pitch = float(plan["rotation_euler_deg"][0]) - 90.0          # a camera at X 90 deg looks level
+        tgt = None
+    else:
+        return None
+    if abs(pitch) < LEVEL_PITCH_TOL_DEG:
+        return None
+    lens = float(plan.get("lens_mm") or LENS_MM)
+    sensor = float(plan.get("sensor_mm") or SENSOR_MM)
+    was = float(plan.get("shift_y") or 0.0)
+    shift = max(-INTERIOR_SHIFT_MAX, min(INTERIOR_SHIFT_MAX, was + lens * math.tan(math.radians(pitch)) / sensor))
+    if tgt is not None:
+        plan["target"] = [tgt[0], tgt[1], float(pos[2])]
+    else:
+        rot = [float(v) for v in plan["rotation_euler_deg"]]
+        plan["rotation_euler_deg"] = [90.0, rot[1], rot[2]]
+    rec = {"pitch_deg_was": round(pitch, 3), "shift_y_was": round(was, 4), "shift_y": round(shift, 4)}
+    plan.update(shift_y=round(shift, 4), pitch_deg=0.0, levelled=rec)
+    return rec
+
+
 def create_cameras(plans: list[dict], collection, manifest_objects: list, room_types: dict | None = None) -> list:
     """Create a Blender camera object per plan (needs bpy).
 
@@ -583,6 +629,7 @@ def create_cameras(plans: list[dict], collection, manifest_objects: list, room_t
 
     created = []
     for plan in plans:
+        level_interior(plan)                  # 29 Oct 2026 (UL106): an interior view keeps its verticals vertical
         cam = bpy.data.cameras.new(plan["name"])
         cam.lens = plan["lens_mm"]
         cam.sensor_width = plan["sensor_mm"]

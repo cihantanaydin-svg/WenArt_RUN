@@ -104,6 +104,11 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   every living room (major) and the master bedroom (minor), living and dining rooms furnished to their density, a
   bookshelf with books, storage in every bathroom (minor), no library model the user rejected (major), no floor lamp
   built at its oversized plan symbol (minor); kind ``taste``.
+- M23 the professional bar (29 Oct 2026, lesson UL106; user, showing a professional bedroom render: "I want my renders
+  to be as professional as these ones"; ``wenart.furniture.dressing.review``): every living room and bedroom of a
+  style family that builds them has its feature panel on the accent wall (``feature_walls``) and its wood floor laid
+  in the family's pattern (``parquet``) unless the decor stage's recipe turned them off, layered curtains (a sheer) and
+  a bed's throw in two layers. Minor; kind ``taste``.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -138,7 +143,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
 CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18",
-          "M20", "M21")      # 29 Oct 2026: M20 every door a real product, M21 the rooms furnished for their use
+          "M20", "M21", "M23")   # 29 Oct 2026: M20 doors as products, M21 rooms for their use, M23 the professional bar
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -1186,7 +1191,29 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
         checks["M21"] = {"status": "unavailable", "note": f"{type(exc).__name__}: {exc}"}
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
         checks["M21"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M23 (29 Oct 2026, lesson UL106; user: "I want my renders to be as professional as these ones"): each living room
+    # and bedroom against the professional bar as built (a feature panel on the accent wall, the floor's pattern,
+    # layered curtains and bedding: wenart.furniture.dressing.review, the rule Argus' U23 reads too). Imported by name,
+    # out of the build script's import closure, as M17.
+    if scene_manifest:
+        try:
+            import importlib
+
+            DR = importlib.import_module("wenart.furniture.dressing")
+            got, n = DR.review(built, scene_manifest, check="M23")
+            note("M23", [dict(_v("M23", g["severity"], g["target"], g["message"], room_id=g["room_id"],
+                                 kind="taste", missing=g["missing"]), fix=FIX_PRO_BAR) for g in got], n)
+        except ImportError as exc:
+            checks["M23"] = {"status": "unavailable", "note": f"{type(exc).__name__}: {exc}"}
+        except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+            checks["M23"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    else:
+        checks["M23"] = {"status": "unavailable", "note": "no scene manifest"}
     return {"findings": findings, "checks": checks}
+
+
+FIX_PRO_BAR = ("the decor stage's professional dressing (wenart.furniture.dressing: layered curtains and bedding, the "
+               "lights' roles) and the build's finishes (feature_walls on the accent wall, parquet on the wood floor)")
 
 
 def density_of(built: dict):

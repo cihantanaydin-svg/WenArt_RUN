@@ -2222,9 +2222,43 @@ def decor_pick_key(item: dict) -> str:
     room's lights), else the host piece, else the first anchor piece (rug, wall art), else the item itself (a floor
     plant)."""
     if item.get("type") in ROOM_MATCHED_DECOR_TYPES and item.get("room_id"):
-        return f"{item['room_id']}:{item['type']}"
+        role = item.get("fixture") if item.get("fixture") in FIXTURE_ROLES else None   # 29 Oct 2026 (UL106)
+        return f"{item['room_id']}:{item['type']}" + (f":{role}" if role else "")
     anchors = item.get("anchor_ids") or []
     return str(item.get("host_id") or (anchors[0] if anchors else None) or item.get("id") or item.get("type"))
+
+
+# 29 Oct 2026 (UL106; the professional reference: a black multi-arm chandelier with glass globes over the bed, slim
+# pendants hanging low beside the nightstands, small recessed downlights): the light's role in the room
+# (``item["fixture"]``, wenart.furniture.dressing) narrows the model pool; a downlight is our parametric recessed fixture.
+FIXTURE_ROLES: tuple[str, ...] = ("statement", "bedside", "downlight")
+STATEMENT_WORDS: tuple[str, ...] = ("chandelier", "chandeliers", "globe", "globes", "multi light", "multi-light",
+                                    "branch", "arms", "sputnik", "cluster", "3-light", "4-light", "5-light", "6-light",
+                                    "8-light")
+SLIM_ASPECT = 1.6                # a bedside pendant's model is at least this much taller than wide (a slim drop)
+
+
+def is_statement_title(title: str) -> bool:
+    """A model title that names a statement fixture (pure): a whole word or phrase of ``STATEMENT_WORDS``."""
+    import re
+
+    text = str(title or "").casefold()
+    return any(re.search(r"(?<![a-z0-9])" + re.escape(w) + r"(?![a-z0-9])", text) for w in STATEMENT_WORDS)
+
+
+def fixture_pool(fits: list, item: dict) -> tuple[list, Optional[str]]:
+    """``(pool, why)``: the fitting models a light of its role takes first (pure): a ``statement`` fixture the
+    models whose title names a chandelier, globes or several arms (``STATEMENT_WORDS``), a ``bedside`` pendant the
+    slim ones (``SLIM_ASPECT``); the whole ``fits`` when none matches or the light has no role."""
+    role = item.get("fixture")
+    if role == "statement":
+        pool = [(e, f) for e, f in fits if is_statement_title(e.get("title") or e.get("name") or "")]
+        return (pool, "statement fixture: a chandelier or multi-globe model") if pool else (fits, None)
+    if role == "bedside":
+        pool = [(e, f) for e, f in fits if float(e["bbox_m"][2]) >= SLIM_ASPECT * max(float(e["bbox_m"][0]),
+                                                                                       float(e["bbox_m"][1]))]
+        return (pool, "bedside pendant: a slim model") if pool else (fits, None)
+    return fits, None
 
 
 def _decor_fit(entry: dict, item: dict, dtype: str) -> Optional[dict]:
@@ -2292,6 +2326,8 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
     dtype = item.get("type", "")
     if dtype not in DECOR_LIBRARY_TYPES or not item.get("size") or len(item["size"]) < 2:
         return None
+    if item.get("fixture") == "downlight":            # 29 Oct 2026 (UL106): our recessed downlight (parametric)
+        return None
     styled = [e for e in decor_entries(catalog, dtype, mode) if decor_styles_match(e, style_family)
               and C.contact_fits(e, dtype)]               # Milestone 12: the audited contact suits the type
     fits = [(e, f) for e in styled for f in [_decor_fit(e, item, dtype)] if f is not None]
@@ -2304,6 +2340,8 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
         fits = same or fits
     # Milestone 9: an AI decor item names a colour; models whose name holds it come first (the pick stays
     # deterministic by the host id inside the chosen group).
+    all_fits = fits
+    fits, role_why = fixture_pool(fits, item)          # 29 Oct 2026 (UL106): the light's role in the room
     colour = str(item.get("colour") or "").strip().casefold()
     coloured = [(e, f) for e, f in fits if colour and colour in str(e.get("name") or e.get("title") or "").casefold()]
     pool = coloured or fits
@@ -2322,9 +2360,11 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
         "quality": entry.get("quality"),
         "pick": {"key": key, "index": i, "of": len(pool), "ids": [e["id"] for e, _f in pool],
                  "colour": colour or None, "colour_matches": len(coloured),
-                 "not_fitting": [e["id"] for e in styled if e["id"] not in {x["id"] for x, _f in fits}],
+                 "not_fitting": [e["id"] for e in styled if e["id"] not in {x["id"] for x, _f in all_fits}],
                  "other_style": len(decor_entries(catalog, dtype, mode)) - len(styled)},
     }
+    if role_why:
+        asset["pick"]["fixture"] = role_why
     if asset["library"] != "polyhaven" and entry.get("glb"):
         asset.update({k: entry[k] for k in GLB_ASSET_FIELDS if k in entry})
         asset["unit_scale"] = float(entry.get("unit_scale") or 1.0)

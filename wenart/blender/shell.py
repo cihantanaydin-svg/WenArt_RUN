@@ -1837,7 +1837,18 @@ def floor_style(room: dict, style: dict, outdoor: dict | None = None) -> tuple[d
     if kind in KITCHEN_TYPES and isinstance(style.get("floor"), dict) and _wet_safe(style["floor"].get("material")):
         return style["floor"], True
     wet = kind in WET_ROOM_TYPES
-    return (style.get("wet_floor") if wet else None) or style["floor"], wet
+    slot = (style.get("wet_floor") if wet else None) or style["floor"]
+    # 29 Oct 2026 (UL106): the style's plank floor laid in the room's pattern (herringbone / chevron; the build writes
+    # ``room["floor_pattern"]``, wenart.blender.parquet.annotate)
+    if not wet and slot is style.get("floor") and isinstance(slot, dict):
+        try:
+            from wenart.blender import parquet as PQ
+            extra = PQ.floor_params(room)
+        except ImportError:
+            extra = None
+        if extra:
+            slot = dict(slot, params=dict(slot.get("params") or {}, **extra))
+    return slot, wet
 
 
 def _wet_safe(slug) -> bool:

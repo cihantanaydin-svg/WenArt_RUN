@@ -3328,7 +3328,7 @@ def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None
     r = min(w, d) / 2.0
     # Milestone 12 (§6.4): our procedural textiles (the mesh makers at the end of this module)
     if dtype == "curtain":                    # an open pair of pleated panels under a rod (one per window)
-        return curtain_parts(w, d, h)
+        return curtain_parts(w, d, h, item=item)
     if dtype == "blind":                      # a roller blind (default) or a slatted blind (item ``blind_kind``)
         return blind_parts(w, d, h, kind=str((item or {}).get("blind_kind") or "roller"))
     if dtype == "throw":                      # without a host: a flat cloth with its folds (on a host: textiles.drape)
@@ -3401,6 +3401,8 @@ def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None
         bulb = min(0.06, r * 0.4)
         parts.append(_superellipsoid(0.0, 0.0, 0.01, bulb, bulb, bulb, 1.0, 1.0, "bulb", "bulb", n_eta=6, n_om=12))
         return parts
+    if dtype == "ceiling_light" and (item or {}).get("fixture") == "downlight":
+        return downlight_parts(w, d, h)       # 29 Oct 2026 (UL106): a small recessed downlight
     if dtype == "ceiling_light":              # a flush canopy with a dome diffuser
         canopy = min(0.03, h * 0.3)
         return [_cylinder_z(0.0, 0.0, h - canopy, w / 2.0 * 0.8, d / 2.0 * 0.8, canopy, "colour_steel", "canopy",
@@ -3411,6 +3413,23 @@ def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None
     if dtype in WORK_DECOR_TYPES:             # 29 Oct 2026: the desk's laptop, monitor, keyboard and mouse
         return work_set_parts(dtype, w, d, h)
     raise KeyError(f"no decor builder for {dtype!r}")
+
+
+# 29 Oct 2026 (UL106; the professional reference: small recessed downlights in the ceiling): a recessed downlight is a
+# thin trim ring flush under the ceiling and a lens set a little up into it (real product: 8-9 cm cut-out, a 1 cm
+# trim). Designer values; the light itself is the rig's (lighting.rig_plan hosts it under every decor ceiling light).
+DOWNLIGHT_SIZE = (0.09, 0.09, 0.012)
+DOWNLIGHT_LENS_SHARE = 0.62
+
+
+def downlight_parts(w: float, d: float, h: float) -> list[Part]:
+    """A recessed downlight in its box ``w x d x h`` (bottom on z = 0, the ceiling at h): the trim ring (``painted``)
+    and the lens (``bulb``: it emits when the evening mood lights the lamps)."""
+    r = min(w, d) / 2.0
+    ring = min(h, 0.012)
+    return [_cylinder_z(0.0, 0.0, h - ring, r, r, ring, "painted", "trim", n=32),
+            _cylinder_z(0.0, 0.0, h - ring - 0.002, r * DOWNLIGHT_LENS_SHARE, r * DOWNLIGHT_LENS_SHARE, 0.004,
+                        "bulb", "bulb", n=24)]
 
 
 def kitchen_worktop_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
@@ -3984,32 +4003,65 @@ def cloth_solid(grid: np.ndarray, thickness: float = CLOTH_THICKNESS_M, key: str
     return _cloth_part(verts, faces, key, role)
 
 
-def _pleated_panel(x0: float, x1: float, h: float, depth: float, key: str) -> Part:
-    """A pleated curtain panel from x0 to x1 (item frame), hanging from h down to 0: a sine of ``PLEAT_PITCH_M`` in
-    Y (depth ``PLEAT_DEPTH_M``, a little deeper at the hem), two layers ``CURTAIN_LAYER_M`` apart, closed."""
+def _pleated_panel(x0: float, x1: float, h: float, depth: float, key: str, y0: float = 0.0,
+                   pitch: float = PLEAT_PITCH_M, amp_max: float = PLEAT_DEPTH_M, role: str = "panel") -> Part:
+    """A pleated curtain panel from x0 to x1 (item frame), hanging from h down to 0: a sine of ``pitch`` in Y
+    (depth ``amp_max``, a little deeper at the hem) about ``y0``, two layers ``CURTAIN_LAYER_M`` apart, closed."""
     width = x1 - x0
-    nu = max(4, int(round(width / (PLEAT_PITCH_M / 4.0))))
+    nu = max(4, int(round(width / (pitch / 4.0))))
     nv = 6
     grid = np.zeros((nu + 1, nv + 1, 3))
-    amp = min(PLEAT_DEPTH_M, depth / 2.0 - CURTAIN_LAYER_M)
+    amp = min(amp_max, depth / 2.0 - CURTAIN_LAYER_M)
     for i in range(nu + 1):
         x = x0 + width * i / nu
         for j in range(nv + 1):
             z = h * j / nv
             flare = 1.0 + 0.25 * (1.0 - j / nv)
-            grid[i, j] = (x, amp * flare * math.sin(2.0 * math.pi * (x - x0) / PLEAT_PITCH_M) * 0.5, z)
-    part = cloth_solid(grid, CURTAIN_LAYER_M, key=key, role="panel", along=(0.0, 1.0, 0.0))
+            grid[i, j] = (x, y0 + amp * flare * math.sin(2.0 * math.pi * (x - x0) / pitch) * 0.5, z)
+    part = cloth_solid(grid, CURTAIN_LAYER_M, key=key, role=role, along=(0.0, 1.0, 0.0))
     part["smooth"] = True
     return part
 
 
-def curtain_parts(w: float, d: float, h: float, key: str = "colour_fabric") -> list[Part]:
+# 29 Oct 2026 (UL106; the professional reference: full-height curtains on a ceiling track, a white sheer behind a
+# heavier drape): a layered curtain (``item["layers"]`` holds ``sheer``) hangs two sheer panels, each
+# ``SHEER_PANEL_SHARE`` of the rod drawn in from its end (the middle of the window stays clear), behind the drape
+# panels; ``item["track"] == "ceiling"`` hangs both from a slim ceiling track instead of the rod. Designer values.
+SHEER_PANEL_SHARE = 0.30
+DRAPE_PANEL_SHARE = 0.20         # the drape of a layered curtain, stacked at the ends in front of the sheer
+SHEER_PLEAT_PITCH_M = 0.07
+SHEER_PLEAT_DEPTH_M = 0.018
+TRACK_SIZE_M = (0.045, 0.022)    # the ceiling track's depth and height (a recessed-look aluminium track)
+CURTAIN_LAYERS = ("sheer", "drape")
+
+
+def curtain_parts(w: float, d: float, h: float, key: str = "colour_fabric", item: dict | None = None) -> list[Part]:
     """An open pair of pleated panels under a rod (item frame: width X along the wall, the curtain's front -Y, from
-    the floor gap up to the rod at ``h``): each panel covers ``CURTAIN_PANEL_SHARE`` of the rod."""
-    parts = [_cylinder_x(-w / 2.0, 0.0, h - 0.02, 0.012, 0.012, w, "steel", "rod", n=12)]
-    pw = w * CURTAIN_PANEL_SHARE
-    parts.append(_pleated_panel(-w / 2.0, -w / 2.0 + pw, h - 0.05, d, key))
-    parts.append(_pleated_panel(w / 2.0 - pw, w / 2.0, h - 0.05, d, key))
+    the floor gap up to the rod at ``h``): each panel covers ``CURTAIN_PANEL_SHARE`` of the rod. 29 Oct 2026
+    (UL106): a layered curtain (``item["layers"]``) adds the sheer panels behind the drape (key ``sheer``), a
+    ``ceiling`` track replaces the rod (key ``painted``)."""
+    item = item or {}
+    layered = "sheer" in (item.get("layers") or ())
+    track = item.get("track") == "ceiling"
+    if track:
+        td, th = TRACK_SIZE_M
+        parts = [_box(0.0, 0.0, h - th, w, min(td, d), th, "painted", "track")]
+        top = h - th - 0.005
+    else:
+        parts = [_cylinder_x(-w / 2.0, 0.0, h - 0.02, 0.012, 0.012, w, "steel", "rod", n=12)]
+        top = h - 0.05
+    if not layered:
+        pw = w * CURTAIN_PANEL_SHARE
+        parts.append(_pleated_panel(-w / 2.0, -w / 2.0 + pw, top, d, key))
+        parts.append(_pleated_panel(w / 2.0 - pw, w / 2.0, top, d, key))
+        return parts
+    sw, pw = w * SHEER_PANEL_SHARE, w * DRAPE_PANEL_SHARE
+    back, front = d / 4.0, -d / 4.0                  # the sheer on the window side, the drape on the room side
+    for x0, x1 in ((-w / 2.0, -w / 2.0 + sw), (w / 2.0 - sw, w / 2.0)):
+        parts.append(_pleated_panel(x0, x1, top, d / 2.0, "sheer", y0=back, pitch=SHEER_PLEAT_PITCH_M,
+                                    amp_max=SHEER_PLEAT_DEPTH_M, role="sheer"))
+    for x0, x1 in ((-w / 2.0, -w / 2.0 + pw), (w / 2.0 - pw, w / 2.0)):
+        parts.append(_pleated_panel(x0, x1, top, d / 2.0, key, y0=front))
     return parts
 
 

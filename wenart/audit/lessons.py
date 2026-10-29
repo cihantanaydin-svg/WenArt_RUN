@@ -46,6 +46,9 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   bit more furniture would be nice"), no bookshelf or a bookshelf without books ("no library and books"), a bathroom
   without storage ("bath is too empty"), a user-rejected model or a floor lamp at its plan symbol's size ("I did not
   like this light").
+- U23 the professional bar of a living room or bedroom (``wenart.furniture.dressing.review``; UL106: "I want my renders
+  to be as professional as these ones"): no feature panel on its accent wall where its style builds one, a wood floor
+  not laid in its style's pattern, curtains in one layer, a bed's throw in one layer.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -635,6 +638,18 @@ CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4":
                  "U21": ("UL88",), "U22": ("UL88",), "U24": ("UL90", "UL101"), "U25": ("UL97",),
                  "U18": ("UL89", "UL65"), "U17": ("UL93",), "U26": ("UL100",), "U28": ("UL104",),
                  "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107")}
+CHECK_LESSONS["U23"] = ("UL106",)          # 29 Oct 2026: the professional bar (professional_bar)
+
+
+def professional_bar(building: dict, manifest: Optional[dict]) -> list[dict]:
+    """U23 (module docstring): the living rooms and bedrooms against the professional reference (``dressing.review``,
+    the same rule as the model review's M23); the fix names the stage that adds what is missing."""
+    from wenart.furniture import dressing as DR
+
+    got, _n = DR.review(building, manifest, check="U23")
+    return [_f("U23", g["severity"], g["target"], g["message"], "UL106",
+               "rerun_stage decor (wenart.furniture.dressing) and build (feature_walls, parquet)",
+               missing=g["missing"]) for g in got]
 
 
 def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
@@ -664,6 +679,16 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
             continue
         findings += got
         checked[cid] = len(got)
+    # 29 Oct 2026 (UL106): the professional bar of the living rooms and bedrooms (on the built scene)
+    if not manifest:
+        checked["U23"] = "no scene manifest: not run"
+    else:
+        try:
+            got = professional_bar(building, manifest)
+            findings += got
+            checked["U23"] = len(got)
+        except Exception as exc:  # noqa: BLE001 - a check that fails is listed, the others still run
+            checked["U23"] = f"failed: {type(exc).__name__}: {exc}"[:200]
     return {"findings": findings, "checked": checked}
 
 

@@ -1368,6 +1368,17 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         if rec is not None:
             rec.items = [i for i in rec.items if i.get("id") != d.get("id")]
             rec.notes.append(f"{d.get('type')} {d.get('id')} left out: {d['removed_reason']}")
+    # 29 Oct 2026 (lesson UL106): the professional dressing of the living rooms and bedrooms (layered curtains and
+    # bedding, the lights plan's statement, downlights and bedside pendants, the rooms' feature-wall and floor-pattern
+    # decisions from their recipes: wenart.furniture.dressing); the questions and the stored answers are unchanged
+    from wenart.furniture import dressing as DR
+
+    before = {d.get("id") for d in out["decor"]}
+    DR.dress(out, style, lambda room: room_recipe(room, recipes), new_id)     # its notes: out["dressing"]["notes"]
+    room_ids = {r.get("id") for r in out.get("rooms") or []}
+    for it in out["decor"]:
+        if it.get("id") not in before and it.get("room_id") in room_ids:
+            record_of(it["room_id"]).items.append(it)
     D.attach_host_frames(out)                     # Milestone 12 (§4.7): every item in its host's frame
     return out, records
 

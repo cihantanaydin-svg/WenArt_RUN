@@ -132,7 +132,12 @@ def throw_parts(caster, host_fp: dict, item: dict, floor_z: float, step: Optiona
     """A throw on a seat end or across a bed's foot (§4.7): its rectangle (the item's centre and size in the host
     frame) draped on the host; a rolled fold along its front edge. Returns ``{"parts", "drape", "rect"}`` or None
     when the cloth finds no top under it. ``step`` / ``offset``: a finer grid and a higher offset for a host that
-    shows through the cloth (``rest.plan_throw``)."""
+    shows through the cloth (``rest.plan_throw``).
+
+    29 Oct 2026 (UL106; the professional reference: a knit throw and a second blanket across the bed's foot): an item
+    with ``layers`` 2 gets a second, narrower blanket (``layered_runner``: ``RUNNER_SHARE`` of the throw's depth, at
+    its foot end) draped on the bed and the first throw together (``rest.MultiCaster``), key ``RUNNER_KEY`` (the
+    item's ``accent_colour``, else its colour); the first throw is what S5 measures (``parts[0]``)."""
     hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
     lx, ly = rest.to_local(hc, rot, float(item["center"][0]), float(item["center"][1]))
     w, d = float(item["size"][0]), float(item["size"][1])
@@ -142,7 +147,37 @@ def throw_parts(caster, host_fp: dict, item: dict, floor_z: float, step: Optiona
     if got["grid"] is None:
         return None
     sheet = cloth_solid(got["grid"], key="colour_fabric", role="throw")
-    return {"parts": [sheet], "drape": got, "rect": rect}
+    out = {"parts": [sheet], "drape": got, "rect": rect}
+    if int(item.get("layers") or 1) >= 2:
+        runner = layered_runner(caster, host_fp, rect, sheet, floor_z, **kw)
+        if runner is not None:
+            out["parts"].append(runner["part"])
+            out["runner"] = {"rect": runner["rect"], "share": runner["drape"]["share"]}
+    return out
+
+
+RUNNER_SHARE = 0.55              # the second blanket: this share of the throw's depth ...
+RUNNER_WIDTH_SHARE = 1.06        # ... and a little wider than it, hanging further over the bed's sides
+RUNNER_FOLD_ROLE = "runner"
+RUNNER_KEY = "colour_duvet"      # the duvet's fabric in the item's accent colour (furniture: _part_colour)
+
+
+def layered_runner(caster, host_fp: dict, rect, sheet: dict, floor_z: float, step: Optional[float] = None,
+                   offset: Optional[float] = None) -> Optional[dict]:
+    """The second blanket of a layered throw (``throw_parts``): ``{"part", "rect", "drape"}`` draped over the host
+    and the first throw (pure numpy: a ``rest.MeshCaster`` of the sheet with the host's caster), None when it finds
+    no top."""
+    x0, y0, x1, y1 = (float(v) for v in rect)
+    cx, w = (x0 + x1) / 2.0, (x1 - x0) * RUNNER_WIDTH_SHARE
+    depth = (y1 - y0) * RUNNER_SHARE
+    r_rect = (cx - w / 2.0, y0 + 0.02, cx + w / 2.0, y0 + 0.02 + depth)
+    both = rest.MultiCaster([caster, rest.MeshCaster(sheet["verts"], sheet["faces"])])
+    kw = {k: v for k, v in (("step", step), ("offset", offset)) if v is not None}
+    got = drape(both, host_fp, r_rect, floor_z, **kw)
+    if got["grid"] is None:
+        return None
+    return {"part": cloth_solid(got["grid"], key=RUNNER_KEY, role=RUNNER_FOLD_ROLE), "rect": r_rect,
+            "drape": got}
 
 
 # --------------------------------------------------------------------------
@@ -158,17 +193,56 @@ def pillow_count(width: float) -> int:
     return 2 if float(width) >= TWO_PILLOW_MIN_W - 1e-9 else 1
 
 
-def duvet_and_pillows(caster, host_fp: dict, floor_z: float) -> Optional[dict]:
-    """The bedding of a bed model without bedding (§4.7): ``{"parts", "pillows": [pose], "duvet": drape record,
-    "record"}``; None when no mattress top is found. The pillows are placed first against the headboard
-    (``rest.place_leaning`` with the pillow leaned ``90 - PILLOW_TILT_DEG``: lying, its head end raised); the duvet
-    covers the foot ``DUVET_SHARE`` of the bed, ``DUVET_SIDE_DROP_M`` past the sides and the foot, with a turned-down
-    band at its head end lying on it."""
+# 29 Oct 2026 (UL106; the professional reference: two sleeping pillows in front of two large square euro shams against
+# the headboard): a double bed's euro shams stand upright on the mattress against a real headboard (``euro_shams``);
+# a bed with no headboard the rays find (a platform bed against the wall) gets none. Designer values (a 65 x 65 cm sham).
+SHAM_SIZE = (0.65, 0.12, 0.60)    # width across the bed, thickness, height (slim: the pillows stay in the head zone)
+SHAM_LEAN_DEG = 6.0
+SHAM_MIN_BED_W = 1.35
+SHAM_ROLE = "euro_sham"
+
+
+def _merged(parts: list) -> tuple[list, list]:
+    verts, faces = [], []
+    for part in parts or []:
+        off = len(verts)
+        verts.extend(part["verts"])
+        faces.extend([[i + off for i in f] for f in part["faces"]])
+    return verts, faces
+
+
+def euro_shams(caster, host_fp: dict, count: int = 2) -> Optional[dict]:
+    """``{"parts", "poses"}`` of up to two euro shams against the bed's headboard (pure numpy; ``rest.place_leaning``
+    leaned ``SHAM_LEAN_DEG``), None when the bed is narrower than ``SHAM_MIN_BED_W`` or no headboard is hit (a sham
+    never stands against nothing)."""
     w, d = float(host_fp["size"][0]), float(host_fp["size"][1])
+    if w < SHAM_MIN_BED_W - 1e-9 or int(count) < 1:
+        return None
     hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
-    n = pillow_count(w)
-    pw = min(PILLOW_SIZE[0], (w - 0.1) / n - 0.04)
-    pt, ph = PILLOW_SIZE[1], PILLOW_SIZE[2]
+    n = min(2, int(count))
+    sw = min(SHAM_SIZE[0], (w - 0.1) / n - 0.04)
+    st, sh = SHAM_SIZE[1], SHAM_SIZE[2]
+    parts, poses = [], []
+    for k in range(n):
+        lx = 0.0 if n == 1 else (-1 if k == 0 else 1) * (sw / 2.0 + 0.02)
+        planned = rest.to_world(hc, rot, lx, d / 2.0 - st)
+        pose = rest.place_leaning(caster, host_fp, planned, (sw, st, sh), lean_deg=SHAM_LEAN_DEG, bed=True)
+        if pose is None or str(pose.get("how") or "").startswith("no backrest hit"):
+            return None
+        mesh = cushion_mesh(pose["size"][0], st, sh, key="bedding", role=SHAM_ROLE)
+        parts.append(dict(mesh, verts=rest.pose_vertices(mesh["verts"], pose)))
+        poses.append(pose)
+    return {"parts": parts, "poses": poses}
+
+
+def sham_mesh(parts: list) -> tuple[list, list]:
+    """The world mesh of a bedding's euro shams (pure): what a decor cushion stands against on a dressed bed."""
+    return _merged([p for p in parts or [] if p.get("role") == SHAM_ROLE])
+
+
+def _pillows(caster, host_fp: dict, n: int, pw: float, pt: float, ph: float) -> Optional[tuple[list, list]]:
+    hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
+    d = float(host_fp["size"][1])
     parts, poses = [], []
     for k in range(n):
         lx = 0.0 if n == 1 else (-1 if k == 0 else 1) * (pw / 2.0 + 0.02)
@@ -179,8 +253,39 @@ def duvet_and_pillows(caster, host_fp: dict, floor_z: float) -> Optional[dict]:
         mesh = cushion_mesh(pose["size"][0], pt, ph, key="bedding", role="pillow")
         parts.append(dict(mesh, verts=rest.pose_vertices(mesh["verts"], pose)))
         poses.append(pose)
+    return parts, poses
+
+
+def duvet_and_pillows(caster, host_fp: dict, floor_z: float, shams: int = 0) -> Optional[dict]:
+    """The bedding of a bed model without bedding (§4.7): ``{"parts", "pillows": [pose], "duvet": drape record,
+    "record"}``; None when no mattress top is found. The pillows are placed first against the headboard
+    (``rest.place_leaning`` with the pillow leaned ``90 - PILLOW_TILT_DEG``: lying, its head end raised); the duvet
+    covers the foot ``DUVET_SHARE`` of the bed, ``DUVET_SIDE_DROP_M`` past the sides and the foot, with a turned-down
+    band at its head end lying on it. 29 Oct 2026 (UL106): ``shams`` euro shams (``euro_shams``) stand against the
+    headboard first and the pillows lean on them; when they cannot (no headboard) or the pillows then find no place,
+    the bed is dressed without them (``record["euro_shams"]`` says how many)."""
+    w, d = float(host_fp["size"][0]), float(host_fp["size"][1])
+    hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
+    n = pillow_count(w)
+    pw = min(PILLOW_SIZE[0], (w - 0.1) / n - 0.04)
+    pt, ph = PILLOW_SIZE[1], PILLOW_SIZE[2]
+    sham = euro_shams(caster, host_fp, shams) if shams else None
+    got = None
+    if sham is not None:
+        sv, sf = _merged(sham["parts"])
+        got = _pillows(rest.MultiCaster([caster, rest.MeshCaster(sv, sf)]), host_fp, n, pw, pt, ph)
+        if got is None or any(str(p.get("how") or "").startswith("no backrest hit") for p in got[1]):
+            got, sham = None, None                 # the pillows must lean on the shams, else no shams
+    if got is None:
+        got = _pillows(caster, host_fp, n, pw, pt, ph)
+    if got is None:
+        return None
+    parts, poses = got
+    if sham is not None:
+        parts = sham["parts"] + parts
     y_head = -d / 2.0 + DUVET_SHARE * d
-    pillow_foot = min(rest.to_local(hc, rot, v[0], v[1])[1] for p in parts for v in p["verts"])
+    pillow_foot = min(rest.to_local(hc, rot, v[0], v[1])[1] for p in parts if p.get("role") == "pillow"
+                      for v in p["verts"])
     y_head = min(y_head, pillow_foot - 0.03)            # the duvet ends just before the pillows
     rect = (-w / 2.0 - DUVET_SIDE_DROP_M, -d / 2.0 - DUVET_SIDE_DROP_M, w / 2.0 + DUVET_SIDE_DROP_M, y_head)
     got = drape(caster, host_fp, rect, floor_z, thickness=DUVET_THICKNESS_M)
@@ -192,6 +297,7 @@ def duvet_and_pillows(caster, host_fp: dict, floor_z: float) -> Optional[dict]:
     if band is not None:
         parts.append(band)
     record = {"pillows": n, "pillow_size_m": [round(pw, 3), pt, ph], "duvet_rect_local": [round(v, 3) for v in rect],
+              "euro_shams": len(sham["parts"]) if sham else 0,
               "duvet_share": DUVET_SHARE, "top_z": round(float(got["top_z"]), 4), "on_top_share": round(got["share"], 3),
               "rule": "procedural bedding: the bed model has no bedding (docs/milestone12.md §4.7)",
               # fix round after P4b: where the pillows lie along the bed (local y, + = the head half) and the check
@@ -200,7 +306,7 @@ def duvet_and_pillows(caster, host_fp: dict, floor_z: float) -> Optional[dict]:
     return {"parts": parts, "pillows": poses, "duvet": got, "record": record}
 
 
-LEAN_ROLES = ("pillow",)          # the bedding a decor cushion may lean against (never the duvet or its fold)
+LEAN_ROLES = ("pillow", SHAM_ROLE)   # the bedding a decor cushion may lean against (never the duvet or its fold)
 
 
 def lean_parts(parts: list) -> tuple[list, list]:

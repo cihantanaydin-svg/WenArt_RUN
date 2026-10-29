@@ -1312,6 +1312,11 @@ def main(argv: list[str]) -> int:
     furniture_summary = {"pieces": 0, "by_method": {}, "fallbacks": [], "proxies": 0, "decor": 0,
                          "proxies_forced": bool(args.proxies), "not_built": [], "stairs": [], "decor_skipped": []}
     loose_furniture = furniture_building(building)            # stairs are built with the shell
+    # 29 Oct 2026 (UL106): the style's plank floor laid in herringbone or chevron in its rooms (room["floor_pattern"],
+    # read by shell.floor_style; the building as built keeps it)
+    from wenart.blender import feature_walls as FW
+    from wenart.blender import parquet as PQ
+    assumed.extend(PQ.annotate(building, style))
     rooms_without_view: list[dict] = []                       # Milestone 7 §6.2: empty rooms the cameras skip
     cameras_dropped: list[dict] = []                          # Milestone 10: exterior views no place worked for
     looks = E.resolve_looks(building, style, brief) if whole else None
@@ -1384,6 +1389,8 @@ def main(argv: list[str]) -> int:
         shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings,
                              library_openings=lib_openings, assets_dir=args.assets, geo_cache=geo_cache)
         shell.build_skirting(building, level, col, library, style, manifest_objects, assumed)
+        # 29 Oct 2026 (UL106): the fluted panel or wainscot on the accent wall of the bedrooms and living rooms
+        fw_plans = FW.build_feature_walls(building, level, col, library, style, manifest_objects, assumed, warnings)
         floor_whole = None
         if whole:
             floor_whole = {"floor_voids": under["voids"] if under else [],
@@ -1405,6 +1412,11 @@ def main(argv: list[str]) -> int:
             level_furniture = dict(loose_furniture, decor=decor)
             warnings.extend(fit_warnings)
             furniture_summary["not_built"].extend(fit_not_built)
+        if fw_plans:                                  # UL106: wall art on a panel stands off it, never in the slats
+            stood, fw_notes = FW.standoff_decor(level_furniture.get("decor") or [], fw_plans)
+            level_furniture = dict(level_furniture, decor=stood)
+            assumed.extend({"object": line.split(":")[0], "field": "feature_wall_standoff", "value": True,
+                            "reason": line, "kind": "decor"} for line in fw_notes)
         summary = furniture.create_furniture(level_furniture, level, col, library, style, args.assets, pass_indices,
                                              manifest_objects, assumed, warnings, use_proxies=args.proxies)
         add_furniture_summary(furniture_summary, summary)
