@@ -25,11 +25,12 @@
 #   AB_PROJECTS         realism A/B projects (§6.3), AB_CONTROL_PROJECT the one with the control sets,
 #   AB_PHASE            all (default) | render | judge
 #   RUN_FORCE           stages whose fingerprint is ignored, comma separated (e.g. photos,layout)
-#   RUN_POLISH=off      Milestone 11 (pod G2): no gate and polish for any project of this run (WENART_POLISH)
+#   RUN_POLISH          off (default since 29 Oct 2026: CLAUDE.md "AI polish stays off in Milestone 13"; the 28 Oct
+#                       runs forgot the flag and spent 8-13 min on it) | on: gate and polish (WENART_POLISH)
 #   RUN_VEGETATION_SETUP=0  Milestone 13: skip scripts/pod_setup_vegetation.sh (Sapling extension, tree models, leaf
 #                       atlases; default: run it, idempotent, about a minute)
 #   DRIVE_UPLOAD=1      set by gpu_run.py --drive-upload: the 3D files of RUN_PROJECTS to Google Drive (RCLONE_CONF)
-#   RENDER_SAMPLES      Cycles samples (default 128)
+#   RENDER_SAMPLES      Cycles samples (default 256 since 29 Oct 2026, the Milestone 13 setting; 128 before)
 #   CHECK_MODELS        check.yaml model keys (default "qwen glm"; recognition, layout and --no-orchestrator checks)
 #   NO_ORCHESTRATOR=1   Milestone 11: the M10 chain (`pod --no-orchestrator`); default: the AI orchestrator
 #                       (docs/milestone11.md §8: agent rounds, the agent model's one-pass check; its model is
@@ -86,7 +87,7 @@ export HF_HOME="${WENART_HF_HOME:-$FAST/hf}"
 export HF_XET_HIGH_PERFORMANCE=1
 export WENART_OUTPUTS="$REPO/outputs"
 export CHECK_MODELS="${CHECK_MODELS:-qwen glm}"
-export RENDER_SAMPLES="${RENDER_SAMPLES:-128}"
+export RENDER_SAMPLES="${RENDER_SAMPLES:-256}"
 # Milestone 13 (docs/milestone13.md §13.3): the licence mode of the fit; unset = the project brief (relaxed for real02/03/04) or defaults.yaml
 if [ -n "${WENART_LICENCE_MODE:-}" ]; then export WENART_LICENCE_MODE; fi
 export WENART_JOB_DIR="$JOB_DIR" WENART_RESULTS="$RESULTS" WENART_ASSETS="$ASSETS" WENART_FAST="$FAST" \
@@ -142,7 +143,7 @@ if [ -n "${AB_PROJECTS:-}" ]; then
   if [ -n "${AB_CONTROL_PROJECT:-}" ]; then POD_ARGS+=(--ab-controls "$AB_CONTROL_PROJECT"); fi
 fi
 if [ -n "${RUN_FORCE:-}" ]; then POD_ARGS+=(--force "$RUN_FORCE"); fi
-if [ "${RUN_POLISH:-on}" = "off" ]; then export WENART_POLISH=off; fi
+if [ "${RUN_POLISH:-off}" = "off" ]; then export WENART_POLISH=off; fi
 # Milestone 11: orchestrated by default (the CLI's default); the agent model is downloaded with the VLMs.
 AGENT_SETUP="${AGENT_MODEL:-agent}"
 if [ "${NO_ORCHESTRATOR:-0}" = "1" ]; then POD_ARGS+=(--no-orchestrator); AGENT_SETUP=""; fi

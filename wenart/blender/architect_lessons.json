@@ -1258,6 +1258,16 @@
    "request": "This one is one of the renders in real06 but with more and better furnitures, you can use this one to learn (cam_r_L0_salon_1 as the user wants it: a wool rug under the dining table, a leather bench on one side, linen placemats or a runner, plates with napkins, cutlery, wine glasses, a eucalyptus and hydrangea centrepiece with candles, a wooden sideboard with vases; in the living area floating wall shelves with trailing plants, books and pottery, a fiddle-leaf fig and other plants, knit throws and patterned cushions on the leather sofa, a boucle armchair, a solid wood coffee table with a plant and books, a rattan side table with a basket, a low open shelf as a room divider; abstract art prints, sheer curtains, warm low sunlight)",
    "lesson": "This one is one of the renders in real06 but with more and better furnitures, you can use this one to learn (cam_r_L0_salon_1 as the user wants it: a wool rug under the dining table, a leather bench on one side, linen placemats or a runner, plates with napkins, cutlery, wine glasses, a eucalyptus and hydrangea centrepiece with candles, a wooden sideboard with vases; in the living area floating wall shelves with trailing plants, books and pottery, a fiddle-leaf fig and other plants, knit throws and patterned cushions on the leather sofa, a boucle armchair, a solid wood coffee table with a plant and books, a rattan side table with a basket, a low open shelf as a room divider; abstract art prints, sheer curtains, warm low sunlight)",
    "question": null
+  },
+  {
+   "id": "UL108",
+   "date": "2026-10-29",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "Give me the breakdown of the pod time for each pod how much time each thing is taking (every run report gives the pod time in buckets: setup, reading, Blender build/render/export, the AI agent model, the vision check, diffusion, tests, upload; python -m wenart.report.podtime)",
+   "lesson": "Give me the breakdown of the pod time for each pod how much time each thing is taking (every run report gives the pod time in buckets: setup, reading, Blender build/render/export, the AI agent model, the vision check, diffusion, tests, upload; python -m wenart.report.podtime)",
+   "question": null
   }
  ]
 }

@@ -2061,8 +2061,28 @@ doors and room labels of L-1b, the open-kitchen variant's own level (fixed: `con
 cam_r_L0_banyo_2 (f_L0_025; the open issue), four corridor views lit by the rig read orange (wall R/B 1.31-1.42
 over 1.29).
 
-Every build took about 420 s longer than the one before (519 s ... 3,077 s; real06: 230 s more each), and the previews,
-the replay and the refit slowed the same way; Blender's own timer stayed near 7 min, `build.prepare` and the model
-review take seconds on the same inputs. The stage runner now stops what a stage leaves running in its process group
-and logs the load and the GPU's processes after every stage, so the next run shows the cause. The big loop got one
-cycle in both runs because of it.
+~~Every build took about 420 s longer than the one before~~ Correction of 29 Oct 2026: the builds do not slow down.
+The stage record's `seconds` is the stage's running total; the per-build steps and the log timestamps show 519, 437,
+441, 419, 418, 410, 433 s on real04 (sum 3,077 s) and 309, then about 231 s each on real06. The stage runner's stop of
+leftover processes and its load log stay (harmless). The big loop got one cycle in both runs because the rounds, the
+final stages and the AI reviews fill the time (pod time breakdown below).
+
+### Pod time breakdown (29 Oct 2026, user request; `python -m wenart.report.podtime`)
+
+| what (minutes) | real06 222248 | real04 005318 | real06 154514 | real04 183611 |
+|---|---:|---:|---:|---:|
+| pod start and setup | 4.8 | 6.6 | 5.0 | 4.6 |
+| AI agent model (architect, Argus AI, critic/planner, judge, inspector; real04 183611 also the open-kitchen variant, 17.4) | 51.7 | 72.0 | 60.6 | 101.8 |
+| Blender: build the scene (7 builds) | 26.0 | 29.3 | 28.3 | 51.3 |
+| Blender: render, previews, controls, top views | 21.3 | 13.8 | 19.8 | 21.8 |
+| AI vision check, layout, decor questions | 9.8 | 11.1 | 9.9 | 9.0 |
+| diffusion: gate, polish, detect | 11.7 | 7.3 | 8.0 | 12.8 |
+| CPU stages | 5.3 | 9.4 | 5.7 | 11.8 |
+| Blender: 3D export | 4.1 | 3.0 | 4.2 | 6.5 |
+| model server starts, glue | 3.5 | 4.4 | 3.6 | 4.2 |
+| GPU tests | 2.5 | 3.6 | 2.6 | 3.9 |
+| results upload and pod stop | 6.3 | 9.5 | 5.3 | 8.4 |
+| total (billed) | 147 | 170 | 153 | 236 |
+
+The polish ran in the 28 Oct runs (the `RUN_POLISH=off` flag was not passed; CLAUDE.md keeps it off in Milestone 13)
+and they rendered at 128 samples: `full.sh` now defaults to polish off and 256 samples.

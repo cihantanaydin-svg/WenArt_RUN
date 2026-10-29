@@ -73,7 +73,7 @@ def test_exports_of_polish_sh():
                  'export WENART_OUTPUTS="$REPO/outputs"', 'export CHECK_MODELS="${CHECK_MODELS:-qwen glm}"',
                  'FAST="${WENART_FAST:-/opt/wenart}"', 'PY="${WENART_PY:-$WS/venv/bin/python}"',
                  'POLISH_PY="${WENART_POLISH_PY:-$FAST/venv-polish/bin/python}"',
-                 'export RENDER_SAMPLES="${RENDER_SAMPLES:-128}"', "REPO=$WS/repo"):
+                 'export RENDER_SAMPLES="${RENDER_SAMPLES:-256}"', "REPO=$WS/repo"):
         assert line in text, line
     for var in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS",
                 "VECLIB_MAXIMUM_THREADS", "OPENCV_FOR_THREADS_NUM"):
@@ -262,7 +262,7 @@ def test_sandbox_public_run(tmp_path):
     assert env["HF_HUB_OFFLINE"] == "1" and env["HF_HOME"] == str(tmp_path / "fast" / "hf")
     assert env["HF_XET_HIGH_PERFORMANCE"] == "1" and env["CHECK_MODELS"] == "qwen glm"
     assert env["WENART_BLENDER"] == str(box.ws / "tools" / "blender" / "blender")
-    assert env["WENART_OUTPUTS"] == str(box.ws / "repo" / "outputs") and env["RENDER_SAMPLES"] == "128"
+    assert env["WENART_OUTPUTS"] == str(box.ws / "repo" / "outputs") and env["RENDER_SAMPLES"] == "256"
     assert env["WENART_POLISH_PY"] == str(tmp_path / "fast" / "venv-polish" / "bin" / "python")
     assert env["WENART_JOB_DIR"] == str(box.job_dir) and env["WENART_DEADLINE"] == "1999999999"
     assert {env[k] for k in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS",

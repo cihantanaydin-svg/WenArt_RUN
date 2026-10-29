@@ -305,7 +305,9 @@ def test_run_polish_off_and_the_calibrated_final_estimate(monkeypatch, tmp_path)
     base = S.est_final(10, polish=False) / S.EST_FINAL_FACTOR_NO_POLISH     # real03 run 2: 1.6 without polish
     assert S.est_final(10, polish=True) > S.est_final(10, polish=False) > base
     text = (Path(__file__).resolve().parents[1] / "scripts" / "jobs" / "full.sh").read_text()
-    assert 'if [ "${RUN_POLISH:-on}" = "off" ]; then export WENART_POLISH=off; fi' in text
+    # 29 Oct 2026: off by default (CLAUDE.md: AI polish stays off in Milestone 13), 256 samples by default
+    assert 'if [ "${RUN_POLISH:-off}" = "off" ]; then export WENART_POLISH=off; fi' in text
+    assert 'export RENDER_SAMPLES="${RENDER_SAMPLES:-256}"' in text
 
 
 def test_only_the_edits_the_locked_check_refuses_are_rolled_back(tmp_path):
