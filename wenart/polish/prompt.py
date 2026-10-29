@@ -111,6 +111,7 @@ MATERIAL_WORDS: dict[str, str] = {
     "steel_brushed": "brushed steel",
     "stone_worktop": "dark stone",
     "lacquer_dark": "dark lacquered",
+    "screen_black": "glossy black screen",            # 29 Oct 2026: a TV's, a laptop's or a monitor's screen
     "plant_green": "green plant",
     "wood_veneer_oak": "light oak veneer",
     "wood_veneer_walnut": "walnut veneer",

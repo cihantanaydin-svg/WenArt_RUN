@@ -1867,7 +1867,7 @@ def ceiling_planes_of(building: Optional[dict], level_id: Optional[str]) -> list
     return [list(p) for p in R.ceiling_planes(model, level)]
 
 
-# 27 Oct 2026 (user on real06: "this in front of a window not making sense": a drawn dresser under a 0.90 m sill got
+# 27 Oct 2026 (user: "this in front of a window not making sense": a drawn dresser under a 0.90 m sill got
 # a 1.44 m tall chest that covered the window): a floor piece standing in front of a window gets no model taller than
 # the window's sill (less WINDOW_SILL_GAP_M), when its type has real products that low.
 WINDOW_SILL_GAP_M = 0.02         # a piece's top stays this far under the sill of the window it stands in front of
@@ -2513,7 +2513,7 @@ def apply_size_snap(piece: dict, part: Optional[tuple] = None) -> Optional[dict]
         merged_changed.setdefault(k, v)
     if symbol:
         reason = (f"size snap: {snap['reason']} (CLAUDE.md: a drawn size outside its type's real product range is "
-                  "snapped to a real product before the fit; user on real06, 29 Oct 2026: \"I did not like this light\", "
+                  "snapped to a real product before the fit; user, 29 Oct 2026: \"I did not like this light\", "
                   "lesson UL94)")
     elif part is None:
         reason = (f"size snap: the drawn {piece['type']} {w:.2f} x {d:.2f} m is outside its product range "
@@ -2815,7 +2815,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
                 asset["fabric_colour_source"] = source
         piece["asset"] = asset
         if piece.get("type") == "bathtub" and asset.get("method") != "library":
-            # 28 Oct 2026 (user on real06: "this bath needs to make sense"): a bath built from code knows its walls
+            # 28 Oct 2026 (user: "this bath needs to make sense"): a bath built from code knows its walls
             from wenart.furniture import fixture_seat as FS
             asset["bath_walls"] = FS.bath_walls(fitted, piece)
         # 26 Oct 2026: a wall-hung fixture model hangs at its working top (the build honours mount_bottom_m)

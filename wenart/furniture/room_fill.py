@@ -250,7 +250,7 @@ def fill_room(building: dict, room: dict, kind: str) -> list[dict]:
             t = max(tables, key=lambda f: float(f["footprint"]["size"][0]) * float(f["footprint"]["size"][1]))
             near = placer.piece_from_furniture(t).polygon()
             reason = (f"a sideboard on the wall beside the dining table {t['id']} (the room is "
-                      f"{share * 100:.0f} % furnished, under {target * 100:.0f} %; user on real06: \"a bit more furniture "
+                      f"{share * 100:.0f} % furnished, under {target * 100:.0f} %; user: \"a bit more furniture "
                       f"would be nice\", the improved picture's wooden sideboard by the table)" if target else
                       f"a sideboard on the wall beside the dining table {t['id']}")
             group = {"group_id": f"{room['id']}.living_storage.dining", "group": "living_storage", "role": "anchor"}
@@ -265,7 +265,7 @@ def fill_room(building: dict, room: dict, kind: str) -> list[dict]:
         low = kind == "bedroom"
         reason = ("a low bookshelf with books and toys on a free wall of the child's room" if low else
                   "a bookshelf with books on a free wall" + (" of the study" if kind == "other" else ""))
-        reason += " (user on real06, 29 Oct 2026: \"There are no library and books in the house\")"
+        reason += " (user, 29 Oct 2026: \"There are no library and books in the house\")"
         group = ({"group_id": f"{room['id']}.living_storage.books", "group": "living_storage", "role": "anchor"}
                  if kind == "living" else None)
         piece, why = place(building, room, "bookshelf", LOW_SHELF["sizes"] if low else SHELF_SIZES,
@@ -276,7 +276,7 @@ def fill_room(building: dict, room: dict, kind: str) -> list[dict]:
         add(piece, "low_shelf" if low else "bookshelf", why)
     if kind == "bathroom" and not types & set(BATH_STORAGE_TYPES):
         reason = ("a tall storage column on a free wall of the bathroom, off the fixtures' use zones, the shower entry "
-                  "and the door swing (user on real06, 29 Oct 2026: \"bath is too empty there should be some dolaps\")")
+                  "and the door swing (user, 29 Oct 2026: \"bath is too empty there should be some dolaps\")")
         piece, why = place(building, room, "tall_cabinet", BATH_COLUMN_SIZES, "bath_column", reason,
                            height=BATH_COLUMN_HEIGHT_M)
         add(piece, "bath_column", why)

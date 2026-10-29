@@ -304,7 +304,7 @@ def _unit_piece(room: dict, center, rotation: float, size, seat: dict, kind: str
             "rule": {"name": RULE, "seat": seat["id"], "free": bool(free), "view": dict(view)},
             "reason": (f"media wall: a TV unit for the TV facing the {seat['type'].replace('_', ' ')} {seat['id']}, "
                        f"{where}, {view['distance_m']:.2f} m from its front, {view['angle_deg']:.0f}° off its axis, "
-                       f"off every window, door and walkway (user on real06, 29 Oct 2026: \"There is no TV in the "
+                       f"off every window, door and walkway (user, 29 Oct 2026: \"There is no TV in the "
                        f"house\", {LESSON})"),
             "evidence": [{"file": "rule", "method": "inferred", "confidence": 0.7,
                           "note": f"{RULE}: the TV wall the seat {seat['id']} faces"}]}
@@ -599,7 +599,7 @@ def tv_item(room: dict, host: dict, seat: Optional[dict], kind: str,
             "tv": {"inches": inches, "panel_m": [tw, round(th - TV_STAND_H_M, 3)], "stand_depth_m": td,
                    "mount": "stand", "back_gap_m": TV_BACK_GAP_M},
             "reason": (f"media wall: a {inches}-inch TV on the {host['type'].replace('_', ' ')} {host['id']}{facing} "
-                       f"(viewing distance 1.2-1.6 x the diagonal; user on real06, 29 Oct 2026: \"There is no TV in "
+                       f"(viewing distance 1.2-1.6 x the diagonal; user, 29 Oct 2026: \"There is no TV in "
                        f"the house\", {LESSON})")}
 
 

@@ -30,7 +30,9 @@ def test_synthetic_brief_keeps_its_style_and_assumes_the_rest():
                            "exterior_views": True, "twin_rooms": "one", "white_balance_k": None}
     assert "style" not in brief["assumed"]
     assert brief["assumed"] == ["empty_rooms", "decor", "polish", "style_photos", "ceiling_height", "slab_thickness",
-                                "furnished_rooms", "furnished_rooms_keep", "furnished_rooms_keep_size", "variants",
+                                "furnished_rooms", "furnished_rooms_keep", "furnished_rooms_keep_size",
+                                # 29 Oct 2026 (UL99, UL98): the media wall and the room fill
+                                "media_wall", "tv_in_bedroom", "room_fill", "variants",
                                 "failed_levels", "site", "exterior.facade", "exterior.roof", "exterior.window_frame",
                                 "exterior.door", "exterior.paving", "exterior.garden",
                                 "render.views_per_room", "render.resolution", "render.samples", "render.lens_mm",

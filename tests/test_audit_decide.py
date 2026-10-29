@@ -196,7 +196,9 @@ def test_u3_the_18_nc_sa_models_are_removed_in_the_committed_catalogue():
     assert by == NC_SA
     for e in entries(doc):
         # Milestone 13: usable in relaxed mode = the audit status; commercial mode also needs a commercial-safe flag
-        assert C.usable(e, "relaxed") == ((e.get("audit") or {}).get("status") in ("keep", "fix")), e["id"]
+        # 29 Oct 2026 (UL94): a model the user rejected is never usable, whatever its audit
+        assert C.usable(e, "relaxed") == ((e.get("audit") or {}).get("status") in ("keep", "fix")
+                                          and C.user_rejection(e) is None), e["id"]
         assert C.usable(e, "commercial") == (C.usable(e, "relaxed") and C.commercial_safe(e)), e["id"]
     assert W.U3_NOTE in doc["notes"]
 

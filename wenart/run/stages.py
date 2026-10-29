@@ -168,6 +168,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              # Milestone 10 (track H): the exterior scope of the expected views reads the roof and the site.
              "wenart/vision_check/exterior.py", "wenart/blender/roof.py", "wenart/blender/site.py",
              "wenart/blender/looks.py",                  # track F: shell's looks
+             # 29 Oct 2026: shell's feature panels and parquet (UL106), the door models (UL89)
+             "wenart/blender/feature_walls.py", "wenart/blender/parquet.py", "wenart/blender/opening_models.py",
              "wenart/blender/overrides.py",              # real03: lighting reads the agent's set_lighting
              "wenart/levels/**",                         # M12: the site reads the terrain (track L)
              # Milestone 13 (T5, 15 Oct 2026): the gate's closure reaches the building copies (site -> copies ->
