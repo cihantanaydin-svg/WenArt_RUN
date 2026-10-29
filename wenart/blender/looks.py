@@ -61,11 +61,34 @@ def _look(material: Optional[str], asset=None, colour=None, source: str = "style
     return out
 
 
+# 29 Oct 2026 (lesson UL119, docs/reference_details_20261029.md R25, R34; ``wenart.furniture.room_schemes``): a room
+# whose scheme paints it all round: a deep colour (paint, white skirting and ceiling) or a limewash texture
+SCHEME_WALLS: dict[str, str] = {"deep_colour": "paint", "limewash": "lime_plaster"}
+
+
+def scheme_walls(room: Optional[dict], style: Optional[dict] = None) -> Optional[dict]:
+    """The wall look a room's scheme gives every wall of the room (``SCHEME_WALLS``), None for a room whose scheme
+    keeps the house's walls (or a style that turns the schemes off: ``room_schemes`` false)."""
+    sc = (room or {}).get("scheme") if isinstance((room or {}).get("scheme"), dict) else None
+    if not sc or (style or {}).get("room_schemes") in (False, "off", "none"):
+        return None
+    slug = SCHEME_WALLS.get(str(sc.get("walls")))
+    if slug is None or not sc.get("wall_colour"):
+        return None
+    what = "a deep colour all round (R25)" if sc["walls"] == "deep_colour" else "a limewash texture all round (R34)"
+    return _look(slug, None, sc["wall_colour"], "scheme", f"the room's scheme {sc.get('key')}: {what}")
+
+
 def wall_face_material(style: dict, room: Optional[dict] = None) -> dict:
     """The look of the inside wall faces of ``room`` (None: the level's default): the style's ``walls`` slot (its
     material, asset and colour name; a Milestone 3 slug such as ``plaster_cream`` carries no colour). Milestone 11
     (docs/milestone11.md §1.3 M2, §3.2 ``set_material``): a kitchen takes the ``kitchen_walls`` slot when the agent
-    set one, else the walls like any other room."""
+    set one, else the walls like any other room. 29 Oct 2026 (UL119): a room whose scheme paints it all round takes
+    that look (``scheme_walls``)."""
+    own = scheme_walls(room, style)
+    if own is not None:
+        return {"material": own["material"], "asset": None, "tint": None, "colour": own["colour"],
+                "scheme": own["reason"]}
     walls = _slot(style, "walls")
     if room is not None and room.get("room_type") == "kitchen" and _slot(style, "kitchen_walls"):
         walls = _slot(style, "kitchen_walls")
@@ -202,8 +225,23 @@ def accent_walls(building: dict, level: dict, style: dict) -> dict:
                 why = f"the longest wall without a window ({along[wall_id]:.2f} m along the room)"
         if wall_id is None:
             continue
+        # 29 Oct 2026 (UL119): a room painted all round by its scheme keeps its own look on that wall too (the wall is
+        # still the room's anchor wall: the feature panel goes there); an accent scheme names its own pale colour
+        # unless the brief names the accent
+        own = scheme_walls(room, style)
+        sc = room.get("scheme") if isinstance(room.get("scheme"), dict) else {}
+        if own is not None:
+            out.setdefault(wall_id, {})[room["id"]] = _look(own["material"], None, own["colour"], "scheme",
+                                                            f"accent wall of {room['id']}: {why} ({own['reason']})",
+                                                            accent=True)
+            continue
+        colour = accent.get("colour")
+        if sc.get("walls") == "accent" and sc.get("wall_colour") and not _slot(style, "wall_accent") \
+                and (style or {}).get("room_schemes") not in (False, "off", "none"):
+            colour = sc["wall_colour"]
+            why += f"; the room's scheme {sc.get('key')}"
         out.setdefault(wall_id, {})[room["id"]] = _look(
-            material, accent.get("asset"), accent.get("colour"), "style",
+            material, accent.get("asset"), colour, "style",
             f"accent wall of {room['id']}: {why} (" + (accent.get("why") or "style wall_accent") + ")", accent=True)
     return out
 

@@ -136,10 +136,13 @@ def test_new_decor_types_are_the_schema_decor_types_but_the_parametric_book_set(
     # kettle, ...) and a table's plates and glasses are parametric until audited library models of them exist;
     # 29 Oct 2026: so is a desk's work set (laptop, monitor, keyboard, mouse)
     from wenart.furniture import decor as D
-    # 29 Oct 2026: the desk's work set (UL93) and the TV (UL99) are parametric too
+    # 29 Oct 2026: the desk's work set (UL93) and the TV (UL99) are parametric too; so are the reference photos'
+    # details (UL113, UL115, UL119: the lit niche, the intercom, the floor vase, the leaning art, the bag, the desk's
+    # wall unit)
     assert library == (schema - {"book_set"} - set(D.KITCHEN_DECOR_TYPES) - set(D.SETTING_TYPES)
                        - set(D.WORK_DECOR_TYPES) - set(D.MEDIA_DECOR_TYPES)
-                       - set(D.BATH_DECOR_TYPES))      # 29 Oct 2026 (UL114): the bathroom's own accessories
+                       - set(D.BATH_DECOR_TYPES)
+                       - set(D.DETAIL_DECOR_TYPES))      # 29 Oct 2026 (UL114): the bathroom's own accessories
 
 
 # --------------------------------------------------------------------------

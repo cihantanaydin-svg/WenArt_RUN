@@ -1028,10 +1028,21 @@ def vision_doubt(entry: Optional[dict]) -> list[str]:
     return [str(x) for x in audit.get("vision_doubt") or []]
 
 
+# 29 Oct 2026 (lesson UL119; docs/reference_details_20261029.md R17, R27, R33): the forms a room's scheme
+# (wenart.furniture.room_schemes) gives a piece, built by design (wenart.blender.detail_parts)
+SCHEME_FORMS: dict[str, tuple[str, ...]] = {"nightstand": ("drum", "floating"), "desk": ("floating",)}
+
+
+def scheme_form(piece: dict) -> bool:
+    """True for a piece whose room scheme gives it a form of ``SCHEME_FORMS`` (a drum or floating nightstand, a
+    floating corner desk)."""
+    return piece.get("form") in SCHEME_FORMS.get(str(piece.get("type")), ())
+
+
 def by_design_parametric(piece: dict) -> bool:
     """True for a piece built from code by design (``BY_DESIGN_PARAMETRIC_TYPES``; a made-to-measure vanity or
-    built-in wardrobe of its design, Milestone 10 §4.4)."""
-    if piece.get("type") in BY_DESIGN_PARAMETRIC_TYPES:
+    built-in wardrobe of its design, Milestone 10 §4.4; 29 Oct 2026: a scheme form, ``scheme_form``)."""
+    if piece.get("type") in BY_DESIGN_PARAMETRIC_TYPES or scheme_form(piece):
         return True
     look = piece.get("bath_look") if isinstance(piece.get("bath_look"), dict) else {}
     if look.get("made_to_measure"):        # 29 Oct 2026 (UL114): the family's open lit storage column (bath_details)

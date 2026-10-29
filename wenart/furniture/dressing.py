@@ -117,7 +117,8 @@ def _note(item: dict, text: str) -> None:
 
 
 def _evidence(text: str) -> list[dict]:
-    return [{"file": "building.json", "method": "rule", "confidence": 0.7, "model": "rule", "pass": 1, "text": text}]
+    # 29 Oct 2026: "inferred" (the schema's evidence methods; "rule" failed the decor stage's validation)
+    return [{"file": "building.json", "method": "inferred", "rule": RULE, "confidence": 0.7, "text": text}]
 
 
 # --------------------------------------------------------------------------

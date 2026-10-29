@@ -138,6 +138,9 @@ CHECK_KIND.update({"U23": "taste", "M23": "taste"})     # 29 Oct 2026 (UL106): t
 CHECK_KIND.update({"U30": "taste", "M26": "taste"})     # 29 Oct 2026 (UL114): the bathroom's set (bath_details.review)
 # 29 Oct 2026 (UL115, UL118): a kitchen missing what its style family's kitchen details give it (kitchen_details.review)
 CHECK_KIND.update({"M27": "taste", "U31": "taste"})
+# 29 Oct 2026 (UL113, UL115, UL119): a different solution for each room, the reference photos' details
+# (room_schemes.review)
+CHECK_KIND.update({"U32": "taste", "M28": "taste"})
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",
                "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense", "U": "no_sense"}

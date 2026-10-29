@@ -211,7 +211,13 @@ def test_agreed_items_are_built_with_both_passes_as_evidence():
     out, records = applied(b, choose(("f_L0_002.centre", "vase", "terracotta"), ("f_L0_001.cushions", "cushion", "sage green"),
                                      ("f_L0_003.centre", "table_lamp", "brass"), ("f_L0_001.wall", "wall_art", "navy")))
     B.validate(out)
-    assert json.dumps(b["furniture"]) == json.dumps(out["furniture"])     # furniture untouched
+    # furniture untouched but for the look its room's scheme prefers (29 Oct 2026, UL119 G5: a glass coffee table, a
+    # rattan lounge chair; wenart.furniture.room_details.living_models), each with its reason
+    looks = ("design", "design_why", "form", "form_why", "form_detail")
+    assert all(f.get("design_why") for f in out["furniture"] if "design" in f and "design" not in
+               next(g for g in b["furniture"] if g["id"] == f["id"]))
+    assert json.dumps(b["furniture"]) == json.dumps([{k: v for k, v in f.items() if k not in looks or k in g}
+                                                     for f, g in zip(out["furniture"], b["furniture"])])
     ai = [d for d in out["decor"] if d["method"] == "ai"]
     assert {d["type"] for d in ai} == {"vase", "cushion", "table_lamp", "wall_art"}
     assert len([d for d in ai if d["type"] == "cushion"]) == 2              # the sofa's two cushion places
@@ -287,7 +293,8 @@ def test_rooms_without_agreement_or_answers_get_the_rules_with_the_reason():
     from wenart.furniture import tabletop as TT
     rule = [d for d in out["decor"] if d["method"] == "rule" and not str(d.get("reason", "")).startswith("styling")
             and TT.REASON_TAG not in str(d.get("reason", ""))
-            and d.get("rule") != "decor.ceiling_lights"]   # 28 Oct 2026: + the lighting rule
+            and d.get("rule") != "decor.ceiling_lights"    # 28 Oct 2026: + the lighting rule
+            and not str(d.get("rule") or "").startswith("room_details.")]   # 29 Oct 2026: + the photos' details
     expected, _row = D.rule_decor_room(b, b["rooms"][0], b["furniture"], lambda lv: "x")
     assert sorted(d["type"] for d in rule) == sorted(d["type"] for d in expected) and rule
     # 25 Oct 2026: the room is then filled up to a styled living room's minimum from its empty slots

@@ -129,6 +129,7 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wena
             "wenart/furniture/model_title.py",       # 28 Oct 2026: catalog.usable reads the model rules
             "results/library/user_rejected.json",    # 29 Oct 2026: ... and the models the user rejected (UL94)
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
+            "wenart/blender/detail_parts.py",        # 29 Oct 2026: the reference details' parts (parametric)
             "wenart/blender/common.py", "wenart/assets/**", "wenart/style/**", "wenart/building.py", "wenart/units.py",
             "wenart/geometry.py", "wenart/schema/**",
             # Milestone 10 (track F): the looks of the design fallback and the refit's locked check.
@@ -205,7 +206,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/grading.py",                # 28 Oct 2026: site and architect grade the garden
              "wenart/blender/stair_rails.py",            # 28 Oct 2026: the stairs' balustrade (the architect's K rules)
              "wenart/blender/bath_parts.py",             # 29 Oct 2026 (UL114): the bathroom's parts (parametric, looks)
-             "wenart/blender/kitchen_details.py")        # 29 Oct 2026: modules / furniture -> the kitchen details
+             "wenart/blender/kitchen_details.py",        # 29 Oct 2026: modules / furniture -> the kitchen details
+             "wenart/blender/detail_parts.py")           # 29 Oct 2026: parametric's reference-detail parts (UL119)
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
@@ -220,7 +222,9 @@ DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/fixture_seat.py", "
               "wenart/furniture/infer.py", "wenart/furniture/plausibility.py",
               "wenart/furniture/outdoor_sets.py",
               "wenart/furniture/tabletop.py", "wenart/furniture/ceiling_lights.py",
-              "wenart/furniture/dressing.py") \
+              "wenart/furniture/dressing.py",
+              # 29 Oct 2026 (UL113, UL115, UL119): the rooms' schemes and the reference photos' details
+              "wenart/furniture/room_schemes.py", "wenart/furniture/room_details.py") \
     + LEVELS_CODE + GROUPS_CODE                  # M11: infer/plausibility; M12: levels (ingest), groups (G); 28 Oct
 #                                                  2026: the set tables and styled tops, the ceiling lights
 DECOR_ANSWERS = "decor_ai_answers.json"

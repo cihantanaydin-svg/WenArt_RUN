@@ -988,6 +988,18 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         asset = parametric_fit(piece, f"footprint size {piece['footprint']['size']} is not positive",
                                style_family=style_family)
         return _finish(asset, mode, [_step("parametric", "used", asset["fallback_reason"])])
+    if C.scheme_form(piece) and not piece.get("asset_pin"):
+        # 29 Oct 2026 (lesson UL119, docs/reference_details_20261029.md R17, R27, R33): the room's scheme asks a round
+        # drum or a floating nightstand, or a floating corner desk; the catalogue holds no audited model of that form,
+        # so our parametric product of real proportions is built by design (wenart.blender.detail_parts)
+        why = (f"the room's scheme asks for a {piece['form']} {ftype.replace('_', ' ')} (UL119: a different solution "
+               f"for each room): our parametric product by design (the catalogue holds no audited {piece['form']} "
+               f"model)")
+        asset = parametric_fit(piece, why, style_family=style_family)
+        asset["by_design"] = True
+        asset["scheme_form"] = piece["form"]
+        return _finish(asset, mode, [_step("library", "not tried", why), _step(MODULE_METHOD, "not tried", why),
+                                     _step("parametric", "used (by design)", why)])
     pin = piece.get("asset_pin")
     if pin:
         # Milestone 11 (edit_ops swap_model): the agent's model is tried alone first; Milestone 13: without the style
@@ -2490,6 +2502,19 @@ STATEMENT_WORDS: tuple[str, ...] = ("chandelier", "chandeliers", "globe", "globe
 SLIM_ASPECT = 1.6                # a bedside pendant's model is at least this much taller than wide (a slim drop)
 
 
+STATEMENT_STYLE_WORDS: dict[str, tuple[str, ...]] = {
+    "globe": ("globe", "globes", "sputnik", "branch", "branching", "bubble", "orb", "orbs"),
+    "linear": ("linear", "bar", "island", "blade", "line", "rectangular", "trestle"),
+    "cluster": ("cluster", "multi light", "multi-light", "3-light", "5-light", "pendants", "cascade")}
+
+
+def _title_has(title: str, words) -> bool:
+    import re
+
+    text = str(title or "").casefold()
+    return any(re.search(r"(?<![a-z0-9])" + re.escape(w) + r"(?![a-z0-9])", text) for w in words)
+
+
 def is_statement_title(title: str) -> bool:
     """A model title that names a statement fixture (pure): a whole word or phrase of ``STATEMENT_WORDS``."""
     import re
@@ -2504,6 +2529,13 @@ def fixture_pool(fits: list, item: dict) -> tuple[list, Optional[str]]:
     slim ones (``SLIM_ASPECT``); the whole ``fits`` when none matches or the light has no role."""
     role = item.get("fixture")
     if role == "statement":
+        # 29 Oct 2026 (UL119, R3, R4, R15, R30): the room's scheme names the statement's style (globe, linear,
+        # cluster); the models whose title names it first
+        words = STATEMENT_STYLE_WORDS.get(str(item.get("statement_style") or ""))
+        if words:
+            styled = [(e, f) for e, f in fits if _title_has(e.get("title") or e.get("name") or "", words)]
+            if styled:
+                return styled, f"statement fixture: a {item['statement_style']} model (the room's scheme)"
         pool = [(e, f) for e, f in fits if is_statement_title(e.get("title") or e.get("name") or "")]
         return (pool, "statement fixture: a chandelier or multi-globe model") if pool else (fits, None)
     if role == "bedside":
@@ -2582,6 +2614,9 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
         return None
     if item.get("fixture") in ("led_mirror", "backlit_mirror", "round_mirror"):
         return None                                   # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's own mirrors
+    if item.get("fixture") == "track" or item.get("shape") in ("round", "arch") or item.get("stems") \
+            or (item.get("tv") or {}).get("mount") == "wall":
+        return None      # 29 Oct 2026 (UL113, UL115): our track light, round mirror or rug, a vase with pampas
     styled = [e for e in decor_entries(catalog, dtype, mode) if decor_styles_match(e, style_family)
               and C.contact_fits(e, dtype)]               # Milestone 12: the audited contact suits the type
     fits = [(e, f) for e in styled for f in [_decor_fit(e, item, dtype)] if f is not None]

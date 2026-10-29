@@ -143,6 +143,13 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "towel_bar": "towel bar on the wall with a towel hanging from it",
     "feature_panel": "feature panel on the wall (terrazzo, stone or fluted)",
     "cove_light": "lowered ceiling band with a hidden LED light line along a wall",
+    # 29 Oct 2026 (wenart.furniture.room_details, UL113, UL115): the reference photos' details
+    "wall_niche": "shallow wall niche with floating lit shelves holding books, vases and dried grass",
+    "intercom": "small video intercom panel on the wall beside the entrance door",
+    "floor_vase": "large floor vase with dried pampas grass standing in a corner",
+    "art_leaning": "large framed picture standing on the floor, leaning against the wall",
+    "bag": "travel bag lying on the floor",
+    "desk_wall_unit": "wall shelf and wall cabinets with a light strip under them above a desk",
 }
 HINTS.update({k: v for k, v in _DECOR_HINTS_M10.items() if k in S.CATEGORIES})
 UNVERIFIED_HINT = "any piece of furniture at that place"

@@ -184,6 +184,11 @@ DECOR_TYPES = DECOR_TYPES + MEDIA_DECOR_TYPES   # parametric until audited libra
 BATH_DECOR_TYPES: tuple[str, ...] = ("toilet_paper_holder", "toilet_brush", "towel_rail", "towel_shelf", "towel_bar",
                                      "feature_panel", "cove_light")
 DECOR_TYPES = DECOR_TYPES + BATH_DECOR_TYPES
+# 29 Oct 2026 (lessons UL113, UL115, UL119; the user's reference photos): the details the rules add
+# (wenart.furniture.room_details; built by wenart.blender.detail_parts): a lit wall niche, an intercom panel, a floor vase
+# with pampas, a leaning art frame, a lived-in bag, a desk's wall shelves and cabinets; parametric, the AI never chooses
+DETAIL_DECOR_TYPES: tuple[str, ...] = ("wall_niche", "intercom", "floor_vase", "art_leaning", "bag", "desk_wall_unit")
+DECOR_TYPES = DECOR_TYPES + DETAIL_DECOR_TYPES
 SETTING_TYPES: tuple[str, ...] = ("plate", "glass")
 WORK_DECOR_TYPES: tuple[str, ...] = ("laptop", "monitor", "keyboard", "computer_mouse")
 # Not held to MAX_DECOR_M (Milestone 8, 9; Milestone 10: window dressings, throws, large plants and floor
@@ -191,7 +196,8 @@ WORK_DECOR_TYPES: tuple[str, ...] = ("laptop", "monitor", "keyboard", "computer_
 LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "blind", "throw", "plant_large",
                                       "sculpture", "pendant_light", "tv",      # 29 Oct 2026: a 43-65 inch TV
                                       # 29 Oct 2026 (UL114): a 1.2 m towel rail, a wall's feature panel, a cove band
-                                      "towel_rail", "feature_panel", "cove_light")
+                                      "towel_rail", "feature_panel", "cove_light",
+                                      "wall_niche", "floor_vase", "art_leaning", "desk_wall_unit")   # the details
 MAX_DECOR_M = 0.6
 # Milestone 12 (§4.7, B7): real sizes (width, thickness, height): a 45 cm square cushion standing against a sofa
 # back, a 50 cm one leaning at a bed's head (in front of the sleeping pillows); never stretched by a model fit.

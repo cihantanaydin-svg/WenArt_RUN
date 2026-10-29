@@ -625,6 +625,9 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "stone_light": ("marble", _vocab_asset("marble"), None),
         "terrazzo": ("terrazzo", _vocab_asset("terrazzo"), None),
         "towel": ("fabric_white", asset_of("fabric_white"), None),
+        # 29 Oct 2026 (UL113, UL115): dried pampas plumes (a cream linen); the reference details' LED strips take
+        # the "led" key above (detail_parts.led_strip_material is materials.led_material)
+        "pampas": ("fabric_linen", asset_of("fabric_linen"), None),
     }
     return keys, assumed
 
@@ -831,6 +834,8 @@ def wall_art_placement(item: dict, art_box, host_top: float | None, ceiling: flo
     w, dp, h = (float(v) for v in art_box[:3])
     gap = float(item.get("gap_m", 0.25))
     bottom = host_top + gap if host_top is not None else float(item.get("bottom_m") or 0.0)
+    if isinstance(item.get("min_bottom_m"), (int, float)):
+        bottom = max(bottom, float(item["min_bottom_m"]))     # 29 Oct 2026 (R32): over a headboard panel
     limit = float(ceiling) - WALL_ART_CEILING_M
     scale = 1.0
     if bottom + h > limit:
@@ -1116,6 +1121,8 @@ class _Materials:
         if key == "led":                          # 29 Oct 2026 (UL114): an LED strip at a fixture shade's radiance
             from wenart.blender import materials as M
             return M.led_material()
+        if key == "pampas":                       # ... and dried pampas plumes: the linen weave in cream
+            colour = colour or "cream"
         over = (overrides or {}).get(key)
         if over:
             slug, asset, tint = over["slug"], over.get("asset"), None
@@ -2579,7 +2586,9 @@ def mirror_box(item: dict) -> list[float]:
                 h = min(h, float(max_h))
             return [w, 0.03, h]
         return [w, 0.03, BT.led_mirror_height(w, max_h)]
-    h = w * MIRROR_ASPECT
+    h = w if item.get("shape") == "round" else w * MIRROR_ASPECT      # 29 Oct 2026 (R10): a round mirror
+    if item.get("shape") == "arch":
+        h = w * 1.6                                                    # ... (R19): an arched one, tall
     if isinstance(max_h, (int, float)) and max_h > 0:
         h = min(h, float(max_h))
     return [w, P.MIRROR_FRAME_M, h]

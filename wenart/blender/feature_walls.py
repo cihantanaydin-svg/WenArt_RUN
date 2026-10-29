@@ -26,6 +26,14 @@ What:
   ``feature_wall``, pass index 0, status assumed), its materials by key (the family's veneer, the backing, the
   shadow-gap plinth; the wainscot's paint), a 2 mm bevel; the manifest entry and ``assumed`` record the plan.
 
+29 Oct 2026 (lessons UL113, UL119; docs/reference_details_20261029.md R13, R32, K13; a different solution for each room):
+a room's scheme (``room["scheme"]``, ``wenart.furniture.room_schemes``) chooses its anchor wall's panel
+(``scheme_spec``): the family's fluted panel or wainscot, full-height vertical wood slats over the whole free stretch
+(``slats``: R13), a timber headboard panel wider than the bed, ``HEADBOARD["height"]`` high with a ledge on top
+(``headboard_panel``: R32; art hangs over it, ``standoff_decor`` keeps it on the wall), or no panel (an art pair, one
+large art piece); and the wall behind a dining table may get a slat wall (``plan_dining_walls``: the scheme's
+``dining_wall_at``, K13), built as ``feature_wall_<room>_dining``.
+
 Why: the accent wall was one flat paint colour; a fluted or panelled wall is what the professional reference renders
 and the real06 bedroom recipe (wall_panelling in 5 of 8 Scandinavian reference photos) show behind the bed. Real
 geometry (2.6 cm deep) casts the slats' own shadows in the daylight; a normal map alone reads flat at a grazing view.
@@ -68,6 +76,13 @@ MIN_WIDTH_M = 1.20
 ANCHOR_MARGIN_M = 0.30          # the panel is at least the anchor's width + this (the nightstands, the sofa's arms)
 MIN_FLUTED_H_M = 2.10           # a fluted panel under a ceiling lower than this keeps the painted accent
 FACE_REACH_M = 0.06             # a room edge lies within half the wall's thickness + this of its centre line
+# 29 Oct 2026 (UL119): the scheme kinds (R13 slats over the whole free stretch, R32 the timber headboard panel)
+SLATS: dict[str, float] = {"slat_w": 0.045, "gap": 0.020, "max_width": 6.0}
+HEADBOARD: dict[str, float] = {"height": 1.20, "board_t": 0.020, "backing_t": 0.006, "boards": 4, "gap": 0.004,
+                               "ledge_d": 0.065, "ledge_t": 0.030, "extra_m": 0.55, "wall_gap": 0.001,
+                               "ceiling_gap": 0.30, "bevel_m": 0.002}
+LOW_KINDS: tuple[str, ...] = ("wainscot", "headboard_panel")      # wall items hung over their top stay on the wall
+NO_PANEL_FEATURES: tuple[str, ...] = ("art_pair", "art", "none")
 STANDOFF_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock")
 STANDOFF_REACH_M = 0.06         # a wall item whose wall point lies this close to the panel's face line is on it
 CHECK = "UL106"
@@ -102,6 +117,39 @@ def family_spec(style: Optional[dict], room_type: Optional[str]) -> tuple[Option
     if base is None:
         return None, f"the {fam or 'house'} style keeps a painted accent wall"
     return dict(base), f"assumed: the {fam} style's {base['kind']} panel on the accent wall (designer value, UL106)"
+
+
+def scheme_spec(room: Optional[dict], spec: Optional[dict], why: str, style: Optional[dict]
+                ) -> tuple[Optional[dict], str]:
+    """``(spec, why)`` of a room's anchor-wall panel by its scheme (module docstring; 29 Oct 2026, UL119): the family's
+    panel (``spec``) for a ``fluted`` scheme, a slat wall, a headboard panel, a wainscot, or none; a room without a
+    scheme keeps ``spec``."""
+    sc = (room or {}).get("scheme") if isinstance((room or {}).get("scheme"), dict) else None
+    if not sc or "feature" not in sc or (style or {}).get("room_schemes") in (False, "off", "none"):
+        return spec, why
+    if spec is None and why.startswith("the brief"):
+        return spec, why                                     # the brief's own accent or its "off" wins
+    kind = sc.get("feature_kind")
+    tag = f"the room's scheme {sc.get('key')}"
+    if sc.get("feature") in NO_PANEL_FEATURES or kind is None:
+        what = {"art_pair": "two framed prints over the headboard", "art": "a large art piece",
+                "none": "no feature"}.get(str(sc.get("feature")), "no panel")
+        return None, f"{tag}: {what} on the anchor wall, no panel (V1)"
+    fam = _family(style)
+    base = FAMILY_FEATURE_WALLS.get(fam) or FAMILY_FEATURE_WALLS["contemporary"]
+    wood = base.get("wood") or "wood_veneer_oak"
+    if kind == "fluted":
+        out = dict(base if base.get("kind") == "fluted" else FAMILY_FEATURE_WALLS["contemporary"])
+        return out, f"{tag}: the {fam or 'house'} family's fluted panel (UL106)"
+    if kind == "wainscot":
+        return dict(FAMILY_FEATURE_WALLS["classic"]), f"{tag}: a painted wainscot"
+    if kind == "slats":
+        return ({"kind": "slats", "wood": wood, "backing": "dark", "slat_w": SLATS["slat_w"], "gap": SLATS["gap"]},
+                f"{tag}: full-height vertical wood slats over the whole free stretch (R13)")
+    if kind == "headboard_panel":
+        return ({"kind": "headboard_panel", "wood": wood},
+                f"{tag}: a timber headboard panel wider than the bed, a ledge on top (R32)")
+    return spec, why
 
 
 def _accent_colour(style: Optional[dict]) -> Optional[str]:
@@ -304,6 +352,7 @@ def plan_feature_walls(building: dict, level: dict, style: Optional[dict],
             if room is None or wall is None:
                 continue
             spec, why = family_spec(style, room.get("room_type"))
+            spec, why = scheme_spec(room, spec, why, style)
             dec = decisions.get(rid) if isinstance(decisions.get(rid), dict) else {}
             if spec is not None and "feature_wall" in dec and not dec["feature_wall"]:
                 spec, why = None, dec.get("feature_wall_why") or "the decor stage keeps a painted accent"
@@ -331,6 +380,14 @@ def plan_feature_walls(building: dict, level: dict, style: Optional[dict],
                 span = max(spans, key=lambda sp: sp[1] - sp[0]) if spans else None
                 centre = (span[0] + span[1]) / 2.0 if span else 0.0
             need = max(MIN_WIDTH_M, (hi_a - lo_a + ANCHOR_MARGIN_M) if anchor is not None else 0.0)
+            plan = _plan_span(room, wall, level, face, spec, why, look, blocked, spans, span, centre, need,
+                              lo_a, hi_a, anchor)
+            if isinstance(plan, str):
+                skipped.append({"room_id": rid, "wall_id": wid, "reason": plan})
+                continue
+            if plan is not None:
+                plans.append(plan)
+                continue
             if span is None or span[1] - span[0] < need - 1e-9:
                 skipped.append({"room_id": rid, "wall_id": wid, "reason": (
                     f"the accent wall leaves {0.0 if span is None else span[1] - span[0]:.2f} m between "
@@ -371,6 +428,105 @@ def plan_feature_walls(building: dict, level: dict, style: Optional[dict],
     return plans, skipped
 
 
+def _plan_span(room: dict, wall: dict, level: dict, face: dict, spec: dict, why: str, look: dict, blocked: list,
+               spans: list, span, centre: float, need: float, lo_a, hi_a, anchor: Optional[dict]):
+    """The plan of a scheme kind (``slats``, ``headboard_panel``; 29 Oct 2026, UL119) on its free stretch, a reason
+    (str) when it does not fit, None for the other kinds (planned as before)."""
+    kind = spec.get("kind")
+    if kind not in ("slats", "headboard_panel"):
+        return None
+    if span is None:
+        return f"the anchor wall has no free stretch for the {kind.replace('_', ' ')}"
+    s0, s1 = span
+    z0 = float(level["elevation"]) + float(room.get("floor_offset_m") or 0.0)
+    if kind == "slats":
+        if s1 - s0 < max(MIN_WIDTH_M, need) - 1e-9:
+            return (f"the anchor wall leaves {s1 - s0:.2f} m between {', '.join(b[2] for b in blocked) or 'its ends'} "
+                    f"(the slat wall needs {max(MIN_WIDTH_M, need):.2f} m)")
+        if s1 - s0 > SLATS["max_width"]:
+            s0 = min(max(span[0], centre - SLATS["max_width"] / 2.0), span[1] - SLATS["max_width"])
+            s1 = s0 + SLATS["max_width"]
+        gap = FLUTED["wall_gap"]
+        p, q, u, n = _ends(face, s0, s1, gap)
+        z1 = _ceiling_z(level, (p, q, G.segment_midpoint(p, q))) - FLUTED["ceiling_gap"]
+        if z1 - z0 < MIN_FLUTED_H_M:
+            return f"the ceiling over the anchor wall is {z1 - z0:.2f} m high (a slat wall needs {MIN_FLUTED_H_M} m)"
+        depth = FLUTED["backing_t"] + FLUTED["slat_d"] + FLUTED["top_proud"]
+    else:
+        width = (hi_a - lo_a if anchor is not None else 1.6) + 2.0 * HEADBOARD["extra_m"]
+        lo, hi = centre - width / 2.0, centre + width / 2.0
+        lo, hi = max(lo, s0), min(hi, s1)
+        if hi - lo < max(MIN_WIDTH_M, (hi_a - lo_a + ANCHOR_MARGIN_M) if anchor is not None else 0.0) - 1e-9:
+            return f"the bed wall leaves {hi - lo:.2f} m for the headboard panel"
+        s0, s1 = lo, hi
+        gap = HEADBOARD["wall_gap"]
+        p, q, u, n = _ends(face, s0, s1, gap)
+        ceil = _ceiling_z(level, (p, q, G.segment_midpoint(p, q)))
+        z1 = z0 + min(HEADBOARD["height"], ceil - z0 - HEADBOARD["ceiling_gap"])
+        if z1 - z0 < 0.8:
+            return f"the ceiling over the bed wall leaves {ceil - z0:.2f} m (a headboard panel needs 1.1 m)"
+        depth = HEADBOARD["ledge_d"]
+    return {"room_id": room["id"], "level_id": level["id"], "wall_id": wall["id"], "kind": kind, "spec": dict(spec),
+            "p": [round(p[0], 4), round(p[1], 4)], "q": [round(q[0], 4), round(q[1], 4)],
+            "u": [round(u[0], 6), round(u[1], 6)], "n": [round(n[0], 6), round(n[1], 6)],
+            "z0": round(z0, 4), "z1": round(z1, 4), "width_m": round(s1 - s0, 3),
+            "depth_m": round(depth + gap, 4), "front_m": round(depth, 4),
+            "anchor_id": anchor["id"] if anchor else None,
+            "blocked": [b[2] for b in blocked if b[1] > s0 - 0.5 and b[0] < s1 + 0.5],
+            "reason": f"{kind.replace('_', ' ')} {s1 - s0:.2f} m wide on {look.get('reason') or wall['id']}: {why}"}
+
+
+def _ends(face: dict, s0: float, s1: float, gap: float):
+    a, u, n = face["a"], face["u"], face["n"]
+    p = (a[0] + u[0] * s0 + n[0] * gap, a[1] + u[1] * s0 + n[1] * gap)
+    q = (a[0] + u[0] * s1 + n[0] * gap, a[1] + u[1] * s1 + n[1] * gap)
+    return p, q, u, n
+
+
+def plan_dining_walls(building: dict, level: dict, style: Optional[dict], taken: Optional[set] = None
+                      ) -> tuple[list[dict], list[dict]]:
+    """``(plans, skipped)``: the slat walls behind the dining tables of the level's rooms whose scheme names one
+    (``room["scheme"]["dining_wall_at"]``: the wall, a point on it; K13), over the free stretch around the point (at
+    most ``SLATS["max_width"]``), never on a wall a panel of the room takes already (``taken``: (room, wall))."""
+    walls = [w for w in building.get("walls") or [] if w.get("level_id") == level["id"]]
+    by_id = {w["id"]: w for w in walls}
+    plans, skipped = [], []
+    if (style or {}).get("room_schemes") in (False, "off", "none"):
+        return plans, skipped
+    for room in sorted((r for r in building.get("rooms") or [] if r.get("level_id") == level["id"]),
+                       key=lambda r: str(r.get("id"))):
+        at = ((room.get("scheme") or {}).get("dining_wall_at") if isinstance(room.get("scheme"), dict) else None)
+        if not isinstance(at, dict) or not at.get("point"):
+            continue
+        wall = by_id.get(at.get("wall_id"))
+        if wall is None:
+            skipped.append({"room_id": room["id"], "reason": f"the dining wall {at.get('wall_id')} is not built"})
+            continue
+        if (room["id"], wall["id"]) in (taken or set()):
+            skipped.append({"room_id": room["id"], "reason": f"the dining wall {wall['id']} holds the room's panel"})
+            continue
+        face = face_of(room, wall, walls)
+        if face is None:
+            skipped.append({"room_id": room["id"], "reason": f"no room edge along the dining wall {wall['id']}"})
+            continue
+        blocked = blocked_spans(face, wall, building, room)
+        spans = free_spans(face["length"], blocked)
+        centre = _station(face, at["point"])[0]
+        span = next((sp for sp in spans if sp[0] - 1e-6 <= centre <= sp[1] + 1e-6), None)
+        spec = {"kind": "slats", "wood": (FAMILY_FEATURE_WALLS.get(_family(style)) or
+                                          FAMILY_FEATURE_WALLS["contemporary"]).get("wood") or "wood_veneer_oak",
+                "backing": "dark", "slat_w": SLATS["slat_w"], "gap": SLATS["gap"]}
+        why = f"the room's scheme: a full-height slat wall behind the dining table {at.get('table_id')} (K13)"
+        plan = _plan_span(room, wall, level, face, spec, why, {"reason": f"the dining wall of {room['id']}"},
+                          blocked, spans, span, centre, MIN_WIDTH_M + 0.6, None, None, None)
+        if isinstance(plan, str) or plan is None:
+            skipped.append({"room_id": room["id"], "reason": plan or "no slat wall"})
+            continue
+        plan["dining"] = True
+        plans.append(plan)
+    return plans, skipped
+
+
 # --------------------------------------------------------------------------
 # The panel as boxes (pure)
 # --------------------------------------------------------------------------
@@ -402,7 +558,19 @@ def panel_boxes(plan: dict) -> list[tuple]:
     z0, z1 = float(plan["z0"]), float(plan["z1"])
     spec = plan.get("spec") or {}
     out = []
-    if plan["kind"] == "fluted":
+    if plan["kind"] == "headboard_panel":          # 29 Oct 2026 (R32): boards on a dark backing, a ledge on top
+        k = HEADBOARD
+        bt, ft = k["backing_t"], k["board_t"]
+        top = z1 - k["ledge_t"]
+        out.append(_box(plan, 0.0, w, 0.0, bt, z0 + 0.0005, top, "backing"))
+        n = max(2, int(k["boards"]))
+        bh = (top - z0 - 0.001 - (n - 1) * k["gap"]) / n
+        for i in range(n):
+            b0 = z0 + 0.001 + i * (bh + k["gap"])
+            out.append(_box(plan, 0.0005, w - 0.0005, bt, bt + ft, b0, b0 + bh, "wood"))
+        out.append(_box(plan, 0.0, w, 0.0, k["ledge_d"], top, z1, "wood"))
+        return out
+    if plan["kind"] in ("fluted", "slats"):
         f = FLUTED
         bt, sd = f["backing_t"], f["slat_d"]
         zb, zt = z0 + f["plinth_h"], z1 - f["top_h"]
@@ -459,9 +627,11 @@ def standoff_decor(decor: list[dict], plans: list[dict]) -> tuple[list[dict], li
             if abs(d) > STANDOFF_REACH_M or not -0.05 <= s <= float(plan["width_m"]) + 0.05:
                 continue
             bottom = item.get("bottom_m")
-            if plan["kind"] == "wainscot" and isinstance(bottom, (int, float)) and \
-                    float(bottom) >= WAINSCOT["height"] - 1e-6:
-                continue                                   # hung above the dado: on the wall itself
+            if isinstance(item.get("min_bottom_m"), (int, float)):
+                bottom = max(float(bottom or 0.0), float(item["min_bottom_m"]))
+            if plan["kind"] in LOW_KINDS and isinstance(bottom, (int, float)) and \
+                    float(bottom) >= float(plan["z1"]) - float(plan["z0"]) - 1e-6:
+                continue                                   # hung above the dado or headboard panel: on the wall
             off = float(plan.get("front_m", plan["depth_m"])) - d     # to the panel's front (from its base line)
             if off <= 0.0:
                 continue
@@ -534,6 +704,12 @@ def build_feature_walls(building: dict, level: dict, collection, library, style:
         if s["room_id"] in rooms:
             rooms[s["room_id"]].pop("feature_wall", None)
             rooms[s["room_id"]]["feature_wall_skipped"] = s["reason"]
+    # 29 Oct 2026 (K13): the slat walls behind the dining tables the rooms' schemes name
+    dining, dining_skipped = plan_dining_walls(building, level, style, {(p["room_id"], p["wall_id"]) for p in plans})
+    for s in dining_skipped:
+        if s["room_id"] in rooms:
+            rooms[s["room_id"]]["dining_wall_skipped"] = s["reason"]
+    plans = plans + dining
     built = []
     for plan in plans:
         boxes = panel_boxes(plan)
@@ -547,12 +723,12 @@ def build_feature_walls(building: dict, level: dict, collection, library, style:
             parts.append((v, f))
             slots += [keys.index(key)] * len(f)
         verts, faces = geom2d.merge(parts)
-        name = f"feature_wall_{plan['room_id']}"
+        name = f"feature_wall_{plan['room_id']}" + ("_dining" if plan.get("dining") else "")
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="wall",
                                     status="assumed", materials=[mats[k] for k in keys], face_material_indices=slots)
         ob.pass_index = 0
         bevel = ob.modifiers.new(name="bevel", type="BEVEL")
-        bevel.width = FLUTED["bevel_m"] if plan["kind"] == "fluted" else WAINSCOT["bevel_m"]
+        bevel.width = FLUTED["bevel_m"] if plan["kind"] in ("fluted", "slats") else WAINSCOT["bevel_m"]
         bevel.segments = 2
         bevel.limit_method = "ANGLE"
         record = dict(summary(plan), reason=plan["reason"], blocked=plan["blocked"], spec=plan["spec"],
@@ -565,7 +741,10 @@ def build_feature_walls(building: dict, level: dict, collection, library, style:
             "assumed": {"detail": "feature_wall", "reason": plan["reason"]}})
         assumed.append({"object": ob.name, "field": "feature_wall", "value": f"{plan['kind']} {plan['width_m']} m",
                         "reason": plan["reason"], "parent": plan["room_id"], "kind": "feature_wall"})
-        if plan["room_id"] in rooms:
+        if plan["room_id"] in rooms and plan.get("dining"):
+            rooms[plan["room_id"]]["dining_wall"] = summary(plan)
+            rooms[plan["room_id"]].pop("dining_wall_skipped", None)
+        elif plan["room_id"] in rooms:
             rooms[plan["room_id"]]["feature_wall"] = summary(plan)
             rooms[plan["room_id"]].pop("feature_wall_skipped", None)
         built.append(plan)

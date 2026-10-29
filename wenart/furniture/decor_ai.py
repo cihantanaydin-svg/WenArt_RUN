@@ -151,7 +151,8 @@ EXIT_OK, EXIT_USAGE, EXIT_SERVER = 0, 2, 3
 
 # The decor types the AI chooses from (docs/milestone9.md §3; = decor.DECOR_TYPES).
 # 28 Oct 2026: the rules set the tables; 29 Oct 2026: and the desks' work sets (the questions stay as they were)
-AI_TYPES: tuple[str, ...] = tuple(t for t in D.DECOR_TYPES if t not in D.SETTING_TYPES + D.WORK_DECOR_TYPES)
+AI_TYPES: tuple[str, ...] = tuple(t for t in D.DECOR_TYPES if t not in D.SETTING_TYPES + D.WORK_DECOR_TYPES
+                                  + D.DETAIL_DECOR_TYPES)       # 29 Oct 2026: the details are the rules' (room_details)
 SURFACE_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp", "book_set",
                                   "candle", "tray", "books", "sculpture")                      # Milestone 10
 WALL_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock")
@@ -1377,6 +1378,15 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
 
     before = {d.get("id") for d in out["decor"]}
     DR.dress(out, style, lambda room: room_recipe(room, recipes), new_id)     # its notes: out["dressing"]["notes"]
+    # 29 Oct 2026 (lessons UL113, UL115, UL119: the user's reference photos, "different solutions for different
+    # rooms"): every room's own scheme and the photos' details (wenart.furniture.room_details); its record:
+    # out["room_schemes"]
+    from wenart.furniture import room_details as RD
+
+    RD.dress_details(out, style, new_id)
+    present = {d.get("id") for d in out["decor"]}
+    for rec in records:                            # a TV hung on the wall leaves its unit's top items
+        rec.items = [i for i in rec.items if i.get("id") in present or not i.get("id")]
     room_ids = {r.get("id") for r in out.get("rooms") or []}
     for it in out["decor"]:
         if it.get("id") not in before and it.get("room_id") in room_ids:
