@@ -172,12 +172,14 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug", "wall_art
                                  # 29 Oct 2026 (user: "Computer on the table would have been nice or a laptop"): the
                                  # desk's work set (tabletop.work_set); the rules place it, the AI does not choose it
                                  "laptop", "monitor", "keyboard", "computer_mouse")
+MEDIA_DECOR_TYPES: tuple[str, ...] = ("tv",)   # 29 Oct 2026 (UL99): the TV on a TV unit (furniture.media_wall),
+DECOR_TYPES = DECOR_TYPES + MEDIA_DECOR_TYPES   # parametric until audited library models of it exist
 SETTING_TYPES: tuple[str, ...] = ("plate", "glass")
 WORK_DECOR_TYPES: tuple[str, ...] = ("laptop", "monitor", "keyboard", "computer_mouse")
 # Not held to MAX_DECOR_M (Milestone 8, 9; Milestone 10: window dressings, throws, large plants and floor
 # sculptures, pendants on their cord).
 LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "blind", "throw", "plant_large",
-                                      "sculpture", "pendant_light")
+                                      "sculpture", "pendant_light", "tv")      # 29 Oct 2026: a 43-65 inch TV
 MAX_DECOR_M = 0.6
 # Milestone 12 (§4.7, B7): real sizes (width, thickness, height): a 45 cm square cushion standing against a sofa
 # back, a 50 cm one leaning at a bed's head (in front of the sleeping pillows); never stretched by a model fit.

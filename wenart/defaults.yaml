@@ -95,6 +95,9 @@ brief:
   furnished_rooms: complete        # keep = M9 (drawn furniture only restyled) | complete = AI redesigns drawn pieces and adds the missing ones
   furnished_rooms_keep: []         # room ids or labels that always stay keep
   furnished_rooms_keep_size: false # true: drawn type and size stay, only the look changes
+  media_wall: true                 # 29 Oct 2026 (UL99): every living room gets a TV unit and a TV where a place passes the checks
+  tv_in_bedroom: master            # master (the master bedroom) | all (every bedroom with a double bed, never a child's) | none
+  room_fill: true                  # 29 Oct 2026 (UL98, UL102, UL103): a sideboard by the dining table, bookshelves, a bathroom's storage column
   variants: all                    # all | base | a list of alternative names (as titled)
   failed_levels: leave_out         # leave_out (listed, levels above too) | stop (the project ends needs_review)
   site: full                       # full = plot, paving, grass, plot wall, parking as drawn | ground = a neutral ground plane

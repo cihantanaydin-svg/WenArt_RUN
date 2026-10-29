@@ -2437,6 +2437,13 @@ def apply_size_snap(piece: dict, part: Optional[tuple] = None) -> Optional[dict]
     height = piece.get("height") if isinstance(piece.get("height"), (int, float)) else None
     judged = (w, d) if part is None else (float(part[0]), float(part[1]))
     snap = SZ.snap_size(piece["type"], judged, height)
+    symbol = False
+    if not snap["changed"] and part is None:
+        # 29 Oct 2026 (UL94): a plan symbol drawn larger than its product (a floor lamp's 0.58 m circle) takes the
+        # type's real product, centred where it is drawn (``sizes.symbol_snap``)
+        sym = SZ.symbol_snap(piece["type"], judged)
+        if sym["changed"]:
+            snap, symbol = dict(sym, height=None), True
     if not snap["changed"]:
         return None
     before = copy.deepcopy(fp)
@@ -2445,7 +2452,7 @@ def apply_size_snap(piece: dict, part: Optional[tuple] = None) -> Optional[dict]
         nd = round(d, 4)                     # the drawn depth stays: the chairs are in it (the split's business)
     cx, cy = (float(v) for v in fp["center"])
     front = piece.get("front_deg")
-    if abs(nd - d) > 1e-9 and isinstance(front, (int, float)):
+    if abs(nd - d) > 1e-9 and isinstance(front, (int, float)) and not symbol:
         shift = (nd - d) / 2.0
         cx += shift * math.cos(math.radians(float(front)))
         cy += shift * math.sin(math.radians(float(front)))
@@ -2464,7 +2471,11 @@ def apply_size_snap(piece: dict, part: Optional[tuple] = None) -> Optional[dict]
     merged_changed = dict(old.get("changed") or {})
     for k, v in changed.items():
         merged_changed.setdefault(k, v)
-    if part is None:
+    if symbol:
+        reason = (f"size snap: {snap['reason']} (CLAUDE.md: a drawn size outside its type's real product range is "
+                  "snapped to a real product before the fit; user on real06, 29 Oct 2026: \"I did not like this light\", "
+                  "lesson UL94)")
+    elif part is None:
         reason = (f"size snap: the drawn {piece['type']} {w:.2f} x {d:.2f} m is outside its product range "
                   f"({snap['reason']}); nearest real product {snap['product']} (CLAUDE.md: a drawn size outside its "
                   "type's product range is snapped to the nearest real product before the fit; user OK D5 of 12 Oct "
@@ -2489,6 +2500,8 @@ def apply_size_snap(piece: dict, part: Optional[tuple] = None) -> Optional[dict]
               "product": snap["product"], "reason": snap["reason"]}
     if part is not None:
         record["part"] = [round(judged[0], 4), round(judged[1], 4)]
+    if symbol:
+        record["symbol"] = True               # 29 Oct 2026 (UL94): a plan symbol fitted at its real product
     piece["size_snap"] = record
     return record
 

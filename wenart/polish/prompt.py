@@ -275,6 +275,7 @@ DECOR_WORDS: dict[str, str] = {
     "plate": "set table with plates", "glass": "glasses",            # 28 Oct 2026 (wenart.furniture.tabletop)
     # 29 Oct 2026 (wenart.furniture.tabletop.work_set): the desk's work set
     "laptop": "open laptop", "monitor": "computer monitor", "keyboard": "keyboard", "computer_mouse": "computer mouse",
+    "tv": "flat television",                                          # 29 Oct 2026 (UL99)
 }
 # rooms[].room_subtype words (Milestone 10: a child's room holds cribs and bunk beds).
 SUBTYPE_WORDS: dict[str, str] = {"child": "child's bedroom"}

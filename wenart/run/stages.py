@@ -105,7 +105,8 @@ BLENDER_CODE = ("wenart/blender/**", "wenart/canonical.py", "wenart/views.py", "
 # size table: every stage whose closure reaches wenart.levels lists all of it.
 LEVELS_CODE = ("wenart/levels/**", "wenart/blender/**", "wenart/canonical.py", "wenart/views.py", "wenart/style/**",
                "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", CATALOG, "wenart/furniture/catalog*.json",
-               "wenart/furniture/model_title.py")     # 28 Oct 2026: catalog.usable reads the model rules
+               "wenart/furniture/model_title.py",     # 28 Oct 2026: catalog.usable reads the model rules
+               "results/library/user_rejected.json")  # 29 Oct 2026: ... and the models the user rejected
 # Milestone 12 (track G): the groups (groups.yaml), the group checks, the room program and the solver; plausibility
 # runs the group checks, so every stage that scores a room reaches them.
 # Integration of the fix round after P4b (17 Oct 2026): program.duplicate_anchor reads edit_ops.family_host_of (a
@@ -117,10 +118,14 @@ GROUPS_CODE = ("wenart/furniture/groups.py", "wenart/furniture/groups.yaml", "we
                "wenart/furniture/complete.py", "wenart/furniture/locked.py", "wenart/furniture/prompts.py",
                "wenart/assets/**", "wenart/furniture/taste.py",    # 25 Oct 2026: fit.py's room set
                "wenart/furniture/names.py",     # 26 Oct 2026: the furniture name texts (infer, the reading)
-               "wenart/furniture/handover.py")  # 29 Oct 2026: the solver hands a re-placed piece's decor over
+               "wenart/furniture/handover.py",  # 29 Oct 2026: the solver hands a re-placed piece's decor over
+               # 29 Oct 2026: the TV (media_wall), the fuller rooms (room_fill, its density in the program) and their
+               # review (room_use, M21)
+               "wenart/furniture/media_wall.py", "wenart/furniture/room_fill.py", "wenart/furniture/room_use.py")
 # catalog*.json: catalog.json and, once committed, catalog_objaverse.json (catalog.load merges it).
 FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
             "wenart/furniture/model_title.py",       # 28 Oct 2026: catalog.usable reads the model rules
+            "results/library/user_rejected.json",    # 29 Oct 2026: ... and the models the user rejected (UL94)
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
             "wenart/blender/common.py", "wenart/assets/**", "wenart/style/**", "wenart/building.py", "wenart/units.py",
             "wenart/geometry.py", "wenart/schema/**",

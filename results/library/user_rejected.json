@@ -1,0 +1,17 @@
+{
+ "schema_version": "1.0",
+ "kind": "user_rejected_models",
+ "what": "Library models the user rejected on a render. A model listed here is never used again on any project, in any licence mode: catalog.usable refuses it and catalog.unusable_reason says why (the fit, the refit, every swap and pin read them). Add a row with the user's own words, the date, the lesson and where it was seen; never delete a row without the user's OK.",
+ "rejected": [
+  {
+   "id": "abo_B07JNRNTYJ",
+   "type": "floor_lamp",
+   "title": "Amazon Brand – Rivet Modern Pull Chain Switch for Each Socket Floor Lamp with Bulb, 60\"H, Matte Black - 67204",
+   "date": "2026-10-29",
+   "lesson": "UL94",
+   "user": "I did not like this light",
+   "where": "real06 run 20261028-154514-full, r_L1_ebeveyn_y_odasi, the drawn floor lamp f_L1_020 (a 0.58 m drawn circle): a big matte black drum shade on a black cone base",
+   "reason": "the user rejected it on the render: a heavy black drum lamp in a light Scandinavian bedroom"
+  }
+ ]
+}

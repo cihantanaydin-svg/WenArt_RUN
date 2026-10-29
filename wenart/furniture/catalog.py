@@ -822,10 +822,13 @@ def usable(entry: dict, mode: str = "commercial") -> bool:
     ``-SA`` / ``-ND`` markers, the export tool) suits the mode: ``commercial`` takes flag ``none`` only
     (``commercial_safe``, the rule of 10 Oct 2026); ``relaxed`` (user OK of 12 Oct 2026) takes every flag but
     ``no_derivatives`` and ``unknown`` (``NEVER_USABLE_FLAGS``). Works on a catalogue entry and on a fitted ``asset``
-    dict alike. 28 Oct 2026: a catalogue entry its own names or audit refuse (``title_refusal``) is not used."""
+    dict alike. 28 Oct 2026: a catalogue entry its own names or audit refuse (``title_refusal``) is not used. 29 Oct
+    2026: a model the user rejected (``user_rejection``, ``results/library/user_rejected.json``) is never used."""
     mode = check_mode(mode)
     audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
     if str(audit.get("status") or "").lower() in REMOVED_STATUSES:
+        return False
+    if user_rejection(entry) is not None:          # 29 Oct 2026 (UL94): a model the user rejected, never again
         return False
     if title_refusal(entry):
         return False
@@ -833,6 +836,45 @@ def usable(entry: dict, mode: str = "commercial") -> bool:
     if mode == "commercial":
         return flag == NO_FLAG
     return flag in LICENCE_FLAGS and flag not in NEVER_USABLE_FLAGS
+
+
+# 29 Oct 2026 (user on real06 run 20261028-154514-full, the master bedroom's floor lamp: "I did not like this light",
+# lesson UL94): the models the user rejected on a render, one committed list for every project. A listed model is
+# never used again in any licence mode (``usable``), and ``unusable_reason`` gives the user's words and the date.
+USER_REJECTED_PATH = Path(__file__).resolve().parents[2] / "results" / "library" / "user_rejected.json"
+_USER_REJECTED: dict = {}
+
+
+def user_rejections(path: Optional[Path] = None) -> dict[str, dict]:
+    """``{model id: record}`` of the user-rejected list (``USER_REJECTED_PATH``; cached per path; a missing or broken
+    file is an empty list). Each record: ``id``, ``type``, ``title``, ``date``, ``lesson``, ``user`` (the user's own
+    words), ``where``, ``reason``."""
+    p = Path(path) if path is not None else USER_REJECTED_PATH
+    key = str(p)
+    if key not in _USER_REJECTED:
+        rows: dict[str, dict] = {}
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+            for r in data.get("rejected") or []:
+                if isinstance(r, dict) and r.get("id"):
+                    rows[str(r["id"])] = r
+        except (OSError, ValueError, AttributeError):
+            rows = {}
+        _USER_REJECTED[key] = rows
+    return _USER_REJECTED[key]
+
+
+def user_rejection(entry: dict) -> Optional[dict]:
+    """The user's rejection record of a catalogue entry or a fitted ``asset`` dict (by ``id``, ``asset_id`` or
+    ``uid``), None when the user never rejected it."""
+    rows = user_rejections()
+    if not rows or not isinstance(entry, dict):
+        return None
+    for key in ("id", "asset_id", "uid"):
+        value = entry.get(key)
+        if value and str(value) in rows:
+            return rows[str(value)]
+    return None
 
 
 def title_refusal(entry: dict) -> Optional[str]:
@@ -855,6 +897,11 @@ def unusable_reason(entry: dict, mode: str = "commercial") -> Optional[str]:
     if str(audit.get("status") or "").lower() in REMOVED_STATUSES:
         reasons = "; ".join(str(r) for r in audit.get("reasons") or []) or "no reason recorded"
         return f"audit: {str(audit.get('status')).lower()} ({reasons})"
+    rejected = user_rejection(entry)
+    if rejected is not None:
+        return (f"the user rejected this model on {rejected.get('date') or '?'} ({rejected.get('lesson') or 'lesson'}: "
+                f"\"{rejected.get('user') or 'rejected'}\", {rejected.get('where') or 'a render'}): never used again "
+                f"on any project (results/library/user_rejected.json)")
     why = title_refusal(entry)
     if why:
         return f"its names or its audit refuse it ({why}; wenart.furniture.model_title)"

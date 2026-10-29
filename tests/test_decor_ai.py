@@ -460,7 +460,9 @@ def test_apply_keeps_the_solvers_rug_members_and_numbers_the_new_items_after_the
     others = [d for d in out["decor"] if d["id"] != kept["id"]]
     assert others and all(int(d["id"].rsplit("_", 1)[1]) > 1 for d in others)
     assert len({d["id"] for d in out["decor"]}) == len(out["decor"])
-    assert D.decor_counters(out["decor"]) == {"L0": len(out["decor"])}
+    # 29 Oct 2026 (UL91): the lighting rule may take out a light the slots hung too close to another (an id left
+    # unused), so the counter is at least the number of items; the ids stay unique (above)
+    assert D.decor_counters(out["decor"])["L0"] >= len(out["decor"])
     rec = next(r for r in records if r.room_id == b["rooms"][0]["id"])
     assert rec.fallback and all(d["id"] != kept["id"] for d in rec.items)   # the kept rug is not a new item
     again, _ = DA.apply(out, STYLE, {"answers": {}})

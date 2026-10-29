@@ -1060,12 +1060,12 @@
    "id": "UL91",
    "date": "2026-10-29",
    "area": "lighting",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "2 lights together not making sense (real06 run 20261028-154514-full, a bedroom: a pendant and a flush ceiling light hung side by side)",
-   "lesson": "2 lights together not making sense (real06 run 20261028-154514-full, a bedroom: a pendant and a flush ceiling light hung side by side)",
+   "lesson": "Ceiling fixtures keep at least 1.2 m apart (2.5 m between a flush light and a free pendant); one general light per zone, and a pendant counts as its zone's light. Checks: M17.",
    "question": null
   },
   {
@@ -1096,12 +1096,12 @@
    "id": "UL94",
    "date": "2026-10-29",
    "area": "library",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I did not like this light (real06 run 20261028-154514-full, the master bedroom: the tall floor lamp with a big black drum shade and a black cone base)",
-   "lesson": "I did not like this light (real06 run 20261028-154514-full, the master bedroom: the tall floor lamp with a big black drum shade and a black cone base)",
+   "lesson": "A model the user rejects goes into results/library/user_rejected.json and is never used again, in any mode. A drawn floor lamp wider than 0.45 m is fitted at a real 0.40 m product (adjusted_by_ai, drawn_footprint kept); prefer light, slim lamps. Checks: M21, U19.",
    "question": null
   },
   {
@@ -1144,24 +1144,24 @@
    "id": "UL98",
    "date": "2026-10-29",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "This scene I like it but a bit more furniture would be nice (real06 run 20261028-154514-full, cam_r_L0_salon_1: the open living and dining room has wide empty floor between the seating and the table)",
-   "lesson": "This scene I like it but a bit more furniture would be nice (real06 run 20261028-154514-full, cam_r_L0_salon_1: the open living and dining room has wide empty floor between the seating and the table)",
+   "lesson": "A living or dining room whose furniture covers less than 25 % of its floor gets the next program groups (reading corner, sideboard by the table, low divider shelf); walkways are checked by code. Checks: M21, U19.",
    "question": null
   },
   {
    "id": "UL99",
    "date": "2026-10-29",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "There is no TV in the house (real06 run 20261028-154514-full: no living room or bedroom has a television)",
-   "lesson": "There is no TV in the house (real06 run 20261028-154514-full: no living room or bedroom has a television)",
+   "lesson": "Every living room, and the master bedroom when the brief allows (never a child's room), gets a TV unit with a TV, facing the main sofa or bed at 1.5-4 m, never in front of a window or door; a drawn TV unit is kept. Checks: M21, U19.",
    "question": null
   },
   {
@@ -1193,24 +1193,24 @@
    "id": "UL102",
    "date": "2026-10-29",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "bath is too empty there should be some dolaps (real06 run 20261028-154514-full, the first-floor shower room: a bare wall-hung basin, a toilet and a shower, no cabinets)",
-   "lesson": "bath is too empty there should be some dolaps (real06 run 20261028-154514-full, the first-floor shower room: a bare wall-hung basin, a toilet and a shower, no cabinets)",
+   "lesson": "A bathroom without storage gets a tall storage column on a free wall, outside the fixtures' use zones, the door swing and the windows; fixtures never move. Checks: M21, U19.",
    "question": null
   },
   {
    "id": "UL103",
    "date": "2026-10-29",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "There are no library and books in the house lets put some library and books (real06 run 20261028-154514-full: no bookshelf with books in any room)",
-   "lesson": "There are no library and books in the house lets put some library and books (real06 run 20261028-154514-full: no bookshelf with books in any room)",
+   "lesson": "Living rooms, studies and child's rooms get a bookshelf where the program allows (a low one for a child); every bookshelf carries books on its boards. Checks: M21, U19.",
    "question": null
   },
   {
@@ -1251,12 +1251,12 @@
    "id": "UL107",
    "date": "2026-10-29",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "This one is one of the renders in real06 but with more and better furnitures, you can use this one to learn (cam_r_L0_salon_1 as the user wants it: a wool rug under the dining table, a leather bench on one side, linen placemats or a runner, plates with napkins, cutlery, wine glasses, a eucalyptus and hydrangea centrepiece with candles, a wooden sideboard with vases; in the living area floating wall shelves with trailing plants, books and pottery, a fiddle-leaf fig and other plants, knit throws and patterned cushions on the leather sofa, a boucle armchair, a solid wood coffee table with a plant and books, a rattan side table with a basket, a low open shelf as a room divider; abstract art prints, sheer curtains, warm low sunlight)",
-   "lesson": "This one is one of the renders in real06 but with more and better furnitures, you can use this one to learn (cam_r_L0_salon_1 as the user wants it: a wool rug under the dining table, a leather bench on one side, linen placemats or a runner, plates with napkins, cutlery, wine glasses, a eucalyptus and hydrangea centrepiece with candles, a wooden sideboard with vases; in the living area floating wall shelves with trailing plants, books and pottery, a fiddle-leaf fig and other plants, knit throws and patterned cushions on the leather sofa, a boucle armchair, a solid wood coffee table with a plant and books, a rattan side table with a basket, a low open shelf as a room divider; abstract art prints, sheer curtains, warm low sunlight)",
+   "lesson": "The user's improved salon picture is the target for a furnished living room: sideboard by the table, low divider shelf, accent armchair, books, plants; build what the library and procedural decor allow. Checks: M21, U19.",
    "question": null
   },
   {
@@ -1272,9 +1272,11 @@
   {
    "id": "UL109",
    "date": "2026-10-29",
-   "area": "other",
+   "area": "facade",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "There are no chimneys there could be some chimney in the projects (real06 run 20261028-154514-full: no chimney on any roof; a drawn fireplace or flue gets its chimney through the roof, and a pitched-roof house whose style family has chimneys gets an inferred one above its living room or boiler room)",
    "lesson": "There are no chimneys there could be some chimney in the projects (real06 run 20261028-154514-full: no chimney on any roof; a drawn fireplace or flue gets its chimney through the roof, and a pitched-roof house whose style family has chimneys gets an inferred one above its living room or boiler room)",
    "question": null

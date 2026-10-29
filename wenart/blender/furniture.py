@@ -611,8 +611,8 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "rattan": ("rattan", None, None),
         # 29 Oct 2026 (lesson UL93): a laptop's or a monitor's screen; the build gives the key its own material (a
         # dark glossy panel with a faint lit wallpaper: ``_Materials.get`` -> materials.screen_material), the dark
-        # lacquer is the slug its records name
-        "screen": ("lacquer_dark", None, None),
+        # lacquer is the slug its records name; a TV's screen (UL99) takes the same material
+        "screen": ("screen_black", None, None),
     }
     return keys, assumed
 

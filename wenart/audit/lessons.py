@@ -40,6 +40,11 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U24 (UL90, UL101) an inner window that makes no sense (``architect_rules.inner_window_reasons``).
 - U25 (UL97) a wall read twice; a kitchen counter in a door's or a passage's approach.
 - U26 (UL100) a house of two or more storeys left one render where its facade scheme clads the top storey.
+- U19 the rooms furnished for their use (``rooms_for_use``: the model review's M21, ``wenart.furniture.room_use``): a
+  living room or the master bedroom without a TV ("There is no TV in the house"), an under-furnished living room ("a
+  bit more furniture would be nice"), no bookshelf or a bookshelf without books ("no library and books"), a bathroom
+  without storage ("bath is too empty"), a user-rejected model or a floor lamp at its plan symbol's size ("I did not
+  like this light").
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -582,18 +587,40 @@ def door_models(building: Optional[dict], manifest: Optional[dict]) -> list[dict
             for p in OM.door_model_problems(manifest, building)]
 
 
+def rooms_for_use(building: dict) -> list[dict]:
+    """U19 (29 Oct 2026, the user's review of real06 run 154514: "There is no TV in the house", "a bit more furniture
+    would be nice", "no library and books in the house", "bath is too empty there should be some dolaps", "I did not
+    like this light"): the model review's M21 (``wenart.furniture.room_use``) on the building as built, each finding
+    with its own lesson and the stage that fixes it."""
+    from wenart.furniture import room_use as RU
+
+    fixes = {"media_wall": "rerun_stage layout (media_wall: a TV unit and its TV facing the main seat)",
+             "user_rejected": "swap_model (the fit never takes a user-rejected model: catalog.user_rejection)",
+             "symbol_size": "rerun_stage refit (fit.apply_size_snap: the plan symbol at its real product size)"}
+    out = []
+    for f in RU.review(building)[0]:
+        m = f.get("metrics") or {}
+        rule = str(m.get("rule") or "")
+        fix = fixes.get(rule) or ("rerun_stage decor (tabletop.shelf_books)" if rule.endswith(".books")
+                                  else "rerun_stage layout (room_fill)")
+        out.append(_f("U19", f["severity"], f.get("target"), f["message"], str(m.get("lesson") or "UL98"), fix,
+                      rule=rule, room=f.get("room_id")))
+    return out
+
+
 BUILDING_CHECKS = (("U1", entrances_at_windows), ("U2", roofs_without_posts), ("U3", thick_columns),
                    ("U4", flat_drawn_roofs), ("U5", traced_covers), ("U6", storage_before_tall_windows),
                    ("U8", seats_facing_walls), ("U9", indoor_pieces_outdoors), ("U10", basins_without_mirrors),
                    ("U11", bare_worktops), ("U12", bare_dining_tables),
                    ("U21", roof_gaps), ("U22", thick_light_posts), ("U24", senseless_inner_windows),
-                   ("U25", read_twice_and_blocked_passages), ("U17", bare_desks))
+                   ("U25", read_twice_and_blocked_passages), ("U17", bare_desks), ("U19", rooms_for_use))
 # the lessons each code check measures (``coverage``)
 CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4": ("UL57",), "U5": ("UL64",),
                  "U6": ("UL59", "UL56"), "U7": ("UL60",), "U8": ("UL61",), "U9": ("UL20",), "U10": ("UL66",),
                  "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32"),
                  "U21": ("UL88",), "U22": ("UL88",), "U24": ("UL90", "UL101"), "U25": ("UL97",),
-                 "U18": ("UL89", "UL65"), "U17": ("UL93",), "U26": ("UL100",)}
+                 "U18": ("UL89", "UL65"), "U17": ("UL93",), "U26": ("UL100",),
+                 "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107")}
 
 
 def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:

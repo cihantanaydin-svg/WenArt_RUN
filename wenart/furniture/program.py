@@ -103,6 +103,15 @@ cabina armadio, vestidor, ...) or whose every door opens into a bedroom (``dress
 8 m²) gets the ``dressing`` row (wardrobe runs along its free walls, a bench where it fits); a storage room read so is
 no longer left out ("storage room: no furniture groups"). Why: real06's 5.9 m² "Soyunma Odası" (other) got "no groups
 for this room (other 5.9 m²: nothing)" and rendered as a bare shell.
+
+Density of 29 Oct 2026 (user on real06 run 20261028-154514-full, cam_r_L0_salon_1: "This scene I like it but a bit
+more furniture would be nice", lesson UL98). What: a room with drawn furniture keeps the groups that only have extra
+options (a reading corner, a bedroom chest) as optional rows when it is under its furniture density
+(``room_fill.under_density``: the share of its floor its pieces cover, measured, against ``room_fill.DENSITY_TARGET``
+of its kind, for rooms of at least ``room_fill.DENSITY_MIN_M2``); the row's note gives the measured share. Before, a
+furnished room was "completed only" whatever its size. Why: real06's 55.6 m² living and dining room had 18 % of its
+floor furnished and wide empty floor between the seating and the table; the solver adds what fits and the walkways
+decide.
 """
 from __future__ import annotations
 
@@ -659,6 +668,16 @@ def primary_table(entries: list[dict], drawn: dict) -> Optional[str]:
     return min(entries, key=key)["anchor_id"] if entries else None
 
 
+def _density(building: dict, room: dict, rtype: str) -> tuple[bool, float, float]:
+    """29 Oct 2026 (UL98): ``(under, share, target)`` of ``room_fill.under_density`` (``target`` 0 without one)."""
+    from wenart.furniture import room_fill as RF
+
+    if rtype not in RF.DENSITY_TARGET:
+        return False, 0.0, 0.0
+    under, share, target = RF.under_density(building, room, rtype)
+    return under, share, float(target or 0.0)
+
+
 def room_program(building: dict, room_id: str, brief: Optional[dict] = None, choices: Optional[dict] = None) -> dict:
     room = _room(building, room_id)
     own_type = room.get("room_type") or "unknown"
@@ -826,6 +845,17 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
     # groups that only have extra options (a reading corner, a bedroom chest) are additions, never a completion.
     if any(r["drawn"] for r in rows):
         extra_only = [r for r in rows if not r["drawn"] and not GR.core_options(r["group"])]
+        # 29 Oct 2026 (user on real06: "a bit more furniture would be nice", UL98): a furnished room under its
+        # furniture density (room_fill.under_density: the share of its floor its pieces cover) keeps them as optional
+        # rows: the solver adds what fits, the walkways and clearances decide
+        under, share, target = _density(building, room, rtype)
+        if under and extra_only:
+            for r in extra_only:
+                r["note"] = (f"density: {share * 100:.0f} % of the floor is furnished, under {target * 100:.0f} % for "
+                             f"a {rtype} room of {area:.1f} m² (room_fill.under_density, UL98)")
+            notes.append(f"{', '.join(r['group'] for r in extra_only)} kept: the room is {share * 100:.0f} % furnished "
+                         f"(under {target * 100:.0f} %)")
+            extra_only = []
         for r in extra_only:
             rows.remove(r)
         if extra_only:
