@@ -1399,6 +1399,18 @@
    "request": "different solutions for different rooms (every room gets its own scheme: a full deep wall colour, an accent wall, slat panels or a wainscot; a TV on a unit or on the wall; a freestanding or a floating corner desk; no two rooms of one type on a level the same; docs/reference_details_20261029.md V1, R25-R30)",
    "lesson": "different solutions for different rooms (every room gets its own scheme: a full deep wall colour, an accent wall, slat panels or a wainscot; a TV on a unit or on the wall; a freestanding or a floating corner desk; no two rooms of one type on a level the same; docs/reference_details_20261029.md V1, R25-R30)",
    "question": null
+  },
+  {
+   "id": "UL120",
+   "date": "2026-10-29",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "look at this dressing room solution see through why we are not using some similar in our projects? (a full-height wardrobe behind black horizontal slat sliding doors, hanging shirts, shelves and drawers showing through, a light inside; our wardrobes only had closed fronts and no garments; docs/reference_details_20261029.md R31-R34)",
+   "lesson": "look at this dressing room solution see through why we are not using some similar in our projects? (a full-height wardrobe behind black horizontal slat sliding doors, hanging shirts, shelves and drawers showing through, a light inside; our wardrobes only had closed fronts and no garments; docs/reference_details_20261029.md R31-R34)",
+   "question": null
   }
  ]
 }

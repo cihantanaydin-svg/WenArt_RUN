@@ -5,10 +5,10 @@ The user sent seven professional interior renders on 29 Oct 2026 ("also take som
 details", "As much detail as you can digest", "we need better doors, not all the doors needs to be closed in
 default"). The photos reached the session as chat images only (no file); this page lists every detail read from
 them, so that each one becomes a general rule of the pipeline for every project (CLAUDE.md: every fix is general).
-Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen), UL119 (a different solution for each room).
+Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen), UL119 (a different solution for each room), UL120 (see-through wardrobes).
 
 Photos: P1 bedroom with a walk-in wardrobe; P2 bedroom with slat panels and a desk; P3 kitchen seen through blue
-glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side; P9 a young adult's bedroom (dark green walls, wall TV, floating corner desk).
+glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side; P9 a young adult's bedroom (dark green walls, wall TV, floating corner desk); P10 a bedroom with a see-through slatted wardrobe.
 
 ## Bathroom and WC (P4) - helper "bathroom"
 
@@ -81,6 +81,10 @@ glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance h
 | R28 | (P9) a wood-veneer flush door with fine vertical grooves, black frame, black lever and lock rose | (doors helper D2) |
 | R29 | (P9) a duffle bag on the floor, headphones on the desk: lived-in objects | one or two lived-in objects per bedroom (a bag, a throw on a chair) |
 | R30 | (P9) a multi-arm linear pendant, square black downlights | statement fixture options (UL106) |
+| R31 | (P10, "look at this dressing room solution see through why we are not using some similar in our projects?") a full-height wardrobe behind black horizontal slat sliding doors: the hanging shirts on a rail, the shelves and drawers inside show through the slats, LED inside | wardrobe and dressing-room fronts may be see-through (slatted or glazed sliding doors) with real contents: hanging garments on a rail, folded stacks, drawers, a light inside; the doors helper builds the fronts, the garments too |
+| R32 | (P10) a wide wood headboard panel across the bed wall, wider than the bed, with a large art piece above it | a bed wall option: a timber headboard panel wider than the bed (scheme V1) |
+| R33 | (P10) a floating (wall-mounted) black nightstand | nightstand option: a floating box on the wall in the modern families |
+| R34 | (P10) a textured limewash / plaster wall finish in the deep colour | wall finish option: limewash texture (V1 scheme) |
 | V1 | ("different solutions for different rooms") every room the same treatment | every room gets its own scheme from its family's pool (wall finish: one accent wall, a full deep colour, slat panels, a wainscot; TV: unit or wall-mounted; desk: freestanding or floating corner desk; bed wall: panel, art pair, headboard only), chosen deterministically by code; no two rooms of the same type on a level share one scheme; each choice recorded with its reason |
 | G2 | exposed timber beams under a sloped ceiling | a pitched-ceiling room may show its rafters as timber beams (rustic, scandinavian, farmhouse) |
 | G5 | a glass coffee table on a sculptural base, a rattan lounge chair, a shaggy rug | living room model choices |
