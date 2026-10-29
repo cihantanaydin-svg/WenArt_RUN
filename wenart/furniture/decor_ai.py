@@ -1199,6 +1199,21 @@ def lamps_on_of(style: Optional[dict]) -> bool:
     return bool((V.LIGHTING.get(mood) or {}).get("lamps_on"))
 
 
+
+def mirror_to_twins(out: dict, before: set, targets: dict, new_id) -> list[str]:
+    """A twin's (a copy target's) decor is its partner's mirrored copy (``decor.copy_partner_decor``), for the dressing
+    steps that run after the partners' copy too (29 Oct 2026: the room details gave a twin its own floor vase,
+    tests/test_decor_m10.py): the items a step added to a twin room itself are dropped and the step's new items of
+    the partner rooms copied over. Changes ``out["decor"]``; returns the copy's notes (items that could not map)."""
+    if not targets:
+        return []
+    new = [d for d in out["decor"] if d.get("id") not in before]
+    own = {d.get("id") for d in new if d.get("room_id") in targets}
+    out["decor"] = [d for d in out["decor"] if d.get("id") not in own]
+    copies, notes = D.copy_partner_decor(out, [d for d in new if d.get("id") not in own], targets, new_id)
+    out["decor"].extend(copies)
+    return notes
+
 def apply(building: dict, style_text: str, answers: dict, model: Optional[str] = None,
           style: Optional[dict] = None, recipes: Optional[dict] = None) -> tuple[dict, list[RoomDecor]]:
     """The decorated building (new dict) and the per-room records (module docstring); ``style`` (Milestone 10): the
@@ -1378,12 +1393,15 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
 
     before = {d.get("id") for d in out["decor"]}
     DR.dress(out, style, lambda room: room_recipe(room, recipes), new_id)     # its notes: out["dressing"]["notes"]
+    twin_notes = mirror_to_twins(out, before, targets, new_id)
     # 29 Oct 2026 (lessons UL113, UL115, UL119: the user's reference photos, "different solutions for different
     # rooms"): every room's own scheme and the photos' details (wenart.furniture.room_details); its record:
     # out["room_schemes"]
     from wenart.furniture import room_details as RD
 
+    before_rd = {d.get("id") for d in out["decor"]}
     RD.dress_details(out, style, new_id)
+    twin_notes += mirror_to_twins(out, before_rd, targets, new_id)
     present = {d.get("id") for d in out["decor"]}
     for rec in records:                            # a TV hung on the wall leaves its unit's top items
         rec.items = [i for i in rec.items if i.get("id") in present or not i.get("id")]
@@ -1398,10 +1416,11 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
 
     before = {d.get("id") for d in out["decor"]}
     _out, bath_notes = BD.dress(out, style, new_id)
+    twin_notes += mirror_to_twins(out, before, targets, new_id)
     for it in out["decor"]:
         if it.get("id") not in before and it.get("room_id") in room_ids:
             record_of(it["room_id"]).items.append(it)
-    for note in bath_notes:
+    for note in bath_notes + twin_notes:
         rid = note.split(":", 1)[0]
         if rid in room_ids:
             record_of(rid).notes.append(note)
