@@ -1098,6 +1098,46 @@
    "request": "this sink not making sense there (real06 run 20261028-154514-full, cam_r_L0_banyo_1: the wall basin stands in the corner right under the window, beside the bath, no room for a mirror)",
    "lesson": "this sink not making sense there (real06 run 20261028-154514-full, cam_r_L0_banyo_1: the wall basin stands in the corner right under the window, beside the bath, no room for a mirror)",
    "question": null
+  },
+  {
+   "id": "UL96",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "There is a gap between wall and water faucet not looking good (real06 run 20261028-154514-full, the kitchen: the sink unit stands off the wall under the window, a gap between the wall and the tap)",
+   "lesson": "There is a gap between wall and water faucet not looking good (real06 run 20261028-154514-full, the kitchen: the sink unit stands off the wall under the window, a gap between the wall and the tap)",
+   "question": null
+  },
+  {
+   "id": "UL97",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "I am not understanding this scene is there a door behind it? (real06 run 20261028-154514-full, the kitchen: a wide wooden double door stands behind the counter run, with two open hatches beside it)",
+   "lesson": "I am not understanding this scene is there a door behind it? (real06 run 20261028-154514-full, the kitchen: a wide wooden double door stands behind the counter run, with two open hatches beside it)",
+   "question": null
+  },
+  {
+   "id": "UL98",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "This scene I like it but a bit more furniture would be nice (real06 run 20261028-154514-full, cam_r_L0_salon_1: the open living and dining room has wide empty floor between the seating and the table)",
+   "lesson": "This scene I like it but a bit more furniture would be nice (real06 run 20261028-154514-full, cam_r_L0_salon_1: the open living and dining room has wide empty floor between the seating and the table)",
+   "question": null
+  },
+  {
+   "id": "UL99",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "There is no TV in the house (real06 run 20261028-154514-full: no living room or bedroom has a television)",
+   "lesson": "There is no TV in the house (real06 run 20261028-154514-full: no living room or bedroom has a television)",
+   "question": null
   }
  ]
 }
