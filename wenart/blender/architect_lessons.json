@@ -1363,6 +1363,30 @@
    "request": "Also we need better doors, not all the doors needs to be closed in default (inside doors open by default where nothing stops them; better door finishes per family, glazed divided-lite doors; docs/reference_details_20261029.md D1-D4)",
    "lesson": "Also we need better doors, not all the doors needs to be closed in default (inside doors open by default where nothing stops them; better door finishes per family, glazed divided-lite doors; docs/reference_details_20261029.md D1-D4)",
    "question": null
+  },
+  {
+   "id": "UL117",
+   "date": "2026-10-29",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Not every single one of them with the same dimension we can change the dimentions (the doors: sizes vary by role and family, a taller entrance, full-height day-room doors in the modern families; the user allows changing door dimensions; docs/reference_details_20261029.md D5)",
+   "lesson": "Not every single one of them with the same dimension we can change the dimentions (the doors: sizes vary by role and family, a taller entrance, full-height day-room doors in the modern families; the user allows changing door dimensions; docs/reference_details_20261029.md D5)",
+   "question": null
+  },
+  {
+   "id": "UL118",
+   "date": "2026-10-29",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "look at this beautiful kitchen (a full-wall wood slat panel behind the dining table with art on it, a coffee station, a waterfall island in a hanging hood frame, framed fronts, fluted uppers, linear pendant, square downlights, glossy large tiles; docs/reference_details_20261029.md K13-K15)",
+   "lesson": "look at this beautiful kitchen (a full-wall wood slat panel behind the dining table with art on it, a coffee station, a waterfall island in a hanging hood frame, framed fronts, fluted uppers, linear pendant, square downlights, glossy large tiles; docs/reference_details_20261029.md K13-K15)",
+   "question": null
   }
  ]
 }

@@ -5,10 +5,10 @@ The user sent seven professional interior renders on 29 Oct 2026 ("also take som
 details", "As much detail as you can digest", "we need better doors, not all the doors needs to be closed in
 default"). The photos reached the session as chat images only (no file); this page lists every detail read from
 them, so that each one becomes a general rule of the pipeline for every project (CLAUDE.md: every fix is general).
-Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors).
+Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen).
 
 Photos: P1 bedroom with a walk-in wardrobe; P2 bedroom with slat panels and a desk; P3 kitchen seen through blue
-glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again).
+glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side.
 
 ## Bathroom and WC (P4) - helper "bathroom"
 
@@ -42,6 +42,9 @@ glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance h
 | K10 | a set table (runner, bowls, a glass vase with branches), mixed upholstered chairs | (set tables exist since 28 Oct); a vase with branches as the centrepiece |
 | K11 | large-format glossy floor tiles (white / light grey) | kitchen floors of the modern families: large glossy tiles |
 | K12 | a plant in a black pot in a corner | (plants exist); pot finish by family |
+| K13 | (P8, "look at this beautiful kitchen") a full-wall vertical wood slat panel behind the dining table, floor to ceiling, with a large framed art piece hung on it | the dining wall of an open kitchen-dining room may get a full-height slat wall (the UL106 panel, whole wall) with art on it |
+| K14 | (P8) a coffee station on the worktop: a coffee machine, cups and a stack of plates beside it | a worktop corner gets a coffee station set |
+| K15 | (P5, P8) the island's stone top runs down both ends (waterfall), the island's fronts framed, a dark recessed plinth | waterfall island ends (K2) |
 | G3 | black kitchen, white subway tile splashback, a wall rail with hanging utensils, amber glass pendants over the island, track spots, a black chimney hood, bar stools at the island | subway tiles for industrial / farmhouse; utensil rail; bar stools at an island with an overhang |
 
 ## Hall, living room and bedrooms (P1, P2, P3, P6) - helper "rooms"
@@ -83,6 +86,7 @@ glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance h
 | D2 | black flush doors with black architraves and lever handles | door finishes per family (black flush in modern / industrial / minimal) |
 | D3 | blue glazed sliding doors with divided lites (muntins) | a glazed divided-lite door (sliding or double) in the family's accent colour as a door type for wide openings between day rooms |
 | D4 | smoked-glass wardrobe doors in black frames | glazed wardrobe fronts (R1) |
+| D5 | (user: "Not every single one of them with the same dimension we can change the dimentions") doors of one size everywhere | door sizes vary by role and family: a taller, wider entrance (pivot in the modern families), full-height doors to the ceiling for day rooms in the modern and minimal families, standard 2.10 m doors elsewhere, the WC door narrower where the drawing allows; the drawn width stays unless it is no real product size (then the nearest one, `adjusted_by_ai`); the user allows changing door dimensions (29 Oct 2026) |
 
 Every detail is built as a real product (PBR materials, real sizes), never a grey box; repeated small items of a
 level are built as one mesh where possible so the build stays fast (lesson UL111: use the pod fully, skip no step,
