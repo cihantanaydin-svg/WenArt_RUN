@@ -1168,12 +1168,12 @@
    "id": "UL100",
    "date": "2026-10-29",
    "area": "facade",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Outside wall texture can be changed (real06 run 20261028-154514-full: the style gives no facade material, the fallback white render reads as a flat box; answer to the question of a facade palette per style family)",
-   "lesson": "Outside wall texture can be changed (real06 run 20261028-154514-full: the style gives no facade material, the fallback white render reads as a flat box; answer to the question of a facade palette per style family)",
+   "lesson": "The facade is no single render: where no drawing or brief names it, a house of two or more storeys takes its style family's upper-storey cladding on the top storey (facade.FACADE_SCHEMES upper: timber for Scandinavian, Japandi, modern, rustic; fibre-cement for industrial), with the base cladding on basements and the accent band at the entrance; every face inferred with its reason. Argus U26.",
    "question": null
   },
   {
@@ -1267,6 +1267,16 @@
    "checks": [],
    "request": "Give me the breakdown of the pod time for each pod how much time each thing is taking (every run report gives the pod time in buckets: setup, reading, Blender build/render/export, the AI agent model, the vision check, diffusion, tests, upload; python -m wenart.report.podtime)",
    "lesson": "Give me the breakdown of the pod time for each pod how much time each thing is taking (every run report gives the pod time in buckets: setup, reading, Blender build/render/export, the AI agent model, the vision check, diffusion, tests, upload; python -m wenart.report.podtime)",
+   "question": null
+  },
+  {
+   "id": "UL109",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "There are no chimneys there could be some chimney in the projects (real06 run 20261028-154514-full: no chimney on any roof; a drawn fireplace or flue gets its chimney through the roof, and a pitched-roof house whose style family has chimneys gets an inferred one above its living room or boiler room)",
+   "lesson": "There are no chimneys there could be some chimney in the projects (real06 run 20261028-154514-full: no chimney on any roof; a drawn fireplace or flue gets its chimney through the roof, and a pitched-roof house whose style family has chimneys gets an inferred one above its living room or boiler room)",
    "question": null
   }
  ]

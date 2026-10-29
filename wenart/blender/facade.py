@@ -29,6 +29,11 @@ in render of the family's facade colour (``exterior.resolve_looks``), the walls 
 base cladding (stone, brick), and a band of the family's accent cladding framing the main entrance door, from the
 entrance floor to the floor above (``ACCENT``). Every face is ``inferred`` with its reason; the plinth band takes the
 base cladding too. A face may carry a ``span`` (two plan points on its wall): only the stretch between them takes it.
+
+29 Oct 2026 (user on real06: "Outside wall texture can be changed"; the judge: "a flat white box with no material
+rhythm"): a house of two or more storeys above the ground takes the family's ``upper`` cladding on its top storey
+(timber over a rendered ground floor for the Scandinavian, Japandi, modern and rustic families, fibre-cement panels
+for the industrial one); the families whose look is one render (minimal, classic, Mediterranean) keep it.
 """
 from __future__ import annotations
 
@@ -49,17 +54,24 @@ ARTICULATION = {
 # of the basement levels and the accent cladding around the main entrance (None: no accent). Vocabulary slugs and
 # colour names of wenart/style; a family not listed takes "default".
 FACADE_SCHEMES = {
-    "default": {"main": ("render", "off white"), "base": "stone_wall_ledgestone", "accent": "wood_cladding"},
-    "modern": {"main": ("render", "off white"), "base": "stone_wall_ledgestone", "accent": "wood_cladding"},
-    "modern minimal": {"main": ("render", "white"), "base": "stone_wall_slate", "accent": "wood_cladding"},
-    "minimal": {"main": ("render", "white"), "base": "stone_wall_slate", "accent": "wood_cladding"},
-    "scandinavian": {"main": ("render", "white"), "base": "stone_wall_ledgestone", "accent": "wood_cladding"},
-    "japandi": {"main": ("render", "off white"), "base": "stone_wall_slate", "accent": "wood_cladding"},
-    "industrial": {"main": ("render", "light grey"), "base": "brick_red", "accent": None},
-    "mediterranean": {"main": ("render", "cream"), "base": "stone_wall_ashlar", "accent": None},
-    "classic": {"main": ("render", "ivory"), "base": "stone_wall_ashlar", "accent": None},
-    "rustic": {"main": ("render", "cream"), "base": "stone_wall_rubble", "accent": "wood_cladding"},
+    "default": {"main": ("render", "off white"), "base": "stone_wall_ledgestone", "accent": "wood_cladding",
+                "upper": "wood_cladding"},
+    "modern": {"main": ("render", "off white"), "base": "stone_wall_ledgestone", "accent": "wood_cladding",
+               "upper": "wood_cladding"},
+    "modern minimal": {"main": ("render", "white"), "base": "stone_wall_slate", "accent": "wood_cladding",
+                       "upper": None},
+    "minimal": {"main": ("render", "white"), "base": "stone_wall_slate", "accent": "wood_cladding", "upper": None},
+    "scandinavian": {"main": ("render", "white"), "base": "stone_wall_ledgestone", "accent": "wood_cladding",
+                     "upper": "wood_cladding"},
+    "japandi": {"main": ("render", "off white"), "base": "stone_wall_slate", "accent": "wood_cladding",
+                "upper": "wood_cladding"},
+    "industrial": {"main": ("render", "light grey"), "base": "brick_red", "accent": None, "upper": "fibre_cement"},
+    "mediterranean": {"main": ("render", "cream"), "base": "stone_wall_ashlar", "accent": None, "upper": None},
+    "classic": {"main": ("render", "ivory"), "base": "stone_wall_ashlar", "accent": None, "upper": None},
+    "rustic": {"main": ("render", "cream"), "base": "stone_wall_rubble", "accent": "wood_cladding",
+               "upper": "wood_cladding"},
 }
+UPPER = {"min_storeys": 2}         # storeys above the ground for the top storey's cladding
 ACCENT = {"margin_m": 1.0, "min_width_m": 2.4}      # the accent band: the door plus 1 m on each side, >= 2.4 m wide
 DIMENSIONS = {"plinth_height": 0.45, "plinth_below": 0.05, "proud": 0.025, "band_height": 0.20, "band_proud": 0.03,
               "coping_height": 0.06, "coping_proud": 0.04, "surround_width": 0.12, "surround_proud": 0.03,
@@ -145,7 +157,27 @@ def scheme_faces(building: dict, style: Optional[dict], levels: Sequence[dict]) 
                           "source": "inferred", "inferred": True,
                           "reason": f"facade scheme ({sch['family']}): {sch['base']} on the basement level "
                                     f"{lv['id']} (not drawn)"})
+    top = upper_level(sch, order)
+    if top is not None:
+        faces.append({"material": sch["upper"], "colour": None, "side": "all", "level_id": top["id"],
+                      "source": "inferred", "inferred": True, "upper": True,
+                      "reason": f"facade scheme ({sch['family']}): {sch['upper']} on the top storey {top['id']} over "
+                                f"the rendered floors below (not drawn)"})
     return faces
+
+
+def storeys(levels: Sequence[dict]) -> list[dict]:
+    """The storeys above the ground, lowest first: the levels that are neither a basement nor a roof or open-air
+    level (pure)."""
+    return sorted((lv for lv in levels if str(lv.get("kind") or "floor") not in ("basement", "roof", "site", "terrain")),
+                  key=lambda lv: float(lv["elevation"]))
+
+
+def upper_level(scheme: dict, levels: Sequence[dict]) -> Optional[dict]:
+    """The storey that takes the scheme's ``upper`` cladding: the top one of at least ``UPPER["min_storeys"]``
+    storeys above the ground, None for a family without one (pure)."""
+    up = storeys(levels)
+    return up[-1] if scheme.get("upper") and len(up) >= UPPER["min_storeys"] else None
 
 
 def on_span(point, span, tol: float = 1e-3) -> bool:

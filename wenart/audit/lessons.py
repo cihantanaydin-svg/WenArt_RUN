@@ -39,6 +39,7 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U21 / U22 (UL88) a gap between a light roof and the slab over the rest of its space; a thick post under a light roof.
 - U24 (UL90, UL101) an inner window that makes no sense (``architect_rules.inner_window_reasons``).
 - U25 (UL97) a wall read twice; a kitchen counter in a door's or a passage's approach.
+- U26 (UL100) a house of two or more storeys left one render where its facade scheme clads the top storey.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -547,6 +548,27 @@ def read_twice_and_blocked_passages(building: dict) -> list[dict]:
     return out
 
 
+def one_render_facades(building: Optional[dict], manifest: Optional[dict]) -> list[dict]:
+    """U26: a house of two or more storeys whose facade scheme (the style family's default; no drawing or brief names
+    the facade) has an upper-storey cladding that the build did not put on ("Outside wall texture can be changed")."""
+    import re
+
+    from wenart.blender import facade as FA
+
+    assumed = [a for a in (manifest or {}).get("assumed") or [] if isinstance(a, dict)]
+    look = next((a for a in assumed if a.get("object") == "exterior" and a.get("field") == "facade"), None)
+    fam = re.match(r"facade scheme \(([^)]*)\)", str((look or {}).get("reason") or ""))
+    if fam is None or (building or {}).get("facade", {}).get("faces"):
+        return []                                  # the drawings or the brief name the facade
+    top = FA.upper_level(FA.scheme_of({"family": fam.group(1)}), (building or {}).get("levels") or [])
+    if top is None or any(a.get("field") == "facade_scheme" and a.get("object") == top["id"] for a in assumed):
+        return []
+    sch = FA.scheme_of({"family": fam.group(1)})
+    return [_f("U26", "major", top["id"], f"every storey of the house is one {look.get('value')}: the top storey "
+               f"{top['id']} has no {sch['upper']} ({sch['family']} facade scheme)", "UL100",
+               "rerun_stage build (facade.scheme_faces: the top storey's cladding)")]
+
+
 def door_models(building: Optional[dict], manifest: Optional[dict]) -> list[dict]:
     """U18: the door models as built (``opening_models.door_model_problems``; lesson UL89, user: "Better door models
     needed"): more than a third of the house's doors parametric (real06 run 20261028-154514-full: the build refused
@@ -571,7 +593,7 @@ CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4":
                  "U6": ("UL59", "UL56"), "U7": ("UL60",), "U8": ("UL61",), "U9": ("UL20",), "U10": ("UL66",),
                  "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32"),
                  "U21": ("UL88",), "U22": ("UL88",), "U24": ("UL90", "UL101"), "U25": ("UL97",),
-                 "U18": ("UL89", "UL65"), "U17": ("UL93",)}
+                 "U18": ("UL89", "UL65"), "U17": ("UL93",), "U26": ("UL100",)}
 
 
 def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
@@ -589,7 +611,8 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
         checked[cid] = len(got)
     for cid, fn in (("U7", lambda: door_operations(building, manifest)), ("U13", lambda: floor_finish_on_walls(manifest)),
                     ("U14", lambda: plain_walls(building, manifest)), ("U15", lambda: door_variety(manifest)),
-                    ("U18", lambda: door_models(building, manifest))):
+                    ("U18", lambda: door_models(building, manifest)),
+                    ("U26", lambda: one_render_facades(building, manifest))):
         if not manifest:
             checked[cid] = "no scene manifest: not run"
             continue

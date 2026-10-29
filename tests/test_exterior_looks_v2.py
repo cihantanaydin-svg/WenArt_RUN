@@ -27,7 +27,8 @@ def test_scheme_of_falls_back_to_the_default_family():
 
 def test_scheme_faces_frame_the_entrance_and_clad_the_basement():
     faces = FA.scheme_faces(_building(), {"family": "modern"}, LEVELS)
-    accent, base = faces
+    accent, base, upper = faces          # 29 Oct 2026 (UL100): the top storey of a two-storey house is clad
+    assert upper["level_id"] == "L1" and upper["material"] == "wood_cladding" and upper["upper"]
     assert accent["material"] == "wood_cladding" and accent["wall_id"] == "w1" and accent["inferred"]
     (x0, _), (x1, _) = accent["span"]
     assert math.isclose(x0, 2.5) and math.isclose(x1, 5.5)              # door 1.0 m + 1.0 m margin each side
@@ -37,9 +38,10 @@ def test_scheme_faces_frame_the_entrance_and_clad_the_basement():
 
 
 def test_scheme_without_an_accent_or_an_entrance_clads_only_the_basement():
-    assert [f.get("level_id") for f in FA.scheme_faces(_building(), {"family": "industrial"}, LEVELS)] == ["L-1"]
+    assert [f.get("level_id") for f in FA.scheme_faces(_building(), {"family": "industrial"}, LEVELS)] == ["L-1", "L1"]
     b = dict(_building(), site={})
-    assert [f.get("level_id") for f in FA.scheme_faces(b, {"family": "modern"}, LEVELS)] == ["L-1"]
+    assert [f.get("level_id") for f in FA.scheme_faces(b, {"family": "modern"}, LEVELS)] == ["L-1", "L1"]
+    assert [f.get("level_id") for f in FA.scheme_faces(b, {"family": "classic"}, LEVELS)] == ["L-1"]
 
 
 def test_resolve_looks_takes_the_scheme_when_nothing_names_the_facade():

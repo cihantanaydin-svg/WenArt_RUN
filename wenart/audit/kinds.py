@@ -109,7 +109,7 @@ CHECK_KIND = {
     # 28 Oct 2026: the lessons line (wenart.audit.lessons): what the user pointed at, measured
     "U11": "taste", "U12": "taste", "U13": "taste", "U14": "taste", "U15": "taste",
     # 29 Oct 2026: the user's real06 review
-    "U21": "no_sense", "U22": "taste", "U24": "no_sense", "U25": "misread",
+    "U21": "no_sense", "U22": "taste", "U24": "no_sense", "U25": "misread", "U26": "taste",
     "U18": "taste",                  # 29 Oct 2026: the door models as built (UL89)
     # 29 Oct 2026 (lesson UL93: "Computer on the table would have been nice or a laptop"): a desk with no work set
     "U17": "taste",
