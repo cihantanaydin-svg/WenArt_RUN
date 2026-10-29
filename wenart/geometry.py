@@ -19,7 +19,7 @@ the helpers can be used in tests and small scripts without extra cost.
 from __future__ import annotations
 
 import math
-from typing import Iterable, Sequence
+from typing import Iterable, Optional, Sequence
 
 Point = Sequence[float]
 
@@ -271,6 +271,19 @@ def rotated_rectangle(center: Point, size: Sequence[float], rotation_deg: float)
 def front_direction_deg(rotation_deg: float) -> float:
     """Direction a piece faces for a footprint rotation (front side = local -Y)."""
     return normalise_angle(270.0 + rotation_deg)
+
+
+def front_frame(footprint: dict, front_deg: Optional[float]) -> tuple[float, tuple[float, float]]:
+    """``(rotation, size)`` of a footprint in the block frame of its front (Milestone 10): the same rectangle,
+    turned by whole quarter turns so that its local -Y side faces ``front_deg`` (within 45 degrees) and the
+    size swapped when the turn is odd. A footprint without a front keeps its rotation and size. (Here since
+    29 Oct 2026, so the Blender build turns the models by it too; ``placer.front_frame`` is this function.)"""
+    rot = normalise_angle(float(footprint["rotation_deg"]))
+    size = (float(footprint["size"][0]), float(footprint["size"][1]))
+    if front_deg is None:
+        return rot, size
+    k = int(round(normalise_angle(float(front_deg) - 270.0 - rot) / 90.0)) % 4
+    return normalise_angle(rot + 90.0 * k), (size[1], size[0]) if k % 2 else size
 
 
 # --------------------------------------------------------------------------

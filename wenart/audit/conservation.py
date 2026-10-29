@@ -20,6 +20,9 @@ the final one, the build's ``scene/building_built.json``) and the scene manifest
 
 - C7 a drawn piece left out as not a piece (a rug outline, a detail, a mark) although an AI pass named a furniture
   type that fits its size (``named_left_out``; 27 Oct 2026).
+- C8 a piece built facing another way than its building says (``turned_in_build``; 29 Oct 2026, real06 run 100801:
+  a dressing room wardrobe the fit had turned to its room, ``front_deg`` 180 on a footprint of rotation 90, was built
+  with its back to the room; the build now turns every model by ``geometry.front_frame``).
 
 Each finding names the stage boundary where it happened (``owner``), so the kind ``lost`` is caught where it arises,
 for every element type, in every project. Pure; no limits: every element is checked.
@@ -284,6 +287,35 @@ def named_left_out(final: dict) -> list[dict]:
     return out
 
 
+TURN_TOL_DEG = 45.0      # C8: a built front further than this from the planned one faces another side
+
+
+def turned_in_build(final: dict, manifest: Optional[dict]) -> list[dict]:
+    """C8: the pieces whose built front (the scene object's ``rotation_deg``, model front = local -Y) is more than
+    ``TURN_TOL_DEG`` from the final building's ``front_deg`` (pure; ``geometry.front_frame`` is the frame of both)."""
+    from wenart import geometry as G
+
+    if not isinstance(manifest, dict):
+        return []
+    built = {o.get("wenart_id"): o for o in manifest.get("objects") or []
+             if o.get("kind") == "furniture" and o.get("rotation_deg") is not None}
+    out = []
+    for el in _items(final, ("furniture",)):
+        ob = built.get(el.get("id"))
+        if ob is None or el.get("front_deg") is None:
+            continue
+        got = G.front_direction_deg(float(ob["rotation_deg"]))
+        off = G.angle_difference_deg(got, float(el["front_deg"]))
+        if off > TURN_TOL_DEG:
+            out.append(K.finding("conservation", "C8", "major", el["id"],
+                                 f"{el['id']} ({_type(el)}) is built facing {got:.0f} deg, its building says "
+                                 f"{float(el['front_deg']):.0f} deg: its back or side faces the way its front should",
+                                 owner="build", kind="geometry",
+                                 evidence={"built_front_deg": round(got, 1), "front_deg": float(el["front_deg"]),
+                                           "rotation_deg": float(ob["rotation_deg"])}))
+    return out
+
+
 def reasons(manifest: Optional[dict]) -> list[dict]:
     """C6 (info): one finding per reason given for leaving elements out, with the ids it covers."""
     groups: dict = {}
@@ -304,11 +336,12 @@ def audit(stages: list[tuple[str, dict]], manifest: Optional[dict] = None) -> di
         findings += in_scene(stages[-1][1], manifest)
         findings += untyped(stages[-1][1])
         findings += named_left_out(stages[-1][1])
+        findings += turned_in_build(stages[-1][1], manifest)
     findings += reasons(manifest)
     checked = {name: sum(len(_items(b, p)) for _c, p in COLLECTIONS) for name, b in stages}
     return {"findings": findings, "checked": checked,
             "counts": {c: sum(1 for f in findings if f["check"] == c) for c in ("C1", "C2", "C3", "C4", "C5", "C6",
-                                                                                 "C7")}}
+                                                                                 "C7", "C8")}}
 
 
 def load(project_out, files: tuple = STAGE_FILES) -> list[tuple[str, dict]]:

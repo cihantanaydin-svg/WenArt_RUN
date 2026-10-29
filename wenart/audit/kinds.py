@@ -130,7 +130,7 @@ CHECK_KIND = {
     # code critic
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation
-    "C1": "lost", "C2": "lost", "C3": "lost", "C4": "untyped", "C5": "lost",
+    "C1": "lost", "C2": "lost", "C3": "lost", "C4": "untyped", "C5": "lost", "C8": "geometry",
     # 28 Oct 2026: a built library model its names or its audit refuse (code critic LT, process P11)
     "LT": "misread", "P11": "misread",
 }
