@@ -1076,6 +1076,10 @@ def _built(f: dict) -> bool:
 
 
 def _family_of(building: dict, pieces: list) -> Optional[str]:
+    """The house's style family: the project's stamp (``fit.stamp_style_family``), else a fitted piece's."""
+    project = building.get("project") if isinstance(building.get("project"), dict) else {}
+    if project.get("style_family"):
+        return str(project["style_family"])
     for p in pieces:
         fam = ((p.get("asset") or {}).get("style_family") if isinstance(p.get("asset"), dict) else None) \
             or (p.get("design") or {}).get("style_family")

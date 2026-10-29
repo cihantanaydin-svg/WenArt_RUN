@@ -1467,9 +1467,11 @@ def kitchen_styling_decor(building: dict, room: dict, pieces: list[dict], new_id
     if ctx is None:
         return []
     from wenart.blender import kitchen_details as KD
-    if family is None:
-        family = next((str((p.get("asset") or {}).get("style_family")) for p in ctx["counters"]
-                       if isinstance(p.get("asset"), dict) and (p.get("asset") or {}).get("style_family")), None)
+    if family is None:                                 # the project's stamp, else a run's fitted asset
+        project = building.get("project") if isinstance(building.get("project"), dict) else {}
+        family = project.get("style_family") or next(
+            (str((p.get("asset") or {}).get("style_family")) for p in ctx["counters"]
+             if isinstance(p.get("asset"), dict) and (p.get("asset") or {}).get("style_family")), None)
     rule = KD.family_rule(family)
     run_ids = {p["id"] for p in ctx["counters"]}
     on_top = [d for d in mine if d.get("host_id") in run_ids and d.get("type") in KITCHEN_DECOR_TYPES]
