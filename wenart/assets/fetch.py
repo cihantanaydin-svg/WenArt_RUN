@@ -444,20 +444,44 @@ def site_texture_rows(style: Optional[dict] = None) -> list[tuple[str, str, str]
     return rows
 
 
+DESIGN_LABEL = "design:"
+
+
+def design_texture_rows() -> list[tuple[str, str, str]]:
+    """``[(source, asset_id, "design:<slug>")]``: the texture set of every finish of the vocabulary (``MATERIALS``),
+    one row per set (pure, no download).
+
+    Why (29 Oct 2026, real04 run 20261029-201533-full): the design rules after this stage lay finishes the style
+    names nowhere (the professional bar's herringbone parquet ``wood_herringbone_mid``, the feature walls, the room
+    schemes, the bathroom and kitchen sets); their sets were never fetched, so 37 floors rendered flat ("asset
+    WoodFloor034 not in the assets manifest"). Every finish a rule may choose is ready on the volume (a set is fetched
+    once and cached)."""
+    rows, seen = [], set()
+    for slug, entry in sorted(V.MATERIALS.items()):
+        asset_id = (entry or {}).get("asset") if isinstance(entry, dict) else None
+        if asset_id and asset_id not in seen:
+            seen.add(asset_id)
+            rows.append((entry.get("source") or source_of_texture(str(asset_id)), str(asset_id),
+                         f"{DESIGN_LABEL}{slug}"))
+    return rows
+
+
 def texture_plan(style: dict, shell_rows: Optional[list] = None,
                  site_rows: Optional[list] = None) -> list[tuple[str, str, str]]:
     """The texture sets ``fetch_for_style`` fetches, in fetch order, one row ``(source, asset_id, label)`` per asset
     id (pure): the style's sets (``assets_in_profile``, label the slug), the furniture texture maps
     (``vocabulary.furniture_textures``, label the slug), then the shell slots' sets (``shell_texture_rows(style)``
     unless ``shell_rows`` is given, label ``shell:<slot>``), then (fix round after P3) the site finishes' sets
-    (``site_texture_rows(style)`` unless ``site_rows`` is given, label ``site:<part>``). An id already in the list
-    keeps its first label."""
+    (``site_texture_rows(style)`` unless ``site_rows`` is given, label ``site:<part>``), then (29 Oct 2026) every
+    finish of the vocabulary (``design_texture_rows``, label ``design:<slug>``). An id already in the list keeps its
+    first label."""
     from wenart.style.profile import assets_in_profile
 
     shell = shell_texture_rows(style) if shell_rows is None else shell_rows
     site = site_texture_rows(style) if site_rows is None else site_rows
     rows, seen = [], set()
-    for row in list(assets_in_profile(style)["textures"]) + list(V.furniture_textures()) + list(shell) + list(site):
+    for row in list(assets_in_profile(style)["textures"]) + list(V.furniture_textures()) + list(shell) + list(site) \
+            + design_texture_rows():                        # 29 Oct 2026: every finish a design rule may lay
         if row[1] not in seen:
             seen.add(row[1])
             rows.append(tuple(row))

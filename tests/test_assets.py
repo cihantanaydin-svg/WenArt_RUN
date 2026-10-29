@@ -254,7 +254,7 @@ def test_fetch_cli_collects_style_assets(tmp_path, monkeypatch, capsys):
                    # (exterior.build_finish_slugs: site.OUTDOOR_FLOOR_LOOKS, OUTDOOR_SOFFIT_LOOK)
                    "synthetic_wood", "floor_tiles_02", "oak_wood_planks",
                    # 28 Oct 2026: the outdoor floors by use (grading.floor_set): the default family's gravel path
-                   "gravel_floor_02"}
+                   "gravel_floor_02"} | {a for _, a, _ in fetch.design_texture_rows()}   # 29 Oct 2026: every finish
     assert ("hdri", "kloppenheim_06", "1k") in calls
     assert ("texture", "Marble012", "1k") in calls and ("texture", "Marble012", "2k") in calls   # at --size
     out = capsys.readouterr().out
@@ -622,7 +622,9 @@ def test_the_fetch_plan_adds_the_shell_sets_a_style_does_not_name():
     assert labels["white_plaster_02"] == "plaster_white" and labels["white_planks_clean"] == "painted_wood_white"
     assert labels["concrete_wall_001"] == "site:platform_wall" and ids.index("concrete_wall_001") > ids.index("Marble012")
     assert set(ids) == ({a for _, a, _ in style_rows} | {a for _, a, _ in V.furniture_textures()}
-                        | {a for _, a, _ in SHELL_ROWS} | {a for _, a, _ in fetch.site_texture_rows(profile)})
+                        | {a for _, a, _ in SHELL_ROWS} | {a for _, a, _ in fetch.site_texture_rows(profile)}
+                        | {a for _, a, _ in fetch.design_texture_rows()})     # 29 Oct 2026: every finish's set
+    assert "WoodFloor034" in ids                      # the herringbone parquet a design rule may lay (real04 run 201533)
 
 
 def test_fetch_for_style_fetches_the_shell_sets_at_the_stage_size(tmp_path, monkeypatch):
@@ -654,6 +656,7 @@ def test_an_unreadable_shell_table_is_recorded_and_the_style_sets_still_come(tmp
         raise ImportError("simulated")
 
     monkeypatch.setattr(fetch, "shell_texture_rows", broken)
+    monkeypatch.setattr(fetch, "design_texture_rows", lambda: [])      # the shell table's own sets are the question
     monkeypatch.setattr(fetch, "fetch_texture", lambda aid, out, size="2k", source=None, licence=None:
                         {"id": aid, "source": source, "licence": "CC0", "size_m": [1, 1], "files": {}})
     monkeypatch.setattr(fetch, "fetch_hdri", lambda *a, **k: {"file": "x.hdr"})
@@ -669,6 +672,7 @@ def test_the_shell_sets_go_through_the_fetchers_into_the_manifest_and_are_kept(t
     import hashlib
 
     monkeypatch.setattr(V, "furniture_textures", lambda: [])      # only the shell sets: style {} names nothing
+    monkeypatch.setattr(fetch, "design_texture_rows", lambda: [])  # (29 Oct 2026: nor the design finishes)
     bodies, served = {}, []
     ph_ids = [a for s, a, _ in SHELL_ROWS if s == "polyhaven"]
     for aid in ph_ids:
