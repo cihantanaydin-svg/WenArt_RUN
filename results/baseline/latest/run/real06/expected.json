@@ -5,37 +5,37 @@
  "stage": "expected",
  "rc": 0,
  "status": "ok",
- "seconds": 86.56,
+ "seconds": 87.85,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "check/expected_views.json"
  ],
- "started_utc": "2026-10-28T17:12:56Z",
- "git_commit": "2fb65985b1ec33add6308883f4daebf9507b239f",
+ "started_utc": "2026-10-29T12:58:40Z",
+ "git_commit": "14eec3dc7882538ba60d32b2846c2a4b9aa254b2",
  "log": "logs/expected.log",
  "note": null,
- "run_id": "20261028-154514-full-20261028T155014Z",
+ "run_id": "20261029-100801-full-20261029T101243Z",
  "steps": [
   {
    "name": "expected",
    "rc": 0,
-   "seconds": 7.24
+   "seconds": 7.37
   },
   {
    "name": "plan-crops",
    "rc": 0,
-   "seconds": 36.6
+   "seconds": 35.15
   },
   {
    "name": "expected",
    "rc": 0,
-   "seconds": 7.29
+   "seconds": 8.26
   },
   {
    "name": "plan-crops",
    "rc": 0,
-   "seconds": 35.43
+   "seconds": 37.07
   }
  ],
  "written": {}

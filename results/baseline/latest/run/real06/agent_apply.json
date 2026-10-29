@@ -5,45 +5,45 @@
  "stage": "agent_apply",
  "rc": 0,
  "status": "ok",
- "seconds": 28.65,
- "fingerprint": "8e4fc335fceb0b30e52593974b24101f8cf96e643faca80af830be980b3e28e0",
+ "seconds": 25.66,
+ "fingerprint": "01109f52a79418beba90f555fe1655d5efdec70e48d7ccf9809e406431789cb0",
  "inputs": {
-  "outputs/real06/building_decor.json": "d01f95c344744ce81abaf491572bdf06acee592316421da96f7e5a617c49670e",
-  "outputs/real06/orchestrator/overrides.json": "5fa0098dfcde1ceb22396f7cbe970f9216f604cfd406def6874a6de3ce966d64"
+  "outputs/real06/building_decor.json": "276c60ed734a55cbbc1b77e8a828fe99cb4cb846e2dc0c90ef105ffda837cad3",
+  "outputs/real06/orchestrator/overrides.json": "5c2c13898d0802a37eccaca25a232b858fea3becaa72758dfd674cc3a47bd696"
  },
  "outputs": [
   "building_agent.json"
  ],
- "started_utc": "2026-10-28T15:59:13Z",
- "git_commit": "2fb65985b1ec33add6308883f4daebf9507b239f",
+ "started_utc": "2026-10-29T10:19:21Z",
+ "git_commit": "14eec3dc7882538ba60d32b2846c2a4b9aa254b2",
  "log": "logs/agent_apply.log",
  "note": null,
- "run_id": "20261028-154514-full-20261028T155014Z",
+ "run_id": "20261029-100801-full-20261029T101243Z",
  "steps": [
   {
    "name": "agent_apply",
    "rc": 0,
-   "seconds": 1.94
+   "seconds": 1.75
   },
   {
    "name": "agent_apply",
    "rc": 0,
-   "seconds": 5.84
+   "seconds": 4.88
   },
   {
    "name": "agent_apply",
    "rc": 0,
-   "seconds": 6.29
+   "seconds": 6.12
   },
   {
    "name": "agent_apply",
    "rc": 0,
-   "seconds": 7.14
+   "seconds": 6.23
   },
   {
    "name": "agent_apply",
    "rc": 0,
-   "seconds": 7.44
+   "seconds": 6.68
   }
  ],
  "written": {}

@@ -2795,8 +2795,27 @@ def render_top_down(scene, building: dict, level: dict, level_collections: dict,
             "resolution": mapping["resolution"]}
 
 
+def profiled_main(argv: list[str], path: str) -> int:
+    """``main`` under cProfile (29 Oct 2026: real06's furniture phase took 1,023 s a build on the pod and 4 s here,
+    the library models live on the volume only): the stats go to ``path`` (``pstats``), the 60 heaviest functions by
+    cumulative and by own time to ``path + ".txt"``. Set by ``$WENART_PROFILE`` (scripts/jobs/profile_build.sh)."""
+    import cProfile
+    import io
+    import pstats
+
+    prof = cProfile.Profile()
+    try:
+        return prof.runcall(main, argv)
+    finally:
+        prof.dump_stats(path)
+        text = io.StringIO()
+        for key in ("cumulative", "tottime"):
+            pstats.Stats(prof, stream=text).sort_stats(key).print_stats(60)
+        Path(path + ".txt").write_text(text.getvalue(), encoding="utf-8")
+
+
 if __name__ == "__main__":
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-    code = main(argv)
+    code = profiled_main(argv, os.environ["WENART_PROFILE"]) if os.environ.get("WENART_PROFILE") else main(argv)
     if code:
         sys.exit(code)

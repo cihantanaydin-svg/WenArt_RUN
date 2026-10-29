@@ -5,27 +5,27 @@
  "stage": "decor",
  "rc": 0,
  "status": "ok",
- "seconds": 19.52,
- "fingerprint": "915751b1c0922048c522be186b250f272cc95e8136e0f883967bb729405304d4",
+ "seconds": 20.92,
+ "fingerprint": "6196eb20d61163d37ee571847bfc4b95eb89390c648c0c854b5fe927183bee49",
  "inputs": {
-  "outputs/real06/building_furnished.json": "589f8e71aa25dd47a7008b3c008b23f64c111b0daac2cebcfa81f94c100e7898",
+  "outputs/real06/building_furnished.json": "26518942fb505823408a4718b0edff336275bb4b9799c77e094b1358edada3a6",
   "outputs/real06/style.json": "58a1c5d8a8c2c12a199ec18e8584d6edfa900e51f3d1a14504974055d18f791d",
-  "outputs/real06/decor_ai_answers.json": "bc88654f49fc3b2f871a27b94502f0a2a760035811badaeabb00c5f53b2f59ad",
+  "outputs/real06/decor_ai_answers.json": "e8f46245cf3fbb97f6b8a9ed55d213924a1ff9df122cf53519a8c76abbf60337",
   "outputs/real06/recipes.json": "7cc7d4dda95696afcb719ae0ea8cdd849a38ec05d75567868a3f7c3a8f84094c"
  },
  "outputs": [
   "building_decor.json"
  ],
- "started_utc": "2026-10-28T15:59:08Z",
- "git_commit": "2fb65985b1ec33add6308883f4daebf9507b239f",
+ "started_utc": "2026-10-29T10:19:17Z",
+ "git_commit": "14eec3dc7882538ba60d32b2846c2a4b9aa254b2",
  "log": "logs/decor.log",
  "note": null,
- "run_id": "20261028-154514-full-20261028T155014Z",
+ "run_id": "20261029-100801-full-20261029T101243Z",
  "steps": [
   {
    "name": "decor",
    "rc": 0,
-   "seconds": 19.52
+   "seconds": 20.92
   }
  ],
  "written": {}
