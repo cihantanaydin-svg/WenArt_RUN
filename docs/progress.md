@@ -2157,3 +2157,26 @@ ridge 2.8 m away, 1.58 m over its exit); real04 (modern, mansard) one over the b
 w_L-1_004 at (5.94, 7.51) m and the mirrored dwelling's at (9.24, 7.51) m, tops 6.70 m on the shallow upper slope near
 the 6.01 m ridge. Argus U27 flags both runs as built (no chimney). Needs a pod render: the stack's look in the views,
 the cowls and pots.
+
+## real06 run 20261029-100801-full (29 Oct 2026, $9.88, 238 min)
+
+The first run with all of the user's 29 Oct requests (UL88-UL109) and the parallel AI calls (8 at a time).
+
+| measure | run 154514 (28 Oct, before) | run 100801 (29 Oct) |
+|---|---:|---:|
+| house score (judge) | 29.3 | 30.5 |
+| judge mean (1-5) | 2.13 | 2.23 |
+| Argus score (100 = nothing open) | - | 11.2 (1 critical, 119 major, 60 minor) |
+| GPU tests | - | 59 of 62 (2 fixed since, 1 old index-pass issue) |
+| one build (7 builds a run) | 3.9 min | 18-19 min (furniture phase 1,023 s) |
+
+Pod time: Blender builds 130 min (55 %), AI agent model 47 min (20 %), renders 26 min (11 %), the rest under 10 min
+each. Argus's one critical finding: the dressing room's camera stands against a wall (r_L1_soyunma_odasi). The run is
+the latest now (`results/baseline/latest/`).
+
+**Build time.** The furniture phase grew from 155 s to 1,023 s a build between the two runs. The same build here,
+without the library models (they are on the volume only), takes 4 s, so the slow code runs only on library models.
+The CPU quota was the same in both runs (28 CPUs of 256). The profile job `scripts/jobs/profile_build.sh`
+(cProfile through `$WENART_PROFILE`; a second build with Blender held to the CPU budget through
+`$WENART_BLENDER_THREADS`) measures it on the pod. Per-item timing (`furniture.note_time`, the build log's
+`BUILD_PHASES ... SLOWEST ...` line) names the slowest pieces and decor items in every build from now on.
