@@ -2849,7 +2849,8 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         _building_m10(build, project_dir)
     # Milestone 12 (docs/milestone12.md §3, §4.1, contract §13.2): the level marks (track L), then the furniture
     # reading (track R), before the type inference.
-    from wenart.ingest.generic import levels as LV, reading as RD
+    from wenart.ingest.generic import levels as LV, reading as RD, twin_walls as TW
+    TW.merge_twin_walls(building, build.warn)   # 29 Oct 2026: one wall read twice is one wall, its openings on it
     LV.apply_levels(build, works)
     RD.read_furniture(build, works)
     _infer_types(build)

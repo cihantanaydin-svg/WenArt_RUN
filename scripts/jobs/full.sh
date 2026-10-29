@@ -434,6 +434,8 @@ export HF_HUB_OFFLINE=1       # every model is in HF_HOME now; nothing is fetche
 rc=0
 "$PY" -m wenart.run pod "${POD_ARGS[@]}" || rc=$?
 log "orchestrator exit $rc"
+# 29 Oct 2026 (user: "Always put the top down views together with the rest of the renders"): copied into final/<p>
+# beside the renders too.
 # User request of 25 Oct 2026: angled top-down views of every level with the ceilings off and the room names
 # (wenart/blender/topdown.py, wenart/report/topdown_labels.py) into outputs/<p>/renders/top_<level>_plan.jpg, which
 # the results copy takes; a failure is a warning only. RUN_TOPDOWN=0 skips it.
@@ -454,6 +456,7 @@ if [ "${RUN_TOPDOWN:-1}" != "0" ] && [ -n "${RUN_PROJECTS//[[:space:],]/}" ]; th
       && "$PY" -m wenart.report.topdown_labels "$(built_building "$p")" "$WENART_OUTPUTS/$p/topdown" \
            --out "$WENART_OUTPUTS/$p/renders" --architect "$WENART_OUTPUTS/$p/scene/architect.json" \
            >> "$LOGS/topdown-$JOB-$p.log" 2>&1 \
+      && { mkdir -p "$WENART_OUTPUTS/$p/final"; cp -f "$WENART_OUTPUTS/$p/renders"/top_*_plan.jpg "$WENART_OUTPUTS/$p/final/" 2>/dev/null || true; } \
       && log "topdown $p: done" || log "warning: topdown $p failed (see $LOGS/topdown-$JOB-$p.log)"
   done
 fi

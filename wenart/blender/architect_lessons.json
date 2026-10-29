@@ -1022,19 +1022,23 @@
   {
    "id": "UL88",
    "date": "2026-10-29",
-   "area": "other",
-   "status": "open",
-   "checks": [],
+   "area": "terrace",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "this solutions still not good enough and columns are too thick there is a gap between balcony and small roof there should not be a gap (real06 run 20261028-154514-full, ext_1: the veranda's lower roof stops about 1 m short of the balcony slab, 0.40 m posts under a light roof)",
-   "lesson": "this solutions still not good enough and columns are too thick there is a gap between balcony and small roof there should not be a gap (real06 run 20261028-154514-full, ext_1: the veranda's lower roof stops about 1 m short of the balcony slab, 0.40 m posts under a light roof)",
+   "lesson": "A light roof (veranda, porch) meets the slab or balcony above it: only a house roof or slab at most 4 m above its floor counts as cover (outdoor.ROOF_COVER max_m), an uncovered strip under 0.6 m is roofed too (SLIVER_M), a drawn lower roof is matched by its share of the region, and its pitched polygon is the union of the drawn outline and the roofed area. Inferred posts under a light roof are at most 0.15 m (LIGHT_POST_M); a drawn column under a slab corner reaches the slab. Argus U21 (a gap between a light roof and the slab or balcony over it) and U22 (thick posts under a light roof).",
    "question": null
   },
   {
    "id": "UL89",
    "date": "2026-10-29",
-   "area": "other",
+   "area": "openings",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "Better door models needed (real06 run 20261028-154514-full)",
    "lesson": "Better door models needed (real06 run 20261028-154514-full)",
    "question": null
@@ -1042,19 +1046,24 @@
   {
    "id": "UL90",
    "date": "2026-10-29",
-   "area": "other",
-   "status": "open",
-   "checks": [],
+   "area": "openings",
+   "status": "built",
+   "checks": [
+    "W2",
+    "build"
+   ],
    "request": "these windows are not making sense (real06 run 20261028-154514-full: two small high windows win_L1_004 / win_L1_005 flanking the door d_L1_003 in the inner wall between the shower room r_L1_dus and the dressing room r_L1_soyunma_odasi)",
-   "lesson": "these windows are not making sense (real06 run 20261028-154514-full: two small high windows win_L1_004 / win_L1_005 flanking the door d_L1_003 in the inner wall between the shower room r_L1_dus and the dressing room r_L1_soyunma_odasi)",
+   "lesson": "An inner window with a reason against it is closed (architect W2 close_window, the wall stays solid, openings_closed): a wet room on a side, a door or opening within 0.3 m on its wall (a door's side light read as a window), a piece over its sill or a tall one against it, both rooms lit and a bedroom on a side. A window that is a dark habitable room's only daylight with only a door beside it is offered for closing, never closed by default. A serving hatch over a drawn counter is no window. Argus U24.",
    "question": null
   },
   {
    "id": "UL91",
    "date": "2026-10-29",
-   "area": "other",
+   "area": "lighting",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "2 lights together not making sense (real06 run 20261028-154514-full, a bedroom: a pendant and a flush ceiling light hung side by side)",
    "lesson": "2 lights together not making sense (real06 run 20261028-154514-full, a bedroom: a pendant and a flush ceiling light hung side by side)",
    "question": null
@@ -1062,9 +1071,11 @@
   {
    "id": "UL92",
    "date": "2026-10-29",
-   "area": "other",
+   "area": "furniture",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "This washing machine would not open (real06 run 20261028-154514-full, a bathroom: the washing machine's door faces the toilet beside it)",
    "lesson": "This washing machine would not open (real06 run 20261028-154514-full, a bathroom: the washing machine's door faces the toilet beside it)",
    "question": null
@@ -1072,9 +1083,11 @@
   {
    "id": "UL93",
    "date": "2026-10-29",
-   "area": "other",
+   "area": "decor",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "Computer on the table would have been nice or a laptop (real06 run 20261028-154514-full, a bedroom desk with nothing on it)",
    "lesson": "Computer on the table would have been nice or a laptop (real06 run 20261028-154514-full, a bedroom desk with nothing on it)",
    "question": null
@@ -1082,9 +1095,11 @@
   {
    "id": "UL94",
    "date": "2026-10-29",
-   "area": "other",
+   "area": "library",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "I did not like this light (real06 run 20261028-154514-full, the master bedroom: the tall floor lamp with a big black drum shade and a black cone base)",
    "lesson": "I did not like this light (real06 run 20261028-154514-full, the master bedroom: the tall floor lamp with a big black drum shade and a black cone base)",
    "question": null
@@ -1092,9 +1107,11 @@
   {
    "id": "UL95",
    "date": "2026-10-29",
-   "area": "other",
+   "area": "furniture",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "this sink not making sense there (real06 run 20261028-154514-full, cam_r_L0_banyo_1: the wall basin stands in the corner right under the window, beside the bath, no room for a mirror)",
    "lesson": "this sink not making sense there (real06 run 20261028-154514-full, cam_r_L0_banyo_1: the wall basin stands in the corner right under the window, beside the bath, no room for a mirror)",
    "question": null
@@ -1102,9 +1119,11 @@
   {
    "id": "UL96",
    "date": "2026-10-29",
-   "area": "other",
+   "area": "furniture",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "There is a gap between wall and water faucet not looking good (real06 run 20261028-154514-full, the kitchen: the sink unit stands off the wall under the window, a gap between the wall and the tap)",
    "lesson": "There is a gap between wall and water faucet not looking good (real06 run 20261028-154514-full, the kitchen: the sink unit stands off the wall under the window, a gap between the wall and the tap)",
    "question": null
@@ -1112,19 +1131,23 @@
   {
    "id": "UL97",
    "date": "2026-10-29",
-   "area": "other",
-   "status": "open",
-   "checks": [],
+   "area": "reading",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "I am not understanding this scene is there a door behind it? (real06 run 20261028-154514-full, the kitchen: a wide wooden double door stands behind the counter run, with two open hatches beside it)",
-   "lesson": "I am not understanding this scene is there a door behind it? (real06 run 20261028-154514-full, the kitchen: a wide wooden double door stands behind the counter run, with two open hatches beside it)",
+   "lesson": "One wall read twice (parallel, inside the other's thickness, overlapping 80 %, at least 1 m long and no thicker) is one wall (ingest.generic.twin_walls): the copy is not built, its openings move onto the kept wall or merge with the opening read twice there. A kitchen counter leg never runs along a door or an open passage and stops short of a door's approach (reading.passage_zone, 0.9 m deep). Argus U25 (a wall read twice, a counter in a door's or a passage's approach).",
    "question": null
   },
   {
    "id": "UL98",
    "date": "2026-10-29",
-   "area": "other",
+   "area": "furniture",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "This scene I like it but a bit more furniture would be nice (real06 run 20261028-154514-full, cam_r_L0_salon_1: the open living and dining room has wide empty floor between the seating and the table)",
    "lesson": "This scene I like it but a bit more furniture would be nice (real06 run 20261028-154514-full, cam_r_L0_salon_1: the open living and dining room has wide empty floor between the seating and the table)",
    "question": null
@@ -1132,11 +1155,108 @@
   {
    "id": "UL99",
    "date": "2026-10-29",
-   "area": "other",
+   "area": "furniture",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "There is no TV in the house (real06 run 20261028-154514-full: no living room or bedroom has a television)",
    "lesson": "There is no TV in the house (real06 run 20261028-154514-full: no living room or bedroom has a television)",
+   "question": null
+  },
+  {
+   "id": "UL100",
+   "date": "2026-10-29",
+   "area": "facade",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Outside wall texture can be changed (real06 run 20261028-154514-full: the style gives no facade material, the fallback white render reads as a flat box; answer to the question of a facade palette per style family)",
+   "lesson": "Outside wall texture can be changed (real06 run 20261028-154514-full: the style gives no facade material, the fallback white render reads as a flat box; answer to the question of a facade palette per style family)",
+   "question": null
+  },
+  {
+   "id": "UL101",
+   "date": "2026-10-29",
+   "area": "openings",
+   "status": "built",
+   "checks": [
+    "W2",
+    "build"
+   ],
+   "request": "This window and dolap is not making sense (real06 run 20261028-154514-full, the first-floor hall by the stair: an inner window into a room where a tall wardrobe stands right behind it)",
+   "lesson": "A hall window onto a wardrobe makes no sense: an inner window with a tall piece (or one over its sill) within 0.45 m of its wall over 30 % of its width is closed by default (architect W2 close_window). Argus U24.",
+   "question": null
+  },
+  {
+   "id": "UL102",
+   "date": "2026-10-29",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "bath is too empty there should be some dolaps (real06 run 20261028-154514-full, the first-floor shower room: a bare wall-hung basin, a toilet and a shower, no cabinets)",
+   "lesson": "bath is too empty there should be some dolaps (real06 run 20261028-154514-full, the first-floor shower room: a bare wall-hung basin, a toilet and a shower, no cabinets)",
+   "question": null
+  },
+  {
+   "id": "UL103",
+   "date": "2026-10-29",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "There are no library and books in the house lets put some library and books (real06 run 20261028-154514-full: no bookshelf with books in any room)",
+   "lesson": "There are no library and books in the house lets put some library and books (real06 run 20261028-154514-full: no bookshelf with books in any room)",
+   "question": null
+  },
+  {
+   "id": "UL104",
+   "date": "2026-10-29",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "If there is a window here it needs to alight with the stairs (real06 run 20261028-154514-full, top-down view of L1 near d_L1_004 / o_L1_004: a window under the stair landing in the wall the stair runs along, not aligned with the stair)",
+   "lesson": "If there is a window here it needs to alight with the stairs (real06 run 20261028-154514-full, top-down view of L1 near d_L1_004 / o_L1_004: a window under the stair landing in the wall the stair runs along, not aligned with the stair)",
+   "question": null
+  },
+  {
+   "id": "UL105",
+   "date": "2026-10-29",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "Always put the top down views together with the rest of the renders (every run: the top_<level>_plan views go into final/<p> with the renders, the before/after sheets and the latest baseline, and they are sent with the renders)",
+   "lesson": "Always put the top down views together with the rest of the renders (every run: the top_<level>_plan views go into final/<p> with the renders, the before/after sheets and the latest baseline, and they are sent with the renders)",
+   "question": null
+  },
+  {
+   "id": "UL106",
+   "date": "2026-10-29",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "look at this renders I want my renders to be as professional as these ones (a reference bedroom render: fluted wood wall panels behind the bed, a statement glass-globe chandelier, pendants over the nightstands, recessed spots, layered bedding with throws and cushions, a large rug, herringbone oak floor, sheer and blackout curtains, a dressing table with a round mirror, pampas vases, leaning art, warm light, a level camera with straight verticals)",
+   "lesson": "look at this renders I want my renders to be as professional as these ones (a reference bedroom render: fluted wood wall panels behind the bed, a statement glass-globe chandelier, pendants over the nightstands, recessed spots, layered bedding with throws and cushions, a large rug, herringbone oak floor, sheer and blackout curtains, a dressing table with a round mirror, pampas vases, leaning art, warm light, a level camera with straight verticals)",
+   "question": null
+  },
+  {
+   "id": "UL107",
+   "date": "2026-10-29",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This one is one of the renders in real06 but with more and better furnitures, you can use this one to learn (cam_r_L0_salon_1 as the user wants it: a wool rug under the dining table, a leather bench on one side, linen placemats or a runner, plates with napkins, cutlery, wine glasses, a eucalyptus and hydrangea centrepiece with candles, a wooden sideboard with vases; in the living area floating wall shelves with trailing plants, books and pottery, a fiddle-leaf fig and other plants, knit throws and patterned cushions on the leather sofa, a boucle armchair, a solid wood coffee table with a plant and books, a rattan side table with a basket, a low open shelf as a room divider; abstract art prints, sheer curtains, warm low sunlight)",
+   "lesson": "This one is one of the renders in real06 but with more and better furnitures, you can use this one to learn (cam_r_L0_salon_1 as the user wants it: a wool rug under the dining table, a leather bench on one side, linen placemats or a runner, plates with napkins, cutlery, wine glasses, a eucalyptus and hydrangea centrepiece with candles, a wooden sideboard with vases; in the living area floating wall shelves with trailing plants, books and pottery, a fiddle-leaf fig and other plants, knit throws and patterned cushions on the leather sofa, a boucle armchair, a solid wood coffee table with a plant and books, a rattan side table with a basket, a low open shelf as a room divider; abstract art prints, sheer curtains, warm low sunlight)",
    "question": null
   }
  ]

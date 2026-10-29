@@ -436,7 +436,7 @@ def test_a_kitchen_outline_holding_sink_and_hob_is_the_kitchen_run():
     kitchen: 'fits no size-table type', not built. Its two wall sides become counter legs 0.60 m deep."""
     box = M.fp("f_L0_002", "unknown", (1.5, 2.0), (3.99, 2.4), rotation=90.0, front=None, status="unverified",
                type_method="none")
-    build = _build([box], w=3.4, h=4.0, room_type="kitchen", window=None)
+    build = _build([box], w=3.4, h=4.0, room_type="kitchen", window=None, door_x=3.2)
     items = {"f_L0_002": SimpleNamespace(element_id="f_L0_002", details={"kitchen_signs": {"sink": 1, "hob": 4}})}
     legs = RD.kitchen_outlines(build, items)
     b = build.building
@@ -451,12 +451,12 @@ def test_a_kitchen_outline_holding_sink_and_hob_is_the_kitchen_run():
     outline = _piece(b, "f_L0_002")
     assert outline["build"] is False and outline["inferred_as"] == "detail" and outline["replaced_by"] == legs
     # Without the sink or hob circles nothing happens (left for review).
-    build2 = _build([copy.deepcopy(box)], w=3.4, h=4.0, room_type="kitchen", window=None)
+    build2 = _build([copy.deepcopy(box)], w=3.4, h=4.0, room_type="kitchen", window=None, door_x=3.2)
     assert RD.kitchen_outlines(build2, {}) == []
     # Against three walls it is a U: three legs, the corners to the longer legs.
     box3 = M.fp("u", "unknown", (1.2, 2.0), (3.99, 2.4), rotation=90.0, front=None, status="unverified",
                 type_method="none")
-    build3 = _build([box3], w=3.4, h=4.0, room_type="kitchen", window=None)
+    build3 = _build([box3], w=3.4, h=4.0, room_type="kitchen", window=None, door_x=3.2)
     items3 = {"u": SimpleNamespace(element_id="u", details={"kitchen_signs": {"sink": 1}})}
     legs3 = RD.kitchen_outlines(build3, items3)
     sizes3 = sorted(tuple(round(v, 2) for v in _piece(build3.building, lid)["footprint"]["size"]) for lid in legs3)
@@ -471,7 +471,7 @@ def test_a_kitchen_outline_short_of_the_wall_behind_its_sink_reaches_that_wall()
     box = M.fp("k", "unknown", (1.65, 2.0), (3.99, 2.4), rotation=90.0, front=None, status="unverified",
                type_method="none")
     sink = M.fp("s", "sink_kitchen", (0.2, 2.0), (1.2, 0.3), rotation=90.0, front=0.0, type_method="group_member")
-    build = _build([box, sink], w=3.4, h=4.0, room_type="kitchen", window=None)
+    build = _build([box, sink], w=4.5, h=4.0, room_type="kitchen", window=None, door_x=4.0)
     items = {"k": SimpleNamespace(element_id="k", details={"kitchen_signs": {"sink": 8}})}
     legs = RD.kitchen_outlines(build, items)
     b = build.building
@@ -483,8 +483,38 @@ def test_a_kitchen_outline_short_of_the_wall_behind_its_sink_reaches_that_wall()
     box2 = M.fp("k", "unknown", (1.65, 2.0), (3.99, 2.4), rotation=90.0, front=None, status="unverified",
                 type_method="none")
     far = M.fp("s", "sink_kitchen", (1.65, 2.0), (1.2, 0.3), rotation=90.0, front=0.0, type_method="group_member")
-    build2 = _build([box2, far], w=3.4, h=4.0, room_type="kitchen", window=None)
+    build2 = _build([box2, far], w=4.5, h=4.0, room_type="kitchen", window=None, door_x=4.0)
     assert len(RD.kitchen_outlines(build2, items)) == 2                   # the sink is not in the gap: two legs
+
+
+def test_a_kitchen_leg_stops_short_of_a_door_and_none_runs_along_a_passage():
+    """29 Oct 2026 (real06 run 154514: the kitchen outline's south side lay along the kitchen's 2.9 m open entrance from
+    the living room; its counter leg filled the doorway, the architect made the doorway a serving hatch and the AI a
+    double door behind the counter): a leg stops short of a door's approach (``PASSAGE_APPROACH_M``, ``reach`` past its
+    jambs); a leg along a whole passage is no leg."""
+    box = M.fp("k", "unknown", (1.2, 2.0), (3.99, 2.4), rotation=90.0, front=None, status="unverified",
+               type_method="none")
+    items = {"k": SimpleNamespace(element_id="k", details={"kitchen_signs": {"sink": 1}})}
+    build = _build([box], w=3.4, h=4.0, room_type="kitchen", window=None, door_x=1.0)        # door 0.55-1.45 m
+    legs = RD.kitchen_outlines(build, items)
+    b = build.building
+    by_front = {_piece(b, lid)["front_deg"]: _piece(b, lid) for lid in legs}
+    south = by_front.get(90.0)
+    assert south is None or rect_x0(south) >= 1.45 + RD.PASSAGE_REACH_M - 1e-6   # nothing in front of the door
+    west = next(_piece(b, lid) for lid in legs if round(_piece(b, lid)["footprint"]["size"][0], 2) > 2.5)
+    wall_y = -0.05                                                       # the south wall's centre line
+    assert west["footprint"]["center"][1] - west["footprint"]["size"][0] / 2.0 >= wall_y + RD.PASSAGE_APPROACH_M - 1e-6
+    # a door as wide as the side: no leg there
+    wide = M.fp("k", "unknown", (1.2, 2.0), (3.99, 2.4), rotation=90.0, front=None, status="unverified",
+                type_method="none")
+    build2 = _build([wide], w=3.4, h=4.0, room_type="kitchen", window=None, door_x=1.2)
+    build2.building["openings"][0]["width"] = 2.4
+    legs2 = RD.kitchen_outlines(build2, items)
+    assert 90.0 not in {_piece(build2.building, lid)["front_deg"] for lid in legs2}
+
+
+def rect_x0(piece):
+    return min(x for x, _y in RD.rect(piece).exterior.coords)
 
 
 # --------------------------------------------------------------------------

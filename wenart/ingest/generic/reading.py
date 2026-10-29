@@ -2540,7 +2540,85 @@ def generic_rooms(build) -> list[str]:
     return changed
 
 
-def outline_to_walls(poly: Polygon, ring, room_id: str, pieces: list) -> tuple[Polygon, list[str]]:
+PASSAGE_TYPES = ("door", "opening")
+PASSAGE_SIDE_SHARE = 0.5          # a side this much along a door or an open passage is no wall side
+
+
+PASSAGE_APPROACH_M = 0.9          # a door's approach kept clear in front of it (a counter stops short of it)
+PASSAGE_REACH_M = 0.15            # ... and this far past its jambs (a counter may end this close to a door frame)
+LEG_MIN_M = 0.6                   # a counter leg shorter than this after the cut is no leg
+
+
+def passage_spans(b: dict, level_id: Optional[str] = None) -> list:
+    """The spans (``LineString``s on their walls' centre lines) of the doors and open passages of ``level_id`` (pure;
+    29 Oct 2026, ``passage_share``): an untyped gap counts only between two rooms (in an outer wall the reading makes it
+    a window)."""
+    walls = {w["id"]: w for w in b.get("walls") or [] if isinstance(w, dict) and w.get("id")}
+    rooms = [r for r in b.get("rooms") or [] if isinstance(r, dict) and len(r.get("polygon") or []) >= 3]
+    spans = []
+    for o in b.get("openings") or []:
+        if not isinstance(o, dict) or o.get("type") not in PASSAGE_TYPES or not o.get("center"):
+            continue
+        if level_id is not None and o.get("level_id") not in (None, level_id):
+            continue
+        w = walls.get(o.get("wall_id"))
+        if w is None:
+            continue
+        (x0, y0), (x1, y1) = w["start"][:2], w["end"][:2]
+        length = math.dist((x0, y0), (x1, y1))
+        if length <= 1e-6:
+            continue
+        ux, uy = (x1 - x0) / length, (y1 - y0) / length
+        cx, cy = (float(v) for v in o["center"][:2])
+        if o.get("type") == "opening":
+            off = float(w.get("thickness") or 0.2) / 2.0 + 0.3
+            sides_in = [any(Polygon(r["polygon"]).buffer(0).contains(Point(cx + nx * off, cy + ny * off))
+                            for r in rooms if r.get("level_id") in (None, o.get("level_id")))
+                        for nx, ny in ((-uy, ux), (uy, -ux))]
+            if not all(sides_in):
+                continue
+        h = float(o.get("width") or 0.0) / 2.0
+        spans.append(LineString([(cx - ux * h, cy - uy * h), (cx + ux * h, cy + uy * h)]))
+    return spans
+
+
+def passage_zone(b: dict, level_id: Optional[str] = None, reach: float = PASSAGE_REACH_M):
+    """The floor kept clear in front of the doors and passages of ``level_id`` (pure; 29 Oct 2026): each span
+    lengthened by ``reach`` at both ends and ``PASSAGE_APPROACH_M`` deep on both sides; None without a passage."""
+    from shapely.ops import unary_union
+
+    zones = []
+    for sp in passage_spans(b, level_id):
+        (ax, ay), (cx, cy) = sp.coords[0], sp.coords[-1]
+        length = math.dist((ax, ay), (cx, cy))
+        if length <= 1e-6:
+            continue
+        ux, uy = (cx - ax) / length, (cy - ay) / length
+        line = LineString([(ax - ux * reach, ay - uy * reach), (cx + ux * reach, cy + uy * reach)])
+        zones.append(line.buffer(PASSAGE_APPROACH_M, cap_style=2))
+    return unary_union(zones) if zones else None
+
+
+def passage_share(a, c, b: dict, level_id: Optional[str] = None, reach: float = 0.35) -> float:
+    """The share of the segment ``a``-``c`` that runs along a door or an open passage of the building (pure; 29 Oct
+    2026, real06: the kitchen outline's south side lay along the kitchen's 2.9 m open entrance from the living room
+    and got a counter leg; the architect then made the doorway a serving hatch and the AI a door behind the counter):
+    sampled at 21 points, a point counts when it lies within ``reach`` of the span of a ``PASSAGE_TYPES`` opening on its
+    wall."""
+    spans = passage_spans(b, level_id)
+    if not spans:
+        return 0.0
+    near = 0
+    for k in range(21):
+        t = k / 20.0
+        q = Point(a[0] + (c[0] - a[0]) * t, a[1] + (c[1] - a[1]) * t)
+        if any(sp.distance(q) <= reach for sp in spans):
+            near += 1
+    return near / 21.0
+
+
+def outline_to_walls(poly: Polygon, ring, room_id: str, pieces: list,
+                     building: Optional[dict] = None) -> tuple[Polygon, list[str]]:
     """``(polygon, notes)``: a kitchen outline with every side that stands short of a wall extended to it (pure; 28 Oct
     2026, ``KITCHEN_OUTLINE_GAP_M``): a side not on a wall whose outward gap to the room outline is at most that, the far
     edge of the gap on a wall, and a built drawn kitchen fixture of the room (``KITCHEN_GAP_TYPES``) with at least
@@ -2571,6 +2649,8 @@ def outline_to_walls(poly: Polygon, ring, room_id: str, pieces: list) -> tuple[P
         far = ((a[0] + nx * gap, a[1] + ny * gap), (c[0] + nx * gap, c[1] + ny * gap))
         if not INF.side_on_wall(far[0], far[1], ring):
             continue
+        if building is not None and passage_share(far[0], far[1], building) >= PASSAGE_SIDE_SHARE:
+            continue                                                # the way in, not a wall to reach
         band = Polygon([a, c, far[1], far[0]])
         held = []
         for f in pieces:
@@ -2616,7 +2696,7 @@ def kitchen_outlines(build, items: dict, pending=()) -> list[str]:
             continue
         poly = rect(f)
         ring = room_ring(room)
-        poly, reached = outline_to_walls(poly, ring, room["id"], b["furniture"])
+        poly, reached = outline_to_walls(poly, ring, room["id"], b["furniture"], b)
         if reached:      # the union's float noise (-2e-16) made GEOS keep the corner in a leg: snapped to 1 micrometre
             poly = Polygon([(round(x, 6) + 0.0, round(y, 6) + 0.0) for x, y in poly.exterior.coords]).simplify(1e-6)
         ss = sides(poly)
@@ -2650,7 +2730,41 @@ def kitchen_outlines(build, items: dict, pending=()) -> list[str]:
         src = next((e for e in f.get("evidence") or [] if isinstance(e, dict) and e.get("method") == "vector"), None)
         what = ", ".join(f"{k}: {v} circles" for k, v in sorted(signs.items()))
         ids = []
+        # 29 Oct 2026: a leg stops short of a door or an open passage (its approach stays clear); what is left under
+        # LEG_MIN_M is no leg (real06: the outline's south side lay along the kitchen's 2.9 m open entrance)
+        zone = passage_zone(b, f.get("level_id"))
+        trimmed = []
         for part, (ux, uy), (nx, ny) in legs:
+            pts = list(part.exterior.coords)
+            us, ns = [p[0] * ux + p[1] * uy for p in pts], [p[0] * nx + p[1] * ny for p in pts]
+            u0, u1, n0, n1 = min(us), max(us), min(ns), max(ns)
+            if zone is not None and not zone.is_empty:
+                steps = max(2, int(math.ceil((u1 - u0) / 0.05)))
+                free = []
+                for k in range(steps + 1):
+                    u = u0 + (u1 - u0) * k / steps
+                    cross = LineString([(u * ux + n0 * nx, u * uy + n0 * ny), (u * ux + n1 * nx, u * uy + n1 * ny)])
+                    free.append(not zone.intersects(cross))
+                best, run = None, None
+                for k, ok in enumerate(free + [False]):
+                    if ok and run is None:
+                        run = k
+                    elif not ok and run is not None:
+                        if best is None or k - run > best[1] - best[0]:
+                            best = (run, k - 1)
+                        run = None
+                if best is None:
+                    continue
+                a0, a1 = u0 + (u1 - u0) * best[0] / steps, u0 + (u1 - u0) * best[1] / steps
+                if a1 - a0 < LEG_MIN_M - 1e-9:
+                    continue
+                if a1 - a0 < u1 - u0 - 1e-6:
+                    part = Polygon([(a0 * ux + n0 * nx, a0 * uy + n0 * ny), (a1 * ux + n0 * nx, a1 * uy + n0 * ny),
+                                    (a1 * ux + n1 * nx, a1 * uy + n1 * ny), (a0 * ux + n1 * nx, a0 * uy + n1 * ny)])
+            trimmed.append((part, (ux, uy), (nx, ny)))
+        if not trimmed:
+            continue
+        for part, (ux, uy), (nx, ny) in trimmed:
             pts = list(part.exterior.coords)
             us, ns = [p[0] * ux + p[1] * uy for p in pts], [p[0] * nx + p[1] * ny for p in pts]
             mu, mn = (min(us) + max(us)) / 2.0, (min(ns) + max(ns)) / 2.0

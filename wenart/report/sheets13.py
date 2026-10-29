@@ -274,6 +274,17 @@ def before_preview(before: M.Run, views_before: dict, camera: str) -> tuple[Opti
     return None, found
 
 
+def top_views(run: M.Run) -> list[Path]:
+    """The ``top_<level>_plan.jpg`` top-down views of a run (pure): in its preview folders, else in its renders folder
+    (``results/renders/<p>`` beside ``results/final/<p>``, ``outputs/<p>/renders`` on the volume)."""
+    dirs = list(run.preview_dirs) + [run.root / "renders", run.root.parent.parent / "renders" / run.name]
+    seen: dict = {}
+    for d in dirs:
+        for f in sorted(Path(d).glob("top_*_plan.jpg")) if Path(d).is_dir() else []:
+            seen.setdefault(f.name, f)
+    return [seen[k] for k in sorted(seen)]
+
+
 def sheets(project_out, baseline_out, out_dir) -> dict:
     """Write one before | after JPEG per camera of the "after" run into ``out_dir``; returns
     ``{"sheets": {camera: file}, "missing_before": [cameras], "missing_after": [cameras], "baseline_only":
@@ -323,6 +334,23 @@ def sheets(project_out, baseline_out, out_dir) -> dict:
                         "before": str(pb) if pb else None, "after": str(pa) if pa else None,
                         "before_left_out": str(stale) if stale is not None else None,
                         "before_line": line_b, "after_line": line_a, "camera_note": note, "bytes": info["bytes"]})
+    # 29 Oct 2026 (user: "Always put the top down views together with the rest of the renders"): a before | after
+    # sheet of every level's top-down view (``top_<level>_plan.jpg``) the run made
+    tops_before = {f.name: f for f in top_views(before)}
+    for f in top_views(after):
+        cam = f.name[: -len(".jpg")]
+        pb = tops_before.get(f.name)
+        caption = [(f"{cam}  (the level's top-down view, ceilings off, room names)", TEXT)]
+        sheet = compose(pb, f, caption, before_message=None if pb else "before: no top-down view of this level",
+                        labels=labels)
+        name = f"{cam}{SUFFIX}"
+        info = C.save_jpeg_under(sheet, out / name)
+        written[cam] = name
+        records.append({"camera": cam, "room_id": None, "room_type": "top-down view", "file": name,
+                        "before": str(pb) if pb else None, "after": str(f), "before_left_out": None,
+                        "before_line": "", "after_line": "", "camera_note": None, "bytes": info["bytes"]})
+        if pb is None:
+            missing_before.append(cam)
     baseline_only = sorted(set(views_before) - set(views_after))
     warnings = list(after.warnings) + [f"baseline: {w}" for w in before.warnings]
     if not views_before:

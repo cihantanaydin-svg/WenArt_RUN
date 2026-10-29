@@ -168,6 +168,86 @@ def _ok(q: dict, element: str, found: str, **extra) -> None:
     q["answers"].append(dict({"element": element, "found": found, "change": None}, **extra))
 
 
+INNER_WINDOW = {"door_gap_m": 0.3, "tall_m": 1.0, "against_m": 0.45, "cover_share": 0.3}
+PRIVATE_TYPES = ("bedroom",)
+TALL_TYPES = ("wardrobe", "tall_cabinet", "bookshelf", "display_cabinet", "fridge", "kitchen_counter", "dresser",
+              "shoe_cabinet", "sideboard", "bed_double", "bed_single", "bunk_bed")
+
+
+def inner_window_problems(plan, o: dict, a: dict, b: dict, glass: dict) -> list[str]:
+    """Why an inner window between rooms ``a`` and ``b`` makes no sense (pure; ``inner_window_reasons``)."""
+    return [text for _kind, text in inner_window_reasons(plan, o, a, b, glass)]
+
+
+def inner_window_soft(plan, reasons: list, a: dict, b: dict, glass: dict) -> bool:
+    """Whether the only reason against an inner window is a door beside it while it is the only daylight of a
+    habitable room (pure; 29 Oct 2026): then closing it is offered, never chosen by default."""
+    return bool(reasons) and all(k == "door_side" for k, _t in reasons) and any(
+        _rtype(x) in HABITABLE and glass.setdefault(x["id"], AA.outside_glass(plan, x["id"])[0]) <= 1e-6
+        for x in (a, b))
+
+
+def inner_window_reasons(plan, o: dict, a: dict, b: dict, glass: dict) -> list[tuple[str, str]]:
+    """Why an inner window between rooms ``a`` and ``b`` makes no sense, as (kind, text) (pure; 29 Oct 2026,
+    ``INNER_WINDOW``): ``wet``: a wet room on a side; ``door_side``: a door or opening on its wall within
+    ``door_gap_m`` of it (side lights read as windows); ``against``: a piece over its sill or a tall one
+    (``TALL_TYPES``) against it, within ``against_m`` of the wall over ``cover_share`` of its width; ``both_lit``:
+    both rooms lit by their own outside glass and a bedroom on a side (no room needs its light)."""
+    from shapely.geometry import LineString, Polygon
+
+    out = []
+    wet = sorted({x["id"] for x in (a, b) if _rtype(x) in WET_SET})
+    if wet:
+        out.append(("wet", f"{', '.join(wet)} is a wet room (no window into it from another room)"))
+    w = plan.walls.get(o.get("wall_id"))
+    if w is not None:
+        t, half = plan.t_of(w, o["center"]), float(o.get("width") or 0.0) / 2.0
+        for p in plan.openings.values():
+            if p["id"] == o["id"] or p.get("wall_id") != o.get("wall_id") or p.get("type") not in ("door", "opening"):
+                continue
+            tp, hp = plan.t_of(w, p["center"]), float(p.get("width") or 0.0) / 2.0
+            gap = max(tp - hp - (t + half), t - half - (tp + hp))
+            if gap <= INNER_WINDOW["door_gap_m"]:
+                out.append(("door_side", f"it stands {max(gap, 0.0):.2f} m beside {p['id']} (a door's side read as a "
+                                          f"window)"))
+                break
+        (x0, y0), (x1, y1) = w["start"][:2], w["end"][:2]
+        length = math.hypot(x1 - x0, y1 - y0) or 1.0
+        ux, uy = (x1 - x0) / length, (y1 - y0) / length
+        span = LineString([(float(o["center"][0]) - ux * half, float(o["center"][1]) - uy * half),
+                           (float(o["center"][0]) + ux * half, float(o["center"][1]) + uy * half)])
+        band = span.buffer(INNER_WINDOW["against_m"], cap_style=2)
+        sill = float(o.get("sill_height") if o.get("sill_height") is not None else 0.9)
+        for f in plan.b.get("furniture") or []:
+            fp = f.get("footprint") or {}
+            if f.get("build") is False or not fp.get("center") or f.get("room_id") not in (a["id"], b["id"]):
+                continue
+            h = f.get("height") or ((f.get("asset") or {}).get("bbox_m") or [None, None, None])[2]
+            if not ((h is not None and float(h) > sill + 0.05) or (h is None and f.get("type") in TALL_TYPES)):
+                continue
+            cx, cy = (float(v) for v in fp["center"][:2])
+            sw, sd = (float(v) for v in fp["size"][:2])
+            r = math.radians(float(fp.get("rotation_deg") or 0.0))
+            pts = [(cx + dx * math.cos(r) - dy * math.sin(r), cy + dx * math.sin(r) + dy * math.cos(r))
+                   for dx, dy in ((-sw / 2, -sd / 2), (sw / 2, -sd / 2), (sw / 2, sd / 2), (-sw / 2, sd / 2))]
+            piece = Polygon(pts)
+            if not piece.is_valid or not piece.intersects(band):
+                continue
+            proj = [((px - x0) * ux + (py - y0) * uy) for px, py in pts]
+            cover = min(max(proj), t + half) - max(min(proj), t - half)
+            if cover >= INNER_WINDOW["cover_share"] * 2 * half:
+                out.append(("against", f"{f['id']} ({f.get('type')}) stands against it"))
+                break
+    lit = [x["id"] for x in (a, b) if glass.setdefault(x["id"], AA.outside_glass(plan, x["id"])[0]) > 1e-6]
+    private = [x["id"] for x in (a, b) if _rtype(x) in PRIVATE_TYPES]
+    if len(lit) == 2 and private:
+        # a window between two lit day rooms (a kitchen and a living room) may be a view on purpose; into a bedroom
+        # it only costs privacy
+        out.append(("both_lit", f"{a['id']} and {b['id']} both have outside windows (no room needs its light) and "
+                                f"{', '.join(private)} needs privacy"))
+    return out
+
+
 def _rtype(room: Optional[dict]) -> str:
     return str((room or {}).get("room_type") or "").lower()
 
@@ -305,9 +385,21 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
             if out_a or out_b:
                 _ok(w2, o["id"], "to the outside" if a is None or b is None else "onto an open-air room")
             elif o.get("interior_glazing") and a is not None and b is not None:
-                # 26 Oct 2026: decided as a borrowed-light, high or serving window
-                _ok(w2, o["id"], f"a {o['interior_glazing'].get('kind', 'clear')} borrowed-light window between "
-                                 f"{a['id']} and {b['id']} (decided)")
+                # 26 Oct 2026: decided as a borrowed-light, high or serving window; 29 Oct 2026: a decision kept
+                # against a reason the window makes no sense is asked again, closing it by default (a serving hatch
+                # over a drawn counter is no window to close)
+                kind = o["interior_glazing"].get("kind", "clear")
+                reasons = [] if kind == "pass_through" else inner_window_reasons(plan, o, a, b, glass)
+                against = [] if inner_window_soft(plan, reasons, a, b, glass) else [t for _k, t in reasons]
+                if against:
+                    _open(w2, o["id"], f"{o['id']} was kept as a {kind} borrowed-light window between {a['id']} and "
+                          f"{b['id']}; against it: {'; '.join(against)}",
+                          f"Should {o['id']} stay a window between {a['id']} and {b['id']}?",
+                          [AA.option("close_window", "close it: " + "; ".join(against)),
+                           AA.option("keep", f"keep the {kind} borrowed-light window")],
+                          where=where, room=a["id"], default="close_window", fallback=["keep"])
+                else:
+                    _ok(w2, o["id"], f"a {kind} borrowed-light window between {a['id']} and {b['id']} (decided)")
             elif a is not None and b is not None:
                 dark = [x for x in (a, b) if _rtype(x) in HABITABLE]
                 room = min(dark or [a, b], key=lambda x: glass.setdefault(
@@ -328,6 +420,18 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
                                     "privacy") if wet_side else \
                     AA.option("interior_glazing", "a borrowed-light window on purpose (clear glass)")
                 opts.insert(1, keep_as)
+                # 29 Oct 2026 (user on real06: "these windows are not making sense" (two windows beside the door
+                # between a shower room and a dressing room), "This window and dolap is not making sense" (a hall
+                # window onto a wardrobe)): an inner window with a reason against it is closed by default
+                # (only a door beside it while it is a dark room's only daylight: closing it is offered, the
+                # borrowed light stays the fallback)
+                reasons = inner_window_reasons(plan, o, a, b, glass)
+                soft = inner_window_soft(plan, reasons, a, b, glass)
+                against = [t for _k, t in reasons]
+                if against:
+                    opts.insert(2 if soft else 1, AA.option("close_window", "close it: " + "; ".join(against)))
+                    if default is None and not soft:
+                        default = "close_window"
                 # a room no door reaches: the widest window from a reached room is its door (a misread door)
                 lost = [x for x in (a, b) if x["id"] in (unreached or set())]
                 if len(lost) == 1 and a["id"] != b["id"]:
@@ -341,10 +445,11 @@ def openings_rules(plan: AA.Plan, sides: list[dict], unreached: Optional[set] = 
                            for p in rival):
                         default = "window_to_door"
                 _open(w2, o["id"], f"{o['id']} sits in the wall between {room['id']} ({_rtype(room)}) and "
-                      f"{other['id']} ({_rtype(other)})",
+                      f"{other['id']} ({_rtype(other)})" + (f"; against it: {'; '.join(against)}" if against else ""),
                       f"Is {o['id']} on the outer wall of {room['id']} in the drawing (a reading error), or a "
                       f"borrowed-light window on purpose?", opts, where=where, room=room["id"],
-                      **({"default": default} if default else {}), fallback=[keep_as["choice"]])
+                      **({"default": default} if default else {}),
+                      fallback=["close_window"] if against and not soft else [keep_as["choice"]])
             # W3: low sills over a drop
             lv = plan.levels[o["level_id"]]
             drop = float(lv["elevation"]) - ground

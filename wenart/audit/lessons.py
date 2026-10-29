@@ -403,14 +403,126 @@ def door_variety(manifest: Optional[dict]) -> list[dict]:
             for p in OM.door_variety_problems(manifest)]
 
 
+# ------------------------------------------------------------------------------- 29 Oct 2026 (the user's real06 review)
+def roof_gaps(building: dict) -> list[dict]:
+    """U21: a covered outdoor space with part of its floor left open between its own roof and the slab or roof over the
+    rest ("there is a gap between balcony and small roof there should not be a gap"): the floor under neither its
+    roof, a space above nor a floor above, wider than ``outdoor.SLIVER_M``."""
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+    from wenart.levels import outdoor as O
+
+    spaces = _spaces(building)
+    out = []
+    for sp in spaces:
+        roof = sp.get("roof") if isinstance(sp.get("roof"), dict) else None
+        if roof is None or len(roof.get("polygon") or []) < 3 or len(sp.get("polygon") or []) < 3:
+            continue
+        floor = Polygon(sp["polygon"]).buffer(0)
+        over = [Polygon(roof["polygon"]).buffer(0)]
+        over += [Polygon(u["polygon"]).buffer(0) for u in spaces if u is not sp and len(u.get("polygon") or []) >= 3
+                 and float(u.get("z") or 0.0) > float(sp.get("z") or 0.0) + 1.0]
+        rest = floor.difference(unary_union(over))
+        rest = rest.buffer(-O.SLIVER_M / 2.0, join_style=2).buffer(O.SLIVER_M / 2.0, join_style=2)
+        if rest.is_empty or rest.area < 0.5:
+            continue
+        others = [u["id"] for u in spaces if u is not sp and len(u.get("polygon") or []) >= 3
+                  and float(u.get("z") or 0.0) > float(sp.get("z") or 0.0) + 1.0
+                  and Polygon(u["polygon"]).buffer(0.3).intersects(rest)]
+        if others:
+            out.append(_f("U21", "major", sp["id"], f"{rest.area:.1f} m² of {sp['id']} lie open between its roof and "
+                          f"the slab of {', '.join(others)} over the rest (a gap)", "UL88",
+                          "rerun_stage levels (outdoor.roof_plan: the space's roof runs on to the slab it meets)",
+                          gap_m2=round(rest.area, 2), above=others))
+    return out
+
+
+def thick_light_posts(building: dict) -> list[dict]:
+    """U22: an inferred post that carries only a light or lower roof, thicker than ``outdoor.LIGHT_POST_M`` ("columns
+    are too thick")."""
+    from wenart.levels import outdoor as O
+
+    out = []
+    for sp in _spaces(building):
+        for q in sp.get("posts") or []:
+            if q.get("source") != "inferred" or not str(q.get("carries") or "").startswith("the roof of"):
+                continue
+            size = float(q.get("size_m") or 0.0)
+            if size > O.LIGHT_POST_M + 0.02:
+                out.append(_f("U22", "major", sp["id"], f"a post of {sp['id']}'s light roof is {size:.2f} m across "
+                              f"(a light roof's post is at most {O.LIGHT_POST_M:.2f} m)", "UL88",
+                              "rerun_stage levels (outdoor.light_post_look)", center=q.get("center"), size_m=size))
+    return out
+
+
+def senseless_inner_windows(building: dict) -> list[dict]:
+    """U24: a window between two rooms that makes no sense (``architect_rules.inner_window_problems``: a wet room
+    behind it, a door beside it, a tall piece against it, a bedroom lit from both sides; "these windows are not making
+    sense", "This window and dolap is not making sense"); a serving hatch over a counter is none."""
+    from wenart.blender import architect_actions as AA
+    from wenart.blender import architect_rules as AR
+
+    plan = AA.Plan(building)
+    out, glass = [], {}
+    for o in plan.openings.values():
+        if o.get("type") != "window" or (o.get("interior_glazing") or {}).get("kind") == "pass_through":
+            continue
+        sides = AA.window_sides(plan, o)
+        if len(sides) != 2 or any(r is None or AA.Plan.is_outside(r) for r in sides):
+            continue
+        reasons = AR.inner_window_reasons(plan, o, sides[0], sides[1], glass)
+        why = [] if AR.inner_window_soft(plan, reasons, sides[0], sides[1], glass) else [t for _k, t in reasons]
+        if why:
+            out.append(_f("U24", "major", o["id"], f"{o['id']} between {sides[0]['id']} and {sides[1]['id']}: "
+                          + "; ".join(why), "UL90", "architect close_window", rooms=[sides[0]["id"], sides[1]["id"]]))
+    return out
+
+
+def read_twice_and_blocked_passages(building: dict) -> list[dict]:
+    """U25: a wall read twice (``ingest.generic.twin_walls``) and a kitchen counter across a door or an open passage
+    (``reading.passage_zone``; "I am not understanding this scene is there a door behind it?")."""
+    from wenart.ingest.generic import reading as RD
+    from wenart.ingest.generic import twin_walls as TW
+
+    out = []
+    walls = [w for w in building.get("walls") or [] if w.get("id") and w.get("start") and w.get("end")]
+    for i, a in enumerate(walls):
+        for c in walls[i + 1:]:
+            if TW.twin_of(a, c):
+                keep, dup = (a, c) if TW._rank(a) >= TW._rank(c) else (c, a)
+                if TW._axis(dup)[2] >= TW.MIN_COPY_M and \
+                        float(dup.get("thickness") or 0.0) <= float(keep.get("thickness") or 0.0) + TW.THICKER_TOL_M:
+                    out.append(_f("U25", "major", dup["id"], f"{dup['id']} lies in {keep['id']}: one wall read twice",
+                                  "UL97", "rerun_stage reading (twin_walls.merge_twin_walls)", kept=keep["id"]))
+    zones: dict = {}
+    for f in _built(building):
+        if f.get("type") not in ("kitchen_counter", "kitchen_island", "sink_kitchen"):
+            continue
+        lv = f.get("level_id")
+        if lv not in zones:
+            zones[lv] = RD.passage_zone(building, lv, reach=0.0)      # a counter ending at the jamb is no block
+        zone, poly = zones[lv], _poly(f)
+        if zone is None or poly is None or zone.is_empty:
+            continue
+        inter = poly.intersection(zone).area
+        if inter > 0.05:
+            out.append(_f("U25", "major", f["id"], f"{f['id']} ({f.get('type')}) stands across a door's or a passage's "
+                          f"approach ({inter:.2f} m²)", "UL97",
+                          "rerun_stage reading (kitchen_outlines: a leg stops short of a door)", overlap_m2=round(inter, 2)))
+    return out
+
+
 BUILDING_CHECKS = (("U1", entrances_at_windows), ("U2", roofs_without_posts), ("U3", thick_columns),
                    ("U4", flat_drawn_roofs), ("U5", traced_covers), ("U6", storage_before_tall_windows),
                    ("U8", seats_facing_walls), ("U9", indoor_pieces_outdoors), ("U10", basins_without_mirrors),
-                   ("U11", bare_worktops), ("U12", bare_dining_tables))
+                   ("U11", bare_worktops), ("U12", bare_dining_tables),
+                   ("U21", roof_gaps), ("U22", thick_light_posts), ("U24", senseless_inner_windows),
+                   ("U25", read_twice_and_blocked_passages))
 # the lessons each code check measures (``coverage``)
 CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4": ("UL57",), "U5": ("UL64",),
                  "U6": ("UL59", "UL56"), "U7": ("UL60",), "U8": ("UL61",), "U9": ("UL20",), "U10": ("UL66",),
-                 "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32")}
+                 "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32"),
+                 "U21": ("UL88",), "U22": ("UL88",), "U24": ("UL90", "UL101"), "U25": ("UL97",)}
 
 
 def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:

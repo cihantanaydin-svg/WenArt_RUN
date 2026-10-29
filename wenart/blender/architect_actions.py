@@ -95,6 +95,9 @@ ACTIONS = {
     # it, a doorway a drawn kitchen counter fills)
     "interior_glazing": "a borrowed-light window on purpose: clear glass between two dry rooms (kept where drawn)",
     "high_window": "a high borrowed-light window: its sill at 1.80 m, the head kept (privacy for a wet room)",
+    # 29 Oct 2026 (user on real06: "these windows are not making sense", "This window and dolap is not making sense")
+    "close_window": "the inner window is closed (the wall stays solid): a wet room behind it, a door beside it, a tall "
+                    "piece against it, or no room that needs its light",
     "pass_through": "a serving window over the drawn counter: the doorway becomes a window at counter height between "
                     "the two rooms (the counter stays)",
     # 26 Oct 2026 (user on real06: "these sections not making sense": a 2.95 m flat oak leaf in the facade): D5
@@ -992,6 +995,24 @@ def act_interior_glazing(plan: Plan, key: str, ans: dict, window_id: str):
     _mark(o, "adjusted_by_ai", key, ans, f"a borrowed-light window between {rooms[0]['id']} and {rooms[1]['id']} "
                                          f"on purpose (clear glass, kept where drawn)")
     return True, f"{window_id}: a borrowed-light window between {rooms[0]['id']} and {rooms[1]['id']}"
+
+
+def act_close_window(plan: Plan, key: str, ans: dict, window_id: str):
+    """29 Oct 2026: an inner window that makes no sense is not built: the wall stays solid. The window goes to
+    ``openings_closed`` with the drawn values and the reason (``corrected_by_ai``), never silently."""
+    o = plan.openings.get(window_id)
+    if o is None or o.get("type") != "window":
+        return False, f"no window {window_id}"
+    rooms = _two_rooms(plan, o)
+    if rooms is None:
+        return False, f"{window_id} does not stand between two rooms (an outer window is never closed)"
+    rec = copy.deepcopy(o)
+    _mark(rec, "corrected_by_ai", key, ans, f"the window between {rooms[0]['id']} and {rooms[1]['id']} is closed: "
+          f"the wall stays solid")
+    plan.b["openings"] = [x for x in plan.b.get("openings") or [] if x["id"] != window_id]
+    plan.openings.pop(window_id, None)
+    plan.b.setdefault("openings_closed", []).append(rec)
+    return True, f"{window_id} closed (the wall between {rooms[0]['id']} and {rooms[1]['id']} stays solid)"
 
 
 def act_high_window(plan: Plan, key: str, ans: dict, window_id: str):
@@ -1965,6 +1986,8 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                     ok, text = act_interior_glazing(plan, key, ans, params.get("window_id") or target)
                 elif opt == "high_window":
                     ok, text = act_high_window(plan, key, ans, params.get("window_id") or target)
+                elif opt == "close_window":
+                    ok, text = act_close_window(plan, key, ans, params.get("window_id") or target)
                 elif opt == "pass_through":
                     ok, text = act_pass_through(plan, key, ans, params.get("door_id") or target)
                 elif opt == "door_type":

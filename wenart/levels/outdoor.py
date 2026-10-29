@@ -826,6 +826,10 @@ ROOF_COVER = {
     "share": 0.5,
     # the roof stands at least a door's clear height over the space's floor (a roof lower than that is no cover of it)
     "clear_m": 2.1,
+    # 29 Oct 2026 (user on real06: "there is a gap between balcony and small roof"): the building's roof covers a space
+    # only when its eaves stand at most about a storey over its floor; the house roof's eaves 6 m over the ground-floor
+    # veranda are no cover of it: the veranda's own roof runs on under them to the balcony slab or the wall it meets
+    "max_m": 4.0,
     # a drawn lower roof (``roof.roof_plan_outline.others``) is a space's own roof when it lies over this share of the
     # part of the space nothing else covers
     "drawn_share": 0.5,
@@ -880,6 +884,8 @@ def mark_roof_cover(spaces: Sequence[dict], building: dict) -> None:
             continue
         if roof["eaves_z"] is not None and roof["eaves_z"] - float(s["z"]) < ROOF_COVER["clear_m"]:
             continue
+        if roof["eaves_z"] is not None and roof["eaves_z"] - float(s["z"]) > ROOF_COVER["max_m"] + 1e-6:
+            continue                       # 29 Oct 2026: too high over it to be its cover (a storey or more)
         was = s.get("cover")
         s["cover"], s["cover_source"] = "roof", "building_roof"
         s["cover_reason"] = (f"{share:.0%} of it lies under the building's roof as drawn ({roof['source']})"
@@ -1048,9 +1054,9 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
     cols = _columns(building)
     for s in out:
         sp = _shp(s["polygon"])
-        s["columns"] = [dict({"id": c.get("id"),
-                              "center": [round(float(v), 4) for v in ((core_box(c) or {}).get("center")
-                                                                      or c["center"])[:2]]},
+        # 29 Oct 2026: the centre is the symbol's (the building frame); its core box (a layer box of the drawing)
+        # holds the sheet's raw coordinates (real06: x 9,138,467 m) and gives only the size
+        s["columns"] = [dict({"id": c.get("id"), "center": [round(float(v), 4) for v in c["center"][:2]]},
                              **column_look(c))
                         for c in cols if sp.distance(Point(c["center"])) <= SPACE["column_reach"]]
     # 27 Oct 2026: a space the building's drawn roof covers is covered (``mark_roof_cover``) before its own roof is
@@ -1101,6 +1107,10 @@ def assign_posts(spaces: Sequence[dict], gz) -> None:
                 if have["z1"] > under > have["z0"]:
                     have["z1"] = under
                     have["carries"] = f"the slab of {up['id']}"
+                elif have["z1"] < under:
+                    # 29 Oct 2026: a drawn column under the slab's corner carries the slab too, not only a lower roof
+                    have["z1"] = under
+                    have["carries"] = f"{have.get('carries') or 'a roof'} and the slab of {up['id']}"
                 continue
             low = [s for s in spaces if s is not up and float(s["z"]) < float(up["z"]) - 1.0
                    and _shp(s["polygon"]).buffer(SPACE["column_reach"]).contains(Point(c["center"]))]
@@ -1291,8 +1301,11 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
     # roof gets no light roof of its own); it is no support of a light roof (it stands a storey higher)
     building_roof = drawn_roof(building)
     above = [_roof_shape(building_roof)] if building_roof is not None and (
-        building_roof["eaves_z"] is None or building_roof["eaves_z"] - z >= ROOF_COVER["clear_m"]) else []
+        building_roof["eaves_z"] is None or ROOF_COVER["clear_m"] <= building_roof["eaves_z"] - z
+        <= ROOF_COVER["max_m"] + 1e-6) else []
     rest = sp.difference(unary_union(covers + above)) if covers or above else sp
+    # 29 Oct 2026: a sliver under SLIVER_M wide (the floor past a slab's edge, the drip line) gets no roof of its own
+    rest = rest.buffer(-SLIVER_M / 2.0, join_style=2).buffer(SLIVER_M / 2.0, join_style=2).intersection(rest)
     parts = [g for g in getattr(rest, "geoms", [rest]) if g.geom_type == "Polygon" and g.area >= 0.5]
     if not parts:
         return None
@@ -1301,7 +1314,10 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
     drawn = None
     for other in (building_roof or {}).get("others") or []:
         o = _shp(other)
-        share = o.intersection(region).area / region.area if region.area > 0 else 0.0
+        # 29 Oct 2026: a roof plan draws a lower roof only up to the eaves of the roof above it (that roof hides the
+        # rest from above): the drawn part lying over the space is enough (its share of the drawn outline counts too)
+        inter = o.intersection(region).area
+        share = max(inter / region.area if region.area > 0 else 0.0, inter / o.area if o.area > 0 else 0.0)
         if share >= ROOF_COVER["drawn_share"] and (drawn is None or share > drawn["share"]):
             drawn = {"polygon": _coords(o), "share": round(share, 3), "area_m2": round(o.area, 3),
                      "source": building_roof["source"]}
@@ -1404,8 +1420,10 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
         if region.buffer(SPACE["column_reach"]).contains(Point(c["center"])):
             posts.append(dict({"center": list(c["center"]), "source": "drawn", "id": c["id"]}, **_look_of(c)))
     # 27 Oct 2026 (real06: a 0.15 m square stick stood beside the veranda's drawn 0.53 m round column; Argus O6): an
-    # inferred post takes the shape and the size of the space's drawn columns (their median), one post language
-    look = post_look(space.get("columns") or [])
+    # inferred post takes the shape of the space's drawn columns, one post language; 29 Oct 2026 (user on real06:
+    # "columns are too thick"): a post that carries only this light or lower roof is slim (``LIGHT_POST_M``), a drawn
+    # column keeps its drawn size (it carries the slab or the house roof)
+    look = light_post_look(space.get("columns") or [])
     post_size = look["size_m"]
     ring = _ccw(_coords(post_g))                     # the posts and beams stand on the floor's filled outline
     for k, p in enumerate(ring):
@@ -1465,8 +1483,14 @@ def roof_plan(space: dict, spaces: Sequence[dict], levels: Sequence[dict], outli
         out["drawn"] = drawn
     if pitched is not None:
         # the drawn outline (its eaves past the posts) and the house roof's covering (site.cover_parts)
-        out.update(kind="pitched", pitch_deg=pitched, polygon=_ccw(drawn["polygon"]), covering="roof",
-                   area_m2=drawn["area_m2"])
+        # 29 Oct 2026 (user on real06: "there is a gap between balcony and small roof"): the drawn outline runs on
+        # under the roof above to the slab or the wall it meets (``roof_g``: the part of the space nothing covers)
+        whole = _shp(drawn["polygon"]).union(roof_g)
+        whole = whole if whole.geom_type == "Polygon" else max(getattr(whole, "geoms", [whole]), key=lambda g: g.area)
+        from shapely.geometry import Polygon as _Poly
+        whole = _Poly(whole.exterior).simplify(COVER_SHAPE["simplify_m"], preserve_topology=True)
+        out.update(kind="pitched", pitch_deg=pitched, polygon=_ccw(_coords(whole)), covering="roof",
+                   area_m2=round(whole.area, 3), drawn_polygon=_ccw(drawn["polygon"]))
     return out
 
 
@@ -1539,6 +1563,18 @@ def _look_of(c: dict) -> dict:
     s = float(c.get("size_m") or SPACE["post_size"])
     return {"size_m": s, "shape": c.get("shape") or "square", "size_xy": list(c.get("size_xy") or [s, s]),
             "rotation_deg": float(c.get("rotation_deg") or 0.0)}
+
+
+SLIVER_M = 0.6            # 29 Oct 2026: an uncovered strip narrower than this gets no roof of its own
+LIGHT_POST_M = 0.15       # 29 Oct 2026: the posts of a light or lower roof (a timber or steel post of a veranda roof)
+
+
+def light_post_look(columns: list) -> dict:
+    """The look of the posts that carry only a space's light or lower roof (pure; 29 Oct 2026): the drawn columns'
+    shape (``post_look``), at most ``LIGHT_POST_M`` across."""
+    look = post_look(columns)
+    s = min(float(look["size_m"]), LIGHT_POST_M)
+    return dict(look, size_m=s, size_xy=[s, s])
 
 
 def post_look(columns: list) -> dict:

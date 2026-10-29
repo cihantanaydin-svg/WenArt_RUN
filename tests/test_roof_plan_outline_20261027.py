@@ -349,11 +349,10 @@ def test_a_space_under_the_drawn_roof_is_covered_and_needs_no_light_roof():
     ver = next(s for s in spaces if s["id"] == "os_ver")
     lr = OD.roof_plan(ver, spaces, b["levels"], outlines, b)
     xs = [p[0] for p in lr["polygon"]]
-    assert max(xs) <= 12.5 + 1e-3                            # the roof stops under the drawn wing's eaves
-    if lr["kind"] == "pitched":                               # 28 Oct 2026: the lower roof built as the plan draws it
-        assert max(xs) == pytest.approx(max(p[0] for p in lr["drawn"]["polygon"]), abs=1e-3)
-    else:
-        assert max(xs) == pytest.approx(12.5, abs=1e-3)
+    # 29 Oct 2026 (user on real06: "there is a gap between balcony and small roof there should not be a gap"): the
+    # wing's eaves stand a storey and more over the veranda (no cover of it): the veranda's roof runs on under them
+    # to the balcony's slab (x 13.0); the 0.3 m strip of floor in front of the slab gets no roof of its own
+    assert max(xs) == pytest.approx(13.0, abs=1e-3)
     assert lr["drawn"]["share"] >= 0.5                       # the lower roof the roof plan draws over it
 
 

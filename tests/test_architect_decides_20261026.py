@@ -41,10 +41,13 @@ def test_a_window_that_cannot_move_is_kept_as_a_borrowed_light_window(prep):
     kitchen = _opening(prep, "win_L0_001")             # kitchen <-> living room, no free outer wall for 1.95 m
     assert kitchen["type"] == "window" and kitchen["interior_glazing"]["kind"] == "clear"
     assert prep["architect_defaults"]["W2:win_L0_001"]["option"] == "interior_glazing"
-    shower = _opening(prep, "win_L1_004")              # dressing room <-> shower room: privacy by height
-    assert shower["interior_glazing"]["kind"] == "high" and shower["sill_height"] == pytest.approx(AA.HIGH_SILL_M)
-    assert shower["drawn_sill_height"] < AA.HIGH_SILL_M
-    assert "move_window_to_outer_wall could not be done" in prep["architect_defaults"]["W2:win_L1_004"]["answer"]
+    # 29 Oct 2026 (user on real06: "these windows are not making sense"): the two windows beside the door between the
+    # dressing room and the shower room, and the hall window onto oda_2's wardrobe, are closed, the walls stay solid
+    closed = {o["id"]: o for o in prep["building"].get("openings_closed") or []}
+    for oid in ("win_L1_004", "win_L1_005", "win_L1_008"):
+        assert oid in closed and not any(o["id"] == oid for o in prep["building"]["openings"])
+        assert prep["architect_defaults"][f"W2:{oid}"]["option"] == "close_window"
+    assert closed["win_L1_004"]["corrected_by_ai"]["answer_key"] == "W2:win_L1_004"
     assert not any(a.get("open") for a in by["W2"]["answers"])
 
 
