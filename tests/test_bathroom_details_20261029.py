@@ -201,6 +201,10 @@ def test_the_floating_vanities_have_their_top_basin_mixer_led_and_styling():
     assert all(p["key"] == "terrazzo" for p in curved if p["role"] in ("apron", "plinth"))     # B21: one material
     assert {p["key"] for p in curved if p["role"] in ("top", "body")} == {"worktop", "painted"}
     assert any(p["role"] == "basin" and p["key"] == "ceramic" for p in curved)                 # B23: a white vessel
+    from shapely.geometry import Point, Polygon
+    top = Polygon(BT.curved_outline(1.0, 0.25 - BT.APRON_T_M, -0.25)).buffer(0.003)
+    on_top = [p for p in curved if p["role"] in ("bottle", "vase", "jar", "cap", "pump", "nozzle", "lid")]
+    assert on_top and all(top.contains(Point(x, y)) for p in on_top for x, y, _z in p["verts"])   # B19 on the curve
     assert BT.vanity_fits(0.531, 0.342) is None and "wide" in BT.vanity_fits(0.35, 0.35)
     assert "deep" in BT.vanity_fits(0.6, 0.25)
 
@@ -401,7 +405,8 @@ def test_m26_and_u30_are_registered_and_flag_a_bare_bathroom():
     b["decor"] = [{"type": "plant", "room_id": ROOM, "center": [0.3, 0.3]}]
     assert "M26" in MR.CHECKS and CS.CHECK_CAUSE["M26"] == "decor_look"
     assert K.kind_of({"check": "M26"}) == "taste" == K.kind_of({"check": "U30"})
-    assert LS.CHECK_LESSONS["U30"] == ("UL114",) and ("U30", LS.bathroom_sets) in LS.BUILDING_CHECKS
+    assert LS.CHECK_LESSONS["U30"] == ("UL114", "UL123", "UL124")
+    assert ("U30", LS.bathroom_sets) in LS.BUILDING_CHECKS
     got = LS.audit(b, None)
     u30 = [f for f in got["findings"] if f["check"] == "U30"]
     assert got["checked"]["U30"] == len(u30) >= 4

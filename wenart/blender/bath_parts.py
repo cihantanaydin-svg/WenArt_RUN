@@ -531,6 +531,8 @@ def top_clusters(w: float, d: float, lay: dict) -> tuple[list[Part], list[str]]:
     y0, y1 = -d / 2.0 + 0.03, d / 2.0 - 0.03
     if lay["basin"] == "integrated":                 # the strips beside the bowl are as deep as the bowl
         y0, y1 = by - bd / 2.0, by + bd / 2.0
+    if lay.get("clusters_y0") is not None:           # a curved front recedes at the ends: the items stay on the top
+        y0 = max(y0, float(lay["clusters_y0"]))
     depth = y1 - y0
 
     def strip(xa: float, xb: float) -> Optional[tuple[float, float]]:
@@ -699,6 +701,7 @@ def curved_vanity_parts(w: float, d: float, top_m: float, top_key: str = "workto
     deck mixer) and the top's two clusters, in its box ``w x d`` (front -Y, the wall +Y)."""
     lay = vanity_layout(w, d, top_m, "curved", basin)
     lay["top"] = (top_m - CURVED_TOP_T_M, top_m)
+    lay["clusters_y0"] = -d / 2.0 + d * CURVED_SIDE_SHARE + 0.02
     y_back = d / 2.0 - APRON_T_M
     z0 = lay["bottom_m"]
     outline = curved_outline(w, y_back, -d / 2.0)
@@ -747,6 +750,9 @@ def vanity_items(w: float, d: float, top_m: float, look: Optional[dict] = None) 
         items += ["end cubbies: rolled towels, a pump bottle, a jar"] * 2
     if kind == "curved":
         items.append("terrazzo apron: splashback and plinth")
+        lay["top"] = (top_m - CURVED_TOP_T_M, top_m)
+        lay["clusters_y0"] = -d / 2.0 + d * CURVED_SIDE_SHARE + 0.02
+        return items + top_clusters(w, d - 2 * APRON_T_M, lay)[1]
     return items + top_clusters(w, d, lay)[1]
 
 

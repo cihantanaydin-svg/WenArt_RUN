@@ -761,7 +761,7 @@ CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4":
                  "U16": ("UL92",), "U20": ("UL96",), "U27": ("UL109",)}
 CHECK_LESSONS["U23"] = ("UL106",)          # 29 Oct 2026: the professional bar (professional_bar)
 BUILDING_CHECKS = BUILDING_CHECKS + (("U30", bathroom_sets),)     # 29 Oct 2026: the bathroom's set (UL114)
-CHECK_LESSONS["U30"] = ("UL114",)
+CHECK_LESSONS["U30"] = ("UL114", "UL123", "UL124")     # the bathroom photos P4, P12, P13
 
 
 def professional_bar(building: dict, manifest: Optional[dict]) -> list[dict]:
