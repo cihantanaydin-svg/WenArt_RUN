@@ -1275,13 +1275,13 @@
   {
    "id": "UL109",
    "date": "2026-10-29",
-   "area": "facade",
-   "status": "open",
+   "area": "roof",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "There are no chimneys there could be some chimney in the projects (real06 run 20261028-154514-full: no chimney on any roof; a drawn fireplace or flue gets its chimney through the roof, and a pitched-roof house whose style family has chimneys gets an inferred one above its living room or boiler room)",
-   "lesson": "There are no chimneys there could be some chimney in the projects (real06 run 20261028-154514-full: no chimney on any roof; a drawn fireplace or flue gets its chimney through the roof, and a pitched-roof house whose style family has chimneys gets an inferred one above its living room or boiler room)",
+   "lesson": "Every house gets the chimneys its documents and style imply (wenart/blender/chimney.py): a drawn fireplace, wood stove, flue or boiler room (ŞÖMİNE, SOBA, BACA, KAZAN DAİRESİ and their English, German, French, Italian and Spanish words; never an air or light shaft) gets its stack out of the roof at its plan position (from_documents; a fireplace also its flue through the levels above); where nothing is drawn, a pitched-roof house whose style family usually has one (chimney.FAMILY_CHIMNEYS: not minimal) gets one inferred stack over the living room's fireplace wall (a solid inner wall its sofa faces), else the boiler or technical room, else the kitchen, one per dwelling of a mirrored pair; clear of the eaves, valleys, roof openings and windows, its top by the 3-2-10 rule of thumb (0.6 m over the roof within 3 m, 0.9 m over its exit), a coping and clay pots or a metal cowl in the family's materials. Model review M24, Argus U27.",
    "question": null
   }
  ]

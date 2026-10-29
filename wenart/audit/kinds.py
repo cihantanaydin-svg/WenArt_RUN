@@ -107,6 +107,9 @@ CHECK_KIND = {
     # drawer front that cannot open, a basin under a low window (model_review.fixtures_in_use); ("There is a gap between
     # wall and water faucet not looking good") a back a drawing gap off its wall (model_review.backs_on_walls)
     "M19": "no_sense", "M22": "misread",
+    # 29 Oct 2026 (lesson UL109: "There are no chimneys"): a chimney off the roof, floating, too low for the rule or in
+    # front of a window (model_review.chimneys_review)
+    "M24": "no_sense",
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",
@@ -121,6 +124,9 @@ CHECK_KIND = {
     "U17": "taste",
     # 29 Oct 2026: a door front that cannot open (U16, UL92), a back a drawing gap off its wall (U20, UL96)
     "U16": "no_sense", "U20": "misread",
+    # 29 Oct 2026 (lesson UL109): a pitched-roof house of a chimney family with no chimney (a drawn fireplace or flue
+    # left without one carries "lost")
+    "U27": "taste",
     # code critic
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation

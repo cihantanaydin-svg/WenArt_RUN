@@ -309,8 +309,10 @@ def test_real06_the_ai_decisions_of_run_180412_are_refused_by_code(real06):
     assert "joined by d_L1_003 already" in applied["AI.window_to_door:win_L1_004"]["change"]
     assert "stays open" in applied["AI.gap_to_door:o_L1_002"]["change"]
     built = {o["id"]: o for o in prep["building"]["openings"]}
-    assert built["win_L1_004"]["type"] == "window" and built["o_L1_002"]["type"] == "opening"
-    assert not any(isinstance(built[i].get("guard"), dict) for i in ids)
+    closed = {o["id"] for o in prep["building"].get("openings_closed") or []}
+    # 29 Oct 2026 (UL90): the window beside the shower room's door is closed by W2 (never made a door)
+    assert "win_L1_004" in closed and built["o_L1_002"]["type"] == "opening"
+    assert not any(isinstance(built[i].get("guard"), dict) for i in ids if i in built)
     rec = MR.review(prep["building"], None, prep)
     assert rec["checks"]["M12"]["status"] == "ok" and rec["checks"]["M12"]["failed"] == 0
     d6 = next(q for q in prep["architect"]["questions"] if q["id"] == "D6")

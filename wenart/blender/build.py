@@ -111,7 +111,9 @@ Milestone 10 (docs/milestone10.md §1.6, §3.2, §3.3): the whole building.
   a stair cut so the stair arrives (no capped shaft), the roof
   (``roof.roof_model`` / ``build_roof``: the drawn planes, else
   ``roof.planes_for``; ``roof: null`` = ``roof.flat_roof``, assumed;
-  terraces cut out, their walls ending at the parapet, ``roof.parapet_cuts``),
+  terraces cut out, their walls ending at the parapet, ``roof.parapet_cuts``;
+  29 Oct 2026: its chimneys, ``chimney.plan`` / ``build_chimneys``: the drawn
+  fireplaces and flues first, else the style family's inferred one),
   the walls under it cut by its underside (knee walls, gable ends) and the
   ceilings there sloped, the outside looks (``exterior.resolve_looks``:
   documents > brief ``exterior:`` words > style > ``style.exterior_fallback``;
@@ -1039,7 +1041,7 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
            "warnings": list(vb["_variant"]["warnings"]), "assumed": [], "slabs": None, "roof": None,
            "open_rooms": set(), "outlines": {}, "ground_outline": [], "site": None, "faces": {},
            "brief": brief_args(building_all, brief), "terraces": [], "clips": [], "site_options": None,
-           "overrides_applied": None, "stair_access": None}
+           "overrides_applied": None, "stair_access": None, "chimneys": None}
     # 27 Oct 2026 (real06's first floor: the stair arrived on a strip by the outer wall that its floor opening cut off
     # from the hall; user: "Needs a pathway here, how will the people go up to 2nd floor otherwise?"): before anything
     # is planned, every stair of a whole building must lead into its floors; an assumed stair that does not takes the
@@ -1170,6 +1172,18 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
                                            out["outlines"])
     out["faces"], warnings = facade_faces(vb, out["outlines"])
     out["warnings"] += warnings
+    # 29 Oct 2026 (lesson UL109, user: "There are no chimneys there could be some chimney in the projects"): the
+    # chimneys on the roof: every drawn fireplace, stove, flue or boiler room first, else the style family's inferred
+    # one over the living room's fireplace wall (wenart/blender/chimney.py); a drawn one left out is a warning
+    from wenart.blender import chimney as CH
+    try:
+        out["chimneys"] = CH.plan(vb, roof, style_family)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, IndexError, AttributeError) as exc:
+        # a plan that cannot run is listed (Argus reads the warnings, U27 finds the roof without one), never a stop
+        out["chimneys"] = {"chimneys": [], "decision": "none", "reason": f"the chimney plan failed: "
+                           f"{type(exc).__name__}: {exc}", "family": style_family, "notes": [], "sources": []}
+        out["warnings"].append(out["chimneys"]["reason"])
+    out["warnings"] += [f"chimney: {n}" for n in out["chimneys"]["notes"] if str(n).startswith("the drawn")]
     if out["whole"]:
         # 25 Oct 2026: the architect's review (wenart/blender/architect.py) asks its questions and fixes the plan
         from wenart.blender import architect as AR
@@ -1556,6 +1570,12 @@ def main(argv: list[str]) -> int:
             from wenart.blender import details as DT
             terrace_railings(roof, building, over, parapets, roof_col, library, manifest_objects, assumed,
                              kind=DT.balustrade_kind(style))
+            # 29 Oct 2026 (lesson UL109): the chimneys of the plan on the roof (kind roof, detail chimney; their
+            # records are what the model review's M24 and Argus U27 measure)
+            from wenart.blender import chimney as CH
+            whole_info["chimneys"] = CH.build_chimneys(prep.get("chimneys"), roof, roof_col, looks,
+                                                       lambda look: shell.look_material(library, look),
+                                                       manifest_objects, assumed)
             whole_info["roof"] = {"type": roof["type"], "planes_source": roof["planes_source"],
                                   "planes": roof["planes"], "derived_check": roof["derived_check"],
                                   "knee_wall_check": roof.get("knee_wall_check"), "profile": roof.get("profile"),
