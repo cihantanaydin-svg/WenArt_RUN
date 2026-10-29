@@ -133,9 +133,11 @@ def test_new_decor_types_are_the_schema_decor_types_but_the_parametric_book_set(
     schema = set(B.load_schema()["$defs"]["decor"]["properties"]["type"]["enum"])
     library = set(OV.DECOR_TYPES)
     # book_set stays parametric; `books` is the library type. 28 Oct 2026: the kitchen worktop items (microwave,
-    # kettle, ...) and a table's plates and glasses are parametric until audited library models of them exist
+    # kettle, ...) and a table's plates and glasses are parametric until audited library models of them exist;
+    # 29 Oct 2026: so is a desk's work set (laptop, monitor, keyboard, mouse)
     from wenart.furniture import decor as D
-    assert library == schema - {"book_set"} - set(D.KITCHEN_DECOR_TYPES) - set(D.SETTING_TYPES)
+    assert library == (schema - {"book_set"} - set(D.KITCHEN_DECOR_TYPES) - set(D.SETTING_TYPES)
+                       - set(D.WORK_DECOR_TYPES))
 
 
 # --------------------------------------------------------------------------

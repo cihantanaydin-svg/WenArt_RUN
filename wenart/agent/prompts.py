@@ -229,7 +229,8 @@ CHECKLIST: dict[str, dict] = {
                     "accent where the style has one",
             "how": "V", "scope": "room"},
     "Q15": {"what": "a bare room where the brief allows decor: a dining table with no table setting (plates, glasses), "
-                    "a coffee table, sideboard, shelf or nightstand with nothing on it",
+                    "a coffee table, sideboard, shelf or nightstand with nothing on it, a desk with no laptop or "
+                    "computer on it",
             "how": "V", "scope": "piece"},
     "X9": {"what": "a level difference outside that makes no sense: bare concrete retaining walls, slabs or bars "
                    "lying loose on the grass, steps that do not sit on their risers or lead nowhere, a steep bare "

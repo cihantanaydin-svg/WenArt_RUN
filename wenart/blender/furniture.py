@@ -609,6 +609,10 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "front": (trim, None, None), "handle": ("steel_brushed", None, None), "marble": ("marble", None, None),
         "pot": ("terracotta", None, None), "bulb": ("ceramic_white", None, None),
         "rattan": ("rattan", None, None),
+        # 29 Oct 2026 (lesson UL93): a laptop's or a monitor's screen; the build gives the key its own material (a
+        # dark glossy panel with a faint lit wallpaper: ``_Materials.get`` -> materials.screen_material), the dark
+        # lacquer is the slug its records name
+        "screen": ("lacquer_dark", None, None),
     }
     return keys, assumed
 
@@ -1050,6 +1054,9 @@ class _Materials:
         if key == "bulb" and lit:
             from wenart.blender import materials as M
             return M.light_material("lamp_light")
+        if key == "screen":                       # 29 Oct 2026 (UL93): a screen with a faint lit wallpaper
+            from wenart.blender import materials as M
+            return M.screen_material()
         over = (overrides or {}).get(key)
         if over:
             slug, asset, tint = over["slug"], over.get("asset"), None

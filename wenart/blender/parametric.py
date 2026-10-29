@@ -156,6 +156,14 @@ touch +Y, fronts and handles sit on -Y (the Bevel modifier of ``furniture.add_be
 Fix round after P4b (17 Oct 2026): ``stair_parts`` builds a stair's steps, riser plates and landing to the walls its
 ``plan["wall_joints"]`` names (``shell.stair_wall_joints``; ``landing_with_joints``), so no slit is left between a
 stair and its wall; a plan without joints is built as before.
+
+29 Oct 2026 (user on real06 run 20261028-154514-full, lesson UL93: "Computer on the table would have been nice or a
+laptop"; the catalogue holds no usable laptop, monitor or keyboard model): the desk's work set (``work_set_parts``)
+at the item's real box (bottom on z = 0, front -Y = the side its user sits at), with PBR keys: an open laptop (an
+aluminium base ``LAPTOP_BASE_T`` thick with a dark key field and a trackpad, the lid opened ``LAPTOP_OPEN_DEG`` with a
+dark bezel and the ``screen``: a dark glossy panel with a faint lit wallpaper, ``materials.screen_material``), a
+monitor on its stand (foot, neck, dark panel, screen), a keyboard (an aluminium plate with key rows and a space bar)
+and a computer mouse. ``laptop_box`` is the open laptop's box from its base.
 """
 from __future__ import annotations
 
@@ -195,8 +203,12 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug",   # param
                                  # 28 Oct 2026 (user: "kettle in the kitchen, microwave in the kitchen etc"): the
                                  # kitchen worktop's small appliances and decor (``kitchen_worktop_parts``)
                                  "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot",
-                                 "fruit_bowl")
-KITCHEN_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("microwave"):]
+                                 "fruit_bowl",
+                                 # 29 Oct 2026 (user: "Computer on the table would have been nice or a laptop"): the
+                                 # desk's work set (``work_set_parts``)
+                                 "laptop", "monitor", "keyboard", "computer_mouse")
+KITCHEN_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("microwave"):DECOR_TYPES.index("fruit_bowl") + 1]
+WORK_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("laptop"):]
 _NEW_DECOR: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("curtain"):]
 # Milestone 10 storage built with the cabinet fronts of the design (a design detail of the piece).
 CABINET_LOOK_TYPES: tuple[str, ...] = ("sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet", "wall_cabinet")
@@ -211,14 +223,18 @@ SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_la
                                         # 28 Oct 2026: the kitchen worktop items rest on the built worktop
                                         "microwave", "kettle", "coffee_machine", "toaster", "chopping_board",
                                         "utensil_pot", "fruit_bowl",
-                                        "plate", "glass")                                   # 28 Oct 2026
+                                        "plate", "glass",                                   # 28 Oct 2026
+                                        # 29 Oct 2026: the desk's work set rests on the built desk top
+                                        "laptop", "monitor", "keyboard", "computer_mouse")
 # Seats decor rests on at seat height (cushions, a throw): Milestone 10 adds the corner sofa, chaise and bench.
 SEAT_HOST_TYPES: tuple[str, ...] = ("sofa", "armchair", "sofa_corner", "chaise")
 MATERIAL_KEYS: tuple[str, ...] = ("wood", "fabric", "bedding", "ceramic", "steel", "painted", "worktop", "dark",
                                   "glass", "green", "terracotta", "duvet", "mirror",
                                   # Milestone 10: cabinet fronts and handles of the design, table tops of a material
                                   # tag, plant pots, lamp bulbs (lit in the interior evening mood), rattan
-                                  "front", "handle", "marble", "pot", "bulb", "rattan")
+                                  "front", "handle", "marble", "pot", "bulb", "rattan",
+                                  # 29 Oct 2026: a laptop's or a monitor's screen (``materials.screen_material``)
+                                  "screen")
 # Milestone 10 doors and windows (``door_parts`` / ``window_parts``; shell.py maps them to the looks).
 OPENING_KEYS: tuple[str, ...] = ("frame", "leaf", "glass", "handle", "rail", "sill")
 # Parts whose key starts with this take the item's colour (Milestone 9 AI decor: ``decor.colour``) as a tint of
@@ -302,6 +318,9 @@ BEVEL_BY_ROLE: dict[str, float] = {
     "candle": 0.0, "plate": 0.0, "canopy": 0.0, "cord": 0.0,
     # Milestone 13 families v2 and module builders
     "apron": 0.003, "foot": 0.002, "stretcher": 0.004, "trestle": 0.004, "hob": 0.0, "ring": 0.0,
+    # 29 Oct 2026: the desk's work set (rounded laptop and monitor shells; flat screens, keys and pads)
+    "lid": 0.003, "bezel": 0.0, "screen": 0.0, "keys": 0.0, "key": 0.0008, "trackpad": 0.0, "hinge": 0.0,
+    "panel_back": 0.004, "neck": 0.003, "space_bar": 0.0008,
 }
 BEVEL_SOFT_KEYS: dict[str, float] = {"fabric": 0.03, "bedding": 0.03, "duvet": 0.03}
 BEVEL_BY_KEY: dict[str, float] = {"ceramic": 0.012}
@@ -323,7 +342,10 @@ DECOR_DEFAULT_HEIGHT = {"cushion": 0.12, "book_set": 0.22, "plant": 0.6, "rug": 
                         # 19 cm, a 40 x 25 cm board, a utensil pot with its tools, a 28 cm fruit bowl)
                         "microwave": 0.27, "kettle": 0.25, "coffee_machine": 0.35, "toaster": 0.19,
                         "chopping_board": 0.02, "utensil_pot": 0.30, "fruit_bowl": 0.12,
-                        "plate": 0.025, "glass": 0.14}           # 28 Oct 2026: a dinner plate, a water glass
+                        "plate": 0.025, "glass": 0.14,           # 28 Oct 2026: a dinner plate, a water glass
+                        # 29 Oct 2026: an open 14-15 inch laptop (``laptop_box``), a 24 inch monitor on its stand, a
+                        # full-size keyboard, a mouse
+                        "laptop": 0.24, "monitor": 0.45, "keyboard": 0.025, "computer_mouse": 0.038}
 MIRROR_FRAME_M = 0.03            # the parametric mirror: frame width and depth; the glass sits on its front
 RUG_THICKNESS_M = 0.012
 # Bed frames (Milestone 8): the mattress on the deck and the inner box the bedding fills.
@@ -3386,6 +3408,8 @@ def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None
                 _superellipsoid(0.0, 0.0, 0.0, w, d, h - canopy + 0.004, 0.6, 1.0, "bulb", "bulb", n_eta=8, n_om=32)]
     if dtype in KITCHEN_DECOR_TYPES:          # 28 Oct 2026: the kitchen worktop's appliances and decor
         return kitchen_worktop_parts(dtype, w, d, h)
+    if dtype in WORK_DECOR_TYPES:             # 29 Oct 2026: the desk's laptop, monitor, keyboard and mouse
+        return work_set_parts(dtype, w, d, h)
     raise KeyError(f"no decor builder for {dtype!r}")
 
 
@@ -3445,6 +3469,105 @@ def kitchen_worktop_parts(dtype: str, w: float, d: float, h: float) -> list[Part
                                          ("terracotta", "green")[k % 2], "fruit", n_eta=6, n_om=12))
         return parts
     raise KeyError(f"no kitchen worktop builder for {dtype!r}")
+
+
+# 29 Oct 2026 (lesson UL93): the desk's work set. Real products: a 14-15 inch laptop's base is 0.32-0.36 x 0.22-0.24 m
+# and 15-18 mm thick, its lid as deep as the base, opened 105-115 degrees for work; a 24 inch monitor's panel is about
+# 0.54 x 0.32 m on a stand 0.10 m over the desk; a full-size keyboard 0.43 x 0.13 m; a mouse 6.5 x 11 cm.
+LAPTOP_BASE_T = 0.016             # the closed base (keyboard deck), metres
+LAPTOP_LID_T = 0.006              # the lid (display) slab
+LAPTOP_FACE_T = 0.0015            # the bezel and the screen on the lid's inner face
+LAPTOP_OPEN_DEG = 110.0           # the angle between the base and the opened lid
+LAPTOP_BEZEL_M = (0.008, 0.012, 0.018)   # the screen's bezel: sides, top, bottom (the hinge side)
+MONITOR_FOOT_T = 0.012
+KEY_PITCH_M = 0.019               # a keyboard's key pitch (19 mm, ISO/IEC 9995)
+
+
+def laptop_box(base_w: float, base_d: float, base_t: float = LAPTOP_BASE_T) -> tuple[float, float, float]:
+    """The box ``(w, d, h)`` of an open laptop of base ``base_w x base_d`` (pure): the lid as deep as the base,
+    opened ``LAPTOP_OPEN_DEG``, leaning back past the hinge; ``work_set_parts`` builds the laptop into it."""
+    lean = math.radians(LAPTOP_OPEN_DEG - 90.0)
+    d = base_d * (1.0 + math.sin(lean)) + LAPTOP_LID_T * math.cos(lean)
+    h = base_t + base_d * math.cos(lean) + LAPTOP_FACE_T * math.sin(lean)
+    return round(float(base_w), 4), round(d, 4), round(h, 4)
+
+
+def _lid_slab(cx: float, hinge: tuple[float, float], lean: float, w: float, length: float, thick: float,
+              offset: float, key: str, role: str, z_from: float = 0.0) -> Part:
+    """A slab of the opened lid (pure): ``w`` wide along X, ``length`` along the lid from ``z_from`` up (the lid
+    direction ``u`` = (0, sin lean, cos lean) from the hinge point ``(y, z)``), ``thick`` across it from ``offset``
+    (the lid normal ``n`` = (0, cos lean, -sin lean) points behind the screen; a negative offset lies in front of the
+    inner face). The box's axes go to (X, n, u), a proper rotation, so its faces keep their outward winding."""
+    verts, faces = geom2d.box((0.0, 0.0, 0.0), (w, thick, length), 0.0)
+    su, cu = math.sin(lean), math.cos(lean)
+    oy = hinge[0] + (offset + thick / 2.0) * cu + (z_from + length / 2.0) * su
+    oz = hinge[1] - (offset + thick / 2.0) * su + (z_from + length / 2.0) * cu
+    out = [(cx + x, oy + y * cu + z * su, oz - y * su + z * cu) for x, y, z in verts]
+    return {"verts": out, "faces": faces, "key": key, "role": role}
+
+
+def work_set_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
+    """29 Oct 2026 (user: "Computer on the table would have been nice or a laptop"): the parametric work set of a desk
+    in the item's box (bottom on z = 0, front -Y = the user's side), PBR keys ``steel`` (the aluminium shells),
+    ``dark`` (keys, bezels, the monitor's panel, the mouse) and ``screen`` (``materials.screen_material``): ``laptop``
+    (the base, its key field and trackpad, the lid opened ``LAPTOP_OPEN_DEG`` with its bezel and screen; the base the
+    largest that fits the box, ``laptop_box``), ``monitor`` (a foot, a neck, the panel and its screen), ``keyboard``
+    (a plate, key rows of ``KEY_PITCH_M``, a space bar) and ``computer_mouse``."""
+    if dtype == "laptop":
+        lean = math.radians(LAPTOP_OPEN_DEG - 90.0)
+        su, cu = math.sin(lean), math.cos(lean)
+        bt = min(LAPTOP_BASE_T, h * 0.08)
+        bd = max(0.02, min((d - LAPTOP_LID_T * cu) / (1.0 + su), (h - bt - LAPTOP_FACE_T * su) / cu))
+        depth = bd * (1.0 + su) + LAPTOP_LID_T * cu
+        y0 = -depth / 2.0                             # the front edge of the base, the box centred on the item
+        hinge = (y0 + bd, bt)
+        keys_d, pad_d = bd * 0.40, bd * 0.26
+        sb, tb, bb = (min(v, w * 0.08, bd * 0.12) for v in LAPTOP_BEZEL_M)
+        return [_box(0.0, y0 + bd / 2.0, 0.0, w, bd, bt, "steel", "base"),
+                _box(0.0, hinge[0] - bd * 0.06 - keys_d / 2.0, bt, w * 0.86, keys_d, 0.0012, "dark", "keys"),
+                _box(0.0, y0 + bd * 0.06 + pad_d / 2.0, bt, w * 0.34, pad_d, 0.0006, "dark", "trackpad"),
+                _lid_slab(0.0, hinge, lean, w, bd, LAPTOP_LID_T, 0.0, "steel", "lid"),
+                _lid_slab(0.0, hinge, lean, w - 0.002, bd - 0.001, LAPTOP_FACE_T * 0.6, -LAPTOP_FACE_T * 0.6,
+                          "dark", "bezel"),
+                _lid_slab(0.0, hinge, lean, w - 2.0 * sb, bd - bb - tb, LAPTOP_FACE_T * 0.4, -LAPTOP_FACE_T,
+                          "screen", "screen", z_from=bb)]
+    if dtype == "monitor":
+        panel_t = min(0.03, d * 0.2)
+        panel_h = min(h * 0.75, w * 0.6)
+        z_p = h - panel_h
+        py = max(-d / 2.0 + 0.003 + panel_t / 2.0, -panel_t / 2.0 - 0.01)   # just in front of the foot's middle
+        neck_y = min(d / 2.0 - 0.0125, py + panel_t / 2.0 + 0.0125)          # the neck right behind the panel
+        bezel = min(0.008, w * 0.02, panel_h * 0.05)
+        return [_box(0.0, 0.0, 0.0, min(0.24, w * 0.45), d * 0.9, MONITOR_FOOT_T, "steel", "foot"),
+                _box(0.0, neck_y, MONITOR_FOOT_T, min(0.05, w * 0.12), 0.025, z_p + panel_h * 0.5 - MONITOR_FOOT_T,
+                     "steel", "neck"),
+                _box(0.0, py, z_p, w, panel_t, panel_h, "dark", "panel_back"),
+                _box(0.0, py - panel_t / 2.0 - 0.001, z_p + bezel * 1.5, w - 2.0 * bezel, 0.002,
+                     panel_h - 2.5 * bezel, "screen", "screen")]
+    if dtype == "keyboard":
+        plate_h = h * 0.45
+        margin = min(0.012, w * 0.03, d * 0.08)
+        cols = max(1, int((w - 2 * margin) / KEY_PITCH_M))
+        rows = max(1, min(5, int((d - 2 * margin) / KEY_PITCH_M)))
+        px, py = (w - 2 * margin) / cols, (d - 2 * margin) / rows
+        cap_w, cap_d = px * 0.84, py * 0.84
+        parts = [_box(0.0, 0.0, 0.0, w, d, plate_h, "steel", "base")]
+        x0, y0 = -w / 2.0 + margin, -d / 2.0 + margin
+        for r in range(rows):
+            y = y0 + py * (r + 0.5)
+            if r == 0 and cols >= 9:                   # the front row: a space bar between the modifier keys
+                bar = (cols - 6) * px - (px - cap_w)
+                parts.append(_box(x0 + 3 * px + bar / 2.0 + (px - cap_w) / 2.0, y, plate_h, bar, cap_d,
+                                  h - plate_h, "dark", "space_bar"))
+                keys = list(range(3)) + list(range(cols - 3, cols))
+            else:
+                keys = list(range(cols))
+            for c in keys:
+                parts.append(_box(x0 + px * (c + 0.5), y, plate_h, cap_w, cap_d, h - plate_h, "dark", "key"))
+        return parts
+    if dtype == "computer_mouse":
+        return [_superellipsoid(0.0, 0.0, 0.0, w, d, h, 0.55, 0.75, "dark", "body", n_eta=8, n_om=16)]
+    raise KeyError(f"no work set builder for {dtype!r}")
 
 
 SUSPENSION_CORD_R_M = 0.004       # the cord of a hung light (as the parametric pendant's)

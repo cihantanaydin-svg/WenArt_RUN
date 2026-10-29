@@ -121,6 +121,11 @@ _DECOR_HINTS_M10: dict[str, str] = {
     # 28 Oct 2026 (wenart.furniture.tabletop): the place settings of a dining table
     "plate": "plate laid on a dining table in front of a chair",
     "glass": "drinking glass standing on a table",
+    # 29 Oct 2026 (wenart.furniture.tabletop.work_set): the desk's work set
+    "laptop": "open laptop computer on a desk, its screen towards the chair",
+    "monitor": "computer monitor on its stand on a desk",
+    "keyboard": "computer keyboard lying on a desk",
+    "computer_mouse": "computer mouse beside a keyboard or a laptop on a desk",
 }
 HINTS.update({k: v for k, v in _DECOR_HINTS_M10.items() if k in S.CATEGORIES})
 UNVERIFIED_HINT = "any piece of furniture at that place"

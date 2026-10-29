@@ -129,6 +129,13 @@ mirrored roof gives the twin the same heights). Why: P6a hung the curtains dec_L
 rooms 2.25 m high at windows drawn 1.2 m tall; the build clipped those windows to 0.81 m (top 1.71 m) and the slope
 over the curtains is 1.83 m, so both poked 0.4 m through the mansard roof in four exterior views (critical X2 in
 every agent round; no agent tool edits decor).
+
+29 Oct 2026 (user on real06 run 20261028-154514-full: "Computer on the table would have been nice or a laptop"; the
+child's room desk was bare in the render because the agent's ``relayout_room`` re-placed the room's added pieces under
+new ids and their decor, a plant and books on the desk, was dropped with its host). ``wenart.furniture.handover``:
+the decor of a piece the solver re-places (``solver.apply_candidate``, ``edit_ops`` move_group) goes to its successor,
+the new piece of the same type in the same room nearest to it; ``sync_to_hosts`` then sets it on the new piece by its
+``host_frame``, as on the old one. Decor whose piece has no successor is dropped as before.
 """
 from __future__ import annotations
 
@@ -161,8 +168,12 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug", "wall_art
                                  "plate", "glass",
                                  # 28 Oct 2026: the kitchen worktop's small appliances and decor (kitchen_worktop_decor)
                                  "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot",
-                                 "fruit_bowl")
+                                 "fruit_bowl",
+                                 # 29 Oct 2026 (user: "Computer on the table would have been nice or a laptop"): the
+                                 # desk's work set (tabletop.work_set); the rules place it, the AI does not choose it
+                                 "laptop", "monitor", "keyboard", "computer_mouse")
 SETTING_TYPES: tuple[str, ...] = ("plate", "glass")
+WORK_DECOR_TYPES: tuple[str, ...] = ("laptop", "monitor", "keyboard", "computer_mouse")
 # Not held to MAX_DECOR_M (Milestone 8, 9; Milestone 10: window dressings, throws, large plants and floor
 # sculptures, pendants on their cord).
 LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "blind", "throw", "plant_large",

@@ -3870,9 +3870,8 @@ def apply_candidate(building: dict, room_id: str, candidate: dict) -> dict:
     gone = {f["id"] for f in out.get("furniture") or [] if f.get("room_id") == room_id
             and f.get("source") == "added_by_ai" and f["id"] not in kept
             and not schemas.off_floor(f)}
+    gone_pieces = [f for f in out.get("furniture") or [] if f["id"] in gone]
     out["furniture"] = [f for f in out.get("furniture") or [] if f["id"] not in gone]
-    if gone and out.get("decor"):
-        out["decor"] = [d for d in out["decor"] if d.get("host_id") not in gone]
     number = _next_number(out, room["level_id"])
     taken = {f["id"] for f in out["furniture"]}
     drawn_ids = {f["id"] for f in out["furniture"] if f.get("source") == "from_documents"}
@@ -3904,6 +3903,15 @@ def apply_candidate(building: dict, room_id: str, candidate: dict) -> dict:
             out["furniture"][index[q["id"]]] = q
         else:
             out["furniture"].append(q)
+    if gone and out.get("decor"):
+        # 29 Oct 2026 (real06 run 154514: the agent's relayout left the child's room desk bare): the decor of a piece
+        # the solver re-places goes to its successor (handover.hand_over); the rest of the gone pieces' decor is dropped
+        from wenart.furniture import handover as HO
+
+        new_ids = set(ids.values())
+        added = [f for f in out["furniture"] if f["id"] in new_ids and f.get("source") == "added_by_ai"]
+        handed = HO.hand_over(out["decor"], gone_pieces, added)
+        out["decor"] = [d for d in out["decor"] if d.get("host_id") not in gone or id(d) in handed]
     rugs = candidate.get("rugs") or []
     if rugs or any(d.get("room_id") == room_id and (d.get("group") or {}).get("role") == "rug"
                    for d in out.get("decor") or []):

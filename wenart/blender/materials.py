@@ -2235,6 +2235,64 @@ def light_material(name: str, rgb=(1.0, 0.78, 0.55), strength: float = 8.0):
     return mat
 
 
+# 29 Oct 2026 (user on real06: "Computer on the table would have been nice or a laptop", lesson UL93): the screen of the
+# desk's laptop or monitor (parametric key ``screen``). A dark glossy panel (a switched-off display is near-black
+# glass) with a faint lit wallpaper: a soft diagonal gradient (deep blue, teal, dusk rose; linear RGB, designer values,
+# assumed) on the object's generated coordinates, emitted weakly: at SCREEN_EMISSION its brightest colour is 0.2
+# scene-linear, a quarter of a fixture shade's 2.0 (lighting.SHADE_EMISSION_WM2SR: AgX renders 1.0 at display 177 at
+# EV 0), so at the interiors' EV +1..+3 the screen reads as switched on, never white, and lights nothing. Not a light
+# of the rig (no ``wenart_light``) and not sampled as one (``emission_sampling`` NONE, as the rig's fixture shades).
+SCREEN_MATERIAL = "wenart_screen"
+SCREEN_BASE_RGB = (0.006, 0.006, 0.008)
+SCREEN_ROUGHNESS = 0.04
+SCREEN_EMISSION = 0.5
+SCREEN_WALLPAPER: tuple[tuple[float, tuple[float, float, float]], ...] = (
+    (0.0, (0.04, 0.07, 0.18)), (0.55, (0.08, 0.26, 0.34)), (1.0, (0.40, 0.27, 0.34)))
+SCREEN_GRADIENT_TURN_RAD = 0.6    # the gradient runs across the screen and up it (about Y of the generated coordinates)
+
+
+def screen_material(name: str = SCREEN_MATERIAL):
+    """The material of a laptop's or a monitor's screen (bpy; module notes above): a Principled BSDF of
+    ``SCREEN_BASE_RGB`` at ``SCREEN_ROUGHNESS`` whose emission colour is the ``SCREEN_WALLPAPER`` gradient at
+    ``SCREEN_EMISSION``. One material for every screen of the scene (cached by ``name``)."""
+    import bpy
+
+    mat = bpy.data.materials.get(name)
+    if mat is not None:
+        return mat
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    bsdf = _bsdf_of(mat) or nodes.new("ShaderNodeBsdfPrincipled")
+    _set_input(bsdf, "Base Color", (*SCREEN_BASE_RGB, 1.0))
+    _set_input(bsdf, "Roughness", SCREEN_ROUGHNESS)
+    coord = nodes.new("ShaderNodeTexCoord")
+    mapping = nodes.new("ShaderNodeMapping")
+    mapping.inputs["Rotation"].default_value = (0.0, -SCREEN_GRADIENT_TURN_RAD, 0.0)
+    mapping.inputs["Scale"].default_value = (0.75, 1.0, 0.75)
+    grad = nodes.new("ShaderNodeTexGradient")
+    grad.gradient_type = "LINEAR"
+    ramp = nodes.new("ShaderNodeValToRGB")
+    elements = ramp.color_ramp.elements
+    for k, (pos, rgb) in enumerate(SCREEN_WALLPAPER):
+        el = elements[k] if k < len(elements) else elements.new(pos)
+        el.position = pos
+        el.color = (*rgb, 1.0)
+    links.new(coord.outputs["Generated"], mapping.inputs["Vector"])
+    links.new(mapping.outputs["Vector"], grad.inputs["Vector"])
+    links.new(grad.outputs["Fac"], ramp.inputs["Fac"])
+    emission = bsdf.inputs.get("Emission Color") or bsdf.inputs.get("Emission")
+    if emission is not None:
+        links.new(ramp.outputs["Color"], emission)
+    _set_input(bsdf, "Emission Strength", SCREEN_EMISSION)
+    try:
+        mat.cycles.emission_sampling = "NONE"
+    except AttributeError:                 # an older Blender without the setting: the glow is faint either way
+        pass
+    mat["wenart_screen"] = SCREEN_EMISSION
+    return mat
+
+
 # --------------------------------------------------------------------------
 # Fix round after P4a (17 Oct 2026): the glass of a library mirror
 # --------------------------------------------------------------------------

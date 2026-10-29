@@ -111,6 +111,8 @@ CHECK_KIND = {
     # 29 Oct 2026: the user's real06 review
     "U21": "no_sense", "U22": "taste", "U24": "no_sense", "U25": "misread",
     "U18": "taste",                  # 29 Oct 2026: the door models as built (UL89)
+    # 29 Oct 2026 (lesson UL93: "Computer on the table would have been nice or a laptop"): a desk with no work set
+    "U17": "taste",
     # code critic
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation
