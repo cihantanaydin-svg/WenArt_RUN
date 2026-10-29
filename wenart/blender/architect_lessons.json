@@ -1411,6 +1411,18 @@
    "request": "look at this dressing room solution see through why we are not using some similar in our projects? (a full-height wardrobe behind black horizontal slat sliding doors, hanging shirts, shelves and drawers showing through, a light inside; our wardrobes only had closed fronts and no garments; docs/reference_details_20261029.md R31-R34)",
    "lesson": "look at this dressing room solution see through why we are not using some similar in our projects? (a full-height wardrobe behind black horizontal slat sliding doors, hanging shirts, shelves and drawers showing through, a light inside; our wardrobes only had closed fronts and no garments; docs/reference_details_20261029.md R31-R34)",
    "question": null
+  },
+  {
+   "id": "UL121",
+   "date": "2026-10-29",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "look how realistic the bed is looking full and nice I want this much detail in our models (a deep soft duvet with rounded edges, wrinkles and side overhang, many pillows of different sizes and fabrics, a fringed throw and a houndstooth blanket, fabric weave and sheen; docs/reference_details_20261029.md R35-R36)",
+   "lesson": "look how realistic the bed is looking full and nice I want this much detail in our models (a deep soft duvet with rounded edges, wrinkles and side overhang, many pillows of different sizes and fabrics, a fringed throw and a houndstooth blanket, fabric weave and sheen; docs/reference_details_20261029.md R35-R36)",
+   "question": null
   }
  ]
 }

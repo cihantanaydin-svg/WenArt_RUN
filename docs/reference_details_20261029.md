@@ -5,10 +5,10 @@ The user sent seven professional interior renders on 29 Oct 2026 ("also take som
 details", "As much detail as you can digest", "we need better doors, not all the doors needs to be closed in
 default"). The photos reached the session as chat images only (no file); this page lists every detail read from
 them, so that each one becomes a general rule of the pipeline for every project (CLAUDE.md: every fix is general).
-Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen), UL119 (a different solution for each room), UL120 (see-through wardrobes).
+Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen), UL119 (a different solution for each room), UL120 (see-through wardrobes), UL121 (a full, realistic bed).
 
 Photos: P1 bedroom with a walk-in wardrobe; P2 bedroom with slat panels and a desk; P3 kitchen seen through blue
-glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side; P9 a young adult's bedroom (dark green walls, wall TV, floating corner desk); P10 a bedroom with a see-through slatted wardrobe.
+glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side; P9 a young adult's bedroom (dark green walls, wall TV, floating corner desk); P10 a bedroom with a see-through slatted wardrobe; P11 a bedroom with a full, realistic bed.
 
 ## Bathroom and WC (P4) - helper "bathroom"
 
@@ -85,6 +85,8 @@ glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance h
 | R32 | (P10) a wide wood headboard panel across the bed wall, wider than the bed, with a large art piece above it | a bed wall option: a timber headboard panel wider than the bed (scheme V1) |
 | R33 | (P10) a floating (wall-mounted) black nightstand | nightstand option: a floating box on the wall in the modern families |
 | R34 | (P10) a textured limewash / plaster wall finish in the deep colour | wall finish option: limewash texture (V1 scheme) |
+| R35 | (P11, "look how realistic the bed is looking full and nice I want this much detail in our models") a full, soft bed: a thick upholstered headboard and platform base; a deep duvet with soft rounded edges and natural wrinkles, hanging down the sides almost to the floor; many pillows of different sizes and fabrics (euro shams, sleeping pillows, a textured knit / boucle cushion, a lumbar); a fringed throw folded over the foot and a houndstooth blanket under it | bed realism (helper "bedding"): our duvet gets volume, rounded edges, wrinkle and fold detail and side overhang; the pillow set follows the family (count, sizes, fabrics); throws get fringes and woven patterns; fabric materials with weave normals and sheen (linen, cotton, velvet, knit, boucle); a library bed with its own flat or poor bedding is dressed too when its bedding is poorer than ours |
+| R36 | (P11) a round drum nightstand with a stone top and decor: white geometric vases, a dried palm leaf in a vase, a black and white box; a glass globe pendant with greenery inside over it | nightstand decor set (R17 round nightstands) |
 | V1 | ("different solutions for different rooms") every room the same treatment | every room gets its own scheme from its family's pool (wall finish: one accent wall, a full deep colour, slat panels, a wainscot; TV: unit or wall-mounted; desk: freestanding or floating corner desk; bed wall: panel, art pair, headboard only), chosen deterministically by code; no two rooms of the same type on a level share one scheme; each choice recorded with its reason |
 | G2 | exposed timber beams under a sloped ceiling | a pitched-ceiling room may show its rafters as timber beams (rustic, scandinavian, farmhouse) |
 | G5 | a glass coffee table on a sculptural base, a rattan lounge chair, a shaggy rug | living room model choices |
