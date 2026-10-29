@@ -530,6 +530,10 @@ CHECK_CAUSE: dict[str, str] = {
     # a rug outside is the decor stage's (cause_of: a decor target); too little ceiling light is the decor stage's
     "M16": "wrong_model", "M17": "ceiling_light",
     "M18": "stair_rails",            # 28 Oct 2026: the stairs' handrails as one balustrade (the build owns it)
+    # 29 Oct 2026: a blocked door front is turned (rotate_piece: fixed equipment turns for a blocked door) or what
+    # stands in front of it moves; a basin under a low window is the architect's (cause_of: H2); a back a drawing gap
+    # off its wall snaps onto it
+    "M19": "orientation", "M22": "off_wall",
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",
@@ -659,6 +663,9 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
     # 28 Oct 2026: an M16 rug outside is a decor piece (the decor stage's); an indoor model there is swapped
     if check == "M16" and is_decor(target, building):
         return "decor_model"
+    # 29 Oct 2026: the model review's M19 basin under a low window is the architect's (H2: move it, or a high sill)
+    if check == "M19" and metrics.get("rule") == "basin_window":
+        return "opening_sense"
     # 26 Oct 2026: the model review's rooms: a missing anchor is furnished, an extra dining table is one too many
     if check == "M7":
         return "wrong_type" if target and _is_piece(target, building) else "empty_room"

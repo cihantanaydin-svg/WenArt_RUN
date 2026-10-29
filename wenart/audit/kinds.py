@@ -98,6 +98,10 @@ CHECK_KIND = {
     # handrails as one designed balustrade (model_review.stair_rails_review): rails that cross, stop short, run through
     # a tread, a wall or the floor above, stand beside the floor guard above; a rail out over the room carries "taste"
     "M18": "no_sense",
+    # 29 Oct 2026 (user on real06: "This washing machine would not open", "this sink not making sense there"): a door or
+    # drawer front that cannot open, a basin under a low window (model_review.fixtures_in_use); ("There is a gap between
+    # wall and water faucet not looking good") a back a drawing gap off its wall (model_review.backs_on_walls)
+    "M19": "no_sense", "M22": "misread",
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",
@@ -105,6 +109,8 @@ CHECK_KIND = {
     "X9": "no_sense", "X10": "no_sense",
     # 28 Oct 2026: the lessons line (wenart.audit.lessons): what the user pointed at, measured
     "U11": "taste", "U12": "taste", "U13": "taste", "U14": "taste", "U15": "taste",
+    # 29 Oct 2026: a door front that cannot open (U16, UL92), a back a drawing gap off its wall (U20, UL96)
+    "U16": "no_sense", "U20": "misread",
     # code critic
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation

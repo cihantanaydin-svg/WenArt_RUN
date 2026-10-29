@@ -59,6 +59,13 @@ What, in order (each step deterministic, every change logged in the piece's evid
    box angle) is seated in it (``_fixed_place``). The record merges into an earlier code record of the piece.
 5. **Fronts**: a drawn piece of a type with a front and none drawn gets one from the wall its back stands on or
    from its group (a chair faces its table, a nightstand the way its bed faces, a TV unit its sofa), ``inferred``.
+5b. **Fixtures you can use** (29 Oct 2026, lessons UL92 / UL95 / UL96; ``fixture_use_fixes``, ``wenart.furniture.
+   fixture_use``): after the fronts, a back parallel to its wall a drawing gap (0.055-0.15 m) off it goes back onto the
+   wall with what is built into it; a door-fronted piece (a washer, a dishwasher, a cooker, a fridge, a nightstand)
+   whose front a wall or a neighbour blocks turns to its free side with its back on a wall, else moves at most 0.5 m
+   (real06's washer f_L1_019 got no front in its corner, faced the wall and was later turned onto the toilet); a basin
+   under a window with its sill under 1.25 m moves at most 0.5 m to a solid stretch of wall (else the architect's H2
+   asks). Each ``adjusted_by_ai`` by code with the reason and the plan crop, the drawn values kept.
 6. **Open kitchens**: a room that is not a kitchen but holds kitchen fixtures gets a kitchen zone
    (``rooms[].zones``, contract §13.3) around them; the room-type rules apply per zone (track G).
 7. **Never a box**: a piece still untyped is not built and listed in ``building["needs_review"]`` with its crop
@@ -2028,6 +2035,99 @@ def reading_crop(build, f: dict) -> Optional[str]:
 
 
 # --------------------------------------------------------------------------
+# 4b. Fixtures you can use (29 Oct 2026, lessons UL92, UL95, UL96)
+# --------------------------------------------------------------------------
+
+USE_RULE = "reading.fixture_use"
+SWING_TOUCH_M2 = 0.01              # a moved piece reaching this far into a door swing stands in it
+
+
+def fixture_use_fixes(build, items: Optional[dict] = None) -> dict:
+    """29 Oct 2026 (``wenart.furniture.fixture_use``; the user on real06 run 20261028-154514-full: "This washing machine
+    would not open", "this sink not making sense there", "There is a gap between wall and water faucet not looking
+    good"): the clear reading errors of drawn pieces a visitor sees at once, fixed by code (CLAUDE.md furniture rules;
+    ``adjusted_by_ai`` by code with the reason and the plan crop, ``drawn_*`` kept), after the fronts:
+
+    1. ``backs``: a piece whose back belongs on a wall and stands parallel to it a drawing gap (0.055-0.15 m) off it goes
+       back onto the wall, with the pieces built into it (``fixture_use.snap_back``; never into another piece);
+    2. ``fronts``: a door-fronted piece (a washer, a dishwasher, a cooker, a fridge, a nightstand) whose front a wall or a
+       neighbour blocks was read the wrong way round: it turns to its free side with its back on a wall, else it moves
+       at most 0.5 m (``fixture_use.free_front``; never a piece of a kitchen run);
+    3. ``basins``: a basin under a window with a low sill moves at most 0.5 m to a solid stretch of wall
+       (``fixture_use.clear_basin``); when none is that close the architect asks (H2).
+
+    Returns ``{"backs": [ids], "fronts": [ids], "basins": [ids]}``."""
+    from wenart.furniture import fixture_use as FU
+
+    b = build.building
+    rooms = {r["id"]: r for r in b.get("rooms") or [] if len(r.get("polygon") or []) >= 3}
+    walls = {w["id"]: w for w in b.get("walls") or [] if w.get("id")}
+    openings = list(b.get("openings") or [])
+    out: dict = {"backs": [], "fronts": [], "basins": []}
+
+    def mates(f: dict) -> list[dict]:
+        return [o for o in b["furniture"] if o.get("room_id") == f.get("room_id") and o.get("build") is not False
+                and o.get("footprint")]
+
+    def blocker(room: dict):
+        swings = swing_polys(b, room)
+
+        def blocked(r) -> bool:
+            poly = Polygon(r)
+            return any(poly.intersection(s).area > SWING_TOUCH_M2 for s in swings)
+        return blocked
+
+    def crop_of(f: dict) -> Optional[str]:
+        item = (items or {}).get(f["id"])
+        return _crop(item.details if item is not None else None) or reading_crop(build, f)
+
+    def apply(f: dict, footprint: dict, front, rule: str, reason: str, crop: Optional[str]) -> None:
+        changed = {"footprint": copy.deepcopy(f["footprint"])}
+        if front != f.get("front_deg"):
+            changed["front_deg"] = f.get("front_deg")
+        _code_label(f, rule, reason, changed, crop)       # the drawn values kept first
+        f["footprint"] = dict(footprint)
+        f["front_deg"] = front
+        f.setdefault("evidence", []).append(_ev(f, USE_RULE, reason + (f"; plan crop {crop}" if crop else ""), 0.8))
+        build.warn(f"{f['id']}: {f['type']} adjusted at ingest: {reason}")
+
+    drawn = [f for f in b["furniture"] if f.get("source") == "from_documents" and f.get("build") is not False
+             and f.get("footprint") and f.get("room_id") in rooms and str(f.get("type") or "unknown") != "unknown"]
+    for f in drawn:
+        room = rooms[f["room_id"]]
+        got = FU.snap_back(f, room["polygon"], mates(f), blocked=blocker(room))
+        if got is None:
+            continue
+        crop = crop_of(f)
+        by_id = {o["id"]: o for o in b["furniture"]}
+        for pid, fp in sorted(got["footprints"].items()):
+            piece = by_id[pid]
+            apply(piece, fp, piece.get("front_deg"), "back_gap", got["reason"] if pid == f["id"] else
+                  f"built into {f['id']}, moved with it: {got['reason']}", crop)
+            out["backs"].append(pid)
+    for f in drawn:
+        if str(f.get("type")) not in FU.ACCESS_M:
+            continue
+        room = rooms[f["room_id"]]
+        got = FU.free_front(f, room["polygon"], mates(f), blocked=blocker(room))
+        if got is None:
+            continue
+        apply(f, got["footprint"], got["front_deg"], "free_front", got["reason"], crop_of(f))
+        f["front_inferred"] = got["reason"]
+        out["fronts"].append(f["id"])
+    for f in drawn:
+        if str(f.get("type")) not in FU.BASINS:
+            continue
+        room = rooms[f["room_id"]]
+        got = FU.clear_basin(f, room["polygon"], mates(f), openings, walls, blocked=blocker(room))
+        if got is None:
+            continue
+        apply(f, got["footprint"], got["front_deg"], "basin_window", got["reason"], crop_of(f))
+        out["basins"].append(f["id"])
+    return out
+
+
+# --------------------------------------------------------------------------
 # 5. Fronts
 # --------------------------------------------------------------------------
 
@@ -3057,6 +3157,8 @@ def read_furniture(build, works: dict) -> None:
     for k, v in context_types(build, items, pending).items():
         context[k] = context.get(k, 0) + v
     fronts += infer_fronts(build, pending)
+    # 29 Oct 2026 (lessons UL92, UL95, UL96): backs on their walls, fronts that open, basins under a solid wall
+    use_fixes = fixture_use_fixes(build, items)
     vanities = wet_room_vanities(build)          # 26 Oct 2026: never a kitchen counter in a bathroom
     zones = kitchen_zones(build)
     review = never_a_box(build, items, pending)
@@ -3067,7 +3169,7 @@ def read_furniture(build, works: dict) -> None:
                      "fronts": fronts, "zones": zones, "needs_review": review, "tie_break": sorted(tied),
                      "answer_typed": sorted(from_answers), "long_side_fronts": flipped, "desk_chairs": desks,
                      "seat_cushions": cushions, "rooms_retyped": rooms_retyped, "nested_outlines": nested,
-                     "kitchen_outline_legs": outline_legs, "wet_room_vanities": vanities,
+                     "kitchen_outline_legs": outline_legs, "wet_room_vanities": vanities, "fixture_use": use_fixes,
                      "code_typed": sorted(typed_by), "questions_withdrawn": sorted(withdrawn),
                      "typed_by": dict(sorted(typed_by.items())),
                      "furniture_texts": [t["id"] for t in b.get("furniture_texts") or []],

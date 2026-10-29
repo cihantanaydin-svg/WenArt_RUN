@@ -238,7 +238,10 @@ FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry
                     "wenart/assets/fetch.py", "wenart/assets/polyhaven.py", "wenart/assets/web.py",
                     "wenart/assets/audit/__init__.py", "wenart/assets/audit/keywords.py",
                     # 28 Oct 2026: the site grading's garden flights and ramps follow the levels' step rules
-                    "wenart/levels/rules.py")
+                    "wenart/levels/rules.py",
+                    # 29 Oct 2026: the architect's F4 / H2 and the model review's M19 / M22 read the fixtures' fronts,
+                    # backs and basin walls (pure)
+                    "wenart/furniture/fixture_use.py")
 # Asset-manifest keys that change on every fetch without changing the asset.
 FINGERPRINT_VOLATILE_KEYS = ("fetched_utc",)
 STYLE_ASSET_SLOTS = ("floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door", "window_frame",

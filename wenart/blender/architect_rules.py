@@ -47,6 +47,7 @@ COMPANIONS = ("chair", "dining_chair", "office_chair", "stool", "bar_stool", "co
               "nightstand", "rug", "ottoman", "bench", "plant", "floor_lamp", "lamp", "pouf", "armchair", "cushion",
               "towel", "bath_mat", "laundry_basket", "dining_table", "table")
 FLOOR_ONLY = ("rug", "bath_mat", "carpet", "mat")
+FAR_BASIN_MOVE_M = 1.5          # H2 (29 Oct 2026): a farther basin move to a solid wall is offered for the user's OK
 FIXED_STAIRS = ("stair", "stairs", "staircase")
 # 26 Oct 2026: a kitchen run's drawn pieces (a doorway they fill is a serving window over the counter)
 KITCHEN_RUN = ("kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "hob", "oven", "fridge", "dishwasher")
@@ -132,6 +133,11 @@ RULES = (
     {"id": "H1", "topic": "working heights", "scope": "furniture", "severity": "major",
      "question": "Is every fixture at its working height (a washbasin's rim at 0.80-0.90 m)?",
      "why": "a basin at knee height looks like a toy and cannot be used"},
+    # 29 Oct 2026 (user on real06 run 20261028-154514-full: "this sink not making sense there"; fixture_use rule 4)
+    {"id": "H2", "topic": "a wall over every basin", "scope": "furniture", "severity": "major",
+     "question": "Does every basin stand under a solid wall for its mirror and its tap, or under a high window (its "
+                 "sill 1.25 m or more over the floor)?",
+     "why": "a basin right under a window has no mirror over it and its tap meets the sill"},
     {"id": "G1", "topic": "trees", "scope": "tree", "severity": "minor",
      "question": "Does every tree and shrub stand on open ground, clear of the house, the pools, the paths and the "
                  "terraces?",
@@ -588,7 +594,10 @@ def _covered(points, rects) -> float:
 
 
 def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
-    f1, f2, f3, f4, h1 = (_q(next(r for r in RULES if r["id"] == i)) for i in ("F1", "F2", "F3", "F4", "H1"))
+    from wenart.furniture import fixture_use as FU
+
+    f1, f2, f3, f4, h1, h2 = (_q(next(r for r in RULES if r["id"] == i)) for i in ("F1", "F2", "F3", "F4", "H1", "H2"))
+    openings = [o for o in plan.b.get("openings") or [] if o.get("id")]
     pieces = []
     for f in plan.b.get("furniture") or []:
         if f.get("build") is False or str(f.get("type") or "").lower() in FIXED_STAIRS:
@@ -628,7 +637,23 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                   f"Is {f['id']} in the right place?", [AA.option("keep")], where=where)
         else:
             _ok(f1, f["id"], f"{t} in {room['id']}")
-        if t in ACCESS_TYPES and f.get("front_deg") is not None:
+        here = [g for g, _r, _t in by_room.get(f.get("room_id"), [])]
+        if t in FU.BASINS:
+            _basin_wall(plan, h2, f, room, here, openings, where)
+        if t in FU.ACCESS_M and not FU.in_run(f, here):
+            # 29 Oct 2026 (user on real06: "This washing machine would not open"; fixture_use rule 1): a door-fronted
+            # piece keeps its width x its access depth free; the safe default turns a blocked front to its free side
+            # (rule 2: a front read the wrong way round), else the point stays for the AI architect and the user
+            prob = FU.piece_access(f, room["polygon"], here)
+            if prob is None:
+                _ok(f4, f["id"], "its door or drawers open: free in front")
+            else:
+                fix = FU.free_front(f, room["polygon"], here, blocked=AA._door_blocked(plan, f.get("level_id")))
+                opts = ([AA.option("free_front", f"turn or move {f['id']} so its door opens: {fix['reason']}",
+                                   piece_id=f["id"])] if fix else []) + [AA.option("keep")]
+                _open(f4, f["id"], FU.describe(f, prob), f"Can {f['id']} be opened and used where it stands?", opts,
+                      where=where, **({"default": opts[0]["choice"]} if fix else {}))
+        elif t in ACCESS_TYPES and f.get("front_deg") is not None:
             a = math.radians(float(f["front_deg"]))
             n = (math.cos(a), math.sin(a))
             u = (-n[1], n[0])
@@ -722,7 +747,44 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
                       fallback=[c["choice"] for c in chain])
             else:
                 _ok(f3, o["id"], "window free")
-    return [f1, f2, f3, f4, h1]
+    return [f1, f2, f3, f4, h1, h2]
+
+
+def _basin_wall(plan: AA.Plan, h2: dict, f: dict, room: dict, here: list, openings: list, where: dict) -> None:
+    """H2 (29 Oct 2026; ``fixture_use`` rule 4): a basin under a window whose sill is under ``BASIN_SILL_M``: the safe
+    default moves it at most 0.5 m to a solid stretch of wall (``clear_basin``), else the window over it becomes a
+    bathroom window (``basin_sill``: only where the documents do not give its heights); a farther move is offered for
+    the user's OK; ``keep`` leaves it with its mirror beside it (``decor_ai.basin_mirror``)."""
+    from wenart.furniture import fixture_use as FU
+
+    got = FU.basin_window(f, openings, plan.walls)
+    if got is None:
+        _ok(h2, f["id"], "a solid wall over it")
+        return
+    blocked = AA._door_blocked(plan, f.get("level_id"))
+    near = FU.clear_basin(f, room["polygon"], here, openings, plan.walls, blocked=blocked)
+    far = None if near else FU.clear_basin(f, room["polygon"], here, openings, plan.walls, blocked=blocked,
+                                           max_move=FAR_BASIN_MOVE_M)
+    o = plan.openings.get(got["window"]) or {}
+    head = min(FU.sill_of(o) + float(o.get("height") if o.get("height") is not None else 1.2), plan.top(o)) if o else 0.0
+    raise_ok = bool(o) and AA.heights_given(plan.b, o) is None and head - FU.BASIN_SILL_M >= AA.MIN_WINDOW_H - 1e-9
+    opts = []
+    if near:
+        opts.append(AA.option("clear_basin", f"move {f['id']} {near['moved_m']:.2f} m to a solid stretch of wall",
+                              piece_id=f["id"]))
+    if raise_ok:
+        opts.append(AA.option("basin_sill", f"{got['window']}: a bathroom window over the basin, its sill at "
+                                            f"{FU.BASIN_SILL_M:.2f} m", window_id=got["window"]))
+    if far:
+        opts.append(AA.option("clear_basin", f"move {f['id']} {far['moved_m']:.2f} m to a solid stretch of wall (more "
+                                             f"than the {FU.MOVE_MAX_M:.2f} m a drawn fixture may move: your OK)",
+                              piece_id=f["id"], max_move_m=round(far["moved_m"] + 0.01, 2)))
+    opts.append(AA.option("keep", "keep it under the window; its mirror hangs beside it"))
+    chain = [x["choice"] for x in opts if x["id"] in ("clear_basin", "basin_sill") and not x["params"].get("max_move_m")]
+    _open(h2, f["id"], f"{f['id']} ({f.get('type')}) stands under window {got['window']} (sill {got['sill_m']:.2f} m "
+          f"over {got['share']:.0%} of its width): no mirror over it, its tap against the sill",
+          f"Should {f['id']} move to a solid wall, or {got['window']} become a high bathroom window?", opts,
+          where=where, **({"default": chain[0], "fallback": chain[1:]} if chain else {}))
 
 
 def _blocked_chain(plan, piece_id: Optional[str], o: dict, side: dict, door: bool) -> list[dict]:

@@ -26,8 +26,9 @@ How each edit is checked (§5, CLAUDE.md furniture rules):
   edited piece or on another one) rejects it, a failure the room already had is not counted; then the room's
   ``plausibility.score_room`` must not drop;
 - drawn fixed equipment (``schemas.FIXED_TYPES``: stairs, kitchen runs and appliances, sanitary ware): only
-  ``rotate``, and only for a clear error (its back is not on a wall or its front faces a wall, and the new front
-  fixes that); never moved, resized, retyped or removed;
+  ``rotate``, and only for a clear error (its back is not on a wall, its front faces a wall or, 29 Oct 2026, lesson
+  UL92, the door of a washer, cooker or fridge is blocked: ``fixture_use.access_problem``; and the new front fixes
+  that and leaves the door free); never moved, resized, retyped or removed;
 - drawn furniture: ``move`` / wall snap by at most ``SNAP_MAX_M`` (0.3 m), ``rotate``, ``resize`` to a size within the
   type's product sizes, ``change_type`` within the room type's types (an ``unknown`` piece: any type of the room,
   marked ``inferred``), ``remove`` only with a reason (the piece stays in the JSON with ``build: false``); in a kept
@@ -247,6 +248,7 @@ import jsonschema
 from shapely.geometry import Point
 
 from wenart import geometry as G
+from wenart.furniture import fixture_use as FU
 from wenart.furniture import group_checks as GC
 from wenart.furniture import groups as GR
 from wenart.furniture import locked as LK
@@ -488,7 +490,10 @@ def _ai_evidence(args: dict, text: str) -> list[dict]:
 
 
 def _front_problem(r: "PL._Room", pid: str) -> Optional[str]:
-    """The clear orientation error of a piece (F3 back not on a wall, or F4 front into a wall), else None."""
+    """The clear orientation error of a piece (F3 back not on a wall, or F4 front into a wall), else None. 29 Oct 2026
+    (lesson UL92): or the door or drawers of a door-fronted piece (``fixture_use.ACCESS_M``: a washer, a dishwasher, a
+    cooker, a fridge, a nightstand) blocked by a neighbour (``fixture_use.access_problem``): real06's washer f_L1_019 was
+    turned from the wall onto the toilet 0.11 m away, and this rule called the new front free."""
     item = r.item(pid)
     rule = schemas.orientation_rule(item["type"])
     p = r.pieces[pid]
@@ -496,6 +501,14 @@ def _front_problem(r: "PL._Room", pid: str) -> Optional[str]:
         return "its back is not on a wall"
     if item["type"] not in schemas.FRONTLESS_TYPES and PL.front_wall_distance(p, r, r.front_dir(pid)) is not None:
         return "its front faces a wall"
+    if item["type"] in FU.ACCESS_M and not FU.in_run(item, r.built):
+        obstacles = [(oid, r.item(oid)["type"], [tuple(c) for c in list(op.exterior.coords)[:-1]])
+                     for oid, op in r.polys.items() if oid != pid and getattr(op, "exterior", None) is not None]
+        prob = FU.access_problem(item["type"], p.center, p.rotation_deg, p.size, list(r.ring.coords), obstacles)
+        if prob is not None:
+            return (f"its front is blocked ({', '.join(prob['blockers'][:3] + (['the wall'] if prob['wall'] else []))}"
+                    f"; {prob['free_m']:.2f} m free, its door needs {prob['open_m']:.2f} m to open and "
+                    f"{prob['use_m']:.2f} m to use)")
     return None
 
 
@@ -682,12 +695,15 @@ def _rotate(b: dict, args: dict) -> list[str]:
         problem = _front_problem(r, item["id"]) if item["id"] in r.pieces else None
         if problem is None:
             raise EditRejected("drawn_lock", f"{item['id']}: drawn fixed equipment turns only for a clear error (its "
-                                             f"back off the wall or its front into a wall); none here")
+                                             f"back off the wall, its front into a wall or its door blocked); none "
+                                             f"here")
         trial = copy.deepcopy(b)
         _set_footprint(_piece(trial, item["id"]), item["footprint"]["center"], front + 90.0, size, front)
         r2 = PL._Room(trial, room)
-        if _front_problem(r2, item["id"]) is not None:
-            raise EditRejected("drawn_lock", f"{item['id']}: the new front does not fix the error ({problem})")
+        still = _front_problem(r2, item["id"])
+        if still is not None:
+            raise EditRejected("drawn_lock", f"{item['id']}: the new front does not fix the error ({problem}); with "
+                                             f"the front at {front:.0f} deg {still}")
     _set_footprint(item, item["footprint"]["center"], front + 90.0, size, front)
     _label(item, before, args, ["footprint", "front_deg"])
     return [item["id"]]

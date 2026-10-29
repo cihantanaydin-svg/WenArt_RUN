@@ -107,6 +107,13 @@ ACTIONS = {
     # could look better"): W5
     "tall_window": "tall windows: the room's windows to the outside from a low upstand to under the lintel (drawn "
                    "width and position kept; a guard over a drop), one window language per facade of the room",
+    # 29 Oct 2026 (user on real06: "This washing machine would not open", "this sink not making sense there"): F4, H2
+    "free_front": "a front read the wrong way round: the piece turns on its wall to its free side (its back on a wall), "
+                  "else moves at most 0.5 m, so its door or drawers open",
+    "clear_basin": "the basin moves to the nearest solid stretch of wall of its room (along its wall or onto another "
+                   "one) for its mirror, at most 0.5 m (params: max_move_m; farther only with your OK)",
+    "basin_sill": "a bathroom window over the basin: its sill raised to 1.25 m (the head kept), clear of the tap; the "
+                  "mirror hangs beside the basin",
 }
 # The rules whose answers are carried out first (a door that becomes a window is not widened as a door)
 FIRST_RULES = ("E1", "O2", "D4")
@@ -1569,6 +1576,130 @@ def act_move_piece(plan: Plan, key: str, ans: dict, piece_id: str, away_from=Non
 
 
 # --------------------------------------------------------------------------
+# F4 / H2: fixtures you can use (29 Oct 2026, ``wenart.furniture.fixture_use``)
+# --------------------------------------------------------------------------
+#
+# User on real06 run 20261028-154514-full: "This washing machine would not open" (its door faced the toilet 0.11 m
+# away) and "this sink not making sense there" (a basin right under a window at a 0.90 m sill). F4 (room to use) gives
+# a door-fronted piece whose front is blocked the safe default ``free_front`` (the reading-error fix of CLAUDE.md: turned
+# on its wall to its free side, else moved at most 0.5 m); H2 (a wall over every basin) moves a basin under a low window
+# at most 0.5 m to a solid stretch (``clear_basin``), else raises that window's sill to ``BASIN_SILL_M`` where the
+# documents do not give it (``basin_sill``).
+
+def _room_pieces(plan: Plan, f: dict) -> list[dict]:
+    return [g for g in plan.b.get("furniture") or [] if g.get("room_id") == f.get("room_id")
+            and g.get("build") is not False and g.get("footprint")]
+
+
+def _door_blocked(plan: Plan, level_id):
+    from wenart.blender import clashes as CL
+    from wenart.furniture import fixture_seat as FS
+
+    doors = [d for d in CL.doorways(plan.b, level_id) if d and len(d) >= 3]
+    return lambda r: any(FS.cut_depth(r, d) > FS.CUT_EPS_M for d in doors)
+
+
+def _place_piece(plan: Plan, f: dict, fix: dict, key: str, ans: dict) -> None:
+    """``fix`` (``fixture_use.free_front`` / ``clear_basin``: a footprint and a front) carried out on ``f`` (in place):
+    the drawn values kept, the fitted model following a turned size (``clashes.refit_asset``), the decor resting on it
+    moved along, ``adjusted_by_ai`` by the architect with the earlier record under ``previous``."""
+    from wenart.blender import clashes as CL
+
+    old = copy.deepcopy(f["footprint"])
+    _keep_drawn(f, "footprint", "front_deg")
+    dx = float(fix["footprint"]["center"][0]) - float(old["center"][0])
+    dy = float(fix["footprint"]["center"][1]) - float(old["center"][1])
+    f["footprint"] = dict(fix["footprint"])
+    f["front_deg"] = fix["front_deg"]
+    CL.refit_asset(f, old.get("size"), by=f"architect {key}")
+    earlier = copy.deepcopy(f.get("adjusted_by_ai")) if isinstance(f.get("adjusted_by_ai"), dict) else None
+    _mark(f, "adjusted_by_ai", key, ans, fix["reason"])
+    if earlier:
+        f["adjusted_by_ai"]["previous"] = list(earlier.pop("previous", None) or []) + [earlier]
+    for d in plan.b.get("decor") or []:
+        if d.get("host_id") == f.get("id") and d.get("center"):
+            cc = list(d["center"])
+            cc[0], cc[1] = round(float(cc[0]) + dx, 4), round(float(cc[1]) + dy, 4)
+            d["center"] = cc
+
+
+def act_free_front(plan: Plan, key: str, ans: dict, piece_id: str):
+    """F4 (29 Oct 2026): a door-fronted piece whose front is blocked turned on its wall to its free side, else moved
+    at most 0.5 m (``fixture_use.free_front``: its back on a wall, its door free, inside the room, clear of the other
+    pieces and the doorways; never a piece of a kitchen run)."""
+    from wenart.furniture import fixture_use as FU
+
+    f = _piece(plan, piece_id)
+    if f is None or not f.get("footprint"):
+        return False, f"no piece {piece_id}"
+    room = plan.room.get(f.get("room_id"))
+    if room is None:
+        return False, f"{piece_id}: no room"
+    here = _room_pieces(plan, f)
+    if FU.piece_access(f, room["polygon"], here) is None:
+        return True, f"{piece_id}: its door opens (free in front)"
+    fix = FU.free_front(f, room["polygon"], here, blocked=_door_blocked(plan, f.get("level_id")))
+    if fix is None:
+        return False, (f"{piece_id}: no side with its back on a wall and its door free, and no such place within "
+                       f"{FU.MOVE_MAX_M:.2f} m")
+    _place_piece(plan, f, fix, key, ans)
+    return True, f"{piece_id}: {fix['reason']}"
+
+
+def act_clear_basin(plan: Plan, key: str, ans: dict, piece_id: str, max_move=None):
+    """H2 (29 Oct 2026): a basin under a low window moved to the nearest solid stretch of wall of its room (along its
+    wall or onto another one), at most 0.5 m; farther (``max_move``) only on the user's own answer (CLAUDE.md: a drawn
+    fixed piece moves at most 0.5 m)."""
+    from wenart.furniture import fixture_use as FU
+
+    f = _piece(plan, piece_id)
+    if f is None or not f.get("footprint"):
+        return False, f"no piece {piece_id}"
+    limit = float(max_move) if max_move not in (None, "") else FU.MOVE_MAX_M
+    if limit > FU.MOVE_MAX_M + 1e-9 and ans.get("by", "user") != "user":
+        return False, (f"{piece_id}: a drawn basin moves at most {FU.MOVE_MAX_M:.2f} m; {limit:.2f} m needs the "
+                       f"user's OK")
+    room = plan.room.get(f.get("room_id"))
+    if room is None:
+        return False, f"{piece_id}: no room"
+    openings = list(plan.openings.values())
+    if FU.basin_window(f, openings, plan.walls) is None:
+        return True, f"{piece_id}: a solid wall over it"
+    fix = FU.clear_basin(f, room["polygon"], _room_pieces(plan, f), openings, plan.walls,
+                         blocked=_door_blocked(plan, f.get("level_id")), max_move=limit)
+    if fix is None:
+        return False, f"{piece_id}: no solid stretch of wall for it within {limit:.2f} m"
+    _place_piece(plan, f, fix, key, ans)
+    return True, f"{piece_id}: {fix['reason']}"
+
+
+def act_basin_sill(plan: Plan, key: str, ans: dict, window_id: str):
+    """H2 (29 Oct 2026): the window over a basin becomes a bathroom window, its sill at ``fixture_use.BASIN_SILL_M``
+    (the head kept, at least ``MIN_WINDOW_H`` of glass): clear of the tap, the mirror beside it. Only where the documents
+    do not give the window's heights (``heights_given``), unless the user answers it."""
+    from wenart.furniture import fixture_use as FU
+
+    o = plan.openings.get(window_id)
+    if o is None or o.get("type") != "window":
+        return False, f"no window {window_id}"
+    given = heights_given(plan.b, o)
+    if given and ans.get("by", "user") != "user":
+        return False, f"{window_id}: {given} (the documents fix it)"
+    sill = float(o.get("sill_height") if o.get("sill_height") is not None else 0.9)
+    if sill >= FU.BASIN_SILL_M - 1e-9:
+        return True, f"{window_id}: sill {sill:.2f} m"
+    head = min(sill + float(o.get("height") if o.get("height") is not None else 1.2), plan.top(o))
+    if head - FU.BASIN_SILL_M < MIN_WINDOW_H - 1e-9:
+        return False, (f"{window_id}: a sill at {FU.BASIN_SILL_M:.2f} m under its {head:.2f} m head leaves less than "
+                       f"{MIN_WINDOW_H:.2f} m of window")
+    _keep_drawn(o, "sill_height", "height")
+    o["sill_height"], o["height"] = FU.BASIN_SILL_M, round(head - FU.BASIN_SILL_M, 3)
+    _mark(o, "adjusted_by_ai", key, ans, f"a bathroom window over the basin: sill {sill:.2f} -> {FU.BASIN_SILL_M:.2f} m "
+                                         f"(head kept), clear of the tap; the mirror hangs beside the basin")
+    return True, f"{window_id}: sill {sill:.2f} -> {FU.BASIN_SILL_M:.2f} m (a bathroom window over the basin)"
+
+
+# --------------------------------------------------------------------------
 # W5: tall windows (27 Oct 2026)
 # --------------------------------------------------------------------------
 #
@@ -1977,6 +2108,13 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                     ok, text = act_cover_space(plan, key, ans, params.get("space_id") or target)
                 elif opt == "tall_window":
                     ok, text = act_tall_window(plan, key, ans, params.get("room_id") or target)
+                elif opt == "free_front":
+                    ok, text = act_free_front(plan, key, ans, params.get("piece_id") or target)
+                elif opt == "clear_basin":
+                    ok, text = act_clear_basin(plan, key, ans, params.get("piece_id") or target,
+                                               params.get("max_move_m"))
+                elif opt == "basin_sill":
+                    ok, text = act_basin_sill(plan, key, ans, params.get("window_id") or target)
                 else:
                     ok, text = False, f"unknown option {opt!r}"
             except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:

@@ -93,6 +93,17 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   run, the handrail 0.85-1.10 m over the nosing line (1.0 m on a level edge), nothing through a tread, a wall or the
   floor above, no infill gap of 0.11 m, no rail out over the room (minor). Measured on the scene's guard records
   (``stair.guards``), or on the straight per-flight rails of an older scene.
+- M19 fixtures you can use (29 Oct 2026, the user on real06 run 20261028-154514-full: "This washing machine would not
+  open": its door faced the toilet 0.11 m away; "this sink not making sense there": a basin right under a window;
+  ``fixture_use``): every door-fronted piece as built keeps its width x its access depth free in front of it (a washer,
+  a dishwasher, a cooker, a fridge, a nightstand: critical when its door or drawers cannot open, major when it cannot
+  be used; door-fronted storage: critical when its doors cannot open, its walking room is G13's), and no basin stands
+  under a window with its sill under 1.25 m (major: no mirror over it, its tap against the sill). Pure (runs inside
+  Blender); kind ``no_sense``.
+- M22 backs on their walls (29 Oct 2026, user: "There is a gap between wall and water faucet not looking good"; real06's
+  sink unit f_L0_020 stood 0.08 m off the wall under the window; ``fixture_use.back_gaps``): no piece whose back belongs
+  on a wall stands parallel to it 0.055-0.15 m off it (major; a drawing gap the reading snaps,
+  ``reading.fixture_use_fixes``).
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -126,7 +137,8 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18",
+          "M19", "M22")
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -991,6 +1003,41 @@ def stair_rails_review(built: dict, manifest: Optional[dict]) -> tuple[list[dict
     return out, n
 
 
+FIX_FRONT = ("turn it on its wall to its free side, or move it at most 0.5 m (architect F4 free_front; rotate_piece), "
+             "or move what stands in front of its door")
+FIX_BASIN = ("move the basin at most 0.5 m to a solid stretch of wall (architect H2 clear_basin), else raise the window's "
+             "sill to 1.25 m where the documents do not give it (basin_sill)")
+
+
+def fixtures_in_use(built: dict) -> tuple[list[dict], int]:
+    """M19 (module docstring): blocked door and drawer fronts and basins under low windows, on the building as built
+    (``fixture_use``: pure)."""
+    from wenart.furniture import fixture_use as FU
+
+    out = []
+    for r in FU.blocked_fronts(built):
+        p = r["problem"]
+        out.append(dict(_v("M19", p["severity"], r["piece"], r["message"], r["room_id"], rule="access",
+                           free_m=p["free_m"], open_m=p["open_m"], use_m=p["use_m"], blockers=p["blockers"],
+                           wall=p["wall"]), owner="furniture", fix=FIX_FRONT))
+    for r in FU.basins_under_windows(built):
+        out.append(dict(_v("M19", "major", r["piece"], r["message"], r["room_id"], rule="basin_window",
+                           window=r["window"], sill_m=r["sill_m"], share=r["share"]), owner="architect", fix=FIX_BASIN))
+    n = sum(1 for f in FU._built(built) if str(f.get("type")) in FU.DOOR_FRONTED + FU.BASINS)
+    return out, n
+
+
+def backs_on_walls(built: dict) -> tuple[list[dict], int]:
+    """M22 (module docstring): pieces whose back belongs on a wall standing a drawing gap off it, as built."""
+    from wenart.furniture import fixture_use as FU
+
+    out = [dict(_v("M22", "major", r["piece"], r["message"], r["room_id"], gap_m=r["gap_m"]), owner="reading",
+                fix="snap its back onto the wall (reading fixture_use_fixes; move_piece with snap_wall_id)")
+           for r in FU.back_gaps(built)]
+    n = sum(1 for f in FU._built(built) if str(f.get("type")) in FU.BACK_TYPES and f.get("front_deg") is not None)
+    return out, n
+
+
 def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[dict] = None) -> dict:
     """The review of the built model (module docstring). ``prep``: ``build.prepare`` of ``built`` (made here when not
     given; the plan of a whole building has the site, the outlines and the roof the facade kit needs)."""
@@ -1143,6 +1190,15 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             checks["M18"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     else:
         checks["M18"] = {"status": "unavailable", "note": "no scene manifest"}
+    # M19 / M22 (29 Oct 2026, the user on real06: "This washing machine would not open", "this sink not making sense
+    # there", "There is a gap between wall and water faucet not looking good"): fronts that open, basins under a solid
+    # wall, backs on their walls, on the building as built (pure)
+    for cid, fn in (("M19", fixtures_in_use), ("M22", backs_on_walls)):
+        try:
+            got, n = fn(built)
+            note(cid, got, n)
+        except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
+            checks[cid] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     return {"findings": findings, "checks": checks}
 
 
