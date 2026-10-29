@@ -5,8 +5,8 @@
  "stage": "pipeline_final",
  "rc": 0,
  "status": "ok",
- "seconds": 160.77,
- "fingerprint": "9b81e8b47b83c4cce4487c088516a6d624edc782162fcc078d883fa33bce39b2",
+ "seconds": 162.21,
+ "fingerprint": "47ff4ce714f54834316460088f73562434139cfcf75d54394a5a66d882a94afe",
  "inputs": {
   "projects/real04": "a2e03d086e77a4bb6154e739028441055464f6152f2faa4abe8bbad4897f0574",
   "outputs/real04/sheets/answers_qwen3-vl-8b.json": "640e0ef04e3612823e33776ea51e2aed11b31bc7bb6e65da1bf5960c780315af",
@@ -26,30 +26,30 @@
   "building.json",
   "report.md"
  ],
- "started_utc": "2026-10-28T18:46:24Z",
- "git_commit": "b99dbb22ac9550fa02cda3f064d688af57e74f92",
+ "started_utc": "2026-10-29T20:25:55Z",
+ "git_commit": "7acaf2ff30966db541ba3dcdd94b1e7cdd598259",
  "log": "logs/pipeline_final.log",
  "note": "answers applied",
- "run_id": "20261028-183611-full-20261028T184049Z",
+ "run_id": "20261029-201533-full-20261029T202018Z",
  "steps": [
   {
    "name": "sheets --answers",
    "rc": 0,
-   "seconds": 49.89
+   "seconds": 50.18
   },
   {
    "name": "pipeline_final",
    "rc": 0,
-   "seconds": 110.15
+   "seconds": 110.81
   },
   {
    "name": "site platforms",
    "rc": 0,
-   "seconds": 0.73
+   "seconds": 1.22
   }
  ],
  "written": {
-  "building.json": "de6d8a3505b41d38fa180486c7f983f5da9920d328b78e8d6205ef681545f0e3",
-  "sheets.json": "5ba1663f264752dbcd9328296c3f172e03b50d709da3892df5808bee8aab3037"
+  "building.json": "cdb8666304958aef476b5e3354740b60657ecf83945b409d402b8f1e51854c6b",
+  "sheets.json": "ae3a95e30861f3448d12a53f7eda601b47c830ea164116ca00a2692914894ef9"
  }
 }

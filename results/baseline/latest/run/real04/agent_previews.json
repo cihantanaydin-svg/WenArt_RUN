@@ -5,37 +5,37 @@
  "stage": "agent_previews",
  "rc": 0,
  "status": "ok",
- "seconds": 446.14,
+ "seconds": 452.35,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "agent/previews/render_manifest.json"
  ],
- "started_utc": "2026-10-28T19:30:14Z",
- "git_commit": "b99dbb22ac9550fa02cda3f064d688af57e74f92",
+ "started_utc": "2026-10-29T20:55:54Z",
+ "git_commit": "7acaf2ff30966db541ba3dcdd94b1e7cdd598259",
  "log": "logs/agent_previews.log",
- "note": "36 view(s)",
- "run_id": "20261028-183611-full-20261028T184049Z",
+ "note": "15 view(s)",
+ "run_id": "20261029-201533-full-20261029T202018Z",
  "steps": [
   {
    "name": "previews",
    "rc": 0,
-   "seconds": 134.08
+   "seconds": 135.14
   },
   {
    "name": "previews",
    "rc": 0,
-   "seconds": 88.99
+   "seconds": 114.22
   },
   {
    "name": "previews",
    "rc": 0,
-   "seconds": 91.29
+   "seconds": 127.38
   },
   {
    "name": "previews",
    "rc": 0,
-   "seconds": 131.78
+   "seconds": 75.61
   }
  ],
  "written": {}

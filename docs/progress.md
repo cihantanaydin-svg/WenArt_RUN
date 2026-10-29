@@ -2430,3 +2430,36 @@ bedding with its upper part against what the rays through that part meet (the he
 arms (a rail rises 0.15 m over its seat), then it leans as before; nothing behind its upper part or out of the head
 zone is no stand, S5 measures both. Now: frame 24 degrees, back gap 0.005 m, sunk 2.6 cm; parametric 30 degrees, back
 gap -0.010 m, sunk 2.9 cm. `tests/test_bed_cushion_stand_20261029.py`; the two Blender tests now pin the rule.
+
+## real04 run 20261029-201533-full (29 Oct 2026, $7.54, 182 min; two earlier tries stopped at 29 min)
+
+The first real04 run with all of the 29 Oct work (doors open and framed, see-through walk-ins, sockets and switches,
+bathroom, kitchen, room and bed details, front-framed pieces, the build-time fix).
+
+| measure | run 183611 (28 Oct, before) | run 201533 (29 Oct) |
+|---|---:|---:|
+| one build | about 7 min | 5.0-6.6 min (11 builds) |
+| stage time of the run (metric 17) | 180 min | 138 min |
+| house score (big loop) / judge mean | 24.x / 2.28 | 24.52 / 2.17 |
+| living rooms with a complete group set | 0 of 5 | 3 of 5 |
+| Argus score | - | 4.2 (23 critical) |
+| GPU tests | - | 53 of 62 |
+
+Two tries stopped at 29 min on code the CPU tests did not reach on a real project: run 180458 in the decor stage
+(bathroom accessories on a free wall with `anchor_ids: []`, refused by the schema) and run 185352 at the refit's
+locked check (the room schemes' `room["scheme"]` counted as a change of the drawn rooms). Both are fixed with tests,
+and `scripts/preflight_local.py` now runs the decor stage, the refit with its locked check and a local Blender build on
+a project's own inputs before a pod run.
+
+Seen in the renders: the bedroom doors stand open in black frames and show the en-suite, the walk-in wardrobes are
+slatted, every room has its own scheme colour, the kitchens have fluted uppers, a stone splashback, a pull-down tap
+and styling sets, the bathrooms the fluted floating vanity with a vessel basin, the holder and the brush, the sockets
+and switches are on the walls. Regression: 41 floors rendered flat brown: the professional bar's herringbone parquet
+(`wood_herringbone_mid`) needs WoodFloor034, which the asset stage never fetched (it fetched the style's sets only).
+Fixed: the asset stage fetches every finish of the vocabulary (`fetch.design_texture_rows`), and Argus P12 names a
+finish built flat for a missing set.
+
+Open for the next round (GPU tests and Argus): two wardrobes with 0.17 m in front (M19 critical); bathroom fixtures
+missing from the index pass; cam_r_L1_banyo_1 7 cm from a surface; a decor item 0.5 m above its host; a decor item of
+the open-kitchen variant not built; two rig-lit corridors orange; the design-detail record list of the GPU test; the
+judge's bare worktops and a missing fridge in the basement kitchen.
