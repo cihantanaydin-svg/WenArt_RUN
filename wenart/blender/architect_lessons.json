@@ -1315,6 +1315,54 @@
    "request": "Also includes some power sockets and light on offs (every room gets light switches beside its door and power sockets where they are used: beside the beds, at the desk, behind the TV, along the kitchen worktop, by the bathroom mirror, real sizes and heights, in the style's finish)",
    "lesson": "Also includes some power sockets and light on offs (every room gets light switches beside its door and power sockets where they are used: beside the beds, at the desk, behind the TV, along the kitchen worktop, by the bathroom mirror, real sizes and heights, in the style's finish)",
    "question": null
+  },
+  {
+   "id": "UL113",
+   "date": "2026-10-29",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "also take some inspiration from these photos (7 professional interior renders: bedrooms with herringbone floors, layered curtains, statement and bedside lights, slat panels, a walk-in wardrobe behind glass; kitchens with tall units, an island hood, fluted fronts, styled worktops; a hall with a lit niche; docs/reference_details_20261029.md)",
+   "lesson": "also take some inspiration from these photos (7 professional interior renders: bedrooms with herringbone floors, layered curtains, statement and bedside lights, slat panels, a walk-in wardrobe behind glass; kitchens with tall units, an island hood, fluted fronts, styled worktops; a hall with a lit niche; docs/reference_details_20261029.md)",
+   "question": null
+  },
+  {
+   "id": "UL114",
+   "date": "2026-10-29",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Look at the details in the toilet analyze implement into the projects (the bathroom photo: wall-hung WC with flush plate, paper holder and brush, floating stone vanity with open towel shelf and under-light, illuminated mirror, lit open niche column with toiletries, towel rail, large-format tiles, downlights and a cove light; docs/reference_details_20261029.md B1-B11)",
+   "lesson": "Look at the details in the toilet analyze implement into the projects (the bathroom photo: wall-hung WC with flush plate, paper holder and brush, floating stone vanity with open towel shelf and under-light, illuminated mirror, lit open niche column with toiletries, towel rail, large-format tiles, downlights and a cove light; docs/reference_details_20261029.md B1-B11)",
+   "question": null
+  },
+  {
+   "id": "UL115",
+   "date": "2026-10-29",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "look at all these details I want these details. As much detail as you can digest (the kitchen with tall units, island hood in a hanging shelf frame, fluted fronts, ribbon window splashback, styled worktop, under-cabinet light; the hall with a lit niche, intercom, black frames, console with mirror, floor vases, round rug; docs/reference_details_20261029.md)",
+   "lesson": "look at all these details I want these details. As much detail as you can digest (the kitchen with tall units, island hood in a hanging shelf frame, fluted fronts, ribbon window splashback, styled worktop, under-cabinet light; the hall with a lit niche, intercom, black frames, console with mirror, floor vases, round rug; docs/reference_details_20261029.md)",
+   "question": null
+  },
+  {
+   "id": "UL116",
+   "date": "2026-10-29",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Also we need better doors, not all the doors needs to be closed in default (inside doors open by default where nothing stops them; better door finishes per family, glazed divided-lite doors; docs/reference_details_20261029.md D1-D4)",
+   "lesson": "Also we need better doors, not all the doors needs to be closed in default (inside doors open by default where nothing stops them; better door finishes per family, glazed divided-lite doors; docs/reference_details_20261029.md D1-D4)",
+   "question": null
   }
  ]
 }
