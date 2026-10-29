@@ -27,6 +27,7 @@ from typing import Any, Optional
 
 import jsonschema
 
+from wenart import textfold as _textfold
 from wenart import units
 
 SCHEMA_PATH = Path(__file__).resolve().parent / "schema" / "building.schema.json"
@@ -205,11 +206,7 @@ def evidence(file: str, method: str, confidence: float, *, page: Optional[int] =
 
 _TR_LOWER = str.maketrans({"I": "ı", "İ": "i"})
 _TR_UPPER = str.maketrans({"i": "İ", "ı": "I"})
-_TR_ASCII = str.maketrans({
-    "ç": "c", "Ç": "C", "ğ": "g", "Ğ": "G", "ı": "i", "İ": "I", "ö": "o", "Ö": "O",
-    "ş": "s", "Ş": "S", "ü": "u", "Ü": "U", "²": "2",
-})
-
+_TR_ASCII = _textfold.TR_ASCII
 
 def turkish_lower(text: str) -> str:
     """Lower-case with Turkish dotted/dotless i rules (``I`` -> ``ı``, ``İ`` -> ``i``)."""
@@ -229,12 +226,7 @@ def turkish_title(text: str) -> str:
     return " ".join(words)
 
 
-def fold_ascii(text: str) -> str:
-    """Turkish letters -> ASCII look-alikes, other accents stripped, lower-case."""
-    folded = text.translate(_TR_ASCII)
-    folded = unicodedata.normalize("NFKD", folded)
-    folded = "".join(ch for ch in folded if not unicodedata.combining(ch))
-    return folded.lower()
+fold_ascii = _textfold.fold_ascii       # 29 Oct 2026: in wenart.textfold (Blender's Python reads it there)
 
 
 def slugify(text: str) -> str:

@@ -130,7 +130,7 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wena
             "results/library/user_rejected.json",    # 29 Oct 2026: ... and the models the user rejected (UL94)
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
             "wenart/blender/detail_parts.py",        # 29 Oct 2026: the reference details' parts (parametric)
-            "wenart/blender/common.py", "wenart/assets/**", "wenart/style/**", "wenart/building.py", "wenart/units.py",
+            "wenart/blender/common.py", "wenart/assets/**", "wenart/style/**", "wenart/building.py", "wenart/textfold.py", "wenart/units.py",
             "wenart/geometry.py", "wenart/schema/**",
             # Milestone 10 (track F): the looks of the design fallback and the refit's locked check.
             "wenart/blender/looks.py", "wenart/furniture/locked.py", "wenart/furniture/placer.py",
@@ -146,7 +146,7 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wena
             "wenart/blender/modules.py") + GROUPS_CODE + LEVELS_CODE   # 25 Oct 2026
 # The pipeline (and pipeline_final): the vector, DXF/DWG and generic cores, the recognition questions and answers
 # (crops, size table, the two-pass rule, check.yaml's model ids and slugs) and the room-type table.
-PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",
+PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", "wenart/building.py", "wenart/textfold.py", "wenart/units.py",
                  "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py",            # 27 Oct 2026: the reading seats a drawn fixture
                  "wenart/geometry.py", "wenart/schema/**", "wenart/recognition/**", "wenart/furniture/__init__.py",
                  "wenart/furniture/schemas.py", "wenart/brief.py", "wenart/defaults.yaml", CHECK_YAML,
@@ -162,7 +162,7 @@ VISION_CODE = ("wenart/vision_check/**", "wenart/views.py", "wenart/recognition/
 # gate calibrate (polish venv) + validate: the gate package (thresholds.yaml, models.yaml, validation.yaml
 # included) and what it imports for the views, the expected objects and the scene geometry.
 GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.py", "wenart/canonical.py",
-             "wenart/building.py", "wenart/units.py",   # 27 Oct 2026: wenart.levels.outdoor (architect cover_space)
+             "wenart/building.py", "wenart/textfold.py", "wenart/units.py",   # 27 Oct 2026: wenart.levels.outdoor (architect cover_space)
              "wenart/blender/door_spacing.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py",   # 27 Oct 2026: M12, the seat rule
              # 29 Oct 2026 (UL116-UL127): the doors' states and the see-through wardrobes (camsearch, looks, openings);
              # the dressing words of groups.yaml are read as data
@@ -218,7 +218,7 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
 DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py", "wenart/furniture/decor_ai.py", "wenart/furniture/placer.py",
               "wenart/furniture/schemas.py", "wenart/furniture/layout.py", "wenart/furniture/prompts.py",
               "wenart/furniture/complete.py", "wenart/furniture/locked.py", "wenart/brief.py",
-              "wenart/synthetic/**", "wenart/building.py", "wenart/units.py", "wenart/geometry.py",
+              "wenart/synthetic/**", "wenart/building.py", "wenart/textfold.py", "wenart/units.py", "wenart/geometry.py",
               "wenart/schema/**", "wenart/style/**", "wenart/recognition/**", "wenart/blender/**",
               "wenart/views.py",                         # M10: render.twin_rooms through views.brief_value
               "wenart/ingest/**", "wenart/sheets/**",    # M10: complete.py's size-table check (as the layout's)
@@ -267,7 +267,7 @@ STAGE_LIST = (
     Stage(9, "layout", "vlm", "fingerprint", "failed",
           ("wenart/furniture/layout.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py", "wenart/furniture/placer.py", "wenart/furniture/prompts.py",
            "wenart/furniture/schemas.py", "wenart/furniture/complete.py", "wenart/furniture/locked.py",
-           "wenart/recognition/**", "wenart/style/**", "wenart/building.py", "wenart/brief.py", "wenart/defaults.yaml",
+           "wenart/recognition/**", "wenart/style/**", "wenart/building.py", "wenart/textfold.py", "wenart/brief.py", "wenart/defaults.yaml",
            "wenart/units.py", "wenart/geometry.py", "wenart/synthetic/blocks.py", "wenart/schema/**",
            "wenart/blender/**",
            # M10 review fix #20: a type proposal must fit its drawn footprint (recognition.symbols' size table; its
@@ -337,6 +337,7 @@ AGENT_CODE = ("wenart/agent/**", "wenart/furniture/**", "wenart/blender/**", "we
               "wenart/vision_check/**", "wenart/report/__init__.py",  # ... its documents-vs-model line draws the plans
               "wenart/report/topdown_labels.py", "wenart/run/__init__.py",
               "wenart/synthetic/**", "wenart/ingest/**", "wenart/sheets/**", "wenart/schema/**", "wenart/building.py",
+              "wenart/textfold.py",
               "wenart/geometry.py", "wenart/units.py", "wenart/brief.py", "wenart/defaults.yaml", "wenart/views.py",
               "wenart/canonical.py", "wenart/run/servers.py", "wenart/__init__.py", CHECK_YAML)
 AGENT_STAGE_LIST = (

@@ -181,7 +181,7 @@ def main_entrance(building: dict) -> Optional[str]:
 def _label_words(room: dict) -> list[str]:
     import re
 
-    from wenart import building as B
+    from wenart import textfold as B          # fold_ascii without jsonschema (Blender's Python)
 
     text = " ".join(str(room.get(k) or "") for k in ("label", "label_raw"))
     return [w for w in re.split(r"[^a-z0-9]+", B.fold_ascii(text).lower()) if w]

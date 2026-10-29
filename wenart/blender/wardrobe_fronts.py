@@ -177,7 +177,7 @@ MASTER_MIN_M2 = 12.0
 def master_bedroom(rooms) -> Optional[dict]:
     """The master bedroom: the bedroom whose label names it (``MASTER_WORDS``, Turkish folded to ASCII), else the
     largest bedroom of at least ``MASTER_MIN_M2`` that is no child's room (as ``media_wall`` picks it)."""
-    from wenart import building as B
+    from wenart import textfold as B          # fold_ascii without jsonschema (Blender's Python)
 
     beds = [r for r in rooms if str(r.get("room_type") or "") == "bedroom" and r.get("room_subtype") != "child"]
     for r in sorted(beds, key=lambda r: str(r.get("id"))):
