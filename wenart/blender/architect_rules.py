@@ -150,6 +150,12 @@ RULES = (
                  "light inside?",
      "why": "closed white panels on both sides of a narrow aisle read as a corridor of cupboards; a walk-in shows its "
             "clothes"},
+    # 29 Oct 2026 (user: "Leaving all the doors open in default could be a good approach"; lessons UL116, UL126, UL127)
+    {"id": "D9", "topic": "doors open", "scope": "door", "severity": "minor",
+     "question": "Does every interior door stand open (its leaf turned open on its swing side, ajar where a piece or a "
+                 "wall stops it), unless there is a reason to close it?",
+     "why": "a house of closed doors reads as a corridor of panels; an open door shows the room beyond, an open front "
+            "door reads as a mistake"},
     {"id": "H1", "topic": "working heights", "scope": "furniture", "severity": "major",
      "question": "Is every fixture at its working height (a washbasin's rim at 0.80-0.90 m)?",
      "why": "a basin at knee height looks like a toy and cannot be used"},
@@ -1232,8 +1238,37 @@ def review(building: dict, prep: dict, sides: list[dict], graph: dict, starts: l
         clash_rule(building, prep.get("clashes"))
     if prep.get("site") is not None:
         out += site_rules(prep)
-    out += door_frames_rule(plan, prep.get("style_family")) + walk_in_rule(plan, prep.get("style_family"))
+    out += door_frames_rule(plan, prep.get("style_family")) + walk_in_rule(plan, prep.get("style_family")) + \
+        door_states_rule(plan, prep.get("style_family"))
     return out
+
+
+def door_states_rule(plan: AA.Plan, family: Optional[str]) -> list[dict]:
+    """D9 (pure; 29 Oct 2026, UL127): every interior door of a style with a family is open with the safe default
+    ``door_state:open`` (the build opens it, ajar where a piece or a wall stops its leaf: ``door_states``); the AI
+    architect or the user may set it ajar or close it (``door_state:ajar`` / ``door_state:closed``: its
+    ``open_state``); a door already answered is fine with its answer. The entrance and the outside doors stay closed
+    by the build's rule (not asked)."""
+    d9 = _q(next(r for r in RULES if r["id"] == "D9"))
+    if not str(family or "").strip():
+        return [d9]
+    for o in plan.openings.values():
+        if o.get("type") != "door" or plan.walls.get(o.get("wall_id")) is None or o.get("level_id") not in plan.levels:
+            continue
+        sides = AA.window_sides(plan, o) or [None, None]
+        if len(sides) != 2 or any(AA.Plan.is_outside(r) for r in sides):
+            continue
+        dec = o.get("state_decision") if isinstance(o.get("state_decision"), dict) else None
+        if dec is not None and dec.get("by") not in (None, "architect"):
+            _ok(d9, o["id"], f"{dec.get('state')} ({dec.get('by')}'s answer)")
+            continue
+        opts = [AA.option("door_state", "open: the leaf turned open on its swing side (ajar where a piece or a wall "
+                                        "stops it)", door_id=o["id"], state="open"),
+                AA.option("door_state", "ajar: the leaf a little open", door_id=o["id"], state="ajar"),
+                AA.option("door_state", "closed", door_id=o["id"], state="closed")]
+        _open(d9, o["id"], f"{o['id']}: an interior door, open by default (UL127)", f"Should {o['id']} stand open?",
+              opts, where=_where("door", o.get("level_id"), o.get("center")), default="door_state:open")
+    return [d9]
 
 
 def door_frames_rule(plan: AA.Plan, family: Optional[str]) -> list[dict]:

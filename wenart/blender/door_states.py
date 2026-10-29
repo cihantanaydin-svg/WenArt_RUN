@@ -19,14 +19,15 @@ cuts, the library door plan, the cameras, the build and the checks read one reco
   ``door_size`` with the reason. A width grows only where the wall has room (``WALL_END_CLEAR_M`` from its ends,
   ``OPENING_GAP_M`` from the other openings of the wall) and no piece stands in the new strip; a height grows only on a
   level without a sloped ceiling and under every opening above it on the wall.
-- ``apply_states(building, style, cameras)`` (D1): the leaf of every door: ``open`` (an inside swing door at
+- ``apply_states(building, style, cameras)`` (D1; UL127, user: "Leaving all the doors open in default could be a
+  good approach"): the leaf of every door: ``open`` (every interior door, whatever room it leads to: a swing leaf at
   ``OPEN_DEG`` into the room it opens into, its hinge at the jamb nearer the room's corner so the leaf stands by the
-  wall beside it, or the drawn ``hinge_side``; a sliding leaf slid along its wall face, a pocket leaf into the wall,
-  the moving panels of a glazed sliding door behind the fixed ones; both leaves of a pair), ``ajar`` (a bathroom or WC
-  door at ``AJAR_DEG``) or ``closed`` (the entrance and every outside door, a door to a storage room or closet, a
-  folding or fixed door, a door whose open leaf or swing would hit a piece, a wall or another door's leaf). A door a
-  camera looks through (the replayed and the agent's cameras, ``doors_seen``) opens unless nothing lets it. The
-  documents or an answer may fix a state (``open_state``: open, ajar, closed). Every choice is recorded in
+  wall beside it, or the drawn ``hinge_side``, or the side a camera's view needs, ``camera_hinge``; a sliding leaf slid
+  along its wall face, a pocket leaf into the wall, the moving panels of a glazed sliding door behind the fixed ones;
+  both leaves of a pair), ``ajar`` (a leaf a piece, a wall or another door's leaf stops: at its widest free angle,
+  ``AJAR_STEPS``) or ``closed`` (the entrance and the outside and terrace doors, garage, sectional, folding and fixed
+  doors, a leaf that cannot open 15 degrees). The documents or an answer (the architect's D9) may fix a state
+  (``open_state``: open, ajar, closed), the brief close them all (``doors_open: false``). Every choice is recorded in
   ``leaf_state`` (``state``, ``angle_deg``, ``slide_m``, ``hinge``, ``hinge_side``, ``side``, ``into``, the open
   leaf's plan outline ``leaf_polys``, ``reason``, ``by``) and listed as assumed, so the checks and the vision checks
   know a leaf is open.
@@ -67,7 +68,8 @@ STRIP_M = 0.60                    # the floor strip in front of a widened door t
 
 # --- D1: states ----------------------------------------------------------------------------------------------------
 OPEN_DEG = 90.0                   # an open leaf stands square to its wall, by the wall beside it
-AJAR_DEG = 20.0                   # a bathroom or WC door stands ajar
+AJAR_DEG = 20.0                   # a door set ajar (the documents', an answer's) stands this far open
+AJAR_STEPS: tuple[float, ...] = (80.0, 70.0, 60.0, 50.0, 40.0, 30.0, 20.0, 15.0)   # UL127: the widest free angle
 STATES: tuple[str, ...] = ("open", "ajar", "closed")
 WET_TYPES: tuple[str, ...] = ("bathroom", "wc", "toilet", "shower")
 STORAGE_TYPES: tuple[str, ...] = ("storage", "closet", "pantry", "utility", "technical", "shaft", "laundry")
@@ -716,6 +718,7 @@ def plan_states(building: dict, style, cameras: Sequence[dict] = ()) -> dict:
     walls, levels = _walls(building), _levels(building)
     entrance = main_entrance(building)
     seen = doors_seen(cameras, building)
+    brief_open = doors_open_brief(building)
     out: dict = {}
     taken: dict = {}                                     # level id -> [(door id, open leaf outline)]
     pieces_of: dict = {}
@@ -752,8 +755,10 @@ def plan_states(building: dict, style, cameras: Sequence[dict] = ()) -> dict:
         asked = str(o.get("open_state") or "").strip().lower()
         cam = seen.get(o["id"])
         camera = (cam.get("name") or "camera") if cam else None
-        want, why = _wanted(role, op, asked, camera, o)
-        rec["by"] = "documents" if asked in STATES else ("camera" if camera and want == "open" else "rule")
+        want, why = _wanted(role, op, asked, camera, o, brief_open)
+        rec["by"] = "documents" if asked in STATES else ("brief" if not brief_open and want == "closed" and
+                                                         role not in ("entrance", "outside") else
+                                                         "camera" if camera and want == "open" else "rule")
         if camera and want == "open":
             rec["camera"] = camera
         if want == "closed":
@@ -781,14 +786,27 @@ def _decide(rec: dict, o: dict, fr: dict, side: int, room: Optional[dict], op: s
     if op in ("swing", "double"):
         drawn, is_drawn = hinge_end(o, side)
         leaves = []
+        steps = [angle] + [a for a in AJAR_STEPS if a < angle - 1e-9]
+        first_stop = None
         if op == "double":
             half = fr["lw"] / 2.0 - 0.002
-            tried = []
+            got = []
             for hinge, hx in (("start", -fr["lw"] / 2.0), ("end", fr["lw"] / 2.0)):
-                leaf, stop = _swing_try(fr, side, hinge, angle, room, pieces, others, lw=half, hx=hx)
-                tried.append(stop)
-                leaves.append(leaf)
-            stop = next((s for s in tried if s), None)
+                found = None
+                for a in steps:
+                    leaf, stop = _swing_try(fr, side, hinge, a, room, pieces, others, lw=half, hx=hx)
+                    if stop is None:
+                        found = (a, leaf)
+                        break
+                    first_stop = first_stop or stop
+                got.append(found)
+            stop = first_stop if any(g is None for g in got) else None
+            best = min(a for a, _l in got) if stop is None else None
+            leaves = [lf for _a, lf in got] if stop is None else []
+            if stop is None and best < angle - 1e-9:
+                # both leaves of a pair open alike: the narrower free angle for both
+                leaves = [_swing_try(fr, side, h, best, room, pieces, others, lw=half, hx=hx)[0]
+                          for h, hx in (("start", -fr["lw"] / 2.0), ("end", fr["lw"] / 2.0))]
         else:
             if is_drawn:
                 order = [drawn]
@@ -797,13 +815,21 @@ def _decide(rec: dict, o: dict, fr: dict, side: int, room: Optional[dict], op: s
                                                                 h != "start"))
                 if prefer in ("start", "end"):
                     order = [prefer] + [h for h in order if h != prefer]
-            stop, leaf, hinge = None, None, None
+            choice = None                                   # (angle, hinge, leaf): the widest free angle
             for h in order:
-                leaf, stop = _swing_try(fr, side, h, angle, room, pieces, others)
-                hinge = h
-                if stop is None:
+                for a in steps:
+                    leaf, stop = _swing_try(fr, side, h, a, room, pieces, others)
+                    if stop is None:
+                        if choice is None or a > choice[0] + 1e-9:
+                            choice = (a, h, leaf)
+                        break
+                    first_stop = first_stop or stop
+                if choice is not None and choice[0] >= angle - 1e-9:
                     break
-            leaves = [leaf] if leaf else []
+            stop = None if choice is not None else first_stop
+            best = choice[0] if choice is not None else None
+            hinge = choice[1] if choice is not None else order[0]
+            leaves = [choice[2]] if choice is not None else []
             rec.update(hinge=hinge, hinge_side=hinge_side_of(hinge, side) if hinge else None,
                        hinge_assumed=not is_drawn)
         if stop is not None:
@@ -815,7 +841,13 @@ def _decide(rec: dict, o: dict, fr: dict, side: int, room: Optional[dict], op: s
             where = (f"; hinged so the open leaf stays out of the view ({rec['hinge_side']} seen from "
                      f"{rec.get('into')})" if prefer and rec.get("hinge") == prefer else
                      f"; hinged at the jamb by the wall beside it ({rec['hinge_side']} seen from {rec.get('into')})")
-        rec.update(state=want, angle_deg=angle, leaf_polys=[lf["poly"] for lf in leaves],
+        state = want
+        if best < angle - 1e-9:
+            # 29 Oct 2026 (UL127): a piece or a wall stops the leaf: it stands ajar at its widest free angle
+            state = "ajar"
+            where += f"; ajar at {best:.0f} deg, the widest its leaf and swing are free ({first_stop})"
+            rec["stopped_by"] = first_stop
+        rec.update(state=state, angle_deg=best, leaf_polys=[lf["poly"] for lf in leaves],
                    sweeps=[lf["sweep"] for lf in leaves], reason=why + where)
     elif op in SLIDE_OPERATIONS:
         surface = op == "sliding"
@@ -895,7 +927,7 @@ def revise_for_cameras(building: dict, style, plans: Sequence[dict], level_id=No
             o = doors.get(oid)
             ls = o.get("leaf_state") if o is not None and isinstance(o.get("leaf_state"), dict) else None
             wall = walls.get((o or {}).get("wall_id"))
-            if ls is None or wall is None or o.get("level_id") not in levels or ls.get("by") == "documents" \
+            if ls is None or wall is None or o.get("level_id") not in levels or ls.get("by") in ("documents", "brief") \
                     or ls.get("role") in ("entrance", "outside") or ls.get("operation") not in OPENABLE:
                 continue
             beyond = next((rooms_by.get(x) for x in ls.get("rooms") or [] if x and x != rid), None)
@@ -941,25 +973,33 @@ def _camera_assumed(oid: str, rec: dict, plan: dict) -> dict:
             "reason": rec.get("reason") or "", "camera": plan.get("name"), "parent": oid, "kind": "door_state"}
 
 
-def _wanted(role: str, op: str, asked: str, camera: Optional[str], o: dict) -> tuple[str, str]:
-    """``(open | ajar | closed, why)`` before the geometry is checked."""
+def doors_open_brief(building: dict) -> bool:
+    """The brief's ``doors_open`` (the project's stored brief; True when it names none)."""
+    v = ((building.get("project") or {}).get("brief") or {}).get("doors_open", True)
+    return not (v is False or str(v).strip().lower() in ("false", "off", "no", "closed", "0"))
+
+
+def _wanted(role: str, op: str, asked: str, camera: Optional[str], o: dict, doors_open: bool = True
+            ) -> tuple[str, str]:
+    """``(open | ajar | closed, why)`` before the geometry is checked. 29 Oct 2026 (UL127, user: "Leaving all the
+    doors open in default could be a good approach"): every interior door stands open by default, whatever room it
+    leads to; the entrance and the outside (terrace) doors stay closed (an open front door reads as a mistake), so do
+    garage, sectional, folding and fixed doors; the documents, an answer (the architect's D9, ``open_state``) or the
+    brief (``doors_open: false``) close or set any door ajar."""
     if asked in STATES:
         return asked, f"the documents or an answer fix it {asked} (open_state)"
     if role == "entrance":
-        return "closed", "the entrance door stays closed"
+        return "closed", "the entrance door stays closed (an open front door reads as a mistake)"
     if role == "outside":
-        return "closed", "an outside door stays closed (the facade and the weather)"
+        return "closed", "an outside or terrace door stays closed (an open one reads as a mistake)"
     if op in ("folding", "sectional", "fixed"):
         return "closed", f"a {op} door is shown closed"
-    if camera:
-        return "open", f"a camera looks through it ({camera})"
-    if role == "wet":
-        if op in SLIDE_OPERATIONS:
-            return "closed", "a bathroom or WC door stays closed"
-        return "ajar", f"a bathroom or WC door stands ajar ({AJAR_DEG:.0f} deg)"
-    if role == "storage":
-        return "closed", "a door to a storage room or closet stays closed"
-    return "open", f"an inside door stands open ({'into the dressing room' if role == 'dressing' else role} door)"
+    if not doors_open:
+        return "closed", "the brief closes the doors (doors_open: false)"
+    what = {"dressing": "into the dressing room", "wet": "a bathroom or WC door", "storage": "a storage room's door",
+            "day": "between day rooms"}.get(role, "an inside door")
+    return "open", (f"every interior door stands open by default (UL127; {what})"
+                    + (f"; {camera} looks through it" if camera else ""))
 
 
 def apply_states(building: dict, style, cameras: Sequence[dict] = ()) -> tuple[dict, list[dict]]:
@@ -1009,9 +1049,9 @@ def state_problems(building: dict, manifest: Optional[dict] = None, style=None) 
         if role in ("day", "inside", "dressing"):
             inside.append(o)
     could = [o for o in inside if operation_of(o) in OPENABLE
-             and (o.get("leaf_state") or {}).get("by") != "documents"
+             and (o.get("leaf_state") or {}).get("by") not in ("documents", "brief")
              and not (o.get("leaf_state") or {}).get("blocked")]
-    if len(could) >= 2 and not any(is_open(o) for o in could):
+    if len(could) >= 2 and not any(state_of(o) in ("open", "ajar") for o in could):
         why = "; ".join(f"{o['id']}: {(o.get('leaf_state') or {}).get('reason') or 'no leaf state recorded'}"
                         for o in could[:4])
         out.append({"target": "doors", "kind": "all_closed", "severity": "major",
@@ -1068,7 +1108,7 @@ def view_problems(building: dict, cameras: Sequence[dict]) -> list[dict]:
             ls = o.get("leaf_state") if isinstance(o.get("leaf_state"), dict) else {}
             rs = sides(o, wall, _rooms(building, o.get("level_id")))
             role = ls.get("role") or door_role(building, o, wall, rs, entrance)
-            if role in ("entrance", "outside") or ls.get("by") == "documents" or operation_of(o) not in OPENABLE:
+            if role in ("entrance", "outside") or ls.get("by") in ("documents", "brief") or operation_of(o) not in OPENABLE:
                 continue
             beyond = next((r for r in rs if r is not None and r.get("id") != cam.get("room_id")), None)
             worth = worth_showing(building, rooms_by.get(cam.get("room_id")), beyond)

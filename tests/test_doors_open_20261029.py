@@ -82,22 +82,39 @@ def _by_id(b):
 
 # ------------------------------------------------------------------------------------------------- D1: open doors
 
-def test_inside_doors_open_by_default_the_private_and_outside_ones_do_not():
+def test_every_interior_door_opens_by_default_the_entrance_does_not():
+    """UL116, UL127 ("Leaving all the doors open in default could be a good approach")."""
     b = _house()
     states = DS.plan_states(b, SCANDI)
-    assert states["d_bed"]["state"] == "open" and states["d_bed"]["angle_deg"] == DS.OPEN_DEG
-    assert states["d_liv"]["state"] == "open" and states["d_liv"]["role"] == "day"
-    assert states["d_bath"]["state"] == "ajar" and states["d_bath"]["angle_deg"] == DS.AJAR_DEG
-    assert states["d_sto"]["state"] == "closed" and "storage" in states["d_sto"]["reason"]
+    for oid in ("d_bed", "d_liv", "d_bath", "d_sto"):
+        assert states[oid]["state"] == "open" and states[oid]["angle_deg"] == DS.OPEN_DEG, oid
+        assert "UL127" in states[oid]["reason"], oid
+    assert states["d_liv"]["role"] == "day" and states["d_bath"]["role"] == "wet"
     assert states["d_ent"]["state"] == "closed" and states["d_ent"]["role"] == "entrance"
     # every choice recorded with its reason, and assumed
     assert all(r["reason"] and r["assumed"] for r in states.values())
     # a style without a family keeps its closed doors (the Milestone 3-9 scenes)
     assert DS.plan_states(b, NO_FAMILY) == {}
-    # the documents (or an answer) fix a state
+    # the documents or an answer (the architect's D9) fix a state; the brief closes them all
     b2 = _house()
     _by_id(b2)["d_bed"]["open_state"] = "closed"
     assert DS.plan_states(b2, SCANDI)["d_bed"]["state"] == "closed"
+    b3 = _house()
+    b3["project"]["brief"] = {"doors_open": False}
+    s3 = DS.plan_states(b3, SCANDI)
+    assert all(r["state"] == "closed" for r in s3.values()) and s3["d_bed"]["by"] == "brief"
+    q = AR.door_states_rule(AA.Plan(_house()), "scandinavian")[0]
+    opened = {a["element"]: a for a in q["answers"] if a.get("open")}
+    assert set(opened) == {"d_liv", "d_bed", "d_bath", "d_sto"} and opened["d_bed"]["default"] == "door_state:open"
+    b4 = _house()
+    res = AA.apply_answers(b4, {"D9:d_bath": {"option": "door_state", "params": {"door_id": "d_bath",
+                                                                                  "state": "closed"}, "by": "user"},
+                                "D9:d_bed": {"option": "door_state", "params": {"door_id": "d_bed", "state": "open"},
+                                             "by": "architect"}})
+    assert all(r["ok"] for r in res) and _by_id(b4)["d_bath"]["open_state"] == "closed"
+    assert "open_state" not in _by_id(b4)["d_bed"]                                     # the default: the rule opens it
+    s4 = DS.plan_states(b4, SCANDI)
+    assert s4["d_bath"]["state"] == "closed" and s4["d_bed"]["state"] == "open"
 
 
 def test_the_open_leaf_stands_square_by_the_wall_in_the_room_it_opens_into():
@@ -119,16 +136,24 @@ def test_a_piece_in_the_swing_turns_the_hinge_or_keeps_the_door_closed():
                            "footprint": {"center": [7.55, 1.70], "size": [0.2, 0.1], "rotation_deg": 0.0}})
     rec = DS.plan_states(b, SCANDI)["d_bed"]
     assert rec["state"] == "open" and rec["hinge"] == "end"
-    # a wardrobe across both sweeps: closed, with the piece named
+    # UL127: a chest half a metre into the room stops the leaf of either jamb: it stands ajar at the widest free angle
+    ajar = _house()
+    ajar["furniture"].append({"id": "f_chest2", "type": "dresser", "level_id": "L0", "room_id": "r_bed",
+                              "footprint": {"center": [7.55, 2.0], "size": [0.2, 0.9], "rotation_deg": 0.0}})
+    rec = DS.plan_states(ajar, SCANDI)["d_bed"]
+    assert rec["state"] == "ajar" and 15.0 <= rec["angle_deg"] < 90.0 and "ajar at" in rec["reason"]
+    assert "f_chest2" in rec["stopped_by"] and not DS._hits(rec["leaf_polys"][0], DS.piece_polys(ajar, "L0"))
+    # a wardrobe across both sweeps: closed (not even 15 degrees), with the piece named
     b["furniture"].append({"id": "f_robe", "type": "wardrobe", "level_id": "L0", "room_id": "r_bed",
                            "footprint": {"center": [7.4, 2.0], "size": [0.5, 1.2], "rotation_deg": 0.0}})
     rec = DS.plan_states(b, SCANDI)["d_bed"]
-    assert rec["state"] == "closed" and "f_robe" in rec["reason"]
-    # a drawn hinge side is kept: the other jamb is never tried
+    assert rec["state"] == "closed" and "f_robe" in rec["reason"] and rec["blocked"]
+    # a drawn hinge side is kept: the other jamb is never tried (the chest stops it: ajar)
     b3 = _house()
     b3["furniture"].append(dict(b["furniture"][0]))
     _by_id(b3)["d_bed"]["hinge_side"] = DS.hinge_side_of("start", -1)
-    assert DS.plan_states(b3, SCANDI)["d_bed"]["state"] == "closed"
+    rec3 = DS.plan_states(b3, SCANDI)["d_bed"]
+    assert rec3["hinge"] == "start" and rec3["state"] == "ajar"
 
 
 def test_swing_leaf_geometry_and_the_parametric_pose_agree():
@@ -168,34 +193,45 @@ def test_swing_leaf_geometry_and_the_parametric_pose_agree():
     assert "pose" not in crec
 
 
-def test_a_view_opens_the_door_to_a_room_worth_showing_and_keeps_its_leaf_out_of_the_view():
-    """UL126: an en-suite seen from its bedroom opens (its leaf out of the camera's view); a bathroom seen from the
-    hall stays ajar; a view that shows only closed doors to a room worth showing is a finding until it is fixed."""
+def test_a_view_keeps_the_open_leaf_out_of_its_doorway_and_shows_no_closed_doors_only():
+    """UL126: a view that shows only closed doors to a room worth showing is a finding; an open leaf that hides the
+    doorway from a view turns to its other jamb, recorded with the camera; private doors are no finding."""
     b = _house()
+    DS.apply_states(b, SCANDI)
+    doors = _by_id(b)
+    ls = doors["d_bed"]["leaf_state"]
+    wall = next(w for w in b["walls"] if w["id"] == "w7")
+    fr = DS.leaf_frame(doors["d_bed"], wall)
+    # a camera in the bedroom on the hinge's side, a metre into the room: the leaf stands between it and the doorway
+    lat = -1.0 if ls["hinge"] == "start" else 1.0
+    cx, cy = fr["c"][0] + fr["u"][0] * lat - fr["n"][0] * 1.0, fr["c"][1] + fr["u"][1] * lat - fr["n"][1] * 1.0
+    cam = {"name": "cam_r_bed_1", "kind": "interior", "room_id": "r_bed", "level_id": "L0", "position": [cx, cy, 1.25],
+           "target": [fr["c"][0], fr["c"][1], 1.25], "visible_openings": ["d_bed"]}
+    assert DS.leaf_hides(cam["position"], ls["leaf_polys"][0], fr)
+    got = DS.revise_for_cameras(b, SCANDI, [cam], "L0")
+    new = doors["d_bed"]["leaf_state"]
+    assert new["hinge"] != ls["hinge"] and new["hinge"] == DS.camera_hinge(fr, new["side"], cam["position"])
+    assert not DS.leaf_hides(cam["position"], new["leaf_polys"][0], fr)
+    assert got and got[0]["camera"] == "cam_r_bed_1" and new["by"] == "camera"
+    # the house as it was built before (no leaf states): a hall view of closed doors to the living room is a finding
+    old = _house()
+    hall = {"name": "cam_r_hall_1", "kind": "interior", "room_id": "r_hall", "level_id": "L0",
+            "position": [6.5, 3.0, 1.25], "target": [4.0, 3.0, 1.25], "visible_openings": ["d_liv"]}
+    assert [p["kind"] for p in DS.view_problems(old, [hall])] == ["view_closed_doors"]
+    assert DS.view_problems(b, [hall]) == []
+    # a bathroom seen from the hall is a private door: no finding even closed
+    bath = dict(hall, visible_openings=["d_bath"], target=[8.0, 5.5, 1.25])
+    assert DS.view_problems(old, [bath]) == []
+    assert DS.worth_showing(b, {"room_type": "hall"}, {"room_type": "living"}) == "the living beyond"
+    # an en-suite seen from its bedroom is worth showing
     b["rooms"].append({"id": "r_ens", "level_id": "L0", "room_type": "bathroom",
                        "polygon": [[11, 0], [13, 0], [13, 4], [11, 4]]})
     b["walls"].append({"id": "w11", "level_id": "L0", "start": [11, 0], "end": [11, 4], "thickness": 0.1})
     b["openings"].append(_door("d_ens", "w11", (11, 3), 0.8, "r_ens"))
     DS.apply_states(b, SCANDI)
-    doors = _by_id(b)
-    assert doors["d_ens"]["leaf_state"]["state"] == "ajar"
-    cam = {"name": "cam_r_bed_1", "kind": "interior", "room_id": "r_bed", "level_id": "L0", "position": [8.0, 1.0, 1.25],
-           "target": [11.0, 3.2, 1.25], "visible_openings": ["d_ens"]}
-    assert [p["kind"] for p in DS.view_problems(b, [cam])] == ["view_closed_doors"]
-    got = DS.revise_for_cameras(b, SCANDI, [cam], "L0")
-    ls = doors["d_ens"]["leaf_state"]
-    assert ls["state"] == "open" and ls["by"] == "camera" and ls["camera"] == "cam_r_bed_1"
-    assert got and got[0]["camera"] == "cam_r_bed_1" and "en-suite" in got[0]["reason"]
-    fr = DS.leaf_frame(doors["d_ens"], b["walls"][-1])
-    assert not DS.leaf_hides(cam["position"], ls["leaf_polys"][0], fr)
-    assert ls["hinge"] == DS.camera_hinge(fr, ls["side"], cam["position"])
-    assert DS.view_problems(b, [cam]) == []
-    # the hall's view of the bathroom door: a private door stays ajar
-    hall = {"name": "cam_r_hall_1", "kind": "interior", "room_id": "r_hall", "level_id": "L0",
-            "position": [5.8, 6.5, 1.25], "target": [8.0, 5.0, 1.25], "visible_openings": ["d_bath"]}
-    assert DS.revise_for_cameras(b, SCANDI, [hall], "L0") == [] and doors["d_bath"]["leaf_state"]["state"] == "ajar"
-    assert DS.view_problems(b, [hall]) == []
-    assert DS.worth_showing(b, {"room_type": "hall"}, {"room_type": "living"}) == "the living beyond"
+    rooms = {r["id"]: r for r in b["rooms"]}
+    assert DS.worth_showing(b, rooms["r_bed"], rooms["r_ens"]) == "the en-suite beyond"
+    assert DS.worth_showing(b, rooms["r_hall"], rooms["r_bath"]) is None
 
 
 def test_the_camera_model_sees_an_open_doorway_and_the_open_leaf():
@@ -502,13 +538,13 @@ def test_a_walk_in_with_closed_fronts_is_a_design_finding_with_its_fix():
     m29, _n = MR.doors_as_designed(closed, {"objects": [], "style_profile": {"family": "scandinavian"}})
     assert m29 and m29[0]["check"] == "M29" and m29[0]["metrics"]["fix_choice"] == "wardrobe_fronts:slats"
     assert K.kind_of(m29[0]) == "reference_missed" and "reference_missed" in K.KINDS
-    assert "M29" in MR.CHECKS and L.CHECK_LESSONS["U33"] == ("UL116", "UL117", "UL120", "UL122", "UL125", "UL126")
+    assert "M29" in MR.CHECKS and L.CHECK_LESSONS["U33"] == ("UL116", "UL117", "UL120", "UL122", "UL125", "UL126", "UL127")
     assert L.audit(closed, {"objects": [], "cameras": []})["checked"]["U33"] == 1
 
 
 def test_the_lessons_are_built_with_their_checks():
     rows = {r["id"]: r for r in json.loads(LESSONS.read_text(encoding="utf-8"))["lessons"]}
-    for lid in ("UL116", "UL117", "UL120", "UL122", "UL125", "UL126"):
+    for lid in ("UL116", "UL117", "UL120", "UL122", "UL125", "UL126", "UL127"):
         assert rows[lid]["status"] == "built" and rows[lid]["checks"] == ["build"], lid
         assert "M29" in rows[lid]["lesson"] and "U33" in rows[lid]["lesson"], lid
 

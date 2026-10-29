@@ -744,7 +744,7 @@ CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4":
                  "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107"),
                  "U16": ("UL92",), "U20": ("UL96",), "U27": ("UL109",)}
 CHECK_LESSONS["U23"] = ("UL106",)          # 29 Oct 2026: the professional bar (professional_bar)
-CHECK_LESSONS["U33"] = ("UL116", "UL117", "UL120", "UL122", "UL125", "UL126")    # 29 Oct 2026: doors_as_designed
+CHECK_LESSONS["U33"] = ("UL116", "UL117", "UL120", "UL122", "UL125", "UL126", "UL127")    # 29 Oct 2026: doors_as_designed
 U33_LESSONS = {"all_closed": "UL116", "leaf_in_piece": "UL116", "view_closed_doors": "UL126", "one_size": "UL117",
                "dressing_closed_fronts": "UL125", "no_frame": "UL122", "no_architrave": "UL122"}
 U33_FIX = {"all_closed": "rerun_stage build (door_states.apply_states: an inside door stands open by default)",
