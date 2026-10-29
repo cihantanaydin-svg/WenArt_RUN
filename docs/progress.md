@@ -2297,3 +2297,65 @@ desk, a bag), r_L1_oda_2 `limewash` (warm greige limewash, the headboard panel, 
 0.6 m wide over the dresser f_L1_017 (R19), pampas on the dresser, a bag), the hall r_L1_oda `gallery`. Not built here:
 R1, R31 (see-through wardrobes: the doors helper), the doors (D1-D5), sockets (UL112), G5's shaggy rug, slats
 flanking a window (R13's second half). Needs a pod render.
+
+## A full, realistic bed (29 Oct 2026; built, pod run waiting)
+
+The user's photo P11 of a full, soft bed ("look how realistic the bed is looking full and nice I want this much detail
+in our models"; lesson UL121, docs/reference_details_20261029.md R35, R36). Our beds had a 4 cm duvet with a square
+fold, a fixed 30 cm overhang (into walls and nightstands alike), two pillows and plain throws. General rules by style
+family (`wenart/blender/bedding_parts.py` `FAMILY_BEDDING`, a reason per row; the decor stage's plan
+`wenart/furniture/bedding.py`; the build's `textiles.bedding_set`), CPU-tested, not rendered yet:
+
+| family | duvet | shams / pillows | accent cushions, lumbar | throw pair |
+|---|---|---|---|---|
+| scandinavian | linen, off white, 6 cm, hem 8 cm | sand linen / white cotton | a cream boucle; a sage knit lumbar | striped wool blanket under a fringed knit throw |
+| japandi | washed linen, 5.5 cm, hem 10 cm | greige linen / off white linen | a beige boucle; no lumbar | herringbone under a fringed linen throw |
+| modern | white cotton, 6.5 cm, hem 6 cm | charcoal velvet / white cotton | an ivory boucle and a light grey knit; a charcoal velvet lumbar | houndstooth under a fringed knit throw (the photo's set) |
+| contemporary | off white cotton, 6.5 cm | greige linen / white cotton | a cream boucle and a dusty blue velvet; a greige knit lumbar | houndstooth, fringed knit |
+| minimal, modern minimal | white cotton, 5.5 cm, hem 5 cm | light grey cotton / white cotton | one light grey boucle; no lumbar | fine stripe under a plain wool throw (no fringe) |
+| industrial | light grey linen, 6 cm | charcoal linen / white cotton | a grey knit; a rust wool lumbar | herringbone, fringed wool |
+| mediterranean | white linen, 5.5 cm | sand linen / white linen | a cream knit and a terracotta linen; a dusty blue lumbar | stripe, fringed linen |
+| classic | ivory cotton sateen, 7 cm, hem 5 cm | navy velvet / white cotton | cream and navy velvet; a cream velvet lumbar | houndstooth, fringed wool |
+| rustic | cream linen, 7 cm | rust linen / cream cotton | a cream knit; a rust wool lumbar | herringbone, fringed wool |
+
+What the bed gets (every project): two 65 cm euro shams against a headboard the rays find (none without one, said in
+the record), the sleeping pillows standing against them (lying, as before, without shams), the family's accent cushions
+and its lumbar standing on the duvet's band and leaning on the pillows and on each other (placed on the meshes' own
+profiles, no ray: `stack_cushion`; the AI's cushion colours go to them and the decor cushions on that bed are not built
+twice), every piece a plump pillow (full rounded faces, drawn-in sides, soft corners, a closed mesh); the duvet over the
+foot 75 % with the family's thickness, an edge that rounds on an arc of its own height, gentle fixed folds on the top and
+soft flutes on the hanging sides, hanging almost to the floor (the family's hem) on every side the building leaves free
+and not at all on a side with a wall or a piece within 12 cm along the duvet (`bed_sides`: walls and pieces from the
+building, the bed's front frame), and its turned-down band with a rolled edge; the throw pair: the lower blanket in the
+family's woven pattern (its ink the second blanket's colour, the pattern turned with the bed), the throw over it with
+fringe strands at both ends (only on a free side). Fabrics: procedural PBR weaves (`materials.weave_group`: cotton
+percale threads, velvet's crushed pile, knit chevrons, boucle loops, wool twill; houndstooth, stripe, herringbone) with
+each look's own sheen (`weave_layers`: velvet 1.0, cotton 0.25); linen keeps the Poly Haven rough_linen scan. A library
+bed the audit calls made up is measured on its mesh (`bedding_relief`: the pillow bump at the head, the relief of the
+folds and the vertex density on top, numpy, no ray): a flat cover is dressed in the full set, a modelled duvet without
+pillows gets our pillow set only, a bed made up as well as ours is kept; the reason is in the manifest's `bedding_test`
+(the decor stage plans a throw for such a bed, built only when it is dressed). R36: a round drum nightstand (R17) gets
+the photo's set (white faceted vases, a dried palm leaf, a small black box with a white lid; one `vase` item with `set:
+bedside`, one mesh) on its round top where it fits, under the ceiling, a sill and a bedside pendant.
+
+Checks: model review M30 and Argus U34 (`bedding_parts.review`, kind `taste`, cause `decor_look`): fewer pillows than
+the family's set (shams with no headboard explained), a free side whose duvet's hem is over 18 cm from the floor, an old
+dressing without the set, a made-up model measured poorer than ours left as it was, no throw, a throw without its woven
+pattern or its fringe (a throw between a wall and a piece explained).
+
+Build time (UL111): each bed is still one dressing mesh from numpy vertex arrays (a material slot per fabric), the
+throw pair one decor object; the extra rays are the larger duvet grid's (rays beside the bed are skipped) and the
+fringe's few grid columns. Pure-Python timing with the numpy ray caster on a 1.6 x 2.0 m bed: 0.30 s before, 0.62 s
+now for the dressing (3,741 rays against 2,276; 9.4k vertices against 4.3k) and 0.14 s / 0.16 s for the throw pair;
+the code outside the rays adds 0.06 s, so with Blender's BVH rays (about 10 us each) a bed costs about 0.03-0.08 s more,
+plus 15 ms for a made-up model's measure (60k vertices).
+
+real06 (run 20261029-100801-full, Scandinavian): f_L1_010 (master bedroom, AmazonBasics platform bed, no own bedding)
+gets the full set with the duvet hanging on its left, right and foot (its nightstands stand at the head, outside the
+duvet's span); f_L1_013 (single bed against the wall of r_L1_oda_2) one pillow, a boucle cushion and a sage knit lumbar,
+no overhang on its wall side; f_L1_004 (Ikea Malm) and f_L1_007 (HSSD platform bed) are made up: the build measures them
+and plans a throw for each if it dresses them (f_L1_004's left side has the dresser f_L1_005 in the duvet's span, its
+right side a wall 10 cm away; f_L1_007's right side is on a wall). Every throw gets the striped blanket and a fringed
+knit throw. No drum nightstand in real06's schemes, so no R36 set there. U34 on the run as built finds the old
+dressings of f_L1_010 and f_L1_013 (too few pillows, plain throws). Needs a pod render: the fabrics' sheen and bump,
+the duvet's folds, the fringes.

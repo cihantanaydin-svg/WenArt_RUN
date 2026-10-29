@@ -254,6 +254,29 @@ FURNITURE_MATERIALS: dict[str, dict] = {
     # Handles (steel_brushed is the brushed-steel handle of Milestone 6).
     "metal_black": {"kind": "metal", "flat": _lin("black"), "roughness": 0.35, "metallic": 0.8, "flat_source": "colour:black"},
     "metal_brass": {"kind": "metal", "flat": _lin("brass"), "roughness": 0.25, "metallic": 1.0, "flat_source": "colour:brass"},
+    # 29 Oct 2026 (lesson UL121, docs/reference_details_20261029.md R35: "fabric materials with weave normals and sheen
+    # (linen, cotton, velvet, knit, boucle)"): the bedding's procedural fabrics (node group wenart_weave: the weave's
+    # relief as a bump, the look's sheen as a material layer, materials.weave_layers) and the woven patterns of a
+    # throw's blanket (ink = the throw's accent colour); linen stays the Poly Haven rough_linen scan (fabric_linen)
+    "fabric_cotton": _proc("wenart_weave", "fabric", _lin("white"), 0.75, params={"weave": "cotton", "pattern": "plain"},
+                           flat_source="colour:white"),
+    "fabric_velvet": _proc("wenart_weave", "fabric", _lin("charcoal"), 0.6, params={"weave": "velvet", "pattern": "plain"},
+                           flat_source="colour:charcoal"),
+    "fabric_knit": _proc("wenart_weave", "fabric", _lin("cream"), 0.9, params={"weave": "knit", "pattern": "plain"},
+                         flat_source="colour:cream"),
+    "fabric_boucle": _proc("wenart_weave", "fabric", _lin("ivory"), 0.95, params={"weave": "boucle", "pattern": "plain"},
+                           flat_source="colour:ivory"),
+    "fabric_wool": _proc("wenart_weave", "fabric", _lin("greige"), 0.9, params={"weave": "wool", "pattern": "plain"},
+                         flat_source="colour:greige"),
+    "fabric_houndstooth": _proc("wenart_weave", "fabric", _lin("off white"), 0.9,
+                                params={"weave": "wool", "pattern": "houndstooth", "repeat_m": 0.028},
+                                flat_source="colour:off white"),
+    "fabric_stripe": _proc("wenart_weave", "fabric", _lin("off white"), 0.9,
+                           params={"weave": "wool", "pattern": "stripe", "repeat_m": 0.06},
+                           flat_source="colour:off white"),
+    "fabric_herringbone": _proc("wenart_weave", "fabric", _lin("greige"), 0.9,
+                                params={"weave": "wool", "pattern": "herringbone", "repeat_m": 0.04},
+                                flat_source="colour:greige"),
 }
 
 # --------------------------------------------------------------------------

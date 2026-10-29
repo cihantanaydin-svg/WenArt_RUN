@@ -1077,7 +1077,9 @@ def plan_throw(item: dict, host: dict, caster, floor_z: float) -> dict:
         faces.extend([[i + off for i in f] for f in extra["faces"]])
     return {"verts": verts, "faces": faces, "parts": got["parts"], "rest": m, "footprint": foot,
             "attempt": 1, "pose": {"how": "draped on the host (shrinkwrap, 5 mm)", "share": got["drape"]["share"]},
-            **({"runner": got["runner"]} if got.get("runner") else {})}
+            **({"runner": got["runner"]} if got.get("runner") else {}),
+            # 29 Oct 2026 (UL121): the woven pair's record (pattern, fringe strands)
+            **({"weave": got["weave"]} if got.get("weave") else {})}
 
 
 Placer = Callable[..., Optional[dict]]

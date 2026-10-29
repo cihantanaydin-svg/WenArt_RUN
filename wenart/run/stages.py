@@ -207,7 +207,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/stair_rails.py",            # 28 Oct 2026: the stairs' balustrade (the architect's K rules)
              "wenart/blender/bath_parts.py",             # 29 Oct 2026 (UL114): the bathroom's parts (parametric, looks)
              "wenart/blender/kitchen_details.py",        # 29 Oct 2026: modules / furniture -> the kitchen details
-             "wenart/blender/detail_parts.py")           # 29 Oct 2026: parametric's reference-detail parts (UL119)
+             "wenart/blender/detail_parts.py",           # 29 Oct 2026: parametric's reference-detail parts (UL119)
+             "wenart/blender/bedding_parts.py")          # 29 Oct 2026: detail_parts -> the nightstand set (UL121)
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
@@ -224,7 +225,9 @@ DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/fixture_seat.py", "
               "wenart/furniture/tabletop.py", "wenart/furniture/ceiling_lights.py",
               "wenart/furniture/dressing.py",
               # 29 Oct 2026 (UL113, UL115, UL119): the rooms' schemes and the reference photos' details
-              "wenart/furniture/room_schemes.py", "wenart/furniture/room_details.py") \
+              "wenart/furniture/room_schemes.py", "wenart/furniture/room_details.py",
+              # 29 Oct 2026 (UL121): the beds' family sets, the drum nightstands' decor set
+              "wenart/furniture/bedding.py") \
     + LEVELS_CODE + GROUPS_CODE                  # M11: infer/plausibility; M12: levels (ingest), groups (G); 28 Oct
 #                                                  2026: the set tables and styled tops, the ceiling lights
 DECOR_ANSWERS = "decor_ai_answers.json"

@@ -1749,7 +1749,12 @@ def shell_assets() -> dict[str, str | None]:
 
 
 def material_kind_layers(slug: str) -> dict | None:
-    """The ``MATERIAL_KIND_LAYERS`` of a slug's vocabulary kind (pure), None for other kinds or a shell slug."""
+    """The ``MATERIAL_KIND_LAYERS`` of a slug's vocabulary kind (pure), None for other kinds or a shell slug. 29 Oct
+    2026 (UL121): a procedural fabric takes its look's own sheen (``weave_layers``: velvet's strong, tight sheen,
+    cotton's faint one)."""
+    own = weave_layers(slug)
+    if own is not None:
+        return own
     kind = (ENTRIES.get(slug) or {}).get("kind")
     layers = MATERIAL_KIND_LAYERS.get(str(kind))
     return {k: dict(v) for k, v in layers.items()} if layers else None
@@ -1964,7 +1969,8 @@ def procedural_params(slug: str, overrides: dict | None = None) -> dict:
     return params
 
 
-PROCEDURAL_GROUPS = ("wenart_tiles", "wenart_wallpaper", "wenart_slats", "wenart_standing_seam")
+PROCEDURAL_GROUPS = ("wenart_tiles", "wenart_wallpaper", "wenart_slats", "wenart_standing_seam",
+                     "wenart_weave")      # 29 Oct 2026 (UL121): the bedding's fabric weaves and woven patterns
 WALLPAPER_PATTERNS = ("stripe", "botanical", "geometric", "check", "herringbone", "grasscloth")
 TILE_PATTERNS = ("running_bond", "grid", "hexagon")
 TILE_GROUT_ROUGHNESS = 0.7
@@ -1980,7 +1986,21 @@ def procedural_group_name(procedural: str, params: dict) -> str:
     if procedural == "wenart_wallpaper":
         pattern = params.get("pattern") if params.get("pattern") in WALLPAPER_PATTERNS else "stripe"
         return f"wenart_wallpaper_{pattern}"
+    if procedural == "wenart_weave":
+        look, pattern = weave_of(params)
+        return f"wenart_weave_{look}_{pattern}"
     return procedural
+
+
+WEAVE_LOOKS = ("linen", "cotton", "velvet", "knit", "boucle", "wool")      # = bedding_parts.LOOKS
+WEAVE_PATTERNS = ("plain", "houndstooth", "stripe", "herringbone")
+
+
+def weave_of(params: dict) -> tuple[str, str]:
+    """``(look, pattern)`` of a ``wenart_weave`` look's parameters (pure; unknown values: cotton, plain)."""
+    look = params.get("weave") if params.get("weave") in WEAVE_LOOKS else "cotton"
+    pattern = params.get("pattern") if params.get("pattern") in WEAVE_PATTERNS else "plain"
+    return look, pattern
 
 
 def procedural_note_for(procedural: str, slug: str, params: dict) -> str:
@@ -2005,6 +2025,12 @@ def procedural_note_for(procedural: str, slug: str, params: dict) -> str:
     if procedural == "wenart_standing_seam":
         return (f"procedural standing seam, seams every {float(params.get('seam_spacing_m') or 0.45):.2f} m "
                 f"(node group wenart_standing_seam)")
+    if procedural == "wenart_weave":
+        look, pattern = weave_of(params)
+        what = f"a {look} weave" + ("" if pattern == "plain" else
+                                    f" in a woven {pattern} (repeat {float(params.get('repeat_m') or 0.04) * 100:.1f}"
+                                    f" cm, ink {params.get('ink') or 'the colour, dark'})")
+        return f"procedural fabric: {what} (node group {procedural_group_name(procedural, params)}; UL121)"
     return f"procedural {procedural} ({slug})"
 
 
@@ -2264,6 +2290,108 @@ def standing_seam_group():
     return group
 
 
+def weave_share(g: "_Graph", x, y, repeat, pattern: str):
+    """The ink share socket of a woven pattern (math nodes; = ``bedding_parts.pattern_share``, tested on a fake bpy):
+    plain 0, stripe 35 % bands across x, houndstooth a half-repeat check whose mixed squares carry diagonal teeth,
+    herringbone diagonal bands turning every half-repeat column."""
+    if pattern == "stripe":
+        return g.fract_below(x, repeat, 0.35)
+    if pattern == "houndstooth":
+        a = g.math("SUBTRACT", 1.0, g.fract_below(x, repeat, 0.5))
+        b = g.math("SUBTRACT", 1.0, g.fract_below(y, repeat, 0.5))
+        ab = g.math("MULTIPLY", a, b)
+        mixed = g.math("SUBTRACT", g.math("ADD", a, b), g.math("MULTIPLY", ab, 2.0))
+        teeth = g.fract_below(g.math("ADD", x, y), g.math("MULTIPLY", repeat, 0.25), 0.5)
+        return g.math("ADD", ab, g.math("MULTIPLY", mixed, teeth))
+    if pattern == "herringbone":
+        column = g.math("FLOOR", g.math("DIVIDE", x, g.math("MULTIPLY", repeat, 0.5)))
+        turn = g.math("MULTIPLY_ADD", g.math("FLOORED_MODULO", column, 2.0), -2.0, 1.0)
+        return g.fract_below(g.math("ADD", x, g.math("MULTIPLY", y, turn)), g.math("MULTIPLY", repeat, 0.25), 0.5)
+    return g.math("MULTIPLY", x, 0.0)
+
+
+def _weave_height(g: "_Graph", x, y, thread, look: str):
+    """The weave's relief (0..1) on the cloth (``look``): cotton and linen threads (two crossing sines; linen with
+    stretched slubs of noise), velvet's crushed pile (a soft noise), knit's stockinette (rows of V chevrons), boucle's
+    loops (Voronoi cells), wool's twill (diagonal ribs and a little noise)."""
+    two_pi = 2.0 * math.pi
+    if look == "velvet":
+        noise = g.nodes.new("ShaderNodeTexNoise")
+        g.links.new(g.combine(x, y), noise.inputs["Vector"])
+        g.feed(noise.inputs["Scale"], g.math("DIVIDE", 1.0, thread))
+        noise.inputs["Detail"].default_value = 3.0
+        return noise.outputs["Fac"]
+    if look == "knit":
+        u = g.math("FRACT", g.math("DIVIDE", x, thread))
+        v = g.math("DIVIDE", y, g.math("MULTIPLY", thread, 1.4))
+        return g.math("FRACT", g.math("ADD", v, g.math("ABSOLUTE", g.math("SUBTRACT", u, 0.5))))
+    if look == "boucle":
+        cells = g.nodes.new("ShaderNodeTexVoronoi")
+        cells.voronoi_dimensions = "2D"
+        g.links.new(g.combine(x, y), cells.inputs["Vector"])
+        g.feed(cells.inputs["Scale"], g.math("DIVIDE", 1.0, thread))
+        return g.math("SUBTRACT", 1.0, g.math("MINIMUM", g.math("MULTIPLY", cells.outputs["Distance"], 2.0), 1.0))
+    if look == "wool":
+        rib = g.math("FRACT", g.math("DIVIDE", g.math("ADD", x, y), thread))
+        noise = g.nodes.new("ShaderNodeTexNoise")
+        g.links.new(g.combine(x, y), noise.inputs["Vector"])
+        g.feed(noise.inputs["Scale"], g.math("DIVIDE", 0.25, thread))
+        return g.math("MULTIPLY_ADD", noise.outputs["Fac"], 0.3, g.math("MULTIPLY", rib, 0.7))
+    sx = g.math("SINE", g.math("MULTIPLY", g.math("DIVIDE", x, thread), two_pi))
+    sy = g.math("SINE", g.math("MULTIPLY", g.math("DIVIDE", y, thread), two_pi))
+    threads = g.math("MULTIPLY_ADD", g.math("MULTIPLY", sx, sy), 0.5, 0.5)
+    if look == "linen":
+        slub = g.nodes.new("ShaderNodeTexNoise")
+        g.links.new(g.combine(g.math("DIVIDE", x, 8.0), y), slub.inputs["Vector"])
+        g.feed(slub.inputs["Scale"], g.math("DIVIDE", 1.0, thread))
+        return g.math("MULTIPLY_ADD", slub.outputs["Fac"], 0.4, g.math("MULTIPLY", threads, 0.6))
+    return threads
+
+
+def weave_group(look: str, pattern: str):
+    """``wenart_weave_<look>_<pattern>`` (29 Oct 2026, lesson UL121, R35: "fabric materials with weave normals and
+    sheen (linen, cotton, velvet, knit, boucle)"): inputs Color, Ink, Repeat (the pattern's, m), Thread (the weave's
+    pitch, m), Cos and Sin (the pattern's turn: it runs with the bed), Roughness; outputs Color (the colour, the ink in
+    the woven pattern: ``weave_share``), Roughness, Normal (a bump of the weave's relief, ``_weave_height``, at the
+    look's strength and distance, ``bedding_parts.LOOK_LAYERS``) and Share (the pattern's ink share). The sheen is the
+    material's layer (``material_kind_layers``). PBR only (a Principled BSDF)."""
+    import bpy
+
+    from wenart.blender import bedding_parts as BP
+
+    name = f"wenart_weave_{look}_{pattern}"
+    group = bpy.data.node_groups.get(name)
+    if group is not None:
+        return group
+    group, gin, gout, uv = _new_group(name, [("Color", _COLOUR), ("Ink", _COLOUR), ("Repeat", _FLOAT),
+                                             ("Thread", _FLOAT), ("Cos", _FLOAT), ("Sin", _FLOAT),
+                                             ("Roughness", _FLOAT)], _OUTPUTS + [("Share", _FLOAT)])
+    g = _Graph(group)
+    i = gin.outputs
+    x0, y0 = g.xyz(uv)
+    x = g.math("ADD", g.math("MULTIPLY", x0, i["Cos"]), g.math("MULTIPLY", y0, i["Sin"]))
+    y = g.math("SUBTRACT", g.math("MULTIPLY", y0, i["Cos"]), g.math("MULTIPLY", x0, i["Sin"]))
+    share = weave_share(g, x, y, i["Repeat"], pattern)
+    g.links.new(share, gout.inputs["Share"])
+    g.links.new(g.mix("RGBA", share, i["Color"], i["Ink"]), gout.inputs["Color"])
+    g.links.new(i["Roughness"], gout.inputs["Roughness"])
+    strength, distance, _pitch = (BP.LOOK_LAYERS.get(look) or BP.LOOK_LAYERS["cotton"])["bump"] or (0.2, 0.001, 0.002)
+    g.links.new(_bump(g, _weave_height(g, x, y, i["Thread"], look), strength, distance), gout.inputs["Normal"])
+    return group
+
+
+def weave_layers(slug: str) -> dict | None:
+    """The sheen of a procedural fabric slug's look (``bedding_parts.LOOK_LAYERS``; pure), None for another slug."""
+    entry = ENTRIES.get(slug) or {}
+    if entry.get("procedural") != "wenart_weave":
+        return None
+    from wenart.blender import bedding_parts as BP
+
+    look, _pattern = weave_of(entry.get("params") or {})
+    weight, rough = (BP.LOOK_LAYERS.get(look) or BP.LOOK_LAYERS["cotton"])["sheen"]
+    return {"sheen": {"weight": float(weight), "roughness": float(rough)}}
+
+
 def _colour_param(name, fallback) -> tuple[float, float, float, float]:
     rgb = colour_linear(name) or tuple(fallback)
     return (float(rgb[0]), float(rgb[1]), float(rgb[2]), 1.0)
@@ -2307,6 +2435,20 @@ def procedural_node(nodes, links, procedural: str, slug: str, colour, params: di
         node.node_tree = standing_seam_group()
         node.inputs["Color"].default_value = base
         node.inputs["Seam Spacing"].default_value = float(params.get("seam_spacing_m") or 0.45)
+        node.inputs["Roughness"].default_value = rough
+    elif procedural == "wenart_weave":            # 29 Oct 2026 (UL121): the bedding's fabrics
+        from wenart.blender import bedding_parts as BP
+
+        look, pattern = weave_of(params)
+        node.node_tree = weave_group(look, pattern)
+        node.inputs["Color"].default_value = base
+        node.inputs["Ink"].default_value = _colour_param(params.get("ink"), _ink_colour(colour, DEFAULT_INK_MODIFIER))
+        node.inputs["Repeat"].default_value = float(params.get("repeat_m") or BP.PATTERN_REPEAT_M.get(pattern, 0.04))
+        layer = BP.LOOK_LAYERS.get(look) or BP.LOOK_LAYERS["cotton"]
+        node.inputs["Thread"].default_value = float(params.get("thread_m") or (layer["bump"] or (0, 0, 0.002))[2])
+        angle = math.radians(float(params.get("angle_deg") or 0.0))
+        node.inputs["Cos"].default_value = math.cos(angle)
+        node.inputs["Sin"].default_value = math.sin(angle)
         node.inputs["Roughness"].default_value = rough
     else:
         raise KeyError(f"unknown procedural look {procedural!r}")
