@@ -1828,7 +1828,9 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
         # 27 Oct 2026: against the pillows, not the duvet. 28 Oct 2026 (user on real04: "More flying pillows"): the
         # back rays only see the bed (its headboard: the cushion stands on the pillows) then the bed and its pillows
         # (it leans on them); its seat and S5 see everything built, the duvet too (its cushions were placed without the
-        # duvet: S5 on the built bedding found them 4.9 cm in it)
+        # duvet: S5 on the built bedding found them 4.9 cm in it). 29 Oct 2026: a bed that is one mesh with its pillows
+        # (parametric, a frame with our bedding) has neither: on its host caster the cushion first stands on the
+        # pillows against the headboard too (``rest.stand_modes``, the back rays through its upper part), then leans
         back = [c for c in (casters.get(BED_CASTER.format(host["id"])), casters.get(LEAN_CASTER.format(host["id"])))
                 if c is not None] or None
     file, reason = resolve_asset(item.get("asset"), assets_dir)
