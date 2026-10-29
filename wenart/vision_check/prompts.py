@@ -118,6 +118,14 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "chopping_board": "wooden chopping board lying on the kitchen worktop",
     "utensil_pot": "pot of kitchen utensils standing on the worktop",
     "fruit_bowl": "bowl of fruit on the worktop or a table",
+    # 29 Oct 2026 (UL115, UL118): the worktop styling sets of the reference kitchens
+    "storage_jars": "glass storage jars with wooden lids on the kitchen worktop",
+    "plate_stack": "stack of plates and bowls on the kitchen worktop",
+    "cookware": "pot and frying pan standing on the hob",
+    "cutting_boards": "wooden cutting boards leaning against the kitchen splashback",
+    "oil_bottles": "oil and vinegar bottles on a small board on the worktop",
+    "dried_grass_vase": "vase with dried pampas grass on the worktop or the island",
+    "coffee_station": "coffee machine with cups and plates on a board on the worktop",
     # 28 Oct 2026 (wenart.furniture.tabletop): the place settings of a dining table
     "plate": "plate laid on a dining table in front of a chair",
     "glass": "drinking glass standing on a table",

@@ -201,7 +201,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/assets/polyhaven.py", "wenart/assets/web.py", "wenart/assets/audit/__init__.py",
              "wenart/assets/audit/keywords.py", "wenart/blender/exterior.py",
              "wenart/blender/grading.py",                # 28 Oct 2026: site and architect grade the garden
-             "wenart/blender/stair_rails.py")            # 28 Oct 2026: the stairs' balustrade (the architect's K rules)
+             "wenart/blender/stair_rails.py",            # 28 Oct 2026: the stairs' balustrade (the architect's K rules)
+             "wenart/blender/kitchen_details.py")        # 29 Oct 2026: modules / furniture -> the kitchen details
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height

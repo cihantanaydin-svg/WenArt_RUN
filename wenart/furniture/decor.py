@@ -169,6 +169,10 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug", "wall_art
                                  # 28 Oct 2026: the kitchen worktop's small appliances and decor (kitchen_worktop_decor)
                                  "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot",
                                  "fruit_bowl",
+                                 # 29 Oct 2026 (lessons UL115, UL118: the reference kitchens): the worktop styling sets
+                                 # (kitchen_worktop_decor, wenart.blender.kitchen_details)
+                                 "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles",
+                                 "dried_grass_vase", "coffee_station",
                                  # 29 Oct 2026 (user: "Computer on the table would have been nice or a laptop"): the
                                  # desk's work set (tabletop.work_set); the rules place it, the AI does not choose it
                                  "laptop", "monitor", "keyboard", "computer_mouse")
@@ -1077,6 +1081,8 @@ def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> t
             rug_notes.append(f"no wall art: {why}")
         # 28 Oct 2026 (user: "kettle in the kitchen, microwave in the kitchen etc"): the worktop, dressed modestly
         worktop = kitchen_worktop_decor(building, room, pieces, new_id, existing=items)
+        # 29 Oct 2026 (UL115, UL118): and the style family's styling sets (wenart.blender.kitchen_details)
+        worktop += kitchen_styling_decor(building, room, pieces, new_id, existing=items + worktop)
         if worktop:
             items += worktop
             rug_notes.append(f"worktop: {', '.join(i['type'] for i in worktop)}")
@@ -1090,14 +1096,28 @@ def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> t
 # --------------------------------------------------------------------------
 
 KITCHEN_DECOR_TYPES: tuple[str, ...] = ("microwave", "kettle", "coffee_machine", "toaster", "chopping_board",
-                                        "utensil_pot", "fruit_bowl")
+                                        "utensil_pot", "fruit_bowl",
+                                        # 29 Oct 2026 (UL115, UL118; wenart.blender.kitchen_details): the styling sets
+                                        "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles",
+                                        "dried_grass_vase", "coffee_station")
+STYLING_TYPES: tuple[str, ...] = KITCHEN_DECOR_TYPES[KITCHEN_DECOR_TYPES.index("storage_jars"):]
 # Real products (width, depth, height): a 20 l countertop microwave 45-49 x 33-40 x 26-30 cm, a 1.7 l kettle, a
 # bean-to-cup coffee machine 24 x 43 x 35 cm, a 2-slice toaster, a 40 x 25 cm board, a utensil pot with its tools,
-# a 28 cm fruit bowl (= parametric.DECOR_DEFAULT_HEIGHT for the heights).
+# a 28 cm fruit bowl (= parametric.DECOR_DEFAULT_HEIGHT for the heights); the styling sets of
+# ``kitchen_details.STYLING_SIZES``.
 KITCHEN_DECOR_SIZES: dict[str, tuple[float, float, float]] = {
     "microwave": (0.46, 0.36, 0.27), "kettle": (0.22, 0.16, 0.25), "coffee_machine": (0.24, 0.38, 0.35),
     "toaster": (0.28, 0.17, 0.19), "chopping_board": (0.40, 0.25, 0.02), "utensil_pot": (0.12, 0.12, 0.30),
-    "fruit_bowl": (0.28, 0.28, 0.12)}
+    "fruit_bowl": (0.28, 0.28, 0.12),
+    "storage_jars": (0.30, 0.12, 0.24), "plate_stack": (0.27, 0.27, 0.14), "cookware": (0.55, 0.30, 0.18),
+    "cutting_boards": (0.42, 0.10, 0.45), "oil_bottles": (0.22, 0.12, 0.30), "dried_grass_vase": (0.20, 0.20, 0.55),
+    "coffee_station": (0.50, 0.38, 0.38)}
+# 29 Oct 2026 (K6 / K14): the styling sets after the appliances: one per this much free worktop, at most this many
+STYLING_PER_M = 0.45
+STYLING_MAX = 6
+WALL_UNIT_CLEAR_M = 0.03          # an item's top stays this far under a wall cabinet that hangs over it
+COOKWARE_W_M = (0.40, 0.58)       # the pot and pan set is the hob's width + 8 cm, within this range
+BOARD_BACK_M = 0.012              # the cutting boards lean on the splashback (its 10 mm off the wall)
 # The order they are placed in, and what each stands near: the microwave at a run end against a wall or a corner,
 # the coffee machine (or, with no room for it, the toaster) at another end, the kettle by the sink, the utensil pot
 # and the board beside the hob (outside its side gap), the fruit bowl on an island or in the middle of a free stretch.
@@ -1224,6 +1244,15 @@ def worktop_item_ok(item: dict, counter: dict, pieces: list[dict], windows: list
     for w0, w1, sill in windows:
         if x0 < w1 + 0.05 and x1 > w0 - 0.05 and ih > sill - WORKTOP_WINDOW_CLEAR_M:
             return "in front of a window it would reach (its sill over the worktop)"
+    # 29 Oct 2026 (K1, G3, K6): never taller than the room under a wall cabinet over it, never in the run's tall unit
+    # or under its utensil rail
+    clear = wall_cabinet_clear(item, counter, pieces)
+    if clear is not None and ih > clear - WALL_UNIT_CLEAR_M + 1e-9:
+        return f"under a wall cabinet it would reach ({clear:.2f} m free over the worktop)"
+    from wenart.blender import kitchen_details as KD
+    blocked = KD.item_blocked(item, counter)
+    if blocked:
+        return blocked
     for o in others:
         if o is item or o.get("host_id") != counter.get("id"):
             continue
@@ -1233,28 +1262,46 @@ def worktop_item_ok(item: dict, counter: dict, pieces: list[dict], windows: list
     return None
 
 
-def kitchen_worktop_decor(building: dict, room: dict, pieces: list[dict], new_id, existing: list = ()) -> list[dict]:
-    """The worktop dressing of a kitchen (any room with a kitchen run), modest (28 Oct 2026; module note above): the
-    items of ``KITCHEN_DECOR_ORDER`` placed on the built counter runs of the room (no outline drawn inside another
-    run: ``fit.nested_counters``) at their real sizes, each where it belongs (``KITCHEN_DECOR_ORDER``), every one
-    passing ``worktop_item_ok``; at most one per ``WORKTOP_PER_M`` of free worktop and ``KITCHEN_DECOR_MAX`` in all.
-    Hosted on the counter (``host_id``: the build rests them on the built worktop), ``added_by_ai`` by rule with the
-    reason. None when the room takes no decor or already holds worktop items."""
-    if room.get("room_type") in NO_DECOR_ROOM_TYPES or not room_takes_decor(room):
-        return []
-    have = [d for d in list(building.get("decor") or []) + list(existing) if d.get("room_id") == room["id"]
-            and d.get("type") in KITCHEN_DECOR_TYPES]
-    if have:
-        return []
+def wall_cabinet_clear(item: dict, counter: dict, pieces: list[dict]) -> Optional[float]:
+    """29 Oct 2026: the free height over a counter's worktop under the lowest built wall cabinet of its room that
+    hangs over a worktop item's box (``proxies.mount_bottom``), None when none hangs over it."""
+    from wenart.blender.proxies import mount_bottom
+
+    try:
+        rot = float(item.get("rotation_deg") or 0.0)
+        iw, idp = float(item["size"][0]), float(item["size"][1])
+        box = placer._local_box((float(item["center"][0]), float(item["center"][1])), rot, -iw / 2.0, iw / 2.0,
+                                -idp / 2.0, idp / 2.0)
+    except (KeyError, TypeError, ValueError, IndexError):
+        return None
+    top = _worktop_z(counter)
+    clear = None
+    for p in pieces:
+        if p.get("type") != "wall_cabinet" or not p.get("footprint") or p.get("build") is False \
+                or p.get("room_id") != counter.get("room_id"):
+            continue
+        try:
+            if placer.drawn_piece(p).polygon().intersection(box).area <= 1e-4:
+                continue
+        except (KeyError, TypeError, ValueError):
+            continue
+        c = float(mount_bottom(p)[0]) - top
+        clear = c if clear is None else min(clear, c)
+    return clear
+
+
+def _worktop_context(building: dict, room: dict, pieces: list[dict]) -> Optional[dict]:
+    """The built counter runs of a kitchen room (no outline drawn inside another run: ``fit.nested_counters``), the
+    windows behind them, the worktop stretches free of the hob, the sink and the tall pieces, and their length (pure;
+    28 Oct 2026, shared by the appliance pass and the 29 Oct styling pass); None without a run."""
     from wenart.furniture import fit as FT
     nested = FT.nested_counters(dict(building, furniture=pieces))
     # a built counter run is a worktop whatever the reading's doubt (real06's drawn runs are unverified and built)
     counters = [p for p in pieces if p.get("type") in ("kitchen_counter", "kitchen_island") and piece_is_built(p)
                 and p.get("footprint") and p.get("front_deg") is not None and p.get("id") not in nested]
     if not counters:
-        return []
+        return None
     windows = {p["id"]: worktop_windows(p, building, room) for p in counters}
-    free_total = 0.0
     stretches = []
     for p in counters:
         c, rot, w, d = _front_box(p)
@@ -1267,74 +1314,202 @@ def kitchen_worktop_decor(building: dict, room: dict, pieces: list[dict], new_id
         if hi > x:
             stretches.append((p, x, hi))
     stretches = [s for s in stretches if s[2] - s[1] > 0.10]
-    free_total = sum(s[2] - s[1] for s in stretches)
-    budget = min(KITCHEN_DECOR_MAX, int(free_total / WORKTOP_PER_M))
-    placed: list[dict] = []
+    return {"counters": counters, "windows": windows, "stretches": stretches, "pieces": pieces,
+            "free_m": sum(s[2] - s[1] for s in stretches)}
 
-    def anchors(p, kind):
+
+def _anchors(p: dict, pieces: list[dict], kind: str) -> list[float]:
+    return [((b0 + b1) / 2.0) for b0, b1, k in worktop_blocks(p, pieces) if k == kind]
+
+
+def _worktop_candidates(ctx: dict, dtype: str, placed: list[dict], size=None) -> list:
+    """``[(score, run id, x, item)]`` of the spots of a worktop item of ``dtype`` (its real size, or ``size``) that pass
+    ``worktop_item_ok``, best first: the microwave, the coffee machine, the toaster and the storage jars at a run end;
+    the kettle by the sink; the utensil pot, the boards and the oil bottles by the hob; a bowl, the plates and the
+    dried grass on an island, else in the middle of a free stretch (28 Oct 2026; 29 Oct 2026: the styling sets)."""
+    iw, idp, ih = size or KITCHEN_DECOR_SIZES[dtype]
+    pieces = ctx["pieces"]
+    out = []
+    for p, a, b in ctx["stretches"]:
         c, rot, w, d = _front_box(p)
-        return [((b0 + b1) / 2.0) for b0, b1, k in worktop_blocks(p, pieces) if k == kind]
-
-    def candidates(dtype):
-        iw, idp, ih = KITCHEN_DECOR_SIZES[dtype]
-        out = []
-        for p, a, b in stretches:
-            c, rot, w, d = _front_box(p)
-            if b - a < iw - 1e-6 or d < idp + 0.06:
+        if b - a < iw - 1e-6 or d < idp + 0.06:
+            continue
+        island = p.get("type") == "kitchen_island"
+        if island and dtype in ("storage_jars", "cutting_boards", "oil_bottles", "coffee_station"):
+            continue                                  # 29 Oct 2026: against the splashback or at a run end only
+        y = 0.0 if island else d / 2.0 - idp / 2.0 - WORKTOP_BACK_M
+        if dtype in ("fruit_bowl", "plate_stack") and not island:
+            y = d / 2.0 - idp / 2.0 - 0.08
+        elif dtype == "cutting_boards":
+            y = d / 2.0 - idp / 2.0 - BOARD_BACK_M    # leaning on the splashback
+        elif dtype == "dried_grass_vase" and not island:
+            y = d / 2.0 - idp / 2.0 - 0.06
+        steps = max(1, int((b - a - iw) / 0.05))
+        xs = sorted({round(a + iw / 2.0, 4), round(b - iw / 2.0, 4)}
+                    | {round(a + iw / 2.0 + k * 0.05, 4) for k in range(steps + 1)})
+        for x in xs:
+            if x - iw / 2.0 < a - 1e-6 or x + iw / 2.0 > b + 1e-6:
                 continue
-            island = p.get("type") == "kitchen_island"
-            y = 0.0 if island else d / 2.0 - idp / 2.0 - WORKTOP_BACK_M
-            if dtype == "fruit_bowl" and not island:
-                y = d / 2.0 - idp / 2.0 - 0.08
-            steps = max(1, int((b - a - iw) / 0.05))
-            xs = sorted({round(a + iw / 2.0, 4), round(b - iw / 2.0, 4)}
-                        | {round(a + iw / 2.0 + k * 0.05, 4) for k in range(steps + 1)})
-            for x in xs:
-                if x - iw / 2.0 < a - 1e-6 or x + iw / 2.0 > b + 1e-6:
-                    continue
-                world = G.rotate_point((c[0] + x, c[1] + y), rot, c)
-                item = {"type": dtype, "center": [round(world[0], 4), round(world[1], 4)], "rotation_deg": round(rot, 3),
-                        "size": [iw, idp, ih], "host_id": p["id"]}
-                if worktop_item_ok(item, p, pieces, windows[p["id"]], placed) is not None:
-                    continue
-                hob, sink = anchors(p, "hob"), anchors(p, "sink")
-                end = min(abs(x - iw / 2.0 - a), abs(b - x - iw / 2.0))
-                run_end = abs(x - iw / 2.0 - (-w / 2.0 + WORKTOP_END_M)) < 1e-3 or \
-                    abs(x + iw / 2.0 - (w / 2.0 - WORKTOP_END_M)) < 1e-3
-                rank = 0 if run_end else (1 if end < 1e-3 else 2)
-                if dtype in ("microwave", "coffee_machine", "toaster"):
-                    score = (rank, -min([abs(x - h) for h in hob] or [9.0]))
-                elif dtype == "kettle":
-                    score = (min([abs(x - s) for s in sink] or [5.0 + abs(x)]), 0)
-                elif dtype in ("utensil_pot", "chopping_board"):
-                    score = (min([abs(x - h) for h in hob] or [5.0 + abs(x)]), 0)
-                else:
-                    score = (0 if island else 1, -min(x - iw / 2.0 - a, b - x - iw / 2.0))
-                out.append((score, str(p["id"]), x, item))
-        out.sort(key=lambda t: (t[0], t[1], t[2]))
-        return out
+            world = G.rotate_point((c[0] + x, c[1] + y), rot, c)
+            item = {"type": dtype, "center": [round(world[0], 4), round(world[1], 4)], "rotation_deg": round(rot, 3),
+                    "size": [iw, idp, ih], "host_id": p["id"]}
+            if worktop_item_ok(item, p, pieces, ctx["windows"][p["id"]], placed) is not None:
+                continue
+            hob, sink = _anchors(p, pieces, "hob"), _anchors(p, pieces, "sink")
+            end = min(abs(x - iw / 2.0 - a), abs(b - x - iw / 2.0))
+            run_end = abs(x - iw / 2.0 - (-w / 2.0 + WORKTOP_END_M)) < 1e-3 or \
+                abs(x + iw / 2.0 - (w / 2.0 - WORKTOP_END_M)) < 1e-3
+            rank = 0 if run_end else (1 if end < 1e-3 else 2)
+            if dtype in ("microwave", "coffee_machine", "toaster", "coffee_station", "storage_jars"):
+                score = (rank, -min([abs(x - h) for h in hob] or [9.0]))
+            elif dtype == "kettle":
+                score = (min([abs(x - s) for s in sink] or [5.0 + abs(x)]), 0)
+            elif dtype in ("utensil_pot", "chopping_board", "cutting_boards", "oil_bottles"):
+                score = (min([abs(x - h) for h in hob] or [5.0 + abs(x)]), 0)
+            else:
+                score = (0 if island else 1, -min(x - iw / 2.0 - a, b - x - iw / 2.0))
+            out.append((score, str(p["id"]), x, item))
+    out.sort(key=lambda t: (t[0], t[1], t[2]))
+    return out
 
-    reasons = {"microwave": "a countertop microwave at the end of the run, against the wall or the corner",
-               "coffee_machine": "a coffee machine at the end of the run", "toaster": "a toaster at the end of the run",
-               "kettle": "a kettle by the sink", "utensil_pot": "a utensil pot beside the hob, off its side gap",
-               "chopping_board": "a chopping board beside the hob, off its side gap",
-               "fruit_bowl": "a fruit bowl on a free stretch of the worktop"}
-    order = list(KITCHEN_DECOR_ORDER)
-    for dtype in order:
+
+def _on_hob(ctx: dict, dtype: str, placed: list[dict]) -> list:
+    """29 Oct 2026 (K6): the spots of the pot and pan set on a hob of the room's runs (its width the hob's + 8 cm
+    within ``COOKWARE_W_M``), clear of the windows behind and the other items (the hob is its place)."""
+    out = []
+    _iw, idp, ih = KITCHEN_DECOR_SIZES[dtype]
+    for p in ctx["counters"]:
+        c, rot, w, d = _front_box(p)
+        for b0, b1, kind in worktop_blocks(p, ctx["pieces"]):
+            if kind != "hob":
+                continue
+            hob_w = (b1 - b0) - 2.0 * WORKTOP_HOB_CLEAR_M
+            iw = min(COOKWARE_W_M[1], max(COOKWARE_W_M[0], hob_w + 0.08))
+            x = (b0 + b1) / 2.0
+            if abs(x) + iw / 2.0 > w / 2.0 + 1e-6 or d < idp + 0.02:
+                continue
+            world = G.rotate_point((c[0] + x, c[1]), rot, c)
+            item = {"type": dtype, "center": [round(world[0], 4), round(world[1], 4)],
+                    "rotation_deg": round(rot, 3), "size": [round(iw, 4), idp, ih], "host_id": p["id"]}
+            if any(x - iw / 2.0 < w1 + 0.05 and x + iw / 2.0 > w0 - 0.05 and ih > sill - WORKTOP_WINDOW_CLEAR_M
+                   for w0, w1, sill in ctx["windows"][p["id"]]):
+                continue
+            if any(o.get("host_id") == p["id"] and G.distance(o["center"], item["center"])
+                   < (float(o["size"][0]) + iw) / 2.0 for o in placed):
+                continue
+            out.append(((0, 0), str(p["id"]), x, item))
+    out.sort(key=lambda t: (t[0], t[1], t[2]))
+    return out
+
+
+WORKTOP_REASONS: dict[str, str] = {
+    "microwave": "a countertop microwave at the end of the run, against the wall or the corner",
+    "coffee_machine": "a coffee machine at the end of the run", "toaster": "a toaster at the end of the run",
+    "kettle": "a kettle by the sink", "utensil_pot": "a utensil pot beside the hob, off its side gap",
+    "chopping_board": "a chopping board beside the hob, off its side gap",
+    "fruit_bowl": "a fruit bowl on a free stretch of the worktop"}
+
+
+def kitchen_worktop_decor(building: dict, room: dict, pieces: list[dict], new_id, existing: list = ()) -> list[dict]:
+    """The worktop dressing of a kitchen (any room with a kitchen run), modest (28 Oct 2026; module note above): the
+    items of ``KITCHEN_DECOR_ORDER`` placed on the built counter runs of the room (no outline drawn inside another
+    run: ``fit.nested_counters``) at their real sizes, each where it belongs (``KITCHEN_DECOR_ORDER``), every one
+    passing ``worktop_item_ok``; at most one per ``WORKTOP_PER_M`` of free worktop and ``KITCHEN_DECOR_MAX`` in all.
+    Hosted on the counter (``host_id``: the build rests them on the built worktop), ``added_by_ai`` by rule with the
+    reason. None when the room takes no decor or already holds worktop items. The styling sets of 29 Oct 2026 follow
+    (``kitchen_styling_decor``)."""
+    if room.get("room_type") in NO_DECOR_ROOM_TYPES or not room_takes_decor(room):
+        return []
+    have = [d for d in list(building.get("decor") or []) + list(existing) if d.get("room_id") == room["id"]
+            and d.get("type") in KITCHEN_DECOR_TYPES]
+    if have:
+        return []
+    ctx = _worktop_context(building, room, pieces)
+    if ctx is None:
+        return []
+    budget = min(KITCHEN_DECOR_MAX, int(ctx["free_m"] / WORKTOP_PER_M))
+    placed: list[dict] = []
+    for dtype in KITCHEN_DECOR_ORDER:
         if len(placed) >= budget:
             break
-        got = candidates(dtype)
+        got = _worktop_candidates(ctx, dtype, placed)
         if not got and dtype == "coffee_machine":
-            got = candidates("toaster")
+            got = _worktop_candidates(ctx, "toaster", placed)
             dtype = "toaster" if got else dtype
         if not got:
             continue
         _s, _pid, _x, item = got[0]
         item.update({"id": new_id(room["level_id"]), "kind": "decor", "level_id": room["level_id"],
                      "room_id": room["id"], "asset": None, "source": "added_by_ai", "method": "rule",
-                     "reason": f"kitchen worktop dressing (28 Oct 2026): {reasons[dtype]}; on the worktop of "
+                     "reason": f"kitchen worktop dressing (28 Oct 2026): {WORKTOP_REASONS[dtype]}; on the worktop of "
                                f"{item['host_id']}, off the hob, the sink and the windows (code checks)"})
         placed.append(item)
+    return placed
+
+
+def kitchen_styling_decor(building: dict, room: dict, pieces: list[dict], new_id, existing: list = (),
+                          family: Optional[str] = None) -> list[dict]:
+    """29 Oct 2026 (lessons UL115, UL118; docs/reference_details_20261029.md K6 / K14): the styling sets of the style
+    ``family``'s kitchen (``kitchen_details.family_rule(family)["styling"]``; the family of the runs' fitted assets
+    when none is given) after the appliances (``existing``: the items of the room so far): a pot and a pan on the hob,
+    glass storage jars and cutting boards against the splashback, oil bottles beside the hob, a stack of plates and a
+    vase of dried grass on the island or a free stretch (never under a wall cabinet it would reach: ``worktop_item_ok``),
+    a coffee station: the coffee machine of the appliances becomes the station (the machine with cups and plates on a
+    board) where its box fits at a run end, else a station of its own; one set per ``STYLING_PER_M`` of the worktop the
+    appliances leave free, at most ``STYLING_MAX``. Each set is one item (one mesh at build), ``added_by_ai`` by rule
+    with its reason. None when the room takes no decor or already holds styling sets."""
+    if room.get("room_type") in NO_DECOR_ROOM_TYPES or not room_takes_decor(room):
+        return []
+    mine = [d for d in list(building.get("decor") or []) + list(existing) if d.get("room_id") == room["id"]]
+    if any(d.get("type") in STYLING_TYPES for d in mine):
+        return []
+    ctx = _worktop_context(building, room, pieces)
+    if ctx is None:
+        return []
+    from wenart.blender import kitchen_details as KD
+    if family is None:
+        family = next((str((p.get("asset") or {}).get("style_family")) for p in ctx["counters"]
+                       if isinstance(p.get("asset"), dict) and (p.get("asset") or {}).get("style_family")), None)
+    rule = KD.family_rule(family)
+    run_ids = {p["id"] for p in ctx["counters"]}
+    on_top = [d for d in mine if d.get("host_id") in run_ids and d.get("type") in KITCHEN_DECOR_TYPES]
+    used = sum(float(d["size"][0]) for d in on_top if d.get("size"))
+    budget = min(STYLING_MAX, int(max(0.0, ctx["free_m"] - used) / STYLING_PER_M))
+    placed: list[dict] = []
+
+    def why(dtype: str, host: str) -> str:
+        return (f"kitchen styling (29 Oct 2026, the {rule['family']} family's kitchen, UL118): "
+                f"{KD.STYLING_REASONS[dtype]}; on {host}, off the sink, the windows, the wall cabinets and the other "
+                "items (code checks)")
+
+    added = 0
+    for dtype in rule["styling"]:
+        if dtype == "coffee_station":
+            machine = next((d for d in on_top if d.get("type") == "coffee_machine"), None)
+            if machine is not None:
+                # K14: the machine becomes the station where the station's box fits on the machine's stretch
+                others = [d for d in on_top if d is not machine] + placed
+                got = [g for g in _worktop_candidates(ctx, dtype, others) if g[1] == str(machine["host_id"])]
+                if got:
+                    got.sort(key=lambda g: G.distance(g[3]["center"], machine["center"]))
+                    item = got[0][3]
+                    machine.update(type="coffee_station", center=item["center"], size=item["size"],
+                                   rotation_deg=item["rotation_deg"], reason=why(dtype, machine["host_id"])
+                                   + "; the coffee machine of the worktop with cups and plates beside it (K14)")
+                continue
+        if added >= budget and dtype != "cookware":
+            break
+        got = (_on_hob(ctx, dtype, on_top + placed) if dtype == "cookware"
+               else _worktop_candidates(ctx, dtype, on_top + placed))
+        if not got:
+            continue
+        item = got[0][3]
+        item.update({"id": new_id(room["level_id"]), "kind": "decor", "level_id": room["level_id"],
+                     "room_id": room["id"], "asset": None, "source": "added_by_ai", "method": "rule",
+                     "reason": why(dtype, item["host_id"])})
+        placed.append(item)
+        if dtype != "cookware":                        # the pot and pan stand on the hob: no worktop taken
+            added += 1
     return placed
 
 

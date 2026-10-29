@@ -1021,7 +1021,9 @@ def test_a_sink_beside_its_run_a_pinned_sink_and_a_run_without_modules_keep_the_
     beside = drawn("sink_kitchen", 0.8, 0.5, "f_sink", room="r_k", front=0.0, center=(0.0, 1.7))
     inside = drawn("sink_kitchen", 0.8, 0.5, "f_sink", room="r_k", front=0.0, center=(0.0, -0.2))
     assert F.kitchen_built_ins({"furniture": [run, inside]})["sinks"] == {"f_sink": "f_run"}
-    assert F.kitchen_built_ins({"furniture": [run, beside]}) == {"hints": {}, "sinks": {}}
+    # 29 Oct 2026: the pre-pass also gives the kitchen details' hints (``details``: here the kitchen's tall-unit column)
+    found = F.kitchen_built_ins({"furniture": [run, beside]})
+    assert {k: found[k] for k in ("hints", "sinks")} == {"hints": {}, "sinks": {}}
     one = F.fit_building({"furniture": [copy.deepcopy(run), copy.deepcopy(beside)]}, library, mode="relaxed")
     assert "built_in" not in one["furniture"][1]["asset"] and "built_ins" not in one["furniture"][0]["asset"]["module_plan"]
     pinned = dict(inside, asset_pin="some_model")
