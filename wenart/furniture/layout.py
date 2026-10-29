@@ -749,6 +749,17 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
     for r in fills:
         print(f"layout: room fill {r['room_id']} {r['what']}: "
               + (f"{r['piece']['id']} added" if r["piece"] else f"none ({r['why'][:160]})"))
+    # 29 Oct 2026 (user's bathroom photos, UL114, UL123, UL124): every wet room's fixtures in the style family's look
+    # (a wall-hung WC, a floating vanity where the drawing has room, the open lit column, a walk-in shower; their
+    # finish and towel colour; the feature wall), the drawn footprints kept (wenart.furniture.bath_details)
+    from wenart.furniture import bath_details as BD
+
+    completed, baths = BD.plan_building(completed, profile if isinstance(profile, dict) else None)
+    for r in baths:
+        looks = ", ".join(f"{pid} {'/'.join(str(v) for k, v in rec.items() if k != 'why' and v not in (True, None))}"
+                          for pid, rec in r["pieces"].items() if len(rec) > 1)
+        print(f"layout: bathroom {r['room_id']} ({r['family']}): {looks or 'as drawn'}"
+              + (f"; feature wall {r['feature']}" if r.get("feature") else ""))
     down = getattr(client, "down", None)
     if down:
         print(f"layout: the vision model could not be reached ({down}): every room took the solver's best candidate",

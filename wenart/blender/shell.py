@@ -1838,6 +1838,15 @@ def floor_style(room: dict, style: dict, outdoor: dict | None = None) -> tuple[d
         return style["floor"], True
     wet = kind in WET_ROOM_TYPES
     slot = (style.get("wet_floor") if wet else None) or style["floor"]
+    if wet and kind not in KITCHEN_TYPES and slot is style.get("wet_floor"):
+        # 29 Oct 2026 (UL114 B8): a bathroom's or WC's floor in the family's large stone-look tile (the brief's wins)
+        try:
+            from wenart.blender import bath_parts as BT
+            tile = BT.wet_tile_look(style, "floor")
+        except ImportError:
+            tile = None
+        if tile is not None:
+            slot = {k: v for k, v in tile.items() if k in ("material", "asset", "colour")}   # its own 60 x 120 grid
     # 29 Oct 2026 (UL106): the style's plank floor laid in the room's pattern (herringbone / chevron; the build writes
     # ``room["floor_pattern"]``, wenart.blender.parquet.annotate)
     if not wet and slot is style.get("floor") and isinstance(slot, dict):

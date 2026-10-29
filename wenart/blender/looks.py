@@ -78,11 +78,25 @@ def wall_face_material(style: dict, room: Optional[dict] = None) -> dict:
 def wet_wall_look(style: dict, room: Optional[dict] = None) -> dict:
     """The look of the wall faces of a wet room: the style's ``wet_walls`` slot (tile kind; the brief's tile size,
     pattern and grout colour go to the procedural tiles as ``params``), else ``walls``."""
+    family_tile = _family_wet_tile(style, "walls")
+    if family_tile is not None:             # 29 Oct 2026 (UL114 B8): the family's large-format stone-look tiles
+        return _look(family_tile["material"], None, family_tile["colour"], "family", family_tile["reason"],
+                     params=family_tile["params"])
     wet = _slot(style, "wet_walls") or _slot(style, "walls")
     params = {k: wet.get(k) for k in ("tile_size_m", "pattern", "grout_colour") if wet.get(k) is not None}
     return _look(wet.get("material") or "tiles_light", wet.get("asset"), wet.get("colour"), "style",
                  "style wet_walls" + (f" ({', '.join(f'{k} {v}' for k, v in params.items())})" if params else ""),
                  params=params or None)
+
+
+def _family_wet_tile(style: dict, surface: str) -> Optional[dict]:
+    """29 Oct 2026 (UL114 B8, ``bath_parts.wet_tile_look``): a wet room's family tile of ``surface`` when the brief
+    chose none; None otherwise (or without the table)."""
+    try:
+        from wenart.blender import bath_parts as BT
+    except ImportError:
+        return None
+    return BT.wet_tile_look(style, surface)
 
 
 def _unit(dx: float, dy: float) -> tuple[float, float]:
@@ -498,7 +512,8 @@ def kitchen_family_look(ftype: str, style: Optional[dict], have: dict) -> tuple[
             notes.append(f"{key} {value}: the {family} family's kitchen look (style.json cabinets names none; assumed)")
     return out, notes
 DESIGN_KEYS = ("front_style", "colour", "fabric_colour", "wood", "handle", "worktop", "material_tags", "built_in",
-               "vanity", "style_family")
+               "vanity", "style_family",
+               "towel_colour")       # 29 Oct 2026 (UL124 B26): the bathroom's towels in the room's accent colour
 
 
 def _front_depth(piece: dict) -> float:
@@ -589,7 +604,32 @@ def design_for(piece: dict, style: dict, building: Optional[dict] = None) -> tup
             if colour:
                 design["fabric_colour"] = colour
                 notes.append(f"fabric_colour {colour} from {source} (M13 B1: the design had none)")
+        return bath_design(piece, design, notes)
+    design, notes = _design_from_style(piece, style, building)
+    return bath_design(piece, design, notes)
+
+
+def bath_design(piece: dict, design: dict, notes: list[str]) -> tuple[dict, list[str]]:
+    """29 Oct 2026 (lessons UL114, UL124; ``bath_parts``): a bathroom piece's design takes its family's fixture finish
+    as its handle (the flush plate, the mixers, the shower fittings) and the room's towel colour, unless the design
+    names them (pure)."""
+    look = piece.get("bath_look") if isinstance(piece.get("bath_look"), dict) else {}
+    if not look:
         return design, notes
+    from wenart.blender import bath_parts as BT
+
+    handle = BT.finish_handle(piece)
+    if handle and "handle" not in design:
+        design = dict(design, handle=handle)
+        notes = list(notes) + [f"handle {handle}: the bathroom's {look.get('finish')} finish (UL114)"]
+    if look.get("towel_colour") and "towel_colour" not in design:
+        design = dict(design, towel_colour=look["towel_colour"])
+        notes = list(notes) + [f"towels {look['towel_colour']}: the room's accent (UL124 B26)"]
+    return design, notes
+
+
+def _design_from_style(piece: dict, style: dict, building: Optional[dict] = None) -> tuple[dict, list[str]]:
+    """``design_for`` without a layout-stage design: the style's fallback looks (``design_for``'s docstring)."""
     ftype = piece.get("type")
     design: dict = {}
     notes: list[str] = []

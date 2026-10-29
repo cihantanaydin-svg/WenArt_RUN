@@ -57,6 +57,11 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   front of it; UL92: "This washing machine would not open");
 - U20 a piece whose back belongs on a wall standing parallel to it a drawing gap (0.055-0.15 m) off it
   (``fixture_use.back_gaps``; UL96: "There is a gap between wall and water faucet not looking good").
+- U30 (UL114, UL123, UL124, 29 Oct 2026: the user's bathroom photos, "Look at the details in the toilet analyze
+  implement into the projects") a wet room missing the set its style family gets (``wenart.furniture.bath_details.
+  review``, the model review's M26): a WC without its paper holder or brush or not wall-hung in a wall-hung family, a
+  basin without its mirror (of the family's kind) or, where the drawing has room, its vanity, a shower without its
+  walk-in enclosure, a bathroom without a towel rail or a towel shelf or bar.
 - U27 (UL109, 29 Oct 2026: "There are no chimneys there could be some chimney in the projects") a drawn fireplace,
   stove, flue or boiler room (``chimney.drawn_sources``) with no chimney on the roof (kind ``lost``); a house with a
   pitched roof whose style family usually has a chimney (``chimney.FAMILY_CHIMNEYS``) and no chimney in the scene.
@@ -722,6 +727,23 @@ def rooms_for_use(building: dict) -> list[dict]:
     return out
 
 
+def bathroom_sets(building: dict) -> list[dict]:
+    """U30 (29 Oct 2026, lessons UL114, UL123, UL124): ``wenart.furniture.bath_details.review`` on the building as
+    built, each finding with the stage that adds what is missing."""
+    from wenart.furniture import bath_details as BD
+
+    fixes = {"toilet_paper_holder": "rerun_stage decor (bath_details.dress: the paper holder beside the WC)",
+             "toilet_brush": "rerun_stage decor (bath_details.dress: the brush beside the WC)",
+             "towel_rail": "rerun_stage decor (bath_details.dress: a towel rail on a free wall)",
+             "towel_shelf": "rerun_stage decor (bath_details.dress: a towel shelf beside the rail, towel bars)",
+             "mirror": "complete_group (a mirror over the basin), else rerun_stage decor",
+             "mirror_kind": "rerun_stage decor (bath_details.dress: the family's mirror)"}
+    return [_f("U30", g["severity"], g["target"], g["message"], "UL114",
+               fixes.get(g["missing"], "rerun_stage layout (bath_details.plan_building: the family's fixtures)"),
+               missing=g["missing"], room=g["room_id"])
+            for g in BD.review(building, check="U30")[0]]
+
+
 BUILDING_CHECKS = (("U1", entrances_at_windows), ("U2", roofs_without_posts), ("U3", thick_columns),
                    ("U4", flat_drawn_roofs), ("U5", traced_covers), ("U6", storage_before_tall_windows),
                    ("U8", seats_facing_walls), ("U9", indoor_pieces_outdoors), ("U10", basins_without_mirrors),
@@ -738,6 +760,8 @@ CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4":
                  "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107"),
                  "U16": ("UL92",), "U20": ("UL96",), "U27": ("UL109",)}
 CHECK_LESSONS["U23"] = ("UL106",)          # 29 Oct 2026: the professional bar (professional_bar)
+BUILDING_CHECKS = BUILDING_CHECKS + (("U30", bathroom_sets),)     # 29 Oct 2026: the bathroom's set (UL114)
+CHECK_LESSONS["U30"] = ("UL114",)
 
 
 def professional_bar(building: dict, manifest: Optional[dict]) -> list[dict]:

@@ -752,7 +752,29 @@ def load_style(path: str | None, warnings: list[str], assumed: list[dict] | None
         # the flat albedo mode (docs/milestone5.md §2.2) and a tint would darken twice.
         _loud(f"style file {p}: walls.tint {walls['tint']} ignored (Milestone 5 albedo modes; "
               f"regenerate the style with python -m wenart.style)", warnings)
+    family_wet_tiles(style, assumed)
     return style, str(p)
+
+
+def family_wet_tiles(style: dict, assumed: list[dict]) -> dict:
+    """In place (29 Oct 2026, lesson UL114 B8; ``bath_parts.wet_tile_look``): the wet rooms' walls and floor in the
+    style family's large-format stone-look porcelain where the brief chose no wet-room tiles; each change an
+    ``assumed`` record, so the scene's style profile (the gate, the polish words) names the tiles it shows."""
+    from wenart.blender import bath_parts as BT
+
+    for slot, surface in (("wet_walls", "walls"), ("wet_floor", "floor")):
+        tile = BT.wet_tile_look(style, surface)
+        if tile is None:
+            continue
+        params = tile["params"]
+        new = {"material": tile["material"], "asset": None, "colour": tile["colour"]}
+        if surface == "walls":
+            new.update(tile_size_m=list(params["tile_size_m"]), pattern=params["pattern"],
+                       grout_colour=params["grout_colour"])
+        style[slot] = new
+        assumed.append({"object": "style", "field": slot, "value": f"{tile['material']} {tile['colour']}",
+                        "reason": tile["reason"]})
+    return style
 
 
 def load_assets(assets_dir: str | None, no_textures: bool, warnings: list[str]) -> tuple[dict, dict, dict]:

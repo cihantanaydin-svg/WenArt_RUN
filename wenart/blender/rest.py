@@ -164,9 +164,12 @@ SHELF_HOSTS: tuple[str, ...] = ("bookshelf",)
 TOP_HOST_TYPES: tuple[str, ...] = ("table_coffee", "table_dining", "side_table", "nightstand", "dresser", "tv_unit",
                                    "desk", "sideboard", "console_table", "shoe_cabinet", "display_cabinet",
                                    "bookshelf", "kitchen_counter", "kitchen_island", "tall_cabinet", "wardrobe")
-WALL_SUPPORT_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind")
+WALL_SUPPORT_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind",
+                                       # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's wall details
+                                       "toilet_paper_holder", "towel_rail", "towel_shelf", "towel_bar",
+                                       "feature_panel", "cove_light")
 CEILING_SUPPORT_TYPES: tuple[str, ...] = ("pendant_light", "ceiling_light")
-FLOOR_SUPPORT_TYPES: tuple[str, ...] = ("plant", "plant_large", "rug")
+FLOOR_SUPPORT_TYPES: tuple[str, ...] = ("plant", "plant_large", "rug", "toilet_brush")
 RAY_SUPPORTS: tuple[str, ...] = ("seat", "mattress", "back", "headboard", "top", "shelf")
 
 

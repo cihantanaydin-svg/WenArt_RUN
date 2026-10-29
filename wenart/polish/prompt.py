@@ -112,6 +112,7 @@ MATERIAL_WORDS: dict[str, str] = {
     "stone_worktop": "dark stone",
     "lacquer_dark": "dark lacquered",
     "screen_black": "glossy black screen",            # 29 Oct 2026: a TV's, a laptop's or a monitor's screen
+    "led_strip": "warm LED light strip",              # 29 Oct 2026 (UL114): the bathroom details' LED strips
     "plant_green": "green plant",
     "wood_veneer_oak": "light oak veneer",
     "wood_veneer_walnut": "walnut veneer",
@@ -277,6 +278,10 @@ DECOR_WORDS: dict[str, str] = {
     # 29 Oct 2026 (wenart.furniture.tabletop.work_set): the desk's work set
     "laptop": "open laptop", "monitor": "computer monitor", "keyboard": "keyboard", "computer_mouse": "computer mouse",
     "tv": "flat television",                                          # 29 Oct 2026 (UL99)
+    # 29 Oct 2026 (wenart.furniture.bath_details, UL114, UL123, UL124): the bathroom's accessories
+    "toilet_paper_holder": "toilet paper holder", "toilet_brush": "toilet brush", "towel_rail": "heated towel rail",
+    "towel_shelf": "towel shelf", "towel_bar": "towel bar", "feature_panel": "feature wall panel",
+    "cove_light": "cove light",
 }
 # rooms[].room_subtype words (Milestone 10: a child's room holds cribs and bunk beds).
 SUBTYPE_WORDS: dict[str, str] = {"child": "child's bedroom"}

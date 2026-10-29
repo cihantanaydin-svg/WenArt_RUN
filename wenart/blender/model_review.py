@@ -120,6 +120,11 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   sink unit f_L0_020 stood 0.08 m off the wall under the window; ``fixture_use.back_gaps``): no piece whose back belongs
   on a wall stands parallel to it 0.055-0.15 m off it (major; a drawing gap the reading snaps,
   ``reading.fixture_use_fixes``).
+- M26 the bathroom's set (29 Oct 2026, lessons UL114, UL123, UL124, the user's bathroom photos: "Look at the details
+  in the toilet analyze implement into the projects"; ``wenart.furniture.bath_details.review``): every wet room has the
+  set its style family gets: a WC with its paper holder and brush and (wall-hung families) wall-hung with its flush
+  plate, a basin with its mirror of the family's kind and, where the drawing has room, the family's floating vanity, a
+  shower with its walk-in enclosure, a bathroom with a towel rail and a towel shelf or bar. Minor; kind ``taste``.
 - M24 every chimney as a builder makes it (29 Oct 2026, lesson UL109, user on real06 run 20261028-154514-full: "There
   are no chimneys there could be some chimney in the projects"; ``chimney.measure``), on the scene's chimney records
   (their bottom as built), else the plan's: a chimney off the roof (it does not reach the roof) or floating over its
@@ -161,6 +166,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
 CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18",
           "M19", "M20", "M21", "M22", "M23", "M24")   # 29 Oct 2026: M19 fixtures in use, M20 doors as products, M21 rooms for their use, M22 backs on walls, M23 the professional bar, M24 chimneys
+CHECKS = CHECKS + ("M26",)       # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's set (bath_details.review)
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -1296,6 +1302,20 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             checks["M23"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     else:
         checks["M23"] = {"status": "unavailable", "note": "no scene manifest"}
+    # M26 (29 Oct 2026, lessons UL114, UL123, UL124: the user's bathroom photos): every wet room's set as its style
+    # family gets it (wenart.furniture.bath_details.review; shapely: imported by name as M17, out of the build's closure)
+    try:
+        import importlib
+
+        BD = importlib.import_module("wenart.furniture.bath_details")
+        got, n = BD.review(built, check="M26")
+        note("M26", [dict(_v("M26", g["severity"], g["target"], g["message"], room_id=g["room_id"], kind="taste",
+                             missing=g["missing"], rule=g["metrics"]["rule"], lesson="UL114"), fix=FIX_BATH)
+                     for g in got], n)
+    except ImportError as exc:
+        checks["M26"] = {"status": "unavailable", "note": f"{type(exc).__name__}: {exc}"}
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M26"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M19 / M22 (29 Oct 2026, the user on real06: "This washing machine would not open", "this sink not making sense
     # there", "There is a gap between wall and water faucet not looking good"): fronts that open, basins under a solid
     # wall, backs on their walls, on the building as built (pure)
@@ -1308,6 +1328,9 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
     return {"findings": findings, "checks": checks}
 
 
+FIX_BATH = ("the layout stage's bathroom looks (wenart.furniture.bath_details.plan_building: the family's WC, vanity, "
+            "column and shower) and the decor stage's accessories (bath_details.dress: paper holder and brush, towel "
+            "rail, shelf and bars, the family's mirror)")
 FIX_PRO_BAR = ("the decor stage's professional dressing (wenart.furniture.dressing: layered curtains and bedding, the "
                "lights' roles) and the build's finishes (feature_walls on the accent wall, parquet on the wood floor)")
 

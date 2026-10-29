@@ -174,12 +174,20 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug", "wall_art
                                  "laptop", "monitor", "keyboard", "computer_mouse")
 MEDIA_DECOR_TYPES: tuple[str, ...] = ("tv",)   # 29 Oct 2026 (UL99): the TV on a TV unit (furniture.media_wall),
 DECOR_TYPES = DECOR_TYPES + MEDIA_DECOR_TYPES   # parametric until audited library models of it exist
+# 29 Oct 2026 (lessons UL114, UL123, UL124: the user's bathroom photos): the bathroom's accessories, placed by the rules of
+# wenart.furniture.bath_details (the AI does not choose them), built by wenart.blender.bath_parts (= its
+# BATH_DECOR_TYPES)
+BATH_DECOR_TYPES: tuple[str, ...] = ("toilet_paper_holder", "toilet_brush", "towel_rail", "towel_shelf", "towel_bar",
+                                     "feature_panel", "cove_light")
+DECOR_TYPES = DECOR_TYPES + BATH_DECOR_TYPES
 SETTING_TYPES: tuple[str, ...] = ("plate", "glass")
 WORK_DECOR_TYPES: tuple[str, ...] = ("laptop", "monitor", "keyboard", "computer_mouse")
 # Not held to MAX_DECOR_M (Milestone 8, 9; Milestone 10: window dressings, throws, large plants and floor
 # sculptures, pendants on their cord).
 LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "blind", "throw", "plant_large",
-                                      "sculpture", "pendant_light", "tv")      # 29 Oct 2026: a 43-65 inch TV
+                                      "sculpture", "pendant_light", "tv",      # 29 Oct 2026: a 43-65 inch TV
+                                      # 29 Oct 2026 (UL114): a 1.2 m towel rail, a wall's feature panel, a cove band
+                                      "towel_rail", "feature_panel", "cove_light")
 MAX_DECOR_M = 0.6
 # Milestone 12 (§4.7, B7): real sizes (width, thickness, height): a 45 cm square cushion standing against a sofa
 # back, a 50 cm one leaning at a bed's head (in front of the sleeping pillows); never stretched by a model fit.

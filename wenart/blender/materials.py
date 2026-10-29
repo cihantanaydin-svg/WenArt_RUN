@@ -2434,6 +2434,38 @@ def screen_material(name: str = SCREEN_MATERIAL):
     return mat
 
 
+# 29 Oct 2026 (lessons UL114, UL123, UL124: the user's bathroom photos): the LED strips of the bathroom details (under a
+# floating vanity, under the niche column's shelves, in a mirror's band or behind a backlit mirror, in the cove slot;
+# parametric key ``led``). A warm-white (about 3000 K, linear RGB, designer value) Emission at LED_EMISSION, the
+# radiance of a fixture shade (lighting.SHADE_EMISSION_WM2SR: no clipping at the interiors' EV range), so a strip reads
+# as lit and glows on the floor or the wall without moving the exposure. Not a rig light (no ``wenart_light``): the
+# room's light stays the rig's; the strips are sampled as emitters (their glow on the floor and the wall is the point).
+LED_MATERIAL = "wenart_led_strip"
+LED_RGB = (1.0, 0.80, 0.60)
+LED_EMISSION = 2.0
+
+
+def led_material(name: str = LED_MATERIAL):
+    """The material of an LED strip (bpy; notes above): one Emission shader for every strip of the scene (cached)."""
+    import bpy
+
+    mat = bpy.data.materials.get(name)
+    if mat is not None:
+        return mat
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    for n in list(nodes):
+        if n.bl_idname == "ShaderNodeBsdfPrincipled":
+            nodes.remove(n)
+    emit = nodes.new("ShaderNodeEmission")
+    emit.inputs["Color"].default_value = (*LED_RGB, 1.0)
+    emit.inputs["Strength"].default_value = float(LED_EMISSION)
+    links.new(emit.outputs["Emission"], nodes.get("Material Output").inputs["Surface"])
+    mat["wenart_led"] = float(LED_EMISSION)
+    return mat
+
+
 # --------------------------------------------------------------------------
 # Fix round after P4a (17 Oct 2026): the glass of a library mirror
 # --------------------------------------------------------------------------
