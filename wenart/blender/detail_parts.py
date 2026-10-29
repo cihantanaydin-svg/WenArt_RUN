@@ -21,7 +21,8 @@ LEDs and objects together, so the build makes one object per detail: lesson UL11
 - ``intercom_parts`` (``intercom``, H2): a video door station's indoor monitor: a dark glass screen, a camera, two
   buttons, a speaker grille.
 - ``wall_tv_parts`` (a ``tv`` with ``tv.mount: wall``, R26): the flat panel on its wall bracket, no pedestal.
-- ``round_mirror_parts`` (a ``mirror`` with ``shape: round``, R10, H4): a round mirror in a thick frame.
+- ``round_mirror_parts`` (a ``mirror`` with ``shape: round``, R10, H4): a round mirror in a thick frame;
+  ``arch_mirror_parts`` (``shape: arch``, R19): an arched mirror over a bedroom's dressing table.
 - ``round_rug_parts`` (a ``rug`` with ``shape: round``, H6).
 - ``track_parts`` (a ``ceiling_light`` with ``fixture: track``, H7, R14): a black ceiling rail with three spots.
 - ``styled_book_set`` (a ``book_set`` with ``styled``, R20): books on part of the board and a small object beside them.
@@ -384,6 +385,52 @@ def round_mirror_parts(w: float, d: float, h: float, item: Optional[dict] = None
                     _cylinder_y(0.0, -d / 2.0, r, r - f, r - f, g + 0.0005, "mirror", "glass", n=56)], w, d, h)
 
 
+def _prism_y(profile, y0: float, y1: float, key: str, role: str) -> Part:
+    """A convex polygon ``profile`` (``[(x, z)]``, counter-clockwise seen from -Y) extruded from ``y0`` to ``y1``."""
+    n = len(profile)
+    verts = [(x, y0, z) for x, z in profile] + [(x, y1, z) for x, z in profile]
+    faces = [list(range(n)), list(range(2 * n - 1, n - 1, -1))]
+    faces += [[k, n + k, n + (k + 1) % n, (k + 1) % n] for k in range(n)]
+    part = {"verts": verts, "faces": faces, "key": key, "role": role}
+    cx = sum(v[0] for v in verts) / len(verts)
+    cy = sum(v[1] for v in verts) / len(verts)
+    cz = sum(v[2] for v in verts) / len(verts)
+    fixed = []
+    for f in faces:                                  # wound outwards whatever the profile's turn
+        a, b, c = (verts[i] for i in f[:3])
+        nx = (b[1] - a[1]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[1] - a[1])
+        ny = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2])
+        nz = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+        fc = [sum(verts[i][k] for i in f) / len(f) for k in range(3)]
+        fixed.append(f if nx * (fc[0] - cx) + ny * (fc[1] - cy) + nz * (fc[2] - cz) >= 0 else list(reversed(f)))
+    part["faces"] = fixed
+    return part
+
+
+def arch_profile(w: float, h: float, inset: float = 0.0, steps: int = 16) -> list[tuple[float, float]]:
+    """The outline of an arch-topped panel ``w`` wide, ``h`` high (``[(x, z)]``; a half circle of radius ``w / 2``
+    on a rectangle), shrunk by ``inset``."""
+    r = w / 2.0 - inset
+    zc = h - w / 2.0
+    pts = [(-r, inset), (r, inset)]
+    for k in range(steps + 1):
+        a = math.pi * k / steps
+        pts.append((r * math.cos(a), zc + r * math.sin(a)))
+    pts.append((-r, inset))
+    return [p for i, p in enumerate(pts[:-1]) if i == 0 or (abs(p[0] - pts[i - 1][0]) > 1e-9
+                                                            or abs(p[1] - pts[i - 1][1]) > 1e-9)]
+
+
+def arch_mirror_parts(w: float, d: float, h: float, item: Optional[dict] = None) -> list[Part]:
+    """R19: an arched mirror over a dressing table: a thin frame (black or wood), the glass on its front."""
+    h = max(h, w * 0.75)
+    f = min(0.025, w / 12.0)
+    g = min(0.004, d / 4.0)
+    key = "dark" if (item or {}).get("frame") == "dark" else "accent_wood"
+    return contain([_prism_y(arch_profile(w, h), -d / 2.0 + g, d / 2.0, key, "frame"),
+                    _prism_y(arch_profile(w, h, f), -d / 2.0, -d / 2.0 + g + 0.0005, "mirror", "glass")], w, d, h)
+
+
 def round_rug_parts(w: float, d: float, h: float) -> list[Part]:
     return [_cylinder_z(0.0, 0.0, 0.0, w / 2.0, d / 2.0, h, "fabric", "rug", n=64)]
 
@@ -529,6 +576,8 @@ def variant_parts(dtype: str, w: float, d: float, h: float, item: Optional[dict]
     it = item or {}
     if dtype == "mirror" and it.get("shape") == "round":
         return round_mirror_parts(w, d, h, it)
+    if dtype == "mirror" and it.get("shape") == "arch":
+        return arch_mirror_parts(w, d, h, it)
     if dtype == "rug" and it.get("shape") == "round":
         return round_rug_parts(w, d, h)
     if dtype == "ceiling_light" and it.get("fixture") == "track":

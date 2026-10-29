@@ -2360,7 +2360,7 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
         return None
     if item.get("fixture") == "downlight":            # 29 Oct 2026 (UL106): our recessed downlight (parametric)
         return None
-    if item.get("fixture") == "track" or item.get("shape") == "round" or item.get("stems") \
+    if item.get("fixture") == "track" or item.get("shape") in ("round", "arch") or item.get("stems") \
             or (item.get("tv") or {}).get("mount") == "wall":
         return None      # 29 Oct 2026 (UL113, UL115): our track light, round mirror or rug, a vase with pampas
     styled = [e for e in decor_entries(catalog, dtype, mode) if decor_styles_match(e, style_family)

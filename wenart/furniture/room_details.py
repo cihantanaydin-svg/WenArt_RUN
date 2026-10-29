@@ -36,7 +36,8 @@ professional dressing of UL106, ``wenart.furniture.dressing``; the questions and
    of pampas grass on it (H4, R10, H5); a big floor vase with pampas grass in a free corner (H5); a round rug in a
    squarish hall, a runner in a long one (H6); a video intercom panel beside the main entrance door, 1.5 m up (H2); a
    large art frame leaning on the floor against a free wall (R5); a round wall mirror over a chest or on a free wall
-   (R10); one lived-in object in every bedroom (a bag on the floor, R29); a venetian blind behind the curtains of the
+   (R10; over a bedroom's dressing table an arched one, R19); one lived-in object in every bedroom (a bag on the
+   floor, R29); a venetian blind behind the curtains of the
    modern families (R21); objects between the books on a bookshelf's boards (R20).
 
 Every item is ``source: added_by_ai``, ``method: rule``, ``rule: room_details.<what>`` with its reason; floor items
@@ -73,6 +74,9 @@ INTERCOM_CENTRE_M = 1.50
 INTERCOM_DOOR_GAP_M = 0.20                    # its edge this far from the door's opening edge (past the architrave)
 ROUND_MIRROR_W = (0.8, 0.7, 0.6, 0.5)
 ROUND_MIRROR_FREE_CENTRE_M = 1.55             # a round mirror on a free wall: its centre at eye height
+ARCH_HOSTS: tuple[str, ...] = ("dresser", "console_table")      # a bedroom's dressing table (R19)
+ARCH_MIRROR_W = (0.6, 0.5)
+ARCH_MIRROR_ASPECT = 1.6
 TV_WALL_CENTRE_M = {"living": 1.05, "bedroom": 1.15}     # seated eye height; propped up in bed
 TV_WALL_DEPTH_M = 0.07                        # a slim panel on a flat wall bracket
 TV_OVER_UNIT_M = 0.22                         # a TV hung over its unit: its bottom this far over the unit's top
@@ -141,7 +145,7 @@ def _toned(item: Optional[dict], family: str) -> Optional[dict]:
         put("frame", t["frame"])
     elif dtype == "bag":
         put("colour", t["bag"])
-    elif dtype == "mirror" and item.get("shape") == "round":
+    elif dtype == "mirror" and item.get("shape") in ("round", "arch"):
         put("frame", t["frame"])
     elif dtype == "rug":
         put("colour", t["rug"])
@@ -916,23 +920,29 @@ def leaning_art(building: dict, rc: Room, reason: str) -> Optional[dict]:
 
 def round_mirror(building: dict, rc: Room, reason: str, hosts=("console_table", "dresser", "sideboard",
                                                               "shoe_cabinet")) -> Optional[dict]:
-    """R10 (H4): a round mirror over a chest or console without a picture over it, else on a free wall at eye
-    height."""
+    """R10 (H4): a round mirror over a chest or console without a picture over it (R19: over a bedroom's chest, a
+    dressing table, an arched one), else a round one on a free wall at eye height."""
     from wenart.furniture import decor as D
 
     room = rc.room
     hung = {a for d in rc.decor(("wall_art", "mirror", "clock")) for a in d.get("anchor_ids") or []}
     for host in sorted((f for f in rc.pieces if f.get("type") in hosts and f["id"] not in hung),
                        key=lambda f: (hosts.index(f["type"]), f["id"])):
-        for w in ROUND_MIRROR_W:
+        # R19: over a bedroom's chest (a dressing table) an arched mirror, as tall as 1.6 x its width where it fits
+        arch = room.get("room_type") == "bedroom" and host["type"] in ARCH_HOSTS
+        for w in (ARCH_MIRROR_W if arch else ROUND_MIRROR_W):
             it, _why = D.wall_art_for_host(host, rc.ctx, building, rc.level, dtype="mirror", width_share=1.0, max_w=w,
                                            gap=0.20, min_w=w - 1e-6)
-            if it is None or float(it.get("max_height_m") or 0.0) < w:
+            need = w * (ARCH_MIRROR_ASPECT if arch else 1.0)
+            if it is None or float(it.get("max_height_m") or 0.0) < (w * 1.2 if arch else w):
                 continue
-            out = _item(room, "mirror", "round_mirror", f"{reason}: a round mirror over {host['id']} (R10, H4)",
+            what = (f"an arched mirror over the dressing table {host['id']} (R19)" if arch
+                    else f"a round mirror over {host['id']} (R10, H4)")
+            out = _item(room, "mirror", "arch_mirror" if arch else "round_mirror", f"{reason}: {what}",
                         it["center"], (w, 0.04), it["rotation_deg"])
             out.update({k: it[k] for k in ("wall_point", "wall_id", "gap_m", "bottom_m") if k in it})
-            out.update(shape="round", max_height_m=w, anchor_ids=[host["id"]])
+            out.update(shape="arch" if arch else "round", anchor_ids=[host["id"]],
+                       max_height_m=round(min(need, float(it["max_height_m"])), 3))
             return out
     for st in rc.stretches(min_len=1.0, tall_m=1.0, front_m=0.5):
         w = next((x for x in ROUND_MIRROR_W if x <= st["length"] - 0.3), None)
@@ -1313,7 +1323,8 @@ def dress_room(building: dict, room: dict, sc: dict, fam: str, new_id: Callable,
             continue
         it["id"] = new_id(room["level_id"])
         building.setdefault("decor", []).append(it)
-        _note(applied, rid, f"{extra.replace('_', ' ')} {it['id']}")
+        what = "arched mirror" if it.get("shape") == "arch" else extra.replace("_", " ")
+        _note(applied, rid, f"{what} {it['id']}")
     if sc.get("kind") == "hall":
         rug = _toned(hall_rug(building, rc, sc), fam)
         if rug is not None:

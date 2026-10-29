@@ -347,6 +347,19 @@ def test_a_hall_console_gets_a_round_mirror_pampas_and_a_round_rug():
     assert runner.get("shape") is None and runner["size"][0] > runner["size"][1]       # a runner in a long hall
 
 
+def test_a_bedrooms_dressing_table_gets_an_arched_mirror():
+    b = bedroom(furniture=[("dresser", (3.5, 0.3), 180.0, (0.9, 0.45))])
+    m = RD.round_mirror(b, RD.Room(b, _room(b)), "test")
+    assert m["shape"] == "arch" and m["anchor_ids"] == ["f_L0_004"] and "R19" in m["reason"]
+    assert m["size"][0] in RD.ARCH_MIRROR_W and m["max_height_m"] > m["size"][0]
+    box = F.mirror_box(m)
+    assert box[2] == pytest.approx(min(1.6 * m["size"][0], m["max_height_m"]))
+    parts = P.decor_parts("mirror", *box, m)
+    x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
+    assert z0 == 0.0 and z1 == pytest.approx(box[2]) and {p["key"] for p in parts} == {"accent_wood", "mirror"}
+    assert FIT.fit_decor_item(dict(m, size=[0.6, 0.04]), C.load()) is None
+
+
 def test_a_hall_without_a_console_gets_a_lit_niche_off_the_door():
     b = _hall(3.0, 3.0, console=False)
     rc = RD.Room(b, _room(b))

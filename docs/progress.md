@@ -2177,7 +2177,7 @@ UL115 hall part, UL119; `docs/reference_details_20261029.md`). General rules, CP
 | models | a glass coffee table and side table, a rattan lounge chair (not the sofa set's armchairs): the fit's preferences | G5, R24 |
 | hall | a console with a round mirror over it and a vase of dried pampas grass on it, or a lit wall niche (a built-out box: floating wood shelves, an LED strip under each, books, vases, a bowl, a sculpture, pampas; one mesh) where no console stands or the scheme says so; a round rug in a squarish hall, a runner in a long one, off the door swings | H1, H4, H5, H6, R10 |
 | entrance | a video intercom panel beside every main entrance door, 1.5 m up, on the side with free wall | H2 |
-| living, bedroom | a big floor vase with pampas in a free corner, a large art frame leaning against a free wall, a round mirror, drapes in the room's colour, a weekend bag in every bedroom, a slatted blind behind the curtains in the modern families, a small object between the books on every second board | H5, R5, R6, R10, R20, R21, R29 |
+| living, bedroom | a big floor vase with pampas in a free corner, a large art frame leaning against a free wall, a round mirror (an arched one 1.6 x as tall as wide over a bedroom's dresser), drapes in the room's colour, a weekend bag in every bedroom, a slatted blind behind the curtains in the modern families, a small object between the books on every second board | H5, R5, R6, R10, R19, R20, R21, R29 |
 | ceilings, stairs | timber rafters every 60 cm under the sloped ceilings of rustic, Scandinavian and farmhouse homes (`wenart/blender/ceiling_beams.py`); a stair's steel black in the modern families, timber treads over a hard floor | G2, H8 |
 | build | every detail one decor item and one mesh (`wenart/blender/detail_parts.py`: its shelves, LEDs and objects together, no ray per object); real sizes, PBR keys, an LED strip a low warm emission | UL111 |
 | checks | model review M28 and Argus U32 (`room_schemes.review`): two rooms of one type on a level with the same scheme, a hall with no console or niche, a bedroom with a bare bed wall; kind `taste`, cause `decor_look` | - |
@@ -2187,7 +2187,7 @@ show no panelling, so art; the TV stays on its free-standing divider unit; a lit
 sage, a rattan reading chair, a linear statement fixture, an intercom by the entrance d_L0_004), the kitchen `art`
 (a floor vase; no free dining wall), the master bedroom `panel` (the fluted panel; no round mirror: its only free
 wall is the panelled one; a globe statement fixture, a bag), the child's room `deep` (dark sage walls all round, an art pair over the bed, the wall unit over its
-desk, a bag), r_L1_oda_2 `limewash` (warm greige limewash, the headboard panel, a floating nightstand, a round mirror,
-pampas on the dresser, a bag), the hall r_L1_oda `gallery`. Not built here: R1, R31 (see-through wardrobes: the doors
-helper), the doors (D1-D5), sockets (UL112), R19 (a dressing table with an arched mirror), G5's shaggy rug, slats
+desk, a bag), r_L1_oda_2 `limewash` (warm greige limewash, the headboard panel, a floating nightstand, an arched mirror
+0.6 m wide over the dresser f_L1_017 (R19), pampas on the dresser, a bag), the hall r_L1_oda `gallery`. Not built here:
+R1, R31 (see-through wardrobes: the doors helper), the doors (D1-D5), sockets (UL112), G5's shaggy rug, slats
 flanking a window (R13's second half). Needs a pod render.

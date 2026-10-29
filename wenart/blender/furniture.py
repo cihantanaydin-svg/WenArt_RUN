@@ -2490,6 +2490,8 @@ def mirror_box(item: dict) -> list[float]:
     item's ``max_height_m``), the frame depth."""
     w = float(item["size"][0])
     h = w if item.get("shape") == "round" else w * MIRROR_ASPECT      # 29 Oct 2026 (R10): a round mirror
+    if item.get("shape") == "arch":
+        h = w * 1.6                                                    # ... (R19): an arched one, tall
     max_h = item.get("max_height_m")
     if isinstance(max_h, (int, float)) and max_h > 0:
         h = min(h, float(max_h))
