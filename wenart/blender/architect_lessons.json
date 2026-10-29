@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-10-28",
+ "updated": "2026-10-29",
  "lessons": [
   {
    "id": "UL01",
@@ -1018,6 +1018,56 @@
    "request": "There should have been better indoor stair solutions should be there I did not like this one",
    "lesson": "Every stair is one designed piece (wenart.blender.stair_rails): one continuous balustrade per open side that follows the flights and turns at newel posts round the landing or the winders at the well, the handrail 0.90 m over the nosing line (1.0 m on a level edge), no rail crossing another or stopping short, none through a tread, a wall or the floor above (beside the floor guard above, that guard takes over); a wall handrail on brackets with returns where a flight is wider than 1.0 m or would hold none; infill gaps under 0.11 m in the house's style (glass with a cap, slim bars, timber slats, turned or wrought balusters); a light structure (thin plate or slim strings) in light styles, the closed under-stair only on the floor; the winders start at the landing's level (no double step). The model review M18 checks it.",
    "question": "Do the stairs read as designed stairs: one handrail per side turning at newels, nothing crossing or stopping short (M18), a light structure where the style is light?"
+  },
+  {
+   "id": "UL88",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "this solutions still not good enough and columns are too thick there is a gap between balcony and small roof there should not be a gap (real06 run 20261028-154514-full, ext_1: the veranda's lower roof stops about 1 m short of the balcony slab, 0.40 m posts under a light roof)",
+   "lesson": "this solutions still not good enough and columns are too thick there is a gap between balcony and small roof there should not be a gap (real06 run 20261028-154514-full, ext_1: the veranda's lower roof stops about 1 m short of the balcony slab, 0.40 m posts under a light roof)",
+   "question": null
+  },
+  {
+   "id": "UL89",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "Better door models needed (real06 run 20261028-154514-full)",
+   "lesson": "Better door models needed (real06 run 20261028-154514-full)",
+   "question": null
+  },
+  {
+   "id": "UL90",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "these windows are not making sense (real06 run 20261028-154514-full: two small high windows win_L1_004 / win_L1_005 flanking the door d_L1_003 in the inner wall between the shower room r_L1_dus and the dressing room r_L1_soyunma_odasi)",
+   "lesson": "these windows are not making sense (real06 run 20261028-154514-full: two small high windows win_L1_004 / win_L1_005 flanking the door d_L1_003 in the inner wall between the shower room r_L1_dus and the dressing room r_L1_soyunma_odasi)",
+   "question": null
+  },
+  {
+   "id": "UL91",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "2 lights together not making sense (real06 run 20261028-154514-full, a bedroom: a pendant and a flush ceiling light hung side by side)",
+   "lesson": "2 lights together not making sense (real06 run 20261028-154514-full, a bedroom: a pendant and a flush ceiling light hung side by side)",
+   "question": null
+  },
+  {
+   "id": "UL92",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "This washing machine would not open (real06 run 20261028-154514-full, a bathroom: the washing machine's door faces the toilet beside it)",
+   "lesson": "This washing machine would not open (real06 run 20261028-154514-full, a bathroom: the washing machine's door faces the toilet beside it)",
+   "question": null
   }
  ]
 }
