@@ -9,11 +9,11 @@
  "fingerprint": null,
  "inputs": {},
  "outputs": [],
- "started_utc": "2026-10-28T15:51:27Z",
- "git_commit": "2fb65985b1ec33add6308883f4daebf9507b239f",
+ "started_utc": "2026-10-29T10:12:53Z",
+ "git_commit": "14eec3dc7882538ba60d32b2846c2a4b9aa254b2",
  "log": "logs/photos.log",
  "note": "no style photos",
- "run_id": "20261028-154514-full-20261028T155014Z",
+ "run_id": "20261029-100801-full-20261029T101243Z",
  "steps": [],
  "written": {}
 }

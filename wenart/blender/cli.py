@@ -117,6 +117,11 @@ def run_blender(script: Path, args: list[str], blend: str | None = None, log_pat
     cmd = [blender, "-b"]
     if blend:
         cmd.append(str(blend))
+    # 29 Oct 2026: Blender sizes its thread pool from the host's CPUs (256 on the pod) under a 28-CPU quota;
+    # ``$WENART_BLENDER_THREADS`` gives it the pod's budget (``-t``; scripts/jobs/profile_build.sh measures both)
+    threads = os.environ.get("WENART_BLENDER_THREADS", "")
+    if threads.isdigit() and int(threads) > 0:
+        cmd += ["-t", threads]
     # Without --python-exit-code Blender exits 0 after an unhandled exception
     # in the script, so failures would pass unnoticed.
     cmd += ["--python-exit-code", "1", "--python", str(script), "--", *args]
