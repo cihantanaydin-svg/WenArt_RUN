@@ -756,24 +756,27 @@ def load_style(path: str | None, warnings: list[str], assumed: list[dict] | None
     return style, str(p)
 
 
+WET_WALLS_BRIEF = "wet_walls_brief"   # the brief's wet walls, kept for the kitchen splashback (shell.build_splashbacks)
+
+
 def family_wet_tiles(style: dict, assumed: list[dict]) -> dict:
-    """In place (29 Oct 2026, lesson UL114 B8; ``bath_parts.wet_tile_look``): the wet rooms' walls and floor in the
-    style family's large-format stone-look porcelain where the brief chose no wet-room tiles; each change an
-    ``assumed`` record, so the scene's style profile (the gate, the polish words) names the tiles it shows."""
+    """In place (29 Oct 2026, lesson UL114 B8; ``bath_parts.wet_tile_look``): the wet rooms' walls in the style
+    family's large-format stone-look porcelain where the brief chose no wet-room tiles, an ``assumed`` record, so the
+    scene's style profile (the gate, the polish words) names the tiles it shows; the brief's slot stays in
+    ``WET_WALLS_BRIEF`` for the kitchen's splashback (the kitchen is not a wet room's wall). The bathroom's and WC's
+    floor tile is the shell's (``shell.floor_style``: a kitchen's wet floor stays the style's)."""
     from wenart.blender import bath_parts as BT
 
-    for slot, surface in (("wet_walls", "walls"), ("wet_floor", "floor")):
-        tile = BT.wet_tile_look(style, surface)
-        if tile is None:
-            continue
-        params = tile["params"]
-        new = {"material": tile["material"], "asset": None, "colour": tile["colour"]}
-        if surface == "walls":
-            new.update(tile_size_m=list(params["tile_size_m"]), pattern=params["pattern"],
-                       grout_colour=params["grout_colour"])
-        style[slot] = new
-        assumed.append({"object": "style", "field": slot, "value": f"{tile['material']} {tile['colour']}",
-                        "reason": tile["reason"]})
+    tile = BT.wet_tile_look(style, "walls")
+    if tile is None:
+        return style
+    params = tile["params"]
+    style[WET_WALLS_BRIEF] = style.get("wet_walls")
+    style["wet_walls"] = {"material": tile["material"], "asset": None, "colour": tile["colour"],
+                          "tile_size_m": list(params["tile_size_m"]), "pattern": params["pattern"],
+                          "grout_colour": params["grout_colour"]}
+    assumed.append({"object": "style", "field": "wet_walls", "value": f"{tile['material']} {tile['colour']}",
+                    "reason": tile["reason"]})
     return style
 
 

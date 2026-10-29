@@ -78,25 +78,11 @@ def wall_face_material(style: dict, room: Optional[dict] = None) -> dict:
 def wet_wall_look(style: dict, room: Optional[dict] = None) -> dict:
     """The look of the wall faces of a wet room: the style's ``wet_walls`` slot (tile kind; the brief's tile size,
     pattern and grout colour go to the procedural tiles as ``params``), else ``walls``."""
-    family_tile = _family_wet_tile(style, "walls")
-    if family_tile is not None:             # 29 Oct 2026 (UL114 B8): the family's large-format stone-look tiles
-        return _look(family_tile["material"], None, family_tile["colour"], "family", family_tile["reason"],
-                     params=family_tile["params"])
     wet = _slot(style, "wet_walls") or _slot(style, "walls")
     params = {k: wet.get(k) for k in ("tile_size_m", "pattern", "grout_colour") if wet.get(k) is not None}
     return _look(wet.get("material") or "tiles_light", wet.get("asset"), wet.get("colour"), "style",
                  "style wet_walls" + (f" ({', '.join(f'{k} {v}' for k, v in params.items())})" if params else ""),
                  params=params or None)
-
-
-def _family_wet_tile(style: dict, surface: str) -> Optional[dict]:
-    """29 Oct 2026 (UL114 B8, ``bath_parts.wet_tile_look``): a wet room's family tile of ``surface`` when the brief
-    chose none; None otherwise (or without the table)."""
-    try:
-        from wenart.blender import bath_parts as BT
-    except ImportError:
-        return None
-    return BT.wet_tile_look(style, surface)
 
 
 def _unit(dx: float, dy: float) -> tuple[float, float]:

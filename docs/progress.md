@@ -2207,8 +2207,9 @@ rollers from 1.0 m, else a fixed screen; square rain head on an arm, hand shower
 mixer, linear drain, towel bar; B16); the vanity top's decor in two clusters (dried stems, bottles and jars; B19);
 the bathroom's ceiling lights as recessed downlights (square in the modern families) and a cove light over the vanity
 wall that wraps the corner along the shower wall (B9, B17); wet-room walls and floor in the family's 60 x 120 cm
-stone-look porcelain where the brief names no tiles (B8, `build.family_wet_tiles`, recorded in the scene's style
-profile); every towel in the family's accent colour (B26); the room's fixture finish recorded for the door frames
+stone-look porcelain where the brief names no tiles (B8: the walls through `build.family_wet_tiles`, recorded in the
+scene's style profile, the floors of bathrooms and WCs in `shell.floor_style`; a kitchen's splashback and floor stay
+as before); every towel in the family's accent colour (B26); the room's fixture finish recorded for the door frames
 (`bath_details.room_finish`, B20). Drawn sanitary ware keeps its type, position, orientation and footprint (the locked
 check passes); a floating vanity takes a drawn basin's look only where the drawn basin is a vanity's size (0.40-1.80 x
 0.32-0.62 m), else it stays as drawn with the reason. The made-to-measure pieces are built from code by design

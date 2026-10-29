@@ -378,16 +378,19 @@ def test_the_build_takes_the_finish_the_towels_and_the_familys_wet_tiles():
     over, _n = BF.design_overrides(design, "toilet")
     assert over["handle"]["slug"] == "metal_brass" and over["towel"]["colour"] == "navy"
     st = style_of("japandi")
-    assert LK.wet_wall_look(st)["material"] == BT.LARGE_TILE_SLUG and LK.wet_wall_look(st)["colour"] == "sand"
+    assumed = []
+    BU.family_wet_tiles(st, assumed)                          # build.load_style: the scene's profile names the tiles
+    assert st["wet_walls"]["material"] == BT.LARGE_TILE_SLUG and st["wet_walls"]["tile_size_m"] == [0.6, 1.2]
+    assert LK.wet_wall_look(st)["colour"] == "sand" and LK.wet_wall_look(st)["params"]["tile_size_m"] == [0.6, 1.2]
+    assert st[BU.WET_WALLS_BRIEF] == {"material": "tiles_light"} and len(assumed) == 1   # the kitchen splashback's
+    assert BU.family_wet_tiles(st, assumed) and len(assumed) == 1                # idempotent
     slot, wet = SH.floor_style({"room_type": "bathroom"}, st)
     assert wet and slot["material"] == BT.LARGE_TILE_SLUG and slot["colour"] == "taupe"
     assert SH.floor_style({"room_type": "kitchen"}, st)[0]["material"] == "tiles_light"   # the kitchen's own helper
-    brief = dict(st, wet_walls={"material": "tiles_zellige", "colour": "sage"})
-    assert LK.wet_wall_look(brief)["material"] == "tiles_zellige"                # the brief's tiles win
-    assumed = []
-    BU.family_wet_tiles(st, assumed)
-    assert st["wet_walls"]["tile_size_m"] == [0.6, 1.2] and len(assumed) == 2
-    assert BU.family_wet_tiles(st, assumed) and len(assumed) == 2                # idempotent
+    brief = dict(style_of("japandi"), wet_walls={"material": "tiles_zellige", "colour": "sage"})
+    BU.family_wet_tiles(brief, assumed)
+    assert brief["wet_walls"]["material"] == "tiles_zellige" and len(assumed) == 1  # the brief's tiles win
+    assert BU.family_wet_tiles({"wet_walls": {"material": "tiles_light"}}, assumed) and len(assumed) == 1  # no family
     keys, _a = BF.style_material_keys({"floor": {"material": "wood_oak_light"}})
     assert keys["led"][0] == BF.LED_SLUG and keys["terrazzo"][0] == "terrazzo"
 
