@@ -2157,3 +2157,28 @@ ridge 2.8 m away, 1.58 m over its exit); real04 (modern, mansard) one over the b
 w_L-1_004 at (5.94, 7.51) m and the mirrored dwelling's at (9.24, 7.51) m, tops 6.70 m on the shallow upper slope near
 the 6.01 m ridge. Argus U27 flags both runs as built (no chimney). Needs a pod render: the stack's look in the views,
 the cowls and pots.
+
+## Light switches and power sockets (29 Oct 2026; built, pod run waiting)
+
+The user on real06 run 20261029-100801-full: "Also includes some power sockets and light on offs" (lesson UL112). No
+room of any render had a switch or a socket. General rule (`wenart/blender/wall_plates.py`, CPU-tested, not rendered
+yet); every plate is `inferred` with its reason (the build's `assumed` rows, the plates' manifest record):
+
+| part | rule |
+|---|---|
+| light switch | beside each door into the room (an outside door too; never a terrace door: glazed, sliding, a French window with a guard or wider than 1.2 m; a doorless opening only when the room has no door), on the latch side: away from the drawn hinge (`hinge` points or `hinge_side` from its `swing_side` room), else the side with more free wall; its centre 0.12 m from the frame (0.10-0.15), 1.05 m over the floor (a common European height, `HEIGHTS`); a room with two doors gets one at each; a hall's doors share one within 2 m; never on the hinge side under a leaf that opens over it |
+| sockets | 0.30 m over the floor: beside each bed's nightstand (both sides of a double bed; over a dresser that stands in for one; over the nightstand when beside it is blocked), at each desk under its top, a pair beside the TV unit, one per free wall stretch of at least 1 m in living rooms (3 at most) and bedrooms (2 at most), 1.5 m from the room's other sockets; a row of pairs on the kitchen splashback 0.18 m over the worktop (about 1.08 m), about 1.2 m apart, 0.30 m clear of the hob and the sink (a module run's built-ins), never over a tall unit or a window; one beside the bathroom mirror (else the basin) at 1.20 m, 0.60 m outside the bath and shower zone; one in each hall |
+| where it may sit | on a wall face of the room (its polygon edges on walls, a jog of a few cm included), clear of the corners, never inside an opening (no plate on glass), never behind a piece standing against that wall whose height reaches the plate (a module run per module: its worktop, units and hood at their own heights), never under a picture, mirror or curtain; on the splashback or a feature panel it stands off by the finish's depth |
+| the look | an 82 mm square plate 9 mm proud of the wall with a chamfered front, a switch's tilted rocker, a socket's round well with two pin holes, a 153 mm double frame for a pair; the finish by style family (`FAMILY_FINISH`): white satin for most, brushed steel for industrial, matte black for modern minimal; the pin holes in a dark insert |
+| build cost | a pure plan from the building JSON (no ray casts, about 0.2 s for all of real06), all plates of a level ONE mesh object `wall_plates_<level>` (kind `wall_plate`) from vertex / face lists in one `from_pydata`: no operator, modifier or boolean per plate (real06: 951 faces in all) |
+| checks | model review M25 (a room with doors and no switch, a plate on glass or inside an opening, a plate behind a tall piece, a bed with no socket beside it, a kitchen with no socket over its worktop); Argus U29 (the same rule on the scene's plates) |
+
+On real06 run 20261029-100801-full's building (CPU, the build's plan): 33 plates, 14 light switches and 19 socket plates
+(21 outlets): every room with a door has its switch (the salon's beside the entrance at (4.60, 1.52) m, 1.05 m; the
+kitchen's on its door's latch side at (7.00, 10.54) m, shared with the bathroom door 0.9 m away), the master bedroom's
+bed a socket beside each nightstand ((4.60, 2.66) and, on the bed-head panel, (4.63, 5.23) m, 0.30 m), the kitchen two
+socket pairs on the splashback of its sink run at 1.08 m (clear of the built-in sink and the windows; the hob run's wall
+is all window and hob), the shower room's beside its mirror at 1.20 m. Left without (listed in `skipped`): the free
+standing TV unit (a floor box), the hall side of the upper bathroom door (the stair stands on both sides), the second
+child's bed drawn across the French window (M25 reports it). Needs a pod render: the plates' look and their size in the
+views.

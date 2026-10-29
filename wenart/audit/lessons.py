@@ -60,6 +60,10 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U27 (UL109, 29 Oct 2026: "There are no chimneys there could be some chimney in the projects") a drawn fireplace,
   stove, flue or boiler room (``chimney.drawn_sources``) with no chimney on the roof (kind ``lost``); a house with a
   pitched roof whose style family usually has a chimney (``chimney.FAMILY_CHIMNEYS``) and no chimney in the scene.
+- U29 (UL112, 29 Oct 2026: "Also includes some power sockets and light on offs") the light switches and power sockets
+  of the scene (``wall_plates.review``, the model review's M25 rule): a room with doors and no light switch at any of
+  them, a bed with no socket beside it, a kitchen with no socket over its worktop, a plate on glass, inside an opening
+  or behind a piece standing against its wall.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -688,6 +692,30 @@ def missing_chimneys(building: Optional[dict], manifest: Optional[dict]) -> list
                family=fam["family"], roof=rtype)]
 
 
+PLATE_NO_SENSE = ("on_glass", "in_opening", "behind_piece", "off_wall")
+
+
+def wall_plates(building: Optional[dict], manifest: Optional[dict]) -> list[dict]:
+    """U29 (lesson UL112, user on real06 run 20261029-100801-full: "Also includes some power sockets and light on
+    offs"): the scene's light switches and power sockets (its objects of detail ``wall_plates``) against the building
+    as built, by the model review's M25 rule (``wall_plates.review``): a room with doors and no switch, a bed with no
+    socket beside it, a kitchen with no socket over its worktop (kind ``taste``); a plate on glass, inside an opening or
+    behind a piece against its wall (kind ``no_sense``)."""
+    from wenart.blender import wall_plates as WP
+
+    problems, _n = WP.review(building or {}, WP.plates_of(manifest))
+    out = []
+    for p in problems:
+        nums = {k: v for k, v in p.items() if k not in ("problem", "severity", "message", "target", "room_id")}
+        out.append(K.finding(LINE, "U29", p["severity"], p["target"], p["message"],
+                             evidence=dict(nums, lesson="UL112", problem=p["problem"], room=p.get("room_id")),
+                             fix="rerun_stage build (wall_plates.plan_level: a switch on the latch side of every room "
+                                 "door, sockets beside the beds, at the desk and the TV, over the worktop, by the "
+                                 "bathroom mirror)",
+                             kind="no_sense" if p["problem"] in PLATE_NO_SENSE else None))
+    return out
+
+
 def door_models(building: Optional[dict], manifest: Optional[dict]) -> list[dict]:
     """U18: the door models as built (``opening_models.door_model_problems``; lesson UL89, user: "Better door models
     needed"): more than a third of the house's doors parametric (real06 run 20261028-154514-full: the build refused
@@ -736,7 +764,7 @@ CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4":
                  "U21": ("UL88",), "U22": ("UL88",), "U24": ("UL90", "UL101"), "U25": ("UL97",),
                  "U18": ("UL89", "UL65"), "U17": ("UL93",), "U26": ("UL100",), "U28": ("UL104",),
                  "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107"),
-                 "U16": ("UL92",), "U20": ("UL96",), "U27": ("UL109",)}
+                 "U16": ("UL92",), "U20": ("UL96",), "U27": ("UL109",), "U29": ("UL112",)}
 CHECK_LESSONS["U23"] = ("UL106",)          # 29 Oct 2026: the professional bar (professional_bar)
 
 
@@ -768,7 +796,8 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
                     ("U14", lambda: plain_walls(building, manifest)), ("U15", lambda: door_variety(manifest)),
                     ("U18", lambda: door_models(building, manifest)),
                     ("U26", lambda: one_render_facades(building, manifest)),
-                    ("U27", lambda: missing_chimneys(building, manifest))):
+                    ("U27", lambda: missing_chimneys(building, manifest)),
+                    ("U29", lambda: wall_plates(building, manifest))):
         if not manifest:
             checked[cid] = "no scene manifest: not run"
             continue

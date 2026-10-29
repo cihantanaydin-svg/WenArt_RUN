@@ -355,7 +355,9 @@ WHOLE_BUILDING_KINDS = ("slab", "roof", "facade", "terrain", "site_wall", "site_
                         # writes them only once this tuple knows them
                         "site_platform", "site_hedge", "site_grass", "atmosphere",
                         # site.entrance_meshes: an entrance's ramp and handrails (common.KINDS, 24 Oct 2026)
-                        "site_ramp", "site_handrail")
+                        "site_ramp", "site_handrail",
+                        # 29 Oct 2026 (UL112): the light switches and sockets of a level (wall_plates, common.KINDS)
+                        "wall_plate")
 # wenart/schema/building.schema.json $defs/side.
 SIDES = ("all", "north", "east", "south", "west", "front", "back", "left", "right")
 CAMERA_VIEWS = ("corner", "aerial", "elevation",

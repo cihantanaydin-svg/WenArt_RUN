@@ -1308,12 +1308,12 @@
    "id": "UL112",
    "date": "2026-10-29",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Also includes some power sockets and light on offs (every room gets light switches beside its door and power sockets where they are used: beside the beds, at the desk, behind the TV, along the kitchen worktop, by the bathroom mirror, real sizes and heights, in the style's finish)",
-   "lesson": "Also includes some power sockets and light on offs (every room gets light switches beside its door and power sockets where they are used: beside the beds, at the desk, behind the TV, along the kitchen worktop, by the bathroom mirror, real sizes and heights, in the style's finish)",
+   "lesson": "Every room gets its wall plates in every project (wenart/blender/wall_plates.py): a light switch beside each door into the room (an outside door too, never a terrace door) on its latch side (the drawn hinge's far side, else the side with more free wall), its centre 0.12 m from the frame, 1.05 m over the floor; power sockets 0.30 m over the floor where they are used: beside each bed's nightstand (both sides of a double bed), at the desk under its top, a pair beside the TV unit, one per free wall stretch of living rooms and bedrooms, a row of pairs on the kitchen splashback 0.18 m over the worktop clear of the hob and the sink, one beside the bathroom mirror at 1.20 m outside the bath and shower zone, one in each hall; never on glass, inside an opening or behind a piece standing against the wall; real 82 mm plates 9 mm proud in the style family's finish (white satin, brushed steel for industrial, matte black for modern minimal), all plates of a level one mesh object. Model review M25, Argus U29.",
    "question": null
   }
  ]

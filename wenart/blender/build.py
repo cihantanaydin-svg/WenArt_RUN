@@ -131,6 +131,11 @@ Milestone 10 (docs/milestone10.md §1.6, §3.2, §3.3): the whole building.
   ``assumed``. The top-down previews hide the roof, the site and the
   exterior cameras. Other buildings keep the M3-M9 scene.
 
+29 Oct 2026 (lesson UL112, user: "Also includes some power sockets and light on offs"): every level's light switches
+beside the room doors and power sockets where they are used (``wall_plates.plan_level`` / ``build_wall_plates``: one
+mesh object ``wall_plates_<level>`` per level, every plate inferred with its reason in ``assumed``; the manifest's
+``wall_plates`` has the counts per room and what found no place).
+
 Milestone 13 (docs/milestone13.md §13.2 build.py, K8 camera replay; the camera policy itself stays, D8):
 
 - ``--cameras-from <scene_manifest.json>`` recreates the cameras of that manifest (``cameras.replay_cameras``:
@@ -1336,7 +1341,9 @@ def main(argv: list[str]) -> int:
     # read by shell.floor_style; the building as built keeps it)
     from wenart.blender import feature_walls as FW
     from wenart.blender import parquet as PQ
+    from wenart.blender import wall_plates as WP
     assumed.extend(PQ.annotate(building, style))
+    plates_info: dict = {}                                    # 29 Oct 2026 (UL112): the wall plates per level
     rooms_without_view: list[dict] = []                       # Milestone 7 §6.2: empty rooms the cameras skip
     cameras_dropped: list[dict] = []                          # Milestone 10: exterior views no place worked for
     looks = E.resolve_looks(building, style, brief) if whole else None
@@ -1470,6 +1477,19 @@ def main(argv: list[str]) -> int:
                                                                     floor_voids=under["voids"] if under else [],
                                                                     ceiling_voids=above["voids"] if above else None))
         lap("splashbacks_stairs")
+        # 29 Oct 2026 (lesson UL112, user: "Also includes some power sockets and light on offs"): a light switch
+        # beside every room's door and power sockets where they are used (wenart/blender/wall_plates.py: a pure plan
+        # from the walls, openings, built pieces and the level's wall decor, no ray casts), all plates of the level ONE
+        # mesh object from vertex / face lists (no operator, modifier or boolean per plate)
+        try:
+            plate_plan = WP.plan_level(building, level, style, decor=level_furniture.get("decor"))
+            WP.build_wall_plates(plate_plan, level, col, library, manifest_objects, assumed)
+            plates_info[level["id"]] = WP.summary(plate_plan)
+        except (KeyError, TypeError, ValueError, ZeroDivisionError, IndexError, AttributeError) as exc:
+            # a plan that cannot run is listed (the model review's M25 finds the rooms without switches), never a stop
+            plates_info[level["id"]] = {"error": f"{type(exc).__name__}: {exc}"}
+            warnings.append(f"level {level['id']}: the wall plates failed: {type(exc).__name__}: {exc}")
+        lap("wall_plates")
         # Milestone 13 (K8): the replayed cameras of this level first; the search for the rooms without one (every
         # room with --cameras-extra, those cameras renamed with the suffix EXTRA_CAMERA_SUFFIX).
         level_room_ids = {r["id"] for r in building["rooms"] if r["level_id"] == level["id"]}
@@ -1815,6 +1835,8 @@ def main(argv: list[str]) -> int:
         "variant": variant_summary(building_all, prep),
         "variants": variants_summary(building_all),
         "whole_building": whole_info,
+        # 29 Oct 2026 (UL112): the light switches and sockets per level (counts per room, what found no place)
+        "wall_plates": plates_info,
         # Milestone 10 (docs/milestone10.md §1.6b rows 9, 11, 12): the exterior cameras no place worked for, the
         # resolved outside looks (never written back to the building) and the brief values used.
         "cameras_dropped": cameras_dropped,

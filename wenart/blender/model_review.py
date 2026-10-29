@@ -126,6 +126,13 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   covering (a gap under it) is critical; one reaching under the roof's underside into the rooms (no drawn fireplace
   under it), lower than the 3-2-10 rule of thumb (0.6 m over the roof within 3 m, 0.9 m over its exit) or standing in
   front of an outside window is major. Kind ``no_sense``; the build owns it.
+- M25 the light switches and power sockets (29 Oct 2026, lesson UL112, user on real06 run 20261029-100801-full: "Also
+  includes some power sockets and light on offs"; ``wall_plates.review``), on the scene's plate records (the objects
+  of detail ``wall_plates``), else the plan's: a room with doors and no switch at any of them (major; a room's other
+  door without one minor, never in a hall), a plate on glass or inside an opening (critical), a plate behind a piece
+  standing against its wall (major), a bed in a bedroom with no socket beside it (major; one free side of a double
+  bed minor), a kitchen with no socket over its worktop (major). Kind ``taste`` (a plate where it makes no sense:
+  ``no_sense``); the build owns it.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -160,7 +167,8 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
 CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18",
-          "M19", "M20", "M21", "M22", "M23", "M24")   # 29 Oct 2026: M19 fixtures in use, M20 doors as products, M21 rooms for their use, M22 backs on walls, M23 the professional bar, M24 chimneys
+          "M19", "M20", "M21", "M22", "M23", "M24",   # 29 Oct 2026: M19 fixtures in use, M20 doors as products, M21 rooms for their use, M22 backs on walls, M23 the professional bar, M24 chimneys
+          "M25")                                      # 29 Oct 2026 (UL112): the light switches and power sockets
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -409,6 +417,31 @@ def chimneys_review(built: dict, prep: Optional[dict], manifest: Optional[dict])
             out.append(_v("M24", p["severity"], ch.get("id"), p["message"], ch.get("room_id"), problem=p["problem"],
                           source=ch.get("source"), **nums))
     return out, len(recs)
+
+
+FIX_PLATES = ("rerun_stage build (wall_plates.plan_level: a light switch on the latch side of every room door, "
+              "sockets beside the beds, at the desk and the TV, over the worktop, by the bathroom mirror)")
+PLATE_NO_SENSE = ("on_glass", "in_opening", "behind_piece", "off_wall")
+
+
+def wall_plates_review(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
+    """M25 (29 Oct 2026, lesson UL112): the light switches and power sockets against the building as built
+    (``wall_plates.review``): the scene's plate records when there is a scene (a scene built before the rule has none:
+    every room is without), else the plan's (``wall_plates.plan``, pure)."""
+    from wenart.blender import wall_plates as WP
+
+    if manifest and manifest.get("objects") is not None:
+        plates = WP.plates_of(manifest)
+    else:
+        plates = WP.plan(built, None)["plates"]
+    problems, n = WP.review(built, plates)
+    out = []
+    for p in problems:
+        nums = {k: v for k, v in p.items() if k not in ("problem", "severity", "message", "target", "room_id")}
+        out.append(dict(_v("M25", p["severity"], p["target"], p["message"], p.get("room_id"),
+                           kind="no_sense" if p["problem"] in PLATE_NO_SENSE else None, problem=p["problem"],
+                           lesson=WP.CHECK, **nums), owner="build", fix=FIX_PLATES))
+    return out, n
 
 
 def opening_language(manifest: Optional[dict]) -> tuple[list[dict], int]:
@@ -1203,6 +1236,12 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             note("M24", got, n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
         checks["M24"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M25 (29 Oct 2026, lesson UL112): the light switches and power sockets, as built (the scene's records) or planned
+    try:
+        got, n = wall_plates_review(built, scene_manifest)
+        note("M25", got, n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M25"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M12 (27 Oct 2026, user on real06: "doors next to each other not making sense"): doors side by side
     try:
         got, n = doors_side_by_side(built)
