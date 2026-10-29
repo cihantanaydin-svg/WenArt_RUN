@@ -765,3 +765,12 @@ def test_a_runner_killed_by_sigterm_leaves_a_running_pod_to_its_watchdog():
     assert not gpu_run.leave_running_on_signal(gpu_run.SIGNAL_RESULT, "RUNNING", True)
     assert not gpu_run.leave_running_on_signal(gpu_run.SIGNAL_RESULT, "EXITED", False)
     assert not gpu_run.leave_running_on_signal("runner timeout", "RUNNING", False)
+
+
+def test_a_full_job_gets_its_container_disk_without_the_flag():
+    """29 Oct 2026: run 20261029-095359-full got the 30 GB default and its model downloads filled the disk."""
+    import gpu_run as G
+
+    assert G.job_disk("scripts/jobs/full.sh", None) >= 150
+    assert G.job_disk("scripts/jobs/fetch_results.sh", None) == G.CONTAINER_DISK_GB
+    assert G.job_disk("scripts/jobs/full.sh", 60) == 60                  # the flag wins

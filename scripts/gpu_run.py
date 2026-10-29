@@ -73,6 +73,14 @@ DATACENTER = "EU-RO-1"
 VOLUME_NAME = "wenart"
 VOLUME_SIZE_GB = 500            # grown from 250 to 400 GB on 12 Oct 2026, to 500 GB on 25 Oct 2026 (user OK)
 CONTAINER_DISK_GB = 30
+# 29 Oct 2026: the container disk a job needs when ``--disk`` is not given (run 20261029-095359-full got the 30 GB
+# default: its model downloads (the VLMs, the agent model, the polish models, ~120 GB) filled it in two minutes)
+JOB_DISK_GB = {"scripts/jobs/full.sh": 150}
+
+
+def job_disk(job: str, disk) -> int:
+    """The container disk of a run: ``--disk`` when given, else the job's ``JOB_DISK_GB``, else ``CONTAINER_DISK_GB``."""
+    return int(disk) if disk else JOB_DISK_GB.get(job, CONTAINER_DISK_GB)
 POD_PREFIX = "wenart-"
 # Allowed GPUs, fastest first (user decisions of 3 Oct 2026: "for faster job finish choose a better GPU",
 # limit $5/h). NVIDIA only (the stack is CUDA), 24 GB+, whole GPUs (no MIG slices). Cards with RT cores come
@@ -788,6 +796,7 @@ def cmd_run(a: argparse.Namespace) -> int:
     job = validate_job_path(a.job)
     commit = resolve_commit(getattr(a, "commit", None), a.allow_dirty, job)
     minutes = min(a.max_minutes, MAX_MINUTES)
+    a.disk = job_disk(job, a.disk)
 
     pods = all_pods()
     running = live_pods(pods)
@@ -1123,7 +1132,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--grace", type=int, default=120,
                    help="seconds the pod waits after the job before stopping itself (the runner stops it "
                         "earlier, right after a successful collection)")
-    r.add_argument("--disk", type=int, default=CONTAINER_DISK_GB, help="container disk GB (wiped with the pod; ~$0.10/GB/month)")
+    r.add_argument("--disk", type=int, default=None,
+                   help=f"container disk GB (wiped with the pod; ~$0.10/GB/month); default the job's (JOB_DISK_GB), "
+                        f"else {CONTAINER_DISK_GB}")
     r.add_argument("--gpu-count", type=int, default=1, choices=GPU_COUNTS,
                    help="GPUs in the pod (Milestone 12, user OK of 10 Oct 2026: 2 for the large agent model)")
     r.add_argument("--env", action="append", metavar="KEY=VALUE", help="extra environment variable for the job (repeatable)")
