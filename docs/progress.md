@@ -2112,3 +2112,24 @@ inside solid HSSD 200, inside glazed HSSD 3262-7 also for the pair, sliding HSSD
 two 1.01 m high doors stay the product parametric door). Needs a pod render: the HSSD files on the volume
 (`models/hssd/`), the look of the HSSD doors in the style's finish, the pair's centre post and the parametric door's
 grooves and architrave.
+
+## The user's review of real06 run 154514 (29 Oct 2026): what was built (CPU-tested, pod run next)
+
+| lesson | the user | general rule | checks |
+|---|---|---|---|
+| UL88 | veranda roof not good, columns too thick, gap to the balcony | only cover within 4 m counts; slivers under 0.6 m roofed; drawn lower roof matched; pitched polygon = drawn outline + roofed area; light-roof posts <= 0.15 m; a drawn column under a slab corner reaches the slab | U21, U22 |
+| UL89 | better door models | helper A (section above) | M20, U18 |
+| UL90, UL101 | windows beside a door between shower and dressing room; hall window onto a wardrobe | architect W2 closes an inner window with a reason against it (wet room, door within 0.3 m, a tall piece against it, a lit bedroom); a dark room's only daylight is only offered for closing | U24 |
+| UL91, UL94, UL98, UL99, UL102, UL103, UL107 | lights, the lamp, more furniture, TV, bathroom cabinets, books, the improved salon | helper D: light spacing, user-rejected models, room fill, media wall, bathroom storage, books on every shelf | M17, M21, U19 |
+| UL93 | a laptop on the desks | helper C: a work set on every desk; decor follows a re-placed piece | U17 |
+| UL97 | a door behind the kitchen counter | a wall read twice is one wall (`ingest.generic.twin_walls`); no counter leg along a door or an open passage (`reading.passage_zone`) | U25 |
+| UL100 | the outside wall texture can change | the facade scheme clads the top storey of a two-storey house (timber, fibre cement per family) | U26 |
+| UL104 | a window here must align with the stairs | architect W6: a window a landing or winders cut across rises a guard height over it, or closes when a window above lights the stair; a window over the stair's opening starts 0.9 m over the landing | U28 |
+| UL105 | top views with the renders | `full.sh` copies them into `final/`; sheets13 makes their before/after | - |
+| UL106 | renders as professional as the reference | helper E: feature panels, herringbone floors, layered curtains and bedding, light roles, level cameras | M23, U23 |
+| UL108 | pod time breakdown | `python -m wenart.report.podtime` | - |
+| UL109 | chimneys | helper F (in progress) | U27, M24 |
+
+On real06's building as built, the new checks find every point the user raised (U21, U22 x2, U24 x3, U25 x2, U26,
+U28 x5); on real04 U25 found two counters ending at a door jamb, a false alarm fixed (the passage zone without its
+reach for the check). The full job now defaults to polish off and 256 samples (the 28 Oct runs had missed both flags).
