@@ -1334,6 +1334,7 @@ def main(argv: list[str]) -> int:
     loose_furniture = furniture_building(building)            # stairs are built with the shell
     # 29 Oct 2026 (UL106): the style's plank floor laid in herringbone or chevron in its rooms (room["floor_pattern"],
     # read by shell.floor_style; the building as built keeps it)
+    from wenart.blender import ceiling_beams as CB
     from wenart.blender import feature_walls as FW
     from wenart.blender import parquet as PQ
     assumed.extend(PQ.annotate(building, style))
@@ -1411,6 +1412,8 @@ def main(argv: list[str]) -> int:
         shell.build_skirting(building, level, col, library, style, manifest_objects, assumed)
         # 29 Oct 2026 (UL106): the fluted panel or wainscot on the accent wall of the bedrooms and living rooms
         fw_plans = FW.build_feature_walls(building, level, col, library, style, manifest_objects, assumed, warnings)
+        # 29 Oct 2026 (UL113, G2): exposed timber rafters under the sloped ceilings of the families that show them
+        CB.build_ceiling_beams(building, level, col, library, style, manifest_objects, assumed, warnings)
         floor_whole = None
         if whole:
             floor_whole = {"floor_voids": under["voids"] if under else [],

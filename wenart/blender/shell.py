@@ -2842,6 +2842,28 @@ def stair_under_plan(plan: dict, walls: list[dict], voids=()) -> dict:
     return under
 
 
+# 29 Oct 2026 (lessons UL113, UL115; docs/reference_details_20261029.md H8: "a stair with oak treads, white risers and a
+# black wall-mounted handrail"): the stair's finishes follow the family: the steel of its rails and strings black in the
+# modern families (powder-coated), oak treads where the room's floor is not wood in the families that build timber
+# treads (the risers keep the walls' paint)
+STAIR_BLACK_METAL_FAMILIES: tuple[str, ...] = ("modern", "contemporary", "modern minimal", "minimal", "industrial")
+STAIR_WOOD_TREAD_FAMILIES: tuple[str, ...] = ("modern", "contemporary", "modern minimal", "minimal", "scandinavian",
+                                              "japandi", "rustic", "classic")
+
+
+def stair_finishes(style: dict | None, tread_slot: dict | None) -> tuple[dict | None, str, str]:
+    """``(tread slot or None to keep the floor's, metal slug, why)`` of a stair by the house's family (pure; H8)."""
+    fam = str((style or {}).get("family") or "").lower()
+    metal = "metal_black" if fam in STAIR_BLACK_METAL_FAMILIES else "steel_brushed"
+    why = [f"{'black' if metal == 'metal_black' else 'brushed steel'} rails and strings ({fam or 'house'} family)"]
+    tread = None
+    slug = str((tread_slot or {}).get("material") or "")
+    if fam in STAIR_WOOD_TREAD_FAMILIES and slug and not slug.startswith("wood") and "parquet" not in slug:
+        tread = stair_timber_slot(style)
+        why.append(f"timber treads over the {slug.replace('_', ' ')} floor (H8)")
+    return tread, metal, "; ".join(why)
+
+
 def stair_timber_slot(style: dict | None) -> dict:
     """The timber of a stair (pure; 28 Oct 2026): the style's door slot when it is a wood (``wood_*``: the house's
     joinery), else ``wood_oak_light``."""
@@ -3011,7 +3033,8 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
     summary = {"pieces": 0, "ids": [], "not_built": []}
     walls_style = style.get("walls") or {"material": "plaster_white"}
     ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
-    steel = library.get("steel_brushed")
+    _t, metal_slug, _why = stair_finishes(style, None)
+    steel = library.get(metal_slug)              # 29 Oct 2026 (H8): black in the modern families
     for item in plans:
         piece, plan = item["piece"], item["plan"]
         for w in item.get("warnings") or []:
@@ -3030,7 +3053,8 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
         unverified = status == "unverified"
         room = stair_room(piece, rooms)
         slot, _wet = floor_style(room or {}, style)
-        tread = slot_material(library, slot, unverified=unverified)
+        tread_slot, _metal, finish_why = stair_finishes(style, slot)     # 29 Oct 2026 (H8): the family's finishes
+        tread = slot_material(library, tread_slot or slot, unverified=unverified)
         # fix round after P4b (17 Oct 2026): a smooth paint of the wall colour (STAIR_STRUCTURE_REASON)
         structure = slot_material(library, stair_structure_slot(walls_style), unverified=unverified)
         plan = stair_build_plan(plan, level_walls)          # fix round after P4b: the stair meets its walls
@@ -3082,6 +3106,10 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
                             "parent": piece["id"], "kind": a["kind"]})
         for w in plan["warnings"]:
             warnings.append(f"{piece['id']}: stair {w}")
+        entry["stair"]["finishes"] = finish_why
+        assumed.append({"object": name, "field": "stair_finishes", "value": finish_why, "parent": piece["id"],
+                        "kind": "stair_finishes", "reason": "the house's style family (H8); the documents show the "
+                                                           "stair in plan only"})
         manifest_objects.append(entry)
         summary["pieces"] += 1
         summary["ids"].append(piece["id"])

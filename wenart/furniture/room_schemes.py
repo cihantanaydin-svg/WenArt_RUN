@@ -87,7 +87,7 @@ DEEP_COLOURS: dict[str, tuple[str, ...]] = {
     "modern minimal": ("dark taupe", "muted dusty blue", "dark sage"),
     "minimal": ("dark taupe", "muted dusty blue", "dark sage"),
     "industrial": ("muted teal", "muted olive", "dark taupe"),
-    "mediterranean": ("muted terracotta", "muted dusty blue", "muted ochre"),
+    "mediterranean": ("muted terracotta", "muted dusty blue", "muted olive"),
     "classic": ("muted dusty blue", "dark sage", "muted emerald"),
     "rustic": ("muted olive", "muted terracotta", "dark sage"),
 }
@@ -125,29 +125,34 @@ NEUTRAL_COLOURS: tuple[str, ...] = ("warm greige", "pale taupe", "greige")     #
 POOLS: dict[str, dict[str, dict]] = {
     "bedroom": {
         "panel": {"walls": "accent", "feature": "fluted", "nightstand": "standing", "tv": "unit",
-                  "desk": "freestanding", "lighting": "downlights", "extras": ("round_mirror",)},
+                  "desk": "freestanding", "lighting": "downlights", "statement": "globe", "extras": ("round_mirror",)},
         "deep": {"walls": "deep_colour", "feature": "art_pair", "nightstand": "drum", "tv": "wall", "desk": "floating",
-                 "lighting": "track", "extras": ("leaning_art",)},
+                 "lighting": "track", "statement": "linear", "extras": ("leaning_art",)},
         "limewash": {"walls": "limewash", "feature": "headboard_panel", "nightstand": "floating", "tv": "wall",
-                     "desk": "freestanding", "lighting": "downlights", "extras": ("round_mirror",)},
+                     "desk": "freestanding", "lighting": "downlights", "statement": "cluster",
+                     "extras": ("round_mirror",)},
         "slats": {"walls": "accent", "feature": "slats", "nightstand": "standing", "tv": "unit", "desk": "floating",
-                  "lighting": "track", "extras": ("leaning_art",)},
+                  "lighting": "track", "statement": "linear", "extras": ("leaning_art",)},
     },
     "living": {
         "panel": {"walls": "accent", "feature": "fluted", "tv": "unit", "dining_wall": "art", "lighting": "downlights",
-                  "coffee_table": "wood", "lounge_chair": "upholstered", "extras": ("leaning_art", "floor_vase")},
+                  "coffee_table": "wood", "lounge_chair": "upholstered", "statement": "globe",
+                  "extras": ("leaning_art", "floor_vase")},
         "limewash": {"walls": "limewash", "feature": "art", "tv": "unit", "dining_wall": "slats",
-                     "lighting": "downlights", "coffee_table": "glass", "lounge_chair": "rattan",
+                     "lighting": "downlights", "coffee_table": "glass", "lounge_chair": "rattan", "statement": "linear",
                      "extras": ("round_mirror", "floor_vase")},
         "slats": {"walls": "accent", "feature": "slats", "tv": "wall", "dining_wall": "art", "lighting": "track",
-                  "coffee_table": "glass", "lounge_chair": "upholstered", "extras": ("floor_vase",)},
+                  "coffee_table": "glass", "lounge_chair": "upholstered", "statement": "cluster",
+                  "extras": ("floor_vase",)},
         "gallery": {"walls": "accent", "feature": "art", "tv": "wall", "dining_wall": "slats", "lighting": "track",
-                    "coffee_table": "wood", "lounge_chair": "rattan", "extras": ("niche", "leaning_art",
-                                                                                "floor_vase")},
+                    "coffee_table": "wood", "lounge_chair": "rattan", "statement": "linear",
+                    "extras": ("niche", "leaning_art", "floor_vase")},
     },
     "dining": {
-        "slats": {"walls": "plain", "dining_wall": "slats", "lighting": "downlights", "extras": ()},
-        "art": {"walls": "plain", "dining_wall": "art", "lighting": "downlights", "extras": ("floor_vase",)},
+        "slats": {"walls": "plain", "dining_wall": "slats", "lighting": "downlights", "statement": "linear",
+                  "extras": ()},
+        "art": {"walls": "plain", "dining_wall": "art", "lighting": "downlights", "statement": "globe",
+                "extras": ("floor_vase",)},
     },
     "hall": {
         "console": {"walls": "plain", "hall": "console", "rug": "round", "lighting": "downlights",
@@ -186,6 +191,9 @@ WHY: dict[str, str] = {
     "gallery": "a console with art over it, a runner",
     "round": "a round rug (H6)",
     "runner": "a runner along the hall",
+    "statement_globe": "a branching glass-globe statement fixture (R4)",
+    "statement_linear": "a linear (blade or multi-arm) statement fixture (R15, R30, K9)",
+    "statement_cluster": "a cluster of pendants as the statement fixture (R3)",
 }
 
 
@@ -353,6 +361,9 @@ def resolve(kind: str, bundle: str, colour: str, family: str, no_panel: bool = F
         if key in spec:
             out[key] = spec[key]
             why[key] = WHY[spec[key]]
+    if spec.get("statement"):
+        out["statement"] = spec["statement"]
+        why["statement"] = WHY["statement_" + spec["statement"]]
     if "coffee_table" in spec:
         ct = spec["coffee_table"]
         if ct == "glass" and fam not in GLASS_TABLE_FAMILIES:
@@ -456,7 +467,8 @@ def plan(building: dict, style: Optional[dict], no_panel=(), partners: Optional[
 
 
 COMPACT_KEYS: tuple[str, ...] = ("kind", "bundle", "key", "walls", "wall_colour", "feature", "feature_kind", "tv",
-                                 "desk", "nightstand", "lighting", "dining_wall", "hall", "rug", "copied_from")
+                                 "desk", "nightstand", "lighting", "statement", "dining_wall", "hall", "rug",
+                                 "copied_from")
 
 
 def compact(rec: dict) -> dict:

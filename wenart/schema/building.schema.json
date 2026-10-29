@@ -459,7 +459,8 @@
         "asset": {"type": ["object", "null"], "description": "Library decor model chosen by the fit (wenart/furniture/fit.py fit_decor_item), or null: parametric decor (wall art: not built)"},
         "host_id": {"type": ["string", "null"], "description": "The furniture piece a cushion or book set sits on; null for plants, rugs and wall art"},
         "anchor_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1, "description": "Rug: the pieces of its group (sofa + coffee table, the double bed, the dining table). Wall art: the piece it hangs over"},
-        "free_wall": {"type": "boolean", "description": "27 Oct 2026: wall art on a free wall stretch (decor.free_wall_art), hung over no piece (no anchor_ids)"},
+        "free_wall": {"type": "boolean", "description": "27 Oct 2026: wall art on a free wall stretch (decor.free_wall_art), hung over no piece (no anchor_ids); 29 Oct 2026: a round mirror too (room_details)"},
+        "free_floor": {"type": "boolean", "description": "29 Oct 2026 (UL113, UL115): a rug on a hall's free floor (room_details.hall_rug), under no piece (no anchor_ids)"},
         "source": {"const": "added_by_ai"},
         "method": {"enum": ["rule", "ai"], "description": "rule: the decor rules (docs/milestone4.md §4, docs/milestone8.md §4); ai: the AI decorator, both passes agreeing (docs/milestone9.md §4)"},
         "slot": {"type": "string", "description": "AI decor: the slot the item fills (docs/milestone9.md §4)"},
@@ -475,9 +476,9 @@
         "max_height_m": {"type": "number", "exclusiveMinimum": 0, "description": "Wall art: the most height it may take up to 0.1 m under the ceiling"}
       },
       "allOf": [
-        {"if": {"properties": {"type": {"const": "rug"}}}, "then": {"required": ["anchor_ids", "rotation_deg"], "properties": {"host_id": {"type": "null"}}}},
+        {"if": {"properties": {"type": {"const": "rug"}}}, "then": {"required": ["rotation_deg"], "properties": {"host_id": {"type": "null"}}, "anyOf": [{"required": ["anchor_ids"]}, {"required": ["free_floor"], "properties": {"free_floor": {"const": true}}}]}},
         {"if": {"properties": {"type": {"const": "wall_art"}}}, "then": {"required": ["rotation_deg", "wall_point", "bottom_m", "max_height_m"], "properties": {"host_id": {"type": "null"}}, "anyOf": [{"required": ["anchor_ids"]}, {"required": ["free_wall"], "properties": {"free_wall": {"const": true}}}]}},
-        {"if": {"properties": {"type": {"const": "mirror"}}}, "then": {"required": ["anchor_ids", "rotation_deg", "wall_point", "bottom_m", "max_height_m"], "properties": {"host_id": {"type": "null"}}}}
+        {"if": {"properties": {"type": {"const": "mirror"}}}, "then": {"required": ["rotation_deg", "wall_point", "bottom_m", "max_height_m"], "properties": {"host_id": {"type": "null"}}, "anyOf": [{"required": ["anchor_ids"]}, {"required": ["free_wall"], "properties": {"free_wall": {"const": true}}}]}}
       ]
     },
     "furniture": {

@@ -1320,12 +1320,12 @@
    "id": "UL113",
    "date": "2026-10-29",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "also take some inspiration from these photos (7 professional interior renders: bedrooms with herringbone floors, layered curtains, statement and bedside lights, slat panels, a walk-in wardrobe behind glass; kitchens with tall units, an island hood, fluted fronts, styled worktops; a hall with a lit niche; docs/reference_details_20261029.md)",
-   "lesson": "also take some inspiration from these photos (7 professional interior renders: bedrooms with herringbone floors, layered curtains, statement and bedside lights, slat panels, a walk-in wardrobe behind glass; kitchens with tall units, an island hood, fluted fronts, styled worktops; a hall with a lit niche; docs/reference_details_20261029.md)",
+   "lesson": "Every project takes the reference photos' details as general rules (docs/reference_details_20261029.md, wenart.furniture.room_details): a hall gets a console with a round mirror and a vase of pampas grass or a lit wall niche with floating shelves, LED strips and styled objects, a round rug or a runner, a video intercom beside the main entrance; living rooms and bedrooms get a large leaning art frame, a round mirror, a floor vase with pampas, objects between the books, one lived-in object in every bedroom, a slatted blind behind the curtains in the modern families, ceiling track lights where the room's scheme says so; sloped ceilings of rustic, Scandinavian and farmhouse homes show timber rafters; stair finishes follow the family (black steel in the modern families, timber treads over a hard floor). Every piece is a real product built as one mesh, added_by_ai with its reason and passing the code checks. Argus U32, model review M28.",
    "question": null
   },
   {
@@ -1392,12 +1392,12 @@
    "id": "UL119",
    "date": "2026-10-29",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "different solutions for different rooms (every room gets its own scheme: a full deep wall colour, an accent wall, slat panels or a wainscot; a TV on a unit or on the wall; a freestanding or a floating corner desk; no two rooms of one type on a level the same; docs/reference_details_20261029.md V1, R25-R30)",
-   "lesson": "different solutions for different rooms (every room gets its own scheme: a full deep wall colour, an accent wall, slat panels or a wainscot; a TV on a unit or on the wall; a freestanding or a floating corner desk; no two rooms of one type on a level the same; docs/reference_details_20261029.md V1, R25-R30)",
+   "lesson": "Every living room, bedroom, hall, dining room and home office gets its own scheme from its style family's pool (wenart.furniture.room_schemes): one accent wall, a deep colour all round or a limewash finish; a fluted panel, full-height slats, a timber headboard panel wider than the bed, an art pair or a large art piece on the anchor wall; the TV on a unit or flat on the wall; a freestanding or a floating corner desk with shelves and wall cabinets; standing, round drum or floating nightstands; downlights or track lights; a slat wall or art behind the dining table; a glass coffee table or a rattan lounge chair; chosen by code from the room's id (the same every run), no two rooms of one type on a level the same, a twin room its partner's, every choice recorded with its reason. Argus U32, model review M28.",
    "question": null
   },
   {

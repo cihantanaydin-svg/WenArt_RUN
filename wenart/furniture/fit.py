@@ -2250,6 +2250,19 @@ STATEMENT_WORDS: tuple[str, ...] = ("chandelier", "chandeliers", "globe", "globe
 SLIM_ASPECT = 1.6                # a bedside pendant's model is at least this much taller than wide (a slim drop)
 
 
+STATEMENT_STYLE_WORDS: dict[str, tuple[str, ...]] = {
+    "globe": ("globe", "globes", "sputnik", "branch", "branching", "bubble", "orb", "orbs"),
+    "linear": ("linear", "bar", "island", "blade", "line", "rectangular", "trestle"),
+    "cluster": ("cluster", "multi light", "multi-light", "3-light", "5-light", "pendants", "cascade")}
+
+
+def _title_has(title: str, words) -> bool:
+    import re
+
+    text = str(title or "").casefold()
+    return any(re.search(r"(?<![a-z0-9])" + re.escape(w) + r"(?![a-z0-9])", text) for w in words)
+
+
 def is_statement_title(title: str) -> bool:
     """A model title that names a statement fixture (pure): a whole word or phrase of ``STATEMENT_WORDS``."""
     import re
@@ -2264,6 +2277,13 @@ def fixture_pool(fits: list, item: dict) -> tuple[list, Optional[str]]:
     slim ones (``SLIM_ASPECT``); the whole ``fits`` when none matches or the light has no role."""
     role = item.get("fixture")
     if role == "statement":
+        # 29 Oct 2026 (UL119, R3, R4, R15, R30): the room's scheme names the statement's style (globe, linear,
+        # cluster); the models whose title names it first
+        words = STATEMENT_STYLE_WORDS.get(str(item.get("statement_style") or ""))
+        if words:
+            styled = [(e, f) for e, f in fits if _title_has(e.get("title") or e.get("name") or "", words)]
+            if styled:
+                return styled, f"statement fixture: a {item['statement_style']} model (the room's scheme)"
         pool = [(e, f) for e, f in fits if is_statement_title(e.get("title") or e.get("name") or "")]
         return (pool, "statement fixture: a chandelier or multi-globe model") if pool else (fits, None)
     if role == "bedside":

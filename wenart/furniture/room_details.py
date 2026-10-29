@@ -689,10 +689,46 @@ def track_lights(building: dict, rc: Room, scheme: dict) -> list[str]:
     return out
 
 
+def statement_style(building: dict, rc: Room, scheme: dict) -> list[str]:
+    """R3, R4, R15, R30: the room's statement fixture in its scheme's style (globe, linear, cluster): the fit's
+    preference (``fit.fixture_pool``)."""
+    style = scheme.get("statement")
+    if not style:
+        return []
+    out = []
+    for d in rc.decor(("pendant_light", "ceiling_light")):
+        if d.get("fixture") == "statement" and not d.get("statement_style"):
+            d["statement_style"] = style
+            d["reason"] = f"{d.get('reason') or 'light'}; a {style} statement fixture by the room's scheme"
+            out.append(f"{d.get('id')} a {style} statement fixture")
+    return out
+
+
+DRAPE_COLOUR_WALLS: tuple[str, ...] = ("accent", "deep_colour", "limewash")
+
+
+def drape_colours(building: dict, rc: Room, scheme: dict) -> list[str]:
+    """R6: the drape layer of a room's curtains in its scheme's colour (the brief's curtain colour wins)."""
+    colour = scheme.get("wall_colour")
+    if scheme.get("walls") not in DRAPE_COLOUR_WALLS or not colour:
+        return []
+    out = []
+    for d in rc.decor(("curtain",)):
+        if d.get("colour_source") == "brief" or d.get("colour_scheme"):
+            continue
+        d["colour_scheme"] = colour
+        if d.get("colour") and d["colour"] != colour:
+            d["colour_ai"] = d["colour"]
+        d["colour"] = colour
+        out.append(f"{d.get('id')} drapes in {colour} (R6: the room's colour)")
+    return out
+
+
 def living_models(building: dict, rc: Room, scheme: dict) -> list[str]:
     """G5: the living room's model choices as the fit's preferences (``design.material_tags``)."""
     out = []
     want = {"table_coffee": "glass" if scheme.get("coffee_table") == "glass" else None,
+            "side_table": "glass" if scheme.get("coffee_table") == "glass" else None,      # R24: a glass side table
             "armchair": "rattan" if scheme.get("lounge_chair") == "rattan" else None}
     for f in rc.pieces:
         tag = want.get(f.get("type"))
@@ -905,7 +941,7 @@ def hall_rug(building: dict, rc: Room, scheme: dict) -> Optional[dict]:
         for dia in RUG_ROUND_D:
             if dia / 2.0 <= reach + 1e-9 and Point(c.x, c.y).buffer(dia / 2.0, 48).within(free.buffer(1e-6)):
                 return _item(room, "rug", "hall_rug", f"a round rug {dia:.1f} m across in the hall (H6)",
-                             (c.x, c.y), (dia, dia, 0.012), 0.0, shape="round")
+                             (c.x, c.y), (dia, dia, 0.012), 0.0, shape="round", free_floor=True)
     return _runner(room, free, pts, sides)
 
 
@@ -925,7 +961,8 @@ def _runner(room: dict, free, pts, sides) -> Optional[dict]:
                 r = Polygon(G.rotated_rectangle((c.x, c.y), (length, rw), ang))
                 if r.within(free.buffer(1e-6)):
                     return _item(room, "rug", "hall_runner", f"a runner {rw:.1f} x {length:.1f} m along the hall "
-                                                             f"(H6)", (c.x, c.y), (round(length, 2), rw, 0.012), ang)
+                                                             f"(H6)", (c.x, c.y), (round(length, 2), rw, 0.012), ang,
+                                 free_floor=True)
             length -= 0.2
     return None
 
@@ -1141,8 +1178,11 @@ def dress_details(building: dict, style: Optional[dict], new_id: Callable) -> tu
                 _note(applied, rid, t)
             for t in dining_wall(building, rc, sc, new_id):
                 _note(applied, rid, t)
-        for t in track_lights(building, rc, sc) + living_models(building, rc, sc):
+        for t in track_lights(building, rc, sc) + living_models(building, rc, sc) + statement_style(building, rc, sc):
             _note(applied, rid, t)
+        if decor_on:
+            for t in drape_colours(building, rc, sc):
+                _note(applied, rid, t)
         if not decor_on:
             continue
         rc.pieces = _pieces(building, rid)
