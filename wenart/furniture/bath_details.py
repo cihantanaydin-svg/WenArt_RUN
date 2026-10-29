@@ -393,11 +393,13 @@ def _item(room: dict, dtype: str, center, rot: float, size, why: str, spec: dict
           anchors: Optional[list] = None, wall_point=None, **extra) -> dict:
     colour = BT.FINISH_COLOUR.get(spec["finish"])
     out = {"id": new_id(room["level_id"]), "kind": "decor", "type": dtype, "level_id": room["level_id"],
-           "room_id": room["id"], "asset": None, "host_id": None, "anchor_ids": list(anchors or []),
+           "room_id": room["id"], "asset": None, "host_id": None,
            "source": "added_by_ai", "method": "rule", "rule": RULE, "slot": f"bath:{dtype}", "colour": colour,
            "towel_colour": spec["towel_colour"], "confidence": 0.7, "status": "verified", "evidence": _evidence(why),
            "reason": f"{why} (UL114)", "center": [round(float(v), 4) for v in center],
            "rotation_deg": round(float(rot), 3), "size": [round(float(v), 4) for v in size]}
+    if anchors:              # the schema: a list of at least one piece, else no key (a towel rail on a free wall)
+        out["anchor_ids"] = list(anchors)
     if wall_point is not None:
         out["wall_point"] = [round(float(wall_point[0]), 4), round(float(wall_point[1]), 4)]
     out.update(extra)
