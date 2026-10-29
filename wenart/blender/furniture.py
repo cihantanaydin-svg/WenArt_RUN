@@ -846,10 +846,12 @@ def backface_twins(verts, faces) -> set:
     corner sofa "Sofa en L" had 99 % of its faces so and rendered with dark bands where the two copies fight)."""
     groups: dict = {}
     normals = []
+    # 29 Oct 2026: each vertex converted and rounded once (it was once per face it is in: 90 s a build on real06)
+    pos = [tuple(float(c) for c in v) for v in verts]
+    keys = [tuple(round(c, TWIN_DIGITS) for c in p) for p in pos]
     for i, f in enumerate(faces):
-        pts = [tuple(float(c) for c in verts[k]) for k in f]
-        normals.append(_newell(pts))
-        groups.setdefault(tuple(sorted(tuple(round(c, TWIN_DIGITS) for c in p) for p in pts)), []).append(i)
+        normals.append(_newell([pos[k] for k in f]))
+        groups.setdefault(tuple(sorted(keys[k] for k in f)), []).append(i)
     out = set()
     for ids in groups.values():
         for i in ids if len(ids) > 1 else ():
@@ -902,53 +904,78 @@ def import_gltf_geometry(path: Path, collection) -> dict:
     (Z-up) frame: ``{"verts", "faces", "materials", "face_materials", "uvs",
     "uv_name", "objects", "backface_twins"}``. The imported objects are deleted again; the
     materials (and packed images) stay in ``bpy.data`` for the new object. The faces of a double-sided export
-    are moved apart from their turned copies (``separate_twins``; ``backface_twins`` counts them)."""
+    are moved apart from their turned copies (``separate_twins``; ``backface_twins`` counts them).
+
+    29 Oct 2026 (real06 run 100801: two pendant lights of about 30,000 parts each took 475 s and 443 s of a build's
+    1,160 s furniture phase; profile pod 20261029-150820-profile_build): the same geometry, read without a cost per
+    part that grows with the scene. The parts stay where the importer put them (in the view layer) and are read in
+    world space (``matrix_world`` holds the parents), each evaluated mesh through ``to_mesh`` and ``foreach_get``
+    (no mesh datablock per part), their materials from the object's slots (the originals), and all of them are
+    removed in one ``batch_remove`` (one at a time, each removal scanned the whole file: 570 s). ``collection`` is
+    kept for the callers."""
     import bpy
+    import numpy as np
 
     before = {o.name for o in bpy.data.objects}
     bpy.ops.import_scene.gltf(filepath=str(path), import_shading="NORMALS", import_scene_as_collection=False,
                               import_select_created_objects=False)
     new = [o for o in bpy.data.objects if o.name not in before]
-    for ob in new:
-        for col in list(ob.users_collection):
-            col.objects.unlink(ob)
-        collection.objects.link(ob)
-    bpy.context.view_layer.update()
-    meshes = [o for o in new if o.type == "MESH"]
-    for ob in meshes:  # keep world transforms, drop the parents
-        mw = ob.matrix_world.copy()
-        ob.parent = None
-        ob.matrix_world = mw
     bpy.context.view_layer.update()
     depsgraph = bpy.context.evaluated_depsgraph_get()
     verts, faces, materials, face_materials, uvs = [], [], [], [], []
+    mat_index: dict = {}
     uv_name = None
-    for ob in meshes:
-        ev = ob.evaluated_get(depsgraph)
-        me = bpy.data.meshes.new_from_object(ev, preserve_all_data_layers=True, depsgraph=depsgraph)
-        mw = ob.matrix_world
-        offset = len(verts)
-        verts.extend([tuple(mw @ v.co) for v in me.vertices])
-        slot_map = []
-        for mat in me.materials:
-            if mat is None:
-                slot_map.append(None)
-                continue
-            if mat not in materials:
-                materials.append(mat)
-            slot_map.append(materials.index(mat))
-        layer = me.uv_layers.active
-        if layer is not None and uv_name is None:
-            uv_name = layer.name
-        for poly in me.polygons:
-            faces.append([offset + me.loops[li].vertex_index for li in poly.loop_indices])
-            slot = slot_map[poly.material_index] if poly.material_index < len(slot_map) else None
-            face_materials.append(slot)
-            uvs.append([tuple(layer.data[li].uv) for li in poly.loop_indices] if layer is not None else None)
-        bpy.data.meshes.remove(me)
-    names = [o.name for o in new]
     for ob in new:
-        _delete_object(ob)
+        if ob.type != "MESH":
+            continue
+        ev = ob.evaluated_get(depsgraph)
+        me = ev.to_mesh(preserve_all_data_layers=True, depsgraph=depsgraph)
+        try:
+            mw = np.array(ob.matrix_world, dtype=np.float32)
+            n = len(me.vertices)
+            co = np.empty(n * 3, dtype=np.float32)
+            me.vertices.foreach_get("co", co)
+            world = co.reshape(-1, 3) @ mw[:3, :3].T + mw[:3, 3]
+            offset = len(verts)
+            verts.extend(map(tuple, world.tolist()))
+            slot_map = []
+            for slot in ob.material_slots:
+                mat = slot.material
+                if mat is None:
+                    slot_map.append(None)
+                    continue
+                if mat.name not in mat_index:
+                    mat_index[mat.name] = len(materials)
+                    materials.append(mat)
+                slot_map.append(mat_index[mat.name])
+            layer = me.uv_layers.active
+            if layer is not None and uv_name is None:
+                uv_name = layer.name
+            npoly, nloop = len(me.polygons), len(me.loops)
+            starts = np.empty(npoly, dtype=np.int64)
+            totals = np.empty(npoly, dtype=np.int64)
+            mats = np.empty(npoly, dtype=np.int64)
+            loop_verts = np.empty(nloop, dtype=np.int64)
+            me.polygons.foreach_get("loop_start", starts)
+            me.polygons.foreach_get("loop_total", totals)
+            me.polygons.foreach_get("material_index", mats)
+            me.loops.foreach_get("vertex_index", loop_verts)
+            loop_verts = (loop_verts + offset).tolist()
+            uv_list = None
+            if layer is not None:
+                uv = np.empty(nloop * 2, dtype=np.float32)
+                layer.data.foreach_get("uv", uv)
+                uv_list = list(map(tuple, uv.reshape(-1, 2).tolist()))
+            for a, t, m in zip(starts.tolist(), totals.tolist(), mats.tolist()):
+                faces.append(loop_verts[a:a + t])
+                face_materials.append(slot_map[m] if m < len(slot_map) else None)
+                uvs.append(uv_list[a:a + t] if uv_list is not None else None)
+        finally:
+            ev.to_mesh_clear()
+    names = [o.name for o in new]
+    data = {o.data for o in new if o.data is not None}
+    bpy.data.batch_remove(new)
+    bpy.data.batch_remove([d for d in data if d.users == 0])
     verts, faces, twins = separate_twins(verts, faces)
     return {"verts": verts, "faces": faces, "materials": materials, "face_materials": face_materials,
             "uvs": uvs, "uv_name": uv_name or "UVMap", "objects": names, "backface_twins": twins}
@@ -962,14 +989,6 @@ def _cached_geometry(path: Path, collection, geo_cache: dict) -> dict:
     if key not in geo_cache:
         geo_cache[key] = import_gltf_geometry(path, collection)
     return geo_cache[key]
-
-
-def _delete_object(ob) -> None:
-    from wenart.blender import common
-
-    for child in list(ob.children):
-        child.parent = None
-    common.delete_object(ob)
 
 
 def _material_is_textured(mat) -> bool:
