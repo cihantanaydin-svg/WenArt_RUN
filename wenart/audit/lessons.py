@@ -40,6 +40,7 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U24 (UL90, UL101) an inner window that makes no sense (``architect_rules.inner_window_reasons``).
 - U25 (UL97) a wall read twice; a kitchen counter in a door's or a passage's approach.
 - U26 (UL100) a house of two or more storeys left one render where its facade scheme clads the top storey.
+- U28 (UL104) a window a stair's landing cuts across, or one over the stair's opening that starts far above the landing.
 - U19 the rooms furnished for their use (``rooms_for_use``: the model review's M21, ``wenart.furniture.room_use``): a
   living room or the master bedroom without a TV ("There is no TV in the house"), an under-furnished living room ("a
   bit more furniture would be nice"), no bookshelf or a bookshelf without books ("no library and books"), a bathroom
@@ -553,6 +554,18 @@ def read_twice_and_blocked_passages(building: dict) -> list[dict]:
     return out
 
 
+def stair_windows(building: dict) -> list[dict]:
+    """U28: a window a stair's half landing or winders cut across, or a window over the stair's opening that starts far
+    above the landing (``architect_rules.stair_window_findings``; "If there is a window here it needs to alight with
+    the stairs")."""
+    from wenart.blender import architect_actions as AA
+    from wenart.blender import architect_rules as AR
+
+    return [_f("U28", "major" if f["kind"] == "cut" else "minor", f["window"], f"{f['window']}: {f['why']}", "UL104",
+               "architect W6 (stair_window / close_stair_window)", stair=f.get("stair"), level=f.get("level_id"))
+            for f in AR.stair_window_findings(AA.Plan(building))]
+
+
 def one_render_facades(building: Optional[dict], manifest: Optional[dict]) -> list[dict]:
     """U26: a house of two or more storeys whose facade scheme (the style family's default; no drawing or brief names
     the facade) has an upper-storey cladding that the build did not put on ("Outside wall texture can be changed")."""
@@ -613,13 +626,14 @@ BUILDING_CHECKS = (("U1", entrances_at_windows), ("U2", roofs_without_posts), ("
                    ("U8", seats_facing_walls), ("U9", indoor_pieces_outdoors), ("U10", basins_without_mirrors),
                    ("U11", bare_worktops), ("U12", bare_dining_tables),
                    ("U21", roof_gaps), ("U22", thick_light_posts), ("U24", senseless_inner_windows),
-                   ("U25", read_twice_and_blocked_passages), ("U17", bare_desks), ("U19", rooms_for_use))
+                   ("U25", read_twice_and_blocked_passages), ("U17", bare_desks), ("U19", rooms_for_use),
+                   ("U28", stair_windows))
 # the lessons each code check measures (``coverage``)
 CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4": ("UL57",), "U5": ("UL64",),
                  "U6": ("UL59", "UL56"), "U7": ("UL60",), "U8": ("UL61",), "U9": ("UL20",), "U10": ("UL66",),
                  "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32"),
                  "U21": ("UL88",), "U22": ("UL88",), "U24": ("UL90", "UL101"), "U25": ("UL97",),
-                 "U18": ("UL89", "UL65"), "U17": ("UL93",), "U26": ("UL100",),
+                 "U18": ("UL89", "UL65"), "U17": ("UL93",), "U26": ("UL100",), "U28": ("UL104",),
                  "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107")}
 
 

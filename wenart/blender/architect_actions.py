@@ -98,6 +98,11 @@ ACTIONS = {
     # 29 Oct 2026 (user on real06: "these windows are not making sense", "This window and dolap is not making sense")
     "close_window": "the inner window is closed (the wall stays solid): a wet room behind it, a door beside it, a tall "
                     "piece against it, or no room that needs its light",
+    # 29 Oct 2026 (user on real06: "If there is a window here it needs to alight with the stairs"): W6
+    "stair_window": "the window is set to the stair in front of it (params: sill, height): its sill a guard height over "
+                    "the landing, or lowered to start over the landing when it lights the stair from the level above",
+    "close_stair_window": "the window the stair cuts across is closed (the wall stays solid); the window of the level "
+                          "above at the same place lights the stair",
     "pass_through": "a serving window over the drawn counter: the doorway becomes a window at counter height between "
                     "the two rooms (the counter stays)",
     # 26 Oct 2026 (user on real06: "these sections not making sense": a 2.95 m flat oak leaf in the facade): D5
@@ -122,7 +127,8 @@ PASS_SILL_M = 0.95              # a serving window's sill: just over a 0.90 m co
 WET_ROOMS = ("bathroom", "wc", "toilet", "shower")
 
 
-CONTEXT_PARAMS = ("room_id", "window_id", "door_id", "piece_id", "away_from", "other_id")     # name the element, not the choice
+CONTEXT_PARAMS = ("room_id", "window_id", "door_id", "piece_id", "away_from", "other_id",     # name the element, not the choice
+                  "why")                                                                     # (29 Oct 2026: a reason text)
 
 
 def option(action: str, label: Optional[str] = None, **params) -> dict:
@@ -1013,6 +1019,38 @@ def act_close_window(plan: Plan, key: str, ans: dict, window_id: str):
     plan.openings.pop(window_id, None)
     plan.b.setdefault("openings_closed", []).append(rec)
     return True, f"{window_id} closed (the wall between {rooms[0]['id']} and {rooms[1]['id']} stays solid)"
+
+
+def act_stair_window(plan: Plan, key: str, ans: dict, window_id: str, sill: float, height: float, why: str = ""):
+    """29 Oct 2026 (W6): the window is set to the stair in front of it: ``sill`` and ``height`` over its floor (the
+    drawn values kept, ``adjusted_by_ai``); refused when it would not fit under its head limit."""
+    o = plan.openings.get(window_id)
+    if o is None or o.get("type") != "window":
+        return False, f"no window {window_id}"
+    sill, height = float(sill), float(height)
+    if height < MIN_WINDOW_H - 1e-6 or sill + height > plan.top(o) + 1e-6 or sill < 0.0:
+        return False, f"{window_id}: sill {sill:.2f} m and {height:.2f} m of glass do not fit under {plan.top(o):.2f} m"
+    old = float(o.get("sill_height") if o.get("sill_height") is not None else 0.9)
+    _keep_drawn(o, "sill_height", "height")
+    o["sill_height"], o["height"] = round(sill, 3), round(height, 3)
+    _mark(o, "adjusted_by_ai", key, ans, f"set to the stair in front of it: sill {old:.2f} -> {sill:.2f} m, "
+                                         f"{height:.2f} m of glass" + (f" ({why})" if why else ""))
+    return True, f"{window_id}: sill {old:.2f} -> {sill:.2f} m, height {height:.2f} m (the stair)"
+
+
+def act_close_stair_window(plan: Plan, key: str, ans: dict, window_id: str, why: str = ""):
+    """29 Oct 2026 (W6): a window the stair cuts across (a landing over its sill) that cannot rise over it is not
+    built; it goes to ``openings_closed`` with the drawn values and the reason (``corrected_by_ai``)."""
+    o = plan.openings.get(window_id)
+    if o is None or o.get("type") != "window":
+        return False, f"no window {window_id}"
+    rec = copy.deepcopy(o)
+    _mark(rec, "corrected_by_ai", key, ans, f"the stair cuts across the window: the wall stays solid"
+                                            + (f" ({why})" if why else ""))
+    plan.b["openings"] = [x for x in plan.b.get("openings") or [] if x["id"] != window_id]
+    plan.openings.pop(window_id, None)
+    plan.b.setdefault("openings_closed", []).append(rec)
+    return True, f"{window_id} closed (the stair cuts across it)"
 
 
 def act_high_window(plan: Plan, key: str, ans: dict, window_id: str):
@@ -1988,6 +2026,13 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                     ok, text = act_high_window(plan, key, ans, params.get("window_id") or target)
                 elif opt == "close_window":
                     ok, text = act_close_window(plan, key, ans, params.get("window_id") or target)
+                elif opt == "stair_window":
+                    ok, text = act_stair_window(plan, key, ans, params.get("window_id") or target,
+                                                float(params.get("sill") or 0.0), float(params.get("height") or 0.0),
+                                                str(params.get("why") or ""))
+                elif opt == "close_stair_window":
+                    ok, text = act_close_stair_window(plan, key, ans, params.get("window_id") or target,
+                                                      str(params.get("why") or ""))
                 elif opt == "pass_through":
                     ok, text = act_pass_through(plan, key, ans, params.get("door_id") or target)
                 elif opt == "door_type":

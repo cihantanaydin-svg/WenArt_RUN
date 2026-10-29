@@ -1217,12 +1217,13 @@
    "id": "UL104",
    "date": "2026-10-29",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
+    "W6",
     "build"
    ],
    "request": "If there is a window here it needs to alight with the stairs (real06 run 20261028-154514-full, top-down view of L1 near d_L1_004 / o_L1_004: a window under the stair landing in the wall the stair runs along, not aligned with the stair)",
-   "lesson": "If there is a window here it needs to alight with the stairs (real06 run 20261028-154514-full, top-down view of L1 near d_L1_004 / o_L1_004: a window under the stair landing in the wall the stair runs along, not aligned with the stair)",
+   "lesson": "A window a stair's half landing or winders stand against is set to the stair (architect W6): a landing over its sill raises it a guard height (0.9 m) over the landing; when that leaves under 0.6 m of glass it is closed if a window of the level above lights the stair; a window of the level above over the stair's opening starts 0.9 m over the landing (at least 0.3 m over its floor), its head kept. Argus U28.",
    "question": null
   },
   {

@@ -76,6 +76,11 @@ RULES = (
                  "room, where the documents fix no sill or head and no piece stands in front?",
      "why": "a Scandinavian or modern living room with 0.90 m sills and 1.20 m windows looks like an office; tall "
             "glass brings the garden in, and the documents' sills, a dresser's or a counter's sill stay"},
+    # 29 Oct 2026 (user on real06: "If there is a window here it needs to alight with the stairs")
+    {"id": "W6", "topic": "windows at stairs", "scope": "window", "severity": "major",
+     "question": "Does every window behind a stair landing sit over it (its sill a guard height over the landing), and "
+                 "does the window of the floor above light the stair from just over the landing?",
+     "why": "a landing that cuts across a window's glass is a drawing or reading error a visitor sees at once"},
     {"id": "O1", "topic": "openings in their walls", "scope": "opening", "severity": "major",
      "question": "Does every door and window fit in its wall: within its length, clear of the other openings, under "
                  "the ceiling?",
@@ -574,6 +579,172 @@ def tall_windows_rule(plan: AA.Plan, family: Optional[str]) -> list[dict]:
     return [w5]
 
 
+STAIR_WINDOW = {"reach_m": 0.35, "over_m": 0.9, "low_sill_m": 0.3, "cut_m": 0.05, "cover_share": 0.3,
+                "raise_gap_m": 0.4}
+
+
+def stair_parts(building: dict, level: dict) -> list[tuple]:
+    """``(polygon, top, stair id, void)`` of every half landing and winder of the stairs that start on ``level``
+    (``stair_access.planned``: tops over the level's floor; ``void``: the stair's opening in the floor above)."""
+    from shapely.geometry import Polygon
+
+    from wenart.blender import stair_access as SA
+
+    out = []
+    for it in SA.planned(building, level):
+        p = it.get("plan") or {}
+        land = p.get("landing") if isinstance(p.get("landing"), dict) else {}
+        sid = (it.get("piece") or {}).get("id")
+        rings = p.get("void") if isinstance(p.get("void"), list) else []
+        if rings and not isinstance(rings[0][0], (list, tuple)):
+            rings = [rings]                                  # one ring or a list of rings
+        from shapely.ops import unary_union
+        polys = [Polygon(r).buffer(0) for r in rings if isinstance(r, (list, tuple)) and len(r) >= 3]
+        void = unary_union(polys) if polys else None
+        if land.get("role") == "winders":
+            parts = [(w.get("polygon"), w.get("top")) for w in land.get("winders") or []]
+        elif land.get("role") == "mid":
+            parts = [(land.get("polygon"), land.get("z"))]
+        else:
+            continue
+        for poly, top in parts:
+            if isinstance(poly, list) and len(poly) >= 3 and top is not None:
+                out.append((Polygon(poly).buffer(0), float(top), sid, void))
+    return out
+
+
+def _span_parts(plan: AA.Plan, o: dict, parts: list[tuple]) -> list[tuple]:
+    """The stair parts that stand against window ``o``'s span: within ``reach_m`` of its wall's face and over
+    ``cover_share`` of its width along the wall (pure)."""
+    from shapely.geometry import LineString
+
+    w = plan.walls.get(o.get("wall_id"))
+    if w is None:
+        return []
+    (x0, y0), (x1, y1) = w["start"][:2], w["end"][:2]
+    length = math.hypot(x1 - x0, y1 - y0) or 1.0
+    ux, uy = (x1 - x0) / length, (y1 - y0) / length
+    half = float(o.get("width") or 0.0) / 2.0
+    cx, cy = (float(v) for v in o["center"][:2])
+    span = LineString([(cx - ux * half, cy - uy * half), (cx + ux * half, cy + uy * half)])
+    band = span.buffer(float(w.get("thickness") or 0.2) / 2.0 + STAIR_WINDOW["reach_m"], cap_style=2)
+    t = plan.t_of(w, o["center"])
+    out = []
+    for poly, top, sid, void in parts:
+        inter = poly.intersection(band)
+        if inter.is_empty:
+            continue
+        proj = [((px - x0) * ux + (py - y0) * uy) for px, py in inter.exterior.coords] if inter.geom_type == "Polygon" \
+            else [((px - x0) * ux + (py - y0) * uy) for g in getattr(inter, "geoms", []) if g.geom_type == "Polygon"
+                  for px, py in g.exterior.coords]
+        if proj and min(max(proj), t + half) - max(min(proj), t - half) >= STAIR_WINDOW["cover_share"] * 2 * half:
+            out.append((poly, top, sid, void))
+    return out
+
+
+def stair_window_findings(plan: AA.Plan) -> list[dict]:
+    """The windows a stair's half landing or winders stand against (pure; 29 Oct 2026, ``STAIR_WINDOW``): ``cut``
+    (the stair surface over the window's sill: the landing cuts across its glass; to raise it a guard height over the
+    landing, or to close when it cannot rise and a window of the level above lights the stair) and ``high`` (a window
+    of the level above over the stair's opening, more than ``raise_gap_m`` over a guard height above the landing: to
+    lower it so it starts over the landing). Each: ``window``, ``kind``, ``level_id``, ``top`` (the landing over its
+    level's floor), ``stair``, ``sill``, ``height`` (the new ones, None when it cannot change), ``upper`` (the window
+    of the level above that lights the stair), ``why``."""
+    b = plan.b
+    order = sorted(plan.levels.values(), key=lambda lv: float(lv["elevation"]))
+    out = []
+    for i, lv in enumerate(order):
+        parts = stair_parts(b, lv)
+        if not parts:
+            continue
+        above = order[i + 1] if i + 1 < len(order) else None
+        here = [o for o in plan.openings.values() if o.get("type") == "window" and o.get("level_id") == lv["id"]]
+        up = [o for o in plan.openings.values() if above is not None and o.get("type") == "window"
+              and o.get("level_id") == above["id"]]
+        e0, e1 = float(lv["elevation"]), float(above["elevation"]) if above is not None else None
+        uppers = {}
+        for o in up:
+            hit = _span_parts(plan, o, parts)
+            if hit:
+                uppers[o["id"]] = (o, max(h[1] for h in hit), hit[0][2], hit)
+        for o in here:
+            hit = _span_parts(plan, o, parts)
+            if not hit:
+                continue
+            top = max(h[1] for h in hit)
+            sill = float(o.get("sill_height") if o.get("sill_height") is not None else 0.9)
+            height = float(o.get("height") if o.get("height") is not None else 1.2)
+            if top <= sill - STAIR_WINDOW["cut_m"]:
+                continue
+            new_sill = top + STAIR_WINDOW["over_m"]
+            limit = plan.top(o)
+            new_h = min(height, limit - new_sill)
+            stacked = [u for u, *_r in uppers.values()]
+            rec = {"window": o["id"], "kind": "cut", "level_id": lv["id"], "top": round(top, 3), "stair": hit[0][2],
+                   "upper": stacked[0]["id"] if stacked else None, "sill": None, "height": None}
+            if new_h >= AA.MIN_WINDOW_H - 1e-6:
+                rec.update(sill=round(new_sill, 3), height=round(new_h, 3),
+                           why=f"the stair's landing at {top:.2f} m stands across its sill at {sill:.2f} m: the sill "
+                               f"rises a guard height over the landing")
+            else:
+                rec["why"] = (f"the stair's landing at {top:.2f} m stands across its sill at {sill:.2f} m and a sill "
+                              f"{STAIR_WINDOW['over_m']:.2f} m over it leaves {max(new_h, 0.0):.2f} m of glass under "
+                              f"{limit:.2f} m")
+            out.append(rec)
+        for o, top, sid, hit in uppers.values():
+            void = next((h[3] for h in hit if h[3] is not None), None)
+            if void is None or e1 is None:
+                continue
+            from shapely.geometry import Point
+            w = plan.walls.get(o.get("wall_id"))
+            inner = [r for r in AA.window_sides(plan, o) if r is not None and not AA.Plan.is_outside(r)]
+            if w is None or not inner:
+                continue
+            if void.distance(Point(*[float(v) for v in o["center"][:2]])) > \
+                    float(w.get("thickness") or 0.2) / 2.0 + STAIR_WINDOW["reach_m"]:
+                continue                               # a floor stands in front of it on its level
+            sill = float(o.get("sill_height") if o.get("sill_height") is not None else 0.9)
+            height = float(o.get("height") if o.get("height") is not None else 1.2)
+            want = max(STAIR_WINDOW["low_sill_m"], e0 + top + STAIR_WINDOW["over_m"] - e1)
+            if sill - want <= STAIR_WINDOW["raise_gap_m"]:
+                continue
+            head = sill + height
+            out.append({"window": o["id"], "kind": "high", "level_id": o["level_id"], "top": round(top, 3),
+                        "stair": sid, "upper": None, "sill": round(want, 3), "height": round(head - want, 3),
+                        "why": f"it lights the stair over its opening: its sill {sill:.2f} m starts "
+                               f"{e1 + sill - e0 - top:.2f} m over the landing ({top:.2f} m over {lv['id']}); it "
+                               f"starts {STAIR_WINDOW['over_m']:.2f} m over the landing (at least "
+                               f"{STAIR_WINDOW['low_sill_m']:.2f} m over its floor), its head kept"})
+    return out
+
+
+def stair_windows_rule(plan: AA.Plan) -> list[dict]:
+    """W6 (29 Oct 2026, user on real06: "If there is a window here it needs to alight with the stairs"): every
+    finding of ``stair_window_findings`` is open with its safe default (the architect carries it out); a ``cut``
+    window that cannot rise is closed when a window of the level above lights the stair, else kept (asked)."""
+    w6 = _q(next(r for r in RULES if r["id"] == "W6"))
+    for f in stair_window_findings(plan):
+        o = plan.openings.get(f["window"])
+        if o is None:
+            continue
+        where = _where("window", o.get("level_id"), o["center"])
+        opts, default = [], None
+        if f["sill"] is not None:
+            opts.append(AA.option("stair_window", f"set it to the stair: sill {f['sill']:.2f} m, {f['height']:.2f} m "
+                                  f"of glass", window_id=o["id"], sill=f["sill"], height=f["height"], why=f["why"]))
+            default = opts[-1]["choice"]
+        elif f["upper"]:
+            opts.append(AA.option("close_stair_window", f"close it: {f['upper']} of the level above lights the stair",
+                                  window_id=o["id"], why=f"{f['why']}; {f['upper']} of the level above lights the "
+                                                         f"stair"))
+            default = opts[-1]["choice"]
+        opts.append(AA.option("keep", "keep it as drawn"))
+        _open(w6, o["id"], f"{o['id']} ({f['kind']}): {f['why']}" + (f" (stair {f['stair']})" if f['stair'] else ""),
+              f"Should {o['id']} be set to the stair {f['stair'] or ''} in front of it?", opts, where=where,
+              **({"default": default} if default else {}))
+    return [w6]
+
+
 # --------------------------------------------------------------------------
 # Walls, stairs, levels
 # --------------------------------------------------------------------------
@@ -978,7 +1149,7 @@ def review(building: dict, prep: dict, sides: list[dict], graph: dict, starts: l
     seen = reach(graph, starts) if starts else set()
     unreached = {r["id"] for r in plan.rooms if r["id"] not in seen and not AA.Plan.is_outside(r)} if starts else set()
     out = rooms_rules(plan) + openings_rules(plan, sides, unreached) + door_types(plan, sides) + \
-        tall_windows_rule(plan, prep.get("style_family")) + walls_rules(plan) + \
+        tall_windows_rule(plan, prep.get("style_family")) + stair_windows_rule(plan) + walls_rules(plan) + \
         passages_rule(plan, sides) + \
         stairs_rules(plan, graph, starts, is_stair, reach) + furniture_rules(plan, sides) + \
         clash_rule(building, prep.get("clashes"))
