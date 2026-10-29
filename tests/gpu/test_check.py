@@ -184,7 +184,12 @@ def test_insertion_measured(project, cfg):
     assert not missing, f"{project}: insertion controls not checked (--kinds without controls?): {missing}"
     cal = _load(project, "check/check_calibration.json")
     ins = cal["metrics"]["controls"]["insertion"]
-    assert ins["n"] >= len(rendered), f"{project}: {ins['n']} insertion rows for {len(rendered)} controls"
+    # 29 Oct 2026 (real06 run 100801): the controls are chosen before the agent's rounds; a control whose element its
+    # final view no longer expects (the agent's camera or the architect's change) cannot be measured
+    views = (_load(project, "check/expected_views.json") or {}).get("views") or {}
+    measurable = [c for c in rendered if any(e.get("wenart_id") == c["id"] for e in
+                                             (views.get(c.get("camera")) or {}).get("elements") or [])]
+    assert ins["n"] >= len(measurable), f"{project}: {ins['n']} insertion rows for {len(measurable)} controls"
     single = bool(cal.get("single_pass")) or len(MODEL_KEYS) < 2
     assert (cal["metrics"]["insertion"] is None) is single, f"{project}: insertion rate {cal['metrics']['insertion']}"
     det = cal["metrics"].get("detector_insertion") or {}

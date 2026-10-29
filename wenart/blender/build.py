@@ -1432,8 +1432,10 @@ def main(argv: list[str]) -> int:
         if fw_plans:                                  # UL106: wall art on a panel stands off it, never in the slats
             stood, fw_notes = FW.standoff_decor(level_furniture.get("decor") or [], fw_plans)
             level_furniture = dict(level_furniture, decor=stood)
+            # (a design detail record names its parent: the decor item, GPU test test_assumed_entries_of_...)
             assumed.extend({"object": line.split(":")[0], "field": "feature_wall_standoff", "value": True,
-                            "reason": line, "kind": "decor"} for line in fw_notes)
+                            "reason": line, "kind": "decor", "parent": line.split(":")[0].split()[-1]}
+                           for line in fw_notes)
         summary = furniture.create_furniture(level_furniture, level, col, library, style, args.assets, pass_indices,
                                              manifest_objects, assumed, warnings, use_proxies=args.proxies)
         add_furniture_summary(furniture_summary, summary)
