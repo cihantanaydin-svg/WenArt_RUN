@@ -2183,8 +2183,10 @@ def build_splashbacks(building: dict, level: dict, collection, library, style: d
     if family_look is not None:
         # 29 Oct 2026 (K5, G3; wenart.blender.kitchen_details.splashback_look): the family's stone or subway tiles
         look = {"material": family_look["material"], "asset": None, "tint": None, "colour": family_look.get("colour")}
-        assumed.append({"object": f"splashback_{level['id']}", "field": "splashback_look",
-                        "value": family_look["material"], "reason": family_look["reason"], "kind": "splashback"})
+        for rid in sorted({b["room_id"] for b in plan}):     # one record per kitchen, its room the parent
+            assumed.append({"object": f"splashback_{rid}", "field": "splashback_look",
+                            "value": family_look["material"], "reason": family_look["reason"], "parent": rid,
+                            "kind": "splashback"})
     mat = look_material(library, look)
     by_room: dict[str, list] = {}
     for b in plan:
