@@ -295,18 +295,143 @@ def door_look(style: dict, opening: Optional[dict] = None) -> dict:
             frame = window_frame_look(style, opening)
             slug, asset, colour = frame.get("material") or slug, frame.get("asset"), frame.get("colour")
             notes.append(f"an outside door: its leaves in the windows' frame finish ({slug})")
-    handle = door.get("handle") if door.get("handle") in HANDLE_SLUGS else DEFAULT_HANDLE
-    product = door_product(style, door_style)
+    family = str((style or {}).get("family") or "").strip().lower()
+    # 29 Oct 2026 (D2, docs/reference_details_20261029.md): the family's hardware where the style names none
+    handle = door.get("handle") if door.get("handle") in HANDLE_SLUGS else FAMILY_HANDLES.get(family, DEFAULT_HANDLE)
+    # 29 Oct 2026 (D3): a wide door between day rooms is a glazed divided-lite door in the family's accent colour
+    lite = divided_lite(opening, style, door_style) \
+        if decided is None or (decided in ("double", "sliding", "folding") and not extra.get("glazed")) else None
+    if lite is not None:
+        door_style = lite["door_style"]
+        slug, asset, colour = "painted_wood_white", None, lite["colour"]
+        extra.update(glazed=True, lites=lite["lites"])
+        notes.append(lite["why"])
+    product = door_product(style, door_style, veneered=veneer is not None)
     if product:
         kind = product["leaf_detail"]["kind"]
         notes.append(("" if kind == "plain" else f"a {kind} leaf, ") + f"an architrave and hinges where it is framed "
                      f"({product['why']})")
+    if family in BLACK_FAMILIES and str(slug).startswith("painted") and not colour and lite is None \
+            and door_style in DETAIL_STYLES + ("shaker_panel",) and not (opening or {}).get("outside_door"):
+        # 29 Oct 2026 (D2): a painted flush leaf of the modern, industrial and minimal families is black
+        colour = "black"
+        notes.append(f"a black flush leaf ({family} style, D2)")
+    pivot = bool(((opening or {}).get("door_size") or {}).get("pivot")) and door_style == "entrance"
+    if pivot:
+        notes.append("a pivot entrance door (D5)")
+    frameless = frameless_reason(style, opening, door_style)
     reason = (f"door {door_style} (drawn operation {op}{', assumed' if op_assumed else ''}"
               f"{'; ' + '; '.join(notes) if notes else ''}), style door {door.get('material') or 'default'}")
-    return _look(slug, asset, colour, "style", reason, door_style=door_style, handle=handle,
-                 handle_material=HANDLE_SLUGS[handle], handle_assumed=door.get("handle") not in HANDLE_SLUGS,
-                 operation=op, operation_assumed=op_assumed, leaf_detail=product.get("leaf_detail"),
-                 architrave=product.get("architrave"), hinges=product.get("hinges"), **extra)
+    out = _look(slug, asset, colour, "style", reason, door_style=door_style, handle=handle,
+                handle_material=HANDLE_SLUGS[handle], handle_assumed=door.get("handle") not in HANDLE_SLUGS,
+                operation=op, operation_assumed=op_assumed, leaf_detail=product.get("leaf_detail"),
+                architrave=product.get("architrave"), hinges=product.get("hinges"),
+                lock_rose=product.get("lock_rose"), **extra)
+    if pivot:
+        out["pivot"] = True
+    if frameless:
+        out["frameless"] = frameless
+    if product:
+        out["frame_look"] = door_frame_look(style)
+    return out
+
+
+# 29 Oct 2026 (D2, docs/reference_details_20261029.md; H3: "dark (black) door frames and architraves"): the door
+# hardware and frames of a family where the style names none. Black frames, architraves and levers in the modern,
+# industrial and minimal families (``BLACK_FAMILIES``); black levers in the light wood families too.
+FAMILY_HANDLES: dict[str, str] = {"modern": "black", "modern minimal": "black", "minimal": "black",
+                                  "industrial": "black", "contemporary": "black", "scandinavian": "black",
+                                  "japandi": "black", "rustic": "black", "classic": "brass", "mediterranean": "brass",
+                                  "traditional": "brass"}
+BLACK_FAMILIES: tuple[str, ...] = ("modern", "modern minimal", "minimal", "industrial")
+MODERN_FAMILIES: tuple[str, ...] = ("modern", "modern minimal", "minimal", "contemporary")   # = door_states'
+VENEER_GROOVE_FAMILIES: tuple[str, ...] = ("contemporary", "modern minimal", "minimal")      # R28's product leaf
+
+
+def door_frame_look(style: Optional[dict]) -> dict:
+    """The look of a door's frame and architrave (29 Oct 2026, D2 / H3): black in ``BLACK_FAMILIES`` (painted black;
+    blackened steel in the industrial family), else the style's trim."""
+    family = str((style or {}).get("family") or "").strip().lower()
+    if family == "industrial":
+        return _look("metal_black", None, None, "style", "black steel door frames (industrial family, D2)")
+    if family in BLACK_FAMILIES:
+        return _look("painted_wood_white", None, "black", "style", f"black door frames and architraves ({family} "
+                                                                   "family, D2)")
+    trim = _slot(style or {}, "trim")
+    return _look(trim.get("material") or "painted_wood_white", trim.get("asset"), trim.get("colour"), "style",
+                 "door frames in the style's trim")
+
+
+# 29 Oct 2026 (D3): a glazed divided-lite door (sliding or double) for a wide opening between day rooms, in the
+# family's accent colour (``objects.FAMILY_ACCENTS``' colour without its "pale" / "muted" / "light"; black where the
+# accent is a greige).
+DIVIDED_LITE_MIN_M = 1.2
+DIVIDED_LITE_ROOMS: tuple[str, ...] = ("living", "dining", "kitchen", "hall")
+DIVIDED_LITE_STYLES: tuple[str, ...] = ("double", "sliding", "glazed_sliding", "folding")
+
+
+def joinery_accent(style: Optional[dict]) -> str:
+    fam = str((style or {}).get("family") or "").lower()
+    _m, colour = FAMILY_ACCENTS.get(fam, FAMILY_ACCENT_DEFAULT)
+    words = [w for w in str(colour).split() if w not in ("pale", "muted", "light", "soft", "warm")]
+    name = " ".join(words) or "black"
+    try:
+        from wenart.style import colours as C
+        if name not in C.COLOURS:
+            name = words[-1] if words and words[-1] in C.COLOURS else "black"
+    except Exception:  # noqa: BLE001 - without the colour table: black
+        name = "black"
+    return "black" if name in ("greige", "white", "off white") else name
+
+
+def divided_lite(opening: Optional[dict], style: Optional[dict], door_style: Optional[str]) -> Optional[dict]:
+    """``{"door_style", "lites", "colour", "why"}`` of a D3 door (module comment), None for any other door: an inside
+    door at least ``DIVIDED_LITE_MIN_M`` wide whose rooms are all day rooms, in a style with a family; a drawn sliding
+    door becomes a glazed sliding door, any other a pair of glazed leaves (French doors)."""
+    o = opening or {}
+    if not str((style or {}).get("family") or "").strip() or o.get("outside_door"):
+        return None
+    joins = [str(t) for t in o.get("joins") or []]
+    if len(joins) != 2 or any(t not in DIVIDED_LITE_ROOMS for t in joins):
+        return None
+    try:
+        w = float(o.get("width") or 0.0)
+    except (TypeError, ValueError):
+        return None
+    if w < DIVIDED_LITE_MIN_M - 1e-9 or (door_style not in DIVIDED_LITE_STYLES and door_style not in SWING_LOOKS):
+        return None
+    sliding = str(o.get("operation") or "") == "sliding" or door_style in ("sliding", "glazed_sliding")
+    colour = joinery_accent(style)
+    leaf = w / (2.0 if not sliding else max(2.0, math.ceil(w / 1.2)))
+    lites = [1 if leaf < 0.55 else 2, 4]
+    return {"door_style": "glazed_sliding" if sliding else "double", "lites": lites, "colour": colour,
+            "why": (f"a {w:.2f} m door between day rooms: a glazed divided-lite "
+                    f"{'sliding door' if sliding else 'pair of French doors'} in the family's accent colour "
+                    f"{colour} (D3)")}
+
+
+# 29 Oct 2026 (UL122: "Doors looks without frames they need frames", "Sometimes maybe not needed frames but mostly yes
+# it does"): every door is framed by default; frameless only where it makes sense, decided in code and recorded.
+FRAMELESS_FAMILIES: tuple[str, ...] = ("minimal", "modern minimal", "modern")
+
+
+def frameless_reason(style: Optional[dict], opening: Optional[dict], door_style: Optional[str]) -> Optional[str]:
+    """Why a door has no architrave (a concealed, flush-to-wall door), None for a framed door (pure): the answer of
+    the architect's D7 (``opening["frame_decision"]``: the AI's or the user's answer wins, the architect's default
+    stays framed), else the style's ``door.frameless`` key in a ``FRAMELESS_FAMILIES`` style, on a flush leaf only."""
+    o = opening or {}
+    fam = str((style or {}).get("family") or "").strip().lower()
+    dec = o.get("frame_decision") if isinstance(o.get("frame_decision"), dict) else {}
+    if dec and dec.get("by") not in (None, "architect"):
+        return (f"a concealed frameless door ({dec.get('by')}'s answer {dec.get('key') or ''}: "
+                f"{dec.get('reason') or ''})") if dec.get("frameless") else None
+    if door_style not in ("flush", "pocket") or fam not in FRAMELESS_FAMILIES:
+        return None
+    if dec.get("frameless"):
+        return f"a concealed frameless door (the architect's {dec.get('key') or 'D7'})"
+    if _slot(style or {}, "door").get("frameless") is True:
+        return f"a concealed frameless flush door (the {fam} style's door.frameless)"
+    return None
 
 
 # 29 Oct 2026 (user: "Better door models needed"; real06 run 20261028-154514-full, real04 run 20261028-183611-full:
@@ -325,15 +450,17 @@ LEAF_DETAILS: dict[str, dict] = {
     "traditional": {"kind": "panelled"},
 }
 DEFAULT_LEAF_DETAIL: dict = {"kind": "lined"}
-LEAF_DETAIL_KINDS: tuple[str, ...] = ("lined", "horizontal", "vertical", "panelled", "plain")
+LEAF_DETAIL_KINDS: tuple[str, ...] = ("lined", "horizontal", "vertical", "fine_vertical", "panelled", "plain")
 DETAIL_STYLES: tuple[str, ...] = ("flush", "double", "folding")     # door styles whose solid leaves take the detail
 
 
-def door_product(style: Optional[dict], door_style: Optional[str] = None) -> dict:
-    """``{"leaf_detail", "architrave", "hinges", "why"}`` of a parametric door in a style with a family (pure; see
-    ``LEAF_DETAILS``), {} for a style without one (a Milestone 3-9 style keeps its door). The style's ``door`` slot
-    may name ``leaf_detail`` (a kind of ``LEAF_DETAIL_KINDS``, or a dict with its ``kind`` and ``count``); a leaf
-    style other than ``DETAIL_STYLES`` (glazed, shaker panel, entrance, sliding ...) keeps its own face."""
+def door_product(style: Optional[dict], door_style: Optional[str] = None, veneered: bool = False) -> dict:
+    """``{"leaf_detail", "architrave", "hinges", "lock_rose", "why"}`` of a parametric door in a style with a family
+    (pure; see ``LEAF_DETAILS``), {} for a style without one (a Milestone 3-9 style keeps its door). The style's
+    ``door`` slot may name ``leaf_detail`` (a kind of ``LEAF_DETAIL_KINDS``, or a dict with its ``kind`` and
+    ``count``); a leaf style other than ``DETAIL_STYLES`` (glazed, shaker panel, entrance, sliding ...) keeps its own
+    face. 29 Oct 2026 (R28, D2): a lock rose under the lever; a wood-veneer leaf (``veneered``) of the
+    ``VENEER_GROOVE_FAMILIES`` is the flush leaf with fine vertical grooves (one product)."""
     family = str((style or {}).get("family") or "").strip().lower()
     if not family:
         return {}
@@ -342,12 +469,14 @@ def door_product(style: Optional[dict], door_style: Optional[str] = None) -> dic
         detail, why = {"kind": named}, "the style's door names it"
     elif isinstance(named, dict) and named.get("kind") in LEAF_DETAIL_KINDS:
         detail, why = dict(named), "the style's door names it"
+    elif veneered and family in VENEER_GROOVE_FAMILIES:
+        detail, why = {"kind": "fine_vertical"}, f"a wood-veneer leaf with fine vertical grooves ({family} family, R28)"
     else:
         detail = dict(LEAF_DETAILS.get(family, DEFAULT_LEAF_DETAIL))
         why = f"the {family} family's door, assumed" if family in LEAF_DETAILS else f"a {family} door, assumed"
     if door_style is not None and door_style not in DETAIL_STYLES:
         detail = {"kind": "plain"}
-    return {"leaf_detail": detail, "architrave": True, "hinges": True, "why": why}
+    return {"leaf_detail": detail, "architrave": True, "hinges": True, "lock_rose": True, "why": why}
 
 
 # 28 Oct 2026 (user: "I want better doors inside the house and the outside ... some variation is needed"): with no door

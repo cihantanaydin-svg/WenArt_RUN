@@ -535,6 +535,19 @@ class MaterialLibrary:
                                           "reason": "thin glass (transparent + glossy by Fresnel): data passes see through"}
         return self._cache["thin_glass"]
 
+    def smoked_glass(self):
+        """29 Oct 2026 (UL120): the smoked glass of a see-through wardrobe front: the thin pane with its transparency
+        tinted ``SMOKED_GLASS_RGB`` (the garments show through, darkened)."""
+        if "smoked_glass" not in self._cache:
+            self._cache["smoked_glass"] = thin_glass_material("smoked_glass", roughness=0.05, tint=SMOKED_GLASS_RGB)
+            self.records["smoked_glass"] = {"slug": "glass", "textured": False, "asset": None, "source": None,
+                                            "licence": None, "size_m": None, "flat_colour": list(SMOKED_GLASS_RGB),
+                                            "tint": list(SMOKED_GLASS_RGB), "unverified": False, "albedo_mode": None,
+                                            "detail": None, "gain_clamped": None,
+                                            "reason": "smoked glass (thin pane, transparency tinted): a see-through "
+                                                      "wardrobe front (UL120)"}
+        return self._cache["smoked_glass"]
+
     def sheer(self, colour=None):
         """29 Oct 2026 (UL106): the sheer layer of a layered curtain (``sheer_material``), white unless a colour
         phrase is given; one material per colour."""
@@ -1090,14 +1103,18 @@ def window_glass_material(name: str, ior: float = WINDOW_GLASS_IOR):
     return mat
 
 
-def thin_glass_material(name: str, roughness: float = 0.0, ior: float = 1.45):
+SMOKED_GLASS_RGB = (0.30, 0.29, 0.28)    # 29 Oct 2026 (UL120): a smoked pane lets about a third of the light through
+
+
+def thin_glass_material(name: str, roughness: float = 0.0, ior: float = 1.45, tint=None):
     """Thin pane without refraction: Transparent BSDF mixed with a Glossy BSDF by
     Fresnel (about 4 % reflection head-on, more at grazing angles). Cycles writes
     the depth, normal and index passes at the first surface whose alpha is at or
     above the view layer's ``pass_alpha_threshold`` (0.5); this pane's alpha is
     the Fresnel factor, so the passes see through it except at grazing angles.
     Shadow rays see it as fully transparent. Shower panels keep this pane in
-    Milestone 5; windows use ``window_glass_material``."""
+    Milestone 5; windows use ``window_glass_material``. 29 Oct 2026 (UL120): ``tint`` (linear RGB) colours the
+    transparent part (a smoked wardrobe pane: ``SMOKED_GLASS_RGB``) and its shadow."""
     import bpy
 
     mat = bpy.data.materials.new(name)
@@ -1130,6 +1147,10 @@ def thin_glass_material(name: str, roughness: float = 0.0, ior: float = 1.45):
     links.new(glossy.outputs["BSDF"], pane.inputs[2])
     path = nodes.new("ShaderNodeLightPath")
     shadow = nodes.new("ShaderNodeBsdfTransparent")
+    if tint is not None:
+        rgba = (float(tint[0]), float(tint[1]), float(tint[2]), 1.0)
+        transparent.inputs["Color"].default_value = rgba
+        shadow.inputs["Color"].default_value = rgba
     mix = nodes.new("ShaderNodeMixShader")
     links.new(path.outputs["Is Shadow Ray"], mix.inputs["Fac"])
     links.new(pane.outputs["Shader"], mix.inputs[1])

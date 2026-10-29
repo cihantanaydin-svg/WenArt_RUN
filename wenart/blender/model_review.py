@@ -126,6 +126,14 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   covering (a gap under it) is critical; one reaching under the roof's underside into the rooms (no drawn fireplace
   under it), lower than the 3-2-10 rule of thumb (0.6 m over the roof within 3 m, 0.9 m over its exit) or standing in
   front of an outside window is major. Kind ``no_sense``; the build owns it.
+- M29 the doors and the walk-ins as a designer shows them (29 Oct 2026, lessons UL116 "not all the doors needs to be
+  closed in default", UL117 "Not every single one of them with the same dimension", UL120 / UL125 the see-through
+  walk-in "argus should have think of this", UL122 "Doors looks without frames they need frames";
+  ``door_states.state_problems`` and ``frame_problems``): every inside door closed in a house whose doors could open,
+  all doors one size (major) or the entrance no bigger than the inside doors (minor), an open leaf standing in a piece
+  (major, kind ``geometry``), a walk-in dressing room with closed fronts only (major, the architect's D8 answer that
+  fixes it in ``fix_choice``), a door without a frame and no recorded frameless reason (major) or an indoor face
+  without its architrave (minor). The build owns them; a walk-in's fronts the architect.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -161,6 +169,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
 CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18",
           "M19", "M20", "M21", "M22", "M23", "M24")   # 29 Oct 2026: M19 fixtures in use, M20 doors as products, M21 rooms for their use, M22 backs on walls, M23 the professional bar, M24 chimneys
+CHECKS += ("M29",)          # 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125): the doors and walk-ins as designed
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -446,6 +455,39 @@ def door_products(manifest: Optional[dict]) -> tuple[list[dict], int]:
         out.append(_v("M20", p["severity"], p["target"], p["message"], None,
                       kind="lost" if p["kind"] == "library_door_not_built" else None, problem=p["kind"]))
     return out, len(rows)
+
+
+M29_KINDS = {"leaf_in_piece": "geometry", "no_frame": "taste", "no_architrave": "taste"}   # else reference_missed
+M29_FIX = {"all_closed": "the build's door_states (an inside door stands open by default)",
+           "one_size": "the build's door_states.apply_sizes (sizes by role and family)",
+           "leaf_in_piece": "move the piece out of the open leaf, or the build closes the door (door_states)",
+           "view_closed_doors": "the build opens a door a view sees into a room worth showing (door_states.revise_for_cameras)",
+           "dressing_closed_fronts": "the architect's D8 answer (wardrobe_fronts) and the build's see-through fronts",
+           "no_frame": "the build frames every door (opening_build._door_frame, parametric.door_frame_parts)",
+           "no_architrave": "the build's architrave on the door's indoor faces (parametric.architrave_boxes)"}
+
+
+def doors_as_designed(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
+    """M29 (29 Oct 2026; lessons UL116 "not all the doors needs to be closed in default", UL117 "Not every single one
+    of them with the same dimension", UL120 / UL125 the see-through walk-in, UL122 "Doors looks without frames they
+    need frames"; ``door_states.state_problems`` and ``frame_problems``): every inside door closed in a house whose
+    doors could open, all doors one size, an open leaf in a piece, a walk-in with closed fronts only, a door with no
+    frame and no recorded reason (the frames when there is a scene manifest)."""
+    from wenart.blender import door_states as DS
+
+    probs = DS.state_problems(built, manifest)
+    if manifest and manifest.get("objects"):
+        probs += DS.frame_problems(manifest)
+    out = []
+    for p in probs:
+        v = _v("M29", p["severity"], p["target"], p["message"], None, kind=M29_KINDS.get(p["kind"]), problem=p["kind"])
+        v["owner"] = "architect" if p["kind"] == "dressing_closed_fronts" else "build"
+        v["fix"] = M29_FIX.get(p["kind"], "the build's doors")
+        if p.get("fix_choice"):
+            v["metrics"]["fix_choice"] = p["fix_choice"]
+        out.append(v)
+    n = sum(1 for o in built.get("openings") or [] if o.get("type") == "door")
+    return out, n
 
 
 def rooms_make_sense(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
@@ -1203,6 +1245,12 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             note("M24", got, n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
         checks["M24"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M29 (29 Oct 2026, lessons UL116, UL117, UL120, UL122, UL125): the doors and the walk-ins as a designer shows them
+    try:
+        got, n = doors_as_designed(built, scene_manifest)
+        note("M29", got, n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M29"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M12 (27 Oct 2026, user on real06: "doors next to each other not making sense"): doors side by side
     try:
         got, n = doors_side_by_side(built)

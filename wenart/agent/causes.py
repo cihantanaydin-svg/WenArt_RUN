@@ -550,6 +550,9 @@ CHECK_CAUSE: dict[str, str] = {
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",
 }
+# 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125): the doors and the walk-ins as designed are chosen by code for the
+# whole building (door_states, wardrobe_fronts, the frames); reported with the stage that owns them
+CHECK_CAUSE["M29"] = "opening_style"
 _PIECE_PREFIXES = ("f_", "furn_", "decor_", "dec_")
 # Fix round after P4b (module docstring): the camera-placement checks a replayed camera is frozen for, the metrics flag
 # ``mark_replayed`` sets, the words of a single view's over-exposure (X7), and the set_exterior slots of a cause.

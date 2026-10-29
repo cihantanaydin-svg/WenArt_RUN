@@ -60,6 +60,12 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U27 (UL109, 29 Oct 2026: "There are no chimneys there could be some chimney in the projects") a drawn fireplace,
   stove, flue or boiler room (``chimney.drawn_sources``) with no chimney on the roof (kind ``lost``); a house with a
   pitched roof whose style family usually has a chimney (``chimney.FAMILY_CHIMNEYS``) and no chimney in the scene.
+- U33 (UL116, UL117, UL120, UL122, UL125, 29 Oct 2026: "not all the doors needs to be closed in default", "Not every
+  single one of them with the same dimension", "Doors looks without frames they need frames", "this dressing could
+  be a see through dressing room in the both sides argus should have think of this") the doors and the walk-ins as
+  designed (``doors_as_designed``: the model review's M29): every inside door closed, all doors one size, an open
+  leaf in a piece, a walk-in with closed fronts only (a design finding with the architect's D8 answer as its fix), a
+  door without a frame and no frameless reason. Kind ``reference_missed`` (an open leaf in a piece: ``geometry``).
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -738,6 +744,45 @@ CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4":
                  "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107"),
                  "U16": ("UL92",), "U20": ("UL96",), "U27": ("UL109",)}
 CHECK_LESSONS["U23"] = ("UL106",)          # 29 Oct 2026: the professional bar (professional_bar)
+CHECK_LESSONS["U33"] = ("UL116", "UL117", "UL120", "UL122", "UL125", "UL126")    # 29 Oct 2026: doors_as_designed
+U33_LESSONS = {"all_closed": "UL116", "leaf_in_piece": "UL116", "view_closed_doors": "UL126", "one_size": "UL117",
+               "dressing_closed_fronts": "UL125", "no_frame": "UL122", "no_architrave": "UL122"}
+U33_FIX = {"all_closed": "rerun_stage build (door_states.apply_states: an inside door stands open by default)",
+           "leaf_in_piece": "move_piece (the piece out of the open leaf), else rerun_stage build (door_states closes "
+                            "a leaf that hits a piece)",
+           "view_closed_doors": "rerun_stage build (door_states.revise_for_cameras: a door a view sees into a room worth "
+                                "showing opens, its leaf out of the view)",
+           "one_size": "rerun_stage build (door_states.apply_sizes: the entrance taller and wider, day-room doors to the "
+                       "ceiling in the modern families, product widths)",
+           "no_frame": "rerun_stage build (opening_build._door_frame, parametric.door_frame_parts: every door framed)",
+           "no_architrave": "rerun_stage build (the architrave on the door's indoor faces)"}
+
+
+def doors_as_designed(building: dict, manifest: Optional[dict]) -> list[dict]:
+    """U33 (29 Oct 2026; lessons UL116 "not all the doors needs to be closed in default", UL117 "Not every single one of
+    them with the same dimension", UL120 / UL125 "this dressing could be a see through dressing room in the both sides
+    argus should have think of this", UL122 "Doors looks without frames they need frames"): the model review's M29
+    (``door_states.state_problems``, ``frame_problems``) as Argus' own findings, each with the fix that removes it: a
+    walk-in with closed fronts only is a design finding carrying the architect's D8 answer
+    (``architect_answer D8:<room> wardrobe_fronts:<kind>``), so a missed reference solution is found as well as a
+    fault."""
+    from wenart.blender import door_states as DS
+
+    probs = DS.state_problems(building, manifest)
+    if manifest and manifest.get("objects"):
+        probs += DS.frame_problems(manifest)
+    out = []
+    for p in probs:
+        fix = U33_FIX.get(p["kind"], "rerun_stage build")
+        if p["kind"] == "dressing_closed_fronts":
+            fix = (f"architect_answer D8:{p['target']} {p.get('fix_choice') or 'wardrobe_fronts:slats'} (a see-through "
+                   "walk-in on every side), then rerun_stage build")
+        f = _f("U33", p["severity"], p["target"], p["message"], U33_LESSONS.get(p["kind"], "UL116"), fix,
+               problem=p["kind"])
+        if p["kind"] == "leaf_in_piece":
+            f["kind"] = "geometry"
+        out.append(f)
+    return out
 
 
 def professional_bar(building: dict, manifest: Optional[dict]) -> list[dict]:
@@ -789,6 +834,13 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
             checked["U23"] = len(got)
         except Exception as exc:  # noqa: BLE001 - a check that fails is listed, the others still run
             checked["U23"] = f"failed: {type(exc).__name__}: {exc}"[:200]
+    # 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125): the doors and the walk-ins as designed (the frames need the scene)
+    try:
+        got = doors_as_designed(building, manifest)
+        findings += got
+        checked["U33"] = len(got) if manifest else f"{len(got)} (no scene manifest: the frames not checked)"
+    except Exception as exc:  # noqa: BLE001 - a check that fails is listed, the others still run
+        checked["U33"] = f"failed: {type(exc).__name__}: {exc}"[:200]
     return {"findings": findings, "checked": checked}
 
 

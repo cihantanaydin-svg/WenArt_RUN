@@ -135,6 +135,21 @@ RULES = (
                  "bedroom)?",
      "why": "a hall, a kitchen and a living room open into each other; a leaf or glass in a passage drawn open is a "
             "reading or decision error, a bathroom or bedroom behind an unclear gap needs its door"},
+    # 29 Oct 2026 (user: "Doors looks without frames they need frames", "Sometimes maybe not needed frames but mostly
+    # yes it does"; lesson UL122): framed by default, a concealed frameless door a choice of the minimal styles
+    {"id": "D7", "topic": "door frames", "scope": "door", "severity": "minor",
+     "question": "Is every door framed (a jamb lining, a head and an architrave on its indoor faces), unless it is a "
+                 "concealed flush door of a minimal or modern style?",
+     "why": "a door standing in a raw hole in the wall looks unfinished; a concealed frameless door is a choice, never "
+            "an omission"},
+    # 29 Oct 2026 (user on real06's dressing room: "this dressing could be a see through dressing room in the both
+    # sides argus should have think of this"; lessons UL120, UL125)
+    {"id": "D8", "topic": "walk-in dressing rooms", "scope": "room", "severity": "minor",
+     "question": "Is every walk-in dressing room (a dressing room, or wardrobe runs facing each other across an aisle) "
+                 "see-through on every side: slatted or glazed sliding fronts, or open runs, with real contents and a "
+                 "light inside?",
+     "why": "closed white panels on both sides of a narrow aisle read as a corridor of cupboards; a walk-in shows its "
+            "clothes"},
     {"id": "H1", "topic": "working heights", "scope": "furniture", "severity": "major",
      "question": "Is every fixture at its working height (a washbasin's rim at 0.80-0.90 m)?",
      "why": "a basin at knee height looks like a toy and cannot be used"},
@@ -1217,4 +1232,70 @@ def review(building: dict, prep: dict, sides: list[dict], graph: dict, starts: l
         clash_rule(building, prep.get("clashes"))
     if prep.get("site") is not None:
         out += site_rules(prep)
+    out += door_frames_rule(plan, prep.get("style_family")) + walk_in_rule(plan, prep.get("style_family"))
     return out
+
+
+def door_frames_rule(plan: AA.Plan, family: Optional[str]) -> list[dict]:
+    """D7 (pure; 29 Oct 2026, UL122): in a style family that may hide its doors' frames (``looks.FRAMELESS_FAMILIES``)
+    every inside door is open with the safe default ``door_frames:framed`` (the architect carries it out; the AI
+    architect or the user may choose a concealed frameless door, ``door_frames:frameless``); a door already decided is
+    fine with its answer. Another family frames every door (not asked)."""
+    from wenart.blender import looks as LK
+
+    d7 = _q(next(r for r in RULES if r["id"] == "D7"))
+    fam = str(family or "").strip().lower()
+    if fam not in LK.FRAMELESS_FAMILIES:
+        return [d7]
+    for o in plan.openings.values():
+        if o.get("type") != "door" or plan.walls.get(o.get("wall_id")) is None or o.get("level_id") not in plan.levels:
+            continue
+        sides = AA.window_sides(plan, o) or [None, None]
+        if any(AA.Plan.is_outside(r) for r in sides):
+            continue                                     # the facade face of an outside door has no architrave
+        dec = o.get("frame_decision") if isinstance(o.get("frame_decision"), dict) else None
+        if dec is not None and dec.get("by") not in (None, "architect"):
+            _ok(d7, o["id"], f"{'frameless' if dec.get('frameless') else 'framed'} ({dec.get('by')}'s answer)")
+            continue
+        opts = [AA.option("door_frames", "framed: a jamb lining, a head and an architrave on its indoor faces",
+                          door_id=o["id"], frame="framed"),
+                AA.option("door_frames", f"a concealed frameless flush door ({fam} style): no architrave, the frame "
+                                         "flush with the wall", door_id=o["id"], frame="frameless")]
+        _open(d7, o["id"], f"{o['id']}: an inside door of a {fam} house, framed by default",
+              f"Should {o['id']} be framed, or a concealed frameless flush door?", opts,
+              where=_where("door", o.get("level_id"), o.get("center")), default="door_frames:framed")
+    return [d7]
+
+
+def walk_in_rule(plan: AA.Plan, family: Optional[str]) -> list[dict]:
+    """D8 (pure; 29 Oct 2026, UL120, UL125): every walk-in dressing room (``wardrobe_fronts.walk_in``) is open with
+    its family's see-through front as the safe default (``wardrobe_fronts.WALK_IN_FRONTS``: slatted or smoked-glass
+    sliding fronts, or open runs; the architect carries it out) and the other fronts, closed ones too, as options; a
+    walk-in already answered is fine with its answer."""
+    from wenart.blender import wardrobe_fronts as WF
+
+    d8 = _q(next(r for r in RULES if r["id"] == "D8"))
+    fam = str(family or "").strip().lower()
+    if not fam:
+        return [d8]
+    for r in plan.rooms:
+        if r.get("level_id") not in plan.levels:
+            continue
+        why = WF.walk_in(plan.b, r)
+        if why is None:
+            continue
+        robes = [f for f in plan.b.get("furniture") or [] if f.get("room_id") == r["id"]
+                 and str(f.get("type")) in WF.WARDROBE_TYPES and f.get("build", True) is not False]
+        if not robes:
+            continue
+        ans = r.get("wardrobe_fronts") if isinstance(r.get("wardrobe_fronts"), dict) else None
+        if ans is not None and ans.get("by") not in (None, "architect"):
+            _ok(d8, r["id"], f"{r['id']}: {WF.FRONT_WHAT.get(ans.get('kind'), ans.get('kind'))} ({ans.get('by')})")
+            continue
+        default = WF.WALK_IN_FRONTS.get(fam, WF.WALK_IN_DEFAULT)
+        opts = [AA.option("wardrobe_fronts", WF.FRONT_WHAT[k] + (" (the family's)" if k == default else ""),
+                          room_id=r["id"], kind=k) for k in WF.CHOICES]
+        _open(d8, r["id"], f"{r['id']}: a walk-in ({why}), {len(robes)} wardrobe run(s)",
+              f"Which fronts should the walk-in {r['id']} have?", opts,
+              where=_where("room", r.get("level_id"), _centroid(r["polygon"])), default=f"wardrobe_fronts:{default}")
+    return [d8]
