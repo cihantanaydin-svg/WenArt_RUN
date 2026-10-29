@@ -138,7 +138,7 @@ CHECK_KIND = {
     # conservation
     "C1": "lost", "C2": "lost", "C3": "lost", "C4": "untyped", "C5": "lost", "C8": "geometry",
     # 28 Oct 2026: a built library model its names or its audit refuse (code critic LT, process P11)
-    "LT": "misread", "P11": "misread",
+    "LT": "misread", "P11": "misread", "P12": "lost",
 }
 CHECK_KIND.update({"U23": "taste", "M23": "taste"})     # 29 Oct 2026 (UL106): the professional bar (dressing.review)
 # 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125; user: "argus should have think of this"): a reference solution the

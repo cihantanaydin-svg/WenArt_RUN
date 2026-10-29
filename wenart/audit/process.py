@@ -23,6 +23,9 @@ What (each check over every item, nothing sampled):
   (this run's log events only), with the refusal it met most: the stage or rule behind it must change, not the agent
   (real06: "kitchen_run (missing stove, fridge): no place passes the checks", 30 tries).
 
+- P12 (29 Oct 2026) a finish built flat although the vocabulary gives it a texture set: the set never reached the
+  assets (real04 run 20261029-201533-full: 37 herringbone floors flat, "asset WoodFloor034 not in the assets
+  manifest"); kind ``lost``, owner the asset stage.
 - P11 (28 Oct 2026) a built library model its own names or its audit refuse: a stated size its box disagrees with
   (a table set read in feet), a set of pieces in one mesh, a title of another type or use (a kitchen sink as a
   washbasin), a vision doubt of its type or size (a wardrobe with a window at its end): ``wenart.furniture
@@ -474,11 +477,36 @@ def futile(inp: Inputs) -> list[dict]:
     return out
 
 
+MISSING_SET = "not in the assets manifest"      # materials.MaterialLibrary's reason for a set it could not find
+
+
+def lost_textures(inp: Inputs) -> list[dict]:
+    """P12 (module docstring): one finding per material of the scene built flat because its texture set was missing,
+    with the number of objects that wear it (the scene manifest's ``materials`` records and its objects)."""
+    man = inp.manifest or {}
+    mats = man.get("materials") or {}
+    users: dict = {}
+    for o in man.get("objects") or []:
+        if o.get("material"):
+            users[o["material"]] = users.get(o["material"], 0) + 1
+    out = []
+    for name, rec in sorted(mats.items()):
+        reason = str((rec or {}).get("reason") or "")
+        if rec.get("textured") or MISSING_SET not in reason:
+            continue
+        n = users.get(name, 0)
+        out.append(K.finding("process", "P12", "major" if n >= 3 else "minor", name,
+                             f"{name} ({rec.get('slug')}) is built flat on {n} object(s): {reason}", owner="assets",
+                             kind="lost", evidence={"slug": rec.get("slug"), "objects": n},
+                             fix="rerun_stage assets (wenart.assets.fetch: the finish's texture set)"))
+    return out
+
+
 def audit(inp: Inputs) -> dict:
     """``{"findings", "warning_counts", "checked"}`` of the process line."""
     warn, counts = warnings(inp)
     findings = stages(inp) + warn + questions(inp) + tests(inp) + scene_checks(inp) + views(inp) + library(inp) \
-        + time_left(inp) + loop_result(inp) + futile(inp) + library_titles(inp)
+        + time_left(inp) + loop_result(inp) + futile(inp) + library_titles(inp) + lost_textures(inp)
     return {"findings": findings, "warning_counts": counts, "unmatched": unmatched(inp),
             "checked": {"stages": len(inp.records) or len(((inp.run_manifest or {}).get("projects") or [{}])[0]
                                                           .get("stages") or []),
