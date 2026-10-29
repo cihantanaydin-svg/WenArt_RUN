@@ -259,6 +259,10 @@ def test_the_uppers_follow_the_family_fluted_and_handle_less_or_framed_with_hand
     assert [p["role"] for p in before] == [p["role"] for p in nordic]
     for p in parts:                                                                    # inside the cabinet's box
         assert all(-0.6 - 1e-6 <= v[0] <= 0.6 + 1e-6 and -0.175 - 1e-6 <= v[1] <= 0.175 + 1e-6 for v in p["verts"])
+    # the build's cut at a window of the building as built keeps the family's uppers
+    b = kitchen(window=(3.0, 0.5), sill=1.2)
+    cut, rec = MOD.clear_windows(dict(cab, asset={"method": "module", "module_plan": modern}), b)
+    assert rec["built"] and cut["asset"]["module_plan"]["details"]["family"] == "modern"
 
 
 def test_the_tap_is_a_pull_down_spray_tap_in_the_handles_metal():

@@ -1566,6 +1566,11 @@ def clear_windows(piece: dict, building: dict) -> tuple[Optional[dict], Optional
     asset = dict(piece.get("asset") or {})
     hints = dict(asset.get("module_hints") or {})
     hints["blocked_m"] = [[b["x0_m"], b["x1_m"]] for b in blocks] + list(hints.get("blocked_m") or [])
+    # 29 Oct 2026 (K4): the re-planned run keeps the family's uppers of the fit's plan
+    family = ((asset.get("module_plan") or {}).get("details") or {}).get("family") \
+        if isinstance(asset.get("module_plan"), dict) else None
+    if family and not hints.get("family"):
+        hints["family"] = family
     plan = module_plan(dict(piece, module_hints=hints))
     ids = sorted({str(b["id"]) for b in blocks})
     if plan is None:

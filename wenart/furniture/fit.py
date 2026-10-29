@@ -1409,7 +1409,8 @@ def kitchen_built_ins(building: dict) -> dict:
     (``{id, type, x0_m, x1_m}``: their drawn span along the run). A piece belongs to one run at most. Without the
     module builders (import guarded, as ``module_plan_for``) nothing is found. Fix round after P3, part 2 (17 Oct
     2026): a pinned sink (``asset_pin``) gives a ``ranges`` entry too (``type: sink_kitchen``, ``reason``): the run
-    leaves a gap at its drawn span, where its pinned model stands (it is never in ``sinks``)."""
+    leaves a gap at its drawn span, where its pinned model stands (it is never in ``sinks``). 29 Oct 2026:
+    ``details`` holds the kitchen details' hints per run (``kitchen_details_hints``; ``run_hints`` merges them)."""
     out: dict = {"hints": {}, "sinks": {}}
     try:
         from wenart.blender import modules as MOD
