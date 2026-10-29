@@ -2415,3 +2415,18 @@ right side a wall 10 cm away; f_L1_007's right side is on a wall). Every throw g
 knit throw. No drum nightstand in real06's schemes, so no R36 set there. U34 on the run as built finds the old
 dressings of f_L1_010 and f_L1_013 (too few pillows, plain throws). Needs a pod render: the fabrics' sheen and bump,
 the duvet's folds, the fringes.
+
+## Bed cushions stand on the pillows against the headboard on every bed (29 Oct 2026; CPU- and Blender-tested)
+
+Three Blender-backed tests (skipped without Blender) failed: no decor cushion was built on the parametric bed nor on a
+library bed frame made up with our bedding (`decor_not_rested`). Cause: those beds are one mesh with their lying pillows,
+so only the lean in front of the pillows was tried (a dressed library bed has `furniture.BED_CASTER` without them). On
+the frame the lowest back rays met the pillows' front (local y 0.467), the cushion stood on the mattress and its upper
+part 0.29-0.34 m before the headboard at every lean (28 Oct `measure_back`, limit 0.015 m); on the parametric bed the
+pillows' flanks (0.075 m to each side) squeezed it, the three rays met the pillows' front (centre 0.336 m < 1.0 - 0.65,
+the 27 Oct `BED_HEAD_ZONE_M`) and the fallback put it between the pillows again ("no headboard found"). General rule
+(`rest.place_leaning(stand=True)`, `rest.stand_modes`, `rest._rail_hit`): on any bed the cushion first stands on its
+bedding with its upper part against what the rays through that part meet (the headboard), the pillows beside it are no
+arms (a rail rises 0.15 m over its seat), then it leans as before; nothing behind its upper part or out of the head
+zone is no stand, S5 measures both. Now: frame 24 degrees, back gap 0.005 m, sunk 2.6 cm; parametric 30 degrees, back
+gap -0.010 m, sunk 2.9 cm. `tests/test_bed_cushion_stand_20261029.py`; the two Blender tests now pin the rule.

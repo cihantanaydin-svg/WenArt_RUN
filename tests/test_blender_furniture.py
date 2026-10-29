@@ -797,11 +797,14 @@ def test_decor_sits_on_its_hosts_and_shares_their_pass_index(scene):
     (lib_cushion,) = by_host[bed["id"]]
     assert lib_cushion["method"] == "library" and lib_cushion["asset"]["asset_id"] == "test_cube"
     (x0, x1), (y0, y1), (z0, z1) = objects[lib_cushion["name"]]["bounds"]
-    # Leaning in front of the parametric bed's own pillows, its bottom on the bedding: never on the pillow top
-    # (Milestone 11 put it there: ``bedding_top``).
+    # On the parametric bed's own bedding, its bottom never on the pillow top (Milestone 11 put it there:
+    # ``bedding_top``). 29 Oct 2026 (``rest.place_leaning(stand=True)``): over the gap between its two lying pillows it
+    # stands on them against the headboard, its upper part on it (S5 ``back_gap_m``, 28 Oct 2026); it was not built
+    # ("no headboard found": the pillows' flanks squeezed it, their front lay out of the head zone).
     top = P.bedding_top(*bed["footprint"]["size"], 0.55)
     assert x1 - x0 == pytest.approx(0.4, abs=1e-3) and z0 < top - 0.05 and lib_cushion["support"] == "headboard"
     assert lib_cushion["rest"]["gap_m"] <= 0.010 and lib_cushion["rest"]["support_share"] >= 0.8
+    assert lib_cushion["rest"]["back_gap_m"] <= RS.REST_TOLERANCES["decor_back_gap_m"]
     assert lib_cushion["fit"]["fit_scale"] == pytest.approx([0.5, 0.5, 0.5])
     assert [w for w in m["warnings"] if "decor host 'f_nope'" in w]
     assert hosts and m["furniture"]["decor"] == 5

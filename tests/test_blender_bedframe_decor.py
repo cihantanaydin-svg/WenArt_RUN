@@ -18,6 +18,7 @@ from wenart import views as V
 from wenart.blender import cli, schemas
 from wenart.blender import furniture as BF
 from wenart.blender import parametric as P
+from wenart.blender import rest as RS
 from wenart.furniture import decor as D
 from wenart.furniture import fit as F
 
@@ -230,17 +231,23 @@ def _part_offsets(parts):
 @needs_blender
 def test_cushions_on_a_bed_frame_rest_on_its_bedding(built):
     """Milestone 12 (docs/milestone12.md §4.7): the cushions rest on the frame's mattress and bedding by rays and lean
-    against its pillows or headboard; Milestone 11 put them on the pillow top (``bedding.top_m``)."""
+    against its pillows or headboard; Milestone 11 put them on the pillow top (``bedding.top_m``). 29 Oct 2026
+    (``rest.place_leaning(stand=True)``): the frame's lying pillows (0.20 m over the mattress) are lower than a
+    cushion's upper part, so the cushion stands on them with its upper part on the headboard (S5 ``back_gap_m``, 28 Oct
+    2026); on the mattress in front of them its upper part stood 0.3 m before the headboard and it was not built."""
     bed = next(f for f in built["building"]["furniture"] if f["type"] == "bed_double")
     m, objects = built["manifest"], built["objects"]
     rec = next(o for o in m["objects"] if o.get("element_id") == bed["id"] and o["kind"] == "furniture")["bedding"]
     cushions = [o for o in m["objects"] if o["kind"] == "decor" and o.get("host_id") == bed["id"]]
-    assert cushions
+    assert len(cushions) == 2 and not [r for r in m["furniture"]["decor_not_rested"] if r["host_id"] == bed["id"]]
     for c in cushions:
         assert c["pass_index"] == m["pass_index"][bed["id"]] and c["wenart_id"] == bed["id"]
         low = bounds(objects[c["name"]]["verts"])[2][0]
-        assert rec["mattress_top_m"] - 0.03 <= low < rec["top_m"] - 0.05        # on the mattress, not the pillows
+        # on the bedding, sunk into it: never on the pillows' top (Milestone 11)
+        assert rec["mattress_top_m"] - 0.03 <= low < rec["top_m"] - RS.SOFT_SINK_M
         assert c["rest"]["gap_m"] <= 0.010 and c["rest"]["penetration_m"] <= 0.030 and c["support"] == "headboard"
+        assert c["rest"]["back"] == "host" and c["rest"]["back_gap_m"] <= RS.REST_TOLERANCES["decor_back_gap_m"]
+        assert to_local(c["center"], bed["footprint"])[1] >= bed["footprint"]["size"][1] / 2 - RS.BED_HEAD_ZONE_M
 
 
 @needs_blender
