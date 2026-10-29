@@ -1068,6 +1068,36 @@
    "request": "This washing machine would not open (real06 run 20261028-154514-full, a bathroom: the washing machine's door faces the toilet beside it)",
    "lesson": "This washing machine would not open (real06 run 20261028-154514-full, a bathroom: the washing machine's door faces the toilet beside it)",
    "question": null
+  },
+  {
+   "id": "UL93",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "Computer on the table would have been nice or a laptop (real06 run 20261028-154514-full, a bedroom desk with nothing on it)",
+   "lesson": "Computer on the table would have been nice or a laptop (real06 run 20261028-154514-full, a bedroom desk with nothing on it)",
+   "question": null
+  },
+  {
+   "id": "UL94",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "I did not like this light (real06 run 20261028-154514-full, the master bedroom: the tall floor lamp with a big black drum shade and a black cone base)",
+   "lesson": "I did not like this light (real06 run 20261028-154514-full, the master bedroom: the tall floor lamp with a big black drum shade and a black cone base)",
+   "question": null
+  },
+  {
+   "id": "UL95",
+   "date": "2026-10-29",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "this sink not making sense there (real06 run 20261028-154514-full, cam_r_L0_banyo_1: the wall basin stands in the corner right under the window, beside the bath, no room for a mirror)",
+   "lesson": "this sink not making sense there (real06 run 20261028-154514-full, cam_r_L0_banyo_1: the wall basin stands in the corner right under the window, beside the bath, no room for a mirror)",
+   "question": null
   }
  ]
 }
