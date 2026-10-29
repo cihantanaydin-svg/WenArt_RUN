@@ -99,6 +99,7 @@ BEDSIDE_MAX_H = 1.20           # a low piece beside a bed's head (``BEDSIDE_TYPE
 BEDSIDE_NARROW_M = 0.65        # ... this narrow its socket beside it, a wider one (a dresser) over its end by the bed
 BED_NEAR_M = 0.60              # a bed side whose wall is blocked: the nearest free wall spot this close to its head
 BED_SOCKET_REACH_M = 1.0       # a socket this close (plan) to a bed's head corner serves that side (M25, U29)
+SWITCH_NEAR_M = 0.60           # a door whose sides are blocked: its switch on the nearest free wall this close
 BATH_NEAR_M = 0.80             # a mirror or basin whose sides are blocked: the nearest free wall spot this close
 TV_OVER_TOP_M = 0.15           # a TV unit with both sides blocked: its pair this far over its top, behind the TV
 # room type -> the plate rules it follows (dining and prayer rooms the living room's; balconies and shafts none)
@@ -663,10 +664,14 @@ def _hinge_world(o: dict, rooms: list, walls_by_id: dict) -> tuple[Optional[tupl
 
 
 def room_doors(rctx: dict) -> list[dict]:
-    """The room's doors and doorless openings on its wall faces: ``[{"id", "line", "s", "half", "other" (the room on
-    the other side or None), "outside", "counted" (it gets a switch), "why", "op"}]``. Counted: a door into another
-    indoor room; an outside door that is no terrace door (not glazed, sliding, a French window or wider than
-    ``OUTSIDE_DOOR_MAX_M``); the room's only way in when nothing else is counted."""
+    """The room's ways in: its doors and doorless openings on its wall faces and its open sides (a virtual separator
+    along its outline): ``[{"id", "type", "line" (None for an open side), "s", "half", "c" (the centre on the room's
+    face), "ends" (the frame edges or the open side's ends), "other" (the room on the other side or None), "outside",
+    "counted" (it gets a switch), "why", "op"}]``. Counted: a door into another indoor room; an outside door that is no
+    terrace door (not glazed, sliding, a French window or wider than ``OUTSIDE_DOOR_MAX_M``); the room's only ways in
+    (a terrace door, a doorless opening or an open side to an indoor room) when nothing else is counted."""
+    from wenart.blender import geom2d, shell
+
     room, ctx = rctx["room"], rctx["ctx"]
     out = []
     for line in rctx["lines"]:
@@ -682,8 +687,25 @@ def room_doors(rctx: dict) -> list[dict]:
             other = next((r for r in ctx["rooms"] if r["id"] != room["id"] and
                           G.point_in_polygon(back, r["polygon"])), None)
             outside = other is None or room_kind(other) is None
-            out.append({"id": op["id"], "line": line, "s": op["s"], "half": op["half"],
+            edge = op["half"] + CLEAR["frame_overhang"]
+            out.append({"id": op["id"], "line": line, "s": op["s"], "half": op["half"], "c": _xy(line, op["s"]),
+                        "ends": [_xy(line, op["s"] - edge), _xy(line, op["s"] + edge)],
                         "other": other["id"] if other else None, "outside": outside, "op": op, "type": op["type"]})
+    for o in ctx["openings"]:                     # an open side: a separator line on the room's outline, no wall
+        ln = o.get("line")
+        if not shell.is_virtual(o) or not (isinstance(ln, (list, tuple)) and len(ln) == 2):
+            continue
+        a, b = tuple(ln[0][:2]), tuple(ln[1][:2])
+        mid = G.segment_midpoint(a, b)
+        if G.distance(a, b) < 0.3 or any(geom2d.distance_to_polygon_edges(p, room["polygon"]) > 0.05
+                                         for p in (a, b, mid)):
+            continue
+        other = next((r for r in ctx["rooms"] if r["id"] != room["id"] and
+                      geom2d.distance_to_polygon_edges(mid, r["polygon"]) <= 0.05), None)
+        out.append({"id": o.get("id"), "line": None, "s": 0.0, "half": G.distance(a, b) / 2.0, "c": mid,
+                    "ends": [a, b], "other": other["id"] if other else None,
+                    "outside": other is None or room_kind(other) is None, "type": "open_side",
+                    "op": {"o": o, "glass": False, "id": o.get("id"), "type": "open_side"}})
     seen, uniq = set(), []
     for d in sorted(out, key=lambda d: (d["type"] != "door", not d["outside"], str(d["id"]))):
         if d["id"] in seen:
@@ -700,11 +722,13 @@ def room_doors(rctx: dict) -> list[dict]:
             what = "French window" if o.get("guard") else "glazed, sliding or wide outside door"
             d["counted"], d["why"] = False, (f"the {what} {d['id']}: a terrace door, the room's other doors carry its "
                                              "switch")
+        elif d["type"] == "open_side":
+            d["counted"], d["why"] = False, f"the open side {d['id']} (a separator line, no wall)"
         else:
             d["counted"], d["why"] = False, f"the doorless opening {d['id']}"
     if not any(d["counted"] for d in uniq):
-        for d in uniq:                       # the room's only ways in: a terrace door, a doorless opening
-            if d["type"] == "door" or (d["type"] == "opening" and not d["outside"]):
+        for d in uniq:                       # the room's only ways in: a terrace door, an opening, an open side
+            if d["type"] == "door" or not d["outside"]:
                 d["counted"], d["why"] = True, f"{d['why'].split(':')[0]}, the room's only way in"
     return uniq
 
@@ -735,43 +759,57 @@ def _plan_switches(rctx: dict, kind: str, skipped: list) -> None:
             continue
         line, s_c, half = door["line"], door["s"], door["half"]
         edge = half + CLEAR["frame_overhang"]
-        c = _xy(line, s_c)
         reach = edge + max(CLEAR["switch_from_frame"]) + hw + (CLEAR["share"]["outside"] if door["outside"] else share)
-        near = [p for p in rctx["plates"] if p["kind"] == "switch" and G.distance(p["center"][:2], c) <= reach]
+        near = [p for p in rctx["plates"] if p["kind"] == "switch" and G.distance(p["center"][:2], door["c"]) <= reach]
         if near:                                  # a door beside one of the room's switches shares it
             near[0].setdefault("serves", [near[0]["for"]]).append(door["id"])
             continue
-        hinge, hinge_why = _hinge_world(door["op"]["o"], ctx["rooms"], ctx["walls_by_id"])
-        swing_in = door["op"]["o"].get("swing_side") == room["id"]
-        if hinge is not None:
-            latch = 1 if _st(line, hinge)[0] < s_c else -1
-            latch_why = f"on the latch side, away from {hinge_why}"
-        else:
-            run_p = _side_run(rctx, line, s_c + edge, 1, z, hh)
-            run_m = _side_run(rctx, line, s_c - edge, -1, z, hh)
-            latch = 1 if run_p >= run_m else -1
-            latch_why = (f"on the latch side, assumed on the side with more free wall ({max(run_p, run_m):.2f} m "
-                         f"against {min(run_p, run_m):.2f} m; the documents give no hinge side)")
-        # the hinge side only when the leaf does not open over it into this room (a drawn hinge and swing)
-        sides = [latch] + ([-latch] if hinge is None or not swing_in else [])
-        first = None
-        for sign in sides:
-            spots = [s_c + sign * (edge + off) for off in CLEAR["switch_from_frame"]]
-            got, why = _try(rctx, line, "switch", spots, z)
-            if got is None:
-                first = first or why
+        first, sides, latch, latch_why = None, [-1, 1], 1, "beside its end"
+        if line is not None:
+            hinge, hinge_why = _hinge_world(door["op"]["o"], ctx["rooms"], ctx["walls_by_id"])
+            swing_in = door["op"]["o"].get("swing_side") == room["id"]
+            if hinge is not None:
+                latch = 1 if _st(line, hinge)[0] < s_c else -1
+                latch_why = f"on the latch side, away from {hinge_why}"
+            else:
+                run_p = _side_run(rctx, line, s_c + edge, 1, z, hh)
+                run_m = _side_run(rctx, line, s_c - edge, -1, z, hh)
+                latch = 1 if run_p >= run_m else -1
+                latch_why = (f"on the latch side, assumed on the side with more free wall ({max(run_p, run_m):.2f} m "
+                             f"against {min(run_p, run_m):.2f} m; the documents give no hinge side)")
+            # the hinge side only when the leaf does not open over it into this room (a drawn hinge and swing)
+            sides = [latch] + ([-latch] if hinge is None or not swing_in else [])
+            placed = False
+            for sign in sides:
+                spots = [s_c + sign * (edge + off) for off in CLEAR["switch_from_frame"]]
+                got, why = _try(rctx, line, "switch", spots, z)
+                if got is None:
+                    first = first or why
+                    continue
+                ln, s = got
+                gap = abs(_st(line, _xy(ln, s))[0] - s_c) - edge
+                side_why = latch_why if sign == latch else f"on the hinge side: the latch side is blocked by {first}"
+                _add(rctx, ln, "switch", "door", s, z,
+                     f"inferred: a light switch beside {door['why']}, {side_why}, its centre {gap:.2f} m from the "
+                     f"frame, {z:.2f} m over the floor (a common European height)", target=door["id"],
+                     side="latch" if sign == latch else "hinge")
+                placed = True
+                break
+            if placed:
                 continue
-            ln, s = got
-            gap = abs(_st(line, _xy(ln, s))[0] - s_c) - edge
-            side_why = latch_why if sign == latch else f"on the hinge side: the latch side is blocked by {first}"
+        # both sides blocked (an opening that fills its wall, a stair beside the door) or an open side: the nearest
+        # free wall spot beside its frame edge on an allowed side (a return wall), else nothing
+        ends = door["ends"] if line is None else [door["ends"][1] if sg > 0 else door["ends"][0] for sg in sides]
+        cand = sorted((c for p in ends for c in near_spots(rctx, p, "switch", z, SWITCH_NEAR_M)), key=lambda c: c[0])
+        if cand:
+            dist, ln, s = cand[0]
+            what = f", as beside it {first}," if first else ","
             _add(rctx, ln, "switch", "door", s, z,
-                 f"inferred: a light switch beside {door['why']}, {side_why}, its centre {gap:.2f} m from the frame, "
-                 f"{z:.2f} m over the floor (a common European height)", target=door["id"],
-                 side="latch" if sign == latch else "hinge")
-            break
-        else:
-            skipped.append({"room_id": room["id"], "use": "door", "for": door["id"],
-                            "reason": f"no switch beside {door['why']}: {first}"})
+                 f"inferred: a light switch on the wall next to {door['why']}{what} {dist:.2f} m from its edge, "
+                 f"{z:.2f} m over the floor (a common European height)", target=door["id"], side="return")
+            continue
+        skipped.append({"room_id": room["id"], "use": "door", "for": door["id"],
+                        "reason": f"no switch beside {door['why']}: {first or 'no free wall at its ends'}"})
 
 
 # --------------------------------------------------------------------------
@@ -1260,8 +1298,9 @@ def bed_sides(rctx: dict, bed: dict, sockets: Sequence[dict]) -> dict:
 
 def review(building: dict, plates: Sequence[dict], levels: Optional[list] = None) -> tuple[list[dict], int]:
     """``(problems, checked)`` of the plates against the building as built (pure; model review M25, Argus U29):
-    ``no_switch`` (a room with doors and no light switch at any of them, major; a room's other door without one,
-    ``door_no_switch``, minor, never in a hall, whose doors share its switches), ``on_glass`` / ``in_opening`` (a
+    ``no_switch`` (a room with doors and no light switch at any of them, major, unless it is open only to an indoor
+    neighbour with a switch: a stair well, an alcove; a room's other door without one, ``door_no_switch``, minor,
+    never in a hall, whose doors share its switches), ``on_glass`` / ``in_opening`` (a
     plate over an opening, critical), ``behind_piece`` (a plate behind a piece standing against its wall, major),
     ``off_wall`` (a plate on no wall face of its room, major), ``bed_no_socket`` (a bed in a bedroom with no socket by
     its head, major; one free side of a double bed, minor: ``bed_sides``), ``worktop_no_socket`` (a kitchen whose
@@ -1271,6 +1310,7 @@ def review(building: dict, plates: Sequence[dict], levels: Optional[list] = None
     by_room: dict[str, list] = {}
     for p in plates:
         by_room.setdefault(str(p.get("room_id")), []).append(p)
+    switched = {str(p.get("room_id")) for p in plates if p.get("kind") == "switch"}
     out, checked = [], 0
     for lv in levels if levels is not None else building.get("levels") or []:
         ctx = _level_ctx(building, lv)
@@ -1287,17 +1327,19 @@ def review(building: dict, plates: Sequence[dict], levels: Optional[list] = None
             sockets = [p for p in mine if p.get("kind") in SOCKET_KINDS]
             share = CLEAR["share"].get(kind, CLEAR["share"]["default"])
             doors = [d for d in room_doors(rctx) if d["counted"]]
-            if doors and not switches:
+            # a room open to an indoor neighbour only (an open stair well, an alcove: no door, no wall for a switch)
+            # is lit from the neighbour's switch
+            lit = all(d["type"] in ("opening", "open_side") and d["other"] in switched for d in doors)
+            if doors and not switches and not lit:
                 out.append({"problem": "no_switch", "severity": "major", "target": room["id"], "room_id": room["id"],
                             "doors": [d["id"] for d in doors],
                             "message": f"{room['id']} has no light switch at its door "
                                        f"({', '.join(str(d['id']) for d in doors)}; UL112: a switch on the latch "
                                        f"side, {HEIGHTS['switch']:.2f} m over the floor)"})
             for door in doors if switches and kind not in ("hall", "stair") else []:
-                c = _xy(door["line"], door["s"])
-                reach = door["half"] + CLEAR["frame_overhang"] + max(CLEAR["switch_from_frame"]) + \
+                reach = door["half"] + CLEAR["frame_overhang"] + max(max(CLEAR["switch_from_frame"]), SWITCH_NEAR_M) + \
                     PLATE["size_m"] / 2.0 + share + 0.05
-                if not any(G.distance(p["center"][:2], c) <= reach for p in switches):
+                if not any(G.distance(p["center"][:2], door["c"]) <= reach for p in switches):
                     out.append({"problem": "door_no_switch", "severity": "minor", "target": door["id"],
                                 "room_id": room["id"], "door": door["id"],
                                 "message": f"{door['why']} has no light switch beside it (the room's other door has "

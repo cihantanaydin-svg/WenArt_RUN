@@ -157,6 +157,35 @@ def test_a_door_beside_a_jog_of_its_wall_puts_its_switch_on_the_jogged_face():
     assert sw["center"][0] > 0.95 + WP.CLEAR["frame_overhang"] and sw["center"][2] == pytest.approx(1.05)
 
 
+def test_an_open_side_gets_its_switch_at_its_end_and_an_alcove_is_lit_from_its_neighbour():
+    """A living room with no door, open to its hall along a separator line (no wall), gets its switch on the wall at
+    the separator's end; a stair well whose only way in is a doorless opening filling its wall, with no free wall, is
+    lit from the hall's switch (no M25 finding)."""
+    walls = [_wall("w_s", (0, 0), (8, 0)), _wall("w_e", (8, 0), (8, 4)), _wall("w_n", (8, 4), (0, 4)),
+             _wall("w_w", (0, 4), (0, 0)), _wall("w_a", (4.0, 0.1), (4.0, 2.0), 0.1, False),
+             _wall("w_b", (5.5, 2.0), (5.5, 3.9), 0.1, False), _wall("w_c", (4.0, 2.0), (5.5, 2.0), 0.1, False)]
+    ops = [{"id": "sep_1", "type": "opening", "level_id": "L0", "wall_id": None, "virtual": True,
+            "line": [[4.0, 2.05], [4.0, 3.9]], "center": [4.0, 2.97], "width": 1.85},
+           _door("d_in", "w_e", (8.0, 1.0)),
+           {"id": "o_well", "type": "opening", "level_id": "L0", "wall_id": "w_c", "center": [4.75, 2.0],
+            "width": 1.4, "height": 2.1, "sill_height": 0.0}]
+    rooms = [_room("r_liv", "living", [(0.1, 0.1), (3.95, 0.1), (3.95, 2.05), (4.0, 2.05), (4.0, 3.9), (0.1, 3.9)]),
+             _room("r_hall", "hall", [(4.05, 0.1), (7.9, 0.1), (7.9, 3.9), (5.55, 3.9), (5.55, 1.95), (4.05, 1.95)]),
+             _room("r_well", "stair", [(4.05, 2.05), (5.45, 2.05), (5.45, 3.9), (4.05, 3.9)])]
+    rooms[1]["polygon"] = [[4.05, 0.1], [7.9, 0.1], [7.9, 3.9], [5.55, 3.9], [5.55, 1.95], [4.05, 1.95]]
+    stair = _piece("f_stair", "r_well", "stair", (4.75, 2.975), (1.4, 1.85), 0.0, 3.0)
+    b = _building(walls, ops, rooms, [stair])
+    plan = _plan(b)
+    (sw,) = _of(plan, "r_liv", "door")
+    assert sw["for"] == "sep_1" and sw["side"] == "return" and "open side" in sw["reason"]
+    assert min(G.distance(sw["center"][:2], e) for e in ((4.0, 2.05), (4.0, 3.9))) <= WP.SWITCH_NEAR_M + 0.05
+    assert not _of(plan, "r_well", "door")
+    probs, _n = WP.review(b, plan["plates"])
+    assert not [p for p in probs if p["problem"] == "no_switch"]
+    hall_off = [p for p in plan["plates"] if p["room_id"] != "r_hall"]
+    assert {p["target"] for p in WP.review(b, hall_off)[0] if p["problem"] == "no_switch"} == {"r_hall", "r_well"}
+
+
 # ---------------------------------------------------------------------------------------------------- sockets
 def test_sockets_beside_both_nightstands_of_a_double_bed_at_0_30_m():
     plan = _plan(_house())
