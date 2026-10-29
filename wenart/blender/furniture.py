@@ -606,6 +606,8 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "steel": ("steel_brushed", None, None), "worktop": ("stone_worktop", None, None),
         "dark": ("lacquer_dark", None, None), "green": ("plant_green", None, None),
         "terracotta": ("terracotta", None, None), "glass": ("glass", None, None),
+        # 29 Oct 2026 (UL120): a see-through wardrobe's smoked glass (``_Materials.get`` -> library.smoked_glass)
+        "smoked_glass": ("glass", None, None),
         "mirror": ("mirror", None, None),                     # Milestone 9: the parametric mirror's glass
         # Milestone 10: cabinet fronts (the trim's paint unless a design says otherwise), handles, a marble table
         # top, plant pots, lamp bulbs (frosted when off), rattan.
@@ -1110,8 +1112,14 @@ class _Materials:
         elif key.startswith(P.COLOUR_PREFIX):
             key = key[len(P.COLOUR_PREFIX):]
             accent = None
+        elif key.startswith(CLOTH_PREFIX):
+            # 29 Oct 2026 (UL120): a garment, a folded stack or a pair of shoes of a see-through wardrobe: the
+            # style's fabric in the colour its key names (``modules.garment_parts``: ``cloth:<colour>``)
+            key, colour, accent = "fabric", key[len(CLOTH_PREFIX):] or None, None
         else:
             accent, colour = None, None
+        if key == "smoked_glass":                 # 29 Oct 2026 (UL120): a see-through wardrobe's smoked glass
+            return self.library.smoked_glass()
         if key == "bulb" and lit:
             from wenart.blender import materials as M
             return M.light_material("lamp_light")
@@ -1149,6 +1157,10 @@ class _Materials:
         for prefix in (P.ACCENT_PREFIX, P.COLOUR_PREFIX):
             if key.startswith(prefix):
                 key = key[len(prefix):]
+        if key.startswith(CLOTH_PREFIX):
+            key = "fabric"
+        if key.startswith(LIT_KEY):
+            key = key[len(LIT_KEY):]
         over = (overrides or {}).get(key)
         return over["slug"] if over else self.keys[key][0]
 
@@ -2098,6 +2110,7 @@ def _parametric_object(piece, name, status, floor_z, height, collection, mats, e
 
 
 LIT_KEY = "lit:"                     # a part key prefix: the key's material with a glow (a lit lamp's shade)
+CLOTH_PREFIX = "cloth:"              # 29 Oct 2026 (UL120): a part key prefix: the fabric in a colour (= modules')
 
 
 def _part_material(mats, key: str, unverified: bool, accent=None, colour=None, overrides=None, lit: bool = False):

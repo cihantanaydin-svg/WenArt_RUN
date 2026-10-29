@@ -1468,11 +1468,17 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             op_assumed["open_hatch"] = "a serving hatch over the drawn counter: open, no glass or frame"
         if opening["type"] == "opening" or hatch:
             wall_h, _ = wall_height(wall, level, has_above)
-            if cut_full_height(top, floor_z, wall_h):
+            full = cut_full_height(top, floor_z, wall_h)
+            if full:
                 # Nothing above the wall: close the wall top over the opening.
                 created.append(_soffit(opening, wall, (cx, cy), angle, floor_z + wall_h, style, library,
                                        collection, manifest_objects, op_assumed, shift))
             manifest_objects.append(_opening_entry(opening, None, level_id, None, False, None, op_assumed, shift))
+            if not hatch and door_product(style) and float(opening.get("sill_height") or 0.0) <= PASSAGE_SILL_M:
+                # 29 Oct 2026 (UL122): an open passage gets a lined reveal (jambs and head lining), no architrave
+                created.append(_passage_lining(opening, (cx, cy), width, top - bottom, thickness, angle, bottom,
+                                               not full, frame_mat, collection, manifest_objects, assumed, level_id,
+                                               shift))
             continue
         fw = DEFAULTS["frame_width"]
         height = top - bottom
@@ -1497,6 +1503,14 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
                              reason=dlook.get("reason", "") + "; frame in the windows' finish")
         leaf_mat = look_material(library, dlook) if dlook is not None else None
         win_mat = look_material(library, wlook) if wlook is not None else None
+        # 29 Oct 2026 (D2, UL122): the door's frame and architrave in the family's finish (black in the modern,
+        # industrial and minimal families, else the trim); an outside door's frame in its leaves' facade finish
+        door_frame_mat = frame_mat
+        if dlook is not None and opening.get("outside_door") and leaf_mat is not None:
+            door_frame_mat = leaf_mat
+        elif dlook is not None and isinstance(dlook.get("frame_look"), dict):
+            door_frame_mat = look_material(library, dlook["frame_look"])
+        framing = opening["type"] == "door" and bool(door_product(style))
         geo = {"centre": (cx, cy), "bottom": bottom, "width": width, "height": height, "thickness": thickness,
                "angle": angle, "index": index, "status": status, "level_id": level_id,
                "floor_z": floor_z}                 # 28 Oct 2026: a library door's added handles (opening_build)
@@ -1512,7 +1526,8 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             made = OB.build_library_opening(opening, wall, lib, geo, dict(ctx, warnings=warnings, assets_dir=assets_dir,
                                                                           geo_cache=geo_cache if geo_cache is not None
                                                                           else {}),
-                                            {"glass": glass_mat, "frame": win_mat, "leaf": leaf_mat}, op_assumed, shift)
+                                            {"glass": glass_mat, "frame": win_mat, "leaf": leaf_mat,
+                                             "door_frame": door_frame_mat, "framing": framing}, op_assumed, shift)
             if made:
                 created += made
                 continue
@@ -1522,7 +1537,7 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             k0 = len(manifest_objects)
         if opening["type"] == "door" and door_geometry_m10(style, opening):
             # Milestone 10: the door style of the look (the drawn operation first) from parametric.door_parts.
-            created += build_door_m10(opening, wall, dlook, geo, ctx, {"frame": frame_mat, "leaf": leaf_mat,
+            created += build_door_m10(opening, wall, dlook, geo, ctx, {"frame": door_frame_mat, "leaf": leaf_mat,
                                                                        "glass": glass_mat}, op_assumed, shift)
         elif opening["type"] == "door":
             # Frame: two jambs and a head, as deep as the wall, and (fix round after P3) the jamb and head stops on
@@ -1534,8 +1549,11 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
                                         wenart_id=opening["id"], kind="door", status=status, materials=[frame_mat])
             ob.pass_index = index
             created.append(ob)
-            manifest_objects.append(_opening_entry(opening, ob.name, level_id, frame_mat.name,
-                                                   _textured(library, frame_mat), index, op_assumed, shift))
+            manifest_objects.append(dict(_opening_entry(opening, ob.name, level_id, frame_mat.name,
+                                                        _textured(library, frame_mat), index, op_assumed, shift),
+                                         frame={"lining": True, "head": True, "architrave": [], "indoor_faces": [],
+                                                "source": "the Milestone 6 frame", "frameless": None,
+                                                "architrave_why": None}))
             # Leaf: closed (0 deg), slightly smaller than the frame opening.
             leaf = _local_to_world(m6["leaf"], (cx, cy, bottom), angle)
             ob = common.new_mesh_object(f"{opening['id']}_leaf", *leaf, collection=collection,
@@ -1589,6 +1607,45 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
         if planned is not None:
             tag_library_planned(manifest_objects[k0:], opening["id"], planned)
     return created
+
+
+PASSAGE_SILL_M = 0.20            # = door_spacing.DOORWAY_SILL_M: a doorless opening this low is a passage
+
+
+def passage_lining_parts(width: float, height: float, thickness: float, head: bool) -> list:
+    """The lined reveal of an open passage in the opening's frame (pure; 29 Oct 2026, UL122): a board
+    ``parametric.LINING_T_M`` thick on each jamb (as deep as the wall less 2 mm, so no face lies in the wall's face
+    plane) and, under a wall that goes on over it (``head``), one under its head; ``geom2d.box`` tuples."""
+    lt = P.LINING_T_M
+    d = max(0.01, float(thickness) - 0.002)
+    w, h = float(width), float(height)
+    parts = [geom2d.box((-(w / 2.0 - lt / 2.0), 0.0, h / 2.0), (lt, d, h)),
+             geom2d.box((w / 2.0 - lt / 2.0, 0.0, h / 2.0), (lt, d, h))]
+    if head:
+        parts.append(geom2d.box((0.0, 0.0, h - lt / 2.0), (w - 2 * lt, d, lt)))
+    return parts
+
+
+def _passage_lining(opening, centre, width, height, thickness, angle, bottom, head, mat, collection,
+                    manifest_objects, assumed, level_id, shift):
+    """The ``<id>_lining`` object of an open passage (a design detail, assumed; its parent the opening)."""
+    from wenart.blender import common
+
+    verts, faces = _local_to_world(passage_lining_parts(width, height, thickness, head), (*centre, bottom), angle)
+    ob = common.new_mesh_object(f"{opening['id']}_lining", verts, faces, collection=collection,
+                                wenart_id=opening["id"], kind="opening", status="assumed", materials=[mat])
+    reason = ("design detail of the documented passage: a lined reveal (jambs" + (" and head" if head else "")
+              + " lining in the trim), no architrave (UL122); not in the documents")
+    entry = _opening_entry(opening, ob.name, level_id, mat.name, False, None, {}, shift)
+    entry.update(status="assumed", evidence=[], parent=opening["id"], has_geometry=True,
+                 assumed={"detail": "passage_lining", "reason": reason},
+                 frame={"lining": True, "head": bool(head), "architrave": [], "indoor_faces": [],
+                        "source": "passage lining", "frameless": None,
+                        "architrave_why": "an open passage: a lined reveal, no architrave"})
+    manifest_objects.append(entry)
+    assumed.append({"object": ob.name, "field": "passage_lining", "value": "lined reveal", "reason": reason,
+                    "parent": opening["id"], "kind": "passage_lining"})
+    return ob
 
 
 def library_planned_record(lib: dict, warnings: list) -> dict:
@@ -1696,7 +1753,15 @@ def build_door_m10(opening: dict, wall: dict, look: dict, geo: dict, ctx: dict, 
     if look.get("architrave"):
         # 29 Oct 2026 (UL89): the product door's architrave on the faces of its indoor rooms (never on the facade)
         look["architrave_faces"] = architrave_faces(geo["centre"], wall, ctx["rooms"])
+    state = opening.get("leaf_state") if isinstance(opening.get("leaf_state"), dict) else None
+    if state is not None:
+        look["leaf_state"] = state                  # 29 Oct 2026 (D1, UL116): open, ajar or slid open
     parts, record = P.door_parts(look, geo["width"], geo["height"], geo["thickness"], DEFAULTS["frame_width"])
+    if state is not None and state.get("state") in ("open", "ajar") and not record.get("pose"):
+        # the style cannot take the pose (a folding or a sectional door): built closed, the record says why
+        opening["leaf_state"] = dict(state, state="closed", built=False, leaf_polys=[],
+                                     reason=str(state.get("reason") or "") + f"; built closed: a "
+                                                                             f"{record['door_style']} leaf")
     handle_mat = library.get(look.get("handle_material") or "steel_brushed")
     by = {"frame": mats["frame"], "rail": handle_mat, "groove": handle_mat, "leaf": mats["leaf"],
           "glass": mats["glass"], "handle": handle_mat}
@@ -1720,6 +1785,13 @@ def build_door_m10(opening: dict, wall: dict, look: dict, geo: dict, ctx: dict, 
         entry["materials"] = [m.name for m in used]
         if key == "leaf":
             entry["door"] = record
+            # 29 Oct 2026 (UL122): what frames it (a door of a style without a family: its jambs and head)
+            entry["frame"] = record.get("frame") or {
+                "lining": not record["surface_mounted"], "head": not record["surface_mounted"], "architrave": [],
+                "indoor_faces": [], "source": "parametric (no style family)", "frameless": None,
+                "architrave_why": "a style without a family keeps its Milestone 10 door"}
+            if record.get("pose"):
+                entry["pose"] = record["pose"]
         ctx["manifest_objects"].append(entry)
     if record["surface_mounted"] and side_assumed:
         ctx["assumed"].append({"object": opening["id"], "field": "door_side", "value": side,
@@ -3557,6 +3629,13 @@ def door_look(style: dict, opening: dict | None = None) -> dict:
     door_style = style.get("door") or {"material": "wood_oak_light"}
     slug, asset = door_leaf_material(door_style)
     return {"material": slug, "asset": asset, "tint": door_style.get("tint")}
+
+
+def door_product(style: dict, door_style: str | None = None) -> dict:
+    """``looks.door_product`` (29 Oct 2026, UL122: a style with a family frames every door and lines every passage);
+    {} when the module cannot be imported."""
+    f = _f_looks("door_product")
+    return (f(style, door_style) or {}) if f is not None else {}
 
 
 def window_frame_look(style: dict, opening: dict | None = None) -> dict:

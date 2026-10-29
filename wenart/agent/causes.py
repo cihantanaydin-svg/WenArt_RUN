@@ -552,6 +552,9 @@ CHECK_CAUSE: dict[str, str] = {
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",
 }
+# 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125): the doors and the walk-ins as designed are chosen by code for the
+# whole building (door_states, wardrobe_fronts, the frames); reported with the stage that owns them
+CHECK_CAUSE["M29"] = "opening_style"
 # 29 Oct 2026 (UL115, UL118): the kitchen details of the family (model review M27) are the fit's and the decor stage's,
 # as the kitchen design of M13 (no agent tool builds a tall unit, a hood or a styling set)
 CHECK_CAUSE["M27"] = "kitchen_design"

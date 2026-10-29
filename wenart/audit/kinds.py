@@ -135,6 +135,15 @@ CHECK_KIND = {
     "LT": "misread", "P11": "misread",
 }
 CHECK_KIND.update({"U23": "taste", "M23": "taste"})     # 29 Oct 2026 (UL106): the professional bar (dressing.review)
+# 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125; user: "argus should have think of this"): a reference solution the
+# model misses (closed doors everywhere, one door size, a walk-in behind closed panels, doors without frames)
+KINDS["reference_missed"] = {
+    "what": "the model misses a solution the user's reference photos show and the rules now build (inside doors open, "
+            "doors sized by role and family, framed doors, a see-through walk-in dressing room): not a fault of a "
+            "stage, a design move left out",
+    "arises": "build, architect",
+    "guards": ["model review M29", "Argus U33", "the architect's D7 / D8", "the lesson walk (AI5)"]}
+CHECK_KIND.update({"U33": "reference_missed", "M29": "reference_missed"})
 CHECK_KIND.update({"U30": "taste", "M26": "taste"})     # 29 Oct 2026 (UL114): the bathroom's set (bath_details.review)
 # 29 Oct 2026 (UL115, UL118): a kitchen missing what its style family's kitchen details give it (kitchen_details.review)
 CHECK_KIND.update({"M27": "taste", "U31": "taste"})

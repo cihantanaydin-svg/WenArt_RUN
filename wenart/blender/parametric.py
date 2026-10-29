@@ -243,7 +243,9 @@ MATERIAL_KEYS: tuple[str, ...] = ("wood", "fabric", "bedding", "ceramic", "steel
                                   # tag, plant pots, lamp bulbs (lit in the interior evening mood), rattan
                                   "front", "handle", "marble", "pot", "bulb", "rattan",
                                   # 29 Oct 2026: a laptop's or a monitor's screen (``materials.screen_material``)
-                                  "screen")
+                                  "screen",
+                                  # 29 Oct 2026 (UL120): a see-through wardrobe's smoked glass (library.smoked_glass)
+                                  "smoked_glass")
 # Milestone 10 doors and windows (``door_parts`` / ``window_parts``; shell.py maps them to the looks).
 OPENING_KEYS: tuple[str, ...] = ("frame", "leaf", "glass", "handle", "rail", "sill")
 # Parts whose key starts with this take the item's colour (Milestone 9 AI decor: ``decor.colour``) as a tint of
@@ -2803,17 +2805,30 @@ def _leaf_box(cx: float, z0: float, lw: float, lh: float, t: float, y: float = 0
 GLAZING_GROOVE_M = 0.002        # the glass of a D5 leaf or panel sits this deep in its stiles and rails
 
 
+MUNTIN_W_M = 0.025              # 29 Oct 2026 (D3): a divided-lite door's glazing bars
+
+
 def _glazed_leaf(cx: float, y: float, lw: float, lh: float, t: float, frame: float = GLAZED_FRAME_M,
-                 groove: float = 0.0) -> list[Part]:
+                 groove: float = 0.0, lites: Optional[Sequence[int]] = None) -> list[Part]:
     """A glazed leaf ``lw`` wide centred on ``cx`` (``y`` across the wall): two stiles, a bottom rail 1.6 times and a
     top rail as wide as a stile (``frame``, at most a fifth of the leaf) and the glass between them, ``groove`` deep
-    in them (0 for the ``glazed`` style as it always was)."""
+    in them (0 for the ``glazed`` style as it always was). 29 Oct 2026 (D3, docs/reference_details_20261029.md):
+    ``lites`` ``(columns, rows)`` divides the glass with glazing bars (role ``muntin``, the leaf's key) through it."""
     f = min(frame, lw * 0.2)
-    return [_box(cx - (lw / 2.0 - f / 2.0), y, 0.0, f, t, lh, "leaf", "leaf"),
-            _box(cx + lw / 2.0 - f / 2.0, y, 0.0, f, t, lh, "leaf", "leaf"),
-            _box(cx, y, 0.0, lw - 2 * f, t, f * 1.6, "leaf", "leaf"),
-            _box(cx, y, lh - f, lw - 2 * f, t, f, "leaf", "leaf"),
-            _box(cx, y, f * 1.6 - groove, lw - 2 * f + 2 * groove, 0.008, lh - f * 2.6 + 2 * groove, "glass", "glass")]
+    parts = [_box(cx - (lw / 2.0 - f / 2.0), y, 0.0, f, t, lh, "leaf", "leaf"),
+             _box(cx + lw / 2.0 - f / 2.0, y, 0.0, f, t, lh, "leaf", "leaf"),
+             _box(cx, y, 0.0, lw - 2 * f, t, f * 1.6, "leaf", "leaf"),
+             _box(cx, y, lh - f, lw - 2 * f, t, f, "leaf", "leaf"),
+             _box(cx, y, f * 1.6 - groove, lw - 2 * f + 2 * groove, 0.008, lh - f * 2.6 + 2 * groove, "glass", "glass")]
+    if lites:
+        cols, rows = max(1, int(lites[0])), max(1, int(lites[1]))
+        gw, gz0, gh = lw - 2 * f, f * 1.6, lh - f * 2.6
+        bt = min(t, 0.03)
+        for i in range(1, cols):
+            parts.append(_box(cx - gw / 2.0 + gw * i / cols, y, gz0, MUNTIN_W_M, bt, gh, "leaf", "muntin"))
+        for j in range(1, rows):
+            parts.append(_box(cx, y, gz0 + gh * j / rows - MUNTIN_W_M / 2.0, gw, bt, MUNTIN_W_M, "leaf", "muntin"))
+    return parts
 
 
 def sliding_panels(lw: float, thickness: float, leaves: Optional[int] = None) -> dict:
@@ -2887,6 +2902,12 @@ ARCHITRAVE_T_M = 0.018           # ... how far it stands proud of the wall face 
 ARCHITRAVE_REVEAL_M = 0.008      # ... and how far its inner edge stands back from the jamb's inner face
 HINGE_SIZE_M = (0.014, 0.014, 0.10)   # a hinge knuckle (x, y, z) on the swing face at the leaf's hinge edge
 HINGE_Z_M = (0.18, None, 0.28)   # the hinges' bottoms: 0.18 m up, the middle, 0.28 m under the leaf's top
+FINE_GROOVE_PITCH_M = 0.06       # 29 Oct 2026 (R28): fine vertical grooves this far apart ...
+FINE_GROOVE_W_M = 0.003          # ... and this wide
+LOCK_ROSE_DROP_M = 0.072         # 29 Oct 2026 (R28): the lock rose this far under the lever (the DIN 72 mm centres)
+LOCK_ROSE_R_M = 0.019
+PIVOT_PULL_M = 1.2               # 29 Oct 2026 (D5): a pivot entrance door's long bar pull
+LINING_T_M = 0.018               # 29 Oct 2026 (UL122): a reveal lining's board (a sliding door's opening, a passage)
 
 
 def _detailed_leaf(cx: float, lw: float, lh: float, t: float, detail: Optional[dict], y: float = 0.0) -> list[Part]:
@@ -2910,6 +2931,10 @@ def _detailed_leaf(cx: float, lw: float, lh: float, t: float, detail: Optional[d
     g, d = LEAF_GROOVE_W_M, LEAF_GROOVE_D_M
     x0, x1 = cx - lw / 2.0, cx + lw / 2.0
     boards: list[tuple[float, float, float, float]] = []          # (x0, x1, z0, z1) of the face boards
+    if kind == "fine_vertical":
+        # 29 Oct 2026 (R28, D2): a wood-veneer flush leaf with fine vertical grooves every FINE_GROOVE_PITCH_M
+        kind, g = "vertical", FINE_GROOVE_W_M
+        detail = dict(detail or {}, count=max(4, int(lw / FINE_GROOVE_PITCH_M) - 1))
     if kind in ("horizontal", "vertical"):
         n = max(1, int((detail or {}).get("count") or 1))
         if kind == "horizontal":
@@ -2953,6 +2978,28 @@ def architrave_boxes(width: float, height: float, frame_w: float, thickness: flo
     return out
 
 
+def door_frame_parts(width: float, height: float, thickness: float, face_y: Optional[float], side: float,
+                     faces=(-1.0, 1.0), frame_w: float = DOOR_FRAME_W, lining: bool = True) -> list[Part]:
+    """The frame of a door whose leaf is not ours (pure; 29 Oct 2026, UL122: a library door model): with ``lining``
+    the parametric door's jambs and head as deep as the wall (role ``frame``), its stops on the face away from the
+    room it opens into against the leaf face ``face_y`` (role ``stop``; none when ``face_y`` is None) and the
+    architrave on ``faces``; without it (a model with its own frame) the architrave alone, its inner edge over the
+    model's jambs (``frame_w``: their measured width). Key ``frame`` throughout, in the opening's frame."""
+    w, h, t = float(width), float(height), float(thickness)
+    parts: list[Part] = []
+    if lining:
+        parts += [_box(-(w / 2.0 - frame_w / 2.0), 0.0, 0.0, frame_w, t, h, "frame", "frame"),
+                  _box(w / 2.0 - frame_w / 2.0, 0.0, 0.0, frame_w, t, h, "frame", "frame"),
+                  _box(0.0, 0.0, h - frame_w, w - 2 * frame_w, t, frame_w, "frame", "frame")]
+        if face_y is not None:
+            s = -1.0 if float(side) < 0 else 1.0
+            parts += [_box(cx, cy, z0, bw, bd, bh, "frame", "stop")
+                      for cx, cy, z0, bw, bd, bh in door_stop_boxes(w, h, frame_w, float(face_y), t, -s)]
+    parts += [_box(cx, cy, z0, bw, bd, bh, "frame", "architrave")
+              for cx, cy, z0, bw, bd, bh in architrave_boxes(w, h, frame_w, t, tuple(faces or ()))]
+    return parts
+
+
 def hinge_parts(edge_x: float, lh: float, t: float, side: float, y: float = 0.0) -> list[Part]:
     """Three hinge knuckles (``HINGE_SIZE_M``) at the leaf edge ``edge_x`` on the swing face (``side``: the room the
     door opens into), role ``hinge``, key ``handle`` (the handle metal; pure; 29 Oct 2026)."""
@@ -2963,14 +3010,113 @@ def hinge_parts(edge_x: float, lh: float, t: float, side: float, y: float = 0.0)
             for z in zs if 0.0 <= z <= lh - hz]
 
 
-def _lever_pair(x: float, z: float, t: float, y: float = 0.0) -> list[Part]:
-    """Lever handles on both faces of a leaf of thickness ``t`` centred on ``y``."""
+def _lever_pair(x: float, z: float, t: float, y: float = 0.0, rose: bool = False) -> list[Part]:
+    """Lever handles on both faces of a leaf of thickness ``t`` centred on ``y``; ``rose`` (29 Oct 2026, R28): a round
+    lock rose ``LOCK_ROSE_DROP_M`` under each lever."""
     out = []
     for s in (-1, 1):
         yy = y + s * (t / 2.0 + 0.03)
         out.append(_box(x, yy, z - 0.035, 0.02, 0.06, 0.07, "handle", "handle"))              # rose and neck
         out.append(_box(x - 0.06, yy + s * 0.02, z - 0.01, 0.13, 0.02, 0.02, "handle", "handle"))       # lever
+        if rose:
+            y0 = y + t / 2.0 if s > 0 else y - t / 2.0 - 0.008
+            out.append(_cylinder_y(x, y0, z - LOCK_ROSE_DROP_M, LOCK_ROSE_R_M, LOCK_ROSE_R_M, 0.008, "handle",
+                                   "lock_rose", n=16))
     return out
+
+
+# 29 Oct 2026 (D1, lesson UL116; ``door_states``): a door's leaf as the house shows it: open, ajar or slid open. The
+# parts that stay with the frame (``FIXED_ROLES``) stay; the others turn about the hinge edge on the swing face or slide.
+FIXED_ROLES: tuple[str, ...] = ("frame", "rail", "stop", "architrave")       # = shell.FRAME_ROLES
+
+
+def swing_angle(hinge: str, side: float, angle_deg: float) -> float:
+    """The turn (degrees, counter-clockwise about +Z) of a leaf hinged at the jamb ``hinge`` (``start``: the opening's
+    -x end, ``end``: its +x end) that opens ``angle_deg`` into the side ``side`` (+1: the frame's +y): its free edge
+    moves towards ``side`` (= ``door_states.swing_leaf``)."""
+    k = -1.0 if hinge == "start" else 1.0
+    s = -1.0 if float(side) < 0 else 1.0
+    return -k * s * float(angle_deg)
+
+
+def turn_parts(parts: Sequence[Part], pivot: tuple[float, float], angle_deg: float) -> list[Part]:
+    """Parts turned about the vertical axis through ``pivot`` (x, y) by ``angle_deg`` (a rotation keeps the faces'
+    winding)."""
+    a = math.radians(angle_deg)
+    c, s = math.cos(a), math.sin(a)
+    px, py = pivot
+    return [dict(p, verts=[(px + c * (x - px) - s * (y - py), py + s * (x - px) + c * (y - py), z)
+                           for x, y, z in p["verts"]]) for p in parts]
+
+
+def mirror_parts_x(parts: Sequence[Part]) -> list[Part]:
+    """Parts mirrored across x = 0 (faces reversed, so the normals still point out)."""
+    return [dict(p, verts=[(-x, y, z) for x, y, z in p["verts"]], faces=[list(reversed(f)) for f in p["faces"]])
+            for p in parts]
+
+
+def shift_parts(parts: Sequence[Part], dx: float) -> list[Part]:
+    return [dict(p, verts=[(x + dx, y, z) for x, y, z in p["verts"]]) for p in parts]
+
+
+def _centre_x(p: Part) -> float:
+    xs = [v[0] for v in p["verts"]]
+    return (min(xs) + max(xs)) / 2.0
+
+
+def pose_door_parts(parts: Sequence[Part], pose: Optional[dict], style: str, lw: float, leaf_t: float, side: float,
+                    panels: Optional[dict] = None) -> tuple[list[Part], Optional[dict]]:
+    """``(parts, pose record)`` of a door's parts posed as its ``leaf_state`` says (pure; ``door_states``): a swing
+    leaf (flush, shaker panel, glazed, entrance) turned ``angle_deg`` about its hinge edge on the swing face (mirrored
+    first when the hinge is at the ``end`` jamb: the parts are built hinged at the ``start`` jamb, the lever at the
+    other), both leaves of a pair (``double``) each about its own jamb, a sliding or barn leaf moved ``slide_m`` along
+    its wall face, a pocket leaf into its pocket, the moving panels of a glazed sliding door behind the fixed ones.
+    A closed pose, or one the style cannot take, returns the parts as they are (record None)."""
+    if not pose or pose.get("state") not in ("open", "ajar"):
+        return list(parts), None
+    fixed = [p for p in parts if p["role"] in FIXED_ROLES]
+    moving = [p for p in parts if p["role"] not in FIXED_ROLES]
+    angle = float(pose.get("angle_deg") or 0.0)
+    s = -1.0 if float(side) < 0 else 1.0
+    rec = {"state": pose.get("state"), "angle_deg": angle, "hinge": None, "slide_m": None, "style": style}
+    if style in ("flush", "shaker_panel", "glazed", "entrance") and angle > 0:
+        hinge = pose.get("hinge") if pose.get("hinge") in ("start", "end") else "start"
+        if hinge == "end":
+            moving = mirror_parts_x(moving)
+        hx = -lw / 2.0 if hinge == "start" else lw / 2.0
+        moving = turn_parts(moving, (hx, s * leaf_t / 2.0), swing_angle(hinge, s, angle))
+        rec["hinge"] = hinge
+    elif style in ("double",) and angle > 0:
+        left = [p for p in moving if _centre_x(p) < -1e-6]
+        right = [p for p in moving if _centre_x(p) >= -1e-6]
+        moving = turn_parts(left, (-lw / 2.0, s * leaf_t / 2.0), swing_angle("start", s, angle)) + \
+            turn_parts(right, (lw / 2.0, s * leaf_t / 2.0), swing_angle("end", s, angle))
+        rec["hinge"] = "both"
+    elif style in ("sliding", "barn"):
+        dx = float(pose.get("slide_m") or 0.0)
+        if abs(dx) < 1e-6:
+            return list(parts), None
+        moving = shift_parts(moving, dx)
+        rec["slide_m"] = dx
+    elif style == "pocket":
+        dx = lw - 0.05
+        moving = shift_parts(moving, dx)
+        rec["slide_m"] = round(dx, 4)
+    elif style == "glazed_sliding" and panels and panels.get("staggered"):
+        centres, fixed_ix = list(panels["centres"]), set(panels.get("fixed") or ())
+        out = []
+        for p in moving:
+            i = min(range(len(centres)), key=lambda j: abs(centres[j] - _centre_x(p)))
+            if i in fixed_ix or not fixed_ix:
+                out.append(p)
+                continue
+            j = min(fixed_ix, key=lambda f: abs(f - i))
+            out += shift_parts([p], (centres[j] - centres[i]) * 0.92)
+        moving = out
+        rec["slide_m"] = "behind the fixed panels"
+    else:
+        return list(parts), None
+    return fixed + moving, rec
 
 
 def door_parts(look: dict | None, width: float, height: float, thickness: float,
@@ -3004,6 +3150,7 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
     glazed = bool((look or {}).get("glazed")) or style in ("glazed", "glazed_sliding")
     asked = (look or {}).get("leaves")
     asked = int(asked) if isinstance(asked, int) and not isinstance(asked, bool) and asked > 0 else None
+    leaves_asked = asked
     if not surface:
         parts += [_box(-(w / 2.0 - frame_w / 2.0), 0.0, 0.0, frame_w, t, h, "frame", "frame"),
                   _box(w / 2.0 - frame_w / 2.0, 0.0, 0.0, frame_w, t, h, "frame", "frame"),
@@ -3014,10 +3161,27 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
     if detail is not None and detail.get("kind") == "plain":
         detail = None
     hinges = bool(product.get("hinges"))
+    pivot = bool(product.get("pivot")) and style == "entrance"           # 29 Oct 2026 (D5): a pivot entrance door
+    if pivot:
+        hinges = False
+    rose = bool(product.get("lock_rose"))                                # 29 Oct 2026 (R28): a lock rose
+    lites = product.get("lites") if isinstance(product.get("lites"), (list, tuple)) else None     # D3
+    frameless = product.get("frameless") if isinstance(product.get("frameless"), str) else None   # UL122
     arch_faces = tuple(product.get("architrave_faces") or (-1.0, 1.0)) if product.get("architrave") else ()
-    if not surface and style != "sectional" and arch_faces:
+    if frameless:
+        arch_faces = ()
+    if surface and arch_faces:
+        # 29 Oct 2026 (UL122): a sliding or barn leaf covers its own face: the architrave only on the other face
+        arch_faces = tuple(f for f in arch_faces if (-1.0 if float(f) < 0 else 1.0) != side)
+    if style != "sectional" and arch_faces:
         parts += [_box(cx, cy, z0, bw, bd, bh, "frame", "architrave")
                   for cx, cy, z0, bw, bd, bh in architrave_boxes(w, h, frame_w, t, arch_faces)]
+    if surface and (product.get("architrave") or product.get("lining")):
+        # 29 Oct 2026 (UL122): the opening behind a sliding or barn leaf gets a lined reveal (jambs and head lining)
+        lt = LINING_T_M
+        parts += [_box(-(w / 2.0 - lt / 2.0), 0.0, 0.0, lt, t, h, "frame", "frame"),
+                  _box(w / 2.0 - lt / 2.0, 0.0, 0.0, lt, t, h, "frame", "frame"),
+                  _box(0.0, 0.0, h - lt, w - 2 * lt, t, lt, "frame", "frame")]
     lw, lh = w - 2 * frame_w - 0.01, h - frame_w - 0.01
     leaf_t = ENTRANCE_LEAF_T if style == "entrance" else (SECTIONAL_LEAF_T if style == "sectional" else DOOR_LEAF_T)
     lever_z = min(LEVER_HEIGHT_M, lh - 0.1)
@@ -3025,7 +3189,7 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
     if panels is not None:                                               # both tracks: the stops close the outer one
         leaf_t = 2.0 * panels["d"] + SLIDING_PANEL_T
     sections = entrance_sections(w, frame_w) if style == "entrance" and (look or {}).get("sidelights") \
-        and lw > SINGLE_LEAF_MAX_M else None
+        and lw > SINGLE_LEAF_MAX_M and not pivot else None
     if sections is not None and len(sections) == 1:
         sections = None
     extra: dict = {}
@@ -3063,7 +3227,7 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         extra["sidelights"] = sum(1 for s in sections if s[0] == "light")
     elif style in ("flush", "pocket", "entrance", "shaker_panel", "glazed"):
         if style == "glazed":
-            parts += _glazed_leaf(0.0, 0.0, lw, lh, leaf_t)
+            parts += _glazed_leaf(0.0, 0.0, lw, lh, leaf_t, lites=lites)
         elif style == "flush" and detail is not None:
             parts += _detailed_leaf(0.0, lw, lh, leaf_t, detail)
         else:
@@ -3083,15 +3247,18 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
             for z in (lh * 0.3, lh * 0.5, lh * 0.7):
                 for s in (-1, 1):
                     parts.append(_box(0.0, s * (leaf_t / 2.0 + 0.002), z, lw - 0.16, 0.004, 0.012, "frame", "groove"))
+            pull = PIVOT_PULL_M if pivot else 0.8
             for s in (-1, 1):                                            # a long bar pull on both faces
-                parts.append(_box(lw / 2.0 - 0.1, s * (leaf_t / 2.0 + 0.04), lever_z - 0.4, 0.025, 0.025, 0.8,
-                                  "handle", "handle"))
+                parts.append(_box(lw / 2.0 - (0.14 if pivot else 0.1), s * (leaf_t / 2.0 + 0.04),
+                                  lever_z - pull / 2.0, 0.025, 0.025, pull, "handle", "handle"))
+            if pivot:
+                extra["pivot"] = True
         elif style == "pocket":
             for s in (-1, 1):                                            # recessed flush pulls
                 parts.append(_box(lw / 2.0 - 0.06, s * (leaf_t / 2.0 + 0.001), lever_z - 0.08, 0.03, 0.002, 0.16,
                                   "handle", "handle"))
         else:
-            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, leaf_t)
+            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, leaf_t, rose=rose)
     elif style in ("double", "folding") and not glazed and (style == "double" or (asked or 2) == 2):
         half = lw / 2.0 - 0.002
         for s in (-1, 1):
@@ -3103,16 +3270,16 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         parts.append(_box(0.0, cy, 0.0, DOOR_ASTRAGAL_W_M, bd, lh, "leaf", "astragal"))
         if style == "double":
             for s in (-1, 1):
-                parts += _lever_pair(s * 0.06, lever_z, DOOR_LEAF_T)
+                parts += _lever_pair(s * 0.06, lever_z, DOOR_LEAF_T, rose=rose and s > 0)
         else:
-            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, DOOR_LEAF_T)
+            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, DOOR_LEAF_T, rose=rose)
     elif style in ("double", "folding"):                                 # glazed leaves (French doors), n leaves
         n = 2 if style == "double" else max(2, asked or 2)
         lwi = (lw - LEAF_GAP_M - (n - 1) * LEAF_GAP_M) / n
         centres = [-lw / 2.0 + LEAF_GAP_M / 2.0 + lwi / 2.0 + i * (lwi + LEAF_GAP_M) for i in range(n)]
         for cx in centres:
-            parts += _glazed_leaf(cx, 0.0, lwi, lh, DOOR_LEAF_T, groove=GLAZING_GROOVE_M) if glazed else \
-                _detailed_leaf(cx, lwi, lh, DOOR_LEAF_T, detail)
+            parts += _glazed_leaf(cx, 0.0, lwi, lh, DOOR_LEAF_T, groove=GLAZING_GROOVE_M, lites=lites) if glazed \
+                else _detailed_leaf(cx, lwi, lh, DOOR_LEAF_T, detail)
         if hinges and style == "double":                                 # each leaf hinged at its jamb
             parts += hinge_parts(centres[0] - lwi / 2.0, lh, DOOR_LEAF_T, side)
             parts += hinge_parts(centres[-1] + lwi / 2.0, lh, DOOR_LEAF_T, side)
@@ -3130,7 +3297,7 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         moving = []
         for i, cx in enumerate(panels["centres"]):
             y = (-side if i % 2 == 0 else side) * panels["d"]            # the outer track away from the room
-            parts += _glazed_leaf(cx, y, pw, lh, pt, SLIDING_STILE_M, GLAZING_GROOVE_M)
+            parts += _glazed_leaf(cx, y, pw, lh, pt, SLIDING_STILE_M, GLAZING_GROOVE_M, lites=lites)
             if i not in panels["fixed"]:
                 moving.append((cx, y))
         if not panels["staggered"]:                                      # side by side: astragals over the joints
@@ -3203,6 +3370,41 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
                      architrave=sorted({-1 if float(s) < 0 else 1 for s in arch_faces})
                      if not surface and style != "sectional" else [],
                      hinges=sum(1 for p in parts if p["role"] == "hinge"))
+    if rose:
+        extra["lock_rose"] = any(p["role"] == "lock_rose" for p in parts)
+    if lites:
+        extra["lites"] = [int(v) for v in lites][:2]
+    # 29 Oct 2026 (UL122): what frames the door (the model review's M20 and Argus' U33 read it)
+    faces = sorted({-1 if float(s) < 0 else 1 for s in arch_faces})
+    indoor = sorted({-1 if float(s) < 0 else 1 for s in (product.get("architrave_faces") or ())}) \
+        if product.get("architrave") else []
+    why = None
+    if frameless:
+        why = frameless
+    elif style == "sectional":
+        why = "a sectional garage door: a lined opening, no architrave"
+    elif surface and set(indoor) - set(faces):
+        why = "a sliding leaf covers its own face: the architrave on the other face"
+    if product.get("architrave") or frameless:
+        record["frame"] = {"lining": not surface or bool(product.get("architrave") or product.get("lining")),
+                           "head": not surface or bool(product.get("architrave") or product.get("lining")),
+                           "architrave": faces, "indoor_faces": indoor, "source": "parametric",
+                           "frameless": frameless, "architrave_why": why}
+    # 29 Oct 2026 (D1, UL116): the leaf as the house shows it (``door_states``: open, ajar or slid open)
+    pose = (look or {}).get("leaf_state") if isinstance((look or {}).get("leaf_state"), dict) else None
+    if pose is not None and style == "sliding" and leaves_asked and leaves_asked > 1:
+        pose = dict(pose, pair=True)
+    if pose is not None and pose.get("pair") and style == "sliding" and pose.get("state") == "open":
+        left = [p for p in parts if p["role"] not in FIXED_ROLES and _centre_x(p) < 0.0]
+        right = [p for p in parts if p["role"] not in FIXED_ROLES and _centre_x(p) >= 0.0]
+        parts = [p for p in parts if p["role"] in FIXED_ROLES] + shift_parts(left, -w / 2.0) + \
+            shift_parts(right, w / 2.0)
+        record["pose"] = {"state": "open", "angle_deg": 0.0, "hinge": None, "slide_m": round(w / 2.0, 4),
+                          "style": style, "pair": True}
+    else:
+        parts, posed = pose_door_parts(parts, pose, style, lw, leaf_t, side, panels)
+        if posed is not None:
+            record["pose"] = posed
     record.update(extra)
     return parts, record
 

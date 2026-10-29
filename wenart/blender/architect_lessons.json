@@ -1356,24 +1356,24 @@
    "id": "UL116",
    "date": "2026-10-29",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Also we need better doors, not all the doors needs to be closed in default (inside doors open by default where nothing stops them; better door finishes per family, glazed divided-lite doors; docs/reference_details_20261029.md D1-D4)",
-   "lesson": "Also we need better doors, not all the doors needs to be closed in default (inside doors open by default where nothing stops them; better door finishes per family, glazed divided-lite doors; docs/reference_details_20261029.md D1-D4)",
+   "lesson": "An inside door stands open by default (door_states: its leaf at 90 deg by the wall beside it, a sliding leaf slid open; bathroom, WC and storage doors too since UL127); a leaf a piece stops stands ajar at the widest free angle; the entrance and the outside doors stay closed; every choice is recorded in leaf_state and assumed; the camera model sees the doorway and the open leaf; the family's finishes (black frames, architraves and levers in the modern, industrial and minimal families, a lock rose, a veneer leaf with fine vertical grooves) and a glazed divided-lite door between day rooms. Checks: model review M29, Argus U33 (every inside door closed, an open leaf in a piece).",
    "question": null
   },
   {
    "id": "UL117",
    "date": "2026-10-29",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Not every single one of them with the same dimension we can change the dimentions (the doors: sizes vary by role and family, a taller entrance, full-height day-room doors in the modern families; the user allows changing door dimensions; docs/reference_details_20261029.md D5)",
-   "lesson": "Not every single one of them with the same dimension we can change the dimentions (the doors: sizes vary by role and family, a taller entrance, full-height day-room doors in the modern families; the user allows changing door dimensions; docs/reference_details_20261029.md D5)",
+   "lesson": "Door sizes by role and family (door_states.apply_sizes): a taller, wider entrance (a pivot door in the modern families), full-height doors between day rooms in the modern and minimal families, 2.10 m elsewhere; a drawn width stays unless it is no product size (then the nearest one, adjusted_by_ai with the drawn value kept); a height changes only where the documents give none. Checks: model review M29, Argus U33 (all doors one size, an entrance no bigger than the inside doors).",
    "question": null
   },
   {
@@ -1404,12 +1404,12 @@
    "id": "UL120",
    "date": "2026-10-29",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "look at this dressing room solution see through why we are not using some similar in our projects? (a full-height wardrobe behind black horizontal slat sliding doors, hanging shirts, shelves and drawers showing through, a light inside; our wardrobes only had closed fronts and no garments; docs/reference_details_20261029.md R31-R34)",
-   "lesson": "look at this dressing room solution see through why we are not using some similar in our projects? (a full-height wardrobe behind black horizontal slat sliding doors, hanging shirts, shelves and drawers showing through, a light inside; our wardrobes only had closed fronts and no garments; docs/reference_details_20261029.md R31-R34)",
+   "lesson": "Wardrobe and dressing-room fronts may be see-through (wardrobe_fronts, modules.see_through_parts): black horizontal slat or smoked-glass sliding doors, or open runs, with real contents (garments on a rail as one mesh with the wardrobe, folded stacks, drawers, shoe racks, an LED strip); every walk-in and the master bedroom's run where the style fits. Checks: model review M29, Argus U33 (a walk-in with closed fronts only).",
    "question": null
   },
   {
@@ -1428,12 +1428,12 @@
    "id": "UL122",
    "date": "2026-10-29",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Doors look without frames, they need frames. Sometimes maybe not needed frames but mostly yes it does (29 Oct 2026, real06)",
-   "lesson": "Doors look without frames, they need frames. Sometimes maybe not needed frames but mostly yes it does (29 Oct 2026, real06)",
+   "lesson": "Every door is framed (a jamb lining, a head and an architrave on its indoor faces; a library model measured: a bare leaf in the parametric frame, a framed model keeps its frame and gets the architrave, never two frames); an open passage gets a lined reveal; frameless only by decision (the architect's D7, the style's door.frameless) or for a garage door, recorded. Checks: model review M29 and M20, Argus U33 (a door with no frame and no frameless reason).",
    "question": "Does every door have a frame (jamb lining, head and an architrave on each indoor face) in the style's finish, except a door recorded as frameless with a reason (a concealed flush door of a minimal family, a garage door, an open passage with a lined reveal)?"
   },
   {
@@ -1464,36 +1464,36 @@
    "id": "UL125",
    "date": "2026-10-29",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "This dressing could be a see through dressing room in the both sides, Argus should have think of this (29 Oct 2026, real06 run 100801 r_L1_soyunma_odasi; docs/reference_details_20261029.md R37)",
-   "lesson": "This dressing could be a see through dressing room in the both sides, Argus should have think of this (29 Oct 2026, real06 run 100801 r_L1_soyunma_odasi; docs/reference_details_20261029.md R37)",
+   "lesson": "A walk-in dressing room (a dressing room, or wardrobe runs facing each other across an aisle) is see-through on every side by default (the family picks slats, smoked glass or open runs; the architect's D8 can change it), with a bench and a full-height mirror where the walkway allows. Checks: model review M29, Argus U33 (a walk-in with closed fronts only, a design finding with the D8 answer as its fix).",
    "question": "Is every walk-in dressing room (a dressing room, or wardrobe runs facing each other across an aisle) see-through on both sides (slatted, glazed or open fronts with hanging clothes, folded stacks, shoes and a light inside), with a bench or pouf and a full-height mirror where the aisle allows?"
   },
   {
    "id": "UL126",
    "date": "2026-10-29",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "You can leave the right door open and show the dressing room, not all the doors should be closed (29 Oct 2026, real06 run 100801, the master bedroom view: two closed doors on one wall, the right one to the dressing room)",
-   "lesson": "You can leave the right door open and show the dressing room, not all the doors should be closed (29 Oct 2026, real06 run 100801, the master bedroom view: two closed doors on one wall, the right one to the dressing room)",
+   "lesson": "The door states are view-aware (door_states.revise_for_cameras, the level's cameras planned before its doors are built): a door a view sees that leads to a room worth showing (a dressing room or walk-in, an en-suite, a hall or a living space) stands open, its leaf hinged out of that view, the walkway and swing checks kept; a private door (a WC, a bathroom seen from a living space) stays closed or ajar; each choice recorded with the camera. Checks: model review M29, Argus U33 (a view showing only closed doors though one leads to a room worth showing).",
    "question": "In every interior view that sees a door to a room worth showing (a dressing room, an en-suite, a hall or living space), does that door stand open with the room beyond lit and furnished, while private doors (a WC) stay closed or ajar, so no view shows only closed doors?"
   },
   {
    "id": "UL127",
    "date": "2026-10-29",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Leaving all the doors open in default could be a good approach (29 Oct 2026, after the real06 master bedroom view)",
-   "lesson": "Leaving all the doors open in default could be a good approach (29 Oct 2026, after the real06 master bedroom view)",
+   "lesson": "Every interior door stands open by default, its leaf turned open on its swing side (door_states); a leaf a piece, a wall or another leaf stops stands ajar at its widest free angle; the entrance and the outside and terrace doors stay closed (an open front door reads as a mistake), so do garage, sectional, folding and fixed doors; the architect's D9 (door_state) or the brief (doors_open: false) closes a door; every choice recorded in leaf_state and assumed; the walkway and swing checks stay. Checks: model review M29, Argus U33 (every inside door closed, an open leaf in a piece).",
    "question": "Does every interior door stand open by default (its leaf turned open against its swing side, ajar only where a piece or a wall stops it), with only the entrance and terrace doors closed?"
   }
  ]

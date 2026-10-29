@@ -279,7 +279,9 @@ def test_the_parametric_door_is_a_product_of_the_style_family():
     assert prec["hinges"] == 6 and prec["leaf_detail"] == "lined"
     slide, srec = P.door_parts(dict(LK.door_look(SCANDI, {"id": "d", "type": "door", "operation": "sliding"}),
                                     side=1.0), 0.9, 2.1, t)
-    assert srec["surface_mounted"] and not [p for p in slide if p["role"] in ("architrave", "hinge")]
+    # 29 Oct 2026 (UL122): a sliding door's opening is lined and framed on the face its leaf does not cover
+    assert srec["surface_mounted"] and not [p for p in slide if p["role"] == "hinge"]
+    assert all(max(v[1] for v in p["verts"]) < 0 for p in slide if p["role"] == "architrave")
     assert OM.is_product_door(srec)
 
 

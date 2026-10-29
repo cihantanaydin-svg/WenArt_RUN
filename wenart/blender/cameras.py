@@ -458,6 +458,12 @@ def door_segments(room: dict, building: dict) -> list[tuple[str, tuple, tuple]]:
         ux, uy = _unit(wall["start"], wall["end"])
         h = float(o["width"]) / 2.0
         out.append((o["id"], (cx - ux * h, cy - uy * h), (cx + ux * h, cy + uy * h)))
+        # 29 Oct 2026 (D1, UL116; door_states): an open or ajar leaf standing in this room keeps the cameras away too
+        ls = o.get("leaf_state") if isinstance(o.get("leaf_state"), dict) else {}
+        if ls.get("state") in ("open", "ajar") and ls.get("into") == room.get("id"):
+            for poly in ls.get("leaf_polys") or []:
+                if isinstance(poly, (list, tuple)) and len(poly) >= 2:
+                    out.append((f"{o['id']}#leaf", tuple(poly[0][:2]), tuple(poly[1][:2])))
     return out
 
 
