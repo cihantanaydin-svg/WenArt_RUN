@@ -691,6 +691,9 @@ def add_furniture_summary(total: dict, summary: dict) -> None:
     total["not_built"].extend(summary.get("not_built") or [])
     if summary.get("decor_skipped"):
         total.setdefault("decor_skipped", []).extend(summary["decor_skipped"])
+    if summary.get("slowest"):                              # 29 Oct 2026: the slowest pieces and decor items
+        rows = sorted(list(total.get("slowest") or []) + list(summary["slowest"]), key=lambda r: -r["seconds"])
+        total["slowest"] = rows[:15]
     if summary.get("ids"):                                  # shell.build_stairs: parametric fixed equipment
         total["by_method"]["parametric"] = total["by_method"].get("parametric", 0) + len(summary["ids"])
         total["stairs"].extend(summary["ids"])
@@ -1855,6 +1858,8 @@ def main(argv: list[str]) -> int:
     kinds = {}
     for o in manifest_objects:
         kinds[o["kind"]] = kinds.get(o["kind"], 0) + 1
+    # 29 Oct 2026 (user: "make the pod use the GPU fully"): where the build's furniture time went (the log's tail)
+    print("BUILD_PHASES " + json.dumps(phases) + " SLOWEST " + json.dumps(furniture_summary.get("slowest") or []))
     print(f"BUILD_DONE {out} objects={kinds} cameras={len(camera_plans)} furniture={furniture_summary['by_method']} "
           f"decor={furniture_summary['decor']} warnings={len(warnings)} seconds={manifest['seconds']}")
     return 0

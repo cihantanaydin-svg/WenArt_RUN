@@ -190,6 +190,7 @@ from __future__ import annotations
 
 import json
 import math
+import time
 from pathlib import Path
 from typing import Sequence
 
@@ -1200,6 +1201,20 @@ def hosted_support(item: dict, host: dict | None) -> str | None:
     return support if support in R.RAY_SUPPORTS else None
 
 
+SLOWEST_N = 15                   # 29 Oct 2026: the slowest pieces and decor items a build records
+
+
+def note_time(summary: dict, what: dict, kind: str, seconds: float) -> None:
+    """Keep ``what`` among the build's ``SLOWEST_N`` slowest items (``summary["slowest"]``; 29 Oct 2026: real06 run
+    100801's furniture took 1,023 s a build against 155 s the day before, and nothing said which item; user: "make the
+    pod use the GPU fully")."""
+    rows = summary.setdefault("slowest", [])
+    rows.append({"id": what.get("id"), "type": what.get("type"), "kind": kind,
+                 "host": what.get("host_id"), "seconds": round(float(seconds), 2)})
+    rows.sort(key=lambda r: -r["seconds"])
+    del rows[SLOWEST_N:]
+
+
 def create_furniture(building: dict, level: dict, collection, library, style: dict, assets_dir: str | None,
                      pass_indices: dict, manifest_objects: list, assumed: list, warnings: list,
                      use_proxies: bool = False) -> dict:
@@ -1269,6 +1284,7 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
     proxy_ids = {p["id"] for p in proxy_pieces}
     flat_ids = {p["id"] for p in proxy_pieces if proxies.flat_reason(p, pieces)}
     for piece in pieces:
+        t_piece = time.perf_counter()
         height, height_assumed = proxy_height(piece["type"], piece.get("height"))
         if piece["id"] in flat_ids:
             height = proxies.FLAT_PROXY_HEIGHT_M          # the flat proxy (M11): no lift for pieces standing on it
@@ -1297,6 +1313,7 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
             if dress is not None:
                 summary["objects"][f"{piece['id']}#dressing"] = dress     # S5 rests on it; S2 skips it
                 summary["dressed_beds"].append(piece["id"])
+        note_time(summary, piece, "piece", time.perf_counter() - t_piece)
 
     for record in summary["built_in"]:              # the run's manifest entry names what it holds (fix round after P3)
         host_entry = entries.get(record["host"])
@@ -1310,7 +1327,11 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                 warnings.append(msg)
     manifest_by_id = {o["wenart_id"]: o for o in manifest_objects if o.get("kind") in ("furniture", "furniture_proxy")}
     worktop_taken: list[dict] = []                    # 28 Oct 2026: the worktop items built so far (a slide avoids them)
+    timed = [None, 0.0]                              # the item before and when it started (``note_time``)
     for n, (item, host) in enumerate(collect_decor(building, level["id"]), start=1):
+        if timed[0] is not None:
+            note_time(summary, timed[0], "decor", time.perf_counter() - timed[1])
+        timed[:] = [dict(item, host_id=(host or {}).get("id")), time.perf_counter()]
         host_entry = None
         if host is not None:
             host_entry = entries.get(host["id"]) or manifest_by_id.get(f"proxy:{host['id']}")
@@ -1381,6 +1402,8 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
             host_entry.setdefault("decor", []).append({"name": entry["name"], "type": entry["type"],
                                                        "method": entry["method"]})
         summary["decor"] += 1
+    if timed[0] is not None:
+        note_time(summary, timed[0], "decor", time.perf_counter() - timed[1])
     return summary
 
 

@@ -1293,6 +1293,16 @@
    "request": "GPU usage enough to justify? yes go ahead, make the pod use the GPU fully (every run: the AI model's independent questions (judge, inspector, Argus, critic) go to the server in parallel up to its sequences, nothing waits on one call at a time; the run logs GPU use every 10 s and the pod time report shows it)",
    "lesson": "Use the pod fully: the AI model's independent questions go to the server at once (model.map_calls: the judge's views, the room critic's rooms and views, the model views; Argus's calls; the room sessions), the agent server takes 8 sequences (the M12 bake-off's, same 0.55 memory share), and every full run logs the GPU's use every 10 s (logs/gpu_use_<job>.csv) that the pod time report shows per kind of work (python -m wenart.report.podtime).",
    "question": null
+  },
+  {
+   "id": "UL111",
+   "date": "2026-10-29",
+   "area": "process",
+   "status": "process",
+   "checks": [],
+   "request": "for the time pod spends our intention is to use it fully not to bypass any of the steps, we are looking for best use of the pod time rather than limiting its use (no step, check or piece is skipped to save time: slow code is made efficient with the same result, and the time it frees goes to more improvement cycles in the same run)",
+   "lesson": "for the time pod spends our intention is to use it fully not to bypass any of the steps, we are looking for best use of the pod time rather than limiting its use (no step, check or piece is skipped to save time: slow code is made efficient with the same result, and the time it frees goes to more improvement cycles in the same run)",
+   "question": null
   }
  ]
 }
