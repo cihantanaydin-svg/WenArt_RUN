@@ -99,6 +99,55 @@ BLIND_ROLLER_ABOVE_M = 0.06
 BLIND_DOWN_SHARE = 0.35
 CURTAIN_BLIND_GAP_M = 0.01
 STYLED_BOOK_SHARE = 0.62                      # a styled board's books take this share of the set's width
+# The family's tones of the details (designer values; ``parametric.DECOR_COLOURS`` names, which are colour phrases too):
+# the objects' glaze, the canvas, the bag's cloth, black or wood frames, a stone or a glazed floor vase
+TONE_KEYS: tuple[str, ...] = ("objects", "art", "bag", "frame", "vase", "rug")
+FAMILY_TONES: dict[str, dict[str, str]] = {   # objects, art, bag, frame, vase, rug
+    "scandinavian": dict(zip(TONE_KEYS, ("sand", "sage green", "sand", "wood", "stone", "beige"))),
+    "japandi": dict(zip(TONE_KEYS, ("beige", "olive", "olive", "wood", "stone", "sand"))),
+    "modern": dict(zip(TONE_KEYS, ("white", "terracotta", "charcoal", "dark", "stone", "grey"))),
+    "contemporary": dict(zip(TONE_KEYS, ("beige", "dusty blue", "rust", "dark", "stone", "beige"))),
+    "modern minimal": dict(zip(TONE_KEYS, ("white", "sand", "charcoal", "dark", "stone", "light grey"))),
+    "minimal": dict(zip(TONE_KEYS, ("white", "sand", "charcoal", "dark", "stone", "light grey"))),
+    "industrial": dict(zip(TONE_KEYS, ("grey", "rust", "olive", "dark", "stone", "charcoal"))),
+    "mediterranean": dict(zip(TONE_KEYS, ("terracotta", "dusty blue", "sand", "wood", "glazed", "terracotta"))),
+    "classic": dict(zip(TONE_KEYS, ("cream", "navy", "beige", "wood", "stone", "navy"))),
+    "rustic": dict(zip(TONE_KEYS, ("terracotta", "olive", "rust", "wood", "glazed", "rust"))),
+}
+DEFAULT_TONES = FAMILY_TONES["modern"]
+
+
+def tones(family: str) -> dict[str, str]:
+    return FAMILY_TONES.get(family) or DEFAULT_TONES
+
+
+def _toned(item: Optional[dict], family: str) -> Optional[dict]:
+    """The item in its family's tones (``FAMILY_TONES``; in place, returned): a colour or frame the item has is kept."""
+    if item is None:
+        return None
+    t = tones(family)
+
+    def put(key: str, value: str) -> None:
+        if not item.get(key):
+            item[key] = value
+    dtype = item.get("type")
+    if dtype in ("wall_niche", "desk_wall_unit"):
+        put("colour", t["objects"])
+    elif dtype == "floor_vase" and t["vase"] == "glazed":
+        put("finish", "glazed")
+        put("colour", "terracotta")
+    elif dtype == "art_leaning":
+        put("colour", t["art"])
+        put("frame", t["frame"])
+    elif dtype == "bag":
+        put("colour", t["bag"])
+    elif dtype == "mirror" and item.get("shape") == "round":
+        put("frame", t["frame"])
+    elif dtype == "rug":
+        put("colour", t["rug"])
+    return item
+
+
 WALL_ITEM_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind", "tv", "intercom",
                                     "desk_wall_unit", "wall_niche", "art_leaning")
 FLOOR_OBSTACLE_TYPES: tuple[str, ...] = ("plant", "plant_large", "basket", "sculpture") + FLOOR_DETAIL_TYPES
@@ -183,6 +232,22 @@ class Room:
         self.ctx = placer.room_context(building, room)
         self.pieces = _pieces(building, room["id"])
         self.level = _level(building, room.get("level_id"))
+        self.panel_lines: list[tuple] = []          # the walls the build panels (``panel_lines``): no item on them
+
+    def on_panel(self, a, b) -> bool:
+        """Whether the room edge ``a``-``b`` runs along a wall the build panels (its midpoint within the wall's reach,
+        parallel to it)."""
+        mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+        ex, ey = b[0] - a[0], b[1] - a[1]
+        el = math.hypot(ex, ey) or 1e-9
+        for p0, p1, reach in self.panel_lines:
+            wx, wy = p1[0] - p0[0], p1[1] - p0[1]
+            wl = math.hypot(wx, wy) or 1e-9
+            if abs(ex * wy - ey * wx) / (el * wl) > math.sin(math.radians(10.0)):
+                continue
+            if G.point_segment_distance(mid, p0, p1) <= reach:
+                return True
+        return False
 
     def decor(self, types=None) -> list[dict]:
         return _decor(self.building, self.room["id"], types)
@@ -242,7 +307,7 @@ class Room:
         out = []
         for i in range(len(self.ctx.segments)):
             a, _b, u, n, length = self.segment(i)
-            if length < min_len:
+            if length < min_len or self.on_panel(a, _b):
                 continue
             blocked = []
             for op in doors + windows:
@@ -293,6 +358,34 @@ class Room:
 
     def wall_point(self, st: dict, s: float) -> tuple[float, float]:
         return (st["a"][0] + st["u"][0] * s, st["a"][1] + st["u"][1] * s)
+
+
+PANEL_KINDS: tuple[str, ...] = ("fluted", "slats", "headboard_panel", "wainscot")
+
+
+def panel_lines(building: dict, room: dict, style: Optional[dict]) -> list[tuple]:
+    """``[(start, end, reach)]`` of the walls the build will panel in a room (its scheme's anchor-wall panel on the
+    accent wall, ``looks.accent_walls``; its dining slat wall): the details standing against a wall keep off them (a
+    niche or a leaning frame would stand in the slats)."""
+    sc = room.get("scheme") if isinstance(room.get("scheme"), dict) else {}
+    walls = {w.get("id"): w for w in building.get("walls") or []}
+    ids = []
+    if sc.get("feature_kind") in PANEL_KINDS:
+        try:
+            from wenart.blender import looks as LK
+            acc = LK.accent_walls(building, _level(building, room.get("level_id")), style or {})
+            ids += [wid for wid, per in acc.items() if room.get("id") in (per or {})]
+        except Exception:  # noqa: BLE001 - no accent wall: no panel line
+            pass
+    at = sc.get("dining_wall_at") if isinstance(sc.get("dining_wall_at"), dict) else {}
+    if at.get("wall_id"):
+        ids.append(at["wall_id"])
+    out = []
+    for wid in ids:
+        w = walls.get(wid)
+        if w is not None:
+            out.append((tuple(w["start"][:2]), tuple(w["end"][:2]), float(w.get("thickness") or 0.15) / 2.0 + 0.08))
+    return out
 
 
 def _note(applied: dict, rid: str, text: str) -> None:
@@ -371,7 +464,8 @@ def wall_tv(building: dict, rc: Room, scheme: dict, new_id: Callable) -> list[st
             rc.pieces = [f for f in rc.pieces if f is not unit]
         item["id"] = new_id(room["level_id"])
         building.setdefault("decor", []).append(item)
-        out.append(f"TV {item['id']} on the wall ({'unit ' + unit['id'] + ' removed' if remove else 'over ' + unit['id']})")
+        where = f"unit {unit['id']} removed" if remove else f"over {unit['id']}"
+        out.append(f"TV {item['id']} on the wall ({where})")
     return out
 
 
@@ -480,8 +574,10 @@ def nightstand_forms(building: dict, rc: Room, scheme: dict) -> list[str]:
             if s is None or G.distance(s["footprint"]["center"][:2], corner) > DR.NIGHTSTAND_REACH_M or s.get("form"):
                 continue
             s["form"] = form
-            s["form_why"] = (f"the room's scheme: {'a round drum nightstand with drawers (R17)' if form == 'drum' else 'a floating nightstand hung on the wall at the mattress height (R33)'}"
-                             f" beside the bed {bed['id']} (its footprint and place as before; the look only)")
+            what = ("a round drum nightstand with drawers (R17)" if form == "drum"
+                    else "a floating nightstand hung on the wall at the mattress height (R33)")
+            s["form_why"] = (f"the room's scheme: {what} beside the bed {bed['id']} (its footprint and place as "
+                             f"before; the look only)")
             out.append(f"{s['id']} a {form} nightstand")
             if form == "drum":
                 out += _onto_drum(building, s)
@@ -536,7 +632,8 @@ def bed_wall(building: dict, rc: Room, scheme: dict, new_id: Callable) -> list[s
     feat = scheme.get("feature")
     kind = scheme.get("kind")
     anchors = (("bed_double", "bed_single") if kind == "bedroom" else ("sofa", "sofa_corner"))
-    hosts = sorted((f for f in rc.pieces if f.get("type") in anchors), key=lambda f: (anchors.index(f["type"]), f["id"]))
+    hosts = sorted((f for f in rc.pieces if f.get("type") in anchors),
+                   key=lambda f: (anchors.index(f["type"]), f["id"]))
     out = []
     for host in hosts[:1]:
         arts = _bed_art(building, room["id"], host)
@@ -867,7 +964,8 @@ def pampas_vase(building: dict, rc: Room, family: str, new_id: Callable) -> list
     from wenart.furniture import tabletop as TT
 
     room = rc.room
-    hosts = {f["id"]: f for f in rc.pieces if f.get("type") in ("console_table", "sideboard", "dresser", "shoe_cabinet")}
+    hosts = {f["id"]: f for f in rc.pieces
+             if f.get("type") in ("console_table", "sideboard", "dresser", "shoe_cabinet")}
     if not hosts or any(d.get("stems") for d in rc.decor(("vase",))):
         return []
     for hid, host in sorted(hosts.items()):
@@ -967,7 +1065,7 @@ def _runner(room: dict, free, pts, sides) -> Optional[dict]:
     return None
 
 
-def intercoms(building: dict, new_id: Callable) -> dict[str, list[str]]:
+def intercoms(building: dict, new_id: Callable, style: Optional[dict] = None) -> dict[str, list[str]]:
     """H2: a video intercom panel on the wall beside every main entrance door, inside, 1.5 m up, on the side with
     free wall (no other opening, no tall piece in front)."""
     from shapely.geometry import Point
@@ -989,6 +1087,7 @@ def intercoms(building: dict, new_id: Callable) -> dict[str, list[str]]:
                for d in building.get("decor") or []):
             continue
         rc = Room(building, room)
+        rc.panel_lines = panel_lines(building, room, style)
         zone = next((z for z in rc.ctx.doors if z.id == rec.get("door_id")), None)
         if zone is None or zone.along is None or zone.normal is None:
             out.setdefault(room["id"], []).append(f"no intercom: the entrance door {rec.get('door_id')} is not on the "
@@ -1001,6 +1100,9 @@ def intercoms(building: dict, new_id: Callable) -> dict[str, list[str]]:
             wp = (zone.inner_point[0] + zone.along[0] * sgn * off, zone.inner_point[1] + zone.along[1] * sgn * off)
             if rc.ctx.ring.distance(Point(wp)) > 0.05:
                 continue
+            seg = rc.ctx.segments[rc.ctx.nearest_segment(wp)]
+            if rc.on_panel(*seg):
+                continue                                     # a panelled wall: the other side of the door
             clash = False
             for other in list(rc.ctx.doors) + list(rc.ctx.windows):
                 if other.id == zone.id:
@@ -1121,7 +1223,8 @@ def styled_shelves(building: dict, rc: Room) -> list[str]:
     books (one mesh: ``styled``)."""
     out = []
     for host in [f for f in rc.pieces if f.get("type") == "bookshelf"]:
-        sets = [d for d in building.get("decor") or [] if d.get("host_id") == host["id"] and d.get("type") == "book_set"]
+        sets = [d for d in building.get("decor") or []
+                if d.get("host_id") == host["id"] and d.get("type") == "book_set"]
         for k, d in enumerate(sorted(sets, key=lambda d: (int((d.get("host_frame") or {}).get("shelf", 0)),
                                                          float((d.get("host_frame") or {}).get("u", 0.0)),
                                                          str(d.get("id"))))):
@@ -1150,8 +1253,88 @@ def _no_panel(building: dict) -> set:
     return {rid for rid, dec in rooms.items() if isinstance(dec, dict) and dec.get("feature_wall") is False}
 
 
+def dress_room(building: dict, room: dict, sc: dict, fam: str, new_id: Callable, applied: dict,
+               decor_on: bool = True, style: Optional[dict] = None) -> None:
+    """One room's scheme changes and details (module docstring, 2 and 3; in place, notes in ``applied``)."""
+    from wenart.furniture import decor as D
+    from wenart.furniture import room_schemes as RS
+
+    rid = room["id"]
+    rc = Room(building, room)
+    rc.panel_lines = panel_lines(building, room, style)
+    for step in (wall_tv, floating_desk):
+        for t in step(building, rc, sc, new_id):
+            _note(applied, rid, t)
+    for t in nightstand_forms(building, rc, sc):
+        _note(applied, rid, t)
+    if decor_on:
+        for t in bed_wall(building, rc, sc, new_id) if sc.get("kind") in ("bedroom", "living") else []:
+            _note(applied, rid, t)
+        for t in dining_wall(building, rc, sc, new_id):
+            _note(applied, rid, t)
+    for t in track_lights(building, rc, sc) + living_models(building, rc, sc) + statement_style(building, rc, sc):
+        _note(applied, rid, t)
+    if not decor_on:
+        return
+    for t in drape_colours(building, rc, sc):
+        _note(applied, rid, t)
+    rc.pieces = _pieces(building, rid)
+    rc.panel_lines = panel_lines(building, room, style)          # the dining wall may be planned now
+    extras = list(sc.get("extras") or ())
+    if sc.get("kind") == "hall":
+        consoles = [f for f in rc.pieces if f.get("type") in RS.CONSOLE_TYPES]
+        if sc.get("hall") == "niche" or not consoles:
+            extras = ["niche"] + [e for e in extras if e != "niche"]
+        if sc.get("hall") == "console" and consoles:
+            extras = ["round_mirror"] + extras
+        if sc.get("hall") == "gallery" and consoles:
+            host = sorted(consoles, key=lambda f: f["id"])[0]
+            if not any(host["id"] in (d.get("anchor_ids") or []) for d in rc.decor(("wall_art", "mirror"))):
+                it, why = D.wall_art_for_host(host, rc.ctx, building, rc.level)
+                if it is not None:
+                    it.update(kind="decor", level_id=room["level_id"], room_id=rid, asset=None, host_id=None,
+                              source="added_by_ai", method="rule", rule=f"{RULE}.hall_art",
+                              slot=f"{host['id']}.art", colour=None, confidence=0.7, status="verified")
+                    text = f"art over the hall console {host['id']} (the hall's scheme: gallery; {TAG})"
+                    it["reason"], it["evidence"] = text, _evidence(text)
+                    it["id"] = new_id(room["level_id"])
+                    building.setdefault("decor", []).append(it)
+                    _note(applied, rid, f"art {it['id']} over {host['id']}")
+                else:
+                    _note(applied, rid, f"no art over {host['id']}: {why}")
+    for extra in extras:
+        maker = {"niche": wall_niche, "floor_vase": floor_vase, "leaning_art": leaning_art,
+                 "round_mirror": round_mirror}.get(extra)
+        if maker is None:
+            continue
+        it = _toned(maker(building, rc, f"the room's scheme '{sc.get('bundle')}'"), fam)
+        if it is None:
+            _note(applied, rid, f"no {extra.replace('_', ' ')}: no free place passes the checks")
+            continue
+        it["id"] = new_id(room["level_id"])
+        building.setdefault("decor", []).append(it)
+        _note(applied, rid, f"{extra.replace('_', ' ')} {it['id']}")
+    if sc.get("kind") == "hall":
+        rug = _toned(hall_rug(building, rc, sc), fam)
+        if rug is not None:
+            rug["id"] = new_id(room["level_id"])
+            building.setdefault("decor", []).append(rug)
+            _note(applied, rid, f"{rug.get('shape') or 'runner'} rug {rug['id']}")
+    for t in pampas_vase(building, rc, fam, new_id):
+        _note(applied, rid, t)
+    if room.get("room_type") == "bedroom":
+        bag = _toned(lived_in(building, rc), fam)
+        if bag is not None:
+            bag["id"] = new_id(room["level_id"])
+            building.setdefault("decor", []).append(bag)
+            _note(applied, rid, f"a bag {bag['id']} on the floor (lived-in)")
+    for t in blinds_with_curtains(building, rc, fam, new_id) + styled_shelves(building, rc):
+        _note(applied, rid, t)
+
+
 def dress_details(building: dict, style: Optional[dict], new_id: Callable) -> tuple[dict, list[str]]:
-    """The whole pass (module docstring; in place): ``(building, notes)``."""
+    """The whole pass (module docstring; in place): ``(building, notes)``. A room whose details fail (a broken
+    outline) keeps what it had: the failure is a note and a warning, never the decor stage's end."""
     from wenart.furniture import decor as D
     from wenart.furniture import room_schemes as RS
 
@@ -1159,87 +1342,26 @@ def dress_details(building: dict, style: Optional[dict], new_id: Callable) -> tu
     schemes = RS.plan(building, style, _no_panel(building), _partners(building))
     RS.record(building, schemes, style)
     applied: dict[str, list[str]] = {}
-    notes: list[str] = []
     decor_on = D.decor_allowed(building)
     rooms = _rooms(building)
     for rid in sorted(schemes):
         room = rooms.get(rid)
-        if room is None or not D.room_takes_decor(room):
+        if room is None or not D.room_takes_decor(room) or len(room.get("polygon") or []) < 3:
             continue
-        sc = schemes[rid]
-        rc = Room(building, room)
-        for step in (wall_tv, floating_desk):
-            for t in step(building, rc, sc, new_id):
-                _note(applied, rid, t)
-        for t in nightstand_forms(building, rc, sc):
-            _note(applied, rid, t)
-        if decor_on:
-            for t in bed_wall(building, rc, sc, new_id) if sc.get("kind") in ("bedroom", "living") else []:
-                _note(applied, rid, t)
-            for t in dining_wall(building, rc, sc, new_id):
-                _note(applied, rid, t)
-        for t in track_lights(building, rc, sc) + living_models(building, rc, sc) + statement_style(building, rc, sc):
-            _note(applied, rid, t)
-        if decor_on:
-            for t in drape_colours(building, rc, sc):
-                _note(applied, rid, t)
-        if not decor_on:
-            continue
-        rc.pieces = _pieces(building, rid)
-        extras = list(sc.get("extras") or ())
-        if sc.get("kind") == "hall":
-            consoles = [f for f in rc.pieces if f.get("type") in RS.CONSOLE_TYPES]
-            if sc.get("hall") == "niche" or not consoles:
-                extras = ["niche"] + [e for e in extras if e != "niche"]
-            if sc.get("hall") == "console" and consoles:
-                extras = ["round_mirror"] + extras
-            if sc.get("hall") == "gallery" and consoles:
-                host = sorted(consoles, key=lambda f: f["id"])[0]
-                if not any(host["id"] in (d.get("anchor_ids") or []) for d in rc.decor(("wall_art", "mirror"))):
-                    it, why = D.wall_art_for_host(host, rc.ctx, building, rc.level)
-                    if it is not None:
-                        it.update(kind="decor", level_id=room["level_id"], room_id=rid, asset=None, host_id=None,
-                                  source="added_by_ai", method="rule", rule=f"{RULE}.hall_art",
-                                  slot=f"{host['id']}.art", colour=None, confidence=0.7, status="verified")
-                        text = f"art over the hall console {host['id']} (the hall's scheme: gallery; {TAG})"
-                        it["reason"], it["evidence"] = text, _evidence(text)
-                        it["id"] = new_id(room["level_id"])
-                        building.setdefault("decor", []).append(it)
-                        _note(applied, rid, f"art {it['id']} over {host['id']}")
-                    else:
-                        _note(applied, rid, f"no art over {host['id']}: {why}")
-        for extra in extras:
-            maker = {"niche": wall_niche, "floor_vase": floor_vase, "leaning_art": leaning_art,
-                     "round_mirror": round_mirror}.get(extra)
-            if maker is None:
-                continue
-            it = maker(building, rc, f"the room's scheme '{sc.get('bundle')}'")
-            if it is None:
-                _note(applied, rid, f"no {extra.replace('_', ' ')}: no free place passes the checks")
-                continue
-            it["id"] = new_id(room["level_id"])
-            building.setdefault("decor", []).append(it)
-            _note(applied, rid, f"{extra.replace('_', ' ')} {it['id']}")
-        if sc.get("kind") == "hall":
-            rug = hall_rug(building, rc, sc)
-            if rug is not None:
-                rug["id"] = new_id(room["level_id"])
-                building.setdefault("decor", []).append(rug)
-                _note(applied, rid, f"{rug.get('shape') or 'runner'} rug {rug['id']}")
-        for t in pampas_vase(building, rc, fam, new_id):
-            _note(applied, rid, t)
-        if room.get("room_type") == "bedroom":
-            bag = lived_in(building, rc)
-            if bag is not None:
-                bag["id"] = new_id(room["level_id"])
-                building.setdefault("decor", []).append(bag)
-                _note(applied, rid, f"a bag {bag['id']} on the floor (lived-in)")
-        for t in blinds_with_curtains(building, rc, fam, new_id) + styled_shelves(building, rc):
-            _note(applied, rid, t)
+        try:
+            dress_room(building, room, schemes[rid], fam, new_id, applied, decor_on, style)
+        except Exception as exc:  # noqa: BLE001 - one room's failure never ends the decor stage
+            why = f"room details failed: {type(exc).__name__}: {exc}"[:240]
+            _note(applied, rid, why)
+            building["warnings"] = list(building.get("warnings") or []) + [f"{rid}: {why}"]
     if decor_on:
-        for rid, texts in intercoms(building, new_id).items():
-            for t in texts:
-                _note(applied, rid, t)
+        try:
+            for rid, texts in intercoms(building, new_id, style).items():
+                for t in texts:
+                    _note(applied, rid, t)
+        except Exception as exc:  # noqa: BLE001
+            building["warnings"] = list(building.get("warnings") or []) + [
+                f"intercom: {type(exc).__name__}: {exc}"[:240]]
     building["room_schemes"]["applied"] = applied
     notes = [f"{rid}: {t}" for rid, texts in sorted(applied.items()) for t in texts]
     building["room_schemes"]["notes"] = notes

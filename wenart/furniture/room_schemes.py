@@ -76,8 +76,8 @@ FAMILY_FEATURE: dict[str, dict[str, str]] = {
 }
 FLUTED_FAMILIES: tuple[str, ...] = ("modern", "contemporary", "modern minimal", "minimal", "scandinavian", "japandi")
 PANEL_FEATURES: tuple[str, ...] = ("fluted", "slats", "headboard_panel", "wainscot")
-# Colours (designer values, ``wenart.style.colours`` phrases): deep wall colours of linear luminance 0.15-0.26 (P9's dark
-# green walls read deep, not black, under daylight), limewash colours 0.3-0.6 (P10's warm limewash), accent paints
+# Colours (designer values, ``wenart.style.colours`` phrases): deep wall colours of linear luminance 0.15-0.26 (P9's
+# dark green walls read deep, not black, under daylight), limewash colours 0.3-0.6 (P10's warm limewash), accent paints
 # (the family's accent first: looks.FAMILY_ACCENTS).
 DEEP_COLOURS: dict[str, tuple[str, ...]] = {
     "scandinavian": ("dark sage", "muted dusty blue", "dark taupe"),
@@ -304,7 +304,8 @@ def resolve(kind: str, bundle: str, colour: str, family: str, no_panel: bool = F
     room's reference photos show no wall panelling, UL106): the bundle's panel becomes its art."""
     spec = dict((POOLS.get(kind) or {}).get(bundle) or {})
     fam = family or DEFAULT_FAMILY
-    out: dict = {"kind": kind, "bundle": bundle, "colour": colour, "key": f"{bundle}:{colour}", "family": family or None}
+    out: dict = {"kind": kind, "bundle": bundle, "colour": colour, "key": f"{bundle}:{colour}",
+                 "family": family or None}
     why: dict[str, str] = {}
     if no_panel and spec.get("feature") in PANEL_FEATURES:
         spec["feature"] = NO_PANEL_FEATURE.get(kind, "art")
@@ -563,7 +564,8 @@ def review(building: dict, manifest: Optional[dict] = None, check: str = "U32") 
                 seen[k] = rid
         if kind == "hall":
             consoles = _pieces(building, rid, CONSOLE_TYPES)
-            niche = [d for d in building.get("decor") or [] if d.get("room_id") == rid and d.get("type") == "wall_niche"]
+            niche = [d for d in building.get("decor") or []
+                     if d.get("room_id") == rid and d.get("type") == "wall_niche"]
             if not consoles and not niche:
                 area = _area(room)
                 out.append({"check": check, "severity": "minor" if area < 4.0 else "major", "target": rid,

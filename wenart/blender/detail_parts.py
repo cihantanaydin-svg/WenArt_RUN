@@ -40,16 +40,14 @@ from wenart.blender.parametric import (_box, _cylinder_y, _cylinder_z, _frustum_
 
 Part = dict
 
-LED_STRENGTH = 2.5               # W/m²·sr-like emission of an LED strip: a glow on the shelf below, never a light source
+LED_STRENGTH = 2.5               # an LED strip's emission: a glow on the shelf below it, never a light source
 LED_RGB = (1.0, 0.80, 0.58)      # 2700-3000 K
 LED_MATERIAL = "wenart_led_strip"
 PAMPAS_COLOUR = "cream"
 BOOK_KEYS: tuple[str, ...] = ("dark", "painted", "terracotta", "wood", "colour_fabric")
 FLOAT_NIGHTSTAND_H_M = 0.22      # a floating nightstand's box under its top (R33)
 DRAWER_GROOVE_M = 0.004
-DETAIL_ROLES_BEVEL: dict[str, float] = {"led": 0.0, "groove": 0.0, "plume": 0.0, "stem": 0.0, "bracket": 0.002,
-                                        "cleat": 0.0, "canvas": 0.0, "grille": 0.0, "button": 0.001, "lens": 0.0,
-                                        "zip": 0.0, "strap": 0.002, "object": 0.004, "knob": 0.002}
+# (the bevel radii of the roles these parts use: ``parametric.BEVEL_BY_ROLE``)
 
 
 # --------------------------------------------------------------------------
@@ -400,7 +398,7 @@ def track_parts(w: float, d: float, h: float) -> list[Part]:
     for k in (-1, 0, 1):
         x = k * w / 3.0
         parts.append(_cylinder_z(x, 0.0, h - rail - stem, 0.007, 0.007, stem, "dark", "stem", n=8))
-        parts.append(_cylinder_z(x, 0.0, 0.004, hr, hr, head_h - 0.004, "dark", "shade", n=20))
+        parts.append(_cylinder_z(x, 0.0, 0.004, hr, hr, head_h - 0.004, "dark", "head", n=20))   # only its lens glows
         parts.append(_cylinder_z(x, 0.0, 0.0, hr * 0.7, hr * 0.7, 0.004, "bulb", "bulb", n=16))
     return contain(parts, w, d, h)
 

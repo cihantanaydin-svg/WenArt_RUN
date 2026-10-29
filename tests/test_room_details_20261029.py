@@ -362,6 +362,18 @@ def test_a_hall_without_a_console_gets_a_lit_niche_off_the_door():
     assert sum(p["role"] == "book" for p in parts) >= 6 and sum(p["role"] == "plume" for p in parts) >= 3
 
 
+def test_wall_details_keep_off_the_wall_the_build_panels():
+    b = room_building(4.0, 4.0, "living", furniture=[("sofa", (2.0, 3.53), 0.0, (2.2, 0.9))])
+    room = _room(b)
+    room["scheme"] = {"feature": "slats", "feature_kind": "slats", "key": "slats:x"}
+    rc = RD.Room(b, room)
+    rc.panel_lines = RD.panel_lines(b, room, SCANDI)
+    assert len(rc.panel_lines) == 1                                     # the wall behind the sofa (w_n)
+    assert all(abs(st["n"][1] + 1.0) > 1e-6 for st in rc.stretches(min_len=0.8, block_low=True, front_m=0.5))
+    room["scheme"] = {"feature": "art", "feature_kind": None, "key": "gallery:x"}
+    assert RD.panel_lines(b, room, SCANDI) == []
+
+
 def test_the_intercom_hangs_beside_the_main_entrance():
     b = _hall(3.0, 3.0, console=False)
     b["site"] = {"entrances": [{"door_id": "d1", "level_id": "L0", "room_id": RID, "main": True}]}

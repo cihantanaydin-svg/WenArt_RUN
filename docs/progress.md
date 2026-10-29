@@ -2157,3 +2157,37 @@ ridge 2.8 m away, 1.58 m over its exit); real04 (modern, mansard) one over the b
 w_L-1_004 at (5.94, 7.51) m and the mirrored dwelling's at (9.24, 7.51) m, tops 6.70 m on the shallow upper slope near
 the 6.01 m ridge. Argus U27 flags both runs as built (no chimney). Needs a pod render: the stack's look in the views,
 the cowls and pots.
+
+## A different solution for each room, the halls', living rooms' and bedrooms' details of the reference photos (29 Oct 2026; built, pod run waiting)
+
+The user sent seven professional renders ("also take some inspiration from these photos", "look at all these details
+I want these details", "As much detail as you can digest", "different solutions for different rooms"; lessons UL113,
+UL115 hall part, UL119; `docs/reference_details_20261029.md`). General rules, CPU-tested, not rendered yet:
+
+| part | rule | rows |
+|---|---|---|
+| room schemes | `wenart/furniture/room_schemes.py`: every living room, bedroom, hall, dining room and home office gets a scheme (bundle x colour) from its style family's pool, the first candidate the bundle its room id hashes to; no two rooms of one type on a level share one, a twin takes its partner's; a room whose photos show no panelling gets art in place of a panel; every choice with its reason in `building["room_schemes"]`, the build reads `room["scheme"]` | V1 |
+| walls | one accent wall in the scheme's pale colour, a deep colour all round (paint), a limewash texture all round (`lime_plaster`), by `looks.wall_face_material` / `accent_walls` | R25, R34 |
+| anchor wall | the family's fluted panel (UL106), full-height wood slats over the whole free stretch, a timber headboard panel 1.2 m high wider than the bed (art hangs over it: `min_bottom_m`), an art pair over the headboard, one large art piece (`feature_walls.scheme_spec`) | R13, R16, R32 |
+| dining wall | a full-height slat wall (`feature_walls.plan_dining_walls`, the scheme's `dining_wall_at`) with a large art piece on it, or the art alone, on the wall along the dining table's long side | K13 |
+| TV | flat on the wall at eye height (1.15 m in a bedroom, 1.05 m in a living room): in a bedroom in place of the media wall's own unit, in a living room over its unit; a drawn unit stays | R26 |
+| desk | a desk in a corner becomes a floating corner desk (a wall-hung top on an open black shelf unit with books, `form: floating`, by design); wall shelves and cabinets with an LED strip over it (`desk_wall_unit`) where no window is behind it | R27 |
+| nightstands | round drum or floating (hung at the mattress height; S1/S4 know it hangs) nightstands, by design; a drum's items moved onto its round top | R17, R33 |
+| lights | the general lights as black ceiling track lights in the modern families; the statement fixture's style (globe, linear, cluster) a preference of the fit | H7, R14, R3, R4, R15, R30 |
+| models | a glass coffee table and side table, a rattan lounge chair (not the sofa set's armchairs): the fit's preferences | G5, R24 |
+| hall | a console with a round mirror over it and a vase of dried pampas grass on it, or a lit wall niche (a built-out box: floating wood shelves, an LED strip under each, books, vases, a bowl, a sculpture, pampas; one mesh) where no console stands or the scheme says so; a round rug in a squarish hall, a runner in a long one, off the door swings | H1, H4, H5, H6, R10 |
+| entrance | a video intercom panel beside every main entrance door, 1.5 m up, on the side with free wall | H2 |
+| living, bedroom | a big floor vase with pampas in a free corner, a large art frame leaning against a free wall, a round mirror, drapes in the room's colour, a weekend bag in every bedroom, a slatted blind behind the curtains in the modern families, a small object between the books on every second board | H5, R5, R6, R10, R20, R21, R29 |
+| ceilings, stairs | timber rafters every 60 cm under the sloped ceilings of rustic, Scandinavian and farmhouse homes (`wenart/blender/ceiling_beams.py`); a stair's steel black in the modern families, timber treads over a hard floor | G2, H8 |
+| build | every detail one decor item and one mesh (`wenart/blender/detail_parts.py`: its shelves, LEDs and objects together, no ray per object); real sizes, PBR keys, an LED strip a low warm emission | UL111 |
+| checks | model review M28 and Argus U32 (`room_schemes.review`): two rooms of one type on a level with the same scheme, a hall with no console or niche, a bedroom with a bare bed wall; kind `taste`, cause `decor_look` | - |
+
+On real06's building as built (run 20261029-100801-full): the salon `gallery` (pale muted sage accent; its photos
+show no panelling, so art; the TV stays on its free-standing divider unit; a lit niche, a floor vase, the drapes in
+sage, a rattan reading chair, a linear statement fixture, an intercom by the entrance d_L0_004), the kitchen `art`
+(a floor vase; no free dining wall), the master bedroom `panel` (the fluted panel; no round mirror: its only free
+wall is the panelled one; a globe statement fixture, a bag), the child's room `deep` (dark sage walls all round, an art pair over the bed, the wall unit over its
+desk, a bag), r_L1_oda_2 `limewash` (warm greige limewash, the headboard panel, a floating nightstand, a round mirror,
+pampas on the dresser, a bag), the hall r_L1_oda `gallery`. Not built here: R1, R31 (see-through wardrobes: the doors
+helper), the doors (D1-D5), sockets (UL112), R19 (a dressing table with an arched mirror), G5's shaggy rug, slats
+flanking a window (R13's second half). Needs a pod render.
