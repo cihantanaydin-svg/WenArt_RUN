@@ -110,6 +110,10 @@ CHECK_KIND = {
     # 29 Oct 2026 (lesson UL109: "There are no chimneys"): a chimney off the roof, floating, too low for the rule or in
     # front of a window (model_review.chimneys_review)
     "M24": "no_sense",
+    # 29 Oct 2026 (lesson UL112: "Also includes some power sockets and light on offs"): a room without a light switch at
+    # its door, a bed without a socket, a kitchen without a socket over its worktop (a plate on glass or behind a piece
+    # carries "no_sense"; model_review.wall_plates_review)
+    "M25": "taste",
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",
@@ -127,6 +131,8 @@ CHECK_KIND = {
     # 29 Oct 2026 (lesson UL109): a pitched-roof house of a chimney family with no chimney (a drawn fireplace or flue
     # left without one carries "lost")
     "U27": "taste",
+    # 29 Oct 2026 (lesson UL112): the light switches and power sockets of the scene (wall_plates.review, M25's rule)
+    "U29": "taste",
     # code critic
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation
@@ -135,6 +141,15 @@ CHECK_KIND = {
     "LT": "misread", "P11": "misread",
 }
 CHECK_KIND.update({"U23": "taste", "M23": "taste"})     # 29 Oct 2026 (UL106): the professional bar (dressing.review)
+# 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125; user: "argus should have think of this"): a reference solution the
+# model misses (closed doors everywhere, one door size, a walk-in behind closed panels, doors without frames)
+KINDS["reference_missed"] = {
+    "what": "the model misses a solution the user's reference photos show and the rules now build (inside doors open, "
+            "doors sized by role and family, framed doors, a see-through walk-in dressing room): not a fault of a "
+            "stage, a design move left out",
+    "arises": "build, architect",
+    "guards": ["model review M29", "Argus U33", "the architect's D7 / D8", "the lesson walk (AI5)"]}
+CHECK_KIND.update({"U33": "reference_missed", "M29": "reference_missed"})
 CHECK_KIND.update({"U30": "taste", "M26": "taste"})     # 29 Oct 2026 (UL114): the bathroom's set (bath_details.review)
 # 29 Oct 2026 (UL115, UL118): a kitchen missing what its style family's kitchen details give it (kitchen_details.review)
 CHECK_KIND.update({"M27": "taste", "U31": "taste"})

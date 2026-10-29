@@ -131,6 +131,11 @@ Milestone 10 (docs/milestone10.md §1.6, §3.2, §3.3): the whole building.
   ``assumed``. The top-down previews hide the roof, the site and the
   exterior cameras. Other buildings keep the M3-M9 scene.
 
+29 Oct 2026 (lesson UL112, user: "Also includes some power sockets and light on offs"): every level's light switches
+beside the room doors and power sockets where they are used (``wall_plates.plan_level`` / ``build_wall_plates``: one
+mesh object ``wall_plates_<level>`` per level, every plate inferred with its reason in ``assumed``; the manifest's
+``wall_plates`` has the counts per room and what found no place).
+
 Milestone 13 (docs/milestone13.md §13.2 build.py, K8 camera replay; the camera policy itself stays, D8):
 
 - ``--cameras-from <scene_manifest.json>`` recreates the cameras of that manifest (``cameras.replay_cameras``:
@@ -936,6 +941,47 @@ def _plan_notes(notes: list, warnings: list, assumed: Optional[list], what: str 
                             "value": n.get("family"), "reason": str(n.get("reason"))})
 
 
+def doors_as_designed(building: dict, style: Optional[dict], cameras=()) -> dict:
+    """29 Oct 2026 (lessons UL116, UL117, UL120, UL122, UL125; docs/reference_details_20261029.md D1-D5, R31, R37): the
+    doors and wardrobes as a designer shows them, on the building before any geometry is made (pure, in place):
+    ``door_states.apply_sizes`` (D5: the entrance taller and wider, full-height day-room doors in the modern families,
+    product widths), ``wardrobe_fronts.apply`` (see-through fronts: every walk-in dressing room on every side, the
+    master bedroom's run), ``door_states.apply_states`` (D1: every door's leaf; ``cameras``: the replayed cameras a
+    door they look through opens for) and the walk-ins' bench and full-height mirror (``walk_in_extras``: the bench a
+    piece of the building, the mirrors built after the level's furniture). ``{"assumed", "warnings", "mirrors",
+    "states", "sizes", "fronts"}``; nothing for a style without a family."""
+    from wenart.blender import door_states as DS
+    from wenart.blender import wardrobe_fronts as WF
+
+    out = {"assumed": [], "warnings": [], "mirrors": [], "states": {}, "sizes": [], "fronts": {}}
+    if not DS.active(style):
+        return out
+    out["sizes"], got = DS.apply_sizes(building, style)
+    out["assumed"] += got
+    out["fronts"], got = WF.apply(building, style)
+    out["assumed"] += got
+    out["states"], got = DS.apply_states(building, style, cameras)
+    out["assumed"] += got
+    rooms = {r.get("id"): r for r in building.get("rooms") or []}
+    for rid in sorted({rec["room_id"] for rec in out["fronts"].values() if rec.get("walk_in")}):
+        extra = WF.walk_in_extras(building, rooms[rid])
+        if extra["bench"] is not None:
+            building.setdefault("furniture", []).append(extra["bench"])
+            out["assumed"].append({"object": f"furn_{extra['bench']['id']}", "field": "walk_in_seat",
+                                   "value": extra["bench"]["type"], "reason": extra["bench"]["added_by_ai"]["reason"],
+                                   "parent": rid, "kind": "walk_in_seat"})
+        if extra["mirror"] is not None:
+            out["mirrors"].append(extra["mirror"])
+        for note in extra["notes"]:
+            print(f"walk-in {rid}: {note}")
+    counts: dict = {}
+    for rec in out["states"].values():
+        counts[rec["state"]] = counts.get(rec["state"], 0) + 1
+    print(f"DOORS {counts} ({len(out['sizes'])} resized); see-through wardrobes {len(out['fronts'])}; walk-in mirrors "
+          f"{len(out['mirrors'])}")
+    return out
+
+
 def library_openings(building: dict, levels: list, prep: dict, brief, warnings: list, assets_dir=None,
                      style=None, assumed: Optional[list] = None) -> dict:
     """``opening_models.plan`` for the outer doors and windows of a whole-building build (24 Oct 2026), in the
@@ -1346,6 +1392,11 @@ def main(argv: list[str]) -> int:
         if sun_rule:
             assumed.append({"object": "sun", "field": "azimuth_deg", "value": sun_rule["azimuth_deg"],
                             "reason": sun_rule["reason"]})
+    # 29 Oct 2026 (lessons UL116, UL117, UL120, UL122, UL125): the doors' sizes by role and family, the see-through
+    # wardrobes and walk-in dressing rooms, then every door's leaf (open by default), before any geometry is made
+    doors = doors_as_designed(building, style, replay["plans"])
+    assumed.extend(doors["assumed"])
+    warnings.extend(doors["warnings"])
     textures, hdris, refused = load_assets(args.assets, args.no_textures, warnings)
     hdri = hdri_file(hdris, args.assets, style)
     if (style.get("lighting") or {}).get("hdri") and hdri is None and not args.no_textures:
@@ -1384,7 +1435,9 @@ def main(argv: list[str]) -> int:
     from wenart.blender import ceiling_beams as CB
     from wenart.blender import feature_walls as FW
     from wenart.blender import parquet as PQ
+    from wenart.blender import wall_plates as WP
     assumed.extend(PQ.annotate(building, style))
+    plates_info: dict = {}                                    # 29 Oct 2026 (UL112): the wall plates per level
     rooms_without_view: list[dict] = []                       # Milestone 7 §6.2: empty rooms the cameras skip
     cameras_dropped: list[dict] = []                          # Milestone 10: exterior views no place worked for
     looks = E.resolve_looks(building, style, brief) if whole else None
@@ -1452,29 +1505,6 @@ def main(argv: list[str]) -> int:
             warnings.extend(openings_through_roof(building, level, wall_whole["roof_cut"]))
             warnings.extend(pieces_above_ceiling(building, level))
         lap("setup")
-        shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings, whole=wall_whole)
-        lap("walls")
-        shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings,
-                             library_openings=lib_openings, assets_dir=args.assets, geo_cache=geo_cache)
-        shell.build_skirting(building, level, col, library, style, manifest_objects, assumed)
-        # 29 Oct 2026 (UL106): the fluted panel or wainscot on the accent wall of the bedrooms and living rooms
-        fw_plans = FW.build_feature_walls(building, level, col, library, style, manifest_objects, assumed, warnings)
-        # 29 Oct 2026 (UL113, G2): exposed timber rafters under the sloped ceilings of the families that show them
-        CB.build_ceiling_beams(building, level, col, library, style, manifest_objects, assumed, warnings)
-        floor_whole = None
-        if whole:
-            floor_whole = {"floor_voids": under["voids"] if under else [],
-                           "ceiling_voids": above["voids"] if above else None,
-                           "ceiling_planes": level.get("ceiling_planes"), "open_rooms": prep["open_rooms"],
-                           "terrace_floor": (looks or {}).get("paving")}
-        shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings, stairs=stairs,
-                                    whole=floor_whole, assumed=assumed)
-        if whole and prep["outlines"].get(level["id"]):
-            counts = shell.build_outside_details(building, level, col, library, looks, prep["outlines"][level["id"]],
-                                                 pass_indices, manifest_objects, assumed, style=style)
-            for k, v in counts.items():
-                outside[k] += v
-        lap("openings_floors_outside")
         level_furniture = loose_furniture
         fit_not_built: list[dict] = []
         if whole and level.get("ceiling_planes"):     # decor under the roof stays inside it
@@ -1482,44 +1512,10 @@ def main(argv: list[str]) -> int:
             level_furniture = dict(loose_furniture, decor=decor)
             warnings.extend(fit_warnings)
             furniture_summary["not_built"].extend(fit_not_built)
-        if fw_plans:                                  # UL106: wall art on a panel stands off it, never in the slats
-            stood, fw_notes = FW.standoff_decor(level_furniture.get("decor") or [], fw_plans)
-            level_furniture = dict(level_furniture, decor=stood)
-            # (a design detail record names its parent: the decor item, GPU test test_assumed_entries_of_...)
-            assumed.extend({"object": line.split(":")[0], "field": "feature_wall_standoff", "value": True,
-                            "reason": line, "kind": "decor", "parent": line.split(":")[0].split()[-1]}
-                           for line in fw_notes)
-        summary = furniture.create_furniture(level_furniture, level, col, library, style, args.assets, pass_indices,
-                                             manifest_objects, assumed, warnings, use_proxies=args.proxies)
-        add_furniture_summary(furniture_summary, summary)
-        lap("furniture")
-        # Milestone 12 (docs/milestone12.md §4.6-§4.7, contract §13.3; hook owned by track S): the scene checks S1-S6
-        # of this level's built furniture and decor (``summary["objects"]``: {piece or decor id: object}).
-        from wenart.blender import scene_checks as SC
-        scene_report = SC.run_scene_checks(level_furniture, summary.get("objects") or {},
-                                           out / "checks" / f"scene_{level['id']}.json")
-        furniture_summary.setdefault("scene_checks", {})[level["id"]] = scene_report.get("counts") or {}
-        # decor not built (S5 twice), dressed beds; fix round after P3 (16-17 Oct 2026): the pieces built into a
-        # kitchen run (a drawn sink in its counter: furniture.built_in_ids), [{id, type, host, reason}]
-        for key in ("decor_not_rested", "dressed_beds", "built_in"):
-            furniture_summary.setdefault(key, []).extend(summary.get(key) or [])
-        if (scene_report.get("counts") or {}).get("failed_build"):
-            # a built item failing S5 cannot happen by construction (rest.plan_decor checks it); recorded as a failed
-            # build (critical violations in checks/scene_<level>.json, read by the critic), the render goes on
-            furniture_summary["scene_checks_failed"] = True
-            warnings.append(f"level {level['id']}: scene check S5 failed for a built decor item; see "
-                            f"checks/scene_{level['id']}.json")
-        lap("scene_checks")
-        # Milestone 11 (docs/milestone11.md §1.3 M2): the kitchens' tiled splashback behind the counter runs
-        splash = shell.build_splashbacks(building, level, col, library, style, manifest_objects, assumed)
-        furniture_summary["splashbacks"] = furniture_summary.get("splashbacks", 0) + splash
-        # 28 Oct 2026: the floor's openings and the slab's above shape the stair's guards and structure
-        add_furniture_summary(furniture_summary, shell.build_stairs(building, level, col, library, style, pass_indices,
-                                                                    manifest_objects, assumed, warnings, plans=stairs,
-                                                                    shaft=not arrives,
-                                                                    floor_voids=under["voids"] if under else [],
-                                                                    ceiling_voids=above["voids"] if above else None))
-        lap("splashbacks_stairs")
+        # 29 Oct 2026 (UL126, user: "You can leave the right door open and show the dressing room"): the level's
+        # cameras are planned (pure, on the building) before its doors are built, so a door a view sees that leads to
+        # a room worth showing opens, its leaf clear of that view (door_states.revise_for_cameras); the camera objects
+        # are made after the level's geometry as before.
         # Milestone 13 (K8): the replayed cameras of this level first; the search for the rooms without one (every
         # room with --cameras-extra, those cameras renamed with the suffix EXTRA_CAMERA_SUFFIX).
         level_room_ids = {r["id"] for r in building["rooms"] if r["level_id"] == level["id"]}
@@ -1562,6 +1558,89 @@ def main(argv: list[str]) -> int:
         for line in dedupe_camera_names(plans, {p["name"] for p in camera_plans}):
             print(f"camera name: {line}")
             warnings.append(line)
+        if doors["states"]:
+            from wenart.blender import door_states as DS
+            assumed.extend(DS.revise_for_cameras(building, style, plans, level["id"]))
+        lap("cameras")
+        shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings, whole=wall_whole)
+        lap("walls")
+        shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings,
+                             library_openings=lib_openings, assets_dir=args.assets, geo_cache=geo_cache)
+        shell.build_skirting(building, level, col, library, style, manifest_objects, assumed)
+        # 29 Oct 2026 (UL106): the fluted panel or wainscot on the accent wall of the bedrooms and living rooms
+        fw_plans = FW.build_feature_walls(building, level, col, library, style, manifest_objects, assumed, warnings)
+        # 29 Oct 2026 (UL113, G2): exposed timber rafters under the sloped ceilings of the families that show them
+        CB.build_ceiling_beams(building, level, col, library, style, manifest_objects, assumed, warnings)
+        floor_whole = None
+        if whole:
+            floor_whole = {"floor_voids": under["voids"] if under else [],
+                           "ceiling_voids": above["voids"] if above else None,
+                           "ceiling_planes": level.get("ceiling_planes"), "open_rooms": prep["open_rooms"],
+                           "terrace_floor": (looks or {}).get("paving")}
+        shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings, stairs=stairs,
+                                    whole=floor_whole, assumed=assumed)
+        if whole and prep["outlines"].get(level["id"]):
+            counts = shell.build_outside_details(building, level, col, library, looks, prep["outlines"][level["id"]],
+                                                 pass_indices, manifest_objects, assumed, style=style)
+            for k, v in counts.items():
+                outside[k] += v
+        lap("openings_floors_outside")
+        if fw_plans:                                  # UL106: wall art on a panel stands off it, never in the slats
+            stood, fw_notes = FW.standoff_decor(level_furniture.get("decor") or [], fw_plans)
+            level_furniture = dict(level_furniture, decor=stood)
+            # (a design detail record names its parent: the decor item, GPU test test_assumed_entries_of_...)
+            assumed.extend({"object": line.split(":")[0], "field": "feature_wall_standoff", "value": True,
+                            "reason": line, "kind": "decor", "parent": line.split(":")[0].split()[-1]}
+                           for line in fw_notes)
+        summary = furniture.create_furniture(level_furniture, level, col, library, style, args.assets, pass_indices,
+                                             manifest_objects, assumed, warnings, use_proxies=args.proxies)
+        add_furniture_summary(furniture_summary, summary)
+        if doors["mirrors"]:
+            # 29 Oct 2026 (UL125): the walk-in dressing rooms' full-height mirrors (one mesh each)
+            from wenart.blender import wardrobe_fronts as WF
+            WF.build_mirrors(doors["mirrors"], level, col, furniture._Materials(library, style, []),
+                             manifest_objects, assumed)
+        lap("furniture")
+        # Milestone 12 (docs/milestone12.md §4.6-§4.7, contract §13.3; hook owned by track S): the scene checks S1-S6
+        # of this level's built furniture and decor (``summary["objects"]``: {piece or decor id: object}).
+        from wenart.blender import scene_checks as SC
+        scene_report = SC.run_scene_checks(level_furniture, summary.get("objects") or {},
+                                           out / "checks" / f"scene_{level['id']}.json")
+        furniture_summary.setdefault("scene_checks", {})[level["id"]] = scene_report.get("counts") or {}
+        # decor not built (S5 twice), dressed beds; fix round after P3 (16-17 Oct 2026): the pieces built into a
+        # kitchen run (a drawn sink in its counter: furniture.built_in_ids), [{id, type, host, reason}]
+        for key in ("decor_not_rested", "dressed_beds", "built_in"):
+            furniture_summary.setdefault(key, []).extend(summary.get(key) or [])
+        if (scene_report.get("counts") or {}).get("failed_build"):
+            # a built item failing S5 cannot happen by construction (rest.plan_decor checks it); recorded as a failed
+            # build (critical violations in checks/scene_<level>.json, read by the critic), the render goes on
+            furniture_summary["scene_checks_failed"] = True
+            warnings.append(f"level {level['id']}: scene check S5 failed for a built decor item; see "
+                            f"checks/scene_{level['id']}.json")
+        lap("scene_checks")
+        # Milestone 11 (docs/milestone11.md §1.3 M2): the kitchens' tiled splashback behind the counter runs
+        splash = shell.build_splashbacks(building, level, col, library, style, manifest_objects, assumed)
+        furniture_summary["splashbacks"] = furniture_summary.get("splashbacks", 0) + splash
+        # 28 Oct 2026: the floor's openings and the slab's above shape the stair's guards and structure
+        add_furniture_summary(furniture_summary, shell.build_stairs(building, level, col, library, style, pass_indices,
+                                                                    manifest_objects, assumed, warnings, plans=stairs,
+                                                                    shaft=not arrives,
+                                                                    floor_voids=under["voids"] if under else [],
+                                                                    ceiling_voids=above["voids"] if above else None))
+        lap("splashbacks_stairs")
+        # 29 Oct 2026 (lesson UL112, user: "Also includes some power sockets and light on offs"): a light switch
+        # beside every room's door and power sockets where they are used (wenart/blender/wall_plates.py: a pure plan
+        # from the walls, openings, built pieces and the level's wall decor, no ray casts), all plates of the level ONE
+        # mesh object from vertex / face lists (no operator, modifier or boolean per plate)
+        try:
+            plate_plan = WP.plan_level(building, level, style, decor=level_furniture.get("decor"))
+            WP.build_wall_plates(plate_plan, level, col, library, manifest_objects, assumed)
+            plates_info[level["id"]] = WP.summary(plate_plan)
+        except (KeyError, TypeError, ValueError, ZeroDivisionError, IndexError, AttributeError) as exc:
+            # a plan that cannot run is listed (the model review's M25 finds the rooms without switches), never a stop
+            plates_info[level["id"]] = {"error": f"{type(exc).__name__}: {exc}"}
+            warnings.append(f"level {level['id']}: the wall plates failed: {type(exc).__name__}: {exc}")
+        lap("wall_plates")
         # fix round after P3 (16-17 Oct 2026): every room camera, replayed ones included, carries its room type
         # (wenart_room_type), so render.py puts the views of open-air rooms (terraces) under the exterior world
         check_camera_objects(cams.create_cameras(plans, col, manifest_objects,
@@ -1865,6 +1944,8 @@ def main(argv: list[str]) -> int:
         "variant": variant_summary(building_all, prep),
         "variants": variants_summary(building_all),
         "whole_building": whole_info,
+        # 29 Oct 2026 (UL112): the light switches and sockets per level (counts per room, what found no place)
+        "wall_plates": plates_info,
         # Milestone 10 (docs/milestone10.md §1.6b rows 9, 11, 12): the exterior cameras no place worked for, the
         # resolved outside looks (never written back to the building) and the brief values used.
         "cameras_dropped": cameras_dropped,

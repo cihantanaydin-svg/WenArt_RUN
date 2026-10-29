@@ -1463,6 +1463,11 @@ def inside_role(rec: dict, style=None) -> tuple[Optional[str], str]:
     kind = door_kind_of(o)
     leaves = o.get("leaves")
     prof = style if isinstance(style, dict) else ({"family": style} if style else {})
+    lite = LK.divided_lite(dict(o, joins=rec.get("joins")), prof, o.get("door_style") or "double")
+    if lite is not None and lite["door_style"] == "glazed_sliding":
+        # 29 Oct 2026 (D3): a wide sliding door between day rooms is the parametric glazed divided-lite sliding door
+        # (a swing pair keeps its library leaves; the parametric pair, where none fits, is the divided-lite pair)
+        return None, lite["why"] + ": the parametric door (no library model of that kind)"
     if is_pair(o):
         rs, why = LK.role_door_style(rec.get("joins"), prof)
         role = "glazed" if (o.get("glazed") or rs == "glazed") else "solid"
@@ -1524,6 +1529,12 @@ def hinge_mirror(o: dict, model: dict) -> tuple[bool, str]:
     audit's ``handle_side``); mirrored when they do not agree; kept as modelled (assumed) when either is unknown."""
     drawn = str(o.get("hinge_side") or "").strip().lower()
     hs = model_handle_side(model)
+    chosen = ""
+    if drawn not in ("left", "right"):
+        # 29 Oct 2026 (D1, UL116): the hinge side door_states chose so the open leaf stands by the wall beside it
+        chosen = str((o.get("leaf_state") or {}).get("hinge_side") or "").strip().lower()
+        if chosen in ("left", "right") and (o.get("leaf_state") or {}).get("state") in ("open", "ajar"):
+            drawn = chosen
     if drawn not in ("left", "right"):
         return False, "the drawing gives no hinge side: the model's own hinge side (assumed)"
     if hs not in ("left", "right"):
@@ -1815,6 +1826,15 @@ def door_product_problems(manifest) -> list[dict]:
                         "message": f"door {r['id']} is {what}, no architrave"
                                    + (", no face detail" if style in (None, "flush") else "")
                                    + ": a door no library model fits is built as a product of the house's style"})
+    # 29 Oct 2026 (UL122, "Doors looks without frames they need frames"): a library door built with a frame record
+    # (``opening_build._door_frame``) that has no lining and no frameless reason stands in a raw hole
+    from wenart.blender import door_states as DS
+
+    lib_ids = {r["id"] for r in built_doors(manifest) if r["library"]}
+    for p in DS.frame_problems(manifest):
+        if p["target"] in lib_ids and p["kind"] == "no_frame" and "no frame record" not in p["message"]:
+            out.append({"target": p["target"], "kind": "library_door_without_frame", "severity": "major",
+                        "message": p["message"]})
     return out
 
 

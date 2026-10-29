@@ -164,6 +164,9 @@ VISION_CODE = ("wenart/vision_check/**", "wenart/views.py", "wenart/recognition/
 GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.py", "wenart/canonical.py",
              "wenart/building.py", "wenart/units.py",   # 27 Oct 2026: wenart.levels.outdoor (architect cover_space)
              "wenart/blender/door_spacing.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py",   # 27 Oct 2026: M12, the seat rule
+             # 29 Oct 2026 (UL116-UL127): the doors' states and the see-through wardrobes (camsearch, looks, openings);
+             # the dressing words of groups.yaml are read as data
+             "wenart/blender/door_states.py", "wenart/blender/wardrobe_fronts.py", "wenart/furniture/groups.yaml",
              "wenart/hfcache.py", "wenart/brief.py", "wenart/geometry.py", "wenart/style/**",
              "wenart/blender/cameras.py", "wenart/blender/camsearch.py", "wenart/blender/common.py",
              "wenart/blender/geom2d.py", "wenart/blender/lighting.py", "wenart/blender/materials.py",

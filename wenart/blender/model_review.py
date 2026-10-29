@@ -142,6 +142,14 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   covering (a gap under it) is critical; one reaching under the roof's underside into the rooms (no drawn fireplace
   under it), lower than the 3-2-10 rule of thumb (0.6 m over the roof within 3 m, 0.9 m over its exit) or standing in
   front of an outside window is major. Kind ``no_sense``; the build owns it.
+- M29 the doors and the walk-ins as a designer shows them (29 Oct 2026, lessons UL116 "not all the doors needs to be
+  closed in default", UL117 "Not every single one of them with the same dimension", UL120 / UL125 the see-through
+  walk-in "argus should have think of this", UL122 "Doors looks without frames they need frames";
+  ``door_states.state_problems`` and ``frame_problems``): every inside door closed in a house whose doors could open,
+  all doors one size (major) or the entrance no bigger than the inside doors (minor), an open leaf standing in a piece
+  (major, kind ``geometry``), a walk-in dressing room with closed fronts only (major, the architect's D8 answer that
+  fixes it in ``fix_choice``), a door without a frame and no recorded frameless reason (major) or an indoor face
+  without its architrave (minor). The build owns them; a walk-in's fronts the architect.
 - M27 every kitchen against its style family's kitchen details (29 Oct 2026, lessons UL115, kitchen part, and UL118;
   the user's reference photos: "look at all these details I want these details"; ``kitchen_details.review``): a
   worktop bare beyond U11 (fewer than two styling sets with room for them, minor), a wall cabinet with no LED strip
@@ -149,6 +157,13 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   (major), a family detail not built (a run planned before the rule, an island of a waterfall family without its
   ends, stools with no knee space: minor), a kitchen with no fridge (major). Kind ``taste``; the fit and the decor
   stage own it.
+- M25 the light switches and power sockets (29 Oct 2026, lesson UL112, user on real06 run 20261029-100801-full: "Also
+  includes some power sockets and light on offs"; ``wall_plates.review``), on the scene's plate records (the objects
+  of detail ``wall_plates``), else the plan's: a room with doors and no switch at any of them (major; a room's other
+  door without one minor, never in a hall), a plate on glass or inside an opening (critical), a plate behind a piece
+  standing against its wall (major), a bed in a bedroom with no socket beside it (major; one free side of a double
+  bed minor), a kitchen with no socket over its worktop (major). Kind ``taste`` (a plate where it makes no sense:
+  ``no_sense``); the build owns it.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -183,7 +198,9 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
 CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18",
-          "M19", "M20", "M21", "M22", "M23", "M24")   # 29 Oct 2026: M19 fixtures in use, M20 doors as products, M21 rooms for their use, M22 backs on walls, M23 the professional bar, M24 chimneys
+          "M19", "M20", "M21", "M22", "M23", "M24",   # 29 Oct 2026: M19 fixtures in use, M20 doors as products, M21 rooms for their use, M22 backs on walls, M23 the professional bar, M24 chimneys
+          "M25")                                      # 29 Oct 2026 (UL112): the light switches and power sockets
+CHECKS += ("M29",)          # 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125): the doors and walk-ins as designed
 CHECKS = CHECKS + ("M26",)       # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's set (bath_details.review)
 CHECKS = CHECKS + ("M28",)      # 29 Oct 2026: M28 a different solution for each room, the photos' details (UL119)
 CHECKS = CHECKS + ("M30",)      # 29 Oct 2026: M30 every bed in its family's bedding (UL121, bedding_parts.review)
@@ -448,6 +465,29 @@ def kitchen_details_review(built: dict, manifest: Optional[dict]) -> tuple[list[
 
 
 CHECKS = CHECKS + ("M27",)          # 29 Oct 2026: M27 the kitchen details of the family (UL115, UL118)
+FIX_PLATES = ("rerun_stage build (wall_plates.plan_level: a light switch on the latch side of every room door, "
+              "sockets beside the beds, at the desk and the TV, over the worktop, by the bathroom mirror)")
+PLATE_NO_SENSE = ("on_glass", "in_opening", "behind_piece", "off_wall")
+
+
+def wall_plates_review(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
+    """M25 (29 Oct 2026, lesson UL112): the light switches and power sockets against the building as built
+    (``wall_plates.review``): the scene's plate records when there is a scene (a scene built before the rule has none:
+    every room is without), else the plan's (``wall_plates.plan``, pure)."""
+    from wenart.blender import wall_plates as WP
+
+    if manifest and manifest.get("objects") is not None:
+        plates = WP.plates_of(manifest)
+    else:
+        plates = WP.plan(built, None)["plates"]
+    problems, n = WP.review(built, plates)
+    out = []
+    for p in problems:
+        nums = {k: v for k, v in p.items() if k not in ("problem", "severity", "message", "target", "room_id")}
+        out.append(dict(_v("M25", p["severity"], p["target"], p["message"], p.get("room_id"),
+                           kind="no_sense" if p["problem"] in PLATE_NO_SENSE else None, problem=p["problem"],
+                           lesson=WP.CHECK, **nums), owner="build", fix=FIX_PLATES))
+    return out, n
 
 
 def opening_language(manifest: Optional[dict]) -> tuple[list[dict], int]:
@@ -485,6 +525,39 @@ def door_products(manifest: Optional[dict]) -> tuple[list[dict], int]:
         out.append(_v("M20", p["severity"], p["target"], p["message"], None,
                       kind="lost" if p["kind"] == "library_door_not_built" else None, problem=p["kind"]))
     return out, len(rows)
+
+
+M29_KINDS = {"leaf_in_piece": "geometry", "no_frame": "taste", "no_architrave": "taste"}   # else reference_missed
+M29_FIX = {"all_closed": "the build's door_states (an inside door stands open by default)",
+           "one_size": "the build's door_states.apply_sizes (sizes by role and family)",
+           "leaf_in_piece": "move the piece out of the open leaf, or the build closes the door (door_states)",
+           "view_closed_doors": "the build opens a door a view sees into a room worth showing (door_states.revise_for_cameras)",
+           "dressing_closed_fronts": "the architect's D8 answer (wardrobe_fronts) and the build's see-through fronts",
+           "no_frame": "the build frames every door (opening_build._door_frame, parametric.door_frame_parts)",
+           "no_architrave": "the build's architrave on the door's indoor faces (parametric.architrave_boxes)"}
+
+
+def doors_as_designed(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
+    """M29 (29 Oct 2026; lessons UL116 "not all the doors needs to be closed in default", UL117 "Not every single one
+    of them with the same dimension", UL120 / UL125 the see-through walk-in, UL122 "Doors looks without frames they
+    need frames"; ``door_states.state_problems`` and ``frame_problems``): every inside door closed in a house whose
+    doors could open, all doors one size, an open leaf in a piece, a walk-in with closed fronts only, a door with no
+    frame and no recorded reason (the frames when there is a scene manifest)."""
+    from wenart.blender import door_states as DS
+
+    probs = DS.state_problems(built, manifest)
+    if manifest and manifest.get("objects"):
+        probs += DS.frame_problems(manifest)
+    out = []
+    for p in probs:
+        v = _v("M29", p["severity"], p["target"], p["message"], None, kind=M29_KINDS.get(p["kind"]), problem=p["kind"])
+        v["owner"] = "architect" if p["kind"] == "dressing_closed_fronts" else "build"
+        v["fix"] = M29_FIX.get(p["kind"], "the build's doors")
+        if p.get("fix_choice"):
+            v["metrics"]["fix_choice"] = p["fix_choice"]
+        out.append(v)
+    n = sum(1 for o in built.get("openings") or [] if o.get("type") == "door")
+    return out, n
 
 
 def rooms_make_sense(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
@@ -1242,12 +1315,24 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             note("M24", got, n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
         checks["M24"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M29 (29 Oct 2026, lessons UL116, UL117, UL120, UL122, UL125): the doors and the walk-ins as a designer shows them
+    try:
+        got, n = doors_as_designed(built, scene_manifest)
+        note("M29", got, n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M29"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M27 (29 Oct 2026, lessons UL115, UL118): every kitchen against its family's kitchen details
     try:
         got, n = kitchen_details_review(built, scene_manifest)
         note("M27", got, n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
         checks["M27"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M25 (29 Oct 2026, lesson UL112): the light switches and power sockets, as built (the scene's records) or planned
+    try:
+        got, n = wall_plates_review(built, scene_manifest)
+        note("M25", got, n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M25"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M12 (27 Oct 2026, user on real06: "doors next to each other not making sense"): doors side by side
     try:
         got, n = doors_side_by_side(built)

@@ -538,8 +538,17 @@ def _outer_glazing(building: dict) -> set:
     """Openings that look out of the house: windows, doors and gaps in an outer wall (``walls[].exterior``) of the
     building as built (26 Oct 2026)."""
     outer = {w["id"] for w in building.get("walls") or [] if w.get("exterior")}
-    return {o["id"] for o in building.get("openings") or []
-            if o.get("wall_id") in outer and o.get("type") in ("window", "door", "opening")}
+    out = {o["id"] for o in building.get("openings") or []
+           if o.get("wall_id") in outer and o.get("type") in ("window", "door", "opening")}
+    # 29 Oct 2026 (D1, UL116; wenart.blender.door_states): a view through an open inside door sees the next room and
+    # its windows (the site to the horizon) as through a doorway
+    return out | _open_doors(building)
+
+
+def _open_doors(building: dict) -> set:
+    """The doors whose leaf the build opened (``leaf_state.state`` open or ajar, 29 Oct 2026)."""
+    return {o["id"] for o in building.get("openings") or [] if o.get("type") == "door"
+            and (o.get("leaf_state") or {}).get("state") in ("open", "ajar")}
 
 
 def test_passes_exist_and_depth_is_plausible(project):
@@ -681,6 +690,12 @@ def test_closed_door_views_end_on_the_door(project):
     for cam in [c for c in entries if set((plans.get(c) or {}).get("visible_openings") or []) & glazed]:
         reasons.append(f"{cam} sees the glazed outside door(s) "
                        f"{sorted(set(plans[cam]['visible_openings']) & glazed)}: not a closed-door view")
+        entries.pop(cam)
+    # 29 Oct 2026 (D1, UL116): a door the build opened is a doorway, no closed-door view
+    opened = _open_doors(building or {})
+    for cam in [c for c in entries if set((plans.get(c) or {}).get("visible_openings") or []) & opened]:
+        reasons.append(f"{cam} sees the open door(s) {sorted(set(plans[cam]['visible_openings']) & opened)}: not a "
+                       "closed-door view")
         entries.pop(cam)
     if not entries:
         pytest.skip(f"{name}: none of {CLOSED_DOOR_VIEWS} rendered: {'; '.join(reasons)}")

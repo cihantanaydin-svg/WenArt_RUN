@@ -2298,6 +2298,62 @@ desk, a bag), r_L1_oda_2 `limewash` (warm greige limewash, the headboard panel, 
 R1, R31 (see-through wardrobes: the doors helper), the doors (D1-D5), sockets (UL112), G5's shaggy rug, slats
 flanking a window (R13's second half). Needs a pod render.
 
+## Doors open, sized by role, framed; see-through walk-ins (29 Oct 2026; built, CPU-tested, pod run waiting)
+
+The user (29 Oct 2026): "we need better doors, not all the doors needs to be closed in default", "Not every single one
+of them with the same dimension", "Doors looks without frames they need frames", "look at this dressing room solution
+see through", "this dressing could be a see through dressing room in the both sides argus should have think of this",
+"You can leave the right door open and show the dressing room", "Leaving all the doors open in default could be a good
+approach" (lessons UL116, UL117, UL120, UL122, UL125, UL126, UL127; docs/reference_details_20261029.md D1-D5, R1, R28,
+R31, R37). General rules, for a style with a family (a Milestone 3-9 style keeps its doors):
+
+| part | rule |
+|---|---|
+| doors open (`door_states`) | every interior door stands open, its leaf at 90 deg on its swing side by the wall beside it (or the drawn hinge, or the side a view needs); a leaf a piece, a wall or another leaf stops stands ajar at its widest free angle; the entrance, outside and terrace, garage, sectional, folding and fixed doors stay closed; the architect's D9 (`door_state`) or the brief (`doors_open: false`) closes a door; each choice in `leaf_state` and `assumed` |
+| the views | each level's cameras are planned before its doors are built: an open leaf that hides the doorway from a view turns to its other jamb (recorded with the camera); the camera model sees an open door as a doorway and its leaf as a thin box; no camera point stands in an open leaf |
+| sizes (D5) | the entrance taller (2.30 m; a 2.40 m pivot door in the modern families) and an entrance set wide where its wall allows; full-height doors between day rooms in the modern and minimal families; 2.10 m elsewhere; a drawn width that is no product size snaps to the nearest one (`adjusted_by_ai`, the drawn value kept); only a height the documents do not give changes |
+| frames (UL122) | every door framed: the parametric door's jambs, head, stops and architrave on its indoor faces; a library model is measured (`opening_build.leaf_panel`): a bare leaf is fitted into our frame, a model with its own frame keeps it and gets the architrave (never two frames); a sliding door's opening lined, the architrave on the face its leaf leaves free; open passages get a lined reveal; frameless only by the architect's D7 or the style's `door.frameless` (minimal, modern) |
+| finishes (D2, D3, R28) | black frames, architraves and levers in the modern, industrial and minimal families (black levers in the light families too), a lock rose under every lever, a veneer leaf with fine vertical grooves; a wide door between day rooms a glazed divided-lite door in the family's accent colour |
+| see-through wardrobes (R31, R37) | a walk-in (a dressing room, or runs facing each other across an aisle) is see-through on every side: black horizontal slat or smoked-glass sliding doors, or open runs (the family picks; the architect's D8 can change it); the master bedroom's widest run too where the style fits; real contents: garments on a rail (one mesh with the wardrobe), folded stacks, drawers or shoe racks, an LED strip; a bench and a full-height mirror where the walkway allows |
+| checks | model review M29 and Argus U33 (kind `reference_missed`): every inside door closed, all doors one size, an open leaf in a piece, a walk-in with closed fronts only (with the D8 answer as its fix), a view that shows only closed doors to a room worth showing, a door with no frame and no frameless reason; M20 also names a library door built without its frame |
+
+real06 (CPU, its building as built in run 20261029-100801-full): 8 doors open (the kitchen's storage door, both
+bathroom doors, the shower room's, the three bedroom doors, the bedroom's door to the dressing room win_L1_003), 4
+closed (the entrance d_L0_004, the glazed sliding door d_L0_006, the French windows d_L1_007 and d_L1_011); sizes: the
+entrance 0.80 x 2.30 m (its wall leaves no room to widen it), d_L0_005 0.95 -> 0.90 m and win_L1_003 0.77 -> 0.75 m
+(product widths), the others as drawn (0.75-0.90 x 2.10 m); see-through: both dressing-room runs f_L1_011 and f_L1_012
+(slats; the master bedroom has no wardrobe of its own); no bench or mirror (the aisle keeps its walkway, and no free wall stretch of 0.64 m is left
+for a mirror). U33 on the run as it was built names it all: every inside door closed, the dressing room's closed fronts, no
+frames, a view of closed doors only. Needs a pod render: the posed library leaves (HSSD 206-0 is measured on the pod),
+the frames, the garments.
+
+## Light switches and power sockets (29 Oct 2026; built, pod run waiting)
+
+The user on real06 run 20261029-100801-full: "Also includes some power sockets and light on offs" (lesson UL112). No
+room of any render had a switch or a socket. General rule (`wenart/blender/wall_plates.py`, CPU-tested, not rendered
+yet); every plate is `inferred` with its reason (the build's `assumed` rows, the plates' manifest record):
+
+| part | rule |
+|---|---|
+| light switch | beside each door into the room (an outside door too; never a terrace door: glazed, sliding, a French window with a guard or wider than 1.2 m; a doorless opening or an open side, a separator line, only when the room has no door; both sides blocked: the nearest free wall within 0.6 m of the frame), on the latch side: away from the drawn hinge (`hinge` points or `hinge_side` from its `swing_side` room), else the side with more free wall; its centre 0.12 m from the frame (0.10-0.15), 1.05 m over the floor (a common European height, `HEIGHTS`); a room with two doors gets one at each; a hall's doors share one within 2 m; never on the hinge side under a leaf that opens over it |
+| sockets | 0.30 m over the floor: beside each bed's nightstand (both sides of a double bed; over a dresser that stands in for one; over the nightstand when beside it is blocked), at each desk under its top, a pair beside the TV unit, one per free wall stretch of at least 1 m in living rooms (3 at most) and bedrooms (2 at most), 1.5 m from the room's other sockets; a row of pairs on the kitchen splashback 0.18 m over the worktop (about 1.08 m), about 1.2 m apart, 0.30 m clear of the hob and the sink (a module run's built-ins), never over a tall unit or a window; one beside the bathroom mirror (else the basin) at 1.20 m, 0.60 m outside the bath and shower zone; one in each hall |
+| where it may sit | on a wall face of the room (its polygon edges on walls, a jog of a few cm included), clear of the corners, never inside an opening (no plate on glass), never behind a piece standing against that wall whose height reaches the plate (a module run per module: its worktop, units and hood at their own heights), never under a picture, mirror or curtain; on the splashback or a feature panel it stands off by the finish's depth |
+| the look | an 82 mm square plate 9 mm proud of the wall with a chamfered front, a switch's tilted rocker, a socket's round well with two pin holes, a 153 mm double frame for a pair; the finish by style family (`FAMILY_FINISH`): white satin for most, brushed steel for industrial, matte black for modern minimal; the pin holes in a dark insert |
+| build cost | a pure plan from the building JSON (no ray casts; 0.2-0.6 s for the whole of real06 or real04 on CPU), all plates of a level ONE mesh object `wall_plates_<level>` (kind `wall_plate`) from vertex / face lists in one `from_pydata`: no operator, modifier or boolean per plate (real06: 961 faces in all, real04: 2720) |
+| checks | model review M25 (a room with doors and no switch, a plate on glass or inside an opening, a plate behind a tall piece, a bed with no socket beside it, a kitchen with no socket over its worktop); Argus U29 (the same rule on the scene's plates) |
+
+On real06 run 20261029-100801-full's building (CPU, the build's plan): 34 plates, 15 light switches and 19 socket plates
+(21 outlets): every room with a door has its switch (the salon's beside the entrance at (4.60, 1.52) m, 1.05 m; the
+kitchen's on its door's latch side at (7.00, 10.54) m, shared with the bathroom door 0.9 m away), the master bedroom's
+bed a socket beside each nightstand ((4.60, 2.66) and, on the bed-head panel, (4.63, 5.23) m, 0.30 m), the kitchen two
+socket pairs on the splashback of its sink run at 1.08 m (clear of the built-in sink and the windows; the hob run's wall
+is all window and hob), the shower room's beside its mirror at 1.20 m. The upper hall's bathroom door, with the stair
+beside it on both sides, gets its switch on the wall at the stair foot. Left without (listed in `skipped`): the free
+standing TV unit (a floor box) and the second child's bed drawn across the French window (M25 reports it). real04 run
+20261028-183611-full: 88 plates in 0.4 s; its basement living rooms (no door, open to their corridor by a separator
+line) get the switch at the open side's end, the stair wells are lit from their corridors; M25 finds nothing. Needs a
+pod render: the plates' look and their size in the views.
+
 ## A full, realistic bed (29 Oct 2026; built, pod run waiting)
 
 The user's photo P11 of a full, soft bed ("look how realistic the bed is looking full and nice I want this much detail

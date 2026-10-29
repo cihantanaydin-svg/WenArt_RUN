@@ -55,9 +55,13 @@ How:
   (``furniture.schemas.HEIGHTS``), which the builder would read as the
   bowl (pod F2, synthetic-03: a 0.8 m phantom bowl beside two cameras
   whose renders show no toilet).
-  Door leaves need no part of their own: the scene builder builds every
-  leaf closed inside its frame (``shell.build_openings``, checked by
-  tests/test_blender_build.py), which the door rectangle on the wall is.
+  A closed door leaf needs no part of its own: it stands inside its frame
+  (``shell.build_openings``, checked by tests/test_blender_build.py), which
+  the door rectangle on the wall is. 29 Oct 2026 (D1, UL116): a door whose
+  ``leaf_state`` is open (``door_states``) is a doorway element (kind
+  ``doorway``: an opening of the score, no leaf), and its open or ajar leaf
+  in the room it opens into is a thin box labelled a door leaf
+  (``open_leaf_polys``, ``leaf_box``).
   Pure numpy, no Blender, no shapely: build.py runs it inside Blender's
   Python.
 - Rays: a 64 x 36 grid over the 1920 x 1080 frame of the room's lens on a
@@ -978,6 +982,40 @@ def _cast_convex_parts(origin, d: np.ndarray, lo, hi, parts, depth: np.ndarray) 
     return t_out, hit_out
 
 
+# 29 Oct 2026 (D1, lesson UL116; ``door_states``): doors stand open by default. An open door's rectangle on the wall
+# is a doorway (a view into the next room), and its open leaf stands in the room it opens into: a thin box the rays
+# meet (labelled a door leaf: the door share, the bare centre and the edge penalty count it as before).
+def open_leaf(o: dict) -> bool:
+    """A door whose leaf is open (``leaf_state.state`` open): its opening is a doorway."""
+    ls = o.get("leaf_state") if isinstance(o.get("leaf_state"), dict) else {}
+    return o.get("type") == "door" and ls.get("state") == "open"
+
+
+def open_leaf_polys(o: dict, room_id) -> list:
+    """The plan outlines of a door's open or ajar leaves standing in ``room_id`` (the room it opens into)."""
+    ls = o.get("leaf_state") if isinstance(o.get("leaf_state"), dict) else {}
+    if o.get("type") != "door" or ls.get("state") not in ("open", "ajar") or ls.get("into") != room_id:
+        return []
+    return [[tuple(float(v) for v in p[:2]) for p in poly] for poly in ls.get("leaf_polys") or []
+            if isinstance(poly, (list, tuple)) and len(poly) == 4]
+
+
+def leaf_box(poly, floor_z: float, o: dict, level: dict, levels_above: bool) -> Optional[tuple]:
+    """``(cx, cy, cz, half w, half d, half h, cos, sin)`` of an open leaf's ray box (``RoomModel.boxes``): its plan
+    outline (corners 0 -> 1 along the leaf, 1 -> 2 across it) standing from the floor to its door's head."""
+    (x0, y0), (x1, y1), (x2, y2) = poly[0], poly[1], poly[2]
+    length = math.hypot(x1 - x0, y1 - y0)
+    thick = math.hypot(x2 - x1, y2 - y1)
+    if length < 1e-6:
+        return None
+    c, s = (x1 - x0) / length, (y1 - y0) / length
+    cx = sum(p[0] for p in poly) / 4.0
+    cy = sum(p[1] for p in poly) / 4.0
+    bottom, top, _a = opening_vertical(o, level, levels_above)
+    h = max(0.5, top - bottom - 0.05)
+    return (cx, cy, bottom + h / 2.0, length / 2.0, max(thick, 0.02) / 2.0, h / 2.0, c, s)
+
+
 class RoomModel:
     """Ray-cast model of one room (see the module docstring).
 
@@ -1008,7 +1046,16 @@ class RoomModel:
         for o in self.openings:
             if o["type"] in ("door", "window"):
                 codes[o["id"]] = FIRST_ELEMENT + len(self.elements)
-                self.elements.append({"id": o["id"], "kind": o["type"], "type": o["type"], "weight": 0.0})
+                # 29 Oct 2026 (D1, UL116; door_states): an open door is a doorway (a view into the next room, an
+                # opening of the score), not a leaf
+                kind = "doorway" if o["type"] == "door" and open_leaf(o) else o["type"]
+                self.elements.append({"id": o["id"], "kind": kind, "type": o["type"], "weight": 0.0})
+        # ... and its open leaf standing in this room is a leaf (a thin box, ``leaf_boxes``)
+        self.leaves = []
+        for o in self.openings:
+            for poly in open_leaf_polys(o, room.get("id")):
+                self.leaves.append((FIRST_ELEMENT + len(self.elements), o, poly))
+                self.elements.append({"id": f"{o['id']}#leaf", "kind": "door", "type": "door", "weight": 0.0})
         for f in self.pieces:
             self.elements.append({"id": f["id"], "kind": "furniture", "type": f.get("type"),
                                   "weight": type_weight(f.get("type"))})
@@ -1019,7 +1066,7 @@ class RoomModel:
         idx = np.arange(FIRST_ELEMENT, self.n_labels)
         kinds = [e["kind"] for e in self.elements]
         self.piece_codes = idx[[k == "furniture" for k in kinds]] if kinds else idx
-        self.opening_codes = idx[[k in ("door", "window") for k in kinds]] if kinds else idx
+        self.opening_codes = idx[[k in ("door", "window", "doorway") for k in kinds]] if kinds else idx
         self.window_codes = idx[[k == "window" for k in kinds]] if kinds else idx
         self.door_codes = idx[[k == "door" for k in kinds]] if kinds else idx
         self.piece_weights = np.array([e["weight"] for e in self.elements if e["kind"] == "furniture"])
@@ -1116,6 +1163,11 @@ class RoomModel:
                 lx, ly = (x0 + x1) / 2.0, (y0 + y1) / 2.0       # box centre in the piece frame -> world
                 self.boxes.append((code, fx + c * lx - s * ly, fy + s * lx + c * ly, base + top / 2.0,
                                    (x1 - x0) / 2.0, (y1 - y0) / 2.0, top / 2.0, c, s))
+        # 29 Oct 2026 (D1, UL116): an open leaf standing in the room, a thin box as high as its door
+        for code, o, poly in self.leaves:
+            box = leaf_box(poly, self.floor_z, o, self.level, levels_above)
+            if box is not None:
+                self.boxes.append((code,) + box)
         # fix round after the real06 run: the anchors and the set among the pieces the model holds (a stair's drawn
         # upper end on the top level is nothing in the model, so it is nothing a view can show); the pieces no camera
         # point of the room frames whole (``set_big``: none until it is called)

@@ -122,6 +122,15 @@ ACTIONS = {
                    "one) for its mirror, at most 0.5 m (params: max_move_m; farther only with your OK)",
     "basin_sill": "a bathroom window over the basin: its sill raised to 1.25 m (the head kept), clear of the tap; the "
                   "mirror hangs beside the basin",
+    # 29 Oct 2026 (user: "Doors looks without frames they need frames"; UL122): D7
+    "door_frames": "the door's frame (params: frame): framed (a jamb lining, a head and an architrave on its indoor "
+                   "faces) or a concealed frameless flush door (minimal and modern styles)",
+    # 29 Oct 2026 (user: "Leaving all the doors open in default could be a good approach"; UL127): D9
+    "door_state": "the door's leaf (params: state): open (turned open on its swing side, ajar where a piece or a wall "
+                  "stops it), ajar or closed",
+    # 29 Oct 2026 (user: "this dressing could be a see through dressing room in the both sides"; UL125): D8
+    "wardrobe_fronts": "the fronts of a walk-in dressing room's wardrobes (params: kind): slatted or smoked-glass "
+                       "sliding doors, open runs (all with real contents and a light inside), or closed fronts",
 }
 # The rules whose answers are carried out first (a door that becomes a window is not widened as a door)
 FIRST_RULES = ("E1", "O2", "D4")
@@ -2057,6 +2066,57 @@ def centre_of(plan: Plan, element: str):
     return None
 
 
+def act_door_frames(plan: Plan, key: str, ans: dict, door_id: str, frame: str):
+    """D7 (29 Oct 2026, UL122): the door's frame decision (``frame_decision``: ``frameless`` or not, who decided, the
+    answer key, the reason); ``looks.frameless_reason`` builds a concealed door on a flush leaf only, and the
+    architect's own default never takes a frame away."""
+    o = plan.openings.get(door_id)
+    if o is None or o.get("type") != "door":
+        return False, f"no door {door_id}"
+    if frame not in ("framed", "frameless"):
+        return False, f"{door_id}: unknown frame {frame!r}"
+    reason = (f"{door_id}: a concealed frameless flush door" if frame == "frameless" else
+              f"{door_id}: framed (a jamb lining, a head and an architrave on its indoor faces)")
+    o["frame_decision"] = {"frameless": frame == "frameless", "by": ans.get("by", "user"), "key": key,
+                           "answer": ans.get("answer"), "reason": reason}
+    return True, reason
+
+
+def act_door_state(plan: Plan, key: str, ans: dict, door_id: str, state: str):
+    """D9 (29 Oct 2026, UL127): the door's leaf state. The architect's own default (open) only records the decision
+    (``state_decision``: the build's rule opens it, ajar where its leaf is stopped); an answer of the AI or the user
+    fixes it (``open_state``, which ``door_states`` takes as the documents', still checked against the pieces)."""
+    from wenart.blender import door_states as DS
+
+    o = plan.openings.get(door_id)
+    if o is None or o.get("type") != "door":
+        return False, f"no door {door_id}"
+    if state not in DS.STATES:
+        return False, f"{door_id}: unknown door state {state!r}"
+    by = ans.get("by", "user")
+    reason = f"{door_id}: {state}" + (" (the default: every interior door open, UL127)" if by == "architect" else "")
+    o["state_decision"] = {"state": state, "by": by, "key": key, "answer": ans.get("answer"), "reason": reason}
+    if by != "architect" or state != "open":
+        o["open_state"] = state
+    return True, reason
+
+
+def act_wardrobe_fronts(plan: Plan, key: str, ans: dict, room_id: str, kind: str):
+    """D8 (29 Oct 2026, UL120, UL125): the fronts of a walk-in dressing room's wardrobes (``room["wardrobe_fronts"]``:
+    ``kind``, who decided, the answer key; ``wardrobe_fronts.walk_in_front`` reads it)."""
+    from wenart.blender import wardrobe_fronts as WF
+
+    room = plan.room.get(room_id)
+    if room is None:
+        return False, f"no room {room_id}"
+    if kind not in WF.CHOICES:
+        return False, f"{room_id}: unknown wardrobe front {kind!r}"
+    reason = f"{room_id}: {WF.FRONT_WHAT[kind]}"
+    room["wardrobe_fronts"] = {"kind": kind, "by": ans.get("by", "user"), "key": key, "answer": ans.get("answer"),
+                               "reason": reason}
+    return True, reason
+
+
 def resolve(plan: Plan, element: str, where: Optional[dict]) -> Optional[str]:
     """The element an answer names: its id, when it is still where the answer saw it (``where``, within
     ``WHERE_TOL_M``); else (ids change between readings of the plan) the room or opening of the same level at or
@@ -2183,6 +2243,15 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                                                params.get("max_move_m"))
                 elif opt == "basin_sill":
                     ok, text = act_basin_sill(plan, key, ans, params.get("window_id") or target)
+                elif opt == "door_frames":
+                    ok, text = act_door_frames(plan, key, ans, params.get("door_id") or target,
+                                               str(params.get("frame") or "framed"))
+                elif opt == "door_state":
+                    ok, text = act_door_state(plan, key, ans, params.get("door_id") or target,
+                                              str(params.get("state") or "open"))
+                elif opt == "wardrobe_fronts":
+                    ok, text = act_wardrobe_fronts(plan, key, ans, params.get("room_id") or target,
+                                                   str(params.get("kind") or ""))
                 else:
                     ok, text = False, f"unknown option {opt!r}"
             except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
