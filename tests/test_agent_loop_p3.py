@@ -449,10 +449,11 @@ def test_the_scheduler_gives_the_agent_model_the_served_keys_context():
 
     def fake(key):
         return types.SimpleNamespace(agent_model_factory=None, models=models,
-                                     opts=types.SimpleNamespace(agent_key=key))
+                                     opts=types.SimpleNamespace(agent_key=key), seqs=lambda _key: 8)
 
     m = Orchestrator.make_agent_model(fake("agent"), "http://127.0.0.1:8001/v1", None)
     assert m.model == "Qwen/Qwen3.8-27B-FP8" and m.max_model_len == 16384
+    assert m.parallel == 8                     # 29 Oct 2026: the client sends up to the server's sequences
     assert m.max_tokens == MM.DEFAULT_MAX_TOKENS == 4096              # part 2: thinking off too (part 1: 1536)
     b = Orchestrator.make_agent_model(fake("bakeoff.fp8"), "http://127.0.0.1:8001/v1", None)
     assert b.model == "org/model-fp8" and b.revision == "r2" and b.max_model_len == 32768

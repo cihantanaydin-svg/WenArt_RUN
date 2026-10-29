@@ -34,8 +34,10 @@ models:
     revision: 017b9c7af6b5689d5dd426a76e0bc077eb5ca20a
     licence: Apache-2.0
     slug: qwen3.8-27b-fp8
-    max_seqs: 4
-    server_flags: '--enable-auto-tool-choice --tool-call-parser qwen3_coder --reasoning-parser qwen3 --max-model-len 32768 --max-num-seqs 4'
+    # 29 Oct 2026 (user: "make the pod use the GPU fully"): 8 sequences, as the M12 bake-off served it in the same
+    # 0.55 memory share (measured on P1); the client sends independent calls up to them (model.map_calls)
+    max_seqs: 8
+    server_flags: '--enable-auto-tool-choice --tool-call-parser qwen3_coder --reasoning-parser qwen3 --max-model-len 32768 --max-num-seqs 8'
     gpu_memory_utilization: 0.55
     limit_mm: 4
     prequantized: fp8

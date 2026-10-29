@@ -211,6 +211,19 @@ copy_job_logs() {
     fi
   done
   cp -f "$LOG" "$RESULTS/" 2>/dev/null || true
+  cp -f "$GPU_USE_LOG" "$dest/" 2>/dev/null || true     # 29 Oct 2026: the GPU's use (whole file)
+}
+
+# 29 Oct 2026 (user: "GPU usage enough to justify? ... make the pod use the GPU fully"): the GPU's use and memory every
+# 10 s for the whole job ($RESULTS/logs/gpu_use_<job>.csv); `python -m wenart.report.podtime` reads it.
+GPU_USE_LOG="$LOGS/gpu_use_$JOB.csv"
+GPU_USE_PID=""
+start_gpu_use() {
+  command -v nvidia-smi >/dev/null 2>&1 || return 0
+  mkdir -p "$LOGS" 2>/dev/null || return 0
+  nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits -l 10 \
+    >> "$GPU_USE_LOG" 2>/dev/null &
+  GPU_USE_PID=$!
 }
 
 # cpu_budget: the CPUs this pod may use: its cgroup CPU quota (v2 cpu.max '<quota> <period>' or
@@ -348,6 +361,7 @@ on_exit() {
   trap - ERR
   set +e
   kill_vllm
+  if [ -n "$GPU_USE_PID" ]; then kill "$GPU_USE_PID" 2>/dev/null || true; fi
   if [ -n "$COPY_PID" ]; then
     kill "$COPY_PID" 2>/dev/null || true
     wait "$COPY_PID" 2>/dev/null || true
@@ -361,6 +375,7 @@ trap 'on_exit' EXIT
 trap 'exit 143' TERM
 
 stamp "$START_STAMP" || log "warning: no start stamp $START_STAMP: earlier jobs' logs may be copied"
+start_gpu_use
 rm -f "$COPY_STAMP" "$COPY_STAMP.next"      # the job's first results copy is a full one
 cd "$REPO"
 mkdir -p "$RESULTS" "$ASSETS" "$WENART_OUTPUTS" "$JOB_DIR"

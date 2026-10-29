@@ -341,8 +341,12 @@ class AgentModel:
                  sleep: Callable[[float], None] = time.sleep, on_call: Optional[Callable[[dict], None]] = None,
                  critic_thinking: bool = False, extra_template: Optional[dict] = None,
                  thinking_max_tokens: int = 0, max_model_len: int = DEFAULT_MAX_MODEL_LEN,
-                 repetition_detection: Optional[dict] = VC.REPETITION_DETECTION):
+                 repetition_detection: Optional[dict] = VC.REPETITION_DETECTION, parallel: int = 1):
         self.base_url = base_url.rstrip("/")
+        # 29 Oct 2026 (user: "make the pod use the GPU fully"): the calls the server takes at once
+        # (``--max-num-seqs``); ``map_calls`` sends independent calls up to it
+        self.parallel = max(1, int(parallel or 1))
+        self._log_lock = threading.Lock()
         self.model = model
         self.revision = revision
         self.timeout_s = float(timeout_s)
@@ -400,9 +404,10 @@ class AgentModel:
 
     def _log(self, entry: dict) -> None:
         entry = dict(entry, model=self.model, revision=self.revision)
-        self.calls.append(entry)
-        if self.on_call is not None:
-            self.on_call(entry)
+        with self._log_lock:                       # calls may run in parallel (``map_calls``)
+            self.calls.append(entry)
+            if self.on_call is not None:
+                self.on_call(entry)
 
     @staticmethod
     def _check_images(messages: list) -> int:
@@ -500,6 +505,37 @@ class AgentModel:
                    "max_tokens": limit, "finish_reason": finish})
         return CriticReply(call_id=call_id, data=data, errors=errors, raw=raw, usage=usage,
                            seconds=round(seconds_total, 3), attempts=attempts_total)
+
+
+def parallel_of(model) -> int:
+    """How many calls ``model``'s server takes at once (``AgentModel.parallel``; 1 for a model without it)."""
+    try:
+        return max(1, int(getattr(model, "parallel", 1) or 1))
+    except (TypeError, ValueError):
+        return 1
+
+
+def map_calls(model, fn: Callable, jobs: Sequence) -> list:
+    """``[(result, error)]`` of ``fn(job)`` for every job, in the jobs' order (29 Oct 2026, user: "GPU usage enough
+    to justify? ... make the pod use the GPU fully": the judge, the room critic and the reviews asked one view at a
+    time kept a 96 GB GPU waiting on one request): up to ``parallel_of(model)`` calls at once, each call's exception
+    caught as its ``error`` (the caller keeps its own error handling); one at a time for a model of ``parallel`` 1
+    (the tests' scripted model answers in the order it is asked)."""
+    jobs = list(jobs)
+
+    def one(job):
+        try:
+            return fn(job), None
+        except Exception as exc:  # noqa: BLE001 - handed back to the caller in the job's place
+            return None, exc
+
+    n = min(parallel_of(model), len(jobs))
+    if n <= 1:
+        return [one(j) for j in jobs]
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=n) as ex:
+        return list(ex.map(one, jobs))
 
 
 class MockModel(AgentModel):

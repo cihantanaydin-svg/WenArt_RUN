@@ -36,8 +36,10 @@ def test_the_agent_models_equal_the_section_11_table():
     for key, repo in (("agent", "Qwen/Qwen3.8-27B-FP8"), ("agent_fast", "Qwen/Qwen3.6-35B-A3B-FP8")):
         m = models[key]
         assert m["id"] == repo and (m["revision"], m["licence"]) == table[repo], key
-        assert m["server_flags"].startswith(FLAGS) and "--max-model-len 32768 --max-num-seqs 4" in m["server_flags"]
-        assert (m["gpu_memory_utilization"], m["limit_mm"], m["prequantized"], m["max_seqs"]) == (0.55, 4, "fp8", 4)
+        # 29 Oct 2026 (user: "make the pod use the GPU fully"): the agent takes 8 sequences (the M12 bake-off's)
+        seqs = 8 if key == "agent" else 4
+        assert m["server_flags"].startswith(FLAGS) and f"--max-model-len 32768 --max-num-seqs {seqs}" in m["server_flags"]
+        assert (m["gpu_memory_utilization"], m["limit_mm"], m["prequantized"], m["max_seqs"]) == (0.55, 4, "fp8", seqs)
     assert models["agent"]["size_gb"] == 31
     assert models["agent"]["revision"] == "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
     assert models["agent_fast"]["revision"] == "95a723d08a9490559dae23d0cff1d9466213d989"
@@ -50,7 +52,7 @@ def test_the_agent_serve_command_matches_section_11():
                    "--served-model-name", "Qwen/Qwen3.8-27B-FP8", "--port", "8001", "--limit-mm-per-prompt",
                    '{"image":4}', "--gpu-memory-utilization", "0.55", "--enable-auto-tool-choice",
                    "--tool-call-parser", "qwen3_coder", "--reasoning-parser", "qwen3", "--max-model-len", "32768",
-                   "--max-num-seqs", "4"]
+                   "--max-num-seqs", "8"]
     small = SV.VLMServer("agent", seqs=2, mem_mib=24000, vllm="VLLM", sleep_mode=True).command()
     assert "--quantization" not in small and small[-1] == "--enable-sleep-mode"
     # pre-quantized checkpoints never get --quantization fp8, even in the small size tier

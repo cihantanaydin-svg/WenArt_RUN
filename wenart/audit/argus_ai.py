@@ -60,7 +60,7 @@ TRIAGE_BATCH = 16              # findings per triage call (every finding is tria
 # comes back empty is asked once more (the client's second try).
 THINKING = False
 MAX_TOKENS = 4096              # per call: the JSON of one batch (about 120 tokens a finding)
-WORKERS = 4                    # calls at once (the agent server's --max-num-seqs 4)
+WORKERS = 8                    # calls at once (the agent server's --max-num-seqs 8; 29 Oct 2026: was 4)
 BUDGET_S = 900                 # one investigation at most (the documents line, the triage, the discovery)
 CYCLE_BUDGET_S = 420           # an investigation before a big-loop cycle (no documents line)
 DISCOVER_MAX = 15              # new findings per floor per call

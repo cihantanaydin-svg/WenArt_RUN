@@ -313,7 +313,7 @@ from wenart.agent import prompts as P
 from wenart.agent import tools as TL
 from wenart.agent.causes import accept_edit, cause_of, findings_removed, tools_for_finding  # noqa: F401 (§13.2)
 from wenart.agent.model import (DEFAULT_MAX_TOKENS, MAX_IMAGES, ContextFullError, ModelError, count_images,
-                                 user_message)
+                                 map_calls, user_message)
 
 STAGE_ORDER = ("pipeline_final", "layout", "refit", "build", "polish")
 # Milestone 13: 3 rounds (module docstring): real04 removed 20 findings in 6 rounds and 84.5 % of the round-1
@@ -1851,24 +1851,30 @@ class AgentLoop:
         building = self.rendered_building(ctx)
         kept, dropped, checks = [], [], []
         n = 0
+        jobs = []
         for kind, key in self.critique_keys(ctx, building):
             cache_key = f"{kind}:{key}"
             if self.stale_keys is not None and cache_key not in self.stale_keys and cache_key in self.vision_cache:
                 kept += self.vision_cache[cache_key]
                 continue
             n += 1
-            call_id = f"r{round_no}-v{n}"
-            try:
-                if kind == "room":
-                    views = [c["name"] for c in ctx.cameras() if c.get("room_id") == key]
-                    previews = [(v, ctx.preview_path(v)) for v in views if ctx.preview_path(v) is not None]
-                    res = CV.critique_room(self.model, building, key, previews=previews, topdown=None,
-                                           plan_crop=ctx.plan_crop_path(key), code=code, call_id=call_id, looks=True)
-                else:
-                    res = CV.critique_exterior(self.model, building, key, preview=ctx.preview_path(key),
-                                               plan_crop=None, code=code, call_id=call_id, camera=ctx.camera(key),
-                                               scene=ctx.scene)
-            except ModelError as exc:
+            jobs.append((kind, key, cache_key, f"r{round_no}-v{n}"))
+
+        def ask(job):
+            kind, key, _cache_key, call_id = job
+            if kind == "room":
+                views = [c["name"] for c in ctx.cameras() if c.get("room_id") == key]
+                previews = [(v, ctx.preview_path(v)) for v in views if ctx.preview_path(v) is not None]
+                return CV.critique_room(self.model, building, key, previews=previews, topdown=None,
+                                        plan_crop=ctx.plan_crop_path(key), code=code, call_id=call_id, looks=True)
+            return CV.critique_exterior(self.model, building, key, preview=ctx.preview_path(key), plan_crop=None,
+                                        code=code, call_id=call_id, camera=ctx.camera(key), scene=ctx.scene)
+
+        # 29 Oct 2026 (user: "make the pod use the GPU fully"): the rooms and views go to the critic at once
+        for (kind, key, cache_key, call_id), (res, exc) in zip(jobs, map_calls(self.model, ask, jobs)):
+            if exc is not None:
+                if not isinstance(exc, ModelError):
+                    raise exc
                 checks.append({"source": "vision", "target": key, "status": "error", "note": str(exc),
                                "call_id": call_id})
                 continue
@@ -1886,15 +1892,18 @@ class AgentLoop:
         # 26 Oct 2026 (user: "reviewing the 3d model itself could be better"): on the final renders the critic also
         # looks at the model's floors from above (renders/top_<level>_plan.jpg, made before the final round)
         if self.stale_keys is None and ctx.preview_dir == TL.FINAL_RENDER_DIR:
+            views = []
             for lv in building.get("levels") or []:
                 img = self.project_out / TL.FINAL_RENDER_DIR / f"top_{lv.get('id')}_plan.jpg"
-                if not img.is_file():
-                    continue
-                n += 1
-                call_id = f"r{round_no}-m{n}"
-                try:
-                    res = CV.critique_model_view(self.model, building, lv["id"], image=img, code=code, call_id=call_id)
-                except ModelError as exc:
+                if img.is_file():
+                    n += 1
+                    views.append((lv, img, f"r{round_no}-m{n}"))
+            got = map_calls(self.model, lambda v: CV.critique_model_view(self.model, building, v[0]["id"], image=v[1],
+                                                                         code=code, call_id=v[2]), views)
+            for (lv, img, call_id), (res, exc) in zip(views, got):
+                if exc is not None:
+                    if not isinstance(exc, ModelError):
+                        raise exc
                     checks.append({"source": "vision", "target": lv["id"], "status": "error", "note": str(exc),
                                    "call_id": call_id})
                     continue
@@ -2552,17 +2561,20 @@ class AgentLoop:
         st = building.get("style")
         style = str((st.get("family") or st.get("name") or "") if isinstance(st, dict) else (st or ""))
         errors = []
+        jobs = []
         for cam in ctx.cameras():
             name = cam.get("name")
             if only is not None and name not in only and name in cache:
                 continue
             image = self.project_out / TL.FINAL_RENDER_DIR / f"{name}_preview.jpg"
-            if not image.is_file():
-                continue
-            try:
-                got = JD.judge_view(self.model, building, cam, image, style=style, call_id=f"judge_{name}",
-                                    reference=JD.reference_for(building, cam))     # 27 Oct 2026 (UL42)
-            except Exception as exc:  # noqa: BLE001 - a view the judge cannot read keeps its last rows
+            if image.is_file():
+                jobs.append((name, cam, image))
+        # 29 Oct 2026 (user: "make the pod use the GPU fully"): the views go to the judge at once (map_calls)
+        answers = map_calls(self.model, lambda j: JD.judge_view(
+            self.model, building, j[1], j[2], style=style, call_id=f"judge_{j[0]}",
+            reference=JD.reference_for(building, j[1])), jobs)                     # 27 Oct 2026 (UL42)
+        for (name, _cam, _image), (got, exc) in zip(jobs, answers):
+            if exc is not None:               # a view the judge cannot read keeps its last rows
                 errors.append(f"{name}: {type(exc).__name__}: {exc}")
                 continue
             if got.get("row") is None:

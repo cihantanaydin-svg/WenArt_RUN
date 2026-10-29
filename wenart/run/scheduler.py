@@ -2121,8 +2121,10 @@ class Orchestrator:
             return self.agent_model_factory(url, pr)
         from wenart.agent.model import AgentModel, max_model_len_of
         m = SV.model_entry(self.models, self.opts.agent_key) or {}
+        # 29 Oct 2026 (user: "make the pod use the GPU fully"): the client sends independent calls up to the
+        # server's sequences (model.map_calls)
         return AgentModel(url, str(m.get("id") or self.opts.agent_key), str(m.get("revision") or ""),
-                          max_model_len=max_model_len_of(m))
+                          max_model_len=max_model_len_of(m), parallel=self.seqs(self.opts.agent_key))
 
     def final_estimate(self, pr: ProjectRun) -> float:
         """Seconds the final stages of ``pr`` need: the loop stops when they would not fit before the deadline - 20
