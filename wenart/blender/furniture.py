@@ -616,6 +616,10 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "screen": ("screen_black", None, None),
         # 29 Oct 2026 (UL106): the sheer layer of a layered curtain (materials.sheer_material: see-through voile)
         "sheer": (SHEER_SLUG, None, None),
+        # 29 Oct 2026 (UL113, UL115): an LED strip (its own emission: ``_Materials.get`` -> detail_parts.
+        # led_strip_material; the white ceramic is the slug its records name) and dried pampas plumes (a cream linen)
+        "led": ("ceramic_white", None, None),
+        "pampas": ("fabric_linen", asset_of("fabric_linen"), None),
     }
     return keys, assumed
 
@@ -800,6 +804,8 @@ def wall_art_placement(item: dict, art_box, host_top: float | None, ceiling: flo
     w, dp, h = (float(v) for v in art_box[:3])
     gap = float(item.get("gap_m", 0.25))
     bottom = host_top + gap if host_top is not None else float(item.get("bottom_m") or 0.0)
+    if isinstance(item.get("min_bottom_m"), (int, float)):
+        bottom = max(bottom, float(item["min_bottom_m"]))     # 29 Oct 2026 (R32): over a headboard panel
     limit = float(ceiling) - WALL_ART_CEILING_M
     scale = 1.0
     if bottom + h > limit:
@@ -1063,6 +1069,11 @@ class _Materials:
         if key == "screen":                       # 29 Oct 2026 (UL93): a screen with a faint lit wallpaper
             from wenart.blender import materials as M
             return M.screen_material()
+        if key == "led":                          # 29 Oct 2026 (UL113, UL115): an LED strip's low warm glow
+            from wenart.blender import detail_parts as DP
+            return DP.led_strip_material()
+        if key == "pampas":                       # ... and dried pampas plumes: the linen weave in cream
+            colour = colour or "cream"
         over = (overrides or {}).get(key)
         if over:
             slug, asset, tint = over["slug"], over.get("asset"), None
@@ -2478,7 +2489,7 @@ def mirror_box(item: dict) -> list[float]:
     """The box of a parametric mirror (pure): the item's width, a portrait height (``MIRROR_ASPECT``, at most the
     item's ``max_height_m``), the frame depth."""
     w = float(item["size"][0])
-    h = w * MIRROR_ASPECT
+    h = w if item.get("shape") == "round" else w * MIRROR_ASPECT      # 29 Oct 2026 (R10): a round mirror
     max_h = item.get("max_height_m")
     if isinstance(max_h, (int, float)) and max_h > 0:
         h = min(h, float(max_h))

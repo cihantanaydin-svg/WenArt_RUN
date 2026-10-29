@@ -109,6 +109,11 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   style family that builds them has its feature panel on the accent wall (``feature_walls``) and its wood floor laid
   in the family's pattern (``parquet``) unless the decor stage's recipe turned them off, layered curtains (a sheer) and
   a bed's throw in two layers. Minor; kind ``taste``.
+- M28 a different solution for each room and the reference photos' details (29 Oct 2026, lessons UL113, UL115,
+  UL119: "also take some inspiration from these photos", "look at all these details I want these details", "different
+  solutions for different rooms"; ``wenart.furniture.room_schemes.review``): two rooms of one type on a level with the
+  same scheme (major), a hall with no console and no wall niche (major from 4 m², else minor), a bedroom whose bed
+  wall is bare: no panel, headboard panel, art or mirror over the bed (minor). Kind ``taste``.
 - M19 fixtures you can use (29 Oct 2026, the user on real06 run 20261028-154514-full: "This washing machine would not
   open": its door faced the toilet 0.11 m away; "this sink not making sense there": a basin right under a window;
   ``fixture_use``): every door-fronted piece as built keeps its width x its access depth free in front of it (a washer,
@@ -161,6 +166,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
 CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18",
           "M19", "M20", "M21", "M22", "M23", "M24")   # 29 Oct 2026: M19 fixtures in use, M20 doors as products, M21 rooms for their use, M22 backs on walls, M23 the professional bar, M24 chimneys
+CHECKS = CHECKS + ("M28",)      # 29 Oct 2026: M28 a different solution for each room, the photos' details (UL119)
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -1296,6 +1302,20 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             checks["M23"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     else:
         checks["M23"] = {"status": "unavailable", "note": "no scene manifest"}
+    # M28 (29 Oct 2026, lessons UL113, UL115, UL119: the user's reference photos, "different solutions for different
+    # rooms"): the rooms' schemes and details as built (wenart.furniture.room_schemes.review, the rule Argus' U32 reads
+    # too). Imported by name, out of the build script's import closure, as M17.
+    try:
+        import importlib
+
+        RSC = importlib.import_module("wenart.furniture.room_schemes")
+        got, n = RSC.review(built, scene_manifest, check="M28")
+        note("M28", [dict(_v("M28", g["severity"], g["target"], g["message"], room_id=g["room_id"], kind="taste",
+                             problem=g["problem"]), fix=FIX_SCHEMES) for g in got], n)
+    except ImportError as exc:
+        checks["M28"] = {"status": "unavailable", "note": f"{type(exc).__name__}: {exc}"}
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M28"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M19 / M22 (29 Oct 2026, the user on real06: "This washing machine would not open", "this sink not making sense
     # there", "There is a gap between wall and water faucet not looking good"): fronts that open, basins under a solid
     # wall, backs on their walls, on the building as built (pure)
@@ -1308,6 +1328,8 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
     return {"findings": findings, "checks": checks}
 
 
+FIX_SCHEMES = ("the decor stage's room schemes and details (wenart.furniture.room_details: each room its own scheme, "
+               "a hall's console or lit niche, the art or panel over the bed) and the build's panels (feature_walls)")
 FIX_PRO_BAR = ("the decor stage's professional dressing (wenart.furniture.dressing: layered curtains and bedding, the "
                "lights' roles) and the build's finishes (feature_walls on the accent wall, parquet on the wood floor)")
 

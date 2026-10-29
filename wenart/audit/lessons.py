@@ -52,6 +52,10 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U23 the professional bar of a living room or bedroom (``wenart.furniture.dressing.review``; UL106: "I want my renders
   to be as professional as these ones"): no feature panel on its accent wall where its style builds one, a wood floor
   not laid in its style's pattern, curtains in one layer, a bed's throw in one layer.
+- U32 (UL113, UL115, UL119, 29 Oct 2026: "also take some inspiration from these photos", "look at all these details
+  I want these details", "different solutions for different rooms"; ``wenart.furniture.room_schemes.review``, the
+  model review's M28) two rooms of one type on a level with the same scheme, a hall with no console or wall niche, a
+  bedroom with a bare bed wall.
 - U16 a door or drawer front that cannot open, or an appliance that cannot be used (``fixture_use.blocked_fronts``: a
   washer, dishwasher, cooker, fridge or nightstand, or door-fronted storage, with less than its access depth free in
   front of it; UL92: "This washing machine would not open");
@@ -738,6 +742,18 @@ CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4":
                  "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107"),
                  "U16": ("UL92",), "U20": ("UL96",), "U27": ("UL109",)}
 CHECK_LESSONS["U23"] = ("UL106",)          # 29 Oct 2026: the professional bar (professional_bar)
+CHECK_LESSONS["U32"] = ("UL113", "UL115", "UL119")     # 29 Oct 2026: a different solution for each room (room_schemes)
+
+
+def room_schemes_check(building: dict, manifest: Optional[dict]) -> list[dict]:
+    """U32 (module docstring): the rooms' schemes and the photos' details (``room_schemes.review``, the same rule as
+    the model review's M28); the fix names the stage that adds what is missing."""
+    from wenart.furniture import room_schemes as RSC
+
+    got, _n = RSC.review(building, manifest, check="U32")
+    return [_f("U32", g["severity"], g["target"], g["message"], g.get("lesson") or "UL119",
+               "rerun_stage decor (wenart.furniture.room_details: the room schemes and details) and build "
+               "(feature_walls)", problem=g["problem"]) for g in got]
 
 
 def professional_bar(building: dict, manifest: Optional[dict]) -> list[dict]:
@@ -779,6 +795,14 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
             continue
         findings += got
         checked[cid] = len(got)
+    # 29 Oct 2026 (UL113, UL115, UL119): a different solution for each room, a hall's console or niche, a dressed bed
+    # wall (on the building; the scene's panels when there is a manifest)
+    try:
+        got = room_schemes_check(building, manifest)
+        findings += got
+        checked["U32"] = len(got)
+    except Exception as exc:  # noqa: BLE001 - a check that fails is listed, the others still run
+        checked["U32"] = f"failed: {type(exc).__name__}: {exc}"[:200]
     # 29 Oct 2026 (UL106): the professional bar of the living rooms and bedrooms (on the built scene)
     if not manifest:
         checked["U23"] = "no scene manifest: not run"

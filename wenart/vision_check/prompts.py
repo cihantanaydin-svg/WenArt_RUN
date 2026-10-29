@@ -127,6 +127,13 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "keyboard": "computer keyboard lying on a desk",
     "computer_mouse": "computer mouse beside a keyboard or a laptop on a desk",
     "tv": "flat television on its stand on a TV unit",   # 29 Oct 2026 (UL99)
+    # 29 Oct 2026 (wenart.furniture.room_details, UL113, UL115): the reference photos' details
+    "wall_niche": "shallow wall niche with floating lit shelves holding books, vases and dried grass",
+    "intercom": "small video intercom panel on the wall beside the entrance door",
+    "floor_vase": "large floor vase with dried pampas grass standing in a corner",
+    "art_leaning": "large framed picture standing on the floor, leaning against the wall",
+    "bag": "travel bag lying on the floor",
+    "desk_wall_unit": "wall shelf and wall cabinets with a light strip under them above a desk",
 }
 HINTS.update({k: v for k, v in _DECOR_HINTS_M10.items() if k in S.CATEGORIES})
 UNVERIFIED_HINT = "any piece of furniture at that place"

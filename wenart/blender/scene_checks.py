@@ -132,8 +132,13 @@ WALL_HUNG_TYPES: tuple[str, ...] = ("wall_cabinet",)
 SOFT_HOST_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bed_single",
                                     "bed_double", "bunk_bed", "crib")
 SOFT_SUPPORTS: tuple[str, ...] = ("seat", "mattress", "back", "headboard")
-FLOOR_DECOR: tuple[str, ...] = ("rug", "plant", "plant_large", "basket", "sculpture")
-UNMEASURED_DECOR: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind")
+FLOOR_DECOR: tuple[str, ...] = ("rug", "plant", "plant_large", "basket", "sculpture",
+                                 # 29 Oct 2026 (UL113, UL115): the details standing on the floor (room_details)
+                                 "wall_niche", "floor_vase", "art_leaning", "bag")
+UNMEASURED_DECOR: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind",
+                                     "intercom", "desk_wall_unit")      # 29 Oct 2026: on a wall
+# 29 Oct 2026 (lesson UL119, R33): a floating nightstand hangs on the wall (its box under its top, nothing to the floor)
+HUNG_FORMS: dict[str, tuple[str, ...]] = {"nightstand": ("floating",)}
 # 28 Oct 2026 (module docstring): hung decor is measured against the ceiling over it
 HUNG_DECOR: tuple[str, ...] = ("pendant_light", "ceiling_light")
 LEANING_SUPPORTS: tuple[str, ...] = ("back", "headboard")
@@ -242,6 +247,8 @@ def floor_z_of(building: dict, piece: dict) -> float:
 
 def wall_hung(piece: dict) -> bool:
     mb = piece.get("mount_bottom_m")
+    if piece.get("form") in HUNG_FORMS.get(str(piece.get("type")), ()):
+        return True                      # 29 Oct 2026 (R33): a floating nightstand
     return piece.get("type") in WALL_HUNG_TYPES or (isinstance(mb, (int, float)) and not isinstance(mb, bool)
                                                     and mb > 0)
 
@@ -482,7 +489,8 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
         # S4 real size
         size = built_size(mesh["verts"], piece["footprint"])
         m["built_size_m"] = [round(v, 3) for v in size]
-        if piece["type"] not in C.BY_DESIGN_PARAMETRIC_TYPES:
+        if piece["type"] not in C.BY_DESIGN_PARAMETRIC_TYPES and \
+                piece.get("form") not in HUNG_FORMS.get(str(piece["type"]), ()):     # a floating box is its form
             counts["S4"]["checked"] += 1
             bad = size_failures(piece["type"], size)
             if bad:

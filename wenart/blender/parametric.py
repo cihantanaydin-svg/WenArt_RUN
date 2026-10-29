@@ -3626,6 +3626,22 @@ if "screen" not in MATERIAL_KEYS:                                  # its glossy 
 BEVEL_BY_ROLE.update({"screen": 0.0, "neck": 0.002})
 
 
+# 29 Oct 2026 (lessons UL113, UL115, UL119; the user's reference photos, docs/reference_details_20261029.md): the
+# details' own decor types (a lit wall niche, an intercom panel, a floor vase with pampas, a leaning art frame, a bag, a
+# desk's wall unit) and the variants of older types (a round mirror or rug, a ceiling track light, a TV on the wall, a
+# vase with pampas, a styled book set) and the scheme forms of a nightstand or a desk: wenart.blender.detail_parts
+DETAIL_DECOR_TYPES: tuple[str, ...] = ("wall_niche", "intercom", "floor_vase", "art_leaning", "bag",
+                                       "desk_wall_unit")              # = detail_parts.DETAIL_DECOR_TYPES
+DECOR_TYPES = DECOR_TYPES + DETAIL_DECOR_TYPES
+LARGE_DECOR_TYPES = LARGE_DECOR_TYPES + ("wall_niche", "floor_vase", "art_leaning", "desk_wall_unit")
+DECOR_DEFAULT_HEIGHT.update({"wall_niche": 2.2, "intercom": 0.22, "floor_vase": 1.3, "art_leaning": 1.4, "bag": 0.30,
+                             "desk_wall_unit": 0.68})
+MATERIAL_KEYS = MATERIAL_KEYS + ("led", "pampas")                  # an LED strip's glow; dried pampas plumes
+BEVEL_BY_ROLE.update({"led": 0.0, "groove": 0.0, "plume": 0.0, "stem": 0.0, "bracket": 0.002, "cleat": 0.0,
+                      "canvas": 0.0, "grille": 0.0, "button": 0.001, "lens": 0.0, "zip": 0.0, "strap": 0.002,
+                      "object": 0.004, "knob": 0.002})
+
+
 SUSPENSION_CORD_R_M = 0.004       # the cord of a hung light (as the parametric pendant's)
 SUSPENSION_CANOPY_R_M = 0.06      # the ceiling canopy it hangs from
 SUSPENSION_CANOPY_H_M = 0.025
@@ -3686,6 +3702,11 @@ def build_parts(ftype: str, w: float, d: float, h: float, piece: dict | None = N
         builder = _BUILDERS[ftype]
     except KeyError:
         raise KeyError(f"no parametric builder for furniture type {ftype!r}") from None
+    if piece is not None and piece.get("form"):      # 29 Oct 2026 (UL119): a room scheme's drum, floating form
+        from wenart.blender import detail_parts as DP
+        parts = DP.form_parts(ftype, float(w), float(d), float(h), piece)
+        if parts is not None:
+            return parts
     if ftype in _PIECE_BUILDERS:
         return builder(float(w), float(d), float(h), piece)
     return builder(float(w), float(d), float(h))
@@ -3709,6 +3730,13 @@ def decor_size(dtype: str, size) -> tuple[float, float, float]:
 def decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = None) -> list[Part]:
     """Parts of a parametric decor item of box ``w x d x h`` (``item``: the decor entry, read for a large
     plant's species)."""
+    from wenart.blender import detail_parts as DP  # 29 Oct 2026 (UL113, UL115, UL119): the reference details
+
+    if dtype in DETAIL_DECOR_TYPES:
+        return DP.detail_parts(dtype, w, d, h, item)
+    variant = DP.variant_parts(dtype, w, d, h, item)
+    if variant is not None:
+        return variant
     if dtype in MEDIA_DECOR_TYPES:                 # 29 Oct 2026 (UL99): the TV on its stand
         return tv_parts(w, d, h, item)
     if dtype in _NEW_DECOR:

@@ -988,6 +988,18 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         asset = parametric_fit(piece, f"footprint size {piece['footprint']['size']} is not positive",
                                style_family=style_family)
         return _finish(asset, mode, [_step("parametric", "used", asset["fallback_reason"])])
+    if C.scheme_form(piece) and not piece.get("asset_pin"):
+        # 29 Oct 2026 (lesson UL119, docs/reference_details_20261029.md R17, R27, R33): the room's scheme asks a round
+        # drum or a floating nightstand, or a floating corner desk; the catalogue holds no audited model of that form,
+        # so our parametric product of real proportions is built by design (wenart.blender.detail_parts)
+        why = (f"the room's scheme asks for a {piece['form']} {ftype.replace('_', ' ')} (UL119: a different solution "
+               f"for each room): our parametric product by design (the catalogue holds no audited {piece['form']} "
+               f"model)")
+        asset = parametric_fit(piece, why, style_family=style_family)
+        asset["by_design"] = True
+        asset["scheme_form"] = piece["form"]
+        return _finish(asset, mode, [_step("library", "not tried", why), _step(MODULE_METHOD, "not tried", why),
+                                     _step("parametric", "used (by design)", why)])
     pin = piece.get("asset_pin")
     if pin:
         # Milestone 11 (edit_ops swap_model): the agent's model is tried alone first; Milestone 13: without the style
@@ -2328,6 +2340,9 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
         return None
     if item.get("fixture") == "downlight":            # 29 Oct 2026 (UL106): our recessed downlight (parametric)
         return None
+    if item.get("fixture") == "track" or item.get("shape") == "round" or item.get("stems") \
+            or (item.get("tv") or {}).get("mount") == "wall":
+        return None      # 29 Oct 2026 (UL113, UL115): our track light, round mirror or rug, a vase with pampas
     styled = [e for e in decor_entries(catalog, dtype, mode) if decor_styles_match(e, style_family)
               and C.contact_fits(e, dtype)]               # Milestone 12: the audited contact suits the type
     fits = [(e, f) for e in styled for f in [_decor_fit(e, item, dtype)] if f is not None]

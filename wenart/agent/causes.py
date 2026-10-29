@@ -542,6 +542,7 @@ CHECK_CAUSE: dict[str, str] = {
     "M20": "opening_style",          # 29 Oct 2026: every door a real product (opening_models, the build's doors)
     "M21": "room_use",               # 29 Oct 2026: the rooms furnished for their use (the layout's media wall, fill)
     "M23": "decor_look",             # 29 Oct 2026 (UL106): the professional bar (the decor stage and the build own it)
+    "M28": "decor_look",             # 29 Oct 2026 (UL119): the rooms' schemes and details (the decor stage, the build)
     # 29 Oct 2026: a blocked door front is turned (rotate_piece: fixed equipment turns for a blocked door) or what
     # stands in front of it moves; a basin under a low window is the architect's (cause_of: H2); a back a drawing gap
     # off its wall snaps onto it

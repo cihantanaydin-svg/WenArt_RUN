@@ -668,13 +668,16 @@ def review(building: dict, brief: Optional[dict] = None) -> tuple[list[dict], in
     """M21 / U19 (pure): ``(findings, checked)``: a media room without a TV (major in a living room, minor in the
     master bedroom), a TV unit without its TV (minor), each with the plan's reason."""
     tvs = {d.get("host_id") for d in building.get("decor") or [] if d.get("type") == "tv"}
+    # 29 Oct 2026 (UL119, R26): a TV the room's scheme hangs flat on the wall (no host) is the room's TV
+    on_wall = {d.get("room_id") for d in building.get("decor") or [] if d.get("type") == "tv"
+               and (d.get("tv") or {}).get("mount") == "wall"}
     out, n = [], 0
     rooms = media_rooms(building, brief)
     for room, kind in rooms:
         n += 1
         pieces = _pieces(building, room["id"])
         hosts = [f for f in pieces if f["id"] in tvs]
-        if hosts:
+        if hosts or room["id"] in on_wall:
             continue
         units = [f for f in pieces if f["type"] in HOST_TYPES]
         if units:

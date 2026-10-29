@@ -277,6 +277,10 @@ DECOR_WORDS: dict[str, str] = {
     # 29 Oct 2026 (wenart.furniture.tabletop.work_set): the desk's work set
     "laptop": "open laptop", "monitor": "computer monitor", "keyboard": "keyboard", "computer_mouse": "computer mouse",
     "tv": "flat television",                                          # 29 Oct 2026 (UL99)
+    # 29 Oct 2026 (wenart.furniture.room_details, UL113, UL115): the reference photos' details
+    "wall_niche": "lit wall niche with styled shelves", "intercom": "video intercom panel",
+    "floor_vase": "floor vase with pampas grass", "art_leaning": "large art frame leaning on the wall",
+    "bag": "weekend bag on the floor", "desk_wall_unit": "wall shelves and cabinets over the desk",
 }
 # rooms[].room_subtype words (Milestone 10: a child's room holds cribs and bunk beds).
 SUBTYPE_WORDS: dict[str, str] = {"child": "child's bedroom"}
