@@ -135,6 +135,7 @@ CHECK_KIND = {
     "LT": "misread", "P11": "misread",
 }
 CHECK_KIND.update({"U23": "taste", "M23": "taste"})     # 29 Oct 2026 (UL106): the professional bar (dressing.review)
+CHECK_KIND.update({"U30": "taste", "M26": "taste"})     # 29 Oct 2026 (UL114): the bathroom's set (bath_details.review)
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",
                "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense", "U": "no_sense"}

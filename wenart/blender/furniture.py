@@ -233,6 +233,7 @@ SURFACE_RAY_STEPS = 4                          # Milestone 9: a missed ray tries
 MIRROR_ASPECT = 1.25                           # the parametric mirror's height / width (portrait)
 # Milestone 10: wall decor of a parametric shape when no library model is fitted (the mirror since Milestone 9).
 PARAMETRIC_WALL_DECOR = ("mirror", "clock")
+TOWEL_DECOR_KEY = "colour_towel"   # 29 Oct 2026 (UL124 B26): a decor towel takes the item's towel_colour
 CLOCK_DEPTH_M = 0.045
 # Lamps that light up in a ``lamps_on`` mood (or with ``light_on``): kind -> (watts, temperature K, radius m,
 # where: "below_shade" / "bulb"); designer values (assumed), recorded per light.
@@ -616,8 +617,27 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "screen": ("screen_black", None, None),
         # 29 Oct 2026 (UL106): the sheer layer of a layered curtain (materials.sheer_material: see-through voile)
         "sheer": (SHEER_SLUG, None, None),
+        # 29 Oct 2026 (UL114, UL123, UL124: the bathroom details): an LED strip (the build gives the key its own
+        # material: materials.led_material), a light stone and a terrazzo top or panel, the towels (white unless the
+        # piece's design names the room's towel colour: design_overrides)
+        "led": (LED_SLUG, None, None),
+        "stone_light": ("marble", _vocab_asset("marble"), None),
+        "terrazzo": ("terrazzo", _vocab_asset("terrazzo"), None),
+        "towel": ("fabric_white", asset_of("fabric_white"), None),
     }
     return keys, assumed
+
+
+LED_SLUG = "led_strip"            # the led key's slug in the records (materials.led_material)
+
+
+def _vocab_asset(slug: str):
+    """The vocabulary's texture set of a slug (None without the style tables)."""
+    try:
+        from wenart.style import vocabulary as V
+        return ((V.MATERIALS.get(slug) or V.FURNITURE_MATERIALS.get(slug)) or {}).get("asset")
+    except Exception:  # noqa: BLE001
+        return None
 
 
 SHEER_SLUG = "fabric_sheer"       # the sheer key's slug: the library's translucent voile (MaterialLibrary.sheer)
@@ -668,6 +688,9 @@ def design_overrides(design: dict, ftype: str) -> tuple[dict, list[str]]:
         for key in ("fabric", "duvet"):
             out[key] = {"slug": "fabric_linen", "asset": asset("fabric_linen"), "colour": fabric}
         notes.append(f"fabric {fabric}")
+    if design.get("towel_colour"):            # 29 Oct 2026 (UL124 B26): the room's towels in its accent colour
+        out["towel"] = {"slug": "fabric_white", "asset": asset("fabric_white"), "colour": design["towel_colour"]}
+        notes.append(f"towels {design['towel_colour']}")
     return out, notes
 
 
@@ -721,6 +744,13 @@ def design_details(piece_type: str, parts: list[dict]) -> list[dict]:
                  "value": f"{fronts} front(s) {P.FRONT_GAP * 1000:g} mm proud of the carcass with handles",
                  "reason": "design detail of the counter (fronts and handles inside its own box); "
                            "the documents show only the footprint"}]
+    bath = [p for p in parts if p["role"] in ("led", "button", "towel", "bottle", "jar", "pebble", "perfume",
+                                              "hand_shower", "rosette")]
+    if bath and piece_type in ("toilet", "washbasin", "tall_cabinet", "shower"):
+        roles = sorted({p["role"] for p in bath})
+        return [{"field": "bath_details", "kind": "bath_details", "value": ", ".join(roles),
+                 "reason": "the bathroom details of the piece (UL114, UL123, UL124: LED strips, a flush plate, "
+                           "towels and toiletries, shower fittings) inside its own box, one mesh"}]
     if piece_type in P.CABINET_LOOK_TYPES:
         fronts = sum(1 for p in parts if p["role"] == "handle")
         return [{"field": "cabinet_fronts", "kind": "cabinet_fronts",
@@ -1082,6 +1112,9 @@ class _Materials:
         if key == "screen":                       # 29 Oct 2026 (UL93): a screen with a faint lit wallpaper
             from wenart.blender import materials as M
             return M.screen_material()
+        if key == "led":                          # 29 Oct 2026 (UL114): an LED strip at a fixture shade's radiance
+            from wenart.blender import materials as M
+            return M.led_material()
         over = (overrides or {}).get(key)
         if over:
             slug, asset, tint = over["slug"], over.get("asset"), None
@@ -1763,6 +1796,9 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
             assumed.append({"object": name, "field": "height_lift", "value": lift,
                             "reason": "footprint overlaps another piece of the same height; "
                                       "lifted so the top faces do not coincide"})
+    look = piece.get("bath_look") if isinstance(piece.get("bath_look"), dict) else {}
+    if piece["type"] == "washbasin" and look.get("made_to_measure") and look.get("top_m") and "top_m" not in entry:
+        entry["top_m"] = float(look["top_m"]) + base   # 29 Oct 2026 (UL114): the mirror hangs over the vanity's top
     for detail in entry.pop("_details", []):           # the design details of a parametric or module piece
         entry["assumed"][detail["field"]] = detail["value"]
         assumed.append({"object": name, "field": detail["field"], "value": detail["value"],
@@ -1827,6 +1863,12 @@ def _module_object(piece, plan, name, status, floor_z, collection, mats, entry, 
     x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
     slots = [provider.get(k) for k in used]
     record = MOD.module_record(plan)
+    if isinstance(plan.get("top_m"), (int, float)):          # 29 Oct 2026 (UL114): a vanity's top (the mirror hangs over it)
+        entry["top_m"] = float(plan["top_m"])
+    if plan.get("items"):
+        entry.setdefault("_details_extra", []).append(
+            {"field": "bath_items", "kind": "bath_details", "value": ", ".join(plan["items"]),
+             "reason": "the floating vanity's styling (UL114 B3, UL123 B19): part of its one mesh"})
     entry.update({"method": MOD.MODULE_METHOD, "fallback_reason": None,
                   "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],
                   "materials": [m.name for m in slots], "material": slots[0].name if slots else None,
@@ -1842,6 +1884,7 @@ def _module_object(piece, plan, name, status, floor_z, collection, mats, entry, 
     if plan.get("split"):
         entry["_details"].append({"field": "split", "kind": "split", "value": json.dumps(plan["split"]),
                                   "reason": "the drawn footprint includes the chairs (CLAUDE.md): table + chairs"})
+    entry["_details"] += entry.pop("_details_extra", [])
     return ob
 
 
@@ -2432,7 +2475,9 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         used_keys = sorted(set(keys), key=keys.index)
         accent = P.DECOR_COLOURS.get(str(item.get("colour") or ""))       # Milestone 9: the AI decor's colour
         overrides = {"pot": pot_override(item)} if dtype == "plant_large" else None
-        slots = [_part_material(mats, k, False, accent=accent, colour=item.get("colour"), overrides=overrides,
+        slots = [_part_material(mats, k, False, accent=accent,
+                                colour=item.get("towel_colour") if k == TOWEL_DECOR_KEY else item.get("colour"),
+                                overrides=overrides,
                                 lit=lit) for k in used_keys]
         ob = _mesh_object(name, verts, faces, slots, [used_keys.index(k) for k in keys], collection, owner_id,
                           "decor", status)
@@ -2497,8 +2542,21 @@ def mirror_box(item: dict) -> list[float]:
     """The box of a parametric mirror (pure): the item's width, a portrait height (``MIRROR_ASPECT``, at most the
     item's ``max_height_m``), the frame depth."""
     w = float(item["size"][0])
-    h = w * MIRROR_ASPECT
     max_h = item.get("max_height_m")
+    fixture = item.get("fixture")
+    if fixture in P.BATH_MIRRORS:             # 29 Oct 2026 (UL114 B4, UL123 B14, UL124 B22): the bathroom's mirrors
+        from wenart.blender import bath_parts as BT
+        if fixture == "round_mirror":
+            dia = min(w, BT.ROUND_MIRROR_D_M[1], float(max_h) if isinstance(max_h, (int, float)) and max_h > 0
+                      else BT.ROUND_MIRROR_D_M[1])
+            return [dia, 0.04, dia]
+        if fixture == "backlit_mirror":
+            h = BT.BACKLIT_MIRROR_H
+            if isinstance(max_h, (int, float)) and max_h > 0:
+                h = min(h, float(max_h))
+            return [w, 0.03, h]
+        return [w, 0.03, BT.led_mirror_height(w, max_h)]
+    h = w * MIRROR_ASPECT
     if isinstance(max_h, (int, float)) and max_h > 0:
         h = min(h, float(max_h))
     return [w, P.MIRROR_FRAME_M, h]
@@ -2541,6 +2599,9 @@ def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, p
     if host_entry is not None and (host_entry.get("bbox_m") or host_entry.get("size")):
         # the built box above the floor (library or parametric piece; a proxy box behind --proxies)
         host_top = float((host_entry.get("bbox_m") or host_entry["size"])[2])
+        if isinstance(host_entry.get("top_m"), (int, float)):
+            # 29 Oct 2026 (UL114): a floating vanity's top (its decor clusters and the mixer stand over it)
+            host_top = float(host_entry["top_m"])
     elif anchors and any(p["id"] == anchors[0] for p in on_level):
         warnings.append(f"decor {dtype} {owner_id}: piece {anchors[0]} is not built; hung at the item's bottom_m")
     footprint, mount = wall_art_placement(item, box, host_top, float(level.get("ceiling_height") or 2.7))

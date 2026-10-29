@@ -1033,6 +1033,9 @@ def by_design_parametric(piece: dict) -> bool:
     built-in wardrobe of its design, Milestone 10 §4.4)."""
     if piece.get("type") in BY_DESIGN_PARAMETRIC_TYPES:
         return True
+    look = piece.get("bath_look") if isinstance(piece.get("bath_look"), dict) else {}
+    if look.get("made_to_measure"):        # 29 Oct 2026 (UL114): the family's open lit storage column (bath_details)
+        return True
     design = piece.get("design") if isinstance(piece.get("design"), dict) else {}
     return bool((piece.get("type") == "washbasin" and design.get("vanity"))
                 or (piece.get("type") == "wardrobe" and design.get("built_in")))

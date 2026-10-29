@@ -1838,6 +1838,15 @@ def floor_style(room: dict, style: dict, outdoor: dict | None = None) -> tuple[d
         return style["floor"], True
     wet = kind in WET_ROOM_TYPES
     slot = (style.get("wet_floor") if wet else None) or style["floor"]
+    if wet and kind not in KITCHEN_TYPES and slot is style.get("wet_floor"):
+        # 29 Oct 2026 (UL114 B8): a bathroom's or WC's floor in the family's large stone-look tile (the brief's wins)
+        try:
+            from wenart.blender import bath_parts as BT
+            tile = BT.wet_tile_look(style, "floor")
+        except ImportError:
+            tile = None
+        if tile is not None:
+            slot = {k: v for k, v in tile.items() if k in ("material", "asset", "colour")}   # its own 60 x 120 grid
     # 29 Oct 2026 (UL106): the style's plank floor laid in the room's pattern (herringbone / chevron; the build writes
     # ``room["floor_pattern"]``, wenart.blender.parquet.annotate)
     if not wet and slot is style.get("floor") and isinstance(slot, dict):
@@ -2067,6 +2076,9 @@ def build_splashbacks(building: dict, level: dict, collection, library, style: d
     if not plan:
         return 0
     slot = style.get("splashback") if isinstance(style.get("splashback"), dict) else None
+    if slot is None and "wet_walls_brief" in style:
+        # 29 Oct 2026 (UL114 B8): the bathrooms' family tiles are no kitchen's; the splashback keeps the brief's wet walls
+        style = dict(style, wet_walls=style["wet_walls_brief"])
     look = dict(_slot_look(slot, "tiles_light"), colour=slot.get("colour")) if slot else wet_wall_look(style, None)
     mat = look_material(library, look)
     by_room: dict[str, list] = {}

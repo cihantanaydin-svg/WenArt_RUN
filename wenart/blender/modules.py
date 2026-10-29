@@ -1466,8 +1466,61 @@ def clear_windows(piece: dict, building: dict) -> tuple[Optional[dict], Optional
                                                 "stand beside the window, never over it"}
 
 
+def plan_bath_made(piece: dict) -> Optional[dict]:
+    """29 Oct 2026 (lessons UL114, UL123, UL124; ``bath_parts``): the bath set a piece's bathroom look builds from code
+    by design on its drawn footprint: the family's floating vanity (stone slab, fluted or curved, its top at the drawn
+    working top) or the walk-in shower; None for any other piece. No mirror module: the decor stage's basin mirror (the
+    family's LED, backlit, round or framed one) hangs over it."""
+    from wenart.blender import bath_parts as BT
+
+    made = BT.made_to_measure(piece)
+    if made not in ("vanity", "shower"):
+        return None
+    look = BT.bath_look(piece)
+    w, d, h = _piece_size(piece)
+    fp = list(piece["footprint"]["size"][:2])
+    if made == "shower":
+        sliding = w >= BT.SLIDING_MIN_W_M - 1e-9
+        return {"builder": "bath_set", "type": "shower", "variant": "walk_in", "bath_look": dict(look),
+                "modules": [_module("tray", (w, d, BT.SHOWER_TRAY_T_M), (0.0, 0.0), "stone_light",
+                                    product=f"low stone tray {w * 100:.0f}x{d * 100:.0f} cm with a linear drain"),
+                            _module("screen", (w, BT.GLASS_T_M, min(h, 2.0)), (0.0, -d / 2.0), "glass",
+                                    product="sliding glass on a top rail with rollers" if sliding
+                                    else "fixed walk-in glass screen")],
+                "footprint_m": fp, "height_m": round(max(h, BT.RAIN_HEAD_Z_M), 4), "drawn_m": fp,
+                "fit": _fit_record((w, d), (w, d)),
+                "products": ["walk-in shower: " + ("sliding glass on a black top rail" if sliding else "fixed glass")
+                             + ", square rain head on a wall arm, hand shower on a slide rail, thermostatic mixer, "
+                               "linear drain, towel bar"],
+                "notes": [f"walk-in shower on the drawn {w:.2f} x {d:.2f} m footprint (UL123 B16)"],
+                "design": P.piece_design(piece)}
+    top = float(look.get("top_m") or (h if h >= 0.7 else BT.VANITY_TOP_DEFAULT_M))
+    kind = str(look.get("vanity"))
+    lay = BT.vanity_layout(w, d, top, kind, str(look.get("basin") or "integrated"))
+    product = {"stone_slab": "floating vanity with a 15 cm stone top and an integrated basin, an open shelf, a drawer",
+               "fluted": "floating vanity, fluted fronts" + (", rounded ends" if look.get("rounded") else "")
+                         + (", open lit end cubbies" if lay["end_cubbies"] else ""),
+               "curved": "curved-front floating vanity in a terrazzo apron"}[kind]
+    basin = {"integrated": "integrated basin, wall mixer", "vessel": "vessel basin, tall deck mixer",
+             "vessel_wall": "vessel basin, wall spout"}.get(str(lay["basin"]), str(lay["basin"]))
+    return {"builder": "bath_set", "type": "washbasin", "variant": kind, "bath_look": dict(look),
+            "modules": [_module("vanity", (w, d, top - lay["bottom_m"]), (0.0, 0.0), "front", z_m=lay["bottom_m"],
+                                product=f"{product} {w * 100:.0f}x{d * 100:.0f} cm"),
+                        _module("top", (w, d, lay["top"][1] - lay["top"][0]), (0.0, 0.0), str(look.get("top_key")),
+                                z_m=lay["top"][0], basins=len(lay["bowls"]))],
+            "footprint_m": fp, "height_m": round(top, 4), "top_m": round(top, 4), "drawn_m": fp,
+            "fit": _fit_record((w, d), (w, d)), "products": [product, basin, "LED strip under it"],
+            "basins": len(lay["bowls"]), "items": BT.vanity_items(w, d, top, look),
+            "notes": [f"{kind} floating vanity on the drawn {w:.2f} x {d:.2f} m basin (UL114 B3, UL123 B12, UL124 B21)"],
+            "design": P.piece_design(piece)}
+
+
 def plan_bath_set(piece: dict, style: Optional[dict] = None) -> Optional[dict]:
-    """A vanity with basin(s) and a mirror (washbasin at least 0.45 m deep) or a shower tray with its screen."""
+    """A vanity with basin(s) and a mirror (washbasin at least 0.45 m deep) or a shower tray with its screen; 29 Oct
+    2026: the made-to-measure bath set of a piece's bathroom look first (``plan_bath_made``)."""
+    made = plan_bath_made(piece)
+    if made is not None:
+        return made
     w, d, h = _piece_size(piece)
     ftype = piece.get("type")
     if ftype == "shower":
@@ -1947,6 +2000,12 @@ def _bath_parts(plan: dict) -> list[Part]:
     design = plan.get("design") or {}
     parts: list[Part] = []
     w, d = plan["footprint_m"]
+    if plan.get("variant") in ("walk_in", "stone_slab", "fluted", "curved"):
+        # 29 Oct 2026 (UL114, UL123, UL124): the made-to-measure bath set (``plan_bath_made``)
+        from wenart.blender import bath_parts as BT
+        if plan["variant"] == "walk_in":
+            return BT.walk_in_shower_parts(w, d, float(plan["modules"][1]["size_m"][2]))
+        return BT.vanity_parts(w, d, float(plan["top_m"]), plan.get("bath_look") or {})
     if plan["type"] == "shower":
         return P._shower(w, d, plan["height_m"])
     for m in plan["modules"]:

@@ -2180,3 +2180,54 @@ The CPU quota was the same in both runs (28 CPUs of 256). The profile job `scrip
 (cProfile through `$WENART_PROFILE`; a second build with Blender held to the CPU budget through
 `$WENART_BLENDER_THREADS`) measures it on the pod. Per-item timing (`furniture.note_time`, the build log's
 `BUILD_PHASES ... SLOWEST ...` line) names the slowest pieces and decor items in every build from now on.
+
+
+## Bathrooms and WCs like the user's photos (29 Oct 2026; built, pod run waiting)
+
+The user sent three bathroom photos: P4 ("Look at the details in the toilet analyze implement into the projects",
+lesson UL114), P12 ("Look how beautiful is this bathroom", UL123) and P13 ("Look how beautiful is this render take
+inspiration", UL124); docs/reference_details_20261029.md rows B1-B26. Our bathrooms had a library WC and basin, a
+mirror, a ceiling light and the storage column of UL102, nothing else. General rules for every project, by style family
+(`wenart/blender/bath_parts.py`: the family table and the parts; `wenart/furniture/bath_details.py`: the rules):
+
+| family | WC | vanity | mirror | feature wall | finish / towels |
+|---|---|---|---|---|---|
+| modern, contemporary | wall-hung, flush plate (B1) | fluted, rounded ends, lit end cubbies from 1.2 m, vessel + tall mixer (B12, B15) | backlit (B14; rounded in contemporary) | terrazzo panel behind the vanity (B13) | black / rust, terracotta |
+| minimal, modern minimal | wall-hung | stone slab: 15 cm top, integrated basin, open towel shelf, drawer, LED under (B3) | backlit rectangle (B22) | none | chrome / sand |
+| scandinavian | wall-hung | stone slab (B3) | round oak frame (B22) | oak fluted wall behind the WC (B24) | black / sage |
+| japandi, organic modern | wall-hung | curved white front, dark stone top, terrazzo apron, vessel + wall spout (B21, B23) | round oak frame | dark fluted wall behind the WC (B24) | black / olive, terracotta |
+| industrial | wall-hung | fluted, square ends | LED band (B4) | dark fluted wall behind the WC | black / mustard |
+| classic, rustic, mediterranean | close-coupled (as fitted) | as drawn | framed (as before) | none | brass or black / navy, rust, dusty blue |
+
+Every family also gets: a paper holder at 0.70 m beside every WC and a brush beside it (B2); a ladder towel rail on a
+free wall of every bathroom, never in the shower or behind the door (B7), a towel shelf with a rail beside it (B18) and
+towel bars at the door and the shower (B25); the storage column as an open lit niche column with toiletries in each
+cubby in the modern families (B5); every drawn shower a walk-in enclosure (sliding glass on a black top rail with
+rollers from 1.0 m, else a fixed screen; square rain head on an arm, hand shower on a rail with its hose, thermostatic
+mixer, linear drain, towel bar; B16); the vanity top's decor in two clusters (dried stems, bottles and jars; B19);
+the bathroom's ceiling lights as recessed downlights (square in the modern families) and a cove light over the vanity
+wall that wraps the corner along the shower wall (B9, B17); wet-room walls and floor in the family's 60 x 120 cm
+stone-look porcelain where the brief names no tiles (B8: the walls through `build.family_wet_tiles`, recorded in the
+scene's style profile, the floors of bathrooms and WCs in `shell.floor_style`; a kitchen's splashback and floor stay
+as before); every towel in the family's accent colour (B26); the room's fixture finish recorded for the door frames
+(`bath_details.room_finish`, B20). Drawn sanitary ware keeps its type, position, orientation and footprint (the locked
+check passes); a floating vanity takes a drawn basin's look only where the drawn basin is a vanity's size (0.40-1.80 x
+0.32-0.62 m), else it stays as drawn with the reason. The made-to-measure pieces are built from code by design
+(`fit.bath_made_fit`, a `library_gap` each so the report lists them); every repeated small item (towels, bottles,
+jars, stems) is part of its host's one mesh, made from vertex lists, no ray per item (UL111). LED strips are emitters
+at a fixture shade's radiance (`materials.led_material`), not rig lights.
+
+Checks: model review M26 and Argus U30 (`bath_details.review`): a WC without its paper holder or brush or not
+wall-hung in a wall-hung family, a basin without its mirror of the family's kind or bare where the drawing has room for
+the vanity, a shower without its walk-in enclosure, a bathroom without a towel rail or a towel shelf or bar (minor,
+kind `taste`).
+
+real06 (Scandinavian, run 20261029-100801-full's built building, CPU): its three wet rooms get wall-hung WCs
+(f_L0_024, f_L1_021, f_L1_022), stone-slab floating vanities on the drawn 0.53 x 0.34 and 0.45 x 0.36 m basins
+(f_L0_026, f_L1_023, f_L1_027), open lit columns (f_L0_048, f_L1_036, f_L1_037), a walk-in shower (f_L1_018, fixed
+screen: 0.8 m), oak fluted walls behind the WCs of r_L0_banyo (0.94 m) and r_L1_dus (0.72 m; r_L1_banyo's WC stands
+between the washing machine and the column: no free stretch), paper holders on the fluted walls, brushes, towel rails,
+shelves and bars, square black downlights, cove lights over the vanity walls and a round oak mirror in r_L1_dus. Left
+open: r_L1_banyo's WC has no wall within reach for its paper holder (U30 flags it); the run's r_L0_banyo and r_L1_banyo
+basins had no mirror (U10). Needs a pod render: the LED strength in the views, the materials of the stone, terrazzo
+and fluted panels.

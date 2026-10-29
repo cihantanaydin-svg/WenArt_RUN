@@ -127,6 +127,14 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "keyboard": "computer keyboard lying on a desk",
     "computer_mouse": "computer mouse beside a keyboard or a laptop on a desk",
     "tv": "flat television on its stand on a TV unit",   # 29 Oct 2026 (UL99)
+    # 29 Oct 2026 (wenart.furniture.bath_details, UL114, UL123, UL124): the bathroom's accessories
+    "toilet_paper_holder": "toilet paper holder with its roll on the wall beside the toilet",
+    "toilet_brush": "toilet brush in its holder on the floor beside the toilet",
+    "towel_rail": "heated towel rail (a ladder radiator) with a towel on the wall",
+    "towel_shelf": "towel shelf on the wall with folded towels and a rail under it",
+    "towel_bar": "towel bar on the wall with a towel hanging from it",
+    "feature_panel": "feature panel on the wall (terrazzo, stone or fluted)",
+    "cove_light": "lowered ceiling band with a hidden LED light line along a wall",
 }
 HINTS.update({k: v for k, v in _DECOR_HINTS_M10.items() if k in S.CATEGORIES})
 UNVERIFIED_HINT = "any piece of furniture at that place"

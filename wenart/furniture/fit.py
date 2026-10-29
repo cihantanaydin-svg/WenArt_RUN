@@ -1040,6 +1040,9 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                                      + (f", at most {ceiling - CEILING_MARGIN_M:.2f} m high under the sloped "
                                         f"ceiling)" if ceiling is not None else ")"))
         return asset
+    made = bath_made_fit(piece, style_family, mode, style)
+    if made is not None:                   # 29 Oct 2026 (UL114, UL123, UL124): the family's bathroom, made by design
+        return made
     candidates = catalog.candidates(ftype)
     if not candidates:
         if ftype == "unknown":
@@ -1668,6 +1671,44 @@ def built_in_fit(piece: dict, run: dict, mode: str, style_family: Optional[str] 
                                   "x_m": record.get("x_m"), "w_m": record.get("w_m"),
                                   "shift_m": round(shift, 4), "shift_y_m": round(across, 4) + 0.0}})
     return _finish(asset, mode, [_step("library", "not tried", why), _step(MODULE_METHOD, step, None)])
+
+
+def bath_made_fit(piece: dict, style_family: Optional[str], mode: str, style: Optional[dict] = None
+                  ) -> Optional[dict]:
+    """29 Oct 2026 (lessons UL114, UL123, UL124; ``wenart.furniture.bath_details``): the asset of a bathroom piece the
+    layout stage made to measure for its style family (``bath_look.made_to_measure``: a wall-hung WC, a floating
+    vanity, an open lit niche column, a walk-in shower): built from code by design on its drawn footprint (a vanity
+    or a shower by the bath set module, a WC or a column by the parametric builder), never a library model; it records
+    a ``library_gap`` (no audited model of that design) so the report lists it. None for any other piece."""
+    from wenart.blender import bath_parts as BT
+
+    made = BT.made_to_measure(piece)
+    if made is None:
+        return None
+    look = BT.bath_look(piece)
+    what = {"wc": "wall-hung WC with its flush plate", "vanity": f"{look.get('vanity')} floating vanity",
+            "column": "open lit niche column", "shower": "walk-in shower"}[made]
+    reason = (f"the {look.get('family') or style_family or 'project'} family's bathroom (UL114): our {what}, made to "
+              f"measure on the drawn footprint (bath_details); no library model is searched")
+    ladder = [_step("library", "not tried", reason)]
+    if made in ("vanity", "shower"):
+        plan, why = module_plan_for(piece, style)
+        if plan is not None:
+            asset = module_fit(piece, plan, reason, [], [], style_family)
+            asset["by_design"] = True
+            asset["library_gap"] = {"type": piece["type"], "style": style_family, "step": MODULE_METHOD,
+                                    "used": f"module builder bath_set ({what}, by design)", "reason": reason}
+            asset["bath_made"] = made
+            ladder.append(_step(MODULE_METHOD, f"used {plan['builder']} ({what})", None))
+            return _finish(asset, mode, ladder)
+        ladder.append(_step(MODULE_METHOD, "no module builder", why))
+    asset = parametric_fit(piece, reason, [], [], style_family)
+    asset["by_design"] = True
+    asset["bath_made"] = made
+    asset["library_gap"] = {"type": piece["type"], "style": style_family, "step": "parametric",
+                            "used": f"our parametric {what} (by design)", "reason": reason}
+    ladder.append(_step("parametric", "used (by design)", reason))
+    return _finish(asset, mode, ladder)
 
 
 def module_fit(piece: dict, plan: dict, reason: str, candidates: Optional[list] = None,
@@ -2328,6 +2369,8 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
         return None
     if item.get("fixture") == "downlight":            # 29 Oct 2026 (UL106): our recessed downlight (parametric)
         return None
+    if item.get("fixture") in ("led_mirror", "backlit_mirror", "round_mirror"):
+        return None                                   # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's own mirrors
     styled = [e for e in decor_entries(catalog, dtype, mode) if decor_styles_match(e, style_family)
               and C.contact_fits(e, dtype)]               # Milestone 12: the audited contact suits the type
     fits = [(e, f) for e in styled for f in [_decor_fit(e, item, dtype)] if f is not None]

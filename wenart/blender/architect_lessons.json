@@ -1332,12 +1332,12 @@
    "id": "UL114",
    "date": "2026-10-29",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Look at the details in the toilet analyze implement into the projects (the bathroom photo: wall-hung WC with flush plate, paper holder and brush, floating stone vanity with open towel shelf and under-light, illuminated mirror, lit open niche column with toiletries, towel rail, large-format tiles, downlights and a cove light; docs/reference_details_20261029.md B1-B11)",
-   "lesson": "Look at the details in the toilet analyze implement into the projects (the bathroom photo: wall-hung WC with flush plate, paper holder and brush, floating stone vanity with open towel shelf and under-light, illuminated mirror, lit open niche column with toiletries, towel rail, large-format tiles, downlights and a cove light; docs/reference_details_20261029.md B1-B11)",
+   "lesson": "Every bathroom and WC gets the set its style family gets (wenart/blender/bath_parts.py FAMILY_BATH, wenart/furniture/bath_details.py), the drawn sanitary ware kept as fixed equipment (type, position, orientation, footprint) with only its look changed: a wall-hung WC with the flush plate of its concealed cistern in the modern, minimal, Scandinavian, Japandi and industrial families (classic, rustic and Mediterranean keep a close-coupled one), a paper holder at 0.70 m beside every WC and a brush on the floor beside it, the family's floating vanity on a drawn basin where the drawing has room for it (0.40-1.80 x 0.32-0.62 m: a 15 cm stone top with an integrated basin, an open shelf styled with rolled towels and jars, a drawer, an LED strip lighting the floor), the basin's mirror in the family's kind (an LED band, backlit, a round oak frame; framed in the classic families), the storage column as an open niche column with an LED strip under every shelf and toiletries in each cubby, a ladder towel rail on a free wall of every bathroom (never in the shower or behind the door), the vanity top's decor, large-format stone-look porcelain on the wet-room walls and floor where the brief names no tiles, recessed (square) downlights and a cove light over the vanity wall; every repeated small item part of its host's one mesh (UL111). Model review M26, Argus U30.",
    "question": null
   },
   {
@@ -1440,24 +1440,24 @@
    "id": "UL123",
    "date": "2026-10-29",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Look how beautiful is this bathroom (29 Oct 2026, photo P12: terrazzo vanity wall, fluted floating vanity with lit cubbies, backlit rounded mirror, vessel basin, walk-in shower with sliding glass and rain head, towel shelf, styled counter clusters; docs/reference_details_20261029.md B12-B20)",
-   "lesson": "Look how beautiful is this bathroom (29 Oct 2026, photo P12: terrazzo vanity wall, fluted floating vanity with lit cubbies, backlit rounded mirror, vessel basin, walk-in shower with sliding glass and rain head, towel shelf, styled counter clusters; docs/reference_details_20261029.md B12-B20)",
+   "lesson": "The P12 bathroom as family rules (wenart/blender/bath_parts.py, wenart/furniture/bath_details.py): the modern and contemporary floating vanity with rounded ends, dark fluted fronts, open lit end cubbies from 1.2 m and a floor glow (B12), a terrazzo panel behind it floor to ceiling with a matching top (B13: one feature wall per bathroom), a large backlit mirror (rounded in the soft-modern families, B14), a dark vessel basin with a tall mixer (B15), every drawn shower a walk-in enclosure (sliding glass on a black top rail with rollers from 1.0 m, else a fixed screen; a square rain head on an arm, a hand shower on a rail with its hose, a thermostatic mixer, a linear drain, a towel bar; B16), the cove light wrapping the corner along the shower wall (B17), a towel shelf with a rail beside the towel rail (B18), the top's decor in two clusters, never one item alone (B19), the room's fixture finish recorded for the door frames (B20, bath_details.room_finish). Model review M26, Argus U30.",
    "question": "Does every bathroom reach the P12 reference where its family allows: a floating vanity (fluted fronts, lit open cubbies, a floor glow), a feature panel on the vanity wall with a matching top, a large backlit mirror, a walk-in shower with glass, a rain head, a hand shower on a rail and a linear drain, a towel shelf beside the towel rail, and the counter styled in two clusters?"
   },
   {
    "id": "UL124",
    "date": "2026-10-29",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Look how beautiful is this render take inspiration (29 Oct 2026, photo P13: curved terrazzo apron vanity, round oak mirror, wall-mounted spout, dark fluted WC feature wall, towel bars at the door and the shower, one towel accent colour; docs/reference_details_20261029.md B21-B26)",
-   "lesson": "Look how beautiful is this render take inspiration (29 Oct 2026, photo P13: curved terrazzo apron vanity, round oak mirror, wall-mounted spout, dark fluted WC feature wall, towel bars at the door and the shower, one towel accent colour; docs/reference_details_20261029.md B21-B26)",
+   "lesson": "The P13 bathroom as family rules (wenart/blender/bath_parts.py, wenart/furniture/bath_details.py): the Japandi and organic-modern vanity with a curved white front under a dark stone top set into a terrazzo apron (splashback and plinth in one material, B21), the mirror by family (a round oak frame in Japandi, Scandinavian and organic modern, backlit rectangles in minimal and modern, B22), a white vessel basin with a wall spout (B23), a fluted feature wall behind the wall-hung WC with its flush plate and paper holder on it (dark; oak in Scandinavian; one feature wall per bathroom, B24), towel bars at the door and at the shower (B25), every towel of the room in the family's one accent colour (B26). Model review M26, Argus U30.",
    "question": "Does every bathroom reach the P13 reference where its family allows: one feature wall (a dark fluted WC wall or a stone apron behind and under the vanity), a mirror shaped and framed by the family, towel bars at the door and at the shower, and the towels in one accent colour repeated in two or three places?"
   },
   {
