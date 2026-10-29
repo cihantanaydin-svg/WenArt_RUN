@@ -5,10 +5,10 @@ The user sent seven professional interior renders on 29 Oct 2026 ("also take som
 details", "As much detail as you can digest", "we need better doors, not all the doors needs to be closed in
 default"). The photos reached the session as chat images only (no file); this page lists every detail read from
 them, so that each one becomes a general rule of the pipeline for every project (CLAUDE.md: every fix is general).
-Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen), UL119 (a different solution for each room), UL120 (see-through wardrobes), UL121 (a full, realistic bed).
+Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen), UL119 (a different solution for each room), UL120 (see-through wardrobes), UL121 (a full, realistic bed), UL123 (the P12 bathroom).
 
 Photos: P1 bedroom with a walk-in wardrobe; P2 bedroom with slat panels and a desk; P3 kitchen seen through blue
-glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side; P9 a young adult's bedroom (dark green walls, wall TV, floating corner desk); P10 a bedroom with a see-through slatted wardrobe; P11 a bedroom with a full, realistic bed.
+glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side; P9 a young adult's bedroom (dark green walls, wall TV, floating corner desk); P10 a bedroom with a see-through slatted wardrobe; P11 a bedroom with a full, realistic bed; P12 a bathroom with a terrazzo vanity wall and a walk-in shower (user: "Look how beautiful is this bathroom").
 
 ## Bathroom and WC (P4) - helper "bathroom"
 
@@ -25,6 +25,15 @@ glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance h
 | B9 | square recessed downlights (black trim); a lowered ceiling band with an indirect LED line over the vanity wall | bathrooms get recessed downlights; a cove light over the vanity wall where the ceiling allows |
 | B10 | a small high window with a black frame (privacy) | (already: high windows into wet rooms; frames follow the family) |
 | B11 | a socket by the mirror | sockets helper (UL112) |
+| B12 | (P12) floating vanity with rounded ends: dark fluted (vertical ribbed) drawer fronts in the middle, open cubbies at both ends with an LED strip under each shelf (folded towels, bottles, a jar), an LED glow on the floor under it | the vanity's fronts follow the family (fluted in modern-warm and dark families); open, lit end cubbies where the vanity is at least 1.2 m wide |
+| B13 | (P12) a terrazzo feature panel behind the vanity, from the floor to the ceiling and the width of the vanity, with a matching terrazzo top (rounded front corners) | the vanity wall may get one feature panel in a material the family allows (terrazzo, stone, zellige); the vanity top takes the same material |
+| B14 | (P12) a large backlit mirror with rounded corners (a halo of light on the panel behind it) | the LED mirror (B4) may be backlit (an emissive edge behind the glass), rounded where the family is soft-modern |
+| B15 | (P12) a dark matte vessel basin on the top with a tall black mixer | a basin on a vanity top may be a vessel basin (family choice); the mixer is tall then |
+| B16 | (P12) walk-in shower: clear glass panels with a black sliding top rail and round rollers, a black pull handle, a square rain head on a wall arm, a hand shower on a slide rail with its hose, a black thermostatic mixer, a linear drain at the back wall, a towel bar inside | a drawn shower gets a glass enclosure (fixed or sliding by its width), a rain head, a hand shower on a rail, a mixer and a linear drain, all in the fixtures' finish |
+| B17 | (P12) a recessed light slot along the ceiling at the vanity wall and down the shower wall (a lit cove at the wall-ceiling joint) | (B9) the cove light may wrap the corner of the shower wall |
+| B18 | (P12) a black towel shelf with a rail under it (rolled towels, a diffuser, jars on the shelf, a hanging towel) beside the towel ladder, a black light switch at the door | every bathroom gets a towel shelf or hooks next to the towel rail; the switch by the door (sockets helper, UL112) |
+| B19 | (P12) counter styling in clusters: dried pampas grass and cotton stems in a vase, reed diffusers, amber and black pump bottles, a calla stem, a shaving brush, a jar of cotton | basin-top decor comes in two clusters (one tall: dried stems; one low: bottles), never one item alone |
+| B20 | (P12) black door frames and a dark fluted panel at the room edge | the door frames (UL122) take the fixtures' or the trim's finish where the family is dark-accented |
 
 ## Kitchen (P5, P3) - helper "kitchen"
 

@@ -1435,6 +1435,18 @@
    "request": "Doors look without frames, they need frames. Sometimes maybe not needed frames but mostly yes it does (29 Oct 2026, real06)",
    "lesson": "Doors look without frames, they need frames. Sometimes maybe not needed frames but mostly yes it does (29 Oct 2026, real06)",
    "question": null
+  },
+  {
+   "id": "UL123",
+   "date": "2026-10-29",
+   "area": "bathroom",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Look how beautiful is this bathroom (29 Oct 2026, photo P12: terrazzo vanity wall, fluted floating vanity with lit cubbies, backlit rounded mirror, vessel basin, walk-in shower with sliding glass and rain head, towel shelf, styled counter clusters; docs/reference_details_20261029.md B12-B20)",
+   "lesson": "Look how beautiful is this bathroom (29 Oct 2026, photo P12: terrazzo vanity wall, fluted floating vanity with lit cubbies, backlit rounded mirror, vessel basin, walk-in shower with sliding glass and rain head, towel shelf, styled counter clusters; docs/reference_details_20261029.md B12-B20)",
+   "question": null
   }
  ]
 }
