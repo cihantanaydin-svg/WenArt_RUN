@@ -1270,6 +1270,8 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             # 28 Oct 2026 (user: "kettle in the kitchen, microwave in the kitchen etc"): the worktop, dressed
             # modestly by rule (the AI's slots hold no counter); the fallback gets it from decor.rule_decor_room
             items += D.kitchen_worktop_decor(out, room, pieces, new_id, existing=items)
+            # 29 Oct 2026 (UL115, UL118): and the style family's styling sets (wenart.blender.kitchen_details)
+            items += D.kitchen_styling_decor(out, room, pieces, new_id, existing=items, family=family)
             items += TT.dress_tops(room, pieces, out, items, new_id, q.slots,   # 28 Oct 2026: set tables, tops
                                    density=out["decor_minimum"][room["id"]]["density"], notes=rec.notes)
         apply_brief_looks(items, style, lamps, looks)
@@ -1379,6 +1381,20 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
     for it in out["decor"]:
         if it.get("id") not in before and it.get("room_id") in room_ids:
             record_of(it["room_id"]).items.append(it)
+    # 29 Oct 2026 (lessons UL114, UL123, UL124: the user's bathroom photos): every wet room's accessories in its style
+    # family's set (paper holder and brush, towel rail, shelf and bars, the family's mirror, the feature wall, the
+    # downlights and the cove light; wenart.furniture.bath_details); the questions and the stored answers are unchanged
+    from wenart.furniture import bath_details as BD
+
+    before = {d.get("id") for d in out["decor"]}
+    _out, bath_notes = BD.dress(out, style, new_id)
+    for it in out["decor"]:
+        if it.get("id") not in before and it.get("room_id") in room_ids:
+            record_of(it["room_id"]).items.append(it)
+    for note in bath_notes:
+        rid = note.split(":", 1)[0]
+        if rid in room_ids:
+            record_of(rid).notes.append(note)
     D.attach_host_frames(out)                     # Milestone 12 (§4.7): every item in its host's frame
     return out, records
 

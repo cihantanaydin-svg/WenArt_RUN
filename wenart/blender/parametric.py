@@ -204,10 +204,16 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug",   # param
                                  # kitchen worktop's small appliances and decor (``kitchen_worktop_parts``)
                                  "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot",
                                  "fruit_bowl",
+                                 # 29 Oct 2026 (lessons UL115, UL118: the reference kitchens' styled worktops): the
+                                 # styling sets (``kitchen_details.styling_parts``, one mesh per set)
+                                 "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles",
+                                 "dried_grass_vase", "coffee_station",
                                  # 29 Oct 2026 (user: "Computer on the table would have been nice or a laptop"): the
                                  # desk's work set (``work_set_parts``)
                                  "laptop", "monitor", "keyboard", "computer_mouse")
-KITCHEN_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("microwave"):DECOR_TYPES.index("fruit_bowl") + 1]
+KITCHEN_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("microwave"):DECOR_TYPES.index("coffee_station") + 1]
+STYLING_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("storage_jars"):
+                                                   DECOR_TYPES.index("coffee_station") + 1]
 WORK_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("laptop"):]
 _NEW_DECOR: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("curtain"):]
 # Milestone 10 storage built with the cabinet fronts of the design (a design detail of the piece).
@@ -223,6 +229,9 @@ SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_la
                                         # 28 Oct 2026: the kitchen worktop items rest on the built worktop
                                         "microwave", "kettle", "coffee_machine", "toaster", "chopping_board",
                                         "utensil_pot", "fruit_bowl",
+                                        # 29 Oct 2026 (UL115, UL118): the worktop styling sets
+                                        "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles",
+                                        "dried_grass_vase", "coffee_station",
                                         "plate", "glass",                                   # 28 Oct 2026
                                         # 29 Oct 2026: the desk's work set rests on the built desk top
                                         "laptop", "monitor", "keyboard", "computer_mouse")
@@ -344,6 +353,9 @@ DECOR_DEFAULT_HEIGHT = {"cushion": 0.12, "book_set": 0.22, "plant": 0.6, "rug": 
                         # 19 cm, a 40 x 25 cm board, a utensil pot with its tools, a 28 cm fruit bowl)
                         "microwave": 0.27, "kettle": 0.25, "coffee_machine": 0.35, "toaster": 0.19,
                         "chopping_board": 0.02, "utensil_pot": 0.30, "fruit_bowl": 0.12,
+                        # 29 Oct 2026: the styling sets (kitchen_details.STYLING_SIZES: real products)
+                        "storage_jars": 0.24, "plate_stack": 0.14, "cookware": 0.18, "cutting_boards": 0.45,
+                        "oil_bottles": 0.30, "dried_grass_vase": 0.55, "coffee_station": 0.38,
                         "plate": 0.025, "glass": 0.14,           # 28 Oct 2026: a dinner plate, a water glass
                         # 29 Oct 2026: an open 14-15 inch laptop (``laptop_box``), a 24 inch monitor on its stand, a
                         # full-size keyboard, a mouse
@@ -1124,7 +1136,13 @@ def _washbasin(w: float, d: float, h: float) -> list[Part]:
     return parts
 
 
-def _toilet(w: float, d: float, h: float) -> list[Part]:
+def _toilet(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """The Milestone 4 close-coupled WC; 29 Oct 2026 (UL114 B1): the wall-hung WC with its flush plate when the
+    piece's bathroom look says so (``bath_parts.wall_hung_wc_parts``; on its feature wall's face, B24)."""
+    look = (piece or {}).get("bath_look") if isinstance((piece or {}).get("bath_look"), dict) else {}
+    if look.get("wc") == "wall_hung":
+        from wenart.blender import bath_parts as BT
+        return BT.wall_hung_wc_parts(w, d, h, float(look.get("wall_offset_m") or 0.0))
     tank_d = min(0.18, d * 0.3)
     bowl_d = d - tank_d
     return [
@@ -1132,6 +1150,15 @@ def _toilet(w: float, d: float, h: float) -> list[Part]:
         _cylinder_z(0.0, -tank_d / 2.0, 0.0, w / 2.0, bowl_d / 2.0, h - 0.03, "ceramic", "bowl"),
         _cylinder_z(0.0, -tank_d / 2.0, h - 0.03, w / 2.0 * 0.98, bowl_d / 2.0 * 0.98, 0.03, "painted", "seat"),
     ]
+
+
+def _shower_m14(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """The Milestone 12 shower; 29 Oct 2026 (UL123 B16): the walk-in enclosure of the piece's bathroom look."""
+    look = (piece or {}).get("bath_look") if isinstance((piece or {}).get("bath_look"), dict) else {}
+    if look.get("shower") == "walk_in":
+        from wenart.blender import bath_parts as BT
+        return BT.walk_in_shower_parts(w, d, h)
+    return _shower(w, d, h)
 
 
 def _shower(w: float, d: float, h: float) -> list[Part]:
@@ -2346,7 +2373,13 @@ def _display_cabinet(w: float, d: float, h: float, piece: dict | None = None) ->
 
 
 def _tall_cabinet(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
-    """Tall (pantry) cabinet: plinth, carcass, a lower door of two thirds and an upper one per column."""
+    """Tall (pantry) cabinet: plinth, carcass, a lower door of two thirds and an upper one per column. 29 Oct 2026
+    (UL114 B5): a bathroom's storage column of an open-lit family is the open niche column with its toiletries
+    (``bath_parts.open_column_parts``)."""
+    look = (piece or {}).get("bath_look") if isinstance((piece or {}).get("bath_look"), dict) else {}
+    if look.get("column") == "open_lit":
+        from wenart.blender import bath_parts as BT
+        return BT.open_column_parts(w, d, h)
     design = piece_design(piece)
     plinth = min(0.1, h * 0.05)
     body, face = _carcass(w, d, plinth, h - plinth, "painted")
@@ -2413,7 +2446,12 @@ def _vanity(w: float, d: float, h: float, piece: dict | None = None) -> list[Par
 
 
 def _washbasin_m10(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
-    """The Milestone 4 pedestal basin, or the vanity look when the design says ``vanity``."""
+    """The Milestone 4 pedestal basin, or the vanity look when the design says ``vanity``; 29 Oct 2026 (UL114,
+    UL123, UL124): the floating vanity of the piece's bathroom look (``bath_parts.vanity_parts``)."""
+    look = (piece or {}).get("bath_look") if isinstance((piece or {}).get("bath_look"), dict) else {}
+    if look.get("made_to_measure") and look.get("vanity") in ("stone_slab", "fluted", "curved"):
+        from wenart.blender import bath_parts as BT
+        return BT.vanity_parts(w, d, float(look.get("top_m") or h), look)
     if piece_design(piece).get("vanity"):
         return _vanity(w, d, h, piece)
     return _washbasin(w, d, h)
@@ -3641,6 +3679,9 @@ def kitchen_worktop_parts(dtype: str, w: float, d: float, h: float) -> list[Part
     case, dark glass door with its window, a control strip and a handle), a kettle (body, lid, spout and handle on
     its base), a bean-to-cup coffee machine (body, drip tray, spout, cup), a 2-slice toaster (body with two slots and
     a lever), a wooden chopping board, a ceramic utensil pot with its wooden tools, a fruit bowl with fruit."""
+    if dtype in STYLING_DECOR_TYPES:                 # 29 Oct 2026 (UL115, UL118): a styling set, one mesh
+        from wenart.blender import kitchen_details as KD
+        return KD.styling_parts(dtype, w, d, h)
     r = min(w, d) / 2.0
     if dtype == "microwave":
         door, f = w * 0.68, -d / 2.0                 # every part inside the item's box: the case's front 3 cm back
@@ -3821,10 +3862,23 @@ def tv_parts(w: float, d: float, h: float, item: dict | None = None) -> list[Par
 MEDIA_DECOR_TYPES: tuple[str, ...] = ("tv",)         # 29 Oct 2026 (UL99), built by ``tv_parts``
 DECOR_TYPES = DECOR_TYPES + MEDIA_DECOR_TYPES
 LARGE_DECOR_TYPES = LARGE_DECOR_TYPES + MEDIA_DECOR_TYPES          # a 43-65 inch set is 0.96-1.45 m wide
+# 29 Oct 2026 (lessons UL114, UL123, UL124: the user's bathroom photos): the bathroom's decor, built by
+# ``wenart.blender.bath_parts`` (= its BATH_DECOR_TYPES, pinned in tests/test_bathroom_details_20261029.py)
+BATH_DECOR_TYPES: tuple[str, ...] = ("toilet_paper_holder", "toilet_brush", "towel_rail", "towel_shelf", "towel_bar",
+                                     "feature_panel", "cove_light")
+DECOR_TYPES = DECOR_TYPES + BATH_DECOR_TYPES
+LARGE_DECOR_TYPES = LARGE_DECOR_TYPES + ("towel_rail", "feature_panel", "cove_light")   # 1.2 m, a wall, a ceiling band
 SURFACE_DECOR_TYPES = SURFACE_DECOR_TYPES + MEDIA_DECOR_TYPES      # it stands on its TV unit's built top
 DECOR_DEFAULT_HEIGHT["tv"] = 0.77                                  # a 55 inch set on its pedestal
 if "screen" not in MATERIAL_KEYS:                                  # its glossy dark screen (also the work set's)
     MATERIAL_KEYS = MATERIAL_KEYS + ("screen",)
+# 29 Oct 2026 (UL114, UL123, UL124): the bathroom's real heights (bath_parts.DECOR_HEIGHTS) and its material keys: the
+# LED strips (``materials.led_material``), the light stone and terrazzo tops and panels, the towels (the room's accent)
+DECOR_DEFAULT_HEIGHT.update({"toilet_paper_holder": 0.13, "toilet_brush": 0.38, "towel_rail": 1.2, "towel_shelf": 0.40,
+                             "towel_bar": 0.45, "feature_panel": 2.5, "cove_light": 0.12})
+MATERIAL_KEYS = MATERIAL_KEYS + tuple(k for k in ("led", "stone_light", "terrazzo", "towel") if k not in MATERIAL_KEYS)
+BEVEL_BY_ROLE.update({"led": 0.0, "towel": 0.004, "rib": 0.001, "plate": 0.001, "button": 0.0005, "apron": 0.002,
+                      "panel": 0.002, "glass": 0.0, "groove": 0.0})
 BEVEL_BY_ROLE.update({"screen": 0.0, "neck": 0.002})
 
 
@@ -3857,7 +3911,7 @@ _BUILDERS = {
     "bookshelf": _bookshelf, "kitchen_counter": lambda w, d, h, piece=None: _counter_m10(w, d, h, False, piece),
     "kitchen_island": lambda w, d, h, piece=None: _counter_m10(w, d, h, True, piece),
     "fridge": _fridge, "stove": _stove, "sink_kitchen": _sink, "washbasin": _washbasin_m10, "toilet": _toilet,
-    "shower": _shower, "bathtub": _bathtub, "washing_machine": _washing_machine,
+    "shower": _shower_m14, "bathtub": _bathtub, "washing_machine": _washing_machine,
     "stair": _stair, "side_table": _side_table, "floor_lamp": _floor_lamp, "potted_plant": _potted_plant,
     # Milestone 10 (docs/milestone10.md §1.1, §4.4, §4.5)
     "sofa_corner": _sofa_corner, "chaise": _chaise, "ottoman": _ottoman, "bench": _bench, "bar_stool": _bar_stool,
@@ -3876,7 +3930,9 @@ _PIECE_BUILDERS = ("stair", "side_table", "table_dining", "table_coffee", "desk"
                    # round 4: the chair family v2 reads the design's material tags (frame, seat, base)
                    "chair",
                    # 28 Oct 2026: the bath reads the walls it stands on (its panels, the mixer's end)
-                   "bathtub")
+                   "bathtub",
+                   # 29 Oct 2026 (UL114, UL123): the WC and the shower read their bathroom look
+                   "toilet", "shower")
 
 
 def build_parts(ftype: str, w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
@@ -3908,11 +3964,18 @@ def decor_size(dtype: str, size) -> tuple[float, float, float]:
     return tuple(min(DECOR_MAX_M, max(0.02, v)) for v in (w, d, h))
 
 
+BATH_MIRRORS: tuple[str, ...] = ("led_mirror", "backlit_mirror", "round_mirror")    # UL114 B4, UL123 B14, UL124 B22
+
+
 def decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = None) -> list[Part]:
     """Parts of a parametric decor item of box ``w x d x h`` (``item``: the decor entry, read for a large
     plant's species)."""
     if dtype in MEDIA_DECOR_TYPES:                 # 29 Oct 2026 (UL99): the TV on its stand
         return tv_parts(w, d, h, item)
+    if dtype in BATH_DECOR_TYPES or (dtype == "mirror" and (item or {}).get("fixture") in BATH_MIRRORS) or (
+            dtype == "ceiling_light" and str((item or {}).get("trim") or "").startswith("square")):
+        from wenart.blender import bath_parts as BT    # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's details
+        return BT.decor_parts(dtype, w, d, h, item)
     if dtype in _NEW_DECOR:
         return _new_decor_parts(dtype, w, d, h, item)
     if dtype == "cushion":                         # Milestone 12: a filled cushion, not a box

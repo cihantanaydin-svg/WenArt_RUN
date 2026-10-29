@@ -112,6 +112,7 @@ MATERIAL_WORDS: dict[str, str] = {
     "stone_worktop": "dark stone",
     "lacquer_dark": "dark lacquered",
     "screen_black": "glossy black screen",            # 29 Oct 2026: a TV's, a laptop's or a monitor's screen
+    "led_strip": "warm LED light strip",              # 29 Oct 2026 (UL114): the bathroom details' LED strips
     "plant_green": "green plant",
     "wood_veneer_oak": "light oak veneer",
     "wood_veneer_walnut": "walnut veneer",
@@ -142,6 +143,7 @@ MATERIAL_WORDS: dict[str, str] = {
     # wet walls and tile floors
     "tiles_subway": "subway tile",
     "tiles_large_porcelain": "large-format porcelain tile",
+    "tiles_large_gloss": "glossy large-format porcelain tile",      # 29 Oct 2026 (K11): the modern kitchens' floor
     "tiles_zellige": "handmade zellige tile",
     "tiles_hexagon": "hexagon tile",
     "tiles_mosaic": "small mosaic tile",
@@ -273,10 +275,18 @@ DECOR_WORDS: dict[str, str] = {
     # 28 Oct 2026: the kitchen worktop items (wenart.furniture.decor.kitchen_worktop_decor)
     "microwave": "countertop microwave", "kettle": "kettle", "coffee_machine": "coffee machine", "toaster": "toaster",
     "chopping_board": "chopping board", "utensil_pot": "utensil pot", "fruit_bowl": "fruit bowl",
+    # 29 Oct 2026 (UL115, UL118): the worktop styling sets (wenart.blender.kitchen_details)
+    "storage_jars": "glass storage jars", "plate_stack": "stacked plates and bowls",
+    "cookware": "pots and pans on the hob", "cutting_boards": "wooden cutting boards", "oil_bottles": "oil bottles",
+    "dried_grass_vase": "dried pampas grass in a vase", "coffee_station": "coffee station",
     "plate": "set table with plates", "glass": "glasses",            # 28 Oct 2026 (wenart.furniture.tabletop)
     # 29 Oct 2026 (wenart.furniture.tabletop.work_set): the desk's work set
     "laptop": "open laptop", "monitor": "computer monitor", "keyboard": "keyboard", "computer_mouse": "computer mouse",
     "tv": "flat television",                                          # 29 Oct 2026 (UL99)
+    # 29 Oct 2026 (wenart.furniture.bath_details, UL114, UL123, UL124): the bathroom's accessories
+    "toilet_paper_holder": "toilet paper holder", "toilet_brush": "toilet brush", "towel_rail": "heated towel rail",
+    "towel_shelf": "towel shelf", "towel_bar": "towel bar", "feature_panel": "feature wall panel",
+    "cove_light": "cove light",
 }
 # rooms[].room_subtype words (Milestone 10: a child's room holds cribs and bunk beds).
 SUBTYPE_WORDS: dict[str, str] = {"child": "child's bedroom"}

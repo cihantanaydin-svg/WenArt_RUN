@@ -132,8 +132,12 @@ WALL_HUNG_TYPES: tuple[str, ...] = ("wall_cabinet",)
 SOFT_HOST_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "bed_single",
                                     "bed_double", "bunk_bed", "crib")
 SOFT_SUPPORTS: tuple[str, ...] = ("seat", "mattress", "back", "headboard")
-FLOOR_DECOR: tuple[str, ...] = ("rug", "plant", "plant_large", "basket", "sculpture")
-UNMEASURED_DECOR: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind")
+FLOOR_DECOR: tuple[str, ...] = ("rug", "plant", "plant_large", "basket", "sculpture",
+                                 "toilet_brush")             # 29 Oct 2026 (UL114 B2): on the floor beside the WC
+UNMEASURED_DECOR: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind",
+                                     # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's wall details
+                                     "toilet_paper_holder", "towel_rail", "towel_shelf", "towel_bar", "feature_panel",
+                                     "cove_light")
 # 28 Oct 2026 (module docstring): hung decor is measured against the ceiling over it
 HUNG_DECOR: tuple[str, ...] = ("pendant_light", "ceiling_light")
 LEANING_SUPPORTS: tuple[str, ...] = ("back", "headboard")

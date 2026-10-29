@@ -608,6 +608,12 @@ def wall_cabinets_for(room: dict, building: dict, items: list[dict]) -> list[dic
     blocked += [(f"stove {f['id']}", region, "hood") for f in items
                 if f["type"] == "stove" and f.get("build") is not False and f.get("footprint")
                 for region in [hood_region(f)] if region is not None]
+    # 29 Oct 2026 (wenart.blender.kitchen_details, K1): the tall units a counter run's plan holds (a fridge or oven
+    # column to the ceiling) end a wall cabinet as a tall piece does
+    from wenart.blender import kitchen_details as KD
+    blocked += [(f"tall unit of {f['id']}", Polygon(G.rotated_rectangle(c, s, r)), "wall") for f in items
+                if f["type"] in ("kitchen_counter", "kitchen_island") and f.get("build") is not False
+                for c, s, r in KD.tall_unit_rects(f)]
     # 26 Oct 2026 (user: "fix should be general"): every built counter run against a wall, drawn or added (a run the
     # solver laid in an empty kitchen, a compact fallback run); before, only drawn counters got wall cabinets
     # 28 Oct 2026: a counter outline drawn inside another run is part of it (``fit.nested_counters``): no band of its own

@@ -1040,6 +1040,9 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                                      + (f", at most {ceiling - CEILING_MARGIN_M:.2f} m high under the sloped "
                                         f"ceiling)" if ceiling is not None else ")"))
         return asset
+    made = bath_made_fit(piece, style_family, mode, style)
+    if made is not None:                   # 29 Oct 2026 (UL114, UL123, UL124): the family's bathroom, made by design
+        return made
     candidates = catalog.candidates(ftype)
     if not candidates:
         if ftype == "unknown":
@@ -1409,7 +1412,8 @@ def kitchen_built_ins(building: dict) -> dict:
     (``{id, type, x0_m, x1_m}``: their drawn span along the run). A piece belongs to one run at most. Without the
     module builders (import guarded, as ``module_plan_for``) nothing is found. Fix round after P3, part 2 (17 Oct
     2026): a pinned sink (``asset_pin``) gives a ``ranges`` entry too (``type: sink_kitchen``, ``reason``): the run
-    leaves a gap at its drawn span, where its pinned model stands (it is never in ``sinks``)."""
+    leaves a gap at its drawn span, where its pinned model stands (it is never in ``sinks``). 29 Oct 2026:
+    ``details`` holds the kitchen details' hints per run (``kitchen_details_hints``; ``run_hints`` merges them)."""
     out: dict = {"hints": {}, "sinks": {}}
     try:
         from wenart.blender import modules as MOD
@@ -1482,7 +1486,217 @@ def kitchen_built_ins(building: dict) -> dict:
                 out["sinks"][pid] = run["id"]
         if hints:
             out["hints"][run["id"]] = hints
+    # 29 Oct 2026 (wenart.blender.kitchen_details, K1 and G3): the tall-unit column of each kitchen, the stools' side
+    # of each island, the windows behind each counter run (the utensil rail stays off them): ``details`` (merged into
+    # a run's hints by ``run_hints``; the plan reads them only with a style)
+    out["details"] = {}
+    try:
+        kitchen_details_hints(building, runs, pieces, out["hints"], out["details"])
+    except Exception as exc:  # noqa: BLE001 - a detail that cannot be planned never stops the fit
+        out["details_error"] = f"kitchen details not planned: {type(exc).__name__}: {exc}"
     return out
+
+
+def run_hints(kitchen: dict, piece_id) -> Optional[dict]:
+    """A piece's module hints from the kitchen pre-pass (``kitchen_built_ins``): its hints and its kitchen details'
+    hints (29 Oct 2026), None when it has neither."""
+    got = {**((kitchen.get("hints") or {}).get(piece_id) or {}), **((kitchen.get("details") or {}).get(piece_id) or {})}
+    return got or None
+
+
+# 29 Oct 2026 (wenart.blender.kitchen_details, K1): where a run's end stands
+COLUMN_WALL_REACH_M = 0.15       # a wall this far beyond a run's end (its face): the end is against a wall
+COLUMN_CORNER_REACH_M = 0.10     # another counter run this close to a run's end: the end is a corner
+SEAT_REACH_M = 0.90              # a bar stool this close to an island is one of its seats
+
+
+def _run_axes(run: dict) -> tuple[tuple[float, float], float, float, float]:
+    fp = run["footprint"]
+    return ((float(fp["center"][0]), float(fp["center"][1])), float(fp.get("rotation_deg") or 0.0),
+            float(fp["size"][0]), float(fp["size"][1]))
+
+
+def _to_world(c, rot: float, x: float, y: float) -> tuple[float, float]:
+    r = math.radians(rot)
+    return (c[0] + math.cos(r) * x - math.sin(r) * y, c[1] + math.sin(r) * x + math.cos(r) * y)
+
+
+def _to_run(c, rot: float, p) -> tuple[float, float]:
+    r = math.radians(rot)
+    dx, dy = float(p[0]) - c[0], float(p[1]) - c[1]
+    return (math.cos(r) * dx + math.sin(r) * dy, -math.sin(r) * dx + math.cos(r) * dy)
+
+
+def run_end_kind(building: dict, run: dict, runs: list, side: str) -> str:
+    """K1: ``corner`` (another counter run of the room meets the end), ``wall`` (a wall of the level runs across the
+    end within ``COLUMN_WALL_REACH_M``) or ``open`` for the ``left`` (local -x) or ``right`` end of a run (pure)."""
+    from wenart.blender import geom2d
+
+    c, rot, w, d = _run_axes(run)
+    sx = -1.0 if side == "left" else 1.0
+    pts = [_to_world(c, rot, sx * w / 2.0, y) for y in (-d / 2.0 + 0.02, 0.0, d / 2.0 - 0.02)]
+    for o in runs:
+        if o is run or o.get("room_id") != run.get("room_id") or o.get("level_id") != run.get("level_id"):
+            continue
+        oc, orot, ow, od = _run_axes(o)
+        if min(geom2d.distance_to_rect(p, oc, (ow, od), orot) for p in pts) <= COLUMN_CORNER_REACH_M + 1e-9:
+            return "corner"
+    ax = (math.cos(math.radians(rot)), math.sin(math.radians(rot)))
+    mid = pts[1]
+    for wall in building.get("walls") or []:
+        if wall.get("level_id") != run.get("level_id"):
+            continue
+        (x0, y0), (x1, y1) = wall["start"][:2], wall["end"][:2]
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length < 1e-6 or abs(((x1 - x0) * ax[0] + (y1 - y0) * ax[1]) / length) > 0.5:
+            continue                                     # the wall must run across the run's axis
+        from wenart import geometry as G
+        if G.point_segment_distance(mid, (x0, y0), (x1, y1)) <= float(wall.get("thickness") or 0.2) / 2.0 \
+                + COLUMN_WALL_REACH_M:
+            return "wall"
+    return "open"
+
+
+def _taken_spans(c, rot: float, hints: dict) -> list[tuple[float, float, str]]:
+    """The spans a run's sink, hob, drawn stoves and fridge take (the run's frame, a unit's widest real width)."""
+    out = []
+    if hints.get("sink_pos_m"):
+        x = _to_run(c, rot, hints["sink_pos_m"])[0]
+        out.append((x - 0.45, x + 0.45, "sink"))
+    if hints.get("hob_span_m"):
+        out.append((float(hints["hob_span_m"][0]), float(hints["hob_span_m"][1]), "hob"))
+    elif hints.get("hob_pos_m"):
+        x = _to_run(c, rot, hints["hob_pos_m"])[0]
+        out.append((x - 0.45, x + 0.45, "hob"))
+    for r in hints.get("ranges") or []:
+        out.append((float(r["x0_m"]), float(r["x1_m"]), "range"))
+    if hints.get("fridge_pos_m"):
+        x = _to_run(c, rot, hints["fridge_pos_m"])[0]
+        out.append((x - 0.30, x + 0.30, "fridge"))
+    return out
+
+
+def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run: dict, details: dict) -> None:
+    """29 Oct 2026 (wenart.blender.kitchen_details; in place on ``details``, ``{run id: hints}``, reading the runs'
+    ``hints_by_run`` of the pre-pass): per kitchen (the runs of one room) the tall-unit column (K1): the counter run end
+    that is no corner, has no window, door or pass-through by it (``openings_behind``), no wall cabinet over it and
+    room for the units beside the sink and the hob (a wall end first, the longer run first): ``column`` = ``{"end",
+    "kinds", "top_m", "why"}`` (an oven tower, and a fridge when the kitchen has none: a French-door fridge in a run from
+    ``COLUMN["french_from_run_m"]``); with the ovens in the column the hob's run gets ``oven_in_column``; no end free and
+    no fridge in the kitchen: an under-counter fridge (``fridge_x_m``, ``fridge_why``) in the longest run. Per island
+    ``seat_side`` (``back`` / ``front``: the bar stools' side, G3); per counter run ``windows_m`` (the windows and
+    pass-throughs behind it, the run's frame: the utensil rail stays off them)."""
+    from wenart.blender import kitchen_details as KD
+
+    def mine(run_id: str) -> dict:
+        return details.setdefault(run_id, {})
+
+    def given(run_id: str) -> dict:
+        return {**(hints_by_run.get(run_id) or {}), **(details.get(run_id) or {})}
+
+    by_room: dict = {}
+    for run in runs:
+        by_room.setdefault((run.get("level_id"), run.get("room_id")), []).append(run)
+    for (_lv, room_id), room_runs in sorted(by_room.items(), key=lambda kv: str(kv[0])):
+        room_pieces = [p for p in pieces if p.get("room_id") == room_id and p.get("build", True) is not False]
+        has_fridge = any(p.get("type") == "fridge" for p in room_pieces) or any(
+            given(r["id"]).get("fridge_piece") for r in room_runs)
+        for run in room_runs:                               # the windows behind a counter run, the stools' side
+            c, rot, w, d = _run_axes(run)
+            if run.get("type") == "kitchen_island":
+                sides = []
+                for s in room_pieces:
+                    if s.get("type") != "bar_stool" or not s.get("footprint"):
+                        continue
+                    lx, ly = _to_run(c, rot, s["footprint"]["center"])
+                    if abs(lx) <= w / 2.0 + 0.2 and d / 2.0 - 0.3 < abs(ly) <= d / 2.0 + SEAT_REACH_M:
+                        sides.append("back" if ly > 0 else "front")
+                if sides:
+                    mine(run["id"])["seat_side"] = max(("back", "front"), key=sides.count)
+                continue
+            spans = []
+            for o in openings_behind(building, run, ("window", "opening")):
+                half = float(o.get("width") or 0.9) / 2.0
+                x = _to_run(c, rot, o["center"])[0]
+                spans.append([round(x - half - 0.05, 4), round(x + half + 0.05, 4)])
+            if spans:
+                mine(run["id"])["windows_m"] = spans
+        counters = [r for r in room_runs if r.get("type") == "kitchen_counter"]
+        best = None
+        kind_sets = ([["oven_tower"]] if has_fridge else [["fridge", "oven_tower"], ["fridge"], ["oven_tower"]])
+        for run in counters:
+            c, rot, w, d = _run_axes(run)
+            h = given(run["id"])
+            if h.get("fridge_column"):
+                continue                                    # its fridge column (27 Oct 2026) stands at an end
+            taken = _taken_spans(c, rot, h)
+            for rank, kinds in enumerate(kind_sets):
+                names = [("fridge_french" if w >= KD.COLUMN["french_from_run_m"] - 1e-9 else "fridge_column")
+                         if k == "fridge" else k for k in kinds]
+                tw = sum(wd for _k, wd in KD.column_widths(names))
+                if w - tw < KD.COLUMN["rest_min_m"] - 1e-9:
+                    continue
+                for side in ("left", "right"):
+                    end = run_end_kind(building, run, counters, side)
+                    if end == "corner":
+                        continue
+                    lo, hi = (-w / 2.0, -w / 2.0 + tw) if side == "left" else (w / 2.0 - tw, w / 2.0)
+                    if any(lo < t1 + KD.COLUMN["clear_m"] and hi > t0 - KD.COLUMN["clear_m"] for t0, t1, _k in taken):
+                        continue
+                    cx, cy = _to_world(c, rot, (lo + hi) / 2.0, 0.0)
+                    col = {"id": f"{run['id']}#column", "type": "tall_cabinet", "level_id": run.get("level_id"),
+                           "room_id": run.get("room_id"),
+                           "footprint": {"center": [cx, cy], "size": [tw, d], "rotation_deg": rot}}
+                    if openings_behind(building, col, ("window", "opening", "door")) or _wall_cabinet_over(pieces, col):
+                        continue
+                    key = (rank, 0 if end == "wall" else 1, -w, str(run["id"]), side)
+                    if best is None or key < best[0]:
+                        best = (key, run, side, names, end)
+        fridge_in_column = False
+        if best is not None:
+            _key, run, side, names, end = best
+            top = _ceiling_over(building, run)
+            why = (f"a tall-unit column at the {end} end of {run['id']} ({', '.join(n.replace('_', ' ') for n in names)}"
+                   f"): the kitchen has room for it (K1, UL118)" + ("" if has_fridge else
+                                                                    "; the kitchen had no fridge"))
+            mine(run["id"])["column"] = {"end": side, "kinds": names, "why": why,
+                                         **({"top_m": top} if top is not None else {})}
+            fridge_in_column = any(n.startswith("fridge") for n in names)
+            if "oven_tower" in names:
+                for r in room_runs:
+                    rh = given(r["id"])
+                    if rh.get("hob_piece") or rh.get("hob_span_m"):
+                        mine(r["id"])["oven_in_column"] = True
+        for run in counters:                               # the 27 Oct fridge column: its fronts to the ceiling too
+            h = given(run["id"])
+            if h.get("fridge_column") and "column" not in h:
+                top = _ceiling_over(building, run)
+                if top is not None:
+                    mine(run["id"])["column"] = {"end": None, "kinds": [], "top_m": top,
+                                                 "why": "the fridge column's fronts to the ceiling (K1)"}
+        if has_fridge or fridge_in_column or not counters:
+            continue
+        # no fridge in the kitchen and no column end free: an under-counter fridge in the longest run (K1)
+        for run in sorted(counters, key=lambda r: (-float(r["footprint"]["size"][0]), str(r["id"]))):
+            c, rot, w, d = _run_axes(run)
+            taken = _taken_spans(c, rot, given(run["id"]))
+            spots = []
+            for side in ("left", "right"):
+                if run_end_kind(building, run, counters, side) == "corner":
+                    continue
+                for k in range(int(max(0.0, w - 0.6) / 0.05) + 1):
+                    x = (-w / 2.0 + 0.30 + k * 0.05) if side == "left" else (w / 2.0 - 0.30 - k * 0.05)
+                    if not any(x - 0.30 < t1 and x + 0.30 > t0 for t0, t1, _k in taken):
+                        spots.append((k, side, x))
+                        break
+            if spots:
+                _k, _side, x = min(spots)
+                mine(run["id"]).update(fridge_x_m=round(x, 4), fridge_why=(
+                    "an under-counter fridge built into the run: the kitchen had no fridge and no run end was free "
+                    "for a fridge column (K1)"))
+                break
+    for rid in [k for k, v in details.items() if not v]:
+        del details[rid]
 
 
 def _opening_behind(building: dict, piece: dict) -> bool:
@@ -1668,6 +1882,44 @@ def built_in_fit(piece: dict, run: dict, mode: str, style_family: Optional[str] 
                                   "x_m": record.get("x_m"), "w_m": record.get("w_m"),
                                   "shift_m": round(shift, 4), "shift_y_m": round(across, 4) + 0.0}})
     return _finish(asset, mode, [_step("library", "not tried", why), _step(MODULE_METHOD, step, None)])
+
+
+def bath_made_fit(piece: dict, style_family: Optional[str], mode: str, style: Optional[dict] = None
+                  ) -> Optional[dict]:
+    """29 Oct 2026 (lessons UL114, UL123, UL124; ``wenart.furniture.bath_details``): the asset of a bathroom piece the
+    layout stage made to measure for its style family (``bath_look.made_to_measure``: a wall-hung WC, a floating
+    vanity, an open lit niche column, a walk-in shower): built from code by design on its drawn footprint (a vanity
+    or a shower by the bath set module, a WC or a column by the parametric builder), never a library model; it records
+    a ``library_gap`` (no audited model of that design) so the report lists it. None for any other piece."""
+    from wenart.blender import bath_parts as BT
+
+    made = BT.made_to_measure(piece)
+    if made is None:
+        return None
+    look = BT.bath_look(piece)
+    what = {"wc": "wall-hung WC with its flush plate", "vanity": f"{look.get('vanity')} floating vanity",
+            "column": "open lit niche column", "shower": "walk-in shower"}[made]
+    reason = (f"the {look.get('family') or style_family or 'project'} family's bathroom (UL114): our {what}, made to "
+              f"measure on the drawn footprint (bath_details); no library model is searched")
+    ladder = [_step("library", "not tried", reason)]
+    if made in ("vanity", "shower"):
+        plan, why = module_plan_for(piece, style)
+        if plan is not None:
+            asset = module_fit(piece, plan, reason, [], [], style_family)
+            asset["by_design"] = True
+            asset["library_gap"] = {"type": piece["type"], "style": style_family, "step": MODULE_METHOD,
+                                    "used": f"module builder bath_set ({what}, by design)", "reason": reason}
+            asset["bath_made"] = made
+            ladder.append(_step(MODULE_METHOD, f"used {plan['builder']} ({what})", None))
+            return _finish(asset, mode, ladder)
+        ladder.append(_step(MODULE_METHOD, "no module builder", why))
+    asset = parametric_fit(piece, reason, [], [], style_family)
+    asset["by_design"] = True
+    asset["bath_made"] = made
+    asset["library_gap"] = {"type": piece["type"], "style": style_family, "step": "parametric",
+                            "used": f"our parametric {what} (by design)", "reason": reason}
+    ladder.append(_step("parametric", "used (by design)", reason))
+    return _finish(asset, mode, ladder)
 
 
 def module_fit(piece: dict, plan: dict, reason: str, candidates: Optional[list] = None,
@@ -2328,6 +2580,8 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
         return None
     if item.get("fixture") == "downlight":            # 29 Oct 2026 (UL106): our recessed downlight (parametric)
         return None
+    if item.get("fixture") in ("led_mirror", "backlit_mirror", "round_mirror"):
+        return None                                   # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's own mirrors
     styled = [e for e in decor_entries(catalog, dtype, mode) if decor_styles_match(e, style_family)
               and C.contact_fits(e, dtype)]               # Milestone 12: the audited contact suits the type
     fits = [(e, f) for e in styled for f in [_decor_fit(e, item, dtype)] if f is not None]
@@ -2777,7 +3031,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
             asset = built_in_fit(piece, built_into, mode, style_family)
         else:
             design = design_of(piece, style) if (style is not None or piece.get("design")) else None
-            hints = kitchen["hints"].get(piece.get("id"))
+            hints = run_hints(kitchen, piece.get("id"))     # 29 Oct 2026: with the kitchen details' hints
             if extra_hints:                  # 28 Oct 2026: a wall cabinet's ends and its run's joints
                 hints = {**(hints or {}), **extra_hints}
             # the run's hints reach its plan on a copy: the building piece never gets module_hints (FROZEN_KEYS,

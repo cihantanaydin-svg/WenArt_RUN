@@ -1908,8 +1908,27 @@ def floor_style(room: dict, style: dict, outdoor: dict | None = None) -> tuple[d
     kind = slot_room_type(room.get("room_type"))
     if kind in KITCHEN_TYPES and isinstance(style.get("floor"), dict) and _wet_safe(style["floor"].get("material")):
         return style["floor"], True
+    # 29 Oct 2026 (K11, wenart.blender.kitchen_details.floor_look): a kitchen of the modern families takes large glossy
+    # porcelain tiles where the style names no wet-safe floor (before: the wet rooms' floor)
+    if kind in KITCHEN_TYPES:
+        try:
+            from wenart.blender import kitchen_details as KD
+            tile = KD.floor_look(style.get("family"))
+        except ImportError:
+            tile = None
+        if tile is not None:
+            return {"material": tile["material"], "colour": tile["colour"], "reason": tile["reason"]}, True
     wet = kind in WET_ROOM_TYPES
     slot = (style.get("wet_floor") if wet else None) or style["floor"]
+    if wet and kind not in KITCHEN_TYPES and slot is style.get("wet_floor"):
+        # 29 Oct 2026 (UL114 B8): a bathroom's or WC's floor in the family's large stone-look tile (the brief's wins)
+        try:
+            from wenart.blender import bath_parts as BT
+            tile = BT.wet_tile_look(style, "floor")
+        except ImportError:
+            tile = None
+        if tile is not None:
+            slot = {k: v for k, v in tile.items() if k in ("material", "asset", "colour")}   # its own 60 x 120 grid
     # 29 Oct 2026 (UL106): the style's plank floor laid in the room's pattern (herringbone / chevron; the build writes
     # ``room["floor_pattern"]``, wenart.blender.parquet.annotate)
     if not wet and slot is style.get("floor") and isinstance(slot, dict):
@@ -2116,6 +2135,23 @@ def splashback_plan(building: dict, level: dict) -> list[dict]:
     return out
 
 
+def splashback_family_look(building: dict, level: dict, style: dict) -> dict | None:
+    """29 Oct 2026 (K5, G3): the splashback look of the style's family (``kitchen_details.splashback_look``: the
+    worktop's stone, a white marble slab or white subway tiles; None keeps the wet walls' tiles) with the designs of
+    the level's kitchen runs (their worktop); pure."""
+    try:
+        from wenart.blender import kitchen_details as KD
+    except ImportError:
+        return None
+    designs = []
+    for p in building.get("furniture") or []:
+        if p.get("level_id") != level.get("id") or p.get("type") not in ("kitchen_counter", "kitchen_island"):
+            continue
+        plan = ((p.get("asset") or {}).get("module_plan") or {}) if isinstance(p.get("asset"), dict) else {}
+        designs.append(plan.get("design") or p.get("design") or {})
+    return KD.splashback_look((style or {}).get("family"), designs)
+
+
 def build_splashbacks(building: dict, level: dict, collection, library, style: dict, manifest_objects: list,
                       assumed: list) -> int:
     """The splashback objects of ``splashback_plan``: one object ``splashback_<room>`` per kitchen (kind
@@ -2139,7 +2175,16 @@ def build_splashbacks(building: dict, level: dict, collection, library, style: d
     if not plan:
         return 0
     slot = style.get("splashback") if isinstance(style.get("splashback"), dict) else None
+    if slot is None and "wet_walls_brief" in style:
+        # 29 Oct 2026 (UL114 B8): the bathrooms' family tiles are no kitchen's; the splashback keeps the brief's wet walls
+        style = dict(style, wet_walls=style["wet_walls_brief"])
     look = dict(_slot_look(slot, "tiles_light"), colour=slot.get("colour")) if slot else wet_wall_look(style, None)
+    family_look = None if slot else splashback_family_look(building, level, style)
+    if family_look is not None:
+        # 29 Oct 2026 (K5, G3; wenart.blender.kitchen_details.splashback_look): the family's stone or subway tiles
+        look = {"material": family_look["material"], "asset": None, "tint": None, "colour": family_look.get("colour")}
+        assumed.append({"object": f"splashback_{level['id']}", "field": "splashback_look",
+                        "value": family_look["material"], "reason": family_look["reason"], "kind": "splashback"})
     mat = look_material(library, look)
     by_room: dict[str, list] = {}
     for b in plan:
@@ -2331,6 +2376,13 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
             "material": floor_mat.name, "textured": _textured(library, floor_mat),
             "pass_index": None, "assumed": {}, "room_type": room.get("room_type"), "wet": wet,
         })
+        # 29 Oct 2026 (K11): a floor the family's kitchen rule chose is recorded with its reason
+        k11 = floor_style(room, style)[0] if room["id"] not in open_rooms else {}
+        if isinstance(k11, dict) and k11.get("reason"):
+            manifest_objects[-1]["assumed"] = {"floor": k11["material"], "reason": k11["reason"]}
+            if assumed is not None:
+                assumed.append({"object": ob.name, "field": "floor", "value": k11["material"],
+                                "reason": k11["reason"], "parent": room["id"], "kind": "floor"})
         if fcut:
             manifest_objects[-1]["stair_void"] = f"{len(fcut)} opening(s) of the slab under the level cut out"
         if abs(rz - floor_z) > 1e-9:

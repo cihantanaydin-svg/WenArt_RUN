@@ -57,6 +57,11 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   front of it; UL92: "This washing machine would not open");
 - U20 a piece whose back belongs on a wall standing parallel to it a drawing gap (0.055-0.15 m) off it
   (``fixture_use.back_gaps``; UL96: "There is a gap between wall and water faucet not looking good").
+- U30 (UL114, UL123, UL124, 29 Oct 2026: the user's bathroom photos, "Look at the details in the toilet analyze
+  implement into the projects") a wet room missing the set its style family gets (``wenart.furniture.bath_details.
+  review``, the model review's M26): a WC without its paper holder or brush or not wall-hung in a wall-hung family, a
+  basin without its mirror (of the family's kind) or, where the drawing has room, its vanity, a shower without its
+  walk-in enclosure, a bathroom without a towel rail or a towel shelf or bar.
 - U27 (UL109, 29 Oct 2026: "There are no chimneys there could be some chimney in the projects") a drawn fireplace,
   stove, flue or boiler room (``chimney.drawn_sources``) with no chimney on the roof (kind ``lost``); a house with a
   pitched roof whose style family usually has a chimney (``chimney.FAMILY_CHIMNEYS``) and no chimney in the scene.
@@ -66,6 +71,10 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   designed (``doors_as_designed``: the model review's M29): every inside door closed, all doors one size, an open
   leaf in a piece, a walk-in with closed fronts only (a design finding with the architect's D8 answer as its fix), a
   door without a frame and no frameless reason. Kind ``reference_missed`` (an open leaf in a piece: ``geometry``).
+- U31 (UL115 kitchen part, UL118, 29 Oct 2026: "look at all these details I want these details") a kitchen missing what
+  its style family's kitchen details give it (``wenart.blender.kitchen_details.review``, the model review's M27): a
+  worktop bare beyond U11, a wall cabinet with no LED strip under it, an island hob without a hood, a family detail
+  not built (a waterfall island, knee space for the stools), a kitchen with no fridge.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -728,6 +737,23 @@ def rooms_for_use(building: dict) -> list[dict]:
     return out
 
 
+def bathroom_sets(building: dict) -> list[dict]:
+    """U30 (29 Oct 2026, lessons UL114, UL123, UL124): ``wenart.furniture.bath_details.review`` on the building as
+    built, each finding with the stage that adds what is missing."""
+    from wenart.furniture import bath_details as BD
+
+    fixes = {"toilet_paper_holder": "rerun_stage decor (bath_details.dress: the paper holder beside the WC)",
+             "toilet_brush": "rerun_stage decor (bath_details.dress: the brush beside the WC)",
+             "towel_rail": "rerun_stage decor (bath_details.dress: a towel rail on a free wall)",
+             "towel_shelf": "rerun_stage decor (bath_details.dress: a towel shelf beside the rail, towel bars)",
+             "mirror": "complete_group (a mirror over the basin), else rerun_stage decor",
+             "mirror_kind": "rerun_stage decor (bath_details.dress: the family's mirror)"}
+    return [_f("U30", g["severity"], g["target"], g["message"], "UL114",
+               fixes.get(g["missing"], "rerun_stage layout (bath_details.plan_building: the family's fixtures)"),
+               missing=g["missing"], room=g["room_id"])
+            for g in BD.review(building, check="U30")[0]]
+
+
 BUILDING_CHECKS = (("U1", entrances_at_windows), ("U2", roofs_without_posts), ("U3", thick_columns),
                    ("U4", flat_drawn_roofs), ("U5", traced_covers), ("U6", storage_before_tall_windows),
                    ("U8", seats_facing_walls), ("U9", indoor_pieces_outdoors), ("U10", basins_without_mirrors),
@@ -783,6 +809,10 @@ def doors_as_designed(building: dict, manifest: Optional[dict]) -> list[dict]:
             f["kind"] = "geometry"
         out.append(f)
     return out
+
+
+BUILDING_CHECKS = BUILDING_CHECKS + (("U30", bathroom_sets),)     # 29 Oct 2026: the bathroom's set (UL114)
+CHECK_LESSONS["U30"] = ("UL114", "UL123", "UL124")     # the bathroom photos P4, P12, P13
 
 
 def professional_bar(building: dict, manifest: Optional[dict]) -> list[dict]:
@@ -841,7 +871,34 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
         checked["U33"] = len(got) if manifest else f"{len(got)} (no scene manifest: the frames not checked)"
     except Exception as exc:  # noqa: BLE001 - a check that fails is listed, the others still run
         checked["U33"] = f"failed: {type(exc).__name__}: {exc}"[:200]
+    # 29 Oct 2026 (UL115, UL118): the kitchens against their family's kitchen details (the rig's strips with a manifest)
+    try:
+        got = kitchen_details(building, manifest)
+        findings += got
+        checked["U31"] = len(got)
+    except Exception as exc:  # noqa: BLE001
+        checked["U31"] = f"failed: {type(exc).__name__}: {exc}"[:200]
     return {"findings": findings, "checked": checked}
+
+
+def kitchen_details(building: dict, manifest: Optional[dict] = None) -> list[dict]:
+    """U31 (29 Oct 2026, lessons UL115, kitchen part, and UL118; the user's reference kitchens: "look at all these
+    details I want these details", "look at this beautiful kitchen"): ``kitchen_details.review`` (the same rule as the
+    model review's M27): a worktop bare beyond U11, wall cabinets with no LED strip, an island hob without a hood, a
+    family detail not built, a kitchen with no fridge; the fix names the stage that adds what is missing."""
+    from wenart.blender import kitchen_details as KD
+
+    fixes = {"styling": "rerun_stage decor (decor.kitchen_worktop_decor: the family's styling sets)",
+             "led": "rerun_stage build (lighting.rig_plan: a strip under every wall cabinet; kitchen_details.run_boxes)",
+             "island_hood": "rerun_stage refit (modules.plan_kitchen_run: every hob gets its hood)",
+             "fridge": "rerun_stage refit (fit.kitchen_details_hints: a fridge column or an under-counter fridge)"}
+    got, _n = KD.review(building, manifest, check="U31")
+    return [_f("U31", g["severity"], g["target"], g["message"], g["lesson"],
+               fixes.get(g["problem"], "rerun_stage refit (kitchen_details: the family's kitchen details)"),
+               problem=g["problem"], family=g.get("family"), room=g.get("room_id")) for g in got]
+
+
+CHECK_LESSONS["U31"] = ("UL115", "UL118")     # 29 Oct 2026: the kitchen details (kitchen_details.review)
 
 
 def run(inp) -> dict:

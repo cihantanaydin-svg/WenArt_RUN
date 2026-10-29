@@ -610,6 +610,11 @@ KITCHEN_FAMILY_LOOKS: dict[str, dict[str, str]] = {
     "mediterranean": {"front_style": "shaker", "handle": "brass", "worktop": "terrazzo"},
     "classic": {"front_style": "shaker", "handle": "brass", "worktop": "stone"},
     "rustic": {"front_style": "shaker", "handle": "black", "worktop": "wood"},
+    # 29 Oct 2026 (UL118, K2: "framed fronts for the families that use them"; wenart.blender.kitchen_details)
+    "contemporary": {"front_style": "flat", "handle": "black", "worktop": "stone"},
+    "modern classic": {"front_style": "shaker", "handle": "black", "worktop": "stone"},
+    "transitional": {"front_style": "shaker", "handle": "brushed_steel", "worktop": "stone"},
+    "farmhouse": {"front_style": "shaker", "handle": "black", "worktop": "wood"},
 }
 
 
@@ -627,7 +632,8 @@ def kitchen_family_look(ftype: str, style: Optional[dict], have: dict) -> tuple[
             notes.append(f"{key} {value}: the {family} family's kitchen look (style.json cabinets names none; assumed)")
     return out, notes
 DESIGN_KEYS = ("front_style", "colour", "fabric_colour", "wood", "handle", "worktop", "material_tags", "built_in",
-               "vanity", "style_family")
+               "vanity", "style_family",
+               "towel_colour")       # 29 Oct 2026 (UL124 B26): the bathroom's towels in the room's accent colour
 
 
 def _front_depth(piece: dict) -> float:
@@ -718,7 +724,32 @@ def design_for(piece: dict, style: dict, building: Optional[dict] = None) -> tup
             if colour:
                 design["fabric_colour"] = colour
                 notes.append(f"fabric_colour {colour} from {source} (M13 B1: the design had none)")
+        return bath_design(piece, design, notes)
+    design, notes = _design_from_style(piece, style, building)
+    return bath_design(piece, design, notes)
+
+
+def bath_design(piece: dict, design: dict, notes: list[str]) -> tuple[dict, list[str]]:
+    """29 Oct 2026 (lessons UL114, UL124; ``bath_parts``): a bathroom piece's design takes its family's fixture finish
+    as its handle (the flush plate, the mixers, the shower fittings) and the room's towel colour, unless the design
+    names them (pure)."""
+    look = piece.get("bath_look") if isinstance(piece.get("bath_look"), dict) else {}
+    if not look:
         return design, notes
+    from wenart.blender import bath_parts as BT
+
+    handle = BT.finish_handle(piece)
+    if handle and "handle" not in design:
+        design = dict(design, handle=handle)
+        notes = list(notes) + [f"handle {handle}: the bathroom's {look.get('finish')} finish (UL114)"]
+    if look.get("towel_colour") and "towel_colour" not in design:
+        design = dict(design, towel_colour=look["towel_colour"])
+        notes = list(notes) + [f"towels {look['towel_colour']}: the room's accent (UL124 B26)"]
+    return design, notes
+
+
+def _design_from_style(piece: dict, style: dict, building: Optional[dict] = None) -> tuple[dict, list[str]]:
+    """``design_for`` without a layout-stage design: the style's fallback looks (``design_for``'s docstring)."""
     ftype = piece.get("type")
     design: dict = {}
     notes: list[str] = []

@@ -110,9 +110,15 @@ TILE_PATTERNS: dict[str, dict] = {
                      "variation": 0.04, "tile_roughness": 0.08, "label": "mosaic 2.5 cm"},
     "tiles_cement": {"pattern": "grid", "tile_size_m": [0.2, 0.2], "grout_m": 0.002, "grout_colour": "light grey",
                      "variation": 0.08, "tile_roughness": 0.55, "label": "cement tiles 20 x 20 cm, matt, mottled"},
+    # 29 Oct 2026 (K11, wenart.blender.kitchen_details.floor_look): the polished large-format porcelain of the modern
+    # kitchens (60 x 120 cm, 2 mm joints, a mirror-like glaze: designer roughness)
+    "tiles_large_gloss": {"pattern": "grid", "tile_size_m": [0.6, 1.2], "grout_m": 0.002, "grout_colour": "light grey",
+                          "variation": 0.015, "tile_roughness": 0.06,
+                          "label": "polished large-format porcelain 60 x 120 cm"},
 }
 TILE_DEFAULT_COLOUR = {"tiles_subway": "white", "tiles_large_porcelain": "off white", "tiles_zellige": "sage",
-                       "tiles_hexagon": "off white", "tiles_mosaic": "sky blue", "tiles_cement": "light grey"}
+                       "tiles_hexagon": "off white", "tiles_mosaic": "sky blue", "tiles_cement": "light grey",
+                       "tiles_large_gloss": "off white"}
 
 WALLPAPER_PATTERNS: dict[str, dict] = {
     "wallpaper_stripe": {"pattern": "stripe", "repeat_m": [0.106, 0.106], "colour": "cream"},

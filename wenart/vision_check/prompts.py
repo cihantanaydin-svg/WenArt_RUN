@@ -118,6 +118,14 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "chopping_board": "wooden chopping board lying on the kitchen worktop",
     "utensil_pot": "pot of kitchen utensils standing on the worktop",
     "fruit_bowl": "bowl of fruit on the worktop or a table",
+    # 29 Oct 2026 (UL115, UL118): the worktop styling sets of the reference kitchens
+    "storage_jars": "glass storage jars with wooden lids on the kitchen worktop",
+    "plate_stack": "stack of plates and bowls on the kitchen worktop",
+    "cookware": "pot and frying pan standing on the hob",
+    "cutting_boards": "wooden cutting boards leaning against the kitchen splashback",
+    "oil_bottles": "oil and vinegar bottles on a small board on the worktop",
+    "dried_grass_vase": "vase with dried pampas grass on the worktop or the island",
+    "coffee_station": "coffee machine with cups and plates on a board on the worktop",
     # 28 Oct 2026 (wenart.furniture.tabletop): the place settings of a dining table
     "plate": "plate laid on a dining table in front of a chair",
     "glass": "drinking glass standing on a table",
@@ -127,6 +135,14 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "keyboard": "computer keyboard lying on a desk",
     "computer_mouse": "computer mouse beside a keyboard or a laptop on a desk",
     "tv": "flat television on its stand on a TV unit",   # 29 Oct 2026 (UL99)
+    # 29 Oct 2026 (wenart.furniture.bath_details, UL114, UL123, UL124): the bathroom's accessories
+    "toilet_paper_holder": "toilet paper holder with its roll on the wall beside the toilet",
+    "toilet_brush": "toilet brush in its holder on the floor beside the toilet",
+    "towel_rail": "heated towel rail (a ladder radiator) with a towel on the wall",
+    "towel_shelf": "towel shelf on the wall with folded towels and a rail under it",
+    "towel_bar": "towel bar on the wall with a towel hanging from it",
+    "feature_panel": "feature panel on the wall (terrazzo, stone or fluted)",
+    "cove_light": "lowered ceiling band with a hidden LED light line along a wall",
 }
 HINTS.update({k: v for k, v in _DECOR_HINTS_M10.items() if k in S.CATEGORIES})
 UNVERIFIED_HINT = "any piece of furniture at that place"

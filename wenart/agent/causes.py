@@ -542,6 +542,7 @@ CHECK_CAUSE: dict[str, str] = {
     "M20": "opening_style",          # 29 Oct 2026: every door a real product (opening_models, the build's doors)
     "M21": "room_use",               # 29 Oct 2026: the rooms furnished for their use (the layout's media wall, fill)
     "M23": "decor_look",             # 29 Oct 2026 (UL106): the professional bar (the decor stage and the build own it)
+    "M26": "decor_look",             # 29 Oct 2026 (UL114): the bathroom's set (the layout and the decor stage own it)
     # 29 Oct 2026: a blocked door front is turned (rotate_piece: fixed equipment turns for a blocked door) or what
     # stands in front of it moves; a basin under a low window is the architect's (cause_of: H2); a back a drawing gap
     # off its wall snaps onto it
@@ -553,6 +554,9 @@ CHECK_CAUSE: dict[str, str] = {
 # 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125): the doors and the walk-ins as designed are chosen by code for the
 # whole building (door_states, wardrobe_fronts, the frames); reported with the stage that owns them
 CHECK_CAUSE["M29"] = "opening_style"
+# 29 Oct 2026 (UL115, UL118): the kitchen details of the family (model review M27) are the fit's and the decor stage's,
+# as the kitchen design of M13 (no agent tool builds a tall unit, a hood or a styling set)
+CHECK_CAUSE["M27"] = "kitchen_design"
 _PIECE_PREFIXES = ("f_", "furn_", "decor_", "dec_")
 # Fix round after P4b (module docstring): the camera-placement checks a replayed camera is frozen for, the metrics flag
 # ``mark_replayed`` sets, the words of a single view's over-exposure (X7), and the set_exterior slots of a cause.

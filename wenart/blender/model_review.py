@@ -120,6 +120,11 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   sink unit f_L0_020 stood 0.08 m off the wall under the window; ``fixture_use.back_gaps``): no piece whose back belongs
   on a wall stands parallel to it 0.055-0.15 m off it (major; a drawing gap the reading snaps,
   ``reading.fixture_use_fixes``).
+- M26 the bathroom's set (29 Oct 2026, lessons UL114, UL123, UL124, the user's bathroom photos: "Look at the details
+  in the toilet analyze implement into the projects"; ``wenart.furniture.bath_details.review``): every wet room has the
+  set its style family gets: a WC with its paper holder and brush and (wall-hung families) wall-hung with its flush
+  plate, a basin with its mirror of the family's kind and, where the drawing has room, the family's floating vanity, a
+  shower with its walk-in enclosure, a bathroom with a towel rail and a towel shelf or bar. Minor; kind ``taste``.
 - M24 every chimney as a builder makes it (29 Oct 2026, lesson UL109, user on real06 run 20261028-154514-full: "There
   are no chimneys there could be some chimney in the projects"; ``chimney.measure``), on the scene's chimney records
   (their bottom as built), else the plan's: a chimney off the roof (it does not reach the roof) or floating over its
@@ -134,6 +139,13 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   (major, kind ``geometry``), a walk-in dressing room with closed fronts only (major, the architect's D8 answer that
   fixes it in ``fix_choice``), a door without a frame and no recorded frameless reason (major) or an indoor face
   without its architrave (minor). The build owns them; a walk-in's fronts the architect.
+- M27 every kitchen against its style family's kitchen details (29 Oct 2026, lessons UL115, kitchen part, and UL118;
+  the user's reference photos: "look at all these details I want these details"; ``kitchen_details.review``): a
+  worktop bare beyond U11 (fewer than two styling sets with room for them, minor), a wall cabinet with no LED strip
+  under it (the rig dropped it, major) or a run's own wall units with none (minor), an island hob without a hood
+  (major), a family detail not built (a run planned before the rule, an island of a waterfall family without its
+  ends, stools with no knee space: minor), a kitchen with no fridge (major). Kind ``taste``; the fit and the decor
+  stage own it.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -170,6 +182,7 @@ BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
 CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18",
           "M19", "M20", "M21", "M22", "M23", "M24")   # 29 Oct 2026: M19 fixtures in use, M20 doors as products, M21 rooms for their use, M22 backs on walls, M23 the professional bar, M24 chimneys
 CHECKS += ("M29",)          # 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125): the doors and walk-ins as designed
+CHECKS = CHECKS + ("M26",)       # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's set (bath_details.review)
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -418,6 +431,19 @@ def chimneys_review(built: dict, prep: Optional[dict], manifest: Optional[dict])
             out.append(_v("M24", p["severity"], ch.get("id"), p["message"], ch.get("room_id"), problem=p["problem"],
                           source=ch.get("source"), **nums))
     return out, len(recs)
+
+
+def kitchen_details_review(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
+    """M27 (29 Oct 2026, lessons UL115, UL118; module docstring): ``kitchen_details.review`` on the model as built
+    (the scene's light rig from the manifest when there is one)."""
+    from wenart.blender import kitchen_details as KD
+
+    got, n = KD.review(built, manifest, check="M27")
+    return [_v("M27", g["severity"], g["target"], g["message"], g.get("room_id"), problem=g["problem"],
+               lesson=g["lesson"], family=g.get("family")) for g in got], n
+
+
+CHECKS = CHECKS + ("M27",)          # 29 Oct 2026: M27 the kitchen details of the family (UL115, UL118)
 
 
 def opening_language(manifest: Optional[dict]) -> tuple[list[dict], int]:
@@ -1251,6 +1277,12 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
         note("M29", got, n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
         checks["M29"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M27 (29 Oct 2026, lessons UL115, UL118): every kitchen against its family's kitchen details
+    try:
+        got, n = kitchen_details_review(built, scene_manifest)
+        note("M27", got, n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M27"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M12 (27 Oct 2026, user on real06: "doors next to each other not making sense"): doors side by side
     try:
         got, n = doors_side_by_side(built)
@@ -1344,6 +1376,20 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             checks["M23"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     else:
         checks["M23"] = {"status": "unavailable", "note": "no scene manifest"}
+    # M26 (29 Oct 2026, lessons UL114, UL123, UL124: the user's bathroom photos): every wet room's set as its style
+    # family gets it (wenart.furniture.bath_details.review; shapely: imported by name as M17, out of the build's closure)
+    try:
+        import importlib
+
+        BD = importlib.import_module("wenart.furniture.bath_details")
+        got, n = BD.review(built, check="M26")
+        note("M26", [dict(_v("M26", g["severity"], g["target"], g["message"], room_id=g["room_id"], kind="taste",
+                             missing=g["missing"], rule=g["metrics"]["rule"], lesson="UL114"), fix=FIX_BATH)
+                     for g in got], n)
+    except ImportError as exc:
+        checks["M26"] = {"status": "unavailable", "note": f"{type(exc).__name__}: {exc}"}
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M26"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M19 / M22 (29 Oct 2026, the user on real06: "This washing machine would not open", "this sink not making sense
     # there", "There is a gap between wall and water faucet not looking good"): fronts that open, basins under a solid
     # wall, backs on their walls, on the building as built (pure)
@@ -1356,6 +1402,9 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
     return {"findings": findings, "checks": checks}
 
 
+FIX_BATH = ("the layout stage's bathroom looks (wenart.furniture.bath_details.plan_building: the family's WC, vanity, "
+            "column and shower) and the decor stage's accessories (bath_details.dress: paper holder and brush, towel "
+            "rail, shelf and bars, the family's mirror)")
 FIX_PRO_BAR = ("the decor stage's professional dressing (wenart.furniture.dressing: layered curtains and bedding, the "
                "lights' roles) and the build's finishes (feature_walls on the accent wall, parquet on the wood floor)")
 

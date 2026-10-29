@@ -144,6 +144,9 @@ KINDS["reference_missed"] = {
     "arises": "build, architect",
     "guards": ["model review M29", "Argus U33", "the architect's D7 / D8", "the lesson walk (AI5)"]}
 CHECK_KIND.update({"U33": "reference_missed", "M29": "reference_missed"})
+CHECK_KIND.update({"U30": "taste", "M26": "taste"})     # 29 Oct 2026 (UL114): the bathroom's set (bath_details.review)
+# 29 Oct 2026 (UL115, UL118): a kitchen missing what its style family's kitchen details give it (kitchen_details.review)
+CHECK_KIND.update({"M27": "taste", "U31": "taste"})
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",
                "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense", "U": "no_sense"}

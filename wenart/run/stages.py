@@ -121,7 +121,9 @@ GROUPS_CODE = ("wenart/furniture/groups.py", "wenart/furniture/groups.yaml", "we
                "wenart/furniture/handover.py",  # 29 Oct 2026: the solver hands a re-placed piece's decor over
                # 29 Oct 2026: the TV (media_wall), the fuller rooms (room_fill, its density in the program) and their
                # review (room_use, M21)
-               "wenart/furniture/media_wall.py", "wenart/furniture/room_fill.py", "wenart/furniture/room_use.py")
+               "wenart/furniture/media_wall.py", "wenart/furniture/room_fill.py", "wenart/furniture/room_use.py",
+               # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's looks (layout) and accessories (decor)
+               "wenart/furniture/bath_details.py")
 # catalog*.json: catalog.json and, once committed, catalog_objaverse.json (catalog.load merges it).
 FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
             "wenart/furniture/model_title.py",       # 28 Oct 2026: catalog.usable reads the model rules
@@ -201,7 +203,9 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/assets/polyhaven.py", "wenart/assets/web.py", "wenart/assets/audit/__init__.py",
              "wenart/assets/audit/keywords.py", "wenart/blender/exterior.py",
              "wenart/blender/grading.py",                # 28 Oct 2026: site and architect grade the garden
-             "wenart/blender/stair_rails.py")            # 28 Oct 2026: the stairs' balustrade (the architect's K rules)
+             "wenart/blender/stair_rails.py",            # 28 Oct 2026: the stairs' balustrade (the architect's K rules)
+             "wenart/blender/bath_parts.py",             # 29 Oct 2026 (UL114): the bathroom's parts (parametric, looks)
+             "wenart/blender/kitchen_details.py")        # 29 Oct 2026: modules / furniture -> the kitchen details
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height

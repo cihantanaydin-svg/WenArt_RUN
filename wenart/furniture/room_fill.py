@@ -277,7 +277,10 @@ def fill_room(building: dict, room: dict, kind: str) -> list[dict]:
     if kind == "bathroom" and not types & set(BATH_STORAGE_TYPES):
         reason = ("a tall storage column on a free wall of the bathroom, off the fixtures' use zones, the shower entry "
                   "and the door swing (user, 29 Oct 2026: \"bath is too empty there should be some dolaps\")")
-        piece, why = place(building, room, "tall_cabinet", BATH_COLUMN_SIZES, "bath_column", reason,
+        # 29 Oct 2026 (UL114 B5: "a tall open niche column beside the vanity"): the free wall place nearest the basin
+        basins = sorted((f for f in pieces if f["type"] == "washbasin"), key=lambda f: f["id"])
+        near = placer.piece_from_furniture(basins[0]).polygon() if basins else None
+        piece, why = place(building, room, "tall_cabinet", BATH_COLUMN_SIZES, "bath_column", reason, near=near,
                            height=BATH_COLUMN_HEIGHT_M)
         add(piece, "bath_column", why)
     return out
