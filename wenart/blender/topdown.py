@@ -26,7 +26,8 @@ PAD_M = 1.0
 TILT_DEG = 35.0                 # 25 Oct 2026: the views are a bit angled (the walls and furniture show their height)
 AZIMUTH_DEG = 225.0             # 25 Oct 2026 (user): from the upper right (north-east) to the lower left (south-west)
 WALL_CUT_M = 0.6                # 25 Oct 2026 (user: "halved the walls"): an angled view cuts the walls here (was 1.2)
-CUT_KINDS = {"wall", "door", "window", "railing", "facade_detail", "splashback", "light_well"}
+CUT_KINDS = {"wall", "door", "window", "railing", "facade_detail", "splashback", "light_well",
+             "wall_plate"}         # 29 Oct 2026 (UL112): the switches and sockets are cut with their walls
 HIDE_KINDS = {"ceiling", "roof", "site_decor", "site_decor_part", "vegetation_card", "atmosphere", "building_copy",
               "site_hedge", "site_grass", "light"}
 

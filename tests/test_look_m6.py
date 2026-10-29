@@ -1094,12 +1094,16 @@ def test_assumed_entries_of_every_design_detail(flat, hall):
     # Milestone 13 round 3 (docs/milestone13.md §14.3): the rig is on by default: the bedroom's two bedside lamps
     # and the kitchen's strip and ceiling fixture are rig_light entries; the sun at 1000 W/m² leaves the bedroom
     # daylit (no dim_room_light); the windowless hall's rig fixture replaces its Milestone 6 light.
+    # 29 Oct 2026 (UL112): one wall_plate entry per light switch and socket (the bedroom's switch, its bed's two
+    # sockets and one on a free wall; the kitchen's switch and two socket pairs over the worktop)
     assert by_kind == {"bedding": ["f_bed"], "counter_fronts": ["f_counter"], "door_handles": ["door_p"],
                        "skirting": ["r_bed", "r_kit"], "rig_light": ["r_bed", "r_bed", "r_kit", "r_kit"],
-                       "splashback": ["r_kit"]}                       # Milestone 11 M2
+                       "splashback": ["r_kit"],                       # Milestone 11 M2
+                       "wall_plate": ["r_bed"] * 4 + ["r_kit"] * 3}
     hall_kinds = sorted((a["kind"], a["parent"]) for a in hall["manifest"]["assumed"] if "kind" in a)
     assert hall_kinds == [("door_handles", "d_in"), ("door_handles", "d_st"), ("rig_light", "r_hall"),
                           ("rig_replaces_fill_light", "r_hall"), ("skirting", "r_hall"), ("skirting", "r_st"),
+                          ("wall_plate", "r_hall"), ("wall_plate", "r_hall"), ("wall_plate", "r_st"),
                           ("windowless_room_light", "r_st")]
     building = json.loads(flat["path"].read_text(encoding="utf-8"))
     assert building == flat_building()                                   # nothing written back
