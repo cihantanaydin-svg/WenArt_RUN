@@ -139,7 +139,9 @@ def test_the_decor_stage_fills_a_room_to_its_style_and_the_architect_checks_the_
         # 28 Oct 2026: the styled tops (tabletop.dress_tops, by the style's density) come after the minimum
         styled[fam] = len([d for d in out["decor"] if d["room_id"] == rid and TT.REASON_TAG in str(d.get("reason"))])
         counts[fam] = len([d for d in out["decor"] if d["room_id"] == rid   # 28 Oct 2026: not the lighting rule's
-                           and d.get("rule") != "decor.ceiling_lights"]) - styled[fam]
+                           and d.get("rule") != "decor.ceiling_lights"
+                           # 29 Oct 2026: nor the room details' (wenart.furniture.room_details, after the minimum)
+                           and not str(d.get("rule") or "").startswith("room_details.")]) - styled[fam]
         kept[fam] = out["decor_minimum"][rid]
         fill = [d for d in out["decor"] if str(d.get("reason", "")).startswith("styling")]
         assert fill and f"the {fam} family" in fill[0]["reason"]
