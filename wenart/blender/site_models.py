@@ -173,9 +173,13 @@ def plant_model(species_rec: dict, extras: Sequence[dict], mode: str = "relaxed"
 
 
 def asset_of(e: dict) -> dict:
+    """The build's record of a site model (29 Oct 2026: with every credit field, ``opening_models.CREDIT_FIELDS``:
+    the build refuses a CC BY model without ``source_url`` and ``via``, as it refused the HSSD doors)."""
+    from wenart.blender.opening_models import CREDIT_FIELDS
+
     keys = ("id", "glb", "front_axis", "up_axis", "unit_scale", "origin_offset", "bbox_m", "bbox_min_m", "source",
-            "licence", "licence_url", "licence_flag", "commercial_safe", "attribution", "author", "title", "uid",
-            "polycount")
+            "licence", "licence_url", "licence_flag", "licence_declared_by", "commercial_safe", "uid",
+            "polycount") + CREDIT_FIELDS
     out = {k: e.get(k) for k in keys if e.get(k) is not None}
     out.update(method="library", asset_id=e.get("id"), library=e.get("source") or "3dwh")
     return out

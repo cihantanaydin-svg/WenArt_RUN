@@ -93,6 +93,11 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   run, the handrail 0.85-1.10 m over the nosing line (1.0 m on a level edge), nothing through a tread, a wall or the
   floor above, no infill gap of 0.11 m, no rail out over the room (minor). Measured on the scene's guard records
   (``stair.guards``), or on the straight per-flight rails of an older scene.
+- M20 every door a real product (29 Oct 2026, user: "Better door models needed"; real06 run 20261028-154514-full:
+  the build refused the HSSD doors the plan chose, and the parametric doors were slabs in flat frames;
+  ``opening_models.door_product_problems``): a door the plan gave a library model built parametric (major, with the
+  build's reason: the scene's ``library_planned`` record or its warnings), a parametric door without its architrave
+  and (a flush leaf) its face detail (major). Kind ``taste``; the build owns it.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -126,7 +131,8 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "living": ("sofa", "sofa_corner", "armchair"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
-CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18")
+CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18",
+          "M20")
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -363,6 +369,9 @@ def opening_language(manifest: Optional[dict]) -> tuple[list[dict], int]:
         n += 1
         fam = str(lm.get("family") or lm.get("asset_id"))
         cat = str(lm.get("category") or ob["kind"]) + (f":{lm['role']}" if lm.get("role") else "")
+        # 29 Oct 2026 (UL89): a door category takes a family per way its doors open (a sliding and a French door)
+        way = (lm.get("opening") or {}).get("operation") if ob.get("kind") == "door" else None
+        cat += f":{way}" if way else ""
         cats.setdefault(cat, {}).setdefault(fam, []).append(ob.get("element_id") or ob.get("wenart_id"))
     out = []
     for cat, fams in sorted(cats.items()):
@@ -371,6 +380,18 @@ def opening_language(manifest: Optional[dict]) -> tuple[list[dict], int]:
             out.append(_v("M6", "major", "building", f"the {cat} openings use {len(fams)} different models ({names}): "
                           f"one door and window language per house", None, category=cat, families=len(fams)))
     return out, n
+
+
+def door_products(manifest: Optional[dict]) -> tuple[list[dict], int]:
+    """M20 (module docstring): every door of the scene a library model or a parametric door built as a product."""
+    from wenart.blender import opening_models as OM
+
+    rows = OM.built_doors(manifest)
+    out = []
+    for p in OM.door_product_problems(manifest):
+        out.append(_v("M20", p["severity"], p["target"], p["message"], None,
+                      kind="lost" if p["kind"] == "library_door_not_built" else None, problem=p["kind"]))
+    return out, len(rows)
 
 
 def rooms_make_sense(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
@@ -1012,8 +1033,11 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
         note("M6", got, n)
         got, n = decor_attached(scene_manifest, built)      # 28 Oct 2026
         note("M14", got, n)
+        got, n = door_products(scene_manifest)              # 29 Oct 2026 (UL89)
+        note("M20", got, n)
     else:
-        checks["M2"] = checks["M6"] = checks["M14"] = {"status": "unavailable", "note": "no scene manifest"}
+        checks["M2"] = checks["M6"] = checks["M14"] = checks["M20"] = {"status": "unavailable",
+                                                                       "note": "no scene manifest"}
     got, n = rooms_make_sense(built, scene_manifest)
     note("M7", got, n)
     try:

@@ -530,6 +530,7 @@ CHECK_CAUSE: dict[str, str] = {
     # a rug outside is the decor stage's (cause_of: a decor target); too little ceiling light is the decor stage's
     "M16": "wrong_model", "M17": "ceiling_light",
     "M18": "stair_rails",            # 28 Oct 2026: the stairs' handrails as one balustrade (the build owns it)
+    "M20": "opening_style",          # 29 Oct 2026: every door a real product (opening_models, the build's doors)
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",

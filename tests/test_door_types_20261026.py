@@ -142,7 +142,11 @@ def test_real06_glazed_doors_share_the_glazed_door_family(prep):
     notes: list = []
     plan = OM.plan(b, outer, extras, "relaxed", style={"family": "scandinavian"}, notes=notes)
     glazed = {k: v for k, v in plan.items() if v["category"] == "glazed_door"}
-    assert len({v["family"] for v in glazed.values()}) <= 1                    # one glazed door look
+    # one glazed door look; 29 Oct 2026 (UL89): one family per way the glazed doors open (a sliding and a French door
+    # are two products; the first family's way first, a second one only for the doors it cannot open)
+    for way in {v.get("model_operation") for v in glazed.values()}:
+        assert len({v["family"] for v in glazed.values() if v.get("model_operation") == way}) <= 1
+    assert len({v["family"] for v in glazed.values()}) <= 2
     # the 2.95 m door takes that family's model, or (no member fits) the parametric glazed sliding door of D5
     if "d_L0_006" not in plan:
         assert any(n["kind"] == "parametric" and n["id"] == "d_L0_006" and n["category"] == "glazed_door"

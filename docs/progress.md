@@ -2066,3 +2066,29 @@ the replay and the refit slowed the same way; Blender's own timer stayed near 7 
 review take seconds on the same inputs. The stage runner now stops what a stage leaves running in its process group
 and logs the load and the GPU's processes after every stage, so the next run shows the cause. The big loop got one
 cycle in both runs because of it.
+
+## Better door models: the HSSD doors reach the build (29 Oct 2026; built, pod run waiting)
+
+The user on real06 run 20261028-154514-full: "Better door models needed" (lesson UL89). In that run 5 of the 13 doors
+(15 of 23 door objects) were the parametric door, 7 one 3D Warehouse model ("Residential Interior Door": four raised
+panels and a knob in a Scandinavian house), none of the 197 audited HSSD doors and windows adopted on 28 Oct. real04
+run 20261028-183611-full: a "bathroom door" with a vent grille on 12 doors, its HSSD entrance, 4 inside doors and 10
+windows parametric. General rules (CPU-tested, not rendered yet):
+
+| why | general fix |
+|---|---|
+| the plan's build record (`opening_models.asset_of`) left out `source_url` and `via`; the build's licence rule refused every CC BY-NC (HSSD) door and window: "CC BY 4.0 without source_url, via (no credit line); refused" | the record carries every credit field (`CREDIT_FIELDS` = `furniture.CC_BY_FIELDS`; `site_models.asset_of` too); the plan never chooses a model the build would refuse (`build_refusal`) |
+| a 3D Warehouse door whose leaf no audit question saw ranked first by its vision styles ("scandinavian") | a door whose leaf the opening question never saw ranks after the doors it saw (`look_fit`, `LEAF_UNKNOWN_RANK`); still used where nothing else fits |
+| a "bathroom door" model on every bedroom and hall door | a model named for one kind of room (`model_rooms`) serves only doors into such rooms |
+| a pair of leaves (real06's 1.95 m living-kitchen door) was always parametric | two leaves of the role's model, mirrored to meet in the middle (`is_pair`, `opening_build.pair_mirrors`, levers at the meeting stiles) |
+| a hinged glazed door left parametric because its category's family was a sliding series | a second family of the house's look for the way the first does not open (`_place`); model review M6 counts a family per way |
+| terrace doors of the entrance's family | the glazed and terrace doors are not the entrance's family when another of the look fits (`SERVICE_DOORS`) |
+| where nothing fits, the parametric door was a plain slab in a flat frame | a product of the style family (`looks.door_product`, `parametric.door_parts`): a lined (Scandinavian), grooved (modern, minimal, industrial), vertically grooved (Japandi) or panelled (period) leaf, an architrave on the room faces (never on the facade), three hinges, the lever pair |
+| nothing said where a planned model was refused | the parametric opening records `library_planned` (the model and the build's reason); model review M20 (`door_product_problems`: a planned door not built, a bare parametric door); Argus U18 (`door_model_problems`: over a third of the doors parametric, a door named for another room) |
+
+On the latest buildings (CPU, the build's plan): real06 13 of 13 doors get a library model (entrance HSSD 4141-3,
+inside solid HSSD 200, inside glazed HSSD 3262-7 also for the pair, sliding HSSD 6161, French HSSD 208, service door
+3D Warehouse "Modern Single Door"); real04 20 of 22 (solid HSSD 3263-1, glazed HSSD 3263-0, entrance HSSD 4141-3; the
+two 1.01 m high doors stay the product parametric door). Needs a pod render: the HSSD files on the volume
+(`models/hssd/`), the look of the HSSD doors in the style's finish, the pair's centre post and the parametric door's
+grooves and architrave.

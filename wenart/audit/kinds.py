@@ -98,6 +98,9 @@ CHECK_KIND = {
     # handrails as one designed balustrade (model_review.stair_rails_review): rails that cross, stop short, run through
     # a tread, a wall or the floor above, stand beside the floor guard above; a rail out over the room carries "taste"
     "M18": "no_sense",
+    # 29 Oct 2026 (user: "Better door models needed"): a door no real product (model_review.door_products; a planned
+    # library door the build did not make carries "lost")
+    "M20": "taste",
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",
@@ -105,6 +108,7 @@ CHECK_KIND = {
     "X9": "no_sense", "X10": "no_sense",
     # 28 Oct 2026: the lessons line (wenart.audit.lessons): what the user pointed at, measured
     "U11": "taste", "U12": "taste", "U13": "taste", "U14": "taste", "U15": "taste",
+    "U18": "taste",                  # 29 Oct 2026: the door models as built (UL89)
     # code critic
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation

@@ -485,6 +485,25 @@ def door_sides(centre, wall: dict, rooms: list[dict]) -> list:
     return out
 
 
+# = opening_models.OPEN_AIR_TYPES: no architrave on the face of an open-air room (a facade face)
+ARCHITRAVE_OUTSIDE_TYPES = ("balcony", "terrace", "roof_terrace", "loggia", "veranda", "patio", "porch", "garden")
+
+
+def architrave_faces(centre, wall: dict, rooms: list[dict]) -> tuple:
+    """The y sides of a door's opening frame (+1: the left of the wall direction) where an indoor room lies (pure;
+    29 Oct 2026, UL89): the parametric door's architrave goes on those faces; both when neither side finds a room."""
+    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+    reach = float(wall["thickness"]) / 2.0 + DEFAULTS["face_probe"]
+    out = []
+    for side in (1.0, -1.0):
+        probe = (centre[0] + side * nx * reach, centre[1] + side * ny * reach)
+        room = next((r for r in rooms if len(r.get("polygon") or []) >= 3 and G.point_in_polygon(probe, r["polygon"])),
+                    None)
+        if room is not None and str(room.get("room_type") or "").lower() not in ARCHITRAVE_OUTSIDE_TYPES:
+            out.append(side)
+    return tuple(out) or (1.0, -1.0)
+
+
 # --------------------------------------------------------------------------
 # Milestone 6 design details and wall splits (pure Python)
 # --------------------------------------------------------------------------
@@ -511,9 +530,12 @@ def wall_split_positions(wall: dict, rooms: list[dict], reach_extra: float = SPL
     return sorted(cuts)
 
 
+PAIR_HANDLE_X = 0.08              # a pair's levers this far either side of the middle (29 Oct 2026)
+
+
 def door_handle_parts(width: float, height: float, sill: float = 0.0,
                       leaf_thickness: float = DEFAULTS["leaf_thickness"],
-                      frame_width: float = DEFAULTS["frame_width"]) -> list[tuple[list, list]]:
+                      frame_width: float = DEFAULTS["frame_width"], pair: bool = False) -> list[tuple[list, list]]:
     """Boxes of a pair of lever handles in the opening's local frame (X along
     the wall, Y across, Z up from the opening bottom; ``geom2d.box`` tuples):
     on both leaf faces a rose plate, a neck and a 13 cm lever whose axis is
@@ -525,17 +547,21 @@ def door_handle_parts(width: float, height: float, sill: float = 0.0,
     hx = width / 2.0 - frame_width - HANDLE_EDGE_INSET
     lever_z = HANDLE_HEIGHT - float(sill) if height >= 1.3 else height / 2.0
     parts = []
-    for sgn in (1.0, -1.0):
-        parts.append(geom2d.box((hx, sgn * (lt / 2.0 + 0.004), lever_z - 0.04), (0.05, 0.008, 0.16)))   # rose
-        parts.append(geom2d.box((hx, sgn * (lt / 2.0 + 0.026), lever_z), (0.018, 0.044, 0.018)))        # neck
-        parts.append(geom2d.box((hx - 0.055, sgn * (lt / 2.0 + HANDLE_DEPTH - 0.009), lever_z),
-                                (0.13, 0.018, 0.018)))                                                 # lever
+    # 29 Oct 2026: a pair of leaves (``opening_models`` ``pair``) has a lever pair on each leaf at the meeting stiles,
+    # each lever pointing to its own hinge side
+    spots = [(hx, -1.0)] if not pair else [(-PAIR_HANDLE_X, -1.0), (PAIR_HANDLE_X, 1.0)]
+    for x, point in spots:
+        for sgn in (1.0, -1.0):
+            parts.append(geom2d.box((x, sgn * (lt / 2.0 + 0.004), lever_z - 0.04), (0.05, 0.008, 0.16)))   # rose
+            parts.append(geom2d.box((x, sgn * (lt / 2.0 + 0.026), lever_z), (0.018, 0.044, 0.018)))        # neck
+            parts.append(geom2d.box((x + point * 0.055, sgn * (lt / 2.0 + HANDLE_DEPTH - 0.009), lever_z),
+                                    (0.13, 0.018, 0.018)))                                                # lever
     return parts
 
 
 # The roles of ``parametric.door_parts`` that go into a Milestone 10 door's ``<id>_frame`` object (``build_door_m10``);
 # fix round after P3: the door stops too.
-FRAME_ROLES: tuple[str, ...] = ("frame", "rail", "stop")
+FRAME_ROLES: tuple[str, ...] = ("frame", "rail", "stop", "architrave")     # 29 Oct 2026: + the architrave
 # The Milestone 6 leaf is this much smaller than the frame opening on every side (5 mm per side).
 M6_LEAF_CLEARANCE = 0.01
 
@@ -1478,9 +1504,11 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
                "assumed": assumed, "rooms": rooms}
 
         lib = (library_openings or {}).get(opening["id"])
+        planned, k0 = None, len(manifest_objects)
         if lib is not None:
             from wenart.blender import opening_build as OB
 
+            n0 = len(warnings)
             made = OB.build_library_opening(opening, wall, lib, geo, dict(ctx, warnings=warnings, assets_dir=assets_dir,
                                                                           geo_cache=geo_cache if geo_cache is not None
                                                                           else {}),
@@ -1488,6 +1516,10 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             if made:
                 created += made
                 continue
+            # 29 Oct 2026 (UL89: the HSSD doors the plan chose were refused by the build and nothing said so where the
+            # door is): the parametric opening records the model it stands in for and why (model review M20)
+            planned = library_planned_record(lib, warnings[n0:])
+            k0 = len(manifest_objects)
         if opening["type"] == "door" and door_geometry_m10(style, opening):
             # Milestone 10: the door style of the look (the drawn operation first) from parametric.door_parts.
             created += build_door_m10(opening, wall, dlook, geo, ctx, {"frame": frame_mat, "leaf": leaf_mat,
@@ -1554,7 +1586,28 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             ob.pass_index = index
             created.append(ob)
             manifest_objects.append(_opening_entry(opening, ob.name, level_id, glass_mat.name, False, index, op_assumed, shift))
+        if planned is not None:
+            tag_library_planned(manifest_objects[k0:], opening["id"], planned)
     return created
+
+
+def library_planned_record(lib: dict, warnings: list) -> dict:
+    """The library model a parametric opening stands in for (pure; 29 Oct 2026, UL89): its asset, category, role and
+    the build's reason (the warnings ``opening_build.build_library_opening`` wrote)."""
+    asset = lib.get("asset") or {}
+    return {"asset_id": asset.get("asset_id") or asset.get("id"), "title": asset.get("title"),
+            "category": lib.get("category"), "role": lib.get("role"),
+            "why": "; ".join(str(w) for w in warnings) or "the library model could not be built"}
+
+
+def tag_library_planned(entries: list, opening_id: str, planned: dict) -> int:
+    """``library_planned`` on the manifest entries of ``opening_id`` among ``entries`` (in place; pure)."""
+    n = 0
+    for entry in entries:
+        if entry.get("element_id") == opening_id or entry.get("wenart_id") == opening_id:
+            entry["library_planned"] = dict(planned)
+            n += 1
+    return n
 
 
 def opening_room_side(centre, wall: dict, rooms: list[dict], room_id: str | None = None
@@ -1640,6 +1693,9 @@ def build_door_m10(opening: dict, wall: dict, look: dict, geo: dict, ctx: dict, 
     look = dict(look or {})
     side, side_room, side_assumed = opening_room_side(geo["centre"], wall, ctx["rooms"], opening.get("swing_side"))
     look["side"] = side
+    if look.get("architrave"):
+        # 29 Oct 2026 (UL89): the product door's architrave on the faces of its indoor rooms (never on the facade)
+        look["architrave_faces"] = architrave_faces(geo["centre"], wall, ctx["rooms"])
     parts, record = P.door_parts(look, geo["width"], geo["height"], geo["thickness"], DEFAULTS["frame_width"])
     handle_mat = library.get(look.get("handle_material") or "steel_brushed")
     by = {"frame": mats["frame"], "rail": handle_mat, "groove": handle_mat, "leaf": mats["leaf"],
@@ -1669,10 +1725,19 @@ def build_door_m10(opening: dict, wall: dict, look: dict, geo: dict, ctx: dict, 
         ctx["assumed"].append({"object": opening["id"], "field": "door_side", "value": side,
                                "reason": f"{record['door_style']} door: rooms on both sides or none and no "
                                          f"swing_side; hung on the wall's {'left' if side > 0 else 'right'} face"})
+    if record.get("architrave") or record.get("leaf_detail"):
+        # 29 Oct 2026 (UL89): the product door's design details, not in the documents
+        ctx["assumed"].append({"object": opening["id"], "field": "door_product",
+                               "value": {"architrave": record.get("architrave"),
+                                         "leaf_detail": record.get("leaf_detail"), "hinges": record.get("hinges")},
+                               "reason": "design detail of the documented door (the style family's door: "
+                                         f"{look.get('reason') or 'assumed'}); not in the documents"})
     if groups["handle"]:
         ob, used = _opening_object(opening, "handle", groups["handle"], by, geo, ctx, "assumed")
         created.append(ob)
         what = "rail and handle" if record["surface_mounted"] else "handles on both faces"
+        if record.get("hinges"):
+            what += f" and {record['hinges']} hinges"
         reason = (f"design detail of the documented {record['door_style']} door ({look.get('handle') or 'steel'} "
                   f"{what}); not in the documents")
         _detail_entry(opening, ob, used, geo, ctx, {"detail": "door_handles", "lever_height_m": P.LEVER_HEIGHT_M,

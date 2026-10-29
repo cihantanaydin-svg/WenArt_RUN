@@ -224,3 +224,20 @@ def test_the_model_as_built_has_no_critical_finding(project):
         if f.get("severity") == "major":
             print(f"{project} model review major {f['check']} {f['target']}: {f['message']}")
     assert not crit, crit
+
+
+@pytest.mark.parametrize("project", RUN)
+def test_every_planned_library_door_is_built(project):
+    """29 Oct 2026 (user: "Better door models needed"; lesson UL89; real06 run 20261028-154514-full: the build refused
+    every HSSD door the plan chose, "CC BY 4.0 without source_url, via (no credit line)"): no door of the final scene
+    is the parametric door in place of the library model the plan chose (model review M20, kind
+    ``library_door_not_built``), and at most a third of the doors are parametric (Argus U18)."""
+    from wenart.blender import opening_models as OM
+
+    scene = _load(project, "scene/scene_manifest.json")
+    rows = OM.built_doors(scene)
+    lost = [p["message"] for p in OM.door_product_problems(scene) if p["kind"] == "library_door_not_built"]
+    para = [r["id"] for r in rows if not r["library"]]
+    print(f"{project}: {len(rows) - len(para)} of {len(rows)} doors library models; parametric {para}")
+    assert not lost, lost
+    assert not [p for p in OM.door_model_problems(scene) if p["kind"] == "parametric_doors"], para
