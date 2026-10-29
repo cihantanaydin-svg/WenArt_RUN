@@ -45,6 +45,7 @@ an indoor face without its architrave and no reason (``no_architrave``).
 from __future__ import annotations
 
 import math
+from pathlib import Path
 from typing import Optional, Sequence
 
 from wenart import geometry as G
@@ -187,6 +188,7 @@ def _label_words(room: dict) -> list[str]:
 
 
 _ALIAS_WORDS: list = []
+GROUPS_YAML = Path(__file__).resolve().parents[1] / "furniture" / "groups.yaml"     # = furniture.groups.GROUPS_YAML
 
 
 def dressing_words() -> tuple[str, ...]:
@@ -195,8 +197,12 @@ def dressing_words() -> tuple[str, ...]:
     if not _ALIAS_WORDS:
         words = list(DRESSING_WORDS)
         try:
-            from wenart.furniture import groups as GR
-            words += [str(w) for w in (GR.room_aliases().get("dressing") or {}).get("words") or []]
+            # the file itself, not wenart.furniture.groups (its import closure is the whole furniture program: the
+            # gate's code fingerprint would follow every furniture change; tests/test_run_stages.py)
+            import yaml
+
+            data = yaml.safe_load(GROUPS_YAML.read_text(encoding="utf-8")) or {}
+            words += [str(w) for w in ((data.get("room_aliases") or {}).get("dressing") or {}).get("words") or []]
         except Exception:  # noqa: BLE001 - the constant stands
             pass
         _ALIAS_WORDS.append(tuple(dict.fromkeys(w.lower() for w in words)))
