@@ -105,6 +105,8 @@ CHECK_KIND = {
     "X9": "no_sense", "X10": "no_sense",
     # 28 Oct 2026: the lessons line (wenart.audit.lessons): what the user pointed at, measured
     "U11": "taste", "U12": "taste", "U13": "taste", "U14": "taste", "U15": "taste",
+    # 29 Oct 2026 (lesson UL93: "Computer on the table would have been nice or a laptop"): a desk with no work set
+    "U17": "taste",
     # code critic
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation

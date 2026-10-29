@@ -116,7 +116,8 @@ GROUPS_CODE = ("wenart/furniture/groups.py", "wenart/furniture/groups.yaml", "we
                "wenart/furniture/edit_ops.py", "wenart/furniture/fit.py", "wenart/furniture/layout.py",
                "wenart/furniture/complete.py", "wenart/furniture/locked.py", "wenart/furniture/prompts.py",
                "wenart/assets/**", "wenart/furniture/taste.py",    # 25 Oct 2026: fit.py's room set
-               "wenart/furniture/names.py")     # 26 Oct 2026: the furniture name texts (infer, the reading)
+               "wenart/furniture/names.py",     # 26 Oct 2026: the furniture name texts (infer, the reading)
+               "wenart/furniture/handover.py")  # 29 Oct 2026: the solver hands a re-placed piece's decor over
 # catalog*.json: catalog.json and, once committed, catalog_objaverse.json (catalog.load merges it).
 FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
             "wenart/furniture/model_title.py",       # 28 Oct 2026: catalog.usable reads the model rules

@@ -1449,7 +1449,14 @@ def _move_group(b: dict, args: dict) -> list[str]:
                            args, f"{g['group_id']} on span {span['span_id']}", fixed=_ai_floor_ids(trial, room["id"]),
                            accept=on_span)
     b["furniture"] = trial["furniture"]
-    b["decor"] = [d for d in b.get("decor") or [] if d.get("host_id") not in ids]
+    # 29 Oct 2026 (real06 run 154514: a re-placed desk lost its decor): the group's decor goes to the re-placed
+    # pieces (handover.hand_over: the same type nearest to each); the rest is dropped as before
+    from wenart.furniture import handover as HO
+
+    decor = list(b.get("decor") or [])
+    handed = HO.hand_over(decor, [copy.deepcopy(f) for f in items],
+                          [f for f in b["furniture"] if f["id"] in set(new_ids)])
+    b["decor"] = [d for d in decor if d.get("host_id") not in ids or id(d) in handed]
     return ids + new_ids
 
 

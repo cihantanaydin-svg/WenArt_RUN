@@ -113,6 +113,12 @@ that's outside area": an open-air room (``outdoor.open_air_room``) is offered on
 lighting rule (``ceiling_lights.add_lights``: the zones' lights, a row of pendants along a long table, the lumen
 method's general lights), before the twins copy their partner's decor (so they take the lights mirrored) and once more
 for a twin whose copy lacks them; the slots and the question are unchanged, so stored answers stay valid.
+29 Oct 2026 (user on real06 run 20261028-154514-full, lesson UL93: "Computer on the table would have been nice or a
+laptop"): every desk and writing table gets its work set by rule before its top is styled (``tabletop.work_set``
+through ``dress_tops``: an open laptop facing the seat, a monitor set in a home office), in every room type and in the
+three ways a room is dressed (the AI's items, the rules, the fallback); the AI never chooses those types
+(``AI_TYPES``), so the questions and the stored answers are unchanged. A top's heights come from ``top_room`` (the
+ceiling and a window's sill apart; a top slot takes the smaller as before).
 """
 from __future__ import annotations
 
@@ -144,7 +150,8 @@ ANSWERS_KIND = "decor_ai_answers"
 EXIT_OK, EXIT_USAGE, EXIT_SERVER = 0, 2, 3
 
 # The decor types the AI chooses from (docs/milestone9.md §3; = decor.DECOR_TYPES).
-AI_TYPES: tuple[str, ...] = tuple(t for t in D.DECOR_TYPES if t not in D.SETTING_TYPES)   # 28 Oct: rules set them
+# 28 Oct 2026: the rules set the tables; 29 Oct 2026: and the desks' work sets (the questions stay as they were)
+AI_TYPES: tuple[str, ...] = tuple(t for t in D.DECOR_TYPES if t not in D.SETTING_TYPES + D.WORK_DECOR_TYPES)
 SURFACE_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp", "book_set",
                                   "candle", "tray", "books", "sculpture")                      # Milestone 10
 WALL_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock")
@@ -344,6 +351,26 @@ def _window_limit(piece: dict, ctx: placer.RoomContext) -> Optional[float]:
     return min(sills) if sills else None
 
 
+def top_room(host: dict, room: dict, building: dict, ctx: Optional[placer.RoomContext] = None,
+             planes=None) -> tuple[float, Optional[float]]:
+    """``(under the ceiling, under a sill)``: the height over a host's top that its ceiling leaves (the attic slope
+    over its footprint, ``CEILING_CLEAR_M`` kept) and, for a host in the 0.3 m band of a window, the height to that
+    window's sill (None without one). ``room_slots`` takes the smaller as a top slot's height; 29 Oct 2026: the desk's
+    work set reads them apart (``tabletop.work_set``)."""
+    if ctx is None:
+        ctx = placer.room_context(building, room)
+    if planes is None:
+        planes = D.ceiling_planes(building, room["level_id"])
+    top = _host_top(host)
+    here = _ceiling(building, room)
+    if planes:
+        fp = host["footprint"]
+        here = min(here, D.ceiling_over(building, room["level_id"], fp["center"], fp["size"], float(fp["rotation_deg"]),
+                                        planes=planes))
+    sill = _window_limit(host, ctx)
+    return here - CEILING_CLEAR_M - top, (sill - top if sill is not None else None)
+
+
 # 25 Oct 2026 (user: "there is not enough decor around"): a long top is styled as a group (the rule of three:
 # something tall, something low, something that joins them), a long coffee table on both sides.
 VIGNETTE_MIN_W = {"sideboard": 1.2, "console_table": 1.1, "dresser": 1.2, "tv_unit": 1.4}
@@ -397,16 +424,10 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
     for host in hosts:
         htype = host["type"]
         if htype in TOP_HOSTS:
-            top = _host_top(host)
-            sill = _window_limit(host, ctx)
-            here = ceiling
-            if planes:
-                fp = host["footprint"]
-                here = min(ceiling, D.ceiling_over(building, room["level_id"], fp["center"], fp["size"],
-                                                   float(fp["rotation_deg"]), planes=planes))
-            max_h = here - CEILING_CLEAR_M - top
-            if sill is not None:
-                max_h = min(max_h, sill - top)
+            max_h, under_sill = top_room(host, room, building, ctx, planes)
+            sill = under_sill
+            if under_sill is not None:
+                max_h = min(max_h, under_sill)
             for part, local, (pw, pd) in _top_parts(host):
                 types = tuple(t for t in TOP_HOSTS[htype][1] if t in allowed and _fits_min(t, pw, pd, max_h))
                 if not types:
@@ -1219,14 +1240,15 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         if q is None:
             # No AI question for this room (rules mode, no usable piece, no slot): the M8 rules as before.
             items, row = D.rule_decor_room(out, room, pieces, new_id)
+            top_notes: list[str] = []
             items += TT.dress_tops(room, pieces, out, items, new_id,      # 28 Oct 2026: set tables, styled tops
-                                   density=out["decor_minimum"][room["id"]]["density"])
+                                   density=out["decor_minimum"][room["id"]]["density"], notes=top_notes)
             apply_brief_looks(items, style, lamps, looks)
             out["decor"].extend(items)
             if items or mode == "rules":
                 rec.items, rec.fallback = items, ("brief.decor is 'rules'" if mode == "rules"
                                                   else "no slot for AI decor")
-                rec.notes = [row.get("note")] if row.get("note") else []
+                rec.notes = ([row.get("note")] if row.get("note") else []) + top_notes
                 records.append(rec)
             continue
         rec.slots, rec.notes = q.slots, list(q.notes)
@@ -1249,7 +1271,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             # modestly by rule (the AI's slots hold no counter); the fallback gets it from decor.rule_decor_room
             items += D.kitchen_worktop_decor(out, room, pieces, new_id, existing=items)
             items += TT.dress_tops(room, pieces, out, items, new_id, q.slots,   # 28 Oct 2026: set tables, tops
-                                   density=out["decor_minimum"][room["id"]]["density"])
+                                   density=out["decor_minimum"][room["id"]]["density"], notes=rec.notes)
         apply_brief_looks(items, style, lamps, looks)
         if items:
             rec.items = items
@@ -1263,7 +1285,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             fallback += required_items(q, fallback, out, new_id)
             fallback += fill_to_minimum(q, fallback, out, new_id, room_recipe(room, recipes), family)
             fallback += TT.dress_tops(room, pieces, out, fallback, new_id, q.slots,   # 28 Oct 2026
-                                      density=out["decor_minimum"][room["id"]]["density"])
+                                      density=out["decor_minimum"][room["id"]]["density"], notes=rec.notes)
             apply_brief_looks(fallback, style, lamps, looks)
             rec.items, rec.fallback = fallback, why
             out["decor"].extend(fallback)

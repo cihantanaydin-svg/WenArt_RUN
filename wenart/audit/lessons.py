@@ -29,7 +29,10 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U14 a living room or bedroom with no accent wall in the scene: every wall one paint ("more stylish internal walls
   please better color");
 - U15 the doors (``opening_models.door_variety_problems``): every door one model, an inside door model on the facade,
-  no statement entrance ("I want better doors inside the house and the outside ... some variation is needed").
+  no statement entrance ("I want better doors inside the house and the outside ... some variation is needed");
+- U17 (29 Oct 2026; U16 is a Milestone 11 id of the reading) a desk or writing table (``tabletop.work_hosts``) with no
+  work set on it, no laptop, monitor or keyboard (UL93: "Computer on the table would have been nice or a laptop"); a
+  brief with decor off is not checked.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -62,6 +65,7 @@ SMALL_APPLIANCES = ("kettle", "microwave", "coffee_machine", "toaster", "espress
 TABLE_DECOR_TYPES = ("plate", "plates", "table_setting", "place_setting", "bowl", "fruit_bowl", "vase", "runner",
                      "table_runner", "candle", "candles", "tray", "glass", "glasses", "centrepiece")
 DINING_TABLES = ("table_dining", "dining_table")
+WORK_PIECES = ("laptop", "monitor", "keyboard")       # U17: a desk's work set (tabletop.WORK_TYPES but the mouse)
 BASINS = ("washbasin", "vanity", "basin")
 WET_TYPES = ("bathroom", "wc", "toilet", "shower_room", "ensuite")
 
@@ -352,6 +356,31 @@ def bare_dining_tables(building: dict) -> list[dict]:
     return out
 
 
+def bare_desks(building: dict) -> list[dict]:
+    """U17 (29 Oct 2026, lesson UL93): every desk and writing table of the decor rule (``tabletop.work_hosts``: a desk,
+    a table with an office chair at it, a home office's table) that holds no work piece (``WORK_PIECES``)."""
+    from wenart.furniture import decor_ai as DA
+    from wenart.furniture import tabletop as TT
+
+    if DA.decor_mode(building) == "off":
+        return []
+    hosted = {d.get("host_id") for d in building.get("decor") or [] if str(d.get("type")) in WORK_PIECES}
+    by_room: dict = {}
+    for f in _built(building):
+        by_room.setdefault(f.get("room_id"), []).append(f)
+    out = []
+    for rid, room in _rooms(building).items():
+        for host in TT.work_hosts(room, by_room.get(rid, [])):
+            if host.get("id") in hosted:
+                continue
+            seat = TT.seat_at(host, by_room.get(rid, []))
+            out.append(_f("U17", "minor", host["id"], f"the {host.get('type')} {host['id']} in {rid} has no laptop or "
+                          f"computer on it" + (f" (its seat {seat[0]['id']} faces nothing)" if seat else ""), "UL93",
+                          f"agent_round (the work set of {host['id']}: a laptop on it facing its seat, "
+                          f"tabletop.work_set)", seat=seat[0]["id"] if seat else None))
+    return out
+
+
 def _profile_slots(manifest: Optional[dict]) -> dict:
     """``{slot: look}`` of the scene's style profile: the interior slots and the exterior ones (``exterior``)."""
     sp = (manifest or {}).get("style_profile") if isinstance((manifest or {}).get("style_profile"), dict) else {}
@@ -406,11 +435,12 @@ def door_variety(manifest: Optional[dict]) -> list[dict]:
 BUILDING_CHECKS = (("U1", entrances_at_windows), ("U2", roofs_without_posts), ("U3", thick_columns),
                    ("U4", flat_drawn_roofs), ("U5", traced_covers), ("U6", storage_before_tall_windows),
                    ("U8", seats_facing_walls), ("U9", indoor_pieces_outdoors), ("U10", basins_without_mirrors),
-                   ("U11", bare_worktops), ("U12", bare_dining_tables))
+                   ("U11", bare_worktops), ("U12", bare_dining_tables), ("U17", bare_desks))
 # the lessons each code check measures (``coverage``)
 CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4": ("UL57",), "U5": ("UL64",),
                  "U6": ("UL59", "UL56"), "U7": ("UL60",), "U8": ("UL61",), "U9": ("UL20",), "U10": ("UL66",),
-                 "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32")}
+                 "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32"),
+                 "U17": ("UL93",)}
 
 
 def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
