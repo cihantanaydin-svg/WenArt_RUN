@@ -52,11 +52,15 @@ AI_RULE = "AI"                  # the key prefix of the AI's own decisions: ``AI
 # existence (CLAUDE.md: a drawn piece is removed only when clearly not furniture: the agent's tools judge that).
 LOOK_ACTIONS = {
     "opening": ("door_to_window", "french_window", "raise_sill", "widen_door", "interior_glazing", "high_window",
-                "pass_through", "gap_to_door", "window_to_door", "snap_threshold"),
+                "pass_through", "gap_to_door", "window_to_door", "snap_threshold",
+                # 29 Oct 2026: a bathroom window over a basin (H2)
+                "basin_sill"),
     "room": ("retype_room", "enlarge_windows"),
     "piece": ("move_piece", "mount_fixture", "remove_piece",
               # 27 Oct 2026: a stair whose assumed reading is cut off from its floor is read the other way
-              "flip_stair"),
+              "flip_stair",
+              # 29 Oct 2026: a blocked door front turned to its free side (F4); a basin to a solid wall (H2)
+              "free_front", "clear_basin"),
     # 27 Oct 2026: an outdoor space (site.outdoor_spaces): a guard on an open edge, a roof over a covered kind
     "space": ("guard_edge", "cover_space"),
 }

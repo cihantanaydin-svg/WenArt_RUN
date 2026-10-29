@@ -542,6 +542,10 @@ CHECK_CAUSE: dict[str, str] = {
     "M20": "opening_style",          # 29 Oct 2026: every door a real product (opening_models, the build's doors)
     "M21": "room_use",               # 29 Oct 2026: the rooms furnished for their use (the layout's media wall, fill)
     "M23": "decor_look",             # 29 Oct 2026 (UL106): the professional bar (the decor stage and the build own it)
+    # 29 Oct 2026: a blocked door front is turned (rotate_piece: fixed equipment turns for a blocked door) or what
+    # stands in front of it moves; a basin under a low window is the architect's (cause_of: H2); a back a drawing gap
+    # off its wall snaps onto it
+    "M19": "orientation", "M22": "off_wall",
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",
@@ -675,6 +679,9 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
     # the room critic's "missing layer: ...") is the decor stage's and the build's dressing, never a model swap
     if check == "D3" and text.lstrip().startswith("missing layer") and not (target and _is_piece(target, building)):
         return "decor_look"
+    # 29 Oct 2026: the model review's M19 basin under a low window is the architect's (H2: move it, or a high sill)
+    if check == "M19" and metrics.get("rule") == "basin_window":
+        return "opening_sense"
     # 26 Oct 2026: the model review's rooms: a missing anchor is furnished, an extra dining table is one too many
     if check == "M7":
         return "wrong_type" if target and _is_piece(target, building) else "empty_room"

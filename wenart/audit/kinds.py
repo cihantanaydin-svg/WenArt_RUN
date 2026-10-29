@@ -103,6 +103,10 @@ CHECK_KIND = {
     "M20": "taste",
     # 29 Oct 2026: the rooms furnished for their use (model review M21, Argus U19; wenart.furniture.room_use)
     "M21": "taste", "U19": "taste",
+    # 29 Oct 2026 (user on real06: "This washing machine would not open", "this sink not making sense there"): a door or
+    # drawer front that cannot open, a basin under a low window (model_review.fixtures_in_use); ("There is a gap between
+    # wall and water faucet not looking good") a back a drawing gap off its wall (model_review.backs_on_walls)
+    "M19": "no_sense", "M22": "misread",
     # the visitor checks and the looks
     "Q1": "no_sense", "Q2": "no_sense", "Q3": "no_sense", "Q4": "misread", "Q5": "taste", "Q6": "geometry",
     "Q7": "taste", "Q8": "no_sense", "Q9": "no_sense", "D1": "geometry", "D2": "taste", "D3": "taste",
@@ -115,6 +119,8 @@ CHECK_KIND = {
     "U18": "taste",                  # 29 Oct 2026: the door models as built (UL89)
     # 29 Oct 2026 (lesson UL93: "Computer on the table would have been nice or a laptop"): a desk with no work set
     "U17": "taste",
+    # 29 Oct 2026: a door front that cannot open (U16, UL92), a back a drawing gap off its wall (U20, UL96)
+    "U16": "no_sense", "U20": "misread",
     # code critic
     "F7": "geometry", "F8": "geometry", "G11": "geometry", "G9": "misread", "G10": "misread",
     # conservation

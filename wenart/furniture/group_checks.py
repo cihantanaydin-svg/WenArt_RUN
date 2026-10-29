@@ -996,7 +996,7 @@ def _g10(r: RoomView) -> list[dict]:
     for pid in fixtures:
         p = r.pieces[pid]
         if r.by_id[pid]["type"] == "washing_machine":
-            continue
+            continue                     # 29 Oct 2026: its door's access zone is plausibility F6 (fixture_use)
         free = side_clear(p, "front", r.obstacles(exclude={pid}))
         if free < front_need - 1e-9:
             out.append(_violation("G10", "major", pid, r.id, f"{r.by_id[pid]['type']} {pid}: {free:.2f} m clear in front, "

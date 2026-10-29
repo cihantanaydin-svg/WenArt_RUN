@@ -20,7 +20,10 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U8 a seat whose front faces a wall within 0.6 m (UL61: "Why this chair looking at the wall");
 - U9 an indoor piece outdoors: a rug, a bed, a desk, upholstery or storage in an outdoor room or space (UL20: "makes
   no sense to have that table with the carpet outside");
-- U10 a bathroom basin with no mirror over it ("Mirrors in the baths is missing sometimes");
+- U10 a bathroom basin with no mirror over it ("Mirrors in the baths is missing sometimes"); 29 Oct 2026 (UL95: "this
+  sink not making sense there") a basin under a window whose sill is under 1.25 m (``fixture_use.basins_under_windows``:
+  no mirror can hang over it, its tap meets the sill), the placement rule the mirror rule (``decor_ai.basin_mirror``:
+  over the basin on a solid wall, else beside it) and the architect's H2 share;
 - U11 a kitchen worktop with no small appliance (kettle, microwave, coffee machine, toaster: "kettle in the kitchen
   microwave in the kitchen");
 - U12 a dining table with nothing on it ("plates on tables for example");
@@ -49,6 +52,11 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U23 the professional bar of a living room or bedroom (``wenart.furniture.dressing.review``; UL106: "I want my renders
   to be as professional as these ones"): no feature panel on its accent wall where its style builds one, a wood floor
   not laid in its style's pattern, curtains in one layer, a bed's throw in one layer.
+- U16 a door or drawer front that cannot open, or an appliance that cannot be used (``fixture_use.blocked_fronts``: a
+  washer, dishwasher, cooker, fridge or nightstand, or door-fronted storage, with less than its access depth free in
+  front of it; UL92: "This washing machine would not open");
+- U20 a piece whose back belongs on a wall standing parallel to it a drawing gap (0.055-0.15 m) off it
+  (``fixture_use.back_gaps``; UL96: "There is a gap between wall and water faucet not looking good").
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -342,7 +350,37 @@ def basins_without_mirrors(building: dict) -> list[dict]:
             continue
         out.append(_f("U10", "major", rid, f"{rid} has a basin and no mirror over it", "UL66",
                       f"complete_group {rid} (a mirror over the basin)"))
+    # 29 Oct 2026 (UL95, user on real06: "this sink not making sense there"): a basin under a low window has no wall
+    # for its mirror and its tap meets the sill; the architect's H2 moves it (at most 0.5 m) or raises the sill
+    from wenart.furniture import fixture_use as FU
+
+    for r in FU.basins_under_windows(building):
+        out.append(_f("U10", "major", r["piece"], r["message"], "UL95",
+                      f"architect clear_basin {r['piece']} (at most 0.5 m to a solid wall), else basin_sill "
+                      f"{r['window']} (its sill to {FU.BASIN_SILL_M:.2f} m where the documents do not give it)",
+                      window=r["window"], sill_m=r["sill_m"]))
     return out
+
+
+def blocked_fronts(building: dict) -> list[dict]:
+    """U16 (29 Oct 2026, UL92: "This washing machine would not open"): ``fixture_use.blocked_fronts``."""
+    from wenart.furniture import fixture_use as FU
+
+    return [_f("U16", r["problem"]["severity"], r["piece"], r["message"], "UL92",
+               f"rotate_piece {r['piece']} (to its free side, its back on a wall), else move what stands in front of "
+               f"it ({', '.join(r['problem']['blockers'][:3]) or 'the wall'})", free_m=r["problem"]["free_m"],
+               blockers=r["problem"]["blockers"])
+            for r in FU.blocked_fronts(building)]
+
+
+def back_gaps(building: dict) -> list[dict]:
+    """U20 (29 Oct 2026, UL96: "There is a gap between wall and water faucet not looking good"):
+    ``fixture_use.back_gaps``."""
+    from wenart.furniture import fixture_use as FU
+
+    return [_f("U20", "major", r["piece"], r["message"], "UL96",
+               f"move_piece {r['piece']} with snap_wall_id (its back onto its wall)", gap_m=r["gap_m"])
+            for r in FU.back_gaps(building)]
 
 
 def bare_worktops(building: dict) -> list[dict]:
@@ -630,14 +668,15 @@ BUILDING_CHECKS = (("U1", entrances_at_windows), ("U2", roofs_without_posts), ("
                    ("U11", bare_worktops), ("U12", bare_dining_tables),
                    ("U21", roof_gaps), ("U22", thick_light_posts), ("U24", senseless_inner_windows),
                    ("U25", read_twice_and_blocked_passages), ("U17", bare_desks), ("U19", rooms_for_use),
-                   ("U28", stair_windows))
+                   ("U28", stair_windows), ("U16", blocked_fronts), ("U20", back_gaps))
 # the lessons each code check measures (``coverage``)
 CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4": ("UL57",), "U5": ("UL64",),
-                 "U6": ("UL59", "UL56"), "U7": ("UL60",), "U8": ("UL61",), "U9": ("UL20",), "U10": ("UL66",),
+                 "U6": ("UL59", "UL56"), "U7": ("UL60",), "U8": ("UL61",), "U9": ("UL20",), "U10": ("UL66", "UL95"),
                  "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32"),
                  "U21": ("UL88",), "U22": ("UL88",), "U24": ("UL90", "UL101"), "U25": ("UL97",),
                  "U18": ("UL89", "UL65"), "U17": ("UL93",), "U26": ("UL100",), "U28": ("UL104",),
-                 "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107")}
+                 "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107"),
+                 "U16": ("UL92",), "U20": ("UL96",)}
 CHECK_LESSONS["U23"] = ("UL106",)          # 29 Oct 2026: the professional bar (professional_bar)
 
 

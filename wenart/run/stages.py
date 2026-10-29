@@ -123,7 +123,7 @@ GROUPS_CODE = ("wenart/furniture/groups.py", "wenart/furniture/groups.yaml", "we
                # review (room_use, M21)
                "wenart/furniture/media_wall.py", "wenart/furniture/room_fill.py", "wenart/furniture/room_use.py")
 # catalog*.json: catalog.json and, once committed, catalog_objaverse.json (catalog.load merges it).
-FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
+FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
             "wenart/furniture/model_title.py",       # 28 Oct 2026: catalog.usable reads the model rules
             "results/library/user_rejected.json",    # 29 Oct 2026: ... and the models the user rejected (UL94)
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
@@ -144,7 +144,7 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wena
 # The pipeline (and pipeline_final): the vector, DXF/DWG and generic cores, the recognition questions and answers
 # (crops, size table, the two-pass rule, check.yaml's model ids and slugs) and the room-type table.
 PIPELINE_CODE = ("wenart/ingest/**", "wenart/sheets/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",
-                 "wenart/furniture/fixture_seat.py",            # 27 Oct 2026: the reading seats a drawn fixture
+                 "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py",            # 27 Oct 2026: the reading seats a drawn fixture
                  "wenart/geometry.py", "wenart/schema/**", "wenart/recognition/**", "wenart/furniture/__init__.py",
                  "wenart/furniture/schemas.py", "wenart/brief.py", "wenart/defaults.yaml", CHECK_YAML,
                  # Milestone 11 (track B): the pipeline infers untyped pieces (infer.py) with the placer and the
@@ -160,7 +160,7 @@ VISION_CODE = ("wenart/vision_check/**", "wenart/views.py", "wenart/recognition/
 # included) and what it imports for the views, the expected objects and the scene geometry.
 GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.py", "wenart/canonical.py",
              "wenart/building.py", "wenart/units.py",   # 27 Oct 2026: wenart.levels.outdoor (architect cover_space)
-             "wenart/blender/door_spacing.py", "wenart/furniture/fixture_seat.py",   # 27 Oct 2026: M12, the seat rule
+             "wenart/blender/door_spacing.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py",   # 27 Oct 2026: M12, the seat rule
              "wenart/hfcache.py", "wenart/brief.py", "wenart/geometry.py", "wenart/style/**",
              "wenart/blender/cameras.py", "wenart/blender/camsearch.py", "wenart/blender/common.py",
              "wenart/blender/geom2d.py", "wenart/blender/lighting.py", "wenart/blender/materials.py",
@@ -204,7 +204,7 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
 # parametric.piece_bbox, its question the layout's style text).
-DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/decor_ai.py", "wenart/furniture/placer.py",
+DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py", "wenart/furniture/decor_ai.py", "wenart/furniture/placer.py",
               "wenart/furniture/schemas.py", "wenart/furniture/layout.py", "wenart/furniture/prompts.py",
               "wenart/furniture/complete.py", "wenart/furniture/locked.py", "wenart/brief.py",
               "wenart/synthetic/**", "wenart/building.py", "wenart/units.py", "wenart/geometry.py",
@@ -252,7 +252,7 @@ STAGE_LIST = (
     Stage(7, "assets", "cpu", "always", "warning", ("wenart/assets/**",)),
     Stage(8, "fit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_fitted.json",)),
     Stage(9, "layout", "vlm", "fingerprint", "failed",
-          ("wenart/furniture/layout.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/placer.py", "wenart/furniture/prompts.py",
+          ("wenart/furniture/layout.py", "wenart/furniture/fixture_seat.py", "wenart/furniture/fixture_use.py", "wenart/furniture/placer.py", "wenart/furniture/prompts.py",
            "wenart/furniture/schemas.py", "wenart/furniture/complete.py", "wenart/furniture/locked.py",
            "wenart/recognition/**", "wenart/style/**", "wenart/building.py", "wenart/brief.py", "wenart/defaults.yaml",
            "wenart/units.py", "wenart/geometry.py", "wenart/synthetic/blocks.py", "wenart/schema/**",

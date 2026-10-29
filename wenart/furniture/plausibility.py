@@ -83,6 +83,13 @@ face); F1 and G14 flagged them as the wrong type in every round, and the agent s
 (set_room_type to bathroom, complete_group bathroom_set, fix_fixture), all refused. CLAUDE.md treats drawn fixed
 equipment like walls. The rows of ``schemas.ALLOWED_TYPES`` (what the AI may add to a hall) are unchanged; only this
 narrow type list is skipped, so a drawn toilet in a bedroom or a drawn stove in a living room stays a finding.
+
+29 Oct 2026 (lesson UL92, user on real06 run 20261028-154514-full: "This washing machine would not open"; the agent had
+turned the drawn washer f_L1_019 to clear F4 and its door faced the toilet 0.11 m away, which no check measured): F6
+also measures the access zone of every door-fronted appliance and nightstand (``fixture_use.access_problem``: its width
+x its type's depth, free of walls and of every piece but light movable ones): critical when its door or drawers cannot
+open (``open_m``), major when it cannot be used (``use_m``). A front into a wall within 0.3 m stays F4's; a piece of a
+kitchen run is G8's (its aisle). So the edit validator refuses an edit or a placement that blocks such a front.
 """
 from __future__ import annotations
 
@@ -95,6 +102,7 @@ from shapely.geometry import LineString, Point, Polygon
 
 
 from wenart import geometry as G
+from wenart.furniture import fixture_use as FU
 from wenart.furniture import group_checks as GC
 from wenart.furniture import groups as GR
 from wenart.furniture import placer, schemas
@@ -115,8 +123,9 @@ CHECKS: dict[str, dict] = {
            "measured": True},
     "F5": {"severity": "minor", "what": "replaced by the group checks G1-G13 (Milestone 12: arrangements, not counts)",
            "measured": False},
-    "F6": {"severity": "major", "what": "front clearances of seats and cribs (0.6 m; armchairs 0.45 m); the walkways "
-                                        "are G11", "measured": True},
+    "F6": {"severity": "major", "what": "front clearances of seats and cribs (0.6 m; armchairs 0.45 m) and the access "
+                                        "zone of door-fronted appliances and nightstands (critical when the door or "
+                                        "drawers cannot open); the walkways are G11", "measured": True},
     "F7": {"severity": "critical", "what": "no door approach blocked (critical); the window bands are G12",
            "measured": True},
     "F8": {"severity": "major", "what": "no floating piece: a free-standing piece touches a wall or belongs to a "
@@ -558,6 +567,8 @@ def _f6_f7_r3(r: _Room) -> list[dict]:
     hosted = {f["id"] for f in r.floor if f.get("built_into") in set(ids)}
     for pid, p, poly in zip(ids, pieces, polys):
         item = r.item(pid)
+        if p.type in FU.ACCESS_M and pid not in hosted:
+            out += _f6_access(r, pid, p, ids, polys)
         if p.type in F6_TYPES:
             zone = p.front_zone()
             exempt = set(schemas.CLEARANCE_EXEMPT.get(p.type, ())) | set(EXTRA_EXEMPT.get(p.type, ()))
@@ -596,6 +607,26 @@ def _f6_f7_r3(r: _Room) -> list[dict]:
                 out.append(_violation("R3", door.id, r.id, f"door {door.id} swings into {', '.join(hits)}",
                                       {"pieces": hits}))
     return out                     # Milestone 12: the walkways are G11 (group_checks), the window bands G12
+
+
+def _f6_access(r: _Room, pid: str, p: placer.Piece, ids: list[str], polys: list) -> list[dict]:
+    """29 Oct 2026 (lesson UL92, ``fixture_use.access_problem``): the access zone in front of a door-fronted appliance
+    or a nightstand (its width x its type's access depth) free of walls, fixed pieces and furniture (light movable
+    pieces and a counter it is built into aside): critical when its door or drawers cannot open, major when it cannot
+    be used. A front into a wall closer than ``schemas.FRONT_WALL_MIN_M`` is F4's finding (one finding per fault); a
+    piece of a kitchen counter run is G8's (the run's aisle, with its small-kitchen tiers)."""
+    if front_wall_distance(p, r, r.front_dir(pid)) is not None or FU.in_run(r.item(pid), r.built):
+        return []
+    obstacles = [(oid, r.item(oid)["type"], [tuple(c) for c in list(op.exterior.coords)[:-1]])
+                 for oid, op in zip(ids, polys) if oid != pid and getattr(op, "exterior", None) is not None]
+    prob = FU.access_problem(p.type, p.center, p.rotation_deg, p.size, list(r.ring.coords), obstacles)
+    if prob is None:
+        return []
+    item = r.item(pid)
+    return [_violation("F6", pid, r.id, FU.describe(item, prob),
+                       dict({"part": "access", "free_m": prob["free_m"], "open_m": prob["open_m"],
+                             "use_m": prob["use_m"], "blockers": prob["blockers"], "wall": prob["wall"],
+                             "front_deg": _front_deg(p)}, **_assumed(item)), severity=prob["severity"])]
 
 
 # --------------------------------------------------------------------------

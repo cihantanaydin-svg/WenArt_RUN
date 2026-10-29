@@ -1072,12 +1072,13 @@
    "id": "UL92",
    "date": "2026-10-29",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
+    "F4",
     "build"
    ],
    "request": "This washing machine would not open (real06 run 20261028-154514-full, a bathroom: the washing machine's door faces the toilet beside it)",
-   "lesson": "This washing machine would not open (real06 run 20261028-154514-full, a bathroom: the washing machine's door faces the toilet beside it)",
+   "lesson": "A piece with a front door or drawers (washer, dryer, dishwasher, oven or cooker, fridge, nightstand; door-fronted storage) keeps its width x its access depth free in front of it, clear of walls, fixed pieces and furniture (washer 0.60 m, 0.45 m to open). A drawn piece whose door cannot open was read the wrong way round: it turns on its wall to its free side with its back on a wall, else moves at most 0.5 m (adjusted_by_ai, drawn values kept). Fixed equipment turns only to a front that leaves its door free. Checks: F6, M19, U16, architect F4.",
    "question": null
   },
   {
@@ -1108,24 +1109,25 @@
    "id": "UL95",
    "date": "2026-10-29",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
+    "H2",
     "build"
    ],
    "request": "this sink not making sense there (real06 run 20261028-154514-full, cam_r_L0_banyo_1: the wall basin stands in the corner right under the window, beside the bath, no room for a mirror)",
-   "lesson": "this sink not making sense there (real06 run 20261028-154514-full, cam_r_L0_banyo_1: the wall basin stands in the corner right under the window, beside the bath, no room for a mirror)",
+   "lesson": "A basin needs a solid wall over it for its mirror and tap; a window over it is fine only with its sill at 1.25 m or more. A drawn basin under a lower window moves at most 0.5 m to a solid stretch; else the architect asks (H2): raise that window's sill to 1.25 m where the documents do not give it (default), move it farther with the user's OK, or keep it with its mirror beside it. Checks: architect H2, M19, U10.",
    "question": null
   },
   {
    "id": "UL96",
    "date": "2026-10-29",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "There is a gap between wall and water faucet not looking good (real06 run 20261028-154514-full, the kitchen: the sink unit stands off the wall under the window, a gap between the wall and the tap)",
-   "lesson": "There is a gap between wall and water faucet not looking good (real06 run 20261028-154514-full, the kitchen: the sink unit stands off the wall under the window, a gap between the wall and the tap)",
+   "lesson": "A piece whose back belongs on a wall and stands parallel to it 0.055-0.15 m off it goes back onto the wall with what is built into it, never into another piece. Washers, dryers and fridges keep their service gap. Checks: M22, U20.",
    "question": null
   },
   {
