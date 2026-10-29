@@ -904,9 +904,17 @@ ROOM_RIGS: dict[str, list[dict]] = {
     # kind: pendant | ceiling | bedside | strip | mirror; anchor: the piece type the fixture needs (None = the room);
     # size_m: [w, d, h] of the visible fixture; lumens per fixture (a strip: per metre, length from the counter).
     "dining": [{"kind": "pendant", "anchor": "table_dining", "lumens": 2400.0, "count": 1, "size_m": [0.40, 0.40, 0.14],
-                "source": "pendant with 3 x 800 lm LED bulbs"}],
+                "source": "pendant with 3 x 800 lm LED bulbs"},
+               {"kind": "strip", "anchor": "kitchen_counter", "lumens_per_m": 500.0, "count": 1,     # 29 Oct 2026 (K8)
+                "size_m": [1.0, 0.02, 0.015], "source": "LED strip under the wall cabinets, 400-600 lm per metre",
+                "optional": True}],
     "living": [{"kind": "pendant", "anchor": "table_dining", "lumens": 2400.0, "count": 1, "size_m": [0.40, 0.40, 0.14],
                 "source": "pendant with 3 x 800 lm LED bulbs over the dining table of an open living room",
+                "optional": True},
+               # 29 Oct 2026 (K8, wenart.blender.kitchen_details): the kitchen run of an open-plan living room gets the
+               # strip under its wall cabinets too (optional: no counter or no wall cabinet, no strip, no record)
+               {"kind": "strip", "anchor": "kitchen_counter", "lumens_per_m": 500.0, "count": 1,
+                "size_m": [1.0, 0.02, 0.015], "source": "LED strip under the wall cabinets, 400-600 lm per metre",
                 "optional": True}],
     "kitchen": [{"kind": "strip", "anchor": "kitchen_counter", "lumens_per_m": 500.0, "count": 1,
                  "size_m": [1.0, 0.02, 0.015], "source": "LED strip under the wall cabinets, 400-600 lm per metre"},
@@ -1320,9 +1328,19 @@ def rig_fixture_problems(fixtures: list[dict], polygon, pieces: list[dict], deco
     nightstand stand for it); a pendant's cord (``pendant_cord_box``, up to its ``mount_z``) is checked like its
     shade."""
     poly = [tuple(p[:2]) for p in polygon]
-    piece_boxes = [piece_box(p, floor_z) for p in pieces if p.get("footprint")]
+    # 29 Oct 2026 (K8, wenart.blender.kitchen_details.run_boxes): a kitchen run from modules is its worktop box and a
+    # box per hood or tall unit, not one box up to its hood's top (the strip under the cabinet beside the hood was
+    # dropped as "crossing" the run under it)
+    from wenart.blender import kitchen_details as KD
+
+    piece_boxes = []
+    for p in pieces:
+        if p.get("footprint"):
+            piece_boxes += KD.run_boxes(p, floor_z) or [piece_box(p, floor_z)]
     boxes = piece_boxes + list(decor or [])
-    by_id = {b.get("id"): b for b in piece_boxes}
+    by_id: dict = {}
+    for b in piece_boxes:
+        by_id.setdefault(b.get("id"), b)
     out = []
     for f in fixtures:
         name, kind = f.get("name"), f.get("kind")
@@ -1694,7 +1712,8 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
         elif kind == "strip":
             counters = by_type.get("kitchen_counter") or []
             if not counters:
-                out["dropped"].append({"kind": kind, "reason": f"no kitchen_counter in {room['id']}: no strip"})
+                if not spec.get("optional"):          # 29 Oct 2026: an open-plan room's strip is optional (K8)
+                    out["dropped"].append({"kind": kind, "reason": f"no kitchen_counter in {room['id']}: no strip"})
                 continue
             # 26 Oct 2026 (user: "fix should be general"): the strip hangs under each wall cabinet, as long as the
             # cabinet; a counter without wall cabinets gets none. Before, every counter got a strip at the wall
@@ -1702,8 +1721,9 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
             # bar at 1.45 m, which the AI judge read as "a wall cabinet rendered as a thin floating shelf".
             cabinets = by_type.get("wall_cabinet") or []
             if not cabinets:
-                out["dropped"].append({"kind": kind, "reason": f"no wall cabinet in {room['id']}: no strip under one "
-                                                               "(a bare strip would float over the counter)"})
+                if not spec.get("optional"):
+                    out["dropped"].append({"kind": kind, "reason": f"no wall cabinet in {room['id']}: no strip under "
+                                                                   "one (a bare strip would float over the counter)"})
                 continue
             for cabinet in cabinets:
                 (cx, cy), (fx, fy), width, depth = _piece_frame(cabinet)

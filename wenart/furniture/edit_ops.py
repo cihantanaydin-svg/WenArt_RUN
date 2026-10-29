@@ -1577,7 +1577,9 @@ def _build_retyped(b: dict, item: dict, args: dict, catalog=None) -> dict:
     trial = dict(item, build=True)
     trial.pop("asset_pin", None)
     kitchen = F.kitchen_built_ins(b)
-    hints = kitchen["hints"].get(item["id"])
+    hints = F.run_hints(kitchen, item["id"])        # 29 Oct 2026: with the kitchen details' hints
+    if family and item.get("type") in F.KITCHEN_RUN_HOSTS + ("wall_cabinet",):
+        hints = dict(hints or {}, family=family)     # the kitchen details of the house's style family
     host_id = kitchen["sinks"].get(item["id"])
     host = next((p for p in b.get("furniture") or [] if p.get("id") == host_id), None) if host_id else None
     try:

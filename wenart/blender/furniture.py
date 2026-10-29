@@ -195,6 +195,7 @@ from pathlib import Path
 from typing import Sequence
 
 from wenart import geometry as G
+from wenart.blender import kitchen_details as KD
 from wenart.blender import modules as MOD
 from wenart.blender import parametric as P
 from wenart.blender import proxies
@@ -1414,9 +1415,18 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
         # their window (decor_floor)
         item_floor, item, _floor_how = decor_floor(building, level, item)
         if item.get("type") in P.KITCHEN_DECOR_TYPES and host is not None:
+            # 29 Oct 2026 (wenart.blender.kitchen_details.item_blocked): never in the run's tall unit or under its rail
+            # (the refit may have planned them after the decor stage placed the item)
+            planned = KD.item_blocked(item, host)
+            if planned is not None:
+                summary["decor_skipped"].append({"id": item.get("id"), "type": item.get("type"),
+                                                 "room_id": item.get("room_id"), "reason": planned})
+                continue
             # 28 Oct 2026: a worktop item never stands in front of a window, glazed door or pass-through of the
             # building as built that it would reach (the architect may add or move one after the decor stage)
             blocked = MOD.worktop_item_window(item, host, building)
+            if blocked is not None and item.get("type") == "cookware":
+                blocked = None                            # the pot and pan stand on the hob, where it is
             if blocked is not None:
                 slid = MOD.slide_worktop_item(item, host, building, worktop_taken)
                 if slid is None:
@@ -1435,6 +1445,19 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                          **entries)                      # the built boxes: pieces, and proxies behind --proxies
             entry = _create_wall_art(item, n, level, item_floor, collection, library, assets_dir, pass_indices,
                                      built, on_level, warnings, geo_cache, summary["decor_skipped"], mats=mats)
+        elif (item.get("type") in P.KITCHEN_DECOR_TYPES and host is not None and host_entry.get("kind") == "furniture"
+              and KD.worktop_z(item, host) is not None):
+            # 29 Oct 2026 (lesson UL111: "make slow code efficient"): a worktop item on a kitchen run built from modules
+            # rests on the plan's known worktop line (or the hob's rings): no ray per item; the scene check S5 still
+            # measures it on the built mesh
+            z = KD.worktop_z(item, host)
+            known = dict(item, center=[float(item["center"][0]), float(item["center"][1]), z])
+            entry = _create_decor(known, host, n, level, piece_floor_z(building, level, host), collection, library,
+                                  mats, assets_dir, pass_indices, host_entry, warnings, geo_cache,
+                                  skipped=summary["decor_skipped"], assumed=assumed)
+            if entry is not None:
+                entry["assumed"] = {"rest": f"on the worktop line of {host['id']} ({z:.3f} m over its floor: its "
+                                            "module plan)"}
         elif hosted_support(item, host) is not None and host_entry.get("kind") == "furniture":
             entry = _create_hosted_decor(item, host, n, level, piece_floor_z(building, level, host), collection,
                                          library, mats, assets_dir, pass_indices, host_entry, warnings, geo_cache,

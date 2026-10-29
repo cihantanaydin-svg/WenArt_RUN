@@ -60,6 +60,14 @@ Builders (``MODULE_BUILDERS``: furniture type -> builder):
   (``worktop_item_window``, ``slide_worktop_item``); (5) the kitchen modules' bar handles stand on two feet
   (``with_handle_posts``). How: pure plans; the fit gives the hints (``wenart.furniture.fit.hob_hints``,
   ``wall_run_hints``), the model review checks the result (``model_review.kitchen_design``, M13).
+  Kitchen details (29 Oct 2026; lessons UL115, kitchen part, and UL118; the user's reference photos: "look at all
+  these details I want these details"): with a style (``style`` or the hints' ``family``) the plan follows its
+  family's row of ``kitchen_details.FAMILY_KITCHEN``: a tall-unit column at the run end the fit names
+  (``module_hints["column"]``: an oven tower and a fridge, fronts to the ceiling; K1), waterfall ends on an island
+  (K2 / K15), knee space for the stools on an island's back (``module_hints["seat_side"]``; G3), a cylinder island
+  hood in a hanging shelf frame (K3), fluted or handle-less uppers (K4), a utensil rail (G3) and a pull-down tap in
+  the handles' metal (K7); every detail is recorded in ``plan["details"]``. Without a style the plan is the one of
+  before (the tap aside).
 - ``bath_set`` (washbasin at least 0.45 m deep: a wall-hung vanity with drawer fronts, a ceramic top with one or
   two inset basins and taps and a framed mirror above, the vanity hollow above the basins since the fix round after
   P3, part 2; shower: a tray of a real product size with the glass screen and shower set of
@@ -114,6 +122,7 @@ from __future__ import annotations
 import math
 from typing import Optional, Sequence
 
+from wenart.blender import kitchen_details as KD
 from wenart.blender import parametric as P
 from wenart.blender.proxies import proxy_height
 
@@ -700,6 +709,9 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
     drawn_h = float(given) if isinstance(given, (int, float)) and not isinstance(given, bool) and given > 0 else None
     in_range = drawn_h is not None and KITCHEN_WORKTOP_RANGE_M[0] - 1e-9 <= drawn_h <= KITCHEN_WORKTOP_RANGE_M[1] + 1e-9
     worktop_z = drawn_h if in_range else KITCHEN_WORKTOP_HEIGHT_M
+    # 29 Oct 2026 (module docstring "Kitchen details"): the style family's kitchen details (None: no style, no details)
+    family = KD.family_from(style, hints, P.piece_design(piece))
+    rule = KD.family_rule(family) if family is not None else None
     gap_spans, gaps, notes = _range_gaps(w, hints)
     fixed: list[tuple[float, float, str]] = []
     sink_x = hints.get("sink_x_m")
@@ -803,6 +815,10 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
     # the worktop, read as a dishwasher): a fridge at a run end with no wall cabinet over it (``fridge_column``, the
     # fit's hint) is a fridge-freezer column up to the wall units' top; the worktop and the plinth stop at its side
     column = None
+    # 29 Oct 2026 (K1): the fit's column hint names the ceiling: the fridge column's fronts go up to it (a cupboard over
+    # the fridge doors)
+    column_hint = hints.get("column") if isinstance(hints.get("column"), dict) else None
+    col_top = KD.column_top(column_hint) if rule and rule.get("tall_column") and column_hint else KITCHEN_COLUMN_TOP_M
     if hints.get("fridge_column") and not island:
         for f0, f1, kind in fixed:
             at_end = abs(f0 + w / 2.0) < 1e-6 or abs(f1 - w / 2.0) < 1e-6
@@ -810,9 +826,27 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
                 column = (f0, f1)
                 gap_spans.append((f0, f1, "fridge_column"))
                 notes.append(f"the fridge stands as a {f1 - f0:.2f} m fridge-freezer column at the run's end, "
-                             f"{KITCHEN_COLUMN_TOP_M:.2f} m high (no wall cabinet over it)")
+                             f"{col_top:.2f} m high (no wall cabinet over it)")
                 break
-    segments = _segments(w, fixed + gap_spans)
+    # 29 Oct 2026 (module docstring "Kitchen details", K1): the tall-unit column at the run end the fit names (an oven
+    # tower and, in a kitchen with no fridge, a fridge column), its fronts to the ceiling; the worktop and the plinth stop
+    # at its side, as at the fridge column
+    columns: list[tuple[float, float, str]] = []
+    if rule and rule.get("tall_column") and column_hint and column_hint.get("kinds"):
+        columns, col_notes = KD.column_spans(w, fixed + gap_spans, column_hint, island)
+        notes += col_notes
+        gap_spans += [(c0, c1, "tall_column") for c0, c1, _k in columns]
+    # K2 / K15: an island of a waterfall family has its top down both ends (the units stand between the panels)
+    panels, wf_notes = KD.waterfall_spans(w, gap_spans, island, rule)
+    notes += wf_notes
+    # G3: knee space for the stools on an island's back (base units 0.60 m deep, the worktop over the stools); not
+    # with a sink or a hob in the island (their bowl and plate need the full depth)
+    over = KD.overhang_of(d, island, hints) if rule and not fixed else None
+    cd, cy = (over["carcass_d"], over["carcass_y"]) if over else (d, 0.0)
+    if over:
+        notes.append(f"the island's worktop runs {over['overhang']:.2f} m over its back for the stools' knees "
+                     f"(base units {cd:.2f} m deep; G3)")
+    segments = _segments(w, fixed + gap_spans + panels)
     base_h = worktop_z - KITCHEN_WORKTOP_M - KITCHEN_PLINTH_M
     stretches = _segments(w, gap_spans)                   # the plinth and the worktop run between the gaps
     modules = []
@@ -823,49 +857,64 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
         r1 = KITCHEN_PLINTH_RECESS_M if island and abs(x1 - w / 2.0) < 1e-6 else 0.0
         if x1 - x0 - r0 - r1 <= 1e-3:
             continue
-        modules.append(_module("plinth", (x1 - x0 - r0 - r1, d - KITCHEN_PLINTH_RECESS_M * (2 if island else 1),
+        modules.append(_module("plinth", (x1 - x0 - r0 - r1, cd - KITCHEN_PLINTH_RECESS_M * (2 if island else 1),
                                           KITCHEN_PLINTH_M),
-                               ((x0 + r0 + x1 - r1) / 2.0, 0.0 if island else KITCHEN_PLINTH_RECESS_M / 2.0), "dark"))
+                               ((x0 + r0 + x1 - r1) / 2.0, cy if island else KITCHEN_PLINTH_RECESS_M / 2.0), "dark"))
+    for p0, p1, _k in panels:
+        modules.append(_module("waterfall", (p1 - p0, d, worktop_z - KITCHEN_WORKTOP_M), ((p0 + p1) / 2.0, 0.0),
+                               "worktop", z_m=0.0, product=f"waterfall end {KITCHEN_WORKTOP_M * 100:.0f} mm"))
     units: list[dict] = []
     for x0, x1 in segments:
         seg_w = x1 - x0
         run = compose_run(seg_w, KITCHEN_BASE_WIDTHS_M, KITCHEN_FILLER_MAX_M)
         if run is None:                                   # a slit narrower than the smallest unit: a filler panel
-            units.append(_module("filler", (seg_w, d, base_h), ((x0 + x1) / 2.0, 0.0), "front", z_m=KITCHEN_PLINTH_M))
+            units.append(_module("filler", (seg_w, cd, base_h), ((x0 + x1) / 2.0, cy), "front", z_m=KITCHEN_PLINTH_M))
             continue
         # fillers at the run's outer ends only; inside the run the remainder sits next to the fixed unit
-        at_left_end = abs(x0 + w / 2.0) < 1e-6
-        at_right_end = abs(x1 - w / 2.0) < 1e-6
+        # 29 Oct 2026: a waterfall panel's inner face is the run's end for the fillers
+        at_left_end = abs(x0 + w / 2.0) < 1e-6 or any(abs(x0 - p1) < 1e-6 for _p0, p1, _k in panels)
+        at_right_end = abs(x1 - w / 2.0) < 1e-6 or any(abs(x1 - p0) < 1e-6 for p0, _p1, _k in panels)
         rem = seg_w - run["sum_m"]
         left_f = rem / 2.0 if (at_left_end and at_right_end) else (rem if at_left_end else 0.0)
         right_f = rem - left_f
         if left_f > 1e-9:
-            units.append(_module("filler", (left_f, d, base_h), (x0 + left_f / 2.0, 0.0), "front", z_m=KITCHEN_PLINTH_M))
+            units.append(_module("filler", (left_f, cd, base_h), (x0 + left_f / 2.0, cy), "front",
+                                 z_m=KITCHEN_PLINTH_M))
         xx = x0 + left_f
         for uw in run["widths"]:
             front = "drawers" if abs(uw - KITCHEN_DRAWER_UNIT_W_M) < 1e-9 else ("doors" if uw >= 0.80 - 1e-9 else "door")
-            units.append(_module("base_unit", (uw, d, base_h), (xx + uw / 2.0, 0.0), "front", z_m=KITCHEN_PLINTH_M,
+            units.append(_module("base_unit", (uw, cd, base_h), (xx + uw / 2.0, cy), "front", z_m=KITCHEN_PLINTH_M,
                                  front=front, product=f"base unit {uw * 100:.0f}x{KITCHEN_BASE_DEPTH_M * 100:.0f} cm"))
             xx += uw
         if right_f > 1e-9:
-            units.append(_module("filler", (right_f, d, base_h), (xx + right_f / 2.0, 0.0), "front", z_m=KITCHEN_PLINTH_M))
+            units.append(_module("filler", (right_f, cd, base_h), (xx + right_f / 2.0, cy), "front",
+                                 z_m=KITCHEN_PLINTH_M))
+    oven_tower = any(k == "oven_tower" for _c0, _c1, k in columns)
     for f0, f1, kind in fixed:
         front = "door" if f1 - f0 < 0.80 - 1e-9 else "doors"
         product = f"{kind} base unit {(f1 - f0) * 100:.0f}x{KITCHEN_BASE_DEPTH_M * 100:.0f} cm"
         # 26 Oct 2026: the hob unit of a full-depth run holds an oven (``oven`` hint), the fridge unit is the
-        # under-counter fridge's appliance door
-        if kind == "hob" and hints.get("oven") and base_h >= KITCHEN_OVEN_H_M + 0.05:
+        # under-counter fridge's appliance door; 29 Oct 2026 (K1): with the ovens in the tall unit the hob unit holds
+        # pot drawers
+        in_column = bool(rule and rule.get("tall_column")) and (oven_tower or bool(hints.get("oven_in_column")))
+        if kind == "hob" and hints.get("oven") and not in_column and base_h >= KITCHEN_OVEN_H_M + 0.05:
             front, product = "oven", f"hob with a built-in oven {(f1 - f0) * 100:.0f} cm"
+        elif kind == "hob" and in_column:
+            front, product = "drawers", f"hob over pot drawers {(f1 - f0) * 100:.0f} cm (the ovens in the tall unit)"
         elif kind == "fridge" and column == (f0, f1):
-            units.append(_module("tall_unit", (f1 - f0, d, KITCHEN_COLUMN_TOP_M - KITCHEN_PLINTH_M),
+            to_ceiling = col_top > KITCHEN_COLUMN_TOP_M + 1e-6
+            units.append(_module("tall_unit", (f1 - f0, d, col_top - KITCHEN_PLINTH_M),
                                  ((f0 + f1) / 2.0, 0.0), "front", z_m=KITCHEN_PLINTH_M, front="fridge_column",
                                  holds=kind, product=f"fridge-freezer column {(f1 - f0) * 100:.0f} cm, "
-                                                     f"{KITCHEN_COLUMN_TOP_M * 100:.0f} cm high"))
+                                                     f"{col_top * 100:.0f} cm high",
+                                 **({"column": True} if to_ceiling else {})))
             continue
         elif kind == "fridge":
             front, product = "fridge", f"under-counter fridge {(f1 - f0) * 100:.0f} cm"
         units.append(_module("base_unit", (f1 - f0, d, base_h), ((f0 + f1) / 2.0, 0.0), "front", z_m=KITCHEN_PLINTH_M,
                              front=front, holds=kind, product=product))
+    for span in columns:                                  # 29 Oct 2026 (K1): the tall-unit column
+        units.append(KD.tall_module(span, d, col_top, KITCHEN_PLINTH_M))
     units.sort(key=lambda m: m["pos_m"][0])
     modules += units
     for x0, x1 in stretches:
@@ -875,19 +924,23 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
                                         for f0, f1, k in fixed if k != "fridge"
                                         and x0 - 1e-6 <= (f0 + f1) / 2.0 <= x1 + 1e-6]))
     height = worktop_z
-    if column is not None:
-        height = max(height, KITCHEN_COLUMN_TOP_M)
+    if column is not None or columns:
+        height = max(height, col_top)
     # 28 Oct 2026 (module docstring "Kitchen design"): every hob of the run gets its cooker hood above it
     hob_unit = next(((f0, f1) for f0, f1, k in fixed if k == "hob"), None)
     hood = None
     if hob_unit is not None and hints.get("hood") is not False:
         hood = hood_module(hob_unit, d, worktop_z, island, hints)
+        notes += KD.island_hood_style(hood, rule, w, d)  # 29 Oct 2026 (K3): the island hood of the family
         modules.append(hood)
         notes.append(hood_note(hood))
     if hints.get("wall_units") and not island:
         # 27 Oct 2026: beside a fridge column the wall units run over the rest of the run only
         wa, wb = (-w / 2.0, w / 2.0) if column is None else \
             ((column[1], w / 2.0) if abs(column[0] + w / 2.0) < 1e-6 else (-w / 2.0, column[0]))
+        if columns:                                       # 29 Oct 2026 (K1): nor over the tall-unit column
+            c_lo, c_hi = min(c[0] for c in columns), max(c[1] for c in columns)
+            wa, wb = (max(wa, c_hi), wb) if abs(c_lo + w / 2.0) < 1e-6 else (wa, min(wb, c_lo))
         # 28 Oct 2026: and never over the hood (the hood between them)
         stretches_w = [(wa, wb)] if hood is None or hood.get("hood") != "chimney" else [
             (a, b) for a, b in ((wa, min(wb, hood["pos_m"][0] - hood["size_m"][0] / 2.0)),
@@ -918,6 +971,47 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
             "products": sorted(set(products), key=products.index), "island": island,
             "cutouts": [k for _f0, _f1, k in fixed if k != "fridge"], "notes": notes, "design": P.piece_design(piece),
             "worktop_m": round(worktop_z, 4)}           # 28 Oct 2026: the worktop line (the checks read it)
+    if rule is not None:
+        # 29 Oct 2026 (module docstring "Kitchen details"): what the family's rule gave the run, with the reasons
+        blocked = [tuple(b) for b in hints.get("windows_m") or [] if isinstance(b, (list, tuple)) and len(b) == 2]
+        rail = KD.rail_span(w, d, fixed + [(c0, c1, "tall") for c0, c1, _k in columns], blocked, rule, island)
+        details = {"family": rule["family"], "why": rule["why"], "upper_fronts": rule.get("upper_fronts"),
+                   "upper_handleless": bool(rule.get("upper_handleless")), "tap": "pull-down spray tap (K7)",
+                   "applied": [], **({"seat_side": hints["seat_side"]} if hints.get("seat_side") else {})}
+        for c0, c1, k in columns:
+            details["applied"].append({"detail": "K1", "what": k, "x0_m": round(c0, 4), "x1_m": round(c1, 4),
+                                       "source": "inferred", "reason": str(column_hint.get("why") or
+                                                                           "a tall-unit column at a free run end")})
+        if columns or (column is not None and col_top > KITCHEN_COLUMN_TOP_M + 1e-6):
+            details["column_top_m"] = col_top
+        if hints.get("fridge_why") and any(k == "fridge" for _f0, _f1, k in fixed):
+            details["applied"].append({"detail": "K1", "what": "under-counter fridge", "source": "inferred",
+                                       "reason": str(hints["fridge_why"])})
+        if panels:
+            details["waterfall_m"] = [[round(p0, 4), round(p1, 4)] for p0, p1, _k in panels]
+            details["applied"].append({"detail": "K2", "what": "waterfall ends", "source": "inferred",
+                                       "reason": f"the {rule['family']} family's island has its top down its ends"})
+        if over:
+            details["overhang_m"] = over["overhang"]
+            details["applied"].append({"detail": "G3", "what": "knee space for the stools", "source": "inferred",
+                                       "reason": "the stools stand at the island's back"})
+        if hood is not None and hood.get("style"):
+            details["applied"].append({"detail": "K3", "what": f"{hood['style']} island hood"
+                                       + (" in a hanging shelf frame" if hood.get("frame") else ""),
+                                       "source": "inferred", "reason": f"the {rule['family']} family's island hood"})
+        if rail is not None:
+            details["rail_m"] = list(rail)
+            details["applied"].append({"detail": "G3", "what": "utensil rail", "source": "inferred",
+                                       "reason": f"the {rule['family']} family's utensil rail beside the hob"})
+            notes.append(f"a {rail[1] - rail[0]:.2f} m utensil rail with hanging utensils on the splashback beside "
+                         "the hob (G3)")
+        if rule.get("upper_fronts") or rule.get("upper_handleless"):
+            details["applied"].append({"detail": "K4", "what": ("fluted " if rule.get("upper_fronts") == "fluted"
+                                                                else "") + ("handle-less " if
+                                                                            rule.get("upper_handleless") else "")
+                                       + "upper fronts", "source": "inferred",
+                                       "reason": f"the {rule['family']} family's wall units"})
+        plan["details"] = details
     if hood is not None:
         plan["hood"] = hood_record(hood)
     if gaps:
@@ -1039,9 +1133,14 @@ def hood_module(hob_unit: tuple[float, float], d: float, worktop_z: float, islan
 
 def hood_record(hood: dict) -> dict:
     """The ``plan["hood"]`` record of a hood module (the checks and the report read it)."""
-    return {"kind": hood["hood"], "x_m": hood["pos_m"][0], "w_m": hood["size_m"][0], "d_m": hood["size_m"][1],
-            "z_m": hood["z_m"], "top_m": hood["chimney_top_m"], "clear_m": hood["clear_m"],
-            "product": hood["product"]}
+    rec = {"kind": hood["hood"], "x_m": hood["pos_m"][0], "w_m": hood["size_m"][0], "d_m": hood["size_m"][1],
+           "z_m": hood["z_m"], "top_m": hood["chimney_top_m"], "clear_m": hood["clear_m"],
+           "product": hood["product"]}
+    if hood.get("style"):                             # 29 Oct 2026 (K3): the island hood's style and its shelf frame
+        rec["style"] = hood["style"]
+    if hood.get("frame"):
+        rec["frame"] = dict(hood["frame"])
+    return rec
 
 
 def hood_note(hood: dict) -> str:
@@ -1252,12 +1351,25 @@ def plan_wall_run(piece: dict, style: Optional[dict] = None) -> Optional[dict]:
         notes.append(f"{misaligned} joint(s) off the base units' joints (no real width fits there)")
     if made:
         notes.append(f"{made} unit(s) made to measure next to a hard end")
-    return {"builder": "wall_run", "type": piece["type"], "modules": modules, "footprint_m": [w, d],
+    plan = {"builder": "wall_run", "type": piece["type"], "modules": modules, "footprint_m": [w, d],
             "height_m": round(h, 4), "drawn_m": [w, d], "fit": _fit_record((w, d), (w, d)),
             "products": sorted(set(products), key=products.index), "notes": notes, "design": P.piece_design(piece),
             "ends": ends, "units_m": [round(m["size_m"][0], 4) for m in units],
             "free_m": [[round(x0, 4), round(x1, 4)] for x0, x1 in free], "misaligned": misaligned,
             "made_to_measure": made, **({"blocked_m": [list(s) for s in blocked]} if blocked else {})}
+    # 29 Oct 2026 (K4, module docstring "Kitchen details"): the family's uppers (fluted, handle-less)
+    family = KD.family_from(style, hints, plan["design"])
+    if family is not None:
+        rule = KD.family_rule(family)
+        plan["details"] = {"family": rule["family"], "upper_fronts": rule.get("upper_fronts"),
+                           "upper_handleless": bool(rule.get("upper_handleless")), "applied": []}
+        if rule.get("upper_fronts") or rule.get("upper_handleless"):
+            what = (("fluted " if rule.get("upper_fronts") == "fluted" else "")
+                    + ("handle-less " if rule.get("upper_handleless") else "") + "fronts")
+            plan["details"]["applied"].append({"detail": "K4", "what": what, "source": "inferred",
+                                               "reason": f"the {rule['family']} family's wall units"})
+            notes.append(f"{what} (the {rule['family']} family's uppers; K4)")
+    return plan
 
 
 def _wall_run_parts(plan: dict) -> list[Part]:
@@ -1288,8 +1400,11 @@ def _wall_run_parts(plan: dict) -> list[Part]:
             fronts = P.cabinet_fronts(dw - 0.004, face, z0 + 0.003, z0 + h - 0.003, 1, 1, design, handle_at="bottom")
             parts += _rotate_parts(fronts, dx, 0.0, 0.0)
             continue
-        fronts = P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 1, int(m.get("doors") or 1), design,
-                                  handle_at="bottom")
+        doors = int(m.get("doors") or 1)
+        # 29 Oct 2026 (K4): the family's fluted or handle-less uppers
+        fronts = KD.upper_front_parts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, doors, design,
+                                      plan.get("details")) \
+            or P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 1, doors, design, handle_at="bottom")
         parts += _rotate_parts(fronts, x, 0.0, 0.0)
     return with_handle_posts(parts)
 
@@ -1451,6 +1566,11 @@ def clear_windows(piece: dict, building: dict) -> tuple[Optional[dict], Optional
     asset = dict(piece.get("asset") or {})
     hints = dict(asset.get("module_hints") or {})
     hints["blocked_m"] = [[b["x0_m"], b["x1_m"]] for b in blocks] + list(hints.get("blocked_m") or [])
+    # 29 Oct 2026 (K4): the re-planned run keeps the family's uppers of the fit's plan
+    family = ((asset.get("module_plan") or {}).get("details") or {}).get("family") \
+        if isinstance(asset.get("module_plan"), dict) else None
+    if family and not hints.get("family"):
+        hints["family"] = family
     plan = module_plan(dict(piece, module_hints=hints))
     ids = sorted({str(b["id"]) for b in blocks})
     if plan is None:
@@ -1753,17 +1873,20 @@ def _base_unit_parts(m: dict, design: dict, d_run: float) -> list[Part]:
     (``parametric.open_carcass``: side and back boards up to the worktop); its solid body had filled the lower 14 cm
     of the bowl, which rendered as a 4 cm tray with a cabinet-paint floor."""
     w, d, h = m["size_m"]
-    x, _y = m["pos_m"]
+    x, y = m["pos_m"]
     z0 = float(m.get("z_m") or 0.0)
+    # 29 Oct 2026 (G3): the unit's own depth and centre across the run (an island's knee space behind its carcass);
+    # a unit of the run's full depth on its centreline is the unit of before
+    dc, yc = (float(d), float(y)) if abs(float(d) - float(d_run)) > 1e-6 or abs(float(y)) > 1e-6 else (d_run, 0.0)
     inset = P.FRONT_GAP + P.FRONT_THICKNESS + 0.015          # the worktop overhangs the fronts by 15 mm
-    face = -d_run / 2.0 + inset
+    face = yc - dc / 2.0 + inset
     if m.get("holds") == "sink":
         # the bowl hangs KITCHEN_SINK_BOWL_M under the worktop's top face (``_worktop_parts``); the body ends under it
         bowl_bottom = z0 + h + KITCHEN_WORKTOP_M - KITCHEN_SINK_BOWL_M
-        parts = P.open_carcass(x, inset / 2.0, z0, w - 0.002, d_run - inset, h, bowl_bottom - P.BASIN_CLEAR_M,
+        parts = P.open_carcass(x, yc + inset / 2.0, z0, w - 0.002, dc - inset, h, bowl_bottom - P.BASIN_CLEAR_M,
                                "painted")
     else:
-        parts = [P._box(x, inset / 2.0, z0, w - 0.002, d_run - inset, h, "painted", "body")]
+        parts = [P._box(x, yc + inset / 2.0, z0, w - 0.002, dc - inset, h, "painted", "body")]
     kind = m.get("front") or "door"
     if kind in ("oven", "fridge"):
         return parts + _appliance_fronts(kind, x, w, face, z0, h, design)
@@ -1861,6 +1984,7 @@ def _kitchen_parts(plan: dict) -> list[Part]:
     parts: list[Part] = []
     w_run, d_run = plan["footprint_m"]
     island = bool(plan.get("island"))
+    details = plan.get("details") if isinstance(plan.get("details"), dict) else None
     for m in plan["modules"]:
         w, d, h = m["size_m"]
         x, y = m["pos_m"]
@@ -1870,27 +1994,47 @@ def _kitchen_parts(plan: dict) -> list[Part]:
         elif m["kind"] == "base_unit":
             parts += _base_unit_parts(m, design, d_run)
         elif m["kind"] == "filler":
-            parts.append(P._box(x, 0.0, z0, w, d - 0.015, h, "front", "front"))
+            parts.append(P._box(x, y, z0, w, d - 0.015, h, "front", "front"))
         elif m["kind"] == "worktop":
             parts += _worktop_parts(m, w_run, d_run)
+        elif m["kind"] == "tall_unit" and m.get("column"):   # 29 Oct 2026 (K1): a column unit to the ceiling
+            parts += KD.tall_parts(m, design, d_run, KITCHEN_PLINTH_RECESS_M)
         elif m["kind"] == "tall_unit":
             parts += _tall_unit_parts(m, design, d_run)
+        elif m["kind"] == "waterfall":                      # 29 Oct 2026 (K2 / K15)
+            parts += KD.waterfall_parts((x - w / 2.0, x + w / 2.0, "waterfall"), d, float(plan.get("worktop_m")
+                                                                                        or KITCHEN_WORKTOP_HEIGHT_M))
         elif m["kind"] == "wall_unit":
             inset = P.FRONT_GAP + P.FRONT_THICKNESS
             parts.append(P._box(x, y + inset / 2.0, z0, w - 0.002, d - inset, h, "painted", "body"))
             face = y - d / 2.0 + inset
-            fronts = P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 1, 1 if w < 0.60 - 1e-9 else 2,
-                                      design, handle_at="bottom")
+            cols = 1 if w < 0.60 - 1e-9 else 2
+            # 29 Oct 2026 (K4): the family's fluted or handle-less uppers
+            fronts = KD.upper_front_parts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, cols, design, details) \
+                or P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 1, cols, design, handle_at="bottom")
             parts += _rotate_parts(fronts, x, 0.0, 0.0)
         elif m["kind"] == "hood":                          # 28 Oct 2026: the cooker hood over the hob
             parts += _hood_parts(m)
     if island:                                                # the back of an island shows a panel, not a carcass
         base_h = KITCHEN_WORKTOP_HEIGHT_M - KITCHEN_WORKTOP_M - KITCHEN_PLINTH_M
+        # 29 Oct 2026 (G3): at the carcass's back (the knee space behind it), between the waterfall ends
+        back = max((float(m["pos_m"][1]) + float(m["size_m"][1]) / 2.0 for m in plan["modules"]
+                    if m["kind"] == "base_unit"), default=d_run / 2.0)
+        ends = [tuple(s) for s in ((details or {}).get("waterfall_m") or [])]
         # one panel per worktop stretch: none across the gap of a drawn stove (fix round after P3)
         for m in plan["modules"]:
             if m["kind"] == "worktop":
-                parts.append(P._box(float(m["pos_m"][0]), d_run / 2.0 - 0.009, KITCHEN_PLINTH_M, float(m["size_m"][0]),
-                                    0.018, base_h, "front", "panel"))
+                a = float(m["pos_m"][0]) - float(m["size_m"][0]) / 2.0
+                b = float(m["pos_m"][0]) + float(m["size_m"][0]) / 2.0
+                for e0, e1 in ends:
+                    if e1 <= a + KD.WATERFALL_T_M + 1e-6 and e1 > a - 1e-6:
+                        a = e1
+                    if e0 >= b - KD.WATERFALL_T_M - 1e-6 and e0 < b + 1e-6:
+                        b = e0
+                if b - a > 1e-3:
+                    parts.append(P._box((a + b) / 2.0, back - 0.009, KITCHEN_PLINTH_M, b - a, 0.018, base_h, "front",
+                                        "panel"))
+    parts += KD.run_detail_parts(plan)                       # 29 Oct 2026 (G3): the utensil rail
     return with_handle_posts(parts)
 
 
@@ -1916,8 +2060,8 @@ def _worktop_parts(m: dict, w_run: float, d_run: float) -> list[Part]:
                   P._box(sx, -d / 2.0 + strip / 2.0, z0, bw, strip, t, "worktop", "top"),
                   P._box(sx, d / 2.0 - strip / 2.0, z0, bw, strip, t, "worktop", "top")]
         parts += P._basin(sx, 0.0, z0 + t - KITCHEN_SINK_BOWL_M, bw, bd, KITCHEN_SINK_BOWL_M, 0.008, "steel")
-        parts.append(P._cylinder_z(sx, bd / 2.0 + 0.05, z0 + t, 0.015, 0.015, 0.28, "steel", "tap", n=12))
-        parts.append(P._cylinder_y(sx, bd / 2.0 + 0.05 - 0.18, z0 + t + 0.27, 0.01, 0.01, 0.18, "steel", "tap", n=10))
+        # 29 Oct 2026 (K7): a pull-down spray tap in the family's fixture finish (the handles' metal)
+        parts += KD.tap_parts(sx, min(bd / 2.0 + 0.05, d / 2.0 - 0.03), z0 + t, "handle")
     hob = next((c for c in cutouts if c["kind"] == "hob"), None)
     if hob is not None:
         parts += hob_plate_parts(float(hob["x_m"]), float(hob["w_m"]), d, z0 + t)
@@ -1948,6 +2092,8 @@ def _hood_parts(m: dict) -> list[Part]:
     """28 Oct 2026: a cooker hood module (``hood_module``) in the style's metal: the canopy (a slim box hood under a
     wall cabinet), the dark grease filter under it, a control strip at its front, and the chimney up to its top
     (against the wall behind a chimney hood, in the middle of an island hood)."""
+    if m.get("style") == "cylinder":                  # 29 Oct 2026 (K3): the cylinder island hood (and its frame)
+        return KD.cylinder_hood_parts(m) + KD.shelf_frame_parts(m)
     hw, hd, h = m["size_m"]
     x, y = m["pos_m"]
     z0 = float(m.get("z_m") or 0.0)
@@ -1964,7 +2110,7 @@ def _hood_parts(m: dict) -> list[Part]:
     if top - z0 - canopy > 0.01:
         parts.append(P._box(x, cy, z0 + canopy + P.FRONT_GAP, cw, cd, top - z0 - canopy - P.FRONT_GAP, "handle",
                             "chimney"))
-    return parts
+    return parts + KD.shelf_frame_parts(m)            # 29 Oct 2026 (K3): a box island hood's shelf frame
 
 
 def with_handle_posts(parts: list[Part]) -> list[Part]:
@@ -2095,7 +2241,9 @@ def module_record(plan: dict) -> dict:
             **({"built_ins": plan["built_ins"]} if plan.get("built_ins") else {}),
             # 28 Oct 2026: the worktop line, the hood and the wall run's units (the model review's M2 and M13 read them)
             **({k: plan[k] for k in ("worktop_m", "hood", "units_m", "ends", "free_m", "misaligned",
-                                     "made_to_measure", "blocked_m") if plan.get(k) is not None})}
+                                     "made_to_measure", "blocked_m") if plan.get(k) is not None}),
+            # 29 Oct 2026: the kitchen details the family's rule gave the run (model review M27, Argus U31)
+            **({"details": plan["details"]} if isinstance(plan.get("details"), dict) else {})}
 
 
 # --------------------------------------------------------------------------

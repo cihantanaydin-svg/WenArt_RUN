@@ -204,10 +204,16 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug",   # param
                                  # kitchen worktop's small appliances and decor (``kitchen_worktop_parts``)
                                  "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot",
                                  "fruit_bowl",
+                                 # 29 Oct 2026 (lessons UL115, UL118: the reference kitchens' styled worktops): the
+                                 # styling sets (``kitchen_details.styling_parts``, one mesh per set)
+                                 "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles",
+                                 "dried_grass_vase", "coffee_station",
                                  # 29 Oct 2026 (user: "Computer on the table would have been nice or a laptop"): the
                                  # desk's work set (``work_set_parts``)
                                  "laptop", "monitor", "keyboard", "computer_mouse")
-KITCHEN_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("microwave"):DECOR_TYPES.index("fruit_bowl") + 1]
+KITCHEN_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("microwave"):DECOR_TYPES.index("coffee_station") + 1]
+STYLING_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("storage_jars"):
+                                                   DECOR_TYPES.index("coffee_station") + 1]
 WORK_DECOR_TYPES: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("laptop"):]
 _NEW_DECOR: tuple[str, ...] = DECOR_TYPES[DECOR_TYPES.index("curtain"):]
 # Milestone 10 storage built with the cabinet fronts of the design (a design detail of the piece).
@@ -223,6 +229,9 @@ SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_la
                                         # 28 Oct 2026: the kitchen worktop items rest on the built worktop
                                         "microwave", "kettle", "coffee_machine", "toaster", "chopping_board",
                                         "utensil_pot", "fruit_bowl",
+                                        # 29 Oct 2026 (UL115, UL118): the worktop styling sets
+                                        "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles",
+                                        "dried_grass_vase", "coffee_station",
                                         "plate", "glass",                                   # 28 Oct 2026
                                         # 29 Oct 2026: the desk's work set rests on the built desk top
                                         "laptop", "monitor", "keyboard", "computer_mouse")
@@ -342,6 +351,9 @@ DECOR_DEFAULT_HEIGHT = {"cushion": 0.12, "book_set": 0.22, "plant": 0.6, "rug": 
                         # 19 cm, a 40 x 25 cm board, a utensil pot with its tools, a 28 cm fruit bowl)
                         "microwave": 0.27, "kettle": 0.25, "coffee_machine": 0.35, "toaster": 0.19,
                         "chopping_board": 0.02, "utensil_pot": 0.30, "fruit_bowl": 0.12,
+                        # 29 Oct 2026: the styling sets (kitchen_details.STYLING_SIZES: real products)
+                        "storage_jars": 0.24, "plate_stack": 0.14, "cookware": 0.18, "cutting_boards": 0.45,
+                        "oil_bottles": 0.30, "dried_grass_vase": 0.55, "coffee_station": 0.38,
                         "plate": 0.025, "glass": 0.14,           # 28 Oct 2026: a dinner plate, a water glass
                         # 29 Oct 2026: an open 14-15 inch laptop (``laptop_box``), a 24 inch monitor on its stand, a
                         # full-size keyboard, a mouse
@@ -3465,6 +3477,9 @@ def kitchen_worktop_parts(dtype: str, w: float, d: float, h: float) -> list[Part
     case, dark glass door with its window, a control strip and a handle), a kettle (body, lid, spout and handle on
     its base), a bean-to-cup coffee machine (body, drip tray, spout, cup), a 2-slice toaster (body with two slots and
     a lever), a wooden chopping board, a ceramic utensil pot with its wooden tools, a fruit bowl with fruit."""
+    if dtype in STYLING_DECOR_TYPES:                 # 29 Oct 2026 (UL115, UL118): a styling set, one mesh
+        from wenart.blender import kitchen_details as KD
+        return KD.styling_parts(dtype, w, d, h)
     r = min(w, d) / 2.0
     if dtype == "microwave":
         door, f = w * 0.68, -d / 2.0                 # every part inside the item's box: the case's front 3 cm back

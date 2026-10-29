@@ -1270,6 +1270,8 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             # 28 Oct 2026 (user: "kettle in the kitchen, microwave in the kitchen etc"): the worktop, dressed
             # modestly by rule (the AI's slots hold no counter); the fallback gets it from decor.rule_decor_room
             items += D.kitchen_worktop_decor(out, room, pieces, new_id, existing=items)
+            # 29 Oct 2026 (UL115, UL118): and the style family's styling sets (wenart.blender.kitchen_details)
+            items += D.kitchen_styling_decor(out, room, pieces, new_id, existing=items, family=family)
             items += TT.dress_tops(room, pieces, out, items, new_id, q.slots,   # 28 Oct 2026: set tables, tops
                                    density=out["decor_minimum"][room["id"]]["density"], notes=rec.notes)
         apply_brief_looks(items, style, lamps, looks)

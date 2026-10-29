@@ -481,6 +481,11 @@ KITCHEN_FAMILY_LOOKS: dict[str, dict[str, str]] = {
     "mediterranean": {"front_style": "shaker", "handle": "brass", "worktop": "terrazzo"},
     "classic": {"front_style": "shaker", "handle": "brass", "worktop": "stone"},
     "rustic": {"front_style": "shaker", "handle": "black", "worktop": "wood"},
+    # 29 Oct 2026 (UL118, K2: "framed fronts for the families that use them"; wenart.blender.kitchen_details)
+    "contemporary": {"front_style": "flat", "handle": "black", "worktop": "stone"},
+    "modern classic": {"front_style": "shaker", "handle": "black", "worktop": "stone"},
+    "transitional": {"front_style": "shaker", "handle": "brushed_steel", "worktop": "stone"},
+    "farmhouse": {"front_style": "shaker", "handle": "black", "worktop": "wood"},
 }
 
 

@@ -143,6 +143,7 @@ MATERIAL_WORDS: dict[str, str] = {
     # wet walls and tile floors
     "tiles_subway": "subway tile",
     "tiles_large_porcelain": "large-format porcelain tile",
+    "tiles_large_gloss": "glossy large-format porcelain tile",      # 29 Oct 2026 (K11): the modern kitchens' floor
     "tiles_zellige": "handmade zellige tile",
     "tiles_hexagon": "hexagon tile",
     "tiles_mosaic": "small mosaic tile",
@@ -274,6 +275,10 @@ DECOR_WORDS: dict[str, str] = {
     # 28 Oct 2026: the kitchen worktop items (wenart.furniture.decor.kitchen_worktop_decor)
     "microwave": "countertop microwave", "kettle": "kettle", "coffee_machine": "coffee machine", "toaster": "toaster",
     "chopping_board": "chopping board", "utensil_pot": "utensil pot", "fruit_bowl": "fruit bowl",
+    # 29 Oct 2026 (UL115, UL118): the worktop styling sets (wenart.blender.kitchen_details)
+    "storage_jars": "glass storage jars", "plate_stack": "stacked plates and bowls",
+    "cookware": "pots and pans on the hob", "cutting_boards": "wooden cutting boards", "oil_bottles": "oil bottles",
+    "dried_grass_vase": "dried pampas grass in a vase", "coffee_station": "coffee station",
     "plate": "set table with plates", "glass": "glasses",            # 28 Oct 2026 (wenart.furniture.tabletop)
     # 29 Oct 2026 (wenart.furniture.tabletop.work_set): the desk's work set
     "laptop": "open laptop", "monitor": "computer monitor", "keyboard": "keyboard", "computer_mouse": "computer mouse",

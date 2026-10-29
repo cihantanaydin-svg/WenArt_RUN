@@ -131,6 +131,13 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   covering (a gap under it) is critical; one reaching under the roof's underside into the rooms (no drawn fireplace
   under it), lower than the 3-2-10 rule of thumb (0.6 m over the roof within 3 m, 0.9 m over its exit) or standing in
   front of an outside window is major. Kind ``no_sense``; the build owns it.
+- M27 every kitchen against its style family's kitchen details (29 Oct 2026, lessons UL115, kitchen part, and UL118;
+  the user's reference photos: "look at all these details I want these details"; ``kitchen_details.review``): a
+  worktop bare beyond U11 (fewer than two styling sets with room for them, minor), a wall cabinet with no LED strip
+  under it (the rig dropped it, major) or a run's own wall units with none (minor), an island hob without a hood
+  (major), a family detail not built (a run planned before the rule, an island of a waterfall family without its
+  ends, stools with no knee space: minor), a kitchen with no fridge (major). Kind ``taste``; the fit and the decor
+  stage own it.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -415,6 +422,19 @@ def chimneys_review(built: dict, prep: Optional[dict], manifest: Optional[dict])
             out.append(_v("M24", p["severity"], ch.get("id"), p["message"], ch.get("room_id"), problem=p["problem"],
                           source=ch.get("source"), **nums))
     return out, len(recs)
+
+
+def kitchen_details_review(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
+    """M27 (29 Oct 2026, lessons UL115, UL118; module docstring): ``kitchen_details.review`` on the model as built
+    (the scene's light rig from the manifest when there is one)."""
+    from wenart.blender import kitchen_details as KD
+
+    got, n = KD.review(built, manifest, check="M27")
+    return [_v("M27", g["severity"], g["target"], g["message"], g.get("room_id"), problem=g["problem"],
+               lesson=g["lesson"], family=g.get("family")) for g in got], n
+
+
+CHECKS = CHECKS + ("M27",)          # 29 Oct 2026: M27 the kitchen details of the family (UL115, UL118)
 
 
 def opening_language(manifest: Optional[dict]) -> tuple[list[dict], int]:
@@ -1209,6 +1229,12 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             note("M24", got, n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
         checks["M24"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M27 (29 Oct 2026, lessons UL115, UL118): every kitchen against its family's kitchen details
+    try:
+        got, n = kitchen_details_review(built, scene_manifest)
+        note("M27", got, n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M27"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M12 (27 Oct 2026, user on real06: "doors next to each other not making sense"): doors side by side
     try:
         got, n = doors_side_by_side(built)

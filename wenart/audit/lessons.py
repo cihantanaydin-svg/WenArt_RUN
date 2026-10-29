@@ -65,6 +65,10 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U27 (UL109, 29 Oct 2026: "There are no chimneys there could be some chimney in the projects") a drawn fireplace,
   stove, flue or boiler room (``chimney.drawn_sources``) with no chimney on the roof (kind ``lost``); a house with a
   pitched roof whose style family usually has a chimney (``chimney.FAMILY_CHIMNEYS``) and no chimney in the scene.
+- U31 (UL115 kitchen part, UL118, 29 Oct 2026: "look at all these details I want these details") a kitchen missing what
+  its style family's kitchen details give it (``wenart.blender.kitchen_details.review``, the model review's M27): a
+  worktop bare beyond U11, a wall cabinet with no LED strip under it, an island hob without a hood, a family detail
+  not built (a waterfall island, knee space for the stools), a kitchen with no fridge.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -813,7 +817,34 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
             checked["U23"] = len(got)
         except Exception as exc:  # noqa: BLE001 - a check that fails is listed, the others still run
             checked["U23"] = f"failed: {type(exc).__name__}: {exc}"[:200]
+    # 29 Oct 2026 (UL115, UL118): the kitchens against their family's kitchen details (the rig's strips with a manifest)
+    try:
+        got = kitchen_details(building, manifest)
+        findings += got
+        checked["U31"] = len(got)
+    except Exception as exc:  # noqa: BLE001
+        checked["U31"] = f"failed: {type(exc).__name__}: {exc}"[:200]
     return {"findings": findings, "checked": checked}
+
+
+def kitchen_details(building: dict, manifest: Optional[dict] = None) -> list[dict]:
+    """U31 (29 Oct 2026, lessons UL115, kitchen part, and UL118; the user's reference kitchens: "look at all these
+    details I want these details", "look at this beautiful kitchen"): ``kitchen_details.review`` (the same rule as the
+    model review's M27): a worktop bare beyond U11, wall cabinets with no LED strip, an island hob without a hood, a
+    family detail not built, a kitchen with no fridge; the fix names the stage that adds what is missing."""
+    from wenart.blender import kitchen_details as KD
+
+    fixes = {"styling": "rerun_stage decor (decor.kitchen_worktop_decor: the family's styling sets)",
+             "led": "rerun_stage build (lighting.rig_plan: a strip under every wall cabinet; kitchen_details.run_boxes)",
+             "island_hood": "rerun_stage refit (modules.plan_kitchen_run: every hob gets its hood)",
+             "fridge": "rerun_stage refit (fit.kitchen_details_hints: a fridge column or an under-counter fridge)"}
+    got, _n = KD.review(building, manifest, check="U31")
+    return [_f("U31", g["severity"], g["target"], g["message"], g["lesson"],
+               fixes.get(g["problem"], "rerun_stage refit (kitchen_details: the family's kitchen details)"),
+               problem=g["problem"], family=g.get("family"), room=g.get("room_id")) for g in got]
+
+
+CHECK_LESSONS["U31"] = ("UL115", "UL118")     # 29 Oct 2026: the kitchen details (kitchen_details.review)
 
 
 def run(inp) -> dict:
