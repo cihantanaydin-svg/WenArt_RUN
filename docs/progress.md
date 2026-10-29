@@ -2112,3 +2112,27 @@ inside solid HSSD 200, inside glazed HSSD 3262-7 also for the pair, sliding HSSD
 two 1.01 m high doors stay the product parametric door). Needs a pod render: the HSSD files on the volume
 (`models/hssd/`), the look of the HSSD doors in the style's finish, the pair's centre post and the parametric door's
 grooves and architrave.
+
+## Chimneys on the roof (29 Oct 2026; built, pod run waiting)
+
+The user on real06 run 20261028-154514-full: "There are no chimneys there could be some chimney in the projects"
+(lesson UL109). No roof of any run had a chimney. The readings knew no fireplace: the furniture vocabulary has no such
+type, a "BACA" room label became a shaft room, the sheets reader's `chimneys` list was always empty, and a "ŞÖMİNE"
+text that is no room label was read by nothing. real06 and real04 draw no fireplace, stove, flue or boiler room (their
+source inventories hold none of these words; real04's only hit is the kitchen hob block `ocak_`). General rule
+(`wenart/blender/chimney.py`, CPU-tested, not rendered yet):
+
+| part | rule |
+|---|---|
+| drawn first | a piece, symbol, plan text (the reading's new `chimney_texts`), zone label or room label that names a fireplace, wood stove, flue or boiler room (ŞÖMİNE, SOBA, BACA, KAZAN DAİRESİ; English, German, French, Italian, Spanish words; never an air or light shaft: HAVA BACASI, IŞIK BACASI) gets its stack out of the roof at its plan position, `from_documents` with its evidence; a fireplace or stove also its flue up through the levels above; one stack per room |
+| inferred | where nothing is drawn, a pitched-roof house whose style family usually has a chimney (`FAMILY_CHIMNEYS`, one table with the reason per family: yes for Scandinavian, Japandi, modern, industrial, classic, rustic, Mediterranean; no for minimal and modern minimal) gets one stack over the main living room's fireplace wall (a solid stretch with no door or window, an inner wall first, the wall its sofa faces first), else the boiler or technical room, else the kitchen; each dwelling of a mirrored pair gets its own; `inferred` with its reason, listed in the report |
+| on the roof | over the roof (no terrace or opening under it), 0.6 m clear of the eaves, roof openings and valleys, 2 m from any window that looks onto it; its top by the 3-2-10 rule of thumb (0.6 m over any roof within 3 m, so 0.6 m over a ridge that close, and 0.9 m over its exit) |
+| the model | stack 0.5 x 0.5 m (one flue) or 0.9 x 0.6 m (a fireplace, two flues), its bottom on the middle of the roof slab on a grid (no gap, never under the ceiling), a coping slab, clay pots or metal cowls; the stack in the house's facade render, the family's brick or base stone (`looks_of`, PBR slugs only) |
+| checks | model review M24 (off the roof, floating, under the ceiling, lower than the rule, in front of a window); Argus U27 (a chimney family's pitched roof with no chimney; a drawn fireplace or flue with none, kind `lost`) |
+
+On the latest buildings (CPU, the build's plan): real06 (Scandinavian, stepped hip roof) one inferred stack over the
+solid inner wall w_L0_011 between the salon and the kitchen, at (7.70, 9.23) m, its top 8.20 m (0.65 m over the 7.55 m
+ridge 2.8 m away, 1.58 m over its exit); real04 (modern, mansard) one over the basement living room's inner wall
+w_L-1_004 at (5.94, 7.51) m and the mirrored dwelling's at (9.24, 7.51) m, tops 6.70 m on the shallow upper slope near
+the 6.01 m ridge. Argus U27 flags both runs as built (no chimney). Needs a pod render: the stack's look in the views,
+the cowls and pots.

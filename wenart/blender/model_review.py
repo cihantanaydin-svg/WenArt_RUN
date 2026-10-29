@@ -98,6 +98,12 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   ``opening_models.door_product_problems``): a door the plan gave a library model built parametric (major, with the
   build's reason: the scene's ``library_planned`` record or its warnings), a parametric door without its architrave
   and (a flush leaf) its face detail (major). Kind ``taste``; the build owns it.
+- M24 every chimney as a builder makes it (29 Oct 2026, lesson UL109, user on real06 run 20261028-154514-full: "There
+  are no chimneys there could be some chimney in the projects"; ``chimney.measure``), on the scene's chimney records
+  (their bottom as built), else the plan's: a chimney off the roof (it does not reach the roof) or floating over its
+  covering (a gap under it) is critical; one reaching under the roof's underside into the rooms (no drawn fireplace
+  under it), lower than the 3-2-10 rule of thumb (0.6 m over the roof within 3 m, 0.9 m over its exit) or standing in
+  front of an outside window is major. Kind ``no_sense``; the build owns it.
 
 Why: the renders show what their cameras frame (real06: 34 views; many walls, rooms' far sides and facades never in a
 frame), and a vision model judging a height or a gap from a perspective image is a guess. The model holds every
@@ -132,7 +138,7 @@ ANCHORS = {"kitchen": ("kitchen_counter", "sink_kitchen", "stove", "cooktop"),
            "bathroom": ("toilet",)}
 BATH_BASIN = ("washbasin", "vanity", "bathroom_vanity")
 CHECKS = ("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12", "M13", "M14", "M15", "M16", "M17", "M18",
-          "M20")
+          "M20", "M24")
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -355,6 +361,32 @@ def rain_water(plan_boxes: list, roof: Optional[dict]) -> tuple[list[dict], int]
         out.append(_v("M5", "major", "building", f"{len(short)} gutter run(s) shorter than {GUTTER_MIN_M:.1f} m: the "
                       f"eaves step in and out along the facade", None, short=len(short)))
     return out, len(pipes) + len(gutters)
+
+
+def chimneys_review(built: dict, prep: Optional[dict], manifest: Optional[dict]) -> tuple[list[dict], Optional[int]]:
+    """M24 (29 Oct 2026, lesson UL109): every chimney measured against the roof (``chimney.measure``): the scene's
+    chimney records (their bottom as built) when there is a scene, else the plan's (``prep["chimneys"]``). ``None``
+    checked when no roof is built."""
+    from wenart.blender import chimney as CH
+    from wenart.blender import roof as R
+
+    model = (prep or {}).get("roof")
+    if model is None and isinstance(built.get("roof"), dict):
+        model = R.roof_model(built["roof"], built)
+    if not model or not model.get("equations"):
+        return [], None
+    if manifest and manifest.get("objects"):
+        recs = [(o["chimney"], o["chimney"].get("bottom")) for o in manifest["objects"]
+                if o.get("detail") == "chimney" and isinstance(o.get("chimney"), dict)]
+    else:
+        recs = [(c, None) for c in ((prep or {}).get("chimneys") or {}).get("chimneys") or []]
+    out = []
+    for ch, bottom in recs:
+        for p in CH.measure(ch, model, built, bottom):
+            nums = {k: v for k, v in p.items() if k not in ("problem", "severity", "message")}
+            out.append(_v("M24", p["severity"], ch.get("id"), p["message"], ch.get("room_id"), problem=p["problem"],
+                          source=ch.get("source"), **nums))
+    return out, len(recs)
 
 
 def opening_language(manifest: Optional[dict]) -> tuple[list[dict], int]:
@@ -1105,6 +1137,15 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
             checks["M11"] = {"status": "unavailable", "note": "no roof plan outline read (roof.roof_plan_outline)"}
     except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
         checks["M11"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M24 (29 Oct 2026, lesson UL109): every chimney on the roof, as built (the scene's records) or planned
+    try:
+        got, n = chimneys_review(built, prep, scene_manifest)
+        if n is None:
+            checks["M24"] = {"status": "unavailable", "note": "no roof is built"}
+        else:
+            note("M24", got, n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M24"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M12 (27 Oct 2026, user on real06: "doors next to each other not making sense"): doors side by side
     try:
         got, n = doors_side_by_side(built)

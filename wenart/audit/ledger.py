@@ -192,7 +192,7 @@ LAYER_NAMED_RE = re.compile(r"layers?(?:\(s\))?\s+'([^']{1,60})'|runner-up\s+'([
 REASON_KEYS = ("not_built_reason", "reason", "note", "inferred_reason", "build_reason")
 DATA_KEYS = ("level_marks", "levels", "conflicts", "documents", "needs_review", "unverified", "level_inference",
              "variants", "project", "furniture_texts",     # the reading's records of the name texts and the zone
-             "zone_labels")                                # labels are data: they use none of them
+             "zone_labels", "chimney_texts")               # labels are data: they use none of them
 SITE_LABEL_KEYS = ("areas",)
 SITE_SKIP_SURFACE = ("areas", "decor", "openings", "boundary_walls", "entrances", "hedges", "buildings")
 

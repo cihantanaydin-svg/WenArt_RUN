@@ -40,6 +40,9 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
 - U24 (UL90, UL101) an inner window that makes no sense (``architect_rules.inner_window_reasons``).
 - U25 (UL97) a wall read twice; a kitchen counter in a door's or a passage's approach.
 - U26 (UL100) a house of two or more storeys left one render where its facade scheme clads the top storey.
+- U27 (UL109, 29 Oct 2026: "There are no chimneys there could be some chimney in the projects") a drawn fireplace,
+  stove, flue or boiler room (``chimney.drawn_sources``) with no chimney on the roof (kind ``lost``); a house with a
+  pitched roof whose style family usually has a chimney (``chimney.FAMILY_CHIMNEYS``) and no chimney in the scene.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -569,6 +572,63 @@ def one_render_facades(building: Optional[dict], manifest: Optional[dict]) -> li
                "rerun_stage build (facade.scheme_faces: the top storey's cladding)")]
 
 
+def _family_of(manifest: Optional[dict]) -> Optional[str]:
+    """The style family of a scene (its style profile, else its facade scheme's reason, else its chimney plan)."""
+    import re
+
+    m = manifest or {}
+    fam = (m.get("style_profile") or {}).get("family") if isinstance(m.get("style_profile"), dict) else None
+    if fam:
+        return str(fam)
+    for a in m.get("assumed") or []:
+        hit = re.match(r"facade scheme \(([^)]*)\)", str(a.get("reason") or "")) if isinstance(a, dict) else None
+        if hit:
+            return hit.group(1)
+    return ((m.get("whole_building") or {}).get("chimneys") or {}).get("family")
+
+
+def missing_chimneys(building: Optional[dict], manifest: Optional[dict]) -> list[dict]:
+    """U27 (lesson UL109, user on real06 run 20261028-154514-full: "There are no chimneys there could be some chimney
+    in the projects"): a drawn fireplace, stove, flue or boiler room (``chimney.merged_sources``) that no chimney of the
+    scene serves (its id in a chimney's sources, else a chimney within reach of it; kind ``lost``); a house with a
+    pitched roof whose style family usually has a chimney (``chimney.family_rule``) and no chimney on the roof."""
+    from wenart import geometry as G
+    from wenart.blender import chimney as CH
+
+    objs = [o for o in (manifest or {}).get("objects") or [] if isinstance(o, dict) and o.get("detail") == "chimney"]
+    built = [o.get("chimney") or {} for o in objs]
+    served = {str(s.get("id")) for c in built for s in c.get("sources") or [] if s.get("id")}
+    reach = CH.CHIMNEY["snap_m"] + CH.CHIMNEY["nudge_m"][-1] + CH.CHIMNEY["merge_m"]
+    out = []
+    for group in CH.merged_sources(building or {}):
+        s = group[0]
+        if any(str(x.get("id")) in served for x in group if x.get("id")):
+            continue
+        if s.get("center") and any(c.get("center") and G.distance(c["center"], s["center"]) <= reach for c in built):
+            continue
+        what = s["kind"].replace("_", " ")
+        out.append(K.finding(LINE, "U27", "major", s.get("id") or s.get("room_id") or "roof",
+                             f"the drawn {what} {s.get('id')} ({s.get('text')!r}, {s.get('what')} on "
+                             f"{s.get('level_id')}) has no chimney on the roof",
+                             evidence={"lesson": "UL109", "source": s.get("id"), "kind": s["kind"]},
+                             fix="rerun_stage build (chimney.plan: a drawn fireplace or flue gets its stack through "
+                                 "the roof)", kind="lost"))
+    if built or out:
+        return out
+    roof = (building or {}).get("roof") if isinstance((building or {}).get("roof"), dict) else {}
+    built_roof = ((manifest or {}).get("whole_building") or {}).get("roof") or {}
+    rtype = built_roof.get("type") or roof.get("type")
+    if rtype in (None, "flat") or roof.get("kind") == "flat_cut":
+        return out
+    fam = CH.family_rule(_family_of(manifest))
+    if not fam["chimney"]:
+        return out
+    return [_f("U27", "major", "roof", f"a {rtype} roof on a {fam['family']} house with no chimney ({fam['why']}): "
+               "nothing on the roof says fire or flue", "UL109",
+               "rerun_stage build (chimney.plan: the family's inferred chimney over the living room's fireplace wall)",
+               family=fam["family"], roof=rtype)]
+
+
 def door_models(building: Optional[dict], manifest: Optional[dict]) -> list[dict]:
     """U18: the door models as built (``opening_models.door_model_problems``; lesson UL89, user: "Better door models
     needed"): more than a third of the house's doors parametric (real06 run 20261028-154514-full: the build refused
@@ -593,7 +653,7 @@ CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4":
                  "U6": ("UL59", "UL56"), "U7": ("UL60",), "U8": ("UL61",), "U9": ("UL20",), "U10": ("UL66",),
                  "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32"),
                  "U21": ("UL88",), "U22": ("UL88",), "U24": ("UL90", "UL101"), "U25": ("UL97",),
-                 "U18": ("UL89", "UL65"), "U17": ("UL93",), "U26": ("UL100",)}
+                 "U18": ("UL89", "UL65"), "U17": ("UL93",), "U26": ("UL100",), "U27": ("UL109",)}
 
 
 def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
@@ -612,7 +672,8 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
     for cid, fn in (("U7", lambda: door_operations(building, manifest)), ("U13", lambda: floor_finish_on_walls(manifest)),
                     ("U14", lambda: plain_walls(building, manifest)), ("U15", lambda: door_variety(manifest)),
                     ("U18", lambda: door_models(building, manifest)),
-                    ("U26", lambda: one_render_facades(building, manifest))):
+                    ("U26", lambda: one_render_facades(building, manifest)),
+                    ("U27", lambda: missing_chimneys(building, manifest))):
         if not manifest:
             checked[cid] = "no scene manifest: not run"
             continue

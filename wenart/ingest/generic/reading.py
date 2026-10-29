@@ -3026,6 +3026,40 @@ def zone_labels(build, works: dict) -> list[dict]:
     return out
 
 
+def chimney_texts(build, works: dict) -> list[dict]:
+    """29 Oct 2026 (lesson UL109, ``wenart.blender.chimney``; the readings knew no fireplace: a "ŞÖMİNE" or "BACA"
+    text that is no room label was read by nothing): every text of the read plan pages that names a fireplace, a wood
+    stove, a flue or a boiler room (``chimney.source_word``: Turkish, English, German, French, Italian and Spanish
+    words; never an air, light or lift shaft or a cooker hood), the page whose questions are asked first: ``{"id",
+    "level_id", "room_id", "text", "kind", "word", "pos", "layer", "file", "page", "method"}``. The chimney rule builds
+    their stack through the roof (``chimney.drawn_sources``); a room label is also kept here (the rule takes one stack
+    per room)."""
+    from wenart.blender import chimney as CH
+    from wenart.furniture import names as NM
+    from wenart.ingest import source_items as SI
+
+    b = build.building
+    out: list[dict] = []
+    seen_ids: set = set()
+    for w in sorted(_works(build, works), key=lambda w: 1 if _not_asked(w) else 0):
+        ex = getattr(w, "extraction", None)
+        record = getattr(w, "record", None)
+        if ex is None or record is None or not ex.transform_to_building:
+            continue
+        level = record.level_id
+        for row in SI.text_rows(ex, "", list(ex.transform_to_building)):
+            hit = CH.source_word(row["text"])
+            if hit is None or row["id"] in seen_ids:
+                continue
+            seen_ids.add(row["id"])
+            pos = [float(row["pos"][0]), float(row["pos"][1])]
+            out.append({"id": row["id"], "level_id": level, "room_id": NM.room_of_point(b, level, pos),
+                        "text": row["text"], "kind": hit[0], "word": hit[1], "pos": pos, "layer": row.get("layer"),
+                        "file": record.file, "page": record.page if record.format == "pdf" else None,
+                        "method": row.get("method") or "vector"})
+    return sorted(out, key=lambda t: (str(t["level_id"]), str(t["id"])))
+
+
 def resolve_named_conflicts(build) -> int:
     """26 Oct 2026: the ``symbol_type_disagreement`` conflict of a piece typed by a furniture name text, a zone label or
     the missing member the AI passes named (``infer`` name_text / zone_label / ai_named_members) gets that decision as
@@ -3066,6 +3100,15 @@ def read_furniture(build, works: dict) -> None:
         build.warn(f"{z['id']}: zone label {z['text']!r} in {z['room_id']}: a {z['kind']} zone "
                    f"({', '.join(z['anchors'])}) of {len(z['zone'])} corners around ({z['pos'][0]:.2f}, "
                    f"{z['pos'][1]:.2f}) m")
+    # 29 Oct 2026 (lesson UL109, ``chimney_texts``): a fireplace, stove, flue or boiler-room text of the plan, for the
+    # chimney rule (written only when the plans hold one)
+    texts = chimney_texts(build, works)
+    if texts:
+        b["chimney_texts"] = texts
+    for t in texts:
+        build.warn(f"{t['id']}: {t['kind'].replace('_', ' ')} text {t['text']!r} on {t['level_id']} at "
+                   f"({t['pos'][0]:.2f}, {t['pos'][1]:.2f}) m in {t['room_id'] or 'no room'}: the chimney rule builds "
+                   f"its stack through the roof")
     items = _items(build, works)
     pending = _pending(build, works)
     symbols = move_symbols(build, items, works)
