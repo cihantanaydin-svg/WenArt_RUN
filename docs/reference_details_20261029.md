@@ -5,10 +5,10 @@ The user sent seven professional interior renders on 29 Oct 2026 ("also take som
 details", "As much detail as you can digest", "we need better doors, not all the doors needs to be closed in
 default"). The photos reached the session as chat images only (no file); this page lists every detail read from
 them, so that each one becomes a general rule of the pipeline for every project (CLAUDE.md: every fix is general).
-Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen), UL119 (a different solution for each room), UL120 (see-through wardrobes), UL121 (a full, realistic bed), UL123 (the P12 bathroom).
+Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen), UL119 (a different solution for each room), UL120 (see-through wardrobes), UL121 (a full, realistic bed), UL123 (the P12 bathroom), UL124 (the P13 bathroom), UL125 (a walk-in dressing room is see-through on both sides).
 
 Photos: P1 bedroom with a walk-in wardrobe; P2 bedroom with slat panels and a desk; P3 kitchen seen through blue
-glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side; P9 a young adult's bedroom (dark green walls, wall TV, floating corner desk); P10 a bedroom with a see-through slatted wardrobe; P11 a bedroom with a full, realistic bed; P12 a bathroom with a terrazzo vanity wall and a walk-in shower (user: "Look how beautiful is this bathroom").
+glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side; P9 a young adult's bedroom (dark green walls, wall TV, floating corner desk); P10 a bedroom with a see-through slatted wardrobe; P11 a bedroom with a full, realistic bed; P12 a bathroom with a terrazzo vanity wall and a walk-in shower (user: "Look how beautiful is this bathroom"); P13 a bathroom with a curved terrazzo apron vanity, a round wood mirror and a dark fluted WC wall (user: "Look how beautiful is this render take inspiration").
 
 ## Bathroom and WC (P4) - helper "bathroom"
 
@@ -34,6 +34,12 @@ glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance h
 | B18 | (P12) a black towel shelf with a rail under it (rolled towels, a diffuser, jars on the shelf, a hanging towel) beside the towel ladder, a black light switch at the door | every bathroom gets a towel shelf or hooks next to the towel rail; the switch by the door (sockets helper, UL112) |
 | B19 | (P12) counter styling in clusters: dried pampas grass and cotton stems in a vase, reed diffusers, amber and black pump bottles, a calla stem, a shaving brush, a jar of cotton | basin-top decor comes in two clusters (one tall: dried stems; one low: bottles), never one item alone |
 | B20 | (P12) black door frames and a dark fluted panel at the room edge | the door frames (UL122) take the fixtures' or the trim's finish where the family is dark-accented |
+| B21 | (P13) a floating vanity with a curved front (white lacquer, a dark stone top with a rounded end) set into a terrazzo apron that rises behind it as a splashback and drops under it to the floor, lit from under the vanity | a vanity wall may get a terrazzo or stone apron (splashback + plinth in one material) when the family allows; the vanity front may be curved in soft-modern families |
+| B22 | (P13) a round mirror with a thick oak frame over the basin | the mirror's shape and frame follow the family: round wood frames in Japandi, Scandinavian and organic-modern; backlit rectangles in minimal and modern (B4, B14) |
+| B23 | (P13) a white vessel basin with a wall-mounted spout and lever coming out of the splashback | a vessel basin on a wall with a splashback takes a wall-mounted mixer |
+| B24 | (P13) a floor-to-ceiling dark fluted (slatted) feature panel behind the wall-hung WC, with the flush plate and the paper holder on it, a black WC and brush | a WC wall may be the bathroom's feature wall (dark slats or stone) with the WC, flush plate and holder on it; one feature wall per bathroom |
+| B25 | (P13) a high black-framed window inside the shower; a towel bar on the outside of the shower glass with a towel; a towel bar by the door | (B10, B16, B18) towel bars at the door and at the shower, never only one towel in the room |
+| B26 | (P13) one textile accent colour repeated (navy towels at the door, on the counter, at the shower) | a bathroom's towels take one accent colour of the palette, repeated in two or three places |
 
 ## Kitchen (P5, P3) - helper "kitchen"
 
@@ -91,6 +97,7 @@ glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance h
 | R29 | (P9) a duffle bag on the floor, headphones on the desk: lived-in objects | one or two lived-in objects per bedroom (a bag, a throw on a chair) |
 | R30 | (P9) a multi-arm linear pendant, square black downlights | statement fixture options (UL106) |
 | R31 | (P10, "look at this dressing room solution see through why we are not using some similar in our projects?") a full-height wardrobe behind black horizontal slat sliding doors: the hanging shirts on a rail, the shelves and drawers inside show through the slats, LED inside | wardrobe and dressing-room fronts may be see-through (slatted or glazed sliding doors) with real contents: hanging garments on a rail, folded stacks, drawers, a light inside; the doors helper builds the fronts, the garments too |
+| R37 | (user on real06 run 100801's dressing room, two drawn wardrobe runs facing each other across a 1.2 m aisle: "this dressing could be a see through dressing room in the both sides argus should have think of this") | a walk-in dressing room (a dressing-room type, or a room whose wardrobe runs face each other across an aisle) is see-through on both sides by default (R31: slatted or glazed fronts, or open runs with hanging rails, shelves and shoe racks, all with real contents and a light inside); a bench or pouf and a full-height mirror where the aisle allows; Argus flags a walk-in with closed fronts only (a design finding with the fix), and Argus AI proposes the user's reference solutions for a room type before it settles for what was built |
 | R32 | (P10) a wide wood headboard panel across the bed wall, wider than the bed, with a large art piece above it | a bed wall option: a timber headboard panel wider than the bed (scheme V1) |
 | R33 | (P10) a floating (wall-mounted) black nightstand | nightstand option: a floating box on the wall in the modern families |
 | R34 | (P10) a textured limewash / plaster wall finish in the deep colour | wall finish option: limewash texture (V1 scheme) |
