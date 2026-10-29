@@ -217,6 +217,34 @@ def mirror_across(verts, faces, uvs, centre, axis) -> tuple[list, list, Optional
     return out, rfaces, ruvs
 
 
+def pair_mirrors(panels: int, along, outward, handle_side: Optional[str]) -> list[bool]:
+    """Per panel (in ``panel_layout`` order, along the wall from its start): mirror it or not, so the leaves of a
+    hinged pair built of one one-leaf model meet in the middle with their handles there and their hinges at the
+    jambs (pure; 29 Oct 2026, user: "Better door models needed"; ``opening_models`` ``pair``). ``handle_side``: the
+    model's handle in its front view (the audit: left, right; else unknown). Seen from the front (the side ``outward``
+    points to) a leaf left of the middle wants its handle on its right, a leaf right of it on its left; a middle leaf
+    of an odd count stays as modelled. A model whose handle side is unknown keeps the left half as modelled and
+    mirrors the right half (the two halves mirror images: a pair either way)."""
+    n = max(1, int(panels))
+    ax, ay = float(along[0]), float(along[1])
+    ox, oy = float(outward[0]), float(outward[1])
+    # the viewer in front looks along -outward; their right hand is (-oy, ox): the panels run from their left when
+    # the wall's direction points to their right
+    first_left = ax * -oy + ay * ox > 0.0
+    out = []
+    for i in range(n):
+        pos = i if first_left else n - 1 - i             # 0 = the viewer's leftmost leaf
+        if 2 * pos + 1 == n:
+            out.append(False)
+            continue
+        left = 2 * pos + 1 < n
+        if handle_side in ("left", "right"):
+            out.append(handle_side == ("left" if left else "right"))
+        else:
+            out.append(not left)
+    return out
+
+
 def front_rotation_deg(outward) -> float:
     """The footprint rotation that turns the piece front (-Y) to ``outward`` (pure)."""
     return math.degrees(math.atan2(float(outward[0]), -float(outward[1])))
@@ -322,14 +350,17 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
     created = []
     (wx0, wy0), (wx1, wy1) = wall["start"][:2], wall["end"][:2]
     along = (wx1 - wx0, wy1 - wy0)
+    # 29 Oct 2026: the leaves of a pair meet in the middle (pair_mirrors); any other door its drawn hinge side
+    mirrors = pair_mirrors(panels, along, outward, lib.get("handle_side")) if lib.get("pair") and panels > 1 \
+        else [bool(lib.get("mirror"))] * panels
     for i, (px, py) in enumerate(panel_layout(geo["centre"], wall, width, panels, outward, thickness, depth,
                                               centred=inside)):
         verts, info = F.fit_vertices(model["verts"], asset, {"center": [px, py], "size": [pw, depth],
                                                              "rotation_deg": rot}, geo["bottom"],
                                      target_size=[pw, depth, height])
         faces, uvs = model["faces"], model.get("uvs")
-        if lib.get("mirror"):
-            # 28 Oct 2026: the drawn hinge side (opening_models.hinge_mirror)
+        if mirrors[i]:
+            # 28 Oct 2026: the drawn hinge side (opening_models.hinge_mirror); 29 Oct 2026: a pair's leaf
             verts, faces, uvs = mirror_across(verts, faces, uvs, (px, py), along)
         ob = F._mesh_object(f"{opening['id']}_lib{i}", verts, faces, materials, face_materials,
                             ctx["collection"], opening["id"], kind, geo["status"], uvs=uvs,
@@ -349,7 +380,9 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
                                     # the model's stated operation: opening_models.model_operation reads it here too
                                     "opening": {"operation": lib.get("model_operation")},
                                     "statement": lib.get("statement"), "quality": lib.get("quality"),
-                                    "inside": inside, "mirror": bool(lib.get("mirror")), "hinge": lib.get("hinge")},
+                                    "inside": inside, "mirror": mirrors[i], "hinge": lib.get("hinge"),
+                                    # 29 Oct 2026: a pair of one model's leaves; the leaf the audit saw
+                                    "pair": bool(lib.get("pair")), "leaf": lib.get("leaf")},
                      inferred={"field": "product", "reason": lib.get("reason")})
         ctx["manifest_objects"].append(entry)
     ctx["assumed"].append({"object": opening["id"], "field": "library_model", "value": asset.get("asset_id"),
@@ -371,7 +404,7 @@ def _library_handles(opening: dict, geo: dict, ctx: dict, lib: dict) -> list:
     library = ctx.get("library")
     steel = library.get("steel_brushed") if library is not None else None
     sill = float(geo["bottom"]) - float(geo.get("floor_z", geo["bottom"]))
-    parts = SH._local_to_world(SH.door_handle_parts(geo["width"], geo["height"], sill),
+    parts = SH._local_to_world(SH.door_handle_parts(geo["width"], geo["height"], sill, pair=bool(lib.get("pair"))),
                                (*geo["centre"], geo["bottom"]), geo["angle"])
     ob = common.new_mesh_object(f"{opening['id']}_handle", *parts, collection=ctx["collection"],
                                 wenart_id=opening["id"], kind="door", status="assumed",

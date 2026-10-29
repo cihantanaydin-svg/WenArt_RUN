@@ -435,7 +435,10 @@ def test_the_inside_role_is_the_door_style_of_its_rooms():
     pocket = dict(recs["d_bed"], opening=dict(recs["d_bed"]["opening"], operation="pocket"))
     assert OM.inside_role(pocket, style)[0] is None
     pair = dict(recs["d_bed"], opening=dict(recs["d_bed"]["opening"], door_type="double"))
-    assert OM.inside_role(pair, style)[0] is None
+    # 29 Oct 2026 (UL89): a pair takes its rooms' role (two leaves of the role's model); a sliding pair stays parametric
+    assert OM.inside_role(pair, style)[0] == "solid"
+    slide_pair = dict(recs["d_bed"], opening=dict(recs["d_bed"]["opening"], door_type="sliding_pair"))
+    assert OM.inside_role(slide_pair, style)[0] is None
 
 
 def test_inside_doors_take_one_family_per_role_never_a_facade_family():

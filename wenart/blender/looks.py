@@ -296,11 +296,58 @@ def door_look(style: dict, opening: Optional[dict] = None) -> dict:
             slug, asset, colour = frame.get("material") or slug, frame.get("asset"), frame.get("colour")
             notes.append(f"an outside door: its leaves in the windows' frame finish ({slug})")
     handle = door.get("handle") if door.get("handle") in HANDLE_SLUGS else DEFAULT_HANDLE
+    product = door_product(style, door_style)
+    if product:
+        kind = product["leaf_detail"]["kind"]
+        notes.append(("" if kind == "plain" else f"a {kind} leaf, ") + f"an architrave and hinges where it is framed "
+                     f"({product['why']})")
     reason = (f"door {door_style} (drawn operation {op}{', assumed' if op_assumed else ''}"
               f"{'; ' + '; '.join(notes) if notes else ''}), style door {door.get('material') or 'default'}")
     return _look(slug, asset, colour, "style", reason, door_style=door_style, handle=handle,
                  handle_material=HANDLE_SLUGS[handle], handle_assumed=door.get("handle") not in HANDLE_SLUGS,
-                 operation=op, operation_assumed=op_assumed, **extra)
+                 operation=op, operation_assumed=op_assumed, leaf_detail=product.get("leaf_detail"),
+                 architrave=product.get("architrave"), hinges=product.get("hinges"), **extra)
+
+
+# 29 Oct 2026 (user: "Better door models needed"; real06 run 20261028-154514-full, real04 run 20261028-183611-full:
+# the parametric door was a plain slab in a flat frame flush with the wall): where no library model fits, the
+# parametric door is a real product of the house's style family (``parametric.door_parts``): its leaf face detail
+# (``LEAF_DETAILS``: routed lines, horizontal or vertical grooves, panels in the period families; on a flush leaf and
+# the solid leaves of a pair), an architrave on the room faces and three hinges on the hinge side, with the lever
+# pair. ``kind``: ``lined`` (one routed line round each face), ``horizontal`` / ``vertical`` (``count`` V-grooves),
+# ``panelled`` (raised stiles and rails), ``plain`` (none: a style whose door slot names it).
+LEAF_DETAILS: dict[str, dict] = {
+    "scandinavian": {"kind": "lined"}, "japandi": {"kind": "vertical", "count": 4},
+    "modern": {"kind": "horizontal", "count": 4}, "contemporary": {"kind": "horizontal", "count": 4},
+    "minimal": {"kind": "horizontal", "count": 2}, "modern minimal": {"kind": "horizontal", "count": 2},
+    "industrial": {"kind": "horizontal", "count": 3},
+    "classic": {"kind": "panelled"}, "rustic": {"kind": "panelled"}, "mediterranean": {"kind": "panelled"},
+    "traditional": {"kind": "panelled"},
+}
+DEFAULT_LEAF_DETAIL: dict = {"kind": "lined"}
+LEAF_DETAIL_KINDS: tuple[str, ...] = ("lined", "horizontal", "vertical", "panelled", "plain")
+DETAIL_STYLES: tuple[str, ...] = ("flush", "double", "folding")     # door styles whose solid leaves take the detail
+
+
+def door_product(style: Optional[dict], door_style: Optional[str] = None) -> dict:
+    """``{"leaf_detail", "architrave", "hinges", "why"}`` of a parametric door in a style with a family (pure; see
+    ``LEAF_DETAILS``), {} for a style without one (a Milestone 3-9 style keeps its door). The style's ``door`` slot
+    may name ``leaf_detail`` (a kind of ``LEAF_DETAIL_KINDS``, or a dict with its ``kind`` and ``count``); a leaf
+    style other than ``DETAIL_STYLES`` (glazed, shaker panel, entrance, sliding ...) keeps its own face."""
+    family = str((style or {}).get("family") or "").strip().lower()
+    if not family:
+        return {}
+    named = _slot(style, "door").get("leaf_detail")
+    if isinstance(named, str) and named in LEAF_DETAIL_KINDS:
+        detail, why = {"kind": named}, "the style's door names it"
+    elif isinstance(named, dict) and named.get("kind") in LEAF_DETAIL_KINDS:
+        detail, why = dict(named), "the style's door names it"
+    else:
+        detail = dict(LEAF_DETAILS.get(family, DEFAULT_LEAF_DETAIL))
+        why = f"the {family} family's door, assumed" if family in LEAF_DETAILS else f"a {family} door, assumed"
+    if door_style is not None and door_style not in DETAIL_STYLES:
+        detail = {"kind": "plain"}
+    return {"leaf_detail": detail, "architrave": True, "hinges": True, "why": why}
 
 
 # 28 Oct 2026 (user: "I want better doors inside the house and the outside ... some variation is needed"): with no door
@@ -385,6 +432,9 @@ def door_geometry_m10(style: dict, opening: Optional[dict] = None) -> bool:
     the Milestone 6 door has one plain leaf)."""
     door = _slot(style, "door")
     if door.get("style") or door.get("handle") or door.get("colour"):
+        return True
+    if door_product(style):
+        # 29 Oct 2026 (UL89): a style with a family builds its parametric doors as products (``door_product``)
         return True
     o = opening or {}
     return o.get("operation") in DRAWN_DOOR_OPERATIONS or o.get("door_style") in DECIDED_STYLES or bool(o.get("glazed"))

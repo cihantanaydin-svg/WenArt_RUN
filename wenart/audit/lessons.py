@@ -30,6 +30,9 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   please better color");
 - U15 the doors (``opening_models.door_variety_problems``): every door one model, an inside door model on the facade,
   no statement entrance ("I want better doors inside the house and the outside ... some variation is needed").
+- U18 the door models as built (``opening_models.door_model_problems``, UL89: "Better door models needed"): more
+  than a third of the house's doors parametric (naming the ones whose library model the build did not make), a door
+  model named for another room ("bathroom door" on a bedroom).
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -512,6 +515,19 @@ def read_twice_and_blocked_passages(building: dict) -> list[dict]:
     return out
 
 
+def door_models(building: Optional[dict], manifest: Optional[dict]) -> list[dict]:
+    """U18: the door models as built (``opening_models.door_model_problems``; lesson UL89, user: "Better door models
+    needed"): more than a third of the house's doors parametric (real06 run 20261028-154514-full: the build refused
+    the HSSD doors the plan chose), a door named for another room ("bathroom door" on the bedrooms of real04)."""
+    from wenart.blender import opening_models as OM
+
+    if not (manifest or {}).get("objects"):
+        return []
+    return [_f("U18", p.get("severity") or "major", p.get("target") or "doors", str(p.get("message")), "UL89",
+               "rerun_stage build (opening_models: the audited library doors for every role)", problem=p.get("kind"))
+            for p in OM.door_model_problems(manifest, building)]
+
+
 BUILDING_CHECKS = (("U1", entrances_at_windows), ("U2", roofs_without_posts), ("U3", thick_columns),
                    ("U4", flat_drawn_roofs), ("U5", traced_covers), ("U6", storage_before_tall_windows),
                    ("U8", seats_facing_walls), ("U9", indoor_pieces_outdoors), ("U10", basins_without_mirrors),
@@ -522,7 +538,8 @@ BUILDING_CHECKS = (("U1", entrances_at_windows), ("U2", roofs_without_posts), ("
 CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4": ("UL57",), "U5": ("UL64",),
                  "U6": ("UL59", "UL56"), "U7": ("UL60",), "U8": ("UL61",), "U9": ("UL20",), "U10": ("UL66",),
                  "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32"),
-                 "U21": ("UL88",), "U22": ("UL88",), "U24": ("UL90", "UL101"), "U25": ("UL97",)}
+                 "U21": ("UL88",), "U22": ("UL88",), "U24": ("UL90", "UL101"), "U25": ("UL97",),
+                 "U18": ("UL89", "UL65")}
 
 
 def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
@@ -539,7 +556,8 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
         findings += got
         checked[cid] = len(got)
     for cid, fn in (("U7", lambda: door_operations(building, manifest)), ("U13", lambda: floor_finish_on_walls(manifest)),
-                    ("U14", lambda: plain_walls(building, manifest)), ("U15", lambda: door_variety(manifest))):
+                    ("U14", lambda: plain_walls(building, manifest)), ("U15", lambda: door_variety(manifest)),
+                    ("U18", lambda: door_models(building, manifest))):
         if not manifest:
             checked[cid] = "no scene manifest: not run"
             continue

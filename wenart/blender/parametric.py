@@ -2816,6 +2816,93 @@ def door_stop_boxes(width: float, height: float, frame_w: float, face_y: float, 
     return boxes
 
 
+# 29 Oct 2026 (user: "Better door models needed"; UL89): the parametric door as a real product where no library model
+# fits (``looks.door_product``): the leaf's face detail, an architrave on the room faces, three hinges. Typical joinery
+# sizes (assumed: no drawing gives them).
+LEAF_GROOVE_W_M = 0.004          # a routed V-groove's width on the leaf face ...
+LEAF_GROOVE_D_M = 0.003          # ... and its depth
+LEAF_LINE_INSET_M = 0.10         # a lined leaf: the routed line this far in from the leaf's edges (at most 15 %)
+ARCHITRAVE_W_M = 0.065           # the architrave (casing) round the opening on a wall face: its width ...
+ARCHITRAVE_T_M = 0.018           # ... how far it stands proud of the wall face ...
+ARCHITRAVE_REVEAL_M = 0.008      # ... and how far its inner edge stands back from the jamb's inner face
+HINGE_SIZE_M = (0.014, 0.014, 0.10)   # a hinge knuckle (x, y, z) on the swing face at the leaf's hinge edge
+HINGE_Z_M = (0.18, None, 0.28)   # the hinges' bottoms: 0.18 m up, the middle, 0.28 m under the leaf's top
+
+
+def _detailed_leaf(cx: float, lw: float, lh: float, t: float, detail: Optional[dict], y: float = 0.0) -> list[Part]:
+    """A solid leaf ``lw`` x ``lh`` centred on ``cx`` with the face detail of ``looks.door_product`` (pure; role
+    ``leaf``, key ``leaf``): ``plain`` / None one box; ``horizontal`` / ``vertical`` ``count`` grooves and ``lined``
+    one routed line round the face, as a core ``LEAF_GROOVE_D_M`` thinner per face and face boards with
+    ``LEAF_GROOVE_W_M`` gaps between them (real recessed grooves: they catch the light); ``panelled`` the shaker stiles
+    and rails proud of both faces."""
+    kind = str((detail or {}).get("kind") or "plain")
+    if kind == "panelled":
+        f = min(DOOR_PANEL_FRAME_M, lw * 0.2)
+        parts = [_leaf_box(cx, 0.0, lw, lh, t, y)]
+        for s in (-1, 1):
+            yy = y + s * (t / 2.0 + DOOR_PANEL_PROUD_M / 2.0)
+            parts += [_box(cx - (lw / 2.0 - f / 2.0), yy, 0.0, f, DOOR_PANEL_PROUD_M, lh, "leaf", "panel"),
+                      _box(cx + lw / 2.0 - f / 2.0, yy, 0.0, f, DOOR_PANEL_PROUD_M, lh, "leaf", "panel"),
+                      _box(cx, yy, 0.0, lw - 2 * f, DOOR_PANEL_PROUD_M, f * 1.5, "leaf", "panel"),
+                      _box(cx, yy, lh * 0.5 - f / 2.0, lw - 2 * f, DOOR_PANEL_PROUD_M, f, "leaf", "panel"),
+                      _box(cx, yy, lh - f, lw - 2 * f, DOOR_PANEL_PROUD_M, f, "leaf", "panel")]
+        return parts
+    g, d = LEAF_GROOVE_W_M, LEAF_GROOVE_D_M
+    x0, x1 = cx - lw / 2.0, cx + lw / 2.0
+    boards: list[tuple[float, float, float, float]] = []          # (x0, x1, z0, z1) of the face boards
+    if kind in ("horizontal", "vertical"):
+        n = max(1, int((detail or {}).get("count") or 1))
+        if kind == "horizontal":
+            cuts = [lh * k / (n + 1) for k in range(1, n + 1)]
+            edges = [0.0] + [c for z in cuts for c in (z - g / 2.0, z + g / 2.0)] + [lh]
+            boards = [(x0, x1, edges[i], edges[i + 1]) for i in range(0, len(edges), 2)]
+        else:
+            cuts = [x0 + lw * k / (n + 1) for k in range(1, n + 1)]
+            edges = [x0] + [c for x in cuts for c in (x - g / 2.0, x + g / 2.0)] + [x1]
+            boards = [(edges[i], edges[i + 1], 0.0, lh) for i in range(0, len(edges), 2)]
+    elif kind == "lined":
+        m = min(LEAF_LINE_INSET_M, lw * 0.15, lh * 0.15)
+        a, b = m - g / 2.0, m + g / 2.0
+        boards = [(x0, x0 + a, 0.0, lh), (x1 - a, x1, 0.0, lh), (x0 + a, x1 - a, 0.0, a), (x0 + a, x1 - a, lh - a, lh),
+                  (x0 + b, x1 - b, b, lh - b)]
+    if not boards:
+        return [_leaf_box(cx, 0.0, lw, lh, t, y)]
+    parts = [_box(cx, y, 0.0, lw, t - 2 * d, lh, "leaf", "leaf")]
+    for s in (-1, 1):
+        yy = y + s * (t / 2.0 - d / 2.0)
+        parts += [_box((bx0 + bx1) / 2.0, yy, bz0, bx1 - bx0, d, bz1 - bz0, "leaf", "leaf")
+                  for bx0, bx1, bz0, bz1 in boards if bx1 - bx0 > 1e-6 and bz1 - bz0 > 1e-6]
+    return parts
+
+
+def architrave_boxes(width: float, height: float, frame_w: float, thickness: float, faces=(-1.0, 1.0)
+                     ) -> list[tuple[float, float, float, float, float, float]]:
+    """``[(cx, cy, z0, w, d, h)]`` of a door's architrave on the wall faces ``faces`` (+1 / -1: the y sides) in the
+    opening's frame (pure; 29 Oct 2026): two jamb pieces ``ARCHITRAVE_W_M`` wide from the floor to the head piece and
+    the head piece across both, their inner edges ``ARCHITRAVE_REVEAL_M`` back from the jambs' inner faces, standing
+    ``ARCHITRAVE_T_M`` proud of the wall face (they cover the joint of the frame and the plaster)."""
+    inner = float(width) / 2.0 - float(frame_w) + ARCHITRAVE_REVEAL_M
+    head = float(height) - float(frame_w) + ARCHITRAVE_REVEAL_M
+    out = []
+    for s in faces:
+        sy = -1.0 if float(s) < 0 else 1.0
+        cy = sy * (float(thickness) / 2.0 + ARCHITRAVE_T_M / 2.0)
+        out += [(-(inner + ARCHITRAVE_W_M / 2.0), cy, 0.0, ARCHITRAVE_W_M, ARCHITRAVE_T_M, head),
+                (inner + ARCHITRAVE_W_M / 2.0, cy, 0.0, ARCHITRAVE_W_M, ARCHITRAVE_T_M, head),
+                (0.0, cy, head, 2.0 * (inner + ARCHITRAVE_W_M), ARCHITRAVE_T_M, ARCHITRAVE_W_M)]
+    return out
+
+
+def hinge_parts(edge_x: float, lh: float, t: float, side: float, y: float = 0.0) -> list[Part]:
+    """Three hinge knuckles (``HINGE_SIZE_M``) at the leaf edge ``edge_x`` on the swing face (``side``: the room the
+    door opens into), role ``hinge``, key ``handle`` (the handle metal; pure; 29 Oct 2026)."""
+    hx, hy, hz = HINGE_SIZE_M
+    s = -1.0 if float(side) < 0 else 1.0
+    zs = [HINGE_Z_M[0], lh / 2.0 - hz / 2.0, lh - HINGE_Z_M[2]]
+    return [_cylinder_z(edge_x, y + s * t / 2.0, z, hx / 2.0, hy / 2.0, hz, "handle", "hinge", n=12)
+            for z in zs if 0.0 <= z <= lh - hz]
+
+
 def _lever_pair(x: float, z: float, t: float, y: float = 0.0) -> list[Part]:
     """Lever handles on both faces of a leaf of thickness ``t`` centred on ``y``."""
     out = []
@@ -2861,6 +2948,16 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         parts += [_box(-(w / 2.0 - frame_w / 2.0), 0.0, 0.0, frame_w, t, h, "frame", "frame"),
                   _box(w / 2.0 - frame_w / 2.0, 0.0, 0.0, frame_w, t, h, "frame", "frame"),
                   _box(0.0, 0.0, h - frame_w, w - 2 * frame_w, t, frame_w, "frame", "frame")]
+    # 29 Oct 2026 (UL89; ``looks.door_product``): the product door's architrave on the room faces, hinges, leaf detail
+    product = look or {}
+    detail = product.get("leaf_detail") if isinstance(product.get("leaf_detail"), dict) else None
+    if detail is not None and detail.get("kind") == "plain":
+        detail = None
+    hinges = bool(product.get("hinges"))
+    arch_faces = tuple(product.get("architrave_faces") or (-1.0, 1.0)) if product.get("architrave") else ()
+    if not surface and style != "sectional" and arch_faces:
+        parts += [_box(cx, cy, z0, bw, bd, bh, "frame", "architrave")
+                  for cx, cy, z0, bw, bd, bh in architrave_boxes(w, h, frame_w, t, arch_faces)]
     lw, lh = w - 2 * frame_w - 0.01, h - frame_w - 0.01
     leaf_t = ENTRANCE_LEAF_T if style == "entrance" else (SECTIONAL_LEAF_T if style == "sectional" else DOOR_LEAF_T)
     lever_z = min(LEVER_HEIGHT_M, lh - 0.1)
@@ -2891,6 +2988,8 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         (_k, x0, x1) = next(s for s in sections if s[0] == "leaf")
         ecx, elw = (x0 + x1) / 2.0, (x1 - x0) - 0.01
         parts.append(_leaf_box(ecx, 0.0, elw, lh, leaf_t))
+        if hinges:
+            parts += hinge_parts(ecx - elw / 2.0, lh, leaf_t, side)
         for _k, a, b in (s for s in sections if s[0] == "light"):
             parts += [_box((a + b) / 2.0, 0.0, 0.0, b - a, leaf_t, SIDELIGHT_BASE_M, "leaf", "panel"),
                       _box((a + b) / 2.0, 0.0, SIDELIGHT_BASE_M, b - a, 0.008, h - frame_w - SIDELIGHT_BASE_M,
@@ -2905,8 +3004,12 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
     elif style in ("flush", "pocket", "entrance", "shaker_panel", "glazed"):
         if style == "glazed":
             parts += _glazed_leaf(0.0, 0.0, lw, lh, leaf_t)
+        elif style == "flush" and detail is not None:
+            parts += _detailed_leaf(0.0, lw, lh, leaf_t, detail)
         else:
             parts.append(_leaf_box(0.0, 0.0, lw, lh, leaf_t))
+        if hinges and style != "pocket":                                 # on the swing face, opposite the lever
+            parts += hinge_parts(-lw / 2.0, lh, leaf_t, side)
         if style == "shaker_panel":
             f = min(DOOR_PANEL_FRAME_M, lw * 0.2)
             for s in (-1, 1):
@@ -2932,7 +3035,9 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
     elif style in ("double", "folding") and not glazed and (style == "double" or (asked or 2) == 2):
         half = lw / 2.0 - 0.002
         for s in (-1, 1):
-            parts.append(_leaf_box(s * (half / 2.0 + 0.001), 0.0, half, lh, DOOR_LEAF_T))
+            parts += _detailed_leaf(s * (half / 2.0 + 0.001), half, lh, DOOR_LEAF_T, detail)
+            if hinges and style == "double":                             # each leaf hinged at its jamb
+                parts += hinge_parts(s * lw / 2.0, lh, DOOR_LEAF_T, side)
         # the astragal over the meeting stiles, on the stop face (fix round after P3)
         (_cx, cy, _z0, _bw, bd, _bh) = door_stop_boxes(w, h, frame_w, DOOR_LEAF_T / 2.0, t, -side)[0]
         parts.append(_box(0.0, cy, 0.0, DOOR_ASTRAGAL_W_M, bd, lh, "leaf", "astragal"))
@@ -2947,7 +3052,10 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         centres = [-lw / 2.0 + LEAF_GAP_M / 2.0 + lwi / 2.0 + i * (lwi + LEAF_GAP_M) for i in range(n)]
         for cx in centres:
             parts += _glazed_leaf(cx, 0.0, lwi, lh, DOOR_LEAF_T, groove=GLAZING_GROOVE_M) if glazed else \
-                [_leaf_box(cx, 0.0, lwi, lh, DOOR_LEAF_T)]
+                _detailed_leaf(cx, lwi, lh, DOOR_LEAF_T, detail)
+        if hinges and style == "double":                                 # each leaf hinged at its jamb
+            parts += hinge_parts(centres[0] - lwi / 2.0, lh, DOOR_LEAF_T, side)
+            parts += hinge_parts(centres[-1] + lwi / 2.0, lh, DOOR_LEAF_T, side)
         (_cx, cy, _z0, _bw, bd, _bh) = door_stop_boxes(w, h, frame_w, DOOR_LEAF_T / 2.0, t, -side)[0]
         for a, b in zip(centres, centres[1:]):                           # an astragal over every meeting joint
             parts.append(_box((a + b) / 2.0, cy, 0.0, DOOR_ASTRAGAL_W_M, bd, lh, "leaf", "astragal"))
@@ -3027,6 +3135,14 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
               "stop_side": None if surface else ("both" if style == "pocket" else -side)}
     if style != "glazed" and any(p["role"] == "glass" for p in parts):
         extra["glazed"] = True                                          # D5: a glazed pair, sliding door, side lights
+    if product.get("architrave") or hinges or product.get("leaf_detail"):
+        # 29 Oct 2026 (UL89): what makes the parametric door a product (model review M20 reads it)
+        solid = style in ("flush", "double", "folding") and not glazed
+        asked = product.get("leaf_detail") if isinstance(product.get("leaf_detail"), dict) else {}
+        extra.update(leaf_detail=asked.get("kind") if solid else None,           # "plain" when the style names it
+                     architrave=sorted({-1 if float(s) < 0 else 1 for s in arch_faces})
+                     if not surface and style != "sectional" else [],
+                     hinges=sum(1 for p in parts if p["role"] == "hinge"))
     record.update(extra)
     return parts, record
 

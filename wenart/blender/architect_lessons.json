@@ -1035,12 +1035,12 @@
    "id": "UL89",
    "date": "2026-10-29",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Better door models needed (real06 run 20261028-154514-full)",
-   "lesson": "Better door models needed (real06 run 20261028-154514-full)",
+   "lesson": "The audited library doors reach the build: the plan's model record carries source_url and via (the licence rule refused every HSSD door and window without them); a door whose leaf no audit saw ranks after the audited ones; a model named for one room serves only doors into that room; a pair of leaves is two mirrored leaves of the role's model; a second family of the house's look for a way of opening the first cannot; glazed and terrace doors avoid the entrance's family; where nothing fits, the parametric door is a product of the style family (lined, grooved or panelled leaf, architrave, hinges, levers) and records library_planned. Model review M20, Argus U18.",
    "question": null
   },
   {
@@ -1084,12 +1084,12 @@
    "id": "UL93",
    "date": "2026-10-29",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Computer on the table would have been nice or a laptop (real06 run 20261028-154514-full, a bedroom desk with nothing on it)",
-   "lesson": "Computer on the table would have been nice or a laptop (real06 run 20261028-154514-full, a bedroom desk with nothing on it)",
+   "lesson": "Every desk and writing table gets a work set facing its chair (an open laptop; a home office's desk a monitor, keyboard and mouse), recorded added_by_ai; decor in the way moves aside; the decor of a piece re-placed by the agent (relayout_room, move_group) moves to the new piece of the same type nearest to it (furniture.handover). Argus U17, inspector Q15.",
    "question": null
   },
   {
