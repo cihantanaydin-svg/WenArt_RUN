@@ -162,7 +162,8 @@ ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
                 "side_table", "floor_lamp", "potted_plant", "tv_unit"),
     "kitchen": ("kitchen_counter", "kitchen_island", "fridge", "stove", "sink_kitchen", "table_dining", "chair",
                 "washing_machine", "bar_stool", "tall_cabinet", "wall_cabinet"),
-    "bathroom": ("washbasin", "toilet", "shower", "bathtub", "washing_machine"),
+    "bathroom": ("washbasin", "toilet", "shower", "bathtub", "washing_machine",
+                 "tall_cabinet"),      # 29 Oct 2026 (UL102): a bathroom's storage column (room_fill.bath_storage)
     "wc": ("toilet", "washbasin"),
     "hall": ("dresser", "chair", "bookshelf", "console_table", "shoe_cabinet", "bench", "potted_plant"),
     "dining": ("table_dining", "chair", "dresser", "bookshelf",      # Milestone 7 (§6.5)

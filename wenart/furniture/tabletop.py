@@ -283,6 +283,82 @@ def shelf_group(room: dict, host: dict, on_host: list[dict], sizes: dict) -> lis
     return out
 
 
+# 29 Oct 2026 (user on real06: "There are no library and books in the house lets put some library and books", UL103):
+# a bookshelf carries books on its boards. The library's bookshelf models are empty (their titles and the judges name
+# no books), so every bookshelf gets a row of books (``book_set``) on each board the decor's rest finds by rays
+# (``rest.place_on_shelf``), two rows on a wide shelf, around the vase and the candle of ``SHELF_GROUP``.
+BOOK_BOARD_PITCH_M = 0.35         # one board per this much of the shelf's height (over its plinth)
+BOOK_MAX_BOARDS = 4
+WIDE_SHELF_M = 0.9                # a shelf this wide holds two rows of books per board
+BOOK_SHARES: tuple[float, ...] = (-0.25, 0.22)
+NO_BOOK_ROOM_TYPES: tuple[str, ...] = ("bathroom", "wc", "kitchen")
+
+
+def shelf_boards(host: dict) -> int:
+    """The boards a bookshelf is assumed to hold for its books (pure): by its fitted or drawn height."""
+    h = None
+    asset = host.get("asset") if isinstance(host.get("asset"), dict) else {}
+    if len(asset.get("bbox_m") or []) > 2:
+        h = float(asset["bbox_m"][2])
+    elif isinstance(host.get("height"), (int, float)) and not isinstance(host.get("height"), bool):
+        h = float(host["height"])
+    h = h if h else 1.85
+    return max(1, min(BOOK_MAX_BOARDS, int((h - 0.25) / BOOK_BOARD_PITCH_M)))
+
+
+def shelf_books(room: dict, host: dict, on_host: list[dict], sizes: dict) -> list[dict]:
+    """Books on every board of a bookshelf (note above; items without ids): a ``book_set`` per board (two on a
+    shelf at least ``WIDE_SHELF_M`` wide) at ``BOOK_SHARES`` of its width, where nothing of the host stands on that
+    board's side already."""
+    if room.get("room_type") in NO_BOOK_ROOM_TYPES:
+        return []
+    w, d = (float(v) for v in host["footprint"]["size"][:2])
+    taken = set()
+    for it in on_host:
+        frame = it.get("host_frame") if isinstance(it.get("host_frame"), dict) else {}
+        board = int(frame.get("shelf", 1)) if frame.get("support", "shelf") == "shelf" else None
+        u = float(frame.get("u", 0.0))
+        if board is not None:
+            taken |= {(board, s) for s in BOOK_SHARES if abs(s - u) < 0.3 or abs(u) < 0.1}
+    shares = BOOK_SHARES if w >= WIDE_SHELF_M - 1e-9 else (0.0,)
+    out = []
+    size = _sized("book_set", sizes, 0.25, ((w - 2 * TOP_MARGIN_M) / len(shares) - 0.05,
+                                            max(0.05, d - 2 * TOP_MARGIN_M)))
+    if size is None:
+        return []
+    for board in range(shelf_boards(host)):
+        for k, share in enumerate(shares):
+            if (board, share) in taken or (len(shares) == 1 and any(b == board for b, _s in taken)):
+                continue
+            u = share if len(shares) > 1 else (0.15 if board % 2 else -0.15)
+            it = _item(room, host, "book_set", _world(host, u * w, 0.0), size, f"{host['id']}.shelf{board}",
+                       "", host_frame={"support": "shelf", "u": u, "v": 0.0, "turn_deg": 0.0, "lean_deg": 0.0,
+                                       "shelf": board})
+            it["reason"] = (f"a row of books on board {board} of the bookshelf (29 Oct 2026, user: \"There are no "
+                            "library and books in the house\", UL103)")
+            out.append(it)
+    return out
+
+
+def bare_hosts(room: dict, pieces: list[dict], building: dict, items: list[dict], new_id: Callable) -> list[dict]:
+    """29 Oct 2026 (UL99, UL103): the TVs of the room's bare TV units and the books of its bookshelves without books
+    (items with ids), for a room whose decor came as a twin's copy (``decor_ai.apply``): the rest of its decor stays
+    the copy."""
+    from wenart.furniture import decor_ai as DA
+    from wenart.furniture import media_wall as MW
+
+    out: list[dict] = MW.tv_items(room, pieces, building, items, new_id)
+    booked = {it.get("host_id") for it in items + out if it.get("type") in ("book_set", "books")}
+    for host in pieces:
+        if host.get("type") in SHELF_HOSTS and host.get("build") is not False and host["id"] not in booked:
+            on_host = [it for it in items if it.get("host_id") == host["id"] and it.get("center")]
+            made = shelf_books(room, host, on_host, DA.SURFACE_SIZES)
+            for it in made:
+                it["id"] = new_id(room["level_id"])
+            out += made
+    return out
+
+
 def dress_tops(room: dict, pieces: list[dict], building: dict, items: list[dict], new_id: Callable,
                slots: Optional[list] = None, density: str = "balanced") -> list[dict]:
     """The new items of one room's tops (module docstring): its dining tables set, its other tops and shelves styled;
@@ -302,7 +378,15 @@ def dress_tops(room: dict, pieces: list[dict], building: dict, items: list[dict]
         if s.kind == "shelf" and s.host_id:
             shelf_hosts.add(s.host_id)
     by_id = {p["id"]: p for p in pieces}
-    out: list[dict] = []
+    shelf_hosts |= {p["id"] for p in pieces if p.get("type") in SHELF_HOSTS and p.get("build") is not False}   # UL103
+    # 29 Oct 2026 (user on real06: "There is no TV in the house", UL99): the TV first, on every TV unit (and a media
+    # room's TV chest; wenart.furniture.media_wall): a styled group then stands beside it, never before its screen
+    from wenart.furniture import media_wall as MW
+
+    out: list[dict] = MW.tv_items(room, pieces, building, items, new_id)
+    gone = {i for tv in out for i in tv.get("clears") or ()}
+    if gone:                                   # the TV's place on its unit: the items in its way leave (in place)
+        items[:] = [it for it in items if it.get("id") not in gone]
     for hid in sorted(set(max_h) | shelf_hosts):
         host = by_id.get(hid)
         if host is None:
@@ -313,8 +397,9 @@ def dress_tops(room: dict, pieces: list[dict], building: dict, items: list[dict]
                                  centre=density != "sparse")
         elif host["type"] in GROUPS and hid in max_h:
             made = top_group(room, host, on_host, DA.SURFACE_SIZES, max_h.get(hid), density)
-        elif host["type"] in SHELF_HOSTS and density != "sparse":
-            made = shelf_group(room, host, on_host, DA.SURFACE_SIZES)
+        elif host["type"] in SHELF_HOSTS:
+            made = shelf_group(room, host, on_host, DA.SURFACE_SIZES) if density != "sparse" else []
+            made += shelf_books(room, host, on_host + made, DA.SURFACE_SIZES)     # 29 Oct 2026 (UL103)
         else:
             made = []
         for it in made:

@@ -350,6 +350,9 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     # 28 Oct 2026: the model review's M18 (a stair's rails that cross, stop short, run through a tread, a wall or the
     # floor above, or beside the floor guard above): the build plans every stair's guards by code; no agent tool
     "stair_rails": (),
+    # 29 Oct 2026: the model review's M21 (no TV, an under-furnished room, no bookshelf or no books, a bathroom without
+    # storage, a user-rejected model): the layout stage's media wall and room fill and the fit add or refuse them
+    "room_use": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -438,6 +441,10 @@ NO_TOOL_REASON: dict[str, str] = {
                      "along each dining table, a light over each seating group, bed, desk and counter run, the lumen "
                      "method's count for the floor: wenart.furniture.ceiling_lights); no agent tool adds a decor "
                      "light, so the finding is reported to the decor stage",
+    "room_use": "the TV unit and TV of a living room, the sideboard, the bookshelves and their books, a bathroom's "
+                "storage are added by code (wenart.furniture.media_wall, room_fill, tabletop.shelf_books) and the fit "
+                "never takes a model the user rejected (catalog.user_rejection); the finding is reported to the layout "
+                "stage",
     "unknown": "no agent tool fixes this check",
 }
 # Fix round after P6b: why a drawn fixed piece's F7 / G12 / G8 is "not yours" (``FIXTURE_LAYOUT``).
@@ -475,7 +482,9 @@ REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor",
                              # fix round after P6a: a vision opinion on a drawn piece's type (kept, for review)
                              "drawn_type": "review",
                              # 28 Oct 2026: a room's ceiling lights (model review M16) are the decor stage's
-                             "ceiling_light": "decor"}
+                             "ceiling_light": "decor",
+                             # 29 Oct 2026: the rooms furnished for their use (model review M21) are the layout's
+                             "room_use": "layout"}
 # Fix round after P4a: the X2 kind of an opening the build clipped under the roof (``exterior_checks._x2``), and the
 # words of its message when an older finding has no kind.
 OPENING_CLIP_KIND = "opening_clip"
@@ -530,6 +539,7 @@ CHECK_CAUSE: dict[str, str] = {
     # a rug outside is the decor stage's (cause_of: a decor target); too little ceiling light is the decor stage's
     "M16": "wrong_model", "M17": "ceiling_light",
     "M18": "stair_rails",            # 28 Oct 2026: the stairs' handrails as one balustrade (the build owns it)
+    "M21": "room_use",               # 29 Oct 2026: the rooms furnished for their use (the layout's media wall, fill)
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",

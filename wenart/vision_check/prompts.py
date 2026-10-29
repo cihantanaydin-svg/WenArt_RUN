@@ -121,6 +121,7 @@ _DECOR_HINTS_M10: dict[str, str] = {
     # 28 Oct 2026 (wenart.furniture.tabletop): the place settings of a dining table
     "plate": "plate laid on a dining table in front of a chair",
     "glass": "drinking glass standing on a table",
+    "tv": "flat television on its stand on a TV unit",   # 29 Oct 2026 (UL99)
 }
 HINTS.update({k: v for k, v in _DECOR_HINTS_M10.items() if k in S.CATEGORIES})
 UNVERIFIED_HINT = "any piece of furniture at that place"

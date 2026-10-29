@@ -42,6 +42,11 @@ it and per room ``<room>.json`` (program, candidates with their scores, terms an
 (the candidates side by side) and ``<room>_c<k>.png`` (the images the model saw) in the debug folder. It runs
 ``locked.check(source, final, mode)``: a violation writes no furnished building and exits 1; a building with
 ``status`` other than ``ok`` exits 2. ``--no-orchestrator`` runs of ``wenart.run`` call it the same way.
+
+29 Oct 2026 (the user's review of real06 run 20261028-154514-full): after the completion, ``main`` gives every living
+room and the master bedroom its TV unit where a place passes the code checks (``media_wall.add_media_walls``; UL99)
+and adds the fuller rooms' pieces (``room_fill.fill_building``: a sideboard by the dining table, bookshelves, a
+bathroom's storage column; UL98, UL103, UL107, UL102); both print one line per room.
 """
 from __future__ import annotations
 
@@ -729,6 +734,21 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
     family = profile.get("family") if isinstance(profile, dict) else None
     completed, records = C.complete_building(furnished, style_text, client, settings, debug_dir=debug, family=family,
                                              style=profile if isinstance(profile, dict) else None)
+    # 29 Oct 2026 (user on real06: "There is no TV in the house", UL99): every living room and the master bedroom get
+    # their TV unit where a place passes the code checks (wenart.furniture.media_wall)
+    from wenart.furniture import media_wall as MW
+
+    completed, media = MW.add_media_walls(completed, MW.brief_values(project_dir, settings))
+    for m in media:
+        print(f"layout: media wall {m['room_id']}: {m['why'][:200]}")
+    # 29 Oct 2026 (user on real06: "a bit more furniture would be nice", "no library and books", "bath is too empty":
+    # UL98, UL103, UL107, UL102): a sideboard by the dining table, bookshelves, a bathroom's storage column
+    from wenart.furniture import room_fill as RF
+
+    completed, fills = RF.fill_building(completed, MW.brief_values(project_dir, settings))
+    for r in fills:
+        print(f"layout: room fill {r['room_id']} {r['what']}: "
+              + (f"{r['piece']['id']} added" if r["piece"] else f"none ({r['why'][:160]})"))
     down = getattr(client, "down", None)
     if down:
         print(f"layout: the vision model could not be reached ({down}): every room took the solver's best candidate",

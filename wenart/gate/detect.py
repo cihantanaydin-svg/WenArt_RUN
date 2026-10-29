@@ -194,7 +194,7 @@ def _groups() -> tuple[Group, ...]:
         Group("cushion", ("cushion",), "decor", ("cushion", "throw", "sofa", "armchair", "bed_single", "bed_double",
                                                  "sofa_corner", "chaise", "bunk_bed")),
         Group("mirror", ("mirror",), "decor", ("mirror",)),                 # Milestone 9: the decor mirror
-        Group("television", ("television",), "decor", ("tv_unit",)),
+        Group("television", ("television",), "decor", ("tv_unit", "tv")),        # 29 Oct 2026: the TV decor
     ]
     return tuple(groups)
 

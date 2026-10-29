@@ -273,6 +273,7 @@ DECOR_WORDS: dict[str, str] = {
     "microwave": "countertop microwave", "kettle": "kettle", "coffee_machine": "coffee machine", "toaster": "toaster",
     "chopping_board": "chopping board", "utensil_pot": "utensil pot", "fruit_bowl": "fruit bowl",
     "plate": "set table with plates", "glass": "glasses",            # 28 Oct 2026 (wenart.furniture.tabletop)
+    "tv": "flat television",                                          # 29 Oct 2026 (UL99)
 }
 # rooms[].room_subtype words (Milestone 10: a child's room holds cribs and bunk beds).
 SUBTYPE_WORDS: dict[str, str] = {"child": "child's bedroom"}

@@ -131,6 +131,8 @@ FURNITURE_MATERIALS: dict[str, dict] = {
     "plant_green":   {"kind": "organic", "flat": [0.10, 0.28, 0.09], "roughness": 0.8},
     # Milestone 9: the glass of the parametric wall mirror (decor; docs/milestone9.md §5).
     "mirror":        {"kind": "metal",   "flat": [0.90, 0.90, 0.90], "roughness": 0.03, "metallic": 1.0},
+    # 29 Oct 2026 (UL99): a TV's switched-off screen: near-black glass, glossy enough for a faint reflection.
+    "screen_black":  {"kind": "hard",    "flat": [0.012, 0.012, 0.014], "roughness": 0.08},
     "wood_veneer_oak":    {"kind": "wood", "flat": [0.62, 0.47, 0.30], "roughness": 0.45, "source": "polyhaven",
                            "asset": "oak_veneer_01", "size_m": [1.83, 1.83], "albedo_mode": "texture"},
     "wood_veneer_walnut": {"kind": "wood", "flat": [0.25, 0.14, 0.08], "roughness": 0.4, "source": "polyhaven",

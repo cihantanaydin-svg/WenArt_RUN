@@ -1325,6 +1325,17 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             records.append(rec)
             by_id[space["id"]] = rec
     light(set(), set(targets))                     # a partner's copy that lacks lights (its pieces did not map) is lit
+    # 29 Oct 2026 (UL99, UL103): a twin's own TV unit and bookshelves that its partner's copy left bare (its pieces did
+    # not map: the media wall or the room fill placed them a little differently) get their TV and books
+    for rid in sorted(targets):
+        room = rooms.get(rid)
+        if room is None:
+            continue
+        pieces = [f for f in out.get("furniture") or [] if f.get("room_id") == rid]
+        made = TT.bare_hosts(room, pieces, out, [d for d in out["decor"] if d.get("room_id") == rid], new_id)
+        gone = {i for it in made for i in it.get("clears") or ()}     # a copied item where the TV stands leaves
+        out["decor"] = [d for d in out["decor"] if d.get("id") not in gone] + made
+        record_of(rid).items = [i for i in record_of(rid).items if i.get("id") not in gone] + made
     # 28 Oct 2026 (user on real04's roof terrace: "makes no sense to have that table with the carpet outside"): no rug,
     # runner or carpet on the floor of an open-air room or an outdoor space, whatever rule laid it
     from wenart.blender import outdoor as OD

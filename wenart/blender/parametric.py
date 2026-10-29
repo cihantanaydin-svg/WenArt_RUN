@@ -3331,6 +3331,42 @@ def kitchen_worktop_parts(dtype: str, w: float, d: float, h: float) -> list[Part
     raise KeyError(f"no kitchen worktop builder for {dtype!r}")
 
 
+TV_PANEL_T_M = 0.03               # 29 Oct 2026 (UL99): a slim LED panel's depth
+TV_BEZEL_M = 0.01                 # its bezel (= furniture.media_wall.TV_BEZEL_M)
+TV_STAND_H_M = 0.06               # the pedestal's height under the panel (= media_wall.TV_STAND_H_M)
+TV_BACK_GAP_M = 0.05              # the panel's back this far in from the box's back (the host's top, by its wall)
+
+
+def tv_parts(w: float, d: float, h: float, item: dict | None = None) -> list[Part]:
+    """29 Oct 2026 (user on real06: "There is no TV in the house", lesson UL99): a flat TV on its pedestal at the
+    item's box (bottom on z = 0, the screen facing -Y), its panel at the back of the box (the box reaches the host's
+    front so nothing stands before the screen): a pedestal plate and neck (``dark`` / ``steel``), the panel housing
+    with a slim bezel (``dark`` lacquer) and the screen (``screen``: dark glossy glass, a faint reflection) inset on
+    its front. ``item["tv"]`` may give ``stand_depth_m`` and ``back_gap_m``."""
+    spec = (item or {}).get("tv") if isinstance((item or {}).get("tv"), dict) else {}
+    gap = min(float(spec.get("back_gap_m", TV_BACK_GAP_M)), max(0.0, d - TV_PANEL_T_M - 0.01))
+    y_back = d / 2.0 - gap
+    stand_d = min(float(spec.get("stand_depth_m", 0.22)), max(0.05, d - gap))
+    stand_w = min(w * 0.35, 0.45)
+    panel_h = max(0.05, h - TV_STAND_H_M)
+    bezel = min(TV_BEZEL_M, w / 20.0, panel_h / 20.0)
+    y_front = y_back - TV_PANEL_T_M
+    return [_box(0.0, y_back - stand_d / 2.0, 0.0, stand_w, stand_d, 0.012, "dark", "foot"),
+            _box(0.0, y_back - TV_PANEL_T_M / 2.0, 0.012, 0.06, 0.02, TV_STAND_H_M - 0.012 + 0.04, "steel", "neck"),
+            _box(0.0, y_back - TV_PANEL_T_M / 2.0, TV_STAND_H_M, w, TV_PANEL_T_M, panel_h, "dark", "panel"),
+            _box(0.0, y_front - 0.001, TV_STAND_H_M + bezel, w - 2.0 * bezel, 0.002, panel_h - 2.0 * bezel, "screen",
+                 "screen")]
+
+
+MEDIA_DECOR_TYPES: tuple[str, ...] = ("tv",)         # 29 Oct 2026 (UL99), built by ``tv_parts``
+DECOR_TYPES = DECOR_TYPES + MEDIA_DECOR_TYPES
+LARGE_DECOR_TYPES = LARGE_DECOR_TYPES + MEDIA_DECOR_TYPES          # a 43-65 inch set is 0.96-1.45 m wide
+SURFACE_DECOR_TYPES = SURFACE_DECOR_TYPES + MEDIA_DECOR_TYPES      # it stands on its TV unit's built top
+DECOR_DEFAULT_HEIGHT["tv"] = 0.77                                  # a 55 inch set on its pedestal
+MATERIAL_KEYS = MATERIAL_KEYS + ("screen",)                       # its glossy dark screen (furniture.style_material_keys)
+BEVEL_BY_ROLE.update({"screen": 0.0, "neck": 0.002})
+
+
 SUSPENSION_CORD_R_M = 0.004       # the cord of a hung light (as the parametric pendant's)
 SUSPENSION_CANOPY_R_M = 0.06      # the ceiling canopy it hangs from
 SUSPENSION_CANOPY_H_M = 0.025
@@ -3414,6 +3450,8 @@ def decor_size(dtype: str, size) -> tuple[float, float, float]:
 def decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = None) -> list[Part]:
     """Parts of a parametric decor item of box ``w x d x h`` (``item``: the decor entry, read for a large
     plant's species)."""
+    if dtype in MEDIA_DECOR_TYPES:                 # 29 Oct 2026 (UL99): the TV on its stand
+        return tv_parts(w, d, h, item)
     if dtype in _NEW_DECOR:
         return _new_decor_parts(dtype, w, d, h, item)
     if dtype == "cushion":                         # Milestone 12: a filled cushion, not a box

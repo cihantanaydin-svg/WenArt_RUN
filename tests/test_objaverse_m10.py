@@ -135,7 +135,9 @@ def test_new_decor_types_are_the_schema_decor_types_but_the_parametric_book_set(
     # book_set stays parametric; `books` is the library type. 28 Oct 2026: the kitchen worktop items (microwave,
     # kettle, ...) and a table's plates and glasses are parametric until audited library models of them exist
     from wenart.furniture import decor as D
-    assert library == schema - {"book_set"} - set(D.KITCHEN_DECOR_TYPES) - set(D.SETTING_TYPES)
+    # 29 Oct 2026: the TV (UL99) is parametric too (wenart.blender.parametric.tv_parts)
+    assert library == schema - {"book_set"} - set(D.KITCHEN_DECOR_TYPES) - set(D.SETTING_TYPES) \
+        - set(D.MEDIA_DECOR_TYPES)
 
 
 # --------------------------------------------------------------------------

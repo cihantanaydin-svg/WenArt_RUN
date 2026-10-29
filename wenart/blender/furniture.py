@@ -609,6 +609,7 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "front": (trim, None, None), "handle": ("steel_brushed", None, None), "marble": ("marble", None, None),
         "pot": ("terracotta", None, None), "bulb": ("ceramic_white", None, None),
         "rattan": ("rattan", None, None),
+        "screen": ("screen_black", None, None),               # 29 Oct 2026 (UL99): a TV's screen
     }
     return keys, assumed
 

@@ -433,3 +433,36 @@ def _snap_height(h: Optional[float], h_err: float, row: dict) -> Optional[float]
 
 
 PRODUCT_GRID: dict[str, list[dict]] = _build_grid()
+
+
+# 29 Oct 2026 (user on real06 run 20261028-154514-full, the master bedroom's floor lamp f_L1_020: "I did not like
+# this light", lesson UL94): the plan symbol of a small decor-like piece is drawn larger than the product (a floor lamp
+# is a 0.5-0.6 m circle with a cross); fitted to that circle, the fit took a lamp with a 0.58 m black drum shade. A
+# drawn symbol of such a type wider than ``SYMBOL_MAX_M`` (the largest product of the type a designer would choose
+# for a room, seen from above) is fitted at the type's default product (``real_range(...)["product"]``), centred where
+# it is drawn; a drawn size up to the cap stays as drawn. Off with the size snap (``furnished_rooms: keep`` /
+# ``furnished_rooms_keep_size``): the fit's ``apply_size_snap`` calls it.
+SYMBOL_MAX_M: dict[str, float] = {
+    "floor_lamp": 0.45,    # std: floor lamps are 0.30-0.45 m from above (base or shade); the grid's wide 0.60 m row is
+                           # a 5-arm lamp, never a reason to fit a drawn 0.58 m circle with a heavy drum shade
+}
+
+
+def symbol_snap(ftype: str, footprint) -> dict:
+    """The real product of a drawn plan symbol (pure; note above): ``{"footprint": (w, d), "product", "changed",
+    "reason"}``; ``changed`` False (the footprint as given) for a type without a symbol cap or a footprint within it."""
+    try:
+        w, d = float(footprint[0]), float(footprint[1])
+    except (TypeError, ValueError, IndexError):
+        return {"footprint": footprint, "product": None, "changed": False, "reason": "no footprint"}
+    cap = SYMBOL_MAX_M.get(str(ftype))
+    r = real_range(ftype) if cap is not None else None
+    if cap is None or r is None or not r.get("product") or max(w, d) <= cap + 1e-9:
+        return {"footprint": (w, d), "product": None, "changed": False,
+                "reason": "no symbol cap" if cap is None else f"within the {cap:.2f} m a {ftype} takes from above"}
+    pw, pd = float(r["product"][0]), float(r["product"][1])
+    name = str(ftype).replace("_", " ")
+    return {"footprint": (pw, pd), "product": f"{pw:.2f} x {pd:.2f} m ({name}, default product)", "changed": True,
+            "reason": (f"the drawn {name} {w:.2f} x {d:.2f} m is a plan symbol larger than the product (a {name} takes "
+                       f"at most {cap:.2f} m from above): fitted at the real product {pw:.2f} x {pd:.2f} m, centred "
+                       "where it is drawn")}
