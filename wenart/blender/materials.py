@@ -399,6 +399,13 @@ class MaterialLibrary:
         dropped = paint_drop(spec, slug, asset_id)
         if dropped:
             asset_id = None
+        # 29 Oct 2026 (UL106): a parquet floor (``params["parquet"]``, wenart.blender.parquet) lays each plank from the
+        # veneer of the floor's wood tone when its set is in the library (one seamless grain per plank)
+        parquet, floor_asset = parquet_of(params), asset_id
+        if parquet:
+            veneer = parquet_veneer_asset(slug)
+            if veneer and self.texture_set(veneer)[0] is not None:
+                asset_id = veneer
         key = (slug, asset_id, tuple(tint) if tint else None, unverified, colour or None, pkey, slot,
                bool(kind_layers))
         if key in self._cache:
@@ -430,10 +437,10 @@ class MaterialLibrary:
         # is either shelled or not, and the slot follows the slug, except plaster_white asked bare (the ceiling)
         # beside plaster_white with its asset (the walls): see material_name. The record's shell_slot says which.)
         name = material_name(slug, tset["id"] if tset else None, _tag(colour) if rgb is not None else None,
-                             _short_hash(pkey) if pkey and procedural in PROCEDURAL_GROUPS else None, unverified,
-                             slot)
+                             _short_hash(pkey) if pkey and (procedural in PROCEDURAL_GROUPS or parquet) else None,
+                             unverified, slot)
         mat = pbr_material(name, slug, tset, tint, unverified=unverified, procedural=procedural, base_rgb=rgb,
-                           params=all_params)
+                           params=all_params, **({"parquet": parquet} if parquet else {}))
         layers = None
         if spec:
             layers = apply_shell_layers(mat, spec, textured=tset is not None, procedural=procedural)
@@ -483,6 +490,12 @@ class MaterialLibrary:
                 self.records[mat.name]["colour_note"] = colour_note
         if all_params:
             self.records[mat.name]["params"] = all_params
+        if parquet:
+            from wenart.blender import parquet as PQ
+
+            self.records[mat.name]["parquet"] = dict(parquet, plank_texture=tset["id"] if tset else None,
+                                                     floor_asset=floor_asset,
+                                                     note=PQ.note(parquet, tset["id"] if tset else None))
         if procedural in PROCEDURAL_GROUPS:
             self.records[mat.name]["group"] = procedural_group_name(procedural, all_params)
         if mat.get("wenart_albedo_note"):
@@ -521,6 +534,24 @@ class MaterialLibrary:
                                           "gain_clamped": None,
                                           "reason": "thin glass (transparent + glossy by Fresnel): data passes see through"}
         return self._cache["thin_glass"]
+
+    def sheer(self, colour=None):
+        """29 Oct 2026 (UL106): the sheer layer of a layered curtain (``sheer_material``), white unless a colour
+        phrase is given; one material per colour."""
+        rgb = colour_linear(colour) or SHEER["rgb"]
+        key = ("sheer", tuple(round(float(c), 4) for c in rgb))
+        if key not in self._cache:
+            name = "fabric_sheer" + (f"__{_tag(colour)}" if colour and colour_linear(colour) else "")
+            self._cache[key] = sheer_material(name, rgb)
+            self.records[name] = {"slug": "fabric_sheer", "textured": False, "asset": None, "source": None,
+                                  "licence": None, "size_m": None, "flat_colour": [round(float(c), 4) for c in rgb],
+                                  "tint": None, "unverified": False, "albedo_mode": None, "detail": None,
+                                  "gain_clamped": None, "sheer": dict(SHEER, rgb=list(rgb)),
+                                  "reason": ("sheer voile: Transparent BSDF mixed with Translucent and Diffuse "
+                                             f"({SHEER['camera_density']:.0%} of a camera ray and "
+                                             f"{SHEER['light_density']:.0%} of every other ray scattered, the rest "
+                                             "passes: the view and the daylight come through softened; UL106)")}
+        return self._cache[key]
 
     def proxy(self, look: str = "proxy"):
         """``proxy`` (grey), ``proxy_glass`` (shower) or ``proxy_unverified`` (the grey proxy unless the stripes
@@ -564,8 +595,43 @@ def _short_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
 
 
+def parquet_of(params) -> dict | None:
+    """The ``parquet`` record of a material request's ``params`` (a patterned wood floor, ``wenart.blender.parquet``),
+    None without one (pure)."""
+    rec = params.get("parquet") if isinstance(params, dict) else None
+    if not isinstance(rec, dict) or rec.get("pattern") not in ("herringbone", "chevron"):
+        return None
+    return rec
+
+
+def parquet_veneer_asset(slug: str) -> str | None:
+    """The texture set a parquet plank of floor ``slug`` takes (pure): the asset of its wood tone's veneer
+    (``vocabulary.veneer_for``), None when the vocabulary names none."""
+    try:
+        from wenart.style import vocabulary as V
+        veneer = V.veneer_for(slug)
+        return (V.FURNITURE_MATERIALS.get(veneer) or {}).get("asset") if veneer else None
+    except Exception:  # noqa: BLE001 - without the vocabulary the floor's own photo is laid
+        return None
+
+
+def _parquet_base(nodes, links, bsdf, node) -> None:
+    """Route the Base Color through the parquet's plank shading (bpy; whatever feeds it, or its constant)."""
+    from wenart.blender import parquet as PQ
+
+    base = bsdf.inputs["Base Color"]
+    if base.links:
+        src = base.links[0].from_socket
+    else:
+        rgb = nodes.new("ShaderNodeRGB")
+        rgb.outputs[0].default_value = tuple(base.default_value)
+        src = rgb.outputs[0]
+    links.new(_cap(nodes, links, PQ.shade(nodes, links, node, src)), base)
+
+
 def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scale_m=None,
-                 unverified: bool = False, procedural: str | None = None, base_rgb=None, params: dict | None = None):
+                 unverified: bool = False, procedural: str | None = None, base_rgb=None, params: dict | None = None,
+                 parquet: dict | None = None):
     """Principled BSDF material: albedo / normal / roughness maps from
     ``texture_set`` (box UVs in metres, Mapping scale 1/size_m), the
     procedural glazed tiles (``procedural="glazed_tiles"`` and no texture
@@ -582,7 +648,9 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
     mode) and ``wenart_albedo_note`` when the texture could not be read.
     Milestone 10: ``base_rgb`` (linear) replaces the slug's flat colour (a
     colour phrase of the style); ``procedural`` may name a vocabulary node
-    group, set up with ``params``."""
+    group, set up with ``params``. 29 Oct 2026 (UL106): ``parquet`` (``parquet_of``) lays the texture plank by plank
+    (``wenart.blender.parquet``: the group between the UV map and the Mapping node, each plank's tone and its joints'
+    shade and groove)."""
     import bpy
 
     mat = bpy.data.materials.new(name)
@@ -603,13 +671,21 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
     if base_rgb is not None:
         mat["wenart_colour"] = [round(float(v), 4) for v in base_rgb]
 
+    pq_node = None
     if texture_set is not None:
         size = scale_m or texture_set.get("size_m") or [1.0, 1.0]
         uvmap = nodes.new("ShaderNodeUVMap")
         uvmap.uv_map = "box_m"
         mapping = nodes.new("ShaderNodeMapping")
         mapping.inputs["Scale"].default_value = (1.0 / float(size[0]), 1.0 / float(size[1]), 1.0)
-        links.new(uvmap.outputs["UV"], mapping.inputs["Vector"])
+        if parquet:
+            from wenart.blender import parquet as PQ
+
+            pq_node = PQ.wire(nodes, links, parquet, min(float(size[0]), float(size[1])))
+            links.new(pq_node.outputs["Vector"], mapping.inputs["Vector"])
+            mat["wenart_parquet"] = PQ.note(parquet, texture_set.get("id"))
+        else:
+            links.new(uvmap.outputs["UV"], mapping.inputs["Vector"])
 
         albedo = _image_node(nodes, texture_set["files"]["albedo"], "sRGB")
         links.new(mapping.outputs["Vector"], albedo.inputs["Vector"])
@@ -648,7 +724,13 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
         nmap.space = "TANGENT"
         nmap.uv_map = "box_m"
         links.new(normal.outputs["Color"], nmap.inputs["Color"])
-        links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+        if pq_node is not None:                    # UL106: the plank tones and the joints' shade and groove
+            from wenart.blender import parquet as PQ
+
+            _parquet_base(nodes, links, bsdf, pq_node)
+            links.new(PQ.groove(nodes, links, pq_node, nmap.outputs["Normal"]), bsdf.inputs["Normal"])
+        else:
+            links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
     elif procedural == "glazed_tiles":
         group = nodes.new("ShaderNodeGroup")
         group.node_tree = glazed_tiles_group()
@@ -665,6 +747,13 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
         mat["wenart_procedural"] = procedural_note_for(procedural, slug, params or {})
     else:
         bsdf.inputs["Base Color"].default_value = (*colour, 1.0)
+        if parquet:                                # UL106: no photo in use: the planks' tones and joints alone
+            from wenart.blender import parquet as PQ
+
+            pq_node = PQ.wire(nodes, links, parquet, 1.0)
+            _parquet_base(nodes, links, bsdf, pq_node)
+            links.new(PQ.groove(nodes, links, pq_node, None), bsdf.inputs["Normal"])
+            mat["wenart_parquet"] = PQ.note(parquet, None)
 
     if is_ground(slug):
         _matte(nodes, links, bsdf)
@@ -1047,6 +1136,58 @@ def thin_glass_material(name: str, roughness: float = 0.0, ior: float = 1.45):
     links.new(shadow.outputs["BSDF"], mix.inputs[2])
     links.new(mix.outputs["Shader"], out.inputs["Surface"])
     mat.surface_render_method = "BLENDED"
+    return mat
+
+
+# 29 Oct 2026 (UL106): a sheer voile. Designer values (assumed): a white voile scatters a little under half of what a
+# camera sees through it (the view behind is veiled, not hidden; under the view layer's pass_alpha_threshold of 0.5, so
+# the depth and index passes still see the window behind it) and lets most daylight pass (a quarter of the light is
+# scattered softly into the room, the rest goes straight through, so the room's daylight and the sun patches stay).
+SHEER: dict = {"rgb": (0.86, 0.85, 0.82), "camera_density": 0.45, "light_density": 0.25, "translucent_share": 0.6}
+
+
+def sheer_density(is_camera: bool) -> float:
+    """The share of a ray the sheer scatters (pure): ``camera_density`` for a camera ray, ``light_density`` else."""
+    return float(SHEER["camera_density"] if is_camera else SHEER["light_density"])
+
+
+def sheer_material(name: str, rgb=None):
+    """The sheer layer of a layered curtain (bpy; ``SHEER``): a Mix Shader of a Transparent BSDF and the voile
+    (Translucent BSDF and Diffuse BSDF, ``translucent_share`` translucent) by ``density = Is Camera Ray x
+    camera_density + (1 - Is Camera Ray) x light_density`` (Light Path; Math MULTIPLY_ADD)."""
+    import bpy
+
+    colour = tuple(float(c) for c in (rgb or SHEER["rgb"]))[:3]
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    tree = mat.node_tree
+    nodes, links = tree.nodes, tree.links
+    for n in list(nodes):
+        if n.bl_idname == "ShaderNodeBsdfPrincipled":
+            nodes.remove(n)
+    out = nodes.get("Material Output")
+    path = nodes.new("ShaderNodeLightPath")
+    density = nodes.new("ShaderNodeMath")
+    density.operation = "MULTIPLY_ADD"                 # is_camera x (camera - light) + light
+    links.new(path.outputs["Is Camera Ray"], density.inputs[0])
+    density.inputs[1].default_value = SHEER["camera_density"] - SHEER["light_density"]
+    density.inputs[2].default_value = SHEER["light_density"]
+    translucent = nodes.new("ShaderNodeBsdfTranslucent")
+    translucent.inputs["Color"].default_value = (*colour, 1.0)
+    diffuse = nodes.new("ShaderNodeBsdfDiffuse")
+    diffuse.inputs["Color"].default_value = (*colour, 1.0)
+    voile = nodes.new("ShaderNodeMixShader")
+    voile.inputs["Fac"].default_value = SHEER["translucent_share"]
+    links.new(diffuse.outputs["BSDF"], voile.inputs[1])
+    links.new(translucent.outputs["BSDF"], voile.inputs[2])
+    transparent = nodes.new("ShaderNodeBsdfTransparent")
+    mix = nodes.new("ShaderNodeMixShader")
+    links.new(density.outputs["Value"], mix.inputs["Fac"])
+    links.new(transparent.outputs["BSDF"], mix.inputs[1])
+    links.new(voile.outputs["Shader"], mix.inputs[2])
+    links.new(mix.outputs["Shader"], out.inputs["Surface"])
+    mat.surface_render_method = "BLENDED"
+    mat["wenart_sheer"] = f"camera {SHEER['camera_density']}, light {SHEER['light_density']}"
     return mat
 
 

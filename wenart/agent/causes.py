@@ -530,6 +530,7 @@ CHECK_CAUSE: dict[str, str] = {
     # a rug outside is the decor stage's (cause_of: a decor target); too little ceiling light is the decor stage's
     "M16": "wrong_model", "M17": "ceiling_light",
     "M18": "stair_rails",            # 28 Oct 2026: the stairs' handrails as one balustrade (the build owns it)
+    "M23": "decor_look",             # 29 Oct 2026 (UL106): the professional bar (the decor stage and the build own it)
     LIGHTING_DARK_CHECK: "lighting",
     # fix round after P5: a blocked preview (critic_code.blocked_items)
     "camera_blocked": "interior_camera",
@@ -659,6 +660,10 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
     # 28 Oct 2026: an M16 rug outside is a decor piece (the decor stage's); an indoor model there is swapped
     if check == "M16" and is_decor(target, building):
         return "decor_model"
+    # 29 Oct 2026 (UL106, UL42): a layer the room lacks against the reference or the professional bar (the judge's and
+    # the room critic's "missing layer: ...") is the decor stage's and the build's dressing, never a model swap
+    if check == "D3" and text.lstrip().startswith("missing layer") and not (target and _is_piece(target, building)):
+        return "decor_look"
     # 26 Oct 2026: the model review's rooms: a missing anchor is furnished, an extra dining table is one too many
     if check == "M7":
         return "wrong_type" if target and _is_piece(target, building) else "empty_room"

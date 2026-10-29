@@ -609,8 +609,13 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "front": (trim, None, None), "handle": ("steel_brushed", None, None), "marble": ("marble", None, None),
         "pot": ("terracotta", None, None), "bulb": ("ceramic_white", None, None),
         "rattan": ("rattan", None, None),
+        # 29 Oct 2026 (UL106): the sheer layer of a layered curtain (materials.sheer_material: see-through voile)
+        "sheer": (SHEER_SLUG, None, None),
     }
     return keys, assumed
+
+
+SHEER_SLUG = "fabric_sheer"       # the sheer key's slug: the library's translucent voile (MaterialLibrary.sheer)
 
 
 def design_overrides(design: dict, ftype: str) -> tuple[dict, list[str]]:
@@ -1065,6 +1070,8 @@ class _Materials:
             tint = tuple(float(v) for v in accent)
         if slug == "glass":
             mat = self.library.thin_glass()  # shower panels: the index pass must see the piece behind
+        elif slug == SHEER_SLUG:
+            mat = self.library.sheer(colour)  # UL106: a sheer curtain lets the daylight and the view through
         else:
             mat = self.library.get(slug, asset, tint, unverified=unverified, colour=colour)
         self._cache[ck] = mat
@@ -1436,14 +1443,18 @@ def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, c
     fp = piece["footprint"]
     host_fp = {"center": [float(fp["center"][0]), float(fp["center"][1])], "size": [float(v) for v in fp["size"][:2]],
                "rotation_deg": float(fp["rotation_deg"])}
-    plan = T.duvet_and_pillows(R.BVHCaster(verts, faces), host_fp, floor_z)
+    # 29 Oct 2026 (UL106): the euro shams the decor stage asks for (``bedding_layers``, wenart.furniture.dressing)
+    layers = piece.get("bedding_layers") if isinstance(piece.get("bedding_layers"), dict) else {}
+    plan = T.duvet_and_pillows(R.BVHCaster(verts, faces), host_fp, floor_z, shams=int(layers.get("euro_shams") or 0))
     if plan is None:
         warnings.append(f"{piece['id']}: no mattress top found on the bed model; no bedding added")
         return None
     if casters is not None:
         pv, pf = T.lean_parts(plan["parts"])
+        sv, sf = T.sham_mesh(plan["parts"])
         bed = R.BVHCaster(verts, faces)
-        casters[BED_CASTER.format(piece["id"])] = bed
+        # a decor cushion stands against the euro shams where they are (the headboard behind them is covered)
+        casters[BED_CASTER.format(piece["id"])] = R.MultiCaster([bed, R.BVHCaster(sv, sf)]) if sf else bed
         casters[LEAN_CASTER.format(piece["id"])] = R.MultiCaster([bed] + ([R.BVHCaster(pv, pf)] if pf else []))
     dverts, dfaces, keys = dressing_mesh(plan["parts"])
     used = sorted(set(keys), key=keys.index)
@@ -1459,7 +1470,8 @@ def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, c
     dob["wenart_dressing"] = "bedding"
     entry["dressing"] = {"name": name, "record": plan["record"], "material_keys": {k: mats.slug(k) for k in used}}
     detail = (f"procedural bedding: a draped duvet over the foot {T.DUVET_SHARE:.0%} and {plan['record']['pillows']} "
-              "pillow(s) against the headboard")
+              "pillow(s) against the headboard"
+              + (f" in front of {plan['record']['euro_shams']} euro sham(s)" if plan["record"].get("euro_shams") else ""))
     entry["assumed"]["bedding"] = detail
     assumed.append({"object": name, "field": "bedding", "value": detail, "parent": piece["id"], "kind": "bedding",
                     "reason": "the bed model has no bedding (docs/milestone12.md §4.7): our cloth on its mattress"})
@@ -1467,6 +1479,15 @@ def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, c
 
 
 STANDING_CUSHION_T = 0.15        # an old two-value cushion against a back stands: its width square, 15 cm thick
+RUNNER_KEY = "colour_duvet"      # = textiles.RUNNER_KEY: a layered throw's second blanket (29 Oct 2026, UL106)
+
+
+def part_colour(item: dict, key: str):
+    """The colour phrase of a decor part (pure): a layered throw's second blanket (``RUNNER_KEY``) takes the item's
+    ``accent_colour`` when it has one, every other part the item's ``colour``."""
+    if key == RUNNER_KEY and item.get("accent_colour"):
+        return item["accent_colour"]
+    return item.get("colour")
 
 
 def local_decor_mesh(item: dict, dtype: str, support: str | None = None) -> dict:
@@ -1555,7 +1576,7 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
             keys = [f"{LIT_KEY}{k}" if k in _shade_keys(local.get("parts") or []) else k for k in keys]
             used = sorted(set(keys), key=keys.index)
         accent = P.DECOR_COLOURS.get(str(item.get("colour") or ""))
-        slots = [_part_material(mats, k, False, accent=accent, colour=item.get("colour"), lit=lit) for k in used]
+        slots = [_part_material(mats, k, False, accent=accent, colour=part_colour(item, k), lit=lit) for k in used]
         ob = _mesh_object(name, plan["verts"], plan["faces"], slots, [used.index(k) for k in keys], collection,
                           host["id"], "decor", status)
         for poly in ob.data.polygons:
@@ -2304,6 +2325,8 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         # fix round after P4b: the item's own id (a hosted item's element_id and wenart_id are its host's)
         "decor_id": item.get("id"),
     }
+    if item.get("fixture"):                # 29 Oct 2026 (UL106): a light's role (statement, bedside, downlight)
+        entry["fixture"] = item["fixture"]
     file, reason = resolve_asset(item.get("asset"), assets_dir)
     ob = None
     hang, z_above0, z_how0 = None, z_above, z_how

@@ -112,6 +112,7 @@ CHECK_KIND = {
     # 28 Oct 2026: a built library model its names or its audit refuse (code critic LT, process P11)
     "LT": "misread", "P11": "misread",
 }
+CHECK_KIND.update({"U23": "taste", "M23": "taste"})     # 29 Oct 2026 (UL106): the professional bar (dressing.review)
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",
                "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense", "U": "no_sense"}

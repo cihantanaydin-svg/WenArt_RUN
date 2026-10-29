@@ -1065,8 +1065,16 @@ def plan_throw(item: dict, host: dict, caster, floor_z: float) -> dict:
         return {"not_rested": {"id": item.get("id"), "type": "throw", "host_id": host.get("id"), "support": "drape",
                                "reason": "; ".join(why) + ("; the host shows through the cloth" if shows else ""),
                                "measured": m, "attempts": 1}}
-    return {"verts": part["verts"], "faces": part["faces"], "parts": got["parts"], "rest": m, "footprint": foot,
-            "attempt": 1, "pose": {"how": "draped on the host (shrinkwrap, 5 mm)", "share": got["drape"]["share"]}}
+    # 29 Oct 2026 (UL106): a layered throw's second blanket lies on the first (textiles.layered_runner); S5 measured the
+    # first, the built mesh holds both (one face list per part, in the order of ``parts``)
+    verts, faces = list(part["verts"]), [list(f) for f in part["faces"]]
+    for extra in got["parts"][1:]:
+        off = len(verts)
+        verts.extend(extra["verts"])
+        faces.extend([[i + off for i in f] for f in extra["faces"]])
+    return {"verts": verts, "faces": faces, "parts": got["parts"], "rest": m, "footprint": foot,
+            "attempt": 1, "pose": {"how": "draped on the host (shrinkwrap, 5 mm)", "share": got["drape"]["share"]},
+            **({"runner": got["runner"]} if got.get("runner") else {})}
 
 
 Placer = Callable[..., Optional[dict]]

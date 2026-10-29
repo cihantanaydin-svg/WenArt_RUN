@@ -112,6 +112,13 @@ REFERENCE_TEXT = ("Image 2 is a photo of a well-designed {space} in the project'
                   "(an exterior view: on the outer wall) whose message starts with 'missing layer: <layer>'.")
 
 
+# 29 Oct 2026 (lesson UL106): the professional bar of a living room or bedroom view (``prompts.PRO_BAR``; the room
+# critic of the inspector asks it too), each layer the render lacks a 'missing layer' problem with check D3.
+PRO_BAR = P.PRO_BAR
+PRO_BAR_ROOM_TYPES = P.PRO_BAR_ROOM_TYPES
+pro_bar_text = P.pro_bar_text
+
+
 OUTDOOR_AIM_M = 2.0             # an exterior view aimed this close to an outdoor space shows it
 
 
@@ -190,9 +197,10 @@ def judge_view(model, building: dict, view: dict, image: Path, *, style: str = "
     room = next((r for r in building.get("rooms") or [] if r.get("id") == view.get("room_id")), None)
     ref_text = ([REFERENCE_TEXT.format(space=str((room or {}).get("room_type") or "house exterior").replace("_", " "))]
                 if reference else [])
+    pro = pro_bar_text((room or {}).get("room_type"))            # 29 Oct 2026 (UL106): the professional bar
     text = "\n".join([f"Image 1 is the final render {view.get('name')}." + (f" The project's style: {style}." if style
                                                                              else ""),
-                      *ref_text, facts, "", SCORES_TEXT, TAGS_TEXT,
+                      *ref_text, *([pro] if pro else []), facts, "", SCORES_TEXT, TAGS_TEXT,
                       "Problems: the ones that cost points, most important first, at most "
                       f"{MAX_PROBLEMS}; each names one id from the lists above as target and one check:",
                       P.checklist_text(PROBLEM_CHECKS)])

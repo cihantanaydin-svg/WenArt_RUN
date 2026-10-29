@@ -831,6 +831,7 @@ RIG_WALL_DECOR_TYPES = ("mirror", "wall_art", "clock")
 # ... a bedside lamp has a host: a lamp already there, a nightstand, or the head wall (a sconce), never the air.
 RIG_BEDSIDE_HOST_M = 0.9              # a lamp or nightstand within this of the bed's head corner hosts the lamp
 RIG_HOST_LAMP_TYPES = ("floor_lamp", "table_lamp")
+RIG_BEDSIDE_FIXTURE = "bedside"       # 29 Oct 2026 (UL106): a decor pendant over a nightstand hosts the bedside light
 RIG_HOST_LAMP_SHADE_M = 0.15          # a hosted light this far under the host lamp's top (in its shade) ...
 RIG_HOST_LAMP_SHADE_SHARE = 0.25      # ... at most this share of the lamp's height
 RIG_STAND_STEM_SHARE = 0.4            # a rig table lamp: the stem is the lower 40 % of its height, the shade the rest
@@ -1136,6 +1137,8 @@ def built_decor_boxes(manifest_objects: list, room_id: str) -> list[dict]:
                     "center": [float(v) for v in c[:3]], "size": [float(v) for v in s[:3]],
                     "rotation_deg": float(o.get("rotation_deg") or 0.0), "host_id": o.get("host_id"),
                     "has_light": bool(o.get("light")), "name": o.get("name"), "method": o.get("method")})
+        if o.get("fixture"):                               # 29 Oct 2026 (UL106): a light's role in the room
+            out[-1]["fixture"] = o["fixture"]
     return out
 
 
@@ -1245,6 +1248,15 @@ def _host_lamps(pieces: list[dict], decor: list[dict], floor_z: float, piece_met
                         "source": "furniture", "host_id": None, "library": library, "light_z": z,
                         "light_where": where})
     for d in decor:
+        if d.get("type") == "pendant_light" and d.get("fixture") == RIG_BEDSIDE_FIXTURE:
+            # 29 Oct 2026 (UL106): a slim pendant hanging over the nightstand is the bedside lamp: its light under it
+            h = float(d["size"][2])
+            bottom = float(d["center"][2]) - h / 2.0
+            out.append({"id": d.get("id"), "type": "pendant_light", "xy": (float(d["center"][0]), float(d["center"][1])),
+                        "top": bottom + h, "height": h, "source": "decor", "host_id": None,
+                        "library": d.get("method") == "library", "light_z": bottom - RIG_HOSTED_PENDANT_GAP_M,
+                        "light_where": "under_shade"})
+            continue
         if d.get("type") in RIG_HOST_LAMP_TYPES:
             w, dd, h = (float(v) for v in d["size"][:3])
             bottom = float(d["center"][2]) - h / 2.0
@@ -1647,9 +1659,11 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
                 qx = corner[0] + sx * side * RIG_SCONCE_BEYOND_M
                 qy = corner[1] + sy * side * RIG_SCONCE_BEYOND_M
                 t = (qx - ax) * ux + (qy - ay) * uy
-                off = sd / 2.0 + RIG_SCONCE_WALL_GAP_M
-                px, py = ax + ux * t + nx * off, ay + uy * t + ny * off
                 pz = floor_z + RIG_SCONCE_Z_M
+                # 29 Oct 2026 (UL106): on a panelled head wall the sconce stands on the panel, never in its slats
+                from wenart.blender.feature_walls import finish_depth_at
+                off = sd / 2.0 + RIG_SCONCE_WALL_GAP_M + finish_depth_at(room, (ax + ux * t, ay + uy * t), pz)
+                px, py = ax + ux * t + nx * off, ay + uy * t + ny * off
                 rot = math.degrees(math.atan2(uy, ux))
                 sconce = {"center": [px, py, pz], "size": [sw, sd, sh], "rotation_deg": rot}
                 problem = None
