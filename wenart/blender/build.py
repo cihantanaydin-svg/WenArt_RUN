@@ -676,7 +676,27 @@ def furniture_building(building: dict) -> dict:
     so nothing is built twice."""
     from wenart.blender.parametric import SHELL_TYPES
 
-    return dict(building, furniture=[p for p in building.get("furniture") or [] if p.get("type") not in SHELL_TYPES])
+    return dict(building, furniture=[front_framed(p) for p in building.get("furniture") or []
+                                     if p.get("type") not in SHELL_TYPES])
+
+
+def front_framed(piece: dict) -> dict:
+    """A piece with its footprint in the frame of its front (pure; ``geometry.front_frame``, the frame every furniture
+    stage reads): the same rectangle, turned by whole quarter turns so that the model's front (local -Y) faces
+    ``front_deg``, the size swapped on an odd turn. 29 Oct 2026 (real06 run 100801, a dressing room wardrobe with its
+    back to the room): the fit turned a drawn wardrobe to face its room (``front_deg`` 180) and kept its drawn
+    footprint (rotation 90, a frozen key); the build turned the model by the rotation alone. The drawn record rides
+    along as ``footprint_drawn`` when the frame changes it; a piece without ``front_deg`` is returned as it is."""
+    fp = piece.get("footprint") or {}
+    if piece.get("front_deg") is None or fp.get("rotation_deg") is None or len(fp.get("size") or []) < 2:
+        return piece
+    from wenart import geometry as G
+
+    rot, size = G.front_frame(fp, piece["front_deg"])
+    if abs(G.normalise_angle(rot - float(fp["rotation_deg"]) + 180.0) - 180.0) < 1e-6:
+        return piece
+    return dict(piece, footprint=dict(fp, rotation_deg=rot, size=[size[0], size[1]] + list(fp["size"][2:])),
+                footprint_drawn=fp)
 
 
 def add_furniture_summary(total: dict, summary: dict) -> None:

@@ -293,16 +293,7 @@ def _shape_fields(item: dict) -> dict:
             "seat_depth": num("seat_depth"), "chaise_width": num("chaise_width")}
 
 
-def front_frame(footprint: dict, front_deg: Optional[float]) -> tuple[float, tuple[float, float]]:
-    """``(rotation, size)`` of a footprint in the block frame of its front (Milestone 10): the same rectangle,
-    turned by whole quarter turns so that its local -Y side faces ``front_deg`` (within 45 degrees) and the
-    size swapped when the turn is odd. A footprint without a front keeps its rotation and size."""
-    rot = G.normalise_angle(float(footprint["rotation_deg"]))
-    size = (float(footprint["size"][0]), float(footprint["size"][1]))
-    if front_deg is None:
-        return rot, size
-    k = int(round(G.normalise_angle(float(front_deg) - 270.0 - rot) / 90.0)) % 4
-    return G.normalise_angle(rot + 90.0 * k), (size[1], size[0]) if k % 2 else size
+front_frame = G.front_frame          # 29 Oct 2026: in wenart.geometry, so the Blender build shares it
 
 
 def drawn_piece(item: dict, index: int = 0, against_wall: bool = False) -> Piece:
