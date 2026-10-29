@@ -200,11 +200,15 @@ def plan(building: dict, style) -> dict:
     out: dict = {}
 
     def fits(f) -> Optional[str]:
+        from wenart.blender import modules as MOD
+
         w, d = _size(f)
         if w < MIN_WIDTH_M - 1e-9:
             return f"{w:.2f} m wide: under the {MIN_WIDTH_M:.2f} m of two sliding panels"
         if d < MIN_DEPTH_M - 1e-9:
             return f"{d:.2f} m deep: no hanger fits across"
+        if MOD.module_plan(dict(f, see_through={"kind": "slats"})) is None:
+            return "no wardrobe run of real frames fits its drawn size"
         return None
 
     walk = {rid: walk_in(building, r) for rid, r in rooms.items() if any(f["room_id"] == rid for f in robes)}
@@ -250,9 +254,12 @@ def apply(building: dict, style) -> tuple[dict, list[dict]]:
         design["see_through"] = rec["kind"]
         f["design"] = design
         w, d = _size(f)
-        h = f.get("height")
+        from wenart.blender import modules as MOD
+        plan_ = MOD.module_plan(f)
+        h = plan_["height_m"] if plan_ else f.get("height")
+        h = float(h) if isinstance(h, (int, float)) and not isinstance(h, bool) else 2.2
         f["asset"] = {"library": "module", "method": "module", "asset_id": f"module:{f['type']}:wardrobe_run",
-                      "bbox_m": [round(w, 4), round(d, 4), round(float(h), 4) if isinstance(h, (int, float)) else None],
+                      "bbox_m": [round(w, 4), round(d, 4), round(h, 4)],
                       "see_through": rec["kind"], "replaced": replaced or None, "reason": rec["reason"]}
         assumed.append({"object": f"furn_{f['id']}", "field": "see_through", "value": rec["kind"],
                         "reason": rec["reason"] + (f"; replaces the library model {replaced.get('asset_id')}"
@@ -384,7 +391,7 @@ def walk_in_extras(building: dict, room: dict, levels: Optional[dict] = None) ->
                              f"(walkway {WALKWAY_M:.2f} m)")
                 continue
             bench = {"id": f"{room['id']}__walkin_{ftype}", "type": ftype, "level_id": lid, "room_id": room["id"],
-                     "source": "added_by_ai", "completes_room": True, "status": "assumed",
+                     "source": "added_by_ai", "completes_room": True, "status": "verified",
                      "footprint": {"center": [round(cx, 4), round(cy, 4)], "size": [w, dep],
                                    "rotation_deg": round((rot) % 360.0, 3)},
                      "front_deg": round(math.degrees(math.atan2(ny, nx)) % 360.0, 3), "height": h,
@@ -463,6 +470,7 @@ def build_mirrors(mirrors: list[dict], level: dict, collection, mats, manifest_o
                                  "material": slots[0].name if slots else None, "textured": False, "pass_index": None,
                                  "materials": [s.name for s in slots], "size": [m["width"], MIRROR_DEPTH_M,
                                                                                 m["height"]],
+                                 "rotation_deg": float(m["rotation_deg"]),
                                  "assumed": {"detail": "walk_in_mirror", "reason": m["reason"]}})
         assumed.append({"object": name, "field": "walk_in_mirror", "value": f"{m['width']} x {m['height']} m",
                         "reason": m["reason"], "parent": m["room_id"], "kind": "walk_in_mirror"})

@@ -2180,3 +2180,32 @@ The CPU quota was the same in both runs (28 CPUs of 256). The profile job `scrip
 (cProfile through `$WENART_PROFILE`; a second build with Blender held to the CPU budget through
 `$WENART_BLENDER_THREADS`) measures it on the pod. Per-item timing (`furniture.note_time`, the build log's
 `BUILD_PHASES ... SLOWEST ...` line) names the slowest pieces and decor items in every build from now on.
+
+## Doors open, sized by role, framed; see-through walk-ins (29 Oct 2026; built, CPU-tested, pod run waiting)
+
+The user (29 Oct 2026): "we need better doors, not all the doors needs to be closed in default", "Not every single one
+of them with the same dimension", "Doors looks without frames they need frames", "look at this dressing room solution
+see through", "this dressing could be a see through dressing room in the both sides argus should have think of this",
+"You can leave the right door open and show the dressing room", "Leaving all the doors open in default could be a good
+approach" (lessons UL116, UL117, UL120, UL122, UL125, UL126, UL127; docs/reference_details_20261029.md D1-D5, R1, R28,
+R31, R37). General rules, for a style with a family (a Milestone 3-9 style keeps its doors):
+
+| part | rule |
+|---|---|
+| doors open (`door_states`) | every interior door stands open, its leaf at 90 deg on its swing side by the wall beside it (or the drawn hinge, or the side a view needs); a leaf a piece, a wall or another leaf stops stands ajar at its widest free angle; the entrance, outside and terrace, garage, sectional, folding and fixed doors stay closed; the architect's D9 (`door_state`) or the brief (`doors_open: false`) closes a door; each choice in `leaf_state` and `assumed` |
+| the views | each level's cameras are planned before its doors are built: an open leaf that hides the doorway from a view turns to its other jamb (recorded with the camera); the camera model sees an open door as a doorway and its leaf as a thin box; no camera point stands in an open leaf |
+| sizes (D5) | the entrance taller (2.30 m; a 2.40 m pivot door in the modern families) and an entrance set wide where its wall allows; full-height doors between day rooms in the modern and minimal families; 2.10 m elsewhere; a drawn width that is no product size snaps to the nearest one (`adjusted_by_ai`, the drawn value kept); only a height the documents do not give changes |
+| frames (UL122) | every door framed: the parametric door's jambs, head, stops and architrave on its indoor faces; a library model is measured (`opening_build.leaf_panel`): a bare leaf is fitted into our frame, a model with its own frame keeps it and gets the architrave (never two frames); a sliding door's opening lined, the architrave on the face its leaf leaves free; open passages get a lined reveal; frameless only by the architect's D7 or the style's `door.frameless` (minimal, modern) |
+| finishes (D2, D3, R28) | black frames, architraves and levers in the modern, industrial and minimal families (black levers in the light families too), a lock rose under every lever, a veneer leaf with fine vertical grooves; a wide door between day rooms a glazed divided-lite door in the family's accent colour |
+| see-through wardrobes (R31, R37) | a walk-in (a dressing room, or runs facing each other across an aisle) is see-through on every side: black horizontal slat or smoked-glass sliding doors, or open runs (the family picks; the architect's D8 can change it); the master bedroom's widest run too where the style fits; real contents: garments on a rail (one mesh with the wardrobe), folded stacks, drawers or shoe racks, an LED strip; a bench and a full-height mirror where the walkway allows |
+| checks | model review M29 and Argus U33 (kind `reference_missed`): every inside door closed, all doors one size, an open leaf in a piece, a walk-in with closed fronts only (with the D8 answer as its fix), a view that shows only closed doors to a room worth showing, a door with no frame and no frameless reason; M20 also names a library door built without its frame |
+
+real06 (CPU, its building as built in run 20261029-100801-full): 8 doors open (the kitchen's storage door, both
+bathroom doors, the shower room's, the three bedroom doors, the bedroom's door to the dressing room win_L1_003), 4
+closed (the entrance d_L0_004, the glazed sliding door d_L0_006, the French windows d_L1_007 and d_L1_011); sizes: the
+entrance 0.80 x 2.30 m (its wall leaves no room to widen it), d_L0_005 0.95 -> 0.90 m and win_L1_003 0.77 -> 0.75 m
+(product widths), the others as drawn (0.75-0.90 x 2.10 m); see-through: both dressing-room runs f_L1_011 and f_L1_012
+(slats; the master bedroom has no wardrobe of its own); no bench or mirror (the aisle keeps its walkway, and no free wall stretch of 0.64 m is left
+for a mirror). U33 on the run as it was built names it all: every inside door closed, the dressing room's closed fronts, no
+frames, a view of closed doors only. Needs a pod render: the posed library leaves (HSSD 206-0 is measured on the pod),
+the frames, the garments.
