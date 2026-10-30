@@ -680,7 +680,9 @@ def _door_frame(opening, wall, geo, ctx, recs, frame_mat, state, shift, op_assum
     record = {"lining": True, "head": True, "architrave": sorted({-1 if f < 0 else 1 for f in faces}),
               "indoor_faces": sorted({-1 if f < 0 else 1 for f in faces}),
               "source": "ours (the parametric door's frame round a bare leaf)" if bare else "the model's own frame",
-              "frameless": None, "architrave_why": None, "measured": [r.get("measured") for r in recs]}
+              "frameless": None, "architrave_why": None, "measured": [r.get("measured") for r in recs],
+              # 30 Oct 2026 (UL132): the built parts, one height with the opening (M29: door_states.frame_problems)
+              "census": P.frame_census(parts, geo["height"])}
     if parts:
         ob, used = SH._opening_object(opening, "frame", parts, {"frame": frame_mat}, geo, ctx, geo["status"])
         created.append(ob)

@@ -2502,6 +2502,8 @@ LEGACY_DECOR_TYPES: dict[str, str] = {"decor_plant": "plant"}
 DECOR_NON_UNIFORM_CAP = 1.5      # cushion / plant / rug footprint stretch (max/min of the x, y scales) above: refused
 RUG_MAX_THICKNESS_M = 0.03       # a rug model is kept flat: its height is capped here
 SURFACE_DECOR_MIN_M = 0.04       # a tabletop model scaled below this footprint side is refused (Milestone 9)
+# 30 Oct 2026 (UL151): the floor pieces whose model must read as one (``rest.floor_class_problem``); none left: ours
+FLOOR_CLASS_FIT_TYPES: tuple[str, ...] = ("plant", "plant_large", "floor_vase", "sculpture")
 WALL_ART_MIN_WIDTH_M = 0.3       # a wall art model that would end narrower (ceiling room) is refused
 _TURN_90 = {"-Y": "-X", "-X": "+Y", "+Y": "+X", "+X": "-Y"}   # the claimed front that turns a model by +90 degrees
 
@@ -2693,6 +2695,13 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
     styled = [e for e in decor_entries(catalog, dtype, mode) if decor_styles_match(e, style_family)
               and C.contact_fits(e, dtype)]               # Milestone 12: the audited contact suits the type
     fits = [(e, f) for e in styled for f in [_decor_fit(e, item, dtype)] if f is not None]
+    if dtype in FLOOR_CLASS_FIT_TYPES and not item.get("host_id"):
+        # 30 Oct 2026 (lesson UL151, user: "this vase on the floor not making sense"): a floor piece's model is tall
+        # enough and no table piece (real04's kitchen plant was "Flowers (Plants)", a vase of flowers, 0.54 m)
+        from wenart.blender import rest as RS
+
+        fits = [(e, f) for e, f in fits
+                if RS.floor_class_problem(dtype, f["bbox_m"][2], e.get("title") or e.get("name")) is None]
     if not fits:
         return None
     # Milestone 10: a large plant of the brief's species takes models of that species first.

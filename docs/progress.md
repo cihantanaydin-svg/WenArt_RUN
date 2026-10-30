@@ -2476,3 +2476,25 @@ Two open points of run 20261029-201533-full, fixed as general rules (tests: `tes
 
 Note for the lessons: UL71's "never in front of a window it would reach" now lets a low set (0.15 m) stand before a
 window; taller items keep under the sill.
+
+## Nothing inside crosses the roof; four decor findings of run 201533 (30 Oct 2026; CPU- and Blender-tested, pod run waiting)
+
+Lessons UL128 ("Some frames coming out of the roof it needs fixing") and UL132 ("Door frame needs fixing"), and four
+decor findings of real04 run 20261029-201533-full. Every fix is a general rule.
+
+| finding | cause (measured) | fix |
+|---|---|---|
+| doors d_L1_001 / 002 through the roof, the play room's jamb up into the slope | D5 reset them to 2.10 m under a 1.84 m slope ("2.10 m kept") after the roof clip had made them 1.80 m; the bathroom doors d_L1_004 / 005 to 2.10 m under 1.03 m; frames +0.28 / +1.10 m, open leaves +0.19 / +0.95 m over the ceiling | one height for opening, leaf, lining, head and architrave under the ceiling at the door (`door_states.head_room`, `apply_under_roof`: lowered, else slid along its wall up to 0.5 m, else lowered with a dormer finding); an open leaf tried under the slope over it (ajar, other jamb, other room, else closed) |
+| towel rails, shelves and terrazzo panels of both L1 bathrooms through the roof (X2) | `decor_under_roof` held only plants and ceiling lights; the bathroom details used the flat ceiling | every hostless type held under the slope (a panel shortened from the top, others not built with the reason); `bath_details` places them under the slope; wall art hangs under the slope over its wall; hosted decor gets `max_top_z` (a lower shelf board or not built) |
+| tall furniture under the slope | only the fit refused tall library models | the build caps a piece at the slope over its footprint (`furniture.under_roof_cap`: the module or parametric piece at that height) |
+| lamp "0.5 m off" its floating nightstand (GPU test) | the lamp stood on the real 0.50 m top; the test took the hung 0.28-0.50 m box's top as 0.22 m | the test measures items and hosts as built (`scene_checks.built_z_range`: `box3d`); a raised parametric piece records `top_m` |
+| dec_L0_031 not built in the open-kitchen variant (GPU test) | the big loop's final round re-solved the bedroom (f_L0_052 became f_L0_057) and rebuilt the base only | `Orchestrator.variants_again`: every variant builds again after the loop (reused when unchanged) |
+| a table vase on the kitchen floor (UL151, cam_r_L-1_mutfak_2) | the floor plant dec_L-1_040 took "Flowers (Plants)", a vase of flowers fitted 0.54 m high; four more floor plants 0.37-0.56 m | table-size decor never stands on the floor (`rest.floor_class_problem`): the fit gives a floor plant a model at least 0.60 m high (a large plant 0.90 m, a floor vase or floor sculpture 0.50 m) and no table piece by its title, else ours; the build does not build a table item on the floor and builds a too-low floor plant as ours (`furniture.floor_class_item`); M14 names it |
+| Argus criticals S5 dec_L0_011 / 012 (4.9 cm) and X2 dec_L1_013 (5.32 m) | the 28 Oct run's (005318) inspector record: the report raised "unhashable type: 'list'" on a `set_camera` edit in every later run and the old file stayed | the report takes any edit (`inspector.key_of`), a failure writes a failed record, every record is time-stamped; Argus drops an earlier run's record (`inputs.inspector_of_run`) and names it (P13) |
+
+Checks: the model review's M31 (every furniture, decor and door part of a level under a sloped ceiling over the ceiling
+over its box: major; over the roof: critical; a door too low to use: major), M29 / Argus U33 (`census_problems`: a frame
+part over its opening's head, a jamb without its head, one jamb), X2 now sees the door parts (their `box3d`), Argus P13.
+Local Blender build of the run's L1: before, door frames 2.12 m and wardrobes 2.10 m under 1.82-1.84 m and the six
+bathroom items crossed; after, nothing crosses (M31: 0 crossings; the two bathroom doors 1.00 m with their finding),
+both play-room doors 1.80 m with a complete frame (lining 2 jambs + head, both faces 2 jambs + head, top 1.82 m).

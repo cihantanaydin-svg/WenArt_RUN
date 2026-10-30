@@ -2577,7 +2577,33 @@ class Orchestrator:
             self.agent_check(url)
         if url is not None:
             self.final_critical_rounds(url)
+            self.variants_again(url)
             self.argus_final(url)
+
+    def variants_again(self, url: Optional[str]) -> None:
+        """30 Oct 2026 (real04 run 20261029-201533-full: the GPU test ``test_ai_decor_is_built`` failed on the
+        open-kitchen variant, ``dec_L0_031``): the big loop's final rounds re-run refit, build and render for the base
+        project only (``agent_rerun``), so a variant built in phase 5 kept the building of before the loop (the lamp
+        on f_L0_052, which the loop's re-solve of the room had replaced by f_L0_057 and handed the lamp to). After the
+        loop every built variant builds again from its base's final building (``--reuse``: an unchanged variant is
+        reused and nothing else runs); one whose scene changed renders all its views again and runs the stages after
+        the render (``final_stages_again``), so every variant scene shows the final building."""
+        for vr in [r for r in self.runs if r.base is not None and r.active and r.base.active]:
+            if self.status_of(vr, "build") != "ok":
+                continue
+            path = vr.out / "scene" / "scene_manifest.json"
+            before = (read_json(path) or {}).get("build_fingerprint")
+            self.stage_build(vr)
+            after = (read_json(path) or {}).get("build_fingerprint")
+            if self.status_of(vr, "build") != "ok" or after == before:
+                continue
+            self.out(f"{vr.label or vr.name}: built again after the big loop (its base's final building changed)")
+            if vr.no_views or not self.scene_views(vr):
+                self.stage_export(vr)
+                continue
+            self.stage_render(vr)
+            if vr.active and self.status_of(vr, "render") in ("ok", "incomplete"):
+                self.final_stages_again(vr, url)
 
     def agent_check(self, url: Optional[str]) -> None:
         """Phase 8 of an orchestrated run: the M5 check with the agent model alone (one pass, D8)."""

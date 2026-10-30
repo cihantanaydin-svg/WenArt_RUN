@@ -107,6 +107,11 @@ def test_ai_decor_is_built(project):
 
 @pytest.mark.parametrize("project", PROJECTS)
 def test_surface_decor_rests_on_its_host(project):
+    # 30 Oct 2026 (real04 run 20261029-201533): the item and its host as built (``scene_checks.built_z_range``: the
+    # mesh's world box): a floating nightstand's box hangs under its top (0.28-0.50 m), so "its bottom + the mesh's
+    # height" (0.22 m) was no top, and the lamp standing on its 0.50 m top read as 0.28 m over it
+    from wenart.blender.scene_checks import built_z_range
+
     building = _need(project, "building_final.json")
     for vid, scene in _variant_scenes(project, building):
         by_id = {o["element_id"]: o for o in scene["objects"] if o.get("kind") in ("furniture", "furniture_proxy")}
@@ -116,9 +121,8 @@ def test_surface_decor_rests_on_its_host(project):
                 continue
             host = by_id.get(o["host_id"])
             assert host is not None, (vid, o["name"])
-            bottom = float(o["center"][2]) - float(o["size"][2]) / 2.0
-            host_bottom = float(host["center"][2]) - float(host["size"][2]) / 2.0
-            host_top = host_bottom + float((host.get("bbox_m") or host["size"])[2])
+            bottom = built_z_range(o)[0]
+            host_bottom, host_top = built_z_range(host)
             assert host_bottom + 0.15 <= bottom <= host_top + 0.01, (vid, o["name"], bottom, host_bottom, host_top)
             checked += 1
         print(f"{project} ({vid}): {checked} surface decor items on their hosts")

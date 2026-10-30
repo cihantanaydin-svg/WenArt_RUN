@@ -1500,12 +1500,12 @@
    "id": "UL128",
    "date": "2026-10-30",
    "area": "roof",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Some frames coming out of the roof, it needs fixing (30 Oct 2026, real04 run 20261029-201533-full exterior: door frames, open door leaves and decor of the top floor poke through the sloped roof)",
-   "lesson": "Some frames coming out of the roof, it needs fixing (30 Oct 2026, real04 run 20261029-201533-full exterior: door frames, open door leaves and decor of the top floor poke through the sloped roof)",
+   "lesson": "Nothing built inside a level under a roof or a sloped ceiling crosses the ceiling over it or the roof: a door is lowered to its head room at its wall (door_states.head_room, apply_under_roof; the role sizes never raise it over the slope), slides up to 0.5 m along its wall when that leaves no usable 1.60 m, else stays low with a dormer finding; its open leaf is tried under the slope over it (ajar, the other jamb, the other room, else closed); a piece is built no taller than the slope over its footprint (furniture.under_roof_cap: a taller library model gives way to the module or parametric piece); every hostless decor item stays under it (build.decor_under_roof: a panel shortened, others not built), wall art hangs under the slope over its wall, hosted decor takes a lower shelf board or is not built (rest.plan_decor max_top_z), the bathroom's wall details are placed under it (bath_details). Every change in assumed. Checks: model review M31 (every furniture, decor and door part over the ceiling: major, over the roof: critical; a door too low to use: major), exterior check X2 (the door parts' box3d too), Argus through the model line.",
    "question": "Does anything built inside the house (a door, its frame or open leaf, a wardrobe, a shelf, decor) cross the roof or the ceiling over it, so it shows from outside?"
   },
   {
@@ -1548,12 +1548,12 @@
    "id": "UL132",
    "date": "2026-10-30",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Door frame needs fixing (30 Oct 2026, real04 run 20261029-201533-full, play room door d_L1_001: one black jamb runs up to the sloped ceiling above a 2.10 m leaf, no head)",
-   "lesson": "Door frame needs fixing (30 Oct 2026, real04 run 20261029-201533-full, play room door d_L1_001: one black jamb runs up to the sloped ceiling above a 2.10 m leaf, no head)",
+   "lesson": "One height for a door's opening, leaf, jamb lining, head and architrave, under the ceiling at the door (UL128's door rule); a drawn height taller than the wall there is a reading error, lowered with drawn_height kept; the frame complete on both jambs and the head on each indoor face (parametric.frame_census). Checks: model review M29 and Argus U33 (door_states.census_problems: frame taller than its opening, jamb without head, one jamb), M31.",
    "question": "Does every door's frame (both jambs, the head, the architrave) have the same height as its opening and leaf, under the ceiling at the door?"
   },
   {
@@ -1776,12 +1776,12 @@
    "id": "UL151",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "this vase on the floor not making sense (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_2: a small table vase with pink flowers stands on the kitchen floor in the corner beside the counter)",
-   "lesson": "this vase on the floor not making sense (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_2: a small table vase with pink flowers stands on the kitchen floor in the corner beside the counter)",
+   "lesson": "Table-size decor never rests on the floor; only floor-class decor stands there, tall enough to read as a floor piece (plant 0.60 m, large plant 0.90 m, floor vase and floor sculpture 0.50 m) and a floor plant's model no table piece by its title (rest.floor_class_problem; fit.fit_decor_item; the build skips a table item on the floor and builds a too-low floor piece as ours, furniture.floor_class_item). Check: model review M14 (rule floor_class).",
    "question": "Does every tabletop decor item (a small vase, flowers, bowls, books, candles) stand on a surface, never on the floor?"
   },
   {

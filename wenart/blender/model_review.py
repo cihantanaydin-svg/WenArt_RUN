@@ -136,6 +136,12 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   are explained), a free side whose duvet hangs short of the floor, an old dressing without the set, a made-up model
   measured poorer than ours left undressed, a bed without its throw, a throw without its woven pattern or its fringe.
   Minor; kind ``taste``; the decor stage (``wenart.furniture.bedding``) and the build (``textiles.bedding_set``) own it.
+- M31 nothing inside crosses the roof (30 Oct 2026, lessons UL128 "Some frames coming out of the roof it needs fixing"
+  and UL132 "Door frame needs fixing", real04 run 20261029-201533-full; ``under_roof.crossings``, ``door_problems``):
+  every furniture, decor and door part (the model, the leaf, the lining, the head, the architrave) of a level under a
+  sloped ceiling whose built box (``box3d``) stands over the ceiling over its box (major) or over the roof's top
+  (critical, it shows from outside); a door too low to be used under the slope at its wall that no slide along it
+  helps (major, the architect: a dormer). Kind ``geometry``; the build owns the crossings.
 - M24 every chimney as a builder makes it (29 Oct 2026, lesson UL109, user on real06 run 20261028-154514-full: "There
   are no chimneys there could be some chimney in the projects"; ``chimney.measure``), on the scene's chimney records
   (their bottom as built), else the plan's: a chimney off the roof (it does not reach the roof) or floating over its
@@ -149,7 +155,10 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   all doors one size (major) or the entrance no bigger than the inside doors (minor), an open leaf standing in a piece
   (major, kind ``geometry``), a walk-in dressing room with closed fronts only (major, the architect's D8 answer that
   fixes it in ``fix_choice``), a door without a frame and no recorded frameless reason (major) or an indoor face
-  without its architrave (minor). The build owns them; a walk-in's fronts the architect.
+  without its architrave (minor); 30 Oct 2026 (UL132, user: "Door frame needs fixing"; ``census_problems`` on the
+  frame's ``census``): a frame part over its opening's head (``frame_taller``), a lining or an architrave face with
+  jambs and no head (``jamb_without_head``) or one jamb only (``one_jamb``), all major, kind ``geometry``. The build
+  owns them; a walk-in's fronts the architect.
 - M27 every kitchen against its style family's kitchen details (29 Oct 2026, lessons UL115, kitchen part, and UL118;
   the user's reference photos: "look at all these details I want these details"; ``kitchen_details.review``): a
   worktop bare beyond U11 (fewer than two styling sets with room for them, minor), a wall cabinet with no LED strip
@@ -204,6 +213,7 @@ CHECKS += ("M29",)          # 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125): t
 CHECKS = CHECKS + ("M26",)       # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's set (bath_details.review)
 CHECKS = CHECKS + ("M28",)      # 29 Oct 2026: M28 a different solution for each room, the photos' details (UL119)
 CHECKS = CHECKS + ("M30",)      # 29 Oct 2026: M30 every bed in its family's bedding (UL121, bedding_parts.review)
+CHECKS = CHECKS + ("M31",)      # 30 Oct 2026: M31 nothing inside crosses the roof or the ceiling (UL128, UL132)
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -527,14 +537,21 @@ def door_products(manifest: Optional[dict]) -> tuple[list[dict], int]:
     return out, len(rows)
 
 
-M29_KINDS = {"leaf_in_piece": "geometry", "no_frame": "taste", "no_architrave": "taste"}   # else reference_missed
+M29_KINDS = {"leaf_in_piece": "geometry", "no_frame": "taste", "no_architrave": "taste",   # else reference_missed
+             # 30 Oct 2026 (UL132, door_states.census_problems): one height, a complete frame
+             "frame_taller": "geometry", "jamb_without_head": "geometry", "one_jamb": "geometry"}
 M29_FIX = {"all_closed": "the build's door_states (an inside door stands open by default)",
            "one_size": "the build's door_states.apply_sizes (sizes by role and family)",
            "leaf_in_piece": "move the piece out of the open leaf, or the build closes the door (door_states)",
            "view_closed_doors": "the build opens a door a view sees into a room worth showing (door_states.revise_for_cameras)",
            "dressing_closed_fronts": "the architect's D8 answer (wardrobe_fronts) and the build's see-through fronts",
            "no_frame": "the build frames every door (opening_build._door_frame, parametric.door_frame_parts)",
-           "no_architrave": "the build's architrave on the door's indoor faces (parametric.architrave_boxes)"}
+           "no_architrave": "the build's architrave on the door's indoor faces (parametric.architrave_boxes)",
+           "frame_taller": "the build frames the door at its opening's one height (door_states.apply_under_roof, "
+                           "parametric.door_frame_parts)",
+           "jamb_without_head": "the build's frame: both jambs and the head on each indoor face (parametric."
+                                "door_frame_parts, architrave_boxes)",
+           "one_jamb": "the build's frame: both jambs and the head on each indoor face (parametric.door_frame_parts)"}
 
 
 def doors_as_designed(built: dict, manifest: Optional[dict]) -> tuple[list[dict], int]:
@@ -1088,6 +1105,19 @@ def decor_attached(manifest: Optional[dict], built: dict) -> tuple[list[dict], i
             continue
         did = ob.get("decor_id") or ob.get("wenart_id") or ob.get("name")
         dtype = ob.get("type")
+        box, level = ob.get("box3d"), levels.get(ob.get("level_id"))
+        if not ob.get("host_id") and isinstance(box, dict) and level is not None and dtype not in HUNG_DECOR:
+            # 30 Oct 2026 (lesson UL151, user: "this vase on the floor not making sense"): a table-size item, or a
+            # floor piece too low or a table piece by its model, standing on the floor
+            bottom = float(box["center"][2]) - float(box["size"][2]) / 2.0 - float(level.get("elevation") or 0.0)
+            if bottom <= R.ON_FLOOR_M + 0.05:
+                why = R.floor_class_problem(dtype, float(box["size"][2]), (ob.get("asset") or {}).get("title"))
+                if why is not None:
+                    n += 1
+                    out.append(_v("M14", "major", did, f"{dtype} {did} stands on the floor: {why}",
+                                  room_id=ob.get("room_id"), kind="no_sense", rule="floor_class",
+                                  height_m=round(float(box["size"][2]), 3), fix=FIX_FLOOR_CLASS))
+                    continue
         if dtype in HUNG_DECOR:
             hang = ob.get("hang") if isinstance(ob.get("hang"), dict) else None
             if hang is not None and hang.get("gap_left_m") is not None:
@@ -1120,6 +1150,12 @@ def decor_attached(manifest: Optional[dict], built: dict) -> tuple[list[dict], i
                                                              "poke_m", "cloth_edge_m") if k in rest},
                           fix=FIX_REST))
     return out, n
+
+
+FIX_FLOOR_CLASS = ("the decor stage puts a table-size item on a surface (a worktop, a table, a shelf, a sideboard) and "
+                   "the fit gives a floor piece a model that reads as one (fit.fit_decor_item, rest.floor_class_problem)"
+                   "; the build does not build a table-size item on the floor and builds a floor piece whose model is "
+                   "too low as ours (furniture.floor_class_item)")
 
 
 FIX_RAILS = ("build the stair's guards as one continuous balustrade per open side with newels at its turns and ends, "
@@ -1466,6 +1502,12 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
                      for g in got], n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
         checks["M30"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M31 (30 Oct 2026, lessons UL128, UL132): nothing built inside crosses the roof or the ceiling over it (pure)
+    try:
+        got, n = roof_crossings(built, scene_manifest, (prep or {}).get("roof"))
+        note("M31", got, n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
+        checks["M31"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M19 / M22 (29 Oct 2026, the user on real06: "This washing machine would not open", "this sink not making sense
     # there", "There is a gap between wall and water faucet not looking good"): fronts that open, basins under a solid
     # wall, backs on their walls, on the building as built (pure)
@@ -1476,6 +1518,39 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
         except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
             checks[cid] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     return {"findings": findings, "checks": checks}
+
+
+FIX_UNDER_ROOF = ("the build keeps everything under the sloped ceiling (UL128): the doors (door_states.head_room, "
+                  "apply_under_roof: lowered, slid along the wall, the open leaf tried under the slope), the furniture "
+                  "(furniture.under_roof_cap: the model gives way to the module or parametric piece at the height the "
+                  "slope leaves), the decor (build.decor_under_roof, rest.plan_decor's max_top_z, bath_details' wall "
+                  "spots under the slope)")
+
+
+def roof_crossings(built: dict, manifest: Optional[dict], roof_model: Optional[dict] = None
+                   ) -> tuple[list[dict], int]:
+    """M31 (module docstring; ``under_roof.crossings`` and ``door_problems``): every interior object of a level under
+    a sloped ceiling whose built box crosses the ceiling (major) or the roof (critical), and every door too low to be
+    used under the slope at its wall (major). Checked: the measured objects (with a scene manifest) and the doors."""
+    from wenart.blender import under_roof as UR
+
+    out, n = [], 0
+    if manifest and manifest.get("objects"):
+        objs = [o for o in manifest["objects"] if o.get("kind") in UR.KINDS and isinstance(o.get("box3d"), dict)]
+        n += len(objs)
+        for c in UR.crossings(objs, built, roof_model):
+            v = _v("M31", c["severity"], c["target"], c["message"], c.get("room_id"), kind="geometry",
+                   problem="crosses_roof" if c["through_roof"] else "crosses_ceiling", top_m=c["top_m"],
+                   ceiling_m=c["ceiling_m"], roof_m=c["roof_m"], over_m=c["over_m"], object=c["name"])
+            v["owner"], v["fix"] = "build", FIX_UNDER_ROOF
+            out.append(v)
+    doors = [o for o in built.get("openings") or [] if o.get("type") == "door"]
+    n += len(doors)
+    for p in UR.door_problems(built):
+        v = _v("M31", p["severity"], p["target"], p["message"], None, kind="no_sense", problem="door_too_low")
+        v["owner"], v["fix"] = "architect", "a dormer or a raised roof over the door, or the door moved (review)"
+        out.append(v)
+    return out, n
 
 
 FIX_BEDDING = ("the decor stage's bedding plan (wenart.furniture.bedding: the family's set, the free sides, the throw "
