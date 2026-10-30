@@ -160,8 +160,9 @@ def test_every_piece_is_a_closed_product_inside_its_drawn_footprint(name, parts,
     assert all(0 <= i < len(p["verts"]) for p in parts for f in p["faces"] for i in f)
     assert _inside(parts, w, d), name
     assert min(z for p in parts for _x, _y, z in p["verts"]) >= -1e-9
-    # small: one mesh, built in one go (30 Oct 2026, UL166: the styling's real products, bath_objects, take ~1.5k)
-    assert sum(len(p["verts"]) for p in parts) < 6000
+    # small: one mesh, built in one go (30 Oct 2026, UL166: the styling's real products, bath_objects, take ~1.5k;
+    # UL184: glass bottles with the soap in them, printed labels, a curved basin with its waste, a turned vase ~1.2k more)
+    assert sum(len(p["verts"]) for p in parts) < 7500
 
 
 def test_the_wall_hung_wc_hangs_on_the_wall_with_its_flush_plate():
@@ -325,7 +326,7 @@ def test_the_decor_stage_gives_the_bathroom_its_set_and_the_review_is_clean():
     items = {d["type"]: d for d in b["decor"]}
     assert {"toilet_paper_holder", "toilet_brush", "towel_rail", "towel_shelf", "feature_panel"} <= set(items)
     holder = items["toilet_paper_holder"]
-    assert holder["center"][2] == pytest.approx(BT.PAPER_HOLDER_Z_M - BT.PAPER_HOLDER_SIZE[2] / 2.0)
+    assert holder["center"][2] == pytest.approx(BT.paper_holder_bottom())      # UL183: the roll's axis at 0.70 m
     assert holder["anchor_ids"] == ["t1"] and holder["source"] == "added_by_ai" and "B2" in holder["reason"]
     assert items["toilet_brush"]["center"][2] == 0.0 and holder["colour"] == "black"     # the family's finish
     assert all(d.get("towel_colour") == "sage" for d in b["decor"] if d.get("rule") == BD.RULE)   # B26

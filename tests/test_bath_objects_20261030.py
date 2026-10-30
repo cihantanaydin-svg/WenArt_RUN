@@ -68,8 +68,13 @@ def test_a_pump_bottle_has_its_collar_pump_nozzle_and_label():
     assert min(y for _x, y, _z in nozzle) < -0.025                                 # reaching forward (-Y)
     top = max(z for p in parts for _x, _y, z in p["verts"])
     assert top == pytest.approx(0.18, abs=0.003)
-    assert next(p for p in parts if p["role"] == "label")["key"] == "ceramic"       # a light label on a dark bottle
-    assert next(p for p in BO.pump_bottle(0, 0, 0, 0.03, 0.18, "ceramic") if p["role"] == "label")["key"] == "dark"
+    # 30 Oct 2026 (UL184, "Better models with more details is needed"): a printed paper label on the bottle's front,
+    # its lines of print in a contrasting ink, not a band round the bottle
+    label = next(p for p in parts if p["role"] == "label")
+    assert label["key"] == "paper" and max(y for _x, y, _z in label["verts"]) < 0.0
+    assert [p for p in parts if p["role"] == "print"]
+    white = BO.pump_bottle(0, 0, 0, 0.03, 0.18, "ceramic")
+    assert {p["key"] for p in white if p["role"] == "print"} == {"dark"}
 
 
 @pytest.mark.parametrize("fill", ["cotton", "pads", "pebbles"])
@@ -121,7 +126,8 @@ def test_the_vanity_and_the_towel_shelf_take_the_real_products():
     x0, y0, z0, x1, y1, z1 = P.parts_bbox(shelf)
     assert z1 <= BT.TOWEL_SHELF_SIZE[2] + 1e-6 and {"jar", "lid", "fill"} <= _roles(shelf)
     stems = BT._stems(0, 0, 0, 0.05, 0.16, 0.45)
-    assert {"calyx", "cotton", "plume"} <= _roles(stems)
+    # 30 Oct 2026 (UL184: the plumes and cotton bolls read as lollipops): pampas stems with plumes of fine wisps
+    assert {"vase", "stem", "plume"} <= _roles(stems) and not {"cotton", "calyx"} & _roles(stems)
 
 
 def test_the_flush_plate_is_a_real_dual_flush_actuator():

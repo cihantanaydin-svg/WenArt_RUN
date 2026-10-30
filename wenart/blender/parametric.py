@@ -4047,23 +4047,13 @@ def kitchen_worktop_parts(dtype: str, w: float, d: float, h: float) -> list[Part
         for sy in (-1.0, 1.0):
             parts.append(_box(0.0, 0.015 + sy * d * 0.18, h - 0.006, w * 0.6, 0.03, 0.006, "dark", "slot"))
         return parts
-    if dtype == "chopping_board":
-        return [_box(0.0, 0.0, 0.0, w, d, h, "wood", "board"),
-                _cylinder_z(w / 2.0 - 0.03, 0.0, h - 0.0008, 0.01, 0.01, 0.0008, "dark", "hole", n=12)]
-    if dtype == "utensil_pot":
-        pot_h = min(h * 0.55, 0.17)
-        parts = [_cylinder_z(0.0, 0.0, 0.0, r * 0.9, r * 0.9, pot_h, "ceramic", "pot", n=24)]
-        for k, (ox, oy) in enumerate(((-0.02, 0.0), (0.015, 0.015), (0.01, -0.02), (-0.01, 0.02))):
-            parts.append(_box(ox, oy, pot_h * 0.3, 0.012, 0.012, h - pot_h * 0.3 - 0.005 * k, "wood", "tool"))
-        return parts
-    if dtype == "fruit_bowl":
-        parts = [_cylinder_z(0.0, 0.0, 0.0, r * 0.5, r * 0.5, h * 0.25, "ceramic", "base", n=24),
-                 _frustum_z(0.0, 0.0, h * 0.25, r * 0.6, r * 0.6, r, r, h * 0.45, "ceramic", "body", n=24)]
-        fr = min(r * 0.32, h * 0.32)
-        for k, (ox, oy) in enumerate(((-0.35, -0.2), (0.3, -0.15), (0.0, 0.3), (0.05, -0.05))):
-            parts.append(_superellipsoid(ox * r, oy * r, h * 0.35, fr * 2.0, fr * 2.0, fr * 2.0, 1.0, 1.0,
-                                         ("terracotta", "green")[k % 2], "fruit", n_eta=6, n_om=12))
-        return parts
+    if dtype in ("chopping_board", "utensil_pot", "fruit_bowl"):
+        # 30 Oct 2026 (lesson UL186, user: "Better quality models with more details needed for the little items fruit
+        # ball etc"): a board with its hole cut through, a crock with real tools, a turned bowl of real fruit
+        from wenart.blender import small_parts as SM
+
+        return {"chopping_board": SM.chopping_board, "utensil_pot": SM.utensil_crock,
+                "fruit_bowl": SM.fruit_bowl}[dtype](w, d, h)
     raise KeyError(f"no kitchen worktop builder for {dtype!r}")
 
 
@@ -4239,6 +4229,8 @@ for _role, _r in (("lining", 0.0), ("disc", 0.003), ("bar", 0.002), ("candle", 0
 # 30 Oct 2026 (UL154): real-looking books (``wenart.blender.book_parts``): the cream page block and paper labels (the
 # ``paper`` key), the cover boards (role ``book``), the round spine and its bands (no bevel: already round)
 MATERIAL_KEYS = MATERIAL_KEYS + ("paper",)
+# 30 Oct 2026 (UL183, UL186: small_parts): fruit skins, the oil in a bottle, a paper roll's core
+MATERIAL_KEYS = MATERIAL_KEYS + ("fruit_red", "fruit_orange", "fruit_yellow", "fruit_green", "oil", "cardboard")
 BEVEL_BY_ROLE.update({"book_spine": 0.0, "pages": 0.001})
 
 

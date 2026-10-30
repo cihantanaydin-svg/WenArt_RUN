@@ -713,6 +713,10 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         # 30 Oct 2026 (UL154): a book's cream page block and paper labels (book_parts; the covers are bookcloth:
         # ``cloth:linen:<colour>`` keys, the bedding's linen in a cover colour)
         "paper": ("book_pages", None, None),
+        # 30 Oct 2026 (UL183, UL186: small_parts): fruit skins, the oil in a bottle, a paper roll's cardboard core
+        "fruit_red": ("fruit_red", None, None), "fruit_orange": ("fruit_orange", None, None),
+        "fruit_yellow": ("fruit_yellow", None, None), "fruit_green": ("fruit_green", None, None),
+        "oil": ("oil_amber", None, None), "cardboard": ("cardboard", None, None),
     }
     # 29 Oct 2026 (UL121, R35): the bedding's fabric looks and woven patterns (``textile_<look>``; a throw pair's second
     # blanket ``runner_<look>``): linen keeps its Poly Haven scan, the others are the procedural weaves

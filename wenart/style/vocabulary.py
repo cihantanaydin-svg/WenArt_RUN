@@ -139,6 +139,13 @@ FURNITURE_MATERIALS: dict[str, dict] = {
     "led_strip":     {"kind": "hard",    "flat": [0.90, 0.86, 0.80], "roughness": 0.4},
     # 30 Oct 2026 (UL154): a book's page block and its paper spine labels: a cream uncoated paper
     "book_pages":    {"kind": "hard",    "flat": [0.80, 0.76, 0.66], "roughness": 0.85},
+    # 30 Oct 2026 (UL183, UL186: small_parts): the fruit's waxy skins, the oil in a glass bottle, a paper roll's core
+    "fruit_red":     {"kind": "organic", "flat": [0.42, 0.04, 0.03], "roughness": 0.35},
+    "fruit_orange":  {"kind": "organic", "flat": [0.85, 0.36, 0.04], "roughness": 0.45},
+    "fruit_yellow":  {"kind": "organic", "flat": [0.86, 0.66, 0.10], "roughness": 0.45},
+    "fruit_green":   {"kind": "organic", "flat": [0.42, 0.56, 0.12], "roughness": 0.40},
+    "oil_amber":     {"kind": "hard",    "flat": [0.62, 0.42, 0.06], "roughness": 0.05},
+    "cardboard":     {"kind": "hard",    "flat": [0.52, 0.38, 0.24], "roughness": 0.9},
     "wood_veneer_oak":   {"kind": "wood", "flat": [0.62, 0.47, 0.30], "roughness": 0.45, "source": "polyhaven",
                            "asset": "oak_veneer_01", "size_m": [1.83, 1.83], "albedo_mode": "texture"},
     "wood_veneer_walnut": {"kind": "wood", "flat": [0.25, 0.14, 0.08], "roughness": 0.4, "source": "polyhaven",
