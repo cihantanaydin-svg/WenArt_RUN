@@ -46,5 +46,7 @@ def test_an_inactive_or_unbuilt_scene_is_not_exported(monkeypatch):
 def test_the_final_chain_defers_and_exports_at_its_end_whatever_happens():
     src = inspect.getsource(SC.Orchestrator.final_chain)
     assert src.index("self.defer_export = True") < src.index("self.phase5()")
-    assert src.index("finally:") < src.index("self.exports_at_end()")
-    assert src.index("argus_final") < src.index("self.exports_at_end()")
+    # 30 Oct 2026 (real04 run 20261030-181158-full: the deadline cut the export waiting behind Argus AI's last pass):
+    # the exports run after the big loop and the variants, before argus_final, and again (a no-op) in the finally
+    assert src.index("self.variants_again(url)") < src.index("self.exports_at_end()") < src.index("self.argus_final")
+    assert src.index("finally:") < src.rindex("self.exports_at_end()")

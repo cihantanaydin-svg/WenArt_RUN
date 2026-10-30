@@ -2582,6 +2582,12 @@ class Orchestrator:
             if url is not None:
                 self.final_critical_rounds(url)
                 self.variants_again(url)
+            # 30 Oct 2026 (real04 run 20261030-181158-full: the export waited behind Argus AI's last pass, the deadline
+            # came first, the project stayed incomplete and the GPU tests got no project): the 3D exports of the final
+            # scenes come before the last Argus pass, which takes the time that is left
+            self.defer_export = False
+            self.exports_at_end()
+            if url is not None:
                 self.argus_final(url)
         finally:
             self.defer_export = False
