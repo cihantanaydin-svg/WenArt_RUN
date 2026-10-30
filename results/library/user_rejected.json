@@ -12,6 +12,16 @@
    "user": "I did not like this light",
    "where": "real06 run 20261028-154514-full, r_L1_ebeveyn_y_odasi, the drawn floor lamp f_L1_020 (a 0.58 m drawn circle): a big matte black drum shade on a black cone base",
    "reason": "the user rejected it on the render: a heavy black drum lamp in a light Scandinavian bedroom"
+  },
+  {
+   "id": "3dwh_291de1594f740b645143a321",
+   "type": "sofa",
+   "title": "Crate and Barrel sofa",
+   "date": "2026-10-30",
+   "lesson": "UL131",
+   "user": "I did not like this sofa models",
+   "where": "real04 run 20261029-201533-full, r_L1_oyun_aktivite_ve_dinlenme_odasi (f_L1_017, f_L1_020), the play and rest room's two facing sofas",
+   "reason": "the user rejected it on the render: a boxy grey sofa with flat, faceted back cushions and white piping lines"
   }
  ]
 }

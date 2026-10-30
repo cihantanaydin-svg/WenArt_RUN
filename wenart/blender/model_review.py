@@ -1181,7 +1181,8 @@ def stair_rails_review(built: dict, manifest: Optional[dict]) -> tuple[list[dict
 
 
 FIX_FRONT = ("turn it on its wall to its free side, or move it at most 0.5 m (architect F4 free_front; rotate_piece), "
-             "or move what stands in front of its door")
+             "or move what stands in front of its door (architect F4 clear_front: the safest move of either that "
+             "passes the code checks)")
 FIX_BASIN = ("move the basin at most 0.5 m to a solid stretch of wall (architect H2 clear_basin), else raise the window's "
              "sill to 1.25 m where the documents do not give it (basin_sill)")
 

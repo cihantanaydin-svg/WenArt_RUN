@@ -3909,7 +3909,7 @@ def build_outside_details(building: dict, level: dict, collection, library, look
                         "parent": o["id"], "kind": "sill"})
         counts["sills"] += 1
     rail_mat = look_material(library, looks.get("railing") or {"material": "steel_brushed"})
-    glass = library.thin_glass()
+    glass = library.guard_glass()           # 30 Oct 2026 (UL145): an outdoor guard's tinted glass
     for room in building["rooms"]:
         if room["level_id"] != level["id"] or room.get("room_type") != "balcony" or len(room["polygon"]) < 3:
             continue

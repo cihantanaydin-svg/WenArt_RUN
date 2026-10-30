@@ -41,6 +41,20 @@ Rules (general, every project; CLAUDE.md furniture rules):
    along its wall or onto another wall of its room, to a free stretch (its front kept free); when no such move exists
    the architect asks (H2: the window's sill raised to ``BASIN_SILL_M`` when the documents do not give it, else kept
    with its mirror beside it, ``decor_ai.basin_mirror``).
+5. ``clear_front`` (30 Oct 2026, real04 run 20261029-201533-full: the drawn wardrobes f_L0_009 / f_L0_011 had 0.17 m
+   free in front, the drawn desks f_L0_029 / f_L0_028 stood before their doors; the model review M19 and Argus U16
+   found it critical, the architect's F4 measured the wardrobes with its old 80 % strip and passed them, and its safe
+   default ``free_front`` knew only appliances and nightstands and only turned the blocked piece itself): a
+   door-fronted piece (an appliance, a nightstand, door-fronted storage) whose door or drawers cannot open because of
+   a wall or another piece is cleared by the safest move that passes every code check. Tried: the piece turned in
+   place to its free side (rule 2), slid along its own wall, moved to another wall place; each piece in the way
+   (never fixed equipment, a kitchen run or a hosted unit) slid along its wall or turned in place with what belongs to
+   it (its group's members, the chair at a desk). Every move stays within ``MOVE_MAX_M`` (0.5 m, CLAUDE.md) and
+   keeps the piece inside the room, clear of every other piece and of the door swings, its back on its wall where its
+   type needs it, no more of any window covered, and no other front blocked or tighter. The safest: the cleared front
+   free over its whole width first, then the least walking room taken from the neighbours (``WALK_M``), an added piece
+   before a drawn one, the shortest move. The caller keeps the drawn values and labels each moved piece
+   ``adjusted_by_ai`` with the reason (architect F4 ``clear_front``).
 """
 from __future__ import annotations
 
@@ -109,6 +123,25 @@ BASIN_UNDER_SHARE = 0.5                # a window over this share of the basin's
 WINDOW_BEHIND_M = 0.15                 # a window whose wall line stands within half the wall + this behind the basin
 FIXTURE_FRONT_M = 0.53                 # = groups.yaml fixture_front: a moved basin keeps this much free in front
 DEFAULT_SILL_M = 0.90
+# Rule 5: a blocked front cleared by the safest move
+# = schemas.FIXED_TYPES (pinned in the tests) and the built-in appliances: fixed equipment never gives way to a front
+FIXED_TYPES: tuple[str, ...] = ("stair", "kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "fridge",
+                                "washing_machine", "toilet", "washbasin", "shower", "bathtub", "dryer", "washer_dryer",
+                                "dishwasher", "oven", "hob", "cooktop", "vanity", "bathroom_vanity")
+FLOOR_TYPES: tuple[str, ...] = ("rug", "carpet", "bath_mat", "mat", "cushion")    # lie on the floor: no collision
+CLEAR_INSET_M = 0.005                  # a cleared front is free over its whole width (the check's rays stand 5 cm in)
+CLEAR_MARGIN_M = 0.02                  # ... and this much deeper than it needs (the built footprint is measured again)
+WALK_M = 0.60                          # a gap a person walks through (groups.yaml's walkway): a move narrowing a
+                                       # neighbour's gap under it takes walking room (the ranking's harm)
+COMPANION_REACH_M = 0.60               # a light piece this far in front of a piece one sits at, within its width,
+SEAT_AT_TYPES: tuple[str, ...] = ("desk", "dining_table", "table", "dressing_table", "kitchen_island", "bar_table",
+                                  "console_table", "coffee_table", "work_table")   # belongs to it (its chair, stools)
+WINDOW_REACH_M = 0.25                  # = architect F3: a window's line this far into the room ...
+TALL_OVER_SILL_M = 0.10                # ... is covered by a piece taller than its sill by this
+DEFAULT_HEIGHT_M = 0.80                # = architect_rules._height: a piece of unknown height
+TYPE_HEIGHT_M: dict[str, float] = {"wardrobe": 2.0, "tall_cabinet": 2.0, "bookshelf": 1.8, "display_cabinet": 1.8,
+                                   "fridge": 1.8, "shoe_cabinet": 1.0, "dresser": 0.85, "sideboard": 0.80,
+                                   "desk": 0.75, "tv_unit": 0.50, "nightstand": 0.55}
 
 
 # --------------------------------------------------------------------------
@@ -259,11 +292,12 @@ def access_of(ftype: Optional[str], width: Optional[float] = None, storage: bool
 
 
 def access_problem(ftype: str, center, rotation_deg: float, size, room, obstacles: Sequence[tuple] = (), *,
-                   storage: bool = False, walls: bool = True) -> Optional[dict]:
+                   storage: bool = False, walls: bool = True, inset: float = EDGE_INSET_M) -> Optional[dict]:
     """Rule 1 (module docstring) for a piece in the frame of its front (``frame``): ``{"free_m", "open_m", "use_m",
     "severity": critical (cannot open) | major (cannot be used), "blockers": [ids within the use depth], "wall": the
     room's outline within it}``, None when the front is free (or the type has no door). ``obstacles``: ``(id, type,
-    corners)`` of the other pieces. ``walls`` False: only the pieces count (the caller reports a wall itself)."""
+    corners)`` of the other pieces. ``walls`` False: only the pieces count (the caller reports a wall itself).
+    ``inset``: the rays' distance from the front's ends (rule 5 asks the whole width: ``CLEAR_INSET_M``)."""
     need = access_of(ftype, float(size[0]), storage)
     if need is None:
         return None
@@ -279,7 +313,7 @@ def access_problem(ftype: str, center, rotation_deg: float, size, room, obstacle
             continue                     # built into it or cut through: its outline is no obstacle in front of it
         keyed += [(oid, a, b) for a, b in segments(corners)]
     u = _dir(G.front_direction_deg(rotation_deg))
-    pts = edge_points(center, rotation_deg, size, "front")
+    pts = edge_points(center, rotation_deg, size, "front", inset=inset)
     if walls:
         # a point of the front edge outside the room stands through a side wall (its rays leave the room): left out;
         # the whole front edge on the wall line or past it faces that wall
@@ -437,6 +471,376 @@ def free_front(f: dict, room, pieces: Sequence[dict] = (), *, blocked: Optional[
                           "rotation_deg": round(rot, 3)},
             "front_deg": round(front, 3), "how": how, "turn_deg": turn, "moved_m": round(dist, 3), "was": was,
             "reason": reason}
+
+
+# --------------------------------------------------------------------------
+# Rule 5: a blocked front cleared by the safest move (30 Oct 2026)
+# --------------------------------------------------------------------------
+
+def piece_height(f: dict) -> float:
+    """A piece's height: its own, its fitted model's, its type's (``TYPE_HEIGHT_M``), else ``DEFAULT_HEIGHT_M``."""
+    h = f.get("height")
+    asset = f.get("asset") if isinstance(f.get("asset"), dict) else {}
+    bbox = asset.get("bbox_m")
+    if h is None and isinstance(bbox, (list, tuple)) and len(bbox) > 2 and bbox[2]:
+        h = bbox[2]
+    if h is None:
+        h = TYPE_HEIGHT_M.get(str(f.get("type") or ""), DEFAULT_HEIGHT_M)
+    try:
+        return float(h)
+    except (TypeError, ValueError):
+        return DEFAULT_HEIGHT_M
+
+
+def window_lines(openings: Sequence[dict], walls: Optional[dict], level_id=None) -> list[tuple]:
+    """``(id, end a, end b, sill, half the wall's thickness)`` of every window of the level on its wall's line."""
+    out = []
+    for o in openings or ():
+        if o.get("type") != "window" or not o.get("center") or (level_id is not None and o.get("level_id")
+                                                                   not in (None, level_id)):
+            continue
+        wall = (walls or {}).get(o.get("wall_id")) or {}
+        if not wall.get("start") or not wall.get("end"):
+            continue
+        a, b = wall["start"][:2], wall["end"][:2]
+        length = G.distance(a, b)
+        if length < 1e-6:
+            continue
+        u = ((float(b[0]) - float(a[0])) / length, (float(b[1]) - float(a[1])) / length)
+        half = float(o.get("width") or 0.0) / 2.0
+        c = (float(o["center"][0]), float(o["center"][1]))
+        a_end, b_end = (c[0] - u[0] * half, c[1] - u[1] * half), (c[0] + u[0] * half, c[1] + u[1] * half)
+        out.append((str(o.get("id")), a_end, b_end, sill_of(o), float(wall.get("thickness") or 0.2) / 2.0))
+    return out
+
+
+def window_cover(rect, height: float, lines: Sequence[tuple], room_pts) -> int:
+    """How much of the room's windows a piece of ``height`` standing on ``rect`` covers: the points of each window's
+    line ``WINDOW_REACH_M`` into the room (10 per window, architect F3's measure) inside it, for the windows whose sill
+    it overtops by ``TALL_OVER_SILL_M``."""
+    n = 0
+    for _wid, a, b, sill, half_t in lines:
+        if height <= sill + TALL_OVER_SILL_M:
+            continue
+        length = G.distance(a, b)
+        if length < 1e-6:
+            continue
+        nrm = (-(b[1] - a[1]) / length, (b[0] - a[0]) / length)
+        for sign in (1.0, -1.0):
+            off = sign * (half_t + WINDOW_REACH_M)
+            for k in range(10):
+                t = (k + 0.5) / 10.0
+                p = (a[0] + (b[0] - a[0]) * t + nrm[0] * off, a[1] + (b[1] - a[1]) * t + nrm[1] * off)
+                if G.point_in_polygon(p, room_pts) and G.point_in_polygon(p, rect):
+                    n += 1
+    return n
+
+
+def movable(g: dict, pieces: Sequence[dict] = ()) -> bool:
+    """A piece that may give way to a blocked front: furniture; never fixed equipment (``FIXED_TYPES``: CLAUDE.md
+    treats it like walls), a piece of a kitchen run, a unit built into a host, a wall-hung piece, a floor covering."""
+    t = str(g.get("type") or "unknown")
+    if t in FIXED_TYPES or t in RUN_TYPES or t in FLOOR_TYPES or t == "unknown" or g.get("build") is False:
+        return False
+    if g.get("mount_bottom_m") or g.get("built_into") or hosted_in(g, pieces) is not None:
+        return False
+    return not in_run(g, pieces)
+
+
+def _group(g: dict) -> dict:
+    return g.get("group") if isinstance(g.get("group"), dict) else {}
+
+
+def mates(g: dict, pieces: Sequence[dict], skip: Sequence[str] = ()) -> list[dict]:
+    """The pieces that move with ``g`` (CLAUDE.md: a drawn group is one unit): the members of the group it anchors and,
+    for a piece one sits at (``SEAT_AT_TYPES``), the light pieces in front of it within its width and
+    ``COMPANION_REACH_M`` (the chair at a desk, the stools at a table); never ``skip``."""
+    seat_at = str(g.get("type")) in SEAT_AT_TYPES
+    fp = g.get("footprint") or {}
+    rot, (w, d) = frame(fp, g.get("front_deg"))
+    c = (float(fp["center"][0]), float(fp["center"][1]))
+    r = math.radians(rot)
+    out = []
+    for h in pieces:
+        hid = str(h.get("id"))
+        if h is g or hid == str(g.get("id")) or hid in skip or h.get("build") is False \
+                or not (h.get("footprint") or {}).get("center") or not (h.get("footprint") or {}).get("size"):
+            continue
+        if g.get("room_id") is not None and h.get("room_id") != g.get("room_id"):
+            continue
+        grp = _group(h)
+        if grp.get("anchor_id") == g.get("id") and grp.get("role") != "anchor":
+            out.append(h)
+            continue
+        if not seat_at or str(h.get("type")) not in LIGHT_TYPES or str(h.get("type")) in FLOOR_TYPES:
+            continue
+        px, py = float(h["footprint"]["center"][0]) - c[0], float(h["footprint"]["center"][1]) - c[1]
+        lx, ly = math.cos(r) * px + math.sin(r) * py, -math.sin(r) * px + math.cos(r) * py
+        if abs(lx) <= w / 2.0 + 1e-6 and -d / 2.0 - COMPANION_REACH_M <= ly <= 0.0:
+            out.append(h)
+    return out
+
+
+def _turned_fp(fp: dict, turn: float, pivot: Point) -> dict:
+    c = G.rotate_point((float(fp["center"][0]), float(fp["center"][1])), turn, pivot)
+    return {"center": [round(c[0], 4), round(c[1], 4)], "size": [float(fp["size"][0]), float(fp["size"][1])],
+            "rotation_deg": round(G.normalise_angle(float(fp.get("rotation_deg") or 0.0) + turn), 3)}
+
+
+def _shifted_fp(fp: dict, dx: float, dy: float) -> dict:
+    return dict(fp, center=[round(float(fp["center"][0]) + dx, 4), round(float(fp["center"][1]) + dy, 4)])
+
+
+def _unit_moves(mover: dict, unit: Sequence[dict], *, shift=None, turn: float = 0.0, place=None) -> dict:
+    """``{id: (footprint, front_deg)}`` of the mover and its unit moved rigidly: by ``shift`` (dx, dy), turned by
+    ``turn`` about the mover's centre, or the mover set to ``place`` (footprint, front) with the unit following its
+    centre's shift."""
+    fp = mover["footprint"]
+    pivot = (float(fp["center"][0]), float(fp["center"][1]))
+    out = {}
+    if place is not None:
+        new_fp, new_front = place
+        dx, dy = float(new_fp["center"][0]) - pivot[0], float(new_fp["center"][1]) - pivot[1]
+        out[str(mover["id"])] = (new_fp, new_front)
+        for h in unit:
+            out[str(h["id"])] = (_shifted_fp(h["footprint"], dx, dy), h.get("front_deg"))
+        return out
+    for h in [mover] + list(unit):
+        front = h.get("front_deg")
+        if turn:
+            new_fp = _turned_fp(h["footprint"], turn, pivot)
+            front = None if front is None else round(G.normalise_angle(float(front) + turn), 3)
+        else:
+            new_fp = _shifted_fp(h["footprint"], shift[0], shift[1])
+        out[str(h["id"])] = (new_fp, front)
+    return out
+
+
+def _front_free(f: dict, room_pts, pieces: Sequence[dict], inset: float = EDGE_INSET_M) -> float:
+    """The free depth in front of a piece (its walls and the pieces but the light ones), capped at ``RAY_M``."""
+    fp = f["footprint"]
+    rot, size = frame(fp, f.get("front_deg"))
+    keyed = [("wall", a, b) for a, b in segments(room_pts)]
+    own = FS.rect(fp["center"], size, rot)
+    for oid, otype, corners in _others(f, pieces):
+        if otype in LIGHT_TYPES or not corners or FS.cut_depth(own, corners) > FS.CUT_EPS_M:
+            continue
+        keyed += [(oid, a, b) for a, b in segments(corners)]
+    free, _h = ray_clear(edge_points(fp["center"], rot, size, "front", inset=inset),
+                         _dir(G.front_direction_deg(rot)), keyed)
+    return free
+
+
+def _candidates(f: dict, here: Sequence[dict], room_pts, was: dict, max_move: float) -> list[dict]:
+    """The moves rule 5 tries (module docstring): ``[{"mover", "how", "kind", "moves", "moved_m", "turn_deg",
+    "along"}]``."""
+    by_id = {str(g.get("id")): g for g in here}
+    fid = str(f["id"])
+    out = []
+    steps = [round(k * STEP_M, 4) for k in range(1, int(max_move / STEP_M + 1e-9) + 1)]
+
+    def slides(mover, unit, kind, both_axes):
+        rot, _size = frame(mover["footprint"], mover.get("front_deg"))
+        axes = [("along", _dir(rot))] + ([("across", _dir(G.normalise_angle(rot + 90.0)))] if both_axes else [])
+        for name, u in axes:
+            for s in steps:
+                for sign in (1.0, -1.0):
+                    out.append({"mover": str(mover["id"]), "how": "slid", "kind": kind, "along": name,
+                                "moves": _unit_moves(mover, unit, shift=(u[0] * s * sign, u[1] * s * sign)),
+                                "moved_m": s, "turn_deg": 0.0})
+
+    def turns(mover, unit, kind, ks):
+        for k in ks:
+            out.append({"mover": str(mover["id"]), "how": "turned", "kind": kind, "along": None,
+                        "moves": _unit_moves(mover, unit, turn=90.0 * k), "moved_m": 0.0,
+                        "turn_deg": round(G.angle_difference_deg(90.0 * k, 0.0), 1)})
+
+    def on_wall(g) -> bool:
+        rot, size = frame(g["footprint"], g.get("front_deg"))
+        return str(g.get("type")) in BACK_TYPES and back_on_wall(g["footprint"]["center"], rot, size, room_pts)
+
+    # the piece itself: turned to its free side (rule 2), slid along its wall, moved to another wall place
+    own_unit = mates(f, here, skip=was.get("blockers") or ())
+    rot0, (w, d) = frame(f["footprint"], f.get("front_deg"))
+    turns(f, own_unit, 0, (2, 1, 3) if abs(w - d) <= SQUARE_TOL_M + 1e-9 else (2,))
+    slides(f, own_unit, 1, not on_wall(f))
+    center = (float(f["footprint"]["center"][0]), float(f["footprint"]["center"][1]))
+    corners = [c for _i, t, c in _others(f, here) if t not in LIGHT_TYPES]
+    for c, rot in _wall_places((w, d), room_pts, corners, center, max_move):
+        place = ({"center": [c[0], c[1]], "size": [round(w, 4), round(d, 4)], "rotation_deg": round(rot, 3)},
+                 round(G.front_direction_deg(rot), 3))
+        out.append({"mover": fid, "how": "moved", "kind": 4, "along": None, "turn_deg": 0.0,
+                    "moves": _unit_moves(f, own_unit, place=place), "moved_m": round(G.distance(c, center), 4)})
+    # each piece in the way, with its unit (a group member gives way with its anchor)
+    seen = set()
+    for bid in was.get("blockers") or ():
+        g = by_id.get(str(bid))
+        if g is None:
+            continue
+        anchor = by_id.get(str(_group(g).get("anchor_id")))
+        if anchor is not None and anchor is not g and _group(g).get("role") != "anchor":
+            g = anchor
+        if str(g["id"]) in seen or str(g["id"]) == fid or not movable(g, here):
+            continue
+        seen.add(str(g["id"]))
+        unit = mates(g, here, skip=(fid,))
+        if any(not movable(h, here) and str(h.get("type")) not in LIGHT_TYPES for h in unit):
+            continue
+        slides(g, unit, 2, not on_wall(g))
+        turns(g, unit, 3, (1, 2, 3))
+    return out
+
+
+def _fronts(f: dict, here: Sequence[dict], room_pts) -> dict:
+    """``{id: piece_access}`` of the door-fronted pieces of the room but ``f`` (wall-hung ones aside)."""
+    return {str(g.get("id")): piece_access(g, room_pts, here, storage=True) for g in here
+            if str(g.get("id")) != str(f["id"]) and str(g.get("type")) in DOOR_FRONTED and not g.get("mount_bottom_m")}
+
+
+def _judge(cand: dict, f: dict, here: Sequence[dict], room_pts, blocked, lines, max_move: float,
+           fronts_before: dict) -> Optional[dict]:
+    """A candidate of rule 5 checked by code (module docstring): None when it fails a check, else
+    ``{"tier": 0 (free over its whole width) | 1 (opens, still tight to use), "harm_m", "free_m", "after"}``."""
+    moves = cand["moves"]
+    after = [g if str(g.get("id")) not in moves else dict(g, footprint=moves[str(g["id"])][0],
+                                                          front_deg=moves[str(g["id"])][1]) for g in here]
+    by_after = {str(g.get("id")): g for g in after}
+    still = [g for g in here if str(g.get("id")) not in moves and str(g.get("type")) not in FLOOR_TYPES
+             and (g.get("footprint") or {}).get("size")]
+    harm = 0.0
+    for g in here:
+        gid = str(g.get("id"))
+        if gid not in moves:
+            continue
+        q = by_after[gid]
+        old, new = FS.footprint_rect(g["footprint"]), FS.footprint_rect(q["footprint"])
+        if G.distance(g["footprint"]["center"], q["footprint"]["center"]) > max_move + 1e-6:
+            return None                                    # CLAUDE.md: every member moves at most 0.5 m
+        t = str(g.get("type"))
+        if t in FLOOR_TYPES:
+            continue
+        if not FS.inside_room(new, room_pts):
+            return None
+        for o in still:
+            oc = FS.footprint_rect(o["footprint"])
+            if FS.cut_depth(new, oc) > max(FS.CUT_EPS_M, FS.cut_depth(old, oc) + 1e-6):
+                return None
+            if t not in LIGHT_TYPES and str(o.get("type")) not in LIGHT_TYPES:
+                before, now = poly_distance(old, oc), poly_distance(new, oc)
+                harm += max(0.0, min(before, WALK_M) - now)
+        if blocked is not None and blocked(new) and not blocked(old):
+            return None
+        if t in BACK_TYPES:
+            r0, s0 = frame(g["footprint"], g.get("front_deg"))
+            r1, s1 = frame(q["footprint"], q.get("front_deg"))
+            if back_on_wall(g["footprint"]["center"], r0, s0, room_pts) \
+                    and not back_on_wall(q["footprint"]["center"], r1, s1, room_pts):
+                return None
+        if lines:
+            h = piece_height(g)
+            if window_cover(new, h, lines, room_pts) > window_cover(old, h, lines, room_pts):
+                return None
+    tq = by_after[str(f["id"])]
+    rot, size = frame(tq["footprint"], tq.get("front_deg"))
+    prob = access_problem(str(f["type"]), tq["footprint"]["center"], rot, size, room_pts, _others(tq, after),
+                          storage=True, inset=CLEAR_INSET_M)
+    if prob is not None and prob["severity"] == "critical":
+        return None
+    # a margin over the depth it needs: the model review measures the built footprint again (rounded)
+    open_m, use_m = access_of(str(f["type"]), float(size[0]), True)
+    strict = _front_free(tq, room_pts, after, CLEAR_INSET_M)
+    if strict < open_m + CLEAR_MARGIN_M - 1e-9:
+        return None
+    if prob is None and strict < use_m + CLEAR_MARGIN_M - 1e-9:
+        prob = {"severity": "major"}
+    # no other front blocked or tighter (the moved pieces' own fronts included)
+    for gid, before in fronts_before.items():
+        now = piece_access(by_after[gid], room_pts, after, storage=True)
+        if now is not None and (before is None or now["free_m"] < before["free_m"] - 1e-6):
+            return None
+    return {"tier": 0 if prob is None else 1, "harm_m": round(harm, 3), "free_m": _front_free(tq, room_pts, after),
+            "after": by_after}
+
+
+def clear_front(f: dict, room, pieces: Sequence[dict] = (), *, blocked: Optional[Callable] = None,
+                max_move: float = MOVE_MAX_M, openings: Sequence[dict] = (), walls: Optional[dict] = None
+                ) -> Optional[dict]:
+    """Rule 5 (module docstring): the safest move that lets the door or drawers of ``f`` open (``piece_access`` with
+    door-fronted storage critical: a wall or a piece within its opening depth). ``pieces``: the room's pieces;
+    ``blocked(rect)``: the door swings; ``openings`` / ``walls`` (id -> wall): the windows a tall piece must not cover
+    more of. Returns ``{"piece", "mover", "how": "turned" | "slid" | "moved", "moved_m", "turn_deg", "free_m": the
+    front's free depth after, "harm_m", "was", "moves": [{"id", "footprint", "front_deg", "moved_m", "reason"}],
+    "reason"}``; None when the front opens, the piece stands in a kitchen run or hangs on a wall, or no move passes
+    the checks. Pure: nothing is changed."""
+    fp = f.get("footprint") or {}
+    ftype = str(f.get("type") or "")
+    if access_of(ftype, None, True) is None or not fp.get("center") or not fp.get("size") or f.get("mount_bottom_m"):
+        return None
+    room_pts = FS.ccw(room)
+    if len(room_pts) < 3:
+        return None
+    here = [g for g in pieces if g.get("build") is not False and (g.get("footprint") or {}).get("size")
+            and (g.get("footprint") or {}).get("center")
+            and (f.get("room_id") is None or g.get("room_id") == f.get("room_id"))]
+    if not any(g is f or g.get("id") == f.get("id") for g in here):
+        here.append(f)
+    was = piece_access(f, room_pts, here, storage=True)
+    if was is None or was["severity"] != "critical" or in_run(f, here):
+        return None
+    lines = window_lines(openings, walls, f.get("level_id"))
+    fronts_before = _fronts(f, here, room_pts)
+    best = None
+    for cand in _candidates(f, here, room_pts, was, max_move):
+        got = _judge(cand, f, here, room_pts, blocked, lines, max_move, fronts_before)
+        if got is None:
+            continue
+        mover = next(g for g in here if str(g.get("id")) == cand["mover"])
+        drawn = 0 if mover.get("source") == "added_by_ai" else 1
+        key = (got["tier"], round(got["harm_m"], 2), drawn, round(cand["moved_m"], 3), len(cand["moves"]),
+               cand["kind"], cand["mover"], round(cand["turn_deg"], 1))
+        if best is None or key < best[0]:
+            best = (key, cand, got)
+    if best is None:
+        return None
+    _key, cand, got = best
+    by_id = {str(g.get("id")): g for g in here}
+    mover = by_id[cand["mover"]]
+    in_way = ", ".join(was["blockers"][:3] + (["the wall"] if was.get("wall") else [])) or "blocked"
+    what = (f"{ftype} {f['id']}: {was['free_m']:.2f} m free in front of its doors or drawers ({in_way} in the way; "
+            f"they need {was['open_m']:.2f} m to open)")
+    unit = [i for i in cand["moves"] if i != cand["mover"]]
+    with_ = f" with {', '.join(unit)}" if unit else ""
+    if cand["how"] == "turned":
+        how = f"turned {cand['turn_deg']:.0f} deg in place{with_}"
+    elif cand["how"] == "slid":
+        how = (f"slid {cand['moved_m']:.2f} m along its wall{with_}" if cand["along"] == "along"
+               else f"moved {cand['moved_m']:.2f} m off the front{with_}")
+    else:
+        front = cand["moves"][cand["mover"]][1]
+        how = f"moved {cand['moved_m']:.2f} m to a free place on a wall, facing {float(front):.0f} deg{with_}"
+    who = "it" if cand["mover"] == str(f["id"]) else f"{mover.get('type')} {mover['id']} in front of it"
+    checks = ("the safest move that passes the code checks: inside the room, no collision, the door swings free, "
+              "no more of a window covered, every other front still opens")
+    reason = f"{what}: {who} {how}, so they open ({got['free_m']:.2f} m free; {checks})"
+    moves = []
+    for gid, (new_fp, new_front) in cand["moves"].items():
+        g = by_id[gid]
+        dist = G.distance(g["footprint"]["center"], new_fp["center"])
+        if gid == str(f["id"]):
+            why = reason
+        elif gid == cand["mover"]:
+            why = (f"{g.get('type')} {gid} stood in front of the doors or drawers of {ftype} {f['id']} "
+                   f"({was['free_m']:.2f} m free, {was['open_m']:.2f} m needed to open them): {how} so they open "
+                   f"({got['free_m']:.2f} m free; a clear drawing error, a drawn piece moves at most "
+                   f"{MOVE_MAX_M:.1f} m; {checks})")
+        else:
+            why = (f"{g.get('type')} {gid} moves with {mover.get('type')} {mover['id']} (one unit): {how} to clear "
+                   f"the front of {ftype} {f['id']}")
+        moves.append({"id": gid, "footprint": new_fp, "front_deg": new_front, "moved_m": round(dist, 3),
+                      "reason": why})
+    return {"piece": str(f["id"]), "mover": cand["mover"], "how": cand["how"], "moved_m": round(cand["moved_m"], 3),
+            "turn_deg": cand["turn_deg"], "free_m": got["free_m"], "harm_m": got["harm_m"], "was": was,
+            "moves": moves, "reason": reason}
 
 
 # --------------------------------------------------------------------------

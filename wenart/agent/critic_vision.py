@@ -801,6 +801,23 @@ MODEL_VIEW_CHECKS = ("Q3", "Q4", "Q5", "Q6", "D3", "F9", "D2", "Q10", "Q12", "Q1
 MODEL_VIEW_SCHEMA = answer_schema(MODEL_VIEW_CHECKS)
 
 
+UNDER_COUNTER_MAX_M = 1.0       # a piece built into a run lower than this is an under-counter unit
+
+
+def piece_fact(f: dict) -> str:
+    """A piece as the vision models are told of it: ``<id> <type>``, and where it is built into a counter run or a
+    vanity, that it is (30 Oct 2026, real04 run 20261029-201533-full: the under-counter fridge f_L-1_090 built into the
+    run f_L-1_004 was listed as "f_L-1_090 fridge"; the judge looked for a fridge and said it was missing)."""
+    text = f"{f.get('id')} {f.get('type')}"
+    built_in = f.get("built_in") if isinstance(f.get("built_in"), dict) else {}
+    host = f.get("built_into") or built_in.get("host")
+    if host:
+        h = f.get("height")
+        under = isinstance(h, (int, float)) and not isinstance(h, bool) and float(h) < UNDER_COUNTER_MAX_M
+        text += f" ({'an under-counter unit ' if under else ''}built into {host})"
+    return text
+
+
 def model_view_ids(building: dict, level_id: str) -> tuple[set, list[dict]]:
     """The ids a finding on a level's top-down view may target: its rooms, their built pieces and its openings."""
     rooms = [r for r in building.get("rooms") or [] if r.get("level_id") == level_id and r.get("id")]
@@ -821,7 +838,7 @@ def critique_model_view(model, building: dict, level_id: str, *, image: Path, co
     pieces = {}
     for f in building.get("furniture") or []:
         if f.get("room_id") in {r["id"] for r in rooms} and TD.is_built(f):
-            pieces.setdefault(f["room_id"], []).append(f"{f.get('id')} {f.get('type')}")
+            pieces.setdefault(f["room_id"], []).append(piece_fact(f))
     room_lines = [f"- {r['id']} ({r.get('label') or r.get('name') or ''}, type {r.get('room_type')}): "
                   + (", ".join(pieces.get(r["id"], [])[:14]) or "no furniture") for r in rooms]
     known = [f"- {f['check']} {f['severity']} {f['target']}: {f['message']}" for f in code.get("findings") or []

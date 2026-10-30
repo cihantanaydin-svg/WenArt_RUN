@@ -91,8 +91,7 @@ def view_facts(building: dict, view: dict) -> tuple[str, set]:
     if room_id:
         allowed = CV.room_ids(building, room_id, [name])
         room = next((r for r in building.get("rooms") or [] if r.get("id") == room_id), {})
-        pieces = [f"{f.get('id')} {f.get('type')}" for f in building.get("furniture") or []
-                  if f.get("id") in allowed]
+        pieces = [CV.piece_fact(f) for f in building.get("furniture") or [] if f.get("id") in allowed]
         openings = [f"{o.get('id')} {o.get('type')}" for o in building.get("openings") or [] if o.get("id") in allowed]
         lines = [f"Room {room_id} ({room.get('label') or room.get('name') or ''}), a {room.get('room_type')} of "
                  f"{float(room.get('area_computed') or room.get('area') or 0):.1f} m2.",

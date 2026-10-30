@@ -76,7 +76,7 @@ FIX_ARCH = ("door_to_window", "french_window", "raise_sill", "widen_door", "inte
             # 27 Oct 2026: a stair cut off from its floor read the other way
             "flip_stair",
             # 29 Oct 2026: a blocked door front (F4), a basin under a low window (H2)
-            "free_front", "clear_basin", "basin_sill")
+            "free_front", "clear_front", "clear_basin", "basin_sill")
 FIX_OTHER = ("agent_round", "rerun_stage", "rule_needed", "not_a_problem")
 # 26 Oct 2026 (user: "make Argus fix everything itself, give it more power"): the agent's edit tools Argus may call
 # itself (23; the loop runs them in Argus's session through the same registry, validators and acceptance:

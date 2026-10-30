@@ -197,6 +197,10 @@ KITCHEN_WALL_TOP_M = 2.10
 KITCHEN_COLUMN_TOP_M = KITCHEN_WALL_TOP_M
 KITCHEN_COLUMN_FREEZER_SHARE = 0.40
 KITCHEN_COLUMN_MIN_REST_M = 0.60      # a column only when this much counter stays beside it
+# 30 Oct 2026: the under-counter fridge's upright bar handle (a side-hinged door; a dishwasher's bar runs along its
+# top): 45 cm long at most, its axis this far in from the door's opening edge
+UNDER_FRIDGE_HANDLE_M = 0.45
+UNDER_FRIDGE_HANDLE_IN_M = 0.05
 KITCHEN_DRAWER_UNIT_W_M = 0.60        # a 60 unit takes three drawers (METOD / MAXIMERA); wider ones two doors
 # Fix round after P3 (16-17 Oct 2026): a drawn freestanding range (``stove``) inside a drawn run stands in a gap of
 # the run (``module_hints["ranges"]``): no base unit, plinth or worktop over its drawn span, which is kept exactly
@@ -1503,6 +1507,8 @@ def worktop_item_window(item: dict, host: dict, building: dict) -> Optional[str]
     (pure: the build skips such an item; the architect may add or move a window after the decor stage)."""
     try:
         h = float(item["size"][2]) if len(item.get("size") or []) > 2 else 0.25
+        if h <= WORKTOP_WINDOW_LOW_M + 1e-9:
+            return None                  # 30 Oct 2026: a low item may stand before a window (decor.WORKTOP_WINDOW_LOW_M)
         top_z = float(host.get("height") or KITCHEN_WORKTOP_HEIGHT_M)
         if not (KITCHEN_WORKTOP_RANGE_M[0] <= top_z <= KITCHEN_WORKTOP_RANGE_M[1]):
             top_z = KITCHEN_WORKTOP_HEIGHT_M
@@ -1521,6 +1527,7 @@ def worktop_item_window(item: dict, host: dict, building: dict) -> Optional[str]
 
 
 WORKTOP_SLIDE_STEP_M = 0.05
+WORKTOP_WINDOW_LOW_M = 0.15          # = decor.WORKTOP_WINDOW_LOW_M: a board, a fruit bowl, plates stand before a window
 WORKTOP_HOB_CLEAR_M = 0.25           # = decor.WORKTOP_HOB_CLEAR_M (Blender's Python has no shapely: no import)
 WORKTOP_SINK_CLEAR_M = 0.10          # = decor.WORKTOP_SINK_CLEAR_M
 WORKTOP_ITEM_GAP_M = 0.10            # = decor.WORKTOP_ITEM_GAP_M
@@ -2154,8 +2161,9 @@ def _base_unit_parts(m: dict, design: dict, d_run: float) -> list[Part]:
 def _appliance_fronts(kind: str, x: float, w: float, face: float, z0: float, h: float, design: dict) -> list[Part]:
     """26 Oct 2026: the front of a unit that holds an appliance (module docstring). ``oven``: a 59.5 cm built-in oven
     under the worktop (a steel control strip with two knobs, a black glass door with a steel bar handle, a glass
-    window in it) over a drawer in the design's front style; ``fridge``: the under-counter fridge's steel door with a
-    long bar handle at its top and a dark vent grille at its foot. Every part sits in front of the carcass face."""
+    window in it) over a drawer in the design's front style; ``fridge``: the under-counter fridge's steel door with an
+    upright bar handle near its opening edge (30 Oct 2026: a side-hinged door; the bar along the top had read as a
+    dishwasher) and a dark vent grille at its foot. Every part sits in front of the carcass face."""
     gap = 0.003
     fw = w - 0.004
     y_back = face - P.FRONT_GAP                         # the back of a front
@@ -2206,10 +2214,16 @@ def _appliance_fronts(kind: str, x: float, w: float, face: float, z0: float, h: 
     vent = min(0.06, door_h * 0.1)
     parts.append(P._box(x, cy, z0 + gap + vent, fw, t, door_h - vent, "steel", "front"))
     parts.append(P._box(x, cy, z0 + gap, fw, t, vent - gap, "dark", "front"))
-    parts.append(P._box(x, y_back - t - 0.03, top - 0.07, fw * 0.8, 0.014, 0.016, "steel", "handle"))
-    for sx in (-1.0, 1.0):
-        parts.append(P._box(x + sx * fw * 0.38, y_back - t - 0.0125, top - 0.068, 0.012, 0.023, 0.012, "steel",
-                            "handle"))
+    # 30 Oct 2026 (real04 run 20261029-201533-full: the under-counter fridge f_L-1_090 was built, but its steel door
+    # with a long bar along its top read as a dishwasher and the judge said "the fridge is missing from the scene"): a
+    # fridge door hinges at its side, so its bar handle stands upright near the opening edge (on the run's middle side)
+    side = -1.0 if x > 1e-6 else 1.0
+    hx = x + side * (fw / 2.0 - UNDER_FRIDGE_HANDLE_IN_M)
+    hl = min(UNDER_FRIDGE_HANDLE_M, (door_h - vent) * 0.6)
+    hz = top - 0.08 - hl
+    parts.append(P._box(hx, y_back - t - 0.03, hz, 0.016, 0.014, hl, "steel", "handle"))
+    for sz in (hz + 0.02, hz + hl - 0.032):             # the handle's two posts
+        parts.append(P._box(hx, y_back - t - 0.0125, sz, 0.012, 0.023, 0.012, "steel", "handle"))
     return parts
 
 
