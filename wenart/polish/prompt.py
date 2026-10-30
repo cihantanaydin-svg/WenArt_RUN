@@ -196,6 +196,9 @@ MATERIAL_WORDS: dict[str, str] = {
     "gravel": "gravel",
     "grass": "green lawn",
     "decking": "composite decking",
+    "asphalt": "asphalt road",                      # 30 Oct 2026 (UL162): the streets outside the plot
+    "leather_tan": "tan leather",                   # 30 Oct 2026 (UL160): the holdall's leather
+    "book_pages": "cream book pages",               # 30 Oct 2026 (UL154): a book's page block
     "rattan": "woven rattan",
     # furniture woods and handles
     "wood_veneer_oak_light": "light natural oak veneer",

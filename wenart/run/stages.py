@@ -131,6 +131,10 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wena
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
             "wenart/blender/detail_parts.py",        # 29 Oct 2026: the reference details' parts (parametric)
             "wenart/blender/salon_parts.py",         # 30 Oct 2026 (UL153): detail_parts -> the P16 forms and parts
+            # 30 Oct 2026: detail_parts / parametric / bath_parts -> the books (UL154), the holdall (UL160), the desk's
+            # stationery (UL164), the bathroom's objects (UL166)
+            "wenart/blender/book_parts.py", "wenart/blender/holdall.py", "wenart/blender/desk_parts.py",
+            "wenart/blender/bath_objects.py",
             "wenart/blender/common.py", "wenart/assets/**", "wenart/style/**", "wenart/building.py", "wenart/textfold.py", "wenart/units.py",
             "wenart/geometry.py", "wenart/schema/**",
             # Milestone 10 (track F): the looks of the design fallback and the refit's locked check.
@@ -216,6 +220,10 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/bedding_parts.py",          # 29 Oct 2026: detail_parts -> the nightstand set (UL121)
              "wenart/blender/wardrobe_contents.py",      # 30 Oct 2026: modules -> the wardrobe's contents (UL135)
              "wenart/blender/salon_parts.py",            # 30 Oct 2026: detail_parts -> the P16 salon parts (UL153)
+             # 30 Oct 2026: the books (UL154), the holdall (UL160), the desk's stationery (UL164), the bathroom's
+             # objects (UL166)
+             "wenart/blender/book_parts.py", "wenart/blender/holdall.py", "wenart/blender/desk_parts.py",
+             "wenart/blender/bath_objects.py",
              # 30 Oct 2026 (UL129, UL141-UL144): the grading review's site sense and the pools' ladder and seats
              "wenart/blender/site_sense.py", "wenart/blender/pool_extras.py",
              # 30 Oct 2026 (UL131, UL140): the soft seats' grade (fit), fabric slots and parts (furniture), the names
