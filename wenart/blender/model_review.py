@@ -204,6 +204,8 @@ CHECKS += ("M29",)          # 29 Oct 2026 (UL116, UL117, UL120, UL122, UL125): t
 CHECKS = CHECKS + ("M26",)       # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's set (bath_details.review)
 CHECKS = CHECKS + ("M28",)      # 29 Oct 2026: M28 a different solution for each room, the photos' details (UL119)
 CHECKS = CHECKS + ("M30",)      # 29 Oct 2026: M30 every bed in its family's bedding (UL121, bedding_parts.review)
+CHECKS = CHECKS + ("M31",)      # 30 Oct 2026: M31 wall items clear of openings, each other, what stands in front (UL134,
+#                                 UL139, wall_items.review)
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -1465,6 +1467,18 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
                      for g in got], n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
         checks["M30"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M31 (30 Oct 2026, lessons UL134 "These things in front of a window needs fixing", UL139 "TV hiding the picture
+    # not making sense"): every wall item clear of the openings of its wall, of the other wall items and of what stands
+    # in front of it (wall_items.review, the rule Argus' U35 reads too; pure)
+    try:
+        from wenart.blender import wall_items as WI
+
+        got, n = WI.review(built, check="M31")
+        note("M31", [dict(_v("M31", g["severity"], g["target"], g["message"], room_id=g["room_id"],
+                             kind="no_sense", problem=g["kind"],
+                             other=g["other"], lesson=g["lesson"]), fix=FIX_WALL_ITEMS) for g in got], n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
+        checks["M31"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M19 / M22 (29 Oct 2026, the user on real06: "This washing machine would not open", "this sink not making sense
     # there", "There is a gap between wall and water faucet not looking good"): fronts that open, basins under a solid
     # wall, backs on their walls, on the building as built (pure)
@@ -1477,6 +1491,9 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
     return {"findings": findings, "checks": checks}
 
 
+FIX_WALL_ITEMS = ("the decor stage's and the build's wall-item pass (wenart.blender.wall_items.resolve: raise the "
+                  "item over what stands below it, move it along its wall or to another free wall, else leave it "
+                  "out); a hung piece of the drawing over an opening: the layout or the architect")
 FIX_BEDDING = ("the decor stage's bedding plan (wenart.furniture.bedding: the family's set, the free sides, the throw "
                "pair's weave) and the build's dressing (textiles.bedding_set: shams, standing pillows, accent cushions "
                "and a lumbar, the deep duvet hanging on the free sides; the woven, fringed throw pair)")

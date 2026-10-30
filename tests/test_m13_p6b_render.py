@@ -408,8 +408,15 @@ def test_p6b_view_white_records_the_walls_and_keeps_the_white_point(tmp_path, mo
     assert walls["rig_share"] == pytest.approx(R.rig_share([1.6, 1.1, 0.6], [0.5, 0.5, 0.45]))
     assert walls["lamp_rb"] == pytest.approx(1.5 / 0.566, abs=1e-4) and kelvin_calls == [walls["rig_rgb"]]
     assert plain["wb_walls"] is None
-    assert {k: v for k, v in rec.items() if k != "wb_walls"} == {k: v for k, v in plain.items() if k != "wb_walls"}
-    assert rec["whitepoint"] == plain["whitepoint"] != list(P5_ANCHOR)          # mixed with the rig, as before
+    # 30 Oct 2026 (m13.6, render.wall_rig_mix): with the walls metered the rig part of the white point is the rig light
+    # on the walls by the walls' rig share (here warmer than the lamp: the white point is warmer); the rest as before
+    mixed = ("wb_walls", "whitepoint", "wb_rig_source", "wb_rig_mix_share", "wb_view_rule")
+    assert {k: v for k, v in rec.items() if k not in mixed} == {k: v for k, v in plain.items() if k not in mixed}
+    assert rec["wb_rig_source"] == "walls" and plain["wb_rig_source"] == "lamp"
+    assert rec["wb_rig_mix_share"] == pytest.approx(walls["rig_share"], abs=1e-6)
+    assert rec["wb_view_rule"].startswith(R.WB_WALLS_RULE) and plain["wb_view_rule"].startswith(R.WB_VIEW_RULE)
+    assert plain["whitepoint"] != list(P5_ANCHOR)                                 # mixed with the rig, as before
+    assert rec["whitepoint"][0] / rec["whitepoint"][2] > plain["whitepoint"][0] / plain["whitepoint"][2]
     schemas.validate_render_manifest(_manifest({"exposure": dict(_manifest({})["renders"][0]["exposure"],
                                                                  wb_walls=walls)}))
     # under the rig-share floor: the record is still written, the white point is the anchor's (with its tint)

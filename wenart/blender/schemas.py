@@ -258,6 +258,10 @@ EXPOSURE = {
         "ground_rule": {"type": "string"},
         # Fix round after P6b (23 Oct 2026, optional): the light on the view's walls (WB_WALLS, recorded only).
         "wb_walls": WB_WALLS,
+        # 30 Oct 2026 (m13.6, optional): which rig colour the white point mixed (render.wall_rig_mix: the rig light on
+        # the walls, else the lamp's) and by which share (the walls' rig share, else the frame's)
+        "wb_rig_source": {"enum": ["walls", "lamp"]},
+        "wb_rig_mix_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
         # 28 Oct 2026 (optional): an exterior view with no facade to meter took the EV of the exterior views metered
         # before it (render.exterior_fallback_ev; how in ``source``)
         "fallback": {"enum": ["exterior"]},

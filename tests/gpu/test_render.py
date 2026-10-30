@@ -1192,6 +1192,35 @@ def _wall_kind(entry: dict, manifest_types: dict, style: dict | None = None) -> 
     return "painted" if kind is None or kind in PAINTED_WALL_KINDS else str(kind)
 
 
+def _paint_kind(entry: dict, manifest_types: dict, style: dict | None = None, rooms: dict | None = None) -> str:
+    """The orange check's kind of a view's walls (30 Oct 2026): ``_wall_kind``; a painted room's paint by its record
+    (``looks.wall_paint_key``: the house's paint, the house's paint with an accent wall, or the colour its scheme
+    paints it all round), so only views of one paint compare. Why: real04 run 20261029-201533-full, its first run
+    with the 29 Oct room schemes: the greige halls cam_r_L1_koridor_1 and cam_r_L-1_koridor_2_1 were held to the
+    daylight median of bedrooms and a living room with pale dusty blue accent walls (0.94-1.27)."""
+    from wenart.blender import looks
+
+    k = _wall_kind(entry, manifest_types, style)
+    room = (rooms or {}).get(entry.get("room_id"))
+    if k != "painted" or room is None:
+        return k
+    return looks.wall_paint_key(room, style)
+
+
+def _judged_kind(kind: str) -> bool:
+    """A paint or tiles the orange check judges (wood panelling, brick and stone have their own colour)."""
+    return kind in ("painted", "tiled") or kind.startswith("painted+") or kind.split(":", 1)[0] in ("paint",
+                                                                                                    "lime_plaster")
+
+
+def _scene_rooms(name: str, scene: dict) -> dict:
+    """``{room id: room}`` of the scene's building (as built), {} when it cannot be read."""
+    try:
+        return {r["id"]: r for r in _building(name, scene).get("rooms") or [] if r.get("id")}
+    except (AssertionError, OSError, ValueError, KeyError):
+        return {}
+
+
 def test_rig_lit_rooms_have_no_orange_cast(project):
     """The walls of a view lit mostly by the rig (``wb_rig_share`` >= 0.8) and metered within the cap have a display
     R/B of at most 1.5 (``views.regions`` walls, as ``test_white_plaster_walls_are_neutral``; P3: 1.86-4.2). Fix round
@@ -1223,7 +1252,12 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     Fix round after P6b (23 Oct 2026), review: the mixed bound needs a neutral rig (the view's ``wb_rig_kelvin`` at
     least ``lighting.RIG_NEUTRAL_K``, ``_orange_bound``); P6b measured only its 4000 K rig, and P4b's mixed 2700 K
     halls at 0.49-0.66 (orange in its image review) would have passed against 1.632. The values file keeps each
-    view's rig temperature."""
+    view's rig temperature.
+    30 Oct 2026 (real04 run 20261029-201533-full, its first run with the 29 Oct room schemes): the kind of a painted
+    view is its paint (``_paint_kind``, ``looks.wall_paint_key``): the house's paint, the house's paint with an accent
+    wall, or a scheme's colour all round; the greige halls koridor_1 (1.465) and koridor_2_1 (1.348) were held to the
+    median of bedrooms and a living room with pale dusty blue accent walls (0.94-1.27, bound 1.343). The render's white
+    point takes the rig light as the walls get it since m13.6 (``render.wall_rig_mix``)."""
     from wenart import views
     from wenart.blender import render as R
 
@@ -1249,16 +1283,17 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     measured = {cam: _wall_rb(v, table) for cam, v in loaded.items()}
 
     style = scene.get("style_profile") if isinstance(scene.get("style_profile"), dict) else None
+    rooms = _scene_rooms(name, scene)                       # 30 Oct 2026: the rooms' paints (their schemes)
 
     def kind(cam):
-        return _wall_kind(entries[cam], manifest_types, style)
+        return _paint_kind(entries[cam], manifest_types, style, rooms)
     # 28 Oct 2026: walls of another finish (wood panelling, brick) have their own colour: printed, not judged
-    other = [(c, kind(c)) for c in rig_lit if kind(c) not in ("painted", "tiled")]
-    rig_lit = [c for c in rig_lit if kind(c) in ("painted", "tiled")]
+    other = [(c, kind(c)) for c in rig_lit if not _judged_kind(kind(c))]
+    rig_lit = [c for c in rig_lit if _judged_kind(kind(c))]
     if other:
         print(f"{name}: rig-lit views of walls neither painted nor tiled, not judged: {other}")
     reference, warmest = {}, {}
-    for k in ("painted", "tiled"):
+    for k in sorted({kind(c) for c in rig_lit} | {"painted", "tiled"}):
         values = sorted(measured[c] for c in daylight if kind(c) == k and measured.get(c) is not None)
         reference[k] = float(np.median(values)) if values else None
         warmest[k] = values[-1] if values else None                 # fix round after P6b

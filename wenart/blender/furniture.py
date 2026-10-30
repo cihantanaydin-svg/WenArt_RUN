@@ -1135,8 +1135,10 @@ class _Materials:
             accent = None
         elif key.startswith(CLOTH_PREFIX):
             # 29 Oct 2026 (UL120): a garment, a folded stack or a pair of shoes of a see-through wardrobe: the
-            # style's fabric in the colour its key names (``modules.garment_parts``: ``cloth:<colour>``)
-            key, colour, accent = "fabric", key[len(CLOTH_PREFIX):] or None, None
+            # style's fabric in the colour its key names (``modules.garment_parts``: ``cloth:<colour>``); 30 Oct 2026
+            # (UL135): ``cloth:<look>:<colour>`` is the bedding's woven fabric of that look (``textile_<look>``: the
+            # wenart_weave cotton, wool, knit or linen) in that colour
+            key, colour, accent = cloth_material_key(key, self.keys), cloth_colour(key), None
         else:
             accent, colour = None, None
         if key == "smoked_glass":                 # 29 Oct 2026 (UL120): a see-through wardrobe's smoked glass
@@ -1182,11 +1184,28 @@ class _Materials:
             if key.startswith(prefix):
                 key = key[len(prefix):]
         if key.startswith(CLOTH_PREFIX):
-            key = "fabric"
+            key = cloth_material_key(key, self.keys)
         if key.startswith(LIT_KEY):
             key = key[len(LIT_KEY):]
         over = (overrides or {}).get(key)
         return over["slug"] if over else self.keys[key][0]
+
+
+def cloth_material_key(key: str, keys) -> str:
+    """The material key of a ``cloth:`` part (pure; 30 Oct 2026, UL135): ``textile_<look>`` for
+    ``cloth:<look>:<colour>`` when the style's keys have it (the bedding's woven fabrics), else ``fabric``."""
+    from wenart.blender import wardrobe_contents as WC
+
+    look, _colour = WC.parse_cloth_key(key)
+    name = f"textile_{look}" if look else None
+    return name if name and name in keys else "fabric"
+
+
+def cloth_colour(key: str):
+    """The colour name of a ``cloth:`` part key (``cloth:<look>:<colour>`` or ``cloth:<colour>``), None without one."""
+    from wenart.blender import wardrobe_contents as WC
+
+    return WC.parse_cloth_key(key)[1]
 
 
 def piece_room(building: dict, level: dict, item: dict) -> dict:
@@ -2109,8 +2128,59 @@ def _module_object(piece, plan, name, status, floor_z, collection, mats, entry, 
     if plan.get("split"):
         entry["_details"].append({"field": "split", "kind": "split", "value": json.dumps(plan["split"]),
                                   "reason": "the drawn footprint includes the chairs (CLAUDE.md): table + chairs"})
+    lights = MOD.bay_lights(plan)                 # 30 Oct 2026 (UL135): the light of each bay's LED strip
+    if lights:
+        entry["bay_lights"] = bay_light_objects(lights, piece, provider.floor_z, collection, name)
+        entry["_details"].append({"field": "bay_lights", "kind": "see_through_light",
+                                  "value": f"{len(lights)} x {lights[0]['lumens']:.0f} lm, {lights[0]['temperature_k']:.0f} K",
+                                  "reason": "an LED strip at the top of every bay lights the contents so they read "
+                                            "through the see-through front (UL135; " + lights[0]["source"] + ")"})
     entry["_details"] += entry.pop("_details_extra", [])
     return ob
+
+
+def bay_light_world(light: dict, footprint: dict, floor_z: float) -> list[float]:
+    """The world centre of a bay light given in its wardrobe's frame (pure; ``parametric.world_mesh``'s transform)."""
+    x, y, z = (float(v) for v in light["center"])
+    rad = math.radians(float(footprint.get("rotation_deg") or 0.0))
+    c, s = math.cos(rad), math.sin(rad)
+    cx, cy = float(footprint["center"][0]), float(footprint["center"][1])
+    return [round(cx + c * x - s * y, 4), round(cy + s * x + c * y, 4), round(float(floor_z) + z, 4)]
+
+
+def bay_light_objects(lights: list[dict], piece: dict, floor_z: float, collection, name: str) -> list[dict]:
+    """30 Oct 2026 (UL135): one area light per bay of a see-through wardrobe (``modules.bay_lights``) under its top at
+    the front, pointing down, its colour temperature on; a rig light of the room (``wenart_rig`` ``wardrobe``,
+    ``wenart_room``), so render.py hides it while the daylight white point is metered and counts it in the view's rig
+    share; not seen by the camera (the strip's LED mesh is). Returns the records (the piece's manifest entry)."""
+    import bpy
+
+    from wenart.blender import common
+
+    fp = piece["footprint"]
+    out = []
+    for light in lights:
+        data = bpy.data.lights.new(f"{name}_bay{light['bay']}_light", "AREA")
+        data.energy = float(light["energy_w"])
+        data.shape = "RECTANGLE"
+        data.size, data.size_y = float(light["size_m"][0]), float(light["size_m"][1])
+        try:
+            data.use_temperature = True
+            data.temperature = float(light["temperature_k"])
+        except AttributeError:                       # an older Blender: the colour of the temperature
+            from wenart.blender import lighting as L
+            data.color = L._blackbody_rgb(float(light["temperature_k"]))
+        ob = bpy.data.objects.new(data.name, data)
+        ob.location = bay_light_world(light, fp, floor_z)
+        ob.rotation_euler = (0.0, 0.0, math.radians(float(fp.get("rotation_deg") or 0.0)))   # -Z down, along the run
+        ob.visible_camera = False
+        collection.objects.link(ob)
+        common.set_props(ob, wenart_id=ob.name, kind="light", status="assumed")
+        ob["wenart_room"] = piece.get("room_id") or ""
+        ob["wenart_rig"] = "wardrobe"
+        out.append({"name": ob.name, "bay": light["bay"], "center": list(ob.location), "energy_w": light["energy_w"],
+                    "lumens": light["lumens"], "temperature_k": light["temperature_k"], "size_m": light["size_m"]})
+    return out
 
 
 RECOLOUR_DETAIL = 0.6                  # recoloured texture slots keep this share of their luminance detail

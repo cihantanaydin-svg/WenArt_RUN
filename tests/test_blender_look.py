@@ -272,7 +272,7 @@ def test_render_key_covers_every_setting():
     # (sky-edge shell hits take the near surface's reference; per-view daylight tint): P5's m13.3 renders are old. Fix
     # round after P6a (22 Oct 2026): m13.5 (the sky pull's median floor; the tint metered on the walls, m13.4's green
     # residual kept: render.WB_TINT_KEEP_GREEN_RESIDUAL): P6a's m13.4 renders are old.
-    assert settings["code"] == R.RENDER_CODE_VERSION == "m13.5" and settings["passes"] == list(R.PASSES)
+    assert settings["code"] == R.RENDER_CODE_VERSION == "m13.6" and settings["passes"] == list(R.PASSES)
     assert settings["exposure"]["limits"] == [-2.0, 3.0]
     assert R.key_settings(**dict(base, limits=R.EXPOSURE_LIMITS_M11))["exposure"]["limits"] == [-2.0, 8.0]
     assert R.render_key(R.key_settings(**dict(base, limits=R.EXPOSURE_LIMITS_M11))) != k0
@@ -809,7 +809,7 @@ def test_metering_records_a_clamped_exposure_and_a_whitepoint(room):
     schemas.validate_render_manifest(manifest)
     assert manifest["exposure_mode"] == "auto" and manifest["white_balance_mode"] == "auto"
     assert manifest["scene"] == "../scene/scene.blend" and manifest["view_transform"] == "AgX"
-    assert manifest["look"] == "AgX - Punchy" and manifest["render_code_version"] == "m13.5"    # M7 / M13 fix rounds
+    assert manifest["look"] == "AgX - Punchy" and manifest["render_code_version"] == "m13.6"    # M7 / M13 fix rounds
     # Milestone 13 (docs/milestone13.md §13.2): the EV cap (-2, +3) is the run's limit; a metered EV past it keeps
     # +3, says at_limit and carries the lighting_dark finding.
     lo, hi = manifest["exposure_limits"]

@@ -211,7 +211,8 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/bath_parts.py",             # 29 Oct 2026 (UL114): the bathroom's parts (parametric, looks)
              "wenart/blender/kitchen_details.py",        # 29 Oct 2026: modules / furniture -> the kitchen details
              "wenart/blender/detail_parts.py",           # 29 Oct 2026: parametric's reference-detail parts (UL119)
-             "wenart/blender/bedding_parts.py")          # 29 Oct 2026: detail_parts -> the nightstand set (UL121)
+             "wenart/blender/bedding_parts.py",          # 29 Oct 2026: detail_parts -> the nightstand set (UL121)
+             "wenart/blender/wardrobe_contents.py")      # 30 Oct 2026: modules -> the wardrobe's contents (UL135)
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height

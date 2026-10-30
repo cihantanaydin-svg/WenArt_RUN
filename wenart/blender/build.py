@@ -675,6 +675,36 @@ def site_summary(building: dict) -> dict | None:
     return out
 
 
+def clear_wall_items(building: dict, assumed: list, warnings: list) -> dict:
+    """30 Oct 2026 (lessons UL134 "These things in front of a window needs fixing", UL139 "TV hiding the picture not
+    making sense"; real04 run 20261029-201533-full): the build's pass of ``wall_items.resolve`` on the building it
+    builds (in place: the decor the shell and the furniture steps read; ``building_built.json`` keeps it): every wall
+    item over an opening the build cut (the architect's ``enlarge_windows`` window behind r_L0_yatak_odasi_3's desk
+    unit and picture), over another wall item or behind what stands in front of its wall (the TV on r_L-1_salon's unit
+    over the picture) is raised, moved or left out. Each change is an ``assumed`` row (kind ``wall_item_clear``, its
+    item the parent), each item left out a warning; hung furniture over an opening is a warning only (drawn pieces
+    never move). Returns the record of the scene manifest's ``wall_items``."""
+    from wenart.blender import wall_items as WI
+
+    try:
+        res = WI.resolve(building, stage="build")
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, IndexError, AttributeError) as exc:
+        warnings.append(f"wall items not checked: {type(exc).__name__}: {exc}")
+        return {"error": f"{type(exc).__name__}: {exc}"}
+    by_id = {d.get("id"): d for d in building.get("decor") or []}
+    for how in ("raised", "moved"):
+        for row in res[how]:
+            rec = (by_id.get(row["id"]) or {}).get("wall_clear") or {}
+            assumed.append({"object": row["id"], "field": "wall_clear", "value": how, "kind": "wall_item_clear",
+                            "parent": row["id"], "reason": rec.get("reason") or f"{row['kind']} {row['other']}"})
+    for row in res["dropped"]:
+        warnings.append(f"wall item {row['type']} {row['id']} left out: {row['reason']}")
+    for c in res["furniture"]:
+        warnings.append(f"wall items: {c['message']}")
+    return {"raised": res["raised"], "moved": res["moved"], "dropped": res["dropped"],
+            "furniture": [{k: c.get(k) for k in ("target", "other", "kind", "severity")} for c in res["furniture"]]}
+
+
 def furniture_building(building: dict) -> dict:
     """The building furniture.create_furniture gets (pure): every piece but the
     fixed equipment that shell.build_stairs builds (``parametric.SHELL_TYPES``),
@@ -1429,6 +1459,9 @@ def main(argv: list[str]) -> int:
     level_collections = {}
     furniture_summary = {"pieces": 0, "by_method": {}, "fallbacks": [], "proxies": 0, "decor": 0,
                          "proxies_forced": bool(args.proxies), "not_built": [], "stairs": [], "decor_skipped": []}
+    # 30 Oct 2026 (lessons UL134, UL139): every wall item clear of the openings the build cuts (the architect's
+    # windows come after the decor stage), of the other wall items and of what stands in front of its wall
+    wall_items_info = clear_wall_items(building, assumed, warnings)
     loose_furniture = furniture_building(building)            # stairs are built with the shell
     # 29 Oct 2026 (UL106): the style's plank floor laid in herringbone or chevron in its rooms (room["floor_pattern"],
     # read by shell.floor_style; the building as built keeps it)
@@ -1551,7 +1584,12 @@ def main(argv: list[str]) -> int:
         plans, applied = merge_agent_cameras(replayed, plans, entries, level["id"], level_room_ids, replay)
         if entries:
             prep["overrides_applied"]["cameras"] += applied
-            for line in finish_agent_interior_plans(plans, camera_building(building, fit_not_built)):
+            seen_by_search = camera_building(building, fit_not_built)
+            # 30 Oct 2026: an agent pose the search's rules refuse takes the nearest searched pose (real04 201533)
+            for line in check_agent_interior_plans(plans, seen_by_search):
+                print(f"camera agent: {line}")
+                warnings.append(f"camera agent: {line}")
+            for line in finish_agent_interior_plans(plans, seen_by_search):
                 print(f"camera agent: {line}")
         for plan in plans:
             interior_camera_fields(plan, prep["variant"])
@@ -1946,6 +1984,8 @@ def main(argv: list[str]) -> int:
         "whole_building": whole_info,
         # 29 Oct 2026 (UL112): the light switches and sockets per level (counts per room, what found no place)
         "wall_plates": plates_info,
+        # 30 Oct 2026 (UL134, UL139): the wall items the build raised, moved or left out (wall_items.resolve)
+        "wall_items": wall_items_info,
         # Milestone 10 (docs/milestone10.md §1.6b rows 9, 11, 12): the exterior cameras no place worked for, the
         # resolved outside looks (never written back to the building) and the brief values used.
         "cameras_dropped": cameras_dropped,
@@ -2386,6 +2426,61 @@ def plan_horizon_fraction(plan: dict) -> float | None:
     sensor = float(plan.get("sensor_mm") or CP.SENSOR_MM)
     frac = CP.horizon_fraction(_down_pitch_deg(pos, tgt), float(plan["lens_mm"]), sensor, aspect)
     return round(frac - float(plan.get("shift_y") or 0.0) / aspect, 4)
+
+
+AGENT_POSE_REFUSED = ("agent override refused by the camera search's rules ({why}); the nearest searched pose of the "
+                      "room instead (moved {moved:.2f} m)")
+
+
+def check_agent_interior_plans(plans: list[dict], building: dict) -> list[str]:
+    """30 Oct 2026 (real04 run 20261029-201533-full: Argus's cam_r_L1_banyo_1 stood 0.21 m over the sloped attic
+    ceiling and rendered black; GPU tests: near share 0.746, depth 0.066 m, no interior block to meter): every agent
+    interior plan of this build (``policy: agent``, not replayed) is held to the search's own rules on ``building`` (the
+    building the search sees, with its roof's ceilings: ``camsearch.pose_problems``: inside its room, eye height,
+    headroom over the lens, a frame that is not blocked, the room's main pieces in the frame). A plan that fails takes
+    the nearest searched pose of its room (``camsearch.nearest_searched_pose``, distinct from the room's other views):
+    its position, target, lens and lens shift, ``policy: search`` (the pose is the search's), the search's warning,
+    ``placement`` saying why and ``agent_refused`` (the refused pose and the reasons); without such a pose it stays and
+    its warning names the problems. Overrides from an earlier run or a path the tool's own check missed are caught here
+    (the agent's tool checks a pose with the same rules, ``tools.searched_fallback``). Returns the log lines."""
+    from wenart.blender import camsearch as CSR
+
+    lines = []
+    for p in plans:
+        if p.get("policy") != "agent" or p.get("source") == "replayed" or not p.get("room_id"):
+            continue
+        try:
+            problems = CSR.pose_problems(building, p)
+        except (ValueError, ZeroDivisionError, FloatingPointError, IndexError, KeyError, StopIteration) as exc:
+            lines.append(f"{p['name']}: pose not checked ({type(exc).__name__}: {exc})")
+            continue
+        if not problems:
+            continue
+        why = "; ".join(q["message"] for q in problems[:3])
+        others = [o for o in plans if o is not p and o.get("room_id") == p["room_id"]]
+        try:
+            best = CSR.nearest_searched_pose(building, dict(p, shift_y=CSR.SHIFT_Y), others)   # the search's shift
+        except (ValueError, ZeroDivisionError, FloatingPointError, IndexError, KeyError, StopIteration):
+            best = None
+        if best is None:
+            p["warning"] = "; ".join(w for w in (p.get("warning"), f"agent pose kept: {why}") if w)
+            lines.append(f"{p['name']}: agent pose fails the search's rules and no searched pose is left ({why})")
+            continue
+        p["agent_refused"] = {"position": p.get("position"), "target": p.get("target"), "lens_mm": p.get("lens_mm"),
+                              "shift_y": p.get("shift_y"), "problems": [q["message"] for q in problems]}
+        p.update(position=best["position"], target=best["target"], lens_mm=float(best["lens_mm"]),
+                 shift_x=0.0, shift_y=float(best["shift_y"]), pitch_deg=0.0, policy=CSR.POLICY, source="searched",
+                 score=best.get("score_record") or {"total": best["score"]}, warning=best.get("warning"),
+                 placement=AGENT_POSE_REFUSED.format(why=why, moved=best["moved_m"]))
+        p.pop("levelled", None)
+        try:
+            rec = CSR.frame_lists(building, p)
+        except (ValueError, ZeroDivisionError, FloatingPointError, IndexError, KeyError, StopIteration):
+            rec = None
+        if rec:
+            p.update(rec)
+        lines.append(f"{p['name']}: {p['placement']}")
+    return lines
 
 
 def finish_agent_interior_plans(plans: list[dict], building: dict) -> list[str]:
