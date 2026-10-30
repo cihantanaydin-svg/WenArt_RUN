@@ -475,9 +475,13 @@ def test_the_master_bedrooms_run_and_not_every_wardrobe():
                        "footprint": {"center": [2.5, 0.3], "size": [2.0, 0.6], "rotation_deg": 0.0}},
                       {"id": "f_k", "type": "wardrobe", "level_id": "L0", "room_id": "r_k", "front_deg": 90.0,
                        "footprint": {"center": [7, 0.3], "size": [1.5, 0.6], "rotation_deg": 0.0}}]
-    # 30 Oct 2026 (UL182): every bedroom's run, each its own front, the master the family's (slats)
+    # 30 Oct 2026 (UL182, UL207 "This is not mandatory it is optional"): the master the family's (slats), another
+    # bedroom only when its room scheme asks for a see-through front, then a front of its own
     got = WF.plan(b, SCANDI)
-    assert set(got) == {"f_m", "f_k"} and got["f_m"]["kind"] == "slats" and got["f_k"]["kind"] != "slats"
+    assert set(got) == {"f_m"} and got["f_m"]["kind"] == "slats"
+    b["rooms"][1]["scheme"] = {"kind": "bedroom", "bundle": "panel"}
+    got = WF.plan(b, SCANDI)
+    assert set(got) == {"f_m", "f_k"} and got["f_k"]["kind"] != "slats"
     assert WF.plan(b, {"family": "classic"}) == {}                                     # a period house: closed
 
 

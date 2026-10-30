@@ -2161,7 +2161,7 @@
     "build"
    ],
    "request": "These kind of wardrobes can be used in other rooms also, it can go all the way to the ceiling it can have glass sections I did gave an inspiration before (30 Oct 2026, real04 run 20261030-112241-full, a green bedroom: a dark wardrobe run with horizontal slatted sliding fronts and a lit interior; the user wants this kind in other rooms too, full height to the ceiling, with glass sections, as in their earlier inspiration photos)",
-   "lesson": "See-through wardrobes are a regular bedroom option in the families that use them, not only for dressing rooms. Each bedroom gets its own front: the master the family's, the rest through the room scheme, never repeating while options last, twins matching, the architect's answer winning. The options are black slats, slats with smoked or reeded glass doors, smoked glass and reeded glass. Every see-through run goes to 5 mm under the ceiling with a top box (lidded boxes, baskets, an LED strip) and full-height doors, unless a window is beside it; a drawn height is kept. A ceiling light over the run moves off it (at most 0.40 m, logged). Lit interiors with real contents stay; classic, rustic and mediterranean homes keep closed fronts.",
+   "lesson": "See-through wardrobes are a bedroom option in the families that use them, not only for dressing rooms, never in every bedroom (UL207: the master and the bedrooms whose room scheme asks for one). Each such bedroom gets its own front: the master the family's, the rest through the room scheme, never repeating while options last, twins matching, the architect's answer winning. The options are black slats, slats with smoked or reeded glass doors, smoked glass and reeded glass. Every see-through run goes to 5 mm under the ceiling with a top box (lidded boxes, baskets, an LED strip) and full-height doors, unless a window is beside it; a drawn height is kept. A ceiling light over the run moves off it (at most 0.40 m, logged). Lit interiors with real contents stay; classic, rustic and mediterranean homes keep closed fronts.",
    "question": "Do the wardrobes of the bedrooms use the see-through, full-height, partly glazed fronts the user liked, where the room allows?"
   },
   {
@@ -2451,6 +2451,18 @@
    "request": "What else can be optimized for the pod run? ... Only apply the 5 rest stays the same (30 Oct 2026: pack the results into one archive; real04 runs 201533, 043021 and 112241 each missed thousands of result files at the download and needed a fetch pod)",
    "lesson": "A pod's results reach the session whole, in one go, on every job: at the job's end the pod packs its public results into tar parts of about 32 MB (scripts/pack_results.py: the runner's own selection and order, records first, the 3D files streamed apart) on the container disk, served at <token>.pack/; the runner downloads the parts in parallel, checks each one's size and checksum, unpacks only plain files inside results/, and walks the files as before only when there is no pack or a part fails. The pod waits for the download as long as the pack's size needs (60 s plus 4 MB/s, at most 10 min; the runner stops it right after). The job's full copies to the volume write only the files that are missing or changed (same size and modified time: skipped). Only this item of the pod-time list was asked for; the others (variant views, twin rooms, the last Argus pass, big-loop re-renders, refused edits, incremental builds) stay as they are until the user asks. Real04 runs 20261029-201533, 20261030-043021 and 20261030-112241: about 9,300 files fetched one by one while the pod waited 120 s; each run missed thousands (112241: 8,656) and needed a fetch pod.",
    "question": "Did the run's results arrive complete in one collection, without a fetch pod?"
+  },
+  {
+   "id": "UL207",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "This is not mandatory it is optional (30 Oct 2026, the user on the see-through wardrobes of UL182: 'See-through wardrobes in every bedroom, up to the ceiling, with glass sections')",
+   "lesson": "A see-through wardrobe front is a design option for a bedroom, never a rule for every bedroom: the master bedroom's widest run takes the family's see-through front (UL120); another bedroom gets one only when its room scheme names one (two of the four bedroom bundles, the fluted-wall 'panel' and the 'limewash' ones, ask for slats with glass or reeded glass; the deep-walled and the slat-wall ones keep closed fronts, so slats never repeat on slats, UL177); a room with no scheme keeps closed fronts; a twin room follows its partner; the architect's answer still picks either. The period families keep closed fronts. Real04 run 20261030-112241-full's fix UL182 had given every bedroom a see-through run.",
+   "question": "Do only the master bedroom and the bedrooms whose scheme asks for it have see-through wardrobes, the others closed fronts?"
   }
  ]
 }

@@ -1,10 +1,11 @@
-"""See-through wardrobes in every bedroom, up to the ceiling, with glass sections (30 Oct 2026, lesson UL182, user on
+"""See-through wardrobes as a bedroom option, up to the ceiling, with glass sections (30 Oct 2026, lesson UL182, user on
 real04 run 20261030-112241-full: "These kind of wardrobes can be used in other rooms also, it can go all the way to the
 ceiling it can have glass sections I did gave an inspiration before"). CPU, pure.
 
 The rules are general (``wenart/blender/wardrobe_fronts.py``, ``modules.py``, ``room_schemes.py``): in the families
-that use a see-through front every bedroom's widest run gets one, each bedroom its own (the master the family's,
-the others by their room scheme, a front no other bedroom has, a twin its partner's); every see-through run goes up to
+that use a see-through front the master's widest run gets one, the other bedrooms when their room scheme names one
+(UL207, user: "This is not mandatory it is optional"), each bedroom its own (a front no other bedroom has, a twin its
+partner's); every see-through run goes up to
 the ceiling with a top box (the tallest frames when no height is drawn; a window beside it keeps its height, a ceiling
 light over it slides off); doors of slats and glass in turn, smoked or reeded glass; the period families keep closed
 fronts.
@@ -34,29 +35,40 @@ def _robe(fid, rid, x, width=1.5, height=None):
             "footprint": {"center": [x, 0.3], "size": [width, 0.6], "rotation_deg": 0.0}}
 
 
-def _house():
-    rooms = [_bed("r_m", 0, "Master bedroom", "deep"), _bed("r_a", 4, bundle="slats"),
-             _bed("r_b", 8, bundle="limewash"), _bed("r_c", 12, bundle="slats", copied="r_a")]
+def _house(bundle="slats"):
+    """``bundle``: the scheme of r_a and its twin r_c (``slats`` keeps closed fronts since UL207; ``panel`` asks for
+    slats and glass)."""
+    rooms = [_bed("r_m", 0, "Master bedroom", "deep"), _bed("r_a", 4, bundle=bundle),
+             _bed("r_b", 8, bundle="limewash"), _bed("r_c", 12, bundle=bundle, copied="r_a")]
     robes = [_robe("f_m", "r_m", 2.0, 2.5), _robe("f_a", "r_a", 6.0), _robe("f_b", "r_b", 10.0),
              _robe("f_c", "r_c", 14.0)]
     return {"levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.8}], "rooms": rooms, "walls": [],
             "openings": [], "furniture": robes, "decor": []}
 
 
-def test_every_bedroom_gets_its_own_see_through_front_and_period_homes_keep_closed_ones():
+def test_a_see_through_front_is_a_bedroom_option_and_period_homes_keep_closed_ones():
     b = _house()
     got = WF.plan(b, MODERN)
     kinds = {pid: rec["kind"] for pid, rec in got.items()}
     assert kinds["f_m"] == WF.FRONTS["modern"] == WF.BEDROOM_FRONTS["modern"][0]          # the master: the family's
     assert kinds["f_b"] == "reeded_glass"                                                  # its scheme's (limewash)
-    assert kinds["f_a"] not in (kinds["f_m"], kinds["f_b"])                                 # slats taken: another
-    assert kinds["f_c"] == kinds["f_a"] and "twin" in got["f_c"]["reason"]                 # a twin: its partner's
+    # UL207 (user: "This is not mandatory it is optional"): the slat-wall room keeps closed fronts, its twin too
+    assert "f_a" not in kinds and "f_c" not in kinds
+    kind, why = WF.bedroom_front(b["rooms"][1], MODERN)
+    assert kind is None and "UL207" in why
+    assert WF.bedroom_front(_bed("r_x", 0), MODERN)[0] is None                            # no scheme: closed
+    panel = _bed("r_p", 0, bundle="panel")
+    assert WF.bedroom_front(panel, MODERN)[0] == "slats_glass"
+    assert WF.bedroom_front(panel, MODERN, taken=["slats_glass"])[0] not in (None, "slats_glass")   # another one
+    limewash = _bed("r_l", 0, bundle="limewash")
+    assert WF.bedroom_front(limewash, {"family": "industrial"})[0] in WF.BEDROOM_FRONTS["industrial"]
     assert all(k in WF.FRONT_KINDS for k in kinds.values()) and all("UL182" in r["reason"] for r in got.values())
     for fam in ("classic", "rustic", "mediterranean"):
         assert WF.plan(b, {"family": fam}) == {}
     # every family's own front first; the scheme's bundles name a front the build knows (= room_schemes)
     for fam, opts in WF.BEDROOM_FRONTS.items():
         assert opts[0] == WF.FRONTS[fam] and set(opts) <= set(WF.FRONT_KINDS)
+    assert sum(spec["wardrobe"] == "closed" for spec in RS.POOLS["bedroom"].values()) == 2
     for bundle, spec in RS.POOLS["bedroom"].items():
         assert spec["wardrobe"] == WF.SCHEME_FRONTS[bundle]
         assert RS.resolve("bedroom", bundle, "warm greige", "modern")["wardrobe_front"] == spec["wardrobe"]
@@ -67,7 +79,7 @@ def test_every_bedroom_gets_its_own_see_through_front_and_period_homes_keep_clos
 
 
 def test_the_run_goes_up_to_the_ceiling_with_a_top_box_and_full_height_doors():
-    b = _house()
+    b = _house("panel")
     chosen, assumed = WF.apply(b, MODERN)
     for f in b["furniture"]:
         st = f["see_through"]
@@ -87,7 +99,7 @@ def test_the_run_goes_up_to_the_ceiling_with_a_top_box_and_full_height_doors():
         assert keys <= set(P.MATERIAL_KEYS)
     assert {a["kind"] for a in assumed} == {"see_through_front"}
     # a drawn height is kept (the top box closes the rest); a window beside the run keeps its height
-    b2 = _house()
+    b2 = _house("panel")
     b2["furniture"][1]["height"] = 2.1
     b2["openings"] = [{"id": "w1", "type": "window", "level_id": "L0", "center": [10.0, 0.0], "width": 1.2}]
     WF.apply(b2, MODERN)
@@ -98,7 +110,7 @@ def test_the_run_goes_up_to_the_ceiling_with_a_top_box_and_full_height_doors():
 
 
 def test_a_ceiling_light_over_the_run_slides_off_it():
-    b = _house()
+    b = _house("panel")
     b["decor"] = [{"id": "trk", "type": "ceiling_light", "fixture": "track", "level_id": "L0", "room_id": "r_a",
                    "center": [6.0, 0.5, 2.68], "size": [1.0, 0.05, 0.12], "rotation_deg": 0.0}]
     _chosen, assumed = WF.apply(b, MODERN)

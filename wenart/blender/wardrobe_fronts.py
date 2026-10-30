@@ -59,11 +59,13 @@ FRONT_WHAT = {"slats": "horizontal black slat sliding doors", "smoked_glass": "s
               "reeded_glass": "reeded glass sliding doors in black frames"}
 # 30 Oct 2026 (lesson UL182, user on real04 run 20261030-112241-full: "These kind of wardrobes can be used in other
 # rooms also, it can go all the way to the ceiling it can have glass sections I did gave an inspiration before"): in
-# the families that use a see-through front, every bedroom's widest wardrobe run gets one, each bedroom its own
+# the families that use a see-through front, a bedroom's widest wardrobe run may get one, each bedroom its own
 # (``bedroom_front``): the master the family's own front (``FRONTS``, the inspiration's black slats in the modern
 # homes), the others in the order of the family's ``BEDROOM_FRONTS``, the room scheme's choice first
 # (``room_schemes`` bedroom bundles: ``wardrobe_front``; ``SCHEME_FRONTS`` for a scheme recorded before), a front no
-# other bedroom of the house has while the family's fronts last; a twin room takes its partner's. Every see-through
+# other bedroom of the house has while the family's fronts last; a twin room takes its partner's. UL207 (user: "This is
+# not mandatory it is optional"): besides the master only the bedrooms whose room scheme names a see-through front
+# get one (two of the four bedroom bundles keep closed fronts). Every see-through
 # run goes up to the ceiling (``to_ceiling``: a top box of lidded boxes and baskets behind the full-height doors).
 BEDROOM_FRONTS: dict[str, tuple[str, ...]] = {
     "modern": ("slats", "slats_glass", "smoked_glass", "reeded_glass"),
@@ -74,8 +76,8 @@ BEDROOM_FRONTS: dict[str, tuple[str, ...]] = {
     "contemporary": ("smoked_glass", "slats_glass", "reeded_glass", "slats"),
     "industrial": ("smoked_glass", "slats_glass"),
 }
-SCHEME_FRONTS: dict[str, str] = {"panel": "slats_glass", "deep": "smoked_glass", "limewash": "reeded_glass",
-                                 "slats": "slats"}       # = room_schemes.POOLS["bedroom"][bundle]["wardrobe"]
+SCHEME_FRONTS: dict[str, str] = {"panel": "slats_glass", "deep": "closed", "limewash": "reeded_glass",
+                                 "slats": "closed"}      # = room_schemes.POOLS["bedroom"][bundle]["wardrobe"]
 SECTION_GLASS: dict[str, str] = {"japandi": "reeded_glass", "scandinavian": "reeded_glass"}   # else smoked_glass
 CEILING_GAP_M = 0.005             # the run's top this far under the ceiling (no coplanar faces)
 TOP_BOX_M = (0.03, 1.00)          # a top box from this to this high closes the run up to the ceiling; higher: none
@@ -347,6 +349,11 @@ def bedroom_front(room: dict, style, taken=(), master: bool = False,
         return options[0], f"the {fam} family's own front"
     scheme = room.get("scheme") if isinstance(room.get("scheme"), dict) else {}
     pref = scheme.get("wardrobe_front") or SCHEME_FRONTS.get(str(scheme.get("bundle") or ""))
+    # UL207 (user: "This is not mandatory it is optional"): besides the master, a bedroom gets a see-through front
+    # only when its room scheme names one; a scheme of closed fronts, or none, keeps them closed
+    if pref not in FRONT_KINDS:
+        return None, ("its room scheme keeps closed fronts" if pref == "closed" else
+                      "no room scheme asks for a see-through front") + " (an option, not every bedroom's; UL207)"
     if pref in options and pref not in taken:
         return pref, f"the room scheme's front ({scheme.get('bundle')})"
     start = _stable(str(room.get("id") or "")) % len(options)

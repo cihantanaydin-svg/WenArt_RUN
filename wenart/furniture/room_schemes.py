@@ -125,19 +125,20 @@ NEUTRAL_COLOURS: tuple[str, ...] = ("warm greige", "pale taupe", "greige")     #
 # upholstered), extras (round_mirror, leaning_art, floor_vase, niche). Order: a bundle-major pool.
 POOLS: dict[str, dict[str, dict]] = {
     "bedroom": {
-        # 30 Oct 2026 (UL182): each bundle's see-through wardrobe front (wardrobe_fronts.bedroom_front, in the families
-        # that use one): slats with glass doors by a fluted wall, smoked glass with deep walls, reeded glass with
-        # limewash, slats with a slat wall
+        # 30 Oct 2026 (UL182): each bundle's wardrobe front (wardrobe_fronts.bedroom_front, in the families that use a
+        # see-through one): slats with glass doors by a fluted wall, reeded glass with limewash. UL207 (user: "This is
+        # not mandatory it is optional"): a see-through front is an option, not every bedroom's: the deep-walled room
+        # and the slat-wall room keep closed fronts (no slats on slats, UL177)
         "panel": {"walls": "accent", "feature": "fluted", "nightstand": "standing", "tv": "unit",
                   "desk": "freestanding", "lighting": "downlights", "statement": "globe", "extras": ("round_mirror",),
                   "wardrobe": "slats_glass"},
         "deep": {"walls": "deep_colour", "feature": "art_pair", "nightstand": "drum", "tv": "wall", "desk": "floating",
-                 "lighting": "track", "statement": "linear", "extras": ("leaning_art",), "wardrobe": "smoked_glass"},
+                 "lighting": "track", "statement": "linear", "extras": ("leaning_art",), "wardrobe": "closed"},
         "limewash": {"walls": "limewash", "feature": "headboard_panel", "nightstand": "floating", "tv": "wall",
                      "desk": "freestanding", "lighting": "downlights", "statement": "cluster",
                      "extras": ("round_mirror",), "wardrobe": "reeded_glass"},
         "slats": {"walls": "accent", "feature": "slats", "nightstand": "standing", "tv": "unit", "desk": "floating",
-                  "lighting": "track", "statement": "linear", "extras": ("leaning_art",), "wardrobe": "slats"},
+                  "lighting": "track", "statement": "linear", "extras": ("leaning_art",), "wardrobe": "closed"},
     },
     "living": {
         "panel": {"walls": "accent", "feature": "fluted", "tv": "unit", "dining_wall": "art", "lighting": "downlights",
@@ -203,6 +204,7 @@ WHY: dict[str, str] = {
     "wardrobe_slats_glass": "the wardrobe run behind black-framed sliding doors, slatted and glass ones in turn",
     "wardrobe_smoked_glass": "the wardrobe run behind smoked glass sliding doors",
     "wardrobe_reeded_glass": "the wardrobe run behind reeded glass sliding doors",
+    "wardrobe_closed": "the wardrobe run keeps its closed fronts (a see-through front is an option, UL207)",
 }
 
 
@@ -405,7 +407,8 @@ def resolve(kind: str, bundle: str, colour: str, family: str, no_panel: bool = F
         why["lounge_chair"] = f"a {lc} lounge chair (G5)"
     if spec.get("wardrobe"):
         out["wardrobe_front"] = spec["wardrobe"]
-        why["wardrobe_front"] = WHY["wardrobe_" + spec["wardrobe"]] + " where the family has a see-through front (UL182)"
+        why["wardrobe_front"] = WHY["wardrobe_" + spec["wardrobe"]] + (
+            "" if spec["wardrobe"] == "closed" else " where the family has a see-through front (UL182)")
     out["extras"] = list(spec.get("extras") or ())
     out["why"] = why
     return out
