@@ -23,10 +23,12 @@ What (pure; part lists of vertex / face lists, one mesh with the wardrobe, no mo
 - ``folded``: folded stacks with a rounded fold edge to the front, layers of uneven width, depth and thickness, each
   a little off and turned; ``shoes``: pairs with a rounded toe lower than the heel; ``boxes``: lidded storage boxes and
   rattan baskets on the lower shelves.
-- ``bay_light``: the light of a bay's LED strip at the top of its front (``LED_LM_PER_M`` of a high-output wardrobe
-  profile, ``LED_K``), so the contents read through the slats; ``modules.see_through_parts`` builds the strip's mesh
-  (the ``led`` key), ``furniture`` the light (a rig light of the room: hidden while the daylight white point is
-  metered).
+- ``bay_light``: the light of an LED strip under the front of a bay's top, of a hanging bay's hat shelf (it shades
+  the garments from the top strip) and of a shelf bay's shelves (``modules.bay_boards``; ``LED_LM_PER_M`` of a
+  high-output wardrobe profile, ``SHELF_LM_PER_M`` under a shelf, ``LED_K``), so the contents read through the slats;
+  ``modules.see_through_parts`` builds the strips' meshes (the ``led`` key), ``furniture`` the lights (rig lights of
+  the room: hidden while the daylight white point is metered). A first local render of real04 with the top strip
+  alone lit the hat shelf and left the garments under it dim.
 - ``faces_per_bay``: the faces of each bay's contents (a cost record; every content part carries its ``bay``).
 
 Why: the user likes the slats and asked for real clothes behind them: a garment reads by its shoulders, sleeves and
@@ -41,7 +43,8 @@ from typing import Optional, Sequence
 LESSON = "UL135"
 CLOTH_PREFIX = "cloth:"        # = modules.CLOTH_PREFIX: ``cloth:<look>:<colour>`` (or the old ``cloth:<colour>``)
 LOOKS: tuple[str, ...] = ("cotton", "wool", "knit", "linen")          # = bedding_parts.LOOK_SLUGS keys used here
-LED_LM_PER_M = 1000.0          # a high-output wardrobe LED profile (800-1400 lm per metre)
+LED_LM_PER_M = 1000.0          # a high-output wardrobe LED profile (800-1400 lm per metre) under the top and the hat
+SHELF_LM_PER_M = 500.0         # ... shelf; a shelf's own strip (400-600 lm per metre)
 LED_K = 3000.0                 # warm white wardrobe LED
 # kind: (length m, thickness m, shoulder half width m, hem half width m, sleeve length m (0: none), look, weight,
 # collar: band | lapel | rib | None)
@@ -376,18 +379,18 @@ def boxes(x0: float, x1: float, y: float, z: float, room: float, seed: int, dept
 # the light and the cost record
 # --------------------------------------------------------------------------
 
-def bay_light(x: float, y: float, z: float, inner_w: float) -> dict:
-    """The light of a bay's LED strip (module docstring): an area light under the bay's top at its front, pointing
-    down, ``LED_LM_PER_M`` over its length, ``LED_K``; in the wardrobe's own frame."""
+def bay_light(x: float, y: float, z: float, inner_w: float, lm_per_m: float = LED_LM_PER_M) -> dict:
+    """The light of an LED strip of a bay (module docstring): an area light under a board at the bay's front, pointing
+    down, ``lm_per_m`` over its length, ``LED_K``; in the wardrobe's own frame."""
     from wenart.blender import lighting as L
 
     length = max(0.2, inner_w - 0.04)
-    lumens = LED_LM_PER_M * length
+    lumens = float(lm_per_m) * length
     watts = L.watts_for_lumens(lumens) * L.RIG_GAIN
     return {"center": [round(x, 4), round(y, 4), round(z, 4)], "size_m": [round(length, 4), 0.03],
             "lumens": round(lumens, 1), "watts_radiometric": L.watts_for_lumens(lumens), "energy_w": round(watts, 4),
             "gain": L.RIG_GAIN, "temperature_k": LED_K, "direction": [0.0, 0.0, -1.0],
-            "source": f"a high-output wardrobe LED profile, {LED_LM_PER_M:.0f} lm per metre (UL135)"}
+            "source": f"a wardrobe LED profile, {float(lm_per_m):.0f} lm per metre (UL135)"}
 
 
 def faces_per_bay(parts: Sequence[dict]) -> dict[int, int]:

@@ -1882,25 +1882,62 @@ def _in_bay(parts: list[Part], bay: int) -> list[Part]:
     return parts
 
 
+def _shelf_heights(floor: float, inner_top: float, open_run: bool, drawers: int = 2) -> list[float]:
+    """The shelves of a narrow see-through bay (pure): from over its drawers (an open run: over its two shoe racks) up
+    every ``shelf_pitch_m`` to ``inner_top``."""
+    k = SEE_THROUGH
+    z = floor + 0.44 if open_run else floor + drawers * k["drawer_h_m"] + 0.02
+    out = []
+    while z + k["shelf_pitch_m"] <= inner_top - 0.05:
+        out.append(z)
+        z += k["shelf_pitch_m"]
+    return out
+
+
+def bay_boards(plan: dict) -> list[list[tuple[float, str]]]:
+    """30 Oct 2026 (UL135): per bay of a see-through run, the boards whose front underside carries an LED strip
+    (pure): ``[(underside z, "top" | "hat_shelf" | "shelf")]``: the bay's inner top; a hanging bay's hat shelf (it shades
+    the garments from the top strip); a shelf bay's every shelf over the lowest one (each compartment lit from the
+    board over it)."""
+    k = SEE_THROUGH
+    top_z = float(plan["height_m"]) - WARDROBE_TOP_M
+    ct = k["carcass_t_m"]
+    inner_top = top_z - ct
+    floor = WARDROBE_PLINTH_M + ct
+    open_run = (plan.get("see_through") or {}).get("kind") == "open"
+    out = []
+    for m in (m for m in plan["modules"] if m["kind"] == "frame"):
+        boards = [(inner_top, "top")]
+        if float(m["size_m"][0]) >= k["hanging_min_m"] - 1e-9:
+            boards.append((inner_top - k["hat_shelf_drop_m"], "hat_shelf"))
+        else:
+            boards += [(z, "shelf") for z in _shelf_heights(floor, inner_top, open_run)[1:]]
+        out.append(boards)
+    return out
+
+
 def bay_lights(plan: dict) -> list[dict]:
-    """30 Oct 2026 (UL135): the light of each bay's LED strip of a see-through wardrobe run (pure;
-    ``wardrobe_contents.bay_light``, in the run's own frame: ``world_mesh``'s centre and rotation place it): at the top
-    of the bay's front, pointing down; [] for another plan."""
+    """30 Oct 2026 (UL135): the lights of the LED strips of a see-through wardrobe run (pure;
+    ``wardrobe_contents.bay_light``, in the run's own frame: ``world_mesh``'s centre and rotation place it): one under
+    the front of every board of ``bay_boards`` (the top and a hanging bay's hat shelf at ``LED_LM_PER_M``, a shelf at
+    ``SHELF_LM_PER_M``), pointing down; [] for another plan."""
     from wenart.blender import wardrobe_contents as WC
 
     if not plan.get("see_through"):
         return []
     k = SEE_THROUGH
     w, d = (float(v) for v in plan["footprint_m"])
-    top_z = float(plan["height_m"]) - WARDROBE_TOP_M
     ct = k["carcass_t_m"]
     zone = 0.005 if plan["see_through"].get("kind") == "open" else k["door_zone_m"]
     y_front = -d / 2.0 + zone
     out = []
-    for i, m in enumerate(m for m in plan["modules"] if m["kind"] == "frame"):
+    frames = [m for m in plan["modules"] if m["kind"] == "frame"]
+    for i, (m, boards) in enumerate(zip(frames, bay_boards(plan))):
         fw = float(m["size_m"][0])
-        rec = WC.bay_light(float(m["pos_m"][0]), y_front + 0.05, top_z - ct - 0.02, fw - 2 * ct)
-        out.append(dict(rec, bay=i))
+        for z, where in boards:
+            lm = WC.SHELF_LM_PER_M if where == "shelf" else WC.LED_LM_PER_M
+            rec = WC.bay_light(float(m["pos_m"][0]), y_front + 0.05, z - 0.02, fw - 2 * ct, lm)
+            out.append(dict(rec, bay=i, board=where))
     return out
 
 
@@ -1937,6 +1974,7 @@ def see_through_parts(plan: dict) -> list[Part]:
         elif m["kind"] == "filler":
             parts.append(P._box(x, 0.0, z0, mw, d, top_z - z0, "dark", "front"))
     frames = [m for m in plan["modules"] if m["kind"] == "frame"]
+    boards_of = bay_boards(plan)
     for i, m in enumerate(frames):
         fw = float(m["size_m"][0])
         x = float(m["pos_m"][0])
@@ -1949,9 +1987,10 @@ def see_through_parts(plan: dict) -> list[Part]:
                   P._box(x, yc, zb, iw, cd, ct, "wood", "body"),                                        # bottom
                   P._box(x, yc, inner_top, iw, cd, ct, "wood", "body")]                                 # inner top
         lh, ld = k["led_m"]
-        # 30 Oct 2026 (UL135): the strip glows as an LED (materials.led_material); its light is the bay's own
-        # (bay_lights, built by furniture with the run)
-        parts.append(P._box(x, y_front + 0.03, inner_top - ld, iw - 0.02, lh, ld, "led", "led"))
+        # 30 Oct 2026 (UL135): a strip under the front of the top and of the boards that shade the contents
+        # (bay_boards); it glows as an LED (materials.led_material) and has its own light (bay_lights)
+        for bz, _where in boards_of[i]:
+            parts.append(P._box(x, y_front + 0.03, bz - ld, iw - 0.02, lh, ld, "led", "led"))
         floor = zb + ct
         drawers = 2
         first = len(parts)
@@ -1980,12 +2019,7 @@ def see_through_parts(plan: dict) -> list[Part]:
                     parts.append(P._box(x, yc, rz, iw, cd - 0.04, 0.015, "wood", "shoe_rack"))
                     parts += shoe_parts(ix0 + 0.01, ix1 - 0.01, yc, rz + 0.015, seed + 401 * i + j)
                 z = floor + 0.44
-            else:
-                z = floor + drawers * k["drawer_h_m"] + 0.02
-            shelves = []
-            while z + k["shelf_pitch_m"] <= inner_top - 0.05:
-                shelves.append(z)
-                z += k["shelf_pitch_m"]
+            shelves = _shelf_heights(floor, inner_top, open_run, drawers)
             for j, sz in enumerate(shelves):
                 parts.append(P._box(x, yc, sz, iw, cd - 0.02, ct, "wood", "shelf"))
                 nxt = shelves[j + 1] if j + 1 < len(shelves) else inner_top

@@ -178,12 +178,22 @@ def test_every_bay_has_its_light_bright_enough_to_read_through_the_slats():
     plan = MOD.module_plan(_robe())
     lights = MOD.bay_lights(plan)
     frames = [m for m in plan["modules"] if m["kind"] == "frame"]
-    assert len(lights) == len(frames) and [li["bay"] for li in lights] == list(range(len(frames)))
-    for light, m in zip(lights, frames):
-        assert light["lumens"] == pytest.approx(WC.LED_LM_PER_M * light["size_m"][0])
-        assert light["energy_w"] > 4.0 and light["temperature_k"] == WC.LED_K and light["direction"] == [0, 0, -1]
+    boards = MOD.bay_boards(plan)
+    assert len(lights) == sum(len(b) for b in boards) and {li["bay"] for li in lights} == set(range(len(frames)))
+    for light in lights:
+        m = frames[light["bay"]]
+        lm = WC.SHELF_LM_PER_M if light["board"] == "shelf" else WC.LED_LM_PER_M
+        assert light["lumens"] == pytest.approx(lm * light["size_m"][0])
+        assert light["energy_w"] > 2.0 and light["temperature_k"] == WC.LED_K and light["direction"] == [0, 0, -1]
         assert abs(light["center"][0] - m["pos_m"][0]) < 1e-6 and light["center"][1] < -0.1          # the front
-        assert plan["height_m"] - 0.15 < light["center"][2] < plan["height_m"]                       # the top
+        z = next(bz for bz, where in boards[light["bay"]] if where == light["board"])
+        assert light["center"][2] == pytest.approx(z - 0.02)                                         # under its board
+    # every bay its top strip; a hanging bay's garments their own strip under the hat shelf (it shades them)
+    assert {li["bay"] for li in lights if li["board"] == "top"} == set(range(len(frames)))
+    assert any(li["board"] == "hat_shelf" for li in lights)
+    narrow = MOD.module_plan(_robe(width=1.2))                                       # a shelf bay: a strip per shelf
+    assert any(li["board"] == "shelf" for li in MOD.bay_lights(narrow)) or \
+        all(float(m["size_m"][0]) >= MOD.SEE_THROUGH["hanging_min_m"] for m in narrow["modules"] if m["kind"] == "frame")
     # the strip glows as an LED (not a lamp shade's bedding glow)
     assert any(p["key"] == "led" and p["role"] == "led" for p in MOD.module_parts(plan))
     assert MOD.bay_lights(dict(plan, see_through=None)) == []
