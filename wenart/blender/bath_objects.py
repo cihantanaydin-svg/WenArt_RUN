@@ -37,7 +37,7 @@ from wenart.blender import towel_parts as TP
 
 Part = dict
 LESSON = "UL166"
-LATHE_N = 12                      # segments round a turned object (a 6-7 cm bottle: 1.7 cm per facet, shaded smooth)
+LATHE_N = 16                      # segments round a turned object (a 6-7 cm bottle: 1.3 cm per facet, shaded smooth)
 JAR_FILL = {"layers": 2, "pads": 8}   # a jar shows two layers of cotton balls or pebbles (the rest is unseen)
 DIFFUSER = {"reeds": 7, "reed_r_m": 0.0015, "spread": 0.30}
 PUMP = {"stem_share": 0.07, "head_share": 0.07, "nozzle_share": 0.95}
@@ -154,10 +154,19 @@ def pump_bottle(cx: float, cy: float, z0: float, r: float, h: float, key: str, h
     nr = max(0.0025, r * 0.09)
     parts.append(P._cylinder_y(cx, cy - nl, nz, nr, nr, nl - r * 0.25, head_key, "nozzle", n=8))
     parts.append(P._cylinder_z(cx, cy - nl + nr, nz - nr * 2.6, nr, nr, nr * 2.6, head_key, "nozzle", n=8))
-    lk = label_key or ("dark" if key in ("ceramic", "bedding") else "ceramic")
-    lz0, lz1 = (bh * 0.36, bh * 0.52) if lk != "dark" else (bh * 0.42, bh * 0.48)
-    parts.append(lathe(cx, cy, z0, [(r + 0.0008, lz0), (r + 0.0008, lz1)], lk, "label", close_start=True,
-                       close_end=True))
+    # 30 Oct 2026 (lesson UL184, user: "Better models with more details is needed"): a printed paper label on the
+    # bottle's front (a curved patch with lines of print), not a band round it; an amber bottle is glass with the soap
+    # in it
+    from wenart.blender import small_parts as SM
+
+    if key == "terracotta":
+        parts[0] = SM._vessel(body, SM.GLASS_M, 0.004, "glass", "bottle", c=(cx, cy, z0), n=LATHE_N)
+        parts.insert(1, SM.turned([(r - SM.GLASS_M - 0.001, 0.0), (r - SM.GLASS_M - 0.001, bh * 0.66),
+                                   (r - SM.GLASS_M - 0.003, bh * 0.68)], SM.OIL_KEY, "contents",
+                                  c=(cx, cy, z0 + 0.0045), n=LATHE_N))
+    lk = label_key if label_key in ("paper", "ceramic", "dark") else "paper"
+    ink = "ceramic" if lk == "dark" else "dark"
+    parts += SM.label(cx, cy, z0, r, bh * 0.30, bh * 0.62, lk, ink)
     return parts
 
 
@@ -174,7 +183,10 @@ def apothecary_jar(cx: float, cy: float, z0: float, r: float, h: float, lid_key:
     lid = [(rn + 0.002, 0.0), (rn + 0.003, 0.004), (rn + 0.003, 0.010), (rn * 0.80, 0.014), (rn * 0.30, 0.016)]
     parts.append(lathe(cx, cy, z0 + h - 0.002, lid, lid_key, "lid"))
     kr = min(0.010, r * 0.28)
-    parts.append(_blob(cx, cy, z0 + h + 0.012, 2 * kr, 2 * kr, kr * 1.5, lid_key, "lid", e=0.8))
+    # 30 Oct 2026 (UL184): a turned knob on a short neck
+    parts.append(lathe(cx, cy, z0 + h + 0.011, [(kr * 0.45, 0.0), (kr * 0.40, kr * 0.35), (kr * 0.95, kr * 0.75),
+                                                (kr, kr * 1.05), (kr * 0.75, kr * 1.45), (kr * 0.15, kr * 1.6)],
+                       lid_key, "lid"))
     inner = r - g - 0.002
     top = h * (0.62 if fill != "salt" else 0.55)
     if fill == "salt":

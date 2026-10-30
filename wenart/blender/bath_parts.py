@@ -384,23 +384,21 @@ def _rounded_slab_xz(cx: float, y_front: float, z0: float, w: float, t: float, h
     return part
 
 
-def _vessel(cx: float, cy: float, z0: float, r: float, h: float, key: str, wall: float = 0.008, n: int = 24
+def _vessel(cx: float, cy: float, z0: float, r: float, h: float, key: str, wall: float = 0.008, n: int = 32
             ) -> list[Part]:
-    """An open round vessel basin (bowl) of radius ``r`` at its rim, ``h`` high, standing on ``z0``: outer side, rim,
-    inner side and floor (one closed shell)."""
-    rb = r * 0.72
-    rings = [(rb, z0), (r, z0 + h), (r - wall, z0 + h), (rb - wall, z0 + wall)]
-    verts = [(cx + rr * math.cos(2 * math.pi * i / n), cy + rr * math.sin(2 * math.pi * i / n), z) for rr, z in rings
-             for i in range(n)]
-    ob, ot, it, ib = (k * n for k in range(4))
-    faces = []
-    for i in range(n):
-        j = (i + 1) % n
-        faces += [[ob + i, ob + j, ot + j, ot + i], [ot + i, ot + j, it + j, it + i], [it + i, it + j, ib + j, ib + i]]
-    faces.append([ib + i for i in range(n)])
-    faces.append([ob + i for i in range(n - 1, -1, -1)])
-    return [{"verts": verts, "faces": faces, "key": key, "role": "basin"},
-            P._cylinder_z(cx, cy, z0 + wall, 0.018, 0.018, 0.002, "steel", "drain", n=12)]
+    """An open round vessel basin (bowl) of radius ``r`` at its rim, ``h`` high, standing on ``z0``; 30 Oct 2026
+    (lesson UL184, user on the vanity: "Better models with more details is needed"): a curved bowl on a small foot, its
+    wall thinning to a rounded 5 mm lip, the inside curving down to the floor, a pop-up waste (a chrome ring and its
+    domed cap) in its floor (``small_parts``)."""
+    from wenart.blender import small_parts as SM
+
+    rb = r * 0.62
+    out = [(rb * 0.92, 0.0), (rb, 0.004), (r * 0.80, h * 0.30), (r * 0.94, h * 0.65), (r, h)]
+    floor = max(wall, 0.010)
+    basin = SM._vessel(out, min(wall, 0.006), floor, key, "basin", c=(cx, cy, z0), n=n)
+    waste = SM.turned([(0.0005, 0.0), (0.019, 0.0), (0.020, 0.002), (0.016, 0.003), (0.012, 0.0045), (0.0005, 0.005)],
+                      "steel", "drain", c=(cx, cy, z0 + floor - 0.0005), n=20)
+    return [basin, waste]
 
 
 def _towel_roll(x: float, y: float, z0: float, r: float, length: float, key: str = "towel", seed: int = 0) -> Part:
@@ -410,22 +408,12 @@ def _towel_roll(x: float, y: float, z0: float, r: float, length: float, key: str
 
 
 def _stems(cx: float, cy: float, z0: float, vase_r: float, vase_h: float, height: float) -> list[Part]:
-    """A vase of dried stems (pampas, cotton): the vase, five leaning stems and a soft plume or a cotton boll on each."""
-    parts = [P._frustum_z(cx, cy, z0, vase_r * 0.8, vase_r * 0.8, vase_r, vase_r, vase_h, "ceramic", "vase", n=16)]
-    for k, (dx, dy) in enumerate(((-0.22, 0.05), (0.18, -0.06), (0.03, 0.2), (-0.08, -0.16), (0.25, 0.12))):
-        length = height * (0.82 + 0.05 * k)
-        if k % 2 == 0:                               # a pampas plume on its stem
-            stem = _stick(cx + dx * 0.02, cy + dy * 0.02, z0 + 0.02, dx * 0.35, dy * 0.35, length, 0.0018, "wood",
-                          "stem")
-            parts.append(stem)
-            tx, ty, tz = stem["verts"][4]
-            parts.append(P._superellipsoid(tx, ty, tz - 0.06, 0.03, 0.03, 0.09, 0.9, 1.0, "rattan", "plume",
-                                           n_eta=6, n_om=8))
-        else:                                        # UL166: a cotton branch (calyx and puffs), not a ball on a stick
-            n = math.sqrt(1.0 + (dx * 0.35) ** 2 + (dy * 0.35) ** 2)
-            parts += BO.cotton_stem((cx + dx * 0.02, cy + dy * 0.02, z0 + 0.02),
-                                    (dx * 0.35 / n, dy * 0.35 / n, 1.0 / n), length - 0.02, seed=k)
-    return parts
+    """A vase of dried stems; 30 Oct 2026 (lesson UL184, user on the vanity: "More detailed models would be nice here",
+    the plumes read as lollipops): a turned vase with a foot, a belly, a neck and a lip, and pampas stems with feathery
+    plumes of fine wisps (``small_parts.stems_vase``)."""
+    from wenart.blender import small_parts as SM
+
+    return SM.stems_vase(cx, cy, z0, vase_r, vase_h, height)
 
 
 # --------------------------------------------------------------------------
@@ -655,10 +643,19 @@ def top_clusters(w: float, d: float, lay: dict) -> tuple[list[Part], list[str]]:
         sw = low[1] - low[0]
         cx = (low[0] + low[1]) / 2.0
         if sw >= 2 * SOAP_R_M + 0.006 and depth >= 2 * SOAP_R_M + 0.07:
-            # UL166: a real soap dispenser and a lidded jar of cotton balls
-            parts += BO.pump_bottle(cx, y1 - SOAP_R_M - 0.005, z, SOAP_R_M, 0.17, "dark", "handle")
-            parts += BO.apothecary_jar(cx, y0 + 0.032, z, 0.028, 0.06, "wood", "cotton", seed=6)
-            items += ["soap dispenser", "jar of cotton"]
+            # UL166: a real soap dispenser and a lidded jar of cotton balls; 30 Oct 2026 (UL184): on a small stone tray
+            # when the strip holds one
+            from wenart.blender import small_parts as SM
+
+            ta, tb = min(sw / 2.0 - 0.004, SOAP_R_M + 0.012), (depth - 0.006) / 2.0
+            zt = z
+            if ta >= SOAP_R_M + 0.008 and tb >= SOAP_R_M + 0.035:
+                parts.append(SM.tray(cx, (y0 + y1) / 2.0, z, ta, tb, "stone_light"))
+                zt = SM.tray_floor(z)
+                items.append("stone tray")
+            parts += BO.pump_bottle(cx, y1 - SOAP_R_M - 0.010, zt, SOAP_R_M, 0.17, "dark", "handle")
+            parts += BO.apothecary_jar(cx, y0 + 0.036, zt, 0.028, 0.06, "wood", "pads", seed=6)
+            items += ["soap dispenser", "jar of cotton pads"]
     return parts, items
 
 
@@ -1056,8 +1053,17 @@ BATH_DECOR_TYPES: tuple[str, ...] = ("toilet_paper_holder", "toilet_brush", "tow
 WALL_BATH_DECOR: tuple[str, ...] = ("toilet_paper_holder", "towel_rail", "towel_shelf", "towel_bar", "feature_panel",
                                     "cove_light")
 FLOOR_BATH_DECOR: tuple[str, ...] = ("toilet_brush",)
-PAPER_HOLDER_SIZE = (0.16, 0.13, 0.13)
-PAPER_HOLDER_Z_M = 0.70           # its centre (B2: "about 0.7 m")
+# 30 Oct 2026 (lesson UL183): the box holds the roll near its top and the sheet hanging over its front to its bottom
+# (small_parts.paper_holder); the roll's axis stays at PAPER_HOLDER_Z_M (``paper_holder_bottom``)
+PAPER_HOLDER_SIZE = (0.16, 0.13, 0.17)
+PAPER_HOLDER_Z_M = 0.70           # the roll's axis (B2: "about 0.7 m")
+
+
+def paper_holder_bottom() -> float:
+    """The holder box's bottom over the floor: its roll's axis at ``PAPER_HOLDER_Z_M``."""
+    from wenart.blender import small_parts as SM
+
+    return PAPER_HOLDER_Z_M - SM.paper_roll_z(*PAPER_HOLDER_SIZE)
 TOILET_BRUSH_SIZE = (0.09, 0.09, 0.38)    # a wall-side brush holder about 9 cm across
 TOWEL_RAIL_SIZE = (0.50, 0.10, 1.20)   # a 500 x 1200 mm ladder radiator (the common size; assumed)
 TOWEL_RAIL_BOTTOM_M = 0.15
@@ -1088,16 +1094,12 @@ DECOR_HEIGHTS = {"toilet_paper_holder": PAPER_HOLDER_SIZE[2], "toilet_brush": TO
 
 
 def paper_holder_parts(w: float, d: float, h: float) -> list[Part]:
-    back = d / 2.0
-    roll_r = min(0.055, h / 2.0 - 0.005, (d - 0.02) / 2.0)
-    zc = max(roll_r, 0.025)                        # the box's bottom: the roll's (or the rosette's) lowest point
-    ry = back - 0.012 - roll_r
-    x_ros = -w / 2.0 + 0.025
-    return [P._cylinder_y(x_ros, back - 0.012, zc, 0.025, 0.025, 0.012, "colour_steel", "rosette", n=16),
-            P._cylinder_y(x_ros, ry, zc, 0.008, 0.008, back - 0.012 - ry, "colour_steel", "arm", n=8),
-            P._cylinder_x(x_ros, ry, zc, 0.008, 0.008, w - 0.03, "colour_steel", "arm", n=8),
-            P._cylinder_x(-w / 2.0 + 0.045, ry, zc, roll_r, roll_r, min(0.10, w - 0.06), "bedding", "roll", n=20),
-            P._cylinder_x(-w / 2.0 + 0.044, ry, zc, 0.02, 0.02, min(0.102, w - 0.058), "terracotta", "core", n=12)]
+    """B2: the paper holder; 30 Oct 2026 (lesson UL183, user: "Better toilet paper roll model is needed"): a rose, a bent
+    arm with its end cap and a cover flap in the room's fixture finish, a roll with its cardboard core and soft edges,
+    the sheet hanging over its front with a torn edge (``small_parts.paper_holder``)."""
+    from wenart.blender import small_parts as SM
+
+    return SM.paper_holder(w, d, h, "colour_steel")
 
 
 def toilet_brush_parts(w: float, d: float, h: float) -> list[Part]:

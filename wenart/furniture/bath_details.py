@@ -482,7 +482,7 @@ def _paper_holder(room, wc, ctx, pieces, spec, new_id, panel) -> tuple[Optional[
     """B2: the paper holder of a WC (module docstring); ``(item, why)``."""
     c, u, fwd, w, d = _frame(wc)
     size = BT.PAPER_HOLDER_SIZE
-    bottom = BT.PAPER_HOLDER_Z_M - size[2] / 2.0
+    bottom = BT.paper_holder_bottom()                   # 30 Oct 2026 (UL183): the roll's axis at PAPER_HOLDER_Z_M
     others = _others(pieces, {wc["id"]})
     cands = []
     for side in (1.0, -1.0):                           # a side wall within reach, at the bowl's front part

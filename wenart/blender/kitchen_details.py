@@ -847,24 +847,10 @@ def styling_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
                                       n=20))
         return parts
     if dtype == "cookware":
-        pot_r = min(d / 2.0 - 0.01, w * 0.19)
-        pot_x = -w / 2.0 + pot_r + 0.02
-        ph = min(h - 0.03, 0.14)
-        parts = [P._cylinder_z(pot_x, 0.0, 0.0, pot_r, pot_r, ph, "steel", "pot", n=24),
-                 P._cylinder_z(pot_x, 0.0, ph, pot_r + 0.002, pot_r + 0.002, 0.008, "steel", "lid", n=24),
-                 P._cylinder_z(pot_x, 0.0, ph + 0.008, 0.015, 0.015, min(0.02, h - ph - 0.008), "dark", "knob",
-                               n=10)]
-        for sx in (-1.0, 1.0):
-            parts.append(P._box(pot_x + sx * (pot_r + 0.008), 0.0, ph * 0.75, 0.016, 0.04, 0.012, "dark", "handle"))
-        handle = 0.08                                     # the pan's handle, inside the set's box
-        pan_r = min(d / 2.0 - 0.005, (w - 2.0 * pot_r - 0.05 - handle) / 2.0, 0.13)
-        pan_x = pot_x + pot_r + 0.03 + pan_r
-        handle = max(0.03, min(handle, w / 2.0 - (pan_x + pan_r)))
-        parts.append(P._cylinder_z(pan_x, 0.0, 0.0, pan_r, pan_r, 0.006, "dark", "pan", n=28))
-        parts.append(P._frustum_z(pan_x, 0.0, 0.006, pan_r, pan_r, pan_r * 1.0, pan_r * 1.0, 0.04, "dark", "pan",
-                                  n=28))
-        parts.append(P._box(pan_x + pan_r + handle / 2.0, 0.0, 0.03, handle, 0.024, 0.014, "wood", "handle"))
-        return parts
+        # 30 Oct 2026 (UL186): a pot with its rim, loop handles and a glass lid, a pan with a riveted handle
+        from wenart.blender import small_parts as SM
+
+        return SM.cookware(w, d, h)
     if dtype == "cutting_boards":
         lean = math.radians(BOARD_LEAN_DEG)
         t = 0.02
@@ -882,21 +868,10 @@ def styling_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
             parts.append(part)
         return _fit_box(parts, w, d, h)
     if dtype == "oil_bottles":
-        parts = [P._box(0.0, 0.0, 0.0, w, d, 0.015, "wood", "tray")]
-        z = 0.015
-        br = min(d / 2.0 - 0.012, 0.03)
-        for k, (bx, bh, fill) in enumerate(((-w / 2.0 + br + 0.01, h - z, "green"), (0.0, (h - z) * 0.85, "dark"))):
-            body = bh * 0.68
-            parts.append(P._cylinder_z(bx, 0.0, z, br, br, body, "glass", "bottle", n=16))
-            parts.append(P._cylinder_z(bx, 0.0, z + 0.004, br - 0.005, br - 0.005, body * 0.8, fill, "contents",
-                                       n=12))
-            parts.append(P._frustum_z(bx, 0.0, z + body, br, br, br * 0.35, br * 0.35, bh * 0.22, "glass", "bottle",
-                                      n=16))
-            parts.append(P._cylinder_z(bx, 0.0, z + body + bh * 0.22, br * 0.36, br * 0.36, bh * 0.10, "wood", "cork",
-                                       n=10))
-        sr = min(0.032, d / 2.0 - 0.01)
-        parts.append(P._cylinder_z(w / 2.0 - sr - 0.008, 0.0, z, sr, sr, 0.07, "ceramic", "salt", n=16))
-        return parts
+        # 30 Oct 2026 (UL186): glass bottles with the oil in them, a pourer and a cork, a lidded salt pot on a board
+        from wenart.blender import small_parts as SM
+
+        return SM.oil_set(w, d, h)
     if dtype == "dried_grass_vase":
         return _grass_vase(0.0, 0.0, 0.0, min(w, d), h)
     if dtype == "coffee_station":

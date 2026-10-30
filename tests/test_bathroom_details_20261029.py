@@ -325,7 +325,7 @@ def test_the_decor_stage_gives_the_bathroom_its_set_and_the_review_is_clean():
     items = {d["type"]: d for d in b["decor"]}
     assert {"toilet_paper_holder", "toilet_brush", "towel_rail", "towel_shelf", "feature_panel"} <= set(items)
     holder = items["toilet_paper_holder"]
-    assert holder["center"][2] == pytest.approx(BT.PAPER_HOLDER_Z_M - BT.PAPER_HOLDER_SIZE[2] / 2.0)
+    assert holder["center"][2] == pytest.approx(BT.paper_holder_bottom())      # UL183: the roll's axis at 0.70 m
     assert holder["anchor_ids"] == ["t1"] and holder["source"] == "added_by_ai" and "B2" in holder["reason"]
     assert items["toilet_brush"]["center"][2] == 0.0 and holder["colour"] == "black"     # the family's finish
     assert all(d.get("towel_colour") == "sage" for d in b["decor"] if d.get("rule") == BD.RULE)   # B26

@@ -134,6 +134,7 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/fixture_seat.py", "wena
             # 30 Oct 2026: detail_parts / parametric / bath_parts -> the books (UL154), the holdall (UL160), the desk's
             # stationery (UL164), the bathroom's objects (UL166)
             "wenart/blender/book_parts.py", "wenart/blender/holdall.py", "wenart/blender/desk_parts.py",
+            "wenart/blender/small_parts.py",      # 30 Oct 2026 (UL183, UL184, UL186): the small objects
             "wenart/blender/bath_objects.py",
             "wenart/blender/common.py", "wenart/assets/**", "wenart/style/**", "wenart/building.py", "wenart/textfold.py", "wenart/units.py",
             "wenart/geometry.py", "wenart/schema/**",
@@ -223,6 +224,7 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              # 30 Oct 2026: the books (UL154), the holdall (UL160), the desk's stationery (UL164), the bathroom's
              # objects (UL166)
              "wenart/blender/book_parts.py", "wenart/blender/holdall.py", "wenart/blender/desk_parts.py",
+             "wenart/blender/small_parts.py",     # 30 Oct 2026 (UL183, UL184, UL186): the small objects
              "wenart/blender/bath_objects.py",
              # 30 Oct 2026 (UL129, UL141-UL144): the grading review's site sense and the pools' ladder and seats
              "wenart/blender/site_sense.py", "wenart/blender/pool_extras.py",
