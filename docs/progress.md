@@ -2785,10 +2785,10 @@ Fixed after the run:
 | UL198 | cars must be able to enter and exit | (helper running) | open |
 | UL199 | text on book spines, wine, vinegar, salt and pepper labels | printed titles on spines, labels on bottles and jars (a print atlas) | built (helper) |
 | UL200 | not every bathroom needs a bath | a code-typed bath-sized footprint keeps its bath only on the level with the most bedrooms; the others become walk-in showers (real04: L0 keeps its tubs; L-1, L-1b, L1 get showers) | built |
-| UL201 | shower inspiration | (helper running) | open |
+| UL201 | shower inspiration | level walk-in showers: tiles run in to a linear drain, glass on every open end, a black sliding door on rollers, rain head, hand shower on a slide bar; the way in on an open side | built (helper) |
 | UL202, UL203 | walkable walkways; a step into the house | (helper running) | open |
 | UL204 | the wall texture at the entrance | one stone per house: plinth and plot walls take the facade's base stone; an edit with another stone is refused | built |
-| UL205 | WC inspiration | (helper running) | open |
+| UL205 | WC inspiration | a wall-hung WC on a half-height installation wall with lit niches; a long backlit mirror; an oak bench basin in the families that like it | built (helper) |
 | UL204 | wood cladding by the door looks streaky | textured wood cladding is laid as real boards (3 m long, 12 cm wide, staggered joints) in walnut veneer, not one stretched texture | built |
 
 Also: a relayout keeps the room's set (the TV units of run 112241), the GPU index-pass test allows hidden pieces in agent poses.

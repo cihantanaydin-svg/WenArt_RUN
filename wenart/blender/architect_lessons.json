@@ -2384,12 +2384,12 @@
    "id": "UL201",
    "date": "2026-10-30",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "This is inspration for shower solutions (30 Oct 2026, the user's photo of a modern bathroom: a level-access shower behind frameless clear glass, a black sliding door hung from a top rail with round rollers, a square black rain head, a hand shower on a hose and a slide bar, a black bar mixer, a linear floor drain, large grey floor tiles running in; beside it a curved floating vanity with fluted fronts and open lit shelves, a terrazzo top and wall framing a backlit rounded mirror, a black vessel basin, a black heated towel rail, square black downlights)",
-   "lesson": "This is inspration for shower solutions (30 Oct 2026, the user's photo of a modern bathroom: a level-access shower behind frameless clear glass, a black sliding door hung from a top rail with round rollers, a square black rain head, a hand shower on a hose and a slide bar, a black bar mixer, a linear floor drain, large grey floor tiles running in; beside it a curved floating vanity with fluted fronts and open lit shelves, a terrazzo top and wall framing a backlit rounded mirror, a black vessel basin, a black heated towel rail, square black downlights)",
+   "lesson": "Every walk-in shower follows the user's photo. The floor is level: the room's tiles run in and a flush linear drain sits at the back wall (a tray only when a brief asks for one). Each side is read from the room outline: an end within 12 cm of a wall stands on it, every open end gets a fixed clear glass panel with clamps and a top rail. The way in is always on an open side; a shower drawn facing a wall is turned to its open side (adjusted_by_ai, the drawn footprint and front kept). From 1 m wide the front glass slides on a black top rail with round rollers and has a black bar handle. Fittings at real heights: a square rain head on a wall arm, a hand shower on a slide bar with its hose, a bar mixer, a towel bar inside. Test case: real04's 1.83 x 0.80 m walk-ins.",
    "question": "Does every shower look like the user's reference: level access, frameless clear glass with a black sliding door on a top rail, a black rain head, a hand shower on a slide bar, a bar mixer and a linear drain?"
   },
   {
@@ -2432,12 +2432,12 @@
    "id": "UL205",
    "date": "2026-10-30",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Nice inspiration for toilet solution (30 Oct 2026, the user's photo of a WC: charcoal microcement walls; a half-height installation wall with recessed lit niches on top holding toiletries; a long backlit horizontal mirror above it; a black wall-mounted mixer over a matt black vessel basin on a rustic oak trestle bench with a lower shelf and a woven basket; a slim fin wall between the basin and the WC; a black wall-hung WC with a round dual-flush plate on the installation wall; a chrome toilet brush and a roll holder; a woven rattan dome pendant; large greige floor tiles)",
-   "lesson": "Nice inspiration for toilet solution (30 Oct 2026, the user's photo of a WC: charcoal microcement walls; a half-height installation wall with recessed lit niches on top holding toiletries; a long backlit horizontal mirror above it; a black wall-mounted mixer over a matt black vessel basin on a rustic oak trestle bench with a lower shelf and a woven basket; a slim fin wall between the basin and the WC; a black wall-hung WC with a round dual-flush plate on the installation wall; a chrome toilet brush and a roll holder; a woven rattan dome pendant; large greige floor tiles)",
+   "lesson": "A wall-hung WC hangs on a half-height installation wall: 0.15 m deep and 1.15 m high, the flush plate below its top and lit niches with toiletries along it. It goes in WC rooms and on the WC side of bathrooms whose family has no fluted wall behind the WC; it runs 0.60 m past the WC, into a near corner, and stops at openings, pieces, door swings and slopes. In a WC room the basin on the same wall stands on its face too, under a long thin backlit mirror; in the families that like it that basin is an oak trestle bench with a matt black bowl, a black wall mixer and a basket. The paper holder hangs on the pre-wall's face, the brush stands beside the WC. The WC and basin keep their drawn footprints; classic families keep their close-coupled WC.",
    "question": "Does every WC look like the user's reference: a half-height installation wall with recessed niches, a long backlit mirror, a wall-hung WC with its flush plate, the basin on a bench or console with a wall mixer, a brush and a roll holder?"
   }
  ]
