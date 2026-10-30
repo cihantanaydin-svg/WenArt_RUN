@@ -1094,7 +1094,7 @@ def soft_seats(building: Optional[dict], manifest: Optional[dict]) -> list[dict]
     for g in got:
         f = _f("U36", g["severity"], g["target"], g["message"], g["lesson"], g["fix"], problem=g["problem"],
                room=g.get("room_id"), **g["metrics"])
-        if g["problem"] == "parts_apart":
+        if g["problem"] in ("parts_apart", "rest_apart"):      # 30 Oct 2026 (UL167): a back apart from the seat
             f["kind"] = "detached"
         out.append(f)
     return out
