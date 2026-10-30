@@ -1372,15 +1372,131 @@ def _rect_along(origin, d, start: float, end: float, half_w: float) -> list:
                        for t, s in ((start, -half_w), (start, half_w), (end, half_w), (end, -half_w))])
 
 
+# 30 Oct 2026 (lesson UL203, user on real04 run 20261030-112241-full: "also include a step to go into the house"): an
+# entrance whose floor is flush with the ground outside gets one step up into the house: its landing one outdoor riser
+# (the levels' rule) under the door's floor, a stone threshold at the door, the ground around the landing graded down to
+# it and falling away from the door (``fall``). Not when the documents give the level in front of the door (a level
+# mark at the landing), for a garage door (cars drive in) or a door onto an outdoor space (the space is its landing);
+# an accessible route (the brief's levels.accessible_entrance for the main entrance, a drawn ramp) gets a level
+# threshold with a drain instead.
+STEP_UP = {"depth_m": 1.2, "nosing_m": 0.05, "threshold_side_m": 0.05, "fall": 0.06, "drain_w": 0.12,
+           "drain_t": 0.03, "drain_side_m": 0.1}
+
+
+def brief_levels(building: dict) -> dict:
+    """The brief's ``levels:`` block carried in the building JSON (``project.brief``; pure), {} when none."""
+    brief = (building.get("project") or {}).get("brief") if isinstance(building.get("project"), dict) else None
+    if not isinstance(brief, dict):
+        return {}
+    block = brief.get("levels") if "values" not in brief else (brief.get("values") or {}).get("levels")
+    if isinstance(block, dict) and "value" in block and isinstance(block.get("value"), dict):
+        block = block["value"]
+    return dict(block) if isinstance(block, dict) else {}
+
+
+def entrance_threshold(e: dict, building: dict, rules: Optional[dict] = None) -> Optional[dict]:
+    """How a flush entrance meets the ground in front (pure; lesson UL203): ``{"kind": step_up | level | keep,
+    "riser", "reason"}``; None for a door with steps (its rise is above the ground). ``keep``: the documents give the
+    level there, a garage door, a door onto an outdoor space."""
+    from wenart.blender import grading as GR
+
+    if float(e.get("rise") or 0.0) > LIGHT_WELL_CLEARANCE:
+        return None
+    rules = rules or GR.level_rules()
+    rec = e.get("record") or {}
+    did = str(e["opening_id"])
+    if rec.get("onto"):
+        return {"kind": "keep", "riser": 0.0, "reason": f"{did} opens onto {rec['onto']}: the space is its landing"}
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == rec.get("room_id")), None)
+    if room_role(room) == "garage":
+        return {"kind": "keep", "riser": 0.0, "reason": f"{did} is a garage door: the cars drive in level"}
+    face = (e["centre"][0] + e["outward"][0] * e["half_t"], e["centre"][1] + e["outward"][1] * e["half_t"])
+    reach = float(rules.get("door_mark_reach", 1.5)) + float(e.get("width") or 0.9) / 2.0
+    if rec.get("drawn"):
+        return {"kind": "keep", "riser": 0.0, "reason": f"{did}: the documents draw its landing level (kept)"}
+    for m in building.get("level_marks") or []:
+        if not isinstance(m, dict) or m.get("point") is None or m.get("z") is None:
+            continue
+        if m.get("level_id") not in (None, e.get("level_id")) or not str(m.get("kind") or "").startswith(
+                ("ground", "threshold", "entrance", "landing")):
+            continue
+        if G.distance(face, m["point"]) <= reach:
+            return {"kind": "keep", "riser": 0.0,
+                    "reason": f"{did}: the documents give the level in front of the door (level mark {m.get('id')} "
+                              f"{m.get('raw') or m['z']}, {G.distance(face, m['point']):.1f} m out): kept as drawn"}
+    ramps = {r.get("door_id") for r in (building.get("site") or {}).get("drawn_ramps") or [] if isinstance(r, dict)}
+    if rec.get("ramp") or did in ramps or (rec.get("main") and bool(brief_levels(building).get("accessible_entrance"))):
+        return {"kind": "level", "riser": 0.0,
+                "reason": f"{did}: an accessible entrance: a level threshold with a drain channel at the door and the "
+                          f"landing falling away from it (lesson UL203; inferred)"}
+    riser = min(float(rules.get("ground_rise", 0.15)), float(rules.get("riser_max_outdoor", 0.15)))
+    return {"kind": "step_up", "riser": riser,
+            "reason": f"{did} is flush with the ground outside and the documents give no level at its landing: one "
+                      f"step of {riser:.2f} m up into the house (the levels' riser), its landing {riser:.2f} m under "
+                      f"the floor with a stone threshold at the door, the ground graded down to the landing and "
+                      f"falling away from it {STEP_UP['fall'] * 100:.0f} % (lesson UL203; inferred)"}
+
+
+def threshold_steps(e: dict, face, th: dict) -> dict:
+    """The landing of a flush entrance (pure; lesson UL203, ``entrance_threshold``): a step up into the house (the
+    landing ``riser`` under the door's floor, a stone threshold from the middle of the wall to ``nosing_m`` past its
+    face) or a level threshold (the landing at the floor, a drain channel along the door). The landing is the
+    walking level a path from the door starts on (``grading.entrance_landings``)."""
+    rec = e.get("record") or {}
+    width = float((rec.get("landing") or {}).get("width") or e["width"] + 2 * INFERRED["landing_side"])
+    half_w = width / 2.0
+    depth = float((rec.get("landing") or {}).get("depth") or STEP_UP["depth_m"])
+    o = e["outward"]
+    top = float(e["bottom"]) - float(th["riser"])
+    out = {"opening_id": e["opening_id"], "blocks": [{"polygon": _rect_along(face, o, 0.0, depth, half_w),
+                                                      "z_top": top}],
+           "end": depth, "count": 0, "rise": round(float(th["riser"]), 4), "face": face, "risers": 0,
+           "solution": "step_up" if th["kind"] == "step_up" else "level_threshold", "reason": th["reason"],
+           "thresholds": [], "drains": []}
+    if th["kind"] == "step_up":
+        out["step_up"] = {"riser": round(float(th["riser"]), 4), "z": round(top, 4), "reason": th["reason"]}
+        out["thresholds"].append({"polygon": _rect_along(face, o, -float(e["half_t"]), STEP_UP["nosing_m"],
+                                                         e["width"] / 2.0 + STEP_UP["threshold_side_m"]),
+                                  "z_top": float(e["bottom"])})
+    else:
+        out["level_threshold"] = {"z": round(top, 4), "reason": th["reason"]}
+        out["drains"].append({"polygon": _rect_along(face, o, 0.0, STEP_UP["drain_w"],
+                                                     e["width"] / 2.0 + STEP_UP["drain_side_m"]),
+                              "z_top": top + 0.002, "depth": STEP_UP["drain_t"]})
+    return out
+
+
+def entrance_pads(steps: Sequence[dict]) -> list[dict]:
+    """The terrain rows of the flush entrances' landings (pure; lesson UL203): the ground in each landing at its level
+    and falling away from it at ``STEP_UP["fall"]`` (``grading.grade_z``'s ``pad`` rows)."""
+    out = []
+    for st in steps:
+        info = st.get("step_up") or st.get("level_threshold")
+        if not info:
+            continue
+        for b in st.get("blocks") or []:
+            poly = geom2d.ccw([(float(q[0]), float(q[1])) for q in b["polygon"]])
+            rise = max(float((st.get("step_up") or {}).get("riser") or 0.15), 0.05)
+            out.append({"kind": "pad", "polygon": poly, "box": list(G.bbox(poly)), "z_top": float(b["z_top"]),
+                        "slope": STEP_UP["fall"], "width_m": round(rise / STEP_UP["fall"] + 0.5, 3),
+                        "fill": False, "finish": "lawn", "platform": f"entrance {st['opening_id']}", "edge": None})
+    return out
+
+
 def entrance_steps(e: dict, keep_out: Sequence = (), building: Sequence = ()) -> dict:
     """The landing and steps in front of an entrance door above the ground (pure; assumed): a landing
     ``landing`` deep at the door's floor, then steps of at most ``step_rise`` and ``step_run`` deep down to the
     ground, as wide as the door + ``landing_side`` on each side. ``{"opening_id", "blocks": [{"polygon",
     "z_top"}], "end": distance from the wall face where the path starts, "count", "rise"}``; no blocks for a door
     at grade. ``keep_out`` (the other doors' approach zones, ``door_approach``) and ``building`` (the outline) are
-    where a record's ramp may not run (``record_steps``, 26 Oct 2026)."""
+    where a record's ramp may not run (``record_steps``, 26 Oct 2026). 30 Oct 2026 (lesson UL203): a door at grade
+    with a ``threshold`` (``entrance_threshold``) gets its step up into the house or level threshold
+    (``threshold_steps``)."""
     face = (e["centre"][0] + e["outward"][0] * e["half_t"], e["centre"][1] + e["outward"][1] * e["half_t"])
     half_w = e["width"] / 2.0 + INFERRED["landing_side"]
+    th = e.get("threshold")
+    if th and th.get("kind") in ("step_up", "level"):
+        return threshold_steps(e, face, th)
     if e.get("record") is not None:
         return record_steps(e, face, keep_out, building)
     if e["rise"] <= LIGHT_WELL_CLEARANCE:
@@ -1717,8 +1833,8 @@ def footprints_gap(a: Sequence, b: Sequence) -> float:
 def flight_spec(e: dict, st: dict) -> Optional[dict]:
     """The flight of an entrance as its steps record makes it (pure): ``{"n", "riser", "tread", "flights",
     "landing", "handrails", "cheeks", "top", "ground"}``, None without steps (a ramp only, or at grade)."""
-    if not st.get("blocks"):
-        return None
+    if not st.get("blocks") or st.get("step_up") or st.get("level_threshold"):
+        return None                                  # UL203: the step up is the door's threshold, no flight
     top = float(st["blocks"][0]["z_top"])
     rec = e.get("record")
     if rec is not None:
@@ -1874,7 +1990,13 @@ def merged_steps(group: Sequence[dict], single: dict, zones: dict, building: Seq
                         "size_m": [round(s1 - s0, 3), round(d1 - d0, 3)],
                         "area_m2": round(sum(G.polygon_area(p) for p in pieces), 3)},
            "flight": {"placement": placement, "base": list(base), "dir": list(fdir), "width": round(2 * hw, 3),
-                      "run": round(flight["end"], 3), "footprint": flight["footprint"]}}
+                      "run": round(flight["end"], 3), "footprint": flight["footprint"]},
+           # 30 Oct 2026 (UL203): the members' thresholds and drains stay at their doors
+           "thresholds": [t for e in group for t in single[e["opening_id"]].get("thresholds") or []],
+           "drains": [t for e in group for t in single[e["opening_id"]].get("drains") or []]}
+    for key in ("step_up", "level_threshold"):
+        if lst.get(key):
+            out[key] = dict(lst[key])
     ramp_e = next((e for e in order if (e.get("record") or {}).get("ramp")), None)
     if ramp_e is not None:
         ramp = ramp_e["record"]["ramp"]
@@ -1893,7 +2015,9 @@ def merged_steps(group: Sequence[dict], single: dict, zones: dict, building: Seq
     cut_note = " (the building cut out)" if out["platform"]["area_m2"] < w * dpt - 1e-3 else ""
     flight_note = (f"one flight of {out['risers']} riser(s) {placement} ({lid})" if out["risers"] > 1 else
                    f"the platform's edge is the one step ({out['rise']:.2f} m)" if out["risers"] == 1 else
-                   "no steps (a ramp)")
+                   f"one step of {out['step_up']['riser']:.2f} m up into the house at each door (UL203)"
+                   if out.get("step_up") else "a level threshold with a drain at each door (UL203)"
+                   if out.get("level_threshold") else "no steps (a ramp)")
     out["reason"] = (f"doors {', '.join(ids)}: their landings and steps would meet (at most {gap:.2f} m apart, "
                      f"landings at {top:+.2f} m): one platform {w:.2f} x {dpt:.2f} m in front of all of them"
                      f"{cut_note}, {flight_note}, {rails}; no door keeps steps of its own (inferred){note}")
@@ -1996,12 +2120,19 @@ def entrance_meshes(st: dict, terrain: dict) -> list[dict]:
     (``site_ramp``) and ``handrail_<door>`` (``site_handrail``: rails and posts)."""
     out = []
     parts = []
-    for blk in list(st["blocks"]) + list(st.get("cheeks") or []):
-        z0 = min(ground_z(terrain, *p) for p in blk["polygon"]) - 0.1
+    # 30 Oct 2026 (UL203): the stone threshold of a step up into the house is part of the steps
+    for blk in list(st["blocks"]) + list(st.get("cheeks") or []) + list(st.get("thresholds") or []):
+        z0 = min(min(ground_z(terrain, *p) for p in blk["polygon"]), float(blk["z_top"])) - 0.1
         parts.append(geom2d.prism(blk["polygon"], z0, blk["z_top"]))
     if parts:
         v, f = geom2d.merge(parts)
         out.append({"name": f"steps_{st['opening_id']}", "kind": "site_steps", "verts": v, "faces": f})
+    drains = [geom2d.prism(d["polygon"], float(d["z_top"]) - float(d.get("depth") or 0.03), float(d["z_top"]))
+              for d in st.get("drains") or []]
+    if drains:                                       # UL203: a level threshold's drain channel (a metal grate)
+        v, f = geom2d.merge(drains)
+        out.append({"name": f"drain_{st['opening_id']}", "kind": "site_steps", "verts": v, "faces": f,
+                    "grate": True})
     if st.get("ramp"):
         z0 = min(ground_z(terrain, *p) for p in st["ramp"]["polygon"]) - 0.1
         v, f = ramp_solid(st["ramp"], z0)
@@ -2672,7 +2803,8 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
     26 Oct 2026: the steps come from ``entrance_layout`` (a shared platform is one ``steps`` record with its
     ``members``; ``entrance_groups`` lists the groups; the members get no path of their own)."""
     out = {"plot": list(plot), "plot_inferred": False, "main": None, "entrances": [], "steps": [], "paths": [],
-           "boundary": [], "trees": [], "assumed": [], "warnings": [], "tree_stats": None, "entrance_groups": []}
+           "boundary": [], "trees": [], "assumed": [], "warnings": [], "tree_stats": None, "entrance_groups": [],
+           "pads": []}
     if len(outline) < 3:
         return out
     if not plot:
@@ -2683,6 +2815,15 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
                                          f"{INFERRED['plot_margin']:g} m (inferred)"})
     out["main"] = main_facade(building, levels, terrain, outline, outlines)
     ents = entrances(building, levels, terrain, outline, outlines)
+    # 30 Oct 2026 (lesson UL203): a flush entrance gets a step up into the house (or a level threshold), unless the
+    # documents give its level
+    for e in ents:
+        th = entrance_threshold(e, building)
+        if th is not None:
+            e["threshold"] = th
+            if th["kind"] == "keep":
+                out["assumed"].append({"field": f"threshold:{e['opening_id']}", "value": "as drawn",
+                                       "reason": th["reason"]})
     out["entrances"] = [{k: (list(v) if isinstance(v, tuple) else v) for k, v in e.items()} for e in ents]
     # 26 Oct 2026 (real06): the entrances are laid out together: doors whose steps would meet share one platform and
     # one flight, a ramp keeps clear of the other doors (entrance_layout)
@@ -2691,11 +2832,17 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
     out["steps"] = [s for s in steps.values() if s["blocks"]]
     out["entrance_groups"] = layout["groups"]
     for s in out["steps"]:
+        if s.get("step_up") or s.get("level_threshold"):
+            out["assumed"].append({"field": f"threshold:{s['opening_id']}",
+                                   "value": "step_up" if s.get("step_up") else "level_threshold",
+                                   "reason": s.get("reason") or (s.get("step_up") or s["level_threshold"])["reason"]})
+            continue
         what = (f"a platform for doors {', '.join(s['doors'])} and {s['count']} steps" if s.get("members")
                 else f"a landing and {s['count']} steps")
         out["assumed"].append({"field": f"steps:{s['opening_id']}", "value": s["count"],
                                "reason": f"entrance door {s['rise'] * (s['count'] + 1):.2f} m above the ground: "
                                          f"{what} of {s['rise']:.3f} m (inferred)"})
+    out["pads"] = entrance_pads(out["steps"])          # UL203: the ground graded down to the landings
     out["assumed"] += layout["assumed"]
     out["warnings"] += layout["warnings"]
     if options.get("path", True):
@@ -6068,6 +6215,9 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
                   for pf in pfs if not pf.get("elevated") and len(pf.get("polygon") or []) >= 3]
         inferred = inferred_site(building, levels, terrain, outline, outlines, plot, plot_src, options, drawn_trees,
                                  spaces=[pf for pf in pfs if pf.get("space")], stops=stops)
+        if inferred.get("pads"):
+            # 30 Oct 2026 (lesson UL203): the ground at a step up into the house lies at its landing and falls away
+            terrain = dict(terrain, grading=list(terrain.get("grading") or []) + list(inferred["pads"]))
         assumed += inferred["assumed"]
         warnings += inferred["warnings"]           # fix round after P4b: fewer inferred trees than asked
         for p in inferred["paths"]:
@@ -6262,7 +6412,8 @@ def ground_holes(plan: dict) -> list:
         + [p["polygon"] for p in plan.get("pools") or [] if p["id"] not in pooled] \
         + [pf["polygon"] for pf in pfs if not pf.get("sloped")] \
         + [fl["footprint"] for fl in (up_flight(pf, plan.get("terrain")) for pf in pfs) if fl is not None] \
-        + downs + [geom2d.ccw(r["polygon"]) for r in GR.graded_paths(plan) if r.get("graded")]
+        + downs + [geom2d.ccw(r["polygon"]) for r in GR.graded_paths(plan) if r.get("graded")] \
+        + [geom2d.ccw(ld["polygon"]) for ld in GR.entrance_landings(plan)]          # UL203: the landings at grade
 
 
 def hedge_records(plan: dict, levers: Optional[dict] = None) -> list[dict]:
@@ -6896,11 +7047,14 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         rail_mat = make_material(looks.get("railing") or {"material": SITE_FALLBACK_LOOKS["railing"],
                                                           "colour": None}) \
             if any(st.get("rails") for st in inferred["steps"]) else None
+        grate_mat = make_material({"material": "aluminium_anthracite", "colour": None, "source": "build",
+                                   "reason": "a drain grate at a level threshold (UL203; inferred)"}) \
+            if any(st.get("drains") for st in inferred["steps"]) else None
         for st in inferred["steps"]:
             # Milestone 12: landing, flights, cheek walls, a ramp and handrails (entrance_meshes); one object each.
             for mesh in entrance_meshes(st, terrain):
                 wid = mesh["name"]
-                mat = rail_mat if mesh["kind"] == "site_handrail" else step_mat
+                mat = rail_mat if mesh["kind"] == "site_handrail" else grate_mat if mesh.get("grate") else step_mat
                 ob = common.new_mesh_object(wid, mesh["verts"], mesh["faces"], collection=collection, wenart_id=wid,
                                             kind=mesh["kind"], status="assumed", materials=[mat])
                 entry(ob.name, wid, mesh["kind"], mat, "assumed",
@@ -6936,7 +7090,11 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                        "intermediate_landings": s.get("intermediate_landings"), "ramp": bool(s.get("ramp")),
                        "handrails": bool(s.get("rails")), "doors": list(s.get("doors") or [s["opening_id"]]),
                        "platform_m": (s.get("platform") or {}).get("size_m"),
-                       "ramp_placement": (s.get("ramp") or {}).get("placement")} for s in inferred["steps"]],
+                       "ramp_placement": (s.get("ramp") or {}).get("placement"),
+                       # 30 Oct 2026 (UL203): the step up into the house or the level threshold of a flush door
+                       **({"step_up": s["step_up"]} if s.get("step_up") else {}),
+                       **({"level_threshold": s["level_threshold"]} if s.get("level_threshold") else {})}
+                      for s in inferred["steps"]],
             "paths": [{"opening_ids": p["opening_ids"], "length": p["length"], "width": p["width"]}
                       for p in inferred["paths"]],
             "boundary": kinds[0] if kinds else None, "trees": [t["id"] for t in inferred["trees"]],
@@ -6956,7 +7114,11 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
     summary["floors"] = {"family": floors.get("family"), "set": {u: floors[u].get("material") for u in GR.FLOOR_USES},
                          "built": built_floors, "reasons": {u: floors[u].get("reason") for u in GR.FLOOR_USES}}
     summary["grading"] = {"banks": [{k: row.get(k) for k in ("platform", "edge", "finish", "slope", "fill", "width_m")}
-                                    for row in terrain.get("grading") or []],
+                                    for row in terrain.get("grading") or [] if row.get("kind") != "pad"],
+                          # 30 Oct 2026 (UL203): the ground graded down to the flush entrances' landings
+                          "entrance_pads": [{"for": row.get("platform"), "z": round(float(row["z_top"]), 3),
+                                             "fall": row.get("slope"), "width_m": row.get("width_m")}
+                                            for row in terrain.get("grading") or [] if row.get("kind") == "pad"],
                           "tiers": sum(1 for pf in pfs if pf.get("parent")),
                           "planted_tiers": sum(1 for pf in pfs if pf.get("parent") and (pf.get("planting") or {}).get("plants")),
                           "flights": [{"platform": pf["id"], **{k: v for k, v in (pf.get("flight_down") or {}).items()

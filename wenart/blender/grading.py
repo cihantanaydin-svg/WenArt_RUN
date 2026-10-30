@@ -122,6 +122,7 @@ RULES = {
     "G11": "every pool has a ladder, a deck with room has seating",
     "G12": "the paved strip at the foot of a glazed facade runs its whole glazing run",
     "G13": "a car drives into every parking from a street and out again (UL198)",
+    "G14": "walkways walkable: paths meet edge to edge on a level landing and square, nothing stands in a walk (UL202)",
 }
 CONCRETE_SLUGS = ("concrete_exposed", "concrete", "concrete_polished")
 
@@ -634,8 +635,23 @@ def grade_z(grading: Sequence[dict], x: float, y: float, z: float) -> float:
     """The ground ``z`` at ``(x, y)`` with the banks of ``grading`` (pure): a fill bank raises the ground to its
     surface (``z_top`` at the platform edge falling ``slope`` per metre out), a cut bank lowers it; inside the strip of
     its edge piece by the distance out, past an end with a cone (``cone_a`` / ``cone_b``: the neighbouring edge is
-    banked too) by the distance to the end, else not at all (a wing wall holds that end)."""
+    banked too) by the distance to the end, else not at all (a wing wall holds that end).
+
+    30 Oct 2026 (lesson UL203): a ``pad`` row (an entrance landing) puts the ground in its ``polygon`` at its
+    ``z_top``; out to ``width_m`` around it a higher ground is cut to fall away from it at ``slope`` per metre and a
+    lower one rises to meet it (blended to the natural ground at ``width_m``), so the landing sits on the ground."""
     for g in grading:
+        if g.get("kind") == "pad":
+            poly = g["polygon"]
+            box = g.get("box") or G.bbox(poly)
+            w = float(g["width_m"])
+            if not (box[0] - w <= x <= box[2] + w and box[1] - w <= y <= box[3] + w):
+                continue
+            d = 0.0 if G.point_in_polygon((x, y), poly) else geom2d.distance_to_polygon_edges((x, y), poly)
+            if d <= w:
+                top = float(g["z_top"])
+                z = min(z, top + d * float(g["slope"])) if z > top else top + (z - top) * d / max(w, 1e-6)
+            continue
         ax, ay = g["a"]
         ux, uy = g["u"]
         nx, ny = g["n"]
@@ -846,6 +862,8 @@ def bank_zones(terrain: Optional[dict]) -> list:
     would tilt across it); a bank's cones are left out (they lie beside the platform's corners)."""
     out = []
     for e in (terrain or {}).get("grading") or []:
+        if e.get("kind") == "pad":
+            continue                                     # an entrance pad: a path starts on it (UL203)
         ax, ay = e["a"]
         ux, uy = e["u"]
         nx, ny = e["n"]
@@ -860,20 +878,21 @@ def plan_terrain(plan: dict) -> Optional[dict]:
     """The terrain a site plan builds on: its ``terrain`` with its platforms' banks (``site_plan`` grades it already;
     a plan put together by hand, with platforms planned on the bare terrain, gets the same graded ground)."""
     terrain = plan.get("terrain")
-    if not terrain or terrain.get("grading"):
+    if not terrain or any(r.get("kind") != "pad" for r in terrain.get("grading") or []):
         return terrain
     return graded_terrain(terrain, plan.get("platforms") or [])
 
 
 def graded_terrain(terrain: dict, platforms: Sequence[dict]) -> dict:
     """The terrain model with the platforms' banks (``terrain["grading"]``, ``site.ground_z`` applies them): the
-    terrain itself when no platform has a bank."""
+    terrain itself when no platform has a bank. The entrance pads already in it stay (UL203)."""
     rows = [e for pf in platforms for e in pf.get("embankments") or []]
     if not rows:
         return terrain
     keep = ("a", "u", "n", "length_m", "width_m", "z_top", "slope", "fill", "cone_a", "cone_b", "platform", "edge",
             "finish")
-    return dict(terrain, grading=[{k: e[k] for k in keep} for e in rows])
+    pads = [r for r in terrain.get("grading") or [] if r.get("kind") == "pad"]
+    return dict(terrain, grading=[{k: e[k] for k in keep} for e in rows] + pads)
 
 
 # --------------------------------------------------------------------------
@@ -1016,21 +1035,48 @@ def _stepped_slices(length: float, width: float, ts, g, rules: dict) -> tuple[li
     return slices, info
 
 
-def path_plan(area: dict, gz: Callable, accessible: bool = False, rules: Optional[dict] = None) -> dict:
+def _pin_profile(prof: dict, fr: dict, pins: dict) -> dict:
+    """``path_profile`` with its ends held at the levels of ``pins`` (``{"start": z, "end": z}``; pure; 30 Oct 2026,
+    lesson UL202): the end landing of a path that starts on an entrance landing or joins another path's landing
+    lies at that level, so the two meet level (no wedge, no step at the joint)."""
+    ts, g = prof["ts"], list(prof["g"])
+    end = min(GRADE["end_landing_m"], max(fr["width"], 0.6), fr["length"] / 4.0)
+    for key, inside in (("start", lambda t: t <= end + 1e-9), ("end", lambda t: t >= fr["length"] - end - 1e-9),
+                        ("level", lambda t: True)):            # ``level``: the whole strip (a corner landing)
+        if pins.get(key) is None:
+            continue
+        g = [float(pins[key]) if inside(t) else z for t, z in zip(ts, g)]
+    w = GRADE["window_m"]
+    local = 0.0
+    for j, t in enumerate(ts):
+        for m in range(j + 1, len(ts)):
+            if ts[m] - t >= w - 1e-9 or m == len(ts) - 1:
+                local = max(local, abs(g[m] - g[j]) / max(ts[m] - t, 1e-6))
+                break
+    return dict(prof, g=g, local=local, overall=abs(g[-1] - g[0]) / max(fr["length"], 1e-6))
+
+
+def path_plan(area: dict, gz: Callable, accessible: bool = False, rules: Optional[dict] = None,
+              pins: Optional[dict] = None) -> dict:
     """How a path meets the slope (pure; module docstring): ``{"id", "graded", "kind": walk | sloped_walk | stepped |
     ramp, "frame", "slices", "local", "cross", "rise", "reason", ...}``. ``slices`` run along the strip from its
-    start (``t`` 0 at ``frame["a"]``), each level across: ``{"t0", "t1", "z0", "z1", "kind", "riser"}``."""
+    start (``t`` 0 at ``frame["a"]``), each level across: ``{"t0", "t1", "z0", "z1", "kind", "riser"}``. ``pins``
+    (``{"start": z, "end": z}``, UL202): the levels its ends meet (``_pin_profile``)."""
     rules = rules or level_rules()
     rec = {"id": area.get("id"), "graded": False, "kind": "walk", "slices": [], "polygon": area.get("polygon")}
     fr = strip_frame(area.get("polygon") or [])
     if fr is None:
         rec["reason"] = "not a straight strip: draped on the ground as drawn"
         return rec
-    prof = path_profile(fr, gz)
+    prof = ground = path_profile(fr, gz)
+    if pins and any(v is not None for v in pins.values()):
+        prof = _pin_profile(prof, fr, pins)
+        rec["pins"] = {k: round(float(v), 4) for k, v in pins.items() if v is not None}
     rec.update(frame=fr, local=round(prof["local"], 4), cross=round(prof["cross"], 4), overall=round(prof["overall"], 4),
                length=round(fr["length"], 3), width=round(fr["width"], 3))
     ts, g = prof["ts"], prof["g"]
-    if prof["local"] <= GRADE["walk_max"] + 1e-9 and prof["cross"] <= GRADE["cross_fall_max"] + 1e-9:
+    if prof["local"] <= GRADE["walk_max"] + 1e-9 and prof["cross"] <= GRADE["cross_fall_max"] + 1e-9 \
+            and ground["local"] <= GRADE["walk_max"] + 1e-9:
         rec["reason"] = (f"a walk: at most 1:20 along ({prof['local'] * 100:.1f} %) and "
                          f"{prof['cross'] * 100:.1f} % across, on the ground with an edging")
         return rec
@@ -1117,10 +1163,75 @@ def accessible_paths(plan: dict) -> set:
     return out
 
 
+def entrance_landings(plan: dict) -> list[dict]:
+    """The walking surfaces in front of the doors a path starts on (pure; 30 Oct 2026, lesson UL203): the landing of
+    every entrance with a step up into the house or a level threshold (``site.entrance_steps``): ``[{"id",
+    "polygon", "z"}]``."""
+    out = []
+    for st in (plan.get("inferred") or {}).get("steps") or []:
+        if not (st.get("step_up") or st.get("level_threshold")):
+            continue
+        for b in st.get("blocks") or []:
+            if len(b.get("polygon") or []) >= 3:
+                out.append({"id": f"landing:{st['opening_id']}", "polygon": [tuple(map(float, q[:2]))
+                                                                             for q in b["polygon"]],
+                            "z": float(b["z_top"])})
+    return out
+
+
+JOIN_PROBE_M = 0.1                # 30 Oct 2026 (UL202): a path's end joins what lies this far past it
+JOIN_TOL_M = 0.03                 # (UL202) two walks that meet differ at most this in level along their joint
+JOIN_WINDOW_M = 0.3               # (UL202) a head-on joint: this much of the other path's end
+
+
+def joint_span(fr: dict, t_end: float, qf: dict) -> tuple[float, float]:
+    """The stretch ``(t0, t1)`` of the path of frame ``qf`` that the end of the path of frame ``fr`` (at ``t_end``)
+    meets (pure; UL202): its end edge projected on ``qf``; an end meeting ``qf``'s own end edge head on, the last
+    ``JOIN_WINDOW_M`` of it."""
+    ts = [(c[0] - qf["a"][0]) * qf["u"][0] + (c[1] - qf["a"][1]) * qf["u"][1]
+          for c in (_at(fr, t_end, fr["width"] / 2.0), _at(fr, t_end, -fr["width"] / 2.0))]
+    t0, t1 = max(0.0, min(ts)), min(float(qf["length"]), max(ts))
+    if t1 - t0 < JOIN_WINDOW_M:
+        mid = min(max((t0 + t1) / 2.0, JOIN_WINDOW_M / 2.0), float(qf["length"]) - JOIN_WINDOW_M / 2.0)
+        t0, t1 = mid - JOIN_WINDOW_M / 2.0, mid + JOIN_WINDOW_M / 2.0
+    return t0, t1
+
+
+def joint_ok(rec: dict, t0: float, t1: float) -> bool:
+    """Whether another path may join a planned path along ``t0``-``t1`` of it (pure; UL202): one level there (within
+    ``JOIN_TOL_M``, no riser between): a landing of a stepped path, a flat stretch; a walk on the ground always."""
+    if not rec.get("graded"):
+        return True
+    built = [s for s in rec.get("slices") or [] if not s.get("skip") and s["t1"] > t0 + 1e-6 and s["t0"] < t1 - 1e-6]
+    if not built or built[0]["t0"] > t0 + 0.02 or built[-1]["t1"] < t1 - 0.02:
+        return False
+    zs = []
+    for s in built:
+        for t in (max(s["t0"], t0), min(s["t1"], t1)):
+            f = (t - s["t0"]) / max(s["t1"] - s["t0"], 1e-9)
+            zs.append(s["z0"] + (s["z1"] - s["z0"]) * f)
+    return max(zs) - min(zs) <= JOIN_TOL_M + 1e-9
+
+
+def level_on(rec: dict, p, gz: Optional[Callable] = None) -> Optional[float]:
+    """The walking level of a planned path at the point ``p`` (pure; UL202): its built slice there (a graded path),
+    the ground (a walk draped on it, with ``gz``), else None."""
+    if rec.get("graded") and rec.get("frame"):
+        fr = rec["frame"]
+        t = (p[0] - fr["a"][0]) * fr["u"][0] + (p[1] - fr["a"][1]) * fr["u"][1]
+        return _level_at([s for s in rec["slices"] if not s.get("skip")], t)
+    return gz(*p) if gz is not None else None
+
+
 def graded_paths(plan: dict) -> list[dict]:
     """``path_plan`` of every path area of a site plan without a platform, in the order of ``plan["areas"]``
     (``index``); a slice whose middle lies in the building, a copy, a pool, a light well, a flat platform or an earlier
-    graded path is not built (``skip``: the other one builds that ground)."""
+    graded path is not built (``skip``: the other one builds that ground).
+
+    30 Oct 2026 (lesson UL202, user on real04: "make sure the walkways are walkable"): a path whose end lies on an
+    entrance landing (``entrance_landings``) or on an earlier path meets it at that level: its end is pinned there
+    (``path_plan`` ``pins``; ``joins`` on the record) and the earlier path records the joint (``branches``: the span
+    along it, the side the path comes in from) so its handrail leaves an opening there (``stair_rail``)."""
     from wenart.blender import site as S
 
     terrain = plan_terrain(plan)
@@ -1131,19 +1242,53 @@ def graded_paths(plan: dict) -> list[dict]:
     holes = [h for h in [plan.get("outline") or []] + list(plan.get("copy_holes") or [])
              + [p["polygon"] for p in plan.get("pools") or []] + [w["polygon"] for w in plan.get("wells") or []]
              + [pf["polygon"] for pf in plan.get("platforms") or [] if not pf.get("sloped")] if len(h or []) >= 3]
+    landings = entrance_landings(plan)
     out = []
     earlier: list = []
+    planned: list = []
     for k, a in enumerate(plan.get("areas") or []):
         if a.get("kind") != "path" or a.get("platform_id") or len(a.get("polygon") or []) < 3:
             continue
-        rec = path_plan(a, gz, accessible=str(a.get("id")) in acc)
+        fr = strip_frame(a["polygon"])
+        pins, joins = {}, []
+        if fr is not None:
+            for key, t_end, t_in in (("start", 0.0, min(0.3, fr["length"] / 2.0)),
+                                     ("end", fr["length"], max(fr["length"] - 0.3, fr["length"] / 2.0))):
+                out_t = t_end - JOIN_PROBE_M if key == "start" else t_end + JOIN_PROBE_M
+                p = _at(fr, out_t)
+                land = next((ld for ld in landings if G.point_in_polygon(p, ld["polygon"])), None)
+                if land is not None:
+                    pins[key] = land["z"]
+                    joins.append({"end": key, "to": land["id"], "kind": "landing", "z": round(land["z"], 4)})
+                    continue
+                hit = next(((poly, q) for poly, q in reversed(planned) if G.point_in_polygon(p, poly)), None)
+                if hit is None:
+                    continue
+                poly, q = hit
+                z = level_on(q, p, gz)
+                if z is not None:
+                    pins[key] = z
+                joins.append({"end": key, "to": q.get("id"), "kind": "path", "z": None if z is None else round(z, 4)})
+                qf = q.get("frame") or strip_frame(poly)
+                if qf is not None:
+                    t0, t1 = joint_span(fr, t_end, qf)
+                    c = _at(fr, t_in)
+                    s = (c[0] - qf["a"][0]) * qf["n"][0] + (c[1] - qf["a"][1]) * qf["n"][1]
+                    q.setdefault("branches", []).append({"path": a.get("id"), "t0": round(t0, 4), "t1": round(t1, 4),
+                                                         "side": 1.0 if s > 0 else -1.0})
+        if a.get("landing") and fr is not None:
+            # a route's corner (architect.path_areas): one level landing at its middle's ground, the legs meet it there
+            pins = {"level": gz(*_at(fr, fr["length"] / 2.0))}
+        rec = path_plan(a, gz, accessible=str(a.get("id")) in acc, pins=pins)
         rec["index"] = k
+        rec["joins"] = joins
         if rec["graded"]:
             fr = rec["frame"]
             for s in rec["slices"]:
                 c = _at(fr, (s["t0"] + s["t1"]) / 2.0)
                 s["skip"] = any(G.point_in_polygon(c, h) for h in holes) or any(G.point_in_polygon(c, h) for h in earlier)
             earlier.append(geom2d.ccw(a["polygon"]))
+        planned.append((geom2d.ccw(a["polygon"]), rec))
         out.append(rec)
     return out
 
@@ -1266,27 +1411,54 @@ def stair_rail(rec: dict, gz: Optional[Callable] = None) -> Optional[dict]:
                 tot += max(0.0, gz(*p) - r["z"])
             return tot
         side = 1.0 if over(1.0) <= over(-1.0) + 1e-6 else -1.0
+    # 30 Oct 2026 (lesson UL202): a path that joins this one comes in through an opening in the rail: the rail goes on
+    # the side no path joins; with paths joining on both sides it stops either side of each joint
+    lo_t, hi_t = clean[0][0], clean[-1][0]
+    joins = [b for b in rec.get("branches") or [] if b["t1"] > lo_t and b["t0"] < hi_t]
+    if any(b["side"] == side for b in joins) and not any(b["side"] == -side for b in joins):
+        side = -side
+    gaps = sorted((b["t0"] - RAIL["inset"], b["t1"] + RAIL["inset"]) for b in joins if b["side"] == side)
+    pieces = [list(clean)]
+    if gaps:
+        tz = ([p[0] for p in clean], [p[1] for p in clean])
+        knots = sorted({t for t, _z in clean} | {g for gp in gaps for g in gp if lo_t < g < hi_t})
+        pieces, cur = [], []
+        for t in knots:
+            if any(g0 + 1e-9 < t < g1 - 1e-9 for g0, g1 in gaps):
+                continue
+            cur.append((t, _interp(tz[0], tz[1], t)))
+            if any(abs(t - g0) < 1e-9 for g0, _g1 in gaps):          # the rail stops at the opening
+                pieces.append(cur)
+                cur = []
+        pieces.append(cur)
+        pieces = [pc for pc in pieces if len(pc) >= 2 and pc[-1][0] - pc[0][0] > 0.05] or [list(clean)]
     s_off = side * (h - RAIL["inset"])
-    points = [(*_at(fr, t, s_off), z + H) for t, z in clean]
-    # the posts: at the ends and every post_max_m at most along the plan, each on the tread or landing under it
-    total = clean[-1][0] - clean[0][0]
-    n = max(1, int(math.ceil(total / RAIL["post_max_m"] - 1e-9)))
-    posts = []
-    for j in range(n + 1):
-        t = clean[0][0] + total * j / n
-        z_rail = _interp([p[0] for p in clean], [p[1] for p in clean], t) + H
-        foot = _level_at(slices, t)
-        if foot is None:
-            continue
-        xy = _at(fr, t, s_off)
-        posts.append(((xy[0], xy[1], foot), (xy[0], xy[1], z_rail)))
-    return {"side": "left" if side > 0 else "right", "points": points, "posts": posts,
+    # the posts: at the ends of each piece and every post_max_m at most along the plan, each on the tread or landing
+    # under it
+    posts, spacing = [], 0.0
+    for pc in pieces:
+        total = pc[-1][0] - pc[0][0]
+        n = max(1, int(math.ceil(total / RAIL["post_max_m"] - 1e-9)))
+        spacing = max(spacing, total / n)
+        for j in range(n + 1):
+            t = pc[0][0] + total * j / n
+            z_rail = _interp([p[0] for p in pc], [p[1] for p in pc], t) + H
+            foot = _level_at(slices, t)
+            if foot is None:
+                continue
+            xy = _at(fr, t, s_off)
+            posts.append(((xy[0], xy[1], foot), (xy[0], xy[1], z_rail)))
+    lines = [[(*_at(fr, t, s_off), z + H) for t, z in pc] for pc in pieces]
+    return {"side": "left" if side > 0 else "right", "points": lines[0], "pieces": lines, "posts": posts,
             "nosings": [(round(r["t"], 3), round(r["z"], 3)) for r in risers], "flights": len(flights),
-            "t_range": (round(clean[0][0], 3), round(clean[-1][0], 3)), "spacing_m": round(total / n, 3),
+            "t_range": (round(pieces[0][0][0], 3), round(pieces[-1][-1][0], 3)), "spacing_m": round(spacing, 3),
+            "openings": [[round(g0, 3), round(g1, 3)] for g0, g1 in gaps],
             "reason": f"one handrail on the {'left' if side > 0 else 'right'} (open) side, {H:.2f} m over the nosings "
                       f"of its {len(flights)} flight(s), level over the landings, {RAIL['extend_m']:.2f} m past the "
-                      f"first and last step, on {len(posts)} posts every {total / n:.2f} m set on the steps "
-                      f"(lesson UL144; inferred)"}
+                      f"first and last step, on {len(posts)} posts every {spacing:.2f} m set on the steps"
+                      + (f", open where {len(gaps)} path(s) join it" if gaps else
+                         ", on the side no other path joins" if joins else "")
+                      + " (lessons UL144, UL202; inferred)"}
 
 
 def path_meshes(rec: dict, gz: Callable, below: float, walk: Sequence = ()) -> dict:
@@ -1377,9 +1549,9 @@ def path_meshes(rec: dict, gz: Callable, below: float, walk: Sequence = ()) -> d
         rail = stair_rail(rec, gz)
         out["rail_plan"] = rail
         if rail is not None:
-            pts = rail["points"]
-            for p, q in zip(pts, pts[1:]):
-                out["rail"].append(S.bar(p, q, hr["rail"], hr["rail"]))
+            for pts in rail.get("pieces") or [rail["points"]]:          # UL202: open where a path joins
+                for p, q in zip(pts, pts[1:]):
+                    out["rail"].append(S.bar(p, q, hr["rail"], hr["rail"]))
             for foot, top in rail["posts"]:
                 out["rail"].append(S.bar(foot, top, hr["post"], hr["post"]))
         runs = []

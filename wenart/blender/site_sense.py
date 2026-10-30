@@ -18,7 +18,11 @@ What (pure, no shapely: it runs where the grading review runs):
 - G13 ``access`` (30 Oct 2026, UL198: "Understand that the cars should be able to enter to this location and exit"):
   a car drives into every parking from a street and out again (``site.vehicle_access``: a clear stretch of its edge
   at least 3 m wide, no kerb, railing, step, wall, fence, hedge or flight across it, a gradient a car takes, and a
-  second way out or room to turn); a way in that is not usable is a minor finding when another one is.
+  second way out or room to turn); a way in that is not usable is a minor finding when another one is;
+- G14 ``walkways`` (30 Oct 2026, UL202: "make sure the walkways are walkable"): two paths meet edge to edge on a level
+  landing (no wedge of two strips at different levels, no step of one across the other's walk), a path joins a path
+  or leaves a door's landing square to it, nothing (a tree, a plant, a handrail post) stands in a walk, a walk on the
+  ground is level across.
 
 ``review(site, manifest)`` returns ``(findings, checked)`` in the model review's format (``grading._f``).
 """
@@ -263,13 +267,146 @@ def access(site: dict) -> list[dict]:
     return out
 
 
+SQUARE_SIN = 0.035              # a path leaves a landing or joins a path square to it (within 2 degrees)
+OVERLAP_M2 = 0.05                # two path strips that share more than this overlap
+
+
+def _risers(rec: dict) -> list[float]:
+    """The ``t`` of every riser of a planned path (pure): a level change between two built slices."""
+    built = sorted((s for s in rec.get("slices") or [] if not s.get("skip")), key=lambda s: s["t0"])
+    return [a["t1"] for a, b in zip(built, built[1:]) if abs(max(a["z0"], a["z1"]) - max(b["z0"], b["z1"])) > 0.01]
+
+
+def _inside(p, poly) -> bool:
+    return G.point_in_polygon(p, poly) and geom2d.distance_to_polygon_edges(p, poly) > EDGE_TOL_M
+
+
+def _square(u, v) -> bool:
+    """Whether two directions are parallel or at right angles (within ``SQUARE_SIN``)."""
+    cross = abs(u[0] * v[1] - u[1] * v[0])
+    return cross <= SQUARE_SIN or abs(u[0] * v[0] + u[1] * v[1]) <= SQUARE_SIN
+
+
+def walkways(site: dict) -> list[dict]:
+    """G14 (30 Oct 2026, lesson UL202, user on real04: "something is wrong here. also for the outside areas also make
+    sure the walkways are walkable"): two paths meet edge to edge on a level landing (no wedge of two strips at
+    different levels, no step of one running across the other's walk), a path joins a path or leaves a door's landing
+    square to it, nothing (a tree, a plant, a handrail post) stands in a walk, and a walk on the ground is level
+    across (pure)."""
+    from wenart.blender import grading as GR
+    from wenart.blender import site as S
+
+    terrain = GR.plan_terrain(site)
+    if not terrain:
+        return []
+    gz = (lambda x, y: S.ground_z(terrain, x, y))
+    recs = [r for r in GR.graded_paths(site) if len(r.get("polygon") or []) >= 3]
+    by_id = {r.get("id"): r for r in recs}
+    out = []
+    for i, a in enumerate(recs):
+        for b in recs[i + 1:]:
+            pa = [tuple(map(float, q[:2])) for q in a["polygon"]]
+            pb = [tuple(map(float, q[:2])) for q in b["polygon"]]
+            if _area_in(pb, pa) <= OVERLAP_M2:
+                continue
+            pts = [p for p in S._grid_points(pb, 0.2) if _inside(p, pa)]
+            dz = max((abs(za - zb) for za, zb in ((GR.level_on(a, p, gz), GR.level_on(b, p, gz)) for p in pts)
+                      if za is not None and zb is not None), default=0.0)
+            steps = []
+            for r, other in ((a, pb), (b, pa)):
+                fr = r.get("frame")
+                if fr is None:
+                    continue
+                for t in _risers(r):
+                    if any(_inside(GR._at(fr, t, s * fr["width"] / 2.0), other) for s in (-0.8, -0.4, 0.0, 0.4, 0.8)):
+                        steps.append(r.get("id"))
+                        break
+            if dz > GR.JOIN_TOL_M or steps:
+                fa, fb = a.get("frame"), b.get("frame")
+                oblique = fa is not None and fb is not None and abs(fa["u"][0] * fb["u"][1] - fa["u"][1] * fb["u"][0]) > SQUARE_SIN
+                out.append(GR._f("major", b.get("id"), f"paths {a.get('id')} and {b.get('id')} run one over the other "
+                                 f"at levels up to {dz * 100:.0f} cm apart"
+                                 + (f"; a step of {', '.join(steps)} runs {'obliquely ' if oblique else ''}across the "
+                                    f"other's walk" if steps else "")
+                                 + " (two paths meet edge to edge on a level landing)", "G14", "no_sense",
+                                 other=a.get("id"), dz_m=round(dz, 3), steps=steps, lesson="UL202"))
+    for r in recs:
+        fr = r.get("frame") or GR.strip_frame(r.get("polygon") or [])
+        if fr is None:
+            continue
+        for j in r.get("joins") or []:
+            t_end = 0.0 if j["end"] == "start" else fr["length"]
+            sign = -1.0 if j["end"] == "start" else 1.0
+            mine = GR.level_on(r, GR._at(fr, t_end - sign * 0.05), gz)
+            if j["kind"] == "path":
+                q = by_id.get(j["to"])
+                if q is None:
+                    continue
+                theirs = GR.level_on(q, GR._at(fr, t_end + sign * GR.JOIN_PROBE_M), gz)
+                qf = q.get("frame") or GR.strip_frame(q.get("polygon") or [])
+                if qf is not None and not _square(fr["u"], qf["u"]):
+                    out.append(GR._f("major", r.get("id"), f"path {r.get('id')} joins {q.get('id')} at an angle (a "
+                                     f"path meets another square to it)", "G14", "no_sense", other=q.get("id"),
+                                     lesson="UL202"))
+                if q.get("graded") and qf is not None:
+                    t0, t1 = GR.joint_span(fr, t_end, qf)
+                    if not GR.joint_ok(q, t0 + 0.02, t1 - 0.02):
+                        out.append(GR._f("major", r.get("id"), f"path {r.get('id')} joins {q.get('id')} on its steps, "
+                                         f"not on a level landing", "G14", "no_sense", other=q.get("id"),
+                                         lesson="UL202"))
+            else:
+                land = next((ld for ld in GR.entrance_landings(site) if ld["id"] == j["to"]), None)
+                theirs = land["z"] if land else None
+                if land is not None:
+                    poly = land["polygon"]
+                    p = GR._at(fr, t_end + sign * GR.JOIN_PROBE_M)
+                    k = min(range(len(poly)), key=lambda m: G.point_segment_distance(p, poly[m],
+                                                                                    poly[(m + 1) % len(poly)]))
+                    e0, e1 = poly[k], poly[(k + 1) % len(poly)]
+                    length = max(G.distance(e0, e1), 1e-9)
+                    ed = ((e1[0] - e0[0]) / length, (e1[1] - e0[1]) / length)
+                    if abs(ed[0] * fr["u"][0] + ed[1] * fr["u"][1]) > SQUARE_SIN:
+                        out.append(GR._f("major", r.get("id"), f"path {r.get('id')} leaves the landing of "
+                                         f"{j['to'].split(':')[-1]} at an angle (a path leaves a door's landing square "
+                                         f"to its edge)", "G14", "no_sense", lesson="UL202"))
+            if mine is not None and theirs is not None and abs(mine - theirs) > GR.JOIN_TOL_M:
+                out.append(GR._f("major", r.get("id"), f"path {r.get('id')} meets {j['to']} {abs(mine - theirs) * 100:.0f}"
+                                 f" cm {'above' if mine > theirs else 'below'} its level (a step at the joint; two "
+                                 f"walks meet level)", "G14", "no_sense", other=j["to"],
+                                 dz_m=round(mine - theirs, 3), lesson="UL202"))
+        if not r.get("graded") and r.get("cross") is not None and float(r["cross"]) > GR.GRADE["cross_fall_max"] + 1e-6:
+            out.append(GR._f("major", r.get("id"), f"walk {r.get('id')} tilts {float(r['cross']) * 100:.1f} % across "
+                             f"(level across, at most {GR.GRADE['cross_fall_max'] * 100:.1f} %)", "G14", "no_sense",
+                             lesson="UL202"))
+    # nothing stands in a walk: the trees and plants, the handrail posts of the other paths and of the entrances
+    things = [(f"{t.get('kind') or 'plant'} {t.get('id')}", (float(t["center"][0]), float(t["center"][1])), None)
+              for t in site.get("trees") or [] if t.get("center")]
+    for r in recs:
+        rail = GR.stair_rail(r, gz) if r.get("graded") and r.get("kind") == "stepped" else None
+        for foot, _top in (rail or {}).get("posts") or []:
+            things.append((f"a handrail post of path {r.get('id')}", (foot[0], foot[1]), r.get("id")))
+    for st in (site.get("inferred") or {}).get("steps") or []:
+        for foot, _top in st.get("posts") or []:
+            things.append((f"a handrail post of the steps of {st['opening_id']}", (foot[0], foot[1]), None))
+    for r in recs:
+        poly = [tuple(map(float, q[:2])) for q in r["polygon"]]
+        for name, c, owner in things:
+            if owner == r.get("id"):
+                continue
+            if _inside(c, poly):
+                out.append(GR._f("major", r.get("id"), f"{name} stands in the walk of path {r.get('id')} (nothing stands "
+                                 f"within a path's walking width)", "G14", "no_sense", thing=name, lesson="UL202"))
+    return out
+
+
 def review(site: Optional[dict], manifest: Optional[dict] = None) -> tuple[list[dict], int]:
-    """G8-G13 on a site plan (pure; module docstring)."""
+    """G8-G14 on a site plan (pure; module docstring)."""
     from wenart.blender import pool_extras as PX
 
     if not site or not site.get("terrain"):
         return [], 0
-    findings = fragments(site) + flights_meet(site) + rails(site, manifest) + aprons(site, manifest) + access(site)
+    findings = fragments(site) + flights_meet(site) + rails(site, manifest) + aprons(site, manifest) + access(site) \
+        + walkways(site)
     more, n = PX.review(site, manifest)
     checked = len(site.get("platforms") or []) + len([a for a in site.get("areas") or [] if a.get("kind") == "path"]) \
         + len(site.get("glazing_runs") or []) + n

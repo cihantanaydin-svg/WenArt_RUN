@@ -130,3 +130,89 @@ def test_real04_parking_is_reachable_by_car():
     assert not [f for f in SS.access(site) if f["severity"] == "major"]
     st = site["streets"]
     assert st["kerbs"] and st["dashes"] and st["lamps"] and [a for a in site["areas"] if a["kind"] == "pavement"]
+
+
+# ---------------------------------------------------------------- UL202: walkways walkable; UL203: a step into the house
+
+def test_route_legs_meet_on_a_level_corner_landing_edge_to_edge():
+    from wenart.blender import architect as AR
+
+    areas = AR.path_areas("t", [(0.0, 0.0), (0.0, 6.0), (8.0, 6.0)], 0.6, "a route (inferred)")
+    corner = [a for a in areas if a.get("landing")]
+    legs = [a for a in areas if not a.get("landing")]
+    assert len(corner) == 1 and len(legs) == 2 and areas[0] is corner[0]           # the landing is planned first
+    polys = [Polygon(a["polygon"]) for a in areas]
+    for i, p in enumerate(polys):                                                    # edge to edge, never one over
+        assert all(p.intersection(q).area < 1e-6 for q in polys[i + 1:])
+    assert abs(Polygon(corner[0]["polygon"]).area - 1.44) < 1e-6
+
+
+def _slope_site(areas, trees=()):
+    return {"terrain": FLAT, "outline": [], "copy_holes": [], "pools": [], "wells": [], "platforms": [],
+            "areas": areas, "trees": list(trees)}
+
+
+def test_two_paths_meet_level_and_nothing_stands_in_a_walk(monkeypatch):
+    from wenart.blender import grading as GR
+    from wenart.blender import site_sense as SS
+
+    monkeypatch.setattr(S, "ground_z", lambda terrain, x, y: 0.3 * y)                # a 30 % slope up +y
+    trunk = {"id": "trunk", "kind": "path", "polygon": _rect(0, 0, 1.2, 12)}
+    recs = GR.graded_paths(_slope_site([trunk]))
+    land = next(s for s in recs[0]["slices"] if s["kind"] == "landing" and s["t1"] - s["t0"] >= 1.2
+                and 0.5 < s["t0"] < 11.0 - 1.2)
+    y = GR._at(recs[0]["frame"], (land["t0"] + land["t1"]) / 2.0)[1]
+    branch = {"id": "branch", "kind": "path", "polygon": _rect(1.2, y - 0.6, 6.0, y + 0.6)}    # ends at its side
+    site = _slope_site([trunk, branch])
+    recs = {r["id"]: r for r in GR.graded_paths(site)}
+    assert recs["branch"]["joins"][0]["to"] == "trunk" and recs["trunk"]["branches"][0]["path"] == "branch"
+    assert abs(GR.level_on(recs["branch"], (1.25, y)) - GR.level_on(recs["trunk"], (0.6, y))) <= GR.JOIN_TOL_M
+    assert SS.walkways(site) == []
+    # the old layout: the branch laid over the trunk on its steps; a shrub in the walk
+    over = {"id": "branch", "kind": "path", "polygon": _rect(-0.6, 2.4, 6.0, 3.6)}
+    msgs = [f["message"] for f in SS.walkways(_slope_site([trunk, over], trees=[
+        {"id": "sh1", "kind": "tree", "center": [3.0, 3.0], "size": [0.7, 0.7]}]))]
+    assert any("run one over the other" in m for m in msgs) and any("tree sh1 stands in the walk" in m for m in msgs)
+
+
+def test_a_flush_entrance_gets_a_step_up_into_the_house():
+    from wenart.blender import grading as GR
+
+    e = {"opening_id": "d1", "level_id": "L0", "centre": (5.0, 0.0), "outward": (0.0, -1.0), "half_t": 0.1,
+         "width": 0.9, "bottom": 0.0, "ground_z": 0.0, "rise": 0.0,
+         "record": {"door_id": "d1", "room_id": "hall", "solution": "none", "main": True}}
+    b = {"rooms": [{"id": "hall", "room_type": "hall"}], "level_marks": [], "site": {}}
+    th = S.entrance_threshold(e, b)
+    assert th["kind"] == "step_up" and abs(th["riser"] - 0.15) < 1e-9 and "UL203" in th["reason"]
+    st = S.entrance_steps(dict(e, threshold=th))
+    assert abs(st["blocks"][0]["z_top"] + 0.15) < 1e-9 and st["thresholds"][0]["z_top"] == 0.0 and st["end"] == 1.2
+    assert S.flight_spec(e, st) is None
+    pads = S.entrance_pads([st])
+    assert abs(GR.grade_z(pads, 5.0, -0.6, 0.0) + 0.15) < 1e-9                          # the landing at its level
+    assert -0.15 < GR.grade_z(pads, 5.0, -2.2, 0.0) < 0.0                                # the ground falls away from it
+    assert -0.6 < GR.grade_z(pads, 5.0, -1.4, -0.6) < -0.15                              # a lower ground meets it
+    # the documents give the level at the door, a garage door, an accessible entrance
+    marked = dict(b, level_marks=[{"id": "m1", "kind": "ground_finished", "z": 0.0, "point": [5.5, -1.0],
+                                   "level_id": "L0", "raw": "43.00"}])
+    assert S.entrance_threshold(e, marked)["kind"] == "keep"
+    garage = dict(b, rooms=[{"id": "hall", "room_type": "garage"}])
+    assert S.entrance_threshold(e, garage)["kind"] == "keep"
+    acc = dict(b, project={"brief": {"levels": {"accessible_entrance": True}}})
+    th2 = S.entrance_threshold(e, acc)
+    st2 = S.entrance_steps(dict(e, threshold=th2))
+    assert th2["kind"] == "level" and st2["drains"] and st2["blocks"][0]["z_top"] == 0.0
+
+
+def test_real04_entrances_step_up_and_its_walkways_are_walkable():
+    if not BASE.is_file():
+        pytest.skip("the latest real04 baseline is not in this checkout")
+    from wenart.blender import build as B
+    from wenart.blender import site_sense as SS
+
+    prep = B.prepare(json.loads(BASE.read_text(encoding="utf-8")))
+    site = prep["site"]
+    ups = [s for s in site["inferred"]["steps"] if s.get("step_up")]
+    assert len(ups) == 2 and all(abs(s["blocks"][0]["z_top"] + 0.15) < 1e-6 and s["thresholds"] for s in ups)
+    assert SS.walkways(site) == []
+    a2 = next(q for q in prep["architect"]["questions"] if q["id"] == "A2")
+    assert any("steps of sp_002" in str(a.get("change")) for a in a2["answers"])          # walkable, round the shrubs

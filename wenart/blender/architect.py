@@ -302,9 +302,51 @@ def path_targets(paths: Sequence[dict], half: float) -> list[tuple[float, float]
     return out
 
 
-def access_path(start, targets, keep_out, half: float, within=None) -> Optional[list[tuple[float, float]]]:
+def join_targets(site: dict, paths: Sequence[dict], half: float) -> list[tuple[float, float]]:
+    """The points of the existing paths a new path may join (pure; 30 Oct 2026, lesson UL202: "make sure the
+    walkways are walkable"): on a graded path (as the build plans it, ``grading.graded_paths``) only the middle line
+    where the new path's width meets one level (``grading.joint_ok``: a landing, never a step); a walk on the ground
+    anywhere (``path_targets``)."""
+    from wenart.blender import grading as GR
+
+    if not site.get("terrain"):
+        return path_targets(paths, half)
+    recs = {r.get("id"): r for r in GR.graded_paths(site)}
+    out = []
+    for p in paths:
+        rec = recs.get(p.get("id"))
+        if rec is None or not rec.get("graded"):
+            out += path_targets([p], half)
+            continue
+        fr = rec["frame"]
+        t = half
+        while t <= fr["length"] - half + 1e-9:
+            if GR.joint_ok(rec, t - half, t + half):
+                out.append(GR._at(fr, t))
+            t += PATH_TARGET_STEP_M / 2.0
+    return out
+
+
+def path_end_at(route, paths: Sequence[dict]) -> Optional[list]:
+    """The route cut where it first enters the path its end lies in (pure; UL202): a new path ends at the side of the
+    path it joins (they meet edge to edge, never one over the other), or None when its end lies in no path."""
+    end_on = next((p for p in paths if G.point_in_polygon(route[-1], p["polygon"])), None)
+    if end_on is None:
+        return None
+    for k in range(len(route) - 1):
+        p = _enter(route[k], route[k + 1], end_on["polygon"])
+        if p is not None:
+            if k == 0 and G.distance(route[0], p) < 0.05:
+                return None                              # it starts on that path
+            return [q for j, q in enumerate(route[:k + 1] + [p]) if j == 0 or G.distance(q, route[j - 1]) > 0.05]
+    return None
+
+
+def access_path(start, targets, keep_out, half: float, within=None, ok=None) -> Optional[list[tuple[float, float]]]:
     """The shortest L-shaped route (two straight legs along the plan axes) from ``start`` to one of ``targets`` that
-    keeps out of ``keep_out`` (and inside ``within``, the plot, when given; 30 Oct 2026) (pure), or None."""
+    keeps out of ``keep_out`` (and inside ``within``, the plot, when given; 30 Oct 2026) (pure), or None. 30 Oct 2026
+    (UL202): ``ok(route)`` (``route_problem``) None for a route that can be walked; when no L-route is, a route with
+    two corners that detours along the slope (``DETOUR_M`` out to either side) is tried, the shortest first."""
     keep_out = keep_out if isinstance(keep_out, _Keep) else _Keep(keep_out)
     if not _free(start, keep_out, half, within):
         return None
@@ -320,43 +362,109 @@ def access_path(start, targets, keep_out, half: float, within=None) -> Optional[
             length = G.distance(start, corner) + G.distance(corner, t)
             if best is not None and length >= best[0]:
                 continue
-            if _route_ok(pts, keep_out, half, within):
+            if _route_ok(pts, keep_out, half, within) and (ok is None or ok(pts) is None):
                 best = (length, pts)
-    return best[1] if best else None
+    if best is not None or ok is None:
+        return best[1] if best else None
+    # UL202: no L-route can be walked (too steep for steps with proper treads, UL188's sp_002 on real04): a longer
+    # route with two corners, its middle leg DETOUR_M out beside the start or the target, the shortest first
+    cands = []
+    for t in targets[:DETOUR_TARGETS]:
+        for axis in (0, 1):
+            lo, hi = min(start[axis], t[axis]), max(start[axis], t[axis])
+            for m in [lo + (hi - lo) * f for f in (0.25, 0.5, 0.75)] + [lo - d for d in DETOUR_M] + [hi + d for d in DETOUR_M]:
+                c1 = (start[0], m) if axis == 1 else (m, start[1])
+                c2 = (t[0], m) if axis == 1 else (m, t[1])
+                pts = [start, c1, c2, t]
+                cands.append((sum(G.distance(p, q) for p, q in zip(pts, pts[1:])), pts))
+    for _length_m, pts in sorted(cands, key=lambda c: c[0])[:DETOUR_TRIES]:
+        if _route_ok(pts, keep_out, half, within) and ok(pts) is None:
+            return pts
+    return None
+
+
+DETOUR_M = (1.5, 3.0, 4.5, 6.0)   # (UL202) a detour's middle leg this far beyond the start or the target
+DETOUR_TARGETS = 40               # (UL202) the nearest targets a detour is tried for
+DETOUR_TRIES = 400                # (UL202) the shortest detours tried
+
+
+def route_problem(route, half: float, terrain: Optional[dict], end_extend: bool = True,
+                  start_back: Optional[float] = None) -> Optional[str]:
+    """Why a route cannot be walked (pure; 30 Oct 2026, lesson UL202): a leg steeper than a stair with proper treads
+    can follow (``grading.path_plan``'s ``too_steep``), else None."""
+    from wenart.blender import grading as GR
+    from wenart.blender import site as S
+
+    if not terrain:
+        return None
+    gz = (lambda x, y: S.ground_z(terrain, x, y))
+    for a in path_areas("route", route, half, "", end_extend=end_extend, start_back=start_back):
+        if a.get("landing"):
+            continue
+        rec = GR.path_plan(a, gz)
+        if rec.get("too_steep"):
+            return (f"a leg rises {float(rec.get('rise') or 0):.2f} m over {float(rec.get('length') or 0):.1f} m: "
+                    f"steeper than a stair can follow (treads {float(rec.get('tread') or 0):.2f} m)")
+    return None
 
 
 def path_areas(pf_id: str, points, half: float, reason: str, end_extend: bool = True,
                start_back: Optional[float] = None) -> list[dict]:
-    """The route as path areas of the site plan (one rectangle per leg, ``inferred``). The legs reach ``half`` past
-    their ends, so they overlap at the corners; 30 Oct 2026 (UL129): the last leg ends at its end point when
-    ``end_extend`` is False (a path arriving at a surface stops at its edge); (UL141) the first leg reaches
-    ``start_back`` behind its start (default ``half``: to a foot landing's edge)."""
+    """The route as path areas of the site plan (one rectangle per leg, ``inferred``). 30 Oct 2026 (UL202): each
+    corner is a square level landing of its own (``path_access_<id>_c<k>``, ``landing``: graded level, listed first),
+    the legs run from edge to edge of the corners (never one over the other); (UL129) the last leg ends at its end
+    point when ``end_extend`` is False (a path arriving at a surface or a path stops at its edge), else ``half`` past
+    it; (UL141) the first leg reaches ``start_back`` behind its start (default ``half``: to a foot landing's edge)."""
     from wenart.blender.site import PAVING_LIFT
 
-    out = []
-    legs = [(a, b) for a, b in zip(points, points[1:])]
+    def area(aid: str, poly, why: str, **extra) -> dict:
+        return {"id": aid, "kind": "path", "polygon": [list(p) for p in poly], "z": None, "material": None,
+                "colour": None, "source": "assumed", "area_id": None, "lift": PAVING_LIFT, "inferred": True,
+                "reason": why, **extra}
+
+    corners, out = [], []
+    legs = [(a, b) for a, b in zip(points, points[1:]) if G.distance(a, b) >= 0.05]
     for k, (a, b) in enumerate(legs):
         length = G.distance(a, b)
-        if length < 0.05:
-            continue
         ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
         nx, ny = -uy, ux
-        back = half if k > 0 or start_back is None else float(start_back)
-        a0 = (a[0] - ux * back, a[1] - uy * back)        # the legs overlap at the corner
-        last = k == len(legs) - 1
-        b0 = (b[0] + ux * half, b[1] + uy * half) if end_extend or not last else (b[0], b[1])
+        first, last = k == 0, k == len(legs) - 1
+        # 30 Oct 2026 (lesson UL202, user on real04: "make sure the walkways are walkable": the legs of a route overlapped
+        # at the corner, each with its own steps, a wedge of two stepped strips at different levels): the corner square
+        # is a level landing of its own and the legs run from edge to edge of it
+        back = (half if start_back is None else float(start_back)) if first else -half
+        fwd = (half if end_extend else 0.0) if last else -half
+        a0 = (a[0] - ux * back, a[1] - uy * back)
+        b0 = (b[0] + ux * fwd, b[1] + uy * fwd)
+        if not last:
+            corners.append(area(f"path_access_{pf_id}_c{k}", [(b[0] + ux * su * half + nx * sn * half,
+                                                              b[1] + uy * su * half + ny * sn * half)
+                                                             for su, sn in ((-1, -1), (1, -1), (1, 1), (-1, 1))],
+                                reason.replace("(", "(the level landing at its corner; ", 1) if "(" in reason
+                                else reason, landing=True))
         poly = [(a0[0] + nx * half, a0[1] + ny * half), (a0[0] - nx * half, a0[1] - ny * half),
                 (b0[0] - nx * half, b0[1] - ny * half), (b0[0] + nx * half, b0[1] + ny * half)]
-        out.append({"id": f"path_access_{pf_id}_{k}", "kind": "path", "polygon": [list(p) for p in poly], "z": None,
-                    "material": None, "colour": None, "source": "assumed", "area_id": None, "lift": PAVING_LIFT,
-                    "inferred": True, "reason": reason})
-    return out
+        run = (b0[0] - a0[0]) * ux + (b0[1] - a0[1]) * uy
+        if run < 0.05:
+            continue                                     # the corner landing covers this leg
+        if run < 2.0 * half and len(legs) > 1 and (first or last):
+            # a stub shorter than the path is wide: the corner landing reaches over it (no sliver of its own)
+            c = corners[-1]
+            pts = [tuple(q) for q in c["polygon"]] + poly
+            ts = [q[0] * ux + q[1] * uy for q in pts]
+            ss = [q[0] * nx + q[1] * ny for q in pts]
+            c["polygon"] = [[ux * t + nx * s, uy * t + ny * s] for t, s in
+                            ((min(ts), min(ss)), (max(ts), min(ss)), (max(ts), max(ss)), (min(ts), max(ss)))]
+            continue
+        out.append(area(f"path_access_{pf_id}_{k}", poly, reason))
+    return corners + out                                 # the landings first: the legs meet them at their level
 
 
-def site_keep_out(site: dict, skip_id: str) -> list:
+def site_keep_out(site: dict, skip_id: str, plants: bool = True) -> list:
     """What a new path keeps out of (pure): the building's ground outline, the other buildings, the pools, the light
     wells and every flat platform but ``skip_id`` itself, its stepped bands included (a path on the ground never cuts
-    a band's retaining wall; a driveway's draped parking may be crossed)."""
+    a band's retaining wall; a driveway's draped parking may be crossed); with ``plants`` (UL202) the trees and
+    plants."""
     keep = []
     if len(site.get("outline") or []) >= 3:
         keep.append(site["outline"])
@@ -373,7 +481,82 @@ def site_keep_out(site: dict, skip_id: str) -> list:
     keep += GR.bank_zones(site.get("terrain"))
     # 30 Oct 2026 (lesson UL141): a path never runs through a flight of steps (its treads, cheeks and foot landing)
     keep += flight_footprints(site)
+    # 30 Oct 2026 (lesson UL202): nothing stands in a walk: a path keeps clear of the trees and plants (a shrub's
+    # crown, a tree's trunk and root flare)
+    if plants:
+        keep += decor_footprints(site)
     return keep
+
+
+PLANT_MOVE_M = (0.4, 0.8, 1.2, 1.6, 2.0)      # (UL202) a plant in a new path's walk moves at most this far aside
+
+
+def clear_plants(site: dict, areas: Sequence[dict], skip_id: str, why: str) -> list[str]:
+    """The trees and plants standing in the walk of the new path ``areas`` move aside (pure; 30 Oct 2026, lesson
+    UL202: nothing stands in a walk): to the nearest spot ``PLANT_MOVE_M`` out that keeps clear of every path, every
+    keep-out of the site and the other plants, on the plot (``adjusted_by_ai``, the drawn centre kept); with no such
+    spot the plant is not built (``site["not_built"]`` with the reason). Returns the ids of the plants changed."""
+    from wenart.blender import geom2d
+
+    walks = [a["polygon"] for a in list(site.get("areas") or []) + list(areas) if a.get("kind") == "path"
+             and len(a.get("polygon") or []) >= 3]
+    keep = _Keep(site_keep_out(site, skip_id, plants=False))
+    plot = site.get("plot") or []
+    changed = []
+    trees = site.get("trees") or []
+    for t in list(trees):
+        c = t.get("center")
+        if not c or not any(G.point_in_polygon((float(c[0]), float(c[1])), a["polygon"]) for a in areas):
+            continue
+        size = max([float(v) for v in (t.get("size") or [0.6, 0.6])[:2]] or [0.6])
+        r = max(DECOR_CLEAR_M["shrub"], size / 2.0) if size < 1.5 else DECOR_CLEAR_M["tree"]
+        others = [o for o in trees if o is not t and o.get("center")]
+        spot = None
+        for d in PLANT_MOVE_M:
+            for k in range(16):
+                ang = 2.0 * math.pi * k / 16.0
+                p = (float(c[0]) + d * math.cos(ang), float(c[1]) + d * math.sin(ang))
+                if any(G.point_in_polygon(p, w) or geom2d.distance_to_polygon_edges(p, w) < r for w in walks):
+                    continue
+                if not _free(p, keep, r, plot) or any(G.distance(p, o["center"]) < r + 0.3 for o in others):
+                    continue
+                spot = p
+                break
+            if spot is not None:
+                break
+        tid = str(t.get("id"))
+        if spot is not None:
+            t["adjusted_by_ai"] = {"by": "architect", "drawn_center": [float(c[0]), float(c[1])],
+                                   "reason": f"stood in the walk of {why}: moved {G.distance(c, spot):.1f} m aside "
+                                             f"(nothing stands in a walk; lesson UL202)"}
+            t["center"] = [round(spot[0], 4), round(spot[1], 4)]
+        else:
+            trees.remove(t)
+            site.setdefault("not_built", []).append({"id": tid, "kind": t.get("kind"), "adjusted_by_ai": True,
+                                                     "reason": f"stood in the walk of {why} with no free spot within "
+                                                               f"{PLANT_MOVE_M[-1]:.1f} m (lesson UL202)"})
+        changed.append(tid)
+    return changed
+
+
+DECOR_CLEAR_M = {"shrub": 0.3, "tree": 0.6}      # UL202: the least clear radius of a plant a path keeps out of
+
+
+def decor_footprints(site: dict) -> list:
+    """The plan footprints of the site's trees and plants a walk keeps clear of (pure; UL202): a shrub's crown (at
+    least ``DECOR_CLEAR_M["shrub"]``), a tree's trunk with its root flare (``DECOR_CLEAR_M["tree"]``; its crown is
+    overhead)."""
+    from wenart.blender import site as S
+
+    out = []
+    for t in site.get("trees") or []:
+        c = t.get("center")
+        if not c:
+            continue
+        size = max([float(v) for v in (t.get("size") or [0.6, 0.6])[:2]] or [0.6])
+        r = max(DECOR_CLEAR_M["shrub"], size / 2.0) if size < 1.5 else DECOR_CLEAR_M["tree"]
+        out.append(S.disc_polygon((float(c[0]), float(c[1])), r))
+    return out
 
 
 def flight_footprints(site: dict) -> list:
@@ -465,19 +648,37 @@ def outside_access(pf: dict, site: dict) -> Optional[list[dict]]:
     # 30 Oct 2026 (lesson UL129: real04's path from sp_004 ran 5.6 m on under the parking to reach the entrance path):
     # the way out reaches the nearest path or drive (a parking); it stops at the drive's edge
     drives = [a for a in paved if a.get("kind") == "parking"]
-    targets = path_targets(paths, half) + path_targets(drives, 0.2)
     keep = _Keep(site_keep_out(site, pf["id"]))
+    bare = _Keep(site_keep_out(site, pf["id"], plants=False))
     plot = site.get("plot") or []
     best = None
-    for ex in exits:
-        route = access_path(ex["start"], targets, keep, half, within=plot)
-        if route is not None and (best is None or _length(route) < _length(best[0]) - 1e-6):
-            best = (route, ex)
-        if route is not None and ex["side"] is None:
-            break                                        # straight out wins when it works
+    # 30 Oct 2026 (lesson UL202): a stepped path is joined on a level landing; any point of it only when no route
+    # reaches a landing (the walkway check reports that joint)
+    steep, through_plants = None, False
+    # UL202: a route a visitor can walk (steps with proper treads) from any exit to any target first, a detour along
+    # the slope next; then one through the planting (the plants in its walk move aside, clear_plants); the shortest
+    # route that keeps out only as the last resort, its problem in the reason
+    anywhere = path_targets(paths, half) + path_targets(drives, 0.2)
+    for targets, walk, kp in ((join_targets(site, paths, half) + path_targets(drives, 0.2), True, keep),
+                              (anywhere, True, keep), (anywhere, True, bare), (anywhere, False, bare)):
+        for ex in exits:
+            ok = (lambda r, ex=ex: route_problem(r, half, site.get("terrain"), start_back=ex["back"])) if walk else None
+            route = access_path(ex["start"], targets, kp, half, within=plot, ok=ok)
+            if route is not None and (best is None or _length(route) < _length(best[0]) - 1e-6):
+                best = (route, ex)
+            if route is not None and ex["side"] is None:
+                break                                    # straight out wins when it works
+        if best is not None:
+            through_plants = kp is bare
+            if not walk:
+                steep = route_problem(best[0], half, site.get("terrain"), start_back=best[1]["back"])
+            break
     if best is None:
         return None
     route, ex = best
+    joined = path_end_at(route, paths)               # UL202: it ends at the side of the path it joins
+    if joined is not None:
+        route = joined
     end_on = next((a for a in drives if G.point_in_polygon(route[-1], a["polygon"])), None)
     if end_on is not None:
         for k in range(len(route) - 1):
@@ -497,8 +698,12 @@ def outside_access(pf: dict, site: dict) -> Optional[list[dict]]:
               f"{'drive ' + str(end_on.get('id')) if end_on is not None else 'path'} "
               f"({_length(route):.1f} m"
               + (f"; it leaves the foot landing on its {ex['side']} side, that cheek left out" if ex["side"] else "")
-              + "; inferred)")
-    return path_areas(pf["id"], route, half, reason, end_extend=end_on is None, start_back=ex["back"])
+              + (f"; no walkable route: {steep} (to review)" if steep else "") + "; inferred)")
+    areas = path_areas(pf["id"], route, half, reason, end_extend=end_on is None and joined is None,
+                       start_back=ex["back"])
+    if through_plants:                               # UL202: the plants in its walk move aside
+        clear_plants(site, areas, pf["id"], f"the path from the steps of {pf['id']}")
+    return areas
 
 
 def review_access(prep: dict, outer_doors: Sequence[dict]) -> dict:
@@ -1249,27 +1454,39 @@ def review_arrival(building: dict, prep: dict) -> tuple[dict, dict]:
         if any(_touches(pf["polygon"], p["polygon"]) for p in paths):
             b2["answers"].append({"element": pf["id"], "found": f"parking {pf['id']} meets a path", "change": None})
             continue
-        targets = path_targets(paths, half)
         keep = _Keep(site_keep_out(site, pf["id"]))
         best = None
-        # 30 Oct 2026: the start points nearest a target first; a start whose nearest target lies farther than the best
-        # route so far cannot do better (an L-shaped route is as long as the Manhattan distance)
-        starts = sorted(((min((abs(t[0] - s[0]) + abs(t[1] - s[1]) for t in targets), default=math.inf), s)
-                         for s in _edge_points(pf["polygon"], 1.0)), key=lambda x: x[0])
-        for bound, s in starts:
-            if best is not None and bound >= _length(best):
+        # 30 Oct 2026 (lesson UL202): a stepped path is joined on a level landing; any point of it only when no route
+        # reaches a landing
+        steep = None
+        ok = (lambda r: route_problem(r, half, site.get("terrain")))
+        for targets, walk in ((join_targets(site, paths, half), True), (path_targets(paths, half), True),
+                              (path_targets(paths, half), False)):
+            # 30 Oct 2026: the start points nearest a target first; a start whose nearest target lies farther than the
+            # best route so far cannot do better (an L-shaped route is as long as the Manhattan distance)
+            starts = sorted(((min((abs(t[0] - s[0]) + abs(t[1] - s[1]) for t in targets), default=math.inf), s)
+                             for s in _edge_points(pf["polygon"], 1.0)), key=lambda x: x[0])
+            for bound, s in starts:
+                if best is not None and bound >= _length(best):
+                    break
+                route = access_path(s, targets, keep, half, ok=ok if walk else None)
+                if route and (best is None or _length(route) < _length(best)):
+                    best = route
+            if best is not None:
+                steep = None if walk else ok(best)       # UL202: the last resort says why it is not walkable
                 break
-            route = access_path(s, targets, keep, half)
-            if route and (best is None or _length(route) < _length(best)):
-                best = route
+        joined = path_end_at(best, paths) if best is not None else None
+        if joined is not None:
+            best = joined                                # UL202: it ends at the side of the path it joins
         if best is None:
             b2["answers"].append({"element": pf["id"], "found": f"parking {pf['id']} is not joined to any path",
                                   "change": None, "open": True,
                                   "ask": "Where should people walk from the car to the door?"})
             b2["status"] = "open"
             continue
-        reason = f"architect B2: a path from the parking {pf['id']} to the site's path ({_length(best):.1f} m; inferred)"
-        site.setdefault("areas", []).extend(path_areas(pf["id"], best, half, reason))
+        reason = (f"architect B2: a path from the parking {pf['id']} to the site's path ({_length(best):.1f} m"
+                  + (f"; no walkable route: {steep} (to review)" if steep else "") + "; inferred)")
+        site.setdefault("areas", []).extend(path_areas(pf["id"], best, half, reason, end_extend=joined is None))
         b2["answers"].append({"element": pf["id"], "found": f"parking {pf['id']} was not joined to the paths",
                               "change": reason.replace("architect B2: ", ""), "fixed": True})
         b2["status"] = "fixed"
