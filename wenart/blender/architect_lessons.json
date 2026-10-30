@@ -2192,12 +2192,12 @@
    "id": "UL185",
    "date": "2026-10-30",
    "area": "cameras",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "This render not needed not giving any value (30 Oct 2026, real04 run 20261030-112241-full, a top-floor bathroom view: only wall tiles, the sloped ceiling and the bathtub's rim at the bottom edge)",
-   "lesson": "This render not needed not giving any value (30 Oct 2026, real04 run 20261030-112241-full, a top-floor bathroom view: only wall tiles, the sloped ceiling and the bathtub's rim at the bottom edge)",
+   "lesson": "Every view shows something: an interior pose (an agent's, Argus's, a fallback) holds at least 12 % of furniture and fixtures in its frame (camsearch.CONTENT_MIN_SHARE, the ray-cast model's furn share) whenever its room's camera search frames that much (pose rule 'content' in POSE_RULES and the agent validator's INTERIOR_POSE_RULES); the build moves a pose that fails to the nearest searched pose with content. real04 run 20261030-112241-full: Argus's cam_r_L1_banyo_1 framed 4 % (tiles, the sloped ceiling, the tub's rim), cam_r_L0_banyo_2 7 %.",
    "question": "Does every rendered view show something of value (fixtures or furniture), never only walls and ceiling?"
   },
   {
@@ -2223,6 +2223,18 @@
    "request": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop)",
    "lesson": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop)",
    "question": "Does every kitchen have a full-size fridge (a tall column at the end of a run) where the drawing leaves room for one?"
+  },
+  {
+   "id": "UL188",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Stairs here not making sense you can give access from the other side of the pool for both of the houses (30 Oct 2026, real04 run 20261030-112241-full, ext view along the side road: the flight from the road path down into each house's sunken pool terrace, cut into the stone retaining wall beside the basement window, with railings on the road side)",
+   "lesson": "Stairs here not making sense you can give access from the other side of the pool for both of the houses (30 Oct 2026, real04 run 20261030-112241-full, ext view along the side road: the flight from the road path down into each house's sunken pool terrace, cut into the stone retaining wall beside the basement window, with railings on the road side)",
+   "question": "Does every flight on the site lead somewhere that makes sense (a sunken terrace reached from its own garden side, never cut into the road's retaining wall beside a window)?"
   }
  ]
 }

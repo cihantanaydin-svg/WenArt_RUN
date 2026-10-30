@@ -2096,7 +2096,12 @@ def poses_showing(room: dict, building: dict, show: Sequence[str], lens_mm: Opti
 # (near share 0.746, depth 0.066 m, nothing to meter). ``pose_problems`` holds every pose an agent or Argus places to
 # the search's own rules on the building with its roof's ceilings, and ``nearest_searched_pose`` gives the pose to
 # fall back to.
-POSE_RULES = ("room", "eye", "headroom", "frame", "anchors")
+POSE_RULES = ("room", "eye", "headroom", "frame", "anchors", "content")
+# 30 Oct 2026 (lesson UL185, user on real04 run 20261030-112241-full cam_r_L1_banyo_1, an Argus pose: "This render not
+# needed not giving any value": tiles, the sloped ceiling and the bathtub's rim, 4.2 % of the frame furniture in the
+# index pass, 4.4 % in the ray-cast model; cam_r_L0_banyo_2 8.8 %): a view holds at least this share of furniture and
+# fixtures (``furn``) when a free candidate of its room's search does
+CONTENT_MIN_SHARE = 0.12
 
 
 def with_roof_ceilings(building: dict) -> dict:
@@ -2153,7 +2158,8 @@ def searched_poses(room: dict, building: dict, lens_mm: Optional[float] = None, 
     (``candidate_positions``) at ``CAMERA_HEIGHT`` and every ``YAW_STEP_DEG`` yaw through the room's lens, scored as
     the search scores them (``score_candidates``; ``shift_y``: 0 for an agent's fixed camera, which has no lens shift),
     best first: ``{"position", "target", "lens_mm", "shift_y", "yaw", "score", "blocked", "anchored", "anchors_in",
-    "warning", "candidate"}`` (``warning``: the search's fallback warning of a room without a free point)."""
+    "furn", "warning", "candidate"}`` (``warning``: the search's fallback warning of a room without a free point;
+    ``furn``: its furniture share, UL185)."""
     key = ("poses", room.get("id"), None if lens_mm is None else round(float(lens_mm), 4), round(float(shift_y), 4))
     if cache is not None and key in cache:
         return cache[key]                # 30 Oct 2026: one search per room, lens and shift for one unchanged building
@@ -2168,6 +2174,7 @@ def searched_poses(room: dict, building: dict, lens_mm: Optional[float] = None, 
         out.append({"position": plan["position"], "target": plan["target"], "lens_mm": lens, "shift_y": float(shift_y),
                     "yaw": float(c["yaw"]), "score": plan["score"]["total"], "blocked": bool(c["blocked"]),
                     "anchored": c.get("anchored"), "anchors_in": list(c["shares"].get("anchors_in") or []),
+                    "furn": float(c["shares"].get("furn") or 0.0),
                     "warning": warning, "score_record": plan["score"], "candidate": c})
     if cache is not None:
         cache[key] = out
@@ -2247,12 +2254,23 @@ def pose_problems(building: dict, camera: dict, rules: Sequence[str] = POSE_RULE
                                      f"{SCORE['blocked_min_depth']:g} m)",
                             near=round(float(m["near"]), 4), max_single=round(float(m["max_single"]), 4),
                             min_depth=round(float(m.get("min_depth", math.inf)), 4)))
+    if "content" in rules and float(m.get("furn") or 0.0) < CONTENT_MIN_SHARE and \
+            any(not c["blocked"] and _furn(c) >= CONTENT_MIN_SHARE for c in search()):
+        out.append(_problem("content", f"{name}: furniture and fixtures fill {float(m.get('furn') or 0.0):.0%} of its "
+                                       f"frame (at least {CONTENT_MIN_SHARE:.0%}; the room's camera search frames "
+                                       f"more): a view of bare walls and ceiling gives no value",
+                            furn=round(float(m.get("furn") or 0.0), 4)))
     if "anchors" in rules and model.anchor_ids and not m.get("anchors_in") and \
             any(not c["blocked"] and c.get("anchored") for c in search()):
         kinds = sorted({str(f.get("type")) for f in model.pieces if f["id"] in set(model.anchor_ids)})
         out.append(_problem("anchors", f"{name}: none of the room's main pieces ({', '.join(kinds)}) is in its frame, "
                                        f"while the room's camera search frames one", anchors=list(model.anchor_ids)))
     return out
+
+
+def _furn(cand: dict) -> float:
+    """A search candidate's furniture share (``score_candidates`` rows carry it in ``shares``)."""
+    return float((cand.get("shares") or {}).get("furn", cand.get("furn")) or 0.0)
 
 
 def nearest_searched_pose(building: dict, camera: dict, others: Sequence[dict] = (), cache: Optional[dict] = None
@@ -2271,6 +2289,7 @@ def nearest_searched_pose(building: dict, camera: dict, others: Sequence[dict] =
     if not cands:
         return None
     free = [c for c in cands if not c["blocked"]] or cands
+    free = [c for c in free if _furn(c) >= CONTENT_MIN_SHARE] or free        # UL185: a view with content
     anchored = [c for c in free if c.get("anchored")]
     pool = anchored or free
     distinct = [c for c in pool if all(distinct_views(c, o) for o in others

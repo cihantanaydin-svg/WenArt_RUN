@@ -130,7 +130,7 @@ AGENT_WALL_CLEARANCE_M = 0.15           # pod P8: an agent camera may stand clos
                                         # (0.3 m); P5's accepted cam_r_L0_ebeveyn_odasi_4_1 stood 0.20 m from one
 # 30 Oct 2026 (real04 run 201533): the search's rules an agent's interior pose is held to on top of camera_problems
 # (which has the room, the eye height and the headroom): a frame that is not blocked, the room's main pieces in it
-INTERIOR_POSE_RULES = ("frame", "anchors")
+INTERIOR_POSE_RULES = ("frame", "anchors", "content")      # UL185: content (camsearch.CONTENT_MIN_SHARE)
 SUN_ELEVATION_RANGE = (25.0, 50.0)
 FILL_RANGE = (0.6, 0.8)
 BLANK_FACADE_M = 3.0                    # a habitable room's outer wall this long with no opening is a blank facade
