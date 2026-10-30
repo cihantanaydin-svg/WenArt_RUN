@@ -572,12 +572,17 @@ def test_validate_camera_override_interior_and_exterior(real02):
     base = {"action": "set", "view_id": "cam_r_L0_yatak_odasi_1", "kind": "interior", "room_id": room["id"],
             "reason": "the bed"}
     free = None
+    # 30 Oct 2026: the validator also holds a pose to the search's frame rules (the bed in the frame): every look
+    # direction of a point is tried
     for i in range(1, 20):
         for j in range(1, 20):
             p = (min(xs) + (max(xs) - min(xs)) * i / 20, min(ys) + (max(ys) - min(ys)) * j / 20)
-            cam = dict(base, position=[p[0], p[1], 1.4], target=[p[0] + 1, p[1], 1.4])
-            if X.validate_camera_override(real02, cam)["ok"]:
-                free = cam
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                cam = dict(base, position=[p[0], p[1], 1.4], target=[p[0] + dx, p[1] + dy, 1.4])
+                if X.validate_camera_override(real02, cam)["ok"]:
+                    free = cam
+                    break
+            if free:
                 break
         if free:
             break
