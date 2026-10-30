@@ -471,6 +471,42 @@ def stretch_problem(box, panel_w: float, height: float) -> Optional[str]:
     return None
 
 
+def _lower_light_height(opening: dict, geo: dict) -> float:
+    """The height of a window's fixed lower light (``window_order``'s ``lower_light``: its transom over the floor
+    minus the sill), 0 when it has none or it would leave too little of a light below or above the transom."""
+    from wenart.blender import parametric as P
+
+    lower = opening.get("lower_light") if isinstance(opening.get("lower_light"), dict) else None
+    if opening.get("type") != "window" or not lower or lower.get("at_m") is None or opening.get("sill_height") is None:
+        return 0.0
+    h = float(lower["at_m"]) - float(opening["sill_height"])
+    return h if P.TRANSOM_LIGHT_MIN_M <= h <= float(geo["height"]) - 2 * P.TRANSOM_LIGHT_MIN_M else 0.0
+
+
+def _lower_light(opening: dict, wall: dict, geo: dict, ctx: dict, mats: dict, look, shift: float, op_assumed: dict,
+                 low_h: float) -> list:
+    """The parametric fixed lower light under a library window (``parametric.fixed_light_parts``; lesson UL210)."""
+    from wenart.blender import parametric as P
+    from wenart.blender import shell as SH
+
+    lower = opening["lower_light"]
+    side, _room, _assumed = SH.opening_room_side(geo["centre"], wall, ctx["rooms"])
+    key = "satin" if lower.get("glass") == "satin" else "glass"
+    parts = P.fixed_light_parts(None, geo["width"], low_h, geo["thickness"], side, key)
+    library = ctx["library"]
+    by = {"frame": look or mats.get("frame") or mats["glass"], "glass": mats["glass"],
+          "gasket": library.get(SH.WINDOW_GASKET_MATERIAL)}
+    if key == "satin":
+        by["satin"] = library.satin_glass()
+    ob, used = SH._opening_object(opening, "lower_light", parts, by, geo, ctx, "assumed")
+    reason = (f"a fixed lower light {low_h:.2f} m high under the window's transom ({lower.get('why') or 'its sill'}; "
+              f"lesson UL210: one sill line with its neighbours)")
+    SH._detail_entry(opening, ob, used, geo, ctx, {"detail": "lower_light", "height_m": round(low_h, 3),
+                                                   "glass": key, "reason": reason},
+                     f"fixed lower light {low_h:.2f} m", "lower_light", shift)
+    return [ob]
+
+
 def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: dict, mats: dict,
                           op_assumed: dict, shift: float) -> list:
     from wenart.blender import furniture as F
@@ -501,7 +537,11 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
         return []
     asset = lib["asset"]
     panels = max(1, int(lib.get("panels") or 1))
-    width, height, thickness = geo["width"], geo["height"], geo["thickness"]
+    # 30 Oct 2026 (lesson UL210, window_order): a window of a facade composition with a fixed lower light under a
+    # transom: the model fills the light above it, a parametric fixed light in the frame's finish the one below
+    low_h = _lower_light_height(opening, geo)
+    width, height, thickness = geo["width"], geo["height"] - low_h, geo["thickness"]
+    bottom = geo["bottom"] + low_h
     box = asset.get("bbox_m") or [1.0, 0.1, 1.0]
     mw, md, mh = (float(v) for v in box[:3])        # the piece frame (catalog.oriented_bbox): width, depth, height
     pw = width / panels
@@ -528,6 +568,9 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
     glass = mats["glass"]
     satin = kind == "door" and satin_lites(model["materials"], shares, inside) \
         and hasattr(ctx.get("library"), "satin_glass")
+    # UL210: a wet room's window of a facade composition takes satin glass (privacy, not a higher sill)
+    satin = satin or (kind == "window" and opening.get("glass") == "satin" and hasattr(ctx.get("library"),
+                                                                                       "satin_glass"))
     if satin:
         glass = ctx["library"].satin_glass()                 # UL191: narrow lites of an inside door: satin glass
     materials = material_map(model["materials"], glass, look, shares)
@@ -553,7 +596,7 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
     for i, (px, py) in enumerate(panel_layout(geo["centre"], wall, width, panels, outward, thickness, depth,
                                               centred=inside)):
         verts, info = F.fit_vertices(model["verts"], asset, {"center": [px, py], "size": [pw, depth],
-                                                             "rotation_deg": rot}, geo["bottom"],
+                                                             "rotation_deg": rot}, bottom,
                                      target_size=[pw, depth, height])
         faces, uvs = model["faces"], model.get("uvs")
         if mirrors[i]:
@@ -595,6 +638,8 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
     if framing:
         created += _door_frame(opening, wall, geo, ctx, door_recs, mats.get("door_frame") or look, state, shift,
                                op_assumed)
+    if low_h > 0:
+        created += _lower_light(opening, wall, geo, ctx, mats, look, shift, op_assumed, low_h)
     ctx["assumed"].append({"object": opening["id"], "field": "library_model", "value": asset.get("asset_id"),
                            "reason": lib.get("reason"), "parent": opening["id"], "kind": "library_model"})
     if inside and lib.get("hinge") and "assumed" in str(lib.get("hinge")):

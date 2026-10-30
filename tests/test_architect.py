@@ -195,7 +195,8 @@ def test_a_window_between_rooms_moves_to_the_outer_wall():
     w2 = next(o for o in b["openings"] if o["id"] == "w2")
     assert w2["wall_id"] == "wxe" and w2["drawn_wall_id"] == "wx" and w2["width"] == 1.0
     assert w2["corrected_by_ai"]["answer_key"] == "W2:w2"
-    assert abs(w2["center"][1] - 3.2) < 1e-6                                   # same place along the parallel wall
+    # same place along the parallel wall (3.2), then 0.06 m off the corner for its 0.40 m pier (30 Oct 2026, UL211)
+    assert abs(w2["center"][1] - 3.14) < 1e-6 and w2["window_pier"]["action"] == "moved"
     again = AA.apply_answers(b, AA.answers_of(b, {"W2:w2": {"option": "move_window_to_outer_wall"}}))
     assert again[0]["ok"] and "nothing to move" in again[0]["change"]          # idempotent: every run applies it
     l1, _l2 = AR.review_daylight_air(b, AR.opening_sides(b))

@@ -1702,7 +1702,10 @@ def opening_parts_mesh(parts: list[dict], materials_by: dict, origin, angle: flo
     indices: list[int] = []
     pieces = []
     for part in parts:
-        mat = materials_by.get(part["role"]) or materials_by[part["key"]]
+        if part["role"] == "glass" and part["key"] != "glass" and part["key"] in materials_by:
+            mat = materials_by[part["key"]]               # UL210: a pane of its own glass (satin in a wet room)
+        else:
+            mat = materials_by.get(part["role"]) or materials_by[part["key"]]
         if mat.name not in names:
             mats.append(mat)
             names.append(mat.name)
@@ -1835,10 +1838,22 @@ def build_window_m10(opening: dict, wall: dict, look: dict, geo: dict, ctx: dict
     side, room_id, side_assumed = opening_room_side(geo["centre"], wall, ctx["rooms"])
     # 30 Oct 2026 (lessons UL197, UL181): the window as a real product (parametric.window_product_parts: the stepped
     # frame, sashes or glazing beads, gaskets, handles, a wide glazing divided into real panes)
+    # 30 Oct 2026 (lesson UL210, window_order): a window of a facade group keeps the group's lines; a fixed lower light
+    # below its transom (``lower_light``) where it needs a higher sill, satin glass in a wet room (``glass``)
+    lower = opening.get("lower_light") if isinstance(opening.get("lower_light"), dict) else {}
+    glass_key = "satin" if opening.get("glass") == "satin" else "glass"
+    transom_at = None
+    if lower.get("at_m") is not None and opening.get("sill_height") is not None:
+        transom_at = float(lower["at_m"]) - float(opening["sill_height"])
     parts, record = P.window_product_parts(look, geo["width"], geo["height"], geo["thickness"], look.get("mullions", 0),
-                                           look.get("transoms", 0), side, sill=opening.get("sill_height"))
+                                           look.get("transoms", 0), side, sill=opening.get("sill_height"),
+                                           transom_at=transom_at,
+                                           glass_keys=("satin" if lower.get("glass") == "satin" else glass_key,
+                                                       glass_key))
     by = {"frame": mats["frame"], "glass": mats["glass"], "sill": mats["sill"],
           "gasket": library.get(WINDOW_GASKET_MATERIAL), "handle": mats.get("handle") or mats["frame"]}
+    if any(p.get("key") == "satin" for p in parts):
+        by["satin"] = library.satin_glass()
     record = dict(record, inside_side=side, room_id=room_id, inside_assumed=side_assumed, reason=look.get("reason"))
     created = []
     for key, roles in (("frame", WINDOW_FRAME_ROLES), ("glass", ("glass",))):
