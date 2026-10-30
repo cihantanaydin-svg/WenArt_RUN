@@ -795,7 +795,9 @@ def title_style_clash(entry: dict, family: Optional[str]) -> list[str]:
     """30 Oct 2026 (lesson UL174): the styles a model's own title names that a ``family`` project may not carry
     (``compatible_styles``): the title is the maker's word, the ``styles`` tags the vision judges' guess."""
     allowed = compatible_styles(family)
-    return [] if allowed is None else [s for s in title_styles(entry) if s not in allowed]
+    if allowed is None or entry.get("source") == "generated":       # our own titles ("Generated classic fridge")
+        return []
+    return [s for s in title_styles(entry) if s not in allowed]
 
 
 def styles_match(entry: dict, family: Optional[str]) -> bool:

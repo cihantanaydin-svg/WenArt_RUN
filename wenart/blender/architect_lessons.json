@@ -2184,7 +2184,7 @@
    "checks": [
     "build"
    ],
-   "request": "More detailed models would be nice here (30 Oct 2026, real04 run 20261030-112241-full, a bathroom vanity: a plain pump bottle with a band, a reed diffuser with lollipop sticks, a lidded jar with pebbles, a dark vessel basin on a terrazzo top, a black tap)",
+   "request": "More detailed models would be nice here (30 Oct 2026, real04 run 20261030-112241-full, a bathroom vanity: a plain pump bottle with a band, a reed diffuser with lollipop sticks, a lidded jar with pebbles, a dark vessel basin on a terrazzo top, a black tap); again on another view of a vanity: \"Better models with more details is needed\" (two pump bottles with a band, the reed diffuser, the jar of pebbles, a matt vessel basin)",
    "lesson": "More detailed models would be nice here (30 Oct 2026, real04 run 20261030-112241-full, a bathroom vanity: a plain pump bottle with a band, a reed diffuser with lollipop sticks, a lidded jar with pebbles, a dark vessel basin on a terrazzo top, a black tap)",
    "question": "Do the bathroom vanity objects look like real products at close range?"
   },
@@ -2220,7 +2220,7 @@
    "checks": [
     "build"
    ],
-   "request": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop)",
+   "request": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop); the user's follow-up: \"for the fridge I was referring the end of the table, maybe by shortening the table\" (the fridge column at the end of the counter run, the run shortened to make room)",
    "lesson": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop)",
    "question": "Does every kitchen have a full-size fridge (a tall column at the end of a run) where the drawing leaves room for one?"
   },
@@ -2235,6 +2235,42 @@
    "request": "Stairs here not making sense you can give access from the other side of the pool for both of the houses (30 Oct 2026, real04 run 20261030-112241-full, ext view along the side road: the flight from the road path down into each house's sunken pool terrace, cut into the stone retaining wall beside the basement window, with railings on the road side)",
    "lesson": "Stairs here not making sense you can give access from the other side of the pool for both of the houses (30 Oct 2026, real04 run 20261030-112241-full, ext view along the side road: the flight from the road path down into each house's sunken pool terrace, cut into the stone retaining wall beside the basement window, with railings on the road side)",
    "question": "Does every flight on the site lead somewhere that makes sense (a sunken terrace reached from its own garden side, never cut into the road's retaining wall beside a window)?"
+  },
+  {
+   "id": "UL189",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Access section here needs a rework, also no need for handrails (30 Oct 2026, real04 run 20261030-112241-full, aerial view of the side of the plot: a short flight with a handrail from the asphalt road up to a landing at the foot of the pool terrace's retaining wall, and the long flight up the lawn slope beside the hedge with a handrail)",
+   "lesson": "Access section here needs a rework, also no need for handrails (30 Oct 2026, real04 run 20261030-112241-full, aerial view of the side of the plot: a short flight with a handrail from the asphalt road up to a landing at the foot of the pool terrace's retaining wall, and the long flight up the lawn slope beside the hedge with a handrail)",
+   "question": "Are the site's access steps simple, short and where they make sense, without needless handrails?"
+  },
+  {
+   "id": "UL190",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "mirror staying behind the door in this case door can be closed (30 Oct 2026, real04 run 20261030-112241-full, a room view: a round wall mirror on the wall the open door leaf rests against, half hidden behind the leaf)",
+   "lesson": "mirror staying behind the door in this case door can be closed (30 Oct 2026, real04 run 20261030-112241-full, a room view: a round wall mirror on the wall the open door leaf rests against, half hidden behind the leaf)",
+   "question": "Is every wall mirror or picture clear of the wall the open door leaf rests against (or the door shown closed)?"
+  },
+  {
+   "id": "UL191",
+   "date": "2026-10-30",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Something wrong with this door in the kitchen (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen: an oak door leaf beside the end of the counter run shows the slatted wall through two slots in the leaf, under its upper panel and at handle height)",
+   "lesson": "Something wrong with this door in the kitchen (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen: an oak door leaf beside the end of the counter run shows the slatted wall through two slots in the leaf, under its upper panel and at handle height)",
+   "question": "Is every door leaf solid where it should be, with no wall finish showing through it?"
   }
  ]
 }
