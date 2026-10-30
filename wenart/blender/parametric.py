@@ -3923,6 +3923,14 @@ MATERIAL_KEYS = MATERIAL_KEYS + ("led", "pampas")                  # an LED stri
 BEVEL_BY_ROLE.update({"led": 0.0, "groove": 0.0, "plume": 0.0, "stem": 0.0, "bracket": 0.002, "cleat": 0.0,
                       "canvas": 0.0, "grille": 0.0, "button": 0.001, "lens": 0.0, "zip": 0.0, "strap": 0.002,
                       "object": 0.004, "knob": 0.002})
+# 30 Oct 2026 (photo P16, lesson UL153): the living-dining room's own detail types, a panel wall of handle-less fronts
+# with a lit niche and two round wall discs (= salon_parts.DECOR_TYPES, built by wenart.blender.salon_parts)
+DETAIL_DECOR_TYPES = DETAIL_DECOR_TYPES + ("panel_wall", "wall_discs")
+DECOR_TYPES = DECOR_TYPES + ("panel_wall", "wall_discs")
+LARGE_DECOR_TYPES = LARGE_DECOR_TYPES + ("panel_wall", "wall_discs")
+DECOR_DEFAULT_HEIGHT.update({"panel_wall": 2.6, "wall_discs": 0.72})
+for _role, _r in (("lining", 0.0), ("disc", 0.003), ("bar", 0.002), ("candle", 0.002), ("stripe", 0.0)):
+    BEVEL_BY_ROLE.setdefault(_role, _r)                              # new roles only: the others keep their radius
 
 
 SUSPENSION_CORD_R_M = 0.004       # the cord of a hung light (as the parametric pendant's)

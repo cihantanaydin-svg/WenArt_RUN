@@ -135,14 +135,17 @@ SOFT_SUPPORTS: tuple[str, ...] = ("seat", "mattress", "back", "headboard")
 FLOOR_DECOR: tuple[str, ...] = ("rug", "plant", "plant_large", "basket", "sculpture",
                                  "toilet_brush",             # 29 Oct 2026 (UL114 B2): on the floor beside the WC
                                  # 29 Oct 2026 (UL113, UL115): the details standing on the floor (room_details)
-                                 "wall_niche", "floor_vase", "art_leaning", "bag")
+                                 "wall_niche", "floor_vase", "art_leaning", "bag",
+                                 "panel_wall")               # 30 Oct 2026 (P16, UL153): the panel wall stands
 UNMEASURED_DECOR: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind",
                                      # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's wall details
                                      "toilet_paper_holder", "towel_rail", "towel_shelf", "towel_bar", "feature_panel",
                                      "cove_light",
-                                     "intercom", "desk_wall_unit")      # 29 Oct 2026 (UL113, UL115): on a wall
-# 29 Oct 2026 (lesson UL119, R33): a floating nightstand hangs on the wall (its box under its top, nothing to the floor)
-HUNG_FORMS: dict[str, tuple[str, ...]] = {"nightstand": ("floating",)}
+                                     "intercom", "desk_wall_unit",      # 29 Oct 2026 (UL113, UL115): on a wall
+                                     "wall_discs")                      # 30 Oct 2026 (P16, UL153): on a wall
+# 29 Oct 2026 (lesson UL119, R33): a floating nightstand hangs on the wall (its box under its top, nothing to the floor);
+# 30 Oct 2026 (P16, UL153, R45): so does the floating TV console
+HUNG_FORMS: dict[str, tuple[str, ...]] = {"nightstand": ("floating",), "tv_unit": ("floating",)}
 # 28 Oct 2026 (module docstring): hung decor is measured against the ceiling over it
 HUNG_DECOR: tuple[str, ...] = ("pendant_light", "ceiling_light")
 LEANING_SUPPORTS: tuple[str, ...] = ("back", "headboard")

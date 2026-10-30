@@ -88,6 +88,11 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   fewer pillows than the family's set (shams, sleeping pillows, accent cushions, a lumbar), a free side whose duvet
   hangs short of the floor, an old dressing without the set, a made-up model measured poorer than ours left as it was,
   no throw, a throw without its woven pattern or its fringe. Kind ``taste``.
+- U38 (UL153, 30 Oct 2026, photo P16: "salon inspiration") a living or dining room missing what its style family takes
+  from P16 (``wenart.furniture.salon_details.review``, the model review's M34): a sofa group or a dining set with no
+  rug under it, a dining print under half the table's length, loose pendants over the table where the scheme asks one
+  fixture, a dining table without its centrepiece set, a low wall-backed TV unit standing on the floor, a TV wall
+  without its lit niches and no reason recorded, a near-square coffee table not a round drum. Kind ``taste``.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -943,6 +948,13 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
         checked["U34"] = len(got)
     except Exception as exc:  # noqa: BLE001
         checked["U34"] = f"failed: {type(exc).__name__}: {exc}"[:200]
+    # 30 Oct 2026 (UL153, photo P16 "salon inspiration"): the living-dining rooms against P16 by their family
+    try:
+        got = salon_check(building, manifest)
+        findings += got
+        checked["U38"] = len(got)
+    except Exception as exc:  # noqa: BLE001
+        checked["U38"] = f"failed: {type(exc).__name__}: {exc}"[:200]
     return {"findings": findings, "checked": checked}
 
 
@@ -967,6 +979,28 @@ def bed_realism(building: dict, manifest: Optional[dict] = None) -> list[dict]:
 
 
 CHECK_LESSONS["U34"] = ("UL121",)        # 29 Oct 2026: a full, realistic bed (bedding_parts.review)
+CHECK_LESSONS["U38"] = ("UL153",)        # 30 Oct 2026: the P16 living-dining room (salon_details.review)
+SALON_FIXES = {
+    "seating_rug": "rerun_stage decor (salon_details.seating_rug: a rug under the sofa group)",
+    "dining_rug": "rerun_stage decor (salon_details.dining_rug: a rug under the dining set)",
+    "dining_art_small": "rerun_stage decor (room_details.dining_wall: the print at 2/3 of the table, "
+                        "salon_details.dining_art_width)",
+    "dining_light": "rerun_stage decor (salon_details.dining_light: one fixture over the table), then build",
+    "centrepiece": "rerun_stage decor (salon_details.centrepiece: the table's set), then build",
+    "tv_console": "rerun_stage decor (salon_details.console_form: the floating console), then refit and build",
+    "tv_niches": "rerun_stage decor (salon_details.tv_niches: the lit niches beside the TV), then build",
+    "drum_table": "rerun_stage decor (salon_details.drum_tables: the travertine drum), then refit and build"}
+
+
+def salon_check(building: dict, manifest: Optional[dict] = None) -> list[dict]:
+    """U38 (30 Oct 2026, lesson UL153, photo P16; module docstring): ``salon_details.review`` (the same rule as the
+    model review's M34); the fix names the step that adds what is missing."""
+    from wenart.furniture import salon_details as SDT
+
+    got, _n = SDT.review(building, manifest, check="U38")
+    return [_f("U38", g["severity"], g["target"], g["message"], g["lesson"],
+               SALON_FIXES.get(g["problem"], "rerun_stage decor (wenart.furniture.salon_details), then build"),
+               problem=g["problem"], room=g.get("room_id")) for g in got]
 
 
 def kitchen_details(building: dict, manifest: Optional[dict] = None) -> list[dict]:

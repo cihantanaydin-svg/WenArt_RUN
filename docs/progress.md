@@ -2519,3 +2519,37 @@ On real04's plan the new rules leave no G8-G12 finding; on the run's own manifes
 rails, the four pools without ladder and seats and the half light well. For more car variety a library pod can survey
 the Objaverse LVIS categories `car_(automobile)`, `convertible_(automobile)`, `jeep`, `minivan` and `cab_(taxi)`
 (names checked in the LVIS v1 list); nothing was downloaded here. Not rendered yet: the next real04 pod run shows them.
+
+## The P16 living-dining room by style family (30 Oct 2026, lesson UL153; built, CPU- and Blender-tested, pod run waiting)
+
+The user sent photo P16 ("salon inspiration", rows R39-R49 of `docs/reference_details_20261029.md`). Gap against
+real04 run 20261029-201533-full (`cam_r_L-1_salon_1..3`, `r_L-1_salon`) and the general rule now
+(`wenart/furniture/salon_details.py`, products in `wenart/blender/salon_parts.py`; families: modern, contemporary,
+minimal, japandi, scandinavian unless the row says "every family"):
+
+| P16 row | real04 now | rule now |
+|---|---|---|
+| R45 TV over a low floating console with a black fluted strip | a library unit on legs | a low wall-backed TV unit (top <= 0.65 m, >= 1.0 m long) becomes a floating wood console (`form: floating`, by design; footprint, place and top kept); a divider or a tall cabinet stays |
+| R45 tall narrow black-lined lit niches beside the TV | a print half behind the TV, nothing beside it | a 0.40-0.60 m niche (black lining, boards, LED strips, books, vases; `wall_niche` with `niche.style: tv_side`) 0.12-0.40 m off each end of the unit where the wall and the floor are free, both the same width; the TV wall stays plain (a print over the TV or where a niche stands leaves, logged) |
+| R40 a very large print over the table | 1.4 m over a 3.35 m table (0.42) | every family: 2/3 of the table's length, 0.9-2.0 m, at most 0.8 of its free wall, up to 1.6 m high (`room_details.dining_wall`) |
+| R42 track with mini pendants (or a linear pendant) over the table | four wood dome pendants | the row becomes one fixture: black mini pendants on a black ceiling track where the scheme has track lights, a slim black linear pendant (2/3 of the table) where its statement is linear; the row's height kept; the lights plan counts it as the row (`ceiling_lights.ROW_FIXTURES`) |
+| R41 a rug under the dining set | the AI's rug (kept) | every family: a rug under the dining set where none lies (the decor rules' cut, their trust in the table), `fringe` in the P16 families |
+| R43 centrepiece: pampas in glass, concrete candle holders, a bowl | one plain cream vase | the table's centre item becomes the set (a `vase` with `set: centrepiece`), up to 0.6 m along a table of >= 1.2 m, between the place settings, 0.12 m under the pendants |
+| R39 full-height handle-less panels with a lit niche | none | on a free wall within 2 m of the dining table (not the TV wall, nothing within 0.9 m), 3-6 fronts of 0.55 m, 0.40 m deep, to the ceiling, a black-lined lit niche across two fronts; the wardrobe front check; never under a slope (`panel_wall`). real04: no free wall of 1.65 m there |
+| R48 round travertine drum coffee table on a round striped rug | a square 0.8 m table between two armchairs | a near-square coffee table (0.55-1.2 m, aspect <= 1.25) becomes a travertine drum (`form: drum`, its items moved onto the round top; the glass preference stays on the rectangular ones); a round rug with concentric stripes under it (table + 0.3-0.6 m all round, moved up to 0.25 m off a wall) |
+| UL106 / R48 a rug under the seating | none under the corner sofa group | every family: the sofa group (a corner sofa's table in its open corner too) gets a rug where none lies |
+| R44 two black round wall discs | none | one pair on a free wall with nothing over 1 m in front, never the TV wall, bottom 1.25 m or 0.3 m over a low piece |
+| R46 slat column by the passage | none | not built: which opening is "the passage" needs the walking routes |
+| R47 boucle accent armchairs | brown leather and lounge chairs | not built: no boucle armchair in the library; the sofa helper owns fabrics |
+| R49 sheers, herringbone oak | flat brown floor (missing texture set, fixed 29 Oct), a blind | exists (UL106); nothing new |
+
+Every item is `added_by_ai`, `method: rule`, `rule: salon_details.<what>` with its reason; the pass's record is
+`building["salon_details"]` (each detail done or why not, per room); a step that fails is a note and a warning. Checks:
+model review M34 and Argus U38 (`salon_details.review`, kind `taste`, cause `decor_look`). Tests:
+`tests/test_salon_details_20261030.py` (22). On real04's own inputs (`scripts/preflight_local.py`, decor, refit and
+locked check pass, schema valid): both salons and their twins get the floating console, two lit niches, the 2.0 m print,
+the linear pendant (the open-kitchen variant: the track with mini pendants), the centrepiece, a dining rug, wall discs;
+the square table becomes a drum; the round rug and the sofa rug are left out there (the sofa and the drum table are
+unverified, unsure pieces: the decor rules' trust; the drum's corner is held by the dining rug); M34 finds nothing.
+A local Blender build of L-1 shows the console, the niches, the linear pendant and the centrepiece. Not rendered on
+the pod yet.

@@ -142,6 +142,12 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   sloped ceiling whose built box (``box3d``) stands over the ceiling over its box (major) or over the roof's top
   (critical, it shows from outside); a door too low to be used under the slope at its wall that no slide along it
   helps (major, the architect: a dormer). Kind ``geometry``; the build owns the crossings.
+- M34 the living-dining rooms against photo P16 (30 Oct 2026, lesson UL153, user: "salon inspiration";
+  ``wenart.furniture.salon_details.review``, Argus' U38 reads it too): by the room's style family, a sofa group or a
+  dining set with no rug under it, a dining print under half the table's length, loose pendants over the table where
+  the scheme asks one fixture (a track with mini pendants, a linear pendant), a dining table without its centrepiece
+  set, a low wall-backed TV unit standing on the floor, a TV wall without its lit niches and no reason recorded, a
+  near-square coffee table not a round drum. Minor; kind ``taste``; the decor stage owns it.
 - M24 every chimney as a builder makes it (29 Oct 2026, lesson UL109, user on real06 run 20261028-154514-full: "There
   are no chimneys there could be some chimney in the projects"; ``chimney.measure``), on the scene's chimney records
   (their bottom as built), else the plan's: a chimney off the roof (it does not reach the roof) or floating over its
@@ -214,6 +220,7 @@ CHECKS = CHECKS + ("M26",)       # 29 Oct 2026 (UL114, UL123, UL124): the bathro
 CHECKS = CHECKS + ("M28",)      # 29 Oct 2026: M28 a different solution for each room, the photos' details (UL119)
 CHECKS = CHECKS + ("M30",)      # 29 Oct 2026: M30 every bed in its family's bedding (UL121, bedding_parts.review)
 CHECKS = CHECKS + ("M31",)      # 30 Oct 2026: M31 nothing inside crosses the roof or the ceiling (UL128, UL132)
+CHECKS = CHECKS + ("M34",)      # 30 Oct 2026: M34 the living-dining rooms against photo P16 (UL153, salon_details)
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -1502,6 +1509,19 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
                      for g in got], n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
         checks["M30"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M34 (30 Oct 2026, lesson UL153, photo P16 "salon inspiration"): the living-dining rooms against P16 by their
+    # family (wenart.furniture.salon_details.review, the rule Argus' U38 reads too; pure: no placer, no schema)
+    try:
+        import importlib
+
+        SDT = importlib.import_module("wenart.furniture.salon_details")
+        got, n = SDT.review(built, scene_manifest, check="M34")
+        note("M34", [dict(_v("M34", g["severity"], g["target"], g["message"], room_id=g["room_id"], kind="taste",
+                             problem=g["problem"], lesson=g["lesson"]), fix=FIX_SALON) for g in got], n)
+    except ImportError as exc:
+        checks["M34"] = {"status": "unavailable", "note": f"{type(exc).__name__}: {exc}"}
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
+        checks["M34"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M31 (30 Oct 2026, lessons UL128, UL132): nothing built inside crosses the roof or the ceiling over it (pure)
     try:
         got, n = roof_crossings(built, scene_manifest, (prep or {}).get("roof"))
@@ -1561,6 +1581,9 @@ FIX_BATH = ("the layout stage's bathroom looks (wenart.furniture.bath_details.pl
             "rail, shelf and bars, the family's mirror)")
 FIX_SCHEMES = ("the decor stage's room schemes and details (wenart.furniture.room_details: each room its own scheme, "
                "a hall's console or lit niche, the art or panel over the bed) and the build's panels (feature_walls)")
+FIX_SALON = ("the decor stage's P16 living-dining details (wenart.furniture.salon_details: the floating TV console and "
+             "its lit niches, the dining print at 2/3 of the table, one fixture over the table, the rugs, the "
+             "centrepiece, the drum table) and the build's products (wenart.blender.salon_parts)")
 FIX_PRO_BAR = ("the decor stage's professional dressing (wenart.furniture.dressing: layered curtains and bedding, the "
                "lights' roles) and the build's finishes (feature_walls on the accent wall, parquet on the wood floor)")
 
