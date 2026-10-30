@@ -1964,13 +1964,13 @@
    "id": "UL166",
    "date": "2026-10-30",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Here models needs more details (30 Oct 2026, real04 run 20261030-043021-full, a bathroom: the lit open shelf tower holds crude objects: a box with two square holes, a few pebbles on a tray, a reed diffuser of three sticks with white balls, a green egg on a white cylinder; the towel rail and the flush plate are plain)",
-   "lesson": "Here models needs more details (30 Oct 2026, real04 run 20261030-043021-full, a bathroom: the lit open shelf tower holds crude objects: a box with two square holes, a few pebbles on a tray, a reed diffuser of three sticks with white balls, a green egg on a white cylinder; the towel rail and the flush plate are plain)",
-   "question": null
+   "lesson": "Every object on a bathroom shelf, vanity or towel shelf is a real product (wenart.blender.bath_objects): pump bottles with a ribbed collar, a pump with its nozzle and a label band; lidded jars with cotton balls or pebbles; a reed diffuser (bottle, collar, fanned reeds); a ceramic pot with soil and leaf blades on stems; glass flacons with a collar and cap; a soap dish with a bar; a candle in a glass; a woven basket with rolled towels; never a box with holes, balls on sticks or a coloured egg.",
+   "question": "Does every object on a bathroom shelf, vanity or towel shelf read as a real product (pump bottles with pump and label, lidded jars with their contents, a diffuser with fanned reeds, a leafy potted plant, flacons, a basket of towels), never a plain box, a ball on a stick or a coloured egg?"
   },
   {
    "id": "UL167",
@@ -1988,13 +1988,13 @@
    "id": "UL168",
    "date": "2026-10-30",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "These switches requires a rework (30 Oct 2026, real04 run 20261030-043021-full: the plate in the bathroom (the wall-hung WC's dual-flush plate) reads as a black picture frame with two flat white panes, much too large and flat)",
-   "lesson": "These switches requires a rework (30 Oct 2026, real04 run 20261030-043021-full: a double light switch reads as a black picture frame with two flat white panes, much too large and flat)",
-   "question": null
+   "lesson": "A wall-hung WC's flush plate is a real dual-flush plate: about 246 x 164 mm, 8 mm proud, rounded and chamfered, a small and a large button with a fine shadow gap and a line on each, in the room's fixture finish; never a frame with two flat white panes.",
+   "question": "Is the WC's flush plate a real dual-flush plate (a slim rounded plate with a small and a large button, a fine gap and a line on each, in the room's fixture finish), never a frame with two flat white panes?"
   },
   {
    "id": "UL169",
