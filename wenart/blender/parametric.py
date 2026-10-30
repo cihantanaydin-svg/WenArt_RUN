@@ -3903,9 +3903,10 @@ if "screen" not in MATERIAL_KEYS:                                  # its glossy 
 # LED strips (``materials.led_material``), the light stone and terrazzo tops and panels, the towels (the room's accent)
 DECOR_DEFAULT_HEIGHT.update({"toilet_paper_holder": 0.13, "toilet_brush": 0.38, "towel_rail": 1.2, "towel_shelf": 0.40,
                              "towel_bar": 0.45, "feature_panel": 2.5, "cove_light": 0.12})
-MATERIAL_KEYS = MATERIAL_KEYS + tuple(k for k in ("led", "stone_light", "terrazzo", "towel") if k not in MATERIAL_KEYS)
+MATERIAL_KEYS = MATERIAL_KEYS + tuple(k for k in ("led", "stone_light", "terrazzo", "towel", "towel_alt", "towel_band")
+                                      if k not in MATERIAL_KEYS)   # 30 Oct 2026 (UL138): a towel's shade and band
 BEVEL_BY_ROLE.update({"led": 0.0, "towel": 0.004, "rib": 0.001, "plate": 0.001, "button": 0.0005, "apron": 0.002,
-                      "panel": 0.002, "glass": 0.0, "groove": 0.0})
+                      "panel": 0.002, "glass": 0.0, "groove": 0.0, "towel_band": 0.0})
 BEVEL_BY_ROLE.update({"screen": 0.0, "neck": 0.002})
 
 
@@ -3993,7 +3994,15 @@ def build_parts(ftype: str, w: float, d: float, h: float, piece: dict | None = N
         if parts is not None:
             return parts
     if ftype in _PIECE_BUILDERS:
-        return builder(float(w), float(d), float(h), piece)
+        parts = builder(float(w), float(d), float(h), piece)
+        look = piece.get("bath_look") if isinstance((piece or {}).get("bath_look"), dict) else None
+        if look and look.get("wall_gap_m") is not None:
+            # 30 Oct 2026 (real04 run 201533: the flush plates inside the walls): a made-to-measure bath piece's back
+            # on its wall's face (bath_parts.seat_on_walls)
+            from wenart.blender import bath_parts as BT
+            if BT.made_to_measure(piece):
+                parts = BT.seat_parts(parts, look)
+        return parts
     return builder(float(w), float(d), float(h))
 
 

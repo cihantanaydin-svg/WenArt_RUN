@@ -421,7 +421,10 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # daylight on its walls (daylight_green). Without the bump a re-run on an unchanged scene would reuse P6a's ext_5 and
 # its olive bedrooms. The fix round after P6b (23 Oct 2026; P6b rendered m13.4) keeps m13.5: it adds a record only
 # (the exposure record's wb_walls, wall_rig_record) and no pod has rendered m13.5.
-RENDER_CODE_VERSION = "m13.5"
+# m13.6 (30 Oct 2026; real04 run 20261029-201533-full rendered m13.5): the rig part of an interior view's white point is
+# the rig light as its walls get it (wall_rig_mix: the corridors' orange cast); without the bump a re-run on an unchanged
+# scene would reuse the orange corridors
+RENDER_CODE_VERSION = "m13.6"
 PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"
 LOOK = "AgX - Punchy"
@@ -558,6 +561,13 @@ WB_RIG_SHARE_MIN = 0.02
 WB_RIG_RESIDUAL = 0.0
 WB_VIEW_RULE = ("the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - "
                 "daylight / all metered light), with the residual cast of the project's daylight kept for every view")
+# 30 Oct 2026 (m13.6, ``wall_rig_mix``): the rig part of the mix is the rig light as the view's walls get it (the oak
+# and the paint warm it on its way), by the walls' own rig share, when the walls cover this share of the metering frame
+WB_RIG_FROM_WALLS = True
+WB_WALLS_MIN_SHARE = 0.05             # = WB_TINT_WALL_MIN_SHARE: the walls' light is metered from this share
+WB_WALLS_RULE = ("the project's daylight colour and the rig light as the view's walls get it (all light minus "
+                 "daylight on the walls) mixed by the walls' rig share, with the residual cast of the project's "
+                 "daylight kept for every view")
 # Fix round after P5 (22 Oct 2026): an interior view's white point takes the green-magenta tint of its own daylight
 # (``view_tint_gain``: the white point's G times this gain, the temperature stays the project's), clamped to
 # 1 / WB_TINT_GAIN_MAX .. WB_TINT_GAIN_MAX. P5 real04's sunlit L0 bedrooms read olive (wall display G/((R+B)/2)
@@ -1176,6 +1186,32 @@ def wall_rig_record(all_stats: dict | None, day_stats: dict | None, lamp_rgb=Non
     if rig is not None and min(rig) > 0.0:
         rec["rig_rgb"], rec["rig_rb"] = rig, round(rig[0] / rig[2], 4)
     return rec
+
+
+def wall_rig_mix(walls: dict | None, lamp_rgb, share) -> tuple[list, float | None, str]:
+    """``(rig colour, share, source)`` the view's white point mixes (pure; 30 Oct 2026, ``RENDER_CODE_VERSION``
+    m13.6): the rig light as the view's walls get it (``walls``: ``wall_rig_record``'s ``rig_rgb``, the all-light
+    minus the daylight on the walls) by the walls' own rig share, when ``WB_RIG_FROM_WALLS`` and the walls cover at
+    least ``WB_WALLS_MIN_SHARE`` of the metering frame with a measured rig colour; else the lamp's colour
+    (``lamp_rgb``, ``kelvin_whitepoint``) by the frame's ``share``. Why: real04 run 20261029-201533-full, GPU test
+    test_rig_lit_rooms_have_no_orange_cast: the corridors cam_r_L1_koridor_1 (rig share 0.53) and
+    cam_r_L-1_koridor_2_1 (0.71) read wall R/B 1.465 and 1.348 against a bound of 1.343; the rig light reached their
+    walls at 3,600 K and 3,533 K (linear R/B 3.40 and 3.56) from 4,000 K lamps (2.65): the oak floors and greige walls
+    warm it on its way, which the lamp's colour in the mix never took out (the P6b shim of real03 measured the same,
+    3,266-3,614 K; render docstring, fix round after P6b). The daylight part keeps the project's daylight colour, so a
+    room keeps the warmth its daylight brings, as the daylight rooms do."""
+    lamp = [float(v) for v in lamp_rgb]
+    if not WB_RIG_FROM_WALLS or not isinstance(walls, dict):
+        return lamp, share, "lamp"
+    rgb, wshare, frac = walls.get("rig_rgb"), walls.get("rig_share"), walls.get("share")
+    try:
+        ok = (rgb is not None and len(rgb) == 3 and min(float(v) for v in rgb) > 0.0 and wshare is not None
+              and float(wshare) >= WB_RIG_SHARE_MIN and frac is not None and float(frac) >= WB_WALLS_MIN_SHARE)
+    except (TypeError, ValueError):
+        ok = False
+    if not ok:
+        return lamp, share, "lamp"
+    return [float(v) for v in rgb], float(wshare), "walls"
 
 
 def room_rig_kelvin(lights, room_id) -> tuple[float | None, str | None]:
@@ -3139,11 +3175,14 @@ class Look:
             rec["wb_view_rule"] = f"rig share below {WB_RIG_SHARE_MIN:g}: the project white point" + \
                 (f" with {WB_TINT_RULE}" if tinted else "")
             return
-        rec["whitepoint"] = mixed_whitepoint(anchor, rig_rgb, share, residual, WB_RIG_RESIDUAL)
-        rec["wb_view_rule"] = WB_VIEW_RULE
+        # 30 Oct 2026 (m13.6): the rig light as the view's walls get it (wall_rig_mix), else the lamp's colour
+        mix_rgb, mix_share, source = wall_rig_mix(walls, rig_rgb, share)
+        rec.update(wb_rig_source=source, wb_rig_mix_share=None if mix_share is None else round(float(mix_share), 6))
+        rec["whitepoint"] = mixed_whitepoint(anchor, mix_rgb, mix_share, residual, WB_RIG_RESIDUAL)
+        rec["wb_view_rule"] = WB_VIEW_RULE if source == "lamp" else WB_WALLS_RULE
         rec["wb_rig_residual"] = WB_RIG_RESIDUAL     # fix round after P4a: the rig part's extra warmth (0: none)
         if self._view_tint(rec, anchor, day, residual, share):
-            rec["wb_view_rule"] = f"{WB_VIEW_RULE}; {WB_TINT_RULE}"
+            rec["wb_view_rule"] = f"{rec['wb_view_rule']}; {WB_TINT_RULE}"
 
     @staticmethod
     def _view_tint(rec: dict, anchor, day_stats: dict | None, residual, share) -> bool:

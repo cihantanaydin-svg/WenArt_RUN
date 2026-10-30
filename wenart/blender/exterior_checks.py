@@ -102,6 +102,14 @@ had no finding. Now only the planner's ``frontal`` view counts by its label; an 
 labelled ``frontal`` is a frontal pose (``_frontal_pose``) judged by its frame, with ``frame_problem``'s major on the
 camera. Measured on P4a, P4b, P5, P6a and P6b: X6 unchanged (no high ``agent`` / ``elevation`` view there; the
 ``frontal`` views of real02 (P4a, replayed) and real03 (P6b) are the planner's).
+
+30 Oct 2026 (real04 run 20261029-201533-full: Argus's cam_r_L1_banyo_1 0.21 m over the sloped attic ceiling, a black
+render): an interior camera's V1 (``camera_problems``) also asks the search's headroom over its lens on the building
+with its roof's ceilings (``camsearch.pose_problems``: critical when the lens is at or over the ceiling), and the
+validator holds an agent's interior pose to the search's frame rules (``INTERIOR_POSE_RULES``: not blocked, the room's
+main pieces in the frame) once the cheap checks pass; its verdict lists the pose failures as ``pose_failed`` (the
+agent's tool falls back to the nearest searched pose on them). ``free_floor_problems`` reads the search's points on
+that building too, so its nearest free point has headroom.
 """
 from __future__ import annotations
 
@@ -120,6 +128,9 @@ EYE_RANGE_M = (1.2, 1.6)                # interior cameras above their floor
 DOOR_CLEARANCE_M = 0.6
 AGENT_WALL_CLEARANCE_M = 0.15           # pod P8: an agent camera may stand closer to a wall than a search point
                                         # (0.3 m); P5's accepted cam_r_L0_ebeveyn_odasi_4_1 stood 0.20 m from one
+# 30 Oct 2026 (real04 run 201533): the search's rules an agent's interior pose is held to on top of camera_problems
+# (which has the room, the eye height and the headroom): a frame that is not blocked, the room's main pieces in it
+INTERIOR_POSE_RULES = ("frame", "anchors")
 SUN_ELEVATION_RANGE = (25.0, 50.0)
 FILL_RANGE = (0.6, 0.8)
 BLANK_FACADE_M = 3.0                    # a habitable room's outer wall this long with no opening is a blank facade
@@ -928,10 +939,29 @@ def camera_problems(building: dict, cam: dict) -> list[dict]:
             out.append(_v("V1", "major", name, f"{name} is {d:.2f} m from the door {oid} (at least "
                                                f"{DOOR_CLEARANCE_M:g} m)", room_id=rid, door=oid, distance=d))
     h = z - floor
+    if level and room.get("id") not in set(level.get("open_rooms") or ()):
+        # 30 Oct 2026 (real04 run 20261029-201533-full, cam_r_L1_banyo_1: an agent pose 0.21 m over the sloped ceiling
+        # rendered black, every fixture absent from its index pass): a lens over its room's ceiling, or nearer it than
+        # the clip start, sees the ceiling's back
+        from wenart.blender import camsearch as CS
+
+        ceiling = min(CS.ceiling_above_floor(level, (x, y)), float(level.get("ceiling_height") or math.inf))
+        if h > ceiling - CS.LENS_CEILING_M:
+            out.append(_v("V1", "critical", name, f"{name} stands {h:.2f} m over its floor, over (or within "
+                                                   f"{CS.LENS_CEILING_M:g} m of) its room's ceiling at {ceiling:.2f} m "
+                                                   "there: it sees the back of the ceiling", room_id=rid,
+                          eye_m=h, ceiling_m=round(ceiling, 3)))
     if not EYE_RANGE_M[0] - 1e-3 <= h <= EYE_RANGE_M[1] + 1e-3:
         out.append(_v("V1", "major" if h < 1.0 or h > 1.8 else "minor", name,
                       f"{name}: eye height {h:.2f} m (wanted {EYE_RANGE_M[0]:g}-{EYE_RANGE_M[1]:g} m)", room_id=rid,
                       eye_m=h))
+    # 30 Oct 2026 (real04 run 201533: Argus's cam_r_L1_banyo_1 0.21 m over the sloped attic ceiling, a black frame):
+    # the search's headroom over the lens, on the building with its roof's ceilings (camsearch.pose_problems)
+    from wenart.blender import camsearch as CS
+
+    for p in CS.pose_problems(building, dict(cam, name=name), rules=("headroom",)):
+        out.append(_v("V1", "critical" if float(p.get("ceiling_m") or 0.0) <= float(p.get("eye_m") or 0.0)
+                      else "major", name, p["message"], room_id=rid, ceiling_m=p.get("ceiling_m")))
     return out
 
 
@@ -977,6 +1007,7 @@ def free_floor_problems(building: dict, camera: dict) -> list[str]:
     from wenart.blender import camsearch as CS, geom2d
     from wenart.blender.parametric import piece_bbox
 
+    building = CS.with_roof_ceilings(building)          # 30 Oct 2026: the search's points keep their headroom
     room = next((r for r in building.get("rooms") or [] if r["id"] == camera.get("room_id")), None)
     if room is None or len(room.get("polygon") or []) < 3:
         return []                                       # camera_problems names the missing room
@@ -1009,7 +1040,11 @@ def free_floor_problems(building: dict, camera: dict) -> list[str]:
 def validate_camera_override(building: dict, camera: dict) -> dict:
     """``{"ok": bool, "failed": [str]}``: the schema, then for ``set`` / ``add``: an interior camera stands in its
     room, not inside a piece, on the free floor (``free_floor_problems``), at least ``DOOR_CLEARANCE_M`` from a door,
-    ``EYE_RANGE_M`` above its floor; an
+    ``EYE_RANGE_M`` above its floor with the search's headroom over the lens (``camera_problems``), and (30 Oct 2026)
+    passes the search's own rules ``INTERIOR_POSE_RULES`` on the building with its roof's ceilings
+    (``camsearch.pose_problems``: a frame that is not blocked, the room's main pieces in the frame); an interior
+    verdict also lists its pose failures (all but the arguments') as
+    ``pose_failed`` (the agent's tool falls back to the nearest searched pose on them, ``tools.searched_fallback``); an
     exterior one outside the building (and its roof) at ``EYE_LEVEL_RANGE_M`` above the ground, or a high view
     above the ridge; the target differs from the position. Fix round after P6a (module docstring): an eye-level
     exterior one keeps the eye-level lens range unless the building is long and low, and has sky in its frame
@@ -1035,9 +1070,18 @@ def validate_camera_override(building: dict, camera: dict) -> dict:
             return {"ok": False, "failed": failed + ["an interior camera needs its room_id"]}
         if camera.get("lens_mm") is not None and not 14.0 <= float(camera["lens_mm"]) <= 35.0:
             failed.append(f"lens {camera['lens_mm']} mm outside 14-35 mm (interior)")
-        failed += [v["message"] for v in camera_problems(building, dict(camera, name=camera["view_id"]))]
-        failed += free_floor_problems(building, camera)
-        return {"ok": not failed, "failed": failed}
+        pose = [v["message"] for v in camera_problems(building, dict(camera, name=camera["view_id"]))]
+        pose += free_floor_problems(building, camera)
+        if not failed and not pose:
+            # 30 Oct 2026 (real04 run 201533: Argus's cam_r_L1_banyo_1 0.21 m over the sloped ceiling, a black
+            # frame): the search's own rules on the building with its roof's ceilings (camsearch.pose_problems; the
+            # rays only for a pose the cheap checks take, as the exterior sky check)
+            from wenart.blender import camsearch as CS
+
+            pose += [p["message"] for p in CS.pose_problems(building, dict(camera, name=camera["view_id"]),
+                                                            rules=INTERIOR_POSE_RULES)]
+        failed += pose
+        return {"ok": not failed, "failed": failed, "pose_failed": pose}
     from wenart.blender import geom2d
 
     prep = _prep(building) or {}

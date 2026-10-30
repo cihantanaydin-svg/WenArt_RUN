@@ -8,7 +8,7 @@ need a rework"). The rules are general (every project, every soft seat); real04'
 - the loose parts of a model joined without changing the fitted width (``soft_seats.join_parts``,
   ``furniture.fit_vertices``) and the file's own normals carried through the rebuild (``fit_normals``,
   ``corner_normal_list``);
-- the check (model review M32, Argus U36) on the run's own scene manifest."""
+- the check (model review M33, Argus U36) on the run's own scene manifest."""
 from __future__ import annotations
 
 import json
@@ -221,7 +221,7 @@ def test_the_modules_are_joined_the_floating_cushion_rests_the_legs_stay_on_the_
     vp, areas = SS.vertex_parts(len(verts), faces, SS.face_parts(verts, faces), verts)
     joined, rec = SS.join_parts(verts, vp, areas)
     assert rec["parts"] == 6 and rec["gaps"] >= 3 and rec["max_gap_m"] == pytest.approx(0.03, abs=1e-4)
-    # three bodies moved; the short leg's 2 cm stays (never lifted off the floor) and is reported (M32 names it)
+    # three bodies moved; the short leg's 2 cm stays (never lifted off the floor) and is reported (M33 names it)
     assert rec["joined"] == 3 and rec["max_gap_after_m"] == pytest.approx(0.02, abs=1e-4) and rec["gaps_after"] == 1
     boxes = SS.part_boxes(joined, vp)
     assert boxes[1][0] == pytest.approx(boxes[0][3]) and boxes[2][0] == pytest.approx(boxes[1][3])
@@ -287,7 +287,7 @@ def test_fit_normals_turn_with_the_piece_and_the_corner_list_for_blender():
 
 
 # --------------------------------------------------------------------------
-# 4. the check on the run's own scene (model review M32, Argus U36)
+# 4. the check on the run's own scene (model review M33, Argus U36)
 # --------------------------------------------------------------------------
 
 def manifest():
@@ -322,12 +322,12 @@ def test_a_dressed_joined_smooth_sofa_passes_and_each_problem_is_named():
 
 
 def test_model_review_m32_and_argus_u36_carry_the_rule():
-    assert "M32" in MR.CHECKS and K.CHECK_KIND["M32"] == "taste" and K.CHECK_KIND["U36"] == "taste"
-    assert CA.CHECK_CAUSE["M32"] == "wrong_model" and CA.CHECK_CAUSE["M32"] in CA.CAUSES
+    assert "M33" in MR.CHECKS and K.CHECK_KIND["M33"] == "taste" and K.CHECK_KIND["U36"] == "taste"
+    assert CA.CHECK_CAUSE["M33"] == "wrong_model" and CA.CHECK_CAUSE["M33"] in CA.CAUSES
     got, n = MR.soft_seats_review(manifest())
     assert n == 18 and {v["metrics"]["problem"] for v in got} == {"flat_fabric", "poor_model"}
     flat = next(v for v in got if v["metrics"]["problem"] == "flat_fabric")
-    assert flat["check"] == "M32" and flat["owner"] == "build" and "_dress_fabric" in flat["fix"]
+    assert flat["check"] == "M33" and flat["owner"] == "build" and "_dress_fabric" in flat["fix"]
     poor = next(v for v in got if v["metrics"]["problem"] == "poor_model")
     assert poor["owner"] == "fit" and K.kind_of(poor) == "taste"
     apart = MR.soft_seats_review({"objects": [{"kind": "furniture", "type": "armchair", "method": "library",
@@ -335,7 +335,7 @@ def test_model_review_m32_and_argus_u36_carry_the_rule():
                                                "parts": {"max_gap_after_m": 0.04}}]})[0]
     assert apart[0]["kind"] == "detached"
     rec = MR.review({"levels": [], "rooms": [], "openings": [], "furniture": [], "walls": []}, manifest())
-    assert rec["checks"]["M32"]["checked"] == 18 and rec["checks"]["M32"]["failed"] == len(got)
+    assert rec["checks"]["M33"]["checked"] == 18 and rec["checks"]["M33"]["failed"] == len(got)
     out = AL.audit({"levels": [], "rooms": [], "furniture": []}, manifest())
     u36 = [f for f in out["findings"] if f["check"] == "U36"]
     assert out["checked"]["U36"] == len(u36) == len(got) and {f["evidence"]["lesson"] for f in u36} == {"UL131",
@@ -349,7 +349,7 @@ def test_lessons_ul131_and_ul140_are_built_with_their_checks():
     by = {x["id"]: x for x in L.lessons()}
     for lid in ("UL131", "UL140"):
         x = by[lid]
-        assert x["status"] == "built" and x["checks"] == ["build"] and "M32" in x["lesson"] and "U36" in x["lesson"]
+        assert x["status"] == "built" and x["checks"] == ["build"] and "M33" in x["lesson"] and "U36" in x["lesson"]
     assert "soft_seats" in by["UL131"]["lesson"] and "rejected" in by["UL131"]["lesson"]
     assert "fabric" in by["UL140"]["lesson"] and "joined" in by["UL140"]["lesson"]
     raw = (ROOT / "wenart" / "blender" / "architect_lessons.json").read_text(encoding="utf-8")

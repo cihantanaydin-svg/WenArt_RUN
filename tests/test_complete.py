@@ -117,7 +117,9 @@ def test_change_types_and_fixed_equipment():
                                    "washing_machine", "toilet", "washbasin", "shower", "bathtub")
     assert "prayer" not in schemas.ALLOWED_TYPES                                 # prayer rooms: never furnished
     # Milestone 12: the balcony group; 23 Oct 2026 (group options 10x): its plants
-    assert schemas.ALLOWED_TYPES["balcony"] == ("table_dining", "chair", "bench", "potted_plant")
+    # 30 Oct 2026 (UL152, the P15 terrace): its outdoor lounge set
+    assert schemas.ALLOWED_TYPES["balcony"] == ("table_dining", "chair", "bench", "potted_plant", "armchair", "sofa",
+                                                "ottoman", "side_table")
 
 
 # --------------------------------------------------------------------------

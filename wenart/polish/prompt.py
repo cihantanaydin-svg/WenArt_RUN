@@ -107,6 +107,10 @@ MATERIAL_WORDS: dict[str, str] = {
     "painted_metal_white": "white painted metal",
     "fabric_linen": "natural linen",
     "fabric_white": "white fabric",
+    # 29 Oct 2026 (UL121): the bedding's procedural fabrics; 30 Oct 2026 (UL138): the towels' terry cloth
+    "fabric_cotton": "cotton percale", "fabric_velvet": "velvet", "fabric_knit": "chunky knit",
+    "fabric_boucle": "boucle", "fabric_wool": "wool", "fabric_houndstooth": "houndstooth wool",
+    "fabric_stripe": "striped wool", "fabric_herringbone": "herringbone wool", "fabric_terry": "terry cloth",
     "ceramic_white": "white ceramic",
     "steel_brushed": "brushed steel",
     "stone_worktop": "dark stone",

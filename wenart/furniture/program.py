@@ -131,6 +131,13 @@ ROOM_ZONE_KIND = {"living": "living", "bedroom": "sleeping", "kitchen": "kitchen
 ZONE_ROOM_TYPE = {"living": "living", "sleeping": "bedroom", "kitchen": "kitchen", "dining": "dining",
                   "work": "other", "bath": "bathroom", "hall": "hall", "balcony": "balcony"}
 MIN_HALL_WIDTH_M = 1.10            # a hall narrower than this takes no piece (0.30 deep piece + 0.80 walkway)
+# 30 Oct 2026 (lesson UL152, the P15 terrace): a terrace this large and wide also takes an outdoor lounge set (two
+# 0.80 m armchairs across a 0.70 m pouf with their clearances need about 2.2 m across)
+TERRACE_LOUNGE_MIN_AREA_M2 = 8.0
+TERRACE_LOUNGE_MIN_WIDTH_M = 2.2
+# a narrower terrace: two 0.75 m armchairs against the house wall with a 0.65 m passage in front of them
+TERRACE_PAIR_MIN_AREA_M2 = 4.0
+TERRACE_PAIR_MIN_WIDTH_M = 1.4
 # Milestone 13: the room types the templates know; ``other`` and ``unknown`` are read through the aliases.
 # 26 Oct 2026: ``dressing`` (a dressing room or walk-in closet) is a kind only: no building-schema room type has it.
 TEMPLATE_KINDS = ("living", "bedroom", "kitchen", "dining", "bathroom", "wc", "hall", "other", "balcony", "dressing")
@@ -518,10 +525,35 @@ def _core_rows(kind: str, area: float, polygon: Polygon, building: dict, room: d
     elif kind == "balcony":
         if area >= 2.5:                     # 30 Oct 2026 (UL130): plants in big pots, no table and chairs
             rows.append(("balcony", False, ["planters"]))
+        # 30 Oct 2026 (UL152, the P15 terrace): a larger terrace also gets an outdoor lounge set across a pouf, a
+        # narrow one (its inner width, not its bounding box: real04's L-shaped 1.5 m strips) two armchairs side by side
+        inner = inner_width(polygon)
+        if area >= TERRACE_LOUNGE_MIN_AREA_M2 and inner >= TERRACE_LOUNGE_MIN_WIDTH_M:
+            rows.append(("terrace_lounge", False, ["lounge_armchairs"] + (["lounge_sofa"] if area >= 11.0 else [])
+                         + (["lounge_sofa_2_armchairs"] if area >= 15.0 else [])))
+        elif area >= TERRACE_PAIR_MIN_AREA_M2 and inner >= TERRACE_PAIR_MIN_WIDTH_M:
+            rows.append(("terrace_pair", False, ["lounge_pair"]))
     elif kind == "dressing":
         # 26 Oct 2026: a dressing room or walk-in closet: wardrobe runs along its free walls (groups.yaml dressing)
         rows.append(("dressing", True, ["wardrobe_runs"]))
     return rows
+
+
+def inner_width(polygon) -> float:
+    """30 Oct 2026 (UL152): the width of the widest band a room holds (pure): twice the radius of the largest circle
+    inside it (found by halving on ``buffer(-r)``), so an L-shaped 1.5 m strip is 1.5 m wide, not its bounding box."""
+    poly = polygon if hasattr(polygon, "buffer") else Polygon(polygon)
+    poly = poly.buffer(0)
+    if poly.is_empty or poly.area <= 1e-9:
+        return 0.0
+    lo, hi = 0.0, max(poly.bounds[2] - poly.bounds[0], poly.bounds[3] - poly.bounds[1]) / 2.0
+    for _ in range(24):
+        mid = (lo + hi) / 2.0
+        if poly.buffer(-mid).is_empty:
+            hi = mid
+        else:
+            lo = mid
+    return round(2.0 * lo, 3)
 
 
 def stair_cover(building: dict, room: dict) -> float:

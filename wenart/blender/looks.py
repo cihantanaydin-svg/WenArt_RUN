@@ -246,6 +246,27 @@ def accent_walls(building: dict, level: dict, style: dict) -> dict:
     return out
 
 
+def wall_paint_key(room: Optional[dict], style: Optional[dict]) -> str:
+    """Which paint a view of ``room`` shows on its walls (pure; 30 Oct 2026): ``painted`` for the house's paint only
+    (a hall, a kitchen), ``painted+accent:<colour>`` for the house's paint with an accent wall (a living room or a
+    bedroom when the style has an accent: ``accent_walls``, ``family_accent``; a scheme's ``accent`` walls), and
+    ``<material>:<colour>`` for a room its scheme paints all round (``scheme_walls``: a deep colour, a limewash). Why:
+    since the 29 Oct room schemes the rooms of a house have different paints, and the GPU orange check compared a rig-lit
+    greige hall with daylight bedrooms whose pale dusty blue accent walls pulled their wall R/B down (real04 run
+    20261029-201533-full: references 0.94-1.27 for walls of 1.25-1.30 greige); only views of one paint compare."""
+    own = scheme_walls(room, style)
+    if own is not None:
+        return f"{own['material']}:{own['colour']}"
+    if room is None or str(room.get("room_type") or "") not in ACCENT_ROOM_TYPES:
+        return "painted"
+    sc = room.get("scheme") if isinstance(room.get("scheme"), dict) else {}
+    accent = _slot(style, "wall_accent") or family_accent(style or {})
+    colour = (sc.get("wall_colour") if sc.get("walls") == "accent" else None) or accent.get("colour")
+    if not colour and not accent:
+        return "painted"
+    return f"painted+accent:{colour or accent.get('material')}"
+
+
 def family_accent(style: dict) -> dict:
     """The style family's default accent wall (``objects.FAMILY_ACCENTS``) for a style whose brief names none; {} when
     the brief turns accents off (``wall_accent`` ``False`` or ``"none"``)."""

@@ -489,7 +489,9 @@ def test_see_through_parts_hold_garments_folded_stacks_drawers_and_a_light():
         roles = {p["role"] for p in parts}
         assert {"garment", "hanger", "rail", "folded", "led", "body", "shelf"} <= roles
         assert ("slat" in roles) == (kind == "slats") and ("glass" in roles) == (kind == "smoked_glass")
-        assert ("shoe" in roles) == (kind == "open") and ("panel_frame" in roles) == (kind != "open")
+        # the open run's shoe racks; shoes on the lowest shelf or under the hems of every run since UL135
+        assert ("shoe_rack" in roles) == (kind == "open") and ("panel_frame" in roles) == (kind != "open")
+        assert "shoe" in roles and {"sleeve", "collar"} <= roles
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
         assert x0 >= -2.27 / 2 - 0.008 and x1 <= 2.27 / 2 + 0.008 and y0 >= -0.3 - 0.008 and y1 <= 0.3 + 0.008
         assert z0 >= -1e-9 and z1 <= 2.3 + 1e-6
@@ -499,11 +501,15 @@ def test_see_through_parts_hold_garments_folded_stacks_drawers_and_a_light():
         assert plain <= set(P.MATERIAL_KEYS)
         colours = {k for k in keys if k.startswith("cloth:")}
         assert len(colours) >= 4                                                       # varied garment colours
-        assert all(k[len("cloth:"):] in __import__("wenart.style.colours", fromlist=["COLOURS"]).COLOURS
-                   for k in colours)
-    # one wardrobe always gets the same garments; the garments are part lists (one mesh with the wardrobe)
+        # 30 Oct 2026 (UL135): cloth:<look>:<colour>, the look one of the woven fabrics (wardrobe_contents)
+        from wenart.blender import wardrobe_contents as WC
+        assert all(WC.parse_cloth_key(k)[1] in __import__("wenart.style.colours", fromlist=["COLOURS"]).COLOURS
+                   and WC.parse_cloth_key(k)[0] in WC.LOOKS for k in colours)
+    # one wardrobe always gets the same garments; the garments are part lists (one mesh with the wardrobe): each a
+    # hanger of several parts, a body, sleeves and a collar where its kind has them (UL135)
     a = MOD.garment_parts(-0.5, 0.5, 0.0, 2.0, 7, 1.0)
-    assert a == MOD.garment_parts(-0.5, 0.5, 0.0, 2.0, 7, 1.0) and len(a) % 3 == 0 and len(a) >= 30
+    assert a == MOD.garment_parts(-0.5, 0.5, 0.0, 2.0, 7, 1.0) and len(a) >= 60
+    assert sum(1 for p in a if p["role"] == "garment") >= 10
 
 
 def test_the_walk_in_gets_a_bench_and_a_mirror_where_the_walkway_allows():

@@ -512,7 +512,7 @@ def test_p6a_the_view_tint_rules():
     What changes the olive views is the green the gain is given: on the shim the walls' green gives e_yatak_odasi_2
     1.265 where the room's gave 1.149. A residual of 1 is no correction under both rules. Fails on 52d4bb8 (no
     ``keep_green_residual``)."""
-    assert R.WB_TINT_KEEP_GREEN_RESIDUAL is True and R.RENDER_CODE_VERSION == "m13.5"
+    assert R.WB_TINT_KEEP_GREEN_RESIDUAL is True and R.RENDER_CODE_VERSION == "m13.6"
     for cam, (day, gain_m134, share) in P6A_TINT.items():
         s = share if share >= R.WB_RIG_SHARE_MIN else 0.0
         assert R.view_tint_gain(P5_ANCHOR, day, 0.35, s) == pytest.approx(gain_m134, abs=1e-6), cam

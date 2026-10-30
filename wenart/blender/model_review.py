@@ -134,15 +134,17 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   realistic the bed is looking full and nice I want this much detail in our models"; ``bedding_parts.review``, Argus'
   U34 reads it too): a dressed bed with fewer pillows than its family's set (euro shams with no headboard to stand on
   are explained), a free side whose duvet hangs short of the floor, an old dressing without the set, a made-up model
-  measured poorer than ours left undressed, a bed without its throw, a throw without its woven pattern or its fringe.
-  Minor; kind ``taste``; the decor stage (``wenart.furniture.bedding``) and the build (``textiles.bedding_set``) own it.
+  measured poorer than ours left undressed, a bed without its throw, a throw without its woven pattern or its fringe;
+  30 Oct 2026 (UL136, UL137, UL146): a lumpy duvet or blanket, a wavy hem (``bedding_parts.cover_smoothness``), a gap
+  between the mattress and the headboard left open. Minor; kind ``taste``; the decor stage
+  (``wenart.furniture.bedding``) and the build (``textiles.bedding_set``) own it.
 - M31 nothing inside crosses the roof (30 Oct 2026, lessons UL128 "Some frames coming out of the roof it needs fixing"
   and UL132 "Door frame needs fixing", real04 run 20261029-201533-full; ``under_roof.crossings``, ``door_problems``):
   every furniture, decor and door part (the model, the leaf, the lining, the head, the architrave) of a level under a
   sloped ceiling whose built box (``box3d``) stands over the ceiling over its box (major) or over the roof's top
   (critical, it shows from outside); a door too low to be used under the slope at its wall that no slide along it
   helps (major, the architect: a dormer). Kind ``geometry``; the build owns the crossings.
-- M32 soft seats as soft, well-made products (30 Oct 2026, lessons UL131 "I did not like these sofa models" and UL140
+- M33 soft seats as soft, well-made products (30 Oct 2026, lessons UL131 "I did not like these sofa models" and UL140
   "I like this sofa but it needs more details, also the gaps need a rework", real04 run 20261029-201533-full;
   ``soft_seats_review``, ``wenart.blender.soft_seats.review``): every library sofa, corner sofa, armchair, chaise and
   ottoman as built wears a fabric (no flat export colour left: ``flat_fabric``, major), keeps its parts joined (no
@@ -221,7 +223,9 @@ CHECKS = CHECKS + ("M26",)       # 29 Oct 2026 (UL114, UL123, UL124): the bathro
 CHECKS = CHECKS + ("M28",)      # 29 Oct 2026: M28 a different solution for each room, the photos' details (UL119)
 CHECKS = CHECKS + ("M30",)      # 29 Oct 2026: M30 every bed in its family's bedding (UL121, bedding_parts.review)
 CHECKS = CHECKS + ("M31",)      # 30 Oct 2026: M31 nothing inside crosses the roof or the ceiling (UL128, UL132)
-CHECKS = CHECKS + ("M32",)      # 30 Oct 2026: M32 soft seats as soft, well-made products (UL131, UL140)
+CHECKS = CHECKS + ("M33",)      # 30 Oct 2026: M33 soft seats as soft, well-made products (UL131, UL140)
+CHECKS = CHECKS + ("M32",)      # 30 Oct 2026: M32 wall items clear of openings, each other, what stands in front (UL134,
+#                                 UL139, wall_items.review)
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -1516,17 +1520,29 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
         note("M31", got, n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
         checks["M31"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
-    # M32 (30 Oct 2026, lessons UL131, UL140: "I did not like these sofa models", "I like this sofa but it needs more
+    # M33 (30 Oct 2026, lessons UL131, UL140: "I did not like these sofa models", "I like this sofa but it needs more
     # details, also the gaps need a rework"): every library soft seat as built wears a fabric, keeps its parts joined
     # and the file's smooth shading, and is no poor model (pure: soft_seats.review on the scene's objects)
     if scene_manifest:
         try:
             got, n = soft_seats_review(scene_manifest)
-            note("M32", got, n)
+            note("M33", got, n)
         except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError) as exc:
-            checks["M32"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+            checks["M33"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     else:
-        checks["M32"] = {"status": "unavailable", "note": "no scene manifest"}
+        checks["M33"] = {"status": "unavailable", "note": "no scene manifest"}
+    # M32 (30 Oct 2026, lessons UL134 "These things in front of a window needs fixing", UL139 "TV hiding the picture
+    # not making sense"): every wall item clear of the openings of its wall, of the other wall items and of what stands
+    # in front of it (wall_items.review, the rule Argus' U35 reads too; pure)
+    try:
+        from wenart.blender import wall_items as WI
+
+        got, n = WI.review(built, check="M32")
+        note("M32", [dict(_v("M32", g["severity"], g["target"], g["message"], room_id=g["room_id"],
+                             kind="no_sense", problem=g["kind"],
+                             other=g["other"], lesson=g["lesson"]), fix=FIX_WALL_ITEMS) for g in got], n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
+        checks["M32"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M19 / M22 (29 Oct 2026, the user on real06: "This washing machine would not open", "this sink not making sense
     # there", "There is a gap between wall and water faucet not looking good"): fronts that open, basins under a solid
     # wall, backs on their walls, on the building as built (pure)
@@ -1572,19 +1588,19 @@ def roof_crossings(built: dict, manifest: Optional[dict], roof_model: Optional[d
     return out, n
 
 
-M32_KINDS = {"flat_fabric": "taste", "faceted": "taste", "poor_model": "taste", "parts_apart": "detached"}
+M33_KINDS = {"flat_fabric": "taste", "faceted": "taste", "poor_model": "taste", "parts_apart": "detached"}
 
 
 def soft_seats_review(manifest: Optional[dict]) -> tuple[list[dict], int]:
-    """M32 (module docstring; ``soft_seats.review``): every library soft seat of the scene wears a fabric (no flat
+    """M33 (module docstring; ``soft_seats.review``): every library soft seat of the scene wears a fabric (no flat
     export colour left), keeps its parts joined, keeps the file's smooth shading and is no poor model. The build owns
     the dressing, the joining and the shading; a poor model is the fit's (swap_model, else a library gap)."""
     from wenart.blender import soft_seats as SS
 
-    got, n = SS.review(manifest, check="M32")
+    got, n = SS.review(manifest, check="M33")
     out = []
     for g in got:
-        v = _v("M32", g["severity"], g["target"], g["message"], g.get("room_id"), kind=M32_KINDS.get(g["problem"]),
+        v = _v("M33", g["severity"], g["target"], g["message"], g.get("room_id"), kind=M33_KINDS.get(g["problem"]),
                problem=g["problem"], lesson=g["lesson"], **g["metrics"])
         v["owner"] = "fit" if g["problem"] == "poor_model" else "build"
         v["fix"] = g["fix"]
@@ -1592,6 +1608,9 @@ def soft_seats_review(manifest: Optional[dict]) -> tuple[list[dict], int]:
     return out, n
 
 
+FIX_WALL_ITEMS = ("the decor stage's and the build's wall-item pass (wenart.blender.wall_items.resolve: raise the "
+                  "item over what stands below it, move it along its wall or to another free wall, else leave it "
+                  "out); a hung piece of the drawing over an opening: the layout or the architect")
 FIX_BEDDING = ("the decor stage's bedding plan (wenart.furniture.bedding: the family's set, the free sides, the throw "
                "pair's weave) and the build's dressing (textiles.bedding_set: shams, standing pillows, accent cushions "
                "and a lumbar, the deep duvet hanging on the free sides; the woven, fringed throw pair)")

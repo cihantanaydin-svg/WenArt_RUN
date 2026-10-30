@@ -1544,7 +1544,7 @@
     "build"
    ],
    "request": "I did not like these sofa models (30 Oct 2026, real04 run 20261029-201533-full: boxy grey sofas with flat faceted back cushions and white piping lines in the living rooms)",
-   "lesson": "Every sofa, corner sofa, armchair, chaise and ottoman is a soft, well-made library model: the fit ranks an upholstered model by its quality grade from its own catalogue record (wenart/blender/soft_seats.py grade: a texture of 256 px or less is poor by itself, under 512 px, flat colours, a double-sided export, a coarse mesh without a normal map, a low-poly mesh, a judged poor look; good 0 points, fair 1-2: 2 size steps a point, poor 3+: after every model within the caps), never a gate; the texture-map key reads the audit's pbr_maps; the build keeps the file's own smooth normals (no faceted cushions); a model the user rejected is never used (results/library/user_rejected.json). Checks: M32, U36 (a poor model, faceted), M21, U19 (a rejected model).",
+   "lesson": "Every sofa, corner sofa, armchair, chaise and ottoman is a soft, well-made library model: the fit ranks an upholstered model by its quality grade from its own catalogue record (wenart/blender/soft_seats.py grade: a texture of 256 px or less is poor by itself, under 512 px, flat colours, a double-sided export, a coarse mesh without a normal map, a low-poly mesh, a judged poor look; good 0 points, fair 1-2: 2 size steps a point, poor 3+: after every model within the caps), never a gate; the texture-map key reads the audit's pbr_maps; the build keeps the file's own smooth normals (no faceted cushions); a model the user rejected is never used (results/library/user_rejected.json). Checks: M33, U36 (a poor model, faceted), M21, U19 (a rejected model).",
    "question": "Are the sofas, armchairs and other upholstered pieces soft, well-made models (rounded cushions, real seams, a sharp fabric texture), never boxy, faceted or low-detail ones, and is every model the user rejected left out?"
   },
   {
@@ -1575,72 +1575,72 @@
    "id": "UL134",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "These things in front of a window need fixing (30 Oct 2026, real04 run 20261029-201533-full: a desk's wall cabinets and shelf and a large picture hang over a window)",
-   "lesson": "These things in front of a window need fixing (30 Oct 2026, real04 run 20261029-201533-full: a desk's wall cabinets and shelf and a large picture hang over a window)",
+   "lesson": "Every item placed on a wall (wall art and art pairs, mirrors, wall TVs, wall units and shelves, niches, towel rails and shelves, intercoms, any other wall item; the wall plates by their own rule) keeps its whole extent on the wall, its width plus 0.10 m each side (0.05 m for a small fitting) and its bottom to its top, clear of every door, window and plain opening of that wall and its twin face, frames and architraves included (wenart.blender.wall_items). Checked in the decor stage and again in the build, after the architect's answers cut their windows (real04: the enlarge_windows window behind the desk's wall unit and the bed's picture); an item that does not fit moves along its wall to the nearest free stretch (a tied item, the desk's unit or a basin's mirror, only within its piece's span), a free item to another free wall at eye height, else it is left out with the reason (decor_dropped). Model review M32, Argus U35.",
    "question": "Does every wall-hung item (art, mirrors, a TV, wall cabinets and shelves, plates) stay clear of the windows and doors of its wall?"
   },
   {
    "id": "UL135",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I like this but the clothes inside need more detail (30 Oct 2026, real04 run 20261029-201533-full: the slatted see-through wardrobe; the garments read as flat coloured strips)",
-   "lesson": "I like this but the clothes inside need more detail (30 Oct 2026, real04 run 20261029-201533-full: the slatted see-through wardrobe; the garments read as flat coloured strips)",
+   "lesson": "The contents of a see-through wardrobe read as real (wenart.blender.wardrobe_contents): shirts, jackets, long coats, dresses, knits and trousers folded over the bar, each with shoulders, sleeves and a collar where its kind has them, its own length, small gaps and turns, on wooden hangers over a visible rail; the bedding's woven fabrics (cotton, wool, knit, linen weave normals) in the room's palette (the style family's wardrobe colours and the room scheme's colour); folded stacks with fold edges and uneven layers, shoe pairs, lidded boxes and rattan baskets on the lower shelves; an LED strip with its own area light at the top of every bay, under a hanging bay's hat shelf (1000 lm per metre) and under each shelf (500 lm per metre), 3000 K, rig lights of the room so the contents read through the slats; the slats as they are. One mesh with the run, about 1,300 faces per bay, no modifier or boolean per garment.",
    "question": "Do the clothes inside every see-through wardrobe read as real garments on hangers (shoulders, sleeves, lengths by type, fabric texture), folded stacks and shoes, lit from inside?"
   },
   {
    "id": "UL136",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I did not like this bed (30 Oct 2026, real04 run 20261029-201533-full: our procedural duvet's sides ripple like melted foam, the turned-down band is a thick slab, the pillows sit crumpled at the headboard)",
-   "lesson": "I did not like this bed (30 Oct 2026, real04 run 20261029-201533-full: our procedural duvet's sides ripple like melted foam, the turned-down band is a thick slab, the pillows sit crumpled at the headboard)",
+   "lesson": "Every bed's bedding looks like a real made bed, for every style family (wenart.blender.bedding_parts cover_grid, textiles.drape_cover, bedding_set): the duvet's top is a smooth envelope over the mattress (it bridges a library mattress's own quilting and dips, never follows every ray hit) with a few soft wide folds (ridges about 25 cm wide, at most the family's wrinkle); over each edge it rounds on its own height, then hangs straight down one plane per side, outside the bed at every height (a wider frame cleared by a gentle flare, the bed's own rail or footboard stops it), every edge point's drop scaled to one level hem (a straight even hem), with a few soft wide folds (46 cm pitch, 1-1.8 cm) growing to the hem; the cloth thins to its seam over its last 6 cm (a rounded hem, never a cut slab); the turned-down top sheet is a thin band (a 7 mm sheet, a neat 2-4 cm fold wrapped round the duvet's head edge, down the sides with the duvet); the pillows are plump with crisp pillowcase edges (a flange: 4 cm on a euro sham, 1.5 cm on a pillow, piping on a cushion); lying pillows without a headboard stay on the bed. The look is measured on every build (bedding_parts.cover_smoothness: the top and the hanging sides within 6 mm of their own smooth surface over 30 cm, the hem within 12 mm of a level straight line); M30 and Argus U34 flag a lumpy duvet or a wavy hem. One mesh per bed from vertex arrays.",
    "question": "Does every bed's bedding look like a real made bed: a smooth duvet with gentle natural folds and a straight hem, a thin turned-down sheet band, neat plump pillows standing against the headboard?"
   },
   {
    "id": "UL137",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Head section of this bed needs a rework (30 Oct 2026, real04 run 20261029-201533-full: two flat lying pillows low in front of a tufted headboard, a gap between mattress and headboard, no shams or standing pillows)",
-   "lesson": "Head section of this bed needs a rework (30 Oct 2026, real04 run 20261029-201533-full: two flat lying pillows low in front of a tufted headboard, a gap between mattress and headboard, no shams or standing pillows)",
+   "lesson": "The head of every bed is made up: a bed's back rays take their first hit in the head zone (a raised head section or a roll nearer the middle no longer hides the headboard behind it, rest.place_leaning), the euro shams and the sleeping pillows first stand on what lies at the head against the headboard behind their upper part (a model's own flat pillows, a panel raised on posts), a gap between the mattress and the headboard (rest.bed_head: the top dropping 4 cm, the gap at least 8 cm deep) is bridged (their base on the mattress, leaned back until their upper part reaches the headboard) and closed by a fitted sheet over it (textiles.gap_sheet); a made-up library bed whose own pillows lie flat (a bump under 0.22 m over its cover) on a bed wide enough for euro shams gets our standing set on them, its duvet kept (bedding_parts.dress_mode pillows). Argus U34 and M30 flag a gap left open.",
    "question": "Is the head of every bed made up: euro shams and pillows standing against its headboard (a headboard with a gap or posts found too), with no bare gap between mattress and headboard?"
   },
   {
    "id": "UL138",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I am guessing these orange things are towels, they need more detail, a lot more detail (30 Oct 2026, real04 run 20261029-201533-full bathroom: rolled towels as faceted cylinders, the hanging towel a flat slab)",
-   "lesson": "I am guessing these orange things are towels, they need more detail, a lot more detail (30 Oct 2026, real04 run 20261029-201533-full bathroom: rolled towels as faceted cylinders, the hanging towel a flat slab)",
+   "lesson": "Every towel of every bathroom reads as a real towel (wenart/blender/towel_parts.py, used by every towel of wenart/blender/bath_parts.py: the towel rail B7, the towel shelf B18, the towel bars B25, the walk-in shower's bar B16, the vanity's open shelf B3/B12 and the column's cubbies B5): cloth of a real thickness, a closed mesh with rounded edges, never a cylinder or a plate. A rolled towel shows its spiral end (2.25 turns of the folded cloth with a groove between them, the outer end lying on the roll), rounded turn edges, a little flattened on its shelf; a folded towel has one soft rounded fold at the front, its two layers and hems at the back (the upper one shorter, pillowed), and a stack is slightly uneven in place, turn and height; a towel over a bar has both layers (the front longer), a soft curve where it leaves the bar and a little belly under it, gentle vertical folds growing towards the hem, a slight sag, rounded hems and a flat-woven band near the front hem. The material is terry cloth (finishes fabric_terry: the wenart_weave loop pile as a deep bump, roughness 0.97) in the room's towel colour (B26), a pair's or a stack's second towel in its lighter shade (towel_parts.towel_shade), the band a smooth cotton weave in the same colour. Cheap: vertex lists in the host's one mesh (a roll under 700 faces, a folded towel under 600, a hanging towel with its band under 1800). Checks: tests/test_towels_20261030.py (closed meshes, the spiral, the folds and layers, the two layers over the bar, the band, the face counts, the terry material and its loop-pile bump).",
    "question": "Do the towels read as real towels: rolled with a spiral end, folded in soft stacks, hanging over the bar in two layers with a curve, folds and a hem band, in a terry-cloth material?"
   },
   {
    "id": "UL139",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Need to move the picture, TV hiding the picture not making sense (30 Oct 2026, real04 run 20261029-201533-full living room: the TV on its unit covers the bottom of the art hung over the unit)",
-   "lesson": "Need to move the picture, TV hiding the picture not making sense (30 Oct 2026, real04 run 20261029-201533-full living room: the TV on its unit covers the bottom of the art hung over the unit)",
+   "lesson": "A wall item stays fully visible: clear of the other wall items and of every piece standing in front of its wall whose top reaches its bottom, what stands on the piece included (a TV with its screen on its unit, a tall cabinet, a bed's headboard, a sofa's back). Fixed in this order: raised 0.20 m (0.15-0.25 m) over what stands below it when its top stays 0.10 m under the ceiling and its centre at most 2.0 m up; else moved along its wall or to another free wall; else left out with the reason (a wall with a TV may simply take no art) (wenart.blender.wall_items, decor stage and build). Model review M32, Argus U35.",
    "question": "Does every picture or wall item stay fully visible, clear of the TV, of other wall items and of every piece standing in front of its wall?"
   },
   {
@@ -1652,7 +1652,7 @@
     "build"
    ],
    "request": "I like this sofa but it needs more details, also the gaps need a rework (30 Oct 2026, real04 run 20261029-201533-full: the L corner sofa 3dwh_bc790e2f62189290d277caa7 renders untextured flat white, gaps between its parts)",
-   "lesson": "A library soft seat never shows its flat export colours: its flat upholstery slots (named for a fabric, or the largest unnamed flat slots when no texture covers the upholstery) wear the style's fabric (the weave's normal and roughness maps, the sheen) in the design's fabric colour, else in the named colour nearest their own (furniture._dress_fabric, soft_seats.fabric_slots); its loose parts are joined: bodies that face each other across 2 mm-6 cm move together, never lifting a leg off the floor or into another body, and the fit keeps the drawn width (soft_seats.join_parts in fit_vertices). The fit was never the cause: one uniform scale about one pivot. Checks: M32, U36.",
+   "lesson": "A library soft seat never shows its flat export colours: its flat upholstery slots (named for a fabric, or the largest unnamed flat slots when no texture covers the upholstery) wear the style's fabric (the weave's normal and roughness maps, the sheen) in the design's fabric colour, else in the named colour nearest their own (furniture._dress_fabric, soft_seats.fabric_slots); its loose parts are joined: bodies that face each other across 2 mm-6 cm move together, never lifting a leg off the floor or into another body, and the fit keeps the drawn width (soft_seats.join_parts in fit_vertices). The fit was never the cause: one uniform scale about one pivot. Checks: M33, U36.",
    "question": "Does every upholstered library model wear a real fabric (weave texture, sheen, seams), with its parts joined (no gaps opened by the fit), never flat untextured colour?"
   },
   {
@@ -1723,12 +1723,12 @@
    "id": "UL146",
    "date": "2026-10-30",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "This is a good inspiration (30 Oct 2026, photo P14: a bedroom with slatted wall panels, an upholstered bed with layered bedding, round two-drawer nightstands, a line-art print pair, a linear chandelier, a glass bedside pendant, black track lights, a venetian blind, a dressing desk with an arched mirror, black open shelving, herringbone floor)",
-   "lesson": "This is a good inspiration (30 Oct 2026, photo P14: a bedroom with slatted wall panels, an upholstered bed with layered bedding, round two-drawer nightstands, a line-art print pair, a linear chandelier, a glass bedside pendant, black track lights, a venetian blind, a dressing desk with an arched mirror, black open shelving, herringbone floor)",
+   "lesson": "The P14 bed (docs/reference_details_20261029.md R38) on every dressed bed of every family: a smooth duvet hanging straight almost to the floor, the plain blanket of the throw pair folded over the foot (the accent colour, rolled softly over the duvet's edge, 30 cm down the free sides and the foot), the patterned fringed throw draped at one free side over the blanket's head edge (textiles.p14_throw_parts), many pillows standing in two rows against the headboard (euro shams behind, the sleeping pillows, the accent cushions and a lumbar in front) with crisp edges. The pair across the foot of before stays for a bed with both sides blocked. The photo's other pieces (slat panels, the print pair, the linear chandelier and bedside pendant, track lights, the blind, the dressing desk, open shelving) keep their own rules (R13, R16, R17, R19, H7).",
    "question": "Do the bedrooms reach the P14 reference where their family allows: slatted wall panels, an upholstered bed with layered bedding, round nightstands with styled tops, a print pair over the bed, a linear chandelier or bedside pendants, track lights, a blind with the curtains, a dressing desk with an arched mirror and open shelving?"
   },
   {
@@ -1795,12 +1795,12 @@
    "id": "UL152",
    "date": "2026-10-30",
    "area": "terrace",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "teras inspiration (30 Oct 2026, photo P15: a terrace lounge by black-framed sliding glass doors: grey slatted outdoor armchairs and sofa with thick white cushions and white scatter cushions, a big round woven pouf, a small round terrazzo-top side table on a wood drum with a sculpture and books, a light wood deck)",
-   "lesson": "teras inspiration (30 Oct 2026, photo P15: a terrace lounge by black-framed sliding glass doors: grey slatted outdoor armchairs and sofa with thick white cushions and white scatter cushions, a big round woven pouf, a small round terrazzo-top side table on a wood drum with a sculpture and books, a light wood deck)",
+   "lesson": "The P15 terrace (30 Oct 2026, \"teras inspration\"): a terrace at least 8 m2 with an inner width of at least 2.2 m gets an outdoor lounge set against its house wall (armchairs or a small sofa across a woven pouf, a small side table; groups.yaml terrace_lounge); a narrower one of at least 4 m2 and 1.4 m two armchairs side by side with a side table between them, facing the view (terrace_pair); a small balcony plants only; never a dining table and chairs (UL130), never both sets (program.inner_width, the options auto: false). The fit gives the pieces weather-proof models (fit.outdoor_room).",
    "question": "Do the larger terraces reach the P15 reference: an outdoor lounge set (slatted armchairs or a sofa with thick cushions, a woven pouf, a small round side table with a sculpture and books) on a warm deck, plants in big pots, no dining table and chairs?"
   },
   {

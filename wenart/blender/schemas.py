@@ -104,7 +104,11 @@ _VEC3 = {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems"
 BOX3D = {
     "type": "object",
     "required": ["center", "size", "rotation_deg"],
-    "properties": {"center": _VEC3, "size": _VEC3, "rotation_deg": {"type": "number"}},
+    "properties": {"center": _VEC3, "size": _VEC3, "rotation_deg": {"type": "number"},
+                   # 30 Oct 2026 (optional): a furniture mesh's convex plan outline in the box frame about its centre
+                   # (geom2d.plan_outline), read by the GPU index-pass test
+                   "outline": {"type": "array", "minItems": 3,
+                               "items": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}}},
 }
 PIXEL_BOX = {"type": "array", "items": {"type": "integer"}, "minItems": 4, "maxItems": 4}
 INDEX_STATS = {
@@ -258,6 +262,10 @@ EXPOSURE = {
         "ground_rule": {"type": "string"},
         # Fix round after P6b (23 Oct 2026, optional): the light on the view's walls (WB_WALLS, recorded only).
         "wb_walls": WB_WALLS,
+        # 30 Oct 2026 (m13.6, optional): which rig colour the white point mixed (render.wall_rig_mix: the rig light on
+        # the walls, else the lamp's) and by which share (the walls' rig share, else the frame's)
+        "wb_rig_source": {"enum": ["walls", "lamp"]},
+        "wb_rig_mix_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
         # 28 Oct 2026 (optional): an exterior view with no facade to meter took the EV of the exterior views metered
         # before it (render.exterior_fallback_ev; how in ``source``)
         "fallback": {"enum": ["exterior"]},
@@ -408,7 +416,7 @@ SCENE_OBJECT = {
         "design": {"type": "object"},
         "recolour": {"type": "object"},
         # 30 Oct 2026 (UL131, UL140): a library piece's own shading (smooth faces, custom normals), a soft seat's
-        # dressed upholstery slots and its loose parts joined (soft_seats; model review M32)
+        # dressed upholstery slots and its loose parts joined (soft_seats; model review M33)
         "shading": {"type": "object"},
         "fabric_dressing": {"type": "object"},
         "parts": {"type": "object"},

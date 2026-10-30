@@ -21,7 +21,11 @@ to old outputs on the volume). They read ``$WENART_OUTPUTS/<p>/scene`` and
   dark basement rooms are among them;
 - the ``assumed`` entries: one per bedding set, counter-front set,
   door-handle pair, skirting run and dim-room light, each with ``parent``,
-  ``kind`` and ``reason``, none of them an element of the building.
+  ``kind`` and ``reason``, none of them an element of the building. 30 Oct 2026 (real04 run
+  20261029-201533-full: the 29 Oct room schemes' feature walls are wall details with a parent too): each wall detail
+  by its own record: the skirting runs, the feature walls (one per room whose build record has one, ``feature_wall`` /
+  ``dining_wall``, and every room whose scheme names a panel has one or the reason it was skipped), any other wall
+  detail named in ``assumed`` with its parent.
 """
 import json
 import os
@@ -70,6 +74,30 @@ def _furniture(scene: dict) -> list[dict]:
 
 def _assumed(scene: dict, kind: str) -> list[dict]:
     return [a for a in scene["assumed"] if a.get("kind") == kind]
+
+
+def _detail(obj: dict):
+    """The design detail a scene object is (30 Oct 2026): its ``detail`` (a feature wall), else its ``assumed``
+    record's (a skirting run: ``assumed.detail`` ``skirting``)."""
+    return obj.get("detail") or ((obj.get("assumed") or {}).get("detail") if isinstance(obj.get("assumed"), dict)
+                                 else None)
+
+
+def _feature_walls(scene: dict, wall_details: list, rooms: dict) -> tuple[list, list, list]:
+    """``(built, expected, unrecorded)`` of the feature walls (30 Oct 2026; the 29 Oct room schemes,
+    ``wenart.furniture.room_schemes``, and ``wenart.blender.feature_walls``): the parents of the scene's feature wall
+    objects, the rooms whose build record has one (``feature_wall``, and ``dining_wall`` for a slat wall behind a dining
+    table: ``feature_wall_<room>_dining``) and the rooms whose scheme names a panel (``room_schemes.PANEL_FEATURES``)
+    with neither a feature wall nor a ``feature_wall_skipped`` reason. Derived from the records, never a list of rooms."""
+    from wenart.furniture import room_schemes as RS
+
+    built = sorted(o["parent"] for o in wall_details if _detail(o) == "feature_wall")
+    expected = sorted([rid for rid, r in rooms.items() if isinstance(r.get("feature_wall"), dict)]
+                      + [rid for rid, r in rooms.items() if isinstance(r.get("dining_wall"), dict)])
+    unrecorded = sorted(rid for rid, r in rooms.items()
+                        if isinstance(r.get("scheme"), dict) and r["scheme"].get("feature") in RS.PANEL_FEATURES
+                        and not isinstance(r.get("feature_wall"), dict) and not r.get("feature_wall_skipped"))
+    return built, expected, unrecorded
 
 
 def test_renders_are_milestone_6_renders(project):
@@ -167,7 +195,10 @@ def test_assumed_entries_of_the_design_details(project):
                   | {o["wenart_id"] for o in _furniture(scene) if o.get("type") in BED_TYPES and o.get("dressing")})
     counters = sorted(o["wenart_id"] for o in parametric if o.get("type") in COUNTER_TYPES)
     doors = sorted({o["wenart_id"] for o in scene["objects"] if o["kind"] == "door" and o["name"].endswith("_leaf")})
-    skirting = sorted(o["parent"] for o in scene["objects"] if o["kind"] == "wall" and o.get("parent"))
+    # 30 Oct 2026 (real04 run 20261029-201533-full: the 29 Oct room schemes' feature walls are wall details with a
+    # parent too, so "every wall detail is a skirting run" failed): each wall detail by its own record
+    wall_details = [o for o in scene["objects"] if o["kind"] == "wall" and o.get("parent")]
+    skirting = sorted(o["parent"] for o in wall_details if _detail(o) == "skirting")
     lights = sorted(o["parent"] for o in scene["objects"] if o["kind"] == "light" and o.get("parent")
                     and o["assumed"].get("w_per_m2") is not None and o["assumed"].get("window_floor_ratio") is not None)
     assert sorted(a["parent"] for a in _assumed(scene, "bedding")) == beds, name
@@ -181,6 +212,16 @@ def test_assumed_entries_of_the_design_details(project):
     building = json.loads(building_path.read_text(encoding="utf-8"))
     rooms = {r["id"]: r for r in building["rooms"]}
     assert all(rooms[p]["room_type"] not in NO_SKIRTING_TYPES for p in skirting), name
+    features, expected, unrecorded = _feature_walls(scene, wall_details, rooms)
+    assert features == expected, (name, "feature wall objects", features, "rooms whose build record has one", expected)
+    assert sorted(a["parent"] for a in _assumed(scene, "feature_wall")) == features, name
+    assert not unrecorded, (name, "rooms whose scheme names a panel with neither a feature wall nor the reason it was "
+                                  "skipped", unrecorded)
+    # every other wall detail (a new kind) is recorded in assumed under its own name with its parent
+    named = {(a.get("object"), a.get("parent")) for a in scene["assumed"]}
+    loose = [o["name"] for o in wall_details if _detail(o) not in ("skirting", "feature_wall")
+             and (o["name"], o["parent"]) not in named]
+    assert not loose, (name, "wall details without an assumed entry naming them and their parent", loose)
     ids = {e["id"] for key in ("walls", "openings", "rooms", "furniture") for e in building.get(key) or []}
     details = [o for o in scene["objects"] if o.get("parent")]
     assert not {o["name"] for o in details} & ids and not {o["wenart_id"] for o in details if o["kind"] == "wall"} & ids

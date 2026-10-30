@@ -249,6 +249,30 @@ real06's three bathrooms (tests/test_camsearch_views.py, tests/fixtures/camsearc
 On the committed synthetic-01 / synthetic-03 buildings: 29 -> 20 and 43 -> 39 views, views without an anchor in the
 frame 10 -> 0 and 16 -> 0, with a bare centre 3 -> 0 and 2 -> 0.
 
+30 Oct 2026 (real04 run 20261029-201533-full; GPU tests test_no_blocked_searched_view, near share 0.746, and
+test_passes_exist_and_depth_is_plausible, depth 0.066 m; Argus and the judge: a black frame): Argus moved
+cam_r_L1_banyo_1 to (5.72, 11.44, 4.40), a grid point of this search on the agent's building, which has no
+``ceiling_planes`` (only ``build.prepare`` sets them): the sloped attic ceiling is 1.04 m over the floor there and the
+lens 1.25 m, 0.21 m inside the roof. The camera validator checked the room, the pieces, the doors, the free floor and
+the eye height, never the ceiling or the frame; and the ray model let a lens over the ceiling see through it (a ray
+meets a plane only from below). What, every rule the search's own:
+- ``with_roof_ceilings(building)``: the top level's sloped ceiling and open roof terraces as the build makes them
+  (``roof.roof_model``, ``roof.ceiling_planes``, ``roof.terrace_decisions``) for a building without them; the search
+  helpers an agent reaches (``score_camera``, ``frame_lists``, ``poses_showing``, ``pose_problems``,
+  ``nearest_searched_pose``; ``exterior_checks.free_floor_problems``) read it;
+- ``RoomModel.cast``: a lens at or over its room's ceiling meets the ceiling at once (``OVER_CEILING_DEPTH_M``): blocked;
+- ``pose_problems(building, camera)``: inside its room, eye height (``POSE_EYE_RANGE_M``), ``HEADROOM_M`` over the
+  lens, a frame that is not blocked (unless every candidate of the room is), one of the room's anchors in the frame
+  when a free candidate frames one (``select_views``' rule);
+- ``nearest_searched_pose(building, camera, others)``: the room's candidate nearest to the refused pose (then the
+  smallest turn, then the score), free and anchored first, distinct from the room's other views.
+The agent's tool falls back to it (``tools.searched_fallback``), the build too (``build.check_agent_interior_plans``:
+an agent plan that fails takes the searched pose, ``policy: search``, ``agent_refused`` on file). On run 201533's
+cameras: cam_r_L1_banyo_1 moves 0.85 m to the bathroom's only point with headroom (a local CPU render: the frame
+shows the bathtub and the sloped ceiling, nearest surface 0.43 m, metered EV +0.5); four other agent views that framed
+none of their room's fixtures (cam_r_L-1_banyo_2, cam_r_L0_banyo_2, cam_r_L0_e_banyo_2, cam_r_L-1_koridor_2_1) turn or
+move 0.5 m to a searched pose that frames them; the 23 searched views keep their poses.
+
 CLI (inspection only; the build calls ``plan_level``): ``python -m
 wenart.blender.camsearch outputs/<p>/building_final.json --out cameras.json
 [--report cameras.md] [--level L0] [--lens-mm 18]``.
@@ -369,6 +393,10 @@ VIEW_ANCHOR_TYPES: dict[str, tuple[str, ...]] = {
 }
 SMALL_ROOM_M2 = 8.0                  # under this area a later view must show a piece of the set no earlier one does
 NO_ANCHOR_NOTE = "no candidate view shows one of the room's anchors inside the frame; the best view is kept"
+# 30 Oct 2026 (real04 run 201533; ``pose_problems``): the planar depth the model gives every ray of a lens at or over
+# its room's ceiling (inside the ceiling or the roof), under ``SCORE["blocked_min_depth"]``: such a view is blocked
+OVER_CEILING_DEPTH_M = 0.001
+POSE_EYE_RANGE_M = (1.2, 1.6)        # an interior lens above its room's floor (= exterior_checks.EYE_RANGE_M)
 
 # Height profiles of the pieces with a back (``piece_profile``): per type, the roles of the parametric parts
 # (``parametric.build_parts``) whose box is the low part (frame and mattress, seat, bowl and seat ring) and the
@@ -923,6 +951,134 @@ def piece_profile(piece: dict) -> list[tuple[float, float, float, float, float]]
     return boxes + [box(back, back=True)]
 
 
+BAND_GAP_M = 0.15     # parts of a made-to-measure piece this far apart in height are two boxes of the model
+
+
+def made_parts(piece: dict) -> Optional[list]:
+    """The parts a made-to-measure bath piece (``bath_parts.made_to_measure``: the wall-hung WC, the floating vanity,
+    the open column, the walk-in shower) is built from, in its frame as the build makes them (the fit's module plan,
+    else the parametric builder at the type height, seated on the wall: ``bath_parts.seat_on_walls``); None for any
+    other piece or a plan no builder reads."""
+    from wenart.blender import bath_parts as BT
+
+    if not BT.made_to_measure(piece):
+        return None
+    fp = piece.get("footprint") or {}
+    asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+    try:
+        if asset.get("method") == "module":
+            from wenart.blender import modules as MOD
+
+            plan = asset.get("module_plan") if isinstance(asset.get("module_plan"), dict) else \
+                MOD.plan_bath_made(piece)
+            return MOD.module_parts(plan) if plan else None
+        h, _ = proxy_height(piece["type"], piece.get("height"))
+        return P.build_parts(piece["type"], float(fp["size"][0]), float(fp["size"][1]), h, piece=piece)
+    except (KeyError, TypeError, ValueError, IndexError):
+        return None
+
+
+def made_boxes(piece: dict) -> Optional[list[tuple[float, float, float, float, float, float]]]:
+    """30 Oct 2026 (real04 run 20261029-201533-full, GPU test ``test_index_pass_contains_every_visible_proxy``): the
+    model's boxes ``(x0, y0, z0, x1, y1, z1)`` (its frame, z above its floor) of a made-to-measure bath piece: its
+    built parts (``made_parts``) in height bands, a new band where nothing is built over ``BAND_GAP_M``, each band
+    the box of its parts. The wall-hung WC is its pan (0.20-0.45 m) and its flush plate on the wall (0.98-1.14 m),
+    not the floor-standing WC's profile (a 0.94 m back slab from the floor, shrunk to the pan's width), whose air the
+    rays of three close bathroom views met while the frame held no pixel of the WC; the floating vanity floats.
+    None for any other piece (``piece_profile`` models it)."""
+    parts = made_parts(piece)
+    if not parts:
+        return None
+    boxes = sorted((P.parts_bbox([p]) for p in parts if p.get("verts")), key=lambda b: b[2])
+    bands: list[list[float]] = []
+    for x0, y0, z0, x1, y1, z1 in boxes:
+        if bands and z0 <= bands[-1][5] + BAND_GAP_M:
+            b = bands[-1]
+            bands[-1] = [min(b[0], x0), min(b[1], y0), b[2], max(b[3], x1), max(b[4], y1), max(b[5], z1)]
+        else:
+            bands.append([x0, y0, z0, x1, y1, z1])
+    return [tuple(float(v) for v in b) for b in bands] or None
+
+
+def boxes_extent(boxes) -> tuple[float, float, float, float, float, float]:
+    """The box ``(x0, y0, z0, x1, y1, z1)`` around ``(x0, y0, z0, x1, y1, z1)`` boxes."""
+    return (min(b[0] for b in boxes), min(b[1] for b in boxes), min(b[2] for b in boxes),
+            max(b[3] for b in boxes), max(b[4] for b in boxes), max(b[5] for b in boxes))
+
+
+def model_extent(piece: dict) -> tuple[float, float, float, float, float, float]:
+    """``(x0, y0, z0, x1, y1, z1)`` of a piece's model in its frame (z above its base, ``mount_bottom`` added by the
+    caller): the box of its ``made_boxes``, else ``piece_bbox`` centred on the footprint from the floor."""
+    made = made_boxes(piece)
+    if made:
+        return boxes_extent(made)
+    w, d, h, _ = piece_bbox(piece)
+    return (-w / 2.0, -d / 2.0, 0.0, w / 2.0, d / 2.0, h)
+
+
+def model_centre(piece: dict, floor_z: float) -> tuple[float, float, float]:
+    """The world centre of a piece's model (``model_extent``) over ``floor_z``: the point the frustum lists test."""
+    x0, y0, z0, x1, y1, z1 = model_extent(piece)
+    fp = piece["footprint"]
+    lx, ly = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+    r = math.radians(float(fp.get("rotation_deg") or 0.0))
+    c, s = math.cos(r), math.sin(r)
+    return (float(fp["center"][0]) + c * lx - s * ly, float(fp["center"][1]) + s * lx + c * ly,
+            floor_z + mount_bottom(piece) + (z0 + z1) / 2.0)
+
+
+def piece_with_outline(piece: dict, box3d: Optional[dict]) -> Optional[dict]:
+    """A copy of ``piece`` modelled as its built mesh (30 Oct 2026, pure): ``outline_m`` from the scene manifest's
+    ``box3d`` (its ``outline`` in the box frame about the box centre, turned into the piece frame about the footprint
+    centre; ``z`` the box's world z range), the shape ``outline_solid`` gives the model. None without an outline."""
+    box = box3d if isinstance(box3d, dict) else {}
+    if len(box.get("outline") or []) < 3 or not box.get("center") or not box.get("size"):
+        return None
+    fp = piece["footprint"]
+    rb = math.radians(float(box.get("rotation_deg") or 0.0))
+    rf = math.radians(float(fp.get("rotation_deg") or 0.0))
+    cb, sb, cf, sf = math.cos(rb), math.sin(rb), math.cos(rf), math.sin(rf)
+    bx, by = float(box["center"][0]), float(box["center"][1])
+    fx, fy = float(fp["center"][0]), float(fp["center"][1])
+    pts = []
+    for x, y in box["outline"]:
+        wx, wy = bx + cb * float(x) - sb * float(y) - fx, by + sb * float(x) + cb * float(y) - fy
+        pts.append([cf * wx + sf * wy, -sf * wx + cf * wy])
+    zc, h = float(box["center"][2]), float(box["size"][2])
+    return dict(piece, outline_m={"points": pts, "z": [zc - h / 2.0, zc + h / 2.0]})
+
+
+def outline_solid(piece: dict):
+    """``convex_parts_solid`` of a piece given as its built mesh's outline (30 Oct 2026; the GPU index-pass test sets
+    ``piece["outline_m"]`` from the scene manifest's ``box3d``: ``points``, the convex plan outline in the piece frame
+    about its footprint centre, counter-clockwise, and ``z``, the mesh's world z range): the prism of that outline, in
+    place of the fitted box. None for a piece without one (the model's boxes)."""
+    o = piece.get("outline_m")
+    if not isinstance(o, dict) or len(o.get("points") or []) < 3 or len(o.get("z") or []) != 2:
+        return None
+    fp = piece["footprint"]
+    r = math.radians(float(fp.get("rotation_deg") or 0.0))
+    c, s = math.cos(r), math.sin(r)
+    fx, fy = float(fp["center"][0]), float(fp["center"][1])
+    ring = []
+    for x, y in o["points"]:
+        p = (fx + c * float(x) - s * float(y), fy + s * float(x) + c * float(y))
+        if not ring or math.dist(p, ring[-1]) > 1e-6:
+            ring.append(p)
+    if len(ring) > 1 and math.dist(ring[0], ring[-1]) <= 1e-6:
+        ring.pop()
+    if len(ring) < 3 or abs(G.polygon_signed_area(ring)) < 1e-9:
+        return None
+    if G.polygon_signed_area(ring) < 0:
+        ring = ring[::-1]
+    z0, z1 = float(o["z"][0]), float(o["z"][1])
+    n = len(ring)
+    verts = [(x, y, z0) for x, y in ring] + [(x, y, z1) for x, y in ring]
+    faces = [list(range(n - 1, -1, -1)), list(range(n, 2 * n))]
+    faces += [[k, (k + 1) % n, n + (k + 1) % n, n + k] for k in range(n)]
+    return convex_parts_solid([{"verts": verts, "faces": faces}])
+
+
 def convex_parts_solid(parts, floor_z: float = 0.0):
     """``(lo, hi, planes)`` of convex parts (``parametric`` parts: ``verts``, ``faces`` wound outwards,
     z above the floor) for ``RoomModel``: the world bounding box (3-vectors, the floor added) and per part
@@ -1033,7 +1189,8 @@ class RoomModel:
         # Milestone 10: a room under the roof has a sloped ceiling, the lowest of these planes (z = a x + b y
         # + c; roof.ceiling_planes, set on the level by the builder).
         self.ceiling_planes = [tuple(float(v) for v in p) for p in self.level.get("ceiling_planes") or []]
-        if room.get("id") in set(self.level.get("open_rooms") or ()):
+        self.open_sky = room.get("id") in set(self.level.get("open_rooms") or ())
+        if self.open_sky:
             self.ceiling_planes = []          # fix round after P5: a roof terrace open to the sky has no slope
         levels_above = any(float(lv["elevation"]) > float(self.level["elevation"]) for lv in building["levels"])
         self.polygon = room_polygon(room)
@@ -1157,6 +1314,25 @@ class RoomModel:
             c, s = math.cos(rot), math.sin(rot)
             fx, fy = float(fp["center"][0]), float(fp["center"][1])
             base = self.floor_z + mount_bottom(f)                # a wall-hung piece hangs (Milestone 10)
+            solid = outline_solid(f)                             # 30 Oct 2026: a built mesh's outline (GPU test)
+            if solid is not None:
+                self.solids.append((code,) + solid)
+                lo, hi = solid[0], solid[1]
+                self.piece_corners[k] = box_corners((lo[0] + hi[0]) / 2.0, (lo[1] + hi[1]) / 2.0,
+                                                    hi[0] - lo[0], hi[1] - lo[1], lo[2], hi[2])
+                continue
+            made = made_boxes(f)                                 # 30 Oct 2026: a made-to-measure piece as built
+            if made:
+                ex = boxes_extent(made)
+                ecx, ecy = (ex[0] + ex[3]) / 2.0, (ex[1] + ex[4]) / 2.0
+                self.piece_corners[k] = box_corners(fx + c * ecx - s * ecy, fy + s * ecx + c * ecy, ex[3] - ex[0],
+                                                    ex[4] - ex[1], base + ex[2], base + ex[5],
+                                                    float(fp.get("rotation_deg") or 0.0))
+                for x0, y0, z0, x1, y1, z1 in made:
+                    lx, ly = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+                    self.boxes.append((code, fx + c * lx - s * ly, fy + s * lx + c * ly, base + (z0 + z1) / 2.0,
+                                       (x1 - x0) / 2.0, (y1 - y0) / 2.0, (z1 - z0) / 2.0, c, s))
+                continue
             bw, bd, btop, _ = piece_bbox(f)
             self.piece_corners[k] = box_corners(fx, fy, bw, bd, base, base + btop, float(fp.get("rotation_deg") or 0.0))
             for x0, y0, x1, y1, top in piece_profile(f):
@@ -1201,6 +1377,14 @@ class RoomModel:
         axes, bounds = yaw_axes(yaws), frame_bounds(lens_mm, shift_x, shift_y)
         return [self.piece_frames((x, y, z), *axes, bounds) for x, y in positions]
 
+    def ceiling_at(self, x: float, y: float) -> float:
+        """The room's ceiling z over ``(x, y)`` (pure): the level's flat ceiling, under the roof the lowest of its
+        ``ceiling_planes`` (the surface the model's rays meet)."""
+        z = self.ceil_z
+        for a, b, c in self.ceiling_planes:
+            z = min(z, a * float(x) + b * float(y) + c)
+        return z
+
     # ------------------------------------------------------------------
     def cast(self, origin, dirs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """``(labels int32, depth float)`` of rays from ``origin`` along ``dirs`` (N x 3 or ... x 3).
@@ -1224,6 +1408,13 @@ class RoomModel:
         depth = np.minimum(tf, tc)
         labels = np.where(tf <= tc, FLOOR, CEILING).astype(np.int32)
         labels[~np.isfinite(depth)] = NOTHING
+        if oz >= self.ceiling_at(ox, oy) - 1e-6:
+            # 30 Oct 2026 (real04 run 201533; ``pose_problems``): a lens at or over the room's ceiling stands inside
+            # the ceiling or the roof (Argus's cam_r_L1_banyo_1 0.21 m over the sloped attic ceiling: a black frame,
+            # depth 0.066 m); its rays met no ceiling plane from below, so the model saw the room as free. Every ray
+            # meets the ceiling at the lens: the view is blocked (``is_blocked``)
+            full = np.full(d.shape[0], OVER_CEILING_DEPTH_M)
+            return np.full(d.shape[0], CEILING, dtype=np.int32).reshape(shape), full.reshape(shape)
 
         for ax, ay, ex, ey, length, spans in self.edges:
             den = dx * ey - dy * ex
@@ -1265,7 +1456,26 @@ class RoomModel:
             t, hit = _cast_convex_parts((ox, oy, oz), d, lo, hi, parts, depth)
             depth = np.where(hit, t, depth)
             labels = np.where(hit, code, labels)
+        if self.above_ceiling((ox, oy, oz)):
+            # 30 Oct 2026 (real04 run 201533, cam_r_L1_banyo_1: an agent pose 0.21 m over the sloped ceiling rendered
+            # black, its plan listed the bathroom's three fixtures): a lens over its ceiling sees the ceiling's back
+            labels = np.full(labels.shape, CEILING, dtype=np.int32)
+            depth = np.full(depth.shape, LENS_CEILING_M)
         return labels.reshape(shape), depth.reshape(shape)
+
+    def ceiling_at(self, x: float, y: float) -> float:
+        """The room's ceiling height (world z) over the plan point ``(x, y)``: the lowest sloped plane, the flat one."""
+        z = self.ceil_z
+        for a, b, c in self.ceiling_planes:
+            z = min(z, a * float(x) + b * float(y) + c)
+        return z
+
+    def above_ceiling(self, p) -> bool:
+        """A lens at ``p`` stands over its room's ceiling or nearer it than ``LENS_CEILING_M`` (the interior views'
+        clip start: the render cuts the ceiling away there); never in a room open to the sky."""
+        if self.open_sky:
+            return False
+        return float(p[2]) > self.ceiling_at(p[0], p[1]) - LENS_CEILING_M
 
     # ------------------------------------------------------------------
     def piece_frames(self, origin, forward: np.ndarray, right: np.ndarray, up: np.ndarray,
@@ -1475,6 +1685,7 @@ def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, f
 
 
 HEADROOM_M = 0.30                    # Milestone 10: a camera stays this far under a sloped ceiling
+LENS_CEILING_M = 0.05                # 30 Oct 2026: a lens nearer its ceiling than this (the clip start) is over it
 
 
 def sloped_level(level: Optional[dict], room: dict) -> Optional[dict]:
@@ -1653,7 +1864,8 @@ def score_candidates(model: RoomModel, positions, height: float = CAMERA_HEIGHT,
 
 def score_camera(building: dict, camera: dict, grid=None) -> dict:
     """Model shares and score terms of any camera plan (M5 or searched; pitch, shift and lens as recorded, the
-    near distance of its lens)."""
+    near distance of its lens). 30 Oct 2026: on the building with its roof's ceilings (``with_roof_ceilings``)."""
+    building = with_roof_ceilings(building)
     room = next(r for r in building["rooms"] if r["id"] == camera["room_id"])
     model = RoomModel(room, building)
     grid = grid or SCORE["grid"]
@@ -1690,7 +1902,11 @@ def _frustum_lists(model: RoomModel, position, target, seen=None,
     M5 lists), and its pieces whose centre is inside it or that the model's rays see (``seen``:
     ``{element id: ray share}`` of this view, the ``elements`` of ``RoomModel.measure``). A long piece
     seen from the side (a 2.4 m stair filling half the frame) can have its centre outside the frame
-    (review dwgblender-2)."""
+    (review dwgblender-2). 30 Oct 2026 (real04 run 201533): a piece's centre is its model's (``model_centre``: a
+    made-to-measure piece's built parts, not the air between a wall-hung WC's pan and its flush plate), and a lens over
+    its room's ceiling (``RoomModel.above_ceiling``) lists nothing: it sees the ceiling's back."""
+    if model.above_ceiling(position):
+        return [], []
     tangents = geom2d.frustum_tangents(lens_mm, SENSOR_MM, RESOLUTION)
     fz = model.floor_z
     seen = seen or {}
@@ -1699,8 +1915,7 @@ def _frustum_lists(model: RoomModel, position, target, seen=None,
                                         shift_x=shift_x, shift_y=shift_y)]
     pieces = [f["id"] for f in model.pieces
               if seen.get(f["id"], 0.0) > 0.0
-              or geom2d.point_in_frustum((f["footprint"]["center"][0], f["footprint"]["center"][1],
-                                          fz + mount_bottom(f) + piece_bbox(f)[2] / 2.0), position, target, tangents,
+              or geom2d.point_in_frustum(model_centre(f, fz), position, target, tangents,
                                          shift_x=shift_x, shift_y=shift_y)]
     return opens, pieces
 
@@ -1711,6 +1926,7 @@ def frame_lists(building: dict, camera: dict) -> Optional[dict]:
     search records for its own plans, measured for any interior camera pose (an agent override): ``visible_openings``
     (in the frustum, or seen by the model's rays), ``visible_furniture``, ``anchors_in_frame``, ``set_in_frame``
     (``score_camera``'s ray model through the camera's lens and shift). None without its room or pose."""
+    building = with_roof_ceilings(building)          # 30 Oct 2026: the sloped ceiling the build makes
     room = next((r for r in building.get("rooms") or [] if r.get("id") == camera.get("room_id")), None)
     if room is None or not camera.get("position") or not camera.get("target"):
         return None
@@ -1829,7 +2045,10 @@ def poses_showing(room: dict, building: dict, show: Sequence[str], lens_mm: Opti
     its lens) that show the elements ``show`` (pieces, doors, windows), most of them first, then the most of them
     whole in the frame, then the search score; ``not_here`` the ids of ``show`` that are no element of the room.
     Each pose: ``position``, ``target``, ``lens_mm``, ``shows``, ``misses``, ``score`` (blocked candidates left out).
-    The AI names what a view must show; the code gives the coordinates."""
+    The AI names what a view must show; the code gives the coordinates. 30 Oct 2026: on the building with its roof's
+    ceilings (``with_roof_ceilings``), so no pose stands over a sloped ceiling."""
+    building = with_roof_ceilings(building)
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == room.get("id")), room)
     model = RoomModel(room, building)
     known = {e["id"] for e in model.elements}
     want = [str(i) for i in dict.fromkeys(show) if str(i) in known]
@@ -1856,6 +2075,198 @@ def poses_showing(room: dict, building: dict, show: Sequence[str], lens_mm: Opti
         out.append({"position": plan["position"], "target": plan["target"], "lens_mm": float(lens), "shows": shows,
                     "misses": [i for i in want if i not in shows], "score": plan["score"]["total"]})
     return out, not_here
+
+
+# --------------------------------------------------------------------------
+# 30 Oct 2026: the search's rules for any interior pose (an agent's, Argus's, a fallback)
+# --------------------------------------------------------------------------
+# real04 run 20261029-201533-full: Argus set cam_r_L1_banyo_1 to (5.72, 11.44, 4.40), a grid point of the search on the
+# agent's building, which carries no ``ceiling_planes`` (only ``build.prepare`` sets them): the sloped attic ceiling
+# is 1.04 m over the floor there, the lens 1.25 m: 0.21 m inside the roof. The validator checked the room, the
+# pieces, the doors, the free floor and the eye height, never the ceiling or what the frame holds; the render was black
+# (near share 0.746, depth 0.066 m, nothing to meter). ``pose_problems`` holds every pose an agent or Argus places to
+# the search's own rules on the building with its roof's ceilings, and ``nearest_searched_pose`` gives the pose to
+# fall back to.
+POSE_RULES = ("room", "eye", "headroom", "frame", "anchors")
+
+
+def with_roof_ceilings(building: dict) -> dict:
+    """``building`` with the sloped ceiling the build makes over its top level (pure; 30 Oct 2026): the level under a
+    convex roof gets ``ceiling_planes`` (``roof.ceiling_planes`` of ``roof.roof_model`` on the roof with the agent's
+    override, as ``build.prepare``) and ``open_rooms`` (the roof terraces the brief's ``roof_terraces`` cuts,
+    ``roof.terrace_decisions``). A building ``build.prepare`` made (a level with ``ceiling_planes`` or ``open_rooms``:
+    ``building_built.json``, the build's camera building), one without a roof or one whose roof model fails is
+    returned as it is. The agent's and the furniture stage's buildings carry no ceiling planes, so a camera check on
+    them saw a flat ceiling everywhere."""
+    levels = building.get("levels") or []
+    if not isinstance(building.get("roof"), dict) or \
+            any("ceiling_planes" in lv or "open_rooms" in lv for lv in levels):
+        return building
+    from wenart import views as V
+    from wenart.blender import roof as R
+
+    try:
+        roof, _changes = R.apply_override(building["roof"], R.override_of(building))
+        mode, _assumed = V.brief_value(building, None, "roof_terraces")
+        roof, _decisions, _warnings = R.terrace_decisions(roof, building, mode if mode in ("auto", "cut", "closed")
+                                                           else "auto")
+        model = R.roof_model(roof, building)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, IndexError):
+        return building
+    if not model or not model.get("convex") or not model.get("equations"):
+        return building
+    opened = {o["room_id"] for o in model.get("openings") or [] if o.get("room_id")}
+    out_levels = []
+    for lv in levels:
+        if lv.get("id") == model.get("over_level_id") and lv.get("ceiling_height") is not None:
+            lv = dict(lv, ceiling_planes=[list(p) for p in R.ceiling_planes(model, lv)],
+                      open_rooms=sorted(r["id"] for r in building.get("rooms") or []
+                                        if r.get("level_id") == lv["id"] and r["id"] in opened))
+        out_levels.append(lv)
+    return dict(building, levels=out_levels)
+
+
+def _pose_room(building: dict, camera: dict) -> tuple[Optional[dict], Optional[dict]]:
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == camera.get("room_id")), None)
+    if room is None:
+        return None, None
+    level = next((lv for lv in building.get("levels") or [] if lv.get("id") == room.get("level_id")), None)
+    return room, level
+
+
+def _problem(rule: str, message: str, **metrics) -> dict:
+    return dict({"rule": rule, "message": message}, **metrics)
+
+
+def searched_poses(room: dict, building: dict, lens_mm: Optional[float] = None, shift_y: float = 0.0) -> list[dict]:
+    """The room's search candidates as poses (30 Oct 2026; ``building`` with its roof's ceilings): every free point
+    (``candidate_positions``) at ``CAMERA_HEIGHT`` and every ``YAW_STEP_DEG`` yaw through the room's lens, scored as
+    the search scores them (``score_candidates``; ``shift_y``: 0 for an agent's fixed camera, which has no lens shift),
+    best first: ``{"position", "target", "lens_mm", "shift_y", "yaw", "score", "blocked", "anchored", "anchors_in",
+    "warning", "candidate"}`` (``warning``: the search's fallback warning of a room without a free point)."""
+    model = RoomModel(room, building)
+    if len(model.polygon) < 3:
+        return []
+    lens = float(lens_mm) if lens_mm else cameras.room_lens(room, None)[0]
+    positions, warning = candidate_positions(room, building)
+    out = []
+    for c in sorted(score_candidates(model, positions, lens_mm=lens, shift_y=shift_y), key=sort_key):
+        plan = _plan(model, 1, c, warning, lens)
+        out.append({"position": plan["position"], "target": plan["target"], "lens_mm": lens, "shift_y": float(shift_y),
+                    "yaw": float(c["yaw"]), "score": plan["score"]["total"], "blocked": bool(c["blocked"]),
+                    "anchored": c.get("anchored"), "anchors_in": list(c["shares"].get("anchors_in") or []),
+                    "warning": warning, "score_record": plan["score"], "candidate": c})
+    return out
+
+
+def pose_problems(building: dict, camera: dict, rules: Sequence[str] = POSE_RULES) -> list[dict]:
+    """Why an interior camera pose (``room_id``, ``position``, ``target``, optional ``lens_mm`` / ``shift_x`` /
+    ``shift_y``) fails the search's own rules (pure; 30 Oct 2026, module section above): ``[{"rule", "message",
+    ...metrics}]``, [] when it passes. On ``with_roof_ceilings(building)``:
+
+    - ``room``: its room is in the building and the lens stands inside the room's outline;
+    - ``eye``: the lens ``POSE_EYE_RANGE_M`` over the room's floor (the search: ``CAMERA_HEIGHT``);
+    - ``headroom``: at least ``HEADROOM_M`` of ceiling over the lens (a sloped attic ceiling: its lowest plane over the
+      lens; the search's ``headroom_ok``);
+    - ``frame``: the frame is not blocked by the search's rule (``is_blocked`` on ``score_camera``: near share over
+      0.30, one element over 0.50 of the rays, the nearest surface under 0.12 m; a lens over the ceiling meets it at
+      once) unless every candidate of the room's search is blocked too (a cramped room: the search keeps its best
+      blocked view, ``BLOCKED_WARNING``);
+    - ``anchors``: in a room with anchors (``view_set``: a bathroom's toilet, basin, shower, bathtub) one of them is in
+      the frame (``anchors_in``) when a free candidate of the room's search frames one (``select_views``'s rule).
+
+    ``rules`` picks the rules (the agent's validator leaves ``room`` and ``eye`` to ``exterior_checks.camera_problems``,
+    which has them)."""
+    building = with_roof_ceilings(building)
+    room, level = _pose_room(building, camera)
+    name = camera.get("name") or camera.get("view_id") or "the camera"
+    if room is None or level is None or len(room.get("polygon") or []) < 3:
+        return [_problem("room", f"{name}: its room {camera.get('room_id')} is not in the building")] \
+            if "room" in rules else []
+    out: list[dict] = []
+    x, y, z = (float(v) for v in camera["position"])
+    floor = float(level["elevation"]) + float(room.get("floor_offset_m") or 0.0)
+    if "room" in rules and not G.point_in_polygon((x, y), room_polygon(room)):
+        out.append(_problem("room", f"{name} stands outside its room {room['id']}"))
+    eye = z - floor
+    if "eye" in rules and not POSE_EYE_RANGE_M[0] - 1e-3 <= eye <= POSE_EYE_RANGE_M[1] + 1e-3:
+        out.append(_problem("eye", f"{name}: eye height {eye:.2f} m (wanted {POSE_EYE_RANGE_M[0]:g}-"
+                                   f"{POSE_EYE_RANGE_M[1]:g} m)", eye_m=round(eye, 3)))
+    model = RoomModel(room, building, level)
+    ceiling = model.ceiling_at(x, y)
+    if "headroom" in rules and ceiling - z < HEADROOM_M - 1e-9:
+        where = "the sloped ceiling" if model.ceiling_planes and ceiling < model.ceil_z - 1e-6 else "the ceiling"
+        inside = " (the lens is inside the ceiling or the roof)" if ceiling <= z else ""
+        out.append(_problem("headroom", f"{name}: {where} is {ceiling - floor:.2f} m over the floor at the lens "
+                                        f"({eye:.2f} m): {HEADROOM_M:g} m of headroom over the lens needed{inside}",
+                            ceiling_m=round(ceiling - floor, 3), eye_m=round(eye, 3)))
+    if not {"frame", "anchors"} & set(rules) or camera.get("target") is None:
+        return out
+    try:
+        m = score_camera(building, dict(camera, room_id=room["id"]))["shares"]
+    except (ValueError, ZeroDivisionError, FloatingPointError, IndexError, KeyError, StopIteration) as exc:
+        return out + [_problem("frame", f"{name}: its frame could not be measured ({type(exc).__name__}: {exc})")]
+    cands: Optional[list[dict]] = None
+
+    def search() -> list[dict]:
+        nonlocal cands
+        if cands is None:
+            cands = searched_poses(room, building, camera.get("lens_mm"), float(camera.get("shift_y") or 0.0))
+        return cands
+
+    if "frame" in rules and is_blocked(m) and any(not c["blocked"] for c in search()):
+        out.append(_problem("frame", f"{name}: its frame is blocked (near share {float(m['near']):.2f}, one element "
+                                     f"{float(m['max_single']):.2f} of the rays, nearest surface "
+                                     f"{float(m.get('min_depth', math.inf)):.3f} m; the search's limits "
+                                     f"{SCORE['blocked_near']:g}, {SCORE['blocked_single']:g}, "
+                                     f"{SCORE['blocked_min_depth']:g} m)",
+                            near=round(float(m["near"]), 4), max_single=round(float(m["max_single"]), 4),
+                            min_depth=round(float(m.get("min_depth", math.inf)), 4)))
+    if "anchors" in rules and model.anchor_ids and not m.get("anchors_in") and \
+            any(not c["blocked"] and c.get("anchored") for c in search()):
+        kinds = sorted({str(f.get("type")) for f in model.pieces if f["id"] in set(model.anchor_ids)})
+        out.append(_problem("anchors", f"{name}: none of the room's main pieces ({', '.join(kinds)}) is in its frame, "
+                                       f"while the room's camera search frames one", anchors=list(model.anchor_ids)))
+    return out
+
+
+def nearest_searched_pose(building: dict, camera: dict, others: Sequence[dict] = ()) -> Optional[dict]:
+    """The pose a refused interior pose falls back to (30 Oct 2026; ``searched_poses`` on the building with its roof's
+    ceilings): the candidate of the camera's room nearest to its position (then the smallest turn from its look, then
+    the search score) among those that pass ``pose_problems`` (free candidates first; one framing a room anchor when
+    any does) and show another view than ``others`` (the other views of the room, ``distinct_views``); None without a
+    candidate. The pose: ``position``, ``target``, ``lens_mm``, ``shift_y``, ``yaw``, ``score``, ``warning``,
+    ``moved_m``, ``turn_deg``."""
+    building = with_roof_ceilings(building)
+    room, _level = _pose_room(building, camera)
+    if room is None or not camera.get("position"):
+        return None
+    cands = searched_poses(room, building, camera.get("lens_mm"), float(camera.get("shift_y") or 0.0))
+    if not cands:
+        return None
+    free = [c for c in cands if not c["blocked"]] or cands
+    anchored = [c for c in free if c.get("anchored")]
+    pool = anchored or free
+    distinct = [c for c in pool if all(distinct_views(c, o) for o in others
+                                       if o.get("position") and o.get("target"))] or pool
+    px, py = float(camera["position"][0]), float(camera["position"][1])
+    look = None
+    if camera.get("target"):
+        dx, dy = float(camera["target"][0]) - px, float(camera["target"][1]) - py
+        look = math.degrees(math.atan2(dy, dx)) if math.hypot(dx, dy) > 1e-9 else None
+
+    def key(c):
+        moved = math.hypot(c["position"][0] - px, c["position"][1] - py)
+        turn = yaw_difference(c["yaw"], look) if look is not None else 0.0
+        return (round(moved, 3), round(turn, 3), -round(c["score"], SCORE_DECIMALS), c["position"][0],
+                c["position"][1], c["yaw"])
+
+    best = min(distinct, key=key)
+    out = {k: best[k] for k in ("position", "target", "lens_mm", "shift_y", "yaw", "score", "score_record",
+                                "warning")}
+    out["moved_m"] = round(math.hypot(best["position"][0] - px, best["position"][1] - py), 3)
+    out["turn_deg"] = round(yaw_difference(best["yaw"], look), 1) if look is not None else None
+    return out
 
 
 LENS_CLEARANCE_KINDS = ("furniture", "furniture_proxy", "decor")   # the scene manifest entries with ``box3d``

@@ -44,7 +44,7 @@ Rules for every project:
   ``GAP_MIN_M``-``GAP_MAX_M``, overlapping over ``FACE_SHARE`` of the smaller on the two others) and the joining: from
   the body of the largest part, every facing body moves rigidly to touch the one it faces, never lifting a body that
   stands on the floor and never into another body; the fit's width is kept by the build (``fit_vertices``).
-- ``review(manifest)``: model review M32 and Argus U36: every library soft seat as built wears a fabric (no flat
+- ``review(manifest)``: model review M33 and Argus U36: every library soft seat as built wears a fabric (no flat
   export colour left, ``flat_fabric``), keeps its parts joined (no facing gap wider than ``GAP_VISIBLE_M`` left,
   ``parts_apart``), keeps the file's smooth shading (``faceted``) and is no poor model (``poor_model``: a library gap).
   A model the user rejected is model review M21's (Argus U19).
@@ -282,7 +282,7 @@ GAP_MAX_M = 0.06                 # two parts farther apart are apart by design (
 FACE_SHARE = 0.5                 # facing: the boxes overlap over this share of the smaller one on both other axes
 FLOOR_TOL_M = 0.005              # a part whose bottom is this close to the model's bottom stands on the floor
 MAX_PARTS = 600                  # more loose parts (tufts, buttons, stitches): not joined (pairwise boxes, the cost)
-GAP_VISIBLE_M = 0.01             # M32: a facing gap left wider than this shows in a render (about 2 px at 4 m)
+GAP_VISIBLE_M = 0.01             # M33: a facing gap left wider than this shows in a render (about 2 px at 4 m)
 
 
 def face_parts(verts: Sequence, faces: Sequence, eps: float = MERGE_EPS_M) -> list[int]:
@@ -513,7 +513,7 @@ def join_parts(verts: Sequence, vert_part: Sequence[int], areas: dict[int, float
 
 
 # --------------------------------------------------------------------------
-# The check (model review M32, Argus U36)
+# The check (model review M33, Argus U36)
 # --------------------------------------------------------------------------
 
 FIX = {"flat_fabric": "rerun_stage build (furniture._dress_fabric: the flat upholstery slots of a library soft seat "
@@ -530,7 +530,7 @@ def _asset(o: dict) -> dict:
     return a if isinstance(a, dict) else {}
 
 
-def review(manifest: Optional[dict], check: str = "M32") -> tuple[list[dict], int]:
+def review(manifest: Optional[dict], check: str = "M33") -> tuple[list[dict], int]:
     """``(findings, checked)``: every library soft seat of the scene as built (module docstring). Each finding:
     ``{check, severity, target, room_id, message, problem, lesson, fix, metrics}``."""
     out: list[dict] = []

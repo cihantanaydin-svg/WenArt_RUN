@@ -75,6 +75,7 @@ import math
 from typing import Optional
 
 from wenart.blender import parametric as P
+from wenart.blender import towel_parts as TP
 
 Part = dict
 LESSON = "UL114"
@@ -174,6 +175,107 @@ def made_to_measure(piece: dict) -> Optional[str]:
 def finish_handle(piece: dict) -> Optional[str]:
     """The design handle of a piece's bathroom finish (``FINISH_HANDLE``), None without a bathroom look."""
     return FINISH_HANDLE.get(str(bath_look(piece).get("finish") or ""))
+
+
+# --------------------------------------------------------------------------
+# 30 Oct 2026 (real04 run 20261029-201533-full, GPU test test_index_pass_contains_every_visible_proxy): the back of a
+# made-to-measure piece on its wall's face. Drawn sanitary blocks reach a centimetre or two into the wall line
+# (real04: every WC 1.1-1.4 cm, real06: 2.0 cm) or stop short of it (a shower 2.2 cm, the columns 2 cm); the builders
+# put the back at the footprint's back edge, so every flush plate (8 mm, its buttons 2 mm proud) was inside the wall
+# and the close views of the WCs had no pixel of them. The parts move along the piece's depth onto the face of the
+# wall behind them (the room outline), at most ``WALL_SEAT_REACH_M`` either way; the footprint stays the drawn one.
+# --------------------------------------------------------------------------
+
+WALL_SEAT_REACH_M = 0.06          # a wall face this near the drawn back (in front of it or behind it) is its wall
+WALL_SEAT_PARALLEL_DEG = 3.0      # ... when it runs parallel to the back within this
+WALL_SEAT_MIN_M = 0.001           # a gap or an overlap under this needs no move
+
+
+def wall_gap(piece: dict, polygon) -> Optional[float]:
+    """Signed distance (m) from the drawn back edge of a piece (local +Y of its footprint rotation: the parts' wall
+    side) to the face of the wall behind it, the nearest outline segment of its room (``polygon``) parallel to the
+    back whose span holds the back's middle: positive for a gap (the face beyond the back), negative for a back
+    inside the wall; None when no such face lies within ``WALL_SEAT_REACH_M`` (pure)."""
+    fp = piece.get("footprint") or {}
+    if not fp.get("center") or not fp.get("size"):
+        return None
+    pts = [(float(p[0]), float(p[1])) for p in polygon or []]
+    if len(pts) > 1 and math.dist(pts[0], pts[-1]) < 1e-9:
+        pts = pts[:-1]
+    if len(pts) < 3:
+        return None
+    r = math.radians(float(fp.get("rotation_deg") or 0.0))
+    n = (-math.sin(r), math.cos(r))                       # local +Y: out of the back
+    half_d = float(fp["size"][1]) / 2.0
+    back = (float(fp["center"][0]) + n[0] * half_d, float(fp["center"][1]) + n[1] * half_d)
+    best = None
+    for k, a in enumerate(pts):
+        b = pts[(k + 1) % len(pts)]
+        length = math.dist(a, b)
+        if length < 1e-9:
+            continue
+        su = ((b[0] - a[0]) / length, (b[1] - a[1]) / length)
+        if abs(su[0] * n[0] + su[1] * n[1]) > math.sin(math.radians(WALL_SEAT_PARALLEL_DEG)):
+            continue                                       # not parallel to the back
+        den = n[0] * -su[1] + n[1] * su[0]
+        t = ((a[0] - back[0]) * -su[1] + (a[1] - back[1]) * su[0]) / den     # back + t n lies on the face's line
+        along = (back[0] + t * n[0] - a[0]) * su[0] + (back[1] + t * n[1] - a[1]) * su[1]
+        if along < -0.02 or along > length + 0.02 or abs(t) > WALL_SEAT_REACH_M + 1e-9:
+            continue
+        if best is None or abs(t) < abs(best):
+            best = t
+    return None if best is None else round(best, 4)
+
+
+def seat_shift(look: Optional[dict]) -> float:
+    """How far (m, along the piece's local +Y) the parts of a made-to-measure piece move onto their wall's face: the
+    look's ``wall_gap_m`` (``seat_on_walls``), within ``WALL_SEAT_REACH_M``; 0 without one or under
+    ``WALL_SEAT_MIN_M``."""
+    v = (look or {}).get("wall_gap_m") if isinstance(look, dict) else None
+    if not isinstance(v, (int, float)) or isinstance(v, bool) or not math.isfinite(float(v)):
+        return 0.0
+    v = max(-WALL_SEAT_REACH_M, min(WALL_SEAT_REACH_M, float(v)))
+    return 0.0 if abs(v) < WALL_SEAT_MIN_M else v
+
+
+def seat_parts(parts: list[Part], look: Optional[dict]) -> list[Part]:
+    """``parts`` (a piece frame, the wall at +Y) moved by ``seat_shift(look)`` along Y: the back on the wall's face."""
+    dy = seat_shift(look)
+    if not dy:
+        return parts
+    return [dict(p, verts=[(x, y + dy, z) for x, y, z in p["verts"]]) for p in parts]
+
+
+def seat_on_walls(building: dict) -> list[dict]:
+    """In place (pure, idempotent): ``bath_look["wall_gap_m"]`` of every made-to-measure piece (``made_to_measure``)
+    whose drawn back has a wall face within ``WALL_SEAT_REACH_M`` (``wall_gap`` against its room's outline), also on
+    the fit's module plan copy of the look (``asset.module_plan.bath_look``: the vanity's and the shower's builder
+    reads it); a piece without such a wall loses a stale value. Returns a record per piece whose parts move
+    (``id``, ``gap_m``, ``reason``)."""
+    rooms = {r.get("id"): r for r in building.get("rooms") or []}
+    out = []
+    for f in building.get("furniture") or []:
+        if f.get("build") is False or not made_to_measure(f):
+            continue
+        room = rooms.get(f.get("room_id"))
+        gap = wall_gap(f, (room or {}).get("polygon"))
+        looks = [f["bath_look"]]
+        plan = (f.get("asset") or {}).get("module_plan") if isinstance(f.get("asset"), dict) else None
+        if isinstance(plan, dict) and isinstance(plan.get("bath_look"), dict):
+            looks.append(plan["bath_look"])
+        for look in looks:
+            if gap is None:
+                look.pop("wall_gap_m", None)
+            else:
+                look["wall_gap_m"] = gap
+        if gap is not None and abs(gap) >= WALL_SEAT_MIN_M:
+            where = (f"stands {gap * 100:.1f} cm off the wall" if gap > 0
+                     else f"reaches {-gap * 100:.1f} cm into the wall")
+            out.append({"id": f.get("id"), "gap_m": gap,
+                        "reason": f"the drawn {f.get('type')} {where}: its made-to-measure parts (the WC's pan and "
+                                  "flush plate, a vanity's back, the shower's fittings) are built on the wall's face; "
+                                  "the drawn footprint stays"})
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -316,9 +418,10 @@ def _bottle(cx: float, cy: float, z0: float, r: float, h: float, key: str, cap_k
     return parts
 
 
-def _towel_roll(x: float, y: float, z0: float, r: float, length: float, key: str = "towel") -> Part:
-    """A rolled towel lying with its axis along the depth (Y), on ``z0``."""
-    return P._cylinder_y(x, y - length / 2.0, z0 + r, r, r, length, key, "towel", n=14)
+def _towel_roll(x: float, y: float, z0: float, r: float, length: float, key: str = "towel", seed: int = 0) -> Part:
+    """A rolled towel lying with its axis along the depth (Y), on ``z0``: its spiral end, rounded edges and the cloth's
+    thickness (30 Oct 2026, lesson UL138: ``towel_parts.rolled_towel``, no faceted cylinder)."""
+    return TP.rolled_towel(x, y, z0, r, length, key, "y", seed)
 
 
 def _stems(cx: float, cy: float, z0: float, vase_r: float, vase_h: float, height: float) -> list[Part]:
@@ -502,10 +605,11 @@ def _shelf_styling(w: float, d: float, z0: float, z1: float, x0: Optional[float]
     x = x0 + r + 0.01
     rolls = 2 if inner >= 4 * r + 0.16 else 1
     for k in range(rolls):
-        parts.append(_towel_roll(x + k * 2 * r, -0.005, z0, r, length))
+        parts.append(_towel_roll(x + k * 2 * r, -0.005, z0, r, length, seed=k))
         items.append("rolled towel")
     if rolls == 2 and z1 - z0 >= r * (2.0 + math.sqrt(3.0)) + 0.005:
-        parts.append(_towel_roll(x + r, -0.005, z0 + r * math.sqrt(3.0), r, length))
+        # UL138: the top of the pyramid in the stack's second shade
+        parts.append(_towel_roll(x + r, -0.005, z0 + r * math.sqrt(3.0), r, length, TP.alt_key("towel"), seed=2))
         items.append("rolled towel")
     jx = x1 - 0.045
     for k, jh in enumerate((min(0.10, z1 - z0 - 0.03), min(0.075, z1 - z0 - 0.03))):
@@ -791,8 +895,9 @@ def _cubby_items(style: str, iw: float, idp: float, z0: float, ch: float) -> lis
     if style == "towels":
         r = min(0.05, h / 2.2, iw / 4.6)
         length = max(0.12, min(0.28, idp - 0.04))
-        for k in (-1.0, 1.0):
-            parts.append(_towel_roll(k * (r + 0.004), 0.0, z0, r, length))
+        for k in (-1.0, 1.0):                       # UL138: a pair in the towel colour and its second shade
+            parts.append(_towel_roll(k * (r + 0.004), 0.0, z0, r, length, "towel" if k < 0 else TP.alt_key("towel"),
+                                     seed=int(k + 1)))
     elif style == "pump_bottles":
         r = min(0.03, iw / 7.5)
         for k, key in zip((-1.0, 0.0, 1.0), ("terracotta", "dark", "ceramic")):
@@ -833,8 +938,8 @@ def _cubby_items(style: str, iw: float, idp: float, z0: float, ch: float) -> lis
             parts.append(P._cylinder_z(px, 0.0, z0 + ph, bw * 0.25, bw * 0.25, 0.025, "handle", "cap", n=10))
     elif style == "folded_towels":
         tw, td = min(0.30, iw - 0.03), min(0.25, idp - 0.04)
-        for k in range(min(3, max(1, int(h / 0.046)))):
-            parts.append(P._box(0.0, 0.0, z0 + k * 0.045, tw, td, 0.043, "towel", "towel"))
+        # UL138: folded towels with their soft front folds and layers, a little uneven, two shades
+        parts += TP.folded_stack(0.0, 0.0, z0, tw, td, 0.043, min(3, max(1, int(h / 0.046))), "towel")
     return parts
 
 
@@ -948,8 +1053,8 @@ def walk_in_shower_parts(w: float, d: float, h: float) -> list[Part]:
         parts += [P._cylinder_x(bx - 0.18, back - 0.05, TOWEL_BAR_Z_M, 0.009, 0.009, 0.36, "handle", "towel_bar",
                                 n=10),
                   P._cylinder_y(bx - 0.17, back - 0.05, TOWEL_BAR_Z_M, 0.007, 0.007, 0.05, "handle", "bracket", n=8),
-                  P._cylinder_y(bx + 0.17, back - 0.05, TOWEL_BAR_Z_M, 0.007, 0.007, 0.05, "handle", "bracket", n=8),
-                  P._box(bx, back - 0.05 - 0.016, TOWEL_BAR_Z_M - 0.40, 0.30, 0.006, 0.40, "towel", "towel")]
+                  P._cylinder_y(bx + 0.17, back - 0.05, TOWEL_BAR_Z_M, 0.007, 0.007, 0.05, "handle", "bracket", n=8)]
+        parts += TP.draped_towel(bx, back - 0.05, TOWEL_BAR_Z_M, 0.009, 0.30, 0.40, "towel")    # UL138
     return parts
 
 
@@ -1033,10 +1138,7 @@ def towel_rail_parts(w: float, d: float, h: float) -> list[Part]:
     zb = 0.05 + (n_bars - 3) * (h - 0.10) / (n_bars - 1)
     tw = min(0.40, w - 0.10)
     drop = min(0.45, zb - 0.05)
-    parts += [P._box(0.0, y - r_bar - 0.006, zb - drop, tw, 0.008, drop, "colour_towel", "towel"),
-              P._box(0.0, y + r_bar + 0.004, zb - drop * 0.8, tw, 0.006, drop * 0.8, "colour_towel", "towel"),
-              P._box(0.0, y, zb + r_bar, tw, 2 * r_bar + 0.016, 0.008, "colour_towel", "towel")]
-    return parts
+    return parts + TP.draped_towel(0.0, y, zb, r_bar, tw, drop, "colour_towel", seed=3)     # UL138
 
 
 def towel_shelf_parts(w: float, d: float, h: float) -> list[Part]:
@@ -1058,14 +1160,12 @@ def towel_shelf_parts(w: float, d: float, h: float) -> list[Part]:
                                    "arm", n=8))
     tw = min(0.40, w - 0.12)
     drop = rz
-    parts += [P._box(0.0, ry - 0.012, rz - drop, tw, 0.006, drop, "colour_towel", "towel"),
-              P._box(0.0, ry + 0.012, rz - drop * 0.8, tw, 0.006, drop * 0.8, "colour_towel", "towel"),
-              P._box(0.0, ry, rz + 0.008, tw, 0.03, 0.006, "colour_towel", "towel")]
+    parts += TP.draped_towel(0.0, ry, rz, 0.008, tw, drop, "colour_towel", seed=4)          # UL138
     top = zb + bt
     r = min(0.045, (d - 0.05) / 4.0, items_h / 2.0)
-    for k in range(2):
+    for k in range(2):                              # UL138: a pair of rolls, the second in the second shade
         parts.append(_towel_roll(-w / 2.0 + 0.07 + k * (2 * r + 0.004), 0.0, top, r, min(0.22, d - 0.03),
-                                 "colour_towel"))
+                                 "colour_towel" if k == 0 else TP.alt_key("colour_towel"), seed=5 + k))
     jh = max(0.02, min(0.09, items_h - 0.016))
     parts.append(P._cylinder_z(w / 2.0 - 0.07, 0.0, top, 0.035, 0.035, jh, "glass", "jar", n=14))
     parts.append(P._cylinder_z(w / 2.0 - 0.07, 0.0, top + jh, 0.036, 0.036, min(0.015, h - top - jh), "wood", "lid",
@@ -1101,9 +1201,7 @@ def towel_bar_parts(w: float, d: float, h: float) -> list[Part]:
                                    "rosette", n=12))
     tw = min(0.45, w - 0.12)
     drop = z                                       # the towel hangs down to the box's bottom
-    return parts + [P._box(0.0, y - 0.016, z - drop, tw, 0.006, drop, "colour_towel", "towel"),
-                    P._box(0.0, y + 0.014, z - drop * 0.75, tw, 0.006, drop * 0.75, "colour_towel", "towel"),
-                    P._box(0.0, y, z + 0.009, tw, 0.036, 0.006, "colour_towel", "towel")]
+    return parts + TP.draped_towel(0.0, y, z, 0.009, tw, drop, "colour_towel", back_share=0.75, seed=6)   # UL138
 
 
 def round_mirror_parts(w: float, d: float, h: float) -> list[Part]:

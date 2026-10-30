@@ -1280,7 +1280,7 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
             for key in AUDIT_ASSET_FIELDS:                      # Milestone 12: the audit and its dressing flags
                 if key in entry:
                     asset[key] = entry[key]
-            if ftype in SS.SOFT_SEAT_TYPES:                     # 30 Oct 2026 (UL131): the build and M32 read it
+            if ftype in SS.SOFT_SEAT_TYPES:                     # 30 Oct 2026 (UL131): the build and M33 read it
                 asset["upholstery"] = {k: v for k, v in SS.grade(entry).items() if k != "steps"}
             if piece["type"] in C.BED_TYPES and not C.has_mattress(entry) and is_bed_frame(entry):
                 asset.update(bed_frame_record(entry, width, depth, scales[2]))

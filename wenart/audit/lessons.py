@@ -83,6 +83,10 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   of the scene (``wall_plates.review``, the model review's M25 rule): a room with doors and no light switch at any of
   them, a bed with no socket beside it, a kitchen with no socket over its worktop, a plate on glass, inside an opening
   or behind a piece standing against its wall.
+- U35 (UL134, UL139, 30 Oct 2026: "These things in front of a window needs fixing", "need to move the picture, TV
+  hiding the picture not making sense") a wall item over an opening of its wall (with its frame and a margin), over
+  another wall item, or behind a piece in front of its wall whose top reaches over its bottom (a TV on its unit), and a
+  hung piece over an opening (``wenart.blender.wall_items.review``, the model review's M32). Kind ``no_sense``.
 - U34 (UL121, 29 Oct 2026: "look how realistic the bed is looking full and nice I want this much detail in our
   models") a bed missing its style family's bedding (``wenart.blender.bedding_parts.review``, the model review's M30):
   fewer pillows than the family's set (shams, sleeping pillows, accent cushions, a lumbar), a free side whose duvet
@@ -90,9 +94,12 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   no throw, a throw without its woven pattern or its fringe. Kind ``taste``.
 - U36 (UL131, UL140, 30 Oct 2026: "I did not like these sofa models", "I like this sofa but it needs more details,
   also the gaps need a rework") a library soft seat as built (``wenart.blender.soft_seats.review``, the model review's
-  M32): in flat export colours (no fabric weave), with its parts apart, faceted (the file's smooth shading lost) or a
+  M33): in flat export colours (no fabric weave), with its parts apart, faceted (the file's smooth shading lost) or a
   poor model (a 256 px texture, flat, double-sided and coarse: the best that fitted). Kind ``taste`` (parts apart:
   ``detached``). A model the user rejected is U19's.
+  no throw, a throw without its woven pattern or its fringe. Kind ``taste``. 30 Oct 2026 (UL136 "I did not like this
+  bed", UL137 "head section of this bed needs a rework", UL146 the P14 bed): a lumpy duvet or blanket, a wavy hem
+  (``bedding_parts.cover_smoothness`` as built), a gap between the mattress and the headboard left open.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -958,6 +965,14 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
             checked["U36"] = len(got)
         except Exception as exc:  # noqa: BLE001
             checked["U36"] = f"failed: {type(exc).__name__}: {exc}"[:200]
+    # 30 Oct 2026 (UL134, UL139): every wall item clear of its wall's openings, the other wall items and what stands in
+    # front of it (on the building as built)
+    try:
+        got = wall_items_clear(building, manifest)
+        findings += got
+        checked["U35"] = len(got)
+    except Exception as exc:  # noqa: BLE001
+        checked["U35"] = f"failed: {type(exc).__name__}: {exc}"[:200]
     return {"findings": findings, "checked": checked}
 
 
@@ -981,7 +996,35 @@ def bed_realism(building: dict, manifest: Optional[dict] = None) -> list[dict]:
                problem=g["problem"], family=g.get("family"), room=g.get("room_id")) for g in got]
 
 
-CHECK_LESSONS["U34"] = ("UL121",)        # 29 Oct 2026: a full, realistic bed (bedding_parts.review)
+# 29 Oct 2026: a full, realistic bed (bedding_parts.review); 30 Oct 2026: a real made bed (UL136: a lumpy duvet, a
+# wavy hem; UL137: the head's gap left open; UL146: the P14 layers' blanket)
+CHECK_LESSONS["U34"] = ("UL121", "UL136", "UL137", "UL146")
+
+
+WALL_ITEM_FIXES = {
+    "opening": "rerun_stage build (wall_items.resolve: the item moves along its wall or to another free wall, else it "
+               "is left out; the decor stage runs it too)",
+    "overlap": "rerun_stage build (wall_items.resolve: the later item moves off the other one)",
+    "covered": "rerun_stage build (wall_items.resolve: the item is raised 0.15-0.25 m over what stands in front of its "
+               "wall, else moved, else left out)"}
+
+
+def wall_items_clear(building: dict, manifest: Optional[dict] = None) -> list[dict]:
+    """U35 (30 Oct 2026, lessons UL134 "These things in front of a window needs fixing" and UL139 "need to move the
+    picture, TV hiding the picture not making sense"): ``wall_items.review`` (the same rule as the model review's M32):
+    a wall item over a door, a window or a frame of its wall, over another wall item, or behind a piece standing in
+    front of its wall whose top (a TV on its unit included) reaches over its bottom; a hung piece of the drawing over
+    an opening. The fix names the pass that raises, moves or leaves out the item."""
+    from wenart.blender import wall_items as WI
+
+    got, _n = WI.review(building, check="U35")
+    return [_f("U35", g["severity"], g["target"], g["message"], g["lesson"],
+               WALL_ITEM_FIXES.get(g["kind"], "rerun_stage build (wall_items.resolve)") if g.get("source") == "decor"
+               else "the layout stage or the architect: a hung piece of the drawing over an opening",
+               problem=g["kind"], other=g.get("other"), room=g.get("room_id")) for g in got]
+
+
+CHECK_LESSONS["U35"] = ("UL134", "UL139")     # 30 Oct 2026: wall items clear of openings, each other, what stands below
 
 
 def kitchen_details(building: dict, manifest: Optional[dict] = None) -> list[dict]:
@@ -1007,7 +1050,7 @@ CHECK_LESSONS["U31"] = ("UL115", "UL118")     # 29 Oct 2026: the kitchen details
 def soft_seats(building: Optional[dict], manifest: Optional[dict]) -> list[dict]:
     """U36 (30 Oct 2026, lessons UL131 "I did not like these sofa models" and UL140 "I like this sofa but it needs
     more details, also the gaps need a rework"): ``soft_seats.review`` on the scene (the same rule as the model
-    review's M32): a library soft seat in flat export colours, with its parts apart, faceted or a poor model; the fix
+    review's M33): a library soft seat in flat export colours, with its parts apart, faceted or a poor model; the fix
     names the build's step or the swap."""
     from wenart.blender import soft_seats as SS
 

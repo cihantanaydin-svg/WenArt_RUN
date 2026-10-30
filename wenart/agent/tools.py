@@ -247,6 +247,14 @@ Fix round after P6b (23 Oct 2026): an edit's ``acceptance`` record carries the d
 (``acceptance_record``: ``fitted`` ``{"overlaid", "refit"}``, at most 8 refit ids), so the log shows whether a piece
 was fitted for the dry re-check (P6b's 219 edit events had no such record; ``loop.ACCEPTANCE_LOG_KEYS``).
 
+30 Oct 2026 (real04 run 20261029-201533-full: Argus set cam_r_L1_banyo_1 0.21 m over the sloped attic ceiling; the
+render was black, depth 0.066 m): an interior ``set_camera`` / ``add_camera`` pose is held to the camera search's own
+rules (``exterior_checks.validate_camera_override`` with ``camsearch.pose_problems`` on the building with its roof's
+ceilings: headroom, a frame that is not blocked, the room's main pieces in the frame), and a pose refused for its pose
+alone falls back to the nearest searched pose of its room (``searched_fallback``: the result's ``fallback`` and message
+say so, the stored reason too); a refused pose whose nearest searched pose is the view's pose now is a no-op with both
+reasons.
+
 26 Oct 2026 (Argus P10; real06 round 4): ``target_findings`` also reads the finding ids the edit's reason names
 (``reason_findings``: a finding whose cause the tool fixes; a vision finding only on what the edit changes), after the
 checklist step and before the finding on the edit's target: the model names the finding the refusal "an edit must
@@ -2401,6 +2409,50 @@ def show_pose(ctx: ToolContext, args: dict, entry: dict) -> tuple[Optional[dict]
                   f"camera checks: " + "; ".join(failed[:3])]
 
 
+SEARCHED_FALLBACK_NOTE = ("the pose given is refused by the camera search's own rules ({why}); the nearest searched "
+                          "pose of {room} is used instead, moved {moved:.2f} m and turned {turn} degrees")
+
+
+def searched_fallback(ctx: ToolContext, args: dict, entry: dict) -> tuple[dict, Optional[dict]]:
+    """30 Oct 2026 (real04 run 20261029-201533-full: Argus moved cam_r_L1_banyo_1 to a grid point of the search on the
+    agent's building, which has no ceiling planes, 0.21 m over the sloped attic ceiling; the camera validator took it
+    and the render was black): ``(entry, fallback)``. An interior ``set`` / ``add`` pose the camera validator refuses
+    for its pose alone (``pose_failed``: the room, a piece, a door, the free floor, the eye height, and the search's
+    rules ``camsearch.pose_problems``: headroom, a blocked frame, the room's main pieces out of the frame) falls back
+    to the nearest searched pose of its room (``camsearch.nearest_searched_pose``: distinct from the room's other views
+    the next build makes, ``interior_poses``) when the validator takes that one; the entry's reason says so and
+    ``fallback`` records ``{"from", "refused", "to", "moved_m", "turn_deg", "note"}``. Any other entry, or one without such a
+    pose, is returned as it is with None (the validator then refuses it with its reasons)."""
+    from wenart.blender import camsearch as CSR
+
+    cam = ctx.camera(args["view_id"]) or {}
+    kind = entry.get("kind") or cam.get("kind") or ("interior" if entry.get("room_id") or cam.get("room_id")
+                                                    else None)
+    if kind != "interior" or not entry.get("position") or not entry.get("target"):
+        return entry, None
+    trial = dict(entry, kind="interior", room_id=entry.get("room_id") or cam.get("room_id"))
+    verdict = dict(ctx.checks().validate_camera_override(ctx.building, trial) or {})
+    pose = list(verdict.get("pose_failed") or [])
+    if verdict.get("ok") or not pose or len(pose) != len(verdict.get("failed") or []):
+        return entry, None
+    others = [p for n, p in interior_poses(ctx, trial["room_id"]).items() if n != str(args["view_id"])]
+    try:
+        best = CSR.nearest_searched_pose(ctx.building, trial, others)
+    except (ValueError, ZeroDivisionError, FloatingPointError, IndexError, KeyError, StopIteration):
+        return entry, None
+    if best is None:
+        return entry, None
+    out = dict(trial, position=best["position"], target=best["target"], lens_mm=best["lens_mm"])
+    if not (ctx.checks().validate_camera_override(ctx.building, out) or {}).get("ok"):
+        return entry, None
+    note = SEARCHED_FALLBACK_NOTE.format(why="; ".join(pose[:2]), room=trial["room_id"], moved=best["moved_m"],
+                                         turn="?" if best.get("turn_deg") is None else f"{best['turn_deg']:.0f}")
+    out["reason"] = f"{entry.get('reason') or ''} ({note})".strip()
+    return out, {"from": {k: entry.get(k) for k in ("position", "target", "lens_mm")}, "refused": pose,
+                 "to": {k: best[k] for k in ("position", "target", "lens_mm")}, "moved_m": best["moved_m"],
+                 "turn_deg": best.get("turn_deg"), "note": note}
+
+
 def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
     action = OV.CAMERA_TOOLS[tool]
 
@@ -2417,6 +2469,10 @@ def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
                 out = _result(False, failed, tool=tool, message="refused: no camera point shows these elements")
                 ctx.rejected.append({"tool": tool, "args": args, "result": out})
                 return out
+        fallback = None
+        if action in ("set", "add") and not CS.frozen_camera(ctx.camera(args["view_id"])):
+            # 30 Oct 2026: a pose the search's rules refuse falls back to the nearest searched pose of the room
+            entry, fallback = searched_fallback(ctx, args, entry)
         # fix round after P4b, decision 1: the replayed set 1 is frozen; decision 2: a view keeps its role
         refusal = None
         if CS.frozen_camera(ctx.camera(args["view_id"])):
@@ -2441,11 +2497,14 @@ def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
             # fix round after P4a: a pose the view has already is a no-op with the reason (module docstring)
             pose, where = camera_pose_now(ctx, args["view_id"])
             if same_pose(entry, pose):
-                out = _result(False, [f"no_change: {args['view_id']} has this pose already ({where}): position "
-                                      f"{entry.get('position')}, target {entry.get('target')}"
-                                      + (f", lens {entry.get('lens_mm')} mm" if entry.get("lens_mm") is not None
-                                         else "") + "; nothing to change"],
-                              message="no-op: a camera override that changes nothing", tool=tool, no_op=True)
+                out = _result(False, ([f"refused pose: {'; '.join(fallback['refused'][:2])}; the nearest searched "
+                                       f"pose is the one the view has"] if fallback else [])
+                              + [f"no_change: {args['view_id']} has this pose already ({where}): position "
+                                 f"{entry.get('position')}, target {entry.get('target')}"
+                                 + (f", lens {entry.get('lens_mm')} mm" if entry.get("lens_mm") is not None
+                                    else "") + "; nothing to change"],
+                              message="no-op: a camera override that changes nothing", tool=tool, no_op=True,
+                              fallback=fallback)
                 ctx.rejected.append({"tool": tool, "args": args, "result": out})
                 return out
         if action == "remove":
@@ -2460,8 +2519,13 @@ def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
             if not verdict.get("ok") and entry.get("kind") == "exterior":
                 verdict["failed"] = eye_height_hint(ctx, entry, list(verdict.get("failed") or []))
                 verdict["failed"] = free_strip_hint(ctx, entry, verdict["failed"])     # fix round after P5
+            if verdict.get("ok") and fallback:                  # 30 Oct 2026: the tool moved the pose itself
+                verdict["message"] = "fallback: " + fallback["note"]
             return verdict
-        return _validator_result(ctx, tool, stored, check, "build")
+        out = _validator_result(ctx, tool, stored, check, "build")
+        if fallback:
+            out["fallback"] = fallback
+        return out
     return handler
 
 

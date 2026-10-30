@@ -25,6 +25,11 @@ see-through doors, or an open run, in front of real contents), keeping the fitte
 - The contents (``modules.see_through_parts``): a hanging rail with garments (shirts, jackets, coats, dresses, knits:
   simple cloth shapes on hangers, varied colours of the muted ``GARMENT_COLOURS``), folded stacks on shelves, drawers
   or shoe racks, an LED strip under the top; the garments of one wardrobe are part of its one mesh.
+- 30 Oct 2026 (lesson UL135, user on real04's black slatted run f_L0_023: "I like this but the clothes inside needs
+  more detail"): the contents are ``wardrobe_contents``' (garments with shoulders, sleeves and collars on wooden
+  hangers, trousers over the bar, woven fabrics, folded stacks with their fold edges, shoes, lidded boxes and rattan
+  baskets, a light in every bay), in the room's palette (``garment_palette``: the family's ``FAMILY_GARMENTS`` with the
+  room scheme's colour, recorded in ``see_through.palette``); the slats stay as they are.
 - ``walk_in_extras(building, room)``: a bench (else a pouf) on a free wall where the walkway allows (``WALKWAY_M`` free
   in front of it, clear of the wardrobes' ``ACCESS_M`` and the doors' approaches and leaves), and a full-height mirror
   on a free wall stretch (``MIRROR_M``), each recorded with its reason or why it does not fit.
@@ -63,6 +68,42 @@ OPENING_MARGIN_M = 0.10
 # muted garment colours (wenart/style/colours.py names), cycled by the wardrobe's own seed
 GARMENT_COLOURS: tuple[str, ...] = ("white", "light grey", "navy", "charcoal", "beige", "sky blue", "sage", "camel",
                                     "taupe", "off white", "dusty blue", "olive", "black", "greige")
+
+
+# 30 Oct 2026 (UL135): the wardrobe's garment colours by style family (designer palettes of the reference photos:
+# whites, greys and blacks with the family's own earth or blue tones), and the room scheme's colour joins them
+FAMILY_GARMENTS: dict[str, tuple[str, ...]] = {
+    "modern": ("white", "off white", "light grey", "charcoal", "black", "navy", "camel", "sky blue"),
+    "contemporary": ("ivory", "camel", "navy", "rust", "dusty blue", "charcoal", "white", "greige"),
+    "scandinavian": ("off white", "sand", "greige", "sage", "dusty blue", "charcoal", "white", "light grey"),
+    "japandi": ("ivory", "sand", "taupe", "olive", "charcoal", "black", "greige", "camel"),
+    "minimal": ("white", "off white", "light grey", "greige", "charcoal", "black", "sand"),
+    "modern minimal": ("white", "off white", "light grey", "greige", "charcoal", "black", "sand"),
+    "industrial": ("charcoal", "black", "olive", "rust", "navy", "light grey", "camel", "white"),
+    "mediterranean": ("white", "sand", "terracotta", "dusty blue", "olive", "navy", "camel"),
+    "classic": ("white", "cream", "navy", "burgundy", "camel", "charcoal", "light grey"),
+    "rustic": ("cream", "rust", "olive", "camel", "charcoal", "navy", "sand"),
+}
+SCHEME_GARMENT_WORDS: tuple[tuple[str, str], ...] = (("sage", "sage"), ("olive", "olive"), ("blue", "dusty blue"),
+                                                     ("navy", "navy"), ("greige", "greige"), ("terracotta", "terracotta"),
+                                                     ("rust", "rust"), ("pink", "dusty pink"), ("blush", "blush"),
+                                                     ("mustard", "mustard"), ("taupe", "taupe"), ("sand", "sand"),
+                                                     ("burgundy", "burgundy"), ("green", "sage"), ("ochre", "mustard"))
+
+
+def garment_palette(style, scheme: Optional[dict] = None) -> list[str]:
+    """The colours of a wardrobe's garments and folded stacks (pure; 30 Oct 2026, UL135): the family's
+    ``FAMILY_GARMENTS`` (else ``GARMENT_COLOURS``) and the colour the room's scheme names (its walls' colour, as a
+    garment colour: ``SCHEME_GARMENT_WORDS``), every one a known colour name (``wenart.style.colours``)."""
+    from wenart.style import colours as C
+
+    out = list(FAMILY_GARMENTS.get(family_of(style)) or GARMENT_COLOURS)
+    phrase = str((scheme or {}).get("wall_colour") or "").lower()
+    for word, colour in SCHEME_GARMENT_WORDS:
+        if word in phrase and colour not in out:
+            out.append(colour)
+            break
+    return [c for c in out if c in C.COLOURS] or [c for c in GARMENT_COLOURS if c in C.COLOURS]
 
 
 def family_of(style) -> str:
@@ -243,13 +284,15 @@ def apply(building: dict, style) -> tuple[dict, list[dict]]:
     module builder (``asset.method: module``); the fitted library model it replaces stays in ``see_through.replaced``."""
     chosen = plan(building, style)
     assumed = []
+    rooms = {r.get("id"): r for r in building.get("rooms") or []}
     for f in building.get("furniture") or []:
         rec = chosen.get(f.get("id"))
         if rec is None:
             continue
         old = f.get("asset") if isinstance(f.get("asset"), dict) else {}
         replaced = {k: old.get(k) for k in ("asset_id", "library", "method", "licence") if old.get(k) is not None}
-        f["see_through"] = dict(rec, replaced=replaced or None)
+        f["see_through"] = dict(rec, replaced=replaced or None,
+                                palette=garment_palette(style, (rooms.get(f.get("room_id")) or {}).get("scheme")))
         design = dict(f.get("design") or {})
         design["see_through"] = rec["kind"]
         f["design"] = design

@@ -271,7 +271,7 @@ def test_project_white_balance_helpers(tmp_path):
     # fix round after P5 (22 Oct 2026): the sky edge's shell hits and the view's daylight tint -> m13.4 (P5 rendered
     # m13.3); fix round after P6a (22 Oct 2026): the sky pull's median floor and the wall-metered tint -> m13.5 (P6a
     # rendered m13.4)
-    assert R.RENDER_CODE_VERSION == "m13.5"
+    assert R.RENDER_CODE_VERSION == "m13.6"           # 30 Oct 2026: the rig light on the walls (wall_rig_mix)
     # The sun lamp hides under the exterior world with a sun disc for every ray only (the P1 world); round 3:
     # with the disc for camera rays only the lamp stays, it is the one direct sun outdoors.
     props = {"wenart_world_exterior": "wenart_world_exterior", "wenart_world_exterior_sun_disc": True}
