@@ -2213,6 +2213,30 @@ def _apply_duplicate(item: dict, prop: dict) -> None:
     item.setdefault("evidence", []).append(dict(prop["evidence"]))
 
 
+# 30 Oct 2026 (lesson UL194, user on real04 run 20261030-112241-full: "I did not like this sofa": the open-kitchen salons'
+# drawn 2.13 x 0.90 m sofas, given no front by the drawing, took the front "into the most open floor" along their length;
+# the fit then saw a sofa 0.90 m wide and 2.13 m deep, no library sofa fitted and the parametric box was built): a piece
+# this much longer than deep faces from one of its long sides
+LONG_ASPECT = 1.3
+
+
+def _long_side_turns(piece: placer.Piece) -> tuple[int, ...]:
+    """The quarter turns from the footprint's own front (local -Y) a piece may face: the two long sides of an elongated
+    piece (``LONG_ASPECT``), all four of a squarish one."""
+    w, d = (float(v) for v in piece.size)
+    if w >= LONG_ASPECT * d:
+        return (0, 2)
+    if d >= LONG_ASPECT * w:
+        return (1, 3)
+    return (0, 1, 2, 3)
+
+
+def _on_long_side(piece: placer.Piece, deg: float) -> bool:
+    """Whether a front at ``deg`` faces from a side ``_long_side_turns`` allows (UL194)."""
+    base = G.front_direction_deg(piece.rotation_deg)
+    return int(round(((float(deg) - base) % 360.0) / 90.0)) % 4 in _long_side_turns(piece)
+
+
 SEAT_FRONT_REACH_M = 3.0          # missing_fronts: the open floor before a seat counted to this distance
 SEAT_FRONT_PARTNER_W = 0.5         # ... plus this weight towards its nearest partner (cosine)
 
@@ -2227,7 +2251,7 @@ def _open_front(piece: placer.Piece, ring, partners: list[placer.Piece]) -> Opti
     base = G.front_direction_deg(piece.rotation_deg)
     mate = min(partners, key=lambda h: h.polygon().distance(piece.polygon()), default=None)
     best = None
-    for k in range(4):
+    for k in _long_side_turns(piece):                 # UL194: an elongated seat faces from a long side
         deg = G.normalise_angle(base + 90.0 * k)
         ux, uy = math.cos(math.radians(deg)), math.sin(math.radians(deg))
         ray = LineString([(c.x, c.y), (c.x + ux * SEAT_FRONT_REACH_M, c.y + uy * SEAT_FRONT_REACH_M)])
@@ -2262,6 +2286,8 @@ def missing_fronts(building: dict) -> list[str]:
             continue
         front = _code_front(building, item, room, item["type"])
         how = "the side away from its wall or towards its partner"
+        if front is not None and not _on_long_side(placer.drawn_piece(item), front):
+            front = None                                  # UL194: never along an elongated piece's length
         if front is None and item["type"] in GROUP_SEATS + PARTNER_ONLY:
             mates = [f for f in building.get("furniture") or [] if f.get("room_id") == item.get("room_id")
                      and f["id"] != item["id"] and f.get("footprint") and f.get("build") is not False]

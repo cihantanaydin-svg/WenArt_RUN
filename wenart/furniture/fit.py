@@ -1297,6 +1297,27 @@ def _relaxed_caps(cap: float, uniform_range: tuple[float, float]) -> Optional[tu
     return r_cap, r_range
 
 
+# 30 Oct 2026 (lesson UL193, user on real04 run 20261030-112241-full: "I did not like the chair": a bedroom desk's black
+# mesh "Physio Approved Ergonomic 2 Lever Office Chair"): a home's desk chair is a residential piece (an upholstered,
+# leather or design swivel chair); a corporate task chair (its title: ergonomic, mesh, lever, executive, gaming, big &
+# tall, computer, reception) ranks last and is used only when no other desk chair fits; a design classic (Eames, Vitra,
+# Herman Miller, Humanscale, Knoll) keeps its rank
+CORPORATE_CHAIR_WORDS: tuple[str, ...] = ("ergonomic", "physio", "lever", "mesh", "executive", "gaming", "racing",
+                                          "big & tall", "big and tall", "computer", "reception", "guest", "kursi")
+DESIGN_CHAIR_WORDS: tuple[str, ...] = ("eames", "vitra", "herman miller", "humanscale", "knoll")
+
+
+def desk_chair_misfit(entry: dict, ftype: str) -> Optional[str]:
+    """Why a desk chair model is a corporate task chair rather than a home's desk chair (None when it is not; UL193)."""
+    if ftype != "office_chair":
+        return None
+    title = _title_of(entry)
+    hits = _named(title, CORPORATE_CHAIR_WORDS)
+    if not hits or _named(title, DESIGN_CHAIR_WORDS):
+        return None
+    return f"names {', '.join(dict.fromkeys(hits))}: a corporate task chair, not a home's desk chair (UL193)"
+
+
 def taste_flags(candidates: list[dict], ftype: str, outdoor: Optional[bool], family: Optional[str],
                 design: Optional[dict] = None) -> dict:
     """26 Oct 2026 (fix E): ``{id: {"misfit": reason, "style_mix": [styles]}}`` of the candidates that have either
@@ -1305,7 +1326,7 @@ def taste_flags(candidates: list[dict], ftype: str, outdoor: Optional[bool], fam
     out = {}
     for e in candidates:
         misfit, mix = misfit_of(e, ftype, outdoor), style_mix_of(e, ftype, family)
-        misfit = misfit or headboard_misfit(e, ftype, family, design)
+        misfit = misfit or headboard_misfit(e, ftype, family, design) or desk_chair_misfit(e, ftype)
         if misfit or mix:
             out[e["id"]] = {"misfit": misfit, "style_mix": mix}
     return out

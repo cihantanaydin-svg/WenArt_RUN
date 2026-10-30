@@ -2064,7 +2064,7 @@
    "checks": [
     "build"
    ],
-   "request": "I did not like the lamp (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom: a classic antique-brass chandelier with white bell shades over the bed of a modern concrete-walled room); again on the play room's dining table: \"also I did not like the lamp\" (a crystal-drop chandelier over a modern dining table)",
+   "request": "I did not like the lamp (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom: a classic antique-brass chandelier with white bell shades over the bed of a modern concrete-walled room); again on the play room's dining table: \"also I did not like the lamp\" (a crystal-drop chandelier over a modern dining table); and on the open kitchen: \"also I did not like the white lamps\" (two tiered white shell chandeliers over the peninsula, 'chandelier 01')",
    "lesson": "A library model is used only when its own title names no style the project's family may not carry (catalog.title_style_clash: 'Classic', 'Traditional', 'Antique', 'Victorian', 'crystal' ...; a finish name such as 'antique brass' does not count; a chandelier without a modern form word such as mid-century, mesh, Edison, sputnik, linear or globe is the classic form): the title is the maker's word, the styles tags only the vision judges' guess (real04: a 'Classic ... Chandelier ... Antique Brass' tagged modern and scandinavian, a '5-Light Chandelier' and crystal 'Designer chandeliers' in a modern house). Every pick of furniture and decor goes through catalog.styles_match.",
    "question": "Does every light and piece carry the house's style family, with no classic chandelier, crystal drops or antique fittings in a modern home unless the brief asks for them?"
   },
@@ -2220,7 +2220,7 @@
    "checks": [
     "build"
    ],
-   "request": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop); the user's follow-up: \"for the fridge I was referring the end of the table, maybe by shortening the table\" (the fridge column at the end of the counter run, the run shortened to make room)",
+   "request": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop); the user's follow-up: \"for the fridge I was referring the end of the table, maybe by shortening the table\" (the fridge column at the end of the counter run, the run shortened to make room); and on the open-kitchen variant: \"There can be a full embedded fridge next to the Owen\" (an integrated full-height fridge column beside the tall oven column)",
    "lesson": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop)",
    "question": "Does every kitchen have a full-size fridge (a tall column at the end of a run) where the drawing leaves room for one?"
   },
@@ -2271,6 +2271,50 @@
    "request": "Something wrong with this door in the kitchen (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen: an oak door leaf beside the end of the counter run shows the slatted wall through two slots in the leaf, under its upper panel and at handle height)",
    "lesson": "Something wrong with this door in the kitchen (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen: an oak door leaf beside the end of the counter run shows the slatted wall through two slots in the leaf, under its upper panel and at handle height)",
    "question": "Is every door leaf solid where it should be, with no wall finish showing through it?"
+  },
+  {
+   "id": "UL192",
+   "date": "2026-10-30",
+   "area": "stairs",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Something wrong with the stairs needs fixing (30 Oct 2026, real04 run 20261030-112241-full, the interior stair seen from below: oak treads with the wall's slat texture on the risers, a black glass-panel balustrade, a grey bar floating across the flight at mid height, a black stringer slab crossing the lower steps and a grey block at its foot)",
+   "lesson": "Something wrong with the stairs needs fixing (30 Oct 2026, real04 run 20261030-112241-full, the interior stair seen from below: oak treads with the wall's slat texture on the risers, a black glass-panel balustrade, a grey bar floating across the flight at mid height, a black stringer slab crossing the lower steps and a grey block at its foot)",
+   "question": "Is every stair built as one coherent product (stringers, treads, risers in the stair's own finish, one balustrade and handrail, nothing floating or crossing the flight)?"
+  },
+  {
+   "id": "UL193",
+   "date": "2026-10-30",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "I did not like the chair (30 Oct 2026, real04 run 20261030-112241-full, a bedroom desk: a basic black mesh-back office task chair on a five-star base at an industrial wood-and-metal desk)",
+   "lesson": "I did not like the chair (30 Oct 2026, real04 run 20261030-112241-full, a bedroom desk: a basic black mesh-back office task chair on a five-star base at an industrial wood-and-metal desk)",
+   "question": null
+  },
+  {
+   "id": "UL194",
+   "date": "2026-10-30",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "I did not like this sofa (30 Oct 2026, real04 run 20261030-112241-full, a living room with blue walls seen from behind the sofa: a plain white box sofa with square arms and tapered light wood legs)",
+   "lesson": "I did not like this sofa (30 Oct 2026, real04 run 20261030-112241-full, a living room with blue walls seen from behind the sofa: a plain white box sofa with square arms and tapered light wood legs)",
+   "question": null
+  },
+  {
+   "id": "UL195",
+   "date": "2026-10-30",
+   "area": "bedding",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Redude the number of pillows 5 max per bed (30 Oct 2026, real04 run 20261030-112241-full, a bedroom: two white sleeping pillows, a third white pillow, a grey cushion, a cream fringed cushion and a large checked cushion on one double bed)",
+   "lesson": "Redude the number of pillows 5 max per bed (30 Oct 2026, real04 run 20261030-112241-full, a bedroom: two white sleeping pillows, a third white pillow, a grey cushion, a cream fringed cushion and a large checked cushion on one double bed)",
+   "question": "Does every bed carry at most five pillows and cushions in all?"
   }
  ]
 }
