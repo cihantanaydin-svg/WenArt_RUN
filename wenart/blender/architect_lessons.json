@@ -2108,12 +2108,12 @@
    "id": "UL178",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Table seems to be going through the chairs (30 Oct 2026, real04 run 20261030-112241-full, the top-floor play room's dining set: a turned-leg table with a drawer apron, two grey shell chairs whose seats and backs pass through the table top and legs)",
-   "lesson": "Table seems to be going through the chairs (30 Oct 2026, real04 run 20261030-112241-full, the top-floor play room's dining set: a turned-leg table with a drawer apron, two grey shell chairs whose seats and backs pass through the table top and legs)",
+   "lesson": "A chair never stands through its table: a round drawn table is built round (a round library model, its title says round, else our round pedestal table; a square model is refused, also for the agent's swap); a chair tucked under a table with corner legs keeps out of a 0.10 m square at each corner, the build pulls it to a leg-free place (a drawn chair moves at most 0.5 m in all, adjusted_by_ai), else it keeps its place and is reported (a build warning, the architect's F5, the score's F9 'stands in the corner legs'). real04 run 20261030-112241-full: a square turned-leg table on a drawn round cafe table, its legs in both chairs.",
    "question": "Does every chair stand clear of its table's top, apron and legs?"
   },
   {
