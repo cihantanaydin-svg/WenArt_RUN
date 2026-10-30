@@ -1228,4 +1228,36 @@ def validate_material_override(style: dict, override: dict) -> dict:
         return {"ok": False, "failed": failed}
     for slot, look_id in override.items():
         failed += _look_problems(SLOT_ALIASES.get(slot, slot), look_id)
+    if not failed and "facade" in override:
+        failed += facade_scheme_problems(style, override["facade"])
     return {"ok": not failed, "failed": failed}
+
+
+# 30 Oct 2026 (real04 run 20261030-043021-full: Argus, on "the stone cladding on the lower wall is a flat, repetitive
+# texture", set the facade slot to stone_cladding and every wall of the house turned to rustic stone): the facade slot
+# is the main walls' look; under the family's facade scheme (no drawing, brief or named style facade) the main walls stay
+# rendered (facade.FACADE_SCHEMES ``main``), the base and the accent keep their own cladding
+SCHEME_MAIN_KINDS = {"render": ("plaster", "painted")}
+
+
+def facade_scheme_problems(style: Optional[dict], look_id: str) -> list[str]:
+    """Why ``look_id`` may not become the main facade (pure): the style's facade is the family scheme's fallback
+    (``style.exterior.facade`` assumed or a fallback) and the look's kind is not the scheme's main kind (a render
+    family: plaster or paint); [] when the documents, the brief or the style name the facade (the user's choice)."""
+    from wenart.blender import facade as FC
+    from wenart.style.profile import _entry
+
+    named = ((style or {}).get("exterior") or {}).get("facade") if isinstance((style or {}).get("exterior"), dict) \
+        else None
+    if isinstance(named, dict) and named.get("source") not in (None, "fallback") and not named.get("assumed"):
+        return []
+    scheme = FC.scheme_of(style)
+    main = scheme.get("main") or ()
+    kinds = SCHEME_MAIN_KINDS.get(main[0] if main else None)
+    entry = _entry(look_id) or {}
+    if not kinds or entry.get("kind") in kinds:
+        return []
+    return [f"facade: {look_id} ({entry.get('kind')}) would clad every wall of the house; the {scheme['family']} "
+            f"facade scheme keeps the main walls rendered ({' '.join(str(x) for x in main if x)}) over a "
+            f"{scheme.get('base')} base{' with ' + str(scheme.get('accent')) + ' at the entrance' if scheme.get('accent') else ''}"
+            f" (the base and the accent are no set_material slot: a texture problem of the base is the build's)"]

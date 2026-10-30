@@ -382,3 +382,19 @@ def test_a_picture_over_a_window_slides_to_the_nearest_free_stretch_and_a_curtai
     assert not WI.is_wall_item({"type": "vase", "host_id": "f1", "host_frame": {"support": "top"}})
     assert not WI.is_wall_item({"type": "curtain", "wall_point": [0, 0]})
     assert WI.is_wall_item({"type": "desk_wall_unit", "wall_point": [0, 0], "host_frame": {"support": "floor"}})
+
+
+def test_a_facade_override_keeps_the_family_scheme():
+    """30 Oct 2026 (real04 run 20261030-043021-full: Argus set the facade slot to stone_cladding for a flat base texture
+    and every wall turned to rustic stone): the facade slot is the main walls; under the family scheme they stay
+    rendered, unless the brief or the style names the facade."""
+    from wenart.blender import exterior_checks as EC
+
+    fallback = {"family": "modern", "exterior": {"facade": {"material": "render", "source": "fallback",
+                                                            "assumed": True}}}
+    refused = EC.validate_material_override(fallback, {"facade": "stone_cladding"})
+    assert not refused["ok"] and "every wall" in refused["failed"][0]
+    assert EC.validate_material_override(fallback, {"facade": "render"})["ok"]
+    named = {"family": "modern", "exterior": {"facade": {"material": "stone_cladding", "source": "brief",
+                                                         "assumed": False}}}
+    assert EC.validate_material_override(named, {"facade": "stone_cladding"})["ok"]
