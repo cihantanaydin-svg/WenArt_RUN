@@ -2191,7 +2191,7 @@
   {
    "id": "UL185",
    "date": "2026-10-30",
-   "area": "cameras",
+   "area": "other",
    "status": "built",
    "checks": [
     "build"
@@ -2215,7 +2215,7 @@
   {
    "id": "UL187",
    "date": "2026-10-30",
-   "area": "kitchen",
+   "area": "furniture",
    "status": "built",
    "checks": [
     "build"
@@ -2275,7 +2275,7 @@
   {
    "id": "UL192",
    "date": "2026-10-30",
-   "area": "stairs",
+   "area": "access",
    "status": "open",
    "checks": [
     "build"
@@ -2287,27 +2287,31 @@
   {
    "id": "UL193",
    "date": "2026-10-30",
-   "area": "other",
-   "status": "open",
-   "checks": [],
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "I did not like the chair (30 Oct 2026, real04 run 20261030-112241-full, a bedroom desk: a basic black mesh-back office task chair on a five-star base at an industrial wood-and-metal desk)",
-   "lesson": "I did not like the chair (30 Oct 2026, real04 run 20261030-112241-full, a bedroom desk: a basic black mesh-back office task chair on a five-star base at an industrial wood-and-metal desk)",
-   "question": null
+   "lesson": "A home's desk chair is a residential piece (an upholstered, leather or design swivel chair): a corporate task chair (its title names ergonomic, mesh, lever, executive, gaming, big & tall, computer or reception: fit.CORPORATE_CHAIR_WORDS) ranks last and is used only when no other desk chair fits; a design classic (Eames, Vitra, Herman Miller, Humanscale, Knoll) keeps its rank (fit.desk_chair_misfit in taste_flags).",
+   "question": "Is every desk chair a home's chair (upholstered, leather or a design classic), never a corporate mesh task chair?"
   },
   {
    "id": "UL194",
    "date": "2026-10-30",
-   "area": "other",
-   "status": "open",
-   "checks": [],
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "I did not like this sofa (30 Oct 2026, real04 run 20261030-112241-full, a living room with blue walls seen from behind the sofa: a plain white box sofa with square arms and tapered light wood legs)",
-   "lesson": "I did not like this sofa (30 Oct 2026, real04 run 20261030-112241-full, a living room with blue walls seen from behind the sofa: a plain white box sofa with square arms and tapered light wood legs)",
-   "question": null
+   "lesson": "A drawn piece without a front that is clearly longer than deep (1.3 x: a sofa, a bed, a desk, a TV unit) faces from one of its long sides (infer._long_side_turns, in missing_fronts and _open_front); real04's open-kitchen sofas (2.13 x 0.90 m) had faced along their length, so the fit read them 0.90 m wide and 2.13 m deep and built the parametric box.",
+   "question": "Does every sofa face the room from its long side, a real library sofa of its size?"
   },
   {
    "id": "UL195",
    "date": "2026-10-30",
-   "area": "bedding",
+   "area": "decor",
    "status": "built",
    "checks": [
     "build"
@@ -2319,22 +2323,26 @@
   {
    "id": "UL196",
    "date": "2026-10-30",
-   "area": "other",
+   "area": "site",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "Better road section and fencing area is needed on the outside (30 Oct 2026, real04 run 20261030-112241-full, the exterior views: the outside roads and the fenced neighbouring plots of UL172)",
    "lesson": "Better road section and fencing area is needed on the outside (30 Oct 2026, real04 run 20261030-112241-full, the exterior views: the outside roads and the fenced neighbouring plots of UL172)",
-   "question": null
+   "question": "Do the roads outside the plot and the neighbours' fences look like real streets and real fences (kerbs, verges, lamp posts; posts, panels and gates)?"
   },
   {
    "id": "UL197",
    "date": "2026-10-30",
-   "area": "other",
+   "area": "openings",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "Give more detail to window frames (30 Oct 2026, real04 run 20261030-112241-full: the window frames are plain flat bronze bars)",
    "lesson": "Give more detail to window frames (30 Oct 2026, real04 run 20261030-112241-full: the window frames are plain flat bronze bars)",
-   "question": null
+   "question": "Do the window frames show real profiles (outer frame, sashes, beads, sills, handles)?"
   }
  ]
 }

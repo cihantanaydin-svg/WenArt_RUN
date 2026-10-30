@@ -1014,7 +1014,7 @@ def bed_realism(building: dict, manifest: Optional[dict] = None) -> list[dict]:
 
 # 29 Oct 2026: a full, realistic bed (bedding_parts.review); 30 Oct 2026: a real made bed (UL136: a lumpy duvet, a
 # wavy hem; UL137: the head's gap left open; UL146: the P14 layers' blanket)
-CHECK_LESSONS["U34"] = ("UL121", "UL136", "UL137", "UL146")
+CHECK_LESSONS["U34"] = ("UL121", "UL136", "UL137", "UL146", "UL195")
 
 
 WALL_ITEM_FIXES = {
