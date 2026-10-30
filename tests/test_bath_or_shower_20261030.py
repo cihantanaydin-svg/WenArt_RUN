@@ -85,3 +85,21 @@ def test_a_footprint_drawn_unknown_and_typed_bathtub_may_become_a_shower():
     fin = {f["id"]: f for f in b["furniture"]}
     assert fin["t1"]["type"] == "shower" and fin["t1"]["drawn_type"] == "unknown"
     assert not [p for p in L._agent_problems(src["furniture"][1], fin["t1"], False, "bathroom") if "type" in p]
+
+
+def test_a_swapped_shower_under_a_low_sloped_ceiling_is_the_bathtub_again():
+    """real04 run 20261030-181158-full: two L1 bathtubs under the roof became 2.08 m walk-in showers where the sloped
+    ceiling is 0.81 m high (M31, X2: through the roof). A bath fits under a slope, a shower needs its 2.1 m."""
+    from wenart.blender import build as BU
+    b = _house()
+    I.bath_or_shower(b)
+    by = {f["id"]: f for f in b["furniture"]}
+    assert by["t1"]["type"] == "shower" and by["tb"]["type"] == "shower"
+    b["levels"] = [{"id": "L1", "elevation": 3.2, "ceiling_height": 2.6, "ceiling_planes": [[0.0, 0.0, 4.0]]},
+                   {"id": "L-1", "elevation": -3.0, "ceiling_height": 2.7}]
+    out = BU.shower_headroom(b)
+    assert [r["id"] for r in out] == ["t1"] and "0.80 m" in out[0]["reason"]
+    assert by["t1"]["type"] == "bathtub" and "shower_kind" not in by["t1"]
+    assert by["t1"]["adjusted_by_ai"]["rule"] == "build.shower_headroom" and by["t1"]["adjusted_by_ai"]["previous"]
+    assert by["tb"]["type"] == "shower"                                   # 2.7 m: it stands
+    assert BU.shower_headroom(b) == []                                     # idempotent

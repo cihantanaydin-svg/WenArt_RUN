@@ -1092,6 +1092,42 @@ def style_family_of(style_path) -> Optional[str]:
     return str(data.get("family")) if isinstance(data, dict) and data.get("family") else None
 
 
+# 30 Oct 2026 (UL200, real04 run 20261030-181158-full: the bath-to-shower swap turned two L1 bathtubs under the roof into
+# 2.08 m walk-in showers where the sloped ceiling is 0.81 m high: M31 and X2 found them through the roof): a walk-in
+# shower needs its standing height over its tray (a 2.0 m enclosure and the rain head under the ceiling); a shower the
+# code swap made from a bathtub where the ceiling over it is lower becomes the bathtub again (a bath fits under a slope)
+SHOWER_HEADROOM_M = 2.10
+BATH_OR_SHOWER_RULE = "infer.bath_or_shower"             # = wenart.furniture.infer.BATH_OR_SHOWER_RULE
+
+
+def shower_headroom(building: dict) -> list[dict]:
+    """In place (pure): the code-swapped walk-in showers (``BATH_OR_SHOWER_RULE``) with less than ``SHOWER_HEADROOM_M``
+    over their footprint (``wardrobe_fronts.ceiling_over``: the level's ceiling, the roof's planes) are bathtubs again,
+    the swap's record kept under ``previous``; returns ``[{"id", "reason"}]``."""
+    from wenart.blender import wardrobe_fronts as WF
+
+    out = []
+    for f in building.get("furniture") or []:
+        adj = f.get("adjusted_by_ai") if isinstance(f.get("adjusted_by_ai"), dict) else {}
+        records = [adj] + [r for r in adj.get("previous") or [] if isinstance(r, dict)]
+        if f.get("type") != "shower" or not any(BATH_OR_SHOWER_RULE in (list(r.get("rules") or []) + [r.get("rule")])
+                                                for r in records):
+            continue
+        room = WF.ceiling_over(building, f)
+        if room is None or room >= SHOWER_HEADROOM_M - 1e-6:
+            continue
+        reason = (f"{f['id']}: the ceiling over it is {room:.2f} m high, under the {SHOWER_HEADROOM_M:.2f} m a walk-in "
+                  f"shower stands in: the bathtub of the drawing again (a bath fits under a slope; UL200)")
+        prev = [r for r in adj.get("previous") or [] if isinstance(r, dict)]
+        f["adjusted_by_ai"] = {"by": "code", "stage": "build", "rule": "build.shower_headroom", "reason": reason,
+                               "changed": {"type": "shower"}, "previous": prev + [{k: v for k, v in adj.items()
+                                                                                   if k != "previous"}]}
+        f["type"] = "bathtub"
+        f.pop("shower_kind", None)
+        out.append({"id": f["id"], "reason": reason})
+    return out
+
+
 def prepare(building_all: dict, variant: str = "base", brief: dict | None = None,
             style_family: Optional[str] = None) -> dict:
     """``prepare_once`` with the architect's defaults carried out (26 Oct 2026, user: "I need ai models to see
@@ -1251,6 +1287,9 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
         if roof["convex"] and roof["equations"] and lv["id"] == roof["over_level_id"]:
             lv["ceiling_planes"] = [list(p) for p in R.ceiling_planes(roof, lv)]
     out["open_rooms"] = {o["room_id"] for o in roof["openings"] if o.get("room_id")}
+    for rec in shower_headroom(vb):               # UL200: a walk-in shower only where it stands up
+        out["assumed"].append({"object": f"furn_{rec['id']}", "field": "type", "value": "bathtub",
+                               "reason": rec["reason"], "kind": "shower_headroom", "parent": rec["id"]})
     over = next((lv for lv in vb["levels"] if lv["id"] == roof.get("over_level_id")), None)
     # 25 Oct 2026 (user: "ai on the pod needs to be clever and able to answer the questions and make modifications
     # accordingly"): the answers to the architect's questions (the user's project file through the brief, the AI
