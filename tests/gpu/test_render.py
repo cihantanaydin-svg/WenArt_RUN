@@ -798,6 +798,15 @@ def test_index_pass_contains_every_visible_proxy(project):
             shares = camsearch.model_shares(building, plan)
             hidden.extend((r["camera"], f) for f in absent if shares.get(f, 0.0) < MODEL_HIDDEN_SHARE)
             absent = [f for f in absent if shares.get(f, 0.0) >= MODEL_HIDDEN_SHARE]
+        if absent:
+            # 30 Oct 2026 (real04 run 20261030-043021-full, cam_r_L-1_banyo_1, an agent pose: the library tub f_L-1_056
+            # at the frame's edge, 1.2 % of its box in the model, its rounded end off the frame): a library mesh against
+            # its fitted box is a property of the mesh, not of who set the camera, so these two allowances hold for
+            # every view
+            from wenart.blender import camsearch
+
+            building = building or _building(name, scene)
+            shares = camsearch.model_shares(building, plan)
             # Milestone 10: a library mesh is smaller than its fitted box; seen only at the box's edge it may be
             # outside the frame (the box3d guard keeps a misplaced or mis-scaled mesh a failure).
             edge_only = [f for f in absent if _library_box_edge_only(building, plan, f, box3d, shares.get(f))]
@@ -813,6 +822,7 @@ def test_index_pass_contains_every_visible_proxy(project):
             # 26 Oct 2026 (pod 5fr7dp2g1co4sx, real06 cam_r_L0_banyo_3: a quadrant shower enclosure of glass doors, its
             # tray under the frame): the object index pass skips see-through glass, so a glass enclosure seen only
             # through its panes leaves no index pixel
+        if absent:
             glass = [f for f in absent if _see_through(scene, f)]
             see_through.extend((r["camera"], f) for f in glass)
             absent = [f for f in absent if f not in glass]
@@ -1112,7 +1122,10 @@ def test_views_keep_the_project_white_point_or_mix_it_with_the_rig(project):
         # fix round after P4a (17 Oct 2026): the rig part's extra warmth the view was mixed with (wb_rig_residual;
         # absent on m13.2 renders, which this check no longer passes: re-run it on m13.3 renders only)
         mixed = share is not None and share >= R.WB_RIG_SHARE_MIN
-        want = R.mixed_whitepoint(anchor, x["wb_rig_whitepoint"], share, residual, x.get("wb_rig_residual")) \
+        # 30 Oct 2026 (m13.6): the rig colour as the view's walls get it (render.wall_rig_mix), else the lamp's
+        mix_rgb, mix_share, _src = R.wall_rig_mix(x.get("wb_walls"), x["wb_rig_whitepoint"], share) if mixed \
+            else (None, None, None)
+        want = R.mixed_whitepoint(anchor, mix_rgb, mix_share, residual, x.get("wb_rig_residual")) \
             if mixed else anchor
         # fix round after P5 (22 Oct 2026): an interior view with a metered daylight takes the tint of its own daylight
         # (render.view_tint_gain of the recorded wb_day_green; m13.3 renders have no wb_view_tint_gain). Fix round
