@@ -2887,19 +2887,106 @@ GLAZING_GROOVE_M = 0.002        # the glass of a D5 leaf or panel sits this deep
 
 MUNTIN_W_M = 0.025              # 29 Oct 2026 (D3): a divided-lite door's glazing bars
 
+# 30 Oct 2026 (lesson UL179, user on real04 run 20261030-112241-full's glazed outside door d_L1_003: "Door style is
+# good but it is too plain, make it better"): the parametric door's joinery at render distance, by the style family's
+# ``joinery`` (``looks.door_product``): ``slim`` (the light families: bevelled beads, an architrave with eased arrises,
+# a round rose under a slim lever) or ``moulded`` (the period families: ovolo beads, a ramped architrave with a
+# rounded back edge on plinth blocks, a backplate). Glazing beads round the glass on both faces (role ``bead``, the
+# leaf's key), a profiled architrave (role ``architrave``, the frame's key; ``architrave_parts``), plinth blocks at
+# its feet (role ``plinth``, fixed with the frame), hinge knuckles with tips, the lever on a rose with a neck and a
+# round end, a lock cylinder in the lock rose, and on an outside door a weather bar at the foot of the leaf's outside
+# face (role ``weather_bar``, the handle metal). Typical joinery sizes (assumed: no drawing gives them).
+JOINERY: tuple[str, ...] = ("slim", "moulded")
+GLASS_HALF_T_M = 0.004          # half the door glass (``_glazed_leaf``: 8 mm)
+BEAD: dict[str, dict[str, float]] = {"slim": {"w": 0.016, "under": 0.006}, "moulded": {"w": 0.020, "under": 0.004}}
+FILLET: dict[str, float] = {"w": 0.022, "h": 0.007}   # a slim architrave's raised fillet at the opening
+PLINTH_BLOCK: dict[str, float] = {"h": 0.20, "w_extra": 0.012, "proud_extra": 0.008}
+HINGE_TIP_H_M = 0.006           # a hinge knuckle's tip at each end
+ROSE_R_M = 0.026                # a lever's round rose ...
+ROSE_T_M = 0.008                # ... its thickness
+NECK_R_M = 0.009                # the lever's neck
+LEVER_OFF_M = 0.050             # the lever bar's centre this far off the leaf face
+LEVER_BAR_M = (0.13, 0.018)     # the bar's length and its square section
+BACKPLATE_M = (0.045, 0.22)     # a moulded door's backplate (width, height), round the lever and the keyhole
+LOCK_CORE_R_M = 0.0085          # the lock cylinder in the lock rose
+WEATHER_BAR: dict[str, float] = {"z0": 0.004, "h": 0.032, "d": 0.022}
+
+
+def _signed_volume(verts: Sequence, faces: Sequence) -> float:
+    s = 0.0
+    for f in faces:
+        a = verts[f[0]]
+        for i in range(1, len(f) - 1):
+            b, c = verts[f[i]], verts[f[i + 1]]
+            s += (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0])
+                  + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6.0
+    return s
+
+
+def _prism(section: Sequence[tuple[float, float]], axis: str, a0: float, a1: float, key: str, role: str) -> Part:
+    """A closed prism (pure; UL179): the convex ``section`` (its points in order round it) extruded along ``axis``
+    from ``a0`` to ``a1``: ``z`` takes (x, y) points, ``x`` takes (y, z) points; its faces wound outwards."""
+    n = len(section)
+    if axis == "z":
+        verts = [(float(u), float(v), float(a)) for a in (a0, a1) for u, v in section]
+    else:
+        verts = [(float(a), float(u), float(v)) for a in (a0, a1) for u, v in section]
+    faces = [list(range(n - 1, -1, -1)), list(range(n, 2 * n))] + \
+        [[i, (i + 1) % n, n + (i + 1) % n, n + i] for i in range(n)]
+    if _signed_volume(verts, faces) < 0.0:
+        faces = [f[::-1] for f in faces]
+    return {"verts": verts, "faces": faces, "key": key, "role": role}
+
+
+def _bead_section(uw: float, d: float, yg: float, yt: float, bw: float, joinery: str) -> list[tuple[float, float]]:
+    """A glazing bead's section as ``(u, y)`` points (pure): its back on the stile or rail at ``u = uw``, ``bw`` wide
+    towards the glass (``d`` +1 / -1), from the glass face ``yg`` to its top ``yt``: a bevel (``slim``) or a quarter
+    round (``moulded``, an ovolo) falling to the glass."""
+    if joinery == "moulded":
+        arc = [(uw + d * bw * math.cos(a), yg + (yt - yg) * math.sin(a))
+               for a in (math.pi * k / 8.0 for k in range(0, 5))]
+        return [(uw, yg)] + arc
+    return [(uw, yg), (uw + d * bw, yg), (uw + d * bw, yg + 0.25 * (yt - yg)), (uw + d * 0.35 * bw, yt), (uw, yt)]
+
+
+def glazing_beads(gx0: float, gx1: float, gz0: float, gz1: float, y: float, t: float, joinery: str) -> list[Part]:
+    """The glazing beads round a pane ``gx0``-``gx1`` x ``gz0``-``gz1`` of a leaf ``t`` thick centred on ``y`` (pure;
+    UL179): on both faces, from the glass face to ``BEAD["under"]`` under the leaf face; the side beads the pane's
+    height, the head and foot beads between them. Role ``bead``, the leaf's key."""
+    spec = BEAD.get(joinery) or BEAD["slim"]
+    bw = min(spec["w"], (gx1 - gx0) / 4.0, (gz1 - gz0) / 4.0)
+    out: list[Part] = []
+    if bw <= 1e-4:
+        return out
+    for s in (-1.0, 1.0):
+        yg, yt = y + s * GLASS_HALF_T_M, y + s * (t / 2.0 - spec["under"])
+        if s * (yt - yg) <= 0.002:
+            continue
+        for uw, d in ((gx0, 1.0), (gx1, -1.0)):                          # the side beads, upright
+            out.append(_prism(_bead_section(uw, d, yg, yt, bw, joinery), "z", gz0, gz1, "leaf", "bead"))
+        for uw, d in ((gz0, 1.0), (gz1, -1.0)):                          # the head and foot beads, between them
+            sec = [(yy, u) for u, yy in _bead_section(uw, d, yg, yt, bw, joinery)]
+            out.append(_prism(sec, "x", gx0 + bw, gx1 - bw, "leaf", "bead"))
+    return out
+
 
 def _glazed_leaf(cx: float, y: float, lw: float, lh: float, t: float, frame: float = GLAZED_FRAME_M,
-                 groove: float = 0.0, lites: Optional[Sequence[int]] = None) -> list[Part]:
+                 groove: float = 0.0, lites: Optional[Sequence[int]] = None, joinery: Optional[str] = None
+                 ) -> list[Part]:
     """A glazed leaf ``lw`` wide centred on ``cx`` (``y`` across the wall): two stiles, a bottom rail 1.6 times and a
     top rail as wide as a stile (``frame``, at most a fifth of the leaf) and the glass between them, ``groove`` deep
     in them (0 for the ``glazed`` style as it always was). 29 Oct 2026 (D3, docs/reference_details_20261029.md):
-    ``lites`` ``(columns, rows)`` divides the glass with glazing bars (role ``muntin``, the leaf's key) through it."""
+    ``lites`` ``(columns, rows)`` divides the glass with glazing bars (role ``muntin``, the leaf's key) through it.
+    30 Oct 2026 (UL179): ``joinery`` (``JOINERY``) puts glazing beads round the glass on both faces
+    (``glazing_beads``)."""
     f = min(frame, lw * 0.2)
     parts = [_box(cx - (lw / 2.0 - f / 2.0), y, 0.0, f, t, lh, "leaf", "leaf"),
              _box(cx + lw / 2.0 - f / 2.0, y, 0.0, f, t, lh, "leaf", "leaf"),
              _box(cx, y, 0.0, lw - 2 * f, t, f * 1.6, "leaf", "leaf"),
              _box(cx, y, lh - f, lw - 2 * f, t, f, "leaf", "leaf"),
              _box(cx, y, f * 1.6 - groove, lw - 2 * f + 2 * groove, 0.008, lh - f * 2.6 + 2 * groove, "glass", "glass")]
+    if joinery in JOINERY:
+        parts += glazing_beads(cx - lw / 2.0 + f, cx + lw / 2.0 - f, f * 1.6, lh - f, y, t, joinery)
     if lites:
         cols, rows = max(1, int(lites[0])), max(1, int(lites[1]))
         gw, gz0, gh = lw - 2 * f, f * 1.6, lh - f * 2.6
@@ -3058,13 +3145,73 @@ def architrave_boxes(width: float, height: float, frame_w: float, thickness: flo
     return out
 
 
+def _architrave_section(ui: float, uo: float, yw: float, s: float, joinery: str) -> list[tuple[float, float]]:
+    """An architrave's section as ``(u, y)`` points (pure; UL179): from its inner edge ``ui`` (at the opening) to its
+    outer edge ``uo``, its back on the wall face ``yw``, ``ARCHITRAVE_T_M`` proud towards ``s``: ``slim`` a board with
+    eased arrises (``FILLET["h"]`` lower: the fillet of ``_fillet_section`` stands on it at the opening, a 3 mm
+    chamfer at the back edge); ``moulded`` a ramped board rising from the opening to a rounded back edge."""
+    d, t = (1.0 if uo > ui else -1.0), ARCHITRAVE_T_M
+    if joinery == "moulded":
+        r = min(0.012, abs(uo - ui) / 4.0)
+        arc = [(uo - d * r + d * r * math.cos(a), yw + s * (t - r + r * math.sin(a)))
+               for a in (math.pi * k / 8.0 for k in range(0, 5))]
+        return [(ui, yw), (uo, yw)] + arc + [(ui + d * 0.006, yw + s * 0.62 * t), (ui, yw + s * 0.5 * t)]
+    tb = t - FILLET["h"]
+    return [(ui, yw), (uo, yw), (uo, yw + s * (tb - 0.003)), (uo - d * 0.003, yw + s * tb), (ui, yw + s * tb)]
+
+
+def _fillet_section(ui: float, uo: float, yw: float, s: float) -> list[tuple[float, float]]:
+    """A slim architrave's raised fillet as ``(u, y)`` points (pure; UL179): ``FILLET["w"]`` wide at the opening's
+    edge ``ui``, from the board's top to ``ARCHITRAVE_T_M``, a 5 mm chamfer on its arris at the opening: the casing
+    reads as two steps."""
+    d, t = (1.0 if uo > ui else -1.0), ARCHITRAVE_T_M
+    tb, fw = t - FILLET["h"], min(FILLET["w"], abs(uo - ui) / 2.0)
+    return [(ui, yw + s * tb), (ui + d * fw, yw + s * tb), (ui + d * fw, yw + s * t), (ui + d * 0.005, yw + s * t),
+            (ui, yw + s * (t - 0.005))]
+
+
+def architrave_parts(width: float, height: float, frame_w: float, thickness: float, faces=(-1.0, 1.0),
+                     joinery: Optional[str] = None) -> list[Part]:
+    """The architrave of ``architrave_boxes`` as parts (pure; role ``architrave``, key ``frame``): boxes as before
+    without ``joinery``; with it (UL179) each piece the profile of ``_architrave_section`` (two jambs and the head
+    across them: the frame census counts the same pieces); a ``slim`` architrave has its raised fillet at the opening
+    (``_fillet_section``, role ``moulding``, fixed with the frame), a ``moulded`` one stands on plinth blocks
+    (``PLINTH_BLOCK``, role ``plinth``) at the jambs' feet."""
+    boxes = architrave_boxes(width, height, frame_w, thickness, faces)
+    if joinery not in JOINERY:
+        return [_box(cx, cy, z0, bw, bd, bh, "frame", "architrave") for cx, cy, z0, bw, bd, bh in boxes]
+    out: list[Part] = []
+    for cx, cy, z0, bw, bd, bh in boxes:
+        s = 1.0 if cy > 0 else -1.0
+        yw = cy - s * bd / 2.0                                           # the wall face
+        if bh > bw:                                                      # a jamb: inner edge towards x = 0
+            ui, uo = (cx + bw / 2.0, cx - bw / 2.0) if cx < 0 else (cx - bw / 2.0, cx + bw / 2.0)
+            out.append(_prism(_architrave_section(ui, uo, yw, s, joinery), "z", z0, z0 + bh, "frame", "architrave"))
+            if joinery == "slim":
+                out.append(_prism(_fillet_section(ui, uo, yw, s), "z", z0, z0 + bh, "frame", "moulding"))
+            if joinery == "moulded":
+                pw, pd = bw + PLINTH_BLOCK["w_extra"], bd + PLINTH_BLOCK["proud_extra"]
+                out.append(_box(cx, yw + s * pd / 2.0, 0.0, pw, pd, min(PLINTH_BLOCK["h"], bh / 4.0), "frame",
+                                "plinth"))
+        else:                                                            # the head: inner edge at its bottom
+            sec = [(yy, u) for u, yy in _architrave_section(z0, z0 + bh, yw, s, joinery)]
+            out.append(_prism(sec, "x", cx - bw / 2.0, cx + bw / 2.0, "frame", "architrave"))
+            if joinery == "slim":                                        # across the jambs' fillets (an L corner)
+                inner = bw / 2.0 - ARCHITRAVE_W_M
+                fsec = [(yy, u) for u, yy in _fillet_section(z0, z0 + bh, yw, s)]
+                out.append(_prism(fsec, "x", cx - inner - FILLET["w"], cx + inner + FILLET["w"], "frame", "moulding"))
+    return out
+
+
 def door_frame_parts(width: float, height: float, thickness: float, face_y: Optional[float], side: float,
-                     faces=(-1.0, 1.0), frame_w: float = DOOR_FRAME_W, lining: bool = True) -> list[Part]:
+                     faces=(-1.0, 1.0), frame_w: float = DOOR_FRAME_W, lining: bool = True,
+                     joinery: Optional[str] = None) -> list[Part]:
     """The frame of a door whose leaf is not ours (pure; 29 Oct 2026, UL122: a library door model): with ``lining``
     the parametric door's jambs and head as deep as the wall (role ``frame``), its stops on the face away from the
     room it opens into against the leaf face ``face_y`` (role ``stop``; none when ``face_y`` is None) and the
     architrave on ``faces``; without it (a model with its own frame) the architrave alone, its inner edge over the
-    model's jambs (``frame_w``: their measured width). Key ``frame`` throughout, in the opening's frame."""
+    model's jambs (``frame_w``: their measured width). Key ``frame`` throughout, in the opening's frame. 30 Oct 2026
+    (UL179): ``joinery`` profiles the architrave (``architrave_parts``)."""
     w, h, t = float(width), float(height), float(thickness)
     parts: list[Part] = []
     if lining:
@@ -3075,8 +3222,7 @@ def door_frame_parts(width: float, height: float, thickness: float, face_y: Opti
             s = -1.0 if float(side) < 0 else 1.0
             parts += [_box(cx, cy, z0, bw, bd, bh, "frame", "stop")
                       for cx, cy, z0, bw, bd, bh in door_stop_boxes(w, h, frame_w, float(face_y), t, -s)]
-    parts += [_box(cx, cy, z0, bw, bd, bh, "frame", "architrave")
-              for cx, cy, z0, bw, bd, bh in architrave_boxes(w, h, frame_w, t, tuple(faces or ()))]
+    parts += architrave_parts(w, h, frame_w, t, tuple(faces or ()), joinery)
     return parts
 
 
@@ -3107,19 +3253,87 @@ def frame_census(parts: Sequence[Part], height: float) -> dict:
     return out
 
 
-def hinge_parts(edge_x: float, lh: float, t: float, side: float, y: float = 0.0) -> list[Part]:
+def hinge_parts(edge_x: float, lh: float, t: float, side: float, y: float = 0.0,
+                joinery: Optional[str] = None) -> list[Part]:
     """Three hinge knuckles (``HINGE_SIZE_M``) at the leaf edge ``edge_x`` on the swing face (``side``: the room the
-    door opens into), role ``hinge``, key ``handle`` (the handle metal; pure; 29 Oct 2026)."""
+    door opens into), role ``hinge``, key ``handle`` (the handle metal; pure; 29 Oct 2026). 30 Oct 2026 (UL179): with
+    ``joinery`` each knuckle has a tip ``HINGE_TIP_H_M`` tall at both ends (the pin's caps)."""
     hx, hy, hz = HINGE_SIZE_M
     s = -1.0 if float(side) < 0 else 1.0
     zs = [HINGE_Z_M[0], lh / 2.0 - hz / 2.0, lh - HINGE_Z_M[2]]
-    return [_cylinder_z(edge_x, y + s * t / 2.0, z, hx / 2.0, hy / 2.0, hz, "handle", "hinge", n=12)
-            for z in zs if 0.0 <= z <= lh - hz]
+    out = []
+    for z in zs:
+        if not 0.0 <= z <= lh - hz:
+            continue
+        out.append(_cylinder_z(edge_x, y + s * t / 2.0, z, hx / 2.0, hy / 2.0, hz, "handle", "hinge", n=12))
+        if joinery in JOINERY:
+            for z0 in (z - HINGE_TIP_H_M, z + hz):
+                out.append(_cylinder_z(edge_x, y + s * t / 2.0, z0, hx * 0.32, hy * 0.32, HINGE_TIP_H_M, "handle",
+                                       "hinge_tip", n=8))
+    return out
 
 
-def _lever_pair(x: float, z: float, t: float, y: float = 0.0, rose: bool = False) -> list[Part]:
+def _lever_detail(x: float, z: float, t: float, y: float, rose: bool, joinery: str) -> list[Part]:
+    """UL179: a lever on both faces as a product (pure; key ``handle``): a round rose (``slim``) or a backplate round
+    the lever and the keyhole (``moulded``), a round neck, the bar with a round free end; ``rose`` a lock rose
+    ``LOCK_ROSE_DROP_M`` under the lever with its cylinder (a backplate: a keyhole escutcheon on the plate)."""
+    out: list[Part] = []
+    bar, sec = LEVER_BAR_M
+    for s in (-1.0, 1.0):
+        face = y + s * t / 2.0
+        y0 = face if s > 0 else face - ROSE_T_M
+        if joinery == "moulded":
+            pw, ph = BACKPLATE_M
+            out.append(_box(x, face + s * ROSE_T_M / 2.0, z - ph * 0.62, pw, ROSE_T_M, ph, "handle", "rose"))
+        else:
+            out.append(_cylinder_y(x, y0, z, ROSE_R_M, ROSE_R_M, ROSE_T_M, "handle", "rose", n=20))
+        neck_len = LEVER_OFF_M - ROSE_T_M + sec / 2.0
+        n0 = face + s * ROSE_T_M if s > 0 else face - ROSE_T_M - neck_len
+        out.append(_cylinder_y(x, n0, z, NECK_R_M, NECK_R_M, neck_len, "handle", "handle", n=12))
+        yb = face + s * LEVER_OFF_M
+        out.append(_box(x - bar / 2.0 + NECK_R_M, yb, z - sec / 2.0, bar, sec, sec, "handle", "handle"))
+        out.append(_cylinder_z(x - bar + NECK_R_M, yb, z - sec / 2.0, sec / 2.0, sec / 2.0, sec, "handle", "handle",
+                               n=12))
+        if rose:
+            zr = z - LOCK_ROSE_DROP_M
+            if joinery == "moulded":
+                c0 = face + s * ROSE_T_M if s > 0 else face - ROSE_T_M - 0.002
+                out.append(_cylinder_y(x, c0, zr, 0.006, 0.006, 0.002, "handle", "lock_rose", n=12))
+            else:
+                out.append(_cylinder_y(x, face if s > 0 else face - 0.008, zr, LOCK_ROSE_R_M, LOCK_ROSE_R_M, 0.008,
+                                       "handle", "lock_rose", n=16))
+                c0 = face + s * 0.008 if s > 0 else face - 0.008 - 0.004
+                out.append(_cylinder_y(x, c0, zr, LOCK_CORE_R_M, LOCK_CORE_R_M, 0.004, "handle", "lock_core", n=12))
+    return out
+
+
+def outside_face(product: Optional[dict]) -> Optional[float]:
+    """UL179: the y face (+1 / -1) of an outside door (``product["outside"]``) that looks out: the face without an
+    indoor room when its architrave faces (``architrave_faces``: the indoor faces) name exactly one; else None."""
+    p = product or {}
+    if not p.get("outside"):
+        return None
+    indoor = {-1.0 if float(f) < 0 else 1.0 for f in (p.get("architrave_faces") or ())}
+    return -next(iter(indoor)) if len(indoor) == 1 else None
+
+
+def weather_bar(cx: float, lw: float, t: float, outside: float, y: float = 0.0) -> Part:
+    """UL179: an outside door's weather bar (pure): an aluminium drip profile along the foot of the leaf's outside
+    face (``outside`` +1 / -1, ``t`` the face's distance from ``y`` x 2), its top sloping off the leaf; role
+    ``weather_bar``, the handle metal; it moves with the leaf."""
+    s = 1.0 if float(outside) > 0 else -1.0
+    yf, z0, h, d = y + s * t / 2.0, WEATHER_BAR["z0"], WEATHER_BAR["h"], WEATHER_BAR["d"]
+    sec = [(yf, z0), (yf + s * d, z0), (yf + s * d, z0 + 0.3 * h), (yf, z0 + h)]
+    return _prism(sec, "x", cx - lw / 2.0 + 0.005, cx + lw / 2.0 - 0.005, "handle", "weather_bar")
+
+
+def _lever_pair(x: float, z: float, t: float, y: float = 0.0, rose: bool = False,
+                joinery: Optional[str] = None) -> list[Part]:
     """Lever handles on both faces of a leaf of thickness ``t`` centred on ``y``; ``rose`` (29 Oct 2026, R28): a round
-    lock rose ``LOCK_ROSE_DROP_M`` under each lever."""
+    lock rose ``LOCK_ROSE_DROP_M`` under each lever. 30 Oct 2026 (UL179): ``joinery`` builds them as a product
+    (``_lever_detail``)."""
+    if joinery in JOINERY:
+        return _lever_detail(x, z, t, y, rose, joinery)
     out = []
     for s in (-1, 1):
         yy = y + s * (t / 2.0 + 0.03)
@@ -3134,7 +3348,7 @@ def _lever_pair(x: float, z: float, t: float, y: float = 0.0, rose: bool = False
 
 # 29 Oct 2026 (D1, lesson UL116; ``door_states``): a door's leaf as the house shows it: open, ajar or slid open. The
 # parts that stay with the frame (``FIXED_ROLES``) stay; the others turn about the hinge edge on the swing face or slide.
-FIXED_ROLES: tuple[str, ...] = ("frame", "rail", "stop", "architrave")       # = shell.FRAME_ROLES
+FIXED_ROLES: tuple[str, ...] = ("frame", "rail", "stop", "architrave", "plinth", "moulding")  # = shell.FRAME_ROLES
 
 
 def swing_angle(hinge: str, side: float, angle_deg: float) -> float:
@@ -3273,6 +3487,7 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         hinges = False
     rose = bool(product.get("lock_rose"))                                # 29 Oct 2026 (R28): a lock rose
     lites = product.get("lites") if isinstance(product.get("lites"), (list, tuple)) else None     # D3
+    joinery = product.get("joinery") if product.get("joinery") in JOINERY else None              # UL179
     frameless = product.get("frameless") if isinstance(product.get("frameless"), str) else None   # UL122
     arch_faces = tuple(product.get("architrave_faces") or (-1.0, 1.0)) if product.get("architrave") else ()
     if frameless:
@@ -3281,8 +3496,7 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         # 29 Oct 2026 (UL122): a sliding or barn leaf covers its own face: the architrave only on the other face
         arch_faces = tuple(f for f in arch_faces if (-1.0 if float(f) < 0 else 1.0) != side)
     if style != "sectional" and arch_faces:
-        parts += [_box(cx, cy, z0, bw, bd, bh, "frame", "architrave")
-                  for cx, cy, z0, bw, bd, bh in architrave_boxes(w, h, frame_w, t, arch_faces)]
+        parts += architrave_parts(w, h, frame_w, t, arch_faces, joinery)
     if surface and (product.get("architrave") or product.get("lining")):
         # 29 Oct 2026 (UL122): the opening behind a sliding or barn leaf gets a lined reveal (jambs and head lining)
         lt = LINING_T_M
@@ -3320,7 +3534,7 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         ecx, elw = (x0 + x1) / 2.0, (x1 - x0) - 0.01
         parts.append(_leaf_box(ecx, 0.0, elw, lh, leaf_t))
         if hinges:
-            parts += hinge_parts(ecx - elw / 2.0, lh, leaf_t, side)
+            parts += hinge_parts(ecx - elw / 2.0, lh, leaf_t, side, joinery=joinery)
         for _k, a, b in (s for s in sections if s[0] == "light"):
             parts += [_box((a + b) / 2.0, 0.0, 0.0, b - a, leaf_t, SIDELIGHT_BASE_M, "leaf", "panel"),
                       _box((a + b) / 2.0, 0.0, SIDELIGHT_BASE_M, b - a, 0.008, h - frame_w - SIDELIGHT_BASE_M,
@@ -3334,13 +3548,13 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         extra["sidelights"] = sum(1 for s in sections if s[0] == "light")
     elif style in ("flush", "pocket", "entrance", "shaker_panel", "glazed"):
         if style == "glazed":
-            parts += _glazed_leaf(0.0, 0.0, lw, lh, leaf_t, lites=lites)
+            parts += _glazed_leaf(0.0, 0.0, lw, lh, leaf_t, lites=lites, joinery=joinery)
         elif style == "flush" and detail is not None:
             parts += _detailed_leaf(0.0, lw, lh, leaf_t, detail)
         else:
             parts.append(_leaf_box(0.0, 0.0, lw, lh, leaf_t))
         if hinges and style != "pocket":                                 # on the swing face, opposite the lever
-            parts += hinge_parts(-lw / 2.0, lh, leaf_t, side)
+            parts += hinge_parts(-lw / 2.0, lh, leaf_t, side, joinery=joinery)
         if style == "shaker_panel":
             f = min(DOOR_PANEL_FRAME_M, lw * 0.2)
             for s in (-1, 1):
@@ -3365,46 +3579,46 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
                 parts.append(_box(lw / 2.0 - 0.06, s * (leaf_t / 2.0 + 0.001), lever_z - 0.08, 0.03, 0.002, 0.16,
                                   "handle", "handle"))
         else:
-            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, leaf_t, rose=rose)
+            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, leaf_t, rose=rose, joinery=joinery)
     elif style in ("double", "folding") and not glazed and (style == "double" or (asked or 2) == 2):
         half = lw / 2.0 - 0.002
         for s in (-1, 1):
             parts += _detailed_leaf(s * (half / 2.0 + 0.001), half, lh, DOOR_LEAF_T, detail)
             if hinges and style == "double":                             # each leaf hinged at its jamb
-                parts += hinge_parts(s * lw / 2.0, lh, DOOR_LEAF_T, side)
+                parts += hinge_parts(s * lw / 2.0, lh, DOOR_LEAF_T, side, joinery=joinery)
         # the astragal over the meeting stiles, on the stop face (fix round after P3)
         (_cx, cy, _z0, _bw, bd, _bh) = door_stop_boxes(w, h, frame_w, DOOR_LEAF_T / 2.0, t, -side)[0]
         parts.append(_box(0.0, cy, 0.0, DOOR_ASTRAGAL_W_M, bd, lh, "leaf", "astragal"))
         if style == "double":
             for s in (-1, 1):
-                parts += _lever_pair(s * 0.06, lever_z, DOOR_LEAF_T, rose=rose and s > 0)
+                parts += _lever_pair(s * 0.06, lever_z, DOOR_LEAF_T, rose=rose and s > 0, joinery=joinery)
         else:
-            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, DOOR_LEAF_T, rose=rose)
+            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, DOOR_LEAF_T, rose=rose, joinery=joinery)
     elif style in ("double", "folding"):                                 # glazed leaves (French doors), n leaves
         n = 2 if style == "double" else max(2, asked or 2)
         lwi = (lw - LEAF_GAP_M - (n - 1) * LEAF_GAP_M) / n
         centres = [-lw / 2.0 + LEAF_GAP_M / 2.0 + lwi / 2.0 + i * (lwi + LEAF_GAP_M) for i in range(n)]
         for cx in centres:
-            parts += _glazed_leaf(cx, 0.0, lwi, lh, DOOR_LEAF_T, groove=GLAZING_GROOVE_M, lites=lites) if glazed \
-                else _detailed_leaf(cx, lwi, lh, DOOR_LEAF_T, detail)
+            parts += _glazed_leaf(cx, 0.0, lwi, lh, DOOR_LEAF_T, groove=GLAZING_GROOVE_M, lites=lites,
+                                  joinery=joinery) if glazed else _detailed_leaf(cx, lwi, lh, DOOR_LEAF_T, detail)
         if hinges and style == "double":                                 # each leaf hinged at its jamb
-            parts += hinge_parts(centres[0] - lwi / 2.0, lh, DOOR_LEAF_T, side)
-            parts += hinge_parts(centres[-1] + lwi / 2.0, lh, DOOR_LEAF_T, side)
+            parts += hinge_parts(centres[0] - lwi / 2.0, lh, DOOR_LEAF_T, side, joinery=joinery)
+            parts += hinge_parts(centres[-1] + lwi / 2.0, lh, DOOR_LEAF_T, side, joinery=joinery)
         (_cx, cy, _z0, _bw, bd, _bh) = door_stop_boxes(w, h, frame_w, DOOR_LEAF_T / 2.0, t, -side)[0]
         for a, b in zip(centres, centres[1:]):                           # an astragal over every meeting joint
             parts.append(_box((a + b) / 2.0, cy, 0.0, DOOR_ASTRAGAL_W_M, bd, lh, "leaf", "astragal"))
         if style == "double":
             for s in (-1, 1):
-                parts += _lever_pair(s * 0.06, lever_z, DOOR_LEAF_T)
+                parts += _lever_pair(s * 0.06, lever_z, DOOR_LEAF_T, joinery=joinery)
         else:
-            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, DOOR_LEAF_T)
+            parts += _lever_pair(lw / 2.0 - 0.07, lever_z, DOOR_LEAF_T, joinery=joinery)
         extra["leaves"] = n
     elif style == "glazed_sliding":                                      # glazed panels on two tracks in the frame
         pt, pw = SLIDING_PANEL_T, panels["width"]
         moving = []
         for i, cx in enumerate(panels["centres"]):
             y = (-side if i % 2 == 0 else side) * panels["d"]            # the outer track away from the room
-            parts += _glazed_leaf(cx, y, pw, lh, pt, SLIDING_STILE_M, GLAZING_GROOVE_M, lites=lites)
+            parts += _glazed_leaf(cx, y, pw, lh, pt, SLIDING_STILE_M, GLAZING_GROOVE_M, lites=lites, joinery=joinery)
             if i not in panels["fixed"]:
                 moving.append((cx, y))
         if not panels["staggered"]:                                      # side by side: astragals over the joints
@@ -3459,6 +3673,24 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
             parts.append(_box(w / 2.0 - 0.05, rail_y, sh + 0.02, 2.0 * sw, 0.02, RAIL_H, "rail", "rail"))
             parts.append(_box(-sw / 2.0 + 0.08, y + side * (DOOR_LEAF_T / 2.0 + 0.01), lever_z - 0.15, 0.03, 0.02,
                               0.3, "handle", "handle"))
+    out_face = outside_face(product)
+    if joinery and out_face is not None and not surface:
+        # 30 Oct 2026 (UL179): an outside door's weather bar at the foot of each swing leaf's outside face
+        proud = DOOR_PANEL_PROUD_M if style == "shaker_panel" or (detail or {}).get("kind") == "panelled" else 0.0
+        if sections is not None:
+            (_k, x0, x1) = next(s for s in sections if s[0] == "leaf")
+            spans = [((x0 + x1) / 2.0, (x1 - x0) - 0.01)]
+        elif style in ("flush", "glazed", "entrance", "shaker_panel"):
+            spans = [(0.0, lw)]
+        elif style == "double":
+            spans = [(-lw / 4.0, lw / 2.0 - 0.004), (lw / 4.0, lw / 2.0 - 0.004)]
+        else:
+            spans = []
+        parts += [weather_bar(cx, sw, leaf_t + 2.0 * proud, out_face) for cx, sw in spans]
+        if spans:
+            extra["weather_bar"] = out_face
+    if joinery:
+        extra["joinery"] = joinery
     fixed = (look or {}).get("operation") == "fixed"
     if fixed:                                                            # a drawn fixed leaf: nothing to open it
         parts = [p for p in parts if p["key"] != "handle"]

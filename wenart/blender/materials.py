@@ -549,6 +549,20 @@ class MaterialLibrary:
                                           "reason": "thin glass (transparent + glossy by Fresnel): data passes see through"}
         return self._cache["thin_glass"]
 
+    def satin_glass(self):
+        """30 Oct 2026 (lesson UL191): the satin (acid-etched) glass of an inside door's narrow lites
+        (``satin_glass_material``): milky and half translucent, so a lite reads as a glass insert and never as a slot
+        through the leaf (real04's kitchen door, open against a slatted wall, showed the wall through its clear
+        lites)."""
+        if "satin_glass" not in self._cache:
+            self._cache["satin_glass"] = satin_glass_material("satin_glass")
+            self.records["satin_glass"] = {"slug": "glass", "textured": False, "asset": None, "source": None,
+                                           "licence": None, "size_m": None, "flat_colour": list(SATIN_GLASS_RGB),
+                                           "tint": None, "unverified": False, "albedo_mode": None, "detail": None,
+                                           "gain_clamped": None,
+                                           "reason": "satin glass: an inside door's narrow lites (UL191)"}
+        return self._cache["satin_glass"]
+
     def smoked_glass(self):
         """29 Oct 2026 (UL120): the smoked glass of a see-through wardrobe front: the thin pane with its transparency
         tinted ``SMOKED_GLASS_RGB`` (the garments show through, darkened)."""
@@ -1118,6 +1132,28 @@ def window_glass_material(name: str, ior: float = WINDOW_GLASS_IOR):
 
 
 SMOKED_GLASS_RGB = (0.30, 0.29, 0.28)    # 29 Oct 2026 (UL120): a smoked pane lets about a third of the light through
+# 30 Oct 2026 (UL191): satin glass (acid-etched float glass: a cool milky white, about half the light through, diffused)
+SATIN_GLASS_RGB = (0.80, 0.84, 0.84)
+SATIN_GLASS = {"roughness": 0.45, "transmission": 0.55, "ior": 1.45}
+
+
+def satin_glass_material(name: str):
+    """30 Oct 2026 (UL191): a satin glass pane: a Principled BSDF in ``SATIN_GLASS_RGB``, its transmission rough
+    (``SATIN_GLASS``) and half of it, so what stands behind the pane is a soft light, never a sharp view (an inside
+    door's narrow lites). The data passes see the pane (it is opaque to them: the door, not the wall behind)."""
+    import bpy
+
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    node = next(n for n in mat.node_tree.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled")
+    node.inputs["Base Color"].default_value = (*SATIN_GLASS_RGB, 1.0)
+    node.inputs["Roughness"].default_value = SATIN_GLASS["roughness"]
+    node.inputs["IOR"].default_value = SATIN_GLASS["ior"]
+    for key in ("Transmission Weight", "Transmission"):
+        if key in node.inputs:
+            node.inputs[key].default_value = SATIN_GLASS["transmission"]
+            break
+    return mat
 
 
 def thin_glass_material(name: str, roughness: float = 0.0, ior: float = 1.45, tint=None):

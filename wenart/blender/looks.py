@@ -385,7 +385,8 @@ def door_look(style: dict, opening: Optional[dict] = None) -> dict:
                 handle_material=HANDLE_SLUGS[handle], handle_assumed=door.get("handle") not in HANDLE_SLUGS,
                 operation=op, operation_assumed=op_assumed, leaf_detail=product.get("leaf_detail"),
                 architrave=product.get("architrave"), hinges=product.get("hinges"),
-                lock_rose=product.get("lock_rose"), **extra)
+                lock_rose=product.get("lock_rose"), joinery=product.get("joinery"),
+                outside=True if (opening or {}).get("outside_door") else None, **extra)
     if pivot:
         out["pivot"] = True
     if frameless:
@@ -511,6 +512,12 @@ LEAF_DETAILS: dict[str, dict] = {
 DEFAULT_LEAF_DETAIL: dict = {"kind": "lined"}
 LEAF_DETAIL_KINDS: tuple[str, ...] = ("lined", "horizontal", "vertical", "fine_vertical", "panelled", "plain")
 DETAIL_STYLES: tuple[str, ...] = ("flush", "double", "folding")     # door styles whose solid leaves take the detail
+# 30 Oct 2026 (lesson UL179, user on real04's glazed outside door: "Door style is good but it is too plain, make it
+# better"): the joinery of every parametric door of a family (``parametric.JOINERY``): ``moulded`` in the period
+# families (ovolo glazing beads, a ramped architrave on plinth blocks, a backplate), ``slim`` in the others (bevelled
+# beads, an architrave with eased arrises, a round rose under a slim lever); hinge tips, a lock cylinder and an outside
+# door's weather bar in both.
+MOULDED_FAMILIES: tuple[str, ...] = ("classic", "rustic", "mediterranean", "traditional")
 
 
 def door_product(style: Optional[dict], door_style: Optional[str] = None, veneered: bool = False) -> dict:
@@ -535,7 +542,9 @@ def door_product(style: Optional[dict], door_style: Optional[str] = None, veneer
         why = f"the {family} family's door, assumed" if family in LEAF_DETAILS else f"a {family} door, assumed"
     if door_style is not None and door_style not in DETAIL_STYLES:
         detail = {"kind": "plain"}
-    return {"leaf_detail": detail, "architrave": True, "hinges": True, "lock_rose": True, "why": why}
+    joinery = "moulded" if family in MOULDED_FAMILIES else "slim"
+    return {"leaf_detail": detail, "architrave": True, "hinges": True, "lock_rose": True, "joinery": joinery,
+            "why": why}
 
 
 # 28 Oct 2026 (user: "I want better doors inside the house and the outside ... some variation is needed"): with no door

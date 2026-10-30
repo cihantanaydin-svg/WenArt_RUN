@@ -409,6 +409,13 @@ GLASS_NAME_WORDS = ("glass", "glas", "glazing", "pane", "vidro", "vitre", "cam_"
 GLAZED = ("window", "glazed_door", "terrace_door")
 
 
+def _glass_named(name: str) -> bool:
+    """``opening_build.glass_named`` (30 Oct 2026, UL191: "pane" never inside "panel")."""
+    from wenart.blender import opening_build as OB
+
+    return OB.glass_named(name)
+
+
 def glb_glass(path) -> Optional[bool]:
     """Whether a GLB model has a see-through material (pure: the file's JSON chunk): a material named like glass, one
     with a blended alpha under 0.7, or with ``KHR_materials_transmission`` over 0.5. None when the file cannot be
@@ -429,7 +436,7 @@ def glb_glass(path) -> Optional[bool]:
         return None
     for m in doc.get("materials") or []:
         name = str(m.get("name") or "").lower()
-        if any(w in name for w in GLASS_NAME_WORDS):
+        if _glass_named(name):
             return True
         pbr = m.get("pbrMetallicRoughness") or {}
         alpha = (pbr.get("baseColorFactor") or [1, 1, 1, 1])[3:4] or [1.0]
@@ -462,7 +469,7 @@ def _glb_json(path) -> Optional[dict]:
 
 def _glass_material(m: dict) -> bool:
     name = str(m.get("name") or "").lower()
-    if any(w in name for w in GLASS_NAME_WORDS):
+    if _glass_named(name):
         return True
     pbr = m.get("pbrMetallicRoughness") or {}
     alpha = (pbr.get("baseColorFactor") or [1, 1, 1, 1])[3:4] or [1.0]
