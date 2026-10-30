@@ -220,7 +220,15 @@ def _stair():
     return rec, gz
 
 
-def test_an_outdoor_stair_has_one_continuous_handrail_on_its_steps():
+def test_garden_steps_take_no_handrail_unless_a_flight_is_a_stair():
+    """UL189 (30 Oct 2026, user: "no need for handrails"): flights of 0.72-0.86 m between landings are garden steps."""
+    rec = GR.path_plan({"id": "st", "kind": "path", "polygon": _rect(0, 0, 12, 1.2)}, lambda x, y: 0.28 * x)
+    assert rec["kind"] == "stepped" and max(rec["flight_rises"]) < GR.GRADE["path_rail_rise_m"]
+    assert not rec["handrails"] and "handrail" not in rec["reason"]
+
+
+def test_an_outdoor_stair_has_one_continuous_handrail_on_its_steps(monkeypatch):
+    monkeypatch.setitem(GR.GRADE, "path_rail_rise_m", 0.45)          # the rail's geometry (UL144) on these flights
     rec, gz = _stair()
     rail = GR.stair_rail(rec, gz)
     assert rail is not None and rail["flights"] == len(rec["flights"])

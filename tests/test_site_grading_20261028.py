@@ -290,7 +290,8 @@ def test_a_path_on_the_flat_is_a_walk_with_an_edging_and_a_steep_one_is_stepped_
     risers = sum(1 for s in rec["slices"] if s["riser"] or s.get("riser_end"))
     assert len(meshes["step_edge"]) == risers
     assert meshes["edge_wall"] and meshes["edging"]                  # the uphill side held, the downhill side edged
-    assert meshes["rail"] if any(k * rec["riser"] > float(rules["handrail_from"]) for k in rec["flights"]) else True
+    rail_from = max(float(rules["handrail_from"]), GR.GRADE["path_rail_rise_m"])     # UL189: garden steps
+    assert meshes["rail"] if any(k * rec["riser"] > rail_from for k in rec["flights"]) else not meshes["rail"]
     assert all(r["z_bottom"] <= r["ground_max"] for r in meshes["records"])
     # the same strip drawn the other way round is the same path (from its lower end)
     back = GR.path_plan({"id": "p_b", "kind": "path", "polygon": _strip(0, 11.5)}, lambda x, y: -0.25 * x)

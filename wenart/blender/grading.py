@@ -76,6 +76,10 @@ from wenart import geometry as G
 from wenart.blender import geom2d
 
 GRADE = {
+    # 30 Oct 2026 (lesson UL189, user on real04 run 20261030-112241-full's garden steps: "no need for handrails"): a
+    # stepped garden path's flight (short flights between level landings) takes a handrail only when one flight rises
+    # more than this (a stair, not garden steps); the steps at a door or a deck keep the levels' handrail_from
+    "path_rail_rise_m": 1.0,
     # banks: the steepest slope (rise per run) each finish holds without a wall (lawn mown at 1:3, ground cover 1:2)
     "lawn_slope": 1.0 / 3.0, "planted_slope": 1.0 / 2.0,
     "embank_max_m": 1.2,            # a taller difference is held by walls and terraces (= site.RETAINING_MAX_M)
@@ -1069,14 +1073,15 @@ def path_plan(area: dict, gz: Callable, accessible: bool = False, rules: Optiona
                                                 f"edges; inferred)")
     else:
         slices, info = _stepped_slices(fr["length"], fr["width"], ts_r, g_r, rules)
+        rail_from = max(float(rules["handrail_from"]), GRADE["path_rail_rise_m"])      # UL189: garden steps
         rec.update(kind="stepped", **{k: v for k, v in info.items()},
-                   handrails=any(x > float(rules["handrail_from"]) + 1e-9 for x in info["flight_rises"]),
+                   handrails=any(x > rail_from + 1e-9 for x in info["flight_rises"]),
                    reason=f"a stepped path: {prof['local'] * 100:.0f} % along is steeper than 1:12, so "
                           f"{info['risers']} risers of {info['riser']:.3f} m in {len(info['flights'])} flight(s) "
                           f"({'/'.join(str(s) for s in info['flights'])}) with level landings, treads "
                           f"{info['tread']:.2f} m, level across, stone step edges"
-                          + ("; a handrail on the flights over 0.45 m" if any(
-                              x > float(rules["handrail_from"]) + 1e-9 for x in info["flight_rises"]) else "")
+                          + (f"; a handrail on the flights over {rail_from:g} m" if any(
+                              x > rail_from + 1e-9 for x in info["flight_rises"]) else "")
                           + (" (steeper than a stair can follow: treads under the rule)" if info["too_steep"] else "")
                           + " (inferred)")
         if accessible:
@@ -1386,7 +1391,8 @@ def path_meshes(rec: dict, gz: Callable, below: float, walk: Sequence = ()) -> d
             za, zc = run[0]["z0"], run[-1]["z1"]
         else:
             # a flight of s risers has s - 1 treads: its rise is their spread and two risers
-            want = (z_hi - z_lo) + 2.0 * float(rec.get("riser") or 0.15) > float(rules["handrail_from"]) + 1e-6
+            want = bool(rec.get("handrails")) and (z_hi - z_lo) + 2.0 * float(rec.get("riser") or 0.15) > max(
+                float(rules["handrail_from"]), GRADE["path_rail_rise_m"]) + 1e-6          # UL189: garden steps
             sides = (1.0,)
             first, last = run[0], run[-1]
             za, zc = first["z0"], last["z0"]
