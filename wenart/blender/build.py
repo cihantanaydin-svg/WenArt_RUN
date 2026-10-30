@@ -1278,6 +1278,14 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
                                    "reason": c["reason"], "kind": "opening_clipped_by_roof", "parent": c["opening_id"]})
             if not c["fits"]:
                 out["warnings"].append(f"{c['opening_id']}: {c['reason']}")
+    # 30 Oct 2026 (lesson UL181, user on real04's play room: "This window and curtain arrangement needs a rework"): the
+    # curtains and blinds follow their windows as the answers and the clips leave them (the decor stage fitted them to
+    # the drawn windows; an answer widened the play room's to 4 m and the curtain hung mid-glass)
+    from wenart.blender import window_decor as WD
+    out["window_decor"] = WD.refit(vb)
+    for r in out["window_decor"]:
+        out["assumed"].append({"object": r["id"], "field": "window_fit", "value": r["now"], "reason": r["why"],
+                               "kind": "window_decor_refit", "parent": r["window_id"]})
     for lv in vb["levels"]:
         out["outlines"][lv["id"]], method = geom2d.wall_outline([w for w in vb["walls"] if w["level_id"] == lv["id"]])
         if method == "convex_hull":               # review #24: an approximate outline is never silent

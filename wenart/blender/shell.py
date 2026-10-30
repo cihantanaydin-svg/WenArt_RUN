@@ -1833,12 +1833,15 @@ def build_window_m10(opening: dict, wall: dict, look: dict, geo: dict, ctx: dict
     library = ctx["library"]
     look = look or {}
     side, room_id, side_assumed = opening_room_side(geo["centre"], wall, ctx["rooms"])
-    parts, record = P.window_parts(look, geo["width"], geo["height"], geo["thickness"], look.get("mullions", 0),
-                                   look.get("transoms", 0), side)
-    by = {"frame": mats["frame"], "glass": mats["glass"], "sill": mats["sill"]}
+    # 30 Oct 2026 (lessons UL197, UL181): the window as a real product (parametric.window_product_parts: the stepped
+    # frame, sashes or glazing beads, gaskets, handles, a wide glazing divided into real panes)
+    parts, record = P.window_product_parts(look, geo["width"], geo["height"], geo["thickness"], look.get("mullions", 0),
+                                           look.get("transoms", 0), side, sill=opening.get("sill_height"))
+    by = {"frame": mats["frame"], "glass": mats["glass"], "sill": mats["sill"],
+          "gasket": library.get(WINDOW_GASKET_MATERIAL), "handle": mats.get("handle") or mats["frame"]}
     record = dict(record, inside_side=side, room_id=room_id, inside_assumed=side_assumed, reason=look.get("reason"))
     created = []
-    for key, roles in (("frame", ("frame", "mullion", "transom")), ("glass", ("glass",))):
+    for key, roles in (("frame", WINDOW_FRAME_ROLES), ("glass", ("glass",))):
         group = [p for p in parts if p["role"] in roles]
         ob, used = _opening_object(opening, key, group, by, geo, ctx, geo["status"])
         created.append(ob)
@@ -1859,7 +1862,21 @@ def build_window_m10(opening: dict, wall: dict, look: dict, geo: dict, ctx: dict
                   + "; not in the documents")
         _detail_entry(opening, ob, used, geo, ctx, {"detail": "inside_sill", **info, "reason": reason},
                       f"{used[0].name} sill", "inside_sill", shift)
+    handles = [p for p in parts if p["role"] == "handle"]
+    if handles:
+        ob, used = _opening_object(opening, "handle", handles, by, geo, ctx, "assumed")
+        created.append(ob)
+        product = record.get("product") or {}
+        reason = (f"design detail of the documented window: a {product.get('kind')} window of "
+                  f"{product.get('panes')} pane(s), handles on the opening one(s) {product.get('opening')} "
+                  f"({product.get('why')}); not in the documents")
+        _detail_entry(opening, ob, used, geo, ctx, {"detail": "window_handles", "product": product, "reason": reason},
+                      f"{used[0].name} handles", "window_handles", shift)
     return created
+
+
+WINDOW_FRAME_ROLES: tuple[str, ...] = ("frame", "mullion", "transom", "sash", "bead", "gasket", "track")
+WINDOW_GASKET_MATERIAL = "steel_black"     # 30 Oct 2026 (UL197): the dark gasket line at the glass
 
 
 def _textured(library, mat) -> bool:
