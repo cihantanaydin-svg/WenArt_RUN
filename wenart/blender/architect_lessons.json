@@ -2439,6 +2439,18 @@
    "request": "Nice inspiration for toilet solution (30 Oct 2026, the user's photo of a WC: charcoal microcement walls; a half-height installation wall with recessed lit niches on top holding toiletries; a long backlit horizontal mirror above it; a black wall-mounted mixer over a matt black vessel basin on a rustic oak trestle bench with a lower shelf and a woven basket; a slim fin wall between the basin and the WC; a black wall-hung WC with a round dual-flush plate on the installation wall; a chrome toilet brush and a roll holder; a woven rattan dome pendant; large greige floor tiles)",
    "lesson": "A wall-hung WC hangs on a half-height installation wall: 0.15 m deep and 1.15 m high, the flush plate below its top and lit niches with toiletries along it. It goes in WC rooms and on the WC side of bathrooms whose family has no fluted wall behind the WC; it runs 0.60 m past the WC, into a near corner, and stops at openings, pieces, door swings and slopes. In a WC room the basin on the same wall stands on its face too, under a long thin backlit mirror; in the families that like it that basin is an oak trestle bench with a matt black bowl, a black wall mixer and a basket. The paper holder hangs on the pre-wall's face, the brush stands beside the WC. The WC and basin keep their drawn footprints; classic families keep their close-coupled WC.",
    "question": "Does every WC look like the user's reference: a half-height installation wall with recessed niches, a long backlit mirror, a wall-hung WC with its flush plate, the basin on a bench or console with a wall mixer, a brush and a roll holder?"
+  },
+  {
+   "id": "UL206",
+   "date": "2026-10-30",
+   "area": "process",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "What else can be optimized for the pod run? ... Only apply the 5 rest stays the same (30 Oct 2026: pack the results into one archive; real04 runs 201533, 043021 and 112241 each missed thousands of result files at the download and needed a fetch pod)",
+   "lesson": "A pod's results reach the session whole, in one go, on every job: at the job's end the pod packs its public results into tar parts of about 32 MB (scripts/pack_results.py: the runner's own selection and order, records first, the 3D files streamed apart) on the container disk, served at <token>.pack/; the runner downloads the parts in parallel, checks each one's size and checksum, unpacks only plain files inside results/, and walks the files as before only when there is no pack or a part fails. The pod waits for the download as long as the pack's size needs (60 s plus 4 MB/s, at most 10 min; the runner stops it right after). The job's full copies to the volume write only the files that are missing or changed (same size and modified time: skipped). Only this item of the pod-time list was asked for; the others (variant views, twin rooms, the last Argus pass, big-loop re-renders, refused edits, incremental builds) stay as they are until the user asks. Real04 runs 20261029-201533, 20261030-043021 and 20261030-112241: about 9,300 files fetched one by one while the pod waited 120 s; each run missed thousands (112241: 8,656) and needed a fetch pod.",
+   "question": "Did the run's results arrive complete in one collection, without a fetch pod?"
   }
  ]
 }

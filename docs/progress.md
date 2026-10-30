@@ -2792,3 +2792,16 @@ Fixed after the run:
 | UL204 | wood cladding by the door looks streaky | textured wood cladding is laid as real boards (3 m long, 12 cm wide, staggered joints) in walnut veneer, not one stretched texture | built |
 
 Also: a relayout keeps the room's set (the TV units of run 112241), the GPU index-pass test allows hidden pieces in agent poses.
+
+### Pod time (30 Oct 2026, UL206; user: "Only apply the 5 rest stays the same")
+
+Run 112241's 232 billed minutes: AI agent model 114 min, Blender builds 41, renders 31, upload and stop 7.5. Of the seven
+savings listed to the user, only item 5 is applied:
+
+| item | before | now |
+|---|---|---|
+| results download | ~9,300 files fetched one by one (0.8 s each, 16 at a time) while the pod waited 120 s: thousands missed in runs 201533, 043021, 112241, a fetch pod each time | `scripts/pack_results.py` packs `results/` into ~32 MB tar parts at the job's end (`<token>.pack/`); the runner downloads them in parallel, checks size and sha256, unpacks plain files only; no pack or a failed part: the old walk; the pod waits 60 s + 4 MB/s (max 10 min) |
+| full copies to the volume | every file written again (3.6 min the last one) | only missing or changed files (size and mtime, `shutil.copy2`) |
+
+Not applied (stays as is): variant views, twin-room agent sessions, the last Argus AI pass, big-loop re-renders, refused
+edits, incremental builds.

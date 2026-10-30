@@ -530,6 +530,19 @@ def _view_due(path: Path, target: Path, since: Optional[float]) -> bool:
         return True
 
 
+def unchanged_copy(path: Path, target: Path) -> bool:
+    """30 Oct 2026 (pod-time item 5, user OK): ``target`` is a copy of ``path`` that is still current: the same size
+    and the same modified time to the nanosecond (``shutil.copy2`` keeps it; the quick check of ``prep``'s library
+    copy, exact here: a stage record rewritten within a second keeps its size). Real04 run 20261030-112241-full: the
+    job's two full copies wrote all ~9,300 result files to the network volume again (3.6 min the last one) though only
+    the top-down views had changed."""
+    try:
+        st, tt = path.stat(), target.stat()
+    except OSError:
+        return False
+    return tt.st_size == st.st_size and tt.st_mtime_ns == st.st_mtime_ns
+
+
 def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[float], run_id: Optional[str]) -> int:
     """The rules over one output folder: the project's (``prefix`` "") or an alternative's (``variants/<id>``).
     Fix round after P3, part 2: the view files of ``final/`` follow this run's final manifest (``final_view_names``)
@@ -564,7 +577,9 @@ def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[floa
                 dst_dir.mkdir(parents=True, exist_ok=True)
                 target = dst_dir / path.name
                 if how == "copy":
-                    shutil.copyfile(path, target)
+                    if unchanged_copy(path, target):
+                        continue                     # pod-time item 5: copied before and not changed since
+                    shutil.copy2(path, target)
                 elif how == "tail":
                     target.write_text(tail_text(path), encoding="utf-8")
                 else:   # private stage record without its inputs map

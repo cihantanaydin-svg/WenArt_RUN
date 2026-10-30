@@ -201,6 +201,8 @@ def test_collect_fetches_the_results_tree_in_parallel(tmp_path, monkeypatch):
     def fake_fetch(url, timeout=20):
         if url in (base + "status.json", base + "job.log"):
             return b"{}"
+        if not url.startswith(base):
+            return None                           # no results pack (<token>.pack/, 30 Oct 2026): the walk
         rel = gpu_run.urllib.parse.unquote(url[len(base + "results/"):])
         if rel == "" or rel.endswith("/"):
             files, dirs = tree[rel]

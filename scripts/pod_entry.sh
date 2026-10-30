@@ -99,9 +99,31 @@ START_S=$(date +%s)
   stop_pod "watchdog" ) &
 WATCHDOG_PID=$!
 
+# 30 Oct 2026 (pod-time item 5, user OK): the public results packed into a few tar parts on the container disk and
+# served beside the job folder (<token>.pack/), so the runner downloads about ten parts instead of ~9,300 files one by
+# one (real04 runs 201533, 043021, 112241: the 120 s wait ran out mid-download, thousands of files missed, a fetch pod
+# each time). The wait after the job follows the pack's size (the runner stops the pod right after its download).
+# Never fatal: no manifest, and the runner walks the files as before.
+pack_results() {
+  local dir=/tmp/wenart-pack/$JOB_ID out g
+  if [ ! -f "$REPO_DIR/scripts/pack_results.py" ] || [ ! -d "$JOB_DIR/results" ]; then return 0; fi
+  write_status "packing" "$1"
+  if out=$(timeout 300 python3 "$REPO_DIR/scripts/pack_results.py" "$JOB_DIR" "$dir" 2>&1); then
+    log "${out##*$'\n'}"
+    ln -sfn "$dir" "$PUBLIC/$JOB_TOKEN.pack"
+    g=$(python3 -c 'import json,sys; print(int(json.load(open(sys.argv[1]))["grace_s"]))' "$dir/manifest.json" \
+        2>/dev/null) || g=0
+    if [ "${g:-0}" -gt "$GRACE_S" ]; then GRACE_S=$g; fi
+  else
+    rm -f "$dir/manifest.json"
+    log "results pack failed (the runner fetches the files one by one): ${out##*$'\n'}"
+  fi
+}
+
 finish() {  # exit_code reason
   set +e; trap - ERR
   local code=$1
+  pack_results "$code"
   write_status "done" "$code"
   cp -f "$LOG" "$JOB_DIR/job.log" 2>/dev/null
   log "job finished with exit code $code ($2); pod stops in ${GRACE_S}s"

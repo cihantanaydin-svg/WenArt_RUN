@@ -203,7 +203,10 @@ def test_since_stamp(tmp_path):
     assert not (results / "furniture/p/building.json").exists() and old.exists()
     assert (results / "renders/p/style.json").is_file()
     full = CP.copy_results([pub, priv])
-    assert full["full"] and full["public"] == 3
+    # 30 Oct 2026 (pod-time item 5): a full copy writes only the copies that are missing or out of date
+    assert full["full"] and full["public"] == 1 and (results / "furniture/p/building.json").is_file()
+    put(pub.out_dir / "style.json", {"b": 3})                     # rewritten, the same size
+    assert CP.copy_results([pub, priv])["public"] == 2
 
 
 def test_cli_prints_counts_only(tmp_path, capsys, monkeypatch):

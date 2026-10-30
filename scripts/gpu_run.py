@@ -534,6 +534,134 @@ def collect_order(rel_name: str) -> tuple[int, int]:
     return (int(is_big_result(rel_name)), int(rel_name.lower().endswith(COLLECT_IMAGE_SUFFIXES)))
 
 
+# 30 Oct 2026 (pod-time item 5, user OK): the pod packs results/ into a few tar parts at the job's end
+# (scripts/pack_results.py, served at <token>.pack/ beside the job folder); the runner downloads the parts in parallel
+# instead of ~9,300 files one by one (real04 runs 201533, 043021 and 112241 each missed thousands of files when the
+# pod's wait ran out mid-download). No manifest, or a part that fails twice: the files are walked as before.
+PACK_SUFFIX = ".pack/"
+PACK_VERSION = 1
+COLLECT_PACK_TIMEOUT = 600
+PACK_LOCAL = ".pack"            # the parts while they download (run_dir/.pack/), removed once unpacked
+
+
+def pack_url(status_url: str) -> str:
+    """``https://<pod>-8000.proxy.runpod.net/<token>.pack/`` of the status URL ``.../<token>/``."""
+    return status_url.rstrip("/") + PACK_SUFFIX
+
+
+def extract_part(path: Path, dest: Path) -> tuple[int, int]:
+    """Unpack the regular files of one part under ``dest`` (no absolute names, no ``..``, no links or devices):
+    ``(files, bytes)``."""
+    import shutil
+    import tarfile
+    n = nbytes = 0
+    with tarfile.open(path, "r:") as tar:
+        for m in tar:
+            parts = Path(m.name).parts
+            if not m.isfile() or not parts or m.name.startswith("/") or ".." in parts:
+                continue
+            target = dest.joinpath(*parts)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            src = tar.extractfile(m)
+            if src is None:
+                continue
+            with target.open("wb") as fh:
+                shutil.copyfileobj(src, fh)
+            n += 1
+            nbytes += m.size
+    return n, nbytes
+
+
+def file_sha256(path: Path) -> str:
+    import hashlib
+    h = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def read_pack(status_url: str) -> tuple[dict, bytes] | None:
+    """The pod's pack manifest ``(manifest, raw bytes)``, or None when the pod wrote none (an older job, a failed
+    pack: the caller walks the files)."""
+    raw = fetch(pack_url(status_url) + "manifest.json", timeout=60)
+    if not raw:
+        return None
+    try:
+        man = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(man, dict) or man.get("version") != PACK_VERSION or not isinstance(man.get("parts"), list):
+        return None
+    return man, raw
+
+
+def pack_big(man: dict) -> list[str]:
+    """The 3D files the pack left to the streamed download (paths under ``results/``)."""
+    return [str(b["path"]) for b in man.get("big") or [] if isinstance(b, dict) and b.get("path")]
+
+
+def collect_pack(status_url: str, run_dir: Path, man: dict, raw: bytes, workers: int = COLLECT_WORKERS,
+                 total_before: int = 0) -> dict:
+    """The pod's results pack (``read_pack``) into ``run_dir/results``: ``{"ok", "files", "bytes", "capped",
+    "failed", "too_big", "parts"}``. ``ok`` when every part it took downloaded with its size and checksum and
+    unpacked; the parts go in order (records first) while the downloaded total stays within ``COLLECT_MAX_TOTAL``
+    (``capped`` past it, as the walk). A part already on disk with its checksum (a retry) is not fetched again; the
+    parts are removed once all are unpacked and the manifest is kept as ``run_dir/pack_manifest.json``."""
+    url = pack_url(status_url)
+    local = run_dir / PACK_LOCAL
+    local.mkdir(parents=True, exist_ok=True)
+    chosen, total, capped = [], total_before, False
+    for part in man["parts"]:
+        if total > COLLECT_MAX_TOTAL:
+            capped = True
+            continue
+        chosen.append(part)
+        total += int(part.get("file_bytes") or part.get("bytes") or 0)
+
+    def get(part: dict) -> tuple[dict, str | None]:
+        name = str(part.get("name") or "")
+        if not re.fullmatch(r"part-\d{3,}\.tar", name):
+            return part, "bad name"
+        path = local / name
+        for _ in range(2):
+            if not (path.is_file() and path.stat().st_size == part.get("bytes")
+                    and file_sha256(path) == part.get("sha256")):
+                path.unlink(missing_ok=True)
+                n, why = fetch_to(url + name, path, timeout=COLLECT_PACK_TIMEOUT)
+                if n is None:
+                    continue
+            if path.stat().st_size == part.get("bytes") and file_sha256(path) == part.get("sha256"):
+                return part, None
+            path.unlink(missing_ok=True)
+        return part, "download or checksum failed"
+
+    with ThreadPoolExecutor(max_workers=max(1, min(workers, len(chosen) or 1))) as pool:
+        results = list(pool.map(get, chosen))
+    failed, files, nbytes = [], 0, 0
+    dest = run_dir / "results"
+    for part, why in results:
+        if why is not None:
+            failed.append(f"pack/{part.get('name')} ({why})")
+            continue
+        try:
+            n, b = extract_part(local / part["name"], dest)
+        except (OSError, EOFError, ValueError) as e:              # tarfile errors are ValueError subclasses
+            failed.append(f"pack/{part.get('name')} (unpack: {type(e).__name__})")
+            continue
+        files += n
+        nbytes += b
+    if not failed:
+        for part in chosen:
+            (local / part["name"]).unlink(missing_ok=True)
+        (run_dir / "pack_manifest.json").write_bytes(raw)
+    print(f"results pack: {files} file(s) ({nbytes / 1e6:.1f} MB) from {len(chosen) - len(failed)} of "
+          f"{len(man['parts'])} part(s)" + (f"; failed: {', '.join(failed)}" if failed else "")
+          + ("; size cap reached" if capped else ""))
+    return {"ok": not failed, "files": files, "bytes": nbytes, "capped": capped, "failed": failed,
+            "too_big": [str(t) for t in man.get("too_big") or []], "parts": len(chosen)}
+
+
 def parse_listing(html: str) -> tuple[list[str], list[str]]:
     """Files and sub-directories of a python http.server directory listing (names unquoted)."""
     files, dirs = [], []
@@ -613,9 +741,18 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS, 
                 ok = walk(tree, rel + d + "/", depth + 1, 2) and ok
         return ok
 
+    pack = None
     for tree in COLLECT_TREES:
         if tree == "results-private" and present is not None and tree not in present:
             continue
+        if tree == "results":
+            pack = read_pack(status_url)
+            if pack is not None:                       # pod-time item 5: the parts instead of the walk
+                (run_dir / tree).mkdir(parents=True, exist_ok=True)
+                big = pack_big(pack[0])
+                todo.extend((tree, rel) for rel in big)
+                trees[tree] = {"listed": True, "files": int(pack[0].get("files") or 0) + len(big), "packed": True}
+                continue
         quiet = tree == "results-private" and present is None
         n_before = len(todo)
         listed = walk(tree, "", 0, 1 if quiet else COLLECT_LISTING_TRIES, quiet=quiet)
@@ -624,13 +761,15 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS, 
         trees[tree] = {"listed": listed, "files": len(todo) - n_before}
 
     lock = threading.Lock()
-    state = {"n": 0, "total": 0, "capped": False, "failed": [], "too_big": [], "big": 0, "big_bytes": 0, "kept": 0}
+    state = {"n": 0, "total": 0, "capped": False, "failed": [], "too_big": [], "big": 0, "big_bytes": 0, "kept": 0,
+             "keep": skip_existing}
 
     def get_big(tree: str, rel_name: str) -> None:
         with lock:
             if state["big_bytes"] > COLLECT_BIG_MAX_TOTAL:
                 state["capped"] = True
                 return
+        (run_dir / tree / rel_name).parent.mkdir(parents=True, exist_ok=True)     # a packed tree is not walked
         n, why = fetch_to(status_url + urllib.parse.quote(f"{tree}/{rel_name}"), run_dir / tree / rel_name,
                           timeout=COLLECT_BIG_TIMEOUT, max_bytes=COLLECT_BIG_MAX_FILE)
         with lock:
@@ -644,7 +783,7 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS, 
 
     def get(item: tuple[str, str]) -> None:
         tree, rel_name = item
-        if skip_existing and (run_dir / tree / rel_name).is_file():
+        if state["keep"] and (run_dir / tree / rel_name).is_file():
             with lock:
                 state["kept"] += 1
             return
@@ -673,8 +812,32 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS, 
         (run_dir / tree / rel_name).write_bytes(raw)
 
     todo.sort(key=lambda item: collect_order(item[1]))          # records, then images, then 3D (stable otherwise)
-    with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
-        list(pool.map(get, todo))
+    if pack is None:
+        with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+            list(pool.map(get, todo))
+    else:
+        # pod-time item 5: the walked small files (results-private/) first, so the shared size cap never cuts
+        # them; then the pack's parts; then the 3D files. A pack that fails is completed by the walk of results/
+        # (the files the good parts brought are kept).
+        with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+            list(pool.map(get, [t for t in todo if not is_big_result(t[1])]))
+        col = collect_pack(status_url, run_dir, pack[0], pack[1], workers, total_before=state["total"])
+        state["n"] += col["files"]
+        state["total"] += col["bytes"]
+        state["capped"] = state["capped"] or col["capped"]
+        state["too_big"].extend(col["too_big"])
+        rest = [t for t in todo if is_big_result(t[1])]
+        if not col["ok"]:
+            print("results pack incomplete: walking results/ for the missing files")
+            n_before = len(todo)
+            listed = walk("results", "", 0, COLLECT_LISTING_TRIES)
+            walked = todo[n_before:]
+            trees["results"] = {"listed": listed, "files": len(walked), "packed": False}
+            state["keep"] = True
+            seen = set(rest)
+            rest = sorted([t for t in walked if t not in seen] + rest, key=lambda item: collect_order(item[1]))
+        with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+            list(pool.map(get, rest))
     if state["capped"]:
         print("warning: result size cap reached, not every file was downloaded")
     failed = sorted(state["failed"])
