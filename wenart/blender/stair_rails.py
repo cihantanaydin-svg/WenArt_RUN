@@ -646,7 +646,10 @@ def _rail_line(plan: dict, ctx: dict, leg: dict, A, B, level_h: float) -> tuple[
     e = min(0.45, (NEWEL_M / 2.0 + 0.02) / max(length, 1e-9))
     ts = [e + (1.0 - 2.0 * e) * i / n for i in range(n + 1)]
     req = [_leg_req(plan, ctx, leg, _lerp(A, B, t), level_h) for t in ts]
-    if leg["what"] != "winders" or length < SHORT_LEG_M:
+    # 30 Oct 2026 (lesson UL192, user on real04 run 20261030-112241-full: "Something wrong with the stairs": the rail
+    # across the end of a U stair's 0.27 m well ran level at 2.65 m, 1.6 m over the first winder under it, a bar floating
+    # across the flight): over winders the rail follows their climb whatever the leg's length
+    if leg["what"] != "winders":
         top = max(req)
         return top, top
     h0, h1 = req[0], req[-1]
@@ -1035,14 +1038,18 @@ def railable(ctx: dict, fr: dict) -> float:
 
 
 def _held(plan, ctx, rails: list) -> dict:
-    """Per flight the length of its run its balustrade handrails cover."""
+    """Per flight the length of its run (first to last nosing) its balustrade handrails cover; 30 Oct 2026 (lesson
+    UL192): the part of a rail before the first or past the last nosing (its newel at a turn) holds none of the run,
+    as the review measures it (real04: a last flight cut beside the floor guard above, held 0.71 m of 1.40 m with the
+    newel's 0.03 m, so no wall rail, and the review found 0.72 m without a handrail)."""
     out: dict = {}
     for rl in rails:
         if rl.get("what") != "flight" or rl.get("flight") is None:
             continue
         fr = next(f for f in ctx["frames"] if f["index"] == rl["flight"])
         a, b = rl["path"][0], rl["path"][-1]
-        out[rl["flight"]] = out.get(rl["flight"], 0.0) + abs(_s_of(fr, b[:2]) - _s_of(fr, a[:2]))
+        s0, s1 = sorted((_s_of(fr, a[:2]), _s_of(fr, b[:2])))
+        out[rl["flight"]] = out.get(rl["flight"], 0.0) + max(0.0, min(s1, fr["L"]) - max(s0, 0.0))
     return out
 
 
@@ -1369,6 +1376,7 @@ def _shared_edge(pa, pb, tol: float = 1e-3):
 REVIEW_RULES = ("cross", "beside_guard", "stops_short", "no_handrail", "height", "through_tread", "through_wall",
                 "through_floor_above", "gap", "outside")
 OUTSIDE_M = 0.15                # a rail farther than this outside the stair (its flights, landing, apron, well)
+WINDER_RAIL_MAX_M = 1.20        # 30 Oct 2026 (UL192): a rail over winders stands at most this over the winder under it
 UPPER_GUARD_R = 0.02            # the floor guard's top rail, a bar of this radius at its height
 
 
@@ -1538,6 +1546,11 @@ def review(guards: dict, plan: dict, wall_rects: Sequence = (), ceiling_voids=No
                 if rl["what"] in ("landing", "apron", "top") and rl["type"] == "balustrade" and z is not None \
                         and p[2] - z < LEVEL_GUARD_M - 0.02:
                     bad.setdefault("height", (p, round(p[2] - z, 3)))
+                # 30 Oct 2026 (lesson UL192): over winders a rail floating far over the winder under it (real04: a
+                # level bar 1.6 m over the first winder at the end of the well)
+                if rl["what"] == "winders" and rl["type"] == "balustrade" and z is not None \
+                        and p[2] - z > WINDER_RAIL_MAX_M + 1e-6:
+                    bad.setdefault("height", (p, round(p[2] - z, 3)))
         for rule, (p, info) in bad.items():
             sev = "minor" if rule == "outside" else "major"
             text = {"through_tread": f"runs through a tread (its underside {p[2] - 2 * float(rl['r']):.2f} m, the "
@@ -1546,13 +1559,163 @@ def review(guards: dict, plan: dict, wall_rects: Sequence = (), ceiling_voids=No
                     "outside": "stands out over the room, off the stair and its well",
                     "height": f"stands {info} m over its nosing line or level edge (not "
                               f"{RAIL_FLIGHT_RANGE[0]:.2f}-{RAIL_FLIGHT_RANGE[1]:.2f} m, {LEVEL_GUARD_M:.2f} m on a "
-                              f"level edge)"}[rule]
+                              f"level edge, at most {WINDER_RAIL_MAX_M:.2f} m over a winder)"}[rule]
             out.append(_finding(rule, sev, f"rail {rl['id']} ({rl['side']}, {rl['what']}) {text} at {_r(p, 3)}",
                                 rails=[rl["id"]], at=_r(p, 3)))
     gap = float(guards.get("max_gap_m") or (guards.get("infill") or {}).get("max_gap_m") or 0.0)
     if gap >= GAP_MAX_M:
         out.append(_finding("gap", "major", f"the infill leaves a gap of {gap:.3f} m (a child passes "
                                             f"{GAP_MAX_M:.2f} m)", gap_m=round(gap, 4)))
+    return out
+
+
+# --------------------------------------------------------------------------
+# The stair's envelope (30 Oct 2026, lesson UL192)
+# --------------------------------------------------------------------------
+# The user on real04's stair (cam_r_L0_koridor_1): "Something wrong with the stairs needs fixing". Measured: the guard
+# of the floor opening under the stair ran across its first flight (its top rail a grey bar floating across the flight
+# at mid height, its shoe a block at the foot), and the rail at the end of the well ran level 1.6 m over the first
+# winder. A stair is one piece: every part of it lies in its envelope (over its flights, winders, landing and well,
+# from the floor it stands on up to its guards over the surface under them), and nothing else stands in the walking
+# zone over its treads (the clear width and headroom a climber walks through).
+ENVELOPE_RULES = ("outside_envelope", "floating", "crosses_walking_line")
+ENVELOPE_SLACK_M = 0.05         # a part this far past the envelope is out of it
+WALK_EDGE_M = 0.10              # the walking zone stops this far inside the stair's edges (its balustrade line, rails)
+WALK_HEADROOM_M = 2.00          # ... and this high over the tread under it
+WALK_FLOOR_M = 0.02             # ... from this over the tread (the tread's own surface is no obstacle)
+# the parts that may float out over the steps (the steps, the posts and the panels under the stair stand on something)
+FLOATING_ROLES = ("rail", "bracket", "glass", "baluster", "string")
+
+
+def _part_cap(plan: dict, frames: list, p) -> Optional[float]:
+    """The highest a stair part may stand over plan point ``p``: its guard over the surface under it (over a flight
+    the handrail's highest over the nosing line, over a winder ``WINDER_RAIL_MAX_M``, over a landing or the apron the
+    level guard), and a newel's cap; None off the treads (the well, beyond the stair)."""
+    land = plan.get("landing") or {}
+    for w in land.get("winders") or []:
+        if G.point_in_polygon(p, w["polygon"]):
+            return float(w["top"]) + WINDER_RAIL_MAX_M + NEWEL_CAP_M
+    if land.get("role") in ("mid", "top") and G.point_in_polygon(p, land["polygon"]):
+        return float(land["z"]) + LEVEL_GUARD_M + NEWEL_CAP_M
+    for fr in frames:
+        s, q = _s_of(fr, p), _q_of(fr, p)
+        if abs(q) <= fr["hw"] + 1e-3 and -0.03 <= s <= fr["L"] + 1e-6:
+            return nose(fr, s) + RAIL_FLIGHT_RANGE[1] + NEWEL_CAP_M
+    z = surface_z(plan, p, frames)
+    return None if z is None else z + LEVEL_GUARD_M + NEWEL_CAP_M
+
+
+def walking_zone_z(plan: dict, p, frames: Optional[list] = None) -> Optional[float]:
+    """The tread (winder, landing) top under plan point ``p`` when ``p`` lies in the stair's walking zone:
+    ``WALK_EDGE_M`` inside a flight's edges between its first and last nosing, or inside the outline of its turn
+    (winders, a mid landing); else None."""
+    frames = frames if frames is not None else [flight_frame(f, float(plan["riser_m"])) for f in plan["flights"]]
+    land = plan.get("landing") or {}
+    poly = land.get("polygon") or []
+    if len(poly) >= 3 and land.get("role") in ("mid", "winders") and G.point_in_polygon(p, poly) \
+            and geom2d.distance_to_polygon_edges(p, poly) >= WALK_EDGE_M:
+        return surface_z(plan, p, frames)
+    for fr in frames:
+        s, q = _s_of(fr, p), _q_of(fr, p)
+        if abs(q) <= fr["hw"] - WALK_EDGE_M and 0.0 <= s <= fr["L"]:
+            return tread_top(fr, s)
+    return None
+
+
+def _edges(part: dict) -> list:
+    """The 3D segments of a foreign part: its ``segments``, else the edges of its faces."""
+    if part.get("segments"):
+        return [(tuple(a), tuple(b)) for a, b in part["segments"]]
+    verts = part.get("verts") or []
+    out = set()
+    for face in part.get("faces") or []:
+        for i, j in zip(face, list(face[1:]) + [face[0]]):
+            out.add((min(i, j), max(i, j)))
+    return [(tuple(verts[i]), tuple(verts[j])) for i, j in sorted(out)]
+
+
+def guard_run_segments(runs: Sequence, height: float = LEVEL_GUARD_M, z0: float = 0.0) -> list:
+    """The segments of a floor guard standing on ``z0`` along ``runs`` [(p, q)] (its shoe, its middle and its top
+    rail) as a ``foreign`` part's ``segments`` for ``envelope_review``."""
+    return [((p[0], p[1], z0 + h), (q[0], q[1], z0 + h)) for p, q in runs for h in (0.05, height / 2.0, height)]
+
+
+def envelope_review(plan: dict, parts: Sequence[dict] = (), foreign: Sequence[dict] = ()) -> list[dict]:
+    """The findings of a stair's parts against its envelope (pure; lesson UL192; the model review's M18 reads them
+    from the scene manifest's ``stair.envelope``). ``parts`` = ``parametric.stair_parts(plan)`` (relative to the
+    stair's floor), ``foreign`` = the other objects that stand on the stair's level near it (``{"id", "verts",
+    "faces"}`` or ``{"id", "segments": [(a, b)]}``, e.g. the guard of a floor opening: ``guard_run_segments``).
+    ``[{"rule", "severity", "message", "metrics"}]``, one per rule and part role (or foreign id), ``rule`` one of
+    ``ENVELOPE_RULES``:
+
+    - ``outside_envelope``: a stair part off the stair in plan (``OUTSIDE_M`` past its flights, landing, apron and
+      well), under the floor it stands on or over its top (the level guard over the arrival and a newel's cap);
+    - ``floating``: a rail, bracket, infill or string (``FLOATING_ROLES``) higher over the tread, winder or landing
+      under it than its guard stands (``_part_cap``; at a newel the newel's own height counts): out in the air;
+    - ``crosses_walking_line``: a foreign part in the walking zone (``walking_zone_z``, ``WALK_FLOOR_M`` to
+      ``WALK_HEADROOM_M`` over the tread): a bar, a guard or a piece across the flight a climber walks into."""
+    frames = [flight_frame(f, float(plan["riser_m"])) for f in plan["flights"]]
+    hull = _hull(plan, frames)
+    rise = float(plan["rise_m"])
+    floor = min([float(f["base_z"]) for f in plan["flights"]] + [0.0])
+    top = rise + LEVEL_GUARD_M + NEWEL_CAP_M
+    # the rails die into the newels: at a newel its own height counts (it rises over them by NEWEL_CAP_M)
+    newels = [((float(p["at"][0]), float(p["at"][1])), max(float(s) for s in p.get("size") or [NEWEL_M]) / 2.0 + 0.01)
+              for p in (plan.get("guards") or {}).get("posts") or []]
+    out: list[dict] = []
+    seen: set = set()
+
+    def add(rule, key, severity, message, **metrics):
+        if (rule, key) in seen:
+            return
+        seen.add((rule, key))
+        out.append(_finding(rule, severity, message, **metrics))
+
+    for part in parts:
+        role = str(part.get("role") or "part")
+        for v in part.get("verts") or []:
+            xy, z = (float(v[0]), float(v[1])), float(v[2])
+            if hull and not G.point_in_polygon(xy, hull) and geom2d.distance_to_polygon_edges(xy, hull) > OUTSIDE_M:
+                add("outside_envelope", role, "major", f"a {role} of the stair stands off the stair at {_r(v, 3)} "
+                    f"(more than {OUTSIDE_M:.2f} m past its flights, landing and well)", role=role, at=_r(v, 3))
+            elif z < floor - ENVELOPE_SLACK_M or z > top + ENVELOPE_SLACK_M:
+                add("outside_envelope", role, "major", f"a {role} of the stair reaches {z:.2f} m, out of its "
+                    f"{floor:.2f}-{top:.2f} m (the floor it stands on to its top guard)", role=role, at=_r(v, 3))
+        if role not in FLOATING_ROLES or ("floating", role) in seen:
+            continue
+        for a, b in _edges(part):                  # along its edges: a straight rail has vertices at its newels only
+            n = max(1, int(math.ceil(math.dist(a, b) / 0.05)))
+            for i in range(n + 1):
+                v = _lerp(a, b, i / n)
+                xy = v[:2]
+                if any(G.distance(at, xy) <= reach for at, reach in newels):
+                    continue
+                cap = _part_cap(plan, frames, xy)
+                if cap is not None and v[2] > cap + ENVELOPE_SLACK_M:
+                    add("floating", role, "major", f"a {role} of the stair floats over the steps at {_r(v, 3)}: "
+                        f"{v[2] - cap:.2f} m higher than its guard may stand over the tread under it ({cap:.2f} m)",
+                        role=role, at=_r(v, 3), over_m=round(v[2] - cap, 3))
+                    break
+            if ("floating", role) in seen:
+                break
+    for k, part in enumerate(foreign):
+        fid = str(part.get("id") or f"foreign_{k}")
+        hit = None
+        for a, b in _edges(part):
+            n = max(1, int(math.ceil(math.dist(a, b) / 0.05)))
+            for i in range(n + 1):
+                p = _lerp(a, b, i / n)
+                z = walking_zone_z(plan, p[:2], frames)
+                if z is not None and z + WALK_FLOOR_M < p[2] < z + WALK_HEADROOM_M:
+                    hit = (p, z)
+                    break
+            if hit:
+                break
+        if hit:
+            p, z = hit
+            add("crosses_walking_line", fid, "critical", f"{fid} crosses the stair's walking zone at {_r(p, 3)}, "
+                f"{p[2] - z:.2f} m over the tread under it: a climber walks into it", part=fid, at=_r(p, 3),
+                over_m=round(p[2] - z, 3))
     return out
 
 

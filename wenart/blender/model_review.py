@@ -92,7 +92,10 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   open turn, landing or apron edge without a rail and without a reason), every flight holds a handrail over most of its
   run, the handrail 0.85-1.10 m over the nosing line (1.0 m on a level edge), nothing through a tread, a wall or the
   floor above, no infill gap of 0.11 m, no rail out over the room (minor). Measured on the scene's guard records
-  (``stair.guards``), or on the straight per-flight rails of an older scene.
+  (``stair.guards``), or on the straight per-flight rails of an older scene. 30 Oct 2026 (lesson UL192, user on
+  real04: "Something wrong with the stairs needs fixing"): every part of the stair in its envelope and nothing else in
+  its walking zone (``stair_rails.envelope_review``; the scene's ``stair.envelope``, for an older scene the guards of
+  the level's floor openings): a guard across a flight is critical.
 - M20 every door a real product (29 Oct 2026, user: "Better door models needed"; real06 run 20261028-154514-full:
   the build refused the HSSD doors the plan chose, and the parametric doors were slabs in flat frames;
   ``opening_models.door_product_problems``): a door the plan gave a library model built parametric (major, with the
@@ -1232,7 +1235,26 @@ def stair_rails_review(built: dict, manifest: Optional[dict]) -> tuple[list[dict
                                    it["piece"].get("room_id"), kind=kind_of, rule=f["rule"],
                                    level_id=level.get("id"), legacy=bool(guards.get("legacy")), **f["metrics"]),
                                 owner="build", fix=FIX_RAILS))
+            # 30 Oct 2026 (lesson UL192): the stair's parts against its envelope as built (``stair.envelope``); a
+            # scene built before: the guards of the level's floor openings (its ``void_guard`` runs) in its walking zone
+            envelope = rec.get("envelope")
+            if not isinstance(envelope, list):
+                own = [{"id": f"void_guard_{level.get('id')}", "segments": SR.guard_run_segments(
+                    guards_by_level.get(level.get("id"), []))}] if guards_by_level.get(level.get("id")) else []
+                envelope = SR.envelope_review(plan, (), own)
+            for f in envelope:
+                if f.get("rule") in seen:
+                    continue
+                seen.add(f.get("rule"))
+                out.append(dict(_v("M18", f.get("severity") or "major", pid, f"stair {pid}: {f.get('message')}",
+                                   it["piece"].get("room_id"), rule=f.get("rule"), level_id=level.get("id"),
+                                   **(f.get("metrics") or {})), owner="build", fix=FIX_ENVELOPE))
     return out, n
+
+
+FIX_ENVELOPE = ("keep every part of the stair in its envelope and nothing else in its walking zone: the floor "
+                "opening's guard keeps out of the footprint of the level's own stair (shell.own_stair_footprints), the "
+                "rail over winders follows their climb (stair_rails._rail_line), then rebuild the stair")
 
 
 FIX_FRONT = ("turn it on its wall to its free side, or move it at most 0.5 m (architect F4 free_front; rotate_piece), "

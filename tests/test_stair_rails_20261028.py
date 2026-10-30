@@ -112,9 +112,10 @@ def test_a_u_stair_with_winders_gets_one_balustrade_round_its_well():
             s = SR._s_of(fr, p[:2])
             assert p[2] - (fr["base"] + fr["riser"] + s * fr["k"]) == pytest.approx(P.STAIR_RAIL_HEIGHT)
     well = chain[1]
-    assert well["path"][0][2] == pytest.approx(well["path"][1][2])           # a short leg between two newels: level
-    mid = SR._lerp(well["path"][0][:2], well["path"][1][:2], 0.5)
-    assert well["path"][0][2] >= SR._winder_top(plan, mid) + P.STAIR_RAIL_HEIGHT - 1e-6
+    # over the winders the rail climbs with them, even on a short leg between two newels (lesson UL192, 30 Oct 2026)
+    assert well["path"][1][2] > well["path"][0][2]
+    mid = SR._lerp(well["path"][0], well["path"][1], 0.5)
+    assert mid[2] >= SR._winder_top(plan, mid[:2]) + P.STAIR_RAIL_HEIGHT - 1e-6
     # the newels at the turn rise over the rails that die into them; the starting newel stands on the first tread
     posts = {p["id"]: p for p in guards["posts"]}
     for a, b in zip(chain, chain[1:]):
