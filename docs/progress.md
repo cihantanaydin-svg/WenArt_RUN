@@ -2519,3 +2519,20 @@ On real04's plan the new rules leave no G8-G12 finding; on the run's own manifes
 rails, the four pools without ladder and seats and the half light well. For more car variety a library pod can survey
 the Objaverse LVIS categories `car_(automobile)`, `convertible_(automobile)`, `jeep`, `minivan` and `cab_(taxi)`
 (names checked in the LVIS v1 list); nothing was downloaded here. Not rendered yet: the next real04 pod run shows them.
+
+## The 30 Oct requests on real04 run 201533: terrace guards, the P5 kitchen, site walls, terraces (30 Oct 2026; CPU-tested, pod run waiting)
+
+The user's review of run 20261029-201533-full and four reference photos (P5 kitchen again, P15 terrace, P16 salon;
+docs/reference_details_20261029.md). Every fix is a general rule; real04 is the test case.
+
+| lesson | request | cause (measured) | fix |
+|---|---|---|---|
+| UL145 | "better handrails in the terras is needed" | the glass channel's 28 mm cap over clear thin glass read as a bare tube | a 50 x 45 mm handrail cap; outdoor guard glass lightly tinted (`MaterialLibrary.guard_glass`) on terraces and balconies |
+| UL147 | "good inspiration photo for the kitchen" (P5) | 0.70 m wall units under a bare band; no tall column: the AI-added wall cabinets blocked every free run end; white slab fronts | uppers to the ceiling by family (`kitchen_details.upper_height`, stacked at most 1.40 m); an added wall cabinet stops at the column (`fit._column_blocked`, `column_m`); no column in a door swing (`fit._in_door_swing`: real04's only free end lay 0.19 m2 in d_L-1_003's swing); the under-counter strip lights only the units; a built-in fridge prefers a column-ready end (`solver._column_end`); modern kitchens: framed fronts in muted taupe under pale fluted uppers |
+| UL148 | "this seems to be coming from the outside texture, it is in the kitchen" | the stepped band sp_001_s1e2's retaining wall and coping ran through the house's corner into the basement kitchen (1.06-2.08 m over its floor) | site walls stop at the building outline (`site.wall_cut_spans`, `wall_cuts`); real04: both kitchens' bands |
+| UL149 | "this wall seems like missing the texture" | the splashback followed only its own run; the corner square of the next run left a bare patch | the band runs into the inside corner (`shell.splashback_corner_ends`) |
+| UL150 | "if this is a washing machine it can be modeled properly" | the under-counter fridge's steel door with a bar along its top (fixed with an upright handle in 8b1fb5c) | a fridge built in at a column-ready run end becomes the fridge-freezer column (`fridge_column` no longer blocked by an added wall cabinet) |
+| UL152 | "teras inspration" (P15) | terraces had plants only (UL130) | a lounge set across a pouf on terraces >= 8 m2 and 2.2 m inner width, two armchairs with a side table against the house wall on narrower ones (>= 4 m2, 1.4 m), never both, never a dining set (`program.inner_width`); real04's two 1.5 m L-terraces get the pair |
+
+Open from P5: a styled worktop as full as the photo, seams where two drawn runs meet on one wall. UL151 (floor vase)
+and UL128 / UL132 came with the decor helper; UL153 (P16 salon) and UL131 / UL140 (sofas) are with helpers.
