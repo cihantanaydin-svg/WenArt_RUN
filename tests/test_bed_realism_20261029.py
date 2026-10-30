@@ -249,23 +249,41 @@ def test_the_throw_pair_by_family_and_its_fringe_and_pattern_as_built():
     caster = bed_caster()
     item = {"center": [BED_C[0], BED_C[1] - 0.7], "size": [1.52, 0.5, 0.05], "layers": 2, "type": "throw",
             "weave": w}
+    # 30 Oct 2026 (UL146, P14): a layered pair on a bed with a free side: the plain blanket over the foot (S5 measures
+    # parts[0]), hanging down the free sides and the foot, and the patterned throw draped at the right side with its
+    # fringe at both ends (on the top and under its hem)
     got = T.throw_parts(caster, HOST, item, 0.0)
     keys = [(p["key"], p["role"]) for p in got["parts"]]
-    assert keys[0] == (BP.textile_key("houndstooth"), "throw")                        # S5 measures parts[0]
-    assert keys[1] == (BP.runner_key("knit"), T.RUNNER_FOLD_ROLE)
+    assert keys[0] == (BP.runner_key("knit"), "throw") and got["weave"]["layout"] == "p14"
+    assert keys[1] == (BP.textile_key("houndstooth"), T.RUNNER_FOLD_ROLE)
+    blanket = np.asarray(got["parts"][0]["verts"])
+    assert blanket[:, 0].min() < BED_C[0] - 0.8 and blanket[:, 0].max() > BED_C[0] + 0.8   # over both sides ...
+    assert blanket[:, 2].min() == pytest.approx(0.5 - T.BLANKET_DROP_M, abs=0.02)        # ... down to its hem
+    assert blanket[:, 1].min() < BED_C[1] - 1.0                                          # and over the foot
+    throw = np.asarray(got["parts"][1]["verts"])
+    assert throw[:, 0].min() > BED_C[0] and throw[:, 0].max() > BED_C[0] + 0.8          # at the right side
+    assert throw[:, 2].min() == pytest.approx(0.5 - T.SIDE_THROW_DROP_M, abs=0.03)
     fringes = [p for p in got["parts"] if p["role"] == "fringe"]
-    assert len(fringes) == 2 and all(p["key"] == BP.runner_key("knit") for p in fringes)   # on the runner's two ends
-    depth = 0.5 * T.RUNNER_SHARE
+    assert len(fringes) == 2 and all(p["key"] == BP.textile_key("houndstooth") for p in fringes)
     assert got["weave"]["fringe_strands"] == sum(p["strands"] for p in fringes)
-    assert abs(got["weave"]["fringe_strands"] - 2 * depth / BP.FRINGE_PITCH_M) <= 4
+    assert abs(got["weave"]["fringe_strands"] - 2 * T.SIDE_THROW_W_M / BP.FRINGE_PITCH_M) <= 4
     zs = [v[2] for p in fringes for v in p["verts"]]
-    assert min(zs) < 0.5 - 0.03                                                        # they hang over the bed's sides
+    assert min(zs) < 0.5 - T.SIDE_THROW_DROP_M                                          # under its hem
+    assert not got["weave"]["blanket_look"]["lumpy"] and not got["weave"]["blanket_look"]["wavy_hem"]
     plan = R.plan_throw(item, {"id": "bed", "type": "bed_double", "footprint": dict(HOST)}, caster, 0.0)
     assert "not_rested" not in plan and plan["weave"]["pattern"] == "houndstooth"
-    # a side against a wall or a piece takes no strands (the decor stage's fringe_ends from bed_sides)
-    right = T.throw_parts(caster, HOST, dict(item, weave=dict(w, fringe_ends=["right"])), 0.0)
-    (strands,) = [p for p in right["parts"] if p["role"] == "fringe"]
-    assert min(v[0] for v in strands["verts"]) > BED_C[0] and right["weave"]["fringe_ends"] == ["right"]
+    # only the left side free (the decor stage's fringe_ends from bed_sides): the throw on the left
+    left = T.throw_parts(caster, HOST, dict(item, weave=dict(w, fringe_ends=["left"])), 0.0)
+    assert left["weave"]["throw_side"] == "left" and np.asarray(left["parts"][1]["verts"])[:, 0].max() < BED_C[0]
+    # both sides blocked: the pair across the foot of before (the pattern below, the fringed runner over it)
+    blocked = {s: {"free": s == "foot"} for s in BP.SIDES}
+    foot = T.throw_parts(caster, HOST, dict(item, weave=dict(w, fringe_ends=[])), 0.0, sides=blocked)
+    assert [(p["key"], p["role"]) for p in foot["parts"]][:2] == [(BP.textile_key("houndstooth"), "throw"),
+                                                                  (BP.runner_key("knit"), T.RUNNER_FOLD_ROLE)]
+    assert "layout" not in foot["weave"]
+    right = T.throw_parts(caster, HOST, dict(item, weave=dict(w, fringe_ends=["right"])), 0.0,
+                          sides={"left": {"free": False}, "right": {"free": True}, "foot": {"free": True}})
+    assert right["weave"]["fringe_ends"] == ["right"] and right["weave"]["throw_side"] == "right"
     # a throw in one layer carries both the pattern and the fringe
     one = T.throw_parts(caster, HOST, dict(item, layers=1), 0.0)
     assert [p["role"] for p in one["parts"]] == ["throw", "fringe", "fringe"]
@@ -434,9 +452,14 @@ def test_a_made_up_bed_is_dressed_when_its_bedding_is_flat_or_poorer_than_ours()
     rel = BP.bedding_relief(flat_box, BED_C, 0.0, (1.6, 2.0))
     mode, why = BP.dress_mode(asset, rel)
     assert mode == "full" and "flat" in why
-    made = BP.bedding_relief(_top_grid(0.15, 0.012), BED_C, 0.0, (1.6, 2.0))
+    made = BP.bedding_relief(_top_grid(0.35, 0.012), BED_C, 0.0, (1.6, 2.0))
     assert made["pillow_bump_m"] > BP.BUMP_MIN_M and made["relief_m"] > BP.RELIEF_MIN_M
     assert BP.dress_mode(asset, made)[0] is None                                      # made up as well as ours
+    # 30 Oct 2026 (UL137): its pillows lying flat (a 15 cm bump): our shams and pillows stand on a double bed
+    flat = BP.bedding_relief(_top_grid(0.15, 0.012), BED_C, 0.0, (1.6, 2.0))
+    mode, why = BP.dress_mode(asset, flat, width=1.6)
+    assert mode == "pillows" and "lie flat" in why
+    assert BP.dress_mode(asset, flat, width=0.9)[0] is None                           # a single bed takes no shams
     no_pillows = BP.bedding_relief(_top_grid(0.0, 0.012), BED_C, 0.0, (1.6, 2.0))
     assert BP.dress_mode(asset, no_pillows)[0] == "pillows"                            # our pillow set, its duvet kept
     assert BP.dress_mode({"has_bedding": True, "has_pillows": False}, {})[0] == "pillows"
@@ -613,7 +636,7 @@ def test_m30_and_u34_are_wired_as_the_other_checks():
     from wenart.blender import model_review as MR
 
     assert "M30" in MR.CHECKS and K.CHECK_KIND["M30"] == "taste" and K.CHECK_KIND["U34"] == "taste"
-    assert CA.CHECK_CAUSE["M30"] == "decor_look" and AL.CHECK_LESSONS["U34"] == ("UL121",)
+    assert CA.CHECK_CAUSE["M30"] == "decor_look" and AL.CHECK_LESSONS["U34"] == ("UL121", "UL136", "UL137", "UL146")
     b, m = _built_and_manifest(throw=False)
     rec = MR.review(b, m)
     assert rec["checks"]["M30"]["status"] == "ok" and rec["checks"]["M30"]["checked"] == 1
@@ -698,8 +721,8 @@ def test_a_storage_bed_with_a_bare_mattress_gets_the_full_set():
     drawers_only = BP.bedding_relief(np.concatenate([np.asarray(mv), drawers.reshape(-1, 3), headboard]), BED_C,
                                      0.0, (1.6, 2.0))
     assert drawers_only["top_m"] < 0.2
-    # a made-up bed keeps its own bedding; the same duvet with a headboard and no pillows gets our pillows
-    made = BP.bedding_relief(np.concatenate([_top_grid(0.15, 0.012), headboard]), BED_C, 0.0, (1.6, 2.0))
+    # a made-up bed (standing pillows) keeps its own bedding; the same duvet with a headboard and no pillows gets ours
+    made = BP.bedding_relief(np.concatenate([_top_grid(0.35, 0.012), headboard]), BED_C, 0.0, (1.6, 2.0))
     assert BP.dress_mode(asset, made)[0] is None
     bare = BP.bedding_relief(np.concatenate([_top_grid(0.0, 0.012), headboard]), BED_C, 0.0, (1.6, 2.0))
     assert bare["pillow_vertices"] < BP.PILLOW_VERTS_MIN and BP.dress_mode(asset, bare)[0] == "pillows"

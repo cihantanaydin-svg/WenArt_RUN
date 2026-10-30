@@ -1307,7 +1307,7 @@ def _bedding_test(piece: dict, entry: dict, ob) -> str | None:
     pts = _evaluated_world_points(ob)
     centre, rot, size = BP.bed_frame(piece)
     relief = BP.bedding_relief(pts, centre, rot, size) if len(pts) else {}
-    mode, why = BP.dress_mode(piece.get("asset"), relief)
+    mode, why = BP.dress_mode(piece.get("asset"), relief, width=size[0])     # 30 Oct 2026 (UL137): flat pillows
     entry["bedding_test"] = dict(relief, own_bedding=True, mode=mode, poorer=mode is not None, reason=why,
                                  rule=BP.RULE)
     return mode
@@ -1701,7 +1701,9 @@ def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, c
     (``textiles.bedding_set``: euro shams, standing pillows, the accent cushions and the lumbar in the AI's cushion
     colours, the soft deep duvet hanging almost to the floor on each side ``bedding_parts.bed_sides`` finds free, the
     rolled turn-down), still one mesh: each fabric is a material slot (``split_key``); ``mode`` pillows (a made-up model
-    whose duvet has folds but no pillows) leaves the duvet out."""
+    whose duvet has folds but no pillows) leaves the duvet out. 30 Oct 2026 (UL136, UL137, UL146): a real made bed
+    (``textiles.bedding_set``: the smooth duvet with a level hem, the thin turned-down band, the flanged pillows standing
+    against the headboard, a gap at the head closed); the record carries the duvet's measured look and the head."""
     from wenart.blender import bedding_parts as BP
     from wenart.blender import rest as R
     from wenart.blender import textiles as T

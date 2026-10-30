@@ -1599,24 +1599,24 @@
    "id": "UL136",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I did not like this bed (30 Oct 2026, real04 run 20261029-201533-full: our procedural duvet's sides ripple like melted foam, the turned-down band is a thick slab, the pillows sit crumpled at the headboard)",
-   "lesson": "I did not like this bed (30 Oct 2026, real04 run 20261029-201533-full: our procedural duvet's sides ripple like melted foam, the turned-down band is a thick slab, the pillows sit crumpled at the headboard)",
+   "lesson": "Every bed's bedding looks like a real made bed, for every style family (wenart.blender.bedding_parts cover_grid, textiles.drape_cover, bedding_set): the duvet's top is a smooth envelope over the mattress (it bridges a library mattress's own quilting and dips, never follows every ray hit) with a few soft wide folds (ridges about 25 cm wide, at most the family's wrinkle); over each edge it rounds on its own height, then hangs straight down one plane per side, outside the bed at every height (a wider frame cleared by a gentle flare, the bed's own rail or footboard stops it), every edge point's drop scaled to one level hem (a straight even hem), with a few soft wide folds (46 cm pitch, 1-1.8 cm) growing to the hem; the cloth thins to its seam over its last 6 cm (a rounded hem, never a cut slab); the turned-down top sheet is a thin band (a 7 mm sheet, a neat 2-4 cm fold wrapped round the duvet's head edge, down the sides with the duvet); the pillows are plump with crisp pillowcase edges (a flange: 4 cm on a euro sham, 1.5 cm on a pillow, piping on a cushion); lying pillows without a headboard stay on the bed. The look is measured on every build (bedding_parts.cover_smoothness: the top and the hanging sides within 6 mm of their own smooth surface over 30 cm, the hem within 12 mm of a level straight line); M30 and Argus U34 flag a lumpy duvet or a wavy hem. One mesh per bed from vertex arrays.",
    "question": "Does every bed's bedding look like a real made bed: a smooth duvet with gentle natural folds and a straight hem, a thin turned-down sheet band, neat plump pillows standing against the headboard?"
   },
   {
    "id": "UL137",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Head section of this bed needs a rework (30 Oct 2026, real04 run 20261029-201533-full: two flat lying pillows low in front of a tufted headboard, a gap between mattress and headboard, no shams or standing pillows)",
-   "lesson": "Head section of this bed needs a rework (30 Oct 2026, real04 run 20261029-201533-full: two flat lying pillows low in front of a tufted headboard, a gap between mattress and headboard, no shams or standing pillows)",
+   "lesson": "The head of every bed is made up: a bed's back rays take their first hit in the head zone (a raised head section or a roll nearer the middle no longer hides the headboard behind it, rest.place_leaning), the euro shams and the sleeping pillows first stand on what lies at the head against the headboard behind their upper part (a model's own flat pillows, a panel raised on posts), a gap between the mattress and the headboard (rest.bed_head: the top dropping 4 cm, the gap at least 8 cm deep) is bridged (their base on the mattress, leaned back until their upper part reaches the headboard) and closed by a fitted sheet over it (textiles.gap_sheet); a made-up library bed whose own pillows lie flat (a bump under 0.22 m over its cover) on a bed wide enough for euro shams gets our standing set on them, its duvet kept (bedding_parts.dress_mode pillows). Argus U34 and M30 flag a gap left open.",
    "question": "Is the head of every bed made up: euro shams and pillows standing against its headboard (a headboard with a gap or posts found too), with no bare gap between mattress and headboard?"
   },
   {
@@ -1723,12 +1723,12 @@
    "id": "UL146",
    "date": "2026-10-30",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "This is a good inspiration (30 Oct 2026, photo P14: a bedroom with slatted wall panels, an upholstered bed with layered bedding, round two-drawer nightstands, a line-art print pair, a linear chandelier, a glass bedside pendant, black track lights, a venetian blind, a dressing desk with an arched mirror, black open shelving, herringbone floor)",
-   "lesson": "This is a good inspiration (30 Oct 2026, photo P14: a bedroom with slatted wall panels, an upholstered bed with layered bedding, round two-drawer nightstands, a line-art print pair, a linear chandelier, a glass bedside pendant, black track lights, a venetian blind, a dressing desk with an arched mirror, black open shelving, herringbone floor)",
+   "lesson": "The P14 bed (docs/reference_details_20261029.md R38) on every dressed bed of every family: a smooth duvet hanging straight almost to the floor, the plain blanket of the throw pair folded over the foot (the accent colour, rolled softly over the duvet's edge, 30 cm down the free sides and the foot), the patterned fringed throw draped at one free side over the blanket's head edge (textiles.p14_throw_parts), many pillows standing in two rows against the headboard (euro shams behind, the sleeping pillows, the accent cushions and a lumbar in front) with crisp edges. The pair across the foot of before stays for a bed with both sides blocked. The photo's other pieces (slat panels, the print pair, the linear chandelier and bedside pendant, track lights, the blind, the dressing desk, open shelving) keep their own rules (R13, R16, R17, R19, H7).",
    "question": "Do the bedrooms reach the P14 reference where their family allows: slatted wall panels, an upholstered bed with layered bedding, round nightstands with styled tops, a print pair over the bed, a linear chandelier or bedside pendants, track lights, a blind with the curtains, a dressing desk with an arched mirror and open shelving?"
   },
   {

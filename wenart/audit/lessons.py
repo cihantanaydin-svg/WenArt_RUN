@@ -87,7 +87,9 @@ finding names its lesson in ``evidence.lesson`` and the fix Argus AI takes in ``
   models") a bed missing its style family's bedding (``wenart.blender.bedding_parts.review``, the model review's M30):
   fewer pillows than the family's set (shams, sleeping pillows, accent cushions, a lumbar), a free side whose duvet
   hangs short of the floor, an old dressing without the set, a made-up model measured poorer than ours left as it was,
-  no throw, a throw without its woven pattern or its fringe. Kind ``taste``.
+  no throw, a throw without its woven pattern or its fringe. Kind ``taste``. 30 Oct 2026 (UL136 "I did not like this
+  bed", UL137 "head section of this bed needs a rework", UL146 the P14 bed): a lumpy duvet or blanket, a wavy hem
+  (``bedding_parts.cover_smoothness`` as built), a gap between the mattress and the headboard left open.
 
 How: pure functions of the building (``inp.stage("build")`` or the final one) and the manifest; a check whose data is
 missing is listed in ``checked`` as not run, never as clean. Every lesson without a code check is asked by Argus AI's
@@ -966,7 +968,9 @@ def bed_realism(building: dict, manifest: Optional[dict] = None) -> list[dict]:
                problem=g["problem"], family=g.get("family"), room=g.get("room_id")) for g in got]
 
 
-CHECK_LESSONS["U34"] = ("UL121",)        # 29 Oct 2026: a full, realistic bed (bedding_parts.review)
+# 29 Oct 2026: a full, realistic bed (bedding_parts.review); 30 Oct 2026: a real made bed (UL136: a lumpy duvet, a
+# wavy hem; UL137: the head's gap left open; UL146: the P14 layers' blanket)
+CHECK_LESSONS["U34"] = ("UL121", "UL136", "UL137", "UL146")
 
 
 def kitchen_details(building: dict, manifest: Optional[dict] = None) -> list[dict]:

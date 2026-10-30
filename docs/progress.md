@@ -2536,3 +2536,28 @@ docs/reference_details_20261029.md). Every fix is a general rule; real04 is the 
 
 Open from P5: a styled worktop as full as the photo, seams where two drawn runs meet on one wall. UL151 (floor vase)
 and UL128 / UL132 came with the decor helper; UL153 (P16 salon) and UL131 / UL140 (sofas) are with helpers.
+
+## A real made bed (30 Oct 2026; built, CPU- and Blender-tested, pod run waiting)
+
+The user's review of the beds of real04 run 20261029-201533-full (lessons UL136 "I did not like this bed", UL137
+"head section of this bed needs a rework", UL146 the inspiration photo P14, R38), fixed as general rules for every
+style family (tests: `tests/test_bed_made_20261030.py`, `tests/test_bed_realism_20261029.py`).
+
+| problem | cause | fix |
+|---|---|---|
+| the duvet's hanging sides ripple "like melted foam", the hem uneven and wavy (f_L0_021) | the 29 Oct duvet followed every ray hit of the host (a library mattress's quilting, a jagged edge: neighbouring rows hung from edge points of different heights), each hanging point took its own side ray (jumps where a base is inset), flutes of 22 mm every 18 cm, a 6.5 cm slab to a cut rim | `bedding_parts.cover_grid` + `textiles.drape_cover`: the top is a smooth envelope over the host (it bridges dips, never cuts a bump) with a few soft wide folds; over each edge a quarter turn on the duvet's own height, then straight down one plane per side outside the host at every height (a wider frame cleared by a gentle flare; the bed's own rail or footboard stops it), every edge point's drop scaled to one level hem; a few soft folds (46 cm pitch, 1-1.8 cm) grow to the hem; the cloth thins to its seam over its last 6 cm |
+| the turned-down band a thick rigid slab | the duvet's rows lifted 3.75 cm, 3.9 cm thick, its edge rolled up | `turn_down_band`: a 7 mm sheet 3 mm over the duvet, folded round the duvet's thinned head edge (a 4 cm fold), down the sides with the duvet |
+| pillows crumpled and squashed in a dark gap at the headboard (f_L0_021) | no headboard found: the pillows lay with their middle at the head edge and poked 0.2 m past the bed, into the gap and the headboard; the pillow profile read as squashed | lying pillows end at the head edge (`rest.place_leaning`); plump pillows (profile p 3, q 0.45) with a pillowcase flange (4 cm on a sham, 1.5 cm on a pillow, piping on a cushion): a crisp edge |
+| two flat pillows low before a tufted headboard on posts, a gap, no shams (f_L0_007) | the bedding test read the headboard as pillows (fixed in b3c2f56); a model's flat pillows counted as made up; a back ray's first hit nearer the middle hid the headboard; an item over a gap sank into it | `dress_mode`: pillows lying flat (bump under 0.22 m) on a bed wide enough for shams get our standing set; a back ray's first hit in the head zone counts; shams and pillows stand on what lies at the head against the headboard first; `rest.bed_head` finds the mattress's head edge (a gap at least 8 cm deep): the item's base stays on the mattress, leaned back until its upper part reaches the headboard; `textiles.gap_sheet` closes the gap |
+| P14: a blanket over the foot half, a houndstooth throw at one side | the pair lay as two strips across the foot | `textiles.p14_throw_parts`: the plain blanket (the accent colour) over the foot, rolled softly over the duvet's edge and 30 cm down the free sides and the foot; the patterned fringed throw draped at one free side over the blanket's head edge; the pair across the foot stays when both sides are blocked |
+
+The look is measured on every build (`bedding_parts.cover_smoothness`: the top and the hanging sides within 6 mm of
+their own smooth surface over 30 cm, the hem within 12 mm of a level straight line); M30 and Argus U34 flag a lumpy
+duvet or blanket, a wavy hem and a gap at the head left open (U34 now covers UL121, UL136, UL137, UL146). The 29 Oct
+flutes measure 16-17 mm off their smooth surface (lumpy, a wavy hem); the new duvet 2.6-3.7 mm.
+
+Checked in local Blender renders (CPU, `--no-textures`): synthetic library-like beds (an adjustable bed with a quilted
+mattress 8 cm before a glossy headboard; an upholstered bed with its own grey duvet and two flat pillows, a scalloped
+panel on posts 7 cm behind the mattress; the parametric bed's frame) dressed alone and as f_L0_021 / f_L0_007 in
+real04's L0 build. Time per bed (Blender's BVH, a shared 4-core CPU): the dressing 0.02-0.14 s alone and 0.27-0.31 s
+in the L0 build (0.35-0.38 s before), the P14 throw pair 0.29-0.36 s (the pair of before 0.29-0.36 s).

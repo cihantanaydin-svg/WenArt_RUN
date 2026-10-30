@@ -134,8 +134,10 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   realistic the bed is looking full and nice I want this much detail in our models"; ``bedding_parts.review``, Argus'
   U34 reads it too): a dressed bed with fewer pillows than its family's set (euro shams with no headboard to stand on
   are explained), a free side whose duvet hangs short of the floor, an old dressing without the set, a made-up model
-  measured poorer than ours left undressed, a bed without its throw, a throw without its woven pattern or its fringe.
-  Minor; kind ``taste``; the decor stage (``wenart.furniture.bedding``) and the build (``textiles.bedding_set``) own it.
+  measured poorer than ours left undressed, a bed without its throw, a throw without its woven pattern or its fringe;
+  30 Oct 2026 (UL136, UL137, UL146): a lumpy duvet or blanket, a wavy hem (``bedding_parts.cover_smoothness``), a gap
+  between the mattress and the headboard left open. Minor; kind ``taste``; the decor stage
+  (``wenart.furniture.bedding``) and the build (``textiles.bedding_set``) own it.
 - M31 nothing inside crosses the roof (30 Oct 2026, lessons UL128 "Some frames coming out of the roof it needs fixing"
   and UL132 "Door frame needs fixing", real04 run 20261029-201533-full; ``under_roof.crossings``, ``door_problems``):
   every furniture, decor and door part (the model, the leaf, the lining, the head, the architrave) of a level under a
