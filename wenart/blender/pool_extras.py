@@ -104,7 +104,9 @@ def keep_outs(site: dict, deck: dict) -> list:
             up = pf.get("flight")
             if isinstance(up, dict) and up.get("mid") and up.get("out"):
                 # the flight up out of a sunken deck starts on the deck: its foot stays free
-                keep.append(GR._rect(up["mid"], up["out"], -LANDING_CLEAR_M, 0.0, float(up.get("half_w") or 0.6) + 0.3))
+                # (UL162: an inward flight's foot lies its length in from the edge)
+                foot = LANDING_CLEAR_M + (float(up.get("length") or 0.0) if up.get("inward") else 0.0)
+                keep.append(GR._rect(up["mid"], up["out"], -foot, 0.0, float(up.get("half_w") or 0.6) + 0.3))
     for poly in [site.get("outline") or []] + list(site.get("copy_holes") or []):
         if len(poly) >= 3:
             keep.append(geom2d.ccw(poly))

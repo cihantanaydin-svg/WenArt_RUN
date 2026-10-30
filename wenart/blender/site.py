@@ -2951,6 +2951,7 @@ RETAINING_MAX_M = 1.2
 # carries a guard on its top (the fall from the ground outside into the platform).
 GUARD_RISE_M = RETAINING_MAX_M
 PLATFORM_KINDS = {"paving": "terrace", "parking": "parking", "pools": "pool", "path": "path"}
+ROAD_KINDS = ("parking", "drive", "road")   # surfaces that stay only road (UL162): no flight is cut into them
 POOL_COPING_M = 0.35
 
 
@@ -3405,6 +3406,12 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
                 pf["flight_lands_on"] = next(q["id"] for q in out if q is not pf
                                              and G.point_in_polygon(fl["landing"], q["polygon"]))
                 break
+        # 30 Oct 2026 (lesson UL162, user on real04's drive: "it needs to be only road"): a flight up onto a road (a
+        # drive, a parking) is set into the sunken platform itself, its top step at the road's edge; the road stays
+        # whole, no steps or cheek blocks in it
+        lands = next((q for q in out if q.get("id") == pf.get("flight_lands_on")), None)
+        if lands is not None and lands.get("kind") in ROAD_KINDS:
+            pf["flight_inward"] = True
         pf["flight"] = up_flight(pf, gz=gz)
     # 30 Oct 2026 (lesson UL129): a flight up onto another surface is cut into that surface (``cut_flights``)
     cut_flights(out)
@@ -3997,7 +4004,8 @@ def slab_with_holes(outer, holes, z_top: float, z_bottom: float) -> tuple[list, 
 def railing_runs(a, b, i: int, pf: dict) -> list[tuple]:
     """The stretches of a platform's railing on edge ``i`` (pure): the whole edge, or (25 Oct 2026, architect A2: a
     railing closed real04's pool-deck steps) the two pieces beside the flight when the edge is in ``railing_gaps``."""
-    if i not in (pf.get("railing_gaps") or []) or i != pf.get("steps_edge"):
+    # UL162: an inward flight arrives at the edge itself: its railing always leaves the flight's gap
+    if (i not in (pf.get("railing_gaps") or []) and not pf.get("flight_inward")) or i != pf.get("steps_edge"):
         return [(a, b)]
     from wenart.blender.architect import STEP_GAP_M
     length = G.distance(a, b)
@@ -4045,6 +4053,16 @@ def up_flight(pf: dict, terrain: Optional[dict] = None, gz=None) -> Optional[dic
     rise = max(PLATFORM["level_tol"], gz(mid[0] + out[0] * d, mid[1] + out[1] * d) - z)
     half_w = PLATFORM["step_width"] / 2.0
     t = PLATFORM["wall_t"]
+    if pf.get("flight_inward"):
+        # UL162: the flight runs down into the platform from its edge (the road beside it stays whole)
+        top = gz(mid[0] + out[0] * (t + 0.3), mid[1] + out[1] * (t + 0.3))
+        rise = max(PLATFORM["level_tol"], top - z)
+        count = max(1, min(12, int(math.ceil(rise / PLATFORM["step_rise"] - 1e-9))))
+        d = count * tread
+        return {"edge": i, "mid": mid, "out": out, "count": count, "rise": round(rise, 3), "length": round(d, 3),
+                "half_w": half_w, "inward": True, "footprint": _rect_along(mid, out, -d, 0.0, half_w + t),
+                "landing": (mid[0] + out[0] * (t + 0.3), mid[1] + out[1] * (t + 0.3)),
+                "span": (length / 2.0 - half_w - t, length / 2.0 + half_w + t)}
     return {"edge": i, "mid": mid, "out": out, "count": count, "rise": round(rise, 3), "length": round(d, 3),
             "half_w": half_w, "footprint": _rect_along(mid, out, 0.0, d, half_w + t),
             "landing": (mid[0] + out[0] * (d + 0.6), mid[1] + out[1] * (d + 0.6)), "span": (length / 2.0 - half_w - t,
@@ -4057,6 +4075,21 @@ def up_flight_parts(fl: dict, z: float, gz) -> tuple[list, list]:
     mid, out, n, tread = fl["mid"], fl["out"], fl["count"], PLATFORM["step_tread"]
     r = fl["rise"] / n
     below, t = PLATFORM["below"], PLATFORM["wall_t"]
+    if fl.get("inward"):
+        # UL162: the steps rise towards the edge inside the platform, a low cheek on each side from the first tread to
+        # the road's level at the edge (no block stands over the road)
+        steps = [geom2d.prism(_rect_along(mid, out, -(n - j + 1) * tread, -(n - j) * tread, fl["half_w"]),
+                              z - below, z + j * r) for j in range(1, n + 1)]
+        cheeks = []
+        side = (-out[1], out[0])
+        angle = math.degrees(math.atan2(out[1], out[0]))
+        for sgn in (-1.0, 1.0):
+            off = sgn * (fl["half_w"] + t / 2.0)
+            p0 = (mid[0] + side[0] * off - out[0] * fl["length"], mid[1] + side[1] * off - out[1] * fl["length"])
+            p1 = (mid[0] + side[0] * off, mid[1] + side[1] * off)
+            cheeks.append(sloped_box(G.segment_midpoint(p0, p1), fl["length"], t, angle, z - below, z + r + 0.05,
+                                     z + fl["rise"]))
+        return steps, cheeks
     steps = [geom2d.prism(_rect_along(mid, out, (j - 1) * tread, j * tread, fl["half_w"]), z - below, z + j * r)
              for j in range(1, n + 1)]
     cheeks = []

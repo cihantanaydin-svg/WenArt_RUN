@@ -2007,6 +2007,16 @@
    "request": "On the top down views do not use these tags, I am not able to see what is behind (30 Oct 2026, real04 run 20261030-043021-full, the top-down views top_L-1 / top_L0 / top_L1: every room carries an opaque white label box with its name and type over the furniture)",
    "lesson": "The top-down views keep every room visible: no name boxes over the rooms; a small see-through numbered badge at each room's middle and the rooms' names and types in a legend strip under the view (wenart.report.topdown_labels room_marks, with_legend).",
    "question": "Can every room of the top-down views be seen whole, with only small numbered badges over it and the names in a legend under the view?"
+  },
+  {
+   "id": "UL170",
+   "date": "2026-10-30",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "These 2 lights together not making sense, keep the black one and make it give light (30 Oct 2026, real04 run 20261030-043021-full: a black linear canopy with four wire-cage pendants hangs next to a glowing white octagonal ceiling light in the same ceiling; the pendants give no light)",
+   "lesson": "These 2 lights together not making sense, keep the black one and make it give light (30 Oct 2026, real04 run 20261030-043021-full: a black linear canopy with four wire-cage pendants hangs next to a glowing white octagonal ceiling light in the same ceiling; the pendants give no light)",
+   "question": null
   }
  ]
 }
