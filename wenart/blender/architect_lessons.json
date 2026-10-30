@@ -2552,24 +2552,24 @@
    "id": "UL215",
    "date": "2026-10-30",
    "area": "library",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Library models if exist and better than procedural generation should be used, fix the problem related to it (30 Oct 2026, the user: 'There were already laptop models in the library why we have not use that one and created a brand new model instead?'; the 3D Warehouse extras hold 14 audited laptops, 12 removed by the audit's open-lid rule, and the decor stage builds laptops, TVs, monitors, microwaves procedurally without looking at the library)",
-   "lesson": "Library models if exist and better than procedural generation should be used, fix the problem related to it (30 Oct 2026, the user: 'There were already laptop models in the library why we have not use that one and created a brand new model instead?'; the 3D Warehouse extras hold 14 audited laptops, 12 removed by the audit's open-lid rule, and the decor stage builds laptops, TVs, monitors, microwaves procedurally without looking at the library)",
+   "lesson": "When a library model exists and is better than what we build ourselves, use it. The audited 3D Warehouse extras (laptops, TVs, monitors, microwaves) were never loaded, so every laptop was built by hand. A decor item of these types now takes an audited model (keep or fix) when it is rated 4 or more, is a real product, fits the style family and reaches a real product size by uniform scaling; otherwise it is built procedurally and the fit report lists the library gap (none audited, none better, none fits). Commercial mode takes only commercial-safe models. Real04 and real06 replays: every laptop is a library model (quality 4); TVs and microwaves stay procedural until a better one is audited.",
    "question": "Does every item use an audited library model of its type when one is better than the procedural build (laptops, TVs, monitors, appliances), the procedural model only as a fallback with a library gap note?"
   },
   {
    "id": "UL216",
    "date": "2026-10-30",
    "area": "library",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "no need to reject them (30 Oct 2026, the user on library models with a brand logo or a poor vision quality); then: \"bad model stays out but 'For items with an open part in normal use'. we can use it a dresser with open doors could be used\"",
-   "lesson": "no need to reject them (30 Oct 2026, the user on library models with a brand logo or a poor vision quality: they stay usable; a logo is a flag that commercial mode excludes; quality only decides whether the library model beats the procedural one)",
+   "lesson": "An open drawer, door or lid is how many objects are used (an open laptop, a dresser with open doors), so it is never a reason to remove a model of any type: the model keeps an open_parts flag so a pick may still prefer a closed one. A maker's logo or print is a flag (logo_flag), not a removal: relaxed mode may use it (ranked below a clean model of the same size step), commercial mode leaves it out, and the credits name it. A bad model stays out: vision quality 2 or lower, or no real product. The stored vision answers re-derived 65 entries from removed to keep or fix (12 laptops, 13 doors, wardrobes, washers, fridges, cars, TVs ...).",
    "question": "Are library models with open parts (an open drawer, door or lid) or a logo kept usable (flagged; a logo excluded in commercial mode), while models of poor quality stay out?"
   }
  ]
