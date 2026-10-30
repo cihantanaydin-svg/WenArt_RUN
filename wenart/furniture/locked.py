@@ -305,6 +305,27 @@ def _bay_shrink_problems(src: dict, fin: dict, bay: dict) -> list[str]:
     return out
 
 
+# 30 Oct 2026 (lesson UL200, user: "Not all the bathrooms requires a bath sometimes a shower solution could be better
+# solution"): a fixed piece whose type the code inferred (``inferred``: an unnamed drawn footprint typed as the room's
+# missing member) may be inferred again by a code rule as the other type of the same member, its footprint unchanged
+# and its drawn type kept: a bathroom set's bathing member is a bathtub or a walk-in shower (``infer.bath_or_shower``).
+# Real04 run 20261030-112241-full replayed: the layout's locked check refused the six showers and wrote no building.
+INFERRED_FIXED_SWAPS: dict[str, tuple[str, ...]] = {"bathtub": ("shower",), "shower": ("bathtub",)}
+
+
+def inferred_swap(src: dict, fin: dict, adj: dict) -> bool:
+    """Whether ``fin``'s type change is a code rule's swap of an inferred fixed type (``INFERRED_FIXED_SWAPS``): the
+    source typed by inference, the new type its member's other type, the drawn type kept and a code record (now or
+    under ``previous``) naming the type it changed."""
+    drawn = drawn_value(src, "type")
+    if not src.get("inferred") or fin.get("type") not in INFERRED_FIXED_SWAPS.get(str(drawn), ()) \
+            or fin.get("drawn_type") != drawn:
+        return False
+    records = [adj] + [r for r in adj.get("previous") or [] if isinstance(r, dict)]
+    return any(r.get("by") == "code" and not r.get("model") and (r.get("changed") or {}).get("type") == drawn
+               for r in records)
+
+
 def _agent_problems(src: dict, fin: dict, keep: bool, room_type: Optional[str] = None,
                     symbols_of: Iterable[str] = ()) -> list[str]:
     """Milestone 11 (docs/milestone11.md §5, CLAUDE.md furniture rules): a drawn piece the agent changed
@@ -346,7 +367,8 @@ def _agent_problems(src: dict, fin: dict, keep: bool, room_type: Optional[str] =
     # entry naming it) is left out like a misplaced one.
     not_furniture = pid in set(symbols_of) and fin.get("build") is False
     if fixed or keep:
-        if src["type"] != fin["type"] and not (keep and not fixed and src["type"] == "unknown") and not misplaced:
+        if src["type"] != fin["type"] and not (keep and not fixed and src["type"] == "unknown") and not misplaced \
+                and not inferred_swap(src, fin, adj):
             out.append(f"{pid}: {'fixed equipment' if fixed else 'a kept drawn piece'} changed its type")
         if isinstance(adj.get("fix_fixture"), dict) and src["type"] in schemas.FIXED_TYPES:
             out.extend(_fixture_fix_problems(src, fin, moved, same_box))

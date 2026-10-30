@@ -331,6 +331,9 @@ def test_the_wall_items_are_raised_moved_or_left_out(items04):
     # 2. the picture in front of the architect's window: on another free wall of the room
     moved = {r["id"]: r for r in res["moved"]}
     assert moved["dec_L0_030"]["to"] == "another wall" and "anchor_ids" not in by["dec_L0_030"]
+    # ... and it hangs on a free wall (the schema needs anchor_ids or free_wall: the decor stage of the replay of
+    # run 112241 wrote no building for three such pictures)
+    assert by["dec_L0_030"]["free_wall"] is True
     # the intercom 3 cm too close to the resized entrance door's architrave: slid along its wall
     assert moved["dec_L0_099"]["to"] == "along its wall" and moved["dec_L0_099"]["moved_m"] < 0.05
     # 3. the desk's wall unit: no stretch of the desk's span is free of the window: left out with the reason

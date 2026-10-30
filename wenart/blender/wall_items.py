@@ -589,7 +589,8 @@ def _move(item: dict, ext: dict, st: dict, line_i: int, s: float, z0: Optional[f
     item["center"] = [round(xy[0], 3), round(xy[1], 3)] + c[2:]
     if line_i != ext["line"]:
         item["rotation_deg"] = _rotation_into(line["n"])
-        item.pop("anchor_ids", None)                  # off its piece's wall: no longer hung over it
+        if item.pop("anchor_ids", None) is not None:  # off its piece's wall: no longer hung over it ...
+            item["free_wall"] = True                  # ... but on a free wall (the schema's other placement)
         item.pop("gap_m", None)
         item.pop("min_bottom_m", None)
         if z0 is not None:

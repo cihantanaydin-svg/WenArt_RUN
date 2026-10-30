@@ -45,3 +45,27 @@ def test_a_named_bath_one_bathroom_and_the_brief_keep_the_baths():
     kept = _house()
     kept["project"]["brief"]["bath_or_shower"] = "keep"
     assert I.bath_or_shower(kept) == []
+
+
+def test_the_locked_check_accepts_the_code_swap_of_an_inferred_bath_only():
+    """The replay of real04 run 112241: the layout's locked check refused the six showers ("fixed equipment changed
+    its type") and wrote no building; a code swap of an inferred bathing member passes, nothing else does."""
+    import copy
+    from wenart.furniture import locked as L
+    b = _house()
+    for f in b["furniture"]:
+        f["inferred"] = True
+    src = copy.deepcopy(b)
+    I.bath_or_shower(b)
+    fin = {f["id"]: f for f in b["furniture"]}
+    for f in src["furniture"]:
+        probs = L._agent_problems(f, fin[f["id"]], False, "bathroom") if fin[f["id"]] != f else []
+        assert not [p for p in probs if "changed its type" in p], probs
+    named = copy.deepcopy(src["furniture"][1])
+    named.pop("inferred")                                            # typed by the drawing: stays a bathtub
+    retyped = dict(fin["t1"])
+    assert any("changed its type" in p for p in L._agent_problems(named, retyped, False, "bathroom"))
+    agent = dict(fin["t1"], adjusted_by_ai={"by": "agent", "model": "m", "reason": "r", "changed": {"type": "bathtub"}})
+    assert any("changed its type" in p for p in L._agent_problems(src["furniture"][1], agent, False, "bathroom"))
+    toilet = dict(fin["t1"], type="toilet")                         # not the same member
+    assert any("changed its type" in p for p in L._agent_problems(src["furniture"][1], toilet, False, "bathroom"))

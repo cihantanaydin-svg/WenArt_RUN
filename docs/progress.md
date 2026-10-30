@@ -2805,3 +2805,10 @@ savings listed to the user, only item 5 is applied:
 
 Not applied (stays as is): variant views, twin-room agent sessions, the last Argus AI pass, big-loop re-renders, refused
 edits, incremental builds.
+
+Preflight before the next real04 pod run: a local replay of layout, decor, refit and build on run 112241's data found two
+stops, both fixed (general): the layout's locked check refused the UL200 showers ("fixed equipment changed its type"; a
+code swap of an inferred bathing member, bathtub or walk-in shower, is now allowed, footprint unchanged, drawn type
+kept: `locked.inferred_swap`), and a picture moved off its piece's wall lost its `anchor_ids` without `free_wall`, so the
+decor stage wrote no building (`wall_items._move`). The replay then passed every stage (9 installation walls, 6 walk-in
+showers).
