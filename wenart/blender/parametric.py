@@ -3877,37 +3877,27 @@ def work_set_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
     (the base, its key field and trackpad, the lid opened ``LAPTOP_OPEN_DEG`` with its bezel and screen; the base the
     largest that fits the box, ``laptop_box``), ``monitor`` (a foot, a neck, the panel and its screen), ``keyboard``
     (a plate, key rows of ``KEY_PITCH_M``, a space bar) and ``computer_mouse``."""
-    if dtype == "laptop":
-        lean = math.radians(LAPTOP_OPEN_DEG - 90.0)
-        su, cu = math.sin(lean), math.cos(lean)
-        bt = min(LAPTOP_BASE_T, h * 0.08)
-        bd = max(0.02, min((d - LAPTOP_LID_T * cu) / (1.0 + su), (h - bt - LAPTOP_FACE_T * su) / cu))
-        depth = bd * (1.0 + su) + LAPTOP_LID_T * cu
-        y0 = -depth / 2.0                             # the front edge of the base, the box centred on the item
-        hinge = (y0 + bd, bt)
-        keys_d, pad_d = bd * 0.40, bd * 0.26
-        sb, tb, bb = (min(v, w * 0.08, bd * 0.12) for v in LAPTOP_BEZEL_M)
-        return [_box(0.0, y0 + bd / 2.0, 0.0, w, bd, bt, "steel", "base"),
-                _box(0.0, hinge[0] - bd * 0.06 - keys_d / 2.0, bt, w * 0.86, keys_d, 0.0012, "dark", "keys"),
-                _box(0.0, y0 + bd * 0.06 + pad_d / 2.0, bt, w * 0.34, pad_d, 0.0006, "dark", "trackpad"),
-                _lid_slab(0.0, hinge, lean, w, bd, LAPTOP_LID_T, 0.0, "steel", "lid"),
-                _lid_slab(0.0, hinge, lean, w - 0.002, bd - 0.001, LAPTOP_FACE_T * 0.6, -LAPTOP_FACE_T * 0.6,
-                          "dark", "bezel"),
-                _lid_slab(0.0, hinge, lean, w - 2.0 * sb, bd - bb - tb, LAPTOP_FACE_T * 0.4, -LAPTOP_FACE_T,
-                          "screen", "screen", z_from=bb)]
+    if dtype == "laptop":                         # 30 Oct 2026 (UL175): a detailed laptop (desk_parts.laptop_parts)
+        from wenart.blender import desk_parts as DK
+        return DK.laptop_parts(w, d, h)
     if dtype == "monitor":
+        from wenart.blender import desk_parts as DK
+
         panel_t = min(0.03, d * 0.2)
         panel_h = min(h * 0.75, w * 0.6)
         z_p = h - panel_h
         py = max(-d / 2.0 + 0.003 + panel_t / 2.0, -panel_t / 2.0 - 0.01)   # just in front of the foot's middle
         neck_y = min(d / 2.0 - 0.0125, py + panel_t / 2.0 + 0.0125)          # the neck right behind the panel
         bezel = min(0.008, w * 0.02, panel_h * 0.05)
+        front = py - panel_t / 2.0 - 0.002            # the screen's face
+        sw, sh, s0 = w - 2.0 * bezel, panel_h - 2.5 * bezel, z_p + bezel * 1.5
+        ui = DK.desktop_parts(sw, sh, 0.0)            # 30 Oct 2026 (UL175): a switched-on desktop on the screen
         return [_box(0.0, 0.0, 0.0, min(0.24, w * 0.45), d * 0.9, MONITOR_FOOT_T, "steel", "foot"),
                 _box(0.0, neck_y, MONITOR_FOOT_T, min(0.05, w * 0.12), 0.025, z_p + panel_h * 0.5 - MONITOR_FOOT_T,
                      "steel", "neck"),
                 _box(0.0, py, z_p, w, panel_t, panel_h, "dark", "panel_back"),
-                _box(0.0, py - panel_t / 2.0 - 0.001, z_p + bezel * 1.5, w - 2.0 * bezel, 0.002,
-                     panel_h - 2.5 * bezel, "screen", "screen")]
+                _box(0.0, py - panel_t / 2.0 - 0.001, s0, sw, 0.002, sh, "screen", "screen")] + [
+            dict(q, verts=[(x, front + t, s0 + z) for x, t, z in q["verts"]]) for q in ui]
     if dtype == "keyboard":
         plate_h = h * 0.45
         margin = min(0.012, w * 0.03, d * 0.08)
@@ -3974,6 +3964,11 @@ SURFACE_DECOR_TYPES = SURFACE_DECOR_TYPES + MEDIA_DECOR_TYPES      # it stands o
 DECOR_DEFAULT_HEIGHT["tv"] = 0.77                                  # a 55 inch set on its pedestal
 if "screen" not in MATERIAL_KEYS:                                  # its glossy dark screen (also the work set's)
     MATERIAL_KEYS = MATERIAL_KEYS + ("screen",)
+# 30 Oct 2026 (UL175): what a laptop's or a monitor's screen shows (desk_parts.desktop_parts): the light windows, the
+# menu bar and the dock (materials.screen_ui_material); the bevels of the desk set's new parts
+MATERIAL_KEYS = MATERIAL_KEYS + ("screen_ui",)
+BEVEL_BY_ROLE.update({"screen_ui": 0.0, "grille": 0.0, "camera": 0.0, "logo": 0.0, "clip": 0.0003, "phone": 0.001,
+                      "pot": 0.0008})
 # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's real heights (bath_parts.DECOR_HEIGHTS) and its material keys: the
 # LED strips (``materials.led_material``), the light stone and terrazzo tops and panels, the towels (the room's accent)
 DECOR_DEFAULT_HEIGHT.update({"toilet_paper_holder": 0.13, "toilet_brush": 0.38, "towel_rail": 1.2, "towel_shelf": 0.40,
