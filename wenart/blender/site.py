@@ -4398,7 +4398,39 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
             pf["reason"] += ("; its retaining wall stops at the building on edge" + ("s " if len(cuts) > 1 else " ")
                              + ", ".join(f"{i} ({', '.join(f'{s0:.2f}-{s1:.2f} m' for s0, s1 in sp)})"
                                          for i, sp in cuts.items()) + " (never through the house's wall, UL148)")
+    # 30 Oct 2026 (lesson UL214, the user's choice D+A): a raised outdoor floor over a lower outdoor space (a balcony
+    # over a veranda or a covered terrace) reads as one crisp horizontal line: an edge band on its exposed edges
+    # (``fascia_edges``, built by ``platform_parts``)
+    for pf in every:
+        if pf.get("elevated") and pf.get("railing_edges") and over_lower_space(pf, every):
+            edges = fascia_edges(pf, every)
+            if edges:
+                pf["fascia_edges"] = edges
+                pf["reason"] += (f"; a crisp {FASCIA['depth']:.2f} m edge band on its exposed edge"
+                                 f"{'s' if len(edges) > 1 else ''} {', '.join(str(i) for i in edges)} (UL214)")
     return every
+
+
+def over_lower_space(pf: dict, pfs: Sequence[dict], step: float = 0.25) -> bool:
+    """Whether a raised outdoor floor stands over a lower outdoor space (pure; UL214): a point of its own floor on a
+    ``step`` grid lies in the floor of a labelled outdoor space at least 1 m lower."""
+    poly = geom2d.ccw(pf.get("polygon") or [])
+    if len(poly) < 3:
+        return False
+    lows = [geom2d.ccw(q["polygon"]) for q in pfs if q is not pf and q.get("source") == "outdoor_space"
+            and len(q.get("polygon") or []) >= 3 and float(q.get("z") or 0.0) < float(pf.get("z") or 0.0) - 1.0]
+    if not lows:
+        return False
+    xs, ys = [p[0] for p in poly], [p[1] for p in poly]
+    x = min(xs) + step / 2.0
+    while x < max(xs):
+        y = min(ys) + step / 2.0
+        while y < max(ys):
+            if G.point_in_polygon((x, y), poly) and any(G.point_in_polygon((x, y), q) for q in lows):
+                return True
+            y += step
+        x += step
+    return False
 
 
 def _edge_out(poly, i) -> Optional[tuple[float, float]]:
@@ -5035,6 +5067,11 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
         # 26 Oct 2026: an upper balcony or terrace is a slab at its floor, SPACE_SLAB_M thick, no base to the ground
         v, f = slab_with_holes(poly, pf.get("holes") or [], z, z - SPACE_SLAB_M)
         out.append({"part": "slab", "verts": v, "faces": f})
+        # 30 Oct 2026 (lesson UL214): the crisp edge band on its exposed edges (``fascia_edges``)
+        band = fascia_parts(pf)
+        if band:
+            v, f = geom2d.merge(band)
+            out.append({"part": "fascia", "verts": v, "faces": f})
     else:
         zmin = min(ground_z(terrain, x, y) for x, y in poly)
         bottom = min(z, zmin) - PLATFORM["below"]
@@ -5220,6 +5257,13 @@ COVER = {"beam_w": 0.12, "beam_h": 0.20, "rafter_w": 0.06, "rafter_h": 0.16, "ra
 # Posts thinner than ``min_m`` (a light roof's timber or steel post) stay plain prisms with ``post_segments``.
 COLUMN = {"min_m": 0.25, "segments": 48, "base_h": 0.06, "base_over": 0.03, "head_h": 0.05, "head_over": 0.025,
           "roof_gap_m": 0.02, "guard_gap_m": 0.03, "guard_inset_m": 0.05, "min_run_m": 0.15}
+# 30 Oct 2026 (lesson UL214, wenart.levels.columns.design_columns): a slender round steel post stands on a square base
+# plate (``plate_t`` thick, ``plate_over`` proud each side) and ends in a square cap plate under what it carries.
+POST_DETAIL = {"plate_t": 0.015, "plate_over": 0.04, "cap_t": 0.012, "cap_over": 0.015}
+# The crisp edge band of a raised outdoor floor (UL214, the user's choice D): a fascia ``depth`` deep from just over the
+# floor down past the soffit, ``t`` proud of the slab's exposed edges (those with a guard: never along a wall), in the
+# beams' finish; none where a lower roof meets the edge (``fascia_edges``) and stopping ``gap`` short of a column.
+FASCIA = {"depth": 0.42, "t": 0.04, "over_floor": 0.02, "gap": 0.02, "roof_reach": 0.35, "roof_drop": 0.8}
 
 
 def post_radius(q: dict) -> float:
@@ -5302,6 +5346,94 @@ def column_parts(q: dict) -> list[tuple[list, list]]:
         out.append(geom2d.box((c[0], c[1], z0 + bh / 2.0), (w + 2 * bo, d + 2 * bo, bh), rot))
     if hh:
         out.append(geom2d.box((c[0], c[1], z1 - hh / 2.0), (w + 2 * ho, d + 2 * ho, hh), rot))
+    return out
+
+
+def steel_post_parts(q: dict) -> list[tuple[list, list]]:
+    """The meshes of a slender round steel post ``wenart.levels.columns.design_columns`` made (pure; lesson UL214): its
+    shaft between a square base plate and a square cap plate (``POST_DETAIL``)."""
+    z0, z1 = float(q["z0"]), float(q["z1"])
+    if z1 - z0 < 0.3:
+        return []
+    s = float(q.get("size_m") or 0.15)
+    c = (float(q["center"][0]), float(q["center"][1]))
+    rot = float(q.get("rotation_deg") or 0.0)
+    pd = POST_DETAIL
+    pt, ct = pd["plate_t"], pd["cap_t"]
+    return [_cylinder(c, s / 2.0, z0 + pt, z1 - ct, COLUMN["segments"]),
+            geom2d.box((c[0], c[1], z0 + pt / 2.0), (s + 2 * pd["plate_over"], s + 2 * pd["plate_over"], pt), rot),
+            geom2d.box((c[0], c[1], z1 - ct / 2.0), (s + 2 * pd["cap_over"], s + 2 * pd["cap_over"], ct), rot)]
+
+
+def fascia_edges(pf: dict, others: Sequence[dict]) -> list[int]:
+    """The edges of a raised outdoor floor that take the crisp edge band (pure; lesson UL214): its exposed edges (those
+    with a guard, ``railing_edges``: never along a wall), less those a lower space's roof meets (``others``: a roof
+    within ``FASCIA["roof_reach"]`` outside the edge whose top stands within ``FASCIA["roof_drop"]`` under the
+    floor)."""
+    poly = geom2d.ccw(pf.get("polygon") or [])
+    z = float(pf.get("z") or 0.0)
+    out = []
+    for i in pf.get("railing_edges") or []:
+        if not 0 <= i < len(poly):
+            continue
+        a, b = poly[i], poly[(i + 1) % len(poly)]
+        length = G.distance(a, b)
+        if length < 0.2:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        ox, oy = uy, -ux                                       # outward of a counter-clockwise edge
+        r = FASCIA["roof_reach"]
+        probes = [(a[0] + ux * length * t + ox * r, a[1] + uy * length * t + oy * r) for t in (0.25, 0.5, 0.75)]
+        met = False
+        for o in others:
+            roof = o.get("roof") if isinstance(o.get("roof"), dict) else None
+            if o is pf or roof is None or len(roof.get("polygon") or []) < 3:
+                continue
+            rp = geom2d.ccw(roof["polygon"])
+            for p in probes:
+                if G.point_in_polygon(p, rp) and 0.0 <= z - roof_z(roof, p) <= FASCIA["roof_drop"]:
+                    met = True
+                    break
+            if met:
+                break
+        if not met:
+            out.append(i)
+    return out
+
+
+def fascia_parts(pf: dict) -> list[tuple[list, list]]:
+    """The crisp edge band of a raised outdoor floor (pure; lesson UL214): along ``pf["fascia_edges"]``, ``FASCIA["t"]``
+    proud of the edge, from ``over_floor`` over the floor down ``depth``, each run stopping ``gap`` short of a post or
+    column on its line; a run reaches ``t`` past its end into the next band's outer corner (convex) to close it, and
+    ends flush where the next edge has no band (a wall, a lower roof)."""
+    poly = geom2d.ccw(pf.get("polygon") or [])
+    z = float(pf.get("z") or 0.0)
+    t, depth = FASCIA["t"], FASCIA["depth"]
+    top = z + FASCIA["over_floor"]
+    discs = column_discs(pf, z - SPACE_SLAB_M / 2.0)
+    edges = set(pf.get("fascia_edges") or [])
+    out = []
+    for i in sorted(edges):
+        if not 0 <= i < len(poly):
+            continue
+        a, b = poly[i], poly[(i + 1) % len(poly)]
+        length = G.distance(a, b)
+        if length < 0.2:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        ox, oy = uy, -ux
+        c = poly[(i + 2) % len(poly)]
+        turn = ux * (c[1] - b[1]) - uy * (c[0] - b[0])            # > 0: a convex corner of the ccw outline
+        reach = t if (i + 1) % len(poly) in edges and turn > 1e-9 else 0.0
+        line = ((a[0] + ox * t / 2.0, a[1] + oy * t / 2.0),
+                (b[0] + ux * reach + ox * t / 2.0, b[1] + uy * reach + oy * t / 2.0))
+        for p, q, _ca, _cb in (free_runs(line[0], line[1], discs, FASCIA["gap"]) if discs
+                               else [(line[0], line[1], False, False)]):
+            run = G.distance(p, q)
+            if run < 0.05:
+                continue
+            out.append(geom2d.box((G.segment_midpoint(p, q)[0], G.segment_midpoint(p, q)[1], top - depth / 2.0),
+                                  (run, t, depth), G.segment_angle_deg(p, q)))
     return out
 
 
@@ -5514,8 +5646,9 @@ def cover_parts(pf: dict) -> list[dict]:
         z0, z1 = float(q["z0"]), float(q["z1"])
         if z1 - z0 < 0.3:
             continue
-        # 27 Oct 2026: the drawn shape (outdoor.column_look); 30 Oct 2026 (UL209): a column a smooth shaft on a base
-        posts += column_parts(q)
+        # 27 Oct 2026: the drawn shape (outdoor.column_look); 30 Oct 2026 (UL209): a column a smooth shaft on a base;
+        # (UL214): a slender round steel post on its plates (levels.columns.design_columns)
+        posts += steel_post_parts(q) if q.get("finish") == "steel" else column_parts(q)
     if posts:
         v, f = geom2d.merge(posts)
         out.append({"part": "posts", "verts": v, "faces": f})
@@ -7076,13 +7209,14 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                         "source": "build", "assumed": True, "reason": OUTDOOR_SOFFIT_LOOK[2]})
             parts = platform_parts(dict(pf, balustrade=plan.get("balustrade")) if plan.get("balustrade") else pf,
                                    terrain)
-            if any(q["part"] in ("roof", "beams", "posts") for q in parts):
+            if any(q["part"] in ("roof", "beams", "posts", "fascia") for q in parts):
                 # 26 Oct 2026: a labelled outdoor space's cover in the house's look: the roof slab as the facade
-                # (the balcony slabs' render), the posts and beams as the window frames
+                # (the balcony slabs' render), the posts and beams as the window frames; 30 Oct 2026 (UL214): the
+                # edge band of a raised floor in the beams' finish
                 mats["roof"] = make_material(cover_top_look(pf.get("roof") or {}, looks))
-                mats["beams"] = mats["posts"] = make_material(looks.get("window_frame") or looks.get("railing")
-                                                              or {"material": SITE_FALLBACK_LOOKS["railing"],
-                                                                  "colour": None})
+                mats["beams"] = mats["posts"] = mats["fascia"] = make_material(
+                    looks.get("window_frame") or looks.get("railing")
+                    or {"material": SITE_FALLBACK_LOOKS["railing"], "colour": None})
             wall_part = next((q for q in parts if q["part"] == "wall"), None)
             built_walls = (wall_part or {}).get("walls") or []
             wall_max = max([w["height_m"] for w in built_walls] or [0.0])

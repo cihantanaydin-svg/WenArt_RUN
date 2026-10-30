@@ -156,8 +156,9 @@ def test_a_drawn_column_is_built_in_its_drawn_shape():
     verts = parts["posts"]["verts"]
     box = [v for v in verts if abs(v[0]) < 1.0]
     cyl = [v for v in verts if abs(v[0] - 3.0) < 1.0]
-    assert len(box) == 8 and len(cyl) > 8                            # a box of the drawn footprint, a cylinder
-    xs, ys = [v[0] for v in box], [v[1] for v in box]
+    # a box of the drawn footprint (since UL209 on a base under a head: three boxes, the shaft first), a cylinder
+    assert len(box) == 24 and len(cyl) > 8
+    xs, ys = [v[0] for v in box[:8]], [v[1] for v in box[:8]]
     import math
     a = math.radians(30.0)
     assert max(xs) - min(xs) == pytest.approx(0.25 * math.cos(a) + 0.5 * math.sin(a), abs=1e-6)
