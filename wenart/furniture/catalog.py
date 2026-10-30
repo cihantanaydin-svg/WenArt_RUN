@@ -1114,10 +1114,28 @@ def has_own_bedding(asset: Optional[dict]) -> bool:
     return bool(model_flag(asset, "has_bedding") or model_flag(asset, "has_pillows"))
 
 
+# 30 Oct 2026 (lesson UL180; real04 run 20261030-112241-full, user: "put some pillows and sheet on to the white sofa"):
+# the audit's ``has_cushions`` answered "loose or scatter cushions", so a sofa with loose seat and back cushions (and no
+# pillow on it) was flagged and got no decor cushions. A seat's own scatter cushions are the audit's
+# ``has_scatter_cushions`` when it said, else pillows its title or name names.
+SCATTER_WORDS: tuple[str, ...] = ("pillow", "pillows", "scatter cushion", "scatter cushions", "throw cushion",
+                                  "throw cushions", "accent cushion", "accent cushions")
+
+
+def has_scatter_cushions(entry: Optional[dict]) -> bool:
+    """A seat model (or its fitted asset) with scatter cushions of its own lying on it (module note above): the
+    audit's ``has_scatter_cushions``, else its title or name naming pillows (``SCATTER_WORDS``)."""
+    flag = model_flag(entry, "has_scatter_cushions")
+    if flag is not None:
+        return flag
+    title = " ".join(str((entry or {}).get(k) or "") for k in ("title", "name")).lower()
+    return any(re.search(rf"\b{re.escape(w)}\b", title) for w in SCATTER_WORDS)
+
+
 def has_own_cushions(asset: Optional[dict]) -> bool:
-    """A seat model with loose cushions of its own (the audit's ``has_cushions``): decor cushions would duplicate
-    them (§4.7)."""
-    return bool(model_flag(asset, "has_cushions"))
+    """A seat model with scatter cushions of its own (``has_scatter_cushions``): decor cushions would duplicate them
+    (§4.7). Loose seat and back cushions (the audit's ``has_cushions``) are no reason to leave a sofa bare (UL180)."""
+    return has_scatter_cushions(asset)
 
 
 # The audit's decor ``contact`` (flat_bottom | hangs | leans | drapes, track B) each decor type needs: a model that

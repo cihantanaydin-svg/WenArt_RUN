@@ -617,6 +617,105 @@ def required_items(rq: "RoomQuestion", items: list[dict], building: dict, new_id
     return out
 
 
+# 30 Oct 2026 (lesson UL180; real04 run 20261030-112241-full, user: "put some pillows and sheet on to the white sofa
+# also another carpet could be good here"): the seats whose throw moves to the room's main sofa (one per seating group)
+THROW_MOVE_HOSTS: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise")
+LIVING_DRESSING_RULE = "decor_ai.living_dressing"
+
+
+def living_dressing(rq: "RoomQuestion", items: list[dict], building: dict, new_id) -> tuple[list[dict], set]:
+    """A living room's seating dressed whatever the AI chose (pure; 30 Oct 2026, lesson UL180): the main sofa (the
+    widest sofa or corner sofa with soft slots) gets its cushions (``_cushions``: two on a sofa, two to four along a
+    corner sofa's back) and a throw; a throw the room's items put on another seat moves to it (one throw per seating
+    group); and the rug of the seating group (a rug slot anchored on a sofa, ``decor.rugs_for_room``) is laid when no
+    item took it, also when another rug serves the dining table. Through the same checks as the AI's items
+    (``build_items``), ``method: rule``. ``(new items, ids of the items they replace)``."""
+    if (rq.room.get("room_type") or "") not in D.LIVING_RUG_ROOM_TYPES:
+        return [], set()
+    pieces = {p["id"]: p for p in building.get("furniture") or [] if p.get("id")}
+    by_id = {s.id: s for s in rq.slots}
+    taken = {i.get("slot") for i in items}
+
+    def width(host_id: str) -> float:
+        return float((((pieces.get(host_id) or {}).get("footprint") or {}).get("size") or [0.0])[0])
+
+    sofas = sorted({s.host_id for s in rq.slots if s.kind == "soft" and s.host_type in D.LIVING_RUG_SOFAS},
+                   key=lambda h: (-width(h), h))
+    picks: list[tuple[dict, set]] = []
+    if sofas:
+        main = sofas[0]
+        on_main = {str(i.get("type")) for i in items if i.get("host_id") == main}
+        why = f"the main sofa {main} of the living room is dressed (user: 'put some pillows and sheet on to the sofa')"
+        if "cushion" not in on_main and f"{main}.cushions" in by_id and f"{main}.cushions" not in taken:
+            picks.append(({"slot": f"{main}.cushions", "type": "cushion", "colour": None, "reasons": [why] * 2}, set()))
+        if "throw" not in on_main and f"{main}.throw" in by_id and f"{main}.throw" not in taken:
+            moved = {i["id"] for i in items if i.get("type") == "throw" and i.get("id")
+                     and (pieces.get(i.get("host_id")) or {}).get("type") in THROW_MOVE_HOSTS}
+            colour = next((i.get("colour") for i in items if i.get("id") in moved and i.get("colour")), None)
+            note = f"; the throw moves here from {', '.join(sorted(moved))}" if moved else ""
+            picks.append(({"slot": f"{main}.throw", "type": "throw", "colour": colour, "reasons": [why + note] * 2},
+                          moved))
+    for slot in rq.slots:
+        if slot.kind != "rug" or slot.id in taken:
+            continue
+        if (pieces.get(slot.host_id) or {}).get("type") in D.LIVING_RUG_SOFAS:
+            why = (f"the seating group of {slot.host_id} stands on a rug (user: 'another carpet could be good here'), "
+                   "whatever rug the dining table has")
+            picks.append(({"slot": slot.id, "type": "rug", "colour": None, "reasons": [why] * 2}, set()))
+    out: list[dict] = []
+    drop: set = set()
+    for choice, replaces in picks:
+        made, _refused = build_items(rq, [choice], "rule", building, new_id)
+        for it in made:
+            it.update(method="rule", confidence=0.8, reason=choice["reasons"][0], rule=LIVING_DRESSING_RULE)
+        if made:
+            out += made
+            drop |= replaces
+    return out, drop
+
+
+SEATING_RUG_REACH_M = 0.5       # a rug within this of the main sofa's footprint serves its seating group (front legs)
+
+
+def dressing_review(building: dict, check: str = "M21") -> tuple[list[dict], int]:
+    """M21 (pure; 30 Oct 2026, lesson UL180): ``(findings, checked)``: a living room whose main sofa (the widest built
+    sofa or corner sofa) has no scatter cushions (its own or decor) or no throw, or whose seating group stands on no
+    rug (a rug anchored on the sofa or its coffee table, or one within ``SEATING_RUG_REACH_M`` of the sofa); minor
+    findings, after the decor stage only."""
+    from wenart.blender import rest as R
+
+    decor = [d for d in building.get("decor") or [] if d.get("build") is not False]
+    if not decor:
+        return [], 0
+    out, n = [], 0
+    for room, pieces in D.rooms_with_pieces(building):
+        if (room.get("room_type") or "") not in D.LIVING_RUG_ROOM_TYPES:
+            continue
+        sofas = [p for p in pieces if p["type"] in D.LIVING_RUG_SOFAS and D.piece_is_built(p) and p.get("footprint")]
+        if not sofas:
+            continue
+        n += 1
+        main = max(sofas, key=lambda p: (float(p["footprint"]["size"][0]), p["id"]))
+        on = {str(d.get("type")) for d in decor if d.get("host_id") == main["id"]}
+        missing = [w for w, ok in (("scatter cushions", "cushion" in on or R.own_cushions(main)),
+                                   ("throw", "throw" in on)) if not ok]
+        anchors = {main["id"]} | {p["id"] for p in pieces if p["type"] == "table_coffee"}
+        sofa_poly = placer.piece_from_furniture(main).polygon()
+        rugs = [d for d in decor if d.get("type") == "rug" and d.get("room_id") == room["id"]]
+        served = any(set(d.get("anchor_ids") or []) & anchors
+                     or D.rug_polygon(d).distance(sofa_poly) <= SEATING_RUG_REACH_M for d in rugs
+                     if d.get("center") and d.get("size"))
+        if not served:
+            missing.append("rug under its seating group")
+        if missing:
+            out.append({"check": check, "severity": "minor", "target": main["id"], "room_id": room["id"],
+                        "message": f"{room['id']}: the main sofa {main['id']} has no {', no '.join(missing)} "
+                                   "(UL180: 'put some pillows and sheet on to the sofa, another carpet')",
+                        "metrics": {"model_review": True, "rule": LIVING_DRESSING_RULE, "lesson": "UL180",
+                                    "missing": missing}})
+    return out, n
+
+
 def free_corners(room: dict, pieces: list[dict], building: dict, ctx: placer.RoomContext,
                  others: tuple = (), size=D.PLANT_SIZE, inset: float = D.CORNER_INSET_M,
                  candidates: Optional[list] = None) -> list[tuple[float, float]]:
@@ -1283,6 +1382,8 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         items += fill_recipe(q, items, out, new_id, room_recipe(room, recipes))
         items += required_items(q, items, out, new_id)
         if items:
+            dressed, replaced = living_dressing(q, items, out, new_id)      # 30 Oct 2026 (UL180)
+            items = [i for i in items if i.get("id") not in replaced] + dressed
             items += fill_to_minimum(q, items, out, new_id, room_recipe(room, recipes), family)
             # 28 Oct 2026 (user: "kettle in the kitchen, microwave in the kitchen etc"): the worktop, dressed
             # modestly by rule (the AI's slots hold no counter); the fallback gets it from decor.rule_decor_room
@@ -1302,6 +1403,8 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
             fallback, row = D.rule_decor_room(out, room, pieces, new_id)
             fallback += fill_recipe(q, fallback, out, new_id, room_recipe(room, recipes))
             fallback += required_items(q, fallback, out, new_id)
+            dressed, replaced = living_dressing(q, fallback, out, new_id)   # 30 Oct 2026 (UL180)
+            fallback = [i for i in fallback if i.get("id") not in replaced] + dressed
             fallback += fill_to_minimum(q, fallback, out, new_id, room_recipe(room, recipes), family)
             fallback += TT.dress_tops(room, pieces, out, fallback, new_id, q.slots,   # 28 Oct 2026
                                       density=out["decor_minimum"][room["id"]]["density"], notes=rec.notes)

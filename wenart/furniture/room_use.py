@@ -7,7 +7,9 @@ for on 29 Oct 2026, measured on the building as built (pure; shapely):
 - the furniture density of living and dining rooms, a bookshelf in living rooms and studies, books on every
   bookshelf, storage in every bathroom (``room_fill.review``; UL98, UL103, UL107, UL102);
 - no library model the user rejected (``rejected_models``: ``catalog.user_rejection``; UL94), and no drawn floor
-  lamp built at its oversized plan symbol (``symbol_sizes``: ``sizes.SYMBOL_MAX_M``; UL94).
+  lamp built at its oversized plan symbol (``symbol_sizes``: ``sizes.SYMBOL_MAX_M``; UL94);
+- a living room's main sofa with its cushions and a throw, its seating group on a rug (``decor_ai.dressing_review``;
+  UL180).
 
 Every finding names its rule and lesson in ``metrics`` (``rule``, ``lesson``). The ceiling lights' spacing (UL91) is
 the lighting rule's own check (M17, ``ceiling_lights.review``).
@@ -66,9 +68,12 @@ def review(building: dict, brief: Optional[dict] = None) -> tuple[list[dict], in
     from wenart.furniture import media_wall as MW
     from wenart.furniture import room_fill as RF
 
+    from wenart.furniture import decor_ai as DA
+
     got, n = MW.review(building, brief)
     more, m = RF.review(building)
+    dressed, k = DA.dressing_review(building, REVIEW_CHECK)     # 30 Oct 2026 (UL180): the main sofa and its rug
     rejected = rejected_models(building)
     symbols = symbol_sizes(building)
     pieces = len([f for f in building.get("furniture") or [] if f.get("build") is not False])
-    return got + more + rejected + symbols, n + m + pieces
+    return got + more + dressed + rejected + symbols, n + m + k + pieces

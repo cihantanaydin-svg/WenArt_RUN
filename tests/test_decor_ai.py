@@ -294,12 +294,15 @@ def test_rooms_without_agreement_or_answers_get_the_rules_with_the_reason():
     rule = [d for d in out["decor"] if d["method"] == "rule" and not str(d.get("reason", "")).startswith("styling")
             and TT.REASON_TAG not in str(d.get("reason", ""))
             and d.get("rule") != "decor.ceiling_lights"    # 28 Oct 2026: + the lighting rule
-            and not str(d.get("rule") or "").startswith("room_details.")]   # 29 Oct 2026: + the photos' details
+            and not str(d.get("rule") or "").startswith("room_details.")    # 29 Oct 2026: + the photos' details
+            and d.get("rule") != DA.LIVING_DRESSING_RULE]   # 30 Oct 2026 (UL180): + the main sofa and its rug
     expected, _row = D.rule_decor_room(b, b["rooms"][0], b["furniture"], lambda lv: "x")
     assert sorted(d["type"] for d in rule) == sorted(d["type"] for d in expected) and rule
     # 25 Oct 2026: the room is then filled up to a styled living room's minimum from its empty slots
     filled = [d for d in out["decor"] if str(d.get("reason", "")).startswith("styling")]
-    assert filled and len(rule) + len(filled) >= min(DA.ROOM_MIN["living"], len(rule) + len(records[0].slots))
+    dressed = [d for d in out["decor"] if d.get("rule") == DA.LIVING_DRESSING_RULE]     # 30 Oct 2026 (UL180)
+    assert filled and len(rule) + len(dressed) + len(filled) >= min(DA.ROOM_MIN["living"],
+                                                                    len(rule) + len(records[0].slots))
     # No answers at all (the server never answered): the rules, each pass named.
     out, records = DA.apply(b, STYLE, {"answers": {}})
     assert records[0].fallback == "pass 1: not asked; pass 2: not asked"

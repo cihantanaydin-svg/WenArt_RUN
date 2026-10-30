@@ -71,6 +71,9 @@ ask:
   # 28 Oct 2026: the HSSD doors and windows (ask.OPENING_SOURCES) get the opening fields too (role, operation, leaves,
   # glazing, leaf, handle side; ask.py): the door and window choice reads them (wenart/blender/opening_models.py)
   version_openings: m13.3
+  # 30 Oct 2026 (UL180): the seats and beds asked has_cushions (loose seat or back cushions) apart from
+  # has_scatter_cushions (pillows lying on it); opt-in, it re-asks every seat and bed model:
+  # version_seats: m13.4
   workers: 4
   second_pass: true       # a type question where code cannot confirm (no title evidence) and pass 1 says no
 
