@@ -2757,7 +2757,7 @@ Fixed after the run:
   pose (cam_r_L0_yatak_odasi_3, 0 % in the ray-cast model). An agent pose may hide a piece the model also hides, as a
   searched one may.
 
-## The user's review of real04 run 112241: 33 requests (30 Oct 2026, lessons UL174-UL205; in progress)
+## The user's review of real04 run 112241: 33 requests (30 Oct 2026, lessons UL174-UL205; all built)
 
 | lesson | request | rule now (general) | state |
 |---|---|---|---|
@@ -2781,12 +2781,12 @@ Fixed after the run:
 | UL193 | the desk chair | corporate task chairs rank last in a home | built |
 | UL194 | the white box sofa | a piece longer than deep faces from a long side (the sofas had faced along their length, so the parametric box was built) | built |
 | UL195 | at most 5 pillows per bed | a bed model with pillows of its own keeps its set, ours goes only on beds without pillows | built |
-| UL196 | road section and fencing outside | (helper running) | open |
-| UL198 | cars must be able to enter and exit | (helper running) | open |
+| UL196 | road section and fencing outside | a street is a real section (carriageway, kerbs dropped at the drives, 1.8 m pavement, centre line, lamps); neighbour boundaries are 1.4 m board fences with a gate | built (helper) |
+| UL198 | cars must be able to enter and exit | the drive kerbs are dropped; check G13: a way in at least 3 m wide, nothing across it, at most 15 % slope, room to turn | built (helper) |
 | UL199 | text on book spines, wine, vinegar, salt and pepper labels | printed titles on spines, labels on bottles and jars (a print atlas) | built (helper) |
 | UL200 | not every bathroom needs a bath | a code-typed bath-sized footprint keeps its bath only on the level with the most bedrooms; the others become walk-in showers (real04: L0 keeps its tubs; L-1, L-1b, L1 get showers) | built |
 | UL201 | shower inspiration | level walk-in showers: tiles run in to a linear drain, glass on every open end, a black sliding door on rollers, rain head, hand shower on a slide bar; the way in on an open side | built (helper) |
-| UL202, UL203 | walkable walkways; a step into the house | (helper running) | open |
+| UL202, UL203 | walkable walkways; a step into the house | paths meet on level landings, never over another path's steps, nothing stands in a walk, a route a stair cannot follow takes a detour (the steep sp_002 route); every ground-level entrance gets a landing one step below the floor with a stone threshold | built (helper) |
 | UL204 | the wall texture at the entrance | one stone per house: plinth and plot walls take the facade's base stone; an edit with another stone is refused | built |
 | UL205 | WC inspiration | a wall-hung WC on a half-height installation wall with lit niches; a long backlit mirror; an oak bench basin in the families that like it | built (helper) |
 | UL204 | wood cladding by the door looks streaky | textured wood cladding is laid as real boards (3 m long, 12 cm wide, staggered joints) in walnut veneer, not one stretched texture | built |

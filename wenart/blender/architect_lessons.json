@@ -2324,12 +2324,12 @@
    "id": "UL196",
    "date": "2026-10-30",
    "area": "site",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Better road section and fencing area is needed on the outside (30 Oct 2026, real04 run 20261030-112241-full, the exterior views: the outside roads and the fenced neighbouring plots of UL172)",
-   "lesson": "Better road section and fencing area is needed on the outside (30 Oct 2026, real04 run 20261030-112241-full, the exterior views: the outside roads and the fenced neighbouring plots of UL172)",
+   "lesson": "A street outside the plot is a real section: a carriageway, kerbs dropped at every drive crossing and absent where the site edge cuts the street, a 1.8 m paving-slab pavement with edgings, a dashed white centre line, and lamps every 25-30 m on the pavement clear of the crossings. A neighbour's boundary is a real fence (posts about 2 m apart, boards, a top cap, 1.2-1.5 m high) with a gate in its gap. Everything is inferred, with a reason.",
    "question": "Do the roads outside the plot and the neighbours' fences look like real streets and real fences (kerbs, verges, lamp posts; posts, panels and gates)?"
   },
   {
@@ -2348,12 +2348,12 @@
    "id": "UL198",
    "date": "2026-10-30",
    "area": "site",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Understand that the cars should be able to enter to this location and exit (30 Oct 2026, real04 run 20261030-112241-full, the parking strip in front of the houses: cars parked on it, but no clear way for a car to drive in from the road and out again)",
-   "lesson": "Understand that the cars should be able to enter to this location and exit (30 Oct 2026, real04 run 20261030-112241-full, the parking strip in front of the houses: cars parked on it, but no clear way for a car to drive in from the road and out again)",
+   "lesson": "Every parking must be drivable in from a street and out again: a way in at least 3 m wide, no kerb without a drop, no step, wall, fence, hedge, railing or flight across the way, at most about 15 % slope, and a second way out or room to turn. A pure check (site_sense G13) reports any parking a car cannot use. Real04 run 20261030-112241-full: a kerb ran across both drive entrances.",
    "question": "Can a car drive into every parking and out again (a drive from a street, wide and gentle enough, nothing across it, room to turn)?"
   },
   {
@@ -2396,24 +2396,24 @@
    "id": "UL202",
    "date": "2026-10-30",
    "area": "site",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "something is wrong here. also for the outside areas also make sure the walkways are walkable (30 Oct 2026, real04 run 20261030-112241-full, the entrance seen from above: the landing at the door, a path running off at an angle with steps cut obliquely across it, a second path and a flight with a handrail meeting it at odd angles, a small light standing in the middle of the walk)",
-   "lesson": "something is wrong here. also for the outside areas also make sure the walkways are walkable (30 Oct 2026, real04 run 20261030-112241-full, the entrance seen from above: the landing at the door, a path running off at an angle with steps cut obliquely across it, a second path and a flight with a handrail meeting it at odd angles, a small light standing in the middle of the walk)",
+   "lesson": "Walkways must be walkable. Paths meet edge to edge on a level landing, never one over another; a route's corners are level landings; a path leaves a landing or joins another path square to it, only where that path is level. Nothing (plants, posts, lights) stands in a walk; a plant in the only way moves aside (adjusted_by_ai) or is listed as not built; a handrail goes on the side no path joins. Treads stay level across. A route a stair cannot follow (treads too short for its slope) is replaced by another target or a detour before it is accepted, else kept as 'to review'. A pure check (G14) reports paths at different levels, steps across another walk, joints off a landing, plants or posts in a walk and walks that tilt across.",
    "question": "Is every outside walkway walkable: steps square across the walk, paths meeting on level landings, nothing standing in the walking width?"
   },
   {
    "id": "UL203",
    "date": "2026-10-30",
    "area": "access",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "also include a step to go into the house (30 Oct 2026, real04 run 20261030-112241-full: the entrance landing runs level into the door; a house's floor stands a step above the ground outside)",
-   "lesson": "also include a step to go into the house (30 Oct 2026, real04 run 20261030-112241-full: the entrance landing runs level into the door; a house's floor stands a step above the ground outside)",
+   "lesson": "Every entrance at ground level gets a step up into the house: a landing one riser (0.15 m) below the floor, a stone threshold, the ground graded to the landing and falling away from it, the path from the door starting at the landing's level. Not when a level mark lies at the door, for a garage door or a door onto an outdoor space; an accessible brief gets a level threshold with a drain. All of it is inferred, with a reason. Real04 run 20261030-112241-full: the entrance landing ran level into the door, the inferred ground about 0.8 m lower.",
    "question": "Does every entrance have a step up from its landing into the house (the floor a riser above the outside)?"
   },
   {
