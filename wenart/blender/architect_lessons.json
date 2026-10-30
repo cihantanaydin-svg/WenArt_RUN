@@ -2463,6 +2463,30 @@
    "request": "This is not mandatory it is optional (30 Oct 2026, the user on the see-through wardrobes of UL182: 'See-through wardrobes in every bedroom, up to the ceiling, with glass sections')",
    "lesson": "A see-through wardrobe front is a design option for a bedroom, never a rule for every bedroom: the master bedroom's widest run takes the family's see-through front (UL120); another bedroom gets one only when its room scheme names one (two of the four bedroom bundles, the fluted-wall 'panel' and the 'limewash' ones, ask for slats with glass or reeded glass; the deep-walled and the slat-wall ones keep closed fronts, so slats never repeat on slats, UL177); a room with no scheme keeps closed fronts; a twin room follows its partner; the architect's answer still picks either. The period families keep closed fronts. Real04 run 20261030-112241-full's fix UL182 had given every bedroom a see-through run.",
    "question": "Do only the master bedroom and the bedrooms whose scheme asks for it have see-through wardrobes, the others closed fronts?"
+  },
+  {
+   "id": "UL208",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This TV here not making sense (30 Oct 2026, real06 run 20261029-100801-full, the L0 salon: a TV on a glass-shelf media console standing free in the middle of the room on the sofa's axis, its back to the entrance, between the two seating groups)",
+   "lesson": "This TV here not making sense (30 Oct 2026, real06 run 20261029-100801-full, the L0 salon: a TV on a glass-shelf media console standing free in the middle of the room on the sofa's axis, its back to the entrance, between the two seating groups)",
+   "question": "Does every TV stand or hang on a wall its seating faces, never free in the middle of a room?"
+  },
+  {
+   "id": "UL209",
+   "date": "2026-10-30",
+   "area": "terrace",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This front section requires a huge rework, it is not elegant, columns seems cut in the middle handrails not making sense this whole area requires a huge rework try a lot on this area (30 Oct 2026, real06 run 20261029-100801-full, the front veranda under the balcony: two tall columns pass the balcony slab with a break at its edge, a glass balcony guard with posts running behind the columns, a thin sloped veranda roof with a rough dark fascia, stair handrails at the side, a white box sofa)",
+   "lesson": "This front section requires a huge rework, it is not elegant, columns seems cut in the middle handrails not making sense this whole area requires a huge rework try a lot on this area (30 Oct 2026, real06 run 20261029-100801-full, the front veranda under the balcony: two tall columns pass the balcony slab with a break at its edge, a glass balcony guard with posts running behind the columns, a thin sloped veranda roof with a rough dark fascia, stair handrails at the side, a white box sofa)",
+   "question": "Is the veranda and balcony front one elegant, coherent design (continuous columns, a guard between them on the slab edge, a clean roof edge, no needless handrails)?"
   }
  ]
 }
