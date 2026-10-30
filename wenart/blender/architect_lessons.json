@@ -2535,6 +2535,18 @@
    "request": "coffee mugs around the house also is a good decor item book and on top of a book coffee mug (30 Oct 2026, the user on real06's renders)",
    "lesson": "A few coffee mugs per house (at most 4, one per room, none in a child's room or a twin copy) make the house look lived in: a mug of coffee centred on the top cover of the books by the sofa (or a small stack of two books with a mug), a mug by the laptop, one beside the bedside book, a pair by the coffee machine (on a tray where the family uses one, only within 1 m of the machine). The mug is a real ceramic mug: foot ring, slight taper, rolled lip, loop handle, coffee about a centimetre under the rim, glaze from the family's accents. On books its support is the top cover; code checks the mug's foot is on the cover and inside it.",
    "question": "Do lived-in touches like a coffee mug on a book stand on coffee tables, side tables, nightstands and desks?"
+  },
+  {
+   "id": "UL214",
+   "date": "2026-10-30",
+   "area": "terrace",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "The front of real06 with veranda could be more elegant columns up to the roof is too thick maybe there are better solutions (30 Oct 2026, the user on the UL209 preview: the drawn 0.40 m columns now run from the veranda floor through the balcony slab to the roof, about 6 m, as one thick white shaft)",
+   "lesson": "The front of real06 with veranda could be more elegant columns up to the roof is too thick maybe there are better solutions (30 Oct 2026, the user on the UL209 preview: the drawn 0.40 m columns now run from the veranda floor through the balcony slab to the roof, about 6 m, as one thick white shaft)",
+   "question": "Are the veranda's and balcony's columns slender and elegant for their height and style (not a thick shaft up to the roof)?"
   }
  ]
 }
