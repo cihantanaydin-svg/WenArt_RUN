@@ -2671,3 +2671,30 @@ the square table becomes a drum; the round rug and the sofa rug are left out the
 unverified, unsure pieces: the decor rules' trust; the drum's corner is held by the dining rug); M34 finds nothing.
 A local Blender build of L-1 shows the console, the niches, the linear pendant and the centrepiece. Not rendered on
 the pod yet.
+
+## real04 run 20261030-043021-full (30 Oct 2026; 234.7 min, $9.74; promoted as the latest run)
+
+The run of every 30 Oct fix (UL122-UL153, seven helpers merged, the full CPU suite and a local preflight first). The
+session's container restarted during the run, so the runner was lost: the pod finished on its own at 08:22 (all
+phases), was re-attached and terminated; the results came from the volume in two fetches ($0.28 + $0.13).
+
+| measure | run 201533 (latest before) | this run |
+|---|---|---|
+| house score (big loop) | 24.52 | 27.11 |
+| AI judge mean (36 views) | 2.17 | 2.25 (pod: 2.278) |
+| views of halls or >= 50 % bare wall | 7 | 5 |
+| distinct library models | 94 | 99 |
+| GPU tests | 53 of 62 | 52 passed, 2 failed, 8 skipped |
+| Argus (local, `--log`) | 4.2, 23 critical | 3.4, 28 critical |
+
+Seen in the renders: the P5 kitchen (taupe framed fronts, uppers to the ceiling, splashback into the corner, the stone
+strip gone), the terrace pair of rattan armchairs (no dining set), the P16 TV wall with lit niches, made beds with
+standing pillows, terry towels, three real cars, pool loungers. A regression: Argus answered "the stone base texture
+looks flat" with `set_material facade stone_cladding`, and every wall of the house became stone (fixed after the run:
+`exterior_checks.facade_scheme_problems`, the facade slot keeps the family's rendered walls unless the brief names the
+facade). "build ok" seconds in the run log are totals over the run's builds (each build about 400 s), not single
+builds.
+
+Open: GPU tests `test_index_pass_contains_every_visible_proxy` (f_L-1_056 in cam_r_L-1_banyo_1) and the white-point
+rule (bathrooms and corridors); six L1 ceiling lights 4 cm under the slope with no cord (M14); the inspector's guard
+claims at stair and floor openings (Q3) to verify; the play room's new sofas are white daybeds (boxy).
