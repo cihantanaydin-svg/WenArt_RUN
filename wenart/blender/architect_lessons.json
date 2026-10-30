@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-10-29",
+ "updated": "2026-10-30",
  "lessons": [
   {
    "id": "UL01",
@@ -1495,6 +1495,18 @@
    "request": "Leaving all the doors open in default could be a good approach (29 Oct 2026, after the real06 master bedroom view)",
    "lesson": "Every interior door stands open by default, its leaf turned open on its swing side (door_states); a leaf a piece, a wall or another leaf stops stands ajar at its widest free angle; the entrance and the outside and terrace doors stay closed (an open front door reads as a mistake), so do garage, sectional, folding and fixed doors; the architect's D9 (door_state) or the brief (doors_open: false) closes a door; every choice recorded in leaf_state and assumed; the walkway and swing checks stay. Checks: model review M29, Argus U33 (every inside door closed, an open leaf in a piece).",
    "question": "Does every interior door stand open by default (its leaf turned open against its swing side, ajar only where a piece or a wall stops it), with only the entrance and terrace doors closed?"
+  },
+  {
+   "id": "UL128",
+   "date": "2026-10-30",
+   "area": "roof",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Some frames coming out of the roof, it needs fixing (30 Oct 2026, real04 run 20261029-201533-full exterior: door frames, open door leaves and decor of the top floor poke through the sloped roof)",
+   "lesson": "Some frames coming out of the roof, it needs fixing (30 Oct 2026, real04 run 20261029-201533-full exterior: door frames, open door leaves and decor of the top floor poke through the sloped roof)",
+   "question": "Does anything built inside the house (a door, its frame or open leaf, a wardrobe, a shelf, decor) cross the roof or the ceiling over it, so it shows from outside?"
   }
  ]
 }
