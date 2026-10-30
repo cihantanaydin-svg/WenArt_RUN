@@ -2168,24 +2168,24 @@
    "id": "UL183",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Better toilet paper roll model is needed (30 Oct 2026, real04 run 20261030-112241-full, a bathroom: a plain white cylinder on a small chrome arm, no core, no sheet hanging, no proper holder)",
-   "lesson": "Better toilet paper roll model is needed (30 Oct 2026, real04 run 20261030-112241-full, a bathroom: a plain white cylinder on a small chrome arm, no core, no sheet hanging, no proper holder)",
-   "question": "Does the toilet roll look like a real roll on a real holder (core, a hanging sheet, a holder with a cover or an arm on a rose)?"
+   "lesson": "A toilet roll is a real product: a holder with a wall rose, a bent arm with an end cap and a cover flap in the room's fixture finish (small_parts.paper_holder); the roll with soft edges and its cardboard core showing at the ends, its sheet hanging over the front about 4.5 cm with a torn, perforated edge; the roll's axis stays at 0.70 m (paper_holder_bottom).",
+   "question": "Is the toilet roll a real roll on a real holder?"
   },
   {
    "id": "UL184",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "More detailed models would be nice here (30 Oct 2026, real04 run 20261030-112241-full, a bathroom vanity: a plain pump bottle with a band, a reed diffuser with lollipop sticks, a lidded jar with pebbles, a dark vessel basin on a terrazzo top, a black tap); again on another view of a vanity: \"Better models with more details is needed\" (two pump bottles with a band, the reed diffuser, the jar of pebbles, a matt vessel basin)",
-   "lesson": "More detailed models would be nice here (30 Oct 2026, real04 run 20261030-112241-full, a bathroom vanity: a plain pump bottle with a band, a reed diffuser with lollipop sticks, a lidded jar with pebbles, a dark vessel basin on a terrazzo top, a black tap)",
+   "lesson": "A vanity's styling shows real products at close range: pampas as thin stems with feathery plumes in a turned vase (never a ball on a stick); pump bottles with a printed paper label (an amber one glass with the soap inside); jars with turned knobs; the soap and a jar of cotton pads on a small stone tray; a vessel basin as a curved bowl with a thin rounded lip and a pop-up waste.",
    "question": "Do the bathroom vanity objects look like real products at close range?"
   },
   {
@@ -2204,13 +2204,13 @@
    "id": "UL186",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Better quality models with more details needed for the little items fruit ball etc (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen: a plain white fruit bowl with smooth ball fruit, a plain utensil pot, plain oil bottles on a board, a plain pot on the hob)",
-   "lesson": "Better quality models with more details needed for the little items fruit ball etc (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen: a plain white fruit bowl with smooth ball fruit, a plain utensil pot, plain oil bottles on a board, a plain pot on the hob)",
-   "question": "Do the small objects on counters and tables (fruit bowls, bottles, pots, utensils) look like real products at close range?"
+   "lesson": "The small items on a kitchen worktop are real products (small_parts): a turned fruit bowl with a foot and rim holding apples with stalks, oranges, a pear and a lemon, none overlapping; a crock with a wooden spoon, a spatula, a ladle and a balloon whisk; a board with its hanging hole; glass oil and vinegar bottles with the liquid inside, a pourer and a cork; a pot with loop handles and a glass lid, a pan with a riveted handle; fruit skins, oil and cardboard have their own material keys.",
+   "question": "Do the small objects on counters and tables look like real products at close range?"
   },
   {
    "id": "UL187",
