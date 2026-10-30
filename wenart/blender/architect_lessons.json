@@ -2325,6 +2325,16 @@
    "request": "Better road section and fencing area is needed on the outside (30 Oct 2026, real04 run 20261030-112241-full, the exterior views: the outside roads and the fenced neighbouring plots of UL172)",
    "lesson": "Better road section and fencing area is needed on the outside (30 Oct 2026, real04 run 20261030-112241-full, the exterior views: the outside roads and the fenced neighbouring plots of UL172)",
    "question": null
+  },
+  {
+   "id": "UL197",
+   "date": "2026-10-30",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "Give more detail to window frames (30 Oct 2026, real04 run 20261030-112241-full: the window frames are plain flat bronze bars)",
+   "lesson": "Give more detail to window frames (30 Oct 2026, real04 run 20261030-112241-full: the window frames are plain flat bronze bars)",
+   "question": null
   }
  ]
 }
