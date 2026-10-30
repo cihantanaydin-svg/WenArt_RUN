@@ -332,8 +332,9 @@ def test_site_plan_of_real04_carries_hedges_platforms_species_and_the_levers(mon
     primary = [p for p in sp["platforms"] if not p.get("parent")]
     # 25 Oct 2026: the terraces without a level mark take the floor their windows open over (the basement of each
     # twin block: -3.00 m, and 0.00 m for the copy b2 raised 3 m), as the marked twin sp_001 does
+    # (30 Oct 2026, UL162: the drive runs 5 m on to the plot's edge: its mean level 0.75 -> 0.80 m)
     assert sorted((p["id"], p["z"]) for p in primary) == [("sp_001", -3.0), ("sp_002", -3.0), ("sp_003", 0.0),
-                                                          ("sp_004", 0.0), ("spk_001", 0.75)]
+                                                          ("sp_004", 0.0), ("spk_001", 0.8)]
     assert all("the floor of L-1" in p["z_source"] for p in primary if p["id"] in ("sp_002", "sp_003", "sp_004"))
     assert not any(w["opening_id"] == "win_L-1_004" for w in sp["wells"])        # no front court cut into the deck
     # round 3: the stepped terraces (bands) of the steep terraces, every wall within the retaining cap except where a

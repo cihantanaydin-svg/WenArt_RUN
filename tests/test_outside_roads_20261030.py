@@ -18,9 +18,11 @@ def test_a_drive_dead_end_runs_to_the_plot_edge_and_meets_a_street_outside():
     ends = S.road_dead_ends([drive], [_rect(0, 0, 15, 12)])
     assert {round(e["mid"][0], 1) for e in ends} == {21.5, -1.0}
     out = S.outside_roads([drive], plot, extent, _rect(0, 0, 15, 12))
-    links = [a for a in out["areas"] if a["kind"] == "parking"]
+    links = out["links"]
     streets = [a for a in out["areas"] if a["kind"] == "road"]
     assert len(links) == 1 and min(p[0] for p in links[0]["polygon"]) <= -6 + 1e-6      # on to the plot's west edge
+    assert S.extend_drives([drive], links) == [links[0]["id"]]                           # the drive itself grows
+    assert min(p[0] for p in drive["polygon"]) <= -6 + 1e-3 and len(drive["links"]) == 1
     assert streets and all(a["material"] == "asphalt" for a in streets)
     from shapely.geometry import Polygon
     for st in streets:                                                                   # outside the plot only

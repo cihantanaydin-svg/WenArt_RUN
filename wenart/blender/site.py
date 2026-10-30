@@ -3223,14 +3223,15 @@ def _ray_to_edge(p, d, poly) -> Optional[tuple[float, int]]:
 def outside_roads(pfs: Sequence[dict], plot: Sequence, extent: Sequence, outline: Sequence = (),
                   copy_holes: Sequence = ()) -> dict:
     """The drive's links to the plot's edge and the streets outside it (pure; ``ROADS``, lesson UL162): ``{"areas":
-    [site areas: kind ``parking`` (the link, the drive's paving) or ``road`` (the street, ``asphalt``)],
-    "dead_ends"}``. A dead end farther than ``link_m`` from the plot's edge is left as it is."""
+    [site areas of kind ``road``: the streets, ``asphalt``], "links": [{"id", "platform", "polygon", "reason"}: the
+    stretch a drive grows by to the plot's edge (``extend_drives``)], "dead_ends"}``. A dead end farther than
+    ``link_m`` from the plot's edge is left as it is."""
     from shapely.geometry import Polygon
     from shapely.ops import unary_union
 
     plot = geom2d.ccw(plot)
     ends = road_dead_ends(pfs, [outline] + list(copy_holes))
-    areas, streets = [], []
+    areas, streets, links = [], [], []
     for k, e in enumerate(ends):
         hit = _ray_to_edge(e["mid"], e["out"], plot)
         if hit is None or hit[0] > ROADS["link_m"]:
@@ -3239,9 +3240,8 @@ def outside_roads(pfs: Sequence[dict], plot: Sequence, extent: Sequence, outline
         o, (a, b) = e["out"], (e["a"], e["b"])
         if dist > ROADS["on_edge_m"]:
             link = [a, b, (b[0] + o[0] * dist, b[1] + o[1] * dist), (a[0] + o[0] * dist, a[1] + o[1] * dist)]
-            areas.append({"id": f"road_link_{e['platform']}_{k + 1}", "kind": "parking", "polygon": geom2d.ccw(link),
-                          "z": None, "material": None, "colour": None, "source": "inferred", "area_id": None,
-                          "lift": PAVING_LIFT, "inferred": True,
+            links.append({"id": f"road_link_{e['platform']}_{k + 1}", "platform": e["platform"],
+                          "polygon": geom2d.ccw(link),
                           "reason": f"the drive {e['platform']} ended at the lawn {dist:.1f} m short of the plot's "
                                     f"edge: it runs on in its paving to the edge (lesson UL162; inferred)"})
         pa, pb = plot[j], plot[(j + 1) % len(plot)]
@@ -3263,7 +3263,51 @@ def outside_roads(pfs: Sequence[dict], plot: Sequence, extent: Sequence, outline
                           "lift": PAVING_LIFT, "inferred": True,
                           "reason": f"the street outside the plot the drive joins, {ROADS['street_w_m']:g} m wide along "
                                     f"the plot's edge (no road drawn; lesson UL162; inferred)"})
-    return {"areas": areas, "dead_ends": ends}
+    return {"areas": areas, "links": links, "dead_ends": ends}
+
+
+def extend_drives(pfs: Sequence[dict], links: Sequence[dict]) -> list[str]:
+    """Grow each road platform by its links to the plot's edge (in place; lesson UL162): the drive runs on in its own
+    paving (one polygon, one slab). Returns the ids of the links made."""
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+
+    made = []
+    by = {pf["id"]: pf for pf in pfs}
+    for ln in links:
+        pf = by.get(ln["platform"])
+        if pf is None:
+            continue
+        u = unary_union([Polygon(pf["polygon"]).buffer(0.001, join_style=2), Polygon(ln["polygon"]).buffer(0.001,
+                                                                                                         join_style=2)])
+        if u.geom_type != "Polygon":
+            continue
+        pf["polygon"] = geom2d.ccw(geom2d.clean_polygon([tuple(c) for c in list(u.exterior.coords)[:-1]]))
+        pf.setdefault("links", []).append({"id": ln["id"], "reason": ln["reason"]})
+        made.append(ln["id"])
+    return made
+
+
+def with_outside_roads(site: dict, plot: Sequence, extent: Sequence, outline: Sequence = (),
+                       copy_holes: Sequence = ()) -> tuple[dict, dict]:
+    """``(site, roads)`` (pure; lesson UL162): the site's drawn paving, parking and pools as surfaces, their road dead
+    ends (``outside_roads``), and a copy of ``site`` whose parking areas have grown by their links to the plot's
+    edge (``extend_drives``); ``site`` itself is unchanged."""
+    surf = []
+    for key in ("paving", "parking", "pools"):
+        for a in _built(site.get(key)):
+            if len(a.get("polygon") or []) >= 3:
+                surf.append({"id": str(a.get("id")), "kind": PLATFORM_KINDS[key], "polygon": geom2d.ccw(a["polygon"])})
+    roads = outside_roads(surf, plot, extent, outline, copy_holes)
+    if not roads["links"]:
+        return site, roads
+    extend_drives(surf, roads["links"])
+    grown = {p["id"]: p for p in surf if p.get("links")}
+    out = dict(site)
+    out["parking"] = [dict(a, polygon=[list(q) for q in grown[str(a.get("id"))]["polygon"]],
+                           links=grown[str(a.get("id"))]["links"]) if str(a.get("id")) in grown else a
+                      for a in site.get("parking") or []]
+    return out, roads
 
 
 def kerb_gaps(pf: dict, others: Sequence[dict], step: float = KERB_SAMPLE_M) -> list[list]:
@@ -5363,6 +5407,12 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     plot, plot_src = plot_polygon(building) if mode == "full" else ([], "none")
     # Flat ground reaches the horizon (HORIZON_M); a sloped one keeps MARGIN_M.
     extent = ground_extent(outline, plot, HORIZON_M if is_flat(terrain) else MARGIN_M)
+    # 30 Oct 2026 (lesson UL162): a drive that ends at the lawn runs on to the plot's edge (its own area grows, so the
+    # platforms, kerbs and paths all see it) and joins a street outside the plot
+    roads = {"areas": [], "links": [], "dead_ends": []}
+    if mode == "full" and len(plot or []) >= 3 and options is not None:
+        from wenart.blender import copies as CP
+        site, roads = with_outside_roads(site, plot, extent, outline, [geom2d.ccw(fp) for fp in CP.footprints(building)])
     court = (options or {}).get("front_court") or "no"
     wells, warnings = light_wells(building, levels, terrain, outline, outlines,
                                   front_court=court if options is not None else "no")
@@ -5468,13 +5518,10 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
                     a["platform_id"] = a["id"]
             for pf in pfs:
                 assumed.append({"field": f"platform:{pf['id']}", "value": pf["z"], "reason": pf["reason"]})
-    # 30 Oct 2026 (lesson UL162): a drive that ends at the lawn runs on to the plot's edge and joins a street outside
-    roads = {"areas": [], "dead_ends": []}
-    if mode == "full" and len(plot or []) >= 3 and options is not None:
-        roads = outside_roads(pfs, plot, extent, outline, copy_holes)
-        areas += roads["areas"]
-        for a in roads["areas"]:
-            assumed.append({"field": f"road:{a['id']}", "value": a["kind"], "reason": a["reason"]})
+    # 30 Oct 2026 (lesson UL162): the streets outside the plot (with_outside_roads, above)
+    areas += roads["areas"]
+    for a in list(roads["areas"]) + list(roads["links"]):
+        assumed.append({"field": f"road:{a['id']}", "value": a.get("kind") or "drive", "reason": a["reason"]})
     aprons, glazing_runs = [], []
     if mode == "full" and wells:
         # 30 Oct 2026 (lesson UL142): a light well's paving runs the whole glazing run of its facade

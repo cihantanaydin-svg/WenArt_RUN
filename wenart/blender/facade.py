@@ -1061,6 +1061,10 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
     counts: dict[str, int] = {}
     for b in boxes:
         counts[b["kind"]] = counts.get(b["kind"], 0) + 1
+    # UL171: a canopy is one product of several parts: its kinds count the canopies (one per door)
+    for kind in ("canopy", "canopy_soffit", "canopy_rod"):
+        if kind in counts:
+            counts[kind] = len({b.get("parent") for b in boxes if b["kind"] == kind})
     for kind, n in sorted(counts.items()):
         assumed.append({"field": f"kit:{kind}", "value": n, "reason": KIT_LOOKS[kind][2] + " (inferred)"})
     used = {k: v for k, v in out_looks.items() if k in counts}
