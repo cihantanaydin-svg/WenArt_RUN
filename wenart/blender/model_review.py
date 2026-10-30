@@ -134,8 +134,10 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   realistic the bed is looking full and nice I want this much detail in our models"; ``bedding_parts.review``, Argus'
   U34 reads it too): a dressed bed with fewer pillows than its family's set (euro shams with no headboard to stand on
   are explained), a free side whose duvet hangs short of the floor, an old dressing without the set, a made-up model
-  measured poorer than ours left undressed, a bed without its throw, a throw without its woven pattern or its fringe.
-  Minor; kind ``taste``; the decor stage (``wenart.furniture.bedding``) and the build (``textiles.bedding_set``) own it.
+  measured poorer than ours left undressed, a bed without its throw, a throw without its woven pattern or its fringe;
+  30 Oct 2026 (UL136, UL137, UL146): a lumpy duvet or blanket, a wavy hem (``bedding_parts.cover_smoothness``), a gap
+  between the mattress and the headboard left open. Minor; kind ``taste``; the decor stage
+  (``wenart.furniture.bedding``) and the build (``textiles.bedding_set``) own it.
 - M24 every chimney as a builder makes it (29 Oct 2026, lesson UL109, user on real06 run 20261028-154514-full: "There
   are no chimneys there could be some chimney in the projects"; ``chimney.measure``), on the scene's chimney records
   (their bottom as built), else the plan's: a chimney off the roof (it does not reach the roof) or floating over its
