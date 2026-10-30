@@ -1748,9 +1748,28 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
             # (the refit may have planned them after the decor stage placed the item)
             planned = KD.item_blocked(item, host)
             if planned is not None:
-                summary["decor_skipped"].append({"id": item.get("id"), "type": item.get("type"),
-                                                 "room_id": item.get("room_id"), "reason": planned})
-                continue
+                # 30 Oct 2026 (UL212: real04's coffee machine and kettle stood where the refit then planned the fridge
+                # column and the oven tower, so the build left them out and the mug pair stood by no machine): slid
+                # along its run to the nearest free spot (off the tall units, the hob, the sink, the windows, the items
+                # placed and the run's other planned items), else left out
+                others = list(worktop_taken) + [o for o in building.get("decor") or []
+                                                if o.get("host_id") == host.get("id") and o.get("id") != item.get("id")
+                                                and o.get("center") and o.get("size")
+                                                and KD.item_blocked(o, host) is None]
+                slid = MOD.slide_worktop_item(item, host, building, others)
+                compact = KD.compact_form(item) if slid is None else None
+                if compact is not None:                   # its compact form (the machine alone)
+                    slid = MOD.slide_worktop_item(compact, host, building, others)
+                if slid is None or KD.item_blocked(slid, host) is not None:
+                    summary["decor_skipped"].append({"id": item.get("id"), "type": item.get("type"),
+                                                     "room_id": item.get("room_id"),
+                                                     "reason": f"{planned}; no free spot on the worktop"})
+                    continue
+                assumed.append({"object": str(item.get("id")), "field": "worktop_slide", "value": slid["center"],
+                                "reason": f"slid along {host['id']}: {planned}"
+                                          + (f"; as its compact form, a {slid['type'].replace('_', ' ')}"
+                                             if slid.get("compact_of") else "")})
+                item = slid
             # 28 Oct 2026: a worktop item never stands in front of a window, glazed door or pass-through of the
             # building as built that it would reach (the architect may add or move one after the decor stage)
             blocked = MOD.worktop_item_window(item, host, building)

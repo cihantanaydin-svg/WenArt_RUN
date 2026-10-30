@@ -1016,6 +1016,25 @@ def worktop_z(item: dict, host: Optional[dict]) -> Optional[float]:
     return round(float(top), 4)
 
 
+# 30 Oct 2026 (UL212, real04 replay: the 0.50 m coffee station found no free stretch after the refit planned the fridge
+# column and the oven tower): a worktop item that fits nowhere on its run as planned takes its compact form before it
+# is left out (the type and the box of the compact form; = wenart.furniture.decor.KITCHEN_DECOR_SIZES).
+COMPACT_FORMS: dict[str, tuple[str, tuple[float, float, float]]] = {
+    "coffee_station": ("coffee_machine", (0.24, 0.38, 0.35)),
+}
+
+
+def compact_form(item: dict) -> Optional[dict]:
+    """The item in its compact form (``COMPACT_FORMS``; pure), None when it has none."""
+    form = COMPACT_FORMS.get(str(item.get("type")))
+    if form is None:
+        return None
+    out = dict(item, type=form[0], size=list(form[1]))
+    out.pop("host_frame", None)
+    out["compact_of"] = item.get("type")
+    return out
+
+
 def item_blocked(item: dict, host: Optional[dict]) -> Optional[str]:
     """Why a worktop item cannot stand where it is on its run as planned (the decor stage may have placed it before
     the refit added a tall unit or a rail): over a tall unit of the plan, under the plan's rail lower than its top

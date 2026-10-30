@@ -2823,8 +2823,8 @@ showers).
 | UL209 | the front veranda and balcony: columns cut, handrails, not elegant | one continuous column through the slab (base, shaft, head); roofs, beams and guards stop at columns; frameless glass guard in a channel between them; fascia in the beam finish; no handrails under 4 risers; a teak outdoor sofa; check O7 | built (helper; 5 designs tried) |
 | UL210 | a big window beside a small one | (helper running: the bathroom gap read as a high window beside a normal one) | open |
 | UL211 | a window up to the wall's edge | (helper running) | open |
-| UL212 | detailed small items: kettle, coffee machine, study items | (helper running) | open |
-| UL213 | coffee mugs around the house, a mug on a book | (helper running, with UL212) | open |
+| UL212 | detailed small items: kettle, coffee machine, study items | detailed kettle, espresso or bean-to-cup machine, toaster, microwave, knife block, mills (family finishes); desk organiser sets on desks from 1.2 m; an item a tall unit covers slides along its run, a coffee station shrinks to the machine | built (helper) |
+| UL213 | coffee mugs around the house, a mug on a book | at most 4 per house: on the books by the sofa, by the laptop, beside the bedside book, a pair by the coffee machine; real mugs with coffee | built (helper) |
 
 Before the feedback: a local replay of real06's stages on the current code stopped in the layout (the UL200 swap check
 compared with the drawn type `unknown`); fixed, the replay passes every stage.

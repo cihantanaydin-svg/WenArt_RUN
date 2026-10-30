@@ -388,3 +388,37 @@ def test_the_new_types_are_known_everywhere():
         assert t in PR.DECOR_WORDS and len(VP.HINTS[t].split()) >= 3, t
         assert t in P.DECOR_DEFAULT_HEIGHT, t
     assert MU.MUG_SIZE[2] >= MG.MUG["h"] and MU.MUG_SIZE[0] >= MG.mug_extent()[2] - MG.mug_extent()[0]
+
+
+def test_an_appliance_the_refit_covers_with_a_tall_unit_slides_along_its_run():
+    """UL212 (real04 replay: the coffee machine and the kettle stood where the refit planned the fridge column and the
+    oven tower, so the build left them out): the build slides such an item to the nearest free spot of its run
+    (``furniture`` build loop: ``kitchen_details.item_blocked``, then ``modules.slide_worktop_item``)."""
+    from wenart.blender import kitchen_details as KD
+    from wenart.blender import modules as MOD
+    host = {"id": "kA", "type": "kitchen_counter",
+            "footprint": {"center": [2.0, 0.3], "size": [4.0, 0.6], "rotation_deg": 0.0},
+            "asset": {"module_plan": {"builder": "kitchen_run", "footprint_m": [4.0, 0.6], "modules": [
+                {"kind": "tall_unit", "pos_m": [1.7, 0.0], "size_m": [0.6, 0.6], "front": "fridge"},
+                {"kind": "worktop", "cutouts": [{"kind": "hob", "x_m": 0.0, "w_m": 0.6}]}]}}}
+    item = {"id": "dec_cm", "type": "coffee_machine", "host_id": "kA", "center": [3.7, 0.3],
+            "size": [0.30, 0.40, 0.38], "rotation_deg": 0.0, "level_id": "L0"}
+    assert KD.item_blocked(item, host) is not None                           # in the fridge column
+    building = {"openings": [], "walls": [], "levels": [{"id": "L0", "elevation": 0.0}]}
+    slid = MOD.slide_worktop_item(item, host, building, [])
+    assert slid is not None and KD.item_blocked(slid, host) is None
+    x = slid["center"][0] - 2.0                                              # local, along the run
+    assert x + 0.15 <= 1.4 + 1e-6 and (x - 0.15 >= 0.3 + MOD.WORKTOP_HOB_CLEAR_M - 1e-6
+                                       or x + 0.15 <= -0.3 - MOD.WORKTOP_HOB_CLEAR_M + 1e-6)
+    src = (__import__("pathlib").Path(__file__).resolve().parents[1] / "wenart" / "blender" / "furniture.py").read_text()
+    assert "slid along {host['id']}: {planned}" in src                      # the build wires it
+
+
+def test_a_coffee_station_with_no_room_left_takes_its_compact_form():
+    from wenart.blender import kitchen_details as KD
+    from wenart.furniture import decor as D
+    for big, (small, box) in KD.COMPACT_FORMS.items():
+        assert tuple(D.KITCHEN_DECOR_SIZES[small]) == box and box[0] < D.KITCHEN_DECOR_SIZES[big][0]
+    it = KD.compact_form({"id": "c", "type": "coffee_station", "size": [0.5, 0.38, 0.38], "host_frame": {}})
+    assert it["type"] == "coffee_machine" and it["size"] == [0.24, 0.38, 0.35] and it["compact_of"] == "coffee_station"
+    assert "host_frame" not in it and KD.compact_form({"type": "kettle"}) is None

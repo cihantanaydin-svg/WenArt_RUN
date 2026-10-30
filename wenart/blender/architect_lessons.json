@@ -2516,24 +2516,24 @@
    "id": "UL212",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Try to improve the plain small item models more maybe kitchen needs a kettle a coffee machine etc, or study rooms requires some other items, model them as much detail as you can (30 Oct 2026, the user on real06 run 20261029-100801-full's renders)",
-   "lesson": "Try to improve the plain small item models more maybe kitchen needs a kettle a coffee machine etc, or study rooms requires some other items, model them as much detail as you can (30 Oct 2026, the user on real06 run 20261029-100801-full's renders)",
+   "lesson": "Small kitchen and desk items are built as detailed real products, never plain boxes: a kettle, an espresso or bean-to-cup machine, a toaster, a microwave, a knife block, salt and pepper mills, and a desk organiser (files in a holder, a clock, a stapler, a small plant). Their finish comes from the style family. They are placed by kitchen logic: one of each, the knife block and mills by the hob, appliances against a splashback and never in the middle of an island, organiser sets only on desks at least 1.2 m wide. Every item passes the worktop or top checks: on the top, inside the footprint (UL165), no overlap, clear of hob, sink, windows and wall cabinets. An item the refit later covers with a tall unit (a fridge column, an oven tower) slides along its run to the nearest free spot at build, a coffee station takes its compact form (the machine alone) when no stretch is left, else it is left out with the reason.",
    "question": "Do the kitchen and the study show detailed real appliances and objects (kettle, coffee machine, toaster; desk organisers, files, a globe or lamp), not plain boxes?"
   },
   {
    "id": "UL213",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "coffee mugs around the house also is a good decor item book and on top of a book coffee mug (30 Oct 2026, the user on real06's renders)",
-   "lesson": "coffee mugs around the house also is a good decor item book and on top of a book coffee mug (30 Oct 2026, the user on real06's renders)",
+   "lesson": "A few coffee mugs per house (at most 4, one per room, none in a child's room or a twin copy) make the house look lived in: a mug of coffee centred on the top cover of the books by the sofa (or a small stack of two books with a mug), a mug by the laptop, one beside the bedside book, a pair by the coffee machine (on a tray where the family uses one, only within 1 m of the machine). The mug is a real ceramic mug: foot ring, slight taper, rolled lip, loop handle, coffee about a centimetre under the rim, glaze from the family's accents. On books its support is the top cover; code checks the mug's foot is on the cover and inside it.",
    "question": "Do lived-in touches like a coffee mug on a book stand on coffee tables, side tables, nightstands and desks?"
   }
  ]
