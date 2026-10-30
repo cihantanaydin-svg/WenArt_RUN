@@ -2487,6 +2487,30 @@
    "request": "This front section requires a huge rework, it is not elegant, columns seems cut in the middle handrails not making sense this whole area requires a huge rework try a lot on this area (30 Oct 2026, real06 run 20261029-100801-full, the front veranda under the balcony: two tall columns pass the balcony slab with a break at its edge, a glass balcony guard with posts running behind the columns, a thin sloped veranda roof with a rough dark fascia, stair handrails at the side, a white box sofa)",
    "lesson": "This front section requires a huge rework, it is not elegant, columns seems cut in the middle handrails not making sense this whole area requires a huge rework try a lot on this area (30 Oct 2026, real06 run 20261029-100801-full, the front veranda under the balcony: two tall columns pass the balcony slab with a break at its edge, a glass balcony guard with posts running behind the columns, a thin sloped veranda roof with a rough dark fascia, stair handrails at the side, a white box sofa)",
    "question": "Is the veranda and balcony front one elegant, coherent design (continuous columns, a guard between them on the slab edge, a clean roof edge, no needless handrails)?"
+  },
+  {
+   "id": "UL210",
+   "date": "2026-10-30",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Big windows next to small windows not making any sense needs better solution (30 Oct 2026, real06 run 20261029-100801-full, a side facade: on both floors a taller two-pane window stands right beside a shorter two-pane window, their heads and sills at different heights)",
+   "lesson": "Big windows next to small windows not making any sense needs better solution (30 Oct 2026, real06 run 20261029-100801-full, a side facade: on both floors a taller two-pane window stands right beside a shorter two-pane window, their heads and sills at different heights)",
+   "question": "Do windows side by side on one wall form one composition (one head line, one sill line, or one glazing with mullions), never a big one beside a small one?"
+  },
+  {
+   "id": "UL211",
+   "date": "2026-10-30",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This window all the way to the edge of a wall not making any sense needs better solution (30 Oct 2026, real06 run 20261029-100801-full, a facade: a window's frame and sill run into the wall's corner, no solid wall between the window and the corner trim)",
+   "lesson": "This window all the way to the edge of a wall not making any sense needs better solution (30 Oct 2026, real06 run 20261029-100801-full, a facade: a window's frame and sill run into the wall's corner, no solid wall between the window and the corner trim)",
+   "question": "Does every window keep solid wall between its frame and the wall's end or the facade's corner?"
   }
  ]
 }
