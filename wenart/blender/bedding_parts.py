@@ -800,11 +800,47 @@ FLAT_DENSITY = 50.0              # vertices per m2 on the top under which a cove
 RELIEF_CELL_M = 0.10
 
 
+TOP_BAND_M = 0.12                # a cell whose top is this far under the cover's top lies under one big face
+TOP_SHARE_MIN = 0.5              # under this share of the middle's cells on the top, the cover is a few big faces
+PILLOW_BAND_M = (0.02, 0.40)     # pillows rise this far over the cover; a headboard's top lies above the band
+PILLOW_VERTS_MIN = 40            # vertices in that band at the head a modelled pillow set has at least
+HEADBOARD_SKIP_M = 0.12          # the head edge's strip a headboard stands in (never a pillow)
+
+
+def surface_samples(verts, tris, step: float = RELIEF_CELL_M):
+    """Points on the large faces of a mesh (pure numpy): every triangle larger than a ``step`` square gets points on a
+    barycentric grid about ``step`` apart, so a cover of a few big faces shows its top where it has no vertex (30 Oct
+    2026: a storage bed's mattress of two faces over its drawers). ``tris``: ``(T, 3)`` vertex indices."""
+    v = np.asarray(verts, dtype=float).reshape(-1, 3)
+    t = np.asarray(tris, dtype=int).reshape(-1, 3)
+    if not len(v) or not len(t):
+        return np.empty((0, 3))
+    a, b, c = v[t[:, 0]], v[t[:, 1]], v[t[:, 2]]
+    area = 0.5 * np.linalg.norm(np.cross(b - a, c - a), axis=1)
+    big = np.nonzero(area > step * step)[0]
+    out = []
+    for k in big:                               # few faces: a dense mesh has next to none this large
+        n = int(min(60, max(2, math.ceil(math.sqrt(2.0 * area[k]) / step))))
+        i, j = np.meshgrid(np.arange(n + 1), np.arange(n + 1), indexing="ij")
+        m = (i + j) <= n
+        u, w = i[m] / n, j[m] / n
+        out.append(a[k] + u[:, None] * (b[k] - a[k]) + w[:, None] * (c[k] - a[k]))
+    return np.concatenate(out) if out else np.empty((0, 3))
+
+
 def bedding_relief(world_verts, centre, rot: float, size) -> dict:
     """The top of a bed model's bedding (pure, numpy on its vertices: no ray): over a ``RELIEF_CELL_M`` grid of its
-    footprint (10 cm in from the sides) the highest vertex per cell; ``pillow_bump_m`` = the head zone's highest
-    minus the middle's median top, ``relief_m`` = p90 - p10 of the middle's cell tops, ``density`` = vertices per m2
-    within 3 cm of the middle's top, ``top_m`` = its median top."""
+    footprint (10 cm in from the sides) the highest vertex per cell. ``top_m`` = the cover's top (p95 of the
+    middle's cells: the middle half of the bed; ``world_verts`` with ``surface_samples`` of its big faces), ``top_share`` = the share of the middle's cells on that top (within
+    ``TOP_BAND_M``; a mattress of a few big faces leaves its middle cells to the frame or drawers under it),
+    ``relief_m`` = p90 - p10 of the top cells, ``density`` = vertices per m2 within 3 cm of the top, ``pillow_bump_m`` =
+    the highest of the head zone's vertices ``PILLOW_BAND_M`` over the top (out of the headboard's strip), with
+    ``pillow_vertices`` of them.
+
+    30 Oct 2026 (user on real04 run 20261029-201533-full: "this bed model needs fixing some sheets etc"): the cover's
+    top was the middle's median cell top; a storage bed whose mattress is two big faces had only its drawers' vertices
+    in the middle (top 0.02 m, relief 111 mm, 12,719 vertices/m2) and was taken for a folded duvet: it got our pillows
+    only. And a headboard counted as pillows (bump 0.82 m on another bed)."""
     w, d = float(size[0]), float(size[1])
     loc = to_local_arr(centre, rot, world_verts)
     keep = (np.abs(loc[:, 0]) <= w / 2.0 - 0.10) & (np.abs(loc[:, 1]) <= d / 2.0 - 0.05)
@@ -813,7 +849,8 @@ def bedding_relief(world_verts, centre, rot: float, size) -> dict:
     if not len(loc):
         return rec
     if not len(p):        # not one vertex over the bed's inner top: a cover of a few big faces, flat, no pillows
-        rec.update(pillow_bump_m=0.0, relief_m=0.0, note="no vertex over the inner top: a flat cover of a few faces")
+        rec.update(pillow_bump_m=0.0, relief_m=0.0, top_share=0.0,
+                   note="no vertex over the inner top: a flat cover of a few faces")
         return rec
     nx = max(1, int((w - 0.2) / RELIEF_CELL_M))
     ny = max(1, int((d - 0.1) / RELIEF_CELL_M))
@@ -824,23 +861,27 @@ def bedding_relief(world_verts, centre, rot: float, size) -> dict:
     ymid = (np.arange(ny) + 0.5) / ny * (d - 0.1) - (d / 2.0 - 0.05)
     middle = np.abs(ymid) <= d * 0.25
     head = ymid >= d / 2.0 - 0.55
-    mid_tops = tops[:, middle]
-    mid_tops = mid_tops[~np.isnan(mid_tops)]
-    head_tops = tops[:, head]
-    head_tops = head_tops[~np.isnan(head_tops)]
-    if not len(mid_tops):                       # nothing in the middle: the cells out of the head zone stand for it
-        mid_tops = tops[:, ~head]
-        mid_tops = mid_tops[~np.isnan(mid_tops)]
+    mid_cells = tops[:, middle]
+    if not mid_cells.size:                      # a bed too short for a middle: the cells out of the head zone
+        mid_cells = tops[:, ~head]
+    mid_tops = mid_cells[~np.isnan(mid_cells)]
     if not len(mid_tops):
-        rec.update(pillow_bump_m=0.0, relief_m=0.0, note="no vertex over the duvet's part of the top: a flat cover")
+        rec.update(pillow_bump_m=0.0, relief_m=0.0, top_share=0.0,
+                   note="no vertex over the duvet's part of the top: a flat cover")
         return rec
-    top = float(np.median(mid_tops))
+    top = float(np.percentile(mid_tops, 95))     # the cover's top (a book or a tray on it is no top)
+    on_top = mid_tops[mid_tops >= top - TOP_BAND_M]
+    share = float(len(on_top)) / float(max(1, mid_cells.size))
     in_mid = (np.abs(p[:, 1]) <= d * 0.25) & (p[:, 2] >= top - 0.03)
     area = max(1e-6, (w - 0.2) * d * 0.5)
-    rec.update(top_m=round(top, 4), relief_m=round(float(np.percentile(mid_tops, 90) - np.percentile(mid_tops, 10)),
-                                                     4),
+    lo, hi = PILLOW_BAND_M
+    at_head = (p[:, 1] >= d / 2.0 - 0.55) & (p[:, 1] <= d / 2.0 - 0.05 - HEADBOARD_SKIP_M) \
+        & (p[:, 2] >= top + lo) & (p[:, 2] <= top + hi)
+    bump = float(p[at_head, 2].max()) - top if at_head.any() else 0.0
+    rec.update(top_m=round(top, 4), top_share=round(share, 3),
+               relief_m=round(float(np.percentile(on_top, 90) - np.percentile(on_top, 10)), 4),
                density=round(float(in_mid.sum()) / area, 1),
-               pillow_bump_m=round(float(head_tops.max()) - top, 4) if len(head_tops) else 0.0)
+               pillow_bump_m=round(bump, 4), pillow_vertices=int(at_head.sum()))
     return rec
 
 
@@ -857,11 +898,15 @@ def dress_mode(asset: Optional[dict], relief: Optional[dict]) -> tuple[Optional[
         if a.get("has_bedding") is True and a.get("has_pillows") is False:
             return "pillows", "the audit says the model's bedding has no pillows (no mesh to measure)"
         return None, "the model's bedding could not be measured: kept as made up"
-    flat = rel < RELIEF_MIN_M or dens < FLAT_DENSITY
-    no_pillows = bump < BUMP_MIN_M or a.get("has_pillows") is False
+    share = r.get("top_share")
+    flat = rel < RELIEF_MIN_M or dens < FLAT_DENSITY or (share is not None and float(share) < TOP_SHARE_MIN)
+    few = r.get("pillow_vertices") is not None and int(r["pillow_vertices"]) < PILLOW_VERTS_MIN
+    no_pillows = bump < BUMP_MIN_M or few or a.get("has_pillows") is False
     if flat:
         return "full", (f"its cover is flat (relief {rel * 1000:.0f} mm, {dens:.0f} vertices/m2 on top: under "
-                        f"{RELIEF_MIN_M * 1000:.0f} mm or {FLAT_DENSITY:.0f}): poorer than our duvet")
+                        f"{RELIEF_MIN_M * 1000:.0f} mm or {FLAT_DENSITY:.0f}"
+                        + (f"; {float(share):.0%} of the middle on the top: under {TOP_SHARE_MIN:.0%}"
+                           if share is not None else "") + "): poorer than our duvet")
     if no_pillows:
         return "pillows", (f"its duvet has folds (relief {rel * 1000:.0f} mm) but no pillows (bump {bump:.2f} m < "
                            f"{BUMP_MIN_M} m at the head): our pillow set on it, its duvet kept")

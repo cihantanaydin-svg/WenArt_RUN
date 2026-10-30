@@ -1596,9 +1596,12 @@ def _evaluated_world_mesh(ob) -> tuple[list, list]:
 
 def _evaluated_world_points(ob):
     """The world vertices of an object's evaluated mesh as an ``(N, 3)`` numpy array (29 Oct 2026, UL111: one
-    ``foreach_get`` and a matrix product, no Python loop per vertex; ``_bedding_test`` measures a model's bedding)."""
+    ``foreach_get`` and a matrix product, no Python loop per vertex; ``_bedding_test`` measures a model's bedding),
+    with points on its big faces (``bedding_parts.surface_samples``)."""
     import bpy
     import numpy as np
+
+    from wenart.blender import bedding_parts as BP
 
     depsgraph = bpy.context.evaluated_depsgraph_get()
     ev = ob.evaluated_get(depsgraph)
@@ -1608,9 +1611,14 @@ def _evaluated_world_points(ob):
         me.vertices.foreach_get("co", co)
         m = np.array(ob.matrix_world, dtype=np.float64)
         pts = co.reshape(-1, 3) @ m[:3, :3].T + m[:3, 3]
+        # 30 Oct 2026: points on the big faces too (a mattress of a few faces has no vertex over its middle)
+        me.calc_loop_triangles()
+        tris = np.empty(len(me.loop_triangles) * 3, dtype=np.int64)
+        me.loop_triangles.foreach_get("vertices", tris)
+        extra = BP.surface_samples(pts, tris.reshape(-1, 3))
     finally:
         ev.to_mesh_clear()
-    return pts
+    return np.concatenate([pts, extra]) if len(extra) else pts
 
 
 def _host_caster(host_entry: dict, casters: dict):

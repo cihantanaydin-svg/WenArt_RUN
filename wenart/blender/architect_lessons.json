@@ -1555,6 +1555,78 @@
    "request": "Door frame needs fixing (30 Oct 2026, real04 run 20261029-201533-full, play room door d_L1_001: one black jamb runs up to the sloped ceiling above a 2.10 m leaf, no head)",
    "lesson": "Door frame needs fixing (30 Oct 2026, real04 run 20261029-201533-full, play room door d_L1_001: one black jamb runs up to the sloped ceiling above a 2.10 m leaf, no head)",
    "question": "Does every door's frame (both jambs, the head, the architrave) have the same height as its opening and leaf, under the ceiling at the door?"
+  },
+  {
+   "id": "UL133",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "This bed model needs fixing, some sheets etc (30 Oct 2026, real04 run 20261029-201533-full: a library storage bed whose bare white mattress got only our pillows, no duvet, sheet or throw)",
+   "lesson": "This bed model needs fixing, some sheets etc (30 Oct 2026, real04 run 20261029-201533-full: a library storage bed whose bare white mattress got only our pillows, no duvet, sheet or throw)",
+   "question": "Is every bed's mattress dressed with real bedding (a sheet, a duvet with its turned-down band, pillows and a throw), never left as a bare white block, also on a library bed whose own top is a few flat faces?"
+  },
+  {
+   "id": "UL134",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "These things in front of a window need fixing (30 Oct 2026, real04 run 20261029-201533-full: a desk's wall cabinets and shelf and a large picture hang over a window)",
+   "lesson": "These things in front of a window need fixing (30 Oct 2026, real04 run 20261029-201533-full: a desk's wall cabinets and shelf and a large picture hang over a window)",
+   "question": "Does every wall-hung item (art, mirrors, a TV, wall cabinets and shelves, plates) stay clear of the windows and doors of its wall?"
+  },
+  {
+   "id": "UL135",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I like this but the clothes inside need more detail (30 Oct 2026, real04 run 20261029-201533-full: the slatted see-through wardrobe; the garments read as flat coloured strips)",
+   "lesson": "I like this but the clothes inside need more detail (30 Oct 2026, real04 run 20261029-201533-full: the slatted see-through wardrobe; the garments read as flat coloured strips)",
+   "question": "Do the clothes inside every see-through wardrobe read as real garments on hangers (shoulders, sleeves, lengths by type, fabric texture), folded stacks and shoes, lit from inside?"
+  },
+  {
+   "id": "UL136",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I did not like this bed (30 Oct 2026, real04 run 20261029-201533-full: our procedural duvet's sides ripple like melted foam, the turned-down band is a thick slab, the pillows sit crumpled at the headboard)",
+   "lesson": "I did not like this bed (30 Oct 2026, real04 run 20261029-201533-full: our procedural duvet's sides ripple like melted foam, the turned-down band is a thick slab, the pillows sit crumpled at the headboard)",
+   "question": "Does every bed's bedding look like a real made bed: a smooth duvet with gentle natural folds and a straight hem, a thin turned-down sheet band, neat plump pillows standing against the headboard?"
+  },
+  {
+   "id": "UL137",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Head section of this bed needs a rework (30 Oct 2026, real04 run 20261029-201533-full: two flat lying pillows low in front of a tufted headboard, a gap between mattress and headboard, no shams or standing pillows)",
+   "lesson": "Head section of this bed needs a rework (30 Oct 2026, real04 run 20261029-201533-full: two flat lying pillows low in front of a tufted headboard, a gap between mattress and headboard, no shams or standing pillows)",
+   "question": "Is the head of every bed made up: euro shams and pillows standing against its headboard (a headboard with a gap or posts found too), with no bare gap between mattress and headboard?"
+  },
+  {
+   "id": "UL138",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I am guessing these orange things are towels, they need more detail, a lot more detail (30 Oct 2026, real04 run 20261029-201533-full bathroom: rolled towels as faceted cylinders, the hanging towel a flat slab)",
+   "lesson": "I am guessing these orange things are towels, they need more detail, a lot more detail (30 Oct 2026, real04 run 20261029-201533-full bathroom: rolled towels as faceted cylinders, the hanging towel a flat slab)",
+   "question": "Do the towels read as real towels: rolled with a spiral end, folded in soft stacks, hanging over the bar in two layers with a curve, folds and a hem band, in a terry-cloth material?"
   }
  ]
 }
