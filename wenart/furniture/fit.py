@@ -695,6 +695,14 @@ OTHER_USE_WORDS: dict[str, tuple[str, ...]] = {
     "sink_kitchen": ("bathroom", "vanity", "washbasin", "wash basin", "wash-basin", "lavabo", "lavatory", "cloakroom",
                      "waschbecken", "waschtisch", "wastafel"),
 }
+# 30 Oct 2026 (lesson UL176; the user on real04's f_L0_021 on 28 Oct, UL73, and again on run 20261030-112241-full: "I
+# did not like this bed"): the "Komfi Adjustable Bed", a motorised care bed (a sectioned glossy black and chrome base in
+# two flat materials, its top not one surface: the throw over our duvet tore on it), won the bedroom's double bed by size
+# and taste in both runs. A care, hospital or motion bed is a product for another use, never a home's bed.
+CARE_BED_WORDS: tuple[str, ...] = ("adjustable", "hospital", "nursing", "care bed", "medical", "motorised",
+                                   "motorized", "electric bed", "massage", "profiling", "pflegebett", "zero gravity")
+for _bed in C.BED_TYPES:
+    OTHER_USE_WORDS[_bed] = OTHER_USE_WORDS.get(_bed, ()) + CARE_BED_WORDS
 OTHER_USE_MATERIALS: dict[str, tuple[str, ...]] = {"washbasin": ("composite", "granite")}
 # 26 Oct 2026 (the merge of the bathroom fixes: an "arancione glass sink" won a basin of a calm modern bathroom): sanitary
 # ware and kitchen fixtures in a loud colour are an accent no style asks of them; the title's colour words (several
