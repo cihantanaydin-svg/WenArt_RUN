@@ -6255,7 +6255,8 @@ def build_pool_extras(plan: dict, collection, make_material, manifest_objects: l
                 why = (f"{seating['reason']}; library gap: no audited {piece['type'].replace('_', ' ')} made for "
                        f"outside fits, the parametric one (a teak frame on brushed steel, outdoor cushions)")
             record(name, pid, "pool_seat", why, {"furniture_type": piece["type"], "method": method,
-                                                 **({"asset": entry.get("id"), "licence": entry.get("licence")}
+                                                 **({"asset": entry.get("id"), "licence": entry.get("licence"),
+                                                     "veg_method": "library", "textured": True}
                                                     if built is not None else {})})
             out.append({"name": name, "pool": pid, "part": piece["type"], "method": method, "reason": why,
                         **({"asset": entry.get("id")} if built is not None else {})})

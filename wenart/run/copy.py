@@ -792,6 +792,18 @@ def vegetation_credits(out_dir: Path) -> list[dict]:
                 "changes": "instanced and scaled to the drawn height (site vegetation)"})
             entry["pieces"].append((oid, part))
             continue
+        if method == "library" and o.get("asset"):
+            # 30 Oct 2026 (lesson UL129): the site's library models (cars, trees, a pool's seats) are credited from
+            # their catalogue entry like the furniture (real04's car was missing from ATTRIBUTION.md)
+            aid = str(o["asset"])
+            cat = _site_catalogue().get(aid) or {"id": aid, "licence": o.get("licence")}
+            entry = found.get(aid)
+            if entry is None:
+                entry = found[aid] = {"credit": _credit(cat), "pieces": [], "source": _source_of(cat), "asset_id": aid,
+                                      "kind": "model", "changes": "fitted uniformly to a real size on the site"}
+                entry.update(_licence_fields(cat))
+            entry["pieces"].append((oid, part))
+            continue
         if method == "sapling":
             tool_pieces.append((oid, part))               # the add-on (section 1); its leaf atlas is credited below
         # 26 Oct 2026: ``context`` is the distant tree groups at the horizon (site.build_context), its crowns textured
@@ -817,6 +829,23 @@ def vegetation_credits(out_dir: Path) -> list[dict]:
     if tool_pieces:
         out.append(dict(SAPLING_TOOL, kind="tool", pieces=tool_pieces))
     return out
+
+
+_SITE_CATALOGUE: dict = {}
+
+
+def _site_catalogue() -> dict:
+    """``{id: entry}`` of the library catalogue (``wenart/furniture/catalog_library.json``: entries, decor, extras),
+    read once; {} without it."""
+    if "by_id" not in _SITE_CATALOGUE:
+        try:
+            data = json.loads((Path(__file__).resolve().parents[1] / "furniture" / "catalog_library.json")
+                              .read_text(encoding="utf-8"))
+            _SITE_CATALOGUE["by_id"] = {str(e.get("id")): e for key in ("entries", "decor", "extras")
+                                        for e in data.get(key) or [] if isinstance(e, dict) and e.get("id")}
+        except (OSError, ValueError):
+            _SITE_CATALOGUE["by_id"] = {}
+    return _SITE_CATALOGUE["by_id"]
 
 
 def _texture_licence_url(source: str) -> str:

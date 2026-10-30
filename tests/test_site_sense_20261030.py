@@ -155,6 +155,19 @@ def test_car_bays_line_an_l_shaped_parking_near_its_label_clear_of_the_flights()
     assert near < 6.0                                                     # the first bay by the drawn label
 
 
+def test_site_library_models_are_credited(tmp_path):
+    import json
+
+    from wenart.run import copy as CP
+    (tmp_path / "scene").mkdir()
+    (tmp_path / "scene" / "scene_manifest.json").write_text(json.dumps({"objects": [
+        {"name": "car_spk_1_0", "element_id": "car_spk_1_0", "site_part": "car", "veg_method": "library",
+         "asset": "3dwh_867427c8bc03ecda3fbb809a"}]}), encoding="utf-8")
+    rows = [r for r in CP.vegetation_credits(tmp_path) if r["asset_id"] == "3dwh_867427c8bc03ecda3fbb809a"]
+    assert rows and rows[0]["kind"] == "model" and rows[0]["pieces"] == [("car_spk_1_0", "car")]
+    assert "CAR" in rows[0]["credit"] and rows[0]["licence_flag"] == "non_commercial"
+
+
 def test_the_audit_never_turns_a_cars_front_onto_its_side():
     e = {"type": "car", "front_axis": "-Y", "bbox_model_m": [2.2, 5.0, 1.5]}
     assert not AW.end_front_turn_ok(e, 1) and AW.end_front_turn_ok(e, 2)
@@ -275,6 +288,26 @@ def test_a_narrow_deck_gets_a_pair_of_lounge_chairs_and_the_review_finds_bare_po
     got, n = PX.review(site, {"objects": []})
     assert n == 1 and {f["metrics"]["rule"] for f in got} == {"G11"} and len(got) == 2
     objs = [{"site_part": "pool_ladder", "pool_id": "pool_1"}, {"site_part": "pool_seat", "pool_id": "pool_1"}]
+    assert PX.review(site, {"objects": objs}) == ([], 1)
+
+
+def test_the_build_records_every_pool_piece_as_added_by_ai(monkeypatch):
+    from wenart.blender import common
+
+    made = []
+    monkeypatch.setattr(common, "new_mesh_object", lambda name, v, f, **kw: made.append((name, len(f), kw)))
+    monkeypatch.setattr(PX, "library_entries", lambda: [])         # no library model: the parametric pieces
+    site = _pool_site(_rect(0, 0, 10, 12))
+    objs, assumed = [], []
+    out = S.build_pool_extras(site, None, lambda look: look["material"], objs, assumed)
+    names = [m[0] for m in made]
+    assert names == ["pool_1_ladder", "pool_1_sun_lounger_0", "pool_1_side_table_1", "pool_1_sun_lounger_2"]
+    assert all(n > 0 for _name, n, _kw in made)
+    assert {o["site_part"] for o in objs} == {"pool_ladder", "pool_seat"}
+    assert all(o["pool_id"] == "pool_1" and o["source"] == "added_by_ai" and o["inferred"] for o in objs)
+    assert any("library gap" in o["reason"] for o in objs if o["site_part"] == "pool_seat")
+    assert len(out) == 4 and len(assumed) == 4
+    # and the review of that scene finds the pool furnished
     assert PX.review(site, {"objects": objs}) == ([], 1)
 
 
