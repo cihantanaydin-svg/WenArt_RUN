@@ -69,3 +69,19 @@ def test_the_locked_check_accepts_the_code_swap_of_an_inferred_bath_only():
     assert any("changed its type" in p for p in L._agent_problems(src["furniture"][1], agent, False, "bathroom"))
     toilet = dict(fin["t1"], type="toilet")                         # not the same member
     assert any("changed its type" in p for p in L._agent_problems(src["furniture"][1], toilet, False, "bathroom"))
+
+
+def test_a_footprint_drawn_unknown_and_typed_bathtub_may_become_a_shower():
+    """real06 run 100801 replayed: f_L0_010 was drawn unknown, typed bathtub by code (the room's missing member);
+    its drawn type stays unknown."""
+    import copy
+    from wenart.furniture import locked as L
+    b = _house()
+    for f in b["furniture"]:
+        f.update(inferred=True, drawn_type="unknown",
+                 adjusted_by_ai={"by": "code", "rule": "ai_member", "reason": "typed", "changed": {"type": "unknown"}})
+    src = copy.deepcopy(b)
+    I.bath_or_shower(b)
+    fin = {f["id"]: f for f in b["furniture"]}
+    assert fin["t1"]["type"] == "shower" and fin["t1"]["drawn_type"] == "unknown"
+    assert not [p for p in L._agent_problems(src["furniture"][1], fin["t1"], False, "bathroom") if "type" in p]

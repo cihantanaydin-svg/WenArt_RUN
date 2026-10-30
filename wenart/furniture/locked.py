@@ -315,15 +315,14 @@ INFERRED_FIXED_SWAPS: dict[str, tuple[str, ...]] = {"bathtub": ("shower",), "sho
 
 def inferred_swap(src: dict, fin: dict, adj: dict) -> bool:
     """Whether ``fin``'s type change is a code rule's swap of an inferred fixed type (``INFERRED_FIXED_SWAPS``): the
-    source typed by inference, the new type its member's other type, the drawn type kept and a code record (now or
-    under ``previous``) naming the type it changed."""
-    drawn = drawn_value(src, "type")
-    if not src.get("inferred") or fin.get("type") not in INFERRED_FIXED_SWAPS.get(str(drawn), ()) \
-            or fin.get("drawn_type") != drawn:
+    source typed by inference (its type, not the drawing's: real06's f_L0_010 was drawn ``unknown`` and typed
+    bathtub as the room's missing member), the new type its member's other type, the drawn type kept and a code
+    record (now or under ``previous``) of a type change."""
+    if not src.get("inferred") or fin.get("type") not in INFERRED_FIXED_SWAPS.get(str(src.get("type")), ()) \
+            or fin.get("drawn_type") != drawn_value(src, "type"):
         return False
     records = [adj] + [r for r in adj.get("previous") or [] if isinstance(r, dict)]
-    return any(r.get("by") == "code" and not r.get("model") and (r.get("changed") or {}).get("type") == drawn
-               for r in records)
+    return any(r.get("by") == "code" and not r.get("model") and "type" in (r.get("changed") or {}) for r in records)
 
 
 def _agent_problems(src: dict, fin: dict, keep: bool, room_type: Optional[str] = None,
