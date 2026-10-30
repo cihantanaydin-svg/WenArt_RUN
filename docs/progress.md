@@ -2756,3 +2756,31 @@ Fixed after the run:
 - GPU test `test_index_pass_contains_every_visible_proxy`: the wall-hung nightstand f_L0_042 behind the bed in an Argus
   pose (cam_r_L0_yatak_odasi_3, 0 % in the ray-cast model). An agent pose may hide a piece the model also hides, as a
   searched one may.
+
+## The user's review of real04 run 112241: 24 requests (30 Oct 2026, lessons UL174-UL197; in progress)
+
+| lesson | request | rule now (general) | state |
+|---|---|---|---|
+| UL174 | the lamps (a classic brass chandelier, crystal and tiered white chandeliers) | a model whose own title names a style the family may not carry is never picked (classic, traditional, antique, crystal ...; a chandelier without a modern form word is classic); 'antique brass' is a finish | built |
+| UL175 | laptop and stationery too plain | a laptop with keycaps, trackpad, hinge, bezel and a lit desktop screen; notebooks with page blocks and bands; pens with clips; a hollow pen pot | built (helper) |
+| UL176 | this bed | care, hospital and motion beds are never a home's bed | built (helper) |
+| UL177 | the slat wall texture everywhere | the house walls slot keeps a plain finish (Argus had set walls to wood_slat: 48 wall faces); at most two rooms with a slat or fluted wall | built |
+| UL178 | table through the chairs | (helper running) | open |
+| UL179 | door too plain | family joinery: glazing beads, profiled casing on plinth blocks, lever on a rose, hinge tips, a weather bar outside | built (helper) |
+| UL180 | pillows and a throw on the white sofa, another rug | the main sofa is dressed (2-4 cushions, a throw); each seating group gets its own rug; a built but unverified piece is dressed | built (helper) |
+| UL181, UL197 | window and curtains; frame detail | (helper running) | open |
+| UL182 | the slatted lit wardrobes in more rooms, to the ceiling, glass | (helper running) | open |
+| UL183, UL184, UL186 | toilet roll, vanity objects, kitchen small items | (helper running) | open |
+| UL185 | a render of only tiles and ceiling | every interior pose holds at least 12 % furniture when its room's search can | built |
+| UL187 | a full-size fridge (end of the run, beside the oven) | one full-size fridge per kitchen in the tall column beside the oven tower; a run end in a door swing stops short | built (helper) |
+| UL188 | stairs into the pool terrace from the road | a sunken terrace's flight never climbs onto a road; it leaves from the side away from it | built |
+| UL189 | the access steps; no handrails | garden steps take a handrail only when one flight rises over 1.0 m | built |
+| UL190 | mirror behind the open door | a leaf never rests over a mirror or a picture (the door opens otherwise or stays closed) | built |
+| UL191 | kitchen door slots | an inside door's narrow glass lites are satin glass; "panel" is never glass | built (helper) |
+| UL192 | the stairs | (helper running) | open |
+| UL193 | the desk chair | corporate task chairs rank last in a home | built |
+| UL194 | the white box sofa | a piece longer than deep faces from a long side (the sofas had faced along their length, so the parametric box was built) | built |
+| UL195 | at most 5 pillows per bed | a bed model with pillows of its own keeps its set, ours goes only on beds without pillows | built |
+| UL196 | road section and fencing outside | (next) | open |
+
+Also: a relayout keeps the room's set (the TV units of run 112241), the GPU index-pass test allows hidden pieces in agent poses.
