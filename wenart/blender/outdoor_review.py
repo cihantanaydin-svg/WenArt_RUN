@@ -19,6 +19,9 @@ format (check M10, ``model_review._v``):
   an edge that space does not guard, is a roof a visitor steps onto from the balcony (major);
 - O6 one post language: the posts of one space have one shape and sizes within ``POST_SIZE_RATIO`` (a 0.53 m round
   column beside a 0.15 m square stick reads as a mistake; minor).
+- O7 a column is one piece (30 Oct 2026, lesson UL209, user on real06's front: "columns seems cut in the middle"): a
+  post that stops under a raised space's floor while a post of that space stands on it at the same place
+  (``STACK_M``) is a column the slab cuts in two (major; ``wenart.levels.columns`` joins them).
 
 Why: the renders of real06 showed a veranda like a carport (paving with grass joints, a bare concrete underside) and a
 balcony on top of its roof with no logic between them; nothing in the pipeline measured either. Each finding names the
@@ -43,6 +46,7 @@ COVERED_KINDS = ("veranda", "porch", "loggia", "winter_garden")
 GARDEN_FLOORS = ("paving", "grass", "green_roof")
 RAISED_M = 1.0                   # a space more than this over the ground under it is raised
 ROOF_CLEAR_M = 2.0               # a roof whose eaves stand this far over a space's floor covers it (a door's height)
+STACK_M = (0.1, 0.3)             # O7: posts within this in plan, the upper's foot within this of the lower's top
 
 
 def _v(check: str, severity: str, target, message: str, room_id=None, **metrics) -> dict:
@@ -217,4 +221,23 @@ def review(built: dict, prep: Optional[dict]) -> tuple[list[dict], int]:
                               + ", ".join(f"{q.get('id') or 'inferred'} {float(q['size_m']):.2f} m "
                                           f"{_shape(q)}"
                                           for q in posts), rule="O6", sizes=sizes, shapes=sorted(shapes)))
+    # O7 a column the slab of a raised space cuts in two (a post under it, a second post on it)
+    for up in spaces:
+        if not up.get("elevated"):
+            continue
+        for q in up.get("posts") or []:
+            for low in spaces:
+                if low is up or float(low.get("z") or 0.0) >= float(up.get("z") or 0.0) - 1.0:
+                    continue
+                for p in low.get("posts") or []:
+                    if not p.get("center") or not q.get("center"):
+                        continue
+                    if G.distance(p["center"], q["center"]) <= STACK_M[0] and \
+                            abs(float(q.get("z0", 0.0)) - float(p.get("z1", 0.0))) <= STACK_M[1]:
+                        out.append(_v("M10", "major", up["id"],
+                                      f"O7: the column at ({float(p['center'][0]):.2f}, {float(p['center'][1]):.2f}) "
+                                      f"stops at {float(p['z1']):.2f} m under the {space_label(up)} and a second post "
+                                      f"stands on it from {float(q['z0']):.2f} m: the slab cuts the column in the "
+                                      f"middle", rule="O7", center=[round(float(v), 4) for v in p["center"]],
+                                      low=low.get("id"), lesson="UL209"))
     return out, len(spaces)

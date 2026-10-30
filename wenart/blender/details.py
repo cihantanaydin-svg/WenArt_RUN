@@ -57,6 +57,17 @@ STYLE_KINDS = {"modern": "glass_channel", "minimal": "glass_channel", "modern mi
 DEFAULT_KIND = "glass_posts"
 
 
+# 30 Oct 2026 (lesson UL209, user on real06's balcony between its two columns: "handrails not making sense"): a guard
+# that columns frame needs no posts of its own (glass on posts with clamps set a thin second row of posts beside the
+# columns): a glass family's guard there is frameless glass in a base channel under a slim cap; bars stay bars
+FRAMED_KINDS = {"glass_posts": "glass_channel"}
+
+
+def framed_kind(kind: str) -> str:
+    """The balustrade kind of a guard that columns stand on (pure; lesson UL209, ``FRAMED_KINDS``)."""
+    return FRAMED_KINDS.get(kind, kind)
+
+
 def balustrade_kind(style: Optional[dict]) -> str:
     """The balustrade kind of a project (pure): a railing slot that names glass (``glass_channel``) or bars wins, else
     the style family's kind (``STYLE_KINDS``), else ``DEFAULT_KIND``."""
@@ -119,9 +130,11 @@ def _posts_at(length: float, every: float, inset: float) -> list[float]:
 
 
 def balustrade(p, q, floor_z: float, height: float = 1.0, kind: str = DEFAULT_KIND,
-               dims: Optional[dict] = None) -> tuple[list, list]:
+               dims: Optional[dict] = None, ends: tuple = (True, True)) -> tuple[list, list]:
     """``(metal, glass)``: lists of ``(verts, faces)`` of a balustrade along ``p``-``q`` standing on ``floor_z``,
-    ``height`` to the top of its handrail (pure; see the module docstring for the kinds)."""
+    ``height`` to the top of its handrail (pure; see the module docstring for the kinds). ``ends``: False at an end
+    that stops against a column (30 Oct 2026, lesson UL209): no post there, the rail and the glass run to the end
+    (the column holds them; a post beside a column read as a second, thinner column)."""
     c = dict(DIMS, **(dims or {}))
     length = G.distance(p, q)
     if length < 0.05:
@@ -142,6 +155,11 @@ def balustrade(p, q, floor_z: float, height: float = 1.0, kind: str = DEFAULT_KI
     r = c["handrail_r"]
     metal.append(tube(at(0.0, top - r), at(length, top - r), r))
     posts = _posts_at(length, c["post_every"], c["post_r"])
+    bays = list(posts)
+    if not ends[0]:
+        posts, bays[0] = posts[1:], -c["post_r"] - c["bay_gap"] + 0.005     # the glass runs to the column
+    if not ends[1]:
+        posts, bays[-1] = posts[:-1], length + c["post_r"] + c["bay_gap"] - 0.005
     for s in posts:
         metal.append(tube(at(s, floor_z + c["plate_t"]), at(s, top - 2 * r), c["post_r"]))
         x, y, _ = at(s, 0.0)
@@ -151,7 +169,7 @@ def balustrade(p, q, floor_z: float, height: float = 1.0, kind: str = DEFAULT_KI
         z_b = floor_z + c["bottom_rail_z"]
         metal.append(_box_between(p, q, z_b, z_b + c["flat_t"] * 2, c["flat_w"] * 0.6))
         z0, z1 = z_b + c["flat_t"] * 2, top - 2 * r
-        for t0, t1 in zip(posts, posts[1:]):                     # bars spread evenly in each bay
+        for t0, t1 in zip(bays, bays[1:]):                       # bars spread evenly in each bay
             a, b = t0 + c["post_r"], t1 - c["post_r"]
             n = max(1, int(math.ceil((b - a) / c["bar_pitch"] - 1e-9)))
             for k in range(1, n):
@@ -159,7 +177,7 @@ def balustrade(p, q, floor_z: float, height: float = 1.0, kind: str = DEFAULT_KI
                 metal.append(geom2d.box((x, y, (z0 + z1) / 2.0), (c["bar_w"], c["bar_w"], z1 - z0),
                                         G.segment_angle_deg(p, q)))
         return metal, glass
-    for s0, s1 in zip(posts, posts[1:]):                         # glass_posts: one bay between two posts
+    for s0, s1 in zip(bays, bays[1:]):                           # glass_posts: one bay between two posts
         a, b = s0 + c["post_r"] + c["bay_gap"], s1 - c["post_r"] - c["bay_gap"]
         if b - a < 0.1:
             continue
