@@ -39,7 +39,8 @@ from wenart.assets.audit.checks import AXES, licence_reason, rotate_axis
 
 FLAG_KEYS = ("real_product", "has_bedding", "has_cushions", "has_pillows", "contact",
              "material_tags",                        # Milestone 13: the vision answer's materials (decide.py)
-             "has_scatter_cushions")                 # 30 Oct 2026 (UL180): the m13.4 seat question
+             "has_scatter_cushions",                 # 30 Oct 2026 (UL180): the m13.4 seat question
+             "open_parts", "logo_flag", "logo_reason")   # 30 Oct 2026 (UL215, UL216): flags, never removals
 # Milestone 13 gates: plain fields a ``fix`` may set on the entry (checks.pbr_check, chaise_check).
 FIELD_FIXES = ("pbr_maps", "chaise_side")
 BOX_KEYS = ("bbox_m", "bbox_model_m", "bbox_min_m", "bbox_max_m", "origin_offset")
@@ -244,6 +245,8 @@ def apply_decisions(doc: dict, decisions: dict, checked_utc: str) -> dict:
             extra["notes"] = list(d["notes"])
         if d.get("vision_doubt"):
             extra["vision_doubt"] = list(d["vision_doubt"])      # user decision 1a: kept, watched by the final check
+        if isinstance(d.get("vision_quality"), int) and status != "removed":
+            extra["vision_quality"] = d["vision_quality"]        # UL215: fit.vision_quality_of, library first
         e["audit"] = audit_record(status, d.get("reasons") or [], checked_utc, new, **extra)
         for k in FLAG_KEYS:
             v = (d.get("flags") or {}).get(k)

@@ -50,11 +50,21 @@ def test_licence_removes_without_any_vision():
     assert d["status"] == "pending" and not d["reasons"]
 
 
-@pytest.mark.parametrize("change,word", [({"upright": False}, "side"), ({"parts_open": True}, "drawer")])
+@pytest.mark.parametrize("change,word", [({"upright": False}, "side")])
 def test_vision_answers_that_remove(change, word):
-    """The specific findings remove; the other vision-only findings keep the model with a doubt (decision 1a)."""
+    """The specific findings remove; the other vision-only findings keep the model with a doubt (decision 1a).
+    30 Oct 2026 (UL216): an open part is a flag (``open_parts``), no longer a removal."""
     d = decide(item(), dict(YES, **change))
     assert d["status"] == "removed" and any(word in r for r in d["reasons"]), d["reasons"]
+
+
+def test_an_open_part_is_a_flag_not_a_removal():
+    """30 Oct 2026 (UL216, user: "a dresser with open doors could be used"): the vision answer ``parts_open`` keeps
+    the model with the flag ``open_parts`` and a note; it is no reason and no doubt."""
+    d = decide(item(), dict(YES, parts_open=True))
+    assert d["status"] == "keep" and d["reasons"] == [] and d["vision_doubt"] == []
+    assert d["flags"]["open_parts"] is True and D.OPEN_PARTS_NOTE in d["notes"]
+    assert "open_parts" not in decide(item(), YES)["flags"]
 
 
 def test_not_a_real_product_needs_quality_four():
@@ -274,9 +284,10 @@ def test_vision_only_findings_keep_the_model_with_a_doubt():
         d = decide(item(), dict(YES, **change))
         assert d["status"] == "pending" and any(word in p["why"] for p in d["pending"]), (change, d)
         assert decide(item(), dict(YES, **change), {"type_guess": "sofa"})["status"] == "keep"
-    for change in ({"upright": False}, {"parts_open": True}):
-        d = decide(item(), dict(YES, **change))
-        assert d["status"] == "removed" and d["vision_doubt"] == []
+    d = decide(item(), dict(YES, upright=False))
+    assert d["status"] == "removed" and d["vision_doubt"] == []
+    d = decide(item(), dict(YES, parts_open=True))                  # UL216: a flag, not a removal
+    assert d["status"] == "keep" and d["flags"]["open_parts"] is True and d["vision_doubt"] == []
     # with code evidence the doubts join the removal reasons (Milestone 13: a no-derivatives licence; an NC one is
     # usable in relaxed mode and no longer code evidence)
     d = decide(item(licence="CC-BY-ND-4.0", source="objaverse"), dict(YES, quality=2))

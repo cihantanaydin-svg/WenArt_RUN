@@ -26552,17 +26552,20 @@
    "audit": {
     "status": "removed",
     "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
+     "an anchor (wardrobe) of units guessed (x1.0): the Milestone 13 gate needs known units for anchors"
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T03:00:00Z",
-    "decision_sha": "b35968050a995035",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "933773c06c8a2523",
     "notes": [
-     "units guessed (x1.0)"
+     "units guessed (x1.0)",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "open_parts": true
   },
   {
    "id": "objaverse_08a3baeb2e0847939d53027824de5a49",
@@ -41047,19 +41050,23 @@
    "audit": {
     "status": "removed",
     "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
+     "an anchor (toilet) of units normalised to a typical footprint: the Milestone 13 gate needs known units for anchors"
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T03:00:00Z",
-    "decision_sha": "b35968050a995035",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "b99fc88c7e4741d8",
     "notes": [
      "units unknown: scaled to a typical footprint of the type (normalised)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
      "2 part(s) stick out of the main body (+y, +z, up to 0.50 m): an open drawer or a separate prop?",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "open_parts": true
   },
   {
    "id": "objaverse_1bd73c9a74d14ce29e45c277570990e6",
@@ -41328,19 +41335,23 @@
    "audit": {
     "status": "removed",
     "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
+     "an anchor (toilet) of units normalised to a typical footprint: the Milestone 13 gate needs known units for anchors"
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T03:00:00Z",
-    "decision_sha": "b35968050a995035",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "b99fc88c7e4741d8",
     "notes": [
      "units unknown: scaled to a typical footprint of the type (normalised)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
      "5 part(s) stick out of the main body (+x, +z, up to 0.43 m): an open drawer or a separate prop?",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "open_parts": true
   },
   {
    "id": "objaverse_3446229dce1f47528fa871cc7669136c",
@@ -189263,21 +189274,21 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a maker's logo or brand name on the model: the SMEG logo is readable on the door, modelled into the mesh (the model has no texture image); seen in P5 real04 cam_r_L-1_mutfak_3; trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-22T10:45:00Z",
-    "decision_sha": "9b4b9706aa6191a0",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "65c982bbfd0d681f",
     "notes": [
      "untextured (material colours only)",
      "no base_colour map: flat material colours only (2 material(s), 0 image(s))",
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept",
-     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
-    ]
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "render_findings": [
@@ -189295,7 +189306,9 @@
      "sha256_glb": "93bb91f901e623c295e51f1f6f080d5af1c4b0426f9e4a9641070e77c235f695",
      "recorded": "fix round after P5 (22 Oct 2026)"
     }
-   ]
+   ],
+   "logo_flag": true,
+   "logo_reason": "a maker's logo or brand name on the model: the SMEG logo is readable on the door, modelled into the mesh (the model has no texture image); seen in P5 real04 cam_r_L-1_mutfak_3; trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "hssd_416c68a89eda39033eb729fa72f7058802555a9e",
@@ -189921,21 +189934,21 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a maker's logo or brand name on the model: the SMEG logo modelled into the door of this mesh; the same mesh as hssd_404146070e071454f055cfe3be7811fcdcb7ddbd (2542 faces, 4990 vertices, box 0.59 x 0.70 x 1.46 m), whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-22T10:45:00Z",
-    "decision_sha": "58549bbec4eb48cf",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "1d207628a9a9a40d",
     "notes": [
      "untextured (material colours only)",
      "no base_colour map: flat material colours only (2 material(s), 0 image(s))",
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept",
-     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
-    ]
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "render_findings": [
@@ -189955,7 +189968,9 @@
      "sha256_glb": "c1f02204c6fa41c81f68af170cbaeaa0d531d4bd17415f1236e2053a21fef898",
      "recorded": "fix round after P5 (22 Oct 2026)"
     }
-   ]
+   ],
+   "logo_flag": true,
+   "logo_reason": "a maker's logo or brand name on the model: the SMEG logo modelled into the door of this mesh; the same mesh as hssd_404146070e071454f055cfe3be7811fcdcb7ddbd (2542 faces, 4990 vertices, box 0.59 x 0.70 x 1.46 m), whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "hssd_cae4c60830bba615ff533dc23ffee6e6e5c7d14e",
@@ -200171,20 +200186,22 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "b35968050a995035",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "9832e3a8e8039257",
     "notes": [
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
      "7 part(s) stick out of the main body (+y, up to 0.89 m): an open drawer or a separate prop?",
-     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
-    ]
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
-   "real_product": true
+   "real_product": true,
+   "open_parts": true
   },
   {
    "id": "hssd_94f0ee4e90c1fe01c7973fb1029b8cf784257029",
@@ -200790,20 +200807,22 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "b35968050a995035",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "9832e3a8e8039257",
     "notes": [
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
      "9 part(s) stick out of the main body (+y, up to 0.79 m): an open drawer or a separate prop?",
-     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
-    ]
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
-   "real_product": true
+   "real_product": true,
+   "open_parts": true
   },
   {
    "id": "hssd_f9a4d26177ad3fddc283d3ddf5bdccd938e7ced8",
@@ -219818,19 +219837,19 @@
     "fits_caps": false
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "printed lettering on the model's visible surface: chalk lettering \"GET SOME MILK\", notes and a chessboard printed on the top; seen in P5 real04 cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1; a novelty print fits no project style and no catalogue fix removes it"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-22T10:45:00Z",
-    "decision_sha": "9a461f749fb82b6c",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "baac54a106af0a2c",
     "notes": [
-     "4 part(s) stick out of the main body (-z, up to 0.28 m): an open drawer or a separate prop?",
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
-     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
-    ]
+     "4 part(s) stick out of the main body (-z, up to 0.28 m): an open drawer or a separate prop?",
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "render_findings": [
@@ -219852,7 +219871,9 @@
      "sha256_glb": "86158cb8c6ec9bc0d45be48bc349f8f1aa7e5d9ef1479a65402d14195925d8e1",
      "recorded": "fix round after P5 (22 Oct 2026)"
     }
-   ]
+   ],
+   "logo_flag": true,
+   "logo_reason": "printed lettering on the model's visible surface: chalk lettering \"GET SOME MILK\", notes and a chessboard printed on the top; seen in P5 real04 cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1; a novelty print fits no project style and no catalogue fix removes it"
   },
   {
    "id": "hssd_d60340031eacc7eba62900753ddb800d5d022e69",
@@ -241006,19 +241027,19 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a maker's logo or brand name on the model: the SAMSUNG logo is readable on the control panel; seen in P4b real03 cam_r_L0_banyo_4_2; trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-22T10:45:00Z",
-    "decision_sha": "d1a70b08e6cc719e",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "ab7554e093057153",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept",
-     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
-    ]
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "render_findings": [
@@ -241036,7 +241057,9 @@
      "sha256_glb": "c7cbf4add8a2b2b4d183d72d5b160655ac866632888831b418697b37232b7bd5",
      "recorded": "fix round after P5 (22 Oct 2026)"
     }
-   ]
+   ],
+   "logo_flag": true,
+   "logo_reason": "a maker's logo or brand name on the model: the SAMSUNG logo is readable on the control panel; seen in P4b real03 cam_r_L0_banyo_4_2; trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "hssd_16c33cffd5b62d0d5df5ed6dd607f690ce2ee7c7",
@@ -241138,19 +241161,19 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a maker's logo or brand name on the model: the SAMSUNG logo on the control panel, part of the texture set this mesh family shares with the WF8704RSW (this model was not in any committed view yet); the same mesh family as hssd_031024e00569909d466d87df9fead90355ba29e5 (3853 faces, 3779 vertices, box 0.60 x 0.61 x 0.90 m; faces and vertices within 1%, two box sides within 1 cm, the third within 10%) with the same texture set (5 materials, 2 with a base colour, 4 images), whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-22T11:51:15Z",
-    "decision_sha": "ebea9128d5acbb5f",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "d35151e95c46ab5d",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept",
-     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print), review: a mesh-family twin of hssd_031024e00569909d466d87df9fead90355ba29e5, whose render shows the logo; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
-    ]
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print), review: a mesh-family twin of hssd_031024e00569909d466d87df9fead90355ba29e5, whose render shows the logo; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "render_findings": [
@@ -241177,7 +241200,9 @@
      "why_recorded": "the real03 refit (relaxed, style family modern) of P4b f_L0_061 (cam_r_L0_banyo_4_2) picked this model after the WF8704RSW's removal",
      "recorded": "fix round after P5 (22 Oct 2026), review"
     }
-   ]
+   ],
+   "logo_flag": true,
+   "logo_reason": "a maker's logo or brand name on the model: the SAMSUNG logo on the control panel, part of the texture set this mesh family shares with the WF8704RSW (this model was not in any committed view yet); the same mesh family as hssd_031024e00569909d466d87df9fead90355ba29e5 (3853 faces, 3779 vertices, box 0.60 x 0.61 x 0.90 m; faces and vertices within 1%, two box sides within 1 cm, the third within 10%) with the same texture set (5 materials, 2 with a base colour, 4 images), whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "hssd_2c2b2914fc526f6e8bbe65511ecf58bba0027ec0",
@@ -241279,19 +241304,19 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a maker's logo or brand name on the model: the LG logo badge on the top left of the control panel, small but readable in the full 1920 px preview; seen in P4b real03 cam_r_L0_giris_holu_1; trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-22T10:45:00Z",
-    "decision_sha": "654ec61e645f59fd",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "271687afd895b65c",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept",
-     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
-    ]
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "render_findings": [
@@ -241309,7 +241334,9 @@
      "sha256_glb": "95e8bf830a0e1c4f201168a6ed351dfa0eb87b31748cdbb7b72a053e521b2761",
      "recorded": "fix round after P5 (22 Oct 2026)"
     }
-   ]
+   ],
+   "logo_flag": true,
+   "logo_reason": "a maker's logo or brand name on the model: the LG logo badge on the top left of the control panel, small but readable in the full 1920 px preview; seen in P4b real03 cam_r_L0_giris_holu_1; trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "hssd_31609de54bc7b3cceb58cff41b88b69d7f7db9ec",
@@ -241524,19 +241551,19 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a maker's logo or brand name on the model: the 'Panasonic' name and the model number on the top left of the control panel, readable in the full 1920 px preview (also on f_L0_076 in cam_r_L0_giris_holu_3_1); seen in P6b real03 cam_r_L0_banyo_4_2; trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T02:00:36Z",
-    "decision_sha": "83c389971973bf1b",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "55070f5d52e83bda",
     "notes": [
-     "3 part(s) stick out of the main body (+z, up to 0.18 m): an open drawer or a separate prop?",
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
-     "fix round after P6b (23 Oct 2026): removed by the code audit's check render_print on the P6b render evidence; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
-    ]
+     "3 part(s) stick out of the main body (+z, up to 0.18 m): an open drawer or a separate prop?",
+     "fix round after P6b (23 Oct 2026): removed by the code audit's check render_print on the P6b render evidence; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "render_findings": [
@@ -241555,7 +241582,9 @@
      "why_recorded": "the real03 refit after the P5 removals put this model on f_L0_061 and f_L0_076 (P6b); P4b showed it only on f_L0_075 in cam_r_L0_giris_holu_4_1, with the left end of the panel, where the name is, hidden",
      "recorded": "fix round after P6b (23 Oct 2026)"
     }
-   ]
+   ],
+   "logo_flag": true,
+   "logo_reason": "a maker's logo or brand name on the model: the 'Panasonic' name and the model number on the top left of the control panel, readable in the full 1920 px preview (also on f_L0_076 in cam_r_L0_giris_holu_3_1); seen in P6b real03 cam_r_L0_banyo_4_2; trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "hssd_434d62df4ddc67fbd923c529eaf27c9dc08b4abc",
@@ -241657,19 +241686,19 @@
     "fits_caps": false
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a maker's logo or brand name on the model: the Hotpoint script logo on the front below the control panel: '...tpoint' is seen on this mesh family's hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c and the title names Hotpoint (this model was not in any committed view yet: P4b built it only as f_L0_082, which no view shows); the same mesh family as hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c (5902 faces, 4771 vertices, box 0.62 x 0.66 x 0.85 m; faces and vertices within 1%, two box sides within 1 cm, the third within 10%) with its title naming the maker Hotpoint, whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-22T11:51:15Z",
-    "decision_sha": "d746fc2421893dd4",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "470326fcc5279a24",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept",
-     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print), review: a mesh-family twin of hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c, whose render shows the logo; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
-    ]
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print), review: a mesh-family twin of hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c, whose render shows the logo; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "render_findings": [
@@ -241697,7 +241726,9 @@
      "why_recorded": "the real03 refit (relaxed, style family modern) of P4b f_L0_057 (cam_r_L0_banyo_3_1) picked this model after the removal of hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c",
      "recorded": "fix round after P5 (22 Oct 2026), review"
     }
-   ]
+   ],
+   "logo_flag": true,
+   "logo_reason": "a maker's logo or brand name on the model: the Hotpoint script logo on the front below the control panel: '...tpoint' is seen on this mesh family's hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c and the title names Hotpoint (this model was not in any committed view yet: P4b built it only as f_L0_082, which no view shows); the same mesh family as hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c (5902 faces, 4771 vertices, box 0.62 x 0.66 x 0.85 m; faces and vertices within 1%, two box sides within 1 cm, the third within 10%) with its title naming the maker Hotpoint, whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "hssd_4bc6f883a374400355bcf95e611a4e8f8b950ed5",
@@ -242083,17 +242114,18 @@
    "audit": {
     "status": "removed",
     "reasons": [
-     "a maker's logo or brand name on the model: a maker's script logo, \"...tpoint\" partly in frame, printed on the front below the control panel; seen in P4b real03 cam_r_L0_banyo_3_1; trademarks are not licensed (docs/milestone13.md §2.6)"
+     "vision quality 2 (<= 2)"
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-22T10:45:00Z",
-    "decision_sha": "e231b02d2f844291",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "f5076c2b2994d2ae",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept",
      "vision doubt of the audit before: vision quality 2 (<= 2)",
-     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha fae44a9f06355a50, checked 2026-10-16T09:59:17Z)"
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha fae44a9f06355a50, checked 2026-10-16T09:59:17Z)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
     ]
    },
    "real_product": true,
@@ -242112,7 +242144,9 @@
      "sha256_glb": "c649f8411fce54bb2b1636f8d85c6f284169999d065da69e0d938ce83a6c0959",
      "recorded": "fix round after P5 (22 Oct 2026)"
     }
-   ]
+   ],
+   "logo_flag": true,
+   "logo_reason": "a maker's logo or brand name on the model: a maker's script logo, \"...tpoint\" partly in frame, printed on the front below the control panel; seen in P4b real03 cam_r_L0_banyo_3_1; trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "hssd_912447108f21083d877aab6653742fceccc6ce7d",
@@ -242214,19 +242248,19 @@
     "fits_caps": false
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a maker's logo or brand name on the model: the Hotpoint script logo on the front below the control panel: '...tpoint' is seen on this mesh family's hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c and the title names Hotpoint (this model was never built in a committed run); the same mesh family as hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c (5902 faces, 4771 vertices, box 0.62 x 0.66 x 0.85 m; faces and vertices within 1%, two box sides within 1 cm, the third within 10%) with its title naming the maker Hotpoint, whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-22T11:51:15Z",
-    "decision_sha": "255d8408c07ff697",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "ec0b161440121152",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept",
-     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print), review: a mesh-family twin of hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c, whose render shows the logo; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
-    ]
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print), review: a mesh-family twin of hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c, whose render shows the logo; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "render_findings": [
@@ -242254,7 +242288,9 @@
      "why_recorded": "the next model of the same mesh family in the relaxed washing_machine bin once its Hotpoint twin is removed",
      "recorded": "fix round after P5 (22 Oct 2026), review"
     }
-   ]
+   ],
+   "logo_flag": true,
+   "logo_reason": "a maker's logo or brand name on the model: the Hotpoint script logo on the front below the control panel: '...tpoint' is seen on this mesh family's hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c and the title names Hotpoint (this model was never built in a committed run); the same mesh family as hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c (5902 faces, 4771 vertices, box 0.62 x 0.66 x 0.85 m; faces and vertices within 1%, two box sides within 1 cm, the third within 10%) with its title naming the maker Hotpoint, whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "hssd_cfcb3d204d92b039136f28eadba5a7d408edfbae",
@@ -242471,19 +242507,19 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a maker's logo or brand name on the model: the LG badge on the top left of the control panel and the 'Direct Drive 9kg' print next to it, readable in the full 1920 px preview; seen in P6b real03 cam_r_L0_giris_holu_1; trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T02:00:36Z",
-    "decision_sha": "909268e7ad8d5990",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "3f7cc93ddc19dd14",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept",
-     "fix round after P6b (23 Oct 2026): removed by the code audit's check render_print on the P6b render evidence; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
-    ]
+     "fix round after P6b (23 Oct 2026): removed by the code audit's check render_print on the P6b render evidence; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "render_findings": [
@@ -242502,7 +242538,9 @@
      "why_recorded": "the real03 refit after the P5 removals put this model on f_L0_074 and f_L0_077 (P6b); no earlier committed view showed it (P4b fitted it to f_L0_077, whose view cam_r_L0_giris_holu_2_1 showed a generated washer)",
      "recorded": "fix round after P6b (23 Oct 2026)"
     }
-   ]
+   ],
+   "logo_flag": true,
+   "logo_reason": "a maker's logo or brand name on the model: the LG badge on the top left of the control panel and the 'Direct Drive 9kg' print next to it, readable in the full 1920 px preview; seen in P6b real03 cam_r_L0_giris_holu_1; trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "3dwh_001b87ff61156b219a259700",
@@ -289185,26 +289223,28 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "a88bb953c1f0cea8",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "0bf6e17199afa5f8",
     "notes": [
      "5% non-manifold edges",
      "1 part(s) stick out of the main body (+z, up to 0.12 m): an open drawer or a separate prop?",
      "largest texture 298 px (< 512)",
-     "material tags from the vision answer: wood"
-    ]
+     "material tags from the vision answer: wood",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_279dacebf2781b7b30e80a62",
@@ -297382,26 +297422,28 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "e40e5aad574fbefc",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "096bc2c3fc6cb769",
     "notes": [
      "40% non-manifold edges",
      "3 part(s) stick out of the main body (+y, up to 0.09 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: wood, metal"
-    ]
+     "material tags from the vision answer: wood, metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_2edaa4eecf8fbfe12f94c6a2",
@@ -300678,24 +300720,24 @@
    "commercial_safe": false,
    "name": "Dark Wood Dresser",
    "bbox_m": [
-    1.9031,
-    0.6734,
-    2.687
+    1.0214,
+    0.3614,
+    1.4421
    ],
    "bbox_model_m": [
-    1.9031,
-    0.6734,
-    2.687
+    1.0214,
+    0.3614,
+    1.4421
    ],
    "bbox_min_m": [
-    -0.9515,
-    -0.3367,
+    -0.5107,
+    -0.1807,
     0.0
    ],
    "bbox_max_m": [
-    0.9515,
-    0.3367,
-    2.687
+    0.5107,
+    0.1807,
+    1.4421
    ],
    "front_axis": "-Y",
    "up_axis": "+Z",
@@ -300706,8 +300748,8 @@
    ],
    "front_axis_confidence": "medium",
    "front_axis_note": "geometry: detail_side: 75 vs 54 vertices in the y slabs: front -Y",
-   "unit_scale": 1.0,
-   "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 1.9 x 0.673 x 2.69 inside the real dresser range; kept in metres (1.9 x 0.673 x 2.69 m): the audit's size check decides",
+   "unit_scale": 0.5367,
+   "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 1.9 x 0.673 x 2.69 inside the real dresser range; kept in metres (1.9 x 0.673 x 2.69 m): the audit's size check decides; M12 audit: rescaled x0.5367 into the real size of a dresser (size table)",
    "units_known": false,
    "styles": [
     "classic",
@@ -300779,28 +300821,62 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check sees more than one object"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "unit_scale": 0.5367
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "e92975c93c7f2e6b",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "462cd8086efcffc2",
+    "before": {
+     "unit_scale": 1.0,
+     "bbox_m": [
+      1.9031,
+      0.6734,
+      2.687
+     ],
+     "bbox_model_m": [
+      1.9031,
+      0.6734,
+      2.687
+     ],
+     "bbox_min_m": [
+      -0.9515,
+      -0.3367,
+      0.0
+     ],
+     "bbox_max_m": [
+      0.9515,
+      0.3367,
+      2.687
+     ],
+     "origin_offset": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
     "notes": [
      "the unit guess put it 86% off a real dresser: rescaled x0.537",
      "units guessed (x1.0)",
      "44% non-manifold edges",
      "1 part(s) stick out of the main body (+z, up to 1.57 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: wood"
-    ]
+     "material tags from the vision answer: wood",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_3141bf0fcae90f5539450538",
@@ -303540,26 +303616,28 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "a88bb953c1f0cea8",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "0bf6e17199afa5f8",
     "notes": [
      "12% non-manifold edges",
      "4 part(s) stick out of the main body (+x, up to 0.15 m): an open drawer or a separate prop?",
      "material tags from the vision answer: wood",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
-    ]
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_340b2b97319bc9b9148414aa",
@@ -389183,24 +389261,24 @@
    "commercial_safe": false,
    "name": "Drop Front Computer Desk",
    "bbox_m": [
-    1.1632,
-    0.5372,
-    0.4444
+    1.6517,
+    0.7628,
+    0.631
    ],
    "bbox_model_m": [
-    1.1632,
-    0.5372,
-    0.4444
+    1.6517,
+    0.7628,
+    0.631
    ],
    "bbox_min_m": [
-    -0.5816,
-    -0.2686,
+    -0.8259,
+    -0.3814,
     0.0
    ],
    "bbox_max_m": [
-    0.5816,
-    0.2686,
-    0.4444
+    0.8259,
+    0.3814,
+    0.631
    ],
    "front_axis": "+Y",
    "up_axis": "+Z",
@@ -389211,8 +389289,8 @@
    ],
    "front_axis_confidence": "medium",
    "front_axis_note": "geometry: detail_side: 1912 vs 215 vertices in the y slabs: front +Y",
-   "unit_scale": 1.0,
-   "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 3.82 x 1.76 x 1.46 inside the real desk range; kept in feet (1.16 x 0.537 x 0.444 m): the audit's size check decides",
+   "unit_scale": 1.42,
+   "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 3.82 x 1.76 x 1.46 inside the real desk range; kept in feet (1.16 x 0.537 x 0.444 m): the audit's size check decides; M12 audit: rescaled x1.4200 into the real size of a desk (size table)",
    "units_known": false,
    "styles": [
     "minimal",
@@ -389289,27 +389367,59 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "unit_scale": 1.42
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "a88bb953c1f0cea8",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "24c018fd0d549429",
+    "before": {
+     "unit_scale": 1.0,
+     "bbox_m": [
+      1.1632,
+      0.5372,
+      0.4444
+     ],
+     "bbox_model_m": [
+      1.1632,
+      0.5372,
+      0.4444
+     ],
+     "bbox_min_m": [
+      -0.5816,
+      -0.2686,
+      0.0
+     ],
+     "bbox_max_m": [
+      0.5816,
+      0.2686,
+      0.4444
+     ],
+     "origin_offset": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
     "notes": [
      "the unit guess put it 42% off a real desk: rescaled x1.420",
      "units guessed (x1.0)",
      "8% non-manifold edges",
      "10 part(s) stick out of the main body (+x, +y, up to 0.74 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: wood"
-    ]
+     "material tags from the vision answer: wood",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_7e29c58774102ff7764fc935",
@@ -390757,24 +390867,24 @@
    "commercial_safe": false,
    "name": "IKEA Mandal Bedside table",
    "bbox_m": [
-    1.05,
-    0.652,
-    0.58
+    0.6695,
+    0.4157,
+    0.3698
    ],
    "bbox_model_m": [
-    1.05,
-    0.652,
-    0.58
+    0.6695,
+    0.4157,
+    0.3698
    ],
    "bbox_min_m": [
-    -0.525,
-    -0.326,
+    -0.3347,
+    -0.2079,
     0.0
    ],
    "bbox_max_m": [
-    0.525,
-    0.326,
-    0.58
+    0.3347,
+    0.2079,
+    0.3698
    ],
    "front_axis": "+Y",
    "up_axis": "+Z",
@@ -390785,8 +390895,8 @@
    ],
    "front_axis_confidence": "medium",
    "front_axis_note": "geometry: detail_side: 870 vs 168 vertices in the y slabs: front +Y",
-   "unit_scale": 1.0,
-   "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 1.05 x 0.652 x 0.58 inside the real nightstand range; kept in metres (1.05 x 0.652 x 0.58 m): the audit's size check decides",
+   "unit_scale": 0.6376,
+   "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 1.05 x 0.652 x 0.58 inside the real nightstand range; kept in metres (1.05 x 0.652 x 0.58 m): the audit's size check decides; M12 audit: rescaled x0.6376 into the real size of a nightstand (size table)",
    "units_known": false,
    "styles": [
     "modern",
@@ -390857,28 +390967,62 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check sees more than one object"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "unit_scale": 0.6376
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "9962beee7f3e7a51",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "96ec5e79b45ab62a",
+    "before": {
+     "unit_scale": 1.0,
+     "bbox_m": [
+      1.05,
+      0.652,
+      0.58
+     ],
+     "bbox_model_m": [
+      1.05,
+      0.652,
+      0.58
+     ],
+     "bbox_min_m": [
+      -0.525,
+      -0.326,
+      0.0
+     ],
+     "bbox_max_m": [
+      0.525,
+      0.326,
+      0.58
+     ],
+     "origin_offset": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
     "notes": [
      "the unit guess put it 57% off a real nightstand: rescaled x0.638",
      "units guessed (x1.0)",
      "9 part(s) stick out of the main body (+x, +y, +z, -z, up to 0.60 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: wood, metal"
-    ]
+     "material tags from the vision answer: wood, metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_7f85b705bf85237b5dcd6f52",
@@ -429349,24 +429493,24 @@
    "commercial_safe": false,
    "name": "Windsor 3 Drawer Nightstand",
    "bbox_m": [
-    0.6326,
-    0.4952,
-    0.9679
+    0.5385,
+    0.4216,
+    0.824
    ],
    "bbox_model_m": [
-    0.6326,
-    0.4952,
-    0.9679
+    0.5385,
+    0.4216,
+    0.824
    ],
    "bbox_min_m": [
-    -0.3163,
-    -0.2476,
+    -0.2693,
+    -0.2108,
     0.0
    ],
    "bbox_max_m": [
-    0.3163,
-    0.2476,
-    0.9679
+    0.2693,
+    0.2108,
+    0.824
    ],
    "front_axis": "+Y",
    "up_axis": "+Z",
@@ -429377,8 +429521,8 @@
    ],
    "front_axis_confidence": "medium",
    "front_axis_note": "geometry: detail_side: 1244 vs 96 vertices in the y slabs: front +Y",
-   "unit_scale": 1.0,
-   "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 0.633 x 0.495 x 0.968 inside the real nightstand range; kept in metres (0.633 x 0.495 x 0.968 m): the audit's size check decides",
+   "unit_scale": 0.8513,
+   "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 0.633 x 0.495 x 0.968 inside the real nightstand range; kept in metres (0.633 x 0.495 x 0.968 m): the audit's size check decides; M12 audit: rescaled x0.8513 into the real size of a nightstand (size table)",
    "units_known": false,
    "styles": [
     "classic",
@@ -429453,28 +429597,62 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check sees more than one object"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "unit_scale": 0.8513
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "e92975c93c7f2e6b",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "2a78749dcee14bc9",
+    "before": {
+     "unit_scale": 1.0,
+     "bbox_m": [
+      0.6326,
+      0.4952,
+      0.9679
+     ],
+     "bbox_model_m": [
+      0.6326,
+      0.4952,
+      0.9679
+     ],
+     "bbox_min_m": [
+      -0.3163,
+      -0.2476,
+      0.0
+     ],
+     "bbox_max_m": [
+      0.3163,
+      0.2476,
+      0.9679
+     ],
+     "origin_offset": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
     "notes": [
      "the unit guess put it 17% off a real nightstand: rescaled x0.851",
      "units guessed (x1.0)",
      "23% non-manifold edges",
      "6 part(s) stick out of the main body (+y, +z, up to 0.38 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: wood"
-    ]
+     "material tags from the vision answer: wood",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_a8c2f8d1aef34cd34c105555",
@@ -434477,27 +434655,28 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)",
-     "the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "b7f585b6c35d56c5",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "ab0d7ebdc9015703",
     "notes": [
      "largest texture 441 px (< 512)",
      "material tags from the vision answer: glass, metal",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
-    ]
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "logo_flag": true,
+   "logo_reason": "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6); the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it"
   },
   {
    "id": "3dwh_af362c4535b5229ecd5f98e7",
@@ -438969,25 +439148,27 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "e40e5aad574fbefc",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "096bc2c3fc6cb769",
     "notes": [
      "2 part(s) stick out of the main body (+x, up to 0.10 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: wood, metal"
-    ]
+     "material tags from the vision answer: wood, metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_b2f434de9d430c3757dd7715",
@@ -470223,24 +470404,24 @@
    "commercial_safe": false,
    "name": "concrete nightstand",
    "bbox_m": [
-    0.9577,
-    0.7776,
-    0.8844
+    0.6695,
+    0.5436,
+    0.6183
    ],
    "bbox_model_m": [
-    0.7776,
-    0.9577,
-    0.8844
+    0.5436,
+    0.6695,
+    0.6183
    ],
    "bbox_min_m": [
-    -0.3888,
-    -0.4789,
+    -0.2718,
+    -0.3348,
     0.0
    ],
    "bbox_max_m": [
-    0.3888,
-    0.4789,
-    0.8844
+    0.2718,
+    0.3348,
+    0.6183
    ],
    "front_axis": "+X",
    "up_axis": "+Z",
@@ -470251,8 +470432,8 @@
    ],
    "front_axis_confidence": "medium",
    "front_axis_note": "geometry: detail_side: 1643 vs 2 vertices in the x slabs: front +X",
-   "unit_scale": 1.0,
-   "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 0.778 x 0.958 x 0.884 inside the real nightstand range; kept in metres (0.958 x 0.778 x 0.884 m): the audit's size check decides",
+   "unit_scale": 0.6991,
+   "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 0.778 x 0.958 x 0.884 inside the real nightstand range; kept in metres (0.958 x 0.778 x 0.884 m): the audit's size check decides; M12 audit: rescaled x0.6991 into the real size of a nightstand (size table)",
    "units_known": false,
    "styles": [
     "industrial",
@@ -470329,28 +470510,62 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check sees more than one object"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "unit_scale": 0.6991
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "9962beee7f3e7a51",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "4d85912b22c787af",
+    "before": {
+     "unit_scale": 1.0,
+     "bbox_m": [
+      0.9577,
+      0.7776,
+      0.8844
+     ],
+     "bbox_model_m": [
+      0.7776,
+      0.9577,
+      0.8844
+     ],
+     "bbox_min_m": [
+      -0.3888,
+      -0.4789,
+      0.0
+     ],
+     "bbox_max_m": [
+      0.3888,
+      0.4789,
+      0.8844
+     ],
+     "origin_offset": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
     "notes": [
      "the unit guess put it 43% off a real nightstand: rescaled x0.699",
      "units guessed (x1.0)",
      "8 part(s) stick out of the main body (+y, +z, -x, up to 0.60 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: wood, metal"
-    ]
+     "material tags from the vision answer: wood, metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_ce7538e50fdb1430f657c15a",
@@ -488948,26 +489163,30 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check sees more than one object"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "9962beee7f3e7a51",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "34ccb159986e245f",
     "notes": [
      "10 part(s) stick out of the main body (+x, up to 1.50 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: wood, metal"
-    ]
+     "material tags from the vision answer: wood, metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_dc0773481f098d6a84b29f7d",
@@ -511282,24 +511501,28 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check sees more than one object"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "e92975c93c7f2e6b",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "d57870267bdeb973",
     "notes": [
-     "material tags from the vision answer: wood"
-    ]
+     "material tags from the vision answer: wood",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_f29b0f7ea468d1a9172fc1d2",
@@ -565524,21 +565747,23 @@
    "recolourable_fabric": false,
    "recolourable_wood": false,
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T03:00:00Z",
-    "decision_sha": "9fd335b49b139f63",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "3b418d6a0f98f4cf",
     "notes": [
      "units guessed (x0.001)",
-     "3 part(s) stick out of the main body (+x, -x, -y, up to 0.09 m): an open drawer or a separate prop?"
-    ]
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "3 part(s) stick out of the main body (+x, -x, -y, up to 0.09 m): an open drawer or a separate prop?",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 4
    },
    "real_product": true,
-   "contact": "flat_bottom"
+   "contact": "flat_bottom",
+   "open_parts": true
   },
   {
    "id": "abo_B078JM52VN",
@@ -629532,26 +629757,30 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "vision quality 1 (<= 2)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "830ae5a092d362da",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "eb71b557258f9c4e",
     "notes": [
      "10 part(s) stick out of the main body (-z, up to 1.98 m): an open drawer or a separate prop?",
      "untextured (material colours only)",
      "no base_colour map: flat material colours only (2 material(s), 0 image(s))",
-     "material tags from the vision answer: none of the design words (the answer named: other)"
-    ]
+     "material tags from the vision answer: none of the design words (the answer named: other)",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "vision quality 1 (<= 2)"
+    ],
+    "vision_quality": 1
    },
    "real_product": false,
    "contact": "hangs",
    "material_tags": [],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_29107ee85b7c1d2e9ee8448f",
@@ -691713,7 +691942,8 @@
     "vision_doubt": [
      "the vision check says it is not a tv",
      "vision quality 2 (<= 2)"
-    ]
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
@@ -691973,26 +692203,30 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "vision quality 2 (<= 2)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "aa47b1269e9e4968",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "87ba5adf300bb3e6",
     "notes": [
      "units guessed (x1.0)",
      "7 part(s) stick out of the main body (+x, -y, up to 0.87 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "vision quality 2 (<= 2)"
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_0255427f046f0f1d5687a7d4",
@@ -692528,7 +692762,8 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a tv"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -699136,27 +699371,31 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "vision quality 2 (<= 2)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "aa47b1269e9e4968",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "87ba5adf300bb3e6",
     "notes": [
      "26% non-manifold edges",
      "9 part(s) stick out of the main body (+x, +y, up to 0.82 m): an open drawer or a separate prop?",
      "largest texture 429 px (< 512)",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "vision quality 2 (<= 2)"
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_14fb3c13022cbb3e03d40771",
@@ -700325,8 +700564,8 @@
    "commercial_safe": false,
    "name": "Door 900 entrance [u4c7799a]",
    "bbox_m": [
-    1.1242,
     1.0062,
+    1.1242,
     2.13
    ],
    "bbox_model_m": [
@@ -700344,15 +700583,15 @@
     0.5031,
     2.13
    ],
-   "front_axis": "-Y",
+   "front_axis": "+X",
    "up_axis": "+Z",
    "origin_offset": [
     0.0,
     0.0,
     0.0
    ],
-   "front_axis_confidence": "low",
-   "front_axis_note": "a door has no front",
+   "front_axis_confidence": "medium",
+   "front_axis_note": "a door has no front; M12 audit: front turned 90 deg to +X",
    "unit_scale": 1.0,
    "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 1.12 x 1.01 x 2.13 inside the real door range; kept in metres (1.12 x 1.01 x 2.13 m): the audit's size check decides",
    "units_known": false,
@@ -700427,28 +700666,41 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "front_axis": "+X"
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "e40e5aad574fbefc",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "731e9303e6509271",
+    "before": {
+     "front_axis": "-Y",
+     "bbox_m": [
+      1.1242,
+      1.0062,
+      2.13
+     ],
+     "front_axis_confidence": "low"
+    },
     "notes": [
      "units guessed (x1.0)",
      "6% non-manifold edges",
      "1 part(s) stick out of the main body (+x, +z, -y, up to 0.95 m): an open drawer or a separate prop?",
      "material tags from the vision answer: wood, metal",
-     "the vision check sees the front on the right of view 0: front turned"
-    ]
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "the vision check sees the front on the right of view 0: front turned",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "wood",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_1717b2bef751173c11b2c499",
@@ -700877,8 +701129,8 @@
    "commercial_safe": false,
    "name": "Laptop",
    "bbox_m": [
-    0.2805,
     0.3587,
+    0.2805,
     0.1994
    ],
    "bbox_model_m": [
@@ -700896,15 +701148,15 @@
     0.1794,
     0.1994
    ],
-   "front_axis": "-Y",
+   "front_axis": "+X",
    "up_axis": "+Z",
    "origin_offset": [
     -0.0001,
     0.0,
     0.0
    ],
-   "front_axis_confidence": "low",
-   "front_axis_note": "a laptop has no front",
+   "front_axis_confidence": "medium",
+   "front_axis_note": "a laptop has no front; M12 audit: front turned 90 deg to +X",
    "unit_scale": 1.0,
    "unit_note": "units known: the GLB box 28.1 x 35.9 x 19.9 read in centimetres fits a real laptop (size table, +15 %); written in metres by the 3dwh fix-up: 0.281 x 0.359 x 0.199 m",
    "units_known": true,
@@ -700982,27 +701234,41 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "front_axis": "+X"
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "2b279a2df33c592d",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "7f55b901ba2decb4",
+    "before": {
+     "front_axis": "-Y",
+     "bbox_m": [
+      0.2805,
+      0.3587,
+      0.1994
+     ],
+     "front_axis_confidence": "low"
+    },
     "notes": [
      "23% non-manifold edges",
      "1 part(s) stick out of the main body (-y, up to 0.20 m): an open drawer or a separate prop?",
      "material tags from the vision answer: metal",
-     "the vision check sees the front on the right of view 0: front turned"
-    ]
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "the vision check sees the front on the right of view 0: front turned",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 4
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true,
+   "logo_flag": true,
+   "logo_reason": "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "3dwh_17dfba268d61d6627eb176e8",
@@ -701664,24 +701930,26 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "55273ce7fe2b5431",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "76fb5b8a9684f49f",
     "notes": [
      "5 part(s) stick out of the main body (+x, up to 0.40 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_18da9baa0cd85e8a92b9d22a",
@@ -703230,7 +703498,7 @@
     0.0
    ],
    "front_axis_confidence": "low",
-   "front_axis_note": "a car has no front",
+   "front_axis_note": "a car has no front; M13 audit: a front turn of 90 deg onto the long side of a car refused",
    "unit_scale": 1.0,
    "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 10.5 x 12 x 4.37 inside the real car range; kept in feet (3.2 x 3.65 x 1.33 m): the audit's size check decides",
    "units_known": false,
@@ -703309,30 +703577,34 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check says it is an outdoor piece",
-     "vision quality 2 (<= 2)"
-    ],
+    "status": "fix",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "bc164172d5d6d7df",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "721da6c227d46baf",
     "notes": [
      "units guessed (x1.0)",
      "14% non-manifold edges",
      "10 part(s) stick out of the main body (+z, -z, up to 0.68 m): an open drawer or a separate prop?",
      "material tags from the vision answer: glass, metal",
-     "the vision check sees the front on the right of view 0: front turned"
-    ]
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "the vision check sees the front on the right of view 0: front turned",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check says it is an outdoor piece",
+     "vision quality 2 (<= 2)"
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_1b626102da01d98d0583d0e0",
@@ -704244,27 +704516,31 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check sees more than one object"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "f94ef188eda8e6d8",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "98944baa8d6119d2",
     "notes": [
      "3 part(s) stick out of the main body (+x, +y, +z, up to 0.17 m): an open drawer or a separate prop?",
      "untextured (material colours only)",
      "no base_colour map: flat material colours only (8 material(s), 0 image(s))",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_1d36e973638b2a9a13ca8f4b",
@@ -705051,24 +705327,26 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "55273ce7fe2b5431",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "76fb5b8a9684f49f",
     "notes": [
      "1 part(s) stick out of the main body (-y, up to 0.27 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_1e0254bd22904ccc65f41852",
@@ -705624,7 +705902,8 @@
     ],
     "vision_doubt": [
      "vision quality 2 (<= 2)"
-    ]
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
@@ -706549,26 +706828,28 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "72636fa7cc6d9691",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "df6eaa769fcc07ad",
     "notes": [
      "units guessed (x1.0)",
      "10 part(s) stick out of the main body (+x, +y, -y, up to 1.58 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: glass, metal"
-    ]
+     "material tags from the vision answer: glass, metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_215ae04a7a169238546b1c08",
@@ -709125,24 +709406,26 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "55273ce7fe2b5431",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "76fb5b8a9684f49f",
     "notes": [
      "1 part(s) stick out of the main body (+y, up to 0.11 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_260a43f66b1bd4d3de167354",
@@ -713027,8 +713310,8 @@
    "commercial_safe": false,
    "name": "Camaro Police Car",
    "bbox_m": [
-    4.8913,
     2.075,
+    4.8913,
     1.42
    ],
    "bbox_model_m": [
@@ -713046,15 +713329,15 @@
     1.0375,
     1.42
    ],
-   "front_axis": "-Y",
+   "front_axis": "+X",
    "up_axis": "+Z",
    "origin_offset": [
     0.0,
     0.0,
     0.0
    ],
-   "front_axis_confidence": "low",
-   "front_axis_note": "a car has no front",
+   "front_axis_confidence": "medium",
+   "front_axis_note": "a car has no front; M12 audit: front turned 90 deg to +X",
    "unit_scale": 1.0,
    "unit_note": "units known: the GLB box 4.89 x 2.08 x 1.42 read in metres fits a real car (size table, +15 %); written in metres by the 3dwh fix-up: 4.89 x 2.08 x 1.42 m",
    "units_known": true,
@@ -713129,29 +713412,43 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)",
-     "the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it",
-     "the vision check says it is an outdoor piece"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "front_axis": "+X"
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "43343fa1af32ecda",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "393110f7cefbaa4c",
+    "before": {
+     "front_axis": "-Y",
+     "bbox_m": [
+      4.8913,
+      2.075,
+      1.42
+     ],
+     "front_axis_confidence": "low"
+    },
     "notes": [
      "6 part(s) stick out of the main body (+x, +z, -z, up to 0.20 m): an open drawer or a separate prop?",
      "largest texture 256 px (< 512)",
      "material tags from the vision answer: glass, metal",
-     "the vision check sees the front on the right of view 0: front turned"
-    ]
+     "the vision check sees the front on the right of view 0: front turned",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check says it is an outdoor piece"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "logo_flag": true,
+   "logo_reason": "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6); the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it"
   },
   {
    "id": "3dwh_2f2937f42e115de49399d11a",
@@ -713280,7 +713577,8 @@
     "notes": [
      "4 part(s) stick out of the main body (+x, +z, -x, up to 0.54 m): an open drawer or a separate prop?",
      "material tags from the vision answer: metal"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -715945,7 +716243,8 @@
      "31% non-manifold edges",
      "2 part(s) stick out of the main body (+y, -y, up to 0.15 m): an open drawer or a separate prop?",
      "material tags from the vision answer: glass, metal"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -717572,26 +717871,30 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "vision quality 2 (<= 2)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "fe38dab0af3c6608",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "3da6d236b8cbaa74",
     "notes": [
      "10 part(s) stick out of the main body (+x, +z, -x, up to 1.36 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: glass, metal"
-    ]
+     "material tags from the vision answer: glass, metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "vision quality 2 (<= 2)"
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_39d089d878636e960328fd37",
@@ -717730,7 +718033,8 @@
     ],
     "vision_doubt": [
      "vision quality 2 (<= 2)"
-    ]
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
@@ -718712,27 +719016,29 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "072f9ec0a27ad3d0",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "5d6fa8e1840aa714",
     "notes": [
      "56% non-manifold edges",
      "3 part(s) stick out of the main body (+x, +z, -x, up to 0.74 m): an open drawer or a separate prop?",
      "largest texture 256 px (< 512)",
-     "material tags from the vision answer: glass, wood"
-    ]
+     "material tags from the vision answer: glass, wood",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_3ad536f559d685e938853b78",
@@ -720070,7 +720376,8 @@
     "vision_doubt": [
      "the vision check says it is not a tv",
      "the vision check sees more than one object"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -723121,26 +723428,30 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "vision quality 2 (<= 2)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "aa47b1269e9e4968",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "87ba5adf300bb3e6",
     "notes": [
      "44% non-manifold edges",
      "4 part(s) stick out of the main body (-y, up to 0.20 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "vision quality 2 (<= 2)"
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_449ed7d9edfcec6d8331658b",
@@ -723840,8 +724151,8 @@
    "commercial_safe": false,
    "name": "TV LCD PLASMA [u6d05a4a]",
    "bbox_m": [
-    0.4568,
     0.4829,
+    0.4568,
     0.2277
    ],
    "bbox_model_m": [
@@ -723859,15 +724170,15 @@
     0.2414,
     0.2277
    ],
-   "front_axis": "-Y",
+   "front_axis": "+X",
    "up_axis": "+Z",
    "origin_offset": [
     0.0,
     0.0,
     0.0
    ],
-   "front_axis_confidence": "low",
-   "front_axis_note": "a tv has no front",
+   "front_axis_confidence": "medium",
+   "front_axis_note": "a tv has no front; M12 audit: front turned 90 deg to +X",
    "unit_scale": 1.0,
    "unit_note": "units known: the GLB box 1.5 x 1.58 x 0.747 read in feet fits a real tv (size table, +15 %); written in metres by the 3dwh fix-up: 0.457 x 0.483 x 0.228 m",
    "units_known": true,
@@ -723944,27 +724255,40 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "front_axis": "+X"
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "97fda4cdf1dac80e",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "06c3c30aa8f29718",
+    "before": {
+     "front_axis": "-Y",
+     "bbox_m": [
+      0.4568,
+      0.4829,
+      0.2277
+     ],
+     "front_axis_confidence": "low"
+    },
     "notes": [
      "40% non-manifold edges",
      "4 part(s) stick out of the main body (+x, -x, -y, up to 0.38 m): an open drawer or a separate prop?",
      "material tags from the vision answer: glass, metal",
-     "the vision check sees the front on the right of view 0: front turned"
-    ]
+     "the vision check sees the front on the right of view 0: front turned",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 4
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "logo_flag": true,
+   "logo_reason": "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "3dwh_46a83625c366b4e3a15cfebc",
@@ -724955,7 +725279,8 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a tv"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -726309,25 +726634,27 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "55273ce7fe2b5431",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "76fb5b8a9684f49f",
     "notes": [
      "81% non-manifold edges",
      "1 part(s) stick out of the main body (+x, +z, up to 0.25 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_4c227d4e39990f208000592b",
@@ -727142,7 +727469,8 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a tv"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -736384,24 +736712,26 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "55273ce7fe2b5431",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "76fb5b8a9684f49f",
     "notes": [
      "4 part(s) stick out of the main body (-y, up to 0.25 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 4
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_5de0abf58974589c172ce564",
@@ -738834,26 +739164,30 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it",
+    "status": "keep",
+    "reasons": [],
+    "fixes": {},
+    "version": "m12",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "d57bd38e107ab74b",
+    "notes": [
+     "units guessed (x1.0)",
+     "material tags from the vision answer: wood",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
      "the vision check sees more than one object",
      "vision quality 2 (<= 2)"
     ],
-    "fixes": {},
-    "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "e20cfa35ea4354b7",
-    "notes": [
-     "units guessed (x1.0)",
-     "material tags from the vision answer: wood"
-    ]
+    "vision_quality": 2
    },
    "real_product": false,
    "material_tags": [
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "logo_flag": true,
+   "logo_reason": "the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it"
   },
   {
    "id": "3dwh_6388eaf0fd283162a051396f",
@@ -740049,7 +740383,8 @@
      "the vision check says it is not a monitor",
      "the vision check sees more than one object",
      "vision quality 2 (<= 2)"
-    ]
+    ],
+    "vision_quality": 2
    },
    "real_product": false,
    "material_tags": [
@@ -743703,7 +744038,8 @@
     "vision_doubt": [
      "the vision check sees more than one object",
      "vision quality 2 (<= 2)"
-    ]
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
@@ -743987,7 +744323,8 @@
     ],
     "vision_doubt": [
      "vision quality 2 (<= 2)"
-    ]
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
@@ -745623,7 +745960,8 @@
     "vision_doubt": [
      "the vision check says it is not a tv",
      "vision quality 2 (<= 2)"
-    ]
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
@@ -749748,7 +750086,8 @@
     "vision_doubt": [
      "the vision check says it is not a laptop",
      "vision quality 1 (<= 2)"
-    ]
+    ],
+    "vision_quality": 1
    },
    "real_product": false,
    "material_tags": [
@@ -750576,7 +750915,8 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a tv"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -754437,7 +754777,8 @@
      "10% non-manifold edges",
      "1 part(s) stick out of the main body (+y, -y, up to 0.11 m): an open drawer or a separate prop?",
      "material tags from the vision answer: glass, metal"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -757085,27 +757426,29 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "072f9ec0a27ad3d0",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "5d6fa8e1840aa714",
     "notes": [
      "units guessed (x1.0)",
      "4 part(s) stick out of the main body (+y, up to 0.22 m): an open drawer or a separate prop?",
      "largest texture 256 px (< 512)",
-     "material tags from the vision answer: glass, wood"
-    ]
+     "material tags from the vision answer: glass, wood",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_860646391dfc029113ce1bc5",
@@ -758985,24 +759328,28 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "vision quality 2 (<= 2)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "aa47b1269e9e4968",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "87ba5adf300bb3e6",
     "notes": [
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "vision quality 2 (<= 2)"
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_8cc0056cc5dc1a954c5b2a78",
@@ -760123,8 +760470,8 @@
    "commercial_safe": false,
    "name": "Interior commercial office door",
    "bbox_m": [
-    1.0253,
     1.0444,
+    1.0253,
     2.1793
    ],
    "bbox_model_m": [
@@ -760142,15 +760489,15 @@
     0.5222,
     2.1793
    ],
-   "front_axis": "-Y",
+   "front_axis": "+X",
    "up_axis": "+Z",
    "origin_offset": [
     0.0,
     0.0,
     0.0
    ],
-   "front_axis_confidence": "low",
-   "front_axis_note": "a door has no front",
+   "front_axis_confidence": "medium",
+   "front_axis_note": "a door has no front; M12 audit: front turned 90 deg to +X",
    "unit_scale": 1.0,
    "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 1.03 x 1.04 x 2.18 inside the real door range; kept in metres (1.03 x 1.04 x 2.18 m): the audit's size check decides",
    "units_known": false,
@@ -760225,27 +760572,40 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "front_axis": "+X"
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "55273ce7fe2b5431",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "f3c1a2e0b5e74e2e",
+    "before": {
+     "front_axis": "-Y",
+     "bbox_m": [
+      1.0253,
+      1.0444,
+      2.1793
+     ],
+     "front_axis_confidence": "low"
+    },
     "notes": [
      "units guessed (x1.0)",
      "11% non-manifold edges",
      "1 part(s) stick out of the main body (+x, +y, -x, up to 0.90 m): an open drawer or a separate prop?",
      "material tags from the vision answer: metal",
-     "the vision check sees the front on the right of view 0: front turned"
-    ]
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "the vision check sees the front on the right of view 0: front turned",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_8f90f788a6b6c0b4cbdcd754",
@@ -761212,7 +761572,8 @@
     ],
     "vision_doubt": [
      "the vision check sees more than one object"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -761467,26 +761828,29 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "5c339b8ac4c8ce36",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "83359d04c75311c0",
     "notes": [
      "12% non-manifold edges",
      "1 part(s) stick out of the main body (-x, up to 0.51 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: wood"
-    ]
+     "material tags from the vision answer: wood",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 4
    },
    "real_product": true,
    "material_tags": [
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true,
+   "logo_flag": true,
+   "logo_reason": "the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it"
   },
   {
    "id": "3dwh_91a3091fff5252fb2c0544d5",
@@ -766500,7 +766864,8 @@
     "vision_doubt": [
      "the vision check says it is not a laptop",
      "vision quality 1 (<= 2)"
-    ]
+    ],
+    "vision_quality": 1
    },
    "real_product": false,
    "material_tags": [
@@ -766774,28 +767139,32 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check sees more than one object",
-     "vision quality 2 (<= 2)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "b94c26883aa76c60",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "87c4390d6242302a",
     "notes": [
      "11% non-manifold edges",
      "1 part(s) stick out of the main body (+x, +y, +z, -y, -z, up to 1.40 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: wood, metal"
-    ]
+     "material tags from the vision answer: wood, metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object",
+     "vision quality 2 (<= 2)"
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
     "wood",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_9affa5b91c950ef1d705affa",
@@ -768001,7 +768370,8 @@
     ],
     "vision_doubt": [
      "the vision check sees more than one object"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -768144,7 +768514,8 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a tv (a fireplace)"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -769021,7 +769392,7 @@
     0.0
    ],
    "front_axis_confidence": "low",
-   "front_axis_note": "a car has no front",
+   "front_axis_note": "a car has no front; M13 audit: a front turn of 90 deg onto the long side of a car refused",
    "unit_scale": 1.0,
    "unit_note": "units known: the GLB box 2.28 x 5.83 x 1.79 read in metres fits a real car (size table, +15 %); written in metres by the 3dwh fix-up: 2.28 x 5.83 x 1.79 m",
    "units_known": true,
@@ -769096,28 +769467,32 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it",
-     "the vision check says it is an outdoor piece",
-     "vision quality 2 (<= 2)"
-    ],
+    "status": "fix",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "2d6cbe62b38c7f68",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "8f4cec7c439730e0",
     "notes": [
      "5 part(s) stick out of the main body (+z, -z, up to 0.19 m): an open drawer or a separate prop?",
      "material tags from the vision answer: glass, metal",
-     "the vision check sees the front on the right of view 0: front turned"
-    ]
+     "the vision check sees the front on the right of view 0: front turned",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check says it is an outdoor piece",
+     "vision quality 2 (<= 2)"
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "logo_flag": true,
+   "logo_reason": "the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it"
   },
   {
    "id": "3dwh_9eb84f48c93aa373584f2486",
@@ -770870,7 +771245,8 @@
      "the vision check says it is not a computer",
      "the vision check sees more than one object",
      "vision quality 2 (<= 2)"
-    ]
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
@@ -771145,7 +771521,8 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a tv"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -772111,27 +772488,29 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "55273ce7fe2b5431",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "76fb5b8a9684f49f",
     "notes": [
      "78% non-manifold edges",
      "2 part(s) stick out of the main body (-y, up to 0.20 m): an open drawer or a separate prop?",
      "untextured (material colours only)",
      "no base_colour map: flat material colours only (14 material(s), 0 image(s))",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_a2f6cd984be3083ebdcbe92e",
@@ -775050,29 +775429,34 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check says it is an outdoor piece",
-     "the vision check sees more than one object",
-     "vision quality 2 (<= 2)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "5c6900958032008d",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "be24a5460e9b6b7e",
     "notes": [
      "68% non-manifold edges",
      "10 part(s) stick out of the main body (+x, +y, -x, -z, up to 4.69 m): an open drawer or a separate prop?",
      "material tags from the vision answer: wood",
-     "the vision check finds the size odd next to the scale reference (code: size ok)"
-    ]
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "pass 1 finds the size odd next to the scale reference (code: size ok); pass 2 names a tree: the type is confirmed",
+     "the vision check finds the size odd next to the scale reference (code: size ok)",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check says it is an outdoor piece",
+     "the vision check sees more than one object",
+     "vision quality 2 (<= 2)"
+    ],
+    "vision_quality": 2
    },
    "real_product": false,
    "material_tags": [
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_a8f825bf91fae0086c21d01b",
@@ -778840,8 +779224,8 @@
    "commercial_safe": false,
    "name": "Laptop [uf533c69]",
    "bbox_m": [
-    0.2624,
     0.3185,
+    0.2624,
     0.1985
    ],
    "bbox_model_m": [
@@ -778859,15 +779243,15 @@
     0.1593,
     0.1985
    ],
-   "front_axis": "-Y",
+   "front_axis": "+X",
    "up_axis": "+Z",
    "origin_offset": [
     0.0,
     0.0,
     0.0
    ],
-   "front_axis_confidence": "low",
-   "front_axis_note": "a laptop has no front",
+   "front_axis_confidence": "medium",
+   "front_axis_note": "a laptop has no front; M12 audit: front turned 90 deg to +X",
    "unit_scale": 1.0,
    "unit_note": "units known: the GLB box 0.262 x 0.319 x 0.199 read in metres fits a real laptop (size table, +15 %); written in metres by the 3dwh fix-up: 0.262 x 0.319 x 0.199 m",
    "units_known": true,
@@ -778939,28 +779323,43 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check sees more than one object",
-     "vision quality 2 (<= 2)"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "front_axis": "+X"
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "71961b7809aa69bd",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "b9f0532f755b4157",
+    "before": {
+     "front_axis": "-Y",
+     "bbox_m": [
+      0.2624,
+      0.3185,
+      0.1985
+     ],
+     "front_axis_confidence": "low"
+    },
     "notes": [
      "58% non-manifold edges",
      "1 part(s) stick out of the main body (+z, -x, up to 0.19 m): an open drawer or a separate prop?",
      "material tags from the vision answer: metal",
-     "the vision check sees the front on the right of view 0: front turned"
-    ]
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "the vision check sees the front on the right of view 0: front turned",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object",
+     "vision quality 2 (<= 2)"
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_b27b3b2125b8a48f81b2581c",
@@ -781550,34 +781949,34 @@
    "commercial_safe": false,
    "name": "Car",
    "bbox_m": [
-    6.2279,
-    4.4017,
+    4.4018,
+    6.1817,
     1.8882
    ],
    "bbox_model_m": [
-    6.2279,
-    4.4017,
+    6.1817,
+    4.4018,
     1.8882
    ],
    "bbox_min_m": [
     -3.1139,
     -2.2009,
-    0.0
+    -0.0
    ],
    "bbox_max_m": [
-    3.1139,
+    3.0678,
     2.2009,
     1.8882
    ],
-   "front_axis": "-Y",
+   "front_axis": "-X",
    "up_axis": "+Z",
    "origin_offset": [
+    -0.0231,
     0.0,
-    0.0,
-    0.0
+    -0.0
    ],
-   "front_axis_confidence": "low",
-   "front_axis_note": "a car has no front",
+   "front_axis_confidence": "medium",
+   "front_axis_note": "a car has no front; M12 audit: front turned 270 deg to -X",
    "unit_scale": 1.0,
    "unit_note": "units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box 6.23 x 4.4 x 1.89 inside the real car range; kept in metres (6.23 x 4.4 x 1.89 m): the audit's size check decides",
    "units_known": false,
@@ -781651,31 +782050,82 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)",
-     "the vision check says it is an outdoor piece",
-     "vision quality 2 (<= 2)"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "bbox_min_m": [
+      -3.1139,
+      -2.2009,
+      -0.0
+     ],
+     "bbox_max_m": [
+      3.0678,
+      2.2009,
+      1.8882
+     ],
+     "origin_offset": [
+      -0.0231,
+      0.0,
+      -0.0
+     ],
+     "front_axis": "-X"
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "e6a4631d4373bedd",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "5341a3ca2f885477",
+    "before": {
+     "bbox_min_m": [
+      -3.1139,
+      -2.2009,
+      0.0
+     ],
+     "bbox_max_m": [
+      3.1139,
+      2.2009,
+      1.8882
+     ],
+     "bbox_model_m": [
+      6.2279,
+      4.4017,
+      1.8882
+     ],
+     "bbox_m": [
+      6.2279,
+      4.4017,
+      1.8882
+     ],
+     "origin_offset": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "front_axis": "-Y",
+     "front_axis_confidence": "low"
+    },
     "notes": [
      "the measured box [-3.1139, -2.2009, -0.0] .. [3.0678, 2.2009, 1.8882] differs from the catalogue's",
      "units guessed (x1.0)",
      "10 part(s) stick out of the main body (+y, +z, -x, -y, -z, up to 1.14 m): an open drawer or a separate prop?",
      "material tags from the vision answer: glass, metal",
-     "the vision check sees the front on the left of view 0: front turned"
-    ]
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "the vision check sees the front on the left of view 0: front turned",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check says it is an outdoor piece",
+     "vision quality 2 (<= 2)"
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true,
+   "logo_flag": true,
+   "logo_reason": "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "3dwh_b6871032218bb4c61142a052",
@@ -781791,30 +782241,33 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)",
-     "the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it",
-     "the vision check says it is an outdoor piece"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "43343fa1af32ecda",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "962e266bf2dab66e",
     "notes": [
      "units guessed (x1.0)",
      "8 part(s) stick out of the main body (-z, up to 0.15 m): an open drawer or a separate prop?",
      "untextured (material colours only)",
      "no base_colour map: flat material colours only (35 material(s), 0 image(s))",
-     "material tags from the vision answer: glass, metal"
-    ]
+     "material tags from the vision answer: glass, metal",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check says it is an outdoor piece"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "logo_flag": true,
+   "logo_reason": "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6); the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it"
   },
   {
    "id": "3dwh_b68cecad9ba510f0c36b4265",
@@ -782343,26 +782796,29 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "2b279a2df33c592d",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "7aada1c642475d72",
     "notes": [
      "37% non-manifold edges",
      "1 part(s) stick out of the main body (-y, up to 0.22 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true,
+   "logo_flag": true,
+   "logo_reason": "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "3dwh_b7ac7e35c876f496e7fa852e",
@@ -784535,26 +784991,28 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "72636fa7cc6d9691",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "df6eaa769fcc07ad",
     "notes": [
      "units guessed (x1.0)",
      "10 part(s) stick out of the main body (+x, +y, up to 1.51 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: glass, metal"
-    ]
+     "material tags from the vision answer: glass, metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_bb4a03881bf59a68da848d4d",
@@ -785367,19 +785825,22 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check sees more than one object"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "8240ef7b58973723",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "5cdbf5ad987c2cd2",
     "notes": [
      "1 part(s) stick out of the main body (+x, up to 1.19 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: glass, wood, metal"
-    ]
+     "material tags from the vision answer: glass, wood, metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -785387,7 +785848,8 @@
     "wood",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_bc2599f983f667962aac814a",
@@ -786322,25 +786784,27 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "f9e5f0d49a9ab4ab",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "a51146a8d29af176",
     "notes": [
      "10 part(s) stick out of the main body (-x, -y, up to 0.86 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: glass, fabric"
-    ]
+     "material tags from the vision answer: glass, fabric",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 4
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "fabric"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "logo_flag": true,
+   "logo_reason": "the vision check reads printed lettering on the model's visible surface: a novelty print fits no project style and no catalogue fix removes it"
   },
   {
    "id": "3dwh_bd479ef3fba6a88131ec83fe",
@@ -789790,8 +790254,8 @@
    "commercial_safe": false,
    "name": "Sony Flat Screen Television",
    "bbox_m": [
-    0.089,
     1.2802,
+    0.089,
     0.8268
    ],
    "bbox_model_m": [
@@ -789809,15 +790273,15 @@
     0.6401,
     0.8268
    ],
-   "front_axis": "-Y",
+   "front_axis": "+X",
    "up_axis": "+Z",
    "origin_offset": [
     0.0,
     0.0,
     0.0
    ],
-   "front_axis_confidence": "low",
-   "front_axis_note": "a tv has no front",
+   "front_axis_confidence": "medium",
+   "front_axis_note": "a tv has no front; M12 audit: front turned 90 deg to +X",
    "unit_scale": 1.0,
    "unit_note": "units known: the GLB box 0.089 x 1.28 x 0.827 read in metres fits a real tv (size table, +15 %); written in metres by the 3dwh fix-up: 0.089 x 1.28 x 0.827 m",
    "units_known": true,
@@ -789890,25 +790354,38 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)"
-    ],
-    "fixes": {},
+    "status": "fix",
+    "reasons": [],
+    "fixes": {
+     "front_axis": "+X"
+    },
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "7185ca8cf995d588",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "ab1e1ef1b89ff508",
+    "before": {
+     "front_axis": "-Y",
+     "bbox_m": [
+      0.089,
+      1.2802,
+      0.8268
+     ],
+     "front_axis_confidence": "low"
+    },
     "notes": [
      "largest texture 256 px (< 512)",
      "material tags from the vision answer: metal",
-     "the vision check sees the front on the right of view 0: front turned"
-    ]
+     "the vision check sees the front on the right of view 0: front turned",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "logo_flag": true,
+   "logo_reason": "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "3dwh_c30c8cfee2197391036ab50e",
@@ -796760,21 +797237,24 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check sees more than one object"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "8240ef7b58973723",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "5cdbf5ad987c2cd2",
     "notes": [
      "units guessed (x1.0)",
      "10% non-manifold edges",
      "2 part(s) stick out of the main body (+x, up to 1.35 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: glass, wood, metal"
-    ]
+     "material tags from the vision answer: glass, wood, metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -796782,7 +797262,8 @@
     "wood",
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_d05b165436bec87f55abbe4f",
@@ -797885,7 +798366,8 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a tv"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -804139,7 +804621,8 @@
      "44% non-manifold edges",
      "largest texture 375 px (< 512)",
      "material tags from the vision answer: glass, metal"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -812393,7 +812876,8 @@
      "41% non-manifold edges",
      "2 part(s) stick out of the main body (-z, up to 0.27 m): an open drawer or a separate prop?",
      "material tags from the vision answer: glass, metal"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -812938,7 +813422,8 @@
     "vision_doubt": [
      "the vision check says it is not a tv",
      "vision quality 2 (<= 2)"
-    ]
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
@@ -816097,27 +816582,29 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "072f9ec0a27ad3d0",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "5d6fa8e1840aa714",
     "notes": [
      "units guessed (x1.0)",
      "5 part(s) stick out of the main body (+x, +y, -x, -y, up to 0.33 m): an open drawer or a separate prop?",
      "largest texture 256 px (< 512)",
-     "material tags from the vision answer: glass, wood"
-    ]
+     "material tags from the vision answer: glass, wood",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "glass",
     "wood"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true
   },
   {
    "id": "3dwh_f3162d1437c4836c25662873",
@@ -817231,7 +817718,8 @@
     "notes": [
      "76% non-manifold edges",
      "material tags from the vision answer: glass, metal"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -817797,7 +818285,8 @@
     "vision_doubt": [
      "the vision check says it is not a tv",
      "vision quality 1 (<= 2)"
-    ]
+    ],
+    "vision_quality": 1
    },
    "real_product": false,
    "material_tags": [],
@@ -818379,7 +818868,8 @@
     "vision_doubt": [
      "the vision check says it is not a tv",
      "vision quality 2 (<= 2)"
-    ]
+    ],
+    "vision_quality": 2
    },
    "real_product": true,
    "material_tags": [
@@ -818517,7 +819007,8 @@
     ],
     "vision_doubt": [
      "the vision check says it is not a tv"
-    ]
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -819730,27 +820221,32 @@
     "decision": "user decision of 23 Oct 2026: licence not reviewed; relaxed licence mode only, commercial_safe: no; the whole zip picked"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart",
-     "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)",
-     "the vision check sees more than one object"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-23T21:58:17Z",
-    "decision_sha": "2882cd832e22dd3a",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "1da35e3b37cd4690",
     "notes": [
      "48% non-manifold edges",
      "1 part(s) stick out of the main body (+y, +z, up to 0.19 m): an open drawer or a separate prop?",
-     "material tags from the vision answer: metal"
-    ]
+     "material tags from the vision answer: metal",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_doubt": [
+     "the vision check sees more than one object"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
     "metal"
    ],
-   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)"
+   "material_tags_note": "M13 audit: from the vision answer's materials (one pass; the slot judgement of recolour.py is finer where it exists)",
+   "open_parts": true,
+   "logo_flag": true,
+   "logo_reason": "the vision check reads a maker's logo or brand name on the model: trademarks are not licensed (docs/milestone13.md §2.6)"
   },
   {
    "id": "3dwh_fb8125f6976f0298511e9d38",
@@ -820448,7 +820944,8 @@
     ],
     "vision_doubt": [
      "vision quality 1 (<= 2)"
-    ]
+    ],
+    "vision_quality": 1
    },
    "real_product": false,
    "material_tags": [],
@@ -826455,20 +826952,21 @@
     "decision": "the user's request of 28 Oct 2026 (better doors and windows, variation)"
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-28T15:24:20Z",
-    "decision_sha": "a88bb953c1f0cea8",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "0bf6e17199afa5f8",
     "notes": [
      "93% non-manifold edges",
      "untextured (material colours only)",
      "no base_colour map: flat material colours only (3 material(s), 0 image(s))",
-     "material tags from the vision answer: wood"
-    ]
+     "material tags from the vision answer: wood",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 3
    },
    "real_product": true,
    "material_tags": [
@@ -826484,7 +826982,8 @@
     "leaf": "flush",
     "handle_side": "left",
     "note": "the audit's vision answer (the opening question, 28 Oct 2026)"
-   }
+   },
+   "open_parts": true
   },
   {
    "id": "hssd_216-51",

@@ -1471,7 +1471,7 @@ def cmd_pending(args) -> int:
     stamp = args.checked_utc or now_utc()
     dec = {r["id"]: {"status": r["status"], "reasons": r["reasons"], "fixes": r["fixes"], "flags": r["flags"],
                      "notes": r["notes"], "vision_doubt": r.get("vision_doubt") or [],
-                     "pending": r.get("pending") or []} for r in rows}
+                     "pending": r.get("pending") or [], "vision_quality": r.get("vision_quality")} for r in rows}
     for path, complete in ((lib_path, False), (ph_path, True)):
         doc = read_json(path)
         W.apply_decisions(doc, dec, stamp)

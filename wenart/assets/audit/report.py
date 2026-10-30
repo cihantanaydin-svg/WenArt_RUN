@@ -30,6 +30,7 @@ def rows_of(items: list[dict], checks: dict, decisions: dict, answers: Optional[
                     "reasons": d["reasons"], "fixes": d["fixes"], "pending": d.get("pending") or [],
                     "flags": d.get("flags") or {}, "notes": d.get("notes") or [],
                     "vision_doubt": d.get("vision_doubt") or [],
+                    "vision_quality": d.get("vision_quality"),        # 30 Oct 2026 (UL215): audit.vision_quality
                     "checks": [c for c in checks[it["id"]] if c["status"] not in ("ok", "skip")],
                     "vision": answers.get(it["id"]), "vision2": answers2.get(it["id"])})
     return out
