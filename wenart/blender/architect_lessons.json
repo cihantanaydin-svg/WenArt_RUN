@@ -2480,12 +2480,12 @@
    "id": "UL209",
    "date": "2026-10-30",
    "area": "terrace",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "This front section requires a huge rework, it is not elegant, columns seems cut in the middle handrails not making sense this whole area requires a huge rework try a lot on this area (30 Oct 2026, real06 run 20261029-100801-full, the front veranda under the balcony: two tall columns pass the balcony slab with a break at its edge, a glass balcony guard with posts running behind the columns, a thin sloped veranda roof with a rough dark fascia, stair handrails at the side, a white box sofa)",
-   "lesson": "This front section requires a huge rework, it is not elegant, columns seems cut in the middle handrails not making sense this whole area requires a huge rework try a lot on this area (30 Oct 2026, real06 run 20261029-100801-full, the front veranda under the balcony: two tall columns pass the balcony slab with a break at its edge, a glass balcony guard with posts running behind the columns, a thin sloped veranda roof with a rough dark fascia, stair handrails at the side, a white box sofa)",
+   "lesson": "A drawn column is one piece. When a post stands on the post of a space below, at the same place (0.1 m) and with the same look, it runs on as one column through the slab (wenart.levels.columns, inferred, logged): a smooth shaft on a slim base under a slim head. Nothing passes through a column: a lower roof and its edge beams are cut around it; an upper slab's guard stands 5 cm in from the edge, runs straight along each side and stops 3 cm short of every column; a glass guard there is frameless glass in a base channel with a slim cap. A cover's edges are a fascia in the beams' finish, never the roof tiles. A deck's or veranda's own flight takes handrails only from four risers. An outdoor sofa or armchair without an outdoor library model is an open teak lounge frame with cushions. The model review's O7 reports any column a slab still cuts in two. Real06 run 20261029-100801-full: the veranda's 0.40 m column stopped under the balcony slab and a second post rose from the balcony, the guard ran through the columns, the fascia took the roof tiles, a 3-riser flight had handrails, a white box sofa.",
    "question": "Is the veranda and balcony front one elegant, coherent design (continuous columns, a guard between them on the slab edge, a clean roof edge, no needless handrails)?"
   },
   {

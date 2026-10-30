@@ -2820,7 +2820,7 @@ showers).
 |---|---|---|---|
 | UL207 | see-through wardrobes "not mandatory, optional" | the master and the bedrooms whose scheme asks for one; the others closed | built |
 | UL208 | "This TV here not making sense" (a console with a TV free in the salon) | a TV only on a wall the seating faces; no free-standing TV unit; a room with no such wall keeps none (minor note) | built |
-| UL209 | the front veranda and balcony: columns cut, handrails, not elegant | (helper running) | open |
+| UL209 | the front veranda and balcony: columns cut, handrails, not elegant | one continuous column through the slab (base, shaft, head); roofs, beams and guards stop at columns; frameless glass guard in a channel between them; fascia in the beam finish; no handrails under 4 risers; a teak outdoor sofa; check O7 | built (helper; 5 designs tried) |
 | UL210 | a big window beside a small one | (helper running: the bathroom gap read as a high window beside a normal one) | open |
 | UL211 | a window up to the wall's edge | (helper running) | open |
 | UL212 | detailed small items: kettle, coffee machine, study items | (helper running) | open |
