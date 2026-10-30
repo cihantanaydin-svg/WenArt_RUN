@@ -94,8 +94,9 @@ def test_real04_east_pool_deck_lies_at_the_basement_floor_and_is_reached_from_th
     assert by["sp_003"]["z"] == by["sp_004"]["z"] == 0.0                        # the copy b2, 3 m higher
     assert not any(w["opening_id"] == "win_L-1_004" for w in sp["wells"])       # no front court in the deck
     for pid in ("sp_002", "sp_003"):
-        assert by[pid]["steps_dir"] == "up" and by[pid]["flight_lands_on"] == "spk_001"
-        assert by[pid]["outside_access"] == "on_path"
+        # 30 Oct 2026 (UL188): the flight up never climbs out onto the drive; (UL202) a walkable path reaches it
+        assert by[pid]["steps_dir"] == "up" and by[pid].get("flight_lands_on") != "spk_001"
+        assert by[pid]["outside_access"] in ("path", "on_path")
     a5 = next(q for q in prep["architect"]["questions"] if q["id"] == "A5")
     assert not any(a.get("ask") for a in a5["answers"])                         # no window asked to become a door
     bands = [p for p in sp["platforms"] if p.get("parent")]
