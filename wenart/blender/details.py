@@ -222,7 +222,7 @@ def _unit(p, q):
     return ((q[0] - p[0]) / length, (q[1] - p[1]) / length) if length > 1e-12 else (0.0, 0.0)
 
 
-def _blocked(x, u, walls, arrivals, g) -> bool:
+def _blocked_at(x, u, walls, arrivals, g) -> bool:
     """True when the point ``x`` of a void edge running along ``u`` needs no guard: inside a wall body, near the face
     of a wall that runs along the edge, or on an arrival edge along it."""
     for w in walls:
@@ -245,18 +245,29 @@ def _blocked(x, u, walls, arrivals, g) -> bool:
 
 
 def void_guard_runs(void_polygon: Sequence[Sequence[float]], walls: Sequence[dict] = (),
-                    arrival_edges: Sequence = (), guard: Optional[dict] = None) -> list[tuple]:
+                    arrival_edges: Sequence = (), guard: Optional[dict] = None,
+                    keep_out: Sequence[Sequence[Sequence[float]]] = ()) -> list[tuple]:
     """The runs of a floor opening that need a guard (pure): ``[(p, q)]`` stretches of the edges of ``void_polygon``
     whose points are free (``_blocked``: not in a wall, not along a wall face within ``wall_reach``, not along an
     ``arrival_edges`` segment ``(a, b)`` within ``arrival_reach``), sampled every ``step`` and refined to 1 mm, at
     least ``min_run`` long, moved ``inset`` outward of the void onto the floor; two runs that meet at a corner of the
-    void meet at the corner of their moved lines too."""
+    void meet at the corner of their moved lines too.
+
+    30 Oct 2026 (lesson UL192, user on real04 run 20261030-112241-full: "Something wrong with the stairs": the L0 floor
+    opening where the basement stair arrives lies under the L0 stair; its glass-channel guard ran across that stair's
+    first flight and through its well, the steel cap a bar floating across the flight, the shoe a block at its foot):
+    ``keep_out`` (the footprints of the level's own stairs, ``shell.own_stair_footprints``) hold no guard; their own
+    balustrades guard their flights and well."""
     g = dict(GUARD, **(guard or {}))
     poly = geom2d.ccw([(float(p[0]), float(p[1])) for p in void_polygon])
     n = len(poly)
     walls = [w for w in walls or () if G.distance(w["start"], w["end"]) > 1e-9]
     arrivals = [((float(a[0]), float(a[1])), (float(b[0]), float(b[1]))) for a, b in arrival_edges or ()
                 if G.distance(a, b) > 1e-9]
+    outs = [[(float(q[0]), float(q[1])) for q in k] for k in keep_out or () if len(k or ()) >= 3]
+
+    def _blocked(x, u, walls_, arrivals_, g_):                     # the module's rule and the level's own stairs
+        return _blocked_at(x, u, walls_, arrivals_, g_) or any(G.point_in_polygon(x, k) for k in outs)
     per_edge = []
     for i in range(n):
         p, q = poly[i], poly[(i + 1) % n]
@@ -323,10 +334,10 @@ def _miter(a, b, c, inset: float) -> float:
 
 def void_guards(void_polygon: Sequence[Sequence[float]], walls: Sequence[dict] = (), arrival_edges: Sequence = (),
                 floor_z: float = 0.0, kind: str = DEFAULT_KIND, height: Optional[float] = None,
-                guard: Optional[dict] = None) -> tuple[list, list, list]:
+                guard: Optional[dict] = None, keep_out: Sequence = ()) -> tuple[list, list, list]:
     """``(metal, glass, runs)``: a ``balustrade`` of ``kind``, ``GUARD["height"]`` high, standing on ``floor_z`` along
-    each run of ``void_guard_runs`` (pure; 26 Oct 2026)."""
-    runs = void_guard_runs(void_polygon, walls, arrival_edges, guard)
+    each run of ``void_guard_runs`` (pure; 26 Oct 2026; ``keep_out``: the level's own stairs, UL192)."""
+    runs = void_guard_runs(void_polygon, walls, arrival_edges, guard, keep_out)
     metal, glass = [], []
     h = float(height if height is not None else dict(GUARD, **(guard or {}))["height"])
     for p, q in runs:

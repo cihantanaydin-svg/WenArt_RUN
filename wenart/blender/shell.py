@@ -2572,13 +2572,35 @@ def stair_arrival_edges(building: dict, level: dict) -> list[dict]:
     return out
 
 
+# 30 Oct 2026 (lesson UL192): a floor opening's guard keeps this far out of the footprint of a stair of its own level
+OWN_STAIR_MARGIN_M = 0.05
+
+
+def own_stair_footprints(building: dict, level: dict) -> list[list[tuple[float, float]]]:
+    """The footprints of the stairs the level builds (``plan_stairs`` items with a plan; pure; UL192), each grown by
+    ``OWN_STAIR_MARGIN_M``: a floor opening's guard runs nowhere inside them (the stair's own balustrades guard its
+    flights and its well). The drawn upper end of the stair below (no plan) is not one: its opening keeps its guard."""
+    out = []
+    for item in plan_stairs(building, level):
+        fp = item["piece"].get("footprint") or {}
+        if item.get("plan") is None or len(fp.get("size") or ()) < 2:
+            continue
+        grown = dict(fp, size=[float(s) + 2.0 * OWN_STAIR_MARGIN_M for s in fp["size"][:2]])
+        rect = _footprint_polygon({"footprint": grown})
+        if rect:
+            out.append(rect)
+    return out
+
+
 def floor_void_guards(building: dict, level: dict, voids: list) -> list[dict]:
     """The guards around the openings of the floor of ``level`` (pure; the plan ``build_void_guards`` builds and the
     architect's K2 / K3 can count): per opening with a free edge ``{"void": its index, "polygon", "runs": [(p, q)]
     (``details.void_guard_runs`` with the level's walls and the arrival lines of the stairs that come up through it,
-    ``stair_arrival_edges``), "arrivals": [(p, q)], "arrives_from": [stair ids], "length_m"}``."""
+    ``stair_arrival_edges``), "arrivals": [(p, q)], "arrives_from": [stair ids], "length_m", "keep_out"}``; 30 Oct
+    2026 (UL192): no run inside the footprint of a stair of the level (``own_stair_footprints``)."""
     walls = [w for w in building.get("walls") or [] if w.get("level_id") == level["id"]]
     arrivals = stair_arrival_edges(building, level)
+    keep_out = own_stair_footprints(building, level)
     out = []
     for i, void in enumerate(voids or []):
         if len(void or []) < 3:
@@ -2588,12 +2610,12 @@ def floor_void_guards(building: dict, level: dict, voids: list) -> list[dict]:
                 if G.point_in_polygon(G.segment_midpoint(a["p"], a["q"]), poly)
                 or geom2d.distance_to_polygon_edges(G.segment_midpoint(a["p"], a["q"]), poly) <= VOID_ARRIVAL_NEAR_M]
         lines = [(a["p"], a["q"]) for a in mine]
-        runs = D.void_guard_runs(poly, walls, lines)
+        runs = D.void_guard_runs(poly, walls, lines, keep_out=keep_out)
         if not runs:
             continue
         out.append({"void": i, "polygon": [tuple(p) for p in poly], "runs": runs, "arrivals": lines,
                     "arrives_from": sorted({a["stair"] for a in mine}),
-                    "length_m": round(sum(G.distance(p, q) for p, q in runs), 3)})
+                    "length_m": round(sum(G.distance(p, q) for p, q in runs), 3), "keep_out": keep_out})
     return out
 
 
@@ -2620,7 +2642,7 @@ def build_void_guards(building: dict, level: dict, collection, library, style: d
         mid = G.segment_midpoint(p, q)
         room = next((r for r in rooms if G.point_in_polygon(mid, r["polygon"])), None)
         z = room_floor_z(room, level) if room is not None else float(level["elevation"])
-        metal, panes, _runs = D.void_guards(g["polygon"], walls, g["arrivals"], z, kind)
+        metal, panes, _runs = D.void_guards(g["polygon"], walls, g["arrivals"], z, kind, keep_out=g["keep_out"])
         verts, faces = geom2d.merge(metal + panes)
         if not faces:
             continue
@@ -3182,6 +3204,19 @@ def shell_stand_in(slug: str) -> str | None:
     return spec["asset"] if slug in (spec.get("asset_for") or spec.get("slugs") or (slug,)) else None
 
 
+# 30 Oct 2026 (UL192): the walls' look kinds a stair's structure may take as they are (a smooth plaster or a paint)
+STAIR_STRUCTURE_KINDS: tuple[str, ...] = ("plaster", "painted")
+
+
+def stair_feature_finish(slug: str) -> bool:
+    """True when the walls' look ``slug`` is a feature finish (wood slats or panels, stone, brick, wallpaper, tiles: a
+    vocabulary kind outside ``STAIR_STRUCTURE_KINDS``); an unknown slug or a plain paint is not (pure)."""
+    from wenart.style.profile import _entry
+
+    entry = _entry(slug)
+    return bool(entry) and entry.get("kind") not in (None,) + STAIR_STRUCTURE_KINDS
+
+
 def stair_structure_slot(walls_style: dict) -> dict:
     """The material slot of a stair's structure (pure; fix round after P4b, ``STAIR_STRUCTURE_REASON``): the walls'
     material and colour (and procedural params) without their texture set and tint.
@@ -3195,6 +3230,15 @@ def stair_structure_slot(walls_style: dict) -> dict:
     walls = dict(walls_style or {"material": "plaster_white"})
     out = {k: v for k, v in walls.items() if k not in ("asset", "tint")}
     slug = str(out.get("material") or "plaster_white")
+    if stair_feature_finish(slug):
+        # 30 Oct 2026 (lesson UL192, user on real04 run 20261030-112241-full: "Something wrong with the stairs": the
+        # walls' wood_slat finish, procedural with no texture set, was copied onto the risers, the soffit and the
+        # spandrels): a feature finish is never the stair's structure; the smooth paint of a plain white plaster wall,
+        # in the walls' colour phrase when they give one
+        plain = {"material": "plaster_white"}
+        if M.colour_linear(out.get("colour")) is not None:
+            plain["colour"] = out["colour"]
+        return stair_structure_slot(plain)
     if shell_stand_in(slug) is None:
         return out
     out["material"] = STAIR_STRUCTURE_PAINT
@@ -3253,6 +3297,7 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
     ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
     _t, metal_slug, _why = stair_finishes(style, None)
     steel = library.get(metal_slug)              # 29 Oct 2026 (H8): black in the modern families
+    foreign = level_guard_segments(building, level, floor_voids)     # 30 Oct 2026 (UL192): the stair's envelope
     for item in plans:
         piece, plan = item["piece"], item["plan"]
         for w in item.get("warnings") or []:
@@ -3311,7 +3356,7 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
             "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)], "fallback_reason": None,
             "materials": [m.name for m in (tread, structure, steel, glass, timber)], "material": tread.name,
             "textured": any(library.textured(m) for m in (tread, structure)),
-            "stair": stair_record(plan, parts),
+            "stair": stair_record(plan, parts, foreign),
         }
         shaft_name = f"{piece['id']}_void"
         for a in plan["assumed"]:
@@ -3379,8 +3424,20 @@ def stair_not_built(item: dict, level: dict) -> tuple[dict, list[dict]]:
     return record, [entry]
 
 
-def stair_record(plan: dict, parts: list[dict]) -> dict:
-    """The scene manifest's ``stair`` record of a built stair (pure)."""
+def level_guard_segments(building: dict, level: dict, floor_voids: list | None) -> list[dict]:
+    """The guards of the openings of ``level``'s floor (``floor_void_guards``) as ``stair_rails.envelope_review``'s
+    foreign parts (pure; 30 Oct 2026, lesson UL192): ``{"id": void_guard_<level>_<i>, "segments"}`` relative to the
+    floor, ``details.GUARD`` high."""
+    from wenart.blender import stair_rails as SR
+    return [{"id": f"void_guard_{level['id']}_{g['void']}",
+             "segments": SR.guard_run_segments(g["runs"], D.GUARD["height"])}
+            for g in floor_void_guards(building, level, floor_voids or [])]
+
+
+def stair_record(plan: dict, parts: list[dict], foreign: list[dict] | None = None) -> dict:
+    """The scene manifest's ``stair`` record of a built stair (pure); 30 Oct 2026 (lesson UL192): ``envelope``, the
+    findings of ``stair_rails.envelope_review`` (its parts against its envelope, ``foreign`` parts in its walking
+    zone), read by the model review's M18."""
     from wenart.blender import stair_rails as SR
     return {
         "risers": plan["risers"], "riser_m": round(plan["riser_m"], 4), "riser_source": plan["riser_source"],
@@ -3403,6 +3460,7 @@ def stair_record(plan: dict, parts: list[dict]) -> dict:
         # 28 Oct 2026: the structure and the guards as built (stair_guard_plan): the model review's M18 reads them
         "structure": SR.structure_of(plan),
         "guards": SR.summary(plan["guards"]) if plan.get("guards") else None,
+        "envelope": SR.envelope_review(plan, parts, foreign or ()),
     }
 
 

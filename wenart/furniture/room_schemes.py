@@ -38,7 +38,8 @@ model review M28 and Argus U32 call ``review``):
   wainscot, a rustic home's fluted panel is a board wall; the floating and drum nightstands, the floating desk and
   the track lights only in the families that use them).
 - ``record``: ``building["room_schemes"]`` (the full records) and ``room["scheme"]`` (what the build reads: the
-  walls' finish and colour, the feature wall kind, the lighting; ``wenart.blender.looks``, ``feature_walls``).
+  walls' finish and colour, the feature wall kind, the lighting; ``wenart.blender.looks``, ``feature_walls``; 30 Oct
+  2026, UL182: a bedroom's see-through wardrobe front, ``wardrobe_front``, read by ``wardrobe_fronts.bedroom_front``).
 - ``review``: two rooms of one kind on a level with the same scheme; a hall with no console or niche; a bedroom whose
   bed wall is bare (no panel, no headboard panel, no art or mirror over the bed): findings of U32 / M28.
 
@@ -124,15 +125,19 @@ NEUTRAL_COLOURS: tuple[str, ...] = ("warm greige", "pale taupe", "greige")     #
 # upholstered), extras (round_mirror, leaning_art, floor_vase, niche). Order: a bundle-major pool.
 POOLS: dict[str, dict[str, dict]] = {
     "bedroom": {
+        # 30 Oct 2026 (UL182): each bundle's see-through wardrobe front (wardrobe_fronts.bedroom_front, in the families
+        # that use one): slats with glass doors by a fluted wall, smoked glass with deep walls, reeded glass with
+        # limewash, slats with a slat wall
         "panel": {"walls": "accent", "feature": "fluted", "nightstand": "standing", "tv": "unit",
-                  "desk": "freestanding", "lighting": "downlights", "statement": "globe", "extras": ("round_mirror",)},
+                  "desk": "freestanding", "lighting": "downlights", "statement": "globe", "extras": ("round_mirror",),
+                  "wardrobe": "slats_glass"},
         "deep": {"walls": "deep_colour", "feature": "art_pair", "nightstand": "drum", "tv": "wall", "desk": "floating",
-                 "lighting": "track", "statement": "linear", "extras": ("leaning_art",)},
+                 "lighting": "track", "statement": "linear", "extras": ("leaning_art",), "wardrobe": "smoked_glass"},
         "limewash": {"walls": "limewash", "feature": "headboard_panel", "nightstand": "floating", "tv": "wall",
                      "desk": "freestanding", "lighting": "downlights", "statement": "cluster",
-                     "extras": ("round_mirror",)},
+                     "extras": ("round_mirror",), "wardrobe": "reeded_glass"},
         "slats": {"walls": "accent", "feature": "slats", "nightstand": "standing", "tv": "unit", "desk": "floating",
-                  "lighting": "track", "statement": "linear", "extras": ("leaning_art",)},
+                  "lighting": "track", "statement": "linear", "extras": ("leaning_art",), "wardrobe": "slats"},
     },
     "living": {
         "panel": {"walls": "accent", "feature": "fluted", "tv": "unit", "dining_wall": "art", "lighting": "downlights",
@@ -194,6 +199,10 @@ WHY: dict[str, str] = {
     "statement_globe": "a branching glass-globe statement fixture (R4)",
     "statement_linear": "a linear (blade or multi-arm) statement fixture (R15, R30, K9)",
     "statement_cluster": "a cluster of pendants as the statement fixture (R3)",
+    "wardrobe_slats": "the wardrobe run behind black slat sliding doors",
+    "wardrobe_slats_glass": "the wardrobe run behind black-framed sliding doors, slatted and glass ones in turn",
+    "wardrobe_smoked_glass": "the wardrobe run behind smoked glass sliding doors",
+    "wardrobe_reeded_glass": "the wardrobe run behind reeded glass sliding doors",
 }
 
 
@@ -394,6 +403,9 @@ def resolve(kind: str, bundle: str, colour: str, family: str, no_panel: bool = F
             lc = "upholstered"
         out["lounge_chair"] = lc
         why["lounge_chair"] = f"a {lc} lounge chair (G5)"
+    if spec.get("wardrobe"):
+        out["wardrobe_front"] = spec["wardrobe"]
+        why["wardrobe_front"] = WHY["wardrobe_" + spec["wardrobe"]] + " where the family has a see-through front (UL182)"
     out["extras"] = list(spec.get("extras") or ())
     out["why"] = why
     return out
@@ -501,7 +513,7 @@ def plan(building: dict, style: Optional[dict], no_panel=(), partners: Optional[
 
 COMPACT_KEYS: tuple[str, ...] = ("kind", "bundle", "key", "walls", "wall_colour", "feature", "feature_kind", "tv",
                                  "desk", "nightstand", "lighting", "statement", "dining_wall", "hall", "rug",
-                                 "copied_from")
+                                 "copied_from", "wardrobe_front")
 
 
 def compact(rec: dict) -> dict:

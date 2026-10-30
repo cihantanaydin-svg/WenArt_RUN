@@ -246,7 +246,9 @@ MATERIAL_KEYS: tuple[str, ...] = ("wood", "fabric", "bedding", "ceramic", "steel
                                   # 29 Oct 2026: a laptop's or a monitor's screen (``materials.screen_material``)
                                   "screen",
                                   # 29 Oct 2026 (UL120): a see-through wardrobe's smoked glass (library.smoked_glass)
-                                  "smoked_glass")
+                                  "smoked_glass",
+                                  # 30 Oct 2026 (UL182): its reeded glass (library.reeded_glass)
+                                  "reeded_glass")
 # Milestone 10 doors and windows (``door_parts`` / ``window_parts``; shell.py maps them to the looks).
 OPENING_KEYS: tuple[str, ...] = ("frame", "leaf", "glass", "handle", "rail", "sill")
 # Parts whose key starts with this take the item's colour (Milestone 9 AI decor: ``decor.colour``) as a tint of

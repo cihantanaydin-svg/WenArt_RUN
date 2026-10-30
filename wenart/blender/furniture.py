@@ -680,6 +680,7 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "terracotta": ("terracotta", None, None), "glass": ("glass", None, None),
         # 29 Oct 2026 (UL120): a see-through wardrobe's smoked glass (``_Materials.get`` -> library.smoked_glass)
         "smoked_glass": ("glass", None, None),
+        "reeded_glass": ("glass", None, None),                # 30 Oct 2026 (UL182): -> library.reeded_glass
         "mirror": ("mirror", None, None),                     # Milestone 9: the parametric mirror's glass
         # Milestone 10: cabinet fronts (the trim's paint unless a design says otherwise), handles, a marble table
         # top, plant pots, lamp bulbs (frosted when off), rattan.
@@ -1337,6 +1338,8 @@ class _Materials:
             accent, colour = None, None
         if key == "smoked_glass":                 # 29 Oct 2026 (UL120): a see-through wardrobe's smoked glass
             return self.library.smoked_glass()
+        if key == "reeded_glass":                 # 30 Oct 2026 (UL182): a see-through wardrobe's reeded glass
+            return self.library.reeded_glass()
         if key == "bulb" and lit:
             from wenart.blender import materials as M
             return M.light_material("lamp_light")
