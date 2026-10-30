@@ -2013,7 +2013,8 @@ def procedural_group_name(procedural: str, params: dict) -> str:
     return procedural
 
 
-WEAVE_LOOKS = ("linen", "cotton", "velvet", "knit", "boucle", "wool")      # = bedding_parts.LOOKS
+WEAVE_LOOKS = ("linen", "cotton", "velvet", "knit", "boucle", "wool",     # = bedding_parts.LOOKS
+               "terry")                                                    # 30 Oct 2026 (UL138): the towels
 WEAVE_PATTERNS = ("plain", "houndstooth", "stripe", "herringbone")
 
 
@@ -2334,8 +2335,20 @@ def weave_share(g: "_Graph", x, y, repeat, pattern: str):
 def _weave_height(g: "_Graph", x, y, thread, look: str):
     """The weave's relief (0..1) on the cloth (``look``): cotton and linen threads (two crossing sines; linen with
     stretched slubs of noise), velvet's crushed pile (a soft noise), knit's stockinette (rows of V chevrons), boucle's
-    loops (Voronoi cells), wool's twill (diagonal ribs and a little noise)."""
+    loops (Voronoi cells), wool's twill (diagonal ribs and a little noise); 30 Oct 2026 (UL138): terry's loop pile
+    (small round loops, Voronoi cells at the thread pitch, tufted by a finer noise)."""
     two_pi = 2.0 * math.pi
+    if look == "terry":
+        cells = g.nodes.new("ShaderNodeTexVoronoi")
+        cells.voronoi_dimensions = "2D"
+        g.links.new(g.combine(x, y), cells.inputs["Vector"])
+        g.feed(cells.inputs["Scale"], g.math("DIVIDE", 1.0, thread))
+        loops = g.math("SUBTRACT", 1.0, g.math("MINIMUM", g.math("MULTIPLY", cells.outputs["Distance"], 1.6), 1.0))
+        tuft = g.nodes.new("ShaderNodeTexNoise")
+        g.links.new(g.combine(x, y), tuft.inputs["Vector"])
+        g.feed(tuft.inputs["Scale"], g.math("DIVIDE", 2.5, thread))
+        tuft.inputs["Detail"].default_value = 2.0
+        return g.math("MULTIPLY_ADD", tuft.outputs["Fac"], 0.35, g.math("MULTIPLY", loops, 0.65))
     if look == "velvet":
         noise = g.nodes.new("ShaderNodeTexNoise")
         g.links.new(g.combine(x, y), noise.inputs["Vector"])

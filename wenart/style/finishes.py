@@ -268,6 +268,10 @@ FURNITURE_MATERIALS: dict[str, dict] = {
                            flat_source="colour:ivory"),
     "fabric_wool": _proc("wenart_weave", "fabric", _lin("greige"), 0.9, params={"weave": "wool", "pattern": "plain"},
                          flat_source="colour:greige"),
+    # 30 Oct 2026 (lesson UL138: "these orange things are towels, they need more detail"): the towels' terry cloth, its
+    # loop pile as a deep bump (wenart_weave look "terry", bedding_parts.LOOK_LAYERS), rough; the room's towel colour
+    "fabric_terry": _proc("wenart_weave", "fabric", _lin("white"), 0.97, params={"weave": "terry", "pattern": "plain"},
+                          flat_source="colour:white"),
     "fabric_houndstooth": _proc("wenart_weave", "fabric", _lin("off white"), 0.9,
                                 params={"weave": "wool", "pattern": "houndstooth", "repeat_m": 0.028},
                                 flat_source="colour:off white"),

@@ -228,7 +228,6 @@ def test_the_close_agent_view_lists_the_wc_only_by_its_plate_on_the_wall():
     BT.seat_on_walls(run)
     shares = CS.model_shares(run, AGENT)
     assert shares["f_L-1_051"] > 0.005 and "f_L-1_051" in CS.frame_lists(run, AGENT)["visible_furniture"]
-    model = CS.RoomModel(REAL04_ROOM, run)
     forward, right, up = CS.look_axes(AGENT["position"], AGENT["target"])
     bounds = CS.frame_bounds(16.0)
     pan, plate = CS.made_boxes(run["furniture"][0])

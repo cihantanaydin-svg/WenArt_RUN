@@ -250,6 +250,18 @@ MIRROR_ASPECT = 1.25                           # the parametric mirror's height 
 # Milestone 10: wall decor of a parametric shape when no library model is fitted (the mirror since Milestone 9).
 PARAMETRIC_WALL_DECOR = ("mirror", "clock")
 TOWEL_DECOR_KEY = "colour_towel"   # 29 Oct 2026 (UL124 B26): a decor towel takes the item's towel_colour
+TOWEL_DECOR_KEYS = (TOWEL_DECOR_KEY, TOWEL_DECOR_KEY + "_alt", TOWEL_DECOR_KEY + "_band")   # 30 Oct 2026 (UL138)
+
+
+def towel_part_colour(item: dict, key: str):
+    """The colour phrase of a decor towel part (pure; 30 Oct 2026, UL138): the item's towel colour, its second shade
+    for ``colour_towel_alt`` (``towel_parts.towel_shade``), None for any other key."""
+    from wenart.blender import towel_parts as TP
+
+    if key not in TOWEL_DECOR_KEYS:
+        return None
+    colour = item.get("towel_colour")
+    return TP.towel_shade(colour) if key.endswith(TP.ALT_KEY_SUFFIX) else colour
 CLOCK_DEPTH_M = 0.045
 # Lamps that light up in a ``lamps_on`` mood (or with ``light_on``): kind -> (watts, temperature K, radius m,
 # where: "below_shade" / "bulb"); designer values (assumed), recorded per light.
@@ -641,7 +653,10 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "led": (LED_SLUG, None, None),
         "stone_light": ("marble", _vocab_asset("marble"), None),
         "terrazzo": ("terrazzo", _vocab_asset("terrazzo"), None),
-        "towel": ("fabric_white", asset_of("fabric_white"), None),
+        # 30 Oct 2026 (UL138): the towels' terry cloth, a stack's second shade and a hanging towel's woven band
+        # (towel_parts: ``<key>_alt``, ``<key>_band``)
+        "towel": ("fabric_terry", None, None), "towel_alt": ("fabric_terry", None, None),
+        "towel_band": ("fabric_cotton", None, None),
         # 29 Oct 2026 (UL113, UL115): dried pampas plumes (a cream linen); the reference details' LED strips take
         # the "led" key above (detail_parts.led_strip_material is materials.led_material)
         "pampas": ("fabric_linen", asset_of("fabric_linen"), None),
@@ -715,8 +730,13 @@ def design_overrides(design: dict, ftype: str) -> tuple[dict, list[str]]:
             out[key] = {"slug": "fabric_linen", "asset": asset("fabric_linen"), "colour": fabric}
         notes.append(f"fabric {fabric}")
     if design.get("towel_colour"):            # 29 Oct 2026 (UL124 B26): the room's towels in its accent colour
-        out["towel"] = {"slug": "fabric_white", "asset": asset("fabric_white"), "colour": design["towel_colour"]}
-        notes.append(f"towels {design['towel_colour']}")
+        from wenart.blender import towel_parts as TP
+
+        colour = design["towel_colour"]          # 30 Oct 2026 (UL138): terry, its second shade, the woven band
+        out["towel"] = {"slug": TP.TERRY_SLUG, "asset": None, "colour": colour}
+        out["towel_alt"] = {"slug": TP.TERRY_SLUG, "asset": None, "colour": TP.towel_shade(colour)}
+        out["towel_band"] = {"slug": TP.BAND_SLUG, "asset": None, "colour": colour}
+        notes.append(f"towels {colour}")
     return out, notes
 
 
@@ -2714,7 +2734,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         accent = P.DECOR_COLOURS.get(str(item.get("colour") or ""))       # Milestone 9: the AI decor's colour
         overrides = {"pot": pot_override(item)} if dtype == "plant_large" else None
         slots = [_part_material(mats, k, False, accent=accent,
-                                colour=item.get("towel_colour") if k == TOWEL_DECOR_KEY else item.get("colour"),
+                                colour=towel_part_colour(item, k) if k in TOWEL_DECOR_KEYS else item.get("colour"),
                                 overrides=overrides,
                                 lit=lit) for k in used_keys]
         ob = _mesh_object(name, verts, faces, slots, [used_keys.index(k) for k in keys], collection, owner_id,

@@ -2463,3 +2463,25 @@ Open for the next round (GPU tests and Argus): two wardrobes with 0.17 m in fron
 missing from the index pass; cam_r_L1_banyo_1 7 cm from a surface; a decor item 0.5 m above its host; a decor item of
 the open-kitchen variant not built; two rig-lit corridors orange; the design-detail record list of the GPU test; the
 judge's bare worktops and a missing fridge in the basement kitchen.
+
+## Bathroom fixtures in the index pass, towels as real towels (30 Oct 2026; CPU- and Blender-tested, pod run waiting)
+
+The GPU test `test_index_pass_contains_every_visible_proxy` failed on six bathroom views of real04 run 201533 (the
+run before failed on one). Causes and the general rules that fix them:
+
+| views | cause | rule |
+|---|---|---|
+| L-1 / L0 banyo_2, L0 e_banyo_2 (WCs) | the drawn WC blocks reach 1.1-1.4 cm into the wall line (real06: 2 cm); the wall-hung WC put its flush plate on that edge, inside the wall; the pan hangs under these close frames | `bath_parts.seat_on_walls` (layout and build): a made-to-measure bath piece (WC, vanity, column, walk-in shower) is built with its back on the face of the wall behind it (at most 6 cm either way; the drawn footprint stays) |
+| same | the ray model kept the floor-standing WC's profile (a 0.94 m back slab, air in the render) | `camsearch.made_boxes`: a made-to-measure piece is modelled as its built parts in height bands (the pan, the plate; the floating vanity floats) |
+| L1 banyo_1 | an agent pose 0.21 m over the sloped roof ceiling, rendered black | the ray model: a lens over its ceiling sees the ceiling's back and lists nothing; V1 refuses such a pose (critical), so `set_camera` does |
+| L-1 / L0 banyo_1 (tubs) | the frame edge holds a corner of the tub's fitted box that the freestanding tub's rounded end leaves empty | the build records each furniture mesh's convex plan outline (`box3d.outline`); the GPU test allows a library piece the model does not see as that outline |
+
+Blender check (a local build from the run's inputs, index pass at 480 x 270): the three WC views now hold the WC
+(1718, 1718 and 1855 pixels: the flush plate on the wall), none did before. Tests: `tests/test_index_pass_bath_20261030.py`.
+
+Towels (lesson UL138, user: "I am guessing these orange things are towels, they need more detail, a lot more
+detail"): every towel of the bathroom parts is cloth of a real thickness (`wenart/blender/towel_parts.py`): a rolled
+towel shows its spiral end and rounded turns, a folded stack its soft front folds and uneven layers in two shades, a
+towel over a bar both layers, a soft curve, folds, a sagging rounded hem and a woven band; terry cloth (`fabric_terry`:
+a loop-pile bump, roughness 0.97) in the room's towel colour. A roll is under 700 faces, a hanging towel under 1800.
+Tests: `tests/test_towels_20261030.py`.
