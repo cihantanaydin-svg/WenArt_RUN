@@ -21,6 +21,24 @@ P = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(P)
 
 
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _no_disk_reserve(monkeypatch):
+    monkeypatch.setattr(G, "COLLECT_DISK_RESERVE", 0)
+
+
+def test_a_3d_file_stays_on_the_volume_when_the_disk_is_short(status_server, tmp_path, monkeypatch):
+    job = _job(status_server["root"])
+    _serve_pack(status_server, job)
+    monkeypatch.setattr(G, "COLLECT_DISK_RESERVE", 10 ** 18)                 # never that much free
+    run_dir = T.new_dir(tmp_path / "run")
+    col = G.collect_all(T.PROXY_URL, run_dir, workers=2)
+    assert col["ok"] and col["big_files"] == 0
+    assert (run_dir / "collect_left_on_volume.txt").read_text().strip().endswith(".glb")
+
+
 def _job(root: Path) -> Path:
     job = T.make_job_dir(root)
     T.write_file(job / "results" / "final" / "synthetic-04" / "3d" / "synthetic-04.glb", "glb" * 10)
@@ -128,3 +146,15 @@ def test_a_full_copy_skips_a_current_copy(tmp_path):
     time.sleep(0.01)
     src.write_text('{"a": 2}')                                  # same size, rewritten: copied again
     assert not CP.unchanged_copy(src, dst)
+
+
+def test_the_deliverable_images_come_before_the_debug_images():
+    """real04 run 20261030-181158-full: the agent's debug images filled the 400 MB cap before any final render."""
+    order = sorted(["agent/real04/images/r1_cam_x_before.jpg", "final/real04/cam_a_final_preview.jpg",
+                    "final/real04/agent/r1_x.png", "renders/real04/top_L0_plan.jpg", "run_manifest.json",
+                    "final/real04/variants/v1/cam_b_final_preview.jpg", "final/real04/3d/real04.glb"],
+                   key=G.collect_order)
+    assert order[0] == "run_manifest.json" and order[-1].endswith(".glb")
+    assert set(order[1:4]) == {"final/real04/cam_a_final_preview.jpg", "renders/real04/top_L0_plan.jpg",
+                               "final/real04/variants/v1/cam_b_final_preview.jpg"}
+    assert G.collect_order("final/real04/cam_a_final_preview.jpg") < G.collect_order("final/real04/agent/r1_x.png")

@@ -532,6 +532,9 @@ COLLECT_BIG_SUFFIXES = (".blend", ".glb")
 COLLECT_BIG_MAX_FILE = 2_000_000_000
 COLLECT_BIG_MAX_TOTAL = 8_000_000_000
 COLLECT_BIG_TIMEOUT = 900
+# 30 Oct 2026 (the cloud session's disk had 3 GB left after real04's 2.6 GB of 3D files): a 3D file comes down only
+# while this much disk stays free; else it stays on the volume (collect_left_on_volume.txt names it)
+COLLECT_DISK_RESERVE = 4_000_000_000
 RUNNER_STOP_RESULT = "stopped by runner after collect (watchdog and job-end stop armed)"
 
 
@@ -545,11 +548,23 @@ def is_big_result(rel_name: str) -> bool:
 COLLECT_IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png", ".exr", ".webp", ".tif", ".tiff")
 
 
+def is_deliverable_image(rel_name: str) -> bool:
+    """30 Oct 2026 (real04 run 20261030-181158-full: the agent's debug images sorted before ``final/`` and filled the
+    400 MB cap, so no final render came down): a final view (``final/<p>/<file>``), an alternative's final view
+    (``final/<p>/variants/<id>/<file>``) or a top-down plan (``renders/<p>/top_*``)."""
+    parts = rel_name.split("/")
+    return (len(parts) == 3 and parts[0] == "final") or \
+        (len(parts) == 5 and parts[0] == "final" and parts[2] == "variants") or \
+        (len(parts) == 3 and parts[0] == "renders" and parts[2].startswith("top_"))
+
+
 def collect_order(rel_name: str) -> tuple[int, int]:
     """The download order of a result file (28 Oct 2026; real04 run 005318: the 400 MB cap cut the scene and render
     manifests, the stage records and the agent log, while previews filled it): text records first (JSON, Markdown,
-    logs), then images, then the 3D files; so the cap only ever cuts images."""
-    return (int(is_big_result(rel_name)), int(rel_name.lower().endswith(COLLECT_IMAGE_SUFFIXES)))
+    logs), then the deliverable images (``is_deliverable_image``), then the other images, then the 3D files; so the
+    cap only ever cuts the debug images."""
+    image = rel_name.lower().endswith(COLLECT_IMAGE_SUFFIXES)
+    return (int(is_big_result(rel_name)), 0 if not image else 1 if is_deliverable_image(rel_name) else 2)
 
 
 # 30 Oct 2026 (pod-time item 5, user OK): the pod packs results/ into a few tar parts at the job's end
@@ -780,12 +795,16 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS, 
 
     lock = threading.Lock()
     state = {"n": 0, "total": 0, "capped": False, "failed": [], "too_big": [], "big": 0, "big_bytes": 0, "kept": 0,
-             "keep": skip_existing}
+             "keep": skip_existing, "left": []}
 
     def get_big(tree: str, rel_name: str) -> None:
         with lock:
             if state["big_bytes"] > COLLECT_BIG_MAX_TOTAL:
                 state["capped"] = True
+                return
+            import shutil
+            if COLLECT_DISK_RESERVE and shutil.disk_usage(run_dir).free < COLLECT_DISK_RESERVE:
+                state["left"].append(f"{tree}/{rel_name}")      # stays on the volume (disk reserve)
                 return
         (run_dir / tree / rel_name).parent.mkdir(parents=True, exist_ok=True)     # a packed tree is not walked
         n, why = fetch_to(status_url + urllib.parse.quote(f"{tree}/{rel_name}"), run_dir / tree / rel_name,
@@ -861,6 +880,10 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS, 
     failed = sorted(state["failed"])
     if failed:
         print(f"warning: {len(failed)} result file(s) failed to download, e.g. {', '.join(failed[:3])}")
+    if state["left"]:
+        print(f"warning: {len(state['left'])} 3D file(s) left on the volume (less than "
+              f"{COLLECT_DISK_RESERVE / 1e9:.0f} GB of disk would stay free): {', '.join(state['left'])}")
+        (run_dir / "collect_left_on_volume.txt").write_text("\n".join(state["left"]) + "\n")
     too_big = sorted(state["too_big"])
     if too_big:
         print(f"warning: {len(too_big)} result file(s) of {COLLECT_MAX_FILE / 1e6:.0f} MB or more left out: "

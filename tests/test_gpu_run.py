@@ -18,6 +18,12 @@ gpu_run = importlib.util.module_from_spec(spec)
 sys.modules["gpu_run"] = gpu_run
 spec.loader.exec_module(gpu_run)
 
+@pytest.fixture(autouse=True)
+def _no_disk_reserve(monkeypatch):
+    """The 3D files' disk reserve (COLLECT_DISK_RESERVE) is tested on its own: the tests never depend on the disk."""
+    monkeypatch.setattr(gpu_run, "COLLECT_DISK_RESERVE", 0)
+
+
 CATALOG = [
     {"name": "RTX A5000", "id": "NVIDIA RTX A5000", "memory": 24, "price": {"secure": 0.27}, "availability": "NONE"},
     {"name": "L4", "id": "NVIDIA L4", "memory": 24, "price": {"secure": 0.49}, "availability": "LOW"},
