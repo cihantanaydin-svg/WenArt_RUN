@@ -937,19 +937,34 @@ def furniture_rules(plan: AA.Plan, sides: list[dict]) -> list[dict]:
         here = [g for g, _r, _t in by_room.get(f.get("room_id"), [])]
         if t in FU.BASINS:
             _basin_wall(plan, h2, f, room, here, openings, where)
-        if t in FU.ACCESS_M and not FU.in_run(f, here):
+        if t in FU.DOOR_FRONTED and not FU.in_run(f, here) and not (t in FU.STORAGE_OPEN_M
+                                                                     and f.get("mount_bottom_m")):
             # 29 Oct 2026 (user on real06: "This washing machine would not open"; fixture_use rule 1): a door-fronted
             # piece keeps its width x its access depth free; the safe default turns a blocked front to its free side
-            # (rule 2: a front read the wrong way round), else the point stays for the AI architect and the user
-            prob = FU.piece_access(f, room["polygon"], here)
+            # (rule 2: a front read the wrong way round), else the point stays for the AI architect and the user.
+            # 30 Oct 2026 (real04 run 20261029-201533-full: the drawn wardrobes f_L0_009 / f_L0_011 had 0.17 m free,
+            # the drawn desks before their doors; the model review's M19 found it critical while this rule measured
+            # the wardrobes with its old 80 % strip, 88 % free): door-fronted storage is measured like M19 and U16
+            # (``piece_access`` with storage, one measure for one fault), and a front that cannot open gets
+            # ``clear_front`` (rule 5: the safest move of the piece or of what stands in front of it that passes
+            # every code check) as its default, or after ``free_front`` as the next safe fix
+            prob = FU.piece_access(f, room["polygon"], here, storage=True)
             if prob is None:
                 _ok(f4, f["id"], "its door or drawers open: free in front")
             else:
-                fix = FU.free_front(f, room["polygon"], here, blocked=AA._door_blocked(plan, f.get("level_id")))
+                blocked = AA._door_blocked(plan, f.get("level_id"))
+                fix = FU.free_front(f, room["polygon"], here, blocked=blocked) if t in FU.ACCESS_M else None
+                clear = (FU.clear_front(f, room["polygon"], here, blocked=blocked, openings=openings,
+                                        walls=plan.walls) if prob["severity"] == "critical" else None)
                 opts = ([AA.option("free_front", f"turn or move {f['id']} so its door opens: {fix['reason']}",
-                                   piece_id=f["id"])] if fix else []) + [AA.option("keep")]
+                                   piece_id=f["id"])] if fix else [])
+                if clear:
+                    opts.append(AA.option("clear_front", f"clear the front of {f['id']}: {clear['reason']}",
+                                          piece_id=f["id"]))
+                opts.append(AA.option("keep"))
+                chain = [o["choice"] for o in opts if o["id"] != "keep"]
                 _open(f4, f["id"], FU.describe(f, prob), f"Can {f['id']} be opened and used where it stands?", opts,
-                      where=where, **({"default": opts[0]["choice"]} if fix else {}))
+                      where=where, **({"default": chain[0], "fallback": chain[1:]} if chain else {}))
         elif t in ACCESS_TYPES and f.get("front_deg") is not None:
             a = math.radians(float(f["front_deg"]))
             n = (math.cos(a), math.sin(a))

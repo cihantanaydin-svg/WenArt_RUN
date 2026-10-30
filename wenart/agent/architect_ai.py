@@ -60,7 +60,7 @@ LOOK_ACTIONS = {
               # 27 Oct 2026: a stair whose assumed reading is cut off from its floor is read the other way
               "flip_stair",
               # 29 Oct 2026: a blocked door front turned to its free side (F4); a basin to a solid wall (H2)
-              "free_front", "clear_basin"),
+              "free_front", "clear_front", "clear_basin"),
     # 27 Oct 2026: an outdoor space (site.outdoor_spaces): a guard on an open edge, a roof over a covered kind
     "space": ("guard_edge", "cover_space"),
 }

@@ -1143,6 +1143,15 @@ WORKTOP_ITEM_GAP_M = 0.10         # between two items
 WORKTOP_END_M = 0.05              # off the run's open ends
 WORKTOP_BACK_M = 0.04             # an item's back this far off the wall (the splashback)
 WORKTOP_WINDOW_CLEAR_M = 0.02     # an item lower than a window's sill over the worktop by this may stand in front of it
+# 30 Oct 2026 (real04 r_L-1_mutfak, run 20261029-201533-full: a 4.16 m ribbon window from the worktop line, sill 0.90 m
+# over a 0.90 m worktop, behind the whole sink run: no item, not even a 2 cm board, could stand there, the styling sets
+# all went to the other two runs and the judge saw "completely bare worktops" in the views of the sink run): an item
+# this low may stand in front of any window behind the worktop (a board, a fruit bowl, a stack of plates: under the
+# view out, which is at 1.2-1.6 m; what a kitchen window ledge carries); taller items keep under the sill (UL71)
+WORKTOP_WINDOW_LOW_M = 0.15
+# 30 Oct 2026 (the same kitchen): no counter run is left bare in its view: a run the sets left with nothing on it gets
+# one low set (``BARE_RUN_SETS``: a kind the kitchen has not got first)
+BARE_RUN_SETS: tuple[str, ...] = ("fruit_bowl", "plate_stack", "chopping_board", "storage_jars", "dried_grass_vase")
 WORKTOP_PER_M = 0.5               # modest: at most one item per this much free worktop ...
 KITCHEN_DECOR_MAX = 5             # ... and this many per kitchen
 WORKTOP_TOP_RANGE_M = (0.80, 1.20)
@@ -1256,7 +1265,8 @@ def worktop_item_ok(item: dict, counter: dict, pieces: list[dict], windows: list
             return {"hob": "on the hob or in its side gap", "sink": "on the sink or at its edge",
                     "tall": "against a tall piece of the run"}[kind]
     for w0, w1, sill in windows:
-        if x0 < w1 + 0.05 and x1 > w0 - 0.05 and ih > sill - WORKTOP_WINDOW_CLEAR_M:
+        # 30 Oct 2026: a low item (WORKTOP_WINDOW_LOW_M) may stand before any window; a taller one keeps under its sill
+        if x0 < w1 + 0.05 and x1 > w0 - 0.05 and ih > max(sill - WORKTOP_WINDOW_CLEAR_M, WORKTOP_WINDOW_LOW_M) + 1e-9:
             return "in front of a window it would reach (its sill over the worktop)"
     # 29 Oct 2026 (K1, G3, K6): never taller than the room under a wall cabinet over it, never in the run's tall unit
     # or under its utensil rail
@@ -1274,6 +1284,15 @@ def worktop_item_ok(item: dict, counter: dict, pieces: list[dict], windows: list
         if abs(ox - lx) < (float(o["size"][0]) + iw) / 2.0 + WORKTOP_ITEM_GAP_M - 1e-6:
             return f"on or against {o.get('type')} {o.get('id')}"
     return None
+
+
+def before_window(item: dict, counter: dict, windows: list) -> bool:
+    """Whether a worktop item stands before one of the counter's windows (``worktop_windows``), whatever its height."""
+    c, rot, _w, _d = _front_box(counter)
+    r = math.radians(rot)
+    lx = math.cos(r) * (float(item["center"][0]) - c[0]) + math.sin(r) * (float(item["center"][1]) - c[1])
+    half = float(item["size"][0]) / 2.0
+    return any(lx - half < w1 + 0.05 and lx + half > w0 - 0.05 for w0, w1, _s in windows)
 
 
 def wall_cabinet_clear(item: dict, counter: dict, pieces: list[dict]) -> Optional[float]:
@@ -1343,6 +1362,9 @@ def _worktop_candidates(ctx: dict, dtype: str, placed: list[dict], size=None) ->
     dried grass on an island, else in the middle of a free stretch (28 Oct 2026; 29 Oct 2026: the styling sets)."""
     iw, idp, ih = size or KITCHEN_DECOR_SIZES[dtype]
     pieces = ctx["pieces"]
+    on_run: dict = {}
+    for o in placed:
+        on_run[str(o.get("host_id"))] = on_run.get(str(o.get("host_id")), 0) + 1
     out = []
     for p, a, b in ctx["stretches"]:
         c, rot, w, d = _front_box(p)
@@ -1381,7 +1403,9 @@ def _worktop_candidates(ctx: dict, dtype: str, placed: list[dict], size=None) ->
             elif dtype in ("utensil_pot", "chopping_board", "cutting_boards", "oil_bottles"):
                 score = (min([abs(x - h) for h in hob] or [5.0 + abs(x)]), 0)
             else:
-                score = (0 if island else 1, -min(x - iw / 2.0 - a, b - x - iw / 2.0))
+                # 30 Oct 2026 (real04 r_L-1_mutfak: eleven items on two runs, the sink run bare): a set for a free
+                # stretch goes to the run with the fewest items so far (an island first, as before)
+                score = (0 if island else 1, on_run.get(str(p["id"]), 0), -min(x - iw / 2.0 - a, b - x - iw / 2.0))
             out.append((score, str(p["id"]), x, item))
     out.sort(key=lambda t: (t[0], t[1], t[2]))
     return out
@@ -1453,9 +1477,14 @@ def kitchen_worktop_decor(building: dict, room: dict, pieces: list[dict], new_id
         if not got:
             continue
         _s, _pid, _x, item = got[0]
+        what = WORKTOP_REASONS[dtype]
+        host = next((p for p in ctx["counters"] if p["id"] == item["host_id"]), None)
+        if dtype == "kettle" and host is not None and not _anchors(host, pieces, "sink"):
+            # 30 Oct 2026 (real04: the sink under a ribbon window): say where it really stands
+            what = "a kettle on a free stretch (no place for it by the sink: a window or the sink's gaps there)"
         item.update({"id": new_id(room["level_id"]), "kind": "decor", "level_id": room["level_id"],
                      "room_id": room["id"], "asset": None, "source": "added_by_ai", "method": "rule",
-                     "reason": f"kitchen worktop dressing (28 Oct 2026): {WORKTOP_REASONS[dtype]}; on the worktop of "
+                     "reason": f"kitchen worktop dressing (28 Oct 2026): {what}; on the worktop of "
                                f"{item['host_id']}, off the hob, the sink and the windows (code checks)"})
         placed.append(item)
     return placed
@@ -1526,7 +1555,43 @@ def kitchen_styling_decor(building: dict, room: dict, pieces: list[dict], new_id
         placed.append(item)
         if dtype != "cookware":                        # the pot and pan stand on the hob: no worktop taken
             added += 1
+    if rule.get("styling"):
+        placed += bare_run_sets(ctx, room, on_top + placed, mine + placed, new_id, rule["family"])
     return placed
+
+
+def bare_run_sets(ctx: dict, room: dict, on_top: list[dict], mine: list[dict], new_id, family: str) -> list[dict]:
+    """30 Oct 2026 (real04 r_L-1_mutfak, run 20261029-201533-full: the judge saw "completely bare worktops" in the
+    views of the sink run under its ribbon window while the sets stood on the two other runs): every counter run or
+    island of the kitchen with nothing on it gets one low set where one passes ``worktop_item_ok`` (``BARE_RUN_SETS``,
+    a kind the kitchen has not got first: a fruit bowl, a stack of plates, a board; these may stand before a window,
+    ``WORKTOP_WINDOW_LOW_M``), beyond the budget (one per bare run), ``added_by_ai`` by rule with its reason."""
+    from wenart.blender import kitchen_details as KD
+
+    every = list(on_top)
+    have = {d.get("type") for d in mine}
+    out: list[dict] = []
+    for p in ctx["counters"]:
+        if any(d.get("host_id") == p["id"] for d in every):
+            continue
+        for dtype in sorted(BARE_RUN_SETS, key=lambda t: (t in have, BARE_RUN_SETS.index(t))):
+            got = [g for g in _worktop_candidates(ctx, dtype, every) if g[1] == str(p["id"])]
+            if not got:
+                continue
+            item = got[0][3]
+            what = KD.STYLING_REASONS.get(dtype) or WORKTOP_REASONS.get(dtype) or dtype.replace("_", " ")
+            low = " (a low set: it may stand before the window there)" if before_window(item, p, ctx["windows"].get(
+                p["id"]) or []) else ""
+            item.update({"id": new_id(room["level_id"]), "kind": "decor", "level_id": room["level_id"],
+                         "room_id": room["id"], "asset": None, "source": "added_by_ai", "method": "rule",
+                         "reason": f"kitchen styling (30 Oct 2026, the {family} family's kitchen, no bare run): {what}; "
+                                   f"on {p['id']}, which held nothing (a bare run reads unfinished in its view){low}, "
+                                   "off the sink, the hob, the wall cabinets and the other items (code checks)"})
+            out.append(item)
+            every.append(item)
+            have.add(dtype)
+            break
+    return out
 
 
 def _large_item(item_id: str, room: dict, item: dict) -> dict:
