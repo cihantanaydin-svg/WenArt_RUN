@@ -116,16 +116,22 @@ def _frame(t):
 def tube(points: Sequence[Sequence[float]], radii, key: str, role: str, sides: int = 6, smooth: bool = True,
          squash: float = 1.0) -> Part:
     """A closed tube along the 3D polyline ``points`` (a handle, a wire, a stem, a banana), ``radii`` one per point
-    (or one value), ``sides`` round it; ``squash`` flattens it along its second frame vector."""
+    (or one value), ``sides`` round it; ``squash`` flattens it along its second frame vector. 30 Oct 2026 (UL212): a
+    ring's frame that would turn half round against the ring before it (``_frame`` changes its reference axis where
+    the path turns from steep to flat: a kettle's or a cup's loop handle) is turned back, so the tube never pinches."""
     pts = [tuple(float(v) for v in p) for p in points]
     rs = list(radii) if isinstance(radii, (list, tuple)) else [float(radii)] * len(pts)
     verts = []
+    prev = None
     for k, p in enumerate(pts):
         a = pts[max(0, k - 1)]
         b = pts[min(len(pts) - 1, k + 1)]
         d = (b[0] - a[0], b[1] - a[1], b[2] - a[2])
         ln = math.sqrt(sum(c * c for c in d)) or 1e-9
         e1, e2 = _frame(tuple(c / ln for c in d))
+        if prev is not None and sum(x * y for x, y in zip(e1, prev)) < 0.0:
+            e1, e2 = tuple(-c for c in e1), tuple(-c for c in e2)
+        prev = e1
         r = max(float(rs[k]), 1e-4)
         for i in range(sides):
             ang = 2 * math.pi * i / sides

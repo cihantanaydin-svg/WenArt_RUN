@@ -153,7 +153,8 @@ EXIT_OK, EXIT_USAGE, EXIT_SERVER = 0, 2, 3
 # 28 Oct 2026: the rules set the tables; 29 Oct 2026: and the desks' work sets (the questions stay as they were)
 AI_TYPES: tuple[str, ...] = tuple(t for t in D.DECOR_TYPES if t not in D.SETTING_TYPES + D.WORK_DECOR_TYPES
                                   + D.DETAIL_DECOR_TYPES        # 29 Oct 2026: the details are the rules' (room_details)
-                                  + D.DESK_DECOR_TYPES)         # 30 Oct 2026 (UL164): the desk's stationery too
+                                  + D.DESK_DECOR_TYPES          # 30 Oct 2026 (UL164): the desk's stationery too
+                                  + D.MUG_DECOR_TYPES)          # 30 Oct 2026 (UL213): the mugs (wenart.furniture.mugs)
 SURFACE_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp", "book_set",
                                   "candle", "tray", "books", "sculpture")                      # Milestone 10
 WALL_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock")
@@ -1530,7 +1531,17 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
     for it in out["decor"]:
         if it.get("id") not in before and it.get("room_id") in room_ids:
             record_of(it["room_id"]).items.append(it)
-    for note in bath_notes + twin_notes:
+    # 30 Oct 2026 (lesson UL213: "coffee mugs around the house also is a good decor item book and on top of a book
+    # coffee mug"): a few mugs per house, by the coffee machine, on books by a seat, by a laptop, beside a bedside book
+    # (wenart.furniture.mugs); a twin room gets none
+    from wenart.furniture import mugs as MU
+
+    before = {d.get("id") for d in out["decor"]}
+    mug_notes = MU.place_mugs(out, new_id, skip_rooms=set(targets), family=family)
+    for it in out["decor"]:
+        if it.get("id") not in before and it.get("room_id") in room_ids:
+            record_of(it["room_id"]).items.append(it)
+    for note in bath_notes + twin_notes + mug_notes:
         rid = note.split(":", 1)[0]
         if rid in room_ids:
             record_of(rid).notes.append(note)

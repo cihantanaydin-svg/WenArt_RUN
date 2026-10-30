@@ -146,6 +146,8 @@ FURNITURE_MATERIALS: dict[str, dict] = {
     "fruit_green":   {"kind": "organic", "flat": [0.42, 0.56, 0.12], "roughness": 0.40},
     "oil_amber":     {"kind": "hard",    "flat": [0.62, 0.42, 0.06], "roughness": 0.05},
     "cardboard":     {"kind": "hard",    "flat": [0.52, 0.38, 0.24], "roughness": 0.9},
+    # 30 Oct 2026 (UL213: mug_parts): the coffee in a mug, a very dark brown glossy liquid
+    "coffee_liquid": {"kind": "hard",    "flat": [0.030, 0.015, 0.007], "roughness": 0.06},
     "wood_veneer_oak":   {"kind": "wood", "flat": [0.62, 0.47, 0.30], "roughness": 0.45, "source": "polyhaven",
                            "asset": "oak_veneer_01", "size_m": [1.83, 1.83], "albedo_mode": "texture"},
     "wood_veneer_walnut": {"kind": "wood", "flat": [0.25, 0.14, 0.08], "roughness": 0.4, "source": "polyhaven",

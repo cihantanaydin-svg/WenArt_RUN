@@ -143,7 +143,8 @@ def test_new_decor_types_are_the_schema_decor_types_but_the_parametric_book_set(
                        - set(D.WORK_DECOR_TYPES) - set(D.MEDIA_DECOR_TYPES)
                        - set(D.BATH_DECOR_TYPES)
                        - set(D.DETAIL_DECOR_TYPES)       # 29 Oct 2026 (UL114): the bathroom's own accessories
-                       - set(D.DESK_DECOR_TYPES))        # 30 Oct 2026 (UL164): the desk's stationery
+                       - set(D.DESK_DECOR_TYPES)         # 30 Oct 2026 (UL164): the desk's stationery
+                       - set(D.MUG_DECOR_TYPES))         # 30 Oct 2026 (UL213): the mugs (mug_parts)
 
 
 # --------------------------------------------------------------------------

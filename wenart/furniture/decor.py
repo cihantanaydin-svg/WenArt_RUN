@@ -169,6 +169,8 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug", "wall_art
                                  # 28 Oct 2026: the kitchen worktop's small appliances and decor (kitchen_worktop_decor)
                                  "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot",
                                  "fruit_bowl",
+                                 # 30 Oct 2026 (UL212): a knife block and a pair of mills by the hob
+                                 "knife_block", "pepper_mills",
                                  # 29 Oct 2026 (lessons UL115, UL118: the reference kitchens): the worktop styling sets
                                  # (kitchen_worktop_decor, wenart.blender.kitchen_details)
                                  "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles",
@@ -196,8 +198,12 @@ SETTING_TYPES: tuple[str, ...] = ("plate", "glass")
 WORK_DECOR_TYPES: tuple[str, ...] = ("laptop", "monitor", "keyboard", "computer_mouse")
 # 30 Oct 2026 (lesson UL164): a desk's stationery beside its laptop (tabletop.work_set; built by
 # wenart.blender.desk_parts); the rules place it, the AI never chooses it
-DESK_DECOR_TYPES: tuple[str, ...] = ("stationery",)
+DESK_DECOR_TYPES: tuple[str, ...] = ("stationery",
+                                     "desk_organiser")   # 30 Oct 2026 (UL212): files, a clock, a stapler, a plant
 DECOR_TYPES = DECOR_TYPES + DESK_DECOR_TYPES
+# 30 Oct 2026 (lesson UL213): coffee mugs, a few per house (wenart.furniture.mugs; built by wenart.blender.mug_parts)
+MUG_DECOR_TYPES: tuple[str, ...] = ("mug", "mug_on_books", "mug_pair")
+DECOR_TYPES = DECOR_TYPES + MUG_DECOR_TYPES
 # Not held to MAX_DECOR_M (Milestone 8, 9; Milestone 10: window dressings, throws, large plants and floor
 # sculptures, pendants on their cord).
 LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "blind", "throw", "plant_large",
@@ -1132,7 +1138,7 @@ def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> t
 # --------------------------------------------------------------------------
 
 KITCHEN_DECOR_TYPES: tuple[str, ...] = ("microwave", "kettle", "coffee_machine", "toaster", "chopping_board",
-                                        "utensil_pot", "fruit_bowl",
+                                        "utensil_pot", "fruit_bowl", "knife_block", "pepper_mills",
                                         # 29 Oct 2026 (UL115, UL118; wenart.blender.kitchen_details): the styling sets
                                         "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles",
                                         "dried_grass_vase", "coffee_station")
@@ -1145,6 +1151,8 @@ KITCHEN_DECOR_SIZES: dict[str, tuple[float, float, float]] = {
     "microwave": (0.46, 0.36, 0.27), "kettle": (0.22, 0.16, 0.25), "coffee_machine": (0.24, 0.38, 0.35),
     "toaster": (0.28, 0.17, 0.19), "chopping_board": (0.40, 0.25, 0.02), "utensil_pot": (0.12, 0.12, 0.30),
     "fruit_bowl": (0.28, 0.28, 0.12),
+    # 30 Oct 2026 (UL212): a 5-knife block 12 x 20 x 33 cm, a salt and a pepper mill 20-22 cm side by side
+    "knife_block": (0.12, 0.20, 0.33), "pepper_mills": (0.14, 0.07, 0.22),
     "storage_jars": (0.30, 0.12, 0.24), "plate_stack": (0.27, 0.27, 0.14), "cookware": (0.55, 0.30, 0.18),
     "cutting_boards": (0.42, 0.10, 0.45), "oil_bottles": (0.22, 0.12, 0.30), "dried_grass_vase": (0.20, 0.20, 0.55),
     "coffee_station": (0.50, 0.38, 0.38)}
@@ -1157,8 +1165,15 @@ BOARD_BACK_M = 0.012              # the cutting boards lean on the splashback (i
 # The order they are placed in, and what each stands near: the microwave at a run end against a wall or a corner,
 # the coffee machine (or, with no room for it, the toaster) at another end, the kettle by the sink, the utensil pot
 # and the board beside the hob (outside its side gap), the fruit bowl on an island or in the middle of a free stretch.
-KITCHEN_DECOR_ORDER: tuple[str, ...] = ("microwave", "coffee_machine", "kettle", "utensil_pot", "chopping_board",
-                                        "fruit_bowl")
+# 30 Oct 2026 (lesson UL212, user: "maybe kitchen needs a kettle a coffee machine etc"): the toaster at a run end
+# of its own, a knife block and the mills by the hob (the prep zone beside it), each a real product in the family's
+# finish (``wenart.blender.appliance_parts``, recorded on the item as ``appliance``); the corded appliances and the
+# knife block stand against the splashback, never on an island (its seating side, no socket)
+KITCHEN_DECOR_ORDER: tuple[str, ...] = ("microwave", "coffee_machine", "kettle", "toaster", "utensil_pot",
+                                        "chopping_board", "knife_block", "pepper_mills", "fruit_bowl")
+APPLIANCE_TYPES: tuple[str, ...] = ("microwave", "coffee_machine", "kettle", "toaster", "knife_block", "pepper_mills",
+                                    "coffee_station")
+NOT_ON_ISLAND_TYPES: tuple[str, ...] = ("microwave", "coffee_machine", "kettle", "toaster", "knife_block")
 WORKTOP_HOB_CLEAR_M = 0.25        # nothing within this of a hob's sides (pans slide off onto the landing)
 WORKTOP_SINK_CLEAR_M = 0.10       # nor this close to the sink's sides
 WORKTOP_ITEM_GAP_M = 0.10         # between two items
@@ -1175,7 +1190,7 @@ WORKTOP_WINDOW_LOW_M = 0.15
 # one low set (``BARE_RUN_SETS``: a kind the kitchen has not got first)
 BARE_RUN_SETS: tuple[str, ...] = ("fruit_bowl", "plate_stack", "chopping_board", "storage_jars", "dried_grass_vase")
 WORKTOP_PER_M = 0.5               # modest: at most one item per this much free worktop ...
-KITCHEN_DECOR_MAX = 5             # ... and this many per kitchen
+KITCHEN_DECOR_MAX = 7             # ... and this many per kitchen (5 before UL212's toaster, knife block and mills)
 WORKTOP_TOP_RANGE_M = (0.80, 1.20)
 
 
@@ -1393,7 +1408,8 @@ def _worktop_candidates(ctx: dict, dtype: str, placed: list[dict], size=None) ->
         if b - a < iw - 1e-6 or d < idp + 0.06:
             continue
         island = p.get("type") == "kitchen_island"
-        if island and dtype in ("storage_jars", "cutting_boards", "oil_bottles", "coffee_station"):
+        if island and dtype in ("storage_jars", "cutting_boards", "oil_bottles", "coffee_station") \
+                + NOT_ON_ISLAND_TYPES:
             continue                                  # 29 Oct 2026: against the splashback or at a run end only
         y = 0.0 if island else d / 2.0 - idp / 2.0 - WORKTOP_BACK_M
         if dtype in ("fruit_bowl", "plate_stack") and not island:
@@ -1422,7 +1438,8 @@ def _worktop_candidates(ctx: dict, dtype: str, placed: list[dict], size=None) ->
                 score = (rank, -min([abs(x - h) for h in hob] or [9.0]))
             elif dtype == "kettle":
                 score = (min([abs(x - s) for s in sink] or [5.0 + abs(x)]), 0)
-            elif dtype in ("utensil_pot", "chopping_board", "cutting_boards", "oil_bottles"):
+            elif dtype in ("utensil_pot", "chopping_board", "cutting_boards", "oil_bottles", "knife_block",
+                           "pepper_mills"):
                 score = (min([abs(x - h) for h in hob] or [5.0 + abs(x)]), 0)
             else:
                 # 30 Oct 2026 (real04 r_L-1_mutfak: eleven items on two runs, the sink run bare): a set for a free
@@ -1467,7 +1484,39 @@ WORKTOP_REASONS: dict[str, str] = {
     "coffee_machine": "a coffee machine at the end of the run", "toaster": "a toaster at the end of the run",
     "kettle": "a kettle by the sink", "utensil_pot": "a utensil pot beside the hob, off its side gap",
     "chopping_board": "a chopping board beside the hob, off its side gap",
-    "fruit_bowl": "a fruit bowl on a free stretch of the worktop"}
+    "fruit_bowl": "a fruit bowl on a free stretch of the worktop",
+    "knife_block": "a knife block by the hob, against the splashback (UL212)",
+    "pepper_mills": "a salt and a pepper mill by the hob (UL212)"}
+
+
+def kitchen_family(building: dict, counters: list) -> Optional[str]:
+    """The style family of a room's appliances and desk sets (30 Oct 2026, UL212): the project's stamp, else a given
+    piece's fitted asset (a kitchen run's, as the styling sets'), else the family most of the house's fitted assets
+    carry; None when nothing names one."""
+    from collections import Counter
+
+    project = building.get("project") if isinstance(building.get("project"), dict) else {}
+    own = project.get("style_family") or next(
+        (str((p.get("asset") or {}).get("style_family")) for p in counters
+         if isinstance(p.get("asset"), dict) and (p.get("asset") or {}).get("style_family")), None)
+    if own:
+        return own
+    seen = Counter(str(f["asset"]["style_family"]) for f in building.get("furniture") or []
+                   if isinstance(f.get("asset"), dict) and f["asset"].get("style_family"))
+    return seen.most_common(1)[0][0] if seen else None
+
+
+def appliance_record(item: dict, family: Optional[str]) -> dict:
+    """In place (UL212): an appliance item's finish (``appliance``; ``colour`` for a tinted body), from its family."""
+    from wenart.blender import appliance_parts as AP
+
+    if item.get("type") in APPLIANCE_TYPES + ("desk_organiser",):
+        rec = AP.record(family, "coffee_machine" if item["type"] == "coffee_station" else item["type"])
+        item["appliance"] = rec
+        fin = AP.finish(family)
+        if fin.get("colour") and not item.get("colour"):
+            item["colour"] = fin["colour"]
+    return item
 
 
 def kitchen_worktop_decor(building: dict, room: dict, pieces: list[dict], new_id, existing: list = ()) -> list[dict]:
@@ -1488,10 +1537,13 @@ def kitchen_worktop_decor(building: dict, room: dict, pieces: list[dict], new_id
     if ctx is None:
         return []
     budget = min(KITCHEN_DECOR_MAX, int(ctx["free_m"] / WORKTOP_PER_M))
+    family = kitchen_family(building, ctx["counters"])
     placed: list[dict] = []
     for dtype in KITCHEN_DECOR_ORDER:
         if len(placed) >= budget:
             break
+        if any(p.get("type") == dtype for p in placed):
+            continue                                  # the toaster stood in for the coffee machine already
         got = _worktop_candidates(ctx, dtype, placed)
         if not got and dtype == "coffee_machine":
             got = _worktop_candidates(ctx, "toaster", placed)
@@ -1508,6 +1560,7 @@ def kitchen_worktop_decor(building: dict, room: dict, pieces: list[dict], new_id
                      "room_id": room["id"], "asset": None, "source": "added_by_ai", "method": "rule",
                      "reason": f"kitchen worktop dressing (28 Oct 2026): {what}; on the worktop of "
                                f"{item['host_id']}, off the hob, the sink and the windows (code checks)"})
+        appliance_record(item, family)
         placed.append(item)
     return placed
 
@@ -1574,6 +1627,7 @@ def kitchen_styling_decor(building: dict, room: dict, pieces: list[dict], new_id
         item.update({"id": new_id(room["level_id"]), "kind": "decor", "level_id": room["level_id"],
                      "room_id": room["id"], "asset": None, "source": "added_by_ai", "method": "rule",
                      "reason": why(dtype, item["host_id"])})
+        appliance_record(item, family)                 # a coffee station's machine in the family's finish (UL212)
         placed.append(item)
         if dtype != "cookware":                        # the pot and pan stand on the hob: no worktop taken
             added += 1
