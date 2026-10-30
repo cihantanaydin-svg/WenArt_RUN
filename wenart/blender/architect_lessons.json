@@ -2012,12 +2012,22 @@
    "id": "UL170",
    "date": "2026-10-30",
    "area": "lighting",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "These 2 lights together not making sense, keep the black one and make it give light (30 Oct 2026, real04 run 20261030-043021-full: a black linear canopy with four wire-cage pendants hangs next to a glowing white octagonal ceiling light in the same ceiling; the pendants give no light)",
-   "lesson": "These 2 lights together not making sense, keep the black one and make it give light (30 Oct 2026, real04 run 20261030-043021-full: a black linear canopy with four wire-cage pendants hangs next to a glowing white octagonal ceiling light in the same ceiling; the pendants give no light)",
+   "lesson": "A pendant (a single one, a cluster, a linear pendant, a track of mini pendants) is the only light of its zone: no rig or decor flush ceiling light within 1.5 m of its footprint; the dropped fixture's light moves into the pendant as warm 2700 K point lights split over its bulbs (counted from the model or its title), its bulbs glow; a pendant that replaces nothing gives one ceiling light's 1100 lm; every drop is recorded (lighting rig 'dropped'). A light under a sloped ceiling sits on the slope: its top centre on the ceiling plane, tilted onto it, with a hang record (furniture.slope_seat; run 20261030-043021-full: a hall's black 4-light pendant beside two white flush lights, six L1 lights 4 cm under the slope).",
+   "question": "Is every pendant the only light of its zone and lit (warm, glowing bulbs), with no flush ceiling light within about 1.5 m of it, and does every light under a sloped ceiling sit on the slope with nothing floating?"
+  },
+  {
+   "id": "UL171",
+   "date": "2026-10-30",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "There should be better solution than these things in the house entrance points make it make sense (30 Oct 2026, real04 run 20261030-043021-full, the side of the house: flat white slabs stick out of the stone wall over the entrance doors, one of them just under the eaves, with no support, frame or light)",
+   "lesson": "There should be better solution than these things in the house entrance points make it make sense (30 Oct 2026, real04 run 20261030-043021-full, the side of the house: flat white slabs stick out of the stone wall over the entrance doors, one of them just under the eaves, with no support, frame or light)",
    "question": null
   }
  ]

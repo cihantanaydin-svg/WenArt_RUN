@@ -2722,7 +2722,7 @@ Argus question.
 | UL167 | sofa rests not connected | a library sofa's backs and arms touch its seat (measured on the mesh, not boxes); the L's backs meet |
 | UL168 | the switches (the flush plate) | a real dual-flush plate with two buttons |
 | UL169 | no tags on the top-down views | small see-through numbered badges and a legend strip under the view |
-| UL170 | two lights together; the black one gives light | (helper, in progress; also the L1 lights under the slope, M14) |
+| UL170 | two lights together; the black one gives light | a pendant is the only light of its zone: no flush light within 1.5 m, its bulbs glow and carry the dropped light (2700 K); lights under a slope sit on it |
 
 Also: the GPU tests follow the m13.6 white point (the rig colour from the walls) and allow a library mesh's rounded end
 off the frame in every view; `tests/test_fixes_20261030.py` reads frozen run-201533 data (the promotion changed the

@@ -3521,7 +3521,20 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
         # whole, no steps or cheek blocks in it
         lands = next((q for q in out if q.get("id") == pf.get("flight_lands_on")), None)
         if lands is not None and lands.get("kind") in ROAD_KINDS:
+            # the edge it chose first, then every other edge onto the same road, nearest first: the first spot clear
+            # of the platform's pools; none clear: the flight runs out as before
             pf["flight_inward"] = True
+            n = len(pf["polygon"])
+            m0 = G.segment_midpoint(pf["polygon"][pf["steps_edge"]], pf["polygon"][(pf["steps_edge"] + 1) % n])
+            order = sorted(range(n), key=lambda j: (j != pf["steps_edge"], G.distance(
+                m0, G.segment_midpoint(pf["polygon"][j], pf["polygon"][(j + 1) % n]))))
+            for j in order:
+                fl = up_flight(dict(pf, steps_edge=j), gz=gz)
+                if fl is not None and fl.get("inward") and G.point_in_polygon(fl["landing"], lands["polygon"]):
+                    pf["steps_edge"] = j
+                    break
+            else:
+                pf.pop("flight_inward", None)
         pf["flight"] = up_flight(pf, gz=gz)
     # 30 Oct 2026 (lesson UL129): a flight up onto another surface is cut into that surface (``cut_flights``)
     cut_flights(out)
@@ -4124,7 +4137,8 @@ def railing_runs(a, b, i: int, pf: dict) -> list[tuple]:
     ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
     # 28 Oct 2026: the flight has cheek walls on both sides (grading.down_flight): the railing stops beside them
     half = PLATFORM["step_width"] / 2.0 + GR.GRADE["cheek_t"] + STEP_GAP_M
-    t0, t1 = length / 2.0 - half, length / 2.0 + half
+    at = float(((pf.get("flight") or {}).get("at")) or length / 2.0)      # UL162: an inward flight slid along its edge
+    t0, t1 = at - half, at + half
     out = []
     if t0 > 0.2:
         out.append((a, (a[0] + ux * t0, a[1] + uy * t0)))
@@ -4164,19 +4178,67 @@ def up_flight(pf: dict, terrain: Optional[dict] = None, gz=None) -> Optional[dic
     half_w = PLATFORM["step_width"] / 2.0
     t = PLATFORM["wall_t"]
     if pf.get("flight_inward"):
-        # UL162: the flight runs down into the platform from its edge (the road beside it stays whole)
+        # UL162: the flight runs down into the platform from its edge (the road beside it stays whole), at the spot of
+        # the edge nearest its middle where its footprint stays clear of the platform's pools and holes
         top = gz(mid[0] + out[0] * (t + 0.3), mid[1] + out[1] * (t + 0.3))
         rise = max(PLATFORM["level_tol"], top - z)
         count = max(1, min(12, int(math.ceil(rise / PLATFORM["step_rise"] - 1e-9))))
         d = count * tread
-        return {"edge": i, "mid": mid, "out": out, "count": count, "rise": round(rise, 3), "length": round(d, 3),
-                "half_w": half_w, "inward": True, "footprint": _rect_along(mid, out, -d, 0.0, half_w + t),
-                "landing": (mid[0] + out[0] * (t + 0.3), mid[1] + out[1] * (t + 0.3)),
-                "span": (length / 2.0 - half_w - t, length / 2.0 + half_w + t)}
+        at = inward_flight_at(pf, a, (ux, uy), out, length, d, half_w + t)
+        if at is not None:
+            mid = (a[0] + ux * at, a[1] + uy * at)
+            top = gz(mid[0] + out[0] * (t + 0.3), mid[1] + out[1] * (t + 0.3))
+            rise = max(PLATFORM["level_tol"], top - z)
+            count = max(1, min(12, int(math.ceil(rise / PLATFORM["step_rise"] - 1e-9))))
+            d = count * tread
+            return {"edge": i, "mid": mid, "out": out, "count": count, "rise": round(rise, 3), "length": round(d, 3),
+                    "half_w": half_w, "inward": True, "at": round(at, 4),
+                    "footprint": _rect_along(mid, out, -d, 0.0, half_w + t),
+                    "landing": (mid[0] + out[0] * (t + 0.3), mid[1] + out[1] * (t + 0.3)),
+                    "span": (at - half_w - t, at + half_w + t)}
+        mid = G.segment_midpoint(a, b)                       # no clear spot: the flight runs out (as before)
+        z, tread = float(pf["z"]), PLATFORM["step_tread"]
+        count = 1
+        for _ in range(4):
+            dd = count * tread
+            g = gz(mid[0] + out[0] * dd, mid[1] + out[1] * dd)
+            count = max(1, min(12, int(math.ceil((g - z) / PLATFORM["step_rise"] - 1e-9))))
+        d = count * tread
+        rise = max(PLATFORM["level_tol"], gz(mid[0] + out[0] * d, mid[1] + out[1] * d) - z)
     return {"edge": i, "mid": mid, "out": out, "count": count, "rise": round(rise, 3), "length": round(d, 3),
             "half_w": half_w, "footprint": _rect_along(mid, out, 0.0, d, half_w + t),
             "landing": (mid[0] + out[0] * (d + 0.6), mid[1] + out[1] * (d + 0.6)), "span": (length / 2.0 - half_w - t,
                                                                                             length / 2.0 + half_w + t)}
+
+
+INWARD_STEP_M = 0.1                # the spots an inward flight tries along its edge
+
+
+def inward_flight_at(pf: dict, a, u, out, length: float, depth: float, half: float) -> Optional[float]:
+    """Where along its edge (metres from ``a``) an inward flight of ``depth`` and half-width ``half`` stands (pure;
+    lesson UL162): the spot nearest the edge's middle whose footprint lies inside the platform and clear of its holes
+    (the pools); None when no spot along the edge is clear."""
+    from shapely.geometry import Polygon
+
+    poly = Polygon(pf["polygon"])
+    holes = [Polygon(h) for h in pf.get("holes") or [] if len(h) >= 3]
+    lo, hi = half, length - half
+    if hi < lo:
+        return None
+    n = int((hi - lo) / INWARD_STEP_M)
+    spots = sorted({round(lo + k * INWARD_STEP_M, 4) for k in range(n + 1)} | {round(length / 2.0, 4)},
+                   key=lambda s: abs(s - length / 2.0))
+    for s in spots:
+        if not lo - 1e-9 <= s <= hi + 1e-9:
+            continue
+        m = (a[0] + u[0] * s, a[1] + u[1] * s)
+        fp = Polygon(_rect_along(m, out, -depth, 0.0, half))
+        if fp.difference(poly.buffer(0.02)).area > 1e-4:
+            continue
+        if any(fp.intersects(h) and fp.intersection(h).area > 1e-4 for h in holes):
+            continue
+        return s
+    return None
 
 
 def up_flight_parts(fl: dict, z: float, gz) -> tuple[list, list]:
