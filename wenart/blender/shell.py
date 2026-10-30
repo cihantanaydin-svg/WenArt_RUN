@@ -1790,6 +1790,9 @@ def build_door_m10(opening: dict, wall: dict, look: dict, geo: dict, ctx: dict, 
                 "lining": not record["surface_mounted"], "head": not record["surface_mounted"], "architrave": [],
                 "indoor_faces": [], "source": "parametric (no style family)", "frameless": None,
                 "architrave_why": "a style without a family keeps its Milestone 10 door"}
+            if not record["surface_mounted"]:
+                # 30 Oct 2026 (UL132): the built frame parts and the opening's one height (M29: frame_problems)
+                entry["frame"] = dict(entry["frame"], census=P.frame_census(groups["frame"], geo["height"]))
             if record.get("pose"):
                 entry["pose"] = record["pose"]
         ctx["manifest_objects"].append(entry)

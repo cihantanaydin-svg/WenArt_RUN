@@ -29,10 +29,21 @@ REPORT_MD = "inspector.md"
 MD_MAX = 120                    # findings listed in the report (all of them are in the JSON)
 
 
+def key_of(value):
+    """A value as a set member (pure; 30 Oct 2026): a string, a number or None as it is, anything else (a camera's
+    ``target`` point ``[x, y, z]`` of a ``set_camera`` edit) as its JSON text. real04 runs 20261028-183611 to
+    20261029-201533: ``report`` raised "unhashable type: 'list'" on an accepted ``set_camera`` of the final round, the
+    record of 28 Oct stayed on the volume and Argus read its criticals (S5 dec_L0_011 / 012, X2 dec_L1_013) as the
+    run's own."""
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    return json.dumps(value, sort_keys=True, default=str)
+
+
 def _row(f: dict, fixed: set, accepted_targets: set) -> dict:
     cause = f.get("cause") if f.get("cause") in CS.CAUSE_TOOLS else CS.cause_of(f)
     target = f.get("target")
-    if target in accepted_targets or (f.get("check"), target) in fixed:
+    if key_of(target) in accepted_targets or (key_of(f.get("check")), key_of(target)) in fixed:
         outcome = "fixed in the final round (an accepted edit on its target)"
     elif CS.REPORT_TO.get(cause):
         outcome = f"handed to the {CS.REPORT_TO[cause]} stage: {CS.NO_TOOL_REASON.get(cause, '')}".rstrip(": ")
@@ -77,8 +88,8 @@ def report(project_out, round_no: int, findings: dict, accepted: list[dict]) -> 
     targets = set()
     for a in accepted or []:
         args = a.get("args") or {}
-        targets |= {v for k, v in args.items() if k in ("piece_id", "room_id", "target", "camera") and v}
-    fixed = {(a.get("finding_check"), a.get("finding_target")) for a in accepted or []}
+        targets |= {key_of(v) for k, v in args.items() if k in ("piece_id", "room_id", "target", "camera") and v}
+    fixed = {(key_of(a.get("finding_check")), key_of(a.get("finding_target"))) for a in accepted or []}
     kept = [_row(f, fixed, targets) for f in findings.get("vision_kept") or []]
     code = [_row(f, fixed, targets) for f in findings.get("code") or []
             if f.get("severity") in ("critical", "major")]
@@ -102,6 +113,10 @@ def report(project_out, round_no: int, findings: dict, accepted: list[dict]) -> 
 
 def report_md(rec: dict, project: str = "") -> str:
     c = rec["counts"]
+    if rec.get("error"):
+        return (f"# What the AI inspector saw on the final renders{': ' + project if project else ''}\n\n"
+                f"Round {rec['round']}: the report could not be made ({rec['error']}); the findings of the round are "
+                "in the agent's log.\n")
     lines = [f"# What the AI inspector saw on the final renders{': ' + project if project else ''}", "",
              f"Round {rec['round']} (the final round: every room and exterior view asked again on the final renders, "
              f"with the visitor checks Q1-Q9). {c['seen']} vision finding(s) ({c['visitor']} visitor), "
@@ -142,8 +157,26 @@ def report_md(rec: dict, project: str = "") -> str:
     return "\n".join(lines) + "\n"
 
 
+def failed_record(round_no: int, error: str) -> dict:
+    """The record written when the report cannot be made (30 Oct 2026): the failure, no findings, so an earlier run's
+    record never stands for this run's (Argus' process line reports it, P13)."""
+    counts = {k: 0 for k in ("seen", "visitor", "fixed", "handed", "open", "dropped", "architect_open",
+                             "architect_open_major")}
+    return {"round": round_no, "error": str(error), "counts": counts, "vision": [], "code": [], "dropped": [],
+            "architect_open": [], "model_review": None}
+
+
+def utc_now() -> str:
+    from datetime import datetime, timezone
+
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def write(project_out, rec: dict, project: str = "") -> Optional[Path]:
+    """``orchestrator/inspector.json`` and ``inspector.md``. 30 Oct 2026: the record carries ``written_utc`` (Argus
+    reads a record older than the run as an earlier run's: ``wenart.audit.inputs.inspector_of_run``)."""
     odir = LG.orchestrator_dir(Path(project_out))
+    rec = dict(rec, written_utc=rec.get("written_utc") or utc_now())
     LG.write_json_atomic(odir / REPORT_JSON, rec)
     path = odir / REPORT_MD
     path.write_text(report_md(rec, project), encoding="utf-8")

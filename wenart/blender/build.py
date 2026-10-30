@@ -953,11 +953,22 @@ def doors_as_designed(building: dict, style: Optional[dict], cameras=()) -> dict
     from wenart.blender import door_states as DS
     from wenart.blender import wardrobe_fronts as WF
 
-    out = {"assumed": [], "warnings": [], "mirrors": [], "states": {}, "sizes": [], "fronts": {}}
+    out = {"assumed": [], "warnings": [], "mirrors": [], "states": {}, "sizes": [], "fronts": {}, "under_roof": []}
     if not DS.active(style):
+        # 30 Oct 2026 (UL128): a door under the roof fits under the ceiling at its wall, whatever the style
+        out["under_roof"], got, warned = DS.apply_under_roof(building)
+        out["assumed"] += got
+        out["warnings"] += warned
         return out
     out["sizes"], got = DS.apply_sizes(building, style)
     out["assumed"] += got
+    # 30 Oct 2026 (UL128, UL132; user: "Some frames coming out of the roof it needs fixing", "Door frame needs fixing"):
+    # after the sizes, every door under a sloped ceiling fits under it at its wall (lowered, else slid along its wall,
+    # else lowered with a finding), so its opening, leaf, lining, head and architrave share one height under the roof;
+    # its open leaf is then tried under the ceiling over it (``apply_states``: ``leaf_frame``'s head)
+    out["under_roof"], got, warned = DS.apply_under_roof(building)
+    out["assumed"] += got
+    out["warnings"] += warned
     out["fronts"], got = WF.apply(building, style)
     out["assumed"] += got
     out["states"], got = DS.apply_states(building, style, cameras)
@@ -977,8 +988,8 @@ def doors_as_designed(building: dict, style: Optional[dict], cameras=()) -> dict
     counts: dict = {}
     for rec in out["states"].values():
         counts[rec["state"]] = counts.get(rec["state"], 0) + 1
-    print(f"DOORS {counts} ({len(out['sizes'])} resized); see-through wardrobes {len(out['fronts'])}; walk-in mirrors "
-          f"{len(out['mirrors'])}")
+    print(f"DOORS {counts} ({len(out['sizes'])} resized, {len(out['under_roof'])} under the roof); see-through "
+          f"wardrobes {len(out['fronts'])}; walk-in mirrors {len(out['mirrors'])}")
     return out
 
 
@@ -2644,9 +2655,22 @@ def ceiling_voids(slabs: dict | None) -> dict:
     return out
 
 
+# 30 Oct 2026 (lesson UL128, user: "Some frames coming out of the roof it needs fixing"; real04 run 20261029-201533-full:
+# the bathroom's towel rails and shelves under a 0.81 m slope, its floor-to-ceiling terrazzo panels 2.45 m under a
+# 1.87 m one, all through the roof): every hostless decor type is held under the slope by ``decor_under_roof``, but
+# the ones placed elsewhere: a pendant (``furniture.pendant_hang``), a rug (flat), wall art and mirrors (hung by
+# ``furniture.wall_art_placement`` under the slope over them).
+UNDER_ROOF_PLACED_TYPES: tuple[str, ...] = ("pendant_light", "rug", "wall_art", "mirror")
+# ... and a floor-to-ceiling item follows the slope: shorter from the top (its bottom kept) down to this height
+STRETCH_UNDER_ROOF: dict[str, float] = {"feature_panel": 0.60}
+
+
 def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str], list[dict]]:
     """``(decor, warnings, not_built)``: the building's decor list with the hostless decor of a level under the roof
-    fitted to its sloped ceiling (pure; ``level["ceiling_planes"]``, ``furniture.ceiling_above``). real02's exterior
+    fitted to its sloped ceiling (pure; ``level["ceiling_planes"]``, ``furniture.ceiling_above``). 30 Oct 2026 (UL128):
+    every hostless type but ``UNDER_ROOF_PLACED_TYPES``, not only the floor plants and the ceiling lights: a wall item
+    with its bottom given (a towel rail, a shelf, a paper holder, an intercom) whose top would reach over the slope is
+    not built (``not_built``, with the reason), a ``STRETCH_UNDER_ROOF`` panel is made shorter from the top. real02's exterior
     views showed attic decor outside the roof: ceiling lights placed at the flat ceiling height (``center[2]``) hung
     above the roof, and 1.6 m floor plants stood where the sloped ceiling is under 0.9 m high. A ceiling light whose given
     height reaches over the ceiling loses ``center[2]`` (the builder then hangs it flush under the slope); a floor
@@ -2689,7 +2713,8 @@ def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str]
                 not_built.append(dropped)
             continue
         if item.get("level_id") != level["id"] or item.get("host_id") is not None or len(center) < 2 \
-                or dtype not in ("ceiling_light",) + FLOOR_DECOR_TYPES:
+                or dtype in UNDER_ROOF_PLACED_TYPES or dtype not in P.DECOR_TYPES \
+                or F.under_sky(level, item.get("room_id")):          # 30 Oct 2026: a terrace has no ceiling
             out.append(item)
             continue
         w, d, h = P.decor_size(dtype, item.get("size") or [0.4, 0.4])
@@ -2697,6 +2722,15 @@ def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str]
         has_z = len(center) > 2 and center[2] is not None
         z = float(center[2]) if has_z else 0.0
         fits = z + h <= ceiling + 1e-3
+        if not fits and dtype in STRETCH_UNDER_ROOF and dtype != "ceiling_light":
+            # 30 Oct 2026 (UL128): a floor-to-ceiling panel follows the slope: shorter from the top, its bottom kept
+            room = round(ceiling - WINDOW_DECOR_CEILING_CLEAR_M - z, 4)
+            if room >= STRETCH_UNDER_ROOF[dtype] - 1e-9:
+                out.append(dict(item, size=list(item.get("size") or [w, d])[:2] + [room]))
+                warnings.append(f"{item.get('id')}: {dtype} top {z + h:.2f} m above the floor, the sloped ceiling "
+                                f"over it is {ceiling:.2f} m high: made {h - room:.2f} m shorter from the top "
+                                f"({room:.2f} m tall, its bottom kept; UL128)")
+                continue
         if dtype == "ceiling_light":
             # M11 pod G2b (real02 attic bathroom, ceiling 1.45 m) and P5 (real04 L1 bathroom, 1.27 m): a light hung
             # under such a low slope hangs at eye height, in front of the camera (depth 0.05 m); it is not built.
@@ -2797,24 +2831,53 @@ def add_room_ids(manifest_objects: list[dict], rooms_by_opening: dict[str, list[
             entry["room_ids"] = list(rooms_by_opening.get(entry["wenart_id"], []))
 
 
+BOX3D_KINDS: tuple[str, ...] = ("furniture", "furniture_proxy", "decor")
+# 30 Oct 2026 (UL128): the door parts too (frame, leaf, handle, a library door's model), so the roof checks
+# (exterior_checks X2, model review M31) measure them; a door part without a mesh is no warning
+BOX3D_OPENING_KINDS: tuple[str, ...] = ("door",)
+
+
 def add_box3d(manifest_objects: list[dict], warnings: list[str]) -> None:
     """``box3d`` on every furniture, proxy and decor entry: the world box of
     the object's mesh as built, in the piece frame (``rotation_deg`` of the
-    entry), see ``geom2d.oriented_box``."""
+    entry), see ``geom2d.oriented_box``. 30 Oct 2026: and on every door part
+    (``BOX3D_OPENING_KINDS``), in its tightest plan frame (``tight_rotation``)."""
     import bpy
 
     from wenart.blender import geom2d
 
     for entry in manifest_objects:
-        if entry.get("kind") not in ("furniture", "furniture_proxy", "decor"):
+        opening = entry.get("kind") in BOX3D_OPENING_KINDS
+        if entry.get("kind") not in BOX3D_KINDS and not opening:
             continue
         ob = bpy.data.objects.get(entry["name"])
         if ob is None or ob.type != "MESH" or not len(ob.data.vertices):
-            warnings.append(f"{entry['name']}: no mesh object to measure; box3d left out")
+            if not opening:
+                warnings.append(f"{entry['name']}: no mesh object to measure; box3d left out")
             continue
         mw = ob.matrix_world
         points = [tuple(mw @ v.co) for v in ob.data.vertices]
-        entry["box3d"] = geom2d.oriented_box(points, float(entry.get("rotation_deg") or 0.0))
+        rot = tight_rotation(points) if opening else float(entry.get("rotation_deg") or 0.0)
+        entry["box3d"] = geom2d.oriented_box(points, rot)
+
+
+def tight_rotation(points, step_deg: int = 5) -> float:
+    """The plan angle (degrees, a multiple of ``step_deg`` in 0-175) whose box round ``points`` has the smallest
+    plan area (pure; 30 Oct 2026): a door part in a wall at any angle, its leaf open or closed, gets a tight box."""
+    pts = [(float(p[0]), float(p[1])) for p in points]
+    if len(pts) < 2:
+        return 0.0
+    pts = pts[::max(1, len(pts) // 2000)]         # the angle from a sample; the box itself takes every point
+    best, best_area = 0.0, None
+    for deg in range(0, 180, int(step_deg)):
+        r = math.radians(deg)
+        c, s = math.cos(r), math.sin(r)
+        us = [c * x + s * y for x, y in pts]
+        vs = [-s * x + c * y for x, y in pts]
+        area = (max(us) - min(us)) * (max(vs) - min(vs))
+        if best_area is None or area < best_area - 1e-12:
+            best, best_area = float(deg), area
+    return best
 
 
 def preview_mapping(x0: float, y0: float, x1: float, y1: float, px_per_m: float = PREVIEW_PX_PER_M) -> dict:
