@@ -1983,6 +1983,18 @@
    "request": "I like this sofa but resting pieces seems like not connected to sitting, requires fixing (30 Oct 2026, real04 run 20261030-043021-full, the living room's white low L-shaped modular sofa: the back pieces stand as separate blocks behind the seat deck, not joined to it)",
    "lesson": "I like this sofa but resting pieces seems like not connected to sitting, requires fixing (30 Oct 2026, real04 run 20261030-043021-full, the living room's white low L-shaped modular sofa: the back pieces stand as separate blocks behind the seat deck, not joined to it)",
    "question": null
+  },
+  {
+   "id": "UL168",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "These switches requires a rework (30 Oct 2026, real04 run 20261030-043021-full: the plate in the bathroom (the wall-hung WC's dual-flush plate) reads as a black picture frame with two flat white panes, much too large and flat)",
+   "lesson": "These switches requires a rework (30 Oct 2026, real04 run 20261030-043021-full: a double light switch reads as a black picture frame with two flat white panes, much too large and flat)",
+   "question": null
   }
  ]
 }
