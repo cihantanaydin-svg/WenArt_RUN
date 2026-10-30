@@ -301,7 +301,12 @@ def test_d6_front_courts_of_real02(real02_prep):
 def test_e11_inferred_site_of_real02(real02_prep):
     inf = real02_prep["site"]["inferred"]
     assert inf["plot_inferred"] and inf["main"]["axis"] == "+y" and inf["main"]["source"] == "entrance doors"
-    assert [e["opening_id"] for e in inf["entrances"]] == ["d_L0_011", "d_L0_012"] and inf["steps"] == []
+    assert [e["opening_id"] for e in inf["entrances"]] == ["d_L0_011", "d_L0_012"]
+    # UL203 (30 Oct 2026, "include a step to go into the house"): each flush door gets one step up, its landing one
+    # riser under the floor with a stone threshold, no flight
+    assert [(s["opening_id"], s["solution"], s["count"]) for s in inf["steps"]] == [
+        ("d_L0_011", "step_up", 0), ("d_L0_012", "step_up", 0)]
+    assert all(s["step_up"]["z"] == -0.15 and s["thresholds"] for s in inf["steps"])
     assert len(inf["paths"]) == 2 and all(p["width"] == S.INFERRED["path_width"] for p in inf["paths"])
     plot = inf["plot"]
     for p in inf["paths"]:                                       # from the door out to the plot edge

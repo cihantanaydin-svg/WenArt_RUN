@@ -2492,24 +2492,24 @@
    "id": "UL210",
    "date": "2026-10-30",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Big windows next to small windows not making any sense needs better solution (30 Oct 2026, real06 run 20261029-100801-full, a side facade: on both floors a taller two-pane window stands right beside a shorter two-pane window, their heads and sills at different heights)",
-   "lesson": "Big windows next to small windows not making any sense needs better solution (30 Oct 2026, real06 run 20261029-100801-full, a side facade: on both floors a taller two-pane window stands right beside a shorter two-pane window, their heads and sills at different heights)",
+   "lesson": "Windows side by side on one facade line (frames less than 0.6 m apart) are one composition: they share one sill line and one head line, the lowest sill and the highest head of the group, the head under the roof (wenart.blender.window_order, in build.prepare after the architect's answers). A window that needs a higher sill (over a basin, behind a taller piece, an upper storey without a guard) keeps it as a transom over a fixed lower light; a wet room's window takes satin glass, never a higher sill; no window loses glass. Lines the documents fix are kept and the review (M36) reports such a pair. Real06 run 20261029-100801-full: a bathroom's 0.85 m window on a 1.25 m sill beside a 1.2 m window on a 0.9 m sill, on both floors.",
    "question": "Do windows side by side on one wall form one composition (one head line, one sill line, or one glazing with mullions), never a big one beside a small one?"
   },
   {
    "id": "UL211",
    "date": "2026-10-30",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "This window all the way to the edge of a wall not making any sense needs better solution (30 Oct 2026, real06 run 20261029-100801-full, a facade: a window's frame and sill run into the wall's corner, no solid wall between the window and the corner trim)",
-   "lesson": "This window all the way to the edge of a wall not making any sense needs better solution (30 Oct 2026, real06 run 20261029-100801-full, a facade: a window's frame and sill run into the wall's corner, no solid wall between the window and the corner trim)",
+   "lesson": "Every window keeps 0.40 m of solid wall between its frame (surround or reveal included) and its facade's outer corner (UK Approved Document A asks 665 mm at a masonry return; only the clear cases under 0.40 m are corrected). A window too close moves along its wall away from the corner (at most 0.60 m); where a move cannot pass (another room, another opening, a taller piece in front) it narrows from the corner side, down to 0.45 m, its far jamb kept. The drawn place and width are kept (corrected_by_ai), the curtains follow; the architect's moved, widened and new windows keep the same pier; windows in recesses and at inner corners stay as drawn; M36 reports what is left. Real06 run 20261029-100801-full: a window's frame ran into the corner trim.",
    "question": "Does every window keep solid wall between its frame and the wall's end or the facade's corner?"
   },
   {
