@@ -1675,6 +1675,18 @@
    "request": "This white section needs to go all the way (30 Oct 2026, real04 run 20261029-201533-full: the pale paved strip at the foot of the glazed facade stops halfway, grass runs up to the glass)",
    "lesson": "This white section needs to go all the way (30 Oct 2026, real04 run 20261029-201533-full: the pale paved strip at the foot of the glazed facade stops halfway, grass runs up to the glass)",
    "question": "Does the paved strip at the foot of a facade run along the whole facade it serves, never stopping halfway with grass up to the glass?"
+  },
+  {
+   "id": "UL143",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Pool can use some seating furniture, also a ladder to the pool as always (30 Oct 2026, real04 run 20261029-201533-full)",
+   "lesson": "Pool can use some seating furniture, also a ladder to the pool as always (30 Oct 2026, real04 run 20261029-201533-full)",
+   "question": "Does every pool have a ladder (or steps) into the water and outdoor seating (sun loungers, a side table) on its deck where the deck allows?"
   }
  ]
 }
