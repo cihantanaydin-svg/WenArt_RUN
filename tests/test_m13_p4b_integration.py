@@ -312,14 +312,15 @@ def test_bed_cushions_and_pillows_rest_against_the_headboard_in_the_head_half(ex
 def test_a_headboard_hit_that_leaves_the_item_in_the_foot_half_gives_way_to_the_back_edge():
     """A bolster lying across the middle of the bed (local y 0.03-0.10) stops the mid-bed back rays at once: the
     cushion would sit with its centre in the foot half, so the footprint's back edge is the back (a mutation that
-    keeps such a hit puts the centre at local y < 0)."""
+    keeps such a hit puts the centre at local y < 0). 30 Oct 2026 (UL137, rest.place_leaning): a back ray takes its
+    first hit in the head zone, so the headboard behind the bolster is found; never a centre in the foot half."""
     from test_decor_rest import BED_FP
 
     caster = _bed([(-0.7, 0.03, 0.58, 0.7, 0.10, 0.75)])
     planned = R.to_world(BED_FP["center"], 90.0, -0.4, 0.8)
     pose = R.place_leaning(caster, BED_FP, planned, (0.5, 0.15, 0.5), lean_deg=12.0, bed=True)
-    assert pose is not None and pose["how"].startswith("no backrest hit")
-    assert R.to_local(BED_FP["center"], 90.0, *pose["center"])[1] > 0.5
+    assert pose is not None and pose["how"].startswith("the backrest found by horizontal rays")
+    assert 0.5 < R.to_local(BED_FP["center"], 90.0, *pose["center"])[1] < 0.94
 
 
 def test_bedding_in_the_foot_half_is_named():

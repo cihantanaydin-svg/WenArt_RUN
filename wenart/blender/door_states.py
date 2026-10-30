@@ -41,6 +41,28 @@ a dressing room with closed wardrobe fronts only (``dressing_closed_fronts``, ``
 view showing only closed doors though one leads to a room worth showing (``view_closed_doors``, UL126);
 ``frame_problems(manifest)``: a door built without a frame and without a recorded frameless reason (``no_frame``),
 an indoor face without its architrave and no reason (``no_architrave``).
+
+30 Oct 2026 (lessons UL128, UL132; the user on real04 run 20261029-201533-full: "Some frames coming out of the roof it
+needs fixing", "Door frame needs fixing"): D5 put d_L1_001 / 002 back to 2.10 m under a 1.84 m slope ("a sloped
+ceiling over the level: 2.10 m kept", after the roof clip had made them 1.80 m) and the bathroom doors d_L1_004 / 005 to
+2.10 m under 1.03 m: their frames, architraves and open leaves stood through the roof, and inside the jamb ran up into
+the slope with its head hidden above it. Now one height serves the opening, the leaf, the jamb lining, the head and the
+architrave (they are all built from the opening's height) and it fits under the ceiling at the door:
+
+- ``head_room(o, wall, level)``: the lowest sloped ceiling over the door's frame (its architrave on both faces)
+  less ``ROOF_HEAD_GAP_M``; D5's ``_door_height`` never goes over it.
+- ``apply_under_roof(building)`` (after D5, every style): a door reaching over its head room is lowered to it when that
+  leaves ``MIN_CLEAR_M``; else it slides along its wall (at most ``ROOF_SLIDE_MAX_M``, the same rooms at its centre
+  and both jambs) to the nearest spot that does; else it is lowered all the same with a warning (``under_roof.fits``
+  False: the model review's M31 asks for a dormer). A drawn height over the wall at the door is a clear reading error
+  (a door cannot be taller than its wall there) and is lowered too; every change keeps ``drawn_height`` /
+  ``drawn_center``, is ``adjusted_by_ai`` by code, recorded in ``under_roof`` and assumed.
+- An open leaf is tried under the ceiling over it (``leaf_frame``'s ``head``, ``leaf_under_ceiling``): a leaf the slope
+  stops stands ajar at a smaller angle or on the other jamb, swings into the other room when no swing side is drawn
+  (``swing_turned``, the build's ``swing_side``), else stays closed with the reason.
+- ``census_problems`` (M29, Argus U33; the frame's ``census``, ``parametric.frame_census``): a frame part over its
+  opening's head by more than the architrave's ``HEAD_RISE_M`` (``frame_taller``), a lining or an architrave face with
+  jambs and no head (``jamb_without_head``) or one jamb only (``one_jamb``).
 """
 from __future__ import annotations
 
@@ -91,6 +113,14 @@ LEAF_T_M = 0.04                   # = parametric.DOOR_LEAF_T
 SLIDE_OVERLAP_M = 0.05            # = parametric.SLIDING_OVERLAP_M
 SLIDE_STANDOFF_M = 0.012          # = parametric.SLIDING_STANDOFF_M
 SWING_OPERATIONS: tuple[str, ...] = ("swing", "unknown", "double", "")
+# --- UL128 / UL132 (30 Oct 2026): doors under the roof ---------------------------------------------------------------
+ROOF_HEAD_GAP_M = 0.05            # = roof.OPENING_ROOF_GAP: a door's opening stops this far under the sloped ceiling
+HEAD_RISE_M = 0.023               # the architrave's head over the opening (parametric.architrave_boxes: W + reveal - frame)
+FRAME_ALONG_M = 0.023             # the architrave's outer edge past each side of the opening (the same sum)
+MIN_CLEAR_M = 1.60                # = roof.MIN_OPENING_HEIGHT["door"]: a door lower than this does not fit (a finding)
+ROOF_SLIDE_MAX_M = 0.50           # a door that does not fit slides at most this far along its wall (as a piece's fix)
+ROOF_SLIDE_STEP_M = 0.05
+LEAF_HEAD_GAP_M = 0.01            # an open leaf stays this far under the sloped ceiling over it
 SLIDE_OPERATIONS: tuple[str, ...] = ("sliding", "pocket")
 
 
@@ -428,7 +458,18 @@ def _door_height(building: dict, o: dict, wall: dict, level: dict, target: Optio
     ceiling = float(level["elevation"]) + float(level["ceiling_height"])
     room = ceiling - bottom
     if level.get("ceiling_planes"):
-        return STANDARD_HEIGHT_M, f"a sloped ceiling over the level: {STANDARD_HEIGHT_M:.2f} m kept"
+        # 30 Oct 2026 (UL128, UL132; real04 run 20261029-201533: "a sloped ceiling over the level: 2.10 m kept" put
+        # d_L1_001 / 002 back to 2.10 m under a 1.84 m slope, their frames and open leaves through the roof): under a
+        # sloped ceiling a door runs to its head room at its wall, never over it (``head_room``)
+        limit = head_room(o, wall, level)
+        want = STANDARD_HEIGHT_M if target is None else float(target)
+        if limit is not None and want > limit and limit >= MIN_CLEAR_M - 1e-9:
+            return round(limit, 4), f"{what}: {limit:.2f} m, its head room under the sloped ceiling at its wall"
+        if limit is not None and want > limit:
+            # too low a head room for a usable door: ``apply_under_roof`` slides it along its wall or lowers it with
+            # a finding (never a role height through the roof)
+            return round(want, 4), f"{what}: {want:.2f} m; its head room at its wall is {limit:.2f} m (the roof rule)"
+        return round(want, 4), f"{what} under the sloped ceiling: {want:.2f} m"
     want = room if target is None else min(float(target), room)
     _cx, _cy, t = centre_on_wall(o, wall)
     w = float(o.get("width") or 0.0)
@@ -472,17 +513,190 @@ def apply_sizes(building: dict, style) -> tuple[list[dict], list[dict]]:
     return changes, assumed
 
 
+# ---------------------------------------------------------------------------------- UL128 / UL132: under the roof
+
+def head_room(o: dict, wall: dict, level: dict, t: Optional[float] = None) -> Optional[float]:
+    """How tall a door's opening may be over its own bottom where it stands under a sloped ceiling (pure; 30 Oct 2026,
+    lessons UL128, UL132): the lowest of the level's ``ceiling_planes`` over its frame (the opening and its architrave,
+    ``FRAME_ALONG_M`` past each jamb, on both wall faces) less ``ROOF_HEAD_GAP_M`` (the architrave's head stands
+    ``HEAD_RISE_M`` over the opening) and its sill; None on a level without a sloped ceiling. ``t``: the door's centre
+    along its wall (default: where it stands). One height serves the opening, the leaf, the jamb lining, the head and
+    the architrave: they are all built from the opening's height."""
+    planes = level.get("ceiling_planes") if isinstance(level, dict) else None
+    if not planes or not o.get("center"):
+        return None
+    from wenart.blender import geom2d
+
+    a, u, _length = _axis(wall)
+    n = G.unit_normal_left(wall["start"], wall["end"])
+    if t is None:
+        _cx, _cy, t = centre_on_wall(o, wall)
+    cx, cy = a[0] + u[0] * t, a[1] + u[1] * t
+    half = float(o.get("width") or 0.0) / 2.0 + FRAME_ALONG_M
+    depth = float(wall.get("thickness") or 0.2) / 2.0
+    pts = [(cx + u[0] * s * half + n[0] * k * depth, cy + u[1] * s * half + n[1] * k * depth)
+           for s in (-1.0, 1.0) for k in (-1.0, 1.0)]
+    low = min(geom2d.surface_z(planes, x, y) for x, y in pts)
+    sill = float(o.get("sill_height") or 0.0)
+    return round(low - float(level.get("elevation") or 0.0) - sill - ROOF_HEAD_GAP_M, 4)
+
+
+def door_height_of(o: dict) -> float:
+    """The door's built height (``shell.opening_vertical``'s default for none)."""
+    h = o.get("height")
+    return float(h) if isinstance(h, (int, float)) and not isinstance(h, bool) else STANDARD_HEIGHT_M
+
+
+def _slide_spots(o: dict, wall: dict, openings: Sequence[dict]) -> list[float]:
+    """The centres along its wall a door may slide to (pure; UL128): ``ROOF_SLIDE_STEP_M`` steps up to
+    ``ROOF_SLIDE_MAX_M`` either way, nearest first, within ``width_room`` (the wall's ends and the other openings)."""
+    _cx, _cy, t = centre_on_wall(o, wall)
+    before, after = width_room(o, wall, openings)
+    out = []
+    k = 1
+    while k * ROOF_SLIDE_STEP_M <= ROOF_SLIDE_MAX_M + 1e-9:
+        d = k * ROOF_SLIDE_STEP_M
+        if d <= after + 1e-9:
+            out.append(t + d)
+        if d <= before + 1e-9:
+            out.append(t - d)
+        k += 1
+    return out
+
+
+def plan_under_roof(building: dict) -> list[dict]:
+    """Every door of a level under a sloped ceiling whose opening reaches over its head room (pure; UL128, UL132,
+    user: "Some frames coming out of the roof it needs fixing", "Door frame needs fixing"): ``[{"id", "height", "was",
+    "head_room", "center", "moved_m", "fits", "drawn", "reason"}]``. A door is lowered to its head room when that
+    leaves ``MIN_CLEAR_M``; else it slides along its wall (``_slide_spots``: at most ``ROOF_SLIDE_MAX_M``, the same
+    rooms on both sides) to the nearest spot that does; else it is lowered to its head room all the same (``fits``
+    False: a finding, it needs a dormer or a raised roof). A drawn height over the wall at the door is a clear
+    reading error (a door cannot be taller than its wall there): it is lowered too, ``drawn`` True."""
+    walls, levels = _walls(building), _levels(building)
+    openings = list(building.get("openings") or [])
+    out = []
+    for o in openings:
+        if o.get("type") != "door" or not o.get("center") or o.get("virtual"):
+            continue
+        wall, level = walls.get(o.get("wall_id")), levels.get(o.get("level_id"))
+        if wall is None or level is None:
+            continue
+        room = head_room(o, wall, level)
+        h = door_height_of(o)
+        if room is None or h <= room + HEIGHT_TOL_M:
+            continue
+        listed = set(o.get("assumed") or ()) if isinstance(o.get("assumed"), (list, tuple)) else set()
+        drawn = o.get("height") is not None and "height" not in listed
+        rec = {"id": o["id"], "was": round(h, 4), "head_room": room, "center": None, "moved_m": 0.0, "drawn": drawn}
+        if room >= MIN_CLEAR_M - 1e-9:
+            rec.update(height=round(room, 4), fits=True,
+                       reason=f"its {h:.2f} m would reach over the sloped ceiling at its wall: lowered to its head "
+                              f"room {room:.2f} m (UL128)")
+        else:
+            rooms = _rooms(building, level["id"])
+            ids = [r.get("id") if r else None for r in sides(o, wall, rooms)]
+            a, u, _l = _axis(wall)
+            spot = None
+            half = max(0.0, float(o.get("width") or 0.0) / 2.0 - FRAME_W_M)
+            for t in _slide_spots(o, wall, openings):
+                there = dict(o, center=[a[0] + u[0] * t, a[1] + u[1] * t])
+                r2 = head_room(there, wall, level)
+                if r2 is None or r2 < MIN_CLEAR_M - 1e-9:
+                    continue
+                # the same two rooms at its centre and at both jambs (no slide past a wall meeting this one)
+                probes = [dict(o, center=[a[0] + u[0] * x, a[1] + u[1] * x]) for x in (t - half, t, t + half)]
+                if all([r.get("id") if r else None for r in sides(p, wall, rooms)] == ids for p in probes):
+                    spot = (t, r2, there["center"])
+                    break
+            if spot is not None:
+                _cx, _cy, t0 = centre_on_wall(o, wall)
+                new_h = min(h, spot[1])
+                rec.update(height=round(new_h, 4), fits=True, head_room=spot[1],
+                           center=[round(spot[2][0], 4), round(spot[2][1], 4)], moved_m=round(spot[0] - t0, 4),
+                           reason=f"its head room at its wall is only {room:.2f} m (under {MIN_CLEAR_M:.2f} m): slid "
+                                  f"{spot[0] - t0:+.2f} m along its wall to where the sloped ceiling leaves "
+                                  f"{spot[1]:.2f} m, {new_h:.2f} m high (UL128)")
+            else:
+                rec.update(height=round(max(room, 0.05), 4), fits=False,
+                           reason=f"its head room under the sloped ceiling is only {room:.2f} m (under "
+                                  f"{MIN_CLEAR_M:.2f} m) and no spot within {ROOF_SLIDE_MAX_M:.1f} m along its wall "
+                                  f"leaves more: lowered to {max(room, 0.05):.2f} m so nothing crosses the roof; it "
+                                  f"needs a dormer or a raised roof (review)")
+        out.append(rec)
+    return out
+
+
+def apply_under_roof(building: dict) -> tuple[list[dict], list[dict], list[str]]:
+    """Carry out ``plan_under_roof`` on ``building`` (in place): ``(changes, assumed entries, warnings)``. Every
+    change keeps ``drawn_height`` (and ``drawn_center`` for a slid door), is recorded in ``under_roof`` and as
+    ``adjusted_by_ai`` (by code), and in ``assumed``; a door that does not fit is a warning (its finding)."""
+    changes = plan_under_roof(building)
+    by_id = {o.get("id"): o for o in building.get("openings") or []}
+    assumed, warnings = [], []
+    for c in changes:
+        o = by_id[c["id"]]
+        o.setdefault("drawn_height", o.get("height"))
+        o["height"] = c["height"]
+        listed = list(o.get("assumed") or []) if isinstance(o.get("assumed"), (list, tuple)) else []
+        if "height" not in listed and not c["drawn"]:
+            o["assumed"] = listed + ["height"]
+        if c["center"] is not None:
+            o.setdefault("drawn_center", list(o["center"]))
+            o["center"] = list(c["center"])
+        o["under_roof"] = {k: c[k] for k in ("height", "was", "head_room", "moved_m", "fits", "drawn", "reason")}
+        if isinstance(o.get("adjusted_by_ai"), dict):          # as D5 does: the first record stays, the rule is evidence
+            ev = o.setdefault("evidence", [])
+            if isinstance(ev, list):
+                ev.append({"file": "door_states", "method": "inferred", "confidence": 0.8,
+                           "rule": "UL128 doors under the roof", "text": c["reason"]})
+        else:
+            o["adjusted_by_ai"] = {"by": "code", "rule": "UL128 doors under the roof", "reason": c["reason"]}
+        if isinstance(o.get("door_size"), dict):
+            o["door_size"] = dict(o["door_size"], height=c["height"], reason=f"{o['door_size'].get('reason')}; "
+                                                                             f"{c['reason']}")
+        assumed.append({"object": c["id"], "field": "under_roof", "value": {"height": c["height"],
+                                                                           "moved_m": c["moved_m"]},
+                        "reason": c["reason"], "parent": c["id"], "kind": "door_under_roof"})
+        if not c["fits"]:
+            warnings.append(f"{c['id']}: {c['reason']}")
+    return changes, assumed, warnings
+
+
+def leaf_head(o: dict, level: Optional[dict]) -> Optional[dict]:
+    """``{"planes", "top"}`` for a door on a level under a sloped ceiling (its leaf's top in world z: the floor + the
+    sill + the opening's height), None elsewhere (pure; UL128: an open leaf reaches into the room, where the slope
+    may be lower than over its wall)."""
+    planes = (level or {}).get("ceiling_planes")
+    if not planes:
+        return None
+    top = float(level.get("elevation") or 0.0) + float(o.get("sill_height") or 0.0) + door_height_of(o)
+    return {"planes": planes, "top": top}
+
+
+def leaf_under_ceiling(poly, head: Optional[dict]) -> Optional[float]:
+    """How far a leaf's outline (plan) reaches over the sloped ceiling over it (pure; positive: it crosses, by that
+    much plus ``LEAF_HEAD_GAP_M``), None when it stays under it or on a flat level."""
+    if not head or not poly:
+        return None
+    from wenart.blender import geom2d
+
+    low = min(geom2d.surface_z(head["planes"], float(p[0]), float(p[1])) for p in poly)
+    over = float(head["top"]) + LEAF_HEAD_GAP_M - low
+    return round(over, 4) if over > 1e-6 else None
+
+
 # -------------------------------------------------------------------------------------------------------- D1 states
 
-def leaf_frame(o: dict, wall: dict) -> dict:
+def leaf_frame(o: dict, wall: dict, level: Optional[dict] = None) -> dict:
     """The door's frame in plan: centre, wall axis ``u``, left normal ``n``, wall thickness, the leaf's clear width
-    ``lw`` and thickness ``t`` (the parametric door's sizes)."""
+    ``lw`` and thickness ``t`` (the parametric door's sizes); ``head`` (30 Oct 2026, UL128: ``leaf_head``) on a level
+    under a sloped ceiling, so an open leaf is tried under the ceiling over it."""
     cx, cy, _t = centre_on_wall(o, wall)
     _a, u, _l = _axis(wall)
     n = G.unit_normal_left(wall["start"], wall["end"])
     w = float(o.get("width") or 0.0)
     return {"c": (cx, cy), "u": u, "n": n, "T": float(wall.get("thickness") or 0.2), "w": w,
-            "lw": max(0.1, w - 2 * FRAME_W_M - LEAF_CLEAR_M), "t": LEAF_T_M}
+            "lw": max(0.1, w - 2 * FRAME_W_M - LEAF_CLEAR_M), "t": LEAF_T_M, "head": leaf_head(o, level)}
 
 
 def _to_world(fr: dict, x: float, y: float) -> tuple[float, float]:
@@ -618,6 +832,9 @@ def _swing_try(fr, side, hinge, angle, room, pieces, others, lw=None, hx=None):
     leaf = swing_leaf(fr, side, hinge, angle, lw=lw, hx=hx)
     if room is not None and not _inside(leaf["poly"] + leaf["sweep"][1:], room, fr, side):
         return leaf, "its leaf would run into the wall of the room it opens into"
+    over = leaf_under_ceiling(leaf["poly"], fr.get("head"))
+    if over is not None:                  # 30 Oct 2026 (UL128): the slope over the open leaf is lower than its top
+        return leaf, f"its open leaf would reach {over:.2f} m into the sloped ceiling over it"
     hit = sorted(set(_hits(leaf["poly"], pieces)) | set(_hits(leaf["sweep"], pieces)))
     if hit:
         return leaf, f"its {'swing' if not set(_hits(leaf['poly'], pieces)) else 'open leaf'} would hit " \
@@ -741,7 +958,7 @@ def plan_states(building: dict, style, cameras: Sequence[dict] = ()) -> dict:
         side, into, side_assumed = swing_side(o, wall, rooms)
         room = next((r for r in rooms if r.get("id") == into), None)
         op = operation_of(o)
-        fr = leaf_frame(o, wall)
+        fr = leaf_frame(o, wall, level)
         rec = {"state": "closed", "operation": op, "role": role, "side": side, "into": into,
                "rooms": [r.get("id") if r else None for r in rs], "angle_deg": 0.0, "slide_m": None, "hinge": None,
                "hinge_side": None, "hinge_assumed": None, "leaf_polys": [], "by": "rule", "assumed": True}
@@ -773,6 +990,18 @@ def plan_states(building: dict, style, cameras: Sequence[dict] = ()) -> dict:
             continue
         prefer = camera_hinge(fr, side, cam["position"]) if cam and cam.get("position") else None
         _decide(rec, o, fr, side, room, op, want, why, pieces, others, prefer)
+        if rec["state"] == "closed" and side_assumed and "sloped ceiling" in str(rec.get("blocked") or ""):
+            # 30 Oct 2026 (UL128): the slope over its own side is too low for the open leaf and no swing side is
+            # drawn: it swings into the room on the other side when its leaf is free there
+            other = next((r for r in rs if r is not None and r.get("id") != into), None)
+            if other is not None:
+                trial = dict(rec)
+                _decide(trial, o, fr, -side, other, op, want, why, pieces, others, prefer)
+                if trial["state"] != "closed":
+                    trial.update(side=-side, into=other.get("id"), swing_turned=True,
+                                 reason=trial["reason"] + f"; its swing turned into {other.get('id')}: the slope over "
+                                                          f"{into} is too low for its open leaf (UL128)")
+                    rec, side_assumed = trial, False
         if rec["state"] != "closed" and rec.get("leaf_polys"):
             taken.setdefault(lid, []).extend((o["id"], p) for p in rec["leaf_polys"])
         if side_assumed and rec["state"] != "closed":
@@ -864,8 +1093,10 @@ def _decide(rec: dict, o: dict, fr: dict, side: int, room: Optional[dict], op: s
             meet = [oid for oid, poly in others if overlap(leaf["poly"], poly) > HIT_M2] if surface else []
             room_ok = room is None or not surface or all(
                 G.point_in_polygon(p, room["polygon"]) for p in leaf["poly"][2:])
+            over = leaf_under_ceiling(leaf["poly"], fr.get("head"))     # 30 Oct 2026 (UL128)
             stop = (f"its slid leaf would hit {', '.join(hit[:3])}" if hit else
                     f"its slid leaf would cover {meet[0]}" if meet else
+                    f"its slid leaf would reach {over:.2f} m into the sloped ceiling over it" if over is not None else
                     None if room_ok else "the wall beside it is too short for its slid leaf")
             if stop is None:
                 rec.update(state="open", slide_m=leaf["slide_m"], leaf_polys=[leaf["poly"]],
@@ -938,7 +1169,7 @@ def revise_for_cameras(building: dict, style, plans: Sequence[dict], level_id=No
                 continue
             beyond = next((rooms_by.get(x) for x in ls.get("rooms") or [] if x and x != rid), None)
             worth = worth_showing(building, rooms_by.get(rid), beyond)
-            fr = leaf_frame(o, wall)
+            fr = leaf_frame(o, wall, levels.get(o.get("level_id")))
             side = int(ls.get("side") or -1)
             room = rooms_by.get(ls.get("into"))
             prefer = camera_hinge(fr, side, pos)
@@ -1015,6 +1246,11 @@ def apply_states(building: dict, style, cameras: Sequence[dict] = ()) -> tuple[d
     assumed = []
     for oid, rec in states.items():
         by_id[oid]["leaf_state"] = rec
+        if rec.get("swing_turned") and rec.get("into"):
+            # 30 Oct 2026 (UL128): the build hangs the leaf on this side (``shell.opening_room_side``: swing_side)
+            by_id[oid]["swing_side"] = rec["into"]
+            assumed.append({"object": oid, "field": "swing_side", "value": rec["into"], "reason": rec.get("reason"),
+                            "parent": oid, "kind": "door_swing_under_roof"})
         assumed.append({"object": oid, "field": "leaf_state",
                         "value": {k: rec.get(k) for k in ("state", "angle_deg", "slide_m", "hinge_side")},
                         "reason": rec.get("reason") or "", "parent": oid, "kind": "door_state"})
@@ -1188,4 +1424,36 @@ def frame_problems(manifest: Optional[dict]) -> list[dict]:
             out.append({"target": oid, "kind": "no_architrave", "severity": "minor",
                         "message": f"door {oid} has no architrave on its indoor face(s) {missing}: an architrave "
                                    "covers the joint of the frame and the plaster (UL122)"})
+        out += census_problems(oid, fr.get("census"))
+    return out
+
+
+FRAME_TOP_TOL_M = 0.01            # a frame part may stand HEAD_RISE_M (+ this) over its opening's head, no more
+
+
+def census_problems(oid: str, census: Optional[dict]) -> list[dict]:
+    """30 Oct 2026 (lesson UL132, user on real04's d_L1_001: "Door frame needs fixing"; ``parametric.frame_census``):
+    the opening, the leaf, the jamb lining, the head and the architrave share one height, and the frame is complete:
+    a frame part reaching over its opening's head by more than the architrave's ``HEAD_RISE_M`` (``frame_taller``,
+    major), a lining or an architrave face with jambs and no head (``jamb_without_head``, major), or with one jamb only
+    (``one_jamb``, major). Pure; [] without a census (a frame built before the rule)."""
+    if not isinstance(census, dict):
+        return []
+    out = []
+    h, top = census.get("height_m"), census.get("top_m")
+    if isinstance(h, (int, float)) and isinstance(top, (int, float)) and top > h + HEAD_RISE_M + FRAME_TOP_TOL_M:
+        out.append({"target": oid, "kind": "frame_taller", "severity": "major",
+                    "message": f"door {oid}'s frame reaches {top:.2f} m over its bottom, over its {h:.2f} m opening: "
+                               "the opening, the leaf and the frame share one height (UL132)"})
+    slots = [("its jamb lining", census.get("lining") or {})] + \
+        [(f"its architrave on face {k}", v) for k, v in sorted((census.get("faces") or {}).items())]
+    for what, slot in slots:
+        jambs, heads = int(slot.get("jambs") or 0), int(slot.get("heads") or 0)
+        if jambs and not heads:
+            out.append({"target": oid, "kind": "jamb_without_head", "severity": "major",
+                        "message": f"door {oid}: {what} has {jambs} jamb(s) and no head (UL132: both jambs and the "
+                                   "head on each indoor face)"})
+        elif jambs == 1:
+            out.append({"target": oid, "kind": "one_jamb", "severity": "major",
+                        "message": f"door {oid}: {what} has one jamb only (UL132: both jambs and the head)"})
     return out

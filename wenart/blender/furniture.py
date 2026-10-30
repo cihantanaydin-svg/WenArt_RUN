@@ -250,6 +250,18 @@ MIRROR_ASPECT = 1.25                           # the parametric mirror's height 
 # Milestone 10: wall decor of a parametric shape when no library model is fitted (the mirror since Milestone 9).
 PARAMETRIC_WALL_DECOR = ("mirror", "clock")
 TOWEL_DECOR_KEY = "colour_towel"   # 29 Oct 2026 (UL124 B26): a decor towel takes the item's towel_colour
+TOWEL_DECOR_KEYS = (TOWEL_DECOR_KEY, TOWEL_DECOR_KEY + "_alt", TOWEL_DECOR_KEY + "_band")   # 30 Oct 2026 (UL138)
+
+
+def towel_part_colour(item: dict, key: str):
+    """The colour phrase of a decor towel part (pure; 30 Oct 2026, UL138): the item's towel colour, its second shade
+    for ``colour_towel_alt`` (``towel_parts.towel_shade``), None for any other key."""
+    from wenart.blender import towel_parts as TP
+
+    if key not in TOWEL_DECOR_KEYS:
+        return None
+    colour = item.get("towel_colour")
+    return TP.towel_shade(colour) if key.endswith(TP.ALT_KEY_SUFFIX) else colour
 CLOCK_DEPTH_M = 0.045
 # Lamps that light up in a ``lamps_on`` mood (or with ``light_on``): kind -> (watts, temperature K, radius m,
 # where: "below_shade" / "bulb"); designer values (assumed), recorded per light.
@@ -641,7 +653,10 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "led": (LED_SLUG, None, None),
         "stone_light": ("marble", _vocab_asset("marble"), None),
         "terrazzo": ("terrazzo", _vocab_asset("terrazzo"), None),
-        "towel": ("fabric_white", asset_of("fabric_white"), None),
+        # 30 Oct 2026 (UL138): the towels' terry cloth, a stack's second shade and a hanging towel's woven band
+        # (towel_parts: ``<key>_alt``, ``<key>_band``)
+        "towel": ("fabric_terry", None, None), "towel_alt": ("fabric_terry", None, None),
+        "towel_band": ("fabric_cotton", None, None),
         # 29 Oct 2026 (UL113, UL115): dried pampas plumes (a cream linen); the reference details' LED strips take
         # the "led" key above (detail_parts.led_strip_material is materials.led_material)
         "pampas": ("fabric_linen", asset_of("fabric_linen"), None),
@@ -715,8 +730,13 @@ def design_overrides(design: dict, ftype: str) -> tuple[dict, list[str]]:
             out[key] = {"slug": "fabric_linen", "asset": asset("fabric_linen"), "colour": fabric}
         notes.append(f"fabric {fabric}")
     if design.get("towel_colour"):            # 29 Oct 2026 (UL124 B26): the room's towels in its accent colour
-        out["towel"] = {"slug": "fabric_white", "asset": asset("fabric_white"), "colour": design["towel_colour"]}
-        notes.append(f"towels {design['towel_colour']}")
+        from wenart.blender import towel_parts as TP
+
+        colour = design["towel_colour"]          # 30 Oct 2026 (UL138): terry, its second shade, the woven band
+        out["towel"] = {"slug": TP.TERRY_SLUG, "asset": None, "colour": colour}
+        out["towel_alt"] = {"slug": TP.TERRY_SLUG, "asset": None, "colour": TP.towel_shade(colour)}
+        out["towel_band"] = {"slug": TP.BAND_SLUG, "asset": None, "colour": colour}
+        notes.append(f"towels {colour}")
     return out, notes
 
 
@@ -1326,7 +1346,7 @@ def _bedding_test(piece: dict, entry: dict, ob) -> str | None:
     pts = _evaluated_world_points(ob)
     centre, rot, size = BP.bed_frame(piece)
     relief = BP.bedding_relief(pts, centre, rot, size) if len(pts) else {}
-    mode, why = BP.dress_mode(piece.get("asset"), relief)
+    mode, why = BP.dress_mode(piece.get("asset"), relief, width=size[0])     # 30 Oct 2026 (UL137): flat pillows
     entry["bedding_test"] = dict(relief, own_bedding=True, mode=mode, poorer=mode is not None, reason=why,
                                  rule=BP.RULE)
     return mode
@@ -1526,6 +1546,16 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                                                  "reason": f"the model of {host['id']} has its own made bedding: a "
                                                            "throw over its folds clips through them"})
                 continue
+        # 30 Oct 2026 (lesson UL151, user: "this vase on the floor not making sense"): table-size decor never stands on
+        # the floor, and a floor piece's model reads as one (else ours at the type's height)
+        item, floor_why = floor_class_item(item, host)
+        if floor_why is not None:
+            summary["decor_skipped"].append({"id": item.get("id"), "type": item.get("type"),
+                                             "room_id": item.get("room_id"), "reason": floor_why})
+            continue
+        if item.get("floor_class_note"):
+            assumed.append({"object": str(item.get("id")), "field": "floor_class", "value": "parametric",
+                            "reason": item["floor_class_note"]})
         # Milestone 12: the room's floor (shell.room_floor_z); lights from the level's ceiling, curtains and blinds at
         # their window (decor_floor)
         item_floor, item, _floor_how = decor_floor(building, level, item)
@@ -1710,7 +1740,9 @@ def _dress_bed(piece, entry, ob, floor_z, collection, mats, assumed, warnings, c
     (``textiles.bedding_set``: euro shams, standing pillows, the accent cushions and the lumbar in the AI's cushion
     colours, the soft deep duvet hanging almost to the floor on each side ``bedding_parts.bed_sides`` finds free, the
     rolled turn-down), still one mesh: each fabric is a material slot (``split_key``); ``mode`` pillows (a made-up model
-    whose duvet has folds but no pillows) leaves the duvet out."""
+    whose duvet has folds but no pillows) leaves the duvet out. 30 Oct 2026 (UL136, UL137, UL146): a real made bed
+    (``textiles.bedding_set``: the smooth duvet with a level hem, the thin turned-down band, the flanged pillows standing
+    against the headboard, a gap at the head closed); the record carries the duvet's measured look and the head."""
     from wenart.blender import bedding_parts as BP
     from wenart.blender import rest as R
     from wenart.blender import textiles as T
@@ -1889,8 +1921,16 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
         plan = R.plan_throw(item, host, caster, floor_z)
         keys = [p["key"] for p in plan.get("parts") or [] for _f in p["faces"]]
     else:
+        iw, idp, _ih = R.local_bounds(local["verts"])
+        fp = host["footprint"]
+        rot_i = float(item.get("rotation_deg") if item.get("rotation_deg") is not None else fp["rotation_deg"])
+        # 30 Oct 2026 (UL128): under a sloped ceiling the item's top stays under it, at its spot and towards the host's
+        # centre (where a top item may move); a shelf item takes a board low enough
+        max_top = slope_top_z(level, [(item.get("center") or fp["center"], (iw, idp), rot_i),
+                                      (fp["center"], (iw, idp), rot_i)], host.get("room_id"))
         plan = R.plan_decor(item, host, caster, local["verts"], local["faces"], support,
-                            lean_deg=float(frame.get("lean_deg") or 0.0), shelf=frame.get("shelf"), back_caster=back)
+                            lean_deg=float(frame.get("lean_deg") or 0.0), shelf=frame.get("shelf"), back_caster=back,
+                            max_top_z=max_top)
         keys = local.get("keys")
     if "not_rested" in plan:
         record = dict(plan["not_rested"], room_id=item.get("room_id"))
@@ -1986,6 +2026,16 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
     w, d = float(fp["size"][0]), float(fp["size"][1])
     rot = float(fp["rotation_deg"])
     cx, cy = float(fp["center"][0]), float(fp["center"][1])
+    # 30 Oct 2026 (UL128, user: "Some frames coming out of the roof it needs fixing"): under a sloped ceiling a piece
+    # stays under it: its height at most what the slope over its footprint leaves (``under_roof_cap``); a library
+    # model taller than that gives way to the module or parametric piece at that height (below)
+    cap = under_roof_cap(level, piece, floor_z)
+    roof = None
+    if cap is not None and height > cap + UNDER_ROOF_TOL_M:
+        roof = {"was": round(height, 4), "height": round(max(cap, MIN_PIECE_H_M), 4), "room_m": cap,
+                "reason": f"{piece['type']} {height:.2f} m high where the sloped ceiling over its footprint leaves "
+                          f"{cap:.2f} m: built {max(cap, MIN_PIECE_H_M):.2f} m high (UL128)"}
+        height = roof["height"]
     status = piece.get("status", "verified")
     unverified = status == "unverified"
     name = f"furn_{piece['id']}"
@@ -2013,6 +2063,21 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
     file, reason = resolve_asset(piece.get("asset"), assets_dir)
     if file is None and (piece.get("asset") or {}).get("method") == "library":
         warnings.append(f"{piece['id']}: {reason}; parametric mesh used")  # a fit was made but cannot be built
+    model_h = fitted_height(piece.get("asset"))
+    if cap is not None and file is not None and model_h is not None and model_h > cap + UNDER_ROOF_TOL_M:
+        reason = (f"the model is {model_h:.2f} m tall where the sloped ceiling over its footprint leaves {cap:.2f} m "
+                  f"(UL128)")
+        warnings.append(f"{piece['id']}: {reason}; the piece is built {min(height, max(cap, MIN_PIECE_H_M)):.2f} m "
+                        "high from modules or parametric")
+        height = min(height, round(max(cap, MIN_PIECE_H_M), 4))
+        roof = dict(roof or {"was": round(model_h, 4), "room_m": cap}, height=height, model_m=round(model_h, 4),
+                    reason=reason)
+        entry["center"][2], entry["size"][2] = floor_z + height / 2.0, height
+        file = None
+    if roof is not None:
+        entry["under_roof"] = roof
+        assumed.append({"object": name, "field": "under_roof", "value": roof["height"], "reason": roof["reason"],
+                        "parent": piece["id"], "kind": "piece_under_roof"})
     ob = None
     if file is not None:
         try:
@@ -2022,7 +2087,7 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
             reason = f"import of {file} failed: {type(exc).__name__}: {exc}"
             warnings.append(f"{piece['id']}: {reason}; parametric mesh used")
             ob = None
-    if ob is None and (piece.get("asset") or {}).get("method") == MOD.MODULE_METHOD:
+    if ob is None and (piece.get("asset") or {}).get("method") == MOD.MODULE_METHOD and roof is None:
         # Milestone 13: the module builder (the fit's plan, else the plan of the piece as it is)
         plan, plan_reason = module_plan_of(piece, style)
         if plan is not None and design:
@@ -2038,9 +2103,14 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
         if ob is None:
             reason = f"{plan_reason}; parametric family used"
             warnings.append(f"{piece['id']}: {reason}")
+    if ob is None and roof is not None and (piece.get("asset") or {}).get("method") in ("library", MOD.MODULE_METHOD):
+        reason = roof["reason"]                       # 30 Oct 2026 (UL128): the slope over it decides the build
     if ob is None:
         ob = _parametric_object(piece, name, status, floor_z, height + lift, collection, mats, entry,
                                 overrides=overrides)
+        top = raised_top_m(entry.pop("_parts_z", None), base)
+        if top is not None and "top_m" not in entry:
+            entry["top_m"] = top          # 30 Oct 2026: a floating nightstand's top (decor and wall art over it)
         entry["method"] = f"parametric (fallback: {reason})"
         entry["fallback_reason"] = reason
         if lift:
@@ -2366,8 +2436,24 @@ def _parametric_object(piece, name, status, floor_z, height, collection, mats, e
                   "textured": any(mats.library.textured(m) for m in slots),
                   "material_keys": {k.removeprefix(LIT_KEY): mats.slug(k.removeprefix(LIT_KEY), overrides)
                                     for k in used_keys},
-                  "bevel": add_bevel(ob, parts), "_details": design_details(piece["type"], parts)})
+                  "bevel": add_bevel(ob, parts), "_details": design_details(piece["type"], parts),
+                  "_parts_z": (float(z0), float(z1))})          # 30 Oct 2026: a hung form's box (raised_top_m)
     return ob
+
+
+RAISED_PARTS_M = 0.005     # a parametric piece whose parts start this far over its floor hangs (a floating form)
+
+
+def raised_top_m(parts_z, base: float = 0.0) -> float | None:
+    """The built top over the room floor of a parametric piece whose parts start above its own floor (pure; 30 Oct
+    2026): ``base`` (its mount bottom) + the parts' top, None for a piece standing on its floor (``parts_z`` = the
+    parts' ``(z0, z1)`` in the piece frame). Why: a floating nightstand (R33) is a 0.22 m box hung under its top at
+    0.50 m; its manifest box keeps the footprint and the height (0-0.50 m) and ``bbox_m`` the mesh's 0.22 m, so a
+    reader of "bottom + bbox height" took its top for 0.22 m (real04 run 20261029-201533: the GPU test said the lamp
+    on it stood 0.28 m over it; a picture hung over it would have hung 0.28 m too low)."""
+    if not parts_z or float(parts_z[0]) <= RAISED_PARTS_M:
+        return None
+    return round(float(base) + float(parts_z[1]), 4)
 
 
 LIT_KEY = "lit:"                     # a part key prefix: the key's material with a glow (a lit lamp's shade)
@@ -2662,6 +2748,85 @@ def ceiling_above(level: dict, center, size, rotation_deg: float = 0.0) -> tuple
     return round(z, 4), "the sloped ceiling under the roof (its lowest point over the item)"
 
 
+def floor_class_item(item: dict, host: dict | None) -> tuple[dict, str | None]:
+    """``(item, None)`` to build, or ``(item, why)`` not to build (pure; 30 Oct 2026, lesson UL151, user on real04's
+    kitchen: "this vase on the floor not making sense"): a table-size item with no host standing on the floor is not
+    built (``rest.floor_class_problem``); a floor piece (a plant, a floor vase) whose fitted library model is too low or
+    a table piece by its title is built as ours at the type's height (its ``asset`` dropped, ``floor_class_note``)."""
+    from wenart.blender import rest as R
+
+    if not R.on_the_floor(item, host):
+        return item, None
+    dtype = item.get("type")
+    if dtype in R.TABLETOP_TYPES:
+        return item, (f"{R.floor_class_problem(dtype)}: it has no surface to stand on (no host); the decor stage "
+                      "puts it on a worktop, a table, a shelf or a sideboard")
+    asset = item.get("asset") if isinstance(item.get("asset"), dict) else {}
+    if dtype in R.FLOOR_MIN_H_M and asset.get("method") == "library":
+        box = asset.get("bbox_m") or []
+        why = R.floor_class_problem(dtype, float(box[2]) if len(box) > 2 else None, asset.get("title"))
+        if why is not None:
+            w, d, h = P.decor_size(dtype, item.get("size") or [0.4, 0.4])
+            size = [w, d, max(h, R.FLOOR_MIN_H_M[dtype])]
+            return dict(item, asset=None, size=size,
+                        floor_class_note=f"{why}: built as our {dtype.replace('_', ' ')} {size[2]:.2f} m high instead "
+                                         f"of {asset.get('asset_id')}"), None
+    elif dtype in R.FLOOR_MIN_H_M:
+        w, d, h = P.decor_size(dtype, item.get("size") or [0.4, 0.4])
+        if h < R.FLOOR_MIN_H_M[dtype] - 1e-9:                # ours, as tall as a floor piece of its type
+            return dict(item, size=[w, d, R.FLOOR_MIN_H_M[dtype]],
+                        floor_class_note=f"{R.floor_class_problem(dtype, h)}: built "
+                                         f"{R.FLOOR_MIN_H_M[dtype]:.2f} m high"), None
+    return item, None
+
+
+UNDER_ROOF_CLEAR_M = 0.02        # = build.WINDOW_DECOR_CEILING_CLEAR_M: what stays under a sloped ceiling, stays this far
+UNDER_ROOF_TOL_M = 0.005         # a piece this much over what the slope leaves is cut down (a rounding is no cut)
+MIN_PIECE_H_M = 0.05
+UNDER_ROOF_EXEMPT: tuple[str, ...] = ("stair",)        # fixed equipment the stair builder makes
+
+
+def under_roof_cap(level: dict, piece: dict, floor_z: float) -> float | None:
+    """How tall a piece may be over its bottom (``floor_z``, world: its floor and mount height) under the sloped
+    ceiling over its footprint (pure; 30 Oct 2026, lesson UL128): the lowest ``ceiling_above`` over its footprint less
+    ``UNDER_ROOF_CLEAR_M``; None on a level without a sloped ceiling, for ``UNDER_ROOF_EXEMPT`` or without a
+    footprint."""
+    fp = piece.get("footprint") if isinstance(piece.get("footprint"), dict) else None
+    if not level.get("ceiling_planes") or piece.get("type") in UNDER_ROOF_EXEMPT or not fp or not fp.get("size") \
+            or under_sky(level, piece.get("room_id")):
+        return None
+    low, _how = ceiling_above(level, fp["center"], fp["size"], float(fp.get("rotation_deg") or 0.0))
+    return round(float(level.get("elevation") or 0.0) + low - UNDER_ROOF_CLEAR_M - float(floor_z), 4)
+
+
+def fitted_height(asset) -> float | None:
+    """The fitted library model's height (``asset.bbox_m[2]``, the fit's scaled box), None without one (pure)."""
+    box = (asset or {}).get("bbox_m") if isinstance(asset, dict) else None
+    if (asset or {}).get("method") != "library" or not box or len(box) < 3:
+        return None
+    try:
+        return float(box[2])
+    except (TypeError, ValueError):
+        return None
+
+
+def under_sky(level: dict, room_id) -> bool:
+    """A room of the level open to the sky (a roof terrace, a balcony out of the roof: ``level["open_rooms"]``, the
+    build's ``prepare``): no ceiling over it (pure; 30 Oct 2026, UL128: the sloped ceiling's planes run on past the
+    roof's outline and would cap a terrace's chairs)."""
+    return bool(room_id) and room_id in (level.get("open_rooms") or ())
+
+
+def slope_top_z(level: dict, footprints, room_id=None) -> float | None:
+    """The highest world z an item may reach under the sloped ceiling over ``footprints`` (``[(centre, (w, d),
+    rotation_deg)]``: the lowest ``ceiling_above`` over them, ``UNDER_ROOF_CLEAR_M`` under it; pure; 30 Oct 2026, lesson
+    UL128), None on a level without a sloped ceiling or in a room under the sky (``under_sky``)."""
+    if not level.get("ceiling_planes") or under_sky(level, room_id):
+        return None
+    low = min(ceiling_above(level, c, s, r)[0] for c, s, r in footprints)
+    return round(float(level.get("elevation") or 0.0) + low - UNDER_ROOF_CLEAR_M, 4)
+
+
 def _create_decor(item, host, n, level, floor_z, collection, library, mats, assets_dir, pass_indices, host_entry,
                   warnings, geo_cache, skipped: list | None = None, assumed: list | None = None) -> dict | None:
     dtype = item.get("type")
@@ -2784,7 +2949,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         accent = P.DECOR_COLOURS.get(str(item.get("colour") or ""))       # Milestone 9: the AI decor's colour
         overrides = {"pot": pot_override(item)} if dtype == "plant_large" else None
         slots = [_part_material(mats, k, False, accent=accent,
-                                colour=item.get("towel_colour") if k == TOWEL_DECOR_KEY else item.get("colour"),
+                                colour=towel_part_colour(item, k) if k in TOWEL_DECOR_KEYS else item.get("colour"),
                                 overrides=overrides,
                                 lit=lit) for k in used_keys]
         ob = _mesh_object(name, verts, faces, slots, [used_keys.index(k) for k in keys], collection, owner_id,
@@ -2914,7 +3079,13 @@ def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, p
             host_top = float(host_entry["top_m"])
     elif anchors and any(p["id"] == anchors[0] for p in on_level):
         warnings.append(f"decor {dtype} {owner_id}: piece {anchors[0]} is not built; hung at the item's bottom_m")
-    footprint, mount = wall_art_placement(item, box, host_top, float(level.get("ceiling_height") or 2.7))
+    # 30 Oct 2026 (UL128; real04 run 20261028-005318: the mirror dec_L1_013 hung by the level's flat 2.45 m ceiling,
+    # its top 2.17 m over the floor where the slope over its wall was lower, showed through the roof): the ceiling over
+    # the item's place on its wall (the sloped one under the roof)
+    wall_at = item.get("wall_point") or item.get("center") or (host_entry or {}).get("center") or [0.0, 0.0]
+    ceiling, _how = ceiling_above(level, wall_at, (float(box[0]), max(float(box[1]), 0.02)),
+                                  float(item.get("rotation_deg") or 0.0))
+    footprint, mount = wall_art_placement(item, box, host_top, ceiling)
     if footprint is None:
         skipped.append({"id": owner_id, "type": dtype, "room_id": room_id, "reason": mount["reason"]})
         return None

@@ -160,7 +160,7 @@ CHECK_KIND.update({"U32": "taste", "M28": "taste"})
 CHECK_KIND.update({"U34": "taste", "M30": "taste"})
 # 30 Oct 2026 (UL134, UL139): a wall item over an opening, another wall item or behind what stands in front of its wall
 # (wall_items.review)
-CHECK_KIND.update({"U35": "no_sense", "M31": "no_sense"})
+CHECK_KIND.update({"U35": "no_sense", "M32": "no_sense"})
 PREFIX_KIND = {"A": "lost", "B": "lost", "C": "lost", "P": "process", "J": "taste", "F": "geometry", "G": "geometry",
                "S": "taste", "L": "no_sense", "X": "no_sense", "V": "taste", "R": "misread", "W": "no_sense",
                "E": "no_sense", "O": "no_sense", "H": "no_sense", "K": "no_sense", "T": "no_sense", "U": "no_sense"}

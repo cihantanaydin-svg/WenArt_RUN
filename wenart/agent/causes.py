@@ -555,6 +555,7 @@ CHECK_CAUSE: dict[str, str] = {
     "M28": "decor_look",             # 29 Oct 2026 (UL119): the rooms' schemes and details (the decor stage, the build)
     "M25": "wall_plates",            # 29 Oct 2026 (UL112): the light switches and sockets (the build owns them)
     "M30": "decor_look",             # 29 Oct 2026 (UL121): the beds' family bedding (the decor stage and the build)
+    "M31": "under_roof",             # 30 Oct 2026 (UL128): through the ceiling or the roof (cause_of: as X2)
     # 29 Oct 2026: a blocked door front is turned (rotate_piece: fixed equipment turns for a blocked door) or what
     # stands in front of it moves; a basin under a low window is the architect's (cause_of: H2); a back a drawing gap
     # off its wall snaps onto it
@@ -571,7 +572,7 @@ CHECK_CAUSE["M29"] = "opening_style"
 CHECK_CAUSE["M27"] = "kitchen_design"
 # 30 Oct 2026 (UL134, UL139): a wall item over an opening, another wall item or behind a piece in front of its wall is
 # the decor stage's and the build's (wall_items.resolve raises, moves or leaves it out), reported to the decor stage
-CHECK_CAUSE["M31"] = "decor_rest"
+CHECK_CAUSE["M32"] = "decor_rest"
 _PIECE_PREFIXES = ("f_", "furn_", "decor_", "dec_")
 # Fix round after P4b (module docstring): the camera-placement checks a replayed camera is frozen for, the metrics flag
 # ``mark_replayed`` sets, the words of a single view's over-exposure (X7), and the set_exterior slots of a cause.
@@ -780,13 +781,15 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
             if not any(w in text for w in PLACEMENT_WORDS) and any(w in text for w in LOOK_WORDS):
                 return "wrong_model"
         return "wrong_type"
-    if check == "X2":
+    if check in ("X2", "M31"):           # 30 Oct 2026: M31 the same (a piece, a decor item, a door)
         if is_decor(target, building):
             return "decor_under_roof"          # fix round after P3: no agent tool edits decor
         if _is_piece(target, building):
             return "under_roof"
         if metrics.get("kind") == OPENING_CLIP_KIND or any(w in text for w in OPENING_CLIP_WORDS):
             return "opening_under_roof"        # fix round after P4a: a dormer is no set_exterior (module docstring)
+        if target and any(o.get("id") == target for o in (building or {}).get("openings") or []):
+            return "opening_under_roof"        # 30 Oct 2026 (UL128): a door part through the roof (its box3d)
         return "roof"
     if check in ("G2", "G4", "G7", "G9", "G10", "G6", "F5"):
         if _missing(text, metrics):

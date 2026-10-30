@@ -2713,6 +2713,13 @@ class AgentLoop:
             INS.write(self.project_out, rec, self.project_out.name)
         except Exception as exc:  # noqa: BLE001 - the report is a record, never a stop
             self.log.event("check", round_no, check="inspector", status="error", note=f"{type(exc).__name__}: {exc}")
+            # 30 Oct 2026: the failure replaces the last record, so an earlier run's report never stands for this
+            # run's (real04: the 28 Oct record was read by four later runs' Argus)
+            try:
+                INS.write(self.project_out, INS.failed_record(int(round_no), f"{type(exc).__name__}: {exc}"),
+                          self.project_out.name)
+            except Exception:  # noqa: BLE001
+                pass
 
     def final_stop(self, done: str) -> str:
         """Fix round after P6a, part 2: the stage note's stop after the final round: why the rounds stopped (``STOPS``

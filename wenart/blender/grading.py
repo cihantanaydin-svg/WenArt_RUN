@@ -110,6 +110,13 @@ RULES = {
     "G5": "banks: at most 1:3 for lawn, 1:2 planted",
     "G6": "walls: the house's base stone (never bare concrete) with a coping",
     "G7": "floors: each use its own material (terrace, steps, path, drive), never one look everywhere",
+    # 30 Oct 2026 (wenart.blender.site_sense, pool_extras)
+    "G8": "no stray fragments: a flight onto a surface is cut into it, a path ends where it arrives, no kerb between "
+          "two surfaces",
+    "G9": "a flight never meets a wall or a block and ends on a landing or the ground",
+    "G10": "an outdoor stair has one continuous handrail on its open side, on posts on its steps",
+    "G11": "every pool has a ladder, a deck with room has seating",
+    "G12": "the paved strip at the foot of a glazed facade runs its whole glazing run",
 }
 CONCRETE_SLUGS = ("concrete_exposed", "concrete", "concrete_polished")
 
@@ -532,8 +539,14 @@ def down_flight(pf: dict, gz: Callable, rules: Optional[dict] = None) -> Optiona
         ts = [(q[0] - mid[0]) * out[0] + (q[1] - mid[1]) * out[1] for q in blk["polygon"]]
         spans.append((min(ts), max(ts), blk["z_top"]))
     spans.append((end, end + foot_m, spec["ground"]))
+    # 30 Oct 2026 (lesson UL141): the side of the foot landing a path leaves from (architect.flight_exits) has no
+    # cheek: the landing opens onto the path
+    open_side = pf.get("foot_open")
     for t0, t1, zt in spans:
+        foot = abs(t0 - end) < 1e-9 and abs(t1 - end - foot_m) < 1e-9
         for s0, s1 in ((half_w, half_w + cheek), (-half_w - cheek, -half_w)):
+            if foot and open_side == ("left" if s0 > 0 else "right"):
+                continue
             cp = geom2d.ccw([(mid[0] + u[0] * s + out[0] * t, mid[1] + u[1] * s + out[1] * t)
                              for s, t in ((s0, t0), (s1, t0), (s1, t1), (s0, t1))])
             g_out = [gz(*q) for q in cp]
@@ -558,7 +571,9 @@ def down_flight(pf: dict, gz: Callable, rules: Optional[dict] = None) -> Optiona
             "rise": round(z - foot_z, 3), "top": z, "foot_z": round(foot_z, 4), "blocks": blocks, "cheeks": cheeks,
             "rails": parts["rails"] if spec["handrails"] else [], "posts": parts["posts"] if spec["handrails"] else [],
             "end": round(end, 4), "foot": foot_poly, "footprint": footprint, "landing": landing, "span": span,
-            "on_band": floor is not None, "handrails": bool(spec["handrails"]), "reason": reason}
+            "on_band": floor is not None, "handrails": bool(spec["handrails"]), "foot_open": open_side,
+            "reason": reason + (f"; its foot landing opens on its {open_side} side onto the path (no cheek there)"
+                                if open_side else "")}
 
 
 def flight_meshes(fl: dict, gz: Callable, below: float) -> dict:
@@ -1137,6 +1152,114 @@ def _sloped_prism(poly, z_bottom: float, z_tops: Sequence[float]) -> tuple[list,
     return verts, faces
 
 
+# 30 Oct 2026 (lesson UL144): an outdoor stair's handrail, one rail along its open side
+RAIL = {"height": 0.90, "extend_m": 0.30, "post_max_m": 1.4, "post_min_m": 1.2, "inset": 0.05}
+
+
+def _level_at(slices: Sequence[dict], t: float) -> Optional[float]:
+    """The top of the slice under ``t`` (pure; the highest one at a slice border), None off the slices."""
+    zs = [max(s["z0"], s["z1"]) if abs(s["z1"] - s["z0"]) < 1e-9 else
+          s["z0"] + (s["z1"] - s["z0"]) * (t - s["t0"]) / max(s["t1"] - s["t0"], 1e-9)
+          for s in slices if s["t0"] - 1e-6 <= t <= s["t1"] + 1e-6]
+    return max(zs) if zs else None
+
+
+def stair_rail(rec: dict, gz: Optional[Callable] = None) -> Optional[dict]:
+    """The handrail of a stepped path (pure; lesson UL144): one continuous rail on its open side, ``RAIL["height"]``
+    over the nosing line, following the pitch along each flight and level over the landings, reaching
+    ``RAIL["extend_m"]`` past the bottom and the top nosing, on posts every ``post_min_m``-``post_max_m`` (and at its
+    ends) standing on the treads and landings ``inset`` inside the path's edge, never on the ground beside it. The open
+    side: the side where the ground beside the flights stands less over the treads (no edge wall there; ``gz``),
+    else the left. None when no flight rises over the levels' ``handrail_from`` (``rec["handrails"]``) or the path
+    has no risers. ``{"side", "points": [(x, y, z)], "posts": [((x, y, z_foot), (x, y, z_top))], "nosings",
+    "flights", "t_range", "reason"}``."""
+    if rec.get("kind") != "stepped" or not rec.get("handrails") or not rec.get("frame"):
+        return None
+    fr = rec["frame"]
+    slices = sorted((s for s in rec.get("slices") or [] if not s.get("skip")), key=lambda s: s["t0"])
+    if len(slices) < 2:
+        return None
+    # the risers: a level change between two slices, its nosing on the upper tread's edge
+    risers = []
+    for a, b in zip(slices, slices[1:]):
+        za, zb = max(a["z0"], a["z1"]), max(b["z0"], b["z1"])
+        if abs(zb - za) > 0.01:
+            risers.append({"t": a["t1"], "z": max(za, zb), "up": zb > za, "after": b["kind"], "before": a["kind"]})
+    if not risers:
+        return None
+    # the flights: risers joined by treads (a landing between two risers parts them)
+    flights, cur = [], [risers[0]]
+    for r0, r1 in zip(risers, risers[1:]):
+        between = next((s for s in slices if abs(s["t0"] - r0["t"]) < 1e-6), None)
+        if between is not None and between["kind"] == "landing":
+            flights.append(cur)
+            cur = []
+        cur.append(r1)
+    flights.append(cur)
+    tread = float(rec.get("tread") or GRADE["garden_tread_m"])
+    riser = float(rec.get("riser") or 0.15)
+    H = RAIL["height"]
+    # the nosing line: the nosings of each flight, the pitch carried one going past them onto the landings
+    pts: list[tuple[float, float]] = []
+    for k, fl in enumerate(flights):
+        sign = 1.0 if fl[0]["up"] else -1.0
+        slope = (fl[-1]["z"] - fl[0]["z"]) / (fl[-1]["t"] - fl[0]["t"]) if len(fl) > 1 else sign * riser / tread
+        if k == 0:
+            pts.append((fl[0]["t"] - RAIL["extend_m"], fl[0]["z"]))      # level past the first nosing
+        else:
+            prev = flights[k - 1]
+            land = _level_at(slices, (prev[-1]["t"] + fl[0]["t"]) / 2.0)
+            land = prev[-1]["z"] if land is None else land
+            # the pitch of the flight before, carried down or up to the landing; and the next one's from it
+            p_slope = (prev[-1]["z"] - prev[0]["z"]) / (prev[-1]["t"] - prev[0]["t"]) if len(prev) > 1 else slope
+            ta = prev[-1]["t"] + ((land - prev[-1]["z"]) / p_slope if abs(p_slope) > 1e-9 else 0.0)
+            tb = fl[0]["t"] - ((fl[0]["z"] - land) / slope if abs(slope) > 1e-9 else 0.0)
+            if prev[-1]["t"] - 1e-6 <= ta <= tb <= fl[0]["t"] + 1e-6:
+                pts += [(ta, land), (tb, land)]
+        pts += [(r["t"], r["z"]) for r in fl]
+    pts.append((flights[-1][-1]["t"] + RAIL["extend_m"], flights[-1][-1]["z"]))
+    t_lo, t_hi = 0.02, float(fr["length"]) - 0.02
+    pts = [(min(max(t, t_lo), t_hi), z) for t, z in pts]
+    clean = []
+    for t, z in pts:
+        if clean and abs(t - clean[-1][0]) < 1e-4:
+            clean[-1] = (t, max(z, clean[-1][1]))
+            continue
+        clean.append((t, z))
+    # the open side: less ground over the treads beside the flights
+    h = fr["width"] / 2.0
+    side = 1.0
+    if gz is not None:
+        def over(sg: float) -> float:
+            tot = 0.0
+            for r in risers:
+                p = _at(fr, r["t"], sg * (h + GRADE["edge_t"] / 2.0))
+                tot += max(0.0, gz(*p) - r["z"])
+            return tot
+        side = 1.0 if over(1.0) <= over(-1.0) + 1e-6 else -1.0
+    s_off = side * (h - RAIL["inset"])
+    points = [(*_at(fr, t, s_off), z + H) for t, z in clean]
+    # the posts: at the ends and every post_max_m at most along the plan, each on the tread or landing under it
+    total = clean[-1][0] - clean[0][0]
+    n = max(1, int(math.ceil(total / RAIL["post_max_m"] - 1e-9)))
+    posts = []
+    for j in range(n + 1):
+        t = clean[0][0] + total * j / n
+        z_rail = _interp([p[0] for p in clean], [p[1] for p in clean], t) + H
+        foot = _level_at(slices, t)
+        if foot is None:
+            continue
+        xy = _at(fr, t, s_off)
+        posts.append(((xy[0], xy[1], foot), (xy[0], xy[1], z_rail)))
+    return {"side": "left" if side > 0 else "right", "points": points, "posts": posts,
+            "nosings": [(round(r["t"], 3), round(r["z"], 3)) for r in risers], "flights": len(flights),
+            "t_range": (round(clean[0][0], 3), round(clean[-1][0], 3)), "spacing_m": round(total / n, 3),
+            "reason": f"one handrail on the {'left' if side > 0 else 'right'} (open) side, {H:.2f} m over the nosings "
+                      f"of its {len(flights)} flight(s), level over the landings, {RAIL['extend_m']:.2f} m past the "
+                      f"first and last step, on {len(posts)} posts every {total / n:.2f} m set on the steps "
+                      f"(lesson UL144; inferred)"}
+
+
 def path_meshes(rec: dict, gz: Callable, below: float, walk: Sequence = ()) -> dict:
     """The meshes of a graded path (pure): ``tread`` (its landings, treads, sloped walks and ramps in the path's
     floor), ``step_edge`` (a stone step edge ``riser_edge_m`` deep at every riser: the riser face and the tread's
@@ -1218,6 +1341,19 @@ def path_meshes(rec: dict, gz: Callable, below: float, walk: Sequence = ()) -> d
             cur = []
     if cur:
         runs.append(cur)
+    # 30 Oct 2026 (lesson UL144, user on real04: "These handrails here not making that much sense": each flight of the
+    # stepped paths had its own short rail, two posts and a bar standing like a loose frame beside the stair): a
+    # stepped path gets one continuous handrail on its open side (``stair_rail``)
+    if rec.get("kind") == "stepped":
+        rail = stair_rail(rec, gz)
+        out["rail_plan"] = rail
+        if rail is not None:
+            pts = rail["points"]
+            for p, q in zip(pts, pts[1:]):
+                out["rail"].append(S.bar(p, q, hr["rail"], hr["rail"]))
+            for foot, top in rail["posts"]:
+                out["rail"].append(S.bar(foot, top, hr["post"], hr["post"]))
+        runs = []
     for run in runs:
         t0, t1 = run[0]["t0"], run[-1]["t1"]
         z_lo = min(min(s["z0"], s["z1"]) for s in run)
@@ -1486,7 +1622,11 @@ def review(site: Optional[dict], manifest: Optional[dict] = None) -> tuple[list[
             findings.append(_f("major", "site floors", f"every outdoor floor ({', '.join(sorted(next(iter(uses.values()))))}) "
                                f"is {slug}: the terrace, the steps, the path and the drive each get their own "
                                f"material (one language with the house's base)", "G7", "taste", material=slug))
-    return findings, checked
+    # 30 Oct 2026 (lessons UL129, UL141-UL144): G8-G12, site elements only where they make sense (site_sense)
+    from wenart.blender import site_sense as SS
+
+    more, n = SS.review(site, manifest)
+    return findings + more, checked + n
 
 
 def grading_problems(site_or_prep: Optional[dict], manifest: Optional[dict] = None) -> list[dict]:

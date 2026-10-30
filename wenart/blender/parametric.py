@@ -3000,6 +3000,33 @@ def door_frame_parts(width: float, height: float, thickness: float, face_y: Opti
     return parts
 
 
+FRAME_CENSUS_ROLES: tuple[str, ...] = ("frame", "architrave")
+
+
+def frame_census(parts: Sequence[Part], height: float) -> dict:
+    """What a door's frame parts hold (pure; 30 Oct 2026, lesson UL132, user: "Door frame needs fixing"): the jamb
+    lining's jambs and heads (role ``frame``) and the architrave's on each wall face (role ``architrave``, ``faces``
+    keyed ``"-1"`` / ``"1"`` by the side its centre stands on), the frame's top over the door's bottom (``top_m``) and
+    the opening's ``height_m`` it was built for. A jamb is a part at least half the opening tall, a head any other
+    (a mullion counts as a jamb). The model review's M29 (``door_states.frame_problems``) reads it: a frame part over
+    its opening's head, a jamb without its head, a single jamb."""
+    h = float(height)
+    out: dict = {"height_m": round(h, 4), "top_m": None, "lining": {"jambs": 0, "heads": 0}, "faces": {}}
+    for p in parts:
+        if p.get("role") not in FRAME_CENSUS_ROLES or not p.get("verts"):
+            continue
+        ys = [float(v[1]) for v in p["verts"]]
+        zs = [float(v[2]) for v in p["verts"]]
+        z0, z1 = min(zs), max(zs)
+        out["top_m"] = round(z1 if out["top_m"] is None else max(out["top_m"], z1), 4)
+        if p["role"] == "frame":
+            slot = out["lining"]
+        else:
+            slot = out["faces"].setdefault("1" if (min(ys) + max(ys)) / 2.0 > 0 else "-1", {"jambs": 0, "heads": 0})
+        slot["jambs" if (z1 - z0) >= 0.5 * h else "heads"] += 1
+    return out
+
+
 def hinge_parts(edge_x: float, lh: float, t: float, side: float, y: float = 0.0) -> list[Part]:
     """Three hinge knuckles (``HINGE_SIZE_M``) at the leaf edge ``edge_x`` on the swing face (``side``: the room the
     door opens into), role ``hinge``, key ``handle`` (the handle metal; pure; 29 Oct 2026)."""
@@ -3876,9 +3903,10 @@ if "screen" not in MATERIAL_KEYS:                                  # its glossy 
 # LED strips (``materials.led_material``), the light stone and terrazzo tops and panels, the towels (the room's accent)
 DECOR_DEFAULT_HEIGHT.update({"toilet_paper_holder": 0.13, "toilet_brush": 0.38, "towel_rail": 1.2, "towel_shelf": 0.40,
                              "towel_bar": 0.45, "feature_panel": 2.5, "cove_light": 0.12})
-MATERIAL_KEYS = MATERIAL_KEYS + tuple(k for k in ("led", "stone_light", "terrazzo", "towel") if k not in MATERIAL_KEYS)
+MATERIAL_KEYS = MATERIAL_KEYS + tuple(k for k in ("led", "stone_light", "terrazzo", "towel", "towel_alt", "towel_band")
+                                      if k not in MATERIAL_KEYS)   # 30 Oct 2026 (UL138): a towel's shade and band
 BEVEL_BY_ROLE.update({"led": 0.0, "towel": 0.004, "rib": 0.001, "plate": 0.001, "button": 0.0005, "apron": 0.002,
-                      "panel": 0.002, "glass": 0.0, "groove": 0.0})
+                      "panel": 0.002, "glass": 0.0, "groove": 0.0, "towel_band": 0.0})
 BEVEL_BY_ROLE.update({"screen": 0.0, "neck": 0.002})
 
 
@@ -3966,7 +3994,15 @@ def build_parts(ftype: str, w: float, d: float, h: float, piece: dict | None = N
         if parts is not None:
             return parts
     if ftype in _PIECE_BUILDERS:
-        return builder(float(w), float(d), float(h), piece)
+        parts = builder(float(w), float(d), float(h), piece)
+        look = piece.get("bath_look") if isinstance((piece or {}).get("bath_look"), dict) else None
+        if look and look.get("wall_gap_m") is not None:
+            # 30 Oct 2026 (real04 run 201533: the flush plates inside the walls): a made-to-measure bath piece's back
+            # on its wall's face (bath_parts.seat_on_walls)
+            from wenart.blender import bath_parts as BT
+            if BT.made_to_measure(piece):
+                parts = BT.seat_parts(parts, look)
+        return parts
     return builder(float(w), float(d), float(h))
 
 

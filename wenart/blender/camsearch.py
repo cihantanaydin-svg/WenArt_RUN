@@ -951,6 +951,134 @@ def piece_profile(piece: dict) -> list[tuple[float, float, float, float, float]]
     return boxes + [box(back, back=True)]
 
 
+BAND_GAP_M = 0.15     # parts of a made-to-measure piece this far apart in height are two boxes of the model
+
+
+def made_parts(piece: dict) -> Optional[list]:
+    """The parts a made-to-measure bath piece (``bath_parts.made_to_measure``: the wall-hung WC, the floating vanity,
+    the open column, the walk-in shower) is built from, in its frame as the build makes them (the fit's module plan,
+    else the parametric builder at the type height, seated on the wall: ``bath_parts.seat_on_walls``); None for any
+    other piece or a plan no builder reads."""
+    from wenart.blender import bath_parts as BT
+
+    if not BT.made_to_measure(piece):
+        return None
+    fp = piece.get("footprint") or {}
+    asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+    try:
+        if asset.get("method") == "module":
+            from wenart.blender import modules as MOD
+
+            plan = asset.get("module_plan") if isinstance(asset.get("module_plan"), dict) else \
+                MOD.plan_bath_made(piece)
+            return MOD.module_parts(plan) if plan else None
+        h, _ = proxy_height(piece["type"], piece.get("height"))
+        return P.build_parts(piece["type"], float(fp["size"][0]), float(fp["size"][1]), h, piece=piece)
+    except (KeyError, TypeError, ValueError, IndexError):
+        return None
+
+
+def made_boxes(piece: dict) -> Optional[list[tuple[float, float, float, float, float, float]]]:
+    """30 Oct 2026 (real04 run 20261029-201533-full, GPU test ``test_index_pass_contains_every_visible_proxy``): the
+    model's boxes ``(x0, y0, z0, x1, y1, z1)`` (its frame, z above its floor) of a made-to-measure bath piece: its
+    built parts (``made_parts``) in height bands, a new band where nothing is built over ``BAND_GAP_M``, each band
+    the box of its parts. The wall-hung WC is its pan (0.20-0.45 m) and its flush plate on the wall (0.98-1.14 m),
+    not the floor-standing WC's profile (a 0.94 m back slab from the floor, shrunk to the pan's width), whose air the
+    rays of three close bathroom views met while the frame held no pixel of the WC; the floating vanity floats.
+    None for any other piece (``piece_profile`` models it)."""
+    parts = made_parts(piece)
+    if not parts:
+        return None
+    boxes = sorted((P.parts_bbox([p]) for p in parts if p.get("verts")), key=lambda b: b[2])
+    bands: list[list[float]] = []
+    for x0, y0, z0, x1, y1, z1 in boxes:
+        if bands and z0 <= bands[-1][5] + BAND_GAP_M:
+            b = bands[-1]
+            bands[-1] = [min(b[0], x0), min(b[1], y0), b[2], max(b[3], x1), max(b[4], y1), max(b[5], z1)]
+        else:
+            bands.append([x0, y0, z0, x1, y1, z1])
+    return [tuple(float(v) for v in b) for b in bands] or None
+
+
+def boxes_extent(boxes) -> tuple[float, float, float, float, float, float]:
+    """The box ``(x0, y0, z0, x1, y1, z1)`` around ``(x0, y0, z0, x1, y1, z1)`` boxes."""
+    return (min(b[0] for b in boxes), min(b[1] for b in boxes), min(b[2] for b in boxes),
+            max(b[3] for b in boxes), max(b[4] for b in boxes), max(b[5] for b in boxes))
+
+
+def model_extent(piece: dict) -> tuple[float, float, float, float, float, float]:
+    """``(x0, y0, z0, x1, y1, z1)`` of a piece's model in its frame (z above its base, ``mount_bottom`` added by the
+    caller): the box of its ``made_boxes``, else ``piece_bbox`` centred on the footprint from the floor."""
+    made = made_boxes(piece)
+    if made:
+        return boxes_extent(made)
+    w, d, h, _ = piece_bbox(piece)
+    return (-w / 2.0, -d / 2.0, 0.0, w / 2.0, d / 2.0, h)
+
+
+def model_centre(piece: dict, floor_z: float) -> tuple[float, float, float]:
+    """The world centre of a piece's model (``model_extent``) over ``floor_z``: the point the frustum lists test."""
+    x0, y0, z0, x1, y1, z1 = model_extent(piece)
+    fp = piece["footprint"]
+    lx, ly = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+    r = math.radians(float(fp.get("rotation_deg") or 0.0))
+    c, s = math.cos(r), math.sin(r)
+    return (float(fp["center"][0]) + c * lx - s * ly, float(fp["center"][1]) + s * lx + c * ly,
+            floor_z + mount_bottom(piece) + (z0 + z1) / 2.0)
+
+
+def piece_with_outline(piece: dict, box3d: Optional[dict]) -> Optional[dict]:
+    """A copy of ``piece`` modelled as its built mesh (30 Oct 2026, pure): ``outline_m`` from the scene manifest's
+    ``box3d`` (its ``outline`` in the box frame about the box centre, turned into the piece frame about the footprint
+    centre; ``z`` the box's world z range), the shape ``outline_solid`` gives the model. None without an outline."""
+    box = box3d if isinstance(box3d, dict) else {}
+    if len(box.get("outline") or []) < 3 or not box.get("center") or not box.get("size"):
+        return None
+    fp = piece["footprint"]
+    rb = math.radians(float(box.get("rotation_deg") or 0.0))
+    rf = math.radians(float(fp.get("rotation_deg") or 0.0))
+    cb, sb, cf, sf = math.cos(rb), math.sin(rb), math.cos(rf), math.sin(rf)
+    bx, by = float(box["center"][0]), float(box["center"][1])
+    fx, fy = float(fp["center"][0]), float(fp["center"][1])
+    pts = []
+    for x, y in box["outline"]:
+        wx, wy = bx + cb * float(x) - sb * float(y) - fx, by + sb * float(x) + cb * float(y) - fy
+        pts.append([cf * wx + sf * wy, -sf * wx + cf * wy])
+    zc, h = float(box["center"][2]), float(box["size"][2])
+    return dict(piece, outline_m={"points": pts, "z": [zc - h / 2.0, zc + h / 2.0]})
+
+
+def outline_solid(piece: dict):
+    """``convex_parts_solid`` of a piece given as its built mesh's outline (30 Oct 2026; the GPU index-pass test sets
+    ``piece["outline_m"]`` from the scene manifest's ``box3d``: ``points``, the convex plan outline in the piece frame
+    about its footprint centre, counter-clockwise, and ``z``, the mesh's world z range): the prism of that outline, in
+    place of the fitted box. None for a piece without one (the model's boxes)."""
+    o = piece.get("outline_m")
+    if not isinstance(o, dict) or len(o.get("points") or []) < 3 or len(o.get("z") or []) != 2:
+        return None
+    fp = piece["footprint"]
+    r = math.radians(float(fp.get("rotation_deg") or 0.0))
+    c, s = math.cos(r), math.sin(r)
+    fx, fy = float(fp["center"][0]), float(fp["center"][1])
+    ring = []
+    for x, y in o["points"]:
+        p = (fx + c * float(x) - s * float(y), fy + s * float(x) + c * float(y))
+        if not ring or math.dist(p, ring[-1]) > 1e-6:
+            ring.append(p)
+    if len(ring) > 1 and math.dist(ring[0], ring[-1]) <= 1e-6:
+        ring.pop()
+    if len(ring) < 3 or abs(G.polygon_signed_area(ring)) < 1e-9:
+        return None
+    if G.polygon_signed_area(ring) < 0:
+        ring = ring[::-1]
+    z0, z1 = float(o["z"][0]), float(o["z"][1])
+    n = len(ring)
+    verts = [(x, y, z0) for x, y in ring] + [(x, y, z1) for x, y in ring]
+    faces = [list(range(n - 1, -1, -1)), list(range(n, 2 * n))]
+    faces += [[k, (k + 1) % n, n + (k + 1) % n, n + k] for k in range(n)]
+    return convex_parts_solid([{"verts": verts, "faces": faces}])
+
+
 def convex_parts_solid(parts, floor_z: float = 0.0):
     """``(lo, hi, planes)`` of convex parts (``parametric`` parts: ``verts``, ``faces`` wound outwards,
     z above the floor) for ``RoomModel``: the world bounding box (3-vectors, the floor added) and per part
@@ -1061,7 +1189,8 @@ class RoomModel:
         # Milestone 10: a room under the roof has a sloped ceiling, the lowest of these planes (z = a x + b y
         # + c; roof.ceiling_planes, set on the level by the builder).
         self.ceiling_planes = [tuple(float(v) for v in p) for p in self.level.get("ceiling_planes") or []]
-        if room.get("id") in set(self.level.get("open_rooms") or ()):
+        self.open_sky = room.get("id") in set(self.level.get("open_rooms") or ())
+        if self.open_sky:
             self.ceiling_planes = []          # fix round after P5: a roof terrace open to the sky has no slope
         levels_above = any(float(lv["elevation"]) > float(self.level["elevation"]) for lv in building["levels"])
         self.polygon = room_polygon(room)
@@ -1185,6 +1314,25 @@ class RoomModel:
             c, s = math.cos(rot), math.sin(rot)
             fx, fy = float(fp["center"][0]), float(fp["center"][1])
             base = self.floor_z + mount_bottom(f)                # a wall-hung piece hangs (Milestone 10)
+            solid = outline_solid(f)                             # 30 Oct 2026: a built mesh's outline (GPU test)
+            if solid is not None:
+                self.solids.append((code,) + solid)
+                lo, hi = solid[0], solid[1]
+                self.piece_corners[k] = box_corners((lo[0] + hi[0]) / 2.0, (lo[1] + hi[1]) / 2.0,
+                                                    hi[0] - lo[0], hi[1] - lo[1], lo[2], hi[2])
+                continue
+            made = made_boxes(f)                                 # 30 Oct 2026: a made-to-measure piece as built
+            if made:
+                ex = boxes_extent(made)
+                ecx, ecy = (ex[0] + ex[3]) / 2.0, (ex[1] + ex[4]) / 2.0
+                self.piece_corners[k] = box_corners(fx + c * ecx - s * ecy, fy + s * ecx + c * ecy, ex[3] - ex[0],
+                                                    ex[4] - ex[1], base + ex[2], base + ex[5],
+                                                    float(fp.get("rotation_deg") or 0.0))
+                for x0, y0, z0, x1, y1, z1 in made:
+                    lx, ly = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+                    self.boxes.append((code, fx + c * lx - s * ly, fy + s * lx + c * ly, base + (z0 + z1) / 2.0,
+                                       (x1 - x0) / 2.0, (y1 - y0) / 2.0, (z1 - z0) / 2.0, c, s))
+                continue
             bw, bd, btop, _ = piece_bbox(f)
             self.piece_corners[k] = box_corners(fx, fy, bw, bd, base, base + btop, float(fp.get("rotation_deg") or 0.0))
             for x0, y0, x1, y1, top in piece_profile(f):
@@ -1308,7 +1456,26 @@ class RoomModel:
             t, hit = _cast_convex_parts((ox, oy, oz), d, lo, hi, parts, depth)
             depth = np.where(hit, t, depth)
             labels = np.where(hit, code, labels)
+        if self.above_ceiling((ox, oy, oz)):
+            # 30 Oct 2026 (real04 run 201533, cam_r_L1_banyo_1: an agent pose 0.21 m over the sloped ceiling rendered
+            # black, its plan listed the bathroom's three fixtures): a lens over its ceiling sees the ceiling's back
+            labels = np.full(labels.shape, CEILING, dtype=np.int32)
+            depth = np.full(depth.shape, LENS_CEILING_M)
         return labels.reshape(shape), depth.reshape(shape)
+
+    def ceiling_at(self, x: float, y: float) -> float:
+        """The room's ceiling height (world z) over the plan point ``(x, y)``: the lowest sloped plane, the flat one."""
+        z = self.ceil_z
+        for a, b, c in self.ceiling_planes:
+            z = min(z, a * float(x) + b * float(y) + c)
+        return z
+
+    def above_ceiling(self, p) -> bool:
+        """A lens at ``p`` stands over its room's ceiling or nearer it than ``LENS_CEILING_M`` (the interior views'
+        clip start: the render cuts the ceiling away there); never in a room open to the sky."""
+        if self.open_sky:
+            return False
+        return float(p[2]) > self.ceiling_at(p[0], p[1]) - LENS_CEILING_M
 
     # ------------------------------------------------------------------
     def piece_frames(self, origin, forward: np.ndarray, right: np.ndarray, up: np.ndarray,
@@ -1518,6 +1685,7 @@ def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, f
 
 
 HEADROOM_M = 0.30                    # Milestone 10: a camera stays this far under a sloped ceiling
+LENS_CEILING_M = 0.05                # 30 Oct 2026: a lens nearer its ceiling than this (the clip start) is over it
 
 
 def sloped_level(level: Optional[dict], room: dict) -> Optional[dict]:
@@ -1734,7 +1902,11 @@ def _frustum_lists(model: RoomModel, position, target, seen=None,
     M5 lists), and its pieces whose centre is inside it or that the model's rays see (``seen``:
     ``{element id: ray share}`` of this view, the ``elements`` of ``RoomModel.measure``). A long piece
     seen from the side (a 2.4 m stair filling half the frame) can have its centre outside the frame
-    (review dwgblender-2)."""
+    (review dwgblender-2). 30 Oct 2026 (real04 run 201533): a piece's centre is its model's (``model_centre``: a
+    made-to-measure piece's built parts, not the air between a wall-hung WC's pan and its flush plate), and a lens over
+    its room's ceiling (``RoomModel.above_ceiling``) lists nothing: it sees the ceiling's back."""
+    if model.above_ceiling(position):
+        return [], []
     tangents = geom2d.frustum_tangents(lens_mm, SENSOR_MM, RESOLUTION)
     fz = model.floor_z
     seen = seen or {}
@@ -1743,8 +1915,7 @@ def _frustum_lists(model: RoomModel, position, target, seen=None,
                                         shift_x=shift_x, shift_y=shift_y)]
     pieces = [f["id"] for f in model.pieces
               if seen.get(f["id"], 0.0) > 0.0
-              or geom2d.point_in_frustum((f["footprint"]["center"][0], f["footprint"]["center"][1],
-                                          fz + mount_bottom(f) + piece_bbox(f)[2] / 2.0), position, target, tangents,
+              or geom2d.point_in_frustum(model_centre(f, fz), position, target, tangents,
                                          shift_x=shift_x, shift_y=shift_y)]
     return opens, pieces
 

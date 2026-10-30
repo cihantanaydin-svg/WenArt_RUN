@@ -209,10 +209,13 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/grading.py",                # 28 Oct 2026: site and architect grade the garden
              "wenart/blender/stair_rails.py",            # 28 Oct 2026: the stairs' balustrade (the architect's K rules)
              "wenart/blender/bath_parts.py",             # 29 Oct 2026 (UL114): the bathroom's parts (parametric, looks)
+             "wenart/blender/towel_parts.py",            # 30 Oct 2026 (UL138): bath_parts -> the towels' cloth
              "wenart/blender/kitchen_details.py",        # 29 Oct 2026: modules / furniture -> the kitchen details
              "wenart/blender/detail_parts.py",           # 29 Oct 2026: parametric's reference-detail parts (UL119)
              "wenart/blender/bedding_parts.py",          # 29 Oct 2026: detail_parts -> the nightstand set (UL121)
-             "wenart/blender/wardrobe_contents.py")      # 30 Oct 2026: modules -> the wardrobe's contents (UL135)
+             "wenart/blender/wardrobe_contents.py",      # 30 Oct 2026: modules -> the wardrobe's contents (UL135)
+             # 30 Oct 2026 (UL129, UL141-UL144): the grading review's site sense and the pools' ladder and seats
+             "wenart/blender/site_sense.py", "wenart/blender/pool_extras.py")
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height

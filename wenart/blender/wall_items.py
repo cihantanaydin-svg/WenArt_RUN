@@ -42,7 +42,7 @@ What (pure, deterministic; one rule for every item placed on a wall):
   (``FREE_TYPES``: art, a clock, a mirror) else to another free wall of the room at eye height (``FREE_CENTRE_M``);
   (3) leave it out (``decor_dropped`` with the reason; a wall with a TV simply takes no art). Every change records
   ``wall_clear`` on the item (how, from, to, why); drawn furniture never moves (``clashes`` reports it).
-- ``review(building)``: the findings of the model review's M31 and Argus' U35 (``clashes``).
+- ``review(building)``: the findings of the model review's M32 and Argus' U35 (``clashes``).
 
 Why: an item on a wall is planned on the wall the decor stage sees; the build may still cut a window into it (the
 architect's answers come after the decor stage), and what stands in front of a wall decides where on it a picture can
@@ -688,8 +688,8 @@ def resolve(building: dict, stage: str = "decor") -> dict:
     return {"raised": raised, "moved": moved, "dropped": dropped, "furniture": furniture}
 
 
-def review(building: dict, check: str = "M31") -> tuple[list[dict], int]:
-    """``(findings, items checked)`` of the model review's M31 and Argus' U35 (``clashes``; pure)."""
+def review(building: dict, check: str = "M32") -> tuple[list[dict], int]:
+    """``(findings, items checked)`` of the model review's M32 and Argus' U35 (``clashes``; pure)."""
     n = 0
     roofed = _roofed(building)
     for room in building.get("rooms") or []:

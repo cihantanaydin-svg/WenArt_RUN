@@ -14,23 +14,35 @@ import it):
   wardrobe) along the duvet's span, from the building's walls and pieces; the duvet hangs almost to the floor on a
   free side only, never through a nightstand or a wall (``SIDE_FREE_M``).
 - the meshes (numpy vertex arrays, one part per pillow or cloth, no Python loop per vertex): ``plump_cushion`` (a
-  filled pillow: rounded faces, drawn-in sides, soft corners, never a box), ``shape_duvet`` (the draped duvet grid's
-  folds on the top and soft flutes on the hanging sides, ``textiles.drape_shaped`` gives it the rounded edge),
-  ``turn_down`` (the folded band with its rolled edge), ``fringe_strands`` (the strands at a throw's two ends),
-  ``stack_cushion`` (an accent cushion or a lumbar leaning on what stands behind it, placed on the meshes' own
-  profiles: no ray), ``bedside_set_parts`` (R36: white faceted vases, a dried palm leaf in one, a black and white box).
+  filled pillow: a plump body, drawn-in sides, soft corners and, 30 Oct 2026, the pillowcase's flange: a crisp edge;
+  never a box), ``cover_grid`` (30 Oct 2026, UL136: a duvet or a blanket over the host's smooth top, ``envelope``,
+  with a few soft wide folds, ``soft_folds``, a rounded edge, then straight down one plane per side to one level hem,
+  a few soft wide folds growing to it; ``textiles.drape_cover`` measures the host for it), ``sheet_solid`` (a cloth
+  with its thickness, thinned to its seam), ``turn_down_band`` (the thin turned-down sheet folded round the duvet's
+  head edge), ``fringe_strands`` (the strands at a throw's two ends), ``stack_cushion`` (an accent cushion or a lumbar
+  leaning on what stands behind it, placed on the meshes' own profiles: no ray), ``bedside_set_parts`` (R36: white
+  faceted vases, a dried palm leaf in one, a black and white box).
+- ``cover_smoothness``: the look of a built cover, measured (30 Oct 2026, UL136: a lumpy duvet, a wavy hem).
 - ``bedding_relief`` / ``dress_mode``: a library bed's own bedding measured on its mesh (the pillow bump at the head,
   the relief of the folds and the vertex density over the duvet): a bed whose bedding is flat or poorer than ours is
-  dressed too (``full``: flat or no cover; ``pillows``: a modelled duvet without pillows gets our pillow set only).
-- ``review``: what a built bed lacks against its family's set (model review M30, Argus U34; kind ``taste``).
+  dressed too (``full``: flat or no cover; ``pillows``: a modelled duvet without pillows, or with pillows lying flat
+  on a bed that takes euro shams (30 Oct 2026, UL137), gets our pillow set only).
+- ``review``: what a built bed lacks against its family's set (model review M30, Argus U34; kind ``taste``), and since
+  30 Oct 2026 a lumpy duvet or blanket, a wavy hem, a gap between the mattress and the headboard left open.
 
 Why: the reference photo (P11) shows a deep duvet with soft rounded edges and natural wrinkles hanging down the sides
 almost to the floor, many pillows of different sizes and fabrics, a fringed throw over a houndstooth blanket; our beds
 had a 4 cm duvet with a sharp fold, 30 cm of overhang into walls and nightstands alike, two pillows and plain throws.
 
 How: every number is a designer value of real products (assumed): a 65 x 65 cm euro sham, a 65 x 45 cm pillow, a
-45 cm accent cushion, a 50 x 30 cm lumbar, a 6 cm duvet. Folds and flutes are fixed sums of sines of the cloth's own
-coordinates (the same every build); every displacement moves the cloth away from the host, never into it.
+45 cm accent cushion, a 50 x 30 cm lumbar, a 6 cm duvet. Folds are fixed functions of the cloth's own coordinates
+(the same every build); every displacement moves the cloth away from the host, never into it.
+
+30 Oct 2026 (user on real04 run 20261029-201533-full; lessons UL136 "I did not like this bed", UL137 "head section of
+this bed needs a rework", UL146 the photo P14, R38): the 29 Oct duvet followed every ray hit of the host and fluted its
+sides (they rippled "like melted foam", the hem was wavy), its turned-down band was a 4 cm slab, the pillows were
+squashed; now a real made bed (``cover_grid``, ``turn_down_band``, the flanged ``plump_cushion``) and the P14 layers
+(``textiles.p14_throw_parts``).
 """
 from __future__ import annotations
 
@@ -44,6 +56,8 @@ from wenart import geometry as G
 Part = dict
 RULE = "bedding.ul121"
 LESSON = "UL121"
+RULE_LOOK = "bedding.ul136"      # 30 Oct 2026: a real made bed (UL136 the look, UL137 the head, UL146 the P14 layers)
+LESSONS_LOOK = ("UL136", "UL137", "UL146")
 TAG = ("29 Oct 2026, user: \"look how realistic the bed is looking full and nice I want this much detail in our "
        "models\"")
 
@@ -102,6 +116,8 @@ LOOK_LAYERS: dict[str, dict] = {
     "knit": {"sheen": (0.45, 0.5), "bump": (0.6, 0.003, 0.007), "roughness": 0.9},
     "boucle": {"sheen": (0.5, 0.6), "bump": (0.75, 0.003, 0.004), "roughness": 0.95},
     "wool": {"sheen": (0.55, 0.5), "bump": (0.35, 0.0015, 0.004), "roughness": 0.9},
+    # 30 Oct 2026 (UL138): the towels' terry (no bedding look): a deep loop pile, a faint sheen on the loops' tips
+    "terry": {"sheen": (0.3, 0.7), "bump": (0.9, 0.0025, 0.0028), "roughness": 0.97},
 }
 PATTERN_WEAVE = "wool"           # a patterned blanket is a woven wool (its twill bump)
 PATTERN_REPEAT_M: dict[str, float] = {"houndstooth": 0.028, "stripe": 0.06, "herringbone": 0.04}
@@ -384,12 +400,17 @@ def bed_sides(bed: dict, building: dict, span: Optional[tuple[float, float]] = N
 # --------------------------------------------------------------------------
 
 DUVET_SHARE = 0.75               # = parametric.DUVET_SHARE: the duvet covers the foot 75 % of the mattress
-CUSHION_P = 2.4                  # a pillow's face profile ((1 - |u|^p)(1 - |v|^p))^q: fuller than the M12 cushion's
-CUSHION_Q = 0.55
-CUSHION_DRAW = 0.055             # its sides drawn in between the corners (soft "ears" at the corners)
+CUSHION_P = 3.0                  # a pillow's face profile ((1 - |u|^p)(1 - |v|^p))^q: full and plump to near its edge
+CUSHION_Q = 0.45                 # (30 Oct 2026, UL136: p 2.4 and q 0.55 read as squashed, "crumpled" pillows)
+CUSHION_DRAW = 0.035             # its sides drawn in a little between the corners (soft "ears" at the corners)
 CUSHION_GRID = (12, 12)
 SEAM_M = 0.006
-SAG_SHARE = 0.03                 # a standing pillow's top edge sags this share of its height in the middle
+SAG_SHARE = 0.015                # a standing pillow's top edge sags this share of its height in the middle
+# 30 Oct 2026 (UL136, UL146: "plump pillows with crisp pillowcase edges"): a pillowcase's flat border round the
+# filled body: a euro sham's flange, a pillowcase's seam, a cushion's piping (designer values); 3 mm thick at the
+# body, nothing at the seam: a crisp edge under smooth shading
+FLANGE_M: dict[str, float] = {"euro_sham": 0.04, "pillow": 0.015, "accent_cushion": 0.008, "lumbar": 0.008}
+FLANGE_T_M = 0.006
 
 
 def _part(verts: np.ndarray, faces: np.ndarray, key: str, role: str) -> Part:
@@ -405,20 +426,34 @@ def _grid_faces(idx: np.ndarray, flip: bool = False) -> np.ndarray:
 
 
 def plump_cushion(w: float, t: float, h: float, key: str = "bedding", role: str = "pillow",
-                  grid: tuple[int, int] = CUSHION_GRID, sag: float = SAG_SHARE) -> Part:
+                  grid: tuple[int, int] = CUSHION_GRID, sag: float = SAG_SHARE, flange: Optional[float] = None) -> Part:
     """A filled pillow or cushion in the box ``w x t x h`` (item frame: width X, thickness Y, height Z from 0; front
-    -Y): two faces bulging to ``t / 2`` with a full, soft profile (``CUSHION_P``, ``CUSHION_Q``), meeting at a seam
+    -Y): two faces bulging to ``t / 2`` with a full, plump profile (``CUSHION_P``, ``CUSHION_Q``), meeting at a seam
     ring both faces share (a closed mesh), its sides drawn in between the corners (``CUSHION_DRAW``) and its top edge
-    sagging a little in the middle (``sag``). Never a box."""
+    sagging a little in the middle (``sag``). 30 Oct 2026 (UL136): the pillowcase's ``flange`` (default by ``role``,
+    ``FLANGE_M``) round the body, ``FLANGE_T_M`` thick at the body and closing at the seam: a crisp edge. Never a
+    box."""
     nu, nv = grid
     w, t, h = float(w), float(t), float(h)
-    u = np.linspace(-1.0, 1.0, nu + 1)[:, None]
-    v = np.linspace(-1.0, 1.0, nv + 1)[None, :]
+    fl = FLANGE_M.get(role, 0.0) if flange is None else float(flange)
+    fl = max(0.0, min(fl, 0.2 * min(w, h)))
+    ub = np.linspace(-1.0, 1.0, nu + 1)
+    vb = np.linspace(-1.0, 1.0, nv + 1)
+    if fl > 0.0:                                  # the body inside, one more ring at the seam outside it
+        fu, fv = fl / (w / 2.0), fl / (h / 2.0)
+        uu = np.concatenate([[-1.0], ub * (1.0 - fu), [1.0]])
+        vv = np.concatenate([[-1.0], vb * (1.0 - fv), [1.0]])
+        bu, bv = np.clip(uu / (1.0 - fu), -1.0, 1.0), np.clip(vv / (1.0 - fv), -1.0, 1.0)
+        nu, nv = nu + 2, nv + 2
+    else:
+        uu, vv, bu, bv = ub, vb, ub, vb
+    u, v = uu[:, None], vv[None, :]
     x = u * w / 2.0 * (1.0 - CUSHION_DRAW * np.sin(np.pi * (v + 1.0) / 2.0))
     z = h / 2.0 + v * h / 2.0 * (1.0 - CUSHION_DRAW * np.sin(np.pi * (u + 1.0) / 2.0))
     z = z - sag * h * (1.0 - u ** 2) * np.clip(v, 0.0, 1.0) ** 2
-    prof = np.clip((1.0 - np.abs(u) ** CUSHION_P) * (1.0 - np.abs(v) ** CUSHION_P), 0.0, 1.0) ** CUSHION_Q
-    half = np.maximum(SEAM_M, t / 2.0 * prof)
+    prof = np.clip((1.0 - np.abs(bu[:, None]) ** CUSHION_P) * (1.0 - np.abs(bv[None, :]) ** CUSHION_P), 0.0,
+                   1.0) ** CUSHION_Q
+    half = np.maximum(FLANGE_T_M / 2.0 if fl > 0.0 else SEAM_M, t / 2.0 * prof)
     boundary = np.zeros((nu + 1, nv + 1), dtype=bool)
     boundary[0, :] = boundary[-1, :] = boundary[:, 0] = boundary[:, -1] = True
     half = np.where(boundary, 0.0, half)
@@ -463,52 +498,266 @@ def to_local_arr(centre, rot: float, world) -> np.ndarray:
     return np.stack([c * dx + s * dy, -s * dx + c * dy, p[:, 2]], axis=1)
 
 
-# -- the duvet ----------------------------------------------------------------
+# -- the duvet: a smooth cover with a level hem (30 Oct 2026, lessons UL136, UL146) ---------------------------------
+#
+# 30 Oct 2026 (user on real04 run 20261029-201533-full, f_L0_021: "I did not like this bed"): the duvet of 29 Oct
+# followed every ray hit of the host (a library mattress's own quilting, a jagged edge: neighbouring rows hung from
+# edge points of different heights), its hanging sides got flutes of 22 mm every 18 cm and every side ray's jump, and
+# it was a 6.5 cm slab to its cut rim: the sides rippled "like melted foam" with a wavy hem. Now (P14, R38: "a smooth
+# grey duvet with gentle natural folds that hangs straight down the sides almost to the floor"): the top is a smooth
+# envelope over the host (a cloth bridges the host's dips, never cuts a bump) with a few soft wide folds; over each
+# edge it rounds on the duvet's own height, then hangs straight down one plane per side (outside the host at every
+# height: a wider frame below is cleared by a gentle flare), each edge point's drop scaled to end on one level hem; a
+# few wide soft folds grow towards the hem; the cloth thins to its seam over its last 6 cm (a rounded hem).
 
-FLUTE_PITCH_M = 0.18             # the soft vertical folds of the hanging sides
-FLUTE_AMP_M = 0.022
-FLUTE_RAMP_M = 0.25              # they grow over the first 25 cm below the rounded edge
-TOP_TAPER_M = 0.12               # the top's folds fade out within this of the mattress edge (no step at the edge)
+COVER_STEP_M = 0.04              # the top's grid pitch (the host's top is sampled there)
+ARC_SEGMENTS = 5                 # rows of the rounded edge over the host's side
+HANG_STEP_M = 0.05               # rows of the hanging part
+RIM_M = 0.06                     # the cloth thins over this towards its seam ...
+RIM_SHARE = 0.3                  # ... to this share of its thickness (a duvet's seam: a rounded hem, never a cut slab)
+ENVELOPE_ROUNDS = 6              # the top: rounds of a Gaussian blur (sigma in cells), each kept over the host ...
+ENVELOPE_SIGMA = 1.5
+ENVELOPE_GIVE_M = 0.004          # ... less this (the loft gives on a small bump: its underside still 1 mm off the host)
+TOP_FOLD_EDGE_M = 0.15           # the top's folds fade out within this of its edges and rim
+SIDE_FOLD_PITCH_M = 0.46         # a few soft wide folds down the hanging sides ...
+SIDE_FOLD_AMP_M = (0.010, 0.018)  # ... their depth at the hem (1.6 x the family's wrinkle, within these)
+FLARE_M = 0.08                   # the hanging cloth leaves the side this far above a wider frame below it
 
 
-def top_folds(lx: np.ndarray, ly: np.ndarray, w: float, d: float, amp: float) -> np.ndarray:
-    """The duvet top's gentle wrinkles (>= 0, at most ``amp``): fixed sines of the bed-local position plus two long
-    soft diagonal folds (the same every build)."""
-    W, D = max(float(w), 1e-6), max(float(d), 1e-6)
-    a = np.sin(6.1 * lx / W + 0.9) * np.sin(4.3 * ly / D + 1.7)
-    b = np.sin(11.0 * (lx + 0.55 * ly) / (W + D) + 2.1)
-    c = np.sin(23.0 * (0.8 * lx - ly) / (W + D) + 0.4)
-    ridge = np.exp(-(((0.7 * lx + 0.7 * ly) / (W + D) * 6.0 - 1.3) ** 2) * 6.0) \
-        + 0.7 * np.exp(-(((0.8 * lx - 0.6 * ly) / (W + D) * 6.0 + 1.1) ** 2) * 5.0)
-    f = 0.45 + 0.2 * a + 0.12 * b + 0.08 * c + 0.25 * ridge
-    return float(amp) * np.clip(f, 0.0, 1.0)
+def smoothstep(x) -> np.ndarray:
+    x = np.clip(np.asarray(x, dtype=np.float64), 0.0, 1.0)
+    return x * x * (3.0 - 2.0 * x)
 
 
-def shape_duvet(got: dict, w: float, d: float, wrinkle_m: float, flutes: bool = True) -> np.ndarray:
-    """The draped duvet grid with its folds (pure; ``got`` = ``textiles.drape_shaped``'s record): the on-top points
-    rise by ``top_folds`` (tapered to nothing at the mattress edge), the hanging points move out of the bed's side by a
-    soft vertical flute (``FLUTE_AMP_M`` every ``FLUTE_PITCH_M`` along the side, growing over ``FLUTE_RAMP_M`` below
-    the rounded edge). Every displacement is away from the host."""
-    grid = np.array(got["grid"], dtype=np.float64)
-    local = np.asarray(got["local"], dtype=np.float64)
-    on_top = np.asarray(got["on_top"], dtype=bool)
-    lx, ly = local[..., 0], local[..., 1]
-    inside = np.minimum(w / 2.0 - np.abs(lx), ly + d / 2.0)
-    taper = np.clip(inside / TOP_TAPER_M, 0.0, 1.0)
-    dz = top_folds(lx, ly, w, d, wrinkle_m) * taper
-    grid[..., 2] = np.where(on_top, grid[..., 2] + dz, grid[..., 2])
-    if flutes and got.get("hang_s") is not None:
-        s = np.asarray(got["hang_s"], dtype=np.float64)
-        out = np.asarray(got["out_dir"], dtype=np.float64)
-        edge = np.asarray(got["edge_local"], dtype=np.float64)
-        arc = float(got.get("arc_m") or 0.0)
-        ramp = np.clip((s - arc) / FLUTE_RAMP_M, 0.0, 1.0)
-        t = edge[..., 0] + edge[..., 1]
-        delta = FLUTE_AMP_M * ramp * (0.5 + 0.5 * np.sin(2.0 * np.pi * t / FLUTE_PITCH_M + 0.6))
-        hang = ~on_top
-        grid[..., 0] = np.where(hang, grid[..., 0] + delta * out[..., 0], grid[..., 0])
-        grid[..., 1] = np.where(hang, grid[..., 1] + delta * out[..., 1], grid[..., 1])
-    return grid
+def blur2d(a: np.ndarray, sigma: float) -> np.ndarray:
+    """A separable Gaussian blur of a 2-D array (pure numpy; ``sigma`` in cells, the edges padded)."""
+    a = np.asarray(a, dtype=np.float64)
+    r = max(1, int(math.ceil(2.5 * float(sigma))))
+    k = np.exp(-0.5 * (np.arange(-r, r + 1) / float(sigma)) ** 2)
+    k /= k.sum()
+    out = a
+    for axis in (0, 1):
+        pad = [(0, 0), (0, 0)]
+        pad[axis] = (r, r)
+        p = np.pad(out, pad, mode="edge")
+        n = out.shape[axis]
+        out = sum(k[i] * np.take(p, np.arange(i, i + n), axis=axis) for i in range(2 * r + 1))
+    return out
+
+
+def envelope(raw: np.ndarray, fill: float) -> np.ndarray:
+    """The smooth top a cloth makes over the host's top heights ``raw`` (pure; NaN where a ray found nothing: filled
+    from its neighbours, ``fill`` to start): ``ENVELOPE_ROUNDS`` blurs, each kept at least at the host's top. A cloth
+    bridges the host's dips (a quilted mattress, the seam between two mattresses) and never cuts its bumps."""
+    raw = np.asarray(raw, dtype=np.float64)
+    base = np.where(np.isnan(raw), -np.inf, raw - ENVELOPE_GIVE_M)
+    z = np.where(np.isnan(raw), float(fill), raw)
+    for _round in range(ENVELOPE_ROUNDS):
+        z = np.maximum(base, blur2d(z, ENVELOPE_SIGMA))
+    return z
+
+
+def soft_folds(x, y, w: float, d: float, amp: float) -> np.ndarray:
+    """The top's few soft wide folds (pure; >= 0, at most ``amp``; the same every build; ``x``, ``y`` from the bed's
+    middle): two long low ridges along the bed, one across its foot, each about 25 cm wide and fading along its length,
+    over a broad swell of 1.2-1.6 m wavelength. Never a wrinkle shorter than a hand."""
+    x = np.asarray(x, dtype=np.float64)
+    y = np.asarray(y, dtype=np.float64)
+    W, D = max(float(w), 0.5), max(float(d), 0.5)
+    r1 = np.exp(-((x + 0.22 * W - 0.10 * y) / 0.10) ** 2) * np.exp(-((y + 0.05 * D) / (0.30 * D)) ** 2)
+    r2 = 0.8 * np.exp(-((x - 0.20 * W + 0.07 * y) / 0.09) ** 2) * np.exp(-((y + 0.25 * D) / (0.22 * D)) ** 2)
+    r3 = 0.6 * np.exp(-((y + 0.36 * D - 0.06 * x) / 0.11) ** 2) * np.exp(-(x / (0.35 * W)) ** 2)
+    swell = 0.35 * (0.5 + 0.5 * np.sin(2.0 * np.pi * x / (1.4 * W) + 0.7) * np.sin(2.0 * np.pi * y / (1.2 * D) + 1.1))
+    return float(amp) * np.clip((r1 + r2 + r3 + swell) / 1.35, 0.0, 1.0)
+
+
+def hang_rows(length: float, rho: float) -> np.ndarray:
+    """The hanging part's cloth distances past an edge (pure): ``ARC_SEGMENTS`` over the rounded edge (a quarter turn
+    of radius ``rho``), then about ``HANG_STEP_M`` apart down to ``length``; empty for no hang."""
+    length = float(length)
+    if length <= 1e-9:
+        return np.zeros(0)
+    arc = math.pi / 2.0 * float(rho)
+    if length <= arc + 1e-9:
+        n = max(1, int(math.ceil(ARC_SEGMENTS * length / arc)))
+        return length * np.arange(1, n + 1) / n
+    s_arc = arc * np.arange(1, ARC_SEGMENTS + 1) / ARC_SEGMENTS
+    n = max(1, int(math.ceil((length - arc) / HANG_STEP_M)))
+    return np.concatenate([s_arc, arc + (length - arc) * np.arange(1, n + 1) / n])
+
+
+def cover_grid(xs, ys, host, hang: dict, hem_z: float, offset: float, thickness: float, wrinkle_m: float = 0.0,
+               side_folds: bool = True, flare: Optional[dict] = None, top_folds: bool = True,
+               bed_size: Optional[Sequence[float]] = None, round_m: float = 0.0) -> dict:
+    """A draped cover (a duvet, a blanket) in the bed's frame (pure numpy; x across, -y the foot, z up).
+
+    ``xs`` / ``ys``: the columns and rows of its top (ascending; the top spans the host from ``xs[0]`` to ``xs[-1]`` and
+    from ``ys[0]`` (its foot edge) to ``ys[-1]`` (its head end)), ``host`` ``(len(xs), len(ys))``: the host's smooth top
+    there (``envelope``); ``hang``: ``{"left"|"right"|"foot": length}`` the cloth past that edge (0: it ends on the
+    edge, thinned to its seam), the rounded edge included; ``hem_z``: the one level every hanging edge point's drop is
+    scaled to end on; ``flare``: ``{side: (depths below the edge top, extra out)}`` a frame or a base wider than the
+    top below it (cleared ``FLARE_M`` before it). The top: the host + ``offset`` + the cloth's thickness +
+    ``soft_folds`` (fading within ``TOP_FOLD_EDGE_M`` of the edges; ``bed_size`` places them, default the top's own
+    size); past an edge: a quarter turn of radius ``offset + thickness`` (its underside ``offset`` off the host's
+    corner; or ``round_m`` when larger: a blanket's soft roll over the duvet's edge), then
+    straight down that side's plane (one level hem, a straight side), a few soft folds (``SIDE_FOLD_PITCH_M``) growing
+    to the hem; at a foot corner the cloth turns round the corner on the same radius (a level skirt). The cloth thins
+    to ``RIM_SHARE`` of its thickness over its last ``RIM_M``.
+
+    ``{"grid" (nu + 1, nv + 1, 3) its top surface, "local" (flat cloth coordinates: past an edge, the edge plus the
+    cloth's distance), "thickness" (per point), "on_top", "hang_s", "out_dir", "edge_local", "arc_m", "nu", "nv",
+    "edges": (x0, x1, y0, y1), "split": {"left", "right", "foot"} columns or rows past each edge, "side", "hem_z"}``."""
+    xs = np.asarray(xs, dtype=np.float64)
+    ys = np.asarray(ys, dtype=np.float64)
+    H = np.asarray(host, dtype=np.float64)
+    rho = float(offset) + float(thickness)
+    R = max(rho, float(round_m or 0.0))
+    arc = math.pi / 2.0 * R
+    sl, sr, sf = (hang_rows(float(hang.get(k) or 0.0), R) for k in ("left", "right", "foot"))
+    X = np.concatenate([xs[0] - sl[::-1], xs, xs[-1] + sr])
+    Y = np.concatenate([ys[0] - sf[::-1], ys])
+    nl, nx, nf, ny = len(sl), len(xs), len(sf), len(ys)
+    ones = np.ones((len(X), len(Y)))
+    ix = np.clip(np.arange(len(X)) - nl, 0, nx - 1)
+    iy = np.clip(np.arange(len(Y)) - nf, 0, ny - 1)
+    vx = np.where(X < xs[0], X - xs[0], np.where(X > xs[-1], X - xs[-1], 0.0))[:, None] * ones
+    vy = np.where(Y < ys[0], Y - ys[0], 0.0)[None, :] * ones
+    s = np.maximum(np.abs(vx), np.abs(vy))                     # Chebyshev: a level skirt round a corner
+    nrm = np.hypot(vx, vy)
+    ux = np.where(nrm > 1e-12, vx / np.maximum(nrm, 1e-12), 0.0)
+    uy = np.where(nrm > 1e-12, vy / np.maximum(nrm, 1e-12), 0.0)
+    EX = xs[ix][:, None] * ones
+    EY = ys[iy][None, :] * ones
+    HE = H[np.ix_(ix, iy)]
+    # the seam: the cloth thins over its last RIM_M (its flat distance to its rim)
+    rim = np.minimum(np.minimum((X - X[0])[:, None], (X[-1] - X)[:, None]),
+                     np.minimum((Y - Y[0])[None, :], (Y[-1] - Y)[None, :]))
+    t = float(thickness) * (RIM_SHARE + (1.0 - RIM_SHARE) * smoothstep(rim / RIM_M))
+    on_top = s <= 1e-12
+    # the top: the host's smooth top, the cloth's thickness and its few soft folds
+    z = HE + float(offset) + t
+    if top_folds and wrinkle_m > 0.0:
+        inside = np.minimum(np.minimum(EX - xs[0], xs[-1] - EX), np.minimum(EY - ys[0], ys[-1] - EY))
+        bw, bd = (float(v) for v in (bed_size or (xs[-1] - xs[0], (ys[-1] - ys[0]) / DUVET_SHARE)))
+        folds = soft_folds(EX - (xs[0] + xs[-1]) / 2.0, EY - (ys[0] + bd / 2.0), bw, bd, wrinkle_m)
+        z = z + np.where(on_top, folds * smoothstep(np.minimum(inside, rim) / TOP_FOLD_EDGE_M), 0.0)
+    out = np.zeros_like(s)
+    on_arc = (~on_top) & (s <= arc + 1e-12)
+    th = np.clip(s / R, 0.0, math.pi / 2.0)
+    z = np.where(on_arc, HE + rho - R * (1.0 - np.cos(th)), z)
+    out = np.where(on_arc, R * np.sin(th), out)
+    z_start = HE + rho - R                              # the rounded edge's end
+    down = (~on_top) & ~on_arc
+    length = max([float(hang.get(k) or 0.0) for k in ("left", "right", "foot")] + [arc + 1e-6])
+    f = np.clip((s - arc) / max(length - arc, 1e-6), 0.0, 1.0)
+    z = np.where(down, z_start - f * (z_start - float(hem_z)), z)
+    side = np.where(np.abs(vy) > np.abs(vx), 2, np.where(vx < 0.0, 0, 1))      # 0 left, 1 right, 2 foot
+    extra = np.zeros_like(s)
+    for k, name in enumerate(("left", "right", "foot")):
+        prof = (flare or {}).get(name)
+        if prof is None:
+            continue
+        depths, need = (np.asarray(v, dtype=np.float64) for v in prof)
+        if not len(depths):
+            continue
+        delta = np.maximum(0.0, z_start - z)
+        # the cloth over a wider part below: out by its width from FLARE_M above it (a gentle flare, never a step)
+        ramp = smoothstep((delta[..., None] + FLARE_M - depths[None, None, :]) / FLARE_M)
+        got = np.max(np.maximum(need, 0.0)[None, None, :] * ramp, axis=-1)
+        extra = np.where(down & (side == k), np.maximum(extra, got), extra)
+    fold = np.zeros_like(s)
+    if side_folds:
+        span_y, span_x = float(ys[-1] - ys[0]), float(xs[-1] - xs[0])
+        c = arc
+        phi = np.arctan2(np.abs(vy), np.abs(vx))                 # 0 along the side, pi/2 along the foot
+        per = np.where(side == 0, ys[-1] - EY, 0.0)
+        per = np.where(side == 1, span_y + 2.0 * c + span_x + (EY - ys[0]), per)
+        per = np.where(side == 2, span_y + c + (EX - xs[0]), per)
+        corner = (np.abs(vx) > 1e-12) & (np.abs(vy) > 1e-12)
+        per = np.where(corner & (vx < 0.0), span_y + c * phi / (math.pi / 2.0), per)
+        per = np.where(corner & (vx > 0.0), span_y + c + span_x + c * (1.0 - phi / (math.pi / 2.0)), per)
+        amp = min(SIDE_FOLD_AMP_M[1], max(SIDE_FOLD_AMP_M[0], 1.6 * float(wrinkle_m or 0.01)))
+        fold = np.where(down, amp * smoothstep(f) * (0.5 - 0.5 * np.cos(2.0 * np.pi * per / SIDE_FOLD_PITCH_M + 0.9)),
+                        0.0)
+    out = np.where(down, R + extra + fold, out)
+    grid = np.stack([np.where(on_top, X[:, None] * ones, EX + ux * out),
+                     np.where(on_top, Y[None, :] * ones, EY + uy * out), z], axis=-1)
+    local = np.stack([X[:, None] * ones, Y[None, :] * ones], axis=-1)
+    # the normals: the surface's own on the top; past an edge the turn's (a grid's gradient folds at a foot corner,
+    # where the hem's rows meet: a hem point's underside would drop under the hem)
+    normals = grid_normals(grid)
+    sin_t = np.where(on_arc, np.sin(th), 1.0)
+    cos_t = np.where(on_arc, np.cos(th), 0.0)
+    turned = np.stack([ux * sin_t, uy * sin_t, cos_t], axis=-1)
+    normals = np.where((~on_top)[..., None], turned, normals)
+    return {"grid": grid, "local": local, "thickness": t, "on_top": on_top, "hang_s": s, "normals": normals,
+            "out_dir": np.stack([ux, uy], axis=-1), "edge_local": np.stack([EX, EY], axis=-1), "arc_m": arc,
+            "nu": len(X) - 1, "nv": len(Y) - 1, "edges": (float(xs[0]), float(xs[-1]), float(ys[0]), float(ys[-1])),
+            "split": {"left": nl, "right": len(sr), "foot": nf}, "side": side, "hem_z": float(hem_z)}
+
+
+def grid_normals(grid: np.ndarray) -> np.ndarray:
+    """Unit normals of a grid surface (pure): ``d/du x d/dv`` (a cover's grid: up on its top, out of the bed on its
+    hanging sides)."""
+    g = np.asarray(grid, dtype=np.float64)
+    n = np.cross(np.gradient(g, axis=0), np.gradient(g, axis=1))
+    ln = np.linalg.norm(n, axis=-1, keepdims=True)
+    return n / np.where(ln < 1e-12, 1.0, ln)
+
+
+def sheet_solid(grid: np.ndarray, thickness, key: str, role: str, normals: Optional[np.ndarray] = None) -> Part:
+    """A grid surface as a closed solid (pure numpy, no Python loop per face): its top layer the grid, its underside
+    ``thickness`` (a number or one per point) in along the normals (``normals``, default ``grid_normals``), joined at
+    the rim; outward faces."""
+    g = np.asarray(grid, dtype=np.float64)
+    nu1, nv1 = g.shape[:2]
+    n = grid_normals(g) if normals is None else np.asarray(normals, dtype=np.float64)
+    t = np.broadcast_to(np.asarray(thickness, dtype=np.float64), (nu1, nv1))
+    verts = np.concatenate([g.reshape(-1, 3), (g - n * t[..., None]).reshape(-1, 3)], axis=0)
+    N = nu1 * nv1
+    idx = np.arange(N).reshape(nu1, nv1)
+    ring = np.concatenate([idx[:-1, 0], idx[-1, :-1], idx[:0:-1, -1], idx[0, :0:-1]])
+    nxt = np.roll(ring, -1)
+    rim = np.stack([ring, ring + N, nxt + N, nxt], axis=1)
+    faces = np.concatenate([_grid_faces(idx), _grid_faces(idx + N, flip=True), rim], axis=0)
+    return _part(verts, faces, key, role)
+
+
+SHEET_T_M = 0.007                # the turned-down sheet: doubled cotton percale (designer value)
+BAND_GAP_M = 0.003               # it lies this far over the duvet
+BAND_FOLD_DEG = 135.0            # it wraps the duvet's head edge this far (its end tucked under, never into the bed)
+
+
+def turn_down_band(cover: dict, band_m: float, sheet_t: float = SHEET_T_M) -> Optional[np.ndarray]:
+    """30 Oct 2026 (UL136: "the turned-down band at the head is a thick rigid slab"): the top sheet folded back over
+    the duvet's head end (pure): the duvet's rows within ``band_m`` of its head end, every column (it hangs down the
+    sides with the duvet), lifted ``BAND_GAP_M`` + ``sheet_t`` along the duvet's normals, then wrapped round the
+    duvet's thinned head edge (``BAND_FOLD_DEG``, radius half the edge's thickness + the gap + the sheet): a band
+    2-3 cm thick at its neat fold. The band's outer surface grid, None when the duvet has fewer than two rows there."""
+    g = np.asarray(cover["grid"], dtype=np.float64)
+    loc = np.asarray(cover["local"], dtype=np.float64)
+    t = np.asarray(cover["thickness"], dtype=np.float64)
+    J = g.shape[1] - 1
+    rows = np.nonzero(loc[0, :, 1] >= loc[0, J, 1] - float(band_m) - 1e-9)[0]
+    if len(rows) < 2:
+        return None
+    n = np.asarray(cover["normals"], dtype=np.float64) if cover.get("normals") is not None else grid_normals(g)
+    band = g[:, rows] + n[:, rows] * (BAND_GAP_M + float(sheet_t))
+    head = g[:, J] - g[:, J - 1]
+    head /= np.maximum(np.linalg.norm(head, axis=-1, keepdims=True), 1e-12)
+    mid = g[:, J] - n[:, J] * (t[:, J] / 2.0)[:, None]
+    r = t[:, J] / 2.0 + BAND_GAP_M + float(sheet_t)
+    phi = np.radians(np.linspace(0.0, BAND_FOLD_DEG, 6)[1:])
+    fold = mid[:, None, :] + r[:, None, None] * (np.cos(phi)[None, :, None] * n[:, J][:, None, :]
+                                                 + np.sin(phi)[None, :, None] * head[:, None, :])
+    return np.concatenate([band, fold], axis=1)
+
+
+def band_thickness(band: np.ndarray, sheet_t: float = SHEET_T_M) -> np.ndarray:
+    """The band's thickness per point (pure): the sheet's, half of it on its first row (its neat hem on the duvet)."""
+    t = np.full(np.asarray(band).shape[:2], float(sheet_t))
+    t[:, 0] *= 0.5
+    return t
 
 
 def side_drops(grid: np.ndarray, local: np.ndarray, w: float, d: float, top_z: float, floor_z: float) -> dict:
@@ -528,15 +777,83 @@ def side_drops(grid: np.ndarray, local: np.ndarray, w: float, d: float, top_z: f
     return out
 
 
-def turn_down(sub: np.ndarray, thickness: float, offset: float, roll_rows: int = 2) -> np.ndarray:
-    """The folded band at the duvet's head end (pure): the duvet's top rows ``sub`` lifted by half the duvet's
-    thickness and the offset (it lies on the duvet), its foot edge rolled up a little more (a soft fold, not a cut)."""
-    band = np.array(sub, dtype=np.float64)
-    band[..., 2] += thickness * 0.5 + offset
-    nv = band.shape[1]
-    for j in range(min(roll_rows, nv)):
-        band[:, j, 2] += thickness * 0.35 * (1.0 - j / max(1, roll_rows))
-    return band
+# -- the look, measured: a lumpy duvet, a wavy hem (30 Oct 2026, UL136) ----------------------------------------------
+
+LUMP_WINDOW_M = 0.30             # a fold narrower than this is a lump (the 29 Oct flutes: 18 cm)
+LUMP_MAX_M = 0.006               # the cloth off its own smooth surface (over that window) at most this much ...
+HEM_WAVE_MAX_M = 0.012           # ... and its hem at most this much off a level, straight line (height and plan)
+
+
+def _smooth_1d(a: np.ndarray, pos: np.ndarray, window: float) -> np.ndarray:
+    """A moving average over ``window`` metres along ``pos`` (pure; per point)."""
+    a, pos = np.asarray(a, dtype=np.float64), np.asarray(pos, dtype=np.float64)
+    near = np.abs(pos[:, None] - pos[None, :]) <= window / 2.0
+    return (near * a[None, :]).sum(axis=1) / np.maximum(near.sum(axis=1), 1)
+
+
+def _residual(a: np.ndarray, pos: np.ndarray) -> float:
+    """The largest offset of a profile off its ``LUMP_WINDOW_M`` moving average, its ends left out (half a window: the
+    average is one-sided there)."""
+    a, pos = np.asarray(a, dtype=np.float64), np.asarray(pos, dtype=np.float64)
+    if len(a) < 3:
+        return 0.0
+    keep = (pos >= pos.min() + LUMP_WINDOW_M / 2.0) & (pos <= pos.max() - LUMP_WINDOW_M / 2.0)
+    if not keep.any():
+        return 0.0
+    return float(np.max(np.abs(a - _smooth_1d(a, pos, LUMP_WINDOW_M))[keep]))
+
+
+def cover_smoothness(grid, local, on_top, edges, side=None, hem_z=None, arc_rows: int = ARC_SEGMENTS) -> dict:
+    """The look of a built cover, measured (pure; 30 Oct 2026, UL136: "the duvet's hanging sides ripple in big lumpy
+    waves like melted foam, the hem is uneven and wavy"; any cover grid: ``grid`` its top surface (bed frame), ``local``
+    its flat cloth coordinates, ``on_top``, ``edges`` = (x0, x1, y0, y1) of its top): ``top_lump_m`` = the top's
+    largest height off its own ``LUMP_WINDOW_M`` moving average along and across the bed (out of
+    ``TOP_FOLD_EDGE_M`` of its edges); per hanging side (left, right: the columns past x0 / x1; foot: the rows past y0)
+    ``side_lump_m`` = the hanging cloth's largest plan offset off its moving average along the side (below the
+    ``arc_rows`` of its rounded edge, above the hem), ``hem_wave_m`` = the hem's spread in height and its plan offset
+    off its moving average along the side. A lumpy duvet or a wavy hem: over ``LUMP_MAX_M`` / ``HEM_WAVE_MAX_M``
+    (``review``: ``lumpy_duvet``, ``wavy_hem``)."""
+    g = np.asarray(grid, dtype=np.float64)
+    loc = np.asarray(local, dtype=np.float64)
+    on = np.asarray(on_top, dtype=bool)
+    x0, x1, y0, y1 = (float(v) for v in edges)
+    inner = on & (loc[..., 0] >= x0 + TOP_FOLD_EDGE_M) & (loc[..., 0] <= x1 - TOP_FOLD_EDGE_M) \
+        & (loc[..., 1] >= y0 + TOP_FOLD_EDGE_M) & (loc[..., 1] <= y1 - TOP_FOLD_EDGE_M)
+    lump = 0.0
+    for i in range(g.shape[0]):                      # along the bed
+        m = inner[i]
+        if m.sum() >= 3:
+            lump = max(lump, _residual(g[i, m, 2], loc[i, m, 1]))
+    for j in range(g.shape[1]):                      # across it
+        m = inner[:, j]
+        if m.sum() >= 3:
+            lump = max(lump, _residual(g[m, j, 2], loc[m, j, 0]))
+    cols_l = np.nonzero(loc[:, 0, 0] < x0 - 1e-9)[0]
+    cols_r = np.nonzero(loc[:, 0, 0] > x1 + 1e-9)[0]
+    rows_f = np.nonzero(loc[0, :, 1] < y0 - 1e-9)[0]
+    top_rows = np.nonzero(loc[0, :, 1] >= y0 - 1e-9)[0]
+    top_cols = np.nonzero((loc[:, 0, 0] >= x0 - 1e-9) & (loc[:, 0, 0] <= x1 + 1e-9))[0]
+    parts = {}
+    if len(cols_l) > arc_rows:        # hem first: the leftmost column; along the side: the rows on the top
+        parts["left"] = (-g[cols_l[:len(cols_l) - arc_rows]][:, top_rows, 0], g[cols_l[0], top_rows, 2],
+                         loc[0, top_rows, 1])
+    if len(cols_r) > arc_rows:
+        sel = cols_r[arc_rows:][::-1]
+        parts["right"] = (g[sel][:, top_rows, 0], g[cols_r[-1], top_rows, 2], loc[0, top_rows, 1])
+    if len(rows_f) > arc_rows:
+        sel = rows_f[:len(rows_f) - arc_rows]
+        parts["foot"] = (-g[top_cols][:, sel, 1].T, g[top_cols, rows_f[0], 2], loc[top_cols, 0, 0])
+    sides = {}
+    for name, (offs, hem, pos) in parts.items():
+        side_lump = max([_residual(offs[k], pos) for k in range(1, offs.shape[0])] or [0.0])
+        hem_spread = float(np.ptp(hem)) if len(hem) else 0.0
+        sides[name] = {"side_lump_m": round(side_lump, 4), "hem_wave_m": round(max(hem_spread, _residual(offs[0], pos)),
+                                                                                 4)}
+    out = {"top_lump_m": round(lump, 4), "sides": sides, "rule": RULE_LOOK,
+           "max_m": {"lump": LUMP_MAX_M, "hem_wave": HEM_WAVE_MAX_M}}
+    out["lumpy"] = bool(lump > LUMP_MAX_M or any(v["side_lump_m"] > LUMP_MAX_M for v in sides.values()))
+    out["wavy_hem"] = bool(any(v["hem_wave_m"] > HEM_WAVE_MAX_M for v in sides.values()))
+    return out
 
 
 # -- the throw's fringe ----------------------------------------------------------
@@ -885,12 +1202,21 @@ def bedding_relief(world_verts, centre, rot: float, size) -> dict:
     return rec
 
 
-def dress_mode(asset: Optional[dict], relief: Optional[dict]) -> tuple[Optional[str], str]:
+STAND_BUMP_M = 0.22             # 30 Oct 2026 (UL137): pillows lower than this over the cover lie flat (no sham stands)
+
+
+def dress_mode(asset: Optional[dict], relief: Optional[dict], width: Optional[float] = None
+               ) -> tuple[Optional[str], str]:
     """Whether a library bed with its own bedding is dressed by us (UL121, item 5; pure): ``("full" | "pillows" |
     None, reason)``. ``full``: its cover is flat (relief under ``RELIEF_MIN_M``, or fewer vertices on top than
     ``FLAT_DENSITY``: a few big faces) or it has none; ``pillows``: a modelled duvet without pillows (no bump at the
     head over ``BUMP_MIN_M``, or the audit's ``has_pillows`` false): our pillow set only, its duvet kept; None: made
-    up as well as ours (its pillows and folds kept)."""
+    up as well as ours (its pillows and folds kept).
+
+    30 Oct 2026 (UL137, user on real04's f_L0_007: "head section of this bed needs a rework": two flat pillows lying low
+    in front of the headboard, no euro shams, no standing pillows): a bed whose width takes euro shams (``width`` from
+    ``SHAM_MIN_BED_W``; None: any) and whose own pillows lie flat (their bump under ``STAND_BUMP_M``) is poorer than
+    our set: ``pillows`` (our shams and pillows stand against its headboard, its duvet kept)."""
     a = asset or {}
     r = relief or {}
     bump, rel, dens = r.get("pillow_bump_m"), r.get("relief_m"), float(r.get("density") or 0.0)
@@ -910,6 +1236,9 @@ def dress_mode(asset: Optional[dict], relief: Optional[dict]) -> tuple[Optional[
     if no_pillows:
         return "pillows", (f"its duvet has folds (relief {rel * 1000:.0f} mm) but no pillows (bump {bump:.2f} m < "
                            f"{BUMP_MIN_M} m at the head): our pillow set on it, its duvet kept")
+    if bump < STAND_BUMP_M and (width is None or float(width) >= SHAM_MIN_BED_W - 1e-9):
+        return "pillows", (f"its pillows lie flat (bump {bump:.2f} m < {STAND_BUMP_M} m: no euro shams, no standing "
+                           "pillows; UL137): our shams and pillows stand against its headboard, its duvet kept")
     return None, (f"made up as well as ours: pillows (bump {bump:.2f} m) and folds (relief {rel * 1000:.0f} mm, "
                   f"{dens:.0f} vertices/m2)")
 
@@ -918,6 +1247,7 @@ def dress_mode(asset: Optional[dict], relief: Optional[dict]) -> tuple[Optional[
 # The review (model review M30, Argus U34)
 # --------------------------------------------------------------------------
 
+PROBLEM_LESSONS = {"lumpy_duvet": "UL136", "wavy_hem": "UL136", "head_gap": "UL137"}   # 30 Oct 2026: else UL121
 BED_TYPES: tuple[str, ...] = ("bed_single", "bed_double")
 BED_ROOM_TYPES: tuple[str, ...] = ("bedroom", "child")
 HEM_MAX_M = 0.18                 # a free side's hem at most this over the floor ("almost to the floor")
@@ -934,6 +1264,26 @@ def _family(built: dict, manifest: Optional[dict]) -> str:
                 fam = bl["family"]
                 break
     return str(fam or "").lower()
+
+
+def look_problems(look: Optional[dict], what: str) -> list[tuple[str, str]]:
+    """30 Oct 2026 (UL136): the problems of a cover's measured look (``cover_smoothness``; pure): ``lumpy_duvet`` (its
+    top or a hanging side off its own smooth surface by more than ``LUMP_MAX_M``), ``wavy_hem`` (a hem off a level,
+    straight line by more than ``HEM_WAVE_MAX_M``); none for a cover built before the measure."""
+    if not isinstance(look, dict):
+        return []
+    out = []
+    sides = look.get("sides") or {}
+    if look.get("lumpy"):
+        worst = max([float(look.get("top_lump_m") or 0.0)]
+                    + [float(v.get("side_lump_m") or 0.0) for v in sides.values()])
+        out.append(("lumpy_duvet", f"its {what} is lumpy ({worst * 1000:.0f} mm off its own smooth surface over "
+                                   f"{LUMP_WINDOW_M:.2f} m, at most {LUMP_MAX_M * 1000:.0f} mm; UL136)"))
+    if look.get("wavy_hem"):
+        worst = max(float(v.get("hem_wave_m") or 0.0) for v in sides.values())
+        out.append(("wavy_hem", f"its {what}'s hem is wavy ({worst * 1000:.0f} mm off a level straight line, at most "
+                                f"{HEM_WAVE_MAX_M * 1000:.0f} mm; UL136)"))
+    return out
 
 
 def review(built: dict, manifest: Optional[dict] = None, check: str = "U34") -> tuple[list[dict], int]:
@@ -984,6 +1334,11 @@ def review(built: dict, manifest: Optional[dict] = None, check: str = "U34") -> 
                         problems.append(("no_overhang", f"no overhang on its free {side} side (the duvet's hem "
                                                         f"{float(drop.get('hem_over_floor_m') or 0.0):.2f} m over the "
                                                         "floor)"))
+                problems += look_problems((rec.get("duvet") or {}).get("smoothness"), "duvet")
+                head = rec.get("head") or {}
+                if float(head.get("gap_m") or 0.0) >= 0.02 and not head.get("closed_by"):
+                    problems.append(("head_gap", f"a {float(head['gap_m']):.2f} m gap between the mattress and the "
+                                                 "headboard left open (UL137)"))
             elif rec:
                 problems.append(("too_few_pillows", f"an old dressing: {rec.get('pillows')} pillow(s), no {fam} set "
                                                     "(shams, accent cushions, lumbar)"))
@@ -998,6 +1353,7 @@ def review(built: dict, manifest: Optional[dict] = None, check: str = "U34") -> 
                 problems.append(("no_throw", "no throw across its foot"))
             for t in throws:
                 weave = t.get("weave") or {}
+                problems += look_problems(weave.get("blanket_look"), "blanket")
                 if spec["throw"].get("pattern") and not weave.get("pattern"):
                     problems.append(("throw_pattern", f"its throw has no woven pattern (the {fam} set: "
                                                       f"{spec['throw']['pattern']})"))
@@ -1013,7 +1369,8 @@ def review(built: dict, manifest: Optional[dict] = None, check: str = "U34") -> 
                 if spec["throw"].get("pattern") and not (t.get("weave") or {}).get("pattern"):
                     problems.append(("throw_pattern", "its throw has no woven pattern planned"))
         for problem, text in problems:
+            lesson = PROBLEM_LESSONS.get(problem, LESSON)
             out.append({"check": check, "severity": "minor", "target": bed["id"], "room_id": bed.get("room_id"),
-                        "problem": problem, "lesson": LESSON, "family": fam,
-                        "message": f"the bed {bed['id']} misses its {fam} bedding (UL121, R35): {text}"})
+                        "problem": problem, "lesson": lesson, "family": fam,
+                        "message": f"the bed {bed['id']} misses its {fam} bedding ({lesson}, R35): {text}"})
     return out, n

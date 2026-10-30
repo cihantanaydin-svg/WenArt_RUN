@@ -172,7 +172,8 @@ ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
               "office_chair",                   # Milestone 12: the work group's chair at its desk (§4.2 "work")
               "side_table", "floor_lamp", "ottoman", "potted_plant"),
     # Milestone 12 (docs/milestone12.md §4.2 "balcony": a small table and two chairs; real02's terraces).
-    "balcony": ("table_dining", "chair", "bench", "potted_plant"),
+    # 30 Oct 2026 (lesson UL152, the P15 terrace): an outdoor lounge set (armchairs, a small sofa, a pouf, a side table)
+    "balcony": ("table_dining", "chair", "bench", "potted_plant", "armchair", "sofa", "ottoman", "side_table"),
     # 26 Oct 2026: a dressing room or walk-in closet (no room type of the building schema: the kind of a storage /
     # other room the label or its bedroom door names, ``program.room_kind``; groups.yaml ``dressing``).
     "dressing": ("wardrobe", "bench", "ottoman", "dresser", "chair", "tall_cabinet", "shoe_cabinet",

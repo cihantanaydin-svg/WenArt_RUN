@@ -97,6 +97,37 @@ def oriented_box(points: Iterable[Sequence[float]], rotation_deg: float = 0.0) -
             "rotation_deg": rot}
 
 
+OUTLINE_DIRECTIONS = 32      # the support lines of ``plan_outline`` (every 11.25 degrees: a circle's outline 0.5 % wider)
+
+
+def plan_outline(points, rotation_deg: float = 0.0, center: Sequence[float] = (0.0, 0.0),
+                 n: int = OUTLINE_DIRECTIONS) -> list[list[float]]:
+    """The convex plan outline of points (x, y[, z]) in a frame turned by ``rotation_deg`` about ``center`` (30 Oct
+    2026, ``box3d["outline"]`` of the scene manifest): the polygon cut out by ``n`` support lines at even directions,
+    counter-clockwise, in that frame relative to ``center``, rounded outwards to the millimetre. It holds the points'
+    convex hull (an outer bound: a sliver it leaves out is no part of the mesh) and has at most ``n`` corners: a
+    freestanding tub's rounded ends, a chair's tapered back stay off its box's corners. [] without points."""
+    import numpy as np
+
+    pts = np.asarray([(float(p[0]), float(p[1])) for p in points], dtype=float)
+    if not len(pts):
+        return []
+    r = math.radians(float(rotation_deg))
+    c, s = math.cos(r), math.sin(r)
+    dx, dy = pts[:, 0] - float(center[0]), pts[:, 1] - float(center[1])
+    local = np.stack([c * dx + s * dy, -s * dx + c * dy], axis=1)       # turned by -rotation into the frame
+    ang = 2.0 * math.pi * np.arange(n) / n
+    dirs = np.stack([np.cos(ang), np.sin(ang)], axis=1)
+    support = (local @ dirs.T).max(axis=0) + 0.0005                     # out by half a millimetre (the rounding)
+    out = []
+    for k in range(n):
+        j = (k + 1) % n
+        a = np.array([dirs[k], dirs[j]])
+        x, y = np.linalg.solve(a, np.array([support[k], support[j]]))
+        out.append([round(float(x), 3), round(float(y), 3)])
+    return out
+
+
 def polygon_face(polygon: Sequence[Sequence[float]], z: float, facing_up: bool = True
                  ) -> tuple[list[Vec3], list[list[int]]]:
     """One n-gon face from a 2D polygon at height ``z``. Counter-clockwise

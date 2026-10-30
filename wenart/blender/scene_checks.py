@@ -257,6 +257,25 @@ def wall_hung(piece: dict) -> bool:
                                                     and mb > 0)
 
 
+def built_z_range(entry: dict) -> tuple[float, float]:
+    """``(bottom, top)`` in world z of a scene manifest entry as built (pure; 30 Oct 2026, real04 run
+    20261029-201533-full): the built mesh's world box (``box3d``, every furniture and decor entry has one); without it
+    the entry's box from its bottom (``center - size / 2``) up to ``top_m`` over its floor (a piece's built top: a
+    floating nightstand's, a vanity's) or up to the bottom plus the mesh's height (``bbox_m``). Why: the GPU test
+    took a floating nightstand's top for its box's bottom plus the mesh's 0.22 m (0.22 m), while its box hangs at
+    0.28-0.50 m and the table lamp on it stood on 0.50 m (``decor_f_L0_041_7``: "0.5 m off its host")."""
+    box = entry.get("box3d")
+    if isinstance(box, dict) and box.get("center") and box.get("size"):
+        cz, h = float(box["center"][2]), float(box["size"][2])
+        return cz - h / 2.0, cz + h / 2.0
+    bottom = float(entry["center"][2]) - float(entry["size"][2]) / 2.0
+    top_m = entry.get("top_m")
+    if isinstance(top_m, (int, float)) and not isinstance(top_m, bool):
+        floor = bottom - float(entry.get("mount_bottom_m") or 0.0)
+        return bottom, floor + float(top_m)
+    return bottom, bottom + float((entry.get("bbox_m") or entry["size"])[2])
+
+
 def _bbox(verts) -> tuple[list[float], list[float]]:
     xs, ys, zs = zip(*((float(v[0]), float(v[1]), float(v[2])) for v in verts))
     return [min(xs), min(ys), min(zs)], [max(xs), max(ys), max(zs)]

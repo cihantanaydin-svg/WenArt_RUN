@@ -303,9 +303,9 @@ def test_the_real04_wall_items_over_the_window_and_behind_the_tv_are_found(items
     c = got[("dec_L-1_007", "covered", "dec_L-1_010")]
     assert c["severity"] == "major" and c["lesson"] == "UL139" and "covered by the tv_unit f_L-1_101" in c["message"]
     assert got[("dec_L0_093", "opening", "win_arch_r_L0_yatak_odasi_3_1")]["lesson"] == "UL134"
-    # the model review's M31 and Argus' U35 read the same rule
-    findings, n = WI.review(items04, check="M31")
-    assert n >= 5 and {f["check"] for f in findings} == {"M31"} and len(findings) == len(got)
+    # the model review's M32 and Argus' U35 read the same rule
+    findings, n = WI.review(items04, check="M32")
+    assert n >= 5 and {f["check"] for f in findings} == {"M32"} and len(findings) == len(got)
     from wenart.audit import kinds as K
     from wenart.audit import lessons as L
     u35 = L.wall_items_clear(items04)

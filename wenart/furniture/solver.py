@@ -3446,6 +3446,11 @@ def built_in_places(building: dict, room_id: str, kind: str) -> tuple[list[dict]
                 else:
                     ends = min(x0 + w / 2.0, w / 2.0 - x1)
                     terms["end"] = round(max(0.0, 1.0 - ends / max(w, 1e-6)), 4)
+                    # 30 Oct 2026 (lessons UL147 / UL150, the P5 kitchen; real04's under-counter fridge under the window
+                    # read as an unknown appliance): a fridge at an open counter end with no window over it becomes the
+                    # fit's fridge-freezer column (fit ``fridge_column``), so such a place comes first
+                    terms["column"] = 1.0 if ends <= BUILT_IN_STEP_M + 1e-9 and _column_end(
+                        building, room_id, counter, c, rot, w, d, x0 < -w / 2.0 + BUILT_IN_STEP_M + 1e-9, ctx) else 0.0
                 terms["size"] = size_term
                 # off the door strips and swings (a counter the drawing puts across a passage may take a module, but
                 # a free stretch of the run comes first)
@@ -3453,11 +3458,34 @@ def built_in_places(building: dict, room_id: str, kind: str) -> tuple[list[dict]
                     door.swing is not None and poly.intersection(door.swing).area > placer.AREA_EPS)
                     for door in ctx.doors) else 1.0
                 score = round(2.0 * terms.get("triangle", 0.5) + terms.get("landing", 0.0) + 0.5 * terms.get(
-                    "centre", 0.0) + terms.get("end", 0.0) + terms["size"] + 1.5 * terms["passage"], 6)
+                    "centre", 0.0) + terms.get("end", 0.0) + terms["size"] + 1.5 * terms["passage"]
+                    + 2.0 * terms.get("column", 0.0), 6)
                 out.append({"counter": counter, "x": x, "w": mw, "d": d, "rot": rot, "c": c, "score": score,
                             "terms": terms, "landings": (round(left, 3), round(right, 3)), "poly": poly})
     out.sort(key=lambda p: (-p["score"], str(p["counter"]["id"]), p["x"], -p["w"]))
     return out, notes
+
+
+COLUMN_END_REACH_M = 0.10       # 30 Oct 2026: another counter this close beyond a counter's end makes it a corner
+
+
+def _column_end(building: dict, room_id: str, counter: dict, c, rot: float, w: float, d: float, left: bool,
+                ctx) -> bool:
+    """30 Oct 2026 (UL147 / UL150): whether the ``left`` (local -x) or right end of ``counter`` can hold a fridge-freezer
+    column: no other counter of the room within ``COLUMN_END_REACH_M`` beyond it (no corner) and no window band over
+    its last 0.60 m (pure; the fit decides the column itself: ``fit.fridge_column``)."""
+    sign = -1.0 if left else 1.0
+    edge = sign * w / 2.0
+    beyond = placer._local_box(c, rot, min(edge, edge + sign * COLUMN_END_REACH_M),
+                               max(edge, edge + sign * COLUMN_END_REACH_M), -d / 2.0, d / 2.0)
+    for f in building.get("furniture") or []:
+        if f.get("room_id") != room_id or f.get("id") == counter.get("id") or f.get("type") not in (
+                "kitchen_counter", "kitchen_island") or not GR.piece_is_built(f) or not f.get("footprint"):
+            continue
+        if placer.drawn_piece(f).polygon().intersects(beyond):
+            return False
+    last = placer._local_box(c, rot, min(edge, edge - sign * 0.60), max(edge, edge - sign * 0.60), -d / 2.0, d / 2.0)
+    return not any(last.intersection(win.band).area > BUILT_IN_WINDOW_M2 for win in ctx.windows)
 
 
 def _built_in_dict(place: dict, kind: str, room: dict, pid: str, entry: Optional[dict], reason: str) -> dict:

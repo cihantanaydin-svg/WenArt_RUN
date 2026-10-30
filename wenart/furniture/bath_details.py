@@ -92,6 +92,26 @@ def _ceiling(building: dict, room: dict) -> float:
     return float(_level(building, room.get("level_id")).get("ceiling_height") or 2.7)
 
 
+SLOPE_CLEAR_M = 0.02            # = build.WINDOW_DECOR_CEILING_CLEAR_M: a wall item's top this far under the slope
+
+
+def ceiling_at(building: dict, room: dict, centre, size, rot: float) -> float:
+    """The ceiling over a wall item's footprint (30 Oct 2026, lesson UL128): the level's, under the roof the lowest
+    sloped ceiling over it (``decor.ceiling_over``; a flat ceiling without a roof model)."""
+    D = _decor_module()
+    try:
+        return float(D.ceiling_over(building, room["level_id"], centre[:2], size[:2], float(rot)))
+    except Exception:  # noqa: BLE001 - no roof model: the level's flat ceiling
+        return _ceiling(building, room)
+
+
+def under_slope(building: dict, room: dict, centre, size, rot: float, bottom: float) -> bool:
+    """Whether a wall item ``size`` (w, d, h) with its bottom at ``bottom`` stays ``SLOPE_CLEAR_M`` under the ceiling
+    over it (30 Oct 2026, UL128; real04 run 20261029-201533-full: towel rails and shelves under a 0.81 m slope, through
+    the roof)."""
+    return float(bottom) + float(size[2]) <= ceiling_at(building, room, centre, size, rot) - SLOPE_CLEAR_M + 1e-9
+
+
 def _decor_module():
     """``wenart.furniture.decor``, imported by name: the decor stage's (``dress``) only; the layout stage's planner
     (``plan_building``) and the review never need it, so the layout's code list stays its own."""
@@ -382,6 +402,13 @@ def plan_building(building: dict, style: Optional[dict] = None) -> tuple[dict, l
         rec = plan_room(building, room, spec, why)
         out["rooms"][room["id"]] = rec
         records.append(dict(rec, room_id=room["id"]))
+    # 30 Oct 2026 (real04 run 201533: the flush plates inside the walls): the made-to-measure pieces' backs on their
+    # walls' faces (``bath_parts.seat_on_walls``; the build does it again for a building planned before)
+    seated = {r["id"]: r for r in BT.seat_on_walls(building)}
+    for rec in records:
+        for pid, prec in rec["pieces"].items():
+            if pid in seated:                      # (the records share their pieces with building["bath_details"])
+                prec["wall_gap_m"] = seated[pid]["gap_m"]
     return building, records
 
 
@@ -534,8 +561,9 @@ def _wall_spot(building, room, ctx, size, pieces, near=None, near_max=None, bott
         t = _t_of(ctx, k, c)
         off = panel_offset(rec, k, t - size[0] / 2.0, t + size[0] / 2.0)
         centre, rot, wp, poly = _wall_place(ctx, k, t, size, bottom, off)
-        if _clear(poly, blockers, ctx, swings):
-            return centre, rot, (None if off else wp), k
+        if _clear(poly, blockers, ctx, swings) and (len(size) < 3 or under_slope(building, room, centre, size, rot,
+                                                                                    bottom)):
+            return centre, rot, (None if off else wp), k  # 30 Oct 2026 (UL128): never over the sloped ceiling
     return None
 
 
@@ -574,6 +602,8 @@ def _towels(building, room, ctx, pieces, items, spec, new_id, rec: Optional[dict
                 continue
             off = panel_offset(rec, k, t - size[0] / 2.0, t + size[0] / 2.0)
             centre, rot, wp, poly = _wall_place(ctx, k, t, size, BT.TOWEL_SHELF_BOTTOM_M, off)
+            if not under_slope(building, room, centre, size, rot, BT.TOWEL_SHELF_BOTTOM_M):
+                continue                              # 30 Oct 2026 (UL128)
             if _clear(poly, blockers, ctx, swings=False):
                 placed = (centre, rot, None if off else wp)
                 break
@@ -758,8 +788,11 @@ def _feature_panels(building, room, ctx, pieces, spec, rec, new_id) -> tuple[lis
     ceiling = _ceiling(building, room)
     if rec.get("feature") == "wc_fluted" and rec.get("feature_panel"):
         pnl = rec["feature_panel"]
+        # 30 Oct 2026 (UL128): floor to the ceiling over the panel (the sloped one under the roof), not the flat one
+        here = min(ceiling, ceiling_at(building, room, pnl["center"], (pnl["width"], pnl["thickness"]),
+                                       pnl["rotation_deg"]) - SLOPE_CLEAR_M + 0.005)
         out.append(_item(room, "feature_panel", [*pnl["center"], 0.0], pnl["rotation_deg"],
-                         (pnl["width"], pnl["thickness"], round(ceiling - 0.005, 3)), rec["feature_why"], spec, new_id,
+                         (pnl["width"], pnl["thickness"], round(here - 0.005, 3)), rec["feature_why"], spec, new_id,
                          [pnl["anchor"]], material=pnl["material"]))
     elif rec.get("feature") == "vanity_panel":
         for basin in (p for p in pieces if p.get("type") == "washbasin"
@@ -772,8 +805,10 @@ def _feature_panels(building, room, ctx, pieces, spec, rec, new_id) -> tuple[lis
             _a, _su, n, _l = _seg(ctx, k)
             t = BT.FEATURE_PANEL_T_M
             centre = [back[0] + n[0] * t / 2.0, back[1] + n[1] * t / 2.0, 0.0]
-            out.append(_item(room, "feature_panel", centre, placer._rotation_for_normal(n),
-                             (w, t, round(ceiling - 0.005, 3)), rec["feature_why"], spec, new_id, [basin["id"]],
+            rot = placer._rotation_for_normal(n)
+            here = min(ceiling, ceiling_at(building, room, centre, (w, t), rot) - SLOPE_CLEAR_M + 0.005)   # UL128
+            out.append(_item(room, "feature_panel", centre, rot,
+                             (w, t, round(here - 0.005, 3)), rec["feature_why"], spec, new_id, [basin["id"]],
                              material=spec.get("panel") or "terrazzo"))
             break
     return out, notes

@@ -51,6 +51,7 @@ class Inputs:
     top_plans: list = field(default_factory=list)  # the model's top-down images (top_<level>_plan.jpg)
     images: list = field(default_factory=list)    # the final renders' previews
     missing: list = field(default_factory=list)   # the records that were looked for and not found
+    stale: list = field(default_factory=list)     # 30 Oct 2026: records an earlier run left ({"record", "why"})
 
     @property
     def final(self) -> Optional[dict]:
@@ -59,6 +60,26 @@ class Inputs:
 
     def stage(self, name: str) -> Optional[dict]:
         return next((b for n, b in self.stages if n == name), None)
+
+
+def inspector_of_run(rec: Optional[dict], run_manifest: Optional[dict]) -> tuple[Optional[dict], Optional[str]]:
+    """``(record, None)`` when the inspector's record belongs to this run, ``(None, why)`` when an earlier run left it
+    (pure; 30 Oct 2026): written (``written_utc``) before the run started (the run manifest's ``started_utc``), or
+    with no time stamp at all (a record from before 30 Oct 2026) in a run that has one. Why: real04 runs
+    20261028-183611 to 20261029-201533 never rewrote ``orchestrator/inspector.json`` (the report raised on a camera
+    edit), and Argus read the 28 Oct record's criticals (the cushions dec_L0_011 / 012 4.9 cm in a bed that run had
+    dressed, the mirror dec_L1_013 through the roof) as each run's own. Without a run start the record is read."""
+    if not isinstance(rec, dict):
+        return rec, None
+    started = (run_manifest or {}).get("started_utc") if isinstance(run_manifest, dict) else None
+    if not started:
+        return rec, None
+    written = rec.get("written_utc")
+    if not written:
+        return None, f"stale: no time stamp, written before the run started {started}"
+    if str(written) < str(started):
+        return None, f"stale: written {written}, before the run started {started}"
+    return rec, None
 
 
 def _first(*paths) -> Optional[Path]:
@@ -95,6 +116,10 @@ def _fill(inp: Inputs, scene: Path, orch: Path, recog: Path, run: Path, final: P
         rm = results / "run_manifest.json"
         inp.run_manifest = read_json(rm) if rm.is_file() else None
         inp.junit = sorted(results.glob("junit-*.xml"))
+    inp.inspector, stale = inspector_of_run(inp.inspector, inp.run_manifest)
+    if stale:
+        inp.missing.append(f"inspector ({stale})")
+        inp.stale.append({"record": "inspector", "why": stale})
     tops = {p.name: p for d in (scene, scene.parent / "renders") if d.is_dir()
             for p in sorted(d.glob("top_*_plan*.jpg"))}
     inp.top_plans = [tops[k] for k in sorted(tops)]          # the pod keeps them in renders/, a collected run in scene

@@ -660,7 +660,10 @@ BUILT_IN_REACH_M = 0.05          # a wardrobe end within this of a wall face cou
 # slim black bars and a stone top in a modern kitchen, shaker fronts with brass in a classic one, oak tops in the
 # Nordic and rustic ones). Kitchen cabinet types only (``CABINET_TYPES``); the other storage keeps its look.
 KITCHEN_FAMILY_LOOKS: dict[str, dict[str, str]] = {
-    "modern": {"front_style": "flat", "handle": "black", "worktop": "stone"},
+    # 30 Oct 2026 (lesson UL147, the user's P5 kitchen again: "good inspiration photo for the kitchen"): the modern
+    # kitchen of the reference: framed (slim shaker) fronts in a muted taupe, black bar handles, a stone worktop; its
+    # fluted uppers stay pale (kitchen_details.fluted_front: the trim's paint), the two tones of P5
+    "modern": {"front_style": "shaker", "colour": "muted taupe", "handle": "black", "worktop": "stone"},
     "modern minimal": {"front_style": "flat", "handle": "brushed_steel", "worktop": "stone"},
     "minimal": {"front_style": "flat", "handle": "brushed_steel", "worktop": "stone"},
     "scandinavian": {"front_style": "flat", "handle": "black", "worktop": "wood"},
@@ -670,7 +673,7 @@ KITCHEN_FAMILY_LOOKS: dict[str, dict[str, str]] = {
     "classic": {"front_style": "shaker", "handle": "brass", "worktop": "stone"},
     "rustic": {"front_style": "shaker", "handle": "black", "worktop": "wood"},
     # 29 Oct 2026 (UL118, K2: "framed fronts for the families that use them"; wenart.blender.kitchen_details)
-    "contemporary": {"front_style": "flat", "handle": "black", "worktop": "stone"},
+    "contemporary": {"front_style": "flat", "colour": "muted taupe", "handle": "black", "worktop": "stone"},
     "modern classic": {"front_style": "shaker", "handle": "black", "worktop": "stone"},
     "transitional": {"front_style": "shaker", "handle": "brushed_steel", "worktop": "stone"},
     "farmhouse": {"front_style": "shaker", "handle": "black", "worktop": "wood"},

@@ -1004,7 +1004,9 @@ def rule_design(item: dict, building: dict, style: Optional[dict]) -> dict:
     if ftype in schemas.CABINET_TYPES:
         from wenart.blender import looks as LO
         extra, _notes = LO.kitchen_family_look(ftype, style, out)
-        out.update({k: v for k, v in extra.items() if v in schemas.FRONT_STYLES + schemas.HANDLES + schemas.WORKTOPS})
+        # 30 Oct 2026 (UL147): the family's front colour too (a colour phrase, P5's muted taupe)
+        out.update({k: v for k, v in extra.items() if v in schemas.FRONT_STYLES + schemas.HANDLES + schemas.WORKTOPS
+                    or (k == "colour" and isinstance(v, str) and v.strip())})
     if ftype == "washbasin":
         _rot, size = placer.front_frame(item["footprint"], item.get("front_deg"))
         if size[1] >= schemas.VANITY_MIN_DEPTH_M - 1e-9:

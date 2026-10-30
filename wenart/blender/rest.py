@@ -94,6 +94,14 @@ is made of.
   0.944), the pillows' flanks 0.075 m to each side squeezed the cushion (0.14 m < ``MIN_CUSHION_W``), the three rays
   then met the pillows' front (y 0.468, cushion centre 0.336 < 1.0 - ``BED_HEAD_ZONE_M`` = 0.35: the 27 Oct head zone),
   the back edge fallback (0.794) put it between the pillows again and the build said "no headboard found".
+
+30 Oct 2026 (lesson UL128, user: "Some frames coming out of the roof it needs fixing"): ``plan_decor(max_top_z=)`` (the
+build gives it under a sloped ceiling: ``furniture.slope_top_z``): a shelf item takes a board its top fits under
+(``place_on_shelf``), any other pose whose top reaches over it is refused (``under_slope``) and, with no other pose,
+the item is not built with the reason. The Argus critical S5 of run 20261029-201533 on the cushions dec_L0_011 / 012
+(4.9 cm in the bed f_L0_007) was the 28 Oct run's (an inspector record never rewritten; ``wenart.agent.inspector``):
+the cause of that run, S5 measured on the lean caster without the duvet, was fixed on 28 Oct (item (4) above), and
+``plan_decor``'s S5 and the scene check's S5 measure on the same caster (the bed and its dressing).
 """
 from __future__ import annotations
 
@@ -151,6 +159,19 @@ BACK_PRESS_M = 0.005              # ... pressed this far into a soft back
 BED_STAND_SHARES = (0.5, 0.85, 1.0)   # the back rays (of BACK_PROBE_SHARES) through the item's upper part
 BED_RAIL_PROBE_M = 0.01               # a side hit's top is measured by a ray down this far past the hit ...
 BED_RAIL_MIN_RISE_M = 0.15            # ... a rail or a post rises at least this over the item's seat (a pillow does not)
+# 30 Oct 2026 (UL137, user on real04's f_L0_007: "head section of this bed needs a rework": two flat pillows low in front
+# of a tufted headboard on posts, a gap between the mattress and the headboard): a bed's back ray takes its first hit in
+# the head zone (a hit nearer the middle, a raised head section or a roll, no longer hides the headboard behind it);
+# the mattress's head edge is found by rays down towards the headboard (the top dropping ``BED_GAP_DROP_M``): a gap of
+# ``BED_GAP_MIN_M`` or more is bridged: the item stands with its base on the mattress (its centre ``BED_GAP_BASE_SHARE``
+# of its thickness before the edge), leaned back further (``BED_GAP_LEANS``) until its upper part reaches the headboard
+BED_GAP_MIN_M = 0.02
+BED_GAP_DROP_M = 0.04
+BED_GAP_DEPTH_M = 0.08                # a gap is deeper than this under the mattress top (a duvet's end is no gap)
+BED_GAP_STEP_M = 0.015
+BED_GAP_REACH_M = 0.36
+BED_GAP_BASE_SHARE = 0.2
+BED_GAP_LEANS = (8.0, 12.0, 16.0, 20.0, 26.0, 32.0)
 ARM_GAP_M = 0.005                 # a cushion stays this far off an arm
 MIN_CUSHION_W = 0.30              # a cushion squeezed narrower than this between the arms is not placed
 SHIFT_STEPS = 4                   # a top item tries its spot, then this many steps towards the host centre
@@ -197,6 +218,48 @@ WALL_SUPPORT_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain",
 CEILING_SUPPORT_TYPES: tuple[str, ...] = ("pendant_light", "ceiling_light")
 FLOOR_SUPPORT_TYPES: tuple[str, ...] = ("plant", "plant_large", "rug", "toilet_brush")
 RAY_SUPPORTS: tuple[str, ...] = ("seat", "mattress", "back", "headboard", "top", "shelf")
+# 30 Oct 2026 (lesson UL151, user on real04 run 20261029-201533-full, cam_r_L-1_mutfak_2: "this vase on the floor not
+# making sense"; the kitchen's floor plant dec_L-1_040 was the model "Flowers (Plants)", a table vase of pink flowers,
+# 0.54 m on the floor): table-size decor never rests on the floor; it goes on a surface or it is not built, with the
+# reason. Only floor-class decor stands on the floor, tall enough to read as a floor piece (``FLOOR_MIN_H_M``), and a
+# floor plant's model is no table piece by its title (``TABLE_PIECE_WORDS``).
+TABLETOP_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp", "candle", "tray", "books", "book_set",
+                                   "fruit_bowl", "glass", "plate", "plate_stack", "dried_grass_vase", "storage_jars",
+                                   "utensil_pot", "oil_bottles", "kettle", "toaster", "coffee_machine",
+                                   "coffee_station", "chopping_board", "cutting_boards", "cookware", "microwave",
+                                   "laptop", "monitor", "keyboard", "computer_mouse")
+FLOOR_MIN_H_M: dict[str, float] = {"plant": 0.60, "plant_large": 0.90, "floor_vase": 0.50,
+                                  "sculpture": 0.50}           # a floor sculpture, not a small one put down
+FLOOR_PLANT_TYPES: tuple[str, ...] = ("plant", "plant_large")
+TABLE_PIECE_WORDS: tuple[str, ...] = ("flower", "bouquet", "vase", "succulent", "tabletop", "table top", "desk ",
+                                      "bonsai", "mini ")
+ON_FLOOR_M = 0.05                 # an item whose bottom is this close to its floor stands on the floor
+
+
+def floor_class_problem(dtype: Optional[str], height: Optional[float] = None, title: Optional[str] = None
+                        ) -> Optional[str]:
+    """Why an item of ``dtype`` standing on the floor makes no sense (pure; UL151), None when it may stand there: a
+    table-size type (``TABLETOP_TYPES``); a floor-class item lower than ``FLOOR_MIN_H_M`` (it reads as a table piece put
+    down on the floor); a floor plant whose model's title names a table piece (a vase of flowers, a succulent)."""
+    if dtype in TABLETOP_TYPES:
+        return f"a {str(dtype).replace('_', ' ')} is a table-size item: it never stands on the floor (UL151)"
+    low = FLOOR_MIN_H_M.get(str(dtype))
+    if low is not None and height is not None and float(height) < low - 1e-9:
+        return (f"a {float(height):.2f} m {str(dtype).replace('_', ' ')} on the floor reads as a table piece put down "
+                f"there (a floor piece is at least {low:.2f} m; UL151)")
+    text = f" {str(title or '').casefold()} "
+    if dtype in FLOOR_PLANT_TYPES and any(w in text for w in TABLE_PIECE_WORDS):
+        return f"the model {title!r} is a table piece, not a floor plant (UL151)"
+    return None
+
+
+def on_the_floor(item: dict, host: Optional[dict]) -> bool:
+    """Whether a decor item stands on the floor as placed (pure): no host and no height given over the floor (its
+    ``center[2]`` none or within ``ON_FLOOR_M``), not a wall, ceiling or window item."""
+    if host is not None or item.get("type") in WALL_SUPPORT_TYPES + CEILING_SUPPORT_TYPES + ("curtain", "blind"):
+        return False
+    c = item.get("center") or []
+    return len(c) < 3 or c[2] is None or float(c[2]) <= ON_FLOOR_M
 
 
 def support_of(dtype: Optional[str], host_type: Optional[str]) -> str:
@@ -363,6 +426,16 @@ class BVHCaster:
     @property
     def bounds(self) -> tuple[tuple, tuple]:
         return tuple(float(c) for c in self.lo), tuple(float(c) for c in self.hi)
+
+
+def mesh_caster(verts: Sequence[Sequence[float]], faces: Sequence[Sequence[int]]):
+    """A caster on a mesh made on the fly (30 Oct 2026: a bed's shams, a throw's blanket): Blender's BVH inside Blender,
+    the pure ``MeshCaster`` elsewhere (the same hits; the BVH is ~100 times faster on a few thousand faces)."""
+    try:
+        import mathutils.bvhtree  # noqa: F401
+    except ImportError:
+        return MeshCaster(verts, faces)
+    return BVHCaster(verts, faces)
 
 
 class MultiCaster:
@@ -534,6 +607,38 @@ def _rail_hit(caster, origin, direction, max_dist: float, seat_z: float, top_z: 
     return None
 
 
+def bed_head(caster, host_fp: dict, lx: float, w: float, seat: float, face_y: float) -> Optional[dict]:
+    """30 Oct 2026 (UL137; module docstring at ``BED_GAP_MIN_M``): the head of a bed in front of its headboard face
+    ``face_y`` (bed-local) at the item's ``lx`` (three lines over its width ``w``): rays down every ``BED_GAP_STEP_M``
+    over the last ``BED_GAP_REACH_M`` before the face; the mattress (or the bedding on it) is where the top is at most
+    ``BED_GAP_DROP_M`` under ``seat``; its head edge is the last such point from the front (the median of the three).
+    ``{"face_y", "mattress_y", "gap_m", "mattress_z", "gap_floor_z" (the lowest hit in the gap, None: through to the
+    floor), "rule"}`` or None (no mattress found)."""
+    hc, rot = host_fp["center"], float(host_fp["rotation_deg"])
+    top = host_top(caster) + TOP_ABOVE_M
+    ys = np.arange(float(face_y) - BED_GAP_REACH_M, float(face_y) - 0.004, BED_GAP_STEP_M)
+    if not len(ys):
+        return None
+    edges, lows = [], []
+    for x in (lx - w / 4.0, lx, lx + w / 4.0):
+        zs = _down_hits(caster, [to_world(hc, rot, x, y) for y in ys], top)
+        on = [z is not None and z >= float(seat) - BED_GAP_DROP_M for z in zs]
+        if not on[0]:
+            continue
+        k = on.index(False) if False in on else len(on)
+        edges.append(float(ys[k - 1]) + BED_GAP_STEP_M / 2.0 if k < len(on) else float(face_y))
+        lows += [z for z, o in zip(zs[k:], on[k:]) if z is not None and not o]
+    if not edges:
+        return None
+    y_m = min(float(np.median(edges)), float(face_y))
+    floor = min(lows) if lows else None
+    if floor is not None and floor > float(seat) - BED_GAP_DEPTH_M:
+        y_m = float(face_y)           # a step down to a lower top (a duvet's end, the bare mattress): no gap
+    return {"face_y": round(float(face_y), 4), "mattress_y": round(y_m, 4), "gap_m": round(float(face_y) - y_m, 4),
+            "mattress_z": round(float(seat), 4), "gap_floor_z": round(floor, 4) if floor is not None else None,
+            "rule": "bedding.ul137"}
+
+
 def back_face_offset(t: float, s: float, lean_deg: float) -> tuple[float, float]:
     """``(y, z)`` of the back face of a box of thickness ``t`` leaning ``lean_deg`` (top towards +Y) at the height
     parameter ``s`` along the face, in the item frame (origin at the un-leaned bottom centre, lifted onto z = 0)."""
@@ -585,11 +690,14 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
             break
     if seat is None:
         return None
+    seat_probe = seat
     how = []
     cy_local = None
-    # fix round after P4b (module docstring): a bed's back rays start mid-bed, skip a bulge and run above the mattress
+    backs_found: list = []
+    # fix round after P4b (module docstring): a bed's back rays start mid-bed, skip a bulge and run above the mattress;
+    # 30 Oct 2026 (UL137): their first hit in the head zone counts (a hit nearer the middle hides no headboard)
     start, reach = (0.0, hd / 2.0 + 0.2) if bed else (-hd / 2.0 - 0.2, hd + 0.4)
-    min_hit = BED_BACK_MIN_HIT_M if bed else 0.0
+    min_hit = max(BED_BACK_MIN_HIT_M, hd / 2.0 - BED_HEAD_ZONE_M - start) if bed else 0.0
     # Milestone 13: the back is probed with the centre ray first; when the item is then squeezed between two things
     # narrower than a cushion (the centre ray passed through the gap between the two pillows of a made bed and found
     # the headboard behind them), three rays over the item's width probe again and the nearest hit is the back.
@@ -623,7 +731,9 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
             if stand and not backs:
                 return None                   # 29 Oct 2026: nothing to stand against (the lean follows)
             if not backs:
-                cy_local = hd / 2.0 - back_face_offset(t, h * 0.5, lean_deg)[0]
+                # 30 Oct 2026 (UL136): on a bed its top end reaches the head edge (a pillow lying 14 degrees off flat
+                # with its middle there poked 0.2 m past the bed's head: into the wall, the gap or the headboard)
+                cy_local = hd / 2.0 - back_face_offset(t, h if bed else h * 0.5, lean_deg)[0]
                 what = "no backrest hit: against the footprint's back edge (the wall)"
             # the seat under the item's spot (soft: median of the grid over its middle: never an arm's top)
             foot = (min(w * 0.5, 0.2), max(t, 0.05))
@@ -631,6 +741,7 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
             if sup["z"] is not None:
                 seat = sup["z"]
             how = [what]
+            backs_found = backs
         # 2. arms: rays to both sides at two heights of the item (the nearest hit counts)
         cxw, cyw = to_world(hc, rot, lx, cy_local)
         right = left = None
@@ -661,9 +772,30 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
         lx += (room_r - room_l) / 2.0
         w = total
         how.append(f"narrowed to {w:.2f} m between the arms")
+    # 3. 30 Oct 2026 (UL137): a gap between the mattress and the headboard is bridged (see BED_GAP_MIN_M)
+    head = None
+    if bed and backs_found:
+        face_y = min(yb for yb, _s in backs_found)
+        head = bed_head(caster, host_fp, lx, w, seat_probe, face_y)
+        if head is not None and head["gap_m"] >= BED_GAP_MIN_M:
+            need_y = head["mattress_y"] - BED_GAP_BASE_SHARE * t
+            if cy_local > need_y:
+                for a in [lean_deg] + [v for v in BED_GAP_LEANS if v > lean_deg]:
+                    cy_a = min(yb - back_face_offset(t, s, a)[0] for yb, s in backs_found)
+                    lean_deg, cy_local = a, cy_a
+                    if cy_a <= need_y:
+                        break
+            foot = (min(w * 0.5, 0.2), max(t, 0.05))
+            sup = support_height(caster, to_world(hc, rot, lx, cy_local - t * 0.25), foot, rot_item, True, top)
+            seat = max(float(sup["z"]) if sup["z"] is not None else seat_probe, seat_probe)
+            how.append(f"bridging the {head['gap_m']:.2f} m gap between the mattress and the headboard (its base on "
+                       f"the mattress, leaned {lean_deg:.0f} deg)")
     cx, cy = to_world(hc, rot, lx, cy_local)
-    return {"center": [cx, cy], "z": float(seat), "rotation_deg": rot_item, "lean_deg": float(lean_deg),
-            "size": [w, t, h], "how": "; ".join(how), "support": "back", "seat_z": float(seat)}
+    out = {"center": [cx, cy], "z": float(seat), "rotation_deg": rot_item, "lean_deg": float(lean_deg),
+           "size": [w, t, h], "how": "; ".join(how), "support": "back", "seat_z": float(seat)}
+    if head is not None:
+        out["head"] = head
+    return out
 
 
 def board_tops(caster, x: float, y: float) -> list[dict]:
@@ -681,13 +813,14 @@ def board_tops(caster, x: float, y: float) -> list[dict]:
     return sorted(boards, key=lambda b: b["z"])
 
 
-def place_on_shelf(caster, center, size, rotation_deg: float, shelf: Optional[int] = None, attempt: int = 0
-                   ) -> Optional[dict]:
+def place_on_shelf(caster, center, size, rotation_deg: float, shelf: Optional[int] = None, attempt: int = 0,
+                   max_top_z: Optional[float] = None) -> Optional[dict]:
     """Books on a shelf board (§4.7: one ray grid per board): the boards under the item's centre
     (``board_tops``); the board ``shelf`` (default 1, the second from the bottom; ``attempt`` takes the next one)
     or the next one up with room for the item's height; then the 3 x 3 grid on that board (highest hit)."""
     w, d, h = (float(v) for v in size)
-    boards = [b for b in board_tops(caster, float(center[0]), float(center[1])) if b["clearance"] >= h + 0.005]
+    boards = [b for b in board_tops(caster, float(center[0]), float(center[1])) if b["clearance"] >= h + 0.005
+              and (max_top_z is None or b["z"] + h <= float(max_top_z) + 1e-9)]   # 30 Oct 2026 (UL128): the slope
     if not boards:
         return None
     want = (1 if shelf is None else int(shelf)) + attempt
@@ -981,7 +1114,7 @@ ATTEMPTS = 2                      # placed, then placed once more, then not buil
 
 def place_item(support: str, caster, host_fp: dict, center, size, rotation_deg: float, soft_item: bool,
                lean_deg: float = 0.0, shelf: Optional[int] = None, attempt: int = 0,
-               back_caster=None, stand: bool = False) -> Optional[dict]:
+               back_caster=None, stand: bool = False, max_top_z: Optional[float] = None) -> Optional[dict]:
     """The pose of an item on its support (``host_frame.support``): leaning on a back or a headboard, on a shelf
     board, or lying on a top, a seat or a mattress; None when the host offers no support there. Fix round after
     P4b: a ``headboard`` is searched in the bed's head half (``place_leaning(bed=True)``). 28 Oct 2026:
@@ -993,7 +1126,7 @@ def place_item(support: str, caster, host_fp: dict, center, size, rotation_deg: 
                              turn_deg=float(rotation_deg) - float(host_fp["rotation_deg"]), attempt=attempt,
                              bed=support == "headboard", back_caster=back_caster, stand=stand)
     if support == "shelf":
-        return place_on_shelf(caster, center, size, rotation_deg, shelf, attempt)
+        return place_on_shelf(caster, center, size, rotation_deg, shelf, attempt, max_top_z=max_top_z)
     if support in ("top", "seat", "mattress"):
         return place_on_top(caster, center, size, rotation_deg, soft_item, host_center=host_fp["center"],
                             attempt=attempt)
@@ -1008,7 +1141,7 @@ def local_bounds(verts) -> tuple[float, float, float]:
 
 def plan_decor(item: dict, host: dict, caster, local_verts, local_faces, support: str,
                lean_deg: float = 0.0, shelf: Optional[int] = None, attempts: int = ATTEMPTS,
-               back_caster=None) -> dict:
+               back_caster=None, max_top_z: Optional[float] = None) -> dict:
     """Place one hosted decor item on the built host (``caster``) and check it (S5, §4.7).
 
     ``local_verts`` / ``local_faces``: the item's mesh in its own frame (bottom on z = 0, centred, front -Y): a
@@ -1076,7 +1209,7 @@ def plan_decor(item: dict, host: dict, caster, local_verts, local_faces, support
             for stand in stand_modes(support):
                 for lean in leans:
                     pose = place_item(support, caster, host_fp, center, (w, d, h), rot, soft_item, lean, shelf,
-                                      attempt, back_caster=back, stand=stand)
+                                      attempt, back_caster=back, stand=stand, max_top_z=max_top_z)
                     if pose is None:
                         if not stand:
                             last = {"reason": f"no {support} found on the built host (attempt {attempt + 1})",
@@ -1097,6 +1230,9 @@ def plan_decor(item: dict, host: dict, caster, local_verts, local_faces, support
                         pose = settled(pose, verts, back)
                     world, foot, m = measured(pose, verts)
                     ok, why = rest_ok(m)
+                    over = under_slope(world, max_top_z)
+                    if over is not None:                  # 30 Oct 2026 (UL128): never through the sloped ceiling
+                        ok, why = False, why + [over]
                     if ok:
                         return {"verts": world, "faces": [list(f) for f in local_faces], "pose": pose, "rest": m,
                                 "footprint": foot, "attempt": attempt + 1}
@@ -1121,7 +1257,8 @@ def plan_throw(item: dict, host: dict, caster, floor_z: float) -> dict:
     fp = host["footprint"]
     host_fp = {"center": [float(fp["center"][0]), float(fp["center"][1])], "size": [float(v) for v in fp["size"][:2]],
                "rotation_deg": float(fp["rotation_deg"])}
-    got = T.throw_parts(caster, host_fp, item, floor_z)
+    layers = host.get("bedding_layers") if isinstance(host.get("bedding_layers"), dict) else {}
+    got = T.throw_parts(caster, host_fp, item, floor_z, sides=layers.get("sides"))     # 30 Oct 2026 (UL146): P14
     if got is None:
         return {"not_rested": {"id": item.get("id"), "type": "throw", "host_id": host.get("id"), "support": "drape",
                                "reason": "the cloth found no top under it", "measured": None, "attempts": 1}}
@@ -1153,6 +1290,19 @@ def plan_throw(item: dict, host: dict, caster, floor_z: float) -> dict:
             **({"runner": got["runner"]} if got.get("runner") else {}),
             # 29 Oct 2026 (UL121): the woven pair's record (pattern, fringe strands)
             **({"weave": got["weave"]} if got.get("weave") else {})}
+
+
+def under_slope(world_verts, max_top_z: Optional[float]) -> Optional[str]:
+    """Why an item placed at ``world_verts`` stands through the sloped ceiling over it (pure; 30 Oct 2026, lesson
+    UL128: books on a bookshelf's top under the slope), None when its top stays at ``max_top_z`` (world z: the ceiling
+    over it less a clearance; the build gives it under a roof) or lower, or without one."""
+    if max_top_z is None or not world_verts:
+        return None
+    top = max(float(v[2]) for v in world_verts)
+    if top <= float(max_top_z) + 1e-9:
+        return None
+    return (f"its top {top:.2f} m reaches {top - float(max_top_z):.2f} m over the sloped ceiling over it "
+            f"({float(max_top_z):.2f} m): it would show through the roof")
 
 
 Placer = Callable[..., Optional[dict]]

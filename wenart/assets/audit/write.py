@@ -111,6 +111,23 @@ def generated_credit(doc: dict, via: Optional[str] = None) -> int:
     return n
 
 
+END_FRONT_TYPES = ("car", "truck", "bus", "van", "motorcycle", "bicycle", "boat")
+
+
+def end_front_turn_ok(entry: dict, turns: int) -> bool:
+    """Whether a front turn of ``turns`` quarter turns keeps a vehicle's front on an end of its length (pure; 30 Oct
+    2026, lesson UL129: the vision check's "front on the right of view 0" turned cars of the 3D Warehouse layer onto
+    their sides, real04's car among them). Always True for other types, a half turn or a box with no long side."""
+    if entry.get("type") not in END_FRONT_TYPES or int(turns) % 2 == 0:
+        return True
+    box = entry.get("bbox_model_m")
+    if not box or len(box) < 2 or abs(float(box[0]) - float(box[1])) < 0.05 * max(float(box[0]), float(box[1])):
+        return True
+    new_axis = rotate_axis(entry["front_axis"], int(turns))
+    long_axis = "X" if float(box[0]) > float(box[1]) else "Y"
+    return new_axis.endswith(long_axis)
+
+
 def _oriented(box_model, front_axis):
     from wenart.furniture import catalog as C
     return [round(float(v), 4) for v in C.oriented_bbox(box_model, front_axis)]
@@ -149,6 +166,11 @@ def fix_entry(entry: dict, fixes: dict) -> tuple[dict, dict]:
         entry["unit_note"] = (str(entry.get("unit_note") or "").rstrip("; ") + "; " + note).lstrip("; ")
         new["unit_scale"] = entry["unit_scale"]
     turns = int(fixes.get("front_quarter_turns") or 0) % 4
+    if turns and entry.get("front_axis") in AXES and not end_front_turn_ok(entry, turns):
+        # 30 Oct 2026 (lesson UL129): a vehicle's front is an end of its length: a turn onto its side is refused
+        entry["front_axis_note"] = (str(entry.get("front_axis_note") or "") + f"; M13 audit: a front turn of "
+                                    f"{turns * 90} deg onto the long side of a {entry.get('type')} refused")
+        turns = 0
     if turns and entry.get("front_axis") in AXES:
         keep_old("front_axis", "bbox_m", "front_axis_confidence")
         entry["front_axis"] = rotate_axis(entry["front_axis"], turns)

@@ -2477,13 +2477,120 @@ Two open points of run 20261029-201533-full, fixed as general rules (tests: `tes
 Note for the lessons: UL71's "never in front of a window it would reach" now lets a low set (0.15 m) stand before a
 window; taller items keep under the sill.
 
+## Nothing inside crosses the roof; four decor findings of run 201533 (30 Oct 2026; CPU- and Blender-tested, pod run waiting)
+
+Lessons UL128 ("Some frames coming out of the roof it needs fixing") and UL132 ("Door frame needs fixing"), and four
+decor findings of real04 run 20261029-201533-full. Every fix is a general rule.
+
+| finding | cause (measured) | fix |
+|---|---|---|
+| doors d_L1_001 / 002 through the roof, the play room's jamb up into the slope | D5 reset them to 2.10 m under a 1.84 m slope ("2.10 m kept") after the roof clip had made them 1.80 m; the bathroom doors d_L1_004 / 005 to 2.10 m under 1.03 m; frames +0.28 / +1.10 m, open leaves +0.19 / +0.95 m over the ceiling | one height for opening, leaf, lining, head and architrave under the ceiling at the door (`door_states.head_room`, `apply_under_roof`: lowered, else slid along its wall up to 0.5 m, else lowered with a dormer finding); an open leaf tried under the slope over it (ajar, other jamb, other room, else closed) |
+| towel rails, shelves and terrazzo panels of both L1 bathrooms through the roof (X2) | `decor_under_roof` held only plants and ceiling lights; the bathroom details used the flat ceiling | every hostless type held under the slope (a panel shortened from the top, others not built with the reason); `bath_details` places them under the slope; wall art hangs under the slope over its wall; hosted decor gets `max_top_z` (a lower shelf board or not built) |
+| tall furniture under the slope | only the fit refused tall library models | the build caps a piece at the slope over its footprint (`furniture.under_roof_cap`: the module or parametric piece at that height) |
+| lamp "0.5 m off" its floating nightstand (GPU test) | the lamp stood on the real 0.50 m top; the test took the hung 0.28-0.50 m box's top as 0.22 m | the test measures items and hosts as built (`scene_checks.built_z_range`: `box3d`); a raised parametric piece records `top_m` |
+| dec_L0_031 not built in the open-kitchen variant (GPU test) | the big loop's final round re-solved the bedroom (f_L0_052 became f_L0_057) and rebuilt the base only | `Orchestrator.variants_again`: every variant builds again after the loop (reused when unchanged) |
+| a table vase on the kitchen floor (UL151, cam_r_L-1_mutfak_2) | the floor plant dec_L-1_040 took "Flowers (Plants)", a vase of flowers fitted 0.54 m high; four more floor plants 0.37-0.56 m | table-size decor never stands on the floor (`rest.floor_class_problem`): the fit gives a floor plant a model at least 0.60 m high (a large plant 0.90 m, a floor vase or floor sculpture 0.50 m) and no table piece by its title, else ours; the build does not build a table item on the floor and builds a too-low floor plant as ours (`furniture.floor_class_item`); M14 names it |
+| Argus criticals S5 dec_L0_011 / 012 (4.9 cm) and X2 dec_L1_013 (5.32 m) | the 28 Oct run's (005318) inspector record: the report raised "unhashable type: 'list'" on a `set_camera` edit in every later run and the old file stayed | the report takes any edit (`inspector.key_of`), a failure writes a failed record, every record is time-stamped; Argus drops an earlier run's record (`inputs.inspector_of_run`) and names it (P13) |
+
+Checks: the model review's M31 (every furniture, decor and door part of a level under a sloped ceiling over the ceiling
+over its box: major; over the roof: critical; a door too low to use: major), M29 / Argus U33 (`census_problems`: a frame
+part over its opening's head, a jamb without its head, one jamb), X2 now sees the door parts (their `box3d`), Argus P13.
+Local Blender build of the run's L1: before, door frames 2.12 m and wardrobes 2.10 m under 1.82-1.84 m and the six
+bathroom items crossed; after, nothing crosses (M31: 0 crossings; the two bathroom doors 1.00 m with their finding),
+both play-room doors 1.80 m with a complete frame (lining 2 jambs + head, both faces 2 jambs + head, top 1.82 m).
+
+## Site elements only where they make sense, better cars, pool furniture (30 Oct 2026, lessons UL129, UL141-UL144)
+
+The user's review of real04 run 20261029-201533-full, five site points. Each fix is a general rule with pure tests
+(`tests/test_site_sense_20261030.py`) and a check of the model review's M15 (`wenart/blender/site_sense.py`, rules
+G8-G12), which Argus reads.
+
+| lesson | what the user saw | cause | rule now | check |
+|---|---|---|---|---|
+| UL129 | two pairs of small stone blocks on the paved drive by the pools | the flights up out of the sunken pool terraces sp_002 / sp_003 ran out under the draped parking spk_001: its paving covered the treads, only the two cheek walls (10 cm, 1.5 m long) stood out | a flight onto another surface is cut into it (`site.cut_flights`, a hole in that slab); no kerb where another surface abuts (`kerb_gaps`); a path ends where it arrives at a surface and before a building (`path_stop`: the entrance paths ran through the second house and under the parking); a terrace's path may end at a drive | G8 |
+| UL129 | one poor car | the audit had turned the car's front onto its side and the build double-swapped its box: the car was squashed to 2.0 m long and stretched to 4.5 m wide | a car's front is an end of its length (`car_frame`, and the audit refuses such turns: 8 of 19 car turns were wrong); uniform scale into 4.2-4.9 x <= 2.1 x 1.25-1.75 m; no low-poly or toy-texture model; bays along the parking's edges (any shape) near its label, clear of the cut flights and paths, one model per bay (3dwh_53630bfe, 3dwh_867427c8, 3dwh_a21d4bbd) | the fit refuses a non-uniform car |
+| UL129 | Argus C5 critical: 'Otopark alani' not built | the label's surface is the drawn parking spk_001 (its `area_id`) | C5 accepts a label held by its drawn paving, parking, grass or pool; the build's reason names the holder | C5 |
+| UL141 | a stone block on the lowest steps of the stair by the pool | the access path started on sp_001's foot landing and its cheek wall stood across the path's first steps | the path leaves past the flight's footprint, or off a side of its foot landing (that cheek left out); flights are keep-outs of every path; paths stay on the plot | G9 |
+| UL142 | the pale strip along the glazed facade stops half way | only win_L-1_002 needed a light well | the well's paving runs on as an apron along the whole glazing run (`facade_aprons`), never over a platform | G12 |
+| UL143 | the pools have no ladder and no seats | nothing planned them | a stainless steel ladder on a long side near the house (an end when no long side has the deck), two sun loungers and a side table facing the water with 1.0 m of free deck along the coping (a pair of lounge chairs on a narrow deck); library models made for outside where one fits (HSSD rattan armchair and rattan table), else parametric (no outdoor lounger in the library: a library gap) | G11 |
+| UL144 | each flight of the long stair had its own short rail frame | `path_meshes` made a bar and two posts per flight | one continuous rail on the open side, 0.9 m over the nosings, level over the landings, 0.3 m past both ends, posts every 1.2-1.4 m on the steps | G10 |
+
+On real04's plan the new rules leave no G8-G12 finding; on the run's own manifest the review finds the per-flight
+rails, the four pools without ladder and seats and the half light well. For more car variety a library pod can survey
+the Objaverse LVIS categories `car_(automobile)`, `convertible_(automobile)`, `jeep`, `minivan` and `cab_(taxi)`
+(names checked in the LVIS v1 list); nothing was downloaded here. Not rendered yet: the next real04 pod run shows them.
+
+## The 30 Oct requests on real04 run 201533: terrace guards, the P5 kitchen, site walls, terraces (30 Oct 2026; CPU-tested, pod run waiting)
+
+The user's review of run 20261029-201533-full and four reference photos (P5 kitchen again, P15 terrace, P16 salon;
+docs/reference_details_20261029.md). Every fix is a general rule; real04 is the test case.
+
+| lesson | request | cause (measured) | fix |
+|---|---|---|---|
+| UL145 | "better handrails in the terras is needed" | the glass channel's 28 mm cap over clear thin glass read as a bare tube | a 50 x 45 mm handrail cap; outdoor guard glass lightly tinted (`MaterialLibrary.guard_glass`) on terraces and balconies |
+| UL147 | "good inspiration photo for the kitchen" (P5) | 0.70 m wall units under a bare band; no tall column: the AI-added wall cabinets blocked every free run end; white slab fronts | uppers to the ceiling by family (`kitchen_details.upper_height`, stacked at most 1.40 m); an added wall cabinet stops at the column (`fit._column_blocked`, `column_m`); no column in a door swing (`fit._in_door_swing`: real04's only free end lay 0.19 m2 in d_L-1_003's swing); the under-counter strip lights only the units; a built-in fridge prefers a column-ready end (`solver._column_end`); modern kitchens: framed fronts in muted taupe under pale fluted uppers |
+| UL148 | "this seems to be coming from the outside texture, it is in the kitchen" | the stepped band sp_001_s1e2's retaining wall and coping ran through the house's corner into the basement kitchen (1.06-2.08 m over its floor) | site walls stop at the building outline (`site.wall_cut_spans`, `wall_cuts`); real04: both kitchens' bands |
+| UL149 | "this wall seems like missing the texture" | the splashback followed only its own run; the corner square of the next run left a bare patch | the band runs into the inside corner (`shell.splashback_corner_ends`) |
+| UL150 | "if this is a washing machine it can be modeled properly" | the under-counter fridge's steel door with a bar along its top (fixed with an upright handle in 8b1fb5c) | a fridge built in at a column-ready run end becomes the fridge-freezer column (`fridge_column` no longer blocked by an added wall cabinet) |
+| UL152 | "teras inspration" (P15) | terraces had plants only (UL130) | a lounge set across a pouf on terraces >= 8 m2 and 2.2 m inner width, two armchairs with a side table against the house wall on narrower ones (>= 4 m2, 1.4 m), never both, never a dining set (`program.inner_width`); real04's two 1.5 m L-terraces get the pair |
+
+Open from P5: a styled worktop as full as the photo, seams where two drawn runs meet on one wall. UL151 (floor vase)
+and UL128 / UL132 came with the decor helper; UL153 (P16 salon) and UL131 / UL140 (sofas) are with helpers.
+
+## A real made bed (30 Oct 2026; built, CPU- and Blender-tested, pod run waiting)
+
+The user's review of the beds of real04 run 20261029-201533-full (lessons UL136 "I did not like this bed", UL137
+"head section of this bed needs a rework", UL146 the inspiration photo P14, R38), fixed as general rules for every
+style family (tests: `tests/test_bed_made_20261030.py`, `tests/test_bed_realism_20261029.py`).
+
+| problem | cause | fix |
+|---|---|---|
+| the duvet's hanging sides ripple "like melted foam", the hem uneven and wavy (f_L0_021) | the 29 Oct duvet followed every ray hit of the host (a library mattress's quilting, a jagged edge: neighbouring rows hung from edge points of different heights), each hanging point took its own side ray (jumps where a base is inset), flutes of 22 mm every 18 cm, a 6.5 cm slab to a cut rim | `bedding_parts.cover_grid` + `textiles.drape_cover`: the top is a smooth envelope over the host (it bridges dips, never cuts a bump) with a few soft wide folds; over each edge a quarter turn on the duvet's own height, then straight down one plane per side outside the host at every height (a wider frame cleared by a gentle flare; the bed's own rail or footboard stops it), every edge point's drop scaled to one level hem; a few soft folds (46 cm pitch, 1-1.8 cm) grow to the hem; the cloth thins to its seam over its last 6 cm |
+| the turned-down band a thick rigid slab | the duvet's rows lifted 3.75 cm, 3.9 cm thick, its edge rolled up | `turn_down_band`: a 7 mm sheet 3 mm over the duvet, folded round the duvet's thinned head edge (a 4 cm fold), down the sides with the duvet |
+| pillows crumpled and squashed in a dark gap at the headboard (f_L0_021) | no headboard found: the pillows lay with their middle at the head edge and poked 0.2 m past the bed, into the gap and the headboard; the pillow profile read as squashed | lying pillows end at the head edge (`rest.place_leaning`); plump pillows (profile p 3, q 0.45) with a pillowcase flange (4 cm on a sham, 1.5 cm on a pillow, piping on a cushion): a crisp edge |
+| two flat pillows low before a tufted headboard on posts, a gap, no shams (f_L0_007) | the bedding test read the headboard as pillows (fixed in b3c2f56); a model's flat pillows counted as made up; a back ray's first hit nearer the middle hid the headboard; an item over a gap sank into it | `dress_mode`: pillows lying flat (bump under 0.22 m) on a bed wide enough for shams get our standing set; a back ray's first hit in the head zone counts; shams and pillows stand on what lies at the head against the headboard first; `rest.bed_head` finds the mattress's head edge (a gap at least 8 cm deep): the item's base stays on the mattress, leaned back until its upper part reaches the headboard; `textiles.gap_sheet` closes the gap |
+| P14: a blanket over the foot half, a houndstooth throw at one side | the pair lay as two strips across the foot | `textiles.p14_throw_parts`: the plain blanket (the accent colour) over the foot, rolled softly over the duvet's edge and 30 cm down the free sides and the foot; the patterned fringed throw draped at one free side over the blanket's head edge; the pair across the foot stays when both sides are blocked |
+
+The look is measured on every build (`bedding_parts.cover_smoothness`: the top and the hanging sides within 6 mm of
+their own smooth surface over 30 cm, the hem within 12 mm of a level straight line); M30 and Argus U34 flag a lumpy
+duvet or blanket, a wavy hem and a gap at the head left open (U34 now covers UL121, UL136, UL137, UL146). The 29 Oct
+flutes measure 16-17 mm off their smooth surface (lumpy, a wavy hem); the new duvet 2.6-3.7 mm.
+
+Checked in local Blender renders (CPU, `--no-textures`): synthetic library-like beds (an adjustable bed with a quilted
+mattress 8 cm before a glossy headboard; an upholstered bed with its own grey duvet and two flat pillows, a scalloped
+panel on posts 7 cm behind the mattress; the parametric bed's frame) dressed alone and as f_L0_021 / f_L0_007 in
+real04's L0 build. Time per bed (Blender's BVH, a shared 4-core CPU): the dressing 0.02-0.14 s alone and 0.27-0.31 s
+in the L0 build (0.35-0.38 s before), the P14 throw pair 0.29-0.36 s (the pair of before 0.29-0.36 s).
+
+## Bathroom fixtures in the index pass, towels as real towels (30 Oct 2026; CPU- and Blender-tested, pod run waiting)
+
+The GPU test `test_index_pass_contains_every_visible_proxy` failed on six bathroom views of real04 run 201533 (the
+run before failed on one). Causes and the general rules that fix them:
+
+| views | cause | rule |
+|---|---|---|
+| L-1 / L0 banyo_2, L0 e_banyo_2 (WCs) | the drawn WC blocks reach 1.1-1.4 cm into the wall line (real06: 2 cm); the wall-hung WC put its flush plate on that edge, inside the wall; the pan hangs under these close frames | `bath_parts.seat_on_walls` (layout and build): a made-to-measure bath piece (WC, vanity, column, walk-in shower) is built with its back on the face of the wall behind it (at most 6 cm either way; the drawn footprint stays) |
+| same | the ray model kept the floor-standing WC's profile (a 0.94 m back slab, air in the render) | `camsearch.made_boxes`: a made-to-measure piece is modelled as its built parts in height bands (the pan, the plate; the floating vanity floats) |
+| L1 banyo_1 | an agent pose 0.21 m over the sloped roof ceiling, rendered black | the ray model: a lens over its ceiling sees the ceiling's back and lists nothing; V1 refuses such a pose (critical), so `set_camera` does |
+| L-1 / L0 banyo_1 (tubs) | the frame edge holds a corner of the tub's fitted box that the freestanding tub's rounded end leaves empty | the build records each furniture mesh's convex plan outline (`box3d.outline`); the GPU test allows a library piece the model does not see as that outline |
+
+Blender check (a local build from the run's inputs, index pass at 480 x 270): the three WC views now hold the WC
+(1718, 1718 and 1855 pixels: the flush plate on the wall), none did before. Tests: `tests/test_index_pass_bath_20261030.py`.
+
+Towels (lesson UL138, user: "I am guessing these orange things are towels, they need more detail, a lot more
+detail"): every towel of the bathroom parts is cloth of a real thickness (`wenart/blender/towel_parts.py`): a rolled
+towel shows its spiral end and rounded turns, a folded stack its soft front folds and uneven layers in two shades, a
+towel over a bar both layers, a soft curve, folds, a sagging rounded hem and a woven band; terry cloth (`fabric_terry`:
+a loop-pile bump, roughness 0.97) in the room's towel colour. A roll is under 700 faces, a hanging towel under 1800.
+Tests: `tests/test_towels_20261030.py`.
+
 ## Fixes after real04 run 201533: agent cameras, wardrobe contents, wall items, corridor white balance, a GPU test (30 Oct 2026; CPU-tested, local Blender build, pod run waiting)
 
 | problem (run 201533) | cause | fix (general) |
 |---|---|---|
 | cam_r_L1_banyo_1 black (Argus moved it; depth 0.066 m, near share 0.746, nothing to meter) | the agent's building has no `ceiling_planes`, so Argus's pose was a grid point of the search there; the lens stood 0.21 m over the sloped attic ceiling; the camera validator never checked the ceiling or the frame, and the ray model saw through a ceiling from above | every agent or Argus interior pose passes the search's own rules on the building with its roof's ceilings (`camsearch.pose_problems`: room, eye height, headroom, a free frame, the room's main pieces in frame); a refused pose falls back to the nearest searched pose in the tool (`tools.searched_fallback`) and in the build (`build.check_agent_interior_plans`); a lens over the ceiling is blocked in the ray model |
 | the see-through wardrobe read as a dark wall panel; the clothes were flat strips (UL135) | flat four-level garment prisms in one fabric, plain boxes, a 12 x 6 mm glowing strip with no light | `wardrobe_contents`: shirts, jackets, coats, dresses, knits and trousers over the bar with shoulders, sleeves and collars on wooden hangers, small turns and gaps, the bedding's woven fabrics in the room's palette (`wardrobe_fronts.garment_palette`), folded stacks with fold edges, shoes, boxes and baskets; an LED strip with its area light at the top of every bay, under a hanging bay's hat shelf (1000 lm per metre) and under each shelf (500 lm per metre), rig lights of the room (a first local render with the top strip alone left the garments under the hat shelf dim); about 1,300 faces per bay, one mesh with the run |
-| a desk wall unit and a picture in front of a window, a picture behind the TV (UL134, UL139) | the build cut the architect's `enlarge_windows` window into the wall after the decor stage had placed them; nothing checked what stands in front of a wall | `wall_items`: every wall item clear of its wall's openings (frames and a margin), of the other wall items and of what stands in front (a TV on its unit included); raised 0.20 m over it, else moved along its wall or to another free wall, else left out with the reason; in the decor stage and in the build; model review M31, Argus U35 |
+| a desk wall unit and a picture in front of a window, a picture behind the TV (UL134, UL139) | the build cut the architect's `enlarge_windows` window into the wall after the decor stage had placed them; nothing checked what stands in front of a wall | `wall_items`: every wall item clear of its wall's openings (frames and a margin), of the other wall items and of what stands in front (a TV on its unit included); raised 0.20 m over it, else moved along its wall or to another free wall, else left out with the reason; in the decor stage and in the build; model review M32, Argus U35 |
 | rig-lit corridors over the orange bound (1.465, 1.348 against 1.343) | the white point mixed the 4000 K lamp's colour, while the rig light reached the walls at 3,533-3,600 K (bounced off oak and greige); and the bound came from bedrooms with pale dusty blue accent walls | m13.6: the rig part of the mix is the rig light as the walls get it (`render.wall_rig_mix`; the linear cast of the light on the walls over the white point 1.68 / 1.48 -> 1.51 / 1.28 in the run's records; the daylight bedrooms keep 1.30-1.61); the GPU check compares views of one paint (`looks.wall_paint_key`) |
 | GPU test test_assumed_entries_of_the_design_details | "every wall detail is a skirting run" predates the 29 Oct feature walls | the test reads each wall detail by its record: skirting, feature walls from the build's room records, any other detail named in `assumed` |
 

@@ -30,6 +30,10 @@ What (each check over every item, nothing sampled):
   (a table set read in feet), a set of pieces in one mesh, a title of another type or use (a kitchen sink as a
   washbasin), a vision doubt of its type or size (a wardrobe with a window at its end): ``wenart.furniture
   .model_title``.
+- P13 (30 Oct 2026) a record of an earlier run read as this run's: the inspector's report older than the run (not
+  read, ``inputs.inspector_of_run``) or a report the run could not make (its ``error``); major, the agent owns it.
+  real04 runs 20261028-183611 to 20261029-201533 reported the 28 Oct record's criticals (S5 dec_L0_011 / 012, X2
+  dec_L1_013) every time: the report raised on a camera edit and never replaced it.
 
 Why: the veranda was written in a warning ("an open balcony, recorded in site, not a room") and then nothing built
 it; real06's inferred trees were "placed 0 of 3" in a warning. A warning nobody reads is the ``silent`` kind.
@@ -502,11 +506,30 @@ def lost_textures(inp: Inputs) -> list[dict]:
     return out
 
 
+def records_of_run(inp: Inputs) -> list[dict]:
+    """P13 (30 Oct 2026): a record an earlier run left in place of this run's (``inputs.inspector_of_run``: the
+    inspector's report older than the run, not read) and a report the run could not make (its ``error``): major,
+    the agent owns it. real04 runs 20261028-183611 to 20261029-201533 read the 28 Oct inspector record as their own."""
+    out = []
+    for s in getattr(inp, "stale", None) or []:
+        out.append(K.finding("process", "P13", "major", s.get("record"),
+                             f"the {s.get('record')}'s record is an earlier run's ({s.get('why')}): not read; this "
+                             "run wrote none", owner="agent", kind="stale",
+                             fix="the agent loop writes the inspector's report every run (inspector.write, "
+                                 "loop.write_inspector)"))
+    if isinstance(inp.inspector, dict) and inp.inspector.get("error"):
+        out.append(K.finding("process", "P13", "major", "inspector",
+                             f"the inspector's report could not be made: {inp.inspector['error']}", owner="agent",
+                             kind="process", fix="the agent loop's inspector report (wenart.agent.inspector.report)"))
+    return out
+
+
 def audit(inp: Inputs) -> dict:
     """``{"findings", "warning_counts", "checked"}`` of the process line."""
     warn, counts = warnings(inp)
     findings = stages(inp) + warn + questions(inp) + tests(inp) + scene_checks(inp) + views(inp) + library(inp) \
-        + time_left(inp) + loop_result(inp) + futile(inp) + library_titles(inp) + lost_textures(inp)
+        + time_left(inp) + loop_result(inp) + futile(inp) + library_titles(inp) + lost_textures(inp) \
+        + records_of_run(inp)
     return {"findings": findings, "warning_counts": counts, "unmatched": unmatched(inp),
             "checked": {"stages": len(inp.records) or len(((inp.run_manifest or {}).get("projects") or [{}])[0]
                                                           .get("stages") or []),

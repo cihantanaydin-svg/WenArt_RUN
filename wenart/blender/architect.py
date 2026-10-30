@@ -195,6 +195,10 @@ def access_edge(platform: dict, site: Optional[dict] = None) -> Optional[int]:
 PATH_SAMPLE_M = 0.25            # a route is checked every this many metres
 PATH_TARGET_STEP_M = 0.5        # the points of an existing path a new path may join
 LANDING_M = 0.6                 # the new path starts this far past the last step
+FOOT_CLEAR_M = 0.05             # 30 Oct 2026 (UL141): a path's side keeps this from a flight's footprint
+FOOT_SHIFTS_M = (0.0, -0.1, 0.1, -0.2, 0.2, -0.3, 0.3)   # (UL141) a side exit slides this far along the landing
+ROUTE_TARGETS = 400             # a route tries at most this many targets, the nearest first
+SURFACE_OVERLAP_M = 0.05        # 30 Oct 2026 (UL129): a path ends this far inside the surface it arrives at
 
 
 def steps_landing(pf: dict, terrain: Optional[dict] = None) -> Optional[tuple[float, float]]:
@@ -215,7 +219,12 @@ def steps_landing(pf: dict, terrain: Optional[dict] = None) -> Optional[tuple[fl
         from wenart.blender import site as S
         fl = GR.down_flight(pf, lambda x, y: S.ground_z(terrain, x, y))
         if fl is not None:
-            return float(fl["landing"][0]), float(fl["landing"][1])
+            # 30 Oct 2026 (lesson UL141, user on real04: "This section needs a rework": the path from sp_001's flight
+            # started on the flight's foot landing, its lowest steps cut by the flight's cheek wall): the path starts
+            # past the flight's footprint (its treads, cheeks and foot landing), a path's half width clear of it
+            from wenart.blender.site import INFERRED
+            d = float(fl["end"]) + GR.GRADE["foot_m"] + INFERRED["path_width"] / 2.0 + FOOT_CLEAR_M
+            return float(fl["mid"][0]) + fl["out"][0] * d, float(fl["mid"][1]) + fl["out"][1] * d
         # no flight: the edge meets the ground there, the path starts at the edge
         a, b = poly[i], poly[(i + 1) % len(poly)]
         length = G.distance(a, b)
@@ -235,22 +244,38 @@ def steps_landing(pf: dict, terrain: Optional[dict] = None) -> Optional[tuple[fl
     return mid[0] + nx * d, mid[1] + ny * d
 
 
-def _free(pt, keep_out, half: float) -> bool:
-    """Whether a path point and its sides (``half`` either way, both axes) stay out of every keep-out polygon."""
+class _Keep(list):
+    """Keep-out polygons with their bounding boxes (30 Oct 2026: a route's thousands of point tests)."""
+
+    def __init__(self, polys):
+        super().__init__(p for p in polys if len(p) >= 3)
+        self.boxes = [G.bbox([tuple(q[:2]) for q in p]) for p in self]
+
+
+def _free(pt, keep_out, half: float, within=None) -> bool:
+    """Whether a path point and its sides (``half`` either way, both axes) stay out of every keep-out polygon (and,
+    30 Oct 2026, inside ``within``: the plot)."""
+    boxes = getattr(keep_out, "boxes", None)
     for dx, dy in ((0.0, 0.0), (half, 0.0), (-half, 0.0), (0.0, half), (0.0, -half)):
         q = (pt[0] + dx, pt[1] + dy)
-        if any(G.point_in_polygon(q, poly) for poly in keep_out):
+        if boxes is not None:
+            if any(b[0] <= q[0] <= b[2] and b[1] <= q[1] <= b[3] and G.point_in_polygon(q, poly)
+                   for b, poly in zip(boxes, keep_out)):
+                return False
+        elif any(G.point_in_polygon(q, poly) for poly in keep_out):
+            return False
+        if within and len(within) >= 3 and not G.point_in_polygon(q, within):
             return False
     return True
 
 
-def _route_ok(points, keep_out, half: float) -> bool:
+def _route_ok(points, keep_out, half: float, within=None) -> bool:
     for a, b in zip(points, points[1:]):
         length = G.distance(a, b)
         n = max(1, int(length / PATH_SAMPLE_M))
         for k in range(n + 1):
             t = k / n
-            if not _free((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t), keep_out, half):
+            if not _free((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t), keep_out, half, within):
                 return False
     return True
 
@@ -277,36 +302,49 @@ def path_targets(paths: Sequence[dict], half: float) -> list[tuple[float, float]
     return out
 
 
-def access_path(start, targets, keep_out, half: float) -> Optional[list[tuple[float, float]]]:
+def access_path(start, targets, keep_out, half: float, within=None) -> Optional[list[tuple[float, float]]]:
     """The shortest L-shaped route (two straight legs along the plan axes) from ``start`` to one of ``targets`` that
-    keeps out of ``keep_out`` (pure), or None."""
-    if not _free(start, keep_out, half):
+    keeps out of ``keep_out`` (and inside ``within``, the plot, when given; 30 Oct 2026) (pure), or None."""
+    keep_out = keep_out if isinstance(keep_out, _Keep) else _Keep(keep_out)
+    if not _free(start, keep_out, half, within):
         return None
     best = None
+    # an L-shaped route is as long as its target's Manhattan distance: the targets nearest first, the first route that
+    # keeps out wins; at most ROUTE_TARGETS of them (30 Oct 2026: a drive's many targets)
+    targets = sorted(targets, key=lambda t: (abs(t[0] - start[0]) + abs(t[1] - start[1]), t))[:ROUTE_TARGETS]
     for t in targets:
+        if best is not None and abs(t[0] - start[0]) + abs(t[1] - start[1]) >= best[0]:
+            break
         for corner in ((start[0], t[1]), (t[0], start[1])):
             pts = [start, corner, t]
             length = G.distance(start, corner) + G.distance(corner, t)
             if best is not None and length >= best[0]:
                 continue
-            if _route_ok(pts, keep_out, half):
+            if _route_ok(pts, keep_out, half, within):
                 best = (length, pts)
     return best[1] if best else None
 
 
-def path_areas(pf_id: str, points, half: float, reason: str) -> list[dict]:
-    """The route as path areas of the site plan (one rectangle per leg, ``inferred``)."""
+def path_areas(pf_id: str, points, half: float, reason: str, end_extend: bool = True,
+               start_back: Optional[float] = None) -> list[dict]:
+    """The route as path areas of the site plan (one rectangle per leg, ``inferred``). The legs reach ``half`` past
+    their ends, so they overlap at the corners; 30 Oct 2026 (UL129): the last leg ends at its end point when
+    ``end_extend`` is False (a path arriving at a surface stops at its edge); (UL141) the first leg reaches
+    ``start_back`` behind its start (default ``half``: to a foot landing's edge)."""
     from wenart.blender.site import PAVING_LIFT
 
     out = []
-    for k, (a, b) in enumerate(zip(points, points[1:])):
+    legs = [(a, b) for a, b in zip(points, points[1:])]
+    for k, (a, b) in enumerate(legs):
         length = G.distance(a, b)
         if length < 0.05:
             continue
         ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
         nx, ny = -uy, ux
-        a0 = (a[0] - ux * half, a[1] - uy * half)        # the legs overlap at the corner
-        b0 = (b[0] + ux * half, b[1] + uy * half)
+        back = half if k > 0 or start_back is None else float(start_back)
+        a0 = (a[0] - ux * back, a[1] - uy * back)        # the legs overlap at the corner
+        last = k == len(legs) - 1
+        b0 = (b[0] + ux * half, b[1] + uy * half) if end_extend or not last else (b[0], b[1])
         poly = [(a0[0] + nx * half, a0[1] + ny * half), (a0[0] - nx * half, a0[1] - ny * half),
                 (b0[0] - nx * half, b0[1] - ny * half), (b0[0] + nx * half, b0[1] + ny * half)]
         out.append({"id": f"path_access_{pf_id}_{k}", "kind": "path", "polygon": [list(p) for p in poly], "z": None,
@@ -333,32 +371,134 @@ def site_keep_out(site: dict, skip_id: str) -> list:
     # across the bank's slope: real04's access paths crossed sp_001's and sp_004's banks at a 50 % cross fall)
     from wenart.blender import grading as GR
     keep += GR.bank_zones(site.get("terrain"))
+    # 30 Oct 2026 (lesson UL141): a path never runs through a flight of steps (its treads, cheeks and foot landing)
+    keep += flight_footprints(site)
     return keep
+
+
+def flight_footprints(site: dict) -> list:
+    """The footprints of the platforms' flights (pure): the flights down (``grading.down_flight``) and up
+    (``up_flight``), with their cheek walls and foot landings."""
+    from wenart.blender import grading as GR
+    from wenart.blender import site as S
+
+    terrain = site.get("terrain")
+    if not terrain:
+        return []
+    gz = (lambda x, y: S.ground_z(terrain, x, y))
+    out = []
+    for pf in site.get("platforms") or []:
+        if pf.get("steps_edge") is None:
+            continue
+        fl = GR.down_flight(pf, gz) if pf.get("steps_dir") != "up" else (pf.get("flight") or S.up_flight(pf, terrain))
+        if fl and len(fl.get("footprint") or []) >= 3:
+            out.append([tuple(map(float, q[:2])) for q in fl["footprint"]])
+    return out
+
+
+def _enter(a, b, poly, step: float = 0.05) -> Optional[tuple[float, float]]:
+    """The first point of the segment ``a``-``b`` inside ``poly`` (pure), or None."""
+    length = G.distance(a, b)
+    n = max(1, int(length / step))
+    for k in range(n + 1):
+        p = (a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n)
+        if G.point_in_polygon(p, poly):
+            return p
+    return None
+
+
+def flight_exits(pf: dict, terrain: Optional[dict]) -> list[dict]:
+    """Where a path may leave a platform's flight (pure; 30 Oct 2026, lesson UL141): ``[{"start", "side", "back"}]``
+    in the order tried. First straight out past the flight's footprint (``steps_landing``: the treads, cheeks and foot
+    landing behind it); then, for a flight down with a foot landing, off either side of that landing (``side``
+    ``left`` / ``right`` of the flight's way out): the landing's cheek on that side is left out (``foot_open``) and
+    the path's first leg reaches back ``back`` metres to the landing's edge. A flight up, or a platform without a
+    flight: the landing only."""
+    from wenart.blender.site import INFERRED
+
+    half = INFERRED["path_width"] / 2.0
+    first = steps_landing(pf, terrain)
+    if first is None:
+        return []
+    out = [{"start": first, "side": None, "back": half}]
+    if terrain is None or pf.get("steps_dir") == "up":
+        return out
+    from wenart.blender import grading as GR
+    from wenart.blender import site as S
+    fl = GR.down_flight(dict(pf, foot_open=None), lambda x, y: S.ground_z(terrain, x, y))
+    if fl is None:
+        return out
+    o = fl["out"]
+    u = (-o[1], o[0])                                   # the left of the way out
+    c = (float(fl["mid"][0]) + o[0] * (float(fl["end"]) + GR.GRADE["foot_m"] / 2.0),
+         float(fl["mid"][1]) + o[1] * (float(fl["end"]) + GR.GRADE["foot_m"] / 2.0))
+    d = float(fl["half_w"]) + GR.GRADE["cheek_t"] + half + FOOT_CLEAR_M
+    for side, sg in (("left", 1.0), ("right", -1.0)):
+        for s in FOOT_SHIFTS_M:                          # the path may slide a little along the landing's side
+            out.append({"start": (c[0] + u[0] * sg * d + o[0] * s, c[1] + u[1] * sg * d + o[1] * s), "side": side,
+                        "back": half + GR.GRADE["cheek_t"] + FOOT_CLEAR_M})
+    return out
 
 
 def outside_access(pf: dict, site: dict) -> Optional[list[dict]]:
     """A path from the foot of a deck's steps to the nearest path of the site (25 Oct 2026, user: "try to have an
     access from the outside instead of including the door"), or None when the steps already land on a path or no
-    route keeps out of the house, the pools and the other terraces."""
+    route keeps out of the house, the pools and the other terraces.
+
+    30 Oct 2026 (lessons UL129, UL141): the path leaves the flight past its footprint, or off a side of its foot landing
+    (``flight_exits``; that side's cheek is left out: ``pf["foot_open"]``), never through its treads or cheeks (they
+    are keep-outs, ``site_keep_out``), stays on the plot, and ends at the nearest path or at the edge of a drive."""
     from wenart.blender.site import INFERRED
 
     half = INFERRED["path_width"] / 2.0
-    start = steps_landing(pf, site.get("terrain"))
+    exits = flight_exits(pf, site.get("terrain"))
     paths = [a for a in site.get("areas") or [] if a.get("kind") == "path"]
-    if start is None:
+    if not exits:
         return None
+    start = exits[0]["start"]
     if not paths or any(G.point_in_polygon(start, p["polygon"]) for p in paths):
         return []                                        # no paths to join (the garden is the way in), or on one
     paved = [a for a in site.get("areas") or [] if a.get("kind") in ("parking", "paving") and a.get("id") != pf["id"]
              and len(a.get("polygon") or []) >= 3]
     if any(G.point_in_polygon(start, a["polygon"]) for a in paved):
         return []                                        # the steps land on a driveway or another terrace
-    route = access_path(start, path_targets(paths, half), site_keep_out(site, pf["id"]), half)
-    if route is None:
+    # 30 Oct 2026 (lesson UL129: real04's path from sp_004 ran 5.6 m on under the parking to reach the entrance path):
+    # the way out reaches the nearest path or drive (a parking); it stops at the drive's edge
+    drives = [a for a in paved if a.get("kind") == "parking"]
+    targets = path_targets(paths, half) + path_targets(drives, 0.2)
+    keep = _Keep(site_keep_out(site, pf["id"]))
+    plot = site.get("plot") or []
+    best = None
+    for ex in exits:
+        route = access_path(ex["start"], targets, keep, half, within=plot)
+        if route is not None and (best is None or _length(route) < _length(best[0]) - 1e-6):
+            best = (route, ex)
+        if route is not None and ex["side"] is None:
+            break                                        # straight out wins when it works
+    if best is None:
         return None
-    reason = (f"architect A2: a path from the steps of {pf['id']} to the site's path "
-              f"({sum(G.distance(a, b) for a, b in zip(route, route[1:])):.1f} m; inferred)")
-    return path_areas(pf["id"], route, half, reason)
+    route, ex = best
+    end_on = next((a for a in drives if G.point_in_polygon(route[-1], a["polygon"])), None)
+    if end_on is not None:
+        for k in range(len(route) - 1):
+            p = _enter(route[k], route[k + 1], end_on["polygon"])
+            if p is not None:
+                d = G.distance(route[k], p)
+                if d < 0.05 and k == 0:
+                    return []                            # the steps' landing is at the drive's edge
+                u = ((route[k + 1][0] - route[k][0]) / max(G.distance(route[k], route[k + 1]), 1e-9),
+                     (route[k + 1][1] - route[k][1]) / max(G.distance(route[k], route[k + 1]), 1e-9))
+                route = route[:k + 1] + [(p[0] + u[0] * SURFACE_OVERLAP_M, p[1] + u[1] * SURFACE_OVERLAP_M)]
+                break
+        route = [q for j, q in enumerate(route) if j == 0 or G.distance(q, route[j - 1]) > 0.05]
+    if ex["side"] is not None:
+        pf["foot_open"] = ex["side"]
+    reason = (f"architect A2: a path from the steps of {pf['id']} to the site's "
+              f"{'drive ' + str(end_on.get('id')) if end_on is not None else 'path'} "
+              f"({_length(route):.1f} m"
+              + (f"; it leaves the foot landing on its {ex['side']} side, that cheek left out" if ex["side"] else "")
+              + "; inferred)")
+    return path_areas(pf["id"], route, half, reason, end_extend=end_on is None, start_back=ex["back"])
 
 
 def review_access(prep: dict, outer_doors: Sequence[dict]) -> dict:
@@ -1110,9 +1250,15 @@ def review_arrival(building: dict, prep: dict) -> tuple[dict, dict]:
             b2["answers"].append({"element": pf["id"], "found": f"parking {pf['id']} meets a path", "change": None})
             continue
         targets = path_targets(paths, half)
-        keep = site_keep_out(site, pf["id"])
+        keep = _Keep(site_keep_out(site, pf["id"]))
         best = None
-        for s in _edge_points(pf["polygon"], 1.0):
+        # 30 Oct 2026: the start points nearest a target first; a start whose nearest target lies farther than the best
+        # route so far cannot do better (an L-shaped route is as long as the Manhattan distance)
+        starts = sorted(((min((abs(t[0] - s[0]) + abs(t[1] - s[1]) for t in targets), default=math.inf), s)
+                         for s in _edge_points(pf["polygon"], 1.0)), key=lambda x: x[0])
+        for bound, s in starts:
+            if best is not None and bound >= _length(best):
+                break
             route = access_path(s, targets, keep, half)
             if route and (best is None or _length(route) < _length(best)):
                 best = route
