@@ -2011,9 +2011,11 @@
   {
    "id": "UL170",
    "date": "2026-10-30",
-   "area": "other",
+   "area": "lighting",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "These 2 lights together not making sense, keep the black one and make it give light (30 Oct 2026, real04 run 20261030-043021-full: a black linear canopy with four wire-cage pendants hangs next to a glowing white octagonal ceiling light in the same ceiling; the pendants give no light)",
    "lesson": "These 2 lights together not making sense, keep the black one and make it give light (30 Oct 2026, real04 run 20261030-043021-full: a black linear canopy with four wire-cage pendants hangs next to a glowing white octagonal ceiling light in the same ceiling; the pendants give no light)",
    "question": null
