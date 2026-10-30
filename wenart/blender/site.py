@@ -3156,6 +3156,116 @@ def cut_flights(pfs: Sequence[dict]) -> list[dict]:
     return made
 
 
+# 30 Oct 2026 (lesson UL162, user on real04: "in the project roads going to nowhere we can increase the roads outside,
+# first the project section and closed off sections and outside roads"): the drive's strips ended at the lawn. A dead
+# end of a road (a short end edge of a strip whose two neighbour edges turn square away from it, nothing paved past it)
+# runs on in the drive's paving to the plot's edge (the project's section, at most ``link_m``), and a street of
+# ``street_w_m`` runs along that plot edge outside the plot across the ground (the outside road it joins).
+ROADS = {"end_min_m": 2.5, "end_max_m": 9.0, "square_cos": 0.25, "probe_m": 0.6, "link_m": 12.0, "street_w_m": 6.0,
+         "on_edge_m": 0.3}
+
+
+def road_dead_ends(pfs: Sequence[dict], blocked: Sequence) -> list[dict]:
+    """The dead ends of the road platforms (pure; ``ROADS``): ``[{"platform", "edge", "a", "b", "mid", "out",
+    "width"}]``. ``blocked``: polygons a road may lead to (the house, the other buildings); a point past the end on
+    another platform or in ``blocked`` is no dead end."""
+    out = []
+    for pf in pfs:
+        if pf.get("kind") not in ROAD_KINDS or len(pf.get("polygon") or []) < 3:
+            continue
+        poly = geom2d.ccw(pf["polygon"])
+        n = len(poly)
+        for i in range(n):
+            a, b = poly[i], poly[(i + 1) % n]
+            w = G.distance(a, b)
+            if not ROADS["end_min_m"] <= w <= ROADS["end_max_m"]:
+                continue
+            u = ((b[0] - a[0]) / w, (b[1] - a[1]) / w)
+            prev_a, next_b = poly[i - 1], poly[(i + 2) % n]
+            square = True
+            for p, q in ((prev_a, a), (b, next_b)):
+                ln = G.distance(p, q)
+                if ln < 1e-6 or abs(((q[0] - p[0]) * u[0] + (q[1] - p[1]) * u[1]) / ln) > ROADS["square_cos"]:
+                    square = False
+            if not square:
+                continue
+            o = (u[1], -u[0])                                   # counter-clockwise: the right side is outside
+            mid = G.segment_midpoint(a, b)
+            probe = (mid[0] + o[0] * ROADS["probe_m"], mid[1] + o[1] * ROADS["probe_m"])
+            inside = (mid[0] - o[0] * 2.0 * w, mid[1] - o[1] * 2.0 * w)
+            if not G.point_in_polygon(inside, poly):
+                continue                                         # not the end of a strip
+            if any(G.point_in_polygon(probe, q["polygon"]) for q in pfs if q is not pf
+                   and len(q.get("polygon") or []) >= 3) or any(G.point_in_polygon(probe, h) for h in blocked
+                                                                  if len(h) >= 3):
+                continue
+            out.append({"platform": pf["id"], "edge": i, "a": a, "b": b, "mid": mid, "out": o, "width": w})
+    return out
+
+
+def _ray_to_edge(p, d, poly) -> Optional[tuple[float, int]]:
+    """``(distance, edge index)`` from ``p`` along ``d`` to the first edge of ``poly`` it crosses (pure)."""
+    best = None
+    n = len(poly)
+    for i in range(n):
+        a, b = poly[i], poly[(i + 1) % n]
+        ex, ey = b[0] - a[0], b[1] - a[1]
+        den = d[0] * ey - d[1] * ex
+        if abs(den) < 1e-12:
+            continue
+        t = ((a[0] - p[0]) * ey - (a[1] - p[1]) * ex) / den
+        s = ((a[0] - p[0]) * d[1] - (a[1] - p[1]) * d[0]) / den
+        if t >= -1e-6 and -1e-6 <= s <= 1.0 + 1e-6 and (best is None or t < best[0]):
+            best = (max(0.0, t), i)
+    return best
+
+
+def outside_roads(pfs: Sequence[dict], plot: Sequence, extent: Sequence, outline: Sequence = (),
+                  copy_holes: Sequence = ()) -> dict:
+    """The drive's links to the plot's edge and the streets outside it (pure; ``ROADS``, lesson UL162): ``{"areas":
+    [site areas: kind ``parking`` (the link, the drive's paving) or ``road`` (the street, ``asphalt``)],
+    "dead_ends"}``. A dead end farther than ``link_m`` from the plot's edge is left as it is."""
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+
+    plot = geom2d.ccw(plot)
+    ends = road_dead_ends(pfs, [outline] + list(copy_holes))
+    areas, streets = [], []
+    for k, e in enumerate(ends):
+        hit = _ray_to_edge(e["mid"], e["out"], plot)
+        if hit is None or hit[0] > ROADS["link_m"]:
+            continue
+        dist, j = hit
+        o, (a, b) = e["out"], (e["a"], e["b"])
+        if dist > ROADS["on_edge_m"]:
+            link = [a, b, (b[0] + o[0] * dist, b[1] + o[1] * dist), (a[0] + o[0] * dist, a[1] + o[1] * dist)]
+            areas.append({"id": f"road_link_{e['platform']}_{k + 1}", "kind": "parking", "polygon": geom2d.ccw(link),
+                          "z": None, "material": None, "colour": None, "source": "inferred", "area_id": None,
+                          "lift": PAVING_LIFT, "inferred": True,
+                          "reason": f"the drive {e['platform']} ended at the lawn {dist:.1f} m short of the plot's "
+                                    f"edge: it runs on in its paving to the edge (lesson UL162; inferred)"})
+        pa, pb = plot[j], plot[(j + 1) % len(plot)]
+        ln = G.distance(pa, pb) or 1.0
+        eu = ((pb[0] - pa[0]) / ln, (pb[1] - pa[1]) / ln)
+        eo = (eu[1], -eu[0])                                    # the plot edge's outside
+        far = 1000.0
+        sw = ROADS["street_w_m"]
+        streets.append(Polygon([(pa[0] - eu[0] * far, pa[1] - eu[1] * far), (pa[0] + eu[0] * far, pa[1] + eu[1] * far),
+                                (pa[0] + eu[0] * far + eo[0] * sw, pa[1] + eu[1] * far + eo[1] * sw),
+                                (pa[0] - eu[0] * far + eo[0] * sw, pa[1] - eu[1] * far + eo[1] * sw)]))
+    if streets and len(extent or []) >= 3:
+        ground = Polygon(extent).buffer(-0.5).difference(Polygon(plot))
+        merged = unary_union(streets).intersection(ground)
+        geoms = [g for g in getattr(merged, "geoms", [merged]) if g.geom_type == "Polygon" and g.area > 1.0]
+        for m, g in enumerate(geoms):
+            areas.append({"id": f"street_{m + 1}", "kind": "road", "polygon": geom2d.ccw(list(g.exterior.coords)[:-1]),
+                          "z": None, "material": "asphalt", "colour": None, "source": "inferred", "area_id": None,
+                          "lift": PAVING_LIFT, "inferred": True,
+                          "reason": f"the street outside the plot the drive joins, {ROADS['street_w_m']:g} m wide along "
+                                    f"the plot's edge (no road drawn; lesson UL162; inferred)"})
+    return {"areas": areas, "dead_ends": ends}
+
+
 def kerb_gaps(pf: dict, others: Sequence[dict], step: float = KERB_SAMPLE_M) -> list[list]:
     """The stretches of a platform's edges where another surface abuts it (pure; lesson UL129): ``[[edge, t0, t1]]``
     in metres along each edge of the counter-clockwise polygon. A point of the edge abuts when the point
@@ -5296,6 +5406,13 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
                     a["platform_id"] = a["id"]
             for pf in pfs:
                 assumed.append({"field": f"platform:{pf['id']}", "value": pf["z"], "reason": pf["reason"]})
+    # 30 Oct 2026 (lesson UL162): a drive that ends at the lawn runs on to the plot's edge and joins a street outside
+    roads = {"areas": [], "dead_ends": []}
+    if mode == "full" and len(plot or []) >= 3 and options is not None:
+        roads = outside_roads(pfs, plot, extent, outline, copy_holes)
+        areas += roads["areas"]
+        for a in roads["areas"]:
+            assumed.append({"field": f"road:{a['id']}", "value": a["kind"], "reason": a["reason"]})
     aprons, glazing_runs = [], []
     if mode == "full" and wells:
         # 30 Oct 2026 (lesson UL142): a light well's paving runs the whole glazing run of its facade

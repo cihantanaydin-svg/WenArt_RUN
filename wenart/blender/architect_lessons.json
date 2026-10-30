@@ -1916,13 +1916,13 @@
    "id": "UL162",
    "date": "2026-10-30",
    "area": "site",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "these 2 sections still not solved properly, it needs to be only road, also in the project roads going to nowhere we can increase the roads outside, first the project section and closed off sections and outside roads (30 Oct 2026, real04 run 20261030-043021-full, the front drive: at both ends of the paved drive in front of the houses stone step blocks stand in the road beside the sunken strips at the facades; the drive ends at the lawn on both sides and leads to no road)",
-   "lesson": "these 2 sections still not solved properly, it needs to be only road, also in the project roads going to nowhere we can increase the roads outside, first the project section and closed off sections and outside roads (30 Oct 2026, real04 run 20261030-043021-full, the front drive: at both ends of the paved drive in front of the houses stone step blocks stand in the road beside the sunken strips at the facades; the drive ends at the lawn on both sides and leads to no road)",
-   "question": null
+   "lesson": "A road stays only road and leads somewhere: a flight up onto a drive or a parking is set into its sunken platform, its top step at the road's edge, the edge's railing open there, no steps or cheek blocks in the road (site.up_flight flight_inward, ROAD_KINDS); a dead end of a drive (a strip's square end with nothing paved past it) runs on in the drive's paving to the plot's edge (at most 12 m) and a 6 m asphalt street runs along that plot edge outside the plot across the ground (site.road_dead_ends, outside_roads).",
+   "question": "Is every drive only road (no steps or stone blocks standing in it), and does every drive lead somewhere: on to the plot's edge and a street outside, never ending at the lawn?"
   },
   {
    "id": "UL163",

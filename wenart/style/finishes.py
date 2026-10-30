@@ -230,6 +230,8 @@ MATERIALS: dict[str, dict] = {
     "paving": _tex(PH, "large_square_pattern_01", "ground", [0.204, 0.189, 0.154], 0.8, [3.0, 3.0]),
     "paving_stone": _tex(PH, "floor_tiles_02", "ground", [0.346, 0.282, 0.21], 0.7, [4.0, 4.0]),
     "gravel": _tex(PH, "gravel_floor_02", "ground", [0.405, 0.384, 0.33], 0.95, [2.0, 2.0]),
+    # 30 Oct 2026 (UL162): the outside streets the site's drive joins (a flat dark asphalt, no photo set)
+    "asphalt": _proc(None, "ground", [0.055, 0.055, 0.06], 0.92, colourable=False),
     "grass": _tex(ACG, "Grass004", "ground", _lin("olive", "dark"), 0.95, [1.4, 1.4], flat_source="estimated:dark olive"),
     "decking": _tex(PH, "synthetic_wood", "wood", [0.17, 0.078, 0.04], 0.65, [2.0, 2.0]),
     # ---- decor pots ---------------------------------------------------------------------------------------------------
