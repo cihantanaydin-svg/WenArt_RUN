@@ -38,3 +38,29 @@ def test_a_drive_that_leads_somewhere_is_no_dead_end():
     ends = S.road_dead_ends([drive, garage], [])
     assert all(e["mid"][1] < 10 for e in ends)                     # the end at the apron leads somewhere
     assert S.road_dead_ends([{"id": "t", "kind": "terrace", "polygon": _rect(0, 0, 5, 20)}], []) == []
+
+
+def test_fenced_neighbouring_plots_and_a_road_coming_to_the_drive():
+    """UL172 (the user's answer: "fenced neighbouring plots and some roads coming to this project")."""
+    from shapely.geometry import Point, Polygon
+
+    drive = {"id": "drive", "kind": "parking", "polygon": [(19, -4), (24, -4), (24, 35), (-1, 35), (-1, 30),
+                                                           (19, 30)]}
+    plot = _rect(-6, -4, 25, 36)
+    extent = _rect(-60, -60, 90, 100)
+    out = S.outside_roads([drive], plot, extent, _rect(0, 0, 15, 12))
+    streets = [Polygon(a["polygon"]) for a in out["areas"] if a["kind"] == "road"]
+    # a road comes to the drive's south end from outside, square to the street, across the ground
+    assert any(st.contains(Point(21.5, -40.0)) for st in streets)
+    nbs = out["neighbours"]
+    assert len(nbs) >= 4
+    roads = streets[0]
+    for st in streets[1:]:
+        roads = roads.union(st)
+    for nb in nbs:
+        pn = Polygon(nb["polygon"])
+        assert pn.intersection(Polygon(plot)).area < 0.01 and pn.intersection(roads).area < 0.01
+        assert nb["fence"] and all(G.distance(sg["start"], sg["end"]) <= S.NEIGHBOURS["piece_m"] + 1e-6
+                                   for sg in nb["fence"])
+        fenced = sum(G.distance(sg["start"], sg["end"]) for sg in nb["fence"])
+        assert pn.length - fenced >= S.NEIGHBOURS["gate_m"] - 0.01           # a gate gap towards the road

@@ -3253,8 +3253,19 @@ def outside_roads(pfs: Sequence[dict], plot: Sequence, extent: Sequence, outline
         streets.append(Polygon([(pa[0] - eu[0] * far, pa[1] - eu[1] * far), (pa[0] + eu[0] * far, pa[1] + eu[1] * far),
                                 (pa[0] + eu[0] * far + eo[0] * sw, pa[1] + eu[1] * far + eo[1] * sw),
                                 (pa[0] - eu[0] * far + eo[0] * sw, pa[1] - eu[1] * far + eo[1] * sw)]))
+        # 30 Oct 2026 (lesson UL172, user: "fenced neighbouring plots and some roads coming to this project"): a road
+        # comes to the drive from outside, square to the street, on across the ground
+        sf = (e["mid"][0] + eo[0] * (dist + sw), e["mid"][1] + eo[1] * (dist + sw)) if dist > ROADS["on_edge_m"] \
+            else (e["mid"][0] + eo[0] * sw, e["mid"][1] + eo[1] * sw)
+        hw = sw / 2.0
+        streets.append(Polygon([(sf[0] - eu[0] * hw - eo[0] * 0.5, sf[1] - eu[1] * hw - eo[1] * 0.5),
+                                (sf[0] + eu[0] * hw - eo[0] * 0.5, sf[1] + eu[1] * hw - eo[1] * 0.5),
+                                (sf[0] + eu[0] * hw + eo[0] * far, sf[1] + eu[1] * hw + eo[1] * far),
+                                (sf[0] - eu[0] * hw + eo[0] * far, sf[1] - eu[1] * hw + eo[1] * far)]))
+    neighbours = []
     if streets and len(extent or []) >= 3:
         ground = Polygon(extent).buffer(-0.5).difference(Polygon(plot))
+        neighbours = neighbour_plots(plot, extent, unary_union(streets))
         merged = unary_union(streets).intersection(ground)
         geoms = [g for g in getattr(merged, "geoms", [merged]) if g.geom_type == "Polygon" and g.area > 1.0]
         for m, g in enumerate(geoms):
@@ -3263,7 +3274,76 @@ def outside_roads(pfs: Sequence[dict], plot: Sequence, extent: Sequence, outline
                           "lift": PAVING_LIFT, "inferred": True,
                           "reason": f"the street outside the plot the drive joins, {ROADS['street_w_m']:g} m wide along "
                                     f"the plot's edge (no road drawn; lesson UL162; inferred)"})
-    return {"areas": areas, "links": links, "dead_ends": ends}
+    return {"areas": areas, "links": links, "dead_ends": ends, "neighbours": neighbours}
+
+
+NEIGHBOURS = {"gap_m": 8.0, "verge_m": 1.0, "min_share": 0.3, "fence_in_m": 0.3, "piece_m": 6.0, "gate_m": 3.0}
+
+
+def neighbour_plots(plot: Sequence, extent: Sequence, roads=None) -> list[dict]:
+    """The fenced plots around the project (pure; lesson UL172, user: "fenced neighbouring plots"): plots of the
+    project plot's size on the eight sides of it, ``gap_m`` apart (a street's width and its verges), cut back from the
+    roads by ``verge_m`` and kept where at least ``min_share`` of a plot lies on the ground; each fenced
+    ``fence_in_m`` inside its edge (the inferred fence, pieces of at most ``piece_m``) with a ``gate_m`` gate in the
+    middle of its edge nearest a road. ``[{"id", "polygon", "fence": [{"kind", "start", "end"}], "reason"}]``."""
+    from shapely.affinity import translate
+    from shapely.geometry import Polygon
+
+    pb = Polygon(plot)
+    x0, y0, x1, y1 = pb.bounds
+    w, h = x1 - x0, y1 - y0
+    ground = Polygon(extent).buffer(-1.0)
+    keep_out = pb.buffer(NEIGHBOURS["verge_m"])
+    if roads is not None and not roads.is_empty:
+        keep_out = keep_out.union(roads.buffer(NEIGHBOURS["verge_m"]))
+    out = []
+    g = NEIGHBOURS["gap_m"]
+    for i in (-1, 0, 1):
+        for j in (-1, 0, 1):
+            if i == 0 and j == 0:
+                continue
+            cell = translate(pb, i * (w + g), j * (h + g)).intersection(ground).difference(keep_out)
+            for part in getattr(cell, "geoms", [cell]):
+                if part.geom_type != "Polygon" or part.area < NEIGHBOURS["min_share"] * pb.area:
+                    continue
+                inner = part.buffer(-NEIGHBOURS["fence_in_m"], join_style=2)
+                if inner.is_empty or inner.geom_type != "Polygon":
+                    continue
+                ring = geom2d.ccw(geom2d.clean_polygon([tuple(c) for c in list(inner.exterior.coords)[:-1]]))
+                nid = f"neighbour_{len(out) + 1}"
+                out.append({"id": nid, "polygon": ring, "fence": _fence_ring(ring, roads),
+                            "reason": "a neighbouring plot, fenced, its gate towards the road (no neighbours drawn; "
+                                      "lesson UL172; inferred)"})
+    return out
+
+
+def _fence_ring(ring: Sequence, roads=None) -> list[dict]:
+    """A fenced plot's segments (pure): every edge in pieces of at most ``piece_m``, a ``gate_m`` gap in the middle of
+    the edge nearest a road."""
+    from shapely.geometry import Point
+
+    n = len(ring)
+    gate_edge = None
+    if roads is not None and not roads.is_empty:
+        dists = [roads.distance(Point(G.segment_midpoint(ring[i], ring[(i + 1) % n]))) for i in range(n)]
+        gate_edge = min(range(n), key=lambda i: dists[i]) if dists else None
+    segs = []
+    for i in range(n):
+        a, b = ring[i], ring[(i + 1) % n]
+        length = G.distance(a, b)
+        if length < 0.3:
+            continue
+        spans = [(0.0, length)]
+        if i == gate_edge and length > NEIGHBOURS["gate_m"] + 1.0:
+            spans = [(0.0, length / 2.0 - NEIGHBOURS["gate_m"] / 2.0), (length / 2.0 + NEIGHBOURS["gate_m"] / 2.0,
+                                                                        length)]
+        for t0, t1 in spans:
+            k = max(1, int(math.ceil((t1 - t0) / NEIGHBOURS["piece_m"])))
+            for m in range(k):
+                s0, s1 = t0 + (t1 - t0) * m / k, t0 + (t1 - t0) * (m + 1) / k
+                segs.append({"kind": "fence", "start": G.point_along_segment(a, b, s0 / length),
+                             "end": G.point_along_segment(a, b, s1 / length)})
+    return segs
 
 
 def extend_drives(pfs: Sequence[dict], links: Sequence[dict]) -> list[str]:
@@ -5581,7 +5661,9 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
             "not_built": not_built, "assumed": assumed, "warnings": warnings, "ground_is_grass": ground_is_grass,
             "inferred": inferred, "copy_holes": copy_holes, "pools": pools, "hedges": hedges, "platforms": pfs,
             "climate": climate, "levers": levers, "near_extent": near_extent, "species": species, "context": context,
-            "aprons": aprons, "glazing_runs": glazing_runs}
+            "aprons": aprons, "glazing_runs": glazing_runs,
+            # 30 Oct 2026 (lesson UL172): the fenced neighbouring plots (outside_roads)
+            "neighbours": roads.get("neighbours") or []}
 
 
 # The look of each built area kind (exterior.resolve_looks slots) when the area names no material of its own.
@@ -5890,6 +5972,19 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         for k in keep:
             kinds[k["kind"]] = kinds.get(k["kind"], 0) + 1
         summary["lawn_relief"] = dict(rec or {}, range_m=list(VG.relief_range()), edges_kept=True, keep=kinds)
+    # 30 Oct 2026 (lesson UL172): the fences of the neighbouring plots, their gates towards the road
+    nbs = (plan.get("neighbours") or []) if plan["mode"] == "full" else []
+    if nbs:
+        look = looks.get("fence") or {"material": SITE_FALLBACK_LOOKS["fence"], "colour": None}
+        fmat = make_material(look)
+        v, f = geom2d.merge([boundary_parts(seg, terrain)[:2] for nb in nbs for seg in nb["fence"]])
+        ob = common.new_mesh_object("neighbour_fences", v, f, collection=collection, wenart_id="neighbour_fences",
+                                    kind="site_boundary", status="assumed", materials=[fmat])
+        entry(ob.name, "neighbour_fences", "site_boundary", fmat, "assumed",
+              {"inferred": True, "boundary_kind": "fence", "plots": [nb["id"] for nb in nbs],
+               "segments": sum(len(nb["fence"]) for nb in nbs),
+               "assumed": {"height_m": INFERRED["fence_height"], "reason": nbs[0]["reason"]}})
+        summary["neighbours"] = [{"id": nb["id"], "fence_pieces": len(nb["fence"])} for nb in nbs]
     outer_rect = list(plan["extent"])
     if not is_flat(terrain):                     # 11 Oct 2026 (real04): a sloped ground reaches the horizon too
         sv, sf = skirt_faces(plan["extent"], terrain)

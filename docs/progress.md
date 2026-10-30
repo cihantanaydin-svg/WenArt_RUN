@@ -2724,6 +2724,7 @@ Argus question.
 | UL169 | no tags on the top-down views | small see-through numbered badges and a legend strip under the view |
 | UL170 | two lights together; the black one gives light | a pendant is the only light of its zone: no flush light within 1.5 m, its bulbs glow and carry the dropped light (2700 K); lights under a slope sit on it |
 | UL171 | the white slabs over the entrances | a real canopy (anthracite frame and fascia, wood soffit, tie rods), only where eaves or a balcony don't shelter the door, under any window above, one height per wall |
+| UL172 | (UL162's 'closed off sections') fenced neighbouring plots, roads coming to the project | plots of the project's size around it, fenced with a gate to the road; a road comes to each drive end from outside |
 
 Also: the GPU tests follow the m13.6 white point (the rig colour from the walls) and allow a library mesh's rounded end
 off the frame in every view; `tests/test_fixes_20261030.py` reads frozen run-201533 data (the promotion changed the

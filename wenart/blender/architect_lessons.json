@@ -2031,6 +2031,18 @@
    "request": "There should be better solution than these things in the house entrance points make it make sense (30 Oct 2026, real04 run 20261030-043021-full, the side of the house: flat white slabs stick out of the stone wall over the entrance doors, one of them just under the eaves, with no support, frame or light)",
    "lesson": "An entrance canopy makes sense: none where the roof's eaves pass less than 0.5 m over it or a balcony or the floor above reaches out over the door (they shelter it); under a window over the door's span it sits 0.15 m under the sill, none when that leaves no room over the door; the canopies of one wall line share one height; and it is a real product: a slim anthracite metal canopy with deeper front and side fascias (the drip edge), a wood soffit, two black steel tie rods from its front corners to wall plates above it, the wall lights beside the door (facade.canopy_height, canopy_parts; run 20261030-043021-full: flat white slabs at two heights over the side doors).",
    "question": "Does every entrance canopy make sense (a real framed canopy with its fascia, soffit and tie rods or brackets, at one height along its wall, never under the eaves or a balcony that already shelters the door), never a bare white slab stuck out of the wall?"
+  },
+  {
+   "id": "UL172",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "fenced neighbouring plots and some roads coming to this project (30 Oct 2026, the user's answer to what 'closed off sections and outside roads' means in UL162: the neighbouring plots around the project as fenced plots, and roads that lead to the project from outside)",
+   "lesson": "The project sits among its neighbours: plots of the project plot's size on its sides, 8 m apart, cut back from the roads, each fenced 0.3 m inside its edge with a 3 m gate on the edge nearest the road (site.neighbour_plots, NEIGHBOURS); a road comes to every drive end from outside, square to the street, on across the ground (outside_roads); no neighbours or roads drawn: inferred.",
+   "question": "Does the project sit among fenced neighbouring plots with roads that come to it from outside, never alone on an empty lawn with its drive leading nowhere?"
   }
  ]
 }
