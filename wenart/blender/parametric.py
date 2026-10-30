@@ -3829,6 +3829,149 @@ def window_parts(look: dict | None, width: float, height: float, wall_thickness:
     return parts, record
 
 
+# 30 Oct 2026 (lessons UL197, UL181; user on real04 run 20261030-112241-full: "Give more detail to window frames", and the
+# play room's 4 m glazing that read frameless: four flat bars round one pane): a window is a real product. Its outer
+# frame keeps the material's profile (``window_profile``); inside it a stepped inner ring, then each pane in its own
+# sash (an opening casement or slider) or behind a glazing bead (a fixed light), a thin dark gasket at the glass, the
+# handles on the opening sashes, a slider's track at the foot. A glazing wider than ``WIDE_GLAZING_M`` with no drawn
+# bars is divided into real panes: a low sill (``LOW_SILL_M``: a glazed wall onto a terrace or a garden) into
+# lift-and-slide panes of at most ``PANE_MAX_M["slider"]``, else casements of at most ``PANE_MAX_M["casement"]``.
+# Designer values of real aluminium, PVC and timber windows (thermal-break proportions), assumed.
+WIDE_GLAZING_M = 2.4
+LOW_SILL_M = 0.45
+PANE_MAX_M: dict[str, float] = {"slider": 2.0, "casement": 1.2}
+WINDOW_PRODUCT: dict[str, float] = {
+    "step_face": 0.015, "step_depth_share": 0.55,      # the inner ring: the visible depth step inside the frame
+    "sash_face": 0.05, "sash_depth_share": 0.8,        # an opening sash round its pane
+    "bead_face": 0.02, "bead_depth_share": 0.35,       # a fixed light's glazing bead (on the room side)
+    "gasket_face": 0.005, "gasket_depth": 0.004,       # the dark gasket line at the glass
+    "mullion_face": 0.06,                              # a bar between two panes (their meeting frames)
+    "rose_w": 0.03, "rose_d": 0.01, "rose_h": 0.07,    # a casement handle's rose ...
+    "lever_w": 0.02, "lever_d": 0.02, "lever_h": 0.12,  # ... and its lever, pointing down
+    "pull_w": 0.018, "pull_d": 0.025, "pull_h": 0.35,  # a slider's pull bar
+    "track_h": 0.02, "handle_z": 1.05,                 # a slider's track; the handles' height over the floor
+}
+
+
+def window_division(width: float, sill: float | None, mullions: int = 0) -> dict:
+    """How a window is divided into panes (pure): ``{"kind": "slider" | "casement", "panes", "opening": [index],
+    "drawn", "why"}``. The drawing's bars decide (``mullions`` + 1 panes); else a glazing up to ``WIDE_GLAZING_M``
+    keeps one pane per ``PANE_MAX_M`` of casement (at least one), a wider one becomes real products: lift-and-slide
+    panes on a low sill (``LOW_SILL_M``), casements above it. The opening panes: a slider's every second pane (from the
+    second), a casement's outer two (one pane: it), the panes between them fixed."""
+    w = float(width)
+    low = sill is not None and float(sill) <= LOW_SILL_M + 1e-9
+    kind = "slider" if low and w > WIDE_GLAZING_M - 1e-9 else "casement"
+    drawn = int(mullions or 0) > 0
+    if drawn:
+        n = int(mullions) + 1
+        why = f"{n} panes: the drawing's bars"
+    elif w <= WIDE_GLAZING_M + 1e-9:
+        n = max(1, int(math.ceil(w / PANE_MAX_M["casement"] - 1e-9)))
+        why = f"{n} casement(s) of at most {PANE_MAX_M['casement']:g} m"
+    else:
+        n = max(2, int(math.ceil(w / PANE_MAX_M[kind] - 1e-9)))
+        why = (f"a {w:.2f} m glazing over {WIDE_GLAZING_M:g} m with no drawn bars: {n} "
+               + ("lift-and-slide panes on its low sill" if kind == "slider" else "casements")
+               + f" of at most {PANE_MAX_M[kind]:g} m (real products, UL181)")
+    if kind == "slider":
+        opening = [i for i in range(n) if i % 2 == 1] or [0]
+    else:
+        opening = [0] if n == 1 else [0, n - 1]
+    return {"kind": kind, "panes": n, "opening": opening, "drawn": drawn, "why": why}
+
+
+def _ring(cx: float, cy: float, z0: float, w: float, h: float, face: float, depth: float, key: str,
+          role: str) -> list[Part]:
+    """Four boxes framing a ``w`` x ``h`` rectangle from ``z0`` (outer size), ``face`` wide, ``depth`` deep."""
+    return [_box(cx - w / 2.0 + face / 2.0, cy, z0, face, depth, h, key, role),
+            _box(cx + w / 2.0 - face / 2.0, cy, z0, face, depth, h, key, role),
+            _box(cx, cy, z0 + h - face, w - 2.0 * face, depth, face, key, role),
+            _box(cx, cy, z0, w - 2.0 * face, depth, face, key, role)]
+
+
+def window_product_parts(look: dict | None, width: float, height: float, wall_thickness: float, mullions: int = 0,
+                         transoms: int = 0, inside: int = -1, sill: float | None = None
+                         ) -> tuple[list[Part], dict]:
+    """``(parts, record)`` of a window as a real product (the comment above): the outer frame in the material's
+    profile (``window_profile``; key and role ``frame``), its inner step ring (role ``frame``), the panes of
+    ``window_division`` (``sill``: the window's sill over its floor) with the drawn ``transoms`` across them, each an
+    opening sash (role ``sash``) or a fixed light's glazing bead (role ``bead``), a dark gasket at the glass (key and
+    role ``gasket``), the glass (role ``glass``), the bars between the panes (role ``mullion``), a slider's track (role
+    ``track``), the handles on the opening panes' room side (key and role ``handle``: a rose and a lever on a
+    casement, a pull bar on a slider) and the inside sill (``window_parts``'s). Window frame: x across the opening,
+    y through the wall (the room on ``inside``), z from the sill."""
+    fw, depth = window_profile((look or {}).get("material"))
+    w, h = float(width), float(height)
+    depth = min(depth, float(wall_thickness))
+    s = -1.0 if inside < 0 else 1.0
+    wp = WINDOW_PRODUCT
+    div = window_division(w, sill, mullions)
+    n, kind = div["panes"], div["kind"]
+    parts = _ring(0.0, 0.0, 0.0, w, h, fw, depth, "frame", "frame")
+    step_d = depth * wp["step_depth_share"]
+    y_step = s * (depth / 2.0 - step_d / 2.0)                 # flush with the frame's room face
+    cw, ch = w - 2.0 * fw, h - 2.0 * fw
+    parts += _ring(0.0, y_step, fw, cw, ch, wp["step_face"], step_d, "frame", "frame")
+    iw, ih, iz = cw - 2.0 * wp["step_face"], ch - 2.0 * wp["step_face"], fw + wp["step_face"]
+    mf = wp["mullion_face"] if n > 1 else 0.0
+    pw = (iw - (n - 1) * mf) / n
+    tr = max(0, int(transoms or 0))
+    opening = set(div["opening"])
+    x0 = -iw / 2.0
+    for i in range(n):
+        cx = x0 + pw / 2.0
+        if i in opening:
+            sd = depth * wp["sash_depth_share"]
+            parts += _ring(cx, 0.0, iz, pw, ih, wp["sash_face"], sd, "frame", "sash")
+            gx, gz, gw, gh = cx, iz + wp["sash_face"], pw - 2.0 * wp["sash_face"], ih - 2.0 * wp["sash_face"]
+            y_room = s * (sd / 2.0 + wp["gasket_depth"] / 2.0 - 0.001)
+        else:
+            bd = depth * wp["bead_depth_share"]
+            yb = s * (depth / 2.0 - bd / 2.0)
+            parts += _ring(cx, yb, iz, pw, ih, wp["bead_face"], bd, "frame", "bead")
+            gx, gz, gw, gh = cx, iz + wp["bead_face"], pw - 2.0 * wp["bead_face"], ih - 2.0 * wp["bead_face"]
+            y_room = s * (depth / 2.0 - bd - wp["gasket_depth"] / 2.0)
+        parts += _ring(gx, y_room, gz, gw, gh, wp["gasket_face"], wp["gasket_depth"], "gasket", "gasket")
+        parts.append(_box(gx, 0.0, gz, gw - 2.0 * wp["gasket_face"] + 0.002, 0.006, gh - 2.0 * wp["gasket_face"]
+                          + 0.002, "glass", "glass"))
+        for j in range(1, tr + 1):
+            z = gz + gh * j / (tr + 1)
+            parts.append(_box(gx, 0.0, z - MULLION_W / 2.0, gw, depth * 0.7, MULLION_W, "frame", "transom"))
+        if i in opening:
+            face_y = s * (depth * wp["sash_depth_share"] / 2.0)
+            hz = min(max(wp["handle_z"] - (float(sill) if sill is not None else 0.9), ih * 0.3), ih * 0.7) + iz
+            if kind == "slider":
+                edge = cx - pw / 2.0 + wp["sash_face"] / 2.0 if i > 0 else cx + pw / 2.0 - wp["sash_face"] / 2.0
+                parts.append(_box(edge, face_y + s * wp["pull_d"] / 2.0, hz - wp["pull_h"] / 2.0, wp["pull_w"],
+                                  wp["pull_d"], wp["pull_h"], "handle", "handle"))
+            else:
+                # the hinge on the frame's side, the handle at the meeting edge (a single pane: its right edge)
+                edge_x = cx + pw / 2.0 - wp["sash_face"] / 2.0 if i == 0 else cx - pw / 2.0 + wp["sash_face"] / 2.0
+                parts.append(_box(edge_x, face_y + s * wp["rose_d"] / 2.0, hz - wp["rose_h"] / 2.0, wp["rose_w"],
+                                  wp["rose_d"], wp["rose_h"], "handle", "handle"))
+                parts.append(_box(edge_x, face_y + s * (wp["rose_d"] + wp["lever_d"] / 2.0), hz - wp["lever_h"],
+                                  wp["lever_w"], wp["lever_d"], wp["lever_h"], "handle", "handle"))
+        if i < n - 1:
+            parts.append(_box(x0 + pw + mf / 2.0, 0.0, iz, mf, depth * 0.9, ih, "frame", "mullion"))
+        x0 += pw + mf
+    if kind == "slider":
+        parts.append(_box(0.0, s * (depth / 2.0 - depth * 0.4), iz, iw, depth * 0.8, wp["track_h"], "frame",
+                          "track"))
+    t = float(wall_thickness)
+    proud = INSIDE_SILL["depth_proud"]
+    sill_d = t / 2.0 - depth / 2.0 + proud
+    parts.append(_box(0.0, s * (depth / 2.0 + sill_d / 2.0), 0.0, w + 2 * INSIDE_SILL["ears"], sill_d,
+                      INSIDE_SILL["thickness"], "sill", "sill"))
+    record = {"material": (look or {}).get("material"), "frame_width": fw, "frame_depth": depth,
+              "mullions": n - 1, "transoms": tr,
+              "inside_sill": {"depth": round(sill_d, 4), "proud": proud, "thickness": INSIDE_SILL["thickness"]},
+              "profile_assumed": True,
+              "product": {"kind": kind, "panes": n, "opening": sorted(opening), "drawn": div["drawn"],
+                          "why": div["why"], "lesson": "UL197", "pane_width_m": round(pw, 4)}}
+    return parts, record
+
+
 # --------------------------------------------------------------------------
 # Milestone 10 decor (docs/milestone10.md §4.6): parametric fallbacks of the 12 new types
 # --------------------------------------------------------------------------
