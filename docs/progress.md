@@ -2601,6 +2601,5 @@ ceiling, nearest surface 0.43 m, EV +0.5; the run's was black); r_L0_yatak_odasi
 left out, the picture on another wall); f_L0_023's garments, hat-shelf stacks and their strips read through the slats
 (cam_r_L0_e_yatak_odasi_3). Build of level L0: 139 s, the wardrobe run 0.44 s. Not checked locally: the corridors'
 wall R/B (the local scene has no textures and another light balance); the GPU tests on the next pod run.
-CPU tests: 478 + 428 + 366 + 242 passed in the related files; tests/test_polish_parts.py
-test_word_tables_cover_every_vocabulary_slug_room_and_furniture_type fails on opus_branch_10 already (fabric_cotton,
-UL121, has no polish word).
+CPU tests: the related files pass after the merge of opus_branch_10 (501 and 486 tests; the wall-item check is the
+model review's M32, M31 being the roof crossings of UL128).
