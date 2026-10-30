@@ -1,7 +1,7 @@
 {
  "_note": "What the user asked and corrected while this project was built, each turned into a general lesson the architect applies to every project (wenart/blender/architect_lessons.py; user request of 25 Oct 2026: 'the architect should ask the questions and corrections I was asking all along the build; use AI to understand what I was asking and keep developing with the future requests'). checks: the architect rules that check it on every build (architect.ORDER ids) or 'build' (the build does it by itself); status: rule (a rule checks it), built (code does it), open (no automatic check yet: the AI architect looks for it on every run and it is the next rule to write), process (how we work). Add a new request with: python -m wenart.agent.lessons add \"<the request>\"",
  "version": 1,
- "updated": "2026-10-29",
+ "updated": "2026-10-30",
  "lessons": [
   {
    "id": "UL01",
@@ -1495,6 +1495,198 @@
    "request": "Leaving all the doors open in default could be a good approach (29 Oct 2026, after the real06 master bedroom view)",
    "lesson": "Every interior door stands open by default, its leaf turned open on its swing side (door_states); a leaf a piece, a wall or another leaf stops stands ajar at its widest free angle; the entrance and the outside and terrace doors stay closed (an open front door reads as a mistake), so do garage, sectional, folding and fixed doors; the architect's D9 (door_state) or the brief (doors_open: false) closes a door; every choice recorded in leaf_state and assumed; the walkway and swing checks stay. Checks: model review M29, Argus U33 (every inside door closed, an open leaf in a piece).",
    "question": "Does every interior door stand open by default (its leaf turned open against its swing side, ajar only where a piece or a wall stops it), with only the entrance and terrace doors closed?"
+  },
+  {
+   "id": "UL128",
+   "date": "2026-10-30",
+   "area": "roof",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Some frames coming out of the roof, it needs fixing (30 Oct 2026, real04 run 20261029-201533-full exterior: door frames, open door leaves and decor of the top floor poke through the sloped roof)",
+   "lesson": "Some frames coming out of the roof, it needs fixing (30 Oct 2026, real04 run 20261029-201533-full exterior: door frames, open door leaves and decor of the top floor poke through the sloped roof)",
+   "question": "Does anything built inside the house (a door, its frame or open leaf, a wardrobe, a shelf, decor) cross the roof or the ceiling over it, so it shows from outside?"
+  },
+  {
+   "id": "UL129",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "These things need fixing also, maybe include some better car models (30 Oct 2026, real04 run 20261029-201533-full: pairs of small stone blocks on the paved terrace by the pools; the parking has one poor car model)",
+   "lesson": "These things need fixing also, maybe include some better car models (30 Oct 2026, real04 run 20261029-201533-full: pairs of small stone blocks on the paved terrace by the pools; the parking has one poor car model)",
+   "question": "Is every object on the paved site a real thing that makes sense where it stands (no stray stone blocks or step pieces on a level paving), and does every drawn parking hold well-made, realistic car models?"
+  },
+  {
+   "id": "UL130",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Terrace does not need table and chairs, maybe only some plants and decor for outside would be enough (30 Oct 2026, real04 run 20261029-201533-full: every terrace got a dining table with two chairs)",
+   "lesson": "Terrace does not need table and chairs, maybe only some plants and decor for outside would be enough (30 Oct 2026, real04 run 20261029-201533-full: every terrace got a dining table with two chairs)",
+   "question": "Does every terrace, balcony or roof terrace stay free of a dining table and chairs the rules add, dressed instead with plants in real planters and outdoor decor (lanterns, an outdoor cushion or throw on a drawn seat), drawn furniture kept?"
+  },
+  {
+   "id": "UL131",
+   "date": "2026-10-30",
+   "area": "library",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I did not like these sofa models (30 Oct 2026, real04 run 20261029-201533-full: boxy grey sofas with flat faceted back cushions and white piping lines in the living rooms)",
+   "lesson": "I did not like these sofa models (30 Oct 2026, real04 run 20261029-201533-full: boxy grey sofas with flat faceted back cushions and white piping lines in the living rooms)",
+   "question": "Are the sofas, armchairs and other upholstered pieces soft, well-made models (rounded cushions, real seams, a sharp fabric texture), never boxy, faceted or low-detail ones, and is every model the user rejected left out?"
+  },
+  {
+   "id": "UL132",
+   "date": "2026-10-30",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Door frame needs fixing (30 Oct 2026, real04 run 20261029-201533-full, play room door d_L1_001: one black jamb runs up to the sloped ceiling above a 2.10 m leaf, no head)",
+   "lesson": "Door frame needs fixing (30 Oct 2026, real04 run 20261029-201533-full, play room door d_L1_001: one black jamb runs up to the sloped ceiling above a 2.10 m leaf, no head)",
+   "question": "Does every door's frame (both jambs, the head, the architrave) have the same height as its opening and leaf, under the ceiling at the door?"
+  },
+  {
+   "id": "UL133",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "This bed model needs fixing, some sheets etc (30 Oct 2026, real04 run 20261029-201533-full: a library storage bed whose bare white mattress got only our pillows, no duvet, sheet or throw)",
+   "lesson": "This bed model needs fixing, some sheets etc (30 Oct 2026, real04 run 20261029-201533-full: a library storage bed whose bare white mattress got only our pillows, no duvet, sheet or throw)",
+   "question": "Is every bed's mattress dressed with real bedding (a sheet, a duvet with its turned-down band, pillows and a throw), never left as a bare white block, also on a library bed whose own top is a few flat faces?"
+  },
+  {
+   "id": "UL134",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "These things in front of a window need fixing (30 Oct 2026, real04 run 20261029-201533-full: a desk's wall cabinets and shelf and a large picture hang over a window)",
+   "lesson": "These things in front of a window need fixing (30 Oct 2026, real04 run 20261029-201533-full: a desk's wall cabinets and shelf and a large picture hang over a window)",
+   "question": "Does every wall-hung item (art, mirrors, a TV, wall cabinets and shelves, plates) stay clear of the windows and doors of its wall?"
+  },
+  {
+   "id": "UL135",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I like this but the clothes inside need more detail (30 Oct 2026, real04 run 20261029-201533-full: the slatted see-through wardrobe; the garments read as flat coloured strips)",
+   "lesson": "I like this but the clothes inside need more detail (30 Oct 2026, real04 run 20261029-201533-full: the slatted see-through wardrobe; the garments read as flat coloured strips)",
+   "question": "Do the clothes inside every see-through wardrobe read as real garments on hangers (shoulders, sleeves, lengths by type, fabric texture), folded stacks and shoes, lit from inside?"
+  },
+  {
+   "id": "UL136",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I did not like this bed (30 Oct 2026, real04 run 20261029-201533-full: our procedural duvet's sides ripple like melted foam, the turned-down band is a thick slab, the pillows sit crumpled at the headboard)",
+   "lesson": "I did not like this bed (30 Oct 2026, real04 run 20261029-201533-full: our procedural duvet's sides ripple like melted foam, the turned-down band is a thick slab, the pillows sit crumpled at the headboard)",
+   "question": "Does every bed's bedding look like a real made bed: a smooth duvet with gentle natural folds and a straight hem, a thin turned-down sheet band, neat plump pillows standing against the headboard?"
+  },
+  {
+   "id": "UL137",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Head section of this bed needs a rework (30 Oct 2026, real04 run 20261029-201533-full: two flat lying pillows low in front of a tufted headboard, a gap between mattress and headboard, no shams or standing pillows)",
+   "lesson": "Head section of this bed needs a rework (30 Oct 2026, real04 run 20261029-201533-full: two flat lying pillows low in front of a tufted headboard, a gap between mattress and headboard, no shams or standing pillows)",
+   "question": "Is the head of every bed made up: euro shams and pillows standing against its headboard (a headboard with a gap or posts found too), with no bare gap between mattress and headboard?"
+  },
+  {
+   "id": "UL138",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I am guessing these orange things are towels, they need more detail, a lot more detail (30 Oct 2026, real04 run 20261029-201533-full bathroom: rolled towels as faceted cylinders, the hanging towel a flat slab)",
+   "lesson": "I am guessing these orange things are towels, they need more detail, a lot more detail (30 Oct 2026, real04 run 20261029-201533-full bathroom: rolled towels as faceted cylinders, the hanging towel a flat slab)",
+   "question": "Do the towels read as real towels: rolled with a spiral end, folded in soft stacks, hanging over the bar in two layers with a curve, folds and a hem band, in a terry-cloth material?"
+  },
+  {
+   "id": "UL139",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Need to move the picture, TV hiding the picture not making sense (30 Oct 2026, real04 run 20261029-201533-full living room: the TV on its unit covers the bottom of the art hung over the unit)",
+   "lesson": "Need to move the picture, TV hiding the picture not making sense (30 Oct 2026, real04 run 20261029-201533-full living room: the TV on its unit covers the bottom of the art hung over the unit)",
+   "question": "Does every picture or wall item stay fully visible, clear of the TV, of other wall items and of every piece standing in front of its wall?"
+  },
+  {
+   "id": "UL140",
+   "date": "2026-10-30",
+   "area": "library",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I like this sofa but it needs more details, also the gaps need a rework (30 Oct 2026, real04 run 20261029-201533-full: the L corner sofa 3dwh_bc790e2f62189290d277caa7 renders untextured flat white, gaps between its parts)",
+   "lesson": "I like this sofa but it needs more details, also the gaps need a rework (30 Oct 2026, real04 run 20261029-201533-full: the L corner sofa 3dwh_bc790e2f62189290d277caa7 renders untextured flat white, gaps between its parts)",
+   "question": "Does every upholstered library model wear a real fabric (weave texture, sheen, seams), with its parts joined (no gaps opened by the fit), never flat untextured colour?"
+  },
+  {
+   "id": "UL141",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This section needs a rework marked with pen (30 Oct 2026, real04 run 20261029-201533-full site: at the foot of an outdoor stair a stone block cuts into the lowest steps)",
+   "lesson": "This section needs a rework marked with pen (30 Oct 2026, real04 run 20261029-201533-full site: at the foot of an outdoor stair a stone block cuts into the lowest steps)",
+   "question": "Does every outdoor stair meet its landings, walls and planters cleanly (no block or wall cutting into a step, each flight ending on a landing or the ground)?"
+  },
+  {
+   "id": "UL142",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This white section needs to go all the way (30 Oct 2026, real04 run 20261029-201533-full: the pale paved strip at the foot of the glazed facade stops halfway, grass runs up to the glass)",
+   "lesson": "This white section needs to go all the way (30 Oct 2026, real04 run 20261029-201533-full: the pale paved strip at the foot of the glazed facade stops halfway, grass runs up to the glass)",
+   "question": "Does the paved strip at the foot of a facade run along the whole facade it serves, never stopping halfway with grass up to the glass?"
+  },
+  {
+   "id": "UL143",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Pool can use some seating furniture, also a ladder to the pool as always (30 Oct 2026, real04 run 20261029-201533-full)",
+   "lesson": "Pool can use some seating furniture, also a ladder to the pool as always (30 Oct 2026, real04 run 20261029-201533-full)",
+   "question": "Does every pool have a ladder (or steps) into the water and outdoor seating (sun loungers, a side table) on its deck where the deck allows?"
   }
  ]
 }
