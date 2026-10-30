@@ -510,17 +510,95 @@ def _bed(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
     recess = min(BED_PLINTH_RECESS_M, w * 0.05, d * 0.05)
     parts.append(_box(0.0, 0.0, 0.0, w - 2 * recess, d - 2 * recess, leg_h - g, "dark", "plinth"))
     post = min(0.05, rail + 0.01)
-    for sx in (-1, 1):                            # headboard posts on the rails' rear ends
-        parts.append(_box(sx * (w / 2.0 - post / 2.0), d / 2.0 - t / 2.0, frame_h + g, post, t, top - frame_h - g,
-                          "wood", "back"))
-    parts.append(_box(0.0, d / 2.0 - t / 2.0, frame_h + g, w - 2 * post - 2 * g, t - 0.008, top - 0.03 - frame_h - g,
-                      "fabric", "panel"))         # the upholstered panel between the posts, recessed 4 mm
+    # 30 Oct 2026 (UL163): the headboard's form by the style family (``design["headboard"]``, wenart.furniture.bedding)
+    parts += headboard_parts(headboard_form_of(piece), w, d, t, frame_h, top, post, g)
     mw = w - 2 * (rail + gap)
     m_y0, m_y1 = y_foot + gap, y_head - 0.01
     md, my = m_y1 - m_y0, (m_y0 + m_y1) / 2.0
     parts.append(_superellipsoid(0.0, my, frame_h, mw, md, h - frame_h, 0.12, 0.08, "bedding", "mattress"))
     # the duvet's cloth grid stops BED_DUVET_M above the ledge: its underside (the solid's bottom layer) rests on it
     parts += bed_bedding_parts(w, mw, md, my, top_z=h, head_y=y_head, lowest_z=frame_h + BED_DUVET_M)
+    return parts
+
+
+# 30 Oct 2026 (lesson UL163, user: "the headrest needs to be re-done I did not like the headrest": an arched camelback
+# headboard in a modern bedroom): the headboards a designer chooses by family (``wenart.blender.bedding_parts.
+# HEADBOARD_BY_FAMILY``): ``channel`` (a tall upholstered panel in vertical channel tufting: modern, contemporary),
+# ``panel`` (a plain upholstered panel between slim posts: minimal, industrial), ``slat`` (vertical wood slats on a
+# backing: scandinavian, japandi, rustic), ``button`` (a rectangular panel with piping and a grid of buttons: classic,
+# transitional). Designer values (assumed): channels 0.11-0.15 m wide, slats 4 cm with 2.5 cm gaps, buttons 18 mm on a
+# 0.18 m grid. Every form stays inside the headboard's slab (its front face is the mattress's head stop).
+HEADBOARD_FORMS: tuple[str, ...] = ("panel", "channel", "slat", "button")
+HEADBOARD_CHANNEL_M = 0.13
+HEADBOARD_SLAT = (0.04, 0.025)                 # slat width, gap
+HEADBOARD_BUTTON = (0.009, 0.18)               # button radius, grid pitch
+HEADBOARD_PIPING_M = 0.012
+BEVEL_BY_ROLE.update({"channel": 0.02, "piping": 0.004})      # soft round channels, a rounded piping cord
+
+
+def headboard_form_of(piece: dict | None) -> str:
+    """The headboard form of a parametric bed (``design["headboard"]``, else its design's ``style_family``'s,
+    ``bedding_parts.HEADBOARD_BY_FAMILY``; ``panel`` without either)."""
+    design = piece_design(piece)
+    form = design.get("headboard")
+    if not form and design.get("style_family"):
+        from wenart.blender import bedding_parts as BP     # lazy: bedding_parts reads this module
+        form = BP.headboard_form(design["style_family"])[0]
+    form = str(form or "panel")
+    return form if form in HEADBOARD_FORMS else "panel"
+
+
+def headboard_parts(form: str, w: float, d: float, t: float, z0: float, top: float, post: float,
+                    g: float = FRONT_GAP) -> list[Part]:
+    """The headboard of the parametric bed (UL163; pure): its slab is ``t`` deep at the back of the footprint (front
+    face at ``d / 2 - t``), from ``z0`` (the rails' top) to ``top``, as wide as the bed; ``form`` one of
+    ``HEADBOARD_FORMS`` (module note above)."""
+    y_back, y_front = d / 2.0, d / 2.0 - t
+    hgt = top - z0 - g
+    parts: list[Part] = []
+    if form in ("panel", "button"):
+        for sx in (-1, 1):                     # slim posts at the rails' rear ends
+            parts.append(_box(sx * (w / 2.0 - post / 2.0), d / 2.0 - t / 2.0, z0 + g, post, t, hgt, "wood", "back"))
+        pw, ph = w - 2 * post - 2 * g, top - 0.03 - z0 - g
+        parts.append(_box(0.0, d / 2.0 - t / 2.0, z0 + g, pw, t - 0.008, ph, "fabric", "panel"))
+        if form == "button":                   # piping round the panel's face and a grid of buttons
+            face = d / 2.0 - t / 2.0 - (t - 0.008) / 2.0
+            p = HEADBOARD_PIPING_M
+            yb = face - 0.0018                  # proud of the recessed face, inside the slab
+            parts += [_box(0.0, yb, z0 + g + ph - p, pw, 0.0034, p, "fabric", "piping"),
+                      _box(0.0, yb, z0 + g + 0.05, pw, 0.0034, p, "fabric", "piping"),
+                      _box(-pw / 2.0 + p / 2.0, yb, z0 + g + 0.05, p, 0.0034, ph - 0.05, "fabric", "piping"),
+                      _box(pw / 2.0 - p / 2.0, yb, z0 + g + 0.05, p, 0.0034, ph - 0.05, "fabric", "piping")]
+            r, pitch = HEADBOARD_BUTTON
+            cols = max(1, int((pw - 2 * pitch) / pitch) + 1)
+            rows = max(1, int((ph - 0.05 - 2 * 0.12) / pitch) + 1)
+            x0 = -(cols - 1) * pitch / 2.0
+            zr = z0 + g + 0.05 + (ph - 0.05) / 2.0 - (rows - 1) * pitch / 2.0
+            for i in range(cols):
+                for j in range(rows):
+                    dx = pitch / 2.0 if j % 2 else 0.0       # a diamond grid
+                    if abs(x0 + i * pitch + dx) > pw / 2.0 - pitch * 0.6:
+                        continue
+                    parts.append(_cylinder_y(x0 + i * pitch + dx, face - 0.0035, zr + j * pitch, r, r, 0.006,
+                                             "fabric", "button", n=10))
+        return parts
+    back_t = t * (0.45 if form == "channel" else 0.4)
+    parts.append(_box(0.0, y_back - back_t / 2.0, z0 + g, w, back_t, hgt, "fabric" if form == "channel" else "wood",
+                      "panel"))
+    depth = (y_back - back_t) - y_front - g
+    yc = y_front + depth / 2.0
+    if form == "channel":                      # vertical channels, full height, side by side
+        n = max(3, int(round(w / HEADBOARD_CHANNEL_M)))
+        cw = w / n
+        for i in range(n):
+            parts.append(_box(-w / 2.0 + cw * (i + 0.5), yc, z0 + g, cw - 0.004, depth, hgt - 0.01, "fabric",
+                              "channel"))
+        return parts
+    sw, gap = HEADBOARD_SLAT                   # slat: vertical slats with gaps on the wood backing
+    n = max(3, int((w + gap) / (sw + gap)))
+    span = n * sw + (n - 1) * gap
+    for i in range(n):
+        parts.append(_box(-span / 2.0 + sw / 2.0 + i * (sw + gap), yc, z0 + g, sw, depth, hgt, "wood", "slat"))
     return parts
 
 
@@ -3947,6 +4025,14 @@ def plain_key(key: str) -> str:
         if key.startswith(prefix):
             return key[len(prefix):]
     return key
+# 30 Oct 2026 (lesson UL164, user: "A laptop on this table could have even nice, also some stationary"): a desk's
+# stationery beside its laptop (notebooks and a pen pot, ``wenart.blender.desk_parts``; placed by
+# ``wenart.furniture.tabletop.work_set``, the AI never chooses it)
+DESK_DECOR_TYPES: tuple[str, ...] = ("stationery",)
+DECOR_TYPES = DECOR_TYPES + DESK_DECOR_TYPES
+SURFACE_DECOR_TYPES = SURFACE_DECOR_TYPES + DESK_DECOR_TYPES
+DECOR_DEFAULT_HEIGHT.update({"stationery": 0.17})
+BEVEL_BY_ROLE.setdefault("pages", 0.001)
 
 
 SUSPENSION_CORD_R_M = 0.004       # the cord of a hung light (as the parametric pendant's)
@@ -4054,6 +4140,9 @@ def decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = No
 
     if dtype in DETAIL_DECOR_TYPES:
         return DP.detail_parts(dtype, w, d, h, item)
+    if dtype in DESK_DECOR_TYPES:                  # 30 Oct 2026 (UL164): a desk's stationery
+        from wenart.blender import desk_parts as DK
+        return DK.stationery_parts(w, d, h, item)
     variant = DP.variant_parts(dtype, w, d, h, item)
     if variant is not None:
         return variant

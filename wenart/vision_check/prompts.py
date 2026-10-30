@@ -134,6 +134,7 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "monitor": "computer monitor on its stand on a desk",
     "keyboard": "computer keyboard lying on a desk",
     "computer_mouse": "computer mouse beside a keyboard or a laptop on a desk",
+    "stationery": "notebooks and a pen pot with pens and pencils on a desk",   # 30 Oct 2026 (UL164)
     "tv": "flat television on its stand on a TV unit",   # 29 Oct 2026 (UL99)
     # 29 Oct 2026 (wenart.furniture.bath_details, UL114, UL123, UL124): the bathroom's accessories
     "toilet_paper_holder": "toilet paper holder with its roll on the wall beside the toilet",

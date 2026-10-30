@@ -2715,8 +2715,8 @@ Argus question.
 | UL160 | the bag needs detail | `holdall`: a real weekend holdall (piping, zip, leather handles on tabs, pocket, strap, studs) |
 | UL161 | not these sofas here | a daybed is never a living-type room's sofa |
 | UL162 | only road; roads lead nowhere | a flight up onto a road is set into its sunken terrace; a drive dead end runs to the plot edge and a 6 m street runs outside the plot |
-| UL163 | too many pillows, flying; the headboard | (helper, in progress) |
-| UL164 | laptop and stationery on desks | (helper, in progress) |
+| UL163 | too many pillows, flying; the headboard | at most five pieces in two rows, each resting on its headboard (else leaned back or flat); the family's headboard (channel tufting for modern), camelbacks ranked last |
+| UL164 | laptop and stationery on desks | every desk gets a laptop, notebooks and a pen pot, and a desk lamp unless something already lights it |
 | UL165 | books not staying properly | a hard item on a top needs its whole footprint on a level top; it moves in from an edge or a raised lip |
 | UL166 | bathroom shelf objects | `bath_objects`: pump bottles, lidded jars, a reed diffuser, a leafy plant, flacons, a basket of towels |
 | UL167 | sofa rests not connected | a library sofa's backs and arms touch its seat (measured on the mesh, not boxes); the L's backs meet |

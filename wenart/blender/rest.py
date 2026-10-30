@@ -172,6 +172,26 @@ BED_GAP_STEP_M = 0.015
 BED_GAP_REACH_M = 0.36
 BED_GAP_BASE_SHARE = 0.2
 BED_GAP_LEANS = (8.0, 12.0, 16.0, 20.0, 26.0, 32.0)
+# 30 Oct 2026 (lesson UL163; user on real04 run 20261030-043021-full: "too many pillows in this bed, also they are
+# flying"; euro shams 0.62 m high stood leaned 6 degrees in front of a low headboard, a third of each over its top with
+# nothing behind it): a piece standing on a bed (leaned under ``BED_LYING_LEAN_DEG``) rests only when its headboard (or
+# what it leans on) holds its face up to ``BED_TOP_SUPPORT_SHARE`` of its height, within ``BED_SUPPORT_GAP_M`` of its
+# back; else it is no pose (None): the caller leans it back further (``BED_LOW_HEAD_LEANS``, its top drops onto the
+# headboard) or lays it down
+BED_TOP_SUPPORT_SHARE = 0.8
+BED_SUPPORT_GAP_M = 0.03
+BED_LYING_LEAN_DEG = 60.0
+BED_LOW_HEAD_LEANS = (20.0, 30.0, 40.0)
+
+
+def top_support_share(backs, cy_local: float, t: float, h: float, lean_deg: float) -> Optional[float]:
+    """The share of a leaning item's face its back holds (UL163; pure): the highest back-ray share ``s / h`` whose hit
+    (``(local y, s)`` of ``place_leaning``) lies within ``BED_SUPPORT_GAP_M`` of the item's back face at that height
+    (a wall farther behind a low headboard holds nothing); None without a back."""
+    held = [s for yb, s in backs or () if yb - (cy_local + back_face_offset(t, s, lean_deg)[0]) <= BED_SUPPORT_GAP_M]
+    if not backs:
+        return None
+    return round(max(held) / h, 3) if held and h > 0 else 0.0
 ARM_GAP_M = 0.005                 # a cushion stays this far off an arm
 MIN_CUSHION_W = 0.30              # a cushion squeezed narrower than this between the arms is not placed
 SHIFT_STEPS = 4                   # a top item tries its spot, then this many steps towards the host centre
@@ -234,7 +254,8 @@ TABLETOP_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp", 
                                    "fruit_bowl", "glass", "plate", "plate_stack", "dried_grass_vase", "storage_jars",
                                    "utensil_pot", "oil_bottles", "kettle", "toaster", "coffee_machine",
                                    "coffee_station", "chopping_board", "cutting_boards", "cookware", "microwave",
-                                   "laptop", "monitor", "keyboard", "computer_mouse")
+                                   "laptop", "monitor", "keyboard", "computer_mouse",
+                                   "stationery")              # 30 Oct 2026 (UL164): a desk's notebooks and pen pot
 FLOOR_MIN_H_M: dict[str, float] = {"plant": 0.60, "plant_large": 0.90, "floor_vase": 0.50,
                                   "sculpture": 0.50}           # a floor sculpture, not a small one put down
 FLOOR_PLANT_TYPES: tuple[str, ...] = ("plant", "plant_large")
@@ -670,7 +691,7 @@ def back_face_offset(t: float, s: float, lean_deg: float) -> tuple[float, float]
 
 def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LEAN_DEG, soft_host: bool = True,
                   turn_deg: float = 0.0, attempt: int = 0, bed: bool = False, back_caster=None,
-                  stand: bool = False) -> Optional[dict]:
+                  stand: bool = False, hold: bool = False) -> Optional[dict]:
     """A cushion against the real back of a seat, or a pillow against the headboard of a bed (§4.7).
 
     ``host_fp``: the host footprint (``center``, ``size``, ``rotation_deg``); ``item_center``: the item's planned
@@ -686,7 +707,9 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
     ``caster`` (everything built) the rays down. 29 Oct 2026 (module docstring): ``stand`` (a bed only): the back is
     what the rays through the item's upper part meet (``BED_STAND_SHARES``: the headboard behind lying pillows), the
     item stands on what is under it there, a side hit is an arm only when it is a rail (``_rail_hit``); None when
-    nothing behind its upper part is in the head zone."""
+    nothing behind its upper part is in the head zone. 30 Oct 2026 (UL163): ``hold`` (the bed's own dressing, which no
+    S5 measure checks: ``textiles._lean_pose``): a standing piece whose back holds less than ``BED_TOP_SUPPORT_SHARE``
+    of its face is no pose (None); every bed pose records ``top_support_share`` (decor cushions are measured by S5)."""
     w, t, h = (float(v) for v in size)
     stand = bool(stand and bed)
     backs_caster = caster if back_caster is None else back_caster
@@ -812,9 +835,15 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
             seat = max(float(sup["z"]) if sup["z"] is not None else seat_probe, seat_probe)
             how.append(f"bridging the {head['gap_m']:.2f} m gap between the mattress and the headboard (its base on "
                        f"the mattress, leaned {lean_deg:.0f} deg)")
+    # 4. 30 Oct 2026 (UL163, "they are flying"): a piece standing on a bed rests only when its back holds its upper part
+    held = top_support_share(backs_found, cy_local, t, h, lean_deg) if bed else None
+    if hold and held is not None and lean_deg < BED_LYING_LEAN_DEG and held < BED_TOP_SUPPORT_SHARE - 1e-9:
+        return None
     cx, cy = to_world(hc, rot, lx, cy_local)
     out = {"center": [cx, cy], "z": float(seat), "rotation_deg": rot_item, "lean_deg": float(lean_deg),
            "size": [w, t, h], "how": "; ".join(how), "support": "back", "seat_z": float(seat)}
+    if bed:
+        out["top_support_share"] = held
     if head is not None:
         out["head"] = head
     return out

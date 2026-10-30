@@ -448,13 +448,125 @@ def _fits_top(host: dict, boxes: list[tuple]) -> bool:
                                                            for c in boxes[k + 1:])
 
 
+# 30 Oct 2026 (lesson UL164; user on real04 run 20261030-043021-full: "A laptop on this table could have even nice, also
+# some stationary", "Same stationary and laptop here also": four bedroom desks, library models read unverified from the
+# drawing, had bare tops: the work set asked for a trusted host, ``decor_ai.usable_host``): every built desk gets its
+# work set (what is built is what the render shows), and with it the desk's stationery (``desk_parts``: notebooks and a
+# pen pot) beside the laptop and a desk lamp at a back corner when no lamp lights the desk (a table lamp on it, a floor
+# lamp within ``DESK_LAMP_REACH_M``, a pendant hung over it); each inside the top, clear of the set and of what stands
+# there, under the ceiling and a window's sill (``WORK_SILL_OVER_M``), else left out with the reason.
+STATIONERY_SIZE = (0.30, 0.22, 0.17)          # = desk_parts.STATIONERY_SIZE
+DESK_LAMP_SIZE = (0.24, 0.24, 0.46)           # a desk lamp: a 20-24 cm foot or shade, 42-50 cm high
+DESK_LAMP_REACH_M = 1.2                       # a floor lamp this near the desk's centre lights it
+DESK_REASON_TAG = "30 Oct 2026, user: \"A laptop on this table could have even nice, also some stationary\""
+DESK_EXTRA_GAP_M = 0.04                       # the stationery this far beside the laptop or the keyboard
+
+
+def desk_lit(host: dict, pieces: list[dict], room_items: list[dict]) -> Optional[str]:
+    """What lights a desk already (pure; UL164): a table or desk lamp on it, a floor lamp within ``DESK_LAMP_REACH_M``,
+    a pendant hung over it; None when nothing does."""
+    hc = host["footprint"]["center"]
+    for it in room_items or []:
+        if it.get("type") == "table_lamp" and it.get("host_id") == host["id"]:
+            return f"the table lamp {it.get('id')} on it"
+        if it.get("type") == "pendant_light" and str(it.get("slot") or "").endswith(f"over_{host['id']}"):
+            return f"the pendant {it.get('id')} over it"
+        if it.get("type") == "desk_wall_unit" and it.get("desk_id") == host["id"]:
+            return f"the LED strip of the wall unit {it.get('id')} over it"
+    for p in list(pieces or []) + [it for it in room_items or [] if it.get("type") == "floor_lamp"]:
+        c = (p.get("footprint") or {}).get("center") or p.get("center")
+        if p.get("type") == "floor_lamp" and c and math.dist(c[:2], hc[:2]) <= DESK_LAMP_REACH_M:
+            return f"the floor lamp {p.get('id')} beside it"
+    return None
+
+
+def desk_extras(room: dict, host: dict, pieces: list[dict], on_top: list[dict], set_items: list[dict],
+                ceiling_room: Optional[float], sill_room: Optional[float], room_items: Optional[list] = None
+                ) -> tuple[list[dict], list[str]]:
+    """``(items, notes)``: the stationery and, when nothing lights the desk (``desk_lit``), a desk lamp (pure; UL164,
+    note above). ``on_top``: what stands on the top after the work set's moves; ``set_items``: the work set."""
+    seat = seat_at(host, pieces)
+    side = seat[1] if seat else "-y"
+    turn = SIDE_TURN[side]
+    W, D = _side_dims(host, side)
+    taken = [local_box(host, it) for it in list(on_top) + list(set_items)]
+    over_ceiling = math.inf if ceiling_room is None else float(ceiling_room)
+    limit = over_ceiling if sill_room is None else min(over_ceiling, float(sill_room) + WORK_SILL_OVER_M)
+    set_u = []
+    for it in set_items:
+        lx, ly = _local(host, *it["center"][:2])
+        u = G.rotate_point((lx, ly), -turn, (0.0, 0.0))[0]
+        half = float(it["size"][0]) / 2.0
+        set_u.append((u - half, u + half))
+    lo = min((a for a, _b in set_u), default=0.0)
+    hi = max((b for _a, b in set_u), default=0.0)
+    out, notes = [], []
+    who = f"{host.get('type')} {host['id']}"
+
+    def place(dtype, size, spots, slot, reason):
+        if float(size[2]) > limit + 1e-9:
+            notes.append(f"{host['id']}: no {dtype} ({float(size[2]):.2f} m high, the top leaves {max(0.0, limit):.2f} m"
+                         + (" under the sill of the window behind it)" if sill_room is not None else ")"))
+            return None
+        for u, v in spots:
+            box = _side_box(u, v, size, turn)
+            if inside_top(host, box) and all(boxes_clear(box, t) for t in taken):
+                taken.append(box)
+                it = _item(room, host, dtype, _world(host, box[0], box[1]), size, slot, reason, tag=DESK_REASON_TAG)
+                it["rotation_deg"] = round(G.normalise_angle(float(host["footprint"]["rotation_deg"]) + turn), 3)
+                out.append(it)
+                return it
+        notes.append(f"{host['id']}: no free place for its {dtype} on the {W:.2f} x {D:.2f} m top")
+        return None
+
+    sw, sd = STATIONERY_SIZE[0], STATIONERY_SIZE[1]
+    front = -D / 2.0 + WORK_EDGE_M + sd / 2.0
+    back = D / 2.0 - TOP_MARGIN_M - sd / 2.0
+    right, left = hi + DESK_EXTRA_GAP_M + sw / 2.0, lo - DESK_EXTRA_GAP_M - sw / 2.0
+    place("stationery", STATIONERY_SIZE, [(right, front), (left, front), (right, back), (left, back)],
+          f"{host['id']}.stationery", f"the stationery of {who}: notebooks and a pen pot beside its "
+                                      f"{set_items[0]['type'] if set_items else 'work set'}")
+    lit = desk_lit(host, pieces, room_items or [])
+    if lit:
+        notes.append(f"{host['id']}: no desk lamp ({lit} lights it)")
+    else:
+        lw, ld = DESK_LAMP_SIZE[0], DESK_LAMP_SIZE[1]
+        bv = D / 2.0 - TOP_MARGIN_M - ld / 2.0
+        corner_l, corner_r = -W / 2.0 + TOP_MARGIN_M + lw / 2.0, W / 2.0 - TOP_MARGIN_M - lw / 2.0
+        lamp = place("table_lamp", DESK_LAMP_SIZE, [(corner_l, bv), (corner_r, bv)], f"{host['id']}.lamp",
+                     f"a desk lamp at a back corner of {who}: nothing lights it")
+        if lamp is not None:
+            lamp["desk_lamp"] = True
+    return out, notes
+
+
 def work_set(room: dict, host: dict, pieces: list[dict], on_top: list[dict], ceiling_room: Optional[float] = None,
-             sill_room: Optional[float] = None, office: bool = False) -> dict:
+             sill_room: Optional[float] = None, office: bool = False, room_items: Optional[list] = None) -> dict:
     """The work set of one desk or writing table (pure; module docstring): ``{"items"`` (without ids), ``"moved"``
     (``[(item, new centre)]``: decor on the top that makes room), ``"dropped"`` (``[(item, reason)]``), ``"note"``}``.
     ``on_top``: the decor on the host so far; ``ceiling_room`` / ``sill_room``: the height over the top under the
     ceiling and under a window's sill behind it (``decor_ai.top_room``); a host that already holds a work piece gets
-    nothing."""
+    nothing. 30 Oct 2026 (UL164): with the set, the desk's stationery and its lamp (``desk_extras``; ``room_items``:
+    the room's decor, for the lamps that light it already; ``notes`` says what was left out)."""
+    res = _work_set(room, host, pieces, on_top, ceiling_room, sill_room, office)
+    if res["items"]:
+        moved = {id(it): c for it, c in res["moved"]}
+        gone = {id(it) for it, _why in res["dropped"]}
+        stays = [dict(it, center=list(moved[id(it)]) + list(it["center"][2:])) if id(it) in moved else it
+                 for it in on_top if id(it) not in gone]
+        if not any(it.get("type") in DESK_EXTRA_TYPES for it in on_top):
+            extra, notes = desk_extras(room, host, pieces, stays, res["items"], ceiling_room, sill_room, room_items)
+            res["items"] += extra
+            res["notes"] = notes
+    return res
+
+
+DESK_EXTRA_TYPES: tuple[str, ...] = ("stationery",)
+
+
+def _work_set(room: dict, host: dict, pieces: list[dict], on_top: list[dict], ceiling_room: Optional[float] = None,
+              sill_room: Optional[float] = None, office: bool = False) -> dict:
+    """``work_set`` without the stationery and the lamp (the laptop or the monitor set; 29 Oct 2026)."""
     res: dict = {"items": [], "moved": [], "dropped": [], "note": None}
     if any(it.get("type") in WORK_TYPES for it in on_top):
         res["note"] = f"{host['id']}: its work set is there already"
@@ -616,6 +728,32 @@ def bare_hosts(room: dict, pieces: list[dict], building: dict, items: list[dict]
             for it in made:
                 it["id"] = new_id(room["level_id"])
             out += made
+    # 30 Oct 2026 (UL164: "Same stationary and laptop here also"): a twin's copy without a work set on its desk (its twin
+    # had none) gets the desk's own set, stationery and lamp
+    from wenart.furniture import decor as D
+
+    worked = {it.get("host_id") for it in items + out if it.get("type") in WORK_TYPES}
+    hosts = [h for h in work_hosts(room, pieces, D.piece_is_built) if h["id"] not in worked] \
+        if D.room_takes_decor(room) else []
+    office = home_office(room, pieces) if hosts else False
+    for host in hosts:
+        on_host = [it for it in items + out if it.get("host_id") == host["id"] and it.get("center")]
+        ceiling_room, sill_room = DA.top_room(host, room, building)
+        got = work_set(room, host, pieces, on_host, ceiling_room, sill_room, office, room_items=items + out)
+        for it, centre in got["moved"]:
+            it["moved_for"] = {"from": list(it["center"][:2]), "slot": f"{host['id']}.work",
+                               "reason": f"made room for the work set of {host['id']} ({WORK_REASON_TAG})"}
+            it["center"] = list(centre) + list(it["center"][2:])
+            it.pop("host_frame", None)
+        for it, why in got["dropped"]:
+            if it in (building.get("decor") or []):
+                building["decor"].remove(it)
+            building.setdefault("decor_dropped", []).append(
+                {"id": it.get("id"), "type": it.get("type"), "host_id": host["id"], "anchor_ids": [],
+                 "room_id": room["id"], "reason": f"{why} ({WORK_REASON_TAG})"})
+        for it in got["items"]:
+            it["id"] = new_id(room["level_id"])
+        out += got["items"]
     return out
 
 
@@ -642,7 +780,8 @@ def dress_tops(room: dict, pieces: list[dict], building: dict, items: list[dict]
         if s.kind == "shelf" and s.host_id:
             shelf_hosts.add(s.host_id)
     by_id = {p["id"]: p for p in pieces}
-    work = ({p["id"]: p for p in work_hosts(room, pieces, DA.usable_host)} if D.room_takes_decor(room) else {})
+    # 30 Oct 2026 (UL164): every built desk (an unverified drawn desk is built and rendered as a desk all the same)
+    work = ({p["id"]: p for p in work_hosts(room, pieces, D.piece_is_built)} if D.room_takes_decor(room) else {})
     office = home_office(room, pieces) if work else False
     ctx = placer_context(building, room) if work else None
     shelf_hosts |= {p["id"] for p in pieces if p.get("type") in SHELF_HOSTS and p.get("build") is not False}   # UL103
@@ -661,7 +800,9 @@ def dress_tops(room: dict, pieces: list[dict], building: dict, items: list[dict]
         on_host = [it for it in items + out if it.get("host_id") == hid and it.get("center")]
         if hid in work:
             ceiling_room, sill_room = DA.top_room(host, room, building, ctx)
-            got = work_set(room, host, pieces, on_host, ceiling_room, sill_room, office)
+            got = work_set(room, host, pieces, on_host, ceiling_room, sill_room, office, room_items=items + out)
+            if notes is not None:
+                notes += got.get("notes") or []
             for it, centre in got["moved"]:
                 it["moved_for"] = {"from": list(it["center"][:2]), "slot": f"{hid}.work",
                                    "reason": f"made room for the work set of {hid} ({WORK_REASON_TAG})"}

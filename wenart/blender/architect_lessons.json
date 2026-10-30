@@ -1928,25 +1928,25 @@
    "id": "UL163",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "too many pillows in this bed, also the headrest needs to be re-done I did not like the headrest (30 Oct 2026, real04 run 20261030-043021-full, a bedroom: a double bed with eight pillows and cushions stacked in three rows, an arched camelback upholstered headboard)",
-   "lesson": "too many pillows in this bed, also the headrest needs to be re-done I did not like the headrest (30 Oct 2026, real04 run 20261030-043021-full, a bedroom: a double bed with eight pillows and cushions stacked in three rows, an arched camelback upholstered headboard)",
-   "question": null
+   "lesson": "A bed shows at most five pillows and cushions in two rows (a double: 2 shams, 2 sleeping pillows, at most 1 lumbar; with no headboard the accent pair instead of the shams and no lumbar; a single: 1 pillow and at most 1 cushion); every standing sham or pillow rests on the mattress against its headboard (80 % of its face held within 3 cm, else it leans back to 20-40 degrees, else it lies flat), on parametric and dressed library beds alike; arched, camelback, saddle-back, wingback, sleigh and scalloped headboards rank last outside classic or romantic families, and our beds take the family's headboard (modern: channel tufting; minimal, industrial: a plain panel; scandinavian, japandi, rustic, mediterranean: wood slats; classic, transitional: piping and buttons).",
+   "question": "Does every bed show at most five pillows and cushions in two rows, each resting on the mattress against its headboard (none standing over a low headboard), with a rectangular headboard in the room's family style (no arched or camelback unless classic)?"
   },
   {
    "id": "UL164",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "A laptop on this table could have even nice, also some stationary (30 Oct 2026, real04 run 20261030-043021-full, a bedroom desk: an oak desk with a drawer pedestal and an office chair, its top bare)",
-   "lesson": "A laptop on this table could have even nice, also some stationary (30 Oct 2026, real04 run 20261030-043021-full, a bedroom desk: an oak desk with a drawer pedestal and an office chair, its top bare)",
-   "question": null
+   "lesson": "Every built desk carries its work set whatever its reading status, form or model: an open laptop facing its chair, stationery beside it (two notebooks and a pen pot with pens and pencils: wenart.blender.desk_parts), a desk lamp at a back corner unless a lamp, a pendant over the desk or a wall unit's LED already lights it; all on the desk's top, never on a shelf under it; a twin room's copied decor too.",
+   "question": "Does every desk carry an open laptop facing its chair, stationery (notebooks, a pen pot) beside it and a desk lamp unless something already lights it, all on its top?"
   },
   {
    "id": "UL165",

@@ -445,7 +445,7 @@
         "id": {"type": "string", "description": "dec_<level>_<n>"},
         "host_frame": {"type": "object", "description": "Milestone 12 (§4.7): the item in its host's frame (support seat|mattress|back|headboard|top|shelf|floor|wall, u, v in the support area, lean_deg, shelf); the world center is recomputed from it (decor.sync_to_hosts, Blender)", "properties": {"support": {"type": "string"}, "u": {"type": "number"}, "v": {"type": "number"}, "lean_deg": {"type": "number"}, "shelf": {"type": ["integer", "null"]}, "turn_deg": {"type": "number"}, "anchor_id": {"type": ["string", "null"]}, "wall_offset": {"type": ["array", "null"], "items": {"type": "number"}, "description": "offset in the wall frame (along, out)"}}},
         "kind": {"const": "decor"},
-        "type": {"enum": ["cushion", "book_set", "plant", "rug", "wall_art", "vase", "bowl", "plant_small", "table_lamp", "mirror", "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture", "plant_large", "pendant_light", "ceiling_light", "plate", "glass", "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot", "fruit_bowl", "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles", "dried_grass_vase", "coffee_station", "laptop", "monitor", "keyboard", "computer_mouse", "tv", "toilet_paper_holder", "toilet_brush", "towel_rail", "towel_shelf", "towel_bar", "feature_panel", "cove_light", "wall_niche", "intercom", "floor_vase", "art_leaning", "bag", "desk_wall_unit", "panel_wall", "wall_discs"]},
+        "type": {"enum": ["cushion", "book_set", "plant", "rug", "wall_art", "vase", "bowl", "plant_small", "table_lamp", "mirror", "curtain", "blind", "throw", "books", "candle", "basket", "tray", "clock", "sculpture", "plant_large", "pendant_light", "ceiling_light", "plate", "glass", "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot", "fruit_bowl", "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles", "dried_grass_vase", "coffee_station", "laptop", "monitor", "keyboard", "computer_mouse", "tv", "toilet_paper_holder", "toilet_brush", "towel_rail", "towel_shelf", "towel_bar", "feature_panel", "cove_light", "wall_niche", "intercom", "floor_vase", "art_leaning", "bag", "desk_wall_unit", "panel_wall", "wall_discs", "stationery"]},
         "species": {"enum": ["palm", "monstera", "fiddle_leaf_fig", "olive", "fern", "other", null], "description": "Milestone 10: plant_large species (from the brief)"},
         "pot": {"type": ["object", "null"], "properties": {"material": {"type": ["string", "null"]}, "colour": {"type": ["string", "null"]}}, "description": "Milestone 10: plant pot material and colour (from the brief)"},
         "window_id": {"type": ["string", "null"], "description": "Milestone 10: curtain / blind: the window it covers (never a door)"},
@@ -561,7 +561,9 @@
           "material_tags": {"type": "array", "items": {"enum": ["glass", "wood", "metal", "fabric", "rattan", "marble"]}, "description": "What the brief asks for (the fit prefers library models with these judged tags)"},
           "built_in": {"type": "boolean"},
           "vanity": {"type": "boolean"},
-          "style_family": {"type": ["string", "null"]}
+          "style_family": {"type": ["string", "null"]},
+          "headboard": {"enum": ["panel", "channel", "slat", "button", "arched", "camelback", "wingback", "sleigh", "scalloped", null], "description": "30 Oct 2026 (UL163): a bed's headboard form (the family's for a bed we build: bedding_parts.HEADBOARD_BY_FAMILY)"},
+          "headboard_why": {"type": "string"}
         }},
         "footprint": {"$ref": "#/$defs/footprint"},
         "rule": {"type": "object", "description": "Milestone 10: how a rule-placed piece (method rule) was placed, e.g. a wall cabinet's counter run and band"},

@@ -990,6 +990,10 @@ def audit(building: Optional[dict], manifest: Optional[dict] = None) -> dict:
 
 BEDDING_FIXES = {
     "too_few_pillows": "rerun_stage build (textiles.bedding_set: the family's shams, pillows, accent cushions, lumbar)",
+    # 30 Oct 2026 (UL163): at most five pieces in two rows, and every one resting on its support
+    "too_many_pillows": "rerun_stage build (bedding_parts.counts: the UL163 cap, five pieces in two rows at most)",
+    "pillow_unrested": "rerun_stage build (rest.place_leaning: a standing pillow over a low headboard leans back "
+                       "further or lies, UL163)",
     "no_overhang": "rerun_stage build (textiles.bedding_set: the duvet hangs almost to the floor on each free side)",
     "flat_bedding": "rerun_stage build (furniture._bedding_test: a model's flat bedding is dressed by us)",
     "no_throw": "rerun_stage decor (wenart.furniture.bedding.plan_beds / dressing.layer_bedding: a throw pair)",
