@@ -5,6 +5,10 @@
   nightstand or coffee table stands on a solid base (``fit.base_misfit``, a gate outside a study); a table lamp is
   chosen with its host: shade, height and real size in proportion (``fit.lamp_limits``, ``fit.lamp_pairing``), no
   novelty lamp, no work light beside a seat or a bed (``fit.lamp_misfit``), recorded on the lamp (``asset.pairing``).
+- UL161, "I did not like these sofas here maybe used in another project but not here": two white HEMNES daybed frames
+  pinned by the agent as the play-and-rest room's sofas. A daybed is no sofa of a living-type room unless the piece
+  asks for one in a family that seats a living room on a daybed (``fit.daybed_misfit``); the pin and the agent's swap
+  are refused with the rule (``fit.room_rule_refusal``); a bedroom or a study keeps it.
 CPU only (a fake catalogue; no runs/).
 """
 from __future__ import annotations
@@ -16,6 +20,8 @@ from test_furniture_fit_v2 import FakeCatalog, decor_model, model, piece
 
 NELSON = "Herman Miller Nelson Small End Table from Smart Furniture"
 SOLID = "Ameriwood Home Carver End Table, Gray/Sonoma Oak"
+DAYBED = "HEMNES daybed frame A white [ud6311f5]"
+SOFA = "Rivet Lawson Modern Angled Sofa, 78\"W, Smoke"
 
 
 def side_tables():
@@ -147,3 +153,60 @@ def test_fit_building_fits_the_lamp_with_its_fitted_host():
     assert fitted["furniture"][0]["asset"]["asset_id"] == "abo_solid"
     asset = fitted["decor"][0]["asset"]
     assert asset["asset_id"] == "abo_linen" and asset["pairing"]["host_top_m"] == 0.5
+
+
+# --------------------------------------------------------------------------
+# UL161: a daybed is no living room's sofa
+# --------------------------------------------------------------------------
+
+def sofas():
+    return [model("hemnes", "sofa", 2.11, 0.91, 0.86, source="objaverse", title=DAYBED, quality=5.0),
+            model("lawson", "sofa", 2.0, 0.84, 0.9, title=SOFA, quality=3.0)]
+
+
+def test_daybed_rule():
+    hemnes, lawson = sofas()
+    why = F.daybed_misfit(hemnes, "sofa", "living", "modern")
+    assert "daybed" in why and "UL161" in why
+    assert F.daybed_misfit(lawson, "sofa", "living", "modern") is None
+    assert F.daybed_misfit(hemnes, "sofa", "bedroom", "modern") is None              # a guest or child's room
+    assert F.daybed_misfit(hemnes, "sofa", "other", "modern") is None                # a study
+    assert F.daybed_misfit(hemnes, "sofa", "living", "scandinavian", asked=True) is None
+    assert "asks for a daybed" in F.daybed_misfit(hemnes, "sofa", "living", "modern", asked=True)
+    assert F.daybed_misfit(hemnes, "bed_single", "living", "modern") is None
+    assert F.daybed_asked({"type": "sofa", "type_raw": "DAYBED_200"})
+    assert F.daybed_asked({"type": "sofa", "design": {"form": "daybed"}})
+    assert not F.daybed_asked({"type": "sofa", "type_raw": None, "label": "Kanepe"})
+
+
+def test_a_pinned_daybed_is_refused_as_a_living_room_sofa():
+    sofa = dict(piece("sofa", 2.1, 0.9), asset_pin="objaverse_hemnes")
+    b = living_room_building(sofa)
+    fitted = F.fit_building(b, FakeCatalog(sofas()), style_family="modern")
+    asset = fitted["furniture"][0]["asset"]
+    assert asset["asset_id"] == "abo_lawson" and "daybed" in asset["pin_refused"]
+    assert asset["pin_refused"].startswith("objaverse_hemnes:")
+    free = F.fit_building(living_room_building(piece("sofa", 2.1, 0.9)), FakeCatalog(sofas()), style_family="modern")
+    got = free["furniture"][0]["asset"]
+    assert got["asset_id"] == "abo_lawson"
+    assert any(x.get("rule") == F.DAYBED_RULE and x["id"] == "objaverse_hemnes" for x in got["excluded"])
+    guest = F.fit_building(living_room_building(dict(piece("sofa", 2.1, 0.9), asset_pin="objaverse_hemnes"),
+                                                room_type="bedroom"), FakeCatalog(sofas()), style_family="modern")
+    assert guest["furniture"][0]["asset"]["asset_id"] == "objaverse_hemnes"              # a guest room keeps the pin
+
+
+def test_the_agents_swap_to_a_daybed_is_refused_with_the_rule():
+    hemnes, lawson = sofas()
+
+    class Cat:
+        def entry(self, asset_id):
+            return {e["id"]: e for e in (hemnes, lawson)}.get(asset_id)
+
+    living = M.building(w=5.0, h=4.0, room_type="living", furniture=[
+        M.fp("f_L0_001", "sofa", (2.5, 0.5), (2.1, 0.9), rotation=0.0)])
+    res = E.apply_edit(living, dict({"op": "swap_model"}, reason="test", round=1, log_seq=1, model="mock",
+                                    piece_id="f_L0_001", asset_id="objaverse_hemnes"), catalog=Cat())
+    assert not res["accepted"] and any("daybed" in c for c in res["failed_checks"]), res["failed_checks"]
+    ok = E.apply_edit(living, dict({"op": "swap_model"}, reason="test", round=1, log_seq=1, model="mock",
+                                   piece_id="f_L0_001", asset_id="abo_lawson"), catalog=Cat())
+    assert ok["accepted"], ok["failed_checks"]

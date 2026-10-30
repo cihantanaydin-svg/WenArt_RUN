@@ -266,16 +266,18 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   built-in piece, deferred after its run); ``built_in_fit`` gives them the built-in asset of their kind. Why: real06's
   kitchen rendered "a bare base cabinet with an empty worktop": the hob must show on the worktop with its oven.
 - Room rules and the lamp with its host, 30 Oct 2026 (user on real04 run 20261030-043021-full: "I did not like this
-  lamp table combo", UL156; tests/test_lamp_side_table_20261030.py). What: one more gate of ``use_candidates`` with the
-  room's type on the fitted copy (``room_use_context``): a side table, nightstand or coffee table whose title names an
-  office, swivel, star or rolling base is no candidate outside a study (``base_misfit``, ``rule: fit.stable_base``);
-  the agent's pin and swap are refused with the rule (``room_rule_refusal``). A table lamp
+  lamp table combo", UL156; "I did not like these sofas here maybe used in another project but not here", UL161;
+  tests/test_lamp_side_table_20261030.py). What: two more gates of ``use_candidates`` with the room's type on the fitted
+  copy (``room_use_context``): a side table, nightstand or coffee table whose title names an office, swivel, star or
+  rolling base is no candidate outside a study (``base_misfit``, ``rule: fit.stable_base``); a daybed is no sofa of a
+  living-type room unless the piece asks for one in a family that seats a living room on a daybed (``daybed_misfit``,
+  ``rule: fit.daybed_room``); the agent's pin and swap are refused with the rule (``room_rule_refusal``). A table lamp
   is fitted with its host (``fit_decor_item(host=...)``): its shade at most ``LAMP_SHADE_TOP_RATIO`` of the top's
   smaller side (``LIGHT_BASE_SHADE_RATIO`` on a light base), beside a seat or a bed ``LAMP_HEIGHT_RATIO`` of the host's
   height, never shrunk below ``LAMP_MIN_SCALE``; no novelty lamp and no work light beside a seat or a bed while
   another fits (``lamp_misfit``); ``asset.pairing`` records the limits and what held. Why: the open-kitchen variant's
   sofa side had a Nelson swivel 4-star end table under a big two-tone drum lamp, the bedrooms a 0.92 m lamp shrunk to
-  63 %; the catalogue keeps every model.
+  63 %, and the play-and-rest room two HEMNES daybed frames as its sofas; the catalogue keeps every model.
 """
 from __future__ import annotations
 
@@ -731,6 +733,19 @@ OFFICE_BASE_WORDS: tuple[str, ...] = ("swivel", "star base", "star-base", "4-sta
 STAR_BASE_PRODUCTS: tuple[str, ...] = ("nelson end table", "nelson small end table")
 WORK_ROOM_TYPES: tuple[str, ...] = ("other",)      # the study, the home office (``names``: calisma, study, office)
 BASE_RULE = "fit.stable_base"
+# 30 Oct 2026 (lesson UL161, user on real04's play-and-rest room: "I did not like these sofas here maybe used in another
+# project but not here": two white HEMNES daybed frames, drawers under a mattress seat and panelled ends, pinned by the
+# agent as the room's sofas, facing each other): a daybed is a bed-like piece. It is no sofa of a living-type room
+# (``LOUNGE_ROOM_TYPES``: the living, lounge, family and play-and-rest rooms are ``living``) unless the piece asks for
+# one (its design form, raw type or label names a daybed: ``daybed_asked``) in a family that seats a living room on a
+# daybed (``DAYBED_FAMILIES``); a bedroom (a guest or a child's room) and a study (``other``) keep it. The model stays in
+# the library for those rooms and projects (a gate: ``daybed_misfit``, never an audit removal).
+DAYBED_WORDS: tuple[str, ...] = ("daybed", "daybeds", "day bed", "day-bed", "trundle", "guest bed", "futon",
+                                 "sofa bed frame")
+DAYBED_SOFA_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "chaise")
+LOUNGE_ROOM_TYPES: tuple[str, ...] = ("living", "dining", "hall", "balcony")
+DAYBED_FAMILIES: tuple[str, ...] = ("cottage", "farmhouse", "scandinavian", "rustic", "coastal")
+DAYBED_RULE = "fit.daybed_room"
 
 
 def _title_of(entry: dict) -> str:
@@ -751,19 +766,43 @@ def base_misfit(entry: dict, ftype: str, room_type: Optional[str]) -> Optional[s
             f"{ftype.replace('_', ' ')} of a {room_type or 'living'} room (a solid base: UL156)")
 
 
+def daybed_asked(piece: dict) -> bool:
+    """UL161: whether the piece itself asks for a daybed: its design form, its raw type or its label names one."""
+    design = piece.get("design") if isinstance(piece.get("design"), dict) else {}
+    text = " ".join(str(v or "") for v in (design.get("form"), design.get("kind"), piece.get("type_raw"),
+                                           piece.get("label"), piece.get("form"))).lower().replace("_", " ")
+    return bool(_named(text, DAYBED_WORDS))                  # (a block name "DAYBED_200" names one too)
+
+
+def daybed_misfit(entry: dict, ftype: str, room_type: Optional[str], family: Optional[str],
+                  asked: bool = False) -> Optional[str]:
+    """UL161 (the comment above): why a daybed model is no sofa of this room (None when it may be one)."""
+    if ftype not in DAYBED_SOFA_TYPES or room_type not in LOUNGE_ROOM_TYPES:
+        return None
+    hits = _named(_title_of(entry), DAYBED_WORDS)
+    if not hits:
+        return None
+    if asked and family in DAYBED_FAMILIES:
+        return None
+    why = ("the piece asks for a daybed but the " + (family or "project") + " family seats a living room on an "
+           "upholstered sofa") if asked else "the piece does not ask for one"
+    return (f"names {', '.join(dict.fromkeys(hits))}: a bed-like daybed, not the {ftype.replace('_', ' ')} of a "
+            f"{room_type} room ({why}; a guest, child's or study room keeps it: UL161)")
+
+
 def room_use_context(building: Optional[dict], piece: dict) -> dict:
-    """UL156: the keys ``use_candidates`` reads beside ``use_context``, for a fitted copy of ``piece``:
-    ``room_type`` (its room's, lower case; None when unknown)."""
+    """UL156, UL161: the keys ``use_candidates`` reads beside ``use_context``, for a fitted copy of ``piece``:
+    ``room_type`` (its room's, lower case; None when unknown) and ``daybed_asked``."""
     room = next((r for r in (building or {}).get("rooms") or [] if r.get("id") == piece.get("room_id")), None)
     rtype = str(room.get("room_type") or "").lower() or None if room else None
-    return {"room_type": rtype}
+    return {"room_type": rtype, "daybed_asked": daybed_asked(piece)}
 
 
 def use_candidates(piece: dict, candidates: list[dict], family: Optional[str] = None
                    ) -> tuple[list[dict], list[dict]]:
     """``(kept, excluded)``: the candidates ``use_misfit`` keeps for the piece, the others with the rule and the
-    reason. 30 Oct 2026: also the base rule (``base_misfit``, UL156) when the piece carries its room's type
-    (``room_use_context``)."""
+    reason. 30 Oct 2026: also the base rule (``base_misfit``, UL156) and the daybed rule (``daybed_misfit``, UL161,
+    the project's style ``family``) when the piece carries its room's type (``room_use_context``)."""
     kept, excluded = [], []
     ftype = str(piece.get("type") or "")
     room_type = piece.get("room_type")
@@ -771,6 +810,8 @@ def use_candidates(piece: dict, candidates: list[dict], family: Optional[str] = 
         why, rule = use_misfit(e, ftype, piece.get("child_room")), USE_RULE
         if why is None and room_type:
             why, rule = base_misfit(e, ftype, room_type), BASE_RULE
+            if why is None:
+                why, rule = daybed_misfit(e, ftype, room_type, family, bool(piece.get("daybed_asked"))), DAYBED_RULE
         if why is None:
             kept.append(e)
         else:
@@ -779,13 +820,14 @@ def use_candidates(piece: dict, candidates: list[dict], family: Optional[str] = 
 
 
 def room_rule_refusal(entry: dict, piece: dict, family: Optional[str]) -> Optional[str]:
-    """UL156: why the room rules refuse a model the agent pinned (None when they keep it); the pin's refusal names it
-    instead of the caps."""
+    """UL156, UL161: why the room rules refuse a model the agent pinned (None when they keep it); the pin's refusal
+    names it instead of the caps."""
     room_type = piece.get("room_type")
     if not room_type:
         return None
     ftype = str(piece.get("type") or "")
-    return base_misfit(entry, ftype, room_type)
+    return base_misfit(entry, ftype, room_type) or daybed_misfit(entry, ftype, room_type, family,
+                                                                bool(piece.get("daybed_asked")))
 
 
 def compatible_styles(family: Optional[str]) -> Optional[set]:
@@ -1109,8 +1151,8 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                 return ranked
         room_refusal = room_rule_refusal(entry, piece, style_family) if entry is not None else None
         if room_refusal:
-            # 30 Oct 2026 (UL156): the room rules hold for the agent's pin too; the normal ranking decides and the
-            # asset names the rule
+            # 30 Oct 2026 (UL156, UL161): the room rules hold for the agent's pin too (real04's play room: a daybed
+            # pinned as its sofas); the normal ranking decides and the asset names the rule
             asset = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family, design,
                               mode=mode, used=used, style=style, ceiling=ceiling)
             asset["pin_refused"] = f"{pin}: {room_refusal}"
@@ -3395,7 +3437,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
             elif room_types.get(piece.get("room_id")):
                 target = dict(target, open_air_room=False)    # 26 Oct 2026 (fix E): a known indoor room
             target = dict(target, **use_context(fitted, piece))   # bathroom sense of 26 Oct 2026: a child's room
-            target = dict(target, **room_use_context(fitted, piece))   # 30 Oct 2026 (UL156): the room's type
+            target = dict(target, **room_use_context(fitted, piece))   # 30 Oct 2026 (UL156, UL161): the room's type
             # 26 Oct 2026 (fix D): a member of a role set takes the set's one model (role_set_fit), else its own fit
             asset = role_set_fit(piece, target, design, used) if piece.get("id") in set_of else None
             if asset is None:
