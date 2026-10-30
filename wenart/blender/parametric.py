@@ -3966,7 +3966,15 @@ def build_parts(ftype: str, w: float, d: float, h: float, piece: dict | None = N
         if parts is not None:
             return parts
     if ftype in _PIECE_BUILDERS:
-        return builder(float(w), float(d), float(h), piece)
+        parts = builder(float(w), float(d), float(h), piece)
+        look = piece.get("bath_look") if isinstance((piece or {}).get("bath_look"), dict) else None
+        if look and look.get("wall_gap_m") is not None:
+            # 30 Oct 2026 (real04 run 201533: the flush plates inside the walls): a made-to-measure bath piece's back
+            # on its wall's face (bath_parts.seat_on_walls)
+            from wenart.blender import bath_parts as BT
+            if BT.made_to_measure(piece):
+                parts = BT.seat_parts(parts, look)
+        return parts
     return builder(float(w), float(d), float(h))
 
 

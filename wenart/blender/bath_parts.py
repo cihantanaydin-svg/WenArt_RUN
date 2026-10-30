@@ -177,6 +177,107 @@ def finish_handle(piece: dict) -> Optional[str]:
 
 
 # --------------------------------------------------------------------------
+# 30 Oct 2026 (real04 run 20261029-201533-full, GPU test test_index_pass_contains_every_visible_proxy): the back of a
+# made-to-measure piece on its wall's face. Drawn sanitary blocks reach a centimetre or two into the wall line
+# (real04: every WC 1.1-1.4 cm, real06: 2.0 cm) or stop short of it (a shower 2.2 cm, the columns 2 cm); the builders
+# put the back at the footprint's back edge, so every flush plate (8 mm, its buttons 2 mm proud) was inside the wall
+# and the close views of the WCs had no pixel of them. The parts move along the piece's depth onto the face of the
+# wall behind them (the room outline), at most ``WALL_SEAT_REACH_M`` either way; the footprint stays the drawn one.
+# --------------------------------------------------------------------------
+
+WALL_SEAT_REACH_M = 0.06          # a wall face this near the drawn back (in front of it or behind it) is its wall
+WALL_SEAT_PARALLEL_DEG = 3.0      # ... when it runs parallel to the back within this
+WALL_SEAT_MIN_M = 0.001           # a gap or an overlap under this needs no move
+
+
+def wall_gap(piece: dict, polygon) -> Optional[float]:
+    """Signed distance (m) from the drawn back edge of a piece (local +Y of its footprint rotation: the parts' wall
+    side) to the face of the wall behind it, the nearest outline segment of its room (``polygon``) parallel to the
+    back whose span holds the back's middle: positive for a gap (the face beyond the back), negative for a back
+    inside the wall; None when no such face lies within ``WALL_SEAT_REACH_M`` (pure)."""
+    fp = piece.get("footprint") or {}
+    if not fp.get("center") or not fp.get("size"):
+        return None
+    pts = [(float(p[0]), float(p[1])) for p in polygon or []]
+    if len(pts) > 1 and math.dist(pts[0], pts[-1]) < 1e-9:
+        pts = pts[:-1]
+    if len(pts) < 3:
+        return None
+    r = math.radians(float(fp.get("rotation_deg") or 0.0))
+    n = (-math.sin(r), math.cos(r))                       # local +Y: out of the back
+    half_d = float(fp["size"][1]) / 2.0
+    back = (float(fp["center"][0]) + n[0] * half_d, float(fp["center"][1]) + n[1] * half_d)
+    best = None
+    for k, a in enumerate(pts):
+        b = pts[(k + 1) % len(pts)]
+        length = math.dist(a, b)
+        if length < 1e-9:
+            continue
+        su = ((b[0] - a[0]) / length, (b[1] - a[1]) / length)
+        if abs(su[0] * n[0] + su[1] * n[1]) > math.sin(math.radians(WALL_SEAT_PARALLEL_DEG)):
+            continue                                       # not parallel to the back
+        den = n[0] * -su[1] + n[1] * su[0]
+        t = ((a[0] - back[0]) * -su[1] + (a[1] - back[1]) * su[0]) / den     # back + t n lies on the face's line
+        along = (back[0] + t * n[0] - a[0]) * su[0] + (back[1] + t * n[1] - a[1]) * su[1]
+        if along < -0.02 or along > length + 0.02 or abs(t) > WALL_SEAT_REACH_M + 1e-9:
+            continue
+        if best is None or abs(t) < abs(best):
+            best = t
+    return None if best is None else round(best, 4)
+
+
+def seat_shift(look: Optional[dict]) -> float:
+    """How far (m, along the piece's local +Y) the parts of a made-to-measure piece move onto their wall's face: the
+    look's ``wall_gap_m`` (``seat_on_walls``), within ``WALL_SEAT_REACH_M``; 0 without one or under
+    ``WALL_SEAT_MIN_M``."""
+    v = (look or {}).get("wall_gap_m") if isinstance(look, dict) else None
+    if not isinstance(v, (int, float)) or isinstance(v, bool) or not math.isfinite(float(v)):
+        return 0.0
+    v = max(-WALL_SEAT_REACH_M, min(WALL_SEAT_REACH_M, float(v)))
+    return 0.0 if abs(v) < WALL_SEAT_MIN_M else v
+
+
+def seat_parts(parts: list[Part], look: Optional[dict]) -> list[Part]:
+    """``parts`` (a piece frame, the wall at +Y) moved by ``seat_shift(look)`` along Y: the back on the wall's face."""
+    dy = seat_shift(look)
+    if not dy:
+        return parts
+    return [dict(p, verts=[(x, y + dy, z) for x, y, z in p["verts"]]) for p in parts]
+
+
+def seat_on_walls(building: dict) -> list[dict]:
+    """In place (pure, idempotent): ``bath_look["wall_gap_m"]`` of every made-to-measure piece (``made_to_measure``)
+    whose drawn back has a wall face within ``WALL_SEAT_REACH_M`` (``wall_gap`` against its room's outline), also on
+    the fit's module plan copy of the look (``asset.module_plan.bath_look``: the vanity's and the shower's builder
+    reads it); a piece without such a wall loses a stale value. Returns a record per piece whose parts move
+    (``id``, ``gap_m``, ``reason``)."""
+    rooms = {r.get("id"): r for r in building.get("rooms") or []}
+    out = []
+    for f in building.get("furniture") or []:
+        if f.get("build") is False or not made_to_measure(f):
+            continue
+        room = rooms.get(f.get("room_id"))
+        gap = wall_gap(f, (room or {}).get("polygon"))
+        looks = [f["bath_look"]]
+        plan = (f.get("asset") or {}).get("module_plan") if isinstance(f.get("asset"), dict) else None
+        if isinstance(plan, dict) and isinstance(plan.get("bath_look"), dict):
+            looks.append(plan["bath_look"])
+        for look in looks:
+            if gap is None:
+                look.pop("wall_gap_m", None)
+            else:
+                look["wall_gap_m"] = gap
+        if gap is not None and abs(gap) >= WALL_SEAT_MIN_M:
+            where = (f"stands {gap * 100:.1f} cm off the wall" if gap > 0
+                     else f"reaches {-gap * 100:.1f} cm into the wall")
+            out.append({"id": f.get("id"), "gap_m": gap,
+                        "reason": f"the drawn {f.get('type')} {where}: its made-to-measure parts (the WC's pan and "
+                                  "flush plate, a vanity's back, the shower's fittings) are built on the wall's face; "
+                                  "the drawn footprint stays"})
+    return out
+
+
+# --------------------------------------------------------------------------
 # Wet-room tiles (B8): large-format stone-look porcelain on the walls and the floor
 # --------------------------------------------------------------------------
 

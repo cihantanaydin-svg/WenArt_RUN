@@ -1397,6 +1397,12 @@ def main(argv: list[str]) -> int:
     doors = doors_as_designed(building, style, replay["plans"])
     assumed.extend(doors["assumed"])
     warnings.extend(doors["warnings"])
+    # 30 Oct 2026 (real04 run 201533: every flush plate inside its wall): the made-to-measure bath pieces' backs on
+    # their walls' faces, for a building planned before the layout stage did it (idempotent)
+    from wenart.blender import bath_parts as BT
+    for rec in BT.seat_on_walls(building):
+        assumed.append({"object": f"furn_{rec['id']}", "field": "wall_gap_m", "value": rec["gap_m"],
+                        "reason": rec["reason"], "parent": rec["id"], "kind": "bath_details"})
     textures, hdris, refused = load_assets(args.assets, args.no_textures, warnings)
     hdri = hdri_file(hdris, args.assets, style)
     if (style.get("lighting") or {}).get("hdri") and hdri is None and not args.no_textures:
@@ -2800,7 +2806,10 @@ def add_room_ids(manifest_objects: list[dict], rooms_by_opening: dict[str, list[
 def add_box3d(manifest_objects: list[dict], warnings: list[str]) -> None:
     """``box3d`` on every furniture, proxy and decor entry: the world box of
     the object's mesh as built, in the piece frame (``rotation_deg`` of the
-    entry), see ``geom2d.oriented_box``."""
+    entry), see ``geom2d.oriented_box``. 30 Oct 2026 (real04 run 201533: a freestanding library tub's fitted box seen
+    in a frame corner its rounded end leaves empty): a furniture entry's box also carries the mesh's convex plan
+    ``outline`` (``geom2d.plan_outline``, in the box frame about its centre), the shape the GPU index-pass test models
+    the piece with."""
     import bpy
 
     from wenart.blender import geom2d
@@ -2814,7 +2823,10 @@ def add_box3d(manifest_objects: list[dict], warnings: list[str]) -> None:
             continue
         mw = ob.matrix_world
         points = [tuple(mw @ v.co) for v in ob.data.vertices]
-        entry["box3d"] = geom2d.oriented_box(points, float(entry.get("rotation_deg") or 0.0))
+        rot = float(entry.get("rotation_deg") or 0.0)
+        entry["box3d"] = geom2d.oriented_box(points, rot)
+        if entry.get("kind") == "furniture":
+            entry["box3d"]["outline"] = geom2d.plan_outline(points, rot, entry["box3d"]["center"][:2])
 
 
 def preview_mapping(x0: float, y0: float, x1: float, y1: float, px_per_m: float = PREVIEW_PX_PER_M) -> dict:
