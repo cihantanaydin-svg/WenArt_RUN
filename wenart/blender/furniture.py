@@ -2093,8 +2093,8 @@ def _create_hosted_decor(item, host, n, level, floor_z, collection, library, mat
             keys = [f"{LIT_KEY}{k}" if k in _shade_keys(local.get("parts") or []) else k for k in keys]
             used = sorted(set(keys), key=keys.index)
         accent = P.DECOR_COLOURS.get(str(item.get("colour") or ""))
-        slots = [_part_material(mats, k, False, accent=accent, colour=part_colour(item, k), lit=lit,
-                                params=part_params(item, k, host)) for k in used]
+        slots = [_part_material(mats, k, False, accent=accent, colour=part_colour(item, k),
+                                lit=lit or bulb_glows(dtype, k), params=part_params(item, k, host)) for k in used]
         ob = _mesh_object(name, plan["verts"], plan["faces"], slots, [used.index(k) for k in keys], collection,
                           host["id"], "decor", status)
         for poly in ob.data.polygons:
@@ -2871,6 +2871,35 @@ def _surface_hit(host_entry: dict | None, center, host_center, floor_z: float, a
 BRIEF_COLOURED_DECOR: tuple[str, ...] = ("cushion", "rug")
 
 
+SLOPE_SEAT_HOW = "mounted on the sloped ceiling: its top centre on the ceiling plane over it, tilted onto the slope"
+
+
+def slope_seated(item: dict, dtype: str) -> bool:
+    """Whether a decor light is mounted on a sloped ceiling (pure): a ceiling light the decor stage gave a
+    ``slope_mount`` (``wenart.furniture.ceiling_lights.slope_mount``)."""
+    return dtype == "ceiling_light" and isinstance(item.get("slope_mount"), dict)
+
+
+def slope_seat(item: dict, verts, floor_z: float, z_above: float, top_m: float) -> tuple[list, float, dict]:
+    """30 Oct 2026 (M14 on real04 run 20261030-043021-full; pure): a library ceiling light mounted on a sloped ceiling
+    with its model's top centre on the plane over its centre (``top_m`` over the floor): ``(verts moved, z_above,
+    hang record)``. The verts are moved up or down so their top meets the plane there; ``slope_verts`` then tilts them
+    onto the plane about that point. The hang record says so (``gap_left_m`` 0: nothing hangs in the air)."""
+    top = max(float(v[2]) for v in verts)
+    shift = round(floor_z + float(top_m) - top, 4)
+    moved = [(x, y, z + shift) for x, y, z in verts] if abs(shift) > 1e-9 else list(verts)
+    model_h = top - min(float(v[2]) for v in verts)
+    xs, ys = [float(v[0]) for v in verts], [float(v[1]) for v in verts]
+    z_new = round(float(z_above) + shift, 4)
+    sm = item.get("slope_mount") if isinstance(item.get("slope_mount"), dict) else {}
+    hang = {"bottom_m": z_new, "model_top_m": round(float(top_m), 4), "ceiling_m": round(float(top_m), 4),
+            "gap_m": 0.0, "lift_m": shift, "cord_m": 0.0, "canopy_m": 0.0, "how": SLOPE_SEAT_HOW,
+            "top_m": round(float(top_m), 4), "gap_left_m": 0.0, "model_h_m": round(model_h, 4),
+            "cord_xy": [round((min(xs) + max(xs)) / 2.0, 4), round((min(ys) + max(ys)) / 2.0, 4)],
+            "tilt_deg": sm.get("tilt_deg")}
+    return moved, z_new, hang
+
+
 def slope_verts(item: dict, verts) -> list:
     """28 Oct 2026 (user: "More lights from the ceiling needed"): a ceiling light the decor stage mounted on a sloped
     ceiling (``slope_mount``, ``wenart.furniture.ceiling_lights``) is turned onto the ceiling plane about its top
@@ -2885,6 +2914,17 @@ def slope_verts(item: dict, verts) -> list:
     xs, ys = [float(v[0]) for v in verts], [float(v[1]) for v in verts]
     pivot = ((min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0, max(float(v[2]) for v in verts))
     return geom2d.tilt_onto_plane(verts, pivot, float(plane[0]), float(plane[1]))
+
+
+# 30 Oct 2026 (lesson UL170, user: "keep the black one and make it give light"): a pendant is the light of its zone
+# (the rig puts the room's light into it, ``lighting.pendant_lights``), so its bulb parts glow in every mood; its shade
+# and its own lamp light stay with the mood (``decor_lit``)
+GLOWING_BULB_TYPES: tuple[str, ...] = ("pendant_light",)
+
+
+def bulb_glows(dtype: str, key: str) -> bool:
+    """Whether a decor part's ``key`` is a bulb that glows whatever the mood (pure): the bulb of a pendant."""
+    return dtype in GLOWING_BULB_TYPES and key == "bulb"
 
 
 def decor_lit(item: dict, lamps_on_mood: bool) -> bool:
@@ -3074,6 +3114,13 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
     # height (curtains, blinds, lights) or, behind ``--proxies``, a proxy box's top.
     z_above, z_how = decor_height_above_floor(item, host_entry)
     ceiling, ceiling_how = ceiling_above(level, center, (w, d), rot)    # Milestone 10: sloped under a roof
+    on_slope = slope_seated(item, dtype)
+    if on_slope:
+        # 30 Oct 2026 (the model review's M14 on real04 run 20261030-043021-full: six L1 flush lights 0.04 m under the
+        # slope with nothing up to it): a light mounted on a sloped ceiling has its top centre on the plane over its
+        # centre and is tilted onto it about that point (``slope_verts``); the lowest point over its box left the
+        # top centre half its width x the slope under the plane
+        ceiling, ceiling_how = ceiling_above(level, center, (0.0, 0.0), rot)[0], SLOPE_SEAT_HOW
     if dtype == "ceiling_light" and z_how != "center[2]":
         z_above, z_how = round(ceiling - h, 4), f"ceiling (flush, {ceiling_how})"
     if dtype == "pendant_light":
@@ -3122,6 +3169,8 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
     }
     if item.get("fixture"):                # 29 Oct 2026 (UL106): a light's role (statement, bedside, downlight)
         entry["fixture"] = item["fixture"]
+    if isinstance(item.get("track"), dict):  # 30 Oct 2026 (UL170): a track's mini pendants (the rig lights each)
+        entry["track"] = item["track"]
     file, reason = resolve_asset(item.get("asset"), assets_dir)
     ob = None
     hang, z_above0, z_how0 = None, z_above, z_how
@@ -3147,6 +3196,9 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                     verts = [(x, y, z + hang["lift_m"]) for x, y, z in verts]
                     z_above = round(z_above + hang["lift_m"], 4)
                     z_how = f"{z_how}; {hang['how']}"
+            if on_slope:                                   # 30 Oct 2026 (M14): the model's top on the plane
+                verts, z_above, hang = slope_seat(item, verts, floor_z, z_above, ceiling)
+                z_how = f"{z_how}; {hang['how']}"
             verts = slope_verts(item, verts)               # 28 Oct 2026: a ceiling light on a sloped ceiling
             fallback = library.proxy("proxy")
             ob = _mesh_object(name, verts, geo["faces"], geo["materials"], geo["face_materials"], collection,
@@ -3181,7 +3233,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         slots = [_part_material(mats, k, False, accent=accent,
                                 colour=towel_part_colour(item, k) if k in TOWEL_DECOR_KEYS else item.get("colour"),
                                 overrides=overrides,
-                                lit=lit) for k in used_keys]
+                                lit=lit or bulb_glows(dtype, k)) for k in used_keys]
         ob = _mesh_object(name, verts, faces, slots, [used_keys.index(k) for k in keys], collection, owner_id,
                           "decor", status)
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
@@ -3194,7 +3246,9 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
             entry["pot"] = dict(overrides["pot"])
         if dtype in CEILING_DECOR_TYPES:                  # 28 Oct 2026: the parametric light spans up to the ceiling
             hang = dict(hang_plan(dtype, z_above, z1 - z0, ceiling), cord_xy=list(footprint["center"]),
-                        how="the parametric light's own canopy on the ceiling")
+                        how=SLOPE_SEAT_HOW if on_slope else "the parametric light's own canopy on the ceiling")
+            if on_slope:
+                hang["tilt_deg"] = (item.get("slope_mount") or {}).get("tilt_deg")
             hang.update(lift_m=0.0, cord_m=0.0, canopy_m=0.0, top_m=round(z_above + z1 - z0, 4),
                         gap_left_m=round(ceiling - z_above - (z1 - z0), 4))
         if lit and dtype in LAMP_LIGHTS:
