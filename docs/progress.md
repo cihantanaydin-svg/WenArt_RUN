@@ -2698,3 +2698,32 @@ builds.
 Open: GPU tests `test_index_pass_contains_every_visible_proxy` (f_L-1_056 in cam_r_L-1_banyo_1) and the white-point
 rule (bathrooms and corridors); six L1 ceiling lights 4 cm under the slope with no cord (M14); the inspector's guard
 claims at stair and floor openings (Q3) to verify; the play room's new sofas are white daybeds (boxy).
+
+## The user's review of real04 run 043021: 17 requests (30 Oct 2026, lessons UL154-UL170; CPU-tested, pod run waiting)
+
+Every fix is a general rule; real04 is the test case. Lessons in `wenart/blender/architect_lessons.json`, each with an
+Argus question.
+
+| Lesson | Request | Rule as built |
+|---|---|---|
+| UL154 | books could be more detailed | `book_parts`: cover boards over a cream page block, round spines with bands or labels, muted bookcloth covers, varied sizes, a leaning book, stacks spines out; every book builder uses it |
+| UL155 | not a proper dishwasher | no kitchen had one (the "slab" was a steel under-counter fridge): a dishwasher beside every sink, integrated behind a matching front with a control strip, or steel with strip, display and bar handle (industrial); fronts flush |
+| UL156 | lamp and table combo | a lamp is fitted with its host table (shade at most 60 % of the top, real size, eye-level height); no office, swivel or star-base side tables |
+| UL157 | old white and stone facade was better | the facade scheme guard (aed972f): no edit clads every main wall in stone or wood |
+| UL158 | the white box; the old strip all the way to the pool | no sunken court in front of glazing at grade; no edit may set front_court yes; the paved strip runs on to the next terrace or pool deck along its facade |
+| UL159 | terrace floor must suit the outside | roof terraces and balconies take the family's terrace floor (stone slabs or a deck), never the grassy garden slabs |
+| UL160 | the bag needs detail | `holdall`: a real weekend holdall (piping, zip, leather handles on tabs, pocket, strap, studs) |
+| UL161 | not these sofas here | a daybed is never a living-type room's sofa |
+| UL162 | only road; roads lead nowhere | a flight up onto a road is set into its sunken terrace; a drive dead end runs to the plot edge and a 6 m street runs outside the plot |
+| UL163 | too many pillows, flying; the headboard | (helper, in progress) |
+| UL164 | laptop and stationery on desks | (helper, in progress) |
+| UL165 | books not staying properly | a hard item on a top needs its whole footprint on a level top; it moves in from an edge or a raised lip |
+| UL166 | bathroom shelf objects | `bath_objects`: pump bottles, lidded jars, a reed diffuser, a leafy plant, flacons, a basket of towels |
+| UL167 | sofa rests not connected | a library sofa's backs and arms touch its seat (measured on the mesh, not boxes); the L's backs meet |
+| UL168 | the switches (the flush plate) | a real dual-flush plate with two buttons |
+| UL169 | no tags on the top-down views | small see-through numbered badges and a legend strip under the view |
+| UL170 | two lights together; the black one gives light | (helper, in progress; also the L1 lights under the slope, M14) |
+
+Also: the GPU tests follow the m13.6 white point (the rig colour from the walls) and allow a library mesh's rounded end
+off the frame in every view; `tests/test_fixes_20261030.py` reads frozen run-201533 data (the promotion changed the
+latest baseline).
