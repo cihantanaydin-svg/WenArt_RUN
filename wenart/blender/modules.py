@@ -2865,7 +2865,7 @@ def build_module(plan: dict, piece: dict, materials):
     used = sorted(set(keys), key=keys.index)
     slots = [get(k) for k in used]
     ob = F._mesh_object(name, verts, faces, slots, [used.index(k) for k in keys], collection, piece["id"],
-                        "furniture", status)
+                        "furniture", status, lettering_uvs=P.lettering_uvs(parts))
     bevel = F.add_bevel(ob, parts)
     ob["wenart_method"] = MODULE_METHOD
     ob["wenart_module"] = plan["builder"]

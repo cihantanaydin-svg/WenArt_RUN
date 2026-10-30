@@ -31,6 +31,7 @@ import math
 from typing import Optional, Sequence
 
 from wenart.blender import parametric as P
+from wenart.blender import print_labels as PL
 
 Part = dict
 LESSONS: tuple[str, ...] = ("UL183", "UL184", "UL186")
@@ -467,10 +468,14 @@ def oil_set(w: float, d: float, h: float) -> list[Part]:
     xa = -w / 2.0 + br + 0.01
     parts += glass_bottle(xa, 0.0, z, br, tall, OIL_KEY, 0.72)
     parts += pourer(xa, 0.0, z + tall, br * 0.36)
+    # 30 Oct 2026 (UL199, user: "Also wine vineger salt paper you can write them when you see needed"): their printed
+    # paper labels (print_labels: invented, brand-free words)
+    parts.append(PL.bottle_label(xa, 0.0, z, br, tall * 0.16, tall * 0.44, "olive_oil"))
     xb = xa + 2 * br + 0.012
     short = tall * 0.84
     parts += glass_bottle(xb, 0.0, z, br * 0.9, short, "dark", 0.6)
     parts += cork(xb, 0.0, z + short, br * 0.9 * 0.36)
+    parts.append(PL.bottle_label(xb, 0.0, z, br * 0.9, short * 0.16, short * 0.44, "vinegar"))
     sr = min(0.032, d / 2.0 - 0.01, (w / 2.0 - (xb + br * 0.9) - 0.01) / 2.0)
     if sr >= 0.018:
         sx = w / 2.0 - sr - 0.006
@@ -481,7 +486,24 @@ def oil_set(w: float, d: float, h: float) -> list[Part]:
                             "lid", c=(sx, 0.0, z + ph * 0.85 - 0.002)))
         parts.append(turned([(0.004, 0.0), (0.008, 0.004), (0.007, 0.010), (0.002, 0.012)], "wood", "knob",
                             c=(sx, 0.0, z + ph * 0.85 + 0.010), n=10))
+        parts.append(PL.bottle_label(sx, 0.0, z, sr, ph * 0.22, ph * 0.22 + min(ph * 0.5, sr * 1.6), "salt"))
     return _fit(parts, w, d, h)
+
+
+WINE = {"r_m": 0.037, "h_m": 0.30}
+
+
+def wine_bottle(cx: float, cy: float, z0: float, r: float = WINE["r_m"], hgt: float = WINE["h_m"],
+                label: str = "wine_1") -> list[Part]:
+    """30 Oct 2026 (UL199): a wine bottle: dark glass with the wine in it, a foil capsule over its neck and a printed
+    front label (``print_labels.WINE_LABELS``: an invented winery, a vintage year, the wine's kind)."""
+    parts = glass_bottle(cx, cy, z0, r, hgt, "dark", 0.85, key="glass")
+    neck = r * 0.36
+    parts.append(turned([(neck + 0.0008, 0.0), (neck + 0.0008, hgt * 0.13), (neck * 0.9, hgt * 0.135),
+                         (0.002, hgt * 0.137)], "dark", "capsule", c=(cx, cy, z0 + hgt * 0.87)))
+    body = hgt * 0.60
+    parts.append(PL.bottle_label(cx, cy, z0, r, body * 0.30, body * 0.30 + min(body * 0.6, r * 1.9), label))
+    return parts
 
 
 def cookware(w: float, d: float, h: float) -> list[Part]:

@@ -2656,6 +2656,55 @@ def screen_ui_material(name: str = SCREEN_UI_MATERIAL):
     return mat
 
 
+# 30 Oct 2026 (UL199, user: "Writing on the labels on the books are acceptable ..."): printed lettering
+# (``print_labels``: book titles, kitchen labels) samples one RGBA atlas through the mesh's ``print_labels.UV_LAYER``
+# UVs (the other materials keep the box UVs); its alpha cuts the letters out of the thin print film, so the cloth, the
+# glass or the ceramic under it shows round them.
+LETTERING_MATERIAL = "wenart_lettering"
+LETTERING_ROUGHNESS = 0.45
+
+
+def lettering_material(name: str = LETTERING_MATERIAL):
+    """The printed lettering's material (bpy; notes above): the atlas's colour as the base colour and its alpha as the
+    Principled alpha, through a UV Map node on ``print_labels.UV_LAYER``; fully transparent when the atlas file is
+    missing (never a black film). One material for the scene (cached by ``name``)."""
+    import bpy
+
+    from wenart.blender import print_labels as PL
+
+    mat = bpy.data.materials.get(name)
+    if mat is not None:
+        return mat
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    bsdf = _bsdf_of(mat) or nodes.new("ShaderNodeBsdfPrincipled")
+    _set_input(bsdf, "Roughness", LETTERING_ROUGHNESS)
+    if PL.ATLAS_PATH.is_file():
+        uv = nodes.new("ShaderNodeUVMap")
+        uv.uv_map = PL.UV_LAYER
+        tex = nodes.new("ShaderNodeTexImage")
+        tex.image = bpy.data.images.load(str(PL.ATLAS_PATH), check_existing=True)
+        try:
+            tex.image.alpha_mode = "STRAIGHT"
+        except (AttributeError, TypeError):
+            pass
+        tex.interpolation = "Linear"
+        tex.extension = "CLIP"
+        links.new(uv.outputs["UV"], tex.inputs["Vector"])
+        links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+        links.new(tex.outputs["Alpha"], bsdf.inputs["Alpha"])
+    else:
+        _set_input(bsdf, "Alpha", 0.0)
+    for attr, value in (("blend_method", "HASHED"), ("surface_render_method", "DITHERED")):
+        try:
+            setattr(mat, attr, value)
+        except (AttributeError, TypeError):
+            pass
+    mat["wenart_lettering"] = PL.ATLAS_PATH.name
+    return mat
+
+
 def screen_material(name: str = SCREEN_MATERIAL):
     """The material of a laptop's or a monitor's screen (bpy; module notes above): a Principled BSDF of
     ``SCREEN_BASE_RGB`` at ``SCREEN_ROUGHNESS`` whose emission colour is the ``SCREEN_WALLPAPER`` gradient at

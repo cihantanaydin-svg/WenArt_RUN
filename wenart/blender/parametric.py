@@ -3413,7 +3413,8 @@ def turn_parts(parts: Sequence[Part], pivot: tuple[float, float], angle_deg: flo
 
 def mirror_parts_x(parts: Sequence[Part]) -> list[Part]:
     """Parts mirrored across x = 0 (faces reversed, so the normals still point out)."""
-    return [dict(p, verts=[(-x, y, z) for x, y, z in p["verts"]], faces=[list(reversed(f)) for f in p["faces"]])
+    return [dict(p, verts=[(-x, y, z) for x, y, z in p["verts"]], faces=[list(reversed(f)) for f in p["faces"]],
+                 **({"uvs": [list(reversed(u)) if u else u for u in p["uvs"]]} if p.get("uvs") else {}))
             for p in parts]
 
 
@@ -4230,6 +4231,9 @@ if "screen" not in MATERIAL_KEYS:                                  # its glossy 
 # 30 Oct 2026 (UL175): what a laptop's or a monitor's screen shows (desk_parts.desktop_parts): the light windows, the
 # menu bar and the dock (materials.screen_ui_material); the bevels of the desk set's new parts
 MATERIAL_KEYS = MATERIAL_KEYS + ("screen_ui",)
+# 30 Oct 2026 (UL199): printed lettering (book titles, kitchen labels: print_labels, materials.lettering_material)
+MATERIAL_KEYS = MATERIAL_KEYS + ("lettering",)
+BEVEL_BY_ROLE["lettering"] = 0.0
 BEVEL_BY_ROLE.update({"screen_ui": 0.0, "grille": 0.0, "camera": 0.0, "logo": 0.0, "clip": 0.0003, "phone": 0.001,
                       "pot": 0.0008})
 # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's real heights (bath_parts.DECOR_HEIGHTS) and its material keys: the
@@ -4488,6 +4492,18 @@ def part_bevel_radius(part: Part) -> float:
 # --------------------------------------------------------------------------
 # Placement into the world and bounding boxes
 # --------------------------------------------------------------------------
+
+def lettering_uvs(parts: Sequence[Part]) -> Optional[list]:
+    """30 Oct 2026 (UL199): the parts' per-face lettering UVs (``print_labels``: None or one (u, v) per corner) in
+    ``world_mesh``'s face order; None when no part carries print."""
+    out, any_print = [], False
+    for part in parts:
+        uvs = part.get("uvs")
+        any_print = any_print or bool(uvs)
+        for i in range(len(part["faces"])):
+            out.append(uvs[i] if uvs and i < len(uvs) else None)
+    return out if any_print else None
+
 
 def world_mesh(parts: Sequence[Part], center: Sequence[float], rotation_deg: float, floor_z: float,
                scale: Sequence[float] = (1.0, 1.0, 1.0)) -> tuple[list, list, list[str]]:
