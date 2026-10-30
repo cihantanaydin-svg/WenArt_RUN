@@ -880,6 +880,11 @@ def _swap_model(b: dict, args: dict, catalog) -> list[str]:
     off = off_style_refusal(b, entry)
     if off is not None:
         raise EditRejected("off_style", f"{item['id']}: {off}")
+    # 30 Oct 2026 (UL156, UL161: real04's play room got two daybeds as its sofas from a swap): the fit's room rules
+    # refuse the swap up front (an office or star base beside a seat, a daybed as a living room's sofa)
+    room_why = F.room_rule_refusal(entry, dict(item, **F.room_use_context(b, item)), _style_family_of(b))
+    if room_why is not None:
+        raise EditRejected("room_rule", f"{item['id']}: {args['asset_id']} {room_why[:300]}")
     low = lower_quality_refusal(catalog.entry(current) if current else None, entry)
     if low is not None:
         raise EditRejected("lower_quality", f"{item['id']}: {low}")
@@ -1588,6 +1593,7 @@ def _build_retyped(b: dict, item: dict, args: dict, catalog=None) -> dict:
         else:
             target = dict(trial, module_hints={**(trial.get("module_hints") or {}), **hints}) if hints else trial
             target = dict(target, **F.use_context(b, item))     # bathroom sense of 26 Oct 2026: a child's room
+            target = dict(target, **F.room_use_context(b, item))   # 30 Oct 2026 (UL156, UL161): the room's type
             # fix round after P6a: the piece's room under a sloped ceiling, as fit_building fits it
             asset = F.fit_piece(target, catalog, mode=mode, style_family=family, ceiling=F.piece_ceiling(b, item))
             if hints and asset.get("method") == F.MODULE_METHOD:
