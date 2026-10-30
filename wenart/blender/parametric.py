@@ -3921,6 +3921,8 @@ MATERIAL_KEYS = MATERIAL_KEYS + ("led", "pampas")                  # an LED stri
 BEVEL_BY_ROLE.update({"led": 0.0, "groove": 0.0, "plume": 0.0, "stem": 0.0, "bracket": 0.002, "cleat": 0.0,
                       "canvas": 0.0, "grille": 0.0, "button": 0.001, "lens": 0.0, "zip": 0.0, "strap": 0.002,
                       "object": 0.004, "knob": 0.002})
+MATERIAL_KEYS = MATERIAL_KEYS + ("leather",)                       # 30 Oct 2026 (UL160): a holdall's tan leather
+BEVEL_BY_ROLE.update({"tab": 0.001, "clip": 0.002, "wrap": 0.0, "piping": 0.0})
 # 30 Oct 2026 (photo P16, lesson UL153): the living-dining room's own detail types, a panel wall of handle-less fronts
 # with a lit niche and two round wall discs (= salon_parts.DECOR_TYPES, built by wenart.blender.salon_parts)
 DETAIL_DECOR_TYPES = DETAIL_DECOR_TYPES + ("panel_wall", "wall_discs")
