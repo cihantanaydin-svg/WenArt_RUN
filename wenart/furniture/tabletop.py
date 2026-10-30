@@ -460,6 +460,12 @@ DESK_LAMP_SIZE = (0.24, 0.24, 0.46)           # a desk lamp: a 20-24 cm foot or 
 DESK_LAMP_REACH_M = 1.2                       # a floor lamp this near the desk's centre lights it
 DESK_REASON_TAG = "30 Oct 2026, user: \"A laptop on this table could have even nice, also some stationary\""
 DESK_EXTRA_GAP_M = 0.04                       # the stationery this far beside the laptop or the keyboard
+# 30 Oct 2026 (lesson UL212, user: "study rooms requires some other items, model them as much detail as you can"): a desk
+# from ORGANISER_MIN_W_M wide also takes an organiser set (``wenart.blender.appliance_parts.desk_organiser``: a magazine
+# file holder with folders, a desk clock, a stapler, a succulent) at a free back corner, else beside the work set;
+# inside the top, clear of everything there, under the ceiling and a window's sill, else left out with the reason
+ORGANISER_SIZE = (0.30, 0.22, 0.30)
+ORGANISER_MIN_W_M = 1.2
 
 
 def desk_lit(host: dict, pieces: list[dict], room_items: list[dict]) -> Optional[str]:
@@ -537,6 +543,15 @@ def desk_extras(room: dict, host: dict, pieces: list[dict], on_top: list[dict], 
                      f"a desk lamp at a back corner of {who}: nothing lights it")
         if lamp is not None:
             lamp["desk_lamp"] = True
+    if W >= ORGANISER_MIN_W_M - 1e-9:                # UL212: the organiser set on a desk wide enough for it
+        ow, od = ORGANISER_SIZE[0], ORGANISER_SIZE[1]
+        bo = D / 2.0 - TOP_MARGIN_M - od / 2.0
+        ol, orr = -W / 2.0 + TOP_MARGIN_M + ow / 2.0, W / 2.0 - TOP_MARGIN_M - ow / 2.0
+        beside = [(hi + DESK_EXTRA_GAP_M + ow / 2.0, bo), (lo - DESK_EXTRA_GAP_M - ow / 2.0, bo)]
+        place("desk_organiser", ORGANISER_SIZE, [(orr, bo), (ol, bo)] + beside, f"{host['id']}.organiser",
+              f"the organiser set of {who} (files in a holder, a clock, a stapler, a plant; UL212)")
+    else:
+        notes.append(f"{host['id']}: no organiser set ({W:.2f} m wide, under {ORGANISER_MIN_W_M:.1f} m)")
     return out, notes
 
 
@@ -561,7 +576,7 @@ def work_set(room: dict, host: dict, pieces: list[dict], on_top: list[dict], cei
     return res
 
 
-DESK_EXTRA_TYPES: tuple[str, ...] = ("stationery",)
+DESK_EXTRA_TYPES: tuple[str, ...] = ("stationery", "desk_organiser")
 
 
 def _work_set(room: dict, host: dict, pieces: list[dict], on_top: list[dict], ceiling_room: Optional[float] = None,
@@ -753,6 +768,7 @@ def bare_hosts(room: dict, pieces: list[dict], building: dict, items: list[dict]
                  "room_id": room["id"], "reason": f"{why} ({WORK_REASON_TAG})"})
         for it in got["items"]:
             it["id"] = new_id(room["level_id"])
+            D.appliance_record(it, D.kitchen_family(building, [host]))     # UL212: the organiser's finish
         out += got["items"]
     return out
 
@@ -818,6 +834,7 @@ def dress_tops(room: dict, pieces: list[dict], building: dict, items: list[dict]
                 notes.append(got["note"])
             for it in got["items"]:
                 it["id"] = new_id(room["level_id"])
+                D.appliance_record(it, D.kitchen_family(building, [host]))     # UL212: the organiser's finish
             out += got["items"]
             on_host = [it for it in items + out if it.get("host_id") == hid and it.get("center")]
         if host["type"] in DINING_TYPES and hid not in work and hid in max_h:

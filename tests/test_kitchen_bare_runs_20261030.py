@@ -77,7 +77,8 @@ def test_real04_every_run_of_the_kitchen_is_dressed_and_the_sink_run_only_with_l
             assert MOD.worktop_item_window(item, host, b) is None     # the build keeps it where the decor put it
         assert item["source"] == "added_by_ai" and item["method"] == "rule" and item["reason"]
     sink_run = [i for i in items if i["host_id"] == "f_L-1_003"]
-    assert [i["type"] for i in sink_run] == ["fruit_bowl"] and "no bare run" in sink_run[0]["reason"]
+    # one low set (UL212: the fruit bowl now comes with the appliances, the styling pass dresses the sink run first)
+    assert len(sink_run) == 1 and sink_run[0]["type"] in D.BARE_RUN_SETS
     assert "window" in sink_run[0]["reason"]
     kettle = next(i for i in items if i["type"] == "kettle")
     assert kettle["host_id"] != "f_L-1_003" and "by the sink;" not in kettle["reason"]   # it says where it stands

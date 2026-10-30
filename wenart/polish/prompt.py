@@ -201,6 +201,7 @@ MATERIAL_WORDS: dict[str, str] = {
     "book_pages": "cream book pages",               # 30 Oct 2026 (UL154): a book's page block
     "fruit_red": "red apple skin", "fruit_orange": "orange peel", "fruit_yellow": "yellow lemon peel",
     "fruit_green": "green pear skin", "oil_amber": "golden olive oil", "cardboard": "brown cardboard",   # UL186
+    "coffee_liquid": "black coffee",                # 30 Oct 2026 (UL213): the coffee in a mug
     "rattan": "woven rattan",
     # furniture woods and handles
     "wood_veneer_oak_light": "light natural oak veneer",
@@ -292,6 +293,10 @@ DECOR_WORDS: dict[str, str] = {
     # 29 Oct 2026 (wenart.furniture.tabletop.work_set): the desk's work set
     "laptop": "open laptop", "monitor": "computer monitor", "keyboard": "keyboard", "computer_mouse": "computer mouse",
     "stationery": "notebooks and a pen pot",                          # 30 Oct 2026 (UL164)
+    "knife_block": "knife block", "pepper_mills": "salt and pepper mills",           # 30 Oct 2026 (UL212)
+    "desk_organiser": "magazine file holder, desk clock and a small plant",       # 30 Oct 2026 (UL212)
+    "mug": "ceramic coffee mug", "mug_on_books": "coffee mug on a stack of books",   # 30 Oct 2026 (UL213)
+    "mug_pair": "two coffee mugs",
     "tv": "flat television",                                          # 29 Oct 2026 (UL99)
     # 29 Oct 2026 (wenart.furniture.bath_details, UL114, UL123, UL124): the bathroom's accessories
     "toilet_paper_holder": "toilet paper holder", "toilet_brush": "toilet brush", "towel_rail": "heated towel rail",

@@ -256,7 +256,9 @@ TABLETOP_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp", 
                                    "utensil_pot", "oil_bottles", "kettle", "toaster", "coffee_machine",
                                    "coffee_station", "chopping_board", "cutting_boards", "cookware", "microwave",
                                    "laptop", "monitor", "keyboard", "computer_mouse",
-                                   "stationery")              # 30 Oct 2026 (UL164): a desk's notebooks and pen pot
+                                   "stationery",              # 30 Oct 2026 (UL164): a desk's notebooks and pen pot
+                                   "knife_block", "pepper_mills", "desk_organiser",   # 30 Oct 2026 (UL212)
+                                   "mug", "mug_on_books", "mug_pair")                 # 30 Oct 2026 (UL213)
 FLOOR_MIN_H_M: dict[str, float] = {"plant": 0.60, "plant_large": 0.90, "floor_vase": 0.50,
                                   "sculpture": 0.50}           # a floor sculpture, not a small one put down
 FLOOR_PLANT_TYPES: tuple[str, ...] = ("plant", "plant_large")

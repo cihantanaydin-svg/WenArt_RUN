@@ -721,6 +721,7 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "fruit_red": ("fruit_red", None, None), "fruit_orange": ("fruit_orange", None, None),
         "fruit_yellow": ("fruit_yellow", None, None), "fruit_green": ("fruit_green", None, None),
         "oil": ("oil_amber", None, None), "cardboard": ("cardboard", None, None),
+        "coffee": ("coffee_liquid", None, None),           # 30 Oct 2026 (UL213): the coffee in a mug (mug_parts)
     }
     # 29 Oct 2026 (UL121, R35): the bedding's fabric looks and woven patterns (``textile_<look>``; a throw pair's second
     # blanket ``runner_<look>``): linen keeps its Poly Haven scan, the others are the procedural weaves

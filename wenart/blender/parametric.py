@@ -205,6 +205,8 @@ DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug",   # param
                                  # kitchen worktop's small appliances and decor (``kitchen_worktop_parts``)
                                  "microwave", "kettle", "coffee_machine", "toaster", "chopping_board", "utensil_pot",
                                  "fruit_bowl",
+                                 # 30 Oct 2026 (UL212): a knife block and a pair of mills (``appliance_parts``)
+                                 "knife_block", "pepper_mills",
                                  # 29 Oct 2026 (lessons UL115, UL118: the reference kitchens' styled worktops): the
                                  # styling sets (``kitchen_details.styling_parts``, one mesh per set)
                                  "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles",
@@ -229,7 +231,7 @@ SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_la
                                         "candle", "tray", "books", "sculpture", "basket",   # M10, with a host
                                         # 28 Oct 2026: the kitchen worktop items rest on the built worktop
                                         "microwave", "kettle", "coffee_machine", "toaster", "chopping_board",
-                                        "utensil_pot", "fruit_bowl",
+                                        "utensil_pot", "fruit_bowl", "knife_block", "pepper_mills",
                                         # 29 Oct 2026 (UL115, UL118): the worktop styling sets
                                         "storage_jars", "plate_stack", "cookware", "cutting_boards", "oil_bottles",
                                         "dried_grass_vase", "coffee_station",
@@ -356,6 +358,7 @@ DECOR_DEFAULT_HEIGHT = {"cushion": 0.12, "book_set": 0.22, "plant": 0.6, "rug": 
                         # 19 cm, a 40 x 25 cm board, a utensil pot with its tools, a 28 cm fruit bowl)
                         "microwave": 0.27, "kettle": 0.25, "coffee_machine": 0.35, "toaster": 0.19,
                         "chopping_board": 0.02, "utensil_pot": 0.30, "fruit_bowl": 0.12,
+                        "knife_block": 0.33, "pepper_mills": 0.22,          # 30 Oct 2026 (UL212)
                         # 29 Oct 2026: the styling sets (kitchen_details.STYLING_SIZES: real products)
                         "storage_jars": 0.24, "plate_stack": 0.14, "cookware": 0.18, "cutting_boards": 0.45,
                         "oil_bottles": 0.30, "dried_grass_vase": 0.55, "coffee_station": 0.38,
@@ -4236,7 +4239,7 @@ def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None
                             n=32),
                 _superellipsoid(0.0, 0.0, 0.0, w, d, h - canopy + 0.004, 0.6, 1.0, "bulb", "bulb", n_eta=8, n_om=32)]
     if dtype in KITCHEN_DECOR_TYPES:          # 28 Oct 2026: the kitchen worktop's appliances and decor
-        return kitchen_worktop_parts(dtype, w, d, h)
+        return kitchen_worktop_parts(dtype, w, d, h, item)
     if dtype in WORK_DECOR_TYPES:             # 29 Oct 2026: the desk's laptop, monitor, keyboard and mouse
         return work_set_parts(dtype, w, d, h)
     raise KeyError(f"no decor builder for {dtype!r}")
@@ -4259,16 +4262,20 @@ def downlight_parts(w: float, d: float, h: float) -> list[Part]:
                         "bulb", "bulb", n=24)]
 
 
-def kitchen_worktop_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
+def kitchen_worktop_parts(dtype: str, w: float, d: float, h: float, item: dict | None = None) -> list[Part]:
     """28 Oct 2026 (user: "More decor pieces needed ... kettle in the kitchen, microwave in the kitchen etc"): the
     parametric small appliances and decor of a kitchen worktop at the item's real box (bottom on z = 0, front -Y),
-    with PBR material keys (steel, dark glass, ceramic, wood, the fruit's colours): a countertop microwave (steel
-    case, dark glass door with its window, a control strip and a handle), a kettle (body, lid, spout and handle on
-    its base), a bean-to-cup coffee machine (body, drip tray, spout, cup), a 2-slice toaster (body with two slots and
-    a lever), a wooden chopping board, a ceramic utensil pot with its wooden tools, a fruit bowl with fruit."""
+    with PBR material keys (steel, dark glass, ceramic, wood, the fruit's colours): a wooden chopping board, a ceramic
+    utensil pot with its wooden tools, a fruit bowl with fruit. 30 Oct 2026 (lesson UL212, user: "Try to improve the
+    plain small item models more maybe kitchen needs a kettle a coffee machine etc"): the appliances, the knife block
+    and the mills are real products (``appliance_parts``) in the finish the item records (``appliance``); the boxes
+    below stay for a call without the module only."""
     if dtype in STYLING_DECOR_TYPES:                 # 29 Oct 2026 (UL115, UL118): a styling set, one mesh
         from wenart.blender import kitchen_details as KD
-        return KD.styling_parts(dtype, w, d, h)
+        return KD.styling_parts(dtype, w, d, h, item)
+    from wenart.blender import appliance_parts as AP
+    if dtype in AP.APPLIANCE_TYPES:
+        return AP.parts(dtype, w, d, h, item)
     r = min(w, d) / 2.0
     if dtype == "microwave":
         door, f = w * 0.68, -d / 2.0                 # every part inside the item's box: the case's front 3 cm back
@@ -4504,11 +4511,21 @@ def plain_key(key: str) -> str:
 # 30 Oct 2026 (lesson UL164, user: "A laptop on this table could have even nice, also some stationary"): a desk's
 # stationery beside its laptop (notebooks and a pen pot, ``wenart.blender.desk_parts``; placed by
 # ``wenart.furniture.tabletop.work_set``, the AI never chooses it)
-DESK_DECOR_TYPES: tuple[str, ...] = ("stationery",)
+DESK_DECOR_TYPES: tuple[str, ...] = ("stationery",
+                                     "desk_organiser")   # 30 Oct 2026 (UL212): ``appliance_parts.desk_organiser``
 DECOR_TYPES = DECOR_TYPES + DESK_DECOR_TYPES
 SURFACE_DECOR_TYPES = SURFACE_DECOR_TYPES + DESK_DECOR_TYPES
-DECOR_DEFAULT_HEIGHT.update({"stationery": 0.17})
+DECOR_DEFAULT_HEIGHT.update({"stationery": 0.17, "desk_organiser": 0.30})
 BEVEL_BY_ROLE.setdefault("pages", 0.001)
+# 30 Oct 2026 (lesson UL213, user: "coffee mugs around the house also is a good decor item book and on top of a book
+# coffee mug"): a mug, a mug on a small stack of books, a pair of mugs by the coffee machine
+# (``wenart.blender.mug_parts``; placed by ``wenart.furniture.mugs``, the AI never chooses them)
+MUG_DECOR_TYPES: tuple[str, ...] = ("mug", "mug_on_books", "mug_pair")
+MATERIAL_KEYS = MATERIAL_KEYS + ("coffee",)        # the coffee in a mug (vocabulary ``coffee_liquid``)
+DECOR_TYPES = DECOR_TYPES + MUG_DECOR_TYPES
+SURFACE_DECOR_TYPES = SURFACE_DECOR_TYPES + MUG_DECOR_TYPES
+DECOR_DEFAULT_HEIGHT.update({"mug": 0.096, "mug_on_books": 0.17, "mug_pair": 0.104})
+BEVEL_BY_ROLE.update({"mug": 0.0, "mug_handle": 0.0, "coffee": 0.0})      # turned and tubed: already round
 
 
 SUSPENSION_CORD_R_M = 0.004       # the cord of a hung light (as the parametric pendant's)
@@ -4617,8 +4634,14 @@ def decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = No
     if dtype in DETAIL_DECOR_TYPES:
         return DP.detail_parts(dtype, w, d, h, item)
     if dtype in DESK_DECOR_TYPES:                  # 30 Oct 2026 (UL164): a desk's stationery
+        if dtype == "desk_organiser":              # 30 Oct 2026 (UL212): its organiser
+            from wenart.blender import appliance_parts as AP
+            return AP.parts(dtype, w, d, h, item)
         from wenart.blender import desk_parts as DK
         return DK.stationery_parts(w, d, h, item)
+    if dtype in MUG_DECOR_TYPES:                   # 30 Oct 2026 (UL213): the mugs
+        from wenart.blender import mug_parts as MG
+        return MG.parts(dtype, w, d, h, item)
     variant = DP.variant_parts(dtype, w, d, h, item)
     if variant is not None:
         return variant

@@ -347,8 +347,10 @@ def test_the_styling_sets_are_one_mesh_each_inside_their_real_box_in_every_word_
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
         assert x1 - x0 <= w + 1e-6 and y1 - y0 <= d + 1e-6 and z1 - z0 <= h + 1e-6 and abs(z0) < 1e-9, t
         assert {p["key"] for p in parts} <= set(P.MATERIAL_KEYS) and len({p["key"] for p in parts}) >= 2, t
-        # light meshes (UL111); 30 Oct 2026 (UL199): the oil set's three printed labels add 84 vertices
-        assert sum(len(p["verts"]) for p in parts) < 1300, t
+        # light meshes (UL111); 30 Oct 2026 (UL199): the oil set's three printed labels add 84 vertices;
+        # 30 Oct 2026 (UL212): the coffee station's machine is a detailed product (group head, portafilter, gauge,
+        # steam wand, cups on the warmer), still a small mesh beside a bathroom set's 7500
+        assert sum(len(p["verts"]) for p in parts) < (2400 if t == "coffee_station" else 1300), t
 
 
 def _dress(b: dict, family: str) -> list:

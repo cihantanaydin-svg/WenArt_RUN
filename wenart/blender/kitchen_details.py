@@ -875,9 +875,10 @@ STYLING_REASONS: dict[str, str] = {
 BOARD_LEAN_DEG = 8.0              # the cutting boards lean back on the splashback
 
 
-def styling_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
+def styling_parts(dtype: str, w: float, d: float, h: float, item: Optional[dict] = None) -> list[Part]:
     """The parametric styling set of ``dtype`` in its box ``w x d x h`` (bottom on z = 0, front -Y), PBR keys of
-    ``parametric.MATERIAL_KEYS`` (glass, wood, ceramic, steel, dark, terracotta, rattan, fabric, green)."""
+    ``parametric.MATERIAL_KEYS`` (glass, wood, ceramic, steel, dark, terracotta, rattan, fabric, green). ``item``: the
+    decor entry (a coffee station's ``appliance`` finish, UL212)."""
     if dtype == "storage_jars":
         r = max(0.02, min(d / 2.0, w / 6.0) - 0.004)
         parts: list[Part] = []
@@ -934,10 +935,10 @@ def styling_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
         mh = h - bt
         mx = -w / 2.0 + mw / 2.0 + 0.01
         my = d / 2.0 - md / 2.0 - 0.01
-        parts += [P._box(mx, my + 0.03, bt, mw, md - 0.06, mh, "dark", "body"),
-                  P._box(mx, my - md / 2.0 + 0.035, bt, mw * 0.85, 0.07, 0.015, "steel", "tray"),
-                  P._box(mx, my - md / 2.0 + 0.05, bt + mh * 0.55, mw * 0.6, 0.10, mh * 0.12, "steel", "head"),
-                  P._cylinder_z(mx, my - md / 2.0 + 0.045, bt + 0.015, 0.032, 0.032, 0.065, "ceramic", "cup", n=16)]
+        # 30 Oct 2026 (UL212): the station's machine is a real one (appliance_parts) in the kitchen's finish
+        from wenart.blender import appliance_parts as AP
+        machine = AP.coffee_machine(mw, md, mh, AP.finish(None, item))
+        parts += [AP.move(p, mx, my, bt) for p in machine]
         cx = w / 2.0 - 0.07
         for k in range(max(1, min(3, int((h - bt) / 0.068)))):     # stacked cups on their saucers
             zc = bt + k * 0.068
