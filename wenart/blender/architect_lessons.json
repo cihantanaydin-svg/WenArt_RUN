@@ -1512,13 +1512,308 @@
    "id": "UL129",
    "date": "2026-10-30",
    "area": "site",
+   "status": "built",
+   "checks": [
+    "G2",
+    "A2",
+    "B2",
+    "build"
+   ],
+   "request": "These things need fixing also, maybe include some better car models (30 Oct 2026, real04 run 20261029-201533-full: pairs of small stone blocks on the paved terrace by the pools; the parking has one poor car model)",
+   "lesson": "A site element is built only where it makes sense, on every project: a flight up out of a sunken platform onto another surface is cut into that surface (its treads open to the sky, never buried under a drive with only its cheek walls standing as blocks: site.cut_flights); no kerb where another surface abuts the edge (kerb_gaps); a path ends where it arrives at a surface and never runs into a building (path_stop; a terrace's path may end at a drive); a labelled site area held by its drawn surface is built, not lost (Argus C5). A parking gets well-made library cars (textured, at least 15k faces, no toy texture), the front on the long side of the model's own box (site_models.car_frame; the library audit refuses a turn onto a vehicle's side), scaled uniformly into a real car's size (4.2-4.9 x at most 2.1 x 1.25-1.75 m), parked in its bay's direction along the parking's edges near its label, one model per bay. Checks: model review M15 G8, Argus C5.",
+   "question": "Is every object on the paved site a real thing that makes sense where it stands (no stray stone blocks or step pieces on a level paving), and does every drawn parking hold well-made, realistic car models?"
+  },
+  {
+   "id": "UL130",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Terrace does not need table and chairs, maybe only some plants and decor for outside would be enough (30 Oct 2026, real04 run 20261029-201533-full: every terrace got a dining table with two chairs)",
+   "lesson": "A terrace, balcony or roof terrace gets plants in big pots along its walls (groups.yaml balcony: planters options), never a table and chairs the rules add; drawn pieces stay; G6 seats only a real table. Checks: build.",
+   "question": "Does every terrace, balcony or roof terrace stay free of a dining table and chairs the rules add, dressed instead with plants in real planters and outdoor decor (lanterns, an outdoor cushion or throw on a drawn seat), drawn furniture kept?"
+  },
+  {
+   "id": "UL131",
+   "date": "2026-10-30",
+   "area": "library",
    "status": "open",
    "checks": [
     "build"
    ],
-   "request": "These things need fixing also, maybe include some better car models (30 Oct 2026, real04 run 20261029-201533-full: pairs of small stone blocks on the paved terrace by the pools; the parking has one poor car model)",
-   "lesson": "These things need fixing also, maybe include some better car models (30 Oct 2026, real04 run 20261029-201533-full: pairs of small stone blocks on the paved terrace by the pools; the parking has one poor car model)",
-   "question": "Is every object on the paved site a real thing that makes sense where it stands (no stray stone blocks or step pieces on a level paving), and does every drawn parking hold well-made, realistic car models?"
+   "request": "I did not like these sofa models (30 Oct 2026, real04 run 20261029-201533-full: boxy grey sofas with flat faceted back cushions and white piping lines in the living rooms)",
+   "lesson": "I did not like these sofa models (30 Oct 2026, real04 run 20261029-201533-full: boxy grey sofas with flat faceted back cushions and white piping lines in the living rooms)",
+   "question": "Are the sofas, armchairs and other upholstered pieces soft, well-made models (rounded cushions, real seams, a sharp fabric texture), never boxy, faceted or low-detail ones, and is every model the user rejected left out?"
+  },
+  {
+   "id": "UL132",
+   "date": "2026-10-30",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Door frame needs fixing (30 Oct 2026, real04 run 20261029-201533-full, play room door d_L1_001: one black jamb runs up to the sloped ceiling above a 2.10 m leaf, no head)",
+   "lesson": "Door frame needs fixing (30 Oct 2026, real04 run 20261029-201533-full, play room door d_L1_001: one black jamb runs up to the sloped ceiling above a 2.10 m leaf, no head)",
+   "question": "Does every door's frame (both jambs, the head, the architrave) have the same height as its opening and leaf, under the ceiling at the door?"
+  },
+  {
+   "id": "UL133",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "This bed model needs fixing, some sheets etc (30 Oct 2026, real04 run 20261029-201533-full: a library storage bed whose bare white mattress got only our pillows, no duvet, sheet or throw)",
+   "lesson": "This bed model needs fixing, some sheets etc (30 Oct 2026, real04 run 20261029-201533-full: a library storage bed whose bare white mattress got only our pillows, no duvet, sheet or throw)",
+   "question": "Is every bed's mattress dressed with real bedding (a sheet, a duvet with its turned-down band, pillows and a throw), never left as a bare white block, also on a library bed whose own top is a few flat faces?"
+  },
+  {
+   "id": "UL134",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "These things in front of a window need fixing (30 Oct 2026, real04 run 20261029-201533-full: a desk's wall cabinets and shelf and a large picture hang over a window)",
+   "lesson": "These things in front of a window need fixing (30 Oct 2026, real04 run 20261029-201533-full: a desk's wall cabinets and shelf and a large picture hang over a window)",
+   "question": "Does every wall-hung item (art, mirrors, a TV, wall cabinets and shelves, plates) stay clear of the windows and doors of its wall?"
+  },
+  {
+   "id": "UL135",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I like this but the clothes inside need more detail (30 Oct 2026, real04 run 20261029-201533-full: the slatted see-through wardrobe; the garments read as flat coloured strips)",
+   "lesson": "I like this but the clothes inside need more detail (30 Oct 2026, real04 run 20261029-201533-full: the slatted see-through wardrobe; the garments read as flat coloured strips)",
+   "question": "Do the clothes inside every see-through wardrobe read as real garments on hangers (shoulders, sleeves, lengths by type, fabric texture), folded stacks and shoes, lit from inside?"
+  },
+  {
+   "id": "UL136",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I did not like this bed (30 Oct 2026, real04 run 20261029-201533-full: our procedural duvet's sides ripple like melted foam, the turned-down band is a thick slab, the pillows sit crumpled at the headboard)",
+   "lesson": "I did not like this bed (30 Oct 2026, real04 run 20261029-201533-full: our procedural duvet's sides ripple like melted foam, the turned-down band is a thick slab, the pillows sit crumpled at the headboard)",
+   "question": "Does every bed's bedding look like a real made bed: a smooth duvet with gentle natural folds and a straight hem, a thin turned-down sheet band, neat plump pillows standing against the headboard?"
+  },
+  {
+   "id": "UL137",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Head section of this bed needs a rework (30 Oct 2026, real04 run 20261029-201533-full: two flat lying pillows low in front of a tufted headboard, a gap between mattress and headboard, no shams or standing pillows)",
+   "lesson": "Head section of this bed needs a rework (30 Oct 2026, real04 run 20261029-201533-full: two flat lying pillows low in front of a tufted headboard, a gap between mattress and headboard, no shams or standing pillows)",
+   "question": "Is the head of every bed made up: euro shams and pillows standing against its headboard (a headboard with a gap or posts found too), with no bare gap between mattress and headboard?"
+  },
+  {
+   "id": "UL138",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I am guessing these orange things are towels, they need more detail, a lot more detail (30 Oct 2026, real04 run 20261029-201533-full bathroom: rolled towels as faceted cylinders, the hanging towel a flat slab)",
+   "lesson": "I am guessing these orange things are towels, they need more detail, a lot more detail (30 Oct 2026, real04 run 20261029-201533-full bathroom: rolled towels as faceted cylinders, the hanging towel a flat slab)",
+   "question": "Do the towels read as real towels: rolled with a spiral end, folded in soft stacks, hanging over the bar in two layers with a curve, folds and a hem band, in a terry-cloth material?"
+  },
+  {
+   "id": "UL139",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Need to move the picture, TV hiding the picture not making sense (30 Oct 2026, real04 run 20261029-201533-full living room: the TV on its unit covers the bottom of the art hung over the unit)",
+   "lesson": "Need to move the picture, TV hiding the picture not making sense (30 Oct 2026, real04 run 20261029-201533-full living room: the TV on its unit covers the bottom of the art hung over the unit)",
+   "question": "Does every picture or wall item stay fully visible, clear of the TV, of other wall items and of every piece standing in front of its wall?"
+  },
+  {
+   "id": "UL140",
+   "date": "2026-10-30",
+   "area": "library",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I like this sofa but it needs more details, also the gaps need a rework (30 Oct 2026, real04 run 20261029-201533-full: the L corner sofa 3dwh_bc790e2f62189290d277caa7 renders untextured flat white, gaps between its parts)",
+   "lesson": "I like this sofa but it needs more details, also the gaps need a rework (30 Oct 2026, real04 run 20261029-201533-full: the L corner sofa 3dwh_bc790e2f62189290d277caa7 renders untextured flat white, gaps between its parts)",
+   "question": "Does every upholstered library model wear a real fabric (weave texture, sheen, seams), with its parts joined (no gaps opened by the fit), never flat untextured colour?"
+  },
+  {
+   "id": "UL141",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "G2",
+    "A2"
+   ],
+   "request": "This section needs a rework marked with pen (30 Oct 2026, real04 run 20261029-201533-full site: at the foot of an outdoor stair a stone block cuts into the lowest steps)",
+   "lesson": "A flight never meets a wall or a block and ends on a landing or the ground: the path from a flight leaves past its footprint or off a side of its foot landing (that cheek left out: foot_open), every flight is a keep-out of the paths, the paths stay on the plot; a stepped path begins and ends on a landing unless it joins another walk. Check: model review M15 G9.",
+   "question": "Does every outdoor stair meet its landings, walls and planters cleanly (no block or wall cutting into a step, each flight ending on a landing or the ground)?"
+  },
+  {
+   "id": "UL142",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "A4",
+    "G2"
+   ],
+   "request": "This white section needs to go all the way (30 Oct 2026, real04 run 20261029-201533-full: the pale paved strip at the foot of the glazed facade stops halfway, grass runs up to the glass)",
+   "lesson": "The paved strip at the foot of a glazed facade (a light well, its apron) runs the whole glazing run of that facade: the openings of one level on one wall line within 1.5 m of each other; where no well is needed it runs on as an apron on the ground, never over a platform (site.facade_aprons). Check: model review M15 G12.",
+   "question": "Does the paved strip at the foot of a facade run along the whole facade it serves, never stopping halfway with grass up to the glass?"
+  },
+  {
+   "id": "UL143",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "G2",
+    "build"
+   ],
+   "request": "Pool can use some seating furniture, also a ladder to the pool as always (30 Oct 2026, real04 run 20261029-201533-full)",
+   "lesson": "Every pool gets a stainless steel ladder (handrails curving over the coping, treads in the water) on a long side near the house, an end when no long side has the deck; a deck with room gets two sun loungers and a side table facing the water (a pair of lounge chairs on a narrow deck), 1.0 m of free deck kept along the coping and clear of the flights, guards and the house; audited library models made for outside where one fits, else parametric ones (a library gap), every piece added_by_ai and inferred (pool_extras). Check: model review M15 G11.",
+   "question": "Does every pool have a ladder (or steps) into the water and outdoor seating (sun loungers, a side table) on its deck where the deck allows?"
+  },
+  {
+   "id": "UL144",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "G2",
+    "build"
+   ],
+   "request": "These handrails here not making that much sense (30 Oct 2026, real04 run 20261029-201533-full: the outdoor stair's handrails are separate short frames per flight, not one rail along the stair)",
+   "lesson": "An outdoor stair gets one continuous handrail on its open side: 0.9 m over the nosing line, level over the landings, 0.3 m past the first and last step, on posts every 1.2-1.4 m standing on the steps, in the site's metal finish (grading.stair_rail); never a loose frame per flight in the grass. Check: model review M15 G10 (and a stair built flight by flight in the scene manifest).",
+   "question": "Does every outdoor stair have one continuous handrail at 0.9 m over its nosings along its open side, over the landings, with real posts on the stair or its wall and 0.3 m past both ends?"
+  },
+  {
+   "id": "UL145",
+   "date": "2026-10-30",
+   "area": "terrace",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Better handrails in the terrace are needed (30 Oct 2026, real04 run 20261029-201533-full: the top floor roof terrace has only a thin bare metal tube on its parapet)",
+   "lesson": "Better handrails in the terrace are needed (30 Oct 2026, real04 run 20261029-201533-full: the top floor roof terrace has only a thin bare metal tube on its parapet)",
+   "question": "Does every terrace or balcony edge have a real guard 1.0-1.1 m high (a glass balustrade with a metal top rail, or balusters under a handrail) in the facade's finish, never a thin bare tube?"
+  },
+  {
+   "id": "UL146",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This is a good inspiration (30 Oct 2026, photo P14: a bedroom with slatted wall panels, an upholstered bed with layered bedding, round two-drawer nightstands, a line-art print pair, a linear chandelier, a glass bedside pendant, black track lights, a venetian blind, a dressing desk with an arched mirror, black open shelving, herringbone floor)",
+   "lesson": "This is a good inspiration (30 Oct 2026, photo P14: a bedroom with slatted wall panels, an upholstered bed with layered bedding, round two-drawer nightstands, a line-art print pair, a linear chandelier, a glass bedside pendant, black track lights, a venetian blind, a dressing desk with an arched mirror, black open shelving, herringbone floor)",
+   "question": "Do the bedrooms reach the P14 reference where their family allows: slatted wall panels, an upholstered bed with layered bedding, round nightstands with styled tops, a print pair over the bed, a linear chandelier or bedside pendants, track lights, a blind with the curtains, a dressing desk with an arched mirror and open shelving?"
+  },
+  {
+   "id": "UL147",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "good inspiration photo for the kitchen (30 Oct 2026, the P5 kitchen photo again, after real04 run 20261029-201533-full: its kitchen has short white slab base fronts, fluted uppers that stop short of the ceiling with wall gaps between them, no tall-unit column with a built-in fridge and oven tower, a sparse worktop, seams across the stone worktop, a sink that reads blue)",
+   "lesson": "good inspiration photo for the kitchen (30 Oct 2026, the P5 kitchen photo again, after real04 run 20261029-201533-full: its kitchen has short white slab base fronts, fluted uppers that stop short of the ceiling with wall gaps between them, no tall-unit column with a built-in fridge and oven tower, a sparse worktop, seams across the stone worktop, a sink that reads blue)",
+   "question": "Does every kitchen reach the P5 reference where its family allows: wall units up to the ceiling with no bare band or gaps, a tall-unit column (built-in fridge, oven tower) at a free run end, warm framed or fluted fronts, one stone slab per run, a styled worktop, an integrated dishwasher?"
+  },
+  {
+   "id": "UL148",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "this seems to be coming from the outside texture, it is in the kitchen (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1 and _3: a vertical strip of the facade's stacked stone stands inside the kitchen between the window jamb and the splashback, from the worktop to the ceiling)",
+   "lesson": "this seems to be coming from the outside texture, it is in the kitchen (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1 and _3: a vertical strip of the facade's stacked stone stands inside the kitchen between the window jamb and the splashback, from the worktop to the ceiling)",
+   "question": "Does any outside material (facade stone, a site retaining wall, its coping, paving or a kerb) show inside a room, or come through a wall of the house?"
+  },
+  {
+   "id": "UL149",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "this wall seems like missing the texture (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1: the stone splashback stops short of the kitchen's inside corner, a bare painted patch behind the microwave where two counter runs meet)",
+   "lesson": "this wall seems like missing the texture (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1: the stone splashback stops short of the kitchen's inside corner, a bare painted patch behind the microwave where two counter runs meet)",
+   "question": "Does every splashback run along its wall into the inside corner where two counter runs meet, with no bare painted patch behind the worktop?"
+  },
+  {
+   "id": "UL150",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "if this is a washing machine it can be modeled properly (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1/_2/_3: the dishwasher beside the sink is a bare blue-grey slab with one long bar, read as an unknown appliance)",
+   "lesson": "if this is a washing machine it can be modeled properly (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1/_2/_3: the dishwasher beside the sink is a bare blue-grey slab with one long bar, read as an unknown appliance)",
+   "question": "Is every kitchen appliance a real-looking product (a dishwasher integrated behind a matching front, or a steel one with its control strip and handle), never a bare coloured slab?"
+  },
+  {
+   "id": "UL151",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "this vase on the floor not making sense (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_2: a small table vase with pink flowers stands on the kitchen floor in the corner beside the counter)",
+   "lesson": "this vase on the floor not making sense (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_2: a small table vase with pink flowers stands on the kitchen floor in the corner beside the counter)",
+   "question": "Does every tabletop decor item (a small vase, flowers, bowls, books, candles) stand on a surface, never on the floor?"
+  },
+  {
+   "id": "UL152",
+   "date": "2026-10-30",
+   "area": "terrace",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "teras inspiration (30 Oct 2026, photo P15: a terrace lounge by black-framed sliding glass doors: grey slatted outdoor armchairs and sofa with thick white cushions and white scatter cushions, a big round woven pouf, a small round terrazzo-top side table on a wood drum with a sculpture and books, a light wood deck)",
+   "lesson": "teras inspiration (30 Oct 2026, photo P15: a terrace lounge by black-framed sliding glass doors: grey slatted outdoor armchairs and sofa with thick white cushions and white scatter cushions, a big round woven pouf, a small round terrazzo-top side table on a wood drum with a sculpture and books, a light wood deck)",
+   "question": "Do the larger terraces reach the P15 reference: an outdoor lounge set (slatted armchairs or a sofa with thick cushions, a woven pouf, a small round side table with a sculpture and books) on a warm deck, plants in big pots, no dining table and chairs?"
+  },
+  {
+   "id": "UL153",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "salon inspiration (30 Oct 2026, photo P16: a living-dining room: full-height handle-less wall panels with a black-lined lit niche, a very large framed line-art print over a plank wood dining table on black trapezoid legs, green velvet chairs, a fringed rug, black ceiling track spots with mini pendants over the table, black round wall discs, a TV on a plain wall over a low floating wood console with a black fluted strip, tall narrow black-lined lit shelf niches beside it, a black slat column by the passage, two sculptural boucle armchairs, a round travertine drum coffee table, a round striped rug, sheer curtains, herringbone oak)",
+   "lesson": "salon inspiration (30 Oct 2026, photo P16: a living-dining room: full-height handle-less wall panels with a black-lined lit niche, a very large framed line-art print over a plank wood dining table on black trapezoid legs, green velvet chairs, a fringed rug, black ceiling track spots with mini pendants over the table, black round wall discs, a TV on a plain wall over a low floating wood console with a black fluted strip, tall narrow black-lined lit shelf niches beside it, a black slat column by the passage, two sculptural boucle armchairs, a round travertine drum coffee table, a round striped rug, sheer curtains, herringbone oak)",
+   "question": "Do the living-dining rooms reach the P16 reference where their family allows: handle-less full-height wall panels with a lit niche, a very large framed print, a plank table with a fringed rug, track spots with mini pendants, a TV over a low floating console with lit shelf niches beside it, sculptural armchairs, a round stone coffee table on a round rug, sheer curtains?"
   }
  ]
 }

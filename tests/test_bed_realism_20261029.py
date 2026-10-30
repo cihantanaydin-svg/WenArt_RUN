@@ -676,3 +676,30 @@ def test_real06_beds_get_their_scandinavian_set_and_sides():
     print("  U34 on the run as built: " + "; ".join(f"{g['target']} {g['problem']}" for g in got))
     assert {g["target"] for g in got if g["problem"] == "too_few_pillows"} == {"f_L1_010", "f_L1_013"}
     assert not [g for g in got if g["target"] in ("f_L1_004", "f_L1_007")]           # made up: kept, no throw by design
+
+
+def test_a_storage_bed_with_a_bare_mattress_gets_the_full_set():
+    """30 Oct 2026 (user on real04 run 20261029-201533-full: "this bed model needs fixing some sheets etc"): a storage
+    bed whose mattress is a box of a few big faces over drawers was read as a folded duvet (its middle cells held only
+    the drawers' vertices) and got our pillows only; a headboard alone is no pillow set."""
+    asset = {"has_bedding": True, "has_pillows": True}
+    mv, mf = geom2d.box((BED_C[0], BED_C[1], 0.40), (1.6, 2.0, 0.20))                  # top at 0.50 m, 6 faces
+    tris = [[q[0], q[k], q[k + 1]] for q in mf for k in range(1, len(q) - 1)]
+    mattress = np.concatenate([np.asarray(mv), BP.surface_samples(mv, tris)])     # as _evaluated_world_points
+    xs, ys = np.meshgrid(np.linspace(-0.7, 0.7, 30), np.linspace(-0.9, 0.6, 30), indexing="ij")
+    drawers = np.stack([xs + BED_C[0], ys + BED_C[1], 0.02 + 0.11 * ((xs * 7).astype(int) % 2)], axis=-1)
+    headboard = np.asarray(geom2d.box((BED_C[0], BED_C[1] + 0.97, 0.6), (1.6, 0.06, 1.2))[0])
+    verts = np.concatenate([mattress, drawers.reshape(-1, 3), headboard])
+    rel = BP.bedding_relief(verts, BED_C, 0.0, (1.6, 2.0))
+    assert rel["top_m"] == pytest.approx(0.50, abs=0.01) and rel["relief_m"] < BP.RELIEF_MIN_M
+    mode, why = BP.dress_mode(asset, rel)
+    assert mode == "full" and "flat" in why                                     # our duvet, sheet band and throw
+    # without the samples the drawers under the mattress were read as a folded duvet
+    drawers_only = BP.bedding_relief(np.concatenate([np.asarray(mv), drawers.reshape(-1, 3), headboard]), BED_C,
+                                     0.0, (1.6, 2.0))
+    assert drawers_only["top_m"] < 0.2
+    # a made-up bed keeps its own bedding; the same duvet with a headboard and no pillows gets our pillows
+    made = BP.bedding_relief(np.concatenate([_top_grid(0.15, 0.012), headboard]), BED_C, 0.0, (1.6, 2.0))
+    assert BP.dress_mode(asset, made)[0] is None
+    bare = BP.bedding_relief(np.concatenate([_top_grid(0.0, 0.012), headboard]), BED_C, 0.0, (1.6, 2.0))
+    assert bare["pillow_vertices"] < BP.PILLOW_VERTS_MIN and BP.dress_mode(asset, bare)[0] == "pillows"

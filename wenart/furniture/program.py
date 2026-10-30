@@ -35,7 +35,7 @@ How:
 | wc | wc set |
 | hall | entrance (shoe cabinet / console) from 2.5 m² when the hall is 1.10 m wide |
 | other | work from 6 m² |
-| balcony | balcony (table + 2 chairs) from 2.5 m² |
+| balcony | balcony (plants in big pots, no table and chairs: UL130) from 2.5 m² |
 
    Stair rooms, shafts, prayer rooms and rooms the brief switches off get no group (``reason`` says why).
    23 Oct 2026 (user: "increase the group furniture options 10x"): each row also gets the group's *extra* options
@@ -516,8 +516,8 @@ def _core_rows(kind: str, area: float, polygon: Polygon, building: dict, room: d
         if area >= 6.0:
             rows.append(("work", False, ["desk"]))
     elif kind == "balcony":
-        if area >= 2.5:
-            rows.append(("balcony", False, ["table_2_chairs"]))
+        if area >= 2.5:                     # 30 Oct 2026 (UL130): plants in big pots, no table and chairs
+            rows.append(("balcony", False, ["planters"]))
     elif kind == "dressing":
         # 26 Oct 2026: a dressing room or walk-in closet: wardrobe runs along its free walls (groups.yaml dressing)
         rows.append(("dressing", True, ["wardrobe_runs"]))

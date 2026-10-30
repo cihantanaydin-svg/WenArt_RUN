@@ -1,0 +1,1290 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "real04",
+  "brief": {
+   "style": "Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight",
+   "style_photos": [
+    "living_reference.jpg"
+   ],
+   "library": {
+    "licence_mode": "relaxed"
+   }
+  },
+  "licence_mode": "relaxed"
+ },
+ "_source": "runs/20261029-201533-full/results/furniture/real04/building_furnished.json (rooms r_L-1_mutfak)",
+ "levels": [
+  {
+   "id": "L-1",
+   "label": "Bodrum Kat",
+   "order": -1,
+   "elevation": -3.0,
+   "ceiling_height": 2.85,
+   "ceiling_height_source": "section",
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:36A77",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI BRÜT 92 M2",
+     "region_id": "r11"
+    }
+   ],
+   "label_source": "title",
+   "kind": "basement",
+   "variant_group": "vg_L-1",
+   "variant": "base",
+   "variant_slug": "base",
+   "base_level_id": null,
+   "region_id": "r11",
+   "elevation_source": "section",
+   "floor_to_floor": {
+    "value": 3.0,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "deneme1.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:3AC67",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "slab_bands",
+      "region_id": "r19"
+     }
+    ]
+   }
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L-1_001",
+   "level_id": "L-1",
+   "start": [
+    0.0001,
+    0.1011
+   ],
+   "end": [
+    15.1721,
+    0.1011
+   ],
+   "thickness": 0.2,
+   "height": 2.85,
+   "exterior": true,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_002",
+   "level_id": "L-1",
+   "start": [
+    0.2001,
+    7.0931
+   ],
+   "end": [
+    3.2421,
+    7.0931
+   ],
+   "thickness": 0.1,
+   "height": 2.85,
+   "exterior": false,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_003",
+   "level_id": "L-1",
+   "start": [
+    11.9301,
+    7.0931
+   ],
+   "end": [
+    14.9721,
+    7.0931
+   ],
+   "thickness": 0.1,
+   "height": 2.85,
+   "exterior": false,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_004",
+   "level_id": "L-1",
+   "start": [
+    4.6181,
+    7.5081
+   ],
+   "end": [
+    10.5541,
+    7.5081
+   ],
+   "thickness": 0.17,
+   "height": 2.85,
+   "exterior": false,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_005",
+   "level_id": "L-1",
+   "start": [
+    4.6181,
+    9.8351
+   ],
+   "end": [
+    10.5541,
+    9.8351
+   ],
+   "thickness": 0.2,
+   "height": 2.85,
+   "exterior": false,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_006",
+   "level_id": "L-1",
+   "start": [
+    0.0001,
+    11.9011
+   ],
+   "end": [
+    15.1721,
+    11.9011
+   ],
+   "thickness": 0.2,
+   "height": 2.85,
+   "exterior": true,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_007",
+   "level_id": "L-1",
+   "start": [
+    0.1001,
+    0.2009
+   ],
+   "end": [
+    0.1001,
+    11.8011
+   ],
+   "thickness": 0.2,
+   "height": 2.85,
+   "exterior": true,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_008",
+   "level_id": "L-1",
+   "start": [
+    3.1701,
+    8.1451
+   ],
+   "end": [
+    3.1701,
+    11.8011
+   ],
+   "thickness": 0.095,
+   "height": 2.85,
+   "exterior": false,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_009",
+   "level_id": "L-1",
+   "start": [
+    3.1921,
+    7.1431
+   ],
+   "end": [
+    3.1921,
+    8.1451
+   ],
+   "thickness": 0.1,
+   "height": 2.85,
+   "exterior": false,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_010",
+   "level_id": "L-1",
+   "start": [
+    4.6681,
+    9.9351
+   ],
+   "end": [
+    4.6681,
+    11.8011
+   ],
+   "thickness": 0.1,
+   "height": 2.85,
+   "exterior": false,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_011",
+   "level_id": "L-1",
+   "start": [
+    7.5861,
+    0.2011
+   ],
+   "end": [
+    7.5861,
+    11.8011
+   ],
+   "thickness": 0.4,
+   "height": 2.85,
+   "exterior": false,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_012",
+   "level_id": "L-1",
+   "start": [
+    10.5041,
+    9.9351
+   ],
+   "end": [
+    10.5041,
+    11.8011
+   ],
+   "thickness": 0.1,
+   "height": 2.85,
+   "exterior": false,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_013",
+   "level_id": "L-1",
+   "start": [
+    11.9801,
+    7.1431
+   ],
+   "end": [
+    11.9801,
+    8.1451
+   ],
+   "thickness": 0.1,
+   "height": 2.85,
+   "exterior": false,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_014",
+   "level_id": "L-1",
+   "start": [
+    12.0041,
+    8.1451
+   ],
+   "end": [
+    12.0041,
+    11.8011
+   ],
+   "thickness": 0.1,
+   "height": 2.85,
+   "exterior": false,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "w_L-1_015",
+   "level_id": "L-1",
+   "start": [
+    15.0721,
+    0.2009
+   ],
+   "end": [
+    15.0721,
+    11.8011
+   ],
+   "thickness": 0.2,
+   "height": 2.85,
+   "exterior": true,
+   "status": "verified",
+   "evidence": []
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L-1_001",
+   "type": "door",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_010",
+   "center": [
+    4.6681,
+    10.9911
+   ],
+   "width": 0.824,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L-1_banyo",
+   "status": "verified",
+   "operation": "swing",
+   "threshold_z": -3.0,
+   "evidence": []
+  },
+  {
+   "id": "d_L-1_002",
+   "type": "door",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_012",
+   "center": [
+    10.5041,
+    10.9911
+   ],
+   "width": 0.824,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L-1_banyo_2",
+   "status": "verified",
+   "operation": "swing",
+   "threshold_z": -3.0,
+   "evidence": []
+  },
+  {
+   "id": "d_L-1_003",
+   "type": "door",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_009",
+   "center": [
+    3.1921,
+    7.7391
+   ],
+   "width": 0.812,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L-1_mutfak",
+   "status": "verified",
+   "operation": "swing",
+   "threshold_z": -3.0,
+   "evidence": []
+  },
+  {
+   "id": "d_L-1_004",
+   "type": "door",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_013",
+   "center": [
+    11.9801,
+    7.7391
+   ],
+   "width": 0.812,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L-1_mutfak_2",
+   "status": "verified",
+   "operation": "swing",
+   "threshold_z": -3.0,
+   "evidence": []
+  },
+  {
+   "id": "win_L-1_001",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_001",
+   "center": [
+    3.7935,
+    0.1011
+   ],
+   "width": 7.1861,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "win_L-1_002",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_001",
+   "center": [
+    11.3796,
+    0.1011
+   ],
+   "width": 7.1861,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "win_L-1_003",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_007",
+   "center": [
+    0.1001,
+    9.5223
+   ],
+   "width": 4.1573,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "win_L-1_004",
+   "type": "window",
+   "level_id": "L-1",
+   "wall_id": "w_L-1_015",
+   "center": [
+    15.0721,
+    9.5223
+   ],
+   "width": 4.1573,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "o_L-1_001",
+   "type": "opening",
+   "level_id": "L-1",
+   "wall_id": null,
+   "center": [
+    3.9301,
+    7.5081
+   ],
+   "width": 1.376,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": []
+  },
+  {
+   "id": "o_L-1_002",
+   "type": "opening",
+   "level_id": "L-1",
+   "wall_id": null,
+   "center": [
+    11.2421,
+    7.5081
+   ],
+   "width": 1.376,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": []
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L-1_mutfak",
+   "level_id": "L-1",
+   "label": "Mutfak",
+   "label_raw": "MUTFAK",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     0.2001,
+     7.1431
+    ],
+    [
+     3.1421,
+     7.1431
+    ],
+    [
+     3.1421,
+     8.1451
+    ],
+    [
+     3.1226,
+     8.1451
+    ],
+    [
+     3.1226,
+     11.8011
+    ],
+    [
+     0.2001,
+     11.8011
+    ]
+   ],
+   "area_computed": 13.633,
+   "area_label": 14.5,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "evidence": []
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L-1_001",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.822,
+     9.9731
+    ],
+    "size": [
+     3.6556,
+     0.6
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "module",
+    "asset_id": "module:kitchen_counter:kitchen_run",
+    "method": "module",
+    "bbox_m": [
+     3.6556,
+     0.6,
+     0.9
+    ],
+    "by_design": true,
+    "style_family": null
+   },
+   "status": "verified",
+   "type_method": "rule",
+   "build": true,
+   "counter_run": {
+    "wall_id": "w_L-1_006",
+    "strokes": [
+     "LWPOLYLINE:361A1"
+    ]
+   },
+   "group": {
+    "group_id": "r_L-1_mutfak.kitchen_run",
+    "group": "kitchen_run",
+    "role": "anchor",
+    "anchor_id": "f_L-1_001"
+   },
+   "design": {
+    "front_style": "flat",
+    "handle": "black",
+    "worktop": "stone"
+   }
+  },
+  {
+   "id": "f_L-1_002",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.3613,
+     11.501
+    ],
+    "size": [
+     2.3213,
+     0.5999
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "module",
+    "asset_id": "module:kitchen_counter:kitchen_run",
+    "method": "module",
+    "bbox_m": [
+     2.3213,
+     0.5999,
+     0.9
+    ],
+    "by_design": true,
+    "style_family": null
+   },
+   "status": "verified",
+   "type_method": "rule",
+   "build": true,
+   "counter_run": {
+    "wall_id": "w_L-1_006",
+    "strokes": [
+     "LWPOLYLINE:361A1"
+    ]
+   },
+   "group": {
+    "group_id": "r_L-1_mutfak.kitchen_run",
+    "group": "kitchen_run",
+    "role": "partner",
+    "anchor_id": "f_L-1_001"
+   },
+   "design": {
+    "front_style": "flat",
+    "handle": "black",
+    "worktop": "stone"
+   }
+  },
+  {
+   "id": "f_L-1_003",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.5007,
+     10.2627
+    ],
+    "size": [
+     1.8766,
+     0.6
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "module",
+    "asset_id": "module:kitchen_counter:kitchen_run",
+    "method": "module",
+    "bbox_m": [
+     1.8766,
+     0.6,
+     0.9
+    ],
+    "by_design": true,
+    "style_family": null
+   },
+   "status": "verified",
+   "type_method": "rule",
+   "build": true,
+   "counter_run": {
+    "wall_id": "w_L-1_007",
+    "strokes": [
+     "LWPOLYLINE:361A1"
+    ]
+   },
+   "group": {
+    "group_id": "r_L-1_mutfak.kitchen_run",
+    "group": "kitchen_run",
+    "role": "partner",
+    "anchor_id": "f_L-1_001"
+   },
+   "design": {
+    "front_style": "flat",
+    "handle": "black",
+    "worktop": "stone"
+   }
+  },
+  {
+   "id": "f_L-1_004",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.5007,
+     8.234
+    ],
+    "size": [
+     2.1808,
+     0.6
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "module",
+    "asset_id": "module:kitchen_counter:kitchen_run",
+    "method": "module",
+    "bbox_m": [
+     2.1808,
+     0.6,
+     0.9
+    ],
+    "by_design": true,
+    "style_family": null
+   },
+   "status": "verified",
+   "type_method": "rule",
+   "build": true,
+   "counter_run": {
+    "wall_id": "w_L-1_002",
+    "strokes": [
+     "LWPOLYLINE:36600"
+    ]
+   },
+   "group": {
+    "group_id": "r_L-1_mutfak.kitchen_run",
+    "group": "kitchen_run",
+    "role": "partner",
+    "anchor_id": "f_L-1_001"
+   },
+   "design": {
+    "front_style": "flat",
+    "handle": "black",
+    "worktop": "stone"
+   }
+  },
+  {
+   "id": "f_L-1_005",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.8111,
+     8.5474
+    ],
+    "size": [
+     0.6218,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "method": "parametric",
+    "bbox_m": [
+     0.6218,
+     0.6,
+     0.8
+    ],
+    "style_family": null
+   },
+   "status": "unverified",
+   "type_method": "none",
+   "build": false,
+   "not_built_reason": "detail inside a kitchen counter leg (an appliance front or drawers, M11 split): not built"
+  },
+  {
+   "id": "f_L-1_006",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.9151,
+     7.9812
+    ],
+    "size": [
+     0.4466,
+     0.229
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "method": "parametric",
+    "bbox_m": [
+     0.4466,
+     0.229,
+     0.8
+    ],
+    "style_family": null
+   },
+   "status": "unverified",
+   "type_method": "none",
+   "build": false,
+   "inferred": true,
+   "inferred_as": "decor",
+   "inferred_reason": "drawn on the 'Deko_Ahsap01' layer(s): decor, not furniture (the decor stage places decor)"
+  },
+  {
+   "id": "f_L-1_007",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.9151,
+     8.6974
+    ],
+    "size": [
+     0.4466,
+     0.229
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "method": "parametric",
+    "bbox_m": [
+     0.4466,
+     0.229,
+     0.8
+    ],
+    "style_family": null
+   },
+   "status": "unverified",
+   "type_method": "none",
+   "build": false,
+   "inferred": true,
+   "inferred_as": "decor",
+   "inferred_reason": "drawn on the 'Deko_Ahsap01' layer(s): decor, not furniture (the decor stage places decor)"
+  },
+  {
+   "id": "f_L-1_008",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "stove",
+   "type_raw": "ocak_",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.5832,
+     11.4681
+    ],
+    "size": [
+     0.75,
+     0.5491
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "module",
+    "asset_id": "module:kitchen_counter:kitchen_run",
+    "method": "module",
+    "bbox_m": [
+     0.75,
+     0.5491,
+     0.908
+    ],
+    "built_in": "f_L-1_002",
+    "by_design": true,
+    "style_family": null
+   },
+   "status": "verified",
+   "type_method": "block_name",
+   "build": true,
+   "group": {
+    "group_id": "r_L-1_mutfak.kitchen_run",
+    "group": "kitchen_run",
+    "role": "partner",
+    "anchor_id": "f_L-1_001"
+   }
+  },
+  {
+   "id": "f_L-1_009",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "sink_kitchen",
+   "type_raw": "tekil_villa_evye",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.4521,
+     10.2601
+    ],
+    "size": [
+     0.5087,
+     0.1115
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "none",
+    "asset_id": "none:sink_kitchen",
+    "method": "none",
+    "bbox_m": [
+     0.5087,
+     0.1115,
+     1.15
+    ],
+    "style_family": null
+   },
+   "status": "unverified",
+   "type_method": "block_name",
+   "build": false,
+   "inferred": true,
+   "inferred_as": "detail",
+   "inferred_reason": "drawn inside the sink_kitchen f_L-1_067 (60% or more of it): the same piece drawn twice, or a part of it (not built)",
+   "library_gap": {
+    "type": "sink_kitchen",
+    "style": null,
+    "step": "none",
+    "used": "nothing (not built)",
+    "reason": "the piece is not built (build false): no model is searched"
+   }
+  },
+  {
+   "id": "f_L-1_067",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "sink_kitchen",
+   "type_raw": "tekil_villa_evye",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.4507,
+     10.2601
+    ],
+    "size": [
+     0.7885,
+     0.5
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "module",
+    "asset_id": "module:kitchen_counter:kitchen_run",
+    "method": "module",
+    "bbox_m": [
+     0.7885,
+     0.5,
+     1.15
+    ],
+    "built_in": "f_L-1_003",
+    "by_design": true,
+    "style_family": null
+   },
+   "status": "verified",
+   "type_method": "block_name",
+   "build": true,
+   "group": {
+    "group_id": "r_L-1_mutfak.kitchen_run",
+    "group": "kitchen_run",
+    "role": "partner",
+    "anchor_id": "f_L-1_001"
+   }
+  },
+  {
+   "id": "f_L-1_081",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "sink_kitchen",
+   "type_raw": "tekil_villa_evye",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.4507,
+     10.0697
+    ],
+    "size": [
+     0.3478,
+     0.44
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "none",
+    "asset_id": "none:sink_kitchen",
+    "method": "none",
+    "bbox_m": [
+     0.3478,
+     0.44,
+     1.15
+    ],
+    "style_family": null
+   },
+   "status": "verified",
+   "type_method": "block_name",
+   "build": false,
+   "inferred": true,
+   "front_inferred": "its back stands on the only side on a wall",
+   "inferred_reason": "drawn inside the sink_kitchen f_L-1_067 (60% or more of it): the same piece drawn twice, or a part of it (not built)",
+   "inferred_as": "detail",
+   "library_gap": {
+    "type": "sink_kitchen",
+    "style": null,
+    "step": "none",
+    "used": "nothing (not built)",
+    "reason": "the piece is not built (build false): no model is searched"
+   }
+  },
+  {
+   "id": "f_L-1_083",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "sink_kitchen",
+   "type_raw": "tekil_villa_evye",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.4507,
+     10.4504
+    ],
+    "size": [
+     0.3478,
+     0.44
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "none",
+    "asset_id": "none:sink_kitchen",
+    "method": "none",
+    "bbox_m": [
+     0.3478,
+     0.44,
+     1.15
+    ],
+    "style_family": null
+   },
+   "status": "verified",
+   "type_method": "block_name",
+   "build": false,
+   "inferred": true,
+   "front_inferred": "its back stands on the only side on a wall",
+   "inferred_reason": "drawn inside the sink_kitchen f_L-1_067 (60% or more of it): the same piece drawn twice, or a part of it (not built)",
+   "inferred_as": "detail",
+   "library_gap": {
+    "type": "sink_kitchen",
+    "style": null,
+    "step": "none",
+    "used": "nothing (not built)",
+    "reason": "the piece is not built (build false): no model is searched"
+   }
+  },
+  {
+   "id": "f_L-1_085",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.972,
+     11.7009
+    ],
+    "size": [
+     0.3,
+     0.2
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "method": "parametric",
+    "bbox_m": [
+     0.3,
+     0.2,
+     0.8
+    ],
+    "style_family": null
+   },
+   "status": "unverified",
+   "type_method": "none",
+   "build": false
+  },
+  {
+   "id": "f_L-1_090",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "fridge",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     0.5007,
+     8.9936
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.82,
+   "asset": null,
+   "status": "verified",
+   "method": "rule",
+   "completes_room": true,
+   "built_into": "f_L-1_004",
+   "built_in": {
+    "kind": "fridge",
+    "host": "f_L-1_004",
+    "x_m": 0.7596,
+    "w_m": 0.6,
+    "landings_m": [
+     1.55,
+     0.011
+    ],
+    "reason": "no floor place for a fridge beside the run passes the checks (no place passes the checks): a 0.60 m under-counter fridge built into the drawn counter f_L-1_004, 1.55 m of counter beside it; the counter is not moved"
+   },
+   "group": {
+    "group_id": "r_L-1_mutfak.kitchen_run",
+    "group": "kitchen_run",
+    "role": "partner",
+    "anchor_id": "f_L-1_001"
+   }
+  },
+  {
+   "id": "f_L-1_091",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "wall_cabinet",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     2.9476,
+     10.123
+    ],
+    "size": [
+     3.3558,
+     0.35
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": 0.7,
+   "asset": null,
+   "status": "verified",
+   "completes_room": true,
+   "method": "rule",
+   "mount_bottom_m": 1.45,
+   "rule": {
+    "run": "f_L-1_001",
+    "z": [
+     1.45,
+     2.15
+    ],
+    "ends": [
+     "corner_blind",
+     "door"
+    ]
+   },
+   "design": {
+    "front_style": "flat",
+    "handle": "black"
+   }
+  },
+  {
+   "id": "f_L-1_092",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "wall_cabinet",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     0.8592,
+     11.6261
+    ],
+    "size": [
+     0.6981,
+     0.35
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.7,
+   "asset": null,
+   "status": "verified",
+   "completes_room": true,
+   "method": "rule",
+   "mount_bottom_m": 1.45,
+   "rule": {
+    "run": "f_L-1_002",
+    "z": [
+     1.45,
+     2.15
+    ],
+    "ends": [
+     "window",
+     "hood"
+    ]
+   },
+   "design": {
+    "front_style": "flat",
+    "handle": "black"
+   }
+  },
+  {
+   "id": "f_L-1_093",
+   "level_id": "L-1",
+   "room_id": "r_L-1_mutfak",
+   "type": "wall_cabinet",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     2.3654,
+     11.6261
+    ],
+    "size": [
+     0.8144,
+     0.35
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.7,
+   "asset": null,
+   "status": "verified",
+   "completes_room": true,
+   "method": "rule",
+   "mount_bottom_m": 1.45,
+   "rule": {
+    "run": "f_L-1_002",
+    "z": [
+     1.45,
+     2.15
+    ],
+    "ends": [
+     "hood",
+     "corner_butt"
+    ]
+   },
+   "design": {
+    "front_style": "flat",
+    "handle": "black"
+   }
+  }
+ ]
+}

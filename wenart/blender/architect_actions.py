@@ -118,6 +118,10 @@ ACTIONS = {
     # 29 Oct 2026 (user on real06: "This washing machine would not open", "this sink not making sense there"): F4, H2
     "free_front": "a front read the wrong way round: the piece turns on its wall to its free side (its back on a wall), "
                   "else moves at most 0.5 m, so its door or drawers open",
+    # 30 Oct 2026 (real04 run 20261029-201533-full: drawn wardrobes with drawn desks 0.17 m before their doors): F4
+    "clear_front": "the safest move that lets the door or drawers open: the piece slid along its wall or turned, or "
+                   "the piece in front of it slid along its wall or turned with what belongs to it (its chair), at "
+                   "most 0.5 m, every code check passed (drawn values kept)",
     "clear_basin": "the basin moves to the nearest solid stretch of wall of its room (along its wall or onto another "
                    "one) for its mirror, at most 0.5 m (params: max_move_m; farther only with your OK)",
     "basin_sill": "a bathroom window over the basin: its sill raised to 1.25 m (the head kept), clear of the tap; the "
@@ -1714,6 +1718,36 @@ def act_free_front(plan: Plan, key: str, ans: dict, piece_id: str):
     return True, f"{piece_id}: {fix['reason']}"
 
 
+def act_clear_front(plan: Plan, key: str, ans: dict, piece_id: str):
+    """F4 (30 Oct 2026, real04 run 20261029-201533-full): a door-fronted piece whose door or drawers cannot open gets
+    the safest move that clears it (``fixture_use.clear_front``: the piece slid along its wall or turned, or the piece
+    in front of it slid along its wall or turned with its unit, at most 0.5 m; inside the room, clear of the other
+    pieces, the doorways and the windows, every other front still free). Each moved piece keeps its drawn values and
+    is ``adjusted_by_ai`` by the architect with the reason (``_place_piece``)."""
+    from wenart.furniture import fixture_use as FU
+
+    f = _piece(plan, piece_id)
+    if f is None or not f.get("footprint"):
+        return False, f"no piece {piece_id}"
+    room = plan.room.get(f.get("room_id"))
+    if room is None:
+        return False, f"{piece_id}: no room"
+    here = _room_pieces(plan, f)
+    if FU.piece_access(f, room["polygon"], here, storage=True) is None:
+        return True, f"{piece_id}: its door opens (free in front)"
+    fix = FU.clear_front(f, room["polygon"], here, blocked=_door_blocked(plan, f.get("level_id")),
+                         openings=list(plan.openings.values()), walls=plan.walls)
+    if fix is None:
+        return False, (f"{piece_id}: no move of it or of what stands in front of it within {FU.MOVE_MAX_M:.2f} m "
+                       "passes the code checks")
+    for mv in fix["moves"]:
+        g = _piece(plan, mv["id"])
+        if g is not None:
+            _place_piece(plan, g, {"footprint": mv["footprint"], "front_deg": mv["front_deg"], "reason": mv["reason"]},
+                         key, ans)
+    return True, f"{piece_id}: {fix['reason']}"
+
+
 def act_clear_basin(plan: Plan, key: str, ans: dict, piece_id: str, max_move=None):
     """H2 (29 Oct 2026): a basin under a low window moved to the nearest solid stretch of wall of its room (along its
     wall or onto another one), at most 0.5 m; farther (``max_move``) only on the user's own answer (CLAUDE.md: a drawn
@@ -2238,6 +2272,8 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                     ok, text = act_tall_window(plan, key, ans, params.get("room_id") or target)
                 elif opt == "free_front":
                     ok, text = act_free_front(plan, key, ans, params.get("piece_id") or target)
+                elif opt == "clear_front":
+                    ok, text = act_clear_front(plan, key, ans, params.get("piece_id") or target)
                 elif opt == "clear_basin":
                     ok, text = act_clear_basin(plan, key, ans, params.get("piece_id") or target,
                                                params.get("max_move_m"))

@@ -3455,6 +3455,24 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
                 pf["kerb_gaps"] = gaps
                 pf["reason"] += (f"; no kerb along {sum(g[2] - g[1] for g in gaps):.1f} m of its edges where another "
                                  f"surface abuts it (its wall, coping or paving is the edge there; inferred)")
+    # 30 Oct 2026 (UL148): no retaining wall or coping enters the building: the stretches of an edge where they would
+    # are cut out (``wall_cuts``, read by ``platform_parts``), each recorded in the reason
+    for pf in every:
+        if pf.get("sloped") or pf.get("elevated") or not keep:
+            continue
+        poly = geom2d.ccw(pf["polygon"])
+        skip = set(pf.get("shared_edges") or []) | set(pf.get("against_edges") or [])
+        cuts = {}
+        for i in range(len(poly)):
+            if i not in skip:
+                spans = wall_cut_spans(poly[i], poly[(i + 1) % len(poly)], keep)
+                if spans:
+                    cuts[str(i)] = spans
+        if cuts:
+            pf["wall_cuts"] = cuts
+            pf["reason"] += ("; its retaining wall stops at the building on edge" + ("s " if len(cuts) > 1 else " ")
+                             + ", ".join(f"{i} ({', '.join(f'{s0:.2f}-{s1:.2f} m' for s0, s1 in sp)})"
+                                         for i, sp in cuts.items()) + " (never through the house's wall, UL148)")
     return every
 
 
@@ -3472,6 +3490,71 @@ def _same_poly(p, q, tol: float = 1e-6) -> bool:
     if len(p) != len(q):
         return False
     return all(min(G.distance(tuple(a[:2]), tuple(b[:2])) for b in q) < tol for a in p)
+
+
+WALL_CUT_STEP_M = 0.02          # 30 Oct 2026 (UL148): the edge is probed every 2 cm for the building's outline
+
+
+def wall_cut_spans(a, b, keep_out: Sequence, t: Optional[float] = None, over: Optional[float] = None
+                   ) -> list[list[float]]:
+    """30 Oct 2026 (lesson UL148, user on real04 run 20261029-201533-full: "this seems to be coming from the outside
+    texture, it is in the kitchen": the retaining wall and coping of the stepped band sp_001_s1e2 ran along the
+    house's outer wall and their ends came through it into the basement kitchen as a stone strip by the window): the
+    spans ``[[s0, s1], ...]`` (metres from ``a`` along the edge ``a``-``b``) where the edge's retaining wall (``t``
+    thick outside the edge, ``PLATFORM["wall_t"]``) or its coping (``over`` beyond both faces,
+    ``grading.GRADE["coping_over"]``) would enter a ``keep_out`` polygon (the building's ground outline, a copy's
+    footprint), widened by half the wall (a wall piece reaches that far past its ends) and the coping's overhang, so
+    no part of a site wall stands inside the building (pure). A real retaining wall stops against the house's wall."""
+    if not keep_out:
+        return []
+    t = float(PLATFORM["wall_t"] if t is None else t)
+    over = float(GR.GRADE["coping_over"] if over is None else over)
+    length = G.distance(a, b)
+    if length < 1e-6:
+        return []
+    ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+    nx, ny = uy, -ux                                            # ccw: the right side of the edge is outside
+    offsets = (-over + 0.002, 0.002, t / 2.0, t - 0.002, t + over - 0.002)
+    steps = max(1, int(math.ceil(length / WALL_CUT_STEP_M)))
+    hit = []
+    for k in range(steps + 1):
+        s = length * k / steps
+        px, py = a[0] + ux * s, a[1] + uy * s
+        hit.append(any(_inside_any((px + nx * o, py + ny * o), keep_out) for o in offsets))
+    spans: list[list[float]] = []
+    for k, h in enumerate(hit):
+        if not h:
+            continue
+        s = length * k / steps
+        if spans and s - spans[-1][1] <= length / steps + 1e-9:
+            spans[-1][1] = s
+        else:
+            spans.append([s, s])
+    reach = t / 2.0 + over + length / steps
+    out = []
+    for s0, s1 in spans:
+        lo, hi = max(0.0, s0 - reach), min(length, s1 + reach)
+        if out and lo <= out[-1][1]:
+            out[-1][1] = max(out[-1][1], hi)
+        else:
+            out.append([lo, hi])
+    return [[round(s0, 4), round(s1, 4)] for s0, s1 in out]
+
+
+def _uncut(a, b, cuts: Sequence) -> list[tuple]:
+    """The stretches ``[(p0, p1)]`` of the edge ``a``-``b`` outside the ``cuts`` (``[[s0, s1]]`` metres from ``a``),
+    each at least 5 cm long (pure; UL148)."""
+    length = G.distance(a, b)
+    if length < 1e-9:
+        return []
+    out, s = [], 0.0
+    for s0, s1 in sorted((max(0.0, float(c0)), min(length, float(c1))) for c0, c1 in cuts):
+        if s0 - s >= 0.05:
+            out.append((G.point_along_segment(a, b, s / length), G.point_along_segment(a, b, s0 / length)))
+        s = max(s, s1)
+    if length - s >= 0.05:
+        out.append((G.point_along_segment(a, b, s / length), b))
+    return out
 
 
 def _inside_any(p, polygons) -> bool:
@@ -3997,11 +4080,10 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
             gzf = lambda x, y: ground_z(terrain, x, y)          # noqa: E731
             gap = flight["span"] if flight is not None and i == flight["edge"] else \
                 (down["span"] if down is not None and i == down["edge"] else None)
-            if gap is not None:
-                s0, s1 = gap
-                pieces = [dict(pc, piece=pc["piece"] + 100 * k) for k, (q0, q1) in
-                          enumerate(((a, G.point_along_segment(a, b, max(0.0, s0) / length)),
-                                     (G.point_along_segment(a, b, min(length, s1) / length), b)))
+            # 30 Oct 2026 (UL148): the stretches where the wall would enter the building are left out too
+            gaps = ([list(gap)] if gap is not None else []) + list((pf.get("wall_cuts") or {}).get(str(i)) or [])
+            if gaps:
+                pieces = [dict(pc, piece=pc["piece"] + 100 * k) for k, (q0, q1) in enumerate(_uncut(a, b, gaps))
                           for pc in wall_pieces(q0, q1, z, gzf, floors.get(i))]
             else:
                 pieces = wall_pieces(a, b, z, gzf, floors.get(i))
@@ -4032,11 +4114,11 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
         if pf.get("edge") == "kerb" or pf.get("kind") in ("parking", "path"):
             kh, kw = PLATFORM["kerb_h"], PLATFORM["kerb_w"]
             # 30 Oct 2026 (lesson UL129): no kerb piece where another surface abuts the edge (``kerb_gaps``)
-            gaps = [(float(g[1]), float(g[2])) for g in pf.get("kerb_gaps") or [] if int(g[0]) == i]
+            kgaps = [(float(g[1]), float(g[2])) for g in pf.get("kerb_gaps") or [] if int(g[0]) == i]
             if pf.get("sloped"):
                 k = max(1, int(math.ceil(length / PLOT_WALL_STEP_M)))
                 for j in range(k):
-                    if gaps and _in_gaps((j + 0.5) * length / k, gaps):
+                    if kgaps and _in_gaps((j + 0.5) * length / k, kgaps):
                         continue
                     p0, p1 = G.point_along_segment(a, b, j / k), G.point_along_segment(a, b, (j + 1) / k)
                     m2 = G.segment_midpoint(p0, p1)
@@ -4052,7 +4134,7 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
                                             kw, angle, zb, max(g_end[0]) + PAVING_LIFT + kh,
                                             max(g_end[1]) + PAVING_LIFT + kh))
             else:
-                for s0, s1 in (_outside_gaps(length, gaps) if gaps else [(0.0, length)]):
+                for s0, s1 in (_outside_gaps(length, kgaps) if kgaps else [(0.0, length)]):
                     cm = G.point_along_segment(a, b, (s0 + s1) / 2.0 / length)
                     kerbs.append(geom2d.box((cm[0] + nx * kw / 2.0, cm[1] + ny * kw / 2.0, z + kh / 2.0 - 0.02),
                                             (s1 - s0 + kw, kw, kh + 0.04), angle))

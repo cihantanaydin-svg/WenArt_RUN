@@ -40,11 +40,16 @@ from wenart.blender import geom2d
 from wenart import geometry as G
 
 KINDS = ("glass_channel", "glass_posts", "bars")
-DIMS = {"glass_t": 0.012, "channel_w": 0.06, "channel_h": 0.09, "cap_w": 0.028, "cap_h": 0.032,
+# 30 Oct 2026 (lesson UL145, user on real04 run 20261029-201533-full: "better handrails in the terras is needed"): the
+# glass channel's cap is a 50 mm handrail (a 28 mm cap read as a thin bare tube over glass that vanishes from outside)
+DIMS = {"glass_t": 0.012, "channel_w": 0.06, "channel_h": 0.09, "cap_w": 0.05, "cap_h": 0.045,
         "handrail_r": 0.022, "post_r": 0.021, "post_every": 1.2, "plate": 0.10, "plate_t": 0.008,
         "bay_gap": 0.03, "glass_bottom": 0.06, "bar_w": 0.016, "bar_pitch": 0.115, "bottom_rail_z": 0.08,
         "flat_w": 0.05, "flat_t": 0.012, "tube_sides": 10, "coping_t": 0.05, "coping_proud": 0.03,
         "bracket_r": 0.008, "wall_gap": 0.06, "bracket_every": 1.0}
+# 30 Oct 2026 (UL145): an outdoor guard's glass is a light low-iron grey-green (linear RGB), so its panel reads from
+# outside instead of vanishing (materials.thin_glass_material ``tint``)
+GUARD_GLASS_RGB = (0.80, 0.87, 0.85)
 # Style families (wenart.style.vocabulary.STYLE_FAMILIES) and the balustrade a designer puts in them.
 STYLE_KINDS = {"modern": "glass_channel", "minimal": "glass_channel", "modern minimal": "glass_channel",
                "contemporary": "glass_channel", "japandi": "bars", "scandinavian": "glass_posts",
