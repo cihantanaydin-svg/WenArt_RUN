@@ -561,7 +561,8 @@ def door_handle_parts(width: float, height: float, sill: float = 0.0,
 
 # The roles of ``parametric.door_parts`` that go into a Milestone 10 door's ``<id>_frame`` object (``build_door_m10``);
 # fix round after P3: the door stops too.
-FRAME_ROLES: tuple[str, ...] = ("frame", "rail", "stop", "architrave")     # 29 Oct 2026: + the architrave
+FRAME_ROLES: tuple[str, ...] = ("frame", "rail", "stop", "architrave", "plinth", "moulding")   # + the architrave
+# (29 Oct 2026), its plinth blocks and fillet (30 Oct 2026, UL179)
 # The Milestone 6 leaf is this much smaller than the frame opening on every side (5 mm per side).
 M6_LEAF_CLEARANCE = 0.01
 

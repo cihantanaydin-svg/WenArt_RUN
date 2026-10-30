@@ -36,6 +36,7 @@ door (``shell.door_handle_parts``), a design detail with its manifest entry.
 from __future__ import annotations
 
 import math
+import re
 from typing import Optional
 
 GLASS_WORDS = ("glass", "glas", "glazing", "pane", "vidro", "vitre", "cam_", "camlar", "transparent", "translucent",
@@ -65,12 +66,21 @@ def _value(node, *names):
     return None
 
 
+def glass_named(name: str) -> bool:
+    """A material name that says glass (``GLASS_WORDS``, pure). 30 Oct 2026 (UL191): "pane" never inside "panel" (a
+    door's "Panel" material read as glass is a see-through slot in the leaf)."""
+    low = str(name or "").lower()
+    if any(w in low for w in GLASS_WORDS if w != "pane"):
+        return True
+    return re.search(r"pane(?!l)", low) is not None
+
+
 def is_glass(mat) -> bool:
-    """A model material that is glass: by name, or a principled shader with transmission > 0.5 or alpha < 0.7."""
+    """A model material that is glass: by name (``glass_named``), or a principled shader with transmission > 0.5 or
+    alpha < 0.7."""
     if mat is None:
         return False
-    name = mat.name.lower()
-    if any(w in name for w in GLASS_WORDS):
+    if glass_named(mat.name):
         return True
     node = _principled(mat)
     if node is None:
@@ -130,6 +140,26 @@ def _area_normal(verts, face) -> tuple[float, float, float]:
         ny += (a[2] - b[2]) * (a[0] + b[0])
         nz += (a[0] - b[0]) * (a[1] + b[1])
     return nx, ny, nz
+
+
+# 30 Oct 2026 (lesson UL191, user on real04 run 20261030-112241-full: "Something wrong with this door in the
+# kitchen"): the kitchen's inside door (HSSD 204-7, open against a slatted wall) had two narrow clear-glass lites, and
+# through them the wall 2 cm behind the leaf showed: two slots cut through the leaf. An inside door whose glass covers
+# at most ``SATIN_LITE_SHARE`` of the model's surface (narrow lites, a strip, a small vision slit; a glazed leaf's
+# pane is far more) takes satin glass (``materials.satin_glass``): a lite reads as a glass insert, the leaf as solid.
+SATIN_LITE_SHARE = 0.08
+
+
+def glass_share(materials, shares) -> float:
+    """The share of the model's surface its glass materials (``is_glass``) cover (pure)."""
+    return sum(s for m, s in zip(materials, shares or ()) if is_glass(m))
+
+
+def satin_lites(materials, shares, inside: bool) -> bool:
+    """UL191: True for an inside door model whose glass is narrow lites only (some glass, at most
+    ``SATIN_LITE_SHARE`` of its surface): they take satin glass (pure)."""
+    share = glass_share(materials, shares)
+    return bool(inside) and 0.0 < share <= SATIN_LITE_SHARE
 
 
 def material_shares(n_materials: int, verts, faces, face_materials) -> list[float]:
@@ -495,12 +525,17 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
     if twins is None:
         twins = model["_glass_twins"] = glass_twins(model["verts"], model["faces"],
                                                     glass_faces(model["materials"], model["face_materials"]))
-    materials = material_map(model["materials"], mats["glass"], look, shares)
+    glass = mats["glass"]
+    satin = kind == "door" and satin_lites(model["materials"], shares, inside) \
+        and hasattr(ctx.get("library"), "satin_glass")
+    if satin:
+        glass = ctx["library"].satin_glass()                 # UL191: narrow lites of an inside door: satin glass
+    materials = material_map(model["materials"], glass, look, shares)
     face_materials = list(model["face_materials"])
     if twins:
-        if mats["glass"] not in materials:
-            materials.append(mats["glass"])
-        g = materials.index(mats["glass"])
+        if glass not in materials:
+            materials.append(glass)
+        g = materials.index(glass)
         for k in twins:
             face_materials[k] = g
     repainted = sorted({m.name for m, b in zip(model["materials"], materials) if b is look and m is not look})
@@ -542,7 +577,7 @@ def build_library_opening(opening: dict, wall: dict, lib: dict, geo: dict, ctx: 
                                     "attribution": asset.get("attribution"), "category": lib.get("category"),
                                     "panel": i, "panels": panels, "fit": info, "family": lib.get("family"),
                                     "look": lib.get("look"), "finish": None if look is None else look.name,
-                                    "repainted": repainted, "glass_twins": len(twins),
+                                    "repainted": repainted, "glass_twins": len(twins), "satin_glass": satin,
                                     # 28 Oct 2026: the role and the audit's fields (Argus: door_variety_problems)
                                     "role": lib.get("role"), "model_role": lib.get("model_role"),
                                     # the model's stated operation: opening_models.model_operation reads it here too
@@ -674,8 +709,10 @@ def _door_frame(opening, wall, geo, ctx, recs, frame_mat, state, shift, op_assum
     faces = SH.architrave_faces(geo["centre"], wall, ctx.get("rooms") or [])
     margins = [m for r in recs for m in ((r.get("measured") or {}).get("margins") or [])[:2]]
     model_fw = min(margins) if margins and not bare else P.DOOR_FRAME_W
+    # 30 Oct 2026 (UL179): the family's joinery profiles the architrave round a library door too
+    joinery = SH.door_product(getattr(ctx.get("library"), "style", None) or {}).get("joinery")
     parts = P.door_frame_parts(geo["width"], geo["height"], geo["thickness"], half_t if bare else None, side, faces,
-                               frame_w=max(0.02, min(P.DOOR_FRAME_W, model_fw)), lining=bare)
+                               frame_w=max(0.02, min(P.DOOR_FRAME_W, model_fw)), lining=bare, joinery=joinery)
     created = []
     record = {"lining": True, "head": True, "architrave": sorted({-1 if f < 0 else 1 for f in faces}),
               "indoor_faces": sorted({-1 if f < 0 else 1 for f in faces}),
