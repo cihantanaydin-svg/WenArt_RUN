@@ -59,8 +59,13 @@ mesh, made from vertex and face lists, never a bpy operator and no ray per item:
   a sliding one on a top rail with round rollers and a pull handle from ``SLIDING_MIN_W_M``), a square rain head on a
   wall arm, a hand shower on a slide rail with its hose, a thermostatic mixer and a towel bar inside.
 - Mirrors: B4 ``led_mirror_parts`` (a frameless mirror with an inset light band), B14 ``backlit_mirror_parts`` (a large
-  mirror, rounded corners for the soft families, an emissive panel behind it: a halo on the wall), B22
-  ``round_mirror_parts`` (a round mirror in a thick oak frame).
+  mirror, rounded corners for the soft families, an emissive panel behind it: a halo on the wall; UL205: a long, thin
+  one over an installation wall), B22 ``round_mirror_parts`` (a round mirror in a thick oak frame).
+- 30 Oct 2026 (lesson UL205, the user's WC photo): ``install_wall_parts``, the half-height installation wall behind a
+  wall-hung WC (its concealed cistern; the basin too where it stands on the same wall in a WC) in the room's dark or
+  light plaster with a stone or oak cap and lit niches along its top styled with toiletries, clear of the flush plate
+  (``install_niches``); ``bench_vanity_parts``, the WC's basin on an oak trestle bench (a lower shelf with a woven
+  basket, a matt black vessel basin, a black wall mixer) in the families that like it (``vanity_wc``).
 - B2 ``paper_holder_parts`` and ``toilet_brush_parts``; B7 ``towel_rail_parts`` (a ladder radiator with a towel over a
   bar); B18 ``towel_shelf_parts`` (a shelf on brackets, a rail under it, rolled towels and a jar on it, a towel on the
   rail); B25 ``towel_bar_parts``; B13 / B24 ``feature_panel_parts`` (the panel behind the vanity, floor to ceiling, or
@@ -97,16 +102,19 @@ TOWEL_RAIL_ROOM_TYPES: tuple[str, ...] = ("bathroom",)       # "every bathroom g
 _SOFT = {"wc": "wall_hung", "vanity": "fluted", "rounded": True, "basin": "vessel", "feature": "vanity_panel",
          "panel": "terrazzo", "top_key": "terrazzo", "mirror": "backlit", "mirror_round": False, "column": "open_lit",
          "finish": "black", "wall_tile": "greige", "floor_tile": "grey", "downlight": "square_dark", "cove": True,
-         "fluted_key": "dark", "towel_colour": "rust"}
+         "fluted_key": "dark", "towel_colour": "rust",
+         # 30 Oct 2026 (UL205): the installation wall behind a wall-hung WC (its body, its cap) and a WC room's basin
+         "install_wall": ("dark", "stone_light"), "vanity_wc": None}
 _SLAB = dict(_SOFT, vanity="stone_slab", rounded=False, basin="integrated", feature=None, panel=None,
-             top_key="stone_light", mirror="backlit", wall_tile="light grey", towel_colour="sage")
+             top_key="stone_light", mirror="backlit", wall_tile="light grey", towel_colour="sage",
+             install_wall=("painted", "stone_light"))
 _ORGANIC = dict(_SOFT, vanity="curved", rounded=True, basin="vessel_wall", feature="wc_fluted", panel=None,
                 top_key="worktop", apron="terrazzo", mirror="round_oak", wall_tile="sand", floor_tile="taupe",
-                towel_colour="olive")
+                towel_colour="olive", install_wall=("stone_light", "wood"), vanity_wc="bench")
 _CLASSIC = {"wc": "close_coupled", "vanity": "as_drawn", "rounded": False, "basin": "as_drawn", "feature": None,
             "panel": None, "top_key": "stone_light", "mirror": "framed", "mirror_round": False, "column": "closed",
             "finish": "brass", "wall_tile": "ivory", "floor_tile": "beige", "downlight": "round", "cove": False,
-            "fluted_key": "dark", "towel_colour": "navy"}
+            "fluted_key": "dark", "towel_colour": "navy", "install_wall": None, "vanity_wc": None}
 FAMILY_BATH: dict[str, dict] = {
     "modern": dict(_SOFT),
     "contemporary": dict(_SOFT, mirror_round=True, towel_colour="terracotta"),
@@ -114,13 +122,16 @@ FAMILY_BATH: dict[str, dict] = {
                            downlight="square_white", towel_colour="sand"),
     "minimal": dict(_SLAB, finish="chrome", wall_tile="off white", floor_tile="light grey", downlight="square_white",
                     towel_colour="sand"),
-    "scandinavian": dict(_SLAB, mirror="round_oak", feature="wc_fluted", fluted_key="wood"),
+    "scandinavian": dict(_SLAB, mirror="round_oak", feature="wc_fluted", fluted_key="wood",
+                         install_wall=("painted", "wood"), vanity_wc="bench"),
     "japandi": dict(_ORGANIC),
     "organic modern": dict(_ORGANIC, towel_colour="terracotta"),
     "industrial": dict(_SOFT, rounded=False, feature="wc_fluted", panel=None, top_key="worktop", mirror="led",
-                       wall_tile="grey", floor_tile="dark grey", cove=False, towel_colour="mustard"),
+                       wall_tile="grey", floor_tile="dark grey", cove=False, towel_colour="mustard",
+                       vanity_wc="bench"),
     "classic": dict(_CLASSIC),
-    "rustic": dict(_CLASSIC, finish="black", wall_tile="sand", floor_tile="taupe", towel_colour="rust"),
+    "rustic": dict(_CLASSIC, finish="black", wall_tile="sand", floor_tile="taupe", towel_colour="rust",
+                   vanity_wc="bench"),
     "mediterranean": dict(_CLASSIC, wall_tile="off white", floor_tile="terracotta", towel_colour="dusty blue"),
 }
 FAMILY_ALIASES: dict[str, str] = {"farmhouse": "rustic", "transitional": "classic", "coastal": "scandinavian",
@@ -430,9 +441,10 @@ FLUSH_PLATE_Z_M = 0.98            # its bottom (its centre about 1.06 m: B1 "abo
 def wall_hung_wc_parts(w: float, d: float, h: float, wall_offset: float = 0.0) -> list[Part]:
     """A wall-hung WC in its drawn footprint ``w x d`` (piece frame: front -Y, the wall at +Y): the pan's back on the
     wall, seat and lid, hinges, the bracket and the flush plate over it (module docstring, B1); ``wall_offset``: the
-    face of a feature wall in front of the wall (B24: the pan and the plate on the fluted wall). ``h`` (the type
-    height) is not used: a wall-hung WC's heights are the product's."""
-    back = d / 2.0 - max(0.0, min(float(wall_offset or 0.0), 0.06))
+    face of a feature wall in front of the wall (B24: the pan and the plate on the fluted wall; UL205: on the
+    installation wall's face, ``INSTALL_WALL_D_M``). ``h`` (the type height) is not used: a wall-hung WC's heights are
+    the product's."""
+    back = d / 2.0 - max(0.0, min(float(wall_offset or 0.0), INSTALL_WALL_D_M + 0.01))     # UL205: a pre-wall too
     bw = min(WC_BOWL_M[0], w - 0.02)
     bd = min(WC_BOWL_M[1], back + d / 2.0 - 0.01)
     cy = back - bd / 2.0
@@ -460,7 +472,7 @@ def wall_hung_wc_parts(w: float, d: float, h: float, wall_offset: float = 0.0) -
 # B3 / B12 / B15 / B19: the floating vanities
 # --------------------------------------------------------------------------
 
-VANITY_KINDS: tuple[str, ...] = ("stone_slab", "fluted", "curved")
+VANITY_KINDS: tuple[str, ...] = ("stone_slab", "fluted", "curved", "bench")
 VESSEL_BASINS: tuple[str, ...] = ("vessel", "vessel_wall")     # B15 (a tall deck mixer), B23 (a wall spout)
 VANITY_TOP_T_M = 0.15             # B3: "a thick stone top (about 15 cm)"
 FLUTED_TOP_T_M = 0.04             # B12/B13: a slim terrazzo or stone top
@@ -497,6 +509,9 @@ def vanity_layout(w: float, d: float, top_m: float, kind: str = "stone_slab", ba
         top_t = FLUTED_TOP_T_M
         body0 = top_m - top_t - FLUTED_BODY_H_M
         out = {"kind": kind, "bottom_m": round(body0, 4), "body": (body0, top_m - top_t), "top": (top_m - top_t, top_m)}
+    elif kind == "bench":                             # UL205: a trestle bench standing on the floor
+        top_t = BENCH_TOP_T_M
+        out = {"kind": kind, "bottom_m": 0.0, "body": (0.0, top_m - top_t), "top": (top_m - top_t, top_m)}
     else:
         top_t = VANITY_TOP_T_M
         shelf0 = top_m - top_t - VANITY_SHELF_H_M
@@ -814,14 +829,22 @@ def curved_vanity_parts(w: float, d: float, top_m: float, top_key: str = "workto
 
 
 def vanity_parts(w: float, d: float, top_m: float, look: Optional[dict] = None) -> list[Part]:
-    """The floating vanity a piece's ``bath_look`` names (``vanity``: stone_slab | fluted)."""
+    """The floating vanity a piece's ``bath_look`` names (``vanity``: stone_slab | fluted | curved | bench); UL205: on
+    an installation wall (``wall_offset_m``) the vanity is that much less deep, its back (and a wall mixer) on the
+    installation wall's face."""
     look = look or {}
+    off = max(0.0, min(float(look.get("wall_offset_m") or 0.0), INSTALL_WALL_D_M + 0.01))
+    if off > 1e-6:
+        parts = vanity_parts(w, d - off, top_m, dict(look, wall_offset_m=0.0))
+        return [dict(q, verts=[(x, y - off / 2.0, z) for x, y, z in q["verts"]]) for q in parts]
     key = str(look.get("top_key") or "stone_light")
     if look.get("vanity") == "fluted":
         return fluted_vanity_parts(w, d, top_m, key, bool(look.get("rounded")), str(look.get("basin") or "vessel"))
     if look.get("vanity") == "curved":
         return curved_vanity_parts(w, d, top_m, key, str(look.get("basin") or "vessel_wall"),
                                    str(look.get("apron_key") or "terrazzo"))
+    if look.get("vanity") == "bench":
+        return bench_vanity_parts(w, d, top_m)
     return stone_slab_vanity_parts(w, d, top_m, key)
 
 
@@ -829,6 +852,9 @@ def vanity_items(w: float, d: float, top_m: float, look: Optional[dict] = None) 
     """The styled items of a floating vanity (for the scene's design-detail record)."""
     look = look or {}
     kind = look.get("vanity") if look.get("vanity") in VANITY_KINDS else "stone_slab"
+    if kind == "bench":                               # UL205
+        return ["an oak trestle bench", "a woven basket on its lower shelf", "a matt black vessel basin",
+                "a wall-mounted mixer"]
     lay = vanity_layout(w, d, top_m, kind, str(look.get("basin") or ("integrated" if kind == "stone_slab" else
                                                                       "vessel")))
     items = []
@@ -854,6 +880,111 @@ def vanity_fits(w: float, d: float) -> Optional[str]:
         return (f"the drawn basin is {d:.2f} m deep: a floating vanity needs "
                 f"{VANITY_D_RANGE_M[0]:.2f}-{VANITY_D_RANGE_M[1]:.2f} m")
     return None
+
+
+# --------------------------------------------------------------------------
+# 30 Oct 2026 (lesson UL205, the user's photo of a WC: "Nice inspiration for toilet solution"): the basin on a rustic
+# oak trestle bench (a lower shelf with a woven basket), a matt black vessel basin and a black wall-mounted mixer; and
+# the half-height installation wall behind a wall-hung WC with lit niches along its top
+# --------------------------------------------------------------------------
+
+BENCH_TOP_T_M = 0.045
+BENCH_LEG_M = 0.05
+BENCH_SHELF_Z_M = 0.16
+BENCH_SHELF_T_M = 0.03
+BENCH_VESSEL = (0.20, 0.13)       # the vessel's rim radius and height (a 40 cm matt black bowl)
+
+
+def bench_vanity_parts(w: float, d: float, top_m: float) -> list[Part]:
+    """UL205: an oak trestle bench in the basin's drawn ``w x d`` (front -Y, the wall +Y), its top at ``top_m``: a
+    thick top, two trestles (posts, a foot and a rail each), a lower shelf with a woven basket of towels, a matt black
+    vessel basin on the top and a black mixer on the wall over it."""
+    t = BENCH_TOP_T_M
+    lg = BENCH_LEG_M
+    parts = [P._box(0.0, 0.0, top_m - t, w, d, t, "wood", "top")]
+    for sx in (-1.0, 1.0):
+        x = sx * (w / 2.0 - 0.06)
+        for sy in (-1.0, 1.0):
+            parts.append(P._box(x, sy * (d / 2.0 - 0.05), 0.04, lg, lg, top_m - t - 0.04, "wood", "leg"))
+        parts.append(P._box(x, 0.0, 0.0, lg + 0.01, d - 0.04, 0.04, "wood", "foot"))
+        parts.append(P._box(x, 0.0, top_m - t - 0.06, lg, d - 0.10, 0.06, "wood", "rail"))
+    shelf_w = w - 0.12 - lg
+    parts.append(P._box(0.0, 0.0, BENCH_SHELF_Z_M, shelf_w, d - 0.12, BENCH_SHELF_T_M, "wood", "shelf"))
+    bw, bd = min(0.38, shelf_w - 0.06), min(0.28, d - 0.16)
+    bh = min(0.18, top_m - t - 0.06 - BENCH_SHELF_Z_M - BENCH_SHELF_T_M - 0.04)
+    if bw > 0.15 and bh > 0.08:
+        parts += BO.woven_basket(0.0, -0.01, BENCH_SHELF_Z_M + BENCH_SHELF_T_M, bw, bd, bh, "towel")
+    r, vh = min(BENCH_VESSEL[0], w / 2.0 - 0.06, d / 2.0 - 0.04), BENCH_VESSEL[1]
+    by = -0.02
+    parts += _vessel(0.0, by, top_m, r, vh, "dark")
+    parts += _wall_mixer(0.0, d, by, top_m + vh - 0.02)
+    return parts
+
+
+INSTALL_WALL_D_M = 0.15           # a pre-wall over a concealed cistern frame, its face this far from the wall
+INSTALL_WALL_H_M = 1.15           # its top (the flush plate, 0.98-1.14 m, under it on its face)
+INSTALL_CAP_T_M = 0.02            # a stone cap on its top
+INSTALL_NICHE = {"h": 0.26, "w": 0.42, "min_w": 0.20, "depth": 0.12, "post": 0.06,
+                 "clear": 0.22}   # the lit niches along its top, clear of the flush plate and a basin's wall mixer
+INSTALL_STYLES: tuple[str, ...] = ("pump_bottles", "towels", "cotton", "perfume", "plant", "pebbles")
+INSTALL_SIDE_M = 0.60             # it runs this far past the WC at both ends (clipped at the openings and pieces)
+INSTALL_MIN_EXTRA_M = 0.20        # ... and at least this much wider than the WC
+WC_PAN_MIN_D_M = 0.48             # a short-projection wall-hung pan: the drawn WC's depth less the wall's holds it
+LONG_MIRROR_H_M = 0.40            # the long, thin backlit mirror over it (the photo: a horizontal band)
+LONG_MIRROR_MAX_W = 1.80
+LONG_MIRROR_GAP_M = 0.12          # its bottom this far over the installation wall's top
+
+
+def install_niches(w: float, wc_x: Optional[float] = None, keep=()) -> list[tuple[float, float]]:
+    """The niches ``[(x0, x1)]`` along an installation wall ``w`` wide (pure, UL205): ``INSTALL_NICHE`` wide with a
+    ``post`` between them and at the ends (a stretch too short for one: one niche at least ``min_w`` wide filling it),
+    none within ``clear`` of the WC's centre ``wc_x`` (its flush plate) or of the ``keep`` centres (a basin's wall
+    mixer on its face)."""
+    nw, post, clear = INSTALL_NICHE["w"], INSTALL_NICHE["post"], INSTALL_NICHE["clear"]
+    spans = [(-w / 2.0 + post, w / 2.0 - post)]
+    for x in sorted([float(v) for v in keep] + ([float(wc_x)] if wc_x is not None else [])):
+        spans = [q for a, b in spans for q in ((a, min(b, x - clear)), (max(a, x + clear), b)) if q[1] > q[0]]
+    out = []
+    for a, b in spans:
+        n = int((b - a + post) // (nw + post))
+        if n < 1:
+            if b - a >= INSTALL_NICHE["min_w"] - 1e-9:
+                out.append((round(a, 4), round(b, 4)))
+            continue
+        used = n * nw + (n - 1) * post
+        x = a + (b - a - used) / 2.0
+        for _k in range(n):
+            out.append((round(x, 4), round(x + nw, 4)))
+            x += nw + post
+    return out
+
+
+def install_wall_parts(w: float, d: float, h: float, wc_x: Optional[float] = None, body_key: str = "dark",
+                       cap_key: str = "stone_light", keep=()) -> list[Part]:
+    """UL205: the installation wall (its back on the wall, +Y; ``w`` wide, ``d`` deep, ``h`` high): the body in the
+    room's dark plaster finish, a stone cap, and along its top the niches (``install_niches``: a recess
+    ``INSTALL_NICHE["depth"]`` deep under the cap, an LED strip under the cap, each styled with toiletries); a box too
+    low or too shallow for them is a plain ledge."""
+    nh, ndp = INSTALL_NICHE["h"], min(INSTALL_NICHE["depth"], d - 0.03)
+    z_top = h - INSTALL_CAP_T_M
+    z_n = z_top - nh
+    niches = install_niches(w, wc_x, keep) if z_n >= 0.10 and ndp >= 0.08 else []
+    parts = [P._box(0.0, 0.0, 0.0, w, d, z_n if niches else z_top, body_key, "body"),
+             P._box(0.0, 0.0, z_top, w, d, INSTALL_CAP_T_M, cap_key, "ledge")]
+    if not niches:
+        return parts
+    back_t = d - ndp
+    parts.append(P._box(0.0, d / 2.0 - back_t / 2.0, z_n, w, back_t, nh, body_key, "body"))
+    edges = [-w / 2.0] + [x for n in niches for x in n] + [w / 2.0]
+    for a, b in zip(edges[0::2], edges[1::2]):           # the solid stretches between the niches
+        if b - a > 1e-4:
+            parts.append(P._box((a + b) / 2.0, -d / 2.0 + ndp / 2.0, z_n, b - a, ndp, nh, body_key, "body"))
+    for k, (a, b) in enumerate(niches):
+        cx = (a + b) / 2.0
+        parts.append(P._box(cx, -d / 2.0 + ndp - 0.012, z_top - 0.012, b - a - 0.02, 0.012, 0.006, "led", "led"))
+        items = _cubby_items(INSTALL_STYLES[k % len(INSTALL_STYLES)], b - a, ndp, 0.0, nh - 0.02)
+        parts += [dict(q, verts=[(x + cx, y - d / 2.0 + ndp / 2.0, z + z_n) for x, y, z in q["verts"]]) for q in items]
+    return parts
 
 
 # --------------------------------------------------------------------------
@@ -965,7 +1096,14 @@ def column_items(h: float) -> list[str]:
 # B16: the walk-in shower
 # --------------------------------------------------------------------------
 
-SHOWER_TRAY_T_M = 0.025           # a low stone tray (almost flush)
+SHOWER_TRAY_T_M = 0.025           # a low stone tray (almost flush): the look without ``level_access``
+# 30 Oct 2026 (lesson UL201, the user's reference photo of a shower): a level-access shower, the room's floor tiles
+# running in under the glass (no tray, no step), a linear drain grating flush with the floor at the back wall; the
+# glass on every open side (``shower_sides``: an end of the shower that stands free of the room's walls gets a fixed
+# side panel, the top rail turning the corner over it), the sliding door with a bar pull on two stand-offs
+DRAIN_T_M = 0.003                 # the drain grating, flush with the floor
+DRAIN_W_M = 0.06
+SIDE_CLAMP_M = (0.03, 0.02, 0.05) # the wall clamps of a side panel
 GLASS_T_M = 0.008
 SLIDING_MIN_W_M = 1.0             # a shower at least this wide gets a sliding panel on a top rail; a narrower one a
                                   # fixed walk-in screen (B16: "fixed or sliding by its width")
@@ -976,33 +1114,55 @@ MIXER_Z_M = 1.05
 TOWEL_BAR_Z_M = 1.25
 
 
-def walk_in_shower_parts(w: float, d: float, h: float) -> list[Part]:
-    """B16: the walk-in shower in its drawn footprint ``w x d`` (front -Y, the back wall +Y): the tray and linear
-    drain, the glass front (a fixed panel, a sliding one on a top rail with rollers and a pull handle when wide), the
-    rain head on its arm, the hand shower on its rail with the hose, the thermostatic mixer and a towel bar."""
+def walk_in_shower_parts(w: float, d: float, h: float, look: Optional[dict] = None) -> list[Part]:
+    """B16: the walk-in shower in its drawn footprint ``w x d`` (front -Y, the back wall +Y): the floor (UL201: level
+    access by default, the room's tiles running in, a flush linear drain; ``look["level_access"]`` False: the low stone
+    tray), the glass front (a fixed panel, a sliding one on a top rail with rollers and a bar pull when wide), a fixed
+    glass panel on each open end (``look["shower_sides"]``: ``left`` / ``right`` ``glass``, the rail turning the
+    corner over it), the rain head on its arm, the hand shower on its rail with the hose, the thermostatic mixer and a
+    towel bar."""
+    look = look if isinstance(look, dict) else {}
     h = max(1.9, float(h or 2.0))
     back = d / 2.0
     sliding = w >= SLIDING_MIN_W_M - 1e-9
     gy = -d / 2.0 + GLASS_T_M / 2.0 + (0.06 if sliding else 0.01)   # the sliding panel and its rollers inside too
-    gh = min(h, 2.0) - SHOWER_TRAY_T_M
-    parts = [P._box(0.0, 0.0, 0.0, w, d, SHOWER_TRAY_T_M, "stone_light", "tray"),
-             P._box(0.0, back - 0.06, SHOWER_TRAY_T_M, w - 0.10, 0.05, 0.002, "steel", "drain")]
+    level = look.get("level_access", True) is not False
+    base = 0.0 if level else SHOWER_TRAY_T_M
+    gh = min(h, 2.0) - base
+    if level:
+        parts = [P._box(0.0, back - 0.06, 0.0, w - 0.10, DRAIN_W_M, DRAIN_T_M, "handle", "drain")]
+    else:
+        parts = [P._box(0.0, 0.0, 0.0, w, d, SHOWER_TRAY_T_M, "stone_light", "tray"),
+                 P._box(0.0, back - 0.06, SHOWER_TRAY_T_M, w - 0.10, 0.05, 0.002, "steel", "drain")]
+    sides = look.get("shower_sides") if isinstance(look.get("shower_sides"), dict) else {}
+    open_ends = [sg for sg, key in ((-1.0, "left"), (1.0, "right")) if sides.get(key) == "glass"]
+    rail_z = base + gh - 0.04
     if sliding:
         half = w / 2.0
-        parts.append(P._box(-w / 4.0, gy, SHOWER_TRAY_T_M, half, GLASS_T_M, gh - 0.04, "glass", "glass"))
-        parts.append(P._box(w / 4.0 - 0.03, gy - 0.022, SHOWER_TRAY_T_M + 0.01, half, GLASS_T_M, gh - 0.06, "glass",
-                            "glass"))
-        rail_z = SHOWER_TRAY_T_M + gh - 0.04
+        parts.append(P._box(-w / 4.0, gy, base, half, GLASS_T_M, gh - 0.04, "glass", "glass"))
+        parts.append(P._box(w / 4.0 - 0.03, gy - 0.022, base + 0.01, half, GLASS_T_M, gh - 0.06, "glass", "glass"))
         parts.append(P._box(0.0, gy - 0.011, rail_z, w, 0.03, 0.03, "handle", "rail"))
         for rx in (w / 4.0 - 0.03 - half / 2.0 + 0.08, w / 4.0 - 0.03 + half / 2.0 - 0.08):
-            parts.append(P._cylinder_y(rx, gy - 0.034, rail_z - 0.012, 0.022, 0.022, 0.008, "handle", "roller", n=16))
-        parts.append(P._box(w / 4.0 - 0.03 - half / 2.0 + 0.06, gy - 0.034, 0.95, 0.018, 0.02, 0.35, "handle",
-                            "handle"))
+            parts.append(P._cylinder_y(rx, gy - 0.034, rail_z - 0.012, 0.03, 0.03, 0.008, "handle", "roller", n=16))
+        # the bar pull on two stand-offs (UL201), on the sliding panel's leading edge
+        px = w / 4.0 - 0.03 - half / 2.0 + 0.07
+        parts += [P._box(px, gy - 0.05, 0.85, 0.02, 0.012, 0.40, "handle", "handle"),
+                  P._box(px, gy - 0.038, 0.89, 0.012, 0.024, 0.012, "handle", "handle"),
+                  P._box(px, gy - 0.038, 1.21, 0.012, 0.024, 0.012, "handle", "handle")]
     else:
         sw = max(0.3, w * 0.7)
-        parts.append(P._box(-w / 2.0 + sw / 2.0, gy, SHOWER_TRAY_T_M, sw, GLASS_T_M, gh, "glass", "glass"))
-        parts.append(P._box(-w / 2.0 + sw / 2.0, gy, SHOWER_TRAY_T_M + gh - 0.02, sw, 0.02, 0.02, "handle", "rail"))
-        parts.append(P._box(-w / 2.0 + sw - 0.01, gy, SHOWER_TRAY_T_M, 0.02, 0.03, gh, "handle", "profile"))
+        parts.append(P._box(-w / 2.0 + sw / 2.0, gy, base, sw, GLASS_T_M, gh, "glass", "glass"))
+        parts.append(P._box(-w / 2.0 + sw / 2.0, gy, base + gh - 0.02, sw, 0.02, 0.02, "handle", "rail"))
+        parts.append(P._box(-w / 2.0 + sw - 0.01, gy, base, 0.02, 0.03, gh, "handle", "profile"))
+    for sg in open_ends:
+        # a fixed side panel from the front glass to the back wall, its wall clamps, the rail over it (UL201)
+        sx = sg * (w / 2.0 - 0.016)                       # the glass in the middle of its 3 cm rail and clamps
+        y0, y1 = gy + 0.01, back - 0.005
+        parts.append(P._box(sx, (y0 + y1) / 2.0, base, GLASS_T_M, y1 - y0, gh - 0.04, "glass", "glass"))
+        parts.append(P._box(sx, (y0 + y1) / 2.0, rail_z, 0.03, y1 - y0, 0.03, "handle", "rail"))
+        cw, cd, ch = SIDE_CLAMP_M
+        for cz in (0.30, gh - 0.30):
+            parts.append(P._box(sx, back - cd / 2.0 - 0.002, base + cz, cw, cd, ch, "handle", "clamp"))
     # the rain head on its wall arm
     arm = max(0.15, min(0.40, d * 0.45))
     rw, rd, rt = RAIN_HEAD_M
@@ -1049,9 +1209,9 @@ def walk_in_shower_parts(w: float, d: float, h: float) -> list[Part]:
 # --------------------------------------------------------------------------
 
 BATH_DECOR_TYPES: tuple[str, ...] = ("toilet_paper_holder", "toilet_brush", "towel_rail", "towel_shelf",
-                                     "towel_bar", "feature_panel", "cove_light")
+                                     "towel_bar", "feature_panel", "cove_light", "install_wall")
 WALL_BATH_DECOR: tuple[str, ...] = ("toilet_paper_holder", "towel_rail", "towel_shelf", "towel_bar", "feature_panel",
-                                    "cove_light")
+                                    "cove_light", "install_wall")
 FLOOR_BATH_DECOR: tuple[str, ...] = ("toilet_brush",)
 # 30 Oct 2026 (lesson UL183): the box holds the roll near its top and the sheet hanging over its front to its bottom
 # (small_parts.paper_holder); the roll's axis stays at PAPER_HOLDER_Z_M (``paper_holder_bottom``)
@@ -1090,7 +1250,7 @@ BACKLIT_ROUND_R_M = 0.10
 SQUARE_DOWNLIGHT_SIZE = (0.10, 0.10, 0.012)
 DECOR_HEIGHTS = {"toilet_paper_holder": PAPER_HOLDER_SIZE[2], "toilet_brush": TOILET_BRUSH_SIZE[2],
                  "towel_rail": TOWEL_RAIL_SIZE[2], "towel_shelf": TOWEL_SHELF_SIZE[2], "towel_bar": TOWEL_BAR_SIZE[2],
-                 "feature_panel": 2.5, "cove_light": COVE_DROP_M}
+                 "feature_panel": 2.5, "cove_light": COVE_DROP_M, "install_wall": INSTALL_WALL_H_M}
 
 
 def paper_holder_parts(w: float, d: float, h: float) -> list[Part]:
@@ -1273,6 +1433,10 @@ def decor_parts(dtype: str, w: float, d: float, h: float, item: Optional[dict] =
         return feature_panel_parts(w, d, h, PANEL_KEYS.get(material, "terrazzo"), material.startswith("fluted"))
     if dtype == "cove_light":
         return cove_light_parts(w, d, h)
+    if dtype == "install_wall":
+        wc_x = item.get("wc_x")
+        return install_wall_parts(w, d, h, None if wc_x is None else float(wc_x), str(item.get("body_key") or "dark"),
+                                  str(item.get("cap_key") or "stone_light"), item.get("keep_x") or ())
     if dtype == "mirror" and item.get("fixture") == "backlit_mirror":
         return backlit_mirror_parts(w, d, h, bool(item.get("rounded")))
     if dtype == "mirror" and item.get("fixture") == "round_mirror":

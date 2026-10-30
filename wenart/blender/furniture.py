@@ -3346,7 +3346,7 @@ def mirror_box(item: dict) -> list[float]:
                       else BT.ROUND_MIRROR_D_M[1])
             return [dia, 0.04, dia]
         if fixture == "backlit_mirror":
-            h = BT.BACKLIT_MIRROR_H
+            h = BT.LONG_MIRROR_H_M if item.get("long") else BT.BACKLIT_MIRROR_H   # UL205: the long, thin one
             if isinstance(max_h, (int, float)) and max_h > 0:
                 h = min(h, float(max_h))
             return [w, 0.03, h]

@@ -144,6 +144,7 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "towel_bar": "towel bar on the wall with a towel hanging from it",
     "feature_panel": "feature panel on the wall (terrazzo, stone or fluted)",
     "cove_light": "lowered ceiling band with a hidden LED light line along a wall",
+    "install_wall": "half-height installation wall behind the toilet with lit niches along its top",   # UL205
     # 29 Oct 2026 (wenart.furniture.room_details, UL113, UL115): the reference photos' details
     "wall_niche": "shallow wall niche with floating lit shelves holding books, vases and dried grass",
     "intercom": "small video intercom panel on the wall beside the entrance door",

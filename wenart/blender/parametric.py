@@ -1238,7 +1238,7 @@ def _shower_m14(w: float, d: float, h: float, piece: dict | None = None) -> list
     look = (piece or {}).get("bath_look") if isinstance((piece or {}).get("bath_look"), dict) else {}
     if look.get("shower") == "walk_in":
         from wenart.blender import bath_parts as BT
-        return BT.walk_in_shower_parts(w, d, h)
+        return BT.walk_in_shower_parts(w, d, h, look)
     return _shower(w, d, h)
 
 
@@ -4366,9 +4366,10 @@ LARGE_DECOR_TYPES = LARGE_DECOR_TYPES + MEDIA_DECOR_TYPES          # a 43-65 inc
 # 29 Oct 2026 (lessons UL114, UL123, UL124: the user's bathroom photos): the bathroom's decor, built by
 # ``wenart.blender.bath_parts`` (= its BATH_DECOR_TYPES, pinned in tests/test_bathroom_details_20261029.py)
 BATH_DECOR_TYPES: tuple[str, ...] = ("toilet_paper_holder", "toilet_brush", "towel_rail", "towel_shelf", "towel_bar",
-                                     "feature_panel", "cove_light")
+                                     "feature_panel", "cove_light", "install_wall")
 DECOR_TYPES = DECOR_TYPES + BATH_DECOR_TYPES
-LARGE_DECOR_TYPES = LARGE_DECOR_TYPES + ("towel_rail", "feature_panel", "cove_light")   # 1.2 m, a wall, a ceiling band
+LARGE_DECOR_TYPES = LARGE_DECOR_TYPES + ("towel_rail", "feature_panel", "cove_light",   # 1.2 m, a wall, a ceiling band
+                                         "install_wall")            # 30 Oct 2026 (UL205): a pre-wall behind the WC
 SURFACE_DECOR_TYPES = SURFACE_DECOR_TYPES + MEDIA_DECOR_TYPES      # it stands on its TV unit's built top
 DECOR_DEFAULT_HEIGHT["tv"] = 0.77                                  # a 55 inch set on its pedestal
 if "screen" not in MATERIAL_KEYS:                                  # its glossy dark screen (also the work set's)
@@ -4384,7 +4385,7 @@ BEVEL_BY_ROLE.update({"screen_ui": 0.0, "grille": 0.0, "camera": 0.0, "logo": 0.
 # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's real heights (bath_parts.DECOR_HEIGHTS) and its material keys: the
 # LED strips (``materials.led_material``), the light stone and terrazzo tops and panels, the towels (the room's accent)
 DECOR_DEFAULT_HEIGHT.update({"toilet_paper_holder": 0.13, "toilet_brush": 0.38, "towel_rail": 1.2, "towel_shelf": 0.40,
-                             "towel_bar": 0.45, "feature_panel": 2.5, "cove_light": 0.12})
+                             "towel_bar": 0.45, "feature_panel": 2.5, "cove_light": 0.12, "install_wall": 1.15})
 MATERIAL_KEYS = MATERIAL_KEYS + tuple(k for k in ("led", "stone_light", "terrazzo", "towel", "towel_alt", "towel_band")
                                       if k not in MATERIAL_KEYS)   # 30 Oct 2026 (UL138): a towel's shade and band
 BEVEL_BY_ROLE.update({"led": 0.0, "towel": 0.004, "rib": 0.001, "plate": 0.001, "button": 0.0005, "apron": 0.002,
