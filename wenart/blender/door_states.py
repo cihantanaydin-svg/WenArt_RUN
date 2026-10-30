@@ -331,6 +331,40 @@ def piece_polys(building: dict, level_id) -> list[tuple[str, str, list]]:
             continue
         poly = G.rotated_rectangle(c[:2], s[:2], float(d.get("rotation_deg") or 0.0))
         out.append((str(d.get("id")), str(d.get("type")), [tuple(p) for p in poly]))
+    return out + wall_hung_polys(building, level_id)          # UL190: a leaf never rests over a mirror or a picture
+
+
+# 30 Oct 2026 (lesson UL190, user on real04 run 20261030-112241-full: "mirror staying behind the door in this case door can
+# be closed"): a wall-hung item (a mirror, a picture) is in the way of an open leaf that would rest against it: the
+# strip of wall it hangs on, this deep into the room, counts as a piece the leaf may not cover (the door opens less or
+# stays closed)
+WALL_HUNG_TYPES: tuple[str, ...] = ("mirror", "wall_art", "wall_discs", "clock", "desk_wall_unit", "wall_shelf")
+WALL_HUNG_DEPTH_M = 0.15
+
+
+def wall_hung_polys(building: dict, level_id) -> list[tuple[str, str, list]]:
+    """``[(id, type, polygon)]`` of the level's wall-hung items (``WALL_HUNG_TYPES`` with a ``wall_point``): their width
+    along the wall, ``WALL_HUNG_DEPTH_M`` into the room from the wall face (UL190)."""
+    out = []
+    for d in building.get("decor") or []:
+        if d.get("level_id") != level_id or str(d.get("type")) not in WALL_HUNG_TYPES or d.get("build") is False:
+            continue
+        wp, c, size = d.get("wall_point"), d.get("center"), d.get("size")
+        if not wp or not c or not size:
+            continue
+        nx, ny = float(c[0]) - float(wp[0]), float(c[1]) - float(wp[1])
+        n = math.hypot(nx, ny)
+        if n < 1e-6:
+            a = math.radians(float(d.get("rotation_deg") or 0.0))
+            nx, ny, n = -math.sin(a), math.cos(a), 1.0
+        nx, ny = nx / n, ny / n
+        ux, uy = -ny, nx
+        half, depth = float(size[0]) / 2.0, WALL_HUNG_DEPTH_M
+        x0, y0 = float(wp[0]), float(wp[1])
+        poly = [(x0 + ux * half, y0 + uy * half), (x0 - ux * half, y0 - uy * half),
+                (x0 - ux * half + nx * depth, y0 - uy * half + ny * depth),
+                (x0 + ux * half + nx * depth, y0 + uy * half + ny * depth)]
+        out.append((str(d.get("id")), str(d.get("type")), poly))
     return out
 
 

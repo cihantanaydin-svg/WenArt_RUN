@@ -2251,14 +2251,14 @@
   {
    "id": "UL190",
    "date": "2026-10-30",
-   "area": "decor",
-   "status": "open",
+   "area": "openings",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "mirror staying behind the door in this case door can be closed (30 Oct 2026, real04 run 20261030-112241-full, a room view: a round wall mirror on the wall the open door leaf rests against, half hidden behind the leaf)",
-   "lesson": "mirror staying behind the door in this case door can be closed (30 Oct 2026, real04 run 20261030-112241-full, a room view: a round wall mirror on the wall the open door leaf rests against, half hidden behind the leaf)",
-   "question": "Is every wall mirror or picture clear of the wall the open door leaf rests against (or the door shown closed)?"
+   "lesson": "An open door never hides a mirror or a picture: a wall-hung item (mirror, picture, wall discs, clock, desk wall unit, wall shelf) and a 0.15 m strip of wall in front of it are in the way of an open leaf (door_states.wall_hung_polys in piece_polys); the leaf opens otherwise (the other hinge, a smaller angle) or the door stays closed.",
+   "question": "Is every mirror and picture clear of the open door leaves?"
   },
   {
    "id": "UL191",
