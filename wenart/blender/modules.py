@@ -201,6 +201,18 @@ KITCHEN_COLUMN_MIN_REST_M = 0.60      # a column only when this much counter sta
 # top): 45 cm long at most, its axis this far in from the door's opening edge
 UNDER_FRIDGE_HANDLE_M = 0.45
 UNDER_FRIDGE_HANDLE_IN_M = 0.05
+# 30 Oct 2026 (lesson UL155, kitchen_details K16; the user on real04 run 20261030-043021-full: "still not a proper
+# dishwasher correct it"): the dishwasher in the base unit beside a run's sink unit. Built-under machines are 59.8 cm
+# (or 44.8 cm, slimline) wide and fit a niche of 81.5-87.5 cm under the worktop (Bosch, Miele, IKEA product sheets); a
+# semi-integrated one shows a control strip of 7-10 cm over its door (a display and the buttons), a steel one a black
+# glass strip, a recessed door panel and a long bar handle across the door's top.
+KITCHEN_DISHWASHER_WIDTHS_M: tuple[float, ...] = (0.60, 0.45)
+KITCHEN_DISHWASHER_NICHE_MIN_M = 0.80   # the height from the floor to the worktop's underside a machine needs
+KITCHEN_DISHWASHER_STRIP_M = 0.085      # the control strip's height
+KITCHEN_DISHWASHER_CORNER_M = 0.20      # a unit whose far side is this close to a corner end: the machine's door
+#                                         would open into the corner (the other side of the sink first)
+KITCHEN_APPLIANCE_NEXT_M = 0.12         # a door this close to an appliance unit (a filler between) is its neighbour
+KITCHEN_PLINTH_VENT_M = (0.40, 0.045)   # an integrated under-counter fridge's vent grille in the plinth (w, h)
 KITCHEN_DRAWER_UNIT_W_M = 0.60        # a 60 unit takes three drawers (METOD / MAXIMERA); wider ones two doors
 # Fix round after P3 (16-17 Oct 2026): a drawn freestanding range (``stove``) inside a drawn run stands in a gap of
 # the run (``module_hints["ranges"]``): no base unit, plinth or worktop over its drawn span, which is kept exactly
@@ -699,6 +711,85 @@ def _segments(w: float, spans: Sequence[tuple[float, float, str]]) -> list[tuple
     return out
 
 
+def dishwasher_order(widths: list, seg_w: float, x0: float, x1: float, sink) -> list:
+    """30 Oct 2026 (UL155, K16): the unit widths of the stretch ``x0``-``x1`` (``seg_w`` wide) with a unit of a
+    dishwasher's width (60 cm, else 45 cm) on the side of the sink unit ``sink`` (``(s0, s1)``) when the stretch
+    touches it: moved there, or the stretch composed again around one (its rest from the real widths, the fillers
+    within ``KITCHEN_FILLER_MAX_M``); the widths as given when no such unit fits (pure)."""
+    if sink is None:
+        return widths
+    at_right, at_left = abs(x1 - sink[0]) < 1e-6, abs(x0 - sink[1]) < 1e-6
+    if not (at_left or at_right):
+        return widths
+    for dw in KITCHEN_DISHWASHER_WIDTHS_M:
+        idx = [i for i, v in enumerate(widths) if abs(v - dw) < 1e-9]
+        if idx:
+            rest = list(widths)
+            v = rest.pop(idx[-1] if at_right else idx[0])
+            return rest + [v] if at_right else [v] + rest
+    for dw in KITCHEN_DISHWASHER_WIDTHS_M:
+        rest_w = seg_w - dw
+        if rest_w < -1e-9:
+            continue
+        if rest_w <= 2.0 * KITCHEN_FILLER_MAX_M + 1e-9:
+            rest: list = []
+        else:
+            run = compose_run(rest_w, KITCHEN_BASE_WIDTHS_M, KITCHEN_FILLER_MAX_M)
+            if run is None:
+                continue
+            rest = list(run["widths"])
+        return rest + [dw] if at_right else [dw] + rest
+    return widths
+
+
+def pick_dishwasher(units: list, sink, hob_x: Optional[float], w: float, end_kinds: dict) -> Optional[dict]:
+    """30 Oct 2026 (UL155, K16): the base unit (of ``units``, the run's units in order) that holds the dishwasher: a
+    free unit of a machine's width beside the sink unit ``sink`` (a filler between at most), a 60 cm one first, then
+    one whose far side is no corner with another run (``end_kinds``: ``{"left"|"right": "corner"|...}``, the fit's
+    ``run_end_kind``; a door opening into the corner blocks it), then the side away from the hob ``hob_x``, then the
+    run's left; None when no unit fits (pure)."""
+    cands = []
+    for m in units:
+        if m.get("kind") != "base_unit" or m.get("holds") or m.get("front") not in ("door", "doors", "drawers"):
+            continue
+        uw = float(m["size_m"][0])
+        if not any(abs(uw - dw) < 1e-6 for dw in KITCHEN_DISHWASHER_WIDTHS_M):
+            continue
+        u0, u1 = float(m["pos_m"][0]) - uw / 2.0, float(m["pos_m"][0]) + uw / 2.0
+        if -1e-6 <= sink[0] - u1 <= KITCHEN_APPLIANCE_NEXT_M:
+            side = "left"
+        elif -1e-6 <= u0 - sink[1] <= KITCHEN_APPLIANCE_NEXT_M:
+            side = "right"
+        else:
+            continue
+        far = u0 + w / 2.0 if side == "left" else w / 2.0 - u1
+        corner = end_kinds.get(side) == "corner" and far <= KITCHEN_DISHWASHER_CORNER_M + 1e-9
+        hob = 0.0 if hob_x is None else -abs(float(m["pos_m"][0]) - float(hob_x))
+        cands.append(((-uw, corner, hob, 0 if side == "left" else 1), m))
+    return min(cands, key=lambda c: c[0])[1] if cands else None
+
+
+def handle_sides(units: list) -> None:
+    """30 Oct 2026 (UL155, K16; in place): a single door beside an appliance unit (a dishwasher, an under-counter fridge,
+    an oven, a tall unit; a filler between at most) gets ``handle_side`` away from it (-1: its left edge), so no
+    handle stands against an appliance's door; a door between two appliances keeps its right edge."""
+    apps = [m for m in units if m.get("kind") == "tall_unit" or m.get("holds") in ("dishwasher", "fridge")
+            or m.get("front") in ("oven", "fridge", "dishwasher", "fridge_column")]
+    for m in units:
+        if m.get("kind") != "base_unit" or m.get("front") != "door":
+            continue
+        x, uw = float(m["pos_m"][0]), float(m["size_m"][0])
+        left = right = False
+        for a in apps:
+            ax, aw = float(a["pos_m"][0]), float(a["size_m"][0])
+            if -1e-6 <= (x - uw / 2.0) - (ax + aw / 2.0) <= KITCHEN_APPLIANCE_NEXT_M:
+                left = True
+            if -1e-6 <= (ax - aw / 2.0) - (x + uw / 2.0) <= KITCHEN_APPLIANCE_NEXT_M:
+                right = True
+        if right and not left:
+            m["handle_side"] = -1.0
+
+
 def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict]:
     """Base units composed to the run (fixed sink and hob units first), the worktop with its cutouts, plinth, fronts
     and handles; wall units above when the hints ask for them.
@@ -880,6 +971,12 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
                      f"(base units {cd:.2f} m deep; G3)")
     segments = _segments(w, fixed + gap_spans + panels)
     base_h = worktop_z - KITCHEN_WORKTOP_M - KITCHEN_PLINTH_M
+    # 30 Oct 2026 (UL155, K16): the dishwasher beside the sink unit (a unit of a machine's width on the sink's side of
+    # its stretches); the family's look of the appliances under the worktop
+    look = KD.appliance_look(rule)
+    dw_sink = next(((f0, f1) for f0, f1, k in fixed if k == "sink"), None)
+    if hints.get("dishwasher") is False or worktop_z - KITCHEN_WORKTOP_M < KITCHEN_DISHWASHER_NICHE_MIN_M - 1e-9:
+        dw_sink = None
     stretches = _segments(w, gap_spans)                   # the plinth and the worktop run between the gaps
     modules = []
     for x0, x1 in stretches:
@@ -906,14 +1003,15 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
         # 29 Oct 2026: a waterfall panel's inner face is the run's end for the fillers
         at_left_end = abs(x0 + w / 2.0) < 1e-6 or any(abs(x0 - p1) < 1e-6 for _p0, p1, _k in panels)
         at_right_end = abs(x1 - w / 2.0) < 1e-6 or any(abs(x1 - p0) < 1e-6 for p0, _p1, _k in panels)
-        rem = seg_w - run["sum_m"]
+        widths = dishwasher_order(list(run["widths"]), seg_w, x0, x1, dw_sink)
+        rem = seg_w - sum(widths)
         left_f = rem / 2.0 if (at_left_end and at_right_end) else (rem if at_left_end else 0.0)
         right_f = rem - left_f
         if left_f > 1e-9:
             units.append(_module("filler", (left_f, cd, base_h), (x0 + left_f / 2.0, cy), "front",
                                  z_m=KITCHEN_PLINTH_M))
         xx = x0 + left_f
-        for uw in run["widths"]:
+        for uw in widths:
             front = "drawers" if abs(uw - KITCHEN_DRAWER_UNIT_W_M) < 1e-9 else ("doors" if uw >= 0.80 - 1e-9 else "door")
             units.append(_module("base_unit", (uw, cd, base_h), (xx + uw / 2.0, cy), "front", z_m=KITCHEN_PLINTH_M,
                                  front=front, product=f"base unit {uw * 100:.0f}x{KITCHEN_BASE_DEPTH_M * 100:.0f} cm"))
@@ -942,12 +1040,31 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
                                  **({"column": True} if to_ceiling else {})))
             continue
         elif kind == "fridge":
-            front, product = "fridge", f"under-counter fridge {(f1 - f0) * 100:.0f} cm"
+            # 30 Oct 2026 (UL155, K16): behind a front that matches the run, or the steel door of before
+            front, product = "fridge", (f"under-counter fridge {(f1 - f0) * 100:.0f} cm"
+                                        + (", integrated" if look == "integrated" else ""))
         units.append(_module("base_unit", (f1 - f0, d, base_h), ((f0 + f1) / 2.0, 0.0), "front", z_m=KITCHEN_PLINTH_M,
-                             front=front, holds=kind, product=product))
+                             front=front, holds=kind, product=product,
+                             **({"appliance": look} if kind == "fridge" else {})))
     for span in columns:                                  # 29 Oct 2026 (K1): the tall-unit column
         units.append(KD.tall_module(span, d, col_top, KITCHEN_PLINTH_M))
     units.sort(key=lambda m: m["pos_m"][0])
+    dishwasher = None
+    if dw_sink is not None:
+        hob_c = next(((f0 + f1) / 2.0 for f0, f1, k in fixed if k == "hob"), None)
+        dishwasher = pick_dishwasher(units, dw_sink, hob_c, w,
+                                     hints.get("end_kinds") if isinstance(hints.get("end_kinds"), dict) else {})
+    if dishwasher is not None:
+        dw_w = float(dishwasher["size_m"][0])
+        dishwasher.update(front="dishwasher", holds="dishwasher", appliance=look,
+                          product=f"dishwasher {dw_w * 100:.0f} cm, " + ("semi-integrated" if look == "integrated"
+                                                                        else "built-under steel"))
+        notes.append(f"a {dw_w * 100:.0f} cm " + ("semi-integrated dishwasher (a steel control strip over a front that "
+                                                  "matches the run)" if look == "integrated" else
+                                                  "built-under steel dishwasher") + " beside the sink unit (K16)")
+    elif dw_sink is not None:
+        notes.append("no dishwasher beside the sink: no base unit of a machine's width (45 or 60 cm) next to it (K16)")
+    handle_sides(units)
     modules += units
     for x0, x1 in stretches:
         modules.append(_module("worktop", (x1 - x0, d, KITCHEN_WORKTOP_M), ((x0 + x1) / 2.0, 0.0), "worktop",
@@ -1016,6 +1133,10 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
                                                                            "a tall-unit column at a free run end")})
         if columns or (column is not None and col_top > KITCHEN_COLUMN_TOP_M + 1e-6):
             details["column_top_m"] = col_top
+        if dishwasher is not None:
+            details["applied"].append({"detail": "K16", "what": f"{dishwasher['product']} beside the sink",
+                                       "source": "inferred", "reason": "a kitchen sink has its dishwasher beside it; "
+                                       f"the {rule['family']} family's appliances are {look}"})
         if hints.get("fridge_why") and any(k == "fridge" for _f0, _f1, k in fixed):
             details["applied"].append({"detail": "K1", "what": "under-counter fridge", "source": "inferred",
                                        "reason": str(hints["fridge_why"])})
@@ -1046,6 +1167,8 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
         plan["details"] = details
     if hood is not None:
         plan["hood"] = hood_record(hood)
+    if dishwasher is not None:                            # 30 Oct 2026 (UL155, K16)
+        plan["dishwasher"] = {"x_m": dishwasher["pos_m"][0], "w_m": dishwasher["size_m"][0], "look": look}
     if gaps:
         plan["gaps"] = gaps
     if built_in is not None:
@@ -2223,22 +2346,34 @@ def _base_unit_parts(m: dict, design: dict, d_run: float) -> list[Part]:
     else:
         parts = [P._box(x, yc + inset / 2.0, z0, w - 0.002, dc - inset, h, "painted", "body")]
     kind = m.get("front") or "door"
-    if kind in ("oven", "fridge"):
-        return parts + _appliance_fronts(kind, x, w, face, z0, h, design)
+    if kind in ("oven", "fridge", "dishwasher"):
+        # 30 Oct 2026 (UL155, K16): the family's look of the dishwasher and the under-counter fridge
+        return parts + _appliance_fronts(kind, x, w, face, z0, h, design, look=str(m.get("appliance") or "steel"),
+                                         plinth_y=yc - dc / 2.0 + KITCHEN_PLINTH_RECESS_M)
     if kind == "drawers":
         fronts = P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 3, 1, design, doors=False)
     else:
-        fronts = P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 1, 2 if kind == "doors" else 1, design)
+        fronts = P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 1, 2 if kind == "doors" else 1, design,
+                                  handle_side=float(m.get("handle_side") or 1.0))
     parts += _rotate_parts(fronts, x, 0.0, 0.0)
     return parts
 
 
-def _appliance_fronts(kind: str, x: float, w: float, face: float, z0: float, h: float, design: dict) -> list[Part]:
+def _appliance_fronts(kind: str, x: float, w: float, face: float, z0: float, h: float, design: dict,
+                      look: str = "steel", plinth_y: Optional[float] = None) -> list[Part]:
     """26 Oct 2026: the front of a unit that holds an appliance (module docstring). ``oven``: a 59.5 cm built-in oven
     under the worktop (a steel control strip with two knobs, a black glass door with a steel bar handle, a glass
     window in it) over a drawer in the design's front style; ``fridge``: the under-counter fridge's steel door with an
     upright bar handle near its opening edge (30 Oct 2026: a side-hinged door; the bar along the top had read as a
-    dishwasher) and a dark vent grille at its foot. Every part sits in front of the carcass face."""
+    dishwasher) and a dark vent grille at its foot. Every part sits in front of the carcass face.
+
+    30 Oct 2026 (UL155, kitchen_details K16; the user: "still not a proper dishwasher correct it"): ``dishwasher``, by
+    the family's ``look``: ``integrated`` a semi-integrated machine (a steel control strip with a dark display and its
+    buttons over a front in the run's style with the run's handle), ``steel`` a built-under steel machine (a black glass
+    control strip with a display and steel buttons, a steel door with a recessed panel and a long bar handle on two
+    posts across its top); ``fridge`` with the ``integrated`` look stands behind a front in the run's style with the
+    run's handle, a steel vent grille in the plinth under it (``plinth_y``: the plinth's front face). Every front is in
+    the plane of the run's fronts."""
     gap = 0.003
     fw = w - 0.004
     y_back = face - P.FRONT_GAP                         # the back of a front
@@ -2246,6 +2381,17 @@ def _appliance_fronts(kind: str, x: float, w: float, face: float, z0: float, h: 
     cy = y_back - t / 2.0
     top = z0 + h - gap
     parts: list[Part] = []
+    if kind == "dishwasher":
+        return _dishwasher_front(x, fw, face, z0 + gap, top, design, look)
+    if kind == "fridge" and look == "integrated":
+        door_h = top - z0 - gap
+        parts += P._front_panel(x, face, z0 + gap, fw, door_h, P.front_style_of(design))
+        side = -1.0 if x > 1e-6 else 1.0                 # its opening edge on the run's middle side (as before)
+        hz = z0 + gap + door_h - 0.1 - P.HANDLE_BAR[1] / 2.0
+        parts.append(P._handle(x + side * (fw / 2.0 - 0.04), face, hz, vertical=True))
+        if plinth_y is not None and z0 > KITCHEN_PLINTH_VENT_M[1] + 0.02:
+            parts += _plinth_vent(x, min(KITCHEN_PLINTH_VENT_M[0], fw - 0.1), plinth_y, z0)
+        return parts
     if kind == "oven":
         oven_z = top - KITCHEN_OVEN_H_M
         strip_z = top - KITCHEN_OVEN_STRIP_M
@@ -2299,6 +2445,66 @@ def _appliance_fronts(kind: str, x: float, w: float, face: float, z0: float, h: 
     parts.append(P._box(hx, y_back - t - 0.03, hz, 0.016, 0.014, hl, "steel", "handle"))
     for sz in (hz + 0.02, hz + hl - 0.032):             # the handle's two posts
         parts.append(P._box(hx, y_back - t - 0.0125, sz, 0.012, 0.023, 0.012, "steel", "handle"))
+    return parts
+
+
+def _dishwasher_front(x: float, fw: float, face: float, z_bot: float, top: float, design: dict, look: str
+                      ) -> list[Part]:
+    """30 Oct 2026 (UL155, K16): the front of a dishwasher of ``fw`` from ``z_bot`` to ``top`` (``_appliance_fronts``):
+    the control strip over the door, its display and buttons proud of it; the door a front in the run's style with the
+    run's handle (``integrated``: a semi-integrated machine, its strip steel) or steel with a recessed panel and a long
+    bar handle (``steel``: a built-under machine, its strip black glass)."""
+    gap = 0.003
+    y_back = face - P.FRONT_GAP
+    t = P.FRONT_THICKNESS
+    cy = y_back - t / 2.0
+    y_front = y_back - t                                  # the plane of the run's fronts
+    strip_z = top - KITCHEN_DISHWASHER_STRIP_M
+    parts = [P._box(x, cy, strip_z, fw, t, KITCHEN_DISHWASHER_STRIP_M, "steel" if look == "integrated" else "dark",
+                    "front")]
+    sz = strip_z + KITCHEN_DISHWASHER_STRIP_M / 2.0
+    # the display (a dark glass window with the programme and the time) and the buttons, proud of the strip
+    parts.append(P._box(x + fw * 0.08, y_front - 0.001, sz - 0.012, min(0.09, fw * 0.2), 0.002, 0.024, "screen",
+                        "screen"))
+    for k in range(4):                                    # programme buttons beside the display
+        parts.append(P._cylinder_y(x + fw * 0.08 + min(0.09, fw * 0.2) / 2.0 + 0.025 + k * 0.03, y_front - 0.003, sz,
+                                   0.007, 0.007, 0.003, "steel" if look == "steel" else "dark", "button", n=12))
+    parts.append(P._cylinder_y(x - fw * 0.38, y_front - 0.003, sz, 0.009, 0.009, 0.003,       # the power button
+                               "steel" if look == "steel" else "dark", "button", n=12))
+    door_top = strip_z - gap
+    door_h = door_top - z_bot
+    if look == "integrated":
+        parts += P._front_panel(x, face, z_bot, fw, door_h, P.front_style_of(design))
+        parts.append(P._handle(x, face, door_top - 0.07, vertical=False))
+        return parts
+    f = 0.03                                              # the steel door: a frame round a recessed panel
+    rec = 0.003
+    parts.append(P._box(x, y_back - (t - rec) / 2.0, z_bot + f, fw - 2 * f, t - rec, door_h - 2 * f, "steel", "front"))
+    parts += [P._box(x - fw / 2.0 + f / 2.0, cy, z_bot, f, t, door_h, "steel", "front"),
+              P._box(x + fw / 2.0 - f / 2.0, cy, z_bot, f, t, door_h, "steel", "front"),
+              P._box(x, cy, z_bot, fw - 2 * f, t, f, "steel", "front"),
+              P._box(x, cy, door_top - f, fw - 2 * f, t, f, "steel", "front")]
+    # the long bar handle across the door's top on two posts, as far off the door as the run's bar handles
+    # (``HANDLE_POST_M``: the run stays in its footprint)
+    post, stand = HANDLE_POST_M
+    hz = door_top - 0.045
+    parts.append(P._box(x, y_front - stand - 0.006, hz, fw * 0.8, 0.012, 0.014, "steel", "handle"))
+    for sx in (-1.0, 1.0):
+        parts.append(P._box(x + sx * fw * 0.38, y_front - stand / 2.0, hz + 0.002, post, stand, post, "steel",
+                            "handle"))
+    return parts
+
+
+def _plinth_vent(x: float, vw: float, plinth_y: float, plinth_h: float) -> list[Part]:
+    """30 Oct 2026 (UL155, K16): the vent grille in the plinth under an integrated under-counter fridge (its condenser
+    breathes through the plinth): a steel frame with dark slots, on the plinth's front face ``plinth_y``."""
+    vh = KITCHEN_PLINTH_VENT_M[1]
+    z = (plinth_h - vh) / 2.0
+    parts = [P._box(x, plinth_y - 0.0015, z, vw, 0.003, vh, "steel", "grille")]
+    n = 5
+    for k in range(n):
+        parts.append(P._box(x, plinth_y - 0.0035, z + 0.006 + k * (vh - 0.012) / (n - 1) - 0.002, vw - 0.02, 0.001,
+                            0.004, "dark", "grille"))
     return parts
 
 

@@ -1071,7 +1071,8 @@ def kitchen_details(building: dict, manifest: Optional[dict] = None) -> list[dic
     fixes = {"styling": "rerun_stage decor (decor.kitchen_worktop_decor: the family's styling sets)",
              "led": "rerun_stage build (lighting.rig_plan: a strip under every wall cabinet; kitchen_details.run_boxes)",
              "island_hood": "rerun_stage refit (modules.plan_kitchen_run: every hob gets its hood)",
-             "fridge": "rerun_stage refit (fit.kitchen_details_hints: a fridge column or an under-counter fridge)"}
+             "fridge": "rerun_stage refit (fit.kitchen_details_hints: a fridge column or an under-counter fridge)",
+             "dishwasher": "rerun_stage refit (modules.plan_kitchen_run: the dishwasher beside the sink unit, K16)"}
     got, _n = KD.review(building, manifest, check="U31")
     return [_f("U31", g["severity"], g["target"], g["message"], g["lesson"],
                fixes.get(g["problem"], "rerun_stage refit (kitchen_details: the family's kitchen details)"),

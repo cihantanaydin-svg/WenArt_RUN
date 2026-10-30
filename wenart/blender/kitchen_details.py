@@ -52,6 +52,17 @@ What (pure, no ``bpy``, no shapely: it runs inside Blender and in the CPU tests)
   its family's rule gives it (a bare worktop beyond the 28 Oct U11, wall cabinets with no under-cabinet light, an
   island hob without a hood, a family detail not built, a kitchen with no fridge).
 
+- K16 the appliances under the worktop (30 Oct 2026, lesson UL155; the user on real04 run 20261030-043021-full: "still
+  not a proper dishwasher correct it", after UL150: the under-counter fridge's bare steel door between framed fronts
+  read as a dishwasher, and no kitchen had one): a run with a sink unit gets a dishwasher in the base unit beside the
+  sink (``modules.plan_kitchen_run``: a 60 cm machine, else a 45 cm slimline one; never against a corner with another
+  run when the other side is free); the family's ``appliances`` look (``appliance_look``) dresses it and the
+  under-counter fridge: ``integrated`` (every family but the industrial one: a semi-integrated dishwasher, a steel
+  control strip with a display and buttons over a front that matches the run, and an under-counter fridge behind a
+  matching front with a vent grille in the plinth) or ``steel`` (the industrial family and a kitchen with no style: a
+  built-under steel dishwasher with a black glass control strip, a recessed door panel and a long bar handle; the steel
+  fridge door of before). A single door beside an appliance has its handle on its far side.
+
 Not built here: K9 (linear pendants, square downlights: the lighting helper), K10 (set tables exist since 28 Oct), K12
 (plants exist), K13 (the full slat wall behind the dining table: the rooms helper).
 
@@ -145,6 +156,13 @@ FAMILY_KITCHEN: dict[str, dict] = {
 FAMILY_KITCHEN["default"] = dict(FAMILY_KITCHEN["modern"], upper_fronts=None, floor=None,
                                  why="no style family: the modern kitchen details without fluted uppers or a floor "
                                      "change")
+# K16 (30 Oct 2026, UL155): the look of the appliances under the worktop by family; industrial kitchens show their steel
+# appliances, every other family hides them behind fronts that match the run (a semi-integrated dishwasher keeps its
+# control strip in view: it reads as a dishwasher)
+APPLIANCE_LOOKS: tuple[str, ...] = ("integrated", "steel")
+STEEL_APPLIANCE_FAMILIES: tuple[str, ...] = ("industrial",)
+for _fam, _row in FAMILY_KITCHEN.items():
+    _row.setdefault("appliances", "steel" if _fam in STEEL_APPLIANCE_FAMILIES else "integrated")
 SPLASHBACK_KINDS = ("stone", "subway", "tiles")
 ISLAND_HOODS = ("cylinder", "box")
 
@@ -153,6 +171,15 @@ def family_rule(family: Optional[str]) -> dict:
     """The family's row of ``FAMILY_KITCHEN`` (an unknown family or none takes ``default``) with ``family``."""
     fam = str(family or "").lower().strip()
     return dict(FAMILY_KITCHEN.get(fam) or FAMILY_KITCHEN["default"], family=fam or "default")
+
+
+def appliance_look(rule: Optional[dict]) -> str:
+    """K16: ``integrated`` or ``steel``, the look of a run's dishwasher and under-counter fridge (pure): the family's
+    ``appliances``; no rule (a kitchen with no style) keeps the steel doors of before."""
+    if not rule:
+        return "steel"
+    look = rule.get("appliances")
+    return look if look in APPLIANCE_LOOKS else "integrated"
 
 
 def family_from(style: Optional[dict], hints: Optional[dict] = None, design: Optional[dict] = None
@@ -1136,7 +1163,8 @@ def review(building: Optional[dict], manifest: Optional[dict] = None, check: str
     major) and a run's own wall units with none (minor); (c) an island hob without a hood (major); (d) a family detail
     not built: a run planned before the rule (no ``details`` record), an island of a waterfall family without its
     waterfall ends, an island with its stools on its back and no knee space (minor); (e) a kitchen with no fridge (no
-    fridge piece, no fridge built into a run, no fridge column; major)."""
+    fridge piece, no fridge built into a run, no fridge column; major); (f) a sink with no dishwasher in the kitchen
+    (K16, UL155; minor)."""
     b = building or {}
     pieces = [f for f in b.get("furniture") or [] if _built(f)]
     decor = [x for x in b.get("decor") or [] if isinstance(x, dict)]
@@ -1150,8 +1178,9 @@ def review(building: Optional[dict], manifest: Optional[dict] = None, check: str
 
     def add(sev, target, room_id, problem, message):
         out.append({"check": check, "severity": sev, "target": target, "room_id": room_id, "problem": problem,
-                    "message": message, "lesson": "UL118" if problem in ("styling", "waterfall", "column", "fridge")
-                    else "UL115", "family": rule["family"]})
+                    "message": message, "lesson": "UL155" if problem == "dishwasher" else
+                    "UL118" if problem in ("styling", "waterfall", "column", "fridge") else "UL115",
+                    "family": rule["family"]})
 
     rig_rooms = (((manifest or {}).get("lighting") or {}).get("rig") or {}).get("rooms") or {}
     for rid, runs in sorted(rooms.items()):
@@ -1198,6 +1227,13 @@ def review(building: Optional[dict], manifest: Optional[dict] = None, check: str
         if not fridge:
             add("major", rid, rid, "fridge",
                 f"the kitchen {rid} has no fridge: no fridge piece, no fridge built into a run, no fridge column (K1)")
+        # 30 Oct 2026 (UL155, K16): a sink in a run has its dishwasher beside it
+        sink_runs = [r for r in runs if any(m.get("holds") == "sink" for m in _plan_of(r)["modules"])]
+        if sink_runs and not any(f.get("type") == "dishwasher" for f in room_pieces) and not any(
+                m.get("holds") == "dishwasher" for r in runs for m in _plan_of(r)["modules"]):
+            add("minor", sink_runs[0]["id"], rid, "dishwasher",
+                f"the kitchen {rid} has a sink with no dishwasher beside it (K16: a 60 or 45 cm machine in the unit "
+                "next to the sink unit)")
         rig = rig_rooms.get(rid) if isinstance(rig_rooms, dict) else None
         if isinstance(rig, dict):
             for dr in rig.get("dropped") or []:

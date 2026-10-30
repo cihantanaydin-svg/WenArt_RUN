@@ -210,7 +210,10 @@ def test_kitchen_run_puts_the_sink_under_the_window_passed_in():
     assert abs(sink_unit["pos_m"][0] - 1.0) <= 0.01
     units = [m for m in plan["modules"] if m["kind"] == "base_unit"]
     assert all(m["size_m"][0] in M.KITCHEN_BASE_WIDTHS_M for m in units)
-    assert all(m["size_m"][1] == 0.6 for m in units) and all("base unit" in m["product"] for m in units)
+    assert all(m["size_m"][1] == 0.6 for m in units)
+    # 30 Oct 2026 (UL155, K16): the unit beside the sink holds the dishwasher
+    assert all("base unit" in m["product"] for m in units if m.get("holds") != "dishwasher")
+    assert [m["product"] for m in units if m.get("holds") == "dishwasher"] == ["dishwasher 60 cm, built-under steel"]
     fillers = [m for m in plan["modules"] if m["kind"] == "filler"]
     assert sum(m["size_m"][0] for m in units + fillers) == pytest.approx(3.0)
     # the slit between the sink unit and the wall is a filler panel narrower than the smallest unit

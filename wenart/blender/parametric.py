@@ -2283,10 +2283,12 @@ def _handle(cx: float, y_face: float, zc: float, vertical: bool) -> Part:
 
 
 def cabinet_fronts(w: float, y_face: float, z0: float, z1: float, rows: int, cols: int, design: dict,
-                   doors: bool = True, handle_at: str = "top") -> list[Part]:
+                   doors: bool = True, handle_at: str = "top", handle_side: float = 1.0) -> list[Part]:
     """The fronts (and handles) of a cabinet face from ``z0`` to ``z1`` in ``rows`` x ``cols`` with 3 mm gaps, in
     the design's front style; door handles stand vertically near the meeting edges (``handle_at`` ``top``: in the
-    upper part of the door, a base cabinet; ``bottom``: a wall cabinet), drawer handles horizontally centred."""
+    upper part of the door, a base cabinet; ``bottom``: a wall cabinet), drawer handles horizontally centred. A single
+    door's handle stands at its right edge, or its left one with ``handle_side`` -1 (30 Oct 2026, UL155: away from an
+    appliance beside it)."""
     style = front_style_of(design)
     gap = 0.003
     rh = (z1 - z0) / rows
@@ -2301,7 +2303,7 @@ def cabinet_fronts(w: float, y_face: float, z0: float, z1: float, rows: int, col
             if doors:
                 side = 1.0 if c % 2 == 0 else -1.0          # pairs of doors: handles at the meeting edges
                 if cols == 1:
-                    side = 1.0
+                    side = -1.0 if handle_side < 0 else 1.0
                 hx = cx + side * (fw / 2.0 - 0.04)
                 hz = fz0 + fh - 0.1 - HANDLE_BAR[1] / 2.0 if handle_at == "top" else fz0 + 0.1 + HANDLE_BAR[1] / 2.0
                 hz = min(max(hz, fz0 + HANDLE_BAR[1] / 2.0 + 0.01), fz0 + fh - HANDLE_BAR[1] / 2.0 - 0.01)
