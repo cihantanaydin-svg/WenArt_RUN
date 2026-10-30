@@ -520,6 +520,20 @@ class MaterialLibrary:
                                                "Transparent BSDF for every other ray"}
         return self._cache["glass"]
 
+    def guard_glass(self):
+        """30 Oct 2026 (lesson UL145): the glass of an outdoor guard (a terrace or roof terrace balustrade): the thin
+        pane with a light grey-green tint (``details.GUARD_GLASS_RGB``), so the panel reads from outside; the data
+        passes still see through it."""
+        if "guard_glass" not in self._cache:
+            from wenart.blender import details as D
+            self._cache["guard_glass"] = thin_glass_material("guard_glass", roughness=0.02, tint=D.GUARD_GLASS_RGB)
+            self.records["guard_glass"] = {"slug": "glass", "textured": False, "asset": None, "source": None,
+                                           "licence": None, "size_m": None, "flat_colour": list(D.GUARD_GLASS_RGB),
+                                           "tint": list(D.GUARD_GLASS_RGB), "unverified": False, "albedo_mode": None,
+                                           "detail": None, "gain_clamped": None,
+                                           "reason": "an outdoor guard's glass: the thin pane, lightly tinted (UL145)"}
+        return self._cache["guard_glass"]
+
     def thin_glass(self):
         """Glass inside the room (shower panels): transparent + glossy by Fresnel.
         A Glass BSDF pane counts as opaque for Cycles' data passes, so a toilet

@@ -2064,7 +2064,7 @@ def terrace_railings(roof: dict, building: dict, level: dict, parapets: dict, co
             faces += [[base + i for i in face] for face in f]
         name = f"roof_terrace_railing_{oid}"
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="railing",
-                                    status="assumed", materials=[library.get("steel_brushed"), library.thin_glass(),
+                                    status="assumed", materials=[library.get("steel_brushed"), library.guard_glass(),
                                                                  library.get("concrete_polished")],
                                     face_material_indices=slots)
         reason = (f"roof terrace {oid}: the parapet stops at the eaves line; a {D.DIMS['coping_t']:.2f} m coping on it "
