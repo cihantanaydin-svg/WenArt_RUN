@@ -95,7 +95,13 @@ KIT_LOOKS = {
     "reveal": ("render", "white", "window reveal frame at the outer face (modern family; not drawn)"),
     "gutter": ("aluminium_anthracite", None, "gutter along the eaves (a pitched roof is drawn; the gutter is not)"),
     "downpipe": ("aluminium_anthracite", None, "downpipe at the eaves corners (not drawn)"),
-    "canopy": ("render", "white", "entrance canopy over the entrance door (the door is drawn; the canopy is not)"),
+    # 30 Oct 2026 (lesson UL171, user: "There should be better solution than these things in the house entrance
+    # points make it make sense"; a flat white slab stuck out of the wall, one just under the eaves): a real canopy
+    "canopy": ("aluminium_anthracite", None, "entrance canopy over the entrance door: a slim anthracite metal canopy "
+                                             "with a deeper front fascia as its drip edge (the door is drawn; the "
+                                             "canopy is not)"),
+    "canopy_soffit": ("wood_cladding", None, "the entrance canopy's wood soffit (not drawn)"),
+    "canopy_rod": ("steel_black", None, "the entrance canopy's two tie rods to wall plates above it (not drawn)"),
     "wall_light": ("steel_black", None, "wall light beside the entrance door (not drawn)"),
     "railing": ("steel_brushed", None, "guard's metal (rails, posts, bars or a glass channel) in front of an opening "
                                         "over a drop with no balcony (not drawn)"),
@@ -378,6 +384,131 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
 def _box(kind: str, level_id, centre, size, rot: float, parent=None, reason: str = "") -> dict:
     return {"kind": kind, "level_id": level_id, "center": [float(c) for c in centre], "size": [float(v) for v in size],
             "rotation_deg": float(rot), "inferred": True, "parent": parent, "reason": reason}
+
+
+CANOPY = {"eaves_gap_m": 0.5, "probe_m": 0.6, "window_gap_m": 0.15, "min_over_door_m": 0.10, "fascia_h": 0.14,
+          "fascia_t": 0.02, "soffit_t": 0.015, "rod_r": 0.012, "rod_rise": 0.6, "rod_in": 0.15, "rod_back": 0.06,
+          "plate": (0.08, 0.012, 0.16)}
+
+
+def canopy_height(e: dict, o: dict, lv: dict, door_top: float, building: dict, levels: Sequence[dict],
+                  roof_model: Optional[dict], face) -> tuple[Optional[float], str]:
+    """``(top z, reason)`` of an entrance door's canopy, or ``(None, why not)`` (pure; lesson UL171): none where the
+    roof's eaves pass less than ``eaves_gap_m`` over it or a balcony or the floor above reaches out over the door (they
+    shelter it already); under a window above the door's span it sits ``window_gap_m`` under that window's sill, and
+    none when that leaves less than ``min_over_door_m`` over the door."""
+    from wenart.blender.shell import opening_centre_on_wall, opening_vertical
+
+    ox, oy = e["outward"]
+    want = door_top + KIT["canopy_above"] + KIT["canopy_thick"]
+    probe = (face[0] + ox * CANOPY["probe_m"], face[1] + oy * CANOPY["probe_m"])
+    if roof_model and roof_model.get("equations") and len(roof_model.get("outline") or []) >= 3 \
+            and G.point_in_polygon(probe, roof_model["outline"]):
+        from wenart.blender import roof as R
+        try:
+            under = float(R.underside_z(roof_model, *probe))
+        except (KeyError, TypeError, ValueError, ZeroDivisionError):
+            under = None
+        if under is not None and under - want < CANOPY["eaves_gap_m"]:
+            return None, (f"no canopy over {e['opening_id']}: the roof's eaves pass {max(0.0, under - door_top):.2f} m "
+                          f"over the door and shelter it (lesson UL171)")
+    elev = float(lv["elevation"])
+    above = [x["id"] for x in levels if float(x["elevation"]) > elev]
+    for r in building.get("rooms") or []:
+        if r.get("level_id") in above and len(r.get("polygon") or []) >= 3 and G.point_in_polygon(probe, r["polygon"]):
+            return None, (f"no canopy over {e['opening_id']}: {r['id']} on the floor above reaches out over the door "
+                          f"and shelters it (lesson UL171)")
+    walls = {w["id"]: w for w in building.get("walls") or []}
+    ux, uy = -oy, ox
+    s0 = e["centre"][0] * ux + e["centre"][1] * uy
+    half = e["width"] / 2.0 + KIT["canopy_side"]
+    line = e["centre"][0] * ox + e["centre"][1] * oy
+    z_top = want
+    for q in building.get("openings") or []:
+        if q.get("id") == o.get("id") or q.get("wall_id") not in walls:
+            continue
+        qlv = next((x for x in levels if x["id"] == q.get("level_id")), None)
+        if qlv is None:
+            continue
+        try:
+            cx, cy, _ = opening_centre_on_wall(q, walls[q["wall_id"]])
+            qb, _qt, _ = opening_vertical(q, qlv, any(float(x["elevation"]) > float(qlv["elevation"]) for x in levels))
+        except (KeyError, TypeError, ValueError):
+            continue
+        if abs(cx * ox + cy * oy - line) > 0.3:
+            continue                                        # another wall line
+        qs = cx * ux + cy * uy
+        if abs(qs - s0) > half + float(q.get("width") or 0.0) / 2.0 or qb <= door_top:
+            continue
+        z_top = min(z_top, qb - CANOPY["window_gap_m"])
+    if z_top - KIT["canopy_thick"] < door_top + CANOPY["min_over_door_m"]:
+        return None, (f"no canopy over {e['opening_id']}: a window over the door leaves no room for one under its sill "
+                      f"(lesson UL171)")
+    return z_top, ("entrance canopy" + (" under the window above" if z_top < want - 1e-6 else ""))
+
+
+def _rod(p0, p1, r: float) -> tuple[list, list]:
+    """A square rod from ``p0`` to ``p1`` (3D), wound outwards (pure)."""
+    dx, dy, dz = (p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2])
+    ln = math.sqrt(dx * dx + dy * dy + dz * dz) or 1e-9
+    ux, uy, uz = dx / ln, dy / ln, dz / ln
+    ax = (0.0, 0.0, 1.0) if abs(uz) < 0.9 else (1.0, 0.0, 0.0)
+    e1 = (ax[1] * uz - ax[2] * uy, ax[2] * ux - ax[0] * uz, ax[0] * uy - ax[1] * ux)
+    m = math.sqrt(sum(c * c for c in e1)) or 1e-9
+    e1 = tuple(c / m for c in e1)
+    e2 = (uy * e1[2] - uz * e1[1], uz * e1[0] - ux * e1[2], ux * e1[1] - uy * e1[0])
+    ring = [(1, 1), (-1, 1), (-1, -1), (1, -1)]
+    verts = [tuple(p[k] + (e1[k] * a + e2[k] * b) * r for k in range(3)) for p in (p0, p1) for a, b in ring]
+    faces = [[k, (k + 1) % 4, 4 + (k + 1) % 4, 4 + k] for k in range(4)] + [[7, 6, 5, 4], [0, 1, 2, 3]]
+    return geom2d.convex_solid(verts, faces)
+
+
+def canopy_parts(face, out, width: float, z_top: float, level_id, parent) -> list[dict]:
+    """An entrance canopy as a real product (pure; lesson UL171): a slim anthracite metal canopy ``KIT["canopy_depth"]``
+    deep, its front and side fascias ``fascia_h`` deep (the drip edge, taller than the canopy), a wood soffit under it,
+    and two black steel tie rods from its front corners up to wall plates ``rod_rise`` over it (kinds ``canopy``,
+    ``canopy_soffit``, ``canopy_rod``; a rod carries its own ``mesh``)."""
+    ox, oy = out
+    ux, uy = -oy, ox
+    rot = math.degrees(math.atan2(uy, ux))
+    depth, thick = KIT["canopy_depth"], KIT["canopy_thick"]
+    ft, fh = CANOPY["fascia_t"], CANOPY["fascia_h"]
+
+    def at(s, d):
+        return face[0] + ux * s + ox * d, face[1] + uy * s + oy * d
+
+    why = KIT_LOOKS["canopy"][2]
+    c = at(0.0, depth / 2.0)
+    out_boxes = [_box("canopy", level_id, (c[0], c[1], z_top - thick / 2.0), (width, depth, thick), rot, parent, why)]
+    f = at(0.0, depth - ft / 2.0)
+    out_boxes.append(_box("canopy", level_id, (f[0], f[1], z_top - fh / 2.0), (width + 2 * ft, ft, fh), rot, parent,
+                          "the canopy's front fascia, its drip edge (not drawn)"))
+    for sgn in (-1.0, 1.0):
+        sc = at(sgn * (width / 2.0 + ft / 2.0), depth / 2.0)
+        out_boxes.append(_box("canopy", level_id, (sc[0], sc[1], z_top - fh / 2.0), (ft, depth, fh), rot, parent,
+                              "the canopy's side fascia (not drawn)"))
+    st = CANOPY["soffit_t"]
+    sf = at(0.0, (depth - ft) / 2.0)
+    out_boxes.append(_box("canopy_soffit", level_id, (sf[0], sf[1], z_top - thick - st / 2.0),
+                          (width - 0.002, depth - ft - 0.002, st), rot, parent, KIT_LOOKS["canopy_soffit"][2]))
+    pw, pd, ph = CANOPY["plate"]
+    for sgn in (-1.0, 1.0):
+        s = sgn * (width / 2.0 - CANOPY["rod_in"])
+        a = at(s, depth - CANOPY["rod_back"])
+        b = at(s, pd + CANOPY["rod_r"])
+        p0 = (a[0], a[1], z_top)
+        p1 = (b[0], b[1], z_top + CANOPY["rod_rise"])
+        v, fcs = _rod(p0, p1, CANOPY["rod_r"])
+        xs, ys, zs = zip(*v)
+        rod = _box("canopy_rod", level_id, ((min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0,
+                                            (min(zs) + max(zs)) / 2.0),
+                   (max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs)), 0.0, parent, KIT_LOOKS["canopy_rod"][2])
+        rod["mesh"] = [list(v), [list(x) for x in fcs]]
+        out_boxes.append(rod)
+        pc = at(s, pd / 2.0)
+        out_boxes.append(_box("canopy_rod", level_id, (pc[0], pc[1], z_top + CANOPY["rod_rise"]), (pw, pd, ph), rot,
+                              parent, "the tie rod's wall plate (not drawn)"))
+    return out_boxes
 
 
 def guard_boxes(p, q, bottom: float, top: float, level_id, parent, kind: str = "glass_channel") -> list[dict]:
@@ -852,6 +983,7 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
         except (KeyError, TypeError, ValueError):
             ents = []
     openings = {o["id"]: o for o in building.get("openings") or []}
+    canopies = []
     for e in ents:
         o = openings.get(e["opening_id"])
         lv = next((x for x in levels if x["id"] == e["level_id"]), None)
@@ -864,11 +996,14 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
         ux, uy = -oy, ox
         rot = math.degrees(math.atan2(uy, ux))
         face = (e["centre"][0] + ox * e["half_t"], e["centre"][1] + oy * e["half_t"])
-        depth, thick = KIT["canopy_depth"], KIT["canopy_thick"]
-        boxes.append(_box("canopy", lv["id"], (face[0] + ox * depth / 2.0, face[1] + oy * depth / 2.0,
-                                               top + KIT["canopy_above"] + thick / 2.0),
-                          (e["width"] + 2 * KIT["canopy_side"], depth, thick), rot, e["opening_id"],
-                          KIT_LOOKS["canopy"][2]))
+        # 30 Oct 2026 (UL171): a canopy only where nothing shelters the door already, under a window above it, as a
+        # real product (canopy_parts)
+        z_top, why_not = canopy_height(e, o, lv, top, building, levels, roof_model, face)
+        if z_top is None:
+            assumed.append({"field": f"canopy:{e['opening_id']}", "value": None, "reason": why_not})
+        else:
+            limit = z_top if "under the window" in why_not else None
+            canopies.append({"e": e, "lv": lv, "face": face, "z": z_top, "limit": limit, "door_top": top})
         for sgn in (-1.0, 1.0):
             off = sgn * (e["width"] / 2.0 + KIT["light_offset"])
             boxes.append(_box("wall_light", lv["id"], (face[0] + ux * off + ox * KIT["light_d"] / 2.0,
@@ -876,6 +1011,17 @@ def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_ou
                                                        bottom + KIT["light_z"]),
                               (KIT["light_w"], KIT["light_d"], KIT["light_h"]), rot, e["opening_id"],
                               KIT_LOOKS["wall_light"][2]))
+    # the canopies of one wall line at one height (the highest; one under a window keeps its own limit)
+    for c in canopies:
+        ox, oy = c["e"]["outward"]
+        line = c["e"]["centre"][0] * ox + c["e"]["centre"][1] * oy
+        mates = [k for k in canopies if k["e"]["outward"] == c["e"]["outward"] and k["lv"]["id"] == c["lv"]["id"]
+                 and abs(k["e"]["centre"][0] * ox + k["e"]["centre"][1] * oy - line) < 0.3]
+        z = max(k["z"] for k in mates)
+        if c["limit"] is not None:
+            z = min(z, c["limit"])
+        boxes += canopy_parts(c["face"], (ox, oy), c["e"]["width"] + 2 * KIT["canopy_side"], z, c["lv"]["id"],
+                              c["e"]["opening_id"])
     # 4. guards in front of the openings over a drop (26 Oct 2026, user on real06: "are the people going to jump
     # off from it?"): every outside door, gap or window whose bottom is less than guard_sill over its floor, over a
     # drop of guard_min_drop, opening onto no balcony or terrace, and every opening the architect gave a ``guard``
@@ -1023,7 +1169,9 @@ def build_articulation(plan: dict, collection, make_material, manifest_objects: 
         by_kind.setdefault(b["kind"], []).append(b)
     for kind, boxes in sorted(by_kind.items()):
         mat = make_material(plan["looks"][kind])
-        verts, faces = geom2d.merge([geom2d.box(b["center"], b["size"], b["rotation_deg"]) for b in boxes])
+        # 30 Oct 2026 (UL171): a part with its own mesh (a canopy's tie rod) keeps it
+        verts, faces = geom2d.merge([(b["mesh"][0], b["mesh"][1]) if b.get("mesh") else
+                                     geom2d.box(b["center"], b["size"], b["rotation_deg"]) for b in boxes])
         name = f"facade_{kind}"
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="facade_detail",
                                     status="assumed", materials=[mat])
