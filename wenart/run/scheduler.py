@@ -2563,22 +2563,38 @@ class Orchestrator:
 
     def final_chain(self, url: Optional[str]) -> None:
         """Phases 5-8 of an orchestrated run (the agent server stays up while Blender renders; it sleeps for the
-        gate and the polish below 80 GB), then the final round for critical findings."""
-        with self.phase_block(5):
-            self.phase5()
-        slept = self.agent_server(url, "sleep")
-        with self.phase_block(6):
-            self.phase6()
-        if slept:
-            self.agent_server(url, "wake")
-        with self.phase_block(7):
-            self.phase7()
-        with self.phase_block(8):
-            self.agent_check(url)
-        if url is not None:
-            self.final_critical_rounds(url)
-            self.variants_again(url)
-            self.argus_final(url)
+        gate and the polish below 80 GB), then the final round for critical findings. 30 Oct 2026 (lesson UL173,
+        user: "Do the 3D export only once, at the end"): every 3D export of the chain waits for its end
+        (``exports_at_end``), so each scene is exported once, as it is finally built."""
+        self.defer_export = True
+        try:
+            with self.phase_block(5):
+                self.phase5()
+            slept = self.agent_server(url, "sleep")
+            with self.phase_block(6):
+                self.phase6()
+            if slept:
+                self.agent_server(url, "wake")
+            with self.phase_block(7):
+                self.phase7()
+            with self.phase_block(8):
+                self.agent_check(url)
+            if url is not None:
+                self.final_critical_rounds(url)
+                self.variants_again(url)
+                self.argus_final(url)
+        finally:
+            self.defer_export = False
+            self.exports_at_end()
+
+    def exports_at_end(self) -> None:
+        """The 3D exports the chain asked for (``stage_export`` while ``defer_export``), once each, in run order, of
+        the final scenes (lesson UL173)."""
+        wanted = list(getattr(self, "export_wanted", None) or [])
+        self.export_wanted = []
+        for pr in [r for r in self.runs if r in wanted]:
+            if pr.active and self.status_of(pr, "build") == "ok":
+                self.stage_export(pr)
 
     def variants_again(self, url: Optional[str]) -> None:
         """30 Oct 2026 (real04 run 20261029-201533-full: the GPU test ``test_ai_decor_is_built`` failed on the
@@ -2854,6 +2870,15 @@ class Orchestrator:
         ``<out>/export``; a failure is a warning (the renders stand)."""
         if self.opts.smoke:
             self.skip(pr, "export", "smoke profile")
+            return
+        if getattr(self, "defer_export", False):
+            # lesson UL173: the export of the final scene, once, at the end of the chain (exports_at_end)
+            wanted = getattr(self, "export_wanted", None)
+            if wanted is None:
+                wanted = self.export_wanted = []
+            if pr not in wanted:
+                wanted.append(pr)
+                self.out(f"{pr.label or pr.name}: 3D export at the end of the run (once, of the final scene)")
             return
         if not self.can_start(S.EST_EXPORT_S):
             self.not_started(pr, "export")

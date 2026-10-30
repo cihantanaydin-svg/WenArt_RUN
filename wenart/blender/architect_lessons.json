@@ -2043,6 +2043,18 @@
    "request": "fenced neighbouring plots and some roads coming to this project (30 Oct 2026, the user's answer to what 'closed off sections and outside roads' means in UL162: the neighbouring plots around the project as fenced plots, and roads that lead to the project from outside)",
    "lesson": "The project sits among its neighbours: plots of the project plot's size on its sides, 8 m apart, cut back from the roads, each fenced 0.3 m inside its edge with a 3 m gate on the edge nearest the road (site.neighbour_plots, NEIGHBOURS); a road comes to every drive end from outside, square to the street, on across the ground (outside_roads); no neighbours or roads drawn: inferred.",
    "question": "Does the project sit among fenced neighbouring plots with roads that come to it from outside, never alone on an empty lawn with its drive leading nowhere?"
+  },
+  {
+   "id": "UL173",
+   "date": "2026-10-30",
+   "area": "process",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Do the 3D export only once, at the end rest stays the same (30 Oct 2026, the user on the step times of real04 run 20261030-112241-full: the 3D export ran four times, about 3.5 min each, after the phase-5 build and again after the big loop's rebuild, for the house and the open-kitchen variant)",
+   "lesson": "A run exports each scene's 3D files once, at the end, of the final scene: every export the final chain asks for (phase 5, the big loop's final stages, a rebuilt variant) waits (Orchestrator.defer_export) and exports_at_end runs each once in run order after the last round, also when the chain stops early; everything else stays as it was (run 20261030-112241-full: four exports of about 3.5 min each).",
+   "question": null
   }
  ]
 }
