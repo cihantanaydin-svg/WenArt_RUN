@@ -939,6 +939,7 @@ def camera_problems(building: dict, cam: dict) -> list[dict]:
             out.append(_v("V1", "major", name, f"{name} is {d:.2f} m from the door {oid} (at least "
                                                f"{DOOR_CLEARANCE_M:g} m)", room_id=rid, door=oid, distance=d))
     h = z - floor
+    over_ceiling = False
     if level and room.get("id") not in set(level.get("open_rooms") or ()):
         # 30 Oct 2026 (real04 run 20261029-201533-full, cam_r_L1_banyo_1: an agent pose 0.21 m over the sloped ceiling
         # rendered black, every fixture absent from its index pass): a lens over its room's ceiling, or nearer it than
@@ -947,6 +948,7 @@ def camera_problems(building: dict, cam: dict) -> list[dict]:
 
         ceiling = min(CS.ceiling_above_floor(level, (x, y)), float(level.get("ceiling_height") or math.inf))
         if h > ceiling - CS.LENS_CEILING_M:
+            over_ceiling = True
             out.append(_v("V1", "critical", name, f"{name} stands {h:.2f} m over its floor, over (or within "
                                                    f"{CS.LENS_CEILING_M:g} m of) its room's ceiling at {ceiling:.2f} m "
                                                    "there: it sees the back of the ceiling", room_id=rid,
@@ -960,6 +962,8 @@ def camera_problems(building: dict, cam: dict) -> list[dict]:
     from wenart.blender import camsearch as CS
 
     for p in CS.pose_problems(building, dict(cam, name=name), rules=("headroom",)):
+        if over_ceiling:
+            break                          # the lens over its ceiling is named once (above)
         out.append(_v("V1", "critical" if float(p.get("ceiling_m") or 0.0) <= float(p.get("eye_m") or 0.0)
                       else "major", name, p["message"], room_id=rid, ceiling_m=p.get("ceiling_m")))
     return out

@@ -1037,7 +1037,6 @@ def wall_items_clear(building: dict, manifest: Optional[dict] = None) -> list[di
 
 
 CHECK_LESSONS["U35"] = ("UL134", "UL139")     # 30 Oct 2026: wall items clear of openings, each other, what stands below
-CHECK_LESSONS["U34"] = ("UL121",)        # 29 Oct 2026: a full, realistic bed (bedding_parts.review)
 CHECK_LESSONS["U38"] = ("UL153",)        # 30 Oct 2026: the P16 living-dining room (salon_details.review)
 SALON_FIXES = {
     "seating_rug": "rerun_stage decor (salon_details.seating_rug: a rug under the sofa group)",

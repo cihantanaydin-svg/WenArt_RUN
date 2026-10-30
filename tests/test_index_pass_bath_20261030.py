@@ -259,7 +259,9 @@ def test_a_lens_over_its_sloped_ceiling_sees_nothing_and_v1_refuses_it():
     v = [x for x in EC.camera_problems(b, over) if "ceiling" in x["message"]]
     assert len(v) == 1 and v[0]["severity"] == "critical" and v[0]["metrics"]["ceiling_m"] == pytest.approx(1.041,
                                                                                                          abs=1e-3)
-    assert not [x for x in EC.camera_problems(b, under) if "ceiling" in x["message"]]
+    # the run before's pose sees the room; it keeps less than the search's 0.30 m of headroom (camsearch.HEADROOM_M,
+    # a major note of the same V1), never the critical "over its ceiling"
+    assert not [x for x in EC.camera_problems(b, under) if "ceiling" in x["message"] and x["severity"] == "critical"]
     verdict = EC.validate_camera_override(b, {"view_id": over["name"], "action": "set", "kind": "interior",
                                               "room_id": "r_L1_banyo", "position": over["position"],
                                               "target": over["target"], "lens_mm": 16.0, "reason": "test"})
