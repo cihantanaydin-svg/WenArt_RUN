@@ -674,6 +674,8 @@ def _g6(r: RoomView) -> list[dict]:
         if g["group"] not in ("dining", "balcony") or g["anchor_id"] not in r.pieces:
             continue
         tid = g["anchor_id"]
+        if "table" not in str(r.by_id[tid].get("type") or ""):
+            continue                    # 30 Oct 2026 (UL130): a terrace's plants anchor its group, no table to seat
         if _unsure(r.by_id[tid]):                       # fix round after P4a: a code-typed table is checked
             continue
         table = r.pieces[tid]

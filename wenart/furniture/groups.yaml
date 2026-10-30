@@ -721,34 +721,28 @@ groups:
     partners: []
 
   balcony:
-    what: "a small table with two chairs; the railing side stays free"
+    # 30 Oct 2026 (lesson UL130, user on real04 run 20261029-201533-full: "Terras does not need table and chairs maybe
+    # only some plants and decor for outside would be enough"): a terrace or balcony gets plants in big pots along its
+    # walls (the outdoor decor comes from the decor stage); a drawn table and chairs stay as drawn.
+    what: "plants in big pots along the walls; no table and chairs; the railing side stays free"
     layout: anchored
     zone: balcony
     room_types: [balcony]
     priority: 10
     anchor:
-      types: [table_dining]
-      place: free
+      types: [potted_plant]
+      place: wall
+      align: corner
       sizes:
-        - {table_dining: [[0.7, 0.7]]}
+        - {potted_plant: [[0.6, 0.6], [0.5, 0.5]]}
     options:
-      table_2_chairs: {anchor: table_dining}
-      # 23 Oct 2026: extra options (table sizes, plants; the table always has its two chairs, check G6).
-      table_2_chairs_round: {anchor: table_dining, min_area: 2.5, sizes: {table_dining: [[0.8, 0.8]]}, what: "round table, two chairs"}
-      table_2_chairs_rect: {anchor: table_dining, min_area: 3, sizes: {table_dining: [[0.9, 0.7], [0.8, 0.7]]}, what: "rectangular table, two chairs"}
-      large_table_2_chairs: {anchor: table_dining, min_area: 4, sizes: {table_dining: [[1.0, 0.7]]}, what: "larger table, two chairs"}
-      table_2_chairs_plant: {anchor: table_dining, min_area: 3, counts: {potted_plant: 1}, what: "table, two chairs, a plant"}
-      table_2_chairs_2_plants: {anchor: table_dining, min_area: 4, counts: {potted_plant: 2}, what: "table, two chairs, two plants"}
-      table_80_plant: {anchor: table_dining, min_area: 3, sizes: {table_dining: [[0.8, 0.7]]}, counts: {potted_plant: 1}, what: "bistro table, two chairs, a plant"}
-      table_90_2_plants: {anchor: table_dining, min_area: 4, sizes: {table_dining: [[0.9, 0.7]]}, counts: {potted_plant: 2}, what: "table, two chairs, two plants"}
-      round_table_plant: {anchor: table_dining, min_area: 3.5, sizes: {table_dining: [[0.8, 0.8]]}, counts: {potted_plant: 1}, what: "round table, two chairs, a plant"}
-      table_100_plant: {anchor: table_dining, min_area: 5, sizes: {table_dining: [[1.0, 0.7]]}, counts: {potted_plant: 1}, what: "larger table, two chairs, a plant"}
-      table_2_chairs_large_plants: {anchor: table_dining, min_area: 6, sizes: {table_dining: [[1.0, 0.7]]}, counts: {potted_plant: 2}, partner_sizes: {plant: [[0.6, 0.6], [0.5, 0.5]]}, what: "larger table, two chairs, two large plants"}
-      round_table_2_plants: {anchor: table_dining, min_area: 5, sizes: {table_dining: [[0.8, 0.8]]}, counts: {potted_plant: 2}, what: "round table, two chairs, two plants"}
+      planters: {anchor: potted_plant}
+      planters_2: {anchor: potted_plant, min_area: 3, counts: {potted_plant: 1}, what: "two plants in big pots"}
+      planters_3: {anchor: potted_plant, min_area: 5, counts: {potted_plant: 2}, what: "three plants in big pots"}
+      planters_large: {anchor: potted_plant, min_area: 6, sizes: {potted_plant: [[0.7, 0.7]]}, counts: {potted_plant: 2},
+                       what: "a large plant and two smaller ones"}
     partners:
-      - {role: chair, type: chair, required: true, place: pair, facing: anchor, sizes: [[0.45, 0.45]]}
-      # 23 Oct 2026: a partner of the extra options only (default 0).
-      - {role: plant, type: potted_plant, required: false, max: 2, default: 0, place: beside_head, gap: 0.10, facing: same, sizes: [[0.4, 0.4], [0.35, 0.35]]}
+      - {role: plant, type: potted_plant, required: false, max: 2, default: 0, place: beside_head, gap: 0.15, facing: same, sizes: [[0.45, 0.45], [0.4, 0.4]]}
 
   # 23 Oct 2026 (user: "increase the group furniture options 10x ... think bigger"): two groups that only have extra
   # options; the program offers them, optional, in rooms of their room types when an option's window allows.

@@ -1524,12 +1524,12 @@
    "id": "UL130",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Terrace does not need table and chairs, maybe only some plants and decor for outside would be enough (30 Oct 2026, real04 run 20261029-201533-full: every terrace got a dining table with two chairs)",
-   "lesson": "Terrace does not need table and chairs, maybe only some plants and decor for outside would be enough (30 Oct 2026, real04 run 20261029-201533-full: every terrace got a dining table with two chairs)",
+   "lesson": "A terrace, balcony or roof terrace gets plants in big pots along its walls (groups.yaml balcony: planters options), never a table and chairs the rules add; drawn pieces stay; G6 seats only a real table. Checks: build.",
    "question": "Does every terrace, balcony or roof terrace stay free of a dining table and chairs the rules add, dressed instead with plants in real planters and outdoor decor (lanterns, an outdoor cushion or throw on a drawn seat), drawn furniture kept?"
   },
   {
@@ -1687,6 +1687,42 @@
    "request": "Pool can use some seating furniture, also a ladder to the pool as always (30 Oct 2026, real04 run 20261029-201533-full)",
    "lesson": "Pool can use some seating furniture, also a ladder to the pool as always (30 Oct 2026, real04 run 20261029-201533-full)",
    "question": "Does every pool have a ladder (or steps) into the water and outdoor seating (sun loungers, a side table) on its deck where the deck allows?"
+  },
+  {
+   "id": "UL144",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "These handrails here not making that much sense (30 Oct 2026, real04 run 20261029-201533-full: the outdoor stair's handrails are separate short frames per flight, not one rail along the stair)",
+   "lesson": "These handrails here not making that much sense (30 Oct 2026, real04 run 20261029-201533-full: the outdoor stair's handrails are separate short frames per flight, not one rail along the stair)",
+   "question": "Does every outdoor stair have one continuous handrail at 0.9 m over its nosings along its open side, over the landings, with real posts on the stair or its wall and 0.3 m past both ends?"
+  },
+  {
+   "id": "UL145",
+   "date": "2026-10-30",
+   "area": "terrace",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Better handrails in the terrace are needed (30 Oct 2026, real04 run 20261029-201533-full: the top floor roof terrace has only a thin bare metal tube on its parapet)",
+   "lesson": "Better handrails in the terrace are needed (30 Oct 2026, real04 run 20261029-201533-full: the top floor roof terrace has only a thin bare metal tube on its parapet)",
+   "question": "Does every terrace or balcony edge have a real guard 1.0-1.1 m high (a glass balustrade with a metal top rail, or balusters under a handrail) in the facade's finish, never a thin bare tube?"
+  },
+  {
+   "id": "UL146",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This is a good inspiration (30 Oct 2026, photo P14: a bedroom with slatted wall panels, an upholstered bed with layered bedding, round two-drawer nightstands, a line-art print pair, a linear chandelier, a glass bedside pendant, black track lights, a venetian blind, a dressing desk with an arched mirror, black open shelving, herringbone floor)",
+   "lesson": "This is a good inspiration (30 Oct 2026, photo P14: a bedroom with slatted wall panels, an upholstered bed with layered bedding, round two-drawer nightstands, a line-art print pair, a linear chandelier, a glass bedside pendant, black track lights, a venetian blind, a dressing desk with an arched mirror, black open shelving, herringbone floor)",
+   "question": "Do the bedrooms reach the P14 reference where their family allows: slatted wall panels, an upholstered bed with layered bedding, round nightstands with styled tops, a print pair over the bed, a linear chandelier or bedside pendants, track lights, a blind with the curtains, a dressing desk with an arched mirror and open shelving?"
   }
  ]
 }
