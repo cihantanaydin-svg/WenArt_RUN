@@ -2055,6 +2055,56 @@
    "request": "Do the 3D export only once, at the end rest stays the same (30 Oct 2026, the user on the step times of real04 run 20261030-112241-full: the 3D export ran four times, about 3.5 min each, after the phase-5 build and again after the big loop's rebuild, for the house and the open-kitchen variant)",
    "lesson": "A run exports each scene's 3D files once, at the end, of the final scene: every export the final chain asks for (phase 5, the big loop's final stages, a rebuilt variant) waits (Orchestrator.defer_export) and exports_at_end runs each once in run order after the last round, also when the chain stops early; everything else stays as it was (run 20261030-112241-full: four exports of about 3.5 min each).",
    "question": null
+  },
+  {
+   "id": "UL174",
+   "date": "2026-10-30",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "I did not like the lamp (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom: a classic antique-brass chandelier with white bell shades over the bed of a modern concrete-walled room); again on the play room's dining table: \"also I did not like the lamp\" (a crystal-drop chandelier over a modern dining table)",
+   "lesson": "I did not like the lamp (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom: a classic antique-brass chandelier with white bell shades over the bed of a modern concrete-walled room)",
+   "question": null
+  },
+  {
+   "id": "UL175",
+   "date": "2026-10-30",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "laptop and stationary can be more detailed models they are too plain (30 Oct 2026, real04 run 20261030-112241-full, the bedroom desk: a flat slab laptop, plain notebooks and a plain pen pot)",
+   "lesson": "laptop and stationary can be more detailed models they are too plain (30 Oct 2026, real04 run 20261030-112241-full, the bedroom desk: a flat slab laptop, plain notebooks and a plain pen pot)",
+   "question": null
+  },
+  {
+   "id": "UL176",
+   "date": "2026-10-30",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "I did not like this bed (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom with slatted walls: a glossy black bed under a plain white duvet slab, grey and white pillows leaning)",
+   "lesson": "I did not like this bed (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom with slatted walls: a glossy black bed under a plain white duvet slab, grey and white pillows leaning)",
+   "question": null
+  },
+  {
+   "id": "UL177",
+   "date": "2026-10-30",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "this wall texture seems to be used too much in the house, reduce it down (30 Oct 2026, real04 run 20261030-112241-full: the wood slat wall panelling on whole bedroom walls, in many rooms); again on the play room: \"same wall texture reduce\"",
+   "lesson": "this wall texture seems to be used too much in the house, reduce it down (30 Oct 2026, real04 run 20261030-112241-full: the wood slat wall panelling on whole bedroom walls, in many rooms)",
+   "question": null
+  },
+  {
+   "id": "UL178",
+   "date": "2026-10-30",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "Table seems to be going through the chairs (30 Oct 2026, real04 run 20261030-112241-full, the top-floor play room's dining set: a turned-leg table with a drawer apron, two grey shell chairs whose seats and backs pass through the table top and legs)",
+   "lesson": "Table seems to be going through the chairs (30 Oct 2026, real04 run 20261030-112241-full, the top-floor play room's dining set: a turned-leg table with a drawer apron, two grey shell chairs whose seats and backs pass through the table top and legs)",
+   "question": null
   }
  ]
 }

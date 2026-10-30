@@ -142,6 +142,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -739,13 +740,58 @@ def _validate_bed_frame(e: dict, furniture: bool) -> None:
                                "refused)")
 
 
+# The families a family may borrow from, in order (docs/milestone8.md §5: a mediterranean project without a
+# mediterranean model takes a rustic one, then a classic one); ``fit.STYLE_FALLBACK`` is this table.
+STYLE_FALLBACK: dict[str, tuple[str, ...]] = {
+    "mediterranean": ("rustic", "classic"), "rustic": ("classic", "mediterranean"), "classic": ("rustic",),
+    "industrial": ("modern",), "japandi": ("scandinavian", "minimal"), "scandinavian": ("minimal", "modern"),
+    "modern minimal": ("minimal", "modern"), "minimal": ("modern minimal", "modern"),
+    "modern": ("modern minimal", "minimal"),
+}
+# Title words that name a style (lower case, whole words): a "Traditional" turned-leg table is classic, a
+# "Farmhouse" one rustic. 30 Oct 2026 (lesson UL174): "classic" too ("Classic Ceiling Pendant Chandelier ... Antique
+# Brass", tagged modern and scandinavian by the vision judges, hung in a modern concrete bedroom).
+STYLE_WORDS: dict[str, tuple[str, ...]] = {
+    "classic": ("classic", "traditional", "victorian", "baroque", "rococo", "colonial", "antique", "turned"),
+    "rustic": ("rustic", "farmhouse", "provencal", "cottage", "country"),
+    "industrial": ("industrial", "loft"),
+}
+# A finish named "antique brass" (or bronze, ...) names a colour, not a style: an industrial cage pendant has it too.
+FINISH_WORDS_RE = re.compile(r"\bantique[ -](brass|bronze|gold|silver|nickel|copper|white|black|finish)\b")
+
+
+def compatible_styles(family: Optional[str]) -> Optional[set]:
+    """26 Oct 2026 (fix E): the styles a piece of a ``family`` project may carry: the family, its fallbacks
+    (``STYLE_FALLBACK``), every style whose fallback names the family, and ``neutral``; None without a family."""
+    if not family:
+        return None
+    out = {family, NEUTRAL} | set(STYLE_FALLBACK.get(family, ()))
+    out |= {s for s, chain in STYLE_FALLBACK.items() if family in chain}
+    return out
+
+
+def title_styles(entry: dict) -> list[str]:
+    """The styles a model's title or name names (``STYLE_WORDS``, whole words; finish names such as "antique brass"
+    left out)."""
+    title = FINISH_WORDS_RE.sub(" ", " ".join(str(entry.get(k) or "") for k in ("title", "name")).lower())
+    return [s for s, words in STYLE_WORDS.items() if any(re.search(rf"\b{re.escape(w)}\b", title) for w in words)]
+
+
+def title_style_clash(entry: dict, family: Optional[str]) -> list[str]:
+    """30 Oct 2026 (lesson UL174): the styles a model's own title names that a ``family`` project may not carry
+    (``compatible_styles``): the title is the maker's word, the ``styles`` tags the vision judges' guess."""
+    allowed = compatible_styles(family)
+    return [] if allowed is None else [s for s in title_styles(entry) if s not in allowed]
+
+
 def styles_match(entry: dict, family: Optional[str]) -> bool:
     """True when ``entry`` may be used for a project of style ``family``: its ``styles`` contain the
-    family or ``neutral``; every entry matches when the family is None (docs/milestone7.md §6.3)."""
+    family or ``neutral`` and its title names no style the family may not carry (``title_style_clash``, UL174);
+    every entry matches when the family is None (docs/milestone7.md §6.3)."""
     if family is None:
         return True
     styles = entry.get("styles") or []
-    return family in styles or NEUTRAL in styles
+    return (family in styles or NEUTRAL in styles) and not title_style_clash(entry, family)
 
 
 def has_mattress(entry: dict) -> bool:

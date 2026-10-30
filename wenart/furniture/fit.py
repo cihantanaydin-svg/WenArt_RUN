@@ -618,13 +618,7 @@ MISFIT_INDOOR = ("garden", "outdoor", "patio")
 MISFIT_CHAIR = ("bar", "barstool", "bar stool", "counter stool", "counterstool")
 STYLE_MIX_TYPES: tuple[str, ...] = ("table_dining", "chair", "bench")
 STYLE_MIX_STEPS = 5              # 25 %: more than the size steps two models inside the caps differ by
-# Title words that name a style (lower case, whole words): a "Traditional" turned-leg table is classic, a
-# "Farmhouse" one rustic.
-STYLE_WORDS: dict[str, tuple[str, ...]] = {
-    "classic": ("traditional", "victorian", "baroque", "rococo", "colonial", "antique", "turned"),
-    "rustic": ("rustic", "farmhouse", "provencal", "cottage", "country"),
-    "industrial": ("industrial", "loft"),
-}
+STYLE_WORDS: dict[str, tuple[str, ...]] = C.STYLE_WORDS     # title words that name a style (catalog)
 
 
 def _words_in(text: str, words: tuple[str, ...]) -> list[str]:
@@ -863,14 +857,7 @@ def room_rule_refusal(entry: dict, piece: dict, family: Optional[str]) -> Option
                                                                 bool(piece.get("daybed_asked")))
 
 
-def compatible_styles(family: Optional[str]) -> Optional[set]:
-    """26 Oct 2026 (fix E): the styles a piece of a ``family`` project may carry: the family, its fallbacks
-    (``STYLE_FALLBACK``), every style whose fallback names the family, and ``neutral``; None without a family."""
-    if not family:
-        return None
-    out = {family, C.NEUTRAL} | set(STYLE_FALLBACK.get(family, ()))
-    out |= {s for s, chain in STYLE_FALLBACK.items() if family in chain}
-    return out
+compatible_styles = C.compatible_styles
 
 
 def style_mix_of(entry: dict, ftype: str, family: Optional[str]) -> list[str]:
@@ -880,9 +867,7 @@ def style_mix_of(entry: dict, ftype: str, family: Optional[str]) -> list[str]:
     allowed = compatible_styles(family)
     if allowed is None or ftype not in STYLE_MIX_TYPES:
         return []
-    title = " ".join(str(entry.get(k) or "") for k in ("title", "name")).lower()
-    named = [s for s, words in STYLE_WORDS.items() if _words_in(title, words)]
-    return sorted({str(s) for s in list(entry.get("styles") or []) + named} - allowed)
+    return sorted({str(s) for s in list(entry.get("styles") or []) + C.title_styles(entry)} - allowed)
 
 
 def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = None,
@@ -2560,12 +2545,7 @@ def height_fits(height: float, heights: Optional[tuple[float, float]], tol: floa
 
 # Milestone 12 (docs/milestone12.md §4.8 D14): the style family fallback chain (each step also takes ``neutral``
 # models: ``catalog.styles_match``); logged as ``style_fallback`` on the asset.
-STYLE_FALLBACK: dict[str, tuple[str, ...]] = {
-    "mediterranean": ("rustic", "classic"), "rustic": ("classic", "mediterranean"), "classic": ("rustic",),
-    "industrial": ("modern",), "japandi": ("scandinavian", "minimal"), "scandinavian": ("minimal", "modern"),
-    "modern minimal": ("minimal", "modern"), "minimal": ("modern minimal", "modern"),
-    "modern": ("modern minimal", "minimal"),
-}
+STYLE_FALLBACK: dict[str, tuple[str, ...]] = C.STYLE_FALLBACK
 # The nearest related type a group may use when its own type has no usable model (§4.8: "a lounge chair for a
 # missing armchair"); never for sofas, beds, tables and the bath and kitchen fixtures (a gap instead).
 RELATED_TYPES: dict[str, tuple[str, ...]] = {
@@ -2754,8 +2734,9 @@ def decor_entries(catalog, dtype: str, mode: str = "commercial") -> list[dict]:
 
 
 def decor_styles_match(entry: dict, family: Optional[str]) -> bool:
-    """The M7 style rule for decor; a decor model without ``styles`` (the Poly Haven plants) is neutral."""
-    return not entry.get("styles") or C.styles_match(entry, family)
+    """The M7 style rule for decor; a decor model without ``styles`` (the Poly Haven plants) is neutral; its title
+    may not name a style the family may not carry either (UL174)."""
+    return (not entry.get("styles") or C.styles_match(entry, family)) and not C.title_style_clash(entry, family)
 
 
 def pick_index(key: str, n: int) -> int:
