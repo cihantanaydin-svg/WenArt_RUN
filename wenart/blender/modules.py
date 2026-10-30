@@ -959,6 +959,12 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
         columns, col_notes = KD.column_spans(w, fixed + gap_spans, column_hint, island)
         notes += col_notes
         gap_spans += [(c0, c1, "tall_column") for c0, c1, _k in columns]
+        # 30 Oct 2026 (UL187): the drawn end that lay in a door swing stays unbuilt (no unit, worktop or plinth)
+        trimmed = KD.trim_span(w, column_hint, island) if columns else None
+        if trimmed is not None:
+            gap_spans.append(trimmed)
+            notes.append(f"the run stops {trimmed[1] - trimmed[0]:.2f} m short of its drawn {column_hint.get('end')} "
+                         f"end, which lay in a door swing; the column stands at its new end (UL187)")
     # K2 / K15: an island of a waterfall family has its top down both ends (the units stand between the panels)
     panels, wf_notes = KD.waterfall_spans(w, gap_spans, island, rule)
     notes += wf_notes
@@ -1047,7 +1053,7 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
                              front=front, holds=kind, product=product,
                              **({"appliance": look} if kind == "fridge" else {})))
     for span in columns:                                  # 29 Oct 2026 (K1): the tall-unit column
-        units.append(KD.tall_module(span, d, col_top, KITCHEN_PLINTH_M))
+        units.append(KD.tall_module(span, d, col_top, KITCHEN_PLINTH_M, look=look))
     units.sort(key=lambda m: m["pos_m"][0])
     dishwasher = None
     if dw_sink is not None:
