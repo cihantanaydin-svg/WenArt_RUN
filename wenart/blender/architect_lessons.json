@@ -1892,13 +1892,13 @@
    "id": "UL160",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I did not understand what this is if this is a bag it requires a lot more detail in the model (30 Oct 2026, real04 run 20261030-043021-full: the weekend bag decor is a grey rounded blob with two tiny triangular handles)",
-   "lesson": "I did not understand what this is if this is a bag it requires a lot more detail in the model (30 Oct 2026, real04 run 20261030-043021-full: the weekend bag decor is a grey rounded blob with two tiny triangular handles)",
-   "question": null
+   "lesson": "A bag reads as a real product: the weekend holdall (wenart.blender.holdall) has a soft barrel body in the item's colour with a slight sag, a leather base band and piping round its end panels, a top zip with its slider, pull and garage tabs, two rolled leather handles on riveted tabs joined by a wrap, a front pocket with its zip, a shoulder strap on D-rings with steel clips, base studs; never a blob with stick handles.",
+   "question": "Does every bag read clearly as a real bag (a body with seams or piping, a zip, real handles on tabs, a strap and hardware), never a plain blob with stick handles?"
   },
   {
    "id": "UL161",
@@ -1995,6 +1995,18 @@
    "request": "These switches requires a rework (30 Oct 2026, real04 run 20261030-043021-full: the plate in the bathroom (the wall-hung WC's dual-flush plate) reads as a black picture frame with two flat white panes, much too large and flat)",
    "lesson": "These switches requires a rework (30 Oct 2026, real04 run 20261030-043021-full: a double light switch reads as a black picture frame with two flat white panes, much too large and flat)",
    "question": null
+  },
+  {
+   "id": "UL169",
+   "date": "2026-10-30",
+   "area": "views",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "On the top down views do not use these tags, I am not able to see what is behind (30 Oct 2026, real04 run 20261030-043021-full, the top-down views top_L-1 / top_L0 / top_L1: every room carries an opaque white label box with its name and type over the furniture)",
+   "lesson": "The top-down views keep every room visible: no name boxes over the rooms; a small see-through numbered badge at each room's middle and the rooms' names and types in a legend strip under the view (wenart.report.topdown_labels room_marks, with_legend).",
+   "question": "Can every room of the top-down views be seen whole, with only small numbered badges over it and the names in a legend under the view?"
   }
  ]
 }

@@ -1,8 +1,9 @@
 """Room names on the top-down level views (``wenart/blender/topdown.py``; user request of 25 Oct 2026).
 
 ``python -m wenart.report.topdown_labels <building.json> <dir> [--out DIR]``: for every ``top_<level>.png`` with its
-``.frame.json`` in ``dir`` writes ``top_<level>_plan.jpg`` with each room's name and type at its middle floor point
-(projected through the view's frame for an angled view), every window as a blue line with its id at the top of the
+``.frame.json`` in ``dir`` writes ``top_<level>_plan.jpg`` with a small see-through numbered badge at each room's middle
+floor point (projected through the view's frame for an angled view) and the rooms' names and types in a legend under
+the view (30 Oct 2026, UL169: no name boxes over the rooms), every window as a blue line with its id at the top of the
 cut walls (25 Oct 2026: the walls are cut at half the earlier height, below most sills) and a title bar (level, floor
 height, where the view comes from)."""
 from __future__ import annotations
@@ -57,6 +58,45 @@ def as_built(building: dict, architect_json=None) -> dict:
     return out
 
 
+BADGE_RGBA = (25, 25, 25, 120)  # a room's numbered badge: dark, see-through (UL169)
+
+
+def room_marks(building: dict, level_id: str) -> list[tuple[str, str, float, float]]:
+    """``[(name, type, x, y)]``: the level's rooms in id order with their middle point (pure; UL169)."""
+    out = []
+    for r in sorted((r for r in building.get("rooms") or [] if r.get("level_id") == level_id
+                     and len(r.get("polygon") or []) >= 3), key=lambda r: str(r["id"])):
+        poly = r["polygon"]
+        cx = sum(p[0] for p in poly) / len(poly)
+        cy = sum(p[1] for p in poly) / len(poly)
+        name = str(r.get("name") or r["id"]).replace(f"r_{level_id}_", "").replace("_", " ")
+        out.append((name, str(r.get("room_type")), cx, cy))
+    return out
+
+
+def with_legend(im, rooms: list, font):
+    """The view with a legend strip under it: ``k name (type)`` for each numbered badge, in columns (UL169)."""
+    from PIL import Image, ImageDraw
+
+    if not rooms:
+        return im
+    w, h = im.size
+    probe = ImageDraw.Draw(im)
+    items = [f"{k}  {name} ({rtype})" for k, (name, rtype, _x, _y) in enumerate(rooms, start=1)]
+    cell = max(probe.textlength(t, font=font) for t in items) + 30
+    cols = max(1, int(w // cell))
+    rows = (len(items) + cols - 1) // cols
+    line = int(font.size * 1.5) if hasattr(font, "size") else 18
+    strip = rows * line + 16
+    out = Image.new("RGB", (w, h + strip), (30, 30, 30))
+    out.paste(im, (0, 0))
+    dr = ImageDraw.Draw(out)
+    for i, t in enumerate(items):
+        c, r = i // rows, i % rows
+        dr.text((12 + c * cell, h + 8 + r * line), t, font=font, fill=(235, 235, 235))
+    return out
+
+
 def label(building: dict, level_id: str, image: Path, out: Path) -> Path:
     from PIL import Image, ImageDraw, ImageFont
 
@@ -93,18 +133,19 @@ def label(building: dict, level_id: str, image: Path, out: Path) -> Path:
         mid = ((pa[0] + pb[0]) / 2.0, (pa[1] + pb[1]) / 2.0 - max(8, w // 150))
         dr.text(mid, wid.replace(f"win_{level_id}_", "w"), font=small, fill=WINDOW_RGB, anchor="mm",
                 stroke_width=2, stroke_fill=(255, 255, 255))
-    for r in building.get("rooms") or []:
-        poly = r.get("polygon") or []
-        if r.get("level_id") != level_id or len(poly) < 3:
-            continue
-        cx = sum(p[0] for p in poly) / len(poly)
-        cy = sum(p[1] for p in poly) / len(poly)
-        name = str(r.get("name") or r["id"]).replace(f"r_{level_id}_", "").replace("_", " ")
-        text = f"{name}\n({r.get('room_type')})"
+    # 30 Oct 2026 (lesson UL169, user: "On the top down views do not use these tags, I am not able to see what is
+    # behind"): no name boxes over the rooms; a small see-through numbered badge at each room's middle and the names in
+    # a legend under the view
+    rooms = room_marks(building, level_id)
+    overlay = Image.new("RGBA", im.size, (0, 0, 0, 0))
+    od = ImageDraw.Draw(overlay)
+    rad = max(7, w // 110)
+    for k, (name, rtype, cx, cy) in enumerate(rooms, start=1):
         x, y = px(cx, cy)
-        box = dr.multiline_textbbox((x, y), text, font=font, anchor="mm", align="center")
-        dr.rectangle((box[0] - 4, box[1] - 3, box[2] + 4, box[3] + 3), fill=(255, 255, 255))
-        dr.multiline_text((x, y), text, font=font, fill=(20, 20, 20), anchor="mm", align="center")
+        od.ellipse((x - rad, y - rad, x + rad, y + rad), fill=BADGE_RGBA, outline=(255, 255, 255, 200), width=1)
+        od.text((x, y), str(k), font=small, fill=(255, 255, 255, 235), anchor="mm")
+    im = Image.alpha_composite(im.convert("RGBA"), overlay).convert("RGB")
+    dr = ImageDraw.Draw(im)
     level = next((lv for lv in building.get("levels") or [] if lv["id"] == level_id), None)
     floor = float(level["elevation"]) if level else float(fr.get("elevation") or 0.0)
     view = (f"ceilings off, seen from the {seen_from(fr.get('azimuth_deg') or 0.0)}, {float(fr['tilt_deg']):g} deg "
@@ -114,6 +155,8 @@ def label(building: dict, level_id: str, image: Path, out: Path) -> Path:
     dr.rectangle((0, 0, w, line + int(w / 55) + 12), fill=(30, 30, 30))
     dr.text((12, 6), f"{level_id}  floor {floor:+.2f} m", font=big, fill=(255, 255, 255))
     dr.text((12, line + 4), view, font=font, fill=(225, 225, 225))
+    im = with_legend(im, rooms, font)
+    w, h = im.size
     if max(w, h) > MAX_SIDE:                       # the results copy keeps previews under 300 KB
         k = MAX_SIDE / max(w, h)
         im = im.resize((int(w * k), int(h * k)), Image.LANCZOS)
