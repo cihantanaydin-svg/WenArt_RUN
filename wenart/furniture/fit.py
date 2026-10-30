@@ -1655,6 +1655,28 @@ def run_end_kind(building: dict, run: dict, runs: list, side: str) -> str:
     return "open"
 
 
+def run_end_meets(building: dict, run: dict, runs: list, side: str) -> str:
+    """30 Oct 2026 (UL155, K16): ``run_end_kind`` with a ``corner`` whose other run goes on along the same line (a
+    run drawn in two pieces) told apart as ``join`` (pure): a dishwasher's door may open at a join, not into a
+    corner."""
+    from wenart.blender import geom2d
+
+    kind = run_end_kind(building, run, runs, side)
+    if kind != "corner":
+        return kind
+    c, rot, w, d = _run_axes(run)
+    sx = -1.0 if side == "left" else 1.0
+    pts = [_to_world(c, rot, sx * w / 2.0, y) for y in (-d / 2.0 + 0.02, 0.0, d / 2.0 - 0.02)]
+    for o in runs:
+        if o is run or o.get("room_id") != run.get("room_id") or o.get("level_id") != run.get("level_id"):
+            continue
+        oc, orot, ow, od = _run_axes(o)
+        if min(geom2d.distance_to_rect(p, oc, (ow, od), orot) for p in pts) <= COLUMN_CORNER_REACH_M + 1e-9 \
+                and abs(math.sin(math.radians(orot - rot))) > 0.5:
+            return "corner"
+    return "join"
+
+
 def _taken_spans(c, rot: float, hints: dict) -> list[tuple[float, float, str]]:
     """The spans a run's sink, hob, drawn stoves and fridge take (the run's frame, a unit's widest real width)."""
     out = []
@@ -1684,7 +1706,8 @@ def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run
     ``COLUMN["french_from_run_m"]``); with the ovens in the column the hob's run gets ``oven_in_column``; no end free and
     no fridge in the kitchen: an under-counter fridge (``fridge_x_m``, ``fridge_why``) in the longest run. Per island
     ``seat_side`` (``back`` / ``front``: the bar stools' side, G3); per counter run ``windows_m`` (the windows and
-    pass-throughs behind it, the run's frame: the utensil rail stays off them)."""
+    pass-throughs behind it, the run's frame: the utensil rail stays off them) and ``end_kinds`` (30 Oct 2026, UL155:
+    what meets each end, ``run_end_meets``; the dishwasher beside the sink never opens into a corner)."""
     from wenart.blender import kitchen_details as KD
 
     def mine(run_id: str) -> dict:
@@ -1720,6 +1743,11 @@ def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run
                 spans.append([round(x - half - 0.05, 4), round(x + half + 0.05, 4)])
             if spans:
                 mine(run["id"])["windows_m"] = spans
+            # 30 Oct 2026 (UL155, K16): what meets each end (the dishwasher's side beside the sink: never a corner)
+            if run.get("type") == "kitchen_counter":
+                mine(run["id"])["end_kinds"] = {
+                    side: run_end_meets(building, run, [r for r in room_runs if r.get("type") == "kitchen_counter"],
+                                        side) for side in ("left", "right")}
         counters = [r for r in room_runs if r.get("type") == "kitchen_counter"]
         best = None
         kind_sets = ([["oven_tower"]] if has_fridge else [["fridge", "oven_tower"], ["fridge"], ["oven_tower"]])
