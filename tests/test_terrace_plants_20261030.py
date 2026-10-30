@@ -18,4 +18,5 @@ def test_the_terrace_program_offers_the_planters():
 
     room = {"id": "r_t", "room_type": "balcony", "polygon": [[0, 0], [3, 0], [3, 2], [0, 2]]}
     rows = PR._core_rows("balcony", 6.0, Polygon(room["polygon"]), {"rooms": [room], "furniture": []}, room, None)
-    assert rows == [("balcony", False, ["planters"])]
+    # 30 Oct 2026 (UL152, the P15 terrace): a 2 m wide terrace also takes the pair of armchairs; never a table
+    assert rows == [("balcony", False, ["planters"]), ("terrace_pair", False, ["lounge_pair"])]

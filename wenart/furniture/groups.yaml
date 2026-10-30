@@ -744,6 +744,53 @@ groups:
     partners:
       - {role: plant, type: potted_plant, required: false, max: 2, default: 0, place: beside_head, gap: 0.15, facing: same, sizes: [[0.45, 0.45], [0.4, 0.4]]}
 
+  terrace_lounge:
+    # 30 Oct 2026 (lesson UL152, the user's P15 photo, "teras inspration"): a larger terrace also gets an outdoor lounge
+    # set against its house wall (slatted armchairs or a small sofa with thick cushions, a woven pouf as the low table,
+    # a small round side table), beside its plants; never a dining table and chairs (UL130). The fit gives the pieces
+    # weather-proof models (fit.outdoor_room). Its options are ``auto: false``: the program offers this set or the
+    # narrow terrace's pair (``terrace_pair``) by the terrace's inner width (program.inner_width), never both.
+    what: "an outdoor lounge set: a small sofa or an armchair against the house wall, an armchair facing across a woven pouf, a small round side table"
+    layout: anchored
+    zone: balcony
+    room_types: [balcony]
+    priority: 9
+    anchor:
+      types: [armchair, sofa]
+      place: wall
+      align: any
+      sizes:
+        - {armchair: [[0.8, 0.8], [0.75, 0.75]], sofa: [[1.6, 0.85], [1.4, 0.8]]}
+    options:
+      lounge_armchairs: {anchor: armchair, min_area: 8, auto: false, counts: {armchair: 1, ottoman: 1, side_table: 1}, what: "two armchairs across a woven pouf, a side table"}
+      lounge_sofa: {anchor: sofa, min_area: 11, auto: false, counts: {armchair: 1, ottoman: 1, side_table: 1}, what: "a small sofa, an armchair, a woven pouf, a side table"}
+      lounge_sofa_2_armchairs: {anchor: sofa, min_area: 15, auto: false, counts: {armchair: 2, ottoman: 1, side_table: 1}, what: "a small sofa, two armchairs, a woven pouf, a side table"}
+    partners:
+      - {role: coffee, type: ottoman, required: false, max: 1, default: 1, place: front, gap: coffee_gap, facing: anchor, sizes: [[0.7, 0.7], [0.6, 0.6]]}
+      - {role: armchair, type: armchair, required: false, max: 2, default: 1, place: flank, of: coffee, gap: 0.35, facing: of, sizes: [[0.8, 0.8], [0.75, 0.75]]}
+      - {role: side_table, type: side_table, required: false, max: 1, default: 1, place: beside_head, gap: 0.05, facing: same, sizes: [[0.45, 0.45], [0.4, 0.4]]}
+
+  terrace_pair:
+    # 30 Oct 2026 (UL152, the P15 terrace on a narrow terrace: real04's are 1.5 m strips, too narrow for the set across
+    # a pouf): two outdoor armchairs side by side with their backs on the house wall, a small round side table between
+    # them, facing the view; the railing side stays free.
+    what: "two outdoor armchairs side by side against the house wall, a small round side table between them, facing the view"
+    layout: anchored
+    zone: balcony
+    room_types: [balcony]
+    priority: 9
+    anchor:
+      types: [armchair]
+      place: wall
+      align: any
+      sizes:
+        - {armchair: [[0.75, 0.75], [0.7, 0.7]]}
+    options:
+      lounge_pair: {anchor: armchair, min_area: 4, auto: false, what: "two armchairs and a side table against the house wall"}
+    partners:
+      - {role: side_table, type: side_table, required: false, max: 1, default: 1, place: beside_head, gap: 0.05, facing: same, sizes: [[0.45, 0.45], [0.4, 0.4]]}
+      - {role: pair, type: armchair, required: false, max: 1, default: 1, place: beside_head, gap: 0.55, facing: same, sizes: [[0.75, 0.75], [0.7, 0.7]]}
+
   # 23 Oct 2026 (user: "increase the group furniture options 10x ... think bigger"): two groups that only have extra
   # options; the program offers them, optional, in rooms of their room types when an option's window allows.
   reading_corner:

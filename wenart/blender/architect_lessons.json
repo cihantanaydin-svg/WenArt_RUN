@@ -1795,12 +1795,12 @@
    "id": "UL152",
    "date": "2026-10-30",
    "area": "terrace",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "teras inspiration (30 Oct 2026, photo P15: a terrace lounge by black-framed sliding glass doors: grey slatted outdoor armchairs and sofa with thick white cushions and white scatter cushions, a big round woven pouf, a small round terrazzo-top side table on a wood drum with a sculpture and books, a light wood deck)",
-   "lesson": "teras inspiration (30 Oct 2026, photo P15: a terrace lounge by black-framed sliding glass doors: grey slatted outdoor armchairs and sofa with thick white cushions and white scatter cushions, a big round woven pouf, a small round terrazzo-top side table on a wood drum with a sculpture and books, a light wood deck)",
+   "lesson": "The P15 terrace (30 Oct 2026, \"teras inspration\"): a terrace at least 8 m2 with an inner width of at least 2.2 m gets an outdoor lounge set against its house wall (armchairs or a small sofa across a woven pouf, a small side table; groups.yaml terrace_lounge); a narrower one of at least 4 m2 and 1.4 m two armchairs side by side with a side table between them, facing the view (terrace_pair); a small balcony plants only; never a dining table and chairs (UL130), never both sets (program.inner_width, the options auto: false). The fit gives the pieces weather-proof models (fit.outdoor_room).",
    "question": "Do the larger terraces reach the P15 reference: an outdoor lounge set (slatted armchairs or a sofa with thick cushions, a woven pouf, a small round side table with a sculpture and books) on a warm deck, plants in big pots, no dining table and chairs?"
   },
   {
