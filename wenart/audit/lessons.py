@@ -1100,7 +1100,7 @@ def soft_seats(building: Optional[dict], manifest: Optional[dict]) -> list[dict]
     return out
 
 
-CHECK_LESSONS["U36"] = ("UL131", "UL140")     # 30 Oct 2026: soft seats as soft, well-made products (soft_seats)
+CHECK_LESSONS["U36"] = ("UL131", "UL140", "UL167")   # 30 Oct 2026: soft seats as soft, well-made products (soft_seats)
 
 
 def run(inp) -> dict:

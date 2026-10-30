@@ -341,7 +341,7 @@ def test_model_review_m32_and_argus_u36_carry_the_rule():
     assert out["checked"]["U36"] == len(u36) == len(got) and {f["evidence"]["lesson"] for f in u36} == {"UL131",
                                                                                                          "UL140"}
     assert AL.audit({"levels": [], "rooms": [], "furniture": []}, None)["checked"]["U36"].startswith("no scene")
-    assert AL.CHECK_LESSONS["U36"] == ("UL131", "UL140")
+    assert AL.CHECK_LESSONS["U36"] == ("UL131", "UL140", "UL167")
     assert AL.coverage()["UL140"]["code"] == ["U36"] and AL.coverage()["UL131"]["code"] == ["U36"]
 
 

@@ -1976,13 +1976,13 @@
    "id": "UL167",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I like this sofa but resting pieces seems like not connected to sitting, requires fixing (30 Oct 2026, real04 run 20261030-043021-full, the living room's white low L-shaped modular sofa: the back pieces stand as separate blocks behind the seat deck, not joined to it)",
-   "lesson": "I like this sofa but resting pieces seems like not connected to sitting, requires fixing (30 Oct 2026, real04 run 20261030-043021-full, the living room's white low L-shaped modular sofa: the back pieces stand as separate blocks behind the seat deck, not joined to it)",
-   "question": null
+   "lesson": "A sofa's or a chair's rests (its back, back cushions, arms) touch its seat: measured on the model's points (not boxes, an L's box covers everything), a rest 5 mm-10 cm off its seat slides against it with what lies on it, a rest held over its base comes down onto it, the two backs of an L meet at the corner; the model's own back angle kept; moves recorded (soft_seats.rest_plan; review M33 / Argus U36 rest_apart; run 20261030-043021-full: the library 'Sofa en L' had its backs 4 cm behind the seat).",
+   "question": "Does every sofa's and chair's back, back cushion and arm touch its seat (no gap over 5 mm, nothing floating over its base), and do the two backs at an L's corner meet with no gap?"
   },
   {
    "id": "UL168",
