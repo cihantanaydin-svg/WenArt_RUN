@@ -2559,6 +2559,18 @@
    "request": "Library models if exist and better than procedural generation should be used, fix the problem related to it (30 Oct 2026, the user: 'There were already laptop models in the library why we have not use that one and created a brand new model instead?'; the 3D Warehouse extras hold 14 audited laptops, 12 removed by the audit's open-lid rule, and the decor stage builds laptops, TVs, monitors, microwaves procedurally without looking at the library)",
    "lesson": "Library models if exist and better than procedural generation should be used, fix the problem related to it (30 Oct 2026, the user: 'There were already laptop models in the library why we have not use that one and created a brand new model instead?'; the 3D Warehouse extras hold 14 audited laptops, 12 removed by the audit's open-lid rule, and the decor stage builds laptops, TVs, monitors, microwaves procedurally without looking at the library)",
    "question": "Does every item use an audited library model of its type when one is better than the procedural build (laptops, TVs, monitors, appliances), the procedural model only as a fallback with a library gap note?"
+  },
+  {
+   "id": "UL216",
+   "date": "2026-10-30",
+   "area": "library",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "no need to reject them (30 Oct 2026, the user on library models with a brand logo or a poor vision quality: they stay usable; a logo is a flag that commercial mode excludes; quality only decides whether the library model beats the procedural one)",
+   "lesson": "no need to reject them (30 Oct 2026, the user on library models with a brand logo or a poor vision quality: they stay usable; a logo is a flag that commercial mode excludes; quality only decides whether the library model beats the procedural one)",
+   "question": "Are library models with a logo or a low vision quality kept usable (a logo flagged for commercial mode, quality only ranking them against the procedural build)?"
   }
  ]
 }
