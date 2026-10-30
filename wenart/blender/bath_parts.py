@@ -48,8 +48,13 @@ mesh, made from vertex and face lists, never a bpy operator and no ray per item:
 - B19 ``top_clusters``: the top's decor in two clusters where its free strips hold them.
 - B5 ``open_column_parts``: the storage column (UL102) as an open niche column: a dark frame on a recessed plinth, a
   wood back, ``COLUMN_CUBBY_M``-high cubbies with an LED strip under every shelf, each styled in turn (rolled towels,
-  pump bottles in amber, black and white, a small plant, cotton stems in a vase, a jar of pebbles, perfume bottles,
-  folded towels).
+  pump bottles in amber, black and white, a small leafy plant in a ceramic pot, a lidded jar of cotton balls with a
+  reed diffuser, a woven basket of rolled towels, perfume flacons and a soap dish, folded towels, a jar of pebbles
+  with a candle in a glass).
+- 30 Oct 2026 (lessons UL166, UL168): every styled object and the flush plate are real products
+  (``wenart.blender.bath_objects``: turned bottles with their collar, pump, nozzle and label, apothecary jars with lid
+  and fill, diffusers with fanned reeds, leaf blades, flacons with their scent, a dual-flush plate with a small and a
+  large button), never a box, a ball on a stick or a coloured egg.
 - B16 ``walk_in_shower_parts``: a low stone tray with a linear drain at the back wall, clear glass (a fixed panel, and
   a sliding one on a top rail with round rollers and a pull handle from ``SLIDING_MIN_W_M``), a square rain head on a
   wall arm, a hand shower on a slide rail with its hose, a thermostatic mixer and a towel bar inside.
@@ -74,6 +79,7 @@ from __future__ import annotations
 import math
 from typing import Optional
 
+from wenart.blender import bath_objects as BO
 from wenart.blender import parametric as P
 from wenart.blender import towel_parts as TP
 
@@ -331,10 +337,6 @@ def _stick(x0: float, y0: float, z0: float, dx: float, dy: float, length: float,
     return {"verts": verts, "faces": faces, "key": key, "role": role}
 
 
-def _ball(cx: float, cy: float, z0: float, r: float, key: str, role: str = "ball") -> Part:
-    return P._superellipsoid(cx, cy, z0, 2 * r, 2 * r, 2 * r, 1.0, 1.0, key, role, n_eta=6, n_om=8)
-
-
 def _prism(outline, z0: float, z1: float, key: str, role: str) -> Part:
     """A vertical prism over a counter-clockwise outline ``[(x, y)]`` from ``z0`` to ``z1`` (outward faces)."""
     n = len(outline)
@@ -401,23 +403,6 @@ def _vessel(cx: float, cy: float, z0: float, r: float, h: float, key: str, wall:
             P._cylinder_z(cx, cy, z0 + wall, 0.018, 0.018, 0.002, "steel", "drain", n=12)]
 
 
-def _bottle(cx: float, cy: float, z0: float, r: float, h: float, key: str, cap_key: str, pump: bool = False
-            ) -> list[Part]:
-    """A bottle: a body, a shoulder, a neck and a cap (a pump head with its nozzle when ``pump``)."""
-    body_h = h * 0.72
-    parts = [P._cylinder_z(cx, cy, z0, r, r, body_h, key, "bottle", n=14),
-             P._frustum_z(cx, cy, z0 + body_h, r, r, r * 0.45, r * 0.45, h * 0.08, key, "bottle", n=14)]
-    neck_z = z0 + body_h + h * 0.08
-    if pump:
-        parts.append(P._cylinder_z(cx, cy, neck_z, r * 0.42, r * 0.42, h * 0.08, cap_key, "cap", n=10))
-        parts.append(P._cylinder_z(cx, cy, neck_z + h * 0.08, r * 0.2, r * 0.2, h * 0.07, cap_key, "pump", n=8))
-        parts.append(P._box(cx, cy - r * 0.45, neck_z + h * 0.15 - 0.008, r * 0.25, r * 0.9, 0.008, cap_key,
-                            "nozzle"))
-    else:
-        parts.append(P._cylinder_z(cx, cy, neck_z, r * 0.45, r * 0.45, h * 0.2, cap_key, "cap", n=10))
-    return parts
-
-
 def _towel_roll(x: float, y: float, z0: float, r: float, length: float, key: str = "towel", seed: int = 0) -> Part:
     """A rolled towel lying with its axis along the depth (Y), on ``z0``: its spiral end, rounded edges and the cloth's
     thickness (30 Oct 2026, lesson UL138: ``towel_parts.rolled_towel``, no faceted cylinder)."""
@@ -429,14 +414,17 @@ def _stems(cx: float, cy: float, z0: float, vase_r: float, vase_h: float, height
     parts = [P._frustum_z(cx, cy, z0, vase_r * 0.8, vase_r * 0.8, vase_r, vase_r, vase_h, "ceramic", "vase", n=16)]
     for k, (dx, dy) in enumerate(((-0.22, 0.05), (0.18, -0.06), (0.03, 0.2), (-0.08, -0.16), (0.25, 0.12))):
         length = height * (0.82 + 0.05 * k)
-        stem = _stick(cx + dx * 0.02, cy + dy * 0.02, z0 + 0.02, dx * 0.35, dy * 0.35, length, 0.0018, "wood", "stem")
-        parts.append(stem)
-        tx, ty, tz = stem["verts"][4]
-        if k % 2 == 0:                               # a pampas plume
+        if k % 2 == 0:                               # a pampas plume on its stem
+            stem = _stick(cx + dx * 0.02, cy + dy * 0.02, z0 + 0.02, dx * 0.35, dy * 0.35, length, 0.0018, "wood",
+                          "stem")
+            parts.append(stem)
+            tx, ty, tz = stem["verts"][4]
             parts.append(P._superellipsoid(tx, ty, tz - 0.06, 0.03, 0.03, 0.09, 0.9, 1.0, "rattan", "plume",
                                            n_eta=6, n_om=8))
-        else:                                        # a cotton boll
-            parts.append(_ball(tx, ty, tz - 0.012, 0.016, "bedding", "cotton"))
+        else:                                        # UL166: a cotton branch (calyx and puffs), not a ball on a stick
+            n = math.sqrt(1.0 + (dx * 0.35) ** 2 + (dy * 0.35) ** 2)
+            parts += BO.cotton_stem((cx + dx * 0.02, cy + dy * 0.02, z0 + 0.02),
+                                    (dx * 0.35 / n, dy * 0.35 / n, 1.0 / n), length - 0.02, seed=k)
     return parts
 
 
@@ -447,7 +435,7 @@ def _stems(cx: float, cy: float, z0: float, vase_r: float, vase_h: float, height
 WC_BOWL_M = (0.36, 0.54)          # a wall-hung pan: 355-370 x 530-540 mm (the common product range, assumed)
 WC_RIM_M = 0.40                   # the rim's standard height (seat on top: about 0.42-0.44 m)
 WC_BOTTOM_M = 0.20                # the pan's lowest point: free floor under it
-FLUSH_PLATE_M = (0.246, 0.164, 0.008)   # Geberit Sigma plates: 246 x 164 mm (width x height), on the wall
+FLUSH_PLATE_M = (*BO.FLUSH["size_m"], BO.FLUSH["proud_m"])   # Geberit Sigma: 246 x 164 mm, 8 mm proud (UL168)
 FLUSH_PLATE_Z_M = 0.98            # its bottom (its centre about 1.06 m: B1 "about 1.0 m")
 
 
@@ -474,12 +462,9 @@ def wall_hung_wc_parts(w: float, d: float, h: float, wall_offset: float = 0.0) -
     for sx in (-1.0, 1.0):
         parts.append(P._cylinder_x(sx * 0.07 - 0.015, back - 0.065, WC_RIM_M + 0.02, 0.012, 0.012, 0.03, "handle",
                                    "hinge", n=10))
-    pw, ph, pt = FLUSH_PLATE_M
-    parts.append(P._box(0.0, back - pt / 2.0, FLUSH_PLATE_Z_M, pw, pt, ph, "handle", "plate"))
-    bwid = (pw - 0.03) / 2.0
-    for sx in (-1.0, 1.0):                         # dual flush: two buttons 2 mm proud of the plate
-        parts.append(P._box(sx * (bwid / 2.0 + 0.005), back - pt - 0.001, FLUSH_PLATE_Z_M + 0.02, bwid, 0.002,
-                            ph - 0.04, "steel", "button"))
+    # 30 Oct 2026 (lesson UL168): a real dual-flush plate (bath_objects.flush_plate): rounded and chamfered, a small
+    # and a large button with a fine shadow gap and a line each, all in the room's fixture finish
+    parts += BO.flush_plate(0.0, back, FLUSH_PLATE_Z_M, "handle", "handle")
     return parts
 
 
@@ -612,12 +597,13 @@ def _shelf_styling(w: float, d: float, z0: float, z1: float, x0: Optional[float]
         parts.append(_towel_roll(x + r, -0.005, z0 + r * math.sqrt(3.0), r, length, TP.alt_key("towel"), seed=2))
         items.append("rolled towel")
     jx = x1 - 0.045
-    for k, jh in enumerate((min(0.10, z1 - z0 - 0.03), min(0.075, z1 - z0 - 0.03))):
+    room = z1 - z0 - BO.JAR_LID_M - 0.004
+    for k, jh in enumerate((min(0.10, room), min(0.075, room))):
         cx = jx - k * 0.075
         if cx - 0.03 < x + 2 * r * rolls - r or jh < 0.04:
             break
-        parts.append(P._cylinder_z(cx, -0.02, z0, 0.03, 0.03, jh, "glass", "jar", n=14))
-        parts.append(P._cylinder_z(cx, -0.02, z0 + jh, 0.031, 0.031, 0.015, "wood", "lid", n=14))
+        # UL166: an apothecary jar with its lid and knob, cotton balls or cotton pads in it
+        parts += BO.apothecary_jar(cx, -0.02, z0, 0.03, jh, "wood", "cotton" if k == 0 else "pads", seed=k)
         items.append("lidded jar")
     return parts, items
 
@@ -653,16 +639,15 @@ def top_clusters(w: float, d: float, lay: dict) -> tuple[list[Part], list[str]]:
             vy = y1 - vr - 0.005
             parts += _stems(cx, vy, z, vr, 0.16, STEMS_H_M)
             dy = y0 + DIFFUSER_R_M + 0.005
-            parts += _bottle(cx, dy, z, DIFFUSER_R_M * 0.85, 0.09, "terracotta", "dark")
+            # UL166: an amber pump bottle (collar, pump, nozzle, label)
+            parts += BO.pump_bottle(cx, dy, z, DIFFUSER_R_M * 0.85, 0.15, "terracotta", "dark")
             items += ["dried stems in a vase", "amber bottle"]
         elif sw >= 2 * DIFFUSER_R_M + 0.006 and depth >= 4 * DIFFUSER_R_M + 0.01:
             vy = y1 - DIFFUSER_R_M - 0.005
-            parts += _bottle(cx, vy, z, DIFFUSER_R_M, 0.10, "terracotta", "dark")
-            for k, (dx, dy) in enumerate(((-0.18, -0.1), (0.15, -0.12), (0.02, 0.2), (-0.1, 0.16), (0.2, 0.05))):
-                parts.append(_stick(cx + dx * 0.01, vy + dy * 0.01, z + 0.07, dx, dy, 0.17 + 0.01 * k, 0.0018,
-                                    "wood", "reed"))
-            parts += _bottle(cx, y0 + DIFFUSER_R_M * 0.8 + 0.005, z, DIFFUSER_R_M * 0.8, 0.12, "dark", "handle",
-                             pump=True)
+            # UL166: a diffuser bottle with its collar and fanned reeds, a black pump bottle in front
+            parts += BO.reed_diffuser(cx, vy, z, DIFFUSER_R_M, 0.10, 0.20, "terracotta", "handle", seed=2)
+            parts += BO.pump_bottle(cx, y0 + DIFFUSER_R_M * 0.8 + 0.005, z, DIFFUSER_R_M * 0.8, 0.16, "dark",
+                                    "handle")
             items += ["reed diffuser", "black pump bottle"]
     # the low cluster: a soap dispenser and a small jar
     low = right
@@ -670,9 +655,9 @@ def top_clusters(w: float, d: float, lay: dict) -> tuple[list[Part], list[str]]:
         sw = low[1] - low[0]
         cx = (low[0] + low[1]) / 2.0
         if sw >= 2 * SOAP_R_M + 0.006 and depth >= 2 * SOAP_R_M + 0.07:
-            parts += _bottle(cx, y1 - SOAP_R_M - 0.005, z, SOAP_R_M, 0.15, "dark", "handle", pump=True)
-            parts.append(P._cylinder_z(cx, y0 + 0.032, z, 0.028, 0.028, 0.06, "glass", "jar", n=14))
-            parts.append(P._cylinder_z(cx, y0 + 0.032, z + 0.06, 0.029, 0.029, 0.012, "wood", "lid", n=14))
+            # UL166: a real soap dispenser and a lidded jar of cotton balls
+            parts += BO.pump_bottle(cx, y1 - SOAP_R_M - 0.005, z, SOAP_R_M, 0.17, "dark", "handle")
+            parts += BO.apothecary_jar(cx, y0 + 0.032, z, 0.028, 0.06, "wood", "cotton", seed=6)
             items += ["soap dispenser", "jar of cotton"]
     return parts, items
 
@@ -746,10 +731,12 @@ def fluted_vanity_parts(w: float, d: float, top_m: float, top_key: str = "terraz
                 parts.append(P._box((xa + xb) / 2.0, -d / 2.0 + 0.05, zl - LED_STRIP_M[1], max(0.04, xb - xa - 0.06),
                                     LED_STRIP_M[0], LED_STRIP_M[1], "led", "led"))
             lo, _a = _shelf_styling(w, d, z0 + t, zm - t / 2.0 - LED_STRIP_M[1], xa + 0.02, xb - 0.02)
-            hi = _bottle((xa + xb) / 2.0 - 0.035, -0.02, zm + t / 2.0, 0.03, min(0.15, z1 - zm - 0.03),
-                         "terracotta", "dark", pump=True)
-            hi += [P._cylinder_z((xa + xb) / 2.0 + 0.045, -0.01, zm + t / 2.0, 0.032, 0.032,
-                                 min(0.09, z1 - zm - 0.03), "glass", "jar", n=14)]
+            # UL166: an amber pump bottle and a lidded jar of bath salt on the upper shelf
+            hi = BO.pump_bottle((xa + xb) / 2.0 - 0.035, -0.02, zm + t / 2.0, 0.03, min(0.15, z1 - zm - 0.03),
+                                "terracotta", "dark")
+            jh = min(0.09, z1 - zm - 0.03) - BO.JAR_LID_M
+            if jh >= 0.04:
+                hi += BO.apothecary_jar((xa + xb) / 2.0 + 0.045, -0.01, zm + t / 2.0, 0.032, jh, "wood", "salt")
             parts += lo + hi
     # the floor glow: an LED strip under the bottom board at its front
     parts.append(P._box(0.0, -d / 2.0 + 0.04, z0 - LED_STRIP_M[1], w - 2 * r - 0.04 if r else w - 0.04,
@@ -880,7 +867,9 @@ COLUMN_CUBBY_M = 0.26             # about 6 cubbies in a 1.6 m column (the photo
 COLUMN_CUBBIES = (4, 7)
 COLUMN_PLINTH_M = 0.06
 COLUMN_BOARD_M = 0.02
-CUBBY_STYLES = ("towels", "pump_bottles", "plant", "cotton", "pebbles", "perfume", "folded_towels")
+# 30 Oct 2026 (lesson UL166): every cubby holds real products (wenart.blender.bath_objects); a woven basket of rolled
+# towels joins them and the jar of pebbles moves to the end (a 1.6 m column shows the first six)
+CUBBY_STYLES = ("towels", "pump_bottles", "plant", "cotton", "basket", "perfume", "folded_towels", "pebbles")
 
 
 def column_cubbies(h: float) -> int:
@@ -898,44 +887,44 @@ def _cubby_items(style: str, iw: float, idp: float, z0: float, ch: float) -> lis
         for k in (-1.0, 1.0):                       # UL138: a pair in the towel colour and its second shade
             parts.append(_towel_roll(k * (r + 0.004), 0.0, z0, r, length, "towel" if k < 0 else TP.alt_key("towel"),
                                      seed=int(k + 1)))
-    elif style == "pump_bottles":
+    elif style == "pump_bottles":                   # UL166: real pump bottles (collar, pump, nozzle, label)
         r = min(0.03, iw / 7.5)
         for k, key in zip((-1.0, 0.0, 1.0), ("terracotta", "dark", "ceramic")):
-            parts += _bottle(k * (2 * r + 0.01), -0.01 + abs(k) * 0.02, z0, r, min(0.19, h * 0.95), key, "dark",
-                             pump=True)
-    elif style == "plant":
+            parts += BO.pump_bottle(k * (2 * r + 0.01), -0.01 + abs(k) * 0.02, z0, r, min(0.19, h * 0.95), key,
+                                    "dark")
+    elif style == "plant":                          # UL166: a ceramic pot with a leafy plant, not an egg
         r = min(0.06, iw / 3.2, idp / 3.0)
         pot = min(0.09, h * 0.4)
-        parts += [P._cylinder_z(0.0, 0.0, z0, r * 0.85, r * 0.85, pot, "ceramic", "pot", n=16),
-                  P._cylinder_z(0.0, 0.0, z0 + pot - 0.01, r * 0.75, r * 0.75, 0.01, "dark", "soil", n=12),
-                  P._superellipsoid(0.0, 0.0, z0 + pot - 0.005, r * 2.0, r * 2.0, min(h - pot, r * 2.2), 0.9, 1.0,
-                                    "green", "crown", n_eta=6, n_om=12)]
-    elif style == "cotton":
-        r = min(0.035, iw / 6.0)
-        vh = min(0.12, h * 0.5)
-        parts += [P._cylinder_z(0.0, 0.0, z0, r, r, vh, "glass", "vase", n=14)]
-        for k, (dx, dy) in enumerate(((-0.25, 0.05), (0.2, -0.05), (0.02, 0.15))):
-            length = max(0.05, min(h - 0.04, 0.26 + 0.03 * k))
-            stem = _stick(dx * 0.01, dy * 0.01, z0 + 0.01, dx, dy, length, 0.0018, "wood", "stem")
-            parts.append(stem)
-            tx, ty, tz = stem["verts"][4]
-            parts.append(_ball(tx + 0.0018, ty + 0.0018, tz - 0.012, 0.016, "bedding", "cotton"))
-    elif style == "pebbles":
+        parts += BO.potted_plant(0.0, 0.0, z0, r * 0.85, pot, h, seed=1, max_r=min(iw, idp) / 2.0 - 0.01)
+    elif style == "cotton":                         # UL166: a lidded jar of cotton balls and a reed diffuser
+        jr = min(0.045, iw / 6.0, idp / 2.5)
+        jh = min(0.13, h - BO.JAR_LID_M - 0.01)
+        two = iw >= 2 * jr + 2 * DIFFUSER_R_M + 0.06
+        jx = -(jr + 0.02) if two else 0.0
+        if jh >= 0.05:
+            parts += BO.apothecary_jar(jx, 0.0, z0, jr, jh, "wood", "cotton", seed=3)
+        if two:
+            dr = min(DIFFUSER_R_M, iw / 8.0)
+            dh = min(0.10, h * 0.45)
+            parts += BO.reed_diffuser(DIFFUSER_R_M + 0.02, 0.0, z0, dr, dh, max(0.05, min(0.24, h - dh * 0.75 - 0.02)),
+                                      "terracotta", "dark", seed=4)
+    elif style == "basket":                         # UL166: a woven basket of rolled towels
+        bw, bd = min(0.30, iw - 0.03), min(0.24, idp - 0.04)
+        parts += BO.woven_basket(0.0, 0.0, z0, bw, bd, min(0.14, h * 0.55), "towel")
+    elif style == "pebbles":                        # UL166: a lidded jar of pebbles and a candle in a glass
         r = min(0.045, iw / 4.5)
-        jh = min(0.11, h * 0.6)
-        parts += [P._cylinder_z(0.0, 0.0, z0, r, r, jh, "glass", "jar", n=16)]
-        for k, (px, py, pz) in enumerate(((-0.4, -0.3, 0.0), (0.35, 0.2, 0.0), (0.0, 0.4, 0.0), (-0.1, -0.1, 0.4),
-                                          (0.3, -0.35, 0.35))):
-            pr = r * 0.28
-            parts.append(P._superellipsoid(px * r, py * r, z0 + 0.004 + pz * r, pr * 2.2, pr * 1.8, pr * 1.2, 0.8,
-                                           1.0, "dark" if k % 2 else "ceramic", "pebble", n_eta=4, n_om=8))
-    elif style == "perfume":
-        for px, bw, bh in ((-0.045, 0.045, 0.10), (0.04, 0.035, 0.08)):
+        jh = min(0.11, h - BO.JAR_LID_M - 0.01)
+        if jh >= 0.05:
+            parts += BO.apothecary_jar(-r * 0.6, 0.0, z0, r, jh, "steel", "pebbles", seed=5)
+        if iw >= 2 * r + 0.10:
+            parts += BO.candle_glass(r + 0.035, 0.0, z0, 0.035, min(0.085, h * 0.5))
+    elif style == "perfume":                        # UL166: flacons with their scent, collar and cap; a soap dish
+        for px, bw, bh in ((-0.045, 0.05, 0.11), (0.03, 0.04, 0.085)):
             if abs(px) + bw / 2.0 > iw / 2.0 - 0.01:
                 continue
-            ph = min(bh, h * 0.7)
-            parts.append(P._box(px, 0.0, z0, bw, bw * 0.6, ph, "glass", "perfume"))
-            parts.append(P._cylinder_z(px, 0.0, z0 + ph, bw * 0.25, bw * 0.25, 0.025, "handle", "cap", n=10))
+            parts += BO.perfume_bottle(px, 0.0, z0, bw, bw * 0.62, min(bh, h * 0.75), "handle", "dark")
+        if iw >= 0.26:
+            parts += BO.soap_dish(iw / 2.0 - 0.06, -0.01, z0, 0.045)
     elif style == "folded_towels":
         tw, td = min(0.30, iw - 0.03), min(0.25, idp - 0.04)
         # UL138: folded towels with their soft front folds and layers, a little uneven, two shades
@@ -1166,10 +1155,10 @@ def towel_shelf_parts(w: float, d: float, h: float) -> list[Part]:
     for k in range(2):                              # UL138: a pair of rolls, the second in the second shade
         parts.append(_towel_roll(-w / 2.0 + 0.07 + k * (2 * r + 0.004), 0.0, top, r, min(0.22, d - 0.03),
                                  "colour_towel" if k == 0 else TP.alt_key("colour_towel"), seed=5 + k))
-    jh = max(0.02, min(0.09, items_h - 0.016))
-    parts.append(P._cylinder_z(w / 2.0 - 0.07, 0.0, top, 0.035, 0.035, jh, "glass", "jar", n=14))
-    parts.append(P._cylinder_z(w / 2.0 - 0.07, 0.0, top + jh, 0.036, 0.036, min(0.015, h - top - jh), "wood", "lid",
-                               n=14))
+    jh = max(0.02, min(0.09, h - top - BO.JAR_LID_M))
+    # UL166: an apothecary jar of cotton balls with its lid and knob (inside the box)
+    parts += BO.apothecary_jar(w / 2.0 - 0.07, 0.0, top, 0.035, jh, "wood", "cotton" if jh >= 0.045 else "salt",
+                               seed=7)
     return parts
 
 
