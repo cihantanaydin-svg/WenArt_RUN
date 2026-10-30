@@ -257,10 +257,10 @@ def _gpu_render():
     return mod
 
 
-def test_the_orange_check_compares_views_of_one_paint(real04, scene04):
+def test_the_orange_check_compares_views_of_one_paint():
     gpu = _gpu_render()
-    style = scene04["style_profile"]
-    rooms = {r["id"]: r for r in real04["rooms"]}
+    style = _json(FROZEN)["style_profile"]         # 30 Oct 2026: run 201533's, frozen (run 112241 clad its walls in slats)
+    rooms = {r["id"]: r for r in _json(FROZEN)["rooms"]}
     kind = {c: gpu._paint_kind({"room_id": rid, "room_type": rooms[rid]["room_type"]}, {}, style, rooms)
             for c, rid in (("hall", "r_L1_koridor"), ("bed", "r_L0_yatak_odasi_3"), ("deep", "r_L0_e_yatak_odasi"),
                            ("lime", "r_L0_yatak_odasi"), ("bath", "r_L1_banyo"))}

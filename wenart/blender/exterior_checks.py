@@ -1243,7 +1243,40 @@ def validate_material_override(style: dict, override: dict) -> dict:
         failed += _look_problems(SLOT_ALIASES.get(slot, slot), look_id)
     if not failed and "facade" in override:
         failed += facade_scheme_problems(style, override["facade"])
+    if not failed:
+        for slot, look_id in override.items():
+            failed += wall_slot_problems(style, SLOT_ALIASES.get(slot, slot), look_id)
     return {"ok": not failed, "failed": failed}
+
+
+# 30 Oct 2026 (lesson UL177; real04 run 20261030-112241-full: Argus, on "the wall behind the bed is a flat paint; the
+# reference style asks for a feature wall of slatted wood", set the walls slot to wood_slat and 48 wall faces of every
+# room turned to slats; user: "this wall texture seems to be used too much in the house, reduce it down"): the walls
+# slots are every room's walls; they keep a plain finish, a feature finish belongs on one accent wall of a room (its
+# scheme's feature wall: wenart.furniture.room_schemes, wenart.blender.feature_walls); the kitchen's walls may take a
+# panelling or veneer look (28 Oct 2026, tests/test_user_findings_20261028.py)
+WALL_SLOTS: tuple[str, ...] = ("walls",)
+PLAIN_WALL_KINDS: tuple[str, ...] = ("plaster", "painted")
+PLAIN_WALL_LOOKS: tuple[str, ...] = ("concrete_polished", "concrete_exposed")
+
+
+def wall_slot_problems(style: Optional[dict], slot: str, look_id: str) -> list[str]:
+    """Why ``look_id`` may not become every room's walls (pure): a feature finish (wood slats or panels, brick, stone,
+    wallpaper, tiles) unless the style's own walls (the brief) are that finish or kind; [] for a plain finish."""
+    from wenart.style.profile import _entry
+
+    if slot not in WALL_SLOTS:
+        return []
+    entry = _entry(look_id) or {}
+    if entry.get("kind") in PLAIN_WALL_KINDS or look_id in PLAIN_WALL_LOOKS:
+        return []
+    named = ((style or {}).get("walls") or {}).get("material") if isinstance((style or {}).get("walls"), dict) \
+        else None
+    if named and (named == look_id or (_entry(named) or {}).get("kind") == entry.get("kind")):
+        return []
+    return [f"{slot}: {look_id} ({entry.get('kind')}) would clad every wall of every room; the {slot} keep a plain "
+            f"finish ({named or 'paint'}), a feature finish goes on one accent wall of a room (its scheme's feature "
+            f"wall: slats, a fluted panel or a headboard panel behind the bed or the sofa)"]
 
 
 # 30 Oct 2026 (real04 run 20261030-043021-full: Argus, on "the stone cladding on the lower wall is a flat, repetitive

@@ -827,5 +827,2450 @@
     }
    }
   ]
- }
+ },
+ "style_profile": {
+  "source_text": "Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight",
+  "family": "modern",
+  "style_tags": [
+   "natural"
+  ],
+  "floor": {
+   "material": "wood_herringbone_mid",
+   "asset": "WoodFloor034",
+   "colour": null
+  },
+  "walls": {
+   "material": "paint",
+   "asset": "plastered_wall",
+   "colour": "warm greige"
+  },
+  "wall_accent": null,
+  "ceiling": {
+   "material": "plaster_white",
+   "colour": null
+  },
+  "wet_floor": {
+   "material": "tiles_light",
+   "asset": null,
+   "colour": null
+  },
+  "wet_walls": {
+   "material": "tiles_large_porcelain",
+   "asset": null,
+   "colour": "greige",
+   "tile_size_m": [
+    0.6,
+    1.2
+   ],
+   "pattern": "grid",
+   "grout_colour": "light grey"
+  },
+  "trim": {
+   "material": "painted_wood_white",
+   "colour": null
+  },
+  "door": {
+   "material": "wood_oak_light",
+   "asset": "WoodFloor051",
+   "style": null,
+   "colour": null,
+   "handle": null
+  },
+  "window_frame": {
+   "material": "dark_bronze",
+   "asset": null,
+   "colour": null,
+   "outside": {
+    "material": "dark_bronze",
+    "colour": null
+   }
+  },
+  "cabinets": {
+   "front_style": null,
+   "colour": null,
+   "handle": null,
+   "worktop": null,
+   "wood": null
+  },
+  "furniture": {
+   "wood": "wood_veneer_oak_light",
+   "fabric_colour": null,
+   "by_type": {
+    "sofa": {
+     "fabric_colour": "light grey",
+     "colour": null,
+     "material_tags": [
+      "fabric"
+     ]
+    },
+    "sofa_corner": {
+     "fabric_colour": "light grey",
+     "colour": null,
+     "material_tags": [
+      "fabric"
+     ]
+    },
+    "table_coffee": {
+     "fabric_colour": null,
+     "colour": null,
+     "material_tags": [
+      "glass"
+     ]
+    }
+   },
+   "accents": []
+  },
+  "decor": {
+   "plant_species": [
+    "palm",
+    "monstera",
+    "fern"
+   ],
+   "plant_amount": "many",
+   "pots": [
+    {
+     "material": "rattan",
+     "colour": null
+    },
+    {
+     "material": null,
+     "colour": "cream"
+    }
+   ],
+   "cushion_colours": [
+    "cream",
+    "mustard"
+   ],
+   "throw_colours": [],
+   "curtain_colour": null,
+   "rug_colours": []
+  },
+  "exterior": {
+   "facade": {
+    "material": "render",
+    "asset": "grey_plaster",
+    "colour": "warm greige",
+    "source": "fallback",
+    "assumed": true
+   },
+   "roof": {
+    "material": "concrete_tiles",
+    "asset": "grey_roof_01",
+    "colour": "anthracite",
+    "source": "fallback",
+    "assumed": true
+   },
+   "window_frame": {
+    "material": "dark_bronze",
+    "asset": null,
+    "colour": null,
+    "source": "style",
+    "assumed": false
+   },
+   "door": {
+    "material": "wood_oak_light",
+    "asset": "WoodFloor051",
+    "colour": null,
+    "source": "fallback",
+    "assumed": true
+   },
+   "paving": {
+    "material": "paving",
+    "asset": "large_square_pattern_01",
+    "colour": "grey",
+    "source": "fallback",
+    "assumed": true
+   },
+   "garden": {
+    "material": "grass",
+    "asset": "Grass004",
+    "colour": null,
+    "source": "fallback",
+    "assumed": true
+   }
+  },
+  "exterior_fallback": {
+   "facade": {
+    "material": "render",
+    "colour": "walls"
+   },
+   "roof": {
+    "material": "concrete_tiles",
+    "colour": "anthracite"
+   },
+   "window_frame": "interior",
+   "door": "interior",
+   "paving": {
+    "material": "paving",
+    "colour": "grey"
+   },
+   "garden": {
+    "material": "grass",
+    "colour": null
+   }
+  },
+  "lighting": {
+   "hdri": "kloppenheim_06",
+   "sun_elevation_deg": 35,
+   "sun_azimuth_deg": 45.0,
+   "sun_strength": 3.0,
+   "colour_temperature_k": 5200,
+   "mood": "warm daylight"
+  },
+  "colours": {
+   "walls": [
+    "warm greige"
+   ],
+   "sofa": [
+    "light grey"
+   ],
+   "pots": [
+    "cream"
+   ],
+   "cushions": [
+    "cream",
+    "mustard"
+   ],
+   "window_frames": [
+    "dark bronze"
+   ]
+  },
+  "matched_terms": [
+   "Modern natural",
+   "warm greige walls",
+   "light oak plank floor",
+   "light grey fabric sofa",
+   "natural light wood furniture",
+   "glass coffee table",
+   "many large indoor plants (palms, monstera, ferns) in rattan and cream pots",
+   "cream and mustard cushions",
+   "dark bronze window frames",
+   "warm daylight"
+  ],
+  "unmatched_terms": [],
+  "warnings": [
+   "photo: walls plaster_cream from living_reference.jpg not used (the brief names paint)",
+   "assumed: exterior facade render in warm greige, roof concrete_tiles in anthracite, door as inside (wood_oak_light), paving paving in grey, garden grass from style.exterior_fallback of wenart/defaults.yaml (no word for them in the brief)"
+  ],
+  "wet_walls_brief": {
+   "material": "tiles_light",
+   "asset": null,
+   "tile_size_m": null,
+   "pattern": null,
+   "colour": null,
+   "grout_colour": null
+  }
+ },
+ "rooms": [
+  {
+   "id": "r_L-1_salon",
+   "level_id": "L-1",
+   "label": "Salon",
+   "label_raw": "SALON",
+   "room_type": "living",
+   "polygon": [
+    [
+     0.2001,
+     0.2011
+    ],
+    [
+     7.3861,
+     0.2011
+    ],
+    [
+     7.3861,
+     7.4231
+    ],
+    [
+     4.6181,
+     7.4231
+    ],
+    [
+     4.6181,
+     7.5081
+    ],
+    [
+     3.2421,
+     7.5081
+    ],
+    [
+     3.2421,
+     7.0431
+    ],
+    [
+     0.2001,
+     7.0431
+    ]
+   ],
+   "area_computed": 50.858,
+   "area_label": 49.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "living",
+    "bundle": "limewash",
+    "key": "limewash:warm greige",
+    "walls": "limewash",
+    "wall_colour": "warm greige",
+    "feature": "art",
+    "feature_kind": null,
+    "tv": "unit",
+    "lighting": "downlights",
+    "statement": "linear",
+    "dining_wall": "art",
+    "copied_from": null,
+    "rule": "room_schemes",
+    "reason": "living scheme 'limewash' in warm greige from the modern pool of 12 (the first bundle no other room of its kind on the level has; the pool starts at the bundle its id hashes to: a different solution for each room, V1)"
+   }
+  },
+  {
+   "id": "r_L-1_salon_2",
+   "level_id": "L-1",
+   "label": "Salon",
+   "label_raw": "SALON",
+   "room_type": "living",
+   "polygon": [
+    [
+     7.7861,
+     0.2011
+    ],
+    [
+     14.9721,
+     0.2011
+    ],
+    [
+     14.9721,
+     7.0431
+    ],
+    [
+     11.9301,
+     7.0431
+    ],
+    [
+     11.9301,
+     7.5081
+    ],
+    [
+     10.5541,
+     7.5081
+    ],
+    [
+     10.5541,
+     7.4231
+    ],
+    [
+     7.7861,
+     7.4231
+    ]
+   ],
+   "area_computed": 50.858,
+   "area_label": 49.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L-1_salon",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.1722,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.0,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "living",
+    "bundle": "limewash",
+    "key": "limewash:warm greige",
+    "walls": "limewash",
+    "wall_colour": "warm greige",
+    "feature": "art",
+    "feature_kind": null,
+    "tv": "unit",
+    "lighting": "downlights",
+    "statement": "linear",
+    "dining_wall": "art",
+    "copied_from": "r_L-1_salon",
+    "rule": "room_schemes",
+    "reason": "the scheme of its partner r_L-1_salon (its decor is the partner's copy)"
+   }
+  },
+  {
+   "id": "r_L-1_mutfak",
+   "level_id": "L-1",
+   "label": "Mutfak",
+   "label_raw": "MUTFAK",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     0.2001,
+     7.1431
+    ],
+    [
+     3.1421,
+     7.1431
+    ],
+    [
+     3.1421,
+     8.1451
+    ],
+    [
+     3.1226,
+     8.1451
+    ],
+    [
+     3.1226,
+     11.8011
+    ],
+    [
+     0.2001,
+     11.8011
+    ]
+   ],
+   "area_computed": 13.633,
+   "area_label": 14.5,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L-1_mutfak_2",
+   "level_id": "L-1",
+   "label": "Mutfak",
+   "label_raw": "MUTFAK",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     12.0301,
+     7.1431
+    ],
+    [
+     14.9721,
+     7.1431
+    ],
+    [
+     14.9721,
+     11.8011
+    ],
+    [
+     12.0541,
+     11.8011
+    ],
+    [
+     12.0541,
+     8.1451
+    ],
+    [
+     12.0301,
+     8.1451
+    ]
+   ],
+   "area_computed": 13.616,
+   "area_label": 14.5,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L-1_mutfak",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.1722,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.0045,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L-1_koridor",
+   "level_id": "L-1",
+   "label": "Koridor",
+   "label_raw": "KORİDOR",
+   "room_type": "hall",
+   "polygon": [
+    [
+     7.7861,
+     7.5931
+    ],
+    [
+     10.5541,
+     7.5931
+    ],
+    [
+     10.5541,
+     7.5081
+    ],
+    [
+     11.9301,
+     7.5081
+    ],
+    [
+     11.9301,
+     8.1451
+    ],
+    [
+     11.9541,
+     8.1451
+    ],
+    [
+     11.9541,
+     11.8011
+    ],
+    [
+     10.5541,
+     11.8011
+    ],
+    [
+     10.5541,
+     9.7351
+    ],
+    [
+     7.7861,
+     9.7351
+    ]
+   ],
+   "area_computed": 11.924,
+   "area_label": 7.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": "r_L-1_koridor_2",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.1722,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.0005,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "hall",
+    "bundle": "niche",
+    "key": "niche:warm greige",
+    "walls": "plain",
+    "wall_colour": null,
+    "lighting": "track",
+    "hall": "niche",
+    "rug": "runner",
+    "copied_from": "r_L-1_koridor_2",
+    "rule": "room_schemes",
+    "reason": "the scheme of its partner r_L-1_koridor_2 (its decor is the partner's copy)"
+   }
+  },
+  {
+   "id": "r_L-1_koridor_2",
+   "level_id": "L-1",
+   "label": "Koridor",
+   "label_raw": "KORİDOR",
+   "room_type": "hall",
+   "polygon": [
+    [
+     3.2176,
+     8.1451
+    ],
+    [
+     3.2421,
+     8.1451
+    ],
+    [
+     3.2421,
+     7.5081
+    ],
+    [
+     4.6181,
+     7.5081
+    ],
+    [
+     4.6181,
+     7.5931
+    ],
+    [
+     7.3861,
+     7.5931
+    ],
+    [
+     7.3861,
+     9.7351
+    ],
+    [
+     4.6181,
+     9.7351
+    ],
+    [
+     4.6181,
+     11.8011
+    ],
+    [
+     3.2176,
+     11.8011
+    ]
+   ],
+   "area_computed": 11.926,
+   "area_label": 7.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "hall",
+    "bundle": "niche",
+    "key": "niche:warm greige",
+    "walls": "plain",
+    "wall_colour": null,
+    "lighting": "track",
+    "hall": "niche",
+    "rug": "runner",
+    "copied_from": null,
+    "rule": "room_schemes",
+    "reason": "hall scheme 'niche' in warm greige from the modern pool of 9 (the first bundle no other room of its kind on the level has; the pool starts at the bundle its id hashes to: a different solution for each room, V1)"
+   }
+  },
+  {
+   "id": "r_L-1_banyo",
+   "level_id": "L-1",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     4.7181,
+     9.9351
+    ],
+    [
+     7.3861,
+     9.9351
+    ],
+    [
+     7.3861,
+     11.8011
+    ],
+    [
+     4.7181,
+     11.8011
+    ]
+   ],
+   "area_computed": 4.978,
+   "area_label": 4.9,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L-1_banyo_2",
+   "level_id": "L-1",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     7.7861,
+     9.9351
+    ],
+    [
+     10.4541,
+     9.9351
+    ],
+    [
+     10.4541,
+     11.8011
+    ],
+    [
+     7.7861,
+     11.8011
+    ]
+   ],
+   "area_computed": 4.978,
+   "area_label": 4.9,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L-1_banyo",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.1722,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.0,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L-1b_salon",
+   "level_id": "L-1b",
+   "label": "Salon",
+   "label_raw": "SALON",
+   "room_type": "living",
+   "polygon": [
+    [
+     0.2011,
+     0.201
+    ],
+    [
+     7.3871,
+     0.201
+    ],
+    [
+     7.3871,
+     7.443
+    ],
+    [
+     4.6171,
+     7.443
+    ],
+    [
+     4.6171,
+     7.518
+    ],
+    [
+     3.3172,
+     7.518
+    ],
+    [
+     3.3172,
+     7.443
+    ],
+    [
+     3.3171,
+     7.343
+    ],
+    [
+     0.2011,
+     7.343
+    ]
+   ],
+   "area_computed": 51.827,
+   "area_label": 46.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "zones": [
+    {
+     "zone_id": "r_L-1b_salon_kitchen",
+     "kind": "kitchen",
+     "polygon": [
+      [
+       0.2011,
+       7.343
+      ],
+      [
+       3.3171,
+       7.343
+      ],
+      [
+       3.3172,
+       7.518
+      ],
+      [
+       4.3171,
+       7.518
+      ],
+      [
+       4.3171,
+       5.7436
+      ],
+      [
+       3.3883,
+       3.3223
+      ],
+      [
+       0.2011,
+       3.3223
+      ]
+     ],
+     "piece_ids": [
+      "f_L-1b_009",
+      "f_L-1b_010",
+      "f_L-1b_011",
+      "f_L-1b_013",
+      "f_L-1b_056"
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "method": "inferred",
+       "confidence": 0.8,
+       "text": "kitchen fixtures f_L-1b_009, f_L-1b_010, f_L-1b_011, f_L-1b_013, f_L-1b_056 in a living room: an open kitchen; the zone is them and the 1.0 m in front of them",
+       "rule": "reading.kitchen_zone",
+       "entity": "LWPOLYLINE:2F042",
+       "region_id": "r15"
+      }
+     ]
+    }
+   ],
+   "scheme": {
+    "kind": "living",
+    "bundle": "slats",
+    "key": "slats:pale dusty blue",
+    "walls": "accent",
+    "wall_colour": "pale dusty blue",
+    "feature": "art",
+    "feature_kind": null,
+    "tv": "wall",
+    "lighting": "track",
+    "statement": "cluster",
+    "dining_wall": "art",
+    "copied_from": null,
+    "rule": "room_schemes",
+    "reason": "living scheme 'slats' in pale dusty blue from the modern pool of 12 (the first bundle no other room of its kind on the level has; the pool starts at the bundle its id hashes to: a different solution for each room, V1)"
+   }
+  },
+  {
+   "id": "r_L-1b_salon_2",
+   "level_id": "L-1b",
+   "label": "Salon",
+   "label_raw": "SALON",
+   "room_type": "living",
+   "polygon": [
+    [
+     7.7871,
+     0.201
+    ],
+    [
+     14.9731,
+     0.201
+    ],
+    [
+     14.9731,
+     7.343
+    ],
+    [
+     11.8551,
+     7.343
+    ],
+    [
+     11.8551,
+     7.518
+    ],
+    [
+     10.5551,
+     7.518
+    ],
+    [
+     10.5551,
+     7.443
+    ],
+    [
+     7.7871,
+     7.443
+    ]
+   ],
+   "area_computed": 51.827,
+   "area_label": 46.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": "r_L-1b_salon",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.17325,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.001,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "zones": [
+    {
+     "zone_id": "r_L-1b_salon_2_kitchen",
+     "kind": "kitchen",
+     "polygon": [
+      [
+       10.8552,
+       5.7436
+      ],
+      [
+       10.8552,
+       7.518
+      ],
+      [
+       11.8551,
+       7.518
+      ],
+      [
+       11.8551,
+       7.343
+      ],
+      [
+       14.9731,
+       7.343
+      ],
+      [
+       14.9731,
+       3.3223
+      ],
+      [
+       11.7846,
+       3.3223
+      ]
+     ],
+     "piece_ids": [
+      "f_L-1b_003",
+      "f_L-1b_004",
+      "f_L-1b_005",
+      "f_L-1b_007",
+      "f_L-1b_055"
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "method": "inferred",
+       "confidence": 0.8,
+       "text": "kitchen fixtures f_L-1b_003, f_L-1b_004, f_L-1b_005, f_L-1b_007, f_L-1b_055 in a living room: an open kitchen; the zone is them and the 1.0 m in front of them",
+       "rule": "reading.kitchen_zone",
+       "entity": "LWPOLYLINE:2C814",
+       "region_id": "r15"
+      }
+     ]
+    }
+   ],
+   "scheme": {
+    "kind": "living",
+    "bundle": "slats",
+    "key": "slats:pale dusty blue",
+    "walls": "accent",
+    "wall_colour": "pale dusty blue",
+    "feature": "art",
+    "feature_kind": null,
+    "tv": "wall",
+    "lighting": "track",
+    "statement": "cluster",
+    "dining_wall": "art",
+    "copied_from": "r_L-1b_salon",
+    "rule": "room_schemes",
+    "reason": "the scheme of its partner r_L-1b_salon (its decor is the partner's copy)"
+   }
+  },
+  {
+   "id": "r_L-1b_oda",
+   "level_id": "L-1b",
+   "label": "Oda",
+   "label_raw": "ODA",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.2011,
+     7.443
+    ],
+    [
+     3.2172,
+     7.443
+    ],
+    [
+     3.2172,
+     11.801
+    ],
+    [
+     0.2011,
+     11.801
+    ]
+   ],
+   "area_computed": 13.144,
+   "area_label": 13.0,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "bedroom",
+    "bundle": "panel",
+    "key": "panel:pale dusty blue",
+    "walls": "accent",
+    "wall_colour": "pale dusty blue",
+    "feature": "fluted",
+    "feature_kind": "fluted",
+    "tv": "unit",
+    "desk": "freestanding",
+    "nightstand": "standing",
+    "lighting": "downlights",
+    "statement": "globe",
+    "copied_from": null,
+    "rule": "room_schemes",
+    "reason": "bedroom scheme 'panel' in pale dusty blue from the modern pool of 12 (the first bundle no other room of its kind on the level has; the pool starts at the bundle its id hashes to: a different solution for each room, V1)"
+   }
+  },
+  {
+   "id": "r_L-1b_oda_2",
+   "level_id": "L-1b",
+   "label": "Oda",
+   "label_raw": "ODA",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     11.9551,
+     7.443
+    ],
+    [
+     14.9731,
+     7.443
+    ],
+    [
+     14.9731,
+     11.801
+    ],
+    [
+     11.9551,
+     11.801
+    ]
+   ],
+   "area_computed": 13.152,
+   "area_label": 13.0,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L-1b_oda",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.17325,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.001,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "bedroom",
+    "bundle": "panel",
+    "key": "panel:pale dusty blue",
+    "walls": "accent",
+    "wall_colour": "pale dusty blue",
+    "feature": "fluted",
+    "feature_kind": "fluted",
+    "tv": "unit",
+    "desk": "freestanding",
+    "nightstand": "standing",
+    "lighting": "downlights",
+    "statement": "globe",
+    "copied_from": "r_L-1b_oda",
+    "rule": "room_schemes",
+    "reason": "the scheme of its partner r_L-1b_oda (its decor is the partner's copy)"
+   }
+  },
+  {
+   "id": "r_L-1b_koridor",
+   "level_id": "L-1b",
+   "label": "Koridor",
+   "label_raw": "KORİDOR",
+   "room_type": "hall",
+   "polygon": [
+    [
+     3.3172,
+     7.518
+    ],
+    [
+     4.6171,
+     7.518
+    ],
+    [
+     4.6171,
+     7.593
+    ],
+    [
+     7.3871,
+     7.593
+    ],
+    [
+     7.3871,
+     9.735
+    ],
+    [
+     4.6171,
+     9.735
+    ],
+    [
+     4.6171,
+     11.801
+    ],
+    [
+     3.3172,
+     11.801
+    ]
+   ],
+   "area_computed": 11.501,
+   "area_label": 7.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "hall",
+    "bundle": "gallery",
+    "key": "gallery:warm greige",
+    "walls": "plain",
+    "wall_colour": null,
+    "lighting": "downlights",
+    "hall": "gallery",
+    "rug": "runner",
+    "copied_from": null,
+    "rule": "room_schemes",
+    "reason": "hall scheme 'gallery' in warm greige from the modern pool of 9 (the first bundle no other room of its kind on the level has; the pool starts at the bundle its id hashes to: a different solution for each room, V1)"
+   }
+  },
+  {
+   "id": "r_L-1b_koridor_2",
+   "level_id": "L-1b",
+   "label": "Koridor",
+   "label_raw": "KORİDOR",
+   "room_type": "hall",
+   "polygon": [
+    [
+     7.7871,
+     7.593
+    ],
+    [
+     10.5551,
+     7.593
+    ],
+    [
+     10.5551,
+     7.518
+    ],
+    [
+     11.8551,
+     7.518
+    ],
+    [
+     11.8551,
+     11.801
+    ],
+    [
+     10.5551,
+     11.801
+    ],
+    [
+     10.5551,
+     9.735
+    ],
+    [
+     7.7871,
+     9.735
+    ]
+   ],
+   "area_computed": 11.497,
+   "area_label": 7.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": "r_L-1b_koridor",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.17325,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.001,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "hall",
+    "bundle": "console",
+    "key": "console:warm greige",
+    "walls": "plain",
+    "wall_colour": null,
+    "lighting": "downlights",
+    "hall": "console",
+    "rug": "round",
+    "copied_from": null,
+    "rule": "room_schemes",
+    "reason": "hall scheme 'console' in warm greige from the modern pool of 9 (the first bundle no other room of its kind on the level has; the pool starts at the bundle its id hashes to: a different solution for each room, V1)"
+   }
+  },
+  {
+   "id": "r_L-1b_banyo",
+   "level_id": "L-1b",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     4.7171,
+     9.935
+    ],
+    [
+     7.3871,
+     9.935
+    ],
+    [
+     7.3871,
+     11.801
+    ],
+    [
+     4.7171,
+     11.801
+    ]
+   ],
+   "area_computed": 4.982,
+   "area_label": 4.9,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": "r_L-1_banyo",
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L-1b_banyo_2",
+   "level_id": "L-1b",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     7.7871,
+     9.935
+    ],
+    [
+     10.4551,
+     9.935
+    ],
+    [
+     10.4551,
+     11.801
+    ],
+    [
+     7.7871,
+     11.801
+    ]
+   ],
+   "area_computed": 4.978,
+   "area_label": 4.9,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L-1b_banyo",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.17325,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.001,
+   "same_as": "r_L-1_banyo_2",
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L0_yatak_odasi",
+   "level_id": "L0",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.2,
+     1.7
+    ],
+    [
+     3.218,
+     1.7
+    ],
+    [
+     3.218,
+     7.044
+    ],
+    [
+     0.2,
+     7.044
+    ]
+   ],
+   "area_computed": 16.128,
+   "area_label": 16.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "bedroom",
+    "bundle": "limewash",
+    "key": "limewash:warm greige",
+    "walls": "limewash",
+    "wall_colour": "warm greige",
+    "feature": "headboard_panel",
+    "feature_kind": "headboard_panel",
+    "tv": "wall",
+    "desk": "freestanding",
+    "nightstand": "floating",
+    "lighting": "downlights",
+    "statement": "cluster",
+    "copied_from": null,
+    "rule": "room_schemes",
+    "reason": "bedroom scheme 'limewash' in warm greige from the modern pool of 12 (the first bundle no other room of its kind on the level has; the pool starts at the bundle its id hashes to: a different solution for each room, V1)"
+   }
+  },
+  {
+   "id": "r_L0_e_yatak_odasi",
+   "level_id": "L0",
+   "label": "E.yatak Odası",
+   "label_raw": "E.YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     3.318,
+     1.7
+    ],
+    [
+     7.386,
+     1.7
+    ],
+    [
+     7.386,
+     5.844
+    ],
+    [
+     3.318,
+     5.844
+    ]
+   ],
+   "area_computed": 16.858,
+   "area_label": 17.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "bedroom",
+    "bundle": "deep",
+    "key": "deep:dark sage",
+    "walls": "deep_colour",
+    "wall_colour": "dark sage",
+    "feature": "art_pair",
+    "feature_kind": null,
+    "tv": "wall",
+    "desk": "floating",
+    "nightstand": "drum",
+    "lighting": "track",
+    "statement": "linear",
+    "copied_from": null,
+    "rule": "room_schemes",
+    "reason": "bedroom scheme 'deep' in dark sage from the modern pool of 12 (the first bundle no other room of its kind on the level has; the pool starts at the bundle its id hashes to: a different solution for each room, V1)"
+   }
+  },
+  {
+   "id": "r_L0_e_yatak_odasi_2",
+   "level_id": "L0",
+   "label": "E.yatak Odası",
+   "label_raw": "E.YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     7.786,
+     1.7
+    ],
+    [
+     11.856,
+     1.7
+    ],
+    [
+     11.856,
+     5.844
+    ],
+    [
+     7.786,
+     5.844
+    ]
+   ],
+   "area_computed": 16.866,
+   "area_label": 17.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L0_e_yatak_odasi",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.001,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "bedroom",
+    "bundle": "deep",
+    "key": "deep:dark sage",
+    "walls": "deep_colour",
+    "wall_colour": "dark sage",
+    "feature": "art_pair",
+    "feature_kind": null,
+    "tv": "wall",
+    "desk": "floating",
+    "nightstand": "drum",
+    "lighting": "track",
+    "statement": "linear",
+    "copied_from": "r_L0_e_yatak_odasi",
+    "rule": "room_schemes",
+    "reason": "the scheme of its partner r_L0_e_yatak_odasi (its decor is the partner's copy)"
+   }
+  },
+  {
+   "id": "r_L0_yatak_odasi_2",
+   "level_id": "L0",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     11.956,
+     1.7
+    ],
+    [
+     14.972,
+     1.7
+    ],
+    [
+     14.972,
+     7.044
+    ],
+    [
+     11.956,
+     7.044
+    ]
+   ],
+   "area_computed": 16.118,
+   "area_label": 16.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L0_yatak_odasi",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.001,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "bedroom",
+    "bundle": "limewash",
+    "key": "limewash:warm greige",
+    "walls": "limewash",
+    "wall_colour": "warm greige",
+    "feature": "headboard_panel",
+    "feature_kind": "headboard_panel",
+    "tv": "wall",
+    "desk": "freestanding",
+    "nightstand": "floating",
+    "lighting": "downlights",
+    "statement": "cluster",
+    "copied_from": "r_L0_yatak_odasi",
+    "rule": "room_schemes",
+    "reason": "the scheme of its partner r_L0_yatak_odasi (its decor is the partner's copy)"
+   }
+  },
+  {
+   "id": "r_L0_koridor",
+   "level_id": "L0",
+   "label": "Koridor",
+   "label_raw": "KORİDOR",
+   "room_type": "hall",
+   "polygon": [
+    [
+     3.318,
+     5.944
+    ],
+    [
+     4.618,
+     5.944
+    ],
+    [
+     4.618,
+     11.8
+    ],
+    [
+     3.318,
+     11.8
+    ]
+   ],
+   "area_computed": 7.613,
+   "area_label": 7.0,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "hall",
+    "bundle": "niche",
+    "key": "niche:pale taupe",
+    "walls": "plain",
+    "wall_colour": null,
+    "lighting": "track",
+    "hall": "niche",
+    "rug": "runner",
+    "copied_from": null,
+    "rule": "room_schemes",
+    "reason": "hall scheme 'niche' in pale taupe from the modern pool of 9 (the first bundle no other room of its kind on the level has; the pool starts at the bundle its id hashes to: a different solution for each room, V1)"
+   }
+  },
+  {
+   "id": "r_L0_e_banyo",
+   "level_id": "L0",
+   "label": "E.banyo",
+   "label_raw": "E.BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     4.718,
+     5.944
+    ],
+    [
+     7.386,
+     5.944
+    ],
+    [
+     7.386,
+     7.444
+    ],
+    [
+     4.718,
+     7.444
+    ]
+   ],
+   "area_computed": 4.002,
+   "area_label": 4.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L0_e_banyo_2",
+   "level_id": "L0",
+   "label": "E.banyo",
+   "label_raw": "E.BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     7.786,
+     5.944
+    ],
+    [
+     10.456,
+     5.944
+    ],
+    [
+     10.456,
+     7.444
+    ],
+    [
+     7.786,
+     7.444
+    ]
+   ],
+   "area_computed": 4.005,
+   "area_label": 4.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L0_e_banyo",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.001,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L0_koridor_2",
+   "level_id": "L0",
+   "label": "Koridor",
+   "label_raw": "KORİDOR",
+   "room_type": "hall",
+   "polygon": [
+    [
+     10.556,
+     5.944
+    ],
+    [
+     11.856,
+     5.944
+    ],
+    [
+     11.856,
+     11.8
+    ],
+    [
+     10.556,
+     11.8
+    ]
+   ],
+   "area_computed": 7.613,
+   "area_label": 7.0,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": "r_L0_koridor",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.001,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "hall",
+    "bundle": "niche",
+    "key": "niche:pale taupe",
+    "walls": "plain",
+    "wall_colour": null,
+    "lighting": "track",
+    "hall": "niche",
+    "rug": "runner",
+    "copied_from": "r_L0_koridor",
+    "rule": "room_schemes",
+    "reason": "the scheme of its partner r_L0_koridor (its decor is the partner's copy)"
+   }
+  },
+  {
+   "id": "r_L0_yatak_odasi_3",
+   "level_id": "L0",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.2,
+     7.144
+    ],
+    [
+     3.218,
+     7.144
+    ],
+    [
+     3.218,
+     11.8
+    ],
+    [
+     0.2,
+     11.8
+    ]
+   ],
+   "area_computed": 14.052,
+   "area_label": 17.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "bedroom",
+    "bundle": "slats",
+    "key": "slats:pale dusty blue",
+    "walls": "accent",
+    "wall_colour": "pale dusty blue",
+    "feature": "slats",
+    "feature_kind": "slats",
+    "tv": "unit",
+    "desk": "floating",
+    "nightstand": "standing",
+    "lighting": "track",
+    "statement": "linear",
+    "copied_from": null,
+    "rule": "room_schemes",
+    "reason": "bedroom scheme 'slats' in pale dusty blue from the modern pool of 12 (the first bundle no other room of its kind on the level has; the pool starts at the bundle its id hashes to: a different solution for each room, V1)"
+   }
+  },
+  {
+   "id": "r_L0_yatak_odasi_4",
+   "level_id": "L0",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     11.956,
+     7.144
+    ],
+    [
+     14.972,
+     7.144
+    ],
+    [
+     14.972,
+     11.8
+    ],
+    [
+     11.956,
+     11.8
+    ]
+   ],
+   "area_computed": 14.042,
+   "area_label": 17.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": "r_L0_yatak_odasi_3",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.001,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "bedroom",
+    "bundle": "slats",
+    "key": "slats:pale dusty blue",
+    "walls": "accent",
+    "wall_colour": "pale dusty blue",
+    "feature": "slats",
+    "feature_kind": "slats",
+    "tv": "unit",
+    "desk": "floating",
+    "nightstand": "standing",
+    "lighting": "track",
+    "statement": "linear",
+    "copied_from": "r_L0_yatak_odasi_3",
+    "rule": "room_schemes",
+    "reason": "the scheme of its partner r_L0_yatak_odasi_3 (its decor is the partner's copy)"
+   }
+  },
+  {
+   "id": "r_L0_merdiven",
+   "level_id": "L0",
+   "label": "Merdiven",
+   "label_raw": null,
+   "room_type": "hall",
+   "polygon": [
+    [
+     4.718,
+     7.594
+    ],
+    [
+     7.386,
+     7.594
+    ],
+    [
+     7.386,
+     9.736
+    ],
+    [
+     4.718,
+     9.736
+    ]
+   ],
+   "area_computed": 5.715,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L0_merdiven_2",
+   "level_id": "L0",
+   "label": "Merdiven",
+   "label_raw": null,
+   "room_type": "hall",
+   "polygon": [
+    [
+     7.786,
+     7.594
+    ],
+    [
+     10.456,
+     7.594
+    ],
+    [
+     10.456,
+     9.736
+    ],
+    [
+     7.786,
+     9.736
+    ]
+   ],
+   "area_computed": 5.719,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": "r_L0_merdiven",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.001,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L0_banyo",
+   "level_id": "L0",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     4.718,
+     9.936
+    ],
+    [
+     7.386,
+     9.936
+    ],
+    [
+     7.386,
+     11.8
+    ],
+    [
+     4.718,
+     11.8
+    ]
+   ],
+   "area_computed": 4.973,
+   "area_label": 4.9,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L0_banyo_2",
+   "level_id": "L0",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     7.786,
+     9.936
+    ],
+    [
+     10.456,
+     9.936
+    ],
+    [
+     10.456,
+     11.8
+    ],
+    [
+     7.786,
+     11.8
+    ]
+   ],
+   "area_computed": 4.977,
+   "area_label": 4.9,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L0_banyo",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.001,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L1_teras",
+   "level_id": "L1",
+   "label": "Teras",
+   "label_raw": "TERAS",
+   "room_type": "balcony",
+   "polygon": [
+    [
+     0.2005,
+     0.201
+    ],
+    [
+     1.7005,
+     0.201
+    ],
+    [
+     1.7005,
+     10.301
+    ],
+    [
+     3.2185,
+     10.301
+    ],
+    [
+     3.2185,
+     11.801
+    ],
+    [
+     0.2005,
+     11.801
+    ]
+   ],
+   "area_computed": 19.677,
+   "area_label": 22.0,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+   "level_id": "L1",
+   "label": "Oyun Aktivite Ve Dinlenme Odası",
+   "label_raw": "OYUN AKTİVİTE VE DİNLENME ODASI",
+   "room_type": "other",
+   "polygon": [
+    [
+     1.8005,
+     0.201
+    ],
+    [
+     7.3865,
+     0.201
+    ],
+    [
+     7.3865,
+     7.443
+    ],
+    [
+     1.8005,
+     7.443
+    ]
+   ],
+   "area_computed": 40.454,
+   "area_label": 40.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+   "level_id": "L1",
+   "label": "Oyun Aktivite Ve Dinlenme Odası",
+   "label_raw": "OYUN AKTİVİTE VE DİNLENME ODASI",
+   "room_type": "living",
+   "polygon": [
+    [
+     7.7865,
+     0.201
+    ],
+    [
+     13.3725,
+     0.201
+    ],
+    [
+     13.3725,
+     7.443
+    ],
+    [
+     7.7865,
+     7.443
+    ]
+   ],
+   "area_computed": 40.454,
+   "area_label": 40.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.0,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "adjusted_by_ai": {
+    "reason": "Room is furnished as a living room (sofas, coffee tables, TV unit, dining) though typed 'other'.",
+    "round": 1,
+    "log_seq": 17886,
+    "model": "Qwen/Qwen3.8-27B-FP8",
+    "changed": {
+     "room_type": "other"
+    }
+   }
+  },
+  {
+   "id": "r_L1_koridor",
+   "level_id": "L1",
+   "label": "Koridor",
+   "label_raw": "KORİDOR",
+   "room_type": "hall",
+   "polygon": [
+    [
+     1.8005,
+     7.593
+    ],
+    [
+     7.3865,
+     7.593
+    ],
+    [
+     7.3865,
+     9.735
+    ],
+    [
+     4.6185,
+     9.735
+    ],
+    [
+     4.6185,
+     11.801
+    ],
+    [
+     3.3185,
+     11.801
+    ],
+    [
+     3.3185,
+     10.191
+    ],
+    [
+     1.8005,
+     10.191
+    ]
+   ],
+   "area_computed": 15.343,
+   "area_label": 10.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "hall",
+    "bundle": "gallery",
+    "key": "gallery:pale taupe",
+    "walls": "plain",
+    "wall_colour": null,
+    "lighting": "downlights",
+    "hall": "gallery",
+    "rug": "runner",
+    "copied_from": null,
+    "rule": "room_schemes",
+    "reason": "hall scheme 'gallery' in pale taupe from the modern pool of 9 (the first bundle no other room of its kind on the level has; the pool starts at the bundle its id hashes to: a different solution for each room, V1)"
+   }
+  },
+  {
+   "id": "r_L1_koridor_2",
+   "level_id": "L1",
+   "label": "Koridor",
+   "label_raw": "KORİDOR",
+   "room_type": "hall",
+   "polygon": [
+    [
+     7.7865,
+     7.593
+    ],
+    [
+     13.3725,
+     7.593
+    ],
+    [
+     13.3725,
+     10.191
+    ],
+    [
+     11.8545,
+     10.191
+    ],
+    [
+     11.8545,
+     11.801
+    ],
+    [
+     10.5545,
+     11.801
+    ],
+    [
+     10.5545,
+     9.735
+    ],
+    [
+     7.7865,
+     9.735
+    ]
+   ],
+   "area_computed": 15.343,
+   "area_label": 10.0,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L1_koridor",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.0,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": [],
+   "scheme": {
+    "kind": "hall",
+    "bundle": "gallery",
+    "key": "gallery:pale taupe",
+    "walls": "plain",
+    "wall_colour": null,
+    "lighting": "downlights",
+    "hall": "gallery",
+    "rug": "runner",
+    "copied_from": "r_L1_koridor",
+    "rule": "room_schemes",
+    "reason": "the scheme of its partner r_L1_koridor (its decor is the partner's copy)"
+   }
+  },
+  {
+   "id": "r_L1_banyo",
+   "level_id": "L1",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     4.7185,
+     9.935
+    ],
+    [
+     7.3865,
+     9.935
+    ],
+    [
+     7.3865,
+     11.801
+    ],
+    [
+     4.7185,
+     11.801
+    ]
+   ],
+   "area_computed": 4.978,
+   "area_label": 4.9,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": null,
+   "twin_transform": null,
+   "twin_residual_m": null,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L1_banyo_2",
+   "level_id": "L1",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     7.7865,
+     9.935
+    ],
+    [
+     10.4545,
+     9.935
+    ],
+    [
+     10.4545,
+     11.801
+    ],
+    [
+     7.7865,
+     11.801
+    ]
+   ],
+   "area_computed": 4.978,
+   "area_label": 4.9,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "room_subtype": null,
+   "twin_of": "r_L1_banyo",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.0,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  },
+  {
+   "id": "r_L1_teras_2",
+   "level_id": "L1",
+   "label": "Teras",
+   "label_raw": "TERAS",
+   "room_type": "balcony",
+   "polygon": [
+    [
+     11.9545,
+     10.301
+    ],
+    [
+     13.4725,
+     10.301
+    ],
+    [
+     13.4725,
+     0.201
+    ],
+    [
+     14.9725,
+     0.201
+    ],
+    [
+     14.9725,
+     11.801
+    ],
+    [
+     11.9545,
+     11.801
+    ]
+   ],
+   "area_computed": 19.677,
+   "area_label": 22.0,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "unverified",
+   "room_subtype": null,
+   "twin_of": "r_L1_teras",
+   "twin_transform": [
+    -1.0,
+    0.0,
+    15.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "twin_residual_m": 0.0,
+   "same_as": null,
+   "floor_offset_m": 0.0,
+   "floor_source": "level",
+   "floor_evidence": []
+  }
+ ]
 }

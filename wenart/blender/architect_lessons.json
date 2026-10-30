@@ -2059,52 +2059,170 @@
   {
    "id": "UL174",
    "date": "2026-10-30",
-   "area": "other",
-   "status": "open",
-   "checks": [],
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "I did not like the lamp (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom: a classic antique-brass chandelier with white bell shades over the bed of a modern concrete-walled room); again on the play room's dining table: \"also I did not like the lamp\" (a crystal-drop chandelier over a modern dining table)",
-   "lesson": "I did not like the lamp (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom: a classic antique-brass chandelier with white bell shades over the bed of a modern concrete-walled room)",
-   "question": null
+   "lesson": "A library model is used only when its own title names no style the project's family may not carry (catalog.title_style_clash: 'Classic', 'Traditional', 'Antique', 'Victorian', 'crystal' ...; a finish name such as 'antique brass' does not count; a chandelier without a modern form word such as mid-century, mesh, Edison, sputnik, linear or globe is the classic form): the title is the maker's word, the styles tags only the vision judges' guess (real04: a 'Classic ... Chandelier ... Antique Brass' tagged modern and scandinavian, a '5-Light Chandelier' and crystal 'Designer chandeliers' in a modern house). Every pick of furniture and decor goes through catalog.styles_match.",
+   "question": "Does every light and piece carry the house's style family, with no classic chandelier, crystal drops or antique fittings in a modern home unless the brief asks for them?"
   },
   {
    "id": "UL175",
    "date": "2026-10-30",
-   "area": "other",
+   "area": "decor",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "laptop and stationary can be more detailed models they are too plain (30 Oct 2026, real04 run 20261030-112241-full, the bedroom desk: a flat slab laptop, plain notebooks and a plain pen pot)",
    "lesson": "laptop and stationary can be more detailed models they are too plain (30 Oct 2026, real04 run 20261030-112241-full, the bedroom desk: a flat slab laptop, plain notebooks and a plain pen pot)",
-   "question": null
+   "question": "Do the laptop and the stationery on every desk look like real products (keys, trackpad, screen, notebooks with pages, pens with clips)?"
   },
   {
    "id": "UL176",
    "date": "2026-10-30",
-   "area": "other",
+   "area": "furniture",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "I did not like this bed (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom with slatted walls: a glossy black bed under a plain white duvet slab, grey and white pillows leaning)",
    "lesson": "I did not like this bed (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom with slatted walls: a glossy black bed under a plain white duvet slab, grey and white pillows leaning)",
-   "question": null
+   "question": "Does every bed look like a good real bed of the style family, with made bedding that is not a flat slab?"
   },
   {
    "id": "UL177",
    "date": "2026-10-30",
-   "area": "other",
-   "status": "open",
-   "checks": [],
+   "area": "materials",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
    "request": "this wall texture seems to be used too much in the house, reduce it down (30 Oct 2026, real04 run 20261030-112241-full: the wood slat wall panelling on whole bedroom walls, in many rooms); again on the play room: \"same wall texture reduce\"",
-   "lesson": "this wall texture seems to be used too much in the house, reduce it down (30 Oct 2026, real04 run 20261030-112241-full: the wood slat wall panelling on whole bedroom walls, in many rooms)",
-   "question": null
+   "lesson": "A feature finish is a room's accent, never the whole house: the walls slot (every room's walls) keeps a plain finish (plaster, paint, concrete) unless the brief names the finish (exterior_checks.wall_slot_problems: wood slats, panels, brick, stone, wallpaper or tiles are refused there); at most two rooms of a house (a twin counts, a variant level is its own version) get a vertical slat or fluted wall, the next rooms take the bundle's art in its place (room_schemes.SLAT_ROOMS_MAX). real04 run 20261030-112241-full: an Argus set_material walls wood_slat clad 48 wall faces of every room.",
+   "question": "Is a feature finish (slats, panels, wallpaper) used on one accent wall of a few rooms only, never on every wall of the house?"
   },
   {
    "id": "UL178",
    "date": "2026-10-30",
-   "area": "other",
+   "area": "furniture",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "Table seems to be going through the chairs (30 Oct 2026, real04 run 20261030-112241-full, the top-floor play room's dining set: a turned-leg table with a drawer apron, two grey shell chairs whose seats and backs pass through the table top and legs)",
    "lesson": "Table seems to be going through the chairs (30 Oct 2026, real04 run 20261030-112241-full, the top-floor play room's dining set: a turned-leg table with a drawer apron, two grey shell chairs whose seats and backs pass through the table top and legs)",
-   "question": null
+   "question": "Does every chair stand clear of its table's top, apron and legs?"
+  },
+  {
+   "id": "UL179",
+   "date": "2026-10-30",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Door style is good but it is too plain, make it better (30 Oct 2026, real04 run 20261030-112241-full, a glazed outside door seen from inside: a flat oak frame and stile with one big pane, a plain casing, a black lever)",
+   "lesson": "Door style is good but it is too plain, make it better (30 Oct 2026, real04 run 20261030-112241-full, a glazed outside door seen from inside: a flat oak frame and stile with one big pane, a plain casing, a black lever)",
+   "question": "Do the doors show real joinery (profiled stiles and rails, glazing beads, a casing with plinth blocks, hinges and a lever on a rose)?"
+  },
+  {
+   "id": "UL180",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "put some pillows and sheet on to the white sofa also another carpet could be good here (30 Oct 2026, real04 run 20261030-112241-full, a basement living room: a white library L-sofa with no cushions or throw, a navy armchair, the oak floor bare under the seating)",
+   "lesson": "put some pillows and sheet on to the white sofa also another carpet could be good here (30 Oct 2026, real04 run 20261030-112241-full, a basement living room: a white library L-sofa with no cushions or throw, a navy armchair, the oak floor bare under the seating)",
+   "question": "Does the main sofa of every living room carry scatter cushions and a throw, and does every seating group stand on its own rug?"
+  },
+  {
+   "id": "UL181",
+   "date": "2026-10-30",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This window and curtain arrangement needs a rework (30 Oct 2026, real04 run 20261030-112241-full, the top-floor play room facing the terrace: a wide frameless glazing with two short curtain panels hanging in the middle of the glass, not at its sides, no rod or track visible, nothing dividing the glass)",
+   "lesson": "This window and curtain arrangement needs a rework (30 Oct 2026, real04 run 20261030-112241-full, the top-floor play room facing the terrace: a wide frameless glazing with two short curtain panels hanging in the middle of the glass, not at its sides, no rod or track visible, nothing dividing the glass)",
+   "question": "Do curtains hang from a rod or track past the opening, stacked at the sides, floor length, and is wide glazing divided into real panes?"
+  },
+  {
+   "id": "UL182",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "These kind of wardrobes can be used in other rooms also, it can go all the way to the ceiling it can have glass sections I did gave an inspiration before (30 Oct 2026, real04 run 20261030-112241-full, a green bedroom: a dark wardrobe run with horizontal slatted sliding fronts and a lit interior; the user wants this kind in other rooms too, full height to the ceiling, with glass sections, as in their earlier inspiration photos)",
+   "lesson": "These kind of wardrobes can be used in other rooms also, it can go all the way to the ceiling it can have glass sections I did gave an inspiration before (30 Oct 2026, real04 run 20261030-112241-full, a green bedroom: a dark wardrobe run with horizontal slatted sliding fronts and a lit interior; the user wants this kind in other rooms too, full height to the ceiling, with glass sections, as in their earlier inspiration photos)",
+   "question": "Do the wardrobes of the bedrooms use the see-through, full-height, partly glazed fronts the user liked, where the room allows?"
+  },
+  {
+   "id": "UL183",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Better toilet paper roll model is needed (30 Oct 2026, real04 run 20261030-112241-full, a bathroom: a plain white cylinder on a small chrome arm, no core, no sheet hanging, no proper holder)",
+   "lesson": "Better toilet paper roll model is needed (30 Oct 2026, real04 run 20261030-112241-full, a bathroom: a plain white cylinder on a small chrome arm, no core, no sheet hanging, no proper holder)",
+   "question": "Does the toilet roll look like a real roll on a real holder (core, a hanging sheet, a holder with a cover or an arm on a rose)?"
+  },
+  {
+   "id": "UL184",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "More detailed models would be nice here (30 Oct 2026, real04 run 20261030-112241-full, a bathroom vanity: a plain pump bottle with a band, a reed diffuser with lollipop sticks, a lidded jar with pebbles, a dark vessel basin on a terrazzo top, a black tap)",
+   "lesson": "More detailed models would be nice here (30 Oct 2026, real04 run 20261030-112241-full, a bathroom vanity: a plain pump bottle with a band, a reed diffuser with lollipop sticks, a lidded jar with pebbles, a dark vessel basin on a terrazzo top, a black tap)",
+   "question": "Do the bathroom vanity objects look like real products at close range?"
+  },
+  {
+   "id": "UL185",
+   "date": "2026-10-30",
+   "area": "cameras",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This render not needed not giving any value (30 Oct 2026, real04 run 20261030-112241-full, a top-floor bathroom view: only wall tiles, the sloped ceiling and the bathtub's rim at the bottom edge)",
+   "lesson": "This render not needed not giving any value (30 Oct 2026, real04 run 20261030-112241-full, a top-floor bathroom view: only wall tiles, the sloped ceiling and the bathtub's rim at the bottom edge)",
+   "question": "Does every rendered view show something of value (fixtures or furniture), never only walls and ceiling?"
+  },
+  {
+   "id": "UL186",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Better quality models with more details needed for the little items fruit ball etc (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen: a plain white fruit bowl with smooth ball fruit, a plain utensil pot, plain oil bottles on a board, a plain pot on the hob)",
+   "lesson": "Better quality models with more details needed for the little items fruit ball etc (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen: a plain white fruit bowl with smooth ball fruit, a plain utensil pot, plain oil bottles on a board, a plain pot on the hob)",
+   "question": "Do the small objects on counters and tables (fruit bowls, bottles, pots, utensils) look like real products at close range?"
+  },
+  {
+   "id": "UL187",
+   "date": "2026-10-30",
+   "area": "kitchen",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop)",
+   "lesson": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop)",
+   "question": "Does every kitchen have a full-size fridge (a tall column at the end of a run) where the drawing leaves room for one?"
   }
  ]
 }

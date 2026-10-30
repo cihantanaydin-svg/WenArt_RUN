@@ -292,6 +292,16 @@ def feature_kind(family: str, feature: Optional[str]) -> Optional[str]:
 
 
 NO_PANEL_FEATURE: dict[str, str] = {"bedroom": "art_pair", "living": "art", "office": "art"}
+# 30 Oct 2026 (lesson UL177, user on real04 run 20261030-112241-full: "this wall texture seems to be used too much in the
+# house, reduce it down"): at most this many rooms of a house carry a vertical slat or fluted wall (an anchor wall or a
+# dining wall; a twin that copies its partner counts); the next rooms take a bundle without one
+SLAT_ROOMS_MAX = 2
+SLAT_KINDS: tuple[str, ...] = ("fluted", "slats")
+
+
+def slatted(rec: dict) -> bool:
+    """A scheme that builds a vertical slat or fluted wall (its anchor wall's panel or its dining wall)."""
+    return rec.get("feature_kind") in SLAT_KINDS or rec.get("dining_wall") == "slats"
 
 
 def has_panel(kind: str, bundle: str) -> bool:
@@ -299,14 +309,21 @@ def has_panel(kind: str, bundle: str) -> bool:
     return spec.get("feature") in PANEL_FEATURES or spec.get("dining_wall") == "slats"
 
 
-def resolve(kind: str, bundle: str, colour: str, family: str, no_panel: bool = False) -> dict:
+def resolve(kind: str, bundle: str, colour: str, family: str, no_panel: bool = False, no_slats: bool = False) -> dict:
     """The scheme's values for the room's family (module docstring) and the reason of each; ``no_panel`` (the
-    room's reference photos show no wall panelling, UL106): the bundle's panel becomes its art."""
+    room's reference photos show no wall panelling, UL106): the bundle's panel becomes its art; ``no_slats`` (the house
+    has its ``SLAT_ROOMS_MAX`` slat or fluted walls, UL177): a slat or fluted wall becomes art, a slat dining wall too."""
     spec = dict((POOLS.get(kind) or {}).get(bundle) or {})
     fam = family or DEFAULT_FAMILY
     out: dict = {"kind": kind, "bundle": bundle, "colour": colour, "key": f"{bundle}:{colour}",
                  "family": family or None}
     why: dict[str, str] = {}
+    if no_slats and feature_kind(fam, spec.get("feature")) in SLAT_KINDS:
+        spec["feature"] = NO_PANEL_FEATURE.get(kind, "art")
+        why["no_slats"] = (f"the house has its {SLAT_ROOMS_MAX} slat or fluted walls (UL177): {WHY[spec['feature']]} "
+                           f"in place of the bundle's panel")
+    if no_slats and spec.get("dining_wall") == "slats":
+        spec["dining_wall"] = "art"
     if no_panel and spec.get("feature") in PANEL_FEATURES:
         spec["feature"] = NO_PANEL_FEATURE.get(kind, "art")
         why["no_panel"] = (f"the reference photos of the space show no wall panelling: {WHY[spec['feature']]} in "
@@ -408,6 +425,14 @@ def plan(building: dict, style: Optional[dict], no_panel=(), partners: Optional[
     used_level: dict[tuple, set] = {}           # (level, kind) -> {bundle}
     keys_level: dict[tuple, set] = {}           # (level, kind) -> {(bundle, colour)}
     keys_house: dict[str, set] = {}             # kind -> {(bundle, colour)}
+    copies = {rid: 1 + sum(1 for pid in partners.values() if pid == rid) for _lv, _k, rid, _r in rooms}
+    variant_of = {lv.get("id"): str(lv.get("variant") or "base") for lv in building.get("levels") or []}
+    slats: dict[str, int] = {}                  # rooms with a slat or fluted wall per variant (SLAT_ROOMS_MAX)
+
+    def slats_seen(variant: str) -> int:
+        """A base room shares the house with every variant; a variant's room with the base rooms."""
+        others = [n for v, n in slats.items() if v != "base"]
+        return slats.get("base", 0) + (max(others, default=0) if variant == "base" else slats.get(variant, 0))
     for _lv, kind, rid, room in rooms:
         if rid in partners:
             continue                            # after the others: the partner's scheme
@@ -429,6 +454,8 @@ def plan(building: dict, style: Optional[dict], no_panel=(), partners: Optional[
         if bare:
             notes.append("the reference photos of the space show no wall panelling: the bundles without a panel "
                          "first, a panel replaced by art")
+        variant = variant_of.get(room.get("level_id"), "base")
+        no_slats = slats_seen(variant) + copies[rid] > SLAT_ROOMS_MAX
         lk = (room.get("level_id"), kind)
         lv_b, lv_k, house = used_level.setdefault(lk, set()), keys_level.setdefault(lk, set()), \
             keys_house.setdefault(kind, set())
@@ -446,7 +473,12 @@ def plan(building: dict, style: Optional[dict], no_panel=(), partners: Optional[
         lv_b.add(bundle)
         lv_k.add(pick)
         house.add(pick)
-        rec = resolve(kind, bundle, colour, fam, no_panel=bare)
+        rec = resolve(kind, bundle, colour, fam, no_panel=bare, no_slats=no_slats)
+        if slatted(rec):
+            slats[variant] = slats.get(variant, 0) + copies[rid]
+        elif no_slats and slatted(resolve(kind, bundle, colour, fam, no_panel=bare)):
+            notes.append(f"the house has {SLAT_ROOMS_MAX} rooms with a slat or fluted wall (UL177): art in place of "
+                         f"this bundle's slats")
         rec.update(room_id=rid, level_id=room.get("level_id"), room_type=room.get("room_type"), rule=RULE,
                    lesson=LESSON, copied_from=None, notes=notes,
                    reason=(f"{kind} scheme '{bundle}' in {colour} from the {fam or 'house'} pool of "

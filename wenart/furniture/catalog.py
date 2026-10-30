@@ -752,10 +752,17 @@ STYLE_FALLBACK: dict[str, tuple[str, ...]] = {
 # "Farmhouse" one rustic. 30 Oct 2026 (lesson UL174): "classic" too ("Classic Ceiling Pendant Chandelier ... Antique
 # Brass", tagged modern and scandinavian by the vision judges, hung in a modern concrete bedroom).
 STYLE_WORDS: dict[str, tuple[str, ...]] = {
-    "classic": ("classic", "traditional", "victorian", "baroque", "rococo", "colonial", "antique", "turned"),
+    "classic": ("classic", "traditional", "victorian", "baroque", "rococo", "colonial", "antique", "turned", "crystal",
+                "crystals"),
     "rustic": ("rustic", "farmhouse", "provencal", "cottage", "country"),
     "industrial": ("industrial", "loft"),
 }
+# A chandelier is the classic form (arms, bell shades, drops) unless its title names a modern form (UL174: the
+# "5-Light Chandelier" and the crystal "Designer chandeliers", tagged modern by the vision judges, in a modern house).
+CLASSIC_FORM_WORDS: tuple[str, ...] = ("chandelier", "chandeliers")
+MODERN_FORM_WORDS: tuple[str, ...] = ("modern", "mid-century", "midcentury", "mid century", "industrial", "edison",
+                                      "mesh", "minimal", "minimalist", "sputnik", "linear", "geometric", "globe",
+                                      "globes", "cage", "led", "contemporary", "scandinavian", "nordic", "drum")
 # A finish named "antique brass" (or bronze, ...) names a colour, not a style: an industrial cage pendant has it too.
 FINISH_WORDS_RE = re.compile(r"\bantique[ -](brass|bronze|gold|silver|nickel|copper|white|black|finish)\b")
 
@@ -772,9 +779,16 @@ def compatible_styles(family: Optional[str]) -> Optional[set]:
 
 def title_styles(entry: dict) -> list[str]:
     """The styles a model's title or name names (``STYLE_WORDS``, whole words; finish names such as "antique brass"
-    left out)."""
+    left out); a chandelier without a modern form word (``MODERN_FORM_WORDS``) is classic."""
     title = FINISH_WORDS_RE.sub(" ", " ".join(str(entry.get(k) or "") for k in ("title", "name")).lower())
-    return [s for s, words in STYLE_WORDS.items() if any(re.search(rf"\b{re.escape(w)}\b", title) for w in words)]
+    named = [s for s, words in STYLE_WORDS.items() if _any_word(title, words)]
+    if "classic" not in named and _any_word(title, CLASSIC_FORM_WORDS) and not _any_word(title, MODERN_FORM_WORDS):
+        named.insert(0, "classic")
+    return named
+
+
+def _any_word(text: str, words) -> bool:
+    return any(re.search(rf"\b{re.escape(w)}\b", text) for w in words)
 
 
 def title_style_clash(entry: dict, family: Optional[str]) -> list[str]:
