@@ -1507,6 +1507,18 @@
    "request": "Some frames coming out of the roof, it needs fixing (30 Oct 2026, real04 run 20261029-201533-full exterior: door frames, open door leaves and decor of the top floor poke through the sloped roof)",
    "lesson": "Some frames coming out of the roof, it needs fixing (30 Oct 2026, real04 run 20261029-201533-full exterior: door frames, open door leaves and decor of the top floor poke through the sloped roof)",
    "question": "Does anything built inside the house (a door, its frame or open leaf, a wardrobe, a shelf, decor) cross the roof or the ceiling over it, so it shows from outside?"
+  },
+  {
+   "id": "UL129",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "These things need fixing also, maybe include some better car models (30 Oct 2026, real04 run 20261029-201533-full: pairs of small stone blocks on the paved terrace by the pools; the parking has one poor car model)",
+   "lesson": "These things need fixing also, maybe include some better car models (30 Oct 2026, real04 run 20261029-201533-full: pairs of small stone blocks on the paved terrace by the pools; the parking has one poor car model)",
+   "question": "Is every object on the paved site a real thing that makes sense where it stands (no stray stone blocks or step pieces on a level paving), and does every drawn parking hold well-made, realistic car models?"
   }
  ]
 }
