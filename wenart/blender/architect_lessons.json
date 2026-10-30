@@ -2343,6 +2343,18 @@
    "request": "Give more detail to window frames (30 Oct 2026, real04 run 20261030-112241-full: the window frames are plain flat bronze bars)",
    "lesson": "Give more detail to window frames (30 Oct 2026, real04 run 20261030-112241-full: the window frames are plain flat bronze bars)",
    "question": "Do the window frames show real profiles (outer frame, sashes, beads, sills, handles)?"
+  },
+  {
+   "id": "UL198",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Understand that the cars should be able to enter to this location and exit (30 Oct 2026, real04 run 20261030-112241-full, the parking strip in front of the houses: cars parked on it, but no clear way for a car to drive in from the road and out again)",
+   "lesson": "Understand that the cars should be able to enter to this location and exit (30 Oct 2026, real04 run 20261030-112241-full, the parking strip in front of the houses: cars parked on it, but no clear way for a car to drive in from the road and out again)",
+   "question": "Can a car drive into every parking and out again (a drive from a street, wide and gentle enough, nothing across it, room to turn)?"
   }
  ]
 }
