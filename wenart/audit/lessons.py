@@ -1079,7 +1079,7 @@ def kitchen_details(building: dict, manifest: Optional[dict] = None) -> list[dic
                problem=g["problem"], family=g.get("family"), room=g.get("room_id")) for g in got]
 
 
-CHECK_LESSONS["U31"] = ("UL115", "UL118")     # 29 Oct 2026: the kitchen details (kitchen_details.review)
+CHECK_LESSONS["U31"] = ("UL115", "UL118", "UL155")   # 29 Oct 2026: the kitchen details (kitchen_details.review); UL155: the dishwasher
 
 
 def soft_seats(building: Optional[dict], manifest: Optional[dict]) -> list[dict]:

@@ -1831,13 +1831,13 @@
    "id": "UL155",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "still not a proper dishwasher correct it (30 Oct 2026, real04 run 20261030-043021-full, kitchen r_L-1_mutfak: the dishwasher between the shaker base units is a flat stainless slab without a control strip or handle, set back from the fronts, the neighbour's handle over its edge)",
-   "lesson": "still not a proper dishwasher correct it (30 Oct 2026, real04 run 20261030-043021-full, kitchen r_L-1_mutfak: the dishwasher between the shaker base units is a flat stainless slab without a control strip or handle, set back from the fronts, the neighbour's handle over its edge)",
-   "question": null
+   "lesson": "Every kitchen run with a sink gets a real dishwasher in the unit beside the sink (60 cm, else a 45 cm slimline), never against a corner when the sink's other side is free; integrated behind a front that matches the run with a steel control strip (every family but industrial), or a steel machine with a black glass control strip, display, recessed door panel and a long bar handle (industrial); every appliance front flush with the run's fronts at the real height under the worktop, a single door beside an appliance has its handle on its far side; an under-counter fridge gets a matching front and a plinth vent (modules.plan_kitchen_run, kitchen_details K16; run 20261030-043021-full: no kitchen had a dishwasher, the 'slab' was a steel under-counter fridge). Checks: model review M27, Argus U31.",
+   "question": "Does every kitchen sink have a real dishwasher beside it, and does every under-worktop appliance look like a real product (a matching front with a visible control strip, or a steel machine with its control strip, display and bar handle), never a bare slab?"
   },
   {
    "id": "UL156",

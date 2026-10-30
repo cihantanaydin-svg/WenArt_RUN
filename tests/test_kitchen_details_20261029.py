@@ -442,7 +442,7 @@ def test_a_kitchen_run_is_its_worktop_box_and_its_hood_box_for_the_light_rig():
 
 def test_model_review_m27_and_argus_u31_flag_what_the_family_rule_gives_a_kitchen():
     assert "M27" in MR.CHECKS and K.CHECK_KIND["M27"] == "taste" and K.CHECK_KIND["U31"] == "taste"
-    assert LS.CHECK_LESSONS["U31"] == ("UL115", "UL118") and CS.CHECK_CAUSE["M27"] == "kitchen_design"
+    assert LS.CHECK_LESSONS["U31"] == ("UL115", "UL118", "UL155") and CS.CHECK_CAUSE["M27"] == "kitchen_design"
     b = fitted(kitchen(island=True, island_stove=True), "modern")
     got, n = KD.review(b, None, "M27")
     assert n == 1 and {g["problem"] for g in got} == {"styling"}                    # the fridge is in the column
