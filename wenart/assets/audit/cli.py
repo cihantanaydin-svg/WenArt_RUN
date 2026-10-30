@@ -418,7 +418,8 @@ def cmd_write(args) -> int:
         print(f"audit write: {_audit(args) / 'audit.json'} of a full audit not found (the dry audit is never written)")
         return EXIT_NOTHING
     decisions = {r["id"]: {"status": r["status"], "reasons": r["reasons"], "fixes": r["fixes"], "flags": r["flags"],
-                           "notes": r["notes"], "vision_doubt": r.get("vision_doubt") or []} for r in doc["items"]}
+                           "notes": r["notes"], "vision_doubt": r.get("vision_doubt") or [],
+                           "vision_quality": r.get("vision_quality")} for r in doc["items"]}
     stamp = args.checked_utc or now_utc()
     for path, indent, complete in ((Path(args.catalog) if args.catalog else I.LIBRARY_PATH, 1, False),
                                    (Path(args.polyhaven) if args.polyhaven else I.POLYHAVEN_PATH, 2, True)):

@@ -7058,23 +7058,25 @@
     "fits_real_size": true
    },
    "audit": {
-    "status": "removed",
-    "reasons": [
-     "a drawer, door or lid is open, or a part floats apart"
-    ],
+    "status": "keep",
+    "reasons": [],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-15T20:30:45Z",
-    "decision_sha": "9fd335b49b139f63",
+    "checked_utc": "2026-10-30T22:30:00Z",
+    "decision_sha": "3b418d6a0f98f4cf",
     "notes": [
      "1 part(s) stick out of the main body (+x, up to 0.14 m): an open drawer or a separate prop?",
+     "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed",
      "the PBR map record is written into the catalogue entry (M13 gate)",
      "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
-     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
-    ]
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
+     "30 Oct 2026 (UL215, UL216): re-decided from the stored audit data: an open drawer, door or lid and a maker's logo or print are flags (open_parts, logo_flag), not removals"
+    ],
+    "vision_quality": 4
    },
    "real_product": true,
-   "contact": "flat_bottom"
+   "contact": "flat_bottom",
+   "open_parts": true
   },
   {
    "id": "book_encyclopedia_set_01",

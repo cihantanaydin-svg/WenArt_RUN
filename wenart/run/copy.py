@@ -658,8 +658,11 @@ def _licence_fields(asset: dict) -> dict:
     from wenart.furniture import catalog as CAT
 
     flag = CAT.licence_flag_of(asset)
-    return {"licence": asset.get("licence") or asset.get("license"), "licence_flag": flag,
-            "commercial_safe": flag == CAT.NO_FLAG, "licence_url": CAT.licence_url_of(asset)}
+    out = {"licence": asset.get("licence") or asset.get("license"), "licence_flag": flag,
+           "commercial_safe": CAT.commercial_safe(asset), "licence_url": CAT.licence_url_of(asset)}
+    if CAT.logo_flagged(asset):                   # 30 Oct 2026 (UL215): a maker's logo or print, relaxed mode only
+        out.update(logo_flag=True, logo_reason=asset.get("logo_reason") or "a maker's logo or print on the model")
+    return out
 
 
 def read_building(out_dir: Path) -> Optional[dict]:
@@ -1059,7 +1062,7 @@ def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial
         lines += [""] + [_credit_line(c) + (f"; changes: {c['changes']}" if c.get("changes") else "")
                          for c in textures]
     lines += ["", "## 3. PoC-only assets (not commercial-safe)", ""]
-    flagged = [c for c in models + textures if _credit_flag(c) != "none"]
+    flagged = [c for c in models + textures if _credit_flag(c) != "none" or c.get("logo_flag")]   # UL215: logos
     if not flagged:
         lines.append("None." + (" Commercial mode: every asset in these images is commercial-safe."
                                 if mode == "commercial" else ""))
@@ -1072,6 +1075,9 @@ def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial
             reason = POC_FLAG_REASONS.get(flag) or ("never usable in any mode (no-derivatives or an unknown licence)"
                                                     if flag in ("no_derivatives", "unknown") else
                                                     f"licence flag {flag}")
+            if c.get("logo_flag"):                    # UL215: a maker's logo or print (trademarks are not licensed)
+                logo = f"a maker's logo or print on the model ({c.get('logo_reason') or 'logo_flag'})"
+                reason = logo if flag == "none" else f"{reason}; {logo}"
             url = c.get("licence_url") or "licence page not recorded"
             if flag == "tool_nc":             # the limit comes from the export tool, not the model's own licence
                 url = f"{CAT.TOOL_NC['licence_url']} (tool); model: {url}"

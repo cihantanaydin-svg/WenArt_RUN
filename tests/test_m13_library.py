@@ -895,11 +895,13 @@ P4B_LOGO_WASHERS = {
 }
 
 
-def test_render_findings_remove_a_model_with_a_brand_logo_or_a_text_print():
+def test_render_findings_flag_a_model_with_a_brand_logo_or_a_text_print():
     """P5: the SMEG logo on a fridge (cam_r_L-1_mutfak_3) and chalk lettering on a coffee table (oyun views) were
     audited keep: the audit had no check of what a render shows on a model (this test fails on that code). A record
-    with its evidence (a run view, or the same mesh as such a model, on the same file) removes the model; one
-    without evidence, of an unknown kind or of a republished file is a warning."""
+    with its evidence (a run view, or the same mesh as such a model, on the same file) gives the check render_print;
+    one without evidence, of an unknown kind or of a republished file is a warning. 30 Oct 2026 (UL215, user: "no need
+    to reject them"): decide no longer removes on it; the model carries ``logo_flag`` with the check's reason
+    (commercial mode leaves it out)."""
     sha = "a" * 64
     seen = {"run": "P5", "project": "real04", "view": "cam_r_L-1_mutfak_3", "piece": "f_L-1_090"}
     logo = {"finding": "brand_logo", "detail": "the SMEG logo is readable on the door", "seen_in": seen,
@@ -918,7 +920,8 @@ def test_render_findings_remove_a_model_with_a_brand_logo_or_a_text_print():
     assert "render_print" in [c["check"] for c in CK.item_checks(fridge(render_findings=[logo]), CFG, {"fridge"})]
     d = D.decide(fridge(render_findings=[logo]), CK.item_checks(fridge(render_findings=[logo]), CFG, {"fridge"}),
                  None, None, CFG)
-    assert d["status"] == "removed" and d["reasons"] == [r["reason"]]
+    assert d["status"] != "removed" and r["reason"] not in d["reasons"]
+    assert d["flags"]["logo_flag"] is True and d["flags"]["logo_reason"] == r["reason"]
     table = gate_item(id="hssd_t", type="table_coffee", source="hssd", sha256_glb=sha, title="Chalk Board Coffee Table",
                       render_findings=[dict(logo, finding="text_print", detail="chalk lettering on the top")])
     r = CK.render_print_check(table)
@@ -932,6 +935,7 @@ def test_render_findings_remove_a_model_with_a_brand_logo_or_a_text_print():
         d = D.decide(fridge(render_findings=[bad]), CK.item_checks(fridge(render_findings=[bad]), CFG, {"fridge"}),
                      None, None, CFG)
         assert d["status"] != "removed" and not any("brand name" in x for x in d["reasons"])
+        assert not d["flags"].get("logo_flag")
     # the same mesh as a model whose render shows the logo: faces, vertices and model box must all match
     twin = {"id": "hssd_seen", "polycount": 2542, "vertices": 4990, "bbox_model_m": [0.5936, 0.696, 1.455]}
     same = dict(logo, seen_in=None, same_mesh_as=twin)
@@ -949,7 +953,7 @@ def test_render_findings_remove_a_model_with_a_brand_logo_or_a_text_print():
     assert "render_findings" in I.FIELDS
 
 
-def test_render_findings_of_a_mesh_family_twin_remove_it_with_the_family_evidence():
+def test_render_findings_of_a_mesh_family_twin_flag_it_with_the_family_evidence():
     """Fix round after P5 (22 Oct 2026), review: the exact ``same_mesh_as`` rule (faces, vertices, box +- 1 mm) could
     not record the twins of the removed washers: hssd_16c33... is the Samsung WF8704RSW mesh 4 faces and 5.7 cm of
     height apart, the two Hotpoint WMF740 models share the 5902 faces of the '...tpoint' washer at another width, so
@@ -978,7 +982,7 @@ def test_render_findings_of_a_mesh_family_twin_remove_it_with_the_family_evidenc
     assert "the same texture set" in r["reason"] and "§2.6" in r["reason"]
     d = D.decide(washer(render_findings=[fam]), CK.item_checks(washer(render_findings=[fam]), CFG, {"washing_machine"}),
                  None, None, CFG)
-    assert d["status"] == "removed" and d["reasons"] == [r["reason"]]
+    assert d["status"] != "removed" and d["flags"]["logo_flag"] is True and d["flags"]["logo_reason"] == r["reason"]
     assert CK.mesh_family(washer(), twin, CFG) and CK.mesh_family(twin, washer(), CFG)
     # the exact rule stays the default: the same numbers without match "family" are no evidence
     exact = dict(fam, same_mesh_as={k: v for k, v in twin.items() if k != "match"})
@@ -1006,15 +1010,22 @@ def test_render_findings_of_a_mesh_family_twin_remove_it_with_the_family_evidenc
     assert r["status"] == "warn" and "another file" in r["reason"]
 
 
-def test_the_committed_catalogue_keeps_the_p5_look_findings_out_of_the_fit():
+# 30 Oct 2026 (UL215): the stored vision answer of hssd_856317... (the '...tpoint' washer) rates it 2: it stays removed
+# for that quality (rule 1 of UL215 / UL216), no longer for its logo
+LOW_QUALITY = {"hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c": "vision quality 2 (<= 2)"}
+
+
+def test_the_committed_catalogue_flags_the_p5_look_findings_for_relaxed_mode_only():
     """The SMEG fridge (P5 cam_r_L-1_mutfak_3), the chalk board coffee table (P5 / P3 / P4a oyun views), the three
-    washing machines whose maker's logo P4b showed and the fridge of the same mesh as the SMEG one carry audit status
-    ``removed`` with the render_print reason and the decision_sha decide() gives (a later audit write is
-    idempotent); none is usable in either licence mode. Every record names its evidence: a committed before | after
-    sheet of the view (and, where the run folder is on this machine, the piece built with that model), or the twin
-    model of the same mesh that is itself removed. No kept or fixed entry carries a finding that would remove it.
-    Fix round after P6b (23 Oct 2026): the LG F1403FD (P6b cam_r_L0_giris_holu_1) and the Panasonic NA-14VA1WGB
-    (P6b cam_r_L0_banyo_4_2) too (this test fails on that catalogue: both were keep)."""
+    washing machines whose maker's logo P4b showed and the fridge of the same mesh as the SMEG one were removed with
+    the render_print reason; fix round after P6b (23 Oct 2026): the LG F1403FD (P6b cam_r_L0_giris_holu_1) and the
+    Panasonic NA-14VA1WGB (P6b cam_r_L0_banyo_4_2) too. 30 Oct 2026 (UL215, user: "no need to reject them"):
+    re-decided from their stored answers, each carries ``logo_flag`` with the render_print reason, its status is keep
+    or fix (one stays removed for its vision quality 2), it is usable in relaxed mode and never in commercial mode
+    (this test fails on the catalogue before: all were removed). Every record names its evidence: a committed before |
+    after sheet of the view (and, where the run folder is on this machine, the piece built with that model), or the
+    twin model of the same mesh that is itself flagged. A usable entry whose render_print check fires carries the
+    flag."""
     from wenart.assets.audit import items as I
 
     cat = C.load()
@@ -1024,13 +1035,21 @@ def test_the_committed_catalogue_keeps_the_p5_look_findings_out_of_the_fit():
     for aid, (kind, word) in RENDER_REMOVED.items():
         e, section = entries[aid]
         a = e["audit"]
-        assert a["status"] == "removed" and any(word in r and CK.RENDER_FINDINGS[kind] in r for r in a["reasons"]), aid
-        assert not C.usable(cat.entry(aid), "relaxed") and not C.usable(cat.entry(aid), "commercial"), aid
-        assert C.unusable_reason(cat.entry(aid), "relaxed").startswith("audit: removed"), aid
-        assert any(n.startswith(REMOVAL_NOTE[aid]) for n in a["notes"]), aid
         item = I.item_of(e, "library", section)
-        d = D.decide(item, CK.item_checks(item, CFG, known), None, None, CFG)
-        assert d["status"] == "removed" and a["decision_sha"] == W.decision_sha(d) and a["reasons"] == d["reasons"]
+        (check,) = [c for c in CK.item_checks(item, CFG, known) if c["check"] == "render_print"]
+        assert check["status"] == "remove" and e["logo_flag"] is True and e["logo_reason"] == check["reason"], aid
+        assert word in e["logo_reason"] and CK.RENDER_FINDINGS[kind] in e["logo_reason"], aid
+        assert not any(CK.RENDER_FINDINGS[kind] in r for r in a["reasons"]), aid
+        assert any(n.startswith(REMOVAL_NOTE[aid]) for n in a["notes"]), aid
+        assert any("UL215" in n for n in a["notes"]), aid
+        assert not C.usable(cat.entry(aid), "commercial") and not C.commercial_safe(cat.entry(aid)), aid
+        if aid in LOW_QUALITY:
+            assert a["status"] == "removed" and a["reasons"] == [LOW_QUALITY[aid]], aid
+            assert not C.usable(cat.entry(aid), "relaxed")
+        else:
+            assert a["status"] in ("keep", "fix") and a["reasons"] == [], aid
+            assert C.usable(cat.entry(aid), "relaxed"), aid
+            assert "logo" in C.unusable_reason(cat.entry(aid), "commercial"), aid
         (f,) = e["render_findings"]
         assert f["finding"] == kind and f["sha256_glb"] == e["sha256_glb"]
         if f.get("seen_in"):
@@ -1058,14 +1077,16 @@ def test_the_committed_catalogue_keeps_the_p5_look_findings_out_of_the_fit():
                         or f["maker"] in e["title"]), aid
     seen_models = [it for it in I.load_items() if any(isinstance(f, dict) and f.get("seen_in")
                                                       for f in it.get("render_findings") or [])]
+    flagged = {e["id"] for s in ("entries", "decor", "extras") for e in doc.get(s) or [] if e.get("logo_flag")}
     for item in I.load_items():
         if (item.get("audit") or {}).get("status") in ("keep", "fix"):
-            assert CK.render_print_check(item)["status"] in ("skip", "warn"), item["id"]
-            # fix round after P5, review: no usable model is a mesh-family twin of a model whose render showed a
-            # logo or a print (the twin would bring it back in the same views)
+            if CK.render_print_check(item)["status"] not in ("skip", "warn"):
+                assert item["id"] in flagged, item["id"]
+            # fix round after P5, review: a usable mesh-family twin of a model whose render showed a logo or a print
+            # carries the flag too (UL215: commercial mode leaves it out with the model it copies)
             twins = [s["id"] for s in seen_models if s["type"] == item["type"] and CK.mesh_family(item, s, CFG)]
-            assert not twins, (item["id"], twins)
-        elif item.get("render_findings"):
+            assert not twins or item["id"] in flagged, (item["id"], twins)
+        if item.get("render_findings"):
             assert item["id"] in RENDER_REMOVED, item["id"]
 
 
@@ -1115,8 +1136,12 @@ def _seen_or_twin(entry: dict, seen_models: list) -> list:
         s["type"] == entry["type"] and CK.mesh_family(entry, s, CFG))]
 
 
-def test_the_real03_p6b_logo_washers_refit_to_models_no_render_showed_a_logo_on():
-    """Fix round after P6b (23 Oct 2026; the look and library lenses of the P6b analysis): after the P5 removals the
+def test_the_real03_p6b_logo_washers_refit_to_a_new_model_flagged_when_a_render_showed_its_logo():
+    """30 Oct 2026 (UL215, user: "no need to reject them"): a model whose render showed a logo is usable in relaxed
+    mode with its ``logo_flag`` (ranked after a clean model of the same size step) and never in commercial mode; the
+    refit below still gives each piece a model other than its P6b one, and any pick a render showed a logo on (or a
+    twin of one) carries the flag. Before UL215:
+    Fix round after P6b (23 Oct 2026; the look and library lenses of the P6b analysis): after the P5 removals the
     real03 refit put the LG F1403FD (its badge readable in P6b cam_r_L0_giris_holu_1) and the Panasonic NA-14VA1WGB
     (its name readable in cam_r_L0_banyo_4_2 and cam_r_L0_giris_holu_3_1) on four washers. Refitted now (relaxed,
     style family modern, as P6b), each piece gets a library model that is no model with a render finding and no
@@ -1143,7 +1168,11 @@ def test_the_real03_p6b_logo_washers_refit_to_models_no_render_showed_a_logo_on(
             piece = {k: v for k, v in real[pid].items() if k != "asset"}
         asset = F.fit_piece(piece, cat, style_family="modern", mode="relaxed")
         assert asset["method"] == "library" and asset["asset_id"] != before, (pid, view, asset.get("asset_id"))
-        assert not _seen_or_twin(cat.entry(asset["asset_id"]), seen_models), (pid, view, asset["asset_id"])
+        chosen = cat.entry(asset["asset_id"])
+        assert not _seen_or_twin(chosen, seen_models) or C.logo_flagged(chosen), (pid, view, asset["asset_id"])
+        # UL215: commercial mode never takes a model with a logo
+        com = F.fit_piece(piece, cat, style_family="modern", mode="commercial") or {}
+        assert not (com.get("asset_id") and C.logo_flagged(cat.entry(com["asset_id"]))), (pid, com.get("asset_id"))
     assert set(P6B_REMOVED) <= {s["id"] for s in seen_models}
     if not built.is_file():
         return
@@ -1157,7 +1186,8 @@ def test_the_real03_p6b_logo_washers_refit_to_models_no_render_showed_a_logo_on(
     for p in washers:
         asset = p.get("asset") or {}
         assert asset.get("method") == "library", (p["id"], asset.get("method"))
-        assert not _seen_or_twin(cat.entry(asset["asset_id"]), seen_models), (p["id"], asset["asset_id"])
+        chosen = cat.entry(asset["asset_id"])
+        assert not _seen_or_twin(chosen, seen_models) or C.logo_flagged(chosen), (p["id"], asset["asset_id"])
 
 
 def test_new_catalogue_entries_take_titles_without_html_entities():

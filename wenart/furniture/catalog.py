@@ -392,9 +392,17 @@ def licence_flag_of(entry) -> str:
     return strictest
 
 
+def logo_flagged(entry: dict) -> bool:
+    """30 Oct 2026 (lesson UL215, user: "no need to reject them"): a model on which the audit's vision check reads a
+    maker's logo or print (``logo_flag``, set by ``wenart.assets.audit.decide``): trademarks are not licensed, so it is
+    used in ``relaxed`` mode only, like a non-commercial licence."""
+    return isinstance(entry, dict) and bool(entry.get("logo_flag"))
+
+
 def commercial_safe(entry: dict) -> bool:
-    """True when the entry may be used in ``commercial`` mode: its flag is ``none`` (docs/milestone13.md §6)."""
-    return licence_flag_of(entry) == NO_FLAG
+    """True when the entry may be used in ``commercial`` mode: its flag is ``none`` (docs/milestone13.md §6) and it
+    carries no maker's logo or print (``logo_flagged``, UL215)."""
+    return licence_flag_of(entry) == NO_FLAG and not logo_flagged(entry)
 
 
 def check_mode(mode: Optional[str]) -> str:
@@ -452,6 +460,9 @@ class Catalog:
         self.path = path
         self.entries: list[dict] = list(data.get("entries", []))
         self.decor: list[dict] = list(data.get("decor", []))
+        # 30 Oct 2026 (lesson UL215): the audited extras (3D Warehouse objects: laptops, TVs, monitors, appliances),
+        # read by the fit's library-first decor (``fit.library_first_item``); before, no stage read them
+        self.extras: list[dict] = [e for e in data.get("extras", []) if isinstance(e, dict)]
         self.merged: dict = dict(data.get("merged") or {})
         validate(data)
 
@@ -525,6 +536,10 @@ def merge(base: dict, extra: dict, source: str = "catalog_library.json") -> dict
         out["merged"]["parametric_only_dropped"] = dropped
     if decor:
         out["merged"]["decor_added"] = len(decor)
+    extras = [e for e in extra.get("extras", []) if isinstance(e, dict)]
+    if extras:                                       # 30 Oct 2026 (UL215): the audited extras reach the fit
+        out["extras"] = list(base.get("extras", [])) + extras
+        out["merged"]["extras_added"] = len(extras)
     validate(out)
     return out
 
@@ -896,7 +911,7 @@ def usable(entry: dict, mode: str = "commercial") -> bool:
         return False
     flag = licence_flag_of(entry)
     if mode == "commercial":
-        return flag == NO_FLAG
+        return flag == NO_FLAG and not logo_flagged(entry)          # UL215: a logo or print is relaxed-only
     return flag in LICENCE_FLAGS and flag not in NEVER_USABLE_FLAGS
 
 
@@ -967,12 +982,17 @@ def unusable_reason(entry: dict, mode: str = "commercial") -> Optional[str]:
     why = title_refusal(entry)
     if why:
         return f"its names or its audit refuse it ({why}; wenart.furniture.model_title)"
+    if mode == "commercial" and logo_flagged(entry) and licence_flag_of(entry) == NO_FLAG:
+        return (f"a maker's logo or print on the model ({entry.get('logo_reason') or 'logo_flag'}): not used in "
+                "commercial mode (trademarks are not licensed; relaxed mode only, UL215)")
     if not usable(entry, mode):
         flag = licence_flag_of(entry)
         why = ("never used in any mode: no derivatives or an unknown licence" if flag in NEVER_USABLE_FLAGS
                else "not commercial-safe: relaxed mode only")
+        also = ("; it also carries a maker's logo or print (logo_flag, UL215)"
+                if mode == "commercial" and logo_flagged(entry) else "")
         return (f"licence {entry.get('licence') or entry.get('license')} ({flag}): not used in {mode} mode ({why}; "
-                "CLAUDE.md library rules)")
+                f"CLAUDE.md library rules){also}")
     return None
 
 

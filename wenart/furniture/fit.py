@@ -328,6 +328,8 @@ OBJAVERSE_ASSET_FIELDS = ("glb", "sha256_glb", "uid", "title", "author", "source
                           "attribution")
 # Milestone 8: what any GLB model (ABO, Objaverse, generated) carries over when its entry has it.
 GLB_ASSET_FIELDS = OBJAVERSE_ASSET_FIELDS + ("licence_flag", "generated", "style_hint", "name",
+                                             # 30 Oct 2026 (UL215, UL216): the audit's logo and open-part flags
+                                             "logo_flag", "logo_reason", "open_parts",
                                              # Milestone 10 (track D's judged fields, docs/milestone10.md §4.5, §4.6)
                                              "material_slots", "material_tags", "recolourable_fabric",
                                              "recolourable_wood", "species", "pot",
@@ -925,7 +927,9 @@ def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = Non
     maps, the judges' quality, the face count, aspect error, source order and the id. The first three keys keep their
     Milestone 8 places (tests read ``rank_key(...)[2]`` as the size step). 26 Oct 2026 (fix E): a ``misfit`` ranks
     after every other model (the first key: 2 + generated), a style mix adds ``mix_steps`` size steps. 30 Oct 2026
-    (UL131): an upholstered model adds the size steps of its quality grade (``soft_steps``)."""
+    (UL131): an upholstered model adds the size steps of its quality grade (``soft_steps``). 30 Oct 2026 (UL215): a
+    model with a maker's logo or print (``logo_flag``; relaxed mode only) ranks after a clean one of the same step, just
+    after the vision doubt (a logo is no removal, the clean model is preferred)."""
     scales, _ = scale_for(entry, width, depth)
     known = units_known(entry)
     bucket = int(size_error(scales) / SIZE_BUCKET + 1e-9) if known else 0
@@ -941,9 +945,9 @@ def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = Non
     pref = int((prefs or {}).get(entry["id"], 0) or 0)
     vq = vision_quality_of(entry)
     return ((2 if misfit else 0) + (1 if entry.get("source") == GENERATED else 0), 0 if known else 1, bucket, real,
-            pref, other_doubt_of(entry), -(vq if vq is not None else VISION_QUALITY_DEFAULT), maps_rank(entry),
-            -quality_of(entry), faces_rank(entry), round(C.aspect_error(entry, width, depth), 6), source_rank(entry),
-            entry["id"])
+            pref, other_doubt_of(entry), int(C.logo_flagged(entry)), -(vq if vq is not None else VISION_QUALITY_DEFAULT),
+            maps_rank(entry), -quality_of(entry), faces_rank(entry), round(C.aspect_error(entry, width, depth), 6),
+            source_rank(entry), entry["id"])
 
 
 def rank_candidates(candidates: list[dict], width: float, depth: float, used: Optional[dict] = None,
@@ -3121,6 +3125,92 @@ def lamp_pairing(fits: list, item: dict, limits: dict) -> tuple[list, dict]:
     return [], record
 
 
+# 30 Oct 2026 (lesson UL215, user: "Library models if exist and better than procedural generation should be used"): the
+# decor types we also build procedurally take an audited library model of their type (the catalogue's extras: the 3D
+# Warehouse objects) when one is better than the procedural build: vision quality at least LIBRARY_FIRST_MIN_QUALITY,
+# a real product, the style family's (``decor_styles_match``), usable in the licence mode (a logo-flagged model in
+# relaxed mode only), its size inside the type's real product range after uniform scaling and at most
+# LIBRARY_FIRST_BOX_SLACK past the box the decor stage reserved. Else the procedural model, with a ``library_gap`` note
+# on the item (none audited, none better, none fits) that the fit report lists. Per type: the extras type and the real
+# (width, depth, height) ranges in metres; a TV is scaled to the panel width the media wall asked for.
+LIBRARY_FIRST: dict[str, tuple[str, tuple[tuple[float, float], tuple[float, float], tuple[float, float]]]] = {
+    "laptop": ("laptop", ((0.28, 0.42), (0.18, 0.42), (0.15, 0.32))),         # open: the lid stands up
+    "monitor": ("monitor", ((0.45, 0.85), (0.12, 0.30), (0.30, 0.65))),
+    "microwave": ("microwave", ((0.40, 0.62), (0.30, 0.48), (0.24, 0.38))),
+    "tv": ("tv", ((0.80, 1.70), (0.05, 0.35), (0.45, 1.10))),                  # with its stand
+}
+LIBRARY_FIRST_MIN_QUALITY = 4
+LIBRARY_FIRST_BOX_SLACK = 1.25
+
+
+def _library_first_scale(entry: dict, item: dict, dtype: str) -> Optional[float]:
+    """The uniform scale that puts ``entry`` inside its type's real range (a TV: the item's panel width), None when no
+    uniform scale does or the result runs past the item's box by more than ``LIBRARY_FIRST_BOX_SLACK``."""
+    (w0, w1), (d0, d1), (h0, h1) = LIBRARY_FIRST[dtype][1]
+    bw, bd, bh = (float(v) for v in entry["bbox_m"][:3])
+    if min(bw, bd, bh) <= 0:
+        return None
+    if dtype == "tv":
+        s = float(item["size"][0]) / bw if item.get("size") else 1.0
+    else:
+        s = 1.0 if w0 <= bw <= w1 else min(max(bw, w0), w1) / bw
+    w, d, h = bw * s, bd * s, bh * s
+    if not (w0 - 1e-6 <= w <= w1 + 1e-6 and d0 - 1e-6 <= d <= d1 + 1e-6 and h0 - 1e-6 <= h <= h1 + 1e-6):
+        return None
+    size = [float(v) for v in (item.get("size") or [])[:2]]
+    if len(size) == 2 and (w > size[0] * LIBRARY_FIRST_BOX_SLACK + 1e-6 or d > size[1] * LIBRARY_FIRST_BOX_SLACK + 1e-6):
+        return None
+    return round(s, 4)
+
+
+def library_first_item(item: dict, catalog, style_family: Optional[str], mode: str) -> Optional[dict]:
+    """The library asset for a decor item of a ``LIBRARY_FIRST`` type, or None (procedural; the item's
+    ``library_gap`` says why). The best of the passing models: the highest vision quality, then no logo, then the size
+    nearest the reserved box, then the id (deterministic)."""
+    dtype = item.get("type", "")
+    etype = LIBRARY_FIRST[dtype][0]
+    pool = [e for e in getattr(catalog, "extras", None) or [] if e.get("type") == etype]
+    if not pool:
+        item["library_gap"] = {"type": dtype, "why": f"no audited {etype} model in the library"}
+        return None
+    usable = [e for e in pool if e.get("glb") and e.get("bbox_m") and C.usable(e, mode)]
+    better = [e for e in usable if (vision_quality_of(e) or 0) >= LIBRARY_FIRST_MIN_QUALITY
+              and e.get("real_product") is not False and decor_styles_match(e, style_family)]
+    fits = [(e, s) for e in better for s in [_library_first_scale(e, item, dtype)] if s is not None]
+    if not fits:
+        why = (f"none of {len(usable)} usable {etype} model(s) in {mode} mode rates {LIBRARY_FIRST_MIN_QUALITY} or "
+               "more (the procedural one is better)" if not better else
+               f"none of the {len(better)} better {etype} model(s) fits the real size or the reserved box")
+        item["library_gap"] = {"type": dtype, "why": why, "candidates": len(pool)}
+        return None
+    size = [float(v) for v in (item.get("size") or [0.0, 0.0])[:2]] + [0.0, 0.0]
+
+    def rank(pair):
+        e, s = pair
+        bw, bd = float(e["bbox_m"][0]) * s, float(e["bbox_m"][1]) * s
+        return (-(vision_quality_of(e) or 0), bool(C.logo_flagged(e)),
+                round(abs(bw - size[0]) + abs(bd - size[1]), 4), str(e["id"]))
+
+    entry, s = sorted(fits, key=rank)[0]
+    bw, bd, bh = (float(v) for v in entry["bbox_m"][:3])
+    asset = {
+        "library": entry.get("source") or "3dwh", "asset_id": entry["id"], "licence": entry.get("licence"),
+        "license": entry.get("licence"), "method": "library", "decor_type": dtype, "fit_scale": [s, s, s],
+        "bbox_m": [round(bw * s, 4), round(bd * s, 4), round(bh * s, 4)], "target": "within", "turned_deg": 0.0,
+        "front_axis": entry.get("front_axis", "-Y"), "up_axis": entry.get("up_axis", "+Z"),
+        "origin_offset": list(entry.get("origin_offset") or [0.0, 0.0, 0.0]),
+        "front_axis_confidence": entry.get("front_axis_confidence"), "styles": list(entry.get("styles") or []),
+        "style_family": style_family, "quality": vision_quality_of(entry),
+        "pick": {"rule": "library_first (UL215)", "ids": [e["id"] for e, _s in sorted(fits, key=rank)],
+                 "of_type": len(pool), "usable": len(usable), "better": len(better)},
+    }
+    asset.update({k: entry[k] for k in GLB_ASSET_FIELDS if k in entry})
+    asset["unit_scale"] = float(entry.get("unit_scale") or 1.0)
+    asset["licence_flag"] = C.licence_flag_of(entry)
+    item.pop("library_gap", None)
+    return _finish(asset, mode, [_step("library", f"used {entry['id']} (library first, UL215)", None)])
+
+
 def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
                    mode: str = "commercial", host: Optional[dict] = None) -> Optional[dict]:
     """``asset`` for a decor item (docs/milestone8.md §4): one of the catalogue's decor models of its type
@@ -3130,6 +3220,8 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
     only models usable in licence ``mode``; the asset carries the licence fields (``_finish``)."""
     mode = C.check_mode(mode)
     dtype = item.get("type", "")
+    if dtype in LIBRARY_FIRST and not (item.get("tv") or {}).get("mount") == "wall":
+        return library_first_item(item, catalog, style_family, mode)          # UL215: the library first
     if dtype not in DECOR_LIBRARY_TYPES or not item.get("size") or len(item["size"]) < 2:
         return None
     if item.get("fixture") == "downlight":            # 29 Oct 2026 (UL106): our recessed downlight (parametric)
@@ -3775,10 +3867,10 @@ SNAP_PIECE_KEYS = ("size_snap", "adjusted_by_ai", "footprint", "height") + tuple
 
 def assert_only_assets_changed(before: dict, after: dict) -> None:
     """Raise AssertionError unless ``after`` equals ``before`` except for ``furniture[].asset`` and
-    ``decor[].asset`` (Milestone 12: and ``furniture[].library_gap``; Milestone 13: the fit's ``project`` keys and,
-    on a piece with a ``size_snap``, the snapped footprint and height with their labels, checked here: the snapped
-    size is the footprint's, the drawn footprint is the one before; a module split keeps the footprint, and, split
-    first in build round 3, the snap of its table part changes the width only)."""
+    ``decor[].asset`` (Milestone 12: and ``furniture[].library_gap``, UL215: ``decor[].library_gap``; Milestone 13:
+    the fit's ``project`` keys and, on a piece with a ``size_snap``, the snapped footprint and height with their
+    labels, checked here: the snapped size is the footprint's, the drawn footprint is the one before; a module split
+    keeps the footprint, and, split first in build round 3, the snap of its table part changes the width only)."""
     a, b = copy.deepcopy(before), copy.deepcopy(after)
     for piece_a, piece_b in zip(a.get("furniture", []), b.get("furniture", [])):
         label = piece_b.get("adjusted_by_ai") if isinstance(piece_b.get("adjusted_by_ai"), dict) else {}
@@ -3827,6 +3919,7 @@ def assert_only_assets_changed(before: dict, after: dict) -> None:
             piece.pop("window_cap", None)              # 27 Oct 2026: the fit's record of a window in front (M2)
         for item in doc.get("decor") or []:
             item.pop("asset", None)
+            item.pop("library_gap", None)              # 30 Oct 2026 (UL215): the library-first decor note
         project = doc.get("project")
         if isinstance(project, dict):
             for key in PROJECT_FIT_KEYS:
@@ -3945,13 +4038,26 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         lines += ["", f"Licence mode (Milestone 13): {project['licence_mode']} "
                       f"({project.get('licence_mode_source') or 'source not recorded'}); "
                       f"{'commercial-safe entries only' if project['licence_mode'] == 'commercial' else 'non-commercial, share-alike, research-only, regional and tool_nc entries allowed (no-derivatives never)'}"]
-    flagged_assets = sorted({(p["asset"]["asset_id"], p["asset"].get("licence_flag"))
+    def flag_word(a: dict) -> str:                    # UL215: a logo-flagged asset says so
+        flag = a.get("licence_flag")
+        return "logo" if (flag in (None, C.NO_FLAG) and C.logo_flagged(a)) else str(flag)
+
+    flagged_assets = sorted({(p["asset"]["asset_id"], flag_word(p["asset"]))
                              for p in pieces if p.get("asset") and p["asset"].get("method") == "library"
                              and p["asset"].get("commercial_safe") is False}
-                            | {(d["asset"]["asset_id"], d["asset"].get("licence_flag"))
+                            | {(d["asset"]["asset_id"], flag_word(d["asset"]))
                                for d in building.get("decor") or [] if d.get("asset")
                                and d["asset"].get("commercial_safe") is False})
     lines += ["", f"commercial-safe: {'yes' if not flagged_assets else 'no (flagged assets: ' + ', '.join(f'{a} [{f}]' for a, f in flagged_assets) + ')'}"]
+    decor_gaps: dict = {}                             # UL215: the decor built procedurally although a type has models
+    for d in building.get("decor") or []:
+        g = d.get("library_gap")
+        if isinstance(g, dict):
+            decor_gaps.setdefault((g.get("type"), g.get("why")), []).append(str(d.get("id")))
+    if decor_gaps:
+        lines += ["", "## Decor library gaps (UL215: the library first; built procedurally because)", ""]
+        lines += [f"- {t}: {why} ({len(ids)} item(s): {', '.join(ids[:6])}{' ...' if len(ids) > 6 else ''})"
+                  for (t, why), ids in sorted(decor_gaps.items(), key=lambda kv: str(kv[0]))]
     lines += ["", "| piece | room | type | source | status | footprint w x d (m) | method | asset | licence | "
               "scale x / y / z | aspect err | height (m) |",
               "|---|---|---|---|---|---|---|---|---|---|---|---|"] + rows

@@ -6,8 +6,9 @@ What: ``decide(item, checks, answer=None, answer2=None, cfg)`` -> ``{"status", "
 - ``removed``: a wrong object (title, vision), outdoor, an NC / SA / ND licence, a broken mesh, proportions no real
   piece of the type has, a model lying on its side (not a light hanging from its top), more than one object (not
   books, candles, a tray, a bowl or a basket), a duplicate, quality <= 2, a crude or not-real model below quality 4
-  (a crude real product, ABO or Poly Haven, below 3), an open drawer or a part apart, a known-unit product more than
-  30 % off its type's real size;
+  (a crude real product, ABO or Poly Haven, below 3), a known-unit product more than 30 % off its type's real size
+  (30 Oct 2026, UL215 / UL216: an open drawer, door or lid and a maker's logo or print are flags, ``open_parts`` and
+  ``logo_flag``, never removals);
 - ``fix``: catalogue fields only (``fixes``): ``origin_offset`` / boxes (pivot), ``front_quarter_turns`` (front),
   ``rescale`` (unit scale, size off by 15-30 % or a wrong unit guess), ``type`` (a real product filed under the wrong
   type: the title names the type, the box fits it and the vision check agrees);
@@ -45,8 +46,9 @@ model the vision check rates ``quality.remove_max`` (2) or lower, or finds no re
 decor keeps these as doubts.
 
 3D Warehouse layer (23 Oct 2026): an answer of the m13.2 question (``ask.LOGO_FIELDS``) with ``brand_logo`` or
-``text_print`` true removes the model (a specific vision finding, like an open drawer: trademarks are not licensed
-and no catalogue fix takes a print away; the reasons of ``checks.RENDER_FINDINGS``).
+``text_print`` true flags the model (30 Oct 2026, UL215: ``logo_flag`` with the reasons of ``checks.RENDER_FINDINGS``;
+trademarks are not licensed, so commercial mode leaves it out, relaxed mode may use it); an open drawer, door or lid
+flags ``open_parts`` (UL216), never a removal.
 
 How: pure; reasons in plain words; the same input gives the same decision.
 """
@@ -71,6 +73,14 @@ FRONT_TURNS = {"front": 0, "right": 1, "back": 2, "left": 3}     # where the tru
 # on it, a filled basket) reads as "more than one object"; the single-object question does not apply to it.
 HANG_FROM_TOP = ("pendant_light", "ceiling_light")
 GROUP_DECOR = ("books", "candle", "tray", "bowl", "basket")
+# 30 Oct 2026 (lessons UL215, UL216; user: "There were already laptop models in the library why we have not use that
+# one and created a brand new model instead?", then "a dresser with open doors could be used"): an open drawer, door
+# or lid (``parts_open``) is no removal for any type; the entry carries the flag ``open_parts`` so a pick may prefer a
+# closed model where a closed state matters (a laptop stands open on a desk; the 3D Warehouse layer had removed 5
+# laptops for their open lid alone). The geometric checks (parts sticking out, a broken mesh) stay as they are. A
+# maker's logo or print (``brand_logo``, ``text_print``) is no removal either: the flag ``logo_flag`` with its reason;
+# relaxed mode uses the model, commercial mode leaves it out (``catalog.commercial_safe``). Low quality still removes.
+OPEN_PARTS_NOTE = "a drawer, door or lid is open, or a part is pulled out: flagged open_parts (UL216), not removed"
 # Textured real products (ABO, Poly Haven scans) are often box-like with few faces: crude only below this quality
 # (D21: quality <= 2 removes; the crude rule's quality 4 stays for uploads and generated models).
 REAL_SOURCES = ("abo", "polyhaven", "gso", "hssd")  # gso: Google Scanned Objects (scans of products, pod P4); hssd: M13
@@ -156,9 +166,14 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
     pending: list[dict] = []
     notes: list[str] = []
     doubts: list[str] = []          # vision-only findings (user decision 1a of 11 Oct 2026, §14.3)
+    extra_flags: dict = {}          # UL215, UL216: open_parts, logo_flag and logo_reason (flags, never removals)
 
     for c in checks:
-        if c["status"] == "remove":
+        if c["status"] == "remove" and c.get("check") == "render_print":
+            # UL215: a maker's logo or print a run's render showed is a flag (commercial mode leaves it out), never a
+            # removal (the user: "no need to reject them")
+            extra_flags.update(logo_flag=True, logo_reason=c["reason"])
+        elif c["status"] == "remove":
             reasons.append(c["reason"])
         elif c["status"] == "fix":
             for k, v in (c.get("fix") or {}).items():
@@ -255,12 +270,15 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
         if answer.get("upright") is False and item["type"] not in HANG_FROM_TOP:
             reasons.append("the vision check sees it lying on its side or upside down")
         if answer.get("parts_open") is True:
-            reasons.append("a drawer, door or lid is open, or a part floats apart")
-        # 23 Oct 2026 (the 3D Warehouse layer, ask.LOGO_FIELDS): a logo or a print the vision check reads removes, as
-        # a run's render finding does (checks.render_print_check): no catalogue fix takes it away
-        for field in ("brand_logo", "text_print"):
-            if answer.get(field) is True:
-                reasons.append(f"the vision check reads {RENDER_FINDINGS[field]}: {RENDER_FINDING_WHY[field]}")
+            # UL216: a flag and a note, never a removal (OPEN_PARTS_NOTE)
+            extra_flags["open_parts"] = True
+            notes.append(OPEN_PARTS_NOTE)
+        # 23 Oct 2026 (the 3D Warehouse layer, ask.LOGO_FIELDS): a logo or a print the vision check reads. UL215: a flag
+        # with its reason (``logo_flag``, ``logo_reason``), never a removal; commercial mode leaves the model out
+        logos = [f"the vision check reads {RENDER_FINDINGS[f]}: {RENDER_FINDING_WHY[f]}"
+                 for f in ("brand_logo", "text_print") if answer.get(f) is True]
+        if logos:
+            extra_flags.update(logo_flag=True, logo_reason="; ".join(logos))
         # 28 Oct 2026 (user on real06: "What kind of a bath is this", a bath rated 2, no real product, kept by
         # decision 1a): a furniture model rated this low or found no real product is removed; decor keeps the doubt
         furniture = item.get("kind") == "furniture"
@@ -291,6 +309,7 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
 
     flags = answer_flags(item, answer)
     flags.update(material_flags)
+    flags.update(extra_flags)
     if fixes.get("front_quarter_turns") == 0:
         fixes.pop("front_quarter_turns")
     if fixes.get("rescale") == 1.0:
@@ -305,9 +324,15 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
         status = "fix"
     else:
         status = "keep"
-    return {"status": status, "reasons": reasons, "fixes": fixes if status != "removed" else {},
-            "pending": pending if not reasons else [], "flags": flags, "notes": notes,
-            "vision_doubt": doubts if status in ("keep", "fix") else []}
+    out = {"status": status, "reasons": reasons, "fixes": fixes if status != "removed" else {},
+           "pending": pending if not reasons else [], "flags": flags, "notes": notes,
+           "vision_doubt": doubts if status in ("keep", "fix") else []}
+    if answer and isinstance(answer.get("quality"), int) and not isinstance(answer["quality"], bool):
+        # 30 Oct 2026 (UL215): the vision quality, written to ``audit.vision_quality`` (``fit.vision_quality_of``) so
+        # a pick can tell a library model better than the procedural build (``fit.library_first_item``); not a flag,
+        # so the decision_sha of the entries already written stays the same
+        out["vision_quality"] = int(answer["quality"])
+    return out
 
 
 def expected_status(decision: dict) -> str:

@@ -538,17 +538,21 @@ def test_the_3dwh_question_asks_for_the_logo_and_the_server_schema_follows_the_v
     assert (ROOT / "wenart" / "assets" / "audit.yaml").read_text().count("version_logo: m13.2") == 1
 
 
-def test_a_logo_or_a_print_the_vision_check_reads_removes_the_model():
+def test_a_logo_or_a_print_the_vision_check_reads_flags_the_model():
+    """30 Oct 2026 (UL215, user: "no need to reject them"): a logo or a print the vision check reads is a flag
+    (``logo_flag`` with its reason; commercial mode leaves the model out), no longer a removal."""
     item = {"id": "3dwh_x", "type": "sofa", "kind": "furniture", "source": "3dwh", "title": "Big sofa"}
     title = [{"check": "title", "status": "ok", "reason": "", "metrics": {"verdict": "match"}}]
     answer = {"is_type": True, "type_guess": "sofa", "single_object": True, "real_product": True, "indoor": "indoor",
               "upright": True, "size_plausible": True, "parts_open": False, "styles": ["modern"], "quality": 4,
               "front_shown": "front", "brand_logo": False, "text_print": False}
-    assert D.decide(item, title, answer)["status"] == "keep"
+    plain = D.decide(item, title, answer)
+    assert plain["status"] == "keep" and "logo_flag" not in plain["flags"]
     logo = D.decide(item, title, dict(answer, brand_logo=True))
-    assert logo["status"] == "removed" and "logo" in logo["reasons"][0] and "trademarks" in logo["reasons"][0]
+    assert logo["status"] == "keep" and not logo["reasons"] and logo["flags"]["logo_flag"] is True
+    assert "logo" in logo["flags"]["logo_reason"] and "trademarks" in logo["flags"]["logo_reason"]
     text = D.decide(item, title, dict(answer, text_print=True))
-    assert text["status"] == "removed" and "lettering" in text["reasons"][0]
+    assert text["status"] == "keep" and "lettering" in text["flags"]["logo_reason"]
 
 
 def test_the_source_is_registered_everywhere_the_library_sources_are_listed():
@@ -600,7 +604,8 @@ def _wh_answers(items_by_id, logo_ids=()):
 def test_the_audit_chain_decides_and_writes_the_3dwh_entries_and_the_extras(tmp_path, monkeypatch):
     """Code checks, the vision question (m13.2, both passes where the name gives no type), decide and write over the
     catalogue copy with 3D Warehouse furniture, decor and extras (a tree, a door, an untyped object): every model gets
-    its decision, the extras' title evidence is the name typing, a logo removes, the copy still validates."""
+    its decision, the extras' title evidence is the name typing, a logo flags (UL215; it removed before), the copy still
+    validates."""
     from test_library_growth_p4 import fake_render
     from wenart.assets.audit import cli as CLI
     from wenart.assets.audit import load_config
@@ -640,12 +645,17 @@ def test_the_audit_chain_decides_and_writes_the_3dwh_entries_and_the_extras(tmp_
     rows = {r["id"]: r for r in json.loads((audit / "audit.json").read_text())["items"]}
     assert all(rows[i]["status"] in ("keep", "fix", "removed") for i in nid["ids"]), \
         {i: (rows[i]["status"], rows[i]["pending"]) for i in nid["ids"]}
-    assert rows[chair["id"]]["status"] == "removed" and "logo" in " ".join(rows[chair["id"]]["reasons"])
+    # 30 Oct 2026 (UL215): a logo is a flag, no longer a removal
+    assert rows[chair["id"]]["status"] in ("keep", "fix") and "logo" not in " ".join(rows[chair["id"]]["reasons"])
     assert rows[tree["id"]]["status"] in ("keep", "fix") and rows[untyped["id"]]["status"] in ("keep", "fix")
     assert CLI.main(["write"] + common) == 0
     lib = json.loads(lib_p.read_text())
     C.validate(lib, complete=False)
+    every = {e["id"]: e for s in ("entries", "decor", "extras") for e in lib.get(s) or []}
+    assert every[chair["id"]]["logo_flag"] is True and "logo" in every[chair["id"]]["logo_reason"]
+    assert not C.usable(every[chair["id"]], "commercial") and "logo_flag" not in every[tree["id"]]
     extras = {e["id"]: e for e in lib["extras"]}
+    assert extras[tree["id"]]["audit"]["vision_quality"] == 4                 # UL215: the library-first quality
     assert extras[tree["id"]]["audit"]["status"] == rows[tree["id"]]["status"]
     assert extras[untyped["id"]]["audit"]["status"] == rows[untyped["id"]]["status"]
     for e in extras.values():
