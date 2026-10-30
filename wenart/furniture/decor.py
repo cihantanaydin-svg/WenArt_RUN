@@ -182,7 +182,7 @@ DECOR_TYPES = DECOR_TYPES + MEDIA_DECOR_TYPES   # parametric until audited libra
 # wenart.furniture.bath_details (the AI does not choose them), built by wenart.blender.bath_parts (= its
 # BATH_DECOR_TYPES)
 BATH_DECOR_TYPES: tuple[str, ...] = ("toilet_paper_holder", "toilet_brush", "towel_rail", "towel_shelf", "towel_bar",
-                                     "feature_panel", "cove_light")
+                                     "feature_panel", "cove_light", "install_wall")
 DECOR_TYPES = DECOR_TYPES + BATH_DECOR_TYPES
 # 29 Oct 2026 (lessons UL113, UL115, UL119; the user's reference photos): the details the rules add
 # (wenart.furniture.room_details; built by wenart.blender.detail_parts): a lit wall niche, an intercom panel, a floor vase
@@ -205,7 +205,8 @@ LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "b
                                       # 29 Oct 2026 (UL114): a 1.2 m towel rail, a wall's feature panel, a cove band
                                       "towel_rail", "feature_panel", "cove_light",
                                       "wall_niche", "floor_vase", "art_leaning", "desk_wall_unit",   # the details
-                                      "panel_wall", "wall_discs")             # 30 Oct 2026 (P16, UL153)
+                                      "panel_wall", "wall_discs",             # 30 Oct 2026 (P16, UL153)
+                                      "install_wall")                         # 30 Oct 2026 (UL205)
 MAX_DECOR_M = 0.6
 # Milestone 12 (§4.7, B7): real sizes (width, thickness, height): a 45 cm square cushion standing against a sofa
 # back, a 50 cm one leaning at a bed's head (in front of the sleeping pillows); never stretched by a model fit.

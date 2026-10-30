@@ -360,7 +360,8 @@ def test_the_decor_items_build_into_their_boxes():
     for dtype in BT.BATH_DECOR_TYPES:
         size = {"toilet_paper_holder": BT.PAPER_HOLDER_SIZE, "toilet_brush": BT.TOILET_BRUSH_SIZE,
                 "towel_rail": BT.TOWEL_RAIL_SIZE, "towel_shelf": BT.TOWEL_SHELF_SIZE, "towel_bar": BT.TOWEL_BAR_SIZE,
-                "feature_panel": (1.0, 0.02, 2.7), "cove_light": (1.5, 0.3, 0.12)}[dtype]
+                "feature_panel": (1.0, 0.02, 2.7), "cove_light": (1.5, 0.3, 0.12),
+                "install_wall": (1.6, BT.INSTALL_WALL_D_M, BT.INSTALL_WALL_H_M)}[dtype]      # UL205
         parts = P.decor_parts(dtype, *size, {"material": "fluted_dark"} if dtype == "feature_panel" else None)
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
         assert x1 - x0 <= size[0] + 1e-9 and y1 - y0 <= size[1] + 1e-9 and z1 - z0 <= size[2] + 1e-9, dtype

@@ -140,7 +140,7 @@ FLOOR_DECOR: tuple[str, ...] = ("rug", "plant", "plant_large", "basket", "sculpt
 UNMEASURED_DECOR: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind",
                                      # 29 Oct 2026 (UL114, UL123, UL124): the bathroom's wall details
                                      "toilet_paper_holder", "towel_rail", "towel_shelf", "towel_bar", "feature_panel",
-                                     "cove_light",
+                                     "cove_light", "install_wall",      # 30 Oct 2026 (UL205)
                                      "intercom", "desk_wall_unit",      # 29 Oct 2026 (UL113, UL115): on a wall
                                      "wall_discs")                      # 30 Oct 2026 (P16, UL153): on a wall
 # 29 Oct 2026 (lesson UL119, R33): a floating nightstand hangs on the wall (its box under its top, nothing to the floor);

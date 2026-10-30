@@ -18,7 +18,12 @@ What (pure; shapely for the placements):
    - every piece: the family's fixture finish and the room's towel colour (B26).
    A made-to-measure piece (``made_to_measure``) is built from code by design (``fit.bath_made_fit``). One feature wall
    per room (B13 or B24): the fluted wall behind a wall-hung WC is planned here (its span on the WC's wall, clear of
-   the openings and the other pieces' backs), so the WC hangs on its face (``wall_offset_m``).
+   the openings and the other pieces' backs), so the WC hangs on its face (``wall_offset_m``). 30 Oct 2026 (lesson
+   UL205, the user's WC photo): a wall-hung WC in a WC, or on a wall without the family's fluted wall, hangs on a
+   half-height installation wall (``bath_parts.INSTALL_WALL_D_M`` deep, ``INSTALL_WALL_H_M`` high, lit niches along its
+   top) on its back wall, ``INSTALL_SIDE_M`` past it at both ends, clipped like the fluted wall; in a WC it also runs
+   behind the basin on the same wall (that vanity on its face, ``wall_offset_m``); a WC's basin stands on an oak
+   trestle bench with a vessel and a wall mixer in the families that like it (``vanity_wc``).
 2. ``dress`` (the decor stage, after the professional dressing): the room's accessories as decor items
    (``added_by_ai``, ``method: rule``, ``rule``, the lesson and the reason; real sizes; each placed by code: inside the
    room, on a wall stretch clear of the doors and windows, off the other pieces and the door swings):
@@ -29,6 +34,8 @@ What (pure; shapely for the placements):
    - B4 / B14 / B22 the basin's mirror in the family's kind (an LED band, backlit, a round oak frame; the framed one of
      the classic families stays);
    - B13 the feature panel behind a fluted vanity, B24 the fluted wall behind the WC (planned in step 1);
+   - UL205 the installation wall (planned in step 1) as a decor item, the paper holder on its face and the brush in
+     front of it, a long thin backlit mirror over it where the basin stands on it;
    - B9 the room's ceiling lights as recessed downlights (square for the modern families) and, where the ceiling is
      flat and high enough, a cove light over the vanity wall that wraps the corner along the shower's wall (B17);
    - B26 every towel in the room's accent colour (``towel_colour``).
@@ -62,6 +69,7 @@ PIECE_GAP_M = 0.02
 COVE_SIDE_M = 0.30               # the cove band runs this far past the vanity at both ends
 WC_PANEL_SIDE_M = 0.25           # the fluted wall runs this far past the WC at both ends (B24)
 WC_PANEL_MIN_EXTRA_M = 0.10
+INSTALL_CORNER_M = 0.30          # UL205: an installation wall this near a corner runs into it
 TOWEL_BAR_DOOR_GAP_M = 0.05
 TOWEL_BAR_REACH_M = 1.2          # a towel bar within this of the door's or the shower's edge (B25)
 TALL_FOR_SHELF_M = 1.3           # a piece taller than this stands under the towel shelf's height
@@ -311,9 +319,11 @@ def _drop_mount(piece: dict) -> None:
         piece.pop("mount_source", None)
 
 
-def vanity_look(piece: dict, spec: dict) -> tuple[Optional[dict], str]:
-    """``(look keys, why)`` of a washbasin in the family's floating vanity, or ``(None, why not)``."""
-    if spec["vanity"] not in BT.VANITY_KINDS:
+def vanity_look(piece: dict, spec: dict, kind: Optional[str] = None) -> tuple[Optional[dict], str]:
+    """``(look keys, why)`` of a washbasin in the family's floating vanity (``kind``: another of
+    ``bath_parts.VANITY_KINDS``, a WC's bench, UL205), or ``(None, why not)``."""
+    kind = kind or spec["vanity"]
+    if kind not in BT.VANITY_KINDS:
         return None, f"the {spec['family']} family keeps the drawn basin's look (its framed classic vanity)"
     if piece.get("front_deg") is None:
         return None, "the basin has no front: no wall to hang a vanity on"
@@ -323,9 +333,10 @@ def vanity_look(piece: dict, spec: dict) -> tuple[Optional[dict], str]:
         return None, why_not
     height = piece.get("height")
     top = float(height) if isinstance(height, (int, float)) and 0.75 <= float(height) <= 0.95 else BT.VANITY_TOP_DEFAULT_M
-    kind = spec["vanity"]
-    basin = spec["basin"] if kind != "stone_slab" else "integrated"
+    basin = {"stone_slab": "integrated", "bench": "vessel_wall"}.get(kind, spec["basin"])
     top_key = BT.PANEL_KEYS.get(str(spec.get("panel") or ""), spec["top_key"]) if kind == "fluted" else spec["top_key"]
+    if kind == "bench":
+        top_key = "wood"
     look = {"vanity": kind, "basin": basin, "rounded": bool(spec["rounded"]), "top_key": top_key,
             "top_m": round(top, 3), "made_to_measure": True}
     if kind == "curved":
@@ -334,7 +345,9 @@ def vanity_look(piece: dict, spec: dict) -> tuple[Optional[dict], str]:
              "fluted": "a fluted floating vanity" + (" with rounded ends" if spec["rounded"] else "")
                        + f" and a {basin.replace('_', ' ')} basin (B12, B15)",
              "curved": "a curved white floating vanity under a dark stone top in a terrazzo apron, with a white "
-                       "vessel basin and a wall spout (B21, B23)"}[kind]
+                       "vessel basin and a wall spout (B21, B23)",
+             "bench": "an oak trestle bench with a lower shelf and a woven basket, a matt black vessel basin and a "
+                      "black wall mixer (UL205)"}[kind]
     return look, f"{words} on the drawn {w:.2f} x {d:.2f} m basin (the drawing has room for it)"
 
 
@@ -378,12 +391,113 @@ def _wc_panel(building: dict, room: dict, wc: dict, pieces: list[dict]) -> Optio
             "rotation_deg": round(placer._rotation_for_normal(n), 3), "thickness": th, "anchor": wc["id"]}
 
 
+def _wall_span(ctx, k: int, need: tuple[float, float], lo: float, hi: float, blocks) -> Optional[tuple[float, float]]:
+    """``(lo, hi)`` on segment ``k`` clipped at the ``blocks`` beside the ``need`` span (``PIECE_GAP_M`` and a cm off
+    them), None when a block cuts it."""
+    gap = PIECE_GAP_M + 0.01
+    for s0, s1 in blocks:
+        if s1 <= need[0] + 1e-6:
+            lo = max(lo, s1 + gap)
+        elif s0 >= need[1] - 1e-6:
+            hi = min(hi, s0 - gap)
+        else:
+            return None
+    return lo, hi
+
+
+def _install_wall(building: dict, room: dict, wc: dict, pieces: list[dict], spec: dict
+                  ) -> tuple[Optional[dict], str]:
+    """UL205: the installation wall behind a wall-hung WC (module docstring, step 1): ``(plan, why)`` with its
+    ``segment``, ``span``, ``width``, ``wall_point``, ``center``, ``rotation_deg``, ``thickness`` (its depth: the WC's
+    and a joined basin's ``wall_offset_m``), ``height``, ``wc_x`` (the WC's centre in its frame), ``anchors`` (the WC,
+    the basins on it), ``body_key`` / ``cap_key``; ``(None, why not)``."""
+    ctx = placer.room_context(building, room)
+    c, u, fwd, w, d = _frame(wc)
+    depth, height = BT.INSTALL_WALL_D_M, BT.INSTALL_WALL_H_M
+    if d - depth - 0.01 < BT.WC_PAN_MIN_D_M - 1e-9:
+        return None, (f"the drawn WC {wc['id']} is {d:.2f} m deep: no room for its pan in front of a "
+                      f"{depth:.2f} m installation wall")
+    back = (c[0] - fwd[0] * d / 2.0, c[1] - fwd[1] * d / 2.0)
+    k = _segment_at(ctx, back, fwd, 0.10)
+    if k is None:
+        return None, f"the WC {wc['id']} is not on a wall"
+    a, su, n, length = _seg(ctx, k)
+    tc = _t_of(ctx, k, back)
+    blocks, joins = list(_opening_spans(ctx, k)), []
+    for p in pieces:
+        if p is wc:
+            continue
+        pc, pu, pf, pw, pd = _frame(p)
+        pback = (pc[0] - pf[0] * pd / 2.0, pc[1] - pf[1] * pd / 2.0)
+        dist = G.point_segment_distance(pback, ctx.segments[k][0], ctx.segments[k][1])
+        if dist > 0.30:
+            continue
+        t = _t_of(ctx, k, pc)
+        half = abs(pw * (pu[0] * su[0] + pu[1] * su[1])) / 2.0 + abs(pd * (pf[0] * su[0] + pf[1] * su[1])) / 2.0
+        look = BT.bath_look(p)
+        # in a WC the basin on the same wall stands on it too (the photo), when its vanity keeps a real depth
+        if room.get("room_type") == "wc" and p.get("type") == "washbasin" and dist <= 0.10 \
+                and look.get("vanity") in BT.VANITY_KINDS and look.get("made_to_measure") \
+                and pd - depth >= BT.VANITY_D_RANGE_M[0] - 1e-9 \
+                and min(abs(t - half - tc - w / 2.0), abs(tc - w / 2.0 - t - half)) <= 2 * BT.INSTALL_SIDE_M:
+            joins.append((p, t - half, t + half))
+        else:
+            blocks.append((t - half, t + half))
+    span = None
+    for joined in (joins, []):                           # with the basins on it, else behind the WC alone
+        need = (min([tc - w / 2.0] + [j[1] for j in joined]), max([tc + w / 2.0] + [j[2] for j in joined]))
+        lo = max(0.0, min(need[0] - 0.10, tc - w / 2.0 - BT.INSTALL_SIDE_M))
+        hi = min(length, max(need[1] + 0.10, tc + w / 2.0 + BT.INSTALL_SIDE_M))
+        lo, hi = (0.0 if lo < INSTALL_CORNER_M else lo), (length if length - hi < INSTALL_CORNER_M else hi)
+        span = _wall_span(ctx, k, need, lo, hi, blocks + ([] if joined else [(j[1], j[2]) for j in joins]))
+        if span is None or span[1] - span[0] < need[1] - need[0] + BT.INSTALL_MIN_EXTRA_M - 1e-9 \
+                or span[0] > need[0] + 1e-6 or span[1] < need[1] - 1e-6:
+            span = None
+            continue
+        others = _others(pieces, {wc["id"]} | {j[0]["id"] for j in joined})
+        lo, hi = span
+        while True:                              # off the door swings and the pieces: shrink to the WC
+            t = (lo + hi) / 2.0
+            wp = (a[0] + su[0] * t, a[1] + su[1] * t)
+            centre = (wp[0] + n[0] * depth / 2.0, wp[1] + n[1] * depth / 2.0)
+            box = _box(centre, su, n, hi - lo, depth)
+            rot = placer._rotation_for_normal(n)
+            if _clear(box, others, ctx) and under_slope(building, room, centre, (hi - lo, depth, height), rot, 0.0):
+                break
+            lo, hi = min(lo + 0.05, max(lo, need[0] - 0.10)), max(hi - 0.05, min(hi, need[1] + 0.10))
+            if hi - lo < need[1] - need[0] + BT.INSTALL_MIN_EXTRA_M - 1e-9 or (lo, hi) == span:
+                lo = None
+                break
+            span = (lo, hi)
+        if lo is None:
+            span = None
+            continue
+        span, joins = (lo, hi), joined
+        break
+    if span is None:
+        return None, f"no free wall stretch behind {wc['id']} for an installation wall (openings, pieces, the ceiling)"
+    lo, hi = span
+    t = (lo + hi) / 2.0
+    wp = (a[0] + su[0] * t, a[1] + su[1] * t)
+    rot = placer._rotation_for_normal(n)
+    r = math.radians(rot)
+    wc_x = (back[0] - wp[0]) * math.cos(r) + (back[1] - wp[1]) * math.sin(r)
+    keep = [round((_frame(j[0])[0][0] - wp[0]) * math.cos(r) + (_frame(j[0])[0][1] - wp[1]) * math.sin(r), 4)
+            for j in joins]                             # the basins' wall mixers on its face: no niche behind them
+    body, cap = spec.get("install_wall") or ("dark", "stone_light")
+    return {"segment": k, "span": [round(lo, 4), round(hi, 4)], "width": round(hi - lo, 4),
+            "wall_point": [round(wp[0], 4), round(wp[1], 4)],
+            "center": [round(wp[0] + n[0] * depth / 2.0, 4), round(wp[1] + n[1] * depth / 2.0, 4)],
+            "rotation_deg": round(rot, 3), "thickness": depth, "height": height, "wc_x": round(wc_x, 4),
+            "keep_x": keep, "anchors": [wc["id"]] + [j[0]["id"] for j in joins], "body_key": body, "cap_key": cap,
+            "niches": len(BT.install_niches(hi - lo, wc_x, keep)), "word": "installation wall"}, "ok"
+
+
 def plan_room(building: dict, room: dict, spec: dict, why: str) -> dict:
     """In place: the looks of one wet room's fixtures (module docstring, step 1); returns the room's record."""
     pieces = _pieces(building, room["id"])
     rec = {"family": spec["family"], "finish": spec["finish"], "towel_colour": spec["towel_colour"], "pieces": {},
            "feature": None, "feature_why": None}
-    vanity_panel = False
     for p in sorted(pieces, key=lambda f: f["id"]):
         look = _base_look(spec, why)
         ftype = p.get("type")
@@ -396,11 +510,10 @@ def plan_room(building: dict, room: dict, spec: dict, why: str) -> dict:
                 look.update(wc="close_coupled")
                 note = f"the {spec['family']} family keeps a close-coupled WC (as fitted)"
         elif ftype == "washbasin":
-            extra, note = vanity_look(p, spec)
+            # UL205: a WC's basin on the family's bench (``vanity_wc``), else the family's vanity
+            extra, note = vanity_look(p, spec, spec.get("vanity_wc") if room.get("room_type") == "wc" else None)
             if extra is not None:
                 look.update(extra)
-                if extra["vanity"] == "fluted" and spec.get("panel"):
-                    vanity_panel = True
             else:
                 look["vanity"] = "as_drawn"
         elif ftype == "tall_cabinet":
@@ -426,12 +539,41 @@ def plan_room(building: dict, room: dict, spec: dict, why: str) -> dict:
         rec["pieces"][p["id"]] = {k: look[k] for k in ("wc", "vanity", "basin", "column", "shower", "made_to_measure")
                                   if k in look}
         rec["pieces"][p["id"]]["why"] = note
+    # UL205: the installation wall behind a wall-hung WC: in a WC, or where the family's fluted wall (B24) is not
+    # planned behind it; the basins on it (a WC's) hang or stand on its face
+    rec["install_walls"], rec["install_why"] = [], None
+    for wc in [p for p in sorted(pieces, key=lambda f: f["id"]) if p.get("type") == "toilet"
+               and BT.bath_look(p).get("wc") == "wall_hung"]:
+        if not spec.get("install_wall"):
+            break
+        if spec.get("feature") == "wc_fluted" and room.get("room_type") != "wc":
+            continue
+        iw, iwhy = _install_wall(building, room, wc, pieces, spec)
+        if iw is None:
+            rec["install_why"] = iwhy
+            continue
+        for pid in iw["anchors"]:
+            piece = next(p for p in pieces if p["id"] == pid)
+            piece["bath_look"].update(wall_offset_m=iw["thickness"], install_wall=True)
+            piece["bath_look"]["reason"] += (f"; on the {iw['thickness']:.2f} m installation wall's face (UL205)")
+            rec["pieces"][pid]["install_wall"] = True
+        iw["why"] = (f"a {iw['height']:.2f} m installation wall {iw['width']:.2f} m wide behind the WC {wc['id']}"
+                     + (f" and the basin {', '.join(iw['anchors'][1:])}" if len(iw["anchors"]) > 1 else "")
+                     + f", {iw['niches']} lit niche{'s' if iw['niches'] != 1 else ''} along its top, its flush plate "
+                     f"and paper holder on it (UL205)")
+        rec["install_walls"].append(iw)
+        rec["install_why"] = iw["why"]
+    on_install = {pid for iw in rec["install_walls"] for pid in iw["anchors"]}
+    vanity_panel = bool(spec.get("panel")) and any(
+        p.get("type") == "washbasin" and BT.bath_look(p).get("vanity") == "fluted" and p["id"] not in on_install
+        for p in pieces)
     # one feature wall per room (B13 or B24)
     if vanity_panel:
         rec["feature"], rec["feature_why"] = "vanity_panel", (f"a {spec['panel']} panel behind the fluted vanity, "
                                                               "floor to ceiling (B13)")
     elif spec.get("feature") == "wc_fluted":
-        for wc in [p for p in pieces if p.get("type") == "toilet" and BT.bath_look(p).get("wc") == "wall_hung"]:
+        for wc in [p for p in pieces if p.get("type") == "toilet" and BT.bath_look(p).get("wc") == "wall_hung"
+                   and p["id"] not in on_install]:
             panel = _wc_panel(building, room, wc, pieces)
             if panel is None:
                 rec["feature_why"] = f"no free wall stretch behind {wc['id']} for the fluted wall (B24)"
@@ -533,12 +675,15 @@ def _decor_boxes(items: list[dict], types) -> list:
             if d.get("type") in types and len(d.get("size") or []) >= 2 and d.get("center")]
 
 
-def _paper_holder(room, wc, ctx, pieces, spec, new_id, panel) -> tuple[Optional[dict], str]:
-    """B2: the paper holder of a WC (module docstring); ``(item, why)``."""
+def _paper_holder(room, wc, ctx, pieces, spec, new_id, panel, blockers=()) -> tuple[Optional[dict], str]:
+    """B2: the paper holder of a WC (module docstring); ``panel``: the wall in front of its wall (B24 the fluted wall,
+    UL205 the installation wall: ``segment``, ``span``, ``thickness``), ``blockers``: the boxes of the room's wall
+    items standing on the floor (the installation wall: the holder hangs on its face or off it); ``(item, why)``."""
     c, u, fwd, w, d = _frame(wc)
     size = BT.PAPER_HOLDER_SIZE
     bottom = BT.paper_holder_bottom()                   # 30 Oct 2026 (UL183): the roll's axis at PAPER_HOLDER_Z_M
     others = _others(pieces, {wc["id"]})
+    word = (panel or {}).get("word") or "fluted wall"
     cands = []
     for side in (1.0, -1.0):                           # a side wall within reach, at the bowl's front part
         edge = (c[0] + u[0] * side * w / 2.0, c[1] + u[1] * side * w / 2.0)
@@ -555,12 +700,12 @@ def _paper_holder(room, wc, ctx, pieces, spec, new_id, panel) -> tuple[Optional[
             on_panel = panel is not None and panel["segment"] == kb and panel["span"][0] <= t - size[0] / 2.0 \
                 and t + size[0] / 2.0 <= panel["span"][1]
             cands.append((kb, t, panel["thickness"] if on_panel else 0.0,
-                          "on the fluted wall beside the WC" if on_panel else "on the wall beside the WC"))
+                          f"on the {word} beside the WC" if on_panel else "on the wall beside the WC"))
     for k, t, off, where in cands:
         if not _span_free(ctx, k, t - size[0] / 2.0, t + size[0] / 2.0):
             continue
         centre, rot, wp, poly = _wall_place(ctx, k, t, size, bottom, off)
-        if not _clear(poly, others, ctx):
+        if not _clear(poly, others + ([] if off else list(blockers)), ctx):
             continue
         why = f"a paper holder {where} {wc['id']} at {BT.PAPER_HOLDER_Z_M:.2f} m (B2)"
         return _item(room, "toilet_paper_holder", centre, rot, size, why, spec, new_id, [wc["id"]],
@@ -568,13 +713,15 @@ def _paper_holder(room, wc, ctx, pieces, spec, new_id, panel) -> tuple[Optional[
     return None, f"no free wall within reach of {wc['id']} for its paper holder"
 
 
-def _brush(room, wc, ctx, pieces, spec, new_id) -> tuple[Optional[dict], str]:
+def _brush(room, wc, ctx, pieces, spec, new_id, blockers=()) -> tuple[Optional[dict], str]:
+    """B2: the brush on the floor beside a WC (UL205: in front of its installation wall, ``blockers``)."""
     c, u, fwd, w, d = _frame(wc)
     size = BT.TOILET_BRUSH_SIZE
-    others = _others(pieces, {wc["id"]}) + [_poly(wc)]
+    others = _others(pieces, {wc["id"]}) + [_poly(wc)] + list(blockers)
     back = (c[0] - fwd[0] * d / 2.0, c[1] - fwd[1] * d / 2.0)
+    wall = float(BT.bath_look(wc).get("wall_offset_m") or 0.0)
     for side in (-1.0, 1.0):
-        for depth, gap in ((0.10, BRUSH_GAP_M), (0.10, 0.012), (0.25, BRUSH_GAP_M)):
+        for depth, gap in ((wall + 0.10, BRUSH_GAP_M), (wall + 0.10, 0.012), (wall + 0.25, BRUSH_GAP_M)):
             off = w / 2.0 + gap + size[0] / 2.0
             p = (back[0] + u[0] * side * off + fwd[0] * depth, back[1] + u[1] * side * off + fwd[1] * depth)
             poly = _box(p, u, fwd, size[0], size[1])
@@ -631,7 +778,7 @@ def _towels(building, room, ctx, pieces, items, spec, new_id, rec: Optional[dict
     have = {d.get("type") for d in items if d.get("room_id") == room["id"]}
     wet_zone = [p for p in pieces if p.get("type") in ("shower", "bathtub")]
     near = _poly(wet_zone[0]) if wet_zone else None
-    decor_walls = _decor_boxes(items, ("mirror",))
+    decor_walls = _decor_boxes(items, ("mirror", "install_wall"))          # UL205: not over the installation wall
     rail = None
     if "towel_rail" not in have:
         spot = _wall_spot(building, room, ctx, BT.TOWEL_RAIL_SIZE, pieces, near,
@@ -730,6 +877,10 @@ def _mirrors(building, room, pieces, items, spec, rec) -> list[str]:
         basin = basins[anchor]
         _rot, (bw, _bd) = _front(basin)
         look = BT.bath_look(basin)
+        iw = next((x for x in rec.get("install_walls") or [] if anchor in x["anchors"]), None)
+        if iw is not None:
+            notes.append(_long_mirror(room, d, iw, spec, anchor))
+            continue
         w = float(d["size"][0])
         if fixture == "backlit_mirror":
             w = min(BT.BACKLIT_MIRROR_MAX_W, max(w, 0.9 * bw))
@@ -750,6 +901,30 @@ def _mirrors(building, room, pieces, items, spec, rec) -> list[str]:
         d["bath_detail"] = RULE
         notes.append(f"{room['id']}: {d.get('id')} a {kind.replace('_', ' ')} mirror over {anchor}")
     return notes
+
+
+def _long_mirror(room, d: dict, iw: dict, spec: dict, anchor: str) -> str:
+    """UL205 (in place): the basin's mirror over its installation wall as the photo's long, thin backlit mirror, centred
+    on the installation wall's span (clear of the openings by its plan), its bottom ``LONG_MIRROR_GAP_M`` over its
+    top."""
+    r = math.radians(float(iw["rotation_deg"]))
+    nx, ny = math.sin(r), -math.cos(r)
+    depth = float(d["size"][1]) if len(d.get("size") or []) > 1 else 0.04
+    w = min(BT.LONG_MIRROR_MAX_W, float(iw["width"]) - 0.10)
+    wp = iw["wall_point"]
+    bottom = float(iw["height"]) + BT.LONG_MIRROR_GAP_M
+    max_h = d.get("max_height_m")
+    d.update(fixture="backlit_mirror", long=True, asset=None, rounded=bool(spec.get("mirror_round")),
+             size=[round(w, 3), depth] + ([BT.LONG_MIRROR_H_M] if len(d["size"]) > 2 else []),
+             wall_point=list(wp), center=[round(wp[0] + nx * depth / 2.0, 4), round(wp[1] + ny * depth / 2.0, 4)],
+             rotation_deg=iw["rotation_deg"], min_bottom_m=round(bottom, 3),
+             bottom_m=round(max(bottom, float(d.get("bottom_m") or 0.0)), 3),
+             max_height_m=round(min(BT.LONG_MIRROR_H_M, float(max_h)) if isinstance(max_h, (int, float)) and max_h > 0
+                                else BT.LONG_MIRROR_H_M, 3))
+    d["reason"] = (f"{d.get('reason') or 'mirror'}; a long, thin backlit mirror over the installation wall, "
+                   f"{bottom:.2f} m up (UL205)")
+    d["bath_detail"] = RULE
+    return f"{room['id']}: {d.get('id')} a long backlit mirror over the installation wall of {anchor}"
 
 
 def _lights(building, room, items, spec) -> list[str]:
@@ -891,16 +1066,24 @@ def dress(building: dict, style: Optional[dict], new_id: Callable[[str], str]) -
         have = {d.get("type") for d in mine}
         made: list[dict] = []
         panel = rec.get("feature_panel") if rec.get("feature") == "wc_fluted" else None
+        if "install_wall" not in have:                   # UL205: planned by plan_room
+            for iw in rec.get("install_walls") or []:
+                made.append(_item(room, "install_wall", [*iw["center"], 0.0], iw["rotation_deg"],
+                                  (iw["width"], iw["thickness"], iw["height"]), iw["why"], spec, new_id,
+                                  list(iw["anchors"]), wc_x=iw["wc_x"], keep_x=list(iw["keep_x"]),
+                                  body_key=iw["body_key"], cap_key=iw["cap_key"]))
+        installs = _decor_boxes(mine + made, ("install_wall",))
         for wc in (p for p in pieces if p.get("type") == "toilet"):
             held = {d.get("type") for d in mine if wc["id"] in (d.get("anchor_ids") or [])}
+            iw = next((x for x in rec.get("install_walls") or [] if wc["id"] in x["anchors"]), None)
             if "toilet_paper_holder" not in held:
-                item, w = _paper_holder(room, wc, ctx, pieces, spec, new_id, panel)
+                item, w = _paper_holder(room, wc, ctx, pieces, spec, new_id, iw or panel, installs)
                 if item is not None:
                     made.append(item)
                 else:
                     notes.append(f"{room['id']}: {w}")
             if "toilet_brush" not in held:
-                item, w = _brush(room, wc, ctx, pieces, spec, new_id)
+                item, w = _brush(room, wc, ctx, pieces, spec, new_id, installs)
                 if item is not None:
                     made.append(item)
                 else:
@@ -969,6 +1152,8 @@ def review(building: dict, check: str = REVIEW_CHECK) -> tuple[list[dict], int]:
                 f(basin["id"], room, f"the basin {basin['id']} in {room['id']} has no mirror (B4)", "mirror")
             elif decor_on and spec["mirror"] != "framed":
                 fixture = {"led": "led_mirror", "backlit": "backlit_mirror", "round_oak": "round_mirror"}[spec["mirror"]]
+                if BT.bath_look(basin).get("install_wall"):
+                    fixture = "backlit_mirror"                # UL205: the long one over the installation wall
                 mirror = next((d for d in items if d.get("type") == "mirror" and _near(d, basin)), None)
                 if mirror is not None and mirror.get("fixture") != fixture:
                     f(basin["id"], room, f"the mirror over {basin['id']} in {room['id']} is not the {spec['family']} "

@@ -1833,7 +1833,8 @@ def plan_bath_made(piece: dict) -> Optional[dict]:
     product = {"stone_slab": "floating vanity with a 15 cm stone top and an integrated basin, an open shelf, a drawer",
                "fluted": "floating vanity, fluted fronts" + (", rounded ends" if look.get("rounded") else "")
                          + (", open lit end cubbies" if lay["end_cubbies"] else ""),
-               "curved": "curved-front floating vanity in a terrazzo apron"}[kind]
+               "curved": "curved-front floating vanity in a terrazzo apron",
+               "bench": "oak trestle bench with a lower shelf and a woven basket (UL205)"}[kind]
     basin = {"integrated": "integrated basin, wall mixer", "vessel": "vessel basin, tall deck mixer",
              "vessel_wall": "vessel basin, wall spout"}.get(str(lay["basin"]), str(lay["basin"]))
     return {"builder": "bath_set", "type": "washbasin", "variant": kind, "bath_look": dict(look),
@@ -1842,7 +1843,9 @@ def plan_bath_made(piece: dict) -> Optional[dict]:
                         _module("top", (w, d, lay["top"][1] - lay["top"][0]), (0.0, 0.0), str(look.get("top_key")),
                                 z_m=lay["top"][0], basins=len(lay["bowls"]))],
             "footprint_m": fp, "height_m": round(top, 4), "top_m": round(top, 4), "drawn_m": fp,
-            "fit": _fit_record((w, d), (w, d)), "products": [product, basin, "LED strip under it"],
+            "fit": _fit_record((w, d), (w, d)),
+            "products": [product, basin] + ([] if kind == "bench" else ["LED strip under it"])
+                        + (["on the installation wall's face (UL205)"] if look.get("install_wall") else []),
             "basins": len(lay["bowls"]), "items": BT.vanity_items(w, d, top, look),
             "notes": [f"{kind} floating vanity on the drawn {w:.2f} x {d:.2f} m basin (UL114 B3, UL123 B12, UL124 B21)"],
             "design": P.piece_design(piece)}

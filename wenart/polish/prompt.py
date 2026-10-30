@@ -296,7 +296,7 @@ DECOR_WORDS: dict[str, str] = {
     # 29 Oct 2026 (wenart.furniture.bath_details, UL114, UL123, UL124): the bathroom's accessories
     "toilet_paper_holder": "toilet paper holder", "toilet_brush": "toilet brush", "towel_rail": "heated towel rail",
     "towel_shelf": "towel shelf", "towel_bar": "towel bar", "feature_panel": "feature wall panel",
-    "cove_light": "cove light",
+    "cove_light": "cove light", "install_wall": "half-height installation wall with lit niches",   # UL205
     # 29 Oct 2026 (wenart.furniture.room_details, UL113, UL115): the reference photos' details
     "wall_niche": "lit wall niche with styled shelves", "intercom": "video intercom panel",
     "floor_vase": "floor vase with pampas grass", "art_leaning": "large art frame leaning on the wall",
