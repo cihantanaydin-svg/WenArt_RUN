@@ -2462,8 +2462,11 @@ def _bath_parts(plan: dict) -> list[Part]:
         # 29 Oct 2026 (UL114, UL123, UL124): the made-to-measure bath set (``plan_bath_made``)
         from wenart.blender import bath_parts as BT
         if plan["variant"] == "walk_in":
-            return BT.walk_in_shower_parts(w, d, float(plan["modules"][1]["size_m"][2]))
-        return BT.vanity_parts(w, d, float(plan["top_m"]), plan.get("bath_look") or {})
+            made = BT.walk_in_shower_parts(w, d, float(plan["modules"][1]["size_m"][2]))
+        else:
+            made = BT.vanity_parts(w, d, float(plan["top_m"]), plan.get("bath_look") or {})
+        # 30 Oct 2026: its back on the wall's face (bath_parts.seat_on_walls writes the gap on the plan's look too)
+        return BT.seat_parts(made, plan.get("bath_look"))
     if plan["type"] == "shower":
         return P._shower(w, d, plan["height_m"])
     for m in plan["modules"]:

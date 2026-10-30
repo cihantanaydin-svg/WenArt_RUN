@@ -402,6 +402,13 @@ def plan_building(building: dict, style: Optional[dict] = None) -> tuple[dict, l
         rec = plan_room(building, room, spec, why)
         out["rooms"][room["id"]] = rec
         records.append(dict(rec, room_id=room["id"]))
+    # 30 Oct 2026 (real04 run 201533: the flush plates inside the walls): the made-to-measure pieces' backs on their
+    # walls' faces (``bath_parts.seat_on_walls``; the build does it again for a building planned before)
+    seated = {r["id"]: r for r in BT.seat_on_walls(building)}
+    for rec in records:
+        for pid, prec in rec["pieces"].items():
+            if pid in seated:                      # (the records share their pieces with building["bath_details"])
+                prec["wall_gap_m"] = seated[pid]["gap_m"]
     return building, records
 
 

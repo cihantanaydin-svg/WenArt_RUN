@@ -116,6 +116,8 @@ LOOK_LAYERS: dict[str, dict] = {
     "knit": {"sheen": (0.45, 0.5), "bump": (0.6, 0.003, 0.007), "roughness": 0.9},
     "boucle": {"sheen": (0.5, 0.6), "bump": (0.75, 0.003, 0.004), "roughness": 0.95},
     "wool": {"sheen": (0.55, 0.5), "bump": (0.35, 0.0015, 0.004), "roughness": 0.9},
+    # 30 Oct 2026 (UL138): the towels' terry (no bedding look): a deep loop pile, a faint sheen on the loops' tips
+    "terry": {"sheen": (0.3, 0.7), "bump": (0.9, 0.0025, 0.0028), "roughness": 0.97},
 }
 PATTERN_WEAVE = "wool"           # a patterned blanket is a woven wool (its twill bump)
 PATTERN_REPEAT_M: dict[str, float] = {"houndstooth": 0.028, "stripe": 0.06, "herringbone": 0.04}

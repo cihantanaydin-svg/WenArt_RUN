@@ -1623,12 +1623,12 @@
    "id": "UL138",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I am guessing these orange things are towels, they need more detail, a lot more detail (30 Oct 2026, real04 run 20261029-201533-full bathroom: rolled towels as faceted cylinders, the hanging towel a flat slab)",
-   "lesson": "I am guessing these orange things are towels, they need more detail, a lot more detail (30 Oct 2026, real04 run 20261029-201533-full bathroom: rolled towels as faceted cylinders, the hanging towel a flat slab)",
+   "lesson": "Every towel of every bathroom reads as a real towel (wenart/blender/towel_parts.py, used by every towel of wenart/blender/bath_parts.py: the towel rail B7, the towel shelf B18, the towel bars B25, the walk-in shower's bar B16, the vanity's open shelf B3/B12 and the column's cubbies B5): cloth of a real thickness, a closed mesh with rounded edges, never a cylinder or a plate. A rolled towel shows its spiral end (2.25 turns of the folded cloth with a groove between them, the outer end lying on the roll), rounded turn edges, a little flattened on its shelf; a folded towel has one soft rounded fold at the front, its two layers and hems at the back (the upper one shorter, pillowed), and a stack is slightly uneven in place, turn and height; a towel over a bar has both layers (the front longer), a soft curve where it leaves the bar and a little belly under it, gentle vertical folds growing towards the hem, a slight sag, rounded hems and a flat-woven band near the front hem. The material is terry cloth (finishes fabric_terry: the wenart_weave loop pile as a deep bump, roughness 0.97) in the room's towel colour (B26), a pair's or a stack's second towel in its lighter shade (towel_parts.towel_shade), the band a smooth cotton weave in the same colour. Cheap: vertex lists in the host's one mesh (a roll under 700 faces, a folded towel under 600, a hanging towel with its band under 1800). Checks: tests/test_towels_20261030.py (closed meshes, the spiral, the folds and layers, the two layers over the bar, the band, the face counts, the terry material and its loop-pile bump).",
    "question": "Do the towels read as real towels: rolled with a spiral end, folded in soft stacks, hanging over the bar in two layers with a curve, folds and a hem band, in a terry-cloth material?"
   },
   {

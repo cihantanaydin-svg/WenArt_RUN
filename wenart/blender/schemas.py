@@ -104,7 +104,11 @@ _VEC3 = {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems"
 BOX3D = {
     "type": "object",
     "required": ["center", "size", "rotation_deg"],
-    "properties": {"center": _VEC3, "size": _VEC3, "rotation_deg": {"type": "number"}},
+    "properties": {"center": _VEC3, "size": _VEC3, "rotation_deg": {"type": "number"},
+                   # 30 Oct 2026 (optional): a furniture mesh's convex plan outline in the box frame about its centre
+                   # (geom2d.plan_outline), read by the GPU index-pass test
+                   "outline": {"type": "array", "minItems": 3,
+                               "items": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}}},
 }
 PIXEL_BOX = {"type": "array", "items": {"type": "integer"}, "minItems": 4, "maxItems": 4}
 INDEX_STATS = {

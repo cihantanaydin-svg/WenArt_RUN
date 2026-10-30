@@ -928,6 +928,18 @@ def camera_problems(building: dict, cam: dict) -> list[dict]:
             out.append(_v("V1", "major", name, f"{name} is {d:.2f} m from the door {oid} (at least "
                                                f"{DOOR_CLEARANCE_M:g} m)", room_id=rid, door=oid, distance=d))
     h = z - floor
+    if level and room.get("id") not in set(level.get("open_rooms") or ()):
+        # 30 Oct 2026 (real04 run 20261029-201533-full, cam_r_L1_banyo_1: an agent pose 0.21 m over the sloped ceiling
+        # rendered black, every fixture absent from its index pass): a lens over its room's ceiling, or nearer it than
+        # the clip start, sees the ceiling's back
+        from wenart.blender import camsearch as CS
+
+        ceiling = min(CS.ceiling_above_floor(level, (x, y)), float(level.get("ceiling_height") or math.inf))
+        if h > ceiling - CS.LENS_CEILING_M:
+            out.append(_v("V1", "critical", name, f"{name} stands {h:.2f} m over its floor, over (or within "
+                                                   f"{CS.LENS_CEILING_M:g} m of) its room's ceiling at {ceiling:.2f} m "
+                                                   "there: it sees the back of the ceiling", room_id=rid,
+                          eye_m=h, ceiling_m=round(ceiling, 3)))
     if not EYE_RANGE_M[0] - 1e-3 <= h <= EYE_RANGE_M[1] + 1e-3:
         out.append(_v("V1", "major" if h < 1.0 or h > 1.8 else "minor", name,
                       f"{name}: eye height {h:.2f} m (wanted {EYE_RANGE_M[0]:g}-{EYE_RANGE_M[1]:g} m)", room_id=rid,

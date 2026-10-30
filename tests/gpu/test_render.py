@@ -743,12 +743,39 @@ def _library_box_edge_only(building: dict, plan: dict, piece_id: str, box3d: dic
     return camsearch.model_shares(model, plan).get(piece_id, 0.0) < MODEL_HIDDEN_SHARE
 
 
+def _library_outline_hidden(building: dict, plan: dict, piece_id: str, box3d: dict) -> bool:
+    """True when the model does not see a library piece modelled as its built mesh (30 Oct 2026): the scene manifest's
+    ``box3d`` has the footprint centre and the fitted width and depth (± ``BOX3D_TOLERANCE_M``: the mesh stands where
+    the model puts it, as ``_library_box_edge_only`` asks) and the piece as the prism of the mesh's convex plan outline
+    (``box3d.outline``, ``camsearch.piece_with_outline``) has a model share under ``MODEL_HIDDEN_SHARE``: a freestanding
+    tub's rounded end leaves its box's corner empty, whatever its type."""
+    from wenart.blender import camsearch
+
+    pieces = building.get("furniture") or []
+    piece = next((f for f in pieces if f.get("id") == piece_id), None)
+    asset = (piece or {}).get("asset") or {}
+    box = box3d.get(piece_id)
+    if asset.get("method") != "library" or not asset.get("bbox_m") or not box:
+        return False
+    if math.dist([float(v) for v in box["center"][:2]], [float(v) for v in piece["footprint"]["center"][:2]]) \
+            > BOX3D_TOLERANCE_M:
+        return False
+    width, depth = (float(v) for v in asset["bbox_m"][:2])
+    if abs(float(box["size"][0]) - width) > BOX3D_TOLERANCE_M or abs(float(box["size"][1]) - depth) > BOX3D_TOLERANCE_M:
+        return False
+    shaped = camsearch.piece_with_outline(piece, box)
+    if shaped is None:
+        return False
+    model = dict(building, furniture=[shaped if f is piece else f for f in pieces])
+    return camsearch.model_shares(model, plan).get(piece_id, 0.0) < MODEL_HIDDEN_SHARE
+
+
 def test_index_pass_contains_every_visible_proxy(project):
     name, scene, render = project
     table = scene["pass_index"]
     plans = {c["name"]: c for c in scene["cameras"]}
     box3d = {o["wenart_id"]: o.get("box3d") for o in scene.get("objects") or [] if o.get("kind") == "furniture"}
-    missing, hidden, edge, see_through = [], [], [], []
+    missing, hidden, edge, see_through, outline = [], [], [], [], []
     building = None
     for r in render["renders"]:
         plan = plans.get(r["camera"])
@@ -776,6 +803,13 @@ def test_index_pass_contains_every_visible_proxy(project):
             edge_only = [f for f in absent if _library_box_edge_only(building, plan, f, box3d, shares.get(f))]
             edge.extend((r["camera"], f, round(shares[f], 4)) for f in edge_only)
             absent = [f for f in absent if f not in edge_only]
+            # 30 Oct 2026 (real04 run 20261029-201533-full, cam_r_L-1_banyo_1 / cam_r_L0_banyo_1: freestanding library
+            # tubs whose fitted box's corner lies in the frame's edge, their rounded ends off it; fixed equipment keeps
+            # the 2 cm box slack above): the model with the piece as its built mesh's convex outline (box3d.outline)
+            # sees none of it either
+            shaped = [f for f in absent if _library_outline_hidden(building, plan, f, box3d)]
+            outline.extend((r["camera"], f) for f in shaped)
+            absent = [f for f in absent if f not in shaped]
             # 26 Oct 2026 (pod 5fr7dp2g1co4sx, real06 cam_r_L0_banyo_3: a quadrant shower enclosure of glass doors, its
             # tray under the frame): the object index pass skips see-through glass, so a glass enclosure seen only
             # through its panes leaves no index pixel
@@ -791,6 +825,8 @@ def test_index_pass_contains_every_visible_proxy(project):
               f"(allowed; camera, piece, model share): {edge}")
     if see_through:
         print(f"{name}: glass enclosures seen through their panes only (allowed; camera, piece): {see_through}")
+    if outline:
+        print(f"{name}: library meshes whose built outline the model does not see (allowed; camera, piece): {outline}")
     assert not missing, f"{name}: proxies planned in the frustum but absent from the index pass: {missing}"
 
 
