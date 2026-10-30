@@ -776,3 +776,19 @@ def test_a_full_job_gets_its_container_disk_without_the_flag():
     assert G.job_disk("scripts/jobs/full.sh", None) >= 150
     assert G.job_disk("scripts/jobs/fetch_results.sh", None) == G.CONTAINER_DISK_GB
     assert G.job_disk("scripts/jobs/full.sh", 60) == 60                  # the flag wins
+
+
+def test_a_job_skips_cards_under_its_gpu_memory():
+    """30 Oct 2026 (pod wqndpe64mj6edl): the full job's agent server needs ~56 GB beside Blender; with the RTX PRO 6000
+    out of stock in the volume's data centre the runner took a 24 GB RTX PRO 4000. A smaller card is skipped."""
+    cat = [{"name": "RTX PRO 6000", "id": "p6", "memory": 96, "price": {"secure": 2.49}, "availability": "NONE"},
+           {"name": "RTX PRO 4000", "id": "p4", "memory": 24, "price": {"secure": 0.57}, "availability": "LOW"},
+           {"name": "H100 SXM", "id": "h1", "memory": 80, "price": {"secure": 3.99}, "availability": "LOW"}]
+    assert gpu_run.job_min_vram("scripts/jobs/full.sh") == 80 and gpu_run.job_min_vram("scripts/jobs/smoke.sh") == 0
+    assert gpu_run.pick_gpu(cat, None, None, min_memory=80)["name"] == "H100 SXM"
+    stock = {"RTX PRO 6000": "NONE", "RTX PRO 4000": "LOW", "H100 SXM": "NONE"}    # the volume's DC that evening
+    assert gpu_run.pick_gpu(cat, stock, None)["name"] == "RTX PRO 4000"          # before: the 24 GB card
+    with pytest.raises(RuntimeError, match="the job needs 80 GB"):
+        gpu_run.pick_gpu(cat, stock, None, min_memory=80)                         # now: no pod, a clear reason
+    with pytest.raises(RuntimeError, match="the job needs 80 GB"):
+        gpu_run.pick_gpu(cat, None, "RTX PRO 4000", min_memory=80)

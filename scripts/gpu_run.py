@@ -78,6 +78,18 @@ CONTAINER_DISK_GB = 30
 JOB_DISK_GB = {"scripts/jobs/full.sh": 150}
 
 
+# 30 Oct 2026 (pod wqndpe64mj6edl): the GPU memory a job needs when ``--gpu`` is not given. The full job keeps the
+# agent server (Qwen3.8-27B-FP8, ~56 GB on the GPU) up while Blender renders beside it; the RTX PRO 6000 was out of
+# stock in the volume's data centre and the runner took the first card in stock, a 24 GB RTX PRO 4000 (stopped after
+# 2 min). A card under the job's memory is skipped like one out of stock.
+JOB_MIN_VRAM_GB = {"scripts/jobs/full.sh": 80}
+
+
+def job_min_vram(job: str) -> int:
+    """The least GPU memory (GB) of a run of ``job``: its ``JOB_MIN_VRAM_GB``, else 0 (the 24 GB floor of the list)."""
+    return int(JOB_MIN_VRAM_GB.get(job, 0))
+
+
 def job_disk(job: str, disk) -> int:
     """The container disk of a run: ``--disk`` when given, else the job's ``JOB_DISK_GB``, else ``CONTAINER_DISK_GB``."""
     return int(disk) if disk else JOB_DISK_GB.get(job, CONTAINER_DISK_GB)
@@ -194,8 +206,9 @@ def action_price_limit(minutes: int, over_5_ok: bool = False, count: int = 1) ->
 
 
 def pick_gpu(catalog: list[dict], dc_avail: dict[str, str] | None, want: str | None,
-            max_price: float = MAX_PRICE_PER_H) -> dict:
-    """Choose a GPU from the live catalog. Raises with a clear message if none fits."""
+            max_price: float = MAX_PRICE_PER_H, min_memory: int = 0) -> dict:
+    """Choose a GPU from the live catalog. Raises with a clear message if none fits. ``min_memory``: the job's GPU
+    memory in GB (``job_min_vram``); a smaller card is skipped, also when named with ``--gpu``."""
     by_name = {g["name"]: g for g in catalog}
     if want in EXCLUDED_GPUS:
         raise RuntimeError(f"{want} is not allowed (excluded GPUs: {', '.join(EXCLUDED_GPUS)})")
@@ -205,6 +218,9 @@ def pick_gpu(catalog: list[dict], dc_avail: dict[str, str] | None, want: str | N
         g = by_name.get(name)
         if not g:
             reasons.append(f"{name}: not in catalog")
+            continue
+        if min_memory and int(g.get("memory") or 0) < min_memory:
+            reasons.append(f"{name}: {g.get('memory')} GB, the job needs {min_memory} GB")
             continue
         price = g["price"]["secure"]
         if price is None or price > max_price:
@@ -975,7 +991,8 @@ def cmd_run(a: argparse.Namespace) -> int:
     dc = volume["dataCenter"] if volume else None
     count = getattr(a, "gpu_count", 1) or 1
     gpu = pick_gpu(catalog(), dc_availability(dc) if dc else None, a.gpu,
-                   max_price=action_price_limit(minutes, getattr(a, "over_5_ok", False), count))
+                   max_price=action_price_limit(minutes, getattr(a, "over_5_ok", False), count),
+                   min_memory=job_min_vram(job))
     today = spent_today(pods)
     check_limits(gpu["price"], minutes, today, count)
     worst = gpu["price"] * count * minutes / 60
