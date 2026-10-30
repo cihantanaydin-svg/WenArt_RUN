@@ -644,6 +644,10 @@ def window_geometry_m10(style: dict, opening: Optional[dict] = None) -> bool:
     frame = _slot(style, "window_frame")
     if frame.get("colour") or frame.get("material") in M10_FRAME_MATERIALS:
         return True
+    # 30 Oct 2026 (lesson UL210): a window of a facade composition (window_order) is the real product, like its
+    # partners: its transom, its fixed lower light and its satin glass are the product's
+    if isinstance(opening, dict) and opening.get("composition"):
+        return True
     return _count(opening, "mullions") > 0 or _count(opening, "transoms") > 0
 
 

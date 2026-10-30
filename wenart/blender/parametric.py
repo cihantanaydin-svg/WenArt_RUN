@@ -3922,6 +3922,31 @@ WINDOW_PRODUCT: dict[str, float] = {
     "pull_w": 0.018, "pull_d": 0.025, "pull_h": 0.35,  # a slider's pull bar
     "track_h": 0.02, "handle_z": 1.05,                 # a slider's track; the handles' height over the floor
 }
+TRANSOM_LIGHT_MIN_M = 0.15        # UL210: a fixed lower light and the light above a transom are at least this tall
+
+
+def fixed_light_parts(look: dict | None, width: float, height: float, wall_thickness: float, inside: int = -1,
+                      glass_key: str = "glass") -> list[Part]:
+    """A fixed light ``width`` x ``height`` (pure; 30 Oct 2026, lesson UL210): the lower light under a library window
+    whose composition gives it a transom (``window_order``): the frame ring in the material's profile, its top rail the
+    transom under the window above, a glazing bead, the gasket and the glass (``glass_key``; ``satin`` in a wet room).
+    Window frame as ``window_product_parts``: x across, y through the wall (the room on ``inside``), z from the sill."""
+    fw, depth = window_profile((look or {}).get("material"))
+    w, h = float(width), float(height)
+    depth = min(depth, float(wall_thickness))
+    wp = WINDOW_PRODUCT
+    s = -1.0 if inside < 0 else 1.0
+    parts = _ring(0.0, 0.0, 0.0, w, h, fw, depth, "frame", "frame")
+    cw, ch = w - 2.0 * fw, h - 2.0 * fw
+    bd = depth * wp["bead_depth_share"]
+    yb = s * (depth / 2.0 - bd / 2.0)
+    parts += _ring(0.0, yb, fw, cw, ch, wp["bead_face"], bd, "frame", "bead")
+    gw, gh, gz = cw - 2.0 * wp["bead_face"], ch - 2.0 * wp["bead_face"], fw + wp["bead_face"]
+    y_room = s * (depth / 2.0 - bd - wp["gasket_depth"] / 2.0)
+    parts += _ring(0.0, y_room, gz, gw, gh, wp["gasket_face"], wp["gasket_depth"], "gasket", "gasket")
+    parts.append(_box(0.0, 0.0, gz, gw - 2.0 * wp["gasket_face"] + 0.002, 0.006, gh - 2.0 * wp["gasket_face"] + 0.002,
+                      glass_key, "glass"))
+    return parts
 
 
 def window_division(width: float, sill: float | None, mullions: int = 0) -> dict:
@@ -3962,7 +3987,8 @@ def _ring(cx: float, cy: float, z0: float, w: float, h: float, face: float, dept
 
 
 def window_product_parts(look: dict | None, width: float, height: float, wall_thickness: float, mullions: int = 0,
-                         transoms: int = 0, inside: int = -1, sill: float | None = None
+                         transoms: int = 0, inside: int = -1, sill: float | None = None,
+                         transom_at: float | None = None, glass_keys: tuple[str, str] = ("glass", "glass")
                          ) -> tuple[list[Part], dict]:
     """``(parts, record)`` of a window as a real product (the comment above): the outer frame in the material's
     profile (``window_profile``; key and role ``frame``), its inner step ring (role ``frame``), the panes of
@@ -3971,7 +3997,11 @@ def window_product_parts(look: dict | None, width: float, height: float, wall_th
     role ``gasket``), the glass (role ``glass``), the bars between the panes (role ``mullion``), a slider's track (role
     ``track``), the handles on the opening panes' room side (key and role ``handle``: a rose and a lever on a
     casement, a pull bar on a slider) and the inside sill (``window_parts``'s). Window frame: x across the opening,
-    y through the wall (the room on ``inside``), z from the sill."""
+    y through the wall (the room on ``inside``), z from the sill.
+
+    30 Oct 2026 (lesson UL210, ``window_order``): ``transom_at`` (metres over the frame's bottom) divides every pane
+    into a fixed lower light (a glazing bead) and the light above it (the sash of an opening pane), with a transom bar
+    between them; ``glass_keys`` = (lower, upper) glass keys (``satin``: satin glass, a wet room's privacy)."""
     fw, depth = window_profile((look or {}).get("material"))
     w, h = float(width), float(height)
     depth = min(depth, float(wall_thickness))
@@ -3989,29 +4019,48 @@ def window_product_parts(look: dict | None, width: float, height: float, wall_th
     pw = (iw - (n - 1) * mf) / n
     tr = max(0, int(transoms or 0))
     opening = set(div["opening"])
+    # UL210: the transom of a fixed lower light, when it leaves real lights below and above it
+    cut = None
+    if transom_at is not None and iz + TRANSOM_LIGHT_MIN_M <= float(transom_at) <= iz + ih - TRANSOM_LIGHT_MIN_M:
+        cut = float(transom_at)
     x0 = -iw / 2.0
-    for i in range(n):
-        cx = x0 + pw / 2.0
-        if i in opening:
+
+    def light(cx: float, z0: float, lh: float, sash: bool, key: str) -> tuple[list[Part], float, float, float, float]:
+        """One light of a pane: its sash or bead ring, the gasket, the glass; ``(parts, gx, gz, gw, gh)``."""
+        out: list[Part] = []
+        if sash:
             sd = depth * wp["sash_depth_share"]
-            parts += _ring(cx, 0.0, iz, pw, ih, wp["sash_face"], sd, "frame", "sash")
-            gx, gz, gw, gh = cx, iz + wp["sash_face"], pw - 2.0 * wp["sash_face"], ih - 2.0 * wp["sash_face"]
+            out += _ring(cx, 0.0, z0, pw, lh, wp["sash_face"], sd, "frame", "sash")
+            gx, gz, gw, gh = cx, z0 + wp["sash_face"], pw - 2.0 * wp["sash_face"], lh - 2.0 * wp["sash_face"]
             y_room = s * (sd / 2.0 + wp["gasket_depth"] / 2.0 - 0.001)
         else:
             bd = depth * wp["bead_depth_share"]
             yb = s * (depth / 2.0 - bd / 2.0)
-            parts += _ring(cx, yb, iz, pw, ih, wp["bead_face"], bd, "frame", "bead")
-            gx, gz, gw, gh = cx, iz + wp["bead_face"], pw - 2.0 * wp["bead_face"], ih - 2.0 * wp["bead_face"]
+            out += _ring(cx, yb, z0, pw, lh, wp["bead_face"], bd, "frame", "bead")
+            gx, gz, gw, gh = cx, z0 + wp["bead_face"], pw - 2.0 * wp["bead_face"], lh - 2.0 * wp["bead_face"]
             y_room = s * (depth / 2.0 - bd - wp["gasket_depth"] / 2.0)
-        parts += _ring(gx, y_room, gz, gw, gh, wp["gasket_face"], wp["gasket_depth"], "gasket", "gasket")
-        parts.append(_box(gx, 0.0, gz, gw - 2.0 * wp["gasket_face"] + 0.002, 0.006, gh - 2.0 * wp["gasket_face"]
-                          + 0.002, "glass", "glass"))
+        out += _ring(gx, y_room, gz, gw, gh, wp["gasket_face"], wp["gasket_depth"], "gasket", "gasket")
+        out.append(_box(gx, 0.0, gz, gw - 2.0 * wp["gasket_face"] + 0.002, 0.006, gh - 2.0 * wp["gasket_face"]
+                        + 0.002, key, "glass"))
+        return out, gx, gz, gw, gh
+
+    for i in range(n):
+        cx = x0 + pw / 2.0
+        oz, oh = iz, ih                                    # the light that opens (the whole pane, or above the cut)
+        if cut is not None:
+            low, *_ = light(cx, iz, cut - iz - MULLION_W / 2.0, False, glass_keys[0])
+            parts += low
+            parts.append(_box(cx, 0.0, cut - MULLION_W / 2.0, pw, depth * 0.9, MULLION_W, "frame", "transom"))
+            oz, oh = cut + MULLION_W / 2.0, iz + ih - cut - MULLION_W / 2.0
+        up, gx, gz, gw, gh = light(cx, oz, oh, i in opening, glass_keys[1] if cut is not None else glass_keys[0])
+        parts += up
         for j in range(1, tr + 1):
             z = gz + gh * j / (tr + 1)
             parts.append(_box(gx, 0.0, z - MULLION_W / 2.0, gw, depth * 0.7, MULLION_W, "frame", "transom"))
         if i in opening:
             face_y = s * (depth * wp["sash_depth_share"] / 2.0)
-            hz = min(max(wp["handle_z"] - (float(sill) if sill is not None else 0.9), ih * 0.3), ih * 0.7) + iz
+            hz = min(max(wp["handle_z"] - (float(sill) if sill is not None else 0.9) - (oz - iz), oh * 0.3),
+                     oh * 0.7) + oz
             if kind == "slider":
                 edge = cx - pw / 2.0 + wp["sash_face"] / 2.0 if i > 0 else cx + pw / 2.0 - wp["sash_face"] / 2.0
                 parts.append(_box(edge, face_y + s * wp["pull_d"] / 2.0, hz - wp["pull_h"] / 2.0, wp["pull_w"],
@@ -4040,6 +4089,10 @@ def window_product_parts(look: dict | None, width: float, height: float, wall_th
               "profile_assumed": True,
               "product": {"kind": kind, "panes": n, "opening": sorted(opening), "drawn": div["drawn"],
                           "why": div["why"], "lesson": "UL197", "pane_width_m": round(pw, 4)}}
+    if cut is not None:
+        record["product"]["lower_light"] = {"transom_m": round(cut, 4), "glass": glass_keys[0], "lesson": "UL210"}
+    if "satin" in glass_keys[1:] or (cut is None and glass_keys[0] == "satin"):
+        record["product"]["glass"] = "satin"
     return parts, record
 
 

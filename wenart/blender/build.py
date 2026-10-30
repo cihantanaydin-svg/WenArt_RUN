@@ -1281,6 +1281,19 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
                                    "reason": c["reason"], "kind": "opening_clipped_by_roof", "parent": c["opening_id"]})
             if not c["fits"]:
                 out["warnings"].append(f"{c['opening_id']}: {c['reason']}")
+    # 30 Oct 2026 (lessons UL211, UL210, user on real06: "This window all the way to the edge of a wall not making any
+    # sense", "Big windows next to small windows not making any sense"): a window keeps a pier to its facade's corner,
+    # then the windows side by side on one facade line take one sill and one head (window_order); the curtains follow
+    from wenart.blender import window_order as WO
+    out["window_piers"] = WO.piers(vb, style_family)
+    out["window_groups"] = WO.compose(vb, head_limit=head_limit)
+    for kind in ("window_pier", "window_group"):
+        for r in out["window_piers" if kind == "window_pier" else "window_groups"]:
+            if r["action"] == "kept":
+                out["warnings"].append(r["why"])
+            else:
+                out["assumed"].append({"object": r["id"], "field": kind, "value": r["action"], "reason": r["why"],
+                                       "kind": kind, "parent": r["id"]})
     # 30 Oct 2026 (lesson UL181, user on real04's play room: "This window and curtain arrangement needs a rework"): the
     # curtains and blinds follow their windows as the answers and the clips leave them (the decor stage fitted them to
     # the drawn windows; an answer widened the play room's to 4 m and the curtain hung mid-glass)

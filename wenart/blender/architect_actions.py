@@ -2201,6 +2201,7 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
         elif opt == "keep":
             rec.update(ok=True, change=None)
         else:
+            placed = _window_places(plan)
             try:
                 if opt == "move_window_to_outer_wall":
                     ok, text = act_move_window(plan, key, ans, params.get("window_id") or target,
@@ -2292,6 +2293,18 @@ def apply_answers(building: dict, answers: dict, head_limit=None) -> list[dict]:
                     ok, text = False, f"unknown option {opt!r}"
             except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
                 ok, text = False, f"{opt} failed: {type(exc).__name__}: {exc}"
+            # 30 Oct 2026 (lesson UL211): a window the answer moved, widened or added keeps its pier to the facade's
+            # corner like a drawn one (window_order.piers; build.prepare checks every window again)
+            changed = tuple(i for i, at in _window_places(plan).items() if placed.get(i) != at) if ok else ()
+            if changed:
+                from wenart.blender import window_order as WO
+                text = "; ".join([text] + [r["why"] for r in WO.piers(building, only=changed)])
             rec.update(ok=bool(ok), change=text)
         out.append(rec)
     return out
+
+
+def _window_places(plan: Plan) -> dict:
+    """Every window's wall, centre and width (what a move, a widening or a new window changes)."""
+    return {o["id"]: (o.get("wall_id"), tuple(o.get("center") or ()), o.get("width"))
+            for o in plan.b.get("openings") or [] if o.get("type") == "window"}

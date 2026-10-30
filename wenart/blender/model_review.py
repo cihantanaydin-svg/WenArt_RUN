@@ -162,6 +162,11 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   the scheme asks one fixture (a track with mini pendants, a linear pendant), a dining table without its centrepiece
   set, a low wall-backed TV unit standing on the floor, a TV wall without its lit niches and no reason recorded, a
   near-square coffee table not a round drum. Minor; kind ``taste``; the decor stage owns it.
+- M36 one facade, one window language (30 Oct 2026, lessons UL210, UL211, user on real06 run 20261029-100801-full: "Big
+  windows next to small windows not making any sense", "This window all the way to the edge of a wall not making any
+  sense"; ``window_order.review``): windows side by side on one facade line (less than 0.6 m apart) on different sill
+  or head lines, a window with less than 0.40 m of wall to its facade's outer corner. Major; kind ``no_sense``; the
+  build's ``window_order`` (piers, then compose) owns it, the reason it kept a window is in the build's warnings.
 - M24 every chimney as a builder makes it (29 Oct 2026, lesson UL109, user on real06 run 20261028-154514-full: "There
   are no chimneys there could be some chimney in the projects"; ``chimney.measure``), on the scene's chimney records
   (their bottom as built), else the plan's: a chimney off the roof (it does not reach the roof) or floating over its
@@ -238,6 +243,7 @@ CHECKS = CHECKS + ("M33",)      # 30 Oct 2026: M33 soft seats as soft, well-made
 CHECKS = CHECKS + ("M32",)      # 30 Oct 2026: M32 wall items clear of openings, each other, what stands in front (UL134,
 #                                 UL139, wall_items.review)
 CHECKS = CHECKS + ("M34",)      # 30 Oct 2026: M34 the living-dining rooms against photo P16 (UL153, salon_details)
+CHECKS = CHECKS + ("M36",)      # 30 Oct 2026: M36 one facade, one window language (UL210, UL211, window_order)
 HUNG_DECOR = ("pendant_light", "ceiling_light")     # M14: decor hung from the ceiling
 FIX_HANG = ("connect it to the ceiling over it: a cord or rod and a canopy from its top (furniture.hang_plan), or lift "
             "it until its own top meets the ceiling")
@@ -1587,6 +1593,17 @@ def review(built: dict, scene_manifest: Optional[dict] = None, prep: Optional[di
                              other=g["other"], lesson=g["lesson"]), fix=FIX_WALL_ITEMS) for g in got], n)
     except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
         checks["M32"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
+    # M36 (30 Oct 2026, lessons UL210, UL211): windows side by side on one facade line on one sill and one head line,
+    # every window clear of its facade's outer corner (window_order.review, on the building as built; pure)
+    try:
+        from wenart.blender import window_order as WO
+
+        family = (prep or {}).get("style_family") or ((scene_manifest or {}).get("style_profile") or {}).get("family")
+        got, n = WO.review(built, family, check="M36")
+        note("M36", [dict(_v("M36", g["severity"], g["target"], g["message"], room_id=g["room_id"],
+                             kind="no_sense", problem=g["kind"], lesson=g["lesson"]), fix=FIX_WINDOWS) for g in got], n)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError, AttributeError, IndexError, ImportError) as exc:
+        checks["M36"] = {"status": "error", "note": f"{type(exc).__name__}: {exc}"}
     # M19 / M22 (29 Oct 2026, the user on real06: "This washing machine would not open", "this sink not making sense
     # there", "There is a gap between wall and water faucet not looking good"): fronts that open, basins under a solid
     # wall, backs on their walls, on the building as built (pure)
@@ -1653,6 +1670,9 @@ def soft_seats_review(manifest: Optional[dict]) -> tuple[list[dict], int]:
     return out, n
 
 
+FIX_WINDOWS = ("the build's window order (wenart.blender.window_order: the corner pier, moving the window along its wall "
+               "or narrowing it from the corner side; the facade group's sill and head lines with a fixed lower light "
+               "under a transom where a window needs a higher sill); a window the documents fix: the architect")
 FIX_WALL_ITEMS = ("the decor stage's and the build's wall-item pass (wenart.blender.wall_items.resolve: raise the "
                   "item over what stands below it, move it along its wall or to another free wall, else leave it "
                   "out); a hung piece of the drawing over an opening: the layout or the architect")
