@@ -416,8 +416,8 @@ def test_scene_builds_windows_with_bars_and_sills_and_coloured_surfaces(doors_sc
     # coloured floor, ceiling and trim (skirting, door frames)
     floor, ceiling = entries["r_a_floor"], entries["r_b_ceiling"]
     assert floor["material"].startswith("microcement__warm_greige")
-    assert ceiling["material"].startswith("plaster_white__sage")
+    assert ceiling["material"].startswith("plaster_white__ceiling__sage")          # the ceiling slot keeps its own name
     assert m["materials"][floor["material"]]["colour_applied"] and m["materials"][ceiling["material"]]["colour_applied"]
     skirting = [o for o in m["objects"] if (o.get("assumed") or {}).get("detail") == "skirting"]
     assert skirting and all(o["material"].startswith("painted_wood_white__charcoal") for o in skirting)
-    assert entries["d_entry_frame"]["material"].startswith("painted_wood_white__charcoal")
+    assert entries["d_entry_frame"]["material"].startswith("painted_wood_white__black")      # D2: modern frames black

@@ -2144,24 +2144,24 @@
    "id": "UL181",
    "date": "2026-10-30",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "This window and curtain arrangement needs a rework (30 Oct 2026, real04 run 20261030-112241-full, the top-floor play room facing the terrace: a wide frameless glazing with two short curtain panels hanging in the middle of the glass, not at its sides, no rod or track visible, nothing dividing the glass)",
-   "lesson": "This window and curtain arrangement needs a rework (30 Oct 2026, real04 run 20261030-112241-full, the top-floor play room facing the terrace: a wide frameless glazing with two short curtain panels hanging in the middle of the glass, not at its sides, no rod or track visible, nothing dividing the glass)",
+   "lesson": "A window's curtains hang as a designer hangs them, on every project. The rod or track runs 0.20 m past both sides of the whole glazing, kept 0.1 m off other doors and windows and inside the wall's ends. The two panels stack at the glazing's ends and reach the floor (sill length only where furniture stands under it). The rod stands 0.15 m over the window's head, under the ceiling, or just under a sloped ceiling. The build fits every curtain and blind again to its window as built (window_decor.refit in build.prepare, after the architect's answers and the roof clips): an answer that widens, moves or raises a window takes its curtain with it, the dressing's depth, drop and layers kept and the change logged. A curtain whose window leaves no room is not built, with its reason. Real04 run 20261030-112241-full: the play room's window grew from 2.0 to 4.0 m after the decor stage and its 2.4 m curtain hung mid-glass.",
    "question": "Do curtains hang from a rod or track past the opening, stacked at the sides, floor length, and is wide glazing divided into real panes?"
   },
   {
    "id": "UL182",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "These kind of wardrobes can be used in other rooms also, it can go all the way to the ceiling it can have glass sections I did gave an inspiration before (30 Oct 2026, real04 run 20261030-112241-full, a green bedroom: a dark wardrobe run with horizontal slatted sliding fronts and a lit interior; the user wants this kind in other rooms too, full height to the ceiling, with glass sections, as in their earlier inspiration photos)",
-   "lesson": "These kind of wardrobes can be used in other rooms also, it can go all the way to the ceiling it can have glass sections I did gave an inspiration before (30 Oct 2026, real04 run 20261030-112241-full, a green bedroom: a dark wardrobe run with horizontal slatted sliding fronts and a lit interior; the user wants this kind in other rooms too, full height to the ceiling, with glass sections, as in their earlier inspiration photos)",
+   "lesson": "See-through wardrobes are a regular bedroom option in the families that use them, not only for dressing rooms. Each bedroom gets its own front: the master the family's, the rest through the room scheme, never repeating while options last, twins matching, the architect's answer winning. The options are black slats, slats with smoked or reeded glass doors, smoked glass and reeded glass. Every see-through run goes to 5 mm under the ceiling with a top box (lidded boxes, baskets, an LED strip) and full-height doors, unless a window is beside it; a drawn height is kept. A ceiling light over the run moves off it (at most 0.40 m, logged). Lit interiors with real contents stay; classic, rustic and mediterranean homes keep closed fronts.",
    "question": "Do the wardrobes of the bedrooms use the see-through, full-height, partly glazed fronts the user liked, where the room allows?"
   },
   {
@@ -2276,12 +2276,12 @@
    "id": "UL192",
    "date": "2026-10-30",
    "area": "access",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Something wrong with the stairs needs fixing (30 Oct 2026, real04 run 20261030-112241-full, the interior stair seen from below: oak treads with the wall's slat texture on the risers, a black glass-panel balustrade, a grey bar floating across the flight at mid height, a black stringer slab crossing the lower steps and a grey block at its foot)",
-   "lesson": "Something wrong with the stairs needs fixing (30 Oct 2026, real04 run 20261030-112241-full, the interior stair seen from below: oak treads with the wall's slat texture on the risers, a black glass-panel balustrade, a grey bar floating across the flight at mid height, a black stringer slab crossing the lower steps and a grey block at its foot)",
+   "lesson": "A stair is one piece. Its structure is never the walls' feature finish (wood, stone, brick, wallpaper, tiles): it takes the plain paint in the walls' colour. A floor opening's guard never runs inside the footprint of a stair its own level builds; that stair's balustrade guards it (a gallery over the stair below keeps its guard). Over winders the rail climbs with them. A flight's handrail cover is measured between its first and last nosing, the same way in build and review, and a wall rail is added where the open-side rail is cut. Every build records stair_rails.envelope_review: no stair part off, under, over or floating above its stair, and nothing else in its walking zone; M18 reports it, and a guard across a flight is critical. Real04 run 20261030-112241-full: slatted risers from the wall finish and the floor opening's glass guard across the first flight.",
    "question": "Is every stair built as one coherent product (stringers, treads, risers in the stair's own finish, one balustrade and handrail, nothing floating or crossing the flight)?"
   },
   {
@@ -2336,12 +2336,12 @@
    "id": "UL197",
    "date": "2026-10-30",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Give more detail to window frames (30 Oct 2026, real04 run 20261030-112241-full: the window frames are plain flat bronze bars)",
-   "lesson": "Give more detail to window frames (30 Oct 2026, real04 run 20261030-112241-full: the window frames are plain flat bronze bars)",
+   "lesson": "Every window is built as a real product (parametric.window_product_parts). The frame is in the family's material profile with a stepped inner ring. Each opening pane sits in its own sash with a handle (a rose and lever on a casement, a pull bar on a slider); each fixed pane sits behind a glazing bead. Every pane shows a dark gasket line at the glass, mullions stand between the panes, and a slider has a track at its foot. A glazing wider than 2.4 m with no drawn bars is divided into real products: lift-and-slide panes of at most 2.0 m on a low sill (at most 0.45 m), else casements of at most 1.2 m. Drawn bars still decide. The handles are a separate detail object, and the manifest records the product (kind, panes, opening panes, why).",
    "question": "Do the window frames show real profiles (outer frame, sashes, beads, sills, handles)?"
   },
   {
