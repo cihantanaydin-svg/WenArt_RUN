@@ -238,6 +238,21 @@ hanging a fixture of its own beside them: the dining pendant's light is shared o
 the table (``rig_row_hosts``) when none hangs at the table's centre, and a ceiling fixture's light over the room's
 decor ceiling lights when none hangs at its spot (one spot rooms; each hosted light records its share in its reason).
 A room without a decor light keeps the rig's own fixture, as before.
+
+30 Oct 2026 (lesson UL170, user on real04 run 20261030-043021-full: "These 2 lights together not making sense, keep the
+black one and make it give light"; tests/test_pendant_light_20261030.py). What: a decor pendant (a single one, a
+cluster, a linear pendant, a track of mini pendants) is its zone's light. A rig ceiling spot within ``PENDANT_ZONE_M``
+of a pendant's footprint hangs no fixture of its own: the spot goes to ``dropped`` (``rule``
+``lighting.pendant_zone``, ``replaced_by``, ``spot``, ``distance_m``, ``lumens``, the reason) and its light into the
+pendant, shared over its bulbs (``pendant_bulbs``: a track's mini pendants, a linear pendant's bar every
+``PENDANT_LINEAR_PITCH_M``, the "N-light" of a library model's title) as warm point lights (kind ``ceiling``: the
+room's ceiling light moved, so ``rig_replaces_fill`` holds). A pendant that carries no rig light gets
+``PENDANT_LUMENS`` over its bulbs (kind ``pendant``); every light a pendant hosts is warm (``rig_temperature_k``). A
+library pendant's bulbs glow: small emissive bulbs where they hang (``pendant_glow``, built as ``rig_bulb`` objects with
+``wenart_rig``; its model is one texture), a parametric pendant's bulb parts glow in every mood
+(``furniture.bulb_glows``). ``built_decor_boxes`` carries the model's title and a track's spec for it. Why: the L0
+hall's black 4-light mesh pendant hung 1.41 m from each of the long hall's two white flush rig fixtures and gave no
+light; the decor stage keeps the same distance (``ceiling_lights.clash``, ``PENDANT_ZONE_M``).
 """
 from __future__ import annotations
 
@@ -1163,6 +1178,11 @@ def built_decor_boxes(manifest_objects: list, room_id: str) -> list[dict]:
                     "has_light": bool(o.get("light")), "name": o.get("name"), "method": o.get("method")})
         if o.get("fixture"):                               # 29 Oct 2026 (UL106): a light's role in the room
             out[-1]["fixture"] = o["fixture"]
+        asset = o.get("asset") if isinstance(o.get("asset"), dict) else {}
+        if asset.get("title") or asset.get("name"):        # 30 Oct 2026 (UL170): its bulbs ("4-Light") ...
+            out[-1]["title"] = str(asset.get("title") or asset.get("name"))
+        if isinstance(o.get("track"), dict):               # ... a track's mini pendants
+            out[-1]["track"] = o["track"]
     return out
 
 
@@ -1311,6 +1331,150 @@ def _decor_light_host(decor: list[dict], x: float, y: float, reach: float) -> di
         if dist <= reach and (best is None or dist < best[0]):
             best = (dist, d)
     return best[1] if best else None
+
+
+# 30 Oct 2026 (lesson UL170, user on real04 run 20261030-043021-full, the L0 hall r_L0_koridor: "These 2 lights together
+# not making sense, keep the black one and make it give light": the AI's black 4-light mesh pendant dec_L0_019 hung
+# 1.46 m from each of the rig's two white flush fixtures of the long hall, and gave no light of its own). A decorative
+# pendant (a single one, a cluster, a linear pendant, a track of mini pendants) is the light of its zone: a ceiling
+# spot of the rig within ``PENDANT_ZONE_M`` of a decor pendant's footprint hangs no fixture of its own; its light goes
+# into that pendant (``pendant_zone_host``), shared over the pendant's bulbs (``pendant_bulbs``) at the warm
+# ``rig_temperature_k``, so the room keeps its light; the spot is listed under ``dropped`` with ``replaced_by``, the
+# rule and the reason. Every decor pendant gives light: one that carries none of the rig's gets ``PENDANT_LUMENS`` (one
+# generic ceiling light's output) shared over its bulbs; the bulbs of a library pendant glow (``glow``: small emissive bulbs where its bulbs hang, its own materials
+# are one texture), a parametric pendant's bulb parts glow (``furniture``: the ``bulb`` key lit).
+PENDANT_ZONE_M = 1.5
+PENDANT_ZONE_RULE = "lighting.pendant_zone"
+PENDANT_LUMENS = 1100.0               # a pendant that replaces no fixture: one 75 W-equivalent ceiling light's output
+PENDANT_MAX_BULBS = 8
+PENDANT_LINEAR_PITCH_M = 0.6          # a linear pendant's LED bar: one point light per 0.6 m of it
+PENDANT_GLOW_R_M = 0.025              # the glowing bulb of a library pendant (an E27 bulb's globe)
+PENDANT_GLOW_Z_SHARE = 0.3            # ... this share of the pendant's height above its bottom (inside its shade)
+PENDANT_GLOW_Z_MAX_M = 0.15
+N_LIGHT_WORDS = ("light", "lights", "lamp", "lamps", "bulb", "bulbs", "arm", "arms")
+
+
+def pendant_bulb_count(d: dict) -> int:
+    """How many bulbs a decor pendant carries (pure): a track's mini pendants, one per ``PENDANT_LINEAR_PITCH_M`` of a
+    linear pendant, the "N-light" its model's title names, else 1 (at most ``PENDANT_MAX_BULBS``)."""
+    import re
+
+    fixture = d.get("fixture")
+    if fixture == "track_pendants":
+        from wenart.blender import salon_parts as SP
+
+        return max(1, min(PENDANT_MAX_BULBS, len(SP.track_offsets(float(d["size"][0]), {"track": d.get("track")}))))
+    if fixture == "linear_pendant":
+        return max(2, min(PENDANT_MAX_BULBS, round(max(float(d["size"][0]), float(d["size"][1]))
+                                                     / PENDANT_LINEAR_PITCH_M)))
+    words = "|".join(N_LIGHT_WORDS)
+    m = re.search(rf"(?<![0-9])([2-9]|1[0-2])\s*[- ]?\s*(?:{words})\b", str(d.get("title") or "").lower())
+    return min(PENDANT_MAX_BULBS, int(m.group(1))) if m else 1
+
+
+def pendant_bulbs(d: dict) -> list[tuple[float, float]]:
+    """The plan points of a decor pendant's bulbs (pure): along its long side, a track at its mini pendants
+    (``salon_parts.track_offsets``), the others evenly spread (``pendant_bulb_count``)."""
+    w, dep = float(d["size"][0]), float(d["size"][1])
+    rot = math.radians(float(d.get("rotation_deg") or 0.0))
+    along_x = w >= dep
+    length = w if along_x else dep
+    if d.get("fixture") == "track_pendants":
+        from wenart.blender import salon_parts as SP
+
+        offs = SP.track_offsets(w, {"track": d.get("track")})[:PENDANT_MAX_BULBS]
+    else:
+        n = pendant_bulb_count(d)
+        offs = [0.0] if n == 1 else [-length / 2.0 + length * (k + 0.5) / n for k in range(n)]
+    ux, uy = (math.cos(rot), math.sin(rot)) if along_x else (-math.sin(rot), math.cos(rot))
+    cx, cy = float(d["center"][0]), float(d["center"][1])
+    return [(round(cx + ux * o, 4), round(cy + uy * o, 4)) for o in offs]
+
+
+def pendant_zone_host(decor: list[dict], x: float, y: float, reach: float = PENDANT_ZONE_M
+                      ) -> Optional[tuple[float, dict]]:
+    """UL170: ``(distance, pendant)`` of the built decor pendant whose plan box comes nearest ``(x, y)`` within
+    ``reach`` (pure), None when none does."""
+    best = None
+    for d in decor:
+        if d.get("type") != "pendant_light" or not d.get("center") or not d.get("size"):
+            continue
+        rect = G.rotated_rectangle(d["center"][:2], d["size"][:2], float(d.get("rotation_deg") or 0.0))
+        inside = G.point_in_polygon((x, y), rect)
+        dist = 0.0 if inside else min(G.point_segment_distance((x, y), rect[i], rect[(i + 1) % 4]) for i in range(4))
+        if dist <= reach + 1e-9 and (best is None or dist < best[0]):
+            best = (dist, d)
+    return best
+
+
+def pendant_glow(d: dict, bulbs: list[tuple[float, float]]) -> list[list[float]]:
+    """UL170: ``[[x, y, z, r], ...]`` of the glowing bulbs of a library decor pendant (pure): at its bulbs' plan points,
+    ``PENDANT_GLOW_Z_SHARE`` of its height above its bottom (at most ``PENDANT_GLOW_Z_MAX_M``), inside its shade or
+    cage; [] for a parametric pendant (its own bulb parts glow)."""
+    if str(d.get("method") or "") != "library":
+        return []
+    h = float(d["size"][2])
+    bottom = float(d["center"][2]) - h / 2.0
+    z = bottom + min(PENDANT_GLOW_Z_MAX_M, max(PENDANT_GLOW_R_M, PENDANT_GLOW_Z_SHARE * h))
+    return [[x, y, round(z, 4), PENDANT_GLOW_R_M] for x, y in bulbs]
+
+
+def pendant_lights(out: dict, room: dict, decor: list[dict], zone_loads: dict, floor_z: float, hosted_z, add,
+                   lighting: Optional[dict]) -> None:
+    """UL170 (the comment above ``PENDANT_ZONE_M``; part of ``rig_plan``, in place): the lights of the room's decor
+    pendants. A pendant that replaces ceiling spots (``zone_loads``) carries their light, shared over its bulbs (kind
+    ``ceiling``: the room's ceiling light moved into it, so ``rig_replaces_fill`` holds as before); one that carries no
+    rig light yet gets ``PENDANT_LUMENS`` over its bulbs (kind ``pendant``); each light hangs under its bulb point
+    (``hosted_z``; the build's ray check frees it from a closed shade) at the warm ``rig_temperature_k``. The library
+    pendants' bulbs glow (``pendant_glow`` on the first fixture each pendant hosts)."""
+    warm = rig_temperature_k(lighting)
+    hosted: dict = {}
+    for f in out["fixtures"]:
+        if f.get("mount") == "host" and f.get("host_id"):
+            hosted.setdefault(f["host_id"], []).append(f)
+    for pend in decor:
+        if pend.get("type") != "pendant_light" or not pend.get("center") or not pend.get("size"):
+            continue
+        if hosted_z(pend) < floor_z + RIG_HOSTED_MIN_Z_M:
+            continue                             # a pendant through a table hosts nothing (the rule of the hosts)
+        bulbs = pendant_bulbs(pend)
+        load = zone_loads.get(pend["id"])
+        if load:
+            base = dict(load["spec"])
+            watts, lumens = float(load["watts"]), float(load["lumens"])
+            spots = "; ".join(f"({x:.2f}, {y:.2f})" for x, y in load["spots"])
+            why = (f"the ceiling light of the zone (spot(s) {spots}) in the decor pendant {pend['id']} (UL170: the "
+                   f"pendant is the zone's light), {lumens:g} lm over its {len(bulbs)} bulb(s)")
+        elif pend["id"] in hosted:
+            glow = pendant_glow(pend, bulbs)
+            for k, f in enumerate(hosted[pend["id"]]):
+                f["temperature_k"] = warm             # a pendant's bulbs are warm, whatever the room's rig
+                if glow and k == 0:
+                    f["glow"] = glow
+            continue
+        else:
+            lumens = PENDANT_LUMENS
+            watts_r = watts_for_lumens(lumens)
+            base = {"kind": "pendant", "anchor": None, "lumens": lumens, "count": 1,
+                    "size_m": [round(float(v), 4) for v in pend["size"][:3]],
+                    "source": f"the decor pendant's own light: {PENDANT_LUMENS:g} lm (one 75 W-equivalent ceiling "
+                              f"light) over its bulbs",
+                    "watts_radiometric": watts_r, "watts_applied": round(watts_r * RIG_GAIN, 4), "gain": RIG_GAIN,
+                    "lumen_watt_source": LUMEN_WATT_SOURCE}
+            watts = base["watts_applied"]
+            why = (f"the decor pendant {pend['id']} gives light (UL170: every pendant is a light), "
+                   f"{PENDANT_LUMENS:g} lm over its {len(bulbs)} bulb(s)")
+        n = len(bulbs)
+        glow = pendant_glow(pend, bulbs)
+        z = hosted_z(pend)
+        for k, (bx, by) in enumerate(bulbs):
+            spec = dict(base, lumens=round(lumens / n, 1), bulbs=1,
+                        watts_radiometric=round(float(base.get("watts_radiometric") or 0.0) / n, 4),
+                        watts_applied=round(watts / n, 4))
+            add(spec, (bx, by, z), (bx, by, z), "POINT", watts / n, spec["size_m"], radius=0.05, mount="host",
+                mesh=False, host=pend["id"], light_where="under_host", temperature_k=warm,
+                reason=f"{why}; bulb {k + 1}/{n}", glow=[glow[k]] if glow else None,
+                replaces=load["spots"] if load else None)
 
 
 RIG_ROW_REACH_M = 0.3                 # 28 Oct 2026: a decor pendant this close over a table's footprint is of its row
@@ -1524,6 +1688,7 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
         return bottom - RIG_HOSTED_CEILING_GAP_M
 
     hosts_used: set = set()                       # 28 Oct 2026: decor lights that already carry a rig light
+    zone_loads: dict = {}                         # 30 Oct 2026 (UL170): the ceiling spots each decor pendant replaces
     for spec in room_rig(room.get("room_type")):
         kind = spec["kind"]
         if kind == "pendant":
@@ -1595,6 +1760,25 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
                     add(fspec, (hx, hy, lz), (hx, hy, lz), "POINT", fspec["watts_applied"], spec["size_m"],
                         radius=0.08, mount="host", mesh=False, host=host["id"], light_where="under_host",
                         reason=f"{reason}; its light under the decor {host['type'].replace('_', ' ')} {host['id']}")
+                    continue
+                # 30 Oct 2026 (UL170): a decor pendant within PENDANT_ZONE_M is this spot's light; no flush fixture
+                zone = pendant_zone_host(decor, cx, cy)
+                if zone is not None and hosted_z(zone[1]) >= floor_z + RIG_HOSTED_MIN_Z_M:
+                    dist, pend = zone
+                    load = zone_loads.setdefault(pend["id"], {"spec": fspec, "watts": 0.0, "lumens": 0.0,
+                                                              "spots": []})
+                    load["watts"] += float(fspec["watts_applied"])
+                    load["lumens"] += float(fspec.get("lumens") or 0.0)
+                    load["spots"].append([round(cx, 3), round(cy, 3)])
+                    out["dropped"].append({
+                        "kind": kind, "rule": PENDANT_ZONE_RULE, "replaced_by": pend["id"],
+                        "spot": [round(cx, 3), round(cy, 3)], "distance_m": round(dist, 3),
+                        "lumens": fspec.get("lumens"),
+                        "reason": (f"ceiling fixture at ({cx:.2f}, {cy:.2f}) of {room['id']} not hung: the decor "
+                                   f"pendant {pend['id']} hangs {dist:.2f} m from it (within {PENDANT_ZONE_M:g} m: "
+                                   f"the pendant is the zone's light, a flush light beside it reads as two lights "
+                                   f"together, UL170); its {float(fspec.get('lumens') or 0.0):g} lm go into the "
+                                   f"pendant")})
                     continue
                 # 28 Oct 2026 (user: "More lights from the ceiling needed"): the room's decor ceiling lights (the
                 # lighting rule hangs them in every room) carry the fixture's light, shared out; no second fixture
@@ -1808,6 +1992,8 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
             add(f, (px, py, z), (px + fx * 0.03, py + fy * 0.03, z - 0.03), "AREA", spec["watts_applied"],
                 [bar_w, bar_d, bar_h], direction=(fx * 0.7, fy * 0.7, -0.7), anchor=basin["id"],
                 radius=0.0, mount="wall", reason=f"mirror light over the washbasin {basin['id']}{moved}")
+    # 30 Oct 2026 (UL170): every decor pendant gives light, its bulbs glow
+    pendant_lights(out, room, decor, zone_loads, floor_z, hosted_z, add, lighting)
     # fix round after P4a: every fixture with a mesh passes the code check, or it is dropped with the reason
     stand_tops = {p["id"]: floor_z + float(piece_bbox(p)[2]) for p in by_type.get("nightstand") or []}
     problems = rig_fixture_problems(out["fixtures"], polygon, pieces, decor, floor_z, stand_tops)
@@ -2114,6 +2300,26 @@ def build_room_rig(bpy, common, collection, manifest_objects: list, assumed: lis
                                     "parent": room["id"], "kind": "rig_light_enclosed"})
             else:
                 escape = {"host_object": None, "escapes": None, "moved_m": 0.0}
+            for k, (gx, gy, gz, gr) in enumerate(f.get("glow") or []):
+                # 30 Oct 2026 (UL170): the library pendant's bulb glows where it hangs (its model is one texture)
+                verts, faces = _prism(gx, gy, gz - gr, gz + gr, gr)
+                gmat = fixture_material(f["temperature_k"])
+                gname = f"{f['name']}_bulb_{k + 1}"
+                gob = common.new_mesh_object(gname, verts, faces, collection=collection, wenart_id=gname,
+                                             kind="decor", status="assumed", materials=[gmat])
+                gob["wenart_room"] = room["id"]
+                gob["wenart_rig"] = "bulb"
+                gob.visible_shadow = False
+                manifest_objects.append({
+                    "name": gob.name, "wenart_id": gname, "kind": "decor", "status": "assumed",
+                    "level_id": level["id"], "element_id": room["id"], "parent": room["id"], "evidence": [],
+                    "material": gmat.name, "materials": [gmat.name], "textured": False, "pass_index": None,
+                    "method": "rig", "type": "rig_bulb", "rotation_deg": 0.0,
+                    "rig_box": {"center": [gx, gy, gz], "size": [2 * gr, 2 * gr, 2 * gr], "rotation_deg": 0.0},
+                    "visible_shadow": False,
+                    "assumed": {"rig": "bulb", "host_id": f.get("host_id"), "fixture": f["name"],
+                                "temperature_k": f["temperature_k"], "reason": f"the glowing bulb of the decor "
+                                f"pendant {f.get('host_id')} (UL170: every pendant gives light)"}})
         spec = f["light"]
         light = bpy.data.lights.new(f"{f['name']}_light", spec["type"])
         light.energy = float(spec["energy_w"])

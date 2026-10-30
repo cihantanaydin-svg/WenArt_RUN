@@ -98,6 +98,11 @@ INSET_MIN_M = 0.25
 # within 2.5 m of it shows beside it in a 16-18 mm interior view (real06: 2.04-2.07 m apart looked side by side).
 LIGHT_SPACING_M = 1.2             # no two ceiling fixtures closer (the pendants of one row over a table excepted)
 MIXED_SPACING_M = 2.5             # a flush ceiling light from a free pendant (not in a row over a table or island)
+# 30 Oct 2026 (lesson UL170, user on real04 run 20261030-043021-full: "These 2 lights together not making sense, keep the
+# black one and make it give light"): every pendant (a free one, a row's, a linear pendant, a track of mini pendants)
+# is the light of its zone: no flush light (but a counter run's work light) within this of its footprint; the rig's own
+# ceiling fixtures keep the same distance (= lighting.PENDANT_ZONE_M)
+PENDANT_ZONE_M = 1.5
 ZONE_REACH_M = 0.9                # a light over a zone's piece grown by this lights the zone (= ZONE_MATCH_M)
 MIN_GAP_M = LIGHT_SPACING_M       # two lights never closer than this (a row's pendants excepted; was 1.0 m)
 RASTER_M = 0.25                   # the floor sample and the candidate spots
@@ -370,11 +375,13 @@ def zone_area(z: dict):
 
 
 def clash(p, kind_p: str, pendant_p: bool, q, kind_q: str, pendant_q: bool, task_p: bool = False,
-          task_q: bool = False) -> Optional[str]:
+          task_q: bool = False, foot_p=None, foot_q=None) -> Optional[str]:
     """Why two ceiling fixtures of one room are too close (pure; module docstring, step 4), None when they are not:
     closer than ``LIGHT_SPACING_M``, or a flush light within ``MIXED_SPACING_M`` of a free pendant (``pendant_*``: a
     pendant not in a row over a table or island); a task light (``task_*``: over a kitchen counter run's aisle) is a
-    work light, never held to the pendant's spacing."""
+    work light, never held to the pendant's spacing. 30 Oct 2026 (UL170): a flush light within ``PENDANT_ZONE_M`` of
+    any pendant's footprint (``foot_*``, a shapely polygon of a pendant: a row's pendants and a linear or track pendant
+    too)."""
     dist = G.distance(tuple(p[:2]), tuple(q[:2]))
     if dist < LIGHT_SPACING_M - 1e-9:
         return f"{dist:.2f} m apart (two ceiling lights keep {LIGHT_SPACING_M:g} m)"
@@ -382,12 +389,34 @@ def clash(p, kind_p: str, pendant_p: bool, q, kind_q: str, pendant_q: bool, task
                                           or (pendant_q and kind_p == "ceiling_light" and not task_p)):
         return (f"a flush ceiling light {dist:.2f} m from a pendant (a flush light keeps {MIXED_SPACING_M:g} m from a "
                 "pendant: side by side they read as two lights together)")
+    for kind, task, point, foot in ((kind_p, task_p, p, foot_q), (kind_q, task_q, q, foot_p)):
+        if kind != "ceiling_light" or task or foot is None:
+            continue
+        from shapely.geometry import Point
+
+        gap = Point(float(point[0]), float(point[1])).distance(foot)
+        if gap < PENDANT_ZONE_M - 1e-9:
+            return (f"a flush ceiling light {gap:.2f} m from a pendant's footprint (the pendant is its zone's light: "
+                    f"no flush light within {PENDANT_ZONE_M:g} m of it, UL170)")
     return None
 
 
-def _hung(x: float, y: float, kind: str, pendant: bool, light_id, row: bool = False, task: bool = False) -> dict:
+def pendant_foot(d: dict):
+    """UL170: the plan footprint of a pendant light (a shapely polygon: its centre, size and rotation), None for any
+    other light or without a size."""
+    from shapely.geometry import Polygon
+
+    if d.get("type") != "pendant_light" or not d.get("center") or not d.get("size"):
+        return None
+    rect = G.rotated_rectangle(tuple(float(v) for v in d["center"][:2]), tuple(float(v) for v in d["size"][:2]),
+                               float(d.get("rotation_deg") or 0.0))
+    return Polygon(rect)
+
+
+def _hung(x: float, y: float, kind: str, pendant: bool, light_id, row: bool = False, task: bool = False,
+          foot=None) -> dict:
     return {"xy": (float(x), float(y)), "kind": kind, "pendant": bool(pendant), "id": light_id, "row": row,
-            "task": bool(task or row)}
+            "task": bool(task or row), "foot": foot}
 
 
 TASK_PENDANT_TYPES: tuple[str, ...] = ("table_dining", "kitchen_island", "table_coffee", "desk")
@@ -458,7 +487,8 @@ def plan_room(building: dict, room: dict, pieces: list[dict], existing: list[dic
         # row (wenart.furniture.salon_details.dining_light)
         if len(over) >= len(z["spots"]) or any(d.get("fixture") in ROW_FIXTURES for d in over):
             used.update(d.get("id") for d in over)
-            hung += [_hung(*_light_xy(d), d.get("type"), False, d.get("id"), row=True) for d in over]
+            hung += [_hung(*_light_xy(d), d.get("type"), False, d.get("id"), row=True, foot=pendant_foot(d))
+                     for d in over]
             rec["zones"].append({"id": z["id"], "kind": z["kind"], "had": True, "lit": True})
             continue
         size = ROW_PENDANT_SIZE if len(z["spots"]) >= 3 else PENDANT_SIZE
@@ -477,7 +507,8 @@ def plan_room(building: dict, room: dict, pieces: list[dict], existing: list[dic
             rec["zones"].append({"id": z["id"], "kind": z["kind"], "had": bool(over), "lit": bool(over)})
             rec["notes"].append(f"{z['id']}: no row of lights ({why_not}); {len(over)} light(s) kept")
             used.update(d.get("id") for d in over)
-            hung += [_hung(*_light_xy(d), d.get("type"), False, d.get("id"), row=True) for d in over]
+            hung += [_hung(*_light_xy(d), d.get("type"), False, d.get("id"), row=True, foot=pendant_foot(d))
+                     for d in over]
             continue
         colour = next((d.get("colour") for d in over if d.get("colour")), None)
         for d in over:
@@ -487,7 +518,8 @@ def plan_room(building: dict, room: dict, pieces: list[dict], existing: list[dic
             reason = (f"lighting rule: {z['why']}" + (f"; laid again in place of {', '.join(d['id'] for d in over)}"
                                                      f" (its colour kept)" if over else ""))
             adds.append(item(got, kind, reason, z["id"], colour))
-            hung.append(_hung(got["center"][0], got["center"][1], kind, False, None, row=True))
+            hung.append(_hung(got["center"][0], got["center"][1], kind, False, None, row=True,
+                              foot=pendant_foot(dict(got, type=kind))))
         rec["zones"].append({"id": z["id"], "kind": z["kind"], "had": bool(over), "lit": True})
     # 2. the room's other lights, spaced (step 4) and one per zone (step 5): the AI's first, then by id
     singles = [(z, zone_area(z)) for z in all_zones if not z["row"] and len(z["spots"]) == 1]
@@ -497,7 +529,8 @@ def plan_room(building: dict, room: dict, pieces: list[dict], existing: list[dic
         task = run_light(d, pieces)
         out = None                                  # (why, the light it stays with, the zone)
         for h in hung:
-            reason = clash(xy, kind, pend, h["xy"], h["kind"], h["pendant"], task, h["task"])
+            reason = clash(xy, kind, pend, h["xy"], h["kind"], h["pendant"], task, h["task"],
+                           foot_p=pendant_foot(d), foot_q=h.get("foot"))
             if reason:
                 out = (reason, h, None)
                 break
@@ -516,7 +549,7 @@ def plan_room(building: dict, room: dict, pieces: list[dict], existing: list[dic
                                      "distance_m": round(G.distance(xy, h["xy"]), 3), "why": why_out,
                                      "zone": zone_id})
             continue
-        hung.append(_hung(*xy, kind, pend, d.get("id"), task=task))
+        hung.append(_hung(*xy, kind, pend, d.get("id"), task=task, foot=pendant_foot(d)))
     # 3. the zones: a light over each; a light the room keeps over the zone serves it, a light that a new one would
     # stand too close to serves it too (step 4); else the rule hangs one
     for z in [z for z in all_zones if not z["row"]]:
@@ -539,8 +572,9 @@ def plan_room(building: dict, room: dict, pieces: list[dict], existing: list[dic
                 if cand is None:
                     continue
                 free = kind == "pendant_light" and not task_pendant(cand | {"type": kind}, pieces)
+                foot = pendant_foot(dict(cand, type=kind))
                 hit = next((h for h in hung if clash(s, kind, free, h["xy"], h["kind"], h["pendant"], ztask,
-                                                     h["task"])), None)
+                                                     h["task"], foot_p=foot, foot_q=h.get("foot"))), None)
                 if hit is not None:
                     blocker = blocker or (hit, kind, free)
                     continue
@@ -548,7 +582,8 @@ def plan_room(building: dict, room: dict, pieces: list[dict], existing: list[dic
                 break
             if got is None and blocker is not None:
                 h, bkind, bfree = blocker
-                why_served = clash(s, bkind, bfree, h["xy"], h["kind"], h["pendant"], ztask, h["task"])
+                why_served = clash(s, bkind, bfree, h["xy"], h["kind"], h["pendant"], ztask, h["task"],
+                                   foot_q=h.get("foot"))
                 rec["notes"].append(f"{z['id']}: no light of its own {z['why']}: {h['id'] or 'a new light'} "
                                     f"({h['kind']}) lights it, {why_served}")
                 continue
@@ -559,7 +594,8 @@ def plan_room(building: dict, room: dict, pieces: list[dict], existing: list[dic
             it = item(got, kind, f"lighting rule: {z['why']}", z["id"])
             adds.append(it)
             hung.append(_hung(got["center"][0], got["center"][1], kind,
-                              kind == "pendant_light" and not task_pendant(it, pieces), None, task=ztask))
+                              kind == "pendant_light" and not task_pendant(it, pieces), None, task=ztask,
+                              foot=pendant_foot(dict(got, type=kind))))
         rec["zones"].append({"id": z["id"], "kind": z["kind"], "had": had, "lit": lit})
     # 4. the general light the lumen method asks, outside the lit zones, spaced from every light
     rec["needed"] = max(count, len(hung))
@@ -570,7 +606,8 @@ def plan_room(building: dict, room: dict, pieces: list[dict], existing: list[dic
         blocked = unary_union(lit_areas) if lit_areas else None
         spots, why_left = general_spots(geo, [h["xy"] for h in hung], want,
                                         pendants=[h["xy"] for h in hung if h["pendant"]], blocked=blocked,
-                                        areas=[area for _z, area in singles])
+                                        areas=[area for _z, area in singles],
+                                        pendant_feet=[h["foot"] for h in hung if h.get("foot") is not None])
         for s in spots:
             got, _w = geo.hang("ceiling_light", s)
             if got is None:
@@ -586,12 +623,14 @@ def plan_room(building: dict, room: dict, pieces: list[dict], existing: list[dic
 
 
 def general_spots(geo: Room, fixed: list[tuple[float, float]], want: int, pendants: Optional[list] = None,
-                  blocked=None, areas: Optional[list] = None) -> tuple[list[tuple[float, float]], str]:
+                  blocked=None, areas: Optional[list] = None, pendant_feet: Optional[list] = None
+                  ) -> tuple[list[tuple[float, float]], str]:
     """``want`` evenly spread spots (module docstring, step 2) among the room's free candidates (every
     ``RASTER_M`` inside the inset floor where a flush light hangs), at least ``MIN_GAP_M`` from the ``fixed`` lights
     and each other and ``MIXED_SPACING_M`` from the free ``pendants`` (29 Oct 2026, step 4), never in ``blocked`` (the
     lit zones) and at most one in each of the zone ``areas`` (step 5): farthest point first, then ``LLOYD_STEPS`` of
-    centroidal Voronoi relaxation over the floor."""
+    centroidal Voronoi relaxation over the floor. 30 Oct 2026 (UL170): never within ``PENDANT_ZONE_M`` of a pendant's
+    footprint (``pendant_feet``)."""
     import numpy as np
     from shapely.geometry import Point
 
@@ -609,6 +648,8 @@ def general_spots(geo: Room, fixed: list[tuple[float, float]], want: int, pendan
             if blocked is not None and blocked.contains(Point(float(x), float(y))):
                 continue
             if any(math.hypot(x - p[0], y - p[1]) < MIXED_SPACING_M - 1e-9 for p in pend):
+                continue
+            if any(Point(float(x), float(y)).distance(f) < PENDANT_ZONE_M - 1e-9 for f in pendant_feet or []):
                 continue
             if geo.hang("ceiling_light", (float(x), float(y)))[0] is not None:
                 cands.append((float(x), float(y)))
