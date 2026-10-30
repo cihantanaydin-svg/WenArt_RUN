@@ -2523,6 +2523,18 @@
    "request": "Try to improve the plain small item models more maybe kitchen needs a kettle a coffee machine etc, or study rooms requires some other items, model them as much detail as you can (30 Oct 2026, the user on real06 run 20261029-100801-full's renders)",
    "lesson": "Try to improve the plain small item models more maybe kitchen needs a kettle a coffee machine etc, or study rooms requires some other items, model them as much detail as you can (30 Oct 2026, the user on real06 run 20261029-100801-full's renders)",
    "question": "Do the kitchen and the study show detailed real appliances and objects (kettle, coffee machine, toaster; desk organisers, files, a globe or lamp), not plain boxes?"
+  },
+  {
+   "id": "UL213",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "coffee mugs around the house also is a good decor item book and on top of a book coffee mug (30 Oct 2026, the user on real06's renders)",
+   "lesson": "coffee mugs around the house also is a good decor item book and on top of a book coffee mug (30 Oct 2026, the user on real06's renders)",
+   "question": "Do lived-in touches like a coffee mug on a book stand on coffee tables, side tables, nightstands and desks?"
   }
  ]
 }

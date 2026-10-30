@@ -2823,7 +2823,8 @@ showers).
 | UL209 | the front veranda and balcony: columns cut, handrails, not elegant | (helper running) | open |
 | UL210 | a big window beside a small one | (helper running: the bathroom gap read as a high window beside a normal one) | open |
 | UL211 | a window up to the wall's edge | (helper running) | open |
-| UL212 | detailed small items: kettle, coffee machine, study items | (helper starting) | open |
+| UL212 | detailed small items: kettle, coffee machine, study items | (helper running) | open |
+| UL213 | coffee mugs around the house, a mug on a book | (helper running, with UL212) | open |
 
 Before the feedback: a local replay of real06's stages on the current code stopped in the layout (the UL200 swap check
 compared with the drawn type `unknown`); fixed, the replay passes every stage.
