@@ -639,7 +639,7 @@ def test_m30_and_u34_are_wired_as_the_other_checks():
     from wenart.blender import model_review as MR
 
     assert "M30" in MR.CHECKS and K.CHECK_KIND["M30"] == "taste" and K.CHECK_KIND["U34"] == "taste"
-    assert CA.CHECK_CAUSE["M30"] == "decor_look" and AL.CHECK_LESSONS["U34"] == ("UL121", "UL136", "UL137", "UL146")
+    assert CA.CHECK_CAUSE["M30"] == "decor_look" and AL.CHECK_LESSONS["U34"] == ("UL121", "UL136", "UL137", "UL146", "UL195")
     b, m = _built_and_manifest(throw=False)
     rec = MR.review(b, m)
     assert rec["checks"]["M30"]["status"] == "ok" and rec["checks"]["M30"]["checked"] == 1

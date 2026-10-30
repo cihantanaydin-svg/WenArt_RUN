@@ -2360,12 +2360,12 @@
    "id": "UL199",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Writing on the labels on the books are acceptable you can write things on them when needed (30 Oct 2026, the user on the book models of UL154: printed titles on the spines and labels are welcome); and: \"Also wine vineger salt paper you can write them when you see needed\" (labels on wine, vinegar, salt and pepper)",
-   "lesson": "Writing on the labels on the books are acceptable you can write things on them when needed (30 Oct 2026, the user on the book models of UL154: printed titles on the spines and labels are welcome)",
+   "lesson": "Books and the kitchen's bottles and jars carry printed lettering like real products: a standing book's spine a title, an author line and a publisher mark sized to the spine, reading top to bottom, light lettering on dark cloth and dark on light covers (by the cover's luminance); the top book of a stack lies cover up with its title; bottles and jars carry paper labels (olive oil, vinegar, salt, pepper, the jar's contents), wine bottles an invented winery, a vintage and a foil capsule. Every text is invented and brand-free, fixed by seed, neighbours differ; one committed atlas (assets/print/print_atlas.png, scripts/make_print_atlas.py) and thin UV-mapped print films (wenart.blender.print_labels).",
    "question": "Do the books and the kitchen's bottles and jars (wine, vinegar, salt, pepper) carry printed labels like real products?"
   },
   {
