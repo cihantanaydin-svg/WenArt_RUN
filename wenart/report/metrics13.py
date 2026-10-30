@@ -185,6 +185,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
+from wenart.furniture import schemas
 from wenart.report import common as C
 
 NO_DATA = "no data"
@@ -200,18 +201,8 @@ EXPLAINED_AS = ("rug", "detail", "column", "decor")
 # the not_built_reason of a detail inside a kitchen counter leg (wenart.ingest.generic.symbols, M11 split)
 EXPLAINED_REASONS = ("detail inside a kitchen counter leg",)
 NOT_FURNITURE = "not_furniture"
-# Room type -> the group set a furnished room of that type needs (docs/milestone13.md §7 metric 5):
-# (name, types that satisfy it, how many).
-ROOM_SETS: dict[str, tuple] = {
-    "bedroom": (("bed", ("bed_double", "bed_single"), 1), ("nightstands", ("nightstand",), 2),
-                ("wardrobe", ("wardrobe",), 1)),
-    "living": (("sofa", ("sofa", "sofa_corner"), 1), ("coffee table", ("table_coffee",), 1),
-               ("tv unit", ("tv_unit",), 1), ("rug", ("rug",), 1)),
-    "kitchen": (("counter", ("kitchen_counter", "kitchen_island"), 1), ("sink", ("sink_kitchen",), 1),
-                ("hob", ("stove",), 1), ("fridge", ("fridge",), 1)),
-    "bathroom": (("toilet", ("toilet",), 1), ("basin", ("washbasin",), 1), ("shower or tub", ("shower", "bathtub"), 1)),
-    "dining": (("table", ("table_dining",), 1), ("chairs", ("chair",), 2)),
-}
+# Room type -> the group set a furnished room of that type needs (``schemas.ROOM_SETS``, shared with the edit checks).
+ROOM_SETS: dict[str, tuple] = schemas.ROOM_SETS
 LAST_ROUND_CHECKS = ("F8", "S2", "G10", "LG")
 S2_DEPTH_M = 0.03
 EV_HIGH = 5.0
@@ -640,7 +631,7 @@ def metric_5(run: Run) -> dict:
         if rtype not in ROOM_SETS or not by_room.get(rid):
             continue
         types = by_room[rid]
-        missing = [name for name, kinds, n in ROOM_SETS[rtype] if sum(types.count(k) for k in kinds) < n]
+        missing = schemas.room_set_missing(rtype, types)
         row = per_type.setdefault(rtype, {"complete": 0, "rooms": 0})
         row["rooms"] += 1
         total += 1

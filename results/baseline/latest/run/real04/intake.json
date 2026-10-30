@@ -9,11 +9,11 @@
  "fingerprint": null,
  "inputs": {},
  "outputs": [],
- "started_utc": "2026-10-30T04:34:44Z",
- "git_commit": "78a30c37dd7c5f6d7519f84f7364d8b5e5434eec",
+ "started_utc": "2026-10-30T11:27:30Z",
+ "git_commit": "30e1c6947303dc394d1f37402ed29cb030f41247",
  "log": "logs/intake.log",
  "note": "private only",
- "run_id": "20261030-043021-full-20261030T043444Z",
+ "run_id": "20261030-112241-full-20261030T112730Z",
  "steps": [],
  "written": {}
 }

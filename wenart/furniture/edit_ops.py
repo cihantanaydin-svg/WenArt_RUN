@@ -48,7 +48,8 @@ Milestone 12 (docs/milestone12.md §5.2, §5.3, §4.1 U1; owner: track G), tools
   drawn anchor gets what fits); ``move_group(group_id, span_id, offset?)``: a group of added pieces solved again on a
   free wall span (``free_spans``), partners follow; ``relayout_room(room_id, candidate?, choices?)``: the room solved
   again (its added pieces replaced) with the program's ``choices`` (group id -> option), candidate k (1 = the best).
-  These four are accepted when the placer checks hold and no critical or major finding is new (``GROUP_OPS``);
+  These four are accepted when the placer checks hold, no critical or major finding is new and no member of the
+  room type's set (``schemas.ROOM_SETS``: a living room's TV unit) the room had is lost (``GROUP_OPS``, 30 Oct 2026);
 - ``add`` of a type a group misses (a nightstand by a bed) goes through the solver too;
 - ``retype_piece(piece_id, type)``: only a type of the room / zone at the piece that fits its footprint (size table,
   not turned 90° against a drawn front); the ``change_type`` locks hold;
@@ -555,6 +556,22 @@ def seat_front_free(p: placer.Piece, others: list[placer.Piece], ctx: placer.Roo
     if zone.difference(ctx.polygon.buffer(0.01, join_style="mitre")).area >= placer.AREA_EPS:
         return False
     return all(zone.intersection(o.polygon()).area < placer.AREA_EPS for o in others if o.type not in exempt)
+
+
+def room_set_types(b: dict, room_id: str) -> list[str]:
+    """The types of the room's furniture and decor that are built (``build`` not false): what ``schemas.ROOM_SETS``
+    counts."""
+    return [str(x.get("type")) for key in ("furniture", "decor") for x in b.get(key) or []
+            if isinstance(x, dict) and x.get("room_id") == room_id and x.get("build") is not False]
+
+
+def set_losses(before: dict, after: dict, room_id: str) -> list[str]:
+    """30 Oct 2026 (real04 run 20261030-112241-full: two Argus relayout_room edits took the TV unit out of two living
+    rooms, accepted on the collision findings they removed): the members of the room type's set
+    (``schemas.ROOM_SETS``) the room held before the edit and misses after it."""
+    rtype = (_room(before, room_id) or {}).get("room_type")
+    had = set(schemas.room_set_missing(rtype, room_set_types(before, room_id)))
+    return [name for name in schemas.room_set_missing(rtype, room_set_types(after, room_id)) if name not in had]
 
 
 def _new_failures(before: dict[str, set], after: dict[str, set]) -> list[str]:
@@ -2125,7 +2142,20 @@ def _relayout_m12(b: dict, args: dict) -> list[str]:
         raise EditRejected("no_change", f"{room['id']}: the program has no groups ({prog['reason']})")
     old = _ai_floor_ids(b, room["id"])
     new = _solve_apply(b, room, prog, args, f"{room['id']} relayout", fixed=[], index=int(args.get("candidate") or 1))
-    return old + new
+    return old + new + room_rules(b, room["id"])
+
+
+def room_rules(b: dict, room_id: str) -> list[str]:
+    """In place: the layout stage's rules after the solver, for one room (30 Oct 2026, real04 run
+    20261030-112241-full: relayout_room replaced the room's added pieces with the solver's alone, so the TV unit of
+    ``media_wall`` and the sideboard of ``room_fill`` were gone): the media wall, then the room fill, in the layout
+    stage's order (``layout.main``); returns the ids they added."""
+    from wenart.furniture import media_wall as MW
+    from wenart.furniture import room_fill as RF
+
+    _b, media = MW.add_media_walls(b, room_ids=[room_id])
+    _b, fills = RF.fill_building(b, room_ids=[room_id])
+    return [r["unit"]["id"] for r in media if r.get("unit")] + [r["piece"]["id"] for r in fills if r.get("piece")]
 
 
 M12_EDITS = {"place_group": _place_group, "complete_group": _complete_group, "move_group": _move_group,
@@ -2219,6 +2249,10 @@ def apply_edit(building: dict, edit: dict, *, catalog=None) -> dict:
         bad = [v for v in new if v["severity"] in ("critical", "major") and id(v) not in noted]
         if bad:
             failed.append("group checks: " + "; ".join(f"{v['check']} {v['target']}: {v['message']}" for v in bad[:4]))
+        lost = set_losses(building, b, room_id)
+        if lost:
+            failed.append(f"set: the edit takes the room's {', '.join(lost)} away (the {_room(b, room_id).get('room_type')} "
+                          f"set needs it; pick another candidate or option)")
         if noted:
             notes = "; noted: " + "; ".join(list(noted.values())[:4])
     elif op in CORRECTION_OPS:

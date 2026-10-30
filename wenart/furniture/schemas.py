@@ -194,6 +194,27 @@ ANCHOR_TYPES: dict[str, tuple[str, ...]] = {
     "dining": ("table_dining",),
 }
 CHILD_ANCHOR_TYPES: tuple[str, ...] = ("bed_single", "bunk_bed", "crib")   # §2.3: a child's room
+# Room type -> the group set a furnished room of that type needs (docs/milestone13.md §7 metric 5): (name, types that
+# satisfy it, how many), counted over the room's built furniture and decor. 30 Oct 2026 (real04 run
+# 20261030-112241-full: two Argus relayout_room edits took the TV unit out of r_L-1_salon_2 and the play room): a group
+# edit may not lose a member the room had (``edit_ops.apply_edit``, check ``set``).
+ROOM_SETS: dict[str, tuple] = {
+    "bedroom": (("bed", ("bed_double", "bed_single"), 1), ("nightstands", ("nightstand",), 2),
+                ("wardrobe", ("wardrobe",), 1)),
+    "living": (("sofa", ("sofa", "sofa_corner"), 1), ("coffee table", ("table_coffee",), 1),
+               ("tv unit", ("tv_unit",), 1), ("rug", ("rug",), 1)),
+    "kitchen": (("counter", ("kitchen_counter", "kitchen_island"), 1), ("sink", ("sink_kitchen",), 1),
+                ("hob", ("stove",), 1), ("fridge", ("fridge",), 1)),
+    "bathroom": (("toilet", ("toilet",), 1), ("basin", ("washbasin",), 1), ("shower or tub", ("shower", "bathtub"), 1)),
+    "dining": (("table", ("table_dining",), 1), ("chairs", ("chair",), 2)),
+}
+
+
+def room_set_missing(room_type: Optional[str], types: Iterable[str]) -> list[str]:
+    """The names of ``ROOM_SETS[room_type]`` that ``types`` (the room's built furniture and decor types) do not hold
+    often enough; [] for a room type without a set."""
+    have = list(types)
+    return [name for name, kinds, n in ROOM_SETS.get(room_type or "", ()) if sum(have.count(k) for k in kinds) < n]
 
 # Types whose back normally touches a wall (prompt hint; the check applies to
 # whatever the model marks ``against_wall``).
@@ -380,7 +401,8 @@ ORIENTATION_RULES: dict[str, dict[str, Any]] = {
     "bench": _rule("free", partners=_BEDS + ("table_dining", "shoe_cabinet"), partner_m=0.8),
     "desk": _rule("wall"),
     "wardrobe": _rule("wall"),
-    "tv_unit": _rule("wall", ("sofa", "sofa_corner", "armchair"), 6.0),
+    # 30 Oct 2026: the master bedroom's TV unit (media_wall, UL99) faces the bed; F4 named the reading armchair
+    "tv_unit": _rule("wall", ("sofa", "sofa_corner", "armchair", "bed_double", "bed_single"), 6.0),
     "bookshelf": _rule("wall"),
     "dresser": _rule("wall"),
     "sideboard": _rule("wall"),

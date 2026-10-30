@@ -33,7 +33,7 @@ joins its group (``group`` tag). Off with ``furnished_rooms: keep`` and in the r
 from __future__ import annotations
 
 import math
-from typing import Optional
+from typing import Iterable, Optional
 
 from wenart import geometry as G
 from wenart.furniture import placer
@@ -286,9 +286,12 @@ def fill_room(building: dict, room: dict, kind: str) -> list[dict]:
     return out
 
 
-def fill_building(building: dict, brief: Optional[dict] = None) -> tuple[dict, list[dict]]:
+def fill_building(building: dict, brief: Optional[dict] = None,
+                  room_ids: Optional[Iterable[str]] = None) -> tuple[dict, list[dict]]:
     """In place: ``fill_room`` for every furnished room (module docstring); ``(building, records)`` with ``room_id``.
-    Off with the brief's ``room_fill: false`` and ``furnished_rooms: keep``; the rooms kept as drawn are left alone."""
+    Off with the brief's ``room_fill: false`` and ``furnished_rooms: keep``; the rooms kept as drawn are left alone.
+    ``room_ids``: only these rooms (30 Oct 2026: ``edit_ops`` relayout_room runs the rule again in the room it
+    re-solved)."""
     from wenart.furniture import complete as C
     from wenart.furniture import program as PR
 
@@ -302,8 +305,10 @@ def fill_building(building: dict, brief: Optional[dict] = None) -> tuple[dict, l
     if settings.mode == "keep":
         return building, []
     records = []
+    only = None if room_ids is None else set(room_ids)
     for room in building.get("rooms") or []:
-        if len(room.get("polygon") or []) < 3 or C.is_kept(room, settings):
+        if len(room.get("polygon") or []) < 3 or C.is_kept(room, settings) or (only is not None
+                                                                                 and room["id"] not in only):
             continue
         kind = PR.room_kind(building, room)
         if kind not in ("living", "dining", "bedroom", "other", "bathroom"):

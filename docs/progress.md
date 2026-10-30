@@ -2730,3 +2730,29 @@ Argus question.
 Also: the GPU tests follow the m13.6 white point (the rig colour from the walls) and allow a library mesh's rounded end
 off the frame in every view; `tests/test_fixes_20261030.py` reads frozen run-201533 data (the promotion changed the
 latest baseline).
+
+## real04 run 20261030-112241-full (30 Oct 2026; 232.9 min, $9.66; promoted as the latest run)
+
+The run of the user's 17 requests on run 043021 (UL154-UL173). The pod stopped itself; a fetch pod ($0.05) collected
+the images the first collection missed.
+
+| measure | run 043021 (latest before) | this run |
+|---|---|---|
+| house score (big loop) | 27.11 | 30.74 |
+| AI judge mean (36 views) | 2.25 | 2.44; 3 views at 4-5 (before 0) |
+| views of halls or >= 50 % bare wall | 5 | 4 |
+| living rooms with their set (metric 5) | 3 of 5 | 1 of 5 (fixed after the run, below) |
+| minutes of stages | 174 | 166 |
+| GPU tests | 52 passed, 2 failed | 51 passed, 1 failed, 10 skipped |
+| Argus (local, `--log`) | 3.4, 28 critical | 3.7, 12 critical |
+
+Fixed after the run:
+- Two Argus `relayout_room` edits took the TV unit out of r_L-1_salon_2 and the play room (and the play room's
+  sideboard). They were accepted on the collisions they removed. A relayout replaced the room's added pieces with
+  the solver's alone; the media wall and the room fill ran only in the layout stage. Now a relayout runs both rules
+  again in its room (`edit_ops.room_rules`), and a group edit that still loses a member of the room type's set
+  (`schemas.ROOM_SETS`, shared with metric 5) is refused (check `set`). A bedroom TV unit may face the bed (F4 named
+  the reading armchair beside it).
+- GPU test `test_index_pass_contains_every_visible_proxy`: the wall-hung nightstand f_L0_042 behind the bed in an Argus
+  pose (cam_r_L0_yatak_odasi_3, 0 % in the ray-cast model). An agent pose may hide a piece the model also hides, as a
+  searched one may.

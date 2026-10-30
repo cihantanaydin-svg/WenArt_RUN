@@ -38,7 +38,7 @@ from __future__ import annotations
 
 import math
 import re
-from typing import Callable, Optional
+from typing import Callable, Iterable, Optional
 
 from wenart import geometry as G
 from wenart.furniture import placer
@@ -529,17 +529,22 @@ def plan_room(building: dict, room: dict, kind: str) -> dict:
     return rec
 
 
-def add_media_walls(building: dict, brief: Optional[dict] = None) -> tuple[dict, list[dict]]:
+def add_media_walls(building: dict, brief: Optional[dict] = None,
+                    room_ids: Optional[Iterable[str]] = None) -> tuple[dict, list[dict]]:
     """In place: every media room (``media_rooms``) without a TV unit or a TV host gets its TV unit (``plan_room``);
     returns ``(building, records)``. Off with the brief's ``media_wall: false``; rooms the brief keeps as drawn
-    (``furnished_rooms: keep``, ``furnished_rooms_keep``) are left alone."""
+    (``furnished_rooms: keep``, ``furnished_rooms_keep``) are left alone. ``room_ids``: only these rooms (30 Oct 2026:
+    ``edit_ops`` relayout_room runs the rule again in the room it re-solved)."""
     from wenart.furniture import complete as C
 
     values = dict(brief or {})
     settings = C.Settings(mode=str(values.get("furnished_rooms", "complete")),
                           keep=tuple(str(v) for v in values.get("furnished_rooms_keep") or ()))
     records = []
+    only = None if room_ids is None else set(room_ids)
     for room, kind in media_rooms(building, brief):
+        if only is not None and room["id"] not in only:
+            continue
         if settings.mode == "keep" or C.is_kept(room, settings):
             records.append({"room_id": room["id"], "kind": kind, "why": "kept as drawn (brief)", "unit": None,
                             "host_id": None, "seat_id": None, "view": None, "notes": []})

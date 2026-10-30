@@ -789,9 +789,11 @@ def test_index_pass_contains_every_visible_proxy(project):
             idx = {table[k] for k in (f, f"proxy:{f}") if k in table}
             if idx and not idx <= seen:
                 absent.append(f)
-        if absent and _policy(plan) == "search":
+        if absent and _policy(plan) in ("search", "agent"):
             # A searched view looks across the room: a piece whose centre is in the frustum can be
             # hidden behind another one. Allowed only when the ray-cast model sees none of it either.
+            # 30 Oct 2026 (real04 run 20261030-112241-full, cam_r_L0_yatak_odasi_3, an Argus pose: the wall-hung
+            # nightstand f_L0_042 behind the bed, 0 % in the model): an agent pose looks across the room the same way
             from wenart.blender import camsearch
 
             building = building or _building(name, scene)

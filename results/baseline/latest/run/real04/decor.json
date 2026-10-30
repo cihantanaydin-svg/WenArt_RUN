@@ -5,10 +5,10 @@
  "stage": "decor",
  "rc": 0,
  "status": "ok",
- "seconds": 11.58,
- "fingerprint": "5fe1bc0ec686ad0cda868e00919f880e0f480ecd9b3aa366e9849d316815f6df",
+ "seconds": 11.16,
+ "fingerprint": "c43c2b28e48a4a1e18e5d94eaf1d0d36934f153b7e48453a459676cb4879bdda",
  "inputs": {
-  "outputs/real04/building_furnished.json": "f16877ae9c6e309d2efa8cb1759797a811fb780579b156e301a4f22c854989a3",
+  "outputs/real04/building_furnished.json": "98fc0f276b2952564e8cb72f24e16c24acd8e24ed27b6a703f8ea456cd698a08",
   "outputs/real04/style.json": "a2e06234cf52f20082cc15bdee85464b4f11c5f5741dad7fdc40ba058d131909",
   "outputs/real04/decor_ai_answers.json": "3b6afad47ece0b78b3a04e32d64b0227a1be9e225c570dbce6312642a045ae79",
   "outputs/real04/recipes.json": "0f33d92f93fb3079d46fb52ead84be31e00bf014f90957864842cdb5c3d73b3f"
@@ -16,16 +16,16 @@
  "outputs": [
   "building_decor.json"
  ],
- "started_utc": "2026-10-30T04:47:59Z",
- "git_commit": "78a30c37dd7c5f6d7519f84f7364d8b5e5434eec",
+ "started_utc": "2026-10-30T11:37:26Z",
+ "git_commit": "30e1c6947303dc394d1f37402ed29cb030f41247",
  "log": "logs/decor.log",
  "note": null,
- "run_id": "20261030-043021-full-20261030T043444Z",
+ "run_id": "20261030-112241-full-20261030T112730Z",
  "steps": [
   {
    "name": "decor",
    "rc": 0,
-   "seconds": 11.58
+   "seconds": 11.16
   }
  ],
  "written": {}
