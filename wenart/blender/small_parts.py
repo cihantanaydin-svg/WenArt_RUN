@@ -44,7 +44,7 @@ PAPER_ROLL_KEY = "bedding"        # the tissue: the white cotton key (a soft mat
 GLASS_M = 0.0025                  # a bottle's or a jar's wall
 ROLL = {"r_m": 0.055, "core_r_m": 0.021, "core_t_m": 0.0015, "length_m": 0.10, "edge_m": 0.005,
         "tail_m": 0.045, "tear_m": 0.003, "teeth": 9, "sheet_t_m": 0.0008}
-PLUME = {"wisps": 13, "length_m": 0.11, "spread": 0.26, "wisp_r_m": 0.0015}
+PLUME = {"wisps": 6, "length_m": 0.10, "spread": 0.16, "wisp_r_m": 0.0018}
 
 
 # --------------------------------------------------------------------------
@@ -277,7 +277,7 @@ def fruit_bowl(w: float, d: float, h: float) -> list[Part]:
     out = [(foot, 0.0), (foot, hb * 0.10), (foot * 1.12, hb * 0.16), (R * 0.70, hb * 0.40), (R * 0.90, hb * 0.72),
            (R * 0.985, hb)]
     floor = hb * 0.20
-    parts = [_vessel(out, 0.006, floor, "accent_ceramic", "bowl", n=32)]
+    parts = [_vessel(out, 0.006, floor, "ceramic", "bowl", n=32)]
     room = h - floor
     dia = max(0.03, min(0.072, R * 0.46, room * 0.95))
 
@@ -377,7 +377,7 @@ def whisk(p0, p1, key: str = "steel") -> list[Part]:
     return parts
 
 
-def utensil_crock(w: float, d: float, h: float, key: str = "accent_ceramic") -> list[Part]:
+def utensil_crock(w: float, d: float, h: float, key: str = "ceramic") -> list[Part]:
     """A stoneware crock (its wall, a rolled rim) with a wooden spoon, a spatula, a steel ladle and a balloon whisk
     leaning out of it, in the box ``w x d x h``."""
     r = min(w, d) / 2.0 * 0.86
@@ -533,6 +533,11 @@ def paper_roll_z(w: float, d: float, h: float) -> float:
     return h - roll_radius(d, h) - 0.012
 
 
+def paper_holder_height(d: float) -> float:
+    """The height of a holder's box that holds its roll and the sheet ``ROLL["tail_m"]`` under it."""
+    return round(2.0 * min(ROLL["r_m"], (d - 0.03) / 2.0) + 0.012 + ROLL["tail_m"], 4)
+
+
 def paper_holder(w: float, d: float, h: float, finish: str = "colour_steel") -> list[Part]:
     """A toilet roll holder in its box ``w x d x h`` (the wall at +Y, front -Y, bottom z = 0): a wall rose, an arm out
     of the wall bent along it with an end cap, a cover flap over the roll, all in ``finish``; the roll near the box's
@@ -575,7 +580,7 @@ def paper_holder(w: float, d: float, h: float, finish: str = "colour_steel") -> 
     parts.append(turned([(rc, 0.0), (rin, 0.0), (rin, L), (rc, L)], CARDBOARD_KEY, "core", c=(x0, ry, zc), axis="x",
                         n=20, loop=True))
     # the sheet over the front: from the roll's front down past it, torn along a perforation
-    tail = max(0.01, min(ROLL["tail_m"], zc - R - 0.004))     # the sheet's torn edge this far under the roll
+    tail = max(0.01, zc - R)                       # the sheet's torn edge at the box's bottom (ROLL["tail_m"] under the roll)
     yf = ry - R - ROLL["sheet_t_m"]
     teeth = ROLL["teeth"]
     sx0, sx1 = x0 + 0.004, x0 + L - 0.004
@@ -596,9 +601,8 @@ def paper_holder(w: float, d: float, h: float, finish: str = "colour_steel") -> 
 def label(cx: float, cy: float, z0: float, r: float, z_lo: float, z_hi: float, key: str = "paper",
           ink: str = "dark", arc_deg: float = 110.0) -> list[Part]:
     """A printed label on the front (-Y) of a round bottle of radius ``r``: a thin curved patch from ``z_lo`` to
-    ``z_hi`` over ``arc_deg`` of its round, three lines of print on it (a brand line and two text lines)."""
-    def patch(r0: float, za: float, zb: float, deg: float, k: str, role: str, t: float) -> Part:
-        n = 8
+    ``z_hi`` over ``arc_deg`` of its round, two lines of print on it (the brand and a text line)."""
+    def patch(r0: float, za: float, zb: float, deg: float, k: str, role: str, t: float, n: int = 6) -> Part:
         a0 = math.radians(-90.0 - deg / 2.0)
         ring = [a0 + math.radians(deg) * i / n for i in range(n + 1)]
         outer = [(cx + (r0 + t) * math.cos(a), cy + (r0 + t) * math.sin(a)) for a in ring]
@@ -612,9 +616,8 @@ def label(cx: float, cy: float, z0: float, r: float, z_lo: float, z_hi: float, k
 
     hgt = z_hi - z_lo
     parts = [patch(r, z0 + z_lo, z0 + z_hi, arc_deg, key, "label", 0.0005)]
-    for k, (f0, f1, deg) in enumerate(((0.62, 0.78, arc_deg * 0.55), (0.40, 0.46, arc_deg * 0.62),
-                                       (0.28, 0.33, arc_deg * 0.45))):
-        parts.append(patch(r + 0.0005, z0 + z_lo + hgt * f0, z0 + z_lo + hgt * f1, deg, ink, "print", 0.0002))
+    for k, (f0, f1, deg) in enumerate(((0.60, 0.76, arc_deg * 0.55), (0.34, 0.42, arc_deg * 0.62))):
+        parts.append(patch(r + 0.0005, z0 + z_lo + hgt * f0, z0 + z_lo + hgt * f1, deg, ink, "print", 0.0002, n=3))
     return parts
 
 
@@ -637,18 +640,18 @@ def plume(top, direction, length: float, seed: int = 0, key: str = "pampas") -> 
             f = j / 3.0
             pts.append([start[i] + (u[i] + side[i] * sp * f) * wl * f - (0.0, 0.0, 0.01 * f * f)[i] for i in range(3)])
         parts.append(tube(pts, [PLUME["wisp_r_m"] * 2.6, PLUME["wisp_r_m"] * 2.2, PLUME["wisp_r_m"] * 1.4,
-                                PLUME["wisp_r_m"] * 0.5], key, "plume", sides=4))
+                                PLUME["wisp_r_m"] * 0.5], key, "plume", sides=3))
     return parts
 
 
 def stems_vase(cx: float, cy: float, z0: float, vase_r: float, vase_h: float, height: float,
-               key: str = "accent_ceramic") -> list[Part]:
+               key: str = "ceramic") -> list[Part]:
     """A turned ceramic vase (a foot, a full belly, a narrow neck, a flared lip; open) with five dried pampas stems
     leaning out of it, each a thin stem with a feathery plume."""
     r = vase_r
     out = [(r * 0.55, 0.0), (r * 0.60, 0.006), (r * 0.92, vase_h * 0.22), (r, vase_h * 0.45), (r * 0.82, vase_h * 0.70),
            (r * 0.40, vase_h * 0.86), (r * 0.36, vase_h * 0.95), (r * 0.46, vase_h)]
-    parts = [_vessel(out, 0.004, 0.012, key, "vase", c=(cx, cy, z0))]
+    parts = [_vessel(out, 0.004, 0.012, key, "vase", c=(cx, cy, z0), n=12)]
     for k, (dx, dy) in enumerate(((-0.22, 0.05), (0.18, -0.06), (0.03, 0.2), (-0.08, -0.16), (0.25, 0.12))):
         length = height * (0.80 + 0.05 * k)
         lean = (dx * 0.35, dy * 0.35, 1.0)

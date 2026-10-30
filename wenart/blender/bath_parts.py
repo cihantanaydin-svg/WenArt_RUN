@@ -384,7 +384,7 @@ def _rounded_slab_xz(cx: float, y_front: float, z0: float, w: float, t: float, h
     return part
 
 
-def _vessel(cx: float, cy: float, z0: float, r: float, h: float, key: str, wall: float = 0.008, n: int = 32
+def _vessel(cx: float, cy: float, z0: float, r: float, h: float, key: str, wall: float = 0.008, n: int = 24
             ) -> list[Part]:
     """An open round vessel basin (bowl) of radius ``r`` at its rim, ``h`` high, standing on ``z0``; 30 Oct 2026
     (lesson UL184, user on the vanity: "Better models with more details is needed"): a curved bowl on a small foot, its
@@ -397,7 +397,7 @@ def _vessel(cx: float, cy: float, z0: float, r: float, h: float, key: str, wall:
     floor = max(wall, 0.010)
     basin = SM._vessel(out, min(wall, 0.006), floor, key, "basin", c=(cx, cy, z0), n=n)
     waste = SM.turned([(0.0005, 0.0), (0.019, 0.0), (0.020, 0.002), (0.016, 0.003), (0.012, 0.0045), (0.0005, 0.005)],
-                      "steel", "drain", c=(cx, cy, z0 + floor - 0.0005), n=20)
+                      "steel", "drain", c=(cx, cy, z0 + floor - 0.0005), n=12)
     return [basin, waste]
 
 
@@ -1055,7 +1055,7 @@ WALL_BATH_DECOR: tuple[str, ...] = ("toilet_paper_holder", "towel_rail", "towel_
 FLOOR_BATH_DECOR: tuple[str, ...] = ("toilet_brush",)
 # 30 Oct 2026 (lesson UL183): the box holds the roll near its top and the sheet hanging over its front to its bottom
 # (small_parts.paper_holder); the roll's axis stays at PAPER_HOLDER_Z_M (``paper_holder_bottom``)
-PAPER_HOLDER_SIZE = (0.16, 0.13, 0.17)
+PAPER_HOLDER_SIZE = (0.16, 0.13, 0.157)        # = small_parts.paper_holder_height(0.13)
 PAPER_HOLDER_Z_M = 0.70           # the roll's axis (B2: "about 0.7 m")
 
 

@@ -37,8 +37,8 @@ from wenart.blender import towel_parts as TP
 
 Part = dict
 LESSON = "UL166"
-LATHE_N = 16                      # segments round a turned object (a 6-7 cm bottle: 1.3 cm per facet, shaded smooth)
-JAR_FILL = {"layers": 2, "pads": 8}   # a jar shows two layers of cotton balls or pebbles (the rest is unseen)
+LATHE_N = 12                      # segments round a turned object (a 6-7 cm bottle: 1.7 cm per facet, shaded smooth)
+JAR_FILL = {"layers": 2, "pads": 6}   # a jar shows two layers of cotton balls or pebbles (the rest is unseen)
 DIFFUSER = {"reeds": 7, "reed_r_m": 0.0015, "spread": 0.30}
 PUMP = {"stem_share": 0.07, "head_share": 0.07, "nozzle_share": 0.95}
 JAR_GLASS_M = 0.003               # an apothecary jar's wall
@@ -186,7 +186,7 @@ def apothecary_jar(cx: float, cy: float, z0: float, r: float, h: float, lid_key:
     # 30 Oct 2026 (UL184): a turned knob on a short neck
     parts.append(lathe(cx, cy, z0 + h + 0.011, [(kr * 0.45, 0.0), (kr * 0.40, kr * 0.35), (kr * 0.95, kr * 0.75),
                                                 (kr, kr * 1.05), (kr * 0.75, kr * 1.45), (kr * 0.15, kr * 1.6)],
-                       lid_key, "lid"))
+                       lid_key, "lid", n=8))
     inner = r - g - 0.002
     top = h * (0.62 if fill != "salt" else 0.55)
     if fill == "salt":
