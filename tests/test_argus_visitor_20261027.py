@@ -156,7 +156,12 @@ def test_a_drawn_column_is_built_in_its_drawn_shape():
     verts = parts["posts"]["verts"]
     box = [v for v in verts if abs(v[0]) < 1.0]
     cyl = [v for v in verts if abs(v[0] - 3.0) < 1.0]
-    assert len(box) == 8 and len(cyl) > 8                            # a box of the drawn footprint, a cylinder
+    assert len(box) in (8, 24) and len(cyl) > 8                      # a box of the drawn footprint, a cylinder
+    # 30 Oct 2026 (UL209): the box may stand on a slim base under a slim head; its shaft keeps the drawn footprint
+    if len(box) == 24:
+        z_low = sorted({round(v[2], 4) for v in box})[1]                 # the base's top = the shaft's foot
+        ring = [v for v in box if round(v[2], 4) == z_low]
+        box = sorted(ring, key=lambda v: v[0] ** 2 + v[1] ** 2)[:4]       # the shaft's corners (inside the base)
     xs, ys = [v[0] for v in box], [v[1] for v in box]
     import math
     a = math.radians(30.0)

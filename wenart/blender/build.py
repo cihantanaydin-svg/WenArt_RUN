@@ -234,6 +234,8 @@ FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry
                     # Milestone 12 (track L): the terrain surface of site.ground (wenart.levels.terrain); track S: the
                     # catalogue rule and the size table the furniture build imports (lead note of 10 Oct 2026)
                     "wenart/levels/__init__.py", "wenart/levels/terrain.py", "wenart/furniture/__init__.py",
+                    # 30 Oct 2026 (UL209): one column through a slab (site.py reads wenart.levels.columns)
+                    "wenart/levels/columns.py",
                     "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml",
                     # 27 Oct 2026: the architect's cover_space plans a light roof with the outdoor spaces' rules
                     "wenart/levels/outdoor.py", "wenart/building.py", "wenart/textfold.py", "wenart/units.py", "wenart/furniture/fixture_seat.py",
@@ -1172,9 +1174,11 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
     # 25 Oct 2026: the architect's answers and the clash resolver change rooms, openings, furniture and decor: the
     # plan works on its own copies (the variant's lists share their items with the caller's building)
     import copy as _copy
-    vb = dict(vb, **{k: _copy.deepcopy(vb[k]) for k in ("rooms", "openings", "furniture", "decor") if k in vb})
+    # 30 Oct 2026: and the site (UL202's walkways move a drawn plant out of the only way: site.decor)
+    vb = dict(vb, **{k: _copy.deepcopy(vb[k]) for k in ("rooms", "openings", "furniture", "decor", "site") if k in vb})
     own = building_all if whole else dict(building_all, **{k: _copy.deepcopy(building_all[k])
-                                                           for k in ("furniture", "decor") if k in building_all})
+                                                           for k in ("furniture", "decor", "site")
+                                                           if k in building_all})
     out = {"whole": whole, "variant": variant, "building": vb if whole else own,
            "views": V.views_for(building_all, variant, brief=brief), "changes": V.variant_changes(building_all, variant),
            "warnings": list(vb["_variant"]["warnings"]), "assumed": [], "slabs": None, "roof": None,
