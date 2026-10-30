@@ -11,7 +11,12 @@ a book set or a stack calls these, so one rule makes every book of every project
   muted palette, ``COVER_COLOURS``) or a dark glossy jacket now and then.
 - ``row`` : a row of standing books from ``x0`` to ``x1``: varied thickness (``THICK_M``), height (70-100 % of the
   room) and depth, small gaps, and a book leaning on the row's end when the row is long enough (``LEAN``).
-- ``stack`` : books lying flat, spines to the front, each a little smaller than the one under it and turned a little.
+- ``stack`` : books lying flat, spines to the front, each a little smaller than the one under it and turned a little;
+  front covers up.
+- 30 Oct 2026 (lesson UL199, user: "Writing on the labels on the books are acceptable you can write things on them when
+  needed"): almost every spine carries a printed title, an author line and a publisher mark (``print_labels``: one
+  strip of the lettering atlas, light lettering on dark cloth, dark lettering on light; distinct titles along a row),
+  between its bands or under its label; the top book of a stack shows a title on its front cover.
 
 The parts stay inside the box the caller gives (thickness along X, depth along Y, height along Z); a caller that needs
 a hard box runs ``detail_parts.contain`` as before. Sizes are designer values of real books (assumed): hardcovers
@@ -20,6 +25,9 @@ a hard box runs ``detail_parts.contain`` as before. Sizes are designer values of
 from __future__ import annotations
 
 import math
+from typing import Optional
+
+from wenart.blender import print_labels as PL
 
 Part = dict
 
@@ -75,9 +83,17 @@ def _half_prism(rx: float, ry: float, y_back: float, z0: float, z1: float, key: 
     return {"verts": verts, "faces": faces, "key": key, "role": role}
 
 
-def book(t: float, w: float, h: float, seed: int = 0, cover: str | None = None) -> list[Part]:
+UNTITLED_EVERY = 11              # one book in about this many has no printed title (a plain cloth spine)
+# where the title runs on the spine (shares of the height) by the spine's marks: two bands, a label, one band, plain
+TITLE_SPAN: dict[int, tuple[float, float]] = {0: (0.15, 0.84), 1: (0.12, 0.58), 2: (0.12, 0.77), 3: (0.10, 0.90)}
+
+
+def book(t: float, w: float, h: float, seed: int = 0, cover: str | None = None, title_seed: Optional[int] = None,
+         title_index: Optional[int] = None, cover_print: bool = False) -> list[Part]:
     """One standing hardcover book in its own frame: thickness ``t`` along X (centred on x = 0), the spine at
-    y = -w/2 facing -Y, the fore-edge at +w/2, from z = 0 to ``h``."""
+    y = -w/2 facing -Y, the fore-edge at +w/2, from z = 0 to ``h``. UL199: its printed title (``print_labels``) on the
+    spine, the strip picked by ``title_seed`` and ``title_index`` (a row's books distinct; default: ``seed``), and with
+    ``cover_print`` on the front board."""
     s = _hash(seed, 7)
     if cover is None:
         cover = JACKET_KEY if s % 9 == 0 else cover_key(COVER_COLOURS[s % len(COVER_COLOURS)])
@@ -104,6 +120,16 @@ def book(t: float, w: float, h: float, seed: int = 0, cover: str | None = None) 
         lh = h * BOOK["label_h"]
         parts.append(_half_prism(t / 2.0 * 0.72, bulge * 0.72 + p, y_spine, h * 0.62, h * 0.62 + lh, PAPER_KEY,
                                  SPINE_ROLE, BOOK["spine_seg"]))
+    if h > 0.08 and s % UNTITLED_EVERY != 5:
+        k = PL.strip_for(seed if title_seed is None else title_seed, PL.tone_for(cover), title_index)
+        lo, hi = TITLE_SPAN[mark if mark != 1 or (h > 0.10 and t > 0.018) else 3]
+        title = PL.spine_title(t, w, h, h * lo, h * hi, k)
+        if title is not None:
+            parts.append(title)
+        if cover_print:
+            front = PL.cover_title(t, w, h, k)
+            if front is not None:
+                parts.append(front)
     return parts
 
 
@@ -157,7 +183,8 @@ def row(x0: float, x1: float, y: float, z: float, depth: float, max_h: float, se
             break
     y_front = y - depth / 2.0
     for cx, t, d, bh, kk in books:
-        out += _move(book(t, d, bh, seed=_hash(seed, kk, 11)), cx, y_front + d / 2.0, z)
+        out += _move(book(t, d, bh, seed=_hash(seed, kk, 11), title_seed=seed, title_index=kk), cx,
+                     y_front + d / 2.0, z)
     if want_lean and len(books) >= LEAN["min_books"]:
         cx, t, d, hu, kk = books[-1]
         xr = cx + t / 2.0                                            # the last upright book's free side
@@ -166,7 +193,7 @@ def row(x0: float, x1: float, y: float, z: float, depth: float, max_h: float, se
         g = hl * math.sin(a)
         if xr + g + tl * math.cos(a) <= x1 + 1e-9:
             dl = depth * 0.9
-            leaning = book(tl, dl, hl, seed=_hash(seed, 101))
+            leaning = book(tl, dl, hl, seed=_hash(seed, 101), title_seed=seed, title_index=len(books))
             # its bottom-left edge on the board, its top resting on the upright book's side
             _move(leaning, 0.0, 0.0, 0.0, ry_deg=-LEAN["deg"], pivot=(-tl / 2.0, 0.0))
             out += _move(leaning, xr + g + tl / 2.0, y_front + dl / 2.0, z)
@@ -185,9 +212,10 @@ def stack(cx: float, cy: float, z: float, w: float, d: float, max_h: float, n: i
         t = min(THICK_M[_hash(seed, k, 17) % len(THICK_M)], max_h / n)
         s = 1.0 - 0.07 * k
         bl, bd = w * s, d * s
-        lying = book(t, bd, bl, seed=_hash(seed, k, 19))
-        # stand-up frame (thickness X, depth Y, height Z) -> lying: the height along +X from 0, the thickness up
-        _move(lying, -bl / 2.0, 0.0, t / 2.0, ry_deg=90.0)
+        lying = book(t, bd, bl, seed=_hash(seed, k, 19), title_seed=seed, title_index=k, cover_print=k == n - 1)
+        # stand-up frame (thickness X, depth Y, height Z) -> lying front cover up (UL199: the spine's title reads left
+        # to right from the front, the top book's cover title upright with it): the book's top towards -X
+        _move(lying, bl / 2.0, 0.0, t / 2.0, ry_deg=-90.0)
         turn = (-3.0, 4.0, -2.0, 2.5)[k % 4] * (1 if seed % 2 == 0 else -1)
         out += _move(lying, cx + 0.006 * (k % 2), cy, zz, rz_deg=turn)
         zz += t

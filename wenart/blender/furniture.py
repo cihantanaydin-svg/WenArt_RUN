@@ -695,6 +695,9 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         # 30 Oct 2026 (UL175): the desktop a switched-on screen shows (materials.screen_ui_material; the record's slug
         # is the screen's)
         "screen_ui": ("screen_black", None, None),
+        # 30 Oct 2026 (UL199): printed lettering, book titles and kitchen labels (materials.lettering_material; the
+        # record's slug is the paper's)
+        "lettering": ("book_pages", None, None),
         # 29 Oct 2026 (UL106): the sheer layer of a layered curtain (materials.sheer_material: see-through voile)
         "sheer": (SHEER_SLUG, None, None),
         # 29 Oct 2026 (UL114, UL123, UL124: the bathroom details): an LED strip (the build gives the key its own
@@ -1212,7 +1215,7 @@ def _unverified_copies(materials_list: list, cache: dict) -> list:
 
 
 def _mesh_object(name: str, verts, faces, materials_list, face_materials, collection, wenart_id, kind, status,
-                 uvs=None, uv_name: str | None = None, fallback_material=None, normals=None):
+                 uvs=None, uv_name: str | None = None, fallback_material=None, normals=None, lettering_uvs=None):
     """Mesh object from world geometry with per-face materials; empty slots
     get ``fallback_material``; asset UVs (when given) become the active
     layer and ``box_m`` stays as a second layer. 30 Oct 2026 (UL131): ``normals`` (per face: None = flat, else its
@@ -1242,9 +1245,27 @@ def _mesh_object(name: str, verts, faces, materials_list, face_materials, collec
         # this the asset's atlas was sampled with box UVs in metres (scrambled
         # wood on every library piece in furnish run 3).
         layer.active_render = True
+    if lettering_uvs is not None and any(u is not None for u in lettering_uvs):
+        add_lettering_uvs(ob.data, lettering_uvs)
     if normals is not None and any(n is not None for n in normals):
         apply_normals(ob.data, faces, normals)
     return ob
+
+
+def add_lettering_uvs(mesh, uvs) -> None:
+    """30 Oct 2026 (UL199): the printed lettering's UVs (``parametric.lettering_uvs``, one entry per face) as the
+    mesh's ``print_labels.UV_LAYER``; the active and the render layers stay as they were (the other materials keep
+    their UVs, the lettering material names its layer)."""
+    from wenart.blender import print_labels as PL
+
+    active = mesh.uv_layers.active
+    layer = mesh.uv_layers.new(name=PL.UV_LAYER)
+    for poly, uv in zip(mesh.polygons, uvs):
+        corners = uv if uv is not None else [PL.CLEAR_UV] * len(poly.loop_indices)
+        for li, co in zip(poly.loop_indices, corners):
+            layer.data[li].uv = co
+    if active is not None:
+        mesh.uv_layers.active = active
 
 
 def corner_normal_list(faces, normals) -> tuple[list[bool], list[tuple]]:
@@ -1325,6 +1346,9 @@ class _Materials:
         if key == "screen_ui":                    # 30 Oct 2026 (UL175): the light windows, bars and dock on it
             from wenart.blender import materials as M
             return M.screen_ui_material()
+        if key == "lettering":                    # 30 Oct 2026 (UL199): printed titles and labels (the atlas)
+            from wenart.blender import materials as M
+            return M.lettering_material()
         if key == "led":                          # 29 Oct 2026 (UL114): an LED strip at a fixture shade's radiance
             from wenart.blender import materials as M
             return M.led_material()
@@ -2669,7 +2693,8 @@ def _parametric_object(piece, name, status, floor_z, height, collection, mats, e
     used_keys = sorted(set(keys), key=keys.index)
     slots = [_part_material(mats, k, unverified and k != "glass", overrides=overrides, lit=lit) for k in used_keys]
     indices = [used_keys.index(k) for k in keys]
-    ob = _mesh_object(name, verts, faces, slots, indices, collection, piece["id"], "furniture", status)
+    ob = _mesh_object(name, verts, faces, slots, indices, collection, piece["id"], "furniture", status,
+                      lettering_uvs=P.lettering_uvs(parts))
     x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
     entry.update({"bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],
                   "materials": [m.name for m in slots], "material": slots[0].name,
@@ -3245,7 +3270,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                                 overrides=overrides,
                                 lit=lit or bulb_glows(dtype, k)) for k in used_keys]
         ob = _mesh_object(name, verts, faces, slots, [used_keys.index(k) for k in keys], collection, owner_id,
-                          "decor", status)
+                          "decor", status, lettering_uvs=P.lettering_uvs(parts))
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
         entry.update({"method": f"parametric (fallback: {reason})", "fallback_reason": reason,
                       "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],
@@ -3397,7 +3422,7 @@ def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, p
         slots = [mats.get(k, accent=P.DECOR_COLOURS.get(str(item.get("colour") or "")), colour=item.get("colour"))
                  for k in used]
         ob = _mesh_object(name, verts, faces, slots, [used.index(k) for k in keys], collection, owner_id, "decor",
-                          status)
+                          status, lettering_uvs=P.lettering_uvs(parts))
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
         bbox = [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)]
         info = {"bbox_m": bbox, "fit_scale": [1.0, 1.0, 1.0]}

@@ -47,6 +47,8 @@ runs/
 /assets/*
 # 27 Oct 2026: the curated style reference photos (public domain / CC0, wenart/style/references.py REPO_SETS) are code
 !/assets/references/
+# 30 Oct 2026 (UL199): the printed-lettering atlas (scripts/make_print_atlas.py, invented texts, open fonts) is code
+!/assets/print/
 
 # Private projects (docs/milestone6.md §7, docs/intake.md): never committed. The repo is public;
 # private uploads, outputs and results live on the network volume, collected into runs/.

@@ -295,12 +295,20 @@ def _norm(a):
 
 
 def _jar(x: float, y: float, z: float, r: float, h: float, fill: str, fill_share: float = 0.55) -> list[Part]:
-    """A glass storage jar with its contents and a wooden lid (pure; bottom at ``z``)."""
+    """A glass storage jar with its contents and a wooden lid (pure; bottom at ``z``); 30 Oct 2026 (UL199): a printed
+    paper label naming its contents (``print_labels.JAR_WORDS``)."""
+    from wenart.blender import print_labels as PL
+
     lid = min(0.02, h * 0.12)
     body = h - lid
-    return [P._cylinder_z(x, y, z, r, r, body, "glass", "jar", n=16),
-            P._cylinder_z(x, y, z + 0.004, r - 0.006, r - 0.006, body * fill_share, fill, "contents", n=12),
-            P._cylinder_z(x, y, z + body, r + 0.002, r + 0.002, lid, "wood", "lid", n=16)]
+    parts = [P._cylinder_z(x, y, z, r, r, body, "glass", "jar", n=16),
+             P._cylinder_z(x, y, z + 0.004, r - 0.006, r - 0.006, body * fill_share, fill, "contents", n=12),
+             P._cylinder_z(x, y, z + body, r + 0.002, r + 0.002, lid, "wood", "lid", n=16)]
+    word = PL.JAR_WORDS.get(fill)
+    if word and body > 0.06:
+        lo = body * 0.30
+        parts.append(PL.bottle_label(x, y, z, r, lo, lo + min(body * 0.42, r * 2.2), word))
+    return parts
 
 
 # --------------------------------------------------------------------------
