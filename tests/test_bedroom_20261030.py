@@ -221,7 +221,8 @@ def _bedroom_desk(size=(1.4, 0.6), lamp=None, library=True):
 def test_an_unverified_library_desk_gets_its_laptop_stationery_and_lamp():
     b, room_, pieces = _bedroom_desk()
     desk = pieces[0]
-    assert not DA.usable_host(desk)                                   # the run's case: no trusted host
+    # the run's case was no trusted host; 30 Oct 2026 (UL180): a piece the fit built as its type hosts decor
+    assert DA.usable_host(desk) and not DA.usable_host(dict(desk, asset=None))
     made = TT.dress_tops(room_, pieces, b, [], _new_id())
     on = {i["type"]: i for i in made if i["host_id"] == desk["id"]}
     assert {"laptop", "stationery", "table_lamp"} <= set(on)

@@ -1118,13 +1118,14 @@ def floor_rest(item_verts, floor_z: float) -> dict:
 # --------------------------------------------------------------------------
 
 def own_cushions(host: dict) -> bool:
-    """Whether a seat's or bed's model already has its cushions (the audit's ``has_cushions`` on a seat,
-    ``has_pillows`` / ``has_cushions`` on a bed; pure): decor cushions on it would lie on top of them (25 Oct 2026:
-    the decor stage judged the provisional model, the build the final one)."""
+    """Whether a seat's or bed's model already has its cushions (``has_scatter_cushions`` on a seat: the fit's
+    ``catalog.has_scatter_cushions``; ``has_pillows`` / ``has_cushions`` on a bed; pure): decor cushions on it would lie
+    on top of them (25 Oct 2026: the decor stage judged the provisional model, the build the final one). 30 Oct 2026
+    (UL180): a seat's loose seat and back cushions (the audit's ``has_cushions``) leave it no less bare."""
     asset = host.get("asset") if isinstance(host.get("asset"), dict) else {}
     if host.get("type") in BED_HOSTS:
         return asset.get("has_pillows") is True or asset.get("has_cushions") is True
-    return asset.get("has_cushions") is True
+    return asset.get("has_scatter_cushions") is True
 
 
 def own_bedding(host: dict) -> bool:

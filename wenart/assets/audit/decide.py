@@ -120,6 +120,8 @@ def answer_flags(item: dict, answer: Optional[dict]) -> dict:
     if t in BED_TYPES or t in SEAT_TYPES:
         if isinstance(answer.get("has_cushions"), bool):
             flags["has_cushions"] = answer["has_cushions"]
+        if isinstance(answer.get("has_scatter_cushions"), bool):     # 30 Oct 2026 (UL180): the m13.4 question
+            flags["has_scatter_cushions"] = answer["has_scatter_cushions"]
     if item["kind"] == "decor" and answer.get("contact") in CONTACTS:
         flags["contact"] = answer["contact"]
     return flags

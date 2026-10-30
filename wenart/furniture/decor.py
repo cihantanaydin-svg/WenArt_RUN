@@ -232,6 +232,7 @@ HOST_TYPES: dict[str, str] = {    # host type -> decor type
     "sofa_corner": "cushion",     # Milestone 10: cushions along the L's back, as a sofa
 }
 CORNER_SOFA_CUSHION_PITCH_M = 0.6  # Milestone 10: one cushion per this much of a corner sofa's back
+CORNER_SOFA_CUSHIONS_MAX = 4       # 30 Oct 2026 (UL180, UL163's measure): never a row of seven along a 4.4 m L
 # Milestone 8 rugs (docs/milestone8.md §4).
 RUG_MARGIN_M = 0.3                # the group box grows by this on every side
 RUG_ROOM_INSET_M = 0.3            # ... and is clipped to the room shrunk by this
@@ -287,7 +288,7 @@ def host_decor(host: dict) -> list[dict]:
     kind = HOST_TYPES.get(host["type"])
     items = []
     if kind == "cushion" and host["type"] == "sofa_corner":
-        n = max(2, int(w / CORNER_SOFA_CUSHION_PITCH_M))
+        n = min(CORNER_SOFA_CUSHIONS_MAX, max(2, int(w / CORNER_SOFA_CUSHION_PITCH_M)))
         for i in range(n):
             x = -w / 2.0 + w * (i + 0.5) / n
             centre = _local_to_building(host, x, d / 2.0 - CUSHION_SIZE[1] / 2.0 - 0.1)
@@ -430,16 +431,28 @@ def plant_position(room: dict, furniture: list[dict], building: dict) -> tuple[O
     return None, "no free corner (" + "; ".join(reasons) + ")"
 
 
+# 30 Oct 2026 (lesson UL180; real04 run 20261030-112241-full, user: "put some pillows and sheet on to the white sofa
+# also another carpet could be good here"): the asset methods with which the fit builds a piece as its type
+BUILT_AS_TYPE_METHODS: tuple[str, ...] = ("library", "module", "parametric")
+
+
 def trusted_host(piece: dict) -> bool:
     """Fix round after P4a (module docstring): a piece whose type and place decor may trust: verified, or a
-    vector-drawn piece the reading typed by code (``program.unsure_anchor`` False for an ``unverified`` piece)."""
+    vector-drawn piece the reading typed by code (``program.unsure_anchor`` False for an ``unverified`` piece).
+    30 Oct 2026 (UL180): or an ``unverified`` piece the fit built as its type (``BUILT_AS_TYPE_METHODS``; not a
+    completion's type proposal): the render shows it as that type, so it is dressed as one. real04's white L-sofa,
+    an L outline typed corner sofa by the reading's rule but larger than the type's size table (so unverified), was
+    built from a library model and stood bare: no cushion, no throw, no rug under its seating group."""
     if piece.get("status") == "verified":
         return True
     if piece.get("status") != "unverified":
         return False
     from wenart.furniture import program as PR     # lazy: program reads the groups
 
-    return not PR.unsure_anchor(piece)
+    if not PR.unsure_anchor(piece):
+        return True
+    return piece.get("type_proposal") is not True and \
+        (piece.get("asset") or {}).get("method") in BUILT_AS_TYPE_METHODS
 
 
 def _usable_anchor(piece: dict) -> bool:

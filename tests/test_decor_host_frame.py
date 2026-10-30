@@ -151,7 +151,7 @@ def test_throw_takes_the_resized_bed_width_and_tops_never_overhang():
 
 
 def test_no_decor_cushions_on_models_with_their_own():
-    sofa = piece("s", "sofa", (0, 0), (2.0, 0.9), asset={"method": "library", "has_cushions": True})
+    sofa = piece("s", "sofa", (0, 0), (2.0, 0.9), asset={"method": "library", "has_scatter_cushions": True})
     bed = piece("b", "bed_double", (5, 0), (1.6, 2.0), asset={"method": "library", "has_bedding": True,
                                                                     "has_pillows": True})
     bare = piece("c", "bed_double", (9, 0), (1.6, 2.0), asset={"method": "library", "has_mattress": True})

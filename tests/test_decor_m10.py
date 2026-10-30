@@ -92,7 +92,7 @@ def test_soft_top_wall_and_floor_slots_of_the_new_types():
     b["furniture"][0].update(shape="L", chaise_side="right", chaise_depth=1.6)
     ids = by_id(slots_of(b)[0])
     cushions = ids["f_L0_001.cushions"].items["cushion"]
-    assert len(cushions) == int(2.6 / D.CORNER_SOFA_CUSHION_PITCH_M)              # along the L's back
+    assert len(cushions) == min(D.CORNER_SOFA_CUSHIONS_MAX, int(2.6 / D.CORNER_SOFA_CUSHION_PITCH_M))   # the L's back
     throw = ids["f_L0_001.throw"].items["throw"][0]
     assert throw["center"][0] > 3.0                                               # on the chaise (right)
     assert ids["f_L0_002.left"].types[0] == "table_lamp" and "tray" in ids["f_L0_002.left"].types
@@ -300,7 +300,8 @@ def test_a_chain_of_partners_copies_the_roots_decor_to_every_room():
     picked = {d["type"] for d in mine if not str(d.get("reason", "")).startswith("styling")   # 25 Oct: + the fill
               and TT.REASON_TAG not in str(d.get("reason", ""))
               and d.get("rule") != "decor.ceiling_lights"                # 28 Oct 2026: + the lighting rule
-              and not str(d.get("rule") or "").startswith("room_details.")}   # 29 Oct 2026: + the room details
+              and not str(d.get("rule") or "").startswith("room_details.")    # 29 Oct 2026: + the room details
+              and d.get("rule") != DA.LIVING_DRESSING_RULE}                 # 30 Oct 2026 (UL180): + the main sofa
     assert picked == {"cushion", "curtain", "vase"} and len(twin) == len(chain) == len(mine)
     for c in chain:
         d = twin[c["mirrored_from"]]                  # the copy of the twin's copy: the root's decor mirrored once

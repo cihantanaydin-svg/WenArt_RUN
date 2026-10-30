@@ -350,7 +350,7 @@ def test_m21_and_u19_find_what_the_user_pointed_at(real06):
     assert "room_use" in CS.NO_TOOL_REASON and CS.CAUSE_TOOLS["room_use"] == ()
     u19 = LS.rooms_for_use(real06)
     assert u19 and all(f["check"] == "U19" and f["evidence"]["lesson"] in ("UL91", "UL94", "UL98", "UL99", "UL102",
-                                                                           "UL103", "UL107") for f in u19)
+                                                                           "UL103", "UL107", "UL180") for f in u19)
     assert ("U19", LS.rooms_for_use) in LS.BUILDING_CHECKS and LS.CHECK_LESSONS["U19"] == ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107")
     res = LS.audit(real06)
     assert res["checked"]["U19"] == len(u19)

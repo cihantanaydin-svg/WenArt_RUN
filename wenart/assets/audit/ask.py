@@ -143,12 +143,32 @@ def opening_props() -> dict:
             "leaf": {"enum": list(LEAF_LOOKS)}, "handle_side": {"enum": list(HANDLE_SIDES)}}
 
 
+# 30 Oct 2026 (lesson UL180; user: "put some pillows and sheet on to the white sofa"): up to m13.3 ``has_cushions`` asked
+# for "loose or scatter cushions", so a sofa with loose seat and back cushions and no pillow on it was flagged and the
+# decor left it bare. From m13.4 the question splits them: ``has_cushions`` the loose seat or back cushions,
+# ``has_scatter_cushions`` the pillows lying on it (``catalog.has_scatter_cushions`` reads it; until a model is asked
+# again its title decides). ``ask.version_seats`` in audit.yaml (opt-in: it re-asks every seat and bed model) gives the
+# seats and beds that question.
+SCATTER_VERSION: tuple[int, int] = (13, 4)
+BED_QUESTION_TYPES: tuple[str, ...] = ("bed_single", "bed_double", "bunk_bed", "crib")
+SEAT_QUESTION_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise", "chair", "bench", "ottoman",
+                                        "office_chair", "bar_stool")
+
+
+def with_scatter(version: Optional[str]) -> bool:
+    """True when a question version splits loose seat cushions from scatter cushions (m13.4 and later)."""
+    return _version_number(version) >= SCATTER_VERSION
+
+
 def version_for(item: dict, cfg_ask: dict) -> str:
     """The question version of one model: ``version_openings`` for a door or window of ``OPENING_SOURCES`` (28 Oct
-    2026), ``version_logo`` for a model of ``LOGO_SOURCES``, ``version_materials`` for a model without material tags
-    (the question asks for them), else ``version``."""
+    2026), ``version_seats`` for a seat or bed when set (30 Oct 2026, UL180), ``version_logo`` for a model of
+    ``LOGO_SOURCES``, ``version_materials`` for a model without material tags (the question asks for them), else
+    ``version``."""
     if item.get("kind") == "opening" and item.get("source") in OPENING_SOURCES:
         return opening_version(cfg_ask)
+    if cfg_ask.get("version_seats") and item.get("type") in SEAT_QUESTION_TYPES + BED_QUESTION_TYPES:
+        return str(cfg_ask["version_seats"])
     if item.get("source") in LOGO_SOURCES:
         return logo_version(cfg_ask)
     tags = item.get("material_tags")
@@ -199,6 +219,8 @@ def schema(kind: str, version: Optional[str] = None) -> dict:
         "has_cushions": {"type": ["boolean", "null"]},
         "contact": {"enum": list(CONTACTS) + [None]},
     }
+    if with_scatter(version):
+        props["has_scatter_cushions"] = {"type": ["boolean", "null"]}
     if with_materials(version):
         props["materials"] = {"type": "array", "items": {"enum": list(MATERIAL_WORDS)}, "maxItems": 4}
     if with_logo(version):
@@ -248,7 +270,10 @@ def prompt(item: dict, box, version: Optional[str] = None) -> str:
          if has_front(item["type"]) else "- front_shown: 'none' (this type has no front)."),
         ("- has_bedding: true when the bed has sheets, a duvet or a cover; has_pillows: true when it has bed "
          "pillows" if bed else "- has_bedding: null; has_pillows: null."),
-        ("- has_cushions: true when it has loose or scatter cushions" if (bed or seat)
+        (("- has_cushions: true when it has loose seat or back cushions; has_scatter_cushions: true when decorative "
+          "scatter or throw pillows lie on it (on the seat, against the back or the headboard)" if (bed or seat)
+          else "- has_cushions: null; has_scatter_cushions: null.") if with_scatter(version) else
+         "- has_cushions: true when it has loose or scatter cushions" if (bed or seat)
          else "- has_cushions: null."),
         ("- contact: how it rests: flat_bottom (stands on a surface), hangs (on a wall or from a ceiling), leans "
          "(against a back or a wall), drapes (lies over a host like a throw)" if item["kind"] == "decor"

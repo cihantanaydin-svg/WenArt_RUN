@@ -94,8 +94,9 @@ def test_outdoor_models_rank_first_on_a_terrace():
 
 def test_a_cushion_is_not_built_on_a_model_with_its_own_and_sinks_into_a_soft_seat():
     bed = {"type": "bed_double", "asset": {"has_pillows": True}}
-    sofa = {"type": "sofa", "asset": {"has_cushions": True}}
+    sofa = {"type": "sofa", "asset": {"has_scatter_cushions": True}}
     assert R.own_cushions(bed) and R.own_cushions(sofa)
+    assert not R.own_cushions({"type": "sofa", "asset": {"has_cushions": True}})     # UL180: loose seat cushions
     assert not R.own_cushions({"type": "sofa", "asset": {"has_pillows": True}})
     assert not R.own_cushions({"type": "bed_double", "asset": {}})
     assert R.LEAN_DEG >= 18.0 and R.HEADBOARD_LEAN_DEG >= R.LEAN_DEG and 0.0 < R.SOFT_SINK_M <= 0.03
