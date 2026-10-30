@@ -14,7 +14,11 @@ What (pure, no shapely: it runs where the grading review runs):
   every post standing on its steps, reaching past its first and last step (UL144: a loose frame per flight); on the
   scene manifest, a stepped path built before the rule (its ``rail`` record missing) is a finding;
 - G11 (``pool_extras.review``): every pool has a ladder, a deck with room has seating (UL143);
-- G12 ``aprons``: the paved strip at the foot of a glazed facade covers its whole glazing run (UL142).
+- G12 ``aprons``: the paved strip at the foot of a glazed facade covers its whole glazing run (UL142);
+- G13 ``access`` (30 Oct 2026, UL198: "Understand that the cars should be able to enter to this location and exit"):
+  a car drives into every parking from a street and out again (``site.vehicle_access``: a clear stretch of its edge
+  at least 3 m wide, no kerb, railing, step, wall, fence, hedge or flight across it, a gradient a car takes, and a
+  second way out or room to turn); a way in that is not usable is a minor finding when another one is.
 
 ``review(site, manifest)`` returns ``(findings, checked)`` in the model review's format (``grading._f``).
 """
@@ -235,13 +239,37 @@ def aprons(site: dict, manifest: Optional[dict] = None) -> list[dict]:
     return out
 
 
+def access(site: dict) -> list[dict]:
+    """G13 (module docstring): every parking's way in from a street and out again (``site.vehicle_access``; shapely,
+    so none where it is missing)."""
+    from wenart.blender import grading as GR
+    from wenart.blender import site as S
+
+    try:
+        rows = S.vehicle_access(site)
+    except ImportError:
+        return []
+    out = []
+    for r in rows:
+        if not r["ok"]:
+            out.append(GR._f("major", r["platform"], f"a car cannot use the parking {r['platform']}: "
+                             + "; ".join(r["problems"]), "G13", "no_sense", lesson="UL198"))
+            continue
+        for c in r["connections"]:
+            if c["problems"]:
+                out.append(GR._f("minor", r["platform"], f"the way into {r['platform']} at its edge {c['edge']} is "
+                                 f"not usable by a car: {', '.join(c['problems'])} (another way in is)", "G13",
+                                 "no_sense", lesson="UL198", edge=c["edge"]))
+    return out
+
+
 def review(site: Optional[dict], manifest: Optional[dict] = None) -> tuple[list[dict], int]:
-    """G8-G12 on a site plan (pure; module docstring)."""
+    """G8-G13 on a site plan (pure; module docstring)."""
     from wenart.blender import pool_extras as PX
 
     if not site or not site.get("terrain"):
         return [], 0
-    findings = fragments(site) + flights_meet(site) + rails(site, manifest) + aprons(site, manifest)
+    findings = fragments(site) + flights_meet(site) + rails(site, manifest) + aprons(site, manifest) + access(site)
     more, n = PX.review(site, manifest)
     checked = len(site.get("platforms") or []) + len([a for a in site.get("areas") or [] if a.get("kind") == "path"]) \
         + len(site.get("glazing_runs") or []) + n

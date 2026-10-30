@@ -121,6 +121,7 @@ RULES = {
     "G10": "an outdoor stair has one continuous handrail on its open side, on posts on its steps",
     "G11": "every pool has a ladder, a deck with room has seating",
     "G12": "the paved strip at the foot of a glazed facade runs its whole glazing run",
+    "G13": "a car drives into every parking from a street and out again (UL198)",
 }
 CONCRETE_SLUGS = ("concrete_exposed", "concrete", "concrete_polished")
 

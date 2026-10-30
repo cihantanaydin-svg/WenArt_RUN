@@ -423,7 +423,10 @@ def test_real04_slope_is_graded_and_the_check_finds_the_crude_grading_of_before(
     assert flights >= 1
     rec = MR.review(prep["building"], None, prep)
     assert rec["checks"]["M15"]["status"] == "ok" and rec["checks"]["M15"]["checked"] > 20
-    assert [f for f in rec["findings"] if f["check"] == "M15"] == []
+    # 30 Oct 2026 (UL198): the drive's drawn west end climbs about 20 % into the street: a minor note, the south end is
+    # the way in (a car turns at the drive's corner)
+    m15 = [f for f in rec["findings"] if f["check"] == "M15"]
+    assert all(f["metrics"]["rule"] == "G13" and f["severity"] == "minor" for f in m15), m15
     arch = {q["id"]: q for q in prep["architect"]["questions"]}
     assert arch["G2"]["status"] == "ok" and arch["G3"]["status"] == "ok"
     # the grading of before: per-piece levels, nothing planted -> M15 finds the boxes stacked like stairs

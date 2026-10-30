@@ -20,16 +20,20 @@ def test_a_drive_dead_end_runs_to_the_plot_edge_and_meets_a_street_outside():
     out = S.outside_roads([drive], plot, extent, _rect(0, 0, 15, 12))
     links = out["links"]
     streets = [a for a in out["areas"] if a["kind"] == "road"]
-    assert len(links) == 1 and min(p[0] for p in links[0]["polygon"]) <= -6 + 1e-6      # on to the plot's west edge
-    assert S.extend_drives([drive], links) == [links[0]["id"]]                           # the drive itself grows
-    assert min(p[0] for p in drive["polygon"]) <= -6 + 1e-3 and len(drive["links"]) == 1
+    # 30 Oct 2026 (UL196): both ends cross the pavement to the carriageway (the crossover); the west one first runs on
+    # to the plot's west edge
+    pave = S.STREET["pave_m"]
+    west = next(ln for ln in links if min(p[0] for p in ln["polygon"]) < -5.0)
+    assert len(links) == 2 and min(p[0] for p in west["polygon"]) <= -6 - pave + 1e-6
+    assert sorted(S.extend_drives([drive], links)) == sorted(ln["id"] for ln in links)  # the drive itself grows
+    assert min(p[0] for p in drive["polygon"]) <= -6 - pave + 1e-3 and len(drive["links"]) == 2
     assert streets and all(a["material"] == "asphalt" for a in streets)
     from shapely.geometry import Polygon
     for st in streets:                                                                   # outside the plot only
         assert Polygon(st["polygon"]).intersection(Polygon(plot)).area < 0.01
-    # the street meets the drive's south end and the link's west end
-    assert any(G.point_in_polygon((21.5, -5.0), st["polygon"]) for st in streets)
-    assert any(G.point_in_polygon((-8.0, 32.5), st["polygon"]) for st in streets)
+    # the carriageway meets the drive's south end and the link's west end, past the pavement
+    assert any(G.point_in_polygon((21.5, -4.0 - pave - 1.0), st["polygon"]) for st in streets)
+    assert any(G.point_in_polygon((-6.0 - pave - 1.0, 32.5), st["polygon"]) for st in streets)
 
 
 def test_a_drive_that_leads_somewhere_is_no_dead_end():
@@ -62,5 +66,7 @@ def test_fenced_neighbouring_plots_and_a_road_coming_to_the_drive():
         assert pn.intersection(Polygon(plot)).area < 0.01 and pn.intersection(roads).area < 0.01
         assert nb["fence"] and all(G.distance(sg["start"], sg["end"]) <= S.NEIGHBOURS["piece_m"] + 1e-6
                                    for sg in nb["fence"])
-        fenced = sum(G.distance(sg["start"], sg["end"]) for sg in nb["fence"])
+        fenced = sum(G.distance(sg["start"], sg["end"]) for sg in nb["fence"] if sg["kind"] == "fence")
         assert pn.length - fenced >= S.NEIGHBOURS["gate_m"] - 0.01           # a gate gap towards the road
+        gates = [sg for sg in nb["fence"] if sg["kind"] == "gate"]           # UL196: the gate stands in it
+        assert len(gates) == 1 and abs(G.distance(gates[0]["start"], gates[0]["end"]) - S.NEIGHBOURS["gate_m"]) < 0.01

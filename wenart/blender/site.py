@@ -2160,6 +2160,151 @@ def boundary_parts(seg: dict, terrain: dict) -> tuple[list, list, dict]:
                           "segments": k, "steps": 1, "z_range": [round(min(zs), 4), round(max(zs), 4)]}
 
 
+# 30 Oct 2026 (lesson UL196, user on real04 run 20261030-112241-full: "Better road section and fencing area is needed on the
+# outside": the neighbours' plots had a low two-rail ranch fence): a neighbour's fence is a real garden fence product,
+# ``height_m`` high: square posts every ``post_every_m`` set ``post_foot_m`` into the ground, horizontal boards
+# ``board_h`` high with ``board_gap`` between them from ``foot_m`` over the ground, a top cap ``cap_w`` wide; the gate
+# (``_fence_ring``'s gap) hangs between two stouter gate posts: a frame of stiles and rails with the same boards
+FENCE = {"height_m": 1.4, "post": 0.09, "post_every_m": 2.0, "post_foot_m": 0.4, "board_h": 0.14, "board_t": 0.022,
+         "board_gap": 0.035, "foot_m": 0.06, "cap_h": 0.04, "cap_w": 0.11, "gate_post": 0.12, "gate_clear_m": 0.05,
+         "frame_w": 0.07}
+
+
+def _boards(a, b, gz: float, height: float, angle: float, z0: float) -> list:
+    """The horizontal boards of a bay from ``a`` to ``b`` (pure): ``board_h`` boards ``board_gap`` apart from ``z0`` to
+    the cap, as boxes."""
+    length = G.distance(a, b)
+    if length < 0.05:
+        return []
+    mid = G.segment_midpoint(a, b)
+    out = []
+    pitch = FENCE["board_h"] + FENCE["board_gap"]
+    z = z0
+    while z + FENCE["board_h"] <= height - FENCE["cap_h"] + 1e-9:
+        out.append(geom2d.box((mid[0], mid[1], gz + z + FENCE["board_h"] / 2.0),
+                              (length, FENCE["board_t"], FENCE["board_h"]), angle))
+        z += pitch
+    return out
+
+
+def fence_product_parts(seg: dict, terrain: dict) -> tuple[list, list, dict]:
+    """``(verts, faces, info)`` of one neighbour's fence segment (``FENCE``; pure): ``kind`` ``fence`` a run of posts,
+    boards and the cap, bay by bay on the ground under each bay; ``gate`` two gate posts and a framed leaf of boards
+    between them (lesson UL196)."""
+    a, b = seg["start"], seg["end"]
+    length = G.distance(a, b)
+    angle = G.segment_angle_deg(a, b)
+    h = FENCE["height_m"]
+    parts = []
+    zs = []
+    if seg.get("kind") == "gate":
+        gp = FENCE["gate_post"]
+        for p in (a, b):
+            gz = ground_z(terrain, *p)
+            parts.append(geom2d.box((p[0], p[1], gz + (h + 0.05 - FENCE["post_foot_m"]) / 2.0),
+                                    (gp, gp, h + 0.05 + FENCE["post_foot_m"]), angle))
+            zs += [gz - FENCE["post_foot_m"], gz + h + 0.05]
+        clear = FENCE["gate_clear_m"] + gp / 2.0
+        if length > 2.0 * clear + 0.3:
+            ua = ((b[0] - a[0]) / length, (b[1] - a[1]) / length)
+            la = (a[0] + ua[0] * clear, a[1] + ua[1] * clear)
+            lb = (b[0] - ua[0] * clear, b[1] - ua[1] * clear)
+            mid = G.segment_midpoint(la, lb)
+            gz = ground_z(terrain, *mid)
+            lw = G.distance(la, lb)
+            fw = FENCE["frame_w"]
+            parts.append(geom2d.box((mid[0], mid[1], gz + FENCE["foot_m"] + fw / 2.0), (lw, FENCE["board_t"] * 1.6, fw),
+                                    angle))
+            parts.append(geom2d.box((mid[0], mid[1], gz + h - fw / 2.0), (lw, FENCE["board_t"] * 1.6, fw), angle))
+            for p in (la, lb):
+                c = (p[0] + (mid[0] - p[0]) * fw / max(lw, 1e-6), p[1] + (mid[1] - p[1]) * fw / max(lw, 1e-6))
+                parts.append(geom2d.box((c[0], c[1], gz + (FENCE["foot_m"] + h) / 2.0),
+                                        (fw, FENCE["board_t"] * 1.6, h - FENCE["foot_m"]), angle))
+            parts += _boards(la, lb, gz, h - fw, angle, FENCE["foot_m"] + fw + FENCE["board_gap"])
+        verts, faces = geom2d.merge(parts)
+        return verts, faces, {"kind": "gate", "height": h, "width": round(length, 3), "height_assumed": True,
+                              "z_range": [round(min(zs), 4), round(max(zs), 4)] if zs else None}
+    k = max(1, int(math.ceil(length / FENCE["post_every_m"])))
+    pts = [G.point_along_segment(a, b, i / k) for i in range(k + 1)]
+    for p in pts:
+        gz = ground_z(terrain, *p)
+        parts.append(geom2d.box((p[0], p[1], gz + (h - FENCE["post_foot_m"]) / 2.0),
+                                (FENCE["post"], FENCE["post"], h + FENCE["post_foot_m"]), angle))
+        zs += [gz - FENCE["post_foot_m"], gz + h]
+    for p, q in zip(pts, pts[1:]):
+        mid = G.segment_midpoint(p, q)
+        gz = ground_z(terrain, *mid)
+        parts += _boards(p, q, gz, h, angle, FENCE["foot_m"])
+        parts.append(geom2d.box((mid[0], mid[1], gz + h - FENCE["cap_h"] / 2.0),
+                                (G.distance(p, q) + FENCE["post"], FENCE["cap_w"], FENCE["cap_h"]), angle))
+    verts, faces = geom2d.merge(parts)
+    return verts, faces, {"kind": "fence", "height": h, "height_assumed": True, "posts": len(pts),
+                          "post_every_m": round(length / k, 3), "z_range": [round(min(zs), 4), round(max(zs), 4)]}
+
+
+def _run_boxes(run, terrain: dict, width: float, offset: float, top: float, depth: float, piece: float = 1.0) -> list:
+    """Boxes along a run ``[a, b]`` (pure): pieces of at most ``piece`` m, each on the ground under its middle, its top
+    ``top`` over the ground and ``depth`` under it, ``width`` across, its axis ``offset`` m to the run's right
+    (counter-clockwise polygons: the outside)."""
+    a, b = run
+    length = G.distance(a, b)
+    if length < 0.05:
+        return []
+    ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+    nx, ny = uy, -ux
+    angle = G.segment_angle_deg(a, b)
+    k = max(1, int(math.ceil(length / piece)))
+    out = []
+    for m in range(k):
+        t = (m + 0.5) * length / k
+        c = (a[0] + ux * t + nx * offset, a[1] + uy * t + ny * offset)
+        gz = ground_z(terrain, *c)
+        out.append(geom2d.box((c[0], c[1], gz + (top - depth) / 2.0), (length / k + 0.002, width, top + depth), angle))
+    return out
+
+
+def street_parts(streets: dict, terrain: dict) -> dict:
+    """The street section's parts as meshes (pure; ``STREET``, lesson UL196): ``{"kerb", "edging", "line", "lamp":
+    (verts, faces)}``: the concrete kerbs on the pavement's side of the carriageway's edge, their tops just over the
+    pavement; the pavement's back edging; the centre line's dashes draped on the ground over the asphalt; and every
+    street lamp (a base, an octagonal pole ``lamp_h`` high, an arm ``lamp_arm_m`` over the road, the lamp head)."""
+    top = PAVING_LIFT + STREET["pave_lift_m"] + 0.005
+    out: dict = {}
+    kerbs = [b for r in streets.get("kerbs") or [] for b in _run_boxes(r, terrain, STREET["kerb_w"],
+                                                                        STREET["kerb_w"] / 2.0, top, 0.12)]
+    if kerbs:
+        out["kerb"] = geom2d.merge(kerbs)
+    edgings = [b for r in streets.get("edgings") or [] for b in _run_boxes(r, terrain, STREET["edging_w"],
+                                                                            -STREET["edging_w"] / 2.0, top - 0.002, 0.1)]
+    if edgings:
+        out["edging"] = geom2d.merge(edgings)
+    lines = []
+    for d in streets.get("dashes") or []:
+        v, f = draped_faces(d, [], terrain, lift=PAVING_LIFT + 0.004)
+        if f:
+            lines.append((v, f))
+    if lines:
+        out["line"] = geom2d.merge(lines)
+    lamps = []
+    h, arm = STREET["lamp_h"], STREET["lamp_arm_m"]
+    for lp in streets.get("lamps") or []:
+        x, y = lp["at"]
+        dx, dy = lp["arm"]
+        gz = ground_z(terrain, x, y) + PAVING_LIFT + STREET["pave_lift_m"]
+        ring = [(x + 0.065 * math.cos(math.radians(22.5 + 45 * k)), y + 0.065 * math.sin(math.radians(22.5 + 45 * k)))
+                for k in range(8)]
+        base = [(x + 0.11 * math.cos(math.radians(22.5 + 45 * k)), y + 0.11 * math.sin(math.radians(22.5 + 45 * k)))
+                for k in range(8)]
+        lamps.append(geom2d.prism(base, gz - 0.05, gz + 0.45))
+        lamps.append(geom2d.prism(ring, gz + 0.45, gz + h))
+        ang = math.degrees(math.atan2(dy, dx))
+        lamps.append(geom2d.box((x + dx * arm / 2.0, y + dy * arm / 2.0, gz + h - 0.04), (arm + 0.06, 0.06, 0.06), ang))
+        lamps.append(geom2d.box((x + dx * (arm - 0.12), y + dy * (arm - 0.12), gz + h - 0.12), (0.52, 0.22, 0.09), ang))
+    if lamps:
+        out["lamp"] = geom2d.merge(lamps)
+    return out
+
+
 # Fix round after P4b (17 Oct 2026; pod P4b, real03: a 33 x 15 m bungalow with 22 outside windows on a 6 m plot
 # margin). The first pass kept none of its 122 candidates (window band 108, front zone 51, corner sightlines 36, path
 # 6; a candidate counts for every filter that removes it), so the exterior showed a bare lawn and nothing said so.
@@ -2576,7 +2721,9 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
         out["paths_dropped"] = dropped
     kind = options.get("fence", "hedge")
     if out["plot_inferred"] and kind in ("hedge", "fence"):
-        out["boundary"] = boundary_segments(out["plot"], out["paths"], kind)
+        # 30 Oct 2026 (lesson UL198): a drive crossing the plot's edge leaves an opening in the boundary for the cars
+        out["boundary"] = boundary_segments(out["plot"], list(out["paths"]) + [s for s in stops if s.get("road")],
+                                            kind)
         out["assumed"].append({"field": "boundary", "value": kind,
                                "reason": f"no site plan: a low {kind} on the inferred plot boundary (inferred)"})
     if not drawn_trees:
@@ -3221,61 +3368,192 @@ def _ray_to_edge(p, d, poly) -> Optional[tuple[float, int]]:
     return best
 
 
+# 30 Oct 2026 (lesson UL196, user on real04 run 20261030-112241-full: "Better road section and fencing area is needed on the
+# outside": the streets were bare asphalt strips): a street is a real section: its carriageway ``street_w_m`` wide set
+# back ``pave_m`` from the plot's edge, a pavement of paving slabs ``pave_m`` wide on each side, lifted ``pave_lift_m``
+# behind a concrete kerb (``kerb_w``; dropped where a drive crosses the pavement, the crossover, and none where the
+# ground's extent cuts the street), an edging along the pavement's back, a dashed white centre line (``dash_m`` lines
+# ``gap_m`` apart, ``line_w`` wide) and street lamps every ``lamp_every_m`` on the pavement away from the plot (a
+# ``lamp_h`` pole, an arm of ``lamp_arm_m`` over the road and a lamp head), all inferred
+STREET = {"pave_m": 1.8, "kerb_w": 0.15, "pave_lift_m": 0.10, "edging_w": 0.06, "dash_m": 3.0, "gap_m": 6.0,
+          "line_w": 0.12, "lamp_every_m": 28.0, "lamp_h": 6.0, "lamp_arm_m": 1.2, "lamp_back_m": 0.45,
+          "lamp_clear_m": 3.0, "probe_m": 0.1, "sample_m": 0.5}
+
+
+def _runs_along(poly, inside, probe: float, step: float) -> list[list]:
+    """The stretches of the edges of ``poly`` (made counter-clockwise) whose outside, ``probe`` m out, ``inside(p)``
+    accepts (pure): ``[[(x, y), (x, y)]]``, each longer than 0.2 m."""
+    poly = geom2d.ccw(poly)
+    n = len(poly)
+    out = []
+    for i in range(n):
+        a, b = poly[i], poly[(i + 1) % n]
+        length = G.distance(a, b)
+        if length < 0.05:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        nx, ny = uy, -ux                                    # counter-clockwise: the right side is outside
+        k = max(1, int(math.ceil(length / step)))
+        spans, cur = [], None
+        for m in range(k):
+            t0, t1 = length * m / k, length * (m + 1) / k
+            t = (t0 + t1) / 2.0
+            if inside((a[0] + ux * t + nx * probe, a[1] + uy * t + ny * probe)):
+                cur = [t0, t1] if cur is None else [cur[0], t1]
+            elif cur is not None:
+                spans.append(cur)
+                cur = None
+        if cur is not None:
+            spans.append(cur)
+        out += [[(a[0] + ux * t0, a[1] + uy * t0), (a[0] + ux * t1, a[1] + uy * t1)] for t0, t1 in spans
+                if t1 - t0 > 0.2]
+    return out
+
+
+def _dashes(line, area, dash: float, gap: float, width: float, skip=()) -> list[list]:
+    """The dashes of a centre line (pure): ``dash`` long every ``dash + gap`` along ``line`` (a shapely LineString),
+    each a rectangle ``width`` wide kept where it lies whole in ``area`` and its middle clear of ``skip`` (polygons)."""
+    from shapely.geometry import Point, Polygon
+
+    (x0, y0), (x1, y1) = list(line.coords)[0], list(line.coords)[-1]
+    length = math.hypot(x1 - x0, y1 - y0)
+    if length < dash:
+        return []
+    ux, uy = (x1 - x0) / length, (y1 - y0) / length
+    nx, ny = -uy, ux
+    hw = width / 2.0
+    out = []
+    t = gap / 2.0
+    while t + dash <= length:
+        a = (x0 + ux * t, y0 + uy * t)
+        b = (x0 + ux * (t + dash), y0 + uy * (t + dash))
+        rect = [(a[0] + nx * hw, a[1] + ny * hw), (a[0] - nx * hw, a[1] - ny * hw), (b[0] - nx * hw, b[1] - ny * hw),
+                (b[0] + nx * hw, b[1] + ny * hw)]
+        mid = Point((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+        if area.contains(Polygon(rect)) and not any(s.contains(mid) for s in skip):
+            out.append(geom2d.ccw(rect))
+        t += dash + gap
+    return out
+
+
 def outside_roads(pfs: Sequence[dict], plot: Sequence, extent: Sequence, outline: Sequence = (),
                   copy_holes: Sequence = ()) -> dict:
-    """The drive's links to the plot's edge and the streets outside it (pure; ``ROADS``, lesson UL162): ``{"areas":
-    [site areas of kind ``road``: the streets, ``asphalt``], "links": [{"id", "platform", "polygon", "reason"}: the
-    stretch a drive grows by to the plot's edge (``extend_drives``)], "dead_ends"}``. A dead end farther than
-    ``link_m`` from the plot's edge is left as it is."""
-    from shapely.geometry import Polygon
+    """The drive's links to the street and the streets outside the plot (pure; ``ROADS``, ``STREET``, lessons UL162,
+    UL196): ``{"areas": [site areas: the carriageways (kind ``road``, ``asphalt``) and the pavements (kind
+    ``pavement``, paving slabs lifted ``pave_lift_m``)], "links": [{"id", "platform", "polygon", "reason"}: the stretch a
+    drive grows by to the carriageway: to the plot's edge and across the pavement, the crossover (``extend_drives``)],
+    "dead_ends", "neighbours", "streets": {"kerbs", "edgings", "dashes", "lamps", "centrelines", "reason"}}``. A dead
+    end farther than ``link_m`` from the plot's edge is left as it is."""
+    from shapely.geometry import LineString, Point, Polygon
     from shapely.ops import unary_union
 
     plot = geom2d.ccw(plot)
     ends = road_dead_ends(pfs, [outline] + list(copy_holes))
-    areas, streets, links = [], [], []
+    areas, streets, links, lines = [], [], [], []
+    pave, sw = STREET["pave_m"], ROADS["street_w_m"]
     for k, e in enumerate(ends):
         hit = _ray_to_edge(e["mid"], e["out"], plot)
         if hit is None or hit[0] > ROADS["link_m"]:
             continue
         dist, j = hit
+        dist = dist if dist > ROADS["on_edge_m"] else 0.0
         o, (a, b) = e["out"], (e["a"], e["b"])
-        if dist > ROADS["on_edge_m"]:
-            link = [a, b, (b[0] + o[0] * dist, b[1] + o[1] * dist), (a[0] + o[0] * dist, a[1] + o[1] * dist)]
-            links.append({"id": f"road_link_{e['platform']}_{k + 1}", "platform": e["platform"],
-                          "polygon": geom2d.ccw(link),
-                          "reason": f"the drive {e['platform']} ended at the lawn {dist:.1f} m short of the plot's "
-                                    f"edge: it runs on in its paving to the edge (lesson UL162; inferred)"})
+        reach = dist + pave                                 # to the carriageway's edge, across the pavement
+        link = [a, b, (b[0] + o[0] * reach, b[1] + o[1] * reach), (a[0] + o[0] * reach, a[1] + o[1] * reach)]
+        links.append({"id": f"road_link_{e['platform']}_{k + 1}", "platform": e["platform"],
+                      "polygon": geom2d.ccw(link),
+                      "reason": (f"the drive {e['platform']} ended {dist:.1f} m short of the plot's edge: it runs on in "
+                                 f"its paving to the edge and across the {pave:g} m pavement to the carriageway (the "
+                                 f"crossover, the kerb dropped; lessons UL162, UL196, UL198; inferred)")})
         pa, pb = plot[j], plot[(j + 1) % len(plot)]
         ln = G.distance(pa, pb) or 1.0
         eu = ((pb[0] - pa[0]) / ln, (pb[1] - pa[1]) / ln)
         eo = (eu[1], -eu[0])                                    # the plot edge's outside
         far = 1000.0
-        sw = ROADS["street_w_m"]
-        streets.append(Polygon([(pa[0] - eu[0] * far, pa[1] - eu[1] * far), (pa[0] + eu[0] * far, pa[1] + eu[1] * far),
-                                (pa[0] + eu[0] * far + eo[0] * sw, pa[1] + eu[1] * far + eo[1] * sw),
-                                (pa[0] - eu[0] * far + eo[0] * sw, pa[1] - eu[1] * far + eo[1] * sw)]))
+        q0 = (pa[0] + eo[0] * pave, pa[1] + eo[1] * pave)       # the carriageway's near edge (UL196: its pavement)
+        streets.append(Polygon([(q0[0] - eu[0] * far, q0[1] - eu[1] * far), (q0[0] + eu[0] * far, q0[1] + eu[1] * far),
+                                (q0[0] + eu[0] * far + eo[0] * sw, q0[1] + eu[1] * far + eo[1] * sw),
+                                (q0[0] - eu[0] * far + eo[0] * sw, q0[1] - eu[1] * far + eo[1] * sw)]))
+        c0 = (q0[0] + eo[0] * sw / 2.0, q0[1] + eo[1] * sw / 2.0)
+        lines.append({"line": LineString([(c0[0] - eu[0] * far, c0[1] - eu[1] * far),
+                                          (c0[0] + eu[0] * far, c0[1] + eu[1] * far)]),
+                      "lamp_side": eo, "kind": "street"})
         # 30 Oct 2026 (lesson UL172, user: "fenced neighbouring plots and some roads coming to this project"): a road
         # comes to the drive from outside, square to the street, on across the ground
-        sf = (e["mid"][0] + eo[0] * (dist + sw), e["mid"][1] + eo[1] * (dist + sw)) if dist > ROADS["on_edge_m"] \
-            else (e["mid"][0] + eo[0] * sw, e["mid"][1] + eo[1] * sw)
+        sf = (e["mid"][0] + eo[0] * (dist + pave + sw), e["mid"][1] + eo[1] * (dist + pave + sw))
         hw = sw / 2.0
         streets.append(Polygon([(sf[0] - eu[0] * hw - eo[0] * 0.5, sf[1] - eu[1] * hw - eo[1] * 0.5),
                                 (sf[0] + eu[0] * hw - eo[0] * 0.5, sf[1] + eu[1] * hw - eo[1] * 0.5),
                                 (sf[0] + eu[0] * hw + eo[0] * far, sf[1] + eu[1] * hw + eo[1] * far),
                                 (sf[0] - eu[0] * hw + eo[0] * far, sf[1] - eu[1] * hw + eo[1] * far)]))
-    neighbours = []
+        lines.append({"line": LineString([sf, (sf[0] + eo[0] * far, sf[1] + eo[1] * far)]), "lamp_side": eu,
+                      "kind": "branch"})
+    neighbours: list = []
+    record: dict = {"kerbs": [], "edgings": [], "dashes": [], "lamps": [], "centrelines": [], "reason": ""}
     if streets and len(extent or []) >= 3:
         ground = Polygon(extent).buffer(-0.5).difference(Polygon(plot))
-        neighbours = neighbour_plots(plot, extent, unary_union(streets))
-        merged = unary_union(streets).intersection(ground)
-        geoms = [g for g in getattr(merged, "geoms", [merged]) if g.geom_type == "Polygon" and g.area > 1.0]
+        road = unary_union(streets)
+        crossings = unary_union([Polygon(ln["polygon"]).buffer(0.01, join_style=2) for ln in links]) if links else None
+        walk = road.buffer(pave, join_style=2).difference(road)
+        if crossings is not None:
+            walk = walk.difference(crossings)
+        neighbours = neighbour_plots(plot, extent, road.buffer(pave, join_style=2))
+        carriage = road.intersection(ground)
+        walk = walk.intersection(ground)
+        geoms = [g for g in getattr(carriage, "geoms", [carriage]) if g.geom_type == "Polygon" and g.area > 1.0]
         for m, g in enumerate(geoms):
             areas.append({"id": f"street_{m + 1}", "kind": "road", "polygon": geom2d.ccw(list(g.exterior.coords)[:-1]),
                           "z": None, "material": "asphalt", "colour": None, "source": "inferred", "area_id": None,
                           "lift": PAVING_LIFT, "inferred": True,
-                          "reason": f"the street outside the plot the drive joins, {ROADS['street_w_m']:g} m wide along "
-                                    f"the plot's edge (no road drawn; lesson UL162; inferred)"})
-    return {"areas": areas, "links": links, "dead_ends": ends, "neighbours": neighbours}
+                          "reason": f"the street outside the plot the drive joins: {sw:g} m of carriageway between "
+                                    f"kerbs, set back {pave:g} m for its pavement (no road drawn; lessons UL162, UL196; "
+                                    f"inferred)"})
+        pgeoms = [g for g in getattr(walk, "geoms", [walk]) if g.geom_type == "Polygon" and g.area > 1.0]
+        for m, g in enumerate(pgeoms):
+            areas.append({"id": f"pavement_{m + 1}", "kind": "pavement",
+                          "polygon": geom2d.ccw(list(g.exterior.coords)[:-1]), "z": None, "material": "paving",
+                          "colour": None, "source": "inferred", "area_id": None,
+                          "lift": PAVING_LIFT + STREET["pave_lift_m"], "inferred": True,
+                          "reason": f"the street's pavement: {pave:g} m of paving slabs behind a concrete kerb (no "
+                                    f"street drawn; lesson UL196; inferred)"})
+        walk_u = unary_union(pgeoms) if pgeoms else None
+        road_u = unary_union(geoms).buffer(0.02) if geoms else None
+        on_walk = (lambda q: walk_u is not None and walk_u.contains(Point(q)))
+        behind = (lambda q: (road_u is None or not road_u.contains(Point(q))) and ground.contains(Point(q))
+                  and (crossings is None or not crossings.buffer(0.05).contains(Point(q))))
+        for g in geoms:
+            record["kerbs"] += _runs_along(list(g.exterior.coords)[:-1], on_walk, STREET["probe_m"], STREET["sample_m"])
+        for g in pgeoms:
+            record["edgings"] += _runs_along(list(g.exterior.coords)[:-1], behind, STREET["probe_m"],
+                                             STREET["sample_m"])
+        heads = [Point(ln["line"].coords[0]).buffer(sw, 8) for ln in lines if ln["kind"] == "branch"]
+        for ln in lines:
+            seg = ln["line"].intersection(carriage)
+            for piece in getattr(seg, "geoms", [seg]):
+                if piece.geom_type != "LineString" or piece.length < STREET["dash_m"]:
+                    continue
+                record["centrelines"].append([list(piece.coords[0]), list(piece.coords[-1])])
+                record["dashes"] += _dashes(piece, carriage, STREET["dash_m"], STREET["gap_m"], STREET["line_w"],
+                                            skip=[] if ln["kind"] == "branch" else heads)
+                if walk_u is None:
+                    continue
+                (x0, y0), (x1, y1) = piece.coords[0], piece.coords[-1]
+                ux, uy = (x1 - x0) / piece.length, (y1 - y0) / piece.length
+                side = ln["lamp_side"]
+                off = sw / 2.0 + STREET["kerb_w"] + STREET["lamp_back_m"]
+                t = STREET["lamp_every_m"] / 2.0
+                while t < piece.length:
+                    at = (x0 + ux * t + side[0] * off, y0 + uy * t + side[1] * off)
+                    if walk_u.buffer(-0.2).contains(Point(at)) and (
+                            crossings is None or crossings.distance(Point(at)) > STREET["lamp_clear_m"]):
+                        record["lamps"].append({"at": [round(at[0], 4), round(at[1], 4)],
+                                                "arm": [-side[0], -side[1]]})
+                    t += STREET["lamp_every_m"]
+        record["reason"] = (f"the street section: concrete kerbs ({len(record['kerbs'])} runs, dropped at the drive's "
+                            f"crossovers), a {pave:g} m pavement, a dashed centre line ({len(record['dashes'])} dashes) "
+                            f"and {len(record['lamps'])} street lamps every {STREET['lamp_every_m']:g} m (no street "
+                            f"drawn; lesson UL196; inferred)")
+    return {"areas": areas, "links": links, "dead_ends": ends, "neighbours": neighbours, "streets": record}
 
 
 NEIGHBOURS = {"gap_m": 8.0, "verge_m": 1.0, "min_share": 0.3, "fence_in_m": 0.3, "piece_m": 6.0, "gate_m": 3.0}
@@ -3338,6 +3616,9 @@ def _fence_ring(ring: Sequence, roads=None) -> list[dict]:
         if i == gate_edge and length > NEIGHBOURS["gate_m"] + 1.0:
             spans = [(0.0, length / 2.0 - NEIGHBOURS["gate_m"] / 2.0), (length / 2.0 + NEIGHBOURS["gate_m"] / 2.0,
                                                                         length)]
+            # 30 Oct 2026 (lesson UL196): the gap holds the gate (``fence_product_parts``)
+            segs.append({"kind": "gate", "start": G.point_along_segment(a, b, spans[0][1] / length),
+                         "end": G.point_along_segment(a, b, spans[1][0] / length)})
         for t0, t1 in spans:
             k = max(1, int(math.ceil((t1 - t0) / NEIGHBOURS["piece_m"])))
             for m in range(k):
@@ -3389,6 +3670,146 @@ def with_outside_roads(site: dict, plot: Sequence, extent: Sequence, outline: Se
                            links=grown[str(a.get("id"))]["links"]) if str(a.get("id")) in grown else a
                       for a in site.get("parking") or []]
     return out, roads
+
+
+# 30 Oct 2026 (lesson UL198, user on real04 run 20261030-112241-full: "Understand that the cars should be able to enter to
+# this location and exit": the drive's two ends met the streets behind a kerb, nothing said whether a car gets in): a
+# car reaches a parking from a street over a stretch of its edge at least ``width_m`` wide where nothing stands across
+# it (a kerb that is not dropped, a railing, a step over ``step_max_m``, a plot wall, a boundary fence or hedge, a
+# neighbour's fence, a flight) and the ground is no steeper than ``grade_max`` over ``grade_run_m`` into the parking;
+# it leaves again through a second such stretch (it drives through) or turns on the parking (a ``turn_m`` square fits)
+CAR = {"width_m": 3.0, "grade_max": 0.15, "grade_run_m": 5.0, "step_max_m": 0.05, "turn_m": 6.0, "probe_m": 0.2,
+       "strip_m": 1.0, "sample_m": 0.25, "leg_m": 5.5}
+
+
+def _edge_index(poly, p) -> int:
+    n = len(poly)
+    return min(range(n), key=lambda i: G.point_segment_distance(p, poly[i], poly[(i + 1) % n]))
+
+
+def turning_room(poly) -> Optional[str]:
+    """Where a car turns on a parking (pure; ``CAR``): ``turning head`` when a ``turn_m`` square fits, ``hammerhead``
+    when two legs ``width_m`` wide and ``leg_m`` long meet square at a corner (forward past the corner, back into the
+    other leg), else None."""
+    from shapely.geometry import Polygon
+
+    shape = Polygon(poly)
+    if not shape.is_valid:
+        shape = shape.buffer(0)
+    if not shape.buffer(-CAR["turn_m"] / 2.0, join_style=2).is_empty:
+        return "turning head"
+    simple = shape.simplify(0.05)
+    if simple.geom_type != "Polygon":
+        return None
+    ring = geom2d.ccw([tuple(c) for c in list(simple.exterior.coords)[:-1]])
+    room = shape.buffer(0.02, join_style=2)
+    leg, w = CAR["leg_m"], CAR["width_m"]
+    n = len(ring)
+    for k in range(n):
+        a, c, b = ring[k - 1], ring[k], ring[(k + 1) % n]
+        la, lb = G.distance(c, a), G.distance(c, b)
+        if la < leg - 1e-6 or lb < leg - 1e-6:
+            continue
+        ua = ((a[0] - c[0]) / la, (a[1] - c[1]) / la)
+        ub = ((b[0] - c[0]) / lb, (b[1] - c[1]) / lb)
+        if abs(ua[0] * ub[0] + ua[1] * ub[1]) > 0.2:
+            continue
+        legs = [Polygon([c, (c[0] + u[0] * leg, c[1] + u[1] * leg),
+                         (c[0] + u[0] * leg + v[0] * w, c[1] + u[1] * leg + v[1] * w), (c[0] + v[0] * w, c[1] + v[1] * w)])
+                for u, v in ((ua, ub), (ub, ua))]
+        if all(room.contains(p) for p in legs):
+            return "hammerhead"
+    return None
+
+
+def vehicle_access(site: dict) -> list[dict]:
+    """Whether a car can drive into each parking from a street and out again (pure; ``CAR``, lesson UL198): per road
+    platform ``{"platform", "connections": [{"from", "to", "width_m", "problems"}], "turn", "ok", "problems"}``;
+    ``turn``: ``drive-through`` (two clear connections), ``turning head`` (one, and a ``turn_m`` square fits on the
+    parking) or None."""
+    from shapely.geometry import LineString, Polygon
+
+    streets = [a["polygon"] for a in site.get("areas") or [] if a.get("kind") == "road" and len(a.get("polygon") or []) >= 3]
+    terrain = site.get("terrain")
+    pfs = list(site.get("platforms") or [])
+    barriers: list[tuple[str, str, object]] = []
+    for w in site.get("plot_walls") or []:
+        if w.get("start") and w.get("end"):
+            barriers.append(("plot wall", str(w.get("id")), LineString([tuple(w["start"][:2]), tuple(w["end"][:2])])))
+    for s in (site.get("inferred") or {}).get("boundary") or []:
+        barriers.append((f"boundary {s.get('kind')}", "of the plot", LineString([tuple(s["start"]), tuple(s["end"])])))
+    for h in site.get("hedges") or []:
+        if len(h.get("polyline") or []) >= 2:
+            barriers.append(("hedge", str(h.get("id")), LineString([tuple(q[:2]) for q in h["polyline"]])))
+    for nb in site.get("neighbours") or []:
+        for s in nb.get("fence") or []:
+            if s.get("kind") == "fence":
+                barriers.append(("fence", str(nb.get("id")), LineString([tuple(s["start"]), tuple(s["end"])])))
+    flights = []
+    for q in pfs:
+        for key in ("flight", "flight_down"):
+            fp = (q.get(key) or {}).get("footprint") or []
+            if len(fp) >= 3:
+                flights.append((str(q.get("id")), Polygon([tuple(p[:2]) for p in fp])))
+    out = []
+    for pf in pfs:
+        if pf.get("kind") not in ROAD_KINDS or len(pf.get("polygon") or []) < 3:
+            continue
+        poly = geom2d.ccw(pf["polygon"])
+        runs = _runs_along(poly, lambda q: any(G.point_in_polygon(q, s) for s in streets), CAR["probe_m"],
+                           CAR["sample_m"]) if streets else []
+        gaps = pf.get("kerb_gaps") or []
+        conns = []
+        for a, b in runs:
+            w = G.distance(a, b)
+            mid = G.segment_midpoint(a, b)
+            i = _edge_index(poly, mid)
+            ux, uy = (b[0] - a[0]) / w, (b[1] - a[1]) / w
+            nx, ny = uy, -ux                                    # the outside
+            probs = []
+            if w < CAR["width_m"] - 1e-6:
+                probs.append(f"{w:.1f} m wide (a car needs {CAR['width_m']:g} m)")
+            if pf.get("edge") == "kerb" or pf.get("kind") == "parking":
+                ea = poly[i]
+                t0 = (a[0] - ea[0]) * ux + (a[1] - ea[1]) * uy
+                covered = sum(max(0.0, min(t0 + w, g[2]) - max(t0, g[1])) for g in gaps if g[0] == i)
+                if covered < min(w, CAR["width_m"]) - 0.3:
+                    probs.append(f"a kerb across it ({covered:.1f} of {w:.1f} m dropped)")
+            if i in (pf.get("railing_edges") or []):
+                probs.append("a railing across it")
+            if terrain is not None:
+                inside = (mid[0] - nx * CAR["grade_run_m"], mid[1] - ny * CAR["grade_run_m"])
+                outside = (mid[0] + nx * CAR["probe_m"], mid[1] + ny * CAR["probe_m"])
+                g0 = ground_z(terrain, *outside)
+                if not pf.get("sloped") and pf.get("z") is not None and abs(float(pf["z"]) - g0) > CAR["step_max_m"]:
+                    probs.append(f"a step of {abs(float(pf['z']) - g0):.2f} m from the street")
+                elif pf.get("sloped") and G.point_in_polygon(inside, poly):
+                    grade = abs(ground_z(terrain, *inside) - g0) / CAR["grade_run_m"]
+                    if grade > CAR["grade_max"] + 1e-9:
+                        probs.append(f"a gradient of {grade * 100:.0f} % (at most {CAR['grade_max'] * 100:.0f} %)")
+            sm = CAR["strip_m"]
+            strip = Polygon([(a[0] + nx * sm, a[1] + ny * sm), (b[0] + nx * sm, b[1] + ny * sm),
+                             (b[0] - nx * sm, b[1] - ny * sm), (a[0] - nx * sm, a[1] - ny * sm)])
+            for kind, bid, line in barriers:
+                if line.intersects(strip):
+                    probs.append(f"the {kind} {bid} across it")
+            for fid, fp in flights:
+                if fid != pf.get("id") and fp.intersects(strip):
+                    probs.append(f"the flight of {fid} in its way")
+            conns.append({"from": [round(a[0], 3), round(a[1], 3)], "to": [round(b[0], 3), round(b[1], 3)],
+                          "edge": i, "width_m": round(w, 3), "problems": probs})
+        good = [c for c in conns if not c["problems"]]
+        turn = "drive-through" if len(good) >= 2 else turning_room(poly) if good else None
+        problems = []
+        if not good:
+            why = "; ".join(f"edge {c['edge']}: {', '.join(c['problems'])}" for c in conns)
+            problems.append(f"no street a car can drive in from ({why})" if conns else
+                            "it meets no street: a car cannot reach it")
+        elif turn is None:
+            problems.append(f"one way in and no room to turn (a {CAR['turn_m']:g} m turning head or a second way out)")
+        out.append({"platform": pf.get("id"), "connections": conns, "turn": turn, "ok": not problems,
+                    "problems": problems})
+    return out
 
 
 def kerb_gaps(pf: dict, others: Sequence[dict], step: float = KERB_SAMPLE_M) -> list[list]:
@@ -3797,9 +4218,12 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
             pf["reason"] += f"; {fl['reason']}"
     # 30 Oct 2026 (lesson UL129): no kerb along an edge another surface abuts (``kerb_gaps``)
     every = out + bands
+    # 30 Oct 2026 (lesson UL198): the street's carriageway abuts a drive where the drive joins it: no kerb across it
+    streets = [{"id": f"street_{k + 1}", "polygon": poly} for k, poly in enumerate(site.get("street_areas") or [])
+               if len(poly or []) >= 3]
     for pf in every:
         if pf.get("edge") == "kerb" or pf.get("kind") in ("parking", "path"):
-            gaps = kerb_gaps(pf, [q for q in every if q is not pf])
+            gaps = kerb_gaps(pf, [q for q in every if q is not pf] + streets)
             if gaps:
                 pf["kerb_gaps"] = gaps
                 pf["reason"] += (f"; no kerb along {sum(g[2] - g[1] for g in gaps):.1f} m of its edges where another "
@@ -5518,6 +5942,9 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     if mode == "full" and len(plot or []) >= 3 and options is not None:
         from wenart.blender import copies as CP
         site, roads = with_outside_roads(site, plot, extent, outline, [geom2d.ccw(fp) for fp in CP.footprints(building)])
+        # 30 Oct 2026 (lesson UL198): the carriageways a drive meets are surfaces of the kerb gaps (no kerb across the
+        # drive's way out onto the street)
+        site = dict(site, street_areas=[a["polygon"] for a in roads["areas"] if a.get("kind") == "road"])
     court = (options or {}).get("front_court") or "no"
     wells, warnings = light_wells(building, levels, terrain, outline, outlines,
                                   front_court=court if options is not None else "no")
@@ -5637,8 +6064,8 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
         # 26 Oct 2026: after the platforms: a door onto a labelled outdoor space takes the space's steps and path
         # 30 Oct 2026 (lesson UL129): the other buildings and the surfaces a path may arrive at
         stops = [{"kind": "building", "id": f"building copy {k + 1}", "polygon": h} for k, h in enumerate(copy_holes)]
-        stops += [{"kind": "surface", "id": pf["id"], "polygon": pf["polygon"]} for pf in pfs
-                  if not pf.get("elevated") and len(pf.get("polygon") or []) >= 3]
+        stops += [{"kind": "surface", "id": pf["id"], "polygon": pf["polygon"], "road": pf.get("kind") in ROAD_KINDS}
+                  for pf in pfs if not pf.get("elevated") and len(pf.get("polygon") or []) >= 3]
         inferred = inferred_site(building, levels, terrain, outline, outlines, plot, plot_src, options, drawn_trees,
                                  spaces=[pf for pf in pfs if pf.get("space")], stops=stops)
         assumed += inferred["assumed"]
@@ -5688,7 +6115,9 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
             "climate": climate, "levers": levers, "near_extent": near_extent, "species": species, "context": context,
             "aprons": aprons, "glazing_runs": glazing_runs,
             # 30 Oct 2026 (lesson UL172): the fenced neighbouring plots (outside_roads)
-            "neighbours": roads.get("neighbours") or []}
+            "neighbours": roads.get("neighbours") or [],
+            # 30 Oct 2026 (lesson UL196): the street section's kerbs, edgings, centre-line dashes and lamps
+            "streets": roads.get("streets") or {}}
 
 
 # The look of each built area kind (exterior.resolve_looks slots) when the area names no material of its own.
@@ -6002,14 +6431,18 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
     if nbs:
         look = looks.get("fence") or {"material": SITE_FALLBACK_LOOKS["fence"], "colour": None}
         fmat = make_material(look)
-        v, f = geom2d.merge([boundary_parts(seg, terrain)[:2] for nb in nbs for seg in nb["fence"]])
+        # 30 Oct 2026 (lesson UL196): a real garden fence of posts, horizontal boards and a cap, a framed gate
+        v, f = geom2d.merge([fence_product_parts(seg, terrain)[:2] for nb in nbs for seg in nb["fence"]])
         ob = common.new_mesh_object("neighbour_fences", v, f, collection=collection, wenart_id="neighbour_fences",
                                     kind="site_boundary", status="assumed", materials=[fmat])
+        gates = sum(1 for nb in nbs for seg in nb["fence"] if seg.get("kind") == "gate")
         entry(ob.name, "neighbour_fences", "site_boundary", fmat, "assumed",
-              {"inferred": True, "boundary_kind": "fence", "plots": [nb["id"] for nb in nbs],
-               "segments": sum(len(nb["fence"]) for nb in nbs),
-               "assumed": {"height_m": INFERRED["fence_height"], "reason": nbs[0]["reason"]}})
-        summary["neighbours"] = [{"id": nb["id"], "fence_pieces": len(nb["fence"])} for nb in nbs]
+              {"inferred": True, "boundary_kind": "fence", "fence_product": "board_fence", "plots": [nb["id"] for nb in nbs],
+               "segments": sum(len(nb["fence"]) for nb in nbs), "gates": gates,
+               "assumed": {"height_m": FENCE["height_m"], "post_every_m": FENCE["post_every_m"],
+                           "reason": nbs[0]["reason"] + "; a board fence with a cap and a framed gate (lesson UL196)"}})
+        summary["neighbours"] = [{"id": nb["id"], "fence_pieces": len(nb["fence"]),
+                                  "gates": sum(1 for s in nb["fence"] if s.get("kind") == "gate")} for nb in nbs]
     outer_rect = list(plan["extent"])
     if not is_flat(terrain):                     # 11 Oct 2026 (real04): a sloped ground reaches the horizon too
         sv, sf = skirt_faces(plan["extent"], terrain)
@@ -6181,6 +6614,28 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                        "assumed": {"reason": floors["edging"]["reason"]}})
             summary["paths"].append({"id": wid, "kind": "walk", "local": rec.get("local"), "cross": rec.get("cross"),
                                      "reason": rec.get("reason")})
+    # 30 Oct 2026 (lesson UL196): the street section's kerbs, pavement edgings, centre line and lamps
+    street = plan.get("streets") or {}
+    if street and plan["mode"] == "full":
+        parts = street_parts(street, terrain)
+        street_looks = {"kerb": ("site_area", floors["edging"]), "edging": ("site_area", floors["edging"]),
+                        "line": ("site_area", {"material": "paint", "colour": "white", "source": "build",
+                                               "assumed": True, "reason": "the street's centre line: white road paint"}),
+                        "lamp": ("site_decor", {"material": "aluminium_anthracite", "colour": None, "source": "build",
+                                                "assumed": True, "reason": "street lamps: anthracite metal"})}
+        summary["streets"] = {"reason": street.get("reason"), "parts": {}}
+        for part, (v, f) in parts.items():
+            kind, lk = street_looks[part]
+            mat = edge_mat(f"street_{part}:{lk.get('material')}", lk)
+            name = f"street_{part}s"
+            ob = common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind=kind, status="assumed",
+                                        materials=[mat])
+            count = len(street.get({"kerb": "kerbs", "edging": "edgings", "line": "dashes", "lamp": "lamps"}[part])
+                        or [])
+            entry(ob.name, name, kind, mat, "assumed",
+                  {"inferred": True, "area_kind": f"street_{part}", "slug": lk.get("material"), "count": count,
+                   "assumed": {"reason": street.get("reason")}})
+            summary["streets"]["parts"][part] = count
     # Milestone 13 (T6): the platforms (one level each with retaining walls, kerbs, steps and railings)
     if pfs:
         # Round 3 (P1 'platforms' row): retaining walls and kerbs are a neutral concrete (PLATFORM_LOOKS), the steps
