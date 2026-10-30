@@ -198,7 +198,9 @@ def test_real06_upper_balcony_is_a_slab_with_a_guard_and_its_doors_land_on_it(re
     assert pf["elevated"] and pf["steps_edge"] is None and pf["railing_edges"]
     assert set(pf["railing_edges"]).isdisjoint(pf["against_edges"])
     parts = {q["part"]: q for q in S.platform_parts(pf, prep06["site"]["terrain"])}
-    assert set(parts) == {"slab", "railing"}                             # no base wall, no steps
+    # no base wall, no steps; since UL214 the crisp edge band of a balcony over the veranda, on its exposed edges only
+    assert set(parts) == {"slab", "railing", "fascia"}
+    assert set(pf["fascia_edges"]) <= set(pf["railing_edges"])
     zs = [v[2] for v in parts["slab"]["verts"]]
     assert min(zs) == pytest.approx(3.0 - S.SPACE_SLAB_M) and max(zs) == pytest.approx(3.0)
     by = {q["id"]: q for q in prep06["architect"]["questions"]}

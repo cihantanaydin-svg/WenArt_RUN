@@ -2540,12 +2540,12 @@
    "id": "UL214",
    "date": "2026-10-30",
    "area": "terrace",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "The front of real06 with veranda could be more elegant columns up to the roof is too thick maybe there are better solutions (30 Oct 2026, the user on the UL209 preview: the drawn 0.40 m columns now run from the veranda floor through the balcony slab to the roof, about 6 m, as one thick white shaft); the user's choice among the rendered options A, A2, B, C1, C2, D, D+A: \"D+A\" (a crisp deep balcony edge band plus slender round steel posts)",
-   "lesson": "The front of real06 with veranda could be more elegant columns up to the roof is too thick maybe there are better solutions (30 Oct 2026, the user on the UL209 preview: the drawn 0.40 m columns now run from the veranda floor through the balcony slab to the roof, about 6 m, as one thick white shaft)",
+   "lesson": "The user found real06's front clumsy: 0.40 m round columns running 6 m from the veranda floor to the roof. Seven options were rendered side by side and the user chose D+A: slender round steel posts plus a crisp deep band on the balcony's edge. So in modern-type houses (modern, contemporary, minimal, scandinavian, japandi, industrial, organic modern) a column taller than a storey (3.5 m or joined through a slab by UL209), or a drawn one 0.25 m or thicker, is a slim round steel post: the smallest EN 10219 hollow section at least height / 30 (219.1 mm for 6 m, at least 114.3 mm, never wider than drawn) on thin base and cap plates in the window-frame finish; the drawn size stays as drawn_look, the change adjusted_by_ai (wenart.levels.columns.design_columns), an O8 note in the review. A balcony or slab over a lower outdoor space gets a 0.42 m band, 4 cm proud, in the beams' finish, only on its guarded edges (never along a wall, never where a lower roof meets it), stopping at columns, closed at outer corners. Classic-type houses keep their drawn columns.",
    "question": "Are the veranda's and balcony's columns slender and elegant for their height and style (not a thick shaft up to the roof)?"
   }
  ]

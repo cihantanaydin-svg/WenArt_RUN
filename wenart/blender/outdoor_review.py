@@ -22,6 +22,8 @@ format (check M10, ``model_review._v``):
 - O7 a column is one piece (30 Oct 2026, lesson UL209, user on real06's front: "columns seems cut in the middle"): a
   post that stops under a raised space's floor while a post of that space stands on it at the same place
   (``STACK_M``) is a column the slab cuts in two (major; ``wenart.levels.columns`` joins them).
+- O8 a column built slimmer than drawn (30 Oct 2026, lesson UL214, the user's choice of slender round steel posts,
+  ``wenart.levels.columns.design_columns``): a note (``info``) naming the drawn and the built size, never a defect.
 
 Why: the renders of real06 showed a veranda like a carport (paving with grass joints, a bare concrete underside) and a
 balcony on top of its roof with no logic between them; nothing in the pipeline measured either. Each finding names the
@@ -240,4 +242,15 @@ def review(built: dict, prep: Optional[dict]) -> tuple[list[dict], int]:
                                       f"stands on it from {float(q['z0']):.2f} m: the slab cuts the column in the "
                                       f"middle", rule="O7", center=[round(float(v), 4) for v in p["center"]],
                                       low=low.get("id"), lesson="UL209"))
+    # O8 a column built slimmer than drawn (the user's choice of slender steel posts, UL214): a note, no defect
+    for s in spaces:
+        for q in s.get("posts") or []:
+            d = q.get("drawn_look") if isinstance(q.get("drawn_look"), dict) else None
+            if d and float(q.get("size_m") or 0.0) < float(d.get("size_m") or 0.0) - 1e-6:
+                out.append(_v("M10", "info", s["id"],
+                              f"O8: {q.get('id') or 'a post'} of the {space_label(s)} is a "
+                              f"{float(q['size_m']) * 1000:.0f} mm round steel post, slimmer than its drawn "
+                              f"{float(d['size_m']):.2f} m {d.get('shape') or 'square'} column (slender columns, the "
+                              f"user's choice; lesson UL214)", rule="O8", drawn_m=float(d["size_m"]),
+                              built_m=float(q["size_m"]), lesson="UL214"))
     return out, len(spaces)

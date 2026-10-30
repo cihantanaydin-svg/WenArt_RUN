@@ -234,11 +234,11 @@ FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/*.py", "wenart/geometry
                     # Milestone 12 (track L): the terrain surface of site.ground (wenart.levels.terrain); track S: the
                     # catalogue rule and the size table the furniture build imports (lead note of 10 Oct 2026)
                     "wenart/levels/__init__.py", "wenart/levels/terrain.py", "wenart/furniture/__init__.py",
-                    # 30 Oct 2026 (UL209): one column through a slab (site.py reads wenart.levels.columns)
-                    "wenart/levels/columns.py",
                     "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml",
                     # 27 Oct 2026: the architect's cover_space plans a light roof with the outdoor spaces' rules
                     "wenart/levels/outdoor.py", "wenart/building.py", "wenart/textfold.py", "wenart/units.py", "wenart/furniture/fixture_seat.py",
+                    # 30 Oct 2026 (UL209, UL214): columns joined through a slab, slender round steel posts
+                    "wenart/levels/columns.py",
                     # 27 Oct 2026: the stairs' walk check (stair_access.walk_graph) reads the fixed equipment types
                     "wenart/furniture/schemas.py", "wenart/synthetic/__init__.py", "wenart/synthetic/blocks.py",
                     # 28 Oct 2026: catalog.usable reads the model rules (model_title -> the audit's title words, whose
@@ -1334,6 +1334,21 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
         from wenart.blender import grading as GR
         out["site"]["style_family"] = style_family
         out["site"]["wall_look"] = GR.wall_look(vb, style_family)
+        # 30 Oct 2026 (lesson UL214, user: "columns up to the roof is too thick", then chose slender steel posts): the
+        # outdoor spaces' columns in the house's family (slender round steel posts, wenart.levels.columns); the
+        # platforms share the spaces' post records (a second pass leaves a slender post as it is)
+        from wenart.levels import columns as LC
+        site_spaces = [s for s in out["site"].get("outdoor_spaces") or [] if isinstance(s, dict)]
+        site_pfs = [p for p in out["site"].get("platforms") or [] if isinstance(p, dict)
+                    and (p.get("posts") or p.get("through_posts"))]
+        LC.design_columns(site_spaces + site_pfs, style_family)
+        seen = set()
+        for q in (q for s in site_spaces + site_pfs for q in s.get("posts") or []):
+            why = (q.get("adjusted_by_ai") or {}).get("reason") if q.get("finish") == "steel" else None
+            if why and why not in seen:                  # each column once (a second round finds it made)
+                seen.add(why)
+                out["assumed"].append({"object": "site_columns", "field": "column_design", "value": "slender",
+                                       "reason": why})
         out["warnings"] += out["site"]["warnings"]
         out["main_facade"] = S.main_facade(vb, vb["levels"], out["site"]["terrain"], out["ground_outline"],
                                            out["outlines"])

@@ -107,7 +107,8 @@ LEVELS_CODE = ("wenart/levels/**", "wenart/blender/**", "wenart/canonical.py", "
                "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", CATALOG, "wenart/furniture/catalog*.json",
                "wenart/furniture/model_title.py",     # 28 Oct 2026: catalog.usable reads the model rules
                "results/library/user_rejected.json",  # 29 Oct 2026: ... and the models the user rejected
-               "wenart/furniture/decor.py")           # 30 Oct 2026: the media wall's free TV check (UL208) reads it
+               "wenart/furniture/decor.py",           # 30 Oct 2026: the build modules reach the decor's type lists
+               "wenart/furniture/mugs.py")            # ... and the decor its mugs (UL213)
 # Milestone 12 (track G): the groups (groups.yaml), the group checks, the room program and the solver; plausibility
 # runs the group checks, so every stage that scores a room reaches them.
 # Integration of the fix round after P4b (17 Oct 2026): program.duplicate_anchor reads edit_ops.family_host_of (a
@@ -176,9 +177,6 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              # 29 Oct 2026 (UL116-UL127): the doors' states and the see-through wardrobes (camsearch, looks, openings);
              # the dressing words of groups.yaml are read as data
              "wenart/blender/door_states.py", "wenart/blender/wardrobe_fronts.py", "wenart/furniture/groups.yaml",
-             # 30 Oct 2026 (UL210-UL213): the windows' order, the appliances and the mugs the expected objects read
-             "wenart/blender/window_order.py", "wenart/blender/appliance_parts.py", "wenart/blender/mug_parts.py",
-             "wenart/blender/wall_plates.py",
              "wenart/hfcache.py", "wenart/brief.py", "wenart/geometry.py", "wenart/style/**",
              "wenart/blender/cameras.py", "wenart/blender/camsearch.py", "wenart/blender/common.py",
              "wenart/blender/geom2d.py", "wenart/blender/lighting.py", "wenart/blender/materials.py",
@@ -237,7 +235,11 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              # 30 Oct 2026 (UL129, UL141-UL144): the grading review's site sense and the pools' ladder and seats
              "wenart/blender/site_sense.py", "wenart/blender/pool_extras.py",
              # 30 Oct 2026 (UL131, UL140): the soft seats' grade (fit), fabric slots and parts (furniture), the names
-             "wenart/blender/soft_seats.py", "wenart/assets/material_names.py")
+             "wenart/blender/soft_seats.py", "wenart/assets/material_names.py",
+             # 30 Oct 2026: the wall plates (UL112), the windows' facade order (UL210, UL211), the appliances and the
+             # mugs (UL212, UL213)
+             "wenart/blender/wall_plates.py", "wenart/blender/window_order.py", "wenart/blender/appliance_parts.py",
+             "wenart/blender/mug_parts.py")
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
