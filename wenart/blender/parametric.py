@@ -168,6 +168,7 @@ and a computer mouse. ``laptop_box`` is the open laptop's box from its base.
 from __future__ import annotations
 
 import math
+import re
 from typing import Optional, Sequence
 
 import numpy as np
@@ -1381,6 +1382,30 @@ def piece_is_round(piece: dict | None) -> bool:
     return False
 
 
+# 30 Oct 2026 (lesson UL178, user on real04 run 20261030-112241-full: "Table seems to be going through the chairs"; the
+# play room's drawn round cafe table was built as a square turned-leg library table, its corners and legs in the two
+# chairs drawn on its diagonal): the words of a library model's title or name that say it is round (the catalogue
+# records no plan shape)
+ROUND_MODEL_WORDS = ("round", "circular", "circle", "tulip")
+
+
+def model_is_round(entry: dict | None) -> bool:
+    """UL178: True when a library model's (or its fitted asset's) title or name says it is round
+    (``ROUND_MODEL_WORDS``, whole words)."""
+    text = " ".join(str((entry or {}).get(k) or "") for k in ("title", "name")).lower()
+    return any(re.search(rf"\b{w}\b", text) for w in ROUND_MODEL_WORDS)
+
+
+def built_round(piece: dict | None) -> bool:
+    """UL178: True when the piece is built round: its library model says so (``model_is_round``), or it is built by
+    our builders (parametric, module, not fitted yet) from a round drawn piece (``piece_is_round``). A square library
+    model on a round drawn table is not round: its legs stand at its corners."""
+    asset = (piece or {}).get("asset") or {}
+    if asset.get("method") == "library":
+        return model_is_round(asset)
+    return piece_is_round(piece)
+
+
 def _frustum_z(cx: float, cy: float, z0: float, rx0: float, ry0: float, rx1: float, ry1: float, h: float,
                key: str, role: str, n: int = 32) -> Part:
     """Elliptic truncated cone along Z (bottom radii ``rx0, ry0``, top ``rx1, ry1``), wound outwards."""
@@ -2566,7 +2591,8 @@ def _table_m10(w: float, d: float, h: float, piece: dict | None = None, desk: bo
     """The table family (v2 since Milestone 13); a ``glass`` or ``marble`` material tag of the design (§4.10:
     "glass coffee table") gives that top, ``metal`` steel legs and apron; ``shelf`` (coffee tables) or a glass top
     adds a lower wooden shelf."""
-    parts = _table(w, d, h, desk=desk)
+    # UL178: a round drawn table is built round, on a central pedestal (no corner legs in the chairs at it)
+    parts = _round_table(w, d, h) if piece_is_round(piece) and not desk else _table(w, d, h, desk=desk)
     tags = piece_design(piece).get("material_tags") or ()
     top_key = next((TOP_TAG_KEYS[t] for t in tags if t in TOP_TAG_KEYS), None)
     for p in parts:
@@ -2581,6 +2607,21 @@ def _table_m10(w: float, d: float, h: float, piece: dict | None = None, desk: bo
         if sw > 0.1 and sd > 0.1:
             parts.append(_box(0.0, 0.0, min(0.12, h * 0.25), sw, sd, 0.02, "wood", "shelf"))
     return parts
+
+
+def _round_table(w: float, d: float, h: float) -> list[Part]:
+    """UL178: a round table: a disc top with a shallow apron ring under its edge, a central pedestal column and a
+    flared base disc (the roles ``top``, ``apron``, ``leg``, ``base``)."""
+    top_t = min(0.03, h * 0.06)
+    apron_h = min(0.06, h * 0.08)
+    col = min(0.05, w * 0.07, d * 0.07)
+    base_t = min(0.03, h * 0.05)
+    return [
+        _cylinder_z(0.0, 0.0, h - top_t, w / 2.0, d / 2.0, top_t, "wood", "top", n=48),
+        _cylinder_z(0.0, 0.0, h - top_t - apron_h, w / 2.0 - 0.04, d / 2.0 - 0.04, apron_h, "wood", "apron", n=48),
+        _cylinder_z(0.0, 0.0, base_t, col, col, h - top_t - apron_h - base_t, "wood", "leg", n=20),
+        _frustum_z(0.0, 0.0, 0.0, w * 0.28, d * 0.28, col * 1.6, col * 1.6, base_t, "wood", "base", n=40),
+    ]
 
 
 def _console_table(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:

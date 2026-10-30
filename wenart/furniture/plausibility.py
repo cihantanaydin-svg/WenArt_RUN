@@ -684,6 +684,24 @@ def _tucked(a: str, b: str) -> bool:
     return (a in TUCKED_TYPES and b in UNDER_TYPES) or (b in TUCKED_TYPES and a in UNDER_TYPES)
 
 
+def tucked_on_legs(r: "_Room", a: str, b: str) -> Optional[dict]:
+    """30 Oct 2026 (lesson UL178, user on real04 run 20261030-112241-full: "Table seems to be going through the
+    chairs"): the F9 of a seat tucked under a legged table that reaches into the table's corner legs
+    (``clashes.on_legs``: the clash rule's measure, architect F5), None when it keeps clear of them."""
+    from wenart.blender import clashes as CL
+
+    for seat, table in ((a, b), (b, a)):
+        fs, ft = r.item(seat), r.item(table)
+        if fs["type"] not in CL.SEATS or ft["type"] not in CL.LEGGED_TABLES:
+            continue
+        depth = CL.on_legs(CL.shape(fs), ft)
+        if depth > CL.LEG_TOL_M:
+            return _violation("F9", seat, r.id, f"{fs['type']} {seat} stands in the corner legs of {ft['type']} "
+                              f"{table} ({depth:.2f} m into a leg): tucked only between the legs",
+                              {"other": table, "leg_depth_m": round(depth, 3), "cause": "table_legs"})
+    return None
+
+
 def _dict(value) -> dict:
     return value if isinstance(value, dict) else {}
 
@@ -757,7 +775,12 @@ def _f9(r: _Room) -> list[dict]:
         for b in ids[i + 1:]:
             tb = r.item(b)["type"]
             # fix round after P4a: a sink built into its run or a stove in its run's gap is no overlap
-            if _tucked(ta, tb) or frozenset((a, b)) in held:
+            if _tucked(ta, tb):
+                legs = tucked_on_legs(r, a, b)
+                if legs is not None:
+                    out.append(legs)
+                continue
+            if frozenset((a, b)) in held:
                 continue
             area = plan_shape(r, a).intersection(plan_shape(r, b)).area
             if area > OVERLAP_MIN_M2:
