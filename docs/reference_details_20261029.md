@@ -5,10 +5,10 @@ The user sent seven professional interior renders on 29 Oct 2026 ("also take som
 details", "As much detail as you can digest", "we need better doors, not all the doors needs to be closed in
 default"). The photos reached the session as chat images only (no file); this page lists every detail read from
 them, so that each one becomes a general rule of the pipeline for every project (CLAUDE.md: every fix is general).
-Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen), UL119 (a different solution for each room), UL120 (see-through wardrobes), UL121 (a full, realistic bed), UL123 (the P12 bathroom), UL124 (the P13 bathroom), UL125 (a walk-in dressing room is see-through on both sides), UL146 (the P14 bedroom).
+Lessons UL113 (inspiration), UL114 (bathroom), UL115 (all details), UL116 (doors), UL117 (door sizes), UL118 (kitchen), UL119 (a different solution for each room), UL120 (see-through wardrobes), UL121 (a full, realistic bed), UL123 (the P12 bathroom), UL124 (the P13 bathroom), UL125 (a walk-in dressing room is see-through on both sides), UL146 (the P14 bedroom), UL147 (the P5 kitchen again), UL152 (the P15 terrace), UL153 (the P16 salon).
 
 Photos: P1 bedroom with a walk-in wardrobe; P2 bedroom with slat panels and a desk; P3 kitchen seen through blue
-glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side; P9 a young adult's bedroom (dark green walls, wall TV, floating corner desk); P10 a bedroom with a see-through slatted wardrobe; P11 a bedroom with a full, realistic bed; P12 a bathroom with a terrazzo vanity wall and a walk-in shower (user: "Look how beautiful is this bathroom"); P13 a bathroom with a curved terrazzo apron vanity, a round wood mirror and a dark fluted WC wall (user: "Look how beautiful is this render take inspiration"); P14 (30 Oct) a bedroom with slatted panels, an upholstered layered bed and round nightstands (user: "This is a good inspiration").
+glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance hall with a lit niche; P7 (= P4 again); P8 the P5 kitchen from the dining side; P9 a young adult's bedroom (dark green walls, wall TV, floating corner desk); P10 a bedroom with a see-through slatted wardrobe; P11 a bedroom with a full, realistic bed; P12 a bathroom with a terrazzo vanity wall and a walk-in shower (user: "Look how beautiful is this bathroom"); P13 a bathroom with a curved terrazzo apron vanity, a round wood mirror and a dark fluted WC wall (user: "Look how beautiful is this render take inspiration"); P14 (30 Oct) a bedroom with slatted panels, an upholstered layered bed and round nightstands (user: "This is a good inspiration"); P5 again (30 Oct, user: "good inspiration photo for the kitchen"); P15 (30 Oct) a terrace lounge by black sliding doors (user: "teras inspration"); P16 (30 Oct) a living-dining room (user: "salon inspiration").
 
 ## Bathroom and WC (P4) - helper "bathroom"
 
@@ -121,3 +121,36 @@ glazed sliding doors; P4 bathroom / WC; P5 kitchen with an island; P6 entrance h
 Every detail is built as a real product (PBR materials, real sizes), never a grey box; repeated small items of a
 level are built as one mesh where possible so the build stays fast (lesson UL111: use the pod fully, skip no step,
 make slow code efficient).
+
+## The 30 Oct photos: the P5 kitchen again, the P15 terrace, the P16 salon
+
+The user sent the P5 kitchen again after real04 run 20261029-201533-full (lesson UL147). Its kitchen against P5:
+
+| P5 has | real04 kitchen (run 201533) | rule |
+|---|---|---|
+| uppers to the ceiling, one fluted wall | 0.70 m wall units under a bare band of wall | K16: the wall units of the families with ``uppers_to_ceiling`` reach the ceiling (stacked up to 1.40 m; kitchen_details.UPPER_TOP) |
+| a tall-unit column (French-door fridge, oven tower) | no column: the AI-added wall cabinets blocked every free run end | K1: an AI-added wall cabinet never blocks the column; it stops at the column |
+| warm taupe framed fronts, black bar pulls | white slab fronts | K17: the family's warm front colour by the reference |
+| one stone slab per run | seams across the worktop | K18: one slab per run, joints only at the corners |
+| an integrated dishwasher | a bare blue-grey steel slab (UL150) | K19: an integrated dishwasher behind a matching front where the family hides appliances, else a steel one with its control strip |
+| plaster reveals | a stacked-stone strip inside at the window (UL148: a site band's retaining wall through the house wall) | site walls stop at the building outline (site.wall_cut_spans) |
+| the splashback into the corner | a bare patch behind the microwave (UL149) | K20: the splashback runs into the inside corner |
+
+| id | detail | rule |
+|---|---|---|
+| T1 | (P15, "teras inspration") an outdoor lounge set by the living room's sliding doors: grey powder-coated slatted armchairs and a sofa (horizontal slats on the arms and back) with thick white seat cushions and white scatter cushions | a terrace large enough for it gets an outdoor lounge set in the family's outdoor finish; never a dining table and chairs (UL130); plants in big pots stay |
+| T2 | (P15) a big round woven (rope / rattan) pouf | the lounge set's pouf |
+| T3 | (P15) a small round side table: a white terrazzo top on a wood drum, a white sculpture and books on it | the lounge set's side table with its styling |
+| T4 | (P15) a warm light wood deck | terraces of the modern-warm families: a wood deck |
+| T5 | (P15) black slim-frame lift-and-slide doors with black pull handles, opened | (UL116 door styles) the terrace door of the living room slides and stands open in the day views |
+| R39 | (P16, "salon inspiration") full-height handle-less flat wall panels (push-to-open) along the dining wall, an inset black-lined niche with an LED strip, decor and books | a dining wall of the modern families may get full-height handle-less panels with a lit niche |
+| R40 | (P16) a very large framed abstract line-art print (black frame) over the dining table | the dining wall's art is large (about 2/3 of the table's length, 1.2-1.6 m high) |
+| R41 | (P16) a plank wood dining table on black trapezoid legs, green velvet chairs on black legs, a light fringed rug under it | the dining set of the modern-warm families; a rug under the dining set |
+| R42 | (P16) black surface ceiling tracks with cylinder spots, black mini pendants on the track over the table | track lights (H7) with mini pendants over the dining table |
+| R43 | (P16) a centrepiece: pampas in a glass vase, concrete candle holders, a bowl with decor | (K10) the table's centrepiece set |
+| R44 | (P16) two black round wall discs as wall decor | round wall sculptures as art on a free wall |
+| R45 | (P16) the TV on a plain wall over a low floating wood console with a black fluted strip, tall narrow black-lined lit shelf niches with books and vases on both sides | the TV wall set: a floating console, lit shelf niches beside the TV |
+| R46 | (P16) a black vertical slat column beside the passage, a thin black door frame | a slat column may frame a passage; black frames in the modern families |
+| R47 | (P16) two sculptural boucle armchairs (a round one, a cantilever one) with a small round side table | accent armchairs in boucle |
+| R48 | (P16) a round travertine drum coffee table with a pampas vase, books and a small sculpture, on a round rug with concentric stripes | a round stone coffee table on a round rug |
+| R49 | (P16) sheer white curtains at the window, a light herringbone oak floor | (exists) sheers and herringbone |

@@ -1723,6 +1723,90 @@
    "request": "This is a good inspiration (30 Oct 2026, photo P14: a bedroom with slatted wall panels, an upholstered bed with layered bedding, round two-drawer nightstands, a line-art print pair, a linear chandelier, a glass bedside pendant, black track lights, a venetian blind, a dressing desk with an arched mirror, black open shelving, herringbone floor)",
    "lesson": "This is a good inspiration (30 Oct 2026, photo P14: a bedroom with slatted wall panels, an upholstered bed with layered bedding, round two-drawer nightstands, a line-art print pair, a linear chandelier, a glass bedside pendant, black track lights, a venetian blind, a dressing desk with an arched mirror, black open shelving, herringbone floor)",
    "question": "Do the bedrooms reach the P14 reference where their family allows: slatted wall panels, an upholstered bed with layered bedding, round nightstands with styled tops, a print pair over the bed, a linear chandelier or bedside pendants, track lights, a blind with the curtains, a dressing desk with an arched mirror and open shelving?"
+  },
+  {
+   "id": "UL147",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "good inspiration photo for the kitchen (30 Oct 2026, the P5 kitchen photo again, after real04 run 20261029-201533-full: its kitchen has short white slab base fronts, fluted uppers that stop short of the ceiling with wall gaps between them, no tall-unit column with a built-in fridge and oven tower, a sparse worktop, seams across the stone worktop, a sink that reads blue)",
+   "lesson": "good inspiration photo for the kitchen (30 Oct 2026, the P5 kitchen photo again, after real04 run 20261029-201533-full: its kitchen has short white slab base fronts, fluted uppers that stop short of the ceiling with wall gaps between them, no tall-unit column with a built-in fridge and oven tower, a sparse worktop, seams across the stone worktop, a sink that reads blue)",
+   "question": "Does every kitchen reach the P5 reference where its family allows: wall units up to the ceiling with no bare band or gaps, a tall-unit column (built-in fridge, oven tower) at a free run end, warm framed or fluted fronts, one stone slab per run, a styled worktop, an integrated dishwasher?"
+  },
+  {
+   "id": "UL148",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "this seems to be coming from the outside texture, it is in the kitchen (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1 and _3: a vertical strip of the facade's stacked stone stands inside the kitchen between the window jamb and the splashback, from the worktop to the ceiling)",
+   "lesson": "this seems to be coming from the outside texture, it is in the kitchen (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1 and _3: a vertical strip of the facade's stacked stone stands inside the kitchen between the window jamb and the splashback, from the worktop to the ceiling)",
+   "question": "Does any outside material (facade stone, a site retaining wall, its coping, paving or a kerb) show inside a room, or come through a wall of the house?"
+  },
+  {
+   "id": "UL149",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "this wall seems like missing the texture (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1: the stone splashback stops short of the kitchen's inside corner, a bare painted patch behind the microwave where two counter runs meet)",
+   "lesson": "this wall seems like missing the texture (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1: the stone splashback stops short of the kitchen's inside corner, a bare painted patch behind the microwave where two counter runs meet)",
+   "question": "Does every splashback run along its wall into the inside corner where two counter runs meet, with no bare painted patch behind the worktop?"
+  },
+  {
+   "id": "UL150",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "if this is a washing machine it can be modeled properly (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1/_2/_3: the dishwasher beside the sink is a bare blue-grey slab with one long bar, read as an unknown appliance)",
+   "lesson": "if this is a washing machine it can be modeled properly (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_1/_2/_3: the dishwasher beside the sink is a bare blue-grey slab with one long bar, read as an unknown appliance)",
+   "question": "Is every kitchen appliance a real-looking product (a dishwasher integrated behind a matching front, or a steel one with its control strip and handle), never a bare coloured slab?"
+  },
+  {
+   "id": "UL151",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "this vase on the floor not making sense (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_2: a small table vase with pink flowers stands on the kitchen floor in the corner beside the counter)",
+   "lesson": "this vase on the floor not making sense (30 Oct 2026, real04 run 20261029-201533-full, cam_r_L-1_mutfak_2: a small table vase with pink flowers stands on the kitchen floor in the corner beside the counter)",
+   "question": "Does every tabletop decor item (a small vase, flowers, bowls, books, candles) stand on a surface, never on the floor?"
+  },
+  {
+   "id": "UL152",
+   "date": "2026-10-30",
+   "area": "terrace",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "teras inspiration (30 Oct 2026, photo P15: a terrace lounge by black-framed sliding glass doors: grey slatted outdoor armchairs and sofa with thick white cushions and white scatter cushions, a big round woven pouf, a small round terrazzo-top side table on a wood drum with a sculpture and books, a light wood deck)",
+   "lesson": "teras inspiration (30 Oct 2026, photo P15: a terrace lounge by black-framed sliding glass doors: grey slatted outdoor armchairs and sofa with thick white cushions and white scatter cushions, a big round woven pouf, a small round terrazzo-top side table on a wood drum with a sculpture and books, a light wood deck)",
+   "question": "Do the larger terraces reach the P15 reference: an outdoor lounge set (slatted armchairs or a sofa with thick cushions, a woven pouf, a small round side table with a sculpture and books) on a warm deck, plants in big pots, no dining table and chairs?"
+  },
+  {
+   "id": "UL153",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "salon inspiration (30 Oct 2026, photo P16: a living-dining room: full-height handle-less wall panels with a black-lined lit niche, a very large framed line-art print over a plank wood dining table on black trapezoid legs, green velvet chairs, a fringed rug, black ceiling track spots with mini pendants over the table, black round wall discs, a TV on a plain wall over a low floating wood console with a black fluted strip, tall narrow black-lined lit shelf niches beside it, a black slat column by the passage, two sculptural boucle armchairs, a round travertine drum coffee table, a round striped rug, sheer curtains, herringbone oak)",
+   "lesson": "salon inspiration (30 Oct 2026, photo P16: a living-dining room: full-height handle-less wall panels with a black-lined lit niche, a very large framed line-art print over a plank wood dining table on black trapezoid legs, green velvet chairs, a fringed rug, black ceiling track spots with mini pendants over the table, black round wall discs, a TV on a plain wall over a low floating wood console with a black fluted strip, tall narrow black-lined lit shelf niches beside it, a black slat column by the passage, two sculptural boucle armchairs, a round travertine drum coffee table, a round striped rug, sheer curtains, herringbone oak)",
+   "question": "Do the living-dining rooms reach the P16 reference where their family allows: handle-less full-height wall panels with a lit niche, a very large framed print, a plank table with a fringed rug, track spots with mini pendants, a TV over a low floating console with lit shelf niches beside it, sculptural armchairs, a round stone coffee table on a round rug, sheer curtains?"
   }
  ]
 }
