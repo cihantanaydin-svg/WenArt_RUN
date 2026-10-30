@@ -2465,11 +2465,14 @@ def check_agent_interior_plans(plans: list[dict], building: dict) -> list[str]:
     from wenart.blender import camsearch as CSR
 
     lines = []
+    # 30 Oct 2026 (real04 run 20261030-043021-full: an agent round's build took 31-38 min, every pose rebuilding its
+    # room's ray model and search): one cache of models and searches for this unchanged building
+    cache: dict = {}
     for p in plans:
         if p.get("policy") != "agent" or p.get("source") == "replayed" or not p.get("room_id"):
             continue
         try:
-            problems = CSR.pose_problems(building, p)
+            problems = CSR.pose_problems(building, p, cache=cache)
         except (ValueError, ZeroDivisionError, FloatingPointError, IndexError, KeyError, StopIteration) as exc:
             lines.append(f"{p['name']}: pose not checked ({type(exc).__name__}: {exc})")
             continue
@@ -2478,7 +2481,8 @@ def check_agent_interior_plans(plans: list[dict], building: dict) -> list[str]:
         why = "; ".join(q["message"] for q in problems[:3])
         others = [o for o in plans if o is not p and o.get("room_id") == p["room_id"]]
         try:
-            best = CSR.nearest_searched_pose(building, dict(p, shift_y=CSR.SHIFT_Y), others)   # the search's shift
+            best = CSR.nearest_searched_pose(building, dict(p, shift_y=CSR.SHIFT_Y), others,   # the search's shift
+                                             cache=cache)
         except (ValueError, ZeroDivisionError, FloatingPointError, IndexError, KeyError, StopIteration):
             best = None
         if best is None:

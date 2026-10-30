@@ -1862,14 +1862,21 @@ def score_candidates(model: RoomModel, positions, height: float = CAMERA_HEIGHT,
     return out
 
 
-def score_camera(building: dict, camera: dict, grid=None) -> dict:
+def score_camera(building: dict, camera: dict, grid=None, cache: Optional[dict] = None) -> dict:
     """Model shares and score terms of any camera plan (M5 or searched; pitch, shift and lens as recorded, the
-    near distance of its lens). 30 Oct 2026: on the building with its roof's ceilings (``with_roof_ceilings``)."""
+    near distance of its lens). 30 Oct 2026: on the building with its roof's ceilings (``with_roof_ceilings``);
+    ``cache`` (a dict the caller keeps for one unchanged building, e.g. one build's agent-pose check) keeps the room's
+    model with its big pieces per lens and shift (it costs the room's candidate frames)."""
     building = with_roof_ceilings(building)
     room = next(r for r in building["rooms"] if r["id"] == camera["room_id"])
-    model = RoomModel(room, building)
     grid = grid or SCORE["grid"]
     lens = float(camera.get("lens_mm") or cameras.M5_LENS_MM)    # no lens_mm: a pre-Milestone 8 camera (24 mm)
+    key = ("score_model", room["id"], round(lens, 4), round(float(camera.get("shift_x") or 0.0), 4),
+           round(float(camera.get("shift_y") or 0.0), 4))
+    model = cache.get(key) if cache is not None else None
+    fresh = model is None
+    if fresh:
+        model = RoomModel(room, building)
     a, b = ray_grid(grid, lens, camera.get("sensor_mm") or SENSOR_MM,
                     camera.get("resolution") or RESOLUTION, float(camera.get("shift_x") or 0.0),
                     float(camera.get("shift_y") or 0.0))
@@ -1878,10 +1885,12 @@ def score_camera(building: dict, camera: dict, grid=None) -> dict:
     bounds = frame_bounds(lens, float(camera.get("shift_x") or 0.0), float(camera.get("shift_y") or 0.0),
                           camera.get("sensor_mm") or SENSOR_MM, camera.get("resolution") or RESOLUTION)
     frame = model.piece_frames(camera["position"], *look_axes(camera["position"], camera["target"]), bounds)
-    if model.anchor_ids:                                 # fix round after the real06 run: the room's big pieces
+    if model.anchor_ids and fresh:                       # fix round after the real06 run: the room's big pieces
         model.set_big(model.room_frames(candidate_positions(room, building)[0], lens_mm=lens,
                                         shift_x=float(camera.get("shift_x") or 0.0),
                                         shift_y=float(camera.get("shift_y") or 0.0)))
+    if fresh and cache is not None:
+        cache[key] = model
     m = model.measure(labels[None, :], depth[None, :], border_mask(grid), near_distance(lens), frame, grid)[0]
     return {"shares": m, "terms": score_terms(m)}
 
@@ -2138,12 +2147,16 @@ def _problem(rule: str, message: str, **metrics) -> dict:
     return dict({"rule": rule, "message": message}, **metrics)
 
 
-def searched_poses(room: dict, building: dict, lens_mm: Optional[float] = None, shift_y: float = 0.0) -> list[dict]:
+def searched_poses(room: dict, building: dict, lens_mm: Optional[float] = None, shift_y: float = 0.0,
+                   cache: Optional[dict] = None) -> list[dict]:
     """The room's search candidates as poses (30 Oct 2026; ``building`` with its roof's ceilings): every free point
     (``candidate_positions``) at ``CAMERA_HEIGHT`` and every ``YAW_STEP_DEG`` yaw through the room's lens, scored as
     the search scores them (``score_candidates``; ``shift_y``: 0 for an agent's fixed camera, which has no lens shift),
     best first: ``{"position", "target", "lens_mm", "shift_y", "yaw", "score", "blocked", "anchored", "anchors_in",
     "warning", "candidate"}`` (``warning``: the search's fallback warning of a room without a free point)."""
+    key = ("poses", room.get("id"), None if lens_mm is None else round(float(lens_mm), 4), round(float(shift_y), 4))
+    if cache is not None and key in cache:
+        return cache[key]                # 30 Oct 2026: one search per room, lens and shift for one unchanged building
     model = RoomModel(room, building)
     if len(model.polygon) < 3:
         return []
@@ -2156,10 +2169,13 @@ def searched_poses(room: dict, building: dict, lens_mm: Optional[float] = None, 
                     "yaw": float(c["yaw"]), "score": plan["score"]["total"], "blocked": bool(c["blocked"]),
                     "anchored": c.get("anchored"), "anchors_in": list(c["shares"].get("anchors_in") or []),
                     "warning": warning, "score_record": plan["score"], "candidate": c})
+    if cache is not None:
+        cache[key] = out
     return out
 
 
-def pose_problems(building: dict, camera: dict, rules: Sequence[str] = POSE_RULES) -> list[dict]:
+def pose_problems(building: dict, camera: dict, rules: Sequence[str] = POSE_RULES, cache: Optional[dict] = None
+                  ) -> list[dict]:
     """Why an interior camera pose (``room_id``, ``position``, ``target``, optional ``lens_mm`` / ``shift_x`` /
     ``shift_y``) fails the search's own rules (pure; 30 Oct 2026, module section above): ``[{"rule", "message",
     ...metrics}]``, [] when it passes. On ``with_roof_ceilings(building)``:
@@ -2192,7 +2208,15 @@ def pose_problems(building: dict, camera: dict, rules: Sequence[str] = POSE_RULE
     if "eye" in rules and not POSE_EYE_RANGE_M[0] - 1e-3 <= eye <= POSE_EYE_RANGE_M[1] + 1e-3:
         out.append(_problem("eye", f"{name}: eye height {eye:.2f} m (wanted {POSE_EYE_RANGE_M[0]:g}-"
                                    f"{POSE_EYE_RANGE_M[1]:g} m)", eye_m=round(eye, 3)))
-    model = RoomModel(room, building, level)
+    # 30 Oct 2026: ``cache`` (one dict for one unchanged building: a build's agent-pose check, real04 run
+    # 20261030-043021-full built 31-38 min an agent round, every pose rebuilding its room's model and search) keeps the
+    # room's model, the scored model and the room's search
+    mkey = ("pose_model", room["id"], level.get("id") if isinstance(level, dict) else None)
+    model = cache.get(mkey) if cache is not None else None
+    if model is None:
+        model = RoomModel(room, building, level)
+        if cache is not None:
+            cache[mkey] = model
     ceiling = model.ceiling_at(x, y)
     if "headroom" in rules and ceiling - z < HEADROOM_M - 1e-9:
         where = "the sloped ceiling" if model.ceiling_planes and ceiling < model.ceil_z - 1e-6 else "the ceiling"
@@ -2203,7 +2227,7 @@ def pose_problems(building: dict, camera: dict, rules: Sequence[str] = POSE_RULE
     if not {"frame", "anchors"} & set(rules) or camera.get("target") is None:
         return out
     try:
-        m = score_camera(building, dict(camera, room_id=room["id"]))["shares"]
+        m = score_camera(building, dict(camera, room_id=room["id"]), cache=cache)["shares"]
     except (ValueError, ZeroDivisionError, FloatingPointError, IndexError, KeyError, StopIteration) as exc:
         return out + [_problem("frame", f"{name}: its frame could not be measured ({type(exc).__name__}: {exc})")]
     cands: Optional[list[dict]] = None
@@ -2211,7 +2235,8 @@ def pose_problems(building: dict, camera: dict, rules: Sequence[str] = POSE_RULE
     def search() -> list[dict]:
         nonlocal cands
         if cands is None:
-            cands = searched_poses(room, building, camera.get("lens_mm"), float(camera.get("shift_y") or 0.0))
+            cands = searched_poses(room, building, camera.get("lens_mm"), float(camera.get("shift_y") or 0.0),
+                                   cache=cache)
         return cands
 
     if "frame" in rules and is_blocked(m) and any(not c["blocked"] for c in search()):
@@ -2230,7 +2255,8 @@ def pose_problems(building: dict, camera: dict, rules: Sequence[str] = POSE_RULE
     return out
 
 
-def nearest_searched_pose(building: dict, camera: dict, others: Sequence[dict] = ()) -> Optional[dict]:
+def nearest_searched_pose(building: dict, camera: dict, others: Sequence[dict] = (), cache: Optional[dict] = None
+                          ) -> Optional[dict]:
     """The pose a refused interior pose falls back to (30 Oct 2026; ``searched_poses`` on the building with its roof's
     ceilings): the candidate of the camera's room nearest to its position (then the smallest turn from its look, then
     the search score) among those that pass ``pose_problems`` (free candidates first; one framing a room anchor when
@@ -2241,7 +2267,7 @@ def nearest_searched_pose(building: dict, camera: dict, others: Sequence[dict] =
     room, _level = _pose_room(building, camera)
     if room is None or not camera.get("position"):
         return None
-    cands = searched_poses(room, building, camera.get("lens_mm"), float(camera.get("shift_y") or 0.0))
+    cands = searched_poses(room, building, camera.get("lens_mm"), float(camera.get("shift_y") or 0.0), cache=cache)
     if not cands:
         return None
     free = [c for c in cands if not c["blocked"]] or cands
