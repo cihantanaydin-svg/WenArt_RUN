@@ -754,6 +754,11 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
     # finish and towel colour; the feature wall), the drawn footprints kept (wenart.furniture.bath_details)
     from wenart.furniture import bath_details as BD
 
+    # 30 Oct 2026 (UL200): a bath-sized footprint typed by code keeps its bath only in the main bathrooms
+    from wenart.furniture import infer as INF
+
+    for reason in INF.bath_or_shower(completed):
+        print(f"layout: bath or shower: {reason[:200]}")
     completed, baths = BD.plan_building(completed, profile if isinstance(profile, dict) else None)
     for r in baths:
         looks = ", ".join(f"{pid} {'/'.join(str(v) for k, v in rec.items() if k != 'why' and v not in (True, None))}"

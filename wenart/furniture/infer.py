@@ -2237,6 +2237,61 @@ def _on_long_side(piece: placer.Piece, deg: float) -> bool:
     return int(round(((float(deg) - base) % 360.0) / 90.0)) % 4 in _long_side_turns(piece)
 
 
+# 30 Oct 2026 (lesson UL200, user on real04 run 20261030-112241-full: "Not all the bathrooms requires a bath sometimes a
+# shower solution could be better solution": eight drawn 1.83 x 0.80 m footprints with no block name or label were all
+# typed bathtubs by code, the room's missing bathing member of that size): a bath-sized footprint the code typed (a
+# walk-in shower tray comes in that size too) keeps the bathtub only in the house's main bathrooms (on the level with
+# the most bedrooms); the others become walk-in showers. A bathtub the drawing names (a block, a label, a text) stays.
+BATH_STRONG_METHODS: tuple[str, ...] = ("block", "same_block", "block_name", NAME_TEXT_METHOD, ZONE_LABEL_METHOD)
+BATH_WORDS: tuple[str, ...] = ("bath", "tub", "küvet", "kuvet", "jakuzi", "jacuzzi", "wanne")
+BATH_OR_SHOWER_RULE = "infer.bath_or_shower"
+
+
+def _bath_named(item: dict) -> bool:
+    text = " ".join(str(item.get(k) or "") for k in ("type_raw", "label", "block_name")).lower()
+    return item.get("type_method") in BATH_STRONG_METHODS or any(w in text for w in BATH_WORDS)
+
+
+def bath_or_shower(building: dict) -> list[str]:
+    """In place (UL200): the code-typed bathtubs outside the main bathrooms become walk-in showers (``adjusted_by_ai``
+    by code, ``drawn_type`` and the drawn footprint kept); returns the reasons. The main bathrooms: the bathrooms with
+    such a bathtub on the level with the most bedrooms (its rooms of type bedroom); with one bathroom of that kind the
+    house keeps its bath. Off with the brief's ``bath_or_shower: keep``."""
+    brief = (building.get("project") or {}).get("brief") or {}
+    if str(brief.get("bath_or_shower") or "").strip().lower() in ("keep", "off", "false", "no"):
+        return []
+    rooms = {r.get("id"): r for r in building.get("rooms") or []}
+    tubs = [f for f in building.get("furniture") or [] if f.get("type") == "bathtub" and f.get("build") is not False
+            and f.get("source") == "from_documents" and not _bath_named(f) and f.get("room_id") in rooms]
+    if len({f["room_id"] for f in tubs}) < 2:
+        return []
+    beds: dict = {}
+    for r in rooms.values():
+        if r.get("room_type") == "bedroom":
+            beds[r.get("level_id")] = beds.get(r.get("level_id"), 0) + 1
+    levels = {rooms[f["room_id"]].get("level_id") for f in tubs}
+    main = max(levels, key=lambda lv: (beds.get(lv, 0), str(lv))) if beds else None
+    if main is None or not beds.get(main):
+        return []
+    out = []
+    for f in tubs:
+        lv = rooms[f["room_id"]].get("level_id")
+        if lv == main:
+            continue
+        f.setdefault("drawn_type", f.get("type"))
+        f.setdefault("drawn_footprint", copy.deepcopy(f.get("footprint")))
+        f.setdefault("drawn_front_deg", f.get("front_deg"))
+        reason = (f"{f['id']}: a bath-sized footprint ({f['footprint']['size'][0]:.2f} x {f['footprint']['size'][1]:.2f} "
+                  f"m) the drawing does not name a bath, in a bathroom off the bedrooms' level ({lv}; the main bathroom "
+                  f"keeps its bath on {main}): a walk-in shower (UL200)")
+        f["type"] = "shower"
+        f["shower_kind"] = "walk_in"
+        merge_code_label(f, {"by": "code", "stage": "layout", "rule": BATH_OR_SHOWER_RULE, "reason": reason,
+                             "changed": {"type": "bathtub"}})
+        out.append(reason)
+    return out
+
+
 SEAT_FRONT_REACH_M = 3.0          # missing_fronts: the open floor before a seat counted to this distance
 SEAT_FRONT_PARTNER_W = 0.5         # ... plus this weight towards its nearest partner (cosine)
 

@@ -2367,6 +2367,30 @@
    "request": "Writing on the labels on the books are acceptable you can write things on them when needed (30 Oct 2026, the user on the book models of UL154: printed titles on the spines and labels are welcome); and: \"Also wine vineger salt paper you can write them when you see needed\" (labels on wine, vinegar, salt and pepper)",
    "lesson": "Writing on the labels on the books are acceptable you can write things on them when needed (30 Oct 2026, the user on the book models of UL154: printed titles on the spines and labels are welcome)",
    "question": "Do the books and the kitchen's bottles and jars (wine, vinegar, salt, pepper) carry printed labels like real products?"
+  },
+  {
+   "id": "UL200",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Not all the bathrooms requires a bath sometimes a shower solution could be better solution (30 Oct 2026, real04 run 20261030-112241-full: bathtubs in most of the bathrooms)",
+   "lesson": "Not every bathroom gets a bath: a bath-sized drawn footprint the drawing does not name a bath (typed by code as the room's missing bathing member; a walk-in shower tray comes in that size too) keeps its bath only in the house's main bathrooms (the level with the most bedrooms); the others become walk-in showers (infer.bath_or_shower in the layout stage, adjusted_by_ai by code, drawn type and footprint kept); a bath the drawing names (block, label, text) stays, a house with one such bathroom keeps its bath, the brief's bath_or_shower: keep turns it off.",
+   "question": "Do the bathrooms off the bedrooms' floor have showers rather than baths where the drawing leaves it open?"
+  },
+  {
+   "id": "UL201",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This is inspration for shower solutions (30 Oct 2026, the user's photo of a modern bathroom: a level-access shower behind frameless clear glass, a black sliding door hung from a top rail with round rollers, a square black rain head, a hand shower on a hose and a slide bar, a black bar mixer, a linear floor drain, large grey floor tiles running in; beside it a curved floating vanity with fluted fronts and open lit shelves, a terrazzo top and wall framing a backlit rounded mirror, a black vessel basin, a black heated towel rail, square black downlights)",
+   "lesson": "This is inspration for shower solutions (30 Oct 2026, the user's photo of a modern bathroom: a level-access shower behind frameless clear glass, a black sliding door hung from a top rail with round rollers, a square black rain head, a hand shower on a hose and a slide bar, a black bar mixer, a linear floor drain, large grey floor tiles running in; beside it a curved floating vanity with fluted fronts and open lit shelves, a terrazzo top and wall framing a backlit rounded mirror, a black vessel basin, a black heated towel rail, square black downlights)",
+   "question": "Does every shower look like the user's reference: level access, frameless clear glass with a black sliding door on a top rail, a black rain head, a hand shower on a slide bar, a bar mixer and a linear drain?"
   }
  ]
 }
