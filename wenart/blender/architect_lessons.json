@@ -1651,6 +1651,30 @@
    "request": "I like this sofa but it needs more details, also the gaps need a rework (30 Oct 2026, real04 run 20261029-201533-full: the L corner sofa 3dwh_bc790e2f62189290d277caa7 renders untextured flat white, gaps between its parts)",
    "lesson": "I like this sofa but it needs more details, also the gaps need a rework (30 Oct 2026, real04 run 20261029-201533-full: the L corner sofa 3dwh_bc790e2f62189290d277caa7 renders untextured flat white, gaps between its parts)",
    "question": "Does every upholstered library model wear a real fabric (weave texture, sheen, seams), with its parts joined (no gaps opened by the fit), never flat untextured colour?"
+  },
+  {
+   "id": "UL141",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This section needs a rework marked with pen (30 Oct 2026, real04 run 20261029-201533-full site: at the foot of an outdoor stair a stone block cuts into the lowest steps)",
+   "lesson": "This section needs a rework marked with pen (30 Oct 2026, real04 run 20261029-201533-full site: at the foot of an outdoor stair a stone block cuts into the lowest steps)",
+   "question": "Does every outdoor stair meet its landings, walls and planters cleanly (no block or wall cutting into a step, each flight ending on a landing or the ground)?"
+  },
+  {
+   "id": "UL142",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "This white section needs to go all the way (30 Oct 2026, real04 run 20261029-201533-full: the pale paved strip at the foot of the glazed facade stops halfway, grass runs up to the glass)",
+   "lesson": "This white section needs to go all the way (30 Oct 2026, real04 run 20261029-201533-full: the pale paved strip at the foot of the glazed facade stops halfway, grass runs up to the glass)",
+   "question": "Does the paved strip at the foot of a facade run along the whole facade it serves, never stopping halfway with grass up to the glass?"
   }
  ]
 }
