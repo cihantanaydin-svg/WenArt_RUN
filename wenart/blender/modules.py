@@ -1336,14 +1336,33 @@ def plan_wall_run(piece: dict, style: Optional[dict] = None) -> Optional[dict]:
     joints = [float(j) for j in hints.get("joints_m") or []]
     blind = float(hints.get("blind_m") or (KITCHEN_WALL_DEPTH_M + 0.05))
     blocked = _merge_spans(hints.get("blocked_m") or [], -w / 2.0, w / 2.0)
+    # 30 Oct 2026 (lesson UL147, the P5 kitchen): the run's tall units under the cabinet (``column_m``) are a hard end
+    # (the wall units butt against the column, as against a wall); a window or glazed door stays a soft one
+    columns = _merge_spans(hints.get("column_m") or [], -w / 2.0, w / 2.0)
+    cuts = sorted([(b0, b1, "window") for b0, b1 in blocked] + [(c0, c1, "wall") for c0, c1 in columns])
+    merged: list[list] = []
+    for c0, c1, kind in cuts:
+        if merged and c0 <= merged[-1][1] + 1e-6:
+            merged[-1][1] = max(merged[-1][1], c1)
+            merged[-1][2] = "wall" if "wall" in (kind, merged[-1][2]) else "window"
+        else:
+            merged.append([c0, c1, kind])
     stretches, x = [], -w / 2.0
     kind_a = ends[0]
-    for b0, b1 in blocked:
+    for b0, b1, kind in merged:
         if b0 - x > 1e-6:
-            stretches.append((x, b0, kind_a, "window"))
-        x, kind_a = b1, "window"
+            stretches.append((x, b0, kind_a, kind))
+        x, kind_a = b1, kind
     if w / 2.0 - x > 1e-6:
         stretches.append((x, w / 2.0, kind_a, ends[1]))
+    # 30 Oct 2026 (UL147): the uppers of the families with ``uppers_to_ceiling`` reach the ceiling over the cabinet
+    family = KD.family_from(style, hints, P.piece_design(piece))
+    rule = KD.family_rule(family) if family is not None else None
+    tall_note = None
+    if rule is not None and hints.get("ceiling_m") is not None:
+        from wenart.blender.proxies import mount_bottom
+        h, tall_note = KD.upper_height(h, float(mount_bottom(piece)[0]), hints.get("ceiling_m"), rule)
+    stack = h > KD.UPPER_TOP["stack_from_m"] + 1e-9 and rule is not None and rule.get("upper_fronts") != "fluted"
     modules, products, notes = [], [], []
     free: list = []
     misaligned = made = 0
@@ -1366,7 +1385,8 @@ def plan_wall_run(piece: dict, style: Optional[dict] = None) -> Optional[dict]:
                 product = f"wall unit {uw * 100:.0f}x{d * 100:.0f} cm" + (
                     " (made to measure)" if kind == "made_to_measure" else "")
                 modules.append(_module("wall_unit", (uw, d, h), ((x0 + x1) / 2.0, 0.0), "front", z_m=0.0,
-                                       doors=1 if uw < 0.60 - 1e-9 else 2, product=product))
+                                       doors=1 if uw < 0.60 - 1e-9 else 2, product=product,
+                                       **({"stack_top_m": KD.UPPER_TOP["stack_top_m"]} if stack else {})))
             products.append(product)
     if not any(m["kind"] == "wall_unit" for m in modules):
         return None
@@ -1377,6 +1397,11 @@ def plan_wall_run(piece: dict, style: Optional[dict] = None) -> Optional[dict]:
     if blocked:
         notes.append("left free at the window or glazed door of the wall (the building as built): "
                      + ", ".join(f"{b0:+.2f}..{b1:+.2f} m" for b0, b1 in blocked))
+    if columns:
+        notes.append("stops at the run's tall-unit column: " + ", ".join(f"{c0:+.2f}..{c1:+.2f} m" for c0, c1 in columns)
+                     + " (UL147)")
+    if tall_note:
+        notes.append(tall_note)
     if misaligned:
         notes.append(f"{misaligned} joint(s) off the base units' joints (no real width fits there)")
     if made:
@@ -1386,13 +1411,19 @@ def plan_wall_run(piece: dict, style: Optional[dict] = None) -> Optional[dict]:
             "products": sorted(set(products), key=products.index), "notes": notes, "design": P.piece_design(piece),
             "ends": ends, "units_m": [round(m["size_m"][0], 4) for m in units],
             "free_m": [[round(x0, 4), round(x1, 4)] for x0, x1 in free], "misaligned": misaligned,
-            "made_to_measure": made, **({"blocked_m": [list(s) for s in blocked]} if blocked else {})}
+            "made_to_measure": made, **({"blocked_m": [list(s) for s in blocked]} if blocked else {}),
+            **({"column_m": [list(c) for c in columns]} if columns else {})}
     # 29 Oct 2026 (K4, module docstring "Kitchen details"): the family's uppers (fluted, handle-less)
-    family = KD.family_from(style, hints, plan["design"])
-    if family is not None:
-        rule = KD.family_rule(family)
+    if rule is not None:
         plan["details"] = {"family": rule["family"], "upper_fronts": rule.get("upper_fronts"),
                            "upper_handleless": bool(rule.get("upper_handleless")), "applied": []}
+        if tall_note:
+            plan["details"]["applied"].append({"detail": "UL147", "what": f"uppers to the ceiling ({h:.2f} m)",
+                                               "source": "inferred", "reason": tall_note})
+        if columns:
+            plan["details"]["applied"].append({"detail": "K1", "what": "the wall run stops at the tall-unit column",
+                                               "source": "inferred", "reason": "the column's fronts run to the "
+                                               "ceiling; no wall unit over it (UL147)"})
         if rule.get("upper_fronts") or rule.get("upper_handleless"):
             what = (("fluted " if rule.get("upper_fronts") == "fluted" else "")
                     + ("handle-less " if rule.get("upper_handleless") else "") + "fronts")
@@ -1431,10 +1462,17 @@ def _wall_run_parts(plan: dict) -> list[Part]:
             parts += _rotate_parts(fronts, dx, 0.0, 0.0)
             continue
         doors = int(m.get("doors") or 1)
+        # 30 Oct 2026 (UL147): a unit to the ceiling is a door under a top flap (a stacked wall unit)
+        top = float(m.get("stack_top_m") or 0.0)
+        z_door = z0 + h - top - KD.UPPER_TOP["stack_gap_m"] / 2.0 if top else z0 + h - 0.003
         # 29 Oct 2026 (K4): the family's fluted or handle-less uppers
-        fronts = KD.upper_front_parts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, doors, design,
-                                      plan.get("details")) \
-            or P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 1, doors, design, handle_at="bottom")
+        fronts = KD.upper_front_parts(w - 0.004, face, z0 + 0.003, z_door, doors, design, plan.get("details")) \
+            or P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z_door, 1, doors, design, handle_at="bottom")
+        if top:
+            fronts += KD.upper_front_parts(w - 0.004, face, z_door + KD.UPPER_TOP["stack_gap_m"], z0 + h - 0.003, 1,
+                                           design, plan.get("details")) \
+                or P.cabinet_fronts(w - 0.004, face, z_door + KD.UPPER_TOP["stack_gap_m"], z0 + h - 0.003, 1, 1,
+                                    design, handle_at="bottom")
         parts += _rotate_parts(fronts, x, 0.0, 0.0)
     return with_handle_posts(parts)
 
@@ -1460,6 +1498,9 @@ def wall_unit_blocks(piece: dict, building: dict, margin: float = WALL_RUN_WINDO
     except Exception:  # noqa: BLE001 - the rule's bottom
         z0 = 1.45
     h = float(piece.get("height") or 0.7)
+    plan = (piece.get("asset") or {}).get("module_plan") if isinstance(piece.get("asset"), dict) else None
+    if isinstance(plan, dict) and plan.get("height_m"):
+        h = max(h, float(plan["height_m"]))      # 30 Oct 2026 (UL147): uppers to the ceiling cover more of the wall
     walls = {x.get("id"): x for x in building.get("walls") or []}
     out = []
     for o in building.get("openings") or []:

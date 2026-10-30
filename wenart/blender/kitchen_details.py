@@ -85,61 +85,61 @@ _SPARSE = ("storage_jars", "dried_grass_vase", "plate_stack")
 FAMILY_KITCHEN: dict[str, dict] = {
     "modern": {"upper_fronts": "fluted", "upper_handleless": True, "waterfall": True, "island_hood": "cylinder",
                "hood_metal": "steel", "shelf_frame": True, "splashback": "stone", "tall_column": True,
-               "floor": "tiles_large_gloss", "rail": False, "styling": _FULL,
+               "uppers_to_ceiling": True, "floor": "tiles_large_gloss", "rail": False, "styling": _FULL,
                "why": "a modern kitchen (the reference P5 / P8): slab fronts with fluted handle-less uppers, a tall-unit "
                       "wall, a stone waterfall island under a steel cylinder hood in a black open shelf frame, a stone "
                       "splashback, glossy large floor tiles, a styled worktop"},
     "contemporary": {"upper_fronts": "fluted", "upper_handleless": True, "waterfall": True, "island_hood": "cylinder",
                      "hood_metal": "steel", "shelf_frame": True, "splashback": "stone", "tall_column": True,
-                     "floor": "tiles_large_gloss", "rail": False, "styling": _FULL,
+                     "uppers_to_ceiling": True, "floor": "tiles_large_gloss", "rail": False, "styling": _FULL,
                      "why": "a contemporary kitchen keeps the modern details"},
     "modern classic": {"upper_fronts": None, "upper_handleless": False, "waterfall": True, "island_hood": "cylinder",
                        "hood_metal": "steel", "shelf_frame": True, "splashback": "stone", "tall_column": True,
-                       "floor": "tiles_large_gloss", "rail": False, "styling": _FULL,
+                       "uppers_to_ceiling": True, "floor": "tiles_large_gloss", "rail": False, "styling": _FULL,
                        "why": "a modern classic kitchen: framed fronts everywhere (the island too), a stone waterfall "
                               "island, a steel hood in an open shelf frame, a stone splashback, glossy tiles"},
     "transitional": {"upper_fronts": None, "upper_handleless": False, "waterfall": True, "island_hood": "cylinder",
                      "hood_metal": "steel", "shelf_frame": True, "splashback": "stone", "tall_column": True,
-                     "floor": "tiles_large_gloss", "rail": False, "styling": _FULL,
+                     "uppers_to_ceiling": True, "floor": "tiles_large_gloss", "rail": False, "styling": _FULL,
                      "why": "a transitional kitchen: framed fronts with the modern island and hood"},
     "modern minimal": {"upper_fronts": None, "upper_handleless": True, "waterfall": True, "island_hood": "box",
                        "hood_metal": "handle", "shelf_frame": False, "splashback": "stone", "tall_column": True,
-                       "floor": "tiles_large_gloss", "rail": False, "styling": _SPARSE,
+                       "uppers_to_ceiling": True, "floor": "tiles_large_gloss", "rail": False, "styling": _SPARSE,
                        "why": "a minimal kitchen: handle-less slab fronts, a waterfall island, a slim box hood, a few "
                               "objects on a clear worktop"},
     "minimal": {"upper_fronts": None, "upper_handleless": True, "waterfall": True, "island_hood": "box",
                 "hood_metal": "handle", "shelf_frame": False, "splashback": "stone", "tall_column": True,
-                "floor": "tiles_large_gloss", "rail": False, "styling": _SPARSE,
+                "uppers_to_ceiling": True, "floor": "tiles_large_gloss", "rail": False, "styling": _SPARSE,
                 "why": "a minimal kitchen: handle-less slab fronts, a waterfall island, a few objects"},
     "scandinavian": {"upper_fronts": None, "upper_handleless": False, "waterfall": True, "island_hood": "cylinder",
                      "hood_metal": "handle", "shelf_frame": False, "splashback": "tiles", "tall_column": True,
-                     "floor": None, "rail": False, "styling": _FULL,
+                     "uppers_to_ceiling": True, "floor": None, "rail": False, "styling": _FULL,
                      "why": "a Scandinavian kitchen: light slab fronts with slim handles, an oak waterfall island, a "
                             "round hood in the handles' black, white tiles, a lived-in worktop"},
     "japandi": {"upper_fronts": "fluted", "upper_handleless": True, "waterfall": True, "island_hood": "cylinder",
                 "hood_metal": "handle", "shelf_frame": False, "splashback": "stone", "tall_column": True,
-                "floor": None, "rail": False, "styling": _CALM,
+                "uppers_to_ceiling": True, "floor": None, "rail": False, "styling": _CALM,
                 "why": "a Japandi kitchen: fluted handle-less uppers, a wood waterfall island, a calm styled worktop"},
     "industrial": {"upper_fronts": None, "upper_handleless": False, "waterfall": False, "island_hood": "box",
                    "hood_metal": "handle", "shelf_frame": True, "splashback": "subway", "tall_column": True,
-                   "floor": None, "rail": True, "styling": _FULL,
+                   "uppers_to_ceiling": False, "floor": None, "rail": True, "styling": _FULL,
                    "why": "an industrial kitchen (the reference G3): a black kitchen, white subway tiles, a utensil "
                           "rail, a black box hood with an open black shelf frame, bar stools at the island"},
     "farmhouse": {"upper_fronts": None, "upper_handleless": False, "waterfall": False, "island_hood": "box",
                   "hood_metal": "handle", "shelf_frame": False, "splashback": "subway", "tall_column": True,
-                  "floor": None, "rail": True, "styling": _FULL,
+                  "uppers_to_ceiling": False, "floor": None, "rail": True, "styling": _FULL,
                   "why": "a farmhouse kitchen: framed fronts, white subway tiles, a utensil rail, a full worktop"},
     "rustic": {"upper_fronts": None, "upper_handleless": False, "waterfall": False, "island_hood": "box",
                "hood_metal": "handle", "shelf_frame": False, "splashback": "subway", "tall_column": True,
-               "floor": None, "rail": True, "styling": _FULL,
+               "uppers_to_ceiling": False, "floor": None, "rail": True, "styling": _FULL,
                "why": "a rustic kitchen: framed fronts, subway tiles, a utensil rail, a full worktop"},
     "mediterranean": {"upper_fronts": None, "upper_handleless": False, "waterfall": False, "island_hood": "box",
                       "hood_metal": "handle", "shelf_frame": False, "splashback": "tiles", "tall_column": True,
-                      "floor": None, "rail": True, "styling": _FULL,
+                      "uppers_to_ceiling": False, "floor": None, "rail": True, "styling": _FULL,
                       "why": "a Mediterranean kitchen: framed fronts, the wet walls' tiles, a utensil rail"},
     "classic": {"upper_fronts": None, "upper_handleless": False, "waterfall": True, "island_hood": "box",
                 "hood_metal": "handle", "shelf_frame": False, "splashback": "stone", "tall_column": True,
-                "floor": None, "rail": False, "styling": _CALM,
+                "uppers_to_ceiling": False, "floor": None, "rail": False, "styling": _CALM,
                 "why": "a classic kitchen: framed fronts with brass, a marble waterfall island, a stone splashback"},
 }
 FAMILY_KITCHEN["default"] = dict(FAMILY_KITCHEN["modern"], upper_fronts=None, floor=None,
@@ -186,6 +186,13 @@ COLUMN: dict[str, float] = {
     "freezer_top_m": 0.80, "fridge_top_m": 2.05,
 }
 COLUMN_KINDS: tuple[str, ...] = ("oven_tower", "fridge_column", "fridge_french")
+# 30 Oct 2026 (lesson UL147, the user's P5 kitchen again after real04 run 20261029-201533-full: its 0.70 m wall units
+# hung under a bare band of wall): the uppers of the families with ``uppers_to_ceiling`` run from their bottom to the
+# ceiling less a scribe strip (IKEA METOD wall units 60 / 80 / 100 cm high, stacked with a 40 cm top unit: at most
+# 1.40 m); over ``stack_from_m`` a unit is a door and a top flap of ``stack_top_m`` (slab or framed fronts; one tall
+# front for the fluted families, as in P5). A ceiling higher than that keeps the band over the stacked units.
+UPPER_TOP = {"scribe_m": 0.01, "max_m": 1.40, "min_gain_m": 0.05, "stack_from_m": 1.00, "stack_top_m": 0.40,
+             "stack_gap_m": 0.003}
 # K2 / K15: a waterfall end is the worktop's own slab (the 40 mm top) down to the floor.
 WATERFALL_T_M = 0.04
 # G3: the island's knee space (NKBA: 15 in = 38 cm at counter height; 20-30 cm in compact kitchens; METOD 60 cm base
@@ -321,6 +328,30 @@ def column_top(hint: Optional[dict]) -> float:
     except (TypeError, ValueError):
         top = COLUMN["top_default_m"]
     return round(max(COLUMN["top_min_m"], min(COLUMN["top_max_m"], top)), 4)
+
+
+def upper_height(h: float, bottom: float, ceiling, rule: Optional[dict]) -> tuple[float, Optional[str]]:
+    """30 Oct 2026 (UL147): ``(height, note)`` of a wall run's units hung at ``bottom`` (metres over the floor) under a
+    ceiling at ``ceiling`` (None: unknown): with the family's ``uppers_to_ceiling`` the units reach the ceiling less
+    ``UPPER_TOP["scribe_m"]``, at most ``UPPER_TOP["max_m"]`` high; otherwise, without a ceiling, or with less than
+    ``min_gain_m`` to win, the given ``h`` and no note."""
+    try:
+        ceiling = float(ceiling)
+    except (TypeError, ValueError):
+        return h, None
+    if not (rule or {}).get("uppers_to_ceiling"):
+        return h, None
+    tall = min(UPPER_TOP["max_m"], ceiling - UPPER_TOP["scribe_m"] - float(bottom))
+    if tall < h + UPPER_TOP["min_gain_m"] - 1e-9:
+        return h, None
+    tall = round(tall, 4)
+    stacked = " (stacked: a door under a top flap)" if tall > UPPER_TOP["stack_from_m"] + 1e-9 \
+        and (rule or {}).get("upper_fronts") != "fluted" else ""
+    band = "" if tall >= ceiling - UPPER_TOP["scribe_m"] - float(bottom) - 1e-6 else \
+        f"; {ceiling - float(bottom) - tall:.2f} m of wall stays over them (a ceiling over the {UPPER_TOP['max_m']:.2f} m" \
+        " of stacked units)"
+    return tall, (f"wall units {tall:.2f} m high from {float(bottom):.2f} m up to the ceiling{stacked}{band} (the "
+                  f"{(rule or {}).get('family') or 'default'} family; UL147, the P5 kitchen)")
 
 
 def tall_module(span: tuple[float, float, str], d: float, top: float, plinth: float) -> dict:
@@ -657,16 +688,17 @@ def upper_front_parts(w: float, y_face: float, z0: float, z1: float, cols: int, 
 
 def fluted_front(cx: float, y_face: float, z0: float, fw: float, fh: float) -> list[Part]:
     """K4: one fluted front in front of the carcass face at ``y_face`` (the 18 mm of a slab front): a backing panel
-    and vertical ribs at the ``FLUTE`` pitch over its width, all in the front's material (role ``flute`` bevels the
-    ribs round)."""
+    and vertical ribs at the ``FLUTE`` pitch over its width (role ``flute`` bevels the ribs round). 30 Oct 2026
+    (UL147, the P5 kitchen: pale fluted uppers over the taupe base and tall fronts): in the trim's paint
+    (``painted``), not the fronts' design colour."""
     y0 = y_face - P.FRONT_GAP
     bt, rd = FLUTE["backing_t"], FLUTE["rib_d"]
-    parts = [P._box(cx, y0 - bt / 2.0, z0, fw, bt, fh, "front", "front")]
+    parts = [P._box(cx, y0 - bt / 2.0, z0, fw, bt, fh, "painted", "front")]
     n = max(1, int((fw + FLUTE["gap"]) // (FLUTE["rib_w"] + FLUTE["gap"])))
     rw = (fw - (n - 1) * FLUTE["gap"]) / n
     for i in range(n):
         x = cx - fw / 2.0 + rw / 2.0 + i * (rw + FLUTE["gap"])
-        parts.append(P._box(x, y0 - bt - rd / 2.0, z0, rw, rd, fh, "front", "flute"))
+        parts.append(P._box(x, y0 - bt - rd / 2.0, z0, rw, rd, fh, "painted", "flute"))
     return parts
 
 

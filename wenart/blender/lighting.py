@@ -244,6 +244,7 @@ from __future__ import annotations
 import heapq
 import math
 import os
+from typing import Optional
 
 from wenart import geometry as G
 from wenart.blender.cameras import room_openings
@@ -1040,6 +1041,21 @@ def _piece_frame(piece: dict) -> tuple[tuple[float, float], tuple[float, float],
     return (cx, cy), (fx, fy), d, w
 
 
+def _wall_units_span(cabinet: dict) -> Optional[tuple[float, float]]:
+    """30 Oct 2026 (lesson UL147): ``(x0, x1)`` along a wall cabinet's own x axis (its footprint frame) from its first
+    to its last wall unit when its module plan left a part of the footprint free (a tall-unit column, ``column_m``, or
+    a window, ``blocked_m``), else None (pure): the under-cabinet strip lights the units, not the column."""
+    plan = (cabinet.get("asset") or {}).get("module_plan") if isinstance(cabinet.get("asset"), dict) else None
+    if not isinstance(plan, dict) or not (plan.get("column_m") or plan.get("blocked_m")):
+        return None
+    units = [m for m in plan.get("modules") or [] if m.get("kind") in ("wall_unit", "filler")]
+    if not units:
+        return None
+    x0 = min(float(m["pos_m"][0]) - float(m["size_m"][0]) / 2.0 for m in units)
+    x1 = max(float(m["pos_m"][0]) + float(m["size_m"][0]) / 2.0 for m in units)
+    return (x0, x1) if x1 - x0 > 0.3 else None
+
+
 # --------------------------------------------------------------------------
 # Fix round after P4a (17 Oct 2026): hosts, boxes and the fixture check (pure)
 # --------------------------------------------------------------------------
@@ -1728,6 +1744,13 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
             for cabinet in cabinets:
                 (cx, cy), (fx, fy), width, depth = _piece_frame(cabinet)
                 length = max(0.3, width - 0.1)
+                # 30 Oct 2026 (UL147): a wall run that stops at a tall-unit column or a window lights only its units
+                span = _wall_units_span(cabinet)
+                if span is not None:
+                    rot = math.radians(float((cabinet.get("footprint") or {}).get("rotation_deg") or 0.0))
+                    mid = (span[0] + span[1]) / 2.0
+                    cx, cy = cx + math.cos(rot) * mid, cy + math.sin(rot) * mid
+                    length = max(0.3, span[1] - span[0] - 0.1)
                 bx, by = cx - fx * depth / 2.0, cy - fy * depth / 2.0            # the back edge (the wall)
                 setback = min(RIG_STRIP_SETBACK_M, max(depth - 0.05, 0.05))
                 px, py = bx + fx * setback, by + fy * setback

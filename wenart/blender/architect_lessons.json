@@ -1728,7 +1728,7 @@
    "id": "UL147",
    "date": "2026-10-30",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -1752,7 +1752,7 @@
    "id": "UL149",
    "date": "2026-10-30",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
@@ -1764,7 +1764,7 @@
    "id": "UL150",
    "date": "2026-10-30",
    "area": "details",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],

@@ -2074,6 +2074,70 @@ def split_band(t0: float, t1: float, z0: float, z1: float, holes, clear: float =
     return sorted(pc for pc in pieces if pc[1] - pc[0] >= min_piece and pc[3] - pc[2] >= min_piece)
 
 
+SPLASHBACK_CORNER = {"touch_m": 0.05, "reach_m": 0.75, "depth_m": 0.70, "square": 0.30}
+
+
+def splashback_corner_ends(piece: dict, pieces: list, room: dict, p, q, normal) -> tuple[tuple, tuple, list]:
+    """30 Oct 2026 (lesson UL149, user on real04 run 20261029-201533-full: "this wall seems like missing the texture":
+    a bare painted patch behind the microwave where two counter runs meet): ``(p, q, ids)``, the splashback band
+    ``p -> q`` of a counter run (on its wall face, ``normal`` into the room) carried on at either end over the corner
+    square of another counter run of the room that butts against the same wall at right angles (its end within
+    ``touch_m`` of the band's end, within ``depth_m`` of the wall, at most ``reach_m`` on: the other run's depth), up to
+    the room's wall; ``ids`` names those runs (pure). A run standing on along the same wall keeps its own band."""
+    poly = [tuple(v[:2]) for v in room.get("polygon") or []]
+    length = G.distance(p, q)
+    if length < 1e-6 or len(poly) < 3:
+        return p, q, []
+    ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
+    nx, ny = normal
+    rot = math.radians(float(piece["footprint"].get("rotation_deg") or 0.0))
+    lo, hi, ids = 0.0, length, []
+    for other in pieces:
+        if other is piece or other.get("id") == piece.get("id") or other.get("room_id") != piece.get("room_id") \
+                or other.get("type") != "kitchen_counter" or not piece_built(other) \
+                or not isinstance(other.get("footprint"), dict):
+            continue
+        orot = math.radians(float(other["footprint"].get("rotation_deg") or 0.0))
+        if abs(math.cos(orot - rot)) > SPLASHBACK_CORNER["square"]:
+            continue                                     # not at right angles: a run on along the same wall
+        pts = G.rotated_rectangle(other["footprint"]["center"], other["footprint"]["size"],
+                                  math.degrees(orot))
+        ts = [(x - p[0]) * ux + (y - p[1]) * uy for x, y in pts]
+        ds = [(x - p[0]) * nx + (y - p[1]) * ny for x, y in pts]
+        if min(ds) > SPLASHBACK_CORNER["depth_m"] or max(ds) < 0.0:
+            continue                                     # it does not reach this wall
+        if abs(min(ts) - length) <= SPLASHBACK_CORNER["touch_m"] or (min(ts) > length - 0.05 and min(ts) < length):
+            new = min(max(ts), length + SPLASHBACK_CORNER["reach_m"])
+            if new > hi + 1e-6:
+                hi, ids = new, ids + [other["id"]]
+        elif abs(max(ts)) <= SPLASHBACK_CORNER["touch_m"]:
+            new = max(min(ts), -SPLASHBACK_CORNER["reach_m"])
+            if new < lo - 1e-6:
+                lo, ids = new, ids + [other["id"]]
+    if not ids:
+        return p, q, []
+    # never past the room's wall: clip to the room edge the band lies on
+    for i in range(len(poly)):
+        a, b = poly[i], poly[(i + 1) % len(poly)]
+        el = G.distance(a, b)
+        if el < 1e-6:
+            continue
+        ex, ey = (b[0] - a[0]) / el, (b[1] - a[1]) / el
+        if abs(ex * ux + ey * uy) < 0.98 or abs((p[0] - a[0]) * -ey + (p[1] - a[1]) * ex) > 0.02:
+            continue
+        t_a = (a[0] - p[0]) * ux + (a[1] - p[1]) * uy
+        t_b = (b[0] - p[0]) * ux + (b[1] - p[1]) * uy
+        e0, e1 = min(t_a, t_b), max(t_a, t_b)
+        if e0 - 0.02 <= 0.0 and length <= e1 + 0.02:
+            lo, hi = max(lo, e0), min(hi, e1)
+            break
+    else:
+        lo, hi = max(lo, 0.0), min(hi, length)          # no room edge under the band: keep it as it was
+    if hi - lo <= length + 1e-6:
+        return p, q, []
+    return (p[0] + ux * lo, p[1] + uy * lo), (p[0] + ux * hi, p[1] + uy * hi), ids
+
+
 def splashback_bands(building: dict, level: dict) -> list[dict]:
     """The splashback bands of a level's kitchens before they become boxes (pure; docs/milestone11.md §1.3 M2): behind
     every kitchen counter run, sink, hob or stove (``SPLASHBACK["types"]``) of a kitchen that stands against a wall
@@ -2103,6 +2167,9 @@ def splashback_bands(building: dict, level: dict) -> list[dict]:
         mid = ((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)
         if (cx - mid[0]) * nx + (cy - mid[1]) * ny < 0:
             nx, ny = -nx, -ny
+        # 30 Oct 2026 (lesson UL149): the band runs on into the inside corner the next run's end fills
+        p, q, corners = splashback_corner_ends(piece, building.get("furniture") or [], room, p, q, (nx, ny))
+        length = G.distance(p, q)
         top = float(piece.get("height") or SPLASHBACK["counter_top"])
         top = SPLASHBACK["counter_top"] if top > 1.2 else top       # a tall unit (fridge column): the counter top
         z0, z1 = floor_z + top, floor_z + top + SPLASHBACK["height"]
@@ -2110,6 +2177,7 @@ def splashback_bands(building: dict, level: dict) -> list[dict]:
                  if h["t1"] > 0.0 and h["t0"] < length and h["z1"] > z0 and h["z0"] < z1]
         out.append({"piece_id": piece["id"], "room_id": room["id"], "p": [p[0], p[1]], "q": [q[0], q[1]],
                     "normal": [nx, ny], "z0": z0, "z1": z1, "openings": [h["id"] for h in holes],
+                    **({"into_corner": corners} if corners else {}),
                     "pieces": split_band(0.0, length, z0, z1, [(h["t0"], h["t1"], h["z0"], h["z1"]) for h in holes]
                                          ) if holes else [(0.0, length, z0, z1)]})
     return out

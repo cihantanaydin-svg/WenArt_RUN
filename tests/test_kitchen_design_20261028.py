@@ -475,7 +475,9 @@ def test_a_silent_style_takes_its_family_kitchen_look_for_the_kitchen_cabinets_o
     style = {"family": "modern", "cabinets": {"front_style": None, "handle": None, "worktop": None}}
     counter = fp("k1", "kitchen_counter", (1.5, 2.7), (3.0, 0.6), 270.0)
     design, notes = LO.design_for(counter, style)
-    assert (design["front_style"], design["handle"], design["worktop"]) == ("flat", "black", "stone")
+    # 30 Oct 2026 (UL147): the modern family's kitchen is the P5 kitchen (framed fronts in a muted taupe)
+    assert (design["front_style"], design["handle"], design["worktop"]) == ("shaker", "black", "stone")
+    assert design["colour"] == "muted taupe"
     assert any("family's kitchen look" in n for n in notes)
     wall, _n = LO.design_for(fp("w1", "wall_cabinet", (1, 2.8), (0.6, 0.35), 270.0), style)
     assert "worktop" not in wall and wall["handle"] == "black"

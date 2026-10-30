@@ -1374,6 +1374,58 @@ def _wall_cabinet_over(pieces: list, piece: dict) -> bool:
     return False
 
 
+def _column_blocked(pieces: list, column: dict) -> bool:
+    """30 Oct 2026 (lesson UL147, the P5 kitchen; real04 run 20261029-201533-full had no tall-unit column: the wall
+    cabinets the completion hung over every free run end blocked it): whether the wall cabinets of the column's room
+    keep a tall-unit column out. A drawn wall cabinet over it does (the documents decide); a cabinet the completion
+    added (``added_by_ai``) does not when at least the narrowest real wall unit (``modules.WALL_RUN_WIDTHS_M``) of it
+    stays beside the column: the wall run then stops at the column (``wall_run_hints``: ``column_m``)."""
+    try:
+        from wenart.furniture import placer as PLC
+        from wenart.blender import modules as MOD
+        mine = PLC.drawn_piece(column).polygon()
+    except Exception:  # noqa: BLE001 - no footprint: blocked (the safe answer of before)
+        return True
+    for p in pieces:
+        if p.get("type") != "wall_cabinet" or p.get("build", True) is False or p.get("room_id") != column.get("room_id"):
+            continue
+        try:
+            poly = PLC.drawn_piece(p).polygon()
+            if poly.intersection(mine).area <= 0.01:
+                continue
+            if p.get("source") == "from_documents":
+                return True
+            depth = float(p["footprint"]["size"][1]) or 0.35
+            left = (poly.area - poly.intersection(mine).area) / depth
+        except Exception:  # noqa: BLE001
+            return True
+        if left < min(MOD.WALL_RUN_WIDTHS_M) - 1e-6:
+            return True
+    return False
+
+
+DOOR_SWING_EPS_M2 = 0.01        # 30 Oct 2026: a tall unit overlapping a door's swing or strip by more stands in it
+
+
+def _in_door_swing(building: dict, piece: dict) -> bool:
+    """30 Oct 2026 (UL147): whether a piece's footprint meets the swing or the strip of a door of its room by more
+    than ``DOOR_SWING_EPS_M2`` (``placer.room_context`` doors; no room or no geometry: no)."""
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == piece.get("room_id")), None)
+    if room is None:
+        return False
+    try:
+        from wenart.furniture import placer as PLC
+        ctx = PLC.room_context(building, room)
+        poly = PLC.drawn_piece(piece).polygon()
+    except Exception:  # noqa: BLE001
+        return False
+    for door in ctx.doors:
+        for zone in (door.zone, door.swing):
+            if zone is not None and poly.intersection(zone).area > DOOR_SWING_EPS_M2:
+                return True
+    return False
+
+
 NESTED_SHARE = 0.90              # 28 Oct 2026: a counter outline this much inside a larger one is part of it
 
 
@@ -1474,7 +1526,9 @@ def kitchen_built_ins(building: dict) -> dict:
             else:
                 # 27 Oct 2026: a fridge with no wall cabinet over it may stand as a tall column at a run end;
                 # 28 Oct 2026: never in front of a window or a pass-through of the wall behind it
-                hints["fridge_column"] = not _wall_cabinet_over(pieces, m) and not _opening_behind(building, m)
+                # 30 Oct 2026 (UL147): a wall cabinet the completion added stops at the column (``_column_blocked``)
+                hints["fridge_column"] = not _column_blocked(pieces, m) and not _opening_behind(building, m) \
+                    and not _in_door_swing(building, m)
             if m.get("asset_pin"):
                 hints.setdefault("pins_not_used", []).append(m["id"])
             out["sinks"][m["id"]] = run["id"]
@@ -1591,7 +1645,8 @@ def _taken_spans(c, rot: float, hints: dict) -> list[tuple[float, float, str]]:
 def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run: dict, details: dict) -> None:
     """29 Oct 2026 (wenart.blender.kitchen_details; in place on ``details``, ``{run id: hints}``, reading the runs'
     ``hints_by_run`` of the pre-pass): per kitchen (the runs of one room) the tall-unit column (K1): the counter run end
-    that is no corner, has no window, door or pass-through by it (``openings_behind``), no wall cabinet over it and
+    that is no corner, has no window, door or pass-through by it (``openings_behind``), no drawn wall cabinet over it
+    (an added one stops at the column, 30 Oct 2026: ``_column_blocked``) and
     room for the units beside the sink and the hob (a wall end first, the longer run first): ``column`` = ``{"end",
     "kinds", "top_m", "why"}`` (an oven tower, and a fridge when the kitchen has none: a French-door fridge in a run from
     ``COLUMN["french_from_run_m"]``); with the ovens in the column the hob's run gets ``oven_in_column``; no end free and
@@ -1659,7 +1714,11 @@ def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run
                     col = {"id": f"{run['id']}#column", "type": "tall_cabinet", "level_id": run.get("level_id"),
                            "room_id": run.get("room_id"),
                            "footprint": {"center": [cx, cy], "size": [tw, d], "rotation_deg": rot}}
-                    if openings_behind(building, col, ("window", "opening", "door")) or _wall_cabinet_over(pieces, col):
+                    # 30 Oct 2026 (UL147): an added wall cabinet over the end stops at the column instead; a column
+                    # never stands in a door's swing or its strip (real04's only free run end: the drawn counter's end
+                    # lay 0.19 m2 in the door swing of d_L-1_003)
+                    if openings_behind(building, col, ("window", "opening", "door")) or _column_blocked(pieces, col) \
+                            or _in_door_swing(building, col):
                         continue
                     key = (rank, 0 if end == "wall" else 1, -w, str(run["id"]), side)
                     if best is None or key < best[0]:
@@ -1776,13 +1835,19 @@ def hob_hints(building: dict, run: dict, hob: dict, got: dict, pieces: list) -> 
     return out
 
 
-def wall_run_hints(cabinet: dict, run: Optional[dict]) -> dict:
+def wall_run_hints(cabinet: dict, run: Optional[dict], building: Optional[dict] = None) -> dict:
     """28 Oct 2026 (module docstring "Kitchen design"): the module hints of a wall cabinet hung over a fitted kitchen
     run: ``ends`` (the completion's ``rule.ends``), ``joints_m`` (the joints of the run's base units and fillers, its
     hob unit's sides among them, in the cabinet's own frame: ``modules.plan_wall_run`` lines the wall units up with
-    them). Without the run's module plan only the ends."""
+    them). Without the run's module plan only the ends. 30 Oct 2026 (lesson UL147, the P5 kitchen): ``column_m``, the
+    spans of the run's tall units under the cabinet (the wall run stops at them: a hard end), and ``ceiling_m``, the
+    ceiling over the cabinet (``_ceiling_over``; the uppers of the families with ``uppers_to_ceiling`` reach it)."""
     rule = cabinet.get("rule") if isinstance(cabinet.get("rule"), dict) else {}
     out: dict = {"ends": list(rule.get("ends") or ["open", "open"])}
+    if building is not None:
+        top = _ceiling_over(building, cabinet)
+        if top is not None:
+            out["ceiling_m"] = top
     plan = ((run or {}).get("asset") or {}).get("module_plan") or {}
     if plan.get("builder") != "kitchen_run":
         return out
@@ -1793,14 +1858,22 @@ def wall_run_hints(cabinet: dict, run: Optional[dict]) -> dict:
     if abs(math.cos(rr) * ux + math.sin(rr) * uy) < 0.99:
         return out                                     # the cabinet does not run along this run
     joints = set()
+    half = float(cfp["size"][0]) / 2.0
+    columns = []
     for m in plan.get("modules") or []:
         if m.get("kind") not in ("base_unit", "filler", "tall_unit"):
             continue
+        ends = []
         for x in (float(m["pos_m"][0]) - float(m["size_m"][0]) / 2.0, float(m["pos_m"][0]) + float(m["size_m"][0]) / 2.0):
             wx, wy = rc[0] + math.cos(rr) * x, rc[1] + math.sin(rr) * x
-            joints.add(round((wx - cc[0]) * ux + (wy - cc[1]) * uy, 4))
-    half = float(cfp["size"][0]) / 2.0
+            ends.append(round((wx - cc[0]) * ux + (wy - cc[1]) * uy, 4))
+            joints.add(ends[-1])
+        lo, hi = min(ends), max(ends)
+        if m.get("kind") == "tall_unit" and lo < half - 1e-6 and hi > -half + 1e-6:
+            columns.append([round(max(lo, -half), 4), round(min(hi, half), 4)])
     out["joints_m"] = sorted(j for j in joints if -half - 0.01 <= j <= half + 0.01)
+    if columns:
+        out["column_m"] = sorted(columns)
     return out
 
 
@@ -3151,7 +3224,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         run = by_id.get(kitchen["sinks"][piece["id"]])
         fit_one(piece, run if holds_built_in(run, piece["id"]) else None)
     for piece in walls_after:
-        fit_one(piece, extra_hints=wall_run_hints(piece, wall_cabinet_run(fitted, piece)))
+        fit_one(piece, extra_hints=wall_run_hints(piece, wall_cabinet_run(fitted, piece), fitted))
     for item in fitted.get("decor") or []:
         item["asset"] = fit_decor_item(item, catalog, style_family=style_family, mode=mode)
     if taste_cache is not None:
