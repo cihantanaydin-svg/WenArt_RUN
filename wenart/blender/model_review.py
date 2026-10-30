@@ -148,7 +148,9 @@ and the facade kit of ``facade.articulation_plan``: gutters, downpipes, guards) 
   "I like this sofa but it needs more details, also the gaps need a rework", real04 run 20261029-201533-full;
   ``soft_seats_review``, ``wenart.blender.soft_seats.review``): every library sofa, corner sofa, armchair, chaise and
   ottoman as built wears a fabric (no flat export colour left: ``flat_fabric``, major), keeps its parts joined (no
-  facing gap over 1 cm: ``parts_apart``, major, kind ``detached``), keeps the file's smooth shading (``faceted``,
+  facing gap over 1 cm: ``parts_apart``, major, kind ``detached``; 30 Oct 2026, UL167 "resting pieces seems like not
+  connected to sitting": no back, back cushion or arm over 5 mm from its seat or its corner, ``rest_apart``, major,
+  kind ``detached``), keeps the file's smooth shading (``faceted``,
   major) and is no poor model (``poor_model``, minor: the best that fitted, a library gap). Kind ``taste``; the build
   owns the dressing, the joining and the shading, the fit a poor model.
 - M34 the living-dining rooms against photo P16 (30 Oct 2026, lesson UL153, user: "salon inspiration";
@@ -1608,7 +1610,8 @@ def roof_crossings(built: dict, manifest: Optional[dict], roof_model: Optional[d
     return out, n
 
 
-M33_KINDS = {"flat_fabric": "taste", "faceted": "taste", "poor_model": "taste", "parts_apart": "detached"}
+M33_KINDS = {"flat_fabric": "taste", "faceted": "taste", "poor_model": "taste", "parts_apart": "detached",
+             "rest_apart": "detached"}               # 30 Oct 2026 (UL167): a back or an arm apart from the seat
 
 
 def soft_seats_review(manifest: Optional[dict]) -> tuple[list[dict], int]:
