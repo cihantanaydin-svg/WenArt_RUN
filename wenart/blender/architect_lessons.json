@@ -1519,6 +1519,42 @@
    "request": "These things need fixing also, maybe include some better car models (30 Oct 2026, real04 run 20261029-201533-full: pairs of small stone blocks on the paved terrace by the pools; the parking has one poor car model)",
    "lesson": "These things need fixing also, maybe include some better car models (30 Oct 2026, real04 run 20261029-201533-full: pairs of small stone blocks on the paved terrace by the pools; the parking has one poor car model)",
    "question": "Is every object on the paved site a real thing that makes sense where it stands (no stray stone blocks or step pieces on a level paving), and does every drawn parking hold well-made, realistic car models?"
+  },
+  {
+   "id": "UL130",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Terrace does not need table and chairs, maybe only some plants and decor for outside would be enough (30 Oct 2026, real04 run 20261029-201533-full: every terrace got a dining table with two chairs)",
+   "lesson": "Terrace does not need table and chairs, maybe only some plants and decor for outside would be enough (30 Oct 2026, real04 run 20261029-201533-full: every terrace got a dining table with two chairs)",
+   "question": "Does every terrace, balcony or roof terrace stay free of a dining table and chairs the rules add, dressed instead with plants in real planters and outdoor decor (lanterns, an outdoor cushion or throw on a drawn seat), drawn furniture kept?"
+  },
+  {
+   "id": "UL131",
+   "date": "2026-10-30",
+   "area": "library",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I did not like these sofa models (30 Oct 2026, real04 run 20261029-201533-full: boxy grey sofas with flat faceted back cushions and white piping lines in the living rooms)",
+   "lesson": "I did not like these sofa models (30 Oct 2026, real04 run 20261029-201533-full: boxy grey sofas with flat faceted back cushions and white piping lines in the living rooms)",
+   "question": "Are the sofas, armchairs and other upholstered pieces soft, well-made models (rounded cushions, real seams, a sharp fabric texture), never boxy, faceted or low-detail ones, and is every model the user rejected left out?"
+  },
+  {
+   "id": "UL132",
+   "date": "2026-10-30",
+   "area": "openings",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Door frame needs fixing (30 Oct 2026, real04 run 20261029-201533-full, play room door d_L1_001: one black jamb runs up to the sloped ceiling above a 2.10 m leaf, no head)",
+   "lesson": "Door frame needs fixing (30 Oct 2026, real04 run 20261029-201533-full, play room door d_L1_001: one black jamb runs up to the sloped ceiling above a 2.10 m leaf, no head)",
+   "question": "Does every door's frame (both jambs, the head, the architrave) have the same height as its opening and leaf, under the ceiling at the door?"
   }
  ]
 }
