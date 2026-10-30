@@ -20,8 +20,10 @@ see-through doors, or an open run, in front of real contents), keeping the fitte
   (``architect_rules`` D8, ``room["wardrobe_fronts"]``) can change it, ``closed`` included.
 - The master bedroom's widest wardrobe run gets the family's see-through front where the style has one
   (``FRONTS``: the modern, Japandi, Scandinavian, minimal, contemporary and industrial families; the period families
-  keep closed fronts). Every other wardrobe keeps its closed fronts. A front needs ``MIN_WIDTH_M`` (two sliding
-  panels) and ``MIN_DEPTH_M`` (a hanger across).
+  keep closed fronts). 30 Oct 2026 (UL182): so does every other bedroom's widest run, each bedroom its own front
+  (``bedroom_front``: slats, slats with glass doors in turn, smoked or reeded glass; the room scheme's first), and every
+  see-through run goes up to the ceiling (``to_ceiling``: a top box). Every other wardrobe keeps its closed fronts. A
+  front needs ``MIN_WIDTH_M`` (two sliding panels) and ``MIN_DEPTH_M`` (a hanger across).
 - The contents (``modules.see_through_parts``): a hanging rail with garments (shirts, jackets, coats, dresses, knits:
   simple cloth shapes on hangers, varied colours of the muted ``GARMENT_COLOURS``), folded stacks on shelves, drawers
   or shoe racks, an LED strip under the top; the garments of one wardrobe are part of its one mesh.
@@ -48,10 +50,38 @@ FRONTS: dict[str, str] = {"modern": "slats", "japandi": "slats", "scandinavian":
 WALK_IN_FRONTS: dict[str, str] = dict(FRONTS, industrial="open", classic="open", rustic="open", mediterranean="open",
                                       traditional="open")
 WALK_IN_DEFAULT = "open"
-FRONT_KINDS: tuple[str, ...] = ("slats", "smoked_glass", "open")
+FRONT_KINDS: tuple[str, ...] = ("slats", "smoked_glass", "open", "slats_glass", "reeded_glass")
 CHOICES: tuple[str, ...] = FRONT_KINDS + ("closed",)
 FRONT_WHAT = {"slats": "horizontal black slat sliding doors", "smoked_glass": "smoked glass sliding doors in black "
-              "frames", "open": "an open run (hanging rails, shelves and shoe racks)", "closed": "closed fronts"}
+              "frames", "open": "an open run (hanging rails, shelves and shoe racks)", "closed": "closed fronts",
+              # 30 Oct 2026 (UL182): glass sections among the slats, and reeded glass
+              "slats_glass": "black-framed sliding doors, slatted ones and glass ones in turn",
+              "reeded_glass": "reeded glass sliding doors in black frames"}
+# 30 Oct 2026 (lesson UL182, user on real04 run 20261030-112241-full: "These kind of wardrobes can be used in other
+# rooms also, it can go all the way to the ceiling it can have glass sections I did gave an inspiration before"): in
+# the families that use a see-through front, every bedroom's widest wardrobe run gets one, each bedroom its own
+# (``bedroom_front``): the master the family's own front (``FRONTS``, the inspiration's black slats in the modern
+# homes), the others in the order of the family's ``BEDROOM_FRONTS``, the room scheme's choice first
+# (``room_schemes`` bedroom bundles: ``wardrobe_front``; ``SCHEME_FRONTS`` for a scheme recorded before), a front no
+# other bedroom of the house has while the family's fronts last; a twin room takes its partner's. Every see-through
+# run goes up to the ceiling (``to_ceiling``: a top box of lidded boxes and baskets behind the full-height doors).
+BEDROOM_FRONTS: dict[str, tuple[str, ...]] = {
+    "modern": ("slats", "slats_glass", "smoked_glass", "reeded_glass"),
+    "japandi": ("slats", "reeded_glass", "slats_glass"),
+    "scandinavian": ("slats", "reeded_glass", "slats_glass", "smoked_glass"),
+    "minimal": ("smoked_glass", "reeded_glass", "slats_glass"),
+    "modern minimal": ("smoked_glass", "reeded_glass", "slats_glass"),
+    "contemporary": ("smoked_glass", "slats_glass", "reeded_glass", "slats"),
+    "industrial": ("smoked_glass", "slats_glass"),
+}
+SCHEME_FRONTS: dict[str, str] = {"panel": "slats_glass", "deep": "smoked_glass", "limewash": "reeded_glass",
+                                 "slats": "slats"}       # = room_schemes.POOLS["bedroom"][bundle]["wardrobe"]
+SECTION_GLASS: dict[str, str] = {"japandi": "reeded_glass", "scandinavian": "reeded_glass"}   # else smoked_glass
+CEILING_GAP_M = 0.005             # the run's top this far under the ceiling (no coplanar faces)
+TOP_BOX_M = (0.03, 1.00)          # a top box from this to this high closes the run up to the ceiling; higher: none
+WINDOW_CLEAR_M = 0.35             # a window this near the run in plan keeps it at its height (its head stays free)
+LIGHT_CLEAR_M = 0.02              # a ceiling light (a track, a pendant) over the run or this near it slides off it
+LIGHT_SHIFT_MAX_M = 0.40          # ... at most this far into its room (else the run keeps its height)
 MIN_WIDTH_M = 1.0
 MIN_DEPTH_M = 0.50
 AISLE_M = (0.70, 1.80)            # two runs facing each other this far apart (front to front) make a walk-in
@@ -264,19 +294,144 @@ def plan(building: dict, style) -> dict:
         out[f["id"]] = {"kind": kind, "room_id": room["id"], "walk_in": True,
                         "reason": f"a walk-in ({why}), see-through on every side: {FRONT_WHAT[kind]} with real "
                                   f"contents and a light inside ({src}; UL120, UL125)"}
-    kind = FRONTS.get(fam)
-    if kind is not None:
-        master = master_bedroom(rooms.values())
-        for master in [master] if master is not None else []:
-            if walk.get(master["id"]):
-                continue
-            cands = sorted((f for f in robes if f["room_id"] == master["id"] and fits(f) is None),
-                           key=lambda f: (-_size(f)[0], str(f.get("id"))))
-            if cands and cands[0]["id"] not in out:
-                out[cands[0]["id"]] = {"kind": kind, "room_id": master["id"], "walk_in": False,
-                                       "reason": f"the master bedroom's wardrobe run ({fam} style): {FRONT_WHAT[kind]} "
-                                                 "with its garments and an LED strip showing through (UL120)"}
+    # 30 Oct 2026 (UL182): every bedroom's widest run, each bedroom its own front (``bedroom_front``); the master
+    # first (the family's own front, UL120), a twin room after its partner (its partner's front)
+    master = master_bedroom(rooms.values())
+    elevation = {lv.get("id"): float(lv.get("elevation") or 0.0) for lv in building.get("levels") or []}
+    beds = sorted((r for r in rooms.values() if str(r.get("room_type") or "") == "bedroom" and not walk.get(r["id"])),
+                  key=lambda r: (r is not master, bool((r.get("scheme") or {}).get("copied_from")),
+                                 elevation.get(r.get("level_id"), 0.0), str(r.get("id"))))
+    kinds: dict = {}
+    for room in beds:
+        cands = sorted((f for f in robes if f["room_id"] == room["id"] and fits(f) is None),
+                       key=lambda f: (-_size(f)[0], str(f.get("id"))))
+        if not cands or cands[0]["id"] in out:
+            continue
+        partner = (room.get("scheme") or {}).get("copied_from")
+        kind, why = bedroom_front(room, style, list(kinds.values()), room is master,
+                                  (partner, kinds[partner]) if partner in kinds else None)
+        if kind is None:
+            continue
+        kinds[room["id"]] = kind
+        what = "the master bedroom's wardrobe run" if room is master else "the bedroom's wardrobe run"
+        out[cands[0]["id"]] = {"kind": kind, "room_id": room["id"], "walk_in": False,
+                               "reason": f"{what} ({fam} style): {FRONT_WHAT[kind]} with its garments and an LED strip "
+                                         f"showing through, {why} (UL120, UL182)"}
     return out
+
+
+def _stable(text: str) -> int:
+    import zlib
+    return zlib.crc32(text.encode("utf-8")) & 0xFFFFFFFF
+
+
+def bedroom_front(room: dict, style, taken=(), master: bool = False,
+                  partner: Optional[tuple[str, str]] = None) -> tuple[Optional[str], str]:
+    """``(kind, why)`` of a bedroom's wardrobe front (pure; 30 Oct 2026, UL182; module docstring): the architect's
+    answer (``room["wardrobe_fronts"]``, ``closed`` included: None); None in a family without a see-through front
+    (``BEDROOM_FRONTS``: the period homes keep closed fronts); the twin room's ``partner`` = (id, kind) front; the
+    master bedroom the family's own (``FRONTS``); else the room scheme's (``wardrobe_front``, else ``SCHEME_FRONTS``
+    of its bundle) when no other bedroom has it (``taken``), else the first of the family's fronts no other bedroom has,
+    from a place the room's id picks; all taken: the scheme's, else that first one."""
+    ans = room.get("wardrobe_fronts") if isinstance(room.get("wardrobe_fronts"), dict) else {}
+    if ans.get("kind") in CHOICES:
+        kind = None if ans["kind"] == "closed" else ans["kind"]
+        return kind, f"the architect's answer ({ans.get('by') or 'architect'}: {ans.get('reason') or ''})"
+    fam = family_of(style)
+    options = BEDROOM_FRONTS.get(fam)
+    if not options:
+        return None, f"a {fam or 'house'} home keeps closed wardrobe fronts"
+    if partner is not None and partner[1] in options:
+        return partner[1], f"as its twin room {partner[0]}"
+    if master:
+        return options[0], f"the {fam} family's own front"
+    scheme = room.get("scheme") if isinstance(room.get("scheme"), dict) else {}
+    pref = scheme.get("wardrobe_front") or SCHEME_FRONTS.get(str(scheme.get("bundle") or ""))
+    if pref in options and pref not in taken:
+        return pref, f"the room scheme's front ({scheme.get('bundle')})"
+    start = _stable(str(room.get("id") or "")) % len(options)
+    order = list(options[start:]) + list(options[:start])
+    for kind in order:
+        if kind not in taken:
+            return kind, "a front no other bedroom of the house has"
+    return (pref if pref in options else order[0]), "every front of the family is used once"
+
+
+def ceiling_over(building: dict, piece: dict) -> Optional[float]:
+    """The lowest ceiling over a piece's footprint above its floor (pure): its level's ``ceiling_height``, under a
+    roof (``ceiling_planes``, set by ``build.prepare``) the lowest roof underside over the footprint's corners when
+    lower; None without its level."""
+    from wenart.blender import geom2d
+
+    level = next((lv for lv in building.get("levels") or [] if lv.get("id") == piece.get("level_id")), None)
+    if level is None or level.get("ceiling_height") is None:
+        return None
+    out = float(level["ceiling_height"])
+    planes = level.get("ceiling_planes")
+    fp = piece.get("footprint") or {}
+    if planes and fp.get("center"):
+        corners = G.rotated_rectangle(fp["center"], list(fp.get("size") or [0.0, 0.0]),
+                                      float(fp.get("rotation_deg") or 0.0))
+        z0 = float(level.get("elevation") or 0.0)
+        out = min([out] + [geom2d.surface_z(planes, float(x), float(y)) - z0 for x, y in corners])
+    return out
+
+
+def to_ceiling(building: dict, piece: dict) -> tuple[Optional[float], str, list[dict]]:
+    """``(ceiling_m, why, light moves)``: the height a see-through run's top box reaches (pure; UL182): the ceiling
+    over it (``ceiling_over``) less ``CEILING_GAP_M``, when the box is ``TOP_BOX_M`` high (over the run's frames from
+    ``modules.module_plan``: a drawn height kept, else the tallest frames that leave room for the box), no window lies
+    within ``WINDOW_CLEAR_M`` of the run and every ceiling light over it (a track, a pendant) slides off it into its
+    room, at most ``LIGHT_SHIFT_MAX_M`` along the run's front (``[{"id", "from", "to"}]``, ``apply`` moves them); else
+    None, why not and no move."""
+    from wenart.blender import door_spacing as DSP
+    from wenart.blender import modules as MOD
+
+    ceiling = ceiling_over(building, piece)
+    if ceiling is None:
+        return None, "no ceiling over the run", []
+    top = round(ceiling - CEILING_GAP_M, 4)
+    plan_ = MOD.module_plan(dict(piece, see_through={"kind": "slats", "ceiling_m": top}))
+    if plan_ is None:
+        return None, "no wardrobe run of real frames fits its drawn size", []
+    box = top - float(plan_.get("carcass_m") or plan_["height_m"])
+    if plan_.get("carcass_m") is None:
+        return None, (f"the run reaches the ceiling already ({box:.2f} m)" if box < TOP_BOX_M[0]
+                      else f"the ceiling is {box:.2f} m over the run (a tall room): no top box"), []
+    fp = piece.get("footprint") or {}
+    rot = float(fp.get("rotation_deg") or 0.0)
+    grown = G.rotated_rectangle(fp["center"], [float(s) + 2 * WINDOW_CLEAR_M for s in fp.get("size") or [0.0, 0.0]],
+                                rot)
+    for o in building.get("openings") or []:
+        if o.get("type") == "window" and o.get("level_id") == piece.get("level_id") and o.get("center") \
+                and G.point_in_polygon(tuple(o["center"][:2]), grown):
+            return None, f"window {o.get('id')} beside the run: it keeps its height", []
+    run = G.rotated_rectangle(fp["center"], [float(s) + 2 * LIGHT_CLEAR_M for s in fp.get("size") or [0.0, 0.0]], rot)
+    line, d = _front_line(piece), front_dir(piece)
+    rooms = {r.get("id"): r for r in building.get("rooms") or []}
+    moves = []
+    for li in building.get("decor") or []:                      # a ceiling track or pendant over the run
+        size = [float(s) for s in (li.get("size") or [])[:2]]
+        if li.get("type") not in ("ceiling_light", "pendant_light") or li.get("level_id") != piece.get("level_id") \
+                or not li.get("center") or len(size) < 2:
+            continue
+        lamp = G.rotated_rectangle(li["center"][:2], size, float(li.get("rotation_deg") or 0.0))
+        if DSP.overlap_area(run, lamp) <= 1e-4:
+            continue
+        # slide it off the run into the room, square to the run's front
+        shift = None if line is None else \
+            line[0][0] * d[0] + line[0][1] * d[1] + LIGHT_CLEAR_M - min(p[0] * d[0] + p[1] * d[1] for p in lamp)
+        to = None if shift is None else (float(li["center"][0]) + d[0] * shift, float(li["center"][1]) + d[1] * shift)
+        room = rooms.get(li.get("room_id")) or rooms.get(piece.get("room_id")) or {}
+        if shift is None or shift > LIGHT_SHIFT_MAX_M + 1e-9 or len(room.get("polygon") or []) < 3 \
+                or not G.point_in_polygon(to, room["polygon"]):
+            return None, f"light {li.get('id')} over the run: it keeps its height", []
+        moves.append({"id": li.get("id"), "from": [round(float(c), 4) for c in li["center"][:2]],
+                      "to": [round(to[0], 4), round(to[1], 4)], "shift_m": round(shift, 3)})
+    why = f"a top box to the ceiling ({box:.2f} m of lidded boxes and baskets over the hanging bays)"
+    if moves:
+        why += "; " + ", ".join(f"light {m['id']} slid {m['shift_m']:.2f} m off the run" for m in moves)
+    return round(top, 4), why, moves
 
 
 def apply(building: dict, style) -> tuple[dict, list[dict]]:
@@ -291,6 +446,23 @@ def apply(building: dict, style) -> tuple[dict, list[dict]]:
             continue
         old = f.get("asset") if isinstance(f.get("asset"), dict) else {}
         replaced = {k: old.get(k) for k in ("asset_id", "library", "method", "licence") if old.get(k) is not None}
+        # 30 Oct 2026 (UL182): up to the ceiling (a top box behind the full-height doors), the glass of the glass
+        # sections the family's
+        ceiling, why_top, moves = to_ceiling(building, f)
+        rec["ceiling_m"] = ceiling
+        rec["reason"] += f"; {why_top}" if ceiling is not None else ""
+        decor = {d.get("id"): d for d in building.get("decor") or []}
+        for mv in moves:                                 # the lights over the run slide off it (logged)
+            li = decor[mv["id"]]
+            li["center"] = [mv["to"][0], mv["to"][1]] + list(li["center"][2:])
+            li["reason"] = f"{li.get('reason') or 'light'}; slid {mv['shift_m']:.2f} m off the full-height wardrobe " \
+                           f"{f['id']} (UL182)"
+            assumed.append({"object": str(mv["id"]), "field": "center", "value": mv["to"],
+                            "reason": f"slid {mv['shift_m']:.2f} m off the full-height wardrobe run {f['id']} (from "
+                                      f"{mv['from']}; UL182)", "parent": f["id"], "kind": "see_through_front"})
+        rec["light_moves"] = moves
+        if rec["kind"] == "slats_glass":
+            rec["glass"] = SECTION_GLASS.get(family_of(style), "smoked_glass")
         f["see_through"] = dict(rec, replaced=replaced or None,
                                 palette=garment_palette(style, (rooms.get(f.get("room_id")) or {}).get("scheme")))
         design = dict(f.get("design") or {})

@@ -576,6 +576,19 @@ class MaterialLibrary:
                                                       "wardrobe front (UL120)"}
         return self._cache["smoked_glass"]
 
+    def reeded_glass(self):
+        """30 Oct 2026 (UL182): the reeded glass of a see-through wardrobe front: the satin pane (``SATIN_GLASS``: the
+        garments a soft shape behind it), its reeds the parts' own geometry (``modules.panel_infill``)."""
+        if "reeded_glass" not in self._cache:
+            self._cache["reeded_glass"] = satin_glass_material("reeded_glass")
+            self.records["reeded_glass"] = {"slug": "glass", "textured": False, "asset": None, "source": None,
+                                            "licence": None, "size_m": None, "flat_colour": list(SATIN_GLASS_RGB),
+                                            "tint": None, "unverified": False, "albedo_mode": None, "detail": None,
+                                            "gain_clamped": None,
+                                            "reason": "reeded glass (a satin pane with vertical reeds): a see-through "
+                                                      "wardrobe front (UL182)"}
+        return self._cache["reeded_glass"]
+
     def sheer(self, colour=None):
         """29 Oct 2026 (UL106): the sheer layer of a layered curtain (``sheer_material``), white unless a colour
         phrase is given; one material per colour."""

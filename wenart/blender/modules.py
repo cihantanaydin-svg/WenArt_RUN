@@ -151,7 +151,9 @@ WARDROBE_DEPTH_RANGE_M = (0.35, 0.80)
 SEE_THROUGH = {"door_zone_m": 0.06, "panel_t": 0.022, "track_gap_m": 0.006, "stile_m": 0.035, "slat_h_m": 0.03,
                "slat_pitch_m": 0.055, "slat_d_m": 0.018, "panel_max_m": 1.0, "panel_overlap_m": 0.04,
                "carcass_t_m": 0.018, "rail_r_m": 0.0125, "rail_drop_m": 0.07, "hat_shelf_drop_m": 0.30,
-               "shelf_pitch_m": 0.34, "drawer_h_m": 0.22, "led_m": (0.012, 0.006), "hanging_min_m": 0.74}
+               "shelf_pitch_m": 0.34, "drawer_h_m": 0.22, "led_m": (0.012, 0.006), "hanging_min_m": 0.74,
+               # 30 Oct 2026 (UL182): reeded glass, vertical reeds on the pane's face
+               "reed_w_m": 0.010, "reed_d_m": 0.004, "reed_pitch_m": 0.022}
 # (kind, length, thickness, shoulder half width, hem half width, weight): simple cloth shapes on hangers
 GARMENTS: tuple[tuple, ...] = (("shirt", 0.78, 0.030, 0.215, 0.200, 5), ("jacket", 0.82, 0.055, 0.225, 0.215, 2),
                                ("coat", 1.02, 0.065, 0.230, 0.240, 1), ("dress", 0.98, 0.035, 0.170, 0.250, 1),
@@ -479,10 +481,18 @@ def plan_wardrobe_run(piece: dict, style: Optional[dict] = None) -> Optional[dic
     if run is None:
         return None
     given = piece.get("height")
+    from wenart.blender import wardrobe_fronts as WF
+    st = piece.get("see_through") if isinstance(piece.get("see_through"), dict) else {}
+    ceiling = st.get("ceiling_m") if see_through_kind(piece) is not None else None
+    ceiling = float(ceiling) if isinstance(ceiling, (int, float)) and not isinstance(ceiling, bool) else None
     if isinstance(given, (int, float)) and not isinstance(given, bool) and given > 1.0:
         frame_h = float(given) - WARDROBE_PLINTH_M                     # the drawn height is kept
     else:
         frame_h = nearest(h - WARDROBE_PLINTH_M, WARDROBE_FRAME_HEIGHTS_M)
+        # 30 Oct 2026 (UL182): a run up to the ceiling stands on the tallest frames that leave room for a top box
+        tall = [fh for fh in WARDROBE_FRAME_HEIGHTS_M if ceiling is not None
+                and fh + WARDROBE_PLINTH_M + WF.TOP_BOX_M[0] <= ceiling + 1e-9]
+        frame_h = max(tall) if tall else frame_h
     height = frame_h + WARDROBE_PLINTH_M
     depth_product = nearest(d, WARDROBE_FRAME_DEPTHS_M)
     modules = [_module("plinth", (w - 2 * 0.0, d - 0.04, WARDROBE_PLINTH_M), (0.0, 0.02), "dark")]
@@ -511,8 +521,6 @@ def plan_wardrobe_run(piece: dict, style: Optional[dict] = None) -> Optional[dic
     front = see_through_kind(piece)
     if front is not None:
         # 29 Oct 2026 (UL120): sliding see-through panels across the run in front of its contents
-        from wenart.blender import wardrobe_fronts as WF
-
         n = 0 if front == "open" else max(2, int(math.ceil(w / SEE_THROUGH["panel_max_m"] - 1e-9)))
         out["see_through"] = {"kind": front, "panels": n, "seed": _seed(str(piece.get("id") or "wardrobe")),
                               # 30 Oct 2026 (UL135): the garments' colours (wardrobe_fronts.garment_palette)
@@ -521,6 +529,17 @@ def plan_wardrobe_run(piece: dict, style: Optional[dict] = None) -> Optional[dic
                                                              "or shoe racks, an LED strip"}
         notes.append(f"see-through front: {n} {front.replace('_', ' ')} sliding panels on two tracks, contents inside"
                      if n else "an open run: hanging rails, shelves with folded stacks, shoe racks, an LED strip")
+        if front == "slats_glass":
+            out["see_through"]["glass"] = (piece.get("see_through") or {}).get("glass") or "smoked_glass"
+        # 30 Oct 2026 (UL182, user: "it can go all the way to the ceiling"): a top box from the frames to the ceiling
+        # (``wardrobe_fronts.to_ceiling``), the doors full height in front of it; the frames keep their height
+        box = ceiling - height if ceiling is not None else 0.0
+        if WF.TOP_BOX_M[0] - 1e-9 <= box <= WF.TOP_BOX_M[1] + 1e-9:
+            modules.append(_module("top_box", (w, d, box), (0.0, 0.0), "wood", z_m=height))
+            out["carcass_m"] = round(height, 4)
+            out["height_m"] = round(height + box, 4)
+            notes.append(f"up to the ceiling: a {box:.2f} m top box of lidded boxes and baskets over the frames, the "
+                         f"doors full height")
     return out
 
 
@@ -1986,10 +2005,12 @@ def _frame_parts(m: dict, design: dict, frame_top: float) -> list[Part]:
 def see_through_kind(piece: dict) -> Optional[str]:
     """The see-through front a wardrobe is built with (``wardrobe_fronts``: ``slats``, ``smoked_glass`` or an
     ``open`` run), else None."""
+    from wenart.blender import wardrobe_fronts as WF
+
     rec = piece.get("see_through") if isinstance(piece.get("see_through"), dict) else {}
     design = P.piece_design(piece)
     kind = rec.get("kind") or design.get("see_through")
-    return kind if kind in ("slats", "smoked_glass", "open") else None
+    return kind if kind in WF.FRONT_KINDS else None          # 30 Oct 2026 (UL182): slats_glass, reeded_glass too
 
 
 def _seed(text: str) -> int:
@@ -2064,13 +2085,19 @@ def _shelf_heights(floor: float, inner_top: float, open_run: bool, drawers: int 
     return out
 
 
+def carcass_height(plan: dict) -> float:
+    """The height of a wardrobe run's frames and top (``plan["carcass_m"]`` under a top box to the ceiling, UL182;
+    else the run's ``height_m``)."""
+    return float(plan.get("carcass_m") or plan["height_m"])
+
+
 def bay_boards(plan: dict) -> list[list[tuple[float, str]]]:
     """30 Oct 2026 (UL135): per bay of a see-through run, the boards whose front underside carries an LED strip
     (pure): ``[(underside z, "top" | "hat_shelf" | "shelf")]``: the bay's inner top; a hanging bay's hat shelf (it shades
     the garments from the top strip); a shelf bay's every shelf over the lowest one (each compartment lit from the
     board over it)."""
     k = SEE_THROUGH
-    top_z = float(plan["height_m"]) - WARDROBE_TOP_M
+    top_z = carcass_height(plan) - WARDROBE_TOP_M
     ct = k["carcass_t_m"]
     inner_top = top_z - ct
     floor = WARDROBE_PLINTH_M + ct
@@ -2121,8 +2148,9 @@ def see_through_parts(plan: dict) -> list[Part]:
     st = plan["see_through"]
     k = SEE_THROUGH
     w, d = (float(v) for v in plan["footprint_m"])
-    height = float(plan["height_m"])
+    height = carcass_height(plan)                        # 30 Oct 2026 (UL182): the frames under a top box
     top_z = height - WARDROBE_TOP_M
+    door_top = float(plan["height_m"]) - WARDROBE_TOP_M  # ... and the doors to the ceiling
     ct = k["carcass_t_m"]
     open_run = st.get("kind") == "open"                          # UL125: an open run, no doors, shoe racks
     zone = 0.005 if open_run else k["door_zone_m"]
@@ -2143,6 +2171,8 @@ def see_through_parts(plan: dict) -> list[Part]:
             parts.append(P._box(x, y, z0, mw, md, mh, "wood", "top"))
         elif m["kind"] == "filler":
             parts.append(P._box(x, 0.0, z0, mw, d, top_z - z0, "dark", "front"))
+        elif m["kind"] == "top_box":
+            parts += top_box_parts(m, plan, y_front, zone, seed, palette)
     frames = [m for m in plan["modules"] if m["kind"] == "frame"]
     boards_of = bay_boards(plan)
     for i, m in enumerate(frames):
@@ -2215,7 +2245,7 @@ def see_through_parts(plan: dict) -> list[Part]:
     ov = k["panel_overlap_m"]
     pw = (w + (n - 1) * ov) / n
     pt, sm = k["panel_t"], k["stile_m"]
-    pz0, pz1 = zb + 0.004, top_z - 0.022
+    pz0, pz1 = zb + 0.004, door_top - 0.022
     ph = pz1 - pz0
     for i in range(n):
         cx = -w / 2.0 + pw / 2.0 + i * (pw - ov)
@@ -2224,19 +2254,81 @@ def see_through_parts(plan: dict) -> list[Part]:
                   P._box(cx + pw / 2.0 - sm / 2.0, py, pz0, sm, pt, ph, "dark", "panel_frame"),
                   P._box(cx, py, pz0, pw - 2 * sm, pt, sm, "dark", "panel_frame"),
                   P._box(cx, py, pz1 - sm, pw - 2 * sm, pt, sm, "dark", "panel_frame")]
-        if st["kind"] == "slats":
-            z = pz0 + sm + 0.012
-            while z + k["slat_h_m"] <= pz1 - sm - 0.008:
-                parts.append(P._box(cx, py, z, pw - 2 * sm, k["slat_d_m"], k["slat_h_m"], "dark", "slat"))
-                z += k["slat_pitch_m"]
-        else:
-            parts.append(P._box(cx, py, pz0 + sm - 0.004, pw - 2 * sm + 0.008, 0.006, ph - 2 * sm + 0.008,
-                                "smoked_glass", "glass"))
+        if top_z < door_top - 0.05:                                 # UL182: a rail across at the top box's floor
+            parts.append(P._box(cx, py, top_z - sm / 2.0, pw - 2 * sm, pt, sm, "dark", "panel_frame"))
+        parts += panel_infill(panel_kind(st, i), cx, py, pw - 2 * sm, pz0 + sm, pz1 - sm)
         hx = cx + (pw / 2.0 - sm - 0.02) * (1.0 if i % 2 == 0 else -1.0)
         if i % 2 == 0:                                              # a pull on the front track's panels
             parts.append(P._box(hx, py - pt / 2.0 - 0.004, pz0 + 0.9, 0.012, 0.006, 0.45, "handle", "handle"))
-    parts.append(P._box(0.0, -d / 2.0 + k["door_zone_m"] / 2.0, top_z - 0.022, w, k["door_zone_m"] - 0.004, 0.02,
+    parts.append(P._box(0.0, -d / 2.0 + k["door_zone_m"] / 2.0, door_top - 0.022, w, k["door_zone_m"] - 0.004, 0.02,
                         "dark", "track"))
+    return parts
+
+
+def panel_kind(st: dict, i: int) -> str:
+    """The infill of the ``i``-th sliding panel of a see-through run (pure; UL182): ``slats``, ``smoked_glass`` or
+    ``reeded_glass``; a ``slats_glass`` run's panels are slats and glass (``st["glass"]``) in turn, the outer ones
+    slatted."""
+    kind = st.get("kind")
+    if kind == "slats_glass":
+        return str(st.get("glass") or "smoked_glass") if i % 2 == 1 else "slats"
+    return kind if kind in ("slats", "smoked_glass", "reeded_glass") else "smoked_glass"
+
+
+def panel_infill(kind: str, cx: float, py: float, iw: float, z0: float, z1: float) -> list[Part]:
+    """The infill of a sliding panel between its stiles and rails (pure): horizontal black slats (``slats``), a smoked
+    pane (``smoked_glass``) or a reeded pane (``reeded_glass``, UL182: the satin pane with vertical reeds on its face,
+    ``SEE_THROUGH["reed_pitch_m"]`` apart)."""
+    k = SEE_THROUGH
+    out: list[Part] = []
+    if kind == "slats":
+        z = z0 + 0.012
+        while z + k["slat_h_m"] <= z1 - 0.008:
+            out.append(P._box(cx, py, z, iw, k["slat_d_m"], k["slat_h_m"], "dark", "slat"))
+            z += k["slat_pitch_m"]
+        return out
+    out.append(P._box(cx, py, z0 - 0.004, iw + 0.008, 0.006, z1 - z0 + 0.008, kind, "glass"))
+    if kind == "reeded_glass":
+        n = max(1, int((iw - 0.004) / k["reed_pitch_m"]))
+        x0 = cx - (n - 1) * k["reed_pitch_m"] / 2.0
+        for j in range(n):
+            out.append(P._box(x0 + j * k["reed_pitch_m"], py - 0.003 - k["reed_d_m"] / 2.0, z0, k["reed_w_m"],
+                              k["reed_d_m"], z1 - z0, kind, "reed"))
+    return out
+
+
+def top_box_parts(m: dict, plan: dict, y_front: float, zone: float, seed: int, palette=None) -> list[Part]:
+    """The top box of a see-through run up to the ceiling (pure; 30 Oct 2026, UL182): its back, sides, divider over
+    every frame joint and its top board (``wood``), an LED strip under the top board's front, and on its floor (the
+    run's top) lidded boxes and rattan baskets in every bay (``wardrobe_contents.boxes``) showing through the doors."""
+    from wenart.blender import wardrobe_contents as WC
+
+    k = SEE_THROUGH
+    ct = k["carcass_t_m"]
+    w, d = (float(v) for v in plan["footprint_m"])
+    mw, _md, mh = (float(v) for v in m["size_m"])
+    z0 = float(m.get("z_m") or 0.0)
+    z1 = z0 + mh
+    cd = d - zone
+    yc = y_front + cd / 2.0
+    parts = [P._box(0.0, d / 2.0 - ct / 2.0, z0, mw - 0.002, ct, mh - WARDROBE_TOP_M, "wood", "body"),     # back
+             P._box(0.0, 0.0, z1 - WARDROBE_TOP_M, mw, d, WARDROBE_TOP_M, "wood", "top")]               # top board
+    if mh - WARDROBE_TOP_M <= 0.05:
+        return parts
+    joints = [-w / 2.0 + ct / 2.0, w / 2.0 - ct / 2.0]
+    for f in (f for f in plan["modules"] if f["kind"] == "frame"):
+        joints.append(float(f["pos_m"][0]) + float(f["size_m"][0]) / 2.0)
+    joints = sorted({round(min(max(x, -w / 2.0 + ct / 2.0), w / 2.0 - ct / 2.0), 4) for x in joints})
+    for x in joints:                                             # sides and dividers
+        parts.append(P._box(x, yc, z0, ct, cd, mh - WARDROBE_TOP_M, "wood", "body"))
+    lh, ld = k["led_m"]
+    parts.append(P._box(0.0, y_front + 0.03, z1 - WARDROBE_TOP_M - ld, mw - 0.04, lh, ld, "led", "led"))
+    room = mh - WARDROBE_TOP_M - ld - 0.02
+    for i, (a, b) in enumerate(zip(joints, joints[1:])):
+        if b - a - ct < 0.20 or room < 0.10:
+            continue
+        parts += WC.boxes(a + ct / 2.0 + 0.01, b - ct / 2.0 - 0.01, yc, z0, room, seed + 709 * i,
+                          depth=min(0.36, cd - 0.08))
     return parts
 
 
