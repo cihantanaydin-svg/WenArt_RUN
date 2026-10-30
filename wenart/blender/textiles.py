@@ -601,11 +601,23 @@ def _merged(parts: list) -> tuple[list, list]:
 def _lean_pose(caster, host_fp: dict, planned, size, lean_deg: float, stand: bool) -> Optional[dict]:
     """``rest.place_leaning`` on a bed: with ``stand`` (30 Oct 2026, UL137) first standing on what lies at the head
     against the headboard behind the item's upper part (a model's own flat pillows, a gap or posts under a raised
-    headboard panel), then the lean of before."""
-    pose = rest.place_leaning(caster, host_fp, planned, size, lean_deg=lean_deg, bed=True, stand=True) if stand \
-        else None
-    return pose if pose is not None else rest.place_leaning(caster, host_fp, planned, size, lean_deg=lean_deg,
-                                                             bed=True)
+    headboard panel), then the lean of before. 30 Oct 2026 (UL163, "they are flying"): a standing piece whose upper part
+    the headboard does not hold (``rest.BED_TOP_SUPPORT_SHARE``: a low headboard) leans back further
+    (``rest.BED_LOW_HEAD_LEANS``: its top drops onto the headboard), else it gets no pose (the caller lays it down)."""
+    leans = [float(lean_deg)]
+    if float(lean_deg) < rest.BED_LYING_LEAN_DEG:
+        leans += [a for a in rest.BED_LOW_HEAD_LEANS if a > float(lean_deg)]
+    for a in leans:
+        pose = rest.place_leaning(caster, host_fp, planned, size, lean_deg=a, bed=True, stand=True,
+                                  hold=True) if stand else None
+        pose = pose if pose is not None else rest.place_leaning(caster, host_fp, planned, size, lean_deg=a, bed=True,
+                                                                 hold=True)
+        if pose is not None:
+            if a > float(lean_deg) + 1e-9:
+                pose["how"] = (f"{pose.get('how') or ''}; leaned back to {a:.0f} deg: the headboard is lower than its "
+                               f"top at {float(lean_deg):.0f} deg (UL163)").lstrip("; ")
+            return pose
+    return None
 
 
 def euro_shams(caster, host_fp: dict, count: int = 2, size: Optional[Sequence[float]] = None, key: str = "bedding",
@@ -787,6 +799,9 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
     if want["euro_shams"] and sham is None:
         explained.setdefault("euro_shams", "no headboard the rays find: no shams (a sham never stands against "
                                            "nothing)")
+        # 30 Oct 2026 (UL163): without the shams the family's decorative pair stands in front of the pillows instead
+        # (two rows, five pieces at most: bedding_parts.counts)
+        want = BP.counts(spec, w, shams=False)
     upright = got is not None
     if got is None:
         got = _pillows(caster, host_fp, n, pw, pt, ph, key=pkey, mesh_fn=BP.plump_cushion, colour=pcol)
@@ -803,7 +818,18 @@ def bedding_set(caster, host_fp: dict, floor_z: float, spec: dict, sides: Option
               "pillows": n, "pillow_size_m": [round(pw, 3), pt, ph], "pillows_upright": upright,
               "euro_shams": len(sham["parts"]) if sham else 0, "duvet_share": DUVET_SHARE,
               "pillow_local_y": [round(rest.to_local(hc, rot, p["center"][0], p["center"][1])[1], 3) for p in poses],
-              "expected": want, "look_rule": BP.RULE_LOOK}
+              "expected": want, "look_rule": BP.RULE_LOOK, "count_rule": BP.COUNT_RULE, "count_why": BP.COUNT_WHY,
+              "pieces_max": BP.pieces_max(w),
+              # UL163: how each standing piece rests (its lean, the share of its face the headboard holds)
+              "rests": [{"role": role, "lean_deg": round(float(p.get("lean_deg") or 0.0), 1),
+                         "top_support_share": p.get("top_support_share"), "how": p.get("how")}
+                        for role, ps in (("euro_sham", sham["poses"] if sham else []), ("pillow", poses))
+                        for p in ps]}
+    record["unrested"] = [{"role": r["role"], "why": f"the headboard holds only {r['top_support_share']:.0%} of its "
+                                                     f"face (at least {rest.BED_TOP_SUPPORT_SHARE:.0%})"}
+                          for r in record["rests"] if r["top_support_share"] is not None
+                          and r["lean_deg"] < rest.BED_LYING_LEAN_DEG
+                          and r["top_support_share"] < rest.BED_TOP_SUPPORT_SHARE - 1e-9]
     # 2b. 30 Oct 2026 (UL137: "a gap between the mattress and the headboard"): the head as the shams and pillows found
     # it; a gap between the mattress and the headboard is closed by a sheet over it (the shams stand at the headboard)
     heads = [p["head"] for p in (sham["poses"] if sham else []) + list(poses) if isinstance(p.get("head"), dict)]

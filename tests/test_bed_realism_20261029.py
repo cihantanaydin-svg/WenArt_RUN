@@ -91,8 +91,8 @@ def test_every_family_has_its_set_with_a_reason_real_looks_and_colour_names():
 
 def test_what_a_bed_takes_follows_its_width():
     spec = BP.family_spec("modern")[0]
-    assert BP.counts(spec, 1.6) == {"euro_shams": 2, "pillows": 2, "accent": 2, "lumbar": 1}
-    assert BP.counts(spec, 0.9) == {"euro_shams": 0, "pillows": 1, "accent": 1, "lumbar": 1}
+    assert BP.counts(spec, 1.6) == {"euro_shams": 2, "pillows": 2, "accent": 0, "lumbar": 1}     # UL163: five at most
+    assert BP.counts(spec, 0.9) == {"euro_shams": 0, "pillows": 1, "accent": 1, "lumbar": 0}     # one pillow, one cushion
     assert BP.counts(BP.family_spec("japandi")[0], 1.6)["lumbar"] == 0                 # restrained: no lumbar
     assert BP.counts(spec, 0.8)["lumbar"] == 0
 
@@ -207,9 +207,10 @@ def test_the_pillow_set_follows_the_family_and_every_piece_rests_without_cutting
     # the accent cushions and the lumbar lean on what is behind them (their upper part rests)
     for a in plan["record"]["accent"] + ([plan["record"]["lumbar"]] if plan["record"]["lumbar"] else []):
         assert a["upper_gap_m"] <= BP.STACK_BACK_GAP_M and a["contact_m"] >= -BP.STACK_PRESS_M - 1e-6
-    # the AI's cushion colours go to the accent cushions first
+    # the AI's cushion colours go to the set's cushions first (30 Oct 2026, UL163: against the shams the lumbar alone)
     coloured = T.bedding_set(bed_caster(), HOST, 0.0, spec, None, colours=["mustard"])
-    assert coloured["record"]["accent"][0]["colour"] == "mustard"
+    front = coloured["record"]["accent"] + ([coloured["record"]["lumbar"]] if coloured["record"]["lumbar"] else [])
+    assert not front or front[0]["colour"] == "mustard"
 
 
 def test_a_bed_without_a_headboard_has_no_shams_and_says_why():
@@ -553,7 +554,7 @@ def test_the_decor_stage_plans_each_beds_set_its_sides_and_its_throws_weave():
     # the made-up model gets a throw too, built only when the build dresses it
     (t2,) = [d for d in b["decor"] if d.get("host_id") == "f_L0_009" and d["type"] == "throw"]
     assert t2["when_dressed"] is True and t2["layers"] == 2 and t2["weave"]["pattern"] == "stripe"
-    assert b["bedding"]["beds"]["f_L0_001"]["expected"]["accent"] == 1
+    assert b["bedding"]["beds"]["f_L0_001"]["expected"]["accent"] == 0                 # UL163: shams, no accent row
     from wenart.blender import furniture as F
 
     spec, why = F.bed_bedding_spec(bed, {"family": "modern"})
@@ -594,7 +595,8 @@ def _problems(built, manifest):
 def test_the_review_flags_a_bed_that_misses_its_familys_set():
     assert _problems(*_built_and_manifest()) == []                                      # the full set as built
     assert _problems(*_built_and_manifest(set_counts={"accent": 0, "lumbar": 0})) == ["too_few_pillows"]
-    b, m = _built_and_manifest(set_counts={"euro_shams": 0})
+    # 30 Oct 2026 (UL163): without shams the decorative pair stands in front of the pillows, no lumbar
+    b, m = _built_and_manifest(set_counts={"euro_shams": 0, "accent": 2, "lumbar": 0})
     m["objects"][0]["dressing"]["record"]["explained"] = {"euro_shams": "no headboard"}
     assert _problems(b, m) == []                                                        # explained: no headboard
     assert _problems(*_built_and_manifest(drops={"left": {"drop_m": 0.1, "hem_over_floor_m": 0.4},
@@ -690,7 +692,7 @@ def test_real06_beds_get_their_scandinavian_set_and_sides():
                           for s, v in bl["sides"].items()))
     assert sides["f_L1_010"] == {"left": True, "right": True, "foot": True}
     assert sides["f_L1_013"]["left"] is False                                         # against its room's wall
-    assert beds["f_L1_013"]["bedding_layers"]["expected"] == {"euro_shams": 0, "pillows": 1, "accent": 1, "lumbar": 1}
+    assert beds["f_L1_013"]["bedding_layers"]["expected"] == {"euro_shams": 0, "pillows": 1, "accent": 1, "lumbar": 0}
     throws = [d for d in bb["decor"] if d.get("type") == "throw" and d.get("host_id") in beds]
     assert throws and all(d["weave"]["pattern"] == "stripe" for d in throws)
     manifest = json.loads(REAL06_MANIFEST.read_text(encoding="utf-8"))

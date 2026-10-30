@@ -635,6 +635,39 @@ def misfit_of(entry: dict, ftype: str, outdoor: Optional[bool] = False) -> Optio
     return f"names {', '.join(dict.fromkeys(hits))}: not for an indoor {ftype}" if hits else None
 
 
+# 30 Oct 2026 (lesson UL163; user on real04 run 20261030-043021-full: "the headrest needs to be re-done I did not like the
+# headrest": a "Full Saddle Back Upholstered Bed" with an arched camelback headboard in a modern bedroom): an arched,
+# camelback, wingback, sleigh or scalloped headboard is a romantic or classic product; in any other family (or without a
+# design that asks for it) such a bed ranks last, after every bed with a rectangular headboard (a panel, channel tufting,
+# slats), and is used only when no other bed fits (designer rule, assumed; its title or its catalogue's
+# ``headboard_form`` says the form).
+HEADBOARD_ROMANTIC_WORDS: tuple[str, ...] = ("saddle back", "saddleback", "camelback", "camel back", "arched", "arch",
+                                             "scalloped", "wingback", "wing back", "sleigh", "chesterfield")
+HEADBOARD_ROMANTIC_FORMS: tuple[str, ...] = ("arched", "camelback", "wingback", "sleigh", "scalloped")
+HEADBOARD_ROMANTIC_FAMILIES: tuple[str, ...] = ("classic", "romantic", "traditional")
+
+
+def headboard_misfit(entry: dict, ftype: str, family: Optional[str], design: Optional[dict] = None) -> Optional[str]:
+    """Why a bed model's headboard does not suit the family (None when it does; pure, UL163): an arched or camelback
+    form (``HEADBOARD_ROMANTIC_WORDS`` in its title or name, or its ``headboard_form``) outside the romantic and
+    classic families, unless the piece's design asks for that form (``design["headboard"]``)."""
+    if ftype not in C.BED_TYPES:
+        return None
+    fam = str(family or "").lower()
+    asked = str((design or {}).get("headboard") or "").lower()
+    if fam in HEADBOARD_ROMANTIC_FAMILIES or asked in HEADBOARD_ROMANTIC_FORMS:
+        return None
+    title = " ".join(str(entry.get(k) or "") for k in ("title", "name")).lower()
+    hits = _words_in(title, HEADBOARD_ROMANTIC_WORDS)
+    form = str(entry.get("headboard_form") or "").lower()
+    if form in HEADBOARD_ROMANTIC_FORMS:
+        hits.append(form)
+    if not hits:
+        return None
+    return (f"an arched or camelback headboard ({', '.join(dict.fromkeys(hits))}) is no {fam or 'modern'} bed's: a "
+            f"rectangular headboard first (UL163)")
+
+
 # Bathroom sense of 26 Oct 2026 (user: "fix should be general"; real06's adult bathrooms got a "TODDLER SINK" with an
 # orange vanity and a "Combo CEG-50BF", a black composite utility basin): a model made for another user or another use
 # than the piece is no candidate (a gate, never a rank rule: ``use_misfit``, ``excluded`` with the rule and the reason).
@@ -1111,7 +1144,7 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                 got["excluded"] = excluded + got.get("excluded", [])
                 # 26 Oct 2026 (fix E): a misfit or a style mix that still won (nothing better fitted) is recorded
                 won = next((e for e in usable if e.get("id") == got.get("asset_id")), None)
-                flag = taste_flags([won], ftype, piece.get("open_air_room"), style_family).get(
+                flag = taste_flags([won], ftype, piece.get("open_air_room"), style_family, design).get(
                     got.get("asset_id")) if won is not None else None
                 if flag:
                     got["taste_flags"] = dict(flag, why="ranked last (misfit) or later (style mix); no better model "
@@ -1154,12 +1187,15 @@ def _relaxed_caps(cap: float, uniform_range: tuple[float, float]) -> Optional[tu
     return r_cap, r_range
 
 
-def taste_flags(candidates: list[dict], ftype: str, outdoor: Optional[bool], family: Optional[str]) -> dict:
+def taste_flags(candidates: list[dict], ftype: str, outdoor: Optional[bool], family: Optional[str],
+                design: Optional[dict] = None) -> dict:
     """26 Oct 2026 (fix E): ``{id: {"misfit": reason, "style_mix": [styles]}}`` of the candidates that have either
-    (``misfit_of``, ``style_mix_of``); the rank order reads them (``rank_candidates``)."""
+    (``misfit_of``, ``style_mix_of``; 30 Oct 2026, UL163: a bed's arched headboard, ``headboard_misfit``); the rank
+    order reads them (``rank_candidates``)."""
     out = {}
     for e in candidates:
         misfit, mix = misfit_of(e, ftype, outdoor), style_mix_of(e, ftype, family)
+        misfit = misfit or headboard_misfit(e, ftype, family, design)
         if misfit or mix:
             out[e["id"]] = {"misfit": misfit, "style_mix": mix}
     return out
@@ -1216,7 +1252,7 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
     taste = taste or (used or {}).get("taste")
     # 26 Oct 2026 (fix E): misfits rank last, a style mix of a dining-group piece takes STYLE_MIX_STEPS (the style
     # family of the project, not the fallback family being tried: ``project_family``)
-    flags = taste_flags(candidates, ftype, piece.get("open_air_room"), project_family or style_family)
+    flags = taste_flags(candidates, ftype, piece.get("open_air_room"), project_family or style_family, design)
     ordered = rank_candidates(candidates, width, depth, used, prefs, bool(piece.get("open_air_room")), taste, flags)
     tried = []
     heights = real_height_range(ftype)

@@ -67,10 +67,18 @@ def plan_beds(building: dict, style: Optional[dict], new_id: Optional[Callable[[
         layers.update(family=spec["family"], set=spec, set_why=why, expected=want, sides=sides, bedding_rule=RULE,
                       bedding_why=(f"the {spec['family']} bedding set (UL121, R35): {want['euro_shams']} euro "
                                    f"sham(s), {want['pillows']} pillow(s), {want['accent']} accent cushion(s), "
-                                   f"{want['lumbar']} lumbar; the duvet hangs almost to the floor on the free "
-                                   f"side(s) {', '.join(s for s in BP.SIDES if sides[s]['free']) or '(none)'}"))
+                                   f"{want['lumbar']} lumbar ({BP.COUNT_WHY}); the duvet hangs almost to the floor "
+                                   f"on the free side(s) "
+                                   f"{', '.join(s for s in BP.SIDES if sides[s]['free']) or '(none)'}"),
+                      count_rule=BP.COUNT_RULE, pieces_max=BP.pieces_max(w))
         bed["bedding_layers"] = layers
-        beds[bed["id"]] = {"expected": want, "sides": {s: dict(v) for s, v in sides.items()}}
+        # 30 Oct 2026 (UL163): the headboard form of the family for a bed we build (a library bed keeps its model's)
+        design = bed.get("design") if isinstance(bed.get("design"), dict) else {}
+        if not design.get("headboard"):
+            form, form_why = BP.headboard_form(fam)
+            bed["design"] = dict(design, headboard=form, headboard_why=form_why)
+        beds[bed["id"]] = {"expected": want, "sides": {s: dict(v) for s, v in sides.items()},
+                           "headboard": (bed.get("design") or {}).get("headboard")}
         blocked = [f"{s} by {v['by']} ({v['clear_m']:.2f} m)" for s, v in sides.items() if not v["free"]]
         notes.append(f"{bed.get('room_id')}: {bed['id']} the {spec['family']} bedding set"
                      + (f"; no overhang on {', '.join(blocked)}" if blocked else ""))

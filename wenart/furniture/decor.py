@@ -194,6 +194,10 @@ DETAIL_DECOR_TYPES = DETAIL_DECOR_TYPES + ("panel_wall", "wall_discs")
 DECOR_TYPES = DECOR_TYPES + DETAIL_DECOR_TYPES
 SETTING_TYPES: tuple[str, ...] = ("plate", "glass")
 WORK_DECOR_TYPES: tuple[str, ...] = ("laptop", "monitor", "keyboard", "computer_mouse")
+# 30 Oct 2026 (lesson UL164): a desk's stationery beside its laptop (tabletop.work_set; built by
+# wenart.blender.desk_parts); the rules place it, the AI never chooses it
+DESK_DECOR_TYPES: tuple[str, ...] = ("stationery",)
+DECOR_TYPES = DECOR_TYPES + DESK_DECOR_TYPES
 # Not held to MAX_DECOR_M (Milestone 8, 9; Milestone 10: window dressings, throws, large plants and floor
 # sculptures, pendants on their cord).
 LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror", "curtain", "blind", "throw", "plant_large",

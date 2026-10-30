@@ -265,16 +265,57 @@ def family_spec(family: Optional[str]) -> tuple[dict, str]:
     return spec, why
 
 
-def counts(spec: dict, width: float) -> dict[str, int]:
-    """What a bed of ``width`` takes of its family's set: two euro shams on a double bed (``SHAM_MIN_BED_W``; only
-    against a headboard, the build decides), one or two sleeping pillows (``TWO_PILLOW_MIN_W``), the family's accent
-    cushions (one on a single bed), its lumbar on a bed from ``LUMBAR_MIN_BED_W``."""
+# 30 Oct 2026 (lesson UL163; user on three beds of real04 run 20261030-043021-full: "too many pillows in this bed", "they
+# are flying"; every bed had seven pieces in three or four rows: two shams, two pillows, two accent cushions, a lumbar):
+# a made bed shows at most ``PIECES_MAX`` pieces in two rows: the shams (or the pillows) at the headboard and the
+# sleeping pillows (or the decorative pair) in front of them; one lumbar at most, low in the middle (designer rule,
+# assumed). The family's accent cushions stand in for the shams where none stand (no headboard), never beside them.
+PIECES_MAX: dict[str, int] = {"single": 2, "double": 5}
+COUNT_RULE = "bedding.ul163"
+COUNT_WHY = ("at most five pieces in two rows on a double bed (two shams or a decorative pair, two sleeping pillows, "
+             "at most one lumbar), one pillow and one cushion on a single bed (UL163)")
+
+
+def counts(spec: dict, width: float, shams: bool = True) -> dict[str, int]:
+    """What a bed of ``width`` takes of its family's set (30 Oct 2026, UL163: ``PIECES_MAX``, two rows): a single bed
+    (under ``TWO_PILLOW_MIN_W``) one sleeping pillow and one cushion (the family's first accent cushion, else its
+    lumbar); a double bed two sleeping pillows and, against a headboard (``shams``; the build decides, from
+    ``SHAM_MIN_BED_W``), two euro shams behind them and the family's lumbar in front (no accent cushions: never a third
+    row); without the shams the family's accent cushions (two at most) in front of the pillows and no lumbar."""
     w = float(width)
     accent = len(spec.get("accent") or [])
-    return {"euro_shams": 2 if w >= SHAM_MIN_BED_W - 1e-9 else 0,
-            "pillows": 2 if w >= TWO_PILLOW_MIN_W - 1e-9 else 1,
-            "accent": accent if w >= TWO_PILLOW_MIN_W - 1e-9 else min(1, accent),
-            "lumbar": 1 if spec.get("lumbar") and w >= LUMBAR_MIN_BED_W - 1e-9 else 0}
+    lumbar = bool(spec.get("lumbar"))
+    if w < TWO_PILLOW_MIN_W - 1e-9:
+        return {"euro_shams": 0, "pillows": 1, "accent": min(1, accent),
+                "lumbar": 1 if lumbar and not accent and w >= LUMBAR_MIN_BED_W - 1e-9 else 0}
+    if shams and w >= SHAM_MIN_BED_W - 1e-9:
+        return {"euro_shams": 2, "pillows": 2, "accent": 0, "lumbar": 1 if lumbar else 0}
+    return {"euro_shams": 0, "pillows": 2, "accent": min(2, accent), "lumbar": 0 if accent else (1 if lumbar else 0)}
+
+
+def pieces_max(width: float) -> int:
+    """The most pieces a made bed of ``width`` shows (``PIECES_MAX``; pure)."""
+    return PIECES_MAX["single" if float(width) < TWO_PILLOW_MIN_W - 1e-9 else "double"]
+
+
+# 30 Oct 2026 (UL163, "the headrest needs to be re-done"): the headboard a designer chooses by family for a bed we build
+# (``parametric.headboard_parts``); the arched or camelback forms are no default of any family (a library bed with one
+# ranks last outside the classic and romantic families: ``wenart.furniture.fit.headboard_misfit``)
+HEADBOARD_BY_FAMILY: dict[str, str] = {"modern": "channel", "contemporary": "channel", "modern minimal": "panel",
+                                       "minimal": "panel", "industrial": "panel", "scandinavian": "slat",
+                                       "japandi": "slat", "rustic": "slat", "mediterranean": "slat",
+                                       "classic": "button", "transitional": "button"}
+HEADBOARD_WHY: dict[str, str] = {
+    "channel": "a tall upholstered panel in vertical channel tufting", "panel": "a plain upholstered panel between "
+    "slim posts", "slat": "vertical wood slats on a wood backing", "button": "a rectangular panel with piping and "
+    "buttons"}
+
+
+def headboard_form(family: Optional[str]) -> tuple[str, str]:
+    """``(form, why)`` of the headboard of a bed we build in ``family`` (``HEADBOARD_BY_FAMILY``; pure)."""
+    fam = str(family or "").lower()
+    form = HEADBOARD_BY_FAMILY.get(fam, "panel")
+    return form, f"the {fam or 'default'} headboard: {HEADBOARD_WHY[form]} (UL163)"
 
 
 def throw_weave(family: Optional[str]) -> dict:
@@ -1322,11 +1363,20 @@ def review(built: dict, manifest: Optional[dict] = None, check: str = "U34") -> 
             if rec.get("set"):
                 got = rec["set"]
                 explained = rec.get("explained") or {}
+                # UL163: the shams the build placed decide the set (the decorative pair stands in for them)
+                want = counts(spec, w, shams=bool(int(got.get("euro_shams") or 0)) or "euro_shams" not in explained)
                 short = [f"{want[k] - int(got.get(k) or 0)} {k.replace('_', ' ')}" for k in want
                          if int(got.get(k) or 0) < want[k] and k not in explained]
                 if short:
                     problems.append(("too_few_pillows", f"too few pillows for its {fam} set: {', '.join(short)} "
                                                         "missing"))
+                total = sum(int(got.get(k) or 0) for k in ("euro_shams", "pillows", "accent", "lumbar"))
+                if total > pieces_max(w):
+                    problems.append(("too_many_pillows", f"{total} pillows and cushions on it, more than "
+                                                         f"{pieces_max(w)} ({COUNT_WHY})"))
+                for f in rec.get("unrested") or []:
+                    problems.append(("pillow_unrested", f"a {f.get('role')} stands over its support: {f.get('why')} "
+                                                        "(UL163)"))
                 for side, sd in (rec.get("sides") or {}).items():
                     drop = (rec.get("drops") or {}).get(side) or {}
                     if sd.get("free") and rec.get("mode") != "pillows" and \

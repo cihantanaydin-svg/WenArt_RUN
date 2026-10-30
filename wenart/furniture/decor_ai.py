@@ -152,7 +152,8 @@ EXIT_OK, EXIT_USAGE, EXIT_SERVER = 0, 2, 3
 # The decor types the AI chooses from (docs/milestone9.md §3; = decor.DECOR_TYPES).
 # 28 Oct 2026: the rules set the tables; 29 Oct 2026: and the desks' work sets (the questions stay as they were)
 AI_TYPES: tuple[str, ...] = tuple(t for t in D.DECOR_TYPES if t not in D.SETTING_TYPES + D.WORK_DECOR_TYPES
-                                  + D.DETAIL_DECOR_TYPES)       # 29 Oct 2026: the details are the rules' (room_details)
+                                  + D.DETAIL_DECOR_TYPES        # 29 Oct 2026: the details are the rules' (room_details)
+                                  + D.DESK_DECOR_TYPES)         # 30 Oct 2026 (UL164): the desk's stationery too
 SURFACE_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp", "book_set",
                                   "candle", "tray", "books", "sculpture")                      # Milestone 10
 WALL_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock")

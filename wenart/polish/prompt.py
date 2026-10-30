@@ -286,6 +286,7 @@ DECOR_WORDS: dict[str, str] = {
     "plate": "set table with plates", "glass": "glasses",            # 28 Oct 2026 (wenart.furniture.tabletop)
     # 29 Oct 2026 (wenart.furniture.tabletop.work_set): the desk's work set
     "laptop": "open laptop", "monitor": "computer monitor", "keyboard": "keyboard", "computer_mouse": "computer mouse",
+    "stationery": "notebooks and a pen pot",                          # 30 Oct 2026 (UL164)
     "tv": "flat television",                                          # 29 Oct 2026 (UL99)
     # 29 Oct 2026 (wenart.furniture.bath_details, UL114, UL123, UL124): the bathroom's accessories
     "toilet_paper_holder": "toilet paper holder", "toilet_brush": "toilet brush", "towel_rail": "heated towel rail",
