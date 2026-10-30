@@ -161,6 +161,7 @@ VENEER_FOR_WOOD: dict[str, str] = {
     "wood_oak_light": "wood_veneer_oak", "wood_parquet": "wood_veneer_oak",
     "wood_walnut": "wood_veneer_walnut", "wood_panel": "wood_veneer_walnut",
     "wood_veneer_oak": "wood_veneer_oak", "wood_veneer_walnut": "wood_veneer_walnut",
+    "wood_cladding": "wood_veneer_walnut",       # 30 Oct 2026 (UL204): the cladding's boards in a dark walnut grain
 }
 DEFAULT_VENEER = "wood_veneer_oak"
 

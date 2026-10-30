@@ -402,6 +402,11 @@ class MaterialLibrary:
         # 29 Oct 2026 (UL106): a parquet floor (``params["parquet"]``, wenart.blender.parquet) lays each plank from the
         # veneer of the floor's wood tone when its set is in the library (one seamless grain per plank)
         parquet, floor_asset = parquet_of(params), asset_id
+        if parquet is None and asset_id:            # a textured request only (a paint slot or a structure stays flat)
+            from wenart.blender import parquet as PQ
+            if slug in PQ.CLADDING_BOARDS:            # 30 Oct 2026 (UL204): a wood cladding is laid as boards
+                parquet = dict(PQ.CLADDING_BOARDS[slug])
+                params = dict(params or {}, parquet=parquet)
         if parquet:
             veneer = parquet_veneer_asset(slug)
             if veneer and self.texture_set(veneer)[0] is not None:
@@ -640,7 +645,7 @@ def parquet_of(params) -> dict | None:
     """The ``parquet`` record of a material request's ``params`` (a patterned wood floor, ``wenart.blender.parquet``),
     None without one (pure)."""
     rec = params.get("parquet") if isinstance(params, dict) else None
-    if not isinstance(rec, dict) or rec.get("pattern") not in ("herringbone", "chevron"):
+    if not isinstance(rec, dict) or rec.get("pattern") not in ("herringbone", "chevron", "boards"):
         return None
     return rec
 

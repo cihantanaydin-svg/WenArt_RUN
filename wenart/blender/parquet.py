@@ -44,7 +44,7 @@ from typing import Optional
 
 from wenart import geometry as G
 
-PATTERNS: tuple[str, ...] = ("herringbone", "chevron")
+PATTERNS: tuple[str, ...] = ("herringbone", "chevron", "boards")
 FAMILY_FLOOR_PATTERNS: dict[str, str] = {"modern": "herringbone", "contemporary": "herringbone",
                                          "scandinavian": "herringbone", "classic": "herringbone",
                                          "mediterranean": "chevron"}
@@ -57,7 +57,17 @@ PLANK_FLOOR_SLUGS: tuple[str, ...] = ("wood_oak_light", "wood_walnut", "wood_oak
 OPT_OUT: tuple = (False, "none", "off", "plank", "planks", "straight", "long planks")
 # Designer values (assumed): a 60 x 12 cm herringbone block (5 widths long), a 60 x 10 cm chevron plank cut at 45 deg.
 PLANK: dict[str, dict] = {"herringbone": {"length_m": 0.60, "width_m": 0.12},
-                          "chevron": {"length_m": 0.60, "width_m": 0.10, "cut_deg": 45.0}}
+                          "chevron": {"length_m": 0.60, "width_m": 0.10, "cut_deg": 45.0},
+                          "boards": {"length_m": 3.0, "width_m": 0.12}}
+# 30 Oct 2026 (lesson UL204, user on real04 run 20261030-112241-full: "the wood cladding by the door also looks streaky,
+# fix it too": the plank-siding photo read as smeared streaks): a wood cladding is laid as boards (``boards``: straight
+# boards in rows, their ends staggered by the golden ratio of a length per row, each board its own cut of a veneer, its
+# own tone and grooved joints); turn 90 on a wall's box UVs (u along the wall, v up) stands the boards upright
+BOARD_STAGGER = 0.618
+CLADDING_BOARDS: dict[str, dict] = {"wood_cladding": {"pattern": "boards", "length_m": 3.0, "width_m": 0.12,
+                                                      "turn_deg": 90.0, "source": "assumed",
+                                                      "reason": "vertical cladding boards 12 cm wide, ends staggered "
+                                                                "(UL204)"}}
 SEAM_M = 0.003                 # the joint's shaded band (each side of the edge)
 TONE_SPREAD = 0.14             # each plank's tone: 1 +- half this
 SEAM_DARK = 0.45               # the joint's darkening at its centre
@@ -240,6 +250,16 @@ def cell(pattern: str, x: float, y: float, params: dict) -> dict:
         d = min(min(across, 1.0 - across) * width, min(along, n - along) * width)
         return {"plank": plank, "along_m": along * width, "across_m": across * width,
                 "seam": max(0.0, 1.0 - d / SEAM_M)}
+    if pattern == "boards":
+        length = float(params["length_m"])
+        row = math.floor(yv / width)
+        s = xu + _fmod(row * BOARD_STAGGER, 1.0) * length
+        col = math.floor(s / length)
+        along = s - col * length
+        across = yv / width - row
+        d = min(min(across, 1.0 - across) * width, min(along, length - along))
+        return {"plank": ("b", row, col), "along_m": along, "across_m": across * width,
+                "seam": max(0.0, 1.0 - d / SEAM_M)}
     a = math.radians(float(params.get("cut_deg") or PLANK["chevron"]["cut_deg"]))
     col = float(params["length_m"]) * math.cos(a)
     row = width / math.cos(a)
@@ -306,6 +326,16 @@ def parquet_group(pattern: str):
         d_across = m("MULTIPLY", least(across, m("SUBTRACT", 1.0, across)), i["Width"])
         d_along = m("MULTIPLY", least(along, m("SUBTRACT", n, along)), i["Width"])
         along_m, across_m = m("MULTIPLY", along, i["Width"]), m("MULTIPLY", across, i["Width"])
+    elif pattern == "boards":                              # UL204: straight boards, ends staggered per row
+        row = m("FLOOR", m("DIVIDE", yv, i["Width"]))
+        st = m("ADD", xu, m("MULTIPLY", m("FLOORED_MODULO", m("MULTIPLY", row, BOARD_STAGGER), 1.0), i["Length"]))
+        col = m("FLOOR", m("DIVIDE", st, i["Length"]))
+        along_m = m("SUBTRACT", st, m("MULTIPLY", col, i["Length"]))
+        across = m("SUBTRACT", m("DIVIDE", yv, i["Width"]), row)
+        id_a, id_b, id_c = row, col, 3.0
+        d_across = m("MULTIPLY", least(across, m("SUBTRACT", 1.0, across)), i["Width"])
+        d_along = least(along_m, m("SUBTRACT", i["Length"], along_m))
+        across_m = m("MULTIPLY", across, i["Width"])
     else:                                                  # chevron
         c = m("FLOOR", m("DIVIDE", xu, i["Column"]))
         xl = m("SUBTRACT", xu, m("MULTIPLY", c, i["Column"]))
@@ -339,6 +369,8 @@ def group_inputs(params: dict, repeat_m: float) -> dict[str, float]:
     width = float(p["width_m"])
     out = {"Cos": math.cos(t), "Sin": math.sin(t), "Width": width, "Repeat": float(repeat_m), "Seam": SEAM_M,
            "Length": ratio_of(p["length_m"], width) * width, "Tan": 0.0, "Column": 1.0, "Row": 1.0}
+    if p.get("pattern") == "boards":
+        out.update(Length=float(p["length_m"]))
     if p.get("pattern") == "chevron":
         a = math.radians(float(p.get("cut_deg") or PLANK["chevron"]["cut_deg"]))
         out.update(Length=float(p["length_m"]), Tan=math.tan(a), Column=float(p["length_m"]) * math.cos(a),
