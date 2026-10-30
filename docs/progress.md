@@ -2463,3 +2463,16 @@ Open for the next round (GPU tests and Argus): two wardrobes with 0.17 m in fron
 missing from the index pass; cam_r_L1_banyo_1 7 cm from a surface; a decor item 0.5 m above its host; a decor item of
 the open-kitchen variant not built; two rig-lit corridors orange; the design-detail record list of the GPU test; the
 judge's bare worktops and a missing fridge in the basement kitchen.
+
+## Blocked fronts and bare kitchen runs of real04 run 201533 (30 Oct 2026; built, CPU-tested, pod run waiting)
+
+Two open points of run 20261029-201533-full, fixed as general rules (tests: `tests/test_clear_front_20261030.py`,
+`tests/test_kitchen_bare_runs_20261030.py`, on synthetic rooms and on real04's building JSON).
+
+| problem | cause | fix |
+|---|---|---|
+| M19 critical: the drawn wardrobes f_L0_009 / f_L0_011 had 0.17 m free, the drawn desks before their doors | no rule fired: the architect's F4 measured wardrobes with its old 80 % strip (88 % free: "fine") while M19 and U16 use rays from the front edge; F4's default `free_front` knew only appliances and nightstands and only turned the blocked piece; the agent's critic had only G13 (0.80 m, major), so its slides to 0.62 m were refused | F4 measures door-fronted storage like M19 (`piece_access` with storage); a front that cannot open gets the default `clear_front` (`fixture_use.clear_front`, rule 5): the piece slid along its wall or turned, or the piece in front slid or turned with its unit (its chair), at most 0.5 m, inside the room, no collision, door swings free, no more of a window covered, no other front tighter; the safest wins (whole width free, least walking room taken, an added piece before a drawn one, shortest move); drawn values kept, `adjusted_by_ai` by the architect. real04: each wardrobe slides 0.40 m along its wall (the desk pushed 0.35 m would stand 2 cm from the bed); `build.prepare` on the run's building leaves no M19 |
+| judge: "the fridge f_L-1_090 is missing", "the worktops are bare" (r_L-1_mutfak) | the fridge was built: the completion's under-counter unit in the module plan of f_L-1_004 (`built_ins`, no object of its own), its steel door with a bar along the top read as a dishwasher; the styling sets ran (11 items) but all on the hob run and f_L-1_001: the sink run stands under the 4.16 m ribbon window win_L-1_003, sill 0.90 m on the 0.90 m worktop, and `worktop_item_ok` refused every item there, even a 2 cm board | a low item (0.15 m: board, fruit bowl, plates) may stand before a window (decor and the build's slide check); a set for a free stretch goes to the run with the fewest items; a run the sets leave bare gets one low set (`decor.bare_run_sets`); the kettle's reason says where it stands; the under-counter fridge's handle stands upright at its opening edge; the judge and the model-view critic are told "an under-counter unit built into f_L-1_004" |
+
+Note for the lessons: UL71's "never in front of a window it would reach" now lets a low set (0.15 m) stand before a
+window; taller items keep under the sill.
