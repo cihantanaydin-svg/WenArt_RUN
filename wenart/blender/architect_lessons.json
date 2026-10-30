@@ -1639,6 +1639,18 @@
    "request": "Need to move the picture, TV hiding the picture not making sense (30 Oct 2026, real04 run 20261029-201533-full living room: the TV on its unit covers the bottom of the art hung over the unit)",
    "lesson": "Need to move the picture, TV hiding the picture not making sense (30 Oct 2026, real04 run 20261029-201533-full living room: the TV on its unit covers the bottom of the art hung over the unit)",
    "question": "Does every picture or wall item stay fully visible, clear of the TV, of other wall items and of every piece standing in front of its wall?"
+  },
+  {
+   "id": "UL140",
+   "date": "2026-10-30",
+   "area": "library",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I like this sofa but it needs more details, also the gaps need a rework (30 Oct 2026, real04 run 20261029-201533-full: the L corner sofa 3dwh_bc790e2f62189290d277caa7 renders untextured flat white, gaps between its parts)",
+   "lesson": "I like this sofa but it needs more details, also the gaps need a rework (30 Oct 2026, real04 run 20261029-201533-full: the L corner sofa 3dwh_bc790e2f62189290d277caa7 renders untextured flat white, gaps between its parts)",
+   "question": "Does every upholstered library model wear a real fabric (weave texture, sheen, seams), with its parts joined (no gaps opened by the fit), never flat untextured colour?"
   }
  ]
 }
