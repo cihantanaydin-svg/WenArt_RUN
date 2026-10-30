@@ -76,6 +76,7 @@ MIN_ROOM_M2 = 1.5                 # smaller rooms (shafts, niches) get no rule l
 PENDANT_PITCH_M = 0.9             # one pendant per 0.9 m of a dining table or island (balanced style) ...
 PENDANT_END_M = 0.3               # ... the row kept this far in from each end
 PENDANT_MAX = 4
+ROW_FIXTURES: tuple[str, ...] = ("linear_pendant", "track_pendants")   # 30 Oct 2026 (P16): one fixture is the row
 PENDANT_OVER_TOP_M = 0.75         # = decor_ai.PENDANT_OVER_TABLE_M
 PENDANT_MIN_BOTTOM_M = 2.0        # = decor_ai.PENDANT_MIN_BOTTOM_M (a pendant not over a table)
 PENDANT_MIN_DROP_M = 0.3          # = decor_ai.PENDANT_MIN_DROP_M
@@ -453,7 +454,9 @@ def plan_room(building: dict, room: dict, pieces: list[dict], existing: list[dic
     for z in [z for z in all_zones if z["row"]]:
         fp = placer.piece_from_furniture(z["piece"]).polygon().buffer(ROW_MATCH_M)
         over = [d for d in existing if d.get("id") not in used and fp.contains(Point(_light_xy(d)))]
-        if len(over) >= len(z["spots"]):
+        # 30 Oct 2026 (photo P16, UL153): one linear pendant or one track of mini pendants over the table is its whole
+        # row (wenart.furniture.salon_details.dining_light)
+        if len(over) >= len(z["spots"]) or any(d.get("fixture") in ROW_FIXTURES for d in over):
             used.update(d.get("id") for d in over)
             hung += [_hung(*_light_xy(d), d.get("type"), False, d.get("id"), row=True) for d in over]
             rec["zones"].append({"id": z["id"], "kind": z["kind"], "had": True, "lit": True})

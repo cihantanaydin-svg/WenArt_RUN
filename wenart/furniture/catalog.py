@@ -1030,7 +1030,10 @@ def vision_doubt(entry: Optional[dict]) -> list[str]:
 
 # 29 Oct 2026 (lesson UL119; docs/reference_details_20261029.md R17, R27, R33): the forms a room's scheme
 # (wenart.furniture.room_schemes) gives a piece, built by design (wenart.blender.detail_parts)
-SCHEME_FORMS: dict[str, tuple[str, ...]] = {"nightstand": ("drum", "floating"), "desk": ("floating",)}
+SCHEME_FORMS: dict[str, tuple[str, ...]] = {"nightstand": ("drum", "floating"), "desk": ("floating",),
+                                            # 30 Oct 2026 (photo P16, UL153; wenart.furniture.salon_details): the
+                                            # floating TV console (R45), the round travertine drum coffee table (R48)
+                                            "tv_unit": ("floating",), "table_coffee": ("drum",)}
 
 
 def scheme_form(piece: dict) -> bool:

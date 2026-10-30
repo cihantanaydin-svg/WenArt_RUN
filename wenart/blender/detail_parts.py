@@ -28,6 +28,11 @@ LEDs and objects together, so the build makes one object per detail: lesson UL11
 - ``styled_book_set`` (a ``book_set`` with ``styled``, R20): books on part of the board and a small object beside them.
 - ``drum_nightstand`` / ``floating_nightstand`` (a nightstand's ``form``, R17, R33) and ``floating_desk`` (a desk's
   ``form``, R27): the furniture products of a room's scheme (``wenart.furniture.room_schemes``), by design.
+- 30 Oct 2026 (photo P16, lesson UL153): the living-dining room's products (``wenart.blender.salon_parts``): a tall
+  black-lined lit niche beside the TV (a ``wall_niche`` with ``niche.style: tv_side``), a ``panel_wall`` of
+  handle-less full-height fronts with a lit niche, ``wall_discs``, a linear pendant and a track with mini pendants over
+  the dining table, the table's centrepiece set, a round rug with concentric stripes, the floating TV console and the
+  round travertine drum coffee table (the forms of a ``tv_unit`` and a ``table_coffee``).
 
 Sizes are designer values of real products (assumed). Every part stays inside its box (``contain``).
 """
@@ -36,6 +41,7 @@ from __future__ import annotations
 import math
 from typing import Optional
 
+from wenart.blender import salon_parts as SP
 from wenart.blender.parametric import (_box, _cylinder_y, _cylinder_z, _frustum_z, _superellipsoid,
                                        piece_design)
 
@@ -551,10 +557,19 @@ DETAIL_DECOR_TYPES: tuple[str, ...] = ("wall_niche", "intercom", "floor_vase", "
 DETAIL_DEFAULT_HEIGHT: dict[str, float] = {"wall_niche": 2.2, "intercom": 0.22, "floor_vase": 1.3,
                                            "art_leaning": 1.4, "bag": 0.30, "desk_wall_unit": 0.68}
 LARGE_DETAIL_TYPES: tuple[str, ...] = ("wall_niche", "floor_vase", "art_leaning", "desk_wall_unit")
+# 30 Oct 2026 (photo P16, UL153): the living-dining room's own detail types (wenart.blender.salon_parts)
+DETAIL_DECOR_TYPES = DETAIL_DECOR_TYPES + SP.DECOR_TYPES
+DETAIL_DEFAULT_HEIGHT.update(SP.DEFAULT_HEIGHT)
+LARGE_DETAIL_TYPES = LARGE_DETAIL_TYPES + SP.LARGE_TYPES
 
 
 def detail_parts(dtype: str, w: float, d: float, h: float, item: Optional[dict] = None) -> list[Part]:
     """The parts of a detail decor type (``DETAIL_DECOR_TYPES``)."""
+    if dtype in SP.DECOR_TYPES:                              # 30 Oct 2026 (P16, UL153): a panel wall, wall discs
+        return SP.decor_parts(dtype, w, d, h, item)
+    salon = SP.variant_parts(dtype, w, d, h, item)          # 30 Oct 2026 (R45): a black-lined niche beside the TV
+    if salon is not None:
+        return salon
     if dtype == "wall_niche":
         return niche_parts(w, d, h, item)
     if dtype == "intercom":
@@ -574,6 +589,9 @@ def variant_parts(dtype: str, w: float, d: float, h: float, item: Optional[dict]
     """The parts of a detail variant of an older decor type (a round mirror or rug, a track light, a wall TV, a vase
     with pampas, a styled book set), None for the plain type."""
     it = item or {}
+    salon = SP.variant_parts(dtype, w, d, h, it)            # 30 Oct 2026 (P16, UL153): the living-dining variants
+    if salon is not None:
+        return salon
     if dtype == "mirror" and it.get("shape") == "round":
         return round_mirror_parts(w, d, h, it)
     if dtype == "mirror" and it.get("shape") == "arch":
@@ -596,6 +614,7 @@ def variant_parts(dtype: str, w: float, d: float, h: float, item: Optional[dict]
 
 FORM_BUILDERS = {("nightstand", "drum"): drum_nightstand, ("nightstand", "floating"): floating_nightstand,
                  ("desk", "floating"): floating_desk}
+FORM_BUILDERS.update(SP.FORMS)          # 30 Oct 2026 (P16, UL153): the floating TV console, the drum coffee table
 
 
 def form_parts(ftype: str, w: float, d: float, h: float, piece: Optional[dict]) -> Optional[list[Part]]:

@@ -40,6 +40,11 @@ professional dressing of UL106, ``wenart.furniture.dressing``; the questions and
    floor, R29); a venetian blind behind the curtains of the
    modern families (R21); objects between the books on a bookshelf's boards (R20).
 
+4. **The P16 living-dining room** (30 Oct 2026, photo P16 "salon inspiration", lesson UL153): ``dress_room`` runs
+   ``wenart.furniture.salon_details`` in the living and dining rooms (the floating TV console before the TV is hung,
+   the drum table after the living models, the TV niches, the panel wall, the dining fixture and the rugs before the
+   extras, the centrepiece and the wall discs after them); the dining print is 2/3 of the table (``dining_wall``).
+
 Every item is ``source: added_by_ai``, ``method: rule``, ``rule: room_details.<what>`` with its reason; floor items
 pass the placer's checks (inside the room, no overlap, door swings and approaches free, windows free, the walkways);
 wall items keep off doors, windows and the other wall items; nothing drawn moves. ``building["room_schemes"]
@@ -57,9 +62,11 @@ RULE = "room_details"
 LESSONS: tuple[str, ...] = ("UL113", "UL115", "UL119")
 TAG = "29 Oct 2026, the user's reference photos: \"look at all these details I want these details\""
 # = decor.DETAIL_DECOR_TYPES: the decor types this module adds (parametric until audited library models exist)
-DETAIL_TYPES: tuple[str, ...] = ("wall_niche", "intercom", "floor_vase", "art_leaning", "bag", "desk_wall_unit")
-FLOOR_DETAIL_TYPES: tuple[str, ...] = ("wall_niche", "floor_vase", "art_leaning", "bag")
-WALL_DETAIL_TYPES: tuple[str, ...] = ("intercom", "desk_wall_unit")
+DETAIL_TYPES: tuple[str, ...] = ("wall_niche", "intercom", "floor_vase", "art_leaning", "bag", "desk_wall_unit",
+                                 # 30 Oct 2026 (photo P16, UL153): wenart.furniture.salon_details' own types
+                                 "panel_wall", "wall_discs")
+FLOOR_DETAIL_TYPES: tuple[str, ...] = ("wall_niche", "floor_vase", "art_leaning", "bag", "panel_wall")
+WALL_DETAIL_TYPES: tuple[str, ...] = ("intercom", "desk_wall_unit", "wall_discs")
 DRIED_GRASS_FAMILIES: tuple[str, ...] = ("scandinavian", "japandi", "modern", "contemporary", "mediterranean",
                                          "rustic", "minimal", "modern minimal")
 BLIND_FAMILIES: tuple[str, ...] = ("modern", "contemporary", "modern minimal", "minimal", "industrial")      # R21
@@ -153,7 +160,8 @@ def _toned(item: Optional[dict], family: str) -> Optional[dict]:
 
 
 WALL_ITEM_TYPES: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "blind", "tv", "intercom",
-                                    "desk_wall_unit", "wall_niche", "art_leaning")
+                                    "desk_wall_unit", "wall_niche", "art_leaning",
+                                    "panel_wall", "wall_discs")       # 30 Oct 2026 (P16, UL153)
 FLOOR_OBSTACLE_TYPES: tuple[str, ...] = ("plant", "plant_large", "basket", "sculpture") + FLOOR_DETAIL_TYPES
 
 
@@ -205,8 +213,14 @@ def _sloped(building: dict, room: dict, centre, size, rotation: float = 0.0) -> 
 
 
 def _top(piece: dict) -> float:
+    """A piece's top over its floor. 30 Oct 2026 (P16, UL153): a hung form (a floating nightstand or TV console) built
+    by design measures its box (0.22-0.28 m), not its top: its top is the piece's height (``proxies.proxy_height``)."""
     from wenart.blender import parametric as P
-    return float(P.piece_bbox(piece)[2])
+    box = float(P.piece_bbox(piece)[2])
+    if piece.get("form") == "floating" and (piece.get("asset") or {}).get("method") != "library":
+        from wenart.blender import proxies as PX
+        return max(box, float(PX.proxy_height(str(piece.get("type")), piece.get("height"))[0]))
+    return box
 
 
 def _rotation_into(n) -> float:
@@ -344,8 +358,8 @@ class Room:
                     low.append((s0, s1, top))
             for d in self.decor(WALL_ITEM_TYPES + FLOOR_OBSTACLE_TYPES):
                 p = d.get("wall_point") or d.get("center")
-                if not p or d.get("host_id"):
-                    continue
+                if not p or d.get("host_id") or (d.get("id") is not None and d.get("id") in skip_ids):
+                    continue                    # 30 Oct 2026 (P16): ``skip_ids`` names decor too (art the set moves)
                 dist = (float(p[0]) - a[0]) * n[0] + (float(p[1]) - a[1]) * n[1]
                 if dist < -0.1 or dist > (front_m if block_low else 0.35):
                     continue
@@ -737,10 +751,16 @@ def dining_wall(building: dict, rc: Room, scheme: dict, new_id: Callable) -> lis
             "reason": f"the wall behind the dining table {t['id']} ({dist:.2f} m from its long side): a full-height "
                       f"slat panel over its free stretch (K13)"}
         out.append(f"a slat wall behind {t['id']} (the build's feature walls)")
-    width = round(min(1.4, 0.55 * st["length"]), 3)
+    # 30 Oct 2026 (photo P16, UL153, R40): the art over a dining table is about 2/3 of its length (it was at most
+    # 1.4 m: 0.42 of real04's 3.35 m table), centred on the table where its stretch allows, up to 1.6 m high
+    from wenart.furniture import salon_details as SD
+
+    width = SD.dining_art_width(max(w, d), st["length"])
+    s_c = min(max(s_t, st["s0"] + width / 2.0), st["s1"] - width / 2.0)
+    wp = rc.wall_point(st, s_c)
     bottom = DINING_ART_BOTTOM_M
     ceiling = _sloped(building, room, wp, (width, 0.04), _rotation_into(st["n"]))
-    max_h = round(ceiling - 0.10 - bottom, 3)
+    max_h = round(min(SD.ART_MAX_H_M, ceiling - 0.10 - bottom), 3)
     if any(d.get("free_wall") and d.get("type") == "wall_art"
            and G.distance(d.get("wall_point") or d.get("center"), wp) < width for d in rc.decor(("wall_art",))):
         return out + ["the dining wall already holds its art"]
@@ -748,7 +768,8 @@ def dining_wall(building: dict, rc: Room, scheme: dict, new_id: Callable) -> lis
         return out + ["no art on the dining wall: the ceiling leaves too little room"]
     centre = (wp[0] + st["n"][0] * 0.02, wp[1] + st["n"][1] * 0.02)
     text = (f"a large framed art piece on the dining wall behind {t['id']}"
-            + (" on its slat panel (K13)" if what == "slats" else " (the room's scheme)") + f" ({TAG})")
+            + (" on its slat panel (K13)" if what == "slats" else " (the room's scheme)")
+            + f", {width:.2f} m wide: about 2/3 of the {max(w, d):.2f} m table (P16, R40) ({TAG})")
     it = {"kind": "decor", "type": "wall_art", "level_id": room["level_id"], "room_id": room["id"], "asset": None,
           "host_id": None, "source": "added_by_ai", "method": "rule", "rule": f"{RULE}.dining_art",
           "slot": f"{room['id']}.dining_art", "colour": None, "confidence": 0.7, "status": "verified",
@@ -1268,10 +1289,14 @@ def dress_room(building: dict, room: dict, sc: dict, fam: str, new_id: Callable,
     """One room's scheme changes and details (module docstring, 2 and 3; in place, notes in ``applied``)."""
     from wenart.furniture import decor as D
     from wenart.furniture import room_schemes as RS
+    from wenart.furniture import salon_details as SD
 
     rid = room["id"]
     rc = Room(building, room)
     rc.panel_lines = panel_lines(building, room, style)
+    # 30 Oct 2026 (photo P16, UL153): a low wall-backed TV unit floats (its look; before the TV is hung over it)
+    for t in SD.safe(SD.console_form, building, rc, sc, fam):
+        _note(applied, rid, t)
     for step in (wall_tv, floating_desk):
         for t in step(building, rc, sc, new_id):
             _note(applied, rid, t)
@@ -1284,12 +1309,17 @@ def dress_room(building: dict, room: dict, sc: dict, fam: str, new_id: Callable,
             _note(applied, rid, t)
     for t in track_lights(building, rc, sc) + living_models(building, rc, sc) + statement_style(building, rc, sc):
         _note(applied, rid, t)
+    for t in SD.safe(SD.drum_tables, building, rc, sc, fam):        # 30 Oct 2026 (P16, R48): after the glass tag
+        _note(applied, rid, t)
     if not decor_on:
         return
     for t in drape_colours(building, rc, sc):
         _note(applied, rid, t)
     rc.pieces = _pieces(building, rid)
     rc.panel_lines = panel_lines(building, room, style)          # the dining wall may be planned now
+    # 30 Oct 2026 (photo P16, UL153): the TV niches, the panel wall, the dining fixture, the rugs (before the extras)
+    for t in SD.before_extras(building, rc, sc, fam, new_id):
+        _note(applied, rid, t)
     extras = list(sc.get("extras") or ())
     if sc.get("kind") == "hall":
         consoles = [f for f in rc.pieces if f.get("type") in RS.CONSOLE_TYPES]
@@ -1341,6 +1371,9 @@ def dress_room(building: dict, room: dict, sc: dict, fam: str, new_id: Callable,
             _note(applied, rid, f"a bag {bag['id']} on the floor (lived-in)")
     for t in blinds_with_curtains(building, rc, fam, new_id) + styled_shelves(building, rc):
         _note(applied, rid, t)
+    # 30 Oct 2026 (photo P16, UL153): the dining table's centrepiece, the wall discs (on the wall that is left)
+    for t in SD.after_extras(building, rc, sc, fam, new_id):
+        _note(applied, rid, t)
 
 
 def dress_details(building: dict, style: Optional[dict], new_id: Callable) -> tuple[dict, list[str]]:
@@ -1348,10 +1381,12 @@ def dress_details(building: dict, style: Optional[dict], new_id: Callable) -> tu
     outline) keeps what it had: the failure is a note and a warning, never the decor stage's end."""
     from wenart.furniture import decor as D
     from wenart.furniture import room_schemes as RS
+    from wenart.furniture import salon_details as SD
 
     fam = family_of(style)
     schemes = RS.plan(building, style, _no_panel(building), _partners(building))
     RS.record(building, schemes, style)
+    SD.start(building, fam)                     # 30 Oct 2026 (photo P16, UL153): its record, building["salon_details"]
     applied: dict[str, list[str]] = {}
     decor_on = D.decor_allowed(building)
     rooms = _rooms(building)

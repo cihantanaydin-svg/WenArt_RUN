@@ -150,6 +150,9 @@ _DECOR_HINTS_M10: dict[str, str] = {
     "art_leaning": "large framed picture standing on the floor, leaning against the wall",
     "bag": "travel bag lying on the floor",
     "desk_wall_unit": "wall shelf and wall cabinets with a light strip under them above a desk",
+    # 30 Oct 2026 (wenart.furniture.salon_details, photo P16, UL153)
+    "panel_wall": "full-height handle-less flat wall cabinets with an inset black-lined lit niche holding decor",
+    "wall_discs": "two black round discs hung on the wall as decor",
 }
 HINTS.update({k: v for k, v in _DECOR_HINTS_M10.items() if k in S.CATEGORIES})
 UNVERIFIED_HINT = "any piece of furniture at that place"

@@ -154,3 +154,8 @@ The user sent the P5 kitchen again after real04 run 20261029-201533-full (lesson
 | R47 | (P16) two sculptural boucle armchairs (a round one, a cantilever one) with a small round side table | accent armchairs in boucle |
 | R48 | (P16) a round travertine drum coffee table with a pampas vase, books and a small sculpture, on a round rug with concentric stripes | a round stone coffee table on a round rug |
 | R49 | (P16) sheer white curtains at the window, a light herringbone oak floor | (exists) sheers and herringbone |
+
+R39-R45 and R48 are built (30 Oct 2026, lesson UL153: `wenart.furniture.salon_details`, products in
+`wenart.blender.salon_parts`, checks M34 / U38; the gap table is in `docs/progress.md`). Not built: R46 (the slat
+column needs the walking routes to know the passage), R47's boucle (no boucle armchair in the library), the fringe on a
+library rug (a parametric rug has it), the print's black frame and line art (the fit picks the art model).

@@ -2724,6 +2724,8 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
     if item.get("fixture") == "track" or item.get("shape") in ("round", "arch") or item.get("stems") \
             or (item.get("tv") or {}).get("mount") == "wall":
         return None      # 29 Oct 2026 (UL113, UL115): our track light, round mirror or rug, a vase with pampas
+    if item.get("fixture") in ("linear_pendant", "track_pendants") or item.get("set") == "centrepiece":
+        return None      # 30 Oct 2026 (P16, UL153): our dining fixture and centrepiece set (salon_parts), by design
     styled = [e for e in decor_entries(catalog, dtype, mode) if decor_styles_match(e, style_family)
               and C.contact_fits(e, dtype)]               # Milestone 12: the audited contact suits the type
     fits = [(e, f) for e in styled for f in [_decor_fit(e, item, dtype)] if f is not None]

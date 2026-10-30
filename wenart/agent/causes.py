@@ -555,6 +555,7 @@ CHECK_CAUSE: dict[str, str] = {
     "M28": "decor_look",             # 29 Oct 2026 (UL119): the rooms' schemes and details (the decor stage, the build)
     "M25": "wall_plates",            # 29 Oct 2026 (UL112): the light switches and sockets (the build owns them)
     "M30": "decor_look",             # 29 Oct 2026 (UL121): the beds' family bedding (the decor stage and the build)
+    "M34": "decor_look",             # 30 Oct 2026 (UL153): the P16 living-dining details (the decor stage, the build)
     "M31": "under_roof",             # 30 Oct 2026 (UL128): through the ceiling or the roof (cause_of: as X2)
     # 30 Oct 2026 (UL131, UL140): a soft seat in flat colours, faceted, apart or poor: another model (swap_model; the
     # fit ranks by the quality grade), the build dresses, joins and shades the model it gets
