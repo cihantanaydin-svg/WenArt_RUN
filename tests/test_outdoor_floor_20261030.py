@@ -17,7 +17,8 @@ def test_a_raised_outdoor_floor_is_the_familys_terrace_floor_never_garden_paving
                    {"material": "paving", "assumed": False, "source": "style"},
                    {"material": "gravel", "assumed": False, "source": "brief"}):
         lk = GR.raised_floor({"paving": paving} if paving else {}, family)
-        assert lk["material"] not in GR.RAISED_NEVER and lk.get("asset"), (family, paving, lk)
+        assert lk["material"] not in GR.RAISED_NEVER and (lk.get("asset") or lk["material"].startswith("tiles_")), (
+            family, paving, lk)                                      # a texture set, or our procedural tiles
         assert "roof terrace or balcony floor" in lk["reason"]
     # a stone the style names for its terraces is kept
     named = GR.raised_floor({"paving": {"material": "travertine", "assumed": False, "source": "style"}}, family)
