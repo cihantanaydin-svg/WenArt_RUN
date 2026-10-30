@@ -2023,9 +2023,11 @@
   {
    "id": "UL171",
    "date": "2026-10-30",
-   "area": "other",
+   "area": "facade",
    "status": "open",
-   "checks": [],
+   "checks": [
+    "build"
+   ],
    "request": "There should be better solution than these things in the house entrance points make it make sense (30 Oct 2026, real04 run 20261030-043021-full, the side of the house: flat white slabs stick out of the stone wall over the entrance doors, one of them just under the eaves, with no support, frame or light)",
    "lesson": "There should be better solution than these things in the house entrance points make it make sense (30 Oct 2026, real04 run 20261030-043021-full, the side of the house: flat white slabs stick out of the stone wall over the entrance doors, one of them just under the eaves, with no support, frame or light)",
    "question": null
