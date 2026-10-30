@@ -1255,9 +1255,9 @@ def dress_mode(asset: Optional[dict], relief: Optional[dict], width: Optional[fl
     up as well as ours (its pillows and folds kept).
 
     30 Oct 2026 (UL137, user on real04's f_L0_007: "head section of this bed needs a rework": two flat pillows lying low
-    in front of the headboard, no euro shams, no standing pillows): a bed whose width takes euro shams (``width`` from
-    ``SHAM_MIN_BED_W``; None: any) and whose own pillows lie flat (their bump under ``STAND_BUMP_M``) is poorer than
-    our set: ``pillows`` (our shams and pillows stand against its headboard, its duvet kept)."""
+    in front of the headboard, no euro shams, no standing pillows): a bed whose own pillows lie flat (their bump under
+    ``STAND_BUMP_M``) was dressed with our shams and pillows on top; UL195 (at most five pieces on a bed) keeps such a
+    model's own set (None): our set goes only on a bed without pillows."""
     a = asset or {}
     r = relief or {}
     bump, rel, dens = r.get("pillow_bump_m"), r.get("relief_m"), float(r.get("density") or 0.0)
@@ -1278,8 +1278,11 @@ def dress_mode(asset: Optional[dict], relief: Optional[dict], width: Optional[fl
         return "pillows", (f"its duvet has folds (relief {rel * 1000:.0f} mm) but no pillows (bump {bump:.2f} m < "
                            f"{BUMP_MIN_M} m at the head): our pillow set on it, its duvet kept")
     if bump < STAND_BUMP_M and (width is None or float(width) >= SHAM_MIN_BED_W - 1e-9):
-        return "pillows", (f"its pillows lie flat (bump {bump:.2f} m < {STAND_BUMP_M} m: no euro shams, no standing "
-                           "pillows; UL137): our shams and pillows stand against its headboard, its duvet kept")
+        # 30 Oct 2026 (lesson UL195, user on real04 run 20261030-112241-full: "Redude the number of pillows 5 max per
+        # bed": our two standing pillows on a model with its own four pieces): a model with pillows of its own keeps
+        # its set; ours goes only on a bed without pillows (``PIECES_MAX`` counts every piece on the bed)
+        return None, (f"its own pillows lie flat (bump {bump:.2f} m < {STAND_BUMP_M} m) but they are its set: no "
+                      f"pillows of ours on top of them (at most {PIECES_MAX['double']} pieces on a bed, UL195)")
     return None, (f"made up as well as ours: pillows (bump {bump:.2f} m) and folds (relief {rel * 1000:.0f} mm, "
                   f"{dens:.0f} vertices/m2)")
 

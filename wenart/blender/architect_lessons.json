@@ -2315,6 +2315,16 @@
    "request": "Redude the number of pillows 5 max per bed (30 Oct 2026, real04 run 20261030-112241-full, a bedroom: two white sleeping pillows, a third white pillow, a grey cushion, a cream fringed cushion and a large checked cushion on one double bed)",
    "lesson": "Redude the number of pillows 5 max per bed (30 Oct 2026, real04 run 20261030-112241-full, a bedroom: two white sleeping pillows, a third white pillow, a grey cushion, a cream fringed cushion and a large checked cushion on one double bed)",
    "question": "Does every bed carry at most five pillows and cushions in all?"
+  },
+  {
+   "id": "UL196",
+   "date": "2026-10-30",
+   "area": "other",
+   "status": "open",
+   "checks": [],
+   "request": "Better road section and fencing area is needed on the outside (30 Oct 2026, real04 run 20261030-112241-full, the exterior views: the outside roads and the fenced neighbouring plots of UL172)",
+   "lesson": "Better road section and fencing area is needed on the outside (30 Oct 2026, real04 run 20261030-112241-full, the exterior views: the outside roads and the fenced neighbouring plots of UL172)",
+   "question": null
   }
  ]
 }

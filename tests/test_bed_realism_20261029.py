@@ -456,10 +456,11 @@ def test_a_made_up_bed_is_dressed_when_its_bedding_is_flat_or_poorer_than_ours()
     made = BP.bedding_relief(_top_grid(0.35, 0.012), BED_C, 0.0, (1.6, 2.0))
     assert made["pillow_bump_m"] > BP.BUMP_MIN_M and made["relief_m"] > BP.RELIEF_MIN_M
     assert BP.dress_mode(asset, made)[0] is None                                      # made up as well as ours
-    # 30 Oct 2026 (UL137): its pillows lying flat (a 15 cm bump): our shams and pillows stand on a double bed
+    # 30 Oct 2026 (UL137, then UL195: at most five pieces on a bed): its own pillows lying flat (a 15 cm bump) are its
+    # set; no pillows of ours on top of them
     flat = BP.bedding_relief(_top_grid(0.15, 0.012), BED_C, 0.0, (1.6, 2.0))
     mode, why = BP.dress_mode(asset, flat, width=1.6)
-    assert mode == "pillows" and "lie flat" in why
+    assert mode is None and "lie flat" in why and "UL195" in why
     assert BP.dress_mode(asset, flat, width=0.9)[0] is None                           # a single bed takes no shams
     no_pillows = BP.bedding_relief(_top_grid(0.0, 0.012), BED_C, 0.0, (1.6, 2.0))
     assert BP.dress_mode(asset, no_pillows)[0] == "pillows"                            # our pillow set, its duvet kept
