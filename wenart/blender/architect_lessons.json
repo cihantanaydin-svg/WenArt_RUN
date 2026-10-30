@@ -2355,6 +2355,18 @@
    "request": "Understand that the cars should be able to enter to this location and exit (30 Oct 2026, real04 run 20261030-112241-full, the parking strip in front of the houses: cars parked on it, but no clear way for a car to drive in from the road and out again)",
    "lesson": "Understand that the cars should be able to enter to this location and exit (30 Oct 2026, real04 run 20261030-112241-full, the parking strip in front of the houses: cars parked on it, but no clear way for a car to drive in from the road and out again)",
    "question": "Can a car drive into every parking and out again (a drive from a street, wide and gentle enough, nothing across it, room to turn)?"
+  },
+  {
+   "id": "UL199",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Writing on the labels on the books are acceptable you can write things on them when needed (30 Oct 2026, the user on the book models of UL154: printed titles on the spines and labels are welcome)",
+   "lesson": "Writing on the labels on the books are acceptable you can write things on them when needed (30 Oct 2026, the user on the book models of UL154: printed titles on the spines and labels are welcome)",
+   "question": "Do the books carry printed titles on their spines and labels, like real books?"
   }
  ]
 }
