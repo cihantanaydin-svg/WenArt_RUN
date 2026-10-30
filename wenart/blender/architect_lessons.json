@@ -1843,13 +1843,13 @@
    "id": "UL156",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I did not like this lamp table combo (30 Oct 2026, real04 run 20261030-043021-full, living room: a tall spindly round side table on a grey four-star swivel base with a big white drum-shade lamp on an hourglass black and brass base almost as wide as the table top)",
-   "lesson": "I did not like this lamp table combo (30 Oct 2026, real04 run 20261030-043021-full, living room: a tall spindly round side table on a grey four-star swivel base with a big white drum-shade lamp on an hourglass black and brass base almost as wide as the table top)",
-   "question": null
+   "lesson": "A table lamp is chosen with its host table: its shade at most 60 % of the top's smaller side (50 % on a light pedestal, never over 75 %), beside a sofa or a bed 0.75-1.15 x the table's height, never shrunk under 85 % of its real size; no novelty lamp, no task or desk lamp beside a seat while another fits; a side table, nightstand or coffee table stands on a solid base (no office, swivel or star base outside a study: fit.stable_base); the lamp records its limits (run 20261030-043021-full: a Nelson swivel end table with an oversized drum lamp).",
+   "question": "Does every table lamp sit in proportion to its table (shade at most about 60 % of the top, real size, eye-level height beside a sofa or bed) on a solid side table that matches the room, never an office, swivel or star-base table, a novelty lamp or a work lamp beside a seat?"
   },
   {
    "id": "UL157",
@@ -1904,13 +1904,13 @@
    "id": "UL161",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I did not like these sofas here maybe used in another project but not here (30 Oct 2026, real04 run 20261030-043021-full, the L1 play, activity and rest room: two white wooden daybeds with drawers under the seat and panelled backs face each other as the room's sofas)",
-   "lesson": "I did not like these sofas here maybe used in another project but not here (30 Oct 2026, real04 run 20261030-043021-full, the L1 play, activity and rest room: two white wooden daybeds with drawers under the seat and panelled backs face each other as the room's sofas)",
-   "question": null
+   "lesson": "A daybed (a day bed, trundle, guest bed or futon) is never the sofa, corner sofa or chaise of a living, dining, hall or balcony room (fit.daybed_room), unless the piece itself asks for a daybed in a cottage, farmhouse, scandinavian, rustic or coastal family; guest, child's and study rooms keep daybeds; an agent pin to one is refused with the reason (run 20261030-043021-full: two HEMNES daybeds as the play room's sofas).",
+   "question": "Is every sofa of a living, lounge, family or play-and-rest room an upholstered sofa in the room's style, never a bed-like daybed with drawers (daybeds only in guest, child's or study rooms, or when the brief asks for one)?"
   },
   {
    "id": "UL162",
