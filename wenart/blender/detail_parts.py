@@ -15,7 +15,8 @@ LEDs and objects together, so the build makes one object per detail: lesson UL11
 - ``vase_with_stems`` (a ``vase`` with ``stems: pampas``, H4): a tabletop vase with pampas, inside its item box.
 - ``art_leaning_parts`` (``art_leaning``, R5): a large frame leaning on the floor against the wall, its lean set so
   its top rests on the wall; a canvas with a simple abstract composition (the item's colour).
-- ``bag_parts`` (``bag``, R29): a weekend duffle bag with its handles and zip.
+- ``bag_parts`` (``bag``, R29): a weekend holdall (UL160: ``wenart.blender.holdall``: leather handles, tabs,
+  piping, zips, a front pocket, a shoulder strap).
 - ``desk_wall_unit_parts`` (``desk_wall_unit``, R27): a floating shelf with books and a small plant, wall cabinets
   with flat push-open doors over it and an LED strip under them.
 - ``intercom_parts`` (``intercom``, H2): a video door station's indoor monitor: a dark glass screen, a camera, two
@@ -316,16 +317,13 @@ def art_leaning_parts(w: float, d: float, h: float, item: Optional[dict] = None)
     return contain(up, w, d, h)
 
 
-def bag_parts(w: float, d: float, h: float) -> list[Part]:
-    """R29: a weekend duffle bag lying on the floor."""
-    body_h = h * 0.82
-    parts = [_superellipsoid(0.0, 0.0, 0.0, w, d, body_h, 0.55, 0.45, "colour_fabric", "body", n_eta=10, n_om=24),
-             _box(0.0, 0.0, body_h * 0.96, w * 0.62, 0.008, 0.006, "dark", "zip")]
-    for sx in (-1.0, 1.0):
-        x = sx * w * 0.18
-        parts.append(_rod((x, -d * 0.12, body_h * 0.9), (x, 0.0, h - 0.008), 0.007, "dark", "strap", n=6))
-        parts.append(_rod((x, 0.0, h - 0.008), (x, d * 0.12, body_h * 0.9), 0.007, "dark", "strap", n=6))
-    return contain(parts, w, d, h)
+def bag_parts(w: float, d: float, h: float, item: Optional[dict] = None) -> list[Part]:
+    """R29: a weekend holdall lying on the floor (30 Oct 2026, UL160: ``holdall.holdall_parts``: a soft barrel body
+    with a leather base, piped end panels, a top zip with its pull and garage tabs, rolled leather handles on riveted
+    tabs held by a wrap, a front pocket, a shoulder strap clipped to D-rings and lying on the floor, base studs)."""
+    from wenart.blender import holdall as HD
+
+    return contain(HD.holdall_parts(w, d, h, item), w, d, h)
 
 
 def desk_wall_unit_parts(w: float, d: float, h: float, item: Optional[dict] = None) -> list[Part]:
@@ -579,7 +577,7 @@ def detail_parts(dtype: str, w: float, d: float, h: float, item: Optional[dict] 
     if dtype == "art_leaning":
         return art_leaning_parts(w, d, h, item)
     if dtype == "bag":
-        return bag_parts(w, d, h)
+        return bag_parts(w, d, h, item)
     if dtype == "desk_wall_unit":
         return desk_wall_unit_parts(w, d, h, item)
     raise KeyError(f"no detail builder for {dtype!r}")

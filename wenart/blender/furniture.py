@@ -686,6 +686,8 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "front": (trim, None, None), "handle": ("steel_brushed", None, None), "marble": ("marble", None, None),
         "pot": ("terracotta", None, None), "bulb": ("ceramic_white", None, None),
         "rattan": ("rattan", None, None),
+        # 30 Oct 2026 (UL160): a holdall's tan leather handles, tabs, piping and base band (holdall.LEATHER)
+        "leather": ("leather_tan", None, None),
         # 29 Oct 2026 (lesson UL93): a laptop's or a monitor's screen; the build gives the key its own material (a
         # dark glossy panel with a faint lit wallpaper: ``_Materials.get`` -> materials.screen_material), the dark
         # lacquer is the slug its records name; a TV's screen (UL99) takes the same material
