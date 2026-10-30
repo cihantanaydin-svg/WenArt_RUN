@@ -692,6 +692,9 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         # dark glossy panel with a faint lit wallpaper: ``_Materials.get`` -> materials.screen_material), the dark
         # lacquer is the slug its records name; a TV's screen (UL99) takes the same material
         "screen": ("screen_black", None, None),
+        # 30 Oct 2026 (UL175): the desktop a switched-on screen shows (materials.screen_ui_material; the record's slug
+        # is the screen's)
+        "screen_ui": ("screen_black", None, None),
         # 29 Oct 2026 (UL106): the sheer layer of a layered curtain (materials.sheer_material: see-through voile)
         "sheer": (SHEER_SLUG, None, None),
         # 29 Oct 2026 (UL114, UL123, UL124: the bathroom details): an LED strip (the build gives the key its own
@@ -1315,6 +1318,9 @@ class _Materials:
         if key == "screen":                       # 29 Oct 2026 (UL93): a screen with a faint lit wallpaper
             from wenart.blender import materials as M
             return M.screen_material()
+        if key == "screen_ui":                    # 30 Oct 2026 (UL175): the light windows, bars and dock on it
+            from wenart.blender import materials as M
+            return M.screen_ui_material()
         if key == "led":                          # 29 Oct 2026 (UL114): an LED strip at a fixture shade's radiance
             from wenart.blender import materials as M
             return M.led_material()

@@ -2582,6 +2582,39 @@ SCREEN_WALLPAPER: tuple[tuple[float, tuple[float, float, float]], ...] = (
 SCREEN_GRADIENT_TURN_RAD = 0.6    # the gradient runs across the screen and up it (about Y of the generated coordinates)
 
 
+# 30 Oct 2026 (UL175, user: "laptop and stationary can be more detailed models they are too plain"): the desktop a
+# switched-on screen shows (``desk_parts.desktop_parts``, key ``screen_ui``): its windows, menu bar and dock, a cool
+# light grey emitted at SCREEN_UI_EMISSION: 0.26 scene-linear at most, a little over the wallpaper's 0.2, far under a
+# fixture shade (lighting.SHADE_EMISSION_WM2SR), so the windows read as lit and light nothing.
+SCREEN_UI_MATERIAL = "wenart_screen_ui"
+SCREEN_UI_RGB = (0.80, 0.82, 0.86)
+SCREEN_UI_EMISSION = 0.3
+
+
+def screen_ui_material(name: str = SCREEN_UI_MATERIAL):
+    """The material of a screen's desktop windows and bars (bpy; notes above): the screen's dark glossy base emitting
+    ``SCREEN_UI_RGB`` at ``SCREEN_UI_EMISSION``; one material for every screen of the scene (cached by ``name``)."""
+    import bpy
+
+    mat = bpy.data.materials.get(name)
+    if mat is not None:
+        return mat
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    bsdf = _bsdf_of(mat) or mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+    _set_input(bsdf, "Base Color", (*SCREEN_BASE_RGB, 1.0))
+    _set_input(bsdf, "Roughness", SCREEN_ROUGHNESS)
+    if not _set_input(bsdf, "Emission Color", (*SCREEN_UI_RGB, 1.0)):
+        _set_input(bsdf, "Emission", (*SCREEN_UI_RGB, 1.0))
+    _set_input(bsdf, "Emission Strength", SCREEN_UI_EMISSION)
+    try:
+        mat.cycles.emission_sampling = "NONE"
+    except AttributeError:                 # an older Blender without the setting
+        pass
+    mat["wenart_screen"] = SCREEN_UI_EMISSION
+    return mat
+
+
 def screen_material(name: str = SCREEN_MATERIAL):
     """The material of a laptop's or a monitor's screen (bpy; module notes above): a Principled BSDF of
     ``SCREEN_BASE_RGB`` at ``SCREEN_ROUGHNESS`` whose emission colour is the ``SCREEN_WALLPAPER`` gradient at
