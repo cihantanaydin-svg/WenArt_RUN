@@ -265,6 +265,17 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   ``fridge_pos_m`` / ``fridge_w_m`` / ``fridge_piece``; never as a stove's gap) and maps them in ``sinks`` (every
   built-in piece, deferred after its run); ``built_in_fit`` gives them the built-in asset of their kind. Why: real06's
   kitchen rendered "a bare base cabinet with an empty worktop": the hob must show on the worktop with its oven.
+- Room rules and the lamp with its host, 30 Oct 2026 (user on real04 run 20261030-043021-full: "I did not like this
+  lamp table combo", UL156; tests/test_lamp_side_table_20261030.py). What: one more gate of ``use_candidates`` with the
+  room's type on the fitted copy (``room_use_context``): a side table, nightstand or coffee table whose title names an
+  office, swivel, star or rolling base is no candidate outside a study (``base_misfit``, ``rule: fit.stable_base``);
+  the agent's pin and swap are refused with the rule (``room_rule_refusal``). A table lamp
+  is fitted with its host (``fit_decor_item(host=...)``): its shade at most ``LAMP_SHADE_TOP_RATIO`` of the top's
+  smaller side (``LIGHT_BASE_SHADE_RATIO`` on a light base), beside a seat or a bed ``LAMP_HEIGHT_RATIO`` of the host's
+  height, never shrunk below ``LAMP_MIN_SCALE``; no novelty lamp and no work light beside a seat or a bed while
+  another fits (``lamp_misfit``); ``asset.pairing`` records the limits and what held. Why: the open-kitchen variant's
+  sofa side had a Nelson swivel 4-star end table under a big two-tone drum lamp, the bedrooms a 0.92 m lamp shrunk to
+  63 %; the catalogue keeps every model.
 """
 from __future__ import annotations
 
@@ -708,17 +719,73 @@ def use_context(building: Optional[dict], piece: dict) -> dict:
     return {"child_room": bool(room and room.get("room_subtype") == "child")}
 
 
-def use_candidates(piece: dict, candidates: list[dict]) -> tuple[list[dict], list[dict]]:
+# 30 Oct 2026 (lesson UL156, user on real04 run 20261030-043021-full: "I did not like this lamp table combo": the open
+# kitchen variant's living room had a Herman Miller Nelson end table, a thin top on a swivel 4-star base that reads as
+# office furniture, under a two-tone drum lamp): a side table, a nightstand or a coffee table stands on a solid base. A
+# model whose title names an office, swivel, star or rolling base (``OFFICE_BASE_WORDS``, the star-base products of
+# ``STAR_BASE_PRODUCTS``) is no candidate outside a study or office room (``WORK_ROOM_TYPES``): a gate (``base_misfit``).
+STABLE_BASE_TYPES: tuple[str, ...] = ("side_table", "nightstand", "table_coffee")
+OFFICE_BASE_WORDS: tuple[str, ...] = ("swivel", "star base", "star-base", "4-star", "5-star", "five star", "office",
+                                      "rolling", "go-cart", "castor", "castors", "caster", "casters", "wheels",
+                                      "wheeled", "trolley")
+STAR_BASE_PRODUCTS: tuple[str, ...] = ("nelson end table", "nelson small end table")
+WORK_ROOM_TYPES: tuple[str, ...] = ("other",)      # the study, the home office (``names``: calisma, study, office)
+BASE_RULE = "fit.stable_base"
+
+
+def _title_of(entry: dict) -> str:
+    return html.unescape(" ".join(str(entry.get(k) or "") for k in ("title", "name"))).lower()
+
+
+def base_misfit(entry: dict, ftype: str, room_type: Optional[str]) -> Optional[str]:
+    """UL156 (the comment above): why a side table, nightstand or coffee table model stands on a base that is no
+    furniture of a living or sleeping room (None when it does not): its title names an office, swivel, star or rolling
+    base, or a star-base product; a study or office room (``WORK_ROOM_TYPES``) keeps it."""
+    if ftype not in STABLE_BASE_TYPES or room_type in WORK_ROOM_TYPES:
+        return None
+    title = _title_of(entry)
+    hits = _named(title, OFFICE_BASE_WORDS) + _named(title, STAR_BASE_PRODUCTS)
+    if not hits:
+        return None
+    return (f"names {', '.join(dict.fromkeys(hits))}: an office, swivel, star or rolling base, not a "
+            f"{ftype.replace('_', ' ')} of a {room_type or 'living'} room (a solid base: UL156)")
+
+
+def room_use_context(building: Optional[dict], piece: dict) -> dict:
+    """UL156: the keys ``use_candidates`` reads beside ``use_context``, for a fitted copy of ``piece``:
+    ``room_type`` (its room's, lower case; None when unknown)."""
+    room = next((r for r in (building or {}).get("rooms") or [] if r.get("id") == piece.get("room_id")), None)
+    rtype = str(room.get("room_type") or "").lower() or None if room else None
+    return {"room_type": rtype}
+
+
+def use_candidates(piece: dict, candidates: list[dict], family: Optional[str] = None
+                   ) -> tuple[list[dict], list[dict]]:
     """``(kept, excluded)``: the candidates ``use_misfit`` keeps for the piece, the others with the rule and the
-    reason."""
+    reason. 30 Oct 2026: also the base rule (``base_misfit``, UL156) when the piece carries its room's type
+    (``room_use_context``)."""
     kept, excluded = [], []
+    ftype = str(piece.get("type") or "")
+    room_type = piece.get("room_type")
     for e in candidates:
-        why = use_misfit(e, str(piece.get("type") or ""), piece.get("child_room"))
+        why, rule = use_misfit(e, ftype, piece.get("child_room")), USE_RULE
+        if why is None and room_type:
+            why, rule = base_misfit(e, ftype, room_type), BASE_RULE
         if why is None:
             kept.append(e)
         else:
-            excluded.append({"id": e["id"], "reason": why, "rule": USE_RULE})
+            excluded.append({"id": e["id"], "reason": why, "rule": rule})
     return kept, excluded
+
+
+def room_rule_refusal(entry: dict, piece: dict, family: Optional[str]) -> Optional[str]:
+    """UL156: why the room rules refuse a model the agent pinned (None when they keep it); the pin's refusal names it
+    instead of the caps."""
+    room_type = piece.get("room_type")
+    if not room_type:
+        return None
+    ftype = str(piece.get("type") or "")
+    return base_misfit(entry, ftype, room_type)
 
 
 def compatible_styles(family: Optional[str]) -> Optional[set]:
@@ -1040,6 +1107,14 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                 ranked["pin_refused"] = (f"{pin}: a generated model (units guessed) while a real product of the "
                                          f"type fits within the caps ({chosen['id']})")
                 return ranked
+        room_refusal = room_rule_refusal(entry, piece, style_family) if entry is not None else None
+        if room_refusal:
+            # 30 Oct 2026 (UL156): the room rules hold for the agent's pin too; the normal ranking decides and the
+            # asset names the rule
+            asset = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family, design,
+                              mode=mode, used=used, style=style, ceiling=ceiling)
+            asset["pin_refused"] = f"{pin}: {room_refusal}"
+            return asset
         if entry is not None and C.usable(entry, mode):
             pinned = fit_piece(dict(piece, asset_pin=None), _OneModel(catalog, entry), cap, uniform_range, None,
                                design, mode=mode, used=used, style=style, ceiling=ceiling)
@@ -1184,7 +1259,7 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
         return parametric_fit(piece, reason, excluded=excluded, style_family=style_family)
     # bathroom sense of 26 Oct 2026 (``use_misfit``): no children's product outside a child's room, no product of
     # another use (a kitchen or utility sink as a washbasin)
-    candidates, use_excluded = use_candidates(piece, candidates)
+    candidates, use_excluded = use_candidates(piece, candidates, project_family or style_family)
     excluded += use_excluded
     if not candidates:
         return parametric_fit(piece, f"no {ftype} model for this room's use (every model is a children's product or "
@@ -2706,8 +2781,121 @@ def _decor_fit(entry: dict, item: dict, dtype: str) -> Optional[dict]:
             "turned_deg": 0.0, "target": "size", "non_uniform": round(non_uniform, 4)}
 
 
+# 30 Oct 2026 (lesson UL156, user: "I did not like this lamp table combo"): a table lamp is chosen with its host. Its
+# shade (the model's widest side) takes at most ``LAMP_SHADE_TOP_RATIO`` of the host top's smaller side, at most
+# ``LIGHT_BASE_SHADE_RATIO`` on a host of light visual weight (a pedestal, tripod, hairpin or wire base:
+# ``LIGHT_BASE_WORDS`` in its model's title); beside a seat or a bed (``EYE_LEVEL_HOSTS``) the lamp is
+# ``LAMP_HEIGHT_RATIO`` of the host's height, so the shade's lower edge sits near seated eye level; a real product is
+# never shrunk below ``LAMP_MIN_SCALE`` of its size (a 0.9 m lamp at 63 % reads as a toy). The rules pick among the
+# lamps that fit; when none does, the shade rule holds (never a shade wider than ``LAMP_SHADE_HARD_RATIO`` of the
+# top) and the height and scale rules are relaxed in that order (``asset.pairing`` records the limits and what held).
+LAMP_SHADE_TOP_RATIO = 0.60
+LIGHT_BASE_SHADE_RATIO = 0.50
+LAMP_SHADE_HARD_RATIO = 0.75
+LAMP_HEIGHT_RATIO = (0.75, 1.15)
+LAMP_MIN_SCALE = 0.85
+EYE_LEVEL_HOSTS: tuple[str, ...] = ("side_table", "nightstand")
+LIGHT_BASE_WORDS: tuple[str, ...] = ("pedestal", "tripod", "hairpin", "wire", "hoop", "platner", "tulip", "swivel",
+                                     "star base", "spindle")
+# ... and the pair reads as one design: a novelty lamp (an animal, a figure, a neon sign) comes only when no other fits
+NOVELTY_LAMP_WORDS: tuple[str, ...] = ("deer", "animal", "animals", "neon", "palm tree", "elvis", "presley", "skull",
+                                       "unicorn", "cartoon", "novelty", "bird", "birds", "owl", "dog", "cat", "horse")
+# ... and beside a seat or a bed a shaded table lamp, not a work light: a task, desk, banker's or swing-arm lamp, a
+# wall sconce (a title naming a desk lamp without a table lamp) comes only when no other fits
+TASK_LAMP_WORDS: tuple[str, ...] = ("task", "banker", "bankers", "architect", "clamp", "swing arm", "swing-arm",
+                                    "sconce", "sconces", "downbridge", "wall lamp", "usb port", "reading arm")
+
+
+def lamp_misfit(entry: dict, host_type: Optional[str]) -> Optional[str]:
+    """UL156: why a lamp model does not pair with its host (None when it does): a novelty lamp anywhere; a work light
+    beside a seat or a bed (``EYE_LEVEL_HOSTS``)."""
+    title = _title_of(entry)
+    hits = _named(title, NOVELTY_LAMP_WORDS)
+    if hits:
+        return f"a novelty lamp ({', '.join(dict.fromkeys(hits))})"
+    if host_type in EYE_LEVEL_HOSTS:
+        work = _named(title, TASK_LAMP_WORDS)
+        if not work and _named(title, ("desk lamp",)) and not _named(title, ("table lamp", "table desk lamp")):
+            work = ["desk lamp"]
+        if work:
+            return f"a work light ({', '.join(dict.fromkeys(work))}) beside a {str(host_type).replace('_', ' ')}"
+    return None
+PAIRING_RULE = "fit.lamp_host"
+
+
+def host_top(host: dict, catalog=None) -> tuple[Optional[float], Optional[float], bool, str]:
+    """``(top's smaller side m, height m, light_base, title)`` of a lamp's host piece (pure but for the catalogue's
+    title): its fitted model's box (``asset.bbox_m``), else its footprint and height; ``light_base`` when the model's
+    title names a light base (``LIGHT_BASE_WORDS``)."""
+    asset = host.get("asset") if isinstance(host.get("asset"), dict) else {}
+    box = asset.get("bbox_m") if isinstance(asset.get("bbox_m"), list) and len(asset.get("bbox_m")) > 2 else None
+    size = (host.get("footprint") or {}).get("size") or []
+    side = min(float(box[0]), float(box[1])) if box else (min(float(size[0]), float(size[1])) if len(size) > 1
+                                                          else None)
+    height = float(box[2]) if box else (float(host["height"]) if isinstance(host.get("height"), (int, float))
+                                        else None)
+    title = str(asset.get("title") or "")
+    if not title and catalog is not None and asset.get("asset_id"):
+        entry = getattr(catalog, "entry", lambda _i: None)(asset["asset_id"]) or {}
+        title = str(entry.get("title") or entry.get("name") or "")
+    light = bool(_named(html.unescape(title).lower(), LIGHT_BASE_WORDS))
+    return side, height, light, title
+
+
+def lamp_limits(host: Optional[dict], catalog=None) -> Optional[dict]:
+    """UL156 (the comment above): the limits a table lamp on ``host`` keeps (None without a host or its size)."""
+    if not isinstance(host, dict):
+        return None
+    side, height, light, title = host_top(host, catalog)
+    if not side or side <= 0:
+        return None
+    ratio = LIGHT_BASE_SHADE_RATIO if light else LAMP_SHADE_TOP_RATIO
+    out = {"host_id": host.get("id"), "host_type": host.get("type"), "host_top_m": round(side, 4),
+           "host_height_m": round(height, 4) if height else None, "light_base": light,
+           "shade_max_m": round(side * ratio, 4), "shade_hard_m": round(side * LAMP_SHADE_HARD_RATIO, 4),
+           "min_scale": LAMP_MIN_SCALE, "rule": PAIRING_RULE}
+    if height and host.get("type") in EYE_LEVEL_HOSTS:
+        out["height_range_m"] = [round(height * LAMP_HEIGHT_RATIO[0], 4), round(height * LAMP_HEIGHT_RATIO[1], 4)]
+    return out
+
+
+def lamp_pairing(fits: list, item: dict, limits: dict) -> tuple[list, dict]:
+    """``(pool, record)``: the lamp models of ``fits`` (``(entry, fit)`` pairs, fitted to the item's box) that keep the
+    host's ``limits`` (``lamp_limits``): the shade, the height range and the scale; when none keeps all, the shade and
+    the height, then the shade alone (never wider than ``shade_hard_m``); an empty pool when no model keeps that."""
+    def shade(f):
+        return max(float(f["bbox_m"][0]), float(f["bbox_m"][1]))
+
+    def tall_ok(f):
+        rng = limits.get("height_range_m")
+        return rng is None or rng[0] - 1e-9 <= float(f["bbox_m"][2]) <= rng[1] + 1e-9
+
+    def scale_ok(f):
+        return float(f["fit_scale"][0]) >= limits["min_scale"] - 1e-9
+
+    steps = (("shade, height and real size", lambda f: shade(f) <= limits["shade_max_m"] + 1e-9 and tall_ok(f)
+              and scale_ok(f)),
+             ("shade and height (the lamp scaled below its real size)",
+              lambda f: shade(f) <= limits["shade_max_m"] + 1e-9 and tall_ok(f)),
+             ("shade (no lamp of the eye-level height fits)", lambda f: shade(f) <= limits["shade_max_m"] + 1e-9),
+             ("the hard shade limit only", lambda f: shade(f) <= limits["shade_hard_m"] + 1e-9))
+    record = dict(limits, refused=[e["id"] for e, f in fits if shade(f) > limits["shade_hard_m"] + 1e-9])
+    for name, ok in steps:
+        pool = [(e, f) for e, f in fits if ok(f)]
+        if pool:
+            record["held"] = name
+            misfits = {e["id"]: why for e, _f in pool for why in [lamp_misfit(e, limits.get("host_type"))] if why}
+            plain = [(e, f) for e, f in pool if e["id"] not in misfits]
+            if plain and misfits:
+                record["misfits_dropped"] = dict(sorted(misfits.items()))
+                pool = plain
+            return pool, record
+    record["held"] = "none: no lamp model keeps the shade under the host's top (the parametric lamp)"
+    return [], record
+
+
 def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
-                   mode: str = "commercial") -> Optional[dict]:
+                   mode: str = "commercial", host: Optional[dict] = None) -> Optional[dict]:
     """``asset`` for a decor item (docs/milestone8.md §4): one of the catalogue's decor models of its type
     and of the style family or neutral (``decor_entries``, ``decor_styles_match``) that fits the item
     (``_decor_fit``), picked deterministically by the host id (``pick_index`` of ``decor_pick_key``); None
@@ -2728,7 +2916,19 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
         return None      # 30 Oct 2026 (P16, UL153): our dining fixture and centrepiece set (salon_parts), by design
     styled = [e for e in decor_entries(catalog, dtype, mode) if decor_styles_match(e, style_family)
               and C.contact_fits(e, dtype)]               # Milestone 12: the audited contact suits the type
-    fits = [(e, f) for e in styled for f in [_decor_fit(e, item, dtype)] if f is not None]
+    limits = lamp_limits(host, catalog) if dtype == "table_lamp" else None
+    box_item = item
+    if limits:                                        # 30 Oct 2026 (UL156): the lamp in proportion to its host
+        size = [float(v) if v else None for v in item["size"][:3]] + [None] * (3 - len(item["size"][:3]))
+        rng = limits.get("height_range_m")
+        size[0], size[1] = min(size[0], limits["shade_hard_m"]), min(size[1], limits["shade_hard_m"])
+        if rng:
+            size[2] = min(size[2], rng[1]) if size[2] else rng[1]
+        box_item = dict(item, size=size)
+    fits = [(e, f) for e in styled for f in [_decor_fit(e, box_item, dtype)] if f is not None]
+    pairing = None
+    if limits:
+        fits, pairing = lamp_pairing(fits, box_item, limits)
     if dtype in FLOOR_CLASS_FIT_TYPES and not item.get("host_id"):
         # 30 Oct 2026 (lesson UL151, user: "this vase on the floor not making sense"): a floor piece's model is tall
         # enough and no table piece (real04's kitchen plant was "Flowers (Plants)", a vase of flowers, 0.54 m)
@@ -2770,6 +2970,8 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None, *,
     }
     if role_why:
         asset["pick"]["fixture"] = role_why
+    if pairing:
+        asset["pairing"] = pairing                    # UL156: the host's limits and which of them held
     if asset["library"] != "polyhaven" and entry.get("glb"):
         asset.update({k: entry[k] for k in GLB_ASSET_FIELDS if k in entry})
         asset["unit_scale"] = float(entry.get("unit_scale") or 1.0)
@@ -3193,6 +3395,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
             elif room_types.get(piece.get("room_id")):
                 target = dict(target, open_air_room=False)    # 26 Oct 2026 (fix E): a known indoor room
             target = dict(target, **use_context(fitted, piece))   # bathroom sense of 26 Oct 2026: a child's room
+            target = dict(target, **room_use_context(fitted, piece))   # 30 Oct 2026 (UL156): the room's type
             # 26 Oct 2026 (fix D): a member of a role set takes the set's one model (role_set_fit), else its own fit
             asset = role_set_fit(piece, target, design, used) if piece.get("id") in set_of else None
             if asset is None:
@@ -3269,7 +3472,8 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     for piece in walls_after:
         fit_one(piece, extra_hints=wall_run_hints(piece, wall_cabinet_run(fitted, piece), fitted))
     for item in fitted.get("decor") or []:
-        item["asset"] = fit_decor_item(item, catalog, style_family=style_family, mode=mode)
+        item["asset"] = fit_decor_item(item, catalog, style_family=style_family, mode=mode,
+                                       host=by_id.get(item.get("host_id")))     # UL156: a lamp with its host
     if taste_cache is not None:
         taste_cache.save()
         project["taste"] = {"target": {k: v for k, v in taste_target.items() if k != "palette"},

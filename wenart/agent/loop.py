@@ -1791,7 +1791,9 @@ class AgentLoop:
             from wenart.furniture import edit_ops as EO
             source = fitted if isinstance(fitted, dict) else building
             try:
-                asset = F.fit_piece(dict(piece, build=True), ctx.catalog(), mode=EO.licence_mode_of(source),
+                # 30 Oct 2026 (UL156): the room's type, as fit_building fits the piece (the room rules)
+                asset = F.fit_piece(dict(piece, build=True, **F.room_use_context(source, piece)), ctx.catalog(),
+                                    mode=EO.licence_mode_of(source),
                                     style_family=EO._style_family_of(source), ceiling=ceiling)
             except Exception:  # noqa: BLE001 - a prediction only: the piece keeps its box
                 asset = None
