@@ -150,6 +150,56 @@ def _frame(f: dict):
     return c, u, fwd, w, d
 
 
+# 30 Oct 2026 (lesson UL201, the user's reference photo of a shower): an end of a shower this near the room's outline
+# stands on a wall; a free end gets a fixed glass side panel
+SHOWER_WALL_REACH_M = 0.12
+
+
+def shower_sides(piece: dict, room: dict) -> dict:
+    """``{"left", "right", "front": "wall" | "glass"}`` of a shower in its own frame (front -Y, left -X; pure, UL201):
+    an end whose middle lies within ``SHOWER_WALL_REACH_M`` of the room's outline stands on a wall, else it is open
+    and glazed; the front is glazed unless a wall runs along it."""
+    from shapely.geometry import LineString, Point
+
+    poly = room.get("polygon") or []
+    fp = piece.get("footprint") or {}
+    if len(poly) < 3 or not fp.get("center") or not fp.get("size"):
+        return {"left": "wall", "right": "wall", "front": "glass"}
+    ring = LineString([tuple(q[:2]) for q in poly] + [tuple(poly[0][:2])])
+    a = math.radians(float(fp.get("rotation_deg") or 0.0))
+    ux, uy = math.cos(a), math.sin(a)
+    nx, ny = -math.sin(a), math.cos(a)                    # local +Y (the back)
+    cx, cy = float(fp["center"][0]), float(fp["center"][1])
+    w, d = float(fp["size"][0]), float(fp["size"][1])
+
+    def side(px: float, py: float) -> str:
+        return "wall" if ring.distance(Point(px, py)) <= SHOWER_WALL_REACH_M else "glass"
+    return {"left": side(cx - ux * w / 2.0, cy - uy * w / 2.0), "right": side(cx + ux * w / 2.0, cy + uy * w / 2.0),
+            "front": side(cx - nx * d / 2.0, cy - ny * d / 2.0)}
+
+
+def shower_entry(piece: dict, room: dict) -> dict:
+    """In place (UL201): a shower whose front stands on a wall and that has exactly one open end is turned so that
+    open side becomes its front (the way in; ``adjusted_by_ai`` by code, the drawn footprint and front kept); returns
+    its ``shower_sides`` after."""
+    sides = shower_sides(piece, room)
+    open_ends = [k for k in ("left", "right") if sides.get(k) == "glass"]
+    if sides.get("front") != "wall" or len(open_ends) != 1 or piece.get("front_deg") is None:
+        return sides
+    from wenart.furniture import infer as INF
+
+    front = float(piece["front_deg"])
+    new = (front - 90.0 if open_ends[0] == "left" else front + 90.0) % 360.0
+    piece.setdefault("drawn_footprint", dict(piece["footprint"]))
+    piece.setdefault("drawn_front_deg", piece.get("front_deg"))
+    INF.set_front(piece, new)
+    INF.merge_code_label(piece, {"by": "code", "stage": "layout", "rule": "bath_details.shower_entry",
+                                 "reason": f"{piece['id']}: its front stood on a wall, its {open_ends[0]} side open: "
+                                           f"the way in turned to that side ({new:.0f} deg; UL201)",
+                                 "changed": {"front_deg": front}})
+    return shower_sides(piece, room)
+
+
 def _poly(f: dict):
     return placer.piece_from_furniture(f).polygon()
 
@@ -360,8 +410,13 @@ def plan_room(building: dict, room: dict, spec: dict, why: str) -> dict:
             else:
                 note = f"the {spec['family']} family keeps a closed storage column"
         elif ftype == "shower":
-            look.update(shower="walk_in", made_to_measure=True)
-            note = "a walk-in glass enclosure with a rain head, a hand shower, a mixer and a linear drain (B16)"
+            sides = shower_entry(p, room)
+            look.update(shower="walk_in", made_to_measure=True, level_access=True, shower_sides=sides)
+            ends = [k for k in ("left", "right") if sides.get(k) == "glass"]
+            note = ("a level-access walk-in glass enclosure (the room's tiles running in, a flush linear drain), "
+                    + ("a fixed glass panel on its open " + " and ".join(ends) + " end" + ("s" if len(ends) > 1 else "")
+                       + ", " if ends else "")
+                    + "a rain head, a hand shower on a slide bar, a bar mixer (B16, UL201)")
         elif ftype not in ("bathtub", "washing_machine"):
             continue
         look["reason"] = f"{note or ftype}; {why} (UL114)"

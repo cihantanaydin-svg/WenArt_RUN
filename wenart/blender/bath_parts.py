@@ -965,7 +965,14 @@ def column_items(h: float) -> list[str]:
 # B16: the walk-in shower
 # --------------------------------------------------------------------------
 
-SHOWER_TRAY_T_M = 0.025           # a low stone tray (almost flush)
+SHOWER_TRAY_T_M = 0.025           # a low stone tray (almost flush): the look without ``level_access``
+# 30 Oct 2026 (lesson UL201, the user's reference photo of a shower): a level-access shower, the room's floor tiles
+# running in under the glass (no tray, no step), a linear drain grating flush with the floor at the back wall; the
+# glass on every open side (``shower_sides``: an end of the shower that stands free of the room's walls gets a fixed
+# side panel, the top rail turning the corner over it), the sliding door with a bar pull on two stand-offs
+DRAIN_T_M = 0.003                 # the drain grating, flush with the floor
+DRAIN_W_M = 0.06
+SIDE_CLAMP_M = (0.03, 0.02, 0.05) # the wall clamps of a side panel
 GLASS_T_M = 0.008
 SLIDING_MIN_W_M = 1.0             # a shower at least this wide gets a sliding panel on a top rail; a narrower one a
                                   # fixed walk-in screen (B16: "fixed or sliding by its width")
@@ -976,33 +983,55 @@ MIXER_Z_M = 1.05
 TOWEL_BAR_Z_M = 1.25
 
 
-def walk_in_shower_parts(w: float, d: float, h: float) -> list[Part]:
-    """B16: the walk-in shower in its drawn footprint ``w x d`` (front -Y, the back wall +Y): the tray and linear
-    drain, the glass front (a fixed panel, a sliding one on a top rail with rollers and a pull handle when wide), the
-    rain head on its arm, the hand shower on its rail with the hose, the thermostatic mixer and a towel bar."""
+def walk_in_shower_parts(w: float, d: float, h: float, look: Optional[dict] = None) -> list[Part]:
+    """B16: the walk-in shower in its drawn footprint ``w x d`` (front -Y, the back wall +Y): the floor (UL201: level
+    access by default, the room's tiles running in, a flush linear drain; ``look["level_access"]`` False: the low stone
+    tray), the glass front (a fixed panel, a sliding one on a top rail with rollers and a bar pull when wide), a fixed
+    glass panel on each open end (``look["shower_sides"]``: ``left`` / ``right`` ``glass``, the rail turning the
+    corner over it), the rain head on its arm, the hand shower on its rail with the hose, the thermostatic mixer and a
+    towel bar."""
+    look = look if isinstance(look, dict) else {}
     h = max(1.9, float(h or 2.0))
     back = d / 2.0
     sliding = w >= SLIDING_MIN_W_M - 1e-9
     gy = -d / 2.0 + GLASS_T_M / 2.0 + (0.06 if sliding else 0.01)   # the sliding panel and its rollers inside too
-    gh = min(h, 2.0) - SHOWER_TRAY_T_M
-    parts = [P._box(0.0, 0.0, 0.0, w, d, SHOWER_TRAY_T_M, "stone_light", "tray"),
-             P._box(0.0, back - 0.06, SHOWER_TRAY_T_M, w - 0.10, 0.05, 0.002, "steel", "drain")]
+    level = look.get("level_access", True) is not False
+    base = 0.0 if level else SHOWER_TRAY_T_M
+    gh = min(h, 2.0) - base
+    if level:
+        parts = [P._box(0.0, back - 0.06, 0.0, w - 0.10, DRAIN_W_M, DRAIN_T_M, "handle", "drain")]
+    else:
+        parts = [P._box(0.0, 0.0, 0.0, w, d, SHOWER_TRAY_T_M, "stone_light", "tray"),
+                 P._box(0.0, back - 0.06, SHOWER_TRAY_T_M, w - 0.10, 0.05, 0.002, "steel", "drain")]
+    sides = look.get("shower_sides") if isinstance(look.get("shower_sides"), dict) else {}
+    open_ends = [sg for sg, key in ((-1.0, "left"), (1.0, "right")) if sides.get(key) == "glass"]
+    rail_z = base + gh - 0.04
     if sliding:
         half = w / 2.0
-        parts.append(P._box(-w / 4.0, gy, SHOWER_TRAY_T_M, half, GLASS_T_M, gh - 0.04, "glass", "glass"))
-        parts.append(P._box(w / 4.0 - 0.03, gy - 0.022, SHOWER_TRAY_T_M + 0.01, half, GLASS_T_M, gh - 0.06, "glass",
-                            "glass"))
-        rail_z = SHOWER_TRAY_T_M + gh - 0.04
+        parts.append(P._box(-w / 4.0, gy, base, half, GLASS_T_M, gh - 0.04, "glass", "glass"))
+        parts.append(P._box(w / 4.0 - 0.03, gy - 0.022, base + 0.01, half, GLASS_T_M, gh - 0.06, "glass", "glass"))
         parts.append(P._box(0.0, gy - 0.011, rail_z, w, 0.03, 0.03, "handle", "rail"))
         for rx in (w / 4.0 - 0.03 - half / 2.0 + 0.08, w / 4.0 - 0.03 + half / 2.0 - 0.08):
-            parts.append(P._cylinder_y(rx, gy - 0.034, rail_z - 0.012, 0.022, 0.022, 0.008, "handle", "roller", n=16))
-        parts.append(P._box(w / 4.0 - 0.03 - half / 2.0 + 0.06, gy - 0.034, 0.95, 0.018, 0.02, 0.35, "handle",
-                            "handle"))
+            parts.append(P._cylinder_y(rx, gy - 0.034, rail_z - 0.012, 0.03, 0.03, 0.008, "handle", "roller", n=16))
+        # the bar pull on two stand-offs (UL201), on the sliding panel's leading edge
+        px = w / 4.0 - 0.03 - half / 2.0 + 0.07
+        parts += [P._box(px, gy - 0.05, 0.85, 0.02, 0.012, 0.40, "handle", "handle"),
+                  P._box(px, gy - 0.038, 0.89, 0.012, 0.024, 0.012, "handle", "handle"),
+                  P._box(px, gy - 0.038, 1.21, 0.012, 0.024, 0.012, "handle", "handle")]
     else:
         sw = max(0.3, w * 0.7)
-        parts.append(P._box(-w / 2.0 + sw / 2.0, gy, SHOWER_TRAY_T_M, sw, GLASS_T_M, gh, "glass", "glass"))
-        parts.append(P._box(-w / 2.0 + sw / 2.0, gy, SHOWER_TRAY_T_M + gh - 0.02, sw, 0.02, 0.02, "handle", "rail"))
-        parts.append(P._box(-w / 2.0 + sw - 0.01, gy, SHOWER_TRAY_T_M, 0.02, 0.03, gh, "handle", "profile"))
+        parts.append(P._box(-w / 2.0 + sw / 2.0, gy, base, sw, GLASS_T_M, gh, "glass", "glass"))
+        parts.append(P._box(-w / 2.0 + sw / 2.0, gy, base + gh - 0.02, sw, 0.02, 0.02, "handle", "rail"))
+        parts.append(P._box(-w / 2.0 + sw - 0.01, gy, base, 0.02, 0.03, gh, "handle", "profile"))
+    for sg in open_ends:
+        # a fixed side panel from the front glass to the back wall, its wall clamps, the rail over it (UL201)
+        sx = sg * (w / 2.0 - 0.016)                       # the glass in the middle of its 3 cm rail and clamps
+        y0, y1 = gy + 0.01, back - 0.005
+        parts.append(P._box(sx, (y0 + y1) / 2.0, base, GLASS_T_M, y1 - y0, gh - 0.04, "glass", "glass"))
+        parts.append(P._box(sx, (y0 + y1) / 2.0, rail_z, 0.03, y1 - y0, 0.03, "handle", "rail"))
+        cw, cd, ch = SIDE_CLAMP_M
+        for cz in (0.30, gh - 0.30):
+            parts.append(P._box(sx, back - cd / 2.0 - 0.002, base + cz, cw, cd, ch, "handle", "clamp"))
     # the rain head on its wall arm
     arm = max(0.15, min(0.40, d * 0.45))
     rw, rd, rt = RAIN_HEAD_M

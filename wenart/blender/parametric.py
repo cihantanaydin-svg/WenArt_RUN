@@ -1236,7 +1236,7 @@ def _shower_m14(w: float, d: float, h: float, piece: dict | None = None) -> list
     look = (piece or {}).get("bath_look") if isinstance((piece or {}).get("bath_look"), dict) else {}
     if look.get("shower") == "walk_in":
         from wenart.blender import bath_parts as BT
-        return BT.walk_in_shower_parts(w, d, h)
+        return BT.walk_in_shower_parts(w, d, h, look)
     return _shower(w, d, h)
 
 
