@@ -3600,15 +3600,10 @@ def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None
         return blind_parts(w, d, h, kind=str((item or {}).get("blind_kind") or "roller"))
     if dtype == "throw":                      # without a host: a flat cloth with its folds (on a host: textiles.drape)
         return [flat_cloth(w, d, min(h, CLOTH_THICKNESS_M * 2.0))]
-    if dtype == "books":                      # a stack of three books lying flat
-        keys = ("dark", "painted", "terracotta")
-        parts, z = [], 0.0
-        bh = h / 3.0
-        for i in range(3):
-            s = 1.0 - 0.08 * i
-            parts.append(_box(0.01 * (i % 2), 0.0, z, w * s, d * s, bh - 0.002, keys[i], "book"))
-            z += bh
-        return parts
+    if dtype == "books":                      # a stack of three books lying flat (UL154: real-looking books)
+        from wenart.blender import book_parts as BK
+        from wenart.blender import detail_parts as DP
+        return DP.contain(BK.stack(0.0, 0.0, 0.0, w * 0.94, d * 0.94, h, n=3, seed=3), w, d, h)
     if dtype == "candle":                     # three pillar candles on a plate, a flame each (lit at evening)
         rr = r * 0.32
         plate = 0.012
@@ -3932,6 +3927,22 @@ LARGE_DECOR_TYPES = LARGE_DECOR_TYPES + ("panel_wall", "wall_discs")
 DECOR_DEFAULT_HEIGHT.update({"panel_wall": 2.6, "wall_discs": 0.72})
 for _role, _r in (("lining", 0.0), ("disc", 0.003), ("bar", 0.002), ("candle", 0.002), ("stripe", 0.0)):
     BEVEL_BY_ROLE.setdefault(_role, _r)                              # new roles only: the others keep their radius
+# 30 Oct 2026 (UL154): real-looking books (``wenart.blender.book_parts``): the cream page block and paper labels (the
+# ``paper`` key), the cover boards (role ``book``), the round spine and its bands (no bevel: already round)
+MATERIAL_KEYS = MATERIAL_KEYS + ("paper",)
+BEVEL_BY_ROLE.update({"book_spine": 0.0, "pages": 0.001})
+
+
+def plain_key(key: str) -> str:
+    """The ``MATERIAL_KEYS`` key a part key stands for (pure): without its ``lit:``, ``accent_`` or ``colour_``
+    prefix; a ``cloth:`` key (a garment's, a book cover's: the fabric in a colour) is ``fabric``."""
+    key = key.split(":", 1)[1] if key.startswith("lit:") else key
+    if key.startswith("cloth:"):
+        return "fabric"
+    for prefix in (ACCENT_PREFIX, COLOUR_PREFIX):
+        if key.startswith(prefix):
+            return key[len(prefix):]
+    return key
 
 
 SUSPENSION_CORD_R_M = 0.004       # the cord of a hung light (as the parametric pendant's)
@@ -4054,15 +4065,9 @@ def decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None = No
         if d > h:                                  # lying (an ottoman's, a bench's): thickness = the height
             return [lying_cushion_mesh(w, d, h, key="fabric", role="body")]
         return [cushion_mesh(w, d, h, key="fabric", role="body")]
-    if dtype == "book_set":
-        parts = []
-        n = max(2, min(6, int(w / 0.04)))
-        bw = w / n
-        keys = ("dark", "painted", "wood", "terracotta")
-        for i in range(n):
-            bh = h * (0.75 + 0.25 * ((i * 7) % 3) / 2.0)
-            parts.append(_box(-w / 2.0 + bw * (i + 0.5), 0.0, 0.0, bw - 0.004, d, bh, keys[i % len(keys)], "book"))
-        return parts
+    if dtype == "book_set":                   # standing books (UL154: real-looking books, ``book_parts.row``)
+        from wenart.blender import book_parts as BK
+        return DP.contain(BK.row(-w / 2.0, w / 2.0, 0.0, 0.0, d, h, seed=1, lean=False), w, d, h)
     if dtype == "plant":
         r = min(w, d) / 2.0
         pot_h = h * 0.35

@@ -705,6 +705,9 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         # 29 Oct 2026 (UL113, UL115): dried pampas plumes (a cream linen); the reference details' LED strips take
         # the "led" key above (detail_parts.led_strip_material is materials.led_material)
         "pampas": ("fabric_linen", asset_of("fabric_linen"), None),
+        # 30 Oct 2026 (UL154): a book's cream page block and paper labels (book_parts; the covers are bookcloth:
+        # ``cloth:linen:<colour>`` keys, the bedding's linen in a cover colour)
+        "paper": ("book_pages", None, None),
     }
     # 29 Oct 2026 (UL121, R35): the bedding's fabric looks and woven patterns (``textile_<look>``; a throw pair's second
     # blanket ``runner_<look>``): linen keeps its Poly Haven scan, the others are the procedural weaves

@@ -387,3 +387,26 @@ def test_a_throw_the_host_shows_through_is_not_built():
     ok, why = R.rest_ok({"gap_m": 0.0, "penetration_m": 0.02, "support_share": 1.0, "soft": True})
     assert ok                                                          # a cushion may sink 2 cm into a soft seat
     assert not R.rest_ok({"gap_m": 0.0, "penetration_m": 0.02, "support_share": 1.0, "soft": True, "cloth": True})[0]
+
+
+def test_a_hard_item_rests_wholly_on_the_level_top_never_on_a_raised_lip():
+    """UL165 (30 Oct 2026, real04 run 20261030-043021-full): a book stack on a coffee table with raised curved edges
+    hung half over the raised edge. A hard item needs its whole footprint on a level top (every ray out to its edges
+    hitting, the hits level), moving in towards the host centre until it is."""
+    lip = 0.04
+    table = boxes_mesh([(-0.5, -0.5, 0.30, 0.5, 0.5, 0.34),                 # the flat top
+                        (-0.5, -0.5, 0.34, -0.5 + lip, 0.5, 0.40),          # a raised lip on each side (x)
+                        (0.5 - lip, -0.5, 0.34, 0.5, 0.5, 0.40),
+                        (-0.5, -0.5, 0.0, -0.46, 0.5, 0.30), (0.46, -0.5, 0.0, 0.5, 0.5, 0.30)])
+    caster = R.MeshCaster(*table)
+    books = (0.24, 0.17, 0.11)
+    pose = R.place_on_top(caster, (0.40, 0.0), books, 0.0, False, host_center=(0.0, 0.0))
+    assert pose is not None and pose["z"] == pytest.approx(0.34) and pose.get("level")
+    assert pose["center"][0] + books[0] / 2.0 <= 0.5 - lip + 0.003         # wholly inside the lips (2 % of a side)
+    # past the edge: the same rule pulls it in, never leaves it overhanging
+    out = R.place_on_top(caster, (0.55, 0.3), books, 0.0, False, host_center=(0.0, 0.0))
+    assert out is not None and out["center"][0] + books[0] / 2.0 <= 0.5 - lip + 0.003
+    assert out["center"][1] + books[1] / 2.0 <= 0.5 + 1e-6
+    # a soft item (a throw) keeps the old rule (it drapes)
+    soft = R.place_on_top(caster, (0.40, 0.0), books, 0.0, True, host_center=(0.0, 0.0))
+    assert soft is not None

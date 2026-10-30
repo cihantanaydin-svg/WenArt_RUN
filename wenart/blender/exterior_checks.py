@@ -1157,7 +1157,20 @@ def validate_exterior_override(building: dict, override: dict) -> dict:
     if override.get("ground") is not None:
         failed += _look_problems("ground", override["ground"])
     failed += sun_override_problems(building, override.get("sun") or {})
+    failed += front_court_problems(override.get("site") or {})
     return {"ok": not failed, "failed": failed}
+
+
+def front_court_problems(site: dict) -> list[str]:
+    """30 Oct 2026 (lesson UL158; real04 run 20261030-043021-full: an Argus edit "add site items" also set
+    ``front_court: yes`` and the paved strip at the foot of the basement glazing became a 3 m sunken court with 0.9 m
+    white parapets): a sunken court is the documents' or the brief's decision; an edit may keep ``auto`` or set
+    ``no``, never ``yes`` (pure)."""
+    if isinstance(site, dict) and site.get("front_court") == "yes":
+        return ["site front_court yes: a sunken front court with parapet walls is the documents' or the brief's "
+                "decision, never an edit's (the paved light well and its strip along the glazing stay); leave "
+                "front_court out or use auto"]
+    return []
 
 
 def sun_override_problems(building: dict, sun: dict, main: Optional[dict] = None) -> list[str]:

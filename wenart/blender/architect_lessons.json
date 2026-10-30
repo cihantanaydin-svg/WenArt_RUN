@@ -1814,6 +1814,175 @@
    "request": "salon inspiration (30 Oct 2026, photo P16: a living-dining room: full-height handle-less wall panels with a black-lined lit niche, a very large framed line-art print over a plank wood dining table on black trapezoid legs, green velvet chairs, a fringed rug, black ceiling track spots with mini pendants over the table, black round wall discs, a TV on a plain wall over a low floating wood console with a black fluted strip, tall narrow black-lined lit shelf niches beside it, a black slat column by the passage, two sculptural boucle armchairs, a round travertine drum coffee table, a round striped rug, sheer curtains, herringbone oak)",
    "lesson": "Every living or dining room of the modern-warm families (modern, contemporary, minimal, japandi, scandinavian) takes the P16 set where the room has the walls and the floor for it (wenart.furniture.salon_details; each item added_by_ai with its reason, every floor item through the placer's checks, every wall item off doors, windows, panelled walls and the other wall items, nothing drawn moved): a low wall-backed TV unit becomes a floating wood console with a black fluted strip (its footprint, place and top kept) with a tall narrow black-lined lit niche of books and vases on each side where the wall has room, and the TV wall stays plain (a print over the TV or where a niche stands leaves it, logged); the print over a dining table is about 2/3 of the table's length (every family; at most 2.0 m and 0.8 of its free wall, up to 1.6 m high); the row of pendants over the table becomes one fixture, black mini pendants on a black ceiling track where the scheme has track lights or a slim black linear pendant where its statement is linear (the lights plan counts it as the whole row); a rug under the dining set and under every sofa group where none lies (every family, the decor rules' trust and cuts); the table's centre item becomes a centrepiece set (a glass vase of pampas grass, concrete candle holders, a low bowl) between the place settings and under the pendants; full-height handle-less panels with an inset black-lined lit niche on a free wall of the dining zone (not the TV wall, not behind the chairs, their doors' clearance free, never under a sloped ceiling); a near-square coffee table becomes a round travertine drum on a round rug with concentric stripes; two black round wall discs on a free wall (never the TV wall). Products by design in wenart.blender.salon_parts. Not built: the slat column by a passage (R46), boucle on the accent armchairs (R47: no boucle model in the library), the fringe on a library rug, the print's black frame and line art (the fit picks the art). Checks: model review M34, Argus U38 (salon_details.review).",
    "question": "Do the living-dining rooms reach the P16 reference where their family allows: handle-less full-height wall panels with a lit niche, a very large framed print, a plank table with a fringed rug, track spots with mini pendants, a TV over a low floating console with lit shelf niches beside it, sculptural armchairs, a round stone coffee table on a round rug, sheer curtains?"
+  },
+  {
+   "id": "UL154",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "I like this but books could have been more detailed models (30 Oct 2026, real04 run 20261030-043021-full, cam_r_L-1_salon_1: the books in the lit shelf niches beside the TV are plain coloured blocks)",
+   "lesson": "Every book is a real-looking book (wenart.blender.book_parts: two cover boards over a cream page block that shows on the top and the fore-edge, a rounded spine facing the room with one or two bands or a paper label, bookcloth covers in a curated muted palette or a dark jacket, varied thickness, height and depth, the last book of a long row leaning on it, stacks lying flat spines out); every builder of books (niches, shelves, book sets, the books decor, the kitchen's cookbooks) uses it, never plain coloured blocks.",
+   "question": "Are the books real-looking (cover boards over a page block, rounded spines with bands or labels, varied sizes, some leaning or stacked), never plain coloured blocks?"
+  },
+  {
+   "id": "UL155",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "still not a proper dishwasher correct it (30 Oct 2026, real04 run 20261030-043021-full, kitchen r_L-1_mutfak: the dishwasher between the shaker base units is a flat stainless slab without a control strip or handle, set back from the fronts, the neighbour's handle over its edge)",
+   "lesson": "still not a proper dishwasher correct it (30 Oct 2026, real04 run 20261030-043021-full, kitchen r_L-1_mutfak: the dishwasher between the shaker base units is a flat stainless slab without a control strip or handle, set back from the fronts, the neighbour's handle over its edge)",
+   "question": null
+  },
+  {
+   "id": "UL156",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I did not like this lamp table combo (30 Oct 2026, real04 run 20261030-043021-full, living room: a tall spindly round side table on a grey four-star swivel base with a big white drum-shade lamp on an hourglass black and brass base almost as wide as the table top)",
+   "lesson": "I did not like this lamp table combo (30 Oct 2026, real04 run 20261030-043021-full, living room: a tall spindly round side table on a grey four-star swivel base with a big white drum-shade lamp on an hourglass black and brass base almost as wide as the table top)",
+   "question": null
+  },
+  {
+   "id": "UL157",
+   "date": "2026-10-30",
+   "area": "facade",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "Old facade with white and rock in the outside was better (30 Oct 2026, real04 run 20261030-043021-full: the whole house is clad in stacked stone; the earlier runs had white render with stone parts)",
+   "lesson": "The facade the family scheme gives (white render over a stone base, the accent at the entrance) is kept: an edit (the agent, Argus) may not clad every main wall in stone or wood unless the documents, the brief or the style name that facade (exterior_checks.facade_scheme_problems in validate_material_override, commit aed972f; run 20261030-043021-full: two Argus set_material facade edits, wood then stone, clad the whole house).",
+   "question": "Does the house keep its white render over the stone base (the family's facade scheme), never clad all over in stone or wood by an edit?"
+  },
+  {
+   "id": "UL158",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "built",
+   "checks": [
+    "build",
+    "G2"
+   ],
+   "request": "I did not like this white thing extending like this, what I was asking the same as old one but reaching all the way to the other pool (30 Oct 2026, real04 run 20261030-043021-full, aerial view of the back: a raised white-walled terrace box sticks out from the facade over the lawn; the user wants the old pale paved strip at the foot of the glazed facade, run on along the house all the way to the pool)",
+   "lesson": "The paved strip at the foot of a glazed facade stays the old pale paved strip, flat at the ground: no sunken front court with parapet walls in front of glazing at grade (brief yes courts only a window at least COURT['yes_min_below'] = 0.45 m under the ground; an edit may never set front_court yes: exterior_checks.front_court_problems), and the strip runs on along its facade to the next paved floor (a terrace, a pool deck) within APRON['link_m'] = 6 m and the facade's own walls, meeting its edge (site.facade_aprons, _link_end, _platform_edge).",
+   "question": "Does the pale paved strip at the foot of the glazed facade run flat along the whole facade from one terrace or pool deck to the next, with no raised or sunken walled box in front of the glass?"
+  },
+  {
+   "id": "UL159",
+   "date": "2026-10-30",
+   "area": "terrace",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I like the new Teras furnitures better but a different flooring is needed which must be suitable for the outside (30 Oct 2026, real04 run 20261030-043021-full, the L1 roof terrace r_L1_teras: the new lounge set is liked; its floor is not an outdoor floor)",
+   "lesson": "I like the new Teras furnitures better but a different flooring is needed which must be suitable for the outside (30 Oct 2026, real04 run 20261030-043021-full, the L1 roof terrace r_L1_teras: the new lounge set is liked; its floor is not an outdoor floor)",
+   "question": null
+  },
+  {
+   "id": "UL160",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I did not understand what this is if this is a bag it requires a lot more detail in the model (30 Oct 2026, real04 run 20261030-043021-full: the weekend bag decor is a grey rounded blob with two tiny triangular handles)",
+   "lesson": "I did not understand what this is if this is a bag it requires a lot more detail in the model (30 Oct 2026, real04 run 20261030-043021-full: the weekend bag decor is a grey rounded blob with two tiny triangular handles)",
+   "question": null
+  },
+  {
+   "id": "UL161",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I did not like these sofas here maybe used in another project but not here (30 Oct 2026, real04 run 20261030-043021-full, the L1 play, activity and rest room: two white wooden daybeds with drawers under the seat and panelled backs face each other as the room's sofas)",
+   "lesson": "I did not like these sofas here maybe used in another project but not here (30 Oct 2026, real04 run 20261030-043021-full, the L1 play, activity and rest room: two white wooden daybeds with drawers under the seat and panelled backs face each other as the room's sofas)",
+   "question": null
+  },
+  {
+   "id": "UL162",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "these 2 sections still not solved properly, it needs to be only road, also in the project roads going to nowhere we can increase the roads outside, first the project section and closed off sections and outside roads (30 Oct 2026, real04 run 20261030-043021-full, the front drive: at both ends of the paved drive in front of the houses stone step blocks stand in the road beside the sunken strips at the facades; the drive ends at the lawn on both sides and leads to no road)",
+   "lesson": "these 2 sections still not solved properly, it needs to be only road, also in the project roads going to nowhere we can increase the roads outside, first the project section and closed off sections and outside roads (30 Oct 2026, real04 run 20261030-043021-full, the front drive: at both ends of the paved drive in front of the houses stone step blocks stand in the road beside the sunken strips at the facades; the drive ends at the lawn on both sides and leads to no road)",
+   "question": null
+  },
+  {
+   "id": "UL163",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "too many pillows in this bed, also the headrest needs to be re-done I did not like the headrest (30 Oct 2026, real04 run 20261030-043021-full, a bedroom: a double bed with eight pillows and cushions stacked in three rows, an arched camelback upholstered headboard)",
+   "lesson": "too many pillows in this bed, also the headrest needs to be re-done I did not like the headrest (30 Oct 2026, real04 run 20261030-043021-full, a bedroom: a double bed with eight pillows and cushions stacked in three rows, an arched camelback upholstered headboard)",
+   "question": null
+  },
+  {
+   "id": "UL164",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "A laptop on this table could have even nice, also some stationary (30 Oct 2026, real04 run 20261030-043021-full, a bedroom desk: an oak desk with a drawer pedestal and an office chair, its top bare)",
+   "lesson": "A laptop on this table could have even nice, also some stationary (30 Oct 2026, real04 run 20261030-043021-full, a bedroom desk: an oak desk with a drawer pedestal and an office chair, its top bare)",
+   "question": null
+  },
+  {
+   "id": "UL165",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "built",
+   "checks": [
+    "build"
+   ],
+   "request": "books not staying properly also we need more realistic books (30 Oct 2026, real04 run 20261030-043021-full, the living room: a stack of three block books on a glossy white coffee table with raised curved edges hangs over the raised edge, half off the flat top)",
+   "lesson": "A hard decor item on a top (books, a vase, a tray) rests with its whole footprint on the level top: a 3 x 3 grid of rays out to 98 % of its sides must all hit, the hits level within 6 mm; it moves towards the host centre (8 steps) until it is, never over an edge, a raised lip or a rim (rest.place_on_top, EDGE_SPREAD, LEVEL_TOL_M); books are the detailed book models of UL154.",
+   "question": "Does every object on a table or shelf sit wholly on its flat top, never hanging over an edge or perched on a raised lip, and are the books real-looking?"
+  },
+  {
+   "id": "UL166",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Here models needs more details (30 Oct 2026, real04 run 20261030-043021-full, a bathroom: the lit open shelf tower holds crude objects: a box with two square holes, a few pebbles on a tray, a reed diffuser of three sticks with white balls, a green egg on a white cylinder; the towel rail and the flush plate are plain)",
+   "lesson": "Here models needs more details (30 Oct 2026, real04 run 20261030-043021-full, a bathroom: the lit open shelf tower holds crude objects: a box with two square holes, a few pebbles on a tray, a reed diffuser of three sticks with white balls, a green egg on a white cylinder; the towel rail and the flush plate are plain)",
+   "question": null
+  },
+  {
+   "id": "UL167",
+   "date": "2026-10-30",
+   "area": "furniture",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "I like this sofa but resting pieces seems like not connected to sitting, requires fixing (30 Oct 2026, real04 run 20261030-043021-full, the living room's white low L-shaped modular sofa: the back pieces stand as separate blocks behind the seat deck, not joined to it)",
+   "lesson": "I like this sofa but resting pieces seems like not connected to sitting, requires fixing (30 Oct 2026, real04 run 20261030-043021-full, the living room's white low L-shaped modular sofa: the back pieces stand as separate blocks behind the seat deck, not joined to it)",
+   "question": null
   }
  ]
 }

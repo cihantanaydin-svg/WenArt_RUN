@@ -1,0 +1,831 @@
+{
+ "source": "results/baseline/latest of real04 run 20261029-201533-full (git 8b76215^), frozen 30 Oct 2026 for tests/test_fixes_20261030.py",
+ "scene_cameras": [
+  {
+   "name": "cam_r_L0_banyo_1",
+   "room_id": "r_L0_banyo",
+   "level_id": "L0",
+   "index": 1,
+   "position": [
+    6.218,
+    11.436,
+    1.25
+   ],
+   "target": [
+    5.718,
+    10.569975,
+    1.25
+   ],
+   "lens_mm": 16.0,
+   "lens_rule": "room width 1.86 m < 2.2 m",
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 2.9963,
+    "furniture": 0.6403,
+    "anchors": 0.8907,
+    "openings": 1.0,
+    "floor": 0.0122,
+    "depth": 0.4532,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 240.0,
+    "shares": {
+     "furn": 0.1601,
+     "anchors": 0.2969,
+     "open": 0.2344,
+     "window": 0.0,
+     "door": 0.0,
+     "centre": 0.0476,
+     "floor": 0.003,
+     "ceiling": 0.0,
+     "wall": 0.5169,
+     "near": 0.0,
+     "max_single": 0.2344,
+     "d_wall": 1.3595
+    }
+   },
+   "placement": "search: score 2.996 = furniture 0.640 + anchors 0.891 + openings 1.000 + floor 0.012 + depth 0.453 - penalties 0.000; yaw 240 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "d_L0_007"
+   ],
+   "visible_furniture": [
+    "f_L0_003",
+    "f_L0_018",
+    "f_L0_025"
+   ],
+   "anchors_in_frame": [
+    "f_L0_003"
+   ],
+   "set_in_frame": [
+    "f_L0_003"
+   ],
+   "search_seconds": 0.662,
+   "source": "searched",
+   "kind": "interior",
+   "variant": "base",
+   "view": null,
+   "sides": [],
+   "region_id": null,
+   "dropped_reason": null
+  },
+  {
+   "name": "cam_r_L0_banyo_2",
+   "kind": "interior",
+   "room_id": "r_L0_banyo",
+   "level_id": "L0",
+   "index": 2,
+   "position": [
+    5.718,
+    10.936,
+    1.25
+   ],
+   "target": [
+    6.218,
+    10.069975,
+    1.25
+   ],
+   "lens_mm": 16.0,
+   "lens_rule": "agent",
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": 0.0,
+   "policy": "agent",
+   "score": null,
+   "pitch_deg": 0.0,
+   "placement": "agent override: Argus: The view is a close-up of a blank wall and vanity corner; it must show the room's layout and the bathtub. (fixes a:F242)",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [],
+   "visible_furniture": [
+    "f_L0_003",
+    "f_L0_018",
+    "f_L0_025"
+   ],
+   "status": "assumed",
+   "dropped_reason": null,
+   "agent": {
+    "action": "set",
+    "reason": "Argus: The view is a close-up of a blank wall and vanity corner; it must show the room's layout and the bathtub. (fixes a:F242)"
+   },
+   "source": "searched",
+   "anchors_in_frame": [],
+   "set_in_frame": [],
+   "variant": "base",
+   "view": null,
+   "sides": [],
+   "region_id": null
+  },
+  {
+   "name": "cam_r_L1_banyo_1",
+   "kind": "interior",
+   "room_id": "r_L1_banyo",
+   "level_id": "L1",
+   "index": 1,
+   "position": [
+    5.7185,
+    11.435,
+    4.4
+   ],
+   "target": [
+    6.2185,
+    10.568975,
+    4.4
+   ],
+   "lens_mm": 16.0,
+   "lens_rule": "agent",
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": 0.0,
+   "policy": "agent",
+   "score": null,
+   "pitch_deg": 0.0,
+   "placement": "agent override: Argus: The render is a completely black, empty frame showing no architecture, light, or furniture; the camera must be moved to a free point with headroom that shows the bathroom fixtures. (fixes a:F288)",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [],
+   "visible_furniture": [
+    "f_L1_015",
+    "f_L1_021",
+    "f_L1_025"
+   ],
+   "status": "assumed",
+   "dropped_reason": null,
+   "agent": {
+    "action": "set",
+    "reason": "Argus: The render is a completely black, empty frame showing no architecture, light, or furniture; the camera must be moved to a free point with headroom that shows the bathroom fixtures. (fixes a:F288)"
+   },
+   "source": "searched",
+   "anchors_in_frame": [],
+   "set_in_frame": [],
+   "variant": "base",
+   "view": null,
+   "sides": [],
+   "region_id": null
+  }
+ ],
+ "render_manifest": {
+  "renders": [
+   {
+    "camera": "cam_r_L-1_koridor_2_1",
+    "exposure": {
+     "mode": "auto",
+     "ev": 1.833333,
+     "ev_raw": 1.8431,
+     "at_limit": false,
+     "target": 0.9,
+     "limits": [
+      -10.3808,
+      3.0
+     ],
+     "incident_p50": 0.250842,
+     "whitepoint": [
+      1.259255,
+      0.957697,
+      0.65564
+     ],
+     "wb_mode": "project",
+     "wb_temperature": 4615.5,
+     "wb_tint": 5.56,
+     "residual": 0.35,
+     "window_clip_frac": null,
+     "meter_seconds": 2.634,
+     "meter": {
+      "resolution": [
+       240,
+       135
+      ],
+      "samples": 16,
+      "blocks": 880,
+      "blocks_used": 878,
+      "block_px": 6,
+      "interior_frac": 0.9981
+     },
+     "mood": "warm daylight",
+     "source": null,
+     "notes": [],
+     "lighting_dark": null,
+     "floor_shift_stops": 8.3808,
+     "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L1_teras_1 (daylight only: 100 rig objects hidden; the most incident light of 3 candidates))))))))))))))))",
+     "wb_from_camera": "cam_r_L1_teras_1",
+     "wb_project_whitepoint": [
+      1.106758,
+      0.981679,
+      0.867122
+     ],
+     "wb_rig_share": 0.705603,
+     "wb_rig_kelvin": 4000.0,
+     "wb_rig_whitepoint": [
+      1.414034,
+      0.924032,
+      0.533367
+     ],
+     "wb_day_green": 1.111847,
+     "wb_view_tint_gain": 1.019871,
+     "wb_rig_kelvin_source": "room",
+     "wb_day_incident_p50": 0.051263,
+     "wb_rig_share_p50": 0.795636,
+     "wb_walls": {
+      "share": 0.6948,
+      "rig_share": 0.653038,
+      "light_rgb": [
+       1.442556,
+       0.91805,
+       0.50863
+      ],
+      "day_rgb": [
+       1.2063,
+       0.975241,
+       0.637791
+      ],
+      "rig_rgb": [
+       1.56808,
+       0.887665,
+       0.440005
+      ],
+      "rig_rb": 3.5638,
+      "lamp_rb": 2.6511,
+      "rig_kelvin": 3533.4,
+      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+     },
+     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+     "wb_rig_residual": 0.0,
+     "wb_day_green_source": "walls",
+     "wb_day_green_all": 1.108623,
+     "wb_day_wall_share": 0.6948,
+     "wb_tint_green_residual": true,
+     "ev_offset": 0.0,
+     "wb_view_shift_mired": 39.2
+    }
+   },
+   {
+    "camera": "cam_r_L0_e_yatak_odasi_1",
+    "exposure": {
+     "mode": "auto",
+     "ev": -1.166667,
+     "ev_raw": -1.2161,
+     "at_limit": false,
+     "target": 0.9,
+     "limits": [
+      -10.3808,
+      3.0
+     ],
+     "incident_p50": 2.09079,
+     "whitepoint": [
+      1.1224,
+      0.981916,
+      0.818721
+     ],
+     "wb_mode": "project",
+     "wb_temperature": 5431.1,
+     "wb_tint": 7.78,
+     "residual": 0.35,
+     "window_clip_frac": null,
+     "meter_seconds": 8.665,
+     "meter": {
+      "resolution": [
+       240,
+       135
+      ],
+      "samples": 16,
+      "blocks": 880,
+      "blocks_used": 626,
+      "block_px": 6,
+      "interior_frac": 0.7432
+     },
+     "mood": "warm daylight",
+     "source": null,
+     "notes": [],
+     "lighting_dark": null,
+     "floor_shift_stops": 8.3808,
+     "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L1_teras_1 (daylight only: 100 rig objects hidden; the most incident light of 3 candidates)))))))))))))))))",
+     "wb_from_camera": "cam_r_L1_teras_1",
+     "wb_project_whitepoint": [
+      1.106758,
+      0.981679,
+      0.867122
+     ],
+     "wb_rig_share": 0.05023,
+     "wb_rig_kelvin": 2700.0,
+     "wb_rig_whitepoint": [
+      1.935351,
+      0.803501,
+      0.19225
+     ],
+     "wb_day_green": 1.048765,
+     "wb_view_tint_gain": 1.027799,
+     "wb_rig_kelvin_source": "room",
+     "wb_day_incident_p50": 1.999299,
+     "wb_rig_share_p50": 0.043759,
+     "wb_walls": {
+      "share": 0.3038,
+      "rig_share": 0.067269,
+      "light_rgb": [
+       1.231997,
+       0.962269,
+       0.690619
+      ],
+      "day_rgb": [
+       1.185593,
+       0.972558,
+       0.725336
+      ],
+      "rig_rgb": [
+       1.875417,
+       0.819601,
+       0.209244
+      ],
+      "rig_rb": 8.9628,
+      "lamp_rb": 10.0668,
+      "rig_kelvin": 2795.1,
+      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+     },
+     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+     "wb_rig_residual": 0.0,
+     "wb_day_green_source": "walls",
+     "wb_day_green_all": 1.034308,
+     "wb_day_wall_share": 0.304,
+     "wb_tint_green_residual": true,
+     "ev_offset": 0.0,
+     "wb_view_shift_mired": 6.66
+    }
+   },
+   {
+    "camera": "cam_r_L0_e_yatak_odasi_2",
+    "exposure": {
+     "mode": "auto",
+     "ev": -1.0,
+     "ev_raw": -0.9904,
+     "at_limit": false,
+     "target": 0.9,
+     "limits": [
+      -10.3808,
+      3.0
+     ],
+     "incident_p50": 1.788116,
+     "whitepoint": [
+      1.125179,
+      0.982671,
+      0.803053
+     ],
+     "wb_mode": "project",
+     "wb_temperature": 5375.2,
+     "wb_tint": 8.94,
+     "residual": 0.35,
+     "window_clip_frac": 0.0,
+     "meter_seconds": 2.327,
+     "meter": {
+      "resolution": [
+       240,
+       135
+      ],
+      "samples": 16,
+      "blocks": 880,
+      "blocks_used": 593,
+      "block_px": 6,
+      "interior_frac": 0.7185
+     },
+     "mood": "warm daylight",
+     "source": null,
+     "notes": [],
+     "lighting_dark": null,
+     "floor_shift_stops": 8.3808,
+     "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L1_teras_1 (daylight only: 100 rig objects hidden; the most incident light of 3 candidates)))))))))))))))))",
+     "wb_from_camera": "cam_r_L1_teras_1",
+     "wb_project_whitepoint": [
+      1.106758,
+      0.981679,
+      0.867122
+     ],
+     "wb_rig_share": 0.065477,
+     "wb_rig_kelvin": 2700.0,
+     "wb_rig_whitepoint": [
+      1.935351,
+      0.803501,
+      0.19225
+     ],
+     "wb_day_green": 1.068028,
+     "wb_view_tint_gain": 1.038767,
+     "wb_rig_kelvin_source": "room",
+     "wb_day_incident_p50": 1.692739,
+     "wb_rig_share_p50": 0.05334,
+     "wb_walls": {
+      "share": 0.316,
+      "rig_share": 0.103116,
+      "light_rgb": [
+       1.258967,
+       0.958164,
+       0.651867
+      ],
+      "day_rgb": [
+       1.175588,
+       0.97691,
+       0.711686
+      ],
+      "rig_rgb": [
+       1.98418,
+       0.795112,
+       0.131565
+      ],
+      "rig_rb": 15.0814,
+      "lamp_rb": 10.0668,
+      "rig_kelvin": 2600.2,
+      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+     },
+     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+     "wb_rig_residual": 0.0,
+     "wb_day_green_source": "walls",
+     "wb_day_green_all": 1.063486,
+     "wb_day_wall_share": 0.3173,
+     "wb_tint_green_residual": true,
+     "ev_offset": 0.0,
+     "wb_view_shift_mired": 8.58
+    }
+   },
+   {
+    "camera": "cam_r_L0_yatak_odasi_1",
+    "exposure": {
+     "mode": "auto",
+     "ev": 2.333333,
+     "ev_raw": 2.3199,
+     "at_limit": false,
+     "target": 0.9,
+     "limits": [
+      -10.3808,
+      3.0
+     ],
+     "incident_p50": 0.180253,
+     "whitepoint": [
+      1.125255,
+      0.982702,
+      0.802528
+     ],
+     "wb_mode": "project",
+     "wb_temperature": 5373.4,
+     "wb_tint": 8.98,
+     "residual": 0.35,
+     "window_clip_frac": 0.0097,
+     "meter_seconds": 2.615,
+     "meter": {
+      "resolution": [
+       240,
+       135
+      ],
+      "samples": 16,
+      "blocks": 880,
+      "blocks_used": 655,
+      "block_px": 6,
+      "interior_frac": 0.7816
+     },
+     "mood": "warm daylight",
+     "source": null,
+     "notes": [],
+     "lighting_dark": null,
+     "floor_shift_stops": 8.3808,
+     "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L1_teras_1 (daylight only: 100 rig objects hidden; the most incident light of 3 candidates))))))))))))))))",
+     "wb_from_camera": "cam_r_L1_teras_1",
+     "wb_project_whitepoint": [
+      1.106758,
+      0.981679,
+      0.867122
+     ],
+     "wb_rig_share": 0.065982,
+     "wb_rig_kelvin": 2700.0,
+     "wb_rig_whitepoint": [
+      1.935351,
+      0.803501,
+      0.19225
+     ],
+     "wb_day_green": 1.068714,
+     "wb_view_tint_gain": 1.039151,
+     "wb_rig_kelvin_source": "room",
+     "wb_day_incident_p50": 0.165922,
+     "wb_rig_share_p50": 0.079504,
+     "wb_walls": {
+      "share": 0.317,
+      "rig_share": 0.057494,
+      "light_rgb": [
+       1.291686,
+       0.950979,
+       0.626693
+      ],
+      "day_rgb": [
+       1.240631,
+       0.96331,
+       0.654887
+      ],
+      "rig_rgb": [
+       2.128653,
+       0.748841,
+       0.16451
+      ],
+      "rig_rb": 12.9394,
+      "lamp_rb": 10.0668,
+      "rig_kelvin": 2440.0,
+      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+     },
+     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+     "wb_rig_residual": 0.0,
+     "wb_day_green_source": "walls",
+     "wb_day_green_all": 1.089634,
+     "wb_day_wall_share": 0.317,
+     "wb_tint_green_residual": true,
+     "ev_offset": 0.0,
+     "wb_view_shift_mired": 8.64
+    }
+   },
+   {
+    "camera": "cam_r_L0_yatak_odasi_2",
+    "exposure": {
+     "mode": "auto",
+     "ev": 1.666667,
+     "ev_raw": 1.6552,
+     "at_limit": false,
+     "target": 0.9,
+     "limits": [
+      -10.3808,
+      3.0
+     ],
+     "incident_p50": 0.285754,
+     "whitepoint": [
+      1.090844,
+      0.991179,
+      0.819877
+     ],
+     "wb_mode": "project",
+     "wb_temperature": 5532.1,
+     "wb_tint": 12.3,
+     "residual": 0.35,
+     "window_clip_frac": 0.0,
+     "meter_seconds": 2.596,
+     "meter": {
+      "resolution": [
+       240,
+       135
+      ],
+      "samples": 16,
+      "blocks": 880,
+      "blocks_used": 802,
+      "block_px": 6,
+      "interior_frac": 0.9209
+     },
+     "mood": "warm daylight",
+     "source": null,
+     "notes": [],
+     "lighting_dark": null,
+     "floor_shift_stops": 8.3808,
+     "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L1_teras_1 (daylight only: 100 rig objects hidden; the most incident light of 3 candidates))))))))))))))))",
+     "wb_from_camera": "cam_r_L1_teras_1",
+     "wb_project_whitepoint": [
+      1.106758,
+      0.981679,
+      0.867122
+     ],
+     "wb_rig_share": 0.029235,
+     "wb_rig_kelvin": 2700.0,
+     "wb_rig_whitepoint": [
+      1.935351,
+      0.803501,
+      0.19225
+     ],
+     "wb_day_green": 1.082874,
+     "wb_view_tint_gain": 1.049402,
+     "wb_rig_kelvin_source": "room",
+     "wb_day_incident_p50": 0.27144,
+     "wb_rig_share_p50": 0.050093,
+     "wb_walls": {
+      "share": 0.2985,
+      "rig_share": 0.056869,
+      "light_rgb": [
+       1.297849,
+       0.951047,
+       0.607874
+      ],
+      "day_rgb": [
+       1.246692,
+       0.963512,
+       0.635037
+      ],
+      "rig_rgb": [
+       2.146259,
+       0.744326,
+       0.157387
+      ],
+      "rig_rb": 13.6368,
+      "lamp_rb": 10.0668,
+      "rig_kelvin": 2416.2,
+      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+     },
+     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+     "wb_rig_residual": 0.0,
+     "wb_day_green_source": "walls",
+     "wb_day_green_all": 1.071841,
+     "wb_day_wall_share": 0.2985,
+     "wb_tint_green_residual": true,
+     "ev_offset": 0.0,
+     "wb_view_shift_mired": 3.3
+    }
+   },
+   {
+    "camera": "cam_r_L0_yatak_odasi_3",
+    "exposure": {
+     "mode": "auto",
+     "ev": 2.0,
+     "ev_raw": 2.0109,
+     "at_limit": false,
+     "target": 0.9,
+     "limits": [
+      -10.3808,
+      3.0
+     ],
+     "incident_p50": 0.223301,
+     "whitepoint": [
+      1.142107,
+      0.978593,
+      0.79361
+     ],
+     "wb_mode": "project",
+     "wb_temperature": 5296.3,
+     "wb_tint": 7.39,
+     "residual": 0.35,
+     "window_clip_frac": 0.0027,
+     "meter_seconds": 2.559,
+     "meter": {
+      "resolution": [
+       240,
+       135
+      ],
+      "samples": 16,
+      "blocks": 880,
+      "blocks_used": 636,
+      "block_px": 6,
+      "interior_frac": 0.7624
+     },
+     "mood": "warm daylight",
+     "source": null,
+     "notes": [],
+     "lighting_dark": null,
+     "floor_shift_stops": 8.3808,
+     "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L1_teras_1 (daylight only: 100 rig objects hidden; the most incident light of 3 candidates))))))))))))))))",
+     "wb_from_camera": "cam_r_L1_teras_1",
+     "wb_project_whitepoint": [
+      1.106758,
+      0.981679,
+      0.867122
+     ],
+     "wb_rig_share": 0.084146,
+     "wb_rig_kelvin": 2700.0,
+     "wb_rig_whitepoint": [
+      1.935351,
+      0.803501,
+      0.19225
+     ],
+     "wb_day_green": 1.062007,
+     "wb_view_tint_gain": 1.034491,
+     "wb_rig_kelvin_source": "room",
+     "wb_day_incident_p50": 0.206491,
+     "wb_rig_share_p50": 0.07528,
+     "wb_walls": {
+      "share": 0.3657,
+      "rig_share": 0.080378,
+      "light_rgb": [
+       1.306916,
+       0.946474,
+       0.626476
+      ],
+      "day_rgb": [
+       1.233992,
+       0.96399,
+       0.667695
+      ],
+      "rig_rgb": [
+       2.141247,
+       0.746069,
+       0.154883
+      ],
+      "rig_rb": 13.8249,
+      "lamp_rb": 10.0668,
+      "rig_kelvin": 2420.8,
+      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+     },
+     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+     "wb_rig_residual": 0.0,
+     "wb_day_green_source": "walls",
+     "wb_day_green_all": 1.084448,
+     "wb_day_wall_share": 0.3657,
+     "wb_tint_green_residual": true,
+     "ev_offset": 0.0,
+     "wb_view_shift_mired": 11.35
+    }
+   },
+   {
+    "camera": "cam_r_L1_koridor_1",
+    "exposure": {
+     "mode": "auto",
+     "ev": 1.333333,
+     "ev_raw": 1.3141,
+     "at_limit": false,
+     "target": 0.9,
+     "limits": [
+      -10.3808,
+      3.0
+     ],
+     "incident_p50": 0.361964,
+     "whitepoint": [
+      1.231656,
+      0.960018,
+      0.713915
+     ],
+     "wb_mode": "project",
+     "wb_temperature": 4825.0,
+     "wb_tint": 2.85,
+     "residual": 0.35,
+     "window_clip_frac": null,
+     "meter_seconds": 2.2,
+     "meter": {
+      "resolution": [
+       240,
+       135
+      ],
+      "samples": 16,
+      "blocks": 880,
+      "blocks_used": 829,
+      "block_px": 6,
+      "interior_frac": 0.9521
+     },
+     "mood": "warm daylight",
+     "source": null,
+     "notes": [],
+     "lighting_dark": null,
+     "floor_shift_stops": 8.3808,
+     "wb_source": "previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (previous manifest (metered on cam_r_L1_teras_1 (daylight only: 100 rig objects hidden; the most incident light of 3 candidates)))))))))))))))))",
+     "wb_from_camera": "cam_r_L1_teras_1",
+     "wb_project_whitepoint": [
+      1.106758,
+      0.981679,
+      0.867122
+     ],
+     "wb_rig_share": 0.529507,
+     "wb_rig_kelvin": 4000.0,
+     "wb_rig_whitepoint": [
+      1.414034,
+      0.924032,
+      0.533367
+     ],
+     "wb_day_green": 1.011834,
+     "wb_view_tint_gain": 1.002623,
+     "wb_rig_kelvin_source": "room",
+     "wb_day_incident_p50": 0.159065,
+     "wb_rig_share_p50": 0.560551,
+     "wb_walls": {
+      "share": 0.1788,
+      "rig_share": 0.521384,
+      "light_rgb": [
+       1.487906,
+       0.904186,
+       0.512426
+      ],
+      "day_rgb": [
+       1.426029,
+       0.91626,
+       0.57503
+      ],
+      "rig_rgb": [
+       1.544707,
+       0.893103,
+       0.454957
+      ],
+      "rig_rb": 3.3953,
+      "lamp_rb": 2.6511,
+      "rig_kelvin": 3600.0,
+      "rule": "measured only (fix round after P6b): the white point still mixes by the frame's rig share"
+     },
+     "wb_view_rule": "the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - daylight / all metered light), with the residual cast of the project's daylight kept for every view; the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual over the anchor's), by its daylight share; the temperature stays the project's",
+     "wb_rig_residual": 0.0,
+     "wb_day_green_source": "walls",
+     "wb_day_green_all": 1.006447,
+     "wb_day_wall_share": 0.1788,
+     "wb_tint_green_residual": true,
+     "ev_offset": 0.0,
+     "wb_view_shift_mired": 29.79
+    }
+   }
+  ]
+ }
+}

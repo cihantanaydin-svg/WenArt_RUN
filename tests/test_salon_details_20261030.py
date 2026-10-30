@@ -364,7 +364,7 @@ def test_the_salon_parts_stay_in_their_boxes_with_known_keys():
         parts = P.decor_parts(dtype, w, d, h, item)
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
         assert x1 - x0 <= w + 1e-9 and y1 - y0 <= d + 1e-9 and z1 - z0 <= h + 1e-9 and z0 == pytest.approx(0.0), dtype
-        assert {p["key"].replace("accent_", "").replace("colour_", "") for p in parts} <= keys, dtype
+        assert {P.plain_key(p["key"]) for p in parts} <= keys, dtype
     roles = {p["role"] for p in P.decor_parts("pendant_light", 2.0, 0.12, 1.2,
                                                {"fixture": "track_pendants", "track": {"pendants": 3}})}
     assert {"rail", "cord", "shade", "bulb"} <= roles

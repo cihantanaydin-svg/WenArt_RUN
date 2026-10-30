@@ -54,6 +54,11 @@ def real04():
     return _json(path)
 
 
+# 30 Oct 2026: the cameras and exposures these tests read are run 20261029-201533-full's, frozen (a later promotion of
+# the latest baseline changes them)
+FROZEN = ROOT / "tests" / "fixtures" / "real04_201533_cameras_exposure.json"
+
+
 @pytest.fixture(scope="module")
 def scene04():
     path = BASE / "renders" / "real04" / "scene_manifest.json"
@@ -103,9 +108,9 @@ def test_the_argus_pose_over_the_sloped_ceiling_is_refused_with_the_search_rules
     assert CSR.RoomModel(room, b).ceiling_at(*best["position"][:2]) - best["position"][2] >= CSR.HEADROOM_M - 1e-9
 
 
-def test_the_build_moves_a_refused_agent_pose_to_the_nearest_searched_pose(real04, scene04):
+def test_the_build_moves_a_refused_agent_pose_to_the_nearest_searched_pose(real04):
     b = CSR.with_roof_ceilings(real04)
-    plans = [copy.deepcopy(c) for c in scene04["cameras"] if c.get("kind") == "interior"
+    plans = [copy.deepcopy(c) for c in _json(FROZEN)["scene_cameras"] if c.get("kind") == "interior"
              and c["room_id"] in ("r_L1_banyo", "r_L0_banyo")]
     lines = BD.check_agent_interior_plans(plans, b)
     cam = next(p for p in plans if p["name"] == "cam_r_L1_banyo_1")
@@ -220,10 +225,7 @@ def _exposure(render_manifest: dict, cam: str) -> dict:
 
 
 def test_the_rig_light_on_the_walls_takes_the_corridors_cast_out():
-    path = BASE / "renders" / "real04" / "render_manifest.json"
-    if not path.is_file():
-        pytest.skip("the latest real04 baseline is not in this checkout")
-    rm = _json(path)
+    rm = _json(FROZEN)["render_manifest"]
 
     def rb(v):
         return float(v[0]) / float(v[2])

@@ -634,8 +634,8 @@ def shelf_frame_parts(m: dict) -> list[Part]:
         elif sx < 0:                                        # a vase with dried grass
             parts += _grass_vase(cx, y, zs, 0.16, min(0.40, top - zs - 0.08))
         else:                                               # a small sculpture and two books
-            parts.append(P._box(cx + 0.05, y, zs, 0.16, 0.12, 0.03, "terracotta", "book"))
-            parts.append(P._box(cx + 0.05, y, zs + 0.03, 0.15, 0.11, 0.025, "painted", "book"))
+            from wenart.blender import book_parts as BK     # UL154: real-looking books
+            parts += BK.stack(cx + 0.05, y, zs, 0.16, 0.12, 0.055, n=2, seed=5)
             parts.append(P._superellipsoid(cx - 0.07, y, zs, 0.08, 0.08, 0.14, 0.7, 0.9, "ceramic", "form",
                                            n_eta=6, n_om=14))
     return parts

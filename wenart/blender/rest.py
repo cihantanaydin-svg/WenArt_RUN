@@ -175,6 +175,13 @@ BED_GAP_LEANS = (8.0, 12.0, 16.0, 20.0, 26.0, 32.0)
 ARM_GAP_M = 0.005                 # a cushion stays this far off an arm
 MIN_CUSHION_W = 0.30              # a cushion squeezed narrower than this between the arms is not placed
 SHIFT_STEPS = 4                   # a top item tries its spot, then this many steps towards the host centre
+# 30 Oct 2026 (lesson UL165, real04: a stack of books on a coffee table with raised curved edges hung half over the
+# raised edge, the 3 x 3 grid at +-0.35 saw only the middle of the stack): a hard item on a top needs the whole
+# footprint supported, out to EDGE_SPREAD of each side, every ray hitting, the hits level within LEVEL_TOL_M; it moves
+# towards the host centre in SHIFT_STEPS_FULL steps until it is (a lip, a rim, a slope or an edge never carries it)
+EDGE_SPREAD = 0.49
+LEVEL_TOL_M = 0.006
+SHIFT_STEPS_FULL = 8
 # Check S5's tolerances (§4.7; ``scene_checks.TOLERANCES`` takes them from here): gap, penetration on hard and soft
 # hosts, the share of the footprint over the support.
 REST_TOLERANCES: dict[str, float] = {"decor_gap_m": 0.010, "decor_pen_hard_m": 0.010, "decor_pen_soft_m": 0.030,
@@ -514,12 +521,12 @@ def host_top(caster) -> float:
     return float(caster.bounds[1][2])
 
 
-def support_height(caster, center, size, rotation_deg: float, soft: bool, z_from: Optional[float] = None
-                   ) -> dict:
+def support_height(caster, center, size, rotation_deg: float, soft: bool, z_from: Optional[float] = None,
+                   spread: float = GRID_SPREAD) -> dict:
     """The rest height under a footprint (§4.7): a 3 x 3 grid of downward rays from ``z_from`` (default the host's
     top + ``TOP_ABOVE_M``); ``z`` = the highest hit (hard item) or the median (soft item), ``share`` = the hit share,
-    ``zs`` the hits (None for a miss)."""
-    pts = grid_points(center, size, rotation_deg)
+    ``zs`` the hits (None for a miss); ``spread``: the grid's reach (``EDGE_SPREAD``: out to the item's edges)."""
+    pts = grid_points(center, size, rotation_deg, spread=spread)
     z0 = host_top(caster) + TOP_ABOVE_M if z_from is None else float(z_from)
     zs = _down_hits(caster, pts, z0)
     got = sorted(z for z in zs if z is not None)
@@ -545,9 +552,24 @@ def place_on_top(caster, center, size, rotation_deg: float, soft: bool, host_cen
     towards ``host_center`` (``attempt`` skips that many spots: the re-placement of S5) whose ray grid hits the host
     with at least ``SUPPORT_SHARE``; None when no spot does."""
     w, d, h = (float(v) for v in size)
+    if not soft:                                         # UL165: the whole footprint on a level top first
+        full = spots_towards(center, host_center or center, SHIFT_STEPS_FULL)
+        for k, spot in enumerate(full[attempt:], start=attempt):
+            sup = support_height(caster, spot, (w, d), rotation_deg, soft, spread=EDGE_SPREAD)
+            got = [z for z in sup["zs"] if z is not None]
+            if sup["z"] is None or len(got) < len(sup["zs"]) or max(got) - min(got) > LEVEL_TOL_M:
+                continue
+            how = ("rays down onto the built top, the whole footprint on a level top" +
+                   (f", moved {k} step(s) towards the host centre" if k else ""))
+            return {"center": [spot[0], spot[1]], "z": sup["z"], "rotation_deg": float(rotation_deg),
+                    "lean_deg": 0.0, "size": [w, d, h], "how": how, "share": 1.0, "support": "top",
+                    "level": True}
     spots = spots_towards(center, host_center or center)
     for k, spot in enumerate(spots[attempt:], start=attempt):
         sup = support_height(caster, spot, (w, d), rotation_deg, soft)
+        got = [z for z in sup["zs"] if z is not None]
+        if not soft and got and max(got) - min(got) > LEVEL_TOL_M:
+            continue                                     # UL165: never on a lip or a rim, tilted or floating
         if sup["z"] is None or sup["share"] < SUPPORT_SHARE - 1e-9:
             continue
         how = "rays down onto the built top" + (f", moved {k} step(s) towards the host centre" if k else "")

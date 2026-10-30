@@ -41,6 +41,7 @@ from __future__ import annotations
 import math
 from typing import Optional
 
+from wenart.blender import book_parts as BK
 from wenart.blender import salon_parts as SP
 from wenart.blender.parametric import (_box, _cylinder_y, _cylinder_z, _frustum_z, _superellipsoid,
                                        piece_design)
@@ -51,7 +52,6 @@ LED_STRENGTH = 2.5               # an LED strip's emission: a glow on the shelf 
 LED_RGB = (1.0, 0.80, 0.58)      # 2700-3000 K
 LED_MATERIAL = "wenart_led_strip"
 PAMPAS_COLOUR = "cream"
-BOOK_KEYS: tuple[str, ...] = ("dark", "painted", "terracotta", "wood", "colour_fabric")
 FLOAT_NIGHTSTAND_H_M = 0.22      # a floating nightstand's box under its top (R33)
 DRAWER_GROOVE_M = 0.004
 # (the bevel radii of the roles these parts use: ``parametric.BEVEL_BY_ROLE``)
@@ -141,27 +141,15 @@ def contain(parts: list[Part], w: float, d: float, h: float, floor: bool = True)
 
 def books_upright(x0: float, x1: float, y: float, z: float, depth: float, max_h: float, seed: int = 0
                   ) -> list[Part]:
-    """A row of standing books from ``x0`` to ``x1`` at ``y`` on a board at ``z`` (heights 70-100 % of ``max_h``)."""
-    out = []
-    if x1 - x0 < 0.03 or max_h < 0.04:
-        return out
-    n = max(2, min(12, int((x1 - x0) / 0.032)))
-    bw = (x1 - x0) / n
-    for k in range(n):
-        f = 0.72 + 0.28 * (((k + seed) * 7) % 5) / 4.0
-        out.append(_box(x0 + bw * (k + 0.5), y, z, bw - 0.003, depth * (0.85 + 0.15 * ((k + seed) % 2)), max_h * f,
-                        BOOK_KEYS[(k + seed) % len(BOOK_KEYS)], "book"))
-    return out
+    """A row of standing books from ``x0`` to ``x1`` at ``y`` on a board at ``z`` (heights 70-100 % of ``max_h``):
+    real-looking books (30 Oct 2026, UL154: ``book_parts.row``: cover boards over a page block, rounded spines with
+    bands or labels, varied sizes, the last book leaning on the row)."""
+    return BK.row(x0, x1, y, z, depth, max_h, seed=seed)
 
 
 def books_lying(cx: float, cy: float, z: float, w: float, d: float, max_h: float, n: int = 3) -> list[Part]:
-    out, zz = [], z
-    t = min(0.035, max_h / max(1, n))
-    for k in range(n):
-        s = 1.0 - 0.07 * k
-        out.append(_box(cx + 0.006 * (k % 2), cy, zz, w * s, d * s, t - 0.002, BOOK_KEYS[k % 4], "book"))
-        zz += t
-    return out
+    """``n`` books lying flat, spines to the front (UL154: ``book_parts.stack``)."""
+    return BK.stack(cx, cy, z, w, d, max_h, n=n, seed=int(round(cx * 1000 + cy * 100)) % 97)
 
 
 def small_vase(cx: float, cy: float, z: float, r: float, h: float, key: str = "ceramic") -> list[Part]:

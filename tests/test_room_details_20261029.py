@@ -517,8 +517,7 @@ def test_the_detail_parts_stay_in_their_boxes_with_known_keys():
             parts = P.decor_parts(t, *box, {"niche": {"shelves": 4}})
             x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
             assert x1 - x0 <= box[0] + 1e-9 and y1 - y0 <= box[1] + 1e-9 and z1 - z0 <= box[2] + 1e-9, t
-            assert z0 == 0.0 and {p["key"].replace("accent_", "").replace("colour_", "") for p in parts} <= set(
-                P.MATERIAL_KEYS), t
+            assert z0 == 0.0 and {P.plain_key(p["key"]) for p in parts} <= set(P.MATERIAL_KEYS), t
     for dtype, box, item in (("mirror", (0.7, 0.04, 0.7), {"shape": "round"}), ("rug", (2.0, 2.0, 0.012),
                              {"shape": "round"}), ("ceiling_light", (1.0, 0.05, 0.12), {"fixture": "track"}),
                              ("tv", (1.2, 0.07, 0.7), {"tv": {"mount": "wall"}}),

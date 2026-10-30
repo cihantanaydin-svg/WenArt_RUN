@@ -704,7 +704,8 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
     Milestone 11 (docs/milestone11.md §1.1 E9, decision D6, brief ``site_options.front_court``): ``auto`` makes a
     sunken front court (``front_courts``, ``source: inferred``, ``kind: front_court``) instead of the light well in
     front of a window whose sill lies more than ``COURT["min_below"]`` under the ground, ``yes`` in front of every
-    window below the ground, ``no`` (the default here, the M10 build) never; a drawn light well always wins."""
+    window at least ``COURT["yes_min_below"]`` below the ground (30 Oct 2026, UL158: a window at grade keeps its
+    paved light well), ``no`` (the default here, the M10 build) never; a drawn light well always wins."""
     from wenart.blender.shell import opening_centre_on_wall, opening_vertical
 
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
@@ -744,9 +745,15 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
             continue
         ux, uy = (-out[1], out[0])
         below = gz - bottom
-        if front_court == "yes" or (front_court == "auto" and below > COURT["min_below"]):
+        # 30 Oct 2026 (lesson UL158): ``yes`` courts only a window at least ``COURT["yes_min_below"]`` under the
+        # ground; one at grade keeps its paved light well (a court's parapet would stand in front of the glazing)
+        if (front_court == "yes" and below >= COURT["yes_min_below"]) or (front_court == "auto"
+                                                                          and below > COURT["min_below"]):
             wells.append(dict(court_for(o, lv, (cx, cy), out, half_t, gz, below, front_court), sill_z=bottom))
             continue
+        at_grade = (f"; brief front_court yes, but the sill lies only {below:.2f} m under the ground (under "
+                    f"{COURT['yes_min_below']:g} m): no sunken court at grade (lesson UL158)"
+                    if front_court == "yes" else "")
         w = float(o["width"]) / 2.0 + DEFAULTS["light_well_side"]
         d0, d1 = half_t, half_t + DEFAULTS["light_well_depth"]
         poly = [(cx + ux * s + out[0] * d, cy + uy * s + out[1] * d) for s, d in ((-w, d0), (w, d0), (w, d1), (-w, d1))]
@@ -754,14 +761,19 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
                       "floor_z": bottom - DEFAULTS["light_well_below_sill"], "top_z": gz, "outward": list(out),
                       "source": "assumed", "sill_z": bottom,
                       "reason": f"window sill {bottom:.2f} m, ground outside {gz:.2f} m: an open concrete light "
-                                f"well {DEFAULTS['light_well_depth']} m deep, {2 * w:.2f} m wide (no light well drawn)"})
+                                f"well {DEFAULTS['light_well_depth']} m deep, {2 * w:.2f} m wide (no light well drawn)"
+                                f"{at_grade}"})
     return merge_courts(wells), warnings
 
 
 # 30 Oct 2026 (lesson UL142, user on real04: "This white section needs to go all the way": the light well of
 # win_L-1_002 paved the foot of the right half of the long glazed basement facade, the lawn ran up to the glass of
 # win_L-1_001 beside it): the paved strip at the foot of a glazed facade runs the whole glazing run.
-APRON = {"run_gap_m": 1.5, "piece_m": 0.25, "min_m": 0.3}
+APRON = {"run_gap_m": 1.5, "piece_m": 0.25, "min_m": 0.3,
+         # 30 Oct 2026 (lesson UL158, user on real04: "the same as old one but reaching all the way to the other
+         # pool"): the strip runs on along its facade to the next paved floor (a terrace, a pool deck) at most this
+         # far past the glazing run's end, within the facade's own walls, and meets its edge (no sliver of lawn)
+         "link_m": 6.0, "step_m": 0.01}
 
 
 def _glazing(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]],
@@ -830,6 +842,11 @@ def facade_aprons(building: dict, levels: Sequence[dict], outline: Sequence[Sequ
             if ps and abs(min(dn) - (me["line"] + me["half_t"])) < 0.1:
                 paved.append((min(ps), max(ps)))
         s_lo, s_hi = min(g["s0"] for g in run) - side, max(g["s1"] for g in run) + side
+        # UL158: on to the next paved floor along the facade (within its walls, at most APRON["link_m"])
+        mid_d = me["line"] + me["half_t"] + depth / 2.0
+        f_lo, f_hi = _facade_extent(building, me, levels)
+        s_lo = _link_end(s_lo, -1.0, max(f_lo, s_lo - APRON["link_m"]), u, d, mid_d, pfs)
+        s_hi = _link_end(s_hi, 1.0, min(f_hi, s_hi + APRON["link_m"]), u, d, mid_d, pfs)
         n = max(1, int(math.ceil((s_hi - s_lo) / APRON["piece_m"])))
         keep = []
         for j in range(n):
@@ -858,6 +875,9 @@ def facade_aprons(building: dict, levels: Sequence[dict], outline: Sequence[Sequ
                     sp[1] = p0
                 if 0.0 < sp[0] - p1 <= APRON["piece_m"] + 1e-6:
                     sp[0] = p1
+            # ... and a platform's edge (UL158: the strip meets the terrace or the pool deck it runs to)
+            sp[0] = _platform_edge(sp[0], -1.0, u, d, mid_d, pfs)
+            sp[1] = _platform_edge(sp[1], 1.0, u, d, mid_d, pfs)
         covered = [g["id"] for g in run if g["id"] == w["opening_id"]]
         for s0, s1 in spans:
             d0, d1 = me["line"] + me["half_t"], me["line"] + me["half_t"] + depth
@@ -882,6 +902,53 @@ def facade_aprons(building: dict, levels: Sequence[dict], outline: Sequence[Sequ
                 covered.append(g["id"])
         runs.append({"well": w["opening_id"], "run_ids": list(key), "covered_ids": sorted(set(covered))})
     return aprons, runs
+
+
+def _on_platform(s: float, u, d, mid_d: float, pfs: Sequence[dict]) -> bool:
+    c = (u[0] * s + d[0] * mid_d, u[1] * s + d[1] * mid_d)
+    return any(G.point_in_polygon(c, pf["polygon"]) for pf in pfs)
+
+
+def _link_end(s: float, sign: float, limit: float, u, d, mid_d: float, pfs: Sequence[dict]) -> float:
+    """The strip's end ``s`` moved along the facade (``sign``) to the first paved platform it meets before ``limit``
+    (pure; lesson UL158), else ``s`` unchanged."""
+    k, n = 1, int(abs(limit - s) / APRON["step_m"]) if (limit - s) * sign > 0 else 0
+    while k <= n:
+        t = s + sign * k * APRON["step_m"]
+        if _on_platform(t, u, d, mid_d, pfs):
+            return t
+        k += 1
+    return s
+
+
+def _platform_edge(s: float, sign: float, u, d, mid_d: float, pfs: Sequence[dict]) -> float:
+    """A span end ``s`` moved on (``sign``) to the edge of a platform that starts within one apron piece (pure)."""
+    k, n = 1, int(APRON["piece_m"] / APRON["step_m"]) + 1
+    if _on_platform(s, u, d, mid_d, pfs):
+        return s
+    while k <= n:
+        t = s + sign * k * APRON["step_m"]
+        if _on_platform(t, u, d, mid_d, pfs):
+            return t
+        k += 1
+    return s
+
+
+def _facade_extent(building: dict, me: dict, levels: Sequence[dict]) -> tuple[float, float]:
+    """``(s_min, s_max)`` along ``me["u"]`` of the level's walls on the opening's facade line (collinear, same
+    outward side): the strip never runs past the house's corner (pure)."""
+    u, d = me["u"], me["out"]
+    lo, hi = me["s0"], me["s1"]
+    for w in building.get("walls") or []:
+        if w.get("level_id") != me["level_id"] or not w.get("start") or not w.get("end"):
+            continue
+        a, b = w["start"], w["end"]
+        la, lb = a[0] * d[0] + a[1] * d[1], b[0] * d[0] + b[1] * d[1]
+        if abs(la - me["line"]) < 0.05 and abs(lb - me["line"]) < 0.05:
+            sa, sb = a[0] * u[0] + a[1] * u[1], b[0] * u[0] + b[1] * u[1]
+            lo, hi = min(lo, sa, sb), max(hi, sa, sb)
+    half = me["half_t"]
+    return lo - half, hi + half
 
 
 def wells_on_platforms(wells: Sequence[dict], pfs: Sequence[dict]) -> tuple[list[dict], list[dict]]:
@@ -913,7 +980,10 @@ def wells_on_platforms(wells: Sequence[dict], pfs: Sequence[dict]) -> tuple[list
 
 
 # Milestone 11 (docs/milestone11.md §1.1 E9, decision D6): a sunken front court in front of a deep basement window.
-COURT = {"min_below": 1.0, "depth": 3.0, "side": 0.6, "floor_below": 0.05, "parapet": 0.9, "merge_gap": 1.0}
+COURT = {"min_below": 1.0, "depth": 3.0, "side": 0.6, "floor_below": 0.05, "parapet": 0.9, "merge_gap": 1.0,
+         # 30 Oct 2026 (lesson UL158, real04: brief yes made a 3 m court with 0.9 m white parapets in front of the
+         # basement glazing whose sill lay 3 cm under the lawn): yes courts only a window this far under the ground
+         "yes_min_below": 0.45}
 
 
 def court_for(opening: dict, level: dict, centre, out, half_t: float, gz: float, below: float, mode: str) -> dict:
