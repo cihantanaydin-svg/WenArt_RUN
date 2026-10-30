@@ -67,13 +67,13 @@ SIGHT_HEIGHT_M = 0.60             # = group_checks.SIGHT_HEIGHT_M: taller pieces
 SIGHT_FREE_TYPES: tuple[str, ...] = ("table_coffee", "ottoman", "side_table", "rug", "unknown")
 STEP_M = 0.05                     # positions along a wall
 GAP_M = 0.02                      # the unit's back off the wall
-# Step 3b: a seat that faces the open floor of an open-plan living room (no wall within VIEW_MAX_M) gets a low media
-# console standing free on its axis, its back to the rest of the room (the room divider of the user's target picture
-# for real06's salon, lesson UL107); the walkways and doors decide by code (solver.verify).
-OPEN_PLAN_MIN_M2 = 25.0
-FREE_DISTANCES_M: tuple[float, ...] = (2.6, 2.4, 2.8, 2.2, 3.0, 2.0, 3.2)
-FREE_OFFSETS_M: tuple[float, ...] = (0.0, 0.1, -0.1, 0.2, -0.2)
-FREE_BACK_M = 1.0                 # open floor behind a free console (else it stands against something)
+# 30 Oct 2026 (lesson UL208, user on real06 run 20261029-100801-full: "This TV here not making sense"): a TV stands or
+# hangs only on a wall its seating faces, never free in a room. Step 3b of 29 Oct (a media console standing free on the
+# sofa's axis, read from UL107's target picture, whose divider was a low shelf, not a TV) put a 1.2 m console with a
+# TV in the middle of real06's salon, its back to the entrance, between the two seating groups. Gone: a room where no
+# wall passes keeps no TV (a conversation group around a coffee table), reported as a minor note; a TV unit the code or
+# an agent added with no wall behind its back holds no TV (``tv_hosts``) and the review names it (``review``).
+FREE_TV_GAP_M = 0.15              # a TV unit's back this near a wall stands on it (= decor.WALL_MAX_GAP_M or less)
 SPOTS_TRIED = 60                  # the best places checked by the solver per seat (each check is a room check)
 MASTER_WORDS: tuple[str, ...] = ("ebeveyn", "master", "parent", "parents", "suite", "principal", "eltern",
                                  "matrimonial", "matrimoniale", "hoofdslaapkamer", "e yatak")
@@ -293,8 +293,7 @@ def _unit_piece(room: dict, center, rotation: float, size, seat: dict, kind: str
     # the seat's own group (the unit is its TV, G1 judges it against this seat); a seat that anchors none gets its own
     group_id = (own.get("group_id") if own.get("group") == group and own.get("anchor_id") == seat["id"]
                 else f"{room['id']}.{group}.{seat['id']}")
-    where = ("a low media console standing free on its axis, its back to the open floor (a room divider)" if free
-             else "on the wall it faces")
+    where = "on the wall it faces"
     return {"id": pid, "level_id": room["level_id"], "room_id": room["id"], "type": "tv_unit",
             "source": "added_by_ai", "method": "rule", "completes_room": True, "status": "verified",
             "footprint": {"center": [round(float(center[0]), 4), round(float(center[1]), 4)],
@@ -346,47 +345,6 @@ def tv_spots(building: dict, room: dict, seat: dict, kind: str, pieces: Optional
                                     "front": front})
                 t += STEP_M
     out.sort(key=lambda s: (s["score"], s["segment"], s["center"]))
-    return out
-
-
-def free_spots(building: dict, room: dict, seat: dict, kind: str, sizes=None) -> list[dict]:
-    """A media console standing free in an open-plan living room (module docstring, step 3b; pure): on the seat's
-    axis (``FREE_OFFSETS_M``) at ``FREE_DISTANCES_M`` from its front, facing it, its back to at least ``FREE_BACK_M``
-    of open floor (a low room divider between the living and the dining part); only in a living room of at least
-    ``OPEN_PLAN_MIN_M2``. Same records as ``tv_spots``; ``plan_room`` checks each with the solver."""
-    from shapely.geometry import Point
-
-    if kind != "living" or _area(room) < OPEN_PLAN_MIN_M2 - 1e-9:
-        return []
-    ctx = placer.room_context(building, room)
-    (sx, sy), (fx, fy), _w = _seat_frame(seat)
-    rot = placer._rotation_for_normal((-fx, -fy))
-    others = []
-    for f in _pieces(building, room["id"]):
-        try:
-            others.append(placer.piece_from_furniture(f).polygon())
-        except (KeyError, TypeError, ValueError):
-            continue
-    out = []
-    for w, d in sizes or UNIT_SIZES[kind]:
-        for dist in FREE_DISTANCES_M:
-            for off in FREE_OFFSETS_M:
-                fpt = (sx + fx * dist - fy * off, sy + fy * dist + fx * off)
-                c = (fpt[0] + fx * d / 2.0, fpt[1] + fy * d / 2.0)
-                back = Point(c[0] + fx * (d / 2.0 + FREE_BACK_M), c[1] + fy * (d / 2.0 + FREE_BACK_M))
-                if not ctx.polygon.contains(back) or not ctx.polygon.contains(Point(c)):
-                    continue
-                # the open floor behind it (its width, FREE_BACK_M deep) holds no piece: it closes the seating
-                # group, it does not stand inside it (real04's L-1b salon: its armchairs face each other behind it)
-                strip = placer._local_box(c, rot, -w / 2.0, w / 2.0, d / 2.0, d / 2.0 + FREE_BACK_M)
-                if not ctx.polygon.buffer(1e-3).contains(strip) or any(strip.intersection(q).area > 0.01
-                                                                       for q in others):
-                    continue
-                view = view_of(seat, fpt)
-                score = 1.0 + abs(dist - VIEW_BEST_M) / VIEW_BEST_M + abs(off) - 0.1 * w
-                out.append({"center": (round(c[0], 4), round(c[1], 4)), "rotation_deg": rot, "size": (w, d),
-                            "view": view, "score": round(score, 4), "segment": None, "front": fpt, "free": True})
-    out.sort(key=lambda s: (s["score"], s["center"]))
     return out
 
 
@@ -510,22 +468,8 @@ def plan_room(building: dict, room: dict, kind: str) -> dict:
                      f"{refused} refused by the code checks (e.g. {why[0][:90] if why else '-'})" if spots else
                      f"{seat['id']}: no wall faces it {VIEW_MIN_M:g}-{VIEW_MAX_M:g} m away within "
                      f"{VIEW_ANGLE_MAX_DEG:g}° off its axis clear of windows and doors")
-    # 3b. an open-plan living room: a low media console standing free on a seat's axis (a room divider)
-    for seat in order:
-        spots = free_spots(building, room, seat, kind)
-        if not spots:
-            continue
-        piece, refused, why = first_passing(seat, spots)
-        if piece is not None:
-            view = piece.pop("_view")
-            rec.update(seat_id=seat["id"], unit=piece, view=view,
-                       why=(f"a new TV unit {pid} standing free on the axis of the {seat['type'].replace('_', ' ')} "
-                            f"{seat['id']} (a low room divider; " + "; ".join(tried) + ")"))
-            return rec
-        tried.append(f"{seat['id']}: {len(spots)} free-standing place(s), {refused} refused by the code checks (e.g. "
-                     f"{why[0][:90] if why else '-'})")
     rec["seat_id"] = order[0]["id"]
-    rec["why"] = "no TV place: " + "; ".join(tried)
+    rec["why"] = "no TV place: " + "; ".join(tried) + " (a TV never stands free in the room, UL208)"
     return rec
 
 
@@ -564,9 +508,27 @@ def add_media_walls(building: dict, brief: Optional[dict] = None,
 # The TV (decor)
 # --------------------------------------------------------------------------
 
+def standing_free(building: dict, room: dict, unit: dict) -> bool:
+    """A TV unit that is not the documents' (added by the code or an agent) with no wall behind its back (UL208), or one
+    an older plan stood free (``rule.free``). A drawn unit stands where it is drawn."""
+    from wenart.furniture import decor as D
+
+    if unit.get("source") == "from_documents":
+        return False
+    if isinstance(unit.get("rule"), dict) and unit["rule"].get("free"):
+        return True
+    try:
+        found = D._wall_behind(unit, placer.room_context(building, room))
+    except (KeyError, TypeError, ValueError):
+        return False
+    return found is None or found[1] > FREE_TV_GAP_M
+
+
 def tv_hosts(building: dict, room: dict, pieces: list[dict], brief: Optional[dict] = None) -> list[tuple[dict, dict]]:
-    """``[(host, plan)]`` of the room: every TV unit, and the chest a media room's plan names as the TV's host."""
-    out = [(f, {}) for f in pieces if f.get("type") in HOST_TYPES and _built(f)]
+    """``[(host, plan)]`` of the room: every TV unit with a wall behind it (a unit standing free holds no TV, UL208;
+    ``standing_free``), and the chest a media room's plan names as the TV's host."""
+    out = [(f, {}) for f in pieces if f.get("type") in HOST_TYPES and _built(f)
+           and not standing_free(building, room, f)]
     kinds = {r["id"]: k for r, k in media_rooms(building, brief)}
     if room["id"] in kinds and not out:
         for seat in seats(pieces, kinds[room["id"]]):
@@ -677,6 +639,19 @@ def review(building: dict, brief: Optional[dict] = None) -> tuple[list[dict], in
     on_wall = {d.get("room_id") for d in building.get("decor") or [] if d.get("type") == "tv"
                and (d.get("tv") or {}).get("mount") == "wall"}
     out, n = [], 0
+    # UL208: a TV on a unit standing free in its room (added, no wall behind its back)
+    rooms_by_id = {r.get("id"): r for r in building.get("rooms") or []}
+    for d in building.get("decor") or []:
+        host = next((f for f in building.get("furniture") or [] if f.get("id") == d.get("host_id")), None)
+        if d.get("type") != "tv" or host is None or host.get("type") not in HOST_TYPES \
+                or host.get("room_id") not in rooms_by_id:
+            continue
+        if standing_free(building, rooms_by_id[host["room_id"]], host):
+            out.append({"check": REVIEW_CHECK, "severity": "major", "target": host["id"], "room_id": host["room_id"],
+                        "message": f"{host['room_id']}: the TV {d.get('id')} stands free in the room on "
+                                   f"{host['id']}, no wall behind it (a TV stands or hangs on a wall its seating "
+                                   f"faces, UL208)",
+                        "metrics": {"model_review": True, "rule": RULE, "lesson": "UL208", "kind": "free_tv"}})
     rooms = media_rooms(building, brief)
     for room, kind in rooms:
         n += 1
@@ -691,7 +666,8 @@ def review(building: dict, brief: Optional[dict] = None) -> tuple[list[dict], in
                         "metrics": {"model_review": True, "rule": RULE, "lesson": LESSON, "kind": kind}})
             continue
         rec = plan_room(building, room, kind)
-        sev = "major" if kind == "living" else "minor"
+        # UL208: no wall the seating faces takes a TV (a conversation group): a note, not a defect to force
+        sev = "major" if kind == "living" and (rec["unit"] is not None or rec["host_id"]) else "minor"
         out.append({"check": REVIEW_CHECK, "severity": sev, "target": room["id"], "room_id": room["id"],
                     "message": f"{room['id']} ({kind}) has no TV: {rec['why']}",
                     "metrics": {"model_review": True, "rule": RULE, "lesson": LESSON, "kind": kind,

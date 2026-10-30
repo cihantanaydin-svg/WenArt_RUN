@@ -2813,3 +2813,17 @@ code swap of an inferred bathing member, bathtub or walk-in shower, is now allow
 kept: `locked.inferred_swap`), and a picture moved off its piece's wall lost its `anchor_ids` without `free_wall`, so the
 decor stage wrote no building (`wall_items._move`). The replay then passed every stage (9 installation walls, 6 walk-in
 showers).
+
+## The user's review of real06 run 20261029-100801-full (30 Oct 2026, lessons UL207-UL212; in progress)
+
+| lesson | request | rule now (general) | state |
+|---|---|---|---|
+| UL207 | see-through wardrobes "not mandatory, optional" | the master and the bedrooms whose scheme asks for one; the others closed | built |
+| UL208 | "This TV here not making sense" (a console with a TV free in the salon) | a TV only on a wall the seating faces; no free-standing TV unit; a room with no such wall keeps none (minor note) | built |
+| UL209 | the front veranda and balcony: columns cut, handrails, not elegant | (helper running) | open |
+| UL210 | a big window beside a small one | (helper running: the bathroom gap read as a high window beside a normal one) | open |
+| UL211 | a window up to the wall's edge | (helper running) | open |
+| UL212 | detailed small items: kettle, coffee machine, study items | (helper starting) | open |
+
+Before the feedback: a local replay of real06's stages on the current code stopped in the layout (the UL200 swap check
+compared with the drawn type `unknown`); fixed, the replay passes every stage.

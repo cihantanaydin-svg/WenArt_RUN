@@ -217,20 +217,18 @@ def test_tv_sizes_and_the_parametric_tv():
     assert "tv" in B.load_schema()["$defs"]["decor"]["properties"]["type"]["enum"]
 
 
-def test_real06_salon_gets_a_free_media_console_and_the_master_bedroom_is_reported(real06):
+def test_real06_salon_keeps_no_free_standing_tv_and_the_master_bedroom_is_reported(real06):
     rooms = dict((r["id"], k) for r, k in MW.media_rooms(real06))
     assert rooms == {"r_L0_salon": "living", "r_L1_ebeveyn_y_odasi": "bedroom"}     # never the child's room
     assert MW.master_named(_room(real06, "r_L1_ebeveyn_y_odasi"))
     rec = MW.plan_room(real06, _room(real06, "r_L0_salon"), "living")
-    unit = rec["unit"]
-    assert unit is not None and rec["seat_id"] == "f_L0_014" and unit["rule"]["free"]
-    assert rec["view"]["angle_deg"] < 1.0 and abs(rec["view"]["distance_m"] - MW.VIEW_BEST_M) < 0.45
-    assert SV.verify(real06, "r_L0_salon", [unit])[0] == []
-    assert "f_L0_006" in rec["why"]                                       # why the main sofa got none
+    # UL208 (user: "This TV here not making sense"): the 29 Oct free console on the sofa's axis is gone; no wall the
+    # seating faces takes a TV (a conversation group), so the room keeps none and says why
+    assert rec["unit"] is None and not rec["host_id"] and "UL208" in rec["why"] and "f_L0_006" in rec["why"]
     bed = MW.plan_room(real06, _room(real06, "r_L1_ebeveyn_y_odasi"), "bedroom")
     assert bed["unit"] is None and "windows" in bed["why"]               # two windows face the bed: no TV there
     sev = {f["room_id"]: f["severity"] for f in MW.review(real06)[0]}
-    assert sev == {"r_L0_salon": "major", "r_L1_ebeveyn_y_odasi": "minor"}
+    assert sev == {"r_L0_salon": "minor", "r_L1_ebeveyn_y_odasi": "minor"}         # a note, never forced
     off = copy.deepcopy(real06)
     off["project"]["brief"] = {"media_wall": False}
     assert MW.media_rooms(off) == [] and MW.review(off) == ([], 0)
@@ -241,9 +239,11 @@ def test_real04_living_rooms_get_their_tv_units():
     b = json.loads((REAL04 / "building_final.json").read_text(encoding="utf-8"))
     out, recs = MW.add_media_walls(copy.deepcopy(b))
     units = [r["unit"] for r in recs if r["unit"]]
-    assert len(units) >= 2
-    for u in units:
-        assert SV.verify(b, u["room_id"], [u])[0] == []
+    assert len(units) >= 1
+    for u in units:                                       # UL208: every new unit stands on a wall
+        assert SV.verify(b, u["room_id"], [u])[0] == [] and not u["rule"]["free"]
+        room = next(r for r in b["rooms"] if r["id"] == u["room_id"])
+        assert not MW.standing_free(b, room, u)
     assert not any(r["kind"] == "bedroom" and r["room_id"].endswith("cocuk") for r in recs)
 
 
@@ -354,3 +354,21 @@ def test_m21_and_u19_find_what_the_user_pointed_at(real06):
     assert ("U19", LS.rooms_for_use) in LS.BUILDING_CHECKS and LS.CHECK_LESSONS["U19"] == ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107", "UL180")
     res = LS.audit(real06)
     assert res["checked"]["U19"] == len(u19)
+
+
+def test_a_tv_unit_standing_free_holds_no_tv_and_the_review_names_one():
+    """UL208: a TV unit the code or an agent added with no wall behind its back holds no TV; one that holds a TV is a
+    major finding; a drawn unit stands where it is drawn."""
+    import _m11_room as M
+    b = M.building(w=6.0, h=5.0, room_type="living",
+                   furniture=[M.fp("s1", "sofa", (0.55, 2.5), (2.2, 0.9), rotation=90.0, front=0.0),
+                              M.fp("t1", "tv_unit", (3.2, 2.5), (1.2, 0.4), rotation=270.0, source="added_by_ai")])
+    room = b["rooms"][0]
+    unit = b["furniture"][1]
+    assert MW.standing_free(b, room, unit)
+    assert MW.tv_hosts(b, room, b["furniture"]) == []
+    drawn = dict(unit, source="from_documents")
+    assert not MW.standing_free(b, room, drawn)
+    b["decor"] = [{"id": "tv1", "type": "tv", "host_id": "t1", "room_id": room["id"]}]
+    free = [f for f in MW.review(b)[0] if f["metrics"].get("kind") == "free_tv"]
+    assert free and free[0]["severity"] == "major" and "UL208" in free[0]["message"]

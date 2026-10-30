@@ -25,7 +25,8 @@ def _sofa():
 
 
 def _living():
-    return M.building(w=6.0, h=5.0, room_type="living", furniture=[_sofa()])
+    """4.5 m wide: the east wall faces the sofa 3.5 m from its front (UL208: a TV only on a wall the seating faces)."""
+    return M.building(w=4.5, h=5.0, room_type="living", furniture=[_sofa()])
 
 
 def test_one_set_table_for_the_metric_and_the_edits():

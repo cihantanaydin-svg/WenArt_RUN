@@ -2468,12 +2468,12 @@
    "id": "UL208",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "This TV here not making sense (30 Oct 2026, real06 run 20261029-100801-full, the L0 salon: a TV on a glass-shelf media console standing free in the middle of the room on the sofa's axis, its back to the entrance, between the two seating groups)",
-   "lesson": "This TV here not making sense (30 Oct 2026, real06 run 20261029-100801-full, the L0 salon: a TV on a glass-shelf media console standing free in the middle of the room on the sofa's axis, its back to the entrance, between the two seating groups)",
+   "lesson": "A TV stands or hangs only on a wall its seating faces, never free in a room. The 29 Oct step that stood a media console free on a sofa's axis as a room divider (read from UL107's target picture, whose divider was a low shelf, not a TV) is gone. A room where no wall the seating faces passes the checks keeps no TV (a conversation group around a coffee table), reported as a minor note, never forced; a TV unit the code or an agent added with no wall behind its back (0.15 m) holds no TV (media_wall.standing_free, tv_hosts); a TV standing free is a major M21 finding. A drawn TV unit stands where the documents draw it. Real06 run 20261029-100801-full: a 1.2 m glass-shelf console with a TV stood in the middle of the salon, its back to the entrance, between the two seating groups.",
    "question": "Does every TV stand or hang on a wall its seating faces, never free in the middle of a room?"
   },
   {
@@ -2511,6 +2511,18 @@
    "request": "This window all the way to the edge of a wall not making any sense needs better solution (30 Oct 2026, real06 run 20261029-100801-full, a facade: a window's frame and sill run into the wall's corner, no solid wall between the window and the corner trim)",
    "lesson": "This window all the way to the edge of a wall not making any sense needs better solution (30 Oct 2026, real06 run 20261029-100801-full, a facade: a window's frame and sill run into the wall's corner, no solid wall between the window and the corner trim)",
    "question": "Does every window keep solid wall between its frame and the wall's end or the facade's corner?"
+  },
+  {
+   "id": "UL212",
+   "date": "2026-10-30",
+   "area": "decor",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Try to improve the plain small item models more maybe kitchen needs a kettle a coffee machine etc, or study rooms requires some other items, model them as much detail as you can (30 Oct 2026, the user on real06 run 20261029-100801-full's renders)",
+   "lesson": "Try to improve the plain small item models more maybe kitchen needs a kettle a coffee machine etc, or study rooms requires some other items, model them as much detail as you can (30 Oct 2026, the user on real06 run 20261029-100801-full's renders)",
+   "question": "Do the kitchen and the study show detailed real appliances and objects (kettle, coffee machine, toaster; desk organisers, files, a globe or lamp), not plain boxes?"
   }
  ]
 }
