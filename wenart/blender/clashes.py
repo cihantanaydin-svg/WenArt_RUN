@@ -5,8 +5,9 @@ What: ``resolve(building)`` (pure; in place, ``build.prepare`` calls it on the b
 built pieces of a level whose plan shapes overlap deeper than ``CLASH_TOL_M`` and whose heights meet, and separates
 them. A piece's plan shape is its footprint rectangle, or the two rectangles of an L sofa
 (``parametric.l_parts``). Pairs that overlap by design are left: a chair or stool tucked under its table, desk or
-counter (up to ``TUCK_SHARE`` of the seat), a kitchen run's members in their counter (the build cuts the sink into
-it and stands the hob in a gap), a basin in its vanity, a rug, a wall-hung piece over a floor piece. The piece that
+counter (up to ``TUCK_SHARE`` of the seat, clear of a legged table's corner legs: ``leg_zones``, UL178), a kitchen
+run's members in their counter (the build cuts the sink into it and stands the hob in a gap), a basin in its vanity,
+a rug, a wall-hung piece over a floor piece. The piece that
 gives way is the lesser one: an accessory (side or coffee table, ottoman, lamp, plant) before seating before an
 anchor (bed, sofa, wardrobe, table, counter, bath); then an added piece before a drawn one; then the smaller. It
 moves the shortest way out (a separating axis of the two shapes) plus ``GAP_M``, at most ``MAX_MOVE_M`` (drawn) or
@@ -40,6 +41,13 @@ MAX_MOVE_M = 0.50               # CLAUDE.md: a drawn piece moves at most 0.5 m
 MAX_MOVE_ADDED_M = 1.00
 TUCK_SHARE = 0.55               # a chair may stand this share of its seat under a table
 TUCK_DEPTH_M = 0.35
+# 30 Oct 2026 (lesson UL178, user on real04 run 20261030-112241-full: "Table seems to be going through the chairs"; the
+# play room's drawn cafe set put two chairs on opposite corners of the table, a corner inside each seat): a legged
+# table's legs stand at its corners, so a seat tucked under it keeps out of the square this far in from each corner
+# (a leg up to 6 cm set in up to 4 cm); a round table stands on a central pedestal (no corner legs)
+LEGGED_TABLES = ("table_dining", "table", "desk", "console_table", "dressing_table")
+LEG_ZONE_M = 0.10              # = parametric._table (leg min(0.06, ...), inset min(0.04, ...))
+LEG_TOL_M = 0.005
 INSIDE_SHARE = 0.97             # a moved piece keeps this share of itself inside its room
 DOOR_DEPTH_M = 0.80             # a doorway: the door's width this deep on each side stays free
 SEATS = ("chair", "dining_chair", "office_chair", "stool", "bar_stool", "kitchen_stool")
@@ -166,12 +174,43 @@ def z_range(f: dict) -> tuple[float, float]:
 # Which pairs clash, and who gives way
 # --------------------------------------------------------------------------
 
-def by_design(f: dict, g: dict, sf: list, sg: list, depth: float) -> Optional[str]:
-    """Why ``f`` and ``g`` may overlap (None when they may not)."""
+def leg_zones(table: dict) -> list[list[tuple[float, float]]]:
+    """UL178: the corner squares (``LEG_ZONE_M``) of a legged rectangular table where its legs stand, in world
+    coordinates; [] for a table of another type, a table built round (``parametric.built_round``: a round model, or our
+    round table on its pedestal; a square model on a round drawn table keeps its corner legs) or a table too small to
+    have a free span between its legs."""
+    from wenart.blender.parametric import built_round
+
+    fr = _frame(table)
+    if fr is None or str(table.get("type") or "") not in LEGGED_TABLES or built_round(table):
+        return []
+    (cx, cy), (w, d), ca, sa = fr
+    z = LEG_ZONE_M
+    if min(w, d) < 2.0 * z:
+        return []
+    out = []
+    for sx in (-1.0, 1.0):
+        for sy in (-1.0, 1.0):
+            x0, x1 = sorted((sx * w / 2.0, sx * (w / 2.0 - z)))
+            y0, y1 = sorted((sy * d / 2.0, sy * (d / 2.0 - z)))
+            out.append([(cx + ca * x - sa * y, cy + sa * x + ca * y)
+                        for x, y in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))])
+    return out
+
+
+def on_legs(seat_shape: list, table: dict) -> float:
+    """UL178: how deep a seat's plan shape reaches into the leg zones of ``table`` (``leg_zones``; 0 when clear)."""
+    return shape_depth(seat_shape, leg_zones(table))
+
+
+def by_design(f: dict, g: dict, sf: list, sg: list, depth: float, legs: bool = True) -> Optional[str]:
+    """Why ``f`` and ``g`` may overlap (None when they may not). ``legs`` False: a seat may be tucked into a legged
+    table's corner legs (the fallback of a seat with no leg-free place, UL178)."""
     tf, tg = str(f.get("type") or ""), str(g.get("type") or "")
     for a, b, sa, sb in ((f, g, sf, sg), (g, f, sg, sf)):
         ta, tb = str(a.get("type") or ""), str(b.get("type") or "")
-        if ta in SEATS and tb in TABLES and depth <= TUCK_DEPTH_M and overlap_share(sa, sb) <= TUCK_SHARE:
+        if ta in SEATS and tb in TABLES and depth <= TUCK_DEPTH_M and overlap_share(sa, sb) <= TUCK_SHARE \
+                and (not legs or on_legs(sa, b) <= LEG_TOL_M):    # UL178: never into the table's legs
             return "a seat tucked under its table"
         if ta in KITCHEN_MEMBERS and tb in KITCHEN_RUN:
             return "a member of the kitchen run (built into it)"
@@ -226,14 +265,24 @@ def _moved(f: dict, dx: float, dy: float) -> dict:
     return g
 
 
-def clashes_with(f: dict, sf: list, others: list) -> list:
-    """The pieces of ``others`` (``[(piece, shape)]``) that ``f`` clashes with."""
+def from_drawn(f: dict, dx: float = 0.0, dy: float = 0.0) -> float:
+    """UL178: how far ``f`` moved by ``(dx, dy)`` stands from its drawn place (``drawn_footprint``, else where it
+    stands): a seat pulled out of its table's legs in a later round keeps the drawn piece's 0.5 m in all."""
+    c = (f.get("footprint") or {}).get("center")
+    d = (f.get("drawn_footprint") or {}).get("center") or c
+    if not c or not d:
+        return math.hypot(dx, dy)
+    return math.hypot(float(c[0]) + dx - float(d[0]), float(c[1]) + dy - float(d[1]))
+
+
+def clashes_with(f: dict, sf: list, others: list, legs: bool = True) -> list:
+    """The pieces of ``others`` (``[(piece, shape)]``) that ``f`` clashes with (``legs``: as ``by_design``)."""
     out = []
     for g, sg in others:
         if g is f:
             continue
         d = shape_depth(sf, sg)
-        if d > CLASH_TOL_M and by_design(f, g, sf, sg, d) is None:
+        if d > CLASH_TOL_M and by_design(f, g, sf, sg, d, legs) is None:
             out.append(g)
     return out
 
@@ -252,11 +301,11 @@ def _limit(members: list) -> float:
 
 
 def find_unit_place(members: list, other_shape: list, peers: list, room_polys: dict, doors: list,
-                    stay: Optional[dict] = None) -> Optional[tuple]:
+                    stay: Optional[dict] = None, legs: bool = True) -> Optional[tuple]:
     """The shortest move of a unit (one piece, or a table with its seats) out of ``other_shape`` to a place where
     every member stays inside its room, clear of every piece outside the unit and of the doorways it was not in:
     ``(dx, dy, distance)`` or None. With ``stay`` (a seat at its own table) the seat may stop where it stands
-    tucked under it (``by_design``) instead of all the way out."""
+    tucked under it (``by_design``; with ``legs`` False also into its corner legs) instead of all the way out."""
     ids = {m.get("id") for m in members}
     shapes = {m.get("id"): shape(m) for m in members}
     was_in = {m.get("id"): (inside_share(shapes[m.get("id")], room_polys[m.get("room_id")])
@@ -284,6 +333,8 @@ def find_unit_place(members: list, other_shape: list, peers: list, room_polys: d
             continue
         seen.add(key)
         dx, dy = ax[0] * dist, ax[1] * dist
+        if stay is not None and any(from_drawn(m, dx, dy) > limit + 1e-9 for m in members):
+            continue                      # UL178: a seat's moves add up to at most the limit from its drawn place
         ok = True
         for m in members:
             g = _moved(m, dx, dy)
@@ -292,9 +343,9 @@ def find_unit_place(members: list, other_shape: list, peers: list, room_polys: d
             if room and inside_share(sg, room) + 1e-9 < min(INSIDE_SHARE, was_in[m.get("id")]):
                 ok = False
             elif shape_depth(sg, other_shape) > CLASH_TOL_M and (
-                    stay is None or by_design(g, stay, sg, other_shape, shape_depth(sg, other_shape)) is None):
+                    stay is None or by_design(g, stay, sg, other_shape, shape_depth(sg, other_shape), legs) is None):
                 ok = False
-            elif clashes_with(g, sg, outside):
+            elif clashes_with(g, sg, outside, legs):
                 ok = False
             elif any(shape_depth(sg, [d]) > CLASH_TOL_M for k, d in enumerate(doors) if (m.get("id"), k) not in in_door):
                 ok = False
@@ -377,15 +428,18 @@ def _not_built(p: dict, reason: str) -> None:
 
 def resolve(building: dict) -> dict:
     """Separate the clashing pieces of ``building`` (module docstring). Returns ``{"fixed": [{"id", "other",
-    "action": "moved" | "not_built", "distance_m", "members", "reason"}], "left": [{"id", "other", "depth_m"}]}``.
-    Order: a piece read twice is built once; then the seats pushed into their own table are pulled out; then every
-    other clash moves the lesser unit (a table set as one)."""
+    "action": "moved" | "not_built", "distance_m", "members", "reason"}], "left": [{"id", "other", "depth_m"}],
+    "legs": [{"id", "other", "depth_m"}]}`` (UL178: the seats left tucked into their table's corner legs, no leg-free
+    place within the move limit). Order: a piece read twice is built once; then the seats pushed into their own table
+    are pulled out (between its legs, else all the way); then every other clash moves the lesser unit (a table set as
+    one)."""
     rooms = {r["id"]: r["polygon"] for r in building.get("rooms") or [] if len(r.get("polygon") or []) >= 3}
     pieces = [f for f in building.get("furniture") or [] if f.get("build") is not False
               and str(f.get("type") or "") not in SKIP_TYPES + FLOOR_ONLY and _frame(f) is not None]
     decor = [d for d in building.get("decor") or [] if isinstance(d, dict)]
     fixed: list = []
     left: list = []
+    legs: list = []
     by_level: dict = {}
     for f in pieces:
         by_level.setdefault(f.get("level_id"), []).append(f)
@@ -417,6 +471,8 @@ def resolve(building: dict) -> dict:
                     depth = shape_depth(sf, sg)
                     if depth <= CLASH_TOL_M or by_design(f, g, sf, sg, depth):
                         continue
+                    # UL178: a seat tucked into its table's corner legs (the tuck rule without the legs)
+                    legacy = by_design(f, g, sf, sg, depth, legs=False)
                     # 27 Oct 2026 (module docstring): two drawn fixtures keep their walls (slide, else seat)
                     if FS.fixture_pair(f, g):
                         hit = fixture_fix(f, g, depth, live(), rooms, doors, decor)
@@ -428,14 +484,21 @@ def resolve(building: dict) -> dict:
                     same_set = sets.get(f["id"]) is not None and sets.get(f["id"]) is sets.get(g["id"])
                     order = sorted((f, g), key=_rank)
                     tries = [order] + ([order[::-1]] if not (_tier(order[1]) == 2 and _tier(order[0]) == 0) else [])
+                    if legacy is not None:
+                        tries = [order]           # UL178: only the seat moves out of the legs, never the table
                     done = False
                     for mover, stay in tries:
                         # a seat pulled out of its own table moves alone; otherwise a table set moves as one
                         members = [mover] if same_set else sets.get(mover["id"], [mover])
                         if not same_set and stay in members:
                             members = [mover]
-                        spot = find_unit_place(members, shape(stay), peers, rooms, doors,
-                                               stay=stay if same_set and str(mover.get("type")) in SEATS else None)
+                        seat_stay = stay if same_set and str(mover.get("type")) in SEATS else None
+                        spot = find_unit_place(members, shape(stay), peers, rooms, doors, stay=seat_stay)
+                        if spot is None and seat_stay is not None and legacy is None:
+                            # UL178: no leg-free place: tucked as far as the rule without the legs lets it (``legs``
+                            # reports it, the score's F9 names it)
+                            spot = find_unit_place(members, shape(stay), peers, rooms, doors, stay=seat_stay,
+                                                   legs=False)
                         if spot is None:
                             continue
                         dx, dy, dist = spot
@@ -450,8 +513,8 @@ def resolve(building: dict) -> dict:
                                       "reason": reason})
                         done = changed = True
                         break
-                    if done:
-                        continue
+                    if done or legacy is not None:
+                        continue                  # UL178: a seat with no leg-free place stays tucked (``legs``)
                     acc = [p for p in order if _tier(p) == 0]
                     if acc:
                         p = acc[0]
@@ -465,7 +528,8 @@ def resolve(building: dict) -> dict:
             if not changed:
                 break
         left += remaining(group)
-    return {"fixed": fixed, "left": left}
+        legs += in_legs(group)
+    return {"fixed": fixed, "left": left, "legs": legs}
 
 
 def must_clear(f: dict, p: dict) -> bool:
@@ -566,12 +630,29 @@ def refit_asset(piece: dict, old_size, by: str = "architect F5") -> None:
 
 
 def remaining(group: list) -> list[dict]:
-    """The pairs of ``group`` that still clash: ``[{"id", "other", "depth_m"}]``."""
+    """The pairs of ``group`` that still clash: ``[{"id", "other", "depth_m"}]`` (a seat tucked into its table's legs
+    is ``in_legs``'s)."""
     out = []
     shapes = [(f, shape(f)) for f in group if f.get("build") is not False]
     for i, (f, sf) in enumerate(shapes):
         for g, sg in shapes[i + 1:]:
             depth = shape_depth(sf, sg)
-            if depth > CLASH_TOL_M and by_design(f, g, sf, sg, depth) is None:
+            if depth > CLASH_TOL_M and by_design(f, g, sf, sg, depth, legs=False) is None:
                 out.append({"id": f["id"], "other": g["id"], "depth_m": round(depth, 3)})
+    return out
+
+
+def in_legs(group: list) -> list[dict]:
+    """UL178: the seats of ``group`` left tucked into their table's corner legs (no leg-free place within the move
+    limit): ``[{"id": seat, "other": table, "depth_m": how deep into a leg}]``."""
+    out = []
+    shapes = [(f, shape(f)) for f in group if f.get("build") is not False]
+    for i, (f, sf) in enumerate(shapes):
+        for g, sg in shapes[i + 1:]:
+            depth = shape_depth(sf, sg)
+            if depth <= CLASH_TOL_M or by_design(f, g, sf, sg, depth) is not None \
+                    or by_design(f, g, sf, sg, depth, legs=False) is None:
+                continue
+            seat, table, ss = (f, g, sf) if str(f.get("type") or "") in SEATS else (g, f, sg)
+            out.append({"id": seat["id"], "other": table["id"], "depth_m": round(on_legs(ss, table), 3)})
     return out

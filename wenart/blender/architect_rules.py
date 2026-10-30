@@ -1222,11 +1222,18 @@ def clash_rule(building: dict, clashes: Optional[dict]) -> list[dict]:
     for x in clashes.get("left") or []:
         left.setdefault(x["id"], x)
         left.setdefault(x["other"], x)
+    legs = {x["id"]: x for x in clashes.get("legs") or []}          # UL178: seats left in a table's corner legs
     for f in building.get("furniture") or []:
         if str(f.get("type") or "") in CL.SKIP_TYPES + CL.FLOOR_ONLY or not f.get("footprint"):
             continue
         x = done.get(f["id"])
-        if f["id"] in left:
+        if f["id"] in legs and f["id"] not in left:
+            c = legs[f["id"]]
+            _open(f5, f["id"], f"{f['id']} ({f.get('type')}) stands {c['depth_m']:.2f} m into a corner leg of "
+                  f"{c['other']}: no leg-free place within the move limits (UL178)",
+                  f"Should {f['id']} stand pulled out from {c['other']}, or another place?",
+                  [AA.option("keep")], where=_where("furniture", f.get("level_id"), f["footprint"]["center"]))
+        elif f["id"] in left:
             c = left[f["id"]]
             other = c["other"] if c["id"] == f["id"] else c["id"]
             _open(f5, f["id"], f"{f['id']} ({f.get('type')}) and {other} still overlap {c['depth_m']:.2f} m: no "

@@ -1210,6 +1210,9 @@ def prepare_once(building_all: dict, variant: str = "base", brief: dict | None =
     out["clashes"] = CL.resolve(out["building"])
     out["warnings"] += [f"furniture clash left: {c['id']} and {c['other']} overlap {c['depth_m']:.2f} m"
                         for c in out["clashes"]["left"]]
+    out["warnings"] += [f"seat in a table's legs: {c['id']} stands {c['depth_m']:.2f} m into a corner leg of "
+                        f"{c['other']} (no leg-free place within the move limit, UL178)"
+                        for c in out["clashes"].get("legs") or []]
     if not whole:
         return out
     slab_t, slab_assumed = out["brief"]["slab_thickness"]["value"], out["brief"]["slab_thickness"]["assumed"]

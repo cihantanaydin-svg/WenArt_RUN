@@ -604,6 +604,39 @@ def outdoor_candidates(piece: dict, candidates: list[dict]) -> tuple[list[dict],
     return kept, excluded
 
 
+# 30 Oct 2026 (lesson UL178, user on real04 run 20261030-112241-full: "Table seems to be going through the chairs"; the
+# play room's drawn round cafe table, a circle 0.79 m across with two chairs on its diagonal, was built as a square
+# turned-leg library table whose corners and legs stood in the chairs): a round drawn table (``parametric
+# .piece_is_round``) takes a round model (``parametric.model_is_round``: its title says so), else our round parametric
+# table on a pedestal; a gate, not a rank, for the agent's pinned model too (``room_rule_refusal``)
+ROUND_TABLE_TYPES: tuple[str, ...] = ("table_dining", "table_coffee", "side_table")
+ROUND_TABLE_RULE = "round_table"
+
+
+def round_misfit(entry: dict, piece: dict) -> Optional[str]:
+    """UL178: why ``entry`` may not be the model of ``piece`` (None when it may): a round drawn table and a model
+    whose title names no round shape."""
+    from wenart.blender import parametric as P   # pure Python (no bpy)
+
+    if str(piece.get("type") or "") not in ROUND_TABLE_TYPES or not P.piece_is_round(piece) or P.model_is_round(entry):
+        return None
+    return (f"the drawn {piece.get('type')} is round and the model is not (its title names no round shape): a square "
+            f"table's corners and legs would stand in the chairs drawn round it (rule {ROUND_TABLE_RULE})")
+
+
+def round_candidates(piece: dict, candidates: list[dict]) -> tuple[list[dict], list[dict]]:
+    """UL178: ``(kept, excluded)``: for a round drawn table the round models (``round_misfit``), the others with the
+    rule and the reason; every candidate for another piece."""
+    kept, excluded = [], []
+    for e in candidates:
+        why = round_misfit(e, piece)
+        if why is None:
+            kept.append(e)
+        else:
+            excluded.append({"id": e["id"], "reason": why, "rule": ROUND_TABLE_RULE})
+    return kept, excluded
+
+
 # 26 Oct 2026 (fix E, user: "there is no taste in the furniture selection"; real06's Scandinavian living room got a
 # folding chair at a turned-leg "Traditional ... Rustic" table with Eames chairs). Two rank rules, never gates:
 # - a misfit (``misfit_of``): a model whose title, name or audit names a folding or camping piece, an outdoor piece in
@@ -856,7 +889,10 @@ def use_candidates(piece: dict, candidates: list[dict], family: Optional[str] = 
 
 def room_rule_refusal(entry: dict, piece: dict, family: Optional[str]) -> Optional[str]:
     """UL156, UL161: why the room rules refuse a model the agent pinned (None when they keep it); the pin's refusal
-    names it instead of the caps."""
+    names it instead of the caps. UL178: a round drawn table refuses a model that is not round (``round_misfit``)."""
+    shape = round_misfit(entry, piece)
+    if shape:
+        return shape
     room_type = piece.get("room_type")
     if not room_type:
         return None
@@ -1363,6 +1399,12 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
     if not candidates:
         return parametric_fit(piece, f"no {ftype} model made for outside (rule {OUTDOOR_ROOM_RULE}: an open-air "
                                      f"room takes outdoor furniture; {len(outdoor_excluded)} indoor model(s) left out)",
+                              excluded=excluded, style_family=style_family)
+    candidates, round_excluded = round_candidates(piece, candidates)          # UL178
+    excluded += round_excluded
+    if not candidates:
+        return parametric_fit(piece, f"no round {ftype} model (rule {ROUND_TABLE_RULE}: a round drawn table takes a "
+                                     f"round model; {len(round_excluded)} other model(s) left out): our round table",
                               excluded=excluded, style_family=style_family)
     if piece.get("shape") == "L":
         candidates, side_excluded, side = chaise_side_candidates(candidates, piece.get("chaise_side"))
