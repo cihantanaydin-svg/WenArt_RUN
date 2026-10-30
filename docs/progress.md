@@ -2757,7 +2757,7 @@ Fixed after the run:
   pose (cam_r_L0_yatak_odasi_3, 0 % in the ray-cast model). An agent pose may hide a piece the model also hides, as a
   searched one may.
 
-## The user's review of real04 run 112241: 24 requests (30 Oct 2026, lessons UL174-UL197; in progress)
+## The user's review of real04 run 112241: 33 requests (30 Oct 2026, lessons UL174-UL205; in progress)
 
 | lesson | request | rule now (general) | state |
 |---|---|---|---|
@@ -2765,22 +2765,30 @@ Fixed after the run:
 | UL175 | laptop and stationery too plain | a laptop with keycaps, trackpad, hinge, bezel and a lit desktop screen; notebooks with page blocks and bands; pens with clips; a hollow pen pot | built (helper) |
 | UL176 | this bed | care, hospital and motion beds are never a home's bed | built (helper) |
 | UL177 | the slat wall texture everywhere | the house walls slot keeps a plain finish (Argus had set walls to wood_slat: 48 wall faces); at most two rooms with a slat or fluted wall | built |
-| UL178 | table through the chairs | (helper running) | open |
+| UL178 | table through the chairs | a round drawn table is built round (a square model is refused, also for the agent's swap); a chair tucked under a table with corner legs keeps out of them | built (helper) |
 | UL179 | door too plain | family joinery: glazing beads, profiled casing on plinth blocks, lever on a rose, hinge tips, a weather bar outside | built (helper) |
 | UL180 | pillows and a throw on the white sofa, another rug | the main sofa is dressed (2-4 cushions, a throw); each seating group gets its own rug; a built but unverified piece is dressed | built (helper) |
-| UL181, UL197 | window and curtains; frame detail | (helper running) | open |
-| UL182 | the slatted lit wardrobes in more rooms, to the ceiling, glass | (helper running) | open |
-| UL183, UL184, UL186 | toilet roll, vanity objects, kitchen small items | (helper running) | open |
+| UL181, UL197 | window and curtains; frame detail | curtains are fitted again to the window as built (the play room's window grew 2.0 to 4.0 m after decor: the 2.4 m curtain hung mid-glass); every window is a real product: profiled frame, sashes with handles, beads, gaskets, mullions; wide glazing split into lift-and-slide panes | built (helper) |
+| UL182 | the slatted lit wardrobes in more rooms, to the ceiling, glass | every bedroom's widest run gets a see-through front of its own (slats, slats with smoked or reeded glass, smoked or reeded glass), to the ceiling with a top box; a light over it moves off | built (helper) |
+| UL183, UL184, UL186 | toilet roll, vanity objects, kitchen small items | real products: a holder with rose, arm and flap and a soft roll; pampas stems, labelled pump bottles, knobbed jars; a footed fruit bowl with real fruit, a utensil crock, a board | built (helper) |
 | UL185 | a render of only tiles and ceiling | every interior pose holds at least 12 % furniture when its room's search can | built |
 | UL187 | a full-size fridge (end of the run, beside the oven) | one full-size fridge per kitchen in the tall column beside the oven tower; a run end in a door swing stops short | built (helper) |
 | UL188 | stairs into the pool terrace from the road | a sunken terrace's flight never climbs onto a road; it leaves from the side away from it | built |
 | UL189 | the access steps; no handrails | garden steps take a handrail only when one flight rises over 1.0 m | built |
 | UL190 | mirror behind the open door | a leaf never rests over a mirror or a picture (the door opens otherwise or stays closed) | built |
 | UL191 | kitchen door slots | an inside door's narrow glass lites are satin glass; "panel" is never glass | built (helper) |
-| UL192 | the stairs | (helper running) | open |
+| UL192 | the stairs | the stair's structure never takes the walls' feature finish (it had slatted risers); a floor opening's guard keeps out of its own level's stair (a glass guard crossed the first flight); rails climb over winders; a wall rail where the open rail is cut; a stair envelope check in M18 | built (helper) |
 | UL193 | the desk chair | corporate task chairs rank last in a home | built |
 | UL194 | the white box sofa | a piece longer than deep faces from a long side (the sofas had faced along their length, so the parametric box was built) | built |
 | UL195 | at most 5 pillows per bed | a bed model with pillows of its own keeps its set, ours goes only on beds without pillows | built |
-| UL196 | road section and fencing outside | (next) | open |
+| UL196 | road section and fencing outside | (helper running) | open |
+| UL198 | cars must be able to enter and exit | (helper running) | open |
+| UL199 | text on book spines, wine, vinegar, salt and pepper labels | printed titles on spines, labels on bottles and jars (a print atlas) | built (helper) |
+| UL200 | not every bathroom needs a bath | a code-typed bath-sized footprint keeps its bath only on the level with the most bedrooms; the others become walk-in showers (real04: L0 keeps its tubs; L-1, L-1b, L1 get showers) | built |
+| UL201 | shower inspiration | (helper running) | open |
+| UL202, UL203 | walkable walkways; a step into the house | (helper running) | open |
+| UL204 | the wall texture at the entrance | one stone per house: plinth and plot walls take the facade's base stone; an edit with another stone is refused | built |
+| UL205 | WC inspiration | (helper running) | open |
+| UL204 | wood cladding by the door looks streaky | textured wood cladding is laid as real boards (3 m long, 12 cm wide, staggered joints) in walnut veneer, not one stretched texture | built |
 
 Also: a relayout keeps the room's set (the TV units of run 112241), the GPU index-pass test allows hidden pieces in agent poses.
