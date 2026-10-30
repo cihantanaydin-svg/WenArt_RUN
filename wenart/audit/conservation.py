@@ -216,6 +216,30 @@ def outdoor_built(final: dict) -> dict:
             if o.get("area_id") and o.get("polygon") and o.get("build") is not False}
 
 
+SURFACE_KEYS = ("paving", "parking", "grass", "pools", "platforms")
+
+
+def held_by(final: dict, area: dict) -> Optional[str]:
+    """The built surface that holds a labelled site area (pure; 30 Oct 2026, lesson UL129: real04's 'Otopark alani' was
+    the drawn parking spk_001, whose record names the area, and its 'Güneşlenme alani' and '24m2 havuz' labels stood
+    in the paving and the pools they name, yet C5 called all nine lost): a paving, parking, grass, pool or platform
+    of the site that names the area (``area_id``) or whose outline holds the label's anchor; None."""
+    from wenart import geometry as G
+
+    site = final.get("site") if isinstance(final.get("site"), dict) else {}
+    anchor = area.get("anchor")
+    for key in SURFACE_KEYS:
+        for s in site.get(key) or []:
+            if not isinstance(s, dict) or s.get("build") is False:
+                continue
+            if area.get("id") and s.get("area_id") == area.get("id") and s.get("id") != area.get("id"):
+                return str(s.get("id"))
+            poly = s.get("polygon") or []
+            if anchor and len(poly) >= 3 and G.point_in_polygon(tuple(map(float, anchor[:2])), poly):
+                return str(s.get("id"))
+    return None
+
+
 def untyped(final: dict) -> list[dict]:
     """C4 and C5 on the final building. The untyped elements of one collection are one finding (one missing rule),
     every id in its evidence."""
@@ -227,6 +251,8 @@ def untyped(final: dict) -> list[dict]:
             if coll == "site_areas":
                 if el["id"] in spaces:
                     continue                      # built as the outdoor space that names it
+                if held_by(final, el):
+                    continue                      # 30 Oct 2026: its drawn surface (paving, parking, pool) is built
                 if el.get("build") is False or not el.get("polygon"):
                     label = el.get("label") or el.get("label_raw") or el["id"]
                     out.append(K.finding("conservation", "C5", "critical", el["id"],

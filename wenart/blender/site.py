@@ -758,6 +758,132 @@ def light_wells(building: dict, levels: Sequence[dict], terrain: dict, outline: 
     return merge_courts(wells), warnings
 
 
+# 30 Oct 2026 (lesson UL142, user on real04: "This white section needs to go all the way": the light well of
+# win_L-1_002 paved the foot of the right half of the long glazed basement facade, the lawn ran up to the glass of
+# win_L-1_001 beside it): the paved strip at the foot of a glazed facade runs the whole glazing run.
+APRON = {"run_gap_m": 1.5, "piece_m": 0.25, "min_m": 0.3}
+
+
+def _glazing(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]],
+             outlines: Optional[dict]) -> list[dict]:
+    """The windows and doors on the outer walls (pure): ``{"id", "level_id", "out", "u", "line", "s0", "s1",
+    "half_t"}`` (``line``: the wall centre line along ``out``; ``s0``-``s1``: the opening's span along ``u``)."""
+    from wenart.blender.shell import opening_centre_on_wall
+
+    ids = {lv["id"] for lv in levels}
+    walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") in ids}
+    out = []
+    for o in building.get("openings") or []:
+        wall = walls.get(o.get("wall_id"))
+        if wall is None or o.get("type") not in ("window", "door") or not o.get("width"):
+            continue
+        cx, cy, _ = opening_centre_on_wall(o, wall)
+        d = outward_side(wall, (outlines or {}).get(o.get("level_id")) or outline, (cx, cy))
+        if d is None:
+            continue
+        u = (-d[1], d[0])
+        s = cx * u[0] + cy * u[1]
+        half = float(o["width"]) / 2.0
+        out.append({"id": o["id"], "level_id": o.get("level_id"), "out": (float(d[0]), float(d[1])), "u": u,
+                    "line": cx * d[0] + cy * d[1], "s0": s - half, "s1": s + half,
+                    "half_t": float(wall["thickness"]) / 2.0})
+    return out
+
+
+def facade_aprons(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]],
+                  outlines: Optional[dict], wells: Sequence[dict], platforms_: Sequence[dict] = ()
+                  ) -> tuple[list[dict], list[dict]]:
+    """``(aprons, runs)`` (pure; lesson UL142): every light well at the foot of a glazed facade runs on as a paved
+    apron (the well's depth, draped on the ground) along the rest of its glazing run, the windows and doors of the same
+    level on the same wall line whose spans lie within ``APRON["run_gap_m"]`` of each other, from the run's first to
+    its last opening (``light_well_side`` past each end), never over a platform (its floor is the edge there) or
+    another well. ``runs``: ``[{"well", "run_ids", "covered_ids"}]`` (the review's G12)."""
+    glaz = _glazing(building, levels, outline, outlines)
+    by_id = {g["id"]: g for g in glaz}
+    depth, side = DEFAULTS["light_well_depth"], DEFAULTS["light_well_side"]
+    pfs = [pf for pf in platforms_ if len(pf.get("polygon") or []) >= 3 and not pf.get("elevated")]
+    aprons, runs = [], []
+    done = set()
+    for w in wells:
+        if w.get("kind") == "front_court" or w.get("opening_id") not in by_id:
+            continue
+        me = by_id[w["opening_id"]]
+        same = sorted((g for g in glaz if g["level_id"] == me["level_id"] and abs(g["line"] - me["line"]) < 0.05
+                       and g["out"][0] * me["out"][0] + g["out"][1] * me["out"][1] > 0.999), key=lambda g: g["s0"])
+        k = next(i for i, g in enumerate(same) if g["id"] == me["id"])
+        lo, hi = k, k
+        while lo > 0 and same[lo]["s0"] - same[lo - 1]["s1"] <= APRON["run_gap_m"]:
+            lo -= 1
+        while hi < len(same) - 1 and same[hi + 1]["s0"] - same[hi]["s1"] <= APRON["run_gap_m"]:
+            hi += 1
+        run = same[lo:hi + 1]
+        key = tuple(g["id"] for g in run)
+        if key in done:
+            continue
+        done.add(key)
+        u, d = me["u"], me["out"]
+        # the spans the wells of this line already pave
+        paved = []
+        for x in wells:
+            ps = [p[0] * u[0] + p[1] * u[1] for p in x.get("polygon") or []]
+            dn = [p[0] * d[0] + p[1] * d[1] for p in x.get("polygon") or []]
+            if ps and abs(min(dn) - (me["line"] + me["half_t"])) < 0.1:
+                paved.append((min(ps), max(ps)))
+        s_lo, s_hi = min(g["s0"] for g in run) - side, max(g["s1"] for g in run) + side
+        n = max(1, int(math.ceil((s_hi - s_lo) / APRON["piece_m"])))
+        keep = []
+        for j in range(n):
+            a, b = s_lo + (s_hi - s_lo) * j / n, s_lo + (s_hi - s_lo) * (j + 1) / n
+            m = (a + b) / 2.0
+            c = (u[0] * m + d[0] * (me["line"] + me["half_t"] + depth / 2.0),
+                 u[1] * m + d[1] * (me["line"] + me["half_t"] + depth / 2.0))
+            if any(p0 - 1e-6 <= m <= p1 + 1e-6 for p0, p1 in paved):
+                keep.append(None)
+                continue
+            if any(G.point_in_polygon(c, pf["polygon"]) for pf in pfs):
+                keep.append(None)
+                continue
+            keep.append((a, b))
+        spans, cur = [], None
+        for piece in keep + [None]:
+            if piece is None:
+                if cur is not None and cur[1] - cur[0] >= APRON["min_m"]:
+                    spans.append(cur)
+                cur = None
+            else:
+                cur = [piece[0], piece[1]] if cur is None else [cur[0], piece[1]]
+        for sp in spans:                                  # meet the well's paving exactly (no sliver of lawn)
+            for p0, p1 in paved:
+                if 0.0 < p0 - sp[1] <= APRON["piece_m"] + 1e-6:
+                    sp[1] = p0
+                if 0.0 < sp[0] - p1 <= APRON["piece_m"] + 1e-6:
+                    sp[0] = p1
+        covered = [g["id"] for g in run if g["id"] == w["opening_id"]]
+        for s0, s1 in spans:
+            d0, d1 = me["line"] + me["half_t"], me["line"] + me["half_t"] + depth
+            poly = geom2d.ccw([(u[0] * s + d[0] * dd, u[1] * s + d[1] * dd) for s, dd in ((s0, d0), (s1, d0), (s1, d1),
+                                                                                           (s0, d1))])
+            ids = [g["id"] for g in run if g["s1"] > s0 and g["s0"] < s1]
+            covered += ids
+            aprons.append({"id": f"apron_{me['level_id']}_{len(aprons) + 1}", "kind": "apron", "opening_ids": ids,
+                           "run_ids": list(key), "level_id": me["level_id"], "polygon": poly, "outward": list(d),
+                           "well": w["opening_id"], "source": "inferred", "inferred": True,
+                           "reason": f"the paved strip at the foot of the glazed facade runs its whole glazing run "
+                                     f"({', '.join(key)}): {s1 - s0:.2f} m on from the light well of "
+                                     f"{w['opening_id']}, {depth:.1f} m deep, on the ground (lesson UL142; inferred)"})
+        # an opening of the run under a platform or another well is covered by that floor
+        for g in run:
+            mid = (g["s0"] + g["s1"]) / 2.0
+            if any(p0 <= mid <= p1 for p0, p1 in paved):
+                covered.append(g["id"])
+            c = (u[0] * mid + d[0] * (me["line"] + me["half_t"] + depth / 2.0),
+                 u[1] * mid + d[1] * (me["line"] + me["half_t"] + depth / 2.0))
+            if any(G.point_in_polygon(c, pf["polygon"]) for pf in pfs):
+                covered.append(g["id"])
+        runs.append({"well": w["opening_id"], "run_ids": list(key), "covered_ids": sorted(set(covered))})
+    return aprons, runs
+
+
 def wells_on_platforms(wells: Sequence[dict], pfs: Sequence[dict]) -> tuple[list[dict], list[dict]]:
     """``(wells, dropped)``: the light wells and front courts the site's flat platforms leave (pure; 24 Oct 2026,
     real04: a 1 m concrete well stood 0.75 m above the pool terrace beside the basement window, made against the
@@ -1818,11 +1944,48 @@ def entrance_meshes(st: dict, terrain: dict) -> list[dict]:
     return out
 
 
-def entrance_paths(ents: Sequence[dict], steps: dict, plot: Sequence) -> list[dict]:
+# 30 Oct 2026 (lesson UL129: real04's entrance paths ran from the back doors of b1 straight through the second house
+# b2 and on under the parking to the plot edge, their step edges and edge walls standing in the paving): a path ends
+# where it arrives at another surface, and it never runs into a building.
+PATH_STOP = {"sample_m": 0.1, "building_gap_m": 0.3, "min_m": 1.0, "overlap_m": 0.05}
+
+
+def path_stop(face, out_dir, start: float, reach: float, half: float, stops: Sequence[dict]) -> tuple[float, Optional[dict]]:
+    """Where a straight path from ``face`` along ``out_dir`` ends (pure; ``PATH_STOP``): ``(end, stop)``. ``stops``:
+    ``[{"kind": building | surface, "id", "polygon"}]``; the first one the path's middle or a side enters after its
+    start ends it: a surface (a terrace, a drive, a parking) ``overlap_m`` inside its edge (the path arrives there),
+    a building ``building_gap_m`` before its wall; none: ``reach`` (the plot edge)."""
+    step = PATH_STOP["sample_m"]
+    live = [s for s in stops if len(s.get("polygon") or []) >= 3]
+    if not live:
+        return reach, None
+    ux, uy = -out_dir[1], out_dir[0]
+
+    def inside(t: float, s: dict) -> bool:
+        return any(G.point_in_polygon((face[0] + out_dir[0] * t + ux * o, face[1] + out_dir[1] * t + uy * o),
+                                      s["polygon"]) for o in (0.0, half - 0.05, -(half - 0.05)))
+    # a stop the path starts in (its own platform, its steps' landing) does not end it
+    live = [s for s in live if not inside(start + 0.05, s)]
+    t = start + step
+    while t <= reach and live:
+        hit = next((s for s in live if inside(t, s)), None)
+        if hit is not None:
+            if hit["kind"] == "building":
+                return t - step - PATH_STOP["building_gap_m"], hit
+            return t + PATH_STOP["overlap_m"], hit
+        t += step
+    return reach, None
+
+
+def entrance_paths(ents: Sequence[dict], steps: dict, plot: Sequence, stops: Sequence[dict] = (),
+                   dropped: Optional[list] = None) -> list[dict]:
     """A path from every entrance (the end of its steps) straight out to the plot edge (pure; assumed),
     ``path_width`` wide; paths of one facade that overlap are one path. ``[{"opening_ids", "polygon", "outward",
     "length"}]``. 26 Oct 2026: a shared platform's path starts at the end of its one flight (``path_face`` /
-    ``path_dir`` of ``merged_steps``); the caller leaves the platform's other doors out (``entrance_layout``)."""
+    ``path_dir`` of ``merged_steps``); the caller leaves the platform's other doors out (``entrance_layout``).
+    30 Oct 2026 (lesson UL129): the path ends where it arrives at a surface or before a building in its way
+    (``path_stop``; ``ends_at``); a path that would be shorter than ``PATH_STOP["min_m"]`` is not made (``dropped``
+    gets the door and the reason)."""
     raw = []
     for e in ents:
         st = steps.get(e["opening_id"]) or {"end": 0.0, "face": e["centre"]}
@@ -1832,8 +1995,16 @@ def entrance_paths(ents: Sequence[dict], steps: dict, plot: Sequence) -> list[di
         if reach is None or reach <= st["end"] + 0.2:
             continue
         half = INFERRED["path_width"] / 2.0
+        end, stop = path_stop(face, out_dir, st["end"], reach + 0.05, half, stops)
+        if stop is not None and end - st["end"] < PATH_STOP["min_m"]:
+            if dropped is not None:
+                dropped.append({"opening_ids": list(st.get("doors") or [e["opening_id"]]), "stop": stop["id"],
+                                "reason": f"no path: {stop['kind']} {stop['id']} stands {max(0.0, end - st['end']):.1f}"
+                                          f" m out from the door's steps (lesson UL129; inferred)"})
+            continue
         raw.append({"opening_ids": list(st.get("doors") or [e["opening_id"]]), "outward": out_dir, "face": face,
-                    "start": st["end"], "end": reach + 0.05, "half": half})
+                    "start": st["end"], "end": end, "half": half,
+                    "ends_at": ({"kind": stop["kind"], "id": stop["id"]} if stop is not None else None)})
     merged: list[dict] = []
     for p in raw:
         ux, uy = -p["outward"][1], p["outward"][0]
@@ -1844,7 +2015,8 @@ def entrance_paths(ents: Sequence[dict], steps: dict, plot: Sequence) -> list[di
                 m["s"], m["half"] = (lo + hi) / 2.0, (hi - lo) / 2.0
                 m["opening_ids"] += p["opening_ids"]
                 m["start"] = min(m["start"], p["start"])
-                m["end"] = max(m["end"], p["end"])
+                if p["end"] > m["end"]:
+                    m["end"], m["ends_at"] = p["end"], p.get("ends_at")
                 break
         else:
             merged.append(dict(p, s=s))
@@ -1856,7 +2028,8 @@ def entrance_paths(ents: Sequence[dict], steps: dict, plot: Sequence) -> list[di
         origin = (ux * m["s"] + ox * d0, uy * m["s"] + oy * d0)
         out.append({"opening_ids": m["opening_ids"], "outward": list(m["outward"]),
                     "polygon": _rect_along(origin, m["outward"], m["start"], m["end"], m["half"]),
-                    "length": round(m["end"] - m["start"], 3), "width": round(2 * m["half"], 3)})
+                    "length": round(m["end"] - m["start"], 3), "width": round(2 * m["half"], 3),
+                    **({"ends_at": m["ends_at"]} if m.get("ends_at") else {})})
     return out
 
 
@@ -2273,7 +2446,7 @@ def space_paths(spaces: Sequence[dict]) -> tuple[list[dict], dict]:
 
 def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]],
                   outlines: Optional[dict], plot: Sequence, plot_source: str, options: dict,
-                  drawn_trees: bool, spaces: Sequence[dict] = ()) -> dict:
+                  drawn_trees: bool, spaces: Sequence[dict] = (), stops: Sequence[dict] = ()) -> dict:
     """What the build adds where the documents are silent (pure; docs/milestone11.md §1.1 E11, §7, CLAUDE.md
     evidence rules: every item ``inferred`` and listed): the plot (``inferred_plot`` when none is drawn), the
     entrances with their steps, the paths, the boundary (hedge or fence on an inferred plot), the trees (when
@@ -2317,10 +2490,20 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
         own = [e for e in ents if e["opening_id"] not in layout["members"] and e["opening_id"] not in onto
                and not (e.get("record") or {}).get("onto")]
         extra, extra_steps = space_paths(spaces)
-        out["paths"] = entrance_paths(own + extra, {**steps, **extra_steps}, out["plot"])
+        # 30 Oct 2026 (lesson UL129): a path ends at the surface it arrives at, before a building in its way
+        dropped: list = []
+        out["paths"] = entrance_paths(own + extra, {**steps, **extra_steps}, out["plot"], stops=stops,
+                                      dropped=dropped)
         for p in out["paths"]:
+            end = p.get("ends_at")
             out["assumed"].append({"field": f"path:{','.join(p['opening_ids'])}", "value": p["length"],
-                                   "reason": "a paved path from the plot edge to the entrance (inferred)"})
+                                   "reason": ("a paved path from the entrance to "
+                                              + (f"the {end['id']} it arrives at" if end and end["kind"] == "surface"
+                                                 else f"the front of {end['id']} (it never runs into a building)"
+                                                 if end else "the plot edge") + " (inferred)")})
+        for d in dropped:
+            out["assumed"].append({"field": f"path:{','.join(d['opening_ids'])}", "value": None, "reason": d["reason"]})
+        out["paths_dropped"] = dropped
     kind = options.get("fence", "hedge")
     if out["plot_inferred"] and kind in ("hedge", "fence"):
         out["boundary"] = boundary_segments(out["plot"], out["paths"], kind)
@@ -2850,6 +3033,129 @@ def _nearest_edge(poly, p, skip=()) -> Optional[int]:
     return None if best is None else best[1]
 
 
+# 30 Oct 2026 (lesson UL129, user on real04 run 20261029-201533-full: "These things needs fixing": two pairs of small
+# low stone blocks on the paved drive beside the pools). They were the cheek walls of the flights up out of the sunken
+# pool terraces sp_002 and sp_003 (edge 0, onto the parking spk_001): the flight ran out from the terrace's edge under
+# the draped parking, whose paving covered its treads, so only its two cheeks (0.1 m over the ground) stood out of the
+# paving, 1.5 m long and 1.45 m apart. A site element is built only where it makes sense: a flight onto another
+# surface is cut into it (the surface's hole, ``cuts``), and a kerb stops where another surface abuts the edge.
+CUT_SHARE = 0.05                 # a flight footprint this much under another surface is cut into it
+SHARE_STEP_M = 0.2               # the sample grid of ``area_share``
+KERB_SAMPLE_M = 0.25             # the kerb gaps are found every this far along an edge
+
+
+def area_share(poly: Sequence, region: Sequence, holes: Sequence = (), step: float = SHARE_STEP_M) -> float:
+    """The share of ``poly`` inside ``region`` and outside its ``holes`` (pure; the points of a ``step`` grid in
+    ``poly``, its corners and centre); 0.0 for a degenerate polygon."""
+    poly = [(float(p[0]), float(p[1])) for p in poly or []]
+    if len(poly) < 3 or len(region or []) < 3:
+        return 0.0
+    pts = _grid_points(poly, step) + [G.polygon_centroid(poly)]
+    if not pts:
+        return 0.0
+    hit = sum(1 for p in pts if G.point_in_polygon(p, region) and not any(G.point_in_polygon(p, h) for h in holes
+                                                                        if len(h) >= 3))
+    return hit / len(pts)
+
+
+def cut_flights(pfs: Sequence[dict]) -> list[dict]:
+    """Cut every flight up out of a platform (``flight``: ``up_flight``) into the other surfaces it runs under (pure;
+    lesson UL129): a platform whose polygon holds more than ``CUT_SHARE`` of the flight's footprint (treads and
+    cheeks) gets the footprint as a cut (``cuts``: ``{"by", "polygon", "reason"}``; ``platform_parts`` makes it a
+    hole in its slab), and the flight records ``cut_into``. Returns the cuts made."""
+    made = []
+    for pf in pfs:
+        fl = pf.get("flight")
+        if not isinstance(fl, dict) or len(fl.get("footprint") or []) < 3:
+            continue
+        for q in pfs:
+            if q is pf or q.get("parent") == pf.get("id") or pf.get("parent") == q.get("id") or q.get("elevated"):
+                continue
+            share = area_share(fl["footprint"], q.get("polygon") or [], q.get("holes") or [])
+            if share <= CUT_SHARE:
+                continue
+            cut = {"by": pf["id"], "polygon": [[round(float(x), 4), round(float(y), 4)] for x, y in fl["footprint"]],
+                   "share": round(share, 3),
+                   "reason": f"cut for the flight of {pf['id']} ({share * 100:.0f} % of its footprint lay under "
+                             f"{q['id']}: its treads would be buried and only its cheeks show; the flight is open to "
+                             f"the sky, lesson UL129; inferred)"}
+            q.setdefault("cuts", []).append(cut)
+            fl.setdefault("cut_into", []).append(q["id"])
+            made.append(dict(cut, into=q["id"]))
+    return made
+
+
+def kerb_gaps(pf: dict, others: Sequence[dict], step: float = KERB_SAMPLE_M) -> list[list]:
+    """The stretches of a platform's edges where another surface abuts it (pure; lesson UL129): ``[[edge, t0, t1]]``
+    in metres along each edge of the counter-clockwise polygon. A point of the edge abuts when the point
+    ``kerb_w`` / 2 + 2 cm outside it, or the point a kerb and a retaining wall (``wall_t``) out, lies on another
+    platform (not in its holes): a kerb there would stand between two surfaces (a bar on the paving or against a sunken
+    terrace's wall); the neighbour's wall and coping, or the shared level, is the edge."""
+    poly = geom2d.ccw(pf.get("polygon") or [])
+    n = len(poly)
+    if n < 3:
+        return []
+    # the point just outside the kerb, and the point past a neighbour's retaining wall (its wall stands outside its
+    # own edge: a kerb in the strip of ground before it stands against that wall)
+    offs = (PLATFORM["kerb_w"] / 2.0 + 0.02, PLATFORM["kerb_w"] + PLATFORM["wall_t"])
+    rings = [(q.get("polygon") or [], q.get("holes") or []) for q in others if len(q.get("polygon") or []) >= 3]
+    out = []
+    for i in range(n):
+        a, b = poly[i], poly[(i + 1) % n]
+        length = G.distance(a, b)
+        if length < 0.05:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        nx, ny = uy, -ux
+        k = max(1, int(math.ceil(length / step)))
+        cur = None
+        for j in range(k):
+            t = (j + 0.5) * length / k
+            probes = [(a[0] + ux * t + nx * off, a[1] + uy * t + ny * off) for off in offs]
+            hit = any(G.point_in_polygon(p, r) and not any(G.point_in_polygon(p, h) for h in hs if len(h) >= 3)
+                      for r, hs in rings for p in probes)
+            if hit and cur is None:
+                cur = [i, j * length / k, (j + 1) * length / k]
+            elif hit:
+                cur[2] = (j + 1) * length / k
+            elif cur is not None:
+                out.append(cur)
+                cur = None
+        if cur is not None:
+            out.append(cur)
+    return [[g[0], round(g[1], 3), round(g[2], 3)] for g in out]
+
+
+def clip_to(poly: Sequence, convex: Sequence) -> list[tuple[float, float]]:
+    """The part of ``poly`` inside the convex polygon ``convex`` (pure; Sutherland-Hodgman, area-correct for a
+    concave ``poly``): a flight's cut as the hole of a flat slab, never reaching past the slab's edge."""
+    clip = geom2d.ccw([(float(p[0]), float(p[1])) for p in convex])
+    out = [(float(p[0]), float(p[1])) for p in poly]
+    n = len(clip)
+    for i in range(n):
+        (px, py), (qx, qy) = clip[i], clip[(i + 1) % n]
+        out = geom2d.clip_half_plane(out, qy - py, -(qx - px), -(qy - py) * px + (qx - px) * py)
+        if len(out) < 3:
+            return []
+    return out
+
+
+def _in_gaps(t: float, gaps: Sequence) -> bool:
+    return any(t0 - 1e-6 <= t <= t1 + 1e-6 for t0, t1 in gaps)
+
+
+def _outside_gaps(length: float, gaps: Sequence, min_m: float = 0.1) -> list[tuple[float, float]]:
+    """The stretches of ``0..length`` outside the ``gaps`` (pure), each at least ``min_m`` long."""
+    out, t = [], 0.0
+    for t0, t1 in sorted(gaps):
+        if t0 - t >= min_m:
+            out.append((t, t0))
+        t = max(t, t1)
+    if length - t >= min_m:
+        out.append((t, length))
+    return out
+
+
 def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (),
               facades: Optional[dict] = None, band_keep: Sequence[tuple[str, list]] = (),
               outlines: Optional[dict] = None) -> list[dict]:
@@ -2943,10 +3249,15 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
                 continue
             kind = PLATFORM_KINDS[key]
             z, z_src, mark_ids, g, sloped = level_of(poly)
+            # 30 Oct 2026 (UL129): the drawn label of the area (its anchor: where the cars park first)
+            label = next((x for x in site.get("areas") or [] if isinstance(x, dict) and a.get("area_id")
+                          and x.get("id") == a.get("area_id") and x.get("anchor")
+                          and G.point_in_polygon(tuple(x["anchor"][:2]), poly)), None)
             out.append({"id": str(a.get("id") or f"{kind}_{len(out) + 1}"), "polygon": poly, "holes": [], "z": z,
                         "kind": kind, "source": a.get("source"), "area_id": a.get("area_id"), "z_source": z_src,
                         "marks": mark_ids, "ground": g, "sloped": sloped, "pools": [], "inferred": True,
-                        "material": a.get("material"), "colour": a.get("colour")})
+                        "material": a.get("material"), "colour": a.get("colour"),
+                        **({"anchor": [float(label["anchor"][0]), float(label["anchor"][1])]} if label else {})})
     for k, pool in enumerate(pools):
         poly = geom2d.ccw(pool["polygon"])
         pid = str(pool.get("id") or f"pool_{k + 1:03d}")
@@ -3025,6 +3336,8 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
                                              and G.point_in_polygon(fl["landing"], q["polygon"]))
                 break
         pf["flight"] = up_flight(pf, gz=gz)
+    # 30 Oct 2026 (lesson UL129): a flight up onto another surface is cut into that surface (``cut_flights``)
+    cut_flights(out)
     # 28 Oct 2026 (user on real04: "There could be better outside solutions to the grade slope"): where the ground
     # can be graded a platform edge meets it by a lawn (1:3) or planted (1:2) bank, no wall (grading.plan_embankments,
     # inside the plot, clear of the house, the other platforms and the flights); the walls, bands and flights after
@@ -3114,7 +3427,11 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
         if pf.get("flight"):
             pf["reason"] += (f"; a flight of {pf['flight']['count']} steps up out of it on edge {pf['steps_edge']} "
                              f"({pf['flight']['rise']:.2f} m" + (f", onto {pf['flight_lands_on']}" if
-                                                                 pf.get("flight_lands_on") else "") + ")")
+                                                                 pf.get("flight_lands_on") else "")
+                             + (f", cut into {', '.join(pf['flight']['cut_into'])}" if pf["flight"].get("cut_into")
+                                else "") + ")")
+        if pf.get("cuts"):
+            pf["reason"] += "; " + "; ".join(c["reason"] for c in pf["cuts"])
         if pf.get("against_edges"):
             pf["reason"] += (f"; edges {', '.join(str(i) for i in pf['against_edges'])} face the building (its walls "
                              f"retain there: no wall, band or steps)")
@@ -3129,9 +3446,18 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
             pf["flight_down"] = {k: fl[k] for k in ("edge", "count", "riser", "tread", "flights", "rise", "foot_z",
                                                      "end", "landing", "footprint", "on_band", "handrails", "reason")}
             pf["reason"] += f"; {fl['reason']}"
+    # 30 Oct 2026 (lesson UL129): no kerb along an edge another surface abuts (``kerb_gaps``)
+    every = out + bands
+    for pf in every:
+        if pf.get("edge") == "kerb" or pf.get("kind") in ("parking", "path"):
+            gaps = kerb_gaps(pf, [q for q in every if q is not pf])
+            if gaps:
+                pf["kerb_gaps"] = gaps
+                pf["reason"] += (f"; no kerb along {sum(g[2] - g[1] for g in gaps):.1f} m of its edges where another "
+                                 f"surface abuts it (its wall, coping or paving is the edge there; inferred)")
     # 30 Oct 2026 (UL148): no retaining wall or coping enters the building: the stretches of an edge where they would
     # are cut out (``wall_cuts``, read by ``platform_parts``), each recorded in the reason
-    for pf in out + bands:
+    for pf in every:
         if pf.get("sloped") or pf.get("elevated") or not keep:
             continue
         poly = geom2d.ccw(pf["polygon"])
@@ -3147,7 +3473,7 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
             pf["reason"] += ("; its retaining wall stops at the building on edge" + ("s " if len(cuts) > 1 else " ")
                              + ", ".join(f"{i} ({', '.join(f'{s0:.2f}-{s1:.2f} m' for s0, s1 in sp)})"
                                          for i, sp in cuts.items()) + " (never through the house's wall, UL148)")
-    return out + bands
+    return every
 
 
 def _edge_out(poly, i) -> Optional[tuple[float, float]]:
@@ -3700,8 +4026,10 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
     # a band's inner edge (the parent is there) and an edge facing the building (its wall retains there; review of
     # round 3) get no wall, kerb, steps or railing
     shared = set(pf.get("shared_edges") or []) | set(pf.get("against_edges") or [])
+    # 30 Oct 2026 (lesson UL129): a flight of another platform runs out under this one: its footprint is a hole here
+    cuts = [c["polygon"] for c in pf.get("cuts") or [] if len(c.get("polygon") or []) >= 3]
     if pf.get("sloped"):
-        v, f = draped_faces(poly, pf.get("holes") or [], terrain, lift=PAVING_LIFT)
+        v, f = draped_faces(poly, list(pf.get("holes") or []) + cuts, terrain, lift=PAVING_LIFT)
         out.append({"part": "slab", "verts": v, "faces": f})
     elif pf.get("elevated"):
         # 26 Oct 2026: an upper balcony or terrace is a slab at its floor, SPACE_SLAB_M thick, no base to the ground
@@ -3712,7 +4040,8 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
         bottom = min(z, zmin) - PLATFORM["below"]
         if pf.get("bottom_z") is not None:
             bottom = min(bottom, float(pf["bottom_z"]))
-        v, f = slab_with_holes(poly, pf.get("holes") or [], z, bottom)
+        v, f = slab_with_holes(poly, list(pf.get("holes") or []) + [h for h in (clip_to(poly, c) for c in cuts)
+                                                                    if len(h) >= 3], z, bottom)
         out.append({"part": "slab", "verts": v, "faces": f})
     tol = PLATFORM["level_tol"]
     walls, kerbs, steps, rails, panels, wall_recs = [], [], [], [], [], []
@@ -3744,7 +4073,6 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
             continue
         ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
         nx, ny = uy, -ux                                        # ccw: the right side of the edge is outside
-        mid = G.segment_midpoint(a, b)
         angle = G.segment_angle_deg(a, b)
         if not pf.get("sloped") and not pf.get("elevated"):
             # the wall in pieces that follow the ground (wall_pieces); pieces overlap by the thickness, every
@@ -3785,9 +4113,13 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
                     wall_recs[-1]["guard"] = True
         if pf.get("edge") == "kerb" or pf.get("kind") in ("parking", "path"):
             kh, kw = PLATFORM["kerb_h"], PLATFORM["kerb_w"]
+            # 30 Oct 2026 (lesson UL129): no kerb piece where another surface abuts the edge (``kerb_gaps``)
+            kgaps = [(float(g[1]), float(g[2])) for g in pf.get("kerb_gaps") or [] if int(g[0]) == i]
             if pf.get("sloped"):
                 k = max(1, int(math.ceil(length / PLOT_WALL_STEP_M)))
                 for j in range(k):
+                    if kgaps and _in_gaps((j + 0.5) * length / k, kgaps):
+                        continue
                     p0, p1 = G.point_along_segment(a, b, j / k), G.point_along_segment(a, b, (j + 1) / k)
                     m2 = G.segment_midpoint(p0, p1)
                     # review of round 3 (P1 real04 ext_5: the parking's kerb pieces floated as bars over the slope):
@@ -3802,8 +4134,10 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
                                             kw, angle, zb, max(g_end[0]) + PAVING_LIFT + kh,
                                             max(g_end[1]) + PAVING_LIFT + kh))
             else:
-                kerbs.append(geom2d.box((mid[0] + nx * kw / 2.0, mid[1] + ny * kw / 2.0, z + kh / 2.0 - 0.02),
-                                        (length + kw, kw, kh + 0.04), angle))
+                for s0, s1 in (_outside_gaps(length, kgaps) if kgaps else [(0.0, length)]):
+                    cm = G.point_along_segment(a, b, (s0 + s1) / 2.0 / length)
+                    kerbs.append(geom2d.box((cm[0] + nx * kw / 2.0, cm[1] + ny * kw / 2.0, z + kh / 2.0 - 0.02),
+                                            (s1 - s0 + kw, kw, kh + 0.04), angle))
         if i in (pf.get("railing_edges") or []) and pf.get("kind") in ("terrace", "pool") and not pf.get("parent"):
             for ra, rb in railing_runs(a, b, i, pf):
                 metal, panes = D.balustrade(ra, rb, z, 1.0, pf.get("balustrade") or D.DEFAULT_KIND)
@@ -4705,6 +5039,20 @@ def build_context(ctx: dict, collection, entry, scans: Optional[bool] = None) ->
     return rec
 
 
+def label_holder(site: dict, area: dict) -> Optional[str]:
+    """The drawn surface that holds a labelled site area (pure; lesson UL129): a paving, parking, grass or pool of the
+    site that names it (``area_id``) or whose outline holds its label's anchor; None."""
+    anchor = area.get("anchor")
+    for key in ("paving", "parking", "grass", "pools"):
+        for s in _built(site.get(key)):
+            if area.get("id") and s.get("area_id") == area.get("id"):
+                return str(s.get("id"))
+            poly = s.get("polygon") or []
+            if anchor and len(poly) >= 3 and G.point_in_polygon((float(anchor[0]), float(anchor[1])), poly):
+                return str(s.get("id"))
+    return None
+
+
 def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]], mode: str = "full",
               outlines: Optional[dict] = None, options: Optional[dict] = None) -> dict:
     """Everything the site build makes (pure): ``{"mode", "terrain", "outline", "plot", "extent", "wells",
@@ -4782,8 +5130,12 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
                                   "reason": "gates in the plot walls are not built (the wall is closed)"})
         for a in site.get("areas") or []:            # label records (build: false, §1.6b row 12)
             if isinstance(a, dict):
-                not_built.append({"id": a.get("id"), "kind": f"area:{a.get('kind')}",
-                                  "reason": "exterior label: its surface is built from site.paving / parking / grass"})
+                # 30 Oct 2026 (UL129): the reason names the surface that holds the label, or says none does
+                holder = label_holder(site, a)
+                not_built.append({"id": a.get("id"), "kind": f"area:{a.get('kind')}", "held_by": holder,
+                                  "reason": (f"exterior label: its surface is the drawn {holder} (built)" if holder
+                                             else "exterior label: no drawn paving, parking, grass or pool holds it "
+                                                  "(nothing built for it)")})
     else:
         not_built.append({"id": None, "kind": "site", "reason": "brief site: ground (the ground plane and the "
                                                                 "light wells only)"})
@@ -4841,10 +5193,20 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
                     a["platform_id"] = a["id"]
             for pf in pfs:
                 assumed.append({"field": f"platform:{pf['id']}", "value": pf["z"], "reason": pf["reason"]})
+    aprons, glazing_runs = [], []
+    if mode == "full" and wells:
+        # 30 Oct 2026 (lesson UL142): a light well's paving runs the whole glazing run of its facade
+        aprons, glazing_runs = facade_aprons(building, levels, outline, outlines, wells, pfs)
+        for a in aprons:
+            assumed.append({"field": f"apron:{a['id']}", "value": a["opening_ids"], "reason": a["reason"]})
     if mode == "full" and options is not None:
         # 26 Oct 2026: after the platforms: a door onto a labelled outdoor space takes the space's steps and path
+        # 30 Oct 2026 (lesson UL129): the other buildings and the surfaces a path may arrive at
+        stops = [{"kind": "building", "id": f"building copy {k + 1}", "polygon": h} for k, h in enumerate(copy_holes)]
+        stops += [{"kind": "surface", "id": pf["id"], "polygon": pf["polygon"]} for pf in pfs
+                  if not pf.get("elevated") and len(pf.get("polygon") or []) >= 3]
         inferred = inferred_site(building, levels, terrain, outline, outlines, plot, plot_src, options, drawn_trees,
-                                 spaces=[pf for pf in pfs if pf.get("space")])
+                                 spaces=[pf for pf in pfs if pf.get("space")], stops=stops)
         assumed += inferred["assumed"]
         warnings += inferred["warnings"]           # fix round after P4b: fewer inferred trees than asked
         for p in inferred["paths"]:
@@ -4889,7 +5251,8 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
             "extent": extent, "wells": wells, "plot_walls": plot_walls, "areas": areas, "trees": trees,
             "not_built": not_built, "assumed": assumed, "warnings": warnings, "ground_is_grass": ground_is_grass,
             "inferred": inferred, "copy_holes": copy_holes, "pools": pools, "hedges": hedges, "platforms": pfs,
-            "climate": climate, "levers": levers, "near_extent": near_extent, "species": species, "context": context}
+            "climate": climate, "levers": levers, "near_extent": near_extent, "species": species, "context": context,
+            "aprons": aprons, "glazing_runs": glazing_runs}
 
 
 # The look of each built area kind (exterior.resolve_looks slots) when the area names no material of its own.
@@ -5087,6 +5450,8 @@ def relief_keep(plan: dict, hedges: Optional[Sequence[dict]] = None) -> list[dic
     for a in plan.get("areas") or []:
         if not a.get("platform_id") and len(a.get("polygon") or []) >= 3:
             out.append({"kind": "area", "id": a.get("id"), "polygon": [tuple(map(float, q[:2])) for q in a["polygon"]]})
+    for a in plan.get("aprons") or []:                # 30 Oct 2026 (UL142): draped like the paved areas
+        out.append({"kind": "area", "id": a.get("id"), "polygon": [tuple(map(float, q[:2])) for q in a["polygon"]]})
     for pf in plan.get("platforms") or []:
         if pf.get("sloped") and len(pf.get("polygon") or []) >= 3:
             out.append({"kind": "sloped_platform", "id": pf.get("id"),
@@ -5249,6 +5614,20 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                            round(w["top_z"] + float(w.get("curb", DEFAULTS["light_well_curb"])), 4)],
                **({"well_kind": "front_court", "inferred": True, "opening_ids": w["opening_ids"]}
                   if w.get("kind") == "front_court" else {})})
+    # 30 Oct 2026 (lesson UL142): the well's paving runs on along the glazing run, draped on the ground
+    summary["aprons"] = []
+    for a in plan.get("aprons") or []:
+        v, f = draped_faces(a["polygon"], [], terrain, lift=PAVING_LIFT)
+        if not f:
+            continue
+        ob = common.new_mesh_object(a["id"], v, f, collection=collection, wenart_id=a["id"], kind="light_well",
+                                    status="assumed", materials=[well_mat])
+        entry(ob.name, a["id"], "light_well", well_mat, "assumed",
+              {"assumed": {"reason": a["reason"]}, "parent": a["well"], "well_kind": "apron", "inferred": True,
+               "opening_ids": a["opening_ids"], "run_ids": a["run_ids"]})
+        summary["aprons"].append({"id": a["id"], "opening_ids": a["opening_ids"], "run_ids": a["run_ids"],
+                                  "reason": a["reason"]})
+    summary["glazing_runs"] = list(plan.get("glazing_runs") or [])
     wall_mat = make_material(looks["plot_wall"]) if plan["plot_walls"] else None
     for wall in plan["plot_walls"]:
         v, f, info = plot_wall_parts(wall, terrain)
@@ -5317,7 +5696,14 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                      "rise": rec.get("rise"), "flights": rec.get("flights"), "riser": rec.get("riser"),
                                      "tread": rec.get("tread"), "handrails": bool(rec.get("handrails")),
                                      "slices": len(rec["slices"]), "reason": rec["reason"],
-                                     **({"accessible_open": rec["accessible_open"]} if rec.get("accessible_open") else {})})
+                                     **({"accessible_open": rec["accessible_open"]} if rec.get("accessible_open") else {}),
+                                     # 30 Oct 2026 (UL144): the one continuous handrail of a stair as built
+                                     **({"rail": {"side": meshes["rail_plan"]["side"],
+                                                  "posts": len(meshes["rail_plan"]["posts"]),
+                                                  "flights": meshes["rail_plan"]["flights"],
+                                                  "spacing_m": meshes["rail_plan"]["spacing_m"],
+                                                  "continuous": True, "reason": meshes["rail_plan"]["reason"]}}
+                                        if meshes.get("rail_plan") else {})})
             assumed.append({"object": wid, "field": "path_grading", "value": rec["kind"], "reason": rec["reason"]})
             continue
         v, f = draped_faces(area["polygon"], holes, terrain, lift=area["lift"], z=z)
@@ -5470,6 +5856,9 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                        "deck_z": pool.get("deck_z"), "platform": pool.get("platform_id"),
                        "assumed": {"depth": pool["depth"], "reason": "no pool section drawn"
                                    + ("; coping, tiles and rippled water assumed" if levers.get("pools") else "")}})
+        # 30 Oct 2026 (lesson UL143): a ladder into every pool and seating on a deck with room for it
+        summary["pool_extras"] = build_pool_extras(plan, collection, make_material, manifest_objects, assumed)
+        summary["objects"] += [x["name"] for x in summary["pool_extras"] if x.get("name")]
     # Milestone 13 (T6): hedges (drawn rows and the inferred boundary: hedge_records above) and the trees through the
     # vegetation module
     inferred = plan.get("inferred")
@@ -5679,18 +6068,29 @@ def parkings(plan: dict) -> list[dict]:
     """The parkings of a site plan (pure): ``[{"id", "polygon", "z"}]`` from the parking platforms (``z`` None for a
     sloped one: draped on the terrain) and the parking areas that are no platform (``z`` None: on the terrain)."""
     out = []
+    # 30 Oct 2026 (UL129): the cars keep clear of the flights cut into the parking (and their landings) and of the
+    # paths that arrive at it
+    paths = [a["polygon"] for a in plan.get("areas") or [] if a.get("kind") == "path" and len(a.get("polygon") or []) >= 3]
     for pf in plan.get("platforms") or []:
         if pf.get("kind") == "parking" and len(pf.get("polygon") or []) >= 3:
             flat = not pf.get("sloped") and isinstance(pf.get("z"), (int, float))
-            out.append({"id": str(pf["id"]), "polygon": pf["polygon"], "z": float(pf["z"]) if flat else None})
+            keep = [c["polygon"] for c in pf.get("cuts") or [] if len(c.get("polygon") or []) >= 3]
+            for q in plan.get("platforms") or []:
+                fl = q.get("flight") if isinstance(q.get("flight"), dict) else None
+                if fl and pf["id"] in (fl.get("cut_into") or []) and fl.get("mid") and fl.get("out"):
+                    keep.append(GR._rect(fl["mid"], fl["out"], 0.0, float(fl["length"]) + 1.2,
+                                         float(fl.get("half_w") or 0.6) + 0.3))
+            out.append({"id": str(pf["id"]), "polygon": pf["polygon"], "z": float(pf["z"]) if flat else None,
+                        "anchor": pf.get("anchor"), "keep": keep + paths})
     for area in plan.get("areas") or []:
         if area.get("kind") == "parking" and not area.get("platform_id") and len(area.get("polygon") or []) >= 3:
             z = area.get("z") if isinstance(area.get("z"), (int, float)) else None
-            out.append({"id": str(area.get("id")), "polygon": area["polygon"], "z": z})
+            out.append({"id": str(area.get("id")), "polygon": area["polygon"], "z": z, "anchor": None, "keep": paths})
     return out
 
 
 CAR_MAX_SLOPE = 0.2            # a bay steeper than 20 % (a steep driveway) gets no car
+CAR_UNIFORM_MAX = 1.03         # 30 Oct 2026 (UL129): a car's fit scale differs by at most 3 % between its axes
 CAR_LIFT_M = 0.02              # over a draped parking (its own lift)
 
 
@@ -5736,10 +6136,10 @@ def build_cars(plan: dict, collection, manifest_objects: list, assumed: list, gl
     cache: dict = {}
     k = 0
     for lot in lots:
-        for i, slot in enumerate(SM.car_slots(lot["polygon"])):
+        for i, slot in enumerate(SM.car_slots(lot["polygon"], anchor=lot.get("anchor"), keep_out=lot.get("keep") or [])):
             if not cars:
                 return out
-            c, path = cars[k % len(cars)]
+            c, path = cars[k % len(cars)]                # one model per bay, in turn: each bay its own car
             k += 1
             try:
                 geo = F._cached_geometry(path, collection, cache)
@@ -5756,6 +6156,11 @@ def build_cars(plan: dict, collection, manifest_objects: list, assumed: list, gl
             verts, info = F.fit_vertices(geo["verts"], c["asset"], {"center": slot["center"], "size": [w, length],
                                                                      "rotation_deg": slot["rotation_deg"]},
                                          z0, target_size=[w, length, h])
+            sc = [float(v) for v in info.get("fit_scale") or [1.0, 1.0, 1.0]]
+            if min(sc) <= 0 or max(sc) / min(sc) > CAR_UNIFORM_MAX:
+                # 30 Oct 2026 (UL129): a car is never stretched; a model whose frame does not match its box is skipped
+                print(f"car {c['asset']['asset_id']}: fit scale {sc} is not uniform: skipped")
+                continue
             if gx or gy:                      # on a draped parking: the car follows the slope (a small shear)
                 sx, sy = slot["center"]
                 verts = [(x, y, z + gx * (x - sx) + gy * (y - sy)) for x, y, z in verts]
@@ -5764,7 +6169,9 @@ def build_cars(plan: dict, collection, manifest_objects: list, assumed: list, gl
                                 name, "site_decor", "assumed", uvs=geo.get("uvs"), uv_name=geo.get("uv_name"),
                                 fallback_material=glass)
             reason = (f"library car {c['asset']['asset_id']} ({str(c['asset'].get('title') or '')[:30]!r}) on the "
-                      f"drawn parking {lot['id']} ({slot['layout']} bay; the documents draw the parking, not a car)")
+                      f"drawn parking {lot['id']} ({slot['layout']} bay, {length:.2f} x {w:.2f} x {h:.2f} m, scaled "
+                      f"uniformly; the documents draw the parking, not a car)"
+                      + (f"; {c['frame_note']}" if c.get("frame_note") else ""))
             rec = {"name": ob.name, "parking": lot["id"], "asset": c["asset"]["asset_id"],
                    "licence": c["asset"].get("licence"), "licence_flag": c["asset"].get("licence_flag"),
                    "attribution": c["asset"].get("attribution"), "layout": slot["layout"], "fit": info,
@@ -5779,6 +6186,111 @@ def build_cars(plan: dict, collection, manifest_objects: list, assumed: list, gl
                             "parent": lot["id"], "kind": "site_car"})
             out.append(rec)
     return out
+
+
+def build_pool_extras(plan: dict, collection, make_material, manifest_objects: list, assumed: list) -> list[dict]:
+    """The ladder and the seating of every pool (bpy; ``pool_extras.plan``, lesson UL143): a parametric stainless
+    steel ladder (``pool_extras.ladder_meshes``), the deck's seating as audited library models made for outside where
+    one fits (``pool_extras.library_seat``), else the parametric outdoor pieces (a library gap, recorded). Every
+    object is kind ``site_decor``, ``inferred``, ``source: added_by_ai``, with its pool and reason. Off with
+    ``WENART_POOL_EXTRAS=off``."""
+    import os
+
+    from wenart.blender import common
+    from wenart.blender import pool_extras as PX
+
+    if str(os.environ.get("WENART_POOL_EXTRAS") or "").strip().lower() in ("off", "0", "no", "false"):
+        return []
+    plans = PX.plan(plan)
+    if not plans:
+        return []
+    mats = {k: make_material({"material": slug, "colour": None, "source": "build", "assumed": True,
+                              "reason": f"pool {k}: {slug} (lesson UL143; inferred)"}) for k, slug in PX.MATERIALS.items()}
+    library = PX.library_entries()
+    mode = str(os.environ.get("WENART_LICENCE_MODE") or "relaxed").strip().lower()
+    out = []
+
+    def record(name: str, pid: str, part: str, reason: str, extra: Optional[dict] = None) -> None:
+        manifest_objects.append({"name": name, "wenart_id": name, "kind": "site_decor", "status": "assumed",
+                                 "level_id": None, "element_id": name, "evidence": [], "material": None,
+                                 "textured": False, "pass_index": None, "site_part": part, "pool_id": pid,
+                                 "inferred": True, "source": "added_by_ai", "reason": reason,
+                                 "assumed": {"detail": part, "reason": reason}, **(extra or {})})
+        assumed.append({"object": name, "field": part, "value": pid, "reason": reason, "parent": pid,
+                        "kind": "site_pool_extra"})
+
+    for rec in plans:
+        pid = rec["pool_id"]
+        lad = rec.get("ladder")
+        if lad:
+            m = PX.ladder_meshes(lad)
+            v, f = geom2d.merge(m["rails"] + m["treads"])
+            name = f"{pid}_ladder"
+            common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind="site_decor",
+                                   status="assumed", materials=[mats["metal"]])
+            record(name, pid, "pool_ladder", lad["reason"], {"edge": lad["edge"], "long_side": lad.get("long_side")})
+            out.append({"name": name, "pool": pid, "part": "ladder", "method": "parametric", "reason": lad["reason"]})
+        seating = rec.get("seating")
+        for k, piece in enumerate((seating or {}).get("pieces") or []):
+            name = f"{pid}_{piece['type']}_{k}"
+            entry = PX.library_seat(piece["type"], library, mode) if library else None
+            built = None
+            if entry is not None:
+                built = _library_piece(entry, piece, float(rec["deck_z"]), name, collection)
+            if built is not None:
+                method, why = "library", (f"{seating['reason']}; library {entry.get('id')} "
+                                          f"({str(entry.get('title') or '')[:40]!r}, made for outside)")
+            else:
+                parts = PX.seat_meshes(piece, float(rec["deck_z"]))
+                meshes, slots = [], []
+                for key in ("frame", "metal", "cushion"):
+                    for mesh in parts[key]:
+                        meshes.append(mesh)
+                        slots += [("frame", "metal", "cushion").index(key)] * len(mesh[1])
+                v, f = geom2d.merge(meshes)
+                common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind="site_decor",
+                                       status="assumed", materials=[mats["frame"], mats["metal"], mats["cushion"]],
+                                       face_material_indices=slots)
+                method = "parametric"
+                why = (f"{seating['reason']}; library gap: no audited {piece['type'].replace('_', ' ')} made for "
+                       f"outside fits, the parametric one (a teak frame on brushed steel, outdoor cushions)")
+            record(name, pid, "pool_seat", why, {"furniture_type": piece["type"], "method": method,
+                                                 **({"asset": entry.get("id"), "licence": entry.get("licence"),
+                                                     "veg_method": "library", "textured": True}
+                                                    if built is not None else {})})
+            out.append({"name": name, "pool": pid, "part": piece["type"], "method": method, "reason": why,
+                        **({"asset": entry.get("id")} if built is not None else {})})
+        for note in rec.get("notes") or []:
+            out.append({"name": None, "pool": pid, "part": "note", "reason": note})
+    return out
+
+
+def _library_piece(entry: dict, piece: dict, z: float, name: str, collection):
+    """A library model fitted to a pool piece's footprint (bpy), or None when its file is missing or broken."""
+    from wenart.blender import furniture as F
+    from wenart.blender import site_models as SM
+    from wenart.blender import vegetation as VG
+
+    folder = VG.assets_dir()
+    asset = SM.asset_of(entry)
+    path, _why = F.resolve_asset(asset, str(folder) if folder else None)
+    if path is None:
+        return None
+    try:
+        geo = F._cached_geometry(path, collection, {})
+    except Exception as exc:  # noqa: BLE001 - a broken file never stops the site
+        print(f"pool piece {entry.get('id')}: import failed ({exc})")
+        return None
+    if not geo.get("verts"):
+        return None
+    box = entry.get("bbox_m") or [piece["size"][0], piece["size"][1], piece["height"]]
+    # uniform, never stretched; a real product keeps its own size when it fits the piece's place
+    s = min(1.0, piece["size"][0] / float(box[0]), piece["size"][1] / float(box[1]))
+    verts, _info = F.fit_vertices(geo["verts"], asset, {"center": piece["center"], "size": piece["size"],
+                                                        "rotation_deg": piece["rotation_deg"]}, z,
+                                  target_size=[float(box[0]) * s, float(box[1]) * s, float(box[2]) * s])
+    return F._mesh_object(name, verts, geo["faces"], geo["materials"], geo["face_materials"], collection, name,
+                          "site_decor", "assumed", uvs=geo.get("uvs"), uv_name=geo.get("uv_name"))
 
 
 # site.platforms (the pipeline_final hook)

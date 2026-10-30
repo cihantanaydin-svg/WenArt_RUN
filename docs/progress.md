@@ -2498,3 +2498,24 @@ part over its opening's head, a jamb without its head, one jamb), X2 now sees th
 Local Blender build of the run's L1: before, door frames 2.12 m and wardrobes 2.10 m under 1.82-1.84 m and the six
 bathroom items crossed; after, nothing crosses (M31: 0 crossings; the two bathroom doors 1.00 m with their finding),
 both play-room doors 1.80 m with a complete frame (lining 2 jambs + head, both faces 2 jambs + head, top 1.82 m).
+
+## Site elements only where they make sense, better cars, pool furniture (30 Oct 2026, lessons UL129, UL141-UL144)
+
+The user's review of real04 run 20261029-201533-full, five site points. Each fix is a general rule with pure tests
+(`tests/test_site_sense_20261030.py`) and a check of the model review's M15 (`wenart/blender/site_sense.py`, rules
+G8-G12), which Argus reads.
+
+| lesson | what the user saw | cause | rule now | check |
+|---|---|---|---|---|
+| UL129 | two pairs of small stone blocks on the paved drive by the pools | the flights up out of the sunken pool terraces sp_002 / sp_003 ran out under the draped parking spk_001: its paving covered the treads, only the two cheek walls (10 cm, 1.5 m long) stood out | a flight onto another surface is cut into it (`site.cut_flights`, a hole in that slab); no kerb where another surface abuts (`kerb_gaps`); a path ends where it arrives at a surface and before a building (`path_stop`: the entrance paths ran through the second house and under the parking); a terrace's path may end at a drive | G8 |
+| UL129 | one poor car | the audit had turned the car's front onto its side and the build double-swapped its box: the car was squashed to 2.0 m long and stretched to 4.5 m wide | a car's front is an end of its length (`car_frame`, and the audit refuses such turns: 8 of 19 car turns were wrong); uniform scale into 4.2-4.9 x <= 2.1 x 1.25-1.75 m; no low-poly or toy-texture model; bays along the parking's edges (any shape) near its label, clear of the cut flights and paths, one model per bay (3dwh_53630bfe, 3dwh_867427c8, 3dwh_a21d4bbd) | the fit refuses a non-uniform car |
+| UL129 | Argus C5 critical: 'Otopark alani' not built | the label's surface is the drawn parking spk_001 (its `area_id`) | C5 accepts a label held by its drawn paving, parking, grass or pool; the build's reason names the holder | C5 |
+| UL141 | a stone block on the lowest steps of the stair by the pool | the access path started on sp_001's foot landing and its cheek wall stood across the path's first steps | the path leaves past the flight's footprint, or off a side of its foot landing (that cheek left out); flights are keep-outs of every path; paths stay on the plot | G9 |
+| UL142 | the pale strip along the glazed facade stops half way | only win_L-1_002 needed a light well | the well's paving runs on as an apron along the whole glazing run (`facade_aprons`), never over a platform | G12 |
+| UL143 | the pools have no ladder and no seats | nothing planned them | a stainless steel ladder on a long side near the house (an end when no long side has the deck), two sun loungers and a side table facing the water with 1.0 m of free deck along the coping (a pair of lounge chairs on a narrow deck); library models made for outside where one fits (HSSD rattan armchair and rattan table), else parametric (no outdoor lounger in the library: a library gap) | G11 |
+| UL144 | each flight of the long stair had its own short rail frame | `path_meshes` made a bar and two posts per flight | one continuous rail on the open side, 0.9 m over the nosings, level over the landings, 0.3 m past both ends, posts every 1.2-1.4 m on the steps | G10 |
+
+On real04's plan the new rules leave no G8-G12 finding; on the run's own manifest the review finds the per-flight
+rails, the four pools without ladder and seats and the half light well. For more car variety a library pod can survey
+the Objaverse LVIS categories `car_(automobile)`, `convertible_(automobile)`, `jeep`, `minivan` and `cab_(taxi)`
+(names checked in the LVIS v1 list); nothing was downloaded here. Not rendered yet: the next real04 pod run shows them.
