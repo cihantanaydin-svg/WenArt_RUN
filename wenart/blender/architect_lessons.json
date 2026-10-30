@@ -2391,6 +2391,30 @@
    "request": "This is inspration for shower solutions (30 Oct 2026, the user's photo of a modern bathroom: a level-access shower behind frameless clear glass, a black sliding door hung from a top rail with round rollers, a square black rain head, a hand shower on a hose and a slide bar, a black bar mixer, a linear floor drain, large grey floor tiles running in; beside it a curved floating vanity with fluted fronts and open lit shelves, a terrazzo top and wall framing a backlit rounded mirror, a black vessel basin, a black heated towel rail, square black downlights)",
    "lesson": "This is inspration for shower solutions (30 Oct 2026, the user's photo of a modern bathroom: a level-access shower behind frameless clear glass, a black sliding door hung from a top rail with round rollers, a square black rain head, a hand shower on a hose and a slide bar, a black bar mixer, a linear floor drain, large grey floor tiles running in; beside it a curved floating vanity with fluted fronts and open lit shelves, a terrazzo top and wall framing a backlit rounded mirror, a black vessel basin, a black heated towel rail, square black downlights)",
    "question": "Does every shower look like the user's reference: level access, frameless clear glass with a black sliding door on a top rail, a black rain head, a hand shower on a slide bar, a bar mixer and a linear drain?"
+  },
+  {
+   "id": "UL202",
+   "date": "2026-10-30",
+   "area": "site",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "something is wrong here. also for the outside areas also make sure the walkways are walkable (30 Oct 2026, real04 run 20261030-112241-full, the entrance seen from above: the landing at the door, a path running off at an angle with steps cut obliquely across it, a second path and a flight with a handrail meeting it at odd angles, a small light standing in the middle of the walk)",
+   "lesson": "something is wrong here. also for the outside areas also make sure the walkways are walkable (30 Oct 2026, real04 run 20261030-112241-full, the entrance seen from above: the landing at the door, a path running off at an angle with steps cut obliquely across it, a second path and a flight with a handrail meeting it at odd angles, a small light standing in the middle of the walk)",
+   "question": "Is every outside walkway walkable: steps square across the walk, paths meeting on level landings, nothing standing in the walking width?"
+  },
+  {
+   "id": "UL203",
+   "date": "2026-10-30",
+   "area": "access",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "also include a step to go into the house (30 Oct 2026, real04 run 20261030-112241-full: the entrance landing runs level into the door; a house's floor stands a step above the ground outside)",
+   "lesson": "also include a step to go into the house (30 Oct 2026, real04 run 20261030-112241-full: the entrance landing runs level into the door; a house's floor stands a step above the ground outside)",
+   "question": "Does every entrance have a step up from its landing into the house (the floor a riser above the outside)?"
   }
  ]
 }
