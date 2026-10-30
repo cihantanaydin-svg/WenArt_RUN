@@ -2951,7 +2951,8 @@ RETAINING_MAX_M = 1.2
 # carries a guard on its top (the fall from the ground outside into the platform).
 GUARD_RISE_M = RETAINING_MAX_M
 PLATFORM_KINDS = {"paving": "terrace", "parking": "parking", "pools": "pool", "path": "path"}
-ROAD_KINDS = ("parking", "drive", "road")   # surfaces that stay only road (UL162): no flight is cut into them
+ROAD_KINDS = ("parking", "drive", "road")
+ROAD_CLEAR_M = 4.0         # UL188: a sunken terrace's flight lands this far from a road when an edge allows it   # surfaces that stay only road (UL162): no flight is cut into them
 POOL_COPING_M = 0.35
 
 
@@ -3630,16 +3631,40 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
     for pf in out:
         if pf.get("steps_dir") != "up":
             continue
-        # the flight lands on a paved area (a driveway, a path, another terrace) where one of its edges allows it,
-        # else on the edge with the smallest rise (the garden)
-        paved = [q["polygon"] for q in out if q is not pf]
+        # the flight lands on a paved area (a path, another terrace) where one of its edges allows it, else on the edge
+        # with the smallest rise (the garden). 30 Oct 2026 (lesson UL188, user on real04 run 20261030-112241-full:
+        # "Stairs here not making sense you can give access from the other side of the pool for both of the houses":
+        # the pool terraces' flights climbed out onto the drive beside the basement windows): never onto a road (a
+        # drive, a parking, a road); with no paved landing the flight takes the edge whose landing lies farthest from
+        # the roads when the smallest rise would land within ROAD_CLEAR_M of one (the garden side of the pool)
+        paved = [q["polygon"] for q in out if q is not pf and q.get("kind") not in ROAD_KINDS]
+        roads = [q["polygon"] for q in out if q is not pf and q.get("kind") in ROAD_KINDS
+                 and len(q.get("polygon") or []) >= 3]
+        landed = False
         for i in pf.get("up_edges") or [pf["steps_edge"]]:
             fl = up_flight(dict(pf, steps_edge=i), gz=gz)
             if fl is not None and any(G.point_in_polygon(fl["landing"], q) for q in paved):
                 pf["steps_edge"] = i
-                pf["flight_lands_on"] = next(q["id"] for q in out if q is not pf
+                pf["flight_lands_on"] = next(q["id"] for q in out if q is not pf and q.get("kind") not in ROAD_KINDS
                                              and G.point_in_polygon(fl["landing"], q["polygon"]))
+                landed = True
                 break
+        if not landed and roads:
+            def road_gap(i):
+                fl = up_flight(dict(pf, steps_edge=i), gz=gz)
+                if fl is None:
+                    return None
+                pt = fl["landing"]
+                return min(0.0 if G.point_in_polygon(pt, q) else geom2d.distance_to_polygon_edges(pt, q)
+                           for q in roads)
+            gaps = {i: road_gap(i) for i in pf.get("up_edges") or [pf["steps_edge"]]}
+            gaps = {i: g for i, g in gaps.items() if g is not None}
+            if gaps and gaps.get(pf["steps_edge"], 0.0) < ROAD_CLEAR_M:
+                best = max(gaps, key=lambda i: (round(gaps[i], 2), -(pf.get("edge_rises") or {}).get(i, 0.0)))
+                if gaps[best] > gaps.get(pf["steps_edge"], 0.0) + 1e-6:
+                    pf["steps_edge"] = best
+                    pf["flight_away_from_road"] = (f"the flight leaves the {pf.get('kind')} on the side away from the "
+                                                   f"road ({gaps[best]:.1f} m from it; UL188)")
         # 30 Oct 2026 (lesson UL162, user on real04's drive: "it needs to be only road"): a flight up onto a road (a
         # drive, a parking) is set into the sunken platform itself, its top step at the road's edge; the road stays
         # whole, no steps or cheek blocks in it

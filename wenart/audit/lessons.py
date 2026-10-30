@@ -821,7 +821,7 @@ CHECK_LESSONS = {"U1": ("UL58",), "U2": ("UL57", "UL48"), "U3": ("UL57",), "U4":
                  "U11": ("UL66",), "U12": ("UL66", "UL17"), "U13": ("UL66",), "U14": ("UL66",), "U15": ("UL65", "UL32"),
                  "U21": ("UL88",), "U22": ("UL88",), "U24": ("UL90", "UL101"), "U25": ("UL97",),
                  "U18": ("UL89", "UL65"), "U17": ("UL93",), "U26": ("UL100",), "U28": ("UL104",),
-                 "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107"),
+                 "U19": ("UL94", "UL98", "UL99", "UL102", "UL103", "UL107", "UL180"),
                  "U16": ("UL92",), "U20": ("UL96",), "U27": ("UL109",), "U29": ("UL112",)}
 CHECK_LESSONS["U23"] = ("UL106",)          # 29 Oct 2026: the professional bar (professional_bar)
 CHECK_LESSONS["U33"] = ("UL116", "UL117", "UL120", "UL122", "UL125", "UL126", "UL127")    # 29 Oct 2026: doors_as_designed

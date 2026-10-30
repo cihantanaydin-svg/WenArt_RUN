@@ -2072,24 +2072,24 @@
    "id": "UL175",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "laptop and stationary can be more detailed models they are too plain (30 Oct 2026, real04 run 20261030-112241-full, the bedroom desk: a flat slab laptop, plain notebooks and a plain pen pot)",
-   "lesson": "laptop and stationary can be more detailed models they are too plain (30 Oct 2026, real04 run 20261030-112241-full, the bedroom desk: a flat slab laptop, plain notebooks and a plain pen pot)",
+   "lesson": "A desk's laptop, monitor and stationery are real products (desk_parts): a rounded aluminium laptop opened 110 deg with single keycaps, speaker grilles, a glass trackpad, a hinge, a slim bezel with a camera and a logo; every screen shows a switched-on desktop (menu bar, a document window, a picture window, a dock; screen_ui glows faintly and lights nothing); A5 notebooks with rounded covers over a page block, an elastic band and a ribbon, a leather one with a phone and a pen on it; a hollow ceramic pen pot with pens (tip, cap, clip) and sharpened six-sided pencils; every part at real size inside the item's box.",
    "question": "Do the laptop and the stationery on every desk look like real products (keys, trackpad, screen, notebooks with pages, pens with clips)?"
   },
   {
    "id": "UL176",
    "date": "2026-10-30",
    "area": "furniture",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I did not like this bed (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom with slatted walls: a glossy black bed under a plain white duvet slab, grey and white pillows leaning)",
-   "lesson": "I did not like this bed (30 Oct 2026, real04 run 20261030-112241-full, a ground-floor bedroom with slatted walls: a glossy black bed under a plain white duvet slab, grey and white pillows leaning)",
+   "lesson": "A home's bed is a real residential product, never a care, hospital or motion bed: a model whose title names one (adjustable, hospital, nursing, care bed, medical, motorised, electric bed, massage, profiling: fit.CARE_BED_WORDS) is no candidate for a double or single bed (fit.use_misfit, rule fit.product_use, reason logged), and an agent's pin cannot bring it back. real04's f_L0_021 was the 'Komfi Adjustable Bed' (a sectioned glossy black and chrome base whose uneven top tore the throw), disliked on 28 Oct (UL73) and again on run 20261030-112241-full; its refit takes a home bed.",
    "question": "Does every bed look like a good real bed of the style family, with made bedding that is not a flat slab?"
   },
   {
@@ -2120,24 +2120,24 @@
    "id": "UL179",
    "date": "2026-10-30",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Door style is good but it is too plain, make it better (30 Oct 2026, real04 run 20261030-112241-full, a glazed outside door seen from inside: a flat oak frame and stile with one big pane, a plain casing, a black lever)",
-   "lesson": "Door style is good but it is too plain, make it better (30 Oct 2026, real04 run 20261030-112241-full, a glazed outside door seen from inside: a flat oak frame and stile with one big pane, a plain casing, a black lever)",
+   "lesson": "Every parametric door of a style family is joinery of its family, not boxes: glazing beads round the glass on both faces, a profiled architrave (a stepped casing with a raised fillet in the light families, a ramped casing with a rounded back edge on plinth blocks in the period families), hinge knuckles with tips, the lever on a round rose or a backplate with a neck, a lock cylinder, and on an outside door a weather bar at the foot of its outside face; library doors' frames take the same architrave. The style the user likes stays; only the detail is added.",
    "question": "Do the doors show real joinery (profiled stiles and rails, glazing beads, a casing with plinth blocks, hinges and a lever on a rose)?"
   },
   {
    "id": "UL180",
    "date": "2026-10-30",
    "area": "decor",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "put some pillows and sheet on to the white sofa also another carpet could be good here (30 Oct 2026, real04 run 20261030-112241-full, a basement living room: a white library L-sofa with no cushions or throw, a navy armchair, the oak floor bare under the seating)",
-   "lesson": "put some pillows and sheet on to the white sofa also another carpet could be good here (30 Oct 2026, real04 run 20261030-112241-full, a basement living room: a white library L-sofa with no cushions or throw, a navy armchair, the oak floor bare under the seating)",
+   "lesson": "The main sofa of every living room (the widest sofa or corner sofa) is dressed: scatter cushions (two on a sofa, two to four along a corner sofa's back) and a throw (the room's one throw moves there from an armchair); its seating group stands on its own rug, front legs on it, also when the dining table has a rug. A piece the fit built as its type is dressed even when the reading left its type unverified. A seat's loose seat and back cushions are not scatter cushions: only the audit's has_scatter_cushions (else its title) keeps decor cushions off. Checks: M21 / U19 report a bare main sofa or a seating group without a rug.",
    "question": "Does the main sofa of every living room carry scatter cushions and a throw, and does every seating group stand on its own rug?"
   },
   {
@@ -2216,36 +2216,36 @@
    "id": "UL187",
    "date": "2026-10-30",
    "area": "kitchen",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop); the user's follow-up: \"for the fridge I was referring the end of the table, maybe by shortening the table\" (the fridge column at the end of the counter run, the run shortened to make room); and on the open-kitchen variant: \"There can be a full embedded fridge next to the Owen\" (an integrated full-height fridge column beside the tall oven column)",
-   "lesson": "in the kitchen a full size fridge can be included into the right side at the end (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen's U run: no tall fridge; the right leg ends in base units with a microwave on the worktop)",
+   "lesson": "Every kitchen has one full-size fridge in the tall-unit column at the end of a counter run beside the oven tower, its fronts to the ceiling; only a drawn or full-height fridge (from 1.5 m) counts as the kitchen's fridge; an added under-counter or lone fridge moves into the column (its old unit becomes a cupboard); a run end in a door swing stops short of it by at most 0.5 m (fit._swing_trim, trim_m), the drawn footprint kept; integrated families hide the fridge-freezer behind fronts that match the run, the steel family keeps steel doors.",
    "question": "Does every kitchen have a full-size fridge (a tall column at the end of a run) where the drawing leaves room for one?"
   },
   {
    "id": "UL188",
    "date": "2026-10-30",
    "area": "site",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Stairs here not making sense you can give access from the other side of the pool for both of the houses (30 Oct 2026, real04 run 20261030-112241-full, ext view along the side road: the flight from the road path down into each house's sunken pool terrace, cut into the stone retaining wall beside the basement window, with railings on the road side)",
-   "lesson": "Stairs here not making sense you can give access from the other side of the pool for both of the houses (30 Oct 2026, real04 run 20261030-112241-full, ext view along the side road: the flight from the road path down into each house's sunken pool terrace, cut into the stone retaining wall beside the basement window, with railings on the road side)",
+   "lesson": "A sunken terrace's flight never climbs out onto a road (a drive, a parking, a road): it lands on a path or another terrace where an edge allows it, else on the edge whose landing lies farthest from the roads when the smallest rise would land within 4 m of one (site.ROAD_CLEAR_M; the garden side of the pool). real04: both pool terraces' flights had climbed out onto the drive beside the basement windows; they now leave from the other side.",
    "question": "Does every flight on the site lead somewhere that makes sense (a sunken terrace reached from its own garden side, never cut into the road's retaining wall beside a window)?"
   },
   {
    "id": "UL189",
    "date": "2026-10-30",
    "area": "site",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Access section here needs a rework, also no need for handrails (30 Oct 2026, real04 run 20261030-112241-full, aerial view of the side of the plot: a short flight with a handrail from the asphalt road up to a landing at the foot of the pool terrace's retaining wall, and the long flight up the lawn slope beside the hedge with a handrail)",
-   "lesson": "Access section here needs a rework, also no need for handrails (30 Oct 2026, real04 run 20261030-112241-full, aerial view of the side of the plot: a short flight with a handrail from the asphalt road up to a landing at the foot of the pool terrace's retaining wall, and the long flight up the lawn slope beside the hedge with a handrail)",
+   "lesson": "Garden steps are simple: a stepped garden path (short flights between level landings) takes a handrail only when one flight rises more than 1.0 m (grading GRADE path_rail_rise_m; the steps at a door or a deck keep the levels' 0.45 m rule); real04's access paths (flights of 0.51-0.73 m) lose their rails.",
    "question": "Are the site's access steps simple, short and where they make sense, without needless handrails?"
   },
   {
@@ -2264,12 +2264,12 @@
    "id": "UL191",
    "date": "2026-10-30",
    "area": "openings",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Something wrong with this door in the kitchen (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen: an oak door leaf beside the end of the counter run shows the slatted wall through two slots in the leaf, under its upper panel and at handle height)",
-   "lesson": "Something wrong with this door in the kitchen (30 Oct 2026, real04 run 20261030-112241-full, the basement kitchen: an oak door leaf beside the end of the counter run shows the slatted wall through two slots in the leaf, under its upper panel and at handle height)",
+   "lesson": "A door leaf is solid: the wall behind an open door never shows through it. An inside library door whose glass is only narrow lites (at most 8 % of the model) takes satin glass, so the lites read as frosted inserts and not as slots; a glazed leaf and an outside door keep clear glass; a material named 'panel' is never glass (only 'pane' counts).",
    "question": "Is every door leaf solid where it should be, with no wall finish showing through it?"
   },
   {
@@ -2308,12 +2308,12 @@
    "id": "UL195",
    "date": "2026-10-30",
    "area": "bedding",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "Redude the number of pillows 5 max per bed (30 Oct 2026, real04 run 20261030-112241-full, a bedroom: two white sleeping pillows, a third white pillow, a grey cushion, a cream fringed cushion and a large checked cushion on one double bed)",
-   "lesson": "Redude the number of pillows 5 max per bed (30 Oct 2026, real04 run 20261030-112241-full, a bedroom: two white sleeping pillows, a third white pillow, a grey cushion, a cream fringed cushion and a large checked cushion on one double bed)",
+   "lesson": "At most five pillows and cushions on a bed: our made-bed set goes only on a bed model without pillows of its own (two shams or a decorative pair, two pillows, at most one lumbar); a model whose own pillows lie flat keeps its own set (bedding_parts.dress_mode None), never ours on top of it; decor cushions on a dressed bed are skipped by the build.",
    "question": "Does every bed carry at most five pillows and cushions in all?"
   },
   {
