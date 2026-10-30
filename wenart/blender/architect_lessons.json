@@ -2415,6 +2415,30 @@
    "request": "also include a step to go into the house (30 Oct 2026, real04 run 20261030-112241-full: the entrance landing runs level into the door; a house's floor stands a step above the ground outside)",
    "lesson": "also include a step to go into the house (30 Oct 2026, real04 run 20261030-112241-full: the entrance landing runs level into the door; a house's floor stands a step above the ground outside)",
    "question": "Does every entrance have a step up from its landing into the house (the floor a riser above the outside)?"
+  },
+  {
+   "id": "UL204",
+   "date": "2026-10-30",
+   "area": "materials",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Texture on the wall was also weird check it (30 Oct 2026, real04 run 20261030-112241-full, the entrance seen from above: the walls by the entrance door)",
+   "lesson": "Texture on the wall was also weird check it (30 Oct 2026, real04 run 20261030-112241-full, the entrance seen from above: the walls by the entrance door)",
+   "question": "Do the facade claddings read as real boards and stones at their true size (no stretched or smeared texture)?"
+  },
+  {
+   "id": "UL205",
+   "date": "2026-10-30",
+   "area": "details",
+   "status": "open",
+   "checks": [
+    "build"
+   ],
+   "request": "Nice inspiration for toilet solution (30 Oct 2026, the user's photo of a WC: charcoal microcement walls; a half-height installation wall with recessed lit niches on top holding toiletries; a long backlit horizontal mirror above it; a black wall-mounted mixer over a matt black vessel basin on a rustic oak trestle bench with a lower shelf and a woven basket; a slim fin wall between the basin and the WC; a black wall-hung WC with a round dual-flush plate on the installation wall; a chrome toilet brush and a roll holder; a woven rattan dome pendant; large greige floor tiles)",
+   "lesson": "Nice inspiration for toilet solution (30 Oct 2026, the user's photo of a WC: charcoal microcement walls; a half-height installation wall with recessed lit niches on top holding toiletries; a long backlit horizontal mirror above it; a black wall-mounted mixer over a matt black vessel basin on a rustic oak trestle bench with a lower shelf and a woven basket; a slim fin wall between the basin and the WC; a black wall-hung WC with a round dual-flush plate on the installation wall; a chrome toilet brush and a roll holder; a woven rattan dome pendant; large greige floor tiles)",
+   "question": "Does every WC look like the user's reference: a half-height installation wall with recessed niches, a long backlit mirror, a wall-hung WC with its flush plate, the basin on a bench or console with a wall mixer, a brush and a roll holder?"
   }
  ]
 }
