@@ -80,6 +80,11 @@ GRADE = {
     # stepped garden path's flight (short flights between level landings) takes a handrail only when one flight rises
     # more than this (a stair, not garden steps); the steps at a door or a deck keep the levels' handrail_from
     "path_rail_rise_m": 1.0,
+    # 30 Oct 2026 (lesson UL209, user on real06's veranda: "handrails not making sense": two handrail frames stood at
+    # its three-riser flight of 0.50 m): a deck's, terrace's or veranda's own flight down to the garden takes handrails
+    # only from this many risers (IRC R311.7.8: a handrail on flights of four or more risers) and over the levels'
+    # handrail_from; a shorter flight stands free between its cheeks
+    "deck_rail_min_risers": 4,
     # banks: the steepest slope (rise per run) each finish holds without a wall (lawn mown at 1:3, ground cover 1:2)
     "lawn_slope": 1.0 / 3.0, "planted_slope": 1.0 / 2.0,
     "embank_max_m": 1.2,            # a taller difference is held by walls and terraces (= site.RETAINING_MAX_M)
@@ -554,7 +559,8 @@ def down_flight(pf: dict, gz: Callable, rules: Optional[dict] = None) -> Optiona
             rise = max(landed(n), tol + 0.01)
     tread, flights, run = layout(n, rise)
     spec = {"n": n, "riser": rise / n, "tread": tread, "flights": flights, "landing": land,
-            "handrails": rise > float(rules["handrail_from"]), "cheeks": True, "top": z, "ground": z - rise}
+            "handrails": rise > float(rules["handrail_from"]) and n >= int(GRADE["deck_rail_min_risers"]),
+            "cheeks": True, "top": z, "ground": z - rise}
     parts = S.flight_parts(mid, out, spec, half_w)
     end = parts["end"]
     cheek = GRADE["cheek_t"]

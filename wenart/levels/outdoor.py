@@ -56,6 +56,7 @@ from typing import Optional, Sequence
 
 from wenart import building as B
 from wenart import geometry as G
+from wenart.levels.columns import join_stacked_posts
 
 # --------------------------------------------------------------------------
 # Vocabulary
@@ -1066,6 +1067,8 @@ def outdoor_spaces(building: dict, levels: Sequence[dict], outlines: dict, marks
         s["roof"] = roof_plan(s, out, levels, outlines, building, doors)
     assign_posts(out, gz)
     house_roof_posts(out, building, outlines)
+    for why in join_stacked_posts(out):
+        inferred.append({"item": "outdoor space column", "value": None, "reason": why})
     for s in out:
         sz = f"{s['area_m2']:.2f} m²" + (f" (stated {s['stated_area_m2']:.2f} m²)" if s["stated_area_m2"] else "")
         what = (f"{s['kind']} '{s['label']}' on {s['level_id']}: {sz}, {s['method']}; floor {s['z']:+.2f} m "

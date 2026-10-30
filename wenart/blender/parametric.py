@@ -745,10 +745,76 @@ def frame_bedding_info(w: float, d: float, deck_z: float, mattress_h: float = FR
             "pillows": sum(1 for p in parts if p["role"] == "pillow")}
 
 
+def outdoor_build_of(piece: dict | None) -> bool:
+    """Whether the fit asked for the piece in weather-proof materials (``asset.outdoor_build``, an open-air room)."""
+    asset = (piece or {}).get("asset") if isinstance((piece or {}).get("asset"), dict) else {}
+    return isinstance(asset.get("outdoor_build"), dict)
+
+
+# 30 Oct 2026 (lesson UL209, user on real06's veranda: "this whole area requires a huge rework": its sofa, built from
+# the indoor family in teak and outdoor fabric, read from the garden as a white box). An outdoor lounge sofa or
+# armchair is an open teak frame: square legs, slatted arms under a flat arm board, a slatted back between its back
+# posts and a slatted seat deck, with loose seat and back cushions on it (``OUTDOOR_SOFA``).
+OUTDOOR_SOFA = {"leg_m": 0.055, "deck_m": 0.30, "arm_m": 0.62, "arm_board_w": 0.075, "arm_board_t": 0.028,
+                "slat_w": 0.03, "slat_pitch": 0.085, "back_slat_h": 0.055, "back_slat_pitch": 0.09,
+                "cushion_t": 0.13, "back_cushion_t": 0.14, "rail_h": 0.05}
+
+
+def _outdoor_sofa(w: float, d: float, h: float, cushions: int | None = None) -> list[Part]:
+    """An outdoor lounge sofa (``cushions=1``: an armchair) in the box ``w x d x h`` (``OUTDOOR_SOFA``; pure)."""
+    c = OUTDOOR_SOFA
+    leg = min(c["leg_m"], w * 0.06)
+    deck = min(c["deck_m"], h * 0.42)
+    arm = min(c["arm_m"], h * 0.82)
+    bw, bt = c["arm_board_w"], c["arm_board_t"]
+    inner_w = w - 2 * bw
+    parts: list[Part] = []
+    for sx in (-1, 1):
+        x = sx * (w / 2.0 - bw / 2.0)
+        parts.append(_box(x, -d / 2.0 + leg / 2.0, 0.0, leg, leg, arm - bt, "wood", "leg"))
+        parts.append(_box(x, d / 2.0 - leg / 2.0, 0.0, leg, leg, h - 0.02, "wood", "leg"))
+        parts.append(_box(x, 0.0, arm - bt, bw, d, bt, "wood", "arm"))
+        parts.append(_box(x, 0.0, deck - c["rail_h"] - 0.03, bw * 0.6, d - 2 * leg, c["rail_h"], "wood", "rail"))
+        n = max(2, int((d - 2 * leg) / c["slat_pitch"]))
+        for k in range(1, n):
+            y = -d / 2.0 + leg + (d - 2 * leg) * k / n
+            parts.append(_box(x, y, deck - 0.03, c["slat_w"] * 0.8, c["slat_w"], arm - bt - deck + 0.03, "wood",
+                              "slat"))
+    for y in (-d / 2.0 + leg / 2.0, d / 2.0 - leg / 2.0):
+        parts.append(_box(0.0, y, deck - c["rail_h"] - 0.03, inner_w, leg * 0.6, c["rail_h"], "wood", "rail"))
+    back_y = d / 2.0 - leg / 2.0
+    z = deck + 0.02
+    while z + c["back_slat_h"] <= h - 0.05:
+        parts.append(_box(0.0, back_y, z, inner_w, 0.022, c["back_slat_h"], "wood", "slat"))
+        z += c["back_slat_pitch"]
+    parts.append(_box(0.0, back_y, h - 0.045, w, leg, 0.045, "wood", "rail"))
+    m = max(3, int(inner_w / c["slat_pitch"]))
+    for k in range(m):
+        xx = -inner_w / 2.0 + inner_w * (k + 0.5) / m
+        parts.append(_box(xx, 0.0, deck - 0.03, inner_w / m - 0.012, d - 2 * leg, 0.03, "wood", "slat"))
+    n = cushions or max(1, round(inner_w / 0.75))
+    cw = inner_w / n
+    ct, bct = c["cushion_t"], c["back_cushion_t"]
+    seat_d = d - leg - bct - 0.02
+    lean = math.radians(BACK_CUSHION_LEAN_DEG)
+    bh = max(0.12, (h - 0.06 - deck - ct + 0.02 - bct * math.sin(lean)) / math.cos(lean))
+    for i in range(n):
+        cx = -inner_w / 2.0 + cw * (i + 0.5)
+        parts.append(_superellipsoid(cx, -d / 2.0 + 0.01 + seat_d / 2.0, deck, cw - 0.015, seat_d, ct, 0.22, 0.2,
+                                     "fabric", "cushion", n_eta=10, n_om=32))
+        parts.append(_superellipsoid(cx, back_y - leg / 2.0 - bct / 2.0 - 0.005, deck + ct - 0.02, cw - 0.03, bct, bh,
+                                     0.3, 0.22, "fabric", "back_cushion", n_eta=10, n_om=32,
+                                     tilt_deg=-BACK_CUSHION_LEAN_DEG))
+    return parts
+
+
 def _sofa(w: float, d: float, h: float, cushions: int | None = None, piece: dict | None = None) -> list[Part]:
     """Sofa v2 (Milestone 13; ``cushions=1``: the armchair): an upholstered base on four tapered wooden legs, two
     arms, a back frame up to ``h``, rounded seat cushions (one per 0.75 m of seat) and leaning back cushions
-    (superellipsoids, role ``back_cushion``). The box: the footprint, ``h`` high, on the floor."""
+    (superellipsoids, role ``back_cushion``). The box: the footprint, ``h`` high, on the floor. A piece the fit builds
+    for outside (``outdoor_build_of``) is the open teak lounge frame of ``_outdoor_sofa`` (lesson UL209)."""
+    if outdoor_build_of(piece):
+        return _outdoor_sofa(w, d, h, cushions)
     back_t = min(0.22, d * 0.25)
     arm_w = min(0.20, w * 0.12) if cushions != 1 else min(0.15, w * 0.15)
     seat_h = sofa_seat_height(h)

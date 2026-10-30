@@ -3384,6 +3384,7 @@ def space_platform(space: dict, gz) -> Optional[dict]:
                                                 "stated_area_m2")},
             "elevated": bool(space.get("elevated")), "steps_drawn": space.get("steps"), "roof": space.get("roof"),
             "posts": list(space.get("posts") or []), "space_reason": space.get("reason"),
+            "through_posts": list(space.get("through_posts") or []),
             "guard_edges": [list(map(list, e)) for e in space.get("guard_edges") or []]}
 
 
@@ -4158,7 +4159,11 @@ def platforms(site: dict, terrain: Optional[dict] = None, keep_out: Sequence = (
                     "kind": "pool", "source": pool.get("source"), "area_id": None, "z_source": z_src,
                     "marks": mark_ids, "ground": g, "sloped": False, "pools": [pid], "inferred": True,
                     "material": None, "colour": None})
-    # 26 Oct 2026 (real06): the labelled outdoor spaces (veranda, balcony, terrace ...) at their doors' floor
+    # 26 Oct 2026 (real06): the labelled outdoor spaces (veranda, balcony, terrace ...) at their doors' floor.
+    # 30 Oct 2026 (lesson UL209): a post standing on a post of the space below is one column through the slab
+    # (``wenart.levels.columns``; the levels stage joins them, a building of before is joined here; idempotent)
+    from wenart.levels import columns as LC
+    LC.join_stacked_posts([s for s in site.get("outdoor_spaces") or [] if isinstance(s, dict) and "z" in s])
     for s in site.get("outdoor_spaces") or []:
         if isinstance(s, dict):
             pf = space_platform(s, gz)
@@ -5133,11 +5138,34 @@ def platform_parts(pf: dict, terrain: dict) -> list[dict]:
                     cm = G.point_along_segment(a, b, (s0 + s1) / 2.0 / length)
                     kerbs.append(geom2d.box((cm[0] + nx * kw / 2.0, cm[1] + ny * kw / 2.0, z + kh / 2.0 - 0.02),
                                             (s1 - s0 + kw, kw, kh + 0.04), angle))
-        if i in (pf.get("railing_edges") or []) and pf.get("kind") in ("terrace", "pool") and not pf.get("parent"):
+        if i in (pf.get("railing_edges") or []) and pf.get("kind") in ("terrace", "pool") and not pf.get("parent") \
+                and not pf.get("elevated"):
+            discs = column_discs(pf, z)
             for ra, rb in railing_runs(a, b, i, pf):
-                metal, panes = D.balustrade(ra, rb, z, 1.0, pf.get("balustrade") or D.DEFAULT_KIND)
-                rails += metal
-                panels += panes
+                # 30 Oct 2026 (UL209): a guard stops at a post or column standing on its line
+                for qa, qb, ca, cb in (free_runs(ra, rb, discs, COLUMN["guard_gap_m"]) if discs
+                                       else [(ra, rb, False, False)]):
+                    metal, panes = D.balustrade(qa, qb, z, 1.0, pf.get("balustrade") or D.DEFAULT_KIND,
+                                                ends=(not ca, not cb))
+                    rails += metal
+                    panels += panes
+    # 30 Oct 2026 (lesson UL209, user on real06's balcony: "handrails not making sense"): an upper slab's guard stands
+    # COLUMN["guard_inset_m"] in from its edge (it stood on the edge line, half over the void, and ran through the
+    # columns on that line), one straight run along each side (the edge pieces merged), meeting at the corners, up to
+    # the walls, and stopping at every column it meets (no post beside a column)
+    if pf.get("elevated") and pf.get("railing_edges") and pf.get("kind") in ("terrace", "pool") \
+            and not pf.get("parent"):
+        discs = column_discs(pf, z)
+        lines = guard_lines(poly, pf["railing_edges"], COLUMN["guard_inset_m"])
+        runs = [r for la, lb in lines for r in (free_runs(la, lb, discs, COLUMN["guard_gap_m"]) if discs
+                                                 else [(la, lb, False, False)])]
+        kind = pf.get("balustrade") or D.DEFAULT_KIND
+        if any(ca or cb for _a, _b, ca, cb in runs):
+            kind = D.framed_kind(kind)                   # columns frame it: no posts of its own (UL209)
+        for qa, qb, ca, cb in runs:
+            metal, panes = D.balustrade(qa, qb, z, 1.0, kind, ends=(not ca, not cb))
+            rails += metal
+            panels += panes
     # 28 Oct 2026: a bank end that cannot run on (no cone) is held by a wing wall with its coping (grading.wing_walls)
     if pf.get("embankments") and not pf.get("sloped") and not pf.get("elevated"):
         natural = (lambda x, y: _terrain_z(terrain, x, y))
@@ -5178,6 +5206,191 @@ DRAWN_RISER_MAX_M = 0.20
 COVER_TOP_MATERIAL = "standing_seam"     # 28 Oct 2026: a light roof's covering (wenart.style.finishes)
 COVER = {"beam_w": 0.12, "beam_h": 0.20, "rafter_w": 0.06, "rafter_h": 0.16, "rafter_pitch": 0.6, "glass_t": 0.03,
          "post_segments": 12}
+
+
+# 30 Oct 2026 (lesson UL209, user on real06's front: "it is not elegant, columns seems cut in the middle handrails not
+# making sense this whole area requires a huge rework"). A drawn column is one architectural element:
+# - its shaft is smooth (``COLUMN["segments"]``: the 12-sided post read as an octagonal pipe) and runs as one piece
+#   through the slabs it passes (``wenart.levels.columns``);
+# - it stands on a slim base (``base_h`` high, ``base_over`` proud each side) and ends in a slim head under what it
+#   carries (``head_h``, ``head_over``), so it reads as a made column, not a pipe cut to length;
+# - nothing passes through it: a lower roof and its edge beams are cut around it (``roof_gap_m``), a guard stops
+#   ``guard_gap_m`` short of it (``free_runs``) and stands ``guard_inset_m`` in from an upper slab's edge (a guard on
+#   the edge line hung half over the void and ran into the columns standing on that line).
+# Posts thinner than ``min_m`` (a light roof's timber or steel post) stay plain prisms with ``post_segments``.
+COLUMN = {"min_m": 0.25, "segments": 48, "base_h": 0.06, "base_over": 0.03, "head_h": 0.05, "head_over": 0.025,
+          "roof_gap_m": 0.02, "guard_gap_m": 0.03, "guard_inset_m": 0.05, "min_run_m": 0.15}
+
+
+def post_radius(q: dict) -> float:
+    """The plan radius a post takes up (pure): half the size of a round one, half the diagonal of a box."""
+    if q.get("shape") == "round":
+        return float(q.get("size_m") or 0.15) / 2.0
+    w, d = (q.get("size_xy") or [q.get("size_m") or 0.15] * 2)[:2]
+    return math.hypot(float(w), float(d)) / 2.0
+
+
+def _all_posts(pf: dict) -> list[dict]:
+    return [q for q in list(pf.get("posts") or []) + list(pf.get("through_posts") or []) if q.get("center")]
+
+
+def column_discs(pf: dict, z: Optional[float] = None) -> list[tuple[tuple[float, float], float]]:
+    """``[(centre, radius)]`` of the posts and through-going columns of a platform (pure; lesson UL209): with ``z``
+    only those standing at that height (their ``z0``-``z1`` holds it)."""
+    out = []
+    for q in _all_posts(pf):
+        if z is not None and not (float(q.get("z0", -1e9)) - 1e-6 <= z <= float(q.get("z1", 1e9)) + 1e-6):
+            continue
+        out.append(((float(q["center"][0]), float(q["center"][1])), post_radius(q)))
+    return out
+
+
+def free_runs(p, q, discs: Sequence, gap: float) -> list[tuple[tuple, tuple, bool, bool]]:
+    """The stretches of the segment ``p``-``q`` clear of the discs (pure; lesson UL209): ``[(a, b, a_at_column,
+    b_at_column)]``, each at least ``COLUMN["min_run_m"]`` long; a disc blocks the line within its radius + ``gap``."""
+    length = G.distance(p, q)
+    if length < 1e-9:
+        return []
+    ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
+    cuts = []
+    for c, r in discs:
+        rr = float(r) + gap
+        t = (c[0] - p[0]) * ux + (c[1] - p[1]) * uy
+        d = abs((c[0] - p[0]) * uy - (c[1] - p[1]) * ux)
+        if d >= rr:
+            continue
+        h = math.sqrt(rr * rr - d * d)
+        if t + h <= 0.0 or t - h >= length:
+            continue
+        cuts.append((max(0.0, t - h), min(length, t + h)))
+    out, s, s_col = [], 0.0, False
+    for s0, s1 in sorted(cuts):
+        if s0 - s >= COLUMN["min_run_m"]:
+            out.append(((p[0] + ux * s, p[1] + uy * s), (p[0] + ux * s0, p[1] + uy * s0), s_col, True))
+        if s1 > s:
+            s, s_col = s1, True
+    if length - s >= COLUMN["min_run_m"]:
+        out.append(((p[0] + ux * s, p[1] + uy * s), tuple(q), s_col, False))
+    return out
+
+
+def column_parts(q: dict) -> list[tuple[list, list]]:
+    """The meshes of one post (pure): a column (``COLUMN["min_m"]`` or more across) is a smooth shaft on a slim base
+    under a slim head; a thinner post a plain prism (round: ``COVER["post_segments"]`` sides, else a box)."""
+    z0, z1 = float(q["z0"]), float(q["z1"])
+    c = (float(q["center"][0]), float(q["center"][1]))
+    size = float(q.get("size_m") or 0.15)
+    rot = float(q.get("rotation_deg") or 0.0)
+    w, d = [float(v) for v in (q.get("size_xy") or [size, size])[:2]]
+    if size < COLUMN["min_m"] - 1e-9:
+        if q.get("shape") == "round":
+            return [_cylinder(c, size / 2.0, z0, z1, COVER["post_segments"])]
+        return [geom2d.box((c[0], c[1], (z0 + z1) / 2.0), (w, d, z1 - z0), rot)]
+    bh, bo, hh, ho = COLUMN["base_h"], COLUMN["base_over"], COLUMN["head_h"], COLUMN["head_over"]
+    if z1 - z0 < bh + hh + 0.3:
+        bh = hh = 0.0
+    if q.get("shape") == "round":
+        r = size / 2.0
+        out = [_cylinder(c, r, z0 + bh, z1 - hh, COLUMN["segments"])]
+        if bh:
+            out.append(_cylinder(c, r + bo, z0, z0 + bh, COLUMN["segments"]))
+        if hh:
+            out.append(_cylinder(c, r + ho, z1 - hh, z1, COLUMN["segments"]))
+        return out
+    out = [geom2d.box((c[0], c[1], (z0 + bh + z1 - hh) / 2.0), (w, d, z1 - hh - z0 - bh), rot)]
+    if bh:
+        out.append(geom2d.box((c[0], c[1], z0 + bh / 2.0), (w + 2 * bo, d + 2 * bo, bh), rot))
+    if hh:
+        out.append(geom2d.box((c[0], c[1], z1 - hh / 2.0), (w + 2 * ho, d + 2 * ho, hh), rot))
+    return out
+
+
+def _line_meet(p, d, q, e) -> Optional[tuple[float, float]]:
+    """Where the line through ``p`` along ``d`` meets the one through ``q`` along ``e`` (None when parallel)."""
+    den = d[0] * e[1] - d[1] * e[0]
+    if abs(den) < 1e-9:
+        return None
+    t = ((q[0] - p[0]) * e[1] - (q[1] - p[1]) * e[0]) / den
+    return (p[0] + d[0] * t, p[1] + d[1] * t)
+
+
+def guard_lines(poly: Sequence, edges: Sequence[int], inset: float) -> list[tuple[tuple, tuple]]:
+    """The lines a slab's guard stands on (pure; lesson UL209): the railing ``edges`` of the counter-clockwise
+    ``poly``, consecutive collinear pieces as one run (``subdivide_edges`` cut them), each moved ``inset`` in from the
+    edge; a run's end meets the next railing edge's inset line at a corner, and the next edge's own line where that
+    edge is not guarded (a wall: the guard runs up to it)."""
+    n = len(poly)
+    es = sorted({int(i) % n for i in edges}) if n >= 3 else []
+    if not es:
+        return []
+
+    def unit(i):
+        a, b = poly[i], poly[(i + 1) % n]
+        ln = G.distance(a, b)
+        return ((b[0] - a[0]) / ln, (b[1] - a[1]) / ln) if ln > 1e-9 else None
+
+    def collinear(i, j):
+        u, v = unit(i), unit(j)
+        return u is not None and v is not None and abs(u[0] * v[1] - u[1] * v[0]) < 1e-6 and u[0] * v[0] + u[1] * v[1] > 0
+
+    chains, seen = [], set()
+    for i in es:
+        if i in seen:
+            continue
+        s = i
+        while (s - 1) % n in es and collinear((s - 1) % n, s) and (s - 1) % n not in seen and (s - 1) % n != i:
+            s = (s - 1) % n
+        e, chain = s, [s]
+        while (e + 1) % n in es and collinear(e, (e + 1) % n) and (e + 1) % n != s:
+            e = (e + 1) % n
+            chain.append(e)
+        seen.update(chain)
+        chains.append((s, e))
+    out = []
+    for s, e in chains:
+        u = unit(s)
+        if u is None:
+            continue
+        inn = (-u[1], u[0])                                   # counter-clockwise: the inside is on the left
+        a = (poly[s][0] + inn[0] * inset, poly[s][1] + inn[1] * inset)
+        b = (poly[(e + 1) % n][0] + inn[0] * inset, poly[(e + 1) % n][1] + inn[1] * inset)
+        for end, k, vert in (("a", (s - 1) % n, poly[s]), ("b", (e + 1) % n, poly[(e + 1) % n])):
+            v = unit(k)
+            if v is None or collinear(k, s):
+                continue
+            off = inset if k in es else 0.0
+            vin = (-v[1], v[0])
+            hit = _line_meet(a, u, (vert[0] + vin[0] * off, vert[1] + vin[1] * off), v)
+            if hit is not None and G.distance(hit, (vert[0] + inn[0] * inset, vert[1] + inn[1] * inset)) <= 3 * inset + 1e-6:
+                if end == "a":
+                    a = hit
+                else:
+                    b = hit
+        if G.distance(a, b) >= COLUMN["min_run_m"]:
+            out.append((a, b))
+    return out
+
+
+def roof_around_columns(poly: Sequence, discs: Sequence) -> tuple[list, list]:
+    """``(outer, holes)`` of a lower roof's outline with the columns that rise through it cut out (pure; lesson
+    UL209): a disc inside the outline is a hole, one on its edge a notch; ``(poly, [])`` when none touches it."""
+    if not discs:
+        return list(poly), []
+    from shapely.geometry import Point, Polygon
+
+    shape = Polygon(poly)
+    cut = shape
+    for c, r in discs:
+        disc = Point(c).buffer(float(r) + COLUMN["roof_gap_m"], 24)
+        if disc.intersects(shape):
+            cut = cut.difference(disc)
+    if cut.equals(shape) or cut.is_empty:
+        return list(poly), []
+    if cut.geom_type != "Polygon":
+        cut = max(cut.geoms, key=lambda g: g.area)
+    outer = [(float(x), float(y)) for x, y in list(cut.exterior.coords)[:-1]]
+    holes = [[(float(x), float(y)) for x, y in list(h.coords)[:-1]] for h in cut.interiors]
+    return outer, holes
 
 
 def roof_z(roof: dict, p: Sequence[float]) -> float:
@@ -5244,9 +5457,13 @@ def cover_parts(pf: dict) -> list[dict]:
         poly = geom2d.ccw(roof["polygon"])
         kind = roof.get("kind") or "light_roof"
         t = float(roof.get("thickness") or 0.18)
+        # 30 Oct 2026 (UL209): the columns that rise through the roof (their top over its underside) cut it
+        through = [(c, r) for c, r, q in ((d[0], d[1], q) for d, q in zip(column_discs(pf), _all_posts(pf)))
+                   if float(q.get("z1") or 0.0) > roof_z(roof, c) - t + 0.05]
         if kind in ("light_roof", "glass_roof", "pitched"):     # 28 Oct 2026: a drawn lower roof, sloped
             tt = COVER["glass_t"] if kind == "glass_roof" else t
-            v, f = slab_with_holes(poly, [], 0.0, -tt)
+            outer, holes = roof_around_columns(poly, through)
+            v, f = slab_with_holes(outer, holes, 0.0, -tt)
             v = [(x, y, zz + roof_z(roof, (x, y))) for x, y, zz in v]
             rec = {"part": "roof", "verts": v, "faces": f}
             if kind == "glass_roof":
@@ -5254,16 +5471,21 @@ def cover_parts(pf: dict) -> list[dict]:
             out.append(rec)
         under = 0.0 if kind == "pergola" else (COVER["glass_t"] if kind == "glass_roof" else t)
         bw, bh = COVER["beam_w"], COVER["beam_h"]
-        for a, b in roof.get("open_edges") or []:
-            length = G.distance(a, b)
-            if length < 0.2:
+        for a0, b0 in roof.get("open_edges") or []:
+            if G.distance(a0, b0) < 0.2:
                 continue
-            ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+            ux, uy = (b0[0] - a0[0]) / G.distance(a0, b0), (b0[1] - a0[1]) / G.distance(a0, b0)
             nx, ny = -uy, ux                                  # inward of a counter-clockwise edge
-            mid = G.segment_midpoint(a, b)
-            c = (mid[0] + nx * bw / 2.0, mid[1] + ny * bw / 2.0)
-            za, zb = roof_z(roof, a) - under, roof_z(roof, b) - under
-            beams.append(sloped_box(c, length, bw, G.segment_angle_deg(a, b), za - bh, za, zb, zb - bh))
+            line = ((a0[0] + nx * bw / 2.0, a0[1] + ny * bw / 2.0), (b0[0] + nx * bw / 2.0, b0[1] + ny * bw / 2.0))
+            # 30 Oct 2026 (UL209): an edge beam stops at a column that rises through the roof (its end on the column)
+            for a, b, _ca, _cb in free_runs(line[0], line[1], through, COLUMN["roof_gap_m"]) if through else \
+                    [(line[0], line[1], False, False)]:
+                length = G.distance(a, b)
+                if length < 0.2:
+                    continue
+                za, zb = roof_z(roof, a) - under, roof_z(roof, b) - under
+                beams.append(sloped_box(G.segment_midpoint(a, b), length, bw, G.segment_angle_deg(a, b),
+                                        za - bh, za, zb, zb - bh))
         if kind == "pergola":
             d = (roof.get("plane") or {}).get("dir") or [0.0, -1.0]
             u = (-d[1], d[0])
@@ -5292,13 +5514,8 @@ def cover_parts(pf: dict) -> list[dict]:
         z0, z1 = float(q["z0"]), float(q["z1"])
         if z1 - z0 < 0.3:
             continue
-        size = float(q.get("size_m") or 0.15)
-        if q.get("shape") == "round":                   # 27 Oct 2026: the drawn shape (outdoor.column_look)
-            posts.append(_cylinder(q["center"], size / 2.0, z0, z1, COVER["post_segments"]))
-        else:
-            w, d = (q.get("size_xy") or [size, size])[:2]
-            posts.append(geom2d.box((q["center"][0], q["center"][1], (z0 + z1) / 2.0), (float(w), float(d), z1 - z0),
-                                    float(q.get("rotation_deg") or 0.0)))
+        # 27 Oct 2026: the drawn shape (outdoor.column_look); 30 Oct 2026 (UL209): a column a smooth shaft on a base
+        posts += column_parts(q)
     if posts:
         v, f = geom2d.merge(posts)
         out.append({"part": "posts", "verts": v, "faces": f})
@@ -6333,6 +6550,34 @@ def outdoor_floor_look(pf: dict) -> Optional[dict]:
                       f"assumed, nothing drawn)"}
 
 
+# 30 Oct 2026 (lesson UL209, user on real06's front: "not elegant": the lower roof's edge showed the roof tiles'
+# texture as a rough, streaky dark fascia): a cover's edge faces are its fascia, in the beams' finish; its top keeps the
+# covering and its underside the soffit's boards (``cover_face_slots``)
+FASCIA_NORMAL_Z = 0.5
+
+
+def cover_face_slots(verts, faces) -> list[int]:
+    """The material slot of each face of a cover's roof slab (pure; lesson UL209): 0 its top (the covering), 1 an
+    underside (``down_faces``: the soffit), 2 an edge face (normal within ``FASCIA_NORMAL_Z`` of horizontal: the
+    fascia)."""
+    out = []
+    for f, down in zip(faces, down_faces(verts, faces)):
+        if down:
+            out.append(1)
+            continue
+        nx = ny = nz = 0.0
+        k = len(f)
+        for i in range(k):
+            x0, y0, z0 = verts[f[i]]
+            x1, y1, z1 = verts[f[(i + 1) % k]]
+            nx += (y0 - y1) * (z0 + z1)
+            ny += (z0 - z1) * (x0 + x1)
+            nz += (x0 - x1) * (y0 + y1)
+        n = math.sqrt(nx * nx + ny * ny + nz * nz)
+        out.append(2 if n > 1e-12 and abs(nz / n) < FASCIA_NORMAL_Z else 0)
+    return out
+
+
 def down_faces(verts, faces) -> list[int]:
     """The material slot of each face (pure): 1 for a face whose unit normal's z is under ``SOFFIT_NORMAL_Z`` (an
     underside), else 0 (Newell's normal of the face's polygon)."""
@@ -6846,14 +7091,18 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                 mat = mats[part["part"]]
                 slots = part.get("slots") if glass is not None else None
                 second = glass
-                if soffit is not None and not slots and (part["part"] == "roof" or
-                                                         (part["part"] == "slab" and pf.get("elevated"))):
+                third = None
+                if soffit is not None and not slots and part["part"] == "roof":
+                    # 30 Oct 2026 (UL209): the covering on top, the soffit under it, the fascia on its edges
+                    slots, second, third = cover_face_slots(part["verts"], part["faces"]), soffit, mats["beams"]
+                elif soffit is not None and not slots and part["part"] == "slab" and pf.get("elevated"):
                     under = down_faces(part["verts"], part["faces"])
                     if any(under):
                         slots, second = under, soffit
                 ob = common.new_mesh_object(name, part["verts"], part["faces"], collection=collection, wenart_id=name,
                                             kind=site_kind("platform"), status="assumed",
-                                            materials=[mat, second] if slots else [mat],
+                                            materials=([mat, second, third] if third is not None else [mat, second])
+                                            if slots else [mat],
                                             face_material_indices=slots)
                 zz = [v[2] for v in part["verts"]] or [pf["z"]]
                 entry(ob.name, name, site_kind("platform"), mat, "assumed",
