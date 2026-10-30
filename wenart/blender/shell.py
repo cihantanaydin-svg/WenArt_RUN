@@ -1268,6 +1268,8 @@ def wall_face_slot(wall: dict, centre, normal, outward, indoor_polys, wet_polys,
 
 # Rooms that are outside: an exterior face looking into one keeps the exterior material.
 OUTDOOR_ROOM_TYPES = {"balcony"}
+# 30 Oct 2026 (UL159): rooms whose floor is the outdoor floor (``build.prepare``'s ``terrace_floor``) when it is given
+OUTDOOR_FLOOR_ROOMS = ("balcony", "terrace", "loggia", "veranda", "porch", "deck", "patio")
 
 
 def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward, outline=None, face_slots=None,
@@ -2426,8 +2428,9 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
     for room in building["rooms"]:
         if room["level_id"] != level_id:
             continue
-        floor_mat, wet = floor_material(room, style, library,
-                                        whole.get("terrace_floor") if room["id"] in open_rooms else None)
+        # 30 Oct 2026 (UL159): a roof terrace and an outdoor room (balcony, loggia, ...) take the outdoor floor
+        outside = room["id"] in open_rooms or str(room.get("room_type") or "") in OUTDOOR_FLOOR_ROOMS
+        floor_mat, wet = floor_material(room, style, library, whole.get("terrace_floor") if outside else None)
         ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
         ceil_mat = slot_material(library, ceiling_style)
         if len(room["polygon"]) < 3:

@@ -1880,13 +1880,13 @@
    "id": "UL159",
    "date": "2026-10-30",
    "area": "terrace",
-   "status": "open",
+   "status": "built",
    "checks": [
     "build"
    ],
    "request": "I like the new Teras furnitures better but a different flooring is needed which must be suitable for the outside (30 Oct 2026, real04 run 20261030-043021-full, the L1 roof terrace r_L1_teras: the new lounge set is liked; its floor is not an outdoor floor)",
-   "lesson": "I like the new Teras furnitures better but a different flooring is needed which must be suitable for the outside (30 Oct 2026, real04 run 20261030-043021-full, the L1 roof terrace r_L1_teras: the new lounge set is liked; its floor is not an outdoor floor)",
-   "question": null
+   "lesson": "A roof terrace, a balcony or a loggia of the house takes the style family's terrace floor (grading.raised_floor: stone or porcelain slabs with a tight joint, or a wood deck for the families that use one; a stone the style names is kept), never the garden paving with grass in its joints, gravel or the interior floor; the room's furniture stays (run 20261030-043021-full: the roof terrace had the garden slabs with mossy joints).",
+   "question": "Is the floor of every roof terrace and balcony a real outdoor floor (stone or porcelain slabs with tight joints, or a wood deck), never garden slabs with grass in the joints or an indoor floor?"
   },
   {
    "id": "UL160",

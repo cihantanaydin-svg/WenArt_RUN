@@ -1630,10 +1630,12 @@ def main(argv: list[str]) -> int:
         CB.build_ceiling_beams(building, level, col, library, style, manifest_objects, assumed, warnings)
         floor_whole = None
         if whole:
+            from wenart.blender import grading as GR
             floor_whole = {"floor_voids": under["voids"] if under else [],
                            "ceiling_voids": above["voids"] if above else None,
                            "ceiling_planes": level.get("ceiling_planes"), "open_rooms": prep["open_rooms"],
-                           "terrace_floor": (looks or {}).get("paving")}
+                           # 30 Oct 2026 (UL159): the family's terrace floor, never the garden paving
+                           "terrace_floor": GR.raised_floor(looks, (style or {}).get("family"))}
         shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings, stairs=stairs,
                                     whole=floor_whole, assumed=assumed)
         if whole and prep["outlines"].get(level["id"]):

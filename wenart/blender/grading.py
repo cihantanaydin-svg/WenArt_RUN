@@ -209,6 +209,29 @@ def floor_set(looks: Optional[dict] = None, style_family: Optional[str] = None) 
     return out
 
 
+RAISED_NEVER = ("paving", "gravel", "grass")      # garden floors: slabs with grass in the joints, loose stones
+
+
+def raised_floor(looks: Optional[dict] = None, style_family: Optional[str] = None) -> dict:
+    """The floor of a roof terrace, a balcony or a loggia of the house (pure; 30 Oct 2026, lesson UL159, user on
+    real04's roof terrace: "a different flooring is needed which must be suitable for the outside"; it had the garden
+    paving, concrete slabs with grass in the joints): the family's terrace floor (``floor_set``: stone or porcelain
+    slabs with a tight joint, or a wood deck), never a garden floor (``RAISED_NEVER``), with the slug's texture set."""
+    from wenart.blender import materials as M
+
+    lk = dict(floor_set(looks, style_family)["terrace"])
+    if lk.get("material") in RAISED_NEVER:
+        fam = _family(style_family)
+        slug = FLOOR_SETS[fam][0] if FLOOR_SETS[fam][0] not in RAISED_NEVER else "paving_stone"
+        lk = {"material": slug, "colour": None, "source": "build", "assumed": True,
+              "reason": f"terrace: {slug.replace('_', ' ')} (the {fam} floor set; a raised outdoor floor never takes "
+                        f"the garden paving with grass in its joints; inferred)"}
+    if not lk.get("asset"):
+        lk["asset"] = (M.ENTRIES.get(lk["material"]) or {}).get("asset")
+    lk["reason"] = (lk.get("reason") or "").replace("terrace:", "roof terrace or balcony floor:", 1)
+    return lk
+
+
 def slab_use(pf: dict) -> str:
     """The floor use of a platform's slab: ``pool_deck``, ``terrace``, ``drive`` (parking) or ``path``."""
     if pf.get("kind") == "parking":
