@@ -122,19 +122,23 @@ def test_plant_model_matches_species_then_crown_then_kind():
 
 
 def test_car_models_need_a_real_car_size():
+    # 30 Oct 2026 (lesson UL129): ``bbox_m`` is the piece frame (width, depth); c1's front +X lies across its 4.7 m
+    # long side, so the build turns it back to the long side (+Y) and keeps its real size, uniformly scaled
     cars = [{"id": "c1", "type": "car", "title": "Car", "glb": "c1.glb", "bbox_m": [4.7, 2.1, 1.4], "front_axis": "+X",
-             "audit": {"status": "fix"}, "licence_flag": "none", "textured": True},
+             "audit": {"status": "fix"}, "licence_flag": "none", "textured": True, "polycount": 40000},
             {"id": "c2", "type": "car", "title": "Car Turntable", "glb": "c2.glb", "bbox_m": [5.2, 5.4, 2.0],
-             "front_axis": "+X", "audit": {"status": "keep"}, "licence_flag": "none", "textured": True},
+             "front_axis": "+X", "audit": {"status": "keep"}, "licence_flag": "none", "textured": True,
+             "polycount": 40000},
             {"id": "c3", "type": "car", "title": "Car", "glb": "c3.glb", "bbox_m": [0.5, 0.2, 0.1], "front_axis": "+X",
-             "audit": {"status": "keep"}, "licence_flag": "none", "textured": True}]
+             "audit": {"status": "keep"}, "licence_flag": "none", "textured": True, "polycount": 40000}]
     got = SM.car_models(cars)
-    assert [c["asset"]["asset_id"] for c in got] == ["c1"] and got[0]["size"][0] == SM.CAR_WIDTH_M
+    assert [c["asset"]["asset_id"] for c in got] == ["c1"]
+    assert got[0]["size"] == [2.1, 4.7, 1.4] and got[0]["asset"]["front_axis"] == "+Y"
 
 
 def test_car_slots_fit_inside_the_parking():
     perp = SM.car_slots([[0, 0], [12, 0], [12, 6], [0, 6]])
-    assert len(perp) == 2 and {s["layout"] for s in perp} == {"perpendicular"}
+    assert len(perp) == SM.MAX_CARS and {s["layout"] for s in perp} == {"perpendicular"}
     assert all(0 < s["center"][0] < 12 and 0 < s["center"][1] < 6 for s in perp)
     par = SM.car_slots([[0, 0], [12, 0], [12, 3], [0, 3]])
     assert par[0]["layout"] == "parallel" and par[0]["rotation_deg"] == 90.0     # the front along +x
