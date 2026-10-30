@@ -16,8 +16,13 @@ What (pure, no ``bpy``, no shapely: it runs inside Blender and in the CPU tests)
   another run, never in front of a window, a door or a pass-through, never under a wall cabinet), an oven tower (a
   built-in oven over drawers, a compact oven over it, a cupboard to the ceiling) and, when the kitchen has no fridge,
   a fridge column (an integrated fridge-freezer, a French-door fridge of 90 cm in a long run), their fronts to the
-  ceiling (``column_spans``, ``tall_parts``). The fit decides where (``wenart.furniture.fit.kitchen_column``); with
-  ovens in the tower the hob unit holds pot drawers. No end free: an under-counter fridge in the run (the 26 Oct unit).
+  ceiling (``column_spans``, ``tall_parts``). The fit decides where (``wenart.furniture.fit.kitchen_details_hints``);
+  with ovens in the tower the hob unit holds pot drawers. No end free: an under-counter fridge in the run (the 26 Oct
+  unit). 30 Oct 2026 (lesson UL187, user: "a full size fridge ... at the end", "maybe by shortening the table", "a full
+  embedded fridge next to the Owen"): only a drawn or full-height fridge counts as the kitchen's fridge; an added
+  under-counter or lone fridge moves into the column beside the oven tower (its unit becomes a cupboard); a run end in
+  a door swing stops short of it, at most 0.5 m (``trim_m``, ``trim_span``: no unit, worktop or plinth there); the
+  integrated families' fridge-freezer column stands behind fronts that match the run (``tall_module`` ``appliance``).
 - K2 / K15 waterfall ends: an island of a family that uses them gets its stone (or the worktop's own) top down both
   ends to the floor (``waterfall_spans``; the units stand between the panels; the plinth stays dark and recessed).
 - K2 framed island fronts: the families that use framed (shaker) fronts have them on the island too
@@ -213,6 +218,7 @@ COLUMN: dict[str, float] = {
     "freezer_top_m": 0.80, "fridge_top_m": 2.05,
 }
 COLUMN_KINDS: tuple[str, ...] = ("oven_tower", "fridge_column", "fridge_french")
+INTEGRATED_HANDLE_M = 0.60       # UL187: the long bar handle of an integrated fridge-freezer's doors
 # 30 Oct 2026 (lesson UL147, the user's P5 kitchen again after real04 run 20261029-201533-full: its 0.70 m wall units
 # hung under a bare band of wall): the uppers of the families with ``uppers_to_ceiling`` run from their bottom to the
 # ceiling less a scribe strip (IKEA METOD wall units 60 / 80 / 100 cm high, stacked with a 40 cm top unit: at most
@@ -327,11 +333,12 @@ def column_spans(w: float, taken: Sequence[tuple[float, float, str]], hint: Opti
     if not widths:
         return [], []
     total = sum(wd for _k, wd in widths)
-    if w - total < COLUMN["rest_min_m"] - 1e-9:
-        return [], [f"no tall-unit column: {w - total:.2f} m of counter would stay beside it (less than "
+    trim = column_trim(hint)                         # 30 Oct 2026 (UL187): the run stops short of a door swing
+    if w - total - trim < COLUMN["rest_min_m"] - 1e-9:
+        return [], [f"no tall-unit column: {w - total - trim:.2f} m of counter would stay beside it (less than "
                     f"{COLUMN['rest_min_m']:.2f} m)"]
     left = hint.get("end") == "left"
-    spans, x = [], (-w / 2.0 if left else w / 2.0)
+    spans, x = [], (-w / 2.0 + trim if left else w / 2.0 - trim)
     for kind, wd in widths:
         span = (x, x + wd, kind) if left else (x - wd, x, kind)
         spans.append(span)
@@ -345,6 +352,24 @@ def column_spans(w: float, taken: Sequence[tuple[float, float, str]], hint: Opti
     return spans, [f"a tall-unit column at the run's {hint.get('end')} end: "
                    + " + ".join(f"{k.replace('_', ' ')} {wd * 100:.0f} cm" for k, wd in widths)
                    + f", its fronts up to {column_top(hint):.2f} m (K1)"]
+
+
+def column_trim(hint: Optional[dict]) -> float:
+    """30 Oct 2026 (lesson UL187): how far the run stops short of its drawn end at the column (the fit's ``trim_m``:
+    that end lay in a door swing), 0 without one."""
+    try:
+        return max(0.0, float((hint or {}).get("trim_m") or 0.0))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def trim_span(w: float, hint: Optional[dict], island: bool = False) -> Optional[tuple[float, float, str]]:
+    """UL187: the stretch of a run of width ``w`` its column hint leaves unbuilt (the drawn end in a door swing): no
+    unit, worktop or plinth there; None without one."""
+    trim = column_trim(hint)
+    if island or trim <= 1e-6 or not isinstance(hint, dict) or not hint.get("kinds"):
+        return None
+    return (-w / 2.0, -w / 2.0 + trim, "trimmed") if hint.get("end") == "left" else (w / 2.0 - trim, w / 2.0, "trimmed")
 
 
 def column_top(hint: Optional[dict]) -> float:
@@ -381,15 +406,21 @@ def upper_height(h: float, bottom: float, ceiling, rule: Optional[dict]) -> tupl
                   f"{(rule or {}).get('family') or 'default'} family; UL147, the P5 kitchen)")
 
 
-def tall_module(span: tuple[float, float, str], d: float, top: float, plinth: float) -> dict:
-    """The ``tall_unit`` module of one column unit (``modules._module`` shape)."""
+def tall_module(span: tuple[float, float, str], d: float, top: float, plinth: float,
+                look: Optional[str] = None) -> dict:
+    """The ``tall_unit`` module of one column unit (``modules._module`` shape). 30 Oct 2026 (UL187): a fridge-freezer
+    column of the ``integrated`` appliance look (``appliance_look``) stands behind fronts that match the run."""
     x0, x1, kind = span
     names = {"oven_tower": "oven tower (built-in oven, compact oven, drawers, a cupboard to the ceiling)",
              "fridge_column": "integrated fridge-freezer column", "fridge_french": "built-in French-door fridge"}
+    fridge = kind.startswith("fridge")
+    integrated = fridge and kind == "fridge_column" and look == "integrated"
     return {"kind": "tall_unit", "size_m": [round(x1 - x0, 4), round(d, 4), round(top - plinth, 4)],
             "pos_m": [round((x0 + x1) / 2.0, 4), 0.0], "rot_deg": 0.0, "material": "front", "z_m": plinth,
-            "front": kind, "holds": "fridge" if kind.startswith("fridge") else "oven", "column": True,
-            "product": f"{names[kind]} {(x1 - x0) * 100:.0f} cm, {top * 100:.0f} cm high"}
+            "front": kind, "holds": "fridge" if fridge else "oven", "column": True,
+            **({"appliance": look} if fridge and look else {}),
+            "product": f"{names[kind]} {(x1 - x0) * 100:.0f} cm, {top * 100:.0f} cm high"
+                       + (", behind fronts that match the run" if integrated else "")}
 
 
 # --------------------------------------------------------------------------
@@ -580,6 +611,20 @@ def tall_parts(m: dict, design: dict, d_run: float, plinth_recess: float) -> lis
         half = fw / 2.0 - gap / 2.0
         for sx in (-1.0, 1.0):
             _steel_door(x + sx * (half / 2.0 + gap / 2.0), half, y_back, ft + gap, door_top, x + sx * 0.04, parts)
+        cupboard(door_top, top)
+    elif m.get("appliance") == "integrated":
+        # 30 Oct 2026 (UL187, user: "There can be a full embedded fridge next to the Owen"): an integrated
+        # fridge-freezer behind two fronts in the run's style (the freezer under the fridge), a long bar handle on each
+        # near the opening edge, a cupboard door over them
+        ft = z0 + COLUMN["freezer_top_m"] - 0.10
+        door_top = min(COLUMN["fridge_top_m"], top - gap)
+        style = P.front_style_of(design)
+        hy = face - P.FRONT_GAP - P.FRONT_THICKNESS - P.PROUD / 2.0
+        for d0, d1 in ((z0 + gap, ft - gap / 2.0), (ft + gap / 2.0, door_top)):
+            parts.extend(P._front_panel(x, face, d0, fw, d1 - d0, style))
+            hl = min(INTEGRATED_HANDLE_M, (d1 - d0) * 0.6)
+            hz = d1 - hl - 0.08 if d1 <= ft else d0 + 0.08          # near the doors' meeting line
+            parts.append(P._box(x + fw / 2.0 - 0.05, hy, hz, P.HANDLE_BAR[0], P.PROUD, hl, "handle", "handle"))
         cupboard(door_top, top)
     else:                                                  # fridge_column: the freezer under the fridge door
         ft = z0 + COLUMN["freezer_top_m"] - 0.10

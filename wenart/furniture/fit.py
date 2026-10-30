@@ -1869,8 +1869,10 @@ def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run
     that is no corner, has no window, door or pass-through by it (``openings_behind``), no drawn wall cabinet over it
     (an added one stops at the column, 30 Oct 2026: ``_column_blocked``) and
     room for the units beside the sink and the hob (a wall end first, the longer run first): ``column`` = ``{"end",
-    "kinds", "top_m", "why"}`` (an oven tower, and a fridge when the kitchen has none: a French-door fridge in a run from
-    ``COLUMN["french_from_run_m"]``); with the ovens in the column the hob's run gets ``oven_in_column``; no end free and
+    "kinds", "top_m", "why", "trim_m"?}`` (an oven tower, and a fridge when the kitchen has no drawn or full-height one:
+    a French-door fridge in a run from ``COLUMN["french_from_run_m"]``; 30 Oct 2026, UL187: an added under-counter or
+    lone fridge moves into it, its run's fridge hints cleared (``fridge_moved``); a run end in a door swing stops
+    ``trim_m`` short of it, ``_swing_trim``); with the ovens in the column the hob's run gets ``oven_in_column``; no end free and
     no fridge in the kitchen: an under-counter fridge (``fridge_x_m``, ``fridge_why``) in the longest run. Per island
     ``seat_side`` (``back`` / ``front``: the bar stools' side, G3); per counter run ``windows_m`` (the windows and
     pass-throughs behind it, the run's frame: the utensil rail stays off them) and ``end_kinds`` (30 Oct 2026, UL155:
@@ -1888,8 +1890,15 @@ def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run
         by_room.setdefault((run.get("level_id"), run.get("room_id")), []).append(run)
     for (_lv, room_id), room_runs in sorted(by_room.items(), key=lambda kv: str(kv[0])):
         room_pieces = [p for p in pieces if p.get("room_id") == room_id and p.get("build", True) is not False]
-        has_fridge = any(p.get("type") == "fridge" for p in room_pieces) or any(
-            given(r["id"]).get("fridge_piece") for r in room_runs)
+        # 30 Oct 2026 (lesson UL187): the kitchen's full-size fridge. An under-counter fridge the completion built into a
+        # run, or a lone fridge column it stood at a run end, is ours to move: the tall-unit column takes the fridge
+        # (beside the oven tower) and the run's unit becomes a cupboard; a drawn fridge, or a full-height one standing
+        # on its own, keeps its place
+        movable = {str(given(r["id"]).get("fridge_piece")) for r in room_runs if given(r["id"]).get("fridge_piece")}
+        movable = {pid for pid in movable if any(p.get("id") == pid and p.get("source") != "from_documents"
+                                                 for p in room_pieces)}
+        has_fridge = any(p.get("type") == "fridge" and p.get("id") not in movable
+                         and (p.get("source") == "from_documents" or _fridge_full(p)) for p in room_pieces)
         for run in room_runs:                               # the windows behind a counter run, the stools' side
             c, rot, w, d = _run_axes(run)
             if run.get("type") == "kitchen_island":
@@ -1944,22 +1953,41 @@ def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run
                     # 30 Oct 2026 (UL147): an added wall cabinet over the end stops at the column instead; a column
                     # never stands in a door's swing or its strip (real04's only free run end: the drawn counter's end
                     # lay 0.19 m2 in the door swing of d_L-1_003)
-                    if openings_behind(building, col, ("window", "opening", "door")) or _column_blocked(pieces, col) \
-                            or _in_door_swing(building, col):
+                    if openings_behind(building, col, ("window", "opening", "door")) or _column_blocked(pieces, col):
                         continue
-                    key = (rank, 0 if end == "wall" else 1, -w, str(run["id"]), side)
+                    trim = 0.0
+                    if _in_door_swing(building, col):
+                        # 30 Oct 2026 (UL187, user: "maybe by shortening the table"): a run end in a door swing is a
+                        # drawing error the code may fix (CLAUDE.md: at most 0.5 m): the run stops short of the swing
+                        # and the column stands at its new end
+                        trim = _swing_trim(building, run, side, tw, w - KD.COLUMN["rest_min_m"], taken)
+                        if trim is None:
+                            continue
+                    key = (rank, 0 if end == "wall" else 1, trim > 0.0, -w, str(run["id"]), side)
                     if best is None or key < best[0]:
-                        best = (key, run, side, names, end)
+                        best = (key, run, side, names, end, trim)
         fridge_in_column = False
         if best is not None:
-            _key, run, side, names, end = best
+            _key, run, side, names, end, trim = best
             top = _ceiling_over(building, run)
             why = (f"a tall-unit column at the {end} end of {run['id']} ({', '.join(n.replace('_', ' ') for n in names)}"
-                   f"): the kitchen has room for it (K1, UL118)" + ("" if has_fridge else
-                                                                    "; the kitchen had no fridge"))
+                   f"): the kitchen has room for it (K1, UL118)" + ("" if has_fridge else (
+                       "; the kitchen's full-size fridge stands in it beside the oven tower, its under-counter or lone "
+                       "fridge moved there (UL187)" if movable else "; the kitchen had no fridge")))
+            if trim > 0.0:
+                why += (f"; the run stops {trim:.2f} m short of its drawn {side} end, which lay in a door swing (the "
+                        f"drawn footprint kept; UL187)")
             mine(run["id"])["column"] = {"end": side, "kinds": names, "why": why,
-                                         **({"top_m": top} if top is not None else {})}
+                                         **({"top_m": top} if top is not None else {}),
+                                         **({"trim_m": round(trim, 4)} if trim > 0.0 else {})}
             fridge_in_column = any(n.startswith("fridge") for n in names)
+            if fridge_in_column:
+                for r in room_runs:                         # UL187: one full-size fridge per kitchen
+                    rh = given(r["id"])
+                    if str(rh.get("fridge_piece")) in movable:
+                        mine(r["id"]).update(fridge_pos_m=None, fridge_x_m=None, fridge_column=False,
+                                             fridge_moved=(f"the fridge {rh['fridge_piece']} stands in the tall-unit "
+                                                           f"column of {run['id']} (UL187): its unit is a cupboard"))
             if "oven_tower" in names:
                 for r in room_runs:
                     rh = given(r["id"])
@@ -1972,7 +2000,7 @@ def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run
                 if top is not None:
                     mine(run["id"])["column"] = {"end": None, "kinds": [], "top_m": top,
                                                  "why": "the fridge column's fronts to the ceiling (K1)"}
-        if has_fridge or fridge_in_column or not counters:
+        if has_fridge or movable or fridge_in_column or not counters:
             continue
         # no fridge in the kitchen and no column end free: an under-counter fridge in the longest run (K1)
         for run in sorted(counters, key=lambda r: (-float(r["footprint"]["size"][0]), str(r["id"]))):
@@ -1995,6 +2023,46 @@ def kitchen_details_hints(building: dict, runs: list, pieces: list, hints_by_run
                 break
     for rid in [k for k, v in details.items() if not v]:
         del details[rid]
+
+
+# 30 Oct 2026 (lesson UL187): a fridge this tall is the kitchen's full-size fridge (an under-counter one is 0.82 m)
+FRIDGE_FULL_M = 1.50
+SWING_TRIM_MAX_M = 0.50          # CLAUDE.md: fixed equipment moves at most 0.5 m out of a door swing
+SWING_TRIM_STEP_M = 0.05
+
+
+def _fridge_full(piece: dict) -> bool:
+    """Whether a fridge piece is a full-size fridge (UL187): its height, or its model's, from ``FRIDGE_FULL_M``."""
+    h = piece.get("height")
+    if not isinstance(h, (int, float)):
+        asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+        bbox = asset.get("bbox_m")
+        h = bbox[2] if isinstance(bbox, list) and len(bbox) > 2 else None
+    return isinstance(h, (int, float)) and float(h) >= FRIDGE_FULL_M - 1e-9
+
+
+def _swing_trim(building: dict, run: dict, side: str, tw: float, room_m: float, taken: list) -> Optional[float]:
+    """UL187: how far a run's ``side`` end stops short (``SWING_TRIM_STEP_M`` steps up to ``SWING_TRIM_MAX_M``) so a
+    column of width ``tw`` at its new end stands clear of every door swing and strip of its room, the column and the
+    trim within ``room_m`` and ``COLUMN["clear_m"]`` off the taken spans; None when no such trim exists."""
+    from wenart.blender import kitchen_details as KD
+
+    c, rot, w, d = _run_axes(run)
+    k = 1
+    while k * SWING_TRIM_STEP_M <= SWING_TRIM_MAX_M + 1e-9:
+        t = k * SWING_TRIM_STEP_M
+        k += 1
+        if tw + t > room_m + 1e-9:
+            return None
+        lo, hi = (-w / 2.0 + t, -w / 2.0 + t + tw) if side == "left" else (w / 2.0 - t - tw, w / 2.0 - t)
+        if any(lo < t1 + KD.COLUMN["clear_m"] and hi > t0 - KD.COLUMN["clear_m"] for t0, t1, _k in taken):
+            return None
+        cx, cy = _to_world(c, rot, (lo + hi) / 2.0, 0.0)
+        col = {"id": f"{run['id']}#column", "type": "tall_cabinet", "level_id": run.get("level_id"),
+               "room_id": run.get("room_id"), "footprint": {"center": [cx, cy], "size": [tw, d], "rotation_deg": rot}}
+        if not _in_door_swing(building, col):
+            return round(t, 4)
+    return None
 
 
 def _opening_behind(building: dict, piece: dict) -> bool:
